@@ -136,7 +136,12 @@ body<=
            $ret .= "</td><td align='center'>";
            if ($mods{$id}) {
                my $num = $modcount{$id} || "0"; # relying on this to be <b>-wrapped
-               $ret .= BML::ml('.commlist.moderation.num2', {'aopts' => "href='$LJ::SITEROOT/community/moderate?authas=$user'", 'num' => $num});
+
+               # only show the items in queue if the community has moderated posting (number can be 0 then) or there are
+               # posts in the queue (for example after a switch from moderated posting to non-moderated posting)
+               my $comm = LJ::load_userid( $id );
+               $ret .= BML::ml('.commlist.moderation.num2', {'aopts' => "href='$LJ::SITEROOT/community/moderate?authas=$user'", 'num' => $num})
+                   if $comm->has_moderated_posting || $num;
            } else {
                $ret .= "&nbsp";
            }

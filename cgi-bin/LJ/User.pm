@@ -3571,25 +3571,11 @@ sub can_post_to {
 }
 
 
-sub is_closed_membership {
-    my $u = shift;
-
-    return $u->membership_level eq 'closed' ? 1 : 0;
-}
-
-
-sub is_moderated_membership {
-    my $u = shift;
-
-    return $u->membership_level eq 'moderated' ? 1 : 0;
-}
-
-
-sub is_open_membership {
-    my $u = shift;
-
-    return $u->membership_level eq 'open' ? 1 : 0;
-}
+# helper methods for checking some values about communities
+sub is_closed_membership    { $_[0]->membership_level eq 'closed' ? 1 : 0;    }
+sub is_moderated_membership { $_[0]->membership_level eq 'moderated' ? 1 : 0; }
+sub is_open_membership      { $_[0]->membership_level eq 'open' ? 1 : 0;      }
+sub has_moderated_posting   { $_[0]->prop( 'moderated' );                     }
 
 
 # returns an array of maintainer userids
