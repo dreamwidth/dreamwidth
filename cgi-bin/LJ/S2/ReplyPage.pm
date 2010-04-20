@@ -75,6 +75,7 @@ sub ReplyPage
     my $replyto = $s2entry;
     my $editid = $get->{edit} ? $get->{edit} : 0;
     my $parpost;
+    my $parentcomment;
 
     my $comment;
     my %comment_values;
@@ -129,13 +130,14 @@ sub ReplyPage
             $parpost = $db->selectrow_hashref($sql);
             last if $parpost;
         }
+        my $parentcomment = LJ::Comment->new( $u, jtalkid => $re_talkid );
         unless ($parpost and $parpost->{'state'} ne 'D') {
             # FIXME: This is a hack. See below...
 
             $opts->{status} = "404 Not Found";
             return "<p>This comment has been deleted; you cannot reply to it.</p>";
         }
-        if ($parpost->{'state'} eq 'S' && !LJ::Talk::can_unscreen($remote, $u, $s2entry->{'poster'}->{'user'}, undef)) {
+        if ( $parpost->{state} eq 'S' && !$parentcomment->visible_to( $remote ) ) {
             $opts->{'handler_return'} = 403;
             return;
         }

@@ -90,7 +90,7 @@ body<=
     {
         my $qparentid = $init->{'replyto'};
 
-        my $sql = "SELECT t.posterid, t.nodetype, t.nodeid AS 'itemid', ".
+        my $sql = "SELECT t.posterid, t.nodetype, t.jtalkid, t.nodeid AS 'itemid', ".
             "UNIX_TIMESTAMP()-UNIX_TIMESTAMP(t.datepost) AS 'secondsold', ".
             "t.state, l.anum FROM talk2 t, log2 l WHERE l.journalid=$u->{'userid'} AND ".
             "l.jitemid=t.nodeid AND t.journalid=$u->{'userid'} AND t.jtalkid=$qparentid";
@@ -184,9 +184,9 @@ body<=
         if $entry && $entry->is_suspended;
 
     # checked screened post
+    my $parentcomment = LJ::Comment->new( $u, jtalkid => $parpost->{jtalkid} );
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_screened'} p?>"
-        if $parpost->{'state'} eq "S"
-           && ! LJ::Talk::can_unscreen($remote, $u, $up, ($ur ? $ur->{'user'} : undef));
+        if $parpost->{'state'} eq "S" && !$parentcomment->visible_to( $remote );
 
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_deleted'} p?>"
         if $parpost->{'state'} eq "D";

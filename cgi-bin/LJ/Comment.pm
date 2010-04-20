@@ -929,9 +929,11 @@ sub visible_to {
 
     # screened comment
     return 0 if $self->is_screened &&
-                !( LJ::can_manage($u, $self->journal)           # owns the journal
-                   || LJ::u_equals($u, $self->poster)           # posted the comment
-                   || LJ::u_equals($u, $self->entry->poster )); # posted the entry
+                !( LJ::can_manage( $u, $self->journal )           # owns the journal
+                   || LJ::u_equals( $u, $self->poster )           # posted the comment
+                   || LJ::u_equals( $u, $self->entry->poster ) # posted the entry
+                   || ( $self->parent && LJ::u_equals( $u, $self->parent->poster ) && LJ::can_manage( $self->poster, $self->journal ) ) );
+                        # person this is in reply to, as long as this comment was by a moderator
 
     # comments from suspended users aren't visible
     return 0 if $self->poster && $self->poster->is_suspended;

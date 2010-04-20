@@ -333,10 +333,6 @@ sub can_unscreen {
     return LJ::Talk::can_screen(@_);
 }
 
-sub can_view_screened {
-    return LJ::Talk::can_delete(@_);
-}
-
 sub can_freeze {
     return LJ::Talk::can_screen(@_);
 }
@@ -962,11 +958,24 @@ sub load_comments
             # see if we should ideally show it or not.  even if it's
             # zero, we'll still show it if it has any children (but we won't show content)
             my $should_show = $post->{'state'} eq 'D' ? 0 : 1;
+            my $parenttalkid = $post->{parenttalkid};
             unless ($viewall) {
                 $should_show = 0 if
-                    $post->{'state'} eq "S" && ! ($remote && ($remote->{'userid'} == $uposterid ||
-                                                              $remote->{'userid'} == $post->{'posterid'} ||
-                                                              LJ::can_manage($remote, $u) ));
+                    # can view if not screened, or if screened and some conditions apply
+                    $post->{state} eq "S" &&
+                    !( $remote &&
+                        ( $remote->{userid} == $uposterid || # made in remote's journal
+                            $remote->{userid} == $post->{posterid} || # made by remote
+                            LJ::can_manage( $remote, $u ) || # made in a journal remote manages
+                            (
+                              # remote authored the parent, and this comment is by an admin
+                              exists $posts->{$parenttalkid} &&
+                              $posts->{$parenttalkid}->{posterid} &&
+                              $posts->{$parenttalkid}->{posterid} == $remote->{userid} &&
+                              LJ::can_manage( $post->{posterid}, $u )
+                            )
+                        )
+                    );
             }
             $post->{'_show'} = $should_show;
             $post_count += $should_show;
@@ -1189,6 +1198,7 @@ sub talkform {
     }
 
     my $pics = LJ::Talk::get_subjecticons();
+    my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
 
     # once we clean out talkpost.bml, this will need to be changed.
     BML::set_language_scope('/talkpost.bml');
@@ -1327,7 +1337,6 @@ sub talkform {
     } else { # if not edit
 
     if ($journalu->{'opt_whocanreply'} eq "all") {
-        my $entry = LJ::Entry->new($journalu, ditemid => $opts->{ditemid});
 
         if ($entry && $entry->security ne "public") {
             $ret .= "<tr valign='middle'>";
@@ -1760,9 +1769,9 @@ QQ
     $ret .= "</td><td style='width: 90%'>";
     $ret .= "<textarea class='textbox' rows='10' cols='75' wrap='soft' name='body' id='commenttext'>" . LJ::ehtml($form->{body}) . "</textarea><br />";
 
-    # if parent comment is screened, give option to unscreen it
+    # if parent comment is screened, and user can unscreen, give option to unscreen it
     # default is not to unscreen
-    if ( $parpost->{state} eq "S" ) {
+    if ( $parpost->{state} eq "S" && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ) {
         $ret .= "<label for='unscreen_parent'>$BML::ML{'.opt.unscreenparent'}</label>";
         $ret .= LJ::html_check(
                 {
@@ -3142,8 +3151,6 @@ sub init {
     }
 
     # If the reply is to a comment, check that it exists.
-    # if it's screened, check that the user has permission to
-    # reply and unscreen it
 
     my $parpost;
     my $partid = $form->{'parenttalkid'}+0;
@@ -3152,15 +3159,6 @@ sub init {
         $parpost = LJ::Talk::get_talk2_row($dbcr, $journalu->{userid}, $partid);
         unless ($parpost) {
             $bmlerr->("$SC.error.noparent");
-        }
-
-        # can't use $remote because we may get here
-        # with a reply from email. so use $up instead of $remote
-        # in the call below.
-
-        if ($parpost && $parpost->{'state'} eq "S" &&
-            !LJ::Talk::can_unscreen($up, $journalu, $init->{entryu}, $init->{entryu}{'user'})) {
-            $bmlerr->("$SC.error.screened");
         }
     }
     $init->{parpost} = $parpost;

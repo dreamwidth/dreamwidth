@@ -700,13 +700,10 @@ body<=
                     if ($bp) {
                         $ret .= "(<a href='$bp'>$T{'replythis'}</a>) ";
                     } else {
-                       if ($post->{state} eq 'S') {
-                           if ( LJ::Talk::can_unscreen( $remote, LJ::load_userid( $item->{ownerid} ), $item, $u ) ) {
-                               # if user can unscreen, they can reply, choosing whether to unscreen or not
-                               $ret .= "(" . LJ::make_qr_link($dtid, $post->{subject}, $T{replythis}, $replyurl) .  ") ";
-                           } else {
-                               $ret .= "($T{ 'screened' })";
-                           }
+                        if ( $post->{state} eq 'S' ) {
+                            # if the user can see the comment, they can also reply
+                            # if they can also unscreen, they are given the option to reply and unscreen
+                            $ret .= "(" . LJ::make_qr_link( $dtid, $post->{subject}, $T{replythis}, $replyurl ) .  ") ";
                        } else {
                            $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ") ";
                        }
@@ -745,9 +742,6 @@ body<=
                 $ret .= "<a name='$htmlid'></a><span id='$htmlid'><table ><tbody><tr>";
                 $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td>";
-                if ($post->{'state'} eq 'S') {
-                    $ret .= "($T{'screened'}) ";
-                }
                 if ($post->{'state'} eq 'F') {
                     $ret .= "($T{'frozen'}) ";
                 }
