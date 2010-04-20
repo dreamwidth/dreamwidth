@@ -7,11 +7,10 @@ require 'ljlib.pl';
 
 use LJ::Test qw(temp_user memcache_stress);
 
-#plan tests =>;
-plan skip_all => 'Fix this test! LJ/Event/Befriended.pm is missing';
+plan tests => 69;
 
 use LJ::NotificationMethod::Email;
-#use LJ::Event::Befriended;
+use LJ::Event::AddedToCircle;
 
 my $u;
 my $valid_u = sub {
@@ -33,7 +32,7 @@ sub LJ::send_mail {
     # check for correct fields
     is($opts->{to}, $u->email_raw, "Email address");
     is($opts->{from}, $LJ::BOGUS_EMAIL, "From address");
-    like($opts->{body}, qr/.+ has added you/i, "Body");
+    like($opts->{body}, qr/.+ has subscribed to you/i, "Body");
 
     return 1;
 }
@@ -101,9 +100,9 @@ sub run_tests{
 
         my $ev;
 
-        my $fromu = $u; # yeah, you can friend yourself
-        $ev = LJ::Event::Befriended->new($u, $fromu);
-        ok(ref $ev && ! $@, "created LJ::Event::Befriended object");
+        my $fromu = $u; # yeah, you can watch yourself
+        $ev = LJ::Event::AddedToCircle->new( $u, $fromu, 2 );
+        ok(ref $ev && ! $@, "created LJ::Event::AddedToCircle object");
 
         # failures
         eval { LJ::NotificationMethod::Email::notify() };
