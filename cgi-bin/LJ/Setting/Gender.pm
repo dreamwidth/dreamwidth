@@ -44,7 +44,7 @@ sub should_render {
 sub error_check {
     my ( $class, $u, $args ) = @_;
     my $val = $class->get_arg( $args, "gender" );
-    $class->errors( access => $class->ml( '.setting.gender.error.wrongtype' ) ) if $u->is_individual;
+    $class->errors( access => $class->ml( '.setting.gender.error.wrongtype' ) ) unless $u->is_individual;
     $class->errors( gender => $class->ml( '.setting.gender.error.invalid' ) ) unless $val =~ /^[UMFO]$/;
     return 1;
 }

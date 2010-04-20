@@ -6,22 +6,18 @@ use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Lang;
 
-#plan tests => ;
-plan skip_all => 'Fix this test! LJ/Setting/WebpageURL.pm is missing';
+plan tests => 9;
 
 package LJ;
 require 'htmlcontrols.pl';
 package main;
 
 
-#use LJ::Setting::WebpageURL;
 use LJ::Setting::Gender;
 use LJ::Setting::Name;
 
-my $webkey = LJ::Setting::WebpageURL->pkgkey;
 my $genkey = LJ::Setting::Gender->pkgkey;
 my $namekey = LJ::Setting::Name->pkgkey;
-is($webkey, "LJ__Setting__WebpageURL_", "key check");
 is($genkey, "LJ__Setting__Gender_",     "key check");
 
 my $u = LJ::load_user("system");
