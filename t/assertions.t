@@ -5,8 +5,7 @@ use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
-#plan tests => ;
-plan skip_all => 'fix this test!';
+plan tests => 13;
 
 ok(LJ::assert_is("foo", "foo"));
 ok(! eval { LJ::assert_is("foo", "bar") });
@@ -51,6 +50,6 @@ my $empty;
 LJ::load_userids_multiple([ $u->{userid} => \$empty ]);
 ok($empty == $u, "load multiple worked");
 
-my $bogus = { userid => $u->{userid} + 1 };
+my $bogus = bless { userid => $u->{userid} + 1 }, 'LJ::User';
 ok(! eval { LJ::load_userids_multiple([ $u->{userid} => \$bogus ]) });
 like($@, qr/AssertIs/, "failed on blowing away existing user record");
