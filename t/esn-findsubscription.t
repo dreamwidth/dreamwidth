@@ -8,11 +8,19 @@ use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);
 
+plan tests => 75;
+
 # some simple testing here. basically just make sure the has_subscription works right.
 
-plan skip_all => 'Fix this test!'; # there was a syntax error
-
-__END__
+sub test_subscription {
+    my $cv = shift;
+    my $u1 = temp_user();
+    my $u2 = temp_user();
+    $u1->add_edge( $u2, watch => { nonotify => 1 }); # make u1 watch u2
+    memcache_stress(sub {
+        $cv->($u1, $u2);
+    });
+}
 
 test_subscription(sub {
     my ($u1, $u2) = @_;
@@ -72,6 +80,7 @@ test_subscription(sub {
                                           journal => $u2,
                                           );
         ok(!$foundsubs, "Couldn't find bogus subscription");
+    }
 
     # look for more general matches
     {
@@ -92,7 +101,7 @@ test_subscription(sub {
     # add another subscription and do more searching
     {
         $subsc2 = $u1->subscribe(
-                                 event    => "Befriended",
+                                 event    => "AddedToCircle",
                                  method   => "Email",
                                  journal  => $u2,
                                  arg1     => 10,
@@ -101,7 +110,7 @@ test_subscription(sub {
 
         # search for second subscription
         $foundsubs = $u1->has_subscription(
-                                          event   => "Befriended",
+                                          event   => "AddedToCircle",
                                           method  => "Email",
                                           journal => $u2,
                                            arg1   => 10,
@@ -122,7 +131,7 @@ test_subscription(sub {
         is($foundsubs, 1, "Found one subscription");
 
         $foundsubs = $u1->has_subscription(
-                                           event   => "Befriended",
+                                           event   => "AddedToCircle",
                                            );
         is($foundsubs, 1, "Found one subscription");
 
@@ -152,7 +161,7 @@ test_subscription(sub {
     {
         $subsc2->delete;
         $foundsubs = $u1->has_subscription(
-                                          event   => "Befriended",
+                                          event   => "AddedToCircle",
                                           method  => "Email",
                                           journal => $u2,
                                           );
@@ -162,16 +171,16 @@ test_subscription(sub {
     # test search params
     {
         my $subsc3 = $u1->subscribe(
-                                    event     => "Befriended",
+                                    event     => "AddedToCircle",
                                     method    => "Email",
                                     journalid => $u2->{userid},
                                     );
         ok($subsc3, "Made subscription");
         ok(LJ::u_equals($subsc3->journal, $u2), "Subscribed to correct journal");
         my ($subsc3_f) = $u1->has_subscription(
-                                               event => "Befriended",
+                                               event => "AddedToCircle",
                                                );
-        is($subsc3_f->etypeid, "LJ::Event::Befriended"->etypeid, "Found subscription");
+        is($subsc3_f->etypeid, "LJ::Event::AddedToCircle"->etypeid, "Found subscription");
         $subsc3->delete;
 
         my $arg1 = 42;
@@ -189,13 +198,3 @@ test_subscription(sub {
         $subsc4->delete;
     }
 });
-
-sub test_subscription {
-    my $cv = shift;
-    my $u1 = temp_user();
-    my $u2 = temp_user();
-    LJ::add_friend($u1, $u2); # make u1 friend u2
-    memcache_stress(sub {
-        $cv->($u1, $u2);
-    });
-}
