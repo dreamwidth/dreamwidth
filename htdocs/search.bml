@@ -161,6 +161,10 @@ body<=
     foreach my $match ( @{ $result->{matches} } ) {
         my $mu = LJ::load_userid( $match->{journal_id} );
 
+        # Do not show filtered icon for other users
+        $match->{security} = 'access'
+            if $match->{security} eq 'usemask' && ! $mu->equals( $remote );
+
         my $icon = {
                 public => '',
                 private => "<img src='$LJ::IMGPREFIX/silk/entry/private.png'>",
