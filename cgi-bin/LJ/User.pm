@@ -7015,6 +7015,7 @@ sub ljuser
 
     if ( $type eq 'C' ) {
         if ( $u->get_cap( 'staff_headicon' ) ) {
+            return $make_tag->( "silk/${head_size}/comm_staff.png", $url, $head_size, '', $type_readable ) if $head_size;
             return $make_tag->( 'comm_staff.png', $url, 16, '', 'site community' );
         } else {
             return $make_tag->( "silk/${head_size}/community.png", $url, $head_size, '', $type_readable ) if $head_size;
