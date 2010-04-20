@@ -3403,9 +3403,13 @@ sub subscribe_interface {
 
             if ($is_tracking_category && ! $pending_sub->pending) {
                 my $subid = $pending_sub->id;
+                my $auth_token = $u->ajax_auth_token( "/__rpc_esn_subs",
+                    subid => $subid,
+                    action => 'delsub'
+                );
                 my $deletesub_url = $settings_page ? "$LJ::SITEROOT/manage/settings/?cat=notifications&deletesub_$subid=1" : "?deletesub_$subid=1";
                 $cat_html .= qq {
-                    <a href='$deletesub_url'><img src="$LJ::IMGPREFIX/portal/btn_del.gif" alt="Delete"/></a>
+                    <a href='$deletesub_url' class='delete-button' subid=$subid auth_token=$auth_token><img src="$LJ::IMGPREFIX/portal/btn_del.gif" alt="Delete"/></a>
                 };
             }
             my $always_checked = eval { "$evt_class"->always_checked; };

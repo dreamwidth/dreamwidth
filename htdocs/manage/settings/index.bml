@@ -420,6 +420,9 @@ body<=
 
     if ($given_cat eq "notifications") {
 
+    LJ::set_active_resource_group( 'jquery' );
+    LJ::need_res( { group => 'jquery' }, 'js/notifications.js' );
+
     $ret .= "<div id='settings_save'>";
     $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
     $ret .= "&nbsp;";
