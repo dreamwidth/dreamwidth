@@ -17,7 +17,7 @@ title=><?_ml .title _ml?>
 head<=
 <style>
     div.tagcloud a { text-decoration: none; }
-    li { padding-bottom: 3px; }
+    ul.contentlist li { padding-bottom: 3px; }
 </style>
 <=head
 
@@ -476,7 +476,7 @@ body<=
 
             if (@cl) {
                 $ret .= "<h1>" . BML::ml(".communities.header", {'interest' => $interest}) ."</h1>";
-                $ret .= "<p class='matches'><b>" . BML::ml('.matches2', {'num' => $count}) . "</b><ul>$list</ul></p>";
+                $ret .= "<p class='matches'><b>" . BML::ml('.matches2', {'num' => $count}) . "</b><ul class='contentlist'>$list</ul></p>";
             }
         }
 

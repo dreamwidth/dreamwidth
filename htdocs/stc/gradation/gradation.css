@@ -179,36 +179,37 @@ a:active,
  * Menu
  */
 
+/* Vertical */
+
 body {
     background-color: #222222;
     }
 
-#canvas {
+#canvas.vertical-nav {
     margin-left: 8.25em;
     min-height: 60em;
     background-color: #111111;
     padding-bottom: 1px; /* to ensure margin*/
     }
 
-#header-search { z-index: 100; }
+#canvas.vertical-nav #header-search { z-index: 100; }
 
-#menu { position: absolute;
+#canvas.vertical-nav #menu { position: absolute;
     top: 120px;
     left: 0;
     width: 8.25em;
     background-color: #222222;
     }
-#menu ul { margin-top: 3.5em; /*to clear search bar */
+#canvas.vertical-nav #menu ul { margin-top: 3.5em; /*to clear search bar */
         padding-left: 0;
         margin-left: 0;
         font-size: small;
         list-style: none;
         }
-#menu ul ul {
+#canvas.vertical-nav #menu ul ul {
             margin-top: 0;  /* undo the above*/
         }
-#menu li {  }
-#menu a {color: #ffffff;
+#canvas.vertical-nav #menu a {color: #ffffff;
     display: block;
     text-decoration: none; }
     #menu a:hover { background-color: #444444; }
@@ -217,6 +218,79 @@ body {
     #menu .subnav a {font-weight: normal;
         padding: .20em 5px .20em 1em; }
 
+/* Horizontal */
+
+#canvas.horizontal-nav { background-color: #111111; }
+
+#canvas.horizontal-nav #menu {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    background-color: #444;
+    height: 2.5em;
+    width: auto;
+    line-height: 2.5em;
+    clear: both;
+	padding-left: .5em;
+	z-index: 100;
+	border-top: 1px solid #000;
+	border-bottom: 1px solid #000;
+}
+#canvas.horizontal-nav #menu ul { margin-left: 0; 
+	padding-left: 0;
+	list-style: none; }
+#canvas.horizontal-nav #menu ul li {
+    float: left;
+    position: relative;
+    display: block;
+    height: 100%;
+    width: 0;
+}
+#canvas.horizontal-nav #menu ul > li {
+    width: auto;
+}
+#canvas.horizontal-nav #menu ul li a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    text-indent: 1.5em;
+    padding-right: 0.75em;
+}
+/* .hover is a class added by js for the currently hovered/focused menu */
+#canvas.horizontal-nav #menu ul li.hover a {
+    height: 100%;
+    background-color: #333;
+    color: #fff;
+    width: 100%;
+}
+#canvas.horizontal-nav #menu ul li.hover a:hover {
+    background-color: #222;
+    cursor: pointer;
+}
+#canvas.horizontal-nav #menu ul li ul {
+    display: none;
+}
+#canvas.horizontal-nav #menu ul li.hover ul {
+    display: block;
+    position: absolute;
+    top: 2.5em;
+    left: 0;
+    width: 14em;
+    background-color: #333;
+}
+#canvas.horizontal-nav #menu ul li ul li {
+    float: none;
+    width: 100%;
+}
+#canvas.horizontal-nav #menu ul li ul li a {
+    text-align: left;
+    display: block;
+    width: 100%;
+}
+
+/* This is to make the update page look decent in horizontal */
+
+#canvas.horizontal-nav #updateForm { margin: 0 auto; }
 
 /**
  * Footer
@@ -409,14 +483,12 @@ table#table_yourlayers td { padding: .15em .25em; }
     text-align: center;
 }
 .standout .standout-inner {
-    margin-top: 0.5em;
-    margin-left: auto;
-    margin-right: auto;
-}
-.standout .standout-inner, .standout-colors {
     background-color: #333333;
     color: #eee;
     border: 1px solid #555555;
+    margin-top: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
 }
 .standout .standout-inner td {
     padding: 0.5em;

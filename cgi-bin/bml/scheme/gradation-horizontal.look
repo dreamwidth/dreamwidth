@@ -1,4 +1,4 @@
-# Gradation Vertical Site Scheme
+# Gradation Horizontal Site Scheme
 #
 # Authors:
 #     Emily Ravenwood <ravenwood@alltrees.org>
@@ -43,6 +43,8 @@ head<=
         LJ::need_res( "stc/lj_base-app.css" );
         LJ::need_res( "stc/gradation/gradation.css" );
 
+        LJ::need_res( {group=>'jquery'}, "js/nav-jquery.js" );
+        LJ::need_res( {group=>'default'}, "js/nav.js" );
     _code?>
     <?_code LJ::res_includes(); _code?>
 
@@ -155,7 +157,7 @@ page<=
 <html xmlns="http://www.w3.org/1999/xhtml">
     <?head?>
     <body %%bodyopts%%>
-        <div id="canvas" class="vertical-nav">
+        <div id="canvas" class="horizontal-nav">
             <div id="page">
                 <div id="masthead">
                     <span id="logo">
