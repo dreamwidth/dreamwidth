@@ -27,15 +27,15 @@ sub new {
 sub as_string {
     my $self = shift;
 
-    return $self->event_journal->display_username . " has uploaded a new userpic.";
+    return $self->event_journal->display_username . " has uploaded a new icon.";
 }
 
 sub as_html {
     my $self = shift;
     my $up = $self->userpic;
-    return "(Deleted userpic)" unless $up && $up->valid;
+    return "(Deleted icon)" unless $up && $up->valid;
 
-    return $self->event_journal->ljuser_display . " has uploaded a new <a href='" . $up->url . "'>userpic</a>.";
+    return $self->event_journal->ljuser_display . " has uploaded a new <a href='" . $up->url . "'>icon</a>.";
 }
 
 sub as_email_string {
@@ -45,18 +45,27 @@ sub as_email_string {
     my $username = $u->user;
     my $poster = $self->userpic->owner->user;
     my $userpic = $self->userpic->url;
+    my $comment = LJ::strip_html( $self->userpic->comment ) || '(none)';
+    my $description = LJ::strip_html( $self->userpic->description ) || '(none)';
     my $journal_url = $self->userpic->owner->journal_base;
     my $icons_url = $self->userpic->owner->allpics_base;
     my $profile = $self->userpic->owner->profile_url;
 
+    LJ::text_out( \$comment );
+    LJ::text_out( \$description );
+
     my $email = "Hi $username,
 
-$poster has uploaded a new userpic! You can see it at:
+$poster has uploaded a new icon! You can see it at:
    $userpic
+
+Description: $description
+
+Comment: $comment
 
 You can:
 
-  - View all of $poster\'s userpics:
+  - View all of $poster\'s icons:
     $icons_url";
 
     unless ( $u->watches( $self->userpic->owner ) ) {
@@ -83,17 +92,25 @@ sub as_email_html {
     my $poster = $self->userpic->owner->ljuser_display;
     my $postername = $self->userpic->owner->user;
     my $userpic = $self->userpic->imgtag;
+    my $comment = LJ::ehtml( $self->userpic->comment ) || '(none)';
+    my $description = LJ::ehtml( $self->userpic->description ) || '(none)';
     my $journal_url = $self->userpic->owner->journal_base;
     my $icons_url = $self->userpic->owner->allpics_base;
     my $profile = $self->userpic->owner->profile_url;
 
+    LJ::text_out( \$comment );
+    LJ::text_out( \$description );
+
     my $email = "Hi $username,
 
-$poster has uploaded a new userpic:
+$poster has uploaded a new icon:
 <blockquote>$userpic</blockquote>
+<p>Description: $description</p>
+<p>Comment: $comment</p>
+
 You can:<ul>";
 
-    $email .= "<li><a href=\"$icons_url\">View all of $postername\'s userpics</a></li>";
+    $email .= "<li><a href=\"$icons_url\">View all of $postername\'s icons</a></li>";
     $email .= "<li><a href=\"$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe\">Add $postername to your reading list</a></li>"
         unless $u->watches( $self->userpic->owner );
     $email .= "<li><a href=\"$journal_url\">View their journal</a></li>";
@@ -124,7 +141,7 @@ sub content_summary {
 
 sub as_email_subject {
     my $self = shift;
-    return sprintf "%s uploaded a new userpic!", $self->event_journal->display_username;
+    return sprintf "%s uploaded a new icon!", $self->event_journal->display_username;
 }
 
 sub zero_journalid_subs_means { "watched" }
