@@ -76,14 +76,17 @@ body<=
             return LJ::bad_input( $ML{'.error.samedomainalias'} ) if $dom =~ /$LJ::DOMAIN\b/;
 
             if ( ( $dom_cap && !$dom ) || ( !$dom_cap && $POST{journaldomain_del} ) ) {
-                $dbh->do( "DELETE FROM domains WHERE userid=?", undef, $u->{userid} );
+                $dbh->do( "DELETE FROM domains WHERE userid=?", undef, $u->userid );
+                LJ::MemCache::delete( "domain:" . $u->prop( "journaldomain" ) );
             } else {
+                LJ::MemCache::delete( "domain:" . $u->prop( "journaldomain" ) );
                 $dbh->do("INSERT INTO domains VALUES (?, ?)", undef, $dom, $u->{'userid'});
                 if ($dbh->err) {
                     my $otherid = $dbh->selectrow_array("SELECT userid FROM domains WHERE domain=?",
                                                         undef, $dom);
                     return LJ::bad_input($ML{'.error.dupdomainalias'}) if $otherid != $u->{'userid'};
                 }
+                LJ::MemCache::set( "domain:" . $dom, $u->userid );
                 if ($u->{'journaldomain'}) {
                     $dbh->do("DELETE FROM domains WHERE userid=? AND domain <> ?",
                              undef, $u->{'userid'}, $dom);

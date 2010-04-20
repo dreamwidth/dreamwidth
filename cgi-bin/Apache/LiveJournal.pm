@@ -874,11 +874,15 @@ sub trans
         my $checkhost = lc($host);
         $checkhost =~ s/^www\.//i;
         $checkhost = $dbr->quote($checkhost);
-        # FIXME: memcache this?
-        my $user = $dbr->selectrow_array(qq{
-            SELECT u.user FROM useridmap u, domains d WHERE
-            u.userid=d.userid AND d.domain=$checkhost
-        });
+        my $key = "domain:$host";
+        my $userid = LJ::MemCache::get($key);
+        unless (defined $userid) {
+            my $db = LJ::get_db_reader();
+            ($userid) = $db->selectrow_array(qq{SELECT userid FROM domains WHERE domain=?}, undef, $host);
+            $userid ||= 0; ## we do cache negative results - if no user for such domain, set userid=0
+            LJ::MemCache::set($key, $userid);
+        }
+        my $user = LJ::load_userid($userid)->user;
         return 404 unless $user;
 
         my $view = $determine_view->($user, "other:$host$hostport", $uri);

@@ -43,12 +43,14 @@ sub save {
     $class->errors(domainname => "Can't point to a domain on this site") if $domainname =~ /$LJ::DOMAIN\b/;
 
     # Blank domain = delete mapping
-    if ($domainname eq "") {
-        $dbh->do("DELETE FROM domains WHERE userid=?", undef, $u->{userid});
+    if ( $domainname eq "" ) {
+        $dbh->do( "DELETE FROM domains WHERE userid=?", undef, $u->userid );
+        LJ::MemCache::delete( "domain:" . $u->prop( "journaldomain" ) );
         $u->set_prop("journaldomain", "");
     # If they're able to, change the mapping and update the userprop
-    } elsif ($has_cap) {
+    } elsif ( $has_cap ) {
         return if $domainname eq $u->prop('journaldomain');
+        LJ::MemCache::delete( "domain:" . $u->prop( "journaldomain" ) );
         $dbh->do("INSERT INTO domains VALUES (?, ?)", undef, $domainname, $u->{'userid'});
         if ($dbh->err) {
             my $otherid = $dbh->selectrow_array("SELECT userid FROM domains WHERE domain=?",
@@ -58,8 +60,9 @@ sub save {
                 return;
             }
         }
-        $u->set_prop("journaldomain", $domainname);
-        if ($u->prop('journaldomain')) {
+        $u->set_prop( "journaldomain", $domainname );
+        LJ::MemCache::set( "domain:$domainname", $u->userid );
+        if ( $u->prop( 'journaldomain' ) ) {
             $dbh->do("DELETE FROM domains WHERE userid=? AND domain <> ?",
                      undef, $u->{'userid'}, $domainname);
         }
