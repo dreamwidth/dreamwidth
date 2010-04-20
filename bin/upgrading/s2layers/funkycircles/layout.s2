@@ -69,8 +69,8 @@ set layout_authors = [ { "name" => "900degrees", "type" => "user" } ];
 
 set font_base = "Trebuchet MS, DejaVu Sans";
 set font_fallback = "sans-serif";
-set font_base_size = "15";
-set font_base_units = "px";
+set font_base_size = "1";
+set font_base_units = "em";
 set font_journal_title = "Impact, MgOpen Moderna";
 set font_journal_title_size = "2";
 set font_journal_title_units ="em";

@@ -209,14 +209,14 @@ set module_customtext_order = 20;
 
 set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
 set font_fallback = "sans-serif";
-set font_base_size = "0.625";
+set font_base_size = "1";
 set font_base_units = "em";
 
-set font_journal_title_size = "1.3";
+set font_journal_title_size = "1.25";
 set font_journal_title_units = "em";
 set font_journal_subtitle_size = "1";
 set font_journal_subtitle_units = "em";
-set font_entry_title_size = "1.6";
+set font_entry_title_size = "1.5";
 set font_entry_title_units = "em";
 
 function Page::print_default_stylesheet () {

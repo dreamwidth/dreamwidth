@@ -237,29 +237,29 @@ set num_items_reading = 10;
 
 set linklist_support = true;
 
-set font_base = "arial";
+set font_base = "Arial";
 set font_fallback = "sans-serif";
-set font_base_size  = "12";
-set font_base_units = "px";
+set font_base_size  = "1";
+set font_base_units = "em";
 
-set font_journal_title  = "arial";
-set font_journal_title_size  = "3";
+set font_journal_title  = "Arial";
+set font_journal_title_size  = "2.25";
 set font_journal_title_units = "em";
 
-set font_journal_subtitle  = "arial";
-set font_journal_subtitle_size  = "1.5";
+set font_journal_subtitle  = "Arial";
+set font_journal_subtitle_size  = "1.125";
 set font_journal_subtitle_units = "em";
 
-set font_module_text  = "arial";
+set font_module_text  = "Arial";
 set font_module_text_size  = "1";
 set font_module_text_units = "em";
 
-set font_module_heading  = "arial";
+set font_module_heading  = "Arial";
 set font_module_heading_size  = "1";
 set font_module_heading_units = "em";
 
-set font_entry_title  = "arial";
-set font_entry_title_size  = "1.667";
+set font_entry_title  = "Arial";
+set font_entry_title_size  = "1.25";
 set font_entry_title_units = "em";
 
 function Page::print_default_stylesheet()
