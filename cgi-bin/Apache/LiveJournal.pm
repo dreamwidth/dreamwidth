@@ -658,7 +658,7 @@ sub trans
         }
 
         if ($uuri eq "/__setdomsess") {
-            return redir($r, LJ::Session->setdomsess_handler($r));
+            return redir( $r, LJ::Session->setdomsess_handler );
         }
 
         if ($uuri =~ m#^/calendar(.*)#) {
@@ -1324,13 +1324,16 @@ sub journal_content
     if ($criterr) {
         $r->status_line("500 Invalid Cookies");
         $r->content_type("text/html");
+
         # reset all cookies
-        foreach my $dom (@LJ::COOKIE_DOMAIN_RESET) {
-            my $cookiestr = 'ljsession=';
-            $cookiestr .= '; expires=' . LJ::time_to_cookie(1);
-            $cookiestr .= $dom ? "; domain=$dom" : '';
-            $cookiestr .= '; path=/; HttpOnly';
-            BML::get_request()->err_headers_out->add('Set-Cookie' => $cookiestr);
+        foreach my $dom ( @LJ::COOKIE_DOMAIN_RESET ) {
+            DW::Request->get->add_cookie(
+                name     => 'ljsession',
+                expires  => LJ::time_to_cookie(1),
+                domain   => $dom ? $dom : undef,
+                path     => '/',
+                httponly => 1
+            );
         }
 
         $r->print("Invalid cookies.  Try <a href='$LJ::SITEROOT/logout.bml'>logging out</a> and then logging back in.\n");

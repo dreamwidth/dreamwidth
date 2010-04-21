@@ -83,6 +83,7 @@ my %modules = (
                "Compress::Zlib" => { 'deb' => 'libcompress-zlib-perl', },
                "Net::DNS" => { 'deb' => 'libnet-dns-perl', },
                "Template" => { 'deb' => 'libtemplate-perl', },
+               "CGI" => { deb => 'libcgi-pm-perl', },
                "Net::OpenID::Server" => {
                    opt => 'Required for OpenID server support.'
                },

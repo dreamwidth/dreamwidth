@@ -483,22 +483,22 @@ sub session_from_cookies {
     my $class = shift;
     my %getopts = @_;
 
-    # must be in web context
-    return undef unless eval { BML::get_request(); };
+    my $r = DW::Request->get;
+    return undef unless $r;
 
     my $sessobj;
 
     my $domain_cookie = LJ::Session->domain_cookie;
     if ($domain_cookie) {
         # journal domain
-        $sessobj = LJ::Session->session_from_domain_cookie(\%getopts, @{ $BML::COOKIE{"$domain_cookie\[\]"} || [] });
+        $sessobj = LJ::Session->session_from_domain_cookie(\%getopts, $r->cookie( $domain_cookie ) );
     } else {
         # this is the master cookie at "www.livejournal.com" or "livejournal.com";
-        my @cookies = @{ $BML::COOKIE{'ljmastersession[]'} || [] };
+        my @cookies = $r->cookie( 'ljmastersession' );
         # but support old clients who are just sending an "ljsession" cookie which they got
         # from ljprotocol's "generatesession" mode.
         unless (@cookies) {
-            @cookies = @{ $BML::COOKIE{'ljsession[]'} || [] };
+            @cookies = $r->cookie( 'ljsession' );
             $getopts{old_cookie} = 1;
         }
         $sessobj = LJ::Session->session_from_master_cookie(\%getopts, @cookies);
@@ -513,8 +513,10 @@ sub session_from_domain_cookie {
     my $class = shift;
     my $opts = ref $_[0] ? shift() : {};
 
+    my $r = DW::Request->get;
+
     # the logged-in cookie
-    my $li_cook = $BML::COOKIE{'ljloggedin'};
+    my $li_cook = $r->cookie( 'ljloggedin' );
     return undef unless $li_cook;
 
     my $no_session = sub {
@@ -552,6 +554,8 @@ sub session_from_master_cookie {
     my @cookies = grep { $_ } @_;
     return undef unless @cookies;
 
+    my $r = DW::Request->get;
+
     my $errs       = delete $opts->{errlist} || [];
     my $tried_fast = delete $opts->{tried_fast} || do { my $foo; \$foo; };
     my $ignore_ip  = delete $opts->{ignore_ip} ? 1 : 0;
@@ -565,7 +569,7 @@ sub session_from_master_cookie {
     # our return value
     my $sess;
 
-    my $li_cook = $BML::COOKIE{'ljloggedin'};
+    my $li_cook = $r->cookie( 'ljloggedin' );
 
   COOKIE:
     foreach my $sessdata (@cookies) {
@@ -716,19 +720,18 @@ sub session_length {
 
 # given an Apache $r object, returns the URL to go to after setting the domain cookie
 sub setdomsess_handler {
-    my ($class, $r) = @_;
+    my ($class) = @_;
 
-    # FIXME: ModPerl 2.0: best way to do this?  has to be a better way of handling incoming
-    # requests so that we don't have to parse input at all these stages...
-    Apache::BML::parse_inputs( $r );
-    my %get = %{ BML::get_GET() || {} };
+    my $r = DW::Request->get;
 
-    my $dest    = $get{'dest'};
-    my $domcook = $get{'k'};
-    my $cookie  = $get{'v'};
+    my $get = $r->get_args;
+
+    my $dest    = $get->{'dest'};
+    my $domcook = $get->{'k'};
+    my $cookie  = $get->{'v'};
 
     return "$LJ::SITEROOT" unless valid_destination($dest);
-    return $dest unless valid_domain_cookie($domcook, $cookie, $BML::COOKIE{'ljloggedin'});
+    return $dest unless valid_domain_cookie( $domcook, $cookie, $r->cookie( 'ljloggedin' ) );
 
     my $path = '/'; # By default cookie path is root
 
@@ -805,7 +808,7 @@ sub _memkey {
 sub set_cookie {
     my ($key, $value, %opts) = @_;
 
-    my $r = eval { BML::get_request() };
+    my $r = DW::Request->get;
     return unless $r;
 
     my $http_only = delete $opts{http_only};
@@ -816,8 +819,8 @@ sub set_cookie {
     croak("Invalid cookie options: " . join(", ", keys %opts)) if %opts;
 
     # Mac IE 5 can't handle HttpOnly, so filter it out
-    if ($http_only && ! $LJ::DEBUG{'no_mac_ie_httponly'}) {
-        my $ua = $r->headers_in->{'User-Agent'};
+    if ($http_only && ! $LJ::DEBUG{no_mac_ie_httponly}) {
+        my $ua = $r->header_in( 'User-Agent' );
         $http_only = 0 if $ua =~ /MSIE.+Mac_/;
     }
 
@@ -830,24 +833,26 @@ sub set_cookie {
         $expires = 5 if $delete;
     }
 
-    my $cookiestr = $key . '=' . $value;
-    $cookiestr .= '; expires=' . LJ::time_to_cookie($expires) if $expires;
-    $cookiestr .= '; domain=' . $domain if $domain;
-    $cookiestr .= '; path=' . $path if $path;
-    $cookiestr .= '; HttpOnly' if $http_only;
-
-    $r->err_headers_out->add('Set-Cookie' => $cookiestr);
+    $r->add_cookie(
+        name     => $key,
+        value    => $value,
+        expires  => $expires ? LJ::time_to_cookie($expires) : undef,
+        domain   => $domain || undef,
+        path     => $path || undef,
+        httponly => $http_only ? 1 : 0,
+    );
 
     # Backwards compatability for older browsers
     my @labels = split(/\./, $domain);
-    if ($domain && scalar @labels == 2 && ! $LJ::DEBUG{'no_extra_dot_cookie'}) {
-        my $cookiestr = $key . '=' . $value;
-        $cookiestr .= '; expires=' . LJ::time_to_cookie($expires) if $expires;
-        $cookiestr .= '; domain=.' . $domain;
-        $cookiestr .= '; path=' . $path if $path;
-        $cookiestr .= '; HttpOnly' if $http_only;
-
-        $r->err_headers_out->add('Set-Cookie' => $cookiestr);
+    if ($domain && scalar @labels == 2 && ! $LJ::DEBUG{no_extra_dot_cookie}) {
+        $r->add_cookie(
+            name     => $key,
+            value    => $value,
+            expires  => $expires ? LJ::time_to_cookie($expires) : undef,
+            domain   => $domain,
+            path     => $path || undef,
+            httponly => $http_only ? 1 : 0,
+        );
     }
 }
 

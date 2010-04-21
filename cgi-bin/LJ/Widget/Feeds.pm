@@ -23,9 +23,9 @@ sub render_body {
     my $class = shift;
     my %opts = @_;
 
+    my $r = DW::Request->get;
     my $remote = LJ::get_remote();
     my $get = $class->get_args;
-    my $cart = $get->{'cart'} || $BML::COOKIE{cart};
     my $body;
     $body .= "<h2 class='solid-neutral'>" . $class->ml('widget.feeds.title') . "</h2>";
     $body .= "<a href='$LJ::SITEROOT/syn/list' class='more-link'>" .

@@ -17,8 +17,10 @@
 #
 
 package DW::Request::Standard;
-
 use strict;
+use DW::Request::Base;
+use base 'DW::Request::Base';
+
 use Carp qw/ confess cluck /;
 use HTTP::Request;
 use HTTP::Response;
@@ -45,6 +47,7 @@ use fields (
 sub new {
     my DW::Request::Standard $self = $_[0];
     $self = fields::new( $self ) unless ref $self;
+    $self->SUPER::new;
 
     # setup object
     $self->{req}         = $_[1];
@@ -54,7 +57,7 @@ sub new {
     $self->{uri}         = $self->{req}->uri;
     $self->{notes}       = {};
     $self->{pnotes}      = {};
-    
+
     # now stick ourselves as the primary request ...
     unless ( $DW::Request::cur_req ) {
         $DW::Request::determined = 1;
@@ -178,9 +181,16 @@ sub header_out {
     }
 }
 
+# appends a value to a header
+sub header_out_add {
+    my DW::Request::Standard $self = $_[0];
+    return $self->{res}->push_header( $_[1] , $_[2] );
+}
+
 # this may not be precisely correct?  maybe we need to maintain our
 # own set of headers that are separate for errors... FIXME: investigate
 *err_header_out = \&header_out;
+*err_header_out_add = \&header_out_add;
 
 # returns the ip address of the connected person
 sub get_remote_ip {

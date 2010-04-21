@@ -392,7 +392,7 @@ sub ensure_cookie_value {
     my $class = shift;
     return unless LJ::is_web_context();
 
-    my $r = BML::get_request();
+    my $r = DW::Request->get;
     return unless $r;
     
     my ($uniq, $uniq_time, $uniq_extra) = $class->parts_from_cookie;
@@ -437,10 +437,13 @@ sub ensure_cookie_value {
     # set uniq cookies for all cookie_domains
     my @domains = ref $LJ::COOKIE_DOMAIN ? @$LJ::COOKIE_DOMAIN : ($LJ::COOKIE_DOMAIN);
     foreach my $dom (@domains) {
-        $r->err_headers_out->add("Set-Cookie" =>
-                                 "ljuniq=$new_cookie_value; " .
-                                 "expires=" . LJ::time_to_cookie($now + 86400*60) . "; " .
-                                 ($dom ? "domain=$dom; " : "") . "path=/");
+        $r->add_cookie(
+            name    => 'ljuniq',
+            value   => $new_cookie_value,
+            expires => '+60d',
+            domain  => $dom || undef,
+            path    => '/'
+        );
     }
 
     return;
@@ -468,14 +471,9 @@ sub parts_from_cookie {
     my $class = shift;
     return unless LJ::is_web_context();
 
-    my $r = BML::get_request();
-    my $cookieval = $r->headers_in->{"Cookie"};
+    my $r = DW::Request->get;
 
-    if ($cookieval =~ /\bljuniq\s*=\s*([a-zA-Z0-9]{15}):(\d+)([^;]+)/) {
-        return wantarray() ? ($1, $2, $3) : $1;
-    }
-
-    return;
+    return $class->parts_from_value( $r->cookie( 'ljuniq' ) );
 }
 
 # returns: (uniq_val, uniq_time, uniq_extra)

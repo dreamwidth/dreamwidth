@@ -235,13 +235,14 @@ _c?>
     };
     my $logout_remote = sub {
         $remote->kill_session if $remote;
-        foreach (qw(langpref BMLschemepref)) {
-            delete $COOKIE{$_} if $COOKIE{$_};
+        my $r = DW::Request->get;
+        foreach ( qw(langpref BMLschemepref) ) {
+            $r->delete_cookie( name => $_ ) if $r->cookie( $_ );
         }
-        $remote      = undef;
+        $remote  = undef;
         $cursess = undef;
-        LJ::set_remote(undef);
-        LJ::Hooks::run_hooks("post_logout");
+        LJ::set_remote( undef );
+        LJ::Hooks::run_hooks( "post_logout" );
     };
 
     if (LJ::did_post()) {

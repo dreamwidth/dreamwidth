@@ -1124,10 +1124,14 @@ sub sessions {
 
 sub _logout_common {
     my $u = shift;
+    my $r = DW::Request->get;
     LJ::Session->clear_master_cookie;
-    LJ::User->set_remote(undef);
-    delete $BML::COOKIE{'BMLschemepref'};
-    eval { BML::set_scheme(undef); };
+    LJ::User->set_remote( undef );
+    $r->delete_cookie(
+        name    => 'BMLschemepref',
+        domain  => ".$LJ::DOMAIN",
+    );
+    eval { BML::set_scheme( undef ); };
 }
 
 

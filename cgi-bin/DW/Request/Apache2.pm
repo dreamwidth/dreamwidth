@@ -16,8 +16,10 @@
 #
 
 package DW::Request::Apache2;
-
 use strict;
+use DW::Request::Base;
+use base 'DW::Request::Base';
+
 use Apache2::Const -compile => qw/ :common REDIRECT HTTP_NOT_MODIFIED /;
 use Apache2::Log ();
 use Apache2::Request;
@@ -41,6 +43,7 @@ use fields (
 sub new {
     my DW::Request::Apache2 $self = $_[0];
     $self = fields::new( $self ) unless ref $self;
+    $self->SUPER::new;
 
     # setup object
     $self->{r}         = $_[1];
@@ -158,6 +161,28 @@ sub header_out {
     } else {
         return $self->{r}->headers_out->{$_[1]} = $_[2];
     }
+}
+
+# appends a value to a header
+sub header_out_add {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r}->headers_out->add( $_[1] , $_[2] );
+}
+
+# searches for a given header and returns the value, or sets it
+sub err_header_out {
+    my DW::Request::Apache2 $self = $_[0];
+    if ( scalar( @_ ) == 2 ) {
+        return $self->{r}->err_headers_out->{$_[1]};
+    } else {
+        return $self->{r}->err_headers_out->{$_[1]} = $_[2];
+    }
+}
+
+# appends a value to a header
+sub err_header_out_add {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r}->err_headers_out->add( $_[1] , $_[2] );
 }
 
 # returns the ip address of the connected person

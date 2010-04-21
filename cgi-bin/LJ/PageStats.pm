@@ -83,14 +83,14 @@ sub should_render {
     my $ctx = $self->get_context;
     return 0 unless ($ctx && $ctx =~ /^(app|journal)$/);
 
-    my $r = $self->get_request or return 0;
+    my $r = DW::Request->get or return 0;
 
     # Make sure we don't exclude tracking from this page or path
     return 0 if grep { $r->uri =~ /$_/ } @{ $LJ::PAGESTATS_EXCLUDE{'uripath'} };
-    return 0 if grep { $r->notes('codepath') eq $_ } @{ $LJ::PAGESTATS_EXCLUDE{'codepath'} };
+    return 0 if grep { $r->note( 'codepath' ) eq $_ } @{ $LJ::PAGESTATS_EXCLUDE{'codepath'} };
 
     # See if their ljuniq cookie has the PageStats flag
-    if ($BML::COOKIE{'ljuniq'} =~ /[a-zA-Z0-9]{15}:\d+:pgstats([01])/) {
+    if ( $r->cookie( 'ljuniq' ) =~ /[a-zA-Z0-9]{15}:\d+:pgstats([01])/ ) {
         return 0 unless $1; # Don't serve PageStats if it is "pgstats:0"
     } else {
         return 0; # They don't have it set this request, but will for the next one

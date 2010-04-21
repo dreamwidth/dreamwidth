@@ -82,6 +82,11 @@ sub reset {
 
 These methods work on any DW::Request subclass.
 
+=head2 C<< $r->add_cookie( %args ) >>
+
+Sends this cookie to the browser.  %args should be the same arguments passed to CGI::Cookie->new, except without the
+initial hyphens CGI::Cookie asks you to use.  We don't use those.
+
 =head2 C<< $r->call_bml( $filename ) >>
 
     return $r->call_bml( $filename );
@@ -93,8 +98,8 @@ Must be called as above, with the result being directly returned.
 
     return $r->call_response_handler( \&handler );
 
-This will ensure the sub gets called at some point soon, don't expect it to be called instantly, but also don't expect this to be return immediately either.
-Must be called as above, with the result being directly returned.
+This will ensure the sub gets called at some point soon, don't expect it to be called instantly, but also don't expect
+this to be return immediately either.  Must be called as above, with the result being directly returned.
 
 =head2 C<< $r->content >>
 
@@ -104,6 +109,22 @@ This cannot be used with $r->post_args.
 =head2 C<< $r->content_type( [$content_type] ) >>
 
 Get or set the content type.
+
+=head2 C<< $r->cookie( $name ) >>
+
+Returns value(s) of cookie.
+
+=head2 C<< $r->delete_cookie( %args ) >>
+
+%args should be the same arguments passed to CGI::Cookie->new.
+
+=head2 C<< $r->err_header_out( $header[, $value] ) >>
+
+Sets or gets an response header that is also included on the error pages.
+
+=head2 C<< $r->err_header_out_add( $header, $value ) >>
+
+Adds another instance of a header for headers that allow multiple instances that is also included on the error pages.
 
 =head2 C<< $r->get_args >>
 
@@ -120,6 +141,10 @@ Sets or gets an request header.
 =head2 C<< $r->header_out( $header[, $value] ) >>
 
 Sets or gets an response header.
+
+=head2 C<< $r->header_out_add( $header, $value ) >>
+
+Adds another instance of a header for headers that allow multiple instances.
 
 =head2 C<< $r->meets_conditions >>
 

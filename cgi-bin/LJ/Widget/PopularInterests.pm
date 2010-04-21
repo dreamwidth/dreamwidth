@@ -26,7 +26,6 @@ sub render_body {
 
     my $remote = LJ::get_remote();
     my $get = $class->get_args;
-    my $cart = $get->{'cart'} || $BML::COOKIE{cart};
     my $body;
 
     my $rows = LJ::Stats::get_popular_interests();

@@ -73,7 +73,7 @@ sub _decide_language {
 
     # next is their cookie preference
     #FIXME: COOKIE!
-    #if ($BML::COOKIEIE{'langpref'} =~ m!^(\w{2,10})/(\d+)$!) {
+    #if ( $r->cookie('langpref') =~ m!^(\w{2,10})/(\d+)$! ) {
     #    if (exists $env->{"Langs-$1"}) {
     #        # FIXME: Probably should actually do this!!!
     #        # make sure the document says it was changed at least as new as when

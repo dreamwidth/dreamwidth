@@ -38,11 +38,13 @@ sub option {
     my ($class, $u, $errs, $args, %opts) = @_;
     my $key = $class->pkgkey;
 
+    my $r = DW::Request->get;
+
     my @bml_schemes = LJ::site_schemes();
     return "" unless @bml_schemes;
 
     my $show_hidden = $opts{getargs}->{view} && $opts{getargs}->{view} eq "schemes";
-    my $sitescheme = $class->get_arg($args, "sitescheme") || BML::get_scheme() || $BML::COOKIE{BMLschemepref} || $bml_schemes[0]->{scheme};
+    my $sitescheme = $class->get_arg( $args, "sitescheme" ) || BML::get_scheme() || $r->cookie( 'BMLschemepref' ) || $bml_schemes[0]->{scheme};
 
     my $ret;
     foreach my $scheme (@bml_schemes) {
@@ -91,6 +93,8 @@ sub save {
     my ($class, $u, $args) = @_;
     $class->error_check($u, $args);
 
+    my $r = DW::Request->get;
+
     my $val = my $cval = $class->get_arg($args, "sitescheme");
     return 1 unless $val;
     my @bml_schemes = LJ::site_schemes();
@@ -98,20 +102,24 @@ sub save {
     # don't set cookie for default scheme
     if ($val eq $bml_schemes[0]->{scheme} && !$LJ::SAVE_SCHEME_EXPLICITLY) {
         $cval = "";
-        delete $BML::COOKIE{BMLschemepref};
+        $r->delete_cookie( name => 'BMLschemepref' );
     }
 
+    my $expires = undef;
     if ($u) {
         # set a userprop to remember their schemepref
         $u->set_prop( schemepref => $val );
 
         # cookie expires when session expires
-        $cval = [ $val, $u->{_session}->{timeexpire} ]
+        $expires = $u->{_session}->{timeexpire}
             if $u->{_session}->{exptype} eq "long";
     }
 
-    # set cookie
-    $BML::COOKIE{BMLschemepref} = $cval if $cval;
+    $r->add_cookie(
+        name    => 'BMLschemepref',
+        value   => $cval,
+        expires => $expires,
+    ) if $cval;
     BML::set_scheme($val);
 
     return 1;
