@@ -81,11 +81,16 @@ body<=
             $props{$prop} = LJ::mysql_time($props{$prop}) if $p->{des} =~ /unix/i;
             
             # render xpost prop into human readable form
-            if ( $prop eq "xpost" ) {
-                my %external_accounts_map = map { $_->siteid => $_->servername }  DW::External::Account->get_external_accounts(  $entry->poster );
+            if ( $prop eq "xpost" || $prop eq "xpostdetail" ) {
+                my %external_accounts_map = map { $_->acctid => $_->servername } DW::External::Account->get_external_accounts( $entry->poster );
                 my %xpost_map = %{ DW::External::Account->xpost_string_to_hash( $props{$prop} ) };
-                $props{$prop} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => $xpost_map{$_}" } keys %xpost_map;
-                $p->{des} .= " (site name => itemid)";
+                if ( $prop eq "xpost" ) {
+                    $props{$prop} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => $xpost_map{$_}" } keys %xpost_map;
+                    $p->{des} .= " (site name => itemid)";
+                } else {
+                    $props{$prop} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => { $xpost_map{$_}->{itemid}, $xpost_map{$_}->{url} }" } keys %xpost_map;
+                    $p->{des} .= " (site name => { itemid, url })";
+                }
             }
 
             $extra = "<br /><small>$p->{des}</small>";
