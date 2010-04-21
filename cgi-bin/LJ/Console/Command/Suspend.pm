@@ -40,6 +40,7 @@ sub execute {
         unless $user && $reason && scalar(@args) == 0;
 
     my $remote = LJ::get_remote();
+    my $openid_only = $remote->has_priv( "suspend", "openid" ) && ! $remote->has_priv( "suspend", "*" );
 
     my $entry = LJ::Entry->new_from_url($user);
     if ($entry) {
@@ -47,7 +48,7 @@ sub execute {
         my $journal = $entry->journal;
 
         return $self->error("You are not authorized to suspend entries.")
-            if $remote->has_priv( "suspend", "openid" );
+            if $openid_only;
 
         return $self->error("Invalid entry.")
             unless $entry->valid;
@@ -72,7 +73,7 @@ sub execute {
     } else {
 
         return $self->error( "You are not authorized to suspend by email address." )
-            if $remote->has_priv( "suspend", "openid" );
+            if $openid_only;
 
         $self->info("Acting on users matching email $user");
 
@@ -115,7 +116,7 @@ sub execute {
             next;
         }
 
-        if ( $remote->has_priv( "suspend", "openid" ) && ! $u->is_identity ) {
+        if ( $openid_only && ! $u->is_identity ) {
             $self->error( "$username is not an identity account." );
             next;
         }
