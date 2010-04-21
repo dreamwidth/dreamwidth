@@ -8,8 +8,7 @@ use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);
 
-#plan tests => 4;
-plan skip_all => 'Fix this test!';
+plan tests => 4;
 
 my $u = temp_user();
 ok($u, "got a user");

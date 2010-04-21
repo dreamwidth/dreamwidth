@@ -387,7 +387,7 @@ sub t_enter_comment {
                                  $entry->journal,
                                  $commentref,
                                  {talkid => $parenttalkid, state => 'A'},
-                                 {itemid => $jitemid, state => 'A'},
+                                 {itemid => $jitemid, state => 'A', opt_noemail => 1},
                                  \$err,
                                  );
 
