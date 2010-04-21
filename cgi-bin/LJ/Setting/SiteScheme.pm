@@ -119,6 +119,7 @@ sub save {
         name    => 'BMLschemepref',
         value   => $cval,
         expires => $expires,
+        domain  => ".$LJ::DOMAIN",
     ) if $cval;
     BML::set_scheme($val);
 
