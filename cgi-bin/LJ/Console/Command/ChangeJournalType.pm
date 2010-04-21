@@ -32,7 +32,7 @@ sub usage { '<journal> <type> <owner> [force]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return ( $remote && $remote->has_priv( "changejournaltype" ) ) || $LJ::IS_DEV_SERVER;
+    return ( $remote && $remote->has_priv( "changejournaltype" ) );
 }
 
 sub execute {
@@ -110,14 +110,12 @@ sub execute {
     }
 
     #############################
-    # delete friend-ofs if we're changing to a person account. otherwise
+    # delete trusted-bys if we're changing to a person account. otherwise
     # the owner can log in and read those users' entries.
-    if ($type eq "person") {
-        my @ids = $u->friendof_uids;
-        $dbh->do("DELETE FROM friends WHERE friendid=?", undef, $u->id);
-
-        LJ::memcache_kill($_, "friends") foreach @ids;
-        LJ::memcache_kill($u, "friendofs");
+    if ( $type eq "person" ) {
+        foreach ( $u->trusted_by_users ) {
+            $_->remove_edge( $u, trust => { nonotify => 1 } ) ;
+        }
     }
 
     #############################

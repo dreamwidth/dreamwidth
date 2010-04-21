@@ -403,6 +403,17 @@ sub trusted_users {
 *LJ::User::trusted_users = \&trusted_users;
 
 
+# return users that trust you
+sub trusted_by_users {
+    my $u = $_[0];
+    my @trustids = $u->trusted_by_userids;
+    my $users = LJ::load_userids( @trustids );
+    return values %$users if wantarray;
+    return $users;
+}
+*LJ::User::trusted_by_users = \&trusted_by_users;
+
+
 # return users you watch
 sub watched_users {
     my $u = shift;
