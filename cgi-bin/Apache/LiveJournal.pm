@@ -445,13 +445,6 @@ sub trans
         }
     }
 
-    # now we know that the request is going to succeed, so do some checking if they have a defined
-    # referer.  clients and such don't, so ignore them.
-    my $referer = $r->headers_in->{"Referer"};
-    if ($referer && $r->method eq 'POST' && !LJ::check_referer('', $referer)) {
-       $r->log_error("REFERER WARNING: POST to $uri from $referer");
-    }
-
     my %GET = LJ::parse_args( $r->args );
 
     if ($LJ::IS_DEV_SERVER && $GET{'as'} =~ /^\w{1,25}$/) {
