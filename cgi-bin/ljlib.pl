@@ -117,7 +117,7 @@ sub END { LJ::end_request(); }
                     "s2stylelayers2", "s2compiled2", "userlog",
                     "logtags", "logtagsrecent", "logkwsum",
                     "recentactions", "usertags", "pendcomments",
-                    "loginlog", "active_user", "userblobcache",
+                    "loginlog", "active_user",
                     "notifyqueue", "cprod", "blobcache",
                     "jabroster", "jablastseen", "random_user_set",
                     "poll2", "pollquestion2", "pollitem2",

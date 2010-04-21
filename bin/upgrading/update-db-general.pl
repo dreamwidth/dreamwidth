@@ -881,6 +881,7 @@ register_tabledrop("schools");
 register_tabledrop("schools_attended");
 register_tabledrop("schools_pending");
 register_tabledrop("user_schools");
+register_tabledrop("userblobcache");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -2023,17 +2024,6 @@ CREATE TABLE loginlog (
     sessid    MEDIUMINT UNSIGNED NOT NULL,
     ip        VARCHAR(15),
     ua        VARCHAR(100)
-)
-EOC
-
-register_tablecreate("userblobcache", <<'EOC');
-CREATE TABLE userblobcache (
-    userid     INT UNSIGNED NOT NULL,
-    bckey      VARCHAR(60) NOT NULL,
-    PRIMARY KEY (userid, bckey),
-    timeexpire  INT UNSIGNED NOT NULL,
-    INDEX (timeexpire),
-    value    MEDIUMBLOB
 )
 EOC
 

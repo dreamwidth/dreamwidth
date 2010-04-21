@@ -834,7 +834,6 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 's2stylelayers2');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'sessions_data');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'userbio');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'userblobcache');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global table for persistent queues.', '0', 'off', NULL, 'persistent_queue');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global, indexed.', '0', 'off', NULL, 'userprop');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global, not indexed.', '0', 'off', NULL, 'userproplite');
