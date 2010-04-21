@@ -109,7 +109,7 @@ body<=
 
             next unless $given_user;
 
-            my $target = LJ::load_user($given_user);
+            my $target = LJ::load_user_or_identity( $given_user );
             unless ($target) {
                 push @add_errors, BML::ml( '.error.nouser',
                                            { user => $given_user } );
@@ -132,10 +132,10 @@ body<=
                 next;
             }
 
-            unless ( $target->is_person ) {
-                push @add_errors, BML::ml( '.error.invaliduser',
+            unless ( $target->is_individual ) {
+                push @add_errors, BML::ml( '.error.invaliduser2',
                                            { user => $target_disp,
-                                             type => $target->{'journaltype'} } );
+                                             type => $target->journaltype_readable } );
                 next;
             }
 

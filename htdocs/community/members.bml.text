@@ -23,7 +23,7 @@
 
 .error.alreadysent=[[user]] could not be added because they were already sent a confirmation email on <i>[[datetime]]</i>.  Please wait for them to respond.
 
-.error.invaliduser=Cannot add community or syndicated account: [[user]]
+.error.invaliduser2=Cannot add [[type]] account: [[user]]
 
 .error.isminor=Sorry, but [[user]] cannot be invited to this community because they do not have a registered birthday that is at least 18 years old.
 
