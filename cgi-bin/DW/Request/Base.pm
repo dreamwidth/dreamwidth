@@ -47,11 +47,10 @@ sub add_cookie {
     confess "Must provide name" unless $args{name};
     confess "Must provide value (try delete_cookie if you really mean this)" unless exists $args{value};
 
-    $args{domain} ||= ".$LJ::DOMAIN";
-
     # extraneous parenthesis inside map {} needed to force BLOCK mode map
     my $cookie = CGI::Cookie->new( map { ( "-$_" => $args{$_} ) } keys %args );
     $self->err_header_out_add( 'Set-Cookie' => $cookie );
+
     return $cookie;
 }
 
@@ -63,7 +62,6 @@ sub delete_cookie {
 
     $args{value}    = '';
     $args{expires}  = "-1d";
-    $args{domain} ||= ".$LJ::DOMAIN";
 
     return $self->add_cookie( %args );
 }

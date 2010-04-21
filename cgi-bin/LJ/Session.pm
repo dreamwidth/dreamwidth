@@ -491,7 +491,7 @@ sub session_from_cookies {
     my $domain_cookie = LJ::Session->domain_cookie;
     if ($domain_cookie) {
         # journal domain
-        $sessobj = LJ::Session->session_from_domain_cookie(\%getopts, $r->cookie( $domain_cookie ) );
+        $sessobj = LJ::Session->session_from_domain_cookie( \%getopts, $r->cookie( $domain_cookie ) );
     } else {
         # this is the master cookie at "www.livejournal.com" or "livejournal.com";
         my @cookies = $r->cookie( 'ljmastersession' );
@@ -521,10 +521,11 @@ sub session_from_domain_cookie {
 
     my $no_session = sub {
         my $reason = shift;
+        warn "No session found: $reason\n" if $LJ::IS_DEV_SERVER;
+
         my $rr = $opts->{redirect_ref};
-        if ($rr) {
-            $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(_current_url());
-        }
+        $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(_current_url()) if $rr;
+
         return undef;
     };
 
@@ -535,8 +536,7 @@ sub session_from_domain_cookie {
 
     foreach my $cookie (@cookies) {
         my $sess = valid_domain_cookie($domcook, $cookie, $li_cook);
-        next unless $sess;
-        return $sess;
+        return $sess if $sess;
     }
 
     return $no_session->("no valid cookie");
@@ -886,6 +886,8 @@ sub valid_domain_cookie {
 
     my $not_valid = sub {
         my $reason = shift;
+        warn "Invalid domain cookie: $reason\n" if $LJ::IS_DEV_SERVER;
+
         return undef;
     };
 
