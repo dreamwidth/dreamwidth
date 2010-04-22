@@ -63,15 +63,13 @@ LJUserCommand.Execute=function() {
             data.ljuser = data.ljuser.replace(/<\/span>/,'</div>');
             UserTagCache[username + "_" + site] = data.ljuser;
 
-            FCK.InsertHtml(data.ljuser);
-            FCK.InsertHtml('&nbsp;')
+            FCK.InsertHtml(data.ljuser + "&nbsp;");
             if (selection != '') FCKSelection.Collapse();
             FCK.Focus();
         }
     
         if ( UserTagCache[postData.username+"_"+postData.site] ) {
-            FCK.InsertHtml(UserTagCache[postData.username+"_"+postData.site]);
-            FCK.InsertHtml('&nbsp;')
+            FCK.InsertHtml(UserTagCache[postData.username+"_"+postData.site] + "&nbsp;");
             if (selection != '') FCKSelection.Collapse();
             FCK.Focus();
         } else {
