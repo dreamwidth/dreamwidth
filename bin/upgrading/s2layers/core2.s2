@@ -596,7 +596,7 @@ class Page
     and DayPage to change how entries display.";
 
     function builtin get_latest_month() : YearMonth
-    "Returns information about the latest month the user posted (or the current month, if no posts), so that the page may include a mini-calendar or similar features.";
+    "Returns information about the latest month the user posted (or the current month, if no entries), so that the page may include a mini-calendar or similar features.";
 
     function builtin visible_tag_list() : TagDetail[]
     "Returns an array of tags that the logged in user can see for the journal being viewed.";
@@ -781,7 +781,7 @@ class YearPage extends Page
 }
 
 class MonthDay extends YearDay
-"Summaries of posts on a given day on the [class[MonthPage]]."
+"Summaries of entries on a given day on the [class[MonthPage]]."
 {
     var bool has_entries "True if there are entries on this day.";
     var Entry[] entries "Only populated on the month view.  Entry text not present.";
@@ -799,7 +799,7 @@ class MonthEntryInfo
 }
 
 class MonthPage extends Page
-"A page which contains a list of posts made in that month"
+"A page which contains a list of entries made in that month"
 {
     var Date date "Date of this month, with day of zero.";
     var MonthDay[] days "One entry for each day of the month.";
@@ -1901,7 +1901,7 @@ property string text_view_recent {
     des = "Text used to link to the 'Recent Entries' view";
     maxlength = 40;
     "size" = 15;
-    example = "Recent Posts";
+    example = "Recent Entries";
 }
 property string text_view_recent_tagged {
     des = "Text used to link to a tag-filtered version of the 'Recent Entries' view";
@@ -3779,7 +3779,7 @@ function print_module_calendar() {
     }
     else {
         open_module("calendar", $mon->month_format("", true), "");
-        println """<table summary="Monthly calendar with links to each day's posts">""";
+        println """<table summary="Monthly calendar with links to each day's entries">""";
 
         println "<tr>";
         foreach var int d (weekdays()) {
@@ -4788,7 +4788,7 @@ function YearPage::print_month(YearMonth m) {
                 </div><!-- header -->
                 <div class="contents">
                     <div class="inner">
-                        <table summary="Monthly calendar with links to each day's posts" class="month" cellspacing="0" cellpadding="0">
+                        <table summary="Monthly calendar with links to each day's entries" class="month" cellspacing="0" cellpadding="0">
                             <caption>$month_label</caption>
                             <thead>
                                 <tr>""";
