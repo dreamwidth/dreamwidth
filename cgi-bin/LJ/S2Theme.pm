@@ -58,6 +58,7 @@ sub default_theme {
         easyread => 'easyread/green',
         fluidmeasure => 'fluidmeasure/spice',
         funkycircles => 'funkycircles/darkpurple',
+        modular => 'modular/mediterraneanpeach',
         negatives => 'negatives/black',
         nouveauoleanders => 'nouveauoleanders/sienna',
         refriedtablet => 'refriedtablet/refriedclassic',

@@ -1,0 +1,423 @@
+layerinfo type = "layout";
+layerinfo name = "Modular";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "modular/layout";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+ 
+##===============================
+##Layout
+##===============================
+
+set layout_type = "two-columns-left";
+
+##===============================
+## Userpic
+##===============================
+
+propgroup presentation_child {
+    property use userpics_position;
+}
+
+set userpics_position = "right";
+
+##===============================
+## Navigation Module
+##===============================
+
+    property string module_navlinks_section_override {
+       values = "none|(none)|header|Header|one|Group One|two|Group Two";
+       grouped = 1;
+       }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "header";
+
+##===============================
+##Fonts
+##===============================
+
+set font_base = "Verdana, Helvetica";
+set font_fallback = "sans-serif";
+set font_journal_title = "Century Gothic, Verdana, sans-serif";
+
+
+# Give a title to the navlinks module
+function print_module_navlinks() {
+    var Page p = get_page();
+    var string title = "Navigation";
+    open_module("navlinks", "$title", "");
+    var string[] links = [];
+    foreach var string k ($p.views_order) {
+        var string css = """ class="$k" """;
+        if ($p.view == $k) { $css = """ class="current $k" """; }
+        $links[size $links] = """<a href="$p.view_url{$k}"$css>""" + lang_viewname($k) + """</a>""";
+    }
+    print_module_list($links);
+    close_module();
+}
+
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_module_section("header");
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+                    <div id="secondary"><div class="inner">
+                        """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+    """;
+    
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+
+function print_stylesheet () {
+
+var string userpic_css = "";
+    if ($*userpics_position == "right") {
+        $userpic_css = ".entry .userpic,
+        .comment .userpic { float: right; }";
+    }
+    else {
+        $userpic_css = ".entry .userpic,
+        .comment .userpic { float: left;
+            margin-left: 0 !important; }
+
+        .entry .header,
+        .comment .header { text-align: right; }
+        .entry-title,
+        .comment-title { text-align: left; }";
+    }
+
+var string navlinks_css = "";
+    if ($*module_navlinks_section == "header") {
+        $navlinks_css = ".module-navlinks { position: absolute; 
+                top: 1.75em; 
+                right: 2em;
+                border: none;
+                background-color: transparent;
+                }
+            .module-navlinks li { display: inline;
+                padding-left: .5em;
+                border-left: 1px solid $*color_page_title;
+                }
+            .module-navlinks ul > li:first-child { border-left: none; }
+            .module-navlinks .module-header { display: none; }
+            .module-navlinks a { color: $*color_page_title; }
+            #header { padding-top: 1.5em; }";
+    }
+    else {
+        $navlinks_css = "";
+    }
+
+"""
+
+/* Modular  */
+
+blockquote { padding: 1em 1em .5em 2em;
+    font-style: italic;  } 
+blockquote > p:first-child { margin-top: 0; }
+dl dt { font-weight: bold; }
+
+h1, h2, h3, h4,
+.comment-title { font-family: $*font_journal_title;
+    font-weight: normal;
+    padding-left: .25em;
+    padding-right: .25em;
+    }
+
+.entry-title a,
+.comment-title a { text-decoration: none; }
+
+a:hover { text-decoration: none; }
+
+#header,
+#footer,
+.navigation ul,
+.entry,
+.comment,
+.module,
+.year .month,
+#archive-month .month,
+.day .day-date,
+.bottomcomment,
+.tags-container,
+table.talkform,
+.comment-pages { border-radius: 1em;
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    -khtml-border-radius: 1em;
+    }
+
+.entry .header,
+.comment .header,
+.module-header,
+.month .header { border-radius: 1em 1em 0 0;
+    -moz-border-radius: 1em 1em 0 0;
+    -webkit-border-radius: 1em 1em 0 0;
+    -khtml-border-radius: 1em 1em 0 0;
+    }
+
+body { margin: 0; }
+
+#canvas { position: relative;
+    margin: 1em 2%;
+    padding: 1px;
+    }
+
+/* Header-Footer */
+
+#header,
+#footer { margin: 1em;
+    border: 1px solid $*color_page_border;
+    }
+
+/* Content */
+
+.navigation ul,
+.day .day-date,
+.bottomcomment,
+.tags-container,
+table.talkform,
+.comment-pages { background-color: $*color_entry_background;
+    border: 1px solid $*color_page_border; 
+    padding: .5em;
+    }
+
+.navigation { text-align: center; }
+
+.bottomcomment { padding: 0 .25em .25em .25em;
+    margin-top: 1em;
+    }
+
+.tags-container { padding: .5em 1em; }
+
+table.talkform { padding: 1em;
+    width: 100%; 
+    }
+
+.topnav ul { margin-bottom: 1.5em; }
+
+#primary > .inner:first-child { padding: 0 .5em; }
+
+.two-columns-left #content,
+.three-columns-left #content { margin-right: .5em; }
+
+.two-columns-right #content,
+.three-columns-right #content { margin-left: .5em; }
+
+
+/* Entries */
+
+.entry { margin: 1em 0 1.5em 0; }
+
+.entry .contents,
+.comment .contents { padding: .5em 1em; }
+
+.entry .header .datetime,
+.entry .metadata,
+.entry .footer .inner { font-size: small; }
+
+.entry .header { background-color: $*color_entry_title_background;
+    padding: 1px .5em .5em .5em;
+    }
+
+.entry .header .datetime { color: $*color_entry_title; }
+.entry .header .datetime a { color: $*color_entry_title; }
+
+$userpic_css 
+
+.entry .userpic { 
+    margin: -2em 10px .5em 10px;
+    padding: 0 8px 8px 8px;
+    background-color: $*color_entry_title_background;
+    }
+
+.page-recent .entry .userpic,
+.page-day .entry .userpic { margin-top: -2.5em; }
+
+.entry-content { margin-top: 1em; }
+
+.entry .metadata { font-style: italic;
+    margin-bottom: -1.5em;
+    }
+
+.entry .footer,
+.comment .footer { padding: .5em .5em 1em .5em;
+    clear: both;
+    }
+
+.entry .tag { margin-bottom: .5em; }
+
+ul.entry-management-links,
+.comment-management-links { float: left;
+    margin-top: .5em;
+    margin-bottom: .5em;
+    }
+
+ul.entry-interaction-links,
+.comment-interaction-links { text-align: right; 
+    margin-right: .5em;
+    margin-top: .5em;
+    margin-bottom: .5em;
+    }
+
+/* Comments */
+
+.comment-pages { margin: 1em 0;
+    text-align: center;
+    }
+
+.comment-thread { margin-left: 1.5em; }
+.comment-depth-1 { margin-left: 0; }
+
+.comment { border-color: $*color_entry_border; 
+    border-width: 1px;
+    border-style: solid;
+    background-color: $*color_entry_background;
+    min-width: 12em;
+    }
+
+.comment .header { background-color: $*color_comment_title_background;
+    padding: .25em .5em;
+    }
+
+.comment-title a { color: $*color_entry_title; }
+
+.comment .userpic {
+    margin: -1.5em 10px .5em 10px;
+    padding: 0 5px 5px 5px;
+    background-color: $*color_entry_title_background;
+    }
+
+.poster-ip { font-size: small;
+    font-style: italic;
+    }
+
+.comment-content { margin-top: 1em; }
+
+.multiform-checkbox { clear: both;
+    display: block;
+    }
+
+.partial .comment { padding: .25em .5em; }
+.partial .comment-title { display: inline;
+    background-color: transparent;
+    }
+.partial .comment-title a {color: $*color_page_text; }
+
+#qrformdiv { clear: both;
+    margin: .5em; }
+
+/* Archives */
+
+.year .month,
+#archive-month .month { background-color: $*color_entry_background;
+    border: 1px solid $*color_entry_border;
+    margin-bottom: 2em;
+    }
+
+.month .contents { padding: 1em .5em 0 .5em; }
+.month .footer { padding: 0 .5em 1em .5em;
+    }
+
+.month .header { background-color: $*color_entry_title_background; 
+    color: $*color_entry_title;
+    padding: 1px .25em;
+    }
+
+table.month td,
+table.month th { vertical-align: top;
+    padding: .25em .5em;
+    }
+
+table.month caption { color: $*color_entry_background; }
+
+#archive-month .month { padding: 0 1em; }
+
+#archive-month .entry-title { font-weight: bold; }
+
+/* Sidebars */
+
+.two-columns-left #tertiary .module,
+.two-columns-right #tertiary .module { margin: 1em 1em 1em 0; }
+
+.module { margin: 0 0 1.5em 0; }
+
+.module-header { font-size: medium;
+    padding: .25em .5em;
+    margin: 0;
+    }
+.module-header a { color: $*color_module_title; }
+
+.module-content { padding: .5em; }
+
+.module-content ul,
+.module-list,
+.module-credit dl { list-style: none;
+    margin: 0; padding: 0;
+    }
+
+.module-content ul ul { margin-left: 1em; }
+
+.module-content > ul:first-child { margin-top: -.5em; }
+
+ul.userlite-interaction-links { margin-top: .5em; }
+
+.module-userprofile .module-content { text-align: center; }
+
+.module-navlinks a.current { font-weight: bold; }
+
+$navlinks_css
+
+""";
+}

@@ -46,6 +46,9 @@ fluidmeasure/themes     theme+                      fluidmeasure/layout
 modish/layout           layout(core2base/layout)    core2
 modish/themes           theme+          modish/layout
 
+modular/layout           layout(core2base/layout)    core2
+modular/themes           theme+                      modular/layout
+
 negatives/layout        layout          core2
 negatives/themes        theme+          negatives/layout
 
