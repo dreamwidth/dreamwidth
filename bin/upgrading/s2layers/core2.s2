@@ -3766,7 +3766,7 @@ function print_module_calendar() {
             foreach var YearDay day ($week.days) {
                 if ($day.num_entries > 0) {
                     var string entries = get_plural_phrase($day.num_entries, "text_calendar_num_entries");
-                    print """<span class="entry-day"> <a href="$day.url" title="$entries">$day.day</a></td>""";
+                    print """<span class="entry-day"> <a href="$day.url" title="$entries">$day.day</a></span>""";
                 }
                 else {
                     print """<span class="empty-day"> $day.day </span>""";
