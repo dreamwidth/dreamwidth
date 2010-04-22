@@ -603,6 +603,9 @@ table.month td p {
     display: inline;
     font-size: medium;
 }
+.page-month .month .entry-poster {
+    margin-right: .5em;
+}
 .month dl .tag ul {
     margin-top: 0;
 }
