@@ -2394,6 +2394,12 @@ property string text_nosubject {
     note = "This only appears in places where a subject line is required, such as on a month view.";
 }
 
+property string text_calendar_num_entries {
+    des = "Text to show how many entries were made on a particular day";
+    format = "plurals";
+    example = "1 entry // # entries";
+}
+
 set text_default_separator = " | ";
 set text_view_month = "View Subjects";
 set text_generated_on = "Page generated";
@@ -2402,6 +2408,7 @@ set text_layout_authors = "Layout:";
 set text_layout_resources = "Resources:";
 set text_posting_in = " posting in ";
 set text_nosubject = "(no subject)";
+set text_calendar_num_entries = "1 entry // # entries";
 
 property bool all_entrysubjects {
     des = "For all entries, display the replacement text when no subject is specified";
@@ -3758,10 +3765,11 @@ function print_module_calendar() {
         foreach var YearWeek week ($mon.weeks) {
             foreach var YearDay day ($week.days) {
                 if ($day.num_entries > 0) {
-                    print """<span class="entry-day"> <a href="$day.url">$day.day</a> </span>""";
+                    var string entries = get_plural_phrase($day.num_entries, "text_calendar_num_entries");
+                    print """<span class="entry-day"> <a href="$day.url" title="$entries">$day.day</a></td>""";
                 }
                 else {
-                print """<span class="empty-day"> $day.day </span>""";
+                    print """<span class="empty-day"> $day.day </span>""";
                 }
             }
         }
@@ -3786,11 +3794,12 @@ function print_module_calendar() {
             }
 
             foreach var YearDay day ($week.days) {
-                if ($day.num_entries > 0) {
-                    print """<td class="entry-day"><a href="$day.url">$day.day</a></td>""";
+                if ( $day.num_entries > 0) {
+                    var string entries = get_plural_phrase($day.num_entries, "text_calendar_num_entries");
+                    print """<td class="entry-day"> <a href="$day.url" title="$entries">$day.day</a></td>""";
                 }
                 else {
-                print """<td class="empty-day">$day.day</td>""";
+                    print """<td class="empty-day">$day.day</td>""";
                 }
             }
 
