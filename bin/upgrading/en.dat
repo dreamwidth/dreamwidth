@@ -1997,6 +1997,8 @@ inbox.message=Message
 
 inbox.messages=Messages
 
+inbox.nomessages=No Messages
+
 inbox.refresh=Refresh
 
 invitecodes.userclass.lucky=Lucky users

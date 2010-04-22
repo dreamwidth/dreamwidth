@@ -138,7 +138,7 @@ sub render_body {
 
     unless (@$nitems) {
         $messagetable .= qq {
-            <tr><td class="NoItems" colspan="3" id="NoMessageTD">No Messages</td></tr>
+            <tr><td class="NoItems" colspan="3" id="NoMessageTD"><?_ml inbox.nomessages _ml?></td></tr>
             };
     }
 
