@@ -137,11 +137,6 @@ body<=
 
     my $viewarg = $view  ? "&view=$view" : "";
     my $itemidarg = $itemid ? "&itemid=$itemid" : "";
-    $body .= qq{
-    <div class="inbox_newitems pkg">
-        <span class="esnlinks"><a href="$LJ::SITEROOT/inbox/?page=$page$viewarg$itemidarg" id="RefreshLink"><?_ml inbox.refresh _ml?></a> |
-          <a href="$LJ::SITEROOT/manage/subscriptions/"><?_ml inbox.manage_settings _ml?></a></span>
-    </div> };
 
     # Inbox Nav
     $body .= qq{
@@ -152,6 +147,11 @@ body<=
         </td>
         <td width="1" height="100%" style="border-left: 1px solid #ccc"><img src="$LJ::IMGPREFIX/spacer.gif"></td>
         <td id="table_inbox_messages" valign="top" style="padding-left: 10px; width: 100%;">
+            <div class="inbox_newitems pkg">
+                <span class="esnlinks" style="float: left"><a href="$LJ::SITEROOT/inbox/?page=$page$viewarg$itemidarg" id="RefreshLink"><?_ml inbox.refresh _ml?></a> |
+                    <a href="$LJ::SITEROOT/manage/subscriptions/"><?_ml inbox.manage_settings _ml?></a></span>
+            </div>
+
     };
 
     # Filter by view if specified
