@@ -7,8 +7,7 @@ use LJ::Test;
 require 'ljlib.pl';
 require 'ljprotocol.pl';
 
-#plan tests => 10;
-plan skip_all => 'Fix this test!';
+plan tests => 10;
 
 my $u = temp_user();
 my $newpass = "pass" . rand();
@@ -63,6 +62,9 @@ is($it->{props}{revnum}, 1, "is 1st revision");
 {
     my %props;
     foreach my $p (keys %{ $it->{props} }) {
+        # revnum and revtime can't be manually specified; skip these
+        next if $p eq "revnum";
+        next if $p eq "revtime";
         $props{"prop_$p"} = $it->{props}{$p};
     }
 
