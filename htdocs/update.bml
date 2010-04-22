@@ -575,7 +575,7 @@ head<=
     my $remote = LJ::get_remote();
     my $draft = '""';
     my %draft_properties;
-
+    my $draft_subject_raw = "";
     if ($remote) {
         # Here we get the value of the userprop 'draft_properties', containing
         # a frozen Storable string, which we then thaw into a hash by the same
@@ -583,14 +583,21 @@ head<=
         $draft = LJ::ejs_string($remote->prop('entry_draft'));
         %draft_properties = $remote->prop( 'draft_properties' ) ? 
             %{Storable::thaw( $remote->prop( 'draft_properties' ) )} : ' ';
+
+        # store raw for later use; will be escaped later
+        $draft_subject_raw = $draft_properties{subject};
+
         %draft_properties = map { $_ => LJ::ejs_string( $draft_properties{$_} ) }
             qw( subject userpic taglist moodid mood location1 music adultreason commentset commentscr adultcnt );
     }
 
     my $eMLautosave = LJ::ejs(BML::ml('.draft.autosave', { 'time' => '[[time]]' }));
-    my $eMLconfirm = LJ::ejs( BML::ml( '.draft.confirm2', 
-                { 'subjectline' => $draft_properties{subject}} ) );
     my $eMLrestored = LJ::ejs($ML{'.draft.restored'});
+
+    # not enough to just escape the draft_subject, we want to escape the entire thing, just in case the translation text
+    # for.draft.confirm2 contains JS-breaking characters such as apostrophes
+    my $eMLconfirm = LJ::ejs_string( BML::ml( '.draft.confirm2', 
+                { subjectline => "\"$draft_subject_raw\"" } ) );
 
     # Setup draft saving and try to restore from a draft
     # unless we did a post action
@@ -643,7 +650,7 @@ head<=
 
         function initDraft(askToRestore) {
             if (askToRestore && restoredDraft) {
-                if (confirm("$eMLconfirm")) {
+                if (confirm($eMLconfirm)) {
                   // If the user wants to restore the draft, we place the
                   // values of their saved draft into the form.
                   \$("draft").value = restoredDraft;
