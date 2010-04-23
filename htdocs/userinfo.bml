@@ -311,7 +311,7 @@ body<=
     my $ret = q{ <div id='profile_page'><div id='profile_top'> };
 
     $ret .= q{ <div class='username'> } . $u->ljuser_display;
-    if ( $u->{public_key} ) {
+    if ( $u->public_key ) {
         $ret .= qq( 
             <a href='$LJ::SITEROOT/pubkey?user=$user'>
                 <img src='$LJ::IMGPREFIX/key.gif' width='16' height='16' border='0'
