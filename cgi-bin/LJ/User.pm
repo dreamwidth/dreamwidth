@@ -4974,6 +4974,16 @@ sub grant_priv {
 sub has_priv {
     my ( $u, $priv, $arg ) = @_;
 
+    # check to see if the priv is packed, and unpack it if so, this allows
+    # someone to call $u->has_priv( "foo:*" ) instead of $u->has_priv( foo => '*' )
+    # which is helpful for some callers.
+    ( $priv, $arg ) = ( $1, $2 )
+        if $priv =~ /^(.+?):(.+)$/;
+
+    # at this point, if they didn't provide us with a priv, bail out
+    return 0 unless $priv;
+
+    # load what privileges the user has, if we haven't
     LJ::load_user_privs($u, $priv)
         unless $u->{'_privloaded'}->{$priv};
 
