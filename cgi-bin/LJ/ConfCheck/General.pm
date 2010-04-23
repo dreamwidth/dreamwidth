@@ -815,7 +815,6 @@ my %bools = (
              "OPENID_STATELESS" => "Speak stateless OpenID.  Slower, but no local state needs to be kept.",
              "ONLY_USER_VHOSTS" => "Don't allow www.* journals at /users/ and /~ and /community/.  Only allow them on their own user virtual host domains.",
              "USERPIC_MOGILEFS" => "Store userpics on MogileFS.",
-             "USE_INNODB" => "Create new tables as InnoDB.",
              "CONCAT_RES" => "Instruct Perlbal to concatenate static files on non-SSL pages",
              "CONCAT_RES_SSL" => "Instruct Perlbal to concatenate static files on SSL pages",
              );

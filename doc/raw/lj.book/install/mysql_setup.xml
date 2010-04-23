@@ -87,7 +87,7 @@ the script as follows:
 
    <calloutlist>
       <callout arearefs="COinnodbTables" id="TablesinnodbCO">
-            <para>You can enable <link linkend="ljconfig.use_innodb"><literal role="variable">$LJ::USE_INNODB</literal></link>, to have tables created
+            <para>All tables are created
             as <ulink url="http://dev.mysql.com/doc/mysql/en/InnoDB_overview.html"><literal>InnoDB</literal></ulink> by default.</para>
       </callout>
       <callout arearefs="COtexttoolLocal" id="texttoolLocalCO">
