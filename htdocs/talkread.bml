@@ -693,37 +693,37 @@ body<=
 
                 my $replyurl = LJ::Talk::talkargs( $talkurl, "replyto=$dtid", $style_args );
                 if ($post->{'state'} eq 'F') {
-                    $ret .= "($T{'frozen'})";
+                    $ret .= "($T{'frozen'})&nbsp; ";
                 } elsif ($remote) {
                     # See if we want to force them to change their password
                     my $bp = LJ::bad_password_redirect({ 'returl' => 1 });
                     if ($bp) {
-                        $ret .= "(<a href='$bp'>$T{'replythis'}</a>) ";
+                        $ret .= "(<a href='$bp'>$T{'replythis'}</a>)&nbsp; ";
                     } else {
                         if ( $post->{state} eq 'S' ) {
                             # if the user can see the comment, they can also reply
                             # if they can also unscreen, they are given the option to reply and unscreen
-                            $ret .= "(" . LJ::make_qr_link( $dtid, $post->{subject}, $T{replythis}, $replyurl ) .  ") ";
+                            $ret .= "(" . LJ::make_qr_link( $dtid, $post->{subject}, $T{replythis}, $replyurl ) .  ")&nbsp; ";
                        } else {
-                           $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ") ";
+                           $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ")&nbsp; ";
                        }
                     }
                 } else {
-                    $ret .= "(<a href='$replyurl'>$T{'replythis'}</a>) ";
+                    $ret .= "(<a href='$replyurl'>$T{'replythis'}</a>)&nbsp; ";
                 }
 
                 my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'};
                 if ($parentid != 0) {
                     my $rooturl = $comment->threadroot_url( LJ::viewing_style_args( %GET ) );
-                    $ret .= "(<a href='$rooturl'>$T{'threadroot'}</a>)";
+                    $ret .= "(<a href='$rooturl'>$T{'threadroot'}</a>)&nbsp; ";
 
                     my $dpid = $parentid * 256 + $init->{'anum'};
                     $ret .= "(<a href='" . LJ::Talk::talkargs( $talkurl, "thread=$dpid",  $style_args );
-                    $ret .= LJ::Talk::comment_anchor( $dpid ) . "'>$T{'parent'}</a>)";
+                    $ret .= LJ::Talk::comment_anchor( $dpid ) . "'>$T{'parent'}</a>)&nbsp; ";
                 }
                 if ($post->{'children'} && @{$post->{'children'}}) {
                     my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
-                    $ret .= "(<a href='$url'>$T{'thread'}</a>)";
+                    $ret .= "(<a href='$url'>$T{'thread'}</a>)&nbsp; ";
 
                     if ((grep {! $_->{_loaded} and !($_->{state} eq "D")} @{$post->{'children'}}) && $show_thread_expander) {
                        $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)];
