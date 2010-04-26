@@ -4272,6 +4272,8 @@ widget.importstatus.item.lj_verify=Verifying username/password
 
 widget.importstatus.refresh=Refresh
 
+widget.importstatus.status.aborted=Aborted
+
 widget.importstatus.status.failed=Failed
 
 widget.importstatus.status.init.lj_bio=Waiting for verification to finish
