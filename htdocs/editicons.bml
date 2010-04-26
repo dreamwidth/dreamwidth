@@ -853,8 +853,8 @@ sub parse_post_uploads
                     my $res = $ua->get($POST{$userpic_key});
                     $current_upload{image} = \$res->content if $res && $res->is_success;
                     $current_upload{error} = $ML{'.error.urlerror'} unless $current_upload{image};
-                    #Below, $current_upload{image} needs to be dereferenced because it contains a hash value.
-                    $current_upload{error} = $ML{'.error.urlfiletoolarge'} if length( ${ $current_upload{image} } ) > $MAX_UPLOAD;
+                    # Below, $current_upload{image} needs to be dereferenced because it contains a hash value.
+                    $current_upload{error} = $ML{'.error.urlfiletoolarge'} if $current_upload{image} && length( ${ $current_upload{image} } ) > $MAX_UPLOAD;
                 }
                 push @uploads, \%current_upload;
             }
