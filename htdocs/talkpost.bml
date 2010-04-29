@@ -387,9 +387,9 @@ body<=
 
         my $thread_url = $parentcomment->url( LJ::viewing_style_args( %GET ) );
         $ret .= " (<a href=". $thread_url . ">" . $ML{'talk.threadlink'} . "</a>)";
-    }
 
-    $ret .= "</div>";
+        $ret .= "</div>";
+    }
 
     $ret .= "<br clear='both' /><hr size='2' align='center' />";
 
