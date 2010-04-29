@@ -147,6 +147,7 @@ body<=
     # canonical link to the entry or comment thread
     $head .= LJ::canonical_link( $entry->url, $GET{replyto} );
 
+    my $toplevel = $parpost ? 0 : 1;
     $parpost ||= $item;  # if there's no parent post, remote is reply to top-level item
 
     my ($up, $ur);  # $up = user posted journal item; $ur = user remote is replying to
@@ -183,10 +184,14 @@ body<=
     return "<?h1 $ML{'talk.error.suspended.title'} h1?><?p " . BML::ml('talk.error.suspendedentryreply', { aopts => "href='" . $u->journal_base . "/'" }) . " p?>"
         if $entry && $entry->is_suspended;
 
-    # checked screened post
-    my $parentcomment = LJ::Comment->new( $u, jtalkid => $parpost->{jtalkid} );
-    return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_screened'} p?>"
-        if $parpost->{'state'} eq "S" && !$parentcomment->visible_to( $remote );
+    my $parentcomment;
+    $parentcomment = LJ::Comment->new( $u, jtalkid => $parpost->{jtalkid} ) unless $toplevel;
+
+    # check for screened comment
+    if ( $parentcomment ) {
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_screened'} p?>"
+            if $parpost->{'state'} eq "S" && !$parentcomment->visible_to( $remote );
+    }
 
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_deleted'} p?>"
         if $parpost->{'state'} eq "D";
