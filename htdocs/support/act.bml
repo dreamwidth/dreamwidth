@@ -164,7 +164,7 @@ body<=
 <ul>
    <li>" . BML::ml('.go.back.to.request', {'back.req.url'=>"href='see_request?id=$sp->{'spid'}'", 'spid'=>$sp->{'spid'}}) ."</li>
    <li>" . BML::ml('.go.back.to.open.request', {"url"=>"href='help'"}) . "</li>
-   <li>" . BML::ml('.go.back.to.category', {"url"=>"'help?cat=$sp->{'_cat'}->{'catkey'}'"}) . "</li>
+   <li>" . BML::ml('.go.back.to.category', {"url"=>"href='help?cat=$sp->{'_cat'}->{'catkey'}'"}) . "</li>
    <li>" . BML::ml('.go.to.previous.next.request', {"prev.url"=>"href='see_request?id=$sp->{'spid'}&amp;find=prev'", "next.url"=>"href='see_request?id=$sp->{'spid'}&amp;find=next'"}) . "</li>
    <li>" . BML::ml('.go.to.previous.next.req.cat', {"prev.url"=>"href='see_request?id=$sp->{'spid'}&amp;find=cprev'", "next.url"=>"href='see_request?id=$sp->{'spid'}&amp;find=cnext'"}) . "</li>
 </ul>";
