@@ -1013,8 +1013,8 @@ body<=
 
     if ( $u->is_individual || $u->is_community ) {
 
-        my $local_link .= "<user name=\"" . $u->username . "\">";
-        my $remote_link .= $u->ljuser_display( { no_ljuser_class => 1 } );
+        my $local_link = "<user name=\"" . $u->display_name . "\">";
+        my $remote_link = $u->ljuser_display( { no_ljuser_class => 1 } );
 
 
         my $link_body = "<div style='font-style:italic;'>" . BML::ml( '.linking.about' ) . "</div>";
