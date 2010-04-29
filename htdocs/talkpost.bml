@@ -369,6 +369,28 @@ body<=
     $ret .= $event;
     $ret .= "</div>";
 
+    # links to reply, thread from start, parent comment, and thread
+    if ( $parentcomment ) {
+        $ret .= "<br /><div id='comment-interaction-links'>";
+
+        my $reply_url = LJ::Talk::talkargs( $parentcomment->reply_url, LJ::viewing_style_args( %GET ) );
+        $ret .= "(<a href=". $reply_url . ">" . $ML{'talk.replytothis'} . "</a>)";
+
+        # only link to thread from start / parent comment if this isn't a top-level comment
+        if ( $parentcomment->parent ) {
+            my $threadstart_url = $parentcomment->threadroot_url( LJ::viewing_style_args( %GET ) );
+            $ret .= " (<a href=". $threadstart_url . ">" . $ML{'talk.threadrootlink'} . "</a>)";
+
+            my $parent_url = $parentcomment->parent_url( LJ::viewing_style_args( %GET ) );
+            $ret .= " (<a href=". $parent_url . ">" . $ML{'talk.parentlink'} . "</a>)";
+        }
+
+        my $thread_url = $parentcomment->url( LJ::viewing_style_args( %GET ) );
+        $ret .= " (<a href=". $thread_url . ">" . $ML{'talk.threadlink'} . "</a>)";
+    }
+
+    $ret .= "</div>";
+
     $ret .= "<br clear='both' /><hr size='2' align='center' />";
 
     my $qotd = 0;

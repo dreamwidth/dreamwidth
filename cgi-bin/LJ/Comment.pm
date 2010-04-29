@@ -263,12 +263,12 @@ sub reply_url {
 }
 
 sub parent_url {
-    my $self    = shift;
+    my ( $self, $url_args ) = @_;
 
     my $parent  = $self->parent;
 
     return undef unless $parent;
-    return $parent->url;
+    return $parent->url( $url_args );
 }
 
 sub unscreen_url {
