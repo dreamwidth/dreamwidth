@@ -427,9 +427,7 @@ sub load_layers {
         }
     }
 
-    # now we have to go through everything again and verify they're all loaded and
-    # otherwise do a fallback to the global
-    my @to_load;
+    # now we have to go through everything again and verify they're all loaded
     foreach my $lid (@from_db) {
         next if S2::layer_loaded($lid);
 
@@ -443,27 +441,9 @@ sub load_layers {
             next;
         }
 
-        if ($LJ::S2COMPILED_MIGRATION_DONE) {
-            LJ::MemCache::set([ $lid, "s2c:$lid" ], [ time(), 0 ]);
-            next;
-        }
-
-        push @to_load, $lid;
+        LJ::MemCache::set( [ $lid, "s2c:$lid" ], [ time(), 0 ] );
     }
-    return $maxtime unless @to_load;
 
-    # get the dbh and start loading these
-    my $dbr = LJ::S2::get_s2_reader();
-    die "Failure getting S2 database handle in LJ::S2::load_layers\n"
-        unless $dbr;
-
-    my $where = join(' OR ', map { "s2lid=$_" } @to_load);
-    my $sth = $dbr->prepare("SELECT s2lid, compdata, comptime FROM s2compiled WHERE $where");
-    $sth->execute;
-    while (my ($id, $comp, $comptime) = $sth->fetchrow_array) {
-        S2::load_layer($id, $comp, $comptime);
-        $maxtime = $comptime if $comptime > $maxtime;
-    }
     return $maxtime;
 }
 

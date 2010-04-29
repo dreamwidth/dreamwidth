@@ -792,7 +792,6 @@ my %bools = (
              'STATS_FORCE_SLOW' => "Make all stats hit the 'slow' database role, never using 'slave' or 'master'",
              'SERVER_DOWN' => "The site is globally marked as 'down' and users get an error message, as defined by \$SERVER_DOWN_MESSAGE and \$SERVER_DOWN_SUBJECT.  It's not clear why this should ever be used instead of \$SERVER_TOTALLY_DOWN",
              'SERVER_TOTALLY_DOWN' => "The site is globally marked as 'down' and users get an error message, as defined by \$SERVER_DOWN_MESSAGE and \$SERVER_DOWN_SUBJECT.  But compared to \$SERVER_DOWN, this error message is done incredibly early before any dispatch to different modules.",
-             'S2COMPILED_MIGRATION_DONE' => "Don't try to load compiled S2 layers from the global cluster.  Any new installation can enable this safely as a minor optimization.  The option only really makes sense for large, old sites.",
              "S1_SHORTCOMINGS" => "Use the S2 style named 's1shortcomings' to handle page types that S1 can't handle.  Otherwise, BML is used.  This is off by defalut, but will eventually become on by default, and no longer an option.",
              "REQUIRE_TALKHASH" => "Require submitted comments to include a signed hidden value provided by the server.  Slows down comment-spammers, at least, in that they have to fetch pages first, instead of just blasting away POSTs.  Defaults to off.",
              "REQUIRE_TALKHASH_NOTOLD" => "If \$REQUIRE_TALKHASH is on, also make sure that the talkhash provided was issued in the past two hours.  Defaults to off.",

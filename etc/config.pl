@@ -803,12 +803,6 @@
                            # that they must be public styles
     );
 
-    # this is on in the default file here because most of the time you
-    # want this flag to be on.  if you have an existing site and you're
-    # copying this file, make sure to only turn this flag on if you've
-    # actually migrated everything.
-    $S2COMPILED_MIGRATION_DONE = 1;
-
     # optional LDAP support
     # required:
     #    $LJ::LDAP_HOST = "ldap.example.com";  # anything that the Net::LDAP constructor takes
