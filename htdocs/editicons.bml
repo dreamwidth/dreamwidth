@@ -62,6 +62,12 @@ use strict;
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
 
+    # see if we're sorting by default order or by keyword
+    my $keyword_sort =  $GET{'keywordSort'};
+    if ( $keyword_sort ) {
+        $getextra = $getextra ? $getextra . "&keywordSort=1" : "?keywordSort=1";
+    }
+
     my $returl = LJ::CleanHTML::canonical_url($POST{'ret'});
     my $picurl = LJ::CleanHTML::canonical_url($POST{'urlpic'});
 
@@ -491,12 +497,24 @@ use strict;
                 $body .= "<p>".BML::ml('cprod.editpics.text7.v1',{ "num" => $max })."</p>";
             }
         }
+
+        # show sort options
+        $body .= "<p>";
+        $body .= $keyword_sort ? '<a href = "/editicons">' . "$ML{'.sort.default'}</a>" : "$ML{'.sort.default'}";
+        $body .=" | ";
+        $body .= $keyword_sort ? "$ML{'.sort.keyword'}" : '<a href = "/editicons?keywordSort=1">' . "$ML{'.sort.keyword'}</a>";
+        $body .= "</p>\n";
+
         $body .= "</div>";
 
         $body .= "<div id='list_userpics' style='width: 98%; float: left;'>";
         my $display_rename = LJ::theschwartz() ? 1 : 0;
 
-        foreach my $pic (@userpics) {
+        if ( $keyword_sort ) {
+            @userpics = LJ::Userpic->sort( \@userpics );
+        }
+        
+        foreach my $pic ( @userpics ) {
             my $pid = $pic->id;
             
             $body .= "<div class='pkg userpic_wrapper'>";

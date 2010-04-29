@@ -124,6 +124,10 @@
 
 .restriction.keywords.faq=Picture will be unusable if <a [[aopts]]>keywords</a> are not supplied
 
+.sort.default=Upload Order
+
+.sort.keyword=Keyword Order
+
 .title=Edit Userpics
 
 .title3|notes=This is the new page title.  .title is used by multisearch.bml.

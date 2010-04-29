@@ -15,7 +15,6 @@ _c?>
 <?_code
 {
 # This page displays all of the user's userpics along with all user-contributed text
-# FIXME: A lot more of this functionality should be coming from the Userpic.pm class
 
     use strict;
     use vars qw(%GET $title $body $head);
@@ -106,41 +105,36 @@ _c?>
 
     #### show pictures
 
-    my $info = LJ::get_userpic_info( $u, { load_comments => 1, load_urls => 1, load_descriptions => 1 } );
-
-    my %keywords = ();
-    while (my ($kw, $pic) = each %{$info->{'kw'}}) {
-        LJ::text_out( BML::ebml( \$kw ) );
-        push @{$keywords{$pic->{'picid'}}}, $kw;
+    my $keyword_sort =  $GET{'keywordSort'};
+    if ( $keyword_sort ) {
+        $getextra = $getextra ? $getextra . "&keywordSort=1" : "?keywordSort=1";
     }
 
-    my %comments = ();
-    while (my ($pic, $comment) = each %{$info->{'comment'}}) {
-        LJ::text_out( BML::ebml( \$comment ) );
-        $comments{$pic} = $comment;
-    }
-
-    my %descriptions = ();
-    while ( my ($pic, $description) = each %{$info->{description}}) {
-        LJ::text_out( BML::ebml( \$description ) );
-        $descriptions{$pic} = $description;
-    }
-    
     my $piccount = 0;
-
-    my @allpics;
-    my $defaultpicid = $u ? $u->{'defaultpicid'} : undef;
 
     # allow support to view inactive userpics for debugging
     my $view_inactive = $GET{inactive} && $remote &&
                         ( $remote->has_priv( "supportviewscreened" ) || $remote->has_priv( "supporthelp" ) );
     $view_inactive ||= $can_manage;
 
-    push @allpics, $info->{'pic'}->{$u->{'defaultpicid'}} if $defaultpicid;
-    push @allpics, map { $info->{'pic'}->{$_} } sort { $a <=> $b }
-                grep { $_ != $defaultpicid && ($info->{'pic'}->{$_}->{'state'} eq 'N' || $view_inactive) &&
-                           $info->{'pic'}->{$_}->{'state'} ne 'X' }
-                keys %{$info->{'pic'}};
+    my @allpics = LJ::Userpic->load_user_userpics($u);
+    if ( @allpics ) {
+        if ( $keyword_sort ) {
+            @allpics = LJ::Userpic->separate_keywords( \@allpics );
+        } else {
+            my @newpics;
+            my $default_pic;
+            foreach my $pic ( @allpics ) {
+                my $keyword = $pic->keywords;
+                if ( $pic->is_default ) {
+                    $default_pic = { keyword => $keyword, userpic => $pic };
+                } elsif ( $pic->state eq 'N' || ( $view_inactive && $pic->state ne 'X' ) ) {
+                    push @newpics, { keyword => $keyword, userpic => $pic };
+                }
+            }
+            @allpics = ( $default_pic, @newpics );
+        }
+    }
 
     # pagination code
 
@@ -166,11 +160,14 @@ _c?>
         @pics = @allpics;
     }
 
-    foreach my $pic (@pics) {
+    foreach my $userpic_hash ( @allpics ) {
 
-        #  load the userpic object for each pic
-        my $userpic = LJ::Userpic->new( $u, $pic->{picid} );
+        # if we have no default pic
+        next unless $userpic_hash;
 
+        my $userpic = $userpic_hash->{userpic};
+        my $keywords = $userpic_hash->{keyword};
+        
         if ($piccount++ == 0) {
             $body .= "<?h1 $ML{'.current'} h1?><?p ";
             if ($can_manage) {
@@ -184,76 +181,84 @@ _c?>
             } else {
                 $body .= BML::ml('.pics2', {'user' => LJ::ljuser($u), 'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user?journal=$u->{user}'"});
             }
-
+            
+            # show sort options
+            $body .= "<p>";
+            $body .= $keyword_sort ? '<a href = "' . $u->allpics_base . '">' . "$ML{'.sort.default'}</a>" : "$ML{'.sort.default'}";
+            $body .=" | ";
+            $body .= $keyword_sort ? "$ML{'.sort.keyword'}" : '<a href = "' . $u->allpics_base . '?keywordSort=1">' . "$ML{'.sort.keyword'}</a>";
+            $body .= "</p>\n";
+            
             $body .= " p?><table class='allpics'>";
         }
-
+        
         ### Keywords
-        my $eh_keywords = join(", ", sort { lc($a) cmp lc($b) } @{$keywords{$pic->{'picid'}}||[]});
-        $eh_keywords = LJ::ehtml($eh_keywords);
-
+        my $eh_keywords = LJ::ehtml( $keywords );
+        
         if ($piccount % 2 == 1) {
             $body .= "<tr>";
         }
-
+        
         $body .= "<td class='pic'>";
-
-        my ($apre, $apost);
-        if ($pic->{'url'}) {
-            $apre = "<a href='" . LJ::ehtml($pic->{'url'}) . "'>";
+        
+        my ( $apre, $apost );
+        if ( $userpic->url ) {
+            $apre = "<a href='" . LJ::ehtml( $userpic->url ) . "'>";
             $apost = "</a>";
         }
-
+        
         # for each image, we know the picid, get the html imgtag
         $body .= "$apre" . $userpic->imgtag . $apost . "</td><td class='desc'>";
-
-        if ($u->{'defaultpicid'} == $pic->{'picid'}) {
+        
+        if ( $userpic->is_default ) {
             $body .= "$ML{'.default'}<br />";
         }
-
-        if ($view_inactive && $pic->{'state'} eq 'I') {
+        
+        if ($view_inactive && $userpic->state eq 'I') {
             $body .= "<em>[$ML{'userpic.inactive'}]</em>&nbsp;" . LJ::help_icon('userpic_inactive') . "<br />";
         }
-
-        if ($eh_keywords) {
+        
+        if ( $eh_keywords ) {
             $body .= "<strong>$ML{'.keywords'}</strong> $eh_keywords<br />";
         }
-
+        
         # Comments
-        my $eh_comments = $comments{$pic->{'picid'}};
-        if ($eh_comments) {
+        my $eh_comments = $userpic->comment;
+        if ( $eh_comments ) {
+            LJ::text_out( BML::ebml( \$eh_comments ) );
             LJ::CleanHTML::clean(\$eh_comments, {
                 'wordlength' => 40,
                 'addbreaks' => 0,
                 'tablecheck' => 1,
                 'mode' => 'deny',
             });
-
+            
             $body .= "<strong>$ML{'.comment'}</strong> $eh_comments<br />\n";
         }
         
-        # Descriptions
-        my $eh_descriptions = $descriptions{$pic->{picid}};
-        if ($eh_descriptions) {
-            LJ::CleanHTML::clean(\$eh_descriptions, {
+        # Description
+        my $eh_description = $userpic->description;
+        if ($eh_description) {
+            LJ::text_out( BML::ebml( \$eh_description ) );
+            LJ::CleanHTML::clean(\$eh_description, {
                 wordlength => 40,
                 addbreaks => 0,
                 tablecheck => 1,
                 mode => 'deny',
             });
             
-            $body .= "<strong>$ML{'.description'}</strong> $eh_descriptions\n";
+            $body .= "<strong>$ML{'.description'}</strong> $eh_description\n";
         }
-
+        
         $body .= "</td>";
-
+        
         if ($piccount % 2 == 1) {
             $body .= "<td class='blank'></td>";
         } else {
             $body .= "</tr>\n";
         } 
     }
-
+    
     if ($piccount) {
         if ($piccount % 2 == 1) {
             # finish off this row.
@@ -274,7 +279,7 @@ _c?>
             $body = "<?h1 $ML{'.nopics.title'} h1?><?p ". BML::ml('.nopics.text.other2', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user?journal=$u->{user}'", username => $u->ljuser_display }). " p?>";
         }
     }
- 
+    
     return;
 }
 _code?><?page

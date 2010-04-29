@@ -429,18 +429,9 @@ sub keywords {
 
     croak "Invalid opts passed to LJ::Userpic::keywords" if keys %opts;
 
-    my $picinfo = LJ::get_userpic_info($self->{userid}, {load_comments => 0});
+    my $u = $self->owner;
 
-    # $picinfo is a hashref of userpic data
-    # keywords are stored in the "kw" field in the format keyword => {hash of some picture info}
-
-    # create a hash of picids => keywords
-    my $keywords = {};
-    foreach my $keyword (keys %{$picinfo->{kw}}) {
-        my $picid = $picinfo->{kw}->{$keyword}->{picid};
-        $keywords->{$picid} = [] unless $keywords->{$picid};
-        push @{$keywords->{$picid}}, $keyword if ($keyword && $picid);
-    }
+    my $keywords = $u->get_userpic_kw_map();
 
     # return keywords for this picid
     my @pickeywords = $keywords->{$self->id} ? @{$keywords->{$self->id}} : ();
@@ -921,6 +912,9 @@ sub set_keywords {
                 undef, @data );
     }
 
+    # clear the userpic-keyword map.
+    $u->clear_userpic_kw_map;
+
     # Let the user know about any we didn't save
     # don't throw until the end or nothing will be saved!
     if (@kw_errors) {
@@ -1034,6 +1028,65 @@ sub set_fullurl {
     LJ::Userpic->delete_cache($u);
 
     return 1;
+}
+
+# Sorts the given list of Userpics.
+sub sort {
+    my ( $class, $userpics ) = @_;
+    
+    return () unless ( $userpics && ref $userpics );
+
+    my %kwhash;
+    my %nokwhash;
+
+    for my $pic ( @$userpics ) {
+        my $pickw = $pic->keywords( raw => 1 );
+        if ( $pickw ) {
+            $kwhash{$pickw} = $pic;
+        } else {
+            $pickw = $pic->keywords;
+            $nokwhash{$pickw} = $pic;
+        }
+    }
+    my @sortedkw = sort keys %kwhash;
+    my @sortednokw = sort keys %nokwhash;
+
+    my @sortedpics;
+    foreach my $kw ( @sortedkw ) {
+        push @sortedpics, $kwhash{$kw};
+    }
+    foreach my $kw ( @sortednokw ) {
+        push @sortedpics, $nokwhash{$kw};
+    }
+
+    return @sortedpics;
+}
+
+# Organizes the given userpics by keyword.  Returns an array of hashes,
+# with values of keyword and userpic.
+sub separate_keywords {
+    my ( $class, $userpics ) = @_;
+
+    return () unless ( $userpics && ref $userpics );
+
+    my @userpic_array;
+    my @nokw_array;
+    foreach my $userpic ( @$userpics ) {
+        my @keywords = $userpic->keywords( raw => 1 );
+        foreach my $keyword ( @keywords ) {
+            if ( $keyword ) {
+                push @userpic_array, { keyword => $keyword, userpic => $userpic };
+            } else {
+                $keyword = $userpic->keywords;
+                push @nokw_array, { keyword => $keyword, userpic => $userpic };
+            }
+        } 
+    }
+        
+    @userpic_array = sort { $a->{keyword} cmp $b->{keyword} } @userpic_array;
+    push @userpic_array, sort { $a->{keyword} cmp $b->{keyword} } @nokw_array;
+
+    return @userpic_array;
 }
 
 ####

@@ -29,5 +29,9 @@
 
 .pics.owner=Here are the userpics for [[user]].
 
+.sort.default=Upload Order
+
+.sort.keyword=Keyword Order
+
 .title=User Pictures
 

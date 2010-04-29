@@ -5590,6 +5590,13 @@ sub allpics_base {
     return $u->journal_base . "/icons";;
 }
 
+# clears the internally cached mapping of userpics to keywords for this
+# User
+sub clear_userpic_kw_map {
+    my $self = $_[0];
+
+    $self->{picid_kw_map} = undef;
+}
 
 sub get_userpic_count {
     my $u = shift or return undef;
@@ -5598,6 +5605,25 @@ sub get_userpic_count {
     return $count;
 }
 
+# gets a mapping from userpic ids to keywords for this User.
+sub get_userpic_kw_map {
+    my $self = shift;
+
+    if ( $self->{picid_kw_map} ) {
+        return $self->{picid_kw_map};
+    }
+
+    my $picinfo = LJ::get_userpic_info( $self->userid, {load_comments => 0} );
+    my $keywords = {};
+    foreach my $keyword ( keys %{$picinfo->{kw}} ) {
+        my $picid = $picinfo->{kw}->{$keyword}->{picid};
+        $keywords->{$picid} = [] unless $keywords->{$picid};
+        push @{$keywords->{$picid}}, $keyword if ( $keyword && $picid );
+    }
+
+    $self->{picid_kw_map} = $keywords;
+    return $keywords;
+}
 
 # <LJFUNC>
 # name: LJ::User::mogfs_userpic_key
