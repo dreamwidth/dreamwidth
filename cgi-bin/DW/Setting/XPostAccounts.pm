@@ -171,10 +171,10 @@ sub option {
           previewString = previewString.replace(/\\r/g, "");
           previewString = previewString.replace(/\\n/g, "\\r\\n");
           previewString = substrUtf(previewString, $footer_length);
-          previewString = previewString.replace(/%%url%%/, '$baseurl/12345.html');
-          previewString = previewString.replace(/%%reply_url%%/, '$baseurl/12345.html?mode=reply');
-          previewString = previewString.replace(/%%comment_url%%/, '$baseurl/12345.html#comments');
-          previewString = previewString.replace(/%%comment_image%%/, '<img src="$baseurl/tools/commentcount?samplecount=23" width="30" height="12" alt="$alttext" style="vertical-align: middle;"/>');
+          previewString = previewString.replace(/%%url%%/gi, '$baseurl/12345.html');
+          previewString = previewString.replace(/%%reply_url%%/gi, '$baseurl/12345.html?mode=reply');
+          previewString = previewString.replace(/%%comment_url%%/gi, '$baseurl/12345.html#comments');
+          previewString = previewString.replace(/%%comment_image%%/gi, '<img src="$baseurl/tools/commentcount?samplecount=23" width="30" height="12" alt="$alttext" style="vertical-align: middle;"/>');
           \$('footer_preview').innerHTML = previewString;
         }
 
