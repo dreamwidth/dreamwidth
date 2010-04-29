@@ -433,10 +433,6 @@ add_conf('$TALK_ABORT_REGEXP',
          type => 'regexp',
          des => "Regular expression which, when matched on incoming comment bodies, kills the comment.");
 
-add_conf('$TALK_MAX_URLS',
-         type => 'int',
-         des => "If set, up to this many URLs will be extracted from comments and stored for analysis.");
-
 add_conf('$TOOLS_RECENT_COMMENTS_MAX',
          type => 'int',
          des => "Number of recent comments to show on /tools/recent_comments.bml");

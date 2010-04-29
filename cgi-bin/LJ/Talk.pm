@@ -2682,28 +2682,6 @@ sub enter_comment {
         LJ::MemCache::set([$journalu->{'userid'}, "talkprop:$journalu->{'userid'}:$jtalkid"], $hash);
     }
 
-    # record up to 25 (or $LJ::TALK_MAX_URLS) urls from a comment
-    my (%urls, $dbh);
-    if ($LJ::TALK_MAX_URLS &&
-        ( %urls = map { $_ => 1 } LJ::get_urls($comment->{body}) ) &&
-        ( $dbh = LJ::get_db_writer() )) # don't log if no db available
-    {
-        my (@bind, @vals);
-        my $ip = LJ::get_remote_ip();
-        while (my ($url, undef) = each %urls) {
-            push @bind, '(?,?,?,?,UNIX_TIMESTAMP(),?)';
-            push @vals, $posterid, $journalu->{userid}, $ip, $jtalkid, $url;
-            last if @bind >= $LJ::TALK_MAX_URLS;
-        }
-        my $bind = join(',', @bind);
-        my $sql = qq{
-            INSERT INTO commenturls
-                (posterid, journalid, ip, jtalkid, timecreate, url)
-            VALUES $bind
-        };
-        $dbh->do($sql, undef, @vals);
-    }
-
     # update the "replycount" summary field of the log table
     if ($comment->{state} eq 'A') {
         LJ::replycount_do($journalu, $itemid, "incr");

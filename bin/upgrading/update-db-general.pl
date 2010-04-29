@@ -882,6 +882,7 @@ register_tabledrop("schools_attended");
 register_tabledrop("schools_pending");
 register_tabledrop("user_schools");
 register_tabledrop("userblobcache");
+register_tabledrop("commenturls");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -1491,19 +1492,6 @@ CREATE TABLE supportprop (
     value varchar(255) NOT NULL,
 
     PRIMARY KEY (spid, prop)
-)
-EOC
-
-# comment urls
-register_tablecreate("commenturls", <<'EOC'); # global
-CREATE TABLE commenturls (
-    posterid int unsigned NOT NULL,
-    journalid int unsigned NOT NULL,
-    jtalkid mediumint unsigned NOT NULL,
-    timecreate int unsigned NOT NULL,
-    url varchar(255) NOT NULL,
-
-    INDEX (timecreate)
 )
 EOC
 
@@ -3364,13 +3352,6 @@ register_alter(sub {
         do_alter("spamreports", "ALTER TABLE spamreports " .
                  "ADD report_type ENUM('entry','comment') NOT NULL DEFAULT 'comment' " .
                  "AFTER posterid");
-    }
-
-    if (column_type("commenturls", "ip") eq '') {
-        do_alter("commenturls",
-                 "ALTER TABLE commenturls " .
-                 "ADD ip VARCHAR(15) DEFAULT NULL " .
-                 "AFTER journalid");
     }
 
     if (column_type("sessions", "exptype") !~ /once/) {

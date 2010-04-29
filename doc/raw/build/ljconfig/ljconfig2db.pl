@@ -77,10 +77,6 @@ my %ljconfig =
                     'desc' => "Regular expression which, when matched on incoming comment bodies, kills the comment.",
                     # How is this different from @talkspam?
             },
-            'talk_max_urls' => {
-                    'desc' => "If set, up to this many &url;s will be extracted from comments and stored (in the [dbtable[commenturls]] table) for analysis.",
-                    'example' => "500;",
-            },
             'talkspam' => {
                     'desc' => "Filter comments for spam using this list of regular expressions.",
                     'type' => "array",

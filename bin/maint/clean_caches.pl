@@ -29,9 +29,6 @@ $maint{'clean_caches'} = sub
     print "-I- Cleaning duplock.\n";
     $dbh->do("DELETE FROM duplock WHERE instime < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
 
-    print "-I- Cleaning commenturl.\n";
-    $dbh->do("DELETE FROM commenturls WHERE timecreate < UNIX_TIMESTAMP() - 86400*30 LIMIT 50000");
-
     print "-I- Cleaning underage uniqs.\n";
     $dbh->do("DELETE FROM underage WHERE timeof < (UNIX_TIMESTAMP() - 86400*90) LIMIT 2000");
 
