@@ -491,14 +491,14 @@ sub session_from_cookies {
     my $domain_cookie = LJ::Session->domain_cookie;
     if ($domain_cookie) {
         # journal domain
-        $sessobj = LJ::Session->session_from_domain_cookie( \%getopts, $r->cookie( $domain_cookie ) );
+        $sessobj = LJ::Session->session_from_domain_cookie( \%getopts, $r->cookie_multi( $domain_cookie ) );
     } else {
         # this is the master cookie at "www.livejournal.com" or "livejournal.com";
-        my @cookies = $r->cookie( 'ljmastersession' );
+        my @cookies = $r->cookie_multi( 'ljmastersession' );
         # but support old clients who are just sending an "ljsession" cookie which they got
         # from ljprotocol's "generatesession" mode.
-        unless (@cookies) {
-            @cookies = $r->cookie( 'ljsession' );
+        unless ( @cookies ) {
+            @cookies = $r->cookie_multi( 'ljsession' );
             $getopts{old_cookie} = 1;
         }
         $sessobj = LJ::Session->session_from_master_cookie(\%getopts, @cookies);
@@ -535,7 +535,7 @@ sub session_from_domain_cookie {
     my $domcook = LJ::Session->domain_cookie;
 
     foreach my $cookie (@cookies) {
-        my $sess = valid_domain_cookie($domcook, $cookie, $li_cook);
+        my $sess = valid_domain_cookie($domcook, $cookie->[0], $li_cook);
         return $sess if $sess;
     }
 
@@ -561,7 +561,7 @@ sub session_from_master_cookie {
     my $ignore_ip  = delete $opts->{ignore_ip} ? 1 : 0;
     my $old_cookie = delete $opts->{old_cookie} ? 1 : 0;
 
-    delete $opts->{'redirect_ref'};  # we don't use this
+    delete $opts->{redirect_ref};  # we don't use this
     croak("Unknown options") if %$opts;
 
     my $now = time();
@@ -572,8 +572,8 @@ sub session_from_master_cookie {
     my $li_cook = $r->cookie( 'ljloggedin' );
 
   COOKIE:
-    foreach my $sessdata (@cookies) {
-        my ($cookie, $gen) = split(m!//!, $sessdata);
+    foreach my $sessdata ( @cookies ) {
+        my ( $cookie, $gen ) = split( m!//!, $sessdata->[0] );
 
         my ($version, $userid, $sessid, $auth, $flags);
 
