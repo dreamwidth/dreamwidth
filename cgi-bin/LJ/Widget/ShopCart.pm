@@ -29,7 +29,7 @@ sub render_body {
 
     my $ret;
 
-    my $cart = $opts{cart} || DW::Shop->get->cart
+    my $cart = $opts{cart} ||= DW::Shop->get->cart
         or return $class->ml( 'widget.shopcart.error.nocart' );
 
     return $class->ml( 'widget.shopcart.error.noitems' )
@@ -145,6 +145,9 @@ sub render_body {
         $ret .= "</p></div>";
         $ret .= $class->end_form;
     }
+
+    # allow hooks to alter the cart or append to it
+    LJ::Hooks::run_hooks( 'shop_cart_render', \$ret, %opts );
 
     return $ret;
 }

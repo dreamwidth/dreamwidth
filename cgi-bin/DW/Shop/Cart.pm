@@ -436,6 +436,8 @@ sub state {
     return $self->{state}
         unless defined $newstate;
 
+    LJ::Hooks::run_hooks( 'shop_cart_state_change', $self, $newstate );
+
     $self->{state} = $newstate;
     $self->save;
 

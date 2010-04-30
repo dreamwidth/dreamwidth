@@ -154,8 +154,9 @@ sub can_be_added {
         return 0;
     }
 
-    # sanity check that the points are in-range and less than 5000?
-    if ( $self->points < 30 || $self->points > 5000 ) {
+    # sanity check that the points are in-range and less than 5000, but only if they're being
+    # purchased.  otherwise, we allow anything if it's a 0.00 cost item.
+    if ( $self->cost_cash > 0.00 && ( $self->points < 30 || $self->points > 5000 ) ) {
         $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.outofrange' );
         return 0;
     }

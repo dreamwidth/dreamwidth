@@ -59,6 +59,10 @@ sub _shop_controller {
 
     # populate vars with cart display template
     $rv->{cart_display} = DW::Template->template_string( 'shop/cartdisplay.tt', $rv );
+
+    # call any hooks to do things before we return success
+    LJ::Hooks::run_hooks( 'shop_controller', $rv );
+
     return ( 1, $rv );
 }
 
