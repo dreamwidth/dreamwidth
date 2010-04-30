@@ -1671,6 +1671,34 @@ esn.read_recent_entries=[[openlink]]Read the recent entries in [[journal]][[clos
 
 esn.read_user_entries=[[openlink]]Read [[poster]]'s recent entries[[closelink]]
 
+esn.receivedpoints.anon.body<<
+Hi [[user]],
+
+You have been given [[points]] [[?points|point|points]] by an anonymous donor!  Points can be used
+in the site store.  You can visit the store with this link:
+
+    [[store]]
+
+
+Regards,
+  The [[sitename]] Team
+.
+
+esn.receivedpoints.subject=You have received [[sitename]] Points!
+
+esn.receivedpoints.user.body<<
+Hi [[user]],
+
+You have been given [[points]] [[?points|point|points]] by [[from]]!  Points can be used
+in the site store.  You can visit the store with this link:
+
+    [[store]]
+
+
+Regards,
+  The [[sitename]] Team
+.
+
 esn.remove_trust=[[openlink]]Remove access from [[postername]][[closelink]]
 
 esn.remove_watch=[[openlink]]Unsubscribe from [[postername]][[closelink]]
@@ -1868,6 +1896,8 @@ event.officialpost=[[sitename]] makes a new announcement
 event.poll_vote.id=Someone votes in poll #[[pollid]]
 
 event.poll_vote.me=Someone votes in a poll I posted
+
+event.receivedpoints.me=Someone sends me [[sitename]] Points
 
 event.removedfromcircle.me=Someone removes me from their circle
 
@@ -2166,6 +2196,8 @@ menunav.shop.paidtime=Buy a Paid Account
 menunav.shop.history=Payment History
 
 menunav.shop.sponsor=Sponsor a User
+
+menunav.shop.transferpoints=Transfer Shop Points
 
 notification_method.email.title=Email
 

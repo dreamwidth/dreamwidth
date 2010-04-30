@@ -49,7 +49,7 @@ sub new {
 
 Render a template to a string.
 
-    [% dw.need_res( 'stc/some.css' ); %]
+    [% dw.need_res( 'stc/some.css' ) %]
 
 =cut
 
@@ -63,7 +63,7 @@ sub need_res {
 Get or set the ML scope of the template
 
     # store the old value
-    [% old_scope = dw.ml_scope( ) %]
+    [% old_scope = dw.ml_scope() %]
 
     # CALL forces us to ignore the returned value, and not print it out
     [% CALL dw.ml_scope( '/foo.tt' ) %]
@@ -76,11 +76,30 @@ sub ml_scope {
     return $#_ == 1 ? $r->note( 'ml_scope', $_[1] ) : $r->note( 'ml_scope' );
 }
 
+=head2 form_auth
+
+Return a HTML form element (input type=hidden) that contains the proper code for
+authenticating this form on POST.  This is required to be on all forms to help
+prevent XSS and other exploits.
+
+    <form ...>
+        # within the form somewhere...
+        [% dw.form_auth() %]
+    </form>
+
+=cut
+
+sub form_auth {
+    return LJ::form_auth();
+}
+
 =head1 AUTHOR
 
 =over
 
 =item Andrea Nall <anall@andreanall.com>
+
+=item Mark Smith <mark@dreamwidth.org>
 
 =back
 
