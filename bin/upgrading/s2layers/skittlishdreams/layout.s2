@@ -176,6 +176,8 @@ set font_journal_title_units = "em";
 set font_module_heading_size = "1.1";
 set font_module_heading_units = "em";
 
+set module_layout_sections = "none|(none)|two|Sidebar";
+
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
@@ -189,10 +191,23 @@ propgroup modules {
     property use module_poweredby_group;
     property use module_customtext_group;
     property use module_credit_group;
+
+    property string module_navlinks_section_override {
+       values = "none|(none)|one|Header|two|Sidebar";
+       grouped = 1;
+       }
+
+    property string module_poweredby_section_override {
+       values = "none|(none)|two|Sidebar|three|Footer";
+       grouped = 1;
+       }
+
+    property string module_time_section_override {
+       values = "none|(none)|two|Sidebar|three|Footer";
+       grouped = 1;
+       }
 }
 
-set module_layout_sections = "none|(none)|one|Header|two|Sidebar|three|Footer";
-set module_navlinks_section = "one";
 set module_userprofile_section = "two";
 set module_pagesummary_section = "two";
 set module_tags_section = "two";
@@ -200,10 +215,17 @@ set module_active_section = "two";
 set module_links_section = "two";
 set module_syndicate_section = "two";
 set module_calendar_section = "two";
-set module_poweredby_section = "three";
-set module_time_section = "none";
 set module_customtext_section = "two";
 set module_credit_section = "two";
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override",
+                                "module_poweredby_section" => "module_poweredby_section_override",
+                                "module_time_section" => "module_time_section_override", 
+                                };
+
+set module_navlinks_section = "one";
+set module_poweredby_section = "three";
+set module_time_section = "none";
 
 propgroup text {
     property use text_view_recent;
