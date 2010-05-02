@@ -490,6 +490,9 @@ sub sendmessage
     return fail($err, 213, 'found: ' . LJ::commafy($msg_len_c) . ' characters, it should exceed zero')
         if ($msg_len_c <= 0);
 
+    #test if to argument is present
+    return fail($err, 200, "to") unless exists $req->{'to'};
+    
     my @to = (ref $req->{'to'}) ? @{$req->{'to'}} : ($req->{'to'});
     return fail($err, 200) unless scalar @to;
 
