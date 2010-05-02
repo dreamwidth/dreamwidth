@@ -1795,6 +1795,8 @@ esn.view_profile=[[openlink]]View [[postername]]'s profile[[closelink]]
 
 esn.view_thread=[[openlink]]View the thread[[closelink]] starting from this comment
 
+esn.view_threadroot=[[openlink]]Go to the top of the thread[[closelink]] this comment is part of
+
 esn.you_can=You can:
 
 esn.you_must_unscreen=You must respond to it or unscreen it before others can see it.
