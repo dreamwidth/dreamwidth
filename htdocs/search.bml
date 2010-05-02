@@ -35,7 +35,7 @@ body<=
 
     # see what search mode...
     my $su = LJ::load_user( $POST{mode} || $GET{user} );
-    my $q = LJ::strip_html( LJ::trim( $POST{query} ) );
+    my $q = LJ::strip_html( LJ::trim( $POST{query} || $GET{query} ) );
     my $sby = $POST{sort_by} || 'new';
     $sby = 'new' unless $sby =~ /^(?:new|old|rel)$/;
 
