@@ -3318,8 +3318,10 @@ sub subscribe_interface {
 
         # inbox method
         my $special_subs = 0;
+        my $unavailable_subs = 0;
         my $sub_count = 0;
         foreach my $pending_sub (@pending_subscriptions) {
+            my $upgrade_notice = ( !$u->is_paid && $pending_sub->disabled($u) ) ? " &dagger;" : "";
             if (!ref $pending_sub) {
                 next if $u->is_identity && $pending_sub->disabled($u);
 
@@ -3330,7 +3332,9 @@ sub subscribe_interface {
                 $sub_title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $sub_title if $pending_sub->disabled($u);
 
                 $cat_html .= "<tr class='$disabled_class $altrow_class'>";
-                $cat_html .= "<td>" . $pending_sub->htmlcontrol($u) . "$sub_title*</td>";
+                $cat_html .= "<td>" . $pending_sub->htmlcontrol($u) . "$sub_title*";
+                $cat_html .= "$upgrade_notice";
+                $cat_html .= "</td>";
                 $cat_html .= "<td>&nbsp;</td>";
                 foreach my $notify_class (@notify_classes) {
                     if ($notify_class eq "LJ::NotificationMethod::Email") {
@@ -3354,7 +3358,8 @@ sub subscribe_interface {
             my $subscribed = ! $pending_sub->pending;
 
             unless ($pending_sub->enabled) {
-                $title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $title;
+                $title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $title . $upgrade_notice;
+                $unavailable_subs++;
             }
             next if ! $pending_sub->event_class->is_visible && $showtracking;
 
@@ -3531,6 +3536,9 @@ sub subscribe_interface {
 
         $cat_html .= "</tr>";
         $cat_html .= "<tr><td colspan='$cols' style='font-size: smaller;'>* " . LJ::Lang::ml( 'subscribe_interface.special_subs.note', { sitenameabbrev => $LJ::SITENAMEABBREV } ) . "</td></tr>" if $special_subs;
+        $cat_html .= "<tr><td colspan='$cols' style='font-size: smaller;'>&dagger; " .
+                     LJ::Lang::ml('subscribe_interface.unavailable_subs.note') . "</td></tr>"
+            if !$u->is_paid && ( $special_subs || $unavailable_subs );
         $cat_html .= "</div>";
         $events_table .= $cat_html unless ($is_tracking_category && !$showtracking);
 

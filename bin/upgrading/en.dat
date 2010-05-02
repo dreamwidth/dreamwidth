@@ -3476,6 +3476,8 @@ subscribe_interface.special_subs.note=These notification options are only availa
 
 subscribe_interface.subs.total=You are using [[active]] out of [[max_active]] active subscriptions.
 
+subscribe_interface.unavailable_subs.note=These notification options are only available to certain account types.
+
 success=Success
 
 taglib.error.access=You are not allowed to tag entries in this journal.
