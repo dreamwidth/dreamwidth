@@ -102,7 +102,7 @@ sub save {
     # don't set cookie for default scheme
     if ($val eq $bml_schemes[0]->{scheme} && !$LJ::SAVE_SCHEME_EXPLICITLY) {
         $cval = "";
-        $r->delete_cookie( name => 'BMLschemepref' );
+        $r->delete_cookie( domain  => ".$LJ::DOMAIN", name => 'BMLschemepref' );
     }
 
     my $expires = undef;
