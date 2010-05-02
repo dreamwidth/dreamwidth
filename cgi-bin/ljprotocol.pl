@@ -2215,10 +2215,34 @@ sub getevents
         return fail($err,200,"Invalid selecttype.");
     }
 
+    my $mask = 0;
+    if ( $u && ( $u->is_person || $u->is_identity ) && $posterid != $ownerid ) {
+        # if this is a community we're viewing, fake the mask to select on, as communities
+        # no longer have masks to users
+        if ( $uowner->is_community ) {
+            $mask = $u->member_of( $uowner ) ? 1 : 0;
+        } else {
+            $mask = $uowner->trustmask( $u );
+        }
+    }
+
+    # check security!
+    my $secwhere;
+    if ( $u && $u->can_manage( $uowner ) ) {
+        # journal owners and community admins can see everything
+        $secwhere = "";
+    } elsif ( $mask ) {
+        # can see public or things with them in the mask
+        $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $mask != 0))";
+    } else {
+        # not on access list or a member; only see public.
+        $secwhere = "AND security='public'";
+    }
+
     # common SQL template:
     unless ($sql) {
         $sql = "SELECT jitemid, eventtime, security, allowmask, anum, posterid ".
-            "FROM log2 WHERE journalid=$ownerid $where $orderby $limit";
+            "FROM log2 WHERE journalid=$ownerid $where $secwhere $orderby $limit";
     }
 
     # whatever selecttype might have wanted us to use the master db.
