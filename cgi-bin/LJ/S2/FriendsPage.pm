@@ -116,15 +116,17 @@ sub FriendsPage
 
     # but we can't just use a filter, we have to make sure the person is allowed to
     my $filter;
-    if ( ( $get->{filter} ne "0" ) && $cf && ( $u->equals( $remote ) || $cf->public ) ) {
-        $filter = $cf;
+    unless ( $opts->{securityfilter} ) {
+        if ( ( $get->{filter} ne "0" ) && $cf && ( $u->equals( $remote ) || $cf->public ) ) {
+            $filter = $cf;
 
-    # if we couldn't use the group, then we can throw an error, but ONLY IF they specified
-    # a group name manually.  if we tried to load the default on our own, don't toss an
-    # error as that would let a user disable their friends page.
-    } elsif ( $group_name ) {
-        $opts->{badfriendgroup} = 1;  # nobiscuit
-        return 1;
+        # if we couldn't use the group, then we can throw an error, but ONLY IF they specified
+        # a group name manually.  if we tried to load the default on our own, don't toss an
+        # error as that would let a user disable their friends page.
+        } elsif ( $group_name ) {
+            $opts->{badfriendgroup} = 1;  # nobiscuit
+            return 1;
+        }
     }
 
     ## load the itemids
@@ -138,6 +140,7 @@ sub FriendsPage
         idsbycluster      => \%idsbycluster,
         showtypes         => $get->{show},
         friendsoffriends  => $opts->{view} eq 'network',
+        security          => $opts->{securityfilter},
         dateformat        => 'S2',
         events_date       => $events_date,
     );

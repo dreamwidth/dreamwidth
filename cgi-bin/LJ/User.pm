@@ -8509,7 +8509,7 @@ sub make_journal
     }
 
     # do the same for security filtering
-    elsif ($view eq 'lastn' && $opts->{pathextra} && $opts->{pathextra} =~ /^\/security\/(.+)$/) {
+    elsif ( ( $view eq 'lastn' || $view eq 'read' ) && $opts->{pathextra} && $opts->{pathextra} =~ /^\/security\/(.+)$/ ) {
         $opts->{getargs}->{security} = LJ::durl($1);
         $opts->{pathextra} = undef;
     }
@@ -8684,13 +8684,13 @@ sub make_journal
             if $stylesys == 1 && $view ne 'data' && ! $u->is_redirect;
 
         # check the filter itself
-        if ( lc( $securityfilter ) eq 'access' ) {
-            $opts->{securityfilter} = 'friends';
-        } elsif ($securityfilter =~ /^(?:public|friends|private)$/i) {
+        if ( lc( $securityfilter ) eq 'friends' ) {
+            $opts->{securityfilter} = 'access';
+        } elsif ($securityfilter =~ /^(?:public|access|private)$/i) {
             $opts->{securityfilter} = lc($securityfilter);
 
         # see if they want to filter by a custom group
-        } elsif ($securityfilter =~ /^group:(.+)$/i) {
+        } elsif ( $securityfilter =~ /^group:(.+)$/i && $view eq 'lastn' ) {
             my $tf = $u->trust_groups( name => $1 );
             if ( $tf && ( $u->equals( $remote ) ||
                           $u->trustmask( $remote ) & ( 1 << $tf->{groupnum} ) ) ) {

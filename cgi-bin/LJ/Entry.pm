@@ -1629,6 +1629,11 @@ sub get_log2_recent_user
         last if $notafter and $item->{'rlogtime'} > $notafter;
         next unless $remote || $item->{'security'} eq 'public';
 
+        next if defined( $opts->{security}) && !(
+                       ( $opts->{security} eq 'access' && $item->{security} eq 'usemask' && $item->{allowmask}+0 != 0 )
+                    || ( $opts->{security} eq 'private' && $item->{security} eq 'usemask' && $item->{allowmask}+0 == 0 )
+                    || ( $opts->{security} eq $item->{security} ) );
+
         if ( $item->{security} eq 'private' and $item->{journalid} != $remote->{userid} ) {
             my $ju = LJ::load_userid( $item->{journalid} );
             next unless $remote->can_manage( $ju );

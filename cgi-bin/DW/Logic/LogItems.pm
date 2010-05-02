@@ -33,6 +33,7 @@ use Carp qw/ confess /;
 #           - idsbycluster (opt) hashref to set clusterid key to [ [ journalid, itemid ]+ ]
 #           - dateformat:  either "S2" for S2 code, or anything else for S1
 #           - friendsoffriends: load friends of friends, not just friends
+#           - security: (public|access) or a group number
 #           - showtypes: /[PICNYF]/
 #           - events_date: date to load events for ($u must have friendspage_per_day)
 #           - content_filter: object of type DW::User::ContentFilters::Filter
@@ -265,6 +266,7 @@ sub watch_items
             dateformat  => $args{dateformat},
             update      => $LJ::EndOfTime - $fr->[1], # reverse back to normal
             events_date => $events_date,
+            security    => $args{security},
         });
 
         # stamp each with clusterid if from cluster, so ljviews and other
@@ -332,7 +334,7 @@ sub watch_items
 #           -- remote: remote user's $u
 #           -- clusterid: clusterid of userid
 #           -- tagids: arrayref of tagids to return entries with
-#           -- security: (public|friends|private) or a group number
+#           -- security: (public|access|private) or a group number
 #           -- clustersource: if value 'slave', uses replicated databases
 #           -- order: if 'logtime', sorts by logtime, not eventtime
 #           -- friendsview: if true, sorts by logtime, not eventtime
@@ -457,13 +459,13 @@ sub recent_items
     my $securitywhere;
     if ($args{'security'}) {
         my $security = $args{'security'};
-        if (($security eq "public") || ($security eq "private")) {
+        if ( ( $security eq "public" ) || ( $security eq "private" ) ) {
             $securitywhere = " AND security = \"$security\"";
         }
-        elsif ($security eq "friends") {
+        elsif ( $security eq "access" ) {
             $securitywhere = " AND security = \"usemask\" AND allowmask = 1";
         }
-        elsif ($security=~/^\d+$/) {
+        elsif ( $security=~/^\d+$/ ) {
             $securitywhere = " AND security = \"usemask\" AND (allowmask & " . (1 << $security) . ")";
         }
     }
