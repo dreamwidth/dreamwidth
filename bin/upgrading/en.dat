@@ -3480,9 +3480,13 @@ taglib.error.add=You are not allowed to create new tags for this journal; the en
 
 taglib.error.delete=You are not allowed to delete tags from entries for this journal; the entry is still tagged with [[tags]].
 
+taglib.error.exists=The tag name '[[tagname]]' is already in use and cannot be renamed to. You can merge the tags instead.
+
 taglib.error.invalid=The following tag name is invalid: [[tagname]]
 
-taglib.error.nomerge=The tag name '[[tagname]]' is already in use.  Merging tags is not supported at this time.
+taglib.error.mergenoname=You did not provide a tag name you want to merge to.
+
+taglib.error.mergetoexisting=The tag name '[[tagname]]' is already in use, but you did not select it. Please select the tag or merge to a different tag name.
 
 taglib.error.toomany=This would make you exceed your maximum of [[max]] tags.  Please remove some and try again.
 

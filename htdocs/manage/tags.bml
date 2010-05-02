@@ -42,6 +42,7 @@ body<=
     ml.security_label = "$ML{'.label.security'}";
     ml.na_label = "$ML{'.label.notapplicable'}";
     ml.rename_btn = "$ML{'.button.rename'}";
+    ml.merge_btn = "$ML{'.button.merge'}";
 
 </script>
 HEAD
@@ -79,9 +80,23 @@ HEAD
             if ( $new_tag =~ /,/ ) {
                 $ret .= "<?errorbar $ML{'.error.rename.multiple'} errorbar?>";
             } else {
-                # FIXME: merge support later
                 my $tagerr = "";
                 my $rv = LJ::Tags::rename_usertag( $u, 'name', $tagnames[0], $new_tag, \$tagerr );
+                $ret .= "<?errorbar $tagerr errorbar?>" unless $rv;
+            }
+        }
+
+        if ( $POST{merge} ) {
+            my @tagnames = map { s/\d+_//; $_; } split /\0/, $POST{tags};
+
+            # get the new name for the tags
+            my $new_tagname = LJ::trim( $POST{merge_field} );
+
+            if ( $new_tagname =~ /,/ ) {
+                $ret .= "<?errorbar $ML{'.error.rename.multiple'} errorbar?>";
+            } else {
+                my $tagerr = "";
+                my $rv = LJ::Tags::merge_usertags( $u, $new_tagname, \$tagerr, @tagnames );
                 $ret .= "<?errorbar $tagerr errorbar?>" unless $rv;
             }
         }
@@ -158,6 +173,7 @@ HEAD
         rename => $ML{'.hint.rename'},
         delete => $ML{'.hint.delete'},
         entries => $ML{'.hint.entries'},
+        merge => $ML{'.hint.merge'},
     };
 
     my $sp = '&nbsp;&nbsp;';
@@ -274,6 +290,27 @@ HEAD
              }
          );
         $ret .= '<br /><br />';
+
+        $ret .= LJ::html_text(
+            {
+                 name    => 'merge_field',
+                 size    => 30,
+                 class   => 'tagfield',
+                 onClick => 'reset_field(this)',
+             }
+          );
+         $ret .= $sp;
+         my $merge_conf = LJ::ejs( $ML{'.confirm.merge'} );
+         $ret .= LJ::html_submit(
+             'merge', $ML{'.button.merge'},
+             {
+                 class   => 'btn',
+                 title   => $mo->{merge},
+                 onClick => "return confirm('$merge_conf')",
+              }
+          );
+
+         $ret .= '<br /><br />';
 
         my $del_conf = LJ::ejs( $ML{'.confirm.delete'} );
         $ret .= LJ::html_submit(

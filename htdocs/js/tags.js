@@ -9,20 +9,36 @@ function initTagPage()
     if (list) tagselect(list);
 }
 
-function toggle_actions(enable, just_rename)
+function toggle_actions( selected_num )
 {
     var form = document.getElementById("tagform");
     if (! form) return;
 
     // names of form elements to disable/enable
     // on item selections
-    var toggle_elements = new Array("rename", "rename_field", "delete", "show posts");
-
-    for ( $i = 0; $i < toggle_elements.length; $i++ ) {
-        var ele = form.elements[ toggle_elements[$i] ];
-        if (just_rename && $i > 1) continue;  // FIXME: remove after merge is decided
-        ele.disabled = ! enable;
+    var toggle_elements_disabled = [], toggle_elements_enabled = [];
+    switch ( selected_num ) {
+        case 0:
+            toggle_elements_disabled = ["rename", "rename_field", "merge", "merge_field", "delete", "show posts"];
+            break;
+        case 1:
+            toggle_elements_enabled = ["rename", "rename_field", "delete", "show posts"];
+            toggle_elements_disabled = ["merge", "merge_field"];
+            break;
+        default:
+            toggle_elements_enabled = ["merge", "merge_field", "delete", "show posts"];
+            toggle_elements_disabled = ["rename", "rename_field"];
+            break;
     }
+
+    for ( i = 0; i < toggle_elements_disabled.length; i++ ) {
+        form.elements[toggle_elements_disabled[i]].disabled = true;
+    }
+
+    for ( i = 0; i < toggle_elements_enabled.length; i++ ) {
+        form.elements[toggle_elements_enabled[i]].disabled = false;
+    }
+
 }
 
 function tagselect(list)
@@ -49,33 +65,28 @@ function tagselect(list)
 
     var tagfield   = document.getElementById("selected_tags");
     var tagprops   = document.getElementById("tag_props");
-    var rename_btn = form.elements[ "rename" ];
-    if (! tagfield || ! tagprops || ! rename_btn) return;
+    if (! tagfield || ! tagprops ) return;
 
     // reset any 'red' fields
     reset_field( form.elements[ "rename_field" ]);
     reset_field( form.elements[ "add_field" ]);
 
+    toggle_actions(selected_num);
+
     // no selections
     if (! selected_num) {
-        toggle_actions(false);
-        rename_btn.value = ml.rename_btn;
+        toggle_actions(0);
         show_props(tagprops);
     } else {
-        toggle_actions(true);
         tagfield.innerHTML = selected.join(", ");
 
         // exactly one selection
         if (selected_num == 1) {
-            rename_btn.value = ml.rename_btn;
             show_props(tagprops, selected_id);
         }
 
         // multiple items selected
         else {
-            // FIXME: enable after merging is decided
-            //rename_btn.value = "Merge";
-            toggle_actions(false, 1); // FIXME: delete after merging is decided
             show_props(tagprops);
         }
     }

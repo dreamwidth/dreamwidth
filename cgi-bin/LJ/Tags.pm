@@ -1181,7 +1181,7 @@ sub delete_usertag {
 # <LJFUNC>
 # name: LJ::Tags::rename_usertag
 # class: tags
-# des: Deletes a tag for a user, and all mappings.
+# des: Renames a tag for a user
 # args: uobj, type, tag, newname, error_ref (optional)
 # des-uobj: User object to delete tag on.
 # des-type: Either 'id' or 'name', indicating the type of the third parameter.
@@ -1193,8 +1193,6 @@ sub delete_usertag {
 # </LJFUNC>
 sub rename_usertag {
     return undef unless LJ::is_enabled('tags');
-
-    # FIXME/TODO: make this function do merging?
 
     my $u = LJ::want_user(shift);
     return undef unless $u;
@@ -1232,9 +1230,10 @@ sub rename_usertag {
     return undef unless $newkwid;
 
     # see if the tag we're renaming TO already exists as a keyword,
-    # if so, don't allow the rename because we don't do merging (yet)
-    my $tags = LJ::Tags::get_usertags($u);
-    return $err->( LJ::Lang::ml( 'taglib.error.nomerge', { tagname => $newname } ) )
+    # if so, error and suggest merging the tags
+    # FIXME: ask user to merge and then merge
+    my $tags = LJ::Tags::get_usertags( $u );
+    return $err->( LJ::Lang::ml( 'taglib.error.exists', { tagname => LJ::ehtml( $oldkw ) } ) )
         if $tags->{$newkwid};
 
     # escape sub
@@ -1273,6 +1272,206 @@ sub rename_usertag {
     LJ::Tags::reset_cache($u);
     LJ::Tags::reset_cache($u => \@jitemids);
     return 1;
+}
+
+# <LJFUNC>
+# name: LJ::Tags::merge_usertags
+# class: tags
+# des: Merges usertags
+# args: uobj, newname, error_ref, oldnames
+# des-uobj: User object to merge tag on.
+# des-newname: new name for these tags, might be one that already exists
+# des-error_ref: ref to scalar to return error messages in.
+# des-oldnames: array of tags that need to be merged
+# returns: undef on error, 1 for success
+# </LJFUNC>
+sub merge_usertags {
+    return undef unless LJ::is_enabled( 'tags' );
+
+    my $u = LJ::want_user( shift );
+    return undef unless $u;
+    my ( $merge_to, $ref, @merge_from ) = @_;
+    my $userid = $u->userid;
+    return undef unless $userid;
+
+    # error output
+    my $err = sub {
+        my $err_ref = $ref && ref $ref eq 'SCALAR' ? $ref : \"";
+        $$err_ref = shift() || "Unspecified error";
+        return undef;
+    };
+
+    # check whether we have a new name
+    return $err->( LJ::Lang::ml( 'taglib.error.mergenoname') )
+        unless $merge_to;
+
+    # check whether new tag is valid
+    my $newname = LJ::Tags::validate_tag( $merge_to );
+    return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $merge_to ) } ) )
+        unless $newname;
+
+    # check whether tag to merge to already exists
+    # if it exists, but isn't selected for merging, throw error as this could be a mistake
+    my $tags = LJ::Tags::get_usertags( $u );
+    my $exists = $tags->{$u->get_keyword_id( $newname )} ? 1 : 0;
+    my %merge_from = map { $_ => 1 } @merge_from;
+    return $err->( LJ::Lang::ml( 'taglib.error.mergetoexisting', { tagname => LJ::ehtml( $merge_to ) } ) )
+        if $exists && ! %merge_from->{$merge_to};
+
+    # if necessary, create new tag id
+    my $merge_to_id;
+    if ( $exists ) {
+        $merge_to_id = $u->get_keyword_id( $newname );
+    } else {
+        my $merge_to_ids = LJ::Tags::create_usertag( $u, $newname, { display => 1 } );
+        $merge_to_id = $merge_to_ids->{$newname};
+    }
+
+    # get keyword ids of tags to merge - take out the existing one if there is one
+    my @merge_from_ids;
+    foreach my $tagname ( @merge_from ) {
+        my $val = LJ::Tags::validate_tag( $tagname );
+        return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $tagname ) } ) )
+            unless $val;
+        my $kwid = $u->get_keyword_id( $val, 0 );
+        push @merge_from_ids, $kwid unless $kwid eq $merge_to_id;
+    }
+
+    # rollback if we encounter any errors in the upcoming database transactions
+    my $rollback = sub {
+        die $u->errstr unless $u->rollback;
+        return undef;
+    };
+
+    # begin transaction
+    $u->begin_work;
+
+    # get the entry ids of entries the tag is already on if it exists
+    my @merge_to_jitemids;
+    if ( $exists ) {
+        my $sth = $u->prepare( 'SELECT jitemid FROM logtags WHERE journalid= ? AND kwid= ?' );
+        return $rollback->() if $u->err || ! $sth;
+        $sth->execute( $userid, $merge_to_id );
+        return $rollback->() if $sth->err;
+
+        push @merge_to_jitemids, $_
+            while $_ = $sth->fetchrow_array;
+    }
+
+    # getting the entry ids the tag might need to be added to (might because if we are merging to an existing tag, 
+    # we need to take out the entries that already have both a tag we are merging from and the tag we are merging to)
+    my $sth = $u->prepare( "SELECT DISTINCT jitemid FROM logtags WHERE journalid= ? AND kwid IN (" . join( ", ", ( "?" ) x @merge_from_ids ) . ")" );
+    return $rollback->() if $u->err || ! $sth;
+    $sth->execute( $userid, @merge_from_ids );
+    return $rollback->() if $sth->err;
+
+    # jitemids of all entries the tag needs to be added to, taking out the ones it is already on
+    my @jitemids;
+    if ( $exists ) {
+        my %merge_to_jitemids = map { $_ => 1 } @merge_to_jitemids;
+        while ( my $jitemid = $sth->fetchrow_array ) {
+            push @jitemids, $jitemid unless %merge_to_jitemids->{$jitemid};
+        }
+    } else {
+        push @jitemids, $_
+            while $_ = $sth->fetchrow_array;
+    }
+
+    # now we do the actual database updates to logtags, logtagsrecent, usertags, and logkwsum:
+
+    # add the tag to all entries we need to change, in both logtags and logtagsrecent
+    if ( @jitemids ) {
+        foreach my $jitemid ( @jitemids ) {
+            my $sth = $u->prepare( "INSERT INTO logtags (journalid, jitemid, kwid) VALUES ( ?, ?, ? )");
+            return $rollback->() if $u->err || ! $sth;
+            $sth->execute( $userid, $jitemid, $merge_to_id );
+            return $rollback->() if $sth->err;
+
+            my $sth = $u->prepare( "INSERT INTO logtagsrecent (journalid, jitemid, kwid) VALUES ( ?, ?, ? )");
+            return $rollback->() if $u->err || ! $sth;
+            $sth->execute( $userid, $jitemid, $merge_to_id );
+            return $rollback->() if $sth->err;
+        }
+    }
+
+    # if the tag already existed before, it already has entries in logkwsum, which we delete now
+    if ( $exists ) {
+        $u->do("DELETE FROM logkwsum WHERE journalid = ? AND kwid = ? " , undef, $userid, $merge_to_id );
+        return $rollback->() if $u->err;
+    }
+
+    # while we previously only needed the jitemids of the entries we needed to add the tag to, we now need all the ones it is a tag on after the transaction
+    # including the one it was already on before the merge
+    my $sth = $u->prepare( "SELECT jitemid FROM logtags WHERE journalid= ? AND kwid= ?" );
+    return $rollback->() if $u->err || ! $sth;
+    $sth->execute( $userid, $merge_to_id );
+    return $rollback->() if $sth->err;
+
+    # we need all jitemids in an array for later cache clearing
+    my @jitemids;
+    while ( my $itemid = $sth->fetchrow_array ) {
+        push @jitemids, $itemid;
+    }
+
+    # get security of entries this new tag is now on, so we can accurately update logkwsum
+    # this can only get executed if the tags we are merging are actually in use on entries
+    # since we don't need logkwsum entries for tags that exist and are not used on entries, we can just skip this for them
+    if ( @jitemids ) {
+        my $sth = $u->prepare( "SELECT security, allowmask FROM log2 WHERE journalid=? AND jitemid IN (" . join( ", ", ( "?" ) x @jitemids ) . ")" );
+        return $rollback->() if $u->err || ! $sth;
+
+        $sth->execute( $userid, @jitemids );
+        return $rollback->() if $sth->err;
+
+        # updating security counts: create hash for storing security values and initialize with zeros
+        my $public_mask = 1 << 63;
+        my %securities = (
+            $public_mask => 0,
+            0 => 0,
+            1 => 0,
+            2 => 0,
+        );
+
+        # count securities; if the security isn't public or private and the allowmask isn't 1, the entry is set to trusted
+        while ( my ( $security, $allowmask ) = $sth->fetchrow_array ) {
+            if ( $security eq 'public' ) {
+                $securities{$public_mask}++;
+            } elsif ( $security eq 'private' ) {
+                $securities{0}++;
+            } elsif ( $allowmask == 1 ) {
+                $securities{1}++;
+            } else {
+                $securities{2}++;
+            }
+        }
+
+        # write to logkwsum
+        while ( my ( $sec, $value ) = each %securities ) {
+            unless ( $value == 0 ) {
+                $u->do( "INSERT INTO logkwsum (journalid, kwid, security, entryct) VALUES (?, ?, ?, ?)",
+                    undef, $userid, $merge_to_id, $sec, $value );
+                return $rollback->() if $u->err;
+            }
+        }
+    }
+
+    # delete other tags from database and entries 
+    foreach my $table ( qw( usertags logtags logtagsrecent logkwsum ) ) {
+        my $sth = $u->prepare( "DELETE FROM $table WHERE journalid = ? AND kwid IN (" . join( ", ", ( "?" ) x @merge_from_ids ) . ")" );
+        return $rollback->() if $u->err || ! $sth;
+
+        $sth->execute( $userid, @merge_from_ids );
+        return $rollback->() if $sth->err;
+    }
+
+    # done with the updates, commit
+    die $u->errstr unless $u->commit;
+
+    # reset cache on all changed entries
+    LJ::Tags::reset_cache( $u );
+    LJ::Tags::reset_cache( $u => \@jitemids );
+
+    return 1;    
 }
 
 # <LJFUNC>
