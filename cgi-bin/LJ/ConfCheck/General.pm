@@ -116,18 +116,6 @@ add_conf('$COOKIE_DOMAIN',
          des => "The 'domain' value set on cookies sent to users.  By default, value is \".\$DOMAIN\".  Note the leading period, which is a wildcard for everything at or under \$DOMAIN.",
          );
 
-add_conf('$COOKIE_PATH',
-         required => 0,
-         des => "The 'path' value set on cookies sent to users.  By default, value is \"/\", and any other value probably wouldn't work anyway.",
-         STUPID_BECAUSE => "no use, since LJ must be rooted at /.",
-         );
-
-add_conf('@COOKIE_DOMAIN_RESET',
-         required => 0,
-         des => "Array of cookie domain values to send when deleting cookies from users.  Only useful when changing domains, and even then kinda useless.",
-         STUPID_BECAUSE => "ancient hack for one old specific use",
-         );
-
 add_conf('$DB_LOG_HOST',
          required => 0,
          type => "hostport",

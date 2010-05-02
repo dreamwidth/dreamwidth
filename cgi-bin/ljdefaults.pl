@@ -74,8 +74,6 @@
 
     # where we set the cookies (note the period before the domain)
     $COOKIE_DOMAIN ||= ".$DOMAIN";
-    $COOKIE_PATH   ||= "/";
-    @COOKIE_DOMAIN_RESET = ("", "$DOMAIN", ".$DOMAIN") unless @COOKIE_DOMAIN_RESET;
 
     $MAX_SCROLLBACK_LASTN ||= 100;
     $MAX_SCROLLBACK_FRIENDS ||= 1000;

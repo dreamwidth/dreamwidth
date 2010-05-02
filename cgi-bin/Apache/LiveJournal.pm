@@ -1326,7 +1326,7 @@ sub journal_content
         $r->content_type("text/html");
 
         # reset all cookies
-        foreach my $dom ( @LJ::COOKIE_DOMAIN_RESET ) {
+        foreach my $dom ( "", $LJ::DOMAIN, $LJ::COOKIE_DOMAIN ) {
             DW::Request->get->add_cookie(
                 name     => 'ljsession',
                 expires  => LJ::time_to_cookie(1),

@@ -25,8 +25,8 @@ foreach (@LJ::LANGS, @LJ::LANGS_IN_PROGRESS) {
 }
 
 # set default path/domain for cookies
-BML::set_config("CookieDomain" => $LJ::COOKIE_DOMAIN);
-BML::set_config("CookiePath"   => $LJ::COOKIE_PATH);
+BML::set_config( "CookieDomain" => $LJ::COOKIE_DOMAIN );
+BML::set_config( "CookiePath"   => "/" );
 
 BML::register_hook("startup", sub {
     my $r = BML::get_request();
