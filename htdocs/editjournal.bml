@@ -261,6 +261,7 @@ body<=
                 my $j_base = $journalu->journal_base;
                 my $entry_url = LJ::item_link($journalu, $itemid, $res{anum});
                 my $edititemlink = "/editjournal?itemid=$ditemid";
+                my $edit_url = $edititemlink . "&journal=" . $journalu->user;
 
                 # update crosspost if we're posting to our own journal and have
                 # selected crosspost.
@@ -296,6 +297,8 @@ body<=
                 my $result = "<?h1 $ML{'.success.head'} h1?>";
                 $result .= "<table border='0' width='100%'><tr valign='top'><td>";
 
+                my $message;
+
                 if ($deleted) {
                     $result .= "<?p $ML{'.success.delete'} p?>";
                     $result .= "<?p $ML{'.success.deletespam'} p?>" if $POST{'action:deletespam'};
@@ -304,7 +307,9 @@ body<=
                     my $deleted_extras = LJ::Hooks::run_hook('entry_deleted_page_extras');
                     $result .= $deleted_extras if defined $deleted_extras;
                 } else {
+                    $message = LJ::auto_linkify( LJ::ehtml( $res{message} ) );
                     $result .= "<?p $ML{'.success.edited'} p?>";
+                    $result .= "<?p $message p?>" if $message;
                     $result .= $xpost_result;
                     # open a request about the unsuspension if one doesn't already exist
                     if ($POST{'action:saveunsuspend'} && !$entry_obj->prop("unsuspend_supportid") && $LJ::UNSUSPENSION_REQUEST_SPCATID) {
@@ -332,6 +337,7 @@ body<=
 
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
                 $result .= "<li><a href='$entry_url'>$ML{'.success.fromhere.viewentry'}</a></li>" unless $deleted;
+                $result .= "<li><a href='$edit_url'>$ML{'.success.fromhere.editentry'}</a></li>" if $message;
                 $result .= "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";
                 $result .= "<li><a href='$LJ::SITEROOT/editjournal'>$ML{'.success.fromhere.manageentries'}</a></li>";
                 $result .= "</ul></div>";

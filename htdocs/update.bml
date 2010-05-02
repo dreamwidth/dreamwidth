@@ -412,9 +412,9 @@ _c?>
 
         if (!$errors) {
             # examine response
-            my $update_message;
+            my $protocol_message;
             if ($res{'success'} eq "OK" && $res{'message'}) {
-                $update_message = LJ::auto_linkify(LJ::ehtml($res{'message'}));
+                $protocol_message = LJ::auto_linkify(LJ::ehtml($res{'message'}));
             }
 
             if ($res{'success'} ne 'OK') {
@@ -467,6 +467,7 @@ _c?>
                     }
 
                     $$body .= BML::ml( $updatemessage, {'aopts' => "href='" . $ju->journal_base . "/'"} );
+                    $$body .= "<br />$protocol_message" if $protocol_message;
                     my $juser = $ju->{'user'};
                     my ($itemid, $anum) = ($res{'itemid'}, $res{'anum'});
                     $itemlink = LJ::item_link($ju, $itemid, $anum);

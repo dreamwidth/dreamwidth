@@ -1481,6 +1481,12 @@ sub postevent
     LJ::MemCache::set([$ownerid,"logtext:$clusterid:$ownerid:$jitemid"],
                       [ $req->{'subject'}, $event ]);
 
+    # warn the user of any bad markup errors
+    my $clean_event = $event;
+    my $errref;
+    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref } );
+    $res->{message} = translate( $u, $errref, { aopts => "href='$LJ::SITEROOT/editjournal?journal=" . $uowner->user . "&itemid=$ditemid'" } ) if $errref;
+
     # keep track of custom security stuff in other table.
     if ($uselogsec) {
         $uowner->do("INSERT INTO logsec2 (journalid, jitemid, allowmask) ".
@@ -1618,7 +1624,7 @@ sub postevent
 sub editevent
 {
     my ($req, $err, $flags) = @_;
-    my $res;
+    my $res = {};
     my $deleted = 0;
     un_utf8_request($req);
 
@@ -1933,6 +1939,11 @@ sub editevent
         $uowner->dudata_set('L', $itemid, $bytes);
     }
 
+    my $clean_event = $event;
+    my $errref;
+    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref } );
+    $res->{message} = translate( $u, $errref, { aopts => "href='$LJ::SITEROOT/editjournal?journal=" . $uowner->user . "&itemid=$ditemid'" } ) if $errref;
+
     # up the revision number
     $req->{'props'}->{'revnum'} = ($curprops{$itemid}->{'revnum'} || 0) + 1;
     $req->{'props'}->{'revtime'} = time();
@@ -1998,7 +2009,7 @@ sub editevent
 
     $uowner->clear_daycounts( $oldevent->{allowmask} + 0 || $oldevent->{security}, $req->{allowmask} + 0 || $req->{security} );
 
-    $res = { itemid => $itemid };
+    $res->{itemid} = $itemid;
     if (defined $oldevent->{'anum'}) {
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'} = LJ::item_link($uowner, $itemid, $oldevent->{'anum'});
@@ -3491,6 +3502,7 @@ sub editevent
         return 0;
     }
 
+    $res->{message} = $rs->{message} if $rs->{message};
     $res->{'success'} = "OK";
     $res->{'itemid'} = $rs->{'itemid'};
     $res->{'anum'} = $rs->{'anum'} if defined $rs->{'anum'};

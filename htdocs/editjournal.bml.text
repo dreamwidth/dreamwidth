@@ -37,6 +37,8 @@
 
 .success.fromhere=From here you can:
 
+.success.fromhere.editentry=Edit this entry again
+
 .success.fromhere.manageentries=Manage your journal entries
 
 .success.fromhere.viewentries=View journal entries

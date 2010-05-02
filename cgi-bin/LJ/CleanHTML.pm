@@ -141,6 +141,7 @@ sub clean
     my $unsuspend_supportid = $opts->{'unsuspend_supportid'} || 0;
     my $to_external_site = $opts->{to_external_site} || 0;
     my $remove_positioning = $opts->{'remove_positioning'} || 0;
+    my $errref = $opts->{errref};
 
     my @canonical_urls; # extracted links
     my %action = ();
@@ -220,6 +221,7 @@ sub clean
         }
 
         $extra_text = "<div class='ljparseerror'>$extra_text</div>";
+        $$errref = "parseerror" if $errref;
     };
 
     my $htmlcleaner = HTMLCleaner->new(valid_stylesheet => \&LJ::valid_stylesheet_url);
@@ -1330,6 +1332,7 @@ sub clean_event
         'suspend_msg' => $opts->{'suspend_msg'} ? 1 : 0,
         'unsuspend_supportid' => $opts->{'unsuspend_supportid'},
         to_external_site => $opts->{to_external_site} ? 1 : 0,
+        errref => $opts->{errref},
     });
 }
 
