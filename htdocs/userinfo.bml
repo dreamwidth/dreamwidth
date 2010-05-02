@@ -209,13 +209,14 @@ body<=
 
     # Returns true if the given user should be struck out on the profile
     my $strikeuser = sub {
-        return $_[0]->is_deleted || $_[0]->is_expunged || $_[0]->is_suspended;
+        return $_[0]->is_inactive;
     };
 
     # Returns true if the user is not struck out or if mode is full
     my $includeuser = sub {
         # I've repeated the logic in strikeuser so we don't do another function call
-        return ! ( $_[0]->is_deleted || $_[0]->is_expunged || $_[0]->is_suspended ) || $is_full;
+        return $_[0]->is_individual && ( $is_full || ! $_[0]->is_inactive );
+        # added is_individual because all previous tests were checking for both
     };
 
     my $listusers = sub {
@@ -302,6 +303,15 @@ body<=
             </p>
             $body
         );
+    };
+
+    my $mlsn = sub {
+        my ( $ml, $users ) = @_;
+        my $numusers = scalar @$users;
+        my $val = $numusers ?
+            { ml => "$ml.some", opts => { num => $numusers } } :
+            "$ml.none";
+        return $val;
     };
 
 ################################################################################
@@ -508,7 +518,7 @@ body<=
             if $remote && $remote->can_manage( $u );
         $ret .= $content_block->(
             section_name    => 'bio',
-            section_name_ml => $u->is_person || $u->is_identity ? '.bio.header' : '.about.header',
+            section_name_ml => $u->is_individual ? '.bio.header' : '.about.header',
             body            => "<div class='usercontent'>$biobody</div>",
             links           => $links,
         );
@@ -645,14 +655,14 @@ body<=
     my ( @trusted_userids, @trusted_by_userids, @mutually_trusted_userids, @not_mutually_trusted_userids, @not_mutually_trusted_by_userids );
     my ( @watched_userids, @watched_by_userids, @mutually_watched_userids, @not_mutually_watched_userids, @not_mutually_watched_by_userids );
 
+    # no mutual trust lists for identity accounts since they can't trust anyone
+    @trusted_by_userids = $u->trusted_by_userids if $u->is_identity;
+
     if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
         if ( $u->is_personal ) {
             @mutually_trusted_userids = $u->mutually_trusted_userids;
             @not_mutually_trusted_userids = $profile->not_mutually_trusted_userids;
             @not_mutually_trusted_by_userids = $profile->not_mutually_trusted_by_userids;
-        } else { # $u is identity
-            # no mutual trust lists for identity accounts since they can't trust anyone
-            @trusted_by_userids = $u->trusted_by_userids;
         }
         @mutually_watched_userids = $u->mutually_watched_userids;
         @not_mutually_watched_userids = $profile->not_mutually_watched_userids;
@@ -660,8 +670,8 @@ body<=
         @watched_userids = $u->watched_userids; # need this one to get watched communities and feeds
     } else {
         @trusted_userids = $u->trusted_userids if $u->is_personal;
-        @trusted_by_userids = $u->trusted_by_userids if $u->is_personal || $u->is_identity;
-        @watched_userids = $u->watched_userids if $u->is_personal || $u->is_identity;
+        @trusted_by_userids = $u->trusted_by_userids if $u->is_personal;
+        @watched_userids = $u->watched_userids if $u->is_individual;
         @watched_by_userids = $u->watched_by_userids
             # This is kind of a hack; we don't want to load these for communities with lots
             # of subscribers because the profile page chokes and dies.  This won't load them
@@ -688,203 +698,141 @@ body<=
         @posting_access_to_userids, @posting_access_from_userids,
     );
 
+    # presort various userid arrays
+    @$_ = sort { $us->{$a}->display_name cmp $us->{$b}->display_name } @$_
+        foreach ( \@trusted_userids, \@watched_userids, \@trusted_by_userids, \@watched_by_userids,
+                  \@mutually_trusted_userids, \@mutually_watched_userids, \@mutually_watched_userids,
+                  \@not_mutually_watched_userids, \@not_mutually_trusted_by_userids,
+                  \@not_mutually_watched_by_userids, \@members_userids, \@member_of_userids,
+                  \@posting_access_to_userids, \@posting_access_from_userids );
+
 ################################################################################
 ##### PEOPLE LISTS
 
     my ( $trusted_body, $trusted_by_body, $watched_body, $watched_by_body, $members_body, $posting_access_from_body );
 
-    unless ( $u->is_syndicated ) {
-        if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
-            if ( $u->is_personal ) {
-                my @mutually_trusted_list = sort { $a->display_name cmp $b->display_name }
-                     grep { $_->is_personal || $_->is_identity }
-                     map { $us->{$_} } @mutually_trusted_userids;
-                my $mutually_trusted_body_name_ml = @mutually_trusted_list ?
-                    { ml => '.people.mutually_trusted.some', opts => { num => scalar @mutually_trusted_list } } :
-                    '.people.mutually_trusted.none';
-                $trusted_body .= $content_inner_block->(
-                    section_name    => 'mutually_trusted_people',
-                    section_name_ml => $mutually_trusted_body_name_ml,
-                    extra_classes   => ' first',
-                    body            => $listusers->( \@mutually_trusted_list ),
-                );
+    if ( $u->is_identity ) {  # can't be mutual trust
+        my @trusted_by_list = grep { $includeuser->( $_ ) }
+            map { $us->{$_} } @trusted_by_userids;
+        $trusted_by_body = $content_inner_block->(
+            section_name    => 'trusted_by_people',
+            section_name_ml => $mlsn->( '.people.trusted_by', \@trusted_by_list ),
+            extra_classes   => ' first',
+            body            => $listusers->( \@trusted_by_list ),
+            hidable         => 1,
+        );
+    }
 
-                my @not_mutually_trusted_list = sort { $a->display_name cmp $b->display_name }
-                    grep { $_->is_personal || $_->is_identity }
-                    map { $us->{$_} } @not_mutually_trusted_userids;
-                my $not_mutually_trusted_body_name_ml = @not_mutually_trusted_list ?
-                    { ml => '.people.not_mutually_trusted.some', opts => { num => scalar @not_mutually_trusted_list } } :
-                    '.people.not_mutually_trusted.none';
-                $trusted_body .= $content_inner_block->(
-                    section_name    => 'not_mutually_trusted_people',
-                    section_name_ml => $not_mutually_trusted_body_name_ml,
-                    body            => $listusers->( \@not_mutually_trusted_list ),
-                );
-
-                my @not_mutually_trusted_by_list = sort { $a->display_name cmp $b->display_name }
-                    grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
-                    map { $us->{$_} } @not_mutually_trusted_by_userids;
-                my $not_mutually_trusted_by_body_name_ml = @not_mutually_trusted_by_list ?
-                    { ml => '.people.not_mutually_trusted_by.some', opts => { num => scalar @not_mutually_trusted_by_list } } :
-                    '.people.not_mutually_trusted_by.none';
-                $trusted_by_body = $content_inner_block->(
-                    section_name    => 'not_mutually_trusted_by_people',
-                    section_name_ml => $not_mutually_trusted_by_body_name_ml,
-                    body            => $listusers->( \@not_mutually_trusted_by_list ),
-                    hidable         => 1,
-                );
-            } else {
-                my @trusted_by_list = sort { $a->display_name cmp $b->display_name }
-                    grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
-                    map { $us->{$_} } @trusted_by_userids;
-                my $trusted_by_body_name_ml = @trusted_by_list ?
-                    { ml => '.people.trusted_by.some', opts => { num => scalar @trusted_by_list } } :
-                    '.people.trusted_by.none';
-                $trusted_by_body = $content_inner_block->(
-                    section_name    => 'trusted_by_people',
-                    section_name_ml => $trusted_by_body_name_ml,
-                    extra_classes   => $u->is_identity ? ' first' : '',
-                    body            => $listusers->( \@trusted_by_list ),
-                    hidable         => 1,
-                );
-            }
-
-            my @mutually_watched_list = sort { $a->display_name cmp $b->display_name }
-                grep { $_->is_personal || $_->is_identity }
-                map { $us->{$_} } @mutually_watched_userids;
-            my $mutually_watched_body_name_ml = @mutually_watched_list ?
-                { ml => '.people.mutually_watched.some', opts => { num => scalar @mutually_watched_list } } :
-                '.people.mutually_watched.none';
-            $watched_body .= $content_inner_block->(
-                section_name    => 'mutually_watched_people',
-                section_name_ml => $mutually_watched_body_name_ml,
-                body            => $listusers->( \@mutually_watched_list ),
+    if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
+        if ( $u->is_personal ) {
+            my @mutually_trusted_list = grep { $_->is_individual }
+                map { $us->{$_} } @mutually_trusted_userids;
+            $trusted_body .= $content_inner_block->(
+                section_name    => 'mutually_trusted_people',
+                section_name_ml => $mlsn->( '.people.mutually_trusted', \@mutually_trusted_list ),
+                extra_classes   => ' first',
+                body            => $listusers->( \@mutually_trusted_list ),
             );
 
-            my @not_mutually_watched_list = sort { $a->display_name cmp $b->display_name }
-                grep { $_->is_personal || $_->is_identity }
-                map { $us->{$_} } @not_mutually_watched_userids;
-            my $not_mutually_watched_body_name_ml = @not_mutually_watched_list ?
-                { ml => '.people.not_mutually_watched.some', opts => { num => scalar @not_mutually_watched_list } } :
-                '.people.not_mutually_watched.none';
-            $watched_body .= $content_inner_block->(
-                section_name    => 'not_mutually_watched_people',
-                section_name_ml => $not_mutually_watched_body_name_ml,
-                body            => $listusers->( \@not_mutually_watched_list ),
+            my @not_mutually_trusted_list = grep { $_->is_individual }
+                map { $us->{$_} } @not_mutually_trusted_userids;
+            $trusted_body .= $content_inner_block->(
+                section_name    => 'not_mutually_trusted_people',
+                section_name_ml => $mlsn->( '.people.not_mutually_trusted', \@not_mutually_trusted_list ),
+                body            => $listusers->( \@not_mutually_trusted_list ),
             );
 
-            my @not_mutually_watched_by_list = sort { $a->display_name cmp $b->display_name }
-                grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
-                map { $us->{$_} } @not_mutually_watched_by_userids;
-            my $not_mutually_watched_by_body_name_ml = @not_mutually_watched_by_list ?
-                { ml => '.people.not_mutually_watched_by.some', opts => { num => scalar @not_mutually_watched_by_list } } :
-                '.people.not_mutually_watched_by.none';
-            $watched_by_body = $content_inner_block->(
-                section_name    => 'not_mutually_watched_by_people',
-                section_name_ml => $not_mutually_watched_by_body_name_ml,
-                body            => $listusers->( \@not_mutually_watched_by_list ),
-                hidable         => 1,
-            );
-        } else {
-            if ( $u->is_personal ) {
-                my @trusted_list = sort { $a->display_name cmp $b->display_name }
-                    grep { $_->is_personal || $_->is_identity }
-                    map { $us->{$_} } @trusted_userids;
-                my $trusted_body_name_ml = @trusted_list ?
-                    { ml => '.people.trusted.some', opts => { num => scalar @trusted_list } } :
-                    '.people.trusted.none';
-                $trusted_body = $content_inner_block->(
-                    section_name    => 'trusted_people',
-                    section_name_ml => $trusted_body_name_ml,
-                    extra_classes   => ' first',
-                    body            => $listusers->( \@trusted_list ),
-                );
-            }
-
-            if ( $u->is_personal || $u->is_identity ) {
-                my @trusted_by_list = sort { $a->display_name cmp $b->display_name }
-                    grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
-                    map { $us->{$_} } @trusted_by_userids;
-                my $trusted_by_body_name_ml = @trusted_by_list ?
-                    { ml => '.people.trusted_by.some', opts => { num => scalar @trusted_by_list } } :
-                    '.people.trusted_by.none';
-                $trusted_by_body = $content_inner_block->(
-                    section_name    => 'trusted_by_people',
-                    section_name_ml => $trusted_by_body_name_ml,
-                    extra_classes   => $u->is_identity ? ' first' : '',
-                    body            => $listusers->( \@trusted_by_list ),
-                    hidable         => 1,
-                );
-
-                my @watched_list = sort { $a->display_name cmp $b->display_name }
-                    grep { $_->is_personal || $_->is_identity }
-                    map { $us->{$_} } @watched_userids;
-                my $watched_body_name_ml = @watched_list ?
-                    { ml => '.people.watched.some', opts => { num => scalar @watched_list } } :
-                    '.people.watched.none';
-                $watched_body = $content_inner_block->(
-                    section_name    => 'watched_people',
-                    section_name_ml => $watched_body_name_ml,
-                    body            => $listusers->( \@watched_list ),
-                );
-
-            }
-
-            if ( $u->is_community ) {
-                my @members_list = sort { $a->display_name cmp $b->display_name }
-                    map { $us->{$_} } @members_userids;
-                my $members_body_name_ml = @members_list ?
-                    { ml => '.people.members.some', opts => { num => scalar @members_list } } :
-                    '.people.members.none';
-                $members_body = $content_inner_block->(
-                    section_name    => 'members_people',
-                    section_name_ml => $members_body_name_ml,
-                    extra_classes   => ' first',
-                    body            => $listusers->( \@members_list ),
-                );
-
-                my @posting_access_from_list = sort { $a->display_name cmp $b->display_name }
-                    map { $us->{$_} } @posting_access_from_userids;
-                my $posting_access_from_body_name_ml = @posting_access_from_list ?
-                    { ml => '.people.posting_access_from.some', opts => { num => scalar @posting_access_from_list } } :
-                    '.people.posting_access_from.none';
-                $posting_access_from_body = $content_inner_block->(
-                    section_name    => 'posting_access_from_people',
-                    section_name_ml => $posting_access_from_body_name_ml,
-                    body            => $listusers->( \@posting_access_from_list ),
-                    hidable         => 1,
-                );
-            }
-
-            my @watched_by_list = sort { $a->display_name cmp $b->display_name }
-                grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
-                map { $us->{$_} } @watched_by_userids;
-            my $watched_by_body_name_ml = @watched_by_list ?
-                { ml => '.people.watched_by.some', opts => { num => scalar @watched_by_list } } :
-                '.people.watched_by.none';
-            $watched_by_body = $content_inner_block->(
-                section_name    => 'watched_by_people',
-                section_name_ml => $watched_by_body_name_ml,
-                body            => $listusers->( \@watched_by_list ),
+            my @not_mutually_trusted_by_list = grep { $includeuser->( $_ ) }
+                map { $us->{$_} } @not_mutually_trusted_by_userids;
+            $trusted_by_body = $content_inner_block->(
+                section_name    => 'not_mutually_trusted_by_people',
+                section_name_ml => $mlsn->( '.people.not_mutually_trusted_by', \@not_mutually_trusted_by_list ),
+                body            => $listusers->( \@not_mutually_trusted_by_list ),
                 hidable         => 1,
             );
         }
 
-    } else {
+        my @mutually_watched_list = grep { $_->is_individual }
+            map { $us->{$_} } @mutually_watched_userids;
+        $watched_body .= $content_inner_block->(
+            section_name    => 'mutually_watched_people',
+            section_name_ml => $mlsn->( '.people.mutually_watched', \@mutually_watched_list ),
+            body            => $listusers->( \@mutually_watched_list ),
+        );
 
-        # syndicated accounts only need to show people who are subscribed to them
-        my @watched_by_list = sort { $a->display_name cmp $b->display_name }
-        grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
+        my @not_mutually_watched_list = grep { $_->is_individual }
+            map { $us->{$_} } @not_mutually_watched_userids;
+        $watched_body .= $content_inner_block->(
+            section_name    => 'not_mutually_watched_people',
+            section_name_ml => $mlsn->( '.people.not_mutually_watched', \@not_mutually_watched_list ),
+            body            => $listusers->( \@not_mutually_watched_list ),
+        );
+
+        my @not_mutually_watched_by_list = grep { $includeuser->( $_ ) }
+            map { $us->{$_} } @not_mutually_watched_by_userids;
+        $watched_by_body = $content_inner_block->(
+            section_name    => 'not_mutually_watched_by_people',
+            section_name_ml => $mlsn->( '.people.not_mutually_watched_by', \@not_mutually_watched_by_list ),
+            body            => $listusers->( \@not_mutually_watched_by_list ),
+            hidable         => 1,
+        );
+    } else {  # show_mutualfriends is false
+        if ( $u->is_personal ) {
+            my @trusted_list = grep { $_->is_individual }
+                map { $us->{$_} } @trusted_userids;
+            $trusted_body = $content_inner_block->(
+                section_name    => 'trusted_people',
+                section_name_ml => $mlsn->( '.people.trusted', \@trusted_list ),
+                extra_classes   => ' first',
+                body            => $listusers->( \@trusted_list ),
+            );
+
+            my @trusted_by_list = grep { $includeuser->( $_ ) }
+                map { $us->{$_} } @trusted_by_userids;
+            $trusted_by_body = $content_inner_block->(
+                section_name    => 'trusted_by_people',
+                section_name_ml => $mlsn->( '.people.trusted_by', \@trusted_by_list ),
+                body            => $listusers->( \@trusted_by_list ),
+                hidable         => 1,
+            );
+        }
+
+        if ( $u->is_individual ) {
+            my @watched_list = grep { $_->is_individual }
+                map { $us->{$_} } @watched_userids;
+            $watched_body = $content_inner_block->(
+                section_name    => 'watched_people',
+                section_name_ml => $mlsn->( '.people.watched', \@watched_list ),
+                body            => $listusers->( \@watched_list ),
+            );
+        }
+
+        if ( $u->is_community ) {
+            my @members_list = map { $us->{$_} } @members_userids;
+            $members_body = $content_inner_block->(
+                section_name    => 'members_people',
+                section_name_ml => $mlsn->( '.people.members', \@members_list ),
+                extra_classes   => ' first',
+                body            => $listusers->( \@members_list ),
+            );
+
+            my @posting_access_from_list = map { $us->{$_} } @posting_access_from_userids;
+            $posting_access_from_body = $content_inner_block->(
+                section_name    => 'posting_access_from_people',
+                section_name_ml => $mlsn->( '.people.posting_access_from', \@posting_access_from_list ),
+                body            => $listusers->( \@posting_access_from_list ),
+                hidable         => 1,
+            );
+        }
+
+        my @watched_by_list = grep { $includeuser->( $_ ) }
             map { $us->{$_} } @watched_by_userids;
-        my $watched_by_body_name_ml = @watched_by_list ?
-            { ml => '.people.watched_by.some', opts => { num => scalar @watched_by_list } } :
-                '.people.watched_by.none';
         $watched_by_body = $content_inner_block->(
             section_name    => 'watched_by_people',
-            section_name_ml => $watched_by_body_name_ml,
+            section_name_ml => $mlsn->( '.people.watched_by', \@watched_by_list ),
             body            => $listusers->( \@watched_by_list ),
             hidable         => 1,
-        );   
+        );
     }
 
     if ( $trusted_body || $trusted_by_body || $watched_body || $watched_by_body || $members_body || $posting_access_from_body ) {
@@ -913,45 +861,33 @@ body<=
 ################################################################################
 ##### COMMUNITY LISTS
 
-    if ( $u->is_personal || $u->is_identity ) {
+    if ( $u->is_individual ) {
         my ( $member_of_body, $posting_access_to_body, $watched_body );
 
         if ( $u->is_personal ) {
-            my @member_of_list = sort { $a->display_name cmp $b->display_name }
-                map { $us->{$_} } @member_of_userids;
-            my $member_of_body_name_ml = @member_of_list ?
-                { ml => '.comms.member_of.some', opts => { num => scalar @member_of_list } } :
-                '.comms.member_of.none';
+            my @member_of_list = map { $us->{$_} } @member_of_userids;
             $member_of_body = $content_inner_block->(
                 section_name    => 'member_of_comms',
-                section_name_ml => $member_of_body_name_ml,
+                section_name_ml => $mlsn->( '.comms.member_of', \@member_of_list ),
                 extra_classes   => ' first',
                 body            => $listusers->( \@member_of_list ),
                 hidable         => 1,
             );
 
-            my @posting_access_to_list = sort { $a->display_name cmp $b->display_name }
-                map { $us->{$_} } @posting_access_to_userids;
-            my $posting_access_to_body_name_ml = @posting_access_to_list ?
-                { ml => '.comms.posting_access_to.some', opts => { num => scalar @posting_access_to_list } } :
-                '.comms.posting_access_to.none';
+            my @posting_access_to_list = map { $us->{$_} } @posting_access_to_userids;
             $posting_access_to_body = $content_inner_block->(
                 section_name    => 'posting_access_to_comms',
-                section_name_ml => $posting_access_to_body_name_ml,
+                section_name_ml => $mlsn->( '.comms.posting_access_to', \@posting_access_to_list ),
                 body            => $listusers->( \@posting_access_to_list ),
                 hidable         => 1,
             );
         }
 
-        my @watched_list = sort { $a->display_name cmp $b->display_name }
-            grep { $_->is_community }
+        my @watched_list = grep { $_->is_community }
             map { $us->{$_} } @watched_userids;
-        my $watched_body_name_ml = @watched_list ?
-            { ml => '.comms.watched.some', opts => { num => scalar @watched_list } } :
-            '.comms.watched.none';
         $watched_body = $content_inner_block->(
             section_name    => 'watched_comms',
-            section_name_ml => $watched_body_name_ml,
+            section_name_ml => $mlsn->( '.comms.watched', \@watched_list ),
             body            => $listusers->( \@watched_list ),
         );
 
@@ -976,16 +912,14 @@ body<=
 ################################################################################
 ##### FEED LISTS
 
-    if ( $u->is_personal || $u->is_identity ) {
+    if ( $u->is_individual ) {
         my ( $watched_body );
 
-        my @watched_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_syndicated } map { $us->{$_} } @watched_userids;
-        my $watched_body_name_ml = @watched_list ?
-            { ml => '.feeds.watched.some', opts => { num => scalar @watched_list } } :
-            '.feeds.watched.none';
+        my @watched_list = grep { $_->is_syndicated }
+            map { $us->{$_} } @watched_userids;
         $watched_body = $content_inner_block->(
             section_name    => 'watched_feeds',
-            section_name_ml => $watched_body_name_ml,
+            section_name_ml => $mlsn->( '.feeds.watched', \@watched_list ),
             extra_classes   => ' first',
             body            => $listusers->( \@watched_list ),
         );
