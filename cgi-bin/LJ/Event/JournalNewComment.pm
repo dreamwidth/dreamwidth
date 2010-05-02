@@ -85,7 +85,7 @@ sub as_email_headers {
         'Message-ID'   => $this_msgid,
         'In-Reply-To'  => $par_msgid,
         'References'   => "$top_msgid $par_msgid",
-        'X-LJ-Journal' => $journalu->user,
+        'X-Journal-Name' => $journalu->user,
     };
 
     return $headers;

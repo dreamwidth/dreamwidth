@@ -2369,7 +2369,7 @@ sub mail_comments {
                                            'In-Reply-To:' => $par_msgid,
                                            'References' => "$top_msgid $par_msgid",
                                            );
-                $msg->add('X-LJ-JOURNAL' => $journalu->{'user'}); # for mail filters
+                $msg->add('X-JOURNAL-USER' => $journalu->{'user'}); # for mail filters
 
                 $parent->{u} = $paru;
                 $parent->{body} = $parentcomment;
@@ -2432,7 +2432,7 @@ sub mail_comments {
                                    'In-Reply-To:' => $par_msgid,
                                    'References' => "$top_msgid $par_msgid",
                                    );
-        $msg->add('X-LJ-JOURNAL' => $journalu->{'user'}); # for mail filters
+        $msg->add('X-JOURNAL-USER' => $journalu->{'user'}); # for mail filters
 
         my $quote = $parentcomment ? $parentcomment : $item->{'event'};
 
@@ -2503,7 +2503,7 @@ sub mail_comments {
                                   'In-Reply-To:' => $par_msgid,
                                   'References' => "$top_msgid $par_msgid",
                                   );
-        $msg->add('X-LJ-JOURNAL' => $journalu->{'user'}); # for mail filters
+        $msg->add('X-JOURNAL-USER' => $journalu->{'user'}); # for mail filters
 
         my $quote = $parentcomment ? $parentcomment : $item->{'event'};
 
