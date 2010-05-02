@@ -3592,7 +3592,9 @@ sub _Entry__get_link
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/edit.png", 16, 16));
     }
     if ($key eq "edit_tags") {
-        return $null_link unless $remote && LJ::Tags::can_add_tags(LJ::load_user($journal), $remote);
+        my $entry = LJ::Entry->new( $journalu, ditemid => $this->{itemid} );
+        
+        return $null_link unless $remote && LJ::Tags::can_add_entry_tags( $remote, $entry );
         return LJ::S2::Link("$LJ::SITEROOT/edittags?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_edit_tags"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/tag_edit.png", 16, 16));

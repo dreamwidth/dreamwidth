@@ -482,6 +482,36 @@ sub can_add_tags {
            LJ::Tags::_remote_satisfies_permission($u, $remote, $perms->{control});
 }
 
+
+sub can_add_entry_tags {
+    return undef unless LJ::is_enabled( "tags" );
+
+    my ( $remote, $entry ) = @_;
+    $remote = LJ::want_user( $remote );
+
+    return undef unless $remote && $entry;
+    return undef unless $remote->is_personal;
+    return undef if $remote->is_banned( $entry->journal );
+
+    my $journal = $entry->journal;
+    my $perms = LJ::Tags::get_permission_levels( $journal );
+
+    # specific case: are we the author of this entry, or otherwise an admin of the journal?
+    if ( $perms->{add} eq 'author_admin' ) {
+        # is author
+        return 1 if $remote->equals( $entry->poster );
+
+        # is journal administrator
+        return $remote->can_manage( $journal );
+    }
+
+    # general case, see if the remote can add tags to the journal, in general
+    return 1 if $remote->can_add_tags_to( $journal );
+
+    # not allowed
+    return undef;
+}
+
 # <LJFUNC>
 # name: LJ::Tags::can_control_tags
 # class: tags
@@ -522,6 +552,12 @@ sub _remote_satisfies_permission {
         return $u->trusts_or_has_member( $remote );
     } elsif ($perm eq 'private') {
         return LJ::can_manage($remote, $u);
+    } elsif ( $perm eq 'author_admin' ) {
+        # this tests whether the remote can add tags for this journal in general
+        # when we don't have an entry object available to us (e.g., posting)
+        # Existing entries, checking per-entry author permissions, should use
+        # LJ::Tag::can_add_entry_tags
+        return $remote->can_manage( $u ) || $remote->member_of( $u );
     } elsif ($perm =~ /^group:(\d+)$/) {
         my $grpid = $1+0;
         return undef unless $grpid >= 1 && $grpid <= 60;
@@ -698,8 +734,9 @@ sub update_logtags {
     return undef unless $remote || $opts->{force};
 
     # get trust levels
+    my $entry = LJ::Entry->new( $u, jitemid => $jitemid );
     my $can_control = LJ::Tags::can_control_tags($u, $remote);
-    my $can_add = $can_control || LJ::Tags::can_add_tags($u, $remote);
+    my $can_add = $can_control || LJ::Tags::can_add_entry_tags( $remote, $entry );
 
     # bail out early if we can't do any actions
     return $err->( LJ::Lang::ml( 'taglib.error.access' ) )

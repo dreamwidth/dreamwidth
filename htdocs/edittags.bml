@@ -116,7 +116,9 @@ body<=
 
     $ret .= "<tr><td class='l'>$ML{'.current'}</td>";
     $ret .= "<td class='sep'>";
-    if ( LJ::Tags::can_add_tags($u, $remote) ) {
+
+    my $can_add_entry_tags = LJ::Tags::can_add_entry_tags( $remote, LJ::Entry->new($u, ditemid => $ditemid ) );
+    if ( $can_add_entry_tags ) {
         $ret .= LJ::html_text(
             {
                 name  => 'edittags',
@@ -149,7 +151,7 @@ body<=
     }
 
     $ret .= "<br /><br />";
-    $ret .= "$ML{'.permissions.add.yes'}<br />" if LJ::Tags::can_add_tags($u, $remote);
+    $ret .= "$ML{'.permissions.add.yes'}<br />" if $can_add_entry_tags;
     $ret .= "$ML{'.permissions.control.yes'}<br />" if LJ::Tags::can_control_tags($u, $remote);
     $ret .= BML::ml('.view', { aopts => 'href="' . LJ::journal_base($u) . "/$ditemid.html" . '"' });
     $ret .= "</td></tr>";

@@ -55,6 +55,8 @@
 
 .none=You haven't created any tags yet.
 
+.setting.author_admin=Entry author and admininstrators
+
 .setting.desc.add=Who can add existing tags to entries?
 
 .setting.desc.control=Who can create new tags and add/remove tags from entries?

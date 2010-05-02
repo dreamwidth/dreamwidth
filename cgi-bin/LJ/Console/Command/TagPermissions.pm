@@ -23,7 +23,7 @@ sub desc { "Set tagging permission levels for an account." }
 
 sub args_desc { [
                  'community' => "Optional; community to change permission levels for.",
-                 'add level' => "Accounts at this level can add existing tags to entries. Value is one of 'public', 'access' (for personal journals), 'members' (for communities), 'private', 'none', or a custom group name.",
+                 'add level' => "Accounts at this level can add existing tags to entries. Value is one of 'public', 'access' (for personal journals), 'members' (for communities), 'author_admin' (for communities only), 'private', 'none', or a custom group name.",
                  'control level' => "Accounts at this level can do everything: add, remove, and create new tags. Value is one of 'public', 'access' (for personal journals), 'members' (for communities), 'private', 'none', or a custom group name.",
                  ] }
 
@@ -65,7 +65,7 @@ sub execute {
     my $validate_level = sub {
         my $level = shift;
         return 'protected' if $level eq 'friends';
-        return $level if $level =~ /^(?:private|public|none|protected)$/;
+        return $level if $level =~ /^(?:private|public|none|protected|author_admin)$/;
         # can't use access for a community or members for an individual
         return undef if $level =~ /^(?:members|access)$/;
 
@@ -77,8 +77,12 @@ sub execute {
 
     $add = $validate_level->($add);
     $control = $validate_level->($control);
-    return $self->error("Levels must be one of: 'private', 'public', 'none', 'access' (for personal journals), 'members' (for communities), or the name of a custom group.")
+    return $self->error("Levels must be one of: 'private', 'public', 'none', 'access' (for personal journals), 'members' (for communities), 'author_admin' (for communities only), or the name of a custom group.")
         unless $add && $control;
+    return $self->error("Only <add level> can be 'author_admin'")
+        if $control eq 'author_admin';
+    return $self->error("'author_admin' level can be applied to communities only")
+        if $add eq 'author_admin' && ! $foru->is_community;
 
     $foru->set_prop('opt_tagpermissions', "$add,$control");
 

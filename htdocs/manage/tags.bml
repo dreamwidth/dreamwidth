@@ -113,7 +113,7 @@ HEAD
             my $control = $POST{"control_level"};
 
             $ret .= "<?errorbar $ML{'.error.invalidsettings'} errorbar?>"
-               unless $add =~ /^(?:private|public|protected|group:\d+)$/ &&
+               unless $add =~ /^(?:private|public|protected|author_admin|group:\d+)$/ &&
                $control =~ /^(?:private|public|protected|group:\d+)$/;
 
             $u->set_prop("opt_tagpermissions", "$add,$control");
@@ -350,6 +350,9 @@ HEAD
     } else {
         push @groups, ("protected", $ML{'.setting.members'});
         push @groups, ("private", $ML{'.setting.maintainers'});
+
+        push @groups, ( "author_admin", $ML{'.setting.author_admin'} )
+            if $u->is_community;
     }
 
     my @grouplist = $u->trust_groups;
