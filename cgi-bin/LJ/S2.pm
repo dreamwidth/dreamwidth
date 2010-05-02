@@ -33,6 +33,7 @@ use LJ::S2::MonthPage;
 use LJ::S2::EntryPage;
 use LJ::S2::ReplyPage;
 use LJ::S2::TagsPage;
+use DW::External::Account;
 use Storable;
 use Apache2::Const qw/ :common /;
 use POSIX ();
@@ -1841,6 +1842,25 @@ sub Entry
         $e->{'metadata'}->{'music'} = $p->{'current_music'};
         LJ::CleanHTML::clean_subject(\$e->{'metadata'}->{'music'});
     }
+
+    # check for xpost values
+    if ( $p->{xpostdetail} ) {
+        my $xposthash = DW::External::Account->xpost_string_to_hash( $p->{xpostdetail} );
+        my $xpostlinks = "";
+        foreach my $xpostkey ( keys %$xposthash ) {
+            my $xpostvalue = $xposthash->{$xpostkey};
+            if ( $xpostvalue->{url} ) {
+                if ( $xpostlinks ) {
+                    $xpostlinks = $xpostlinks . " ";
+                }
+                $xpostlinks = $xpostlinks . '<a href = "' .  $xpostvalue->{url} . '">' .  $xpostvalue->{url} . '</a>';
+            }
+        }
+        if ( $xpostlinks ) {
+            $e->{metadata}->{xpost} = $xpostlinks;
+        }
+    }
+
     if (my $mid = $p->{'current_moodid'}) {
         my $theme = defined $arg->{'moodthemeid'} ? $arg->{'moodthemeid'} : $u->{'moodthemeid'};
         my %pic;

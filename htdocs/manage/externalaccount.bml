@@ -208,6 +208,17 @@ use strict;
     $body .= "<br />$xpostbydefault_errdiv" if $xpostbydefault_errdiv;
     $body .= "</td></tr>\n";
 
+    $body .= "<tr><td class='setting_label'><label for='recordlink'>" . $ML{'.setting.xpost.option.recordlink'} . "</label></td>";
+    $body .= "<td>" . LJ::html_check({
+        name     => "recordlink",
+        value    => 1,
+        id       => "recordlink",
+        selected => $editpage ? $editacct->recordlink : $POST{recordlink}
+    });
+    my $recordlink_errdiv = errdiv(\%errs, "recordlink");
+    $body .= "<br />$recordlink_errdiv" if $recordlink_errdiv;
+    $body .= "</td></tr>\n";
+
     $body .= "<tr><td class='setting_label'><label for='savepassword'>" . $ML{'.setting.xpost.option.savepassword'} . "</label></td>";
     $body .= "<td>" . LJ::html_check({
         name     => "savepassword",
@@ -265,6 +276,7 @@ sub create_external_account {
     $opts{password} = $POST->{password};
     $opts{username} = $POST->{username};
     $opts{xpostbydefault} = $POST->{xpostbydefault};
+    $opts{recordlink} = $POST->{recordlink};
     $opts{savepassword} = $POST->{savepassword};
 
     # username is required
@@ -393,6 +405,7 @@ sub edit_external_account {
         $acct->set_password($POST{password});
     }
     $acct->set_xpostbydefault($POST{xpostbydefault});
+    $acct->set_recordlink($POST{recordlink});
 
     return "&update=" . $acct->acctid;
 }

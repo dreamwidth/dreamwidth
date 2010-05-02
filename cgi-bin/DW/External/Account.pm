@@ -30,9 +30,9 @@ sub _memcache_key_prefix            { "acct" }
 sub _memcache_stored_props          {
     # first element of props is a VERSION
     # next - allowed object properties
-    return qw/ 1
+    return qw/ 2
                userid acctid
-               siteid username password servicename servicetype serviceurl xpostbydefault
+               siteid username password servicename servicetype serviceurl xpostbydefault recordlink
                /;
 }
 sub _memcache_hashref_to_object {
@@ -81,7 +81,7 @@ sub get_external_accounts {
         return @accounts;
     }
 
-    my $sth = $u->prepare("SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault FROM externalaccount WHERE userid=?");
+    my $sth = $u->prepare("SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink FROM externalaccount WHERE userid=?");
     $sth->execute($u->userid);
     LJ::throw($u->errstr) if $u->err;
 
@@ -107,7 +107,7 @@ sub get_external_account {
         return $cached_value;
     }
 
-    my $sth = $u->prepare("SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault FROM externalaccount WHERE userid=? and acctid=?");
+    my $sth = $u->prepare("SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink FROM externalaccount WHERE userid=? and acctid=?");
     $sth->execute($u->userid, $acctid);
     LJ::throw($u->err) if ($u->err);
 
@@ -137,6 +137,14 @@ sub record_xpost {
     $entry->set_prop('xpost', $xpost_ref_string);
 }
 
+# records the xpost detail information on the given entry
+sub record_xpost_detail {
+    my ($class, $entry, $xpost_ref) = @_;
+    
+    my $xpost_ref_string = $class->xpost_hash_to_string($xpost_ref);
+    $entry->set_prop('xpostdetail', $xpost_ref_string);
+}
+
 # saves the xpost information to the entry properties
 sub xpost_hash_to_string {
     my($class, $xpostmap) = @_;
@@ -156,7 +164,7 @@ sub xpost_string_to_hash {
 # instance methods
 sub absorb_row {
     my ($self, $row) = @_;
-    for my $f (qw(username siteid password servicename servicetype serviceurl xpostbydefault)) {
+    for my $f (qw(username siteid password servicename servicetype serviceurl xpostbydefault recordlink)) {
         $self->{$f} = $row->{$f};
     }
     return $self;
@@ -176,7 +184,7 @@ sub create {
     my $protocol = DW::External::XPostProtocol->get_protocol($protocol_id);
     my $encryptedpassword = $protocol->encrypt_password($opts->{password});
 
-    $u->do("INSERT INTO externalaccount (userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0');
+    $u->do("INSERT INTO externalaccount (userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0' );
     
     LJ::throw($u->errstr) if $u->err;
 
@@ -238,7 +246,7 @@ sub delete {
 sub crosspost {
     my ($self, $auth, $entry) = @_;
     
-    # get the prtocol
+    # get the protocol
     my $xpost_protocol = $self->protocol;
 
     # make sure we hae a proper protocol
@@ -263,8 +271,13 @@ sub crosspost {
 
         # handle the result
         if ($result->{success}) {
-            $xpost_mapping->{$self->acctid} = $result->{reference};
-            $self->record_xpost($entry, $xpost_mapping);
+            $xpost_mapping->{$self->acctid} = $result->{reference}->{itemid};
+            $self->record_xpost( $entry, $xpost_mapping );
+
+            my $xpost_detail_mapping = $self->xpost_string_to_hash($entry->prop('xpostdetail'));
+            $xpost_detail_mapping->{$self->acctid} = $result->{reference};
+            $self->record_xpost_detail( $entry, $xpost_detail_mapping );
+
             return {
                 success => 1,
                 message => LJ::Lang::ml($action_key . ".success", { username => $self->username, server => $self->servername, xpostlink => $result->{url} })
@@ -370,6 +383,10 @@ sub xpostbydefault {
     return $_[0]->{xpostbydefault};
 }
 
+sub recordlink {
+    return $_[0]->{recordlink};
+}
+
 # if there is an external site configured, returns it; otherwise returns undef
 sub externalsite {
     return undef unless $_[0]->{siteid};
@@ -428,6 +445,24 @@ sub set_xpostbydefault {
         LJ::throw($u->errstr) if $u->err;
         
         $self->{xpostbydefault} = $xpostbydefault;
+        
+        $self->_remove_from_memcache($self->_memcache_id);
+    }
+    return 1;
+}
+
+# updates the recordlink values for this ExternalAccount.
+sub set_recordlink {
+    my ($self, $recordlink) = @_;
+
+    my $u = $self->owner;
+
+    my $newvalue = $recordlink ? '1' : '0';
+    unless ($newvalue eq $self->recordlink) {
+        $u->do("UPDATE externalaccount SET recordlink=? WHERE userid=? AND acctid=?", undef, $newvalue, $u->{userid}, $self->acctid);
+        LJ::throw($u->errstr) if $u->err;
+        
+        $self->{recordlink} = $recordlink;
         
         $self->_remove_from_memcache($self->_memcache_id);
     }

@@ -5,7 +5,7 @@ use warnings;
 
 use Digest::MD5 qw(md5_hex);
 
-sub tags { qw(xpost_option_server xpost_option_username xpost_option_password xpost_option_xpostbydefault crosspost_footer_append crosspost_footer_text) }
+sub tags { qw(xpost_option_server xpost_option_username xpost_option_password xpost_option_xpostbydefault xpost_option_recordlink crosspost_footer_append crosspost_footer_text) }
 
 my $footer_length = 1024;
 

@@ -2025,6 +2025,11 @@ property string text_meta_groups {
 }
 set text_meta_groups = "Custom Access Groups";
 
+property string text_meta_xpost {
+    des = "Text for 'Crossposts'";
+}
+set text_meta_xpost = "Crossposts";
+
 property string text_tags {
     des = "Text for 'Tags' header for an entry";
     example = "Tags:";
@@ -2873,6 +2878,9 @@ function lang_metadata_title(string which) [fixed] : string
     }
     elseif ($which == "groups") {
         return $*text_meta_groups;
+    }
+    elseif ($which == "xpost") {
+        return $*text_meta_xpost;
     }
     else {
         return $which;

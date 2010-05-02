@@ -250,10 +250,14 @@ sub crosspost {
     # crosspost, update, or delete
     my $xpost_result = $self->call_xmlrpc($proxyurl, $itemid ? 'editevent' : 'postevent', $req, $auth);
     if ($xpost_result->{success}) {
+        my $reference->{itemid} = $xpost_result->{result}->{itemid};
+        if ( $extacct->recordlink ) {
+            $reference->{url} = $xpost_result->{result}->{url};
+        }
         return {
             success => 1,
             url =>$xpost_result->{result}->{url},
-            reference => $xpost_result->{result}->{itemid}
+            reference => $reference,
         }
     } else {
         return $xpost_result;

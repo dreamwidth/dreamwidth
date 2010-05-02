@@ -2840,6 +2840,7 @@ CREATE table externalaccount (
     servicetype varchar(32),
     serviceurl varchar(128),
     xpostbydefault enum('1','0') NOT NULL default '0',
+    recordlink enum('1','0') NOT NULL default '0',
     primary key (userid, acctid),
     index (userid)
 )
@@ -3876,6 +3877,12 @@ EOF
         do_sql("UPDATE userproplist SET datatype = 'blobchar' WHERE name = 'crosspost_footer_text'");
         set_dbnote( "xpost_footer_update", 1 );
     }
+
+    unless ( column_type( 'externalaccount', 'recordlink' ) ) {
+        do_alter( 'xpost_recordlink',
+                  "ALTER TABLE externalaccount ADD COLUMN recordlink enum('1','0') NOT NULL default '0'");
+    }
+
 });
 
 

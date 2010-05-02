@@ -1392,6 +1392,13 @@ logproplist.xpost:
   sortorder: 105
   ownership: user
 
+logproplist.xpostdetail:
+  datatype: blobchar
+  des: Maps to crossposts of this entry on other sites
+  prettyname: Crosspost Detail
+  sortorder: 106
+  ownership: user
+
 usermsgproplist.userpic:
   des: Userpic chosen by the user who created the message
 
