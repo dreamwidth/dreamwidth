@@ -39,8 +39,8 @@ sub cookie {
     my DW::Request::Base $self = $_[0];
 
     $self->parse( $self->header_in( 'Cookie' ) ) unless defined $self->{cookies_in};
-    my $val = $self->{cookies_in}->{$_[1]};
-    return wantarray ? @{ $val } : $val->[0];
+    my $val = $self->{cookies_in}->{$_[1]} || [];
+    return wantarray ? @$val : $val->[0];
 }
 
 sub cookie_multi {
