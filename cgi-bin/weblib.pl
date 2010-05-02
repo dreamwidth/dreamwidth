@@ -2787,16 +2787,16 @@ sub control_strip
 
                 my $selected = "all";
                 if ($r->uri eq "/read" && $r->query_string ne "") {
-                    $selected = "showpeople"      if $r->query_string eq "show=P&filter=0";
-                    $selected = "showcommunities" if $r->query_string eq "show=C&filter=0";
-                    $selected = "showsyndicated"  if $r->query_string eq "show=F&filter=0";
+                    $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
+                    $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
+                    $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
                 } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
                     my $filter = $1 || "default view";
                     $selected = "filter:" . LJ::durl( lc( $filter ) );
                 } elsif ($r->uri eq "/network" && $r->query_string ne "") {
-                    $selected = "showpeople"      if $r->query_string eq "show=P&filter=0";
-                    $selected = "showcommunities" if $r->query_string eq "show=C&filter=0";
-                    $selected = "showsyndicated"  if $r->query_string eq "show=F&filter=0";
+                    $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
+                    $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
+                    $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
                 }
 
                 $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";
