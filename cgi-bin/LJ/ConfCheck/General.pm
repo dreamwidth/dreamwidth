@@ -11,8 +11,8 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 #
-# This is livejournal.com (ljcom)'s additions to LJ::ConfCheck, for the ljcom instance
-# of LiveJournal.
+# These are descriptions of various configuration options for the site.
+# See also etc/config.pl.
 #
 
 package LJ::ConfCheck;
@@ -159,11 +159,6 @@ add_conf('$DEFAULT_STYLE',
          des => "Hashref describing default S2 style.  Keys are layer types, values being the S2 redist_uniqs.",
          type => "hashref",
          allowed_keys => qw(core layout theme i18n i81nc),
-         );
-
-add_conf('$DIRECTORY_SEPARATE',
-         type => 'bool',
-         des => "If true, only use the 'directory' DB role for the directory, and don't also try the 'slave' and 'master' roles.",
          );
 
 add_conf('$DISABLE_MASTER',
@@ -448,11 +443,6 @@ add_conf('$BIN_FESTIVAL',
          type => "program",
          des => "Path to festival.  Needed for audio captchas.");
 
-add_conf('$DYS_LEFT_TOP',
-         type => "html",
-         des => "HTML to show at the top left corner of the dystopia skin.",
-         STUPID_BECAUSE => "weird.  never used.");
-
 add_conf('$LOCKDIR',
          type => "directory",
          des => "A directory to use for lock files if you're not using ddlockd for locking.");
@@ -632,9 +622,6 @@ add_conf('$BML_INC_DIR_ADMIN',
 add_conf('$BML_INC_DIR',
          type => '',
          des => "");
-add_conf('$FIX_USERCOUNTER_ENABLED',
-         type => '',
-         des => "");
 add_conf('%USERPROP_INIT',
          type => '',
          des => "");
@@ -752,11 +739,6 @@ add_conf('$CSSPROXY',
          des => "If set, external CSS should be proxied through this URL (URL is given a ?u= argument with the escaped URL of CSS to clean.  If unset, remote CSS is blocked.",
          );
 
-add_conf('$ADSERVER',
-         type => 'url',
-         des => "Subdomain to use for adserving",
-         );
-
 add_conf('$PROFILE_BML_FILE',
          type => 'file',
          des => "The file (relative to htdocs) to use for the profile URL.  Defaults to userinfo.bml",
@@ -780,7 +762,6 @@ my %bools = (
              'STATS_FORCE_SLOW' => "Make all stats hit the 'slow' database role, never using 'slave' or 'master'",
              'SERVER_DOWN' => "The site is globally marked as 'down' and users get an error message, as defined by \$SERVER_DOWN_MESSAGE and \$SERVER_DOWN_SUBJECT.  It's not clear why this should ever be used instead of \$SERVER_TOTALLY_DOWN",
              'SERVER_TOTALLY_DOWN' => "The site is globally marked as 'down' and users get an error message, as defined by \$SERVER_DOWN_MESSAGE and \$SERVER_DOWN_SUBJECT.  But compared to \$SERVER_DOWN, this error message is done incredibly early before any dispatch to different modules.",
-             "S1_SHORTCOMINGS" => "Use the S2 style named 's1shortcomings' to handle page types that S1 can't handle.  Otherwise, BML is used.  This is off by defalut, but will eventually become on by default, and no longer an option.",
              "REQUIRE_TALKHASH" => "Require submitted comments to include a signed hidden value provided by the server.  Slows down comment-spammers, at least, in that they have to fetch pages first, instead of just blasting away POSTs.  Defaults to off.",
              "REQUIRE_TALKHASH_NOTOLD" => "If \$REQUIRE_TALKHASH is on, also make sure that the talkhash provided was issued in the past two hours.  Defaults to off.",
              "DONT_LOG_IMAGES" => "Don't log requests for images.",

@@ -244,7 +244,6 @@
     # directory optimizations
     $DIR_DB_HOST = "master";  # DB role to use when connecting to directory DB
     $DIR_DB = "";             # by default, hit the main database (bad for big sites!)
-    #$DIRECTORY_SEPARATE = 1; # don't let the directory use master databases
 
     # list of all clusters - each one needs a 'cluster$i' role in %DBINFO
     @CLUSTERS = (1);    # eg: (1, 2, 3) (for scalability)
