@@ -69,7 +69,7 @@ body<=
                                        event   => "JournalNewComment",
                                        journal => $journal,
                                        flags   => LJ::Subscription::TRACKING,
-                                       ) if $journal->is_community && LJ::can_manage_other( $remote, $journal );
+                                       ) if $journal->is_community && ( LJ::can_manage_other( $remote, $journal ) || $journal->is_paid && $remote->member_of( $journal ) );
 
     push @{@$categories[0]->{Track}},
         LJ::Subscription::Pending->new(
