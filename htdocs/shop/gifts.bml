@@ -29,7 +29,7 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    my ( $ret, @free, @expiring );
+    my ( $ret, @free, @expiring, @paid );
 
     my $circle = LJ::load_userids( $remote->circle_userids );
 
@@ -49,6 +49,9 @@ body<=
             # account is expiring soon if the expiration time is
             # within the next month:
             push @expiring, $target if $paidstatus &&  $paidstatus->{expiresin} < 2592000  && $paidstatus->{expiresin} > 0;
+
+            # account is expiring in more than one month
+            push @paid, $target if $paidstatus &&  $paidstatus->{expiresin} >= 2592000;
         }
     }
 
@@ -56,6 +59,7 @@ body<=
     # now that we have the lists, sort them alphabetically by display name: 
     @free = sort { $a->display_name cmp $b->display_name } @free;
     @expiring = sort { $a->display_name cmp $b->display_name } @expiring;
+    @paid = sort { $a->display_name cmp $b->display_name } @paid;
 
     # and we've got our lists. the only thing left is to format them
     # for human display, so we:
@@ -67,7 +71,8 @@ body<=
     my $freecommunities;
     foreach my $person ( @free ) {
         my $linked = "<li>" . $person->ljuser_display . ": " . $person->name_html . ", " . $person->last_updated . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" 
-            . $person->user . "'>" . BML::ml( '.buy' ) . "</a>]</li>\n";
+            . $person->user . "'>" . BML::ml( '.buy.gift' ) . "</a>]" . " [<a href='$LJ::SITEROOT/shop/points?for="
+            . $person->user . "'>" . BML::ml( '.buy.points' ) . "</a>]</li>\n";
         if ( $person->is_personal ) {
             $freeusers .= $linked;
         } else {
@@ -79,11 +84,25 @@ body<=
     # the display username and a buy-a-gift link:
     my $expusers;
     foreach my $person ( @expiring ) {
-        $expusers .= "<li>" . $person->ljuser_display . ": " . $person->name_html . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" . $person->user . "'>" . BML::ml( '.buy' ) . "</a>]</li>\n";
+        $expusers .= "<li>" . $person->ljuser_display . ": " . $person->name_html . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" . $person->user . "'>" . BML::ml( '.buy.gift' ) . "</a>]" . " [<a href='$LJ::SITEROOT/shop/points?for=" . $person->user . "'>" . BML::ml( '.buy.points' ) . "</a>]</li>\n";
+    }
+
+    # do the same with the paid users
+    my $paidusers;
+    foreach my $person ( @paid ) {
+        $paidusers .= "<li>" . $person->ljuser_display . ": " . $person->name_html . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" . $person->user . "'>" . BML::ml( '.buy.gift' ) . "</a>]" . " [<a href='$LJ::SITEROOT/shop/points?for=" . $person->user . "'>" . BML::ml( '.buy.points' ) . "</a>]</li>\n";
     }
 
     # and, now we build the page.
     $ret .= "<p>" . BML::ml( '.about', { 'sitename' => $LJ::SITENAMESHORT } ) . "</p>";
+
+    unless ( $freeusers || $freecommunities || $expusers ) {
+        if ( $paidusers ) {
+            $ret .= "<p>" . BML::ml( '.none.free.text', { 'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/shop/'" } ) . "</p>";
+        } else {
+            $ret .= "<p>" . BML::ml( '.none.text', { 'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/shop/'" } ) . "</p>";
+        }
+    }
 
     if ( $freeusers || $freecommunities ) {
         $ret .= "<h2>" . BML::ml( '.free.header' ) . "</h2>\n";
@@ -102,15 +121,17 @@ body<=
     }
 
     if ( $expusers ) {
-        $ret .= "<h2>" . BML::ml( '.paid.header' ) . "</h2>\n";
-        $ret .= "<p>" . BML::ml( '.paid.about' ) . "</p>";
+        $ret .= "<h2>" . BML::ml( '.paid.header.soon' ) . "</h2>\n";
+        $ret .= "<p>" . BML::ml( '.paid.soon.about' ) . "</p>";
         $ret .= "<ul> " . $expusers . "</ul>";
+        $ret .= "<br />";
     }
 
-    unless ( $freeusers || $freecommunities || $expusers ) {
-        $ret .= "<p>" . BML::ml( '.none.text', { 'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/shop/'" } ) . "</p>";
+    if ( $paidusers ) {
+        $ret .= "<h2>" . BML::ml( '.paid.header.other' ) . "</h2>\n";
+        $ret .= "<p>" . BML::ml( '.paid.other.about' ) . "</p>";
+        $ret .= "<ul> " . $paidusers . "</ul>";
     }
-
     return $ret;
 }
 _code?>

@@ -2,7 +2,9 @@
 
 .about=Are you looking for a gift for a birthday or a holiday? Is one of the people in your Circle such a compelling writer that you want to find a way to say a quick "thank you for being so awesome"? Give the gift of a paid [[sitename]] account!
 
-.buy=Buy gift
+.buy.gift=Buy gift
+
+.buy.points=Buy points
 
 .free.about=These are the people in your Circle who have free accounts and might appreciate the chance to try out some of our <a [[aopts]]>paid features</a>: 
 
@@ -12,10 +14,16 @@
 
 .free.header.communities=Communities
 
+.none.free.text=All of the people in your Circle have paid accounts that aren't set to expire soon. You can still buy a gift for them, or buy a gift for others in the <a [[aopts]]>[[sitename]] Shop</a>.
+
 .none.text=None of the people in your Circle have free accounts or have paid accounts that are expiring within the next month! You can still buy someone a gift in the <a [[aopts]]>[[sitename]] Shop</a>.
 
-.paid.about=These are the people in your Circle who have paid accounts that are expiring within the next month:
+.paid.header.other=Expiring in the far future
 
-.paid.header=Expiring Soon
+.paid.header.soon=Expiring Soon
+
+.paid.other.about=These are the people in your Circle whose paid accounts won't expire for a while, but who might appreciate a gift anyway:
+
+.paid.soon.about=These are the people in your Circle who have paid accounts that are expiring within the next month:
 
 .title=Give the Gift of [[sitename]]
