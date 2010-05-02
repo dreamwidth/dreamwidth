@@ -119,7 +119,8 @@ body<=
         $ret .= "<?p " . BML::ml('.success.previous', { num => $previous }) . " p?>" if $previous;
         $ret .= "<?p " . BML::ml('.success.banned', { num => $banned }) . " p?>" if $banned;
         $ret .= "<?p " . BML::ml('.success.ban_skipped', { num => $ban_skipped }) . " p?>" if $ban_skipped;
-        $ret .= "<?p " . BML::ml("/community/members.bml.success.return2", { 'link' => BML::get_uri() . "?authas=$cname" }) . " p?>";
+        $ret .= "<?p " . BML::ml("/community/members.bml.success.return2",
+                { aopts => "href='$LJ::SITEROOT/community/pending?authas=$cname'" }) . " p?>";
 
         return $ret;
     }
