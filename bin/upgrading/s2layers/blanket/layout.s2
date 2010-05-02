@@ -84,6 +84,8 @@ propgroup fonts {
 ## Display settings - modules
 ##===============================
 
+set module_layout_sections = "none|(none)|one|Column";
+
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
@@ -97,7 +99,59 @@ propgroup modules {
     property use module_time_group;
     property use module_poweredby_group;
     property use module_credit_group;
+
+    property string module_navlinks_section_override {
+       values = "none|(none)|two|Fixed";
+       grouped = 1;
+       }
 }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "two";
+set module_navlinks_show = true;
+
+set module_userprofile_section = "one";
+set module_userprofile_show = true;
+
+set module_calendar_section = "one";
+set module_calendar_show = true;
+
+set module_pagesummary_section = "one";
+set module_pagesummary_show = true;
+
+set module_tags_section = "one";
+set module_tags_show = true;
+set module_tags_opts_type = "cloud";
+
+set module_links_section = "one";
+set module_links_show = true;
+
+set module_syndicate_section = "one";
+set module_syndicate_show = true;
+
+set module_time_section = "one";
+set module_time_show = true;
+
+set module_poweredby_section = "one";
+set module_poweredby_show = true;
+
+set module_customtext_section = "one";
+set module_customtext_show = false;
+
+set module_credit_section = "one";
+set module_credit_show = true;
+
+set module_userprofile_order = 1;
+set module_calendar_order = 2;
+set module_credit_order = 3;
+set module_syndicate_order = 5;
+set module_time_order = 6;
+set module_poweredby_order = 7;
+set module_tags_order = 17;
+set module_links_order = 18;
+set module_pagesummary_order = 19;
+set module_customtext_order = 20;
 
 ##===============================
 ## Custom CSS
@@ -155,57 +209,6 @@ propgroup text {
     property use text_module_customtext_content;
     property use text_module_customtext_url;
 }
-
-
-# group two contains the navigation links module
-# group one contains everything else
-set module_layout_sections = "none|(none)|one|Column|two|Fixed";
-
-set module_navlinks_section = "two";
-set module_navlinks_show = true;
-
-set module_userprofile_section = "one";
-set module_userprofile_show = true;
-
-set module_calendar_section = "one";
-set module_calendar_show = true;
-
-set module_pagesummary_section = "one";
-set module_pagesummary_show = true;
-
-set module_tags_section = "one";
-set module_tags_show = true;
-set module_tags_opts_type = "cloud";
-
-set module_links_section = "one";
-set module_links_show = true;
-
-set module_syndicate_section = "one";
-set module_syndicate_show = true;
-
-set module_time_section = "one";
-set module_time_show = true;
-
-set module_poweredby_section = "one";
-set module_poweredby_show = true;
-
-set module_customtext_section = "one";
-set module_customtext_show = false;
-
-set module_credit_section = "one";
-set module_credit_show = true;
-
-set module_userprofile_order = 1;
-set module_calendar_order = 2;
-set module_credit_order = 3;
-set module_syndicate_order = 5;
-set module_time_order = 6;
-set module_poweredby_order = 7;
-set module_tags_order = 17;
-set module_links_order = 18;
-set module_pagesummary_order = 19;
-set module_customtext_order = 20;
-
 
 set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
 set font_fallback = "sans-serif";
