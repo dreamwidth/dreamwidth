@@ -77,6 +77,18 @@
 
 .maplinks.search-comm=Search communities
 
+.maplinks.shop-title=...shop with [[sitename]]:
+
+.maplinks.buy-paid=Buy a paid account
+
+.maplinks.buy-circle=Gift an account in your circle
+
+.maplinks.buy-random=Gift a free random user
+
+.maplinks.buy-merchandise=Buy merchandise
+
+.maplinks.payment-history=View your payment history
+
 .maplinks.learn-site-title=...learn about [[sitename]]:
 
 .maplinks.aboutus=About us
