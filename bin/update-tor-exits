@@ -1,9 +1,10 @@
 #!/usr/bin/perl
 #
-# DW::Setting::AwesomeNewFeature
+# bin/update-tor-exits
 #
-# This file is the accompanying settings package for AwesomeNewFeature. It allows users to set and
-# clear their setting choices.
+# This updates the list of Tor exits that can reach the local site.  You must
+# configure $LJ::USE_TOR_CONFIGS and $LJ::EXTERNAL_IP for this script to work.
+# You should install this script as a cron job, and run it every day or two.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
