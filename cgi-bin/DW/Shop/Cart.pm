@@ -303,6 +303,7 @@ sub add_item {
     LJ::Hooks::run_hooks( 'shop_cart_added_item', $self, $item );
 
     # save to db and return
+    $self->_touch;
     $self->save || return( 0, 'Unable to save cart.' );
     return 1;
 }
@@ -337,6 +338,7 @@ sub remove_item {
 
     # now recalculate the costs and save
     $self->recalculate_costs;
+    $self->_touch;
     $self->save;
 
     # now run the hook, this is later so that we've updated the cart already
@@ -478,7 +480,7 @@ sub email {
 ################################################################################
 
 
-sub id       { $_[0]->{cartid}             } 
+sub id       { $_[0]->{cartid}             }
 sub userid   { $_[0]->{userid}             }
 sub starttime{ $_[0]->{starttime}          }
 sub age      { time() - $_[0]->{starttime} }
@@ -529,6 +531,12 @@ sub _build {
     # simply blesses ... although in the future we might do some sanity checking
     # here to make sure we have good data, if that proves to be necessary.
     return bless $cart, $class;
+}
+
+# called to update our access time, this is mostly an internal method, but anybody
+# that has reason to can call it;  note that this needs to be called before a save
+sub _touch {
+    $_[0]->{starttime} = time;
 }
 
 

@@ -101,6 +101,14 @@ sub main_loop {
     my $dbh = LJ::get_db_writer()
         or return $log->( 'Unable to get database writer handle.' );
 
+## PHASE 0) REMOVE DEAD CARTS (unused for more than 30 days)
+
+    my $ct = $dbh->do( 'UPDATE shop_carts SET state = ? WHERE state = ? AND starttime < UNIX_TIMESTAMP() - 86400 * 30',
+                       undef, $DW::Shop::STATE_CLOSED, $DW::Shop::STATE_OPEN );
+    return $log->( 'Database error cleaning carts: %s', $dbh->errstr )
+        if $dbh->err;
+    $log->( 'Cleaned %d carts that were unused for more than 30 days.', $ct+0 );
+
 ## PHASE 1) PROCESS PAYMENTS
 
     # dig up carts that are in state paid and scannable
