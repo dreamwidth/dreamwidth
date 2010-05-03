@@ -3047,6 +3047,12 @@ CREATE TABLE cc_log (
 )
 EOC
 
+register_tablecreate('tor_proxy_exits', <<'EOC');
+CREATE TABLE tor_proxy_exits (
+    addr VARCHAR(15) NOT NULL,
+    PRIMARY KEY (addr)
+)
+EOC
 
 
 # NOTE: new table declarations go ABOVE here ;)

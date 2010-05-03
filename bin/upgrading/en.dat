@@ -1145,6 +1145,8 @@ entryform.xpost.manage=Manage accounts
 
 error.badpassword2=You typed the wrong password. If you make too many wrong login attempts in a row, your account access will be temporarily blocked, so you may want to <a [[aopts]]>reset your password</a> if you aren't sure what it is.
 
+error.blocked=Sorry, you are currently blocked from reaching the page you are attempting to visit.  The block type is: [[blocktype]].  Please email us at [[email]] and reference this message for further assistance.
+
 error.code.comm_not_comm=Account is not a community
 
 error.code.comm_not_found=Community not found

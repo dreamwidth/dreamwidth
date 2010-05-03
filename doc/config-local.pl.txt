@@ -51,6 +51,14 @@
             private_key => $DW::PRIVATE::RECAPTCHA{private_key},
         );
 
+    # If enabled, disable people coming in over Tor exits from using various parts of the site.
+    $USE_TOR_CONFIGS = 0;
+
+    # Configure what you want blocked here.  Requires $USE_TOR_CONFIGS to be on.
+    %TOR_CONFIG = (
+        shop => 1,     # Disallow Tor users from accessing the Shop.
+    )
+
     # PayPal configuration.  If you want to use PayPal, uncomment this
     # section and make sure to fill in the fields at the bottom of config-private.pl.
     #%PAYPAL_CONFIG = (

@@ -219,6 +219,13 @@ sub sysban_populate {
 }
 
 
+# here because it relates to sysbans ...
+sub tor_check {
+    return 0 unless $LJ::USE_TOR_CONFIGS && $LJ::TOR_CONFIG{$_[0]};
+    return DW::Request->get->note( 'via_tor_exit' ) ? 1 : 0;
+}
+
+
 sub _db_sysban_populate {
     my ($where, $what) = @_;
     my $dbh = LJ::get_db_writer();

@@ -157,14 +157,18 @@ sub remote_sysban_check {
 
     # do sysban checks:
     if ( LJ::sysban_check( 'pay_uniq', LJ::UniqCookie->current_uniq ) ) {
-        return BML::ml( '/shop.bml.paymentblock', { blocktype => "computer", email => $LJ::ACCOUNTS_EMAIL } );
+        return BML::ml( 'error.blocked', { blocktype => "computer", email => $LJ::ACCOUNTS_EMAIL } );
     } elsif ( my $remote = LJ::get_remote() ) {
         if ( LJ::sysban_check( 'pay_user', $remote->user ) ) {
-            return BML::ml( '/shop.bml.paymentblock', { blocktype => "account", email => $LJ::ACCOUNTS_EMAIL } );
+            return BML::ml( 'error.blocked', { blocktype => "account", email => $LJ::ACCOUNTS_EMAIL } );
         } elsif ( LJ::sysban_check( 'pay_email', $remote->email_raw ) ) {
-            return BML::ml( '/shop.bml.paymentblock', { blocktype => "email address", email => $LJ::ACCOUNTS_EMAIL } );
+            return BML::ml( 'error.blocked', { blocktype => "email address", email => $LJ::ACCOUNTS_EMAIL } );
         }
     }
+
+    # now do a tor check
+    return BML::ml( 'error.blocked', { blocktype => "Tor proxy", email => $LJ::ACCOUNTS_EMAIL } )
+        if LJ::tor_check( 'shop' );
 
     # looks good
     return undef;
