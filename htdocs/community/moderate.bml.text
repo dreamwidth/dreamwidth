@@ -39,6 +39,8 @@
 
 .error.notfound=Community account not found.
 
+.error.notmoderated=This community is not set to moderated posting.
+
 .manage=Manage communities
 
 .moderate=Moderate this community

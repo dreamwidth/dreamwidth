@@ -216,9 +216,13 @@ body<=
 
     my $dbcr = LJ::get_cluster_def_reader($c);
 
-    unless (LJ::check_rel($c, $remote, 'M')) {
-        $ret .= "<?h1 $ML{'Error'} h1?><?p " .
-            BML::ml('.error.noaccess', {'comm'=>"<?ljcomm $comm ljcomm?>"}) . " p?>";
+    unless ( LJ::check_rel( $c, $remote, 'M' ) ) {
+        $ret .= "<?h1 $ML{'Error'} h1?>";
+        if ( $c->has_moderated_posting ) {
+            $ret .= "<?p " . BML::ml( '.error.noaccess', { comm => $c->ljuser_display } ) . " p?>";
+        } else {
+            $ret .= "<?p " . BML::ml( '.error.notmoderated' ) . " p?>";
+        }
         return $ret;
     }
 
