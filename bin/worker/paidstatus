@@ -172,7 +172,7 @@ sub expire_user {
 
     $log->( 'Expiring %s(%d).', $u->user, $u->id );
 
-    if ( $u->is_community ) {
+    if ( $u->is_community && $u->is_visible ) {
         # send an email to every maintainer
         my $maintus = LJ::load_userids( $u->maintainer_userids );
         foreach my $maintu ( values %$maintus ) {
@@ -189,7 +189,7 @@ sub expire_user {
                 } ),
             } );
         }
-    } else {
+    } elsif ( $u->is_visible ) {
         LJ::send_mail( {
             to => $u->email_raw,
             fromname => $LJ::SITENAME,
