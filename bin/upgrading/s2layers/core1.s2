@@ -1632,7 +1632,7 @@ set text_icon_alt_18 = "[18+]";
 set text_icon_alt_sticky_entry = "[sticky entry]";
 
 property bool use_shared_pic {
-    des = "Use community userpics instead of poster's userpic.";
+    des = "Use community icons instead of poster's icon";
 }
 set use_shared_pic = false;
 

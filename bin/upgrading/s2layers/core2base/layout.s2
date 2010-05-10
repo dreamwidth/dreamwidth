@@ -15,6 +15,7 @@ propgroup presentation {
     property use sidebar_width;
     property use sidebar_width_doubled;
     property use use_custom_friend_colors;
+    property use use_shared_pic;
 }
 
 set sidebar_width = "15em";

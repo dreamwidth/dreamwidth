@@ -30,6 +30,7 @@ propgroup presentation {
     property use tags_page_type;
     property use userpics_position; 
     property use use_custom_friend_colors;
+    property use use_shared_pic;
 }
 
 set layout_type = "two-columns-right";

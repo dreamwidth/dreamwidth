@@ -1176,7 +1176,7 @@ set reg_firstdayofweek = "sunday";
 ##===============================
 
 property bool use_shared_pic {
-    des = "Use community userpics instead of poster's userpic.";
+    des = "Use community icons instead of poster's icon";
 }
 
 property bool tags_aware {
