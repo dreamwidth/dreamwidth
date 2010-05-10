@@ -241,7 +241,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         bar.innerHTML = "&nbsp;| ";
 
         // userpic
-        if (data.url_userpic && data.url_userpic != ContextualPopup.elements[ctxPopupId].src) {
+        if (data.url_userpic) {
             var userpicContainer = document.createElement("div");
             var userpicLink = document.createElement("a");
             userpicLink.href = data.url_allpics;
