@@ -535,7 +535,7 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 .entry .userpic img:hover {opacity: .7;}
 
 .entry-poster { display: block; border-bottom: 0.083em solid $*color_entry_border; padding: 0.167em 0.833em 0.167em 0.833em;}
-.page-recent .entry-poster {display: none;}
+.page-recent .journal-type-P .entry-poster, .page-recent .journal-type-Y .entry-poster {display: none;}
 .ljuser a b:hover { color: $*color_page_link_hover;}
 
 .entry-content { padding: 0.833em; min-height: 8.5em; border-bottom: 0.083em solid $*color_entry_border; $entry_background}
