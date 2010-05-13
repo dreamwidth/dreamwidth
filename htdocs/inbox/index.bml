@@ -166,6 +166,8 @@ body<=
         @all_items = $inbox->all_items;
     }
 
+    $body .= LJ::error_list( $@ ) if $@;
+
     # Pagination
     my $page = int($POST{page} || $GET{page});
     
