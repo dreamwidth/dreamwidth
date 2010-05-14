@@ -51,7 +51,7 @@ is($run->("tag_permissions access access"), "success: Tag permissions updated fo
 $u = LJ::load_user($u->user);
 is($u->raw_prop("opt_tagpermissions"), "protected,protected", "Tag permissions set correctly.");
 is($run->("tag_permissions members members"),
-   "error: Levels must be one of: 'private', 'public', 'none', 'access' (for personal journals), 'members' (for communities), or the name of a custom group.");
+   "error: Levels must be one of: 'private', 'public', 'none', 'access' (for personal journals), 'members' (for communities), 'author_admin' (for communities only), or the name of a custom group.");
 $comm->set_prop("opt_tagpermissions", undef);
 is($run->("tag_permissions for " . $comm->user . " public members"),
    "success: Tag permissions updated for " . $comm->user);
