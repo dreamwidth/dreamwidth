@@ -4368,7 +4368,14 @@ function EntryLite::print_userpic() {
     print "<div class=\"userpic\">";
     if ( defined $this.userpic )
     {
-        print """<a href="$this.poster.userpic_listing_url">""";
+        if ( $*use_shared_pic )
+        {
+            print """<a href="$this.journal.userpic_listing_url">""";
+        }
+        else
+        {
+            print """<a href="$this.poster.userpic_listing_url">""";
+        }
         $this.userpic->print();
         print "</a>";
     }
