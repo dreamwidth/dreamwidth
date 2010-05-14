@@ -1,3 +1,146 @@
+#NEWLAYER: blanket/forest
+layerinfo type = "theme";
+layerinfo name = "Forest";
+layerinfo redist_uniq = "blanket/forest";
+layerinfo author_name = "dancing_serpent";
+ 
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set color_page_background = "#012409";
+set color_page_border = "#0f6832";
+set color_page_link = "#0f6832";
+set color_page_link_active = "#8ccc97";
+set color_page_link_hover = "#8ccc97";
+set color_page_link_visited = "#0f6832";
+set color_page_text = "#000000";
+set color_header_background = "#ebffed";
+set color_header_footer_border = "#0f6832";
+set color_page_title = "#000000";
+set color_module_background = "#64834c";
+set color_module_border = "#0f6832";
+set color_module_text = "#000000";
+set color_module_title = "#000000";
+set color_entry_background = "#ebffed";
+set color_entry_border = "#0f6832";
+set color_entry_text = "#000000";
+set color_entry_title = "#000000";
+
+
+#NEWLAYER: blanket/green
+layerinfo type = "theme";
+layerinfo name = "Green";
+layerinfo redist_uniq = "blanket/green";
+layerinfo author_name = "dancing_serpent";
+ 
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set color_page_background = "#64834c";
+set color_page_border = "#0f6832";
+set color_page_link = "#0f6832";
+set color_page_link_active = "#8ccc97";
+set color_page_link_hover = "#8ccc97";
+set color_page_link_visited = "#0f6832";
+set color_page_text = "#000000";
+set color_header_background = "#ebffed";
+set color_header_footer_border = "#0f6832";
+set color_page_title = "#000000";
+set color_module_background = "#012409";
+set color_module_border = "#0f6832";
+set color_module_text = "#000000";
+set color_module_title = "#000000";
+set color_entry_background = "#ebffed";
+set color_entry_border = "#0f6832";
+set color_entry_text = "#000000";
+set color_entry_title = "#000000";
+
+
+#NEWLAYER: blanket/islandsandcities
+layerinfo type = "theme";
+layerinfo name = "Islands & Cities";
+layerinfo redist_uniq = "blanket/islandsandcities";
+layerinfo author_name = "sarken";
+ 
+set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+
+set font_base = "'Lucida Grande', 'Lucida' ";
+set font_base_size = "0.9";
+
+set color_page_background = "#5c6b7a";
+set color_page_border = "#c7f464";
+set color_page_link = "#fa6868";
+set color_page_link_active = "#c5ef62";
+set color_page_link_hover = "#4cc8bd";
+set color_page_link_visited = "#E06C93";
+set color_page_text = "#0d0d0d";
+set color_header_background = "#ffffff";
+set color_header_footer_border = "#c7f464";
+set color_page_title = "#506070";
+set color_module_background = "#f4ebeb";
+set color_module_border = "#8c8c8c";
+set color_module_text = "#0d0d0d";
+set color_module_title = "#5c6b7a";
+set color_entry_background = "#ffffff";
+set color_entry_border = "#8c8c8c";
+set color_entry_text = "#8c8c8c";
+set color_entry_title = "#4cc8bd";
+
+
+#NEWLAYER: blanket/jewels
+layerinfo type = "theme";
+layerinfo name = "Jewels";
+layerinfo redist_uniq = "blanket/jewels";
+layerinfo author_name = "dancing_serpent";
+ 
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set color_page_background = "#a3a68a";
+set color_page_border = "#886c9d";
+set color_page_link = "#ad5176";
+set color_page_link_active = "#ff9966";
+set color_page_link_hover = "#ff9966";
+set color_page_link_visited = "#ad5176";
+set color_page_text = "#363636";
+set color_header_background = "#e9faee";
+set color_header_footer_border = "#886c9d";
+set color_page_title = "#363636";
+set color_module_background = "#cccccc";
+set color_module_border = "#886c9d";
+set color_module_text = "#363636";
+set color_module_title = "#363636";
+set color_entry_background = "#e9faee";
+set color_entry_border = "#886c9d";
+set color_entry_text = "#363636";
+set color_entry_title = "#363636";
+
+
+#NEWLAYER: blanket/kingsandrunaways
+layerinfo type = "theme";
+layerinfo name = "Kings & Runaways";
+layerinfo redist_uniq = "blanket/kingsandrunaways";
+layerinfo author_name = "sarken";
+ 
+set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+
+set color_page_background = "#36312e";
+set color_page_border = "#F06C86";
+set color_page_link = "#76bbd6";
+set color_page_link_active = "#bf8139";
+set color_page_link_hover = "#d67c8b";
+set color_page_link_visited = "#c4b866";
+set color_page_text = "#E8E6CC";
+set color_header_background = "#403a36";
+set color_header_footer_border = "#E0D665";
+set color_page_title = "#A19284";
+set color_module_background = "#403a36";
+set color_module_border = "#9e9286";
+set color_module_text = "#817467";
+set color_module_title = "#A19284";
+set color_entry_background = "#453E3A";
+set color_entry_border = "#9e9286";
+set color_entry_text = "#E8E6CC";
+set color_entry_title = "#E0D665";
+
+
 #NEWLAYER: blanket/nnwm2009
 layerinfo type = "theme";
 layerinfo name = "NNWM 2009";
@@ -17,6 +160,35 @@ set color_module_title = "#ef8229";
 set color_page_text = "#ffffff";
 set font_base_size = "1";
 set color_module_text = "#000000";
+
+
+#NEWLAYER: blanket/ocean
+layerinfo type = "theme";
+layerinfo name = "Ocean";
+layerinfo redist_uniq = "blanket/ocean";
+layerinfo author_name = "dancing_serpent";
+ 
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set color_page_background = "#6ab1b2";
+set color_page_border = "#556b80";
+set color_page_link = "#0a566c";
+set color_page_link_active = "#041b55";
+set color_page_link_hover = "#041b55";
+set color_page_link_visited = "#0a566c";
+set color_page_text = "#000000";
+set color_header_background = "#effeff";
+set color_header_footer_border = "#556b80";
+set color_page_title = "#000000";
+set color_module_background = "#b4cccf";
+set color_module_border = "#556b80";
+set color_module_text = "#000000";
+set color_module_title = "#000000";
+set color_entry_background = "#effeff";
+set color_entry_border = "#556b80";
+set color_entry_text = "#000000";
+set color_entry_title = "#000000";
+
 
 #NEWLAYER: blanket/peach
 layerinfo type = "theme";
@@ -47,6 +219,35 @@ set color_entry_text = "#888";
 set color_entry_title = "#099aaf";
 set color_entry_border = "#eee";
 
+
+#NEWLAYER: blanket/shallows
+layerinfo type = "theme";
+layerinfo name = "Shallows";
+layerinfo redist_uniq = "blanket/shallows";
+layerinfo author_name = "dancing_serpent";
+ 
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set color_page_background = "#cfe0e6";
+set color_page_border = "#6ab1b2";
+set color_page_link = "#021341";
+set color_page_link_active = "#0a566c";
+set color_page_link_hover = "#0a566c";
+set color_page_link_visited = "#021341";
+set color_page_text = "#000000";
+set color_header_background = "#effeff";
+set color_header_footer_border = "#6ab1b2";
+set color_page_title = "#000000";
+set color_module_background = "#556b80";
+set color_module_border = "#021341";
+set color_module_text = "#000000";
+set color_module_title = "#000000";
+set color_entry_background = "#effeff";
+set color_entry_border = "#6ab1b2";
+set color_entry_text = "#000000";
+set color_entry_title = "#000000";
+
+
 #NEWLAYER: blanket/sprung
 layerinfo type = "theme";
 layerinfo name = "Sprung";
@@ -74,6 +275,7 @@ set color_page_link_visited = "#6A5070";
 set color_page_text = "#5c5726";
 set color_page_title = "#a2a775";
 
+
 #NEWLAYER: blanket/thetealandthegrey
 layerinfo type = "theme";
 layerinfo name = "The Teal and the Grey";
@@ -82,24 +284,20 @@ layerinfo author_name = "twtd";
 
 set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
 
-set color_page_text = "#888";
 set color_page_background = "#d5d6d6";
 set color_page_border = "#099aaf";
-
 set color_page_link = "#036472";
 set color_page_link_active = "#036472";
 set color_page_link_hover = "#C07D0C";
 set color_page_link_visited = "#DD8D09";
-
+set color_page_text = "#888";
 set color_header_background = "#fff";
 set color_header_footer_border = "#099aaf";
 set color_page_title = "#099aaf";
-
 set color_module_background = "#C3C3C3";
 set color_module_text = "#036472";
 set color_module_border = "#099aaf";
 set color_module_title = "#036472";
-
 set color_entry_background = "#fff";
 set color_entry_text = "#888";
 set color_entry_title = "#099aaf";
