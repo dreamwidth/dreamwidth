@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
 }
@@ -548,6 +549,14 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 .metadata ul {padding: 0; margin: 0; list-style: none; }
 .metadata li {padding: 0.167em 0.833em 0.167em 0.833em; margin: 0; border-bottom: 0.083em solid $*color_entry_border;} 
 .metadata-label {font-weight: bold; }
+.page-recent .journal-type-P .metadata.top-metadata li,
+.page-recent .journal-type-I .metadata.top-metadata li,
+.page-recent .journal-type-P .metadata.top-metadata li + li + li,
+.page-recent .journal-type-I .metadata.top-metadata li + li + li { background: $*color_entry_background; }
+.page-recent .journal-type-P .metadata.top-metadata li + li,
+.page-recent .journal-type-I .metadata.top-metadata li + li,
+.page-recent .journal-type-P .metadata.top-metadata li + li + li + li,
+.page-recent .journal-type-I .metadata.top-metadata li + li + li + li { background: $*color_comment_title_background; }
 
 /* ====================== ENTRY TAGS ======================= */
 

@@ -168,6 +168,7 @@ propgroup presentation
     property use num_items_recent;
     property use num_items_reading;
     property use use_journalstyle_entry_page;
+    property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
 }
@@ -956,8 +957,9 @@ function Page::print_entry (Entry e)
         $e->print_time("long_day", "");
         println "</div>";
 
+        if ($*entry_metadata_position == "top") { $e->print_metadata(); }
         $e->print_text();
-        $e->print_metadata();
+        if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
         $e->print_tags();
         $e->print_management_links();
         $e->print_interaction_links("topcomment");

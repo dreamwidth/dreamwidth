@@ -118,6 +118,7 @@ body { margin: 0;
 .metadata { margin: 1em 0 0 0;
     font-size: small;
     clear: both; }
+.metadata.top-metadata { margin-top: 1em; clear: none; }
 .metadata-label { font-style: italic; }
 .metadata ul { margin-top: 0; padding-top: 0;
 margin-bottom: 0; padding-bottom: 0; }

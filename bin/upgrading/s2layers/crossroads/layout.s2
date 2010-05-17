@@ -150,6 +150,7 @@ body { margin: 0; }
 
 .metadata { margin: 1em 0 0 .5em;
     font-size: small; }
+.metadata.top-metadata { padding-top: .5em; }
 .metadata-label { font-style: italic; }
 .metadata ul { margin-top: 0; padding-top: 0;
 margin-bottom: 0; padding-bottom: 0; }

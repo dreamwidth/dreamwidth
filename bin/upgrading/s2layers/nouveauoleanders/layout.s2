@@ -194,17 +194,18 @@ body { margin: 0;
     font-style: italic; }
 
 .metadata { margin: 1em 0 0 0;
-    font-size: small; }
+    font-size: small;
+    clear: both; }
 .metadata-label { font-style: italic; }
 .metadata ul { margin-top: 0; padding-top: 0;
 margin-bottom: 0; padding-bottom: 0; }
 .metadata ul li { margin-left: 0; padding-left: 0; }
 
-.metadata,
-.entry .footer { clear: both; }
+.metadata.top-metadata { clear: none; }
 
 .entry .footer { margin: .5em 0 0 0;
-    padding-bottom: .5em; }
+    padding-bottom: .5em;
+    clear: both; }
 .entry .footer > .inner:first-child { font-size: small;
     padding: 1px; } /*float uneveness fix */
 

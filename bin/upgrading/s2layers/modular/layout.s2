@@ -290,6 +290,7 @@ $userpic_css
 .entry .metadata { font-style: italic;
     margin-bottom: -1.5em;
     }
+.entry .metadata.top-metadata { margin-top: 1em; margin-bottom: 0; }
 
 .entry .footer,
 .comment .footer { padding: .5em .5em 1em .5em;

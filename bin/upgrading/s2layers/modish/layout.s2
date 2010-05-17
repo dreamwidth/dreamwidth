@@ -80,6 +80,7 @@ margin: .5em 0; }
 .entry-content { margin: 1em 0; }
 
 .metadata { margin: 1em 0 0 0; }
+.metadata.top-metadata { margin-bottom: 2em; }
 .metadata-label { font-weight: bold; }
 .metadata ul li { margin-left: 0; padding-left: 0; }
 

@@ -1196,6 +1196,11 @@ property string userpics_position {
    values = "left|Left|right|Right";
    }
 
+property string entry_metadata_position {
+    des = "Place metadata after or before entry text";
+    values = "top|Before text|bottom|After text";
+    }
+
 property bool linklist_support {
     des = "Display link list";
 }
@@ -1225,6 +1230,7 @@ set use_shared_pic = false;
 set tags_aware = true;
 set comment_userpic_style = "";
 set userpics_position = "left";
+set entry_metadata_position = "bottom";
 set linklist_support = true;
 set userlite_interaction_links = "icons";
 set entry_management_links = "icons";
@@ -4140,8 +4146,9 @@ function Page::print_entry(Entry e)
     """<div class="inner">\n""";
     $e->print_userpic();
     $e->print_poster();
+    if ($*entry_metadata_position == "top") { $e->print_metadata(); }
     $e->print_text();
-    $e->print_metadata();
+    if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
     """</div>\n""";
     """</div>\n""";
     """</div>\n""";
@@ -4297,7 +4304,8 @@ function EntryLite::print_metadata() {
 }
 function Entry::print_metadata() {
     if (size $.metadata) {
-        """<div class="metadata">\n<ul>\n""";
+        var string position = ($*entry_metadata_position == "top") ? " top-metadata" : " bottom-metadata";
+        """<div class="metadata$position">\n<ul>\n""";
         foreach var string m ($.metadata) {
             var string metadata_name = lang_metadata_title($m);
             """<li><span class="metadata-label metadata-label-$m">$metadata_name: </span>""";

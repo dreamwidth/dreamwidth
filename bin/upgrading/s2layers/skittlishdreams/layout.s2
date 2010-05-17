@@ -28,7 +28,8 @@ propgroup presentation {
     property use layout_type;
     property use sidebar_width;
     property use tags_page_type;
-    property use userpics_position; 
+    property use userpics_position;
+    property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
 }
@@ -594,6 +595,7 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 .tag li {display: inline; list-style: none; padding: 0px; }
 *+html .tag li {padding: 0 5px; }
 
+.entry .metadata.top-metadata { padding-top: 10px; }
 .entry .metadata ul {margin: 0px; padding: 0px; }
 .entry .metadata li {list-style: none; }
 .entry .footer .inner, .comment .footer .inner {text-align: right; }

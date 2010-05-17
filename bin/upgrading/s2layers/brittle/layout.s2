@@ -16,6 +16,7 @@ propgroup presentation {
     property use layout_type;
     property use tags_page_type;
     property use sidebar_width;
+    property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
 }
@@ -440,6 +441,8 @@ span.poster {
     }
 
 .metadata { margin: 1.25em 0 0 0; }
+
+.metadata.top-metadata { margin: 10px 0 1.25em 0; }
 
 div.metadata ul {
     padding: 0;

@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
 }
@@ -332,6 +333,7 @@ h3.entry-title a { $entry_title_colors }
 span.poster { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; $page_title_colors }
 
 .metadata { margin: 2em 0 0 0; }
+.metadata.top-metadata { margin: 1em 0 2em 0; }
 div.metadata ul { padding: 0; margin: 0; }
 div.metadata ul li { list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0; $page_title_colors }
 span.metadata-label-location, span.metadata-label-mood, span.metadata-label-music { display: none; }

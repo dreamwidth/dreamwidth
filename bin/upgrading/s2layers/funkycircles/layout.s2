@@ -636,6 +636,10 @@ h2#pagetitle {
         font-style: italic;
         }
 
+.entry .contents .metadata.top-metadata ul {
+    margin: 0;
+    }
+
 .entry .footer,
 .month .footer,
 .page-entry .comment .footer,

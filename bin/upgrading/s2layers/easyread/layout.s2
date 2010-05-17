@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use entry_metadata_position
     property use use_shared_pic;
 }
 
@@ -514,6 +515,10 @@ h2.module-header a {
 .entry .metadata {
     margin-top: 1em;
     position: relative;
+}
+
+.entry .metadata.top-metadata {
+    margin-top: 0;
 }
 
 .entry h3.entry-title {
