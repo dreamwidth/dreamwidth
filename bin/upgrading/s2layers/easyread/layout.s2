@@ -17,7 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
-    property use entry_metadata_position
+    property use entry_metadata_position;
     property use use_shared_pic;
 }
 
