@@ -560,7 +560,7 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 
 /* ====================== ENTRY TAGS ======================= */
 
-.tag {margin: 0; padding: 0; border-bottom: 0.083em solid $*color_entry_border; }
+.tag {margin: 0; padding: 0; border-bottom: 0.083em solid $*color_entry_border; background: $*color_entry_background; }
 .tag-text {float: left; font-weight: bold; padding: 0 0.5em 0 1em; }
 .tag ul { padding: 0; list-style: none; margin: 0; }
 .tag li {display: inline; margin: 0; }
@@ -570,8 +570,8 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 
 /* ====================== ENTRY TOOLS ======================= */
 
-.entry-interaction-links {margin: 0; list-style: none; background: $*color_module_title_background; padding: 0.583em; 
-                          border-bottom: 0.083em solid $*color_entry_background; border-top: 0.083em solid $*color_entry_background; }
+.entry .footer { overflow: auto; background:  $*color_module_title_background; border-bottom: 0.083em solid $*color_entry_background;}
+.entry-interaction-links {margin: 0; list-style: none; padding: 0.583em; border-top: 0.083em solid $*color_entry_background;}
 .entry-interaction-links li {display: inline; padding: 0.583em 0 0.583em 0 !important; border-left: 0.083em solid $*color_entry_background; border-right: 0.083em solid $*color_entry_background; }
 .entry-interaction-links li + li {border-left: 0; margin: 0 0 0 -0.25em;}
 .entry-interaction-links a {color: $*color_entry_interaction_links !important; padding: 0.583em 0.833em 0.583em 0.833em; font-weight: bold;}

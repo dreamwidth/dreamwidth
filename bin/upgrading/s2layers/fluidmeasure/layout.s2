@@ -280,6 +280,7 @@ position: relative; /*more asinine IE7 hackish fixing*/ }
     padding-bottom: .5em;
     background-color: $*color_entry_border;
     clear: both;
+    overflow: auto; /* keep floated elements inside the footer */
     border-bottom-left-radius: 1em;
     border-bottom-right-radius: 1em;
     -moz-border-radius-bottomleft: 1em;

@@ -160,7 +160,8 @@ margin-bottom: 0; padding-bottom: 0; }
 .entry .footer { clear: both; }
 
 .entry .footer { margin: .5em 0 0 0;
-    background-color: $*color_entry_border; }
+    background-color: $*color_entry_border; 
+    overflow: auto; /* Keeps floated elements inside */ }
 .entry .footer > .inner:first-child { font-size: small;
     padding: 1px; } /*float uneveness fix */
 

@@ -299,6 +299,8 @@ $userpic_css
 
 .entry .tag { margin-bottom: .5em; }
 
+.entry .footer { overflow: auto; /* Keeps floated element inside */ }
+
 ul.entry-management-links,
 .comment-management-links { float: left;
     margin-top: .5em;
