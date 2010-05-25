@@ -617,7 +617,7 @@ userproplist.opt_comm_promo:
 userproplist.opt_ctxpopup:
   cldversion: 4
   datatype: char
-  des: Show contextual popup
+  des: Show contextual popup. I for icons only, U for user heads only, Y for both, N for never.
   indexed: 0
   multihomed: 0
   prettyname: Contextual Popup
