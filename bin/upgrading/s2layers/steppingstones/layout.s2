@@ -245,7 +245,7 @@ text-align: center; }
 .one-column #tertiary { margin-top: 0; }
 
 #secondary > .inner:first-child,
-#tertiary > .inner:first-child { padding: .5em;
+#tertiary > .inner:first-child { padding: 0;
     margin: 1em;
     $tertiary_colors }
 
@@ -255,9 +255,9 @@ text-align: center; }
 .two-columns-left #tertiary .module,
 .two-columns-right #tertiary .module { margin-right: 1em; }
 
-.module {  padding: 3px; 
+.module {  padding: .6em; 
     margin-bottom: 1em;
-    border: none; } 
+    border: none; }
 
 .module-header { 
     font-size: large;

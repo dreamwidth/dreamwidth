@@ -548,6 +548,12 @@ function Page::print_default_stylesheet()
         text-align: center;
     }
 
+    .module-section-two .module,
+    .module-section-three .module {
+        padding-left: .5em;
+        padding-right: .5em;
+    }
+
     .module-navlinks ul {
         display: block;
         padding: 0;
