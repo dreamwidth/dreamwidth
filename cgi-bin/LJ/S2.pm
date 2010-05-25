@@ -1773,6 +1773,7 @@ sub TagList
     LJ::Hooks::run_hooks( 'augment_s2_tag_list', u => $u, jitemid => $jitemid, tag_list => $taglist );
     @$taglist = sort { $a->{name} cmp $b->{name} } @$taglist;
 
+    return "" if $opts->{no_entry_body};
     return "" unless $opts->{enable_tags_compatibility} && @$taglist;
     return LJ::S2::get_tags_text( $opts->{ctx}, $taglist );
 }
@@ -1907,6 +1908,7 @@ sub Entry_from_entryobj
     my ($u, $entry_obj, $opts) = @_;
     my $remote = LJ::get_remote();
     my $get = $opts->{getargs};
+    my $no_entry_body = $opts->{no_entry_body};
 
     my $anum = $entry_obj->anum;
     my $jitemid = $entry_obj->jitemid;
@@ -1923,28 +1925,32 @@ sub Entry_from_entryobj
     
     #load and prepare subject and text of entry
     my $subject = LJ::CleanHTML::quote_html( $entry_obj->subject_html, $get->{nohtml} );
-    my $text = LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
+    my $text = $no_entry_body ? "" : LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
     LJ::item_toutf8( $journal, \$subject, \$text, $entry_obj->props ) if $LJ::UNICODE && $entry_obj->props->{unknown8bit};
 
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
-    # cleaning the entry text: cuts and such
-    my $cut_disable = $opts->{cut_disable};
-    my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum, $style_args ),
-        ljcut_disable => $cut_disable,
-        suspend_msg => $suspend_msg,
-        unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0,
-        preformatted => $entry_obj->prop( "opt_preformatted" ),
-    };
-    # reading pages might need to display image placeholders
-    my $cleanhtml_extra = $opts->{cleanhtml_extra} || {};
-    foreach my $k ( keys %$cleanhtml_extra ) {
-        $cleanhtml_opts->{$k} = $cleanhtml_extra->{$k}
-    }
-    LJ::CleanHTML::clean_event( \$text, $cleanhtml_opts );
 
-    LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
-    $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $journal,
-                                                     remote => $remote, entry => $entry_obj );
+    unless ( $no_entry_body ) {
+        # cleaning the entry text: cuts and such
+        my $cut_disable = $opts->{cut_disable};
+        my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum, $style_args ),
+            ljcut_disable => $cut_disable,
+            suspend_msg => $suspend_msg,
+            unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0,
+            preformatted => $entry_obj->prop( "opt_preformatted" ),
+        };
+
+        # reading pages might need to display image placeholders
+        my $cleanhtml_extra = $opts->{cleanhtml_extra} || {};
+        foreach my $k ( keys %$cleanhtml_extra ) {
+            $cleanhtml_opts->{$k} = $cleanhtml_extra->{$k}
+        }
+        LJ::CleanHTML::clean_event( \$text, $cleanhtml_opts );
+    
+        LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
+        $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $journal,
+                                                         remote => $remote, entry => $entry_obj );
+    }
 
     # journal: posted to; poster: posted by
     my $posterid = $entry_obj->posterid;
@@ -2145,9 +2151,12 @@ sub Page
         foreach my $itemid ( @active ) {
             my $entry_obj = LJ::Entry->new( $u, jitemid => $itemid );
 
+            # copy over $opts so that we don't inadvertently affect other things
+            my $activeentry_opts = { %{$opts || {}}, no_entry_body => 1 };
+
             # only show the entries $remote has the permission to view
             if ( $entry_obj->visible_to( $remote ) ) {
-                my $activeentry = Entry_from_entryobj( $u, $entry_obj, $opts );
+                my $activeentry = Entry_from_entryobj( $u, $entry_obj, $activeentry_opts );
                 push @{$p->{activeentries}}, $activeentry;
 
                 # if at least one is accessible to $remote , show active entries module on journal page

@@ -96,6 +96,9 @@ sub MonthPage
 
     my $opt_text_subjects = S2::get_property_value( $ctx, "page_month_textsubjects" );
 
+    # we only want the subjects, not the body
+    my $entry_opts = { %{$opts || {}}, no_entry_body => 1 };
+
   ENTRY:
     foreach my $item (@items)
     {
@@ -112,7 +115,7 @@ sub MonthPage
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         # create the S2 entry
-        my $entry = Entry_from_entryobj( $u, $entry_obj, $opts );
+        my $entry = Entry_from_entryobj( $u, $entry_obj, $entry_opts );
 
         push @{$day_entries{$day}}, $entry;
     }
