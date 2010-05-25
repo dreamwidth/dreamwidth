@@ -29,26 +29,32 @@ sub label {
 }
 
 sub option {
-    my ($class, $u, $errs, $args) = @_;
+    my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $ctxpopup = $class->get_arg($args, "ctxpopup") || $u->prop('opt_ctxpopup');
+    my $ctxpopup = $class->get_arg( $args, "ctxpopup" ) || $u->opt_ctxpopup;
 
-    my $ret = LJ::html_check({
+    my @options = (
+        I => $class->ml( 'setting.ctxpopup.option.icons' ),
+        U => $class->ml( 'setting.ctxpopup.option.userhead' ),
+        Y => $class->ml( 'setting.ctxpopup.option.both' ),
+        N => $class->ml( 'setting.ctxpopup.option.none' ),
+    );
+
+    my $ret = "<label for='${key}ctxpopup'>" . $class->ml( 'setting.ctxpopup.option2' ) . "</label> ";
+    $ret .= LJ::html_select({
         name => "${key}ctxpopup",
         id => "${key}ctxpopup",
-        value => 1,
-        selected => $ctxpopup ? 1 : 0,
-    });
-    $ret .= " <label for='${key}ctxpopup'>" . $class->ml('setting.ctxpopup.option') . "</label>";
+        selected => $ctxpopup,
+    }, @options );
 
     return $ret;
 }
 
 sub save {
-    my ($class, $u, $args) = @_;
+    my ( $class, $u, $args ) = @_;
 
-    my $val = $class->get_arg($args, "ctxpopup") ? "Y" : "N";
+    my $val = $class->get_arg( $args, "ctxpopup" );
     $u->set_prop( opt_ctxpopup => $val );
 
     return 1;

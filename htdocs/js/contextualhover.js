@@ -17,44 +17,48 @@ ContextualPopup.setup = function () {
     // don't do anything if no remote
     if (!Site || !Site.ctx_popup) return;
 
-    // attach to all ljuser head icons
-    var ljusers = DOM.getElementsByTagAndClassName(document, 'span', "ljuser");
-
     var userElements = [];
-    ljusers.forEach(function (ljuser) {
-        var nodes = ljuser.getElementsByTagName("img");
-        for (var i=0; i < nodes.length; i++) {
-            var node = nodes.item(i);
 
-            // if the parent (a tag with link to userinfo) has userid in its URL, then
-            // this is an openid user icon and we should use the userid
-            var parent = node.parentNode;
-            var userid;
-            if (parent && parent.href && (userid = parent.href.match(/\?userid=(\d+)/i)))
-                node.userid = userid[1];
-            else
-                node.username = ljuser.getAttribute("lj:user");
+    // attach to all ljuser head icons
+    if (Site.ctx_popup_userhead) {
+        var ljusers = DOM.getElementsByTagAndClassName(document, 'span', "ljuser");
 
-            if (!node.username && !node.userid) continue;
+        ljusers.forEach(function (ljuser) {
+            var nodes = ljuser.getElementsByTagName("img");
+            for (var i=0; i < nodes.length; i++) {
+                var node = nodes.item(i);
 
-            userElements.push(node);
-            DOM.addClassName(node, "ContextualPopup");
+                // if the parent (a tag with link to userinfo) has userid in its URL, then
+                // this is an openid user icon and we should use the userid
+                var parent = node.parentNode;
+                var userid;
+                if (parent && parent.href && (userid = parent.href.match(/\?userid=(\d+)/i)))
+                    node.userid = userid[1];
+                else
+                    node.username = ljuser.getAttribute("lj:user");
 
-        }
-    });
+                if (!node.username && !node.userid) continue;
+
+                userElements.push(node);
+                DOM.addClassName(node, "ContextualPopup");
+
+            }
+        });
+    };
 
     // attach to all userpics
-    var images = document.getElementsByTagName("img") || [];
-    Array.prototype.forEach.call(images, function (image) {
-        // if the image url matches a regex for userpic urls then attach to it
-        if (image.src.match(/userpic\..+\/\d+\/\d+/) ||
-            image.src.match(/\/userpic\/\d+\/\d+/)) {
-            image.up_url = image.src;
-            DOM.addClassName(image, "ContextualPopup");
-            userElements.push(image);
-
-        }
-    });
+    if (Site.ctx_popup_icons) {
+        var images = document.getElementsByTagName("img") || [];
+        Array.prototype.forEach.call(images, function (image) {
+            // if the image url matches a regex for userpic urls then attach to it
+            if (image.src.match(/userpic\..+\/\d+\/\d+/) ||
+                image.src.match(/\/userpic\/\d+\/\d+/)) {
+                image.up_url = image.src;
+                DOM.addClassName(image, "ContextualPopup");
+                userElements.push(image);
+           }
+        });
+    };
 
     var ctxPopupId = 1;
     userElements.forEach(function (userElement) {

@@ -2446,8 +2446,10 @@ sub res_includes {
     my $hasremote = $remote ? 1 : 0;
 
     # ctxpopup prop
-    my $ctxpopup = 1;
-    $ctxpopup = 0 if $remote && ! $remote->prop("opt_ctxpopup");
+    my $ctxpopup_icons = 1;
+    my $ctxpopup_userhead = 1;
+    $ctxpopup_icons = 0 if $remote && ! $remote->opt_ctxpopup_icons;
+    $ctxpopup_userhead = 0 if $remote && ! $remote->opt_ctxpopup_userhead;
 
     # poll for esn inbox updates?
     my $inbox_update_poll = LJ::is_enabled('inbox_update_poll');
@@ -2465,7 +2467,9 @@ sub res_includes {
                 currentJournalBase => "$journal_base",
                 currentJournal => "$journal",
                 has_remote => $hasremote,
-                ctx_popup => $ctxpopup,
+                ctx_popup => ( $ctxpopup_icons || $ctxpopup_userhead ),
+                ctx_popup_icons => $ctxpopup_icons,
+                ctx_popup_userhead => $ctxpopup_userhead,
                 inbox_update_poll => $inbox_update_poll,
                 media_embed_enabled => $embeds_enabled,
                 esn_async => $esn_async,

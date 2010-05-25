@@ -2457,6 +2457,16 @@ setting.ctxpopup.label=Hover Menu
 
 setting.ctxpopup.option=Show menu when I hover over userhead images or userpics
 
+setting.ctxpopup.option2=Show the contextual menu when you hover over:
+
+setting.ctxpopup.option.both=Both
+
+setting.ctxpopup.option.icons=Icons
+
+setting.ctxpopup.option.none=Never
+
+setting.ctxpopup.option.userhead=Userhead graphic
+
 setting.cutdisable.label=Cut Tag Behavior
 
 setting.cutdisable.option=Display full content of cut entries?

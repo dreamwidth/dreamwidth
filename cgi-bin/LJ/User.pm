@@ -5072,7 +5072,17 @@ sub opt_ctxpopup {
     # if unset, default to on
     my $prop = $u->raw_prop('opt_ctxpopup') || 'Y';
 
-    return $prop eq 'Y';
+    return $prop;
+}
+
+# should contextual hover be displayed for icons
+sub opt_ctxpopup_icons {
+    return ( $_[0]->prop( 'opt_ctxpopup' ) eq "Y" || $_[0]->prop( 'opt_ctxpopup' ) eq "I" );
+}
+
+# should contextual hover be displayed for the graphical userhead
+sub opt_ctxpopup_userhead {
+    return ( $_[0]->prop( 'opt_ctxpopup' ) eq "Y" || $_[0]->prop( 'opt_ctxpopup' ) eq "U" );
 }
 
 
