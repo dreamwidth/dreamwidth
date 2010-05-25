@@ -2743,6 +2743,7 @@ CREATE TABLE import_data (
     usejournal VARCHAR(255),
     password_md5 VARCHAR(255),
     groupmap BLOB,
+    options BLOB,
 
     PRIMARY KEY (userid, import_data_id),
     INDEX (import_data_id)
@@ -3888,6 +3889,11 @@ EOF
         do_alter( 'xpost_recordlink',
                   "ALTER TABLE externalaccount ADD COLUMN recordlink enum('1','0') NOT NULL default '0'");
     }
+
+     unless ( column_type( 'import_data', 'options' ) ) {
+         do_alter( 'import_data',
+                   q{ALTER TABLE import_data ADD COLUMN options BLOB} );
+     }
 
 });
 

@@ -80,6 +80,10 @@ sub handle_post {
         ['lj_comments',     'init'],
     );
 
+    my %suboptions = (
+         lj_entries => [ 'lj_entries_remap_icon' ],
+    );
+
     # get import_data_id for the user
     my $imports = DW::Logic::Importer->get_import_data_for_user( $u );
     my $id = $imports->[0]->[0];
@@ -87,7 +91,18 @@ sub handle_post {
     # schedule userpic, bio, and tag imports
     foreach my $item ( @jobs ) {
         next unless $post->{$item->[0]};
+
+        my $suboption = $suboptions{$item->[0]} || [];
+        my %opts;
+        foreach ( @$suboption ) {
+            $opts{$_} = 1 if $post->{$_};
+        }
+
         if ( my $error = DW::Logic::Importer->set_import_items_for_user( $u, item => $item, id => $id ) ) {
+            return ( ret => $error );
+        }
+
+        if ( my $error = DW::Logic::Importer->set_import_data_options_for_user( $u, import_data_id => $id, %opts ) ) {
             return ( ret => $error );
         }
     }

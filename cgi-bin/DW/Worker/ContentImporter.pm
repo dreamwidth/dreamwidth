@@ -26,7 +26,7 @@ use strict;
 use Time::HiRes qw/ sleep time /;
 use Carp qw/ croak confess /;
 use Encode qw/ encode_utf8 /;
-use Storable qw/ freeze /;
+use Storable;
 use LWP::UserAgent;
 use XMLRPC::Lite;
 use Digest::MD5 qw/ md5_hex /;
@@ -98,9 +98,12 @@ sub import_data {
 
     my $dbh = LJ::get_db_writer()
         or croak 'unable to get global database master';
-    my $hr = $dbh->selectrow_hashref( 'SELECT userid, hostname, username, usejournal, password_md5, import_data_id ' .
+    my $hr = $dbh->selectrow_hashref( 'SELECT userid, hostname, username, usejournal, password_md5, import_data_id, options ' .
                                       'FROM import_data WHERE userid = ? AND import_data_id = ?', undef, $userid, $impid );
     croak $dbh->errstr if $dbh->err;
+
+    $hr->{options} = Storable::thaw( $hr->{options} ) || {}
+        if $hr && $hr->{options};
 
     return $hr;
 }

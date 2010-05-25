@@ -19,6 +19,7 @@ package DW::Logic::Importer;
 use strict;
 use Digest::MD5 qw/ md5_hex /;
 use DW::Pay;
+use Storable;
 
 sub get_import_data_for_user {
     my ( $class, $u ) = @_;
@@ -29,10 +30,13 @@ sub get_import_data_for_user {
     # load up their most recent (active) import
     # FIXME: memcache this
     my $imports = $dbh->selectall_arrayref(
-        'SELECT import_data_id, hostname, username, usejournal, password_md5 FROM import_data WHERE userid = ? ' .
+        'SELECT import_data_id, hostname, username, usejournal, password_md5, options FROM import_data WHERE userid = ? ' .
         'ORDER BY import_data_id DESC LIMIT 1',
         undef, $u->id
     );
+
+    $imports->[0]->[5] = Storable::thaw( $imports->[0]->[5] ) || {}
+        if $imports && $imports->[0] && $imports->[0]->[5];
 
     return $imports;
 }
@@ -96,7 +100,28 @@ sub set_import_data_for_user {
         undef, $u->id
     );
 
-    return "";
+    return undef;
+}
+
+sub set_import_data_options_for_user {
+    my ( $class, $u, %opts ) = @_;
+
+    my $id = delete $opts{import_data_id};
+    return unless %opts;
+
+    my $data = Storable::nfreeze( \%opts );
+
+    my $dbh = LJ::get_db_writer()
+        or return "Unable to connect to database.";
+
+    $dbh->do(
+        "UPDATE import_data SET options = ? WHERE import_data_id = ?",
+        undef, $data, $id
+    );
+
+    return $dbh->errstr if $dbh->err;
+
+    return undef;
 }
 
 sub set_import_items_for_user {

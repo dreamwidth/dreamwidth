@@ -4256,6 +4256,8 @@ widget.importchoosedata.item.lj_comments.desc=Imports <em>all</em> comments on y
 
 widget.importchoosedata.item.lj_entries.desc=Imports <em>all</em> your journal entries, whether they're friends-only, private or public. This will automatically import your tags and custom security groups.
 
+widget.importchoosedata.item.lj_entries_remap_icon.desc=Updates icons on previously imported entries. Has no effect for new imports. Reimports your journal entries, your tags, and your custom security groups.
+
 widget.importchoosedata.item.lj_friendgroups.desc=Imports your friend groups as [[sitename]] access filters.
 
 widget.importchoosedata.item.lj_friends.desc=Imports your friends as OpenID accounts and puts them in your imported access filters. This will automatically import your custom security groups.
@@ -4313,6 +4315,8 @@ widget.importstatus.item.lj_bio=Profile data
 widget.importstatus.item.lj_comments=Journal comments
 
 widget.importstatus.item.lj_entries=Journal entries
+
+widget.importstatus.item.lj_entries_remap_icon=Update icon keywords
 
 widget.importstatus.item.lj_friendgroups=Custom security groups
 

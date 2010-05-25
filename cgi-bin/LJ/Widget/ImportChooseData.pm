@@ -40,6 +40,15 @@ sub render_body {
             display_name => $class->ml( 'widget.importstatus.item.lj_entries' ),
             desc => $class->ml( 'widget.importchoosedata.item.lj_entries.desc' ),
             selected => 0,
+
+            suboptions => [
+                {
+                    name => 'lj_entries_remap_icon',
+                    display_name => $class->ml( 'widget.importstatus.item.lj_entries_remap_icon' ),
+                    desc => $class->ml( 'widget.importchoosedata.item.lj_entries_remap_icon.desc' ),
+                    selected => 0,
+                }
+            ]
         },
         {
             name => 'lj_friends',
@@ -90,6 +99,24 @@ sub render_body {
         );
         $ret .= " <label for='$option->{name}'>$option->{display_name}</label>";
         $ret .= "<?p $option->{desc} p?>";
+
+        if ( my @suboptions = @{ $option->{suboptions} || [] } ) {
+            $ret .= "<ul class='importsuboptions'>";
+            foreach my $suboption ( @suboptions ) {
+                $ret .= "<li>";
+                $ret .= $class->html_check(
+                    name => $suboption->{name},
+                    id => $suboption->{name},
+                    value => 1,
+                    selected => $suboption->{selected},
+                );
+                $ret .= " <label for='$suboption->{name}'>$suboption->{display_name}</label>";
+                $ret .= "<?p $suboption->{desc} p?>";
+                $ret .= "</li>";
+            }
+            $ret .= "</ul>";
+        }
+
         $ret .= "</div>";
     }
 
@@ -116,6 +143,10 @@ sub handle_post {
     }
     return ( ret => $class->ml( 'widget.importchoosedata.error.noitemsselected' ) )
         unless $has_items;
+
+    # if we're doing the suboption, turn on the parent option
+    $post->{lj_entries} = 1
+        if $post->{lj_entries_remap_icon};
 
     # if comments are on, turn entries on
     $post->{lj_entries} = 1

@@ -158,10 +158,10 @@ sub try_work {
             next;
         }
 
-        # FIXME: this is the key moment to "skip".  if we want a paid user or someone
-        # to get their picture keyword updated, we should skip them here.
-        # FIXME: this is a fixme because we should implement some way of making
-        # this available to users.
+        # if we want a paid user or someone to get their picture keyword updated,
+        # skip them here.
+        next if $data->{options}->{lj_entries_remap_icon};
+
         delete $sync{$1 >> 8};
     }
     $log->( 'Syncitems now has %d items post-prune (first pass).', scalar( keys %sync ) );
