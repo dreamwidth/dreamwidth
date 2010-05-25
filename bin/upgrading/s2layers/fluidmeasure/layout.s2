@@ -267,7 +267,8 @@ float: left; width: 100%; /*asinine IE7 hack*/ }
 position: relative; /*more asinine IE7 hackish fixing*/ }
 
 .entry .contents .entry-poster { display: block;
-    margin-top: -.5em }
+    margin-top: -.5em;
+    clear:left; /* Fixes display bug in Chrome. Keeps username below entry title. */ }
 
 .entry-content { margin: 1em .5em; }
 
