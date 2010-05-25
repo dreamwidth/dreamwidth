@@ -1903,6 +1903,12 @@ sub can_show_onlinestatus {
     return 0;
 }
 
+sub can_track_all_community_comments {
+    my ( $remote, $journal ) = @_;
+    return 1 if $journal->is_community && ( LJ::can_manage_other( $remote, $journal )
+                || $journal->is_paid && $remote->member_of( $journal ) );
+}
+
 sub can_track_defriending {
     return $_[0]->get_cap( 'track_defriended' ) ? 1 : 0;
 }
