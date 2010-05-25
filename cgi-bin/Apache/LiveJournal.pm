@@ -895,21 +895,20 @@ sub trans
         $host =~ /[^\d\.]/)
     {
         my $dbr = LJ::get_db_reader();
-        my $checkhost = lc($host);
+        my $checkhost = lc( $host );
         $checkhost =~ s/^www\.//i;
-        $checkhost = $dbr->quote($checkhost);
-        my $key = "domain:$host";
-        my $userid = LJ::MemCache::get($key);
+        my $key = "domain:$checkhost";
+        my $userid = LJ::MemCache::get( $key );
         unless (defined $userid) {
             my $db = LJ::get_db_reader();
-            ($userid) = $db->selectrow_array(qq{SELECT userid FROM domains WHERE domain=?}, undef, $host);
+            ($userid) = $db->selectrow_array( qq{SELECT userid FROM domains WHERE domain=?}, undef, $checkhost );
             $userid ||= 0; ## we do cache negative results - if no user for such domain, set userid=0
-            LJ::MemCache::set($key, $userid);
+            LJ::MemCache::set( $key, $userid );
         }
-        my $user = LJ::load_userid($userid)->user;
+        my $user = LJ::load_userid( $userid );
         return 404 unless $user;
 
-        my $view = $determine_view->($user, "other:$host$hostport", $uri);
+        my $view = $determine_view->( $user->user, "other:$host$hostport", $uri );
         return $view if defined $view;
         return 404;
     }
