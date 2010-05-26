@@ -1851,10 +1851,11 @@ sub Entry
         foreach my $xpostkey ( keys %$xposthash ) {
             my $xpostvalue = $xposthash->{$xpostkey};
             if ( $xpostvalue->{url} ) {
+                my $xpost_url = LJ::no_utf8_flag( $xpostvalue->{url} );
                 if ( $xpostlinks ) {
                     $xpostlinks = $xpostlinks . " ";
                 }
-                $xpostlinks = $xpostlinks . '<a href = "' .  $xpostvalue->{url} . '">' .  $xpostvalue->{url} . '</a>';
+                $xpostlinks = $xpostlinks . '<a href = "' .  $xpost_url . '">' .  $xpost_url . '</a>';
             }
         }
         if ( $xpostlinks ) {
