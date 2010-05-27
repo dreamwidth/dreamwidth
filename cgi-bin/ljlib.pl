@@ -1782,7 +1782,7 @@ sub delete_comments {
 
     if ($num > 0) {
         $u->do("UPDATE talktext2 SET subject=NULL, body=NULL $where");
-        $u->do("DELETE FROM talkprop2 WHERE $where");
+        $u->do("DELETE FROM talkprop2 $where");
     }
 
     my @jobs;
