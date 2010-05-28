@@ -95,9 +95,10 @@ body<=
 
  <dl><dt><?_code return BML::ml('.maplinks.shop-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/shop'><?_ml .maplinks.buy-paid _ml?></a></li>
+   <li><a href='/shop'><?_ml .maplinks.buy-points _ml?></a></li>
    <li><a href='/shop/gifts'><?_ml .maplinks.buy-circle _ml?></a></li>
    <li><a href='/shop/randomgift'><?_ml .maplinks.buy-random _ml?></a></li>
+   <li><a href='/shop/transferpoints'><?_ml .maplinks.transfer-points _ml?></a></li>
    <li><a href='http://www.zazzle.com/dreamwidth*'><?_ml .maplinks.buy-merchandise _ml?></a></li>
    <li><a href='/shop/history'><?_ml .maplinks.payment-history _ml?></a></li>
   </ul></dd></dl>

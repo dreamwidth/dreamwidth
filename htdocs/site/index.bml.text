@@ -79,11 +79,15 @@
 
 .maplinks.shop-title=...shop with [[sitename]]:
 
-.maplinks.buy-paid=Buy a paid account
+.maplinks.buy-paid=
+
+.maplinks.buy-points=Buy account time or points
 
 .maplinks.buy-circle=Gift an account in your circle
 
 .maplinks.buy-random=Gift a free random user
+
+.maplinks.transfer-points=Transfer points
 
 .maplinks.buy-merchandise=Buy merchandise
 
