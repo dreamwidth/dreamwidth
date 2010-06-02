@@ -142,6 +142,10 @@ sub clean
     my $to_external_site = $opts->{to_external_site} || 0;
     my $remove_positioning = $opts->{'remove_positioning'} || 0;
     my $errref = $opts->{errref};
+    # for ajax cut tag parsing
+    my $cut_retrieve =  $opts->{cut_retrieve} || 0;
+    my $journal = $opts->{journal} || "";
+    my $ditemid = $opts->{ditemid} || "";
 
     my @canonical_urls; # extracted links
     my %action = ();
@@ -269,6 +273,12 @@ sub clean
         }->{$_[0]} || $_[0];
     };
 
+    
+    # if we're retrieving a cut tag, then we want to eat everything 
+    # until we hit the first cut tag.
+    my @cuttag_stack = ();
+    my $eatall = $cut_retrieve ? 1 : 0;
+    
   TOKEN:
     while (my $token = $p->get_token)
     {
@@ -288,9 +298,19 @@ sub clean
 
             if (@eatuntil) {
                 push @capture, $token if $capturing_during_eat;
+                # have to keep the cut counts consistent even if they're nested
+                if ( $tag eq "lj-cut" ) {
+                    $cutcount++;
+                }
                 if ($tag eq $eatuntil[-1]) {
                     push @eatuntil, $tag;
                 }
+                next TOKEN;
+            }
+
+            # if we're looking for cut tags, ignore everything that's
+            # not a cut tag.
+            if ( $eatall && ! $tag eq "lj-cut" ) {
                 next TOKEN;
             }
 
@@ -433,6 +453,18 @@ sub clean
             if (($tag eq "lj-cut" || $ljcut_div)) {
                 next TOKEN if $ljcut_disable;
                 $cutcount++;
+
+                # if this is the cut tag we're looking for, then push it
+                # onto the stack (in case there are nested cut tags) and
+                # start including the content.
+                if ( $eatall ) {
+                    if ( $cutcount == $cut_retrieve ) {
+                        $eatall = 0;
+                        push @cuttag_stack, $tag;
+                    }
+                    next TOKEN;
+                }
+
                 my $link_text = sub {
                     my $text = "Read more...";
                     if ($attr->{'text'}) {
@@ -449,12 +481,20 @@ sub clean
                     my $etext = $link_text->();
                     my $url = LJ::ehtml($cut);
                     $newdata .= "<div>" if $tag eq "div";
+
+                    # include empty span and div to be filled in on page
+                    # load if javascript is enabled
+                    $newdata .= "<span style=\"display: none;\" id=\"span-cuttag_" . $journal . "_" . $ditemid . "_" . $cutcount. "\" class=\"cuttag\"></span>";
                     $newdata .= "<b>(&nbsp;<a href=\"$url#cutid$cutcount\">$etext</a>&nbsp;)</b>";
+                    $newdata .= "<div style=\"display: none;\" id=\"div-cuttag_" . $journal . "_" . $ditemid . "_" . $cutcount ."\" aria-live=\"assertive\">";
+                    $newdata .="</div>";
                     $newdata .= "</div>" if $tag eq "div";
+
                     unless ($opts->{'cutpreview'}) {
                         push @eatuntil, $tag;
                         next TOKEN;
                     }
+
                 } else {
                     $newdata .= "<a name=\"cutid$cutcount\"></a>" unless $opts->{'textonly'};
                     if ($tag eq "div" && !$opts->{'textonly'}) {
@@ -849,6 +889,21 @@ sub clean
 
                 next TOKEN if @eatuntil;
             }
+            
+            # if we're just getting the contents of a cut tag, then pop the
+            # tag off the stack.  if this is the last tag on the stack, then
+            # go back to eating the rest of the content.
+            if ( @cuttag_stack ) {
+                if ( $cuttag_stack[-1] eq $tag ) {
+                    pop @cuttag_stack;
+                    
+                    $eatall = 1 unless ( @cuttag_stack );
+                }
+            }
+            
+            if ( $eatall ) {
+                next TOKEN;
+            }
 
             if ( $eating_ljuser_span ) {
                 if ( $tag eq "span" ) {
@@ -940,6 +995,10 @@ sub clean
 
             if (@eatuntil) {
                 push @capture, $token if $capturing_during_eat;
+                next TOKEN;
+            }
+
+            if ( $eatall ) {
                 next TOKEN;
             }
 
@@ -1332,6 +1391,9 @@ sub clean_event
         'suspend_msg' => $opts->{'suspend_msg'} ? 1 : 0,
         'unsuspend_supportid' => $opts->{'unsuspend_supportid'},
         to_external_site => $opts->{to_external_site} ? 1 : 0,
+        cut_retrieve => $opts->{cut_retrieve},
+        journal => $opts->{journal},
+        ditemid => $opts->{ditemid},
         errref => $opts->{errref},
     });
 }

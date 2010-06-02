@@ -33,6 +33,17 @@ sub DayPage
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
 
+    # load for ajax cuttag
+    LJ::need_res( 'js/cuttag-ajax.js' );
+    my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
+    my $expanded = BML::ml( 'widget.cuttag.expanded' );
+    $p->{'head_content'} .= qq[
+  <script type='text/javascript'>
+  expanded = '$expanded';
+  collapsed = '$collapsed';
+  </script>
+    ];
+
     my $get = $opts->{'getargs'};
 
     my $month = $get->{'month'};

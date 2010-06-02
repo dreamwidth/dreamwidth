@@ -1219,6 +1219,8 @@ error.nojournal=Unknown Journal
 
 error.nojournal.openid=This user is an OpenID account and does not maintain a journal here. You might be able to see their content at <a [[aopts]]>[[id]]</a>.
 
+error.nopermission=You do not have permission to view this entry.
+
 error.noschwartz=TheSchwartz not installed or not configured properly.
 
 error.notloggedin=You have to <a [[aopts]]>log in</a> in order to use this page.
@@ -4230,6 +4232,10 @@ widget.customizetheme.nav.linkslist=Links List
 widget.customizetheme.nav.style=Style
 
 widget.customizetheme.title=Customize Your Theme
+
+widget.cuttag.expanded=Collapse
+
+widget.cuttag.collapsed=Expand
 
 widget.feeds.btn.add=Add
 

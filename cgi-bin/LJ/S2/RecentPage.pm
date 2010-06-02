@@ -82,6 +82,17 @@ sub RecentPage
         $p->{'head_content'} .= qq{<meta name="ICBM" content="$icbm" />\n};
     }
 
+    # load for ajax cuttag
+    LJ::need_res( 'js/cuttag-ajax.js' );
+    my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
+    my $expanded = BML::ml( 'widget.cuttag.expanded' );
+    $p->{'head_content'} .= qq[
+  <script type='text/javascript'>
+  expanded = '$expanded';
+  collapsed = '$collapsed';
+  </script>
+    ];
+
     my $itemshow = S2::get_property_value($opts->{'ctx'}, "num_items_recent")+0;
     if ($itemshow < 1) { $itemshow = 20; }
     elsif ($itemshow > 50) { $itemshow = 50; }

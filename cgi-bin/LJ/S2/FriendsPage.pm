@@ -36,6 +36,17 @@ sub FriendsPage
     # Add a friends-specific XRDS reference
     $p->{'head_content'} .= qq{<meta http-equiv="X-XRDS-Location" content="}.LJ::ehtml($u->journal_base).qq{/data/yadis/friends" />\n};
 
+    # load for ajax cuttag
+    LJ::need_res( 'js/cuttag-ajax.js' );
+    my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
+    my $expanded = BML::ml( 'widget.cuttag.expanded' );
+    $p->{'head_content'} .= qq[
+  <script type='text/javascript'>
+  expanded = '$expanded';
+  collapsed = '$collapsed';
+  </script>
+    ];
+
     my $sth;
     my $user = $u->{'user'};
 
