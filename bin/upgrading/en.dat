@@ -2583,6 +2583,10 @@ setting.emailposting.error.pin.invalidaccount=This PIN is invalid. You should ch
 
 setting.emailposting.label=Email Posting
 
+setting.emailposting.notavailable=Your account level does not permit you to use this feature.
+
+setting.emailposting.notavailable.upgrade=Would you like to <a [[aopts]]>upgrade your account?</a>
+
 setting.emailposting.option=Post to your journal by sending an email from one of your defined email addresses to username+pin@[[domain]]. View more <a [[aopts]]>posting instructions</a>.
 
 setting.emailposting.option.addr=Email Address:

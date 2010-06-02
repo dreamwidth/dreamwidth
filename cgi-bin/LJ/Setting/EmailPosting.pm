@@ -50,46 +50,48 @@ sub option {
 
     $ret .= "<table class='setting_table' cellspacing='5' cellpadding='0'>";
 
-    foreach my $i (0..2) {
-        $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_addr$i'>" . $class->ml('setting.emailposting.option.addr') . "</label></td>";
+    if ( $can_emailpost ) {
+        foreach my $i (0..2) {
+            $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_addr$i'>" . $class->ml('setting.emailposting.option.addr') . "</label></td>";
+            $ret .= "<td>" . LJ::html_text({
+                name => "${key}emailposting_addr$i",
+                id => "${key}emailposting_addr$i",
+                value => $class->get_arg($args, "emailposting_addr$i") || $addresses[$i] || "",
+                size => 40,
+                maxlength => 80,
+            });
+            $ret .= " <label for='${key}emailposting_senderrors$i' style='color: #000;'>" . $class->ml('setting.emailposting.option.senderrors') . "</label>";
+            $ret .= " " . LJ::html_check({
+                name => "${key}emailposting_senderrors$i",
+                id => "${key}emailposting_senderrors$i",
+                value => 1,
+                selected => $class->get_arg($args, "emailposting_senderrors$i") || ($addresses[$i] && $addrlist->{$addresses[$i]} && $addrlist->{$addresses[$i]}->{get_errors}) ? 1 : 0,
+            });
+            my $addr_errdiv = $class->errdiv($errs, "emailposting_addr$i");
+            $ret .= "<br />$addr_errdiv" if $addr_errdiv;
+            $ret .= "</td></tr>";
+        }
+
+        $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_pin'>" . $class->ml('setting.emailposting.option.pin') . "</label></td>";
         $ret .= "<td>" . LJ::html_text({
-            name => "${key}emailposting_addr$i",
-            id => "${key}emailposting_addr$i",
-            value => $class->get_arg($args, "emailposting_addr$i") || $addresses[$i] || "",
-            disabled => $can_emailpost ? 0 : 1,
-            size => 40,
-            maxlength => 80,
-        });
-        $ret .= " <label for='${key}emailposting_senderrors$i' style='color: #000;'>" . $class->ml('setting.emailposting.option.senderrors') . "</label>";
-        $ret .= " " . LJ::html_check({
-            name => "${key}emailposting_senderrors$i",
-            id => "${key}emailposting_senderrors$i",
-            value => 1,
-            selected => $class->get_arg($args, "emailposting_senderrors$i") || ($addresses[$i] && $addrlist->{$addresses[$i]} && $addrlist->{$addresses[$i]}->{get_errors}) ? 1 : 0,
-            disabled => $can_emailpost ? 0 : 1,
-        });
-        my $addr_errdiv = $class->errdiv($errs, "emailposting_addr$i");
-        $ret .= "<br />$addr_errdiv" if $addr_errdiv;
+            name => "${key}emailposting_pin",
+            id => "${key}emailposting_pin",
+            type => "password",
+            value => $pin || "",
+            size => 10,
+           maxlength => 20,
+        }) . " <span class='smaller'>" . $class->ml('setting.emailposting.option.pin.note') . "</span>";
+        my $pin_errdiv = $class->errdiv($errs, "emailposting_pin");
+        $ret .= "<br />$pin_errdiv" if $pin_errdiv;
         $ret .= "</td></tr>";
-    }
 
-    $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_pin'>" . $class->ml('setting.emailposting.option.pin') . "</label></td>";
-    $ret .= "<td>" . LJ::html_text({
-        name => "${key}emailposting_pin",
-        id => "${key}emailposting_pin",
-        type => "password",
-        value => $pin || "",
-        disabled => $can_emailpost ? 0 : 1,
-        size => 10,
-        maxlength => 20,
-    }) . " <span class='smaller'>" . $class->ml('setting.emailposting.option.pin.note') . "</span>";
-    my $pin_errdiv = $class->errdiv($errs, "emailposting_pin");
-    $ret .= "<br />$pin_errdiv" if $pin_errdiv;
-    $ret .= "</td></tr>";
-
-    if ($can_emailpost) {
         $ret .= "<tr><td>&nbsp;</td>";
         $ret .= "<td><a href='$LJ::SITEROOT/manage/emailpost'>" . $class->ml('setting.emailposting.option.advanced') . "</a></td></tr>";
+
+    } else {
+        $ret .= $class->ml( 'setting.emailposting.notavailable' );
+        $ret .= " " . $class->ml( 'setting.emailposting.notavailable.upgrade', { aopts => "href='$LJ::SITEROOT/shop'" } )
+            if LJ::is_enabled( 'payments' );
     }
 
     $ret .= "</table>";
