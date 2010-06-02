@@ -440,6 +440,8 @@ sub state {
 
     LJ::Hooks::run_hooks( 'shop_cart_state_change', $self, $newstate );
 
+    $self->_notify_buyer_paid if $newstate == $DW::Shop::STATE_PROCESSED;
+
     $self->{state} = $newstate;
     $self->save;
 
@@ -539,5 +541,33 @@ sub _touch {
     $_[0]->{starttime} = time;
 }
 
+# let the cart owner know that their purchase has just gone through.
+sub _notify_buyer_paid {
+    my $self = $_[0];
+
+    my $u = LJ::load_userid( $self->{userid} );
+
+    my @payment_methods;
+    push @payment_methods, '$' . $self->total_cash . ' USD'
+        if $self->total_cash;
+    push @payment_methods, $self->total_points . ' points'
+        if $self->total_points;
+
+    my $itemlist = join( "\n", map { "  * " . $_->short_desc } @{$self->items} );
+
+    LJ::send_mail( {
+        to       => $self->email,
+        from     => $LJ::ACCOUNTS_EMAIL,
+        fromname => $LJ::SITENAME,
+        subject  => LJ::Lang::ml( "shop.email.processed.subject", { sitename => $LJ::SITENAME } ),
+        body     => LJ::Lang::ml( "shop.email.processed.body", {
+            touser => LJ::isu( $u ) ? $u->display_name : $self->email,
+            price => join( ", ", @payment_methods),
+            itemlist => $itemlist,
+            receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $self->ordernum,
+            sitename => $LJ::SITENAME,
+        } ),
+    } );
+}
 
 1;

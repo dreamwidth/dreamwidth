@@ -3164,6 +3164,25 @@ The [[sitename]] Team
 
 shop.email.gift.self.subject=[[sitename]] Account Credited
 
+shop.email.processed.body<<
+Dear [[touser]],
+
+Your purchase from [[sitename]] shop has been processed. Total price was [[price]]. Items:
+
+[[itemlist]]
+
+You can view your receipt here:
+
+    [[receipturl]]
+
+Thank you for your purchase!
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.processed.subject=[[sitename]] Order Processed
+
 shop.email.user.anon.body<<
 Dear [[touser]],
 
