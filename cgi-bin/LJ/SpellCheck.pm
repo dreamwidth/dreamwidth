@@ -57,8 +57,7 @@ sub new {
 # function is empty, then there were no misspellings found.
 
 sub check_html {
-    my $self = shift;
-    my $journal = shift;
+    my ( $self, $journal, $no_ehtml ) = @_;
 
     return "" unless $$journal;
 
@@ -70,6 +69,13 @@ sub check_html {
         my $data;
         $data = <$fh> if PERLIO_IS_ENABLED || IO::Select->new( $fh )->can_read( 10 );
         return defined $data ? $data : '';
+    };
+
+    my $ehtml_substr = sub {
+        my ( $a, $b, $c ) = @_;
+        # we can't substr( @_ ) directly, it won't compile
+        my $str = substr( $a, $b, $c );
+        return $no_ehtml ? $str : LJ::ehtml( $str );
     };
 
     # header from aspell/ispell
@@ -99,26 +105,29 @@ sub check_html {
                 $idata =~ s/^& (\S+) (\d+) (\d+): //;
                 $mscnt++;
                 my ( $word, $sugcount, $ofs ) = ( $1, $2, $3 );
+                my $e_word = $no_ehtml ? $word : LJ::ehtml( $word );
+                my $e_idata = $no_ehtml ? $idata : LJ::ehtml( $idata );
                 $ofs -= 1; # because ispell reports "1" for first character
                 
-                $output .= LJ::ehtml( substr( $inline, $srcidx, $ofs - $srcidx ) );
-                $output .= "<font color=\"$self->{'color'}\">" . LJ::ehtml( $word ) . "</font>";
+                $output .= $ehtml_substr->( $inline, $srcidx, $ofs - $srcidx );
+                $output .= "<font color=\"$self->{'color'}\">$e_word</font>";
                 
-                $footnotes .= "<tr valign=top><td align=right><font color=$self->{'color'}>" . LJ::ehtml( $word ) .
-                              "&nbsp;</font></td><td>" . LJ::ehtml( $idata ) . "</td></tr>";
+                $footnotes .= "<tr valign=top><td align=right><font color=$self->{'color'}>$e_word" .
+                              "&nbsp;</font></td><td>$e_idata</td></tr>";
                 
                 $srcidx = $ofs + length( $word );
             } elsif ($idata =~ /^\# /) {
                 $other_bad = 1;
                 $idata =~ /^\# (\S+) (\d+)/;
                 my ( $word, $ofs ) = ( $1, $2 );
+                my $e_word = $no_ehtml ? $word : LJ::ehtml( $word );
                 $ofs -= 1; # because ispell reports "1" for first character
-                $output .= LJ::ehtml( substr( $inline, $srcidx, $ofs - $srcidx ) );
-                $output .= "&nbsp;<font color=\"$self->{'color'}\">" . LJ::ehtml( $word ) . "</font>&nbsp;";
+                $output .= $ehtml_substr->( $inline, $srcidx, $ofs - $srcidx );
+                $output .= "&nbsp;<font color=\"$self->{'color'}\">$e_word</font>&nbsp;";
                 $srcidx = $ofs + length( $word );
             }
         } while ( $idata ne "" );
-            $output .= LJ::ehtml( substr( $inline, $srcidx, length( $inline ) - $srcidx ) ) . "<br>\n";
+            $output .= $ehtml_substr->( $inline, $srcidx, length( $inline ) - $srcidx ) . "<br>\n";
             $lineidx++;
     }
 

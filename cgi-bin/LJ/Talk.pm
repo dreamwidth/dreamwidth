@@ -3539,9 +3539,8 @@ sub make_preview {
     if (defined($cleanok) && $LJ::SPELLER && $form->{'do_spellcheck'}) {
         my $s = new LJ::SpellCheck { 'spellcommand' => $LJ::SPELLER,
                                      'color' => '<?hotcolor?>', };
-        $spellcheck_html = $s->check_html(\$event);
-        # unescape the <br />s for readability. All other HTML remains untouched.
-        $spellcheck_html =~ s/&lt;br \/&gt;/<br \/>/g;
+        $spellcheck_html = $s->check_html( \$event, 1 );
+        # second arg '1' means don't escape the HTML
     }
 
     $ret .= "$BML::ML{'/talkpost_do.bml.preview.subject'} " . LJ::ehtml($cleansubject) . "<hr />\n";
