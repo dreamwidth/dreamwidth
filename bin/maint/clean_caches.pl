@@ -331,32 +331,12 @@ $maint{'clean_caches'} = sub
         # nothing to insert, why bother?
         next unless %counts;
 
-        # TEMPORARY
-        # We want to move from using one letter, or prefixed with _ to
-        # mean local, to actual readable strings.  Instead of fighting
-        # a race when modifying the recentactions table, do it here instead.
-        # This could should be removable after the code is pushed live and this
-        # job has run.
-        # David (1/11/06);
-        my %whatmap = (
-                       'P'             => 'post',
-                       'post'          => 'post',
-                       '_F'            => 'phonepost',
-                       'phonepost'     => 'phonepost',
-                       '_M'            => 'phonepost_mp3',
-                       'phonepost_mp3' => 'phonepost_mp3',
-                       );
-
         # insert summary into global actionhistory table
         my @bind = ();
         my @vals = ();
         while (my ($what, $ct) = each %counts) {
             push @bind, "(UNIX_TIMESTAMP(),?,?,?)";
-
-            # TEMPORARY
-            my $cwhat = defined $whatmap{$what} ? $whatmap{$what} : $what;
-
-            push @vals, $cid, $cwhat, $ct;
+            push @vals, $cid, $what, $ct;
         }
         my $bind = join(",", @bind);
 
