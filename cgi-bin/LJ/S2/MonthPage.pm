@@ -27,6 +27,7 @@ sub MonthPage
     $p->{'_type'} = "MonthPage";
     $p->{'view'} = "month";
     $p->{'days'} = [];
+    $p->{timeformat24} = $remote && $remote->use_24hour_time;
 
     my $ctx = $opts->{'ctx'};
 

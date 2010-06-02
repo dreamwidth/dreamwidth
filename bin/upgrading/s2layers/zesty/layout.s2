@@ -239,6 +239,12 @@ propgroup Text {
     }
         set posted_time_format = "%%hh%%:%%min%%%%a%%m";
 
+    property string posted_time_format_24 {
+        noui = 1;
+        des = "[time] format for from 'posted by [poster] at [time] ...'";
+    }
+        set posted_time_format_24 = "%%HH%%:%%min%%";
+
     property string posted_date_format {
         noui = 1;
         des = "[date] format for 'posted by [poster] at [time] on [date] ...'";
@@ -1130,13 +1136,20 @@ function Page::lay_print_posted_by(EntryLite e) : void {
     var string format;
     var string[] args;
     var string tags;
+    var string timeformat;
+
+    if ($this.timeformat24) {
+        $timeformat = $*posted_time_format_24;
+    } else {
+        $timeformat = $*posted_time_format;
+    }
 
     # default: "posted by %1 at %2 on %3";
     $format = $*posted_by_at_on;
 
     $args = [
           $this->lay_get_poster($e),
-          $e.time->date_format( $*posted_time_format ),
+          $e.time->date_format( $timeformat ),
           $e.time->date_format( $*posted_date_format )
           ];
 

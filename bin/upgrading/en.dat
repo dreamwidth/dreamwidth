@@ -2783,6 +2783,14 @@ setting.synlevel.option.select.summary=Brief Summary
 
 setting.synlevel.option.select.title=Title Only
 
+setting.timeformat.label=Time display format
+
+setting.timeformat.option.12hour=12 Hour (am/pm)
+
+setting.timeformat.option.24hour=24 Hour
+
+setting.timeformat.error.invalid=Invalid time format
+
 setting.txtmsgsetup.details=(<a [[aopts]]>details</a>)
 
 setting.txtmsgsetup.error.notsecured=Information will not be saved if you don't allow anyone to send you messages.

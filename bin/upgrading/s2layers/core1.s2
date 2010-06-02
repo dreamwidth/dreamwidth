@@ -304,6 +304,7 @@ class EntryLite
 
     var DateTime time "The user-specified time of the post, or the GMT time if it's a comment.";
     var DateTime system_time "The system time (in GMT) this entry or comment was posted.";
+    var bool timeformat24 "Indicates that the time should be displayed in 24-hour format";
 
     var UserLite poster "Author of the entry, or null if an anonymous comment";
     var UserLite journal "Journal the entry has been posted to";
@@ -487,6 +488,9 @@ class Page
 
     var readonly DateTime time
     "A DateTime object filled with the time (GMT) when the page was created.";
+
+    var bool timeformat24 
+    "Indicates that the time should be displayed in 24-hour format";
 
     var Link{} data_link "Links to various machine-readable data sources relating to this page";
     var string[] data_links_order "An array of data views which can be used to order the data_link hash";
@@ -972,6 +976,12 @@ property string lang_fmt_time_short {
     des = "Time format.";
 }
 set lang_fmt_time_short = "%%hh%%:%%min%% %%a%%m";
+
+property string lang_fmt_time_short_24 {
+    noui = 1;
+    des = "Time format (24-hour).";
+}
+set lang_fmt_time_short = "%%HH%%:%%min%%";
 
 property string lang_fmt_month_short {
     noui = 1;
@@ -2378,7 +2388,11 @@ function EntryLite::time_display(string datefmt, string timefmt) : string {
         $datefmt = "med";
     }
     if ($timefmt == "") {
-        $timefmt = "short";
+        if ($this.timeformat24) {
+            $timefmt = "short_24";
+        } else {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -2399,7 +2413,11 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
         $datefmt = "iso";
     }
     if ($timefmt == "") {
-        $timefmt = "short";
+        if ($this.timeformat24) {
+            $timefmt = "short_24";
+        } else {
+            $timefmt = "short";
+        }
     }
 
     var string tooltip = "";

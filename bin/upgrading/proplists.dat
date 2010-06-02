@@ -1038,6 +1038,14 @@ userproplist.stylesys:
   multihomed: 0
   prettyname: Style System to use
 
+userproplist.timeformat_24:
+  cldversion: 4
+  datatype: bool
+  des: use 24-hour time format on site
+  indexed: 0
+  multihomed: 0
+  prettyname: 24-hour time format
+
 userproplist.theme_preview_styleid:
   cldversion: 4
   datatype: num

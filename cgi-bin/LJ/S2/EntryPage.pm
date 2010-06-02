@@ -273,6 +273,7 @@ sub EntryPage
                 'edittime_remote' => $edittime_remote,
                 'edittime_poster' => $edittime_poster,
                 'edit_url' => $edit_url,
+                timeformat24 => $remote && $remote->use_24hour_time,
             };
 
             # don't show info from suspended users
@@ -509,6 +510,7 @@ sub EntryPage_entry
         end_day => 0,
         userpic => $userpic,
         permalink_url => $entry->url,
+        timeformat24 => $remote && $remote->use_24hour_time,
     } );
 
     return ($entry, $s2entry);

@@ -322,6 +322,7 @@ class EntryLite
 
     var DateTime time "The user-specified time of the post, or the GMT time if it's a comment.";
     var DateTime system_time "The system time (in GMT) this entry or comment was posted.";
+    var readonly bool timeformat24 "Indicates whether the time should be displayed in 24-hour format";
 
     var UserLite poster "Author of the entry, or null if an anonymous comment";
     var UserLite journal "Journal the entry has been posted to";
@@ -530,6 +531,9 @@ class Page
 
     var readonly Entry[] activeentries
     "Array of recently active entries available to be seen by the viewer of the page.";
+
+    var readonly bool timeformat24 
+    "Indicates whether the time should be displayed in 24-hour format";
 
     var readonly DateTime local_time
     "A DateTime object filled with the time (in the viewer's timezone) when the page was created.";
@@ -2639,6 +2643,8 @@ property string lang_fmt_date_long_day { noui = 1; des = "Long date format.  Wit
 
 property string lang_fmt_time_short { noui = 1; des = "Time format."; }
 
+property string lang_fmt_time_short_24 { noui = 1; des = "Time format (24 hours)."; }
+
 property string lang_fmt_month_short { noui = 1; des = "Short month format."; }
 
 property string lang_fmt_month_med { noui = 1; des = "Medium month format."; }
@@ -2651,6 +2657,7 @@ set lang_fmt_date_med_day = "%%da%%, %%mon%%. %%dayord%%, %%yyyy%%";
 set lang_fmt_date_long = "%%month%% %%dayord%%, %%yyyy%%";
 set lang_fmt_date_long_day = "%%day%%, %%month%% %%dayord%%, %%yyyy%%";
 set lang_fmt_time_short = "%%hh%%:%%min%% %%a%%m";
+set lang_fmt_time_short_24 = "%%HH%%:%%min%%";
 set lang_fmt_month_short = "%%m%%/%%yy%%";
 set lang_fmt_month_med = "%%mon%% %%yyyy%%";
 set lang_fmt_month_long = "%%month%% %%yyyy%%";
@@ -4057,7 +4064,11 @@ function Page::print_time(string datefmt, string timefmt) {
         $datefmt = "med";
     }
     if ($timefmt == "") {
-        $timefmt = "short";
+        if ($this.timeformat24) {
+            $timefmt = "short_24";
+        } else {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -4616,7 +4627,11 @@ function EntryLite::time_display(string datefmt, string timefmt) : string {
         $datefmt = "med";
     }
     if ($timefmt == "") {
-        $timefmt = "short";
+        if ($this.timeformat24) {
+            $timefmt = "short_24";
+        } else {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -4636,7 +4651,11 @@ function Entry::time_display(string datefmt, string timefmt) : string {
         $datefmt = "med";
     }
     if ($timefmt == "") {
-        $timefmt = "short";
+        if ($this.timeformat24) {
+            $timefmt = "short_24";
+        } else {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -4662,7 +4681,11 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
         $datefmt = "iso";
     }
     if ($timefmt == "") {
-        $timefmt = "short";
+        if ($this.timeformat24) {
+            $timefmt = "short_24";
+        } else {
+            $timefmt = "short";
+        }
     }
 
     var string tooltip = "";
@@ -4950,7 +4973,11 @@ function MonthDay::print_subjectlist() {
     # Too many tables...
     var Page p = get_page();
     foreach var Entry e ($.entries) {
-        $e->print_time("none", "short");
+        if ($p.timeformat24) {
+            $e->print_time("none", "short_24");
+        } else {
+            $e->print_time("none", "short");
+        }
         $e->print_poster();
         $e->print_metatypes();
         $e->print_subject();

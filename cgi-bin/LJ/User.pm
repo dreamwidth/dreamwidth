@@ -2716,6 +2716,9 @@ sub get_sticky_entry {
     return undef;
 }
 
+# should times be displayed in 24-hour time format?
+sub use_24hour_time { $_[0]->prop( 'timeformat_24' ) ? 1 : 0; }
+
 sub _lazy_migrate_infoshow {
     my ($u) = @_;
     return 1 unless LJ::is_enabled('infoshow_migrate');

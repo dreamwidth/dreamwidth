@@ -75,6 +75,7 @@ body<=
                 DW::Setting::CutInbox
                 LJ::Setting::EmailFormat
                 LJ::Setting::EntryEditor
+                DW::Setting::TimeFormat
                 LJ::Setting::NCTalkLinks
                 LJ::Setting::StyleMine
                 LJ::Setting::NavStrip

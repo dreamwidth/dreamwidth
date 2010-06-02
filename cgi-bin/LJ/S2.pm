@@ -1786,8 +1786,8 @@ sub Entry
         'link_keyseq' => [ 'edit_entry', 'edit_tags' ],
         'metadata' => {},
     };
-    foreach (qw(subject text journal poster new_day end_day
-                comments userpic permalink_url itemid tags)) {
+    foreach ( qw( subject text journal poster new_day end_day
+                comments userpic permalink_url itemid tags timeformat24 ) ) {
         $e->{$_} = $arg->{$_};
     }
 
@@ -2009,7 +2009,8 @@ sub Entry_from_entryobj
         userpic => $userpic,
         tags => $taglist,
         permalink_url => $entry_obj->url,
-        moodthemeid => $moodthemeid
+        moodthemeid => $moodthemeid,
+        timeformat24 => $remote && $remote->use_24hour_time
         } );
 
     return $entry;
@@ -2094,6 +2095,7 @@ sub Page
         'data_link' => {},
         'data_links_order' => [],
         '_styleopts' => \%{ LJ::viewing_style_opts( %$get ) },
+        timeformat24 => $remote && $remote->use_24hour_time
     };
 
     if ($LJ::UNICODE && $opts && $opts->{'saycharset'}) {

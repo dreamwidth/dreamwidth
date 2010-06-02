@@ -155,7 +155,7 @@ body<=
     my $remote = LJ::get_remote();
 
     my $tz_remote;
-    my $s2_ctx = [];  # ghetto fake S2 context object
+    my $s2_ctx = [];  # fake S2 context object
     if ($remote) {
         my $tz = $remote->prop("timezone");
         $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
@@ -280,7 +280,18 @@ body<=
                                                 'userlink' => LJ::ljuser($up) });
     }
 
-    my $etime = $item->{'eventtime'};
+    my $fmt_time_short;
+    if ( $remote && $remote->use_24hour_time ) {
+        $fmt_time_short = "%%HH%%:%%min%%";
+    } else {
+        $fmt_time_short = "%%hh%%:%%min%% %%a%%m";
+    }
+
+    my $etime = $item->{eventtime};
+    $etime = LJ::mysqldate_to_time( $etime );
+    $etime = LJ::S2::DateTime_unix( $etime );
+    $etime = S2::Builtin::LJ::Date__date_format( $s2_ctx, $etime, "iso" ) .
+            " " . S2::Builtin::LJ::DateTime__time_format( $s2_ctx, $etime, $fmt_time_short );
     $etime =~ s!(\d\d\d\d)-(\d\d)-(\d\d)!LJ::date_to_view_links($u, $&)!e;
     $ret .= "<br /><span class='time'>@ $etime</span>";
     $ret .= "</td></tr></table>";
@@ -461,7 +472,6 @@ body<=
     $LJ_cmtinfo{'canAdmin'} = LJ::can_manage($remote, $u) ? 1 : 0;
     $LJ_cmtinfo{'canSpam'} = LJ::sysban_check( 'spamreport', $u->user ) ? 0 : 1;
     $LJ_cmtinfo{'remote'} = $remote ? $remote->{user} : "";
-    my $fmt_time_short = "%%hh%%:%%min%% %%a%%m";
     my $show_thread_expander = $u->show_thread_expander( $remote );
 
     #

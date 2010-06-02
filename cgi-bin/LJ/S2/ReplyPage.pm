@@ -212,6 +212,7 @@ sub ReplyPage
             'frozen' => $parpost->{'state'} eq "F" ? 1 : 0,
             'deleted' => $parpost->{'state'} eq "D" ? 1 : 0,
             'full' => 1,
+            timeformat24 => $remote && $remote->use_24hour_time,
         };
 
         # Conditionally add more links to the keyseq
