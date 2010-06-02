@@ -193,6 +193,7 @@ propgroup modules {
     property use module_time_group;
     property use module_poweredby_group;
     property use module_credit_group;
+    property use module_search_group;
 }
 
 # explicitly define what sections the layout has available
@@ -678,6 +679,11 @@ ul.userlite-interaction-links li {
     display: block;
     padding: 2px;
 }
+
+.search-box {
+    margin: .2em auto;
+}
+
 /* wrap long content, particularly openid usernames */
 .module-pagesummary .ljuser {
     white-space: normal !important;

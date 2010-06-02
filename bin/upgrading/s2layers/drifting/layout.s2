@@ -209,6 +209,7 @@ propgroup modules
     property use module_userprofile_group;
     property use module_time_group;
     property use module_credit_group;
+    property use module_search_group;
 }
 
 set module_layout_sections     = "none|(none)|one|Sidebar|two|Footer";
@@ -304,6 +305,7 @@ function Page::print_default_stylesheet()
         clear: left;
         width: 224px;
         height: 1.5em;
+        margin-top: .5em;
         $module_footer_colors
     }
 
@@ -358,7 +360,6 @@ function Page::print_default_stylesheet()
     .module-content {
         $module_font
     }
-
 
     /* Header
     ***************************************************************************/

@@ -910,6 +910,9 @@ function builtin viewer_is_friend() : bool
 function builtin viewer_is_member() : bool
 "Returns true if the user viewing the page is both logged in, and is a member of the community being viewed. Always returns false for personal journals, since they cannot have members.";
 
+function builtin viewer_can_search() : bool
+"Returns true if the user viewing the page is logged in and can search that journal.";
+
 function builtin viewer_sees_control_strip [fixed] : bool
 "Returns true if reader will see the built in control strip.";
 
@@ -980,6 +983,9 @@ function builtin htmlattr(string name, string value) : string
 
 function builtin htmlattr(string name, int value) : string
 "If the value isn't blank, return in HTML attribute format with a leading space.  HTML of name is not escaped.";
+
+function builtin print_search_form(string button_text) 
+"Prints a search form, with the button text as the label to the submit button.";
 
 ##[ properties ]
 
@@ -1487,6 +1493,19 @@ property string{}[] layout_resources { noui = 1; des = "Resources used in the la
 
 set layout_authors = [];
 set layout_resources = [];
+
+property string[] module_search_group {
+    des = "Search";
+    grouptype = "module";
+}
+set module_search_group = ["module_search_show", "module_search_order", "module_search_section"];
+property bool module_search_show { grouped = 1; }
+property int module_search_order { grouped = 1; }
+property string module_search_section { grouped = 1; }
+
+set module_search_show = true;
+set module_search_order = 15;
+set module_search_section = "one";
 
 ##===============================
 ## Journal style - fonts
@@ -2708,7 +2727,8 @@ function modules_init()
     if ( $*module_time_show ) { $*module_sections{$*module_time_section}[$*module_time_order]=["time"]; }
     if ( $*module_poweredby_show ) { $*module_sections{$*module_poweredby_section}[$*module_poweredby_order]=["poweredby"]; }
     if ( $*module_customtext_show ) { $*module_sections{$*module_customtext_section}[$*module_customtext_order]=["customtext"]; }
-    if ( $*module_credit_show ) { $*module_sections{$*module_credit_section }[$*module_credit_order]=["credit"]; }
+    if ( $*module_credit_show ) { $*module_sections{$*module_credit_section}[$*module_credit_order]=["credit"]; }
+    if ( $*module_search_show ) { $*module_sections{$*module_search_section}[$*module_search_order]=["search"]; }
 
     #if ( $*module_%%mod%%_show ) { $*module_sections{$*module_%%mod%%_section }[$*module_%%mod%%_order]=["%%mod%%"]; }
 }
@@ -3576,6 +3596,18 @@ function print_module_list(string[] list) {
     }
 }
 
+function print_module_search() {
+    # only print this module if the viewer can search this journal
+    if (viewer_can_search()) {
+        var Page p = get_page();
+        var string title = "Search";
+        
+        open_module("search", $title, "$*SITEROOT/search?user=" + $p.journal.username);
+        print_search_form("Search");
+        close_module();
+    }
+}
+
 function print_module_userprofile() {
     var Page p = get_page();
     var string title = "Profile";
@@ -3983,6 +4015,9 @@ function handle_module_group_array(string[][] list) {
         }
         elseif ($module == "credit") {
             print_module_credit();
+        }
+        elseif ($module == "search") {
+            print_module_search();
         }
     }
 }

@@ -179,6 +179,7 @@ propgroup modules {
     property use module_time_group;
     property use module_poweredby_group;
     property use module_credit_group;
+    property use module_search_group;
 }
 
 

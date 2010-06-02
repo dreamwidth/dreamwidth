@@ -956,6 +956,35 @@ h2#pagetitle {
     $module_title_colors
     }
 
+.module-search .search-form {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+.module-search .search-box {
+    background-color: $*color_entry_border;
+    border: 0;
+    color: $*color_entry_background;
+    padding: .3em;
+    width: 90%;
+    -moz-border-radius: .2em;
+    -webkit-border-radius: .2em;
+    -moz-box-shadow: .067em .067em .134em #8c8c8c;
+    -webkit-box-shadow: .067em .067em .134em #8c8c8c;
+    }
+
+.module-search .search-button {
+    background-color: $*color_page_title_background;
+    border: 0;
+    color: $*color_entry_footer_link;
+    margin-top: .3em;
+    padding: .3em;
+    -moz-border-radius: .2em;
+    -webkit-border-radius: .2em;
+    -moz-box-shadow: .067em .067em .134em #111;
+    -webkit-box-shadow: .067em .067em .134em #111;
+    }
+
 /* Footer
 ***************************************************************************/
 

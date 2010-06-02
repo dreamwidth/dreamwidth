@@ -119,6 +119,7 @@ propgroup modules {
     property use module_time_group;
     property use module_poweredby_group;
     property use module_credit_group;
+    property use module_search_group;
 }
 
 ##===============================
@@ -501,6 +502,11 @@ background: $*color_module_link_hover; }
 /* -------- credit -------- */
 
 .module-credit .module-content {padding: 0 0.5em 0 0.5em; }
+
+/* -------- search -------- */
+
+.search-form { margin: .2em auto; }
+.search-box { margin: .2em; }
 
 /* ====================== NAVIGATION BAR ======================= */
 

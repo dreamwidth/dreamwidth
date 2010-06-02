@@ -188,6 +188,7 @@ propgroup modules {
     property use module_time_group;
     property use module_poweredby_group;
     property use module_credit_group;
+    property use module_search_group;
 }
 
 # explicitly define what sections the layout has available
@@ -794,6 +795,9 @@ ul.userlite-interaction-links li {
     text-align: center;
     padding-top: 1em;
     }
+
+.module-search .search-form { margin: .2em auto; }
+.module-search .search-box { margin: .2em; }
 
 #tertiary .module-content ul {
     list-style-image: none;

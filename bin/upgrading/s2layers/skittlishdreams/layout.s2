@@ -193,6 +193,7 @@ propgroup modules {
     property use module_poweredby_group;
     property use module_customtext_group;
     property use module_credit_group;
+    property use module_search_group;
 
     property string module_navlinks_section_override {
        values = "none|(none)|one|Header|two|Sidebar";
@@ -219,6 +220,7 @@ set module_syndicate_section = "two";
 set module_calendar_section = "two";
 set module_customtext_section = "two";
 set module_credit_section = "two";
+set module_search_section = "two";
 
 set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override",
                                 "module_poweredby_section" => "module_poweredby_section_override",

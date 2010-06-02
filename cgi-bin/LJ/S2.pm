@@ -2616,6 +2616,34 @@ sub viewer_sees_control_strip
     return LJ::Hooks::run_hook( 'show_control_strip' );
 }
 
+# Returns true if the viewer can search this person's journal
+sub viewer_can_search {
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+ 
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+
+    # return based on this function 
+    return $ju->allow_search_by( $remote );
+}
+
+# Returns a search form for this journal
+sub print_search_form {
+    return "" unless defined($LJ::S2::CURR_PAGE);
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+
+    my $search_form = '<div class="search-form">';
+    $search_form .= '<form method="post" action="'. $LJ::SITEROOT. '/search?user=' . $ju->user . '">';
+    $search_form .= LJ::form_auth();
+    $search_form .= '<input class="search-box" type="text" name="query" maxlength="255">';
+    $search_form .= '<input class="search-button" type="submit" value="' . $_[1] . '" />';
+    $search_form .= '</form></div>';
+
+    S2::pout( $search_form );
+}
+
 # maintained only for compatibility with core1, eventually these can be removed
 # when we've upgraded everybody.  or we keep this cruft until the cows come home
 # as a stolid reminder to our past.

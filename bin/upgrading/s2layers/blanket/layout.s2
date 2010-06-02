@@ -101,6 +101,7 @@ propgroup modules {
     property use module_time_group;
     property use module_poweredby_group;
     property use module_credit_group;
+    property use module_search_group;
 
     property string module_navlinks_section_override {
        values = "none|(none)|two|Fixed";
@@ -315,6 +316,9 @@ ul.userlite-interaction-links li { display: inline; padding: 0 .20em; }
 .module-calendar td a { display: block; padding: 2px; }
 .module-credit dt, .module-credit dd { display: inline; margin: 0; padding: 0; }
 .module-credit dt { font-weight: bold; margin-right: 0.5em; }
+
+.module-search .search-form { margin: .2em auto; }
+.module-search .search-box { margin: .2em; }
 
 /*--- entry ---*/
 div.entry { padding: 2em; margin: 0 0 2em 0; border-left: 20px solid $*color_page_border; $entry_colors }

@@ -265,6 +265,12 @@ text-align: center; }
 .module-navlinks ul li a { font-size: small;
     padding: .15em .5em; }
 
+.module-search input { border: 1px solid $*color_entry_border;
+    background: $*color_entry_background, !important;
+    font-size: .9em !important;
+    color: $*color_entry_text !important; }
+.module-search .search-form { text-align: right; }
+
     """;
 }
 

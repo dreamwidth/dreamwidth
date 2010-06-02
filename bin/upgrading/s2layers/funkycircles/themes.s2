@@ -79,11 +79,13 @@ function Page::print_theme_stylesheet()
     """
 /* Modules
 ***************************************************************************/
-        .module-calendar td.empty-day {
+        .module-calendar td.empty-day,
+        .module-search .search-button {
             background-color: $*color_header_background;
             }
 
-            .module-calendar td.entry-day a {
+            .module-calendar td.entry-day a,
+            .module-search .search-box {
                 color: $*color_page_subtitle !important;
                 }
 
@@ -410,7 +412,8 @@ function Page::print_theme_stylesheet()
     """
 /* Modules
 ***************************************************************************/
-            .module-calendar td.entry-day a {
+            .module-calendar td.entry-day a,
+            .module-search .search-box {
                 color: $*color_entry_text !important;
                 }
 
@@ -507,7 +510,8 @@ function Page::print_theme_stylesheet()
     """
 /* Modules
 ***************************************************************************/
-        .module-calendar td.entry-day {
+        .module-calendar td.entry-day,
+        .module-search .search-box {
             background-color: $*color_page_link_hover;
             -moz-box-shadow: .067em .067em .134em #444;
             -webkit-box-shadow: .067em .067em .134em #444;
@@ -607,7 +611,8 @@ function Page::print_theme_stylesheet()
     """
 /* Modules
 ***************************************************************************/
-        .module-calendar td.entry-day {
+        .module-calendar td.entry-day,
+        .module-search .search-box {
             background-color: $*color_page_link_hover;
             -moz-box-shadow: .067em .067em .134em #444;
             -webkit-box-shadow: .067em .067em .134em #444;

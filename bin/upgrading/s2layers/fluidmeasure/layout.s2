@@ -536,6 +536,16 @@ border-color: transparent !important;
 .module-time,
 .module-powered { padding: .5em; }
 
+.module-search .search-box, .module-search .search-button {
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    -khtml-border-radius: 1em;
+    background-color: $*color_entry_background;
+    border: 1px solid $*color_module_title_background;
+}
+.module-search .search-form { margin: .2em auto; }
+.module-search .search-box { margin: .2em; width: 95%; }
+.module-search .search-form { text-align: right; }
 
 /* footer */
 
