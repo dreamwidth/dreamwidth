@@ -37,12 +37,39 @@ body<=
         $cts{$u->id} = DW::InviteCodes->unused_count( userid => $u->id );
     }
 
+    # subroutine for counting accounts registered to user's email.
+    # you'd think User.pm would have a function for this, but no,
+    # so I checked to see how the finduser command did it.
+    my $pc_accts = sub {
+        my ( $u ) = @_;
+        if ( $u->email_raw ) {
+            my ( $pct, $cct ) = ( 0, 0 );
+            my $dbr = LJ::get_db_reader();
+            my $userids = $dbr->selectcol_arrayref(
+                    "SELECT userid FROM email WHERE email = ?",
+                    undef, $u->email_raw );
+            die $dbr->errstr if $dbr->err;
+            if ( $userids ) {
+                my $us = LJ::load_userids( @$userids );
+                foreach ( @$userids ) {
+                    next unless $us->{$_};
+
+                    $pct++ if $us->{$_}->is_personal;
+                    $cct++ if $us->{$_}->is_comm;
+                }
+            }
+            return "$pct/$cct";
+        } else {
+            return "N/A";
+        }
+    };
+
     my $authed = undef;
 
     $ret .= "<form method='post'>";
     $ret .= LJ::form_auth();
     $ret .= "<table>";
-    $ret .= "<tr><th>User</th><th>Time Generated</th><th>Ct</th><th>Give</th><th>Reason</th></tr>";
+    $ret .= "<tr><th>User</th><th>Time Generated</th><th>P/C</th><th>Ct</th><th>Give</th><th>Reason</th></tr>";
     foreach my $outstanding ( @outstanding ) {
         my $u = $users->{$outstanding->userid};
         
@@ -52,6 +79,7 @@ body<=
         $ret .= "<tr>";
         $ret .= "<td>" . $u->ljuser_display . "</td>";
         $ret .= "<td>" . LJ::time_to_http( $outstanding->timegenerate ) . "</td>";
+        $ret .= "<td>" . $pc_accts->( $u ) . "</td>";
         $ret .= "<td>" . $cts{$u->id} . "</td>";
 
         # if we posted...
