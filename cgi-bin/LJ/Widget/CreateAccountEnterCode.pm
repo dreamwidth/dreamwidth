@@ -68,15 +68,17 @@ sub render_body {
     $ret .= LJ::html_hidden( ssl => $get->{ssl} ) if $get->{ssl};
     $ret .= "</form>";
 
+    $ret .= "<p style='margin-top: 10px;'>";
+
+    $ret .= $class->ml( 'widget.createaccountentercode.getcode' );
     if ( LJ::is_enabled( 'payments' ) ) {
-        $ret .= "<p style='margin-top: 10px;'>";
-        $ret .= $class->ml( 'widget.createaccountentercode.pay', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'", sitename => $LJ::SITENAMESHORT } );
-        my $remote = LJ::get_remote(); 
-        $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/community/create'" } );
-        $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout', { aopts => "href='$LJ::SITEROOT/community/create'" } ) unless $remote;
-        
-        $ret .= "</p>";
+        $ret .= " " . $class->ml( 'widget.createaccountentercode.pay2', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'", sitename => $LJ::SITENAMESHORT } );
     }
+    my $remote = LJ::get_remote(); 
+    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/community/create'" } );
+    $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout', { aopts => "href='$LJ::SITEROOT/community/create'" } ) unless $remote;
+        
+    $ret .= "</p>";
 
     return $ret;
 }

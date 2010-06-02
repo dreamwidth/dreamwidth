@@ -4123,9 +4123,13 @@ widget.createaccountentercode.comm=If you'd like to <a [[aopts]]>create a commun
 
 widget.createaccountentercode.comm.loggedout=You should create or log into a personal account to be the maintainer. If you don't have a personal account yet, you will need a code to create that account, but you don't need one for the community itself.
 
+widget.createaccountentercode.getcode= If you do not have an account creation code, you can obtain one this way.
+
 widget.createaccountentercode.info=To create a new account, enter an account creation code:
 
-widget.createaccountentercode.pay=If you do not have an account creation code, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
+widget.createaccountentercode.pay=
+
+widget.createaccountentercode.pay2=Alternatively, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
 
 widget.createaccountinviter.addcomms=Join and watch [[user]] ([[name]]).
 
