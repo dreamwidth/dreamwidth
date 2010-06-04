@@ -3873,7 +3873,7 @@ EOF
     }
 
     unless ( column_type( 'externalaccount', 'recordlink' ) ) {
-        do_alter( 'xpost_recordlink',
+        do_alter( 'externalaccount',
                   "ALTER TABLE externalaccount ADD COLUMN recordlink enum('1','0') NOT NULL default '0'");
     }
 
