@@ -93,11 +93,7 @@ body<=
 </div>
 <div id='maplinks-right'>
 
-<?_code
-if ( LJ::is_enabled( 'payments' ) ) {
-    my $shop_title = BML::ml('.maplinks.shop-title', { sitename => $LJ::SITENAMESHORT } );
-    return qq{
- <dl><dt>$shop_title</dt>
+ <dl><dt><?_code return BML::ml('.maplinks.shop-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
    <li><a href='/shop'><?_ml .maplinks.buy-points _ml?></a></li>
    <li><a href='/shop/gifts'><?_ml .maplinks.buy-circle _ml?></a></li>
@@ -106,9 +102,6 @@ if ( LJ::is_enabled( 'payments' ) ) {
    <li><a href='http://www.zazzle.com/dreamwidth*'><?_ml .maplinks.buy-merchandise _ml?></a></li>
    <li><a href='/shop/history'><?_ml .maplinks.payment-history _ml?></a></li>
   </ul></dd></dl>
-    };
-}
-_code?>
 
  <dl><dt><?_code return BML::ml('.maplinks.learn-site-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
