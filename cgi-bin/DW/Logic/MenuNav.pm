@@ -262,6 +262,12 @@ sub get_menu_navigation {
                     text => "menunav.shop.transferpoints",
                     display => LJ::is_enabled( 'payments' ) && $loggedin_person ? 1 : 0,
                 },
+                {
+                    url => $LJ::MERCH_URL,
+                    text => "menunav.shop.merchandise",
+                    text_opts => { siteabbrev => $LJ::SITENAMEABBREV },
+                    display => $LJ::MERCH_URL ? 1 : 0,
+                },
             ],
         },
     );

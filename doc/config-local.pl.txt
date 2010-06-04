@@ -91,6 +91,9 @@
     # (Note: you need to provide your own 404-error-local.bml)
     # $PAGE_404 = "404-error-local.bml";
 
+    # merchandise link
+    # $MERCH_URL = "http://www.zazzle.com/dreamwidth*";
+
     # shop/pricing configuration
     # %SHOP = (
     #    key => [ $USD, months, account type, cost in points ],
