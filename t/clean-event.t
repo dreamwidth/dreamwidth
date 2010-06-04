@@ -64,4 +64,58 @@ $clean_post = qq{<div align="center" style="\\s*\\s*" class="foo">test<\\/div>};
 $clean->({ remove_fonts => 1, remove_sizes => 1 });
 ok($orig_post =~ /^$clean_post$/, "CSS fonts and sizes removed");
 
+# get cut text
+my $cut_text;
+my $entry_text = qq{<cut text="first">111</cut><cut text="second">2222</cut>};
+
+$orig_post = $entry_text;
+$cut_text = "111";
+$clean->( { cut_retrieve => 1 } );
+is( $orig_post, $cut_text, "Text under first cut, plain" );
+
+$orig_post = $entry_text;
+$cut_text = "2222";
+$clean->( { cut_retrieve => 2 } );
+is( $orig_post, $cut_text, "Text under second cut, plain" );
+
+$entry_text = qq{
+<cut text="first"><a href="#first">111</a></cut>
+<cut text="second"><a href="#second">2222</a></cut>};
+
+$orig_post = $entry_text;
+$cut_text = qq{<a href="#first">111</a>};
+$clean->( { cut_retrieve => 1 } );
+is( $orig_post, $cut_text, "Text under first cut, with HTML tags" );
+
+$orig_post = $entry_text;
+$cut_text = qq{<a href="#second">2222</a>};
+$clean->( { cut_retrieve => 2 } );
+is( $orig_post, $cut_text, "Text under second cut, with HTML tags" );
+
+
+# nested cut tags
+$entry_text = qq{<cut text="outer">out <cut text="inner">in</cut></cut>};
+
+$orig_post = $entry_text;
+$cut_text = qq{out <a name="cutid2"></a>in};
+$clean->( { cut_retrieve => 1 } );
+is( $orig_post, $cut_text, "Text under outer cut, plain" );
+
+$orig_post = $entry_text;
+$cut_text = qq{in};
+$clean->( { cut_retrieve => 2 } );
+is( $orig_post, $cut_text, "Text under inner cut, plain" );
+
+$entry_text = qq{<cut text="outer"><strong>out</strong> <cut text="inner"><em>in</em></cut></cut>};
+
+$orig_post = $entry_text;
+$cut_text = qq{<strong>out</strong> <a name="cutid2"></a><em>in</em>};
+$clean->( { cut_retrieve => 1 } );
+is( $orig_post, $cut_text, "Text under outer cut, HTML" );
+
+$orig_post = $entry_text;
+$cut_text = qq{<em>in</em>};
+$clean->( { cut_retrieve => 2 } );
+is( $orig_post, $cut_text, "Text under inner cut, HTML" );
+
 1;

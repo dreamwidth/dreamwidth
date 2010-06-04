@@ -310,7 +310,7 @@ sub clean
 
             # if we're looking for cut tags, ignore everything that's
             # not a cut tag.
-            if ( $eatall && ! $tag eq "lj-cut" ) {
+            if ( $eatall && $tag ne "lj-cut" ) {
                 next TOKEN;
             }
 
@@ -897,7 +897,7 @@ sub clean
                 if ( $cuttag_stack[-1] eq $tag ) {
                     pop @cuttag_stack;
                     
-                    $eatall = 1 unless ( @cuttag_stack );
+                    last TOKEN unless ( @cuttag_stack );
                 }
             }
             

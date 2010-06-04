@@ -33,26 +33,26 @@ is($clean->("[<span class=ljuser>system</span>]"),
 is($clean->("[<span class=ljuser>bob <img src=\"http://www.lj.bradfitz.com/img/userinfo.gif\" /> system</span>]"),
    "[$lju_sys]", "span ljuser with junk inside");
 
-# old lj-ut
+# old lj-cut
 is($clean->("And a cut:<lj-cut>foooooooooooooo</lj-cut>"),
-            "And a cut:<b>(&nbsp;<a href=\"$fullurl#cutid1\">Read more...</a>&nbsp;)</b>",
+            "And a cut:<span style=\"display: none;\" id=\"span-cuttag___1\" class=\"cuttag\"></span><b>(&nbsp;<a href=\"$fullurl#cutid1\">Read more...</a>&nbsp;)</b><div style=\"display: none;\" id=\"div-cuttag___1\" aria-live=\"assertive\"></div>",
             "old lj-cut");
 is($clean->("And a cut:<lj-cut text='foo'>foooooooooooooo</lj-cut>"),
-            "And a cut:<b>(&nbsp;<a href=\"$fullurl#cutid1\">foo</a>&nbsp;)</b>",
+            "And a cut:<span style=\"display: none;\" id=\"span-cuttag___1\" class=\"cuttag\"></span><b>(&nbsp;<a href=\"$fullurl#cutid1\">foo</a>&nbsp;)</b><div style=\"display: none;\" id=\"div-cuttag___1\" aria-live=\"assertive\"></div>",
             "old lj-cut w/ text");
 
 # new lj-cut
 is($clean->(qq{New cut: <div class="ljcut">baaaaaaaaaarrrrr</div>}),
-   qq{New cut: <div><b>(&nbsp;<a href="http://lj.example/full.html#cutid1">Read more...</a>&nbsp;)</b></div>},
+   qq{New cut: <div><span style="display: none;" id="span-cuttag___1" class="cuttag"></span><b>(&nbsp;<a href="http://lj.example/full.html#cutid1">Read more...</a>&nbsp;)</b><div style="display: none;" id="div-cuttag___1" aria-live="assertive"></div></div>},
    "new lj-cut w/ div");
 
 is($clean->(qq{New cut: <div class="ljcut" text="This is my div cut">baaaaaaaaaarrrrr</div>}),
-   qq{New cut: <div><b>(&nbsp;<a href="http://lj.example/full.html#cutid1">This is my div cut</a>&nbsp;)</b></div>},
+   qq{New cut: <div><span style="display: none;" id="span-cuttag___1" class="cuttag"></span><b>(&nbsp;<a href="http://lj.example/full.html#cutid1">This is my div cut</a>&nbsp;)</b><div style="display: none;" id="div-cuttag___1" aria-live="assertive"></div></div>},
    "new lj-cut w/ div w/ text");
 
 # nested div cuts
 is($clean->(qq{Nested: <div class="ljcut" text="Nested">baaaaaaaaaa<div style="background: red">I AM RED</div>arrrrrr</div>}),
-   qq{Nested: <div><b>(&nbsp;<a href="http://lj.example/full.html#cutid1">Nested</a>&nbsp;)</b></div>},
+   qq{Nested: <div><span style="display: none;" id="span-cuttag___1" class="cuttag"></span><b>(&nbsp;<a href="http://lj.example/full.html#cutid1">Nested</a>&nbsp;)</b><div style="display: none;" id="div-cuttag___1" aria-live="assertive"></div></div>},
    "nested div cuts");
 is($clean->(qq{Nested: <div class="ljcut" text="Nested">baaaaaaaaaa<div style="background: red">I AM RED</div>arrrrrr</div>},
             cuturl => ""),
