@@ -3277,6 +3277,7 @@ sub _print_quickreply_link
 
     $onclick = "" unless $page->{'_type'} eq 'EntryPage';
     $onclick = "" unless LJ::is_enabled('s2quickreply');
+    $onclick = "" if $page->{'_u'}->does_not_allow_comments_from( $remote );
 
     # See if we want to force them to change their password
     my $bp = LJ::bad_password_redirect({ 'returl' => 1 });

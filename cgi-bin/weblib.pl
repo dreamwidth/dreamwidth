@@ -944,6 +944,13 @@ sub make_qr_link
         $basesubject = "Re: $basesubject" if $basesubject;
         $basesubject = LJ::ehtml(LJ::ejs($basesubject));
         my $onclick = "return quickreply(\"$dtid\", $pid, \"$basesubject\")";
+
+        my $r = DW::Request->get;
+        my $ju;
+        $ju = LJ::load_userid( $r->note( 'journalid' ) )
+            if $r and $r->note( 'journalid' );
+
+        $onclick = "" if $ju && $ju->does_not_allow_comments_from( $remote );
         return "<a onclick='$onclick' href='$replyurl' >$linktext</a>";
     } else { # QR Disabled
         return "<a href='$replyurl' >$linktext</a>";

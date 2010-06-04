@@ -3435,6 +3435,15 @@ sub usersearch_age_with_expire {
 =head2 Comment-Related Functions
 =cut
 
+# true if u1 restricts commenting to trusted and u2 is not trusted
+sub does_not_allow_comments_from {
+    my ( $u1, $u2 ) = @_;
+    return unless LJ::isu( $u1 ) && LJ::isu( $u2 );
+    return $u1->prop('opt_whocanreply') eq 'friends'
+        && ! $u1->trusts_or_has_member( $u2 );
+}
+
+
 # get recent talkitems posted to this user
 # args: maximum number of comments to retrieve
 # returns: array of hashrefs with jtalkid, nodetype, nodeid, parenttalkid, posterid, state
