@@ -36,8 +36,12 @@ use Google::Checkout::Command::ChargeOrder;
 use Google::Checkout::General::Util qw/ is_gco_error /;
 1;
 USE
+    # This restricts the warning to only print in web context,
+    # which allows t/00-compile.t to succeed without GC modules.
+    # There's no way to use LJ::is_enabled( 'googlecheckout' )
+    # without changing the module load order for the entire system.
     warn "NOTE: Google::Checkout::* Perl modules were not found.\n"
-        unless $rv;
+        if !$rv and ( $^X =~ /apache/ );
 
     # avoid compile error, if we don't have the google checkout modules installed
     our $EMAIL_DELIVERY = eval { no strict "subs"; Google::Checkout::General::DigitalContent::EMAIL_DELIVERY };
