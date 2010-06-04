@@ -178,11 +178,6 @@ sub get_menu_navigation {
                     display => $loggedin_hasnetwork,
                 },
                 {
-                    url => $u ? $u->archive_current_month : "",
-                    text => "menunav.read.archive",
-                    display => $loggedin_hasjournal,
-                },
-                {
                     url => "$LJ::SITEROOT/tools/recent_comments",
                     text => "menunav.read.recentcomments",
                     display => $loggedin,

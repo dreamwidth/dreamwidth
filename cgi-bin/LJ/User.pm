@@ -1781,15 +1781,6 @@ sub allow_search_by {
 }
 
 
-# returns a link to the current year and month in the user's archive
-sub archive_current_month {
-    my ( $u ) = @_;
-    return '' if $u->is_identity;  # no archive to read
-    my $t = $u->time_now;
-    return sprintf( "%s/%02d/%02d/", $u->journal_base, $t->year, $t->mon );
-}
-
-
 sub caps {
     my $u = shift;
     return $u->{caps};
