@@ -2177,8 +2177,6 @@ menunav.organize.selectstyle=Select Style
 
 menunav.read=Read
 
-menunav.read.archive=Archive
-
 menunav.read.inbox.nounread=Inbox
 
 menunav.read.inbox.unread2=Inbox [[num]]
