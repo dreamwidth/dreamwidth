@@ -1,3 +1,41 @@
+#NEWLAYER: brittle/barnhouse
+layerinfo "type" = "theme";
+layerinfo "name" = "Barnhouse";
+layerinfo redist_uniq = "brittle/barnhouse";
+layerinfo author_name = "edgeraven";
+
+set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+
+## Page Colors
+
+set color_page_background = "#bc3d26";
+set color_page_text = "#0e0e0e";
+set color_page_link = "#8f1600";
+set color_page_link_hover = "#672700";
+set color_page_link_visited = "#4C1C00";
+
+## Header and Footer Colors
+
+set color_footer_background = "#fc9180";
+set color_footer_link = "#8f1600";
+set color_footer_link_hover = "#672700";
+set color_footer_link_visited = "#4C1C00";
+
+## Entry Colors
+
+set color_entry_background = "#fc9180";
+set color_entry_text = "#0e0e0e";
+set color_entry_link = "#8f1600";
+set color_entry_link_hover = "#672700";
+set color_entry_link_visited = "#4C1C00";
+
+## Module Colors
+
+set color_navigation_module_background = "#fc9180";
+set color_navigation_module_link = "#8f1600";
+set color_navigation_module_link_hover = "#672700";
+set color_navigation_module_link_visited = "#4C1C00";
+
 #NEWLAYER: brittle/nnwm2009
 layerinfo type = "theme";
 layerinfo name = "NNWM 2009";

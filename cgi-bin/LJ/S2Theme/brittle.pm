@@ -36,6 +36,11 @@ sub entry_props {
     return $self->_append_props( "entry_props", @props );
 }
 
+package LJ::S2Theme::brittle::barnhouse;
+use base qw( LJ::S2Theme::brittle );
+sub cats { qw( ) }
+sub designer { "edgeraven" }
+
 package LJ::S2Theme::brittle::nnwm2009;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw( ) }
