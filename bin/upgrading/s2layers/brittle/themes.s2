@@ -36,6 +36,52 @@ set color_navigation_module_link = "#8f1600";
 set color_navigation_module_link_hover = "#672700";
 set color_navigation_module_link_visited = "#4C1C00";
 
+#NEWLAYER: brittle/drab
+layerinfo "type" = "theme";
+layerinfo "name" = "Drab";
+layerinfo redist_uniq = "brittle/drab";
+layerinfo author_name = "edgeraven";
+
+set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+
+## Page Colours
+
+set color_page_text = "#202020";
+set color_page_link = "#722a2a";
+set color_page_link_hover = "#c34848";
+set color_page_link_visited = "#6e6d45";
+
+## Header/Footer Colours
+
+set color_footer_background = "#cfce82";
+set color_footer_link = "#722a2a";
+set color_footer_link_hover = "#c34848";
+set color_footer_link_visited = "#6e6d45";
+
+## Entry Colours
+
+set color_entry_background = "#cfce82";
+set color_entry_link = "#722a2a";
+set color_entry_link_hover = "#c34848";
+set color_entry_link_visited = "#6e6d45";
+set color_entry_text = "#202020";
+set color_entry_title = "#202020";
+
+##Module Colours
+
+set color_navigation_module_background = "#cfce82";
+set color_navigation_module_link = "#722a2a";
+set color_navigation_module_link_hover = "#c34848";
+set color_navigation_module_link_visited = "#6e6d45";
+
+##Background Image
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "brittle/drab.png";
+
 #NEWLAYER: brittle/nnwm2009
 layerinfo type = "theme";
 layerinfo name = "NNWM 2009";

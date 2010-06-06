@@ -41,6 +41,11 @@ use base qw( LJ::S2Theme::brittle );
 sub cats { qw( ) }
 sub designer { "edgeraven" }
 
+package LJ::S2Theme::brittle::drab;
+use base qw( LJ::S2Theme::brittle );
+sub cats { qw( ) }
+sub designer { "edgeraven" }
+
 package LJ::S2Theme::brittle::nnwm2009;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw( ) }
