@@ -78,6 +78,14 @@ body<=
 
 <p>From time to time, we may allow you to provide us with your login credentials for a site that is not owned and operated by us in order to allow you to integrate data from that external service to your $LJ::SITENAMESHORT account. Examples of this include the journal import feature and the entry crosspost feature. Providing us this information is completely optional. Your login credentials are only used for the purposes of these features, and are not used for any other purpose.</p>
 
+<h2>Account contents</h2>
+
+<p>You may optionally post content to your account with varying security levels. To the best of our ability, and limited only by the possibility of bugs or technical difficulties, we will honor the security levels you choose for your content and display that content only to those whom you have authorized to see it.</p>
+
+<p>While maintaining the site, $LJ::SITENAMESHORT staff may need to view the contents of your account, including information for which you have chosen a restrictive security level. Circumstances in which this is necessary include, but are not limited to: troubleshooting and diagnosing technical problems, investigating possible Terms of Service violations, and legal compliance issues.</p>
+
+<p>$LJ::SITENAMESHORT staff only use the ability to override your chosen security levels during the course of these investigations. At no time is your secured content disclosed to any third party, except when required by law. Any use of this ability is logged and regularly audited.</p>
+
 <h2>Financial information and transactions</h2>
 
 <p>You can engage in financial transactions with $LJ::SITENAMESHORT to purchase enhancements for your account. These transactions are optional. If you choose to purchase enhanced services, you will be asked to provide financial information to complete the transaction. There are several payment methods available, each of which requires disclosure of certain personal and financial information. The specifics of these methods of payment are as follows:</p>
@@ -168,7 +176,7 @@ body<=
 
 <p>This privacy policy is based on one developed by Automattic (http://automattic.com/privacy/) and is licensed under a Creative Commons Attribution-ShareAlike 2.5 License.</p>
 
-<p class='note'>Last revised April 5, 2010</p>
+<p class='note'>Last revised June 6, 2010</p>
 PAGE
 
     return $ret;
