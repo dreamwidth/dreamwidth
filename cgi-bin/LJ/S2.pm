@@ -2563,18 +2563,16 @@ sub pageview_unique_string {
 
 sub viewer_logged_in
 {
-    my ($ctx) = @_;
     my $remote = LJ::get_remote();
     return defined $remote;
 }
 
 sub viewer_is_owner
 {
-    my ($ctx) = @_;
     my $remote = LJ::get_remote();
     return 0 unless $remote;
     return 0 unless defined($LJ::S2::CURR_PAGE);
-    return $remote->{'userid'} == $LJ::S2::CURR_PAGE->{'_u'}->{'userid'};
+    return $remote->{userid} == $LJ::S2::CURR_PAGE->{_u}->{userid};
 }
 
 # NOTE: this method is old and deprecated, but we still support it for people
@@ -2586,26 +2584,58 @@ sub viewer_is_owner
 # suggest that people update their styles to use the DW core/functions.
 sub viewer_is_friend
 {
-    my ($ctx) = @_;
+    return viewer_has_access();
+}
+
+sub viewer_has_access
+{
     my $remote = LJ::get_remote();
     return 0 unless $remote;
     return 0 unless defined($LJ::S2::CURR_PAGE);
 
-    my $ju = $LJ::S2::CURR_PAGE->{'_u'};
-    return 0 if $ju->is_community;
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return viewer_is_member() if $ju->is_community;
     return $ju->trusts( $remote );
+}
+
+sub viewer_is_subscribed {
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return $remote->watches( $ju );
 }
 
 sub viewer_is_member
 {
-    my ($ctx) = @_;
     my $remote = LJ::get_remote();
     return 0 unless $remote;
     return 0 unless defined($LJ::S2::CURR_PAGE);
 
-    my $ju = $LJ::S2::CURR_PAGE->{'_u'};
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
     return 0 unless $ju->is_community;
     return $remote->member_of( $ju );
+}
+
+sub viewer_is_admin {
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return 0 unless $ju->is_community;
+    return $remote->can_manage( $ju );
+}
+
+sub viewer_is_moderator {
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return 0 unless $ju->is_community;
+    return LJ::check_rel( $ju, $remote, 'M' );
 }
 
 sub viewer_sees_control_strip
