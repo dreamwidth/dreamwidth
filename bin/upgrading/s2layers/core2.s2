@@ -331,7 +331,7 @@ class EntryLite
 
     var Image userpic "The userpic selected to relate to this entry.";
 
-    var readonly string{} metadata "Post metadata. Keys: 'music', 'mood', 'location', 'groups'.  Comment metadata.  Key: 'poster_ip'";
+    var readonly string{} metadata "Post metadata. Keys: 'music', 'mood', 'location', 'groups', 'xpost'.  Comment metadata.  Key: 'poster_ip'";
 
     var readonly string dom_id "The DOM 'id' attribute you should put on your outer-most element";
 
