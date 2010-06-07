@@ -83,8 +83,11 @@ sub try_work {
     $0 = sprintf( 'content-importer [userpics: %s(%d)]', $u->user, $u->id );
 
 # FIXME: URL may not be accurate here for all sites
+    my $fetch_error = "";
     my $un = $data->{usejournal} || $data->{username};
-    my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{hostname}/users/$un/", $data, $log );
+    my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{hostname}/users/$un/", $data, $log, \$fetch_error );
+
+    return $temp_fail->( $fetch_error ) if $fetch_error;
 
     my $errs = [];
     my @imported = DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, $errs, $default, \@pics, $log );
@@ -111,12 +114,16 @@ sub try_work {
     # FIXME: Link to "select userpics later" (once it is created) if we have the backup.
     my $message = "$num_imported out of $to_import usericon" . ( $num_imported == 1 ? "" : "s" ) . " successfully imported.";
     $message = "None of your usericons imported successfully." if $num_imported == 0;
+    $message = "There were no usericons to import." if $to_import == 0;
 
     my $text;
     if ( @$errs ) {
         $text = "The following usericons failed to import:\n\n" . join( "\n", map { " * $_" } @$errs ) . "\n\n$message";
     } elsif ( scalar( @imported ) != scalar( @pics ) ) {
         $text = "You did not have enough room to import all your usericons.\n\n$message";
+    } else {
+        # for example, when no icons could be imported.
+        $text = $message;
     }
 
     $status->( text => $text );
@@ -124,7 +131,7 @@ sub try_work {
 }
 
 sub get_lj_userpic_data {
-    my ( $class, $url, $data, $log ) = @_;
+    my ( $class, $url, $data, $log, $err_ref ) = @_;
     $url =~ s/\/$//;
 
     # default, if no log, do nothing
@@ -140,8 +147,11 @@ sub get_lj_userpic_data {
     $log->( 'Fetching: %s', $uurl );
 
     my $resp = $ua->get( $uurl );
-    return $log->( 'Failed retrieving page.' )
-        unless $resp && $resp->is_success;
+    unless ( $resp && $resp->is_success ) {
+        my $error_message = 'Failed retrieving page (' . $resp->status_line . ').';
+        $$err_ref = $error_message if $err_ref;
+        return $log->( $error_message );
+    }
 
     my $content = $resp->content;
 
