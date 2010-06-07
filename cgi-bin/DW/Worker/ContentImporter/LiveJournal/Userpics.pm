@@ -112,7 +112,7 @@ sub try_work {
     }
 
     # FIXME: Link to "select userpics later" (once it is created) if we have the backup.
-    my $message = "$num_imported out of $to_import usericon" . ( $num_imported == 1 ? "" : "s" ) . " successfully imported.";
+    my $message = "$num_imported out of $to_import usericon" . ( $to_import == 1 ? "" : "s" ) . " successfully imported.";
     $message = "None of your usericons imported successfully." if $num_imported == 0;
     $message = "There were no usericons to import." if $to_import == 0;
 
