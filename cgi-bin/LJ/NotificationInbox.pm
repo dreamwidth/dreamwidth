@@ -178,7 +178,12 @@ sub subset_items {
 
 sub singleentry_items {
     my ( $self, $itemid ) = @_;
-    return grep { $_->event->class eq "LJ::Event::JournalNewComment" && $_->event->comment->entry->ditemid == $itemid } $self->items;
+    return grep {
+        $_->event->class eq "LJ::Event::JournalNewComment"
+        && $_->event->comment
+        && $_->event->comment->entry    # may have been deleted, which breaks all filter to entry comments
+        && $_->event->comment->entry->ditemid == $itemid
+    } $self->items;
 }
 
 # return flagged notifications
