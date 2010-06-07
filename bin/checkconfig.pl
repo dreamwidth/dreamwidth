@@ -113,6 +113,7 @@ my %modules = (
                "SOAP::Lite" => {
                    'deb' => 'libsoap-lite-perl',
                    'opt' => 'Required for XML-RPC support.',
+                   'ver' => '0.710.8',
                },
                "Unicode::MapUTF8" => { 'deb' => 'libunicode-maputf8-perl', },
                "XML::RSS" => {
@@ -208,8 +209,28 @@ sub check_modules {
 
         my $ver_want = $modules{$mod}{ver};
         my $ver_got = $mod->VERSION;
-        if ($ver_want && $ver_got && $ver_got < $ver_want) {
-            push @errors, "Out of date module: $mod (need $ver_want, $ver_got installed)";
+
+        # handle version strings with multiple decimal points
+        # assumes there will never be a version part prepended
+        # only appended
+        if ( $ver_want && $ver_got ) {
+            my @parts_want = split( /\./, $ver_want );
+            my @parts_got  = split( /\./, $ver_got  );
+            my $invalid = 0;
+
+            while ( scalar @parts_want ) {
+                my $want_part = shift @parts_want || 0;
+                my $got_part = shift @parts_got || 0;
+
+                # If want_part is greater then got_part, older
+                # If got_part is greater then want_part, newer
+                # If they are the same, look at the next part pair
+                if ( $want_part != $got_part ) {
+                    $invalid = $want_part > $got_part ? 1 : 0;
+                    last;
+                }
+            }
+            push @errors, "Out of date module: $mod (need $ver_want, $ver_got installed)" if $invalid;
         }
     }
     if (@debs && -e '/etc/debian_version') {
