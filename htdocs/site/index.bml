@@ -94,19 +94,32 @@ body<=
 <div id='maplinks-right'>
 
 <?_code
-if ( LJ::is_enabled( 'payments' ) ) {
+if ( LJ::is_enabled( 'payments' ) || $LJ::MERCH_URL ) {
     my $shop_title = BML::ml('.maplinks.shop-title', { sitename => $LJ::SITENAMESHORT } );
-    return qq{
+    my $merch = $LJ::MERCH_URL
+        ? "<li><a href='$LJ::MERCH_URL'><?_ml .maplinks.buy-merchandise _ml?></a></li>"
+        : '';
+    if ( LJ::is_enabled( 'payments' ) ) {
+        # display all shop links, plus merch link if defined
+        return qq{
  <dl><dt>$shop_title</dt>
   <dd><ul>
    <li><a href='/shop'><?_ml .maplinks.buy-points _ml?></a></li>
    <li><a href='/shop/gifts'><?_ml .maplinks.buy-circle _ml?></a></li>
    <li><a href='/shop/randomgift'><?_ml .maplinks.buy-random _ml?></a></li>
    <li><a href='/shop/transferpoints'><?_ml .maplinks.transfer-points _ml?></a></li>
-   <li><a href='http://www.zazzle.com/dreamwidth*'><?_ml .maplinks.buy-merchandise _ml?></a></li>
+   $merch
    <li><a href='/shop/history'><?_ml .maplinks.payment-history _ml?></a></li>
   </ul></dd></dl>
-    };
+        };
+    } else {  # only display merch link
+        return qq{
+ <dl><dt>$shop_title</dt>
+  <dd><ul>
+   $merch
+  </ul></dd></dl>
+        };
+    }
 }
 _code?>
 
