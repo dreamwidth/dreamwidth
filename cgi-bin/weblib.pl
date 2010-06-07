@@ -676,7 +676,7 @@ sub create_qr_div {
 
     my $qrhtml;
 
-    LJ::load_user_props($remote, "opt_no_quickreply");
+    $remote->preload_props( "opt_no_quickreply" );
     return undef if $remote->{'opt_no_quickreply'};
 
     $qrhtml .= "<div id='qrformdiv'><form id='qrform' name='qrform' method='POST' action='$LJ::SITEROOT/talkpost_do'>";
@@ -936,7 +936,7 @@ sub make_qr_link
     return undef unless defined $dtid && $linktext && $replyurl;
 
     my $remote = LJ::get_remote();
-    LJ::load_user_props($remote, "opt_no_quickreply");
+    $remote->preload_props( "opt_no_quickreply" ) if $remote;
     unless ($remote->{'opt_no_quickreply'}) {
         my $pid = int($dtid / 256);
 

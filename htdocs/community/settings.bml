@@ -240,7 +240,7 @@ body<=
             my $dbr = LJ::get_db_reader();
             ($info{'membership'},$info{'postlevel'}) = 
                 $dbr->selectrow_array("SELECT membership, postlevel FROM community WHERE userid=$c->{'userid'}");
-            LJ::load_user_props($c, "nonmember_posting", "moderated", "hide_join_post_link", "posting_guidelines_entry");
+            $c->preload_props( qw/ nonmember_posting moderated hide_join_post_link posting_guidelines_entry / );
             $info{'nonmember_posting'} = $c->{'nonmember_posting'} ? 1 : 0;
             $info{'moderated'} = $c->{'moderated'} ? 1 : 0;
             $info{'hide_join_post_link'} = $c->{'hide_join_post_link'} ? 1 : 0;

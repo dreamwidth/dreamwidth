@@ -62,10 +62,11 @@ _c?>
         $r->notes->{journalid} = $u->{userid};
 
         ### Load necessary props
-        my @needed_props = ("stylesys", "s2_style", "url", "urlname",
-                            "opt_usesharedpic", "journaltitle", "journalsubtitle",);
+        my @needed_props = qw( stylesys s2_style url urlname
+                               opt_usesharedpic journaltitle
+                               journalsubtitle );
 
-        LJ::load_user_props($u, @needed_props);
+        $u->preload_props( @needed_props );
 
         ### Determine style system to preview with
         my $get_styleinfo = sub {

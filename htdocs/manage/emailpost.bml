@@ -63,7 +63,7 @@ body<=
 
     my ($mode, $type) = ($GET{mode}, $GET{type});
     if ($u) {
-        LJ::load_user_props( $u, @props );
+        $u->preload_props( @props );
     } else {
         $mode = 'help';
     }

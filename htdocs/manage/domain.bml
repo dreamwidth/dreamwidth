@@ -44,7 +44,7 @@ body<=
     my $dbr = LJ::get_db_reader();
     my $sth;
 
-    LJ::load_user_props($u, "journaldomain");
+    $u->preload_props( "journaldomain" );
 
     # if a POST, update their info
     if (LJ::did_post()) {

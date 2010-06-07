@@ -72,7 +72,7 @@ body<=
 
     # redirect if account was renamed
     if ( $u->is_redirect ) {
-        LJ::load_user_props($u, "renamedto");
+        $u->preload_props( "renamedto" );
         if ($u->{'renamedto'} ne "") {
             my $id = $FORM{'itemid'}+0;
             return BML::redirect(LJ::journal_base($u->{'renamedto'}) . "/$id.html?mode=reply");

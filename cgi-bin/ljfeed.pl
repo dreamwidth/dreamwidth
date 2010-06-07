@@ -38,7 +38,7 @@ sub make_feed
     my $feedtype = $1;
     my $viewfunc = $feedtypes{$feedtype};
 
-    unless ($viewfunc) {
+    unless ( $viewfunc && LJ::isu( $u ) ) {
         $opts->{'handler_return'} = 404;
         return undef;
     }
@@ -49,7 +49,7 @@ sub make_feed
 
     my $user = $u->{'user'};
 
-    LJ::load_user_props($u, qw/ journaltitle journalsubtitle opt_synlevel /);
+    $u->preload_props( qw/ journaltitle journalsubtitle opt_synlevel / );
 
     LJ::text_out(\$u->{$_})
         foreach ("name", "url", "urlname");
@@ -630,9 +630,9 @@ sub create_view_foaf {
     $opts->{contenttype} = 'application/rdf+xml; charset=' . $opts->{saycharset};
 
     # setup userprops we will need
-    LJ::load_user_props($u, qw{
+    $u->preload_props( qw{
         aolim icq yahoo jabber msn icbm url urlname external_foaf_url country city journaltitle
-    });
+    } );
 
     # create bare foaf document, for now
     $ret = "<?xml version='1.0'?>\n";

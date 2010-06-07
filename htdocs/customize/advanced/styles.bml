@@ -294,7 +294,7 @@ _c?>
         }
 
         # load style currently in use
-        LJ::load_user_props($u, 's2_style');
+        $u->preload_props( 's2_style' );
 
         # set up page header
         $authasform->() unless $noactions;

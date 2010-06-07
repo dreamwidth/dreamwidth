@@ -427,7 +427,7 @@ sub process_content {
     }
 
     # update syndicated account's userinfo if necessary
-    LJ::load_user_props($su, "url", "urlname");
+    $su->preload_props( "url", "urlname" );
     {
         my $title = $feed->{'title'};
         $title = $su->{'user'} unless LJ::is_utf8($title);

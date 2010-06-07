@@ -23,9 +23,10 @@ use strict;
 # Used for ljemailgateway and manage/emailpost.bml
 sub get_allowed_senders {
     my $u = shift;
+    return undef unless LJ::isu( $u );
     my (%addr, @address);
 
-    LJ::load_user_props($u, 'emailpost_allowfrom');
+    $u->preload_props( 'emailpost_allowfrom' );
     @address = split(/\s*,\s*/, $u->{emailpost_allowfrom});
     return undef unless scalar(@address) > 0;
 

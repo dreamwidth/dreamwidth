@@ -76,7 +76,7 @@ body<=
     }
 
     # Initial page
-    LJ::load_user_props($u, qw(public_key));
+    $u->preload_props( qw( public_key ) );
 
     my $ret;
     $ret .= "<?p ";

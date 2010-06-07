@@ -47,7 +47,7 @@ sub pubkey_handler {
     my ( $ok, $rv ) = controller( anonymous => 1, specify_user => 1 );
     return $rv unless $ok;
 
-    LJ::load_user_props( $rv->{u}, 'public_key' );
+    $rv->{u}->preload_props( 'public_key' ) if $rv->{u};
 
     return DW::Template->render_template( 'misc/pubkey.tt', $rv );
 }

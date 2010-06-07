@@ -95,7 +95,7 @@ body<=
 
     # redirect if account was renamed
     if ( $u->is_redirect ) {
-        LJ::load_user_props($u, "renamedto");
+        $u->preload_props( "renamedto" );
         if ($u->{'renamedto'} ne "") {
             return BML::redirect(LJ::journal_base($u->{'renamedto'}) . "/$ditemid.html");
         }
@@ -203,7 +203,7 @@ body<=
     #
 
     # See if we should inject QuickReply javascript
-    LJ::load_user_props($remote, "opt_no_quickreply");
+    $remote->preload_props( "opt_no_quickreply" ) if $remote;
 
     LJ::Hooks::run_hooks("need_res_for_journals", $u);
     LJ::need_res( qw( js/thread_expander.js stc/talkpage.css ) );

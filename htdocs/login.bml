@@ -342,7 +342,8 @@ _c?>
                 return;
             }
 
-            LJ::load_user_props($u, "browselang", "schemepref", "legal_tosagree");
+            # at this point, $u is known good
+            $u->preload_props( "browselang", "schemepref", "legal_tosagree" );
 
             unless ($u->tosagree_verify) {
                 if ($POST{agree_tos}) {

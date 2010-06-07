@@ -51,8 +51,7 @@ body<=
     my $sth;
 
     # load user props
-    LJ::load_user_props(
-        $u, { use_master => 1 },
+    $u->preload_props( { use_master => 1 },
         qw/ country state city zip timezone
           icq aolim yahoo msn url jabber
           google_talk skype gizmo

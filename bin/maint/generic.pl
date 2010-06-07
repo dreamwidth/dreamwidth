@@ -51,8 +51,9 @@ $maint{joinmail} = sub {
         my %email; # see who we emailed on this comm
         foreach my $mid (@{$maints{$row->[0]}}) {
             print "$mid ";
+            next unless $mus->{$mid};
             next if $email{$mus->{$mid}{email}}++;
-            LJ::load_user_props($mus->{$mid}, 'opt_communityjoinemail');
+            $mus->{$mid}->preload_props( 'opt_communityjoinemail' );
             next unless $mus->{$mid}{opt_communityjoinemail} eq 'D'; # Daily or Digest
         
             my $body = "Dear $mus->{$mid}{user},\n\n" .

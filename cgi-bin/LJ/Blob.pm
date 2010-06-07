@@ -58,10 +58,10 @@ sub _bc_from_path {
 # given a $u, returns that user's blob_clusterid, conditionally loading it
 sub _load_bcid {
     my $u = shift;
-    die "No user" unless $u;
+    die "No user" unless LJ::isu( $u );
     return $u->{blob_clusterid} if $u->{blob_clusterid};
 
-    LJ::load_user_props($u, "blob_clusterid");
+    $u->preload_props( "blob_clusterid" );
     return $u->{blob_clusterid} if $u->{blob_clusterid};
     die "Couldn't find user $u->{user}'s blob_clusterid\n";
 }

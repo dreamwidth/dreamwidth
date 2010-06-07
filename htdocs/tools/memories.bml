@@ -91,7 +91,7 @@ _c?>
  my $userid = $u->{'userid'};
 
  if ( $u->is_redirect ) {
-    LJ::load_user_props($u, "renamedto");
+    $u->preload_props( "renamedto" );
     return BML::redirect("/tools/memories?user=$u->{'renamedto'}$authasarg");
  }
 

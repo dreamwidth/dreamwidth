@@ -478,7 +478,7 @@ body<=
 
     # columns of our table, excluding username
     my @attribs = ('member', 'post');
-    LJ::load_user_props($c, 'moderated');
+    $c->preload_props( 'moderated' );
     push @attribs, ('preapprove')
         if $c->{'moderated'} || $count{'N'};
     push @attribs, ('moderate')

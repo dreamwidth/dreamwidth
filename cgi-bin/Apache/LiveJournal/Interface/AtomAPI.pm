@@ -519,7 +519,7 @@ sub handle {
     # TODO: Add communities?
     my $method = $r->method;
     if ( $method eq 'GET' && ! $action ) {
-        LJ::load_user_props( $u, 'journaltitle' );
+        $u->preload_props( 'journaltitle' );
         my $title = $u->{journaltitle} || $u->{user};
         my $feed = XML::Atom::Feed->new();
 

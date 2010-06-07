@@ -26,8 +26,8 @@ _c?>
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
 
-    if ($u) {
-        LJ::load_user_props($u, "stylesys");
+    if ( $u ) {
+        $u->preload_props( "stylesys" );
         $u->{'stylesys'} ||= 2;
     }
 

@@ -249,7 +249,7 @@ body<=
         $clusterdown = 1 unless $dbr;
 
         $email = $u->email_raw if $u->email_raw;
-        LJ::load_user_props($u, "stylesys", "s2_style", "browselang", "schemepref" )
+        $u->preload_props( "stylesys", "s2_style", "browselang", "schemepref" )
             unless $clusterdown;
     }
 

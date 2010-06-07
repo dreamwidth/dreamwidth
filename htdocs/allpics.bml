@@ -92,7 +92,7 @@ _c?>
 
     # redirect renamed users
     if ( $u->is_redirect ) {
-        LJ::load_user_props($u, "renamedto");
+        $u->preload_props( "renamedto" );
         return BML::redirect("$LJ::SITEROOT/allpics?user=$u->{'renamedto'}")
             if $u->{'renamedto'};
     }

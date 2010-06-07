@@ -59,9 +59,10 @@ _c?>
     }
 
     if ( $u->is_redirect ) {
-        LJ::load_user_props($u, "renamedto");
-        if ($u->{'renamedto'}) {
-            return BML::redirect(sprintf(LJ::journal_base($u->{'renamedto'}) . "/%04d/%02d/", $FORM{'y'}, $FORM{'m'}));
+        $u->preload_props( "renamedto" );
+        if ( $u->{'renamedto'} ) {
+            return BML::redirect( sprintf( LJ::journal_base( $u->{'renamedto'} )
+                                         . "/%04d/%02d/", $FORM{'y'}, $FORM{'m'} ) );
         }
     }
 

@@ -30,7 +30,7 @@ _c?>
 
     my $userid = $u->{'userid'};
 
-    LJ::load_user_props($u, "stylesys", "s2_style");
+    $u->preload_props( "stylesys", "s2_style" ) if $u;
 
     $body = "";
     $title = $ML{".user.layer2"};

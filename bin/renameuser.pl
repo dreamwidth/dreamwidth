@@ -98,7 +98,7 @@ unless (rename_user("lj_swap_$swapnum", $to)) {
 
     # if the fromuser had redirection on, make sure it points to the new $to user
     my $fromu = LJ::load_user($from, 'force');
-    LJ::load_user_props($fromu, 'renamedto');
+    $fromu->preload_props( 'renamedto' ) if $fromu;
     if ($fromu->{renamedto} && $fromu->{renamedto} ne $to) {
         print "Setting redirection: $from => $to\n";
         unless (LJ::set_userprop($fromu, 'renamedto' => $to)) {
@@ -109,7 +109,7 @@ unless (rename_user("lj_swap_$swapnum", $to)) {
 
     # if the $to user had redirection, they shouldn't anymore
     my $tou = LJ::load_user($to, 'force');
-    LJ::load_user_props($tou, 'renamedto');
+    $tou->preload_props( 'renamedto' ) if $tou;
     if ($tou->{renamedto}) {
         print "Removing redirection for user: $to\n";
         unless (LJ::set_userprop($tou, 'renamedto' => undef)) {

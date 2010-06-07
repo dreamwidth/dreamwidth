@@ -588,7 +588,7 @@ sub get_permission_levels {
     return undef unless $u;
 
     # get the prop
-    LJ::load_user_props($u, 'opt_tagpermissions');
+    $u->preload_props( 'opt_tagpermissions' );
 
     # return defaults for accounts
     unless ($u->{opt_tagpermissions}) {

@@ -184,8 +184,8 @@ body<=
         my ($user, $name, $suserid, $url, $count) = @{ $popsyn->[$_] };
         $names{$user} = $name;
 
-        my $suser = LJ::load_userid($suserid);
-        LJ::load_user_props($suser, 'url');
+        my $suser = LJ::load_userid( $suserid ) or next;
+        $suser->preload_props( 'url' );
         $urls{$user} = $suser->{url};
 
         # skip suspended/deleted accounts, already watched feeds

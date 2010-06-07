@@ -72,7 +72,8 @@ sub process {
     $u = LJ::load_user($user);
     return unless $u && $u->is_visible;
 
-    LJ::load_user_props($u, 'emailpost_pin') unless (lc($pin) eq 'pgp' && $LJ::USE_PGP);
+    $u->preload_props( 'emailpost_pin' )
+        unless lc( $pin ) eq 'pgp' && $LJ::USE_PGP;
 
     # Pick what address to send potential errors to.
     $addrlist = LJ::Emailpost::get_allowed_senders($u);
@@ -419,8 +420,7 @@ sub process {
     # TZ is parsed into seconds, we want something more like -0800
     $zone = defined $zone ? sprintf( '%+05d', $zone / 36 ) : 'guess';
 
-    LJ::load_user_props(
-        $u,
+    $u->preload_props(
         qw/
           emailpost_userpic emailpost_security
           emailpost_comments emailpost_gallery
@@ -607,7 +607,7 @@ sub get_entity
 sub check_sig {
     my ($u, $entity, $gpg_err) = @_;
 
-    LJ::load_user_props($u, 'public_key');
+    $u->preload_props( 'public_key' ) if LJ::isu( $u );
     my $key = $u->{public_key};
     return 'no_key' unless $key;
 

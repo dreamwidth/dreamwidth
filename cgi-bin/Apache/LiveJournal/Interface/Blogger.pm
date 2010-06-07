@@ -235,7 +235,7 @@ sub getUserInfo {
     my $u = LJ::load_user($user) or die "Invalid login\n";
     die "Invalid login\n" unless LJ::auth_okay($u, $password);
 
-    LJ::load_user_props($u, "url");
+    $u->preload_props( "url" );
 
     return {
         'userid' => $u->{'userid'},
