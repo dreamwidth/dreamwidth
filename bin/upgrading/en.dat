@@ -3575,6 +3575,8 @@ talk.curname_music=<b>Current music:</b>
 
 talk.curname_tags=<b>Entry tags:</b>
 
+talk.curname_xpost=<b>Crossposts:</b>
+
 talk.error.bogusargs=Bogus arguments
 
 talk.error.cantedit=You cannot edit comments.

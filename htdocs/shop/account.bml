@@ -94,8 +94,7 @@ body<=
     $ret .= LJ::form_auth();
     $ret .= "<table class='shop-table'><tr>";
     $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'prem' ) . "</td>";
-    $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'paid' ) . "</td>"
-        unless $for eq 'self' && $account_type eq 'premium';
+    $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'paid' ) . "</td>";
     $ret .= "</tr>";
 
     if ( DW::Pay::num_permanent_accounts_available() > 0 ) {
