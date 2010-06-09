@@ -58,6 +58,10 @@ sub cutexpander_handler {
         # make sure the user can read the entry
         if ( $entry->visible_to( $remote ) ) {
             my $text = load_cuttext( $entry, $remote, $args->{cutid} );
+            # FIXME: temporary fix.
+            # remove some unicode characters that could cause the returned JSON to break
+            # like in LJ::ejs, but we don't need to escape quotes, etc (objToJson does that)
+            $text =~ s/\xE2\x80[\xA8\xA9]//gs;
             $r->print( objToJson( { text => $text } ) );
             return $r->OK;
         }
