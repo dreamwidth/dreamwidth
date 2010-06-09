@@ -2951,15 +2951,22 @@ function Image::as_string(string{} opts) [fixed] : string
 function Image::as_string(string alttext) [fixed] : string
 "You most likely want to use Image::print instead.  Prints HTML for the image with a given alttext. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    return "<img src=\"$.url\" title=\"$.extra{"title"}\" alt=\"$alttext\"" +
-        htmlattr("height", $.height) +
-        htmlattr("width", $.width) + " />";
+    return "<img src=\"$.url\" title=\"$.extra{"title"}\" alt=\""
+        + ehtml( $alttext )
+        + "\" "
+        + htmlattr("height", $.height)
+        + htmlattr("width", $.width)
+        + " />";
 }
 
 function Image::as_string() [fixed] : string
 "You most likely want to use Image::print instead.  Prints HTML for the image. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    return $this->as_string($this.alttext);
+    # If the image has an attribute "alttext", the alt text has already been escaped, eg. in S2.pm
+     return "<img src=\"$.url\" title=\"$.extra{"title"}\" alt=\"$this.alttext\" "
+        + htmlattr("height", $.height)
+        + htmlattr("width", $.width)
+        + " />";
 }
 
 function Image::print (string{} opts)
@@ -2978,7 +2985,7 @@ function Image::print (string alttext)
 function Image::print
 "Prints HTML for the image. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    print $this->as_string($this.alttext);
+    print $this->as_string();
 }
 
 function userinfoicon(UserLite user) : Image
