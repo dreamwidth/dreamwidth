@@ -112,11 +112,13 @@ HEAD
             my $add = $POST{"add_level"};
             my $control = $POST{"control_level"};
 
-            $ret .= "<?errorbar $ML{'.error.invalidsettings'} errorbar?>"
-               unless $add =~ /^(?:private|public|protected|author_admin|group:\d+)$/ &&
-               $control =~ /^(?:private|public|protected|group:\d+)$/;
+            if ( $add =~ /^(?:private|public|protected|author_admin|group:\d+)$/
+                && $control =~ /^(?:private|public|protected|group:\d+)$/ ) {
 
-            $u->set_prop("opt_tagpermissions", "$add,$control");
+                $u->set_prop("opt_tagpermissions", "$add,$control");
+            } else {
+                $ret .= "<?errorbar $ML{'.error.invalidsettings'} errorbar?>";
+            }
         }
     }
 
@@ -342,30 +344,35 @@ HEAD
     $ret .= '<tr><td colspan="2"><br /><fieldset><legend>' . $ML{'.label.settings'}. '</legend>';
     $ret .= '<div style="padding-top: 6px;">';
 
-    my @groups = ("public", $ML{'.setting.public'});
+    my @control_groups = ("public", $ML{'.setting.public'});
 
     if ($u->is_person) {
-        push @groups, ("protected", $ML{'.setting.trusted'});
-        push @groups, ("private", $ML{'.setting.private'});
+        push @control_groups, ("protected", $ML{'.setting.trusted'});
+        push @control_groups, ("private", $ML{'.setting.private'});
     } else {
-        push @groups, ("protected", $ML{'.setting.members'});
-        push @groups, ("private", $ML{'.setting.maintainers'});
-
-        push @groups, ( "author_admin", $ML{'.setting.author_admin'} )
-            if $u->is_community;
+        push @control_groups, ("protected", $ML{'.setting.members'});
+        push @control_groups, ("private", $ML{'.setting.maintainers'});
     }
 
+    my @add_groups = @control_groups;
+    push @add_groups, ( "author_admin", $ML{'.setting.author_admin'} )
+        if $u->is_community;
+
     my @grouplist = $u->trust_groups;
-    push @groups, map { "group:" . $_->{groupnum}, $_->{groupname} } @grouplist;
+    my @custom_groups;
+    push @custom_groups, map { "group:" . $_->{groupnum}, $_->{groupname} } @grouplist;
+
+    push @control_groups, @custom_groups;
+    push @add_groups, @custom_groups;
 
     my $security = LJ::Tags::get_permission_levels($u);
 
     $ret .= "<div class='tagsec'> "
-        . LJ::html_select({ name => 'control_level', selected => $security->{control} }, @groups)
+        . LJ::html_select({ name => 'control_level', selected => $security->{control} }, @control_groups)
         . " $ML{'.setting.desc.control'} </div>";
 
     $ret .= "<div class='tagsec'>"
-            . LJ::html_select({ name => 'add_level', selected => $security->{add} }, @groups)
+            . LJ::html_select({ name => 'add_level', selected => $security->{add} }, @add_groups)
             . " $ML{'.setting.desc.add'} </div>";
 
     $ret .= "<div align='center'>";
