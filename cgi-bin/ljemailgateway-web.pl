@@ -26,8 +26,7 @@ sub get_allowed_senders {
     return undef unless LJ::isu( $u );
     my (%addr, @address);
 
-    $u->preload_props( 'emailpost_allowfrom' );
-    @address = split(/\s*,\s*/, $u->{emailpost_allowfrom});
+    @address = split( /\s*,\s*/, $u->prop( 'emailpost_allowfrom' ) );
     return undef unless scalar(@address) > 0;
 
     my %flag_english = ( 'E' => 'get_errors' );

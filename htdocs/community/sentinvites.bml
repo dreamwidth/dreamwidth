@@ -93,8 +93,7 @@ body<=
     # columns of our table, excluding username
     my @attribs = ('post');
     my @titleattribs = ('P');
-    $c->preload_props( 'moderated' );
-    if ($c->{moderated}) {
+    if ( $c->prop( 'moderated' ) ) {
         push @attribs, ('preapprove', 'moderate');
         push @titleattribs, ('U', 'M');
     }

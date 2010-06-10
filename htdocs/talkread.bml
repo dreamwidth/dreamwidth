@@ -203,12 +203,10 @@ body<=
     #
 
     # See if we should inject QuickReply javascript
-    $remote->preload_props( "opt_no_quickreply" ) if $remote;
-
     LJ::Hooks::run_hooks("need_res_for_journals", $u);
     LJ::need_res( qw( js/thread_expander.js stc/talkpage.css ) );
 
-    if (($remote && !$remote->{'opt_no_quickreply'}) && !$nocomments) {
+    if ( ( $remote && ! $remote->prop( "opt_no_quickreply" ) ) && ! $nocomments ) {
        # quickreply js libs
        LJ::need_res(qw(
                        js/core.js

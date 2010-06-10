@@ -587,11 +587,8 @@ sub get_permission_levels {
     my $u = LJ::want_user(shift);
     return undef unless $u;
 
-    # get the prop
-    $u->preload_props( 'opt_tagpermissions' );
-
     # return defaults for accounts
-    unless ($u->{opt_tagpermissions}) {
+    unless ( $u->prop( 'opt_tagpermissions' ) ) {
         if ( $u->is_community ) {
             # communities are members (trusted) add, private (maintainers) control
             return { add => 'protected', control => 'private' };

@@ -92,9 +92,9 @@ _c?>
 
     # redirect renamed users
     if ( $u->is_redirect ) {
-        $u->preload_props( "renamedto" );
-        return BML::redirect("$LJ::SITEROOT/allpics?user=$u->{'renamedto'}")
-            if $u->{'renamedto'};
+        my $renamedto = $u->prop( "renamedto" );
+        return BML::redirect("$LJ::SITEROOT/allpics?user=$renamedto'}")
+            if $renamedto;
     }
 
     my ($can_manage, $getextra);

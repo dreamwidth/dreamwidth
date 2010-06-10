@@ -61,9 +61,8 @@ sub _load_bcid {
     die "No user" unless LJ::isu( $u );
     return $u->{blob_clusterid} if $u->{blob_clusterid};
 
-    $u->preload_props( "blob_clusterid" );
-    return $u->{blob_clusterid} if $u->{blob_clusterid};
-    die "Couldn't find user $u->{user}'s blob_clusterid\n";
+    return $u->prop( "blob_clusterid" )
+        or die "Couldn't find user $u->{user}'s blob_clusterid\n";
 }
 
 # args: u, domain, fmt, bid

@@ -367,9 +367,8 @@ sub screening_level {
     return $val if $val;
 
     # now return userprop, as it's our last chance
-    $journalu->preload_props( 'opt_whoscreened' );
-    return if $journalu->{opt_whoscreened} eq 'N';
-    return $journalu->{opt_whoscreened};
+    my $userprop = $journalu->prop( 'opt_whoscreened' );
+    return $userprop eq 'N' ? undef : $userprop;
 }
 
 sub update_commentalter {
@@ -2532,9 +2531,8 @@ sub mail_comments {
     # they couldn't have posted if they were.  (and if they did somehow, we're just emailing
     # them, so it shouldn't matter.)
     my $u = $comment->{u};
-    $u->preload_props( 'opt_getselfemail' ) if $u;
-    if ($u && $u->{'opt_getselfemail'} && $u->can_get_self_email
-        && !$u->gets_notified(journal => $journalu, arg1 => $ditemid, arg2 => $comment->{talkid})) {
+    if ( $u && $u->prop( 'opt_getselfemail' ) && $u->can_get_self_email
+        && !$u->gets_notified( journal => $journalu, arg1 => $ditemid, arg2 => $comment->{talkid} ) ) {
         my $part;
 
         # Now we going to send email to '$u'.

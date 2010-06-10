@@ -3293,9 +3293,8 @@ sub _print_quickreply_link
 
     my $page = get_page();
     my $remote = LJ::get_remote();
-    $remote->preload_props( "opt_no_quickreply" ) if $remote;
     my $onclick = "";
-    unless ($remote->{'opt_no_quickreply'}) {
+    unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
         my $pid = (int($target)&&$page->{'_type'} eq 'EntryPage') ? int($target /256) : 0;
 
         $basesubject =~ s/^(Re:\s*)*//i;

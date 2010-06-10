@@ -53,8 +53,7 @@ $maint{joinmail} = sub {
             print "$mid ";
             next unless $mus->{$mid};
             next if $email{$mus->{$mid}{email}}++;
-            $mus->{$mid}->preload_props( 'opt_communityjoinemail' );
-            next unless $mus->{$mid}{opt_communityjoinemail} eq 'D'; # Daily or Digest
+            next unless $mus->{$mid}->prop( 'opt_communityjoinemail' ) eq 'D'; # Daily or Digest
         
             my $body = "Dear $mus->{$mid}{user},\n\n" .
                        "Over the past day or so, $row->[1] request(s) to join the \"$cuser\" community have " .

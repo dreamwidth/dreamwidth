@@ -792,8 +792,7 @@ sub trans
         # under a given username, without sprinkling redirects everywhere.
         my $u = LJ::load_user($user);
         if ( $u && $u->is_redirect && $u->is_renamed ) {
-            $u->preload_props( 'renamedto' );
-            my $renamedto = $u->{'renamedto'};
+            my $renamedto = $u->prop( 'renamedto' );
             if ($renamedto ne '') {
                 my $redirect_url = ($renamedto =~ m!^https?://!) ? $renamedto : LJ::journal_base($renamedto, $vhost) . $uuri . $args_wq;
                 return redir($r, $redirect_url, 301);

@@ -185,8 +185,7 @@ body<=
         $names{$user} = $name;
 
         my $suser = LJ::load_userid( $suserid ) or next;
-        $suser->preload_props( 'url' );
-        $urls{$user} = $suser->{url};
+        $urls{$user} = $suser->prop( 'url' );
 
         # skip suspended/deleted accounts, already watched feeds
         next if $watched{$suserid} || !$suser->is_visible;

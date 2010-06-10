@@ -134,10 +134,8 @@ my %e = (
 sub translate
 {
     my ($u, $msg, $vars) = @_;
-
-    $u->preload_props( "browselang" )
-        unless $u->{'browselang'} || ! LJ::isu( $u );
-    return LJ::Lang::get_text($u->{'browselang'}, "protocol.$msg", undef, $vars);
+    return LJ::Lang::get_text( LJ::isu( $u ) ? $u->prop( "browselang" ) : undef,
+                               "protocol.$msg", undef, $vars );
 }
 
 sub error_class
@@ -1356,8 +1354,7 @@ sub postevent
 
                     next unless $mod->is_visible;
 
-                    $mod->preload_props( 'opt_nomodemail' );
-                    next if $mod->{opt_nomodemail};
+                    next if $mod->prop( 'opt_nomodemail' );
                     next if $mod->{status} ne "A";
 
                     push @emails,
@@ -1878,9 +1875,8 @@ sub editevent
         $qallowmask != $oldevent->{'allowmask'})
     {
         # are they changing their most recent post?
-        $u->preload_props( "newesteventtime" );
-        if ($u->{userid} == $uowner->{userid} &&
-            $u->{newesteventtime} eq $oldevent->{eventtime}) {
+        if ( $u->{userid} == $uowner->{userid} &&
+             $u->prop( "newesteventtime" ) eq $oldevent->{eventtime} ) {
             # did they change the time?
             if ($eventtime ne $oldevent->{eventtime}) {
                 # the newesteventtime is this event's new time.
@@ -2157,10 +2153,9 @@ sub getevents
         # broken client loop prevention
         if ($req->{'lastsync'}) {
             my $pname = "rl_syncitems_getevents_loop";
-            $u->preload_props( $pname );
             # format is:  time/date/time/date/time/date/... so split
             # it into a hash, then delete pairs that are older than an hour
-            my %reqs = split(m!/!, $u->{$pname});
+            my %reqs = split( m!/!, $u->prop( $pname ) );
             foreach (grep { $_ < $now - 60*60 } keys %reqs) { delete $reqs{$_}; }
             my $count = grep { $_ eq $date } values %reqs;
             $reqs{$now} = $date;

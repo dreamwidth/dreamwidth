@@ -72,9 +72,6 @@ sub process {
     $u = LJ::load_user($user);
     return unless $u && $u->is_visible;
 
-    $u->preload_props( 'emailpost_pin' )
-        unless lc( $pin ) eq 'pgp' && $LJ::USE_PGP;
-
     # Pick what address to send potential errors to.
     $addrlist = LJ::Emailpost::get_allowed_senders($u);
     $from = ${(Mail::Address->parse( $head->get('From:') ))[0] || []}[1];
@@ -184,7 +181,8 @@ sub process {
             unless grep { lc($from) eq lc($_) } keys %$addrlist;
 
         return $err->("Unable to locate your PIN.") unless $pin;
-        return $err->("Invalid PIN.") unless lc($pin) eq lc($u->{emailpost_pin});
+        return $err->("Invalid PIN.")
+            unless lc( $pin ) eq lc( $u->prop( 'emailpost_pin' ) );
     }
 
     return $err->("Email gateway access denied for your account type.")
@@ -607,8 +605,7 @@ sub get_entity
 sub check_sig {
     my ($u, $entity, $gpg_err) = @_;
 
-    $u->preload_props( 'public_key' ) if LJ::isu( $u );
-    my $key = $u->{public_key};
+    my $key = LJ::isu( $u ) ? $u->prop( 'public_key' ) : undef;
     return 'no_key' unless $key;
 
     # Create work directory.
