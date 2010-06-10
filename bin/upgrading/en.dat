@@ -1611,7 +1611,7 @@ Options:
 [[siteroot]]
 .
 
-esn.moderated_submission.subject=Moderated submission notification
+esn.moderated_submission.subject2=Moderated submission notification in [[community]]
 
 esn.month.day_apr=April [[day]]
 

@@ -1383,7 +1383,12 @@ sub postevent
                             viewurl     => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}",
                         });
 
-                    my $subject = LJ::Lang::get_text($to->{'browselang'},'esn.moderated_submission.subject');
+                    my $subject = LJ::Lang::get_text(
+                        $to->{'browselang'},
+                        'esn.moderated_submission.subject2', undef,
+                        {
+                            community   => $uowner->{'user'}
+                        });
 
                     LJ::send_mail({
                         'to'        => $to->{to},
