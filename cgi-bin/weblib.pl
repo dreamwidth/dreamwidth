@@ -804,6 +804,8 @@ sub create_qr_div {
             text = window.getSelection();
         }
 
+        text = text.replace(/^\\s+/, '').replace(/\\s+\$/, '');
+
         if (text == '') {
             if (helped != 1 && pasted != 1) {
                 helped = 1; alert("If you'd like to quote a portion of the original message, highlight it then press 'Quote'");
