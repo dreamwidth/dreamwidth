@@ -22,6 +22,11 @@ package LJ::S2Theme::nouveauoleanders::dustyantique;
 use base qw( LJ::S2Theme::modish );
 sub cats { qw() }
 
+package LJ::S2Theme::nouveauoleanders::huntergreen;
+use base qw( LJ::S2Theme::modish );
+sub cats { qw() }
+sub designer { "dancing_serpent" }
+
 package LJ::S2Theme::nouveauoleanders::seaandsalt;
 use base qw( LJ::S2Theme::modish );
 sub cats { qw( featured ) }

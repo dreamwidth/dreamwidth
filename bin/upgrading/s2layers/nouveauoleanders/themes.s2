@@ -204,6 +204,62 @@ set color_module_title = "#fff";
 set color_module_title_background = "#282421";
 
 
+#NEWLAYER: nouveauoleanders/huntergreen
+layerinfo "type" = "theme";
+layerinfo "name" = "Hunter Green";
+layerinfo author_name = "dancing_serpent";
+layerinfo redist_uniq = "nouveauoleanders/huntergreen";
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffffff";
+set color_page_link = "#006600";
+set color_page_link_active = "#b2cc64";
+set color_page_link_hover = "#b2cc64";
+set color_page_link_visited = "#006600";
+set color_page_text = "#000000";
+set color_page_title = "#ffffff";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#003300";
+set color_footer_background = "#003300";
+set color_footer_link = "#ffffff";
+set color_footer_link_active = "#b2cc64";
+set color_footer_link_hover = "#b2cc64";
+set color_footer_link_visited = "#ffffff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#000000";
+set color_entry_link = "#006600";
+set color_entry_link_active = "#b2cc64";
+set color_entry_link_hover = "#b2cc64";
+set color_entry_link_visited = "#006600";
+set color_entry_text = "#000000";
+set color_entry_title = "#000000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#006600";
+set color_module_link = "#ffffff";
+set color_module_link_active = "#b2cc64";
+set color_module_link_hover = "#b2cc64";
+set color_module_link_visited = "#ffffff";
+set color_module_title = "#ffffff";
+
+
 #NEWLAYER: nouveauoleanders/seaandsalt
 layerinfo "type" = "theme";
 layerinfo "name" = "Sea and Salt";
