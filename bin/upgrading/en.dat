@@ -2866,7 +2866,7 @@ setting.xpost.option.footer.vars.url=link to the original post
 setting.xpost.option.footer.vars.reply_url=link to the reply form on the original post
 setting.xpost.option.footer.vars.comment_url=link to view the comments on the original post
 setting.xpost.option.footer.vars.comment_image=image tag that dynamically displays the comment count on the original post
-setting.xpost.option.footer.vars.comment_image.alttext=comment count unavailable
+setting.xpost.option.footer.vars.comment_image.alt=comment count unavailable
 
 setting.xpost.option.footer.when=Add the footer to the post on the other site:
 

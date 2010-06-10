@@ -153,7 +153,7 @@ sub option {
     $ret .= "<div id='preview_section' style='display: none;'>" . $class->ml('setting.xpost.preview') . "\n";
 
     my $baseurl = $LJ::SITEROOT;
-    my $alttext = $class->ml('setting.xpost.option.footer.vars.comment_image.alttext');
+    my $alttext = $class->ml('setting.xpost.option.footer.vars.comment_image.alt');
     my $default_comment = $class->ml('xpost.redirect.comment', { postlink => "%%url%%" });
     
     # the javascript.  we have to do some special magic to get the lengths
