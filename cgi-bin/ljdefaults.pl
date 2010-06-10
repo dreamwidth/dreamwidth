@@ -324,6 +324,9 @@
 
     # default to limit to 2000 results
     $LJ::MAX_DIR_SEARCH_RESULTS ||= 2000;
+
+    # default to limit to 50,000 watch or trust edges to load
+    $LJ::MAX_WT_EDGES_LOAD ||= 50_000;
 }
 
 return 1;

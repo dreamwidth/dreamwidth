@@ -440,7 +440,7 @@ sub circle_users {
 sub trusted_by_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'not a valid user object';
-    my $limit = int(delete $args{limit}) || 50000;
+    my $limit = int(delete $args{limit}) || $LJ::MAX_WT_EDGES_LOAD;
     confess 'unknown option' if %args;
 
     return DW::User::Edges::WatchTrust::Loader::_wt_userids(
@@ -454,7 +454,7 @@ sub trusted_by_userids {
 sub trusted_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'not a valid user object';
-    my $limit = int(delete $args{limit}) || 50000;
+    my $limit = int(delete $args{limit}) || $LJ::MAX_WT_EDGES_LOAD;
     confess 'unknown option' if %args;
 
     return DW::User::Edges::WatchTrust::Loader::_wt_userids(
@@ -468,7 +468,7 @@ sub trusted_userids {
 sub watched_by_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'not a valid user object';
-    my $limit = int(delete $args{limit}) || 50000;
+    my $limit = int(delete $args{limit}) || $LJ::MAX_WT_EDGES_LOAD;
     confess 'unknown option' if %args;
 
     return DW::User::Edges::WatchTrust::Loader::_wt_userids(
@@ -482,7 +482,7 @@ sub watched_by_userids {
 sub watched_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'not a valid user object';
-    my $limit = int(delete $args{limit}) || 50000;
+    my $limit = int(delete $args{limit}) || $LJ::MAX_WT_EDGES_LOAD;
     confess 'unknown option' if %args;
 
     return DW::User::Edges::WatchTrust::Loader::_wt_userids(

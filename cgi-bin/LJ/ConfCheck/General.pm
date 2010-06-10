@@ -248,6 +248,11 @@ add_conf('$MAX_FRIENDOF_LOAD',
          des => "The maximum number of friend-ofs ('fans'/'followers') to load for a given user.  Defaults to 5000.  Beyond that, a user is just too popular and saying 5,000 is usually sufficient because people aren't actually reading the list.",
          );
 
+add_conf('$MAX_WT_EDGES_LOAD',
+        type => 'int'
+        des => "The maximum number of users to load for watch/trust edges when we can afford to be sloppy about the results returned. It is possible to override this limit to get the full list, but most of the time, you won't need to. Defaults to 50,000.",
+        );
+
 add_conf('$MAX_SCROLLBACK_LASTN',
          type => 'int',
          des => "The recent items (lastn view)'s max scrollback depth.  That is, how far you can skip back with the ?skip= URL argument.  Defaults to 100.  After that, the 'previous' links go to day views, which are stable URLs.  ?skip= URLs aren't stable, and there are inefficiencies making this value too large, so you're advised to not go too far above the default of 100.",
