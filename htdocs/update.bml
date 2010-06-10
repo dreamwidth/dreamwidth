@@ -518,8 +518,18 @@ _c?>
                     my @after_entry_post_extra_options = LJ::Hooks::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
                     my $after_entry_post_extra_options = join('', map {$_->[0]} @after_entry_post_extra_options) || '';
 
+                    my $backdatedlink = '';
+                    if ( $POST{prop_opt_backdated} or $GET{prop_opt_backdated} ) {
+                        # we have to do some gymnastics to figure out the entry date
+                        my $e = LJ::Entry->new_from_url( $itemlink );
+                        my ( $y, $m, $d ) = ( $e->{eventtime} =~ /^(\d+)-(\d+)-(\d+)/ );
+                        my $url = $ju->journal_base . "/$y/$m/$d/";
+                        $backdatedlink = "<li><a href=\"$url\">"
+                                       . "$ML{'.success.links.backdated'}</a></li>";
+                    }
+
                     $$body .= " p?><?p $ML{'.success.links'} p?><ul>" . $writersblocklink .
-                        "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" .
+                        "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" . $backdatedlink .
                         "<li><a href=\"$edititemlink\">$ML{'.success.links.edit'}</a></li>" .
                         "<li><a href=\"/tools/memadd?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
                         "<li><a href=\"/edittags?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .

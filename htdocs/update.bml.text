@@ -109,6 +109,8 @@
 
 .success.links=Now that you've posted, you can:
 
+.success.links.backdated=View all entries from the same date
+
 .success.links.edit=Edit the entry
 
 .success.links.memories=Add the entry to your memories
