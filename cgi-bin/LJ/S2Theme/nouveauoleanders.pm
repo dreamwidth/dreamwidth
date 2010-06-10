@@ -6,29 +6,29 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
-package LJ::S2Theme::nouveauoleanders::sienna;
-use base qw( LJ::S2Theme::modish );
-sub cats { qw( base ) }
-
-package LJ::S2Theme::nouveauoleanders::piquant;
-use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
-
-package LJ::S2Theme::nouveauoleanders::wisteria;
-use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
-
 package LJ::S2Theme::nouveauoleanders::dustyantique;
-use base qw( LJ::S2Theme::modish );
+use base qw( LJ::S2Theme::nouveauoleanders );
 sub cats { qw() }
 
 package LJ::S2Theme::nouveauoleanders::huntergreen;
-use base qw( LJ::S2Theme::modish );
+use base qw( LJ::S2Theme::nouveauoleanders );
 sub cats { qw() }
 sub designer { "dancing_serpent" }
 
+package LJ::S2Theme::nouveauoleanders::piquant;
+use base qw( LJ::S2Theme::nouveauoleanders );
+sub cats { qw() }
+
 package LJ::S2Theme::nouveauoleanders::seaandsalt;
-use base qw( LJ::S2Theme::modish );
+use base qw( LJ::S2Theme::nouveauoleanders );
 sub cats { qw( featured ) }
+
+package LJ::S2Theme::nouveauoleanders::sienna;
+use base qw( LJ::S2Theme::nouveauoleanders );
+sub cats { qw( base ) }
+
+package LJ::S2Theme::nouveauoleanders::wisteria;
+use base qw( LJ::S2Theme::nouveauoleanders );
+sub cats { qw() }
 
 1;
