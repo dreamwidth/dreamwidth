@@ -430,6 +430,7 @@ sub process {
     # are used.
     $props->{taglist} = $post_headers{tags};
     $props->{picture_keyword} = $post_headers{'userpic'} ||
+                                $post_headers{'icon'} ||
                                 $u->{'emailpost_userpic'};
     if (my $id = LJ::mood_id($post_headers{'mood'})) {
         $props->{current_moodid}   = $id;

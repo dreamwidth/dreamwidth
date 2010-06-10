@@ -188,7 +188,7 @@ body<=
                     $to_pin
                     $from
                     $subject
-                    <b>post-userpic:</b> $ML{'.help.headers.options.userpic.example'}<br />
+                    <b>post-icon:</b> $ML{'.help.headers.options.userpic.example'}<br />
                     <b>post-tags:</b> $ML{'.help.headers.options.tags.example'}<br />
                     <b>post-mood:</b> $ML{'.help.headers.options.mood.example'}<br />
                     <b>post-music:</b> $ML{'.help.headers.options.music.example'}<br />
@@ -209,7 +209,7 @@ body<=
                     <div style="margin-left:40px">$ML{'.help.headers.security.private.desc'}</div><br />
                     </div>
                     <div style="margin-left:40px">
-                    <b>post-security:</b> friends<br />
+                    <b>post-security:</b> access (or friends)<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.friends.desc'}</div><br />
                     </div>
                     <div style="margin-left:40px">
