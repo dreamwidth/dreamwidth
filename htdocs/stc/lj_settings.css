@@ -4,16 +4,19 @@
 
 .field_block {
     margin: 5px 0px 5px 0px;
+    border-bottom: 3px ridge #fff;
 }
 
 .field_block td {
     vertical-align: top;
     padding-top: .3em;
     padding-bottom: .3em;
+    padding-left: 5px;
 }
 
 .field_name {
     padding-right: 5px;
+    padding-left: 2px;
     white-space: nowrap;
     font-size: .9em;
     font-weight: bold;
@@ -27,6 +30,7 @@
 
 .helper {
     font-size: 0.8em;
+    padding-right: 3em;
 }
 
 .helper li {
@@ -49,9 +53,33 @@
 	background: #ccc;
 }
 
+.section_head td {
+    padding: 5px;
+}
+
+.section_subhead {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-top: 5px;
+    background: #eee;
+    border-bottom: 3px ridge #fff;
+}
+
+.section_subhead td {
+    padding: 3px 5px;
+}
+
+.selectvis label {
+    font-size: 10px;
+}
+
+.selectvis select {
+    width: 15em;
+}
+
 .view_options {
     margin-left: 20px;
-    font-size: .7em;
+    font-size: smaller;
     font-weight: bold;
 }
 

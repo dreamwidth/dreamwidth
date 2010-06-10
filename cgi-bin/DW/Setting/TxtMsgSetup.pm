@@ -51,6 +51,7 @@ sub option {
 
         $ret .= LJ::html_text( { name => "${key}txtmsg_number",
                                  id   => "${key}txtmsg_number",
+                                 title => $class->ml( 'setting.txtmsgsetup.phone' ),
                                  value => $number,
                                  size => 15, maxlength => 40 } );
 
@@ -79,6 +80,12 @@ sub option {
     }
     return $ret if $args && $args->{info_only};
 
+    unless ( $args && $args->{vis_only} ) {
+        $ret .= "<label for='${key}txtmsg_security'>";
+        $ret .= $class->ml( 'setting.txtmsgsetup.vis' );
+        $ret .= "</label> ";
+    }
+
     $tminfo->{security} = 'none'
         if $u->{'txtmsg_status'} =~ /^(?:off|none)$/;
     my $security = $class->get_arg( $args, "txtmsg_security" ) || $tminfo->{security};
@@ -90,12 +97,9 @@ sub option {
         none    => $class->ml( "settings.usermessaging.opt.n" ),
     );
 
-    $ret .= "<label for='${key}txtmsg_security'>";
-    $ret .= $class->ml( 'setting.txtmsgsetup.vis' );
-    $ret .= "</label> ";
-
     $ret .= LJ::html_select( { name => "${key}txtmsg_security",
                                id   => "${key}txtmsg_security",
+                               title => $class->ml( 'setting.txtmsgsetup.vis' ),
                                selected => $security },
                              @opts );
 

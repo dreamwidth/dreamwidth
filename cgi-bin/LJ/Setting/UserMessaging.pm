@@ -18,7 +18,19 @@ use warnings;
 
 sub tags { qw(email message contact) }
 
-sub as_html {
+sub should_render {
+    my ( $class, $u ) = @_;
+    return $u->is_person && LJ::is_enabled( 'user_messaging' );
+}
+
+sub label {
+    my $class = shift;
+    return $class->ml( 'settings.usermessaging.label',
+                       { siteabbrev => $LJ::SITENAMEABBREV }
+                     );
+}
+
+sub option {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
     my $ret;
@@ -26,18 +38,16 @@ sub as_html {
 
     $ret .= "<label for='${key}opt_usermsg'>" . $class->ml('settings.usermessaging.question') . "</label>"
         unless $args && $args->{minimal_display};
-    $ret .= LJ::html_select({ 'name' => "${key}opt_usermsg",
-                              'id' => "${key}opt_usermsg",
-                              'class' => "select",
-                              'selected' => $u->opt_usermsg },
-                              { text => LJ::Lang::ml('settings.usermessaging.opt.Y'),
-                                value => "Y",},
-                              { text => LJ::Lang::ml('settings.usermessaging.opt.F'),
-                                value => "F",},
-                              { text => LJ::Lang::ml('settings.usermessaging.opt.M'),
-                                value => "M",},
-                              { text => LJ::Lang::ml('settings.usermessaging.opt.N'),
-                                value => "N",});
+    $ret .= LJ::html_select( { name => "${key}opt_usermsg",
+                               id => "${key}opt_usermsg",
+                               class => "select",
+                               title => $class->label,
+                               selected => $u->opt_usermsg },
+                             Y => LJ::Lang::ml('settings.usermessaging.opt.Y'),
+                             F => LJ::Lang::ml('settings.usermessaging.opt.F'),
+                             M => LJ::Lang::ml('settings.usermessaging.opt.M'),
+                             N => LJ::Lang::ml('settings.usermessaging.opt.N'),
+                           );
     $ret .= "<div class='helper'>" .
             $class->ml('settings.usermessaging.helper', {
                 sitename => $LJ::SITENAMESHORT }) .

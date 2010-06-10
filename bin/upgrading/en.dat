@@ -2971,6 +2971,8 @@ settings.usermessaging.error.invalid=Invalid Option
 
 settings.usermessaging.helper=Only registered [[sitename]] users can send you messages. You also have options to receive messages only from users on your access list.
 
+settings.usermessaging.label=[[siteabbrev]] Private Messages
+
 settings.usermessaging.opt.a=Everyone
 
 settings.usermessaging.opt.f=Access Only

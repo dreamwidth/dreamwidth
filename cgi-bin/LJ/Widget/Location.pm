@@ -71,13 +71,14 @@ sub render_body {
 
         $ret .= "<tr><td class='field_class'>" . $class->ml('widget.location.fn.country') . "</td><td>";
     }
-    $ret .= $class->html_select('id'        => 'country_choice',
-                                'name'      => 'country',
-                                'selected'  => $effective_country,
-                                'class'     => 'country_choice_select',
-                                'list'      => $country_options,
-                                %{$opts{'country_input_attributes'} or {} },
-                                );
+    $ret .= $class->html_select( id        => 'country_choice',
+                                 name      => 'country',
+                                 title     => $class->ml( 'widget.location.fn.country' ),
+                                 selected  => $effective_country,
+                                 class     => 'country_choice_select',
+                                 list      => $country_options,
+                                 %{ $opts{'country_input_attributes'} or {} },
+                               );
     if ($minimal_display) {
         $ret .= " ";
     } else {
@@ -87,13 +88,14 @@ sub render_body {
     }
 
     # state
-    $ret .= $class->html_select('id' => 'reloadable_states',
-                                'name' => 'statedrop',
-                                'selected' => ($regions_cfg ? $effective_state : ''),
-                                'list' => $state_options,
-                                'style' => 'display:' . ($regions_cfg ? 'inline' : 'none'),
-                                %{$opts{'state_inputselect_attributes'} or {} },
-                                );
+    $ret .= $class->html_select( id => 'reloadable_states',
+                                 name => 'statedrop',
+                                 title     => $class->ml( 'widget.location.fn.state' ),
+                                 selected => ( $regions_cfg ? $effective_state : '' ),
+                                 list => $state_options,
+                                 style => 'display:' . ( $regions_cfg ? 'inline' : 'none' ),
+                                 %{ $opts{'state_inputselect_attributes'} or {} },
+                               );
     # other state?
     my $state_val = "";
     my $state_inline_color = "";
@@ -118,7 +120,7 @@ sub render_body {
                               'style' => 'display:' . ($regions_cfg ? 'none' : 'inline') . ";$state_inline_color",
                               'maxlength' => '50',
                               %minimal_display_state_attrs,
-                               %{$opts{'state_inputtext_attributes'} or {} },
+                               %{ $opts{'state_inputtext_attributes'} or {} },
                               );
     $ret .= "</span>";
 
@@ -146,14 +148,15 @@ sub render_body {
         }
 
         $ret .= "<tr><td class='field_class'>" . $class->ml('widget.location.fn.zip') . "</td><td>" unless $minimal_display;
-        $ret .= $class->html_text('id' => 'zip',
-                                  'name' => 'zip',
-                                  'value' => $zip_val,
-                                  'size' => '6', 'maxlength' => '5',
-                                  'disabled' => $minimal_display || $effective_country eq 'US' ? '' : 'disabled',
-                                  'style' => "display: " . ($minimal_display && $effective_country ne 'US' ? "none" : "inline") . ";$zip_inline_color",
-                                  %minimal_display_zip_attrs,
-                                  );
+        $ret .= $class->html_text( id => 'zip',
+                                   name => 'zip',
+                                   title => $class->ml( 'widget.location.fn.zip' ),
+                                   value => $zip_val,
+                                   size => '6', maxlength => '5',
+                                   disabled => $minimal_display || $effective_country eq 'US' ? '' : 'disabled',
+                                   style => "display: " . ( $minimal_display && $effective_country ne 'US' ? "none" : "inline" ) . ";$zip_inline_color",
+                                   %minimal_display_zip_attrs,
+                                 );
         $ret .= " <span class='helper'>(" . $class->ml('widget.location.zip.usonly') . ")</span></td></tr>\n" unless $minimal_display;
     }
 
@@ -172,15 +175,16 @@ sub render_body {
         }
 
         $ret .= "<tr><td class='field_class'>" . $class->ml('widget.location.fn.city') . "</td><td>" unless $minimal_display;
-        $ret .= $class->html_text('id' => 'city',
-                                  'name' => 'city',
-                                  'value' => $city_val,
-                                  'size' => '20',
-                                  'maxlength' => '255',
-                                  'style' => "display: " . ($minimal_display && $effective_country eq 'US' ? "none" : "inline") . ";$city_inline_color",
-                                  %minimal_display_city_attrs,
-                                   %{$opts{'state_input_attributes'} or {} },
-                                  );
+        $ret .= $class->html_text( id => 'city',
+                                   name => 'city',
+                                   title => $class->ml( 'widget.location.fn.city' ),
+                                   value => $city_val,
+                                   size => '20',
+                                   maxlength => '255',
+                                   style => "display: " . ($minimal_display && $effective_country eq 'US' ? "none" : "inline") . ";$city_inline_color",
+                                   %minimal_display_city_attrs,
+                                   %{ $opts{'state_input_attributes'} or {} },
+                                 );
         $ret .= "</td></tr>\n" unless $minimal_display;
     }
 
@@ -192,15 +196,16 @@ sub render_body {
             my $usmap = { map { $_ => $map->{$_} } grep { m!^US/! && $_ ne "US/Pacific-New" } keys %$map };
             my $camap = { map { $_ => $map->{$_} } grep { m!^Canada/! } keys %$map };
 
-            $ret .= $class->html_select('name' => 'timezone',
-                                        'selected' => $u->{'timezone'},
-                                        'list' => [
+            $ret .= $class->html_select( name => 'timezone',
+                                         selected => $u->{'timezone'},
+                                         title => $class->ml( 'widget.location.fn.timezone' ),
+                                         list => [
                                             "", $class->ml('widget.location.timezone.select'),
                                             (map { $usmap->{$_}, $_ } sort keys %$usmap),
                                             (map { $camap->{$_}, $_ } sort keys %$camap),
                                             map { $_, $_ } DateTime::TimeZone::all_names()
-                                        ]
-                                        );
+                                         ]
+                                       );
         }
         $ret .= "</td></tr>\n" unless $minimal_display;
     }

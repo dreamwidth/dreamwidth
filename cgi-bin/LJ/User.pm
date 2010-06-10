@@ -4435,9 +4435,10 @@ sub interest_list {
 
 # return hashref with intname => intid
 sub interests {
-    my $u = shift;
+    my ( $u, $opts ) = @_;
     return undef unless LJ::isu( $u );
-    my $uints = $u->get_interests();
+    delete $opts->{justids} if $opts && ref $opts;
+    my $uints = $u->get_interests( $opts );
     my %interests;
 
     foreach my $int (@$uints) {
