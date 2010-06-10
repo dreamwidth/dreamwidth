@@ -49,51 +49,51 @@ body<=
     return LJ::error_list("Invalid entry") unless $entry && $entry->valid;
     return LJ::error_list("You are not authorized to subscribe to this entry.") unless $entry->visible_to($remote);
 
-    my $categories = [{
-        'Track' => [
-                    LJ::Subscription::Pending->new(
-                                                   $remote,
-                                                   event   => "JournalNewComment",
-                                                   arg1    => $ditemid,
-                                                   journal => $journal,
-                                                   default_selected => 1,
-                                                   flags   => LJ::Subscription::TRACKING,
-                                                   ),
-                    ],
-                }];
+    my $cat_title = 'Track Entry';
+    my $categories =
+        [
+            { $cat_title =>
+                [
+                    LJ::Subscription::Pending->new( $remote,
+                        event   => "JournalNewComment",
+                        arg1    => $ditemid,
+                        journal => $journal,
+                        default_selected => 1,
+                        flags   => LJ::Subscription::TRACKING,
+                    ),
+                ],
+            }
+        ];
 
     # only administrators of a community and members of a paid community 
     # should be given the option to track all comments on another journal
-    push @{@$categories[0]->{Track}},
-        LJ::Subscription::Pending->new(
-                                       $remote,
-                                       event   => "JournalNewComment",
-                                       journal => $journal,
-                                       flags   => LJ::Subscription::TRACKING,
-                                       ) if $remote->can_track_all_community_comments ( $journal );
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewComment",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        ) if $remote->can_track_all_community_comments( $journal );
 
-    push @{@$categories[0]->{Track}},
-        LJ::Subscription::Pending->new(
-                                       $remote,
-                                       event   => "JournalNewEntry",
-                                       arg1    => '?',
-                                       journal => $journal,
-                                       flags   => LJ::Subscription::TRACKING,
-                                       ),
-        LJ::Subscription::Pending->new(
-                                       $remote,
-                                       event   => "JournalNewEntry",
-                                       journal => $journal,
-                                       flags   => LJ::Subscription::TRACKING,
-                                       );
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewEntry",
+            arg1    => '?',
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        ),
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewEntry",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        );
 
-    $body .= LJ::subscribe_interface($remote,
-                                     journal      => $journal,
-                                     categories   => $categories,
-                                     ret_url      => $entry->url,
-                                     default_selected_notifications => ['LJ::NotificationMethod::Email'],
-                                     post_to_settings_page => 1,
-                                     );
+    $body .= LJ::subscribe_interface( $remote,
+                 journal      => $journal,
+                 categories   => $categories,
+                 ret_url      => $entry->url,
+                 default_selected_notifications => ['LJ::NotificationMethod::Email'],
+                 post_to_settings_page => 1,
+             );
 
     return $body;
 }

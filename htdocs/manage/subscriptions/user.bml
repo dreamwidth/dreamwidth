@@ -40,67 +40,60 @@ body<=
     return BML::redirect("$LJ::SITEROOT/manage/subscriptions/") if LJ::u_equals($remote, $journal);
 
     # what classes to display on this page
-    my $categories = [
-                      {
-                          "" => [
-                                      LJ::Subscription::Pending->new(
-                                                                     $remote,
-                                                                     event   => "JournalNewEntry",
-                                                                     arg1    => '?',
-                                                                     journal => $journal,
-                                                                     flags   => LJ::Subscription::TRACKING,
-                                                                     ),
-                                      LJ::Subscription::Pending->new(
-                                                                     $remote,
-                                                                     event   => "JournalNewEntry",
-                                                                     journal => $journal,
-                                                                     flags   => LJ::Subscription::TRACKING,
-                                                                     ),
-                                      ]
-                                  },
-                      ];
+    my $cat_title = 'Track User';
+    my $categories =
+        [
+            { $cat_title =>
+                [
+                    LJ::Subscription::Pending->new( $remote,
+                        event   => "JournalNewEntry",
+                        arg1    => '?',
+                        journal => $journal,
+                        flags   => LJ::Subscription::TRACKING,
+                    ),
+                    LJ::Subscription::Pending->new( $remote,
+                        event   => "JournalNewEntry",
+                        journal => $journal,
+                        flags   => LJ::Subscription::TRACKING,
+                    ),
+                ]
+            },
+        ];
 
-
-    unless (LJ::User->is_protected_username($journal->user)) {
-        push @{@$categories[0]->{""}}, LJ::Subscription::Pending->new(
-                                                                      $remote,
-                                                                      event   => "UserExpunged",
-                                                                      journal => $journal,
-                                                                      flags   => LJ::Subscription::TRACKING,
-                                                                      );
-    }
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "UserExpunged",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        ) unless LJ::User->is_protected_username( $journal->user );
 
     # only administrators of a community and members of a paid community 
     # should be given the option to track all comments on another journal
-    push @{@$categories[0]->{""}},
-        LJ::Subscription::Pending->new(
-                                       $remote,
-                                       event   => "JournalNewComment",
-                                       journal => $journal,
-                                       flags   => LJ::Subscription::TRACKING,
-                                       ) if $remote->can_track_all_community_comments ( $journal );
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewComment",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        ) if $remote->can_track_all_community_comments( $journal );
     
-    push @{@$categories[0]->{""}},
-        LJ::Subscription::Pending->new(
-                                       $remote,
-                                       event    => "NewUserpic",
-                                       journal  => $journal,
-                                       flags    => LJ::Subscription::TRACKING,
-                                       disabled => ! $remote->can_track_new_userpic,
-                                       ),
-        LJ::Subscription::Pending->new(
-                                       $remote,
-                                       event   => "Birthday",
-                                       journal => $journal,
-                                       flags   => LJ::Subscription::TRACKING,
-                                       );
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event    => "NewUserpic",
+            journal  => $journal,
+            flags    => LJ::Subscription::TRACKING,
+            disabled => ! $remote->can_track_new_userpic,
+        ),
+        LJ::Subscription::Pending->new( $remote,
+            event   => "Birthday",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        );
 
-    return LJ::subscribe_interface(
-                                   $remote,
-                                   categories => $categories,
-                                   journal    => $journal,
-                                   post_to_settings_page => 1,
-                                   );
+    return LJ::subscribe_interface( $remote,
+        categories => $categories,
+        journal    => $journal,
+        post_to_settings_page => 1,
+    );
 
 }
 _code?>
