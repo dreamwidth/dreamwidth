@@ -121,10 +121,17 @@ body<=
     }
 
     # hop out if there were no invites
-    unless (%users) {
+    unless ( %users ) {
+        # display a different message depending on what category of invitations we're looking for
         return "$ret<?h1 $ML{'.none.title'} h1?><?p " .
-               BML::ml('.none.body', { aopts => "href='/community/members?authas=$c->{user}'" }) .
-               " p?>";
+            BML::ml( '.none.'.$GET{show}.'.body', { aopts => "href='/community/members?authas=$c->{user}'" } ) .
+            " p?>"
+            if ( $GET{show} eq 'accepted' || $GET{show} eq 'rejected' || $GET{show} eq 'outstanding' );
+
+        # return with a general message if we didn't match one of the above special cases
+        return "$ret<?h1 $ML{'.none.title'} h1?><?p " .
+            BML::ml( '.none.body', { aopts => "href='/community/members?authas=$c->{user}'" } ) .
+            " p?>";
     }
     
     # sorting method;
