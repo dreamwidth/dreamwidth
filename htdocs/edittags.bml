@@ -53,16 +53,6 @@ body<=
     return $err->( $ML{'.invalid.notauthorized'} )
         unless $ent->visible_to( $remote );
 
-    # poster must be visible too
-    if ($logrow->{posterid} != $u->{userid}) {
-        my $pu = LJ::load_userid($logrow->{posterid});
-
-        unless ($remote->can_manage($u) && !$pu->is_suspended) {
-            return $err->($ML{'.readonly.poster'}) if $pu->is_readonly;
-            return $err->($ML{'.invalid.journal'}) unless $pu->is_visible;
-        }
-    }
-
     if (LJ::did_post()) {
         return $err->($ML{'.invalid.link'})
             unless LJ::check_form_auth();
