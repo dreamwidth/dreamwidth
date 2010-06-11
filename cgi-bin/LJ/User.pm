@@ -1098,6 +1098,16 @@ sub record_login {
 }
 
 
+sub redirect_rename {
+    my ( $u, $uri ) = @_;
+    return undef unless $u->is_redirect;
+    my $renamedto = $u->prop( 'renamedto' ) or return undef;
+    my $ru = LJ::load_user( $renamedto ) or return undef;
+    $uri ||= '';
+    return BML::redirect( $ru->journal_base . $uri );
+}
+
+
 # my $sess = $u->session           (returns current session)
 # my $sess = $u->session($sessid)  (returns given session id for user)
 sub session {
