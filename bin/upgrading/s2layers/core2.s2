@@ -925,6 +925,9 @@ function builtin viewer_is_member() : bool
 function builtin viewer_can_search() : bool
 "Returns true if the user viewing the page is logged in and can search that journal.";
 
+function builtin viewer_can_manage_tags() : bool
+"Returns true if the user viewing the page can add, edit, and delete tags on the journal being viewed.";
+
 function builtin viewer_sees_control_strip [fixed] : bool
 "Returns true if reader will see the built in control strip.";
 
@@ -3389,10 +3392,10 @@ function server_sig()
     """<span id="site-branding">$*text_powered_by <a href="$*SITEROOT/">$*SITENAME</a></span>""";
 }
 
-function print_tag_manage_link() "Prints out a link to the tag management page, if the viewer is the owner of the journal in question.  Does not work on community pages."
+function print_tag_manage_link() "Prints out a link to the tag management page, if the viewer can manage tags."
 {
     var Page p = get_page();
-    print viewer_is_owner() ? "<div class=\"manage-tags-link\"><a href=\"" + $p.journal->tag_manage_url() + "\">$*text_tags_manage</a></div>" : "";
+    print viewer_can_manage_tags() ? "<div class=\"manage-tags-link\"><a href=\"" + $p.journal->tag_manage_url() + "\">$*text_tags_manage</a></div>" : "";
 }
 
 function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to full text"

@@ -5446,6 +5446,12 @@ sub can_add_tags_to {
     return LJ::Tags::can_add_tags($targetu, $u);
 }
 
+# can $u control (add, delete, edit) the tags of $targetu?
+sub can_control_tags {
+   my ($u, $targetu) = @_;
+
+   return LJ::Tags::can_control_tags($targetu, $u);
+}
 
 # <LJFUNC>
 # name: LJ::User::get_keyword_id

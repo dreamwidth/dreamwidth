@@ -2638,6 +2638,17 @@ sub viewer_is_moderator {
     return LJ::check_rel( $ju, $remote, 'M' );
 }
 
+sub viewer_can_manage_tags
+{
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return 1;
+    return $remote->can_control_tags( $ju );
+}
+
 sub viewer_sees_control_strip
 {
     return 0 unless $LJ::USE_CONTROL_STRIP;
