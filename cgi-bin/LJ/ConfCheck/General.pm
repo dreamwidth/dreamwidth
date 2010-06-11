@@ -249,7 +249,7 @@ add_conf('$MAX_FRIENDOF_LOAD',
          );
 
 add_conf('$MAX_WT_EDGES_LOAD',
-        type => 'int'
+        type => 'int',
         des => "The maximum number of users to load for watch/trust edges when we can afford to be sloppy about the results returned. It is possible to override this limit to get the full list, but most of the time, you won't need to. Defaults to 50,000.",
         );
 
