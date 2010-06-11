@@ -47,7 +47,13 @@ sub _add_m_edge {
     return 0 unless $from_u->can_join( $to_u, moderated_add => $member_edge->{moderated_add} ? 1 : 0 );
 
     # simply add the reluser edge
-    LJ::set_rel( $to_u, $from_u, 'E' );
+    my $rv = LJ::set_rel( $to_u, $from_u, 'E' );
+
+    # delete memcache key for community reading pages
+    LJ::memcache_kill( $to_u, 'c_wt_list' );
+
+    # success?
+    return $rv;
 }
 
 # internal method to delete an edge
@@ -63,6 +69,9 @@ sub _del_m_edge {
     # now remove it; note we don't do any extraneous checking.  if the user
     # wants to remove an edge that doesn't exist?  more power to them.
     LJ::clear_rel( $to_u, $from_u, 'E' );
+
+    # delete memcache key for community reading pages
+    LJ::memcache_kill( $to_u, 'c_wt_list' );
 
     # success!
     return 1;
