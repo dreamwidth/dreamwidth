@@ -2645,7 +2645,6 @@ sub viewer_can_manage_tags
     return 0 unless defined $LJ::S2::CURR_PAGE;
 
     my $ju = $LJ::S2::CURR_PAGE->{_u};
-    return 1;
     return $remote->can_control_tags( $ju );
 }
 
