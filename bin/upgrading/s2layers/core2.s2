@@ -419,6 +419,7 @@ class Comment extends EntryLite
     var readonly bool screened "True if comment is in screened state.";
     var readonly bool frozen "True if comment is in frozen state.";
     var readonly bool deleted "True if comment has been deleted. Deleted comments still show up if they are the parent of a thread.";
+    var readonly bool fromsuspended "True if comment's author has been suspended.";
     var readonly string anchor "Direct link to comment, via HTML name anchors";
     var readonly bool comment_posted "True if comment was just posted by the current user.";
     var readonly bool edited "True if the comment has been edited.";
@@ -2555,6 +2556,16 @@ property string text_screened {
    example = "(screened) ";
 }
 
+property string text_deleted {
+   des = "The text used when a comment has been deleted";
+   example = "(deleted comment)";
+}
+
+property string text_fromsuspended {
+   des = "The text used when the comment's author has been suspended";
+   example = "(reply from suspended user)";
+}
+
 property string text_frozen {
    des = "The text used when a comment is frozen";
    example = "(frozen) ";
@@ -2592,6 +2603,8 @@ property string text_reply_nocomments {
 property string text_website_default_name { noui = 1; des = "If an account's website is specified, but there's no website name, use this text instead"; }
 
 set text_screened = "(screened) ";
+set text_deleted = "(deleted comment)";
+set text_fromsuspended = "(reply from suspended user)";
 set text_frozen = "(frozen) ";
 set text_poster_anonymous = "(Anonymous)";
 set text_openid_from = "from";
@@ -5292,12 +5305,16 @@ function EntryPage::print_comment (Comment c) {
 
 function EntryPage::print_comment_partial (Comment c) {
     $c->print_wrapper_start();
-    var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
-    $c->print_subject();
-    print safe " - $poster";
-    var Link expand_link = $c->get_link("expand_comments");
-    if (defined $expand_link) {
-        " "; $c->print_expand_link();
+    if ($c.deleted) { print $*text_deleted; }
+    elseif ($c.fromsuspended) { print $*text_fromsuspended; }
+    else {
+        var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
+        $c->print_subject();
+        print safe " - $poster";
+        var Link expand_link = $c->get_link("expand_comments");
+        if (defined $expand_link) {
+            " "; $c->print_expand_link();
+        }
     }
     $c->print_wrapper_end();
 }
