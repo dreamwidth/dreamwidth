@@ -40,8 +40,8 @@ head<=
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
     <?_code
-        LJ::need_res( "stc/lj_base-app.css" );
-        LJ::need_res( "stc/gradation/gradation.css" );
+        LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY }, "stc/lj_base-app.css" );
+        LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY }, "stc/gradation/gradation.css" );
 
     _code?>
     <?_code LJ::res_includes(); _code?>

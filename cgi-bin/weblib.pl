@@ -2399,6 +2399,9 @@ sub need_res {
 
     my $group = $opts{group};
 
+    # higher priority means it comes first in the ordering
+    my $priority = $opts{priority} || 0;
+
     foreach my $reskey (@_) {
         die "Bogus reskey $reskey" unless $reskey =~ m!^(js|stc)/!;
 
@@ -2406,7 +2409,9 @@ sub need_res {
         # since we need CSS everywhere and we are switching JS groups
         my $lgroup = $group || ( $reskey =~ /^js/ ? 'default' : 'all' );
         unless ($LJ::NEEDED_RES{$lgroup}->{$reskey}++) {
-            push @LJ::NEEDED_RES, [ $lgroup, $reskey ];
+            $LJ::NEEDED_RES[$priority] ||= [];
+
+            push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $reskey ];
         }
     }
 }
@@ -2515,39 +2520,42 @@ sub res_includes {
         $oldest{$type} = $modtime if $modtime > $oldest{$type};
     };
 
-    foreach my $resrow (@LJ::NEEDED_RES) {
+    foreach my $by_priority ( reverse @LJ::NEEDED_RES ) {
+        next unless $by_priority;
 
-        # determine if this resource is part of the resource group that is active;
-        # or 'default' if no group explicitly active
-        my ( $group, $key ) = @$resrow;
-        next if
-            $group ne 'all' &&
-            ( ( defined $LJ::ACTIVE_RES_GROUP && $group ne $LJ::ACTIVE_RES_GROUP ) ||
-              ( ! defined $LJ::ACTIVE_RES_GROUP && $group ne 'default' ) );
-
-        my $path;
-        my $mtime = _file_modtime($key, $now);
-        if ($key =~ m!^stc/fck/! || $LJ::FORCE_WSTAT{$key}) {
-            $path = "w$key";  # wstc/ instead of stc/
-        } else {
-            $path = $key;
-        }
-
-        # if we want to also include a local version of this file, include that too
-        if (@LJ::USE_LOCAL_RES) {
-            if (grep { lc $_ eq lc $key } @LJ::USE_LOCAL_RES) {
-                my $inc = $key;
-                $inc =~ s/(\w+)\.(\w+)$/$1-local.$2/;
-                LJ::need_res($inc);
+        foreach my $resrow ( @$by_priority ) {
+            # determine if this resource is part of the resource group that is active;
+            # or 'default' if no group explicitly active
+            my ( $group, $key ) = @$resrow;
+            next if
+                $group ne 'all' &&
+                ( ( defined $LJ::ACTIVE_RES_GROUP && $group ne $LJ::ACTIVE_RES_GROUP ) ||
+                  ( ! defined $LJ::ACTIVE_RES_GROUP && $group ne 'default' ) );
+    
+            my $path;
+            my $mtime = _file_modtime($key, $now);
+            if ($key =~ m!^stc/fck/! || $LJ::FORCE_WSTAT{$key}) {
+                $path = "w$key";  # wstc/ instead of stc/
+            } else {
+                $path = $key;
             }
-        }
-
-        if ($path =~ m!^js/(.+)!) {
-            $add->('js', $1, $mtime);
-        } elsif ($path =~ /\.css$/ && $path =~ m!^(w?)stc/(.+)!) {
-            $add->("${1}stccss", $2, $mtime);
-        } elsif ($path =~ /\.js$/ && $path =~ m!^(w?)stc/(.+)!) {
-            $add->("${1}stcjs", $2, $mtime);
+    
+            # if we want to also include a local version of this file, include that too
+            if (@LJ::USE_LOCAL_RES) {
+                if (grep { lc $_ eq lc $key } @LJ::USE_LOCAL_RES) {
+                    my $inc = $key;
+                    $inc =~ s/(\w+)\.(\w+)$/$1-local.$2/;
+                    LJ::need_res($inc);
+                }
+            }
+    
+            if ($path =~ m!^js/(.+)!) {
+                $add->('js', $1, $mtime);
+            } elsif ($path =~ /\.css$/ && $path =~ m!^(w?)stc/(.+)!) {
+                $add->("${1}stccss", $2, $mtime);
+            } elsif ($path =~ /\.js$/ && $path =~ m!^(w?)stc/(.+)!) {
+                $add->("${1}stcjs", $2, $mtime);
+            }
         }
     }
 
