@@ -357,6 +357,9 @@ q { font-style: italic; }
 .three-columns-right #content {
     border-right: $*sidebar_width_doubled solid transparent;
 }
+.column-right #content {
+    min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
+}
 
 #content-footer {
     height: 0;
