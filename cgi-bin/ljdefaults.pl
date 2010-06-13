@@ -327,11 +327,6 @@
 
     # default to limit to 50,000 watch or trust edges to load
     $LJ::MAX_WT_EDGES_LOAD ||= 50_000;
- 
-    # the default priority for resources in a sitescheme,
-    # so that they come before any stylesheets declared by the page itself
-    # not really expected to change
-    $LJ::SCHEME_RES_PRIORITY = 2;
 }
 
 return 1;

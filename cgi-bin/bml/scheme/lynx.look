@@ -32,7 +32,7 @@ page<=
 <link rel="help" title="<?_ml lynx.nav.help _ml?>" href="<?siteroot?>/support/" />
 <?_code
     use strict;
-    LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY }, "stc/lj_base-app.css" );
+    LJ::need_res("stc/lj_base-app.css");
 
     my $crumb_up;
     if (LJ::get_active_crumb() ne '') {
