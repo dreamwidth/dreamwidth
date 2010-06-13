@@ -2904,15 +2904,15 @@ sub init {
         push @$errret, $error;
         return undef;
     };
-    my $bmlerr = sub {
-        return $err->($BML::ML{$_[0]});
+    my $mlerr = sub {
+        return $err->( LJ::Lang::ml( $_[0] ) );
     };
 
     my $init = LJ::Talk::init($form);
     return $err->($init->{error}) if $init->{error};
 
     my $journalu = $init->{'journalu'};
-    return $bmlerr->('talk.error.nojournal') unless $journalu;
+    return $mlerr->('talk.error.nojournal') unless $journalu;
     return $err->($LJ::MSG_READONLY_USER) if $journalu->is_readonly;
 
     return $err->("Account is locked, unable to post or edit a comment.") if $journalu->is_locked;
@@ -2922,7 +2922,7 @@ sub init {
         if $r;
 
     my $dbcr = LJ::get_cluster_def_reader($journalu);
-    return $bmlerr->('error.nodb') unless $dbcr;
+    return $mlerr->('error.nodb') unless $dbcr;
 
     my $itemid = $init->{'itemid'}+0;
 
@@ -2934,7 +2934,7 @@ sub init {
     }
 
     unless ($item && $item->{'anum'} == $init->{'anum'}) {
-        return $bmlerr->('talk.error.noentry');
+        return $mlerr->('talk.error.noentry');
     }
 
     my $iprops = $item->{'props'};
@@ -2951,7 +2951,7 @@ sub init {
     if ($form->{'userpost'} && $form->{'usertype'} ne "user") {
         unless ($form->{'usertype'} eq "cookieuser" &&
                 $form->{'userpost'} eq $form->{'cookieuser'}) {
-            $bmlerr->("$SC.error.confused_identity");
+            $mlerr->("$SC.error.confused_identity");
         }
     }
 
@@ -2967,7 +2967,7 @@ sub init {
     if ( ( $form->{usertype} eq "user" && exists $form->{ecphash} ) || 
         ($form->{'usertype'} eq "cookieuser")) {
         my $userpost = $form->{'userpost'} || $form->{'cookieuser'};
-        $bmlerr->("$SC.error.lostcookie")
+        $mlerr->("$SC.error.lostcookie")
             unless $remote && $remote->{'user'} eq $userpost;
         return undef if @$errret;
 
@@ -2982,7 +2982,7 @@ sub init {
     if ((grep { $form->{'userpost'} eq $_ } @LJ::TESTACCTS) &&
         !(grep { $journalu->{'user'} eq $_ } @LJ::TESTACCTS) && !$LJ::IS_DEV_SERVER)
     {
-        $bmlerr->("$SC.error.testacct");
+        $mlerr->("$SC.error.testacct");
     }
 
     my $userpost = lc($form->{'userpost'});
@@ -3004,16 +3004,16 @@ sub init {
             if ($up) {
                 ### see if the user is banned from posting here
                 if (LJ::is_banned($up, $journalu)) {
-                    $bmlerr->("$SC.error.banned");
+                    $mlerr->("$SC.error.banned");
                 }
 
                 # TEMP until we have better openid support
                 if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg") {
-                    $bmlerr->("$SC.error.noopenid");
+                    $mlerr->("$SC.error.noopenid");
                 }
 
                 unless ( $up->is_person || ( $up->is_identity && $cookie_auth ) ) {
-                    $bmlerr->("$SC.error.postshared");
+                    $mlerr->("$SC.error.postshared");
                 }
 
                 # if we're already authenticated via cookie, then userpost was set
@@ -3065,7 +3065,7 @@ sub init {
             $up = $remote;
 
             ### see if the user is banned from posting here
-            $bmlerr->("$SC.error.banned") if (LJ::is_banned($up, $journalu));
+            $mlerr->("$SC.error.banned") if (LJ::is_banned($up, $journalu));
 
             if ($form->{'oiddo_login'}) {
                 $up->make_login_session($form->{'exptype'}, $form->{'ipfixed'});
@@ -3166,8 +3166,8 @@ sub init {
     my $ent = LJ::Entry->new_from_item_hash( $item )
         or die "Unable to create entry object.\n";
     unless ( $ent->visible_to( $up ) ) {
-        $bmlerr->( "$SC.error.mustlogin" ) unless defined $up;
-        $bmlerr->( "$SC.error.noauth" );
+        $mlerr->( "$SC.error.mustlogin" ) unless defined $up;
+        $mlerr->( "$SC.error.noauth" );
         return undef;
     }
 
@@ -3179,7 +3179,7 @@ sub init {
     if ($partid) {
         $parpost = LJ::Talk::get_talk2_row($dbcr, $journalu->{userid}, $partid);
         unless ($parpost) {
-            $bmlerr->("$SC.error.noparent");
+            $mlerr->("$SC.error.noparent");
         }
     }
     $init->{parpost} = $parpost;
@@ -3192,11 +3192,11 @@ sub init {
     if (($form->{'usertype'} ne "user" && $form->{'usertype'} ne 'openid' && $form->{'usertype'} ne 'openid_cookie')
         && $journalu->{'opt_whocanreply'} ne "all") 
     {
-        $bmlerr->("$SC.error.noanon");
+        $mlerr->("$SC.error.noanon");
     }
 
     if ( $ent->comments_disabled ) {
-        $bmlerr->("$SC.error.nocomments");
+        $mlerr->("$SC.error.nocomments");
     }
 
     if ($up) {
@@ -3204,9 +3204,9 @@ sub init {
             $err->(BML::ml("$SC.error.noverify2", {'aopts' => "href='$LJ::SITEROOT/register'"}));
         }
 
-        $bmlerr->("$SC.error.purged")    if $up->is_expunged;
-        $bmlerr->("$SC.error.deleted")   if $up->is_deleted;
-        $bmlerr->("$SC.error.suspended") if $up->is_suspended;
+        $mlerr->("$SC.error.purged")    if $up->is_expunged;
+        $mlerr->("$SC.error.deleted")   if $up->is_deleted;
+        $mlerr->("$SC.error.suspended") if $up->is_suspended;
     }
 
     if ($journalu->{'opt_whocanreply'} eq "friends") {
@@ -3223,7 +3223,7 @@ sub init {
         }
     }
 
-    $bmlerr->("$SC.error.blankmessage") unless $form->{'body'} =~ /\S/;
+    $mlerr->("$SC.error.blankmessage") unless $form->{'body'} =~ /\S/;
 
     # in case this post comes directly from the user's mail client, it
     # may have an encoding field for us.

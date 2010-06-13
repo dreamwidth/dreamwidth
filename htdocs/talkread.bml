@@ -95,10 +95,8 @@ body<=
 
     # redirect if account was renamed
     if ( $u->is_redirect ) {
-        $u->preload_props( "renamedto" );
-        if ($u->{'renamedto'} ne "") {
-            return BML::redirect(LJ::journal_base($u->{'renamedto'}) . "/$ditemid.html");
-        }
+        my $redirect = $u->redirect_rename( "/$ditemid.html" );
+        return $redirect if $redirect;
     }
 
     # now check for init->error, since we know the account wasn't renamed

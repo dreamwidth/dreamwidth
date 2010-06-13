@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#!/usr/bin/perl
 #
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
@@ -261,7 +262,8 @@ sub EntryPage
                 threadroot_url => $threadroot_url,
                 'screened' => $com->{'state'} eq "S" ? 1 : 0,
                 'frozen' => $com->{'state'} eq "F" ? 1 : 0,
-                'deleted' => $com->{'state'} eq "D" ? 1 : 0,
+                'deleted' => 0,
+                'fromsuspended' => 0,
                 'link_keyseq' => [ 'delete_comment' ],
                 'anchor' => LJ::Talk::comment_htmlid( $dtalkid ),
                 'dom_id' => LJ::Talk::comment_htmlid( $dtalkid ),
@@ -280,11 +282,26 @@ sub EntryPage
             # FIXME: ideally the load_comments should only return these
             # items if there are children, otherwise they should be hidden entirely
             if ($pu && $pu->is_suspended && !$viewsome) {
-                $s2com->{'text'} = "";
-                $s2com->{'subject'} = "";
+                $s2com->{'fromsuspended'} = 1;
                 $s2com->{'full'} = 0;
-                $s2com->{'subject_icon'} = undef;
+                $s2com->{'poster'} = undef;
                 $s2com->{'userpic'} = undef;
+                $s2com->{'subject'} = "";
+                $s2com->{'subject_icon'} = undef;
+                $s2com->{'text'} = "";
+                $s2com->{'screened'} = undef;
+            }
+
+            # don't show info for deleted comments
+            if ($com->{'state'} eq "D") {
+                $s2com->{'deleted'} = 1;
+                $s2com->{'full'} = 0;
+                $s2com->{'poster'} = undef;
+                $s2com->{'userpic'} = undef;
+                $s2com->{'subject'} = "";
+                $s2com->{'subject_icon'} = undef;
+                $s2com->{'text'} = "";
+                $s2com->{'screened'} = undef;
             }
 
             # Conditionally add more links to the keyseq

@@ -776,8 +776,155 @@ sub load_random_user {
 }
 
 
+# des: Given a user hashref, loads the values of the given named properties
+#      into that user hashref.
+# args: u, opts?, propname*
+# des-opts: hashref of opts.  set key 'use_master' to use cluster master.
+# des-propname: the name of a property from the [dbtable[userproplist]] table.
+#               leave undef to preload all userprops
 sub preload_props {
-    LJ::load_user_props( @_ );
+    my $u = shift;
+    return unless LJ::isu($u);
+    return if $u->is_expunged;
+
+    my $opts = ref $_[0] ? shift : {};
+    my (@props) = @_;
+
+    my ($sql, $sth);
+    LJ::load_props("user");
+
+    ## user reference
+    my $uid = $u->userid + 0;
+    $uid = LJ::get_userid( $u->user ) unless $uid;
+
+    my $mem = {};
+    my $use_master = 0;
+    my $used_slave = 0;  # set later if we ended up using a slave
+
+    if (@LJ::MEMCACHE_SERVERS) {
+        my @keys;
+        foreach (@props) {
+            next if exists $u->{$_};
+            my $p = LJ::get_prop("user", $_);
+            die "Invalid userprop $_ passed to preload_props." unless $p;
+            push @keys, [$uid,"uprop:$uid:$p->{'id'}"];
+        }
+        $mem = LJ::MemCache::get_multi(@keys) || {};
+        $use_master = 1;
+    }
+
+    $use_master = 1 if $opts->{'use_master'};
+
+    my @needwrite;  # [propid, propname] entries we need to save to memcache later
+
+    my %loadfrom;
+    my %multihomed; # ( $propid => 0/1 ) # 0 if we haven't loaded it, 1 if we have
+    unless (@props) {
+        # case 1: load all props for a given user.
+        # multihomed props are stored on userprop and userproplite2, but since they
+        # should always be in sync, it doesn't matter which gets loaded first, the
+        # net results should be the same.  see doc/server/lj.int.multihomed_userprops.html
+        # for more information.
+        $loadfrom{'userprop'} = 1;
+        $loadfrom{'userproplite'} = 1;
+        $loadfrom{'userproplite2'} = 1;
+        $loadfrom{'userpropblob'} = 1;
+    } else {
+        # case 2: load only certain things
+        foreach (@props) {
+            next if exists $u->{$_};
+            my $p = LJ::get_prop("user", $_);
+            die "Invalid userprop $_ passed to preload_props." unless $p;
+            if (defined $mem->{"uprop:$uid:$p->{'id'}"}) {
+                $u->{$_} = $mem->{"uprop:$uid:$p->{'id'}"};
+                next;
+            }
+            push @needwrite, [ $p->{'id'}, $_ ];
+            my $source = $p->{'indexed'} ? "userprop" : "userproplite";
+            if ($p->{datatype} eq 'blobchar') {
+                $source = "userpropblob"; # clustered blob
+            }
+            elsif ( $p->{'cldversion'} && $u->dversion >= $p->{'cldversion'} ) {
+                $source = "userproplite2";  # clustered
+            }
+            elsif ($p->{multihomed}) {
+                $multihomed{$p->{id}} = 0;
+                $source = "userproplite2";
+            }
+            push @{$loadfrom{$source}}, $p->{'id'};
+        }
+    }
+
+    foreach my $table (qw{userproplite userproplite2 userpropblob userprop}) {
+        next unless exists $loadfrom{$table};
+        my $db;
+        if ($use_master) {
+            $db = ($table =~ m{userprop(lite2|blob)}) ?
+                LJ::get_cluster_master($u) :
+                LJ::get_db_writer();
+        }
+        unless ($db) {
+            $db = ($table =~ m{userprop(lite2|blob)}) ?
+                LJ::get_cluster_reader($u) :
+                LJ::get_db_reader();
+            $used_slave = 1;
+        }
+        $sql = "SELECT upropid, value FROM $table WHERE userid=$uid";
+        if (ref $loadfrom{$table}) {
+            $sql .= " AND upropid IN (" . join(",", @{$loadfrom{$table}}) . ")";
+        }
+        $sth = $db->prepare($sql);
+        $sth->execute;
+        while (my ($id, $v) = $sth->fetchrow_array) {
+            delete $multihomed{$id} if $table eq 'userproplite2';
+            $u->{$LJ::CACHE_PROPID{'user'}->{$id}->{'name'}} = $v;
+        }
+
+        # push back multihomed if necessary
+        if ($table eq 'userproplite2') {
+            push @{$loadfrom{userprop}}, $_ foreach keys %multihomed;
+        }
+    }
+
+    # see if we failed to get anything above and need to hit the master.
+    # this usually happens the first time a multihomed prop is hit.  this
+    # code will propagate that prop down to the cluster.
+    if (%multihomed) {
+
+        # verify that we got the database handle before we try propagating data
+        if ($u->writer) {
+            my @values;
+            foreach my $id (keys %multihomed) {
+                my $pname = $LJ::CACHE_PROPID{user}{$id}{name};
+                if (defined $u->{$pname} && $u->{$pname}) {
+                    push @values, "($uid, $id, " . $u->quote($u->{$pname}) . ")";
+                } else {
+                    push @values, "($uid, $id, '')";
+                }
+            }
+            $u->do("REPLACE INTO userproplite2 VALUES " . join ',', @values);
+        }
+    }
+
+    # Add defaults to user object.
+
+    # If this was called with no @props, then the function tried
+    # to load all metadata.  but we don't know what's missing, so
+    # try to apply all defaults.
+    unless (@props) { @props = keys %LJ::USERPROP_DEF; }
+
+    foreach my $prop (@props) {
+        next if (defined $u->{$prop});
+        $u->{$prop} = $LJ::USERPROP_DEF{$prop};
+    }
+
+    unless ($used_slave) {
+        my $expire = time() + 3600*24;
+        foreach my $wr (@needwrite) {
+            my ($id, $name) = ($wr->[0], $wr->[1]);
+            LJ::MemCache::set([$uid,"uprop:$uid:$id"], $u->{$name} || "", $expire);
+        }
+    }
 }
 
 
@@ -1095,6 +1242,16 @@ sub record_login {
 
     return $u->do("INSERT INTO loginlog SET userid=?, sessid=?, logintime=UNIX_TIMESTAMP(), ".
                   "ip=?, ua=?", undef, $u->userid, $sessid, $ip, $ua);
+}
+
+
+sub redirect_rename {
+    my ( $u, $uri ) = @_;
+    return undef unless $u->is_redirect;
+    my $renamedto = $u->prop( 'renamedto' ) or return undef;
+    my $ru = LJ::load_user( $renamedto ) or return undef;
+    $uri ||= '';
+    return BML::redirect( $ru->journal_base . $uri );
 }
 
 
@@ -7141,163 +7298,6 @@ sub get_bio {
     LJ::MemCache::add($memkey, $bio);
 
     return $bio;
-}
-
-
-# <LJFUNC>
-# name: LJ::load_user_props
-# des: Given a user hashref, loads the values of the given named properties
-#      into that user hashref.
-# args: dbarg?, u, opts?, propname*
-# des-opts: hashref of opts.  set key 'cache' to use memcache.
-# des-propname: the name of a property from the [dbtable[userproplist]] table.
-# </LJFUNC>
-sub load_user_props
-{
-    &nodb;
-
-    my $u = shift;
-    return unless isu($u);
-    return if $u->is_expunged;
-
-    my $opts = ref $_[0] ? shift : {};
-    my (@props) = @_;
-
-    my ($sql, $sth);
-    LJ::load_props("user");
-
-    ## user reference
-    my $uid = $u->userid + 0;
-    $uid = LJ::get_userid( $u->user ) unless $uid;
-
-    my $mem = {};
-    my $use_master = 0;
-    my $used_slave = 0;  # set later if we ended up using a slave
-
-    if (@LJ::MEMCACHE_SERVERS) {
-        my @keys;
-        foreach (@props) {
-            next if exists $u->{$_};
-            my $p = LJ::get_prop("user", $_);
-            die "Invalid userprop $_ passed to LJ::load_user_props." unless $p;
-            push @keys, [$uid,"uprop:$uid:$p->{'id'}"];
-        }
-        $mem = LJ::MemCache::get_multi(@keys) || {};
-        $use_master = 1;
-    }
-
-    $use_master = 1 if $opts->{'use_master'};
-
-    my @needwrite;  # [propid, propname] entries we need to save to memcache later
-
-    my %loadfrom;
-    my %multihomed; # ( $propid => 0/1 ) # 0 if we haven't loaded it, 1 if we have
-    unless (@props) {
-        # case 1: load all props for a given user.
-        # multihomed props are stored on userprop and userproplite2, but since they
-        # should always be in sync, it doesn't matter which gets loaded first, the
-        # net results should be the same.  see doc/server/lj.int.multihomed_userprops.html
-        # for more information.
-        $loadfrom{'userprop'} = 1;
-        $loadfrom{'userproplite'} = 1;
-        $loadfrom{'userproplite2'} = 1;
-        $loadfrom{'userpropblob'} = 1;
-    } else {
-        # case 2: load only certain things
-        foreach (@props) {
-            next if exists $u->{$_};
-            my $p = LJ::get_prop("user", $_);
-            die "Invalid userprop $_ passed to LJ::load_user_props." unless $p;
-            if (defined $mem->{"uprop:$uid:$p->{'id'}"}) {
-                $u->{$_} = $mem->{"uprop:$uid:$p->{'id'}"};
-                next;
-            }
-            push @needwrite, [ $p->{'id'}, $_ ];
-            my $source = $p->{'indexed'} ? "userprop" : "userproplite";
-            if ($p->{datatype} eq 'blobchar') {
-                $source = "userpropblob"; # clustered blob
-            }
-            elsif ( $p->{'cldversion'} && $u->dversion >= $p->{'cldversion'} ) {
-                $source = "userproplite2";  # clustered
-            }
-            elsif ($p->{multihomed}) {
-                $multihomed{$p->{id}} = 0;
-                $source = "userproplite2";
-            }
-            push @{$loadfrom{$source}}, $p->{'id'};
-        }
-    }
-
-    foreach my $table (qw{userproplite userproplite2 userpropblob userprop}) {
-        next unless exists $loadfrom{$table};
-        my $db;
-        if ($use_master) {
-            $db = ($table =~ m{userprop(lite2|blob)}) ?
-                LJ::get_cluster_master($u) :
-                LJ::get_db_writer();
-        }
-        unless ($db) {
-            $db = ($table =~ m{userprop(lite2|blob)}) ?
-                LJ::get_cluster_reader($u) :
-                LJ::get_db_reader();
-            $used_slave = 1;
-        }
-        $sql = "SELECT upropid, value FROM $table WHERE userid=$uid";
-        if (ref $loadfrom{$table}) {
-            $sql .= " AND upropid IN (" . join(",", @{$loadfrom{$table}}) . ")";
-        }
-        $sth = $db->prepare($sql);
-        $sth->execute;
-        while (my ($id, $v) = $sth->fetchrow_array) {
-            delete $multihomed{$id} if $table eq 'userproplite2';
-            $u->{$LJ::CACHE_PROPID{'user'}->{$id}->{'name'}} = $v;
-        }
-
-        # push back multihomed if necessary
-        if ($table eq 'userproplite2') {
-            push @{$loadfrom{userprop}}, $_ foreach keys %multihomed;
-        }
-    }
-
-    # see if we failed to get anything above and need to hit the master.
-    # this usually happens the first time a multihomed prop is hit.  this
-    # code will propagate that prop down to the cluster.
-    if (%multihomed) {
-
-        # verify that we got the database handle before we try propagating data
-        if ($u->writer) {
-            my @values;
-            foreach my $id (keys %multihomed) {
-                my $pname = $LJ::CACHE_PROPID{user}{$id}{name};
-                if (defined $u->{$pname} && $u->{$pname}) {
-                    push @values, "($uid, $id, " . $u->quote($u->{$pname}) . ")";
-                } else {
-                    push @values, "($uid, $id, '')";
-                }
-            }
-            $u->do("REPLACE INTO userproplite2 VALUES " . join ',', @values);
-        }
-    }
-
-    # Add defaults to user object.
-
-    # If this was called with no @props, then the function tried
-    # to load all metadata.  but we don't know what's missing, so
-    # try to apply all defaults.
-    unless (@props) { @props = keys %LJ::USERPROP_DEF; }
-
-    foreach my $prop (@props) {
-        next if (defined $u->{$prop});
-        $u->{$prop} = $LJ::USERPROP_DEF{$prop};
-    }
-
-    unless ($used_slave) {
-        my $expire = time() + 3600*24;
-        foreach my $wr (@needwrite) {
-            my ($id, $name) = ($wr->[0], $wr->[1]);
-            LJ::MemCache::set([$uid,"uprop:$uid:$id"], $u->{$name} || "", $expire);
-        }
-    }
 }
 
 

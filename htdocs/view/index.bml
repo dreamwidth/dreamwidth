@@ -59,11 +59,10 @@ _c?>
     }
 
     if ( $u->is_redirect ) {
-        $u->preload_props( "renamedto" );
-        if ( $u->{'renamedto'} ) {
-            return BML::redirect( sprintf( LJ::journal_base( $u->{'renamedto'} )
-                                         . "/%04d/%02d/", $FORM{'y'}, $FORM{'m'} ) );
-        }
+        my $redirect = $u->redirect_rename(
+                         sprintf( "/%04d/%02d/", $FORM{'y'}, $FORM{'m'} )
+                       );
+        return $redirect if $redirect;
     }
 
     my $remote = LJ::get_remote();

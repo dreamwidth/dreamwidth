@@ -123,9 +123,12 @@ sub delete {
     $memc->delete(@_, 4) || $memc->delete(@_);
 }
 
-sub add       { $memc->add(@_);       }
-sub replace   { $memc->replace(@_);   }
-sub set       { $memc->set(@_);       }
+sub add       { ( defined $_[1] ) ? $memc->add( @_ )
+                                  : $memc->add( $_[0],     '', $_[2] ); }
+sub replace   { ( defined $_[1] ) ? $memc->replace( @_ )
+                                  : $memc->replace( $_[0], '', $_[2] ); }
+sub set       { ( defined $_[1] ) ? $memc->set( @_ )
+                                  : $memc->set( $_[0],     '', $_[2] ); }
 sub incr      { $memc->incr(@_);      }
 sub decr      { $memc->decr(@_);      }
 

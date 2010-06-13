@@ -73,6 +73,8 @@ body<=
     }
     @themes = sort { lc($a->{name}) cmp lc($b->{name}) } @themes;
     my @special_themes = LJ::Hooks::run_hook('modify_mood_theme_list', \@themes, user => $u);
+    # validate the list (should only contain hashrefs)
+    @special_themes = grep { ref $_ } @special_themes;
 
     my $do_mood_list = sub {
         # Setup the paging bar
