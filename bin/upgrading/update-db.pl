@@ -560,69 +560,71 @@ sub populate_external_moods {
 }
 
 sub populate_moods {
-    # moods
-    my $moodfile = "$ENV{'LJHOME'}/bin/upgrading/moods.dat";
-    if (open(M, $moodfile)) {
-        print "Populating mood data.\n";
-
-        my %mood;   # id -> [ mood, parent_id ]
-        my $sth = $dbh->prepare("SELECT moodid, mood, parentmood FROM moods");
-        $sth->execute;
-        while (@_ = $sth->fetchrow_array) { $mood{$_[0]} = [ $_[1], $_[2] ]; }
-
-        my %moodtheme;  # name -> [ id, des ]
-        $sth = $dbh->prepare("SELECT moodthemeid, name, des FROM moodthemes WHERE is_public='Y'");
-        $sth->execute;
-        while (@_ = $sth->fetchrow_array) { $moodtheme{$_[1]} = [ $_[0], $_[2] ]; }
-
-        my $themeid;  # current themeid (from existing db or just made)
-        my %data;     # moodid -> "$url$width$height" (for equality test)
-
-        while (<M>) {
-            chomp;
-            if (/^MOOD\s+(\d+)\s+(.+)\s+(\d+)\s*$/) {
-                my ($id, $mood, $parid) = ($1, $2, $3);
-                if (! $mood{$id} || $mood{$id}->[0] ne $mood ||
-                    $mood{$id}->[1] ne $parid) {
-                    $dbh->do("REPLACE INTO moods (moodid, mood, parentmood) VALUES (?,?,?)",
-                             undef, $id, $mood, $parid);
+    foreach my $file ( "moods.dat", "moods-local.dat" ) {
+        my $moodfile = "$ENV{'LJHOME'}/bin/upgrading/$file";
+        if ( open( M, $moodfile ) ) {
+            my $local = $file eq "moods-local.dat" ? "local " : "";
+            print "Populating ${local}mood data.\n";
+            
+            my %mood;   # id -> [ mood, parent_id ]
+            my $sth = $dbh->prepare("SELECT moodid, mood, parentmood FROM moods");
+            $sth->execute;
+            while (@_ = $sth->fetchrow_array) { $mood{$_[0]} = [ $_[1], $_[2] ]; }
+            
+            my %moodtheme;  # name -> [ id, des ]
+            $sth = $dbh->prepare("SELECT moodthemeid, name, des FROM moodthemes WHERE is_public='Y'");
+            $sth->execute;
+            while (@_ = $sth->fetchrow_array) { $moodtheme{$_[1]} = [ $_[0], $_[2] ]; }
+            
+            my $themeid;  # current themeid (from existing db or just made)
+            my %data;     # moodid -> "$url$width$height" (for equality test)
+            
+            while (<M>) {
+                chomp;
+                if (/^MOOD\s+(\d+)\s+(.+)\s+(\d+)\s*$/) {
+                    my ($id, $mood, $parid) = ($1, $2, $3);
+                    if (! $mood{$id} || $mood{$id}->[0] ne $mood ||
+                        $mood{$id}->[1] ne $parid) {
+                        $dbh->do("REPLACE INTO moods (moodid, mood, parentmood) VALUES (?,?,?)",
+                                 undef, $id, $mood, $parid);
+                    }
+                }
+            
+                if (/^MOODTHEME\s+(.+?)\s*:\s*(.+)$/) {
+                    my ($name, $des) = ($1, $2);
+                    %data = ();
+                    if ($moodtheme{$name}) {
+                        $themeid = $moodtheme{$name}->[0];
+                        if ($moodtheme{$name}->[1] ne $des) {
+                            $dbh->do("UPDATE moodthemes SET des=? WHERE moodthemeid=?", undef,
+                                     $des, $themeid);
+                        }
+                        $sth = $dbh->prepare("SELECT moodid, picurl, width, height ".
+                                             "FROM moodthemedata WHERE moodthemeid=?");
+                        $sth->execute($themeid);
+                        while (@_ = $sth->fetchrow_array) {
+                            $data{$_[0]} = "$_[1]$_[2]$_[3]";
+                        }
+                    } else {
+                        $dbh->do("INSERT INTO moodthemes (ownerid, name, des, is_public) ".
+                                 "VALUES (?,?,?,'Y')", undef, $su->{'userid'}, $name, $des);
+                        $themeid = $dbh->{'mysql_insertid'};
+                        die "Couldn't generate themeid for theme $name\n" unless $themeid;
+                    }
+                    next;
+                }
+            
+                if (/^(\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s*$/) {
+                    next unless $themeid;
+                    my ($moodid, $url, $w, $h) = ($1, $2, $3, $4);
+                    next if $data{$moodid} eq "$url$w$h";
+                    $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, picurl, width, height) ".
+                             "VALUES (?,?,?,?,?)", undef, $themeid, $moodid, $url, $w, $h);
+                    LJ::MemCache::delete([$themeid, "moodthemedata:$themeid"]);
                 }
             }
-
-            if (/^MOODTHEME\s+(.+?)\s*:\s*(.+)$/) {
-                my ($name, $des) = ($1, $2);
-                %data = ();
-                if ($moodtheme{$name}) {
-                    $themeid = $moodtheme{$name}->[0];
-                    if ($moodtheme{$name}->[1] ne $des) {
-                        $dbh->do("UPDATE moodthemes SET des=? WHERE moodthemeid=?", undef,
-                                 $des, $themeid);
-                    }
-                    $sth = $dbh->prepare("SELECT moodid, picurl, width, height ".
-                                         "FROM moodthemedata WHERE moodthemeid=?");
-                    $sth->execute($themeid);
-                    while (@_ = $sth->fetchrow_array) {
-                        $data{$_[0]} = "$_[1]$_[2]$_[3]";
-                    }
-                } else {
-                    $dbh->do("INSERT INTO moodthemes (ownerid, name, des, is_public) ".
-                             "VALUES (?,?,?,'Y')", undef, $su->{'userid'}, $name, $des);
-                    $themeid = $dbh->{'mysql_insertid'};
-                    die "Couldn't generate themeid for theme $name\n" unless $themeid;
-                }
-                next;
-            }
-
-            if (/^(\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s*$/) {
-                next unless $themeid;
-                my ($moodid, $url, $w, $h) = ($1, $2, $3, $4);
-                next if $data{$moodid} eq "$url$w$h";
-                $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, picurl, width, height) ".
-                         "VALUES (?,?,?,?,?)", undef, $themeid, $moodid, $url, $w, $h);
-                LJ::MemCache::delete([$themeid, "moodthemedata:$themeid"]);
-            }
+            close M;
         }
-        close M;
     }
 }
 
