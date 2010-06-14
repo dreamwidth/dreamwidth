@@ -255,7 +255,7 @@ _c?>
             my $args = $gb->{$fname}->{'args'};
             $xlink_args->(\$args);
             
-            $body .= "<tr><td><nobr><a name='func.$fname'><tt>$args : $rt</tt></a></nobr></td><td>$ds</td></tr>";
+            $body .= "<tr><td class='func'><a name='func.$fname'><tt>$args : $rt</tt></a></td><td>$ds</td></tr>";
         }
         $body .= "</table>";
     }
@@ -350,7 +350,7 @@ _c?>
                 my $args = $_;
                 $xlink_args->(\$args);
 
-                $body .= "<tr><td><nobr><a name='meth.${cname}::$_'><tt>$args : $rt</tt></a></nobr></td><td>$ds</td></tr>";
+                $body .= "<tr><td class='method'><a name='meth.${cname}::$_'><tt>$args : $rt</tt></a></td><td>$ds</td></tr>";
             }
             $body .= "</table>" if %func;
         }
@@ -361,6 +361,23 @@ _c?>
 
 }
 _code?><?page title=><?_code return $title; _code?>
+head<=
+<style type='text/css'>
+table.table_layerbrowse td.func, table.table_layerbrowse td.method {
+    padding-left: 1.7em;
+    text-indent: -1.5em;
+}
+
+table.table_layerbrowse td {
+    padding: 3px;
+}
+
+table#table_layerbrowse_classes ul {
+    list-style: circle outside none;
+    margin-left: 1em;
+}
+</style>
+<=head
 body=><?_code return $body; _code?>
 page?>
     
