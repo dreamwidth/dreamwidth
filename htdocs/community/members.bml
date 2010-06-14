@@ -300,27 +300,28 @@ body<=
             }
         };
 
-        # get all the maintainers who were removed
-        my $changedmaintainers = LJ::load_userids(keys %{$delete{admin}}, keys %{$add{admin}});
+        my $maintainer_notify = sub {
+            my ( $maint_u, $log_event, $ml_str ) = @_;
+            $c->log_event( $log_event, { actiontarget => $maint_u->id, remote => $remote } );
 
-        foreach my $uid (keys %{$delete{admin} || {}}) {
-            # log maintainer deletions
-            $c->log_event('maintainer_remove', { actiontarget => $uid, remote => $remote });
-
-            my $delmaintu = $changedmaintainers->{$uid};
-            next unless $delmaintu;
-
-            # send email to the poor maintainer who got removed
-            my $mailusername = $delmaintu->user;
+            # send email to the maintainer
+            my $mailusername = $maint_u->user;
             my $mailusercname = $c->name_raw;
             my $mailclink = $c->journal_base( ['community'] );
+            my $mailcommanlink = "$LJ::SITEROOT/community/manage";
 
             my $html;
 
             $html .= "<p>";
             $html .= BML::ml( '.email.hello', { site => $LJ::SITENAMESHORT, user => $mailusername } );
             $html .= "</p>\n<p>";
-            $html .= BML::ml( '.email.del.body', { admin => $remote->{user}, comm => qq(<a href="$mailclink">$mailusercname</a>) } );
+            if ( $ml_str eq 'del' ) {
+                $html .= BML::ml( ".email.$ml_str.body", { admin => $remote->user, comm => qq(<a href="$mailclink">$mailusercname</a>) } );
+            } else {  # add
+                $html .= BML::ml( ".email.$ml_str.body1", { comm => qq(<a href="$mailclink">$mailusercname</a>) } );
+                $html .= "</p>\n<p>";
+                $html .= BML::ml( ".email.$ml_str.body2.html", { aopts => "href='" . $mailcommanlink . "'" } );
+            }
             $html .= "</p>\n<p>$ML{'.email.close'}<br/>\n";
             $html .= BML::ml( '.email.signed', { site => $LJ::SITENAME } );
             $html .= "<br/>$LJ::SITEROOT</p>";
@@ -329,13 +330,28 @@ body<=
 
             $plain .= BML::ml( '.email.hello', { site => $LJ::SITENAMESHORT, user => $mailusername } );
             $plain .= "\n\n";
-            $plain .= BML::ml( '.email.del.body', { admin => $remote->{user}, comm => $mailusercname } );
+            if ( $ml_str eq 'del' ) {
+                $plain .= BML::ml( ".email.$ml_str.body", { admin => $remote->user, comm => $mailusercname } );
+            } else {  # add
+                $plain .= BML::ml( ".email.$ml_str.body1", { comm => $mailusercname } );
+                $plain .= "\n\n" . $ML{".email.$ml_str.body2.plain"} . "\n\n$mailcommanlink";
+            }
             $plain .= "\n\n$ML{'.email.close'}\n";
             $plain .= BML::ml( '.email.signed', { site => $LJ::SITENAME } );
             $plain .= "\n$LJ::SITEROOT\n";
 
-            my $subject = BML::ml( '.email.del.subject', { comm => $mailusercname } );
-            $sendmail->($delmaintu, $html, $plain, $subject);
+            my $subject = BML::ml( ".email.$ml_str.subject", { comm => $mailusercname } );
+            $sendmail->( $maint_u, $html, $plain, $subject );
+        };
+
+        # get all the maintainers who were removed
+        my $changedmaintainers = LJ::load_userids(keys %{$delete{admin}}, keys %{$add{admin}});
+
+        foreach my $uid (keys %{$delete{admin} || {}}) {
+            my $delmaintu = $changedmaintainers->{$uid};
+            next unless $delmaintu;
+
+            $maintainer_notify->( $delmaintu, 'maintainer_remove', 'del' );
         }
 
         # delete other rel edges
@@ -367,42 +383,10 @@ body<=
         }
 
         foreach my $uid (keys %{$add{admin} || {}}) {
-            # log maintainer additions
-            $c->log_event('maintainer_add', { actiontarget => $uid, remote => $remote });
-
             my $newmaintu = $changedmaintainers->{$uid};
             next unless $newmaintu;
 
-            # send email to the new maintainer
-            my $mailusername = $newmaintu->user;
-            my $mailusercname = $c->name_raw;
-            my $mailclink = $c->journal_base( ['community'] );
-            my $mailcommanlink = "$LJ::SITEROOT/community/manage";
-
-            my $html;
-
-            $html .= "<p>";
-            $html .= BML::ml( '.email.hello', { site => $LJ::SITENAMESHORT, user => $mailusername } );
-            $html .= "</p>\n<p>";
-            $html .= BML::ml( '.email.add.body1', { comm => qq(<a href="$mailclink">$mailusercname</a>) } );
-            $html .= "</p>\n<p>";
-            $html .= BML::ml( '.email.add.body2.html', { aopts => "href='" . $mailcommanlink . "'" } );
-            $html .= "</p>\n<p>$ML{'.email.close'}<br/>\n";
-            $html .= BML::ml( '.email.signed', { site => $LJ::SITENAME } );
-            $html .= "<br/>$LJ::SITEROOT</p>";
-
-            my $plain;
-
-            $plain .= BML::ml( '.email.hello', { site => $LJ::SITENAMESHORT, user => $mailusername } );
-            $plain .= "\n\n";
-            $plain .= BML::ml( '.email.add.body1', { comm => $mailusercname } );
-            $plain .= "\n\n$ML{'.email.add.body2.plain'}\n\n$mailcommanlink";
-            $plain .= "\n\n$ML{'.email.close'}\n";
-            $plain .= BML::ml( '.email.signed', { site => $LJ::SITENAME } );
-            $plain .= "\n$LJ::SITEROOT\n";
-
-            my $subject = BML::ml( '.email.add.subject', { comm => $mailusercname } );
-            $sendmail->($newmaintu, $html, $plain, $subject);
+            $maintainer_notify->( $newmaintu, 'maintainer_add', 'add' );
         }
 
         # set rels in db/memcache
