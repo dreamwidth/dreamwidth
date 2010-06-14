@@ -1526,6 +1526,8 @@ sub postevent
 
         my $rv = LJ::Tags::update_logtags($uowner, $jitemid, $logtag_opts);
         return fail($err,157,$tagerr) unless $rv;
+        # the next line will propagate any "skippable" errors
+        $res->{message} = $tagerr if $tagerr;
     }
 
     # meta-data
