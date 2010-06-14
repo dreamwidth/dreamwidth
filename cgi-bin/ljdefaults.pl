@@ -329,4 +329,5 @@
     $LJ::MAX_WT_EDGES_LOAD ||= 50_000;
 }
 
-return 1;
+
+1;

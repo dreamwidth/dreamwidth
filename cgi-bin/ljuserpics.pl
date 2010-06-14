@@ -13,6 +13,7 @@
 
 package LJ;
 use strict;
+use Carp qw/ croak /;
 
 # <LJFUNC>
 # name: LJ::load_userpics

@@ -165,9 +165,9 @@ DirectoryIndex index.html index.bml
 });
 
     # setup child init handler to seed random using a good entropy source
-    Apache2::ServerUtil->server->push_handlers(PerlChildInitHandler => sub {
+    eval { Apache2::ServerUtil->server->push_handlers(PerlChildInitHandler => sub {
         srand(LJ::urandom_int());
-    });
+    }); };
 
     if ($LJ::BML_DENY_CONFIG) {
         LJ::ModPerl::add_httpd_config("PerlSetVar BML_denyconfig \"$LJ::BML_DENY_CONFIG\"\n");
@@ -202,7 +202,7 @@ DirectoryIndex index.html index.bml
 
 sub add_httpd_config {
     my $text = shift;
-    Apache2::ServerUtil->server->add_config( [ split /\n/, $text ] );
+    eval { Apache2::ServerUtil->server->add_config( [ split /\n/, $text ] ); };
 }
 
 setup_start();

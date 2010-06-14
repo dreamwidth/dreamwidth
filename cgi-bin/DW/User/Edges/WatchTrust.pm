@@ -20,6 +20,8 @@ package DW::User::Edges::WatchTrust;
 use strict;
 
 use Carp qw/ confess /;
+use LJ::Constants;
+use DW::User::Edges;
 use DW::User::Edges::WatchTrust::Loader;
 use DW::User::Edges::WatchTrust::UserHelper;
 

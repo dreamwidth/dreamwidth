@@ -20,6 +20,11 @@ package LJ::S2;
 
 use Carp;
 
+# these are needed for S2::PROPS
+use DW;
+use lib DW->home . "/src/s2";
+use S2;
+
 sub EntryPage
 {
     my ($u, $remote, $opts) = @_;

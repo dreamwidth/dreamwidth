@@ -18,6 +18,7 @@ use base qw(LJ::Widget::IPPU);
 use Carp qw(croak);
 use LJ::JSUtil;
 use LJ::Setting;
+use LJ::User;
 
 sub authas { 0 }
 

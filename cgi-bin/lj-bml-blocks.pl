@@ -17,6 +17,7 @@
 use lib "$LJ::HOME/cgi-bin";
 use LJ::Config;
 LJ::Config->load;
+use Apache::BML;
 
 BML::register_block("DOMAIN", "S", $LJ::DOMAIN);
 BML::register_block("IMGPREFIX", "S", $LJ::IMGPREFIX);

@@ -20,7 +20,7 @@ use LJ::ModuleLoader;
 LJ::ModuleLoader->autouse_subclasses("DW::External::XPostProtocol");
 
 my %protocols;
-$protocols{"lj"} = DW::External::XPostProtocol::LJXMLRPC->new;
+eval { $protocols{"lj"} = DW::External::XPostProtocol::LJXMLRPC->new; };
 
 # returns the given protocol, if configured.
 sub get_protocol {

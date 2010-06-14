@@ -18,6 +18,7 @@ use lib "$LJ::HOME/cgi-bin";
 use Errno qw(ENOENT);
 use LJ::Config;
 LJ::Config->load;
+use Apache::BML;
 
 foreach (@LJ::LANGS, @LJ::LANGS_IN_PROGRESS) {
     BML::register_isocode(substr($_, 0, 2), $_);

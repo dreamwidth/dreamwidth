@@ -9,33 +9,23 @@ use File::Spec;
 my $dir = File::Temp::tempdir( CLEANUP => 1 );
 
 # FIXME: fix the modules that are now skipped
-# some of the modules and scripts cannot yet cleanly loaded
+# some of the modules and scripts cannot yet be cleanly loaded
 # instead of waiting them to be fixed we are skipping them for now
-# They should be fixed or makred why they cannot run.
+# They should be fixed or marked why they cannot run.
 my %SKIP = (
     'LJ/PersistentQueue.pm'   => 'bug 1787  needs Data::Queue::Persistent',
     'LJ/LDAP.pm'              => 'bug 1788  needs Net::LDAP',
     'LJ/ConfCheck/General.pm' => 'needs to be integrated into LJ::ConfCheck',
-    'LJ/S2/EntryPage.pm'      => 'definition of S2::PROPS is missing (found in src/s2/S2.pm)',
-    'LJ/Widget/CreateAccountProfile.pm' => 'Bareword "LJ::BMAX_NAME"',
-    'LJ/Widget/IPPU/SettingProd.pm' => 'Bareword "LJ::get_remote"',
-    'DW/User/Edges/CommMembership.pm' => 'Undefined subroutine &DW::User::Edges::define_edge',
-    'DW/User/Edges/WatchTrust.pm'  => 'Bareword "LJ::BMAX_GRPNAME2"',
-    'DW/User/Edges.pm'   => 'Bareword "LJ::BMAX_GRPNAME2"',
-    'DW/External/XPostProtocol/LJXMLRPC.pm' => 'Cant locate object method "new" via package "DW::External::XPostProtocol::LJXMLRPC"',
 
-    'LJ/Test/AtomAPI.pm'      => 'needs Apache/Constants',
-    'Test/FakeApache.pm'      => 'needs Apache/Constants.pm',
-    'Apache/CompressClientFixup.pm' => 'needs Apache/Constants.pm',
+    'LJ/Test/AtomAPI.pm'      => 'fix Test/FakeApache.pm',
+    'Test/FakeApache.pm'      => 'needs Apache::Constants',
+    'Apache/CompressClientFixup.pm' => 'needs Apache::Constants',
 
     'Data/ObjectDriver/Driver/DBD/SQLite.pm' => 'Bareword "DBI::SQL_BLOB"',
     'Data/ObjectDriver/Driver/DBD/Oracle.pm' => 'no Oracle',
 
-    'cgi-bin/ljdefaults.pl' => 'Cant return outside a subroutine at cgi-bin/ljdefaults.pl',    
-    'cgi-bin/modperl.pl'    => 'Cant locate object method "server" via package "Apache2::ServerUtil"',
-    'cgi-bin/lj-bml-init.pl' => 'Undefined subroutine &BML::register_isocode',
-    'cgi-bin/lj-bml-blocks.pl' => 'Undefined subroutine &BML::register_block',
-    'cgi-bin/ljuserpics.pl'  => 'croak is not imported',
+    'cgi-bin/lj-bml-init.pl' => 'BML::register_isocode called from non-conffile context',
+    'cgi-bin/lj-bml-blocks.pl' => 'BML::register_block called from non-lookfile context',
 );
 
 my @scripts = File::Find::Rule->file->name('*.pl')->in('cgi-bin');

@@ -18,6 +18,7 @@ package DW::User::Edges::CommMembership;
 use strict;
 
 use Carp qw/ confess /;
+use DW::User::Edges;
 
 # membership edges are for someone who is a member of a community
 DW::User::Edges::define_edge(
