@@ -640,8 +640,7 @@ sub is_valid_tagstring {
         $tag = LJ::trim($tag);
         $tag =~ s/\s+/ /g; # condense multiple spaces to a single space
         $tag = LJ::text_trim($tag, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD);
-        $tag = lc $tag
-            if $tag !~ /[\x7f-\xff]/;
+        $tag = LJ::utf8_lc( $tag );
         return $tag;
     };
 

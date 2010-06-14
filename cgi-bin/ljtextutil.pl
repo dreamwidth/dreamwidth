@@ -297,6 +297,20 @@ sub is_utf8_wrapper {
     }
 }
 
+
+# alternate version of "lc" that handles UTF-8
+# args: text string for lowercasing
+# returns: lowercase string
+sub utf8_lc {
+    use Encode;  # Perl 5.8 or higher
+
+    # get the encoded text to work with
+    my $text = decode( "UTF-8", $_[0] );
+    # return the lowercased text
+    return encode( "UTF-8", lc $text );
+}
+
+
 # <LJFUNC>
 # name: LJ::text_out
 # des: force outgoing text into valid UTF-8.
