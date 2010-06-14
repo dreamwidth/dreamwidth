@@ -28,7 +28,7 @@ sub render_body {
     my $get = $class->get_args;
     my $body;
     $body .= "<h2 class='solid-neutral'>" . $class->ml('widget.feeds.title') . "</h2>";
-    $body .= "<a href='$LJ::SITEROOT/syn/list' class='more-link'>" .
+    $body .= "<a href='$LJ::SITEROOT/feeds/list' class='more-link'>" .
              $class->ml('widget.feeds.viewall') . "</a>";
 
     # get user IDs of most popular feeds
@@ -54,7 +54,7 @@ sub render_body {
 
     # Form to add or find feeds
     if ($remote) {
-        $body .= "<form method='post' action='$LJ::SITEROOT/syn/'>";
+        $body .= "<form method='post' action='$LJ::SITEROOT/feeds/'>";
         $body .= LJ::html_hidden('userid', $remote->userid);
         $body .= "<b>" . $class->ml('widget.feeds.find') . "</b> ";
         my $prompt = $class->ml('widget.feeds.enterRSS');

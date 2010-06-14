@@ -2661,7 +2661,7 @@ sub control_strip
                  'manage_entries'    => "<a href='$LJ::SITEROOT/editjournal'>$BML::ML{'web.controlstrip.links.manageentries'}</a>",
                  'invite_friends'    => "<a href='$LJ::SITEROOT/manage/circle/invite'>$BML::ML{'web.controlstrip.links.invitefriends'}</a>",
                  'create_account'    => $create_link,
-                 'syndicated_list'   => "<a href='$LJ::SITEROOT/syn/list'>$BML::ML{'web.controlstrip.links.popfeeds'}</a>",
+                 'syndicated_list'   => "<a href='$LJ::SITEROOT/feeds/list'>$BML::ML{'web.controlstrip.links.popfeeds'}</a>",
                  'learn_more'        => LJ::Hooks::run_hook('control_strip_learnmore_link') || "<a href='$LJ::SITEROOT/'>$BML::ML{'web.controlstrip.links.learnmore'}</a>",
                  'explore'           => "<a href='$LJ::SITEROOT/explore/'>" . BML::ml('web.controlstrip.links.explore', { sitenameabbrev => $LJ::SITENAMEABBREV }) . "</a>",
                  'confirm'           => "<a href='$LJ::SITEROOT/register'>$BML::ML{'web.controlstrip.links.confirm'}</a>",

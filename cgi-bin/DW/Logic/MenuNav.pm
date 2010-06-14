@@ -163,7 +163,7 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/syn/",
+                    url => "$LJ::SITEROOT/feeds/",
                     text => "menunav.read.syndicatedfeeds",
                     display => $loggedin,
                 },

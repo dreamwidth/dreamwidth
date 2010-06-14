@@ -50,7 +50,7 @@ body<=
    <li><a href='/manage/circle/'><?_ml .maplinks.manage-readlist _ml?></a></li>
    <li><a href='/manage/circle/editfilters'><?_ml .maplinks.manage-groups _ml?></a></li>
    <li><a href='/manage/circle/filter'><?_ml .maplinks.filter-readlist  _ml?></a></li>
-   <li><a href='/syn'><?_ml .maplinks.synfeeds _ml?></a></li>
+   <li><a href='/feeds'><?_ml .maplinks.synfeeds _ml?></a></li>
   </ul></dd>
  </dt></dl>
 
