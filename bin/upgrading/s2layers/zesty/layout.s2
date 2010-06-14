@@ -148,6 +148,9 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use tags_page_type;
     property use use_shared_pic;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
 }
 
 set num_items_recent = 10;

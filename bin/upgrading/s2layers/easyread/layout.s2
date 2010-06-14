@@ -19,6 +19,9 @@ propgroup presentation {
     property use tags_page_type;
     property use entry_metadata_position;
     property use use_shared_pic;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
 }
 
 set layout_type = "one-column";

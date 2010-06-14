@@ -32,6 +32,9 @@ propgroup presentation {
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
 }
 
 set layout_type = "two-columns-right";
