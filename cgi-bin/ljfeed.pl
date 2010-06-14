@@ -47,7 +47,7 @@ sub make_feed
 
     my $dbr = LJ::get_db_reader();
 
-    my $user = $u->{'user'};
+    my $user = $u->user;
 
     $u->preload_props( qw/ journaltitle journalsubtitle opt_synlevel / );
 
@@ -61,9 +61,9 @@ sub make_feed
     # some data used throughout the channel
     my $journalinfo = {
         u         => $u,
-        link      => LJ::journal_base($u) . "/",
-        title     => $u->{journaltitle} || $u->{name} || $u->{user},
-        subtitle  => $u->{journalsubtitle} || $u->{name},
+        link      => $u->journal_base . "/",
+        title     => $u->{journaltitle} || $u->name_raw || $u->user,
+        subtitle  => $u->{journalsubtitle} || $u->name_raw,
         builddate => LJ::time_to_http(time()),
     };
 
@@ -718,14 +718,14 @@ sub create_view_foaf {
         my $count = $u->number_of_posts;
         $ret .= "    <ya:blogActivity>\n";
         $ret .= "      <ya:Posts>\n";
-        $ret .= "        <ya:feed rdf:resource=\"" . LJ::journal_base($u) ."/data/foaf\" dc:type=\"application/rss+xml\" />\n";
+        $ret .= "        <ya:feed rdf:resource=\"" . $u->journal_base ."/data/foaf\" dc:type=\"application/rss+xml\" />\n";
         $ret .= "        <ya:posted>$count</ya:posted>\n";
         $ret .= "      </ya:Posts>\n";
         $ret .= "    </ya:blogActivity>\n";
     }
 
     # include a user's journal page and web site info
-    $ret .= "    <foaf:weblog rdf:resource=\"" . LJ::journal_base($u) . "/\"/>\n";
+    $ret .= "    <foaf:weblog rdf:resource=\"" . $u->journal_base . "/\"/>\n";
     if ($u->{url}) {
         $ret .= "    <foaf:homepage rdf:resource=\"" . LJ::eurl($u->{url});
         $ret .= "\" dc:title=\"" . LJ::exml($u->{urlname}) . "\" />\n";
@@ -787,8 +787,8 @@ sub create_view_foaf {
         $ret .= "        <foaf:member_name>$name</foaf:member_name>\n";
         $ret .= "        <foaf:tagLine>$tagline</foaf:tagLine>\n";
         $ret .= "        <foaf:image>$upicurl</foaf:image>\n" if $upicurl;
-        $ret .= "        <rdfs:seeAlso rdf:resource=\"" . LJ::journal_base($fu) ."/data/foaf\" />\n";
-        $ret .= "        <foaf:weblog rdf:resource=\"" . LJ::journal_base($fu) . "/\"/>\n";
+        $ret .= "        <rdfs:seeAlso rdf:resource=\"" . $fu->journal_base ."/data/foaf\" />\n";
+        $ret .= "        <foaf:weblog rdf:resource=\"" . $fu->journal_base . "/\"/>\n";
         $ret .= "      </foaf:Person>\n";
         $ret .= $comm ? "    </foaf:member>\n" : "    </foaf:knows>\n";
     }

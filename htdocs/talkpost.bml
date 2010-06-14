@@ -139,8 +139,8 @@ body<=
     my $props = $item->{'props'};
 
     my $ditemid = $init->{'ditemid'};
-    my $talkurl = LJ::journal_base($u) . "/$ditemid.html";
-    my $entry = LJ::Entry->new($u, ditemid => $ditemid);
+    my $talkurl = $u->journal_base . "/$ditemid.html";
+    my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
 
     # canonical link to the entry or comment thread
     $head .= LJ::canonical_link( $entry->url, $GET{replyto} );

@@ -124,7 +124,7 @@ SUBMIT:
         return $ret if $stop_output;
 
         $ret = "<?h1 $ML{'.success.head'} h1?><?p $ML{'.success.text1'} p?>";
-        my $uri = LJ::journal_base($u);
+        my $uri = $u->journal_base;
         $ret .= "<?p $ML{'.success.text2'} p?>\n";
         $ret .= "<?standout <font size='+1' face='arial'><b><a href='$uri'>$uri/</a></b></font> standout?>\n";
         $ret .= "<?p $ML{'.success.text3'} p?>\n";

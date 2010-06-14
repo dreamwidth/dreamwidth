@@ -24,8 +24,8 @@ sub TagsPage
     $p->{'view'} = "tags";
     $p->{'tags'} = [];
 
-    my $user = $u->{'user'};
-    my $journalbase = LJ::journal_base($user, $opts->{'vhost'});
+    my $user = $u->user;
+    my $journalbase = $u->journal_base( $opts->{'vhost'} );
 
     if ($opts->{'pathextra'}) {
         $opts->{'badargs'} = 1;

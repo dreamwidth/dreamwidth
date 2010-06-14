@@ -531,7 +531,7 @@ sub trans
             # so the s/// leaves a leading slash as well so that $newurl is
             # consistent for the concatenation before redirect
             $newurl =~ s!^/(users/|community/|~)\Q$orig_user\E!/!;
-            $newurl = LJ::journal_base($u) . "$newurl$args_wq";
+            $newurl = $u->journal_base . "$newurl$args_wq" if $u;
             return redir($r, $newurl);
         }
 

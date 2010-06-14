@@ -36,7 +36,7 @@ body<=
     my $ret;
     $ret = "<?h1 $ML{'.success.head'} h1?><?p ".BML::ml(".success.text1", {'email' => $u->email_raw, 'username' => $u->{user}}) ." p?>";
 
-    my $uri = LJ::journal_base($u) . "/";
+    my $uri = $u->journal_base . "/";
     $ret .= "<?p $ML{'.success.text2'} p?>\n";
     $ret .= "<?standout <font size='+1' face='arial'><b><a href='$uri'>$uri</a></b></font> standout?>\n";
     $ret .= "<?p $ML{'.success.text3'} p?>\n";

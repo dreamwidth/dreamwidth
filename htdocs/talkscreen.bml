@@ -124,7 +124,7 @@ _info?><?_code
 
     my $ditemid = $qitemid*256 + $anum;
 
-    my $itemlink = LJ::journal_base($u) . "/$ditemid.html";
+    my $itemlink = $u->journal_base . "/$ditemid.html";
     my $linktext = BML::ml( '.link', { aopts => "href='$itemlink'" } );
     my $commentlink = "$itemlink?view=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid );
 

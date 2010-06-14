@@ -77,8 +77,8 @@ _c?>
 
     $body .= "<p>" . BML::ml( '.link.to.journal', { journal => $u->ljuser_display } ) . "</p>";
 
-     if ($jumpid) {
-         return BML::redirect(LJ::journal_base($u) . "/$jumpid.html");
+     if ( $jumpid ) {
+         return BML::redirect( $u->journal_base . "/$jumpid.html" );
      }
  }
 

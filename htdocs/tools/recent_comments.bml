@@ -151,9 +151,9 @@ body<=
         push @{$need_logtext->{$ju->{clusterid}} ||= []}, $need;
     }
 
-    my $comment_text = LJ::get_talktext2($u, keys %talkids);
-    my $log_text     = LJ::get_logtext2multi($need_logtext);
-    my $root = LJ::journal_base($u);
+    my $comment_text = LJ::get_talktext2( $u, keys %talkids );
+    my $log_text     = LJ::get_logtext2multi( $need_logtext );
+    my $root = $u->journal_base;
 
     # Begin "latest received" box. We only want to see this if we're a
     # community or personal account, since OpenID accounts can't

@@ -150,9 +150,9 @@ sub getUsersBlogs {
     }
 
     return [ map { {
-        'url' => LJ::journal_base($_) . "/",
-        'blogid' => $_->{'user'},
-        'blogName' => $_->{'name'},
+        url => $_->journal_base . "/",
+        blogid => $_->user,
+        blogName => $_->name_raw,
     } } @list ];
 }
 

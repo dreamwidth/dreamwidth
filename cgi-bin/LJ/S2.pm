@@ -126,7 +126,7 @@ sub make_journal
 
     foreach ("name", "url", "urlname") { LJ::text_out(\$u->{$_}); }
 
-    $u->{'_journalbase'} = LJ::journal_base($u->{'user'}, $opts->{'vhost'});
+    $u->{'_journalbase'} = $u->journal_base( $opts->{'vhost'} );
 
     my $view2class = {
         lastn    => "RecentPage",
@@ -1731,8 +1731,8 @@ sub Tag
     my $t = {
         _type => 'Tag',
         _id => $kwid,
-        name => LJ::ehtml($kw),
-        url => LJ::journal_base($u) . '/tag/' . LJ::eurl($kw),
+        name => LJ::ehtml( $kw ),
+        url => $u->journal_base . '/tag/' . LJ::eurl( $kw ),
     };
 
     return $t;
@@ -1746,8 +1746,8 @@ sub TagDetail
     my $t = {
         _type => 'TagDetail',
         _id => $kwid,
-        name => LJ::ehtml($tag->{name}),
-        url => LJ::journal_base($u) . '/tag/' . LJ::eurl($tag->{name}),
+        name => LJ::ehtml( $tag->{name} ),
+        url => $u->journal_base . '/tag/' . LJ::eurl( $tag->{name} ),
         use_count => $tag->{uses},
         visibility => $tag->{security_level},
     };

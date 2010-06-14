@@ -105,7 +105,7 @@ HEAD
             # this should do some cute ajax display later.
             my $tags = LJ::Tags::get_usertags( $u ); # we redirect, so we don't double load anyway
             my $taglist = LJ::eurl(join ',', map { $tags->{$_}->{name} } map { /^(\d+)_/; $1; } split /\0/, $POST{tags});
-            BML::redirect( LJ::journal_base($u) . "/tag/$taglist" );
+            BML::redirect( $u->journal_base . "/tag/$taglist" );
         }
 
         if ($POST{'save_levels'}) {

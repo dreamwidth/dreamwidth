@@ -5240,8 +5240,7 @@ sub revoke_priv_all {
 =cut
 
 sub journal_base {
-    my $u = shift;
-    return LJ::journal_base($u);
+    return LJ::journal_base( @_ );
 }
 
 
@@ -8444,7 +8443,7 @@ sub make_journal
     return unless $styleid;
 
 
-    $u->{'_journalbase'} = LJ::journal_base( $u->user, $opts->{'vhost'} );
+    $u->{'_journalbase'} = $u->journal_base( $opts->{'vhost'} );
 
     my $eff_view = $LJ::viewinfo{$view}->{'styleof'} || $view;
 
@@ -8568,7 +8567,7 @@ sub make_journal
         $opts->{'status'} = $status if $status;
 
         my $head;
-        my $journalbase = LJ::journal_base($user);
+        my $journalbase = $u->journal_base;
 
         # Automatic Discovery of RSS/Atom
         $head .= qq{<link rel="alternate" type="application/rss+xml" title="RSS" href="$journalbase/data/rss" />\n};

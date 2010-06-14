@@ -48,7 +48,7 @@ _c?>
                 if ($what eq "pics") {
                     $url = $u->allpics_base;
                 } elsif ($output eq "foaf") {
-                    $url = LJ::journal_base($user) . '/data/foaf';
+                    $url = $u->journal_base . '/data/foaf';
                 } else {
                     $url = $u->profile_url;
                     $url .= "?mode=full" if $what eq 'full';
@@ -94,7 +94,7 @@ _c?>
             if (my $u = LJ::load_userid($uid)) {
                 next unless $u->opt_findbyemail =~ /Y|H/; # The user has allowed to search for it by email
                 if ($output eq "foaf") {
-                    $ret{result} .= '<a href="' . LJ::journal_base($u) . '/data/foaf">' . $u->{user}. '</a>';
+                    $ret{result} .= '<a href="' . $u->journal_base . '/data/foaf">' . $u->{user}. '</a>';
                 } else {
                     $ret{result} .= '<a href="' . $u->profile_url . '">' . $u->{user}. '</a>';
                 }

@@ -44,8 +44,8 @@ sub RecentPage
         $p->{head_content} .= '<link rel="'.$rel.'" title="'.LJ::ehtml($friendstitle).'" href="'.LJ::ehtml($friendsurl)."\" />\n";
     }
 
-    my $user = $u->{'user'};
-    my $journalbase = LJ::journal_base($user, $opts->{'vhost'});
+    my $user = $u->user;
+    my $journalbase = $u->journal_base( $opts->{'vhost'} );
 
     my $datalink = sub {
         my ($what, $caption) = @_;

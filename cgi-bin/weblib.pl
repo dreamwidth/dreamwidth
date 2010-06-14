@@ -96,9 +96,7 @@ sub date_to_view_links
     return unless $date =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/;
 
     my ($y, $m, $d) = ($1, $2, $3);
-    my ($nm, $nd) = ($m+0, $d+0);   # numeric, without leading zeros
-    my $user = $u->{'user'};
-    my $base = LJ::journal_base($u);
+    my $base = $u->journal_base;
 
     my $ret;
     $ret .= "<a href=\"$base/$y/\">$y</a>-";
@@ -682,7 +680,7 @@ sub create_qr_div {
     $qrhtml .= LJ::form_auth();
 
     my $stylemineuri = $style_opts ? LJ::viewing_style_args( $style_opts ) : "";
-    my $basepath =  LJ::journal_base($u) . "/$ditemid.html?${stylemineuri}";
+    my $basepath =  $u->journal_base . "/$ditemid.html?${stylemineuri}";
     my $usertype = ($remote->openid_identity && $remote->is_validated) ? 'openid_cookie' : 'cookieuser';
     $qrhtml .= LJ::html_hidden({'name' => 'replyto', 'id' => 'replyto', 'value' => ''},
                                {'name' => 'parenttalkid', 'id' => 'parenttalkid', 'value' => ''},

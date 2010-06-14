@@ -304,7 +304,7 @@ _c?>
         # show style listing
         $body .= "<table style='margin-left: 40px'>\n";
         if (%$ustyle) {
-            my $journalbase = LJ::journal_base($u);
+            my $journalbase = $u->journal_base;
             foreach my $styleid (sort { $ustyle->{$a} cmp $ustyle->{$b} || $a <=> $b} keys %$ustyle) {
                 $body .= "<tr><td><form style='display:inline' method='post' action='styles?id=$styleid$getextra_amp'>";
                 $body .= $formauth;

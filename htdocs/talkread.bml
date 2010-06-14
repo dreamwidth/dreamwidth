@@ -137,9 +137,9 @@ body<=
         return "<?h1 $ML{'Error'} h1?><?p $ML{'talk.error.noentry'} p?>";
     }
 
-    my $jarg = "journal=$u->{'user'}&";
-    my $jargent ="journal=$u->{'user'}&amp;";
-    my $talkurl = LJ::journal_base($u) . "/$ditemid.html";
+    my $jarg = "journal=$u->{user}&";
+    my $jargent ="journal=$u->{user}&amp;";
+    my $talkurl = $u->journal_base . "/$ditemid.html";
 
     my $ret = "";
 
@@ -348,7 +348,7 @@ body<=
 
     my $logtags = LJ::Tags::get_logtags($u, $itemid);
     if ($logtags->{$itemid} && %{$logtags->{$itemid}}) {
-        my $base = LJ::journal_base($u);
+        my $base = $u->journal_base;
         $current{'Tags'} = join(', ',
                                map { "<a href='$base/tag/" . LJ::eurl($_) . "'>" . LJ::ehtml($_) . "</a>" }
                                sort values %{$logtags->{$itemid}}

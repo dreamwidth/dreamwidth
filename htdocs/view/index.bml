@@ -94,7 +94,7 @@ _c?>
         $head .= LJ::robot_meta_tags();
     }
 
-    my $base = LJ::journal_base($u);
+    my $base = $u->journal_base;
 
     if (LJ::did_post()) {
         my $newuri = sprintf("$base/%04d/%02d/", $POST{'y'}, $POST{'m'});

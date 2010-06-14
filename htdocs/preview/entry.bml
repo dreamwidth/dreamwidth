@@ -251,7 +251,7 @@ _c?>
         $opts->{'r'} = $r;
 
         $u->{'_s2styleid'} = $styleid + 0;
-        $u->{'_journalbase'} = LJ::journal_base($u->{'user'});
+        $u->{'_journalbase'} = $u->journal_base;
 
         $LJ::S2::CURR_CTX = $ctx;
 

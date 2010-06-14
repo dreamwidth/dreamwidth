@@ -311,9 +311,9 @@ body<=
             next unless $delmaintu;
 
             # send email to the poor maintainer who got removed
-            my $mailusername = $delmaintu->{user};
-            my $mailusercname = $c->{name};
-            my $mailclink = LJ::journal_base($c, ['community']);
+            my $mailusername = $delmaintu->user;
+            my $mailusercname = $c->name_raw;
+            my $mailclink = $c->journal_base( ['community'] );
 
             my $html;
 
@@ -374,9 +374,9 @@ body<=
             next unless $newmaintu;
 
             # send email to the new maintainer
-            my $mailusername = $newmaintu->{user};
-            my $mailusercname = $c->{name};
-            my $mailclink = LJ::journal_base($c, ['community']);
+            my $mailusername = $newmaintu->user;
+            my $mailusercname = $c->name_raw;
+            my $mailclink = $c->journal_base( ['community'] );
             my $mailcommanlink = "$LJ::SITEROOT/community/manage";
 
             my $html;

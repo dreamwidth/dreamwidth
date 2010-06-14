@@ -33,8 +33,8 @@ sub MonthPage
 
     my $dbcr = LJ::get_cluster_reader($u);
 
-    my $user = $u->{'user'};
-    my $journalbase = LJ::journal_base($user, $opts->{'vhost'});
+    my $user = $u->user;
+    my $journalbase = $u->journal_base( $opts->{'vhost'} );
 
     if ($u->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();

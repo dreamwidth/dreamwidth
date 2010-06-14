@@ -167,9 +167,9 @@ _c?>
             if (my $u = LJ::load_userid($uid)) {
                 if ($u->opt_whatemailshow eq "A" || $u->opt_whatemailshow eq "B") {
                     if ($output eq "foaf") {
-                        return BML::redirect(LJ::journal_base($u) . '/data/foaf');
+                        return BML::redirect( $u->journal_base . '/data/foaf' );
                     } else {
-                        return BML::redirect($u->profile_url);
+                        return BML::redirect( $u->profile_url );
                     }
                 }
             }

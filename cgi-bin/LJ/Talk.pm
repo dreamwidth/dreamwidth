@@ -2319,7 +2319,7 @@ sub mail_comments {
     my $itemid = $item->{itemid};
     my $ditemid = $itemid*256 + $item->{anum};
     my $dtalkid = $comment->{talkid}*256 + $item->{anum};
-    my $talkurl = LJ::journal_base($journalu) . "/$ditemid.html";
+    my $talkurl = $journalu->journal_base . "/$ditemid.html";
     my $threadurl = LJ::Talk::talkargs($talkurl, "thread=$dtalkid");
     my $edited = $comment->{editid} ? 1 : 0;
 
@@ -2940,7 +2940,7 @@ sub init {
     my $iprops = $item->{'props'};
     my $ditemid = $init->{'ditemid'}+0;
 
-    my $talkurl = LJ::journal_base($journalu) . "/$ditemid.html";
+    my $talkurl = $journalu->journal_base . "/$ditemid.html";
     $init->{talkurl} = $talkurl;
 
     ### load users

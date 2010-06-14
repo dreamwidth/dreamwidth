@@ -540,7 +540,7 @@ sub handle {
         $link->title($title);
         $link->type('text/html');
         $link->rel('alternate');
-        $link->href( LJ::journal_base($u) );
+        $link->href( $u->journal_base );
         $feed->add_link($link);
 
         return respond($r, 200, \$feed->as_xml(), 'atom');
