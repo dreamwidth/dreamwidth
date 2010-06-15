@@ -2905,7 +2905,7 @@ sub init {
         return undef;
     };
     my $mlerr = sub {
-        return $err->( LJ::Lang::ml( $_[0] ) );
+        return $err->( LJ::Lang::ml( @_ ) );
     };
 
     my $init = LJ::Talk::init($form);
@@ -2917,9 +2917,8 @@ sub init {
 
     return $err->("Account is locked, unable to post or edit a comment.") if $journalu->is_locked;
 
-    my $r = BML::get_request();
-    $r->notes->{journalid} = $journalu->{'userid'}
-        if $r;
+    my $r = DW::Request->get;
+    $r->note( 'journalid', $journalu->userid ) if $r;
 
     my $dbcr = LJ::get_cluster_def_reader($journalu);
     return $mlerr->('error.nodb') unless $dbcr;
@@ -2957,7 +2956,8 @@ sub init {
 
     # anonymous/cookie users cannot authenticate with ecphash
     if ($form->{'ecphash'} && $form->{'usertype'} ne "user") {
-        $err->(BML::ml("$SC.error.badusername2", {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/lostinfo'"}));
+        $mlerr->( "$SC.error.badusername2", { sitename => $LJ::SITENAMESHORT,
+                  aopts => "href='$LJ::SITEROOT/lostinfo'" } );
         return undef;
     }
 
@@ -3029,7 +3029,8 @@ sub init {
                         {
                             $used_ecp = 1;
                         } else {
-                            $err->(BML::ml("$SC.error.badpassword2", {'aopts' => "href='$LJ::SITEROOT/lostinfo'"}));
+                            $mlerr->( "$SC.error.badpassword2",
+                                { aopts => "href='$LJ::SITEROOT/lostinfo'" } );
                         }
 
                     # otherwise authenticate on username/password
@@ -3040,7 +3041,9 @@ sub init {
                         } else {
                             $ok = LJ::auth_okay($up, $form->{'password'}, $form->{'hpassword'});
                         }
-                        $err->(BML::ml("$SC.error.badpassword2", {'aopts' => "href='$LJ::SITEROOT/lostinfo'"})) unless $ok;
+                        $mlerr->( "$SC.error.badpassword2",
+                                { aopts => "href='$LJ::SITEROOT/lostinfo'" } )
+                            unless $ok;
                     }
                 }
 
@@ -3049,12 +3052,14 @@ sub init {
                     $init->{didlogin} = $up->make_login_session($exptype, $ipfixed);
                 }
             } else {
-                $err->(BML::ml("$SC.error.badusername2", {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/lostinfo'"}));
+                $mlerr->( "$SC.error.badusername2",
+                          { sitename => $LJ::SITENAMESHORT,
+                            aopts => "href='$LJ::SITEROOT/lostinfo'" } );
             }
         } elsif ($journalu->{'opt_whocanreply'} eq "all") {
-            $err->(BML::ml("$SC.error.nousername", {'sitename' => $LJ::SITENAMESHORT}));
+            $mlerr->( "$SC.error.nousername", { sitename => $LJ::SITENAMESHORT } );
         } else {
-            $err->(BML::ml("$SC.error.nousername.noanon", {'sitename' => $LJ::SITENAMESHORT}));
+            $mlerr->( "$SC.error.nousername.noanon", { sitename => $LJ::SITENAMESHORT } );
         }
     }
 
@@ -3201,7 +3206,7 @@ sub init {
 
     if ($up) {
         if ($up->{'status'} eq "N" && !$up->is_identity && !LJ::Hooks::run_hook("journal_allows_unvalidated_commenting", $journalu)) {
-            $err->(BML::ml("$SC.error.noverify2", {'aopts' => "href='$LJ::SITEROOT/register'"}));
+            $mlerr->( "$SC.error.noverify2", { aopts => "href='$LJ::SITEROOT/register'" } );
         }
 
         $mlerr->("$SC.error.purged")    if $up->is_expunged;
@@ -3214,12 +3219,12 @@ sub init {
             if ($up->{'userid'} != $journalu->{'userid'}) {
                 unless ( $journalu->trusts_or_has_member( $up ) ) {
                     my $msg = $journalu->is_comm ? "notamember" : "notafriend";
-                    $err->(BML::ml("$SC.error.$msg", {'user'=>$journalu->{'user'}}));
+                    $mlerr->( "$SC.error.$msg", { user => $journalu->user } );
                 }
             }
         } else {
             my $msg = $journalu->is_comm ? "membersonly" : "friendsonly";
-            $err->(BML::ml("$SC.error.$msg", {'user'=>$journalu->{'user'}}));
+            $mlerr->( "$SC.error.$msg", { user => $journalu->user } );
         }
     }
 
@@ -3252,9 +3257,11 @@ sub init {
 
     my ($bl, $cl) = LJ::text_length($form->{'body'});
     if ($cl > LJ::CMAX_COMMENT) {
-        $err->(BML::ml("$SC.error.manychars", {'current'=>$cl, 'limit'=>LJ::CMAX_COMMENT}));
+        $mlerr->( "$SC.error.manychars", { current => $cl,
+                                           limit => LJ::CMAX_COMMENT } );
     } elsif ($bl > LJ::BMAX_COMMENT) {
-        $err->(BML::ml("$SC.error.manybytes", {'current'=>$bl, 'limit'=>LJ::BMAX_COMMENT}));
+        $mlerr->( "$SC.error.manybytes", { current => $bl,
+                                           limit => LJ::BMAX_COMMENT } );
     }
     # the Subject can be silently shortened, no need to reject the whole comment
     $form->{'subject'} = LJ::text_trim($form->{'subject'}, 100, 100);
