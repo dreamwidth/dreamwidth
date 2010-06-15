@@ -22,10 +22,7 @@ use strict;
 # des-user: User hashref or userid.
 # des-journal: Journal hashref or userid.
 # </LJFUNC>
-sub is_banned
-{
-    &nodb;
-
+sub is_banned {
     # get user and journal ids
     my $uid = LJ::want_userid(shift);
     my $jid = LJ::want_userid(shift);
@@ -330,9 +327,7 @@ sub check_rel
 # des-type: type of the relationship
 # returns: 1 if set succeeded, otherwise undef
 # </LJFUNC>
-sub set_rel
-{
-    &nodb;
+sub set_rel {
     my ($userid, $targetid, $type) = @_;
     return undef unless $type and $userid and $targetid;
 
@@ -535,9 +530,7 @@ sub _mod_rel_multi
 # des-type: type of the relationship
 # returns: 1 if clear succeeded, otherwise undef
 # </LJFUNC>
-sub clear_rel
-{
-    &nodb;
+sub clear_rel {
     my ($userid, $targetid, $type) = @_;
     return undef if $userid eq '*' and $targetid eq '*';
 

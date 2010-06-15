@@ -6004,7 +6004,6 @@ use Carp;
 # des-opts: hashref containing keys 'user', 'name', 'password', 'email', 'caps', 'journaltype'.
 # </LJFUNC>
 sub create_account {
-    &nodb;
     my $opts = shift;
     my $u = LJ::User->create(%$opts)
         or return 0;
@@ -6093,9 +6092,7 @@ sub canonical_username
 # des-user: Username whose userid to look up.
 # returns: Userid, or 0 if invalid user.
 # </LJFUNC>
-sub get_userid
-{
-    &nodb;
+sub get_userid {
     my $user = LJ::canonical_username( $_[0] );
 
     if ($LJ::CACHE_USERID{$user}) { return $LJ::CACHE_USERID{$user}; }
@@ -6135,9 +6132,7 @@ sub get_userid
 # des-user: Username whose userid to look up.
 # returns: Userid, or 0 if invalid user.
 # </LJFUNC>
-sub get_username
-{
-    &nodb;
+sub get_username {
     my $userid = $_[0] + 0;
 
     # Checked the cache first.
@@ -6191,9 +6186,7 @@ sub isu {
 #            query a dbh.
 # returns: Hashref, with keys being columns of [dbtable[user]] table.
 # </LJFUNC>
-sub load_user
-{
-    &nodb;
+sub load_user {
     my ($user, $force) = @_;
 
     $user = LJ::canonical_username($user);
@@ -6314,9 +6307,7 @@ sub load_user_or_identity {
 #            query a dbh
 # returns: Hashref with keys being columns of [dbtable[user]] table.
 # </LJFUNC>
-sub load_userid
-{
-    &nodb;
+sub load_userid {
     my ($userid, $force) = @_;
     return undef unless $userid;
 
@@ -6389,9 +6380,7 @@ sub load_userids
 # des-memcache_only: Flag to only retrieve data from memcache.
 # returns: Nothing.
 # </LJFUNC>
-sub load_userids_multiple
-{
-    &nodb;
+sub load_userids_multiple {
     # the $have parameter is deprecated, as is $memcache_only, but it's still preserved for now.
     # actually this whole API is crap.  use LJ::load_userids() instead.
     my ($map, undef, $memcache_only) = @_;
@@ -7418,9 +7407,7 @@ sub modify_caps {
 #            empty string, then property is deleted.
 # des-memonly: if true, only writes to memcache, and not to database.
 # </LJFUNC>
-sub set_userprop
-{
-    &nodb;
+sub set_userprop {
     my ($u, $propname, $value, $memonly) = @_;
     $u = ref $u ? $u : LJ::load_userid($u);
     my $userid = $u->userid + 0;
@@ -8384,9 +8371,7 @@ sub journal_base
 # des-:
 # returns:
 # </LJFUNC>
-sub make_journal
-{
-    &nodb;
+sub make_journal {
     my ($user, $view, $remote, $opts) = @_;
 
     my $r = DW::Request->get;

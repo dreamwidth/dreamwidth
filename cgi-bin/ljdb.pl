@@ -484,13 +484,6 @@ sub use_diff_db {
     $LJ::DBIRole->use_diff_db(@_);
 }
 
-# to be called as &nodb; (so this function sees caller's @_)
-sub nodb {
-    shift @_ if
-        ref $_[0] eq "LJ::DBSet" || ref $_[0] eq "DBI::db" ||
-        ref $_[0] eq "Apache::DBI::db";
-}
-
 sub dbtime_callback {
     my ($dsn, $dbtime, $time) = @_;
     my $diff = abs($dbtime - $time);

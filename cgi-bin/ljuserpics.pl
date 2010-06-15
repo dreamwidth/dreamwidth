@@ -23,9 +23,7 @@ use Carp qw/ croak /;
 # des-idlist: [$u, $picid] or [[$u, $picid], [$u, $picid], +] objects
 #             also supports deprecated old method, of an array ref of picids.
 # </LJFUNC>
-sub load_userpics
-{
-    &nodb;
+sub load_userpics {
     my ($upics, $idlist) = @_;
 
     return undef unless ref $idlist eq 'ARRAY' && $idlist->[0];

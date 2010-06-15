@@ -1092,9 +1092,7 @@ use LJ::EmbedModule;
 # des-idsbyc: A hashref where the key is the clusterid, and the data
 #             is an arrayref of [ ownerid, itemid ] array references.
 # </LJFUNC>
-sub get_logtext2multi
-{
-    &nodb;
+sub get_logtext2multi {
     return _get_posts_raw_wrapper(shift, "text");
 }
 
@@ -1895,9 +1893,7 @@ sub load_log_props2
 # des-:
 # returns:
 # </LJFUNC>
-sub load_log_props2multi
-{
-    &nodb;
+sub load_log_props2multi {
     my ($ids, $props) = @_;
     _get_posts_raw_wrapper($ids, "prop", $props);
 }
@@ -2185,9 +2181,7 @@ sub item_link
 # returns:
 # </LJFUNC>
 
-sub expand_embedded
-{
-    &nodb;
+sub expand_embedded {
     my ($u, $ditemid, $remote, $eventref, %opts) = @_;
     LJ::Poll->expand_entry($eventref) unless $opts{preview};
     LJ::EmbedModule->expand_entry($u, $eventref, %opts);

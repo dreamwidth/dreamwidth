@@ -366,9 +366,7 @@ sub text_in
 #            text needs to be translated).
 # returns: converted text or undef on error
 # </LJFUNC>
-sub text_convert
-{
-    &nodb;
+sub text_convert {
     my ($text, $u, $error) = @_;
 
     # maybe it's pure ASCII?

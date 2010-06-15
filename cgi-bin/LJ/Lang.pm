@@ -309,9 +309,7 @@ sub get_chgtime_unix
     return $chgtime ? LJ::mysqldate_to_time($chgtime) : 0;
 }
 
-sub get_itemid
-{
-    &LJ::nodb;
+sub get_itemid {
     my ($dmid, $itcode, $opts) = @_;
     load_lang_struct() unless $LS_CACHED;
 
@@ -367,9 +365,7 @@ sub web_set_text {
     return ($save_success, $resp);
 }
 
-sub set_text
-{
-    &LJ::nodb;
+sub set_text {
     my ($dmid, $lncode, $itcode, $text, $opts) = @_;
     load_lang_struct() unless $LS_CACHED;
 

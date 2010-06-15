@@ -511,9 +511,7 @@ sub get_times_multi {
 #          a 15 character string of random characters from
 #          [func[LJ::make_auth_code]].
 # </LJFUNC>
-sub register_authaction
-{
-    &nodb;
+sub register_authaction {
     my $dbh = LJ::get_db_writer();
 
     my $userid = shift;  $userid += 0;
@@ -555,9 +553,7 @@ sub get_authaction {
 # des-shtype: The status history type code.
 # des-notes: Optional notes associated with this action.
 # </LJFUNC>
-sub statushistory_add
-{
-    &nodb;
+sub statushistory_add {
     my $dbh = LJ::get_db_writer();
 
     my $userid = shift;
@@ -636,10 +632,7 @@ sub get_authas_user {
 # des-aaid: Integer; the authaction ID.
 # des-auth: String; the auth string. (random chars the client already got)
 # </LJFUNC>
-sub is_valid_authaction
-{
-    &nodb;
-
+sub is_valid_authaction {
     # we use the master db to avoid races where authactions could be
     # used multiple times
     my $dbh = LJ::get_db_writer();
@@ -778,9 +771,7 @@ sub get_prop
 #                and their associated values being hashrefs to where you
 #                want that data to be populated.
 # </LJFUNC>
-sub load_codes
-{
-    &nodb;
+sub load_codes {
     my $req = shift;
 
     my $dbr = LJ::get_db_reader()
@@ -820,10 +811,7 @@ sub load_codes
 # args: dbarg?, zip
 # des-zip: zip code
 # </LJFUNC>
-sub load_state_city_for_zip
-{
-    &nodb;
-
+sub load_state_city_for_zip {
     my $zip = shift;
     my ($zipcity, $zipstate);
 
@@ -1840,9 +1828,7 @@ sub color_todb
 #           required args for different commands.
 # returns: new serial number on success; 0 on fail.
 # </LJFUNC>
-sub procnotify_add
-{
-    &nodb;
+sub procnotify_add {
     my ($cmd, $argref) = @_;
     my $dbh = LJ::get_db_writer();
     return 0 unless $dbh;
