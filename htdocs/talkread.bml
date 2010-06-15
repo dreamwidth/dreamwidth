@@ -913,5 +913,5 @@ _code?>
 <=body
 windowtitle=><?_code return $_[1] ? $_[1]->{'title'} : $r_title _code?>
 head=><?_code return $_[1] ? $_[1]->{'head'} : $r_head _code?>
-bodyopts=><?_code return $_[1]->{'bodyopts'}; _code?>
+bodyopts=><?_code return "id='page_talkread' class='self_wrap'" . $_[1]->{'bodyopts'}; _code?>
 page?>

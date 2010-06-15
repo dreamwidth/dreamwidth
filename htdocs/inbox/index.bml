@@ -275,4 +275,5 @@ function Page_Next (e) {
 
 <=head
 
+bodyopts=><?_code return "id='page_inbox' class='self_wrap'" _code?>
 page?>
