@@ -1425,7 +1425,7 @@ sub postevent
     return $fail->($err,501,$dberr) if $dberr;
 
     LJ::MemCache::incr([$ownerid, "log2ct:$ownerid"]);
-    $uowner->clear_daycounts( $qallowmask || $req->{security} );
+    $uowner->clear_daycounts( $qallowmask || $security );
 
     # set userprops.
     {
@@ -2010,7 +2010,7 @@ sub editevent
     }
     return fail($err,501,$dbcm->errstr) if $dbcm->err;
 
-    $uowner->clear_daycounts( $oldevent->{allowmask} + 0 || $oldevent->{security}, $req->{allowmask} + 0 || $req->{security} );
+    $uowner->clear_daycounts( $oldevent->{allowmask} + 0 || $oldevent->{security}, $qallowmask || $security );
 
     $res->{itemid} = $itemid;
     if (defined $oldevent->{'anum'}) {
