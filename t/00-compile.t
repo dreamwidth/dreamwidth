@@ -17,7 +17,6 @@ my %SKIP = (
     'LJ/LDAP.pm'              => 'bug 1788  needs Net::LDAP',
     'LJ/ConfCheck/General.pm' => 'needs to be integrated into LJ::ConfCheck',
 
-    'LJ/Test/AtomAPI.pm'      => 'fix Test/FakeApache.pm',
     'Test/FakeApache.pm'      => 'needs Apache::Constants',
     'Apache/CompressClientFixup.pm' => 'needs Apache::Constants',
 
