@@ -609,15 +609,15 @@ sub get_authas_user {
     return undef unless $remote;
 
     # remote is already what they want?
-    return $remote if $remote->{'user'} eq $user;
+    return $remote if $remote->user eq $user;
 
     # load user and authenticate
     my $u = LJ::load_user($user);
     return undef unless $u;
     return undef unless $u->{clusterid};
 
-    # does $u have admin access?
-    return undef unless LJ::can_manage($remote, $u);
+    # does $remote have admin access to $u?
+    return undef unless $remote->can_manage( $u );
 
     # passed all checks, return $u
     return $u;

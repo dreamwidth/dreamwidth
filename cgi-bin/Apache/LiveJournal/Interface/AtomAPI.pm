@@ -566,8 +566,8 @@ sub handle {
     # we've authenticated successfully and remote is set. But can remote
     # manage the requested account?
     my $remote = LJ::get_remote();
-    unless (LJ::can_manage($remote, $u)) {
-        return respond($r, 403, "User <b>$remote->{'user'}</b> has no administrative access to account <b>$u->{user}</b>.");
+    unless ( $remote && $remote->can_manage( $u ) ) {
+        return respond( $r, 403, "User <b>$remote->{user}</b> has no administrative access to account <b>$u->{user}</b>." );
     }
 
     # handle the requested action

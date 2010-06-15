@@ -97,10 +97,11 @@ _c?>
             if $renamedto;
     }
 
-    my ($can_manage, $getextra);
-    if ($remote) {
-        $can_manage = LJ::can_manage($remote, $u->{'userid'});
-        $getextra = $can_manage && $remote->{'user'} ne $u->{'user'} ? "?authas=$u->{'user'}" : '';
+    my ( $can_manage, $getextra );
+    if ( $remote ) {
+        $can_manage = $remote->can_manage( $u );
+        $getextra = $can_manage && ! $remote->equals( $u )
+                    ? "?authas=" . $u->user : '';
     }
 
     #### show pictures

@@ -53,7 +53,7 @@ sub execute {
             unless $foru;
 
         return $self->error("You cannot change tag display settings for $args[1]")
-            unless LJ::can_manage($remote, $foru);
+            unless $remote && $remote->can_manage( $foru );
 
         ($tag, $val) = ($args[2], $args[3]);
     } else {

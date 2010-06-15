@@ -43,7 +43,7 @@ _c?>
             $errors{username} = $ML{'.error.badstatus'} unless %errors || $cu->is_visible || $cu->is_deleted;
 
             # are they already a maintainer?
-            $errors{username} = $ML{'.error.alreadyadmin'} if !%errors && LJ::can_manage($remote, $cu);
+            $errors{username} = $ML{'.error.alreadyadmin'} if !%errors && $remote->can_manage_other( $cu );
 
             # check the password last
             $errors{password} = $ML{'.error.nopassword'} if !%errors && !$POST{password};

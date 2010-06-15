@@ -86,7 +86,7 @@ _c?>
 
  # owner if you've authed as them or you administrate them
  my $is_owner = $authasu && $user eq $authasu->{user} ||
-                LJ::can_manage_other($remote, $u);
+                $remote && $remote->can_manage_other( $u );
 
  my $userid = $u->{'userid'};
 

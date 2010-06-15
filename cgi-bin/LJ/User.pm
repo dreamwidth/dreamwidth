@@ -2022,8 +2022,9 @@ sub can_show_onlinestatus {
 
 sub can_track_all_community_comments {
     my ( $remote, $journal ) = @_;
-    return 1 if $journal->is_community && ( LJ::can_manage_other( $remote, $journal )
-                || $journal->is_paid && $remote->member_of( $journal ) );
+    return 1 if LJ::isu( $journal ) && $journal->is_community
+                && ( $remote->can_manage_other( $journal )
+                     || $journal->is_paid && $remote->member_of( $journal ) );
 }
 
 sub can_track_defriending {
@@ -3661,7 +3662,34 @@ sub num_comments_received {
 =cut
 
 sub can_manage {
-    return LJ::can_manage( @_ );
+    # true if the first user is an admin for the target user.
+    my ( $u, $target ) = @_;
+    # backward compatibility: allow $target to be a userid
+    $target = LJ::want_user( $target ) or return undef;
+
+    # is same user?
+    return 1 if $u->equals( $target );
+
+    # people/syn/rename accounts can only be managed by the one account
+    return 0 if $target->journaltype =~ /^[PYR]$/;
+
+    # check for admin access
+    return 1 if LJ::check_rel( $target, $u, 'A' );
+
+    # failed checks, return false
+    return 0;
+}
+
+
+sub can_manage_other {
+    # true if the first user is an admin for the target user,
+    # UNLESS the two users are the same.
+    my ( $u, $target ) = @_;
+    # backward compatibility: allow $target to be a userid
+    $target = LJ::want_user( $target ) or return undef;
+
+    return 0 if $u->equals( $target );
+    return $u->can_manage( $target );
 }
 
 
@@ -7790,55 +7818,6 @@ sub delete_all_comments {
 
 =head2 Community-Related Functions and Authas (LJ)
 =cut
-
-sub can_delete_journal_item {
-    return LJ::can_manage(@_);
-}
-
-
-# <LJFUNC>
-# name: LJ::can_manage
-# des: Given a user and a target user, will determine if the first user is an
-#      admin for the target user.
-# returns: bool: true if authorized, otherwise fail
-# args: remote, u
-# des-remote: user object or userid of user to try and authenticate
-# des-u: user object or userid of target user
-# </LJFUNC>
-sub can_manage {
-    my $remote = LJ::want_user(shift);
-    my $u = LJ::want_user(shift);
-    return undef unless $remote && $u;
-
-    # is same user?
-    return 1 if LJ::u_equals($u, $remote);
-
-    # people/syn/rename accounts can only be managed by the one account
-    return undef if $u->journaltype =~ /^[PYR]$/;
-
-    # check for admin access
-    return undef unless LJ::check_rel($u, $remote, 'A');
-
-    # passed checks, return true
-    return 1;
-}
-
-
-# <LJFUNC>
-# name: LJ::can_manage_other
-# des: Given a user and a target user, will determine if the first user is an
-#      admin for the target user, but not if the two are the same.
-# args: remote, u
-# des-remote: user object or userid of user to try and authenticate
-# des-u: user object or userid of target user
-# returns: bool: true if authorized, otherwise fail
-# </LJFUNC>
-sub can_manage_other {
-    my ($remote, $u) = @_;
-    return 0 if LJ::want_userid($remote) == LJ::want_userid($u);
-    return LJ::can_manage($remote, $u);
-}
-
 
 # <LJFUNC>
 # name: LJ::get_authas_list

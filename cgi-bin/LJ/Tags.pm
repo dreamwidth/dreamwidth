@@ -290,9 +290,9 @@ sub get_usertags {
 
     # now if they provided a remote, remove the ones they don't want to see; note that
     # remote may be undef so we have to check exists
-    if (exists $opts->{remote}) {
+    if ( exists $opts->{remote} ) {
         # never going to cull anything if you control it, so just return
-        return $res if LJ::can_manage($opts->{remote}, $u);
+        return $res if $opts->{remote}->can_manage( $u );
 
         # setup helper variables from u to remote
         my ($trusted, $grpmask) = (0, 0);
@@ -541,7 +541,7 @@ sub _remote_satisfies_permission {
     return undef unless $u && $remote && $perm;
 
     # allow if they can manage it (own, or 'A' edge)
-    return 1 if LJ::can_manage($remote, $u);
+    return 1 if $remote->can_manage( $u );
 
     # permission checks
     if ($perm eq 'public') {
@@ -551,7 +551,7 @@ sub _remote_satisfies_permission {
     } elsif ( $perm eq 'protected' || $perm eq 'friends' ) { # 'friends' for backwards compatibility
         return $u->trusts_or_has_member( $remote );
     } elsif ($perm eq 'private') {
-        return LJ::can_manage($remote, $u);
+        return 0;  # $remote->can_manage( $u ) already returned 1 above
     } elsif ( $perm eq 'author_admin' ) {
         # this tests whether the remote can add tags for this journal in general
         # when we don't have an entry object available to us (e.g., posting)

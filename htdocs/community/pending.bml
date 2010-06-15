@@ -45,10 +45,10 @@ body<=
     my $c = LJ::load_user($cname);
     return $ret . "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nocomm'} p?>"
         unless $c;
-    my $cid = $c->{'userid'};
+    my $cid = $c->userid;
 
     # is $remote an admin?
-    unless (LJ::can_manage($remote, $c)) {
+    unless ( $remote->can_manage_other( $c ) ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
         $ret .= BML::ml('.error.noaccess', 
                         { comm => LJ::ljuser($cname, { type => 'C' }) });

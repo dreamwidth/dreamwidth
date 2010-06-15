@@ -102,7 +102,7 @@ _info?><?_code
         return $error->($err);
     }
 
-    my $can_manage = LJ::can_manage($remote, $u);
+    my $can_manage = $remote->can_manage( $u );
 
     # can ban if can manage and the comment is by someone else and not anon
     my $can_ban = $can_manage && $tp->{'posterid'}

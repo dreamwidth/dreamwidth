@@ -50,12 +50,12 @@ _c?>
         $lay->{b2lid} = $LJ::S2LID_REMAP{$b2lid};
     }
 
+    # get u of user they are acting as
+    my $u = LJ::load_userid( $lay->{userid} );
+
     # is authorized admin for this layer?
     return $err->('You are not authorized to edit this layer.')
-        unless LJ::can_manage($remote, $lay->{'userid'});
-
-    # get u of user they are acting as
-    my $u = $lay->{'userid'} == $remote->{'userid'} ? $remote : LJ::load_userid($lay->{'userid'});
+        unless $u && $remote->can_manage( $u );
 
     # check priv and ownership
     return $err->("You are not authorized to edit styles.")

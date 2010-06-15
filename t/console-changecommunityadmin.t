@@ -24,7 +24,7 @@ my $run = sub {
 
 LJ::clear_rel($comm, $u, 'A');
 $refresh->();
-is(LJ::can_manage($u, $comm), undef, "Verified that user is not maintainer");
+ok( ! $u->can_manage( $comm ), "Verified that user is not maintainer" );
 
 is($run->("change_community_admin " . $comm->user . " " . $u->user),
    "error: You are not authorized to run this command.");
@@ -44,7 +44,7 @@ is($run->("change_community_admin " . $comm->user . " " . $u->user),
    "success: Transferred maintainership of '" . $comm->user . "' to '" . $u->user . "'.");
 
 $refresh->();
-ok(LJ::can_manage($u, $comm), "Verified user is maintainer");
-ok($u->email_raw eq $comm->email_raw, "Addresses match");
+ok( $u->can_manage( $comm ), "Verified user is maintainer" );
+ok( $u->email_raw eq $comm->email_raw, "Addresses match" );
 ok(!$comm->password, "Password cleared");
 $u->revoke_priv("communityxfer");

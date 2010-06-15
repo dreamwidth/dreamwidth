@@ -132,12 +132,11 @@ _c?>
 
     # do they have access?
     my $isadmin = ! defined $pub->{$id} && $remote && $remote->has_priv( 'canview', 'styles' );
+    my $can_manage = $remote && $remote->can_manage( LJ::load_userid( $layer->{userid} ) );
     # public styles are pulled from the system account, so we don't
     # want to check privileges in case they're private styles
     return $err->($ML{'.error.cantviewlayer'})
-        unless defined $pub->{$id} || $srcview == 1 ||
-               LJ::can_manage($remote, $layer->{'userid'}) ||
-               $isadmin;
+        unless defined $pub->{$id} || $srcview == 1 || $isadmin || $can_manage;
 
     LJ::S2::load_layers($id);
     my $s2info = S2::get_layer_all($id);
@@ -169,10 +168,8 @@ _c?>
     if ($layer->{'b2lid'}) {
         $body .= BML::ml('Actionlink', { 'link' => "<a href=\"$LJ::SITEROOT/customize/advanced/layerbrowse?id=$layer->{'b2lid'}\">$ML{'.nav.parentlayer'}</a>" }) . "\n";
     }
-    if (defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
-            $srcview == 1 ||
-            LJ::can_manage($remote, $layer->{'userid'}) ||
-            $isadmin) {
+    if ( defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
+            $srcview == 1 || $can_manage || $isadmin ) {
 
         $body .= BML::ml('Actionlink', { 'link' => "$ML{'.nav.viewsource'} <a href=\"$LJ::SITEROOT/customize/advanced/layersource?id=$id\">$ML{'.nav.viewsource.raw'}</a> | <a href=\"$LJ::SITEROOT/customize/advanced/layersource?id=$id&fmt=html\">$ML{'.nav.viewsource.highlighted'}</a>" }) . "\n";
     }

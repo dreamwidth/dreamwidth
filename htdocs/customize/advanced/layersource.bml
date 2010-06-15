@@ -45,9 +45,8 @@ _c?>
     # want to check privileges in case they're private styles
     return $err->($ML{'/customize/advanced/layerbrowse.bml.error.cantviewlayer'})
         unless defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
-               $srcview == 1 ||
-               LJ::can_manage($remote, $lay->{'userid'}) ||
-               $isadmin;
+               $srcview == 1 || $isadmin || $remote &&
+               $remote->can_manage( LJ::load_userid( $lay->{userid} ) );
 
     my $s2code = LJ::S2::load_layer_source($id);
 

@@ -85,8 +85,8 @@ body<=
         }
 
         # if we're changing rather than creating, check that we can
-        if ($mode eq 'modify' && !LJ::can_manage_other($remote, $cu)) {
-            $errors{'username'} = BML::ml('.error.noaccess', {'comm'=>$cuser});
+        if ( $mode eq 'modify' && ! $remote->can_manage_other( $cu ) ) {
+            $errors{'username'} = BML::ml( '.error.noaccess', { comm => $cuser } );
         }
 
         # if we're creating, community password must match

@@ -925,15 +925,24 @@ sub is_frozen {
 sub visible_to {
     my ($self, $u) = @_;
 
-    return 0 unless $self->entry && $self->entry->visible_to($u);
+    return 0 unless LJ::isu( $u );
+    return 0 unless $self->entry && $self->entry->visible_to( $u );
+
+    my $posted_comment = $self->poster && $u->equals( $self->poster );
+    my $posted_entry = $self->entry->poster &&
+                       $u->equals( $self->entry->poster );
+    my $posted_parent = $self->parent && $self->parent->poster &&
+                        $u->equals( $self->parent->poster );
+    my $posted_by_admin = $self->poster &&
+                          $self->poster->can_manage( $self->journal );
 
     # screened comment
-    return 0 if $self->is_screened &&
-                !( LJ::can_manage( $u, $self->journal )           # owns the journal
-                   || LJ::u_equals( $u, $self->poster )           # posted the comment
-                   || LJ::u_equals( $u, $self->entry->poster ) # posted the entry
-                   || ( $self->parent && LJ::u_equals( $u, $self->parent->poster ) && LJ::can_manage( $self->poster, $self->journal ) ) );
-                        # person this is in reply to, as long as this comment was by a moderator
+    return 0 if $self->is_screened && !                # allowed viewers:
+                ( $u->can_manage( $self->journal )     # owns the journal
+                  || $posted_comment || $posted_entry  # owns the content
+                  || ( $posted_parent && $posted_by_admin ) );
+                       # person this is in reply to,
+                       # as long as this comment was by a moderator
 
     # comments from suspended users aren't visible
     return 0 if $self->poster && $self->poster->is_suspended;
@@ -1097,10 +1106,10 @@ sub info {
     my $remote = LJ::get_remote() or return;
 
     my %LJ_cmtinfo;
-    $LJ_cmtinfo{'canAdmin'} = LJ::can_manage($remote, $self->journal);
-    $LJ_cmtinfo{'canSpam'} = ! LJ::sysban_check( 'spamreport', $self->journal->user );
-    $LJ_cmtinfo{'journal'} = $self->journal->{user};
-    $LJ_cmtinfo{'remote'} = $remote->{user};
+    $LJ_cmtinfo{canAdmin} = $remote->can_manage( $self->journal );
+    $LJ_cmtinfo{canSpam} = ! LJ::sysban_check( 'spamreport', $self->journal->user );
+    $LJ_cmtinfo{journal} = $self->journal->user;
+    $LJ_cmtinfo{remote} = $remote->user;
 
     return \%LJ_cmtinfo;
 }

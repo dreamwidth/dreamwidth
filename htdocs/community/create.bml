@@ -82,8 +82,8 @@ SUBMIT:
         } elsif ($u) {
             # community was created in the last 10 minutes?
             my $recent_create = ($u->timecreate > (time() - (10*60))) ? 1 : 0;
-            $second_submit = ($u->is_community && $recent_create
-                                 && LJ::can_manage($remote, $u)) ? 1 : 0;
+            $second_submit = ( $u->is_community && $recent_create
+                               && $remote->can_manage_other( $u ) ) ? 1 : 0;
 
             $error = "$ML{'.error.username.inuse'}" if (!$second_submit);
         }

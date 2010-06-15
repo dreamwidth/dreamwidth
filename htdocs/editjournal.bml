@@ -173,8 +173,8 @@ body<=
             my $disabled_save = 0;
             my $disabled_delete = 0;
             my $disabled_spamdelete = 0;
-            if ($usejournal && $res{'events_1_poster'} ne $u->{'user'}) {
-                $disabled_delete = ! LJ::can_delete_journal_item($u, $usejournal_u);
+            if ( $usejournal && $res{'events_1_poster'} ne $u->user ) {
+                $disabled_delete = ! $u->can_manage( $usejournal_u );
                 $disabled_save++;
             }
             $disabled_save++ if $usejournal && ! $u->can_post_to( $usejournal_u );

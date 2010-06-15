@@ -325,10 +325,10 @@ sub EntryPage
 
             # add the poster_ip metadata if remote user has
             # access to see it.
-            $s2com->{'metadata'}->{'poster_ip'} = $com->{'props'}->{'poster_ip'} if
-                ($com->{'props'}->{'poster_ip'} && $remote &&
-                 ($remote->{'userid'} == $entry->posterid ||
-                  LJ::can_manage($remote, $u) || $viewall));
+            $s2com->{metadata}->{poster_ip} = $com->{props}->{poster_ip}
+                if $com->{props}->{poster_ip} && $remote &&
+                   ( $remote->userid == $entry->posterid ||
+                     $remote->can_manage( $u ) || $viewall );
 
             $s2com->{metadata}->{imported_from} = $com->{props}->{imported_from}
                 if $com->{props}->{imported_from};
@@ -347,7 +347,7 @@ sub EntryPage
 
     # print comment info
     {
-        my $canAdmin = LJ::can_manage($remote, $u) ? 1 : 0;
+        my $canAdmin = $remote && $remote->can_manage( $u ) ? 1 : 0;
         my $canSpam = LJ::sysban_check( 'spamreport', $u->user ) ? 0 : 1;
         my $formauth = LJ::ejs(LJ::eurl(LJ::form_auth(1)));
 

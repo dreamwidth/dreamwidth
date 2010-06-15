@@ -1736,7 +1736,7 @@ sub editevent
                 ($ownerid == $u->{'userid'} ||
                  # community account can delete it (ick)
 
-                 LJ::can_manage_other($posterid, $ownerid)
+                 $u->can_manage_other( $uowner )
                  # if user is a community maintainer they can delete
                  # it too (good)
                  ));

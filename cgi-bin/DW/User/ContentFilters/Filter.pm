@@ -239,7 +239,7 @@ sub show_entry {
 
     # step 1) community poster type
     if ( $journalu->is_community && $opts->{postertype} && $opts->{postertype} ne 'any' ) {
-        my $is_admin = LJ::can_manage_other( $posteru, $journalu );
+        my $is_admin = $posteru->can_manage_other( $journalu );
         my $is_moderator = $is_admin || LJ::check_rel( $journalu, $posteru, 'M' );
 
         return $fail->( 'not_maintainer' )

@@ -528,7 +528,8 @@ sub comment_info {
     my $permalink = $self->url;
     my $comments_enabled = ( $viewall ||
         ( $journal->{opt_showtalklinks} eq "Y" && !$self->comments_disabled ) ) ? 1 : 0;
-    my $has_screened = ( $self->props->{hasscreened} && $remote && LJ::can_manage( $remote, $journal ) ) ? 1 : 0;
+    my $has_screened = ( $self->props->{hasscreened} && $remote && $journal
+                         && $remote->can_manage( $journal ) ) ? 1 : 0;
     my $replycount = $self->reply_count;
     my $nc = "";
     $nc .= "nc=$replycount" if $replycount && $remote && $remote->{opt_nctalklinks};
@@ -773,7 +774,7 @@ sub comments_manageable_by {
     return 0 unless $self->valid;
     return 0 unless $remote;
     my $u = $self->{u};
-    return $remote->{userid} == $self->posterid || LJ::can_manage($remote, $u);
+    return $remote->userid == $self->posterid || $remote->can_manage( $u );
 }
 
 # instance method:  returns bool, if remote user can view this entry

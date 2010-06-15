@@ -53,8 +53,9 @@ sub execute {
     return $self->error("Unknown user: $user")
         unless $target;
 
-    my $can_add = LJ::can_manage( $remote, $comm ) || ( $remote && $remote->has_priv( "sharedjournal", "*" ) );
-    my $can_remove = $can_add || LJ::u_equals($remote, $target);
+    my $can_add = $remote && ( $remote->can_manage( $comm ) ||
+                               $remote->has_priv( "sharedjournal", "*" ) );
+    my $can_remove = $can_add || ( $remote && $remote->equals( $target ) );
 
     return $self->error("You cannot add users to this community.")
         if $action eq 'add' && !$can_add;

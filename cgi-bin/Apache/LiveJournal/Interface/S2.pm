@@ -60,7 +60,7 @@ sub handler {
     if ($meth eq 'GET') {
 
         return error($r, 403, "Forbidden", "You are not authorized to retrieve this layer")
-            unless $lu->{'user'} eq 'system' || LJ::can_manage($u, $lu);
+            unless $lu->user eq 'system' || $u->can_manage( $lu );
 
         my $layerinfo = {};
         LJ::S2::load_layer_info($layerinfo, [ $id ]);
@@ -81,7 +81,7 @@ sub handler {
     elsif ($meth eq 'PUT') {
 
         return error($r, 403, "Forbidden", "You are not authorized to edit this layer")
-            unless LJ::can_manage($u, $lu);
+            unless $u->can_manage( $lu );
 
         return error($r, 403, "Forbidden", "Your account type is not allowed to edit layers")
             unless $u->can_create_s2_styles;

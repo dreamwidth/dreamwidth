@@ -636,15 +636,18 @@ sub get_comm_settings {
 
 # Set membership and posting level settings for a community
 sub set_comm_settings {
-    my ($c, $u, $opts) = @_;
+    my ( $c, $u, $opts ) = @_;
+
+    die "Invalid users passed to set_comm_settings"
+        unless LJ::isu( $c ) && LJ::isu( $u );
 
     die "User cannot modify this community"
-        unless (LJ::can_manage_other($u, $c));
+        unless $u->can_manage_other( $c );
 
     die "Membership and posting levels are not available"
-        unless ($opts->{membership} && $opts->{postlevel});
+        unless $opts->{membership} && $opts->{postlevel};
 
-    my $cid = $c->{userid};
+    my $cid = $c->userid;
 
     my $dbh = LJ::get_db_writer();
     $dbh->do("REPLACE INTO community (userid, membership, postlevel) VALUES (?,?,?)" , undef, $cid, $opts->{membership}, $opts->{postlevel});

@@ -53,7 +53,7 @@ sub execute {
             unless $foru;
 
         return $self->error("You cannot change tag permission settings for $args[1]")
-            unless LJ::can_manage($remote, $foru);
+            unless $remote && $remote->can_manage( $foru );
 
         $add = $args[2] eq 'members' ? 'protected' : $args[2];
         $control = $args[3] eq 'members' ? 'protected' : $args[3];

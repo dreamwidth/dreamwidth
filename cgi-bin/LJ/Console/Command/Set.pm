@@ -52,7 +52,8 @@ sub execute {
         return $self->error("Invalid account: $name")
             unless $journal;
         return $self->error("You are not permitted to change this journal's settings.")
-            unless LJ::can_manage( $remote, $journal ) || ( $remote && $remote->has_priv( "siteadmin", "propedit" ) );
+            unless $remote && ( $remote->can_manage( $journal ) ||
+                                $remote->has_priv( "siteadmin", "propedit" ) );
     }
 
     my ($key, $value) = @args;

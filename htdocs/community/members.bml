@@ -60,9 +60,9 @@ body<=
         return $ret;
     }
 
-    my $cid = $c->{'userid'};
+    my $cid = $c->userid;
     # is $remote an admin?
-    unless (LJ::can_manage_other($remote, $c)) {
+    unless ( $remote->can_manage_other( $c ) ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
         $ret .= BML::ml( '.error.noaccess',
                         { comm => LJ::ljuser( $cname, { type => 'C' } ) } );

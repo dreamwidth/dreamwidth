@@ -312,20 +312,19 @@ sub check_viewable
 #           specified by the other options.
 # </LJFUNC>
 sub can_delete {
-    my ($remote, $u, $up, $userpost) = @_; # remote, journal, posting user, commenting user
-    return 0 unless $remote;
-    return 1 if $remote->{'user'} eq $userpost ||
-                $remote->{'user'} eq (ref $u ? $u->{'user'} : $u) ||
-                $remote->{'user'} eq (ref $up ? $up->{'user'} : $up) ||
-                LJ::can_manage($remote, $u);
+    my ( $remote, $u, $up, $userpost ) = @_; # remote, journal, posting user, commenting user
+    return 0 unless LJ::isu( $remote );
+    return 1 if $remote->user eq $userpost ||
+                $remote->user eq ( ref $u ? $u->user : $u ) ||
+                LJ::Talk::can_screen( @_ );
     return 0;
 }
 
 sub can_screen {
-    my ($remote, $u, $up, $userpost) = @_;
-    return 0 unless $remote;
-    return 1 if $remote->{'user'} eq (ref $up ? $up->{'user'} : $up) ||
-                LJ::can_manage($remote, $u);
+    my ( $remote, $u, $up, $userpost ) = @_; # remote, journal, posting user, commenting user
+    return 0 unless LJ::isu( $remote );
+    return 1 if $remote->user eq ( ref $up ? $up->user : $up ) ||
+                $remote->can_manage( ref $u ? $u : LJ::load_user( $u ) );
     return 0;
 }
 
@@ -958,23 +957,24 @@ sub load_comments
             # zero, we'll still show it if it has any children (but we won't show content)
             my $should_show = $post->{'state'} eq 'D' ? 0 : 1;
             my $parenttalkid = $post->{parenttalkid};
-            unless ($viewall) {
+            unless ( $viewall ) {
+                my $poster = LJ::load_userid( $post->{posterid} );
                 $should_show = 0 if
                     # can view if not screened, or if screened and some conditions apply
                     $post->{state} eq "S" &&
-                    !( $remote &&
-                        ( $remote->{userid} == $uposterid || # made in remote's journal
-                            $remote->{userid} == $post->{posterid} || # made by remote
-                            LJ::can_manage( $remote, $u ) || # made in a journal remote manages
-                            (
+                    ! ( $remote &&
+                        ( $remote->userid == $uposterid || # made in remote's journal
+                          $remote->userid == $post->{posterid} || # made by remote
+                          $remote->can_manage( $u ) || # made in a journal remote manages
+                           (
                               # remote authored the parent, and this comment is by an admin
                               exists $posts->{$parenttalkid} &&
                               $posts->{$parenttalkid}->{posterid} &&
-                              $posts->{$parenttalkid}->{posterid} == $remote->{userid} &&
-                              LJ::can_manage( $post->{posterid}, $u )
-                            )
+                              $posts->{$parenttalkid}->{posterid} == $remote->userid &&
+                              $poster && $poster->can_manage( $u )
+                           )
                         )
-                    );
+                      );
             }
             $post->{'_show'} = $should_show;
             $post_count += $should_show;

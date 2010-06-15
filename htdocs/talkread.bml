@@ -229,7 +229,8 @@ body<=
                          ));
     }
 
-    my $showmultiform = $remote && ( $remote->{'user'} eq $up->{'user'} || LJ::can_manage($remote, $u) );
+    my $showmultiform = $remote && ( ( $up && $remote->equals( $up) ) ||
+                                     $remote->can_manage( $u ) );
     my $multiform_selects = 0;  # are there select boxes?  don't show form if not.
 
     my $event = $item->{'event'};
@@ -479,11 +480,11 @@ body<=
     # Quick reply variables.  Not always set.
     my ($last_talkid, $last_jid) = LJ::get_lastcomment();
     my %LJ_cmtinfo;  # data structure to give to javascript for commentmanage
-    $LJ_cmtinfo{'form_auth'} = LJ::form_auth(1);
-    $LJ_cmtinfo{'journal'} = $u->{user};
-    $LJ_cmtinfo{'canAdmin'} = LJ::can_manage($remote, $u) ? 1 : 0;
-    $LJ_cmtinfo{'canSpam'} = LJ::sysban_check( 'spamreport', $u->user ) ? 0 : 1;
-    $LJ_cmtinfo{'remote'} = $remote ? $remote->{user} : "";
+    $LJ_cmtinfo{form_auth} = LJ::form_auth(1);
+    $LJ_cmtinfo{journal} = $u->user;
+    $LJ_cmtinfo{canAdmin} = $remote && $remote->can_manage( $u ) ? 1 : 0;
+    $LJ_cmtinfo{canSpam} = LJ::sysban_check( 'spamreport', $u->user ) ? 0 : 1;
+    $LJ_cmtinfo{remote} = $remote ? $remote->user : "";
     my $show_thread_expander = $u->show_thread_expander( $remote );
 
     #
@@ -610,10 +611,9 @@ body<=
                 $ret .= "<br />$user\n";
                 $ret .= " " . BML::ml( '.from_external', {site=>$post->{props}->{imported_from}} ) if $post->{props}->{imported_from};
                 $ret .= "<br /><span class='datepost'>$datepost</span>\n";
-                if ($post->{'props'}->{'poster_ip'} && $remote &&
-                    ($remote->{'user'} eq $up->{'user'} ||
-                     LJ::can_manage($remote, $u) || $viewall))
-                {
+                if ( $post->{'props'}->{'poster_ip'} && $remote &&
+                     ( $viewall || $remote->equals( $up ) ||
+                       $remote->can_manage( $u ) ) ) {
                     $ret .= BML::ml('.fromip', {'ip'=>$post->{'props'}->{'poster_ip'}});
                 }
 

@@ -2850,7 +2850,7 @@ sub control_strip
             my $memberof = $remote->member_of( $journal );
             my $haspostingaccess = LJ::check_rel($journal, $remote, 'P');
             my $isclosedcommunity = $journal->is_closed_membership;
-            if (LJ::can_manage_other($remote, $journal)) {
+            if ( $remote->can_manage_other( $journal ) ) {
                 $ret .= "$statustext{maintainer}<br />";
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; " unless $remote->is_identity;

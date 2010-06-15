@@ -3686,9 +3686,10 @@ sub _Entry__get_link
     my $esnjournal = $journalu->is_community ? $journal : $poster;
 
     if ($key eq "edit_entry") {
-        return $null_link unless $remote && ($remote->{'user'} eq $journal ||
-                                        $remote->{'user'} eq $poster ||
-                                        LJ::can_manage($remote, LJ::load_user($journal)));
+        return $null_link
+            unless $remote && ( $remote->user eq $journal ||
+                                $remote->user eq $poster  ||
+                                $remote->can_manage( $journalu ) );
         return LJ::S2::Link("$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_edit_entry"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/edit.png", 16, 16));
