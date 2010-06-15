@@ -4354,6 +4354,7 @@ function Comment::print_wrapper_start() {
     var string alternate = alternate ("comment-wrapper-odd", "comment-wrapper-even");
     var string screened = $this.screened ? "screened" : "visible";
     var string deletedstate = $this.deleted ? "deleted" : "";
+    var string suspendedstate = $this.fromsuspended ? "from-suspended" : "";
     var string frozen = $this.frozen ? "frozen" : "";
     var string poster = defined $this.poster ? "poster-" + $this.poster.username : "poster-anonymous";
     var string full = $this.full ? "full" : "partial";
@@ -4362,7 +4363,7 @@ function Comment::print_wrapper_start() {
     if (not isnull $ep and defined $this.poster and $this.poster.username == $ep.entry.poster.username) {
         $entryauthor = "entry-author";
     }
-    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $poster $entryauthor $full $userpic">\n""";
+    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $suspendedstate $poster $entryauthor $full $userpic">\n""";
     """<div class="separator separator-before"><div class="inner"></div></div>\n""";
     """<div class="comment" id="comment-$this.dom_id">\n""";
     """<div class="inner">\n""";
