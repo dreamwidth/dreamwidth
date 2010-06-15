@@ -3629,6 +3629,8 @@ talk.error.notauthorised.comm.closed=This protected entry is viewable by communi
 
 talk.error.purged=This journal has been deleted and purged.
 
+talk.error.quickquote=If you'd like to quote a portion of the original message, highlight it then press 'Quote'.
+
 talk.error.readonly_journal=This journal is read-only. You cannot comment in it.
 
 talk.error.readonly_journal.title=Read-Only

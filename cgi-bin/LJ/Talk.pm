@@ -1752,53 +1752,11 @@ sub talkform {
 
     $ret .= LJ::help_icon_html("noautoformat", " ");
 
-    if ($remote) {
-        # only show on initial compostion
-        my $quickquote;
-        unless ($opts->{errors} && @{$opts->{errors}}) {
-            # quick quote button
-            $quickquote = "&nbsp;&nbsp;" . LJ::ejs('<input type="button" value="Quote" onmousedown="quote();" onclick="quote();" />');
-        }
-
+    if ( $remote ) {
+        # only show quick quote button on initial composition
+        my $hidebutton = ( $opts->{errors} && @{ $opts->{errors} } );
         $ret .= "<script type='text/javascript' language='JavaScript'>\n<!--\n";
-        $ret .= <<"QQ";
-
-        var helped = 0; var pasted = 0;
-        function quote () {
-            var text = '';
-
-            if (document.getSelection) {
-                text = document.getSelection();
-            } else if (document.selection) {
-                text = document.selection.createRange().text;
-            } else if (window.getSelection) {
-                text = window.getSelection();
-            }
-
-            text = text.replace(/^\\s+/, '').replace(/\\s+\$/, '');
-
-            if (text == '') {
-                if (helped != 1 && pasted != 1) {
-                    helped = 1; alert("If you'd like to quote a portion of the original message, highlight it then press 'Quote'");
-                }
-                return false;
-            } else {
-                pasted = 1;
-            }
-
-            var element = text.search(/\\n/) == -1 ? 'q' : 'blockquote';
-            var textarea = document.getElementById('commenttext');
-            textarea.focus();
-            textarea.value = textarea.value + "<" + element + ">" + text + "</" + element + ">";
-            textarea.caretPos = textarea.value;
-            textarea.focus();
-            return false;
-        }
-        if (document.getElementById && (document.getSelection || document.selection || window.getSelection)) {
-            document.write('$quickquote');
-        }
-QQ
-
+        $ret .= LJ::Talk::js_quote_button( 'commenttext', $hidebutton );
         $ret .= "-->\n</script>\n";
     }
 
@@ -1926,6 +1884,61 @@ LOGIN
     $ret .= "</form>\n";
 
     return $ret;
+}
+
+# generate the javascript code for the quick quote button
+# arg1: element corresponds to textarea of caller (body or commenttext)
+# arg2: boolean to hide the button HTML (optional)
+sub js_quote_button {
+    my ( $element, $hidebutton ) = @_;
+    return '' unless $element;
+    my $button = LJ::ejs( '<input type="button" value="Quote"'
+                        . ' onmousedown="quote();" onclick="quote();" />' );
+    $button = '' if $hidebutton;
+    my $buttontext = "document.write('&nbsp;&nbsp;$button')";
+    if ( $element eq 'body' ) {
+        my $span = "document.getElementById('quotebuttonspan').innerHTML";
+        $buttontext = "$span = $span + '$button'";
+    }
+    my $alerttext = LJ::Lang::ml( 'talk.error.quickquote' );
+    return <<"QQ"
+
+    var helped = 0; var pasted = 0;
+    function quote () {
+        var text = '';
+
+        if (document.getSelection) {
+            text = document.getSelection();
+        } else if (document.selection) {
+            text = document.selection.createRange().text;
+        } else if (window.getSelection) {
+            text = window.getSelection();
+        }
+
+        text = text.replace(/^\\s+/, '').replace(/\\s+\$/, '');
+
+        if (text == '') {
+            if (helped != 1 && pasted != 1) {
+                helped = 1;
+                alert("$alerttext");
+            }
+            return false;
+        } else {
+            pasted = 1;
+        }
+
+        var element = text.search(/\\n/) == -1 ? 'q' : 'blockquote';
+        var textarea = document.getElementById('$element');
+        textarea.focus();
+        textarea.value = textarea.value + "<" + element + ">" + text + "</" + element + ">";
+        textarea.caretPos = textarea.value;
+        textarea.focus();
+        return false;
+    }
+    if (document.getElementById && (document.getSelection || document.selection || window.getSelection)) {
+        $buttontext;
+    }
+QQ
 }
 
 # <LJFUNC>
