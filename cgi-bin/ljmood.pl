@@ -20,9 +20,7 @@ use strict;
 # args: dbarg?, themeid
 # des-themeid: the mood theme ID to load.
 # </LJFUNC>
-sub load_mood_theme
-{
-    &nodb;
+sub load_mood_theme {
     my $themeid = shift;
     return if $LJ::CACHE_MOOD_THEME{$themeid};
     return unless $themeid;
