@@ -96,13 +96,13 @@ body<=
             my $do_trans = sub {
                 my $id = shift;
                 return unless $faqd;
-                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode},
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode},
                                     "$id.1question", $question,
                                     $opts_question );
-                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode},
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode},
                                     "$id.3summary", $summary, $opts_summary )
                     if LJ::is_enabled( 'faq_summaries' );
-                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode},
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode},
                                     "$id.2answer", $answer, $opts_answer );
             };
 

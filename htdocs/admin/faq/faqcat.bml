@@ -104,7 +104,7 @@ body<=
                 undef $faqd
                     unless $rlang;
 
-                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode}, "cat.$faqcatname", $faqcatname, { changeseverity => 1 } )
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode}, "cat.$faqcatname", $faqcatname, { changeseverity => 1 } )
                   if $faqd;
 
                 $dbh->do( "REPLACE INTO faqcat
@@ -126,7 +126,7 @@ body<=
                 undef $faqd
                     unless $rlang;
 
-                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode}, "cat.$faqcatname", $faqcatname, { changeseverity => 1 } )
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode}, "cat.$faqcatname", $faqcatname, { changeseverity => 1 } )
                     if $faqd;
 
                 $dbh->do( "UPDATE faqcat

@@ -256,7 +256,7 @@ sub copyfaq {
     while (my ($cat, $name) = $sth->fetchrow_array) {
         next if exists $existing{"cat.$cat"};
         my $opts = { childrenlatest => 1 };
-        LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "cat.$cat", $name, $opts);
+        LJ::Lang::set_text( $domid, $ll->{'lncode'}, "cat.$cat", $name, $opts );
     }
 
     # faq items
@@ -268,9 +268,9 @@ sub copyfaq {
             exists $existing{"$faqid.2answer"} and
             exists $existing{"$faqid.3summary"};
         my $opts = { childrenlatest => 1 };
-        LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.1question", $q, $opts);
-        LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.2answer", $a, $opts);
-        LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.3summary", $s, $opts);
+        LJ::Lang::set_text( $domid, $ll->{'lncode'}, "$faqid.1question", $q, $opts );
+        LJ::Lang::set_text( $domid, $ll->{'lncode'}, "$faqid.2answer", $a, $opts );
+        LJ::Lang::set_text( $domid, $ll->{'lncode'}, "$faqid.3summary", $s, $opts );
     }
 
     $out->('-', "done.");
@@ -446,7 +446,7 @@ sub poptext {
                 # if the text is changing, the staleness is at least 1
                 my $staleness = $metadata{'staleness'}+0 || 1;
 
-                my $res = LJ::Lang::set_text($dbh, 1, $l->{'lncode'}, $code, $text,
+                my $res = LJ::Lang::set_text(1, $l->{'lncode'}, $code, $text,
                                              { 'staleness' => $staleness,
                                                'notes' => $metadata{'notes'},
                                                'changeseverity' => 2, });

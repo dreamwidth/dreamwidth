@@ -60,7 +60,7 @@ body<=
         my $userid = $remote->{userid};
         if ($dbh->do("INSERT INTO priv_map (userid, prlid, arg) SELECT ?, prlid, ? FROM priv_list WHERE privcode=?",
                   undef, $userid, $FORM{arg}, $FORM{priv})) {
-            LJ::statushistory_add($dbh, $userid, $userid, "privadd", "DEVMODE Granting: \"$FORM{priv}\" with arg \"$FORM{arg}\"");
+            LJ::statushistory_add( $userid, $userid, "privadd", "DEVMODE Granting: \"$FORM{priv}\" with arg \"$FORM{arg}\"" );
               return "done.";
           } else {
               return "fail.";
@@ -120,8 +120,8 @@ body<=
                         {
                             $dbh->do("DELETE FROM priv_map WHERE prmid=$prmid");
                             my $privcode = $priv{$prlid}->{'privcode'};
-                            LJ::statushistory_add($dbh, $del_userid1, $remote->{'userid'}, "privdel",
-                                               "Denying: \"$privcode\" with arg \"$arg\"");
+                            LJ::statushistory_add( $del_userid1, $remote->{'userid'}, "privdel",
+                                               "Denying: \"$privcode\" with arg \"$arg\"" );
                             $ret .= "Privilege removed.<br />\n";
                         }
                     }
@@ -142,7 +142,7 @@ body<=
                         } else {
                             my $qarg = $dbh->quote($arg);
                             $dbh->do("INSERT INTO priv_map (prmid, userid, prlid, arg) VALUES (NULL, $userid, $qpriv, $qarg)");
-                            LJ::statushistory_add($dbh, $userid, $remote->{'userid'}, "privadd", "Granting: \"$privcode\" with arg \"$arg\"");
+                            LJ::statushistory_add( $userid, $remote->{'userid'}, "privadd", "Granting: \"$privcode\" with arg \"$arg\"" );
                             $ret .= "Privilege <b>$privcode $arg</b> granted.<br />\n";
                         }
                     } else {
@@ -168,7 +168,7 @@ body<=
                         elsif ($userid && $privid) {
                             my $qarg = $dbh->quote($FORM{'arg'});
                             $dbh->do("INSERT INTO priv_map (prmid, userid, prlid, arg) VALUES (NULL, $userid, $privid, $qarg)");
-                            LJ::statushistory_add($dbh, $userid, $remote->{'userid'}, "privadd", "Granting: \"$privcode\" with arg \"$FORM{'arg'}\"");
+                            LJ::statushistory_add( $userid, $remote->{'userid'}, "privadd", "Granting: \"$privcode\" with arg \"$FORM{'arg'}\"" );
                             $ret .= "Privilege added.<br />\n";
                         }
                         else {

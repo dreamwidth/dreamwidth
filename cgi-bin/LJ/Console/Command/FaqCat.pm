@@ -106,7 +106,7 @@ sub execute {
         undef $faqd unless $rlang;
 
         if ($faqd) {
-            LJ::Lang::set_text($dbh, $faqd->{'dmid'}, $rlang->{'lncode'},
+            LJ::Lang::set_text($faqd->{'dmid'}, $rlang->{'lncode'},
                                "cat.$catkey", $catname, { 'changeseverity' => 1 });
           }
 
