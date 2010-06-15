@@ -27,7 +27,7 @@ body<=
     # for pages that require authentication
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
-    LJ::load_user_privs($remote, 'admin');
+    $remote->load_user_privs( 'admin' );
 
     my $dbh = LJ::get_db_writer();
 

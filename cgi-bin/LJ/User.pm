@@ -5169,7 +5169,7 @@ sub has_priv {
     return 0 unless $priv;
 
     # load what privileges the user has, if we haven't
-    LJ::load_user_privs($u, $priv)
+    $u->load_user_privs( $priv )
         unless $u->{'_privloaded'}->{$priv};
 
     # no access if they don't have the priv
@@ -5186,8 +5186,35 @@ sub has_priv {
     return 0;
 }
 
-sub priv_args
-{
+# des: loads all of the given privs for a given user into a hashref, inside
+#      the user record.
+# args: u, priv, arg?
+# des-priv: Priv names to load (see [dbtable[priv_list]]).
+# des-arg: Optional argument.
+# returns: boolean
+sub load_user_privs {
+    my ( $remote, @privs ) = @_;
+    return unless $remote and @privs;
+
+    # return if we've already loaded these privs for this user.
+    @privs = grep { ! $remote->{'_privloaded'}->{$_} } @privs;
+    return unless @privs;
+
+    my $dbr = LJ::get_db_reader() or return;
+    $remote->{'_privloaded'}->{$_}++ foreach @privs;
+    my $bind = join ',', map { '?' } @privs;
+    my $sth = $dbr->prepare( "SELECT pl.privcode, pm.arg ".
+                             "FROM priv_map pm, priv_list pl ".
+                             "WHERE pm.prlid=pl.prlid AND ".
+                             "pm.userid=? AND pl.privcode IN ($bind)" );
+    $sth->execute( $remote->userid, @privs );
+    while ( my ($priv, $arg) = $sth->fetchrow_array ) {
+        $arg = "" unless defined $arg;  # NULL -> ""
+        $remote->{'_priv'}->{$priv}->{$arg} = 1;
+    }
+}
+
+sub priv_args {
     my ( $u, $priv ) = @_;
     return unless $priv && $u->has_priv( $priv );
     # returns hash of form { arg => 1 }
@@ -5955,7 +5982,6 @@ use Carp;
 ###  17. Interest-Related Functions
 ###  19. OpenID and Identity Functions
 ###  21. Password Functions
-###  22. Priv-Related Functions
 ###  24. Styles and S2-Related Functions
 ###  28. Userpic-Related Functions
 ###  99. Miscellaneous Legacy Items
@@ -8192,49 +8218,6 @@ sub set_password {
     LJ::MemCache::delete([$userid, "pw:$userid"]);
     my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
     $cache->{'_password'} = $password;
-}
-
-
-########################################################################
-###  22. Priv-Related Functions
-
-=head2 Priv-Related Functions (LJ)
-=cut
-
-# <LJFUNC>
-# name: LJ::load_user_privs
-# class:
-# des: loads all of the given privs for a given user into a hashref, inside
-#      the user record.  See also [func[LJ::check_priv]].
-# args: u, priv, arg?
-# des-priv: Priv names to load (see [dbtable[priv_list]]).
-# des-arg: Optional argument.  See also [func[LJ::check_priv]].
-# returns: boolean
-# </LJFUNC>
-sub load_user_privs
-{
-    &nodb;
-    my ( $remote, @privs ) = @_;
-    return unless $remote and @privs;
-
-    # return if we've already loaded these privs for this user.
-    @privs = grep { ! $remote->{'_privloaded'}->{$_} } @privs;
-    return unless @privs;
-
-    my $dbr = LJ::get_db_reader();
-    return unless $dbr;
-    foreach (@privs) { $remote->{'_privloaded'}->{$_}++; }
-    @privs = map { $dbr->quote($_) } @privs;
-    my $sth = $dbr->prepare( "SELECT pl.privcode, pm.arg ".
-                             "FROM priv_map pm, priv_list pl ".
-                             "WHERE pm.prlid=pl.prlid AND ".
-                             "pl.privcode IN (" . join(',',@privs) . ") ".
-                             "AND pm.userid=" . $remote->userid );
-    $sth->execute;
-    while (my ($priv, $arg) = $sth->fetchrow_array) {
-        unless (defined $arg) { $arg = ""; }  # NULL -> ""
-        $remote->{'_priv'}->{$priv}->{$arg} = 1;
-    }
 }
 
 

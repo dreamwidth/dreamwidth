@@ -89,7 +89,7 @@ sub init_remote
 {
     my $remote = shift;
     return unless $remote;
-    LJ::load_user_privs($remote, @SUPPORT_PRIVS);
+    $remote->load_user_privs( @SUPPORT_PRIVS );
 }
 
 sub has_any_support_priv {
