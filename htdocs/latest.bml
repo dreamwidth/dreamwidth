@@ -28,7 +28,7 @@ body<=
     $type = { entries => 'entry', comments => 'comment' }->{$type}  || 'entry';
     $max = 100 if $max > 1000;
     $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
-    $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{tag_maps}->{$feed};
+    $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{group_names}->{$feed};
     $tag = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
 
     # if they want a format we don't support ... FIXME: implement all formats
