@@ -166,16 +166,19 @@ State can be:
   * inactive ( inactive promo codes )
   * unused ( unused promo codes )
   * noneleft ( no uses left )
+  * all ( all promo codes )
 
 =cut
 
 sub get_promo_codes {
     my ( $class, %opts ) = @_;
     my $dbh = LJ::get_db_writer();
-    my $state = $opts{state} || '';
+    my $state = $opts{state} || 'active';
 
     my $sql = "SELECT * FROM acctcode_promo";
-    if ( $state eq 'active' ) {
+    if ( $state eq 'all' ) {
+        # do nothing
+    } elsif ( $state eq 'active' ) {
         $sql .= " WHERE active = '1' AND current_count < max_count";
     } elsif ( $state eq 'inactive' ) {
         $sql .= " WHERE active = '0' OR current_count >= max_count";
@@ -184,6 +187,7 @@ sub get_promo_codes {
     } elsif ( $state eq 'noneleft' ) {
         $sql .= " WHERE current_count >= max_count";
     }
+
     my $sth = $dbh->prepare( $sql ) or die $dbh->errstr;
     $sth->execute() or die $dbh->errstr;
 

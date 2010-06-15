@@ -175,7 +175,7 @@ body<=
         my $codes = DW::InviteCodes->get_promo_codes( state => $state );
 
         $ret .= '<a href="/admin/invites/promo?state=create">' . $ML{'.state.new'} . '</a> | ';
-        $ret .= '<a href="/admin/invites/promo">' . $ML{'.state.unfiltered'} . '</a> | ';
+        $ret .= '<a href="/admin/invites/promo?state=all">' . $ML{'.state.unfiltered'} . '</a> | ';
         $ret .= '<a href="/admin/invites/promo?state=active">' . $ML{'.state.active'} . '</a> | ';
         $ret .= '<a href="/admin/invites/promo?state=inactive">' . $ML{'.state.inactive'} . '</a> | ';
         $ret .= '<a href="/admin/invites/promo?state=unused">' . $ML{'.state.unused'} . '</a> | ';

@@ -41,7 +41,7 @@ body<=
     $ret .= "<div class='itemhead'><a href='review'><?_ml .review.head _ml?></a></div><div class='itemdef'><?_ml .review.desc _ml?></div>"
         if $haspayments;
 
-    $ret .= "<div class='itemhead'><a href='promo'><?_ml .promo.head _ml?></a></div><div class='itemdef'><?_ml .promo.desc _ml?></div>"
+    $ret .= "<div class='itemhead'><a href='promo?state=active'><?_ml .promo.head _ml?></a></div><div class='itemdef'><?_ml .promo.desc _ml?></div>"
         if $haspayments;
 
 
