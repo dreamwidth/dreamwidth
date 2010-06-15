@@ -289,16 +289,22 @@ sub _process_queue {
         delete $item->{obj};
         delete $item->{obj_entry};
 
+        # make sure we only add once, if the entry has multiple tags that map to the same feed
+        my %feed_added;
+
         # step 7.5) if the entry contains any tags that we are currently showing
         # globally, then put that onto the list
         foreach my $tag ( $ent->tags ) {
 
             # some lists we guarantee are always shown, these are the special feeds that actually
             # allow combining tags and things...
-            if ( my $feed = $LJ::LATEST_TAG_FEEDS{tag_maps}->{$tag} ) {
+            my $feed;
+            if ( ( $feed = $LJ::LATEST_TAG_FEEDS{tag_maps}->{$tag} ) and ( ! $feed_added{$feed} ) ) {
                 my $nom = "latest_items_tag:$feed";
                 $lists{$nom} ||= LJ::MemCache::get( $nom ) || [];
                 unshift @{$lists{$nom}}, $item;
+
+                $feed_added{$feed}++;
             }
 
             # and now we try to determine if a tag is popular (top-N) and if so, then we also want
