@@ -513,8 +513,10 @@ function Page::print_theme_stylesheet()
         .module-calendar td.entry-day,
         .module-search .search-box {
             background-color: $*color_page_link_hover;
+            box-shadow: .067em .067em .134em #444;
             -moz-box-shadow: .067em .067em .134em #444;
             -webkit-box-shadow: .067em .067em .134em #444;
+            -khtml-box-shadow: .067em .067em .134em #444;
             }
 
                 .module-calendar td.entry-day a:visited {
@@ -614,8 +616,10 @@ function Page::print_theme_stylesheet()
         .module-calendar td.entry-day,
         .module-search .search-box {
             background-color: $*color_page_link_hover;
+            box-shadow: .067em .067em .134em #444;
             -moz-box-shadow: .067em .067em .134em #444;
             -webkit-box-shadow: .067em .067em .134em #444;
+            -khtml-box-shadow: .067em .067em .134em #444;
             }
 
                 .module-calendar td.entry-day a:visited {

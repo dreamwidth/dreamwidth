@@ -140,8 +140,10 @@ q { font-style: italic;
     background-position: 100% 0%;
     padding: 0;
     padding-bottom: 1.65em;
+    box-shadow: -.667em .067em .667em #111;
     -moz-box-shadow: -.667em .067em .667em #111;
     -webkit-box-shadow: -.667em .067em .667em #111;
+    -khtml-box-shadow: -.667em .067em .667em #111;
     }
 
 #header .inner {
@@ -161,8 +163,10 @@ h1#title {
     padding: 1.1em .5em;
     text-transform: uppercase;
     word-spacing: .167em;
+    box-shadow: inset -.667em .067em .667em #111;
     -moz-box-shadow: inset -.667em .067em .667em #111;
     -webkit-box-shadow: -.667em .067em .667em #111;
+    -khtml-box-shadow: -.667em .067em .667em #111;
     }
 
 h2#subtitle,
@@ -370,8 +374,10 @@ h2#pagetitle {
     border-left: none;
     border-right: none;
     margin-bottom: 1em;
+    box-shadow: .067em .067em .667em #111;
     -moz-box-shadow: .067em .067em .667em #111;
     -webkit-box-shadow: .667em .067em .667em #111;
+    -khtml-box-shadow: .667em .067em .667em #111;
     }
 
     .comment-wrapper.partial {
@@ -425,8 +431,10 @@ h2#pagetitle {
             list-style: disc;
             margin: 1em 0;
             padding: 0 0 0 2em;
+            box-shadow: none;
             -moz-box-shadow: none;
             -webkit-box-shadow: none;
+            -khtml--box-shadow: none;
             }
 
             .page-tags .tags-container .tags_multilevel ul li {
@@ -520,8 +528,10 @@ h2#pagetitle {
     .comment .contents .userpic {
         background-color: $*color_entry_userpic_border;
         padding: .7em;
+        box-shadow: .067em .067em .2em #111;
         -moz-box-shadow: .067em .067em .2em #111;
         -webkit-box-shadow: .067em .067em .2em #111;
+        -khtml-box-shadow: .067em .067em .2em #111;
         }
 
 
@@ -649,8 +659,10 @@ h2#pagetitle {
     $entry_footer_colors
     padding: 0 .5em;
     text-align: right;
+    box-shadow: .067em .067em .667em #111;
     -moz-box-shadow: .067em .067em .667em #111;
     -webkit-box-shadow: .067em .067em .667em #111;
+    -khtml-box-shadow: .067em .067em .667em #111;
     }
 
     .page-tags .tags-container .manage-tags-link {
@@ -808,8 +820,10 @@ h2#pagetitle {
 .page-reply #postform {
     $entry_footer_colors
     padding: .5em;
+    box-shadow: .067em .067em .667em #111;
     -moz-box-shadow: .067em .067em .667em #111;
     -webkit-box-shadow: .067em .067em .667em #111;
+    -khtml-box-shadow: .067em .067em .667em #111;
     }
 
     .page-reply #postform a {
@@ -896,8 +910,10 @@ h2#pagetitle {
         .module-userprofile .userpic img {
             background-color: $*color_header_background;
             padding: .7em;
+            box-shadow: .067em .067em .2em #111;
             -moz-box-shadow: .067em .067em .2em #111;
             -webkit-box-shadow: .067em .067em .2em #111;
+            -khtml-box-shadow: .067em .067em .2em #111;
             }
 
     .module-userprofile .userlite-interaction-links li {
@@ -912,21 +928,27 @@ h2#pagetitle {
     .module-calendar td {
         padding: .3em;
         width: 14.285%;
+        border-radius: .2em;
         -moz-border-radius: .2em;
         -webkit-border-radius: .2em;
+        -khtml-border-radius: .2em;
         }
 
         .module-calendar td.empty-day {
             background-color: $*color_page_title_background;
             color: $*color_entry_footer_link !important;
+            box-shadow: .067em .067em .134em #111;
             -moz-box-shadow: .067em .067em .134em #111;
             -webkit-box-shadow: .067em .067em .134em #111;
+            -khtml-box-shadow: .067em .067em .134em #111;
             }
 
         .module-calendar td.entry-day {
             background-color: $*color_entry_border;
+            box-shadow: .067em .067em .134em #8c8c8c;
             -moz-box-shadow: .067em .067em .134em #8c8c8c;
             -webkit-box-shadow: .067em .067em .134em #8c8c8c;
+            -khtml-box-shadow: .067em .067em .134em #8c8c8c;
             }
 
             .module-calendar td.entry-day a {
@@ -961,28 +983,34 @@ h2#pagetitle {
     text-align: center;
     }
 
-.module-search .search-box {
-    background-color: $*color_entry_border;
+.module-search .search-box,
+.module-search .search-button {
     border: 0;
-    color: $*color_entry_background;
     padding: .3em;
-    width: 90%;
+    border-radius: .2em;
     -moz-border-radius: .2em;
     -webkit-border-radius: .2em;
+    -khtml-border-radius: .2em;
+    }
+
+.module-search .search-box {
+    background-color: $*color_entry_border;
+    color: $*color_entry_background;
+    width: 90%;
+    box-shadow: .067em .067em .134em #8c8c8c;
     -moz-box-shadow: .067em .067em .134em #8c8c8c;
     -webkit-box-shadow: .067em .067em .134em #8c8c8c;
+    -khtml-box-shadow: .067em .067em .134em #8c8c8c;
     }
 
 .module-search .search-button {
     background-color: $*color_page_title_background;
-    border: 0;
     color: $*color_entry_footer_link;
     margin-top: .3em;
-    padding: .3em;
-    -moz-border-radius: .2em;
-    -webkit-border-radius: .2em;
+    box-shadow: .067em .067em .134em #111;
     -moz-box-shadow: .067em .067em .134em #111;
     -webkit-box-shadow: .067em .067em .134em #111;
+    -khtml-box-shadow: .067em .067em .134em #111;
     }
 
 /* Footer
