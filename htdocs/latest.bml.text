@@ -1,0 +1,5 @@
+;; -*- coding: utf-8 -*-
+
+.intro=Latest things on [[sitename]].  This page shows you a sample of the most recently posted things that are available on the site.  The feed is updated every minute or two.  Also, new posts and comments won't show up until five (5) minutes after they are posted.  Just in case they are accidentally posted public.
+
+.intro.moods=Other things you can do with the latest entries: find out the <a [[aopts]]>general mood of [[sitenameshort]]</a>.

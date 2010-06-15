@@ -192,6 +192,7 @@ CREATE TABLE moods (
     moodid int(10) unsigned NOT NULL auto_increment,
     mood varchar(40) default NULL,
     parentmood int(10) unsigned NOT NULL default '0',
+    weight tinyint unsigned default NULL,
 
     PRIMARY KEY  (moodid),
     UNIQUE KEY mood (mood)
@@ -3882,6 +3883,10 @@ EOF
                    q{ALTER TABLE import_data ADD COLUMN options BLOB} );
      }
 
+     unless ( column_type( 'moods', 'weight' ) ) {
+         do_alter( 'moods',
+                    q{ALTER TABLE moods ADD COLUMN weight tinyint unsigned default NULL} );
+     }
 });
 
 

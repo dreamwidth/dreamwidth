@@ -567,9 +567,9 @@ sub populate_moods {
             print "Populating ${local}mood data.\n";
             
             my %mood;   # id -> [ mood, parent_id ]
-            my $sth = $dbh->prepare("SELECT moodid, mood, parentmood FROM moods");
+            my $sth = $dbh->prepare("SELECT moodid, mood, parentmood, weight FROM moods");
             $sth->execute;
-            while (@_ = $sth->fetchrow_array) { $mood{$_[0]} = [ $_[1], $_[2] ]; }
+            while (@_ = $sth->fetchrow_array) { $mood{$_[0]} = [ $_[1], $_[2], $_[3] ]; }
             
             my %moodtheme;  # name -> [ id, des ]
             $sth = $dbh->prepare("SELECT moodthemeid, name, des FROM moodthemes WHERE is_public='Y'");
@@ -581,12 +581,15 @@ sub populate_moods {
             
             while (<M>) {
                 chomp;
-                if (/^MOOD\s+(\d+)\s+(.+)\s+(\d+)\s*$/) {
-                    my ($id, $mood, $parid) = ($1, $2, $3);
+                if (/^MOOD\s+(\d+)\s+(.+)\s+(\d+)\s+(\d+)\s*$/) {
+                    my ($id, $mood, $parid, $weight) = ($1, $2, $3, $4);
                     if (! $mood{$id} || $mood{$id}->[0] ne $mood ||
                         $mood{$id}->[1] ne $parid) {
-                        $dbh->do("REPLACE INTO moods (moodid, mood, parentmood) VALUES (?,?,?)",
-                                 undef, $id, $mood, $parid);
+                        $dbh->do( "REPLACE INTO moods (moodid, mood, parentmood, weight) VALUES (?,?,?,?)",
+                                 undef, $id, $mood, $parid, $weight );
+                    } elsif ( ! defined $mood{$id}->[2]) {
+                        $dbh->do( "UPDATE moods SET weight = ? WHERE moodid = ?",
+                            undef, $weight, $id );
                     }
                 }
             

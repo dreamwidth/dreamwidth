@@ -161,6 +161,7 @@ _code?>
  <dl><dt><?_code return BML::ml('.maplinks.toys-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
    <li><a href='/birthdays'><?_ml .maplinks.birthdays _ml?></a></li>
+   <li><a href='/latest/mood'><?_ml .maplinks.latestmoods _ml?></a></li>
   </ul></dd></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.advanced-tools-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>

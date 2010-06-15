@@ -1,0 +1,32 @@
+/*
+    stc/moodofservice.css
+   
+    CSS classes for rendering the mood of service page.
+   
+    Authors:
+         maiden <brandnewaquarium@gmail.com>
+         Andrea Nall <anall@andreanall.com>
+   
+    Copyright (c) 2010 by Dreamwidth Studios, LLC.
+   
+    This program is free software; you may redistribute it and/or modify it under
+    the same terms as Perl itself.  For a copy of the license, please reference
+    'perldoc perlartistic' or 'perldoc perlgpl'.
+*/
+
+.happyface, .sadface {
+    float:left;
+}
+
+/* Important:
+   If you change the left margin, the right margin or the width of the image please make sure to adjust
+   the formula in latest/mood.tt -- the formula relies on the values here to correctly place the indicator.
+*/
+.moodgradient {
+    margin: 6px 12px 0 12px;
+    padding: 13px 0 0 0;
+    float:left;
+    height: 24px;
+    width: 650px;
+    background-image: url(/img/mood/gradient.png);
+}

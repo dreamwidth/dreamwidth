@@ -72,10 +72,10 @@ sub load_moods
 {
     return if $LJ::CACHED_MOODS;
     my $dbr = LJ::get_db_reader();
-    my $sth = $dbr->prepare("SELECT moodid, mood, parentmood FROM moods");
+    my $sth = $dbr->prepare("SELECT moodid, mood, parentmood, weight FROM moods");
     $sth->execute;
-    while (my ($id, $mood, $parent) = $sth->fetchrow_array) {
-        $LJ::CACHE_MOODS{$id} = { 'name' => $mood, 'parent' => $parent, 'id' => $id };
+    while (my ($id, $mood, $parent, $weight) = $sth->fetchrow_array) {
+        $LJ::CACHE_MOODS{$id} = { name => $mood, parent => $parent, id => $id, weight => $weight };
         if ($id > $LJ::CACHED_MOOD_MAX) { $LJ::CACHED_MOOD_MAX = $id; }
     }
     $LJ::CACHED_MOODS = 1;

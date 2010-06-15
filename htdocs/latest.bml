@@ -129,17 +129,14 @@ body<=
         $tagfeeds .= "<br /><br />" . LJ::tag_cloud( $taghr ) . "\n";
     }
 
+
+
+    my $ret = "";
+    $ret .= "<?p " . BML::ml( ".intro", { sitename => $LJ::SITENAME } ) . " p?>";
+    $ret .= "<?p " . BML::ml( ".intro.moods", { sitenameshort => $LJ::SITENAMESHORT, aopts => "href='$LJ::SITEROOT/latest/mood'" } ) . " p?>";
+
     # put filtering options in a standout box
     $tagfeeds = "<?standout $tagfeeds standout?><br />" if $tagfeeds;
-
-    my $ret = <<EOF;
-<?p Latest things on $LJ::SITENAME.  This page shows you a sample of the most recently posted
-things that are available on the site.  The feed is updated every minute or two.  Also, new
-posts and comments won't show up until five (5) minutes after they are posted.  Just in case
-they are accidentally posted public. p?>
-
-$tagfeeds
-EOF
 
     # great, we now have objects, we can construct our results in some fashion
     my $now = time;

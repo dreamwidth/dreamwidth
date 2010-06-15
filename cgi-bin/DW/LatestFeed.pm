@@ -346,6 +346,15 @@ sub _process_queue {
 
         }
 
+        # step 7.8) if the entry has a mood, add the moodid to the list of moods.
+        my $moodid = $ent->prop( 'current_moodid' );
+        if ( $item->{type} eq 'entry' and $moodid ) {
+            my $nom = "latest_moods";
+            $lists{$nom} ||= LJ::MemCache::get( $nom ) || [];
+            unshift @{$lists{$nom}}, $moodid;
+        }
+
+
         # we always put the item onto the latest everything list
         unshift @{$lists{latest_items}}, $item;
     }

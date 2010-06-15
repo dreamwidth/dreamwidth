@@ -1,0 +1,32 @@
+[%# latest/mood.tt
+
+"Current mood of service" toy.
+
+Authors:
+        maiden <brandnewaquarium@gmail.com>
+        Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2010 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = '.title' | ml -%]
+<p>[% '.info' | ml( aopts = "href=\"$roots.site/latest\"", sitename = site.name ) %]</p>
+[%- IF no_data -%]
+<p>[% '.no_data' | ml %]</p>
+[%- ELSE -%]
+[%- dw.need_res('stc/moodofservice.css') -%]
+<h1>[% ( top_mood.length == 1 ? '.current_mood' : '.current_moods' ) | ml %]</h1>
+<p>[% top_mood.join(', ') %]</p>
+
+<h1>[% '.emotional_weather' | ml %]</h1>
+<div id="moodhold">
+<div class="sadface"> <img src="[% roots.img %]/mood/dwsad.png" alt="[% '.alt.sad' | ml %]" /></div>
+<div class="moodgradient"> <img src="[% roots.img %]/silk/24x24/user.png" alt="[% '.alt.indicator' | ml(score = score, top = 100) %]" style="margin-left: [% (score / 100) * 650 - 12 | format("%ipx") %]" /></div>
+[%# The above formula in the inline style is derived from the width and margin of the moodgradient class in the CSS file.
+   ( score / 100 ) * <width> - <margin (left or right)> %]
+<div class="happyface"> <img src="[% roots.img %]/mood/dwhappy.png" alt="[% '.alt.happy' | ml %]" /></div>
+</div>
+[%- END -%]
