@@ -179,18 +179,6 @@
     # Default to allow all reproxying.
     %REPROXY_DISABLE = () unless %REPROXY_DISABLE;
 
-    # Terms of Service revision requirements
-    foreach (
-             [ rev   => '0.0' ],
-             [ title => 'Terms of Service agreement required' ],
-             [ html  => '' ],
-             [ text  => '' ]
-             )
-    {
-        $LJ::REQUIRED_TOS{$_->[0]} = $_->[1]
-            unless defined $LJ::REQUIRED_TOS{$_->[0]};
-    }
-
     # setup default minimal style information
     $MINIMAL_USERAGENT{$_} ||= 1 foreach qw(Links Lynx w BlackBerry WebTV); # w is for w3m
     $MINIMAL_BML_SCHEME ||= 'lynx';

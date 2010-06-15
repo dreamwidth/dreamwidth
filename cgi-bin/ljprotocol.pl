@@ -64,10 +64,6 @@ my %e = (
      "153" => [ E_PERM, "Incorrect time value" ],
      "154" => [ E_PERM, "Can't add a redirected account as a friend" ],
      "155" => [ E_TEMP, "Non-authenticated email address" ],
-     "156" => [ E_TEMP, sub { # to reload w/o restart
-         LJ::tosagree_str('protocol' => 'text') ||
-         LJ::tosagree_str('protocol' => 'title')
-     } ],
      "157" => [ E_TEMP, "Tags error" ],
 
      # Client Errors
@@ -2919,10 +2915,6 @@ sub authenticate
         return fail( $err, 105 ) if $chal_expired;
         return fail( $err, 101 );
     }
-
-    # if there is a require TOS revision, check for it now
-    return fail( $err, 156, LJ::tosagree_str( protocol => 'text' ) )
-        unless $u->tosagree_verify;
 
     # remember the user record for later.
     $flags->{u} = $u;

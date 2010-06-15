@@ -1184,7 +1184,6 @@ sub talkform {
     # ditemid:     init->ditemid
     # form:        optional full form hashref
     # do_captcha:  optional toggle for creating a captcha challenge
-    # require_tos: optional toggle to include TOS requirement form
     # errors:      optional error arrayref
     my $opts = shift;
     return "Invalid talkform values." unless ref $opts eq 'HASH';
@@ -1250,12 +1249,6 @@ sub talkform {
         my $chal = $opts->{ditemid} . "-$journalu->{userid}-$time-$rchars";
         my $res = Digest::MD5::md5_hex($secret . $chal);
         $ret .= LJ::html_hidden("chrp1", "$chal-$res");
-    }
-
-    # if we know the user who is posting (error on talkpost_do POST action),
-    # then see if we
-    if ($opts->{require_tos}) {
-        $ret .= LJ::tosagree_html('comment', $form->{agree_tos}, BML::ml('tos.error'));
     }
 
     my $oid_identity = $remote ? $remote->openid_identity : undef;

@@ -494,14 +494,6 @@ userproplist.latest_optout:
   multihomed: 0
   prettyname: Latest Updates Opt Out
 
-userproplist.legal_tosagree:
-  cldversion: 4
-  datatype: char
-  des: Comma separated:  Unix time user agreed to the Terms of Service, revision number
-  indexed: 0
-  multihomed: 1
-  prettyname: Agreed to Terms of Service
-
 userproplist.mailencoding:
   cldversion: 4
   datatype: num

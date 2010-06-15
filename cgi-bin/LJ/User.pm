@@ -1842,55 +1842,6 @@ sub timezone {
 }
 
 
-sub tosagree_set
-{
-    my ($u, $err) = @_;
-    return undef unless $u;
-
-    unless (-f "$LJ::HOME/htdocs/inc/legal-tos") {
-        $$err = "TOS include file could not be found";
-        return undef;
-    }
-
-    my $rev;
-    open (TOS, "$LJ::HOME/htdocs/inc/legal-tos");
-    while ((!$rev) && (my $line = <TOS>)) {
-        my $rcstag = "Revision";
-        if ($line =~ /\$$rcstag:\s*(\S+)\s*\$/) {
-            $rev = $1;
-        }
-    }
-    close TOS;
-
-    # if the required version of the tos is not available, error!
-    my $rev_req = $LJ::REQUIRED_TOS{rev};
-    if ($rev_req > 0 && $rev ne $rev_req) {
-        $$err = "Required Terms of Service revision is $rev_req, but system version is $rev.";
-        return undef;
-    }
-
-    my $newval = join(', ', time(), $rev);
-    my $rv = $u->set_prop("legal_tosagree", $newval);
-
-    # set in $u object for callers later
-    $u->{legal_tosagree} = $newval if $rv;
-
-    return $rv;
-}
-
-
-sub tosagree_verify {
-    my $u = shift;
-    return 1 unless $LJ::TOS_CHECK;
-
-    my $rev_req = $LJ::REQUIRED_TOS{rev};
-    return 1 unless $rev_req > 0;
-
-    my $rev_cur = (split(/\s*,\s*/, $u->prop("legal_tosagree")))[1];
-    return $rev_cur eq $rev_req;
-}
-
-
 ########################################################################
 ### 7. Userprops, Caps, and Displaying Content to Others
 

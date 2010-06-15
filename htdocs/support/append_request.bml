@@ -41,21 +41,6 @@ body<=
         return "<?needlogin?>";
     }
 
-    if ($remote && ! $remote->tosagree_verify) {
-        my $ret = "<?h1 " . LJ::tosagree_str('support' => 'title') . " h1?>";
-
-        my $html_str = LJ::tosagree_str('support' => 'html');
-        if ($html_str) {
-            $ret .= "<?p $html_str p?>";
-        } else {
-            $ret .= BML::ml
-                ('tos.mustread',
-                 { aopts => "target='_new' href='$LJ::SITEROOT/legal/tos'" });
-        }
-
-        return $ret;
-    }
-
     my $scat = $sp->{_cat};
     my $problemarea = $scat->{'catname'};
     my $catkey = $scat->{'catkey'};

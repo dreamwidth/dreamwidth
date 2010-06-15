@@ -708,9 +708,6 @@ add_conf('@INITIAL_OPTIONAL_FRIENDS',
 add_conf('%FILEEDIT_VIA_DB',
          type => '',
          des => "");
-add_conf('%REQUIRED_TOS',
-         type => '',
-         des => "");
 add_conf('%SETTER',
          type => '',
          des => "");
@@ -759,7 +756,6 @@ my %bools = (
              'USER_VHOSTS' => "Let (at least some) users get *.\$USER_DOMAIN URLs.  They'll also need the 'userdomain' cap.",
              'USER_EMAIL' => "Let (at least some) users get email aliases on the site.  They'll also need the 'useremail' cap.  See also \$USER_DOMAIN",
              'USERPIC_BLOBSERVER' => "Store userpics on the 'blobserver'.  This is old.  MogileFS is the future.  You might want to use this option, though, for development, as blobserver in local-filesystem-mode is easy to setup.",
-             'TOS_CHECK' => 'Make users agree to the Terms of Service.',
              'TRACK_URL_ACTIVE' => "record in memcached what URL a given host/pid is working on",
              'TRUST_X_HEADERS' => "LiveJournal should trust the upstream's X-Forwarded-For and similar headers.  Default is off (for direct connection to the net).  If behind your own reverse proxies, you should enable this.",
              'UNICODE' => "Unicode support is enabled.  The default has been 'on' for ages, and turning it off is nowadays not recommended or even known to be working/reliable.  Keep it enabled.",

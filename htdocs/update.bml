@@ -286,10 +286,6 @@ _c?>
         $$body .= "\n\n<form method='post' action='update$getextra' id='updateForm' name='updateForm'>\n\n";
         $$body .= LJ::form_auth();
 
-        if ($opts->{require_tos}){
-            $$body .= LJ::tosagree_html('update', $POST{agree_tos}, $errors->{require_tos});
-        }
-
         $$body .= LJ::entry_form($entry, \$$head, $onload, $errors);
         $$body .= "</form><!-- end #updateForm -->\n";
 
@@ -328,23 +324,6 @@ _c?>
             $flags = { 'noauth' => 1, 'u' => $remote };
             $user = $remote->{'user'};
             $u = $remote;
-        }
-
-        if ($u && ! $u->tosagree_verify) {
-            if ($POST{agree_tos}) {
-                my $err = "";
-                unless ($u->tosagree_set(\$err)) {
-                    # error
-                    $errors->{require_tos} = $err;
-                    $print_entry_form->({ require_tos => 1 });
-                    return;
-                }
-                # successfully set
-            } else {
-                $errors->{require_tos} = $ML{'tos.error'};
-                $print_entry_form->({ require_tos => 1 });
-                return;
-            }
         }
 
         # Check if the account they're posting to is read-only

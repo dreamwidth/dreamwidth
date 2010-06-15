@@ -95,7 +95,6 @@ _c?>
         return;
     }
 
-    my $require_tos = 0;
 
     my $login_html = sub {
         my $nojs = $GET{'nojs'};
@@ -123,15 +122,6 @@ _c?>
         }
 
         $body .= "<table cellpadding='0' cellspacing='0'><tr><td style='padding-right:20px; vertical-align: top'>";
-        if ($require_tos) {
-            my $err_code = (ref $require_tos eq 'HASH') ? $require_tos->{code} : 'tos_required';
-            return if $want_fail_redirect->($err_code);
-
-            $body .= "<div style='margin-left: 40px; margin-bottom: 20px;'>";
-            my $tos_err = ref $require_tos eq 'HASH' ? $require_tos->{err} : undef;
-            $body .= LJ::tosagree_html('login', $POST{agree_tos}, $tos_err);
-            $body .= "</div>";
-        }
 
         if ($remote) {
             my $base = $remote->journal_base;
@@ -267,12 +257,6 @@ _c?>
             $do_change = 0;
         }
 
-        if ($do_change && ! $remote->tosagree_verify) {
-            $do_change = 0;
-            $do_logout = 1;
-            $require_tos = 1;
-        }
-
         if ($do_logout) {
             $logout_remote->();
             $title = BML::ml(".login.title", { 'sitename' => $LJ::SITENAMESHORT} );
@@ -343,23 +327,7 @@ _c?>
             }
 
             # at this point, $u is known good
-            $u->preload_props( "browselang", "schemepref", "legal_tosagree" );
-
-            unless ($u->tosagree_verify) {
-                if ($POST{agree_tos}) {
-                    my $err = "";
-                    unless ($u->tosagree_set(\$err)) {
-                        # failed to save userprop, why?
-                        $require_tos = { err => $err , code => 'fail_tosagree_set'};
-                        return $login_html->();
-                    }
-                    # else, successfully set... log them in
-                } else {
-                    # didn't check agreement checkbox
-                    $require_tos = { err => $ML{'tos.error'}, code => 'tos_required' };
-                    return $login_html->();
-                }
-            }
+            $u->preload_props( "browselang", "schemepref" );
 
             my $exptype = ($POST{'expire'} eq "never" || $POST{'remember_me'}) ? "long" : "short";
             my $bindip  = ($POST{'bindip'} eq "yes") ? BML::get_remote_ip() : "";
@@ -392,14 +360,6 @@ _c?>
     }
 
     return if $want_success_redirect->();
-
-    # otherwise if it's a get request, and the user is logged in
-    # but has agreed to an old terms of service, log them out
-    # and force a TOS validation
-    if ($remote && ! LJ::did_post() && ! $remote->tosagree_verify) {
-        $require_tos = 1;
-        $logout_remote->();
-    }
 
     $login_html->();
     return;

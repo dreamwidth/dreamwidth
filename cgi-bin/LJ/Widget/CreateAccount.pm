@@ -536,12 +536,6 @@ sub handle_post {
             body => $body,
         });
 
-        if ( $LJ::TOS_CHECK ) {
-            my $err = "";
-            $nu->tosagree_set(\$err)
-                or return LJ::bad_input($err);
-        }
-
         $nu->make_login_session;
 
         # we're all done; mark the invite code as used

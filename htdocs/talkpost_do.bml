@@ -143,15 +143,7 @@ body<=
     # Required for challenge/response login, since we also need to regenerate an auth token.
     # We repopulate what we can via hidden fields - however the objects (journalu & parpost) must be recreated here.
 
-    # if the user leaving the comment hasn't agreed to the current TOS, and they
-    # didn't click the agreement checkbox, return the form back to them
-    my $require_tos = 0;
-    my $commentu = $init ? $init->{comment}->{u} : undef;
-    if ($init && ! $POST{agree_tos} && $commentu && ! $commentu->tosagree_verify) {
-        $require_tos = 1;
-    }
-
-    if (! $init || $require_tos) {
+    unless ( $init ) {
         my ($sth, $parpost);
         my $dbcr = LJ::get_cluster_def_reader($journalu);
         return LJ::bad_input('No database connection present.  Please go back and try again.') unless $dbcr;
@@ -169,18 +161,9 @@ body<=
                                     'parpost'     => $parpost,
                                     'replyto'     => $POST{replyto} || $POST{parenttalkid},
                                     'ditemid'     => $POST{itemid},
-                                    'require_tos' => $require_tos,
                                     'do_captcha'  => $need_captcha,
                                     'errors'      => \@errors,
                                     'form'        => \%POST });
-    }
-
-    # checked $POST{agree_tos} was checked above if it was necessary,
-    # now we just need to save the userprop
-    if ($commentu && ! $commentu->tosagree_verify && $POST{agree_tos}) {
-        my $err = "";
-        return LJ::bad_input($err)
-            unless $commentu->tosagree_set(\$err);
     }
 
 

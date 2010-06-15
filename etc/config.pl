@@ -60,48 +60,6 @@
     ### Policy Options
     ###
 
-    $TOS_CHECK = 0;     # require users to agree to TOS
-
-    %REQUIRED_TOS =
-        (
-         # revision must be found in first line of your htdocs/inc/legal-tos include file:
-         # <!-- $Revision: 12440 $ -->
-
-         # set required version to enable tos version requirement mechanism
-         #rev   => '1.0',
-
-         # these are the defaults and are used if no "domain"-specific
-         # values are defined below
-         title => 'Configurable Title for TOS requirement',
-         html  => 'Configurable HTML for TOS requirement',
-         text  => 'Configurable text error message for TOS requirement',
-
-         # text/html to use when message displayed for a login action
-         login => {
-             html => "Before logging in, you must update your TOS agreement",
-         },
-
-         # ... an update action
-         update => {
-             html => "HTML to use in update.bml",
-         },
-
-         # ... posting a comment (this will just use the defaults above)
-         comment => {
-         },
-
-         # ... protocol actions
-         protocol => {
-             text => "Please visit $LJ::SITEROOT/legal/tos.bml to update your TOS agreement",
-         },
-
-         # ... support requests
-         support => {
-             html => "Text to use when viewing a support request",
-         },
-
-         );
-
     # filter comments for spam using this list of regular expressions:
     #@TALKSPAM = (
     #             "morphese",

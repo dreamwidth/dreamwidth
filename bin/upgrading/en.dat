@@ -3679,12 +3679,6 @@ time.ago.second=[[num]] [[?num|second|seconds]] ago
 
 time.ago.week=[[num]] [[?num|week|weeks]] ago
 
-tos.error=You must read and agree to the terms of service.
-
-tos.haveread=I have read and agree to the Terms of Service.
-
-tos.mustread=Before continuing you must read and agree to the <a [[aopts]]>Terms of Service.</a>
-
 userlinkbar.addsub=Subscribe
 
 userlinkbar.addsub.title.loggedout=You must be logged in to subscribe to this account
