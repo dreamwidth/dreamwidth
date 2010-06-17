@@ -417,6 +417,7 @@ class Comment extends EntryLite
     var readonly string thread_url "URL to view threaded rooted at this comment, or blank if comment has no children.";
     var readonly string threadroot_url "URL to view the entire thread this comment is part of, or blank if a top-level comment.";
     var readonly bool screened "True if comment is in screened state.";
+    var readonly bool screened_noshow "True if comment is in screened state and user isn't allowed to see it.";
     var readonly bool frozen "True if comment is in frozen state.";
     var readonly bool deleted "True if comment has been deleted. Deleted comments still show up if they are the parent of a thread.";
     var readonly bool fromsuspended "True if comment's author has been suspended.";
@@ -2553,7 +2554,7 @@ set text_comment_edittime = "Edited";
 
 property string text_screened {
    des = "The text used when a comment is screened";
-   example = "(screened) ";
+   example = "(screened comment) ";
 }
 
 property string text_deleted {
@@ -2602,7 +2603,7 @@ property string text_reply_nocomments {
 
 property string text_website_default_name { noui = 1; des = "If an account's website is specified, but there's no website name, use this text instead"; }
 
-set text_screened = "(screened) ";
+set text_screened = "(screened comment) ";
 set text_deleted = "(deleted comment)";
 set text_fromsuspended = "(reply from suspended user)";
 set text_frozen = "(frozen) ";
@@ -4352,11 +4353,12 @@ function Entry::print_wrapper_start() {
 function Comment::print_wrapper_start() {
     var EntryPage ep = get_page() as EntryPage;
     var string alternate = alternate ("comment-wrapper-odd", "comment-wrapper-even");
-    var string screened = $this.screened ? "screened" : "visible";
+    var string screened = ($this.screened and not $this.fromsuspended) ? "screened" : "visible";
     var string deletedstate = $this.deleted ? "deleted" : "";
     var string suspendedstate = $this.fromsuspended ? "from-suspended" : "";
     var string frozen = $this.frozen ? "frozen" : "";
     var string poster = defined $this.poster ? "poster-" + $this.poster.username : "poster-anonymous";
+    if ($this.deleted or $this.fromsuspended or $this.screened_noshow) { $poster =  "poster-hidden"; }
     var string full = $this.full ? "full" : "partial";
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
     var string entryauthor = "";
@@ -5308,6 +5310,7 @@ function EntryPage::print_comment_partial (Comment c) {
     $c->print_wrapper_start();
     if ($c.deleted) { print $*text_deleted; }
     elseif ($c.fromsuspended) { print $*text_fromsuspended; }
+    elseif ($c.screened_noshow) { print $*text_screened; }
     else {
         var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
         $c->print_subject();

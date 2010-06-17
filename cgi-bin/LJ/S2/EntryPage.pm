@@ -266,6 +266,7 @@ sub EntryPage
                 'parent_url' => $par_url,
                 threadroot_url => $threadroot_url,
                 'screened' => $com->{'state'} eq "S" ? 1 : 0,
+                'screened_noshow' => 0,
                 'frozen' => $com->{'state'} eq "F" ? 1 : 0,
                 'deleted' => 0,
                 'fromsuspended' => 0,
@@ -307,6 +308,18 @@ sub EntryPage
                 $s2com->{'subject_icon'} = undef;
                 $s2com->{'text'} = "";
                 $s2com->{'screened'} = undef;
+            }
+
+            # don't show info for screened comments if user can't see
+            if ($com->{'state'} eq "S" && !$com->{'_show'}) {
+                $s2com->{'screened'} = 1;
+                $s2com->{'screened_noshow'} = 1;
+                $s2com->{'full'} = 0;
+                $s2com->{'poster'} = undef;
+                $s2com->{'userpic'} = undef;
+                $s2com->{'subject'} = "";
+                $s2com->{'subject_icon'} = undef;
+                $s2com->{'text'} = "";
             }
 
             # Conditionally add more links to the keyseq
