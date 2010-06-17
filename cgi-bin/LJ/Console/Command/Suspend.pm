@@ -77,15 +77,12 @@ sub execute {
 
         $self->info("Acting on users matching email $user");
 
-        my $dbr = LJ::get_db_reader();
-        my $userids = $dbr->selectcol_arrayref('SELECT userid FROM email WHERE email = ?', undef, $user);
-        return $self->error("Database error: " . $dbr->errstr)
-            if $dbr->err;
+        my @userids = LJ::User->accounts_by_email( $user );
+        return $self->error( "No users found matching the email address $user." )
+            unless @userids;
 
-        return $self->error("No users found matching the email address $user.")
-            unless $userids && @$userids;
+        my $us = LJ::load_userids( @userids );
 
-        my $us = LJ::load_userids(@$userids);
         foreach my $u (values %$us) {
             push @users, $u->user;
         }

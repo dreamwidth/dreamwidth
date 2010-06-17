@@ -3989,6 +3989,20 @@ sub should_show_in_search_results {
 =head2 Email-Related Functions
 =cut
 
+sub accounts_by_email {
+    my ( $u, $email ) = @_;
+    $email ||= $u->email_raw if LJ::isu( $u );
+    return undef unless $email;
+
+    my $dbr = LJ::get_db_reader() or die "Couldn't get db reader";
+    my $userids = $dbr->selectcol_arrayref(
+                        "SELECT userid FROM email WHERE email=?",
+                        undef, $email );
+    die $dbr->errstr if $dbr->err;
+    return $userids ? @$userids : ();
+}
+
+
 sub delete_email_alias {
     my $u = shift;
 

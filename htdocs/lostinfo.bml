@@ -218,10 +218,7 @@ body<=
             unless $email;
 
         my @users;
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT userid FROM email WHERE email=?");
-        $sth->execute($email);
-        while (my ($uid) = $sth->fetchrow_array) {
+        foreach my $uid ( LJ::User->accounts_by_email( $email ) ) {
             my $u = LJ::load_userid($uid);
             next unless $u && $u->{clusterid};  # not purged
 
