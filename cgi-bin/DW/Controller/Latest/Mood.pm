@@ -19,6 +19,7 @@ use warnings;
 use DW::Routing;
 use DW::Template;
 use DW::Request;
+use DW::Mood;
 use JSON;
 
 DW::Routing->register_string( "/latest/mood", \&mood_handler );
@@ -49,7 +50,7 @@ sub mood_handler {
         my $score = 0;
         my $count = scalar @$moods;
 
-        my $metadata = LJ::get_moods();
+        my $metadata = DW::Mood->get_moods;
 
         foreach my $moodid ( @$moods ) {
             $score += $metadata->{$moodid}->{weight} || 50;
