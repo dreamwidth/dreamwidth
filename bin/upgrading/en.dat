@@ -762,6 +762,22 @@ edges.watch.error.usernotvisible=Your account must be visible.
 
 email=Email
 
+email.emailreset.body<<
+The email address for your [[sitename]] account '[[user]]' has
+been reset. To validate the change, please go to this address:
+
+     [[siteroot]]confirm/[[auth]]
+
+Regards,
+[[sitename]] Team
+
+[[siteroot]]
+.
+
+email.emailreset.error=Unable to update user record for [[user]]
+
+email.emailreset.subject=Email Address Reset
+
 email.invitecoderequest.accept.body2<<
 Your previous request for invite codes has been granted. You received [[number]] invite [[?number|code|codes]] from site administrators, listed below:
 

@@ -4158,6 +4158,47 @@ sub opt_findbyemail {
 }
 
 
+# initiate reset of user's email
+# newemail: the new address provided (not validated?)
+# err: reference for error messages
+# emailsucc: send email if defined, report success if reference
+# update_opts: additional options for the update_user call
+sub reset_email {
+    my ( $u, $newemail, $err, $emailsucc, $update_opts ) = @_;
+    my $errsub = sub { $$err = $_[0] if ref $err; return undef };
+
+    my $dbh = LJ::get_db_writer();
+    $dbh->do( "UPDATE infohistory SET what='emailreset'" .
+              " WHERE userid=? AND what='email'", undef, $u->id ) or
+        return $errsub->( LJ::Lang::ml( "error.dberror" ) . $dbh->errstr );
+
+    LJ::infohistory_add( $u, 'emailreset', $u->email_raw, $u->email_status )
+        if $u->email_raw ne $newemail; # record only if it changed
+
+    $update_opts ||= { status => 'T' };
+    $update_opts->{email} = $newemail;
+    LJ::update_user( $u, $update_opts ) or
+        return $errsub->( LJ::Lang::ml( "email.emailreset.error",
+                                        { user => $u->user } ) );
+
+    if ( defined $emailsucc ) {
+        my $aa = LJ::register_authaction( $u->id, "validateemail", $newemail );
+        my $auth = $aa->{aaid} . $aa->{authcode};
+        my $sent = LJ::send_mail( {
+            to => $newemail,
+            from => $LJ::ADMIN_EMAIL,
+            subject => LJ::Lang::ml( "email.emailreset.subject" ),
+            body => LJ::Lang::ml( "email.emailreset.body",
+                                  { user => $u->user,
+                                    sitename => $LJ::SITENAME,
+                                    siteroot => "$LJ::SITEROOT/",
+                                    auth => $auth } ),
+        } );
+        $$emailsucc = $sent if ref $emailsucc;
+    }
+}
+
+
 sub set_email {
     my ($u, $email) = @_;
     return LJ::set_email($u->id, $email);

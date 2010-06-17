@@ -132,32 +132,23 @@ sub execute {
 
     #############################
     # update the user info
-    my %extra = ();  # aggregates all the changes we're making
-
+    my $extra = {};  # aggregates all the changes we're making
 
     # update the password
-    if ($type eq "community") {
-        $extra{password} = '';
-    } else {
-        $extra{password} = $ou->password;
-    }
+    $extra->{password} = $type eq "community" ? '' : $ou->password;
 
     LJ::infohistory_add($u, 'password', Digest::MD5::md5_hex($u->password . 'change'))
-        if $extra{password} ne $u->password;
+        if $extra->{password} ne $u->password;
 
     # reset the email address
-    $extra{email} = $ou->email_raw;
-    $extra{status} = 'A';
-    $dbh->do("UPDATE infohistory SET what='emailreset' WHERE userid=? AND what='email'", undef, $u->id)
-        or $self->error("Error updating infohistory for emailreset: " . $dbh->errstr);
-    LJ::infohistory_add($u, 'emailreset', $u->email_raw, $u->email_status)
-        unless $ou->email_raw eq $u->email_raw; # record only if it changed
+    $extra->{status} = 'A';
 
     # get the new journaltype
-    $extra{journaltype} = $typemap->{$type};
+    $extra->{journaltype} = $typemap->{$type};
 
-    # we haev update!
-    LJ::update_user($u, { %extra });
+    # do the update!
+    $u->reset_email( $ou->email_raw, \ my $update_err, undef, $extra );
+    $self->error( $update_err ) if $update_err;
 
     # journaltype, birthday changed
     $u->invalidate_directory_record;
