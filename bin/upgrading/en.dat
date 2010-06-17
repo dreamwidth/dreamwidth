@@ -2585,6 +2585,29 @@ setting.emailposting.error.pin.invalid=Your PIN must contain only alphabet chara
 
 setting.emailposting.error.pin.invalidaccount=This PIN is invalid. You should change it to something that does not have anything to do with your [[sitename]] account.
 
+setting.emailposting.helpmessage.body<<
+PIN is required, embedded in one of: to address, subject or body.
+  To: [[email]]
+  Subject: +PIN <subject text>
+  Body: +PIN <body text>
+
+If posting to a community, include the community name in the to address.
+  To: [[comm]]
+
+Journal options are configured by using headers at the top of the message body, separated by a blank line from the rest of the message body.  Available headers:
+  post-icon (or post-userpic): icon keywords
+  post-tags: tag1, tag2, tag3
+  post-mood: mood name
+  post-music: song name
+  post-location: name of location
+  post-comments: "off" or "noemail"
+  post-security: public, private, access (or friends), or name of access group
+
+To edit your emailpost settings, visit [[url]]
+.
+
+setting.emailposting.helpmessage.subject=Summary of Email Posting Instructions for [[sitenameshort]]
+
 setting.emailposting.label=Email Posting
 
 setting.emailposting.notavailable=Your account level does not permit you to use this feature.
@@ -2596,6 +2619,8 @@ setting.emailposting.option=Post to your journal by sending an email from one of
 setting.emailposting.option.addr=Email Address:
 
 setting.emailposting.option.advanced=advanced setup options
+
+setting.emailposting.option.helpmessage=Email summary of posting instructions?
 
 setting.emailposting.option.pin=PIN:
 

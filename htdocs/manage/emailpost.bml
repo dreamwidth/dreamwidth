@@ -316,6 +316,8 @@ body<=
         # Check email, add flags if needed.
         my %allowed;
         my $addrcount = 0;
+        my @send_helpmessage;
+
         foreach (split(/\0/, $addresses)) {
             s/\s+//g;
             next unless $_;
@@ -324,6 +326,7 @@ body<=
             push @errors, BML::ml('.error.invalidemail', {'email' => LJ::ehtml($_)}) unless /\@/;
             $allowed{$_} = {};
             $allowed{$_}->{'get_errors'} = 1 if $POST{"check_$addrcount"};
+            push @send_helpmessage, $_ if $POST{"help_$addrcount"};
             $addrcount++;
         }
 
@@ -342,11 +345,14 @@ body<=
             }
         }
         LJ::set_userprop($u, "emailpost_pin", $pin);
+        LJ::Setting::EmailPosting->email_helpmessage( $u, $_ )
+            foreach @send_helpmessage;
 
         my $ret;
         $ret .= "<?h1 $ML{'.success.header'} h1?>";
         $ret .= "<?p $ML{'.success.saved'} p?>";
         $ret .= "<?p " . BML::ml('.success.info', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";
+        $ret .= "<?p $ML{'.success.helpmessage'} p?>" if @send_helpmessage;
         if ($LJ::HELPURL{emailpost}) {
             $ret .= "<?h1 $ML{'.instructions.header'} h1?>";
             $ret .= "<?p FIXME: link to helpurl p?>";
@@ -390,7 +396,10 @@ body<=
     $ret .= "<form method='post' action='emailpost'>\n";
     $ret .= LJ::form_auth();
     $ret .= "<div style='margin-left:40px;'>";
-    $ret .= "<table border=\"0\"><tr><td>$ML{'.addresses.table.address'}</td><td>$ML{'.addresses.table.errors'}</td></tr>";
+    $ret .= "<table border=\"0\"><tr><td>$ML{'.addresses.table.address'}</td>";
+    $ret .= "<td>$ML{'setting.emailposting.option.senderrors'}</td>";
+    $ret .= "<td>&nbsp;</td>";
+    $ret .= "<td>$ML{'setting.emailposting.option.helpmessage'}</td></tr>";
     for(0..2) { # Limited to 3 addresses.
         $ret .= '<tr><td>';
         my $selected = 0;
@@ -400,6 +409,10 @@ body<=
         $selected = 1 if $addrlist->{$address[$_]}->{'get_errors'};
         $ret .= '<center>' . 
             LJ::html_check({name => "check_$_", selected => $selected})
+            . '</center>';
+        $ret .= '</td><td width="20"></td><td>';
+        $ret .= '<center>' . 
+            LJ::html_check( { name => "help_$_", selected => 0 } )
             . '</center>';
         $ret .= '</td></tr>';
     }

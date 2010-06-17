@@ -46,13 +46,17 @@ sub option {
 
     my $pin = $class->get_arg($args, "emailposting_pin") || $u->prop("emailpost_pin");
 
-    my $ret .= "<p>" . $class->ml('setting.emailposting.option', { domain => $LJ::EMAIL_POST_DOMAIN, aopts => "href='$LJ::SITEROOT/manage/emailpost?mode=help'" }) . " $upgrade_link</p>";
+    my $ret = "<p>" . $class->ml( 'setting.emailposting.option',
+                                  { domain => $LJ::EMAIL_POST_DOMAIN,
+                                    aopts => "href='$LJ::SITEROOT/manage/emailpost?mode=help'" } );
+    $ret .= " $upgrade_link</p>";
 
     $ret .= "<table class='setting_table' cellspacing='5' cellpadding='0'>";
 
     if ( $can_emailpost ) {
         foreach my $i (0..2) {
-            $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_addr$i'>" . $class->ml('setting.emailposting.option.addr') . "</label></td>";
+            $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_addr$i'>";
+            $ret .= $class->ml( 'setting.emailposting.option.addr' ) . "</label></td>";
             $ret .= "<td>" . LJ::html_text({
                 name => "${key}emailposting_addr$i",
                 id => "${key}emailposting_addr$i",
@@ -60,19 +64,34 @@ sub option {
                 size => 40,
                 maxlength => 80,
             });
-            $ret .= " <label for='${key}emailposting_senderrors$i' style='color: #000;'>" . $class->ml('setting.emailposting.option.senderrors') . "</label>";
-            $ret .= " " . LJ::html_check({
+            $ret .= " <label for='${key}emailposting_senderrors$i' style='color: #000;'>";
+            $ret .= $class->ml( 'setting.emailposting.option.senderrors' ) . "</label>";
+            $ret .= " " . LJ::html_check( {
                 name => "${key}emailposting_senderrors$i",
                 id => "${key}emailposting_senderrors$i",
                 value => 1,
-                selected => $class->get_arg($args, "emailposting_senderrors$i") || ($addresses[$i] && $addrlist->{$addresses[$i]} && $addrlist->{$addresses[$i]}->{get_errors}) ? 1 : 0,
-            });
+                selected => $class->get_arg( $args, "emailposting_senderrors$i" )
+                              || ( $addresses[$i] && $addrlist->{$addresses[$i]}
+                                   && $addrlist->{$addresses[$i]}->{get_errors} )
+                            ? 1 : 0,
+            } );
+            $ret .= "<br />";
+            $ret .= " <label for='${key}emailposting_helpmessage$i' style='color: #000;'>";
+            $ret .= $class->ml( 'setting.emailposting.option.helpmessage' ) . "</label>";
+            $ret .= " " . LJ::html_check( {
+                name => "${key}emailposting_helpmessage$i",
+                id => "${key}emailposting_helpmessage$i",
+                value => 1,
+                selected => 0,
+            } );
             my $addr_errdiv = $class->errdiv($errs, "emailposting_addr$i");
             $ret .= "<br />$addr_errdiv" if $addr_errdiv;
+            $ret .= "<br />&nbsp;";
             $ret .= "</td></tr>";
         }
 
-        $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_pin'>" . $class->ml('setting.emailposting.option.pin') . "</label></td>";
+        $ret .= "<tr><td class='setting_label'><label for='${key}emailposting_pin'>";
+        $ret .= $class->ml( 'setting.emailposting.option.pin' ) . "</label></td>";
         $ret .= "<td>" . LJ::html_text({
             name => "${key}emailposting_pin",
             id => "${key}emailposting_pin",
@@ -86,7 +105,8 @@ sub option {
         $ret .= "</td></tr>";
 
         $ret .= "<tr><td>&nbsp;</td>";
-        $ret .= "<td><a href='$LJ::SITEROOT/manage/emailpost'>" . $class->ml('setting.emailposting.option.advanced') . "</a></td></tr>";
+        $ret .= "<td><a href='$LJ::SITEROOT/manage/emailpost'>";
+        $ret .= $class->ml( 'setting.emailposting.option.advanced' ) . "</a></td></tr>";
 
     } else {
         $ret .= $class->ml( 'setting.emailposting.notavailable' );
@@ -109,6 +129,7 @@ sub save {
 
     my %allowed;
     my $addrcount = 0;
+    my @send_helpmessage;
     foreach my $addr ($addr0_val, $addr1_val, $addr2_val) {
         $addr =~ s/\s+//g;
         next unless $addr;
@@ -119,11 +140,14 @@ sub save {
         $allowed{$addr} = {};
         $allowed{$addr}->{get_errors} = 1
             if $class->get_arg($args, "emailposting_senderrors$addrcount");
+        push @send_helpmessage, $addr
+            if $class->get_arg( $args, "emailposting_helpmessage$addrcount" );
 
         $addrcount++;
     }
 
     LJ::Emailpost::set_allowed_senders($u, \%allowed);
+    $class->email_helpmessage( $u, $_ ) foreach @send_helpmessage;
 
     $pin_val =~ s/\s+//g;
     $class->errors( emailposting_pin => $class->ml('setting.emailposting.error.pin.invalid', { num => 4 }) )
@@ -135,6 +159,24 @@ sub save {
     $u->set_prop( emailpost_pin => $pin_val );
 
     return 1;
+}
+
+sub email_helpmessage {
+    my ( $class, $u, $address ) = @_;
+    return unless $u && $address;
+    my $user = LJ::isu( $u ) ? $u->user : $u;  # allow object or string
+    my $postdomain = "\@post.$LJ::DOMAIN";
+    LJ::send_mail( {
+        to => $address,
+        from => $LJ::BOGUS_EMAIL,
+        fromname => $LJ::SITENAME,
+        subject => LJ::Lang::ml( 'setting.emailposting.helpmessage.subject',
+                   { sitenameshort => $LJ::SITENAMESHORT } ),
+        body => LJ::Lang::ml( 'setting.emailposting.helpmessage.body',
+                   { email => "$user+PIN$postdomain",
+                     comm => "$user.communityname$postdomain",
+                     url => "$LJ::SITEROOT/manage/emailpost" } ),
+    } );
 }
 
 1;

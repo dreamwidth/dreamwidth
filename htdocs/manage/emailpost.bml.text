@@ -3,8 +3,6 @@
 
 .addresses.table.address=Address:
 
-.addresses.table.errors=Send errors?
-
 .addresses.text=Only the addresses listed below are allowed to post to your account via the email gateway. If no addresses are listed, posting via the email gateway will be disabled for your account. Marked addresses will receive errors if there are any to send.
 
 .error.invalidemail=Invalid email address: [[email]]
@@ -219,6 +217,8 @@
 .sorry.acct=Sorry, updating your journal via email is not available for your account type.
 
 .success.header=Success
+
+.success.helpmessage=If you requested a summary of posting instructions, it should arrive in your email inbox shortly.
 
 .success.info=Click <a [[aopts]]>here</a> for information on how to use this feature.
 
