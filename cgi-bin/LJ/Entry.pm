@@ -868,7 +868,7 @@ sub userpic {
     # mood, then their standard mood
     my $key = $self->prop('picture_keyword') ||
         $self->prop('current_mood') ||
-        LJ::mood_name($self->prop('current_moodid'));
+        DW::Mood->mood_name( $self->prop('current_moodid') );
 
     # return the picture from keyword, if defined
     my $picid = LJ::get_picid_from_keyword($up, $key);
@@ -883,7 +883,7 @@ sub userpic_kw_from_props {
 
     return $props->{'picture_keyword'} ||
         $props->{'current_mood'} ||
-        LJ::mood_name($props->{'current_moodid'});
+        DW::Mood->mood_name( $props->{'current_moodid'} );
 }
 
 

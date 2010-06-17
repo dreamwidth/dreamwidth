@@ -265,7 +265,7 @@ sub make_feed
         if ($logprops{$itemid}->{'current_mood'}) {
             $mood = $logprops{$itemid}->{'current_mood'};
         } elsif ($logprops{$itemid}->{'current_moodid'}) {
-            $mood = LJ::mood_name($logprops{$itemid}->{'current_moodid'}+0);
+            $mood = DW::Mood->mood_name( $logprops{$itemid}->{'current_moodid'}+0 );
         }
 
         my $createtime = $LJ::EndOfTime - $it->{rlogtime};

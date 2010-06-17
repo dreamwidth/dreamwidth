@@ -136,7 +136,7 @@ use LJ::Tags;
 require "ljtextutil.pl";
 require "ljtimeutil.pl";
 require "ljcapabilities.pl";
-require "ljmood.pl";
+use DW::Mood;
 require "ljrelation.pl";
 require "ljuserpics.pl";
 

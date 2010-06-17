@@ -66,10 +66,10 @@ sub render_body {
     my $moodtheme_extra = LJ::Hooks::run_hook("mood_theme_extra_content", $u, \@themes);
     my $show_special = $moodtheme_extra ? "special" : "nospecial";
 
-    LJ::load_mood_theme($preview_moodthemeid);
-    my @show_moods = ('happy', 'sad', 'angry', 'tired');
+    my $mobj = DW::Mood->new( $preview_moodthemeid );
+    my @show_moods = qw( happy sad angry tired );
 
-    if ($preview_moodthemeid) {
+    if ( $mobj) {
         my $count = 0;
 
         $ret .= "<div class='moodtheme-preview moodtheme-preview-$show_special'>";
@@ -77,23 +77,24 @@ sub render_body {
         $ret .= "<tr>" unless $moodtheme_extra;
         foreach my $mood (@show_moods) {
             my %pic;
-            if (LJ::get_mood_picture($preview_moodthemeid, LJ::mood_id($mood), \%pic)) {
+            if ( $mobj->get_picture( $mobj->mood_id( $mood ), \%pic ) ) {
                 $ret .= "<tr>" if $moodtheme_extra && $count % 2 == 0;
                 $ret .= "<td><img class='moodtheme-img' align='absmiddle' alt='$mood' src=\"$pic{pic}\" width='$pic{w}' height='$pic{h}' /><br />$mood</td>";
                 $ret .= "</tr>" if $moodtheme_extra && $count % 2 != 0;
                 $count++;
             }
         }
-        if ($moodtheme_extra) {
+        if ( $moodtheme_extra ) {
             $ret .= "<tr><td colspan='2'>";
         } else {
             $ret .= "<td>";
         }
-        $ret .= "<p><a href='$LJ::SITEROOT/moodlist?moodtheme=$preview_moodthemeid'>" . $class->ml('widget.moodthemechooser.viewtheme') . "</a></p>";
+        $ret .= "<p><a href='$LJ::SITEROOT/moodlist?moodtheme=$preview_moodthemeid'>";
+        $ret .= $class->ml( 'widget.moodthemechooser.viewtheme' ) . "</a></p>";
         $ret .= "</td></tr></table>";
-        my $mood_des = LJ::mood_theme_des($preview_moodthemeid);
-        LJ::CleanHTML::clean (\$mood_des);
-        $ret .= "<p>".$mood_des."</p>";
+        my $mood_des = $mobj->des;
+        LJ::CleanHTML::clean( \$mood_des );
+        $ret .= "<p>$mood_des</p>";
         $ret .= "</div>";
     }
 

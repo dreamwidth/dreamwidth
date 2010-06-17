@@ -186,15 +186,18 @@ body<=
     $make_tree = sub {
         my ($num, $tid) = @_;
         return unless $lists{$num};
+        my $theme = DW::Mood->new( $tid );
 
         $ret .= "<ul>\n";
 
         foreach my $mood (@{$lists{$num}}) {
             $ret .= "<li><b>$mood->{'name'}</b>";
             my %pic;
-            LJ::get_mood_picture($tid, $mood->{'id'}, \%pic);
+            $theme->get_picture( $mood->{id}, \%pic ) if $theme;
             if (%pic) {
-                $ret .= "<img id='$mood->{'id'}img' align='absmiddle' src=\"$pic{'pic'}\" width='$pic{'w'}' height='$pic{'h'}' hspace='2' vspace='2' /></li>\n";
+                $ret .= "<img id='$mood->{id}img' align='absmiddle'";
+                $ret .= " src=\"$pic{pic}\" width='$pic{w}' height='$pic{h}'";
+                $ret .= " hspace='2' vspace='2' /></li>\n";
             }
 
             # Figure out if this picture is really just inherited from a parent
@@ -206,12 +209,16 @@ body<=
             }
 
             $ret .= "<table>";
-            if ($mood->{'parent'}) {
-                $ret .= "<tr><td colspan='2'><label for='$mood->{id}inherit'>" . BML::ml('.mood.label.inherit', {'mood' => LJ::mood_name($mood->{'parent'})}) . "</label>";
-                $ret .= " " . LJ::html_check({ type => 'check', name => "$mood->{id}inherit",
-                                                id => "$mood->{id}inherit",
-                                                onclick => "enable($mood->{id}, $mood->{parent})",
-                                                selected  => $inherited });
+            if ( $mood->{parent} ) {
+                $ret .= "<tr><td colspan='2'><label for='$mood->{id}inherit'>";
+                $ret .= BML::ml( '.mood.label.inherit',
+                            { mood => DW::Mood->mood_name( $mood->{parent} ) } );
+                $ret .= "</label> ";
+                $ret .= LJ::html_check( { type => 'check',
+                                          id => "$mood->{id}inherit",
+                                          name => "$mood->{id}inherit",
+                                          onclick => "enable($mood->{id}, $mood->{parent})",
+                                          selected  => $inherited } );
                 $ret .= "</td></tr>\n";
             }
             $ret .= "<tr><td>$ML{'.mood.label.url'} </td><td>";
@@ -235,7 +242,7 @@ body<=
         my $id = shift;
 
         # Get a list of all possible moods
-        my $moods = LJ::get_moods();
+        my $moods = DW::Mood->get_moods;
 
         foreach (sort { $moods->{$a}->{'name'} cmp $moods->{$b}->{'name'} } keys %$moods) {
             my $m = $moods->{$_};
@@ -346,7 +353,7 @@ body<=
                     my $width = $POST{$mid.'w'};
                     my $height = $POST{$mid.'h'};
                     my $picurl = $POST{$key};
-                    my $mname = LJ::mood_name($mid);
+                    my $mname = DW::Mood->mood_name( $mid );
 
                     # inherited, don't represent in db
                     if ($POST{$mid.'check'} eq 'checked') {
@@ -440,9 +447,10 @@ body<=
                                         'themeids' => join(",", map { $_->{moodthemeid} } @user_themes));
                 $ret .= "<table>";
                 $ret .= "<tr><th></th><th>$ML{'.yourthemes.example.happy'}</th><th>$ML{'.yourthemes.example.sad'}</th><th>$ML{'.yourthemes.example.angry'}</th><th></th></tr>";
-                foreach my $theme (@user_themes) {
-                    my $ename = LJ::ehtml($theme->{'name'});
-                    my $tid = $theme->{'moodthemeid'};
+                foreach my $theme ( @user_themes ) {
+                    my $ename = LJ::ehtml( $theme->{name} );
+                    my $tid = $theme->{moodthemeid};
+                    my $tobj = DW::Mood->new( $tid );
 
                     my $use_dis = 0;
                     if ($tid == $u->{'moodthemeid'}) {
@@ -455,7 +463,7 @@ body<=
                     my @head_moods = (15, 25, 2); # happy, sad, angry
                     foreach my $moodid (@head_moods) {
                         my %pic = ();
-                        LJ::get_mood_picture($tid, $moodid, \%pic);
+                        $tobj->get_picture( $moodid, \%pic ) if $tobj;
                         $ret .= "<td>";
                         if (%pic) {
                             $ret .= "<img align='absmiddle' src=\"$pic{'pic'}\" width='$pic{'w'}' height='$pic{'h'}' hspace='2' vspace='2' />";

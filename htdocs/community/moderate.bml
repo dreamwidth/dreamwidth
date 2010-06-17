@@ -450,15 +450,16 @@ body<=
         if ($props->{'current_mood'} || $props->{'current_moodid'}) {
             $current{'Mood'} = $props->{'current_mood'};
             LJ::CleanHTML::clean_subject(\$current{'Mood'});
-            my $mid = $props->{'current_moodid'};
-            if ($mid) {
-                my $theme = $up->{'moodthemeid'};
+            if ( my $mid = $props->{current_moodid} ) {
+                my $theme = DW::Mood->new( $up->{moodthemeid} );
                 my %pic;
-                my $name = LJ::mood_name($mid);
-                if (LJ::get_mood_picture($theme, $mid, \%pic)) {
-                    $current{'Mood'} = "<img src='$pic{'pic'}' align='absmiddle' width='$pic{'w'}' height='$pic{'h'}' vspace='1'> $name";
+                my $name = DW::Mood->mood_name( $mid );
+                if ( $theme && $theme->get_picture( $mid, \%pic ) ) {
+                    $current{Mood} =
+                        "<img src='$pic{pic}' align='absmiddle' "
+                        . "width='$pic{w}' height='$pic{h}' vspace='1'> $name";
                 } else {
-                    $current{'Mood'} = $name;
+                    $current{Mood} = $name;
                 }
             }
         }

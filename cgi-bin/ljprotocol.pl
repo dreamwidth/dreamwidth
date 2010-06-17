@@ -2788,7 +2788,7 @@ sub list_pickws
 sub list_moods
 {
     my $mood_max = int(shift);
-    LJ::load_moods();
+    DW::Mood->load_moods;
 
     my $res = [];
     return $res if $mood_max >= $LJ::CACHED_MOOD_MAX;

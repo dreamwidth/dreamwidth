@@ -321,13 +321,14 @@ body<=
              $moodname = $val;
         }
 
-        if (my $val = $moodid) {
-             $moodname ||= LJ::mood_name($val);
-             my %pic;
-             if (LJ::get_mood_picture($themeid, $val, \%pic)) {
-                 $moodpic = "<img class='moodpic' src=\"$pic{'pic'}\" align='absmiddle' width='$pic{'w'}' " .
-                              "height='$pic{'h'}' vspace='1' alt='' /> ";
-             }
+        if ( my $val = $moodid ) {
+            $moodname ||= DW::Mood->mood_name( $val );
+            my $theme = DW::Mood->new( $themeid );
+            my %pic;
+            if ( $theme && $theme->get_picture( $val, \%pic ) ) {
+                $moodpic = "<img class='moodpic' src=\"$pic{pic}\" align='absmiddle' " .
+                           "width='$pic{w}' height='$pic{h}' vspace='1' alt='' /> ";
+            }
         }
 
         $current{'Mood'} = "$moodpic$moodname";

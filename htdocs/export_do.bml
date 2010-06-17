@@ -151,11 +151,9 @@ _c?>
                 if ($opts->{'currents'}) {
                     $e->{'current_music'} = $eprops->{'current_music'};
                     $e->{'current_mood'} = $eprops->{'current_mood'};
-                    if ($eprops->{'current_moodid'}) {
-                        my $mood;
-                        $mood = LJ::mood_name($eprops->{'current_moodid'})
-                            if $eprops->{'current_moodid'};
-                        $e->{'current_mood'} = $mood if $mood;
+                    if ( $eprops->{current_moodid} ) {
+                        my $mood = DW::Mood->mood_name( $eprops->{current_moodid} );
+                        $e->{current_mood} = $mood if $mood;
                     }
                 }
 

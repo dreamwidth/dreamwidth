@@ -361,23 +361,23 @@ sub entry_to_req {
         # 1. use the mood icon that matches the given mood id
         # 2. use the mood icon that matches the given mood text
         # 3. don't use an icon
-        $external_moodid = LJ::get_external_site_moodid( siteid => $siteid, moodid => $moodid );
+        $external_moodid = DW::Mood->get_external_moodid( siteid => $siteid, moodid => $moodid );
         unless ( $external_moodid ) {
-            $external_moodid = LJ::get_external_site_moodid( siteid => $siteid, mood => $mood );
+            $external_moodid = DW::Mood->get_external_moodid( siteid => $siteid, mood => $mood );
         }
     } elsif ( $moodid ) {
         # try these in order:
         # 1. use the mood icon that matches the given mood id
         # 2. use the mood text that matches the given mood id (no icon)
-        $external_moodid = LJ::get_external_site_moodid( siteid => $siteid, moodid => $moodid );
+        $external_moodid = DW::Mood->get_external_moodid( siteid => $siteid, moodid => $moodid );
         unless ( $external_moodid ) {
-            $req->{props}->{current_mood} = LJ::mood_name( $moodid );
+            $req->{props}->{current_mood} = DW::Mood->mood_name( $moodid );
         }
     } elsif ( $mood ) {
         # try these in order:
         # 1. use the mood icon that matches the given mood text
         # 2. use the mood text that was given (no icon)
-        $external_moodid = LJ::get_external_site_moodid( siteid => $siteid, mood => $mood );
+        $external_moodid = DW::Mood->get_external_moodid( siteid => $siteid, mood => $mood );
         unless ( $external_moodid ) {
             $req->{props}->{current_mood} = $mood;
         }

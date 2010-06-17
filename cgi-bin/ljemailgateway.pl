@@ -432,7 +432,7 @@ sub process {
     $props->{picture_keyword} = $post_headers{'userpic'} ||
                                 $post_headers{'icon'} ||
                                 $u->{'emailpost_userpic'};
-    if (my $id = LJ::mood_id($post_headers{'mood'})) {
+    if ( my $id = DW::Mood->mood_id( $post_headers{'mood'} ) ) {
         $props->{current_moodid}   = $id;
     } else {
         $props->{current_mood}     = $post_headers{'mood'};

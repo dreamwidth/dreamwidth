@@ -1457,7 +1457,7 @@ RTE
                 my @moodlist = ('', BML::ml('entryform.mood.noneother'));
                 my $sel;
 
-                my $moods = LJ::get_moods();
+                my $moods = DW::Mood->get_moods;
 
                 foreach (sort { $moods->{$a}->{'name'} cmp $moods->{$b}->{'name'} } keys %$moods) {
                     push @moodlist, ($_, $moods->{$_}->{'name'});
@@ -1468,15 +1468,21 @@ RTE
                     }
                 }
 
-                if ($remote) {
-                    LJ::load_mood_theme($remote->{'moodthemeid'});
-                      foreach my $mood (keys %$moods) {
-                          if (LJ::get_mood_picture($remote->{'moodthemeid'}, $moods->{$mood}->{id}, \ my %pic)) {
-                              $moodlist .= "    moods[" . $moods->{$mood}->{id} . "] = \"" . $moods->{$mood}->{name} . "\";\n";
-                              $moodpics .= "    moodpics[" . $moods->{$mood}->{id} . "] = \"" . $pic{pic} . "\";\n";
-                          }
-                      }
-                      $$onload .= " mood_preview();";
+                if ( $remote ) {
+                    my $r_theme = DW::Mood->new( $remote->{'moodthemeid'} );
+                    foreach my $mood ( keys %$moods ) {
+                        my $moodid = $moods->{$mood}->{id};
+                        if ( $r_theme && $r_theme->get_picture(
+                                $moodid, \ my %pic ) ) {
+                            $moodlist .= "    moods[" . $moodid;
+                            $moodlist .= "] = \"";
+                            $moodlist .= $moods->{$mood}->{name} . "\";\n";
+                            $moodpics .= "    moodpics[" . $moodid;
+                            $moodpics .= "] = \"";
+                            $moodpics .= $pic{pic} . "\";\n";
+                        }
+                    }
+                    $$onload .= " mood_preview();";
                 $$head .= <<MOODS;
 <script type="text/javascript" language="JavaScript"><!--
 if (document.getElementById) {
@@ -2238,7 +2244,7 @@ sub entry_form_decode
 
     ## see if an "other" mood they typed in has an equivalent moodid
     if ($POST->{'prop_current_mood'}) {
-        if (my $id = LJ::mood_id($POST->{'prop_current_mood'})) {
+        if ( my $id = DW::Mood->mood_id( $POST->{'prop_current_mood'} ) ) {
             $req->{'prop_current_moodid'} = $id;
             delete $req->{'prop_current_mood'};
         }
