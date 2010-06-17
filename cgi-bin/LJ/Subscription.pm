@@ -143,8 +143,11 @@ sub find {
     @subs = grep { $_->journalid == $journalid }         @subs if defined $journalid;
     @subs = grep { $_->ntypeid   == $ntypeid }           @subs if $ntypeid;
     @subs = grep { $_->etypeid   == $etypeid }           @subs if $etypeid;
-    @subs = grep { $_->flags     == $flags }             @subs if defined $flags;
-
+    if ( defined $flags ) {
+        # check DISABLED and TRACKING flags, but not INACTIVE flag.
+        @subs = grep { ( $flags & DISABLED ) == $_->disabled } @subs;
+        @subs = grep { ( $flags & TRACKING ) == $_->is_tracking_category } @subs;
+    }
     @subs = grep { $_->arg1 == $arg1 }                   @subs if defined $arg1;
     @subs = grep { $_->arg2 == $arg2 }                   @subs if defined $arg2;
 
@@ -300,12 +303,16 @@ sub create {
         $args{ntypeid} == $_->{ntypeid} &&
         $args{journalid} == $_->{journalid} &&
         $args{arg1} == $_->{arg1} &&
-        $args{arg2} == $_->{arg2} && 
-        $args{flags} == $_->flags
+        $args{arg2} == $_->{arg2} &&
+        ( $args{flags} & DISABLED ) == $_->disabled &&
+        ( $args{flags} & TRACKING ) == $_->is_tracking_category
     } @{$u->{_subscriptions}};
+    # allow matches if the activation state is unequal
 
-    return $existing 
-        if defined $existing;
+    if ( defined $existing ) {
+        $existing->activate;
+        return $existing;
+    }
 
     my $subid = LJ::alloc_user_counter($u, 'E')
         or die "Could not alloc subid for user $u->{user}";

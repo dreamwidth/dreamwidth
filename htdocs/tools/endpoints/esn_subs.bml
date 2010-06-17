@@ -95,6 +95,7 @@ _c?>
         return $err->($@) if $@;
 
         if ($subscr) {
+            $subscr->activate;
             $success = 1;
             $ret{msg} = "Subscribed";
             $ret{subscribed} = 1;
