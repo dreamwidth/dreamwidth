@@ -732,11 +732,11 @@ sub create_view_foaf {
     }
 
     # user bio
-    if ($u->{'has_bio'} eq "Y") {
-        $u->{'bio'} = LJ::get_bio($u);
-        LJ::text_out(\$u->{'bio'});
-        LJ::CleanHTML::clean_userbio(\$u->{'bio'});
-        $ret .= "    <ya:bio>" . LJ::exml($u->{'bio'}) . "</ya:bio>\n";
+    if ( $u->has_bio ) {
+        my $bio = $u->bio;
+        LJ::text_out( \$bio );
+        LJ::CleanHTML::clean_userbio( \$bio );
+        $ret .= "    <ya:bio>" . LJ::exml( $bio ) . "</ya:bio>\n";
     }
 
     # icbm/location info

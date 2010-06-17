@@ -2876,9 +2876,29 @@ sub ajax_auth_token {
 }
 
 
+# gets a user bio, from DB or memcache.
+# optional argument: boolean, true to skip memcache and use cluster master.
 sub bio {
-    my $u = shift;
-    return LJ::get_bio($u);
+    my ( $u, $force ) = @_;
+    return unless $u && $u->has_bio;
+
+    my $bio;
+
+    $bio = $u->memc_get( 'bio' ) unless $force;
+    return $bio if defined $bio;
+
+    # not in memcache, fall back to disk
+    my $db = @LJ::MEMCACHE_SERVERS || $force
+             ? LJ::get_cluster_def_reader( $u )
+             : LJ::get_cluster_reader( $u );
+    return unless $db;
+    $bio = $db->selectrow_array( "SELECT bio FROM userbio WHERE userid=?",
+                                 undef, $u->userid );
+
+    # set in memcache
+    LJ::MemCache::add( [$u->id, "bio:" . $u->id], $bio );
+
+    return $bio;
 }
 
 
@@ -2917,6 +2937,11 @@ sub display_name {
 
 sub equals {
     return LJ::u_equals( @_ );
+}
+
+
+sub has_bio {
+    return $_[0]->{has_bio} eq "Y" ? 1 : 0;
 }
 
 
@@ -3050,6 +3075,32 @@ sub new_from_url {
 }
 
 
+# if bio_absent is set to "yes", bio won't be updated
+sub set_bio {
+    my ( $u, $text, $bio_absent ) = @_;
+    $bio_absent = "" unless $bio_absent;
+
+    my $oldbio = $u->bio;
+    my $newbio = $bio_absent eq "yes" ? $oldbio : $text;
+    my $has_bio = ( $newbio =~ /\S/ ) ? "Y" : "N";
+
+    LJ::update_user( $u, { has_bio => $has_bio } );
+
+    # update their bio text
+    return if ( $oldbio eq $text ) || ( $bio_absent eq "yes" );
+
+    if ( $has_bio eq "N" ) {
+        $u->do( "DELETE FROM userbio WHERE userid=?", undef, $u->id );
+        $u->dudata_set( 'B', 0, 0 );
+    } else {
+        $u->do( "REPLACE INTO userbio (userid, bio) VALUES (?, ?)",
+                undef, $u->id, $text );
+        $u->dudata_set( 'B', 0, length( $text ) );
+    }
+    $u->memc_set( 'bio', $text );
+}
+
+
 sub url {
     my $u = shift;
 
@@ -3077,35 +3128,6 @@ sub url {
 *username = \&user;
 sub user {
     return $_[0]->{user};
-}
-
-
-# if bio_absent is set to "yes", bio won't be updated
-sub set_bio {
-    my ($u, $text, $bio_absent) = @_;
-    $bio_absent = "" unless $bio_absent;
-
-    my $oldbio = $u->bio;
-    my $newbio = $bio_absent eq "yes" ? $oldbio : $text;
-    my $has_bio = ($newbio =~ /\S/) ? "Y" : "N";
-
-    my %update = (
-        'has_bio' => $has_bio,
-    );
-    LJ::update_user($u, \%update);
-
-    # update their bio text
-    if (($oldbio ne $text) && $bio_absent ne "yes") {
-        if ($has_bio eq "N") {
-            $u->do("DELETE FROM userbio WHERE userid=?", undef, $u->id);
-            $u->dudata_set('B', 0, 0);
-        } else {
-            $u->do("REPLACE INTO userbio (userid, bio) VALUES (?, ?)",
-                   undef, $u->id, $text);
-            $u->dudata_set('B', 0, length($text));
-        }
-        LJ::MemCache::set([$u->id, "bio:" . $u->id], $text);
-    }
 }
 
 
@@ -7275,38 +7297,6 @@ sub ljuser
 
 =head2 Userprops, Caps, and Displaying Content to Others (LJ)
 =cut
-
-# <LJFUNC>
-# name: LJ::get_bio
-# des: gets a user bio, from DB or memcache.
-# args: u, force
-# des-force: true to get data from cluster master.
-# returns: string
-# </LJFUNC>
-sub get_bio {
-    my ($u, $force) = @_;
-    return unless $u && $u->{'has_bio'} eq "Y";
-
-    my $bio;
-
-    my $memkey = [$u->userid, "bio:" . $u->userid];
-    unless ($force) {
-        my $bio = LJ::MemCache::get($memkey);
-        return $bio if defined $bio;
-    }
-
-    # not in memcache, fall back to disk
-    my $db = @LJ::MEMCACHE_SERVERS || $force ?
-      LJ::get_cluster_def_reader($u) : LJ::get_cluster_reader($u);
-    $bio = $db->selectrow_array( "SELECT bio FROM userbio WHERE userid=?",
-                                 undef, $u->userid );
-
-    # set in memcache
-    LJ::MemCache::add($memkey, $bio);
-
-    return $bio;
-}
-
 
 # <LJFUNC>
 # name: LJ::modify_caps

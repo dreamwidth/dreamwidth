@@ -75,10 +75,10 @@ body<=
     foreach (values %$u) { LJ::text_out(\$_); }
 
     # load and clean bio
-    $u->{'bio'} = LJ::get_bio($u);
-    $saved{'bio'} = $u->{'bio'};
-    LJ::EmbedModule->parse_module_embed($u, \$u->{'bio'}, edit => 1);
-    LJ::text_out(\$u->{'bio'}, "force");
+    my $bio = $u->bio;
+    $saved{bio} = $bio;
+    LJ::EmbedModule->parse_module_embed( $u, \$bio, edit => 1 );
+    LJ::text_out( \$bio, "force" );
 
     # load interests: $interests{name} = intid
     my %interests = %{ $u->interests( { forceids => 1 } ) };
@@ -466,7 +466,7 @@ body<=
                                          rows => '10', cols => '50',
                                          wrap => 'soft',
                                          style => "width: 90%",
-                                         value => $u->{bio} } );
+                                         value => $bio } );
         } else {
             $ret .= LJ::html_hidden('bio_absent', 'yes');
             $ret .= "<?p <?inerr " . BML::ml('.error.invalidbio', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"}) . " inerr?> p?>\n";
