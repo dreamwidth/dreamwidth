@@ -208,4 +208,19 @@ sub get_external_moodid {
     return $external_moodid ? $external_moodid : 0;
 }
 
+# clear cached theme data from memory
+# arguments: theme id (only required if called as class method)
+# returns: nothing
+sub clear_cache {
+    my ( $self, $themeid ) = @_;
+
+    # load theme id from object if needed
+    $themeid ||= $self->id if ref $self;
+
+    # clear the caches
+    LJ::MemCache::delete( [$themeid, "moodthemedata:$themeid"] );
+    delete $LJ::CACHE_MOOD_THEME{$themeid};
+}
+
+
 1;

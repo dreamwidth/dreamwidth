@@ -391,15 +391,13 @@ body<=
                 my $i = $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, " .
                                  "picurl, width, height) VALUES $bind", undef, @repl_values);
                 return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>" unless $i;
-             }
+            }
 
             # Kill any memcache data about this moodtheme
-            LJ::MemCache::delete([$themeid, "moodthemedata:$themeid"]);
+            DW::Mood->clear_cache( $themeid );
 
-            delete $LJ::CACHE_MOOD_THEME{$themeid};
-
-           $ret .= "<br />$ML{'.saved'}<br /><br />\n";
-           return BML::redirect($self_uri);
+            $ret .= "<br />$ML{'.saved'}<br /><br />\n";
+            return BML::redirect( $self_uri );
         }
 
         $ret .= BML::ml('Backlink', {
