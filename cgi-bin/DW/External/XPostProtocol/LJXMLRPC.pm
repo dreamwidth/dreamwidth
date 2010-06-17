@@ -452,6 +452,7 @@ sub clean_entry_text {
 sub clean_lj_tags {
     my ($self, $entry_text_ref, $extacct) = @_;
     my $p = HTML::TokeParser->new($entry_text_ref);
+    $p->attr_encoded( 1 );
     my $newdata = "";
 
     my %update_tags = (
@@ -488,7 +489,7 @@ sub clean_lj_tags {
                 $newdata .= "<$tag";
                 # output attributes in original order
                 foreach (@$attrs) {
-                    $newdata .= " $_=\"" . HTML::Entities::encode( $hash->{$_} ) . "\""
+                    $newdata .= " $_=\"" . $hash->{$_} . "\""    
                         if exists $hash->{$_};
                 }
                 $newdata .= " /" if $slashclose;
