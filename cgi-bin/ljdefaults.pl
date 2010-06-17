@@ -150,7 +150,7 @@
     # maximum FOAF friends to return (so the server doesn't get overloaded)
     $MAX_FOAF_FRIENDS ||= 1000;
 
-    # maximum number of friendofs to load/memcache (affects userinfo.bml display)
+    # maximum number of friendofs to load/memcache (affects profile.bml display)
     $MAX_FRIENDOF_LOAD ||= 5000;
 
     # block size is used in stats generation code that gets n rows from the db at a time

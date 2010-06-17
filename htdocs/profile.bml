@@ -1,0 +1,994 @@
+<?page
+
+#
+# profile.bml
+#
+# Displays information about an account in a viewer friendly manner.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#      Janine Smith <janine@netrophic.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
+
+    LJ::need_res( qw( stc/profile.css js/profile.js ) );
+
+    BML::set_language_scope( '/profile.bml' );
+
+    $title = $ML{'.title'};
+
+    # Used in comparisons so much that useful to have
+    # as a number
+    my $is_full = $GET{mode} eq 'full' ? 1 : 0;
+
+################################################################################
+##### INITIALIZE PROFILE PAGE
+
+    my $r = BML::get_request();
+    $r->notes->{codepath} = "bml.profile";
+
+    # if new-style URLs, get the GET{user} arg from the request notes,
+    # which was set by LiveJournal.pm
+    unless ( $GET{user} ) {
+        $GET{user} = $r->notes->{_journal};
+    }
+
+    my $u;
+    my $username = LJ::canonical_username( $GET{user} );
+    my $userid = $GET{userid}+0;
+    my $remote = LJ::get_remote();
+    if ( $userid ) {
+        $u = LJ::load_userid( $userid );
+
+        # only users with finduser can view profiles by userid (excluding identity accounts)
+        unless ( ( $remote && $remote->has_priv( 'finduser' ) ) || ( $GET{t} eq "I" && $u && $u->is_identity ) ) {
+            $title = $ML{'Error'};
+            return $ML{'.label.reqfinduser'};
+        }
+    } elsif ( $username ) {
+        $u = LJ::load_user( $username );
+
+        # redirect to standard identity url
+        if ( $u && $u->is_identity ) {
+            return BML::redirect("$LJ::SITEROOT/profile?userid=$u->{'userid'}&t=I");
+        }
+    } elsif ( $remote ) {
+        $u = $remote;
+        $userid = $remote->id;
+    } else {
+        $title = $ML{'Error'};
+        return "<?needlogin?>";
+    }
+
+    # error if no user
+    unless ( $u ) {
+        $title = $ML{'Error'};
+        return BML::ml( '.nonexist.body', { user => $username } );
+    }
+
+    LJ::set_active_journal( $u );
+
+    # error if account is purged
+    if ( $u->is_expunged ) {
+        BML::set_status(410); # 410 Gone
+        $title = $ML{'error.purged.title'};
+        return "<?h1 $ML{'error.purged.name'} h1?><?p $ML{'error.purged.text'} p?>";
+    }
+
+    # redirect non-identity profiles to their subdomain urls
+    my $domain = BML::get_client_header( "Host" );
+    if ( $LJ::ONLY_USER_VHOSTS && !$u->is_identity ) {
+        my $url = $u->journal_base . "/profile";
+        $url .= '?mode=full' if $is_full;
+
+        my $good_domain = $url;
+        $good_domain =~ s!^http://!!;
+        $good_domain =~ s!/.*!!;
+        if ( $domain ne $good_domain ) {
+            return BML::redirect( $url );
+        }
+    }
+
+    # block robots?
+    if ( !$u->is_visible || $u->should_block_robots ) {
+        $headextra .= LJ::robot_meta_tags();
+    }
+
+    # renamed?
+    my $renamed_u = $u->get_renamed_user;
+    unless ( $u->equals( $renamed_u ) ) {
+        my $extra = $is_full ? "&mode=full" : '';
+        return BML::redirect( "$LJ::SITEROOT/profile?user=" . $renamed_u->user . "$extra" );
+    }
+
+    # figure out the page title
+    if ( $u->is_community ) {
+        $title = $ML{'.title.communityprofile'};
+    } elsif ( $u->is_personal ) {
+        $title = $ML{'.title.userprofile'};
+    } elsif ( $u->is_syndicated ) {
+        $title = $ML{'.title.syndicatedprofile'};
+    } elsif ( $u->is_identity ) {
+        $title = $ML{'.title.openidprofile'};
+    }
+
+    $windowtitle = $u->display_name . " - $title";
+
+    # can't view suspended/deleted profiles unless you have viewall
+    my $viewall = 0;
+    ( $viewall ) = $remote->view_priv_check( $u, $GET{viewall}, 'profile' )
+        if $remote;
+    unless ( $viewall ) {
+        if ( $u->is_suspended ) {
+            BML::set_status(403); # 403 Forbidden
+            $title = $ML{'error.suspended.title'};
+            return "<?h1 $ML{'error.suspended.name'} h1?><?p " . BML::ml( 'error.suspended.text', { user => $u->ljuser_display, sitename => $LJ::SITENAME } ) . " p?>";
+        }
+        if ( $u->is_deleted ) {
+            BML::set_status(404); # 404 Not Found
+            $title = $ML{'error.deleted.title'};
+            my $del_body = "<?p ";
+
+            if ( $u->prop( 'delete_reason' ) ) {
+                $del_body .= BML::ml( 'error.deleted.text.withreason', { user => $u->display_name, reason => $u->prop( 'delete_reason' ) } );
+            } else {
+                $del_body .= BML::ml( 'error.deleted.text', { user => $u->display_name } );
+            }
+
+            $del_body .= "&nbsp;" . BML::ml( 'error.deleted.leavecomm', { aopts => "href='$LJ::SITEROOT/community/leave?comm=" . $u->user . "'" } ) if $u->is_community && $u->trusts_or_has_member( $remote );
+
+            $del_body .= " p?>";
+            $del_body .= BML::ml( '.error.deleted.purgenotification', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/user?journal=" . $u->user . "'" } )
+                unless LJ::User->is_protected_username( $u->user );
+            return $del_body;
+        }
+    }
+
+    # helper variables for later
+    my $user = $u->user;
+    my $profile = $u->profile_page( $remote, viewall => $viewall );
+
+################################################################################
+##### HELPER SUBS
+
+    my $arrowimg = sub {
+        my $section = $_[0];
+        return qq(<img id="${section}_arrow" src="$LJ::IMGPREFIX/profile_icons/arrow-down.gif" align="absmiddle" alt="" />);
+    };
+
+    # given a single item (scalar or hashref), linkify it appropriately
+    # and return it as a string
+    my $linkify = sub {
+        my $l = $_[0];
+        return $l unless ref $l eq 'HASH';
+
+        if ( $l->{text} ) {
+            return qq(<a href="$l->{url}">$l->{text}</a>) if $l->{url};
+            return $l->{text};
+        } elsif ( $l->{email} ) {
+            # the ehtml call here shouldn't be necessary, but just in case they slip in an email
+            # that contains Bad Stuff, escape it
+            return LJ::CleanHTML::mangle_email_address( LJ::ehtml( $l->{email} ) );
+        } else {
+            return "(Error in Linkification)";
+        }
+    };
+
+    # given multiple items in an arrayref, linkify each one appropriately
+    # and return them as one string with the join_string separating each item
+    #
+    # the join_string must be the first item in the arrayref
+    my $linkify_multiple = sub {
+        my $r = $_[0];
+        return $r unless ref $r eq 'ARRAY';
+
+        if ( @$r > 1 ) {
+            my $join_string = shift @$r;
+            my @links;
+            foreach my $l ( @$r ) {
+                next unless $l;
+                push @links, $linkify->( $l );
+            }
+
+            return join( $join_string, @links );
+        }
+
+        return $linkify->( $r->[0] );
+    };
+
+    # Returns true if the given user should be struck out on the profile
+    my $strikeuser = sub {
+        return $_[0]->is_inactive;
+    };
+
+    # Returns true if the user is not struck out or if mode is full
+    my $includeuser = sub {
+        # I've repeated the logic in strikeuser so we don't do another function call
+        return $_[0]->is_individual && ( $is_full || ! $_[0]->is_inactive );
+        # added is_individual because all previous tests were checking for both
+    };
+
+    my $listusers = sub {
+        my $users = $_[0];
+        my @linked_users;
+
+        foreach my $user ( @$users ) {
+            my $linked_u = $linkify->( { url => $user->profile_url, text => $user->display_name } );
+            $linked_u = "<strike>$linked_u</strike>" if $strikeuser->( $user );
+            #if user is logged in and not looking at own profile, use appropiate highlighting for users they have in common
+            if ( $remote && ( $remote != $u ) ) {
+                $linked_u = "<em>$linked_u</em>" if $remote->watches( $user );
+                $linked_u = "<strong>$linked_u</strong>"
+                    if ( $user->is_community ? $remote->member_of( $user ) : $remote->trusts( $user ) );
+            }
+
+            push @linked_users, $linked_u;
+        }
+
+        return join( ', ', @linked_users );
+    };
+
+    my $content_block = sub {
+        my %opts = @_;
+
+        my $collapsible = defined $opts{collapsible} ? $opts{collapsible} : 1;
+        my $header_image = $opts{header_image} ? "<img src='$opts{header_image}' alt='' /> " : '';
+        my $collapse_text = $collapsible ? qq(
+            <span class='expandcollapse on' id='$opts{section_name}_header'>
+                <img id="$opts{section_name}_arrow" src="$LJ::IMGPREFIX/profile_icons/arrow-down.gif" align="absmiddle" alt="" />
+                $header_image$ML{$opts{section_name_ml}}
+            </span>
+        ) : "$header_image$ML{$opts{section_name_ml}}";
+
+        my @links = map {
+                qq(<span class="section_link">[<a href="$_->{url}">$_->{text}</a>]</span>)
+            } @{ $opts{links} || [] };
+        my $links = join( ' ', @links );
+
+        return qq(
+            <div class='ljclear'></div>
+            <div class='section'>
+                $collapse_text
+                $links
+            </div>
+            <div class='section_body' id='$opts{section_name}_body'>
+                $opts{body}
+            </div>
+        );
+    };
+
+    my $content_inner_block = sub {
+        my %opts = @_;
+
+        my $hidden = $opts{hidable} && $profile->hide_list( $opts{section_name} );
+        return '' if $hidden && ( !$remote || !$remote->can_manage( $u ) );
+
+        my $section_name = ref $opts{section_name_ml} eq 'HASH' ? BML::ml( $opts{section_name_ml}->{ml}, $opts{section_name_ml}->{opts} ) : $ML{$opts{section_name_ml}};
+        my $section_hidden_text = $hidden ? " <em>$ML{'.label.hidden'}</em>" : '';
+        my $collapsible = defined $opts{collapsible} ? $opts{collapsible} : 1;
+        my ( $collapse_text, $body );
+        if ( $collapsible ) {
+            $collapse_text = qq(
+                <span class='expandcollapse on' id='$opts{section_name}_header'>
+                    <img id="$opts{section_name}_arrow" src="$LJ::IMGPREFIX/profile_icons/arrow-down.gif" align="absmiddle" alt="" />
+                    $section_name$section_hidden_text
+                </span>
+            );
+            $body = qq( <div class='inner_section_body' id='$opts{section_name}_body'>$opts{body}</div> );
+        } else {
+            $collapse_text = $section_name;
+            $body = $opts{body};
+        }
+
+        my @links = map {
+                qq(<span class="inner_section_header_link">[<a href="$_->{url}">$_->{text}</a>]</span>)
+            } @{ $opts{links} || [] };
+        my $links = join( ' ', @links );
+
+        return qq(
+            <p class='inner_section_header$opts{extra_classes}'$opts{extra_attrs}>
+                $collapse_text
+                $links
+            </p>
+            $body
+        );
+    };
+
+    my $mlsn = sub {
+        my ( $ml, $users ) = @_;
+        my $numusers = scalar @$users;
+        my $val = $numusers ?
+            { ml => "$ml.some", opts => { num => $numusers } } :
+            "$ml.none";
+        return $val;
+    };
+
+################################################################################
+##### USERNAME
+
+    # begin the page
+    my $ret = q{ <div id='profile_page'><div id='profile_top'> };
+
+    $ret .= q{ <div class='username'> } . $u->ljuser_display;
+    if ( $u->public_key ) {
+        $ret .= qq( 
+            <a href='$LJ::SITEROOT/pubkey?user=$user'>
+                <img src='$LJ::IMGPREFIX/key.gif' width='16' height='16' border='0'
+                     alt="$ML{'.pubkey.alt'}" title="$ML{'.pubkey.alt'}"
+                     style='vertical-align: middle; border: 0;' />
+            </a>
+        );
+    }
+    $ret .= q{ </div> };
+
+################################################################################
+##### ACTION LINKS
+
+    $ret .= q{ <div class='actions'><ul> };
+
+    foreach my $link ( $profile->action_links ) {
+        my $width = $link->{width} ? "width=\"$link->{width}\"" : "";
+        my $height = $link->{height} ? "height=\"$link->{height}\"" : "";
+
+        if ( $link->{url} ) {
+            $ret .= qq(
+                <li class="$link->{class}" title="$link->{title}">
+                    <a href="$link->{url}">
+                        <img src="$link->{image}" $width $height alt="" />$link->{text}
+                    </a>
+                </li>
+            );
+        } else {
+            $ret .= qq(
+                <li class="$link->{class}" title="$link->{title}">
+                    <img src="$link->{image}" $width $height alt="" />$link->{text}
+                </li>
+            );
+        }
+    }
+
+    $ret .= q{ </ul></div> };
+
+################################################################################
+##### USERPIC
+
+    $ret .= "<div class='user_details'><div class='userpicdiv'>" .
+            $profile->userpic->{imgtag} .
+            "</div><div class='user_details_inner'>";
+
+################################################################################
+##### JOURNAL TITLES
+
+    my $title = $u->prop( "journaltitle" ) ?
+                    LJ::ehtml( $u->prop( "journaltitle" ) ) :
+                    BML::ml( '.details.title', { user => $u->display_username } );
+    my $subtitle;
+    $subtitle = LJ::ehtml( $u->prop( "journalsubtitle" ) )
+        if $u->prop( "journalsubtitle" );
+
+    $ret .= qq{
+        <div class="details_journal">
+            <p class="journal_title">$title</p>
+            <p class="journal_subtitle">$subtitle</p>
+        </div>
+    };
+
+################################################################################
+##### JOURNAL STATISTICS
+
+    $ret .= q{ <div class='details_stats'> };
+
+    # journal warnings
+    $ret .= "<span class='$_->{class}'>$_->{text}</span>" foreach $profile->warnings;
+
+    # account type
+    my $accttype = DW::Pay::get_account_type_name( $u );
+    if ( $accttype ) {
+        my $expiretime;
+        $expiretime = DW::Pay::get_account_expiration_time( $u )
+            if $remote && $remote->can_manage( $u );
+
+        $ret .= "<p>";
+        $ret .= $expiretime > 0 ? BML::ml( '.details.accounttype.expireson', { type => $accttype, date => DateTime->from_epoch( epoch => $expiretime )->date } ) : $accttype;
+        $ret .= "</p>";
+    }
+
+    # journal creation date, journal update time
+    unless ( $u->is_identity ) {
+        my $jcdate = BML::ml( '.details.createdon2', 
+            { createdate => LJ::mysql_time( $u->timecreate )  } );
+        $ret .= "<p>$jcdate (#" . $u->id . '), ' . $u->last_updated;
+        $ret .= "</p>"; 
+    }
+
+    # comment and support stats
+    my $csstats = join( ', ', ( $profile->comment_stats, $profile->support_stats ) );
+    $ret .= qq{<p>$csstats</p>};
+
+    # other statistics
+    $ret .= q{ <p> };
+    $ret .= join( ', ', ( $profile->entry_stats, $profile->tag_stats, $profile->memory_stats, $profile->userpic_stats ) );
+    $ret .= "</p>";
+
+    #extended profile link
+    $ret .= "<p>";
+    if ( $is_full ) {
+        $ret .= BML::ml( '.details.profile.default', { aopts => "href='" . $u->profile_url . "'" } );
+    } else {
+        $ret .= BML::ml( '.details.profile.full', { aopts => "href='" . $u->profile_url . "?mode=full'" } );
+    }
+    $ret .= q{ </p></div></div></div></div> };
+
+################################################################################
+##### BASIC INFORMATION
+
+    my $bibody = '';
+
+    if ( my @rows = $profile->basic_info_rows ) {
+        my @row_texts;
+        foreach my $row (@rows) {
+            my $row_header = shift @$row;
+            my $row_text = "$row_header</th><td>";
+            $row_text .= $linkify_multiple->( $row );
+            push @row_texts, $row_text;
+        }
+
+        $bibody .= q{ <div class="profile"><table><tr><th> };
+        $bibody .= join( '</td></tr><tr><th>', @row_texts );
+        $bibody .= q{ </td></tr></table></div> };
+    }
+
+    if ( my @contacts = $profile->contact_rows ) {
+        $bibody .= qq( <div class="contact"><p class="section_body_title">$ML{'.contact.header'}</p> );
+        $bibody .= join( '<br />', map { $linkify->( $_ ) } @contacts );
+        $bibody .= q{ </div> };
+    };
+
+    $bibody .= BML::ml( '.label.feedchange', { aopts => "href='$LJ::SITEROOT/support'" } ) if $u->is_syndicated;
+
+    if ( $bibody ) {
+        my $links;
+        $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user, text => $ML{'.section.edit'} } ]
+            if $remote && $remote->can_manage( $u );
+        $ret .= $content_block->(
+            section_name    => 'basics',
+            section_name_ml => '.basicinfo.header',
+            body            => $bibody,
+            links           => $links,
+        );
+    }
+
+################################################################################
+##### PUBSUBHUBBUB INFORMATION FOR SYNDICATED ACCOUNTS
+
+    my $fredbody = '';
+
+    if ( $is_full && ( my @rows = $profile->hubbub_info_rows ) ) {
+        foreach my $row (@rows) {
+            my @data = (
+                id => $row->{id},
+                pings => $row->{timespinged},
+                huburl => LJ::ehtml( $row->{huburl} ),
+                topicurl => LJ::ehtml( $row->{topicurl} ),
+                lastseen => LJ::ago_text( $row->{lastseen} ),
+                goodfor => LJ::mysql_time( $row->{leasegoodto} ),
+            );
+
+            my @row_texts;
+            while ( @data && ( my ( $ml, $txt ) = splice( @data, 0, 2 ) ) ) {
+                push @row_texts, LJ::Lang::ml( '.label.syn.hubbub.' . $ml ) . '</th><td>' . $txt;
+            }
+
+            $fredbody .= q{ <div class="profile"><table><tr><th> };
+            $fredbody .= join( '</td></tr><tr><th>', @row_texts );
+            $fredbody .= q{ </td></tr></table></div> };
+        }
+    }
+
+    if ( $fredbody ) {
+        $ret .= $content_block->(
+            section_name    => 'hubbub',
+            section_name_ml => '.hubbub.header',
+            body            => $fredbody,
+        );
+    }
+
+
+################################################################################
+##### BIO
+
+    my $biobody = '';
+
+    $biobody .= $profile->bio;
+
+    if ( $biobody ) {
+        my $links;
+        $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user . "#bio", text => $ML{'.section.edit'} } ]
+            if $remote && $remote->can_manage( $u );
+        $ret .= $content_block->(
+            section_name    => 'bio',
+            section_name_ml => $u->is_individual ? '.bio.header' : '.about.header',
+            body            => "<div class='usercontent'>$biobody</div>",
+            links           => $links,
+        );
+    }
+
+################################################################################
+##### CONNECT
+
+    my $connectbody = '';
+
+    # interests
+    my @linked_ints;
+    my $intcount = 0;
+    foreach my $int ( $profile->interests ) {
+        push @linked_ints, $linkify->( $int );
+        $intcount++;
+    }
+    my $intlist = join(', ', @linked_ints);
+    if ( $intcount ) {
+        my $links = [];
+        if ( $remote ) {
+            push @$links, { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user . "#interests", text => $ML{'.section.edit'} }
+                if $remote->can_manage( $u );
+
+            my $enmasse_link = "$LJ::SITEROOT/interests?mode=enmasse";
+            my $enmasse_text;
+            if ( $remote->equals( $u ) ) {
+                $enmasse_text .= $ML{'.label.interests.removesome2'};
+            } else {
+                $enmasse_link .= "&fromuser=$user";
+                $enmasse_text .= $ML{'.label.interests.modifyyours2'};
+            }
+
+            push @$links, { url => $enmasse_link, text => $enmasse_text };
+        }
+
+        $connectbody .= $content_inner_block->(
+            section_name_ml => { ml => '.label.interests', opts => { num => $intcount } },
+            extra_classes   => " first",
+            body            => "<div class='inner_section_body'>$intlist</div>",
+            links           => $links,
+            collapsible     => 0,
+        );
+    }
+
+    # external services
+    my $imlist;
+    foreach my $service ( $profile->external_services ) {
+        my $title = $ML{$service->{title_ml}};
+        $imlist .= "<tr class='im_$service->{type}'>";
+        $imlist .= "<td class='im_icon'><img src='$LJ::IMGPREFIX/profile_icons/$service->{image}' alt=\"$title\" title=\"$title\" /></td>";
+        if ( $service->{status_image} ) {
+            my $status_title = $ML{$service->{status_title_ml}};
+            $imlist .= "<td>" . $linkify->( $service ) . "</td>";
+            $imlist .= "<td class='im_status'><img src='$service->{status_image}' alt=\"$status_title\" title=\"$status_title\" width='$service->{status_width}' height='$service->{status_height}' /></td>";
+        } else {
+            $imlist .= "<td colspan='2'>" . $linkify->( $service ) . "</td>";
+        }
+        $imlist .= "</tr>"; 
+    }
+    if ( $imlist ) {
+        my $new_im_margin;
+        $new_im_margin = " style='margin-top: 0;'" unless $intlist;
+        $connectbody .= qq{ <div class="external_services"$new_im_margin> };
+        my $links;
+        $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user . "#iminfo", text => $ML{'.section.edit'} } ]
+            if $remote && $remote->can_manage( $u );
+        $connectbody .= $content_inner_block->(
+            section_name_ml => '.im.header2',
+            extra_attrs     => $new_im_margin,
+            body            => "<table>$imlist</table>",
+            links           => $links,
+            collapsible     => 0,
+        );
+        $connectbody .= q{ </div> };
+    }
+
+    if ( $connectbody ) {
+        $ret .= $content_block->(
+            section_name    => 'connect',
+            section_name_ml => '.label.connect',
+            body            => $connectbody,
+        );
+    }
+
+################################################################################
+##### MAINTAINERS/MODERATORS
+
+    my @maintainer_userids = $u->maintainer_userids;
+    my @moderator_userids = $u->moderator_userids;
+
+    if ( @maintainer_userids || @moderator_userids ) {
+        my $us = LJ::load_userids( @maintainer_userids, @moderator_userids );
+
+        my @maintlist = sort { $a->display_name cmp $b->display_name } map { $us->{$_} } @maintainer_userids;
+        my @modlist = sort { $a->display_name cmp $b->display_name } map { $us->{$_} } @moderator_userids;
+
+        my $maintbody;
+        if ( @maintlist ) {
+            $maintbody = $content_inner_block->(
+                section_name    => 'maints',
+                section_name_ml => { ml => '.label.maintainers', opts => { num => scalar @maintlist } },
+                extra_classes   => ' first',
+                body            => $listusers->( \@maintlist ),
+            );
+        }
+
+        my $modbody;
+        if ( @modlist ) {
+            $modbody = $content_inner_block->(
+                section_name    => 'mods',
+                section_name_ml => { ml => '.label.moderators', opts => { num => scalar @modlist } },
+                body            => $listusers->( \@modlist ),
+            );
+        }
+
+        if ( $maintbody || $modbody ) {
+            my $links;
+            $links = [ { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} } ]
+                if $remote && $remote->can_manage( $u );
+            $ret .= $content_block->(
+                section_name    => 'admins',
+                section_name_ml => '.admins.header',
+                links           => $links,
+                body            => "$maintbody$modbody",
+                collapsible     => 0,
+            );
+        }
+    }
+
+################################################################################
+##### WATCH/TRUST/MEMBER/POSTING LISTS
+
+    my ( @trusted_userids, @trusted_by_userids, @mutually_trusted_userids, @not_mutually_trusted_userids, @not_mutually_trusted_by_userids );
+    my ( @watched_userids, @watched_by_userids, @mutually_watched_userids, @not_mutually_watched_userids, @not_mutually_watched_by_userids );
+
+    # no mutual trust lists for identity accounts since they can't trust anyone
+    @trusted_by_userids = $u->trusted_by_userids if $u->is_identity;
+
+    if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
+        if ( $u->is_personal ) {
+            @mutually_trusted_userids = $u->mutually_trusted_userids;
+            @not_mutually_trusted_userids = $profile->not_mutually_trusted_userids;
+            @not_mutually_trusted_by_userids = $profile->not_mutually_trusted_by_userids;
+        }
+        @mutually_watched_userids = $u->mutually_watched_userids;
+        @not_mutually_watched_userids = $profile->not_mutually_watched_userids;
+        @not_mutually_watched_by_userids = $profile->not_mutually_watched_by_userids;
+        @watched_userids = $u->watched_userids; # need this one to get watched communities and feeds
+    } else {
+        @trusted_userids = $u->trusted_userids if $u->is_personal;
+        @trusted_by_userids = $u->trusted_by_userids if $u->is_personal;
+        @watched_userids = $u->watched_userids if $u->is_individual;
+        @watched_by_userids = $u->watched_by_userids
+            # This is kind of a hack; we don't want to load these for communities with lots
+            # of subscribers because the profile page chokes and dies.  This won't load them
+            # if the option to hide subscribers is set and the person cannot manage the communities.
+            # It means the profile page is still broken to people who manage the community, though, but
+            # it doesn't break things for smaller communities by not loading them for the admins.
+            # FIXME: This overall situation of profile pages choking up for large amounts of subscribers or members
+            #   needs to be fixed in a more elegant and useful way.
+            unless $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) );
+    }
+
+    my ( @members_userids, @member_of_userids, @posting_access_to_userids, @posting_access_from_userids );
+    @members_userids = $u->member_userids if $u->is_community;
+    @member_of_userids = $u->member_of_userids if $u->is_personal;
+    @posting_access_to_userids = @{LJ::load_rel_target( $u, 'P' )} if $u->is_personal;
+    @posting_access_from_userids = @{LJ::load_rel_user( $u, 'P' )} if $u->is_community;
+
+    my $us = LJ::load_userids(
+        @trusted_userids, @trusted_by_userids,
+        @mutually_trusted_userids, @not_mutually_trusted_userids, @not_mutually_trusted_by_userids,
+        @watched_userids, @watched_by_userids,
+        @mutually_watched_userids, @not_mutually_watched_userids, @not_mutually_watched_by_userids,
+        @members_userids, @member_of_userids,
+        @posting_access_to_userids, @posting_access_from_userids,
+    );
+
+    # presort various userid arrays
+    @$_ = sort { $us->{$a}->display_name cmp $us->{$b}->display_name } @$_
+        foreach ( \@trusted_userids, \@watched_userids, \@trusted_by_userids, \@watched_by_userids,
+                  \@mutually_trusted_userids, \@mutually_watched_userids, \@mutually_watched_userids,
+                  \@not_mutually_watched_userids, \@not_mutually_trusted_by_userids,
+                  \@not_mutually_watched_by_userids, \@members_userids, \@member_of_userids,
+                  \@posting_access_to_userids, \@posting_access_from_userids );
+
+################################################################################
+##### PEOPLE LISTS
+
+    my ( $trusted_body, $trusted_by_body, $watched_body, $watched_by_body, $members_body, $posting_access_from_body );
+
+    if ( $u->is_identity ) {  # can't be mutual trust
+        my @trusted_by_list = grep { $includeuser->( $_ ) }
+            map { $us->{$_} } @trusted_by_userids;
+        $trusted_by_body = $content_inner_block->(
+            section_name    => 'trusted_by_people',
+            section_name_ml => $mlsn->( '.people.trusted_by', \@trusted_by_list ),
+            extra_classes   => ' first',
+            body            => $listusers->( \@trusted_by_list ),
+            hidable         => 1,
+        );
+    }
+
+    if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
+        if ( $u->is_personal ) {
+            my @mutually_trusted_list = grep { $_->is_individual }
+                map { $us->{$_} } @mutually_trusted_userids;
+            $trusted_body .= $content_inner_block->(
+                section_name    => 'mutually_trusted_people',
+                section_name_ml => $mlsn->( '.people.mutually_trusted', \@mutually_trusted_list ),
+                extra_classes   => ' first',
+                body            => $listusers->( \@mutually_trusted_list ),
+            );
+
+            my @not_mutually_trusted_list = grep { $_->is_individual }
+                map { $us->{$_} } @not_mutually_trusted_userids;
+            $trusted_body .= $content_inner_block->(
+                section_name    => 'not_mutually_trusted_people',
+                section_name_ml => $mlsn->( '.people.not_mutually_trusted', \@not_mutually_trusted_list ),
+                body            => $listusers->( \@not_mutually_trusted_list ),
+            );
+
+            my @not_mutually_trusted_by_list = grep { $includeuser->( $_ ) }
+                map { $us->{$_} } @not_mutually_trusted_by_userids;
+            $trusted_by_body = $content_inner_block->(
+                section_name    => 'not_mutually_trusted_by_people',
+                section_name_ml => $mlsn->( '.people.not_mutually_trusted_by', \@not_mutually_trusted_by_list ),
+                body            => $listusers->( \@not_mutually_trusted_by_list ),
+                hidable         => 1,
+            );
+        }
+
+        my @mutually_watched_list = grep { $_->is_individual }
+            map { $us->{$_} } @mutually_watched_userids;
+        $watched_body .= $content_inner_block->(
+            section_name    => 'mutually_watched_people',
+            section_name_ml => $mlsn->( '.people.mutually_watched', \@mutually_watched_list ),
+            body            => $listusers->( \@mutually_watched_list ),
+        );
+
+        my @not_mutually_watched_list = grep { $_->is_individual }
+            map { $us->{$_} } @not_mutually_watched_userids;
+        $watched_body .= $content_inner_block->(
+            section_name    => 'not_mutually_watched_people',
+            section_name_ml => $mlsn->( '.people.not_mutually_watched', \@not_mutually_watched_list ),
+            body            => $listusers->( \@not_mutually_watched_list ),
+        );
+
+        my @not_mutually_watched_by_list = grep { $includeuser->( $_ ) }
+            map { $us->{$_} } @not_mutually_watched_by_userids;
+        $watched_by_body = $content_inner_block->(
+            section_name    => 'not_mutually_watched_by_people',
+            section_name_ml => $mlsn->( '.people.not_mutually_watched_by', \@not_mutually_watched_by_list ),
+            body            => $listusers->( \@not_mutually_watched_by_list ),
+            hidable         => 1,
+        );
+    } else {  # show_mutualfriends is false
+        if ( $u->is_personal ) {
+            my @trusted_list = grep { $_->is_individual }
+                map { $us->{$_} } @trusted_userids;
+            $trusted_body = $content_inner_block->(
+                section_name    => 'trusted_people',
+                section_name_ml => $mlsn->( '.people.trusted', \@trusted_list ),
+                extra_classes   => ' first',
+                body            => $listusers->( \@trusted_list ),
+            );
+
+            my @trusted_by_list = grep { $includeuser->( $_ ) }
+                map { $us->{$_} } @trusted_by_userids;
+            $trusted_by_body = $content_inner_block->(
+                section_name    => 'trusted_by_people',
+                section_name_ml => $mlsn->( '.people.trusted_by', \@trusted_by_list ),
+                body            => $listusers->( \@trusted_by_list ),
+                hidable         => 1,
+            );
+        }
+
+        if ( $u->is_individual ) {
+            my @watched_list = grep { $_->is_individual }
+                map { $us->{$_} } @watched_userids;
+            $watched_body = $content_inner_block->(
+                section_name    => 'watched_people',
+                section_name_ml => $mlsn->( '.people.watched', \@watched_list ),
+                body            => $listusers->( \@watched_list ),
+            );
+        }
+
+        if ( $u->is_community ) {
+            my @members_list = map { $us->{$_} } @members_userids;
+            $members_body = $content_inner_block->(
+                section_name    => 'members_people',
+                section_name_ml => $mlsn->( '.people.members', \@members_list ),
+                extra_classes   => ' first',
+                body            => $listusers->( \@members_list ),
+            );
+
+            my @posting_access_from_list = map { $us->{$_} } @posting_access_from_userids;
+            $posting_access_from_body = $content_inner_block->(
+                section_name    => 'posting_access_from_people',
+                section_name_ml => $mlsn->( '.people.posting_access_from', \@posting_access_from_list ),
+                body            => $listusers->( \@posting_access_from_list ),
+                hidable         => 1,
+            );
+        }
+
+        my @watched_by_list = grep { $includeuser->( $_ ) }
+            map { $us->{$_} } @watched_by_userids;
+        $watched_by_body = $content_inner_block->(
+            section_name    => 'watched_by_people',
+            section_name_ml => $mlsn->( '.people.watched_by', \@watched_by_list ),
+            body            => $listusers->( \@watched_by_list ),
+            hidable         => 1,
+        );
+    }
+
+    if ( $trusted_body || $trusted_by_body || $watched_body || $watched_by_body || $members_body || $posting_access_from_body ) {
+        my $links = [];
+        if ( $u->is_community ) {
+           push @$links, { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} }
+                if $remote && $remote->can_manage( $u );
+           push @$links, { url => $u->journal_base . "/read", text => $ML{'.people.viewentries'} };
+        } else {
+            push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} }
+                if $remote && $remote->can_manage( $u );
+            push @$links, { url => $u->journal_base . "/read?show=P", text => $ML{'.people.viewentries'} }
+                unless $u->is_syndicated;
+        }
+
+        $ret .= $content_block->(
+            section_name    => 'people',
+            section_name_ml => $u->is_community ? '.members.header' : '.people.header',
+            header_image    => $u->is_community ? '' : "$LJ::IMGPREFIX/silk/identity/user.png",
+            links           => $links,
+            body            => "$trusted_body$trusted_by_body$watched_body$members_body$watched_by_body$posting_access_from_body",
+            collapsible     => 0,
+        );
+    }
+
+################################################################################
+##### COMMUNITY LISTS
+
+    if ( $u->is_individual ) {
+        my ( $member_of_body, $posting_access_to_body, $watched_body );
+
+        if ( $u->is_personal ) {
+            my @member_of_list = map { $us->{$_} } @member_of_userids;
+            $member_of_body = $content_inner_block->(
+                section_name    => 'member_of_comms',
+                section_name_ml => $mlsn->( '.comms.member_of', \@member_of_list ),
+                extra_classes   => ' first',
+                body            => $listusers->( \@member_of_list ),
+                hidable         => 1,
+            );
+
+            my @posting_access_to_list = map { $us->{$_} } @posting_access_to_userids;
+            $posting_access_to_body = $content_inner_block->(
+                section_name    => 'posting_access_to_comms',
+                section_name_ml => $mlsn->( '.comms.posting_access_to', \@posting_access_to_list ),
+                body            => $listusers->( \@posting_access_to_list ),
+                hidable         => 1,
+            );
+        }
+
+        my @watched_list = grep { $_->is_community }
+            map { $us->{$_} } @watched_userids;
+        $watched_body = $content_inner_block->(
+            section_name    => 'watched_comms',
+            section_name_ml => $mlsn->( '.comms.watched', \@watched_list ),
+            body            => $listusers->( \@watched_list ),
+        );
+
+        if ( $member_of_body || $posting_access_to_body || $watched_body ) {
+            my $links = [];
+            if ( $remote && $remote->can_manage( $u ) ) {
+                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} };
+            }
+            push @$links, { url => $u->journal_base . "/read?show=C", text => $ML{'.comms.viewentries'} };
+
+            $ret .= $content_block->(
+                section_name    => 'comms',
+                section_name_ml => '.comms.header',
+                header_image    => "$LJ::IMGPREFIX/silk/identity/community.png",
+                links           => $links,
+                body            => "$member_of_body$watched_body$posting_access_to_body",
+                collapsible     => 0,
+            );
+        }
+    }
+
+################################################################################
+##### FEED LISTS
+
+    if ( $u->is_individual ) {
+        my ( $watched_body );
+
+        my @watched_list = grep { $_->is_syndicated }
+            map { $us->{$_} } @watched_userids;
+        $watched_body = $content_inner_block->(
+            section_name    => 'watched_feeds',
+            section_name_ml => $mlsn->( '.feeds.watched', \@watched_list ),
+            extra_classes   => ' first',
+            body            => $listusers->( \@watched_list ),
+        );
+
+        if ( $watched_body ) {
+            my $links = [];
+            if ( $remote && $remote->can_manage( $u ) ) {
+                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} };
+            }
+            push @$links, { url => $u->journal_base . "/read?show=Y", text => $ML{'.feeds.viewentries'} };
+
+            $ret .= $content_block->(
+                section_name    => 'feeds',
+                section_name_ml => '.feeds.header',
+                header_image    => "$LJ::IMGPREFIX/silk/identity/feed.png",
+                links           => $links,
+                body            => "$watched_body",
+                collapsible     => 0,
+            );
+        }
+    }
+
+################################################################################
+##### LINKING MODULE
+
+    if ( $u->is_individual || $u->is_community ) {
+
+        my $local_link = "<user name=\"" . $u->display_name . "\">";
+        my $remote_link = $u->ljuser_display( { no_ljuser_class => 1 } );
+
+
+        my $link_body = "<div style='font-style:italic;'>" . BML::ml( '.linking.about' ) . "</div>";
+        $link_body .= BML::ml( '.linking.local', { sitename => $LJ::SITENAMESHORT }) . LJ::html_text({
+                             name      => 'local',
+                             id        => 'local',
+                             size      => 50,
+                             maxlength => 100,
+                             value     => $local_link,
+                             }) . "<br />";
+        $link_body .= "$ML{'.linking.anywhere'} " . LJ::html_text({
+                             name      => 'local',
+                             id        => 'local',
+                             size      => 50,
+                             maxlength => 550,
+                             value     => $remote_link,
+                             }) . "<br />";
+
+        $ret .=  $content_block->(
+            section_name   => 'linking',
+            section_name_ml => '.label.linking',
+            body           => $link_body,
+            hidable        => 1,
+         );
+    }
+
+
+################################################################################
+##### END
+
+    $ret .= q{ <div class='ljclear'></div> };
+    $ret .= q{ </div> };
+
+    return BML::noparse($ret);
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

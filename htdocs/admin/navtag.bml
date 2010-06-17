@@ -105,7 +105,7 @@ _c?>
         $ret .= LJ::form_auth();
 	$ret .= "<br /><?h1 JFTI! h1?>";
 
-	$ret .= "<?p To link to a user enter their userinfo URL.  FAQ's should be the faqbrowse URL ending in the faqid.  All others will be considered a normal page.  Tags are comma-separated. p?>";
+	$ret .= "<?p To link to a user enter their profile URL.  FAQ's should be the faqbrowse URL ending in the faqid.  All others will be considered a normal page.  Tags are comma-separated. p?>";
 
 	if ($dest) {
 	    $ret .= "<b>Add Tags:</b> ";
@@ -190,7 +190,7 @@ _c?>
 
 	    if (my $lju = $dest->ljuser) {
 		$ret .= "<td><a href='navtag?view=dest&dest=";
-		$ret .= LJ::eurl("$LJ::SITEROOT/userinfo?user=$lju->{user}") . "'>";
+		$ret .= LJ::eurl("$LJ::SITEROOT/profile?user=$lju->{user}") . "'>";
 		$ret .= "$lju->{user}</a> (" . $lju->ljuser_display . ")</td>";
 	    } elsif (my $url = $dest->url) {
 		$ret .= "<td><a href='navtag?view=dest&dest=" . LJ::eurl($url) . "'>";

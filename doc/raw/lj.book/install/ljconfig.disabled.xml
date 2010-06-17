@@ -30,7 +30,7 @@
     </varlistentry>
     <varlistentry>
       <term>show-talkleft</term>
-      <listitem><simpara>Show the received and posted comment counts for each account on the <filename>userinfo.bml</filename>
+      <listitem><simpara>Show the received and posted comment counts for each account on the <filename>profile.bml</filename>
       page.</simpara></listitem>
     </varlistentry>
     <varlistentry>
@@ -39,7 +39,7 @@
     </varlistentry>
     <varlistentry>
       <term>feedster_search</term>
-      <listitem><simpara>Search public <acronym>RSS</acronym> entries using a link from the <filename>userinfo.bml</filename>
+      <listitem><simpara>Search public <acronym>RSS</acronym> entries using a link from the <filename>profile.bml</filename>
       page to an off-site search engine.</simpara></listitem>
     </varlistentry>    
     <varlistentry>
@@ -57,7 +57,7 @@
     </varlistentry>
    <varlistentry>
       <term>userinfo_clientusage</term>
-      <listitem><simpara>Show the clients a user has used, on their <uri>userinfo.bml</uri> page.</simpara></listitem>
+      <listitem><simpara>Show the clients a user has used, on their <uri>profile.bml</uri> page.</simpara></listitem>
     </varlistentry>    
     <varlistentry>    
       <term>force_pass_change</term>
@@ -226,7 +226,7 @@
     </varlistentry>
    <varlistentry>
       <term>ljtalk</term>
-      <listitem><simpara>Display the <abbrev>LJ</abbrev>Talk Jabber icon on <filename>userinfo.bml</filename>.</simpara></listitem>
+      <listitem><simpara>Display the <abbrev>LJ</abbrev>Talk Jabber icon on <filename>profile.bml</filename>.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>infoshow_migrate</term>

@@ -126,7 +126,7 @@ _c?>
                     $url = $u->profile_url;
                     $url .= "?mode=full" if $what eq 'full';
                 } else {
-                    $url = "$LJ::SITEROOT/userinfo?user=$user";
+                    $url = "$LJ::SITEROOT/profile?user=$user";
                 }
             }
             return BML::redirect($url);

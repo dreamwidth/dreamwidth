@@ -763,7 +763,7 @@ sub dump_html {
                 my $ditemid = $data->{id} * 256 + $anum;
                 my $commentlink = "$link?thread=$ditemid#t$ditemid";
                 $ret .= $data->{posterid} ?
-                        "<a href='$commentlink'>Comment</a> by <a href='http://$opts{server}/userinfo.bml?user=$users->{$data->{posterid}}'>$users->{$data->{posterid}}</a> " :
+                        "<a href='$commentlink'>Comment</a> by <a href='http://$opts{server}/profile.bml?user=$users->{$data->{posterid}}'>$users->{$data->{posterid}}</a> " :
                         "<a href='$commentlink'>Anonymous comment</a> ";
                 $ret .= "on $data->{date}<br />\n";
                 $data->{subject} = $opts{clean} ? clean_subject($data->{subject}) : ehtml($data->{subject});

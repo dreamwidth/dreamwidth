@@ -81,7 +81,7 @@ _c?><?_code
             $title = $w->display_username . " (" . $LJ::SITENAMEABBREV . ")";
         } else {
             # FIXXME: Should be using a function call instead! But $w->prop( "journaltitle" )
-            # returns empty here, though it's used in userinfo.bml
+            # returns empty here, though it's used in profile.bml
             $title = $w->{name};
         }
 

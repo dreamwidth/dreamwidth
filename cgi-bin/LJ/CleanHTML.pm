@@ -1253,15 +1253,15 @@ sub ExpandLJURL
              my $user = LJ::canonical_username(shift);
              return "" if grep { /[\"\'\<\>\n\&]/ } @_;
              return $_[0] eq 'profile' ?
-                 "userinfo?user=$user" :
+                 "profile?user=$user" :
                  "users/$user/" . join("", map { "$_/" } @_ );
          },
          'userinfo' => sub {
              my $user = LJ::canonical_username(shift);
              if ($user) {
-                 return "userinfo?user=$user";
+                 return "profile?user=$user";
              } else {
-                 return "userinfo";
+                 return "profile";
              }
          },
          'userpics' => sub {

@@ -617,14 +617,14 @@ sub trans
             # so be consistent for people wanting to read it.
             # _journal above is kinda deprecated, but we'll carry on
             # its behavior of meaning "whatever the user typed" to be
-            # passed to the userinfo BML page, whereas this one only
+            # passed to the profile BML page, whereas this one only
             # works if journalid exists.
             if (my $u = LJ::load_user($opts->{user})) {
                 $r->notes->{journalid} = $u->{userid};
             }
 
             my $file = LJ::Hooks::run_hook("profile_bml_file");
-            $file ||= $LJ::PROFILE_BML_FILE || "userinfo.bml";
+            $file ||= $LJ::PROFILE_BML_FILE || "profile.bml";
             if ($args =~ /\bver=(\w+)\b/) {
                 $file = $LJ::ALT_PROFILE_BML_FILE{$1} if $LJ::ALT_PROFILE_BML_FILE{$1};
             }

@@ -176,23 +176,23 @@ span.expandcollapse {
     padding: 0;
 }
 
-.userinfo, .external_services, .user_info_contact {
+.profile, .external_services, .user_info_contact {
     padding-bottom: 10px;
 }
 
-.userinfo {
+.profile {
     float: left;
     margin-right: 70px;
 }
 
-.userinfo th {
+.profile th {
     font-weight: bold;
     text-align: right;
     padding-right: 0.3em;
 }
 
-.userinfo th,
-.userinfo td {
+.profile th,
+.profile td {
     vertical-align: top;
 }
 

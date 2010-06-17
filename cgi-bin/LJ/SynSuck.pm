@@ -426,7 +426,7 @@ sub process_content {
         return;
     }
 
-    # update syndicated account's userinfo if necessary
+    # update syndicated account's profile if necessary
     $su->preload_props( "url", "urlname" );
     {
         my $title = $feed->{'title'};

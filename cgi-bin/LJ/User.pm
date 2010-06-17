@@ -2642,7 +2642,7 @@ sub profile_url {
 
     my $url;
     if ( $u->is_identity ) {
-        $url = "$LJ::SITEROOT/userinfo?userid=" . $u->userid . "&t=I";
+        $url = "$LJ::SITEROOT/profile?userid=" . $u->userid . "&t=I";
         $url .= "&mode=full" if $opts{full};
     } else {
         $url = $u->journal_base . "/profile";
@@ -3002,7 +3002,7 @@ sub ljuser_display {
         }
 
         my $profile = $profile_url ne '' ? $profile_url :
-            "$LJ::SITEROOT/userinfo?userid=" . $u->userid . "&amp;t=I$andfull";
+            "$LJ::SITEROOT/profile?userid=" . $u->userid . "&amp;t=I$andfull";
   
         return "<span $display_class lj:user='$name' style='white-space: nowrap;$strike'><a href='$profile'>" .
             "<img src='$imgurl' alt='[$type profile] ' width='$width' height='$height'" .
@@ -7182,14 +7182,14 @@ sub get_timezone {
 # <LJFUNC>
 # class: component
 # name: LJ::ljuser
-# des: Make link to userinfo/journal of user.
-# info: Returns the HTML for a userinfo/journal link pair for a given user
+# des: Make link to profile/journal of user.
+# info: Returns the HTML for a profile/journal link pair for a given user
 #       name, just like LJUSER does in BML.  This is for files like cleanhtml.pl
 #       and ljpoll.pl which need this functionality too, but they aren't run as BML.
 # args: user, opts?
 # des-user: Username to link to, or user hashref.
 # des-opts: Optional hashref to control output.  Key 'full' when true causes
-#           a link to the mode=full userinfo.   Key 'type' when 'C' makes
+#           a link to the mode=full profile.   Key 'type' when 'C' makes
 #           a community link, when 'Y' makes a syndicated account link,
 #           when 'I' makes an identity account link (e.g. OpenID),
 #           otherwise makes a user account
@@ -7246,8 +7246,8 @@ sub ljuser
     # if invalid user, link to dummy userinfo page
     unless ($u && isu($u)) {
         $user = LJ::canonical_username($user);
-        $profile = "$LJ::SITEROOT/userinfo?user=$user";
-        return $make_tag->('silk/identity/user.png', "$LJ::SITEROOT/userinfo?user=$user", 17);
+        $profile = "$LJ::SITEROOT/profile?user=$user";
+        return $make_tag->('silk/identity/user.png', "$LJ::SITEROOT/profile?user=$user", 17);
     }
 
     $profile = $u->profile_url;

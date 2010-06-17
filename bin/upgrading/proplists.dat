@@ -801,7 +801,7 @@ userproplist.opt_showlocation:
 userproplist.opt_showmutualfriends:
   cldversion: 4
   datatype: bool
-  des: Boolean: 1 means show only mutual friends on your userinfo page, 0 (default) means to use the standard mode of showing everybody.
+  des: Boolean: 1 means show only mutual friends on your profile page, 0 (default) means to use the standard mode of showing everybody.
   indexed: 1
   multihomed: 0
   prettyname: Mutual Friends Display

@@ -117,7 +117,7 @@ function make_user (res, type) {
         img.setAttribute("style", "vertical-align: bottom; border: 0;");
 
         var uinfo_link = document.createElement("a");
-        uinfo_link.setAttribute("href", siteroot + '/userinfo?user=' + res);
+        uinfo_link.setAttribute("href", siteroot + '/profile?user=' + res);
         uinfo_link.appendChild(img);
 
         var userlink = document.createTextNode(res);
@@ -132,7 +132,7 @@ function make_user (res, type) {
 
         rng.insertNode(span);
     } else { // ie
-        return "<span class=\"ljuser\" style='white-space: nowrap;'><a href='" + siteroot + "/userinfo?user=" + res + "'><img src='" + siteroot + "/img/userinfo.gif' alt='userinfo' width='17' height='17' style='vertical-align: bottom; border: 0;' /></a><a href='" + siteroot + "/users/" + res + "/'><b>" + res + "</b></a></span> ";
+        return "<span class=\"ljuser\" style='white-space: nowrap;'><a href='" + siteroot + "/profile?user=" + res + "'><img src='" + siteroot + "/img/userinfo.gif' alt='userinfo' width='17' height='17' style='vertical-align: bottom; border: 0;' /></a><a href='" + siteroot + "/users/" + res + "/'><b>" + res + "</b></a></span> ";
     }
 }
 

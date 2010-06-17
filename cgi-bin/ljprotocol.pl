@@ -2737,7 +2737,7 @@ sub hash_menus
                   'url' => "$LJ::SITEROOT/users/$user/read", },
                 { 'text' => "-", },
                 { 'text' => "Your Profile",
-                  'url' => "$LJ::SITEROOT/userinfo?user=$user", },
+                  'url' => "$LJ::SITEROOT/profile?user=$user", },
                 { 'text' => "-", },
                 { 'text' => "Change Settings",
                   'sub' => [ { 'text' => "Personal Info",

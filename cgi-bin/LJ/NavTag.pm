@@ -106,7 +106,7 @@ sub new {
     return $self;
 }
 
-# $destobj = LJ::NavTag::Dest->new_from_url("http://www.livejournal.com/userinfo.bml?user=brad");
+# $destobj = LJ::NavTag::Dest->new_from_url("http://www.livejournal.com/profile.bml?user=brad");
 sub new_from_url {
     my ($class, $url) = @_;
     foreach my $type (LJ::NavTag->valid_types) {
@@ -166,13 +166,13 @@ sub url {
     my $user = $self->{dest};
     my $u = LJ::load_user($user);
     return $u->profile_url if $u;
-    return "$LJ::SITEROOT/userinfo.bml?user=$user";
+    return "$LJ::SITEROOT/profile.bml?user=$user";
 }
 
 sub dest_from_url {
     my ($class, $url) = @_;
     # FIXME: broken.  wrong URL type
-    return undef unless $url =~ m!/userinfo.bml\?user=(\w+)!;
+    return undef unless $url =~ m!/profile.bml\?user=(\w+)!;
     return LJ::NavTag::Dest->new(type  => "LJUSER",
                                  dest  => $1);
 }

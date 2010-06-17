@@ -145,7 +145,7 @@ LOAD_PAGE_INFO<=
                              ],
                       },
                     { 'name' => 'User Info',
-                      'uri' => "/userinfo?user=$remuser", },
+                      'uri' => "/profile?user=$remuser", },
                     { 'name' => 'Memories',
                       'uri' => "/tools/memories?user=$remuser", },
                     { 'name' => 'Logout',

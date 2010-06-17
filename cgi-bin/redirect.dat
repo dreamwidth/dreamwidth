@@ -64,3 +64,5 @@
 /syn/raw.bml                        /feeds/raw
 /editpics                           /editicons
 /editpics.bml                       /editicons
+/userinfo                           /profile
+/userinfo.bml                       /profile

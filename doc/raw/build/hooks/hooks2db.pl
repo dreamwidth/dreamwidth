@@ -176,7 +176,7 @@ $hooks{'post_create'} = {
 };
 
 $hooks{'userinfo_html_by_user'} = {
-    desc => "Extra &html; to show next to username &amp; id on <filename>userinfo.bml</filename>",
+    desc => "Extra &html; to show next to username &amp; id on <filename>profile.bml</filename>",
     args => [
         {
             'desc' => "Hash of arguments.",
@@ -193,11 +193,11 @@ $hooks{'userinfo_html_by_user'} = {
             ],
         },
     ],
-    source => ["htdocs/userinfo.bml"],
+    source => ["htdocs/profile.bml"],
 };
 
 $hooks{'userinfo_rows'} = {
-    desc => "Returns a two-element arrayref for a row on a userinfo page, ".
+    desc => "Returns a two-element arrayref for a row on a profile page, ".
             "containing first the left side label, then the body.",
     args => [
         {
@@ -219,7 +219,7 @@ $hooks{'userinfo_rows'} = {
             ],
         },
     ],
-    source => ["htdocs/userinfo.bml"],
+    source => ["htdocs/profile.bml"],
 };
 
 $hooks{'validate_get_remote'} = {

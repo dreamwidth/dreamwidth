@@ -352,7 +352,7 @@ POST
         prop_current_moodid
         prop_current_music
 
-userinfo.bml
+profile.bml
 GET
         mode
         user

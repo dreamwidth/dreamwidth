@@ -80,7 +80,7 @@ body<=
     my $ret;
     $ret .= "<?p ";
     $ret .= BML::ml('.info', {
-        aoptsinfo => "href='/userinfo'",
+        aoptsinfo => "href='/profile'",
         aoptshelp => "href='emailpost?mode=help&type=advanced\#pgp'",
     });
     $ret .= " p?>";

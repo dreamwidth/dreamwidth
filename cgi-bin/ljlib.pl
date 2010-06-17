@@ -186,12 +186,12 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                      "des" => "S2-specific resources (stylesheet)",
                  },
                  "info" => {
-                     # just a redirect to userinfo.bml for now.
+                     # just a redirect to profile.bml for now.
                      # in S2, will be a real view.
                      "des" => "Profile Page",
                  },
                  "profile" => {
-                     # just a redirect to userinfo.bml for now.
+                     # just a redirect to profile.bml for now.
                      # in S2, will be a real view.
                      "des" => "Profile Page",
                  },

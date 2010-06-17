@@ -1006,7 +1006,7 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                     'default' => "10;",
             },
             'profile_bml_file' => {
-                    'desc' => "The file (relative to htdocs) to use for the profile &url;.  Defaults to <filename>userinfo.bml</filename>",
+                    'desc' => "The file (relative to htdocs) to use for the profile &url;.  Defaults to <filename>profile.bml</filename>",
             },
             'stats_block_size' => {
                     'desc' => "Block size used in stats generation code that gets <replaceable>n</replaceable> rows from the database at a time.",

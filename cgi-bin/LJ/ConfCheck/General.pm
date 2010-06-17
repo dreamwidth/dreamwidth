@@ -743,7 +743,7 @@ add_conf('$CSSPROXY',
 
 add_conf('$PROFILE_BML_FILE',
          type => 'file',
-         des => "The file (relative to htdocs) to use for the profile URL.  Defaults to userinfo.bml",
+         des => "The file (relative to htdocs) to use for the profile URL.  Defaults to profile.bml",
          );
 
 add_conf('%ALT_PROFILE_BML_FILE',
