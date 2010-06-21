@@ -58,6 +58,9 @@ sub render_body {
     } elsif ($cat eq "custom") {
         push @getargs, "cat=custom";
         @themes = LJ::S2Theme->load_by_user($u);
+    } elsif ($cat eq "base") {
+        push @getargs, "cat=base";
+        @themes = LJ::S2Theme->load_default_themes();
     } elsif ($cat) {
         push @getargs, "cat=$cat";
         @themes = LJ::S2Theme->load_by_cat($cat);
@@ -81,10 +84,8 @@ sub render_body {
     @themes = LJ::Customize->remove_duplicate_themes(@themes);
 
     if ( $cat eq "base" ) {
-        # sort themes with custom at the end, then alphabetically by layout
-        @themes =
-            sort { $a->is_custom <=> $b->is_custom }
-            sort { lc $a->layout_name cmp lc $b->layout_name } @themes;
+        # sort alphabetically by layout
+        @themes = sort { lc $a->layout_name cmp lc $b->layout_name } @themes;
     } else {
         # sort themes with custom at the end, then alphabetically by theme
         @themes =

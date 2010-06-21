@@ -26,7 +26,7 @@ sub designer { "kareila" }
 
 package LJ::S2Theme::basicboxes::green;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::leaf;
 use base qw( LJ::S2Theme::basicboxes );

@@ -36,7 +36,7 @@ sub cats { qw( ) }
 
 package LJ::S2Theme::crossroads::lettuce;
 use base qw( LJ::S2Theme::crossroads );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::crossroads::lilac;
 use base qw( LJ::S2Theme::crossroads );

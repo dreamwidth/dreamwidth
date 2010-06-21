@@ -32,7 +32,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::nightsea;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::tranquilityiii::nnwm2009;
 use base qw( LJ::S2Theme::tranquilityiii );

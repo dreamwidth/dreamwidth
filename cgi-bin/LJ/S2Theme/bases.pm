@@ -33,7 +33,7 @@ sub designer { "twtd" }
 
 package LJ::S2Theme::bases::tropical;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::bases::summerholiday;
 use base qw( LJ::S2Theme::bases );

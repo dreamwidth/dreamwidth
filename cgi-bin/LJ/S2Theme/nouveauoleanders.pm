@@ -25,7 +25,7 @@ sub cats { qw( featured ) }
 
 package LJ::S2Theme::nouveauoleanders::sienna;
 use base qw( LJ::S2Theme::nouveauoleanders );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::nouveauoleanders::wisteria;
 use base qw( LJ::S2Theme::nouveauoleanders );

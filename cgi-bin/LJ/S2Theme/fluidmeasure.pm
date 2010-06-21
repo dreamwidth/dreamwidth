@@ -42,7 +42,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::fluidmeasure::spice;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::fluidmeasure::summerdark;
 use base qw( LJ::S2Theme::fluidmeasure );

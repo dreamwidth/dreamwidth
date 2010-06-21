@@ -49,7 +49,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::blanket::peach;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::blanket::shallows;
 use base qw( LJ::S2Theme::blanket );

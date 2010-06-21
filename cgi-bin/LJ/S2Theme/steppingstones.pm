@@ -39,7 +39,7 @@ sub cats { qw( ) }
 
 package LJ::S2Theme::steppingstones::purple;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::shadows;
 use base qw( LJ::S2Theme::steppingstones );

@@ -36,5 +36,5 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::testing;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw( base )}
+sub cats { qw()}
 1;

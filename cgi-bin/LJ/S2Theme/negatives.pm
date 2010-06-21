@@ -14,7 +14,7 @@ sub designer { "daven" }
 
 package LJ::S2Theme::negatives::black;
 use base qw( LJ::S2Theme::negatives );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::negatives::blastedsands;
 use base qw( LJ::S2Theme::negatives );

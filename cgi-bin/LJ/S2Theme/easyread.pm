@@ -13,7 +13,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::easyread::green;
 use base qw( LJ::S2Theme::easyread );
-sub cats { qw( base featured ) }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::easyread::hcblack;
 use base qw( LJ::S2Theme::easyread );

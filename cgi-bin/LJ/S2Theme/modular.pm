@@ -32,7 +32,7 @@ sub cats { qw ( ) }
 
 package LJ::S2Theme::modular::mediterraneanpeach;
 use base qw( LJ::S2Theme::modular );
-sub cats { qw ( base ) }
+sub cats { qw () }
 
 package LJ::S2Theme::modular::olivetree;
 use base qw( LJ::S2Theme::modular );

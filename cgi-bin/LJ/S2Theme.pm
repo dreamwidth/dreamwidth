@@ -28,25 +28,12 @@ sub init {
 # Class Methods
 ##################################################
 
-# returns the uniq of the default theme for the given layout id or uniq (for lazy migration)
-sub default_theme {
-    my $class = shift;
-    my $layout = shift;
-    my %opts = @_;
+sub default_themes {
+    my $class = $_[0];
 
-    # turn the given $layout into a uniq if it's an id
-    my $pub = LJ::S2::get_public_layers();
-    if ($layout =~ /^\d+$/) {
-        $layout = $pub->{$layout}->{uniq};
-    }
+    my %default_themes;
 
-    # return if this is a custom layout
-    return "" unless ref $pub->{$layout};
-
-    # remove the /layout part of the uniq to just get the layout name
-    $layout =~ s/\/layout$//;
-
-    my %default_themes = (
+    %default_themes = (
         bases => 'bases/tropical',
         basicboxes => 'basicboxes/green',
         blanket => 'blanket/peach',
@@ -68,8 +55,35 @@ sub default_theme {
         zesty => 'zesty/white',
     );
 
-    my %local_default_themes = eval "use LJ::S2Theme_local; 1;" ? $class->local_default_themes($layout, %opts) : ();
-    my $default_theme = $default_themes{$layout} || $local_default_themes{$layout};
+    my %local_default_themes = eval "use LJ::S2Theme_local; 1;"
+        ? $class->local_default_themes
+        : ();
+
+    %default_themes = ( %default_themes, %local_default_themes );
+
+    return %default_themes;
+}
+
+# returns the uniq of the default theme for the given layout id or uniq (for lazy migration)
+sub default_theme {
+    my $class = shift;
+    my $layout = shift;
+    my %opts = @_;
+
+    # turn the given $layout into a uniq if it's an id
+    my $pub = LJ::S2::get_public_layers();
+    if ($layout =~ /^\d+$/) {
+        $layout = $pub->{$layout}->{uniq};
+    }
+
+    # return if this is a custom layout
+    return "" unless ref $pub->{$layout};
+
+    # remove the /layout part of the uniq to just get the layout name
+    $layout =~ s/\/layout$//;
+
+    my %default_themes = $class->default_themes;
+    my $default_theme = $default_themes{$layout};
     die "Default theme for layout $layout does not exist." unless $default_theme;
     return $default_theme;
 }
@@ -175,9 +189,24 @@ sub load_default_of {
     return $default_theme ? $class->load_by_uniq($default_theme) : undef;
 }
 
+sub load_default_themes {
+    my $class = $_[0];
+
+    my @themes;
+
+    my %default_themes = $class->default_themes;
+    return unless %default_themes;
+
+    foreach my $uniq ( values %default_themes ) {
+        my $theme = $class->load_by_uniq( $uniq, silent_failure => 1 );
+        push @themes, $theme if $theme;
+    }
+
+    return @themes;
+}
+
 sub load_by_uniq {
-    my $class = shift;
-    my $uniq = shift;
+    my ( $class, $uniq, %opts ) = @_;
 
     my $pub = LJ::S2::get_public_layers();
     if ($pub->{$uniq} && $pub->{$uniq}->{type} eq "theme") {
@@ -186,7 +215,13 @@ sub load_by_uniq {
         return $class->load_by_layoutid($pub->{$uniq}->{s2lid});
     }
 
-    die "Given uniq is not a valid layout or theme: $uniq";
+    my $msg = "Given uniq is not a valid layout or theme: $uniq";
+    if ( $opts{silent_failure} ) {
+        warn $msg;
+        return undef;
+    } else {
+        die $msg;
+    }
 }
 
 sub load_by_cat {

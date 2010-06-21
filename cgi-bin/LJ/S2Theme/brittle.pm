@@ -58,7 +58,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::brittle::rust;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::brittle::softblue;
 use base qw( LJ::S2Theme::brittle );

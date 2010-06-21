@@ -1,7 +1,7 @@
 package LJ::S2Theme::drifting;
 use base qw(LJ::S2Theme);
 
-sub cats { qw( base ) }
+sub cats { qw() }
 sub designer { "Jennie Griner" }
 
 sub layouts { ( "2l" => "two-columns-left" ) }

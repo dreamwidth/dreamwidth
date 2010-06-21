@@ -30,7 +30,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::refriedtablet::refriedclassic;
 use base qw( LJ::S2Theme::refriedtablet );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::refriedtablet::refriedjewels;
 use base qw( LJ::S2Theme::refriedtablet );

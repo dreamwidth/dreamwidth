@@ -53,7 +53,7 @@ sub cats { qw( ) }
 
 package LJ::S2Theme::funkycircles::darkpurple;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 package LJ::S2Theme::funkycircles::earthygreen;
 use base qw( LJ::S2Theme::funkycircles );
