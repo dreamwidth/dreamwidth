@@ -407,6 +407,7 @@ sub EntryPage
     $p->{'_picture_keyword'} = $get->{'prop_picture_keyword'};
 
     $p->{'viewing_thread'} = $get->{'thread'} ? 1 : 0;
+    $p->{_viewing_thread_id} = $get->{thread} + 0;
 
     # default values if there were no comments, because
     # LJ::Talk::load_comments() doesn't provide them.

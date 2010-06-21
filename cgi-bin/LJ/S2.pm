@@ -3360,7 +3360,7 @@ sub _print_reply_container
         my $ditemid = $page->{'entry'}{'itemid'} || 0;
 
         my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
-        my $thread = $page->{'viewing_thread'} + 0 || "";
+        my $thread = $page->{_viewing_thread_id} + 0 || "";
         $S2::pout->( LJ::create_qr_div( $u, $ditemid, $page->{_styleopts}, $userpic, $thread ) );
     }
 }
