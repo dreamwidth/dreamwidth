@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -237,6 +238,7 @@ set module_layout_sections = "none|(none)|one|Group One";
 set layout_type = "two-columns-right";
 
 set show_userpics_recent = true;
+set userpics_position = "right";
 
 set num_items_recent = 10;
 set num_items_reading = 10;
@@ -295,6 +297,20 @@ if ($*image_background_header_height > 0)
 
 if ($*image_background_header_url == "" ){}
 else { print """ <style type="text/css"> #title, #subtitle, #pagetitle {display: none} </style> """; }
+
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        .has-userpic .entry .userpic,
+        .has-userpic .comment .userpic { float: left; }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        .has-userpic .entry .userpic,
+        .has-userpic .comment .userpic { float: right; }
+        """;
+    }
 
     """<style type="text/css">""";
     start_css();
@@ -540,7 +556,7 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 
 .access-filter, .restrictions {float: left; margin: 0.25em 0.5em 0.25em 0.5em;}
 
-.has-userpic .entry .userpic {float: right; border: 0.083em solid $*color_entry_border; padding: 0.2em; margin: 0.5em; background: $*color_entry_background; }
+.has-userpic .entry .userpic { border: 0.083em solid $*color_entry_border; padding: 0.2em; margin: 0.5em; background: $*color_entry_background; }
 .entry .userpic img {border: 0;}
 .entry .userpic img:hover {opacity: .7;}
 
@@ -614,7 +630,7 @@ li.first-item {margin-left: 0;}
 .comment-content {padding: 0.5em; border-bottom: 0.083em solid $*color_entry_border; min-height: 7em;}
 .no-userpic .comment-content {min-height: 1em;}
 
-.has-userpic .comment .userpic {border: 0.083em solid $*color_entry_border; float: right; margin: 0.5em; padding: 0.2em; }
+.has-userpic .comment .userpic {border: 0.083em solid $*color_entry_border; margin: 0.5em; padding: 0.2em; }
 
 .screened .comment-content {background: $element_background; padding: 0.833em; }
 
@@ -725,6 +741,9 @@ table.month {width: 100%; text-align: center; }
 div.ContextualPopup {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0.583em;}
 div.ContextualPopup div.Inner {border: 0; }
 div.ContextualPopup .Userpic {border: 0.083em solid $*color_page_border; padding: 0.25em; }
+
+$userpic_css
+
     """;
 
     end_css();

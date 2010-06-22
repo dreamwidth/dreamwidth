@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -25,6 +26,7 @@ propgroup presentation {
     property use comment_management_links;
 }
 
+set userpics_position = "right";
 set layout_type = "two-columns-right";
 set custom_colors_template = "%%new%% div.footer, %%new%% div.footer ul, %%new%% div.footer ul a {background-color: %%background%%} %%new%% {border: 5px solid %%background%%;} %%new%% div.footer a, %%new%% div.footer {color: %%foreground%%;}";
 
@@ -299,6 +301,23 @@ function Page::print_default_stylesheet()
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
     var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        .userpic{
+            float: left;
+            margin-right: 2px;
+        }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        .userpic{
+            float: right;
+        }
+        """;
+    }
 
     """<style type="text/css">""";
     start_css();
@@ -666,6 +685,8 @@ function Page::print_default_stylesheet()
     .two-columns-left #secondary { right: 10%; width: 15%; }
     .two-columns-right #primary {left: 10%; width: 70%;}
     .two-columns-right #secondary {left: 10%; width: 15%;}
+
+$userpic_css
 
     """;
     end_css();

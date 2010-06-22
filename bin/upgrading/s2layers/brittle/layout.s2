@@ -16,6 +16,7 @@ propgroup presentation {
     property use layout_type;
     property use tags_page_type;
     property use sidebar_width;
+    property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -295,6 +296,34 @@ function Page::print_default_stylesheet() {
     var Color blockquote_text = $*color_entry_text -> lighter(10);
     var Color blockquote_background = $*color_entry_background -> darker(10);
 
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        div.entry div.userpic {
+            float: left;
+            margin: 0 0 0 -100px;
+            }
+        div.comment div.userpic {
+            float: left;
+            margin: 0 0 0 -110px;
+            }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        div.entry div.userpic {
+            float: right;
+            margin: 0 -100px 0 0;
+            }
+        div.comment div.userpic {
+            float: right;
+            margin: 0 -110px 0 0;
+            }
+        #secondary {
+            margin-left: 110px;
+        }
+        """;
+    }
 
     """<style type="text/css">""";
     start_css();
@@ -429,8 +458,6 @@ h3.entry-title a { color: $*color_entry_title; }
 
 div.entry div.userpic {
     display: block;
-    float: left;
-    margin: 0 0 0 -100px;
     }
 
 div.entry div.userpic img {
@@ -640,8 +667,6 @@ textarea.textbox  { width: 90%!important; }
 
 div.comment div.userpic {
     display: block;
-    float: left;
-    margin: 0 0 0 -110px;
     }
 
 div.comment div.userpic img {
@@ -859,6 +884,9 @@ hr {
     border-style: none;
     border-bottom: 3px double $solid_border;
     }
+
+$userpic_css
+
 }    --->
     """;
     end_css();

@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -260,6 +261,17 @@ var string month_header_colors = generate_color_css( $*color_entry_border->darke
     var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        .userpic { float: left; margin: 0 10px 10px 0; }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        .userpic { float: right; margin: 0 0 10px 10px; }
+        """;
+    }
 
 """
 
@@ -334,7 +346,7 @@ h3.entry-title a { $entry_title_colors }
 .datetime { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; padding: 0; $page_title_colors }
 .datetime a { $page_title_colors }
 
-.userpic { display: block; float: left; margin: 0 10px 10px 0; }
+.userpic { display: block; }
 .userpic img { width: 80px; height: 80px; padding: 5px; $userpic_colors }
 
 span.poster { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; $page_title_colors }
@@ -396,6 +408,8 @@ td.day { padding: 5px; border: 1px solid #F0F0F0; }
 
 .page-tags .tags-container ul { margin: 1em; padding: 0; }
 .page-tags .tags-container ul li { margin: 0 0 0 1em; padding: 0; list-style: none; }
+
+$userpic_css
 
 </style>
 """;
