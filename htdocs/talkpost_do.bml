@@ -235,12 +235,23 @@ body<=
         $mlcode = '.success.message2';
     } else {
         # otherwise, it's a screened comment.
-        if ($journalu->{'journaltype'} eq 'C') {
-            $mlcode = $POST{'usertype'} eq 'anonymous' ? '.success.screened.comm.anon2'
-                                                       : '.success.screened.comm2';
-        } else {
-            $mlcode = $POST{'usertype'} eq 'anonymous' ? '.success.screened.user.anon2'
-                                                       : '.success.screened.user2';
+        my $commentu = $init ? $init->{comment}->{u} : undef;
+        if ( $journalu && $journalu->is_community ) {
+            if ( $POST{'usertype'} eq 'anonymous' ) {
+                $mlcode = 'success.screened.comm.anon2';
+            } elsif ( $commentu && $commentu->can_manage( $journalu ) ) {
+                $mlcode = '.success.screened.comm.owncomm';
+            } else {
+                $mlcode = '.success.screened.comm2';
+            }
+        } else {  # not a community
+            if ( $POST{'usertype'} eq 'anonymous' ) {
+                $mlcode = '.success.screened.user.anon2';
+            } elsif ( $commentu && $commentu->equals( $journalu ) ) {
+                $mlcode = '.success.screened.user.ownjournal';
+            } else {
+                $mlcode = '.success.screened.user2';
+            }
         }
     }
 

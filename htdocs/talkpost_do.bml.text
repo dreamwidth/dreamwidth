@@ -76,9 +76,13 @@
 
 .success.screened.comm2=Your comment has been added. According to this community's settings, it was marked as screened, and will be visible only to you and the community maintainers until they choose to unscreen it. You can view your comment <a [[aopts]]>here</a>.
 
+.success.screened.comm.owncomm=Your comment has been added. According to this community's settings, it was marked as screened, and will be visible only to you and any other community admins until one of you chooses to unscreen it. You can view your comment <a [[aopts]]>here</a>.
+
 .success.screened.user.anon2=Your anonymous comment has been added. According to this journal's settings, it was marked as screened, and will be visible only to the journal's owner until the owner chooses to unscreen it. You can go back to the comment thread <a [[aopts]]>here</a>.
 
 .success.screened.user2=Your comment has been added. According to this journal's settings, it was marked as screened, and will be visible only to you and the journal's owner until the owner chooses to unscreen it. You can view your comment <a [[aopts]]>here</a>.
+
+.success.screened.user.ownjournal=Your comment has been added. According to this journal's settings, it was marked as screened, and will be visible only to you until you choose to unscreen it. You can view your comment <a [[aopts]]>here</a>.
 
 .success.title=Success
 
