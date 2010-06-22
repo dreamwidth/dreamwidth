@@ -1,152 +1,150 @@
 ;; -*- coding: utf-8 -*-
-.title=Site Map
+.footer=What are we missing? <a href='/support/submit'>Tell us!</a>
 
 .maplinks=If you're looking to:
 
-.maplinks.manage-journal-title=...manage your journal's contents:
+.maplinks.about-customizing=Learn about customizing
 
-.maplinks.post-entry=Post an entry
+.maplinks.aboutus=About us
 
-.maplinks.edit-entries=Edit entries
+.maplinks.advanced-customization=Advanced customization
 
-.maplinks.manage-comments=Manage comments
+.maplinks.advanced-tools-title=...use the advanced tools:
 
-.maplinks.manage-tags=Manage tags
+.maplinks.birthdays=Upcoming birthdays
 
-.maplinks.manage-memories=Manage memories
+.maplinks.buy-circle=Gift an account in your circle
 
-.maplinks.manage-profile=Manage profile
+.maplinks.buy-merchandise=Buy merchandise
 
-.maplinks.manage-userpics=Manage userpics
+.maplinks.buy-points=Buy account time or points
 
-.maplinks.create-poll=Create poll
-
-.maplinks.manage-readlist-title=...manage your reading list:
-
-.maplinks.manage-readlist=Manage circle
-
-.maplinks.manage-groups=Manage custom groups
-
-.maplinks.filter-readlist=Filter reading list
-
-.maplinks.synfeeds=Syndicated feeds
-
-.maplinks.manage-accesslist-title=...manage your access list:
-
-.maplinks.manage-accesslist=Manage circle
-
-.maplinks.manage-invite-friend-title=...invite a friend to join [[sitename]]:
-
-.maplinks.invite-friend=Invite friend
-
-.maplinks.manage-account-title=...manage your [[sitename]] account:
-
-.maplinks.manage-settings=Manage settings
-
-.maplinks.inbox=Inbox
-
-.maplinks.upgrade=Upgrade your account
+.maplinks.buy-random=Gift a free random user
 
 .maplinks.changepassword=Change password
 
 .maplinks.changestatus=Change account status
 
-.maplinks.customize-title=...customize the look of your journal:
-
-.maplinks.selectstyle=Select style
-
-.maplinks.customizestyle=Customize style
-
-.maplinks.manage-linkslist=Manage links list
-
-.maplinks.about-customizing=Learn about customizing
-
-.maplinks.advanced-customization=Advanced customization
-
-.maplinks.layer-browser=Layer browser
-
-.maplinks.s2-manual=Customizing manual
-
 .maplinks.community-title=...manage a community:
-
-.maplinks.create-comm=Create a community
-
-.maplinks.manage-comm=Manage community settings
-
-.maplinks.manage-invites=Manage community invites
-
-.maplinks.search-comm=Search communities
-
-.maplinks.shop-title=...shop with [[sitename]]:
-
-.maplinks.buy-paid=
-
-.maplinks.buy-points=Buy account time or points
-
-.maplinks.buy-circle=Gift an account in your circle
-
-.maplinks.buy-random=Gift a free random user
-
-.maplinks.transfer-points=Transfer points
-
-.maplinks.buy-merchandise=Buy merchandise
-
-.maplinks.payment-history=View your payment history
-
-.maplinks.learn-site-title=...learn about [[sitename]]:
-
-.maplinks.aboutus=About us
-
-.maplinks.tos=Terms of Service
-
-.maplinks.privacy=Privacy policy
-
-.maplinks.principles=Guiding principles
-
-.maplinks.diversity=Diversity statement
-
-.maplinks.legal=Legal docs
-
-.maplinks.sitestats=Site statistics
-
-.maplinks.suggestion=Make a Suggestion
-
-.maplinks.official-journals-title=...read the [[sitename]] official journals:
-
-.maplinks.official-journals.list=Complete list
-
-.maplinks.gethelp-title=...get help using [[sitename]]:
-
-.maplinks.faq=Frequently asked questions
-
-.maplinks.faqsearch=Search the FAQ
-
-.maplinks.support=Support
-
-.maplinks.explore-title=...explore [[sitename]]:
-
-.maplinks.directory=Search directory
-
-.maplinks.latestthings=Latest Things
-
-.maplinks.toys-title=...play with some site toys:
-
-.maplinks.birthdays=Upcoming birthdays
-
-.maplinks.latestmoods=Mood of Service
-
-.maplinks.advanced-tools-title=...use the advanced tools:
 
 .maplinks.console=Admin console
 
 .maplinks.console-reference=Admin console reference
 
-.footer=What are we missing? <a href='/support/submit.bml'>Tell us!</a>
+.maplinks.create-comm=Create a community
 
-.maplinks.staff=Staff
+.maplinks.create-poll=Create poll
 
-.maplinks.search.title=...search [[sitename]]:
+.maplinks.customizestyle=Customize style
+
+.maplinks.customize-title=...customize the look of your journal:
+
+.maplinks.directory=Search directory
+
+.maplinks.diversity=Diversity statement
+
+.maplinks.edit-entries=Edit entries
+
+.maplinks.explore-title=...explore [[sitename]]:
+
+.maplinks.faq=Frequently asked questions
+
+.maplinks.faqsearch=Search the FAQ
+
+.maplinks.filter-readlist=Filter reading list
+
+.maplinks.gethelp-title=...get help using [[sitename]]:
+
+.maplinks.inbox=Inbox
+
+.maplinks.invite-friend=Invite friend
+
+.maplinks.latestmoods=Mood of Service
+
+.maplinks.latestthings=Latest Things
+
+.maplinks.layer-browser=Layer browser
+
+.maplinks.learn-site-title=...learn about [[sitename]]:
+
+.maplinks.legal=Legal docs
+
+.maplinks.manage-accesslist=Manage circle
+
+.maplinks.manage-accesslist-title=...manage your access list:
+
+.maplinks.manage-account-title=...manage your [[sitename]] account:
+
+.maplinks.manage-comm=Manage community settings
+
+.maplinks.manage-comments=Manage comments
+
+.maplinks.manage-groups=Manage custom groups
+
+.maplinks.manage-invite-friend-title=...invite a friend to join [[sitename]]:
+
+.maplinks.manage-invites=Manage community invites
+
+.maplinks.manage-journal-title=...manage your journal's contents:
+
+.maplinks.manage-linkslist=Manage links list
+
+.maplinks.manage-memories=Manage memories
+
+.maplinks.manage-profile=Manage profile
+
+.maplinks.manage-readlist=Manage circle
+
+.maplinks.manage-readlist-title=...manage your reading list:
+
+.maplinks.manage-settings=Manage settings
+
+.maplinks.manage-tags=Manage tags
+
+.maplinks.manage-userpics=Manage userpics
+
+.maplinks.official-journals.list=Complete list
+
+.maplinks.official-journals-title=...read the [[sitename]] official journals:
+
+.maplinks.payment-history=View your payment history
+
+.maplinks.post-entry=Post an entry
+
+.maplinks.principles=Guiding principles
+
+.maplinks.privacy=Privacy policy
+
+.maplinks.s2-manual=Customizing manual
+
+.maplinks.search-comm=Search communities
+
+.maplinks.search.journal=Journal search
 
 .maplinks.search.site=Site search
 
-.maplinks.search.journal=Journal search
+.maplinks.search.title=...search [[sitename]]:
+
+.maplinks.selectstyle=Select style
+
+.maplinks.shop-title=...shop with [[sitename]]:
+
+.maplinks.sitestats=Site statistics
+
+.maplinks.staff=Staff
+
+.maplinks.suggestion=Make a Suggestion
+
+.maplinks.support=Support
+
+.maplinks.synfeeds=Syndicated feeds
+
+.maplinks.tos=Terms of Service
+
+.maplinks.toys-title=...play with some site toys:
+
+.maplinks.transfer-points=Transfer points
+
+.maplinks.upgrade=Upgrade your account
+
+.title=Site Map
