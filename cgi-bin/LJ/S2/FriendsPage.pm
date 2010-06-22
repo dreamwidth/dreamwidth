@@ -140,6 +140,11 @@ sub FriendsPage
         }
     }
 
+    if ( $filter && !$filter->is_default ) {
+        $p->{filter_active} = 1;
+        $p->{filter_name} = $filter->name;
+    }
+
     ## load the itemids
     my ( %friends, %friends_row, %idsbycluster );
     my @items = $u->watch_items(
