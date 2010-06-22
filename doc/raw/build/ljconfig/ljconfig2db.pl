@@ -245,10 +245,6 @@ my %ljconfig =
                     "with the old 'cluster 0' which used the old &db; schema and the user creating an account can choose where they go. ".
                     "In reality, there's no use for this, it is only useful when working on the code. <emphasis>Deprecated</emphasis>. Instead, use: \$LJ::DEBUG{allow_cluster_select} = 1;.",
             },
-            'alt_profile_bml_file' => {
-                    'desc' => "Mapping of key (word chars) to file (like [ljconfig[profile_bml_file]]) to use to override the default \$LJ::PROFILE_BML_FILE.  Used if the ver=[key] &url; parameter is used on a /profile &url;.",
-                    'type' => "hash",
-            },
             'anti_squatter' => {
                     'desc' => "Set true if your installation is a publicly available development server and if you would like ".
                     "beta testers to ensure that they understand as such. If left alone your installation might become susceptible to ".

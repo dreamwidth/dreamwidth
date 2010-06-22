@@ -625,9 +625,6 @@ sub trans
 
             my $file = LJ::Hooks::run_hook("profile_bml_file");
             $file ||= $LJ::PROFILE_BML_FILE || "profile.bml";
-            if ($args =~ /\bver=(\w+)\b/) {
-                $file = $LJ::ALT_PROFILE_BML_FILE{$1} if $LJ::ALT_PROFILE_BML_FILE{$1};
-            }
             return $bml_handler->("$LJ::HOME/htdocs/$file");
         }
 
