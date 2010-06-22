@@ -290,9 +290,9 @@ sub get_usertags {
 
     # now if they provided a remote, remove the ones they don't want to see; note that
     # remote may be undef so we have to check exists
-    if ( exists $opts->{remote} && LJ::isu( $opts->{remote} ) ) {
+    if ( exists $opts->{remote} ) {
         # never going to cull anything if you control it, so just return
-        return $res if $opts->{remote}->can_manage( $u );
+        return $res if LJ::isu( $opts->{remote} ) && $opts->{remote}->can_manage( $u );
 
         # setup helper variables from u to remote
         my ($trusted, $grpmask) = (0, 0);
