@@ -3748,6 +3748,7 @@ sub is_closed_membership    { $_[0]->membership_level eq 'closed' ? 1 : 0;    }
 sub is_moderated_membership { $_[0]->membership_level eq 'moderated' ? 1 : 0; }
 sub is_open_membership      { $_[0]->membership_level eq 'open' ? 1 : 0;      }
 sub has_moderated_posting   { $_[0]->prop( 'moderated' );                     }
+sub has_open_posting        { $_[0]->prop( 'nonmember_posting' ) ? 1 : 0;     }
 
 
 # returns an array of maintainer userids

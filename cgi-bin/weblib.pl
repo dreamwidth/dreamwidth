@@ -2818,7 +2818,7 @@ sub control_strip
             my $isclosedcommunity = $journal->is_closed_membership;
             if ( $remote->can_manage_other( $journal ) ) {
                 $ret .= "$statustext{maintainer}<br />";
-                if ($haspostingaccess) {
+                if ( $haspostingaccess || $journal->has_open_posting ) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; " unless $remote->is_identity;
                 }
 
@@ -2854,7 +2854,7 @@ sub control_strip
                 $ret .= "&nbsp;&nbsp;" . $links{track_community};
             } else {
                 $ret .= "$statustext{community}<br />";
-                if ($haspostingaccess) {
+                if ( $haspostingaccess || $journal->has_open_posting ) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
                 $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :

@@ -3862,7 +3862,7 @@ web.controlstrip.btn.inbox=Inbox
 
 web.controlstrip.links.addfeed=Add it to your reading page
 
-web.controlstrip.links.addtocircle=Add them to your circle
+web.controlstrip.links.addtocircle=Add to your circle
 
 web.controlstrip.links.changecommsettings=Change Settings
 
@@ -3882,11 +3882,11 @@ web.controlstrip.links.inbox=Inbox
 
 web.controlstrip.links.invitefriends=Invite Friends
 
-web.controlstrip.links.joincomm=Join this community
+web.controlstrip.links.joincomm=Join
 
 web.controlstrip.links.learnmore=Learn more
 
-web.controlstrip.links.leavecomm=Leave this community
+web.controlstrip.links.leavecomm=Leave
 
 web.controlstrip.links.login=Log in
 
@@ -3902,13 +3902,13 @@ web.controlstrip.links.more=More
 
 web.controlstrip.links.mylj=My [[siteabbrev]]
 
-web.controlstrip.links.popfeeds=View the Most Popular Feeds
+web.controlstrip.links.popfeeds=View Popular Feeds
 
-web.controlstrip.links.post=Post to Journal
+web.controlstrip.links.post=Post
 
 web.controlstrip.links.post2=Post
 
-web.controlstrip.links.postcomm=Post to this community
+web.controlstrip.links.postcomm=Post
 
 web.controlstrip.links.queue=Queue
 
@@ -3916,9 +3916,9 @@ web.controlstrip.links.random=Random Journal
 
 web.controlstrip.links.recentcomments=View Recent Comments
 
-web.controlstrip.links.removecomm=Unsubscribe from this community
+web.controlstrip.links.removecomm=Unsubscribe
 
-web.controlstrip.links.removefeed=Remove it from your reading page
+web.controlstrip.links.removefeed=Remove from your reading page
 
 web.controlstrip.links.settings=Settings
 
@@ -3926,13 +3926,13 @@ web.controlstrip.links.stylemystyle=View in my style
 
 web.controlstrip.links.styleorigstyle=View in original style
 
-web.controlstrip.links.trackcomm=Track this community
+web.controlstrip.links.trackcomm=Track
 
-web.controlstrip.links.trackuser=Track this user
+web.controlstrip.links.trackuser=Track
 
 web.controlstrip.links.viewreadingpage=Reading Page
 
-web.controlstrip.links.watchcomm=Subscribe to this community
+web.controlstrip.links.watchcomm=Subscribe
 
 web.controlstrip.login.forgot=(Forgot it?)
 
