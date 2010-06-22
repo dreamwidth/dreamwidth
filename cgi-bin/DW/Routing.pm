@@ -22,6 +22,7 @@ use LJ::ModuleLoader;
 use DW::Template;
 use JSON;
 use DW::Request;
+use DW::Routing::CallInfo;
 
 our %string_choices;
 our %regex_choices = (
@@ -97,22 +98,24 @@ sub get_call_opts {
     $opts{format} = $format;
 
     # we construct this object as an easy way to get options later, it gives
-    # us accessors.  FIXME: this should be a separate class, not DW::Routing.
-    my $call_opts = bless( \%opts, $class );
+    # us accessors.
+    my $call_opts = DW::Routing::CallInfo->new( \%opts );
 
     # try the string options first as they're fast
-    my $hash = $opts{__hash} = $string_choices{$opts{role} . $uri};
-    return $call_opts if defined $hash;
-
+    my $hash = $string_choices{$call_opts->role . $uri};
+    if ( defined $hash ) {
+        $call_opts->init_call_opts( $hash );
+        return $call_opts;
+    }
+    
     # try the regex choices next
     # FIXME: this should be a dynamically sorting array so the most used items float to the top
     # for now it doesn't matter so much but eventually when everything is in the routing table
     # that will have to be done
     my @args;
-    foreach $hash ( @{ $regex_choices{$opts{role}} } ) {
+    foreach $hash ( @{ $regex_choices{$call_opts->role} } ) {
         if ( ( @args = $uri =~ $hash->{regex} ) ) {
-            $opts{__hash} = $hash;
-            $opts{subpatterns} = \@args;
+            $call_opts->init_call_opts( $hash, \@args );
             return $call_opts;
         }
     }
@@ -131,7 +134,7 @@ sub call_hash {
     my ( $class, $opts ) = @_;
     my $r = DW::Request->get;
 
-    my $hash = $opts->{__hash};
+    my $hash = $opts->call_opts;
     return undef unless $hash && $hash->{sub};
 
     $r->pnote(routing_opts => $opts);
@@ -147,18 +150,17 @@ Perl Response Handler for call_hash
 sub _call_hash {
     my $r = DW::Request->get;
     my $opts = $r->pnote('routing_opts');
-    my $hash = $opts->{__hash};
 
-    $opts->{format} ||= $hash->{format};
+    $opts->prepare_for_call;
 
-    my $format = $opts->{format};
+    my $format = $opts->format;
     $r->content_type( $default_content_types->{$format} )
         if $default_content_types->{$format};
 
     # try to call the handler that actually does the content creation; it will
-    # return either a string (valid result), or a number (HTTP code), or undef
+    # return either a number (HTTP code), or undef
     # means there was an error of some sort
-    my $ret = eval { return $hash->{sub}->( $opts ) };
+    my $ret = eval { $opts->call };
     return $ret unless $@;
 
     # here down is simply error handling for whatever the handler sub above
@@ -322,58 +324,6 @@ sub register_regex {
     push @{$regex_choices{ssl}}, $hash if $hash->{ssl};
     push @{$regex_choices{user}}, $hash if $hash->{user};
 }
-
-=head1 Controller API
-
-API to be used from the controllers.
-
-=head2 C<< $self->args >>
-
-Return the arguments passed to the register call.
-
-=cut
-
-sub args { return $_[0]->{__hash}->{args}; }
-
-=head2 C<< $self->format >>
-
-Return the format.
-
-=cut
-
-sub format { return $_[0]->{format}; }
-
-=head2 C<< $self->role >>
-
-Current mode: 'app' or 'user' or 'ssl'
-
-=cut
-
-sub role { return $_[0]->{role}; }
-
-=head2 C<< $self->ssl >>
-
-Is SSL request?
-
-=cut
-
-sub ssl { return $_[0]->{role} eq 'ssl' ? 1 : 0; }
-
-=head2 C<< $self->subpatterns >>
-
-Return the regex matches.
-
-=cut
-
-sub subpatterns { return $_[0]->{subpatterns}; }
-
-=head2 C<< $self->username >>
-
-Username
-
-=cut
-
-sub username { return $_[0]->{username}; }
 
 =head1 AUTHOR
 
