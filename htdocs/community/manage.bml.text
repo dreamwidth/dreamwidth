@@ -36,6 +36,8 @@
 
 .commlist.title=<b>Title</b>
 
+.commlist.tracking=Tracking
+
 .commlist.username=<b>Username</b>
 
 .create.header=Create a community
