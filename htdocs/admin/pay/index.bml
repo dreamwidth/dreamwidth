@@ -22,11 +22,25 @@
             unless LJ::check_form_auth();
 
         if ( $POST{givetime} ) {
-            my ( $who, $type, $months ) = ( $POST{user}, $POST{type}, $POST{months} );
+            my ( $who, $type, $months, $days, $datetime ) = ( $POST{user}, $POST{type}, $POST{months}, $POST{days}, $POST{datetime} );
             my $u = LJ::load_user( $who )
                 or return "invalid user";
+
+            if ( $POST{submit} eq 'Edit' ) {
+              return "Invalid date/time format" unless $datetime =~ /^\d\d\d\d\-\d\d\-\d\d *( \d\d(:\d\d){1,2})?$/;
+              my $rv = DW::Pay::edit_expiration_datetime( $u, $datetime );
+              if ( $rv ) {
+                  LJ::statushistory_add( $u, $remote, 'paidstatus',
+                                         "Admin override: edit expiration date/time: $datetime" );
+                  return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
+              }
+              return "Error: " . DW::Pay::error_text() . "\n";
+            } 
+
             return "invalid type"
                 unless $type =~ /^(?:seed|premium|paid|expire)$/;
+            $months = 0 if $months eq '';
+            $days = 0 if $days eq '';
             $months = 99 if $type eq 'seed';
 
             if ( $type eq 'expire' ) {
@@ -38,10 +52,10 @@
                 }
                     
             } else {
-                my $rv = DW::Pay::add_paid_time( $u, $type, $months );
+                my $rv = DW::Pay::add_paid_time( $u, $type, $months, $days );
                 if ( $rv ) {
                     LJ::statushistory_add( $u, $remote, 'paidstatus',
-                                           "Admin override: gave paid time to user: months=$months type=$type" );
+                                           "Admin override: gave paid time to user: months=$months days=$days type=$type" );
                     return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
                 }
             }
@@ -60,6 +74,7 @@
             unless $u;
 
         my $ps = DW::Pay::get_paid_status( $u );
+        my $body_date = '';
         if ( $ps ) {
             $body .= '<h2>Paid Status</h2>';
             $body .= LJ::ljuser( $u ) . ": " . DW::Pay::type_name( $ps->{typeid} );
@@ -73,7 +88,12 @@
                     my $exp = LJ::ago_text( $ps->{expiresin} );
                     $exp =~ s/ ago//;
                     $body .= "; expires $expt (<strong>$exp</strong>).";
+                    $body_date = <<EOF;
 
+<tr><td>Or edit expiration date:</td>
+<td align="center"><input type="text" name="datetime" maxlength="20" size="20" value="$expt"/></td>
+<td>    <input type="submit" name="submit" value="Edit" /></td></tr>
+EOF
                 } else {
                     $body .= '; <strong>expired</strong>.';
                 }
@@ -88,16 +108,22 @@
 <br /><br />
     <form method="post"><input type="hidden" name="givetime" value="1">
     <input type="hidden" name="user" value="$u->{user}">$auth
-Give Paid Time:
+<table border='0' cellpadding='4'>
+<tr><td>Give Paid Time:
     <select name="type">
         <option value="paid">Paid Account</option>
         <option value="premium">Paid Premium Account</option>
         <option value="seed">Seed Account</option>
         <option value="blank"></option>
         <option value="expire">FORCE EXPIRATION</option>
-    </select>
-    for <input type="text" name="months" maxlength="2" size="3" /> months
-    <input type="submit" value="Give!" />
+    </select></td>
+<td align="center">
+        for <input type="text" name="months" maxlength="2" size="3" /> months, 
+        <input type="text" name="days" maxlength="2" size="3" /> days
+</td>
+<td><input type="submit" name="submit" value="Give!" /></td></tr>
+$body_date
+</table>
 </form>
 <p><a href="/admin/statushistory?user=$u->{user}">View statushistory for user.</a></p>
 <h2>View Carts</h2>

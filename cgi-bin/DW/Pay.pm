@@ -334,6 +334,7 @@ sub expire_user {
 #   uuserid     required    user object or userid to set paid status for
 #   class       required    type of account to be using (_account_type)
 #   months      required    how many months to grant, 99 = perm
+#   days        required    how many days (in addition to months) to grant
 #
 # RETURN: undef on error, else 1 on success.
 #
@@ -350,12 +351,18 @@ sub add_paid_time {
     return error( ERR_FATAL, 'Invalid type, no typeid found.' )
         unless $typeid;
 
-    my $months = shift();
+    my ( $months, $days ) = @_;
     return error( ERR_FATAL, 'Invalid value for months.' )
-        unless $months > 0 && $months <= 12 || $months == 99;
+        unless $months >= 0 && $months <= 99;
+
+    return error( ERR_FATAL, 'Invalid value for days.' )
+        unless $days >= 0 && $days <= 31;
+
+    return error( ERR_FATAL, 'Empty time increment')
+        unless $months > 0 || $days > 0 ;
 
     # okay, let's see what the user is right now to decide what to do
-    my ( $newtypeid, $amonths, $asecs ) = ( $typeid, $months, 0 );
+    my ( $newtypeid, $amonths, $adays, $asecs ) = ( $typeid, $months, $days, 0 );
     my $permanent = $months == 99 ? 1 : 0;
 
     # if they have a $ps hashref, they have or had paid time at some point
@@ -402,6 +409,7 @@ sub add_paid_time {
         # at this point we can ignore whatever they have in $ps, as we're going
         # overwrite it with our own stuff
     }
+    $asecs += $adays * 86400;
 
     # so at this point, we can do whatever we're supposed to do
     my $rv = DW::Pay::update_paid_status( $u,
@@ -530,6 +538,43 @@ sub update_paid_status {
         $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } ) );
     }
 
+    return 1;
+}
+
+################################################################################
+# DW::Pay::edit_expiration_datetime
+#
+# ARGUMENTS: uuserid, expiration datetime
+#
+#   uuserid     required    user object or userid to set paid status for
+#   datetime    required    new expiration datetime
+#
+# RETURN: undef on error, else 1 on success.
+#
+#
+sub edit_expiration_datetime {
+    DW::Pay::clear_error();
+
+    my $u = LJ::want_user( shift() )
+        or return error( ERR_FATAL, "Invalid/not a user object." );
+    my $datetime = shift();
+
+    my $ps = DW::Pay::get_paid_status( $u );
+    return error( ERR_FATAL, "Can't set expiration date for this type of account" )
+        if $ps->{expiresin} <= 0 || $ps->{permanent};
+
+    my $dbh = DW::Pay::get_db_writer()
+        or return error( ERR_TEMP, "Unable to get db writer." );
+
+    my $row = $dbh->selectrow_hashref( "SELECT UNIX_TIMESTAMP(?) AS datetime, ? < NOW() AS expired", undef, $datetime, $datetime );
+
+    return error ( ERR_FATAL, "Invalid expiration date/time" ) unless $row->{datetime} ;
+    return error ( ERR_FATAL, "Expiration date/time is in the past" ) if $row->{expired};
+    return error ( ERR_FATAL, "Expiration date/time is unchanged" ) if $row->{datetime} == $ps->{expiretime};
+
+    $dbh->do( q{UPDATE dw_paidstatus SET expiretime=? WHERE userid=?}, undef, $row->{datetime}, $u->id );
+    return error( ERR_FATAL, "Database error: " . $dbh->errstr )
+        if $dbh->err;
     return 1;
 }
 
