@@ -4932,6 +4932,8 @@ xpost.delete.success=Crossposted entry at [[username]]@[[server]] deleted.
 
 xpost.edit.error=Failed to update crossposted entry at [[username]]@[[server]]:  [[error]]
 
+xpost.edit.error.deleted=Failed to update crossposted entry at [[username]]@[[server]]:  the entry has been deleted on [[server]]. Select the cross-post checkbox for this account again if you want to recreate it.
+
 xpost.edit.success=Update of crosspost at [[username]]@[[server]] successful.  You can view this edited entry <a href="[[xpostlink]]">here</a>.
 
 xpost.error=Failed to crosspost entry to [[username]]@[[server]]:  [[error]]

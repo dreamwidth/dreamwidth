@@ -52,7 +52,8 @@ sub _call_xmlrpc {
             # error from server
             return {
                 success => 0,
-                error => $result->faultstring
+                error => $result->faultstring,
+                code => $result->faultcode == 302 ? 'entry_deleted' : ''
             }
         } else {
             # success

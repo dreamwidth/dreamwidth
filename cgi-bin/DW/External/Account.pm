@@ -283,9 +283,18 @@ sub crosspost {
                 message => LJ::Lang::ml($action_key . ".success", { username => $self->username, server => $self->servername, xpostlink => $result->{url} })
             };
         } else {
+            my $message = $action_key . ".error";
+            if ( $result->{code} eq 'entry_deleted' ) {
+                undef ( $xpost_mapping->{$self->acctid} );
+                $self->record_xpost( $entry, $xpost_mapping );
+                my $xpost_detail_mapping = $self->xpost_string_to_hash ( $entry->prop('xpostdetail') );
+                undef ( $xpost_detail_mapping->{$self->acctid} );
+                $self->record_xpost_detail( $entry, $xpost_detail_mapping );
+                $message .= '.deleted';
+            }
             return {
                 success => 0,
-                error => LJ::Lang::ml($action_key . ".error", { username => $self->username, server => $self->servername, error => $result->{error} })
+                error => LJ::Lang::ml($message, { username => $self->username, server => $self->servername, error => $result->{error} })
             };
         }
     } else {
