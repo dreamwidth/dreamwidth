@@ -55,7 +55,6 @@ sub init {
         "DW::Widget::LatestNews",
         "DW::Widget::QuickUpdate",
         "DW::Widget::LatestInbox",
-        # "LJ::Widget::RecentComments",
     ];
 
     $ret->{secondary} = [

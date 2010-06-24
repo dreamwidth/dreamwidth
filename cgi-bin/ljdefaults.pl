@@ -282,7 +282,6 @@
     }
     $LJ::AJAX_URI_MAP{load_state_codes} = 'tools/endpoints/load_state_codes.bml';
     $LJ::AJAX_URI_MAP{profileexpandcollapse} = 'tools/endpoints/profileexpandcollapse.bml';
-    $LJ::AJAX_URI_MAP{dismisspagenotice} = 'tools/endpoints/dismisspagenotice.bml';
 
     # List all countries that have states listed in 'codes' table in DB
     # These countries will be displayed with drop-down menu on Profile edit page

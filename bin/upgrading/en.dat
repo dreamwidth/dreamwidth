@@ -4052,22 +4052,6 @@ widget.betafeature.btn.off=Turn OFF beta testing
 
 widget.betafeature.btn.on=Turn ON beta testing
 
-widget.browse.directorysearch=Directory Search:
-
-widget.browse.directorysearch.communities=Search for communities
-
-widget.browse.directorysearch.users=Search for users
-
-widget.browse.extras.random=Random Journal
-
-widget.browse.extras.random.desc=Feeling spontaneous?  Find a new journal to read every second of the day.
-
-widget.browse.findusers=Find users by:
-
-widget.browse.findusers.location=State or Country
-
-widget.browse.title=Browse [[sitenameabbrev]]
-
 widget.communitymanagement.nopending=No communities require action.
 
 widget.communitymanagement.pending=Pending:
@@ -4623,8 +4607,6 @@ widget.navstripchooser.option.color.no_gradient=without background gradient
 widget.navstripchooser.title=Navigation Strip
 
 widget.navstripchooser.upgradetos2=<a [[aopts]]><strong>Switch to S2</strong></a> and you'll be able to use custom colors for the navigation strip.
-
-widget.pagenotice.dismiss=Dismiss
 
 widget.paidaccountstatus.accounttype=Your current account type is:
 
