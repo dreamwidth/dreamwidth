@@ -176,7 +176,7 @@ test_subscription(sub {
                                     journalid => $u2->{userid},
                                     );
         ok($subsc3, "Made subscription");
-        ok(LJ::u_equals($subsc3->journal, $u2), "Subscribed to correct journal");
+        ok( $u2->equals( $subsc3->journal ), "Subscribed to correct journal" );
         my ($subsc3_f) = $u1->has_subscription(
                                                event => "AddedToCircle",
                                                );

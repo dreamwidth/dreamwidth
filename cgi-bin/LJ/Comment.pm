@@ -1221,7 +1221,7 @@ sub _format_mail_both {
                 $who = $posteru->{name} . " (" . $posteru->display_username . ")";
             }
         }
-        if (LJ::u_equals($targetu, $posteru)) {
+        if ( $targetu->equals( $posteru ) ) {
             if ($edited) {
                 # 'You edit your comment to...';
                 $k_who = 'you.edit_reply_to';
@@ -1253,7 +1253,7 @@ sub _format_mail_both {
     my $pwho = ''; #author of the commented post/comment. If empty - it's you or anonymous
 
     if ($is_html) {
-        if (! $parent && ! LJ::u_equals($parentu, $targetu)) {
+        if (! $parent && ! $parentu->equals( $targetu ) ) {
             # comment to a post and e-mail is going to be sent to not-AUTHOR of the journal
             my $p_profile_url = $entry->poster->profile_url;
             # pwho - author of the post
@@ -1267,7 +1267,7 @@ sub _format_mail_both {
             }
         } elsif ($parent) {
             my $threadu = $parent->poster;
-            if ($threadu && ! LJ::u_equals($threadu, $targetu)) {
+            if ( $threadu && ! $threadu->equals( $targetu ) ) {
                 my $p_profile_url = $threadu->profile_url;
                 if ($threadu->{name} eq $threadu->display_username) {
                     $pwho = "<a href=\"$p_profile_url\">" . $threadu->display_username . "</a>";
@@ -1278,7 +1278,7 @@ sub _format_mail_both {
             }
         }
     } else {
-        if (! $parent && ! LJ::u_equals($parentu, $targetu)) {
+        if (! $parent && ! $parentu->equals( $targetu ) ) {
             if ($entry->poster->{name} eq $entry->poster->display_username) {
                 $pwho = $entry->poster->display_username;
             } else {
@@ -1287,7 +1287,7 @@ sub _format_mail_both {
             }
         } elsif ($parent) {
             my $threadu = $parent->poster;
-            if ($threadu && ! LJ::u_equals($threadu, $targetu)) {
+            if ( $threadu && ! $threadu->equals( $targetu ) ) {
                 if ($threadu->{name} eq $threadu->display_username) {
                     $pwho = $threadu->display_username;
                 } else {
@@ -1299,7 +1299,7 @@ sub _format_mail_both {
     }
 
     # ESN directed to comment poster
-    if (LJ::u_equals($targetu, $self->poster)) {
+    if ( $targetu->equals( $self->poster ) ) {
         # ->parent returns undef/0 if parent is an entry.
         if ($parent) {
             if ($pwho) {
@@ -1313,7 +1313,7 @@ sub _format_mail_both {
                     $k_what = 'anonymous_comment';
                 }
             }
-            if (LJ::u_equals($targetu, $entry->journal)) {
+            if ( $targetu->equals( $entry->journal ) ) {
                 $k_what .= '.to_your_post2';
             } else {
                 $k_what .= '.to_post2';
@@ -1326,7 +1326,7 @@ sub _format_mail_both {
             }
         }
     # ESN directed to entry author
-    } elsif (LJ::u_equals($targetu, $entry->journal)) {
+    } elsif ( $targetu->equals( $entry->journal ) ) {
         if ($parent) {
             if ($pwho) {
                 # '... another comment ' . $pwho . ' left in your post.';

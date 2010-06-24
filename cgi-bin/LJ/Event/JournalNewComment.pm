@@ -106,20 +106,18 @@ sub as_email_subject {
     my $key = 'esn.mail_comments.subject.';
     if ($self->comment->subject_orig) {
         return LJ::strip_html( $self->comment->subject_orig . $entry_details );
-    } elsif (LJ::u_equals($self->comment->poster, $u)) {
+    } elsif ( $u && $u->equals( $self->comment->poster ) ) {
         $key .= $edited ? 'comment_you_edited' : 'comment_you_posted';
     } elsif ($self->comment->parent) {
-        if ($edited) {
-            $key .= LJ::u_equals($self->comment->parent->poster, $u) ? 'edit_reply_to_your_comment' : 'edit_reply_to_a_comment';
+        if ( $u && $u->equals( $self->comment->parent->poster ) ) {
+            $key .= $edited ? 'edit_reply_to_your_comment' : 'reply_to_your_comment';
         } else {
-            $key .= LJ::u_equals($self->comment->parent->poster, $u) ? 'reply_to_your_comment' : 'reply_to_a_comment';
+            $key .= $edited ? 'edit_reply_to_a_comment' : 'reply_to_a_comment';
         }
+    } elsif ( $u && $u->equals( $self->comment->entry->poster ) ) {
+        $key .= $edited ? 'edit_reply_to_your_entry' : 'reply_to_your_entry';
     } else {
-        if ($edited) {
-            $key .= LJ::u_equals($self->comment->entry->poster, $u) ? 'edit_reply_to_your_entry' : 'edit_reply_to_an_entry';
-        } else {
-            $key .= LJ::u_equals($self->comment->entry->poster, $u) ? 'reply_to_your_entry' : 'reply_to_an_entry';
-        }
+        $key .= $edited ? 'edit_reply_to_an_entry' : 'reply_to_an_entry';
     }
 
     return LJ::Lang::get_text( $lang, $key ) . $entry_details;
@@ -342,7 +340,7 @@ sub subscription_as_html {
     }
 
     my ($user, $journal_is_owner);
-    if (LJ::u_equals($journal, $subscr->owner)) {
+    if ( $journal->equals( $subscr->owner ) ) {
         $user = 'my journal';
         $key .= '.my_journal';
         my $journal_is_owner = 1;
@@ -450,17 +448,19 @@ sub matches_filter {
     my $watcher = $subscr->owner;
     return 0 unless $comment->visible_to($watcher);
 
-    # not a match if this user posted the comment and they don't
-    # want to be notified of their own posts
-    if (LJ::u_equals($comment->poster, $watcher)) {
-        return 0 unless $watcher->can_get_self_email && $watcher->prop('opt_getselfemail');
-    }
+    if ( $watcher ) {
+        # not a match if this user posted the comment and they don't
+        # want to be notified of their own posts
+        if ( $watcher->equals( $comment->poster ) ) {
+            return 0 unless $watcher->can_get_self_email && $watcher->prop('opt_getselfemail');
+        }
 
-    # not a match if this user posted the entry and they don't want comments emailed,
-    # unless it is a reply to one of their comments or they posted it. (don't need to check again for the cap, since we did above.)
-    my $reply_to_own_comment = $comment->parent ? LJ::u_equals( $comment->parent->poster, $watcher ) : 0;
-    if ( LJ::u_equals( $entry->poster, $watcher ) && ! ( $reply_to_own_comment || $watcher->prop( 'opt_getselfemail' ) ) ) {
-        return 0 if $entry->prop('opt_noemail') && $subscr->method =~ /Email$/;
+        # not a match if this user posted the entry and they don't want comments emailed,
+        # unless it is a reply to one of their comments or they posted it. (don't need to check again for the cap, since we did above.)
+        my $reply_to_own_comment = $comment->parent ? $watcher->equals( $comment->parent->poster ) : 0;
+        if ( $watcher->equals( $entry->poster ) && ! ( $reply_to_own_comment || $watcher->prop( 'opt_getselfemail' ) ) ) {
+            return 0 if $entry->prop('opt_noemail') && $subscr->method =~ /Email$/;
+        }
     }
 
     # watching a specific journal

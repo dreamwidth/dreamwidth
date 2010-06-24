@@ -2705,7 +2705,7 @@ sub control_strip
         $ret .= "</td>\n";
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
-        if (LJ::u_equals($remote, $journal)) {
+        if ( $remote->equals( $journal ) ) {
             if ( $view eq "read" ) {
                 $ret .= $statustext{'yourfriendspage'};
             } elsif ( $view eq "network" ) {
@@ -2717,7 +2717,7 @@ sub control_strip
             if ( $view eq "read" || $view eq "network" ) {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
                 # content_filters returns an array of content filters this user had, sorted by sortorder
-                # since this is only shown if LJ::u_equals($remote, $journal) , we don't have to care whether a filter is public or not
+                # since this is only shown if $remote->equals( $journal ) , we don't have to care whether a filter is public or not
                 my @custom_filters = $journal->content_filters;
 
                 foreach my $f ( @custom_filters ) {
@@ -3305,7 +3305,7 @@ sub subscribe_interface {
             my $evt_class = $pending_sub->event_class or next;
             unless ($is_tracking_category) {
                 next unless eval { $evt_class->subscription_applicable($pending_sub) };
-                next if LJ::u_equals($journalu, $u) && $pending_sub->journalid && $pending_sub->journalid != $u->{userid};
+                next if $u->equals( $journalu ) && $pending_sub->journalid && $pending_sub->journalid != $u->{userid};
             } else {
                 my $no_show = 0;
 

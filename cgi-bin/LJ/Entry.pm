@@ -900,7 +900,7 @@ sub can_tellafriend {
 
     # friends only
     return 0 unless $entry->journal->is_person;
-    return 0 unless LJ::u_equals($u, $entry->poster);
+    return 0 unless $u && $u->equals( $entry->poster );
     return 1;
 }
 

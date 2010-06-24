@@ -2936,7 +2936,8 @@ sub display_name {
 
 
 sub equals {
-    return LJ::u_equals( @_ );
+    my ($u1, $u2) = @_;
+    return $u1 && $u2 && $u1->userid == $u2->userid;
 }
 
 
@@ -6536,20 +6537,6 @@ sub mark_user_active {
 
 
 # <LJFUNC>
-# name: LJ::u_equals
-# des: Compares two user objects to see if they are the same user.
-# args: userobj1, userobj2
-# des-userobj1: First user to compare.
-# des-userobj2: Second user to compare.
-# returns: Boolean, true if userobj1 and userobj2 are defined and have equal userids.
-# </LJFUNC>
-sub u_equals {
-    my ($u1, $u2) = @_;
-    return $u1 && $u2 && $u1->userid == $u2->userid;
-}
-
-
-# <LJFUNC>
 # name: LJ::want_user
 # des: Returns user object when passed either userid or user object. Useful to functions that
 #      want to accept either.
@@ -7895,7 +7882,7 @@ sub get_authas_list {
                grep { ! $opts->{'type'} || $opts->{'type'} eq $_->{'journaltype'} }
 
                # unless overridden, hide non-visible/non-read-only journals. always display the user's acct
-               grep { $opts->{'showall'} || $_->is_visible || $_->is_readonly || LJ::u_equals($_, $u) }
+               grep { $opts->{'showall'} || $_->is_visible || $_->is_readonly || $_->equals( $u ) }
 
                # can't work as an expunged account
                grep { ! $_->is_expunged && $_->clusterid > 0 }

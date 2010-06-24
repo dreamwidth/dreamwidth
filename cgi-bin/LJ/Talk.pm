@@ -2272,11 +2272,11 @@ sub _format_headers {
     my ($headersubject, $fromname);
     unless ($headersubject = $comment->{subject}) {
         my $key = 'esn.mail_comments.subject.';
-        if (LJ::u_equals($comment->{u}, $u)) {
+        if ( $comment->{u} && $comment->{u}->equals( $u ) ) {
             $key .= 'comment_you_'. ($edited ? 'edited' : 'posted');
         } else {
             if ($parent->{talkid}) {
-                if(LJ::u_equals($paru, $u)) {
+                if ( $paru && $paru->equals( $u ) ) {
                     $key .= ($edited ? 'edit_' : '') . 'reply_to_your_comment';
                 } else {
                     $key .= ($edited ? 'edit_' : '') . 'reply_to_a_comment';
@@ -2390,7 +2390,7 @@ sub mail_comments {
             # same as the comment user
             # is_diff_user: also so we don't auto-vivify $comment->{u}
             my $is_diff_user = !$comment->{u} ||
-                !LJ::u_equals( $paru, $comment->{u} );
+                ! $paru->equals( $comment->{u} );
 
             if ($paru->{'opt_gettalkemail'} eq "Y" &&
                 $paru->is_visible &&
@@ -2464,7 +2464,7 @@ sub mail_comments {
     if ($entryu->{'opt_gettalkemail'} eq "Y" &&
         $entryu->is_visible &&
         !$item->{props}->{'opt_noemail'} &&
-        !LJ::u_equals($comment->{u}, $entryu) &&
+        !$entryu->equals( $comment->{u} ) &&
         $entryu->email_raw ne $parentmailed &&
         $entryu->{'status'} eq "A" &&
         !$entryu->gets_notified(journal => $journalu, arg1 => $ditemid, arg2 => $comment->{talkid})

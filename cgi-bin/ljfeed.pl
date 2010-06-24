@@ -376,7 +376,7 @@ sub create_view_rss
         $ret .= "  <lj:music>" . LJ::exml($it->{music}) . "</lj:music>\n" if $it->{music};
         $ret .= "  <lj:mood>" . LJ::exml($it->{mood}) . "</lj:mood>\n" if $it->{mood};
         $ret .= "  <lj:security>" . LJ::exml($it->{security}) . "</lj:security>\n" if $it->{security};
-        $ret .= "  <lj:poster>" . LJ::exml($poster->user) . "</lj:poster>\n" unless LJ::u_equals($u, $poster);
+        $ret .= "  <lj:poster>" . LJ::exml($poster->user) . "</lj:poster>\n" unless $u->equals( $poster );
         $ret .= "  <lj:reply-count>$it->{replycount}</lj:reply-count>\n";
         $ret .= "</item>\n";
     }

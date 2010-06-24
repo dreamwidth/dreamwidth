@@ -96,7 +96,7 @@ sub matches_filter {
 
     # otherwise we have a journalid, see if it's the specific
     # journal that the subscription is watching
-    return LJ::u_equals($subscr->journal, $self->poster);
+    return $subscr->journal->equals( $self->poster );
 }
 
 

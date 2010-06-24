@@ -238,7 +238,7 @@ body<=
 
     # who-wrote-where
     {
-        my $suffix = LJ::u_equals($ur, $u) ? "" : "_comm";
+        my $suffix = $u->equals( $ur ) ? "" : "_comm";
 
         # user logged in
         if ($ur) {

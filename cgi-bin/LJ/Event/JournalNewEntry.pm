@@ -64,7 +64,7 @@ sub matches_filter {
     return 1 if ! $subscr->journalid && $subscr->owner->watches( $self->event_journal );
 
     # a post on a specific journal
-    return LJ::u_equals($subscr->journal, $evtju);
+    return $evtju->equals( $subscr->journal );
 }
 
 sub _can_view_content {
@@ -133,7 +133,7 @@ sub as_html {
     my $url = $entry->url;
 
     my $about = $entry->subject_text ? ' titled "' . $entry->subject_text . '"' : '';
-    my $where = LJ::u_equals($journal, $entry->poster) ? "$pu" : "$pu in $ju";
+    my $where = $journal->equals( $entry->poster ) ? "$pu" : "$pu in $ju";
 
     return "New <a href=\"$url\">entry</a>$about by $where.";
 }

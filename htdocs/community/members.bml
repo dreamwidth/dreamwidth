@@ -368,7 +368,7 @@ body<=
             foreach my $id (keys %{$add{'member'}}) {
                 next if $was{$id}->{'member'};
                 my $u = LJ::load_userid($id);
-                if (LJ::u_equals($u, $remote)) {
+                if ( $remote->equals( $u ) ) {
                     # you're allowed to add yourself as member
                     LJ::join_community($remote, $c);
                 } else {

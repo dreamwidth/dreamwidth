@@ -150,7 +150,7 @@ sub subscription_as_html {
 
     # "Someone sends $user a message"
     # "Someone sends me a message"
-    return LJ::u_equals($journal, $subscr->owner) ?
+    return $journal->equals( $subscr->owner ) ?
         BML::ml('event.user_message_recvd.me') :
         BML::ml('event.user_message_recvd.user', { user => $journal->ljuser_display } );
 }

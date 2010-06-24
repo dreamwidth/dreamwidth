@@ -29,10 +29,10 @@ _c?>
     if ( $u ) {
         $u->preload_props( "stylesys" );
         $u->{'stylesys'} ||= 2;
+        $BMLCodeBlock::authas = $u->equals( $remote ) ? "" : "?authas=$authas";
     }
 
     $BMLCodeBlock::u = $u;
-    $BMLCodeBlock::authas = LJ::u_equals($u, $remote) ? "" : "?authas=$authas";
     return;
 }
 _code?>

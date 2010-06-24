@@ -268,7 +268,7 @@ body<=
     }
 
     $ret .= "<td class='attrib' valign='bottom'>";
-    if (!LJ::u_equals($u, $up)) {
+    unless ( $u->equals( $up ) ) {
         $ret .= BML::ml("talk.somebodywrote_comm", { 'realname' => LJ::ehtml($up->{'name'}),
                                                      'userlink' => LJ::ljuser($up),
                                                      'commlink' => LJ::ljuser($u) });

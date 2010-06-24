@@ -56,7 +56,7 @@ sub execute {
         unless $u->is_person || $u->is_community;
 
     return $self->error("You cannot convert your own account.")
-        if LJ::u_equals($remote, $u);
+        if $remote && $remote->equals( $u );
 
     my $typemap = { 'community' => 'C', 'person' => 'P' };
     return $self->error("This account is already a $type account")

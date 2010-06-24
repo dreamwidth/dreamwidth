@@ -35,7 +35,7 @@ sub run_tests {
         
         $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = $uniq;
         my $g_remote = $class->guess_remote;
-        ok(LJ::u_equals($g_remote, $u), "guessed correct remote");
+        ok( $u->equals( $g_remote ), "guessed correct remote" );
     }
     
     { # multiple uniqs, same user

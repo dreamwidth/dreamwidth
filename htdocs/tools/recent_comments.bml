@@ -119,7 +119,7 @@ body<=
             unless grep { $count == $_ } @values;
         push @values, $max
             unless grep { $max == $_ } @values;
-        my $getextra = LJ::u_equals($u, $remote) ? "" : "&authas=" . $u->user;
+        my $getextra = $u->equals( $remote ) ? "" : "&authas=" . $u->user;
 
         @values = sort { $a <=> $b } @values;
 
