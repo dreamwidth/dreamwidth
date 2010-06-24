@@ -538,9 +538,9 @@ body<=
         $ret .= "</form>\n\n";
 
         # header
-        $ret .= "<?p " . BML::ml('.desc',
-                                {'aopts' => "href='$LJ::SITEROOT/editprivacy'"})
-                 . " p?>\n";
+        $ret .= "<?p " . BML::ml( '.desc' );
+        $ret .= " " . BML::ml( '.massprivacy',  { aopts => "href='$LJ::SITEROOT/editprivacy'" } ) if $remote->can_use_mass_privacy;
+        $ret .= " p?>\n";
 
         # edit form
         $ret .= "<form action='editjournal$getextra' method='post'>\n";
