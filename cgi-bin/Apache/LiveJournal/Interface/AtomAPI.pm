@@ -366,7 +366,7 @@ sub handle_edit {
 
         # the AtomEntry must include <id> which must match the one we sent
         # on GET
-        unless ($entry->id() =~ m#atom1:$u->{'user'}:(\d+)$# &&
+        unless ($entry->id =~ m#,\d{4}-\d{2}-\d{2}:$u->{userid}:(\d+)$# &&
                 $1 == $olditem->{'itemid'}*256 + $olditem->{'anum'}) {
             return respond($r, 400, "Incorrect <b>&lt;id&gt;</b> field in this request.");
         }
