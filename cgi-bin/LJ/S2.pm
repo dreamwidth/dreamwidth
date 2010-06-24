@@ -1346,10 +1346,10 @@ sub layer_compile
         $dbcm->do("REPLACE INTO s2compiled2 (userid, s2lid, comptime, compdata) ".
                   "VALUES (?, ?, UNIX_TIMESTAMP(), ?)", undef,
                   $layer->{'userid'}, $lid, $gzipped) or die "replace into s2compiled2 (lid = $lid)";
-
-        # delete from memcache; we can't store since we don't know the exact comptime
-        LJ::MemCache::delete([ $lid, "s2c:$lid" ]);
     }
+
+    # delete from memcache; we can't store since we don't know the exact comptime
+    LJ::MemCache::delete([ $lid, "s2c:$lid" ]);
 
     # caller might want the compiled source
     if (ref $opts->{'compiledref'} eq "SCALAR") {
