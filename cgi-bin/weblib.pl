@@ -552,10 +552,11 @@ sub check_referer {
     }
 
     return 1 if $LJ::SITEROOT   && $referer =~ m!^\Q$LJ::SITEROOT\E$uri!;
+    return 1 if $LJ::SSLROOT    && $referer =~ m!^\Q$LJ::SSLROOT\E$uri!;
     return 1 if $LJ::DOMAIN     && $referer =~ m!^http://\Q$LJ::DOMAIN\E$uri!;
     return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^http://\Q$LJ::DOMAIN_WEB\E$uri!;
     return 1 if $LJ::USER_VHOSTS && $referer =~ m!^http://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
-    return 1 if $origuri =~ m!^http://! && $origreferer eq $origuri;
+    return 1 if $origuri =~ m!^https?://! && $origreferer eq $origuri;
     return undef;
 }
 
