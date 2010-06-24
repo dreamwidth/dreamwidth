@@ -168,6 +168,7 @@ propgroup presentation
     property use num_items_recent;
     property use num_items_reading;
     property use use_journalstyle_entry_page;
+    property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -178,6 +179,7 @@ propgroup presentation
 
 set layout_type            = "two-columns-left";
 set show_userpics_recent   = true;
+set userpics_position = "right";
 set num_items_recent       = 20;
 set num_items_reading      = 20;
 set linklist_support       = true;
@@ -271,6 +273,33 @@ function Page::print_default_stylesheet()
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
     var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        .friends-color-wrapper,
+        .comment-userpic {
+            float: left;
+            margin-left: 0;
+            }
+        .comment-userpic {
+            margin-left: 10px;
+            margin-right: 10px;
+            }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        .friends-color-wrapper,
+        .comment-userpic {
+            float: right;
+            margin-right: -5px;
+            }
+        .comment-userpic {
+            margin-right: 0px;
+            }
+        """;
+    }
 
     """<style type="text/css">""";
     start_css();
@@ -471,12 +500,10 @@ function Page::print_default_stylesheet()
 
     .friends-color-wrapper,
     .comment-userpic {
-        float: right;
         padding: 10px;
         padding-bottom: 7px;
         margin: 10px;
         margin-top: -5px;
-        margin-right: -5px;
         background: $*color_page_background;
         margin-bottom: 5px;
         border: 1px solid $*color_module_border;
@@ -488,10 +515,6 @@ function Page::print_default_stylesheet()
        width: auto;
        text-align: center;
        font-size: 0.8em;
-    }
-
-    .comment-userpic {
-        margin-right: 0px;
     }
 
     .userpic img {
@@ -879,6 +902,9 @@ function Page::print_default_stylesheet()
         padding: 3px;
         padding-left: 10px;
     }
+
+$userpic_css
+
 """;
     end_css();
     "</style>\n";
