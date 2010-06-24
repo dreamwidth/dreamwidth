@@ -85,6 +85,41 @@ sub scrub_polls {
     return $entry_text;
 }
 
+# creates the footer
+sub create_footer {
+    my ( $self, $entry, $extacct, $local_nocomments, $disabling_remote_comments ) = @_;
+    
+    # are we adding a footer?
+    my $xpostfootprop = $extacct->owner->prop( 'crosspost_footer_append' ) ? $extacct->owner->prop( 'crosspost_footer_append' ) : "D"; # assume old behavior if undefined
+    
+    if ( ( $xpostfootprop eq "A" ) || ( ( $xpostfootprop eq "D" ) && $disabling_remote_comments ) ) {
+        # get the default custom footer text
+        my $custom_footer_template;
+        if ( $local_nocomments ) {
+            $custom_footer_template = $extacct->owner->prop( 'crosspost_footer_nocomments' ) || $extacct->owner->prop( 'crosspost_footer_text' );
+        } else {
+            $custom_footer_template = $extacct->owner->prop( 'crosspost_footer_text' );
+        }
+
+        if ( $custom_footer_template ) {
+            return $self->create_footer_text($entry, $custom_footer_template);
+        } else {
+            # did we disable comments on the local entry? tweak language string to match
+            my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment';
+            
+            return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url } );
+        }
+    } elsif ( ( $xpostfootprop eq "N" ) || ( ( $xpostfootprop eq "D" ) && ( ! $disabling_remote_comments ) )  ) {
+        return "";
+    } else {
+        # fallthrough. shouldn't get here, but in case we do for
+        # some crazy reason, let's assume the old behavior.
+        my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment';
+            
+        return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url } );
+    }
+}
+
 # creates the footer text
 sub create_footer_text {
     my ($self, $entry, $footer_text) = @_;

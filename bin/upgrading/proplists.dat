@@ -126,6 +126,14 @@ userproplist.crosspost_footer_text:
   multihomed: 0
   prettyname: Custom footer for crossposted entries
 
+userproplist.crosspost_footer_nocomments:
+  cldversion: 4
+  datatype: blobchar
+  des: Custom footer for crossposted entries with comments disabled
+  indexed: 0
+  multihomed: 0
+  prettyname: Custom footer for crossposted entries with comments disabled
+
 userproplist.delete_reason:
   cldversion: 4
   datatype: char

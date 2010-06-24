@@ -2902,6 +2902,8 @@ setting.xpost.option.disablecomments=Disable comments on crossposts made to othe
 
 setting.xpost.option.footer=Text of the footer to add on other sites. If you leave it blank, the system default footer will display.
 
+setting.xpost.option.footer.nocomments=Text of the footer when local comments are disabled.  Uses the main custom footer if blank, or the system default if both are blank.
+
 setting.xpost.option.footer.vars=The following variables may be used:
 setting.xpost.option.footer.vars.url=link to the original post
 setting.xpost.option.footer.vars.reply_url=link to the reply form on the original post

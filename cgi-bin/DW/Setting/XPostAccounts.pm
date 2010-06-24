@@ -5,7 +5,7 @@ use warnings;
 
 use Digest::MD5 qw(md5_hex);
 
-sub tags { qw(xpost_option_server xpost_option_username xpost_option_password xpost_option_xpostbydefault xpost_option_recordlink crosspost_footer_append crosspost_footer_text) }
+sub tags { qw(xpost_option_server xpost_option_username xpost_option_password xpost_option_xpostbydefault xpost_option_recordlink crosspost_footer_append crosspost_footer_text crosspost_footer_nocomments) }
 
 my $footer_length = 1024;
 
@@ -152,21 +152,55 @@ sub option {
 
     $ret .= "<div id='preview_section' style='display: none;'>" . $class->ml('setting.xpost.preview') . "\n";
 
+    $ret .= "<div id='footer_preview' class='xpost_footer_preview'></div></div>\n";
+
+    # define custom footer
+    $ret .= "<tr><td>&nbsp</td><td colspan='2'><label for='${key}crosspost_footer_nocomments'>" . $class->ml( 'setting.xpost.option.footer.nocomments' ) . "</label><br/>";
+
+    my $footer_nocomments = $u->prop('crosspost_footer_nocomments');
+
+    $ret .= LJ::html_textarea({
+        name      => "${key}crosspost_footer_nocomments",
+        id        => "${key}crosspost_footer_nocomments",
+        rows      => 3,
+        cols      => 80,
+        maxlength => "512",
+        onkeyup   => "javascript:updatePreviewNocomments()",
+        value     => $footer_nocomments
+    }) . "<br/><br/>";
+
+    $ret .= "<div id='preview_nocomments' style='display: none;'>" . $class->ml('setting.xpost.preview') . "\n";
+    $ret .= "<div id='footer_nocomments_preview' class='xpost_footer_preview'></div></div>\n";
+
     my $baseurl = $LJ::SITEROOT;
     my $alttext = $class->ml('setting.xpost.option.footer.vars.comment_image.alt');
     my $default_comment = $class->ml('xpost.redirect.comment', { postlink => "%%url%%" });
-    
+    my $default_nocomments = $class->ml('xpost.redirect', { postlink => "%%url%%" });
+
     # the javascript.  we have to do some special magic to get the lengths
     # to line up for differing newline characters and for unicode characters
     # outside the basic multilingual plane.
     $ret .= qq [
-      <div id='footer_preview' class='xpost_footer_preview'></div>
-      </div>
       <script type="text/javascript">
         function updatePreview() {
-          var previewString = \$('${key}crosspost_footer_text').value;
+          updatePreviewField('${key}crosspost_footer_text', 'footer_preview', '$default_comment');
+          if (! \$('${key}crosspost_footer_nocomments').value ) {
+            updatePreviewNocomments();
+          }
+        }
+
+        function updatePreviewNocomments() {
+          var defaultValue = \$('${key}crosspost_footer_text').value;
+          if (! defaultValue) {
+            defaultValue = '$default_nocomments';
+          }
+          updatePreviewField('${key}crosspost_footer_nocomments', 'footer_nocomments_preview', defaultValue);
+        }
+
+        function updatePreviewField(sourceFieldId, previewFieldId, defaultValue) {
+          var previewString = \$(sourceFieldId).value;
           if (! previewString) {
-            previewString = '$default_comment';
+            previewString = defaultValue;
           }
           previewString = previewString.replace(/\\r/g, "");
           previewString = previewString.replace(/\\n/g, "\\r\\n");
@@ -175,7 +209,7 @@ sub option {
           previewString = previewString.replace(/%%reply_url%%/gi, '$baseurl/12345.html?mode=reply');
           previewString = previewString.replace(/%%comment_url%%/gi, '$baseurl/12345.html#comments');
           previewString = previewString.replace(/%%comment_image%%/gi, '<img src="$baseurl/tools/commentcount?samplecount=23" width="30" height="12" alt="$alttext" style="vertical-align: middle;"/>');
-          \$('footer_preview').innerHTML = previewString;
+          \$(previewFieldId).innerHTML = previewString;
         }
 
         function substrUtf(previewString, count) {
@@ -211,7 +245,9 @@ sub option {
         }
 
         \$('preview_section').style.display = 'block';
+        \$('preview_nocomments').style.display = 'block';
         updatePreview();
+        updatePreviewNocomments();
       </script>
     ];
     $ret .= "<p style='font-size: smaller;'>" . $class->ml('setting.xpost.option.footer.vars') . "<br/>";
@@ -254,6 +290,7 @@ sub save {
 
     # change footer text
     $u->set_prop( crosspost_footer_text => LJ::text_trim( $class->get_arg( $args, "crosspost_footer_text" ), 0, $footer_length ) );
+    $u->set_prop( crosspost_footer_nocomments => LJ::text_trim( $class->get_arg( $args, "crosspost_footer_nocomments" ), 0, $footer_length ) );
 
     # change footer display
     $u->set_prop( crosspost_footer_append => $class->get_arg( $args, "crosspost_footer_append" ) );
