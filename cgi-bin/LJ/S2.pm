@@ -1864,7 +1864,9 @@ sub Entry
     }
 
     if (my $mid = $p->{'current_moodid'}) {
-        my $theme = defined $arg->{'moodthemeid'} ? $arg->{'moodthemeid'} : $u->{'moodthemeid'};
+        my $theme = $arg->{'moodthemeid'};
+        # if moodthemeid not given, look up the user's if we have it
+        $theme = $u->moodtheme if ! defined $theme && LJ::isu( $u );
         my %pic;
         my $mobj = DW::Mood->new( $theme );
         $e->{mood_icon} = Image( $pic{pic}, $pic{w}, $pic{h} )

@@ -451,7 +451,7 @@ body<=
             $current{'Mood'} = $props->{'current_mood'};
             LJ::CleanHTML::clean_subject(\$current{'Mood'});
             if ( my $mid = $props->{current_moodid} ) {
-                my $theme = DW::Mood->new( $up->{moodthemeid} );
+                my $theme = $up ? DW::Mood->new( $up->moodtheme ) : undef;
                 my %pic;
                 my $name = DW::Mood->mood_name( $mid );
                 if ( $theme && $theme->get_picture( $mid, \%pic ) ) {

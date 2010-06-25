@@ -343,6 +343,9 @@ sub public_themes {
 
 package LJ::User;
 
+# user method for accessing the currently selected moodtheme
+sub moodtheme { return $_[0]->{moodthemeid}; }
+
 # user method for expiring moodtheme cache
 # NOTE: any code that updates the moodthemes table needs to use this!
 sub delete_moodtheme_cache { $_[0]->memc_delete( 'moodthemes' ); }

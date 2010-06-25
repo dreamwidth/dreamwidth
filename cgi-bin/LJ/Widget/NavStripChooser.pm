@@ -29,8 +29,6 @@ sub render_body {
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
-    my $preview_moodthemeid = defined $opts{preview_moodthemeid} ? $opts{preview_moodthemeid} : $u->{moodthemeid};
-
     my $ret = "<fieldset><legend>" . $class->ml('widget.navstripchooser.title') . "</legend>";
     $ret .= "</fieldset>" if $u->prop('stylesys') == 2;
     $ret .= "<p class='detail'>" . $class->ml( 'widget.navstripchooser.desc', { aopts => "href='/manage/settings/?cat=display'" } ) . " " . LJ::help_icon('navstrip') . "</p>";
