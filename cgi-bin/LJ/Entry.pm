@@ -560,10 +560,8 @@ sub atom_id {
 
     my $u       = $self->{u};
     my $ditemid = $self->ditemid;
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = gmtime( $u->timecreate );
-    my $journalcreated = sprintf( "%04d-%02d-%02d", $year+1900, $mon+1, $mday );
 
-    return "tag:$LJ::DOMAIN,$journalcreated:$u->{userid}:$ditemid";
+    return $u->atomid . ":$ditemid";
 }
 
 # returns an XML::Atom::Entry object for a feed

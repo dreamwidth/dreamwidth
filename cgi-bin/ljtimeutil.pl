@@ -140,15 +140,8 @@ sub time_to_w3c {
                    $hour, $min, $sec);
 }
 
-# <LJFUNC>
-# name: LJ::mysql_time
-# des:
-# class: time
-# info:
-# args:
-# des-:
-# returns:
-# </LJFUNC>
+# args: time in seconds from epoch; boolean for gmt instead of localtime
+# returns: date and time in ISO format
 sub mysql_time
 {
     my ($time, $gmt) = @_;
@@ -161,6 +154,16 @@ sub mysql_time
                    $ltime[2],
                    $ltime[1],
                    $ltime[0]);
+}
+
+# args: time in seconds from epoch; boolean for gmt instead of localtime
+# returns: date in ISO format
+sub mysql_date {
+    my ( $time, $gmt ) = @_;
+    $time ||= time();
+    my @ltime = $gmt ? gmtime( $time ) : localtime( $time );
+    return sprintf( "%04d-%02d-%02d",
+                    $ltime[5]+1900, $ltime[4]+1, $ltime[3] );
 }
 
 # <LJFUNC>

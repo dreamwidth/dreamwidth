@@ -440,9 +440,6 @@ sub create_view_atom
     $author->email( $journalu->email_for_feeds ) if $journalu && $journalu->email_for_feeds;
     $author->name(  $u->{'name'} );
 
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = gmtime( $u->timecreate );
-    my $journalcreated = sprintf( "%04d-%02d-%02d", $year+1900, $mon+1, $mday );
-
     # feed information
     unless ($opts->{'single_entry'}) {
         $feed = XML::Atom::Feed->new( Version => 1 );
@@ -456,7 +453,7 @@ sub create_view_atom
         $xml->insertBefore( $xml->createComment( LJ::Hooks::run_hook("bot_director") ), $xml->documentElement());
 
         # attributes
-        $feed->id( "tag:$LJ::DOMAIN,$journalcreated:$u->{userid}" );
+        $feed->id( $u->atomid );
         $feed->title( $j->{'title'} || $u->{user} );
         if ( $j->{'subtitle'} ) {
             $feed->subtitle( $j->{'subtitle'} );
@@ -516,7 +513,7 @@ sub create_view_atom
         my $entry = XML::Atom::Entry->new( Version => 1 );
         my $entry_xml = $entry->{doc};
 
-        $entry->id( "tag:$LJ::DOMAIN,$journalcreated:$u->{userid}:$ditemid" );
+        $entry->id( $u->atomid . ":$ditemid" );
 
         # author isn't required if it is in the main <feed>
         # only add author if we are in a single entry view, or
@@ -895,9 +892,7 @@ sub create_view_userpics {
     $xml->insertBefore( $xml->createComment( $bot ), $xml->documentElement())
         if $bot;
 
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = gmtime( $u->timecreate );
-    my $journalcreated = sprintf( "%04d-%02d-%02d", $year+1900, $mon+1, $mday );
-    $feed->id( "tag:$LJ::DOMAIN,$journalcreated:$u->{userid}:userpics" );
+    $feed->id( $u->atomid . ":userpics" );
     $feed->title( "$u->{user}'s userpics" );
 
     $feed->author( $author );
@@ -949,7 +944,7 @@ sub create_view_userpics {
         my $entry = XML::Atom::Entry->new( Version => 1 );
         my $entry_xml = $entry->{doc};
 
-        $entry->id( "tag:$LJ::DOMAIN,$journalcreated:$u->{userid}:userpics:$pic->{picid}" );
+        $entry->id( $u->atomid . ":userpics:$pic->{picid}" );
 
         my $title = ($pic->{picid} == $u->{defaultpicid}) ? "default userpic" : "userpic";
         $entry->title( $title );

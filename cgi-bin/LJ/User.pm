@@ -5653,6 +5653,13 @@ sub subscriptions {
 =head2 Syndication-Related Functions
 =cut
 
+# generate tag URI for user's atom id (RFC 4151)
+sub atomid {
+    my ( $u ) = @_;
+    my $journalcreated = LJ::mysql_date( $u->timecreate, 1 );
+    return "tag:$LJ::DOMAIN,$journalcreated:$u->{userid}";
+}
+
 # retrieve hash of basic syndicated info
 sub get_syndicated {
     my $u = shift;
