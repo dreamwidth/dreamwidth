@@ -764,5 +764,6 @@ body<=
 }
 _code?>
 <=body
+bodyopts=><?_code return "id='page_manageprofile' class='self_wrap'" _code?>
 <?_comment head=><?_code return $headextra; _code?> _comment?>
 page?>
