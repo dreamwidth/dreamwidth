@@ -806,20 +806,20 @@ sub validate_moodthemeid {
 # returns: Returns a list of mood themes that the user can select from,
 #          suitable for [func[LJ::html_select]].
 # </LJFUNC>
-sub get_moodtheme_select_list
-{
-    my $class = shift;
-    my $u = shift;
+sub get_moodtheme_select_list {
+    my ( $class, $u ) = @_;
 
-    my $dbr = LJ::get_db_reader();
-    my $sth = $dbr->prepare("SELECT moodthemeid, name FROM moodthemes WHERE is_public='Y' ORDER BY name");
-    $sth->execute;
+    # faster to get full cached data, but we only want id & name
+    my $strip = sub {
+        return { moodthemeid => $_[0]->{moodthemeid},
+                 name => $_[0]->{name} };
+    };
 
     my @themes;
-    while (my $moodtheme = $sth->fetchrow_hashref) {
+    foreach my $moodtheme ( DW::Mood->public_themes ) {
         my $is_active = LJ::Hooks::run_hook("mood_theme_is_active", $moodtheme->{moodthemeid});
         next unless !defined $is_active || $is_active;
-        push @themes, $moodtheme;
+        push @themes, $strip->( $moodtheme );
     }
     LJ::Hooks::run_hook('modify_mood_theme_list', \@themes, user => $u, add_seps => 1);
     unshift @themes, { 'moodthemeid' => 0, 'name' => '(None)' };
@@ -827,9 +827,10 @@ sub get_moodtheme_select_list
     ### user's private themes
     {
         my @theme_user;
-        $sth = $dbr->prepare("SELECT moodthemeid, name FROM moodthemes WHERE ownerid=? AND is_public='N'");
-        $sth->execute($u->{'userid'});
-        push @theme_user, $_ while ($_ = $sth->fetchrow_hashref);
+        foreach ( DW::Mood->get_themes( { ownerid => $u->id } ) ) {
+            next if $_->{is_public} eq 'Y';
+            push @theme_user, $strip->( $_ );
+        }
         if (@theme_user) {
             push @themes, { 'moodthemeid' => 0, 'name' => "--- " . BML::ml('/modify_do.bml.moodicons.personal'). " ---", disabled => 1 };
             push @themes, @theme_user;

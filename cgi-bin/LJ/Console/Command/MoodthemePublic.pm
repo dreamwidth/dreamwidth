@@ -56,6 +56,7 @@ sub execute {
     $dbh->do("UPDATE moodthemes SET is_public = ? WHERE moodthemeid = ?", undef, $public, $themeid);
     return $self->error( "Database error: " . $dbh->errstr ) if $dbh->err;
     DW::Mood->clear_cache( $themeid );
+    LJ::MemCache::delete( "moods_public" );
 
     return $self->print("Theme #$themeid marked as $msg.");
 }

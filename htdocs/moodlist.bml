@@ -42,8 +42,6 @@ body<=
     LJ::set_active_crumb('moodlist');
 
     my $ret;
-    my $sth;
-    my $dbr = LJ::get_db_reader();
 
     my $remote = LJ::get_remote();
     my $journal = $GET{'journal'} || $remote->{'user'};
@@ -62,11 +60,8 @@ body<=
         push @mlist, $m;
     }
 
-    # FIXME: cache this.  it's small.
-    $sth = $dbr->prepare("SELECT moodthemeid, name, is_public FROM moodthemes WHERE is_public='Y'");
-    $sth->execute;
     my @themes = ();
-    while (my $moodtheme = $sth->fetchrow_hashref) {
+    foreach my $moodtheme ( DW::Mood->public_themes ) {
         my $is_active = LJ::Hooks::run_hook("mood_theme_is_active", $moodtheme->{moodthemeid});
         next unless !defined $is_active || $is_active;
         push @themes, $moodtheme;
@@ -179,19 +174,11 @@ body<=
         $add_header->();
 
         # Check if the user is logged in and didn't specify an owner.  If so append their private mood themes
-        my $sth;
-        if ($remote && ! $GET{'ownerid'}) {
-            # FIXME: cache this.  it's small.
-            $sth = $dbr->prepare("SELECT moodthemeid, name, is_public FROM moodthemes WHERE ownerid=?");
-            $sth->execute($remote->{userid});
-            @user_themes = ();
-            push @user_themes, $_ while $_ = $sth->fetchrow_hashref;
-        } elsif ($GET{'ownerid'}) {
-            # FIXME: cache this.  it's small.
-            $sth = $dbr->prepare("SELECT moodthemeid, name, is_public FROM moodthemes WHERE ownerid=? AND moodthemeid=?");
-            $sth->execute($GET{'ownerid'}, $GET{'moodtheme'});
-            @user_themes = ();
-            push @user_themes, $_ while $_ = $sth->fetchrow_hashref;
+        if ( $remote && ! $GET{ownerid} ) {
+            @user_themes = DW::Mood->get_themes( { ownerid => $remote->id } );
+        } elsif ( $GET{ownerid} ) {
+            @user_themes = DW::Mood->get_themes( { themeid => $GET{moodtheme},
+                                                   ownerid => $GET{ownerid} } );
         }
 
         # Sort the user themes

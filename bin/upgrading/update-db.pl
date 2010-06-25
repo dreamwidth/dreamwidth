@@ -627,6 +627,7 @@ sub populate_moods {
                 }
             }
             close M;
+            LJ::MemCache::delete( "moods_public" );
         }
     }
 }

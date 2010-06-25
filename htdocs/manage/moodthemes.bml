@@ -284,11 +284,9 @@ body<=
             }
         }
         elsif ($POST{'isnew'} != 1) { # Make sure they can even edit this theme and fill in the $info variable for later use
-            my $dbr = LJ::get_db_reader();
-            my $sth = $dbr->prepare("SELECT name FROM moodthemes WHERE moodthemeid=? AND ownerid=?");
-            $sth->execute($themeid, $u->{'userid'});
-            $info = $sth->fetchrow_hashref;
-            return LJ::bad_input($ML{'.error.notyourtheme'})
+            $info = DW::Mood->get_themes( { themeid => $themeid,
+                                            ownerid => $u->id } );
+            return LJ::bad_input( $ML{'.error.notyourtheme'} )
                 unless defined $info;
         }
 
@@ -394,6 +392,7 @@ body<=
 
             # Kill any memcache data about this moodtheme
             DW::Mood->clear_cache( $themeid );
+            $u->delete_moodtheme_cache;
 
             $ret .= "<br />$ML{'.saved'}<br /><br />\n";
             return BML::redirect( $self_uri );
@@ -431,11 +430,7 @@ body<=
             $ret .= "<?h1 $ML{'.yourthemes.header'} h1?>\n";
 
             # Get data to figure out if they have any themes already
-            my $dbr = LJ::get_db_reader();
-            my $sth = $dbr->prepare("SELECT moodthemeid, name FROM moodthemes WHERE ownerid=?");
-            $sth->execute($u->{userid});
-            my @user_themes = ();
-            push @user_themes, $_ while $_ = $sth->fetchrow_hashref;
+            my @user_themes = DW::Mood->get_themes( { ownerid => $u->id } );
 
             if (@user_themes) { # The have some custom themes already defined
                 $ret .= "<form action='$self_uri' method='post' id='selectform' name='selectform' style='margin-left: 30px;'>\n";

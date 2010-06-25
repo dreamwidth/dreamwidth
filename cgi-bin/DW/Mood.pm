@@ -159,6 +159,9 @@ sub load_theme {
         " WHERE moodthemeid=?", undef, $themeid );
     die $dbr->errstr if $dbr->err;
 
+    LJ::MemCache::set( $memkey, {}, 3600 ) and return undef
+        unless $name;  # no results for this theme
+
     $LJ::CACHE_MOOD_THEME{$themeid}->{moodthemeid} = $themeid;
     $LJ::CACHE_MOOD_THEME{$themeid}->{is_public} = $is_public;
     $LJ::CACHE_MOOD_THEME{$themeid}->{ownerid}   = $ownerid;
@@ -263,10 +266,86 @@ sub clear_cache {
     delete $LJ::CACHE_MOOD_THEME{$themeid};
 }
 
+# get list of theme data for given theme and/or user
+# arguments: hashref { themeid => ?, ownerid => ? }
+# returns: array of hashrefs from memcache or db, undef on failure
+sub get_themes {
+    my ( $self, $arg ) = @_;
+    # if called with no arguments, check for object id
+    $arg ||= { themeid => $self->id } if ref $self;
+    return undef unless $arg;
+
+    my ( $themeid, $ownerid ) = ( $arg->{themeid}, $arg->{ownerid} );
+    $ownerid ||= $self->ownerid( $themeid );
+    return undef unless $ownerid;
+
+    # cache contains list of all themes for this user
+    my $memkey = [$ownerid, "moodthemes:$ownerid"];
+    my $ids = LJ::MemCache::get( $memkey );
+    unless ( defined $ids ) {
+        # check database
+        my $dbr = LJ::get_db_reader() or return undef;
+        $ids = $dbr->selectcol_arrayref(
+            "SELECT moodthemeid FROM moodthemes" .
+            " WHERE ownerid=? ORDER BY name", undef, $ownerid );
+        die $dbr->errstr if $dbr->err;
+        # update memcache
+        LJ::MemCache::set( $memkey, $ids, 3600 );
+    }
+
+    # if they specified a theme, see if it's in the list
+    if ( $themeid and grep { $_ == $themeid } @$ids ) {
+        $self->load_theme( $themeid );
+        my $data = $LJ::CACHE_MOOD_THEME{$themeid};
+        return wantarray ? ( $data ) : $data;
+    } elsif ( $themeid ) {
+        # not in the list: ownerid doesn't own themeid
+        return undef;
+    }
+
+    # if they didn't specify a theme, return everything
+    return $self->_load_data_multiple( $ids );
+}
+
+sub _load_data_multiple {
+    my ( $self, $themes ) = @_;
+    my @data;
+    foreach ( @$themes ) {
+        $self->load_theme( $_ );
+        push @data, $LJ::CACHE_MOOD_THEME{$_};
+    }
+    return @data;
+}
+
+# class method to get data for all public themes
+# arguments: class
+# returns: array of hashrefs from memcache or db, undef on failure
+sub public_themes {
+    my ( $self ) = @_;
+    my $memkey = "moods_public";
+    # only ids are in memcache
+    my $ids = LJ::MemCache::get( $memkey );
+    unless ( defined $ids ) {
+        # check database
+        my $dbr = LJ::get_db_reader() or return undef;
+        $ids = $dbr->selectcol_arrayref(
+            "SELECT moodthemeid FROM moodthemes" .
+            " WHERE is_public='Y' ORDER BY name" );
+        die $dbr->errstr if $dbr->err;
+        # update memcache
+        LJ::MemCache::set( $memkey, $ids, 3600 );
+    }
+    return $self->_load_data_multiple( $ids );
+}
+
 
 # END package DW::Mood;
 
 package LJ::User;
+
+# user method for expiring moodtheme cache
+# NOTE: any code that updates the moodthemes table needs to use this!
+sub delete_moodtheme_cache { $_[0]->memc_delete( 'moodthemes' ); }
 
 # user method for creating new mood theme
 # args: theme name, description, errorref
@@ -288,6 +367,7 @@ sub create_moodtheme {
     $sth->execute( $u->id, $name, $desc ) or
         return $errsub->( LJ::Lang::ml( "error.dberror" ) . $dbh->errstr );
 
+    $u->delete_moodtheme_cache;
     return $dbh->{mysql_insertid};
 }
 
