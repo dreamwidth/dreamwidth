@@ -501,19 +501,7 @@ add_conf('$SENDSTATS_BCAST',
 add_conf('$MAX_FRIENDS_VIEW_AGE',
          type => '',
          des => "");
-add_conf('$LDAP_HOST',
-         type => '',
-         des => "");
-add_conf('$LDAP_UID',
-         type => '',
-         des => "");
-add_conf('$LDAP_BASE',
-         type => '',
-         des => "");
 add_conf('%COMMON_CODE',
-         type => '',
-         des => "");
-add_conf('$AUTH_EXISTS',
          type => '',
          des => "");
 add_conf('%FORCE_EMPTY_FRIENDS',
@@ -610,9 +598,6 @@ add_conf('%MOGILEFS_PREF_IP',
          type => '',
          des => "");
 add_conf('$SLOPPY_FRIENDS_THRESHOLD',
-         type => '',
-         des => "");
-add_conf('$AUTH_CHECK',
          type => '',
          des => "");
 add_conf('$WORK_REPORT_HOST',

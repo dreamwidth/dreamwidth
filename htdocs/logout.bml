@@ -27,9 +27,6 @@ _c?>
     my $sessid = $POST{'sessid'} || $GET{'sessid'};
     my $nojs = $GET{'nojs'};
 
-    # can't do challenge/response with LDAP.
-    $nojs = 1 if $LJ::LDAP_HOST;
-
     my $logged_out_html = sub {
         my $username = $u ? $u->display_username : $user;
         my $old_remote = LJ::load_user($username);

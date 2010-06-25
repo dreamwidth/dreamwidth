@@ -6161,15 +6161,6 @@ sub get_userid {
     my $dbr = LJ::get_db_reader();
     $userid = $dbr->selectrow_array("SELECT userid FROM useridmap WHERE user=?", undef, $user);
 
-    # implicitly create an account if we're using an external
-    # auth mechanism
-    if (! $userid && ref $LJ::AUTH_EXISTS eq "CODE")
-    {
-        $userid = LJ::create_account({ 'user' => $user,
-                                       'name' => $user,
-                                       'password' => '', });
-    }
-
     if ($userid) {
         $LJ::CACHE_USERID{$user} = $userid;
         LJ::MemCache::set("uidof:$user", $userid);
@@ -6283,35 +6274,6 @@ sub load_user {
     # try to load from master if using memcache, otherwise from slave
     $u = $get_user->(scalar @LJ::MEMCACHE_SERVERS);
     return $u if $u;
-
-    # setup LDAP handler if this is the first time
-    if ($LJ::LDAP_HOST && ! $LJ::AUTH_EXISTS) {
-        require LJ::LDAP;
-        $LJ::AUTH_EXISTS = sub {
-            my $user = shift;
-            my $rec = LJ::LDAP::load_ldap_user($user);
-            return $rec ? $rec : undef;
-        };
-    }
-
-    # if user doesn't exist in the LJ database, it's possible we're using
-    # an external authentication source and we should create the account
-    # implicitly.
-    my $lu;
-    if (ref $LJ::AUTH_EXISTS eq "CODE" && ($lu = $LJ::AUTH_EXISTS->($user)))
-    {
-        my $name = ref $lu eq "HASH" ? ($lu->{'nick'} || $lu->{name} || $user) : $user;
-        if (LJ::create_account({
-            'user' => $user,
-            'name' => $name,
-            'email' => ref $lu eq "HASH" ? $lu->email_raw : "",
-            'password' => "",
-        }))
-        {
-            # this should pull from the master, since it was _just_ created
-            return $get_user->("master");
-        }
-    }
 
     return undef;
 }

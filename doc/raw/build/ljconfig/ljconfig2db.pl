@@ -404,18 +404,6 @@ my %ljconfig =
 
         'external_pluggable_auth' => {
             'name' => "External and Pluggable Authorization Support",
-            'ldap_base' => {
-                    'desc' => "The <acronym>DN</acronym> unique identifiers go here.  This is a required setting for &ldap; (Lightweight Directory Access Protocol) support.",
-                    'example' => "ou=People,dc=exampleorg,dc=com;",
-            },
-            'ldap_host' => {
-                    'desc' => "The host &uri; goes here. It accepts anything that the <systemitem>Net::LDAP</systemitem> constructor takes. This is a required setting for &ldap; support.",
-                    'example' => "ldap.example.com;",
-            },
-            'ldap_uid' => {
-                    'desc' => "An optional field containing the username.  It defaults to 'uid'.",
-                    'example' => "uid;",
-            },
             'openid_compat' => {
                     'desc' => "Support pre-1.0 &openid; specs as well as final spec.",
             },

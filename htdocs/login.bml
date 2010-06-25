@@ -99,9 +99,6 @@ _c?>
     my $login_html = sub {
         my $nojs = $GET{'nojs'};
 
-        # can't do challenge/response with LDAP.
-        $nojs = 1 if $LJ::LDAP_HOST;
-
         my $getextra = $nojs ? '?nojs=1' : '';
 
         if (@errors) {

@@ -759,13 +759,6 @@
                            # that they must be public styles
     );
 
-    # optional LDAP support
-    # required:
-    #    $LJ::LDAP_HOST = "ldap.example.com";  # anything that the Net::LDAP constructor takes
-    #    $LJ::LDAP_BASE = "ou=People,dc=exampleorg,dc=com";
-    # optional:
-    #    $LJ::LDAP_UID = "uid";  # field containing the username.  defaults to "uid".
-
     # if you know that your installation is behind a proxy or other fence that inserts
     # X-Forwarded-For headers that you can trust (eg Perlbal), enable this.  otherwise, don't!
     # $TRUST_X_HEADERS = 1;

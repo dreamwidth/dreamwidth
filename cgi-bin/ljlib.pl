@@ -833,10 +833,7 @@ sub load_state_city_for_zip {
 #      must be present, and either the "actual" argument (the correct
 #      password) must be set, or the first argument must be a user
 #      object ($u) with the 'password' key set.  This is the preferred
-#      way to validate a password (as opposed to doing it by hand),
-#      since <strong>this</strong> function will use a pluggable
-#      authenticator, if one is defined, so LiveJournal installations
-#       can be based off an LDAP server, for example.
+#      way to validate a password (as opposed to doing it by hand).
 # returns: boolean; 1 if authentication succeeded, 0 on failure
 # args: u, clear, md5, actual?, ip_banned?
 # des-clear: Clear text password the client is sending. (need this or md5)
@@ -876,24 +873,6 @@ sub auth_okay
         LJ::handle_bad_login($u);
         return 0;
     };
-
-    # setup this auth checker for LDAP
-    if ($LJ::LDAP_HOST && ! $LJ::AUTH_CHECK) {
-        require LJ::LDAP;
-        $LJ::AUTH_CHECK = sub {
-            my ($user, $try, $type) = @_;
-            die unless $type eq "clear";
-            return LJ::LDAP::is_good_ldap($user, $try);
-        };
-    }
-
-    ## custom authorization:
-    if (ref $LJ::AUTH_CHECK eq "CODE") {
-        my $type = $md5 ? "md5" : "clear";
-        my $try = $md5 || $clear;
-        my $good = $LJ::AUTH_CHECK->($user, $try, $type);
-        return $good || $bad_login->();
-    }
 
     ## LJ default authorization:
     return 0 unless $actual;
