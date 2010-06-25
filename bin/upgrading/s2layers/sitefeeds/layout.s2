@@ -1,0 +1,143 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Syndicated Account Style";
+layerinfo redist_uniq = "sitefeeds/layout";
+
+# Since this is not user-facing style, don't need to do "property use...".
+# "set..." is enough to change a property value
+# "property use..." is for exposing settings in the wizard
+
+
+##===============================
+## Display settings - general
+##===============================
+
+set sidebar_width = "15em";
+set sidebar_width_doubled = "30em";
+set layout_type = "two-columns-right";
+set use_custom_friend_colors = false;
+set custom_foreground_element = "userpic_border";
+set custom_background_element = "userpic_background";
+set use_journalstyle_entry_page = false;
+
+##===============================
+## Display settings - fonts
+##===============================
+
+set font_base_size = "100";
+set font_base_units = "%";
+
+##===============================
+## Display settings - modules
+##===============================
+
+# explicitly define what sections the layout has available
+set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
+set module_userprofile_show = true;
+set module_navlinks_show = true;
+set module_customtext_show = true;
+set module_pagesummary_show = true;
+set module_active_show = true;
+set module_time_show = true;
+
+set module_calendar_show = false;
+set module_tags_show = false;
+set module_links_show = false;
+set module_syndicate_show = false;
+set module_poweredby_show = false;
+set module_credit_show = false;
+
+set module_userprofile_section = "one";
+set module_navlinks_section = "one";
+set module_customtext_section = "one";
+set module_calendar_section = "one";
+set module_pagesummary_section = "one";
+set module_active_section = "one";
+set module_tags_section = "one";
+set module_links_section = "one";
+set module_syndicate_section = "one";
+set module_time_section = "one";
+set module_poweredby_section = "one";
+set module_credit_section = "one";
+
+set module_userprofile_order = 1;
+set module_customtext_order = 2;
+set module_navlinks_order = 3;
+set module_pagesummary_order = 4;
+set module_active_order = 5;
+set module_time_order = 6;
+set module_calendar_order = 7;
+set module_tags_order = 8;
+set module_links_order = 9;
+set module_syndicate_order = 10;
+set module_poweredby_order = 11;
+set module_credit_order = 12;
+
+set text_module_customtext = "";
+set text_module_customtext_content = "Articles displayed on this page are retrieved via a public feed supplied by the site for this purpose.";
+
+
+
+function print_stylesheet() {
+
+"""
+.entry {
+	margin-bottom: 1em;
+}
+
+.entry .entry-title {
+	margin: 0;
+    padding: 0.2em 0.5em;
+}
+.entry .datetime {
+    padding: 0 0.5em;
+}
+.entry-content {
+    padding: 0.2em 1em;
+}
+.entry .footer {
+    padding: 0 0.5em;
+}
+""";
+}
+
+function Page::print_entry(Entry e) 
+"The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
+{
+    ## For most styles, this will be overridden by FriendsPage::print_entry and such.
+    $e->print_wrapper_start();
+    """<div class="header">\n""";
+    $e->print_subject();
+    $e->print_metatypes();
+    $e->print_time();
+    """</div>\n""";
+    """<div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $e->print_userpic();
+    $e->print_poster();
+    if (viewer_logged_in()) {
+        $e->print_text();
+    }
+    $e->print_metadata();
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $e->print_tags();
+    $e->print_management_links();
+    if ($this isa EntryPage) {
+        """<hr class="above-entry-interaction-links" />""";
+        $e->print_interaction_links("topcomment");
+        $this->print_reply_container({ "target" => "topcomment" });
+        """<hr class="below-reply-container" />""";
+    }
+    else {
+        $e->print_interaction_links();
+    }
+    "</div>\n</div>\n";
+    $e->print_wrapper_end();
+
+}
+
+

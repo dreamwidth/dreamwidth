@@ -28,6 +28,12 @@
         'i18n' => 'generator/en',
     };
 
+    $DEFAULT_FEED_STYLE ||= {
+        core => 'core2',
+        layout => 'sitefeeds/layout',
+        theme => 'sitefeeds/default',
+    };
+
     # cluster 0 is no longer supported
     $DEFAULT_CLUSTER ||= 1;
     @CLUSTERS = (1) unless @CLUSTERS;

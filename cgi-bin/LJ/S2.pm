@@ -705,8 +705,10 @@ sub s2_context
         }
     };
 
-    if ($styleid eq "siteviews") {
+    if ( $styleid eq "siteviews" ) {
         %style = siteviews_style( $u, $remote, $opts{mode} );
+    } elsif ( $styleid eq "sitefeeds" ) {
+        %style = sitefeeds_style();
     }
 
     if (ref($styleid) eq "CODE") {
@@ -878,6 +880,24 @@ sub siteviews_style {
 
     return %style;
 }
+
+sub sitefeeds_style {
+    return unless %$LJ::DEFAULT_FEED_STYLE;
+
+    my $public = get_public_layers();
+
+    my %style;
+
+    # convert the value names to s2layerid
+    while ( my ( $layer, $name ) = each %$LJ::DEFAULT_FEED_STYLE ) {
+        next unless $public->{$name};
+        my $id = $public->{$name}->{'s2lid'};
+        $style{$layer} = $id;
+    }
+
+    return %style;
+}
+
 
 # parameter is either a single context, or just a bunch of layerids
 # will then unregister the non-public layers
@@ -2146,6 +2166,8 @@ sub Page
 
     # Identity (type I) accounts only have read views
     $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
+    # feed accounts only have recent entries views
+    $p->{views_order} = [ 'recent', 'archive', 'userinfo' ] if $u->is_syndicated;
     $p->{views_order} = [ 'recent', 'archive', 'read', 'network', 'tags', 'memories', 'userinfo' ] if $u->can_use_network_page;
 
     $p->{has_activeentries} = 0;

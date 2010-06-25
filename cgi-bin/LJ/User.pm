@@ -8428,6 +8428,11 @@ sub make_journal {
                 return (2, $1);
             }
 
+            # feed accounts have a special style
+            if ( $u->is_syndicated && %$LJ::DEFAULT_FEED_STYLE ) {
+                return (2, "sitefeeds");
+            }
+
             my $forceflag = 0;
             LJ::Hooks::run_hooks("force_s1", $u, \$forceflag);
 

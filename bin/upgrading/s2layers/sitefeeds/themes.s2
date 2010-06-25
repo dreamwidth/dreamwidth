@@ -1,0 +1,10 @@
+#NEWLAYER: sitefeeds/default
+layerinfo type = "theme";
+layerinfo name = "Default Theme";
+layerinfo redist_uniq = "sitefeeds/default";
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#000000";
+set color_entry_title = "#ffffff";
+set color_entry_title_background = "#000000";
+set color_page_background = "#cccccc";
