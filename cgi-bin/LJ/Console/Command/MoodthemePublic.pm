@@ -43,10 +43,7 @@ sub execute {
         unless $public =~ /^[YN]$/;
     my $msg = ($public eq "Y") ? "public" : "not public";
 
-    my $dbh = LJ::get_db_writer();
-    my $sth = $dbh->prepare("SELECT is_public FROM moodthemes WHERE moodthemeid = ?");
-    $sth->execute($themeid);
-    my $old_value = $sth->fetchrow_array;
+    my $old_value = DW::Mood->is_public( $themeid );
 
     return $self->error("This theme doesn't seem to exist.")
         unless $old_value;
@@ -54,7 +51,12 @@ sub execute {
     return $self->error("This theme is already marked as $msg.")
         if $old_value eq $public;
 
+    my $dbh = LJ::get_db_writer() or
+        return $self->error( "Database unavailable" );
     $dbh->do("UPDATE moodthemes SET is_public = ? WHERE moodthemeid = ?", undef, $public, $themeid);
+    return $self->error( "Database error: " . $dbh->errstr ) if $dbh->err;
+    DW::Mood->clear_cache( $themeid );
+
     return $self->print("Theme #$themeid marked as $msg.");
 }
 

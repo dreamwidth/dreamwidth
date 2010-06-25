@@ -43,13 +43,12 @@ sub execute {
     return $self->error("Sorry, your account type doesn't let you create new mood themes")
         unless $remote->can_create_moodthemes;
 
-    my $dbh = LJ::get_db_writer();
-
-    my $sth = $dbh->prepare("SELECT ownerid FROM moodthemes WHERE moodthemeid = ?");
-    $sth->execute($themeid);
-    my $owner = $sth->fetchrow_array;
+    my $owner = DW::Mood->ownerid( $themeid );
     return $self->error("You do not own this mood theme.")
         unless $owner == $remote->id;
+
+    my $dbh = LJ::get_db_writer() or
+        return $self->error( "Database unavailable" );
 
     $width += 0;
     $height += 0;

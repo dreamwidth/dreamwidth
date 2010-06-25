@@ -791,15 +791,11 @@ sub s2_implicit_style_create
 # returns: themeid if public or owned by user, false otherwise
 # </LJFUNC>
 sub validate_moodthemeid {
-    my $class = shift;
-    my ($u, $themeid) = @_;
-    my $dbr = LJ::get_db_reader();
-    if ($themeid) {
-        my ($mownerid, $mpublic) = $dbr->selectrow_array("SELECT ownerid, is_public FROM moodthemes ".
-                                                         "WHERE moodthemeid=?", undef, $themeid);
-        $themeid = 0 unless $mpublic eq 'Y' || $mownerid == $u->{'userid'};
-    }
-    return $themeid
+    my ( $class, $u, $themeid ) = @_;
+    my $theme = DW::Mood->new( $themeid );
+    return 0 unless $theme &&
+        ( $theme->is_public eq 'Y' || $theme->ownerid == $u->userid );
+    return $themeid;
 }
 
 # <LJFUNC>

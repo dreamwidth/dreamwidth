@@ -210,12 +210,43 @@ sub get_picture {
     return 0;  # couldn't find a picture anywhere in the parent chain
 }
 
-# object method: get theme description (adapted from LJ::mood_theme_des)
+# get theme description (adapted from LJ::mood_theme_des)
+# arguments: theme id (only required if called as class method)
 sub des {
-    my ( $self ) = @_;
-    my $themeid = $self->id or return undef;
+    my $self = shift;
+    return $self->prop( 'des', @_ );
+}
+
+# get named property of mood theme from cache
+sub prop {
+    my ( $self, $prop, $themeid ) = @_;
+
+    if ( defined $themeid ) {
+        # make sure the theme is valid and cached
+        $self = $self->load_theme( $themeid ) or return;
+    } else {
+        # make sure we have an object loaded
+        $themeid = $self->id or return;
+    }
+
     my $m = $LJ::CACHE_MOOD_THEME{$themeid};
-    return $m ? $m->{des} : undef;
+    return $m ? $m->{$prop} : undef;
+}
+
+# given a theme, lookup the user who owns it
+# arguments: theme id (only required if called as class method)
+# returns: userid, undef on failure
+sub ownerid {
+    my $self = shift;
+    return $self->prop( 'ownerid', @_ );
+}
+
+# given a theme, check whether it is public
+# arguments: theme id (only required if called as class method)
+# returns: Y/N/undef
+sub is_public {
+    my $self = shift;
+    return $self->prop( 'is_public', @_ );
 }
 
 # clear cached theme data from memory
