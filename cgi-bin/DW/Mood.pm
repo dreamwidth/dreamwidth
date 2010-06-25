@@ -16,6 +16,89 @@ package DW::Mood;
 use strict;
 use warnings;
 
+
+### MOOD (CLASS) METHODS
+
+# load list of moods from DB (adapted from LJ::load_moods)
+# arguments: none
+# returns: true
+sub load_moods {
+    return 1 if $LJ::CACHED_MOODS;
+    my $dbr = LJ::get_db_reader();
+    my $data = $dbr->selectall_arrayref(
+        "SELECT moodid, mood, parentmood, weight FROM moods" );
+    die $dbr->errstr if $dbr->err;
+
+    $LJ::CACHED_MOOD_MAX ||= 0;
+
+    foreach my $row ( @$data ) {
+        my ( $id, $mood, $parent, $weight ) = @$row;
+        $LJ::CACHE_MOODS{$id} =
+            { name => $mood, parent => $parent, id => $id, weight => $weight };
+        $LJ::CACHED_MOOD_MAX = $id if $id > $LJ::CACHED_MOOD_MAX;
+    }
+    return $LJ::CACHED_MOODS = 1;
+}
+
+# get list of moods from cache (adapted from LJ::get_moods)
+# arguments: class
+# returns: hashref
+sub get_moods {
+    my ( $self ) = @_;
+    $self->load_moods;
+    return \%LJ::CACHE_MOODS;
+}
+
+# mood name to id (or undef) (adapted from LJ::mood_id)
+sub mood_id {
+    my ( $self, $mood ) = @_;
+    return undef unless $mood;
+
+    $self->load_moods;
+    foreach my $m ( values %LJ::CACHE_MOODS ) {
+        return $m->{id} if $mood eq $m->{name};
+    }
+    return undef;
+}
+
+# mood id to name (or undef) (adapted from LJ::mood_name)
+sub mood_name {
+    my ( $self, $moodid ) = @_;
+    return undef unless $moodid;
+
+    $self->load_moods;
+    my $m = $LJ::CACHE_MOODS{$moodid};
+    return $m ? $m->{name} : undef;
+}
+
+# associate local moods with moodids on other sites
+# arguments: local moodid or mood; external siteid
+# returns: id of mood on the remote site, or 0 on failure
+sub get_external_moodid {
+    my ( $self, %opts ) = @_;
+
+    my $siteid = $opts{siteid};
+    my $moodid = $opts{moodid};
+    my $mood = $opts{mood};
+
+    return 0 unless $siteid;
+    return 0 unless $moodid || $mood;
+
+    my $mood_text = $mood ? $mood : $self->mood_name( $moodid );
+
+    # determine which moodid on the external site
+    # corresponds to the given $mood_text
+    my $dbr = LJ::get_db_reader();
+    my ( $external_moodid ) = $dbr->selectrow_array(
+        "SELECT moodid FROM external_site_moods WHERE siteid = ?" .
+        " AND LOWER( mood ) = ?", undef, $siteid, lc $mood_text );
+
+    return $external_moodid ? $external_moodid : 0;
+}
+
+
+### THEME (OBJECT/CLASS) METHODS
+
 # basic object construction: requires theme id
 # arguments: theme id (required)
 # returns: object reference, undef on failure
@@ -71,11 +154,14 @@ sub load_theme {
     die $dbr->errstr if $dbr->err;
 
     # load metadata from moodthemes
-    my ( $name, $des ) = $dbr->selectrow_array(
-        "SELECT name, des FROM moodthemes WHERE moodthemeid=?",
-         undef, $themeid );
+    my ( $name, $des, $is_public, $ownerid ) = $dbr->selectrow_array(
+        "SELECT name, des, is_public, ownerid FROM moodthemes" .
+        " WHERE moodthemeid=?", undef, $themeid );
     die $dbr->errstr if $dbr->err;
 
+    $LJ::CACHE_MOOD_THEME{$themeid}->{moodthemeid} = $themeid;
+    $LJ::CACHE_MOOD_THEME{$themeid}->{is_public} = $is_public;
+    $LJ::CACHE_MOOD_THEME{$themeid}->{ownerid}   = $ownerid;
     $LJ::CACHE_MOOD_THEME{$themeid}->{name} = $name;
     $LJ::CACHE_MOOD_THEME{$themeid}->{des}  = $des;
 
@@ -90,36 +176,6 @@ sub load_theme {
         if %{ $LJ::CACHE_MOOD_THEME{$themeid} || {} };
 
     return $self;
-}
-
-# class method to load list of moods from DB (adapted from LJ::load_moods)
-# arguments: none
-# returns: true
-sub load_moods {
-    return 1 if $LJ::CACHED_MOODS;
-
-    $LJ::CACHED_MOOD_MAX ||= 0;
-
-    my $dbr = LJ::get_db_reader();
-    my $data = $dbr->selectall_arrayref(
-        "SELECT moodid, mood, parentmood, weight FROM moods" );
-    die $dbr->errstr if $dbr->err;
-    foreach my $row ( @$data ) {
-        my ( $id, $mood, $parent, $weight ) = @$row;
-        $LJ::CACHE_MOODS{$id} =
-            { name => $mood, parent => $parent, id => $id, weight => $weight };
-        $LJ::CACHED_MOOD_MAX = $id if $id > $LJ::CACHED_MOOD_MAX;
-    }
-    return $LJ::CACHED_MOODS = 1;
-}
-
-# class method to get list of moods from cache (adapted from LJ::get_moods)
-# arguments: class
-# returns: hashref
-sub get_moods {
-    my ( $self ) = @_;
-    $self->load_moods;
-    return \%LJ::CACHE_MOODS;
 }
 
 # object method to load a mood icon (adapted from LJ::get_mood_picture)
@@ -154,58 +210,12 @@ sub get_picture {
     return 0;  # couldn't find a picture anywhere in the parent chain
 }
 
-# class method: mood name to id (or undef) (adapted from LJ::mood_id)
-sub mood_id {
-    my ( $self, $mood ) = @_;
-    return undef unless $mood;
-    $self->load_moods;
-    foreach my $m ( values %LJ::CACHE_MOODS ) {
-        return $m->{id} if $mood eq $m->{name};
-    }
-    return undef;
-}
-
-# class method: mood id to name (or undef) (adapted from LJ::mood_name)
-sub mood_name {
-    my ( $self, $moodid ) = @_;
-    return undef unless $moodid;
-
-    $self->load_moods;
-    my $m = $LJ::CACHE_MOODS{$moodid};
-    return $m ? $m->{name} : undef;
-}
-
 # object method: get theme description (adapted from LJ::mood_theme_des)
 sub des {
     my ( $self ) = @_;
     my $themeid = $self->id or return undef;
     my $m = $LJ::CACHE_MOOD_THEME{$themeid};
     return $m ? $m->{des} : undef;
-}
-
-# class method: associate local moods with moodids on other sites
-# arguments: local moodid or mood; external siteid
-# returns: id of mood on the remote site, or 0 on failure
-sub get_external_moodid {
-    my ( $self, %opts ) = @_;
-
-    my $siteid = $opts{siteid};
-    my $moodid = $opts{moodid};
-    my $mood = $opts{mood};
-
-    return 0 unless $siteid;
-    return 0 unless $moodid || $mood;
-
-    my $mood_text = $mood ? $mood : $self->mood_name( $moodid );
-
-    # determine which moodid on the external site
-    # corresponds to the given $mood_text
-    my $dbr = LJ::get_db_reader();
-    my ( $external_moodid ) = $dbr->selectrow_array(
-        "SELECT moodid FROM external_site_moods WHERE siteid = ?" .
-        " AND LOWER( mood ) = ?", undef, $siteid, lc $mood_text );
-
-    return $external_moodid ? $external_moodid : 0;
 }
 
 # clear cached theme data from memory
