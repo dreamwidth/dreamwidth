@@ -37,14 +37,10 @@ sub execute {
         unless $name && $desc && scalar(@args) == 0;
 
     my $remote = LJ::get_remote();
-    return $self->error("Sorry, your account type doesn't let you create new mood themes")
-        unless $remote->can_create_moodthemes;
+    my $err;
+    my $mtid = $remote->create_moodtheme( $name, $desc, \$err )
+        or return $self->error( $err );
 
-    my $dbh = LJ::get_db_writer();
-    my $sth = $dbh->prepare("INSERT INTO moodthemes (ownerid, name, des, is_public) VALUES (?, ?, ?, 'N')");
-    $sth->execute($remote->id, $name, $desc);
-
-    my $mtid = $dbh->{'mysql_insertid'};
     return $self->print("Success. Your new mood theme ID is $mtid");
 }
 

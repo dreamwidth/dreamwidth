@@ -264,4 +264,32 @@ sub clear_cache {
 }
 
 
+# END package DW::Mood;
+
+package LJ::User;
+
+# user method for creating new mood theme
+# args: theme name, description, errorref
+# returns: id of new theme or undef on failure
+sub create_moodtheme {
+    my ( $u, $name, $desc, $err ) = @_;
+    my $errsub = sub { $$err = $_[0] if ref $err; return undef };
+
+    return $errsub->( LJ::Lang::ml( "/manage/moodthemes.bml.error.cantcreatethemes" ) )
+        unless $u->can_create_moodthemes;
+    return $errsub->( LJ::Lang::ml( "/manage/moodthemes.bml.error.nonamegiven" ) )
+        unless $name;
+    $desc ||= '';
+
+    my $dbh = LJ::get_db_writer() or
+        return $errsub->( LJ::Lang::ml( "error.nodb" ) );
+    my $sth = $dbh->prepare( "INSERT INTO moodthemes " .
+        "(ownerid, name, des, is_public) VALUES (?, ?, ?, 'N')" );
+    $sth->execute( $u->id, $name, $desc ) or
+        return $errsub->( LJ::Lang::ml( "error.dberror" ) . $dbh->errstr );
+
+    return $dbh->{mysql_insertid};
+}
+
+
 1;

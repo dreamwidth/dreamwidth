@@ -26,8 +26,8 @@ ok($run->("moodtheme_list") !~ "Your themes", "No logged-in stuff.");
 LJ::set_remote($u);
 ok($run->("moodtheme_list") =~ "Your themes", "Got logged-in stuff.");
 
-is($run->("moodtheme_create blahblah \"my stuff\""),
-   "error: Sorry, your account type doesn't let you create new mood themes");
+is($run->( "moodtheme_create blahblah \"my stuff\""), "error: " .
+   LJ::Lang::ml( '/manage/moodthemes.bml.error.cantcreatethemes' ) );
 local $LJ::T_HAS_ALL_CAPS = 1;
 
 my $resp = $run->("moodtheme_create blahblah \"my stuff\"");

@@ -310,10 +310,9 @@ body<=
             if ($POST{'isnew'} == 1) {
                 return LJ::bad_input($ML{'.error.nonamegiven'})
                     unless LJ::trim($POST{'name'});
-                my $dbh = LJ::get_db_writer();
-                my $i = $dbh->do("INSERT INTO moodthemes (ownerid, name, is_public) VALUES (?, ?, 'N')", undef, $u->{'userid'}, $POST{'name'});
-                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantcreatetheme'} p?>" unless $i;
-                $themeid = $dbh->{'mysql_insertid'};
+                my $err;
+                $themeid = $u->create_moodtheme( $POST{name}, '', \$err )
+                    or return "<?h1 $ML{'Error'} h1?><?p $err p?>";
                 $info->{'name'} = $POST{'name'};
             }
 
