@@ -166,7 +166,7 @@ body<=
         my %pt_weight;
         foreach my $int (@ints) {
             # the magic's in this limit clause.  that's what makes this work.  perfect 
-            # results?  no.  but who cares if somebody that lists "music" or "women"
+            # results?  no.  but who cares if somebody that lists "music" or "reading"
             # doesn't get an extra point towards matching you.  we care about more unique interests.
             my $sth = $dbr->prepare("SELECT userid FROM userinterests WHERE intid=? LIMIT 500");
             $sth->execute($int);
