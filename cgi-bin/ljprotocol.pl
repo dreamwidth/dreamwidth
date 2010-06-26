@@ -2273,9 +2273,10 @@ sub getevents
             $evt->{'security'} = $sec;
             $evt->{'allowmask'} = $mask if $sec eq "usemask";
         }
-        $evt->{'anum'} = $anum;
-        $evt->{'poster'} = LJ::get_username($dbr, $jposterid) if $jposterid != $ownerid;
-        $evt->{'url'} = LJ::item_link($uowner, $itemid, $anum);
+        $evt->{anum} = $anum;
+        $evt->{poster} = LJ::get_username( $jposterid )
+            if $jposterid != $ownerid;
+        $evt->{url} = LJ::item_link( $uowner, $itemid, $anum );
         push @$events, $evt;
     }
 
