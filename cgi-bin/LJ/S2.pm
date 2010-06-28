@@ -3629,40 +3629,41 @@ sub EntryLite__formatted_subject {
     my ($ctx, $this, $attrs) = @_;
     my $subject = $this->{subject};
 
+    # Figure out what subject to show. Even if the settings are configured
+    # to show nothing for entries or comments without subjects, there should
+    # always be at a minimum a hidden visibility subject line for screenreaders.
+    my $set_subject = sub {
+        my ( $all_subs, $always ) = @_;
+        return unless $subject eq "";  # no subject
+
+        my $text_nosubject = $ctx->[S2::PROPS]->{text_nosubject};
+        if ( $text_nosubject ne "" ) {
+            # if text_nosubject is set, use it as the subject if
+            # all_entrysubjects/all_commentsubjects is true,
+            # or if we're in the month view for entries,
+            # or if we're in the collapsed view for comments
+
+            $subject = $text_nosubject
+                if $ctx->[S2::PROPS]->{$all_subs} || $always;
+
+        }
+        if ( $subject eq "" ) {
+            # still no subject, so use hidden text_nosubject_screenreader
+            $subject = $ctx->[S2::PROPS]->{text_nosubject_screenreader};
+            $attrs->{class} .= " invisible";
+        }
+    };
+
+    # Leave the subject as is if it exists. Otherwise, determine what to show.
     if ( $this->{_type} eq 'Entry' || $this->{_type} eq 'StickyEntry' ) {
-        # if an entry does not have a subject, and text_nosubject is not set, return nothing
-        return if $subject eq ""  && $ctx->[S2::PROPS]->{text_nosubject} eq "";
 
-        # if an entry does not have a subject, text_nosubject is set, and all_entrysubjects, then use text_nosubject as the subject
-        $subject = $ctx->[S2::PROPS]->{text_nosubject}
-            if $subject eq ""
-                && $ctx->[S2::PROPS]->{text_nosubject} ne ""
-                && $ctx->[S2::PROPS]->{all_entrysubjects};
-
-        # if an entry does not have a subject, text_nosubject is set, and all_entrysubjects is false, then only return the formatted subject with text_nosubject on the month view
-        $subject = $ctx->[S2::PROPS]->{text_nosubject}
-            if $subject eq ""
-                && $ctx->[S2::PROPS]->{text_nosubject} ne ""
-                && ! $ctx->[S2::PROPS]->{all_entrysubjects}
-                && $LJ::S2::CURR_PAGE->{view} eq 'month';
+        $set_subject->( 'all_entrysubjects', $LJ::S2::CURR_PAGE->{view} eq 'month' );
 
     } elsif ( $this->{_type} eq "Comment" ) {
-        if ( $this->{full} ) {
-            # if a comment does not have a subject, and all_commentsubjects is false, then return nothing
-            return if $subject eq "" && $ctx->[S2::PROPS]->{all_commentsubjects} eq "";
 
-            # if a comment does not have a subject, text_nosubject is set, and all_commentsubjects is true,
-            # then return the formatted subject with text_nosubject
-            $subject = $ctx->[S2::PROPS]->{text_nosubject}
-                if $subject eq ""
-                    && $ctx->[S2::PROPS]->{text_nosubject} ne ""
-                    && $ctx->[S2::PROPS]->{all_commentsubjects};
-        } else {
-            # if collapsed, always show a subject
-            $subject ||= $ctx->[S2::PROPS]->{text_nosubject};
-        }
+        $set_subject->( 'all_commentsubjects', ! $this->{full} );
+
     }
-
 
     # display subject as-is (cleaned but not wrapped in a link)
     # if subject has a link and we are on a full comment/single entry view and don't need to click through
@@ -3675,7 +3676,12 @@ sub EntryLite__formatted_subject {
         my $class = $attrs->{class} ? " class=\"" . LJ::ehtml( $attrs->{class} ) . "\" " : '';
         my $style = $attrs->{style} ? " style=\"" . LJ::ehtml( $attrs->{style} ) . "\" " : '';
 
-        return "<a href=\"$this->{permalink_url}\"$class$style>$subject</a>";
+        # additional cleaning for title attribute, necessary to enable
+        # screenreaders to see the names of the invisible links
+        my $title = $subject;
+        LJ::CleanHTML::clean_subject_all( \$title );
+
+        return "<a title=\"$title\" href=\"$this->{permalink_url}\"$class$style>$subject</a>";
     }
 }
 

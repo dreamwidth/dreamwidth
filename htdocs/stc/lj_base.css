@@ -157,3 +157,9 @@ div.lj_ippu_titlebar {
 .example {
     vertical-align: top;
 }
+
+.invisible {
+    position:absolute;
+    left:-10000px;
+    top:auto;
+}

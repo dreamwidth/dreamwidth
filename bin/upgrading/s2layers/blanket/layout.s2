@@ -371,6 +371,14 @@ ul.entry-interaction-links { padding: 0 0 0.5em 0; margin: 1em 0 0 0; text-align
 ul.entry-interaction-links li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0 5px 0 0; $page_title_colors }
 
 /*--- comments ---*/
+
+.comment-title h4 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: inherit;
+    padding: inherit;
+}
+
 hr.above-entry-interaction-links, hr.below-reply-container { display: none; }
 
 input, textarea { padding: 5px; font: 1em Helvetica, Arial, 'Arial Narrow', sans-serif; line-height: 1.8em; $input_colors }

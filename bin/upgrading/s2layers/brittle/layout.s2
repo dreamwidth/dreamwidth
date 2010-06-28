@@ -642,6 +642,13 @@ td.day {
 
 /*--- comments ---*/
 
+.comment-title h4 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: inherit;
+    padding: inherit;
+}
+
 #comments { $entry_font }
 
 hr.above-entry-interaction-links, hr.below-reply-container { display: none; }

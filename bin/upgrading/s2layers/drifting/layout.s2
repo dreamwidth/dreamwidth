@@ -731,6 +731,13 @@ function Page::print_default_stylesheet()
         border-bottom: 1px solid $*color_entry_border;
     }
 
+    .comment-title h4 {
+        font-size: inherit;
+        font-weight: inherit;
+        margin: inherit;
+        padding: inherit;
+    }
+
     .comment .subject {
         border: 1px solid $*color_entry_border;
         border-left: none;

@@ -622,6 +622,13 @@ li.first-item {margin-left: 0;}
 .comment-title {font-size: normal 1.5em; padding: 0.5em; }
 .comment-title a {display: block; }
 
+.comment-title h4 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: inherit;
+    padding: inherit;
+}
+
 .comment .datetime { border-top: 0.083em solid $*color_entry_border;}
 .comment-poster, .poster-ip {border-bottom: 0.083em solid $*color_entry_border; display: block; padding: 0 0.5em 0 0.5em; }
 

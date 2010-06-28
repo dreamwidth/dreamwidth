@@ -564,6 +564,13 @@ ul.entry-interaction-links li {
     $comment_title_colors
 }
 
+.comment-title h4 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: inherit;
+    padding: inherit;
+}
+
 ul.comment-management-links {
     list-style: none;
     margin-left: 0;

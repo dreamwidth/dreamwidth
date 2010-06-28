@@ -461,6 +461,13 @@ function Page::print_default_stylesheet()
     .comment-wrapper.partial , .partial .comment { 
         min-height: 0;
     }
+
+    .comment-title h4 {
+        font-size: inherit;
+        font-weight: inherit;
+        margin: inherit;
+        padding: inherit;
+    }
     .partial .comment-title {
         display: inline;
     }

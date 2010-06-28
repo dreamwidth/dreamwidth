@@ -565,6 +565,13 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .page-entry .entry, .page-entry .comment, .page-entry .text_noentries_day {border:0px;}
 .page-entry #comments {padding-top:20px;}
 
+.comment-title h4 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: inherit;
+    padding: inherit;
+}
+
 .entry-title, .comment-title {margin:0 120px .5em 0; padding: 0.2em;border: solid 1px $*color_entry_title_border; $entry_title_colors }
 
 .entry .entry-title {

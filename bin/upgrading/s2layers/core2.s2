@@ -2445,6 +2445,14 @@ property string text_nosubject {
     note = "This only appears in places where a subject line is required, such as on a month view.";
 }
 
+property string text_nosubject_screenreader {
+    des = "Text to replace a subject line in screenreaders when no subject is specified";
+    maxlength = 20;
+    size = 10;
+    example = "No Subject";
+    note = "This only is visible to screenreaders or with CSS disabled. Do not set this to empty.";
+}
+
 property string text_calendar_num_entries {
     des = "Text to show how many entries were made on a particular day";
     format = "plurals";
@@ -2459,6 +2467,7 @@ set text_layout_authors = "Layout:";
 set text_layout_resources = "Resources:";
 set text_posting_in = " posting in ";
 set text_nosubject = "(no subject)";
+set text_nosubject_screenreader = "no subject";
 set text_calendar_num_entries = "1 entry // # entries";
 
 property bool all_entrysubjects {
@@ -4289,7 +4298,7 @@ function EntryLite::print_subject() [fixed] {
 function EntryLite::print_subject( string{} opts ) [fixed] {
     if ($this isa Comment) {
         var Comment c = $this as Comment;
-        """<div class="comment-title">""";
+        """<div class="comment-title"><h4>""";
         if ($c.screened) {
             print $*text_screened;
         }
@@ -4297,7 +4306,7 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
             print $*text_frozen;
         }
         print $this->formatted_subject( $opts );
-        "</div>";
+        "</h4></div>";
     }
     else {
         if ($this isa StickyEntry) {

@@ -484,6 +484,13 @@ h2.module-header a {
     position: relative;
 }
 
+.comment-title h4 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: inherit;
+    padding: inherit;
+}
+
 /* Entry header */
 #primary .header {
     position: relative;
