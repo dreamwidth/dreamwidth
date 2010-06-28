@@ -308,7 +308,6 @@ body<=
     ## dump the log entry, unless we're browsing a thread.
     my %current;
     if ($props->{'current_mood'} || $props->{'current_moodid'}) {
-        my $themeid = $up->{'moodthemeid'};
         my $moodid = $props->{'current_moodid'};
         my $mood = $props->{'current_mood'};
 
@@ -323,6 +322,7 @@ body<=
 
         if ( my $val = $moodid ) {
             $moodname ||= DW::Mood->mood_name( $val );
+            my $themeid = $up ? $up->moodtheme : undef;
             my $theme = DW::Mood->new( $themeid );
             my %pic;
             if ( $theme && $theme->get_picture( $val, \%pic ) ) {

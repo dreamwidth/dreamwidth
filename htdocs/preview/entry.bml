@@ -150,7 +150,6 @@ _c?>
         ## dump the log entry, unless we're browsing a thread.
         my %current;
         if ($req{'prop_current_mood'} || $req{'prop_current_moodid'}) {
-            my $themeid = $up->{'moodthemeid'};
             my $moodid = $req{'prop_current_moodid'};
             my $mood = $req{'prop_current_mood'};
 
@@ -165,6 +164,7 @@ _c?>
 
             if ( my $val = $moodid ) {
                 $moodname ||= DW::Mood->mood_name( $val );
+                my $themeid = $up ? $up->moodtheme : undef;
                 my $theme = DW::Mood->new( $themeid );
                 my %pic;
                 if ( $theme && $theme->get_picture( $val, \%pic ) ) {

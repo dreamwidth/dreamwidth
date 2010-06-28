@@ -445,7 +445,7 @@ body<=
                     my $tobj = DW::Mood->new( $tid );
 
                     my $use_dis = 0;
-                    if ($tid == $u->{'moodthemeid'}) {
+                    if ( $tid == $u->moodtheme ) {
                         $ret .= "<tr><td><b><a href='/moodlist?moodtheme=$tid&ownerid=$u->{'userid'}'>$ename</a></b></td>";
                         $use_dis = 1;
                     } else {

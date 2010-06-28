@@ -2002,7 +2002,7 @@ sub Entry_from_entryobj
 
     # override used moodtheme if necessary
     my $moodthemeid = $u->prop( 'opt_forcemoodtheme' ) eq 'Y' ?
-        $u->{moodthemeid} : $poster->{moodthemeid};
+        $u->moodtheme : $poster->moodtheme;
 
     # tags loading and sorting
     my $tags = LJ::Tags::get_logtags( $journal, $jitemid );
