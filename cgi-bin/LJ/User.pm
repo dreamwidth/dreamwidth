@@ -3227,10 +3227,15 @@ sub ban_user_multi {
 
 
 # return if $target is banned from $u's journal
-*has_banned = \&is_banned;
-sub is_banned {
-    my ($u, $target) = @_;
-    return LJ::is_banned($target->userid, $u->userid);
+sub has_banned {
+    my ( $u, $target ) = @_;
+
+    my $uid = LJ::want_userid( $u );
+    my $jid = LJ::want_userid( $target );
+    return 1 unless $uid && $jid;
+    return 0 if $uid == $jid;  # can't ban yourself
+
+    return LJ::check_rel( $uid, $jid, 'B' );
 }
 
 

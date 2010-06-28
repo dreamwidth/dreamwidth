@@ -1213,8 +1213,7 @@ sub postevent
 
     # make sure this user isn't banned from posting here (if
     # this is a community journal)
-    return fail($err,151) if
-        LJ::is_banned($posterid, $ownerid);
+    return fail($err,151) if $uowner->has_banned( $u );
 
     # don't allow backdated posts in communities
     return fail($err,152) if

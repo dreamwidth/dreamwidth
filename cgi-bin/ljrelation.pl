@@ -15,28 +15,6 @@ package LJ;
 use strict;
 
 # <LJFUNC>
-# name: LJ::is_banned
-# des: Checks to see if a user is banned from a journal.
-# returns: boolean; 1 if "user" is banned from "journal"
-# args: user, journal
-# des-user: User hashref or userid.
-# des-journal: Journal hashref or userid.
-# </LJFUNC>
-sub is_banned {
-    # get user and journal ids
-    my $uid = LJ::want_userid(shift);
-    my $jid = LJ::want_userid(shift);
-    return 1 unless $uid && $jid;
-
-    # for speed: common case is non-community posting and replies
-    # in own journal.  avoid db hit.
-    return 0 if ($uid == $jid);
-
-    # edge from journal -> user
-    return LJ::check_rel($jid, $uid, 'B');
-}
-
-# <LJFUNC>
 # name: LJ::get_reluser_id
 # des: for [dbtable[reluser2]], numbers 1 - 31999 are reserved for
 #      livejournal stuff, whereas numbers 32000-65535 are used for local sites.

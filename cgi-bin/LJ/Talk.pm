@@ -1331,7 +1331,7 @@ sub talkform {
 
         $ret .= "<tr valign='middle' id='ljuser_row'>";
 
-        if ( LJ::is_banned( $remote, $journalu ) ) {
+        if ( $journalu->has_banned( $remote ) ) {
             $ret .= $bantext->( 'user' );
         } else {
             $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/user.png'  onclick='handleRadios(1);' /></td>";
@@ -1427,7 +1427,7 @@ sub talkform {
                                             $journalu->trusts( $remote ) )
                ) {
                 $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
-                if ( LJ::is_banned( $remote, $journalu ) ) {
+                if ( $journalu->has_banned( $remote ) ) {
                     $ret .= $bantext->( 'openid' );
                 } else {
                     $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(4);' /></td>";
@@ -1529,7 +1529,7 @@ sub talkform {
         # Don't worry about a real href since js hides the row anyway
         my $other_user = "<script language='JavaScript'>if (document.getElementById) {document.write(\"&nbsp;<a href='#' onClick='otherLJUser();return false;'>[other]</a>\");}</script>";
 
-        if ( LJ::is_banned( $remote, $journalu ) ) {
+        if ( $journalu->has_banned( $remote ) ) {
             $ret .= $bantext->( 'user', $other_user );
         } else {
             $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/user.png'  onclick='handleRadios(1);' /></td>";
@@ -3009,9 +3009,7 @@ sub init {
             $up = LJ::load_user($form->{'userpost'});
             if ($up) {
                 ### see if the user is banned from posting here
-                if (LJ::is_banned($up, $journalu)) {
-                    $mlerr->("$SC.error.banned");
-                }
+                $mlerr->("$SC.error.banned") if $journalu->has_banned( $up );
 
                 # TEMP until we have better openid support
                 if ($up->is_identity && $journalu->{'opt_whocanreply'} eq "reg") {
@@ -3076,7 +3074,7 @@ sub init {
             $up = $remote;
 
             ### see if the user is banned from posting here
-            $mlerr->("$SC.error.banned") if (LJ::is_banned($up, $journalu));
+            $mlerr->("$SC.error.banned") if $journalu->has_banned( $up );
 
             if ($form->{'oiddo_login'}) {
                 $up->make_login_session($form->{'exptype'}, $form->{'ipfixed'});

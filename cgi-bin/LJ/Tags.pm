@@ -473,7 +473,7 @@ sub can_add_tags {
     my $remote = LJ::want_user(shift);
     return undef unless $u && $remote;
     return undef unless $remote->is_person;
-    return undef if LJ::is_banned($remote, $u);
+    return undef if $u->has_banned( $remote );
 
     # get permission hashref and check it; note that we fall back to the control
     # permission, which will allow people to add even if they can't add by default
@@ -491,9 +491,10 @@ sub can_add_entry_tags {
 
     return undef unless $remote && $entry;
     return undef unless $remote->is_personal;
-    return undef if $remote->is_banned( $entry->journal );
 
     my $journal = $entry->journal;
+    return undef if $journal->has_banned( $remote );
+
     my $perms = LJ::Tags::get_permission_levels( $journal );
 
     # specific case: are we the author of this entry, or otherwise an admin of the journal?
@@ -528,7 +529,7 @@ sub can_control_tags {
     my $remote = LJ::want_user(shift);
     return undef unless $u && $remote;
     return undef unless $remote->is_person;
-    return undef if LJ::is_banned($remote, $u);
+    return undef if $u->has_banned( $remote );
 
     # get permission hashref and check it
     my $perms = LJ::Tags::get_permission_levels($u);

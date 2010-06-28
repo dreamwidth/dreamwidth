@@ -127,7 +127,7 @@ body<=
         my $popuser = $popusers->{$uid};
 
         # don't show inactive accounts, or banned accounts
-        next if $uid == $remote_id || $popuser->is_inactive || $remote->is_banned( $popuser, $remote);
+        next if $uid == $remote_id || $popuser->is_inactive || $remote->has_banned( $popuser );
 
         # sort userids into arrays
         if ( $numberpersonal < $maximum && $popuser->is_personal ) {

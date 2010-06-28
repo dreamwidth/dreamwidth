@@ -105,11 +105,11 @@ _c?>
         $success = $remote->ban_user($ban_user);
         LJ::Hooks::run_hooks('ban_set', $remote, $ban_user);
 
-        #$ret{is_banned} = $remote->is_banned($ban_user) ? 1 : 0;
+        #$ret{is_banned} = $remote->has_banned($ban_user) ? 1 : 0;
     } elsif ( $action eq 'setUnban' ) {
         my $unban_user = LJ::load_user($target);
         $success = $remote->unban_user_multi($unban_user->{userid});
-        #$ret{is_banned} = $remote->is_banned($unban_user) ? 1 : 0;
+        #$ret{is_banned} = $remote->has_banned($unban_user) ? 1 : 0;
     } else {
         return $err->("Invalid action $action");
     }

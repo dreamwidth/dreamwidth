@@ -138,8 +138,7 @@ _c?>
     my %extrainfo = LJ::Hooks::run_hook("ctxpopup_extra_info", $u);
     %ret = (%ret, %extrainfo);
 
-    $ret{is_banned} = LJ::is_banned($u,$remote) ? 1 : 0
-        if $remote && $u;
+    $ret{is_banned} = $remote->has_banned( $u ) ? 1 : 0 if $remote;
 
     $ret{success} = 1;
     return LJ::js_dumper(\%ret);

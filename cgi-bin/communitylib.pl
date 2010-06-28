@@ -76,7 +76,7 @@ sub send_comm_invite {
     return undef unless $u && $cu && $mu;
 
     # step 1: if the user has banned the community, don't accept the invite
-    return LJ::error('comm_user_has_banned') if LJ::is_banned($cu, $u);
+    return LJ::error('comm_user_has_banned') if $u->has_banned( $cu );
 
     # step 2: lazily clean out old community invites.
     return LJ::error('db') unless $u->writer;

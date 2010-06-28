@@ -1136,13 +1136,12 @@ sub can_vote {
     # owner can do anything
     return 1 if $remote && $remote->userid == $self->posterid;
 
-    my $is_friend = $remote && $self->journal->trusts_or_has_member( $remote );
+    my $trusted = $remote && $self->journal->trusts_or_has_member( $remote );
 
-    return 0 if $self->whovote eq "trusted" && !$is_friend;
+    return 0 if $self->whovote eq "trusted" && !$trusted;
 
-    if (LJ::is_banned($remote, $self->journalid) || LJ::is_banned($remote, $self->posterid)) {
-        return 0;
-    }
+    return 0 if $self->journal->has_banned( $remote )
+             or $self->poster->has_banned( $remote );
 
     if ($self->is_createdate_restricted) {
         my $propval = $self->prop("createdate");

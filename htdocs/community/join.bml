@@ -53,7 +53,7 @@ body<=
 
     # ensure this user isn't banned
     return "<?h1 $ML{'Sorry'} h1?><?p $ML{'.label.banned'} p?>"
-        if LJ::is_banned($remote, $cu);
+        if $cu->has_banned( $remote );
 
     # and make sure they're not already a member
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.already.member'} p?>"
