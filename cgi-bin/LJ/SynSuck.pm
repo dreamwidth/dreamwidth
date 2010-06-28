@@ -159,6 +159,12 @@ sub process_content {
         $content =~ s/encoding=([\"\'])(.+?)\1/encoding='windows-1252'/;
     }
 
+    # ANOTHER hack: if a feed asks for ANSI_v3.4-1968 (ASCII),
+    # ignore it - just pretend it's something harmless like ISO-8859-1
+    if ( $encoding =~ /^ANSI_X3.4-1968$/i ) {
+        $content =~ s/encoding=([\"\'])(.+?)\1/encoding='us-ascii'/;
+    }
+
     # parsing time...
     my ($feed, $error) = LJ::ParseFeed::parse_feed($content);
     if ($error) {
