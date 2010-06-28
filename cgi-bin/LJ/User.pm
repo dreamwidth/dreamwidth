@@ -3726,7 +3726,7 @@ sub can_manage_other {
 
 # can $u post to $targetu?
 sub can_post_to {
-    my ( $u, $targetu, %opts ) = @_;
+    my ( $u, $targetu ) = @_;
     croak "Invalid users passed to LJ::User->can_post_to."
         unless LJ::isu( $u ) && LJ::isu( $targetu );
 
@@ -3740,7 +3740,7 @@ sub can_post_to {
     return 1 if LJ::check_rel( $targetu, $u, 'P' );
 
     # let's check if this community is allowing post access to non-members
-    if ( $targetu->prop( 'nonmember_posting' ) ) {
+    if ( $targetu->has_open_posting ) {
         my ( $ml, $pl ) = LJ::get_comm_settings( $targetu );
         return 1 if $pl eq 'members';
     }

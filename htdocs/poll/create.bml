@@ -89,9 +89,7 @@ _c?>
     # If remote can't make polls, make sure they maintain the authas journal
     if ($remote_can_make_polls) {
         my $authas_u = LJ::load_user($authas);
-        if ($authas_u and ( $authas_u->equals( $remote ) or LJ::check_rel($authas_u, $remote, 'P'))) {
-            $u = $authas_u;
-        }
+        $u = $authas_u if $authas_u and $remote->can_post_to( $authas_u );
     } else {
         $u = LJ::get_authas_user($authas);
     }

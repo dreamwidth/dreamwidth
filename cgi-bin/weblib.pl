@@ -2815,13 +2815,13 @@ sub control_strip
         } elsif ($journal->is_community) {
             my $watching = $remote->watches( $journal );
             my $memberof = $remote->member_of( $journal );
-            my $haspostingaccess = LJ::check_rel($journal, $remote, 'P');
+            my $haspostingaccess = $remote->can_post_to( $journal );
             my $isclosedcommunity = $journal->is_closed_membership;
+
             if ( $remote->can_manage_other( $journal ) ) {
                 $ret .= "$statustext{maintainer}<br />";
-                if ( $haspostingaccess || $journal->has_open_posting ) {
-                    $ret .= "$links{post_to_community}&nbsp;&nbsp; " unless $remote->is_identity;
-                }
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
 
                 if ( $journal->prop( 'moderated' ) ) {
                     $ret .= "$links{queue} [" . LJ::get_mod_queue_count( $journal ) . "]&nbsp;&nbsp;";
@@ -2830,34 +2830,34 @@ sub control_strip
                 }
 
                 $ret .= "$links{edit_community_invites}&nbsp;&nbsp;$links{edit_community_members}";
+
             } elsif ($watching && $memberof) {
                 $ret .= "$statustext{memberwatcher}<br />";
-                if ($haspostingaccess) {
-                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
-                }
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
                 $ret .= $links{leave_community};
                 $ret .= "&nbsp;&nbsp;" . $links{track_community};
+
             } elsif ($watching) {
                 $ret .= "$statustext{watcher}<br />";
-                if ($haspostingaccess) {
-                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
-                }
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
                 $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :
                      "$links{join_community}&nbsp;&nbsp; ";
                 $ret .= $links{unwatch_community};
                 $ret .= "&nbsp;&nbsp;" . $links{track_community};
+
             } elsif ($memberof) {
                 $ret .= "$statustext{member}<br />";
-                if ($haspostingaccess) {
-                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
-                }
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
                 $ret .= "$links{watch_community}&nbsp;&nbsp; $links{'leave_community'}";
                 $ret .= "&nbsp;&nbsp;" . $links{track_community};
+
             } else {
                 $ret .= "$statustext{community}<br />";
-                if ( $haspostingaccess || $journal->has_open_posting ) {
-                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
-                }
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
                 $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :
                     "$links{join_community}&nbsp;&nbsp; ";
                 $ret .= $links{watch_community};
