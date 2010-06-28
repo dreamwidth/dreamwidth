@@ -484,10 +484,13 @@ sub clean
 
                     # include empty span and div to be filled in on page
                     # load if javascript is enabled
-                    $newdata .= "<span style=\"display: none;\" id=\"span-cuttag_" . $journal . "_" . $ditemid . "_" . $cutcount. "\" class=\"cuttag\"></span>";
+                    # Note: cuttag_container is a hack, to guard against Firefox bug
+                    # where toggling an element's display is glitchy in the presence
+                    # of certain CSS pseudo-elements (:first-letter, others?)
+                    $newdata .= "<span class=\"cuttag_container\"><span style=\"display: none;\" id=\"span-cuttag_" . $journal . "_" . $ditemid . "_" . $cutcount. "\" class=\"cuttag\"></span>";
                     $newdata .= "<b>(&nbsp;<a href=\"$url#cutid$cutcount\">$etext</a>&nbsp;)</b>";
                     $newdata .= "<div style=\"display: none;\" id=\"div-cuttag_" . $journal . "_" . $ditemid . "_" . $cutcount ."\" aria-live=\"assertive\">";
-                    $newdata .="</div>";
+                    $newdata .="</div></span>";
                     $newdata .= "</div>" if $tag eq "div";
 
                     unless ($opts->{'cutpreview'}) {
