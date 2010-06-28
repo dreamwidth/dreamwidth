@@ -159,13 +159,12 @@ body<=
 
     # save any changes
     if (LJ::did_post()) {
-       unless (LJ::check_form_auth()) {
-           $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
-           return $ret;
-       }
+        unless ( LJ::check_form_auth() ) {
+            $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
+            return $ret;
+        }
 
-        my $mod_emails = $POST{modemail} ? 1 : 0;
-        LJ::set_userprop($remote, 'opt_nomodemail', $mod_emails ? undef : 1);
+        $remote->set_prop( 'opt_nomodemail', $POST{modemail} ? undef : 1 );
     }
 
     my $mod_emails = $remote->prop("opt_nomodemail") ? 0 : 1;

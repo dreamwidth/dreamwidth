@@ -99,10 +99,10 @@ body<=
         }
 
         # change any of the userprops ?
-        foreach my $uprop (keys %uprop) {
-            next if $POST{$uprop} eq $u->{$uprop};
-            LJ::set_userprop($u, $uprop, $uprop{$uprop});
+        foreach ( keys %uprop ) {
+            delete $uprop{$_} if $POST{$_} eq $u->{$_};
         }
+        $u->set_prop( \%uprop );
 
         # tell the user all is well
         return "<?h1 $ML{'.success.head'} h1?><?p Your domain aliasing settings have been updated. p?>";

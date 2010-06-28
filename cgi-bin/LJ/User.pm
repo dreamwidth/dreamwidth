@@ -2718,7 +2718,10 @@ sub remove_from_class {
 sub set_prop {
     my ($u, $prop, $value) = @_;
     return 0 unless LJ::set_userprop($u, $prop, $value);  # FIXME: use exceptions
-    $u->{$prop} = $value;
+    return $u->{$prop} = $value unless ref $prop;
+    # handle hashref arguments
+    $u->{$_} = $prop->{$_} foreach keys %$prop;
+    return 1;
 }
 
 

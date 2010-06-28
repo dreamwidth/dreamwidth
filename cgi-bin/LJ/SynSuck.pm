@@ -109,7 +109,7 @@ sub get_content {
         # same request
         delay($userid, 3*60, "parseerror");
 
-        LJ::set_userprop($userid, "rssparseerror", $res->status_line());
+        $syn_u->set_prop( "rssparseerror", $res->status_line() ) if $syn_u;
         return;
     }
 
@@ -166,8 +166,9 @@ sub process_content {
         print "Parse error! $error\n" if $verbose;
         delay($userid, 3*60, "parseerror");
         $error =~ s! at /.*!!;
-        $error =~ s/^\n//; # cleanup of newline at the beggining of the line
-        LJ::set_userprop($userid, "rssparseerror", $error);
+        $error =~ s/^\n//; # cleanup of newline at the beginning of the line
+        my $syn_u = LJ::load_user( $user );
+        $syn_u->set_prop( "rssparseerror", $error ) if $syn_u;
         return;
     }
 
@@ -434,12 +435,12 @@ sub process_content {
         if (defined $title && $title ne $su->{'name'}) {
             $title =~ s/[\n\r]//g;
             LJ::update_user($su, { name => $title });
-            LJ::set_userprop($su, "urlname", $title);
+            $su->set_prop( "urlname", $title );
         }
 
         my $link = $feed->{'link'};
         if ($link && $link ne $su->{'url'}) {
-            LJ::set_userprop($su, "url", $link);
+            $su->set_prop( "url", $link );
         }
 
         my $bio = $su->bio;

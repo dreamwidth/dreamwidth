@@ -165,8 +165,8 @@ body<=
             my $moderated = $POST{moderated} ? 1 : 0;
             my $hidejoinpostlink = $POST{showjoinpostlink} ? 0 : 1;
 
-            LJ::set_userprop($cu, 'nonmember_posting', $nonmember_posting);
-            LJ::set_userprop($cu, 'moderated', $moderated);
+            $cu->set_prop( { nonmember_posting => $nonmember_posting,
+                             moderated => $moderated } );
             $cu->hide_join_post_link( $hidejoinpostlink );
             $cu->posting_guidelines_entry( $POST{'postingguidelinesentry'} );
 

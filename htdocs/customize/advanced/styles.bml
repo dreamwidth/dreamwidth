@@ -115,8 +115,8 @@ _c?>
             return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
             # save to db and update user object
-            LJ::set_userprop($u, "stylesys", '2');
-            LJ::set_userprop($u, "s2_style", $id);
+            $u->set_prop( { stylesys => '2',
+                            s2_style => $id } );
             LJ::Hooks::run_hooks('apply_theme', $u);
             return BML::redirect("styles$getextra");
         }

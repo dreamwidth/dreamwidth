@@ -67,7 +67,7 @@ body<=
 
         unless (@errors) {
             $key = LJ::trim($key);
-            LJ::set_userprop($u, 'public_key', $key);
+            $u->set_prop( 'public_key', $key );
 
             # This page shows them their key saved
             # eventually add a confirmation bar on it
