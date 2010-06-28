@@ -22,6 +22,11 @@ package LJ::S2Theme::modular::distinctblue;
 use base qw( LJ::S2Theme::modular );
 sub cats { qw ( ) }
 
+package LJ::S2Theme::modular::freshprose;
+use base qw( LJ::S2Theme::modular );
+sub cats { qw ( ) }
+sub designer { "timeasmymeasure" }
+
 package LJ::S2Theme::modular::greensummer;
 use base qw( LJ::S2Theme::modular );
 sub cats { qw ( ) }
@@ -37,6 +42,11 @@ sub cats { qw () }
 package LJ::S2Theme::modular::olivetree;
 use base qw( LJ::S2Theme::modular );
 sub cats { qw ( ) }
+
+package LJ::S2Theme::modular::purplehaze;
+use base qw( LJ::S2Theme::modular );
+sub cats { qw ( ) }
+sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::modular::swiminthesea;
 use base qw( LJ::S2Theme::modular );
