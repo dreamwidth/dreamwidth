@@ -244,15 +244,13 @@ sub _set_rel_memcache {
 # <LJFUNC>
 # name: LJ::check_rel
 # des: Checks whether two users are in a specified relationship to each other.
-# args: db?, userid, targetid, type
+# args: userid, targetid, type
 # des-userid: source userid, nonzero; may also be a user hash.
 # des-targetid: target userid, nonzero; may also be a user hash.
 # des-type: type of the relationship
 # returns: 1 if the relationship exists, 0 otherwise
 # </LJFUNC>
-sub check_rel
-{
-    my $db = isdb($_[0]) ? shift : undef;
+sub check_rel {
     my ($userid, $targetid, $type) = @_;
     return undef unless $type && $userid && $targetid;
 
@@ -271,14 +269,14 @@ sub check_rel
     return $memval if defined $memval;
 
     # are we working on reluser or reluser2?
-    my $table;
+    my ( $db, $table );
     if ($typeid) {
         # clustered reluser2 table
         $db = LJ::get_cluster_reader($u);
         $table = "reluser2";
     } else {
         # non-clustered reluser table
-        $db ||= LJ::get_db_reader();
+        $db = LJ::get_db_reader();
         $table = "reluser";
     }
 
