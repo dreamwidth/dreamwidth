@@ -28,7 +28,7 @@ set color_footer_link_visited = "#e2d7c9";
 ##===============================
 
 set color_entry_title = "#000"; 
-set color_entry_border = "#62584F"; #nav bar
+set color_entry_border = "#62584F";
 
 ##===============================
 ## Module Colors
@@ -36,6 +36,9 @@ set color_entry_border = "#62584F"; #nav bar
 
 set color_module_title = "#000";
 set color_module_border = "#62584F";
+set color_calendar_module_emptyday_background = "#968D85";
+set color_calendar_module_hasday_background = "#62584F";
+set color_navigation_module_background = "#62584F";
 
 
 #NEWLAYER: boxesandborders/grass
@@ -67,8 +70,8 @@ set color_footer_link_visited = "#ffffff";
 ## Entry Colors
 ##===============================
 
-set color_entry_title = "#000"; #hovered nav bar
-set color_entry_border = "#97AA84"; #nav bar
+set color_entry_title = "#000";
+set color_entry_border = "#97AA84";
 
 ##===============================
 ## Module Colors
@@ -76,6 +79,9 @@ set color_entry_border = "#97AA84"; #nav bar
 
 set color_module_title = "#000";
 set color_module_border = "#97AA84";
+set color_calendar_module_emptyday_background = "#AEBAA6";
+set color_calendar_module_hasday_background = "#809A62";
+set color_navigation_module_background = "#97AA84";
 
 
 #NEWLAYER: boxesandborders/gray
@@ -114,6 +120,9 @@ set color_entry_border = "#999999";
 
 set color_module_title = "#222222";
 set color_module_border = "#999999";
+set color_calendar_module_emptyday_background = "#cccccc";
+set color_calendar_module_hasday_background = "#555555";
+set color_navigation_module_background = "#999999";
 
 
 #NEWLAYER: boxesandborders/lightondark
@@ -174,14 +183,12 @@ set color_module_link = "#ddddff";
 set color_module_link_active = "#ffcccc";
 set color_module_link_hover = "#ccffcc";
 set color_module_link_visited = "#ffffcc";
+set color_calendar_module_emptyday_background = "#666666";
+set color_calendar_module_hasday_background = "#ffffff";
+set color_navigation_module_background = "#666666";
 
 function Page::print_theme_stylesheet() {
     """
-    .module-navlinks ul,
-    .module-calendar td {
-        background: $*color_header_background;
-        }
-
     .module td a:hover {
         color: $*color_module_border;
         
@@ -221,6 +228,9 @@ set color_footer_link = "#ef8229";
 set color_module_background = "#ffefbd";
 set color_module_text = "#000000";
 set color_module_title = "#ef8229";
+set color_calendar_module_emptyday_background = "#842021";
+set color_calendar_module_hasday_background = "#ef8229";
+set color_navigation_module_background = "";
 
 
 #NEWLAYER: boxesandborders/onfire
@@ -261,6 +271,9 @@ set color_entry_border = "#D37843";
 
 set color_module_title = "#34302D";
 set color_module_border = "#B64533";
+set color_calendar_module_emptyday_background = "#B64533";
+set color_calendar_module_hasday_background = "#D37843";
+set color_navigation_module_background = "#D37843";
 
 
 #NEWLAYER: boxesandborders/pinkafterdark
@@ -293,7 +306,7 @@ set color_footer_link_visited = "#000";
 ##===============================
 
 set color_entry_title = "#fff"; 
-set color_entry_border = "#D29A89"; #nav bar
+set color_entry_border = "#D29A89";
 
 ##===============================
 ## Module Colors
@@ -301,6 +314,9 @@ set color_entry_border = "#D29A89"; #nav bar
 
 set color_module_title = "#fff";
 set color_module_border = "#D29A89";
+set color_calendar_module_emptyday_background = "#B48889";
+set color_calendar_module_hasday_background = "#D7B6AF";
+set color_navigation_module_background = "#D29A89";
 
 
 #NEWLAYER: boxesandborders/rainyday
@@ -333,7 +349,7 @@ set color_footer_link_visited = "#ffffff";
 ##===============================
 
 set color_entry_title = "#000";
-set color_entry_border = "#353F4F"; #nav bar
+set color_entry_border = "#353F4F";
 
 ##===============================
 ## Module Colors
@@ -341,3 +357,6 @@ set color_entry_border = "#353F4F"; #nav bar
 
 set color_module_title = "#000";
 set color_module_border = "#353F4F";
+set color_calendar_module_emptyday_background = "#7C86A6";
+set color_calendar_module_hasday_background = "#353F4F";
+set color_navigation_module_background = "#353F4F";

@@ -15,6 +15,25 @@ propgroup presentation_child {
 
 set display_header_decoration = true;
 
+propgroup colors_child {
+
+    property Color color_navigation_module_background {
+        des = "Navigation module background color when in header";
+    }
+
+    property Color color_calendar_module_emptyday_background {
+        des = "Calendar module background color on empty days";
+    }
+
+    property Color color_calendar_module_hasday_background {
+        des = "Calendar module background color on days with entries";
+    }
+}
+
+set color_navigation_module_background = "";
+set color_calendar_module_emptyday_background = "";
+set color_calendar_module_hasday_background = "";
+
 function Page::print_global_title() {
 
     if ($*display_header_decoration) {
@@ -38,8 +57,8 @@ function print_stylesheet() {
     var string module_link_colors = generate_color_css( $*color_page_background, new Color, new Color );
     var string module_link_hover_colors = generate_color_css( $*color_page_text, $*color_page_background, new Color );
 
-    var string calendar_colors = generate_color_css( $*color_page_title, $*color_page_border, new Color );
-    var string calendar_link_colors = generate_color_css( $*color_page_background, $*color_page_title, new Color );
+    var string calendar_colors = generate_color_css( $*color_page_title, $*color_calendar_module_emptyday_background, new Color );
+    var string calendar_link_colors = generate_color_css( $*color_page_background, $*color_calendar_module_hasday_background, new Color );
 
     var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
     """
@@ -263,12 +282,12 @@ text-decoration: none; }
     margin: 0;
     padding: 0;
     border: none;
-    background: $*color_entry_border;
+    background: $*color_navigation_module_background;
     width: 100%; }
 
 .module-navlinks ul { margin: 0;
     padding-left: 1em;
-    background: $*color_entry_border; }
+    background: $*color_navigation_module_background; }
 
 .module-navlinks ul li { display: inline;
     padding: .25em .5em;
