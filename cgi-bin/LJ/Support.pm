@@ -48,6 +48,74 @@ sub slow_query_dbh
     return LJ::get_dbh(@LJ::SUPPORT_SLOW_ROLES);
 }
 
+# basic function to add or update a support category.
+# args: hashref corresponding to row values of supportcat table
+# returns: spcatid on success, undef on failure
+sub define_cat {
+    my ( $opts ) = @_;
+    if ( $opts->{catkey} ) {
+        # see if this category is already defined (catkey is unique)
+        my $cat = get_cat_by_key( load_cats(), $opts->{catkey} );
+        if ( $cat ) {
+            # use the existing category id
+            $opts->{spcatid} = $cat->{spcatid};
+            delete $opts->{catkey};
+        }
+    }
+
+    my @columns = qw/ catkey catname sortorder basepoints is_selectable
+                      public_read public_help allow_screened hide_helpers
+                      user_closeable replyaddress no_autoreply scope /;
+    my %row;
+    foreach ( @columns ) {
+        $row{$_} = $opts->{$_} if exists $opts->{$_};
+        delete $opts->{$_};
+    }
+
+    my $id = delete $opts->{spcatid};
+    return $id unless %row;
+
+    # if we have any $opts remaining here, they're invalid
+    my $invalid = join ', ', keys %$opts;
+    die "Invalid opts passed to LJ::Support::define_cat: $invalid"
+        if $invalid;
+
+    my $dbh = LJ::get_db_writer() or return;
+
+    if ( $id ) {  # update path
+        my ( @cols, @vals );
+        while ( my ($col, $val) = each %row ) {
+            push @cols, "$col=?";
+            push @vals, $val;
+        }
+        my $bind = join ', ', @cols;
+
+        $dbh->do( "UPDATE supportcat SET $bind WHERE spcatid=?",
+                  undef, @vals, $id );
+
+    } else {  # insert path
+        my @cols = keys %row;
+        my @vals = @row{@cols};
+        my $colbind = join ',', map { $_ } @cols;
+        my $valbind = join ',', map {'?'} @vals;
+
+        $dbh->do( "INSERT INTO supportcat ($colbind) VALUES ($valbind)",
+                  undef, @vals );
+        $id = $dbh->{mysql_insertid};
+    }
+
+    die $dbh->errstr if $dbh->err;
+    return $id;
+}
+
+sub delete_cat {
+    my ( $id ) = @_;
+    my $dbh = LJ::get_db_writer() or return;
+    $dbh->do( "DELETE FROM supportcat WHERE spcatid=?", undef, $id );
+    die $dbh->errstr if $dbh->err;
+    return 1;  # regardless of whether the id was in the table
+}
+
 ## pass $id of zero or blank to get all categories
 sub load_cats
 {
