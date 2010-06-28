@@ -334,6 +334,7 @@ ul.entry-interaction-links,
     padding: .25em .5em;
     }
 
+.comment .header .datetime,
 .comment-title a { color: $*color_entry_title; }
 
 .comment .userpic {
