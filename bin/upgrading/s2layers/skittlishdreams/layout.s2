@@ -444,8 +444,6 @@ function Page::print_default_stylesheet () {
 
     var string navigation_colors = generate_color_css($*color_page_details_text, $*color_entry_background, new Color);
 
-    """<style type="text/css">""";
-    start_css();
     """
 /*
 Theme Name:    Skittlish Dreams, a DW port of Skittlish
@@ -708,7 +706,4 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 .journal-website-name { font-size: 1.6em; } 
 
     """;
-    end_css();
-    "</style>\n";
-
 }

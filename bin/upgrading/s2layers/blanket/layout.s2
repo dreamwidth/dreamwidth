@@ -274,8 +274,6 @@ var string month_header_colors = generate_color_css( $*color_entry_border->darke
     }
 
 """
-
-<style type="text/css">
 /* Blanket */
 
 body { padding: 0; margin: 0; text-align: center; $page_colors $page_font }
@@ -418,8 +416,6 @@ td.day { padding: 5px; border: 1px solid #F0F0F0; }
 .page-tags .tags-container ul li { margin: 0 0 0 1em; padding: 0; list-style: none; }
 
 $userpic_css
-
-</style>
 """;
 
 }

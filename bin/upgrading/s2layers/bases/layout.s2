@@ -296,7 +296,7 @@ if ($*image_background_header_height > 0)
 { $header_background = """ $header_background height: """ + $*image_background_header_height + """px;"""; }
 
 if ($*image_background_header_url == "" ){}
-else { print """ <style type="text/css"> #title, #subtitle, #pagetitle {display: none} </style> """; }
+else { print """ #title, #subtitle, #pagetitle {display: none}"""; }
 
     var string userpic_css = "";
     if ($*userpics_position == "left") {
@@ -312,8 +312,6 @@ else { print """ <style type="text/css"> #title, #subtitle, #pagetitle {display:
         """;
     }
 
-    """<style type="text/css">""";
-    start_css();
     """
 /* DREAMWIDTH :--- Bases. --- 
 Sven @ Fruitstyle.Dreamwidth.org 
@@ -752,8 +750,4 @@ div.ContextualPopup .Userpic {border: 0.083em solid $*color_page_border; padding
 $userpic_css
 
     """;
-
-    end_css();
-    "</style>\n";
-
 }

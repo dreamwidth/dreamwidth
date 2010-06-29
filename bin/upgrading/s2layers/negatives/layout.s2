@@ -319,9 +319,7 @@ function Page::print_default_stylesheet()
         """;
     }
 
-    """<style type="text/css">""";
-    start_css();
-"""
+    """
     body {
         margin: 0;
         padding: 0;
@@ -696,8 +694,6 @@ function Page::print_default_stylesheet()
 $userpic_css
 
     """;
-    end_css();
-    "</style>\n";
 }
 
 #Print_body

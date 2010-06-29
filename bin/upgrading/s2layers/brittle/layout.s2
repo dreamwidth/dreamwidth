@@ -325,10 +325,7 @@ function Page::print_default_stylesheet() {
         """;
     }
 
-    """<style type="text/css">""";
-    start_css();
     """
-    <!--
 body {
     padding: 0;
     $page_background
@@ -894,9 +891,6 @@ hr {
 
 $userpic_css
 
-}    --->
-    """;
-    end_css();
-    "</style>\n";
+""";
 
 }

@@ -1934,7 +1934,7 @@ property string custom_css {
     string_mode = "css";
 }
 
-set external_stylesheet = false;
+set external_stylesheet = true;
 set include_default_stylesheet = true;
 set linked_stylesheet = "";
 set custom_css = "";
@@ -3118,24 +3118,19 @@ function Page::print_theme_stylesheet()
 function Page::print_default_stylesheets() 
 "Contains the layout and theme default stylesheets. Themes and child layouts may use this to disable the printing of the layout's base default stylesheet, or to add theme-specific CSS bits. May be overriden on a per-layout/theme basis"
 {
-    $this->print_default_stylesheet();
     if ($*external_stylesheet) {
+        # prints out the stylesheets for $this->print_default_stylesheet, print_stylesheet(), and $this->print_theme_stylesheet
         println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
     }
     else {
         println """<style type="text/css">""";
         start_css();
+        $this->print_default_stylesheet();
         print_stylesheet();
+        $this->print_theme_stylesheet();
         end_css();
         println """</style>""";
     }   
-
-    println """<style type="text/css">""";
-    start_css();
-    $this->print_theme_stylesheet();
-    end_css();
-    println """</style>\n""";
-
 }
 
 function Page::print_stylesheets()

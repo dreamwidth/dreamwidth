@@ -301,9 +301,7 @@ function Page::print_default_stylesheet()
         """;
     }
 
-    """<style type="text/css">""";
-    start_css();
-"""
+    """
     /* Main layout
     ***************************************************************************/
     body {
@@ -913,8 +911,6 @@ function Page::print_default_stylesheet()
 $userpic_css
 
 """;
-    end_css();
-    "</style>\n";
 }
 
 # NavLinks Module, Need to override this so the title gets printed.

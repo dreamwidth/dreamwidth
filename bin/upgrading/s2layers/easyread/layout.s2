@@ -317,9 +317,6 @@ function Page::print_default_stylesheet {
     var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
 
-"""<style type="text/css">""";
-
-start_css();
 """/* Globals */
 ul {
     margin-top: 0;
@@ -688,6 +685,4 @@ div.page-top {
 }
 
 /* End of CSS file */""";
-end_css();
-"""</style>""";
 }

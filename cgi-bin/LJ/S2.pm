@@ -56,7 +56,7 @@ sub make_journal
     if ($view eq "res") {
         if ($opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) {
             $styleid = $1;
-            $entry = "print_stylesheet()";
+            $entry = [ qw( Page::print_default_stylesheet() print_stylesheet() Page::print_theme_stylesheet() ) ];
             $opts->{'contenttype'} = 'text/css';
             $use_modtime = 1;
         } else {
@@ -261,7 +261,12 @@ sub s2_run
 
     S2::Builtin::LJ::start_css($ctx) if $css_mode;
     eval {
-        S2::run_code($ctx, $entry, $page);
+        if ( ref $entry ) {
+            S2::run_code( $ctx, $_, $page )
+                foreach ( @$entry );
+        } else {
+            S2::run_code( $ctx, $entry, $page );
+        }
     };
     S2::Builtin::LJ::end_css($ctx) if $css_mode;
 

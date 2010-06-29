@@ -309,10 +309,7 @@ function Page::print_default_stylesheet() {
     var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
-    """<style type="text/css">""";
-    start_css();
     """
-    <!--
 H1, H2, H3 {
     margin: .25em 0;
     padding: .25em 0;
@@ -715,10 +712,7 @@ ul.userlite-interaction-links li {
 }
 .module-syndicate  .module-content {
     text-align: center;
-}    --->
+}
     """;
-    end_css();
-    "</style>\n";
-
 }
 
