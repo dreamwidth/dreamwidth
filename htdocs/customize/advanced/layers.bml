@@ -124,7 +124,7 @@ _c?>
         return $err->($ML{'.error.cantcreatelayer'}) unless $id;
 
         my $lay = { 
-            'userid' => $u->{'userid'},
+            'userid' => $u->userid,
             'type' => $type,
             'b2lid' => $parid,
             's2lid' => $id,
@@ -152,7 +152,7 @@ _c?>
             unless $lay;
 
         return $err->($ML{'.error.notyourlayer'})
-            unless $lay->{'userid'} == $u->{'userid'};
+            unless $lay->{userid} == $u->userid;
 
         unless ($POST{'confirm'}) {
             my $layerinfo = {};

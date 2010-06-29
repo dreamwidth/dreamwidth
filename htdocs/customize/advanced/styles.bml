@@ -108,7 +108,7 @@ _c?>
 
         # check that they own the style
         return $err->($ML{'.error.notyourstyle'})
-            unless $style->{'userid'} == $u->{'userid'};
+            unless $style->{userid} == $u->userid;
 
         # use selected style
         if ($POST{'action:usestyle'} && !$noactions) {

@@ -63,7 +63,7 @@ _c?>
             return;
         }
 
-        unless ($remote->{'userid'} == $POST{'remid'}) {
+        unless ( $remote->userid == $POST{remid} ) {
             $title = $ML{'Error'};
             $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.error.sessionchanged'} p?>";
             return;

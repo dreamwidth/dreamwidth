@@ -123,7 +123,7 @@ body<=
         my $dbh = LJ::get_db_writer();
         my $uitable = $table->($remote);
         $dbh->do("INSERT INTO $uitable (userid, intid) VALUES (?, ?)",
-                 undef, $remote->{'userid'}, $intid);
+                 undef, $remote->userid, $intid);
         LJ::memcache_kill($remote, "intids");
         unless ($dbh->err) {
             $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid=?", undef, $intid);
@@ -131,7 +131,7 @@ body<=
 
         # if a community, remove any old rows from userinterests
         if ( $remote->is_community ) {
-            $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $remote->{'userid'});
+            $dbh->do( "DELETE FROM userinterests WHERE userid=?", undef, $remote->userid );
         }
 
         $ret .= "<?h1 $ML{'.add.added.head'} h1?><?p $ML{'.add.added.text'} p?>";
@@ -152,7 +152,7 @@ body<=
         my $dbr = LJ::get_db_reader();
         my $sth = $dbr->prepare("SELECT i.intid, i.intcount FROM userinterests ui, interests i ".
                                 "WHERE ui.userid=? AND ui.intid=i.intid");
-        $sth->execute($u->{'userid'});
+        $sth->execute( $u->userid );
         while (my ($intid, $count) = $sth->fetchrow_array) {
             push @ints, $intid;
             $intcount{$intid} = $count || 1;
@@ -171,7 +171,7 @@ body<=
             my $sth = $dbr->prepare("SELECT userid FROM userinterests WHERE intid=? LIMIT 500");
             $sth->execute($int);
             while (my $uid = $sth->fetchrow_array) {
-                next if $uid == $u->{'userid'};
+                next if $uid == $u->userid;
                 $pt_weight{$uid} += (1 / log($intcount{$int}+1));
                 $pt_count{$uid}++;
             }
@@ -223,8 +223,8 @@ body<=
         my $altauthas = $remote->{'user'} ne $u->{'user'};
         my $getextra = $altauthas ? "?authas=$u->{'user'}" : '';
 
-        my $userid = $u->{'userid'};
-        my $username = $u->{'user'};
+        my $userid = $u->userid;
+        my $username = $u->user;
         my $fromu = LJ::load_user($GET{'fromuser'} || $username);
 
         my %uint;
@@ -243,7 +243,7 @@ body<=
         $ret .= "</form> p?><form method='post' action='interests$getextra'>";
         $ret .= "<?h1 $ML{'.enmasse.header'} h1?><?p ";
 
-        if ($u->{'userid'} == $fromu->{'userid'}) {
+        if ( $u->equals( $fromu ) ) {
             %uint = %fromint;
             $ret .= $ML{'.enmasse.body.you'};
         } else {
@@ -330,7 +330,7 @@ body<=
             my $intid_in = join(",", @todel);
             my $dbh = LJ::get_db_writer();
             $dbh->do("DELETE FROM $uitable WHERE userid=? AND intid IN ($intid_in)",
-                     undef, $u->{'userid'});
+                     undef, $u->userid);
             $dbh->do("UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)");
             $deleted = 1;
         }
@@ -340,7 +340,7 @@ body<=
             } else {
                 my $dbh = LJ::get_db_writer();
                 my $sqlp = "(?,?)" . (",(?,?)" x (scalar(@toadd) - 1));
-                my @bindvars = map { ($u->{'userid'}, $_) } @toadd;
+                my @bindvars = map { ( $u->userid, $_ ) } @toadd;
                 $dbh->do("REPLACE INTO $uitable (userid, intid) VALUES $sqlp", undef, @bindvars);
 
                 my $intid_in = join(",", @toadd);
@@ -352,7 +352,7 @@ body<=
         # if a community, remove any old rows from userinterests
         if ( $u->is_community ) {
             my $dbh = LJ::get_db_writer();
-            $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $u->{'userid'});
+            $dbh->do( "DELETE FROM userinterests WHERE userid=?", undef, $u->userid );
         }
 
         my $ret = "<?h1 $ML{'.results.header'} h1?><?p ";

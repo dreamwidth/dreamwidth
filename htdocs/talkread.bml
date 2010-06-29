@@ -514,7 +514,7 @@ body<=
         $bgcolor = BML::get_template_def($bgcolor);
         if ($post->{'state'} eq "S") {
             $bgcolor = BML::get_template_def("screenedbarcolor") || $bgcolor;
-        } elsif ($last_talkid == $dtid && $last_jid == $u->{'userid'}) {
+        } elsif ( $last_talkid == $dtid && $last_jid == $u->userid ) {
             $bgcolor = BML::get_template_def("altcolor1");
         }
 
@@ -700,7 +700,7 @@ body<=
 
                 # Comment Posted Notice
                 $ret .= "<br /><b>$ML{'.posted'}</b>"
-                    if $last_talkid == $dtid && $last_jid == $u->{'userid'};
+                    if $last_talkid == $dtid && $last_jid == $u->userid;
 
                 $ret .= "</td></tr><tr><td class='commentbody usercontent'>";
 
@@ -773,7 +773,7 @@ body<=
 
                 # Comment Posted Notice
                 $ret .= " - <b>$ML{'.posted'}</b>"
-                    if $last_talkid == $dtid && $last_jid == $u->{'userid'};
+                    if $last_talkid == $dtid && $last_jid == $u->userid;
                 $ret .= "</td></tr></tbody></table></span>\n";
             }
         }

@@ -1162,8 +1162,8 @@ sub postevent
     my @owner_props = qw(newpost_minsecurity moderated);
 
     $u->preload_props( @poster_props, @owner_props );
-    if ($uowner->{'userid'} == $u->{'userid'}) {
-        $uowner->{$_} = $u->{$_} foreach (@owner_props);
+    if ( $u->equals( $uowner ) ) {
+        $uowner->{$_} = $u->{$_} foreach @owner_props;
     } else {
         $uowner->preload_props( @owner_props );
     }
@@ -1731,14 +1731,7 @@ sub editevent
     {
         ## deleting.
         return fail($err,304)
-            if ($req->{'event'} !~ /\S/ && !
-                ($ownerid == $u->{'userid'} ||
-                 # community account can delete it (ick)
-
-                 $u->can_manage_other( $uowner )
-                 # if user is a community maintainer they can delete
-                 # it too (good)
-                 ));
+            if $req->{'event'} !~ /\S/ && ! $u->can_manage( $uowner );
 
         ## editing:
         if ($req->{'event'} =~ /\S/) {
@@ -1755,7 +1748,7 @@ sub editevent
 
         # if their newesteventtime prop equals the time of the one they're deleting
         # then delete their newesteventtime.
-        if ($u->{'userid'} == $uowner->{'userid'}) {
+        if ( $u->equals( $uowner ) ) {
             $u->preload_props( { use_master => 1 }, "newesteventtime" );
             if ($u->{'newesteventtime'} eq $oldevent->{'eventtime'}) {
                 $u->set_prop( "newesteventtime", undef );
@@ -1877,7 +1870,7 @@ sub editevent
         $qallowmask != $oldevent->{'allowmask'})
     {
         # are they changing their most recent post?
-        if ( $u->{userid} == $uowner->{userid} &&
+        if ( $u->equals( $uowner ) &&
              $u->prop( "newesteventtime" ) eq $oldevent->{eventtime} ) {
             # did they change the time?
             if ($eventtime ne $oldevent->{eventtime}) {

@@ -87,8 +87,8 @@ sub FriendsPage
     # load options for image links
     my ($maximgwidth, $maximgheight) = (undef, undef);
     ($maximgwidth, $maximgheight) = ($1, $2)
-        if ($remote && $remote->{'userid'} == $u->{'userid'} &&
-            $remote->{'opt_imagelinks'} =~ m/^(\d+)\|(\d+)$/);
+        if ( $remote && $remote->equals( $u ) &&
+             $remote->{opt_imagelinks} =~ m/^(\d+)\|(\d+)$/ );
 
     ## never have spiders index friends pages (change too much, and some
     ## people might not want to be indexed)

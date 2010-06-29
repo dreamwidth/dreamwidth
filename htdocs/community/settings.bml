@@ -76,13 +76,11 @@ body<=
         my $cuser = LJ::canonical_username($POST{'cuser'});
         my $cu = LJ::load_user($cuser);
         
-        unless ($cu) {
-            $errors{'username'} = $ML{'.error.notfound'};
-        }
+        
+        $errors{username} = $ML{'.error.notfound'} unless $cu;
 
-        if ($cu && $cu->{'userid'} == $remote->{'userid'}) {
-            $errors{'username'} = $ML{'.error.samenames'};
-        }
+        $errors{username} = $ML{'.error.samenames'}
+            if $cu && $cu->equals( $remote );
 
         # if we're changing rather than creating, check that we can
         if ( $mode eq 'modify' && ! $remote->can_manage_other( $cu ) ) {

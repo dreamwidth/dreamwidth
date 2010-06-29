@@ -76,7 +76,7 @@ _info?><?_code
                                       "nodeid AS 'itemid', parenttalkid, journalid, posterid " .
                                       "FROM talk2 ".
                                       "WHERE journalid=? AND jtalkid=?",
-                                      undef, $u->{'userid'}, $tpid);
+                                      undef, $u->userid, $tpid);
 
     return $bad_input->($ML{'.error.nocomment'})
         unless $tp;
@@ -93,7 +93,7 @@ _info?><?_code
     # userid of user who posted journal entry
     my $jposterid = $dbcr->selectrow_array("SELECT posterid FROM log2 WHERE " .
                                            "journalid=? AND jitemid=?",
-                                           undef, $u->{'userid'}, $tp->{'itemid'});
+                                           undef, $u->userid, $tp->{itemid});
     my $jposter = LJ::load_userid($jposterid);
 
     # can $remote delete this comment?
@@ -105,9 +105,9 @@ _info?><?_code
     my $can_manage = $remote->can_manage( $u );
 
     # can ban if can manage and the comment is by someone else and not anon
-    my $can_ban = $can_manage && $tp->{'posterid'}
-                  && $remote && $remote->{'userid'} != $tp->{'posterid'};
-    my $can_delthread = $can_manage || $jposterid == $remote->{userid};
+    my $can_ban = $can_manage && $tp->{posterid}
+                  && $remote && $remote->userid != $tp->{posterid};
+    my $can_delthread = $can_manage || $jposterid == $remote->userid;
 
     # can mark as spam if they're not the comment poster
     # or if the account is not sysbanned

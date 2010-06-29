@@ -56,8 +56,9 @@ _c?>
     if ($u->{'stylesys'} == 2) 
     {
         $style = LJ::S2::load_style($u->{'s2_style'});
-        return $err->("Style not found.") unless $style && $style->{'userid'} == $u->{'userid'};
-        $layer = LJ::S2::load_layer($dbh, $style->{'layer'}->{'user'});
+        return $err->( "Style not found." )
+            unless $style && $style->{userid} == $u->userid;
+        $layer = LJ::S2::load_layer( $dbh, $style->{layer}->{user} );
     }
 
     unless ($layer) {
@@ -65,9 +66,10 @@ _c?>
         return;
     }
 
-    return $err->($ML{'.layer.belongs'}) unless $layer->{'userid'} == $u->{'userid'};
-    return $err->($ML{'.layer.isnt.type2'}) 
-        unless $layer->{'type'} eq "user";
+    return $err->( $ML{'.layer.belongs'} )
+        unless $layer->{userid} == $u->userid;
+    return $err->( $ML{'.layer.isnt.type2'} ) 
+        unless $layer->{type} eq "user";
 
     my $lyr_layout = LJ::S2::load_layer($dbh, $layer->{'b2lid'});
     return $err->(BML::ml('.layout.layer', {'layertype'=>$layer->{'type'}})) 

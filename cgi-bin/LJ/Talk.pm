@@ -720,7 +720,7 @@ sub get_talk_data
         # find all singletons that LJ::Comment knows about, then grep for the ones we've set in
         # this get_talk_data call (ones for this userid / nodeid)
         my @comments_for_entry = 
-            grep { $_->journalid == $u->{userid} && $_->nodeid == $nodeid } LJ::Comment->all_singletons;
+            grep { $_->journalid == $u->userid && $_->nodeid == $nodeid } LJ::Comment->all_singletons;
         
         $entry->set_comment_list(@comments_for_entry);
     };
@@ -3391,7 +3391,7 @@ sub require_captcha_test {
     ##
     ## 2. Don't show captcha to the owner of the journal, no more checks
     ##
-    if (!$anon_commenter && $commenter->{userid}==$journal->{userid}) {
+    if ( !$anon_commenter && $commenter->equals( $journal ) ) {
         return;
     }
 

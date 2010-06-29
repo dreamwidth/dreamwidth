@@ -105,7 +105,7 @@ sub verify_and_load_style {
         $style = undef;
     }
 
-    unless ($style && $style->{'userid'} == $u->{'userid'}) {
+    unless ( $style && $style->{userid} == $u->userid ) {
         my $theme;
         if ($LJ::DEFAULT_STYLE->{theme}) {
             $theme = LJ::S2Theme->load_by_uniq($LJ::DEFAULT_STYLE->{theme});
@@ -424,8 +424,8 @@ sub load_all_s2_props {
         $layer->{b2lid} = $LJ::S2LID_REMAP{$b2lid};
     }
 
-    die "Layer belongs to another user. $layer->{userid} vs $u->{userid}" unless $layer->{'userid'} == $u->{'userid'};
-    die "Layer isn't of type user or theme." unless $layer->{'type'} eq "user" || $layer->{'type'} eq "theme";
+    die "Layer belongs to another user. $layer->{userid} vs $u->{userid}" unless $layer->{userid} == $u->userid;
+    die "Layer isn't of type user or theme." unless $layer->{type} eq "user" || $layer->{type} eq "theme";
 
     my @layerids = $class->get_layerids($style);
     LJ::S2::load_layers(@layerids);
@@ -764,7 +764,7 @@ sub s2_implicit_style_create
 
     # Create new style if necessary
     my $s2style = LJ::S2::load_style($u->prop('s2_style'));
-    if (! ($s2style && $s2style->{'userid'} eq $u->{'userid'}) || $opts->{'force'}) {
+    if ( ! ( $s2style && $s2style->{userid} == $u->userid ) || $opts->{force} ) {
         my $themeid = $style{theme};
         my $layoutid = $style{layout};
         my $layer = $pub->{$themeid} || $userlay->{$themeid} || $userlay->{$layoutid};

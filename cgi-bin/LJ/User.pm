@@ -1056,7 +1056,7 @@ sub kill_all_sessions {
         or return 0;
 
     # forget this user, if we knew they were logged in
-    if ($LJ::CACHE_REMOTE && $LJ::CACHE_REMOTE->userid == $u->userid) {
+    if ( $LJ::CACHE_REMOTE && $u->equals( $LJ::CACHE_REMOTE ) ) {
         LJ::Session->clear_master_cookie;
         LJ::User->set_remote(undef);
     }
@@ -1074,7 +1074,7 @@ sub kill_session {
 
     $sess->destroy;
 
-    if ($LJ::CACHE_REMOTE && $LJ::CACHE_REMOTE->userid == $u->userid) {
+    if ( $LJ::CACHE_REMOTE && $u->equals( $LJ::CACHE_REMOTE ) ) {
         LJ::Session->clear_master_cookie;
         LJ::User->set_remote(undef);
     }
@@ -8382,8 +8382,8 @@ sub make_journal {
     # hashref has the value of $u's opt_nctalklinks (though with
     # LJ::load_user caching, this may be assigning between the same
     # underlying hashref)
-    $remote->{'opt_nctalklinks'} = $u->{'opt_nctalklinks'} if
-        ( $remote && $remote->userid == $u->userid );
+    $remote->{opt_nctalklinks} = $u->{opt_nctalklinks}
+        if $remote && $remote->equals( $u );
 
     my $stylesys = 1;
     if ($styleid == -1) {

@@ -102,8 +102,8 @@ _c?>
     }
 
     my $secwhere = "AND l.security='public'";
-    if ($remote) {
-        if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
+    if ( $remote ) {
+        if ( $remote->equals( $u ) || $viewall ) {
             $secwhere = "";   # see everything
         } elsif ( $remote->is_person ) {
             my $gmask = $u->trustmask( $remote );

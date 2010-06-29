@@ -928,7 +928,7 @@ sub create_style
     return 0 unless $name =~ /\S/;
 
     $dbh->do("INSERT INTO s2styles (userid, name, modtime) VALUES (?,?, UNIX_TIMESTAMP())",
-             undef, $u->{'userid'}, $name);
+             undef, $u->userid, $name);
     my $styleid = $dbh->{'mysql_insertid'};
     return 0 unless $styleid;
 
@@ -950,7 +950,7 @@ sub load_user_styles
     my $load_using = sub {
         my $db = shift;
         my $sth = $db->prepare("SELECT styleid, name FROM s2styles WHERE userid=?");
-        $sth->execute($u->{'userid'});
+        $sth->execute( $u->userid );
         while (my ($id, $name) = $sth->fetchrow_array) {
             $styles{$id} = $name;
         }
@@ -1291,15 +1291,15 @@ sub layer_compile
         $s2ref = \$s2;
     }
 
-    my $is_system = $layer->{'userid'} == LJ::get_userid("system");
-    my $untrusted = ! $LJ::S2_TRUSTED{$layer->{'userid'}} && ! $is_system;
+    my $is_system = $layer->{userid} == LJ::get_userid( "system" );
+    my $untrusted = ! $LJ::S2_TRUSTED{$layer->{userid}} && ! $is_system;
 
     # system writes go to global.  otherwise to user clusters.
     my $dbcm;
     if ($is_system) {
         $dbcm = $dbh;
     } else {
-        my $u = LJ::load_userid($layer->{'userid'});
+        my $u = LJ::load_userid( $layer->{userid} );
         $dbcm = $u;
     }
 
@@ -1372,7 +1372,7 @@ sub layer_compile
         my $gzipped = LJ::text_compress($compiled);
         $dbcm->do("REPLACE INTO s2compiled2 (userid, s2lid, comptime, compdata) ".
                   "VALUES (?, ?, UNIX_TIMESTAMP(), ?)", undef,
-                  $layer->{'userid'}, $lid, $gzipped) or die "replace into s2compiled2 (lid = $lid)";
+                  $layer->{userid}, $lid, $gzipped) or die "replace into s2compiled2 (lid = $lid)";
     }
 
     # delete from memcache; we can't store since we don't know the exact comptime
@@ -2604,7 +2604,7 @@ sub viewer_is_owner
     my $remote = LJ::get_remote();
     return 0 unless $remote;
     return 0 unless defined($LJ::S2::CURR_PAGE);
-    return $remote->{userid} == $LJ::S2::CURR_PAGE->{_u}->{userid};
+    return $remote->equals( $LJ::S2::CURR_PAGE->{_u} );
 }
 
 # NOTE: this method is old and deprecated, but we still support it for people
@@ -3742,7 +3742,7 @@ sub _Entry__get_link
     }
     if ($key eq "tell_friend") {
         return $null_link unless LJ::is_enabled('tellafriend');
-        my $entry = LJ::Entry->new($journalu->{'userid'}, ditemid => $this->{'itemid'});
+        my $entry = LJ::Entry->new( $journalu->userid, ditemid => $this->{itemid} );
         return $null_link unless $entry->can_tellafriend($remote);
         return LJ::S2::Link("$LJ::SITEROOT/tools/tellafriend?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_tell_friend"},

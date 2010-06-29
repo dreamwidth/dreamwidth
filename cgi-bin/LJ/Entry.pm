@@ -1640,7 +1640,7 @@ sub get_log2_recent_user
 
         if ($item->{'security'} eq 'usemask') {
             next unless $remote->is_individual;
-            my $permit = ($item->{'journalid'} == $remote->{'userid'});
+            my $permit = ( $item->{journalid} == $remote->userid );
             unless ($permit) {
                 # $mask for $item{journalid} should always be the same since get_log2_recent_log
                 # selects based on the $u we pass in; $u->id == $item->{journalid} from what I can see
@@ -1714,7 +1714,7 @@ sub get_itemid_near2
     my $remote = LJ::get_remote();
 
     if ($remote) {
-        if ($remote->{'userid'} == $u->{'userid'}) {
+        if ( $remote->equals( $u ) ) {
             $secwhere = "";   # see everything
         } elsif ( $remote->is_individual ) {
             my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );
@@ -1797,7 +1797,7 @@ sub set_logprop
     $u->do("REPLACE INTO logprop2 (journalid, jitemid, propid, value) ".
            "VALUES $ins_values") if $ins_values;
     $u->do("DELETE FROM logprop2 WHERE journalid=? AND jitemid=? ".
-           "AND propid IN ($del_ids)", undef, $u->{'userid'}, $jitemid) if $del_ids;
+           "AND propid IN ($del_ids)", undef, $u->userid, $jitemid) if $del_ids;
 
     LJ::MemCache::delete([$uid,"logprop:$uid:$jitemid"]) if $kill_mem;
 }
@@ -2015,11 +2015,11 @@ sub reject_entry_as_spam {
     # step 1: get info we need
     my ($posterid, $logtime) = $dbcr->selectrow_array(
         "SELECT posterid, logtime FROM modlog WHERE journalid=? AND modid=?",
-        undef, $journalu->{'userid'}, $modid);
+        undef, $journalu->userid, $modid);
 
     my $frozen = $dbcr->selectrow_array(
         "SELECT request_stor FROM modblob WHERE journalid=? AND modid=?",
-        undef, $journalu->{'userid'}, $modid);
+        undef, $journalu->userid, $modid);
 
     use Storable;
     my $req = $frozen ? Storable::thaw($frozen) : undef;
