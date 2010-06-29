@@ -320,6 +320,10 @@
 
     # default to limit to 50,000 watch or trust edges to load
     $LJ::MAX_WT_EDGES_LOAD ||= 50_000;
+
+
+    # to avoid S2 error "Excessive recursion detected and stopped."
+    $S2::MAX_RECURSION = 500;
 }
 
 
