@@ -63,6 +63,23 @@ sub ReplyPage
     $p->{'head_content'} .= $LJ::COMMON_CODE{'chalresp_js'};
 
     LJ::need_res('stc/display_none.css');
+    
+    # libs for userpicselect
+    LJ::need_res(qw(
+                    js/core.js
+                    js/dom.js
+                    js/json.js
+                    js/template.js
+                    js/ippu.js
+                    js/lj_ippu.js
+                    js/userpicselect.js
+                    js/httpreq.js
+                    js/hourglass.js
+                    js/inputcomplete.js
+                    stc/ups.css
+                    js/datasource.js
+                    js/selectable_table.js
+                    )) if LJ::is_enabled('userpicselect') && $remote && $remote->can_use_userpic_select;
 
     if ($u->should_block_robots || $entry->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
