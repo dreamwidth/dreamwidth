@@ -66,6 +66,7 @@ CutTagHandler = new Class(Object, {
         $('img-' + this.identifier).title=expanded;
         $("img-" + this.identifier).src= Site.imgprefix + "/expand.gif";
         CutTagHandler.initLinks(replaceDiv);
+        LiveJournal.initPlaceholders(replaceDiv);
       }
     }
   });

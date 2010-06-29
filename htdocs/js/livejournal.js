@@ -43,7 +43,7 @@ LiveJournal.initPage = function () {
     LiveJournal.pageLoaded = 1;
 
     // set up various handlers for every page
-    LiveJournal.initPlaceholders();
+    LiveJournal.initPagePlaceholders();
     LiveJournal.initLabels();
     LiveJournal.initInboxUpdate();
     LiveJournal.initPolls();
@@ -109,8 +109,12 @@ LiveJournal.gotInboxUpdate = function (resp) {
 };
 
 // Search for placeholders and initialize them
-LiveJournal.initPlaceholders = function () {
-    var placeholders = DOM.getElementsByTagAndClassName(document, "img", "LJ_Placeholder") || [];
+LiveJournal.initPagePlaceholders = function () {
+  LiveJournal.initPlaceholders(document);
+}
+
+LiveJournal.initPlaceholders = function (srcElement) {
+    var placeholders = DOM.getElementsByTagAndClassName(srcElement, "img", "LJ_Placeholder") || [];
 
     Array.prototype.forEach.call(placeholders, function (placeholder) {
         var parent = DOM.getFirstAncestorByClassName(placeholder, "LJ_Placeholder_Container", false);
@@ -190,7 +194,7 @@ var PollPages = {
 };
 
 LiveJournal.initPolls = function () {
-    var pollLinks = DOM.getElementsByTagAndClassName(document, 'a', "LJ_PollAnswerLink") || [];  
+    var pollLinks = DOM.getElementsByTagAndClassName(document, 'a', "LJ_PollAnswerLink") || [];
 
     // attach click handlers to each answer link
     Array.prototype.forEach.call(pollLinks, function (pollLink) {
