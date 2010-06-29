@@ -323,7 +323,7 @@
 
 
     # to avoid S2 error "Excessive recursion detected and stopped."
-    $S2::MAX_RECURSION = 500;
+    $S2::MAX_RECURSION ||= 500;
 }
 
 
