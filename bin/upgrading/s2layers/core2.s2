@@ -690,6 +690,9 @@ class RecentPage extends Page
     var string filter_name
     "The name of the filter in effect, if it has a name. This is only used when [member[RecentPage.filter_active]] is true.";
 
+    var bool filter_tags
+    "If true, the page is being filtered to only entries tagged with a specific tag. This is only used when [member[RecentPage.filter_active]] is true.";
+
 }
 
 class FriendsPage extends RecentPage
@@ -3319,7 +3322,11 @@ function Page::view_title() [notags] : string {
 }
 function RecentPage::view_title() : string {
     if ($.filter_active) {
-        return $*text_view_recent_tagged + $.filter_name;
+        if ($.filter_tags) {
+            return $*text_view_recent_tagged + $.filter_name;
+        } else {
+            return "(" + $.filter_name + ")";
+        }
     }
     else {
         return $*text_view_recent;

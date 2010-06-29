@@ -29,11 +29,12 @@ sub RecentPage
     $opts->{'addfeeds'} = 1;
 
     my $p = Page($u, $opts);
-    $p->{'_type'} = "RecentPage";
-    $p->{'view'} = "recent";
-    $p->{'entries'} = [];
-    $p->{'filter_active'} = 0;
-    $p->{'filter_name'} = "";
+    $p->{_type} = "RecentPage";
+    $p->{view} = "recent";
+    $p->{entries} = [];
+    $p->{filter_active} = 0;
+    $p->{filter_name} = "";
+    $p->{filter_tags} = 0;
 
     # Link to the friends page as a "group", for use with OpenID "Group Membership Protocol"
     {
@@ -63,9 +64,15 @@ sub RecentPage
     $remote->preload_props( "opt_nctalklinks", "opt_cut_disable_journal") if $remote;
 
     if ( $opts->{tags} ) {
-        $p->{'filter_active'} = 1;
-        $p->{'filter_name'} = join(", ", @{$opts->{tags}});
+        $p->{filter_active} = 1;
+        $p->{filter_name} = join(", ", @{$opts->{tags}});
+        $p->{filter_tags} = 1;
     }
+
+    if ( $opts->{securityfilter} ) {
+        $p->{filter_active} = 1;
+        $p->{filter_name} = $opts->{securityfilter};
+    } 
 
     my $get = $opts->{'getargs'};
 

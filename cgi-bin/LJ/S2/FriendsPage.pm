@@ -125,9 +125,12 @@ sub FriendsPage
     my $cf = $u->content_filters( name => $group_name || "Default" ) ||
              $u->content_filters( name => "Default View" );
 
-    # but we can't just use a filter, we have to make sure the person is allowed to
     my $filter;
-    unless ( $opts->{securityfilter} ) {
+    if ( $opts->{securityfilter} ) {
+            $p->{filter_active} = 1;
+            $p->{filter_name} = $opts->{securityfilter};
+    } else {
+    # but we can't just use a filter, we have to make sure the person is allowed to
         if ( ( $get->{filter} ne "0" ) && $cf && ( $u->equals( $remote ) || $cf->public ) ) {
             $filter = $cf;
 
