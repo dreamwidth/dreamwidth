@@ -262,8 +262,10 @@ sub s2_run
     S2::Builtin::LJ::start_css($ctx) if $css_mode;
     eval {
         if ( ref $entry ) {
-            S2::run_code( $ctx, $_, $page )
-                foreach ( @$entry );
+            foreach ( @$entry ) {
+                S2::run_code( $ctx, $_, $page )
+                    if S2::function_exists( $ctx, $_ );
+            }
         } else {
             S2::run_code( $ctx, $entry, $page );
         }
