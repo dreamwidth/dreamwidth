@@ -3724,6 +3724,17 @@ sub can_manage_other {
 }
 
 
+sub can_moderate {
+    # true if the first user can moderate the target user.
+    my ( $u, $target ) = @_;
+    # backward compatibility: allow $target to be a userid
+    $target = LJ::want_user( $target ) or return undef;
+
+    return 1 if $u->can_manage_other( $target );
+    return LJ::check_rel( $target, $u, 'M' );
+}
+
+
 # can $u post to $targetu?
 sub can_post_to {
     my ( $u, $targetu ) = @_;

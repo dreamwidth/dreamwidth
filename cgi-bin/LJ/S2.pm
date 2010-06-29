@@ -2667,7 +2667,7 @@ sub viewer_is_moderator {
 
     my $ju = $LJ::S2::CURR_PAGE->{_u};
     return 0 unless $ju->is_community;
-    return LJ::check_rel( $ju, $remote, 'M' );
+    return $remote->can_moderate( $ju );
 }
 
 sub viewer_can_manage_tags
