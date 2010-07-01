@@ -2215,4 +2215,77 @@ sub item_toutf8
     return;
 }
 
+# function to fill in hash for basic currents
+sub currents {
+    my ( $props, $u, $key ) = @_;
+    return unless ref $props eq 'HASH';
+    my %current;
+
+    # Mood
+    if ( $props->{"${key}current_mood"} || $props->{"${key}current_moodid"} ) {
+        my $moodid = $props->{"${key}current_moodid"};
+        my $mood = $props->{"${key}current_mood"};
+        my $moodname;
+        my $moodpic;
+
+        # favor custom mood over system mood
+        if ( my $val = $mood ) {
+             LJ::CleanHTML::clean_subject( \$val );
+             $moodname = $val;
+        }
+
+        if ( my $val = $moodid ) {
+            $moodname ||= DW::Mood->mood_name( $val );
+            my $themeid = LJ::isu( $u ) ? $u->moodtheme : undef;
+            # $u might be a hashref instead of a user object?
+            $themeid ||= ref $u ? $u->{moodthemeid} : undef;
+            my $theme = DW::Mood->new( $themeid );
+            my %pic;
+            if ( $theme && $theme->get_picture( $val, \%pic ) ) {
+                $moodpic = "<img class='moodpic' src=\"$pic{pic}\" align='absmiddle' " .
+                           "width='$pic{w}' height='$pic{h}' vspace='1' alt='' /> ";
+            }
+        }
+
+        $current{Mood} = "$moodpic$moodname";
+    }
+
+    # Music
+    if ( $props->{"${key}current_music"} ) {
+        $current{Music} = $props->{"${key}current_music"};
+        LJ::CleanHTML::clean_subject( \$current{Music} );
+    }
+
+    # Location
+    if ( $props->{"${key}current_location"} || $props->{"${key}current_coords"} ) {
+        my $loc = eval { LJ::Location->new( coords   => $props->{"${key}current_coords"},
+                                            location => $props->{"${key}current_location"}
+                                          ) };
+        $current{Location} = $loc->as_html_current if $loc;
+    }
+
+    return %current;
+}
+
+# function to format table for currents display
+sub currents_table {
+    my ( %current ) = @_;
+    my $ret = '';
+    return $ret unless %current;
+
+    $ret .= "<table class='currents' border=0>\n";
+    foreach ( sort keys %current ) {
+        my $curkey = "talk.curname_" . $_;
+        my $curname = LJ::Lang::ml( $curkey );
+        $curname = "<b>Current $_:</b>" unless $curname;
+
+        $ret .= "<tr><td align='right'>$curname</td>";
+        $ret .= "<td>$current{$_}</td></tr>\n";
+    }
+    $ret .= "</table><p>\n";
+
+    return $ret;
+}
+
+
 1;

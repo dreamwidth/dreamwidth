@@ -446,43 +446,14 @@ body<=
         $ret .= BML::fill_template("standout", {'DATA'=> $actions});
         $ret .= "</form>";
 
-        my %current;
-        if ($props->{'current_mood'} || $props->{'current_moodid'}) {
-            $current{'Mood'} = $props->{'current_mood'};
-            LJ::CleanHTML::clean_subject(\$current{'Mood'});
-            if ( my $mid = $props->{current_moodid} ) {
-                my $theme = $up ? DW::Mood->new( $up->moodtheme ) : undef;
-                my %pic;
-                my $name = DW::Mood->mood_name( $mid );
-                if ( $theme && $theme->get_picture( $mid, \%pic ) ) {
-                    $current{Mood} =
-                        "<img src='$pic{pic}' align='absmiddle' "
-                        . "width='$pic{w}' height='$pic{h}' vspace='1'> $name";
-                } else {
-                    $current{Mood} = $name;
-                }
-            }
-        }
-        if ($props->{'current_music'}) {
-            $current{'Music'} = $props->{'current_music'};
-            LJ::CleanHTML::clean_subject(\$current{'Music'});
-        }
+        my %current = LJ::currents( $props, $up );
+
         if ($props->{'taglist'}) {
             $current{'Tags'} = join(", ", sort split(/\s*,\s*/, $props->{'taglist'}));
         }
 
         $ret .= "<div style='margin-left: 30px'>";
-        if (%current)
-        {
-            $ret .= "<table border=0>\n";
-            foreach (sort keys %current) {
-                my $curkey = "talk.curname_" . $_;
-                my $curname = BML::ml($curkey);
-                $curname = "<b>Current $_:</b>" unless $curname;
-                $ret .= "<tr><td align=right>$curname</td><td>$current{$_}</td></tr>\n";
-            }
-            $ret .= "</table><p>\n";
-        }
+        $ret .= LJ::currents_table( %current );
 
         ### security indicator
         my $sec = "";

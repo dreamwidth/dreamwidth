@@ -1866,10 +1866,9 @@ sub Entry
     }
 
     my $p = $arg->{'props'};
-    if ($p->{'current_music'}) {
-        $e->{'metadata'}->{'music'} = $p->{'current_music'};
-        LJ::CleanHTML::clean_subject(\$e->{'metadata'}->{'music'});
-    }
+    my %current = LJ::currents( $p );
+    $e->{metadata}->{lc $_} = $current{$_} foreach keys %current;
+    # FIXME: mood reassigned below - doesn't match LJ::currents code
 
     # check for xpost values
     if ( $p->{xpostdetail} ) {
@@ -1906,12 +1905,6 @@ sub Entry
     if ($p->{'current_mood'}) {
         $e->{'metadata'}->{'mood'} = $p->{'current_mood'};
         LJ::CleanHTML::clean_subject(\$e->{'metadata'}->{'mood'});
-    }
-
-    if ($p->{'current_location'} || $p->{'current_coords'}) {
-        my $loc = eval { LJ::Location->new(coords   => $p->{'current_coords'},
-                                           location => $p->{'current_location'}) };
-        $e->{'metadata'}->{'location'} = $loc->as_html_current if $loc;
     }
 
     my $r = BML::get_request();

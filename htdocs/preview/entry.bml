@@ -148,42 +148,7 @@ _c?>
         }
 
         ## dump the log entry, unless we're browsing a thread.
-        my %current;
-        if ($req{'prop_current_mood'} || $req{'prop_current_moodid'}) {
-            my $moodid = $req{'prop_current_moodid'};
-            my $mood = $req{'prop_current_mood'};
-
-            my $moodname;
-            my $moodpic;
-
-            # favor custom mood over system mood
-            if (my $val = $mood) {
-                LJ::CleanHTML::clean_subject(\$val);
-                $moodname = $val;
-            }
-
-            if ( my $val = $moodid ) {
-                $moodname ||= DW::Mood->mood_name( $val );
-                my $themeid = $up ? $up->moodtheme : undef;
-                my $theme = DW::Mood->new( $themeid );
-                my %pic;
-                if ( $theme && $theme->get_picture( $val, \%pic ) ) {
-                    $moodpic = "<img class='moodpic' src=\"$pic{pic}\" align='absmiddle' " .
-                               "width='$pic{w}' height='$pic{h}' vspace='1' alt='' /> ";
-                }
-            }
-
-            $current{'Mood'} = "$moodpic$moodname";
-        }
-        if ($req{'prop_current_music'}) {
-            $current{'Music'} = $req{'prop_current_music'};
-            LJ::CleanHTML::clean_subject(\$current{'Music'});
-        }
-        if ( $req{prop_current_location} || $req{prop_current_coords} ) {
-            my $loc = eval { LJ::Location->new( coords   => $req{prop_current_coords},
-                                               location => $req{prop_current_location} ) };
-            $current{Location} = $loc->as_html_current if $loc;
-        }    
+        my %current = LJ::currents( \%req, $up, 'prop_' );
 
         # custom friend groups
         if ( $u ) {
@@ -203,17 +168,7 @@ _c?>
 
         $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
 
-        if (%current)
-        {
-            $ret .= "<table border=0>\n";
-            foreach (sort keys %current) {
-                my $curkey = "talk.curname_" . $_;
-                my $curname = BML::ml($curkey);
-                $curname = "<b>Current $_:</b>" unless $curname;
-                $ret .= "<tr><td align=right>$curname</td><td>$current{$_}</td></tr>\n";
-            }
-            $ret .= "</table><p>\n";
-        }
+        $ret .= LJ::currents_table( %current );
 
         ### security indicator
         my $sec = "";
