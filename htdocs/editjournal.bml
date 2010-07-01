@@ -190,6 +190,12 @@ body<=
             ### SAVE EDITS
             ###
 
+            # add in this value in case we had to submit the form using
+            # javascript
+            if ( $POST{'submit_value'} ) {
+                $POST{$POST{'submit_value'}} = 1;
+            }
+
             # are we spellchecking before we post?
             my $spellcheck_html;
             my $did_spellcheck;

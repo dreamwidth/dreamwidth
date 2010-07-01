@@ -1722,11 +1722,16 @@ MOODS
             $out .= "<span class='inputgroup-right'>";
             # extra submit button so make sure it posts the form when person presses enter key
             if ($opts->{'mode'} eq "edit") {
-                $out .= "<input type='submit' name='action:save' class='hidden_submit' />";
+                $out .= "<input type='submit' name='action:save' class='hidden_submit xpost_submit' />";
             }
             if ($opts->{'mode'} eq "update") {
-                $out .= "<input type='submit' name='action:update' class='hidden_submit' />";
+                $out .= "<input type='submit' name='action:update' class='hidden_submit xpost_submit' />";
             }
+
+            # submit_value field to emulate the submit button selected if we
+            # have to submit with javascript
+            $out .= "<input type='hidden' name='submit_value' />";
+
             my $preview;
             $preview    = "<input type='button' value='" . BML::ml('entryform.preview') . "' onclick='entryPreview(this.form)' tabindex='" . $tabindex->() . "' />";
             if(!$opts->{'disabled_save'}) {
@@ -1917,7 +1922,9 @@ PREVIEW
             $$onload .= " changeSecurityOptions('$defaultjournal');" unless $opts->{'security'};
 
             $out .= LJ::html_submit('action:update', BML::ml('entryform.update4'),
-                    { 'onclick' => $onclick, 'class' => 'submit', 'id' => 'formsubmit',
+                    { 'onclick' => $onclick, 
+                      'class' => 'submit xpost_submit', 
+                      'id' => 'formsubmit',
                       'tabindex' => $tabindex->() }) . "&nbsp;\n";
         }
 
@@ -1927,17 +1934,23 @@ PREVIEW
 
             if (!$opts->{'disabled_save'}) {
                 $out .= LJ::html_submit('action:save', BML::ml('entryform.save'),
-                                        { 'onclick' => $onclick, 'disabled' => $opts->{'disabled_save'},
+                                        { 'onclick' => $onclick, 
+                                          'disabled' => $opts->{'disabled_save'},
+                                          'class' => 'xpost_submit',
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
             } elsif ( $opts->{maintainer_mode} ) {
                 $out .= LJ::html_submit('action:savemaintainer', BML::ml('entryform.save.maintainer'),
-                                        { 'onclick' => $onclick, 'disabled' => !$opts->{'maintainer_mode'},
+                                        { 'onclick' => $onclick, 
+                                          'disabled' => !$opts->{'maintainer_mode'},
+                                          'class' => 'xpost_submit',
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
             }
 
             if (!$opts->{'disabled_save'} && $opts->{suspended} && !$opts->{unsuspend_supportid}) {
                 $out .= LJ::html_submit('action:saveunsuspend', BML::ml('entryform.saveandrequestunsuspend2'),
-                                        { 'onclick' => $onclick, 'disabled' => $opts->{'disabled_save'},
+                                        { 'onclick' => $onclick, 
+                                          'disabled' => $opts->{'disabled_save'},
+                                          'class' => 'xpost_submit',
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
             }
 
@@ -1946,12 +1959,14 @@ PREVIEW
             my $delete_onclick = "return XPostAccount.confirmDelete('" . LJ::ejs(BML::ml('entryform.delete.confirm')) . "', '" . LJ::ejs(BML::ml('entryform.delete.xposts.confirm')) . "')";
             $out .= LJ::html_submit('action:delete', BML::ml('entryform.delete'), {
                 'disabled' => $opts->{'disabled_delete'},
+                'class' => 'xpost_submit',
                 'tabindex' => $tabindex->(),
                 'onclick' => $delete_onclick }) . "&nbsp;\n";
 
             if (!$opts->{'disabled_spamdelete'}) {
                 $out .= LJ::html_submit('action:deletespam', BML::ml('entryform.deletespam'), {
                     'onclick' => "return confirm('" . LJ::ejs(BML::ml('entryform.deletespam.confirm')) . "')",
+                    'class' => 'xpost_submit',
                     'tabindex' => $tabindex->() }) . "\n";
             }
         }

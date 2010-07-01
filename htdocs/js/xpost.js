@@ -42,6 +42,16 @@ XPostAccount = new Class(Object, {
       }
     },
 
+    /**
+     * does an ajax call for challenge/response, so if we have an xpost account
+     * where we're not saving the password, we can avoid sending the password
+     * in plaintext.  also checks to see if a required password is not filled
+     * in.
+     *
+     * returns true if this account requires a password and some work has
+     * to be done, false if this account doesn't need a password to be
+     * provided in the form.
+     */
     doChallengeResponse: function () {
       var xpost_button = $("prop_xpost_check");
 
@@ -55,7 +65,7 @@ XPostAccount = new Class(Object, {
           this.setError(xpostPwRequired);
           this.failed = true;
           this.locked = false;
-          return;
+          return true;
         }
         this.setMessage(xpostCheckingMessage + "<input type='button' onclick='XPostAccount.cancelSubmit()' value='" + xpostCancelLabel + "'/>");
 
@@ -67,7 +77,10 @@ XPostAccount = new Class(Object, {
           "onData": this.gotInfo.bind(this)
         };
         window.parent.HTTPReq.getJSON(opts);
+
+        return true;
       }
+      return false;
     },
 
     gotError: function (err) {
@@ -203,9 +216,23 @@ XPostAccount.setUpXpostForm = function () {
   if ( ! updateForm ) return;
 
   DOM.addEventListener(updateForm, "submit", XPostAccount.xpostFormSubmitted.bindEventListener(updateForm));
+
+  var domObjects = document.getElementsByTagName("input");
+  var submitButtons = DOM.filterElementsByClassName(domObjects, "xpost_submit") || [];
+  for (var i = 0; i < submitButtons.length; i++) {
+    DOM.addEventListener(submitButtons[i], "click", XPostAccount.saveSubmitValue.bindEventListener(submitButtons[i]));
+  }
+
   XPostAccount.loadAccounts();
   XPostAccount.xpostAcctUpdated();
   XPostAccount.updateXpostFromJournal(xpostUser);
+}
+
+/**
+ *  Saves the value for the submit button selected.
+ */
+XPostAccount.saveSubmitValue = function () {
+  XPostAccount.submitName = this.name;
 }
 
 // When the form is submitted, compute the challenge response and clear out the plaintext password field
@@ -217,14 +244,18 @@ XPostAccount.xpostFormSubmitted = function (evt) {
 
   if (! XPostAccount.skipChecks) {
 
-    $('formsubmit').disabled=true;
-    evt.preventDefault();
-
+    var preventDefault = false;
     for (var i = 0; i < XPostAccount.accounts.length; i++) {
-      XPostAccount.accounts[i].doChallengeResponse();
+      if (XPostAccount.accounts[i].doChallengeResponse()) {
+        preventDefault = true;
+      }
     }
 
-    XPostAccount.checkComplete();
+    if (preventDefault) {
+      XPostAccount.setSubmitDisabled(true);
+      evt.stop();
+      XPostAccount.checkComplete();
+    }
   }
 }
 
@@ -265,7 +296,7 @@ XPostAccount.doCancel = function() {
   for (var i = 0; i < XPostAccount.accounts.length; i++) {
     XPostAccount.accounts[i].clearSettings();
   }
-  $('formsubmit').disabled=false;
+  XPostAccount.setSubmitDisabled(false);
 }
 
 XPostAccount.doSpellcheck = function() {
@@ -281,9 +312,21 @@ XPostAccount.doFormSubmit = function() {
   for (var i = 0; i < XPostAccount.accounts.length; i++) {
     XPostAccount.accounts[i].clearPassword();
   }
+  // we can't properly emulate pressing the submit button, so instead include
+  // the value here.
+  updateForm['submit_value'].value = XPostAccount.submitName;
   updateForm.submit();
 
   return false;
+}
+
+// sets the disabled status of all xpost_submit buttons.
+XPostAccount.setSubmitDisabled = function(value) {
+  var domObjects = document.getElementsByTagName("input");
+  var submitButtons = DOM.filterElementsByClassName(domObjects, "xpost_submit") || [];
+  for (var i = 0; i < submitButtons.length; i++) {
+    submitButtons[i].disabled=value;
+  }
 }
 
 LiveJournal.register_hook("page_load", XPostAccount.setUpXpostForm);
