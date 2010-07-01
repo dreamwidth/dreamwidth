@@ -1097,8 +1097,8 @@ sub get_logtext2multi {
     return _get_posts_raw_wrapper(shift, "text");
 }
 
-# this function is used to translate the old get_logtext2multi and load_log_props2multi
-# functions into using the new get_posts_raw.  eventually, the above functions should
+# this function is used to translate the old get_logtext2multi function
+# into using the new get_posts_raw.  eventually, the above function should
 # be taken out of the rest of the code, at which point this function can also die.
 sub _get_posts_raw_wrapper {
     # args:
@@ -1883,20 +1883,6 @@ sub load_log_props2
     }
 
 
-}
-
-# <LJFUNC>
-# name: LJ::load_log_props2multi
-# class:
-# des:
-# info:
-# args:
-# des-:
-# returns:
-# </LJFUNC>
-sub load_log_props2multi {
-    my ($ids, $props) = @_;
-    _get_posts_raw_wrapper($ids, "prop", $props);
 }
 
 # <LJFUNC>
