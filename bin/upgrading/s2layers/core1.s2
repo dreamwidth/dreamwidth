@@ -981,7 +981,7 @@ property string lang_fmt_time_short_24 {
     noui = 1;
     des = "Time format (24-hour).";
 }
-set lang_fmt_time_short = "%%HH%%:%%min%%";
+set lang_fmt_time_short_24 = "%%HH%%:%%min%%";
 
 property string lang_fmt_month_short {
     noui = 1;
