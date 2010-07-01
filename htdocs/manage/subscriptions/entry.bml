@@ -79,6 +79,7 @@ body<=
             event   => "JournalNewEntry",
             arg1    => '?',
             journal => $journal,
+            entry   => $entry,
             flags   => LJ::Subscription::TRACKING,
         ),
         LJ::Subscription::Pending->new( $remote,

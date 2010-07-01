@@ -325,12 +325,30 @@ sub subscription_as_html {
 
     if ($arg1 eq '?') {
         my @unsub_tags = $class->unsubscribed_tags($subscr);
-        my @tagdropdown;
+        my %entry_tags = $subscr->entry ? map { $_ => 1 } $subscr->entry->tags : ();
+
+        my @entrytagdropdown;
+        my @fulltagdropdown;
 
         foreach my $unsub_tag (@unsub_tags) {
             while (my ($tagid, $name) = each %$unsub_tag) {
-                push @tagdropdown, ($tagid, $name);
+                if ( $entry_tags{$name} ) {
+                    push @entrytagdropdown, { value => $tagid, text => $name };
+                } else {
+                    push @fulltagdropdown, { value => $tagid, text => $name };
+                }
             }
+        }
+
+        my @tagdropdown;
+
+        if ( @entrytagdropdown ) {
+            @tagdropdown = (
+                { optgroup => LJ::Lang::ml( 'event.journal_new_entry.taglist.entry' ), items => \@entrytagdropdown },
+                { optgroup => LJ::Lang::ml( 'event.journal_new_entry.taglist.full' ), items => \@fulltagdropdown },
+            );
+        } else {
+            @tagdropdown = @fulltagdropdown;
         }
 
         $usertags = LJ::html_select({

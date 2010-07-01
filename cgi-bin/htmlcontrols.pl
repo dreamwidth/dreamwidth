@@ -138,6 +138,7 @@ sub html_datetime_decode
 # des: Creates a drop-down box or listbox HTML form element (the <select> tag).
 # info:
 # args: opts
+# A hashref with an attribute of optgroup will be treated as a list of of value => text pairs within an optgroup
 # des-opts: A hashref of options. Special options are:
 #           'raw' - inserts value unescaped into select tag;
 #           'noescape' - won't escape key values if set to 1;
@@ -184,28 +185,42 @@ sub html_select
             $text = shift @items;
         }
 
-        my $sel = "";
-        # multiple-mode or single-mode?
-        if (ref $selref eq 'HASH' && $selref->{$value} ||
-            $opts->{'selected'} eq $value && !$did_sel++) {
-
-            $sel = " selected='selected'";
+        if ( $it->{optgroup} ) {
+            $ret .= "<optgroup label='$it->{optgroup}'>";
+            $ret .= LJ::_html_option( $_->{value}, $_->{text}, {}, $opts, $ehtml, $selref, \$did_sel )
+                foreach @{$it->{items} || []};
+            $ret .= "</optgroup>";
+        } else {
+            $ret .= LJ::_html_option( $value, $text, $it, $opts, $ehtml,
+                $selref, \$did_sel );
         }
-        $value  = $ehtml ? ehtml($value) : $value;
-
-        my $id;
-        if ($opts->{'include_ids'} && $opts->{'name'} ne "" && $value ne "") {
-            $id = " id='$opts->{'name'}_$value'";
-        }
-
-        # is this individual option disabled?
-        my $dis = $it->{'disabled'} ? " disabled='disabled' style='color: #999;'" : '';
-
-        $ret .= "<option value=\"$value\"$id$sel$dis>" .
-                 ($ehtml ? ehtml($text) : $text) . "</option>\n";
     }
     $ret .= "</select>";
     return $ret;
+}
+
+sub _html_option {
+    my ( $value, $text, $item, $opts, $ehtml, $selref, $did_sel ) = @_;
+
+    my $sel = "";
+    # multiple-mode or single-mode?
+    if ( ref $selref eq 'HASH' && $selref->{$value} ||
+        $opts->{selected} eq $value && ! $$did_sel++ ) {
+
+        $sel = " selected='selected'";
+    }
+    $value  = $ehtml ? ehtml( $value ) : $value;
+
+    my $id;
+    if ( $opts->{include_ids} && $opts->{name} ne "" && $value ne "" ) {
+        $id = " id='$opts->{'name'}_$value'";
+    }
+
+    # is this individual option disabled?
+    my $dis = $item->{disabled} ? " disabled='disabled' style='color: #999;'" : '';
+
+    return "<option value=\"$value\"$id$sel$dis>" .
+             ( $ehtml ? ehtml( $text ) : $text ) . "</option>\n";
 }
 
 # <LJFUNC>

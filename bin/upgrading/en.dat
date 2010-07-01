@@ -1911,6 +1911,10 @@ event.journal_new_entry.tag.community=Someone posts an entry tagged [[tags]] to 
 
 event.journal_new_entry.tag.user=[[user]] posts a new entry tagged [[tags]]
 
+event.journal_new_entry.taglist.entry=Entry tags
+
+event.journal_new_entry.taglist.full=Other tags
+
 event.journal_new_entry.user=[[user]] posts a new entry.
 
 event.officialpost=[[sitename]] makes a new announcement

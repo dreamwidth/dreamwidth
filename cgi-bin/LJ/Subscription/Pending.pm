@@ -38,6 +38,10 @@ sub new {
     my $default_selected = delete $opts{default_selected} || 0;
     my $flags            = delete $opts{flags} || 0;
 
+    # optional entry arg
+    # used to provide need additional context, not saved
+    my $entry = delete $opts{entry};
+
     $journalu = LJ::want_user($journalu) if $journalu;
 
     croak "Invalid user object passed to LJ::Subscription::Pending->new" if $journalu && ! LJ::isu($journalu);
@@ -70,6 +74,7 @@ sub new {
         userid           => $u->{userid},
         u                => $u,
         journal          => $journalu,
+        entry            => $entry,
         etypeid          => $etypeid,
         ntypeid          => $ntypeid,
         arg1             => $arg1,
@@ -86,6 +91,7 @@ sub pending { 1 }
 
 sub journal           { $_[0]->{journal}}
 sub journalid         { $_[0]->{journal} ? $_[0]->{journal}->{userid} : 0 }
+sub entry             { $_[0]->{entry} };
 sub default_selected  { $_[0]->{default_selected} && ! $_[0]->disabled }
 
 sub disabled {
