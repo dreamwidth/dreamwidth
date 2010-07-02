@@ -2275,6 +2275,8 @@ sub currents_table {
 
     $ret .= "<table class='currents' border=0>\n";
     foreach ( sort keys %current ) {
+        next unless $current{$_};
+
         my $curkey = "talk.curname_" . $_;
         my $curname = LJ::Lang::ml( $curkey );
         $curname = "<b>Current $_:</b>" unless $curname;
