@@ -77,7 +77,7 @@ use strict;
     }
 
     my @sitevalues;
-    my @sites = DW::External::Site->get_sites;
+    my @sites = DW::External::Site->get_xpost_sites;
 
     foreach my $site (sort { $a->{sitename} cmp $b->{sitename} } @sites) {
         push @sitevalues, $site->{siteid},  $site->{sitename};

@@ -20,14 +20,10 @@ package DW::External::Site;
 
 use strict;
 use Carp qw/ croak /;
-use DW::External::Site::InsaneJournal;
-use DW::External::Site::LiveJournal;
-use DW::External::Site::JournalFen;
-use DW::External::Site::Inksome;
-use DW::External::Site::DeadJournal;
-use DW::External::Site::Dreamwidth;
-use DW::External::Site::ArchiveofOurOwn;
-use DW::External::Site::Unknown;
+use DW::External::XPostProtocol;
+
+use LJ::ModuleLoader;
+LJ::ModuleLoader->require_subclasses( "DW::External::Site" );
 
 my %domaintosite;
 my %idtosite;
@@ -83,11 +79,14 @@ sub get_site {
 }
 
 
-# returns a list of all supported sites
-sub get_sites {
-    my ($class) = @_;
+# returns a list of all supported sites for linking
+sub get_sites { return values %domaintosite; }
 
-    return values %domaintosite;
+# returns a list of all supported sites for crossposting
+sub get_xpost_sites {
+    my %protocols = DW::External::XPostProtocol->get_all_protocols;
+    return grep { exists $protocols{ $_->{servicetype} } }
+           values %domaintosite;
 }
 
 # returns the appropriate site by site_id
