@@ -143,13 +143,13 @@ sub load_email_to_cat_map
     return $map;
 }
 
-sub calc_points
-{
-    my ($sp, $secs) = @_;
-    my $base = $sp->{_cat}->{'basepoints'} || 1;
+sub calc_points {
+    my ( $sp, $secs, $spcat ) = @_;
+    $spcat ||= $sp->{_cat};
+    my $base = $spcat->{basepoints} || 1;
     $secs = int($secs / (3600*6));
     my $total = ($base + $secs);
-    if ($total > 10) { $total = 10; }
+    $total = 10 if $total > 10;
     return $total;
 }
 
@@ -467,6 +467,27 @@ sub load_request
     }
 
     return $sp;
+}
+
+# load_requests:
+# Given an arrayref, fetches information about the requests
+# with these spid's; unlike load_request(), it doesn't fetch information
+# about supportcats.
+
+sub load_requests {
+    my ( $spids ) = @_;
+    my $dbr = LJ::get_db_reader() or return;
+
+    my $list = join( ',', map { '?' } @$spids );
+    my $requests = $dbr->selectall_arrayref(
+        "SELECT spid, reqtype, requserid, reqname, reqemail, state," .
+        " authcode, spcatid, subject, timecreate, timetouched, timeclosed," .
+        " timelasthelp FROM support WHERE spid IN ($list)",
+        { Slice => {} }, map { $_ + 0 } @$spids
+    );
+    die $dbr->errstr if $dbr->err;
+
+    return $requests;
 }
 
 sub load_response
@@ -795,6 +816,59 @@ sub set_points
         my $memkey = [$userid, "supportpointsum:$userid"];
         LJ::MemCache::delete($memkey);
     }
+}
+
+# closes request, assigning points for the last response left to the request
+
+sub close_request_with_points {
+    my ( $sp, $spcat, $remote ) = @_;
+
+    my $spid = $sp->{spid} + 0;
+    my $dbh = LJ::get_db_writer() or return;
+
+    # close the request
+    $dbh->do( 'UPDATE support SET state="closed", '.
+              'timeclosed=UNIX_TIMESTAMP() WHERE spid=?', undef, $spid );
+    die $dbh->errstr if $dbh->err;
+
+    # check to see who should get the points
+    my $response = $dbh->selectrow_hashref(
+        'SELECT splid, timelogged, userid FROM supportlog '.
+        'WHERE spid=? AND type="answer" '.
+        'ORDER BY timelogged DESC LIMIT 1', undef, $spid );
+    die $dbh->errstr if $dbh->err;
+
+    # deliberately not using LJ::Support::append_request
+    # to avoid sysban checks etc.; this sub is supposed to be fast.
+
+    my $sth = $dbh->prepare(
+            'INSERT INTO supportlog '.
+            '(spid, timelogged, type, userid, message) VALUES '.
+            '(?, UNIX_TIMESTAMP(), "internal", ?, ?)' );
+
+    unless ( defined $response ) {
+        # no points awarded
+        $sth->execute( $spid, LJ::want_userid( $remote ),
+            "(Request has been closed as part of mass closure)" );
+        die $sth->errstr if $sth->err;
+        return 1;
+    }
+
+    # award the points
+    my $userid = $response->{userid};
+    my $points = LJ::Support::calc_points(
+        $sp, $response->{timelogged} - $sp->{timecreate}, $spcat );
+
+    LJ::Support::set_points( $spid, $userid, $points );
+
+    my $username = LJ::want_user( $userid )->display_name;
+
+    $sth->execute( $spid, LJ::want_userid( $remote ),
+        "(Request has been closed as part of mass closure, " .
+        "granting $points points to $username for response #" .
+        $response->{splid} . ")" );
+    die $sth->errstr if $sth->err;
+    return 1;
 }
 
 sub touch_request

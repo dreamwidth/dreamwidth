@@ -255,9 +255,14 @@ body<=
  $ret .= "<form method='post' action='/support/actmulti'>" . LJ::form_auth() if $can_close && $rct;
 
  # start the rest of the table
+
+ my %marked = map { $_ => 1 } split( ',', $GET{mark} );
  my $uri = "$LJ::SITEROOT/support/help?cat=$filtercat&state=$state";
  $ret .= "<p><table class='supporttable'><tr bgcolor='#d0d0d0'>\n";
- $ret .= "<td>&nbsp;<b>X</b></td>\n" if $can_close;
+ if ( $can_close ) {
+    my $link = "$uri&sort=$sort&closeall=" . ( $GET{closeall} ? 0 : 1 );
+    $ret .= "<td>&nbsp;<b><a href='$link'>X</a></b></td>\n";
+ }
  my @headers = ( id => "ID#", summary => $ML{'.th.summary'}, area => $ML{'.th.problemarea'}, date => $ML{'.th.posted'} );
  while (my ($sorttype, $desc) = splice(@headers, 0, 2)) {
      if ($sort eq $sorttype) {
@@ -288,6 +293,9 @@ body<=
          $status = "answered<br /><b>still needs help</b>";
          $barbg = "green";
      }
+     my $original_barbg = $barbg;
+     $barbg = 'clicked' if ( $GET{closeall} && $original_barbg eq 'yellow' )
+                        || $marked{$sp->{spid}};
 
      next if $state eq "green" && $barbg ne "green";
 
@@ -337,9 +345,13 @@ body<=
      # generate the HTML for this row
      $ret .= "<tr valign='top' $style $js>\n";
      if ($can_close) {
-         $ret .= "<td>" . LJ::html_check({ name => "check_$sp->{spid}", id => "check_$sp->{spid}",
-                                           onclick => "doClick($sp->{spid});", selected => $GET{closeall}, }) .
-                 "<input type='hidden' name='c$sp->{spid}' id='c$sp->{spid}' value='$barbg' /></td>\n";
+         $ret .= "<td>";
+         $ret .= LJ::html_check( { name => "check_$sp->{spid}",
+                                   id   => "check_$sp->{spid}",
+                                   onclick => "doClick($sp->{spid});",
+                                   selected => $barbg eq 'clicked' } );
+         $ret .= "<input type='hidden' name='c$sp->{spid}' id='c$sp->{spid}' value='$original_barbg' />";
+         $ret .= "</td>\n";
          $js = "onclick='return doClick($sp->{spid});'";
      }
      $ret .= "<td><b><a href=\"$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}\" $js>$sp->{'spid'}</a></b></td>";
@@ -357,7 +369,7 @@ body<=
      my $time = time();
      $ret .= LJ::html_hidden('ids', join(':', map { $_->{spid} } @support_log),
                              'spcatid', $fcat->{spcatid},
-                             'ret', "/support/help?state=$state&cat=$filtercat&time=$time");
+                             'ret', "/support/help?state=$state&cat=$filtercat&time=$time%s");
      $ret .= "<br />";
      $ret .= LJ::html_submit('action:move', 'Move Marked Requests');
      $ret .= " to ";
@@ -371,6 +383,9 @@ body<=
      $ret .= LJ::html_submit('action:close', 'Close Marked Requests',
                              { onclick => 'return confirm("Are you sure you want to close the marked requests?");' });
      $ret .= " (this is permanent)";
+     $ret .= "<br /><br />";
+     $ret .= LJ::html_submit('action:closewithpoints', 'Close Marked Requests, granting points to last responses',
+                             { onclick => 'return confirm("Are you sure you want to close the marked requests?");' });
      $ret .= "</form>";
  }
  $ret .= "<?hr?>";

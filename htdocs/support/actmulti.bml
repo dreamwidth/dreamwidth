@@ -19,7 +19,7 @@ body<=
 {
     use strict;
     use vars qw(%POST);
-    
+
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
@@ -49,7 +49,7 @@ body<=
         my $in = join ',', @ids;
         $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP() " .
                  "WHERE spid IN ($in) AND spcatid = ?", undef, $spcatid);
-        
+
         # and now insert a log comment for all of these... note that we're not using
         # LJ::Support::append_request because that'd require us to load a bunch of requests
         # and then do a bunch of individual queries, and that sucks.
@@ -61,9 +61,28 @@ body<=
         my $sql = "INSERT INTO supportlog (spid, timelogged, type, userid, message) VALUES ";
         $sql .= join ',', @stmts;
         $dbh->do($sql);
-        
+
         # return redirection back? or success message otherwise
-        return BML::redirect($POST{ret}) if $POST{ret};
+        return BML::redirect( sprintf( $POST{ret}, '' ) ) if $POST{ret};
+        return "<?h1 $ML{'.success'} h1?><?p $ML{'.request.specified'} p?>";
+    } elsif ( $POST{'action:closewithpoints'} ) {
+        my $can_close = 0;
+        $can_close = 1 if LJ::Support::can_close_cat( { _cat => $cat }, $remote );
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access'} p?>" unless $can_close;
+
+        # let's implement a limit so that we don't overload
+        # the DB and/or timeout
+        my @filtered_ids = splice( @ids, 0, 50 );
+
+        my $requests = LJ::Support::load_requests( \@filtered_ids );
+
+        foreach my $sp ( @$requests ) {
+            LJ::Support::close_request_with_points( $sp, $cat, $remote );
+        }
+
+        return BML::redirect( sprintf( $POST{ret},
+                                       '&mark=' . join( ',', @ids ) ) )
+            if $POST{ret};
         return "<?h1 $ML{'.success'} h1?><?p $ML{'.request.specified'} p?>";
     } elsif ($POST{'action:move'}) {
         return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access.move.request'} p?>"
@@ -90,7 +109,7 @@ body<=
         $dbh->do($sql);
 
         # done now
-        return BML::redirect($POST{ret}) if $POST{ret};
+        return BML::redirect( sprintf( $POST{ret}, '' ) ) if $POST{ret};
         return "<?h1 $ML{'.success'} h1?><?p $ML{'.request.moved'} p?>";
     }
 }
