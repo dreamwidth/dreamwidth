@@ -27,7 +27,6 @@ use LJ::S2;
 use LJ::Blob;
 use Apache::LiveJournal::Interface::Blogger;
 use Apache::LiveJournal::Interface::AtomAPI;
-use Apache::LiveJournal::Interface::S2;
 use Apache::LiveJournal::Interface::ElsewhereInfo;
 use Apache::LiveJournal::PalImg;
 use LJ::ModuleCheck;
@@ -965,6 +964,11 @@ sub trans
         return $inthandle if defined $inthandle;
     }
 
+    # see if there is a modular handler for this URI
+    my $ret = LJ::URI->handle( $uri, $r );
+    $ret = DW::Routing->call unless defined $ret;
+    return $ret if defined $ret;
+
     # protocol support
     if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
         my $int = $1 || "flat";
@@ -975,18 +979,8 @@ sub trans
             $r->push_handlers(PerlResponseHandler => \&interface_content);
             return OK;
         }
-        if ($int eq "s2") {
-            Apache::LiveJournal::Interface::S2->load;
-            $r->push_handlers(PerlResponseHandler => \&Apache::LiveJournal::Interface::S2::handler);
-            return OK;
-        }
         return 404;
     }
-
-    # see if there is a modular handler for this URI
-    my $ret = LJ::URI->handle($uri, $r);
-    $ret = DW::Routing->call unless defined $ret;
-    return $ret if defined $ret;
 
     # customview (get an S1 journal by number)
     if ($uri =~ m!^/customview\.cgi!) {

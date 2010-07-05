@@ -34,9 +34,11 @@ our %regex_choices = (
 my $default_content_types = {
     'html' => "text/html; charset=utf-8",
     'json' => "application/json; charset=utf-8",
+    'plain' => "text/plain; charset=utf-8",
 };
 
 LJ::ModuleLoader->require_subclasses( "DW::Controller" );
+LJ::ModuleLoader->require_subclasses( "DW::Controller::Interface" );
 
 =head1 NAME
 

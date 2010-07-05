@@ -20,7 +20,7 @@ use strict;
 use DW::Request::Base;
 use base 'DW::Request::Base';
 
-use Apache2::Const -compile => qw/ :common REDIRECT HTTP_NOT_MODIFIED /;
+use Apache2::Const -compile => qw/ :common :http /;
 use Apache2::Log ();
 use Apache2::Request;
 use Apache2::Response ();
@@ -282,6 +282,34 @@ sub REDIRECT {
 sub NOT_FOUND {
     my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::NOT_FOUND;
+}
+
+sub SERVER_ERROR {
+    return Apache2::Const::SERVER_ERROR;
+}
+
+sub HTTP_UNAUTHORIZED {
+    return Apache2::Const::HTTP_UNAUTHORIZED;
+}
+
+sub HTTP_BAD_REQUEST {
+    return Apache2::Const::HTTP_BAD_REQUEST;
+}
+
+sub HTTP_UNSUPPORTED_MEDIA_TYPE {
+    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
+}
+
+sub HTTP_INTERNAL_SERVER_ERROR {
+    return Apache2::Const::HTTP_INTERNAL_SERVER_ERROR;
+}
+
+sub HTTP_METHOD_NOT_ALLOWED {
+    return Apache2::Const::HTTP_METHOD_NOT_ALLOWED;
+}
+
+sub FORBIDDEN {
+    return Apache2::Const::FORBIDDEN;
 }
 
 # spawn a process for an external program
