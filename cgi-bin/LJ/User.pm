@@ -7397,19 +7397,15 @@ sub modify_caps {
 # name: LJ::set_userprop
 # des: Sets/deletes a userprop by name for a user.
 # info: This adds or deletes from the
-#       [dbtable[userprop]]/[dbtable[userproplite]] tables.  One
-#       crappy thing about this interface is that it doesn't allow
-#       a batch of userprops to be updated at once, which is the
-#       common thing to do.
-# args: dbarg?, uuserid, propname, value, memonly?
+#       [dbtable[userprop]]/[dbtable[userproplite]] tables.
+# args: uuserid, propname, value
 # des-uuserid: The userid of the user or a user hashref.
 # des-propname: The name of the property.  Or a hashref of propname keys and corresponding values.
 # des-value: The value to set to the property.  If undefined or the
 #            empty string, then property is deleted.
-# des-memonly: if true, only writes to memcache, and not to database.
 # </LJFUNC>
 sub set_userprop {
-    my ($u, $propname, $value, $memonly) = @_;
+    my ( $u, $propname, $value ) = @_;
     $u = ref $u ? $u : LJ::load_userid($u);
     my $userid = $u->userid + 0;
 
@@ -7437,7 +7433,8 @@ sub set_userprop {
         elsif ( $p->{'cldversion'} && $u->dversion >= $p->{'cldversion'} ) {
             $table = "userproplite2";
         }
-        unless ($memonly) {
+        unless ( $hash->{$propname} eq $u->{$propname} ) {
+            # only update db if value has changed
             my $db = $action{$table}->{'db'} ||= (
                 $table !~ m{userprop(lite2|blob)}
                     ? LJ::get_db_writer()

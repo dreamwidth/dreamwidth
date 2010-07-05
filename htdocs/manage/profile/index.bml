@@ -703,12 +703,13 @@ body<=
                 if $u->gizmo_account ne $POST{'gizmo'};
 
             # set userprops
+            my %prop;
             foreach my $uprop (@uprops) {
                 my $eff_val = $POST{$uprop};   # effective value, since 0 isn't stored
                 $eff_val = "" unless $eff_val;
-                my $mem_only = $eff_val eq $u->{$uprop};
-                LJ::set_userprop($u, $uprop, $eff_val, $mem_only);
+                $prop{$uprop} = $eff_val;
             }
+            $u->set_prop( \%prop );
 
             # location or bday could've changed... (who cares about checking exactly)
             $u->invalidate_directory_record;
