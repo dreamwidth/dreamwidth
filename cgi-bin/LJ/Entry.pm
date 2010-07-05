@@ -2222,9 +2222,10 @@ sub currents {
     return unless ref $props eq 'HASH';
     my %current;
 
-    my ( $key, $s2imgref );
+    my ( $key, $entry, $s2imgref );
     if ( $opts && ref $opts ) {
         $key = $opts->{key};
+        $entry = $opts->{entry};
         $s2imgref = $opts->{s2imgref};
     }
 
@@ -2291,6 +2292,24 @@ sub currents {
             }
         }
         $current{Xpost} = $xpostlinks if $xpostlinks;
+    }
+
+    if ( $entry ) {
+        # Groups
+        my $group_names = $entry->group_names;
+        $current{Groups} = $group_names if $group_names;
+
+        # Tags
+        my $u = $entry->journal;
+        my $base = $u->journal_base;
+        my $itemid = $entry->jitemid;
+        my $logtags = LJ::Tags::get_logtags( $u, $itemid );
+        if ( $logtags->{$itemid} ) {
+            my @tags = map { "<a href='$base/tag/" . LJ::eurl( $_ ) .
+                             "'>" . LJ::ehtml( $_ ) . "</a>" }
+                       sort values %{ $logtags->{$itemid} };
+            $current{Tags} = join( ', ', @tags ) if @tags;
+        }
     }
 
     return %current;

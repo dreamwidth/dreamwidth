@@ -279,15 +279,12 @@ body<=
         $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.readonly'}</div>";
     }
 
-    my %current = LJ::currents( $props, $up );
-
-    # custom friend groups
-    my $group_names = $entry->group_names;
-    $current{'Groups'} = $group_names if $group_names;
+    my %current = LJ::currents( $props, $up, { entry => $entry } );
+    # for some reason we don't display tags here
+    delete $current{Tags};
 
     $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
 
-    ### currents
     $ret .= LJ::currents_table( %current ) unless $init->{replyto};
 
     ### security indicator

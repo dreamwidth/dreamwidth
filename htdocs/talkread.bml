@@ -291,21 +291,7 @@ body<=
     }
 
     ## dump the log entry, unless we're browsing a thread.
-    my %current = LJ::currents( $props, $up );
-
-    # custom friend groups
-    my $group_names = $entry->group_names;
-    $current{'Groups'} = $group_names if $group_names;
-
-
-    my $logtags = LJ::Tags::get_logtags($u, $itemid);
-    if ($logtags->{$itemid} && %{$logtags->{$itemid}}) {
-        my $base = $u->journal_base;
-        $current{'Tags'} = join(', ',
-                               map { "<a href='$base/tag/" . LJ::eurl($_) . "'>" . LJ::ehtml($_) . "</a>" }
-                               sort values %{$logtags->{$itemid}}
-                           );
-    }
+    my %current = LJ::currents( $props, $up, { entry => $entry } );
 
     $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
 
