@@ -1251,8 +1251,12 @@ sub entry_form {
                 $out .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
                 # userpic browse button
                 $$onload .= " insertViewThumbs();" if $remote->can_use_userpic_select;
+ 
+                # random icon button
+                $out .= "<a href='javascript:void(0)' onclick='randomicon();' id='randomicon'>" . BML::ml('entryform.userpic.random') . "</a>";
                 $out .= LJ::help_icon_html("userpics", "", " ") . "\n";
                 $out .= "</p>\n\n";
+                $$onload .= " showRandomIcon();";
 
             }
 

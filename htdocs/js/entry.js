@@ -461,6 +461,19 @@ function changeSecurityOptions(defaultjournal) {
     });
 }
 
+function showRandomIcon() {
+    $('randomicon').style.display = 'inline';
+}
+
+function randomicon() {
+    var icons_list = document.getElementById('prop_picture_keyword');
+    // we need to ignore the "(default)" option for this code
+    var numberoficons = icons_list.length-1;
+    var randomnumber=Math.floor(Math.random()*numberoficons);
+    icons_list.selectedIndex = randomnumber+1;
+    userpic_preview();
+}
+
 ///////////////////// Insert Object code
 
 var InOb = new Object;

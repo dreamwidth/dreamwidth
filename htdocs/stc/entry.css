@@ -124,6 +124,15 @@
     font-size: 90%;
     line-height: 110%;
 }
+
+#randomicon {
+    display: none;
+    font-size: 85%;
+    text-align: center;
+    float: left;
+    margin: 4px 0px 0px 5px;
+}
+
 #metainfo {
     float: left;
     margin-right: 10px;

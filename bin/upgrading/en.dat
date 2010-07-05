@@ -1151,6 +1151,8 @@ entryform.userpic=Userpic:
 
 entryform.userpic.choose=Choose userpic
 
+entryform.userpic.random=Choose random icon
+
 entryform.userpics=User Picture Icon:
 
 error=Error
