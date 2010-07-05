@@ -61,6 +61,22 @@ function print_stylesheet() {
     var string calendar_link_colors = generate_color_css( $*color_page_background, $*color_calendar_module_hasday_background, new Color );
 
     var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic .entry .contents .userpic,
+            .has-userpic .comment .contents .userpic { float: left;
+                margin: 0 .5em .5em 0; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic .entry .contents .userpic,
+            .has-userpic .comment .contents .userpic { float: right;
+                margin: 0 0 .5em .5em; }
+            """;
+        }
     """
 
 /* Boxes and Borders */
@@ -140,9 +156,6 @@ text-decoration: none }
 .entry .poster { display: block;
 margin: .5em 0; }
 
-.entry .contents .userpic { float: left;
-    margin: 0 .5em .5em 0; }
-
 .entry .contents { padding: 0 .5em; }
 
 .entry-content { margin: 1em 0; }
@@ -184,9 +197,6 @@ ul.entry-interaction-links { text-align: right;
 
 .comment .poster-ip { font-size: small;
    color: #999999; }
-
-.comment .contents .userpic { float: left;
-   margin: 0 .5em .5em 0;}
 
 .comment-content { margin-top: 1em; }
 
@@ -315,7 +325,7 @@ text-decoration: none; }
 #footer a:visited { color: $*color_footer_link_visited; }
 #footer a:hover { color: $*color_footer_link_hover; }
 
-
+$userpic_css
     """;
 
 

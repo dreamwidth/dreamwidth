@@ -6,6 +6,7 @@ layerinfo lang = "en";
 
 set layout_type = "three-columns-sides";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+set userpics_position = "right";
 
 function print_stylesheet () {
 
@@ -24,6 +25,27 @@ function print_stylesheet () {
     var string module_colors = generate_color_css( $*color_module_text, $*color_module_background, $*color_module_border );
     var string module_header_colors = generate_color_css( $*color_module_title, $*color_module_title_background, $*color_module_border );
     var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic .entry .contents .userpic,
+            .has-userpic .comment .contents .userpic { float: left;
+                margin: -1em .25em .25em 0; }
+            .has-userpic .comment .contents .userpic { margin-top: 0 }
+            .entry .header { text-align: right; }
+            .entry-title,
+            .comment-title { text-align: left; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic .entry .contents .userpic,
+            .has-userpic .comment .contents .userpic { float: right;
+                margin: -1em 0 .25em .25em; }
+            .has-userpic .comment .contents .userpic { margin-top: 0 }
+            """;
+        }
 
     """
 /* Basic Boxes */
@@ -102,9 +124,6 @@ border: none; }
 .entry .poster { display: block;
 margin: .5em 0; }
 
-.entry .contents .userpic { float: right;
-    margin: -1em 0 .25em .25em;}
-
 .entry .contents { padding: 0 .5em; }
 
 .entry-content { margin: 1em 0; }
@@ -149,9 +168,6 @@ ul.entry-interaction-links { text-align: right;
 
 .comment .poster-ip { font-size: small;
     color: #999999; }
-
-.comment .contents .userpic { float: right;
-    margin: 0 0 .25em .25em;}
 
 .comment-content { margin-top: 1em; }
 
@@ -271,6 +287,7 @@ text-align: center; }
     color: $*color_entry_text !important; }
 .module-search .search-form { text-align: right; }
 
+$userpic_css
     """;
 }
 

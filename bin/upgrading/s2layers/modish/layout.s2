@@ -6,6 +6,7 @@ layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set layout_type = "two-columns-left";
+set userpics_position = "right";
 
 function print_stylesheet() {
 
@@ -16,6 +17,28 @@ function print_stylesheet() {
     var string module_navlinks_colors = generate_color_css( $*color_page_title, $*color_page_link, new Color );
     var string module_navlinks_active_colors = generate_color_css( new Color, $*color_page_link_active, new Color );
     var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .contents .userpic { float: left;
+                margin: -1.5em .25em .25em 0; }
+            .comment .contents .userpic { float: left;
+                margin: 0 .25em .25em 0; }
+            .entry .header { text-align: right; }
+            .entry-title,
+            .comment-title { text-align: left; }
+
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .contents .userpic { float: right;
+                margin: -1.5em 0 .25em .25em; }
+            .comment .contents .userpic { float: right;
+                margin: 0 0 .25em .25em; }
+            """;
+        }
 
     """
 /* Modish */
@@ -72,9 +95,6 @@ text-decoration: none }
 .entry .poster { display: block;
 margin: .5em 0; }
 
-.entry .contents .userpic { float: right;
-    margin: -1.5em 0 .25em .25em;}
-
 .entry .contents { padding: 0 .5em; }
 
 .entry-content { margin: 1em 0; }
@@ -116,9 +136,6 @@ ul.entry-interaction-links { text-align: right;
 
 .comment .poster-ip { font-size: small;
     color: #999999; }
-
-.comment .contents .userpic { float: right;
-    margin: 0 0 .25em .25em;}
 
 .comment-content { margin-top: 1em; }
 
@@ -224,7 +241,7 @@ text-decoration: none; }
 #footer a:visited { color: $*color_footer_link_visited; }
 #footer a:hover { color: $*color_footer_link_hover; }
 
-
+$userpic_css
     """;
 
 

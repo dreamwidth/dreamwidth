@@ -6,6 +6,7 @@ layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set layout_type = "two-columns-right";
+set userpics_position = "right";
 
 function print_stylesheet() {
     var string canvas_colors = generate_color_css( new Color, $*color_page_background, new Color );
@@ -25,6 +26,31 @@ function print_stylesheet() {
     var string module_alt_link_colors = generate_color_css( $*color_page_link, new Color, new Color );
 
     var string footer_colors = generate_color_css( new Color, $*color_page_background, new Color );
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic .entry .entry-title,
+            .has-userpic .comment .comment-title,
+            .has-userpic .comment .comment-subjecticon,
+            .has-userpic .comment .datetime { margin: 0 0 0 110px; }
+            .has-userpic .entry .access-filter,
+            .has-userpic .entry .restrictions,
+            .has-userpic .entry .datetime,
+            .has-userpic .entry .poster,
+            .has-userpic .comment .poster,
+            .has-userpic .comment .poster-ip { padding-left: 110px; }
+            .has-userpic .entry .contents .userpic,
+            .has-userpic .comment .contents .userpic { left: 5px; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic .entry .entry-title { margin: 5px 110px 5px 5px; }
+            .has-userpic .entry .contents .userpic,
+            .has-userpic .comment .contents .userpic { right: 5px; }
+            """;
+        }
     """
 
 /* ColorSide */
@@ -102,8 +128,7 @@ width: 96% !important; }
     margin: 0 0 .5em 0;}
 .entry .entry-title a, 
 .entry .entry-title a:visited { $entry_title_link_colors }
-.entry .entry-title { margin: 5px 110px 5px 5px;;
-    padding: .15em 0; }
+.entry .entry-title { margin: 5px; padding: .15em 0; }
 .entry .entry-title h3 { font-family: $*font_entry_title; }
 
 .entry .restrictions  { display: block; 
@@ -124,8 +149,7 @@ width: 96% !important; }
 margin: .75em 0; }
 
 .entry .contents .userpic { position: absolute;
-top: -1em;
-right: 5px;}
+top: -1em; }
 
 .entry-content { margin-top: 2em; }
 
@@ -173,8 +197,7 @@ ul.entry-interaction-links { text-align: right;
     color: #999999; }
 
 .comment .contents .userpic { position: absolute;
-top: 0;
-right: 5px;}
+top: 0; }
 
 .comment-content { margin-top: 2em; }
 
@@ -315,6 +338,7 @@ text-align: center; }
  width: 96% !important;
  padding: 1em 2%; }
 
+$userpic_css
     """;
 
 

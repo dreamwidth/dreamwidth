@@ -7,6 +7,7 @@ layerinfo "lang" = "en";
 
 set layout_type = "two-columns-left";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+set userpics_position = "right";
 
 ##===============================
 ##Text
@@ -43,6 +44,24 @@ function print_module_navlinks() {
 
 
 function print_stylesheet () {
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic .entry .contents .userpic { float: left;
+                margin: 0 1em .5em 0; }
+            .has-userpic .comment .contents .userpic { float: left;
+                margin: .5em .5em .5em 0; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic .entry .contents .userpic { float: right;
+                margin: 0 0 .5em 1em; }
+            .has-userpic .comment .contents .userpic { float: right;
+                margin: .5em 0 .5em .5em; }
+            """;
+        }
 
     """
 
@@ -107,9 +126,6 @@ body { margin: 0;
 .entry .header { padding: .5em 0; }
 .entry .header .datetime { font-size: small; }
 
-.entry .contents .userpic { float: right;
-    margin: 0 0 .5em 1em; }
-
 .entry .contents .entry-poster { display: block;
     margin-top: .5em; }
 
@@ -166,9 +182,6 @@ ul.entry-interaction-links li.entry-readlink { font-weight: bold; }
 
 .comment .poster-ip { font-size: small;
     color: #999999; }
-
-.comment .contents .userpic { float: right;
-    margin: .5em 0 .5em .5em; }
 
 .comment-content { margin-top: 1em; }
 
@@ -292,6 +305,7 @@ list-style: none; }
 #footer { background-color: $*color_footer_background;  }
 #footer a { color: $*color_page_title; }
 
+$userpic_css
     """;
 
 

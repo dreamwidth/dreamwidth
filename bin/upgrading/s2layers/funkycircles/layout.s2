@@ -106,6 +106,87 @@ function print_stylesheet () {
     var string entry_footer_link_visited_colors = generate_color_css($*color_entry_footer_link_visited, new Color, new Color);
     var string entry_list_background = generate_background_css ($*image_entry_list_background_url, $*image_entry_list_background_repeat, "", new Color);
 
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .contents .userpic,
+            .comment .contents .userpic {
+                left: -2.5em;
+                }
+
+            .entry .header,
+            .comment .header {
+                padding-left: 95px;
+                }
+
+            .page-recent .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+            .page-read .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-network .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-entry .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-reply .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+            .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
+            .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
+                margin-left: 80px;
+                }
+
+            .two-columns-left #primary > .inner:first-child,
+            .three-columns-left #primary > .inner:first-child {
+                padding: 1em 2em 1em 5em;
+                }
+
+            .three-columns-sides #primary > .inner:first-child {
+                padding: 1em 3em 1em 4.5em;
+                }
+
+            .two-columns-right #primary > .inner:first-child,
+            .three-columns-right #primary > .inner:first-child {
+                padding: 1em 3.5em 1em 3.5em;
+                }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .contents .userpic {
+                right: -1.1em;
+                }
+
+            .comment .contents .userpic {
+                right: -2.5em;
+                }
+
+            .entry .header,
+            .comment .header {
+                padding-right: 95px;
+                }
+
+            .page-recent .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+            .page-read .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-network .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-entry .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-reply .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+            .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
+            .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
+                margin-right: 80px;
+                }
+
+            .two-columns-left #primary > .inner:first-child,
+            .three-columns-left #primary > .inner:first-child {
+                padding: 1em 3.5em 1em 3.5em;
+                }
+
+            .three-columns-sides #primary > .inner:first-child {
+                padding: 1em 4.5em 1em 3em;
+                }
+
+            .two-columns-right #primary > .inner:first-child,
+            .three-columns-right #primary > .inner:first-child {
+                padding: 1em 5em 1em 2em;
+                }
+            """;
+        }
+
 """
 /* Funky Circles */
 
@@ -198,20 +279,6 @@ h2#pagetitle {
     .page-tags #primary {
         margin-top: 6.6em;
         }
-
-.two-columns-left #primary > .inner:first-child,
-.three-columns-left #primary > .inner:first-child {
-    padding: 1em 2em 1em 5em;
-    }
-
-.three-columns-sides #primary > .inner:first-child {
-    padding: 1em 3em 1em 4.5em;
-    }
-
-.two-columns-right #primary > .inner:first-child,
-.three-columns-right #primary > .inner:first-child {
-    padding: 1em 3.5em 1em 2.5em;
-    }
 
 #secondary > .inner:first-child {
     padding: 0;
@@ -314,7 +381,6 @@ h2#pagetitle {
 
 .entry .header,
 .comment .header {
-    padding-left: 95px;
     padding-bottom: .5em;
     }
 
@@ -508,7 +574,6 @@ h2#pagetitle {
 .entry .contents .userpic,
 .comment .contents .userpic {
     height: 100px;
-    left: -2.5em;
     position: absolute;
     text-align: center;
     top: -.7em;
@@ -557,7 +622,6 @@ h2#pagetitle {
     .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
     .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
     .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
-        margin-left: 80px;
         margin-bottom: 20px;
         }
 
@@ -1038,6 +1102,8 @@ h2#pagetitle {
             border-top: 1px solid $*color_footer_link_hover;
             text-decoration: none;
             }
+
+$userpic_css
 """;
 }
 

@@ -85,6 +85,37 @@ function print_stylesheet () {
     var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
     var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
 
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic .entry .header, .has-userpic .entry .poster {
+                left: 105px;
+                margin-right: 105px;
+                }
+            .entry .inner .userpic {
+                float: left;
+                }
+            .restrictions-18 .entry .userpic, .restrictions-NSFW .entry  .userpic {
+                float: left;
+                }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic .entry .header, .has-userpic .entry .poster {
+                right: 105px;
+                margin-left: 105px;
+                }
+            .entry .inner .userpic {
+                float: right;
+                right: 0;
+                }
+            .restrictions-18 .entry .userpic, .restrictions-NSFW .entry  .userpic {
+                float: right;
+                }
+            """;
+        }
+
 """
 /* Refried Tablet CSS */
 
@@ -322,18 +353,14 @@ and keep subject lines from poking into sidebars  */
 
 .has-userpic .entry .header, .has-userpic .entry .poster {
     position: relative;
-    left: 105px;
-    margin-right: 105px;
 }
 
 .entry .inner .userpic {
-    float: left;
     position: absolute;
     top: -4em;
 }
 
 .restrictions-18 .entry .userpic, .restrictions-NSFW .entry  .userpic {
-    float: left;
     position: absolute;
     top: -5.25em;  
 } /* the restricted entries have an extra line, so they need extra top space */
@@ -521,7 +548,7 @@ div h2.module-header {
     color: $*color_comment_text_frozen
     }
 
-
+$userpic_css
 """;
 
 }

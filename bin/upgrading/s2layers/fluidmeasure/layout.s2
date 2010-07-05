@@ -7,6 +7,7 @@ layerinfo "lang" = "en";
 
 set layout_type = "two-columns-right";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+set userpics_position = "right";
 set all_commentsubjects = true;
 
 function print_module_navlinks() {
@@ -92,6 +93,24 @@ function Page::print()
 
 
 function print_stylesheet() {
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic .entry .contents .userpic { float: left; }
+            .has-userpic .comment .contents .userpic { float: left;
+                margin: .5em .5em .5em 0; }
+            .has-userpic .entry .contents .entry-poster { clear: right; /* Fixes display bug in Chrome. Keeps username below entry title. */ }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic .entry .contents .userpic { float: right; }
+            .has-userpic .comment .contents .userpic { float: right;
+                margin: .5em 0 .5em .5em; }
+            .has-userpic .entry .contents .entry-poster { clear: left; /* Fixes display bug in Chrome. Keeps username below entry title. */ }
+            """;
+        }
 
     """
 /* Fluid Measure */
@@ -262,13 +281,11 @@ float: left; width: 100%; /*asinine IE7 hack*/ }
 
 .entry .contents { padding: .5em .5em 0 .5em; }
 
-.entry .contents .userpic { float: right;
-    margin: 1em .5em .5em .5em;
+.entry .contents .userpic { margin: 1em .5em .5em .5em;
 position: relative; /*more asinine IE7 hackish fixing*/ }
 
 .entry .contents .entry-poster { display: block;
-    margin-top: -.5em;
-    clear:left; /* Fixes display bug in Chrome. Keeps username below entry title. */ }
+    margin-top: -.5em; }
 
 .entry-content { margin: 1em .5em; }
 
@@ -349,9 +366,6 @@ padding-top: 2em; } /*die in a fire, IE7*/
 
 .comment .poster-ip { font-size: small;
     color: #999999; }
-
-.comment .contents .userpic { float: right;
-    margin: .5em 0 .5em .5em; }
 
 .comment-content { margin-top: 1em; }
 
@@ -561,6 +575,7 @@ border-color: transparent !important;
     -khtml-border-radius: 1em; }
 #footer a { color: $*color_footer_link; }
 
+$userpic_css
 """;
 
 }

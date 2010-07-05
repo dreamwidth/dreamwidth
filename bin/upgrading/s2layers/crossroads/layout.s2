@@ -61,6 +61,34 @@ else {
     $commentcolor = $*color_page_background; 
 }
 
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .contents .userpic,
+            .comment .contents .userpic { left: 0; }
+            .entry .header,
+            .comment-wrapper .header { margin-left: 110px; }
+            .entry .header .entry-title,
+            .comment-title { margin-left: -4px; }
+            .entry-wrapper .contents .entry-poster { margin: 0 0 25px 110px; }
+            .comment-poster,
+            .comment .poster-ip { margin-left: 110px; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .contents .userpic,
+            .comment .contents .userpic { right: 0; }
+            .entry .header,
+            .comment-wrapper .header { margin-right: 110px; }
+            .entry .header .entry-title,
+            .comment-title { margin-right: -4px; }
+            .entry-wrapper .contents .entry-poster { margin: 0 110px 25px 0; }
+            .comment-poster,
+            .comment .poster-ip { margin-right: 110px; }
+            """;
+        }
+
     """
 
 /* Crossroads  */
@@ -118,17 +146,13 @@ body { margin: 0; }
 .entry { border: none; }
 
 .entry .header,
-.comment-wrapper .header { margin-left: 110px;
-    min-height: 60px; }
-
-.entry .header .entry-title { margin-left: -4px; }
+.comment-wrapper .header { min-height: 60px; }
 
 .entry .contents .userpic,
 .comment .contents .userpic {width: 106px;
     height: 106px;
     position: absolute;
     top: 0;
-    left: 0;
     background: url("$no_icon") center no-repeat; }
 .entry .contents .userpic a,
 .comment .contents .userpic a { display: block;
@@ -136,8 +160,7 @@ body { margin: 0; }
     width: 106px;
     background-color: $*color_page_background;}
 
-.entry-wrapper .contents .entry-poster { display: block;
-    margin: 0 0 25px 110px; }
+.entry-wrapper .contents .entry-poster { display: block; }
 .page-recent .entry-wrapper .entry-poster,
 .page-day .entry-wrapper .entry-poster { height: 1em; }
 
@@ -195,7 +218,7 @@ ul.entry-interaction-links { text-align: right;
 
 .partial .comment-title { display: inline; margin: 0; }
 
-.comment-title { margin: 0 0 0 -4px;
+.comment-title { margin: 0;
     padding: .25em;
     font-size: large;
     min-height: 1em;
@@ -207,12 +230,10 @@ ul.entry-interaction-links { text-align: right;
 .comment .header .datetime { display: block;
     font-size: small;}
 
-.comment-poster {display: block;
-    margin-left: 110px; }
+.comment-poster { display: block; }
 
 .comment .poster-ip { font-size: x-small;
-    display: block;
-    margin-left: 110px; }
+    display: block; }
 
 .comment-content { margin-top: 2em;
     padding: .25em .25em .5em .25em; }
@@ -399,5 +420,6 @@ margin-top: 1em; }
 
 #footer a { color: $*color_page_title; }
 
+$userpic_css
     """;
 }

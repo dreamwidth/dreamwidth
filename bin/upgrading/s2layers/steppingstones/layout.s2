@@ -20,6 +20,24 @@ function print_stylesheet() {
     var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
     var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
     var string footer_link_colors = generate_color_css( $*color_page_title, new Color, new Color );
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .contents .userpic { left: -1.5em; }
+            .comment .contents .userpic { float: left;
+                margin: 0 .5em .5em -1.5em; }
+            .entry .header { padding-left: 100px; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .contents .userpic { right: -1.5em; }
+            .comment .contents .userpic { float: right;
+                margin: 0 -1.5em .5em .5em; }
+           .entry .header { padding-right: 100px; }
+            """;
+        }
     """
 /* Stepping Stones */
 
@@ -101,13 +119,10 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
     padding: .5em;
     border: none;}
 
-.entry .header { padding-left: 100px; }
-
 .entry .contents { padding: .5em .5em 0 .5em; }
 
 .entry .contents .userpic { position: absolute;
     top: -3em;
-    left: -1.5em;
     width: 110px;
     height: 110px;
     $entry_userpic_background
@@ -159,9 +174,7 @@ ul.entry-interaction-links { text-align: right;
 .comment .poster-ip { font-size: small;
     color: #999999; }
 
-.comment .contents .userpic { float: left;
-    margin: 0 .5em .5em -1.5em;
-    $entry_userpic_background
+.comment .contents .userpic { $entry_userpic_background
     height: 110px;
     width: 110px;
     text-align: center; }
@@ -281,6 +294,7 @@ text-align: center; }
     margin: 1em 2em; }
 #footer a { $footer_link_colors }
 
+$userpic_css
 """;
 
 }

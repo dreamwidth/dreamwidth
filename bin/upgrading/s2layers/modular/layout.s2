@@ -5,21 +5,7 @@ layerinfo redist_uniq = "modular/layout";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
- 
-##===============================
-##Layout
-##===============================
-
 set layout_type = "two-columns-left";
-
-##===============================
-## Userpic
-##===============================
-
-propgroup presentation_child {
-    property use userpics_position;
-}
-
 set userpics_position = "right";
 
 ##===============================
@@ -123,11 +109,7 @@ function Page::print() {
 function print_stylesheet () {
 
 var string userpic_css = "";
-    if ($*userpics_position == "right") {
-        $userpic_css = ".entry .userpic,
-        .comment .userpic { float: right; }";
-    }
-    else {
+    if ($*userpics_position == "left") {
         $userpic_css = ".entry .userpic,
         .comment .userpic { float: left;
             margin-left: 0 !important; }
@@ -137,6 +119,11 @@ var string userpic_css = "";
         .entry-title,
         .comment-title { text-align: left; }";
     }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = ".entry .userpic,
+        .comment .userpic { float: right; }";
+    }
+
 
 var string navlinks_css = "";
     if ($*module_navlinks_section == "header") {

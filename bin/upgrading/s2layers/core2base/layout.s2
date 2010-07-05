@@ -14,6 +14,7 @@ propgroup presentation {
     property use tags_page_type;
     property use sidebar_width;
     property use sidebar_width_doubled;
+    property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -25,6 +26,7 @@ propgroup presentation {
 set sidebar_width = "15em";
 set sidebar_width_doubled = "30em";
 set layout_type = "one-column";
+set userpics_position = "left";
 set use_custom_friend_colors = false;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
@@ -308,6 +310,16 @@ function Page::print_default_stylesheet() {
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
     var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+     var string userpic_css = "";
+         if ($*userpics_position == "right") {
+             $userpic_css = """
+             .entry .userpic,
+             .comment .userpic {
+                 text-align: right;
+                 }
+             """;
+         } 
 
     """
 H1, H2, H3 {
@@ -713,6 +725,8 @@ ul.userlite-interaction-links li {
 .module-syndicate  .module-content {
     text-align: center;
 }
+
+$userpic_css
     """;
 }
 
