@@ -20,6 +20,8 @@
 
 .error.notavailable=(Sorry, those statistics aren't available right now.)
 
+.note.roundedtonearesttenthofpct=Note: all percentages are rounded (up or down) to the nearest 0.1%.
+
 .paid.colhdr.level=Level
 
 .paid.colhdr.number=Number

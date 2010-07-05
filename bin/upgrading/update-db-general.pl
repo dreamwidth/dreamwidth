@@ -341,7 +341,7 @@ CREATE TABLE site_stats (
     -- FIXME: This is good for retrieving data for a single category+key, but
     -- maybe not as good if we want all keys for the category, with a limit on
     -- time (ie, last 5 entries, or last 2 weeks). Do we need an extra index?
-    INDEX (category_id, key_id, insert_time) 
+    INDEX (category_id, key_id, insert_time)
 )
 EOC
 
@@ -1534,6 +1534,7 @@ CREATE TABLE clustertrack2 (
     timeactive INT UNSIGNED NOT NULL,
     clusterid SMALLINT UNSIGNED,
     accountlevel SMALLINT UNSIGNED,
+    journaltype char(1),
 
     INDEX (timeactive, clusterid)
 )
@@ -2985,7 +2986,7 @@ CREATE TABLE content_filter_data (
   data mediumblob NOT NULL,
 
   PRIMARY KEY (userid,filterid)
-) 
+)
 EOC
 
 register_tablecreate('sitekeywords', <<'EOC');
@@ -3844,6 +3845,11 @@ EOF
     unless ( column_type( 'clustertrack2', 'accountlevel' ) ) {
         do_alter( 'clustertrack2',
                   q{ALTER TABLE clustertrack2 ADD COLUMN accountlevel SMALLINT UNSIGNED AFTER clusterid} );
+    }
+
+    unless ( column_type( 'clustertrack2', 'journaltype' ) ) {
+        do_alter( 'clustertrack2',
+                  q{ALTER TABLE clustertrack2 ADD COLUMN journaltype char(1) AFTER accountlevel} );
     }
 
     unless ( column_type( 'acctcode_promo', 'suggest_journalid' ) ) {

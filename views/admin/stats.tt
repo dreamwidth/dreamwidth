@@ -1,0 +1,53 @@
+[%#
+admin/stats.tt
+
+Admin-level statistics
+
+Authors:
+     Afuna <coder.dw@afunamatata.com>
+     Pau Amma <pauamma@cpan.org>
+
+Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% dw.need_res( 'stc/sitestats.css' ) %]
+[% scope = dw.ml_scope( ); CALL dw.ml_scope( '/stats/site.tt' );
+   INCLUDE stats/site.tt; CALL dw.ml_scope( scope ); %]
+[% sections.title = '.title' | ml( sitenameshort => site.nameshort ) %]
+
+[%#
+
+FIXME: remove this when you have implemented them all 
+
+* Number of accounts, total (done)
+* Number of accounts active (done)
+* Number of paid accounts (by payment level) (done)
+  -- as a percentage of total accounts (done)
+  -- as a percentage of active accounts (done)
+  -- number of active paid accounts (done)
+  -- number of inactive paid accounts (done)
+* Number of payments in last 1d/2d/5d/7d/1m/3m/1y
+  -- broken down by which payment level/payment item chosen
+  -- and divided into new payments vs. renewals
+  -- and expressed as a dollar amount taken in during that time
+* Number of lapsed paid accounts in last 1d/2d/5d/7d/1m/3m/1y
+  -- and renewed within 7d/14d/1m
+  -- and not renewed within 7d/14d/1m
+  -- and as a percentage of total paid accounts
+* Percent churn over last 7d/1m/3m/1y
+ -- (churn formula: total lapsed paid accounts that don't renew within 7d/total
+paid accounts * 100)
+* Number of paid accounts that were created via payment (no code)
+* Number of paid accounts that were created via code, then paid
+  -- within 1d/2d/5d/7d/1m/3m/1y of creation
+* Total refunds issued within last 7d/1m/3m/1y
+  -- with dollar amount refunded
+  -- with fees added to dollar amount refunded
+* Total chargebacks/PayPal refunds within last 7d/1m/3m/1y
+  -- with dollar amount charged back
+  -- with fees added to dollar amount charged back
+%]

@@ -238,7 +238,7 @@ sub create_personal {
         }
     }
     # if we have initial friends for new accounts, add them.
-    # TODO(mark): INITIAL_FRIENDS should be moved/renamed.
+    # FIXME(mark): INITIAL_FRIENDS should be moved/renamed.
     foreach my $friend ( @LJ::INITIAL_FRIENDS ) {
         my $friendid = LJ::get_userid( $friend )
             or next;
@@ -271,8 +271,8 @@ sub create_personal {
     }
 
     # populate some default friends groups
-    # TODO(mark): this should probably be removed or refactored, especially since
-    #             editfriendgroups is dying/dead
+    # FIXME(mark): this should probably be removed or refactored, especially
+    # since editfriendgroups is dying/dead
 #    LJ::do_request(
 #                   {
 #                       'mode'           => 'editfriendgroups',
@@ -331,8 +331,8 @@ sub create_syndicated {
 
 sub delete_and_purge_completely {
     my $u = shift;
-    # TODO: delete from user tables
-    # TODO: delete from global tables
+    # FIXME: delete from user tables
+    # FIXME: delete from global tables
     my $dbh = LJ::get_db_writer();
 
     my @tables = qw(user useridmap reluser priv_map infohistory email password);
@@ -388,7 +388,7 @@ sub who_invited {
 
 sub get_previous_statusvis {
     my $u = shift;
-    
+
     my $extra = $u->selectcol_arrayref(
         "SELECT extra FROM userlog WHERE userid=? AND action='accountstatus' ORDER BY logtime DESC",
         undef, $u->userid );
@@ -723,7 +723,7 @@ sub last_updated {
     my $ago_text = LJ::ago_text( $secondsold );
 
     if ( $u->timeupdate ) {
-        return LJ::Lang::ml( 'lastupdated.ago', 
+        return LJ::Lang::ml( 'lastupdated.ago',
             { timestamp => $lastupdated, agotext => $ago_text });
     } else {
         return LJ::Lang::ml ( 'lastupdated.never' );
@@ -1037,7 +1037,7 @@ sub get_timeactive {
     my $memkey = [$u->userid, "timeactive:" . $u->userid];
     my $active;
     unless (defined($active = LJ::MemCache::get($memkey))) {
-        # TODO: die if unable to get handle? This was left verbatim from
+        # FIXME: die if unable to get handle? This was left verbatim from
         # refactored code.
         my $dbcr = LJ::get_cluster_def_reader($u) or return 0;
         $active = $dbcr->selectrow_array("SELECT timeactive FROM clustertrack2 ".
@@ -1164,7 +1164,7 @@ sub make_login_session {
     unless ( $fake_login ) {
         # activity for cluster usage tracking
         LJ::mark_user_active($u, 'login');
-    
+
         # activity for global account number tracking
         $u->note_activity('A');
     }
@@ -2807,7 +2807,7 @@ sub sticky_entry {
         unless ( $input ) {
             $u->set_prop( sticky_entry => '' );
             return 1;
-        } 
+        }
         #also takes URL
         my $ditemid;
         if ( $input =~ m!/(\d+)\.html! ) {
@@ -2817,11 +2817,11 @@ sub sticky_entry {
         } else {
             return 0;
         }
-        
+
         # Validate the entry
         my $item = LJ::Entry->new( $u, ditemid => $ditemid );
         return 0 unless $item && $item->valid;
-        
+
         $u->set_prop( sticky_entry => $ditemid );
         return 1;
     }
@@ -4137,7 +4137,7 @@ sub emails_visible {
         push @emails, $u->email_raw;
     } elsif ( $u->prop( 'opt_whatemailshow' ) eq "D" || $u->prop( 'opt_whatemailshow' ) eq "V" ) {
         push @emails, $u->prop( 'opt_profileemail' );
-    } 
+    }
 
     if ($LJ::USER_EMAIL && $useremail_cap) {
         if ($whatemail eq "B" || $whatemail eq "V" || $whatemail eq "L") {
@@ -4292,7 +4292,7 @@ sub draft_text {
 #           'start_date' - UTC date after which to look for match
 #           'end_date' - UTC date before which to look for match
 #           'return' - if 'count' just return the count
-#           TODO: Add caching?
+#           FIXME: Add caching?
 # </LJFUNC>
 sub get_post_ids {
     my ($u, %opts) = @_;
@@ -4488,8 +4488,8 @@ sub set_draft_text {
         push @methods, [ "append", $appending, 40 + length $new ];
     }
 
-    # TODO: prepending/middle insertion (the former being just the latter), as well
-    # appending, wihch we could then get rid of
+    # FIXME: prepending/middle insertion (the former being just the latter), as
+    # well as appending, wihch we could then get rid of
 
     # try the methods in increasing order
     foreach my $m (sort { $a->[2] <=> $b->[2] } @methods) {
@@ -6505,6 +6505,9 @@ sub mark_user_active {
     return 0 unless $u;   # do not auto-vivify $u
     my $uid = $u->userid;
     return 0 unless $uid && $u->clusterid;
+    # FIXME: return 1 instead? Callers don't use the return value, so I'm not
+    # sure whether 0 means "some error happened" or just "nothing done"
+    return 0 unless $u->is_personal || $u->is_community || $u->is_identity;
 
     # Update the clustertrack2 table, but not if we've done it for this
     # user in the last hour.  if no memcache servers are configured
@@ -6514,9 +6517,12 @@ sub mark_user_active {
 
         return 0 unless $u->writer;
         my $active = time();
-        $u->do( "REPLACE INTO clustertrack2 SET ".
-                "userid=?, timeactive=?, clusterid=?, accountlevel=?", undef,
-                $uid, $active, $u->clusterid, DW::Pay::get_current_account_status( $uid ) ) or return 0;
+        $u->do( qq{ REPLACE INTO clustertrack2
+                        SET userid=?, timeactive=?, clusterid=?,
+                        accountlevel=?, journaltype=? },
+                undef, $uid, $active, $u->clusterid,
+                DW::Pay::get_current_account_status( $uid ), $u->journaltype )
+            or return 0;
 
         my $memkey = [$u->userid, "timeactive:" . $u->userid];
         LJ::MemCache::set($memkey, $active, 86400);
@@ -7586,7 +7592,7 @@ sub user_search_display {
         # when the site is overloaded we don't always load the users
         # we request.
         next unless LJ::isu($u);
-        
+
         $ret .= "<div class='user-search-display'>";
         $ret .= "<table style='height: 105px'><tr>";
 
@@ -7735,8 +7741,8 @@ sub rate_check {
 
     # would this transaction go over the limit?
     if ($sum + $count > $opp) {
-        # TODO: optionally log to rateabuse, unless caller is doing it themselves
-        # somehow, like with the "loginstall" table.
+        # FIXME: optionally log to rateabuse, unless caller is doing it
+        # themselves somehow, like with the "loginstall" table.
         return 0;
     }
 
@@ -8275,7 +8281,7 @@ sub journal_base
             }
         }
     }
- 
+
     if ( $LJ::ONLY_USER_VHOSTS ) {
         my $rule = $u ? $LJ::SUBDOMAIN_RULES->{$u->journaltype} : undef;
         $rule ||= $LJ::SUBDOMAIN_RULES->{P};
