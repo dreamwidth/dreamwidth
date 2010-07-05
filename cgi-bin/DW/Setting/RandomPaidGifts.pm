@@ -23,7 +23,7 @@ use warnings;
 sub should_render {
     my ( $class, $u ) = @_;
 
-    return $u->is_personal && !$u->is_perm ? 1 : 0;
+    return $u->is_perm ? 0 : 1;
 }
 
 sub label {

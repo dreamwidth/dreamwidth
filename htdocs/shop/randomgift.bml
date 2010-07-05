@@ -21,7 +21,11 @@ body<=
     use strict;
     use vars qw/ %GET %POST $title /;
 
-    $title = $ML{'.title'};
+    my $type = $GET{type};
+    $type = 'P' unless $type eq 'C';
+    my $othertype = $type eq 'P' ? 'C' : 'P';
+
+    $title = $ML{'.title.'.$type};
 
     if ( LJ::did_post() ) {
         my $username = $POST{username};
@@ -31,29 +35,37 @@ body<=
         }
     }
 
-    my $randomu = DW::Pay::get_random_active_free_user();
+    my $randomu = DW::Pay::get_random_active_free_user( $type );
 
     my $ret;
 
     $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; " . BML::ml( '.backlink', { sitename => $LJ::SITENAMESHORT } ) . "</a></p>";
 
     if ( $randomu ) {
-        $ret .= "<p>" . BML::ml( '.intro', { aopts => "href='$LJ::SITEROOT/shop/randomgift'" } ) . "</p>";
+        $ret .= "<p>" . BML::ml( '.intro.'.$type, { aopts => "href='$LJ::SITEROOT/shop/randomgift?type=$type'" } ) . "</p>";
         $ret .= "<p><strong>$ML{'.label.username'}</strong> " . $randomu->ljuser_display . "<br />";
         $ret .= "<strong>$ML{'.label.createdate'}</strong> " . LJ::mysql_time( $randomu->timecreate ) . "<br />";
         $ret .= "<strong>$ML{'.label.lastupdated'}</strong> " . substr( LJ::mysql_time( $randomu->timeupdate ), 0, 10 ) . "<br />";
         $ret .= "<strong>$ML{'.label.numentries'}</strong> " . $randomu->number_of_posts . "<br />";
-        $ret .= "<strong>$ML{'.label.numcomments'}</strong> " . $randomu->num_comments_posted . "<br />";
-        $ret .= "<strong>$ML{'.label.numcommunities'}</strong> " . scalar $randomu->member_of_userids . "<br />";
+        if ( $type eq 'P' ) {
+            $ret .= "<strong>$ML{'.label.numcomments'}</strong> " . $randomu->num_comments_posted . "<br />";
+            $ret .= "<strong>$ML{'.label.numcommunities'}</strong> " . scalar $randomu->member_of_userids . "<br />";
+        }
+        else {
+            $ret .= "<strong>$ML{'.label.numcomments'}</strong> " . $randomu->num_comments_received . "<br />";
+            $ret .= "<strong>$ML{'.label.nummembers'}</strong> " . scalar $randomu->member_userids . "<br />";
+        }
         $ret .= "</p>";
 
         $ret .= "<form method='post'>";
         $ret .= LJ::html_hidden( username => $randomu->user );
         $ret .= LJ::html_submit( BML::ml( '.form.submit', { username => $randomu->user } ) ) . " ";
-        $ret .= "<a href='$LJ::SITEROOT/shop/randomgift'>$ML{'.form.getanother'}</a>";
+        $ret .= "<a href='$LJ::SITEROOT/shop/randomgift?type=$type'>$ML{'.form.getanother.'.$type}</a>";
+        $ret .= "&nbsp;&nbsp;<a href='$LJ::SITEROOT/shop/randomgift?type=$othertype'>$ML{'.form.switchtype.'.$type}</a>";
         $ret .= "</form><br />";
     } else {
-        $ret .= "<p>$ML{'.nousers'}</p>";
+        $ret .= "<p>$ML{'.nousers.'.$type}</p>";
+        $ret .= "&nbsp;&nbsp;<a href='$LJ::SITEROOT/shop/randomgift?type=$othertype'>$ML{'.form.switchtype.'.$type}</a>";
     }
 
     $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; " . BML::ml( '.backlink', { sitename => $LJ::SITENAMESHORT } ) . "</a></p>";

@@ -641,20 +641,23 @@ sub num_permanent_accounts_available_estimated {
 ################################################################################
 # DW::Pay::get_random_active_free_user
 #
-# ARGUMENTS: for_u = user that is requesting the random free user (remote if
+# ARGUMENTS: journaltype = type (user 'P' or community 'C') of the requested
+#            user ('P' if not given)
+#            for_u = user that is requesting the random free user (remote if
 #            no user is given)
 #
 # RETURN: a random active free user that for_u can purchase a paid account for,
 #         or undef if there aren't any valid results
 #
 sub get_random_active_free_user {
+    my $journaltype = shift || 'P';
     my $for_u = shift || LJ::get_remote();
 
     my $dbr = LJ::get_db_reader();
     my $rows = $dbr->selectall_arrayref(
         q{SELECT userid, points FROM users_for_paid_accounts
-          ORDER BY RAND() LIMIT 10},
-        { Slice => {} } );
+          WHERE journaltype = ? ORDER BY RAND() LIMIT 10},
+        { Slice => {} }, $journaltype );
 
     my @active_us;
     my $us = LJ::load_userids( map { $_->{userid} } @$rows );
@@ -663,13 +666,14 @@ sub get_random_active_free_user {
         my $points = $row->{points};
         my $u = $us->{$userid};
 
-        next unless $u && $u->is_visible && $u->is_personal;
+        next unless $u && $u->is_visible;
         next if $u->is_paid;
         next unless $u->opt_randompaidgifts;
         next if LJ::sysban_check( 'pay_user', $u->user );
-        next if $for_u && $u->equals( $for_u );
-        next if $for_u && $u->has_banned( $for_u );
-
+        if ( $journaltype eq 'P' ) {
+            next if $for_u && $u->equals( $for_u );
+            next if $for_u && $u->has_banned( $for_u );
+        }
         # each point that a user has gives them an extra chance of being chosen out of the array
         push @active_us, $u;
         if ( $points ) {

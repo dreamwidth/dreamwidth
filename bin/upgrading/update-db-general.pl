@@ -2957,9 +2957,11 @@ CREATE TABLE users_for_paid_accounts (
     userid int unsigned not null,
     time_inserted int unsigned not null default 0,
     points int(5) unsigned not null default 0,
+    journaltype char(1) NOT NULL DEFAULT 'P',
 
     PRIMARY KEY ( userid, time_inserted ),
-    INDEX ( time_inserted )
+    INDEX ( time_inserted ),
+    INDEX ( journaltype )
 )
 EOC
 
@@ -3066,6 +3068,12 @@ register_alter(sub {
 
     my $dbh = shift;
     my $runsql = shift;
+
+    if (column_type("users_for_paid_accounts", "journaltype") eq "") {
+        do_alter("users_for_paid_accounts",
+                 "ALTER TABLE users_for_paid_accounts ADD journaltype CHAR(1) NOT NULL DEFAULT 'P', ".
+                 "ADD INDEX(journaltype)");
+    }
 
     if (column_type("supportcat", "is_selectable") eq "") {
         do_alter("supportcat",
