@@ -197,33 +197,46 @@ function cfUpdateTags( data ) {
     if ( ! member.tags )
         member.tags = {};
 
-    // determine tag cloud sizing
-    var maxuses = 0;
-    for ( i in data.tags ) {
-        if ( data.tags[i].uses > maxuses )
-            maxuses = data.tags[i].uses;
-    }
-
     // reset the global tag counts
     cfTagCount = [ 0, 0 ];
 
     var html = '', htmlin = '';
+
+    //sort tags alphabetically
+    function sorttags( tag_a, tag_b ) {
+        var name_a = data.tags[tag_a].name;
+        var name_b = data.tags[tag_b].name;
+        if ( name_a < name_b ) {
+            return -1;
+        } else if ( name_a > name_b ) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    var sorted_tags = [];
     for ( id in data.tags ) {
+        sorted_tags.push( id );
+    }
+
+    sorted_tags = sorted_tags.sort( sorttags );
+
+    // go through tag list alphabetically
+    for(var i=0; i<sorted_tags.length; i++){
+        var id = sorted_tags[i];
         // count every tag
         cfTagCount[0]++;
 
         // see if this tag is in the list ...
         var isin = member.tags[id] ? true : false;
 
-        // now we can do different things ...
-        var cclass = 'cf-cloud-' + Math.round( data.tags[id].uses / maxuses * 5 + 1 );
-
         if ( isin ) {
             // count every selected tag and build our HTML
             cfTagCount[1]++
-            htmlin += '<a href="javascript:void(0);" class="cf-tag-on cf-tag ' + cclass + '" id="' + id + '">' + data.tags[id].name + '</a> ';
+            htmlin += '<span id="' +  id + '" class="cf-tag-on cf-tag"><a href="javascript:void(0);">' + data.tags[id].name + '</a>[' + data.tags[id].uses + ']</span> ';
         } else {
-            html += '<a href="javascript:void(0);" class="cf-tag ' + cclass + '" id="' + id + '">' + data.tags[id].name + '</a> ';
+            html += '<span id="' +  id + '" class="cf-tag"><a href="javascript:void(0);">' + data.tags[id].name + '</a>[' + data.tags[id].uses + ']</span> ';
         }
     }
 
@@ -240,12 +253,12 @@ function cfUpdateTags( data ) {
     $('#cf-t-box3').html( htmlin );
 
     // now, all of these tags need an onclick handler
-    $('a.cf-tag').bind( 'click', function( e ) { cfClickTag( $(e.target).attr( 'id' ) ); } );
+    $('span.cf-tag').bind( 'click', function( e ) { cfClickTag( $(this).attr( 'id' ) ); } );
 }
 
 
 function cfClickTag( id ) {
-    var obj = $('a.cf-tag#' + id);
+    var obj = $('span.cf-tag#' + id);
     var filt = cfFilters[cfSelectedFilterId];
     var member = filt.members[cfCurrentUserid];
     if ( !obj || !filt || !member || !DW.userIsPaid )

@@ -31,9 +31,3 @@
 .cf-tag-on { font-weight: bold; }
 .cf-tag { text-decoration: underline; margin: 3px; }
 .cf-tag:hover { background-color: #ccc; }
-
-.cf-cloud-1 { font-size: 1.0em; }
-.cf-cloud-2 { font-size: 1.5em; }
-.cf-cloud-3 { font-size: 2.0em; }
-.cf-cloud-4 { font-size: 2.5em; }
-.cf-cloud-5 { font-size: 3.0em; }
