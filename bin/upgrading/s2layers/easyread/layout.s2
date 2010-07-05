@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use userpics_position;
     property use entry_metadata_position;
     property use use_shared_pic;
     property use userlite_interaction_links;
@@ -316,6 +317,45 @@ function Page::print_default_stylesheet {
     var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        #primary .header {
+            left: 110px;
+            }
+        .has-userpic .entry .poster {
+            left: 110px;
+            }
+        #comments .userpic a img, .comment-wrapper .userpic a img  {
+            float: left;
+            margin-right: 10px;
+            }
+        #comments .comment-content, .comment-wrapper .comment-content {
+            clear: left;
+            }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        #primary .header {
+            margin-right: 110px;
+            }
+        .has-userpic .entry .poster {
+            margin-right: 110px;
+            }
+        .has-userpic .entry .contents .userpic {
+            margin-left: auto;
+            }
+        #comments .userpic a img, .comment-wrapper .userpic a img  {
+            float: right;
+            margin-left: 10px;
+            }
+        #comments .comment-content, .comment-wrapper .comment-content {
+            clear: right;
+            }
+        """;
+    }
+
 
 """/* Globals */
 ul {
@@ -491,7 +531,6 @@ h2.module-header a {
 /* Entry header */
 #primary .header {
     position: relative;
-    left: 110px;
 }
 
 .has-userpic .entry .header {
@@ -548,7 +587,6 @@ h2.module-header a {
 }
 
 .has-userpic .entry .poster {
-    left:110px;
     top:-35px;
     position:relative;
 }
@@ -624,13 +662,10 @@ ul.entry-interaction-links, ul.entry-management-links, ul.comment-management-lin
  */
 #comments .userpic a img, .comment-wrapper .userpic a img  {
     border: 0;
-    float: left;
-    margin-right: 10px;
     margin-bottom: 10px;
 }
 
 #comments .comment-content, .comment-wrapper .comment-content {
-    clear: left;
     margin-top: 1em;
     margin-bottom: 1em;
 }
@@ -683,6 +718,8 @@ div.page-top {
     text-align: right;
     margin-bottom: 10px;
 }
+
+$userpic_css
 
 /* End of CSS file */""";
 }
