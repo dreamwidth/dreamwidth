@@ -1185,21 +1185,8 @@ sub entry_form {
                 } if $remote->can_use_userpic_select;
 
                 # libs for userpicselect
-                LJ::need_res(qw(
-                                js/core.js
-                                js/dom.js
-                                js/json.js
-                                js/template.js
-                                js/ippu.js
-                                js/lj_ippu.js
-                                js/userpicselect.js
-                                js/httpreq.js
-                                js/hourglass.js
-                                js/inputcomplete.js
-                                stc/ups.css
-                                js/datasource.js
-                                js/selectable_table.js
-                                )) if $remote->can_use_userpic_select;
+                LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+                    if $remote->can_use_userpic_select;
 
                 $out .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
                 $out .= "\n";

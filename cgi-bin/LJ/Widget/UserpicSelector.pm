@@ -17,24 +17,10 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 
+use LJ::Talk;
+
 sub need_res {
-
-   return qw( js/core.js
-              js/dom.js
-              js/json.js
-              js/template.js
-              js/ippu.js
-              js/lj_ippu.js
-              js/userpicselect.js
-              js/httpreq.js
-              js/hourglass.js
-              js/inputcomplete.js
-              stc/ups.css
-              stc/entry.css
-              js/datasource.js
-              js/selectable_table.js
-              );
-
+   return LJ::Talk::init_iconbrowser_js( 'stc/entry.css' );
 }
 
 sub handle_post {

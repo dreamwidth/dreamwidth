@@ -78,22 +78,8 @@ sub EntryPage
     $p->{head_content} .= LJ::canonical_link( $permalink, $get->{thread} );
 
     # quickreply js libs
-    LJ::need_res(qw(
-                    js/core.js
-                    js/dom.js
-                    js/json.js
-                    js/template.js
-                    js/ippu.js
-                    js/lj_ippu.js
-                    js/userpicselect.js
-                    js/httpreq.js
-                    js/hourglass.js
-                    js/inputcomplete.js
-                    stc/ups.css
-                    stc/lj_base.css
-                    js/datasource.js
-                    js/selectable_table.js
-                    )) if $remote && $remote->can_use_userpic_select;
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( 'stc/lj_base.css' ) )
+        if $remote && $remote->can_use_userpic_select;
 
     LJ::need_res(qw(
                     js/x_core.js

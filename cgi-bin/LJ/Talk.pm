@@ -1923,6 +1923,39 @@ LOGIN
     return $ret;
 }
 
+# load the javascript libraries for the icon browser
+# args: names of any additional files to load
+# returns: full list of arguments to pass to LJ::need_res
+sub init_iconbrowser_js {
+    my @additional = @_;
+
+    my @list = (
+        # base libraries
+        'js/core.js',
+        'js/dom.js',
+        'js/json.js',
+        # for the formatting of the icon selector popup
+        'js/template.js',
+        'js/ippu.js',
+        'js/lj_ippu.js',
+        # logic for the icon selector
+        'js/userpicselect.js',
+        # fetching the userpic information
+        'js/httpreq.js',
+        'js/hourglass.js',
+        # autocomplete
+        'js/inputcomplete.js',
+        'stc/ups.css',
+        # selecting an icon by clicking on a row
+        'js/datasource.js',
+        'js/selectable_table.js',
+        # additional files from arguments
+        @additional,
+    );
+
+    return @list;
+}
+
 # generate the javascript code for the quick quote button
 # arg1: element corresponds to textarea of caller (body or commenttext)
 # arg2: boolean to hide the button HTML (optional)
