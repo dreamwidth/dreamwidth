@@ -623,8 +623,8 @@ li.first-item {margin-left: 0;}
 .comment-title h4 {
     font-size: inherit;
     font-weight: inherit;
-    margin: inherit;
-    padding: inherit;
+    margin: 0;
+    padding: 0;
 }
 
 .comment .datetime { border-top: 0.083em solid $*color_entry_border;}

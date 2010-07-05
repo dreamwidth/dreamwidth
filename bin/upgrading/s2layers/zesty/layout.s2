@@ -728,8 +728,8 @@ h3 {
 .comment-title h4 {
     font-size: inherit;
     font-weight: inherit;
-    margin: inherit;
-    padding: inherit;
+    margin: 0;
+    padding: 0;
 }
 
 .tools {

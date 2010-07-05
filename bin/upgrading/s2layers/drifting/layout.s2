@@ -732,8 +732,8 @@ function Page::print_default_stylesheet()
     .comment-title h4 {
         font-size: inherit;
         font-weight: inherit;
-        margin: inherit;
-        padding: inherit;
+        margin: 0;
+        padding: 0;
     }
 
     .comment .subject {

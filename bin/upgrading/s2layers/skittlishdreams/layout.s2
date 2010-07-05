@@ -566,8 +566,8 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .comment-title h4 {
     font-size: inherit;
     font-weight: inherit;
-    margin: inherit;
-    padding: inherit;
+    margin: 0;
+    padding: 0;
 }
 
 .entry-title, .comment-title {margin:0 120px .5em 0; padding: 0.2em;border: solid 1px $*color_entry_title_border; $entry_title_colors }
