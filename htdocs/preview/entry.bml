@@ -148,7 +148,7 @@ _c?>
         }
 
         ## dump the log entry, unless we're browsing a thread.
-        my %current = LJ::currents( \%req, $up, 'prop_' );
+        my %current = LJ::currents( \%req, $up, { key => 'prop_' } );
 
         # custom friend groups
         if ( $u ) {

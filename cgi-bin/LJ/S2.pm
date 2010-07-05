@@ -1865,10 +1865,15 @@ sub Entry
         # do nothing.
     }
 
-    my $p = $arg->{'props'};
-    my %current = LJ::currents( $p );
+    my $m_arg = $arg;
+    # if moodthemeid not given, look up the user's if we have it
+    $m_arg = $u if ! defined $arg->{moodthemeid} && LJ::isu( $u );
+
+    my $p = $arg->{props};
+    my $img_arg;
+    my %current = LJ::currents( $p, $m_arg, { s2imgref => \$img_arg } );
     $e->{metadata}->{lc $_} = $current{$_} foreach keys %current;
-    # FIXME: mood reassigned below - doesn't match LJ::currents code
+    $e->{mood_icon} = Image( @$img_arg ) if defined $img_arg;
 
     # check for xpost values
     if ( $p->{xpostdetail} ) {
@@ -1887,23 +1892,6 @@ sub Entry
         if ( $xpostlinks ) {
             $e->{metadata}->{xpost} = $xpostlinks;
         }
-    }
-
-    if (my $mid = $p->{'current_moodid'}) {
-        my $theme = $arg->{'moodthemeid'};
-        # if moodthemeid not given, look up the user's if we have it
-        $theme = $u->moodtheme if ! defined $theme && LJ::isu( $u );
-        my %pic;
-        my $mobj = DW::Mood->new( $theme );
-        $e->{mood_icon} = Image( $pic{pic}, $pic{w}, $pic{h} )
-            if $mobj && $mobj->get_picture( $mid, \%pic );
-        if ( my $mood = DW::Mood->mood_name( $mid ) ) {
-            $e->{metadata}->{mood} = $mood;
-        }
-    }
-    if ($p->{'current_mood'}) {
-        $e->{'metadata'}->{'mood'} = $p->{'current_mood'};
-        LJ::CleanHTML::clean_subject(\$e->{'metadata'}->{'mood'});
     }
 
     my $r = BML::get_request();

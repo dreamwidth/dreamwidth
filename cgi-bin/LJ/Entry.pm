@@ -2217,9 +2217,15 @@ sub item_toutf8
 
 # function to fill in hash for basic currents
 sub currents {
-    my ( $props, $u, $key ) = @_;
+    my ( $props, $u, $opts ) = @_;
     return unless ref $props eq 'HASH';
     my %current;
+
+    my ( $key, $s2imgref );
+    if ( $opts && ref $opts ) {
+        $key = $opts->{key};
+        $s2imgref = $opts->{s2imgref};
+    }
 
     # Mood
     if ( $props->{"${key}current_mood"} || $props->{"${key}current_moodid"} ) {
@@ -2236,14 +2242,22 @@ sub currents {
 
         if ( my $val = $moodid ) {
             $moodname ||= DW::Mood->mood_name( $val );
-            my $themeid = LJ::isu( $u ) ? $u->moodtheme : undef;
-            # $u might be a hashref instead of a user object?
-            $themeid ||= ref $u ? $u->{moodthemeid} : undef;
-            my $theme = DW::Mood->new( $themeid );
-            my %pic;
-            if ( $theme && $theme->get_picture( $val, \%pic ) ) {
-                $moodpic = "<img class='moodpic' src=\"$pic{pic}\" align='absmiddle' " .
-                           "width='$pic{w}' height='$pic{h}' vspace='1' alt='' /> ";
+            if ( defined $u ) {
+                my $themeid = LJ::isu( $u ) ? $u->moodtheme : undef;
+                # $u might be a hashref instead of a user object?
+                $themeid ||= ref $u ? $u->{moodthemeid} : undef;
+                my $theme = DW::Mood->new( $themeid );
+                my %pic;
+                if ( $theme && $theme->get_picture( $val, \%pic ) ) {
+                    if ( $s2imgref && ref $s2imgref ) {
+                        # return argument array for S2::Image
+                        $$s2imgref = [ $pic{pic}, $pic{w}, $pic{h} ];
+                    } else {
+                        $moodpic = "<img class='moodpic' src=\"$pic{pic}\" " .
+                                   "width='$pic{w}' height='$pic{h}' " .
+                                   "align='absmiddle' vspace='1' alt='' /> ";
+                    }
+                }
             }
         }
 
