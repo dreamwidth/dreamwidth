@@ -1083,6 +1083,7 @@ package LJ;
 use Carp qw(confess);
 use LJ::Poll;
 use LJ::EmbedModule;
+use DW::External::Account;
 
 # <LJFUNC>
 # name: LJ::get_logtext2multi
@@ -2276,6 +2277,20 @@ sub currents {
                                             location => $props->{"${key}current_location"}
                                           ) };
         $current{Location} = $loc->as_html_current if $loc;
+    }
+
+    # Crossposts
+    if ( my $xpost = $props->{"${key}xpostdetail"} ) {
+        my $xposthash = DW::External::Account->xpost_string_to_hash( $xpost );
+        my $xpostlinks = "";
+        foreach my $xpostvalue ( values %$xposthash ) {
+            if ( $xpostvalue->{url} ) {
+                my $xpost_url = LJ::no_utf8_flag( $xpostvalue->{url} );
+                $xpostlinks .= " " if $xpostlinks;
+                $xpostlinks .= "<a href='$xpost_url'>$xpost_url</a>";
+            }
+        }
+        $current{Xpost} = $xpostlinks if $xpostlinks;
     }
 
     return %current;

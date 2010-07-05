@@ -307,22 +307,6 @@ body<=
                            );
     }
 
-    if ($props->{xpostdetail} ) {
-        my $xposthash = DW::External::Account->xpost_string_to_hash( $props->{xpostdetail} );
-        my $xpostlinks = "";
-        foreach my $xpostkey ( keys %$xposthash ) {
-            my $xpostvalue = $xposthash->{$xpostkey};
-            if ( $xpostvalue->{url} ) {
-                my $xpost_url = LJ::no_utf8_flag( $xpostvalue->{url} );
-                if ( $xpostlinks ) {
-                    $xpostlinks = $xpostlinks . " ";
-                }
-                $xpostlinks = $xpostlinks . '<a href = "' .  $xpost_url . '">' .  $xpost_url . '</a>';
-            }
-        }
-        $current{Xpost} = $xpostlinks;
-    }
-
     $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
 
     $ret .= LJ::currents_table( %current );

@@ -33,7 +33,6 @@ use LJ::S2::MonthPage;
 use LJ::S2::EntryPage;
 use LJ::S2::ReplyPage;
 use LJ::S2::TagsPage;
-use DW::External::Account;
 use Storable;
 use Apache2::Const qw/ :common /;
 use POSIX ();
@@ -1874,25 +1873,6 @@ sub Entry
     my %current = LJ::currents( $p, $m_arg, { s2imgref => \$img_arg } );
     $e->{metadata}->{lc $_} = $current{$_} foreach keys %current;
     $e->{mood_icon} = Image( @$img_arg ) if defined $img_arg;
-
-    # check for xpost values
-    if ( $p->{xpostdetail} ) {
-        my $xposthash = DW::External::Account->xpost_string_to_hash( $p->{xpostdetail} );
-        my $xpostlinks = "";
-        foreach my $xpostkey ( keys %$xposthash ) {
-            my $xpostvalue = $xposthash->{$xpostkey};
-            if ( $xpostvalue->{url} ) {
-                my $xpost_url = LJ::no_utf8_flag( $xpostvalue->{url} );
-                if ( $xpostlinks ) {
-                    $xpostlinks = $xpostlinks . " ";
-                }
-                $xpostlinks = $xpostlinks . '<a href = "' .  $xpost_url . '">' .  $xpost_url . '</a>';
-            }
-        }
-        if ( $xpostlinks ) {
-            $e->{metadata}->{xpost} = $xpostlinks;
-        }
-    }
 
     my $r = BML::get_request();
 
