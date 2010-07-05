@@ -1738,41 +1738,8 @@ sub talkform {
                                 ("", $BML::ML{'.opt.defpic'}, map { ($_, $_) } @pics));
 
         # userpic browse button
-        $ret .= qq {
-            <input type="button" id="lj_userpicselect" value="Browse" />
-
-            <script type="text/javascript" language="JavaScript">
-            DOM.addEventListener(window, "load", function (evt) {
-                // attach userpicselect code to userpicbrowse button
-                var ups_btn = \$("lj_userpicselect");
-                if (ups_btn) {
-                    DOM.addEventListener(ups_btn, "click", function (evt) {
-                     var ups = new UserpicSelect();
-                     ups.init();
-                     ups.setPicSelectedCallback(function (picid, keywords) {
-                         var kws_dropdown = \$("prop_picture_keyword");
-
-                         if (kws_dropdown) {
-                             var items = kws_dropdown.options;
-
-                             // select the keyword in the dropdown
-                             keywords.forEach(function (kw) {
-                                 for (var i = 0; i < items.length; i++) {
-                                     var item = items[i];
-                                     if (item.value == kw) {
-                                         kws_dropdown.selectedIndex = i;
-                                         return;
-                                     }
-                                 }
-                             });
-                         }
-                     });
-                     ups.show();
-                 });
-                }
-            });
-            </script>
-        } if $remote && $remote->can_use_userpic_select;
+        $ret .= LJ::Talk::js_iconbrowser_button()
+            if $remote && $remote->can_use_userpic_select;
                 
         $ret .= LJ::help_icon_html("userpics", " ");
     }
@@ -1954,6 +1921,45 @@ sub init_iconbrowser_js {
     );
 
     return @list;
+}
+
+# generate the javascript code for the icon browser
+sub js_iconbrowser_button {
+    return qq {
+        <input type="button" id="lj_userpicselect" value="Browse" />
+
+        <script type="text/javascript" language="JavaScript">
+        DOM.addEventListener(window, "load", function (evt) {
+            // attach userpicselect code to userpicbrowse button
+            var ups_btn = \$("lj_userpicselect");
+            if (ups_btn) {
+                DOM.addEventListener(ups_btn, "click", function (evt) {
+                 var ups = new UserpicSelect();
+                 ups.init();
+                 ups.setPicSelectedCallback(function (picid, keywords) {
+                     var kws_dropdown = \$("prop_picture_keyword");
+
+                     if (kws_dropdown) {
+                         var items = kws_dropdown.options;
+
+                         // select the keyword in the dropdown
+                         keywords.forEach(function (kw) {
+                             for (var i = 0; i < items.length; i++) {
+                                 var item = items[i];
+                                 if (item.value == kw) {
+                                     kws_dropdown.selectedIndex = i;
+                                     return;
+                                 }
+                             }
+                         });
+                     }
+                 });
+                 ups.show();
+             });
+            }
+        });
+        </script>
+    };
 }
 
 # generate the javascript code for the quick quote button
