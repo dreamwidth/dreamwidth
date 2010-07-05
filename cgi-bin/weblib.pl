@@ -703,7 +703,7 @@ sub create_qr_div {
             # userpic browse button
             $qrhtml .= qq {
                 <input type="button" id="lj_userpicselect" value="Browse" />
-                } if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
+                } if $remote->can_use_userpic_select;
 
             $qrhtml .= LJ::help_icon_html("userpics", " ");
         }
@@ -833,7 +833,7 @@ sub create_qr_div {
                 }
             });
         </script>
-        } if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
+        } if $remote->can_use_userpic_select;
 
     return $ret;
 }
@@ -1182,7 +1182,7 @@ sub entry_form {
                     });
                     // ]]>
                     </script>
-                } if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
+                } if $remote->can_use_userpic_select;
 
                 # libs for userpicselect
                 LJ::need_res(qw(
@@ -1199,7 +1199,7 @@ sub entry_form {
                                 stc/ups.css
                                 js/datasource.js
                                 js/selectable_table.js
-                                )) if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
+                                )) if $remote->can_use_userpic_select;
 
                 $out .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
                 $out .= "\n";
@@ -1294,7 +1294,7 @@ sub entry_form {
                                         @pickws) . "\n";
                 $out .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
                 # userpic browse button
-                $$onload .= " insertViewThumbs();" if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
+                $$onload .= " insertViewThumbs();" if $remote->can_use_userpic_select;
                 $out .= LJ::help_icon_html("userpics", "", " ") . "\n";
                 $out .= "</p>\n\n";
 

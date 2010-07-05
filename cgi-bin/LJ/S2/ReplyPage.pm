@@ -79,7 +79,7 @@ sub ReplyPage
                     stc/ups.css
                     js/datasource.js
                     js/selectable_table.js
-                    )) if LJ::is_enabled('userpicselect') && $remote && $remote->can_use_userpic_select;
+                    )) if $remote && $remote->can_use_userpic_select;
 
     if ($u->should_block_robots || $entry->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();

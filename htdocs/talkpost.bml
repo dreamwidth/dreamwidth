@@ -43,7 +43,7 @@ body<=
                     stc/ups.css
                     js/datasource.js
                     js/selectable_table.js
-                    )) if LJ::is_enabled('userpicselect') && $remote && $remote->can_use_userpic_select;
+                    )) if $remote && $remote->can_use_userpic_select;
 
     my $pics = LJ::Talk::get_subjecticons();
 

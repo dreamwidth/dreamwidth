@@ -189,7 +189,7 @@ sub render_body {
             });
             // ]]>
             </script>
-        } if LJ::is_enabled('userpicselect') && $u->can_use_userpic_select;
+        } if $u->can_use_userpic_select;
 
         $$pic .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
         $$pic .= "\n";
@@ -214,7 +214,7 @@ sub render_body {
                        userpic_preview();
                  };
         $$picform .= "insertViewThumbs()"
-            if LJ::is_enabled('userpicselect') && $u->can_use_userpic_select;
+            if $u->can_use_userpic_select;
         $$picform .= "</script>\n";
 
     } elsif (!$u)  {

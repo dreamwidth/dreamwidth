@@ -133,7 +133,7 @@ body<=
                     stc/ups.css
                     js/datasource.js
                     js/selectable_table.js
-                    )) if LJ::is_enabled('userpicselect') && $remote && $remote->can_use_userpic_select;
+                    )) if $remote && $remote->can_use_userpic_select;
 
     # FIXME: this isn't entirely correct, if ecphash is present but ignored/incorrect
     # that fix would need to be done in talklib.pl

@@ -2098,6 +2098,7 @@ sub can_use_textmessaging {
 }
 
 sub can_use_userpic_select {
+    return 0 unless LJ::is_enabled( 'userpicselect' );
     return $_[0]->get_cap( 'userpicselect' ) ? 1 : 0;
 }
 

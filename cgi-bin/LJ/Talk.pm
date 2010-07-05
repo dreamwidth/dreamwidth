@@ -1772,7 +1772,7 @@ sub talkform {
                 }
             });
             </script>
-        } if LJ::is_enabled('userpicselect') && $remote && $remote->can_use_userpic_select;
+        } if $remote && $remote->can_use_userpic_select;
                 
         $ret .= LJ::help_icon_html("userpics", " ");
     }
