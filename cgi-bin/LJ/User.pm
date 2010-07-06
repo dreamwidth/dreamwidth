@@ -7978,8 +7978,8 @@ sub validate_interest_list {
             $int = LJ::ehtml($int);
             $error_string .= '.invalid';
         } else {
-            $error_string .= '.bytes' if $bytes > LJ::BMAX_INTEREST;
-            $error_string .= '.chars' if $chars > LJ::CMAX_INTEREST;
+            $error_string .= '.bytes' if $bytes > LJ::BMAX_SITEKEYWORD;
+            $error_string .= '.chars' if $chars > LJ::CMAX_SITEKEYWORD;
         }
 
         if ($error_string) {
@@ -7987,9 +7987,9 @@ sub validate_interest_list {
             push @$interrors, [ $error_string,
                                 { int => $int,
                                   bytes => $bytes,
-                                  bytes_max => LJ::BMAX_INTEREST,
+                                  bytes_max => LJ::BMAX_SITEKEYWORD,
                                   chars => $chars,
-                                  chars_max => LJ::CMAX_INTEREST
+                                  chars_max => LJ::CMAX_SITEKEYWORD
                                 }
                               ];
             next;
