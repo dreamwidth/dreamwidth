@@ -2715,13 +2715,118 @@ sub remove_from_class {
 }
 
 
-# sets prop, and also updates $u's cached version
+# Sets/deletes userprop(s) by name for a user.
+# This adds or deletes from the [dbtable[userprop]]/[dbtable[userproplite]]
+# tables, and also updates $u's cached version. Can set $prop => $value
+# or also accepts a hashref of propname keys and corresponding values.
+# Returns boolean indicating success or failure.
 sub set_prop {
-    my ($u, $prop, $value) = @_;
-    return 0 unless LJ::set_userprop($u, $prop, $value);  # FIXME: use exceptions
-    return $u->{$prop} = $value unless ref $prop;
-    # handle hashref arguments
-    $u->{$_} = $prop->{$_} foreach keys %$prop;
+    my ( $u, $prop, $value ) = @_;
+    my $userid = $u->userid + 0;
+    my $hash = ref $prop eq "HASH" ? $prop : { $prop => $value };
+
+    my %action;  # $table -> {"replace"|"delete"} -> [ "($propid, $qvalue)" | propid ]
+    my %multihomed;  # { $propid => $value }
+
+    # Accumulate prepared actions.
+    foreach my $propname ( keys %$hash ) {
+        $value = $hash->{$propname};
+
+        # Call all hooks, since we don't look at the return values.
+        # We expect anybody who uses this hook to do the extra work
+        # a property needs when it is set.
+        LJ::Hooks::run_hooks( 'setprop', prop => $propname, u => $u, value => $value );
+
+        my $p = LJ::get_prop( "user", $propname ) or
+            die "Attempted to set invalid userprop $propname.";
+
+        if ( $p->{multihomed} ) {
+            # collect into array for later handling
+            $multihomed{ $p->{id} } = $value;
+            next;
+        }
+        # if not multihomed, select appropriate table
+        my $table = 'userproplite';  # default
+        $table = 'userprop' if $p->{indexed};
+        $table = 'userproplite2' if $p->{cldversion}
+                                 && $u->dversion >= $p->{cldversion};
+        $table = 'userpropblob' if $p->{datatype} eq 'blobchar';
+
+        # only assign db for update action if value has changed
+        unless ( $value eq $u->{$propname} ) {
+            my $db = $action{$table}->{db} ||= (
+                $table !~ m{userprop(lite2|blob)}
+                    ? LJ::get_db_writer()  # global
+                    : $u->writer );        # clustered
+            return 0 unless $db;  # failure to get db handle
+        }
+
+        # determine if this is a replacement or a deletion
+        if ( defined $value && $value ) {
+            push @{ $action{$table}->{replace} }, [ $p->{id}, $value ];
+        } else {
+            push @{ $action{$table}->{delete} }, $p->{id};
+        }
+    }
+
+    # keep in memcache for 24 hours and update user object in memory
+    my $memc = sub {
+        my ( $p, $v ) = @_;
+        LJ::MemCache::set( [ $userid, "uprop:$userid:$p" ], $v, 3600 * 24 );
+        $u->{$p} = $v;
+    };
+
+    # Execute prepared actions.
+    foreach my $table ( keys %action ) {
+        my $db = $action{$table}->{db};
+        if ( my $list = $action{$table}->{replace} ) {
+            if ( $db ) {
+                my $vals = join( ',', map { "($userid,$_->[0]," . $db->quote( $_->[1] ) . ")" } @$list );
+                $db->do( "REPLACE INTO $table (userid, upropid, value) VALUES $vals" );
+                die $db->errstr if $db->err;
+            }
+            $memc->( $_->[0], $_->[1] ) foreach @$list;
+        }
+        if ( my $list = $action{$table}->{delete} ) {
+            if ( $db ) {
+                my $in = join( ',', @$list );
+                $db->do( "DELETE FROM $table WHERE userid=$userid AND upropid IN ($in)" );
+                die $db->errstr if $db->err;
+            }
+            $memc->( $_, "" ) foreach @$list;
+        }
+    }
+
+    # if we had any multihomed props, set them here
+    if ( %multihomed ) {
+        my $dbh = LJ::get_db_writer();
+        return 0 unless $dbh && $u->writer;
+
+        while ( my ( $propid, $pvalue ) = each %multihomed ) {
+            if ( defined $pvalue && $pvalue ) {
+                # replace data into master
+                $dbh->do( "REPLACE INTO userprop VALUES (?, ?, ?)",
+                          undef, $userid, $propid, $pvalue );
+            } else {
+                # delete data from master, but keep in cluster
+                $dbh->do( "DELETE FROM userprop WHERE userid = ? AND upropid = ?",
+                          undef, $userid, $propid );
+            }
+
+            # fail out?
+            return 0 if $dbh->err;
+
+            # put data in cluster
+            $pvalue ||= '';
+            $u->do( "REPLACE INTO userproplite2 VALUES (?, ?, ?)",
+                    undef, $userid, $propid, $pvalue );
+            return 0 if $u->err;
+
+            # set memcache and update user object
+            $memc->( $propid, $pvalue );
+        }
+    }
+
     return 1;
 }
 
@@ -7396,114 +7501,6 @@ sub modify_caps {
     $u->{caps} = $newcaps;
     $argu->{caps} = $newcaps if ref $argu; # FIXME: temp hack
     return $u;
-}
-
-
-# <LJFUNC>
-# name: LJ::set_userprop
-# des: Sets/deletes a userprop by name for a user.
-# info: This adds or deletes from the
-#       [dbtable[userprop]]/[dbtable[userproplite]] tables.
-# args: uuserid, propname, value
-# des-uuserid: The userid of the user or a user hashref.
-# des-propname: The name of the property.  Or a hashref of propname keys and corresponding values.
-# des-value: The value to set to the property.  If undefined or the
-#            empty string, then property is deleted.
-# </LJFUNC>
-sub set_userprop {
-    my ( $u, $propname, $value ) = @_;
-    $u = ref $u ? $u : LJ::load_userid($u);
-    my $userid = $u->userid + 0;
-
-    my $hash = ref $propname eq "HASH" ? $propname : { $propname => $value };
-
-    my %action;  # $table -> {"replace"|"delete"} -> [ "($userid, $propid, $qvalue)" | propid ]
-    my %multihomed;  # { $propid => $value }
-
-    foreach $propname (keys %$hash) {
-        # call all hooks, since we don't look at the return values.  we expect anybody who
-        # uses this hook to do extra work a property needs when it is set.
-        LJ::Hooks::run_hooks( 'setprop', prop => $propname, u => $u, value => $value );
-
-        my $p = LJ::get_prop("user", $propname) or
-            die "Invalid userprop $propname passed to LJ::set_userprop.";
-        if ($p->{multihomed}) {
-            # collect into array for later handling
-            $multihomed{$p->{id}} = $hash->{$propname};
-            next;
-        }
-        my $table = $p->{'indexed'} ? "userprop" : "userproplite";
-        if ($p->{datatype} eq 'blobchar') {
-            $table = 'userpropblob';
-        }
-        elsif ( $p->{'cldversion'} && $u->dversion >= $p->{'cldversion'} ) {
-            $table = "userproplite2";
-        }
-        unless ( $hash->{$propname} eq $u->{$propname} ) {
-            # only update db if value has changed
-            my $db = $action{$table}->{'db'} ||= (
-                $table !~ m{userprop(lite2|blob)}
-                    ? LJ::get_db_writer()
-                    : $u->writer );
-            return 0 unless $db;
-        }
-        $value = $hash->{$propname};
-        if (defined $value && $value) {
-            push @{$action{$table}->{"replace"}}, [ $p->{'id'}, $value ];
-        } else {
-            push @{$action{$table}->{"delete"}}, $p->{'id'};
-        }
-    }
-
-    my $expire = time() + 3600*24;
-    foreach my $table (keys %action) {
-        my $db = $action{$table}->{'db'};
-        if (my $list = $action{$table}->{"replace"}) {
-            if ($db) {
-                my $vals = join(',', map { "($userid,$_->[0]," . $db->quote($_->[1]) . ")" } @$list);
-                $db->do("REPLACE INTO $table (userid, upropid, value) VALUES $vals");
-            }
-            LJ::MemCache::set([$userid,"uprop:$userid:$_->[0]"], $_->[1], $expire) foreach (@$list);
-        }
-        if (my $list = $action{$table}->{"delete"}) {
-            if ($db) {
-                my $in = join(',', @$list);
-                $db->do("DELETE FROM $table WHERE userid=$userid AND upropid IN ($in)");
-            }
-            LJ::MemCache::set([$userid,"uprop:$userid:$_"], "", $expire) foreach (@$list);
-        }
-    }
-
-    # if we had any multihomed props, set them here
-    if (%multihomed) {
-        my $dbh = LJ::get_db_writer();
-        return 0 unless $dbh && $u->writer;
-        while (my ($propid, $pvalue) = each %multihomed) {
-            if (defined $pvalue && $pvalue) {
-                # replace data into master
-                $dbh->do("REPLACE INTO userprop VALUES (?, ?, ?)",
-                         undef, $userid, $propid, $pvalue);
-            } else {
-                # delete data from master, but keep in cluster
-                $dbh->do("DELETE FROM userprop WHERE userid = ? AND upropid = ?",
-                         undef, $userid, $propid);
-            }
-
-            # fail out?
-            return 0 if $dbh->err;
-
-            # put data in cluster
-            $pvalue ||= '';
-            $u->do("REPLACE INTO userproplite2 VALUES (?, ?, ?)",
-                   undef, $userid, $propid, $pvalue);
-            return 0 if $u->err;
-
-            # set memcache
-            LJ::MemCache::set([$userid,"uprop:$userid:$propid"], $pvalue, $expire);
-        }
-    }
-
-    return 1;
 }
 
 
