@@ -392,6 +392,16 @@ body<=
 
         my $ret = '';
 
+        # determine whether the interest is too long: if the interest already exists, a long interest will result in $e_int and the return value of LJ::get_interest not matching
+        # if it didn't already exist, we fall back on just checking the length of $e_int
+        my $exists = $interest;
+        if ( ( $exists && $e_int ne $interest ) || length( $e_int ) > LJ::CMAX_SITEKEYWORD ) {
+
+            # if the searched-for interest is too long, we use the short version from here on
+            $interest = $exists ? $interest : substr ( $e_int, 0, LJ::CMAX_SITEKEYWORD );
+            $ret .= "<?p " . BML::ml( '.error.longinterest', { sitename => $LJ::SITENAMESHORT, old_int => $e_int, new_int => $interest, maxlen => LJ::CMAX_SITEKEYWORD } ) . " p?>";
+        }
+
         $ret .= "<table>";
         $ret .= "<tr valign='middle'><td class='findandmodify'>$ML{'.interested.in'}</td>";
         $ret .= "<td class='findandmodify'><form method='get' action='interests'>";
@@ -407,11 +417,11 @@ body<=
         $ret .= "</table>";
 
         # no results
-        unless ( $interest ) {
+        unless ( $exists ) {
             $ret .= "<?h1 $ML{'.nocomms.header'} h1?><?p ";
-            $ret .= BML::ml( '.nocomms.text', { 'int' => $e_int, 'aopts' => qq(href="$LJ::SITEROOT/community/create") } );
+            $ret .= BML::ml( '.nocomms.text', { 'int' => $interest, 'aopts' => qq(href="$LJ::SITEROOT/community/create") } );
             $ret .= " p?><?h1 $ML{'.nousers.header'} h1?><?p ";
-            $ret .= BML::ml( '.nousers.text', { 'int' => $e_int, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests'" } );
+            $ret .= BML::ml( '.nousers.text', { 'int' => $interest, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests'" } );
             $ret .= " p?>";
             return $ret;
         } 

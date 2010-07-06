@@ -52,6 +52,8 @@ When you're done, click "Save Changes".
 
 .error.ignored=Sorry, we're unable to help you find users matching the interests you've provided.
 
+.error.longinterest=As [[sitename]] does not support interests longer than [[maxlen]] characters, your search for <b>[[old_int]]</b> was converted into a search for <b>[[new_int]]</b> instead.
+
 .error.nodata=Sorry, interest data currently unavailable.
 
 .error.nointerests=The selected user does not exist or has not specified any interests.
