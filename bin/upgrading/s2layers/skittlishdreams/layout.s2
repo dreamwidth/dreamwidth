@@ -28,7 +28,10 @@ propgroup presentation {
     property use layout_type;
     property use sidebar_width;
     property use tags_page_type;
-    property use userpics_position;
+    property string entryicons_position {
+       des = "Place icons on the same side or opposite the sidebar";
+       values = "same|Same side as sidebar|opposite|Opposite the sidebar";
+    }
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -40,7 +43,7 @@ propgroup presentation {
 set layout_type = "two-columns-right";
 set sidebar_width = "230px";
 set tags_page_type = "";
-set userpics_position = "right";
+set entryicons_position = "same";
 set custom_colors_template = "%%new%% .userpic a {background-color: %%background%%; border: solid 1px %%foreground%%;}";
 
 propgroup colors {
@@ -444,6 +447,32 @@ function Page::print_default_stylesheet () {
 
     var string navigation_colors = generate_color_css($*color_page_details_text, $*color_entry_background, new Color);
 
+    var string entryicon_css = "";
+        if ($*entryicons_position == "same") {
+            $entryicon_css = """
+            .two-columns-right .has-userpic .entry-title,
+            .two-columns-right .has-userpic .comment-title { margin: 0 120px .5em 0; }
+            .two-columns-left .has-userpic .entry-title,
+            .two-columns-left .has-userpic .comment-title { margin: 0 0 .5em 120px; }
+            .two-columns-right .entry .userpic a, 
+            .two-columns-right .comment .userpic a { right: 10px; left: auto; }
+            .two-columns-left .entry .userpic a, 
+            .two-columns-left .comment .userpic a { left: 10px; right: auto; }
+            """;
+        }
+        elseif ($*entryicons_position == "opposite") {
+            $entryicon_css = """
+            .two-columns-right .has-userpic .entry-title,
+            .two-columns-right .has-userpic .comment-title { margin: 0 0 .5em 120px; }
+            .two-columns-left .has-userpic .entry-title,
+            .two-columns-left .has-userpic .comment-title { margin: 0 120px .5em 0; }
+            .two-columns-right .entry .userpic a, 
+            .two-columns-right .comment .userpic a { left: 10px; right: auto; }
+            .two-columns-left .entry .userpic a, 
+            .two-columns-left .comment .userpic a { right: 10px; left: auto; }
+            """;
+        }
+
     """
 /*
 Theme Name:    Skittlish Dreams, a DW port of Skittlish
@@ -576,18 +605,11 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
     $entry_title_font
 }
 
-.two-columns-right .entry-title, .two-columns-right .comment-title {margin:0 120px .5em 0;}
-.two-columns-left .entry-title, .two-columns-left .comment-title  {margin:0 0 .5em 120px;}
-
 .entry-wrapper-even .entry-title, .comment-wrapper-even .comment-title {border: solid 1px $*color_entry_title_border_alt; $entry_title_colors }
 .partial .comment-title {display: inline; }
 
 .userpic a {background-color: $*color_page_border; border: 0px; }
 .entry .userpic a, .comment .userpic a {background-color: $*color_entry_background; border: solid 2px $*color_page_border; display: block; position: absolute; top: -66px; padding: 5px; }
-.two-columns-right .entry .userpic a, 
-.two-columns-right .comment .userpic a {right: 10px; left: auto;}
-.two-columns-left .entry .userpic a, 
-.two-columns-left .comment .userpic a {left: 10px; right: auto;}
 
 .entry .userpic img, .comment .userpic img {border: none; }
 .no-userpic .comment {margin-top: 20px; }
@@ -704,6 +726,8 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 
 .journal-name { font-size: 1.8em; }
 .journal-website-name { font-size: 1.6em; } 
+
+$entryicon_css
 
     """;
 }

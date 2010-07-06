@@ -51,7 +51,7 @@ set image_background_header_url = "nouveauoleanders/johnny_automatic_oleander_de
 ##===============================
 
 set layout_type = "two-columns-left";
-
+property string userpics_position { noui = 1; }
 
 
 function print_stylesheet () {
