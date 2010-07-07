@@ -95,7 +95,7 @@ body<=
     $ret .= "<table class='shop-table'><tr>";
     $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'prem' ) . "</td>";
     $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'paid' ) . "</td>"
-        unless $for eq 'self' && $account_type eq 'premium';
+        if $for ne 'self' || DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
     $ret .= "</tr>";
 
     if ( DW::Pay::num_permanent_accounts_available() > 0 ) {

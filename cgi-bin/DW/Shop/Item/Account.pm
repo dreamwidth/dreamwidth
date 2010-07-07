@@ -276,7 +276,7 @@ sub can_be_added {
             # no paid time can be purchased for seed accounts
             $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.alreadyperm', { user => $target_u->ljuser_display } );
             return 0;
-        } elsif ( $account_type eq 'premium' && $self->class eq 'paid' ) {
+        } elsif ( ! DW::Shop::Item::Account->allow_account_conversion( $target_u, $self->class ) ) {
             # premium accounts can't get normal paid time
             $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.nopaidforpremium', { user => $target_u->ljuser_display } );
             return 0;
@@ -286,6 +286,26 @@ sub can_be_added {
     return 1;
 }
 
+# this checks whether we can downgrade the premium to paid
+# FIXME: a better fix for this is to have an autorenewal system, and have the paid time
+# applied to their account once their current premium time expires
+sub allow_account_conversion {
+    my ( $class, $u, $to ) = @_;
+
+    # no existing user; assume no previous conflicting account
+    return 1 unless LJ::isu( $u );
+
+    my $paid_status = DW::Pay::get_paid_status( $u );
+    my $from = DW::Pay::type_shortname( $paid_status->{typeid} );
+
+    # doesn't match premium => paid, so allow it
+    return 1 unless $from eq 'premium' && $to eq 'paid';
+
+    # allow if we're within two weeks of expiration
+    return 1 if $paid_status->{expiresin} <= 3600 * 24 * 14;
+
+    return 0;
+}
 
 # override
 sub conflicts {
