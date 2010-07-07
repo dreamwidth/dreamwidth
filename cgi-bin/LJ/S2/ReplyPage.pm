@@ -194,6 +194,18 @@ sub ReplyPage
 
         my $dtalkid = $re_talkid * 256 + $entry->anum;
         my $cmtobj = LJ::Comment->new( $u, dtalkid => $dtalkid );
+
+        my $tz_remote;
+        my $datetime_remote;
+        my $datetime_poster;
+        if ( $remote ) {
+            my $tz = $remote->prop( "timezone" );
+            $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
+        }
+
+        $datetime_remote = $tz_remote ? DateTime_tz( $cmtobj->unixtime, $tz_remote ) : undef;
+        $datetime_poster = $parentcomment ? DateTime_tz( $cmtobj->unixtime, $parentcomment->poster ) : undef;
+
         my $replyargs = LJ::viewing_style_args( %$get );
         $replyto = {
             '_type' => 'Comment',
@@ -209,6 +221,8 @@ sub ReplyPage
             'threadroot_url' => $cmtobj->threadroot_url( $replyargs ),
             'time' => $datetime,
             'system_time' => $datetime,
+            'time_remote' => $datetime_remote,
+            'time_poster' => $datetime_poster,
             'tags' => [],
             'talkid' => $dtalkid,
             'link_keyseq' => [ 'delete_comment' ],
