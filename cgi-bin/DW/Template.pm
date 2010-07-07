@@ -43,6 +43,7 @@ my $site_constants = Template::Namespace::Constants->new({
 my $roots_constants = Template::Namespace::Constants->new({
     site => $LJ::SITEROOT,
     img => $LJ::IMGPREFIX,
+    ssl => $LJ::SSLROOT,
 });
 
 # precreating this

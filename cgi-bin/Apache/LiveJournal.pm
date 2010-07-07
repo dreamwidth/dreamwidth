@@ -1397,6 +1397,15 @@ sub journal_content
     # Allow to add extra http-header or even modify html
     LJ::Hooks::run_hooks("after_journal_content_created", $opts, \$html) unless $handle_with_siteviews;
 
+    # check for redirects
+    if ( $opts->{internal_redir} ) {
+        my $int_redir = DW::Routing->call( uri => $opts->{internal_redir} );
+        if ( defined $int_redir ) {
+            # we got a match; clear the request cache and return DECLINED.
+            LJ::start_request();
+            return DECLINED;
+        }
+    }
     return redir($r, $opts->{'redir'}) if $opts->{'redir'};
     return $opts->{'handler_return'} if defined $opts->{'handler_return'};
 

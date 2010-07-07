@@ -31,7 +31,9 @@ _c?>
     return $err->($ML{'.error.no_support'})
         unless LJ::OpenID::consumer_enabled();
 
-    my $return_to = "$LJ::SITEROOT/openid/login";
+    my $query_args = $POST{'continue_to'} ? "?continue_to=" .  LJ::eurl( $POST{'continue_to'} ) : "";
+    
+    my $return_to = "$LJ::SITEROOT/openid/login" . $query_args;
 
     my $remote = LJ::get_remote();
     if ($remote) {
@@ -77,9 +79,19 @@ _c?>
         $u->make_login_session($sess_opts->{'exptype'}, $sess_opts->{'ipfixed'});
         LJ::set_remote($u);
 
-        return BML::redirect("$LJ::SITEROOT/login");
+        my $redirect = "$LJ::SITEROOT/login";
+        # handle the continue_to url, if it's a valid URL to redirect to.
+        my $continue_to = $GET{'continue_to'};
+        if ( $continue_to && DW::Controller::validate_redirect_url( $continue_to ) ) {
+            # if the account is validated, then go ahead and redirct
+            if ( $u->is_validated ) {
+                $redirect = $continue_to;
+            } else {
+                $redirect .= "?continue_to=" . LJ::eurl( $continue_to );
+            }
+        }
+        return BML::redirect( $redirect );
     }
-
 
     if (LJ::did_post()) {
         my $csr = LJ::OpenID::consumer();

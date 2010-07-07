@@ -271,28 +271,31 @@ sub check_viewable
         or die "Unable to construct entry object.\n";
     return 1 if $ent->visible_to( $remote );
 
-    my $journal = LJ::load_userid( $item->{ownerid} );
-    my $journalname = $journal->username;
+    my $r = BML::get_request();
 
+    # this checks to see why the logged-in user is not allowed to see
+    # the given content.
     if (defined $remote) {
-        if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $item->{security} ne "private" ) {
-            return $err->( BML::ml( 'talk.error.notauthorised.comm.open', { aopts => "href='$LJ::SITEROOT/community/join?comm=$journalname'" } ) );
-        } elsif ( $journal->is_community && $journal->is_closed_membership ) {
-            return $err->( BML::ml( 'talk.error.notauthorised.comm.closed' ) );
-        } else {
-            return $err->( BML::ml( 'talk.error.notauthorised' ) );
-        }
-    } else {
-        my $r = BML::get_request();
-        my $host = $r->headers_in->{Host};
-        my $args = scalar $r->args;
-        my $querysep = $args ? "?" : "";
-        my $redir = LJ::eurl("http://" . $host . $r->uri . $querysep . $args);
+        my $journal = LJ::load_userid( $item->{ownerid} );
+        my $journalname = $journal->username;
 
-        return $err->(BML::redirect("$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin"));
+        if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $item->{security} ne "private" ) {
+            $r->notes->{error_key} = ".comm.open";
+            $r->notes->{journalname} = $journalname;
+        } elsif ( $journal->is_community && $journal->is_closed_membership ) {
+            $r->notes->{error_key} = ".comm.closed";
+            $r->notes->{journalname} = $journalname;
+        }
     }
 
-    return 1;
+    my $host = $r->headers_in->{Host};
+    my $args = scalar $r->args;
+    my $querysep = $args ? "?" : "";
+    my $returnto = "http://" . $host . $r->uri . $querysep . $args;
+    $r->notes->{internal_redir} = "/protected";
+    $r->notes->{returnto} = $returnto;
+    return 0;
+
 }
 
 # <LJFUNC>

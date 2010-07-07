@@ -54,6 +54,7 @@ sub EntryPage
     return if $opts->{'readonlyjournal'};
     return if $opts->{'handler_return'};
     return if $opts->{'redir'};
+    return if $opts->{'internal_redir'};
 
     $p->{'multiform_on'} = $entry->comments_manageable_by($remote);
 
@@ -463,17 +464,28 @@ sub EntryPage_entry
 
     # check using normal rules
     unless ($entry->visible_to($remote, $canview)) {
-        if ($remote) {
-            $opts->{'handler_return'} = 403;
-            return;
-        } else {
-            my $host = $r->headers_in->{Host};
-            my $args = scalar $r->args;
-            my $querysep = $args ? "?" : "";
-            my $redir = LJ::eurl("http://$host$uri$querysep$args");
-            $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin";
-            return;
+        # this checks to see why the logged-in user is not allowed to see
+        # the given content.
+        if (defined $remote) {
+            my $journal = $entry->journal;
+
+            if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $entry->security ne "private" ) {
+                $r->notes->{error_key} = ".comm.open";
+                $r->notes->{journalname} = $journal->name_raw;
+            } elsif ( $journal->is_community && $journal->is_closed_membership ) {
+                $r->notes->{error_key} = ".comm.closed";
+                $r->notes->{journalname} = $journal->name_raw;
+            }
         }
+
+        my $host = $r->headers_in->{Host};
+        my $args = scalar $r->args;
+        my $querysep = $args ? "?" : "";
+        my $redir = "http://$host$uri$querysep$args";
+        $opts->{internal_redir} = "/protected";
+        $r->notes->{journalid} = $entry->journalid;
+        $r->notes->{returnto} = $redir;
+        return;
     }
 
     if ( $pu && $pu->is_suspended && ! $viewsome ) {

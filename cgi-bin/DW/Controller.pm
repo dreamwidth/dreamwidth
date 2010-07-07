@@ -21,6 +21,8 @@ use warnings;
 use Exporter;
 use DW::Routing;
 use DW::Template;
+use URI;
+
 
 our ( @ISA, @EXPORT );
 @ISA = qw/ Exporter /;
@@ -138,6 +140,25 @@ sub controller {
 
     # everything good... let the caller know they can continue
     return $ok->();
+}
+
+# checks a URL to make sure it's ok to redirect to it.
+#
+# note that this checks on the host name of the given URL, so it's important
+# to make sure to pass in a full, absolute URL rather than a relative URI.
+sub validate_redirect_url {
+    my $url = $_[0];
+
+    return 0 unless $url;
+
+    # Redirect to offsite uri if allowed, and not an internal LJ redirect.
+    my $parsed_uri = URI->new($url);
+    
+    # if the given URI isn't valid, the URI module doesn't even give the 
+    # returned object a host method
+    my $redir_host = eval { $parsed_uri->host } || "";
+        
+    return $LJ::REDIRECT_ALLOWED{$redir_host} || $redir_host =~ m#${LJ::DOMAIN}$#i;
 }
 
 1;

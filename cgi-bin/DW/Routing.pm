@@ -52,6 +52,7 @@ Valid options:
 
 =over
 
+=item uri - explicitly override the uri
 =item role - explicitly define the role
 =item username - define the username, implies username role
 =item ssl - this is a SSL page, implies the ssl role
@@ -76,6 +77,7 @@ Valid options:
 
 =over
 
+=item uri - explicitly override the uri
 =item role - explicitly define the role
 =item username - define the username, implies username role
 =item ssl - this is a SSL page, implies the ssl role
@@ -90,7 +92,8 @@ sub get_call_opts {
     my ( $class, %opts ) = @_;
     my $r = DW::Request->get;
 
-    my ( $uri, $format ) = ( $r->uri, undef );
+    my $uri = $opts{uri} ||  $r->uri;
+    my $format = undef;
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
 

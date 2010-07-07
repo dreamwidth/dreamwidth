@@ -15,6 +15,8 @@
 
 .error.notuser=Username not found.  Would you like to <a [[aopts]]>create an account</a> using this username?
 
+.loggedin.continueto=Continue to [[continue_url]]
+
 .loggedin.head2=Welcome back to [[sitename]]!
 
 .loggedin.openidemail=Please <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> your email address to get started.
