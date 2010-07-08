@@ -297,6 +297,41 @@ $img{'sticky-entry'} = {
     alt => '',  # S2::PROPS
 };
 
+$img{'id_anonymous'} = {
+    src => '/silk/identity/anonymous.png',
+    width => 16,
+    height => 16,
+    alt => 'img.id_anonymous',
+};
+
+$img{'id_openid'} = {
+    src => '/silk/identity/openid.png',
+    width => 16,
+    height => 16,
+    alt => 'img.id_openid',
+};
+
+$img{'id_user'} = {
+    src => '/silk/identity/user.png',
+    width => 16,
+    height => 16,
+    alt => 'img.id_user',
+};
+
+$img{'poll_left'} = {
+    src => '/poll/leftbar.gif',
+    width => 7,
+    height => 14,
+    alt => '',
+};
+
+$img{'poll_right'} = {
+    src => '/poll/rightbar.gif',
+    width => 7,
+    height => 14,
+    alt => '',
+};
+
 # load the site-local version, if it's around.
 if (-e "$LJ::HOME/cgi-bin/imageconf-local.pl") {
     require "$LJ::HOME/cgi-bin/imageconf-local.pl";

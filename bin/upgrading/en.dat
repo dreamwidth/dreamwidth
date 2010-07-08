@@ -2021,6 +2021,12 @@ img.foaf=FOAF
 
 img.hourglass=Waiting...
 
+img.id_anonymous=Anonymous
+
+img.id_openid=OpenID
+
+img.id_user=User
+
 img.ins_obj=Insert Image/Object
 
 img.key=View public key

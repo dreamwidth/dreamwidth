@@ -1091,16 +1091,16 @@ sub render {
                 my $width = 20+int(($count/$maxitvotes)*380);
 
                 if ($do_table) {
-                    $results_table .= "<tr valign='middle'><td align='right'>$item</td>";
-                    $results_table .= "<td><img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' width='7' alt='' />";
+                    $results_table .= "<tr valign='middle'><td align='right'>$item</td><td>";
+                    $results_table .= LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
                     $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
-                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' /> ";
+                    $results_table .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
                     $results_table .= "<b>$count</b> ($percent%)</td></tr>";
                 } else {
-                    $results_table .= "<p>$item<br />";
-                    $results_table .= "<span style='white-space: nowrap'><img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' alt='' />";
+                    $results_table .= "<p>$item<br /><span style='white-space: nowrap'>";
+                    $results_table .= LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
                     $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
-                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' /> ";
+                    $results_table .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
                     $results_table .= "<b>$count</b> ($percent%)</span></p>";
                 }
             }
