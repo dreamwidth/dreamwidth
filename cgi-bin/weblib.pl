@@ -3512,7 +3512,7 @@ sub subscribe_interface {
         };
 
     $ret .= LJ::html_hidden({name => 'mode', value => 'save_subscriptions'});
-    $ret .= LJ::html_hidden({name => 'ret_url', value => $ret_url});
+    $ret .= LJ::html_hidden({name => 'ret_url', value => LJ::ehtml( $ret_url )});
     $ret .= LJ::html_hidden({name => 'post_to_settings_page', value => $post_to_settings_page});
 
     # print buttons
