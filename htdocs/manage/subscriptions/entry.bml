@@ -88,14 +88,10 @@ body<=
             flags   => LJ::Subscription::TRACKING,
         );
 
-    my $referer = BML::get_client_header('Referer');
-    my ( $style ) = ( $referer =~ /\b(style=\w+)/ );
-    $style = LJ::viewing_style_args( split( /=/, $style ) );
-
     $body .= LJ::subscribe_interface( $remote,
                  journal      => $journal,
                  categories   => $categories,
-                 ret_url      => $entry->url . "?$style",
+                 ret_url      => $entry->url,
                  default_selected_notifications => ['LJ::NotificationMethod::Email'],
                  post_to_settings_page => 1,
              );

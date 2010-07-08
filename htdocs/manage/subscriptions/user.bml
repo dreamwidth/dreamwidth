@@ -92,7 +92,6 @@ body<=
     return LJ::subscribe_interface( $remote,
         categories => $categories,
         journal    => $journal,
-        ret_url    => BML::get_client_header('Referer'),
         post_to_settings_page => 1,
     );
 
