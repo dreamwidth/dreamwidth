@@ -54,6 +54,8 @@ sub ReplyPage
 
     return if $opts->{'handler_return'};
     return if $opts->{'redir'};
+    return if $opts->{internal_redir};
+
     my $ditemid = $entry->ditemid;
     my $replytoid = $get->{replyto} ? $get->{replyto} : 0;
 
