@@ -530,7 +530,7 @@ sub comment_info {
         ( $journal->{opt_showtalklinks} eq "Y" && !$self->comments_disabled ) ) ? 1 : 0;
     my $has_screened = ( $self->props->{hasscreened} && $remote && $journal
                          && $remote->can_manage( $journal ) ) ? 1 : 0;
-    my $replycount = $self->reply_count;
+    my $replycount = $comments_enabled ? $self->reply_count : 0;
     my $nc = "";
     $nc .= "nc=$replycount" if $replycount && $remote && $remote->{opt_nctalklinks};
 
