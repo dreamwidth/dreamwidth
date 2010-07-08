@@ -71,7 +71,7 @@ accountlinks<=
             my $wh = $userpic->img_fixedsize( width => 80, height => 80 );
             $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         } else {
-            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' width='80' height='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
+            $ret .= LJ::img( "nouserpic_sitescheme", "" );
         }
         $ret .= "</a></div>";
         $ret .= "<div id='account-links-text'>";

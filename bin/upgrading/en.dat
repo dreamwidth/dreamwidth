@@ -2023,6 +2023,10 @@ img.hourglass=Waiting...
 
 img.id_anonymous=Anonymous
 
+img.id_community=Community
+
+img.id_feed=Syndicated Feed
+
 img.id_openid=OpenID
 
 img.id_user=User
@@ -2034,6 +2038,8 @@ img.key=View public key
 img.memadd=Add to memories!
 
 img.next_entry=Next Entry
+
+img.nouserpic=No default icon
 
 img.placeholder=Image
 
@@ -2414,8 +2420,6 @@ s2theme.themename.notheme=(Layout Default)
 search.user.journal=Journal:
 
 search.user.name=Name:
-
-search.user.nopic=no default userpic
 
 search.user.update.last=Updated [[time]]
 

@@ -227,6 +227,20 @@ $img{us_map} = {
     alt => 'img.us_map',
 };
 
+$img{nouserpic} = {
+    src => '/nouserpic.png',
+    width => 100,
+    height => 100,
+    alt => 'img.nouserpic',
+};
+
+$img{nouserpic_sitescheme} = {
+    src => '/nouserpic.png',
+    width => 80,
+    height => 80,
+    alt => 'sitescheme.accountlinks.userpic.alt',
+};
+
 $img{circle_yes} = {
     src => '/silk/site/tick.png',
     width => 16,
@@ -315,6 +329,34 @@ $img{'id_user'} = {
     src => '/silk/identity/user.png',
     width => 16,
     height => 16,
+    alt => 'img.id_user',
+};
+
+$img{'id_community-24'} = {
+    src => '/silk/24x24/community.png',
+    width => 24,
+    height => 24,
+    alt => 'img.id_community',
+};
+
+$img{'id_feed-24'} = {
+    src => '/silk/24x24/feed.png',
+    width => 24,
+    height => 24,
+    alt => 'img.id_feed',
+};
+
+$img{'id_openid-24'} = {
+    src => '/silk/24x24/openid.png',
+    width => 24,
+    height => 24,
+    alt => 'img.id_openid',
+};
+
+$img{'id_user-24'} = {
+    src => '/silk/24x24/user.png',
+    width => 24,
+    height => 24,
     alt => 'img.id_user',
 };
 

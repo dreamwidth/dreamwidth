@@ -2479,29 +2479,19 @@ sub large_journal_icon {
         unless LJ::isu($u);
 
     my $wrap_img = sub {
-        return "<img src='$LJ::IMGPREFIX/silk/24x24/$_[0]' border='0' height='24' " .
-            "width='24' style='padding: 0px 2px 0px 0px' />";
+        my $type = $_[0];
+        return LJ::img( "id_$type-24", "",
+                        { border => 0, style => 'padding: 0px 2px 0px 0px' } );
     };
 
-    # hook will return image to use if it cares about
-    # the $u it's been passed
-    my $hook_img = LJ::Hooks::run_hook("large_journal_icon", $u);
-    return $wrap_img->($hook_img) if $hook_img;
+    return $wrap_img->( "community" ) if $u->is_comm;
 
-    if ($u->is_comm) {
-        return $wrap_img->("community.png");
-    }
+    return $wrap_img->( "feed" ) if $u->is_syndicated;
 
-    if ($u->is_syndicated) {
-        return $wrap_img->("feed.png");
-    }
-
-    if ($u->is_identity) {
-        return $wrap_img->("openid.png");
-    }
+    return $wrap_img->( "openid" ) if $u->is_identity;
 
     # personal or unknown fallthrough
-    return $wrap_img->("user.png");
+    return $wrap_img->( "user" );
 }
 
 
@@ -7599,8 +7589,8 @@ sub user_search_display {
             $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/" . $u->userid . "' alt='";
             $ret .= $u->user . " userpic' style='border: 1px solid #000;' />";
         } else {
-            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' alt='" . BML::ml( 'search.user.nopic' );
-            $ret .= "' style='border: 1px solid #000;' width='100' height='100' />";
+            $ret .= LJ::img( "nouserpic", "",
+                             { style => 'border: 1px solid #000;' } );
         }
         $ret .= "</a>";
 
