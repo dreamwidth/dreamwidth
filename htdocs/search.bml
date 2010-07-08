@@ -167,9 +167,9 @@ body<=
 
         my $icon = {
                 public => '',
-                private => "<img src='$LJ::IMGPREFIX/silk/entry/private.png'>",
-                usemask => "<img src='$LJ::IMGPREFIX/silk/entry/filtered.png'>",
-                access => "<img src='$LJ::IMGPREFIX/silk/entry/locked.png'>",
+                private => LJ::img( "security-private",   "" );
+                usemask => LJ::img( "security-groups",    "" );
+                access  => LJ::img( "security-protected", "" );
             }->{$match->{security}};
 
         my $tags = join( ', ', map { "<strong>" . $match->{tags}->{$_} . "</strong>" } keys %{ $match->{tags} } );

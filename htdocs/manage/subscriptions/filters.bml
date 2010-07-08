@@ -39,6 +39,7 @@ body<=
     $ret .= "<?standout " . BML::ml( '.accessfilters', { aopts => "href='$LJ::SITEROOT/manage/circle/editfilters'" } ) . " standout?>\n\n"; 
 
     # and now the main page HTML
+    my $img = LJ::img( 'hourglass', '', { id => 'cf-hourglass' } );
     $ret .= <<EOF;
 
 <div id='cf-select'>
@@ -49,7 +50,7 @@ body<=
         </select>
     </div>
     <div id='cf-save'>
-        <img id='cf-hourglass' src='$LJ::IMGPREFIX/hourglass.gif' />
+        $img
         <span id='cf-unsaved'>Saving in N seconds...</span>
     </div>
     <div id='cf-make-new'>

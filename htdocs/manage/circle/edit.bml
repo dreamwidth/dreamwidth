@@ -144,12 +144,12 @@ body<=
                     if ($type eq "people") {
                         if ( $other_u->can_watch( $u ) ) {
                             my $watched = $is_watched_by_userid{$uid} ? 1 : 0;
-                            $ret .= " | <img src='$LJ::IMGPREFIX/silk/site/";
+                            $ret .= " | ";
                             if ( $watched ) {
-                                $ret .= "tick.png' alt='" . $ML{'.circle.img.y'} . "'> ";
+                                $ret .= LJ::img( 'circle_yes', '' );
                                 $ret .= $ML{'.circle.subscribe.y'}
                             } else {
-                                $ret .= "cross.png' alt='" . $ML{'.circle.img.n'} . "'> ";
+                                $ret .= LJ::img( 'circle_no', '' );
                                 $ret .= $ML{'.circle.subscribe.n'}
                             }
                             $iscontent = 1;
@@ -177,24 +177,23 @@ body<=
                     if ($type eq "people") {
                         if ( $other_u->can_trust( $u ) ) {
                             my $trusted = $is_trusted_by_userid{$uid} ? 1 : 0;
-                            $ret .= " | <img src='$LJ::IMGPREFIX/silk/site/";
+                            $ret .= " | ";
                             if ( $trusted ) {
-                                $ret .= "tick.png' alt='" . $ML{'.circle.img.y'} . "'> ";
+                                $ret .= LJ::img( 'circle_yes', '' );
                                 $ret .= $ML{'.circle.access.y'}
                             } else {
-                                $ret .= "cross.png' alt='" . $ML{'.circle.img.n'} . "'> ";
+                                $ret .= LJ::img( 'circle_no', '' );
                                 $ret .= $ML{'.circle.access.n'}
                             }
                             $iscontent = 1;
                         }
                     } elsif ($type eq "comms") {
                         # check membership
-                        $ret .= "<img src='/img/silk/site/";
                         if ( $is_member_of_userid{$uid} ) {
-                            $ret .= "tick.png' alt='" . $ML{'.circle.img.y'} . "'> ";
+                            $ret .= LJ::img( 'circle_yes', '' );
                             $ret .= $ML{'.circle.member.y'};
                         } else {
-                            $ret .= "cross.png' alt='" . $ML{'.circle.img.n'} . "'> ";
+                            $ret .= LJ::img( 'circle_no', '' );
                             $ret .= $ML{'.circle.member.n'};
                         }
                         $iscontent = 1;

@@ -30,10 +30,6 @@
 
 .circle.header=Current Relationships
 
-.circle.img.n=No
-
-.circle.img.y=Yes
-
 .circle.intro=Here are the <a [[aopts1]]>people</a>, <a [[aopts2]]>communities</a>, and <a [[aopts3]]>feeds</a> that are in your circle.  You can change who appears on your Reading Page and who you give access to by using the check boxes.
 
 .circle.intro.people=Here are the people in your circle:

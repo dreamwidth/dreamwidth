@@ -164,7 +164,8 @@ body<=
 
     my $arrowimg = sub {
         my $section = $_[0];
-        return qq(<img id="${section}_arrow" src="$LJ::IMGPREFIX/profile_icons/arrow-down.gif" align="absmiddle" alt="" />);
+        return LJ::img( 'arrow-down', '', { id => "${section}_arrow",
+                                            align => "absmiddle" } );
     };
 
     # given a single item (scalar or hashref), linkify it appropriately
@@ -246,7 +247,8 @@ body<=
         my $header_image = $opts{header_image} ? "<img src='$opts{header_image}' alt='' /> " : '';
         my $collapse_text = $collapsible ? qq(
             <span class='expandcollapse on' id='$opts{section_name}_header'>
-                <img id="$opts{section_name}_arrow" src="$LJ::IMGPREFIX/profile_icons/arrow-down.gif" align="absmiddle" alt="" />
+                ) . LJ::img( 'arrow-down', '', { id => "$opts{section_name}_arrow",
+                align => "absmiddle" } ) . qq(
                 $header_image$ML{$opts{section_name_ml}}
             </span>
         ) : "$header_image$ML{$opts{section_name_ml}}";
@@ -281,7 +283,8 @@ body<=
         if ( $collapsible ) {
             $collapse_text = qq(
                 <span class='expandcollapse on' id='$opts{section_name}_header'>
-                    <img id="$opts{section_name}_arrow" src="$LJ::IMGPREFIX/profile_icons/arrow-down.gif" align="absmiddle" alt="" />
+                    ) . LJ::img( 'arrow-down', '', { id => "$opts{section_name}_arrow",
+                    align => "absmiddle" } ) . qq(
                     $section_name$section_hidden_text
                 </span>
             );
@@ -322,13 +325,10 @@ body<=
 
     $ret .= q{ <div class='username'> } . $u->ljuser_display;
     if ( $u->public_key ) {
-        $ret .= qq( 
-            <a href='$LJ::SITEROOT/pubkey?user=$user'>
-                <img src='$LJ::IMGPREFIX/key.gif' width='16' height='16' border='0'
-                     alt="$ML{'.pubkey.alt'}" title="$ML{'.pubkey.alt'}"
-                     style='vertical-align: middle; border: 0;' />
-            </a>
-        );
+        $ret .= "<a href='$LJ::SITEROOT/pubkey?user=$user'>";
+        $ret .= LJ::img( 'key', '', { border => 0, title => $ML{'.pubkey.alt'},
+                          style => 'vertical-align: middle; border: 0;' } );
+        $ret .= "</a>\n";
     }
     $ret .= q{ </div> };
 

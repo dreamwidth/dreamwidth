@@ -49,13 +49,16 @@ body<=
             $count{$_->{'statcat'}}->{$_->{'statkey'}} = $_->{'statval'};
         }
 
+        my $mapimg = LJ::img( 'us_map', '', { id => "USMap", border => 0,
+                                              usemap => "#state_test",
+                                              ismap => 'ismap' } );
         $ret .= qq {
             <div id="States">
                 <?h1 $ML{'.browse.usa.title'} h1?>
                 <?p $ML{'.browse.usa.desc'} p?>
                 <form action='get' name="stateForm">
                 <div>
-                <img id="USMap" alt="$ML{'.us_map'}" src="$LJ::IMGPREFIX/us_map.gif" width='489' height='315' border='0' usemap="#state_test" ismap='ismap' />
+                $mapimg
                 <div id="StateInfo"></div>
                 </div>
                 </form>
@@ -182,9 +185,10 @@ body<=
         $refurl .= ($args ? "&" : "?") . 'start_search=1';
         $headextra = "<meta http-equiv='Refresh' content='1;URL=$refurl' id='refresher' />";
 
+        my $dots = LJ::img( 'searchdots', '' );
         $ret .= qq {
             <div id="SearchWaitText" style='text-align: center;'>
-               <b>$ML{'.search.title'}<img src='$LJ::IMGPREFIX/searchingdots.gif' alt='...' width='18' height='12' /></b>
+               <b>$ML{'.search.title'}$dots</b>
                <p>$ML{'.search.monkey'}</p>
             </div>
         };

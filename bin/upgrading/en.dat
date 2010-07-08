@@ -1983,6 +1983,10 @@ fcklang.videoprompt=Please enter the YouTube, PhotoBucket, or Google Video URL:
 
 help=Help
 
+img.arrow-down=Open
+
+img.arrow-right=Closed
+
 img.atom=Atom
 
 img.btn_del=Delete
@@ -1990,6 +1994,10 @@ img.btn_del=Delete
 img.btn_down=Down
 
 img.btn_freeze=Freeze
+
+img.btn_next=Next
+
+img.btn_prev=Previous
 
 img.btn_scr=Screen
 
@@ -1999,6 +2007,10 @@ img.btn_unscr=Unscreen
 
 img.btn_up=Up
 
+img.circle_no=No
+
+img.circle_yes=Yes
+
 img.editcomment=Edit
 
 img.editentry=Edit Entry
@@ -2007,7 +2019,11 @@ img.edittags=Edit Tags
 
 img.foaf=FOAF
 
+img.hourglass=Waiting...
+
 img.ins_obj=Insert Image/Object
+
+img.key=View public key
 
 img.memadd=Add to memories!
 
@@ -2019,6 +2035,8 @@ img.prev_entry=Previous Entry
 
 img.rss=RSS
 
+img.searchdots=...
+
 img.tellfriend=Tell a Friend!
 
 img.track=Track This
@@ -2028,6 +2046,8 @@ img.track_active=Track This
 img.track_thread_active=Track This
 
 img.untrack=Untrack This
+
+img.us_map=US Map
 
 img.xml=XML Source
 

@@ -38,6 +38,20 @@ $img{btn_down} = {
     alt => 'img.btn_down',
 };
 
+$img{btn_next} = {
+    src => '/btn_next.gif',
+    width => 22,
+    height => 20,
+    alt => 'img.btn_next',
+};
+
+$img{btn_prev} = {
+    src => '/btn_prev.gif',
+    width => 22,
+    height => 20,
+    alt => 'img.btn_prev',
+};
+
 $img{btn_del} = {
     src => '/silk/comments/delete.png',
     width => 16,
@@ -183,6 +197,62 @@ $img{rss} = {
     width => 32,
     height => 15,
     alt => 'img.rss',
+};
+
+$img{key} = {
+    src => '/key.gif',
+    width => 16,
+    height => 16,
+    alt => 'img.key',
+};
+
+$img{hourglass} = {
+    src => '/hourglass.gif',
+    width => 17,
+    height => 17,
+    alt => 'img.hourglass',
+};
+
+$img{searchdots} = {
+    src => '/searchingdots.gif',
+    width => 18,
+    height => 12,
+    alt => 'img.searchdots',
+};
+
+$img{us_map} = {
+    src => '/us_map.gif',
+    width => 489,
+    height => 315,
+    alt => 'img.us_map',
+};
+
+$img{circle_yes} = {
+    src => '/silk/site/tick.png',
+    width => 16,
+    height => 16,
+    alt => 'img.circle_yes',
+};
+
+$img{circle_no} = {
+    src => '/silk/site/cross.png',
+    width => 16,
+    height => 16,
+    alt => 'img.circle_no',
+};
+
+$img{'arrow-down'} = {
+    src => 'profile_icons/arrow-down.gif',
+    width => 12,
+    height => 12,
+    alt => 'img.arrow-down',
+};
+
+$img{'arrow-right'} = {
+    src => 'profile_icons/arrow-right.gif',
+    width => 12,
+    height => 12,
+    alt => 'img.arrow-right',
 };
 
 $img{'security-protected'} = {

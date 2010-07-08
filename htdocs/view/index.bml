@@ -138,8 +138,10 @@ _c?>
         my @prev = ($year, $month-1);
         if ($prev[1] < 1) { @prev = ($year-1, 12); }
 
-        my $next = "<a href=\"" . $base . "/$next[0]/" . sprintf("%02d", $next[1]) . "/\"><img src=\"$LJ::IMGPREFIX/btn_next.gif\" width='22' height='20' border='0'></a>";
-        my $prev = "<a href=\"" . $base . "/$prev[0]/" . sprintf("%02d", $prev[1]) . "/\"><img src=\"$LJ::IMGPREFIX/btn_prev.gif\" width='22' height='20' border='0'></a>";
+        my $next = "<a href='" . $base . "/$next[0]/" . sprintf("%02d", $next[1]) . "/'>";
+        $next .= LJ::img( "btn_next", "", { border => 0 } ) . "</a>";
+        my $prev = "<a href='" . $base . "/$prev[0]/" . sprintf("%02d", $prev[1]) . "/'>";
+        $prev .= LJ::img( "btn_prev", "", { border => 0 } ) . "</a>";
 
         $body .= "<?standout \n";
         $body .= "<form method='post' action='$LJ::SITEROOT/view/' style='display:inline'><input type='hidden' name='type' value='month' /><input type='hidden' name='user' value='$u->{'user'}' />";
