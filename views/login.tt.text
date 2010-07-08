@@ -1,0 +1,39 @@
+;; -*- coding: utf-8 -*-
+.createaccount.header=Not a [[sitename]] member?
+
+.createaccount.button=Create an Account
+
+.createaccount.whylogin.benefit1=Read Access List and filtered entries that you have access to.
+
+.createaccount.whylogin.benefit2=Leave comments in any journal or community.
+
+.createaccount.whylogin.benefit3=Post entries in your own journal.
+
+.createaccount.whylogin.benefit4=Add any journal or community to your Reading page.
+
+.createaccount.whylogin.benefit5=Access features that are only visible when you're logged in.
+
+.login.btn.login=Log in
+
+.login.forget=Forgot password?
+
+.login.header=Log in to [[sitename]]
+
+.login.openid.example=For example: <tt>melody.someblog.com</tt> (if your host supports OpenID)
+
+.login.openid.header=Log in with OpenID
+
+.login.openid.submit=Login
+
+.login.openid.url=Your OpenID URL:
+
+.login.password=Password:
+
+.login.remember=Remember me
+
+.login.secure=Secure
+
+.login.standard=Standard
+
+.login.username=Account name:
+
