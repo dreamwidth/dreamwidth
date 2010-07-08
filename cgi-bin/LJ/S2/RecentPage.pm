@@ -51,8 +51,7 @@ sub RecentPage
     my $datalink = sub {
         my ($what, $caption) = @_;
         return Link($p->{'base_url'} . "/data/$what" . ($opts->{tags} ? "?tag=".join(",", map({ LJ::eurl($_) } @{$opts->{tags}})) : ""),
-                    $caption,
-                    Image("$LJ::IMGPREFIX/data_$what.gif", 32, 15, $caption));
+                    $caption, Image_std( $what ) );
     };
 
     $p->{'data_link'} = {
