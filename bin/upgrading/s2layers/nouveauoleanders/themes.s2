@@ -106,6 +106,56 @@ set color_module_link_visited = "#ffffff";
 set color_module_title = "#ffffff";
 
 
+#NEWLAYER: nouveauoleanders/nightfall
+layerinfo "type" = "theme";
+layerinfo "name" = "Nightfall";
+layerinfo author_name = "dancing_serpent";
+layerinfo redist_uniq = "nouveauoleanders/nightfall";
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#293b3f";
+set color_page_border = "#293b3f";
+set color_page_link = "#a7581d";
+set color_page_link_visited = "#a7581d";
+set color_page_text = "#cc8833";
+set color_page_title = "#cc8833";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#000302";
+set color_footer_link = "#a7581d";
+set color_footer_link_visited = "#a7581d";
+set color_header_background = "#000302";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#293b3f";
+set color_entry_border = "#293b3f";
+set color_entry_link = "#a7581d";
+set color_entry_link_visited = "#a7581d";
+set color_entry_text = "#cc8833";
+set color_entry_title = "#cc8833";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#192c3a";
+set color_module_link = "#a7581d";
+set color_module_link_visited = "#a7581d";
+set color_module_text = "#cc8833";
+set color_module_title = "#cc8833";
+
+
 #NEWLAYER: nouveauoleanders/piquant
 layerinfo "type" = "theme";
 layerinfo "name" = "Piquant";

@@ -15,6 +15,11 @@ use base qw( LJ::S2Theme::nouveauoleanders );
 sub cats { qw() }
 sub designer { "dancing_serpent" }
 
+package LJ::S2Theme::nouveauoleanders::nightfall;
+use base qw( LJ::S2Theme::nouveauoleanders );
+sub cats { qw() }
+sub designer { "dancing_serpent" }
+
 package LJ::S2Theme::nouveauoleanders::piquant;
 use base qw( LJ::S2Theme::nouveauoleanders );
 sub cats { qw() }
