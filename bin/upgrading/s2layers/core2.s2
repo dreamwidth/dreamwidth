@@ -3104,12 +3104,9 @@ function User::print_userpic() {
 ### Generic Page Functions
 
 function Page::print_default_stylesheet()
-"Adds CSS to all themes on your layout. Very likely to be overridden for most layouts."
+"Adds CSS to all themes on your layout. Very likely to be overridden for most layouts. Style tags will be automatically added around it."
 {
-    """<style type="text/css">""";
-    start_css();
-    end_css();
-    """</style>\n""";
+
 }
 
 function Page::print_theme_stylesheet()
