@@ -418,8 +418,6 @@
 
 .syn.parseerror=Error Message:
 
-.syn.xml=XML
-
 .syndinfo.body2=If you would like articles from the syndicated site to appear on your friends page, you can <a [[aopts]]>add this journal to your friends list</a>.
 
 .syndinfo.name=Syndication Journal

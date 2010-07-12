@@ -269,15 +269,78 @@ $img{circle_no} = {
     alt => 'img.circle_no',
 };
 
+$img{create_check} = {
+    src => '/create/check.png',
+    width => 12,
+    height => 12,
+    alt => 'widget.createaccount.field.username.available',
+};
+
+$img{check} = {
+    src => '/check.gif',
+    width => 15,
+    height => 15,
+    alt => '',
+};
+
+$img{flag} = {
+    src => '/flag_on.gif',
+    width => 12,
+    height => 14,
+    alt => '',
+};
+
+$img{bookmark_on} = {
+    src => '/flag_on.gif',
+    width => 16,
+    height => 18,
+    alt => 'widget.inbox.notification.rem_bookmark',
+};
+
+$img{bookmark_off} = {
+    src => '/flag_off.gif',
+    width => 16,
+    height => 18,
+    alt => 'widget.inbox.notification.add_bookmark',
+};
+
+$img{inbox_expand} = {
+    src => '/expand.gif',
+    width => 11,
+    height => 11,
+    alt => 'widget.inbox.notification.expanded',
+};
+
+$img{inbox_collapse} = {
+    src => '/collapse.gif',
+    width => 11,
+    height => 11,
+    alt => 'widget.inbox.notification.collapsed',
+};
+
+$img{ssl_locked} = {
+    src => '/padlocked.gif',
+    width => 20,
+    height => 16,
+    alt => 'img.ssl',
+};
+
+$img{ssl_unlocked} = {
+    src => '/unpadlocked.gif',
+    width => 20,
+    height => 16,
+    alt => 'img.ssl',
+};
+
 $img{'arrow-down'} = {
-    src => 'profile_icons/arrow-down.gif',
+    src => '/profile_icons/arrow-down.gif',
     width => 12,
     height => 12,
     alt => 'img.arrow-down',
 };
 
 $img{'arrow-right'} = {
-    src => 'profile_icons/arrow-right.gif',
+    src => '/profile_icons/arrow-right.gif',
     width => 12,
     height => 12,
     alt => 'img.arrow-right',
@@ -388,10 +451,16 @@ $img{'poll_right'} = {
     alt => '',
 };
 
+$img{post} = {
+    src => '/silk/profile/post.png',
+    width => 20,
+    height => 18,
+    alt => '',
+};
+
 # load the site-local version, if it's around.
 if (-e "$LJ::HOME/cgi-bin/imageconf-local.pl") {
     require "$LJ::HOME/cgi-bin/imageconf-local.pl";
 }
 
 1;
-

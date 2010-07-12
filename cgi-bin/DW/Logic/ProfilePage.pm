@@ -377,7 +377,7 @@ sub _basic_info_display_name {
         my $synd = $u->get_syndicated;
         $ret->[3] = {
             url => LJ::ehtml( $synd->{synurl} ),
-            text => "<img src='$LJ::IMGPREFIX/xml.gif' width='36' height='14' align='absmiddle' border='0' alt=\"" . LJ::Lang::ml( '.syn.xml' ) . "\" /></a>",
+            text => LJ::img( 'xml', '', { align => 'absmiddle' } ),
         };
     } else {
         $ret->[0] = LJ::Lang::ml( '.label.name' );

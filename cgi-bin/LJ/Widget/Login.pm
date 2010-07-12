@@ -94,7 +94,7 @@ sub render_body {
 
         # standard/secure links removed for now
         my $secure = "<p>";
-        $secure .= "<img src='$LJ::IMGPREFIX/padlocked.gif' class='secure-image' width='20' height='16' alt='secure login' />";
+        $secure .= LJ::img( 'ssl_locked', '', { class => 'secure-image' } );
         $secure .= LJ::Lang::ml('/login.bml.login.secure') . " | <a href='$LJ::SITEROOT/login?nojs=1'>" . LJ::Lang::ml('/login.bml.login.standard') . "</a></p>";
 
         $ret .= "<p><input name='action:login' type='submit' value='"
@@ -111,19 +111,27 @@ sub render_body {
                 # javascript version of login if they seem to have javascript, otherwise
                 # noscript to SSL
                 $ret .= "<script type='text/javascript' language='Javascript'>\n";
-                $ret .= "<!-- \n document.write(\"<p style='padding-bottom: 5px'><img src='$LJ::IMGPREFIX/unpadlocked.gif' width='20' height='16' alt='secure login' align='middle' />" .
-                    LJ::ejs(" <a href='$LJ::SITEROOT/login'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>") .
+                $ret .= "<!-- \n document.write(\"<p style='padding-bottom: 5px'>" .
+                    LJ::img( 'ssl_unlocked', '', { align => 'middle' } ) .
+                    LJ::ejs( " <a href='$LJ::SITEROOT/login'>" .
+                             LJ::Lang::ml('/login.bml.login.secure') . "</a> | " .
+                             LJ::Lang::ml('/login.bml.login.standard') . "</p>" ) .
                     "\"); \n // -->\n </script>\n";
                 if ($LJ::USE_SSL) {
-                    $ret .= "<noscript>";
-                    $ret .= "<p style='padding-bottom: 5px'><img src='$LJ::IMGPREFIX/unpadlocked.gif' width='20' height='16' alt='secure login' align='middle' /> <a href='$LJ::SSLROOT/login'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>";
+                    $ret .= "<noscript><p style='padding-bottom: 5px'>";
+                    $ret .= LJ::img( 'ssl_unlocked', '', { align => 'middle' } );
+                    $ret .= " <a href='$LJ::SSLROOT/login'>" .
+                            LJ::Lang::ml('/login.bml.login.secure') . "</a> | " .
+                            LJ::Lang::ml('/login.bml.login.standard') . "</p>";
                     $ret .= "</noscript>";
                 }
             } else {
                 # insecure now, and not because it was forced, so javascript doesn't work.
                 # only way to get to secure now is via SSL, so link there
-                $ret .= "<p><img src='$LJ::IMGPREFIX/unpadlocked.gif' width='20' height='16' class='secure-image' alt='secure login' />";
-                $ret .= " <a href='$LJ::SSLROOT/login'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>\n"
+                $ret .= "<p>" . LJ::img( 'ssl_unlocked', '', { class => 'secure-image' } );
+                $ret .= " <a href='$LJ::SSLROOT/login'>" .
+                        LJ::Lang::ml('/login.bml.login.secure') . "</a> | " .
+                        LJ::Lang::ml('/login.bml.login.standard') . "</p>\n"
                     if $LJ::USE_SSL;
 
             }

@@ -134,7 +134,7 @@ _c?>
 
             unless ( $remote->is_identity ) {
                 $body .= "<div style='float: left; padding: 5px 10px 0px 10px;'>";
-                $body .= "<img src='/img/silk/profile/post.png'></div>\n";
+                $body .= LJ::img( 'post', '' ) . "</div>\n";
                 $body .= "<div style='margin-left: 36px;'>";
                 $body .= "<?h2 <a href='$LJ::SITEROOT/update'>";
                 $body .= "$ML{'.loggedin.suggesthead1'}</a> h2?>\n";
@@ -143,7 +143,7 @@ _c?>
             }
 
             $body .= "<div style='float: left; padding: 5px 10px 0px 10px'>";
-            $body .= "<img src='/img/silk/identity/user.png'></div>\n";
+            $body .= LJ::img( 'id_user', '', { alt => '' } ) . "</div>\n";
             $body .= "<div style='margin-left: 36px'>";
             $body .= "<?h2 <a href='$base/read'>";
             $body .= "$ML{'.loggedin.suggesthead2'}</a> h2?>\n";

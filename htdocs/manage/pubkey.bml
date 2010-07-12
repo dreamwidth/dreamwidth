@@ -91,7 +91,8 @@ body<=
     });
     $ret .= " p?>";
 
-    $ret .= "<?h1 $ML{'.header'} <img src='/img/key.gif' height='16' width='16'> h1?>";
+    $ret .= "<?h1 $ML{'.header'} ";
+    $ret .= LJ::img( 'key', '', { alt => '' } ) . " h1?>";
     $ret .= "<form method='post' action='pubkey'>\n";
     $ret .= LJ::form_auth();
     $ret .= $error if $error;

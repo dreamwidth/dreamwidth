@@ -232,7 +232,7 @@ END
     my $can_revoke = 0;
 
     # checkboxes and such
-    my $yes = '<img src="/img/check.gif" width="15" height="15" border="0">';
+    my $yes = LJ::img( 'check', '' );
     my $no = '-';
 
     # rows for existing users

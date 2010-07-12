@@ -32,26 +32,23 @@ sub render {
     my ($class, $u, $version) = @_;
     my $user = LJ::ljuser($u);
     my $link = $class->clickthru_link('cprod.polls.link', $version);
+    my $lbar = LJ::img( 'poll_left',  '', { style => 'vertical-align:middle' } );
+    my $rbar = LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
+
     my $poll = "
-<div style='margin: 2px'><div>That's crazy!</div><div style='white-space: nowrap'>
-<img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' 
-height='14' alt='' /><img src='$LJ::IMGPREFIX/poll/mainbar.gif' 
-style='vertical-align:middle' height='14' width='174' alt='' /><img 
-src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' 
-height='14' width='7' alt='' /> <b>283</b> (58.0%)</div>
-<div>I can't wait to try.</div>
-<div style='white-space: nowrap'>
-<img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' 
-alt='' /><img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' 
-height='14' width='81' alt='' /><img src='$LJ::IMGPREFIX/poll/rightbar.gif' 
-style='vertical-align:middle' height='14' width='7' alt='' /> 
-<b>132</b> (27.0%)</div>
-<div>What type of poll am I?</div>
-<div style='white-space: nowrap'>
-<img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' 
-alt='' /><img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' 
-height='14' width='45' alt='' /><img src='$LJ::IMGPREFIX/poll/rightbar.gif' 
-style='vertical-align:middle' height='14' width='7' alt='' /> <b>73</b> (15.0%)</div>
+<div style='margin: 2px'>
+<div>That's crazy!</div><div style='white-space: nowrap'>
+$lbar <img src='$LJ::IMGPREFIX/poll/mainbar.gif'
+ style='vertical-align:middle' height='14' width='174' alt='' />
+$rbar <b>283</b> (58.0%)</div>
+<div>I can't wait to try.</div><div style='white-space: nowrap'>
+$lbar <img src='$LJ::IMGPREFIX/poll/mainbar.gif'
+ style='vertical-align:middle' height='14' width='81' alt='' />
+$rbar <b>132</b> (27.0%)</div>
+<div>What type of poll am I?</div><div style='white-space: nowrap'>
+$lbar <img src='$LJ::IMGPREFIX/poll/mainbar.gif'
+ style='vertical-align:middle' height='14' width='45' alt='' />
+$rbar <b>73</b> (15.0%)</div>
 </div>";
 
     return BML::ml($class->get_ml($version), { "user" => $user, "link" => $link, "poll" => $poll });

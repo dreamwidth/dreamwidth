@@ -232,7 +232,8 @@ body<=
                     <?h1 $ML{'.help.advanced.header'} h1?><br />
 
                     <a name="pgp"></a>
-                    <fieldset><legend>$ML{'.help.advanced.pgp.header'} <img src="/img/key.gif" width="16" height="16"></legend>
+                    <fieldset><legend>$ML{'.help.advanced.pgp.header'} } .
+                    LJ::img( 'key', '', { alt => '' } ) . qq{ </legend>
                     <?p } . BML::ml('.help.advanced.pgp.text1', {'pgp' => "<b>PGP</b>"}) . qq{ p?>
                     <?p } . BML::ml('.help.advanced.pgp.text2', {'aopts' => "href='$LJ::SITEROOT/manage/pubkey'"}) . qq{ p?>
                     <?emailex

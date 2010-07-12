@@ -93,8 +93,7 @@ sub render_body {
     $body .= $subfolder_link->( "pollvote", "inbox.menu.poll_votes", "subs", $unread_html->( $inbox->pollvote_event_count ) );
     $body .= qq{<span class="subs">---</span>\n};
     $body .= $subfolder_link->( "unread", "inbox.menu.unread", "subs", $unread_all_html );
-    $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", "", 
-        qq{<img src="$LJ::IMGPREFIX/flag_on.gif" width="12" height="14" border="0" />} );
+    $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", "", LJ::img( 'flag', '' ) );
     $body .= $subfolder_link->( "usermsg_sent", "inbox.menu.sent", "subs", 
         $unread_html->( $inbox->usermsg_sent_event_count ) ) if LJ::is_enabled( 'user_messaging' );
     $body .= $subfolder_link->( "archived", "inbox.menu.archive", "subs" ) if LJ::is_enabled( 'esn_archive' );

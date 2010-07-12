@@ -114,11 +114,8 @@ sub render_body {
     # If JavaScript is available, check to see if the username is available
     # before submitting the form. Make sure that responses are returned as
     # ARIA live region for screen reader compatibility.
-    $ret .= " <img id='username_check' src='$LJ::IMGPREFIX/create/check.png' alt='"
-            .  $class->ml('widget.createaccount.field.username.available')
-            .  "' title='"
-            .  $class->ml('widget.createaccount.field.username.available')
-            .  "' aria-live='polite' />";
+    $ret .= LJ::img( 'create_check', '', { 'id' => 'username_check', 
+                                           'aria-live' => 'polite' } );
     $ret .= "<span id='username_error'><br /><span id='username_error_inner' class='formitemFlag' role='alert'></span></span>";
 
     $ret .= "</td></tr>\n";
