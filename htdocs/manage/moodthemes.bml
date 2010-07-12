@@ -165,13 +165,13 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    my $authas = $GET{'authas'} || $remote->{'user'};
-    my $u = LJ::get_authas_user($authas);
-    return LJ::bad_input($ML{'error.invalidauth'})
+    my $authas = $GET{authas} || $remote->user;
+    my $u = LJ::get_authas_user( $authas );
+    return LJ::bad_input( $ML{'error.invalidauth'} )
         unless $u;
 
     my $self_uri = "/manage/moodthemes";
-    $self_uri .= "?authas=$authas" if $authas ne $remote->{'user'};
+    $self_uri .= "?authas=$authas" if $authas ne $remote->user;
 
     # Populated with all the moods later in editform
     my %lists;
@@ -184,29 +184,24 @@ body<=
     #### Closure Definitions ####
     my $make_tree;
     $make_tree = sub {
-        my ($num, $tid) = @_;
+        my ( $num, $tid ) = @_;
         return unless $lists{$num};
         my $theme = DW::Mood->new( $tid );
 
         $ret .= "<ul>\n";
 
-        foreach my $mood (@{$lists{$num}}) {
-            $ret .= "<li><b>$mood->{'name'}</b>";
+        foreach my $mood ( @{ $lists{$num} } ) {
+            $ret .= "<li><b>$mood->{name}</b>";
             my %pic;
             $theme->get_picture( $mood->{id}, \%pic ) if $theme;
-            if (%pic) {
+            if ( %pic ) {
                 $ret .= "<img id='$mood->{id}img' align='absmiddle'";
                 $ret .= " src=\"$pic{pic}\" width='$pic{w}' height='$pic{h}'";
                 $ret .= " hspace='2' vspace='2' /></li>\n";
             }
 
             # Figure out if this picture is really just inherited from a parent
-            my $inherited;
-            if ($pic{'moodid'} != $mood->{'id'}) {
-                $inherited = 1;
-            } else {
-                $inherited = 0;
-            }
+            my $inherited = ( $pic{moodid} != $mood->{id} ) ? 1 : 0;
 
             $ret .= "<table>";
             if ( $mood->{parent} ) {
@@ -233,57 +228,58 @@ body<=
             $ret .= LJ::html_hidden({ name => "$mood->{id}parent", id => "$mood->{id}parent", value => $mood->{parent} });
             $ret .= "</table>\n";
 
-            $make_tree->($mood->{'id'}, $tid, 0);
+            $make_tree->( $mood->{id}, $tid );
         }
         $ret .= "</ul>\n";
     };
 
     my $editform = sub {
-        my $id = shift;
+        my ( $id ) = @_;
 
         # Get a list of all possible moods
         my $moods = DW::Mood->get_moods;
 
-        foreach (sort { $moods->{$a}->{'name'} cmp $moods->{$b}->{'name'} } keys %$moods) {
+        foreach ( sort { $moods->{$a}->{name} cmp $moods->{$b}->{name} } keys %$moods ) {
             my $m = $moods->{$_};
-            push @{$lists{$m->{'parent'}}}, $m;
+            push @{ $lists{ $m->{parent} } }, $m;
         }
 
-        $make_tree->(0, $id);
+        $make_tree->( 0, $id );
     };
 
 
     #### End Closure Definitions ####
 
 
-    if (LJ::did_post()) { # They actually did something, figure out what
-        return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+    if ( LJ::did_post() ) { # They actually did something, figure out what
+        return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}"
+            unless LJ::check_form_auth();
 
-        my $themeid = $POST{'themeid'};
+        my $themeid = $POST{themeid};
         my $info;
 
         # Figure out if they are editing a theme and which one they are
-        my @ids = split ',', $POST{'themeids'};
-        foreach (@ids) {
+        my @ids = split ',', $POST{themeids};
+        foreach ( @ids ) {
             $themeid = $_ if $POST{"edit:$_"};
         }
-        if (!$themeid) { # They decided to actually use a custom theme
+        if ( ! $themeid ) { # They decided to actually use a custom theme
             my $use_theme;
-            foreach (@ids) {
+            foreach ( @ids ) {
                 $use_theme = $_ if $POST{"use:$_"};
             }
 
-            if ($use_theme) {
+            if ( $use_theme ) {
                 my %update;
-                $update{'moodthemeid'} = $use_theme;
-                foreach (keys %update) {
+                $update{moodthemeid} = $use_theme;
+                foreach ( keys %update ) {
                     delete $update{$_} if $u->{$_} eq $update{$_};
                 }
-                LJ::update_user($u, \%update);
-                return BML::redirect($self_uri);
+                LJ::update_user( $u, \%update );
+                return BML::redirect( $self_uri );
             }
-        }
-        elsif ($POST{'isnew'} != 1) { # Make sure they can even edit this theme and fill in the $info variable for later use
+        } elsif ( $POST{isnew} != 1 ) {
+            # Make sure they can even edit this theme and fill in the $info variable for later use
             $info = DW::Mood->get_themes( { themeid => $themeid,
                                             ownerid => $u->id } );
             return LJ::bad_input( $ML{'.error.notyourtheme'} )
@@ -291,55 +287,58 @@ body<=
         }
 
         # are we deleting a theme?
-        foreach my $tid (@ids) {
-            if ($POST{"delete:$tid"}) {
+        foreach my $tid ( @ids ) {
+            if ( $POST{"delete:$tid"} ) {
                 # good, delete this one
-                my $dbh = LJ::get_db_writer();
-                my $c = $dbh->do("DELETE FROM moodthemes WHERE moodthemeid = ? AND ownerid = ?", undef, $tid, $u->{userid})+0;
+                my $c = $u->delete_moodtheme( $tid );
                 return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantdeletetheme'} p?>" unless $c;
-                $dbh->do("DELETE FROM moodthemedata WHERE moodthemeid = ?", undef, $tid); # safe since we verified $c
-                return BML::redirect($self_uri);
+                return BML::redirect( $self_uri );
             }
         }
 
         # We are either making changes to an existing theme or showing the edit form for a new theme
-        if ($themeid && $POST{'edit'} == 1 || $POST{'isnew'} == 1) {
+        if ( $themeid && $POST{edit} == 1 || $POST{isnew} == 1 ) {
             # Insert the new theme name and description into the db and grab its new themeid
-            if ($POST{'isnew'} == 1) {
-                return LJ::bad_input($ML{'.error.nonamegiven'})
-                    unless LJ::trim($POST{'name'});
+            if ( $POST{isnew} == 1 ) {
+                return LJ::bad_input( $ML{'.error.nonamegiven'} )
+                    unless LJ::trim( $POST{name} );
                 my $err;
                 $themeid = $u->create_moodtheme( $POST{name}, '', \$err )
                     or return "<?h1 $ML{'Error'} h1?><?p $err p?>";
-                $info->{'name'} = $POST{'name'};
+                $info->{name} = $POST{name};
             }
 
-            $ret .= "<?hr?>\n";
-            $ret .= "<?h2 " . BML::ml('.editingtheme.header', {'name' => LJ::ehtml($info->{name})}) . " h2?>\n";
+            $ret .= "<?hr?>\n<?h2 ";
+            $ret .= BML::ml( '.editingtheme.header',
+                             { name => LJ::ehtml( $info->{name} ) } );
+            $ret .= " h2?>\n";
 
             # Make the form
             $ret .= "<?p <form action='$self_uri' method='post' id='editform' name='editform'>\n";
             $ret .= $form_auth;
             $ret .= "<b>$ML{'.editingtheme.label.name'}</b> ";
-            $ret .= LJ::html_text({ name => 'name', value => $info->{name}, size => 50, maxlength => 255 });
+            $ret .= LJ::html_text( { name => 'name', value => $info->{name},
+                                     size => 50, maxlength => 255 } );
             $ret .= "<br /><br />\n";
-            $ret .= LJ::html_hidden('themeid' => $themeid) . "\n";
+            $ret .= LJ::html_hidden( 'themeid' => $themeid ) . "\n";
 
             # Actually make the editor form
-            $editform->($themeid);
+            $editform->( $themeid );
 
-            $ret .= LJ::html_submit('save' => $ML{'.btn.savechanges'}) . "</form> p?>\n";
+            $ret .= LJ::html_submit( 'save' => $ML{'.btn.savechanges'} );
+            $ret .= "</form> p?>\n";
 
-        } elsif ($themeid)  { # Save their changes
-            my $dbh = LJ::get_db_writer();
+        } elsif ( $themeid )  { # Save their changes
+            my $theme = DW::Mood->new( $themeid );
 
             # Update the name or description if needed
-            if ($info->{'name'} ne $POST{'name'}) {
-                my $u = $dbh->do("UPDATE moodthemes SET name=? WHERE moodthemeid=?", undef, $POST{'name'}, $POST{'themeid'});
-                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>" unless $u;
+            if ( $info->{name} ne $POST{name} ) {
+                $theme->update( 'name' => $POST{name} ) or return
+                    "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>";
             }
 
             # The fun part of figuring out what needs to be changed in the db
+            my $dbh = LJ::get_db_writer();
             my (@repl_values, @repl_bind, @del_values, @del_bind);
             foreach my $key (keys %POST) {
                 # A key that is fully numeric signifies an actual mood theme.

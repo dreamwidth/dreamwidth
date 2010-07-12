@@ -41,22 +41,17 @@ sub execute {
 
     return $self->error("Setting must be either 'Y' or 'N'")
         unless $public =~ /^[YN]$/;
-    my $msg = ($public eq "Y") ? "public" : "not public";
 
-    my $old_value = DW::Mood->is_public( $themeid );
-
+    my $theme = DW::Mood->new( $themeid );
     return $self->error("This theme doesn't seem to exist.")
-        unless $old_value;
+        unless $theme;
 
+    my $msg = ( $public eq "Y" ) ? "public" : "not public";
     return $self->error("This theme is already marked as $msg.")
-        if $old_value eq $public;
+        if $theme->is_public eq $public;
 
-    my $dbh = LJ::get_db_writer() or
-        return $self->error( "Database unavailable" );
-    $dbh->do("UPDATE moodthemes SET is_public = ? WHERE moodthemeid = ?", undef, $public, $themeid);
-    return $self->error( "Database error: " . $dbh->errstr ) if $dbh->err;
-    DW::Mood->clear_cache( $themeid );
-    LJ::MemCache::delete( "moods_public" );
+    return $self->error( "Failed to update theme." )
+        unless $theme->update( 'is_public' => $public );
 
     return $self->print("Theme #$themeid marked as $msg.");
 }

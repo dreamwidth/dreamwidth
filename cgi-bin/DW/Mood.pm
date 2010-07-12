@@ -252,6 +252,39 @@ sub is_public {
     return $self->prop( 'is_public', @_ );
 }
 
+# set named property of mood theme and clear cache
+sub update {
+    my ( $self, $prop, $newval, $themeid ) = @_;
+
+    if ( defined $themeid ) {
+        # make sure the theme is valid and cached
+        $self = $self->load_theme( $themeid ) or return;
+    } else {
+        # make sure we have an object loaded
+        $themeid = $self->id or return;
+    }
+
+    # validity check
+    my $m = $LJ::CACHE_MOOD_THEME{$themeid};
+    return unless $m && $m->{$prop};
+    my $ownerid = $m->{ownerid};
+
+    # do the update
+    my $dbh = LJ::get_db_writer() or return;
+    $dbh->do( "UPDATE moodthemes SET $prop = ? WHERE moodthemeid = ?",
+              undef, $newval, $themeid );
+    die $dbh->errstr if $dbh->err;
+
+    $self->clear_cache;
+    LJ::MemCache::delete( "moods_public" ) if $prop eq 'is_public';
+    # the following are equivalent to $u->delete_moodtheme_cache
+    LJ::MemCache::delete( [$ownerid, "moodthemes:$ownerid"] );
+    LJ::MemCache::delete( [$newval, "moodthemes:$newval"] )
+        if $prop eq 'ownerid';
+
+    return 1;
+}
+
 # clear cached theme data from memory
 # arguments: theme id (only required if called as class method)
 # returns: nothing
@@ -349,6 +382,24 @@ sub moodtheme { return $_[0]->{moodthemeid}; }
 # user method for expiring moodtheme cache
 # NOTE: any code that updates the moodthemes table needs to use this!
 sub delete_moodtheme_cache { $_[0]->memc_delete( 'moodthemes' ); }
+
+# user method for deleting existing mood theme
+sub delete_moodtheme {
+    my ( $u, $id ) = @_;
+    my $dbh = LJ::get_db_writer() or return;
+    my $rv = $dbh->do( "DELETE FROM moodthemes WHERE moodthemeid = ?" .
+                       " AND ownerid = ?", undef, $id, $u->userid );
+    die $dbh->errstr if $dbh->err;
+    return unless $rv;  # will return if $u doesn't own this theme
+    $dbh->do( "DELETE FROM moodthemedata WHERE moodthemeid = ?", undef, $id );
+    die $dbh->errstr if $dbh->err;
+
+    # Kill any memcache data about this moodtheme
+    DW::Mood->clear_cache( $id );
+    $u->delete_moodtheme_cache;
+
+    return 1;
+}
 
 # user method for creating new mood theme
 # args: theme name, description, errorref
