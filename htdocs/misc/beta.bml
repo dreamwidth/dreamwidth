@@ -52,7 +52,7 @@ body<=
             }->{$t}
                 or return "Invalid caps.";
 
-            LJ::modify_caps( $u, @$caps );
+            $u->modify_caps( @$caps );
 
             return BML::redirect( "$LJ::SITEROOT/misc/beta?authas=" . $u->user );
         }

@@ -76,7 +76,7 @@ _c?>
      LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
                            "capedit", "add: $add_txt, del: $del_txt\n");
 
-     LJ::modify_caps($u, \@cap_add, \@cap_del)
+     $u->modify_caps( \@cap_add, \@cap_del )
          or return"<b>Error:</b> Unable to modify caps.";
 
      # $u->{caps} is now updated in memory for later in this request

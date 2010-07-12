@@ -710,7 +710,7 @@ sub sync_caps {
     if ( ! $ps || ( ! $ps->{permanent} && $ps->{expiresin} < 0 ) ) {
         # reset back to the default, and turn off all other bits; then set the
         # email count to defined-but-0
-        LJ::modify_caps( $u, [ $default ], [ grep { $_ != $default } @bits ] );
+        $u->modify_caps( [ $default ], [ grep { $_ != $default } @bits ] );
         DW::Pay::update_paid_status( $u, lastemail => 0 );
 
     } else {
@@ -722,7 +722,7 @@ sub sync_caps {
 
         # simply modify it to use the typeid specified, as typeids are bits... but
         # turn off any other bits
-        LJ::modify_caps( $u, [ $ps->{typeid} ], [ grep { $_ != $ps->{typeid} } @bits ] );
+        $u->modify_caps( [ $ps->{typeid} ], [ grep { $_ != $ps->{typeid} } @bits ] );
         DW::Pay::update_paid_status( $u, lastemail => undef );
     }
 

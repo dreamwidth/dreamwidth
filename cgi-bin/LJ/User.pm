@@ -1860,7 +1860,7 @@ sub add_to_class {
         LJ::Hooks::run_hooks('add_to_class', $u, $class);
     }
 
-    return LJ::modify_caps($u, [$bit], []);
+    return $u->modify_caps( [$bit], [] );
 }
 
 
@@ -2495,6 +2495,79 @@ sub large_journal_icon {
 }
 
 
+# des: Given a list of caps to add and caps to remove, updates a user's caps.
+# args: cap_add, cap_del, res
+# des-cap_add: arrayref of bit numbers to turn on
+# des-cap_del: arrayref of bit numbers to turn off
+# des-res: hashref returned from 'modify_caps' hook
+# returns: updated u object, retrieved from $dbh, then 'caps' key modified
+#          otherwise, returns 0 unless all hooks run properly.
+sub modify_caps {
+    my ( $argu, $cap_add, $cap_del, $res ) = @_;
+    my $userid = LJ::want_userid( $argu );
+    return undef unless $userid;
+
+    $cap_add ||= [];
+    $cap_del ||= [];
+    my %cap_add_mod = ();
+    my %cap_del_mod = ();
+
+    # convert capnames to bit numbers
+    if ( LJ::Hooks::are_hooks( "get_cap_bit" ) ) {
+        foreach my $bit ( @$cap_add, @$cap_del ) {
+            next if $bit =~ /^\d+$/;
+
+            # bit is a magical reference into the array
+            $bit = LJ::Hooks::run_hook( "get_cap_bit", $bit );
+        }
+    }
+
+    # get a u object directly from the db
+    my $u = LJ::load_userid( $userid, "force" );
+
+    # add new caps
+    my $newcaps = int( $u->{caps} );
+    foreach ( @$cap_add ) {
+        my $cap = 1 << $_;
+
+        # about to turn bit on, is currently off?
+        $cap_add_mod{$_} = 1 unless $newcaps & $cap;
+        $newcaps |= $cap;
+    }
+
+    # remove deleted caps
+    foreach ( @$cap_del ) {
+        my $cap = 1 << $_;
+
+        # about to turn bit off, is it currently on?
+        $cap_del_mod{$_} = 1 if $newcaps & $cap;
+        $newcaps &= ~$cap;
+    }
+
+    # run hooks for modified bits
+    if ( LJ::Hooks::are_hooks( "modify_caps" ) ) {
+        $res = LJ::Hooks::run_hook( "modify_caps",
+             { u => $u,
+               newcaps => $newcaps,
+               oldcaps => $u->{caps},
+               cap_on_req  => { map { $_ => 1 } @$cap_add },
+               cap_off_req => { map { $_ => 1 } @$cap_del },
+               cap_on_mod  => \%cap_add_mod,
+               cap_off_mod => \%cap_del_mod } );
+
+        # hook should return a status code
+        return undef unless defined $res;
+    }
+
+    # update user row
+    return 0 unless LJ::update_user( $u, { caps => $newcaps } );
+
+    $u->{caps} = $newcaps;
+    $argu->{caps} = $newcaps;
+    return $u;
+}
+
+
 sub opt_logcommentips {
     my $u = shift;
 
@@ -2701,7 +2774,7 @@ sub remove_from_class {
         LJ::Hooks::run_hooks('remove_from_class', $u, $class);
     }
 
-    return LJ::modify_caps($u, [], [$bit]);
+    return $u->modify_caps( [], [$bit] );
 }
 
 
@@ -6152,7 +6225,6 @@ use Carp;
 ###  4. Login, Session, and Rename Functions
 ###  5. Database and Memcache Functions
 ###  6. What the App Shows to Users
-###  7. Userprops, Caps, and Displaying Content to Others
 ###  8. Formatting Content Shown to Users
 ###  9. Logging and Recording Actions
 ###  12. Comment-Related Functions
@@ -7408,89 +7480,6 @@ sub ljuser
             return $make_tag->( 'silk/identity/user.png', $url, 17, '', $type_readable );
         }
     }
-}
-
-
-########################################################################
-###  7. Userprops, Caps, and Displaying Content to Others
-
-=head2 Userprops, Caps, and Displaying Content to Others (LJ)
-=cut
-
-# <LJFUNC>
-# name: LJ::modify_caps
-# des: Given a list of caps to add and caps to remove, updates a user's caps.
-# args: uuid, cap_add, cap_del, res
-# des-cap_add: arrayref of bit numbers to turn on
-# des-cap_del: arrayref of bit numbers to turn off
-# des-res: hashref returned from 'modify_caps' hook
-# returns: updated u object, retrieved from $dbh, then 'caps' key modified
-#          otherwise, returns 0 unless all hooks run properly.
-# </LJFUNC>
-sub modify_caps {
-    my ($argu, $cap_add, $cap_del, $res) = @_;
-    my $userid = LJ::want_userid($argu);
-    return undef unless $userid;
-
-    $cap_add ||= [];
-    $cap_del ||= [];
-    my %cap_add_mod = ();
-    my %cap_del_mod = ();
-
-    # convert capnames to bit numbers
-    if (LJ::Hooks::are_hooks("get_cap_bit")) {
-        foreach my $bit (@$cap_add, @$cap_del) {
-            next if $bit =~ /^\d+$/;
-
-            # bit is a magical reference into the array
-            $bit = LJ::Hooks::run_hook("get_cap_bit", $bit);
-        }
-    }
-
-    # get a u object directly from the db
-    my $u = LJ::load_userid($userid, "force");
-
-    # add new caps
-    my $newcaps = int($u->{'caps'});
-    foreach (@$cap_add) {
-        my $cap = 1 << $_;
-
-        # about to turn bit on, is currently off?
-        $cap_add_mod{$_} = 1 unless $newcaps & $cap;
-        $newcaps |= $cap;
-    }
-
-    # remove deleted caps
-    foreach (@$cap_del) {
-        my $cap = 1 << $_;
-
-        # about to turn bit off, is it currently on?
-        $cap_del_mod{$_} = 1 if $newcaps & $cap;
-        $newcaps &= ~$cap;
-    }
-
-    # run hooks for modified bits
-    if (LJ::Hooks::are_hooks("modify_caps")) {
-        $res = LJ::Hooks::run_hook("modify_caps",
-                            { 'u' => $u,
-                              'newcaps' => $newcaps,
-                              'oldcaps' => $u->{'caps'},
-                              'cap_on_req'  => { map { $_ => 1 } @$cap_add },
-                              'cap_off_req' => { map { $_ => 1 } @$cap_del },
-                              'cap_on_mod'  => \%cap_add_mod,
-                              'cap_off_mod' => \%cap_del_mod,
-                          });
-
-        # hook should return a status code
-        return undef unless defined $res;
-    }
-
-    # update user row
-    return 0 unless LJ::update_user($u, { 'caps' => $newcaps });
-
-    $u->{caps} = $newcaps;
-    $argu->{caps} = $newcaps if ref $argu; # FIXME: temp hack
-    return $u;
 }
 
 
