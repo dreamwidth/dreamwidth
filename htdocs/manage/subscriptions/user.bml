@@ -89,9 +89,25 @@ body<=
             flags   => LJ::Subscription::TRACKING,
         );
 
+    # validate referer for ret_url
+    my $referer = BML::get_client_header('Referer');
+    $referer = $LJ::SITEROOT . $referer if $referer =~ /^\//;
+    if ( DW::Controller::validate_redirect_url( $referer ) ) {
+        # validate args
+        my ( $url, $args ) = ( $referer =~ /^(.*)\?(.*)$/ );
+        if ( $url && $args ) {
+            my %args = map { split( /=/, $_ ) } split( /&/, $args );
+            $args = LJ::viewing_style_args( %args );
+            $referer = $args ? "$url?$args" : $url;
+        }
+    } else {
+        $referer = undef;  # invalid redirect
+    }
+
     return LJ::subscribe_interface( $remote,
         categories => $categories,
         journal    => $journal,
+        ret_url    => $referer,
         post_to_settings_page => 1,
     );
 
