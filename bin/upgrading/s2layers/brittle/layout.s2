@@ -812,6 +812,9 @@ ul.userlite-interaction-links li {
 
 .module-tags_cloud, .module-time, .module-powered { width: 90%; }
 
+.tags_cloud li, .module-tags_cloud li { display: inline;
+    list-style-type: none; }
+
 .manage-tags-link {
     text-align: right;
     font-size: smaller;

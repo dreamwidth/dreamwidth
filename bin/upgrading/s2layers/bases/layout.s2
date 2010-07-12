@@ -486,6 +486,7 @@ background: $*color_module_link_hover; }
 .module-tags_list .manage-tags-link {border-top: 0.083em solid $*color_module_border; padding-top: 0.5em; padding-bottom: 0.5em; text-align: center;}
 
 .module-tags_cloud .module-list {padding: 0.5em;}
+.module-tags_cloud li, .tags_cloud li {display: inline; list-style-type: none;}
 .module-tags_cloud .manage-tags-link {border-top: 0.083em solid $*color_module_border; margin-top: 0.5em; text-align: center;}
 
 .module-tags_multilevel .module-list { padding: 0.5em; margin: 0; }

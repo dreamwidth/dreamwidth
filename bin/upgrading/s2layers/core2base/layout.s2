@@ -722,6 +722,10 @@ ul.userlite-interaction-links li {
     font-weight: bold;
     margin-right: 0.5em;
 }
+
+.tags_cloud li, .module-tags_cloud li { display: inline;
+    list-style-type: none; }
+
 .module-syndicate  .module-content {
     text-align: center;
 }

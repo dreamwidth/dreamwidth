@@ -501,6 +501,11 @@ h2.module-header a {
     display: inline;
 }
 
+.tags_cloud li, .module-tags_cloud li { 
+    display: inline;
+    list-style-type: none; 
+}
+
 .module-tags_list ul.module-list li {
     display: inline;
 }

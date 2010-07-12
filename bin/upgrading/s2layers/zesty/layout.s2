@@ -1054,6 +1054,10 @@ h3 {
     text-decoration: none;
 }
 
+.module-tags_cloud li, .tags_cloud li {
+    display: inline;
+    list-style-type: none;
+}
 
 
 /* ReplyPage reply box */
@@ -2636,8 +2640,12 @@ function MessagePage::print_body() {
 # Weighted tag cloud / heatmap.
 #
 function TagsPage::print_body() {
+    # since there is no heading, make invisible one here for
+    # screenreaders
     """
-    <div id="tag-cloud">
+    <div id="tag-cloud" class="tags_cloud">
+    <h2 class="invisible">Visible tags</h2>
+    <ul>
     """;
 
     # font min and max as % values
@@ -2655,7 +2663,7 @@ function TagsPage::print_body() {
     var int highest = 0;
     var int lowest = 999999;
     var int count;
-
+    
     foreach var TagDetail tag ($.tags) {
         if ($tag.use_count > $highest) {
             $highest = $tag.use_count;
@@ -2680,11 +2688,13 @@ function TagsPage::print_body() {
         }
 
         """
-        <a class="used-$tag.use_count visible-to-$tag.visibility" href="$tag.url" style="font-size: $font;">$tag.name</a>
+        <li>
+        <a rel="tag" class="used-$tag.use_count visible-to-$tag.visibility" href="$tag.url" style="font-size: $font;">$tag.name</a>
+        <span class ="invisible"> used $tag.use_count times</span></li>
         """;
     }
 
     """
-    </div>
+    </ul></div>
     """;
 }

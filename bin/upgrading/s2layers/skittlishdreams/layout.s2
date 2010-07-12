@@ -659,6 +659,8 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 .module-section-three a:hover { $header_footer_hover_colors }
 .module-section-three .module {padding-left: 20px; }
 
+.module-tags_cloud li, .tags_cloud li { display: inline; list-style-type: none; }
+
 .hfeed .navigation, #archive-year .navigation,  #archive-month .navigation, #archive-day .navigation  {height:61px; margin-bottom:-20px; }
 .two-columns-right .hfeed .navigation, 
 .two-columns-right #archive-year .navigation,  

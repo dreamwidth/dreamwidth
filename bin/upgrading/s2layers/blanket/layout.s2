@@ -318,6 +318,7 @@ div.module-navlinks ul.module-list li { display: inline; margin: 0 1em 0 0; list
 #secondary .separator-after { clear: both; }
 .module-tags_cloud { margin: 3em 0; width: 100%; float: none; border-top: 1px solid $*color_entry_border; border-bottom: 1px solid $*color_entry_border; }
 .module-tags_cloud .module-content { padding: 0 3em 1em 3em; }
+.module-tags_cloud li, .tags_cloud li { display: inline; list-style-type: none; }
 
 #secondary .module-content { text-align: left; $module_font }
 #secondary .module-content ul {  list-style: outside; margin-left: 1em;  padding-left: 0; }

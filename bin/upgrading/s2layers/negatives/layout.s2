@@ -447,6 +447,11 @@ function Page::print_default_stylesheet()
         $module_font
     }
 
+    .module-tags_cloud li, .tags_cloud li { 
+        display: inline;
+        list-style-type: none; 
+    }
+
     .userpic{
         float:right;}
     .entry, .entry-wrapper, .comment, .comment-wrapper {

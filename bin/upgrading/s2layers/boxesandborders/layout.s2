@@ -317,7 +317,6 @@ text-decoration: none; }
 .module-calendar td a { $calendar_link_colors
     text-decoration: none; }
 
-
 /* footer */
 
 #footer { $footer_colors }

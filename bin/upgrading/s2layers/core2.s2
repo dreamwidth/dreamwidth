@@ -3455,6 +3455,8 @@ function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a lis
     var int high_count = 1;
 
     println """<div $list_class>""";
+    println """<ul>""";
+
     foreach var TagDetail t ($tagslist)
     {
         if ($t.use_count > $high_count) { $high_count = $t.use_count; }
@@ -3470,15 +3472,23 @@ function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a lis
         }   
         var string tag_size_em = $tag_size->substr(0,($tag_size->length())-1) + "." + $tag_size->substr(($tag_size->length())-1,1) + "em";
         if ($print_uses == "number") {
-            println """<span $tag_class style="font-size: $tag_size_em;"><a href="$t.url">$t.name</a> [$t.use_count]</span>\n""";
+            println """<li $tag_class style="font-size: $tag_size_em;"><a rel="tag" href="$t.url">$t.name</a> [$t.use_count]</li>\n""";
         } elseif ($print_uses == "text") {
             var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-            println """<span $tag_class style="font-size: $tag_size_em;"><a href="$t.url">$t.name</a> - $uses</span>\n""";
+            println """<li $tag_class style="font-size: $tag_size_em;"><a rel="tag" href="$t.url">$t.name</a> - $uses</li>\n""";
         } else {
             var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-            println """<span $tag_class style="font-size: $tag_size_em;"><a href="$t.url" title="$uses">$t.name</a></span>\n""";
+            # if the style hides the number of uses, put it both
+            # in the title tag and offscreen via CSS to maximize
+            # the chance of it being available to
+            # screenreader/lynx users
+            println """<li $tag_class style="font-size: $tag_size_em;">""";
+            println """<a rel="tag" href="$t.url" title="$uses">$t.name</a> """;
+            println """<span class ="invisible">$uses</span></li>\n""";
         }
     }
+
+    println """</ul>""";
     println """</div>""";
 }
 
