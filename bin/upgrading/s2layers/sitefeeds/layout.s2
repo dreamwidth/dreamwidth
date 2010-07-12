@@ -1,6 +1,7 @@
 layerinfo "type" = "layout";
 layerinfo "name" = "Syndicated Account Style";
 layerinfo redist_uniq = "sitefeeds/layout";
+layerinfo is_internal = "1";
 
 # Since this is not user-facing style, don't need to do "property use...".
 # "set..." is enough to change a property value
