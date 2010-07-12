@@ -103,7 +103,7 @@ _c?><?_code
                 $feed .= "?auth=digest";
             }
         }
-        $x .= "<outline text=\"" . LJ::exml($title) . "\" xmlURL=\"" . LJ::exml($feed) . "\" />\n";
+        $x .= "<outline text=\"" . LJ::exml($title) . "\" xmlUrl=\"" . LJ::exml($feed) . "\" />\n";
     }
 
     $x .= "</body></opml>\n";
