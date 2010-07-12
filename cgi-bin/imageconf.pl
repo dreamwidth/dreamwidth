@@ -59,6 +59,13 @@ $img{btn_del} = {
     alt => 'img.btn_del',
 };
 
+$img{btn_trash} = {
+    src => '/portal/btn_del.gif',
+    width => 15,
+    height => 15,
+    alt => 'img.btn_del',
+};
+
 $img{btn_freeze} = {
     src => '/silk/comments/freeze.png',
     width => 16,
@@ -204,6 +211,13 @@ $img{key} = {
     width => 16,
     height => 16,
     alt => 'img.key',
+};
+
+$img{help} = {
+    src => '/silk/site/help.png',
+    width => 14,
+    height => 14,
+    alt => 'img.help',
 };
 
 $img{hourglass} = {

@@ -53,25 +53,30 @@ sub img
     my $type = shift;  # either "" or "input"
     my $attr = shift;
 
-    my $attrs;
-    my $alt;
-    if ($attr) {
-        if (ref $attr eq "HASH") {
-            $alt = LJ::ehtml($attr->{alt}) if (exists $attr->{alt});
-            foreach (keys %$attr) {
-                $attrs .= " $_=\"" . LJ::ehtml($attr->{$_}) . "\""
-                    unless ((lc $_) eq 'alt');
+    my ( $attrs, $alt, $ssl );
+    if ( $attr ) {
+        if ( ref $attr eq "HASH" ) {
+            if ( exists $attr->{alt} ) {
+                $alt = LJ::ehtml( $attr->{alt} );
+                delete $attr->{alt};
             }
+            if ( exists $attr->{ssl} ) {
+                $ssl = $attr->{ssl} && $LJ::IS_SSL;
+                delete $attr->{ssl};
+            }
+            $attrs .= " $_=\"" . LJ::ehtml( $attr->{$_} ) . "\""
+                foreach keys %$attr;
         } else {
             $attrs = " name=\"$attr\"";
         }
     }
 
     my $i = $LJ::Img::img{$ic};
-    $alt ||= LJ::Lang::string_exists($i->{'alt'}) ? LJ::Lang::ml($i->{'alt'}) : $i->{'alt'};
+    my $imgprefix = $ssl ? $LJ::SSLIMGPREFIX : $LJ::IMGPREFIX;
+    $alt ||= LJ::Lang::string_exists( $i->{alt} ) ? LJ::Lang::ml( $i->{alt} ) : $i->{alt};
     if ($type eq "") {
-        return "<img src=\"$LJ::IMGPREFIX$i->{'src'}\" width=\"$i->{'width'}\" ".
-            "height=\"$i->{'height'}\" alt=\"$alt\" title=\"$alt\" ".
+        return "<img src=\"$imgprefix$i->{src}\" width=\"$i->{width}\" ".
+            "height=\"$i->{height}\" alt=\"$alt\" title=\"$alt\" ".
             "border='0'$attrs />";
     }
     if ($type eq "input") {
@@ -260,8 +265,8 @@ sub help_icon_html {
     my $url = $LJ::HELPURL{$topic} or return "";
     my $pre = shift || "";
     my $post = shift || "";
-    # FIXME: use LJ::img() here, not hard-coding width/height
-    return "$pre<a href=\"$url\" class=\"helplink\" target=\"_blank\"><img src=\"$LJ::IMGPREFIX/silk/site/help.png\" alt=\"Help\" title=\"Help\" width='14' height='14' border='0' /></a>$post";
+    return "$pre<a href=\"$url\" class=\"helplink\" target=\"_blank\">" .
+           LJ::img( 'help', '' ) . "</a>$post";
 }
 
 # <LJFUNC>
@@ -3327,9 +3332,8 @@ sub subscribe_interface {
                     action => 'delsub'
                 );
                 my $deletesub_url = $settings_page ? "$LJ::SITEROOT/manage/settings/?cat=notifications&deletesub_$subid=1" : "?deletesub_$subid=1";
-                $cat_html .= qq {
-                    <a href='$deletesub_url' class='delete-button' subid=$subid auth_token=$auth_token><img src="$LJ::IMGPREFIX/portal/btn_del.gif" alt="Delete"/></a>
-                };
+                $cat_html .= "<a href='$deletesub_url' class='delete-button' subid=$subid auth_token=$auth_token>";
+                $cat_html .= LJ::img( 'btn_trash', '' ) . "</a>\n";
             }
             my $always_checked = eval { "$evt_class"->always_checked; };
             my $disabled = $always_checked ? 1 : !$pending_sub->enabled;

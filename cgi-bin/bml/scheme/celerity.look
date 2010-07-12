@@ -143,7 +143,6 @@ footer<=
 userpic<=
 <?_code
 {
-    my $imgprefix = $LJ::IS_SSL ? $LJ::SSLIMGPREFIX : $LJ::IMGPREFIX;
     my $remote = LJ::get_remote();
     my $ret;
 
@@ -155,7 +154,7 @@ userpic<=
             my $wh = $userpic->img_fixedsize( width => 80, height => 80 );
             $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         } else {
-            $ret .= "<img src='$imgprefix/nouserpic.png' width='80' height='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
+            $ret .= LJ::img( "nouserpic_sitescheme", "", { ssl => 1 } );
         }
     }
 
