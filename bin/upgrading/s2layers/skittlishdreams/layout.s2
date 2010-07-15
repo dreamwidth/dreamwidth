@@ -721,7 +721,7 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 
 .metadata-label, .metadata-item, .datetime, .tag, .entry-management-links, .entry-interaction-links {margin-top:.5em; font-weight: lighter; font-variant: normal; text-transform: uppercase; $page_details_text_colors; letter-spacing: 0.08em; display: block; }
 .metadata-label-groups, .tag-text {display:none; }
-.metadata-item {color:#881111; }
+.metadata-item {color: $*color_entry_metadata_text; }
 
 .journal-name,
 .journal-website-name {text-align: center; font-size: 1.8em; color: $*color_module_link; line-height: 1.43em; margin-bottom:.3em; font-weight: lighter; font-variant: normal; letter-spacing: .16em; }
