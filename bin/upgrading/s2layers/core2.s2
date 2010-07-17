@@ -5148,7 +5148,7 @@ function DayPage::print_navigation( string{} opts ) [fixed] {
 function CommentInfo::print_readlink {
     var Page p = get_page();
     print safe "<a href=\"$.read_url#comments\">"+
-        get_plural_phrase($.count, $p.view == "read" ?
+        get_plural_phrase($.count, ( $p.view == "read" or $p.view == "network" ) ?
                           "text_read_comments_friends" : "text_read_comments")+
     "</a>";
 }
