@@ -141,7 +141,7 @@ body<=
     if (!$did_post && $GET{'mode'} eq "findsim_do") {
         return $ML{'error.tempdisabled'} unless LJ::is_enabled('interests-findsim');
 
-        return $ML{'.findsim_do.account.notallowed'} unless $remote->can_find_similar;
+        return $ML{'.findsim_do.account.notallowed'} unless $remote && $remote->can_find_similar;
 
         my $ret = "";
         my $u = LJ::load_user($GET{'user'});
