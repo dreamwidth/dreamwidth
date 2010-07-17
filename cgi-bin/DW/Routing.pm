@@ -37,8 +37,8 @@ my $default_content_types = {
     'plain' => "text/plain; charset=utf-8",
 };
 
-LJ::ModuleLoader->require_subclasses( "DW::Controller" );
-LJ::ModuleLoader->require_subclasses( "DW::Controller::Interface" );
+LJ::ModuleLoader->require_subclasses( "DW::Controller" )
+    unless $DW::Routing::DONT_LOAD;  # for testing
 
 =head1 NAME
 

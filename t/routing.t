@@ -2,6 +2,10 @@
 use strict;
 use Test::More tests => 174;
 use lib "$ENV{LJHOME}/cgi-bin";
+
+# don't let DW::Routing load DW::Controller subclasses
+$DW::Routing::DONT_LOAD = 1;
+
 require 'ljlib.pl';
 use DW::Request::Standard;
 use HTTP::Request;
