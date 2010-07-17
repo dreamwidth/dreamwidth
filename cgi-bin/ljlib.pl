@@ -2136,7 +2136,7 @@ sub note_recent_action {
         or return undef;
 
     # append to recentactions table
-    $dbcm->do("INSERT DELAYED INTO recentactions VALUES (?)", undef, $action);
+    $dbcm->do( "INSERT INTO recentactions VALUES (?)", undef, $action );
     return undef if $dbcm->err;
 
     return 1;

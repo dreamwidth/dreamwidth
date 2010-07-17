@@ -122,8 +122,7 @@ sub log {
     $self->extra_values($rec, $copy);
 
     my $ins = sub {
-        my $delayed = $LJ::IMMEDIATE_LOGGING ? "" : "DELAYED";
-        $dbl->do("INSERT $delayed INTO $table (" . join(',', keys %$copy) . ") ".
+        $dbl->do("INSERT INTO $table (" . join(',', keys %$copy) . ") ".
                  "VALUES (" . join(',', map { $dbl->quote($copy->{$_}) } keys %$copy) . ")");
     };
 

@@ -489,9 +489,6 @@ add_conf('@DINSERTD_HOSTS',
 add_conf('%DB_REPORT_HANDLES',
          type => '',
          des => "");
-add_conf('$IMMEDIATE_LOGGING',
-         type => '',
-         des => "");
 add_conf('$FREECHILDREN_BCAST',
          type => '',
          des => "");

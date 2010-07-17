@@ -230,10 +230,8 @@ sub log {
         }
     };
 
-    my $delayed = $LJ::IMMEDIATE_LOGGING ? "" : "DELAYED";
-
     my $ins = sub {
-        my $insert_sql = "INSERT $delayed INTO $table_name (" . join(", ", keys %insert) . ") VALUES (" .
+        my $insert_sql = "INSERT INTO $table_name (" . join(", ", keys %insert) . ") VALUES (" .
             join(",", map { "?" } values %insert) . ")";
 
         $dbl->do($insert_sql, undef, values %insert);
