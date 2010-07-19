@@ -26,7 +26,25 @@ propgroup presentation {
     property use comment_management_links;
 }
 
+set module_layout_sections = "none|(none)|one|Group One";
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Group One";
+    grouped = 1;
+}
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "header";
+
+set num_items_recent = 10;
+set num_items_reading = 10;
+set userpics_position = "right";
 set use_custom_friend_colors = false;
+
+set show_userpics_recent = true;
+set linklist_support = true;
+
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
 
@@ -183,9 +201,6 @@ propgroup text {
     property use text_module_customtext_url;
 }
 
-set module_navlinks_show = false;
-set module_navlinks_section = "none";
-
 function Page::print()
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
@@ -215,7 +230,7 @@ function Page::print()
     """
                     </div></div><!-- end primary and primary>inner -->
     """;
-                    print_module_navlinks();
+                    if ( $*module_navlinks_show and ($*module_navlinks_section == "header") ) { print_module_navlinks(); }
     """
                     <div id="secondary"><div class="inner">
                         """;
@@ -233,17 +248,6 @@ function Page::print()
     $this->print_wrapper_end();
     """</html>""";
 }
-
-set module_layout_sections = "none|(none)|one|Group One";
-set layout_type = "two-columns-right";
-
-set show_userpics_recent = true;
-set userpics_position = "right";
-
-set num_items_recent = 10;
-set num_items_reading = 10;
-
-set linklist_support = true;
 
 set font_base = "Arial";
 set font_fallback = "sans-serif";
