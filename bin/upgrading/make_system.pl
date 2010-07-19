@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
@@ -8,7 +20,7 @@ require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 my $dbh = LJ::get_dbh("master");
 
 print "
-This tool will create your LiveJournal 'system' account and
+This tool will create your $LJ::SITENAMESHORT 'system' account and
 set its password.  Or, if you already have a system user, it'll change
 its password to whatever you specify.
 ";
@@ -37,7 +49,7 @@ unless ($u) {
 }
 
 print "Giving 'system' account 'admin' priv on all areas...\n";
-if (LJ::check_priv($u, "admin", "*")) {
+if ( $u->has_priv( "admin", "*" ) ) {
     print "Already has it.\n";
 } else {
     my $sth = $dbh->prepare("INSERT INTO priv_map (userid, prlid, arg) ".

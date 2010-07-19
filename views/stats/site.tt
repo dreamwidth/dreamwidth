@@ -1,0 +1,87 @@
+[%#
+stats/site.tt
+
+New public statistics
+
+Authors:
+     Afuna <coder.dw@afunamatata.com>
+     Pau Amma <pauamma@cpan.org>
+
+Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% dw.need_res( 'stc/sitestats.css' ) %]
+[% sections.title = '.title' | ml( sitenameshort => site.nameshort ) %]
+
+<p>[% '.note.roundedtonearesttenthofpct' | ml %]</p>
+
+<h2>[% '.accounts.title' | ml %]</h2>
+
+[%# number of accounts (total+by type) %]
+[% IF accounts_by_type.defined %]
+    <ul>
+    [% FOREACH t = [ 'total' 'personal' 'identity' ] %]
+        <li>[% ".accounts.bytype.$t" | ml %] [% accounts_by_type.$t %]</li>
+    [% END %]
+    </ul>
+    [% total_pc = accounts_by_type.personal + accounts_by_type.community %]
+[% ELSE %]
+    [% '.error.notavailable' | ml %]
+[% END %]
+
+[%# number of active accounts (by time since last active) %]
+<h2>[% '.active.title' | ml %]</h2><p>[% '.active.desc' | ml %]</p>
+[% IF active_accounts.defined %]
+    <ul>
+    [% FOREACH t = [ 'active_1d' 'active_7d' 'active_30d' ] %]
+        <li>[% ".active.bytime.$t" | ml %] [% active_accounts.$t %]</li>
+    [% END %]
+    </ul>
+    [% active_pc = active_accounts.active_30d_free_P
+                   + active_accounts.active_30d_paid_P
+                   + active_accounts.active_30d_premium_P
+                   + active_accounts.active_30d_seed_P
+                   + active_accounts.active_30d_free_C
+                   + active_accounts.active_30d_paid_C
+                   + active_accounts.active_30d_premium_C
+                   + active_accounts.active_30d_seed_C %]
+    [% active_allpaid = active_accounts.active_30d_paid
+                        + active_accounts.active_30d_premium
+                        + active_accounts.active_30d_seed %]
+[% ELSE %]
+    [% '.error.notavailable' | ml %]
+[% END %]
+
+[%# Paid accounts (by level), with % of total (P+C) and active %]
+<h2>[% '.paid.title' | ml %]</h2>
+[% IF paid.defined %]
+    <table class='stats-matrix'><tr>
+    [% FOREACH h = [ 'level' 'number' 'pct_total' 'pct_active' ] %]
+        <th>[% ".paid.colhdr.$h" | ml %]</th>
+    [% END %]
+    </tr>
+    [% allpaid = 0 %]
+    [% FOREACH level = [ 'paid' 'premium' 'seed' ] %]
+        <tr><th>[% ".paid.rowhdr.$level" | ml %]</th>
+        [% n = paid.$level.defined ? paid.$level : 0 %]
+        [% allpaid = allpaid + n %]
+        <td class='stats'>[% n %]</td>
+        <td class='stats'>
+        [%- 100 * n / total_pc | format "%.1f" IF total_pc != 0 %]</td>
+        <td class='stats'>
+        [%- 100 * n / active_pc | format "%.1f" IF active_pc != 0 %]</td>
+        </tr>
+    [% END %]
+    <tr><th>[% '.paid.rowhdr.activepaid' | ml %]</th><td class='stats'>
+    [% active_allpaid IF active_allpaid.defined %]
+    </td></tr><tr><th>[% '.paid.rowhdr.inactivepaid' | ml %]</th>
+    <td class='stats'>
+    [% allpaid - active_allpaid IF active_allpaid.defined %]
+    </td></tr></table>
+[% ELSE %]
+    [% '.error.notavailable' | ml %]
+[% END %]

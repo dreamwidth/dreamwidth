@@ -1,0 +1,83 @@
+<?page
+title=>Codetrace
+body<=
+<?_code
+{
+    use strict;
+    use vars qw( %POST );
+
+    return LJ::server_down_html if ( $LJ::SERVER_DOWN );
+
+    my $remote = LJ::get_remote;
+    my @displayprivs = ( "finduser:codetrace", "finduser:*" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>"
+        unless $remote;
+
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless $remote->has_priv( "finduser", "codetrace" );
+
+    my $ret;
+
+    $ret .= "<form method='GET'>";
+    $ret .= "View invite details: ";
+    $ret .= "<table>";
+    $ret .= "<tr><td><label>By code: </label></td>";
+    $ret .= "<td>" . LJ::html_text( { name => 'code', maxlength => DW::InviteCodes::CODE_LEN, size => DW::InviteCodes::CODE_LEN } ) . "</td></tr>";
+    $ret .= "<tr><td><label>By account: </label></td>";
+    $ret .= "<td>" . LJ::html_text( { name => 'account', maxlength => 25, size=> 20 } ) . "</td></tr>";
+    $ret .= "<tr><td colspan='2' align='right'>";
+    $ret .= LJ::html_submit( value => "View" );
+    $ret .= "</td></tr></table>";
+    $ret .= "</form>";
+    $ret .= "<?hr?>";
+
+    if ( $GET{code} ) {
+
+        my $code = DW::InviteCodes->new( code => $GET{code} );
+        return $ret . "Error: invalid code '$GET{code}'" unless $code;
+
+        $ret .= display_codes ( $remote, $code );
+
+    } elsif ( $GET{account} ) {
+
+        my $account = LJ::load_user( $GET{account} );
+        return $ret . "Error: invalid user '$GET{account}'" unless $account;
+
+        my @used = DW::InviteCodes->by_recipient( userid => $account->id );
+        my @owned = DW::InviteCodes->by_owner( userid => $account->id );
+
+        $ret .= display_codes ( $account, @used, @owned );
+    }
+
+    return $ret;
+}
+
+sub display_codes {
+    my ($account, @codes) = @_;
+
+    my $ret = "<table border='1' cellpadding='5'><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date sent</th><th>Date used</th><th>Email</th></tr>";
+
+    foreach my $code ( @codes ) {
+        my $owner = $code->owner == $account->id ? $account : LJ::load_userid( $code->owner );
+        my $recipient = LJ::load_userid( $code->recipient ) if $code->is_used;
+        $ret .= "<tr>";
+        $ret .= "<td><tt>" . $code->code . "</tt></td>";
+        $ret .= "<td>" . ( $owner ? $owner->ljuser_display : "" ) . "</td>";
+        $ret .= "<td>" . ( $code->is_used ? $recipient->ljuser_display : "" ) . "</td>";
+        $ret .= "<td>" . $code->reason . "</td>";
+        $ret .= "<td>" . LJ::time_to_http( $code->timegenerate). "</td>";
+        $ret .= "<td>" . ( $code->timesent ? LJ::time_to_http( $code->timesent ) : "" ) . "</td>";
+        $ret .= "<td>" . ( $code->is_used ? LJ::time_to_http( $recipient->timecreate ) : "" ) . "</td>";
+        $ret .= "<td>" . $code->email . "</td>";
+        $ret .= "</tr>";
+    }
+    $ret .= "</table>";
+
+    return $ret;
+}
+
+ _code?>
+<=body
+page?>

@@ -1,11 +1,15 @@
 ;; -*- coding: utf-8 -*-
 .commlist.actinfo=Info
 
+.commlist.actinfo2=Profile
+
 .commlist.actinvites=Invitations
 
 .commlist.actions=<b>Actions</b>
 
 .commlist.actmembers2=Members
+
+.commlist.tags=Tags
 
 .commlist.actpending|notes=This is appended to /community/manage.bml.commlist.actmembers2 when there are pending people.
 .commlist.actpending=, <a [[aopts]]>[[num]] pending</a>
@@ -13,6 +17,8 @@
 .commlist.actsettings2=Settings
 
 .commlist.customize=Customize
+
+.commlist.customize2=Journal Style
 
 .commlist.header=Your communities
 
@@ -22,9 +28,15 @@
 
 .commlist.none=<i>You are not managing any communities.</i>
 
+.commlist.post=Post
+
+.commlist.queue=Queue
+
 .commlist.text=Here are the communities that you manage or co-manage:
 
 .commlist.title=<b>Title</b>
+
+.commlist.tracking=Tracking
 
 .commlist.username=<b>Username</b>
 
@@ -45,6 +57,8 @@
 .joinmail.save=Save Settings
 
 .joinmail.title=Administrative options
+
+.managelinks=Manage [[user]]'s:
 
 .modemail.body=For moderated communities, you can choose whether to send emails or not:
 

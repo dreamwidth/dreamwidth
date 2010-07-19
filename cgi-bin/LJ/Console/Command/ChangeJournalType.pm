@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Console::Command::ChangeJournalType;
 
 use strict;
@@ -10,26 +23,27 @@ sub desc { "Change a journal's type." }
 
 sub args_desc { [
                  'journal' => "The username of the journal that type is changing.",
-                 'type' => "Either 'person', 'community', or 'news'.",
-                 'owner' => "The person to become the maintainer of the community/news journal. If changing to type 'person', the account will adopt the email address and password of the owner.",
+                 'type' => "Either 'person' or 'community'.",
+                 'owner' => "The person to become the maintainer of the community journal. If changing to type 'person', the account will adopt the email address and password of the owner.",
+                 'force' => "Specify this to create a community from a non-empty journal. The maintainer of the community will be the owner of the journal's entries."
                  ] }
 
-sub usage { '<journal> <type> <owner>' }
+sub usage { '<journal> <type> <owner> [force]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "changejournaltype");
+    return ( $remote && $remote->has_priv( "changejournaltype" ) );
 }
 
 sub execute {
     my ($self, $user, $type, $owner, @args) = @_;
     my $remote = LJ::get_remote();
 
-    return $self->error("This command takes either two or three arguments. Consult the reference.")
-        unless $user && $type && scalar(@args) == 0;
+    return $self->error("This command takes from three to four arguments. Consult the reference.")
+        unless $user && $type && $owner && (@args==0 || @args==1 && $args[0] eq 'force' && $type eq 'community');
 
-    return $self->error("Type argument must be 'person', 'community', or 'news'.")
-        unless $type =~ /^(?:person|community|news)$/;
+    return $self->error("Type argument must be 'person' or 'community'.")
+        unless $type =~ /^(?:person|community)$/;
 
     my $u = LJ::load_user($user);
     return $self->error("Invalid user: $user")
@@ -38,13 +52,13 @@ sub execute {
     return $self->error("Account cannot be converted while not active.")
         unless $u->is_visible;
 
-    return $self->error("Account is not a personal, community, or news journal.")
-        unless $u->journaltype =~ /[PCN]/;
+    return $self->error("Account is not a personal or community journal.")
+        unless $u->is_person || $u->is_community;
 
     return $self->error("You cannot convert your own account.")
-        if LJ::u_equals($remote, $u);
+        if $remote && $remote->equals( $u );
 
-    my $typemap = { 'community' => 'C', 'person' => 'P', 'news' => 'N' };
+    my $typemap = { 'community' => 'C', 'person' => 'P' };
     return $self->error("This account is already a $type account")
         if $u->journaltype eq $typemap->{$type};
 
@@ -70,13 +84,21 @@ sub execute {
         return $self->error("Account contains $count entries posted by other users and cannot be converted.")
             if $count;
 
-    # going to a community, shared, news. do they have any entries posted by themselves?
+    # going to a community. do they have any entries posted by themselves?
+    # if so, make the new owner of the community to be the owner of these entries
     } else {
         my $dbcr = LJ::get_cluster_def_reader($u);
         my $count = $dbcr->selectrow_array('SELECT COUNT(*) FROM log2 WHERE journalid = ? AND posterid = journalid',
                                            undef, $u->id);
-        return $self->error("Account contains $count entries posted by the account itself and so cannot be converted.")
-            if $count;
+        if ($count) {
+            if ($args[0] eq 'force') {
+                $u->do("UPDATE log2 SET posterid = ? WHERE journalid = ? AND posterid = journalid", undef, $ou->id, $u->id) 
+                    or return $self->error($DBI::errstr);
+                $self->info("$count entries of user '$u->{user}' belong to '$ou->{user}' now");
+            } else {
+                return $self->error("Account contains $count entries posted by the account itself. Use 'force' option if you want to convert it anyway.");
+            }
+        }
     }
 
     #############################
@@ -88,14 +110,12 @@ sub execute {
     }
 
     #############################
-    # delete friend-ofs if we're changing to a person account. otherwise
+    # delete trusted-bys if we're changing to a person account. otherwise
     # the owner can log in and read those users' entries.
-    if ($type eq "person") {
-        my @ids = $u->friendof_uids;
-        $dbh->do("DELETE FROM friends WHERE friendid=?", undef, $u->id);
-
-        LJ::memcache_kill($_, "friends") foreach @ids;
-        LJ::memcache_kill($u, "friendofs");
+    if ( $type eq "person" ) {
+        foreach ( $u->trusted_by_users ) {
+            $_->remove_edge( $u, trust => { nonotify => 1 } ) ;
+        }
     }
 
     #############################
@@ -108,36 +128,27 @@ sub execute {
         LJ::set_rel_multi( [$u->id, $ou->id, 'A'], [$u->id, $ou->id, 'P'] );
     }
 
-    LJ::run_hook("change_journal_type", $u);
+    LJ::Hooks::run_hook("change_journal_type", $u);
 
     #############################
     # update the user info
-    my %extra = ();  # aggregates all the changes we're making
-
+    my $extra = {};  # aggregates all the changes we're making
 
     # update the password
-    if ($type eq "community") {
-        $extra{password} = '';
-    } else {
-        $extra{password} = $ou->password;
-    }
+    $extra->{password} = $type eq "community" ? '' : $ou->password;
 
     LJ::infohistory_add($u, 'password', Digest::MD5::md5_hex($u->password . 'change'))
-        if $extra{password} ne $u->password;
+        if $extra->{password} ne $u->password;
 
     # reset the email address
-    $extra{email} = $ou->email_raw;
-    $extra{status} = 'A';
-    $dbh->do("UPDATE infohistory SET what='emailreset' WHERE userid=? AND what='email'", undef, $u->id)
-        or $self->error("Error updating infohistory for emailreset: " . $dbh->errstr);
-    LJ::infohistory_add($u, 'emailreset', $u->email_raw, $u->email_status)
-        unless $ou->email_raw eq $u->email_raw; # record only if it changed
+    $extra->{status} = 'A';
 
     # get the new journaltype
-    $extra{journaltype} = $typemap->{$type};
+    $extra->{journaltype} = $typemap->{$type};
 
-    # we haev update!
-    LJ::update_user($u, { %extra });
+    # do the update!
+    $u->reset_email( $ou->email_raw, \ my $update_err, undef, $extra );
+    $self->error( $update_err ) if $update_err;
 
     # journaltype, birthday changed
     $u->invalidate_directory_record;

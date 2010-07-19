@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 #
 # Wrapper around MemCachedClient
 
@@ -10,6 +23,8 @@ package LJ::MemCache;
 use vars qw($GET_DISABLED);
 $GET_DISABLED = 0;
 
+# NOTE:  if you update the list of values stored in the cache here, you will
+# need to increment the version number, too.
 %LJ::MEMCACHE_ARRAYFMT = (
                           'user' =>
                           [qw[1 userid user caps clusterid dversion email password status statusvis statusvisdate
@@ -17,11 +32,11 @@ $GET_DISABLED = 0;
                               allow_getljnews opt_showtalklinks opt_whocanreply opt_gettalkemail opt_htmlemail
                               opt_mangleemail useoverrides defaultpicid has_bio txtmsg_status is_system
                               journaltype lang oldenc]],
-                          'fgrp' => [qw[1 userid groupnum groupname sortorder is_public]],
+                          'trust_group' => [qw[2 userid groupnum groupname sortorder is_public]],
                           # version #101 because old userpic format in memcached was an arrayref of
                           # [width, height, ...] and widths could have been 1 before, although unlikely
                           'userpic' => [qw[101 width height userid fmt state picdate location flags]],
-                          'userpic2' => [qw[1 picid fmt width height state pictime md5base64 comment flags location url]],
+                          'userpic2' => [qw[2 picid fmt width height state pictime md5base64 comment description flags location url]],
                           'talk2row' => [qw[1 nodetype nodeid parenttalkid posterid datepost state]],
                           'usermsg' => [qw[1 journalid parent_msgid otherid timesent type]],
                           );
@@ -108,9 +123,12 @@ sub delete {
     $memc->delete(@_, 4) || $memc->delete(@_);
 }
 
-sub add       { $memc->add(@_);       }
-sub replace   { $memc->replace(@_);   }
-sub set       { $memc->set(@_);       }
+sub add       { ( defined $_[1] ) ? $memc->add( @_ )
+                                  : $memc->add( $_[0],     '', $_[2] ); }
+sub replace   { ( defined $_[1] ) ? $memc->replace( @_ )
+                                  : $memc->replace( $_[0], '', $_[2] ); }
+sub set       { ( defined $_[1] ) ? $memc->set( @_ )
+                                  : $memc->set( $_[0],     '', $_[2] ); }
 sub incr      { $memc->incr(@_);      }
 sub decr      { $memc->decr(@_);      }
 
@@ -119,7 +137,7 @@ sub get       {
     $memc->get(@_);
 }
 sub get_multi {
-    return {} if $GET_DISABLED;
+    return {} if $GET_DISABLED || ! @_;
     $memc->get_multi(@_);
 }
 

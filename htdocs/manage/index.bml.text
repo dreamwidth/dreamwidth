@@ -55,6 +55,8 @@
 
 .entries.memories.about=View and work with your memorable posts
 
+.entries.tags.about=View and work with your journal's tags
+
 .friends=Manage your friends and friend groups, or filter your friends page according to your saved friend groups:
 
 .friends.edit.about=Add, edit, or remove users from your friends list
@@ -72,6 +74,8 @@
 .information.changepass=Change Account Password
 
 .information.changepass.about=Change your account's password
+
+.information.comments=Manage Comment Settings
 
 .information.comments.about=Change your comment settings
 
@@ -97,11 +101,19 @@
 
 .information.status.about=Set your account's activation status
 
+.invites.manage.about=Manage your invite codes
+
+.invites.manage=Manage Your Invite Codes
+
 .login2=The following links will navigate you to pages where your login information is required. To save yourself some time, you can <a [[aopts]]>log in</a> beforehand.
 
-.manage.subscriptions=Manage Subscriptions
+.manage.logins=Manage Logins
 
-.schools=Manage School Attendance
+.manage.subscriptions=Manage Message Settings
+
+.manage.subscriptions.about=Manage notifications and subscriptions
+
+.mobile.settings=Mobile Settings
 
 .settings_pref=Settings & Preferences
 

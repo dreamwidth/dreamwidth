@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Setting::Interests;
 use base 'LJ::Setting';
 use strict;
@@ -36,8 +49,10 @@ sub error_check {
     my @interrors = ();
 
     # Don't bother validating the interests if there are already too many
-    if ($intcount > 150) {
-        $class->errors("interests" => LJ::Lang::ml('error.interest.excessive', { intcount => $intcount }));
+    my $maxinterests = $u->count_max_interests;
+
+    if ($intcount > $maxinterests) {
+        $class->errors("interests" => LJ::Lang::ml('error.interest.excessive2', { intcount => $intcount, maxinterests => $maxinterests }));
         return 1;
     }
 

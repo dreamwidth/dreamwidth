@@ -1,7 +1,25 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
     use vars qw(%POST $title $body);
+
+    # explicitly set language scope for use when called as an 
+    # endpoint from users' journals:
+    BML::set_language_scope('/talkmulti.bml');
 
     my $err = sub {
         my $errmsg = shift;
@@ -35,13 +53,13 @@
 
     my $u = LJ::load_user($POST{'journal'});
     return $err->($ML{'talk.error.bogusargs'}) unless $u && $u->{'clusterid'};
-    return $err->($LJ::MSG_READONLY_USER) if LJ::get_cap($u, "readonly");
+    return $err->($LJ::MSG_READONLY_USER) if $u->is_readonly;
 
     my $dbcr = LJ::get_cluster_def_reader($u);
 
-    my $jid = $u->{'userid'};
+    my $jid = $u->userid;
     my $ditemid = $POST{'ditemid'}+0;
-    my $commentlink = LJ::journal_base($u) . "/$ditemid.html";
+    my $commentlink = $u->journal_base . "/$ditemid.html";
     my $itemid = $ditemid >> 8;
     my $log = $dbcr->selectrow_hashref("SELECT * FROM log2 WHERE journalid=? AND jitemid=?",
                                        undef, $jid, $itemid);
@@ -78,7 +96,7 @@
         # then delete, updating the log2 replycount as necessary
 
         # Mark as spam
-        if ($mode eq 'deletespam') {
+        if ( $mode eq 'deletespam' && ! LJ::sysban_check( 'spamreport', $u->user ) ) {
             # don't let $remote mark their own comments as spam
             foreach (grep { $talkinfo{$_}->[1] != $remote->id } @talkids) {
                 my $s = LJ::Talk::mark_comment_as_spam($u, $_);
@@ -106,5 +124,4 @@ _code?>
 <?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-</LJDEP> _c?>
+page?>

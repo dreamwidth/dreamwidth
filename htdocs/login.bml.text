@@ -3,8 +3,6 @@
 
 .createaccount.button=Create an Account
 
-.createaccount.tour=Take the Feature Tour
-
 .createaccount.whylogin.benefit1=Read friends-only posts that are addressed to you.
 
 .createaccount.whylogin.benefit2=Leave comments in any journal or community.
@@ -17,7 +15,11 @@
 
 .error.notuser=Username not found.  Would you like to <a [[aopts]]>create an account</a> using this username?
 
+.loggedin.continueto=Continue to [[continue_url]]
+
 .loggedin.head2=Welcome back to [[sitename]]!
+
+.loggedin.openidemail=Please <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> your email address to get started.
 
 .loggedin.suggest1=Did you know you can now easily add a photo?
 
@@ -68,6 +70,8 @@
 .login.title=Log in
 
 .login.username=Username:
+
+.login.welcome=Welcome to [[sitename]]!
 
 .logout.btn1=Log out
 

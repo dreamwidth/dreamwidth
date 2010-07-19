@@ -1,16 +1,27 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::NotificationMethod;
 use strict;
 use Carp qw/ croak /;
 
-use Class::Autouse qw (LJ::Typemap
-                       LJ::NotificationMethod::Email
-                       LJ::NotificationMethod::SMS
-                       LJ::NotificationMethod::Inbox
-                       LJ::NotificationMethod::IM
-                       LJ::NotificationMethod::DebugLog
-                       );
+use LJ::Typemap;
+use LJ::NotificationMethod::Email;
+use LJ::NotificationMethod::Inbox;
+use LJ::NotificationMethod::IM;
+use LJ::NotificationMethod::DebugLog;
 
-# this mofo is basically just an interface
+# this is basically just an interface
 # Mischa's contribution:  "straight up"
 sub new    { croak "can't instantiate base LJ::NotificationMethod" }
 sub notify { croak "can't call notification on LJ::NotificationMethod base class" }
@@ -25,12 +36,13 @@ sub configured_for_user { my ($class, $u) = @_; return 0; }
 # override where applicable
 sub disabled_url { undef }
 sub url { undef }
+sub help_url { undef }
 
 # run a hook to see if a user can receive these kinds of notifications
 sub available_for_user  {
     my ($class, $u) = @_;
 
-    my $available = LJ::run_hook('notificationmethod_available_for_user', $class, $u);
+    my $available = LJ::Hooks::run_hook('notificationmethod_available_for_user', $class, $u);
 
     return defined $available ? $available : 1;
 }
@@ -107,7 +119,7 @@ sub all_available_methods {
     croak "all_classes is a class method" unless $class;
 
     return grep {
-        ! $LJ::DISABLED{$_} &&
+        LJ::is_enabled($_) &&
         $_->configured
     } @LJ::NOTIFY_TYPES;
 }

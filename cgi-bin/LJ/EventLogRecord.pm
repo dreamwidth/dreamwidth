@@ -1,9 +1,21 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 # This is a class that represents any event that happened on LJ
 package LJ::EventLogRecord;
 
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw(LJ::EventLogSink);
 use TheSchwartz;
 
 use LJ::ModuleLoader;
@@ -40,7 +52,7 @@ sub params {
 # creates a job to insert into the schwartz to process this firing
 sub fire_job {
     my $self = shift;
-    return if $LJ::DISABLED{'eventlogrecord'};
+    return unless LJ::is_enabled('eventlogrecord');
 
     my $params = $self->params;
     $params->{_event_type} = $self->event_type;
@@ -53,7 +65,7 @@ sub fire_job {
 # inserts a job into the schwartz to process this event
 sub fire {
     my $self = shift;
-    return if $LJ::DISABLED{'eventlogrecord'};
+    return unless LJ::is_enabled('eventlogrecord');
 
     my $sclient = LJ::theschwartz()
         or die "Could not get TheSchwartz client";
@@ -89,10 +101,6 @@ sub work {
     my $evt_class = delete $params{_event_class} or die "No event_class specified";
 
     my $evt = LJ::EventLogRecord::new($evt_class, %params);
-
-    foreach my $sink (LJ::EventLogSink->sinks) {
-        $sink->log($evt) if $sink->should_log($evt);
-    }
 
     $job->completed;
 }

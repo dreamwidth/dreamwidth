@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 head<=
@@ -36,7 +50,8 @@ body<=
     return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
     my $u = LJ::get_remote();
-    return $LJ::MSG_READONLY_USER if LJ::get_cap($u, "readonly");
+    return "<?needlogin?>" unless $u;
+    return $LJ::MSG_READONLY_USER if $u->is_readonly;
     my @props =
       qw/
       emailpost_pin emailpost_allowfrom
@@ -48,7 +63,7 @@ body<=
 
     my ($mode, $type) = ($GET{mode}, $GET{type});
     if ($u) {
-        LJ::load_user_props( $u, @props );
+        $u->preload_props( @props );
     } else {
         $mode = 'help';
     }
@@ -84,7 +99,7 @@ body<=
 
         if ($need_login) {
             $ret .= "<?h1 $ML{'.error.notloggedin.header'} h1?>";
-            $ret .= "<?p " . LJ::error_noremote() . "p?>";
+            $ret .= "<?p " . LJ::error_noremote() . " p?>";
         }
 
         my @topics = (
@@ -162,10 +177,10 @@ body<=
 
             {
                 name  => 'headers',
-                title => BML::ml('.help.headers.header', {'sitenameabbrev' => $LJ::SITENAMEABBREV}),
+                title => BML::ml( '.help.headers.header2' ),
                 url   => '?mode=help&type=headers',
                 text  => qq{
-                    <?h1 } . BML::ml('.help.headers.header', {'sitenameabbrev' => $LJ::SITENAMEABBREV}) . qq{ h1?><br />
+                    <?h1 } . BML::ml( '.help.headers.header2' ) . qq{ h1?><br />
 
                     <fieldset><legend>$ML{'.help.headers.options.header'}</legend>
                     <?p $ML{'.help.headers.options.text'} p?>
@@ -173,34 +188,39 @@ body<=
                     $to_pin
                     $from
                     $subject
-                    <b>lj-userpic:</b> $ML{'.help.headers.options.userpic.example'}<br />
-                    <b>lj-tags:</b> $ML{'.help.headers.options.tags.example'}<br />
-                    <b>lj-mood:</b> $ML{'.help.headers.options.mood.example'}<br />
-                    <b>lj-music:</b> $ML{'.help.headers.options.music.example'}<br />
-                    <b>lj-comments:</b> } . BML::ml('.help.headers.options.comments.example', {'off' => 'off', 'noemail' => 'noemail'}) . qq{<br />
+                    <b>post-icon:</b> $ML{'.help.headers.options.userpic.example'}<br />
+                    <b>post-tags:</b> $ML{'.help.headers.options.tags.example'}<br />
+                    <b>post-mood:</b> $ML{'.help.headers.options.mood.example'}<br />
+                    <b>post-music:</b> $ML{'.help.headers.options.music.example'}<br />
+                    <b>post-location:</b> $ML{'.help.headers.options.location.example'}<br />
+                    <b>post-comments:</b> } . BML::ml('.help.headers.options.comments.example', {'off' => 'off', 'noemail' => 'noemail'}) . qq{<br />
                     <br />
                     $body
                     emailex?></fieldset>
 
                     <fieldset><legend>$ML{'.help.headers.security.header'}</legend>
-                    <?p } . BML::ml('.help.headers.security.text', {'header' => 'lj-security'}) . qq{ p?>
+                    <?p } . BML::ml('.help.headers.security.text', {'header' => 'post-security'}) . qq{ p?>
                     <div style="margin-left:40px">
-                    <b>lj-security:</b> public<br />
+                    <b>post-security:</b> public<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.public.desc'}</div><br />
                     </div>
                     <div style="margin-left:40px">
-                    <b>lj-security:</b> private<br />
+                    <b>post-security:</b> private<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.private.desc'}</div><br />
                     </div>
                     <div style="margin-left:40px">
-                    <b>lj-security:</b> friends<br />
+                    <b>post-security:</b> access (or friends)<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.friends.desc'}</div><br />
                     </div>
                     <div style="margin-left:40px">
-                    <b>lj-security:</b> $ML{'.help.headers.security.group.word'}<br />
+                    <b>post-security:</b> $ML{'.help.headers.security.group.word'}<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.group.desc'}
-                    <br />} . BML::ml('.help.headers.security.group.example', {'header' => 'lj-security:'}) . qq{</div><br />
+                    <br />} . BML::ml('.help.headers.security.group.example', {'header' => 'post-security:'}) . qq{</div><br />
                     </div></fieldset>
+
+                    <fieldset><legend>$ML{'.help.headers.compat.header'}</legend>
+                    <?p } . BML::ml( '.help.headers.compat.text', { 'sitename' => $LJ::SITENAME } ) . qq{ p?>
+                    </fieldset>
                 }
             },
 
@@ -212,9 +232,10 @@ body<=
                     <?h1 $ML{'.help.advanced.header'} h1?><br />
 
                     <a name="pgp"></a>
-                    <fieldset><legend>$ML{'.help.advanced.pgp.header'} <img src="/img/key.gif" width="16" height="16"></legend>
+                    <fieldset><legend>$ML{'.help.advanced.pgp.header'} } .
+                    LJ::img( 'key', '', { alt => '' } ) . qq{ </legend>
                     <?p } . BML::ml('.help.advanced.pgp.text1', {'pgp' => "<b>PGP</b>"}) . qq{ p?>
-                    <?p } . BML::ml('.help.advanced.pgp.text2', {'aopts' => "href='$LJ::SITEROOT/manage/pubkey.bml'"}) . qq{ p?>
+                    <?p } . BML::ml('.help.advanced.pgp.text2', {'aopts' => "href='$LJ::SITEROOT/manage/pubkey'"}) . qq{ p?>
                     <?emailex
                     $to_pgp
                     $from_pgp
@@ -225,95 +246,6 @@ body<=
                 }
             },
         );
-
-        if ($LJ::FB_SITEROOT && %LJ::FOTOBILDER_IP && ! $LJ::DISABLED{fb_email_docs}) {
-            $subject = "$ML{'.help.subject_images'}<br /><br />";
-            $body    = $ML{'.help.body_images'};
-            splice @topics, -1, 0,
-            {
-                name  => 'images',
-                title => $ML{'.help.images.header'},
-                url   => '?mode=help&type=images', 
-                subject => 
-                body =>
-                text  => qq{
-                    <?h1 $ML{'.help.images.header'} h1?><br />
-
-                    <?p } . BML::ml('.help.images.text', {'aopts1' => "href='$LJ::FB_SITEROOT'", 'scrapbook' => 'ScrapBook', 'dimensions' => "320x240", 'aopts2' => "href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=75'", 'aopts3' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help&amp;type=headers'"}) . qq{ p?><br />
-
-                    <fieldset><legend>$ML{'.help.images.gallery.header'}</legend>
-                    <?p } . BML::ml('.help.images.gallery.text', {'header' => "<b>lj-gallery</b>", 'name' => "LJ_emailpost"}) . qq{ p?>
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-gallery:</b> $ML{'.help.images.gallery.example'}<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                    <fieldset><legend>$ML{'.help.images.security.header'}</legend>
-                    <?p } . BML::ml('.help.images.security.text1', {'header' => "<b>lj-imgsecurity</b>"}) . qq{ p?>
-                    <?p } . BML::ml('.help.images.security.text2', {'option1' => "private", 'option2' => "regusers", 'option3' => "friends"}) . qq{ p?>
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-imgsecurity:</b> private<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                    <fieldset><legend>$ML{'.help.images.size.header'}</legend>
-                    <?p } . BML::ml('.help.images.size.text1', {'maxsize' => "640x480", 'defaultsize' => "320x240" , 'header' => "<b>lj-imgsize</b>", 'ljcutsize' => "320x240", 'aopts' => "href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=75'"}) . qq{ p?>
-                    <?p } . BML::ml('.help.images.size.text2', {'size1' => "100x100", 'size2' => "320x240", 'size3' => "640x480"}) . qq{ p?>
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-imgsize:</b> 640x480<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                    <fieldset><legend>$ML{'.help.images.layout.header'}</legend>
-                    <?p } . BML::ml('.help.images.layout.text1', {'header' => "<b>lj-imglayout</b>"}) . qq{ <br /><br />
-                    $ML{'.help.images.layout.text2'}<br />
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'><br />
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'><br />
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'><br />
-                    <br />
-
-                    } . BML::ml('.help.images.layout.text3', {'horizontal' => "horizontal"}) . qq{ p?>
-                    <span style='white-space: nowrap;'>
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'> 
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'> 
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'>
-                    </span>
-                    <br /><br />
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-imglayout:</b> horizontal<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                    <fieldset><legend>$ML{'.help.images.ljcut.header'}</legend>
-                    <?p } . BML::ml('.help.images.ljcut.text', {'ljcutsize' => "320x240", 'aopts' => "href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=75'", 'header' => "<b>lj-imgcut</b>", 'count' => "count", 'titles' => "titles"}) . qq{ p?>
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-imgcut:</b> titles<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                }
-            };
-        }
 
         # index by name, record order
         my %topics_by_name;
@@ -342,7 +274,7 @@ body<=
             }
             $ret .= '</li>';
         }
-        $ret .= "<li><a href='emailpost.bml'>$ML{'.help.manage.header'}</a></li>";
+        $ret .= "<li><a href='emailpost'>$ML{'.help.manage.header'}</a></li>";
         $ret .= '</ul>';
         $ret .= '<hr /><br />' if $type;
 
@@ -385,6 +317,8 @@ body<=
         # Check email, add flags if needed.
         my %allowed;
         my $addrcount = 0;
+        my @send_helpmessage;
+
         foreach (split(/\0/, $addresses)) {
             s/\s+//g;
             next unless $_;
@@ -393,14 +327,8 @@ body<=
             push @errors, BML::ml('.error.invalidemail', {'email' => LJ::ehtml($_)}) unless /\@/;
             $allowed{$_} = {};
             $allowed{$_}->{'get_errors'} = 1 if $POST{"check_$addrcount"};
+            push @send_helpmessage, $_ if $POST{"help_$addrcount"};
             $addrcount++;
-        }
-
-        if ( $POST{'emailpost_imgcut'} eq 'default' &&
-             $POST{'email_imgsize'} ne 'default' ) {
-            my ($w, $h) = split 'x', $POST{'emailpost_imgsize'};
-            push @errors, BML::ml('.error.invalidimagesize', {'size' => "320x240"})
-                if $w > 320 || $h > 240;
         }
 
         return LJ::bad_input(@errors) if @errors;
@@ -412,17 +340,20 @@ body<=
             if ($POST{$prop} && $POST{$prop} ne 'default') {
                 $POST{$prop} = undef if $prop eq 'emailpost_gallery' &&
                                         $POST{$prop} eq 'LJ_emailpost';
-                LJ::set_userprop($u, $prop, $POST{$prop});
+                $u->set_prop( $prop, $POST{$prop} );
             } else {
-                LJ::set_userprop($u, $prop, undef);
+                $u->set_prop( $prop, undef );
             }
         }
-        LJ::set_userprop($u, "emailpost_pin", $pin);
+        $u->set_prop( "emailpost_pin", $pin );
+        LJ::Setting::EmailPosting->email_helpmessage( $u, $_ )
+            foreach @send_helpmessage;
 
         my $ret;
         $ret .= "<?h1 $ML{'.success.header'} h1?>";
         $ret .= "<?p $ML{'.success.saved'} p?>";
-        $ret .= "<?p " . BML::ml('.success.info', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help'"}) . " p?>";
+        $ret .= "<?p " . BML::ml('.success.info', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";
+        $ret .= "<?p $ML{'.success.helpmessage'} p?>" if @send_helpmessage;
         if ($LJ::HELPURL{emailpost}) {
             $ret .= "<?h1 $ML{'.instructions.header'} h1?>";
             $ret .= "<?p FIXME: link to helpurl p?>";
@@ -443,29 +374,33 @@ body<=
         {
             "ver" => ( $LJ::UNICODE ? "1" : "0" ),
             "username"     => $u->{'user'},
-            "friendgroups" => 1,
+#            "friendgroups" => 1,
             "getpickws"    => 1,
         },
         undef,
         { "noauth" => 1, }
     );
 
-    my @groups = map { $_->{'name'} } @{ $res->{'friendgroups'} };
+    my @trusted = $u->trust_groups;
+    my @groups = map { $_->{'groupname'} } @trusted;
     my @userpics = @{ $res->{'pickws'} };
     
-    $ret .= "<?p " . BML::ml('.intro', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help'"}) . " p?><br />";
+    $ret .= "<?p " . BML::ml('.intro', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?><br />";
 
-    unless (LJ::get_cap($u, 'emailpost')) {
+    unless ( $u->can_emailpost ) {
         $ret .= $ML{'.sorry.acct'};
         return $ret;
     }
 
     $ret .= "<?h1 $ML{'.addresses.header'} h1?>";
     $ret .= "<?p $ML{'.addresses.text'} p?>";
-    $ret .= "<form method='post' action='emailpost.bml'>\n";
+    $ret .= "<form method='post' action='emailpost'>\n";
     $ret .= LJ::form_auth();
     $ret .= "<div style='margin-left:40px;'>";
-    $ret .= "<table border=\"0\"><tr><td>$ML{'.addresses.table.address'}</td><td>$ML{'.addresses.table.errors'}</td></tr>";
+    $ret .= "<table border=\"0\"><tr><td>$ML{'.addresses.table.address'}</td>";
+    $ret .= "<td>$ML{'setting.emailposting.option.senderrors'}</td>";
+    $ret .= "<td>&nbsp;</td>";
+    $ret .= "<td>$ML{'setting.emailposting.option.helpmessage'}</td></tr>";
     for(0..2) { # Limited to 3 addresses.
         $ret .= '<tr><td>';
         my $selected = 0;
@@ -476,6 +411,10 @@ body<=
         $ret .= '<center>' . 
             LJ::html_check({name => "check_$_", selected => $selected})
             . '</center>';
+        $ret .= '</td><td width="20"></td><td>';
+        $ret .= '<center>' . 
+            LJ::html_check( { name => "help_$_", selected => 0 } )
+            . '</center>';
         $ret .= '</td></tr>';
     }
     $ret .= '</table></div><br />';
@@ -483,11 +422,11 @@ body<=
     $ret .= "<?h1 $ML{'.pin.header'} h1?>";
     $ret .= "<?p " . BML::ml('.pin.text', {'num' => 4}) . " p?>";
     $ret .= "<div style='margin-left:40px;'>";
-    $ret .= LJ::html_text({name=>'pin', value=>$u->{emailpost_pin}, maxlength=>20});
+    $ret .= LJ::html_text({name=>'pin', type=>'password', value=>$u->{emailpost_pin}, maxlength=>20});
     $ret .= '</div><br />';
 
     $ret .= "<?h1 $ML{'.settings.header'} h1?>";
-    $ret .= "<?p " . BML::ml('.settings.text', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help'"}) . " p?>";
+    $ret .= "<?p " . BML::ml('.settings.text', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";
     $ret .= "<div style='margin-left:40px;'>";
     $ret .= "<table cellspacing='0' class='settings'>";
 
@@ -513,52 +452,15 @@ body<=
                             'off' => $ML{'.settings.entry.comments.select.off'});
     $ret .= "</td></tr>";
 
-    if ($LJ::FB_SITEROOT && %LJ::FOTOBILDER_IP && LJ::get_cap($u, 'fb_account')) {
-        $ret .= "<tr><td colspan='2'>&nbsp;</td></tr>";
-        $ret .= "<tr><td colspan='2'><?h2 $ML{'.settings.image.header'} h2?></td></tr>";
-
-        $ret .= "<tr><td>$ML{'.settings.image.galname'}</td><td>";
-        $ret .= LJ::html_text({ name=> 'emailpost_gallery',
-                    value => $u->{'emailpost_gallery'} || 'LJ_emailpost' });
-        $ret .= "</td></tr>";
-        $ret .= "<tr><td>$ML{'.settings.image.security'}</td><td>";
-        $ret .= LJ::html_select({ name=> 'emailpost_imgsecurity', selected => $u->{'emailpost_imgsecurity'} },
-                            'default' => $ML{'.settings.image.security.select.default'},
-                            'public' => $ML{'.settings.image.security.select.public'},
-                            'regusers' => $ML{'.settings.image.security.select.regusers'},
-                            'friends' => $ML{'.settings.image.security.select.friends'},
-                            'private' => $ML{'.settings.image.security.select.private'});
-        $ret .= "</td></tr>";
-        $ret .= "<tr><td>$ML{'.settings.image.size'}</td><td>";
-        $ret .= LJ::html_select({ name=> 'emailpost_imgsize', selected => $u->{'emailpost_imgsize'} },
-                            'default' => $ML{'.settings.image.size.select.default'},
-                            '100x100' => $ML{'.settings.image.size.select.100x100'},
-                            '320x240' => $ML{'.settings.image.size.select.320x240'},
-                            '640x480' => $ML{'.settings.image.size.select.640x480'});
-        $ret .= "</td></tr>";
-        $ret .= "<tr><td>$ML{'.settings.image.layout'}</td><td>";
-        $ret .= LJ::html_select({ name=> 'emailpost_imglayout', selected => $u->{'emailpost_imglayout'} },
-                            'default' => $ML{'.settings.image.layout.select.default'},
-                            'horizontal' => $ML{'.settings.image.layout.select.horizontal'},
-                            'vertical' => $ML{'.settings.image.layout.select.vertical'});
-        $ret .= "</td></tr>";
-        $ret .= "<tr><td>$ML{'.settings.image.cut'}</td><td>";
-        $ret .= LJ::html_select({ name=> 'emailpost_imgcut', selected => $u->{'emailpost_imgcut'} },
-                            'default' => $ML{'.settings.image.cut.select.default'},
-                            'count' => $ML{'.settings.image.cut.select.count'},
-                            'titles' => $ML{'.settings.image.cut.select.titles'});
-        $ret .= "</td></tr>";
-    }
-
     $ret .= "</table>";
     $ret .= '</div><br />';
 
 
     $ret .= "<?standout ";
-    $ret .= LJ::html_submit($ML{'/manage/voicepost.bml.save'});
+    $ret .= LJ::html_submit( $ML{'.save'} );
     $ret .= " standout?>";
     $ret .= "</form>";
-    $ret .= LJ::run_hook('sms_footer');
+    $ret .= LJ::Hooks::run_hook('sms_footer');
     return $ret;
 
 } _code?>

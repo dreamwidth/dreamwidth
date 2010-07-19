@@ -17,48 +17,48 @@ ContextualPopup.setup = function () {
     // don't do anything if no remote
     if (!Site || !Site.ctx_popup) return;
 
-    // attach to all ljuser head icons
-    var ljusers = DOM.getElementsByTagAndClassName(document, 'span', "ljuser");
-
     var userElements = [];
-    ljusers.forEach(function (ljuser) {
-        var nodes = ljuser.getElementsByTagName("img");
-        for (var i=0; i < nodes.length; i++) {
-            var node = nodes.item(i);
 
-            // if the parent (a tag with link to userinfo) has userid in its URL, then
-            // this is an openid user icon and we should use the userid
-            var parent = node.parentNode;
-            var userid;
-            if (parent && parent.href && (userid = parent.href.match(/\?userid=(\d+)/i)))
-                node.userid = userid[1];
-            else
-                node.username = ljuser.getAttribute("lj:user");
+    // attach to all ljuser head icons
+    if (Site.ctx_popup_userhead) {
+        var ljusers = DOM.getElementsByTagAndClassName(document, 'span', "ljuser");
 
-            if (!node.username && !node.userid) continue;
+        ljusers.forEach(function (ljuser) {
+            var nodes = ljuser.getElementsByTagName("img");
+            for (var i=0; i < nodes.length; i++) {
+                var node = nodes.item(i);
 
-            userElements.push(node);
-            DOM.addClassName(node, "ContextualPopup");
+                // if the parent (a tag with link to userinfo) has userid in its URL, then
+                // this is an openid user icon and we should use the userid
+                var parent = node.parentNode;
+                var userid;
+                if (parent && parent.href && (userid = parent.href.match(/\?userid=(\d+)/i)))
+                    node.userid = userid[1];
+                else
+                    node.username = ljuser.getAttribute("lj:user");
 
-            // remove alt tag so IE doesn't show the label over the popup
-            node.alt = "";
-        }
-    });
+                if (!node.username && !node.userid) continue;
+
+                userElements.push(node);
+                DOM.addClassName(node, "ContextualPopup");
+
+            }
+        });
+    };
 
     // attach to all userpics
-    var images = document.getElementsByTagName("img") || [];
-    Array.prototype.forEach.call(images, function (image) {
-        // if the image url matches a regex for userpic urls then attach to it
-        if (image.src.match(/userpic\..+\/\d+\/\d+/) ||
-            image.src.match(/\/userpic\/\d+\/\d+/)) {
-            image.up_url = image.src;
-            DOM.addClassName(image, "ContextualPopup");
-            userElements.push(image);
-
-            // remove alt tag so IE doesn't show the label over the popup
-            image.alt = "";
-        }
-    });
+    if (Site.ctx_popup_icons) {
+        var images = document.getElementsByTagName("img") || [];
+        Array.prototype.forEach.call(images, function (image) {
+            // if the image url matches a regex for userpic urls then attach to it
+            if (image.src.match(/userpic\..+\/\d+\/\d+/) ||
+                image.src.match(/\/userpic\/\d+\/\d+/)) {
+                image.up_url = image.src;
+                DOM.addClassName(image, "ContextualPopup");
+                userElements.push(image);
+           }
+        });
+    };
 
     var ctxPopupId = 1;
     userElements.forEach(function (userElement) {
@@ -242,10 +242,10 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         DOM.addClassName(content, "Content");
 
         var bar = document.createElement("span");
-        bar.innerHTML = " | ";
+        bar.innerHTML = "&nbsp;| ";
 
         // userpic
-        if (data.url_userpic && data.url_userpic != ContextualPopup.elements[ctxPopupId].src) {
+        if (data.url_userpic) {
             var userpicContainer = document.createElement("div");
             var userpicLink = document.createElement("a");
             userpicLink.href = data.url_allpics;
@@ -266,34 +266,53 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         // relation
         var relation = document.createElement("div");
         if (data.is_comm) {
+            var m_label = "";
+            var w_label = "";
+
             if (data.is_member)
-                relation.innerHTML = "You are a member of " + username;
-            else if (data.is_friend)
-                relation.innerHTML = "You are watching " + username;
+                m_label = "You are a member of " + username;
+
+            if (data.is_watching)
+                w_label = "You have subscribed to " + username;
+
+            if (m_label && w_label)
+                relation.innerHTML = m_label + "<br />" + w_label;
+            else if (m_label || w_label)
+                relation.innerHTML = m_label + w_label;
             else
                 relation.innerHTML = username;
         } else if (data.is_syndicated) {
-            if (data.is_friend)
-                relation.innerHTML = "You are subscribed to " + username;
+            if (data.is_watching)
+                relation.innerHTML = "You have subscribed to " + username;
             else
                 relation.innerHTML = username;
         } else {
             if (data.is_requester) {
                 relation.innerHTML = "This is you";
             } else {
-                var label = username + " ";
+                var t_label = "";
+                var w_label = "";
 
-                if (data.is_friend_of) {
-                    if (data.is_friend)
-                        label += "is your mutual friend";
-                    else
-                        label += "lists you as a friend";
-                } else {
-                    if (data.is_friend)
-                        label += "is your friend";
-                }
+                if (data.is_trusting && data.is_trusted_by)
+                    t_label = username + " and you have mutual access";
+                else if (data.is_trusting)
+                    t_label = "You have granted access to " + username;
+                else if (data.is_trusted_by)
+                    t_label = username + " has granted access to you";
 
-                relation.innerHTML = label;
+                if (data.is_watching && data.is_watched_by)
+                    w_label = username + " and you have mutual subscriptions";
+                else if (data.is_watching)
+                    w_label = "You have subscribed to " + username;
+                else if (data.is_watched_by)
+                    w_label = username + " has subscribed to you";
+
+                if (t_label && w_label)
+                    relation.innerHTML = t_label + "<br />" + w_label;
+                else if (t_label || w_label)
+                    relation.innerHTML = t_label + w_label;
+                else
+                    relation.innerHTML = username;
             }
         }
         DOM.addClassName(relation, "Relation");
@@ -308,32 +327,37 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         // member of community
         if (data.is_logged_in && data.is_comm) {
             var membership      = document.createElement("span");
-            var membershipLink  = document.createElement("a");
 
-            var membership_action = data.is_member ? "leave" : "join";
+            if (!data.is_closed_membership || data.is_member) {
+                var membershipLink  = document.createElement("a");
 
-            if (data.is_member) {
-                membershipLink.href = data.url_leavecomm;
-                membershipLink.innerHTML = "Leave";
+                var membership_action = data.is_member ? "leave" : "join";
+
+                if (data.is_member) {
+                    membershipLink.href = data.url_leavecomm;
+                    membershipLink.innerHTML = "Leave";
+                } else {
+                    membershipLink.href = data.url_joincomm;
+                    membershipLink.innerHTML = "Join community";
+                }
+
+                if (!ContextualPopup.disableAJAX) {
+                    DOM.addEventListener(membershipLink, "click", function (e) {
+                        Event.prep(e);
+                        Event.stop(e);
+                        return ContextualPopup.changeRelation(data, ctxPopupId, membership_action, e); });
+                }
+
+                membership.appendChild(membershipLink);
             } else {
-                membershipLink.href = data.url_joincomm;
-                membershipLink.innerHTML = "Join community";
+                membership.innerHTML = "Community closed";
             }
-
-            if (!ContextualPopup.disableAJAX) {
-                DOM.addEventListener(membershipLink, "click", function (e) {
-                    Event.prep(e);
-                    Event.stop(e);
-                    return ContextualPopup.changeRelation(data, ctxPopupId, membership_action, e); });
-            }
-
-            membership.appendChild(membershipLink);
             content.appendChild(membership);
         }
 
         // send message
         var message;
-        if (data.is_logged_in && data.is_person && ! data.is_requester && data.url_message) {
+        if (data.is_logged_in && (data.is_person || data.is_identity) && data.url_message) {
             message = document.createElement("span");
 
             var sendmessage = document.createElement("a");
@@ -341,77 +365,199 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
             sendmessage.innerHTML = "Send message";
 
             message.appendChild(sendmessage);
-        }
-
-        if (message)
             content.appendChild(message);
 
-        // friend
-        var friend;
+            if (data.is_requester)
+                content.appendChild(document.createElement("br"));
+        }
+
+        // relationships
+        var trust;
+        var watch;
         if (data.is_logged_in && ! data.is_requester) {
-            friend = document.createElement("span");
+            if (!data.is_trusting) {
+                // add trust link
+                var addTrust = document.createElement("span");
+                var addTrustLink = document.createElement("a");
+                addTrustLink.href = data.url_addtrust;
 
-            if (! data.is_friend) {
-                // add friend link
-                var addFriend = document.createElement("span");
-                var addFriendLink = document.createElement("a");
-                addFriendLink.href = data.url_addfriend;
+                if (data.is_person || data.other_is_identity) {
+                    trust = document.createElement("span");
+                    addTrustLink.innerHTML = "Grant access";
+                }
 
-                if (data.is_comm)
-                    addFriendLink.innerHTML = "Watch community";
-                else if (data.is_syndicated)
-                    addFriendLink.innerHTML = "Subscribe to feed";
-                else
-                    addFriendLink.innerHTML = "Add friend";
-
-                addFriend.appendChild(addFriendLink);
-                DOM.addClassName(addFriend, "AddFriend");
+                addTrust.appendChild(addTrustLink);
+                DOM.addClassName(addTrust, "AddTrust");
 
                 if (!ContextualPopup.disableAJAX) {
-                    DOM.addEventListener(addFriendLink, "click", function (e) {
+                    DOM.addEventListener(addTrustLink, "click", function (e) {
                         Event.prep(e);
                         Event.stop(e);
-                        return ContextualPopup.changeRelation(data, ctxPopupId, "addFriend", e); });
+                        return ContextualPopup.changeRelation(data, ctxPopupId, "addTrust", e); });
                 }
 
-                friend.appendChild(addFriend);
+                if (trust)
+                    trust.appendChild(addTrust);
             } else {
-                // remove friend link (omg!)
-                var removeFriend = document.createElement("span");
-                var removeFriendLink = document.createElement("a");
-                removeFriendLink.href = data.url_addfriend;
+                // remove trust link
+                var removeTrust = document.createElement("span");
+                var removeTrustLink = document.createElement("a");
+                removeTrustLink.href = data.url_addtrust;
 
-                if (data.is_comm)
-                    removeFriendLink.innerHTML = "Stop watching";
-                else if (data.is_syndicated)
-                    removeFriendLink.innerHTML = "Unsubscribe";
-                else
-                    removeFriendLink.innerHTML = "Remove friend";
+                if (data.is_person || data.other_is_identity) {
+                    trust = document.createElement("span");
+                    removeTrustLink.innerHTML = "Remove access";
+                }
 
-                removeFriend.appendChild(removeFriendLink);
-                DOM.addClassName(removeFriend, "RemoveFriend");
+                removeTrust.appendChild(removeTrustLink);
+                DOM.addClassName(removeTrust, "RemoveTrust");
 
                 if (!ContextualPopup.disableAJAX) {
-                    DOM.addEventListener(removeFriendLink, "click", function (e) {
+                    DOM.addEventListener(removeTrustLink, "click", function (e) {
                         Event.stop(e);
-                        return ContextualPopup.changeRelation(data, ctxPopupId, "removeFriend", e); });
+                        return ContextualPopup.changeRelation(data, ctxPopupId, "removeTrust", e); });
                 }
 
-                friend.appendChild(removeFriend);
+                if (trust)
+                    trust.appendChild(removeTrust);
             }
 
-            DOM.addClassName(relation, "FriendStatus");
+            if (!data.is_watching && !data.other_is_identity) {
+                // add watch link
+                var addWatch = document.createElement("span");
+                var addWatchLink = document.createElement("a");
+                addWatchLink.href = data.url_addwatch;
+
+                watch = document.createElement("span");
+                addWatchLink.innerHTML = "Subscribe";
+
+                addWatch.appendChild(addWatchLink);
+                DOM.addClassName(addWatch, "AddWatch");
+
+                if (!ContextualPopup.disableAJAX) {
+                    DOM.addEventListener(addWatchLink, "click", function (e) {
+                        Event.prep(e);
+                        Event.stop(e);
+                        return ContextualPopup.changeRelation(data, ctxPopupId, "addWatch", e); });
+                }
+
+                watch.appendChild(addWatch);
+            } else if (data.is_watching) {
+                // remove watch link
+                var removeWatch = document.createElement("span");
+                var removeWatchLink = document.createElement("a");
+                removeWatchLink.href = data.url_addwatch;
+
+                watch = document.createElement("span");
+                removeWatchLink.innerHTML = "Remove subscription";
+
+                removeWatch.appendChild(removeWatchLink);
+                DOM.addClassName(removeWatch, "RemoveWatch");
+
+                if (!ContextualPopup.disableAJAX) {
+                    DOM.addEventListener(removeWatchLink, "click", function (e) {
+                        Event.stop(e);
+                        return ContextualPopup.changeRelation(data, ctxPopupId, "removeWatch", e); });
+                }
+
+                watch.appendChild(removeWatch);
+            }
+
+            DOM.addClassName(relation, "RelationshipStatus");
         }
 
         // add a bar between stuff if we have community actions
-        if ((data.is_logged_in && data.is_comm) || (message && friend))
-            content.appendChild(bar.cloneNode(true));
+        if ((data.is_logged_in && data.is_comm) || (message && (trust || watch)))
+            content.appendChild(document.createElement("br"));
 
-        if (friend)
-            content.appendChild(friend);
+        if (trust)
+            content.appendChild(trust);
+
+        if (trust && watch)
+            content.appendChild(document.createElement("br"));
+
+        if (watch)
+            content.appendChild(watch);
+
+        if ((data.is_person || data.is_comm) && !data.is_requester && data.can_receive_vgifts) {
+            var vgift = document.createElement("span");
+
+            var sendvgift = document.createElement("a");
+            sendvgift.href = window.Site.siteroot + "/shop/vgift?to=" + data.username;
+            sendvgift.innerHTML = "Send a virtual gift";
+
+            vgift.appendChild(sendvgift);
+
+            if (trust || watch)
+                content.appendChild(document.createElement("br"));
+
+            content.appendChild(vgift);
+        }
+
+        // ban / unban
+
+        var ban;
+        if (data.is_logged_in && ! data.is_requester && ! data.is_syndicated) {
+            ban = document.createElement("span");
+
+            if(!data.is_banned) {
+                // if user no banned - show ban link
+                var setBan = document.createElement("span");
+                var setBanLink = document.createElement("a");
+                
+                setBanLink.href = window.Site.siteroot + '/manage/banusers';
+                
+                if (data.is_comm) {
+                    setBanLink.innerHTML = 'Ban community';
+                } else {
+                    setBanLink.innerHTML = 'Ban user';
+                }
+
+                setBan.appendChild(setBanLink);
+
+                DOM.addClassName(setBan, "SetBan");
+
+                if (!ContextualPopup.disableAJAX) {
+                    DOM.addEventListener(setBanLink, "click", function (e) {
+                        Event.prep(e);
+                        Event.stop(e);
+                        return ContextualPopup.changeRelation(data, ctxPopupId, "setBan", e); });
+                }
+
+                ban.appendChild(setBan);
+
+
+                
+            } else {
+                // if use banned - show unban link
+                var setUnban = document.createElement("span");
+                var setUnbanLink = document.createElement("a");
+                setUnbanLink.href = window.Site.siteroot + '/manage/banusers';
+                setUnbanLink.innerHTML = 'Unban user';
+                setUnban.appendChild(setUnbanLink);
+
+                DOM.addClassName(setUnban, "SetUnban");
+
+                if (!ContextualPopup.disableAJAX) {
+                    DOM.addEventListener(setUnbanLink, "click", function (e) {
+                        Event.prep(e);
+                        Event.stop(e);
+                        return ContextualPopup.changeRelation(data, ctxPopupId, "setUnban", e); });
+                }
+
+                ban.appendChild(setUnban);
+ 
+            }
+        }
+        
+        if(ban) {
+            content.appendChild(document.createElement("br"));    
+            content.appendChild(ban);
+        }
+
 
         // break
-        if (data.is_logged_in && !data.is_requester) content.appendChild(document.createElement("br"));
+        if ((data.is_logged_in && !data.is_requester) || vgift) content.appendChild(document.createElement("br"));
 
         // view label
         var viewLabel = document.createElement("span");
@@ -440,6 +586,8 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         profileLink.innerHTML = "Profile";
         content.appendChild(profileLink);
 
+        
+        
         // clearing div
         var clearingDiv = document.createElement("div");
         DOM.addClassName(clearingDiv, "ljclear");
@@ -482,7 +630,7 @@ ContextualPopup.changeRelation = function (info, ctxPopupId, action, evt) {
         if (!data.success) return;
 
         if (ContextualPopup.cachedResults[ctxPopupId + ""]) {
-            var updatedProps = ["is_friend", "is_member"];
+            var updatedProps = ["is_trusting", "is_watching", "is_member", "is_banned"];
             updatedProps.forEach(function (prop) {
                 ContextualPopup.cachedResults[ctxPopupId + ""][prop] = data[prop];
             });
@@ -570,7 +718,7 @@ ContextualPopup.getInfo = function (target) {
     // needed on journal subdomains
     var url = LiveJournal.getAjaxUrl("ctxpopup");
     var url = Site.currentJournal ? "/" + Site.currentJournal + "/__rpc_ctxpopup" : "/__rpc_ctxpopup";
-
+    
     // got data callback
     var gotInfo = function (data) {
         if (ContextualPopup && ContextualPopup.hourglass) ContextualPopup.hideHourglass();

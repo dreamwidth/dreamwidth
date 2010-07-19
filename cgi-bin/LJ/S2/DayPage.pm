@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 package LJ::S2;
@@ -13,12 +26,23 @@ sub DayPage
     $p->{'view'} = "day";
     $p->{'entries'} = [];
 
-    my $user = $u->{'user'};
-    my $journalbase = LJ::journal_base($user, $opts->{'vhost'});
+    my $user = $u->user;
+    my $journalbase = $u->journal_base( $opts->{'vhost'} );
 
     if ($u->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
+
+    # load for ajax cuttag
+    LJ::need_res( 'js/cuttag-ajax.js' );
+    my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
+    my $expanded = BML::ml( 'widget.cuttag.expanded' );
+    $p->{'head_content'} .= qq[
+  <script type='text/javascript'>
+  expanded = '$expanded';
+  collapsed = '$collapsed';
+  </script>
+    ];
 
     my $get = $opts->{'getargs'};
 
@@ -49,17 +73,13 @@ sub DayPage
     if ($remote) {
 
         # do they have the viewall priv?
-        if ($get->{'viewall'} && LJ::check_priv($remote, "canview", "suspended")) {
-            LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
-                                  "viewall", "day: $user, statusvis: $u->{'statusvis'}");
-            $viewall = LJ::check_priv($remote, 'canview', '*');
-            $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
-        }
+        ( $viewall, $viewsome ) =
+            $remote->view_priv_check( $u, $get->{viewall}, 'day' );
 
-        if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
+        if ( $viewall || $remote->equals( $u ) || $remote->can_manage( $u ) ) {
             $secwhere = "";   # see everything
-        } elsif ($remote->{'journaltype'} eq 'P') {
-            my $gmask = LJ::get_groupmask($u, $remote);
+        } elsif ( $remote->is_individual ) {
+            my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );
             $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))"
                 if $gmask;
         }
@@ -83,135 +103,34 @@ sub DayPage
 
     my @items;
     push @items, $_ while $_ = $sth->fetchrow_hashref;
-    my @itemids = map { $_->{'itemid'} } @items;
 
-    # load 'opt_ljcut_disable_lastn' prop for $remote.
-    LJ::load_user_props($remote, "opt_ljcut_disable_lastn");
-
-    ### load the log properties
-    my %logprops = ();
-    my $logtext;
-    LJ::load_log_props2($dbcr, $u->{'userid'}, \@itemids, \%logprops);
-    $logtext = LJ::get_logtext2($u, @itemids);
-
-    my (%apu, %apu_lite);  # alt poster users; UserLite objects
+    my %apu;  # alt poster users
     foreach (@items) {
-        next unless $_->{'posterid'} != $u->{'userid'};
-        $apu{$_->{'posterid'}} = undef;
-    }
-    if (%apu) {
-        LJ::load_userids_multiple([map { $_, \$apu{$_} } keys %apu], [$u]);
-        $apu_lite{$_} = UserLite($apu{$_}) foreach keys %apu;
+        next unless $_->{posterid} != $u->{userid};
+        $apu{$_->{posterid}} = undef;
     }
 
-    # load tags
-    my $tags = LJ::Tags::get_logtags($u, \@itemids);
-
-    my $userlite_journal = UserLite($u);
+    $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_journal' ) );
 
   ENTRY:
     foreach my $item (@items)
     {
-        my ($posterid, $itemid, $security, $allowmask, $alldatepart, $anum) =
-            map { $item->{$_} } qw(posterid itemid security allowmask alldatepart anum);
-
-        my $replycount = $logprops{$itemid}->{'replycount'};
-        my $subject = $logtext->{$itemid}->[0];
-        my $text = $logtext->{$itemid}->[1];
-        if ($get->{'nohtml'}) {
-            # quote all non-LJ tags
-            $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-            $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        }
-
-        # don't show posts from suspended users
-        next ENTRY if $apu{$posterid} && $apu{$posterid}->{'statusvis'} eq 'S' && ! $viewsome;
-
-        if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
-            LJ::item_toutf8($u, \$subject, \$text, $logprops{$itemid});
-        }
-
-        LJ::CleanHTML::clean_subject(\$subject) if $subject;
+        my ($posterid, $itemid, $anum) =
+            map { $item->{$_} } qw(posterid itemid anum);
 
         my $ditemid = $itemid*256 + $anum;
+        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 
-        LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
-                                             'cuturl' => LJ::item_link($u, $itemid, $anum),
-                                             'ljcut_disable' => $remote->{'opt_ljcut_disable_lastn'}, });
-        LJ::expand_embedded($u, $ditemid, $remote, \$text);
+        # don't show posts from suspended users or suspended posts
+        next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && ! $viewsome;
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
-        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
-        $text = LJ::ContentFlag->transform_post(post => $text, journal => $u,
-                                                remote => $remote, entry => $entry_obj);
+        # create S2 Entry object
+        my $entry = Entry_from_entryobj( $u, $entry_obj, $opts );
 
-        my $nc = "";
-        $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
-
-        my $permalink = "$journalbase/$ditemid.html";
-        my $readurl = $permalink;
-        $readurl .= "?$nc" if $nc;
-        my $posturl = $permalink . "?mode=reply";
-
-        my $comments = CommentInfo({
-            'read_url' => $readurl,
-            'post_url' => $posturl,
-            'count' => $replycount,
-            'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
-            'enabled' => ($u->{'opt_showtalklinks'} eq "Y" && ! $logprops{$itemid}->{'opt_nocomments'}) ? 1 : 0,
-            'screened' => ($logprops{$itemid}->{'hasscreened'} && $remote &&
-                           ($remote->{'user'} eq $u->{'user'} || LJ::can_manage($remote, $u))) ? 1 : 0,
-        });
-        $comments->{show_postlink} = $comments->{enabled};
-        $comments->{show_readlink} = $comments->{enabled} && ($replycount || $comments->{screened});
-
-        my $userlite_poster = $userlite_journal;
-        my $pu = $u;
-        if ($u->{'userid'} != $posterid) {
-            $userlite_poster = $apu_lite{$posterid} or die "No apu_lite for posterid=$posterid";
-            $pu = $apu{$posterid};
-        }
-
-        my $kw = LJ::Entry->userpic_kw_from_props($logprops{$itemid});
-        my $userpic = Image_userpic($pu, 0, $kw);
-
-        my @taglist;
-        while (my ($kwid, $kw) = each %{$tags->{$itemid} || {}}) {
-            push @taglist, Tag($u, $kwid => $kw);
-        }
-        @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
-
-        if ($opts->{enable_tags_compatibility} && @taglist) {
-            $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
-        }
-
-        if ($security eq "public" && !$LJ::REQ_GLOBAL{'text_of_first_public_post'}) {
-            $LJ::REQ_GLOBAL{'text_of_first_public_post'} = $text;
-
-            if (@taglist) {
-                $LJ::REQ_GLOBAL{'tags_of_first_public_post'} = [map { $_->{name} } @taglist];
-            }
-        }
-
-        my $entry = Entry($u, {
-            'subject' => $subject,
-            'text' => $text,
-            'dateparts' => $alldatepart,
-            'system_dateparts' => $item->{system_alldatepart},
-            'security' => $security,
-            'age_restriction' => $entry_obj->adult_content_calculated,
-            'allowmask' => $allowmask,
-            'props' => $logprops{$itemid},
-            'itemid' => $ditemid,
-            'journal' => $userlite_journal,
-            'poster' => $userlite_poster,
-            'comments' => $comments,
-            'tags' => \@taglist,
-            'userpic' => $userpic,
-            'permalink_url' => $permalink,
-        });
-
-        push @{$p->{'entries'}}, $entry;
-        LJ::run_hook('notify_event_displayed', $entry_obj);
+        # add S2 Entry object to page
+        push @{$p->{entries}}, $entry;
+        LJ::Hooks::run_hook('notify_event_displayed', $entry_obj);
     }
 
     if (@{$p->{'entries'}}) {
@@ -243,6 +162,9 @@ sub DayPage
     $p->{'prev_date'} = $pdate;
     $p->{'next_url'} = defined $next ? ("$u->{'_journalbase'}/$next") : '';
     $p->{'next_date'} = $ndate;
+
+    $p->{head_content} .= qq{<link rel="prev" href="$p->{prev_url}" />\n} if $p->{prev_url};
+    $p->{head_content} .= qq{<link rel="next" href="$p->{next_url}" />\n} if $p->{next_url};
 
     return $p;
 }

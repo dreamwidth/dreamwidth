@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 body<=
@@ -14,8 +28,6 @@ body<=
     my $u = LJ::get_remote();
     return "<?needlogin?>"
         unless $u;
-    return BML::redirect("$LJ::SITEROOT/agecheck/?s=1")
-        if $u->underage;
 
     return $LJ::MSG_READONLY_USER if $u->readonly;
 
@@ -24,12 +36,14 @@ body<=
 
         # make sure it is a public key, not a private or a signature,
         # before we bother with other checks
-        my $kt = $1 if $key =~ /-{5}BEGIN PGP (\w+) /;
+        my $kt;
+        $kt = $1 if $key =~ /-{5}BEGIN PGP (\w+) /;
         return 0 unless $kt eq 'PUBLIC';
 
         # pull key data, return if suspicious
         my $ks = "$kt KEY BLOCK";
-        my $data = $1 if $key =~ /$ks-{5}(.+?)-{5}.+?$ks(?:-)+/s;
+        my $data;
+        $data = $1 if $key =~ /$ks-{5}(.+?)-{5}.+?$ks(?:-)+/s;
         foreach ($data =~ /^(\w+):/mg) {
             return 0 unless $1 =~ /(Version|Hash|Comment|MessageID|Charset)/i;
         }
@@ -53,22 +67,21 @@ body<=
 
         unless (@errors) {
             $key = LJ::trim($key);
-            LJ::set_userprop($u, 'public_key', $key);
+            $u->set_prop( 'public_key', $key );
 
             # This page shows them their key saved
             # eventually add a confirmation bar on it
-            return BML::redirect('/pubkey.bml');
+            return BML::redirect('/pubkey');
         }
     }
 
     # Initial page
-    LJ::load_user_props($u, qw(public_key));
 
     my $ret;
     $ret .= "<?p ";
     $ret .= BML::ml('.info', {
-        aoptsinfo => "href='/userinfo.bml'",
-        aoptshelp => "href='emailpost.bml?mode=help&type=advanced\#pgp'",
+        aoptsinfo => "href='/profile'",
+        aoptshelp => "href='emailpost?mode=help&type=advanced\#pgp'",
     });
     $ret .= " p?>";
     $ret .= "<?p ";
@@ -78,13 +91,14 @@ body<=
     });
     $ret .= " p?>";
 
-    $ret .= "<?h1 $ML{'.header'} <img src='/img/key.gif' height='16' width='16'> h1?>";
-    $ret .= "<form method='post' action='pubkey.bml'>\n";
+    $ret .= "<?h1 $ML{'.header'} ";
+    $ret .= LJ::img( 'key', '', { alt => '' } ) . " h1?>";
+    $ret .= "<form method='post' action='pubkey'>\n";
     $ret .= LJ::form_auth();
     $ret .= $error if $error;
     $ret .= "<?p $ML{'.pastekey'} p?>\n";
     $ret .= LJ::html_hidden(userid => $u->{userid});
-    my $val = LJ::did_post() ? $POST{'key'} : $u->{'public_key'};
+    my $val = LJ::did_post() ? $POST{'key'} : $u->prop( 'public_key' );
     $ret .= LJ::html_textarea({name=>'key', value=>$val, rows=>20, cols=>70 });
     $ret .= "<br /><br /><?standout ";
     $ret .= LJ::html_submit($ML{'.save'});

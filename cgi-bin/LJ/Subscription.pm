@@ -1,12 +1,23 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Subscription;
 use strict;
 use Carp qw(croak confess);
-use Class::Autouse qw(
-                      LJ::NotificationMethod
-                      LJ::Typemap
-                      LJ::Event
-                      LJ::Subscription::Pending
-                      );
+use LJ::NotificationMethod;
+use LJ::Typemap;
+use LJ::Event;
+use LJ::Subscription::Pending;
 
 use constant {
               INACTIVE => 1 << 0, # user has deactivated
@@ -132,8 +143,11 @@ sub find {
     @subs = grep { $_->journalid == $journalid }         @subs if defined $journalid;
     @subs = grep { $_->ntypeid   == $ntypeid }           @subs if $ntypeid;
     @subs = grep { $_->etypeid   == $etypeid }           @subs if $etypeid;
-    @subs = grep { $_->flags     == $flags }             @subs if defined $flags;
-
+    if ( defined $flags ) {
+        # check DISABLED and TRACKING flags, but not INACTIVE flag.
+        @subs = grep { ( $flags & DISABLED ) == $_->disabled } @subs;
+        @subs = grep { ( $flags & TRACKING ) == $_->is_tracking_category } @subs;
+    }
     @subs = grep { $_->arg1 == $arg1 }                   @subs if defined $arg1;
     @subs = grep { $_->arg2 == $arg2 }                   @subs if defined $arg2;
 
@@ -207,6 +221,23 @@ sub delete_all_subs {
     return 1;
 }
 
+# class method, nukes all inactive subs for a user
+sub delete_all_inactive_subs {
+    my ($class, $u, $dryrun) = @_;
+
+    return if $u->is_expunged;
+
+    my @subs = $class->find($u);
+    @subs = grep { !($_->active && $_->enabled) } @subs;
+    my $count = scalar @subs;
+    if ($count > 0 && !$dryrun) {
+        $_->delete foreach (@subs);
+        undef $u->{_subscriptions};
+    }
+
+    return $count;
+}
+
 # find matching subscriptions with different notification methods
 sub corresponding_subs {
     my $self = shift;
@@ -264,6 +295,24 @@ sub create {
     foreach (qw(userid subid createtime)) {
         croak "Can't specify field '$_'" if defined $args{$_};
     }
+    
+    # load current subscription, check if subscription already exists
+    $class->subscriptions_of_user($u) unless $u->{_subscriptions};
+    my ($existing) = grep {
+        $args{etypeid} == $_->{etypeid} &&
+        $args{ntypeid} == $_->{ntypeid} &&
+        $args{journalid} == $_->{journalid} &&
+        $args{arg1} == $_->{arg1} &&
+        $args{arg2} == $_->{arg2} &&
+        ( $args{flags} & DISABLED ) == $_->disabled &&
+        ( $args{flags} & TRACKING ) == $_->is_tracking_category
+    } @{$u->{_subscriptions}};
+    # allow matches if the activation state is unequal
+
+    if ( defined $existing ) {
+        $existing->activate;
+        return $existing;
+    }
 
     my $subid = LJ::alloc_user_counter($u, 'E')
         or die "Could not alloc subid for user $u->{user}";
@@ -291,7 +340,7 @@ sub create {
     $sth->execute( @values );
     LJ::errobj($u)->throw if $u->err;
 
-    $u->{_subscriptions} ||= [];
+    $self->subscriptions_of_user($u) unless $u->{_subscriptions};
     push @{$u->{_subscriptions}}, $self;
 
     return $self;
@@ -515,9 +564,12 @@ sub process {
     # pass along debugging information from the schwartz job
     $note->{_debug_headers} = $self->{_debug_headers} if $LJ::DEBUG{esn_email_headers};
 
-    return 1 if $self->etypeid == LJ::Event::OfficialPost->etypeid && $LJ::DISABLED{"officialpost_esn"};
+    return 1 if $self->etypeid == LJ::Event::OfficialPost->etypeid && ! LJ::is_enabled('officialpost_esn');
 
-    return 1 unless $self->notify_class->configured_for_user($self->owner);
+    # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
+    return 1
+        unless $self->notify_class->configured_for_user($self->owner)
+            || LJ::Event->class($self->etypeid)->is_significant;
 
     return $note->notify(@events);
 }
@@ -529,7 +581,7 @@ sub unique {
     return $note->unique . ':' . $self->owner->{user};
 }
 
-# returns true if two subscriptions are equivilant
+# returns true if two subscriptions are equivalent
 sub equals {
     my ($self, $other) = @_;
 
@@ -560,10 +612,21 @@ sub fields { qw(subscr u); }
 sub as_html { $_[0]->as_string }
 sub as_string {
     my $self = shift;
-    my $max = $self->field('u')->get_cap('subscriptions');
+    my $max = $self->field('u')->count_max_subscriptions;
     return 'The subscription "' . $self->field('subscr')->as_html . '" was not saved because you have' .
-        " reached your limit of $max subscriptions";
+        " reached your limit of $max active subscriptions. Subscriptions need to be deactivated before more can be added.";
 }
 
+# Too many subscriptions exist, not necessarily active
+package LJ::Error::Subscription::TooManySystemMax;
+sub fields { qw(subscr u max); }
+
+sub as_html { $_[0]->as_string }
+sub as_string {
+    my $self = shift;
+    my $max = $self->field('max');
+    return 'The subscription "' . $self->field('subscr')->as_html . '" was not saved because you have' .
+        " more than $max existing subscriptions. Subscriptions need to be completely removed before more can be added.";
+}
 
 1;

@@ -13,6 +13,7 @@
 <uid> talk2row:<uid>:<jtalkid> == packed data
 <uid> talk2ct:<uid> == # rows for user
 <uid> talkleftct:<uid> == # rows for user
+<uid> talkroot:<uid>:<jtalkid> == scalar: root of the thread containing this comment
 
 <uid> logtext:<cid>:<uid>:<jitemid> == [ subject, text ]
 <uid> logprop:<uid>:<jitemid> == { propname => $value, ... }
@@ -25,7 +26,7 @@
 <uid> memkwid:<uid> == hashref of 'memories' keyword ids to keywords.
 <uid> memkwcnt:<uid>:<w|t>:<f|v|u> == hashref of 'memories' keyword ids to keyword counts.  <w|t> is filter oWner|oTher.  <f|v|u> is security Friends|priVate|pUblic
 
-<uid> dayct:<uid> == arrayref of arrayrefs (see LJ::get_daycounts)
+<uid> dayct2:<uid>:<mask> == The number of posts for each day for calendar view, see LJ::get_daycounts. Arrayref [create_time, [year1, month1, day1, count1], [y2, m2, d2, c2], ...]. <mask> - permission mask: 'p' - public only entries count, 'a' - all entries count, 'g<bitmaks>' - usemask protected.
 
 <uid> auc:<uid>:<dom> == last ID from LJ::alloc_user_counter() for $uid/$domain
 
@@ -46,20 +47,23 @@
 <layerid> s2c:<layerid> == arrayref; [ compile time, compiled data (or 0 meaning no data) ]
 
 <uid> checkfriends:<uid>:<mask> == scalar maxupdate, expires after refresh interval
-<uid> frgmask:<uid>:<uid_friend>  -- scalar numeric mask, 15 minutes
-<uid> fgrp:<uid> == packed data, friendgroup rows for a given user
-<uid> friends:<uid> == packed data, friends rows for a user
-<uid> friendofs:<uid> == packed data, friendofs for a user
+<uid> trustmask:<uid_from>:<uid_to>  -- scalar numeric mask, 15 minutes
+<uid> trust_group:<uid> == packed data, trust_groups rows for a given user
+<uid> wt_edges:<uid> == packed data, wt_edges rows for a user
+<uid> wt_edges_rev:<uid> == packed data, wt_edges in reverse (friendofs) for a user
 <uid> tu:<uid> == packed number: unixtime when user last updated
       popsyn == 100 most read syndicated accounts [user, userid, synurl, numreaders], 1 hour
       popsyn_ids == 1000 most read syndicated accounts, list of userids, 1 hour
-<uid> friends2:<uid> == packed data. total # of friends for a user, with friend userids
-<uid> friendofs2:<uid> == packed data. total # of friendofs for a user, with friendof userids
+<uid> wt_edges2:<uid> == packed data. total # of friends for a user, with friend userids
+<uid> wt_edges_rev2:<uid> == packed data. total # of wt_edges for a user, with wt_edge userids
 <uid> tc:<uid> == unixtime when the user created their account
+<uid> watched:<uid> == array of userids we watch
+<uid> watched_by:<uid> == array of userids that watch us
+<uid> trusted:<uid> == array of userids we trust
+<uid> trusted_by:<uid> == array of userids that trust us
 
 sysban:ip == hashref of ip => unix expiration time
 sysban:uniq == hashref of uniq => unix expiration time
-sysban:contentflag == hashref of username => unix expiration time
 
 <uid> userpic2:<uid> == arrayref of hashrefs of userpic2 rows
 
@@ -67,6 +71,7 @@ sysban:contentflag == hashref of username => unix expiration time
 <uid> upicinf:<uid> == packed data, userpic keywords
 <uid> upiccom:<uid> == packed data, userpic comments
 <uid> upicurl:<uid> == packed data, userpic urls
+<uid> upicdes:<uid> == packed data, userpic descriptions
 <picid> mogp.up.<picid> == arrayref of paths (URLs)
 
 rate_eperr:<email_address> == rate limiting errors sent via email for email gateway
@@ -88,24 +93,10 @@ includefile:<name> == text of BML include file
 
 <uid>   lastcomm:<uid> -- id of the last comment the user posted via quickreply
 
-<uid>    prtcfg:<uid>   -- arrayref of the portal box configuration for this userid
-<uid>    prtbox:<uid>:<pboxid>  --  arrayref of the state of a LJ::Portal::Box object
-<uid>    prtconu:<uid>:<pboxid>  --  [etag, maxtime, html] - per-user box content caching
-<typeid> prtcong:<typeid> -- [etag, maxtime, html] - global box content caching
-
-<uid> saui:<uid> == { schoolid => { year_start => .., year_end => .. } }
-<schoolid> saal:<schoolid> == [ userid, ... ]; userids at a school
-<schoolid> saaly:<schoolid>:<year> == [ userid, ... ]; userids at a school in this year
-<schoolid> sasi:<schoolid> == hashref; keys: name, country, state, city, url
-saccs == { country_code => country_name}; countries with schools
-sascs:<country_code> == { state_code => state_name }; states with schools
-<pendid> sapiu:<pendid> == userid of person editing this pending row
-saact == number of approved schools in db; cached for admins
-sapct == pending schools to be processed count; cached for admins
-
 <uid>    uactive:<type>:<uid> == unixtime user last active for a given type of activity
+<uid>    timeactive:<uid> == memcached timeactive for user in clustertrack2
 
-<uniq>   loginout:<uniq> -- set to 1, expires in five seconds, denotes user just logged in our out and is going through a redirect
+<uniq>   loginout:<uniq> -- set to 1, expires in five seconds, denotes user just logged in or out and is going through a redirect
 
 <uid> inbox:<uid> == list of qids for a user's notificationinbox
 <uid> inbox:bookmarks:<uid> == list of bookmarked qids for a user's notificationinbox (packed, see LJ::NotificationInbox->load_bookmarks)
@@ -121,16 +112,21 @@ jabclusterid:<id> == address of server
 
 <uid> embedcont:<uid>:<moduleid> == embed module content
 
-<uid> frbdays:<uid>:<timespan> == friends birthdays for timespan, either 'full' or number of months in the future
+<uid> bdays:<uid>:<timespan> == related birthdays for timespan, either 'full' or number of months in the future
 
 <uid> rcntalk:<uid>:<maxshow> == recent talkitems cached on user, cache on number of talkitems to get
 
 <uid> timezone_guess:<uid> == guess of the user's timezone offset based on time of their most recent entry
 
-<vertid> vert:<vertid> == row from 'vertical' table
-<vertname> vertname:<vertname> == row from 'vertical' table
-<vertid> vertentries:<vertid> == array of [ journalid, jitemid ] arrayrefs which should appear in vertical
-<vertid> vertrules:<vertid> == serialized (nfreeze) data structure representing filtering rules for this vertical
+<uid> commsettings:<cid> == [membership, postlevel] - Membership and Posting Access for a community
+<uid> pendingmemct:<cid> == number of pending membership requests
+<uid> mqcount:<cid> == number of moderation queue requests
+
+<uid> synd:<uid> == hash of basic syndication info
+
+<uid> supportpointsum:<uid> == total number of support points that this user has
+
+<uid> txtmsgsecurity:<uid> == security level that the user has set for their text messages
 
 # Widgets
 
@@ -145,4 +141,6 @@ ct_flag_cat_count == hash of content flag counts
 
 pop_interests == array of interest keywords and counts
 
-verticalfeedentries:<vertid> == arrayref of feed entries that are being displayed for the given vertical id
+poll:<pollid> = arrayref of poll properties, see cgi-bin/LJ/Poll.pm for details (section under "use base 'LJ::MemCacheable'")
+
+invite_code_try_ip:<ip> = stores a value of 1 for the IP address of the person who tried an invalid invite code (for rate limiting)

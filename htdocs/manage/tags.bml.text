@@ -3,6 +3,8 @@
 
 .button.delete=Remove selected tag(s)
 
+.button.merge=Merge selected tags
+
 .button.rename=Rename
 
 .button.save=Save Settings
@@ -11,7 +13,11 @@
 
 .confirm.delete=Are you sure you want to remove the selected tags? This operation is not reversible.
 
+.confirm.merge=Are you sure you want to merge the selected tags? This operation is not reversible.
+
 .error.invalidsettings=Invalid selection for tag permission settings.
+
+.error.rename.multiple=You cannot rename a tag to multiple tags. Please go back and remove any commas from the new tag name.
 
 .hint.create=You can create multiple tags by separating them with commas.
 
@@ -19,17 +25,37 @@
 
 .hint.entries=Display journal entries marked with the selected tag(s).
 
+.hint.merge=Merge several tags into one.
+
 .hint.rename=Change a tag name.
 
 .intro=Use this page to review and edit tags you have defined.
+
+.label.counts=counts and security
+
+.label.filters=filters
+
+.label.notapplicable=n/a
+
+.label.private=private
+
+.label.public=public
+
+.label.security=security
 
 .label.settings=Tag Settings
 
 .label.tags=Tag Properties
 
-.label.yours=Your Tags
+.label.total=total
+
+.label.trusted=trusted
+
+.label.yours=Your Tags ([[tagnum]] defined, [[tagmax]] maximum)
 
 .none=You haven't created any tags yet.
+
+.setting.author_admin=Entry author and administrators
 
 .setting.desc.add=Who can add existing tags to entries?
 
@@ -37,7 +63,7 @@
 
 .setting.public=Any user
 
-.setting.friends=Friends only
+.setting.trusted=Access only
 
 .setting.maintainers=Only maintainers
 

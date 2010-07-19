@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 body<=
 <?_code
@@ -12,13 +26,13 @@ body<=
     # known issues box
     $ret .= "<div class='blue box'>";
     $ret .= "<?h1 $ML{'.knownissues.head'} h1?>";
-    $ret .= LJ::load_include("support-currentproblems");
+    $ret .= LJ::load_include(BML::get_language() eq 'ru' ? "support-currentproblems-russian" : "support-currentproblems");
     $ret .= "</div>";
 
     # ask a question box
     $ret .= "<div class='green box'>";
     $ret .= "<?h1 $ML{'.ask.head'} h1?>";
-    $ret .= "<?p " . BML::ml('.ask.text', { 'aopts' => "href='$LJ::SITEROOT/support/submit.bml'" }) . " p?>";
+    $ret .= "<?p " . BML::ml('.ask.text', { 'aopts' => "href='$LJ::SITEROOT/support/submit'" }) . " p?>";
     $ret .= "</div>";
 
     $ret .= "</div>";
@@ -30,8 +44,8 @@ body<=
     # did you know
     $ret .= "<div class='green box'>";
     $ret .= "<?h1 $ML{'.volunteer.head'} h1?><?p ";
-    $ret .= BML::ml('.volunteer.text', { 'aopts-help'   => "href='$LJ::SITEROOT/support/help.bml'",
-                                         'aopts-points' => "href='$LJ::SITEROOT/support/highscores.bml'" });
+    $ret .= BML::ml('.volunteer.text', { 'aopts-help'   => "href='$LJ::SITEROOT/support/help'",
+                                         'aopts-points' => "href='$LJ::SITEROOT/support/highscores'" });
     $ret .= " p?></div>";
 
 
@@ -41,10 +55,24 @@ body<=
     $ret .= "<?p $ML{'.faq.text'} p?>";
 
     $ret .= "<div align='center'>";
-    $ret .= "<form method='GET' action='$LJ::SITEROOT/support/faqsearch.bml'>";
+    $ret .= "<form method='GET' action='$LJ::SITEROOT/support/faqsearch'>";
     $ret .= "<input type='text' name='q' size='30' />&nbsp;<input type='submit' value='$ML{'.faq.search.btn'}'>";
     $ret .= "</form>";
     $ret .= "</div>";
+
+    my $remote = LJ::get_remote();
+    my $user;
+    my $user_url;
+
+    # Get remote username and journal URL, or example user's username and journal URL
+    if ($remote) {
+        $user = $remote->user;
+        $user_url = $remote->journal_base;
+    } else {
+        my $u = LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
+        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+    }
 
     my $dbr = LJ::get_db_reader();
     my $sth = $dbr->prepare("SELECT statkey FROM stats WHERE statcat='pop_faq' ORDER BY statval DESC LIMIT 10");
@@ -52,16 +80,20 @@ body<=
 
     $ret .= "<ul>";
     while (my $f = $sth->fetchrow_hashref) {
-        my $f = LJ::Faq->load($f->{statkey}, lang => BML::get_language());
+        $f = LJ::Faq->load($f->{statkey}, lang => BML::get_language());
+        $f->render_in_place({user => $user, url => $user_url});
         my $q = $f->question_html;
-        $ret .= "<li><a href=\"faqbrowse.bml?faqid=" . $f->faqid . "\">$q</a></li>\n";
+        $ret .= "<li><a href=\"faqbrowse?faqid=" . $f->faqid . "\">$q</a></li>\n";
     }
     $ret .= "</ul>\n";
 
-    $ret .= "<p align='right'>&raquo; <a href='$LJ::SITEROOT/support/faq.bml'>$ML{'.faq.all'}</a></p>";
+    $ret .= "<p align='right'>&raquo; <a href='$LJ::SITEROOT/support/faq'>$ML{'.faq.all'}</a></p>";
     $ret .= "</div>";
 
     $ret .= "</div>";
+	
+	#add element to clear floated divs
+	$ret .= "<div class='clear-floats'></div>";
 
     return $ret;
 
@@ -98,7 +130,7 @@ div.box {
     margin-bottom: 20px;
 }
 
-ul {
+.box ul {
     padding-left: 10px;
     margin-left: 10px;
 }

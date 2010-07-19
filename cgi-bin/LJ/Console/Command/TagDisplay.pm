@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Console::Command::TagDisplay;
 
 use strict;
@@ -22,7 +35,7 @@ sub execute {
     my ($self, @args) = @_;
 
     return $self->error("Sorry, the tag system is currently disabled.")
-        if $LJ::DISABLED{tags};
+        unless LJ::is_enabled('tags');
 
     return $self->error("This command takes either two or four arguments. Consult the reference.")
         unless scalar(@args) == 2 || scalar(@args) == 4;
@@ -40,7 +53,7 @@ sub execute {
             unless $foru;
 
         return $self->error("You cannot change tag display settings for $args[1]")
-            unless LJ::can_manage($remote, $foru);
+            unless $remote && $remote->can_manage( $foru );
 
         ($tag, $val) = ($args[2], $args[3]);
     } else {

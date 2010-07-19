@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 use lib "$LJ::HOME/cgi-bin";
@@ -151,11 +164,6 @@ sub dbh_by_name {
 
 }
 
-sub dbh_by_fdsn {
-    my $fdsn = shift;
-    return $LJ::DBIRole->get_dbh_conn($fdsn);
-}
-
 sub root_dbh_by_name {
     my $name = shift;
     my $dbh = dbh_by_role("master")
@@ -212,7 +220,7 @@ package LJ;
 
 use Carp qw(croak);
 
-# when calling a supported function (currently: LJ::load_user() or LJ::load_userid*), LJ::SMS::load_mapping()
+# when calling a supported function (currently: LJ::load_user() or LJ::load_userid*)
 # ignores in-process request cache, memcache, and selects directly
 # from the global master
 #
@@ -303,9 +311,10 @@ sub get_db_writer {
 # <LJFUNC>
 # name: LJ::get_cluster_reader
 # class: db
-# des: Returns a cluster slave for a user, or cluster master if no slaves exist.
+# des: Returns a cluster slave for a user or clusterid, or cluster master if
+#      no slaves exist.
 # args: uarg
-# des-uarg: Either a userid scalar or a user object.
+# des-uarg: Either a clusterid scalar or a user object.
 # returns: DB handle.  Or undef if all dbs are unavailable.
 # </LJFUNC>
 sub get_cluster_reader
@@ -324,7 +333,7 @@ sub get_cluster_reader
 # <LJFUNC>
 # name: LJ::get_cluster_def_reader
 # class: db
-# des: Returns a definitive cluster reader for a given user, used
+# des: Returns a definitive cluster reader for a given user or clusterid, used
 #      when the caller wants the master handle, but will only
 #      use it to read.
 # args: uarg
@@ -344,8 +353,8 @@ sub get_cluster_def_reader
 # <LJFUNC>
 # name: LJ::get_cluster_master
 # class: db
-# des: Returns a cluster master for a given user, used when the caller
-#      might use it to do a write (insert/delete/update/etc...)
+# des: Returns a cluster master for a given user or clusterid, used when the
+#      caller might use it to do a write (insert/delete/update/etc...)
 # args: uarg
 # des-uarg: Either a clusterid scalar or a user object.
 # returns: DB handle.  Or undef if master is unavailable.
@@ -430,31 +439,6 @@ sub get_lock
 }
 
 # <LJFUNC>
-# name: LJ::may_lock
-# des: see if we <strong>could</strong> get a MySQL lock on
-#       a given key/dbrole combination, but don't actually get it.
-# returns: undef if called improperly, true on success, die() on failure
-# args: db, dbrole
-# des-dbrole: the role this lock should be gotten on, either 'global' or 'user'.
-# </LJFUNC>
-sub may_lock
-{
-    my ($db, $dbrole) = @_;
-    return undef unless $db && ($dbrole eq 'global' || $dbrole eq 'user');
-
-    # die if somebody already has a lock
-    if ($LJ::LOCK_OUT{$dbrole}) {
-        my $curr_sub = (caller 1)[3]; # caller of current sub
-        die "LOCK ERROR: $curr_sub; can't get lock from $LJ::LOCK_OUT{$dbrole}\n";
-    }
-
-    # see if a lock is already out
-    return undef if exists $LJ::LOCK_OUT{$dbrole};
-
-    return 1;
-}
-
-# <LJFUNC>
 # name: LJ::release_lock
 # des: release a MySQL lock on a given key/dbrole combination.
 # returns: undef if called improperly, true on success, die() on failure
@@ -500,13 +484,6 @@ sub use_diff_db {
     $LJ::DBIRole->use_diff_db(@_);
 }
 
-# to be called as &nodb; (so this function sees caller's @_)
-sub nodb {
-    shift @_ if
-        ref $_[0] eq "LJ::DBSet" || ref $_[0] eq "DBI::db" ||
-        ref $_[0] eq "Apache::DBI::db";
-}
-
 sub dbtime_callback {
     my ($dsn, $dbtime, $time) = @_;
     my $diff = abs($dbtime - $time);
@@ -514,6 +491,23 @@ sub dbtime_callback {
         $dsn =~ /host=([^:\;\|]*)/;
         my $db = $1;
         print STDERR "Clock skew of $diff seconds between web($LJ::SERVER_NAME) and db($db)\n";
+    }
+}
+
+sub foreach_cluster {
+    my $coderef = shift;
+    my $opts = shift || {};
+
+    # have to include this via an eval so it doesn't actually get included
+    # until someone calls foreach cluster.  at which point, if they're in web
+    # context, it will fail.
+    eval "use LJ::DBUtil; 1;";
+    die $@ if $@;
+    
+    foreach my $cluster_id (@LJ::CLUSTERS) {
+        my $dbr = ($LJ::IS_DEV_SERVER) ?
+            LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});
+        $coderef->($cluster_id, $dbr);
     }
 }
 

@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 use lib "$LJ::HOME/cgi-bin";
@@ -11,7 +24,7 @@ sub find_path
 {
     my ($fu, $tu, $timeout) = @_;
     return () unless $fu && $tu;
-    return () unless $fu->{journaltype} eq "P" && $tu->{journaltype} eq "P";
+    return () unless $fu->is_individual && $tu->is_individual;
 
     $LJ::SixDegrees::MEMC_EXPIRE ||= 86400;
 
@@ -19,7 +32,7 @@ sub find_path
     $cache->{$fu->{userid}} = $fu;
     $cache->{$tu->{userid}} = $tu;
 
-    my $memkey = [ $fu->{'userid'}, "6dpath:$fu->{userid}:$tu->{userid}" ];
+    my $memkey = [ $fu->userid, "6dpath:$fu->{userid}:$tu->{userid}" ];
     my $exp = 3600;
     my $path = LJ::MemCache::get($memkey);
     unless ($path) {
@@ -39,20 +52,20 @@ sub _find_path_helper
     my $time_start = time();
 
     # user is themselves (one element in path)
-    return [$fu->{userid}] if $fu->{'userid'} == $tu->{'userid'};
+    return [$fu->userid] if $fu->equals( $tu );
 
     # from user befriends to user (two elements in path
     my $fu_friends = links_out($fu, $cache);
-    if (intersect($fu_friends, [ $tu->{'userid'} ])) {
+    if ( intersect( $fu_friends, [ $tu->userid ] ) ) {
 	$cache->{'note'} = "2 way path";
-	return [$fu->{userid}, $tu->{userid}];
+	return [$fu->userid, $tu->userid];
     }
 
     # try to find a three-way path (fu has a friend who lists tu as a friend)
     my $tu_friendofs = links_in($tu, $cache);
     if (my $via = intersect($fu_friends, $tu_friendofs)) {
 	$cache->{'note'} = "3 way path";
-	return [$fu->{userid}, $via, $tu->{userid}];
+	return [$fu->userid, $via, $tu->userid];
     }
 
     # try to find four-way path by expanding fu's friends' friends,
@@ -178,7 +191,7 @@ sub link_fetch
     my @clean_list;  # visible users, not communities
     foreach my $uid (@$listref) {
 	my $u = $cache->{$uid};
-	next unless $u && $u->{'statusvis'} eq "V" && $u->{'journaltype'} eq "P";
+	next unless $u && $u->is_visible && $u->is_individual;
 	push @clean_list, $uid;
     }
 

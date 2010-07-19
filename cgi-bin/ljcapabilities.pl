@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ;
 use strict;
 
@@ -56,44 +69,60 @@ sub mask_from_bits {
 sub caps_in_group {
     my ($caps, $class) = @_;
     my $bit = LJ::class_bit($class);
-    unless (defined $bit) {
-        # this site has no underage class?  'underage' is the only
-        # general class.
-        return 0 if $class eq "underage";
-
-        # all other classes are site-defined, so we die on those not existing.
-        die "unknown class '$class'";
-    }
-
+    die "unknown class '$class'" unless defined $bit;
     return ($caps+0 & (1 << $bit)) ? 1 : 0;
 }
 
 # <LJFUNC>
 # name: LJ::name_caps
 # des: Given a user's capability class bit mask, returns a
-#      site-specific string representing the capability class name.
+#      site-specific string representing the capability class(es) name.
 # args: caps
 # des-caps: 16 bit capability bitmask
 # </LJFUNC>
 sub name_caps
 {
-    return undef unless LJ::are_hooks("name_caps");
-    my $caps = shift;
-    return LJ::run_hook("name_caps", $caps);
+    my $bit = shift;
+    my @caps = LJ::caps_string( $bit, '_visible_name' );
+    if ( @caps ) {
+        return join( ', ', @caps );
+    } else {
+        return LJ::name_caps_short( $bit );
+    }
 }
 
 # <LJFUNC>
 # name: LJ::name_caps_short
 # des: Given a user's capability class bit mask, returns a
-#      site-specific short string code.
+#      site-specific string representing the capability class(es) short name.
 # args: caps
 # des-caps: 16 bit capability bitmask
 # </LJFUNC>
 sub name_caps_short
 {
-    return undef unless LJ::are_hooks("name_caps_short");
-    my $caps = shift;
-    return LJ::run_hook("name_caps_short", $caps);
+    my $bit = shift;
+    return join( ', ', LJ::caps_string( $bit, '_name' ) );
+}
+
+# <LJFUNC>
+# name: LJ::caps_string
+# des: Given a user's capability class bitfield and a name field key,
+#      returns an array of all the account class names.
+# args: caps, name_value
+# des-caps: bitfield
+# des-name_value: string (_name for short name, _visible_name for long)
+sub caps_string {
+    my ($caps, $name_value) = @_;
+
+    my @classes = ();
+    foreach my $bit (0..15) {
+        my $class = LJ::class_of_bit($bit);
+        next unless $class && LJ::caps_in_group($caps, $class);
+        my $name = $LJ::CAP{$bit}->{$name_value};
+        push @classes, $name if $name ne "";
+    }
+
+    return @classes;
 }
 
 # <LJFUNC>
@@ -105,9 +134,9 @@ sub name_caps_short
 # </LJFUNC>
 sub user_caps_icon
 {
-    return undef unless LJ::are_hooks("user_caps_icon");
+    return undef unless LJ::Hooks::are_hooks("user_caps_icon");
     my $caps = shift;
-    return LJ::run_hook("user_caps_icon", $caps);
+    return LJ::Hooks::run_hook("user_caps_icon", $caps);
 }
 
 # <LJFUNC>
@@ -176,17 +205,12 @@ sub get_cap
         }
     }
 
-    # underage/coppa check etc
-    if ($cname eq "underage" && $u && $u->in_class("underage")) {
-        return 1;
-    }
-
     # is there a hook for this cap name?
-    if (! $opts->{no_hook} && LJ::are_hooks("check_cap_$cname")) {
+    if (! $opts->{no_hook} && LJ::Hooks::are_hooks("check_cap_$cname")) {
         die "Hook 'check_cap_$cname' requires full user object"
             unless LJ::isu($u);
 
-        my $val = LJ::run_hook("check_cap_$cname", $u);
+        my $val = LJ::Hooks::run_hook("check_cap_$cname", $u);
         return $val if defined $val;
 
         # otherwise fall back to standard means

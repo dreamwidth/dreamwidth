@@ -1,13 +1,369 @@
 #!/usr/bin/perl
+#
+# bin/worker/paidstatus
+#
+# Worker job that loops and looks for shopping carts that are in the need of
+# processing.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 
+use Time::HiRes qw/ gettimeofday tv_interval /;
+
 require 'ljlib.pl';
+require 'ljmail.pl';
+use LJ::Lang;
+use DW::Shop;
+use DW::Shop::Cart;
 
-use LJ::Worker::TheSchwartz;
-use DW::Worker::PaidStatus;
 
-schwartz_decl( "DW::Worker::PaidStatus" );
+################################################################################
+## main setup
+################################################################################
 
-schwartz_work();
+
+# setup logging routine
+my $begin_time = [ gettimeofday() ];
+my ( $logfile, $last_log_time );
+my $log = sub {
+    $last_log_time ||= [ gettimeofday() ];
+
+    unless ( $logfile ) {
+        open $logfile, ">>$LJ::HOME/logs/paidstatus.log"
+            or die "Internal server error creating log.\n";
+        print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time( gmtime() ) . ".\n";
+    }
+
+    my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
+    my $msg = sprintf( $fmt, tv_interval( $last_log_time ), tv_interval( $begin_time ), @_ );
+
+    # now log to both the file and STDERR if we're foregrounded
+    print $logfile $msg;
+    print STDERR $msg;
+
+    $last_log_time = [ gettimeofday() ];
+};
+
+# setup alert routine, this sends a mail to some configurable alert address
+my $alert = sub {
+    LJ::send_mail(
+        {
+            to => $LJ::PAYPAL_CONFIG{email},
+            from => $LJ::BOGUS_EMAIL,
+            subject => "$LJ::SITENAME Payment System Alert",
+            body => shift(),
+        }
+    );
+    return undef;
+};
+
+while ( 1 ) {
+    $log->( 'Main loop beginning...' );
+
+    # do this in a sub so it can return on error
+    main_loop();
+
+    # now we sleep to the next five minute boundary, and if we're taking more
+    # than five minutes to run, we fire off an alert
+    my $sleep_time = 60 - ( tv_interval( $begin_time ) % 60 );
+    if ( $sleep_time < 0 ) {
+        $alert->( 'Warning: main loop is taking longer than a minute.' );
+        $sleep_time = 60;
+    }
+    $log->( 'Sleeping for %0.2f seconds.', $sleep_time );
+    select undef, undef, undef, $sleep_time;
+
+    $log->( 'Main loop ended.' );
+    $begin_time = [ gettimeofday() ];
+}
+
+
+################################################################################
+## main loop
+################################################################################
+
+
+sub main_loop {
+    # disconnect dbs
+    LJ::disconnect_dbs();
+
+    # now get a db or die
+    my $dbh = LJ::get_db_writer()
+        or return $log->( 'Unable to get database writer handle.' );
+
+## PHASE 0) REMOVE DEAD CARTS (unused for more than 30 days)
+
+    my $ct = $dbh->do( 'UPDATE shop_carts SET state = ? WHERE state = ? AND starttime < UNIX_TIMESTAMP() - 86400 * 30',
+                       undef, $DW::Shop::STATE_CLOSED, $DW::Shop::STATE_OPEN );
+    return $log->( 'Database error cleaning carts: %s', $dbh->errstr )
+        if $dbh->err;
+    $log->( 'Cleaned %d carts that were unused for more than 30 days.', $ct+0 );
+
+## PHASE 1) PROCESS PAYMENTS
+
+    # dig up carts that are in state paid and scannable
+    my $cartids = $dbh->selectcol_arrayref(
+        q{SELECT cartid FROM shop_carts WHERE state = ? AND nextscan < UNIX_TIMESTAMP()},
+        undef, $DW::Shop::STATE_PAID
+    );
+    return $log->( 'Database error: %s', $dbh->errstr )
+        if $dbh->err;
+    return $log->( 'Invalid response looking for scannable carts.' )
+        unless $cartids && ref $cartids eq 'ARRAY';
+
+    $log->( 'Found %d scannable carts.', scalar( @$cartids ) );
+
+    # now iterate over these and do something with them
+    scan_cart( $dbh, $_ ) foreach @$cartids;
+
+## PHASE 2) PROCESS EXPIRATIONS
+
+    # dig up who has expired ... accounts
+    my $uids = $dbh->selectcol_arrayref(
+        q{SELECT userid FROM dw_paidstatus
+          WHERE permanent = 0 AND (expiretime IS NOT NULL AND expiretime <= UNIX_TIMESTAMP())}
+    );
+    return $log->( 'Database error: %s', $dbh->errstr )
+        if $dbh->err;
+
+    $log->( 'Found %d expired users.', scalar( @$uids ) );
+
+    # now expire the user
+    expire_user( $dbh, $_ ) foreach @$uids;
+
+## PHASE 3) PROCESS EXPIRATION WARNING MAILS
+
+    # dig up who expire soon
+    my $rows = $dbh->selectall_arrayref(
+        q{SELECT userid, lastemail, expiretime - UNIX_TIMESTAMP()
+          FROM dw_paidstatus
+          WHERE permanent = 0 AND
+               (expiretime IS NOT NULL AND
+                expiretime > UNIX_TIMESTAMP() AND
+                expiretime < ( UNIX_TIMESTAMP() + 14*86400 )
+              )}
+    );
+    return $log->( 'Database error: %s', $dbh->errstr )
+        if $dbh->err;
+
+    $log->( 'Found %d users expiring soon.', scalar( @$rows ) );
+
+    # now warn the user
+    warn_user( $dbh, $_ ) foreach @$rows;
+
+}
+
+
+sub expire_user {
+    my ( $dbh, $uid ) = @_;
+
+    my $u = LJ::load_userid( $uid )
+        or return 0;
+
+    $log->( 'Expiring %s(%d).', $u->user, $u->id );
+
+    if ( $u->is_community && $u->is_visible ) {
+        # send an email to every maintainer
+        my $maintus = LJ::load_userids( $u->maintainer_userids );
+        foreach my $maintu ( values %$maintus ) {
+            LJ::send_mail( {
+                to => $maintu->email_raw,
+                fromname => $LJ::SITENAME,
+                from => $LJ::ACCOUNTS_EMAIL,
+                subject => LJ::Lang::ml( "shop.expiration.comm.0.subject", { sitename => $LJ::SITENAME } ),
+                body => LJ::Lang::ml( "shop.expiration.comm.0.body", {
+                    touser   => $maintu->display_name,
+                    commname => $u->display_name,
+                    shopurl  => "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user,
+                    sitename => $LJ::SITENAME,
+                } ),
+            } );
+        }
+    } elsif ( $u->is_visible ) {
+        LJ::send_mail( {
+            to => $u->email_raw,
+            fromname => $LJ::SITENAME,
+            from => $LJ::ACCOUNTS_EMAIL,
+            subject => LJ::Lang::ml( "shop.expiration.user.0.subject", { sitename => $LJ::SITENAME } ),
+            body => LJ::Lang::ml( "shop.expiration.user.0.body", {
+                touser   => $u->display_name,
+                shopurl  => "$LJ::SITEROOT/shop/account?for=self",
+                sitename => $LJ::SITENAME,
+            } ),
+        } );
+    }
+
+    # this is pretty easy, we just tell DW::Pay to do it
+    return DW::Pay::expire_user( $uid );
+}
+
+
+sub warn_user {
+    my ( $dbh, $row ) = @_;
+    my ( $uid, $lastmail, $timeleft ) = @$row;
+
+    my $u = LJ::load_userid( $uid )
+        or return 0;
+
+    my $mail;
+    if ( $timeleft < 86400*3 && ( ! defined $lastmail || $lastmail == 14 ) ) {
+        $log->( 'Sending 3-day expiration mail to %s(%d).', $u->user, $u->id );
+        $mail = '3';
+
+    } elsif ( $timeleft < 86400*14 && ! defined $lastmail ) {
+        $log->( 'Sending 14-day expiration mail to %s(%d).', $u->user, $u->id );
+        $mail = '14';
+    }
+
+    return 1 unless defined $mail;
+
+    if ( $u->is_community ) {
+        # send an email to every maintainer
+        my $maintus = LJ::load_userids( $u->maintainer_userids );
+        foreach my $maintu ( values %$maintus ) {
+            LJ::send_mail( {
+                to => $maintu->email_raw,
+                fromname => $LJ::SITENAME,
+                from => $LJ::ACCOUNTS_EMAIL,
+                subject => LJ::Lang::ml( "shop.expiration.comm.$mail.subject", { sitename => $LJ::SITENAME } ),
+                body => LJ::Lang::ml( "shop.expiration.comm.$mail.body", {
+                    touser   => $maintu->display_name,
+                    commname => $u->display_name,
+                    shopurl  => "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user,
+                    sitename => $LJ::SITENAME,
+                } ),
+            } );
+        }
+    } else {
+        LJ::send_mail( {
+            to => $u->email_raw,
+            fromname => $LJ::SITENAME,
+            from => $LJ::ACCOUNTS_EMAIL,
+            subject => LJ::Lang::ml( "shop.expiration.user.$mail.subject", { sitename => $LJ::SITENAME } ),
+            body => LJ::Lang::ml( "shop.expiration.user.$mail.body", {
+                touser => $u->display_name,
+                shopurl => "$LJ::SITEROOT/shop/account?for=self",
+                sitename => $LJ::SITENAME,
+            } ),
+        } );
+    }
+
+    # now update the db
+    $dbh->do( 'UPDATE dw_paidstatus SET lastemail = ? WHERE userid = ?',
+              undef, $mail+0, $u->id );
+    return 0
+        if $dbh->err;
+
+    return 1;
+}
+
+
+sub scan_cart {
+    my $dbh = shift;
+    my $cartid = shift() + 0;
+
+    # easy sub for setting nextscan on this cart
+    my $nextscan = sub {
+        $dbh->do(
+            q{UPDATE shop_carts SET nextscan = UNIX_TIMESTAMP() + ? WHERE cartid = ?},
+            undef, shift() || 3600, $cartid
+        );
+        $log->( 'Database error: %s', $dbh->errstr )
+            if $dbh->err;
+        return 1;
+    };
+
+    # setup a failure sub, this will log and alert on errors plus mark the cart as
+    # not being scannable for another hour
+    my $fail = sub {
+        my $msg = 'scan_cart(%d): ' . shift();
+        $msg = sprintf( $msg, $cartid, @_ );
+
+        $log->( $msg );
+        $alert->( $msg );
+
+        return undef;
+    };
+
+    # prepend our logging function with useful information
+    my $log = sub {
+        $log->( 'scan_cart(%d): ' . shift(), $cartid, @_ );
+    };
+
+    $log->( '-' x 60 );
+
+    my $cart = DW::Shop::Cart->get_from_cartid( $cartid );
+    return $fail->( 'Failed creating cart.' )
+        unless $cart && ref $cart eq 'DW::Shop::Cart';
+
+    # error check this cart
+    return $fail->( 'Cart not in a valid state.' )
+        unless $cart->state == $DW::Shop::STATE_PAID;
+    return $fail->( 'Cart has no items.' )
+        unless $cart->has_items;
+
+    # try to apply each item
+    my ( $unapplied, %saw_ids ) = ( 0 );
+    $log->( 'Iterating over items.' );
+    foreach my $item ( @{ $cart->items } ) {
+        $log->( 'Found item [%d] %s.', $item->id, $item->short_desc );
+
+        # rare case where we've found the cart generating items with the same
+        # id, leading to failures in sending invite codes
+        while ( exists $saw_ids{$item->id} ) {
+            if ( $item->applied ) {
+                $log->( 'Item id duplicate, but item safely applied.  Ignoring dupe id.' );
+                next;
+            }
+
+            # this item has NOT been applied, so renumber it
+            $item->id( $item->id + 1 );
+            $log->( 'Item id already found, renumbering to %d.', $item->id );
+        }
+
+        # record the id in our list so we know we've seen it
+        $saw_ids{$item->id} = 1;
+
+        # this is the normal 'bail' point for already applied items
+        if ( $item->applied ) {
+            $log->( 'Item already applied.' );
+            next;
+        }
+
+        # try to apply it
+        my $rv = eval { $item->apply };
+        if ( $rv ) {
+            $log->( 'Successfully applied item.' );
+        } else {
+            $log->( 'Failed to apply item: %s', DW::Pay::error_text() || $@ || 'unknown error' );
+            $unapplied = 1;
+        }
+
+        # yes, we save the cart a lot... oh well
+        $cart->save( no_memcache => 1 );
+    }
+
+    # two possible results: we have items still unapplied or we did
+    # get everything applied.  try again in 1-2 hours.
+    if ( $unapplied ) {
+        $nextscan->( 3600 + int( rand() * 3600 ) );
+        $log->( 'One or more items not applied, will retry later.' );
+        return;
+    }
+
+    # everything in this order has been applyed, restate it
+    $cart->state( $DW::Shop::STATE_PROCESSED, no_memcache => 1 );
+
+    # main loop done!
+    $log->( 'Cart->state is now PROCESSED.' );
+}

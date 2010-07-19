@@ -1,0 +1,190 @@
+<?page
+
+#
+# site/index.bml
+#
+# A basic, bare-bones functional site map. Ideally all major tasks should
+# be listed on this page, and all pages should be no more than 2 clicks
+# away from here. (Ongoing task...)
+#
+# Authors:
+#      Denise Paolucci <denise@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+head<=
+<style type='text/css'>
+<!--
+dd ul li {list-style: disc; margin-left: 2em; }
+dt {font-weight: bold; margin-top: 10px;}
+#maplinks-left {margin-right: 1em; width: 48%; float: left;}
+#maplinks-right {margin-left: 1em; width: 48%; float: right;}
+-->
+</style>
+<=head
+windowtitle=><?_ml .title _ml?>
+body<=
+<?h1 <?_ml .maplinks _ml?> h1?>
+
+<div id='maplinks-left'>
+ <dl><dt><?_code return BML::ml('.maplinks.manage-journal-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/update'><?_ml .maplinks.post-entry _ml?></a></li>
+   <li><a href='/editjournal'><?_ml .maplinks.edit-entries _ml?></a></li>
+   <li><a href='/tools/recent_comments'><?_ml .maplinks.manage-comments _ml?></a></li>
+   <li><a href='/manage/tags'><?_ml .maplinks.manage-tags _ml?></a></li>
+   <li><a href='/tools/memories'><?_ml .maplinks.manage-memories _ml?></a></li>
+   <li><a href='/manage/profile'><?_ml .maplinks.manage-profile _ml?></a></li>
+   <li><a href='/editicons'><?_ml .maplinks.manage-userpics _ml?></a></li>
+   <li><a href='/poll/create'><?_ml .maplinks.create-poll _ml?></a></li>
+   <li><a href='/editprivacy'><?_ml .maplinks.massprivacy _ml?></a></li>
+  </ul></dd>
+ </dt></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.manage-readlist-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/manage/circle/'><?_ml .maplinks.manage-readlist _ml?></a></li>
+   <li><a href='/manage/circle/editfilters'><?_ml .maplinks.manage-groups _ml?></a></li>
+   <li><a href='/manage/circle/filter'><?_ml .maplinks.filter-readlist  _ml?></a></li>
+   <li><a href='/feeds'><?_ml .maplinks.synfeeds _ml?></a></li>
+  </ul></dd>
+ </dt></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.manage-invite-friend-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/manage/circle/invite'><?_ml .maplinks.invite-friend _ml?></a></li>
+  </ul></dd>
+ </dt></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.manage-account-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/manage/settings'><?_ml .maplinks.manage-settings _ml?></a></li>
+   <li><a href='/inbox'><?_ml .maplinks.inbox _ml?></a></li>
+   <li><a href='/shop'><?_ml .maplinks.upgrade _ml?></a></li>
+   <li><a href='/changepassword'><?_ml .maplinks.changepassword _ml?></a></li>
+   <li><a href='/accountstatus'><?_ml .maplinks.changestatus _ml?></a></li>
+  </ul></dd>
+ </dt></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.customize-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/customize'><?_ml .maplinks.selectstyle _ml?></a></li>
+   <li><a href='/customize/options'><?_ml .maplinks.customizestyle _ml?></a></li>
+   <li><a href='/customize/options?group=linkslist'><?_ml .maplinks.manage-linkslist _ml?></a></li>
+   <li><a href='/support/faqbrowse?faqcat=styles'><?_ml .maplinks.about-customizing _ml?></a></li>
+   <li><a href='/customize/advanced/'><?_ml .maplinks.advanced-customization _ml?></a></li>
+   <li><a href='/customize/advanced/layerbrowse'><?_ml .maplinks.layer-browser _ml?></a></li>
+   <li><a href='/doc/s2'><?_ml .maplinks.s2-manual _ml?></a></li>
+  </ul></dd>
+ </dt></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.community-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/community/create'><?_ml .maplinks.create-comm _ml?></a></li>
+   <li><a href='/community/manage'><?_ml .maplinks.manage-comm _ml?></a></li>
+   <li><a href='/manage/invites'><?_ml .maplinks.manage-invites _ml?></a></li>
+   <li><a href='/community/search'><?_ml .maplinks.search-comm _ml?></a></li>
+  </ul></dd></dl>
+
+</div>
+<div id='maplinks-right'>
+
+<?_code
+if ( LJ::is_enabled( 'payments' ) || $LJ::MERCH_URL ) {
+    my $shop_title = BML::ml('.maplinks.shop-title', { sitename => $LJ::SITENAMESHORT } );
+    my $merch = $LJ::MERCH_URL
+        ? "<li><a href='$LJ::MERCH_URL'><?_ml .maplinks.buy-merchandise _ml?></a></li>"
+        : '';
+    if ( LJ::is_enabled( 'payments' ) ) {
+        # display all shop links, plus merch link if defined
+        return qq{
+ <dl><dt>$shop_title</dt>
+  <dd><ul>
+   <li><a href='/shop'><?_ml .maplinks.buy-points _ml?></a></li>
+   <li><a href='/shop/gifts'><?_ml .maplinks.buy-circle _ml?></a></li>
+   <li><a href='/shop/randomgift'><?_ml .maplinks.buy-random _ml?></a></li>
+   <li><a href='/shop/transferpoints'><?_ml .maplinks.transfer-points _ml?></a></li>
+   $merch
+   <li><a href='/shop/history'><?_ml .maplinks.payment-history _ml?></a></li>
+  </ul></dd></dl>
+        };
+    } else {  # only display merch link
+        return qq{
+ <dl><dt>$shop_title</dt>
+  <dd><ul>
+   $merch
+  </ul></dd></dl>
+        };
+    }
+}
+_code?>
+
+ <dl><dt><?_code return BML::ml('.maplinks.learn-site-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/support/faqbrowse?faqcat=about'><?_ml .maplinks.aboutus _ml?></a></li>
+   <li><a href='/legal/tos'><?_ml .maplinks.tos _ml?></a></li>
+   <li><a href='/legal/privacy'><?_ml .maplinks.privacy _ml?></a></li>
+   <li><a href='/legal/principles'><?_ml .maplinks.principles _ml?></a></li>
+   <li><a href='/legal/diversity'><?_ml .maplinks.diversity _ml?></a></li>
+   <li><a href='/legal/'><?_ml .maplinks.legal _ml?></a></li>
+   <li><a href='/stats'><?_ml .maplinks.sitestats _ml?></a></li>
+   <li><a href='staff'><?_ml .maplinks.staff _ml?></a></li>
+  </ul></dd></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.official-journals-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><?ljuser news ljuser?></li>
+   <li><?ljuser dw_maintenance ljuser?></li>
+   <li><?ljuser dw_lounge ljuser?></li>
+   <li><?ljuser dw_suggestions ljuser?> - <a href='/site/suggest'><?_ml .maplinks.suggestion _ml?></li>
+   <li><a href='/support/faqbrowse?faqid=65'><?_ml .maplinks.official-journals.list _ml?></a></li>
+  </ul></dd></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.gethelp-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/support/faq'><?_ml .maplinks.faq _ml?></a></li>
+   <li><a href='/support/faqsearch'><?_ml .maplinks.faqsearch _ml?></a></li>
+   <li><a href='/support/'><?_ml .maplinks.support _ml?></a></li>
+  </ul></dd></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.explore-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/directorysearch'><?_ml .maplinks.directory _ml?></a></li>
+   <li><a href='/community/search'><?_ml .maplinks.search-comm _ml?></a></li>
+   <li><a href='/latest'><?_ml .maplinks.latestthings _ml?></a></li>
+  </ul></dd></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.toys-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/birthdays'><?_ml .maplinks.birthdays _ml?></a></li>
+   <li><a href='/latest/mood'><?_ml .maplinks.latestmoods _ml?></a></li>
+  </ul></dd></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.advanced-tools-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/admin/console'><?_ml .maplinks.console _ml?></a></li>
+   <li><a href='/admin/console/reference'><?_ml .maplinks.console-reference _ml?></a></li>
+  </ul></dd></dl>
+
+ <dl><dt><?_code return BML::ml('.maplinks.search.title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/tools/search'><?_ml .maplinks.search.site _ml?></a></li>
+   <li><a href='/search'><?_ml .maplinks.search.journal _ml?></a></li>
+  </ul></dd></dl>
+
+</div>
+
+<div style='clear: both;'>
+<br />
+<?hr?>
+<?p 
+<?_ml .footer _ml?>
+p?>
+</div>
+<=body
+page?>

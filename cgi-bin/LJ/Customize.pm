@@ -1,10 +1,19 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Customize;
 use strict;
 use Carp qw(croak);
-
-use lib "$LJ::HOME/cgi-bin";
-
-require "customizelib.pl";
 
 # returns the S2Theme object of the given user's current theme
 sub get_current_theme {
@@ -19,8 +28,8 @@ sub get_current_theme {
 
     if ($style{theme} == 0) {
         # default theme of system layout
-        if (ref $pub->{$style{layout}}) {
-            return LJ::S2Theme->load_default_of($style{layout});
+        if ($pub->{$style{layout}} && $pub->{$style{layout}}->{uniq}) {
+            return LJ::S2Theme->load_default_of($style{layout}, user => $u);
 
         # default theme of custom layout
         } else {
@@ -40,7 +49,7 @@ sub apply_theme {
     my $theme = shift;
 
     my %style;
-    my $has_cap = $u->get_cap("s2styles");
+    my $has_cap = $u->can_create_s2_styles;
     my $pub = LJ::S2::get_public_layers();
     my $userlay = LJ::S2::get_layers_of_user($u);
 
@@ -88,7 +97,15 @@ sub verify_and_load_style {
 
     my $style = LJ::S2::load_style($u->prop('s2_style'));
 
-    unless ($style && $style->{'userid'} == $u->{'userid'}) {
+    unless ( $style && $style->{layer}->{layout} ) {
+        # we have no layout layer for this style, which causes errors in
+        # the customization interface
+        # undef current style and force them to use the site defaults
+        $u->set_prop( s2_style => 0 );
+        $style = undef;
+    }
+
+    unless ( $style && $style->{userid} == $u->userid ) {
         my $theme;
         if ($LJ::DEFAULT_STYLE->{theme}) {
             $theme = LJ::S2Theme->load_by_uniq($LJ::DEFAULT_STYLE->{theme});
@@ -162,11 +179,10 @@ sub real_themeid_for_uniq {
     return scalar @s2lids_for_uniq ? $s2lids_for_uniq[0] : 0;
 }
 
-# wrapper around LJ::cmize::s2_implicit_style_create
 sub implicit_style_create {
     my $class = shift;
 
-    return LJ::cmize::s2_implicit_style_create(@_);
+    return s2_implicit_style_create(@_);
 }
 
 # passing the opt "reset" will revert the language layers to default
@@ -231,27 +247,26 @@ sub get_layouts_for_dropdown {
     my @layouts = map  {
         my $text = $pub->{$_}->{'name'};
         my $can_use_layer = LJ::S2::can_use_layer($u, $pub->{$_}->{'uniq'});
-        $text = "$text*" if $opts{filter_available} && !$can_use_layer; # for browsers that don't support disabled or colored options
+        $text = "$text*" if !$can_use_layer; # for browsers that don't support disabled or colored options
         {
             value => $_,
             text => $text,
-            disabled => $opts{filter_available} && !$can_use_layer,
+            disabled => !$can_use_layer,
         }
     }
     sort { $pub->{$a}->{'name'} cmp $pub->{$b}->{'name'} }
     grep { my $tmp = $_;
-           my $is_active = LJ::run_hook("layer_is_active", $pub->{$tmp}->{uniq});
+           my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$tmp}->{uniq});
            $tmp =~ /^\d+$/ &&
                $pub->{$tmp}->{'type'} eq "layout" &&
                $pub->{$tmp}->{'uniq'} ne "s1shortcomings/layout" &&
-               $pub->{$tmp}->{'uniq'} ne "hostedcomments/layout" &&
                (!defined $is_active || $is_active) &&
                ($_ = $tmp)
            } keys %$pub;
 
     # add custom layouts
-    push @layouts, $class->get_custom_layouts_for_dropdown($u, filter_available => $opts{filter_available});
-    LJ::run_hook("modify_layout_list", \@layouts, user => $u, add_seps => 1);
+    push @layouts, $class->get_custom_layouts_for_dropdown($u);
+    LJ::Hooks::run_hook("modify_layout_list", \@layouts, user => $u, add_seps => 1);
 
     unshift @layouts, 0, LJ::Lang::ml('customize.layouts_for_dropdown.choose');
 
@@ -265,17 +280,17 @@ sub get_custom_layouts_for_dropdown {
 
     my @layers = ();
 
-    my $has_cap = LJ::get_cap($u, "s2styles");
+    my $has_cap = $u->can_create_s2_styles;
     my $userlay = LJ::S2::get_layers_of_user($u);
     my %style   = LJ::S2::get_style($u, "verify");
 
     my @user = map {
         my $text = $userlay->{$_}->{'name'} ? $userlay->{$_}->{'name'} : LJ::Lang::ml('customize.layoutname.default', {'layoutid' => "\#$_"});
-        $text = "$text*" if $opts{filter_available} && !$has_cap; # for browsers that don't support disabled or colored options
+        $text = "$text*" if !$has_cap; # for browsers that don't support disabled or colored options
         {
             value => $_,
             text => $text,
-            disabled => $opts{filter_available} && !$has_cap,
+            disabled => !$has_cap,
         }
     }
     sort { $userlay->{$a}->{'name'} cmp $userlay->{$b}->{'name'} || $a <=> $b }
@@ -327,8 +342,8 @@ sub get_search_keywords_for_js {
     my @themes = LJ::S2Theme->load_all($u);
     foreach my $theme (@themes) {
         next unless $theme;
-        if (LJ::are_hooks("layer_is_active")) {
-            next unless LJ::run_hook("layer_is_active", $theme->uniq) && LJ::run_hook("layer_is_active", $theme->layout_uniq);
+        if (LJ::Hooks::are_hooks("layer_is_active")) {
+            next unless LJ::Hooks::run_hook("layer_is_active", $theme->uniq) && LJ::Hooks::run_hook("layer_is_active", $theme->layout_uniq);
         }
 
         my $theme_name = LJ::ejs($theme->name);
@@ -409,8 +424,8 @@ sub load_all_s2_props {
         $layer->{b2lid} = $LJ::S2LID_REMAP{$b2lid};
     }
 
-    die "Layer belongs to another user. $layer->{userid} vs $u->{userid}" unless $layer->{'userid'} == $u->{'userid'};
-    die "Layer isn't of type user or theme." unless $layer->{'type'} eq "user" || $layer->{'type'} eq "theme";
+    die "Layer belongs to another user. $layer->{userid} vs $u->{userid}" unless $layer->{userid} == $u->userid;
+    die "Layer isn't of type user or theme." unless $layer->{type} eq "user" || $layer->{type} eq "theme";
 
     my @layerids = $class->get_layerids($style);
     LJ::S2::load_layers(@layerids);
@@ -460,8 +475,11 @@ sub save_s2_props {
     $lyr_layout->{'uniq'} = $dbh->selectrow_array("SELECT value FROM s2info WHERE s2lid=? AND infokey=?",
                                               undef, $lyr_layout->{'s2lid'}, "redist_uniq");
 
+    my @grouped_properties = S2::get_properties( $lyr_core->{s2lid} );
+    @grouped_properties = grep { $_->{grouped} == 1 } @grouped_properties;
+
     my %override;
-    foreach my $prop (S2::get_properties($lyr_layout->{'s2lid'}))
+    foreach my $prop ( S2::get_properties( $lyr_layout->{s2lid} ), @grouped_properties )
     {
         $prop = S2::get_property($lyr_core->{'s2lid'}, $prop)
             unless ref $prop;
@@ -496,10 +514,7 @@ sub save_s2_props {
 
 # returns hash with existing (parent) prop value and override (user layer) prop value
 sub get_s2_prop_values {
-    my $class = shift;
-    my $prop_name = shift;
-    my $u = shift;
-    my $style = shift;
+    my ( $class, $prop_name, $u, $style, %opts ) = @_;
 
     $class->load_all_s2_props($u, $style);
 
@@ -515,13 +530,13 @@ sub get_s2_prop_values {
         last if defined $existing;
     }
 
-    if (ref $existing eq "HASH") { $existing = $existing->{'as_string'}; }
+    if ( ref $existing eq "HASH" && ! $opts{noui} ) { $existing = $existing->{'as_string'}; }
 
     my $override = S2::get_set($layer->{'s2lid'}, $prop_name);
     my $had_override = defined $override;
     $override = $existing unless defined $override;
 
-    if (ref $override eq "HASH") { $override = $override->{'as_string'}; }
+    if ( ref $override eq "HASH" && ! $opts{noui} ) { $override = $override->{'as_string'}; }
 
     return ( existing => $existing, override => $override );
 }
@@ -542,7 +557,11 @@ sub get_propgroups {
 
     my %prop;  # name hashref, deleted when added to a category
     my @propnames;
-    foreach my $prop (S2::get_properties($lyr_layout->{'s2lid'})) {
+    
+    my @grouped_properties = S2::get_properties( $lyr_core->{s2lid} );
+    @grouped_properties = grep { $_->{grouped} == 1 } @grouped_properties;
+
+    foreach my $prop ( S2::get_properties( $lyr_layout->{s2lid} ), @grouped_properties ) {
         unless (ref $prop) {
             $prop = S2::get_property($lyr_core->{'s2lid'}, $prop);
             next unless ref $prop;
@@ -552,37 +571,43 @@ sub get_propgroups {
     }
 
     my @groups = S2::get_property_groups($lyr_layout->{'s2lid'});
+    my @merged_groups;
     my $misc_group;
     my %groupprops;  # gname -> [ propname ]
     my %propgroup;   # pname -> gname;
 
     foreach my $gname (@groups) {
         if ($gname eq "misc" || $gname eq "other") { $misc_group = $gname; }
+        my $gname_merge = $gname;
+        $gname_merge =~ s/_child$//;
+        push @merged_groups, $gname if $gname_merge eq $gname;
+
         foreach my $pname (S2::get_property_group_props($lyr_layout->{'s2lid'}, $gname)) {
             my $prop = $prop{$pname};
-            next if ! $prop || $propgroup{$pname};
-            $propgroup{$pname} = $gname;
-            push @{$groupprops{$gname}}, $pname;
+            next if ! $prop || $prop->{noui} || $propgroup{$pname};
+            $propgroup{$pname} = $gname_merge;
+            push @{$groupprops{$gname_merge}}, $pname;
         }
     }
+
     # put unsorted props into an existing or new unsorted/misc group
-    if (@groups) {
+    if (@merged_groups) {
         my @unsorted;
         foreach my $pname (@propnames) {
             my $prop = $prop{$pname};
-            next if ! $prop || $propgroup{$pname};
+            next if ! $prop || $prop->{noui} || $prop->{grouped} || $propgroup{$pname};
             push @unsorted, $pname;
         }
         if (@unsorted) {
             unless ($misc_group) {
                 $misc_group = "misc";
-                push @groups, "misc";
+                push @merged_groups, "misc";
             }
             push @{$groupprops{$misc_group}}, @unsorted;
         }
     }
 
-    return ( props => \%prop, groups => \@groups, groupprops => \%groupprops, propgroup => \%propgroup );
+    return ( props => \%prop, groups => \@merged_groups, groupprops => \%groupprops, propgroup => \%propgroup );
 }
 
 sub propgroup_name {
@@ -615,25 +640,13 @@ sub s2_upsell {
 
     my $ret .= "<?standout ";
     $ret .= "<p>This style system is no longer supported.</p>";
-    $ret .= "<p><a href='$LJ::SITEROOT/customize/switch_system.bml$getextra'><strong>Switch to S2</strong></a> for the latest features and themes.</p>";
+    $ret .= "<p><a href='$LJ::SITEROOT/customize/switch_system$getextra'><strong>Switch to S2</strong></a> for the latest features and themes.</p>";
     $ret .= " standout?>";
 
     return $ret;
 }
 
-# wrapper around LJ::cmize::validate_moodthemeid
-sub validate_moodthemeid {
-    my $class = shift;
 
-    return LJ::cmize::validate_moodthemeid(@_);
-}
-
-# wrapper around LJ::cmize::get_moodtheme_select_list
-sub get_moodtheme_select_list {
-    my $class = shift;
-
-    return LJ::cmize::get_moodtheme_select_list(@_);
-}
 
 sub get_cats {
     my $class = shift;
@@ -653,64 +666,22 @@ sub get_cats {
         special => {
             text => LJ::Lang::ml('customize.cats.special'),
             main => 1,
-            order => 3,
+            order => 4,
         },
         custom => {
             text => LJ::Lang::ml('customize.cats.custom'),
             main => 1,
-            order => 4,
+            order => 5,
         },
-        animals => {
-            text => LJ::Lang::ml('customize.cats.animals'),
+        base => {
+            text => LJ::Lang::ml( 'customize.cats.base' ),
+            main => 1,
+            order => 3,
         },
-        clean => {
-            text => LJ::Lang::ml('customize.cats.clean'),
-        },
-        cool => {
-            text => LJ::Lang::ml('customize.cats.cool'),
-        },
-        warm => {
-            text => LJ::Lang::ml('customize.cats.warm'),
-        },
-        cute => {
-            text => LJ::Lang::ml('customize.cats.cute'),
-        },
-        dark => {
-            text => LJ::Lang::ml('customize.cats.dark'),
-        },
-        food => {
-            text => LJ::Lang::ml('customize.cats.food'),
-        },
-        hobbies => {
-            text => LJ::Lang::ml('customize.cats.hobbies'),
-        },
-        illustrated => {
-            text => LJ::Lang::ml('customize.cats.illustrated'),
-        },
-        media => {
-            text => LJ::Lang::ml('customize.cats.media'),
-        },
-        modern => {
-            text => LJ::Lang::ml('customize.cats.modern'),
-        },
-        nature => {
-            text => LJ::Lang::ml('customize.cats.nature'),
-        },
-        occasions => {
-            text => LJ::Lang::ml('customize.cats.occasions'),
-        },
-        pattern => {
-            text => LJ::Lang::ml('customize.cats.pattern'),
-        },
-        tech => {
-            text => LJ::Lang::ml('customize.cats.tech'),
-        },
-        travel => {
-            text => LJ::Lang::ml('customize.cats.travel'),
-        },
+
     );
 
-    LJ::run_hooks("modify_cat_list", \@categories, user => $u,);
+    LJ::Hooks::run_hooks("modify_cat_list", \@categories, user => $u,);
 
     return @categories;
 }
@@ -722,71 +693,151 @@ sub get_layouts {
         '2r'   => LJ::Lang::ml('customize.layouts.2r'),
         '2lnh' => LJ::Lang::ml('customize.layouts.2lnh'),
         '2rnh' => LJ::Lang::ml('customize.layouts.2rnh'),
-        '3l'   => LJ::Lang::ml('customize.layouts.3l'),
-        '3m'   => LJ::Lang::ml('customize.layouts.3m'),
+        '3l'   => LJ::Lang::ml( 'customize.layouts.3l' ),
+        '3r'   => LJ::Lang::ml( 'customize.layouts.3r' ),
+        '3'    => LJ::Lang::ml( 'customize.layouts.3' ),
     );
 }
 
 sub get_propgroup_subheaders {
     return (
-        page => LJ::Lang::ml('customize.propgroup_subheaders.page'),
-        navigation => LJ::Lang::ml('customize.propgroup_subheaders.navigation'),
-        navigation_box => LJ::Lang::ml('customize.propgroup_subheaders.navigation_box'),
-        text => LJ::Lang::ml('customize.propgroup_subheaders.text'),
-        title => LJ::Lang::ml('customize.propgroup_subheaders.title'),
-        title_box => LJ::Lang::ml('customize.propgroup_subheaders.title_box'),
-        top_bar => LJ::Lang::ml('customize.propgroup_subheaders.top_bar'),
-        header => LJ::Lang::ml('customize.propgroup_subheaders.header'),
-        tabs_and_headers => LJ::Lang::ml('customize.propgroup_subheaders.tabs_and_headers'),
-        header_bar => LJ::Lang::ml('customize.propgroup_subheaders.header_bar'),
-        icon => LJ::Lang::ml('customize.propgroup_subheaders.icon'),
-        sidebar => LJ::Lang::ml('customize.propgroup_subheaders.sidebar'),
-        caption_bar => LJ::Lang::ml('customize.propgroup_subheaders.caption_bar'),
-        entry => LJ::Lang::ml('customize.propgroup_subheaders.entry'),
-        comment => LJ::Lang::ml('customize.propgroup_subheaders.comment'),
-        sidebox => LJ::Lang::ml('customize.propgroup_subheaders.sidebox'),
-        links_sidebox => LJ::Lang::ml('customize.propgroup_subheaders.links_sidebox'),
-        tags_sidebox => LJ::Lang::ml('customize.propgroup_subheaders.tags_sidebox'),
-        multisearch_sidebox => LJ::Lang::ml('customize.propgroup_subheaders.multisearch_sidebox'),
-        free_text_sidebox => LJ::Lang::ml('customize.propgroup_subheaders.free_text_sidebox'),
-        hotspot_area => LJ::Lang::ml('customize.propgroup_subheaders.hotspot_area'),
-        calendar => LJ::Lang::ml('customize.propgroup_subheaders.calendar'),
-        component => LJ::Lang::ml('customize.propgroup_subheaders.component'),
-        setup => LJ::Lang::ml('customize.propgroup_subheaders.setup'),
-        ordering => LJ::Lang::ml('customize.propgroup_subheaders.ordering'),
-        custom => LJ::Lang::ml('customize.propgroup_subheaders.custom'),
+        page => LJ::Lang::ml( 'customize.propgroup_subheaders.page' ),
+        module => LJ::Lang::ml( 'customize.propgroup_subheaders.module' ),
+        navigation => LJ::Lang::ml( 'customize.propgroup_subheaders.navigation' ),
+        header => LJ::Lang::ml( 'customize.propgroup_subheaders.header' ),
+        entry => LJ::Lang::ml( 'customize.propgroup_subheaders.entry' ),
+        comment => LJ::Lang::ml( 'customize.propgroup_subheaders.comment' ),
+        archive => LJ::Lang::ml( 'customize.propgroup_subheaders.archive' ),
+        footer => LJ::Lang::ml( 'customize.propgroup_subheaders.footer' ),
+
+        unsorted => LJ::Lang::ml( 'customize.propgroup_subheaders.unsorted' ),
     );
 }
 
 sub get_propgroup_subheaders_order {
-    return qw(
+    return ( 
+    qw (
         page
+        module
         navigation
-        navigation_box
-        text
-        title
-        title_box
-        top_bar
         header
-        tabs_and_headers
-        header_bar
-        icon
-        sidebar
-        caption_bar
+        footer
         entry
         comment
-        sidebox
-        links_sidebox
-        tags_sidebox
-        multisearch_sidebox
-        free_text_sidebox
-        hotspot_area
-        calendar
-        component
-        setup
-        ordering
-        custom
+        archive
+        unsorted
+    )
+
     );
+}
+
+# <LJFUNC>
+# name: LJ::Customize::s2_implicit_style_create
+# des:  Common "create s2 style" skeleton.
+# args: opts?, user, style*
+# des-opts: Hash of options
+#           - force: forces creation of a new style even if one already exists
+# des-user: User to get layers of
+# des-style: Hash of style information
+#            - theme: theme id of style theme
+#            - layout: layout id of style layout
+#            Other keys as used by LJ::S2::set_style_layers
+# returns: 1 if successful
+# </LJFUNC>
+sub s2_implicit_style_create
+{
+    my ($opts, $u, %style);
+
+    # this is because the arguments aren't static
+    # old callers don't pass in an options hashref, so we create a blank one
+    if (ref $_[0] && ref $_[1]) {
+        ($opts, $u) = (shift, shift);
+    } else {
+        ($opts, $u) = ({}, shift);
+    }
+
+    # everything else is part of the style hash
+    %style = ( @_ );
+
+    my $pub     = LJ::S2::get_public_layers();
+    my $userlay = LJ::S2::get_layers_of_user($u);
+
+    # Create new style if necessary
+    my $s2style = LJ::S2::load_style($u->prop('s2_style'));
+    if ( ! ( $s2style && $s2style->{userid} == $u->userid ) || $opts->{force} ) {
+        my $themeid = $style{theme};
+        my $layoutid = $style{layout};
+        my $layer = $pub->{$themeid} || $userlay->{$themeid} || $userlay->{$layoutid};
+        my $uniq = $layer->{uniq} || $layer->{s2lid};
+
+        my $s2_style;
+        unless ($s2_style = LJ::S2::create_style($u, "wizard-$uniq")) {
+            die "Can't create style";
+        }
+        $u->set_prop("s2_style", $s2_style);
+    }
+    # save values in %style to db
+    LJ::S2::set_style_layers($u, $u->prop('s2_style'), %style);
+
+    return 1;
+}
+
+# <LJFUNC>
+# name: LJ::Customize::validate_moodthemeid
+# des: Spoof checking for mood theme ids
+# args: user, themeid
+# des-user: user attempting to use the mood theme
+# des-themeid: mood theme user wants to use
+# returns: themeid if public or owned by user, false otherwise
+# </LJFUNC>
+sub validate_moodthemeid {
+    my ( $class, $u, $themeid ) = @_;
+    my $theme = DW::Mood->new( $themeid );
+    return 0 unless $theme &&
+        ( $theme->is_public eq 'Y' || $theme->ownerid == $u->userid );
+    return $themeid;
+}
+
+# <LJFUNC>
+# name: LJ::Customize::get_moodtheme_select_list
+# des: Gets mood theme list.
+# args: user
+# des-user: users whose private mood themes should be returned
+# returns: Returns a list of mood themes that the user can select from,
+#          suitable for [func[LJ::html_select]].
+# </LJFUNC>
+sub get_moodtheme_select_list {
+    my ( $class, $u ) = @_;
+
+    # faster to get full cached data, but we only want id & name
+    my $strip = sub {
+        return { moodthemeid => $_[0]->{moodthemeid},
+                 name => $_[0]->{name} };
+    };
+
+    my @themes;
+    foreach my $moodtheme ( DW::Mood->public_themes ) {
+        my $is_active = LJ::Hooks::run_hook("mood_theme_is_active", $moodtheme->{moodthemeid});
+        next unless !defined $is_active || $is_active;
+        push @themes, $strip->( $moodtheme );
+    }
+    LJ::Hooks::run_hook('modify_mood_theme_list', \@themes, user => $u, add_seps => 1);
+    unshift @themes, { 'moodthemeid' => 0, 'name' => '(None)' };
+
+    ### user's private themes
+    {
+        my @theme_user;
+        foreach ( DW::Mood->get_themes( { ownerid => $u->id } ) ) {
+            next if $_->{is_public} eq 'Y';
+            push @theme_user, $strip->( $_ );
+        }
+        if (@theme_user) {
+            push @themes, { 'moodthemeid' => 0, 'name' => "--- " . BML::ml('/modify_do.bml.moodicons.personal'). " ---", disabled => 1 };
+            push @themes, @theme_user;
+        }
+    }
+
+    return @themes;
 }
 
 1;

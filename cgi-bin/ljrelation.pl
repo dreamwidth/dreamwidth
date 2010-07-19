@@ -1,82 +1,18 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ;
 use strict;
-
-# <LJFUNC>
-# name: LJ::is_friend
-# des: Checks to see if a user is a friend of another user.
-# returns: boolean; 1 if user B is a friend of user A or if A == B
-# args: usera, userb
-# des-usera: Source user hashref or userid.
-# des-userb: Destination user hashref or userid. (can be undef)
-# </LJFUNC>
-sub is_friend
-{
-    &nodb;
-
-    my ($ua, $ub) = @_[0, 1];
-
-    $ua = LJ::want_userid($ua);
-    $ub = LJ::want_userid($ub);
-
-    return 0 unless $ua && $ub;
-    return 1 if $ua == $ub;
-
-    # get group mask from the first argument to the second argument and
-    # see if first bit is set.  if it is, they're a friend.  get_groupmask
-    # is memcached and used often, so it's likely to be available quickly.
-    return LJ::get_groupmask(@_[0, 1]) & 1;
-}
-
-# <LJFUNC>
-# name: LJ::is_banned
-# des: Checks to see if a user is banned from a journal.
-# returns: boolean; 1 if "user" is banned from "journal"
-# args: user, journal
-# des-user: User hashref or userid.
-# des-journal: Journal hashref or userid.
-# </LJFUNC>
-sub is_banned
-{
-    &nodb;
-
-    # get user and journal ids
-    my $uid = LJ::want_userid(shift);
-    my $jid = LJ::want_userid(shift);
-    return 1 unless $uid && $jid;
-
-    # for speed: common case is non-community posting and replies
-    # in own journal.  avoid db hit.
-    return 0 if ($uid == $jid);
-
-    # edge from journal -> user
-    return LJ::check_rel($jid, $uid, 'B');
-}
-
-sub get_groupmask
-{
-    # TAG:FR:ljlib:get_groupmask
-    my ($journal, $remote) = @_;
-    return 0 unless $journal && $remote;
-
-    my $jid = LJ::want_userid($journal);
-    my $fid = LJ::want_userid($remote);
-    return 0 unless $jid && $fid;
-
-    my $memkey = [$jid,"frgmask:$jid:$fid"];
-    my $mask = LJ::MemCache::get($memkey);
-    unless (defined $mask) {
-        my $dbr = LJ::get_db_reader();
-        die "No database reader available" unless $dbr;
-
-        $mask = $dbr->selectrow_array("SELECT groupmask FROM friends ".
-                                      "WHERE userid=? AND friendid=?",
-                                      undef, $jid, $fid);
-        LJ::MemCache::set($memkey, $mask+0, time()+60*15);
-    }
-
-    return $mask+0;  # force it to a numeric scalar
-}
-
 
 # <LJFUNC>
 # name: LJ::get_reluser_id
@@ -99,7 +35,7 @@ sub get_reluser_id {
         }->{$type}+0;
     return $val if $val;
     return 0 unless $type =~ /^local-/;
-    return LJ::run_hook('get_reluser_id', $type)+0;
+    return LJ::Hooks::run_hook('get_reluser_id', $type)+0;
 }
 
 # <LJFUNC>
@@ -198,6 +134,39 @@ sub load_rel_target
 }
 
 # <LJFUNC>
+# name: LJ::load_rel_target_cache
+# des: Loads user relationship information of the type 'type' where user
+#      'targetid' participates on the right side (is the target of the relationship)
+#      trying memcache first.  The results from this sub should be
+#      <strong>treated as inaccurate and out of date</strong>.
+# args: targetid, type
+# des-userid: userid or a user hash to load relationship information for.
+# des-type: type of the relationship
+# returns: reference to an array of userids
+# </LJFUNC>
+sub load_rel_target_cache
+{
+    my ($userid, $type) = @_;
+    return undef unless $type && $userid;
+
+    my $u = LJ::want_user($userid);
+    return undef unless $u;
+    $userid = $u->{'userid'};
+
+    my $key = [ $userid, "reluser_rev:$userid:$type" ];
+    my $res = LJ::MemCache::get($key);
+
+    return $res if $res;
+
+    $res = LJ::load_rel_target($userid, $type);
+
+    my $exp = time() + 60*30; # 30 min
+    LJ::MemCache::set($key, $res, $exp);
+
+    return $res;
+}
+
+# <LJFUNC>
 # name: LJ::_get_rel_memcache
 # des: Helper function: returns memcached value for a given (userid, targetid, type) triple, if valid.
 # args: userid, targetid, type
@@ -208,7 +177,7 @@ sub load_rel_target
 # </LJFUNC>
 sub _get_rel_memcache {
     return undef unless @LJ::MEMCACHE_SERVERS;
-    return undef if $LJ::DISABLED{memcache_reluser};
+    return undef unless LJ::is_enabled('memcache_reluser');
 
     my ($userid, $targetid, $type) = @_;
     return undef unless $userid && $targetid && defined $type;
@@ -265,8 +234,9 @@ sub _set_rel_memcache {
     LJ::MemCache::set($modukey, $now, $exp);
     LJ::MemCache::set($modtkey, $now, $exp);
 
-    # Also, delete this key, since the contents have changed.
+    # Also, delete these keys, since the contents have changed.
     LJ::MemCache::delete([$userid, "reluser:$userid:$type"]);
+    LJ::MemCache::delete([$targetid, "reluser_rev:$targetid:$type"]);
 
     return 1;
 }
@@ -274,15 +244,13 @@ sub _set_rel_memcache {
 # <LJFUNC>
 # name: LJ::check_rel
 # des: Checks whether two users are in a specified relationship to each other.
-# args: db?, userid, targetid, type
+# args: userid, targetid, type
 # des-userid: source userid, nonzero; may also be a user hash.
 # des-targetid: target userid, nonzero; may also be a user hash.
 # des-type: type of the relationship
 # returns: 1 if the relationship exists, 0 otherwise
 # </LJFUNC>
-sub check_rel
-{
-    my $db = isdb($_[0]) ? shift : undef;
+sub check_rel {
     my ($userid, $targetid, $type) = @_;
     return undef unless $type && $userid && $targetid;
 
@@ -301,14 +269,14 @@ sub check_rel
     return $memval if defined $memval;
 
     # are we working on reluser or reluser2?
-    my $table;
+    my ( $db, $table );
     if ($typeid) {
         # clustered reluser2 table
         $db = LJ::get_cluster_reader($u);
         $table = "reluser2";
     } else {
         # non-clustered reluser table
-        $db ||= LJ::get_db_reader();
+        $db = LJ::get_db_reader();
         $table = "reluser";
     }
 
@@ -335,9 +303,7 @@ sub check_rel
 # des-type: type of the relationship
 # returns: 1 if set succeeded, otherwise undef
 # </LJFUNC>
-sub set_rel
-{
-    &nodb;
+sub set_rel {
     my ($userid, $targetid, $type) = @_;
     return undef unless $type and $userid and $targetid;
 
@@ -540,9 +506,7 @@ sub _mod_rel_multi
 # des-type: type of the relationship
 # returns: 1 if clear succeeded, otherwise undef
 # </LJFUNC>
-sub clear_rel
-{
-    &nodb;
+sub clear_rel {
     my ($userid, $targetid, $type) = @_;
     return undef if $userid eq '*' and $targetid eq '*';
 

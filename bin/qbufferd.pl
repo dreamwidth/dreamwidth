@@ -1,13 +1,23 @@
 #!/usr/bin/perl
 #
-# <LJDEP>
-# lib: Proc::ProcessTable, cgi-bin/ljlib.pl
-# </LJDEP>
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
 use Getopt::Long
+use lib "$ENV{LJHOME}/cgi-bin";
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-require "$ENV{'LJHOME'}/cgi-bin/supportlib.pl";
+use LJ::Support;
 require "$ENV{'LJHOME'}/cgi-bin/ljcmdbuffer.pl";
 
 my $opt_foreground;
@@ -18,7 +28,7 @@ exit 1 unless GetOptions('foreground' => \$opt_foreground,
                          'stop' => \$opt_stop,
                          );
 
-if ($LJ::DISABLED{qbufferd_jobs}) {
+unless ( LJ::is_enabled('qbufferd_jobs') ) {
     print "qbufferd.pl jobs disabled, exiting\n";
     exit 0;
 }
@@ -166,7 +176,7 @@ while(not $working) {
 }
 
 # the actual work begins here
-my @all_jobs = qw(delitem weblogscom send_mail support_notify dirty);
+my @all_jobs = qw(delitem send_mail support_notify dirty);
 foreach my $hook (keys %LJ::HOOKS) {
     next unless $hook =~ /^cmdbuf:(\w+):run$/;
     push @all_jobs, $1;

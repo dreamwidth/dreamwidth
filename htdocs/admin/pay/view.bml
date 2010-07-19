@@ -1,0 +1,288 @@
+<html>
+<head><title>Payment Management</title></head>
+<body>
+
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+    use Storable qw/ thaw /;
+
+    my $remote = LJ::get_remote();
+    my @displayprivs = ( "payments" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $remote; 
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless $remote->has_priv( 'payments' );
+
+    # FIXME: there should be a better page for this or something
+    if ( my $acid = $GET{striptimefrom} ) {
+        if ( LJ::did_post() && LJ::check_form_auth() ) {
+            my $dbh = LJ::get_db_writer();
+            my $ct = $dbh->do( 'DELETE FROM shop_codes WHERE acid = ?',
+                               undef, $acid );
+            return $dbh->errstr if $dbh->err;
+            return "Failed to strip the code, already stripped?"
+                unless $ct > 0;
+            return "Okay, code stripped.";
+        }
+
+        my $auth = LJ::form_auth();
+        return <<EOF;
+<h1>Payment Manager - Strip Code</h1>
+<p><strong>This action strips the paid time from an invite code.  The code will still be
+usable, but it will no longer grant the user with any paid time.  Please confirm you wish
+to do this by clicking the button below.</strong></p>
+<form method='post' action='$LJ::SITEROOT/admin/pay/view?striptimefrom=$acid'>
+$auth
+<input type='submit' value='Strip that code!' />
+</form>
+EOF
+    }
+
+    my $dbh = LJ::get_db_writer();
+
+    if ( my $code = $GET{code} ) {
+        my ( $acid ) = DW::InviteCodes->decode( $code );
+        return "Code seems invalid"
+            unless $acid;
+
+        my $cartid = $dbh->selectrow_array( 'SELECT cartid FROM shop_codes WHERE acid = ?', undef, $acid );
+        return $dbh->errstr if $dbh->err;
+
+        return "Code does not appear to have any paid time on it."
+            unless $acid;
+
+        return BML::redirect( "$LJ::SITEROOT/admin/pay/view?cartid=$cartid" );
+    }
+
+    my $body = '<h1>Payment Manager - View Cart</h1>';
+    $body .= '<p>[ <a href="/admin/pay/index">&lt;&lt; Back to Index</a> ]</p>';
+
+    return "Must provide cartid."
+        unless $GET{cartid};
+    my $cartid = $GET{cartid};
+
+    # try loading it if it's a cart, or a txnid
+    if ( $cartid !~ /^\d+$/ ) {
+        $cartid = $dbh->selectrow_array( 'SELECT cartid FROM pp_trans WHERE transactionid = ?', undef, $cartid );
+        return "Sorry, invalid transactionid or not found in database!"
+            unless $cartid && $cartid > 0;
+    }
+    my $cart = DW::Shop::Cart->get_from_cartid( $cartid )
+        or return "Sorry, invalid cart/cart not found in the database!";
+
+    # we have to normalize this back, might have been a txnid
+    $cartid = $cart->id;
+
+    if ( LJ::did_post() && LJ::check_form_auth() && $POST{record_cmo} ) {
+        my $received_method = $POST{paymentmethod};
+        my $received_notes = LJ::ehtml( $POST{notes} );
+        return "You must select a valid method of payment that was received."
+            unless $received_method =~ /^(?:cash|check|moneyorder|other)$/;
+        return "You must enter notes for this payment."
+            if ( $received_method eq 'check' || $received_method eq 'other' ) && !$received_notes;
+
+        # record payment
+        my $dbh = LJ::get_db_writer();
+        $dbh->do( "INSERT INTO shop_cmo (cartid, paymentmethod, notes) VALUES (?, ?, ?)",
+                  undef, $cartid, $received_method, $received_notes );
+        return $dbh->errstr if $dbh->err;
+
+        # mark cart as paid
+        $cart->state( $DW::Shop::STATE_PAID );
+
+        return BML::redirect( "$LJ::SITEROOT/admin/pay/view?cartid=$cartid" );
+    }
+
+    my $state = $cart->state;
+    my $u = LJ::load_userid( $cart->userid );
+    my $from = ( defined $u ? $u->ljuser_display : "Logged-out user with uniq: " . $cart->uniq );
+
+    my $paymentmethod = $cart->paymentmethod;
+    my $paystr = ( $paymentmethod ?
+                       $ML{"/shop/receipt.bml.cart.paymentmethod.$paymentmethod"} :
+                       "(not yet selected)" );
+
+    $body .= "<h2>Cart #$cartid</h2>";
+    $body .= "<table border='1'>";
+    $body .= "<tr><th>From:</th><td>$from</td></tr>";
+    $body .= "<tr><th>Date:</th><td>" . DateTime->from_epoch( epoch => $cart->starttime )->strftime( "%F %r %Z" ) . "</td></tr>";
+    $body .= "<tr><th>Total:</th><td>" . $cart->display_total . "</td></tr>";
+    $body .= "<tr><th>Payment Method:</th><td>$paystr</td></tr>";
+    $body .= "<tr><th>Uniq:</th><td>" . $cart->uniq . "</td></tr>";
+    $body .= "<tr><th>IP:</th><td>" . $cart->ip . "</td></tr>";
+    $body .= "<th>Status:</th><td>$ML{\"/shop/receipt.bml.cart.status.$state\"}</td></tr>";
+    $body .= "</table>";
+
+    $body .= "<h3>Items</h3>";
+    if ( $cart->has_items ) {
+        $body .= LJ::Widget::ShopCart->render( admin => 1, cart => $cart );
+    }
+    else {
+        $body .= "<p>This cart has no items in it.</p>";
+    }
+
+    # very sad generic table dumper
+    my $dump = sub {
+        my ( $sql, @bind ) = @_;
+
+        # make an educated guess at durl-ing something
+        my $durl = sub {
+            my $val = shift;
+
+            my $hr;
+            my $out = sub {
+                foreach ( qw/ SIGNATURE USER PWD ccnumber password username / ) {
+                    $hr->{$_} = '<em>redacted</em>'
+                        if exists $hr->{$_};
+                }
+                return join( '<br />', map { "<strong>$_:</strong> $hr->{$_}" } sort keys %$hr );
+            };
+
+            # first see if it's Storable encoded ...
+            eval {
+                my $x = thaw( $val );
+                $hr = $x if $x && ref $x eq 'HASH';
+            };
+            return $out->() if $hr;
+
+            # but see if it seems to be a unix time we can convert to a readable one
+            return LJ::mysql_time( $val, 1 )
+                if $val =~ /^1\d{9}$/;
+
+            # and now fall back to urlencoded ...
+            return $val
+                unless $val =~ /&/ && $val =~ /=/;
+            LJ::decode_url_string( $val, $hr = {} );
+            return $out->();
+        };
+
+        my $dbh = LJ::get_db_writer();
+        my $sth = $dbh->prepare( $sql )
+            or return $body .= "<p>Unable to prepare SQL.</p>";
+        $sth->execute( @bind );
+        return $body .= "<p>Error executing SQL.</p>"
+            if $sth->err;
+
+        my $rows = [];
+        push @$rows, $_
+            while $_ = $sth->fetchrow_hashref;
+        return $body .= "<p>No records found.</p>"
+            unless $rows && @$rows;
+
+        my @cols = sort { $a cmp $b } keys %{ $rows->[0] };
+        $body .= q{<table border=1 cellpadding=5><tr><th>};
+        $body .= join( '</th><th>', @cols );
+        $body .= q{</th></tr>};
+
+        foreach my $row ( @$rows ) {
+            $body .= q{<tr><td>};
+            $body .= join( '</td><td>', map { $durl->( $row->{$_} ) } @cols );
+            $body .= q{</td></tr>};
+        }
+
+        $body .= q{</table>};
+    };
+
+    # attempt to create an engine so we can get more info
+    my $classname = $DW::Shop::PAYMENTMETHODS{$paymentmethod}->{class};
+    my $engine = eval "DW::Shop::Engine::${classname}->new_from_cart( \$cart )";
+
+    if ( $classname eq 'PayPal' ) {
+        # show the payer's details.
+        $body .= "<h2>Payer Details</h2>";
+        $body .= "<table border='1'>";
+        $body .= "<tr><th>First Name:</th><td>" . $engine->firstname . "</td></tr>";
+        $body .= "<tr><th>Last Name:</th></td>" . $engine->lastname . "</td></tr>";
+        $body .= "<tr><th>PayPal Email Address:</th><td>" . $engine->email . "</td></tr>";
+        $body .= "<tr><th>User Email Address:</th><td>" . $cart->email . "</td></tr>";
+        $body .= "</table>";
+
+        # now show the pp_trans log
+        $body .= "<h2>raw: pp_trans (PayPal transactions)</h2>";
+        $dump->( 'SELECT * FROM pp_trans WHERE ppid = ?', $engine->ppid );
+
+        # now show the pp_log log
+        $body .= "<h2>raw: pp_log (PayPal raw log)</h2>";
+        $dump->( 'SELECT * FROM pp_log WHERE ppid = ?', $engine->ppid );
+
+    } elsif ( $classname eq 'GoogleCheckout' ) {
+        # show the payer's details.
+        $body .= "<h2>GCO Payer Details</h2>";
+        $body .= "<table border='1'>";
+        $body .= "<tr><th>Contact Name:</th><td>" . $engine->contactname . "</td></tr>";
+        $body .= "<tr><th>GCO Email Address:</th><td>" . $engine->email . "</td></tr>";
+        $body .= "</table>";
+
+        # now show the pp_trans log
+        $body .= "<h2>raw: gco_log (GCO raw)</h2>";
+        $dump->( 'SELECT * FROM gco_log WHERE gcoid = ?', $engine->gcoid );
+
+    } elsif ( $classname eq 'CreditCard' ) {
+        # dump the tables
+        $body .= "<h2>raw: cc_trans (raw transaction data)</h2>\n";
+        $dump->( 'SELECT * FROM cc_trans WHERE cartid = ?', $cart->id );
+        $body .= "<h2>raw: cc_log (raw server query/response log)</h2>\n";
+        $dump->( 'SELECT * FROM cc_log WHERE cartid = ?', $cart->id );
+
+    } elsif ( $classname eq 'CheckMoneyOrder' ) {
+        # show the payer's details.
+        $body .= "<h2>Payer Details</h2>";
+        $body .= "<table border='1'>";
+        $body .= "<tr><th>Email Address:</th><td>" . $cart->email . "</td></tr>";
+        $body .= "</table>";
+
+        if ( $state == $DW::Shop::STATE_PEND_PAID ) {
+            my $auth = LJ::form_auth();
+            $body .= <<HTML;
+<h2>Mark as Payment Received</h2>
+
+<form method="post" action="$LJ::SITEROOT/admin/pay/view?cartid=$cartid">
+$auth
+<p>
+<label for="paymentmethod">Payment method:</label>
+<select id="paymentmethod" name="paymentmethod">
+<option value="cash">Cash</option>
+<option value="check">Check</option>
+<option value="moneyorder">Money Order</option>
+<option value="other">Other</option>
+</select>
+</p>
+
+<p>
+<label for="notes">Payment notes (check number, address, etc.):</label><br />
+<textarea rows="5" cols="40" name="notes" id="notes"></textarea><br />
+<small>(required if method is "check" or "other")</small>
+</p>
+
+<p>
+<input type="submit" name="record_cmo" value="Mark as Received">
+</p>
+</form>
+HTML
+        } else {
+            $body .= "<h2>Payment Details</h2>";
+
+            my $dbh = LJ::get_db_writer();
+            my $info = $dbh->selectrow_hashref(
+                "SELECT paymentmethod, notes FROM shop_cmo WHERE cartid = ?",
+                undef, $cartid
+            );
+            return $dbh->errstr if $dbh->err;
+
+            my $notes = $info->{notes} || "<em>(no notes given)</em>";
+            $body .= "<table border='1'>";
+            $body .= "<tr><th>Payment Method</th><td>$info->{paymentmethod}</td></tr>";
+            $body .= "<tr><th>Notes</th><td>$notes</td></tr>";
+            $body .= "</table>";
+        }
+    }
+
+    return $body;
+}
+_code?>
+
+</body>
+</html>

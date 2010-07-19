@@ -12,6 +12,10 @@
       <listitem><simpara>Explains the different features and limits available to each capability class you define</simpara></listitem>
     </varlistentry>
     <varlistentry>
+      <term>loginoptions</term>
+      <listitem><simpara>Explains different login options like <quote>Bind Cookie to IP Address</quote></simpara></listitem>
+    </varlistentry>
+    <varlistentry>
       <term>security</term>
       <listitem><simpara>Explains the different security settings available for posts</simpara></listitem>
     </varlistentry>
@@ -32,12 +36,20 @@
       <listitem><simpara>Explains why certain <acronym>S2</acronym> settings might not be available to certain capability classes</simpara></listitem>
     </varlistentry>
     <varlistentry>
+      <term>readonly</term>
+      <listitem><simpara>Explains what Read-Only Mode on a journal is and why it happens</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>secure_password</term>
+      <listitem><simpara>Explains how to choose a secure password</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
       <term>userpic_inactive</term>
       <listitem><simpara>Explains why a userpic might become inactive, and how to make the userpic active again</simpara></listitem>
     </varlistentry>
     <varlistentry>
       <term>textmessaging_about</term>
-      <listitem><simpara>Explains what the text messaging feature is and how it works</simpara></listitem>
+      <listitem><simpara>Explains what the user-user text messaging feature is and how it works</simpara></listitem>
     </varlistentry>
        <varlistentry>
       <term>linklist_support</term>

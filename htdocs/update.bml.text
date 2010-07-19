@@ -19,6 +19,8 @@
 
 .draft.confirm=Restore from saved draft?
 
+.draft.confirm2=Restore from saved draft entitled [[subjectline]]?
+
 .draft.restored=Restored last saved draft
 
 .error.cantpost=Sorry, you cannot post at this time.
@@ -28,6 +30,8 @@
 .error.disabled=Your account type does not permit posting.
 
 .error.disabled.title=Posting access disabled
+
+.error.invalidusejournal=Invalid usejournal argument.
 
 .error.login=Error logging on:
 
@@ -48,6 +52,8 @@
 .htmlokay.rich=(HTML okay; by default, newlines will be auto-formatted to <tt>&lt;br&gt;</tt> - or, use the <a [[opts]]>rich text</a> mode.)
 
 .htmlokay.rte_nosupport=(Sorry, your browser does not currently support the rich text environment.)
+
+.link.view_thumbnails=View Thumbnails
 
 .localtime=Local time:
 
@@ -103,6 +109,8 @@
 
 .success.links=Now that you've posted, you can:
 
+.success.links.backdated=View all entries from the same date
+
 .success.links.edit=Edit the entry
 
 .success.links.memories=Add the entry to your memories
@@ -119,9 +127,13 @@
 
 .update.head=Update your Journal...
 
+.update.status.failed=Your entry has not been posted.
+
+.update.status.succeeded=Your entry has been posted.
+
 .update.success2=Update successful. You can view your updated journal <a [[aopts]]>here</a>.
 
-.updating=Updating journal...
+.update.success2.community=Update successful. You can view the updated community <a [[aopts]]>here</a>. 
 
 .username=Username:
 

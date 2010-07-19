@@ -1,79 +1,99 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
-    return "OpenID consumer support is disabled" unless LJ::OpenID::server_enabled();
+    return $ML{'.error.openid_support_disabled'} unless LJ::OpenID::server_enabled();
 
     use strict;
     use vars qw($title $body %GET %POST);
     use LJ::OpenID;
 
     my $err = sub {
-	$body = shift;
-	$title = shift;
-	$title ||= "Error";
-	return "";
+        $body = shift;
+        $title = shift;
+        $title ||= "Error";
+        return "";
     };
 
     my $u = LJ::get_remote() or
-	return $err->("You need to be logged in to grant another site permission to know your identity.", "You Need to Login");
+        return $err->($ML{'.error.login_needed'}, $ML{'.error.need_to_login'});
 
     my $identity = LJ::OpenID::is_identity($u, $GET{'identity'}, \%GET);
     unless ($identity) {
-        return $err->("The site you just came from seems to want to verify <a href='" .
-                      LJ::ehtml($GET{'identity'}) .
-                      "'>an identity</a> that you, as " .
-                      LJ::ljuser($u) .
-                      ", cannot provide.");
+        return $err->(BML::ml('.error.cannot_provide_identity',
+                { url => LJ::ehtml($GET{'identity'}), user => LJ::ljuser($u)})
+        );
     }
 
     my $site = $GET{'trust_root'};
     $site =~ s/\?.*//;
-    return $err->("Invalid site address") unless $site =~ m!^https?://!;
+    return $err->($ML{'.error.invalid_site_address'}) unless $site =~ m!^https?://!;
 
     # TODO: check URL and see if it contains images or external scripts/css/images, where
     # an attacker could sniff the validation tokens in the Referer header?
+    
+    my $nos = LJ::OpenID::server();
+    my $sig_return = $nos->signed_return_url(
+                        identity     => $GET{'identity'},
+                        return_to    => $GET{'return_to'},
+                        trust_root   => $GET{'trust_root'},
+                        assoc_handle => $GET{'assoc_handle'},
+    );
 
+    ##
+    ## If user is logged in, and user trusts the site, then
+    ## we can tell the site user's identity.
+    ## 
+    if (LJ::OpenID::is_trusted($u, $site)) {
+        return BML::redirect($sig_return) if $sig_return;
+    }
+    
     if (LJ::did_post()) {
-	return $err->("Possible form tampering detected.") unless LJ::check_form_auth();
-
-	my $nos = LJ::OpenID::server();
+        return $err->($ML{'.error.possible_form_tampering'}) unless LJ::check_form_auth();
 
         if ($POST{'no'}) {
             my $cancel_url = $nos->cancel_return_url(
-						     return_to => $GET{'return_to'},
-						     );
-	    return BML::redirect($cancel_url);
+                                                     return_to => $GET{'return_to'},
+                                                     );
+            return BML::redirect($cancel_url);
         }
 
         if ($POST{'yes:always'}) {
             LJ::OpenID::add_trust($u, $site)
-                or return $err->("Failed to save");
+                or return $err->($ML{'.error.failed_to_save'});
         }
-
-	my $sig_return = $nos->signed_return_url(
-						 identity     => $GET{'identity'},
-						 return_to    => $GET{'return_to'},
-						 trust_root   => $GET{'trust_root'},
-						 assoc_handle => $GET{'assoc_handle'},
-						 );
-	return BML::redirect($sig_return) if $sig_return;
-	return $err->("Failed to make signed return URL.");
+        return BML::redirect($sig_return) if $sig_return;
+        return $err->($ML{'.error.failed_sign_url'});
     }
 
-
-    $title = "Grant identity validation?";
-    $body = "";
-    $body .= "<?h1 Identity Validation h1?><?p Another site on the web wants to validate your LiveJournal identity.  No information will be shared with them that isn't already public in your profile, only that you're who you've already told them you are (if you told them). p?><?p The address wanting permission is: p?>";
-    $body .= "<form method='post'>";
-    $body .= LJ::form_auth();
+    $title = $ML{'.form.title2'};
     my $dis_site = LJ::ehtml($site);
     $dis_site =~ s!\*\.!<span style='color: red'><i>&lt;anything&gt;</i></span>.!;
 
+    $body = "<?p " . BML::ml( ".form.request2", { sitename => $LJ::SITENAMESHORT, refurl => $dis_site, url => LJ::ehtml( $GET{'identity'} ) } ) . " p?>";
+    $body .= "<?p " . $ML{'.form.address'} . " p?>";
+    $body .= "<form method='post'>";
+    $body .= LJ::form_auth();
+
     $body .= "<div style='overflow: auto; background: #DDD; word-wrap: break-word; color: black; border: 2px solid black; padding: 0.5em; font-size: 13pt'><tt>$dis_site</tt></div>";
-    $body .= "<?p Do you want to pass your identity to them? p?>";
-    $body .= "<table align='center'><tr><td><input type='submit' name='yes:once' value='Yes; just this time.' /> <input type='submit' name='yes:always' value='Yes; always.' /> <input type='submit' name='no' value='No.' /></td></tr></table>";
+    $body .= "<?p " . $ML{'.form.passid'} . " p?>";
+    $body .= "<table align='center'><tr><td><input type='submit' name='yes:once' value='".$ML{'.form.button.yes_this_time'}."' /> ";
+    $body .= "<input type='submit' name='yes:always' value='".$ML{'.form.button.yes_always'}."' /> ";
+    $body .= "<input type='submit' name='no' value='".$ML{'.form.button.no'}."' /></td></tr></table>";
     $body .= "</form>";
     return;
-
 }
 _code?><?page
 title=><?_code return $title; _code?>

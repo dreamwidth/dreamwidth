@@ -1,0 +1,20 @@
+.appwidget-latestinbox h2 {
+  border-bottom-style: none !important;
+}
+.appwidget-latestinbox .contents {
+  padding: 0 !important;
+
+}
+.appwidget-latestinbox .item {
+  border-top: solid 1px;
+  padding: 0.5em 0.5em 0.5em 1em;
+  width: 100%;
+}
+.appwidget-latestinbox .actions {
+  margin-top: 0.4em;
+  font-size: 0.8em;
+}
+
+.appwidget-latestinbox .sidebar {
+  border-top: 1px solid;
+}

@@ -1,0 +1,106 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
+<html>
+<head>
+<title><?_ml .page.title _ml?></title>
+<meta name="viewport" content="width = 320" />
+</head>
+<body>
+<p><?_code
+{
+    use vars qw (%GET);
+
+    my $u = LJ::User->remote
+        or return BML::ml( '.read.login', { aopts => "href='login'" } );
+
+    my $itemsperpage = 50;
+
+    my $ret;
+
+    my $skip = $GET{skip}+0 || 0;
+
+    # Filter first to a "Mobile View" friends group if they have one,
+    # then fall back to "Default View", and then just show them everything
+#    my $filter;
+    my $groupname = "All friends";
+
+# FIXME: WTF reading groups
+#    foreach ("Mobile View", "Default View") {
+#        if (my $grp = LJ::get_friend_group($u, { 'name' => $_ })) {
+#            $groupname = $_;
+#            $filter = 1 << $grp->{'groupnum'};
+#            last;
+#        }
+#    }
+
+    my @entries = $u->watch_items(
+        'remote'            => $u->{'userid'},
+        'itemshow'          => $itemsperpage,
+        'skip'              => $skip,
+        'showtypes'         => 'PYC',
+        'u'                 => $u,
+        'userid'            => $u->{'userid'},
+#        'filter'            => $filter,
+    );
+
+    my $numentries = @entries;
+    my $prevcount = $skip + $itemsperpage;
+    my $nextcount = $skip ? $skip - $itemsperpage : -1;
+    my $nextlink  = $skip ? BML::ml( '.items.next', { aopts => "href='?skip=$nextcount'", items => $itemsperpage } ) : '';
+    my $prevlink  = ( $numentries < $itemsperpage ) ? '' : BML::ml( '.items.previous', { aopts => "href='?skip=$prevcount'", items => $itemsperpage } );
+
+    $ret .= BML::ml( '.read.back', { aopts => "href='./'", sitename => $LJ::SITENAMESHORT } );
+    $ret .= qq(<div style="font-size: 16pt; font-weight: bold; margin: 0.8em;">);
+    $ret .= qq($ML{'.page.title'}</div><div style="margin: 1em;"><div style="font-weight: bold;">);
+    $ret .= BML::ml( '.read.groupname', { groupname => $groupname } );
+    $ret .= qq(</div><div>$prevlink$nextlink</div><br/></div>);
+
+    # how many characters to truncate entry at
+    my $max_entry_length = 400;
+
+    foreach my $ei (@entries) {
+        next unless $ei;
+        my $entry;
+        if ($ei->{'ditemid'}) {
+            $entry = LJ::Entry->new($ei->{'journalid'},
+                                    ditemid => $ei->{'ditemid'});
+        } elsif ($ei->{'jitemid'} && $ei->{'anum'}) {
+            $entry = LJ::Entry->new($ei->{'journalid'},
+                                    jitemid => $ei->{'jitemid'},
+                                    anum    => $ei->{'anum'});
+        }
+        next unless $entry;
+
+        my $pu    = $entry->poster;
+        my $ju    = $entry->journal;
+        my $url   = $entry->url;
+        $url .= "?format=light";
+
+        my $who = "<a href='" . $pu->journal_base . "/'><b>$pu->{user}</b></a>";
+        if ($pu->{userid} != $ju->{userid}) {
+            $who .= " in " . "<a href='" . $ju->journal_base . "/'><b>$ju->{user}</b></a>";
+        }
+
+        $ret .= "$who: " . "<a href='$url'>" . ($entry->subject_text || "(no subject)") . "</a><br />";
+    }
+    
+    $ret .= BML::ml( '.read.noentries', { groupname => $groupname } ) unless $numentries;
+
+    return $ret;
+}
+_code?>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+#NEWLAYER: modish/cleansheets
+layerinfo type = "theme";
+layerinfo name = "Clean Sheets";
+layerinfo redist_uniq = "modish/cleansheets";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_active = "#090974";
+set color_page_background = "#ffffff";
+set color_page_link = "#ff9200";
+set color_page_title = "#1b1bb3";
+set color_page_text = "#1b1bb3";
+set color_page_link_visited = "#1BB31B";
+set color_page_link_hover = "#7373d9";
+set color_page_border = "#1b1bb3";
+
+set color_module_link_hover ="#B31B1B";
+
+#NEWLAYER: modish/greyscale
+layerinfo type = "theme";
+layerinfo name = "Greyscale";
+layerinfo redist_uniq = "modish/greyscale";
+layerinfo author_name = "twtd";
+
+set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#F3F2F2";
+set color_page_text = "#222222";
+set color_page_link = "#3A3A3A";
+set color_page_link_active = "#1B1C5D";
+set color_page_link_visited = "#1B1C5D";
+set color_page_title = "#ffffff";
+
+set color_header_background = "#3A3A3A";
+set color_footer_background = "#3A3A3A";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#ffffff";
+set color_entry_title_background = "#3A3A3A";
+set color_entry_border = "#3A3A3A";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#3A3A3A";
+set color_module_border = "#000000";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#FFFFFF";
+set color_footer_link_active = "#FFFFFF";
+set color_footer_link_hover = "#FFFFFF";
+set color_footer_link_visited = "#FFFFFF";
+
+#NEWLAYER: modish/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "modish/nnwm2009";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+
+set color_header_background = "#ffefbd";
+
+set color_module_background = "#ffefbd";
+set color_module_text="#000000";
+set color_module_title = "#ef8229";
+
+set color_page_background = "#000000";
+set color_page_border = "#842021";
+set color_page_link = "#429ace";
+set color_page_link_active = "#A5CF39";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#ffffff";
+set color_page_title = "#ef8229";
+
+#NEWLAYER: modish/plasticgrass
+layerinfo type = "theme";
+layerinfo name = "Plastic Grass";
+layerinfo author_name = "zvi";
+layerinfo redist_uniq = "modish/plasticgrass";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_active = "#d59b90";
+set color_page_background = "#ffffff";
+set color_page_link = "#a9c384";
+set color_page_title = "#9A7EA2";
+set color_page_text = "#000000";
+set color_page_link_visited = "#83608d";
+set color_header_background = "#c2d7a6";
+set color_page_link_hover = "#e8bbb3";
+set color_page_border = "#a9c384";
+
+#NEWLAYER: modish/verdigris
+layerinfo type = "theme";
+layerinfo name = "Verdigris";
+layerinfo author_name = "zvi";
+layerinfo redist_uniq = "modish/verdigris";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" }];
+
+set color_comment_title_background = "#ffe8b9";
+set color_entry_background = "#aceded";
+set color_entry_link = "#a66229";
+set color_entry_link_hover = "#248e8e";
+set color_entry_link_visited = "#000000";
+set color_entry_text = "#132245";
+set color_entry_title = "#a66229";
+set color_entry_title_background = "#ffe8b9";
+set color_footer_link_active = "#ffffff";
+set color_footer_link = "#ffd9b9";
+set color_footer_link_hover = "#aceded";
+set color_footer_link_visited = "#132245";
+set color_header_background = "#6ddbdb";
+set color_module_border = "#248e8e";
+set color_module_link_active = "#ffffff";
+set color_module_link = "#ffd9b9";
+set color_module_link_hover = "#aceded";
+set color_module_link_visited = "#132245";
+set color_module_title_background = "#a66229";
+set color_module_title = "#ffe8b9";
+set color_page_background = "#248e8e";
+set color_page_link_active = "#ffe8b9";
+set color_page_link = "#ffffff";
+set color_page_link_hover = "#aceded";
+set color_page_text = "#ffffff";
+set color_page_title = "#a66229";

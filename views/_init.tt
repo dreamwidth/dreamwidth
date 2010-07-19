@@ -1,0 +1,18 @@
+[%# _init.tt
+
+Preprocess template.
+
+NOTE: This template should *never* output anything.
+This template is ran for every page, and just contains things that every
+page *needs* to do.
+
+Authors:
+     Andrea Nall <anall@andreanall.com>
+
+Copyright (c) 2010 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%][%- USE dw -%]

@@ -1,0 +1,485 @@
+;; -*- coding: utf-8 -*-
+
+.about.comm=About:
+
+.about.header=About
+
+.about.user=Bio:
+
+.admins.header=Administrators
+
+.allpics=View all userpics
+
+.basicinfo.header=Basic Info
+
+.bio.header=Bio
+
+.body.leave2=You may <a [[aopts]]>leave the community</a> at any time.
+
+.commdesc.header=Description:
+
+.comminfo.body=Below is information about the "[[commname]]" community on LiveJournal.
+
+.comminfo.name=Community Information
+
+.comms.header=Communities
+
+.comms.member_of.none=Member Of (0)
+
+.comms.member_of.some=Member Of ([[num]]):
+
+.comms.posting_access_to.none=Posting Access (0)
+
+.comms.posting_access_to.some=Posting Access ([[num]]):
+
+.comms.viewentries=View Entries
+
+.comms.watched.none=Subscriptions (0)
+
+.comms.watched.some=Subscriptions ([[num]]):
+
+.commsettings.membership.closed=Closed
+
+.commsettings.membership.header=Membership:
+
+.commsettings.membership.moderated=Moderated
+
+.commsettings.membership.open=Open
+
+.commsettings.postlevel.anybody=Anybody
+
+.commsettings.postlevel.header=Posting Access:
+
+.commsettings.postlevel.members=All Members
+
+.commsettings.postlevel.moderated=, Moderated
+
+.commsettings.postlevel.select=Select Members
+
+.contact.header=Contact:
+
+.contact.pm=Private Message
+
+.contact.txtmsg=Text Message
+
+.date.never=<i>Never.</i>
+
+.details.accounttype.expireson=[[type]], expires on [[date]]
+
+.details.comments.posted=[[num]] [[?num|comment|comments]] posted
+
+.details.comments.posted2=[[num_comma]] [[?num_raw|comment|comments]] posted
+
+.details.comments.received=[[num]] [[?num|comment|comments]] received
+
+.details.comments.received2=[[num_comma]] [[?num_raw|comment|comments]] received
+
+.details.created=Created: [[createdate]]
+
+.details.createdon=Created On: [[createdate]]
+
+.details.createdon2=Created on [[createdate]]
+
+.details.entries=[[num]] [[?num|entry|entries]]
+
+.details.entries2=[[num_comma]] [[?num_raw|entry|entries]]
+
+.details.entries3=[[num_comma]] <a [[aopts]]>[[?num_raw|Journal Entry|Journal Entries]]</a>
+
+.details.flag.other=Flag this journal as mature/adult.
+
+.details.flag.self=Set this journal as mature/adult.
+
+.details.id=LJ User No.: [[id]]
+
+.details.joined=Joined: [[createdate]]
+
+.details.lastupdated=Last updated [[timestamp]]
+
+.details.lastupdated2=last updated [[timestamp]]
+
+.details.lastupdated3=last updated [[timestamp]] ([[agotext]])
+
+.details.lastupdated.never=Never updated
+
+.details.lastupdated.never2=never updated
+
+.details.membersince=Member Since: [[createdate]]
+
+.details.memories=[[num]] <a [[aopts]]>[[?num|Memory|Memories]]</a>
+
+.details.memories2=[[num_comma]] <a [[aopts]]>[[?num_raw|Memory|Memories]]</a>
+
+.details.profile.default=<a [[aopts]]>View default profile</a>
+
+.details.profile.full=<a [[aopts]]>View extended profile</a>
+
+.details.search=Search
+
+.details.supportpoints=<a [[aopts]]>Support Points</a>: [[num]]
+
+.details.supportpoints2=[[num]] <a [[aopts]]>Support Points</a>
+
+.details.tags=[[num]] <a [[aopts]]>[[?num|Tag|Tags]]</a>
+
+.details.tags2=[[num_comma]] <a [[aopts]]>[[?num_raw|Tag|Tags]]</a>
+
+.details.title=[[user]]'s Journal
+
+.details.userpics=[[num_comma]] <a [[aopts]]>[[?num_raw|Userpic|Userpics]]</a>
+
+.details.viewlinkssep=, 
+
+.details.warning.concepts=This journal should be viewed with discretion.
+
+.details.warning.explicit=This journal is restricted to people 18 or older.
+
+.error.deleted.purgenotification=If you're interested in renaming your account to this username, <a [[aopts]]>set up your notifications</a> to be notified when the account is purged.
+
+.error.malfname=Malformed username.
+
+.feeds.header=Feeds
+
+.feeds.viewentries=View Entries
+
+.feeds.watched.none=Subscriptions (0)
+
+.feeds.watched.some=Subscriptions ([[num]]):
+
+.flag=Flag Journal
+
+.hubbub.header=PubSubHubbub Status
+
+.im.aol=AIM
+
+.im.aol.status=AIM status
+
+.im.gizmo=Gizmo
+
+.im.gtalk=Google Talk
+
+.im.header=Instant Message:
+
+.im.header2=External Services:
+
+.im.icq=ICQ
+
+.im.icq.status=ICQ status
+
+.im.jabber=Jabber
+
+.im.lastfm=Last.fm
+
+.im.msn=MSN
+
+.im.skype=Skype
+
+.im.skype.status=Skype status
+
+.im.yim=Yahoo!
+
+.im.yim.status=Yahoo! status
+
+.label.addbuddy=Add Buddy
+
+.label.adduser=Add User
+
+.label.alsofriendof=Also Friend of:
+
+.label.aolim=AOL IM:
+
+.label.birthdate=Birthdate:
+
+.label.clientsused2=<a [[aopts]]>Clients</a> used:
+
+.label.comments=Comments:
+
+.label.composted=<b>Posted:</b> [[num]] - 
+
+.label.comreceived=<b>Received:</b> [[num]]
+
+.label.connect=Connect
+
+.label.datecreated=Date created:
+
+.label.dateupdated=Date updated:
+
+.label.email=Email:
+
+.label.feedchange=If this feed has stopped updating because its location has changed, please contact <a [[aopts]]>Support</a> to have the location updated instead of creating a new feed.
+
+.label.frcommunity=Communities
+
+.label.frpeople=People
+
+.label.frsyndication2=Feeds
+
+.label.gizmo=Gizmo Project:
+
+.label.gizmo3=Gizmo Project:
+
+.label.googletalk=Google Talk:
+
+.label.hidden=(hidden)
+
+.label.icq_send_message=Send Message
+
+.label.icquin=ICQ UIN:
+
+.label.interests=Interests ([[num]]):
+
+.label.interests.modifyyours=Modify&nbsp;yours
+
+.label.interests.modifyyours2=Modify Yours
+
+.label.interests.removesome=Remove&nbsp;some
+
+.label.interests.removesome2=Remove Some
+
+.label.jabber=Jabber:
+
+.label.journalentrs=Journal entries:
+
+.label.last_fm_user=Last.FM user:
+
+.label.last_fm_user2=Last.fm user:
+
+.label.linking=Linking
+
+.label.location=Location:
+
+.label.maintainers=Maintainers ([[num]]):
+
+.label.memberof=Member of
+
+.label.memories=Memories
+
+.label.moderators=Moderators ([[num]]):
+
+.label.moredetails=(more details...)
+
+.label.msnusername=MSN Username:
+
+.label.mutual=Mutual Friends:
+
+.label.name=Name:
+
+.label.nofriends=<i>None listed.</i>
+
+.label.post=Post to "[[journal]]"
+
+.label.postalt=Update your journal
+
+.label.reqfinduser=You cannot look up users by userid.
+
+.label.searchjournal=Search This Journal
+
+.label.sendmessage=Send Message
+
+.label.shared=Posting Access:
+
+.label.skype=Skype:
+
+.label.supportpoints=Support points
+
+.label.syndicatedfrom=Syndicated from:
+
+.label.syndicatedstatus=Syndication Status:
+
+.label.syndreadcount=Number of Readers:
+
+.label.syn.hubbub.goodfor=Expiration time:
+
+.label.syn.hubbub.huburl=Hub URL:
+
+.label.syn.hubbub.id=Subscription id:
+
+.label.syn.hubbub.lastseen=Last seen at:
+
+.label.syn.hubbub.pings=Pings received:
+
+.label.syn.hubbub.topicurl=Topic URL:
+
+.label.textmessage=<nobr>Text<br>Message</nobr>:
+
+.label.theme=Theme:
+
+.label.user=User:
+
+.label.userprofile=User Profile
+
+.label.viewfriends=View Friends
+
+.label.viewmembers=View Members
+
+.label.website=Website:
+
+.label.yahooid=Yahoo! ID:
+
+.linking.about=To link to this user, copy this code:
+
+.linking.local=On [[sitename]]:
+
+.linking.anywhere=Elsewhere:
+
+.members.header=Members
+
+.members.members=Members
+
+.members.postingaccess=Posting Access
+
+.members.watchedby=Watched by
+
+.membership.body2=To join this community, <a [[aopts]]>click here</a>.
+
+.memories.entries=[[count]] entries
+
+.memories.entry=[[count]] entry
+
+.monitor.comm=Monitor Community
+
+.monitor.comm2=Watch Community
+
+.monitor.user=Add this user to your friends list
+
+.nonexist.body=The username <b>[[user]]</b> is not currently registered.
+
+.nonexist.name=Unknown user
+
+.people.header=People
+
+.people.members.none=Members (0)
+
+.people.members.some=Members ([[num]]):
+
+.people.mutually_trusted.none=Mutual Access (0)
+
+.people.mutually_trusted.some=Mutual Access ([[num]]):
+
+.people.mutually_watched.none=Mutual Subscriptions (0)
+
+.people.mutually_watched.some=Mutual Subscriptions ([[num]]):
+
+.people.not_mutually_trusted.none=Also Access To (0)
+
+.people.not_mutually_trusted.some=Also Access To ([[num]]):
+
+.people.not_mutually_trusted_by.none=Also Access From (0)
+
+.people.not_mutually_trusted_by.some=Also Access From ([[num]]):
+
+.people.not_mutually_watched.none=Also Subscribed To (0)
+
+.people.not_mutually_watched.some=Also Subscribed To ([[num]]):
+
+.people.not_mutually_watched_by.none=Also Subscribed From (0)
+
+.people.not_mutually_watched_by.some=Also Subscribed From ([[num]]):
+
+.people.posting_access_from.none=Posting Access (0)
+
+.people.posting_access_from.some=Posting Access ([[num]]):
+
+.people.trusted.none=Access To (0)
+
+.people.trusted.some=Access To ([[num]]):
+
+.people.trusted_by.none=Access From (0)
+
+.people.trusted_by.some=Access From ([[num]]):
+
+.people.viewentries=View Entries
+
+.people.watched.none=Subscriptions (0)
+
+.people.watched.some=Subscriptions ([[num]]):
+
+.people.watched_by.none=Subscribers (0)
+
+.people.watched_by.some=Subscribers ([[num]]):
+
+.pubkey.alt=View public key
+
+.section.edit=Edit
+
+.sendmessage.body2=<a [[aopts]]>Send [[user]] a text message</a><br />on his/her cellphone/pager.
+
+.service.delicious=Delicious
+
+.service.twitter=Twitter
+
+.syn.header=Feeds
+
+.syn.last.never=Never
+
+.syn.lastcheck=Last checked:
+
+.syn.nextcheck=Next check:
+
+.syn.parseerror=Error Message:
+
+.syndinfo.body2=If you would like articles from the syndicated site to appear on your friends page, you can <a [[aopts]]>add this journal to your friends list</a>.
+
+.syndinfo.name=Syndication Journal
+
+.tellafriend=Tell a Friend!
+
+.timeupdate.dayago=1 day ago
+
+.timeupdate.daysago=[[num]] days ago
+
+.timeupdate.hourago=1 hour ago
+
+.timeupdate.hoursago=[[num]] hours ago
+
+.timeupdate.minuteago=1 minute ago
+
+.timeupdate.minutesago=[[num]] minutes ago
+
+.timeupdate.secondago=1 second ago
+
+.timeupdate.secondsago=[[num]] seconds ago
+
+.timeupdate.weekago=1 week ago
+
+.timeupdate.weeksago=[[num]] weeks ago
+
+.title=Profile
+
+.title.communityinfo=Community Info
+
+.title.communityprofile=Community Profile
+
+.title.openidprofile=OpenID Profile
+
+.title.syndicated=Syndicated Account
+
+.title.syndicatedprofile=Syndicated Feed Profile
+
+.title.userprofile=User Profile
+
+.title1=Profile
+
+.userinfo.body3=You can edit your information (or choose what information is considered public) at the <a [[aopts]]>Edit Personal Information</a> page.
+
+.userinfo.name=User Information
+
+.userpic.choose=Choose userpic
+
+.userpic.comm.alt=Community Userpic
+
+.userpic.none=no default userpic
+
+.userpic.none2=(no userpics)
+
+.userpic.none3=No Userpics
+
+.userpic.openid.alt=OpenID Userpic
+
+.userpic.upload=Upload Userpic
+
+.userpic.user.alt=Generic Userpic
+
+.userpic.viewall=View All Userpics
+
+.userpic.viewall.edit=<a [[aopts1]]>View All</a> / <a [[aopts2]]>Edit</a>

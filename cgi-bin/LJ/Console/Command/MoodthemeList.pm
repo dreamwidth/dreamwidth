@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Console::Command::MoodthemeList;
 
 use strict;
@@ -24,15 +37,17 @@ sub execute {
     return $self->error("This command takes at most one argument. Consult the reference.")
         unless scalar(@args) == 0;
 
-    my $dbh = LJ::get_db_reader();
-    my $sth;
-
-    if ($themeid) {
-        $sth = $dbh->prepare("SELECT m.mood, md.moodid, md.picurl, md.width, md.height FROM moodthemedata md, moods m "
-                             . "WHERE md.moodid=m.moodid AND md.moodthemeid = ? ORDER BY m.mood");
-        $sth->execute($themeid);
-        while (my ($mood, $moodid, $picurl, $w, $h) = $sth->fetchrow_array) {
-            $self->info(sprintf("%-20s %2dx%2d %s", "$mood ($moodid)", $w, $h, $picurl));
+    if ( $themeid ) {
+        my $theme = DW::Mood->new( $themeid );
+        return $self->error( "This theme doesn't seem to exist." )
+            unless $theme;
+        foreach ( sort { $a->{name} cmp $b->{name} }
+                       values %{ DW::Mood->get_moods } ) {
+            # make sure the mood is defined in this theme
+            my $data = $theme->prop( $_->{id} );
+            next unless defined $data;
+            $self->info( sprintf( "%-20s %2dx%2d %s", "$_->{name} ($_->{id})",
+                $data->{w}, $data->{h}, $data->{pic} ) );
         }
         return 1;
     }
@@ -42,29 +57,23 @@ sub execute {
     $self->info( "-" x 80);
 
     $self->info("Public themes:");
-    $sth = $dbh->prepare("SELECT mt.moodthemeid, u.user, mt.is_public, mt.name, mt.des FROM moodthemes mt, user u "
-                         . "WHERE mt.ownerid=u.userid AND mt.is_public='Y' ORDER BY mt.moodthemeid");
-    $sth->execute;
-    $self->error("Database error: " . $dbh->errstr)
-        if $dbh->err;
-
-    while (my ($id, $user, $pub, $name, $des) = $sth->fetchrow_array) {
-        $self->info(sprintf("%3s %4s %-15s %-25s %s", $pub, $id, $user, $name, $des));
+    my @public_themes = DW::Mood->public_themes;
+    my $owner = LJ::load_userids( map { $_->{ownerid} } @public_themes );
+    foreach ( @public_themes ) {
+        my $u = $owner->{ $_->{ownerid} };
+        my $user = $u ? $u->user : '';
+        $self->info( sprintf( "%3s %4s %-15s %-25s %s",
+                              $_->{is_public}, $_->{moodthemeid},
+                              $user, $_->{name}, $_->{des} ) );
     }
 
     my $remote = LJ::get_remote();
     if ($remote) {
-        $sth = $dbh->prepare("SELECT mt.moodthemeid, u.user, mt.is_public, mt.name, mt.des FROM moodthemes mt, user u "
-                             . "WHERE mt.ownerid=u.userid AND mt.ownerid = ? ORDER BY mt.moodthemeid");
-        $sth->execute($remote->id);
-
-        $self->error("Database error: " . $dbh->errstr)
-            if $dbh->err;
-
         $self->info("Your themes:");
-
-        while (my ($id, $user, $pub, $name, $des) = $sth->fetchrow_array) {
-            $self->info(sprintf("%3s %4s %-15s %-25s %s", $pub, $id, $user, $name, $des));
+        foreach ( DW::Mood->get_themes( { ownerid => $remote->id } ) ) {
+            $self->info( sprintf( "%3s %4s %-15s %-25s %s",
+                                  $_->{is_public}, $_->{moodthemeid},
+                                  $remote->user, $_->{name}, $_->{des} ) );
         }
     }
 

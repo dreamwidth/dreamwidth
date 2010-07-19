@@ -1,27 +1,27 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
-use Class::Autouse qw(LJ::Event);
+use LJ::Event;
 
 use lib "$LJ::HOME/cgi-bin";
 require "ljlib.pl";
 require "ljmail.pl";
 
 package LJ::Cmdbuffer;
-
-# built-in commands
-%LJ::Cmdbuffer::cmds =
-    (
-
-     # ping weblogs.com with updates?  takes a $u argument
-     weblogscom => {
-         too_old => 60*60*2,  # 2 hours old = qbufferd not running?
-         once_per_user => 1,
-         run => \&LJ::Cmdbuffer::_weblogscom,
-     },
-
-     );
 
 # <LJFUNC>
 # name: LJ::Cmdbuffer::flush
@@ -156,31 +156,11 @@ sub get_property {
         return $c->{$prop};
     }
 
-    if (LJ::are_hooks("cmdbuf:$cmd:$prop")) {
-        return LJ::run_hook("cmdbuf:$cmd:$prop");
+    if (LJ::Hooks::are_hooks("cmdbuf:$cmd:$prop")) {
+        return LJ::Hooks::run_hook("cmdbuf:$cmd:$prop");
     }
 
     return undef;
-}
-
-sub _weblogscom {
-    # user, title, url
-    my ($dbh, $db, $c) = @_;
-    my $a = $c->{'args'};
-    eval {
-        eval "use XMLRPC::Lite;";
-        unless ($@) {
-            XMLRPC::Lite
-                ->new( proxy => "http://rpc.weblogs.com/RPC2",
-                       timeout => 5 )
-                ->call('weblogUpdates.ping', # xml-rpc method call
-                       LJ::ehtml($a->{'title'}) . " \@ $LJ::SITENAMESHORT",
-                       $a->{'url'},
-                       "$LJ::SITEROOT/misc/weblogs-change.bml?user=$a->{'user'}");
-        }
-    };
-
-    return 1;
 }
 
 1;

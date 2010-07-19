@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -13,7 +27,7 @@
 
         my $ret;
     
-        my $ints = LJ::get_interests($u) || [];
+        my $ints = $u->get_interests() || [];
         foreach my $int (@$ints) {
             $ret .= "$int->[0] $int->[2] $int->[1]\n";
         }
@@ -26,14 +40,11 @@
     }
 
     if ($GET{'int'}) {
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT * FROM interests WHERE interest=?");
-        $sth->execute($GET{'int'});
-        my $h = $sth->fetchrow_hashref;
-        return "! invalid interest\n" unless $h;
-        my $ret;
-        $ret = "# Note: Polite data miners cache on their end.  Impolite ones get banned.\n" .
-            "= intcount=$h->{intcount}\n";
+        my $intid = LJ::get_sitekeyword_id( $GET{int}, 0 );
+        return "! invalid interest\n" unless $intid;
+        my ($int, $intcount) = LJ::get_interest( $intid );
+        my $ret = "# Note: Polite data miners cache on their end.  Impolite ones get banned.\n" .
+            "= intcount=$intcount\n";
         return $ret;
     }
     return "! invalid parameters\n";

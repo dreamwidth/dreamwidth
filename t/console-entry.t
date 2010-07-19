@@ -1,6 +1,6 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More tests => 3;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Console;

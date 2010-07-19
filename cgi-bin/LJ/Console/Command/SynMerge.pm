@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Console::Command::SynMerge;
 
 use strict;
@@ -18,7 +31,7 @@ sub usage { '<from_user> "to" <to_user> "using" <url>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "syn_edit");
+    return $remote && $remote->has_priv( "syn_edit" );
 }
 
 sub execute {
@@ -38,6 +51,11 @@ sub execute {
 
     my $to_u = LJ::load_user($to_user)
         or return $self->error("Invalid user: '$to_user'.");
+
+    # we don't want to unlimit this, so reject if we have too many users
+    my @ids = $from_u->watched_by_userids( limit => $LJ::MAX_WT_EDGES_LOAD+1 );
+    return $self->error( "Unable to merge feeds. Too many users are watching the feed '" . $from_u->user . "'. We only allow merges for feeds with at most $LJ::MAX_WT_EDGES_LOAD watchers." )
+        if scalar @ids > $LJ::MAX_WT_EDGES_LOAD;
 
     foreach ($to_u, $from_u) {
         return $self->error("Invalid user: '" . $_->user . "' (statusvis is " . $_->statusvis . ", already merged?)")
@@ -74,25 +92,35 @@ sub execute {
     return $self->error("Database Error: " . $dbh->errstr)
         if $dbh->err;
 
-    # 4) make users who befriend 'from_user' now befriend 'to_user'
-    #    'force' so we get master db and there's no row limit
-    if (my @ids = LJ::get_friendofs($from_u, { force => 1 } )) {
-
+    # 4) make users who watch 'from_user' now watch 'to_user'
+    # we can't just use delete_ and add_ edges, because we would lose
+    # custom group and colors data
+    if ( @ids ) {
         # update ignore so we don't raise duplicate key errors
-        $dbh->do("UPDATE IGNORE friends SET friendid=? WHERE friendid=?",
-                 undef, $to_u->id, $from_u->id);
+        $dbh->do( 'UPDATE IGNORE wt_edges SET to_userid=? WHERE to_userid=?',
+              undef, $to_u->id, $from_u->id );
         return $self->error("Database Error: " . $dbh->errstr)
             if $dbh->err;
 
         # in the event that some rows in the update above caused a duplicate key error,
         # we can delete the rows that weren't updated, since they don't need to be
         # processed anyway
-        $dbh->do("DELETE FROM friends WHERE friendid=?", undef, $from_u->id);
+        $dbh->do( "DELETE FROM wt_edges WHERE to_userid=?", undef, $from_u->id );
         return $self->error("Database Error: " . $dbh->errstr)
             if $dbh->err;
 
         # clear memcache keys
-        LJ::memcache_kill($_, 'friend') foreach @ids;
+        foreach my $id ( @ids ) {
+            LJ::memcache_kill( $id, 'wt_edges' );
+            LJ::memcache_kill( $id, 'wt_list' );
+            LJ::memcache_kill( $id, 'watched' );
+        }
+
+        LJ::memcache_kill( $from_u->id, 'wt_edges_rev' );
+        LJ::memcache_kill( $from_u->id, 'watched_by' );
+
+        LJ::memcache_kill( $to_u->id, 'wt_edges_rev' );
+        LJ::memcache_kill( $to_u->id, 'watched_by' );
     }
 
     # log to statushistory

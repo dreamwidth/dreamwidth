@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
@@ -48,6 +62,8 @@
 
     $ret{items} = [];
     my $inbox = $u->notification_inbox;
+    my $cur_folder = $POST{'cur_folder'} || 'all';
+    my $itemid = $POST{itemid} ? $POST{itemid} + 0 : 0;
 
     # do actions
     if ($action eq 'mark_read') {
@@ -58,13 +74,22 @@
         $success = 1;
     } elsif ($action eq 'delete') {
         foreach my $item (@items) {
-            push @{$ret{items}}, {qid => $item->qid, deleted => 1};
+            push @{$ret{items}}, { qid => $item->qid, deleted => 1 };
             $item->delete;
         }
 
         $success = 1;
+    } elsif ($action eq 'delete_all') {
+        @items = $inbox->delete_all( $cur_folder, itemid => $itemid );
+
+        foreach my $item (@items) {
+            push @{$ret{items}}, { qid => $item->{qid}, deleted => 1 };
+        }
+
+        $success = 1;
     } elsif ($action eq 'mark_all_read') {
-        $_->mark_read foreach $u->notification_inbox->items;
+        $inbox->mark_all_read( $cur_folder, itemid => $itemid );
+
         $success = 1;
     } elsif ($action eq 'set_default_expand_prop') {
         $u->set_prop('esn_inbox_default_expand', $POST{default_expand} eq 'Y' ? 'Y' : 'N');
@@ -72,8 +97,9 @@
         $ret{unread_count} = $u->notification_inbox->unread_count;
     } elsif ($action eq 'toggle_bookmark') {
         my $up;
-        $up = LJ::run_hook('upgrade_message', $u, 'bookmark');
+        $up = LJ::Hooks::run_hook('upgrade_message', $u, 'bookmark');
         $up = "<br />$up" if ($up);
+        
         foreach my $item (@items) {
             my $ret = $u->notification_inbox->toggle_bookmark($item->qid);
             return $err->("Max number of bookmarks reached.$up") unless $ret;
@@ -96,10 +122,12 @@
 
     return JSON::objToJson({
         success => $success,
-        unread_all => $inbox->unread_count,
+        unread_all => $inbox->all_event_count,
         unread_usermsg_recvd => $inbox->usermsg_recvd_event_count,
-        unread_friend => $inbox->friendplus_event_count,
+        unread_friend => $inbox->circle_event_count,
         unread_entrycomment => $inbox->entrycomment_event_count,
+        unread_pollvote => $inbox->pollvote_event_count,
+        unread_usermsg_sent => $inbox->usermsg_sent_event_count,
         %ret,
     });
 }

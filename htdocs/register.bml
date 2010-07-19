@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 nocache=>1
 _info?><?page
@@ -12,14 +26,12 @@ body<=
  LJ::set_active_crumb('register');
 
  my $ret;
- my $qs = BML::get_query_string();
+ my $qs = $POST{qs} || BML::get_query_string();
  $title = $ML{'.title'};
 
  my $remote = LJ::get_remote();
- return BML::redirect("$LJ::SITEROOT/agecheck/?s=1")
-     if $remote && $remote->underage;
 
- return "<?p " . BML::ml('.error.identity_no_email', {'aopts' => "href='$LJ::SITEROOT/changeemail.bml'"}) . " p?>"
+ return "<?p " . BML::ml('.error.identity_no_email', {'aopts' => "href='$LJ::SITEROOT/changeemail'"}) . " p?>"
      if $remote && $remote->is_identity && !$remote->email_raw;
 
  my $foruser = $GET{foruser};
@@ -27,20 +39,20 @@ body<=
  if ($foruser) {
      $foru = LJ::load_user($foruser);
 
-     return "<?p User does not exist. p?>"
+     return "<?p $ML{'.error.usernonexistent'} p?>"
          unless $foru;
 
-     return "<?p You do not have access to send email validation requests to other people. p?>"
-         unless (LJ::check_priv($remote, "siteadmin", "users") || LJ::check_priv($remote, "siteadmin", "*"));
+     return "<?p $ML{'.error.noaccess'} p?>"
+         unless $remote && $remote->has_priv( "siteadmin", "users" );
 
-     return "<?p That user's email address is already validated. p?>"
+     return "<?p $ML{'.error.valid'} p?>"
          if $foru->is_validated;
  }
 
  my $show_validate = sub {
     my $user = shift;
     return "<?p " . BML::ml('.ask.body', {'email' => $user->email_raw}) . " p?>" .
-           "<form action='register.bml' method='post'>" .
+           "<form action='register' method='post'>" .
            LJ::html_hidden('authas', $user->{'user'}) .
            "<blockquote>" . LJ::html_submit("action:send", "$ML{'.ask.button'}") .
            "</blockquote></form>";
@@ -57,11 +69,14 @@ body<=
          'to' => $u->email_raw,
          'bcc' => $foru ? $remote->email_raw : undef,
          'from' => $LJ::ADMIN_EMAIL,
+         'fromname' => $LJ::SITENAME,
          'charset' => 'utf-8',
          'subject' => $ML{'.email.subject'},
-         'body' => BML::ml('.email.body',
+         'body' => BML::ml('.email.body2',
                            { 'sitename' => $LJ::SITENAME,
-                             'sitelink' => $LJ::SITEROOT,
+                             'siteroot' => $LJ::SITEROOT,
+                             'email' => $u->email_raw,
+                             'username' => $u->display_name,
                              'conflink' => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
      });
 
@@ -73,7 +88,7 @@ body<=
 
      unless ($aa) {
          return "<?h1 $ML{'Error'} h1?><?p " .
-             BML::ml('.error.invalidcode', { aopts => "href='$LJ::SITEROOT/register.bml'" }) . " p?>";
+             BML::ml('.error.invalidcode', { aopts => "href='$LJ::SITEROOT/register'" }) . " p?>";
      }
 
      my $u = LJ::load_userid($aa->{'userid'});
@@ -81,38 +96,60 @@ body<=
      # verify their email hasn't subsequently changed
      unless ($u->email_raw eq $aa->{arg1}) {
          return "<?h1 $ML{'Error'} h1?><?p " .
-             BML::ml('.error.emailchanged', { aopts => "href='$LJ::SITEROOT/register.bml'" }) . " p?>";
+             BML::ml('.error.emailchanged', { aopts => "href='$LJ::SITEROOT/register'" }) . " p?>";
+     }
+
+     ## if the user is OpenID, prove that he or she is human
+     if ( $u->is_identity && LJ::is_enabled("recaptcha") ) {
+        require Captcha::reCAPTCHA;
+        my $c = Captcha::reCAPTCHA->new;
+        if ($POST{recaptcha_response_field}) {
+            my $result = $c->check_answer(
+                LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
+                $POST{'recaptcha_challenge_field'}, $POST{'recaptcha_response_field'}
+            );
+            return "<?h1 $ML{'Error'} h1?><?p $result->{error}  p?>" unless $result->{is_valid};
+        }
+        else {
+            my $ret = "<?h1 $ML{'.validate.human.title'} h1?>";
+            $ret .= "<form method='POST' action='$LJ::SITEROOT/register'><input type='hidden' name='qs' value='$qs'>";
+            $ret .= $c->get_options_setter({ theme => 'white' });
+            $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}) );
+            $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
+            $ret .= "<input type='submit' value='$ML{'.validate.human.submit'}' ></form>";
+            return $ret;
+        }
      }
 
      LJ::update_user($u, { status => 'A' });
      $u->update_email_alias;
-     LJ::run_hook('email_verified', $u);
+     LJ::Hooks::run_hook('email_verified', $u);
 
      if ($u->{'status'} eq "T") {
          $ret .= "<?h1 $ML{'.trans.header'} h1?><?p $ML{'.trans.body'} p?>";
      } else {
          $title = BML::ml('.new.title', {'sitename' => $LJ::SITENAMESHORT});
          $ret .= "<div class='columns-2-r300'>\n";
-         $ret .= "<?warningbar " . BML::ml('.new.bodyuser', {'user'=>LJ::ljuser($u)}) . " warningbar?>";
+         $ret .= "<?warningbar " . BML::ml('.new.bodyuser2', {'user'=>LJ::ljuser($u), 'address' => $u->email_raw }) . " warningbar?>";
          $ret .= "<div class='columns-2-left'>";
-         $ret .= "<h2 class='widget-header' style='margin-top: 10px;'>" . BML::ml('.new.101.title', {'sitename' => $LJ::SITENAMESHORT}) . "</h2>";
-         $ret .= "<p><strong>$ML{'.new.101.journal.question'}</strong><br />";
+         $ret .= "<h2 class='widget-header' style='margin-top: 10px;'>" . BML::ml('.new.101.title', {'sitename' => $LJ::SITENAMESHORT}) . "</h2><br />";
+         $ret .= "<p><strong><a href='" . $u->journal_base . "/'>$ML{'.new.101.journal.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.journal.answer'}</p>";
-         $ret .= "<p><strong>$ML{'.new.101.profile.question'}</strong><br />";
+         $ret .= "<p><strong><a href='" . $u->profile_url . "'>$ML{'.new.101.profile.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.profile.answer'}</p>";
-         $ret .= "<p><strong>$ML{'.new.101.friends.question'}</strong><br />";
-         $ret .= "$ML{'.new.101.friends.answer'}</p>";
-         $ret .= "<p><strong>$ML{'.new.101.community.question'}</strong><br />";
+         $ret .= "<p><strong><a href='" . $u->journal_base . "/read'>$ML{'.new.101.reading.question'}</a></strong><br />";
+
+         $ret .= "$ML{'.new.101.reading.answer'}</p>";
+         $ret .= "<p><strong><a href='$LJ::SITEROOT/community/search'>$ML{'.new.101.community.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.community.answer'}</p>";
          $ret .= "</div>";
          $ret .= "<div class='columns-2-right'>";
-         $ret .= LJ::Widget::GettingStarted->render;
          $ret .= LJ::CProd->full_box_for($u, width => 300);
          $ret .= "</div>";
          $ret .= "</div><!-- end .columns-2 -->";
      }
 
-     LJ::run_hook('post_email_change',
+     LJ::Hooks::run_hook('post_email_change',
                   {
                       user     => $u,
                       newemail => $aa->{arg1},
@@ -130,8 +167,6 @@ body<=
      my @authas = LJ::get_authas_list($remote);
      my @list;
 
-     $ret .= "<?h1 $ML{'.ask.header'} h1?>";
-
      if (@authas > 1) {  # only display if they can auth as anyone other than themselves
          foreach (@authas) {
              my $user = LJ::load_user($_);
@@ -143,7 +178,7 @@ body<=
              }
          }
 
-         $ret .= "<form method='get' action='register.bml'>\n";
+         $ret .= "<form method='get' action='register'>\n";
          $ret .= $ML{'.ask.select'} . ": ";
          $ret .= LJ::html_select({ 'name' => 'authas', selected => $GET{'authas'} || $remote->{user} }, @list) . " ";
          $ret .= LJ::html_submit(undef, $ML{'.ask.switch'});
@@ -165,7 +200,4 @@ _code?>
 <=body
 head=><?_code     LJ::need_res('stc/lj_base.css', 'stc/lj_settings.css'); _code?>
 title=><?_code return $title; _code?>
-page?><?_c <LJDEP>
-link: htdocs/login.bml, htdocs/manage/profile/index.bml
-link: htdocs/update.bml
-</LJDEP> _c?>
+page?>

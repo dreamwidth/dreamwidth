@@ -1,12 +1,14 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require "emailcheck.pl";
 use LJ::Console;
 use LJ::Test qw (temp_user);
 local $LJ::T_NO_COMMAND_PRINT = 1;
+
+plan tests => 14;
 
 my $u = temp_user();
 my $u2 = temp_user();

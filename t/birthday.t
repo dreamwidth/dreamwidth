@@ -20,13 +20,6 @@ sub run_tests {
 
     {
         my $u = temp_user();
-        $u->underage(1);
-        my $rv = eval { $u->can_show_bday };
-        ok(!$rv, "can_show_bday: Underage");
-    }
-
-    {
-        my $u = temp_user();
         my $rv = eval { $u->can_show_bday };
         if ($rv == 0) {
             ok(!$rv, "can_show_bday: opt_showbday is not set");
@@ -58,13 +51,6 @@ sub run_tests {
         my $u = temp_user();
         my $rv = eval { $u->can_show_bday_year };
         ok(!$@, "can_show_bday_year: Called on valid user object");
-    }
-
-    {
-        my $u = temp_user();
-        $u->underage(1);
-        my $rv = eval { $u->can_show_bday_year };
-        ok(!$rv, "can_show_bday_year: Underage");
     }
 
     {
@@ -102,13 +88,6 @@ sub run_tests {
 
     {
         my $u = temp_user();
-        $u->underage(1);
-        my $rv = eval { $u->can_show_full_bday };
-        ok(!$rv, "can_show_full_bday: Underage");
-    }
-
-    {
-        my $u = temp_user();
         my $rv = eval { $u->can_show_full_bday };
         if ($rv == 0) {
             ok(!$rv, "can_show_full_bday: opt_showbday is not set");
@@ -138,13 +117,6 @@ sub run_tests {
         my $u = temp_user();
         my $rv = eval { $u->bday_string };
         ok(!$@, "bday_string: Called on valid user object");
-    }
-
-    {
-        my $u = temp_user();
-        $u->underage(1);
-        my $rv = eval { $u->bday_string };
-        ok(!$rv, "bday_string: Underage");
     }
 
     my @props = ('','D','F','N','Y');
@@ -203,9 +175,9 @@ sub run_tests {
                                 $isok = 1;
                             }
                         } elsif ($year eq '1979') {
-                            if ($month eq '01' && $day eq '31' && $rv eq '1979-01-31') {
+                            if ($month eq '01' && $day eq '31' && $rv eq '01-31') {
                                 $isok = 1;
-                            } elsif (($month eq '00' || $day eq '00') && $rv eq '1979') {
+                            } elsif (($month eq '00' || $day eq '00') && $rv eq '') {
                                 $isok = 1;
                             }
                         }

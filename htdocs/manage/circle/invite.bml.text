@@ -1,0 +1,113 @@
+;; -*- coding: utf-8 -*-
+
+.awesomely<<
+Awesomely Yours,
+The [[sitenameshort]] Team
+.
+
+.btn.invite=Invite 'em!
+
+.btn.invite2=Send Invite
+
+.custom.message.from=Custom message from
+
+.error.bademail=Bogus looking email: [[errormsg]]
+
+.error.bademail2=The email address you entered is invalid: [[errormsg]]
+
+.error.needcreatelink=You must include the link for your friend to create a journal: [[link]]
+
+.error.noemail=Please enter your friend's email address.
+
+.error.noimagesallowed=Images are not allowed in this message.
+
+.error.noname=Please enter your friend's name.
+
+.error.nooffsitelinksallowed=Links to sites other than [[sitename]] are not allowed in this message.
+
+.error.openid=We're sorry, but users logged in with OpenID can't invite others to join [[sitename]].
+
+.error.overratelimit=It looks like you are inviting a lot of your friends to [[sitename]]. To help us combat SPAM, you may wish to send the rest of your invitations via your own email address. Make sure you include the invite link in your email which you can find <a [[aopts]]>at the top of the page</a>.
+
+.error.useralreadyhasaccount=You are sending this invite to a user that already has an account.
+
+.form.codelist.alreadysent=Sent on [[date]], but has not been used.
+
+.form.codelist.justsent=Just sent!
+
+.form.header=Fill out this form to invite someone to [[sitename]]:
+
+.form.input.code=Select a code:
+
+.form.input.email=Your friend's email:
+
+.form.input.message=Your message to them:
+
+.form.input.name=Your friend's name:
+
+.form.note=If you want to invite your friend to a specific community, you can mention the community name and URL here.
+
+.intro=Use this form as often as you like, or just cut and paste this link and send from your own email account: <strong><a [[aopts]]>[[createlink]]</a></strong>
+
+.intro.code3<<
+You can use this form as often as you'd like. Invite codes that you've sent, but haven't been used to create accounts yet, are counted as unused.<br /><br />
+
+You currently have <strong>[[num]]</strong> unused invite codes available. The first five are displayed here. For the full list, or to get multiple codes at once, see <a [[aopts]]>your complete list of invite codes</a>. You can <a [[notif]]>choose to be notified</a> when someone you invite creates a journal.
+.
+
+.msg<<
+[[display_username]] has invited you to join [[sitenameshort]].
+
+[[sitenameshort]] is a place where people post and share thoughts on personal journals and communities. Start your own journal or just kick back and enjoy the atmosphere.
+
+Create an account (yes, it's free):
+
+    [[create_link]]
+
+[[display_username]] will be automatically added to your Friends List, and we'll let them know when you create your account so they can add you as well.
+.
+
+.msg.header=Message:
+
+.msg_body_top=Hi! [[displayname]] ([[username]]) has invited you to come check out [[sitename]].
+
+.msg_body_bottom<<
+Creating an account is free, and you can get started here:
+
+    [[createlink]]
+
+[[username]] will automatically be added to your Friends list, and we'll let them know when you create your account so that they can add you as well.
+.
+
+.msg_custom=It's a place where people post and share thoughts on personal journals and communities. You can start your own journal or just kick back and enjoy the atmosphere.
+
+.msg_footer<<
+This message was sent via the friend 
+invite system on [[sitenameshort]] ([[siteroot]]) by 
+the user [[username]] - [[name]].  If you believe this 
+message to be spam, you may contact [[adminemail].
+.
+
+.msg_footer2=This message was sent via the friend invite system on [[sitenameshort]] ([[siteroot]]) by the user [[username]] - [[name]].  If you believe this message to be spam, you may contact [[adminemail]].
+
+.msg_sig<<
+Awesomely Yours,
+The [[sitename]] Team
+[[siteroot]]
+.
+
+.msg.noinvitecodes=You don't have any invite codes available.
+
+.msg.noinvitecodes.requestmore=You can request more on your <a [[aopts]]>Manage Invite Codes</a> page.
+
+.msg_subject=[[username]] has invited you to join [[sitenameshort]]!
+
+.msg_subject.header=Subject:
+
+.success=Message sent to [[email]]! Want to invite somebody else?
+
+.success.code=Message sent to [[email]] using invite code "[[invitecode]]".
+
+.success.invitemore=Would you like to invite someone else?
+
+.title=Invite a Friend!

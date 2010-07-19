@@ -1,4 +1,16 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by 
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License. 
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
@@ -57,7 +69,7 @@ sub ljtalk_connection_closing {
     if ($@) {
         warn "EVAL failure deleting resource $user/$resource: $@" if ($@);
     } else {
-        warn "Delete of resource $user/$resource = $rv\n";
+        warn "Delete of resource $user/$resource = $rv\n" if $LJ::IS_DEV_SERVER;
     }
 
     return "OK";
@@ -115,7 +127,7 @@ sub ljtalk_initial_presence {
     my $count = LJ::Jabber::Presence->delete($u, $resource);
     if ($count) {
         # Should we disconnect the users from the other clusters when this happens?
-        warn "Deleted $count matching presence entries.";
+        warn "Deleted $count matching presence entries." if $LJ::IS_DEV_SERVER;
     }
 
     LJ::Jabber::Presence->create(resource => $resource,
@@ -304,32 +316,26 @@ sub _avatar_want {
         }
 
         my $vcard_data;
-        if ($u->underage) {
-            # we can't release any info if the user is underage
-            $vcard_data  = qq{<NICKNAME>$u->{user}</NICKNAME>};
-        } else {
-            $u->preload_props(qw(city state zip country url ));
+        $u->preload_props(qw(city state zip country url ));
 
+        $vcard_data  = '<NICKNAME>' . LJ::exml($u->{user}) . '</NICKNAME>';
+        $vcard_data .= '<N><GIVEN>' . LJ::exml($u->{name}) . '</GIVEN></N>' if($u->{name});
+        $vcard_data .= ("<URL>" . ( $u->prop('url') ? LJ::exml($u->prop('url')) : ( $u->journal_base . '/') ) . "</URL>");
 
-            $vcard_data  = '<NICKNAME>' . LJ::exml($u->{user}) . '</NICKNAME>';
-            $vcard_data .= '<N><GIVEN>' . LJ::exml($u->{name}) . '</GIVEN></N>' if($u->{name});
-            $vcard_data .= ("<URL>" . ( $u->prop('url') ? LJ::exml($u->prop('url')) : ( $u->journal_base . '/') ) . "</URL>");
+        if (my $bday = $u->bday_string) {
+            $bday = "0000-$bday" unless $bday =~ /\d\d\d\d/;
+            $vcard_data .= qq{<BDAY>$bday</BDAY>};
+        }
 
-            if (my $bday = $u->bday_string) {
-                $bday = "0000-$bday" unless $bday =~ /\d\d\d\d/;
-                $vcard_data .= qq{<BDAY>$bday</BDAY>};
-            }
+        if ($u->can_show_location &&
+            ($u->prop('city') || $u->prop('state') || $u->prop('country') || $u->prop('zip') )) {
+            $vcard_data .= '<ADR>';
+            $vcard_data .= '<CTRY>' .     LJ::exml($u->prop('country')) . '</CTRY>'     if $u->prop('country');
+            $vcard_data .= '<PCODE>' .    LJ::exml($u->prop('zip'))     . '</PCODE>'    if $u->prop('zip');
+            $vcard_data .= '<REGION>' .   LJ::exml($u->prop('state'))   . '</REGION>'   if $u->prop('state');
+            $vcard_data .= '<LOCALITY>' . LJ::exml($u->prop('city'))    . '</LOCALITY>' if $u->prop('city');
+            $vcard_data .= '</ADR>';
 
-            if ($u->can_show_location &&
-                ($u->prop('city') || $u->prop('state') || $u->prop('country') || $u->prop('zip') )) {
-                $vcard_data .= '<ADR>';
-                $vcard_data .= '<CTRY>' .     LJ::exml($u->prop('country')) . '</CTRY>'     if $u->prop('country');
-                $vcard_data .= '<PCODE>' .    LJ::exml($u->prop('zip'))     . '</PCODE>'    if $u->prop('zip');
-                $vcard_data .= '<REGION>' .   LJ::exml($u->prop('state'))   . '</REGION>'   if $u->prop('state');
-                $vcard_data .= '<LOCALITY>' . LJ::exml($u->prop('city'))    . '</LOCALITY>' if $u->prop('city');
-                $vcard_data .= '</ADR>';
-
-            }
         }
 
         my $vcard = qq{<vCard xmlns='vcard-temp'>
@@ -403,7 +409,7 @@ sub _bot_help {
 sub _bot_get_remote {
     my $req = shift;
 
-    if ($req->{jid} =~ /^([\w\-]{1,15})\@$LJ::DOMAIN$/) {
+    if ($req->{jid} =~ /^([\w\-]{1,25})\@$LJ::DOMAIN$/) {
         return LJ::load_user($1);
     }
 
@@ -457,7 +463,7 @@ sub ljtalk_addupdateset_roster {
     my $contact = lc $req->{contact};
     my $is_lj;
     my $cu;  # contact's $u object
-    if ($contact =~ /^([\w-]{1,15})\@\Q$LJ::DOMAIN\E/i) {
+    if ($contact =~ /^([\w-]{1,25})\@\Q$LJ::DOMAIN\E/i) {
         $is_lj = $1;
         $cu = LJ::load_user($is_lj)
             or die "Contact doesn't exist";
@@ -489,7 +495,7 @@ sub _contact_u_if_exists {
     my $contact = lc $contact;
     my $is_lj;
     my $cu;  # contact's $u object
-    if ($contact =~ /^([\w-]{1,15})\@\Q$LJ::DOMAIN\E/i) {
+    if ($contact =~ /^([\w-]{1,25})\@\Q$LJ::DOMAIN\E/i) {
         $is_lj = $1;
         $cu = LJ::load_user($is_lj);
     } else {

@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=>View Outgoing Email
 body<=
@@ -8,7 +22,7 @@ body<=
     my $u = LJ::get_remote()
         or return "<?needlogin?>";
 
-    my $is_admin = LJ::check_priv($u, "siteadmin", "emailqueue");
+    my $is_admin = $u->has_priv( "siteadmin", "emailqueue" );
 
     # temporary until the information displayed on this page can be expanded
     return "You do not have access to use this page."
@@ -40,9 +54,9 @@ body<=
     } else {
         # TODO: add a link to upgrading your account if you don't have the cap
         return "Sorry, you are not able to view outgoing email."
-            unless $u->get_cap("viewmailqueue");
+            unless $u->can_view_mailqueue;
 
-        return LJ::error_list("You must <a href=\"$LJ::SITEROOT/register.bml\">validate your email address</a> in order to view your outgoing mail.")
+        return LJ::error_list("You must <a href=\"$LJ::SITEROOT/register\">validate your email address</a> in order to view your outgoing mail.")
             unless $u->is_validated;
     }
 

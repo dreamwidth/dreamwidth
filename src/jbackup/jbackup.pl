@@ -419,7 +419,8 @@ sub save_event {
     # DO NOT SET REALTIME HERE.  It is set by syncitems.
     foreach (qw(subject anum event eventtime security allowmask poster)) {
         next unless $data->{$_};
-        my $tmp = pack('C*', unpack('C*', $data->{$_}));
+        use bytes;
+        my $tmp = substr($data->{$_}, 0);
         $bak{"event:$_:$id"} = $tmp;
     }
     my @props;
@@ -463,7 +464,8 @@ sub save_comment {
         next unless $data->{$_};
         # GDBM doesn't deal with UTF-8, it only wants a string of bytes, so let's do that
         # by clearing the UTF-8 flag on our input scalars.
-        my $tmp = pack('C*', unpack('C*', $data->{$_}));
+        use bytes;
+        my $tmp = substr($data->{$_}, 0);
         $bak{"comment:$_:$data->{id}"} = $tmp;
     }
 }
@@ -761,7 +763,7 @@ sub dump_html {
                 my $ditemid = $data->{id} * 256 + $anum;
                 my $commentlink = "$link?thread=$ditemid#t$ditemid";
                 $ret .= $data->{posterid} ?
-                        "<a href='$commentlink'>Comment</a> by <a href='http://$opts{server}/userinfo.bml?user=$users->{$data->{posterid}}'>$users->{$data->{posterid}}</a> " :
+                        "<a href='$commentlink'>Comment</a> by <a href='http://$opts{server}/profile.bml?user=$users->{$data->{posterid}}'>$users->{$data->{posterid}}</a> " :
                         "<a href='$commentlink'>Anonymous comment</a> ";
                 $ret .= "on $data->{date}<br />\n";
                 $data->{subject} = $opts{clean} ? clean_subject($data->{subject}) : ehtml($data->{subject});
@@ -1020,7 +1022,7 @@ sub ehtml {
 # they specify --clean, we will just replace poll tags with links to the poll, and not do much else.
 sub clean_event {
     my $input = shift;
-    $input =~ s!<lj-poll-(\d+)>!<a href="http://$opts{server}/poll/?id=$1">View poll.</a>!g;
+    $input =~ s!<(?:lj-)?poll-(\d+)>!<a href="http://$opts{server}/poll/?id=$1">View poll.</a>!g;
     return $input;
 }
 

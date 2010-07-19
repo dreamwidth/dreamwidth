@@ -9,8 +9,6 @@
 
 .error.closed=This community is closed to new members.  If you wish to join, please contact one of the following maintainers: [[admins]]
 
-.error.ischild=The maintainers of [[comm]] require that all members be over the age of 14.
-
 .error.isminor=The maintainers of [[comm]] require that all members be over the age of 18.
 
 .error.setage=<a [[aopts]]>Edit your profile</a> to register your age.
@@ -43,7 +41,7 @@
 
 .label.closed=This community is closed.  If you're interested in joining it, please contact one of its maintainers. Below is the list of maintainers for this community: [[admins]]
 
-.label.commlogged=You're logged in as a shared/community account, not your personal account.
+.label.commlogged=You're logged in as a community account, not your personal account.
 
 .label.errorcomminfo=The specified community information is not valid.
 
@@ -61,9 +59,17 @@
 
 .label.notcomm=The specified journal is not a community.
 
+.label.read_comm_info=Read [[user]]'s community info
+
+.label.read_recent_entries=Read the recent entries in [[user]]
+
+.label.search_other=Search for other communities
+
 .label.sure=You sure?
 
 .label.sure2=Join [[comm]]?
+
+.label.you_can=From here, you can:
 
 .reqsubmitted.body=Your request to join has been submitted to the maintainers. If approved, you will be added to the community automatically.
 
@@ -76,6 +82,10 @@
 .request.title=Request to Join
 
 .success=Success
+
+.success.posttocommunity=Post to this community
+
+.success.readcommunitypostingguidelines=Read this community's posting guidelines
 
 .title=Join Community
 

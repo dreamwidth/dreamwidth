@@ -1,0 +1,93 @@
+.email.body<<
+Hi,
+
+[[user]] wants to share this [[sitenameshort]] entry with you:
+
+
+.
+
+.email.body.boxtitle=Your message to them:
+
+.email.body.custom=Custom message from [[user]]:
+
+.email.body.footer<<
+
+
+Enjoy!
+-[[user]]
+
+--[[sitename]] Team
+Read the latest [[sitenameshort]] news at http://news.[[domain]]/
+.
+
+.email.body.otherjournal<<
+Hey,
+
+Check out my friend's journal online:
+
+.
+
+.email.body.yourjournal<<
+Hey,
+
+Check out my journal that I'm keeping online:
+
+.
+
+.email.formatinfo=comma separated, maximum of 150 characters
+
+.email.fromfield=From:
+
+.email.recipientfield=Email Recipients:
+
+.email.sharedentry.title=Title:
+
+.email.sharedentry.url=URL:
+
+.email.subject.entry=Check out this [[sitenameshort]] entry
+
+.email.subject.journal=Check out this journal
+
+.email.subject.noentry=Check this out...
+
+.email.usemask.footer=You will need to be logged-in and on [[user]]'s access list to read this entry. Don't have an account yet? Just <a href='[[siteroot]]/create.bml?from=[[user]]'>create one</a>, it's free.
+
+.email.warning.otherpublic=You can only tell your friends about public posts on other people's journals.
+
+.email.warning.private=You can not tell your friends about posts you marked as private.
+
+.email.warning.usemask=<b>Friends-only!</b> Only people who are on your friends list can see this entry.
+
+.error.characterlimit=Email list greater than 150 characters
+
+.error.disabled=This feature is disabled.
+
+.error.forbiddenimages=Images are not allowed in this message.
+
+.error.forbiddenurl=Links to sites other than [[sitename]] are not allowed in this message.
+
+.error.maximumemails=Maximum number of messages sent for today
+
+.error.noemail=No email addresses found.
+
+.errorpage.body=[[errormessage]]
+
+.errorpage.title=Error
+
+.error.unknownjournal=Unknown journal
+
+.invalidemailpage.body=Your current email address [[emailaddress]] isn't validated, so we can't let you use the "Tell a Friend" feature.  To validate your email address, <a href="[[siteroot]]/register.bml">have the confirmation email resent</a>, and then follow the instructions in it when you get it.
+
+.invalidemailpage.title=Sorry...
+
+.sendbutton=Send
+
+.sentpage.body.mailedlist=The following people have been mailed:
+
+.sentpage.body.tellanother=Tell another friend.
+
+.sentpage.title=Sent!
+
+.title=Tell a Friend!
+
+.via= via

@@ -1,0 +1,1202 @@
+################################################################################
+# Drifting Layout
+################################################################################
+
+# Layout Info
+################################################################################
+layerinfo "type"        = "layout";
+layerinfo "name"        = "Drifting";
+layerinfo "redist_uniq" = "drifting/layout";
+layerinfo "author_name" = "Jennie Griner";
+layerinfo "author_email" = "jennielynn1127@livejournal.com";
+layerinfo "des"         = "Based on the Drifting v1.0 design at OSWD by Pat Heard";
+layerinfo "lang"        = "en";
+
+################################################################################
+# Properties
+################################################################################
+
+set layout_authors             = [ { "name" => "Jennie Griner"} ];
+set layout_resources           = [ { "name" => "OSWD design", "url" => "http://www.oswd.org/design/information/id/1955" } ];
+
+# COLOURS
+################################################################################
+propgroup colors
+{
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_border;
+    property use color_page_title;
+
+    property use color_header_background;
+
+    property use color_module_border;
+    property use color_module_title;
+    property use color_page_link_visited;
+    property use color_page_link_active;
+
+    property use color_entry_border;
+    property use color_entry_background;
+    property use color_entry_title;
+    property use color_entry_text;
+
+    property Color color_page_subtitle
+    {
+        des = "Page subtitle color";
+    }
+}
+
+set color_page_background         = "";
+set color_page_text               = "";
+set color_page_link               = "";
+set color_page_link_visited       = "";
+set color_page_link_active        = "";
+set color_page_border             = "";
+
+set color_header_background       = "";
+
+set color_module_border           = "";
+set color_module_title            = "";
+
+set color_entry_border            = "";
+set color_entry_background        = "";
+set color_entry_title             = "";
+set color_entry_text              = "";
+
+set color_page_title              = "";
+set color_page_subtitle           = "";
+
+
+# IMAGES
+################################################################################
+propgroup images
+{
+    property use image_background_page_group;
+    property use image_background_header_group;
+    property use image_background_header_height;
+    property string image_header_left {
+        des = "Left header image URL";
+    }
+    property string image_header_right {
+        des = "Right header image URL";
+    }
+    property string image_module_header_url { 
+        des = "Module/Entry header image URL";
+    }
+}
+
+# TEXT
+################################################################################
+propgroup text
+{
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_friends_comm;
+    property use text_view_friends_filter;
+    property use text_view_archive;
+    property use text_view_userinfo;
+    property use text_view_memories;
+
+    property use text_post_comment;
+    property use text_max_comments;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+    property use text_stickyentry_subject;
+
+    property string text_navigation_header
+    {
+        des = "Text for the navigation header";
+    }
+
+    property use text_module_customtext;
+    property use text_module_customtext_content;
+    property use text_module_customtext_url;
+}
+
+set text_navigation_header = "Navigation";
+set text_comment_from      = "";
+set text_comment_date      = "";
+set text_posting_in        = "";
+
+# FONTS
+################################################################################
+propgroup fonts
+{
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property string font_title_fallback
+    {
+        des    = "Alternative font for journal title and subtitle";
+        values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+    }
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
+}
+
+set font_base         = "Arial";
+set font_fallback     = "sans-serif";
+set font_base_size  = "16";
+set font_base_units = "px";
+set font_journal_title  = "Times New Roman";
+set font_journal_title_size  = "2.8";
+set font_journal_title_units = "em";
+set font_title_fallback = "serif";
+
+# PRESENTATION
+################################################################################
+propgroup presentation
+{
+    property use show_userpics_recent;
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+    property use userpics_position;
+    property use entry_metadata_position;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
+}
+
+set layout_type            = "two-columns-left";
+set show_userpics_recent   = true;
+set userpics_position = "right";
+set num_items_recent       = 20;
+set num_items_reading      = 20;
+set linklist_support       = true;
+set entry_management_links = "text";
+set comment_management_links = "text";
+set userlite_interaction_links = "text";
+set custom_colors_template = "%%new%% .friends-color-wrapper {background-color: %%background%%} %%new%% .friends-color-wrapper a {color: %%foreground%%}";
+
+# CUSTOM CSS
+################################################################################
+propgroup customcss
+{
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+# MODULES
+################################################################################
+propgroup modules
+{
+    property use module_navlinks_group;
+    property use module_customtext_group;
+    property use module_pagesummary_group;
+    property use module_links_group;
+    property use module_calendar_group;
+    property use module_active_group;
+    property use module_poweredby_group;
+    property use module_tags_group;
+    property use module_syndicate_group;
+    property use module_userprofile_group;
+    property use module_time_group;
+    property use module_credit_group;
+    property use module_search_group;
+}
+
+set module_layout_sections     = "none|(none)|one|Sidebar|two|Footer";
+
+set module_navlinks_section    = "one";
+set module_customtext_section  = "one";
+set module_pagesummary_section = "one";
+set module_links_section       = "one";
+set module_calendar_section    = "one";
+set module_poweredby_section   = "two";
+set module_tags_section        = "none";
+set module_syndicate_section   = "none";
+set module_userprofile_section = "none";
+set module_time_section        = "none";
+set module_credit_section      = "one";
+
+set module_calendar_order      = 1;
+set module_navlinks_order      = 2;
+set module_links_order         = 3;
+
+################################################################################
+# Functions
+################################################################################
+
+# Prints out the stylesheet for Drifting
+################################################################################
+function Page::print_default_stylesheet()
+{
+    var string image_header_left_url = generate_image_url ($*image_header_left);
+    var string image_header_right_url = generate_image_url ($*image_header_right);
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    if ($*image_background_header_height > 0) {
+        $header_background = """
+            $header_background
+            height: """ + $*image_background_header_height + """px;""";
+    }
+    var string module_header_background = generate_background_css ($*image_module_header_url,"no-repeat","bottom right",$*color_page_background);
+
+    var string canvas_colors = generate_color_css(new Color, $*color_entry_background, $*color_page_border);
+    var string module_header_colors = generate_color_css($*color_module_title, new Color, $*color_module_border);
+    var string module_footer_colors = generate_color_css(new Color, $*color_page_background, $*color_module_border);
+    var string navigation_colors = generate_color_css(new Color, $*color_page_background, $*color_module_border);
+
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+
+    var string base_font_string = "";
+    var string title_font_string  = "";
+
+    # Determine the font strings to use in the CSS
+    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_title_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_title_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        .friends-color-wrapper,
+        .comment-userpic {
+            float: left;
+            margin-left: 0;
+            }
+        .comment-userpic {
+            margin-left: 10px;
+            margin-right: 10px;
+            }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        .friends-color-wrapper,
+        .comment-userpic {
+            float: right;
+            margin-right: -5px;
+            }
+        .comment-userpic {
+            margin-right: 0px;
+            }
+        """;
+    }
+
+    """
+    /* Main layout
+    ***************************************************************************/
+    body {
+        $page_font
+        color: $*color_page_text;
+        $page_background
+    }
+
+    #canvas {
+        padding: 10px;
+        margin: 30px;
+        overflow: auto;
+        $canvas_colors
+    }
+
+    #primary {
+        margin: 10px 0 0 235px;
+        border-left: 1px solid $*color_page_border;
+    }
+
+    #secondary {
+        float: left;
+        width: 225px;
+        margin: 0px 0px 0px 0px;
+        border-right: 1px solid $*color_module_border;
+        text-align: left;
+    }
+
+    #secondary .module-wrapper .separator-after {
+        float: left;
+        clear: left;
+        width: 224px;
+        height: 1.5em;
+        margin-top: .5em;
+        $module_footer_colors
+    }
+
+    /* Lists
+    ***************************************************************************/
+
+    ul {
+        margin-left: 0px;
+        padding-left: 40px;
+    }
+
+    /* Typography
+    ***************************************************************************/
+
+    a { $page_link_colors }
+    a:visited { $page_link_visited_colors }
+    a:hover { text-decoration: none; }
+    a:active { $page_link_active_colors }
+
+    q { font-style: italic; }
+
+    h2 {
+        font-size: 0.9em;
+        color: $*color_module_title;
+        font-weight: bold;
+    }
+
+    h2.module-header {
+        $module_header_colors
+        $module_header_background
+        border-right: none;
+        padding: 3px;
+        padding-left: 10px;
+        margin-top: 0px;
+        font-size: 1em;
+    }
+
+    .day-title,
+    .month-title {
+        border: 1px solid $*color_module_border;
+        border-left: none;
+        background: $*color_page_background;
+        padding: 3px;
+        padding-left: 10px;
+        font-size: 1.1em;
+    }
+
+    .module h2 {
+        $module_title_font
+    }
+
+    .module-content {
+        $module_font
+    }
+
+    /* Header
+    ***************************************************************************/
+    #header {
+        height: 4.7em;
+        margin-bottom: 10px;
+        border: 1px solid $*color_module_border;
+        $header_background
+    }
+
+    .header-left {
+        background-image: url($image_header_left_url);
+        background-repeat: no-repeat;
+        height: 4.7em;
+        float: left;
+        width: 60%;
+    }
+
+    .header-right {
+        background-image: url($image_header_right_url);
+        height: 4.7em;
+        float: right;
+        width: 250px;
+    }
+
+    #header h1#title {
+        $page_title_font
+        font-weight: bold;
+        font-style: italic;
+        color: $*color_page_title;
+        line-height: 0.9em;
+        margin: 0px 0px 0px 235px;
+        width: 100%;
+    }
+
+    #header h2#subtitle {
+        $page_subtitle_font
+        margin: 5px 0px 0px 335px;
+        color: $*color_page_subtitle;
+        width: 100%;
+    }
+
+    /* Navigation
+    ***************************************************************************/
+    .navigation {
+        padding: 3px 15px 3px 10px;
+        margin-bottom: 15px;
+        $navigation_colors
+        border-left: none;
+        clear: right;
+        text-align: right;
+    }
+
+    .navigation ul {
+        list-style: none;
+        display: inline;
+        padding: 0px;
+    }
+
+    .navigation ul li {
+        display: inline;
+        padding-right: 10px;
+    }
+
+    .navigation ul li a {
+        text-decoration: none;
+    }
+
+    .navigation ul li.active {
+        font-weight: bold;
+    }
+
+    /* Module Lists
+    ***************************************************************************/
+    #secondary .userlite-interaction-links,
+    #secondary .module-list {
+        list-style: none;
+        padding-left: 20px;
+        font-size: 0.8em;
+        padding-right: 5px;
+    }
+
+    #secondary .manage-tags-link {
+        font-size: 0.8em;
+        margin-bottom: 1em;
+        text-align: center;
+    }
+
+    /* Userpics
+    ***************************************************************************/
+    .module-userprofile .userpic {
+        border: 1px solid $*color_module_border;
+        border-bottom: none;
+        margin: 0 auto;
+        padding: 10px 10px 0;
+        width: 100px;
+    }
+
+    .module-userprofile .journal-name {
+        border: 1px solid $*color_module_border;
+        border-top: none;
+        text-align: center;
+        margin: 0 auto;
+        width: 120px;
+    }
+
+    .friends-color-wrapper,
+    .comment-userpic {
+        padding: 10px;
+        padding-bottom: 7px;
+        margin: 10px;
+        margin-top: -5px;
+        background: $*color_page_background;
+        margin-bottom: 5px;
+        border: 1px solid $*color_module_border;
+    }
+
+    .friends-color-wrapper .poster,
+    .comment-userpic .poster {
+       display: block;
+       width: auto;
+       text-align: center;
+       font-size: 0.8em;
+    }
+
+    .userpic img {
+        border: none;
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .friends-color-wrapper .ljuser {
+        display: block;
+    }
+    /* Calendar
+    ***************************************************************************/
+    .module-calendar {
+        padding: 0px 0px 5px 0px;
+        margin-bottom: 15px;
+    }
+
+    .module-calendar .module-content table {
+        margin: 0px 5px 0px 5px;
+    }
+
+    .module-calendar th {
+        display: none;
+    }
+
+    .module-calendar td {
+        width: 24px;
+        font-size: 11px;
+        margin: 1px;
+        text-align: center;
+        border: 1px solid $*color_module_border;
+    }
+
+    .module-calendar td.empty-day,
+    .module-calendar td.entry-day {
+        border-right: 1px solid $*color_module_border;
+        border-bottom: 1px solid $*color_module_border;
+    }
+
+    /* Credit
+    ***************************************************************************/
+    .module-credit dl {
+        padding: 0 0 0 20px;
+        font-size: 0.8em;
+    }
+    .module-credit dt, .module-credit dd {
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+    .module-credit dt {
+        font-weight: bold;
+        margin-right: 0.5em;
+    }
+
+    /* Page Summary
+    ***************************************************************************/
+    /* wrap long content, particularly openid usernames */
+    .module-pagesummary .ljuser {
+        white-space: normal !important;
+    }
+    .module-pagesummary .module-content {
+        word-wrap: break-word;
+    }
+
+    /* Tag Module
+    ***************************************************************************/
+    .module-tags_cloud .module-list {
+        margin-bottom: 0.5em;
+    }
+
+    .module-tags_cloud li, .tags_cloud li { 
+        display: inline;
+        list-style-type: none; }
+
+    /* Reply
+    ***************************************************************************/
+    #reply h2 {
+        border: 1px solid $*color_entry_border;
+        border-left: none;
+        background: $*color_page_background;
+        padding: 3px;
+        padding-left: 10px;
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    #reply .reply-form {
+        padding-left: 20px;
+        padding-bottom: 20px;
+    }
+
+    /* Entry
+    ***************************************************************************/
+    .entry {
+        padding: 0px 5px 5px 10px;
+        font-size: 0.9em;
+        overflow: auto;
+    }
+
+    .entry-content {
+        margin-bottom: 20px;
+        color: $*color_entry_text;
+    }
+
+    .entry .subject {
+        padding: 3px;
+        border: 1px solid $*color_entry_border;
+        border-left: none;
+        $module_header_background
+        font-size: 1.1em;
+        font-weight: bold;
+        padding-left: 10px;
+        margin: 0px -5px 15px -10px;
+    }
+
+    .entry .subject a {
+        text-decoration: none;
+    }
+
+    .entry h3.entry-title {
+        padding: 0px;
+        margin: 0px;
+        display: inline;
+        font-size: 1.1em;
+        color: $*color_entry_title;
+        $entry_title_font
+    }
+
+    .entry .trust-filter {
+        padding-left: 10px;
+    }
+
+    .datetime-container {
+        margin-top: -10px;
+        margin-bottom: 10px;
+    }
+
+    .datetime {
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+
+    .datetime a {
+        text-decoration: none;
+        color: $*color_page_text;
+    }
+
+    .tag {
+        font-weight: bold;
+        font-size: 0.9em;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 0px;
+    }
+
+    .tag ul li {
+        display: inline;
+        font-weight: normal;
+        font-size: 1.1em;
+    }
+
+    .tag ul {
+        display: inline;
+        margin 0px;
+        padding: 0px;
+        padding-left: 5px;
+    }
+
+    .entry-management-links,
+    .entry-interaction-links {
+        padding: 0px;
+        margin-left: 0px;
+        font-size: 1em;
+        display: inline;
+    }
+
+    .entry-management-links li,
+    .entry-interaction-links li {
+        display: inline;
+        padding-right: 5px;
+        margin: 0px;
+    }
+
+    .metadata ul {
+        list-style: none;
+        padding: 0px;
+    }
+
+    /* Comment
+    ***************************************************************************/
+    .comment {
+        overflow: auto;
+    }
+
+    .comment .poster {
+       display: block;
+       width: auto;
+       text-align: center;
+       font-size: 0.8em;
+    }
+
+    .comment-interaction-links,
+    .comment-management-links {
+        display: inline;
+        list-style: none;
+        padding-left: 0px;
+    }
+
+    .comment-interaction-links li,
+    .comment-management-links li {
+        display: inline;
+        padding-right: 10px;
+    }
+
+    .comment-thread .separator-after {
+        border-bottom: 1px solid $*color_entry_border;
+    }
+
+    .comment-title h4 {
+        font-size: inherit;
+        font-weight: inherit;
+        margin: 0;
+        padding: 0;
+    }
+
+    .comment .subject {
+        border: 1px solid $*color_entry_border;
+        border-left: none;
+        background: $*color_page_background;
+        padding: 3px;
+        padding-left: 10px;
+        min-height: 1em;
+        margin: 0.83em 0;
+    }
+
+    .comment .subject a {
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    h3.comment-subjecticon { margin: 0; }
+
+    .comment-content {
+        padding-left: 10px;
+        font-size: 0.9em;
+        color: $*color_entry_text;
+    }
+
+    .comment-content .comment-text .comment-content {
+        padding-left: 0px;
+    }
+
+    .comment .comment-content .datetime-container {
+        padding-top: 10px;
+    }
+
+    .comment .comment-content .datetime {
+        font-size: 0.9em;
+    }
+
+    .comment .comment-content .poster-ip {
+        font-size: 0.9em;
+        font-style: italic;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .talkform textarea {
+        width: 500px; /* will cause scrolling without this in IE7 */
+    }
+
+    /* Mass Actions, Comments Message
+    ***************************************************************************/
+    .bottomcomment, .comments-message {
+        font-size: 0.9em;
+        margin: 1em;
+    }
+
+    /* Archive
+    ***************************************************************************/
+    .day-entries {
+        font-size: 0.8em;
+    }
+
+    .day-entries .subjectlist {
+        padding-left: 10px;
+    }
+
+    .day-entries .time {
+        font-weight: bold;
+    }
+
+    .day-entries .entry-title {
+        padding-left: 30px;
+        margin: 0px;
+        margin-top: 3px;
+    }
+
+    .month {
+        width: 280px;
+        margin: 0 auto;
+        text-align: center;
+        padding-bottom: 10px;
+    }
+
+    .month-table td {
+        padding: 3px;
+        font-size: 0.8em;
+        width: 30px;
+        height: 40px;
+        border-right: 1px solid $*color_entry_border;
+        border-bottom: 1px solid $*color_entry_border;
+        vertical-align: top;
+        text-align: right;
+    }
+
+    .month-table th {
+        padding: 3px;
+        font-size: 0.8em;
+        width: 30px;
+        height: 30px;
+        border-right: 1px solid $*color_entry_border;
+        border-bottom: 1px solid $*color_entry_border;
+    }
+
+    .month-table td.day p {
+        display: block;
+        padding: 0px;
+        margin: 0px;
+        text-align: center;
+    }
+
+    .month-entries .day-title {
+        border: none;
+        background: none;
+    }
+
+    .month-entries .day-entries .subjectlist {
+        padding-left: 40px;
+        font-weight: normal;
+    }
+
+    .month-entries .day-entries .subjectlist span {
+        font-weight: normal;
+        display: inline;
+    }
+
+    .month-entries .day-entries .subjectlist h3 {
+        font-weight: normal;
+        font-size: 1em;
+        display: inline;
+        padding-left: 10px;
+    }
+
+    .month-entries .day-entries .subjectlist span.trust-filter {
+        padding-left: 5px;
+        margin-right: -10px;
+    }
+
+    .subjectlist span.trust-filter img {
+        margin-bottom: -3px;
+    }
+
+    .subjectlist .tag {
+        padding-left: 60px;
+    }
+
+    /* Tags Page
+    ***************************************************************************/
+    body.page-tags #primary h2 {
+        border: 1px solid $*color_entry_border;
+        border-left: none;
+        background: $*color_page_background;
+        padding: 3px;
+        padding-left: 10px;
+    }
+
+    .ljtaglist {
+        list-style: none;
+        font-size: 0.9em;
+        padding-left: 10px;
+    }
+
+    /* Footer
+    ***************************************************************************/
+    #footer {
+        font-size: 0.7em;
+        font-weight: normal;
+        border-right: 1px solid $*color_module_border;
+        border-top: 1px solid $*color_module_border;
+        border-bottom: 1px solid $*color_module_border;
+        border-left: 0px;
+        background: $*color_page_background;
+        padding: 3px;
+        padding-left: 10px;
+    }
+
+$userpic_css
+
+""";
+}
+
+# NavLinks Module, Need to override this so the title gets printed.
+################################################################################
+function print_module_navlinks()
+{
+    var Page p = get_page();
+    open_module("navlinks", $*text_navigation_header, "");
+    var string[] links = [];
+    foreach var string k ($p.views_order)
+    {
+        $links[size $links] = """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""";
+    }
+    print_module_list($links);
+    close_module();
+}
+
+
+# Main layout
+################################################################################
+function Page::print()
+{
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>""";
+        $this->print_head();
+        $this->print_stylesheets();
+        $this->print_head_title();
+    println "</head>";
+
+    $this->print_wrapper_start();
+        $this->print_control_strip();
+
+        println "<div id=\"canvas\">";
+            println "<div id=\"header\">";
+            println "<div class=\"header-left\">";
+                $this->print_global_title();
+                $this->print_global_subtitle();
+            println "</div><div class=\"header-right\"></div>";
+            println "</div>";
+
+            println "<div id=\"secondary\">";
+                $this->print_module_section("one");
+            println "</div>";
+
+            println "<div id=\"primary\">";
+                $this->print_body();
+                println "<div id=\"footer\">";
+                    $this->print_module_section("two");
+                println "</div>";
+            println "</div>";
+        println "</div>";
+
+    $this->print_wrapper_end();
+    println "</html>";
+}
+
+
+# Print an entry, uses friends colours on the friends page, so this is a layout
+# specific function that the main Page::print_entry, etc all call.
+################################################################################
+function Page::print_entry (Entry e)
+{
+   $e->print_wrapper_start();
+
+        print "<div class=\"subject\">";
+            $e->print_subject();
+            $e->print_metatypes();
+        println "</div>";
+
+        println "<div class='friends-color-wrapper'>";
+            $e->print_userpic();
+            $e->print_poster();
+        println "</div>";
+
+        println "<div class=\"datetime-container\">";
+        $e->print_time("long_day", "");
+        println "</div>";
+
+        if ($*entry_metadata_position == "top") { $e->print_metadata(); }
+        $e->print_text();
+        if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
+        $e->print_tags();
+        $e->print_management_links();
+        $e->print_interaction_links("topcomment");
+        $this->print_reply_container({ "target" => "topcomment" });
+
+    $e->print_wrapper_end();
+}
+
+## Entry Page
+################################################################################
+function EntryPage::print_comment (Comment c)
+{
+    $c->print_wrapper_start();
+
+        print "<div class=\"subject\">";
+            $c->print_metatypes();
+            $c->print_subject();
+        print "</div>";
+
+        println "<div class='comment-userpic'>";
+            $c->print_userpic();
+            $c->print_poster();
+        println "</div>";
+
+        println "<div class=\"comment-content\">";
+            println "<div class=\"datetime-container\">";
+                $c->print_time("long_day", "");
+            println "</div>";
+
+            $c->print_metadata();
+            
+            println "<div class=\"comment-text\">";
+            $c->print_text();
+            println "</div>";
+
+            $c->print_interaction_links();
+            $c->print_management_links();
+
+            if ($this.multiform_on)
+            {
+                """<span class="multiform-checkbox">""";
+                println "<label for='ljcomsel_$c.talkid'>$*text_multiform_check</label>";
+                $c->print_multiform_check();
+                "</span>";
+            }
+
+            $c->print_reply_container();
+        println "</div>";
+
+    $c->print_wrapper_end();
+}
+
+## Reply Page
+################################################################################
+function ReplyPage::print_body
+{
+    if ($.replyto isa Entry) 
+    {
+        var Entry e = $.replyto as Entry;
+        $this->print_entry($e);
+    }
+    elseif ($.replyto isa Comment) 
+    {
+    
+        var Comment c = $.replyto as Comment;
+        $this->print_comment($c);
+    }
+
+    println "<div id=\"reply\">";
+        println "<h2>Reply</h2>";
+        println "<div class=\"reply-form\">";
+        if ($.entry.comments.enabled)
+        {
+            $.form->print();
+        }
+        else
+        {
+             print "Comments have been disabled for this post";
+        }
+        println "</div>";
+    println "</div>";
+}
+
+function ReplyPage::print_comment (Comment c)
+{
+    $c->print_wrapper_start();
+
+        print "<div class=\"subject\">";
+            $c->print_metatypes();
+            $c->print_subject();
+        print "</div>";
+
+        println "<div class='comment-userpic'>";
+            $c->print_userpic();
+            $c->print_poster();
+        println "</div>";
+
+        println "<div class=\"comment-content\">";
+            println "<div class=\"datetime-container\">";
+                $c->print_time("long_day", "");
+            println "</div>";
+
+            $c->print_metadata();
+            
+            println "<div class=\"comment-text\">";
+            $c->print_text();
+            println "</div>";
+
+            $c->print_interaction_links();            
+        println "</div>";
+
+    $c->print_wrapper_end();
+}
+
+## Day Page
+################################################################################
+function DayPage::print_body()
+{
+    $this->print_navigation();
+
+    println "<h2 class=\"day-title\">" + $.date->date_format("long") + "</h2>";
+
+    if ($.has_entries)
+    {
+        foreach var Entry e ($.entries)
+        {
+            $this->print_entry($e);
+        }
+    }
+    else
+    {
+        println $*text_noentries_day;
+    }
+
+    $this->print_navigation();
+}
+
+## Year Page
+################################################################################
+function YearPage::print_body
+{
+    $this->print_navigation();
+
+    foreach var YearMonth m ($.months)
+    {
+        $this->print_month($m);
+    }
+}
+
+function YearPage::print_month(YearMonth m)
+{
+    if (not $m.has_entries) { return; }
+
+    println "<h2 class=\"month-title\"><a href='$m.url'>";
+    print $m->month_format();
+    println "</a></h2>";
+
+    println "<div class='month'>";
+    println "<table class=\"month-table\"><thead>";
+    foreach var int d (weekdays())
+    {
+        "<th>" + $*lang_dayname_short[$d] + "</th>";
+    }
+    println "</thead>";
+    println "<tbody>";
+
+    foreach var YearWeek w ($m.weeks)
+    {
+        $w->print();
+    }
+
+    println "</tbody>";
+    println "</table>";
+    println "</div>";
+}
+
+## Month Page
+################################################################################
+function MonthPage::print_body
+{
+    $this->print_navigation();
+
+    println "<h2 class=\"month-title\">" + $.date->date_format($*lang_fmt_month_long) + "</h2>";
+
+    println "<div class=\"month-entries\">";
+        foreach var MonthDay d ($.days)
+        {
+            if ($d.has_entries)
+            {
+                println "<div class=\"day-entries\">";
+                    println "<h2 class=\"day-title\"><a href='$d.url'>";
+                    println lang_ordinal($d.day);
+                    println "</a></h2>";
+                    println "<div class=\"subjectlist\">";
+                        $d->print_subjectlist();
+                    println "</div>";
+                println "</div>";
+            }
+        }
+    println "</div>";
+
+    $this->print_navigation();
+}

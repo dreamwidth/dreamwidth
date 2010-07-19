@@ -17,7 +17,7 @@ package DSMS::MessageAck;
 
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw(Encode);
+use Encode;
 
 sub new {
     my $class = shift;

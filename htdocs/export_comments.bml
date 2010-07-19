@@ -1,10 +1,24 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
     use vars qw(%GET);
-    
+
     my $req = shift;
-    my $r = $req->{'r'};
+    my $r = DW::Request->get;
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
@@ -35,7 +49,6 @@
 
     # print top
     $r->content_type("text/xml; charset=utf-8");
-    $r->send_http_header();
     $r->print("<?xml version=\"1.0\" encoding='utf-8'?>\n<livejournal>\n");
 
     # startid specified?
@@ -163,5 +176,4 @@
     # all done
     $r->print("</livejournal>\n");
 }
-_code?><?_c <LJDEP>
-</LJDEP> _c?>
+_code?>

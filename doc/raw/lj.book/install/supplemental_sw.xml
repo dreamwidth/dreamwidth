@@ -267,7 +267,7 @@ Alternatively, an example <filename>perlbal.conf</filename> follows.</para>
     <title>Example <filename>perlbal.conf</filename></title>
 <para>
 Now, edit the configuration file.
-<screen><prompt>#</prompt> <userinput><command>nano</command> <filename>/etc/perlbal/perlbal.conf</filename></userinput></screen></para>
+<screen><prompt>#</prompt> <userinput><command>nano</command> <option>-w</option> <filename>/etc/perlbal/perlbal.conf</filename></userinput></screen></para>
 <para>
 Replace <literal>EXAMPLEHOSTNAME.lj</literal> with the full hostname of your domain, or
 virtual machine if you are using one (and verify all hostname configurations).

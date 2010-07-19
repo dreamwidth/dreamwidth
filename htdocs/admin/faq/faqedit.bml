@@ -1,161 +1,313 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 nocache=>1
 _info?><?page
 title=><?_code return $FORM{'id'} ? "Edit FAQ Item #$FORM{'id'}" : "Add to FAQ"; _code?>
 body<=
+<center>
+<a href="./"><b>(Back to FAQ Index)</b></a>
+</center>
 
-<CENTER>
-<A HREF="./"><B>(Back to FAQ Index)</B></A>
-</CENTER>
-
-
-<FORM ACTION="faqedit_do.bml" METHOD=POST>
 <?_code
+{
+    use strict;
 
- $id = $FORM{'id'} + 0;
- $ret = "";
+    # FIXME: add crumb
+    
+    my $id = $FORM{id} + 0;
+    my $ret = "";
 
- my $dbh = LJ::get_db_writer();
+    my $dbh = LJ::get_db_writer();
+    my $remote = LJ::get_remote();
 
- my $remote = LJ::get_remote();
- my %ac_edit;
- my %ac_add;
- LJ::remote_has_priv($remote, "faqadd", \%ac_add);
+    my @display_privs = ( "faqadd", "faqedit" );
+    my $numprivs =  @display_privs;
 
- if ($id)
- {
-     LJ::remote_has_priv($remote, "faqedit", \%ac_edit);
-     my $sth = $dbh->prepare("SELECT question, summary, answer, faqcat, sortorder FROM faq WHERE faqid=$id");
-     $sth->execute;
-     ($question, $summary, $answer, $faqcat, $sortorder) = $sth->fetchrow_array or
-         return "<b>Error:</b> FAQ #$id does not exist.";
+    return "<?needlogin?>" unless $remote;
+    
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
+        unless $remote->has_priv( "faqadd" ) || $remote->has_priv( "faqedit" );
 
-     unless ($ac_edit{'*'} || $ac_edit{$faqcat}) {
-         if (%ac_edit) {
-             return "<B>Error: </B> You do not have access to edit a FAQ question in the \"$faqcat\" category.";
-         } else {
-             return "<B>Error: </B> You do not have access to edit the FAQ.";
-         }
-     }
- }
- else
- {
-     unless (%ac_add) {
-         return "<B>Error: </B> You do not have access to add to the FAQ.";
-     }
- }
+    my %ac_add  = $remote->priv_args( "faqadd" );
+    my %ac_edit = $remote->priv_args( "faqedit" );
 
+    my $faqd = LJ::Lang::get_dom( "faq" );
+    my $rlang = LJ::Lang::get_root_lang( $faqd );
+    my ( $faqcat, $sortorder, $question, $summary, $answer, $has_summary );
+    my ( $sev_question, $sev_summary, $sev_answer );
 
- $sortorder += 0;
- $sortorder ||= 50;
+    if ( $id != 0 ) {
+        my $faq = LJ::Faq->load( $id, lang => $rlang->{lncode} )
+            or return "<b>Error:</b> FAQ #$id does not exist.";
 
- $ret .= LJ::form_auth();
- $ret .= LJ::html_hidden('id', $id);
- $ret .= "<p>Category: ";
+        $faqcat = $faq->faqcat;
+        $sortorder = $faq->sortorder;
+        $question = $faq->question_raw;
+        $summary = $faq->summary_raw;
+        $answer = $faq->answer_raw;
+        $has_summary = $faq->has_summary;
+        unless ( $ac_edit{'*'} || $ac_edit{$faqcat} ) {
+            if ( %ac_edit ) {
+                return "<b>Error: </b> You do not have access to edit a FAQ question in the \"$faqcat\" category.";
+            } else {
+                return "<b>Error: </b> You do not have access to edit the FAQ.";
+            }
+        }
+    } else {
+        return "<b>Error: </b> You do not have access to add to the FAQ."
+            unless %ac_add;
+    }
 
- my $sth = $dbh->prepare("SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder");
- $sth->execute;
- my @cats;
- push @cats, '';push @cats, '';
- my $faqd = LJ::Lang::get_dom("faq");
+    $sortorder += 0;
+    $sortorder ||= 50;
 
- while (($fc, $fcname) = $sth->fetchrow_array)
- {
-     if ($id) {
-         next unless ($ac_add{'*'} || $ac_add{$fc} || ($fc eq $faqcat));
-     } else {
-         next unless ($ac_add{'*'} || $ac_add{$fc});
-     }
+    if ( LJ::did_post() ) {
+        $question = $FORM{q};
+        # If summary is disabled or not present, pretend it was unchanged
+        $summary = $FORM{s}
+            if LJ::is_enabled( 'faq_summaries' ) && defined $FORM{s};
+        $answer = $FORM{a};
+        $faqcat = $FORM{faqcat};
+        $sortorder = $FORM{sortorder} + 0 || 50;
+        $sev_question = $FORM{sev_question} + 0;
+        $sev_summary = $FORM{sev_summary} + 0;
+        $sev_answer = $FORM{sev_answer} + 0;
 
-     push @cats, $fc;
-     push @cats, $fcname;
- }
+        if ( $POST{'action:save'} ) { # Save FAQ
+            return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}"
+                unless LJ::check_form_auth();
 
- $ret .= LJ::html_select({
-     'name'     => 'faqcat',
-     'selected' => $faqcat,},
-                         @cats);
+            my $opts_question = { changeseverity => $sev_question };
+            my $opts_summary = { changeseverity => $sev_summary };
+            my $opts_answer = { changeseverity => $sev_answer };
+            my $do_trans = sub {
+                my $id = shift;
+                return unless $faqd;
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode},
+                                    "$id.1question", $question,
+                                    $opts_question );
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode},
+                                    "$id.3summary", $summary, $opts_summary )
+                    if LJ::is_enabled( 'faq_summaries' );
+                LJ::Lang::set_text( $faqd->{dmid}, $rlang->{lncode},
+                                    "$id.2answer", $answer, $opts_answer );
+            };
 
- $ret .= "&nbsp;SortOrder: ";
- $ret .= LJ::html_text({
-     'name'      => 'sortorder',
-     'value'     => $sortorder,
-     'size'      => 5,
-     'maxlength' => 4,
- });
+            if ( $id == 0 ) {
+                $dbh->do( qq{ INSERT INTO faq
+                              ( faqid, question, summary, answer, faqcat,
+                                sortorder, lastmoduserid, lastmodtime)
+                              VALUES (NULL, ?, ?, ?, ?, ?, ?, NOW()) },
+                          undef, $question, $summary, $answer, $faqcat,
+                          $sortorder, $remote->{userid} );
+                $id = $dbh->{mysql_insertid};
+                $ret .= $dbh->errstr || "Added FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
- $ret .= "<br><i>(sort order is how to sort within the category.  categories themselves are also sorted.)</i></p>";
+                $opts_question->{childrenlatest} = 1;
+                $opts_summary->{childrenlatest} = 1;
+                $opts_answer->{childrenlatest} = 1;
+                $do_trans->( $id ) if $id;
+            } elsif ( $question =~ /\S/ ) {
+                # If summaries are disabled or it's missing in the form,
+                # $summary will still contain the previous summary, so there's
+                # no need to special-case the update.
+                $dbh->do( qq{ UPDATE faq SET question=?, summary=?, answer=?,
+                                             faqcat=?, lastmoduserid=?,
+                                             lastmodtime=NOW(), sortorder=?
+                                         WHERE faqid=? },
+                          undef, $question, $summary, $answer, $faqcat,
+                          $remote->{userid}, $sortorder, $id );
+                $ret .= "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
- $ret .= "<?h1 Question h1?> <?p (as brief as possible, do not span multiple lines) p?><p>";
+                $do_trans->( $id );
+            } else {
+                $dbh->do( "DELETE FROM faq WHERE faqid=?", undef, $id );
+                $ret .= "FAQ item deleted.";
 
- $ret .= LJ::html_textarea({
-     'name'  => 'q',
-     'value' => $question,
-     'rows'  => 2,
-     'cols'  => 70,
-     'wrap'  => 'soft'
-     });
- $ret .= "<br /><i>(erase question to delete FAQ entry)</i></p>";
- 
- if ($faqd && $id != 0) {
-     $ret .= "<p><b>Select modification level for question:</b> ";
-     $ret .= LJ::html_select({ 'name' => "sev_question", "selected" => 0 },
-                             0 => "Typo/etc (no notify)",
-                             1 => "Minor (notify translators)",
-                             2 => "Major (require translation updates)");
-     $ret .= "</p>";
- }
+                # FIXME: delete translation from ml_* ?
+            }
 
- $ret .= "<?h1 Summary h1?> <?p (should be a shortish paragraph, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
+            return $ret;
+        }
 
- $ret .= LJ::html_textarea({
-     'name'  => 's',
-     'value' => $summary,
-     'rows'  => '10',
-     'cols'  => '70',
-     'wrap'  => 'soft'
-     });
- $ret .= "</p>";
+        if ( $POST{'action:preview'} ) { # Preview FAQ
+            # FIXME: make lastmodtime look more like in LJ::Faq->load
+            my $fake_faq
+                = LJ::Faq->new( faqid => $id, question => $question,
+                                summary => $summary, answer => $answer,
+                                faqcat => $faqcat, lang => $rlang->{lncode},
+                                lastmoduserid => $remote->{userid},
+                                sortorder => $sortorder, unixmodtime => time,
+                                lastmodtime => scalar gmtime );
 
- if ($faqd && $id != 0) {
-     $ret .= "<p><b>Select modification level for summary:</b> ";
-     $ret .= LJ::html_select({ 'name' => "sev_summary", "selected" => 0 },
-                             0 => "Typo/etc (no notify)",
-                             1 => "Minor (notify translators)",
-                             2 => "Major (require translation updates)");
-     $ret .= "</p>";
- }
+            # Get remote username and journal URL, or example user's username
+            # and journal URL
+            my ( $user, $user_url );
+            if ( $remote ) {
+                $user = $remote->user;
+                $user_url = $remote->journal_base;
+            } else {
+                my $u = LJ::load_user( $LJ::EXAMPLE_USER_ACCOUNT );
+                $user = $u
+                    ? $u->user
+                    : "<b>[Unknown or undefined example username]</b>";
+                $user_url = $u
+                    ? $u->journal_base
+                    : "<b>[Unknown or undefined example username]</b>";
+            }
 
- $ret .= "<?h1 Answer h1?> <?p (long as you want, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
+            $fake_faq->render_in_place( { user => $user, url => $user_url } );
+            # Always display answer. (Except if hook says not to - see below)
+            my $display_answer = 1;
+            # Display summary if enabled and present.
+            my $display_summary = $fake_faq->has_summary
+                                  && LJ::is_enabled( 'faq_summaries' );
 
- $ret .= LJ::html_textarea({
-     'name'  => 'a',
-     'value' => $answer,
-     'rows'  => '15',
-     'cols'  => '70',
-     'wrap'  => 'soft'
-     });
- $ret .= "</p>";
+            # escape question
+            # FIXME: do we still need to check for \n? Did we ever?
+            my $q_html
+                = LJ::html_newlines( LJ::trim( $fake_faq->question_html ) );
 
- if ($faqd && $id != 0) {
-     $ret .= "<p><b>Select modification level for answer:</b> ";
-     $ret .= LJ::html_select({ 'name' => "sev_answer", "selected" => 0 },
-                             0 => "Typo/etc (no notify)",
-                             1 => "Minor (notify translators)",
-                             2 => "Major (require translation updates)");
-     $ret .= "</p>";
- }
+            # Clean this as if it were an entry, but don't allow lj-cuts
+            my $s_html = $fake_faq->summary_html;
+            LJ::CleanHTML::clean_event( \$s_html, { ljcut_disable => 1 } )
+                if $display_summary;
+            my $a_html = $fake_faq->answer_raw;
+            LJ::CleanHTML::clean_event( \$a_html, { ljcut_disable => 1 } )
+                if $display_answer;
 
+            # run hook to transform the text of this FAQ before it's rendered
+            # FIXME: hook is responsible for clean-up if it changes $display_*
+            # from false to true. Should that be checked/enforced here instead?
+            # FIXME: do we even need that hook? It looks like LJ only ever used
+            # it to add stuff to LJ Talk FAQs, for Gizmo sponsorship.
+            LJ::Hooks::run_hook( "faq.$id.transform", $remote, answer => \$a_html,
+                          question => \$q_html, summary => \$s_html,
+                          display_summary => \$display_summary,
+                          display_answer => \$display_answer )
+                if LJ::Hooks::are_hooks( "faq.$id.transform" );
 
- $ret .= "<p>" . LJ::html_submit('', 'Add/Edit FAQ Item') . "</p>";
- return $ret;
+            # display output
+            $ret .= "<hr /><?h1 $q_html h1?>";
+            $ret .= "<div style='margin-left: 20px;'>";
+            $ret .= "<div name='summary' id='summary'>$s_html</div><br />"
+                if $display_summary;
 
- _code?>
+            $ret .= "<div id='answer' name='answer'>$a_html</div>"
+                if $display_answer;
 
-</FORM>
+            $ret .= "</div>";
+
+            # FIXME: lastmodtime and lastmodwho should be vars in .lastupdated
+            # Also, using the string in htdocs/support/faqbrowse.bml.text for
+            # now, but this may change (either duplicate it here, or remove it
+            # altogether, since $remote presumably knows who they are and what
+            # time it is).
+            $ret .= "<p align='right'><b>$ML{'/support/faqbrowse.bml.lastupdated'}</b><br />"
+                . $fake_faq->lastmodtime . " (" . $remote->user . ")</p><hr />";
+        }
+        # Fall through to form
+    }
+
+    $ret .= "<form action='faqedit' method='post'>";
+    $ret .= LJ::form_auth();
+    $ret .= LJ::html_hidden( 'id', $id );
+    $ret .= "<p>Category: ";
+
+    my $sth = $dbh->prepare( "SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder" );
+    $sth->execute;
+    my @cats;
+    push @cats, '', '';
+
+    while ( my ($fc, $fcname) = $sth->fetchrow_array ) {
+        # $fc can't be NULL/undef
+        push @cats, $fc, $fcname
+            if $ac_add{'*'} || $ac_add{$fc} || $fc eq $faqcat;
+    }
+
+    $ret .= LJ::html_select( { name => 'faqcat', selected => $faqcat }, @cats );
+
+    $ret .= "&nbsp;SortOrder: ";
+    $ret .= LJ::html_text( { name => 'sortorder', value => $sortorder,
+                             size => 5, maxlength => 4 } );
+
+    $ret .= "<br><i>(sort order is how to sort within the category.  categories themselves are also sorted.)</i></p>";
+
+    $ret .= "<?h1 Question h1?> <?p (as brief as possible, do not span multiple lines) p?><p>";
+
+    $ret .= LJ::html_textarea( { name => 'q', value => $question,
+                                 rows => 2, cols => 70, wrap => 'soft' } );
+    $ret .= "<br /><i>(erase question to delete FAQ entry)</i></p>";
+
+    if ( $faqd && $id != 0 ) {
+        $ret .= "<p><b>Select modification level for question:</b> ";
+        $ret .= LJ::html_select( { name => "sev_question",
+                                   selected => $sev_question },
+                                 0 => "Typo/etc (no notify)",
+                                 1 => "Minor (notify translators)",
+                                 2 => "Major (require translation updates)" );
+        $ret .= "</p>";
+    }
+
+    if ( LJ::is_enabled( 'faq_summaries' ) || $has_summary ) {
+        # If FAQ has summary and summaries are disabled, leave field in, but
+        # make it read-only to let FAQ editors copy from it.
+        my $readonly = !LJ::is_enabled( 'faq_summaries' );
+        $ret .= "<?h1 Summary h1?> <?p (should be a shortish paragraph, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
+
+        $ret .= LJ::html_textarea( { name => 's', value => $summary,
+                                     rows => '10', cols => '70',
+                                     wrap => 'soft', disabled => $readonly } );
+        $ret .= "</p>";
+
+        if ( $faqd && $id != 0 && !$readonly ) {
+            # If absent, severity will default to 0 (unchanged), which is
+            # the right thing for a readonly field.
+            $ret .= "<p><b>Select modification level for summary:</b> ";
+            $ret .= LJ::html_select( { name => "sev_summary",
+                                       selected => $sev_summary },
+                                     0 => "Typo/etc (no notify)",
+                                     1 => "Minor (notify translators)",
+                                     2 => "Major (require translation updates)" );
+            $ret .= "</p>";
+        }
+    }
+
+    $ret .= "<?h1 Answer h1?> <?p (long as you want, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
+
+    $ret .= LJ::html_textarea( { name => 'a', value => $answer,
+                                 rows => '15', cols => '70', wrap => 'soft' } );
+    $ret .= "</p>";
+
+    if ( $faqd && $id != 0 ) {
+        $ret .= "<p><b>Select modification level for answer:</b> ";
+        $ret .= LJ::html_select( { name => "sev_answer",
+                                   selected => $sev_answer },
+                                 0 => "Typo/etc (no notify)",
+                                 1 => "Minor (notify translators)",
+                                 2 => "Major (require translation updates)" );
+        $ret .= "</p>";
+    }
+
+    $ret .= "<p>" . LJ::html_submit( 'action:save', 'Add/Edit FAQ Item' );
+    $ret .= " " . LJ::html_submit( 'action:preview', 'Preview FAQ Item' )
+            . "</p></form>";
+    return $ret;
+}
+_code?>
 
 <=body
-page?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-post: htdocs/admin/faq/faqedit_do.bml
-</LJDEP> _c?>
+page?>

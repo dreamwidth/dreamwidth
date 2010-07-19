@@ -30,10 +30,6 @@ textarea.text,
 select.select {
     margin: 0px 3px 0px 0px;
     padding: 2px 2px;
-    background: #fff url(/img/input-bg.gif) repeat-x 0 -1px;
-    border: 1px solid #bbb;
-    border-top: 1px solid #999;
-    border-left: 1px solid #999;
 }
 select.select {
     padding: 1px;
@@ -45,17 +41,11 @@ fieldset.nostyle {
 }
 input.create-account {
     font-size: 110%;
-    color: #fff;
     margin: 0;
-    background: #559A40;
-    border: 2px solid #76AE65;
-    border-bottom: 2px solid #447C33;
-    border-right: 2px solid #447C33;
 }
 
 .detail {
     font-size: 90%;
-    color: #444;
 }
 p.detail {
     margin: 0 0 10px 0;
@@ -64,7 +54,6 @@ p.detail {
 h2.widget-header {
     margin: 0 0 6px 0;
     padding: 0 0 6px 0;
-    border-bottom: 1px solid #ccc;
 }
 ul.detail li {
     font-size: 90%;
@@ -72,7 +61,6 @@ ul.detail li {
 hr.hr {
     border: 0;
     width: 100%;
-    color: #8FC3F7; background-color: #8FC3F7;
     height: 1px;
 }
 /* generic class for removing styling from ul */
@@ -85,21 +73,17 @@ ul.nostyle {
 /* tables where rows alternate colors */
 table.alternating-rows th {
     text-align: left;
-    border-top: 1px solid #8FC3F7;
-    border-bottom: 1px solid #8FC3F7;
-    background-color: #C5DFF9;
     padding: 6px 4px;
+}
+table.alternating-rows td {
+    padding: 6px 4px;
+    text-align: left;
 }
 table.alternating-rows tr.altrow1 {
     background-color: #fff;
 }
 table.alternating-rows tr.altrow2 {
     background-color: #eee;
-}
-table.alternating-rows td {
-    padding: 6px 4px;
-    border-bottom: 1px solid #ccc;
-    text-align: left;
 }
 
 /* columns for content layouts */
@@ -139,8 +123,6 @@ div.columns-2-r300 .columns-2-right {
     text-decoration: none;
     padding-left: 10px;
     text-transform: lowercase;
-    color: #114577 !important;
-    background: url('/img/arrow-double-blue.gif') no-repeat 0 60%;
 }
 .appwidget .more-link:hover {
     text-decoration: underline;
@@ -155,36 +137,27 @@ div.columns-2-r300 .columns-2-right {
 .arrow-link,
 .more-link {
     padding-left: 12px;
-    background: url('/img/arrow-double-black.gif') no-repeat 0 50%;
 }
 
 /* Used to encapsualte message forms like Invite and Tell a Friend */
 .message {
-    border: 5px solid #eee;
     margin-bottom: 15px;
 }
 
 .message blockquote {
     margin: 0;
-    border: 1px solid #aaa;
     padding: 15px;
 }
 
 .standout-border {
-    border: 1px solid #8fc3f7;
     padding: 6px;
 }
-.standout-background {
-    background-color: #c5dff9;
-}
+
 
 /* Sidebars floated to the right */
 div.right-sidebar {
     float: right;
     width: 300px;
-    color: #000000;
-    background-color: #c5dff9;
-    border: 1px solid #8fc3f7;
     margin: 10px;
     padding: 10px;
 }
@@ -194,7 +167,6 @@ div.ad-sidebar {
 }
 
 .textbutton { 
-    color: #0000CC;
     cursor: pointer;
 }
 
@@ -203,55 +175,79 @@ h2.solid-neutral {
     font-size: 14px;
     font-family: Arial;
     font-weight: bold;
-    background: #ededed url(/img/corner.gif) no-repeat 0 0;
     margin: 0 0 8px 0;
     padding: 5px 8px;
-    color: #222;
 }
 h2.solid-blue {
     position: relative;
     font-size: 14px;
     font-family: Arial;
     font-weight: bold;
-    background: #d7e7f7 url(/img/corner.gif) no-repeat 0 0;
     margin: 0 0 8px 0;
     padding: 5px 8px;
-    color: #222;
-}
-.solid-neutral {
-    background: #ededed;
 }
 
 input.bright {
-    background: url(/img/yellow_gradient.gif) repeat;
-    border: 1px solid #b48101;
-    color: #1f3368;
     font-weight: bold;
 }
 
 .helper {
     font-size: 0.8em;
-    color: #666;
 }
 
-.rounded-box {
-    background: no-repeat;
-    zoom: 1;
+.formitemName {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 10px;
 }
 
-.rounded-box .rounded-box-tr {
-    background: 100% 0 no-repeat;
+/**
+  * Apply a baseline display to all user-generated content
+  */
+.usercontent h1,
+.usercontent h2,
+.usercontent h3,
+.usercontent h4,
+.usercontent h5,
+.usercontent h6,
+.usercontent strong,
+.usercontent dt {
+    font-weight: bold;
+}
+.usercontent ul,
+.usercontent ol,
+.usercontent dl,
+.usercontent menu,
+.usercontent blockquote {
+    margin: 1em;
+}
+.usercontent ul,
+.usercontent ol,
+.usercontent dl,
+.usercontent menu,
+.usercontent dl dd {
+    margin-left: 2em;
+}
+.usercontent ol > li {
+    list-style: decimal outside;
+}
+.usercontent ul > li { 
+    list-style: disc outside;
+}
+.usercontent sup {
+    vertical-align: super;
+    font-size: smaller;
+}
+.usercontent sub { 
+    vertical-align: sub;
+    font-size: smaller;
+}
+.usercontent p,
+.usercontent fieldset,
+.usercontent table,
+.usercontent pre { 
+    margin-bottom: 1em;
 }
 
-.rounded-box .rounded-box-bl {
-    background: 0 100% no-repeat;
-}
-
-.rounded-box .rounded-box-br {
-    background: 100% 100% no-repeat;
-    padding: 2px; /* border width */
-}
-
-.rounded-box .rounded-box-content {
-    padding: 10px;
-}
+/* clearing element at the foot of Support index */
+.clear-floats { clear: both; }

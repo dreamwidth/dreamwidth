@@ -1,10 +1,27 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 no warnings 'uninitialized';
 
 package LJ;
+
+=head1 Methods
+
+=cut
 
 # <LJFUNC>
 # name: LJ::sysban_check
@@ -87,39 +104,36 @@ sub sysban_check {
         return $LJ::UNIQ_BANNED{$value};
     }
 
-    # cache if contentflag ban
-    if ($what eq 'contentflag') {
-
+    # cache if spamreport ban
+    if ( $what eq 'spamreport' ) {
         # check memcache first if not loaded
-        unless ($LJ::CONTENTFLAG_BANNED_LOADED) {
-            my $memval = LJ::MemCache::get("sysban:contentflag");
-            if ($memval) {
-                *LJ::CONTENTFLAG_BANNED = $memval;
-                $LJ::CONTENTFLAG_BANNED_LOADED++;
+        unless ( $LJ::SPAMREPORT_BANNED_LOADED ) {
+            my $memval = LJ::MemCache::get( "sysban:spamreport" );
+            if ( $memval ) {
+                *LJ::SPAMREPORT_BANNED = $memval;
+                $LJ::SPAMREPORT_BANNED_LOADED++;
             }
         }
 
         # is it already cached in memory?
-        if ($LJ::CONTENTFLAG_BANNED_LOADED) {
-            return (defined $LJ::CONTENTFLAG_BANNED{$value} &&
-                    ($LJ::CONTENTFLAG_BANNED{$value} == 0 ||     # forever
-                     $LJ::CONTENTFLAG_BANNED{$value} > time())); # not-expired
+        if ( $LJ::SPAMREPORT_BANNED_LOADED ) {
+            return ( defined $LJ::SPAMREPORT_BANNED{$value} &&
+                    ( $LJ::SPAMREPORT_BANNED{$value} == 0 ||        # forever
+                      $LJ::SPAMREPORT_BANNED{$value} > time() ) );  # not expired
         }
 
         # set this now before the query
-        $LJ::CONTENTFLAG_BANNED_LOADED++;
+        $LJ::SPAMREPORT_BANNED_LOADED++;
 
-        LJ::sysban_populate(\%LJ::CONTENTFLAG_BANNED, "contentflag")
-            or return undef $LJ::CONTENTFLAG_BANNED_LOADED;
+        LJ::sysban_populate( \%LJ::SPAMREPORT_BANNED, "spamreport" )
+            or return undef $LJ::SPAMREPORT_BANNED_LOADED;
 
         # set in memcache
-        my $exp = 60*15; # 15 minutes
-        LJ::MemCache::set("sysban:contentflag", \%LJ::CONTENTFLAG_BANNED, $exp);
+        my $exp = 60 * 30; # 30 minutes
+        LJ::MemCache::set( "sysban:spamreport", \%LJ::SPAMREPORT_BANNED, $exp );
 
         # return value to user
-        return (defined $LJ::CONTENTFLAG_BANNED{$value} &&
-                ($LJ::CONTENTFLAG_BANNED{$value} == 0 ||     # forever
-                 $LJ::CONTENTFLAG_BANNED{$value} > time())); # not-expired
+        return $LJ::SPAMREPORT_BANNED{$value};
     }
 
     # need the db below here
@@ -152,7 +166,16 @@ sub sysban_check {
         # see if this domain is banned
         my @domains = split(/\./, $1);
         return 0 unless scalar @domains >= 2;
-        return 1 if $check->('email_domain', "$domains[-2].$domains[-1]");
+        my $domain = "$domains[-2].$domains[-1]";
+        return 1 if $check->('email_domain', $domain);
+        
+        # account for GMail troll tricks
+        if ( $domain eq "gmail.com" ) {
+        	my ($user) = ($value =~ /^(.+)@/);
+        	$user =~ s/\.//g;    # strip periods
+        	$user =~ s/\+.*//g;  # strip plus tags
+        	return 1 if $check->('email', "$user\@$domain");
+        }
 
         # must not be banned
         return 0;
@@ -162,7 +185,7 @@ sub sysban_check {
     return $check->($what, $value);
 }
 
-# takes a hashref to populate with 'value' => expiration pairs
+# takes a hashref to populate with 'value' => expiration  pairs
 # takes a 'what' to populate the hashref with sysbans of that type
 # returns undef on failure, hashref on success
 sub sysban_populate {
@@ -195,25 +218,125 @@ sub sysban_populate {
     return $where;
 }
 
+
+# here because it relates to sysbans ...
+sub tor_check {
+    return 0 unless $LJ::USE_TOR_CONFIGS && $LJ::TOR_CONFIG{$_[0]};
+    return DW::Request->get->note( 'via_tor_exit' ) ? 1 : 0;
+}
+
+
 sub _db_sysban_populate {
     my ($where, $what) = @_;
-
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
     # build cache from db
-    my $sth = $dbh->prepare("SELECT value, UNIX_TIMESTAMP(banuntil) FROM sysban " .
+    my $sth = $dbh->prepare("SELECT value, UNIX_TIMESTAMP(banuntil) " .
+                            "FROM sysban " .
                             "WHERE status='active' AND what=? " .
                             "AND NOW() > bandate " .
                             "AND (NOW() < banuntil OR banuntil IS NULL)");
     $sth->execute($what);
     return undef if $sth->err;
-    while (my ($val, $exp) = $sth->fetchrow_array) {
+    while (my ($val, $exp ) = $sth->fetchrow_array) {
         $where->{$val} = $exp || 0;
     }
 
     return $where;
+
 }
+
+# <LJFUNC>
+# name: LJ::sysban_populate_full
+# des: populates a hashref with sysbans of given type
+# args: where, what
+# des-where: the hashref to populate with hash of hashes:
+#            value => { expire => expiration, note => note,
+#                        banid => banid } for each ban
+# des-what: the type of sysban to look up
+# returns: hashref on success, undef on failure
+# </LJFUNC>
+sub sysban_populate_full {
+    my ($where, $what) = @_;
+    return LJ::_db_sysban_populate_full($where, $what);
+}
+
+sub _db_sysban_populate_full {
+    my ($where, $what) = @_;
+    my $dbh = LJ::get_db_writer();
+    return undef unless $dbh;
+
+    # build cache from db
+    my $sth = $dbh->prepare("SELECT banid, value, 
+                                UNIX_TIMESTAMP(banuntil), note " .
+                            "FROM sysban " .
+                            "WHERE status='active' AND what=? " .
+                            "AND NOW() > bandate " .
+                            "AND (NOW() < banuntil OR banuntil IS NULL)");
+    $sth->execute($what);
+    return undef if $sth->err;
+    while (my ($banid, $val, $exp, $note) = $sth->fetchrow_array) {
+        $where->{$val}->{'banid'} = $banid || 0;
+        $where->{$val}->{'expire'} = $exp || 0;
+        $where->{$val}->{'note'} = $note || 0;
+    }
+
+    return $where;
+
+}
+
+
+=head2 C<< LJ::sysban_populate_full_by_value( $value, @types ) >>
+
+List all sysbans for the given value, of the specified types. This can be used, for example, to limit the sysban to only the privs that this user can see.
+Returns a hashref of hashes in the format:
+    what => { expire => expiration, note => note, banid => banid }
+
+=cut
+
+sub sysban_populate_full_by_value {
+    my ( $value, @types ) = @_;
+    return LJ::_db_sysban_populate_full_by_value( $value, @types );
+}
+
+sub _db_sysban_populate_full_by_value {
+    my ( $value, @types ) = @_;
+    my $dbh = LJ::get_db_writer();
+    return undef unless $dbh;
+
+    my $in_what = "";
+    my $has_all = 0;
+
+    $in_what = join ", ", map { $dbh->quote( $_ ) } @types
+        unless $has_all;
+    $in_what = " AND what IN ( $in_what )"
+        if $in_what;
+
+    # build cache from db
+    my $sth = $dbh->prepare(
+        qq{SELECT banid, what, UNIX_TIMESTAMP(banuntil), note
+           FROM sysban
+           WHERE status = 'active'
+                 AND value = ?
+                 $in_what
+                 AND NOW() > bandate
+                 AND ( NOW() < banuntil OR banuntil IS NULL )
+        }
+    );
+    $sth->execute( $value );
+    return undef if $sth->err;
+
+    my $where;
+    while ( my ( $banid, $what, $exp, $note ) = $sth->fetchrow_array ) {
+        $where->{$what}->{banid} = $banid || 0;
+        $where->{$what}->{expire} = $exp || 0;
+        $where->{$what}->{note} = $note || 0;
+    }
+
+    return $where;
+}
+
 
 # <LJFUNC>
 # name: LJ::sysban_note
@@ -277,10 +400,24 @@ EOM
 # des-bandays: length of sysban (0 for forever)
 # des-note: note to go with the ban (optional)
 # info: Takes args as a hash.
-# returns: 1 on success, 0 on failure
+# returns: BanID on success, error object on failure
 # </LJFUNC>
 sub sysban_create {
+
     my %opts = @_;
+
+    unless ( $opts{what} && $opts{value} && defined $opts{bandays} ) {
+        return bless {
+            message => "Wrong arguments passed; should be a hash\n",
+        }, 'ERROR';
+    }
+    
+    if ( $opts{note} && length( $opts{note} ) > 255 ) {
+        return bless {
+            message => "Note too long; must be less than 256 characters\n",
+        }, 'ERROR';
+    }
+
 
     my $dbh = LJ::get_db_writer();
 
@@ -293,13 +430,20 @@ sub sysban_create {
     $opts{'value'} = LJ::trim($opts{'value'});
 
     # do insert
-    $dbh->do("INSERT INTO sysban (what, value, note, bandate, banuntil) VALUES (?, ?, ?, NOW(), $banuntil)",
-             undef, $opts{'what'}, $opts{'value'}, $opts{'note'});
-    return $dbh->errstr if $dbh->err;
+    $dbh->do( "INSERT INTO sysban (what, value, note, bandate, banuntil) 
+              VALUES (?, ?, ?, NOW(), $banuntil)",
+              undef, $opts{what}, $opts{value}, $opts{note} );
+
+    if ( $dbh->err ) {
+        return bless {
+            message => $dbh->errstr,
+        }, 'ERROR';
+    }    
+
     my $banid = $dbh->{'mysql_insertid'};
 
     my $exptime = $opts{bandays} ? time() + 86400*$opts{bandays} : 0;
-    # special case: creating ip/uniq ban
+    # special case: creating ip/uniq/spamreport ban
     if ($opts{'what'} eq 'ip') {
         LJ::procnotify_add("ban_ip", { 'ip' => $opts{'value'}, exptime => $exptime });
         LJ::MemCache::delete("sysban:ip");
@@ -310,9 +454,9 @@ sub sysban_create {
         LJ::MemCache::delete("sysban:uniq");
     }
 
-    if ($opts{'what'} eq 'contentflag') {
-        LJ::procnotify_add("ban_contentflag", { 'username' => $opts{'value'}, exptime => $exptime});
-        LJ::MemCache::delete("sysban:contentflag");
+    if ( $opts{what} eq 'spamreport' ) {
+        LJ::procnotify_add( 'ban_spamreport', { spamreport => $opts{value}, exptime => $exptime } );
+        LJ::MemCache::delete( 'sysban:spamreport' );
     }
 
     # log in statushistory
@@ -390,10 +534,6 @@ sub sysban_validate {
                 0 : "Format: xxxx-xxxx (first four-last four)";
 
         },
-        'msisdn' => sub {
-            my $num = shift;
-            return $num =~ /\d{10}/ ? 0 : 'Format: 10 digit MSISDN';
-        },
     };
 
     # aliases to handlers above
@@ -405,7 +545,10 @@ sub sysban_validate {
                'support_uniq' => 'uniq',
                'lostpassword' => 'user',
                'talk_ip_test' => 'ip',
-               'contentflag' => 'user',
+               'invite_user' => 'user',
+               'invite_email' => 'email',
+               'noanon_ip' => 'ip',
+               'spamreport' => 'user',
                );
 
     while (my ($new, $existing) = splice(@map, 0, 2)) {
@@ -415,5 +558,79 @@ sub sysban_validate {
     my $check = $validate->{$what} or return "Invalid sysban type";
     return $check->($value);
 }
+
+
+# <LJFUNC>
+# name: LJ::sysban_modify
+# des: modifies the expiry or note field of an entry
+# args: banid, bandays, expiry, expirenow, note (passed in as hash)
+# des-banid: the ban ID we're modifying
+# des-bandays: the new expiry
+# des-expire: the old expiry
+# des-note: the new note (optional)
+# des-what: the ban type
+# des-value: the ban value
+# returns: ERROR object on success, error message on failure
+# </LJFUNC>
+sub sysban_modify {
+    my %opts = @_;
+    unless ( $opts{'banid'} && defined $opts{'expire'} ) {
+        return bless {
+            message => "Arguments must be passed as a hash; ban ID and 
+                        old expiry are required\n",
+        }, 'ERROR';
+    }
+    
+    if ( $opts{note} && length( $opts{note} ) > 255 ) {
+        return bless {
+            message => "Note too long; must be less than 256 characters\n",
+        }, 'ERROR';
+    }
+
+    my $dbh = LJ::get_db_writer();
+
+    my $banid    = $dbh->quote($opts{'banid'});
+    my $expire   = $opts{'expire'};
+    my $bandays  = $opts{'bandays'};
+
+    my $banuntil = "NULL";
+    if ($bandays) {
+        if ($bandays eq "E") {
+            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . ")" 
+                unless ($expire==0);
+        } elsif ($bandays eq "X") {
+            $banuntil = "NOW()";
+        } else {
+            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . 
+                        ") + INTERVAL " . $dbh->quote($bandays) . " DAY";
+        }
+    }
+
+    $dbh->do("UPDATE sysban SET banuntil=$banuntil,note=? 
+             WHERE banid=$banid",
+             undef, $opts{note} );
+            
+    if ( $dbh->err ) {
+        return bless {
+            message => $dbh->errstr,
+        }, 'ERROR';
+    }
+
+    # log in statushistory
+    my $remote = LJ::get_remote();
+    $banuntil = $opts{'bandays'} ? LJ::mysql_time($expire) : "forever";
+
+    LJ::statushistory_add(0, $remote, 'sysban_modify',
+                              "banid=$banid; status=active; " .
+                              "bandate=" . LJ::mysql_time() . "; banuntil=$banuntil; " .
+                              "what=$opts{'what'}; value=$opts{'value'}; " .
+                              "note=$opts{'note'};");
+
+
+    return $dbh->{'mysql_insertid'};
+
+}
+
+
 
 1;

@@ -1,0 +1,213 @@
+<?_c
+# promo.bml - manage promo codes
+#
+# Author: Andrea Nall <anall@andreanall.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+_c?>
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw( %GET %POST $title );
+    use DW::InviteCodes;
+
+    $title = $ML{'.title'};
+
+    my $remote = LJ::get_remote;
+    return "<?needlogin?>" unless $remote;
+
+    return "You are not authorized to view this page."
+        unless $remote->has_priv( "payments" );
+
+    my $ret = "";
+
+    my $code =  $GET{code};
+    my $state = lc( $GET{state} || "" );
+
+    my $create_form = sub {
+        my $data = $_[0] || {};
+        my $errors = $_[1] || {};
+        my $suggest_u = ( $data && $data->{suggest_journalid} ) ? LJ::load_userid($data->{suggest_journalid}) : undef;
+
+        if ( $state eq 'create' ) {
+            $title = $ML{'.title.create'};
+            $ret .= '<a href="/admin/invites/promo">' . $ML{'.return'} . '</a>';
+        } else {
+            $title = BML::ml('.title.edit', { code => $code } );
+            $ret .= '<a href="/admin/invites/promo?state=' . $state . '">' . $ML{'.return'} . '</a>';
+        }
+
+        $ret .= "<form method='POST' action='/admin/invites/promo'>";
+        $ret .= LJ::form_auth();
+        $ret .= LJ::html_hidden( { name => 'state', value => $state });
+        $ret .= LJ::html_check( { id => 'active', name => 'active', value => 1, selected => $data->{active}, label => $ML{'.field.active.label'} } );
+        $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{active}}) . "]</strong>" if $errors->{active};
+        $ret .= '<br />';
+        if ( $state eq 'create' ) {
+            $ret .= LJ::labelfy( 'code', "$ML{'.field.code.label'} " );
+            $ret .= LJ::html_text( { id => 'code', name => 'code', value => ( $data->{code} || "" ), size => 23, maxlength => 20 } );
+            $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{code}}) . "]</strong>" if $errors->{code};
+            $ret .= '<br />';
+        } else {    
+            $ret .= LJ::html_hidden( { name => 'code', value => $code });
+            $ret .= "$ML{'.field.code.label'} <strong>". ( $data->{code} || "" ) . '</strong>';
+            $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{code}}) . "]</strong>" if $errors->{code};
+            $ret .= '<br />';
+        }
+        $ret .= LJ::labelfy( 'max_count', "$ML{'.field.count.label'} " ) . ( $data->{current_count} || 0 ) . $ML{'.count.outof'};
+        $ret .= LJ::html_text( { id => 'max_count', name => 'max_count', value => ( $data->{max_count} || 0 ), size => 7 } );
+        $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{max_count}}) . "]</strong>" if $errors->{max_count};
+        $ret .= '<br />';
+        $ret .= LJ::labelfy( 'suggest_journal', "$ML{'.field.suggest_journal.label'} " );
+        $ret .= LJ::html_text( { id => 'suggest_journal', name => 'suggest_journal', value => ( $suggest_u ? $suggest_u->username : ( $data->{suggest_journal} || "" ) ), size => 28, maxlength => 25  } );
+        $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{suggest_journal}}) . "]</strong>" if $errors->{suggest_journal};
+        $ret .= '<br />';
+        $ret .= LJ::html_submit( value => $ML{ ( $data ? '.btn.save' : '.btn.create' ) } );
+        $ret .= "</form>";
+    };
+    
+    if ( LJ::did_post ) {
+        return LJ::error_list( $ML{'error.invalidform'} )
+            unless LJ::check_form_auth();
+        $code = $POST{code} || "";
+        $state = lc( $POST{state} || "" );
+        if ( $state eq 'create' ) {
+            my $data = {
+                active => $POST{active} ? 1 : 0,
+                code => $code,
+                current_count => 0,
+                max_count => $POST{max_count} || 0,
+                suggest_journal => $POST{suggest_journal},
+            };
+            my $valid = 1;
+            my $errors = {};
+            if ( ! $code ) {
+                push @{$errors->{code}}, $ML{'.error.code.missing'};
+                $valid = 0;
+            } elsif ( ! ( $code =~ /^[a-z0-9]+$/i ) ) {
+                push @{$errors->{code}}, $ML{'.error.code.invalid_character'};
+                $valid = 0;
+            } elsif ( DW::InviteCodes->is_promo_code( code => $code ) ) {
+                push @{$errors->{code}}, $ML{'.error.code.exists'};
+                $valid = 0;
+            }
+            if ( $POST{max_count} < 0 ) {
+                push @{$errors->{max_count}}, $ML{'.error.count.negative'};
+            }
+            if ( $POST{suggest_journal} ) {
+                my $user = LJ::load_user($POST{suggest_journal});
+                if ($user) {
+                    $data->{suggest_journalid} = $user->userid;
+                } else {
+                    push @{$errors->{suggest_journal}}, $ML{'.error.suggest_journal.invalid'};
+                    $valid = 0;
+                }
+            } else {
+                $data->{suggest_journal} = undef;
+            }
+            if ( $valid ) {
+                my $dbh = LJ::get_db_writer();
+                $dbh->do( "INSERT INTO acctcode_promo (code, max_count, active, suggest_journalid) VALUES (?, ?, ?, ?)", undef,
+                            $data->{code}, $data->{max_count}, $data->{active}, $data->{suggest_journalid} ) or die $dbh->errstr;
+            } else {
+                $create_form->( $data, $errors );
+                return $ret;
+            }
+            $state = "";
+            $code = "";
+        } else {
+            my $data = {
+                active => $POST{active} ? 1 : 0,
+                code => $code,
+                current_count => 0,
+                max_count => $POST{max_count} || 0,
+                suggest_journal => $POST{suggest_journal},
+            };
+            my $valid = 1;
+            my $errors = {};
+            my $info;
+            if ( ! $code ) {
+                push @{$errors->{code}}, $ML{'.error.code.missing'};
+                $valid = 0;
+            } elsif ( ! ref ( $info = DW::InviteCodes->get_promo_code_info( code => $code ) ) ) {
+                push @{$errors->{code}}, $ML{'.error.code.invalid'};
+                $valid = 0;
+            } else {
+                $data->{current_count} = $info->{current_count};
+            }
+            if ( $POST{max_count} < 0 ) {
+                push @{$errors->{max_count}}, $ML{'.error.count.negative'};
+            }
+            if ( $POST{suggest_journal} ) {
+                my $user = LJ::load_user($POST{suggest_journal});
+                if ($user) {
+                    $data->{suggest_journalid} = $user->userid;
+                } else {
+                    push @{$errors->{suggest_journal}}, $ML{'.error.suggest_journal.invalid'};
+                    $valid = 0;
+                }
+            } else {
+                $data->{suggest_journal} = undef;
+            }
+            if ( $valid ) {
+                my $dbh = LJ::get_db_writer();
+                $dbh->do( "UPDATE acctcode_promo SET max_count = ?, active = ?, suggest_journalid = ? WHERE code = ?", undef,
+                            $data->{max_count}, $data->{active}, $data->{suggest_journalid}, $data->{code} ) or die $dbh->errstr;
+            } else {
+                $create_form->( $data, $errors );
+                return $ret;
+            }
+            $code = "";
+        }
+    }
+
+    if ( $state eq 'create' ) {
+        $create_form->( );
+    } elsif ( DW::InviteCodes->is_promo_code( code => $code ) ) {
+        $create_form->( DW::InviteCodes->get_promo_code_info( code => $code ) );
+    } else {
+        my $codes = DW::InviteCodes->get_promo_codes( state => $state );
+
+        $ret .= '<a href="/admin/invites/promo?state=create">' . $ML{'.state.new'} . '</a> | ';
+        $ret .= '<a href="/admin/invites/promo?state=all">' . $ML{'.state.unfiltered'} . '</a> | ';
+        $ret .= '<a href="/admin/invites/promo?state=active">' . $ML{'.state.active'} . '</a> | ';
+        $ret .= '<a href="/admin/invites/promo?state=inactive">' . $ML{'.state.inactive'} . '</a> | ';
+        $ret .= '<a href="/admin/invites/promo?state=unused">' . $ML{'.state.unused'} . '</a> | ';
+        $ret .= '<a href="/admin/invites/promo?state=noneleft">' . $ML{'.state.noneleft'} . '</a>';
+
+        $ret .= "<table>";
+        $ret .= "<tr><th>$ML{'.heading.code'}</th><th>$ML{'.heading.active'}</th><th>$ML{'.heading.count'}</th><th>$ML{'.heading.suggest'}</th></tr>";
+        
+        if ( scalar( @$codes ) ) {
+            foreach my $code (@$codes) {
+                my $suggest_u = $code->{suggest_journalid} ? LJ::load_userid($code->{suggest_journalid}) : undef;
+                $ret .= "<tr>";
+                $ret .= "<td><a href=\"/admin/invites/promo?code=" . LJ::eurl($code->{code}) . "&state=$state\">" . LJ::ehtml($code->{code}) . "</a></td>";
+                $ret .= "<td>" . ( $code->{active} ? $ML{'.active.active'} : $ML{'.active.inactive'} ) . "</td>";
+                $ret .= "<td>" . $code->{current_count} . $ML{'.count.outof'} . $code->{max_count} . "</td>";
+                $ret .= "<td>" . ( $suggest_u ? $suggest_u->ljuser_display : $ML{'.suggest.none'} ) . "</td>";
+                $ret .= "</tr>";
+            }
+        } else {
+            $ret .= '<tr><th colspan="4">' . $ML{'.nomatch'} . '</th></tr>';
+        }
+        $ret .= "</table>";
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<style type="text/css">
+td, th { padding: 4px; }
+</style>
+<=head
+page?>

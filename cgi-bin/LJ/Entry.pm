@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 #
 # LiveJournal entry object.
 #
@@ -7,7 +20,7 @@
 package LJ::Entry;
 use strict;
 use vars qw/ $AUTOLOAD /;
-use Carp qw/ croak /;
+use Carp qw/ croak confess /;
 
 # internal fields:
 #
@@ -27,6 +40,8 @@ use Carp qw/ croak /;
 #    allowmask:  if _loaded_row
 #    posterid:   if _loaded_row
 #    comments:   arrayref of comment objects on this entry
+
+#    userpic
 
 #    _loaded_text:     loaded subject/text
 #    _loaded_row:      loaded log2 row
@@ -131,7 +146,7 @@ sub new_from_item_hash {
     croak "no journalid in item hash"
         unless $item->{journalid};
     croak "no entry information in item hash"
-        unless $item->{ditemid} || ($item->{jitemid} && $item->{anum});
+        unless $item->{ditemid} || ($item->{jitemid} && defined($item->{anum}));
 
     my $entry;
 
@@ -141,7 +156,7 @@ sub new_from_item_hash {
                                 ditemid => $item->{ditemid});
 
     # jitemid/anum is okay too
-    } elsif ($item->{jitemid} && $item->{anum}) {
+    } elsif ($item->{jitemid} && defined($item->{anum})) {
         $entry = LJ::Entry->new($item->{journalid},
                                 jitemid => $item->{jitemid},
                                 anum    => $item->{anum});
@@ -210,7 +225,7 @@ sub url {
     croak "Unknown args passed to url: " . join(",", keys %opts)
         if %opts;
 
-    my $override = LJ::run_hook("entry_permalink_override", $self, %opts);
+    my $override = LJ::Hooks::run_hook("entry_permalink_override", $self, %opts);
     return $override if $override;
 
     my $url = $u->journal_base . "/" . $self->ditemid . ".html";
@@ -221,6 +236,24 @@ sub url {
     }
     $url .= "#$anchor" if $anchor;
     return $url;
+}
+
+# returns a url that will display the number of comments on the entry
+# as an image
+sub comment_image_url {
+    my $self = shift;
+    my $u = $self->{u};
+
+    return "$LJ::SITEROOT/tools/commentcount?user=" . $self->journal->user . "&ditemid=" .  $self->ditemid;
+}
+
+# returns a pre-generated comment img tag using the comment_image_url
+sub comment_imgtag {
+    my $self = shift;
+
+    my $alttext = LJ::Lang::ml('setting.xpost.option.footer.vars.comment_image.alttext');
+    
+    return '<img src="' . $self->comment_image_url . '" width="30" height="12" alt="' . $alttext . '" style="vertical-align: middle;"/>';
 }
 
 sub anum {
@@ -477,6 +510,45 @@ sub comment_text {
 }
 
 
+# returns data hashref suitable for use in S2 CommentInfo function
+sub comment_info {
+    my ( $self, %opts )= @_;
+    return unless %opts;
+    return unless exists $opts{u};
+    return unless exists $opts{remote};
+    return unless exists $opts{style_args};
+
+    my $u = $opts{u};
+    my $remote = $opts{remote};
+    my $style_args = $opts{style_args};
+    my $viewall = $opts{viewall};
+
+    my $journal = exists $opts{journal} ? $opts{journal} : $u;
+
+    my $permalink = $self->url;
+    my $comments_enabled = ( $viewall ||
+        ( $journal->{opt_showtalklinks} eq "Y" && !$self->comments_disabled ) ) ? 1 : 0;
+    my $has_screened = ( $self->props->{hasscreened} && $remote && $journal
+                         && $remote->can_manage( $journal ) ) ? 1 : 0;
+    my $replycount = $comments_enabled ? $self->reply_count : 0;
+    my $nc = "";
+    $nc .= "nc=$replycount" if $replycount && $remote && $remote->{opt_nctalklinks};
+
+    return {
+        read_url => LJ::Talk::talkargs( $permalink, $nc, $style_args ),
+        post_url => LJ::Talk::talkargs( $permalink, "mode=reply", $style_args ),
+        permalink_url => LJ::Talk::talkargs( $permalink, $style_args ),
+        count => $replycount,
+        maxcomments => ( $replycount >= $u->count_maxcomments ) ? 1 : 0,
+        enabled => $comments_enabled,
+        comments_disabled_maintainer => $self->comments_disabled_maintainer,
+        screened => $has_screened,
+        show_readlink => $comments_enabled && ( $replycount || $has_screened ),
+        show_postlink => $comments_enabled,
+    };
+}
+
+
 # used in comment notification email headers
 sub email_messageid {
     my $self = shift;
@@ -489,7 +561,7 @@ sub atom_id {
     my $u       = $self->{u};
     my $ditemid = $self->ditemid;
 
-    return "urn:lj:$LJ::DOMAIN:atom1:$u->{user}:$ditemid";
+    return $u->atomid . ":$ditemid";
 }
 
 # returns an XML::Atom::Entry object for a feed
@@ -588,123 +660,6 @@ sub as_atom
     return $xml;
 }
 
-sub as_sms {
-    my $self = shift;
-    my %opts = @_;
-    my $for_u  = delete $opts{for_u};
-    croak "invalid for_u arg to as_sms"
-        unless LJ::isu($for_u);
-    my $maxlen = delete $opts{maxlen} || 160;
-    croak "invalid parameters: " . join(",", keys %opts)
-        if %opts;
-
-    my $ret = "";
-
-    # is this a community or journal post?
-    if ($self->journalid != $self->posterid) {
-        $ret .= "(" . $self->journal->display_name . ") ";
-    }
-
-    # add in poster's username
-    $ret .= $self->poster->display_name . ":\n";
-
-    # now for the first $maxlen characters of the subject,
-    # falling back to the first $maxlen characters of the post
-    foreach my $meth (qw(subject_text event_text)) {
-        my $text = LJ::strip_html($self->$meth) or next;
-        $ret .= $for_u->max_sms_substr
-            ($text, maxlen => $maxlen, suffix => "...");
-        last;
-    }
-
-    return $ret;
-}
-
-sub as_paged_sms {
-    my $self = shift;
-    my %opts = @_;
-    my $for_u = delete $opts{for_u};
-    my $page  = delete $opts{page} || 1;
-    $page = 1 if $page > 99;
-    croak "invalid parameters: " . join(",", keys %opts)
-        if %opts;
-
-    my $full_text;
-    {
-        my $subj_text = $self->subject_text;
-        my $body_text = $self->event_text;
-
-        if ($subj_text) {
-            $full_text = "[$subj_text] " . $body_text;
-        } else {
-            $full_text = "$body_text";
-        }
-
-        # full text should be devoid of html tags, with the
-        # exception of lj (user|comm) which just become a
-        # username
-        $full_text = LJ::strip_html($full_text);
-    }
-
-    my $header = "";
-
-    # is this a community or journal post?
-    if ($self->journalid != $self->posterid) {
-        $header .= "(" . $self->journal->display_name . ") ";
-    }
-
-    # add in poster's username
-    $header .= $self->poster->display_name;
-
-    my %pageret = ();
-    my $maxpage = 1;
-
-    { # lexical scope for 'use bytes' ...
-        use bytes;
-
-      PAGE:
-        foreach my $currpage (1..99) {
-
-            # Note:  This is acknowledged to be ghetto.  We set '99' for the max page
-            #        number while we still build the list so that at the end once there
-            #        is a real max number we can replace it.  So the character capacity
-            #        of a single '9' is lost when the total number of pages is single-digit
-            my $page_head   = "${header} ($currpage of 99)\n";
-            my $page_suffix = "...";
-
-            # if the length of this bit of text is greater than our page window,
-            # then append whatever fits and move onto the next page
-            # - note that max_sms_substr works on utf-8 character boundaries, so
-            #   doing a subsequent length($to_append) is utf-8-safe
-            my $new_page   = $for_u->max_sms_substr($page_head . $full_text, suffix => $page_suffix);
-            my $offset     = length($new_page) - (length($page_head) + length($page_suffix));
-            $full_text     = substr($full_text, $offset);
-
-            # remember this created page
-            $pageret{$currpage} = $new_page;
-
-            # stop creating new pages once $full_text is drained
-            unless (length $full_text) {
-
-                # strip "..." off of this page since it's the last
-                $pageret{$currpage} =~ s/$page_suffix$//;
-
-                $maxpage = $currpage;
-                last PAGE;
-            }
-        }
-    }
-
-    # did the user request an out-of-bounds page?
-    $page = 1 unless exists $pageret{$page};
-
-    # we reserved '99' for length checking above, now replace that with the real max number of pages
-    $pageret{$page} =~ s/\($page of 99\)/\($page of $maxpage\)/;
-
-    return $pageret{$page};
-}
-
-
 # raw utf8 text, with no HTML cleaning
 sub subject_raw {
     my $self = shift;
@@ -768,6 +723,11 @@ sub event_html
         $opts = { preformatted => $opts };
     }
 
+    my $remote = LJ::get_remote();
+    my $suspend_msg = $self->should_show_suspend_msg_to($remote) ? 1 : 0;
+    $opts->{suspend_msg} = $suspend_msg;
+    $opts->{unsuspend_supportid} = $suspend_msg ? $self->prop("unsuspend_supportid") : 0;
+
     $self->_load_text unless $self->{_loaded_text};
     my $event = $self->{event};
     LJ::CleanHTML::clean_event(\$event, $opts);
@@ -814,10 +774,7 @@ sub comments_manageable_by {
     return 0 unless $self->valid;
     return 0 unless $remote;
     my $u = $self->{u};
-    return
-        $remote->{userid} == $u->{userid} ||
-        $remote->{userid} == $self->posterid ||
-        LJ::can_manage($remote, $u);
+    return $remote->userid == $self->posterid || $remote->can_manage( $u );
 }
 
 # instance method:  returns bool, if remote user can view this entry
@@ -827,9 +784,9 @@ sub visible_to
     return 0 unless $self->valid;
 
     my ($viewall, $viewsome) = (0, 0);
-    if ($canview) {
-        $viewall = LJ::check_priv($remote, 'canview', '*');
-        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+    if ( LJ::isu( $remote ) && $canview ) {
+        $viewall = $remote->has_priv( 'canview', '*' );
+        $viewsome = $viewall || $remote->has_priv( 'canview', 'suspended' );
     }
 
     # can see anything with viewall
@@ -837,11 +794,14 @@ sub visible_to
 
     # can't see anything unless the journal is visible
     # unless you have viewsome. then, other restrictions apply
-    if (!$viewsome) {
-        return 0 if $self->journal->{statusvis} =~ m/[DSX]/;
+    unless ( $viewsome ) {
+        return 0 if $self->journal->is_inactive;
 
         # can't see anything by suspended users
-        return 0 if $self->poster->{statusvis} eq 'S';
+        return 0 if $self->poster->is_suspended;
+
+        # can't see suspended entries
+        return 0 if $self->is_suspended_for($remote);
     }
 
     # public is okay
@@ -856,20 +816,34 @@ sub visible_to
     # owners can always see their own.
     return 1 if $userid == $remoteid;
 
-    # other people can't read private
-    return 0 if $self->{'security'} eq "private";
-
-    # should be 'usemask' security from here out, otherwise
+    # should be 'usemask' or 'private' security from here out, otherwise
     # assume it's something new and return 0
-    return 0 unless $self->{'security'} eq "usemask";
+    return 0 unless $self->{security} eq "usemask" || $self->{security} eq "private";
 
-    # if it's usemask, we have to refuse non-personal journals,
-    # so we have to load the user
-    return 0 unless $remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I';
+    return 0 unless $remote->is_individual;
 
-    my $gmask = LJ::get_groupmask($userid, $remoteid);
-    my $allowed = (int($gmask) & int($self->{'allowmask'}));
-    return $allowed ? 1 : 0;  # no need to return matching mask
+    if ( $self->security eq "private" ) {
+        # other people can't read private on personal journals
+        return 0 if $self->journal->is_individual;
+
+        # but community administrators can read private entries on communities
+        return 1 if $self->journal->is_community && $remote->can_manage( $self->journal );
+
+        # private entry on a community; we're not allowed to see this
+        return 0;
+    }
+
+    if ( $self->security eq "usemask" ) {
+        # check if it's a community and they're a member
+        return 1 if $self->journal->is_community &&
+                $remote->member_of( $self->journal );
+    
+        my $gmask = $self->journal->trustmask( $remote );
+        my $allowed = (int($gmask) & int($self->{'allowmask'}));
+        return $allowed ? 1 : 0;  # no need to return matching mask
+    }
+
+    return 0;
 }
 
 # returns hashref of (kwid => tag) for tags on the entry
@@ -894,7 +868,7 @@ sub userpic {
     # mood, then their standard mood
     my $key = $self->prop('picture_keyword') ||
         $self->prop('current_mood') ||
-        LJ::mood_name($self->prop('current_moodid'));
+        DW::Mood->mood_name( $self->prop('current_moodid') );
 
     # return the picture from keyword, if defined
     my $picid = LJ::get_picid_from_keyword($up, $key);
@@ -909,7 +883,7 @@ sub userpic_kw_from_props {
 
     return $props->{'picture_keyword'} ||
         $props->{'current_mood'} ||
-        LJ::mood_name($props->{'current_moodid'});
+        DW::Mood->mood_name( $props->{'current_moodid'} );
 }
 
 
@@ -924,39 +898,8 @@ sub can_tellafriend {
 
     # friends only
     return 0 unless $entry->journal->is_person;
-    return 0 unless LJ::u_equals($u, $entry->poster);
+    return 0 unless $u && $u->equals( $entry->poster );
     return 1;
-}
-
-sub search_index_id {
-    my $entry = shift;
-
-    return 'entry_' . $entry->journalid . '_'  . $entry->jitemid;
-}
-
-sub search_document {
-    my $entry = shift;
-
-    my $content = $entry->subject_text . ' ' . $entry->event_text;
-
-    # append log metadata to end of content
-    my $metadata = '';
-
-    my $mood = $entry->prop('current_mood') || LJ::mood_name($entry->prop('current_moodid')) || '';
-    $content .= "\n$mood\n";
-
-    # add location and music
-    $content .= join("\n", map { $entry->prop($_) } qw/current_location current_music/);
-
-    my $doc = LJ::Search->document(
-                                   id          => $entry->search_index_id,
-                                   content     => $content,
-                                   date        => $entry->logtime_unix,
-                                   );
-
-    $doc->stored('id', 1); # store the id field and index it
-
-    return $doc;
 }
 
 # defined by the entry poster
@@ -966,35 +909,68 @@ sub adult_content {
     return $self->prop('adult_content');
 }
 
+# defined by a community maintainer
+sub adult_content_maintainer {
+    my $self = shift;
+
+    my $userLevel = $self->adult_content;
+    my $maintLevel = $self->prop( 'adult_content_maintainer' );
+
+    return undef unless $maintLevel;
+    return $maintLevel if $userLevel eq $maintLevel;
+    return $maintLevel if !$userLevel || $userLevel eq "none";
+    return $maintLevel if $userLevel eq "concepts" && $maintLevel eq "explicit";
+    return undef;
+}
+
+# defined by a community maintainer
+sub adult_content_maintainer_reason {
+    my $self = shift;
+
+    return $self->prop('adult_content_maintainer_reason');
+}
+
 # defined by the entry poster
 sub adult_content_reason {
     my $self = shift;
-    
+
     return $self->prop('adult_content_reason');
 }
 
-# defined by an admin
-sub admin_content_flag {
-    my $self = shift;
-
-    return $self->prop('admin_content_flag');
-}
-
-# uses both poster- and admin-defined props to figure out the adult content level
+# uses both poster- and maintainer-defined props to figure out the adult content level
 sub adult_content_calculated {
     my $self = shift;
 
-    return "explicit" if $self->admin_content_flag eq "explicit_adult";
+    return $self->adult_content_maintainer if $self->adult_content_maintainer;
     return $self->adult_content;
 }
 
 # returns who marked the entry as the 'adult_content_calculated' adult content level
 sub adult_content_marker {
     my $self = shift;
-    
-    return "admin" if $self->admin_content_flag eq "explicit_adult";
-    return "poster" if $self->adult_content ne "";
+
+    return "community" if $self->adult_content_maintainer;
+    return "poster" if $self->adult_content;
     return $self->journal->adult_content_marker;
+}
+
+# return whether this entry has comments disabled, either by the poster or by the maintainer
+sub comments_disabled {
+    my $self = $_[0];
+
+    return $self->prop( 'opt_nocomments' ) || $self->prop( 'opt_nocomments_maintainer' );
+}
+
+# return whether comments were disabled by the entry poster
+sub comments_disabled_poster {
+    return $_[0]->prop( 'opt_nocomments' );
+}
+
+# return whether this post had its comments disabled by a community maintainer (not by the poster, who can override the community moderator)
+sub comments_disabled_maintainer {
+    my $self = $_[0];
+
+    return $self->prop( 'opt_nocomments_maintainer' ) && !$self->comments_disabled_poster;
 }
 
 sub qotdid {
@@ -1003,32 +979,15 @@ sub qotdid {
     return $self->prop('qotdid');
 }
 
+# don't use this anymore, instead check for is_special flag on question
 sub is_special_qotd_entry {
     my $self = shift;
 
     my $qotdid = $self->qotdid;
     my $poster = $self->poster;
 
-    if ($qotdid && $poster && LJ::run_hook("show_qotd_title_change", $poster)) {
+    if ($qotdid && $poster && LJ::Hooks::run_hook("show_qotd_title_change", $poster)) {
         return 1;
-    }
-
-    return 0;
-}
-
-sub qct_value_for_ads {
-    my $self = shift;
-
-    return 0 unless LJ::is_enabled("content_flag");
-
-    my $adult_content = $self->adult_content_calculated;
-    my $admin_flag = $self->admin_content_flag;
-
-    if ($LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads}) {
-        return $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads};
-    }
-    if ($LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads}) {
-        return $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads};
     }
 
     return 0;
@@ -1039,90 +998,12 @@ sub should_block_robots {
 
     return 1 if $self->journal->prop('opt_blockrobots');
 
-    return 0 unless LJ::is_enabled("content_flag");
+    return 0 unless LJ::is_enabled( 'adult_content' );
 
     my $adult_content = $self->adult_content_calculated;
-    my $admin_flag = $self->admin_content_flag;
 
     return 1 if $LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{block_robots};
-    return 1 if $LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{block_robots};
     return 0;
-}
-
-sub can_be_added_to_verticals_by_admin {
-    my $self = shift;
-    my %opts = @_;
-
-    return LJ::Vertical->check_entry_for_addition_and_display($self) &&
-           ($opts{ignore_image_restrictions} ? 1 : LJ::Vertical->check_entry_for_image_restrictions($self, ignore_image_sizes => 1)) ? 1 : 0;
-}
-
-sub should_be_added_to_verticals {
-    my $self = shift;
-    my %opts = @_;
-
-    return LJ::Vertical->check_entry_for_addition($self, %opts) &&
-           LJ::Vertical->check_entry_for_addition_and_display($self) ? 1 : 0;
-}
-
-sub should_show_in_verticals {
-    my $self = shift;
-    my %opts = @_;
-
-    return LJ::Vertical->check_entry_for_addition_and_display($self) &&
-           LJ::Vertical->check_entry_for_display($self) ? 1 : 0;
-}
-
-sub verticals_list {
-    my $self = shift;
-
-    my @verticals = split(/\s*,\s*/, $self->prop("verticals_list"));
-    return @verticals ? @verticals : ();
-}
-
-sub verticals_list_for_ad {
-    my $self = shift;
-
-    my @verticals = $self->verticals_list;
-    my @verticals_for_ad;
-    if (@verticals) {
-        foreach my $vertname (@verticals) {
-            my $vertical = LJ::Vertical->load_by_name($vertname);
-            next unless $vertical;
-
-            push @verticals_for_ad, $vertical->ad_name;
-        }
-    }
-
-    return @verticals_for_ad ? @verticals_for_ad : ();
-}
-
-sub add_to_vertical {
-    my $self = shift;
-    my $vertname = shift;
-
-    my @verticals = $self->verticals_list;
-    return 1 if grep { $_ eq $vertname } @verticals;
-
-    push @verticals, $vertname;
-    my $newval = join(",", @verticals);
-    $self->set_prop( verticals_list => $newval );
-
-    return 1;
-}
-
-sub remove_from_vertical {
-    my $self = shift;
-    my $vertname = shift;
-
-    my @verticals = $self->verticals_list;
-    my @newkeys = grep { $_ ne $vertname } @verticals;
-    return 1 if @newkeys == @verticals;
-
-    my $newval = join(",", @newkeys);
-    $self->set_prop( verticals_list => $newval );
-
-    return 1;
 }
 
 sub syn_link {
@@ -1140,37 +1021,69 @@ sub group_names {
 
     my $remote = LJ::get_remote();
     my $poster = $self->poster;
+    return "" unless $remote && $poster && $poster->equals( $remote );
 
-    if ($self->allowmask > 1 && $poster && $poster->equals($remote)) {
-        my $groups = LJ::get_friend_group($poster);
+    return $poster->security_group_display( $self->allowmask );
+}
 
-        # if the poster has friend groups, return the ones to which this entry is filtered
-        if (keys %$groups) {
-            my @friendgroups = ();
+sub statusvis {
+    my $self = shift;
 
-            foreach my $groupid (keys %$groups) {
-                next unless $self->allowmask & 1 << $groupid;
+    return $self->prop("statusvis") eq "S" ? "S" : "V";
+}
 
-                my $name = LJ::ehtml($groups->{$groupid}->{groupname});
-                my $url = LJ::eurl($poster->journal_base . "/security/group:$name");
+sub is_visible {
+    my $self = shift;
 
-                my $group_text = $remote->get_cap("security_filter") || $poster->get_cap("security_filter") ? "<a href='$url'>$name</a>" : $name;
-                push @friendgroups, $group_text;
-            }
+    return $self->statusvis eq "V" ? 1 : 0;
+}
 
-            return join(', ', @friendgroups) if @friendgroups;
-        }
-    }
+sub is_suspended {
+    my $self = shift;
 
-    return "";
+    return $self->statusvis eq "S" ? 1 : 0;
+}
+
+# same as is_suspended, except that it returns 0 if the given user can see the suspended entry
+sub is_suspended_for {
+    my $self = shift;
+    my $u = shift;
+
+    return 0 unless $self->is_suspended;
+    return 0 if LJ::isu($u) && $u->has_priv( 'canview', 'suspended' );
+    return 0 if LJ::isu($u) && $u->equals($self->poster);
+    return 1;
+}
+
+sub should_show_suspend_msg_to {
+    my $self = shift;
+    my $u = shift;
+
+    return $self->is_suspended && !$self->is_suspended_for($u) ? 1 : 0;
+}
+
+# some entry props must keep all their history
+sub put_logprop_in_history {
+    my ($self, $prop, $old_value, $new_value, $note) = @_;
+
+    my $p = LJ::get_prop("log", $prop);
+    return undef unless $p;
+
+    my $propid = $p->{id};
+
+    my $u = $self->journal;
+    $u->do("INSERT INTO logprop_history (journalid, jitemid, propid, change_time, old_value, new_value, note) VALUES (?, ?, ?, unix_timestamp(), ?, ?, ?)",
+           undef, $self->journalid, $self->jitemid, $propid, $old_value, $new_value, $note);
+    return undef if $u->err;
+    return 1;
 }
 
 package LJ;
 
-use Class::Autouse qw (
-                       LJ::Poll
-                       LJ::EmbedModule
-                       );
+use Carp qw(confess);
+use LJ::Poll;
+use LJ::EmbedModule;
+use DW::External::Account;
 
 # <LJFUNC>
 # name: LJ::get_logtext2multi
@@ -1181,14 +1094,12 @@ use Class::Autouse qw (
 # des-idsbyc: A hashref where the key is the clusterid, and the data
 #             is an arrayref of [ ownerid, itemid ] array references.
 # </LJFUNC>
-sub get_logtext2multi
-{
-    &nodb;
+sub get_logtext2multi {
     return _get_posts_raw_wrapper(shift, "text");
 }
 
-# this function is used to translate the old get_logtext2multi and load_log_props2multi
-# functions into using the new get_posts_raw.  eventually, the above functions should
+# this function is used to translate the old get_logtext2multi function
+# into using the new get_posts_raw.  eventually, the above function should
 # be taken out of the rest of the code, at which point this function can also die.
 sub _get_posts_raw_wrapper {
     # args:
@@ -1238,7 +1149,7 @@ sub _get_posts_raw_wrapper {
 # returns: hashref with keys 'text', 'prop', or 'replycount', and values being
 #          hashrefs with keys "jid:jitemid".  values of that are as follows:
 #          text: [ $subject, $body ], props: { ... }, and replycount: scalar
-# args: opts?, id+
+# args: opts?, id
 # des-opts: An optional hashref of options:
 #            - memcache_only:  Don't fall back on the database.
 #            - text_only:  Retrieve only text, no props (used to support old API).
@@ -1475,9 +1386,9 @@ sub get_log2_row
     $row = LJ::MemCache::get($memkey);
 
     if ($row) {
-        @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNQN", $row);
+        @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack($LJ::LOGMEMCFMT, $row);
         $item->{'security'} = ($item->{'allowmask'} == 0 ? 'private' :
-                               ($item->{'allowmask'} == 2**63 ? 'public' : 'usemask'));
+                               ($item->{'allowmask'} == $LJ::PUBLICBIT ? 'public' : 'usemask'));
         $item->{'journalid'} = $jid;
         @$item{'jitemid', 'anum'} = ($item->{'ditemid'} >> 8, $item->{'ditemid'} % 256);
         $item->{'eventtime'} = LJ::mysql_time($item->{'eventtime'}, 1);
@@ -1501,13 +1412,13 @@ sub get_log2_row
     my ($sec, $eventtime, $logtime);
     $sec = $item->{'allowmask'};
     $sec = 0 if $item->{'security'} eq 'private';
-    $sec = 2**63 if $item->{'security'} eq 'public';
+    $sec = $LJ::PUBLICBIT if $item->{'security'} eq 'public';
     $eventtime = LJ::mysqldate_to_time($item->{'eventtime'}, 1);
     $logtime = LJ::mysqldate_to_time($item->{'logtime'}, 1);
 
     # note: this cannot distinguish between security == private and security == usemask with allowmask == 0 (no groups)
     # both should have the same display behavior, but we don't store the security value in memcache
-    $row = pack("NNNQN", $item->{'posterid'}, $eventtime, $logtime, $sec,
+    $row = pack($LJ::LOGMEMCFMT, $item->{'posterid'}, $eventtime, $logtime, $sec,
                 $item->{'ditemid'});
     LJ::MemCache::set($memkey, $row);
 
@@ -1525,17 +1436,23 @@ sub get_log2_row
 
 sub get_log2_recent_log
 {
-    my ($u, $cid, $update, $notafter) = @_;
+    my ($u, $cid, $update, $notafter, $events_date) = @_;
     my $jid = LJ::want_userid($u);
     $cid ||= $u->{'clusterid'} if ref $u;
 
     my $DATAVER = "4"; # 1 char
 
-    my $memkey = [$jid, "log2lt:$jid"];
+    my $use_cache = 1;
+
+    # timestamp
+    $events_date = int $events_date;
+    $use_cache = 0 if $events_date; # do not use memcache for dayly friends log
+
+    my $memkey  = [$jid, "log2lt:$jid"];
     my $lockkey = $memkey->[1];
     my ($rows, $ret);
 
-    $rows = LJ::MemCache::get($memkey);
+    $rows = LJ::MemCache::get($memkey) if $use_cache;
     $ret = [];
 
     my $construct_singleton = sub {
@@ -1562,14 +1479,14 @@ sub get_log2_recent_log
         # here, this data is unreliable
         return 0 if $update > $tu;
 
-        my $n = (length($rows) - 5 )/20;
+        my $n = (length($rows) - 5)/24;
         for (my $i=0; $i<$n; $i++) {
             my ($posterid, $eventtime, $rlogtime, $allowmask, $ditemid) =
-                unpack("NNNQN", substr($rows, $i*24+5, 24));
+                unpack($LJ::LOGMEMCFMT, substr($rows, $i*24+5, 24));
             next if $notafter and $rlogtime > $notafter;
             $eventtime = LJ::mysql_time($eventtime, 1);
             my $security = $allowmask == 0 ? 'private' :
-                ($allowmask == 2**63 ? 'public' : 'usemask');
+                ($allowmask == $LJ::PUBLICBIT ? 'public' : 'usemask');
             my ($jitemid, $anum) = ($ditemid >> 8, $ditemid % 256);
             my $item = {};
             @$item{'posterid','eventtime','rlogtime','allowmask','ditemid',
@@ -1596,14 +1513,20 @@ sub get_log2_recent_log
         return undef unless $db;
     }
 
+    #
     my $lock = $db->selectrow_array("SELECT GET_LOCK(?,10)", undef, $lockkey);
     return undef unless $lock;
 
-    $rows = LJ::MemCache::get($memkey);
-    if ($rows_decode->()) {
-        $db->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
-        return $construct_singleton->();
+    if ($use_cache){
+    # try to get cached data in exclusive context
+        $rows = LJ::MemCache::get($memkey);
+        if ($rows_decode->()) {
+            $db->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
+            return $construct_singleton->();
+        }
     }
+
+    # ok. fetch data directly from DB.
     $rows = "";
 
     # get reliable update time from the db
@@ -1626,17 +1549,28 @@ sub get_log2_recent_log
     $dont_store = 1 unless defined $tu;
 
     # get reliable log2lt data from the db
-
     my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600*24*14; # 2 weeks default
-
-    my $sql = "SELECT jitemid, posterid, eventtime, rlogtime, " .
-        "security, allowmask, anum, replycount FROM log2 " .
-        "USE INDEX (rlogtime) WHERE journalid=? AND " .
-        "rlogtime <= ($LJ::EndOfTime - UNIX_TIMESTAMP()) + $max_age";
+    my $sql = "
+        SELECT
+            jitemid, posterid, eventtime, rlogtime,
+            security, allowmask, anum, replycount
+         FROM log2
+         USE INDEX (rlogtime)
+         WHERE
+                journalid=?
+         " .
+         ($events_date
+            ?
+              "AND rlogtime <= ($LJ::EndOfTime - $events_date)
+               AND rlogtime >= ($LJ::EndOfTime - " . ($events_date + 24*3600) . ")"
+            :
+            "AND rlogtime <= ($LJ::EndOfTime - UNIX_TIMESTAMP()) + $max_age"
+         )
+         ;
 
     my $sth = $db->prepare($sql);
     $sth->execute($jid);
-    my @row;
+    my @row = ();
     push @row, $_ while $_ = $sth->fetchrow_hashref;
     @row = sort { $a->{'rlogtime'} <=> $b->{'rlogtime'} } @row;
     my $itemnum = 0;
@@ -1649,51 +1583,65 @@ sub get_log2_recent_log
         my ($sec, $ditemid, $eventtime, $logtime);
         $sec = $item->{'allowmask'};
         $sec = 0 if $item->{'security'} eq 'private';
-        $sec = 2**63 if $item->{'security'} eq 'public';
+        $sec = $LJ::PUBLICBIT if $item->{'security'} eq 'public';
         $ditemid = $item->{'jitemid'}*256 + $item->{'anum'};
         $eventtime = LJ::mysqldate_to_time($item->{'eventtime'}, 1);
 
-        $rows .= pack("NNNQN",
+        $rows .= pack($LJ::LOGMEMCFMT,
                       $item->{'posterid'},
                       $eventtime,
                       $item->{'rlogtime'},
                       $sec,
                       $ditemid);
 
-        if ($itemnum++ < 50) {
+        if ($use_cache && $itemnum++ < 50) {
             LJ::MemCache::add([$jid, "rp:$jid:$item->{'jitemid'}"], $item->{'replycount'});
         }
     }
 
     $rows = $DATAVER . pack("N", $tu) . $rows;
-    LJ::MemCache::set($memkey, $rows) unless $dont_store;
+
+    # store journal log in cache
+    LJ::MemCache::set($memkey, $rows)
+        if $use_cache and not $dont_store;
 
     $db->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
     return $construct_singleton->();
 }
 
+# get recent entries for a user
 sub get_log2_recent_user
 {
     my $opts = shift;
     my $ret = [];
 
     my $log = LJ::get_log2_recent_log($opts->{'userid'}, $opts->{'clusterid'},
-              $opts->{'update'}, $opts->{'notafter'});
+              $opts->{'update'}, $opts->{'notafter'}, $opts->{events_date});
 
-    my $left = $opts->{'itemshow'};
+    my $left     = $opts->{'itemshow'};
     my $notafter = $opts->{'notafter'};
-    my $remote = $opts->{'remote'};
+    my $remote   = $opts->{'remote'};
+    my $filter   = $opts->{filter};
 
     my %mask_for_remote = (); # jid => mask for $remote
     foreach my $item (@$log) {
         last unless $left;
         last if $notafter and $item->{'rlogtime'} > $notafter;
         next unless $remote || $item->{'security'} eq 'public';
-        next if $item->{'security'} eq 'private'
-            and $item->{'journalid'} != $remote->{'userid'};
+
+        next if defined( $opts->{security}) && !(
+                       ( $opts->{security} eq 'access' && $item->{security} eq 'usemask' && $item->{allowmask}+0 != 0 )
+                    || ( $opts->{security} eq 'private' && $item->{security} eq 'usemask' && $item->{allowmask}+0 == 0 )
+                    || ( $opts->{security} eq $item->{security} ) );
+
+        if ( $item->{security} eq 'private' and $item->{journalid} != $remote->{userid} ) {
+            my $ju = LJ::load_userid( $item->{journalid} );
+            next unless $remote->can_manage( $ju );
+        }
+
         if ($item->{'security'} eq 'usemask') {
-            next unless $remote->{'journaltype'} eq "P" || $remote->{'journaltype'} eq 'I';
-            my $permit = ($item->{'journalid'} == $remote->{'userid'});
+            next unless $remote->is_individual;
+            my $permit = ( $item->{journalid} == $remote->userid );
             unless ($permit) {
                 # $mask for $item{journalid} should always be the same since get_log2_recent_log
                 # selects based on the $u we pass in; $u->id == $item->{journalid} from what I can see
@@ -1701,7 +1649,13 @@ sub get_log2_recent_user
                 #    extra memcache calls
                 my $mask = $mask_for_remote{$item->{journalid}};
                 unless (defined $mask) {
-                    $mask = LJ::get_groupmask($item->{'journalid'}, $remote->{'userid'});
+                    my $ju = LJ::load_userid( $item->{journalid} );
+                    if ( $ju->is_community ) {
+                        # communities don't have masks towards users, so fake it
+                        $mask = $remote->member_of( $ju ) ? 1 : 0;
+                    } else {
+                        $mask = $ju->trustmask( $remote );
+                    }
                     $mask_for_remote{$item->{journalid}} = $mask;
                 }
                 $permit = $item->{'allowmask'}+0 & $mask+0;
@@ -1710,21 +1664,28 @@ sub get_log2_recent_user
         }
 
         # date conversion
-        if ($opts->{'dateformat'} eq "S2") {
+        if ( ! $opts->{'dateformat'} || $opts->{'dateformat'} eq "S2" ) {
             $item->{'alldatepart'} = LJ::alldatepart_s2($item->{'eventtime'});
 
             # conversion to get the system time of this entry
             my $logtime = LJ::mysql_time($LJ::EndOfTime - $item->{rlogtime}, 1);
             $item->{'system_alldatepart'} = LJ::alldatepart_s2($logtime);
         } else {
-            $item->{'alldatepart'} = LJ::alldatepart_s1($item->{'eventtime'});
+            confess "We removed S1 support, sorry.";
         }
+
+        # now see if this item matches the filter
+        next if $filter && ! $filter->show_entry( $item );
+
         push @$ret, $item;
     }
 
     return @$ret;
 }
 
+##
+## see subs 'get_itemid_after2' and 'get_itemid_before2'
+##
 sub get_itemid_near2
 {
     my $u = shift;
@@ -1733,42 +1694,81 @@ sub get_itemid_near2
 
     $jitemid += 0;
 
-    my ($inc, $order);
+    my ($order, $cmp1, $cmp2, $cmp3);
     if ($after_before eq "after") {
-        ($inc, $order) = (-1, "DESC");
+        ($order, $cmp1, $cmp2, $cmp3) = ("DESC", "<=", ">", sub {$a->[0] <=> $b->[0]} );
     } elsif ($after_before eq "before") {
-        ($inc, $order) = (1, "ASC");
+        ($order, $cmp1, $cmp2, $cmp3) = ("ASC",  ">=", "<", sub {$b->[0] <=> $a->[0]} );
     } else {
         return 0;
     }
 
     my $dbr = LJ::get_cluster_reader($u);
     my $jid = $u->{'userid'}+0;
-    my $field = $u->{'journaltype'} eq "P" ? "revttime" : "rlogtime";
+    my $field = $u->is_person ? "revttime" : "rlogtime";
 
     my $stime = $dbr->selectrow_array("SELECT $field FROM log2 WHERE ".
                                       "journalid=$jid AND jitemid=$jitemid");
     return 0 unless $stime;
 
+    my $secwhere = "AND security='public'";
+    my $remote = LJ::get_remote();
 
-    my $day = 86400;
-    foreach my $distance ($day, $day*7, $day*30, $day*90) {
-        my ($one_away, $further) = ($stime + $inc, $stime + $inc*$distance);
-        if ($further < $one_away) {
-            # swap them, BETWEEN needs lower number first
-            ($one_away, $further) = ($further, $one_away);
+    if ($remote) {
+        if ( $remote->equals( $u ) ) {
+            $secwhere = "";   # see everything
+        } elsif ( $remote->is_individual ) {
+            my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );
+            $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))"
+                if $gmask;
         }
-        my ($id, $anum) =
-            $dbr->selectrow_array("SELECT jitemid, anum FROM log2 WHERE journalid=$jid ".
-                                  "AND $field BETWEEN $one_away AND $further ".
-                                  "ORDER BY $field $order LIMIT 1");
-        if ($id) {
+    }
+
+    ##
+    ## We need a next/prev record in journal before/after a given time
+    ## Since several records may have the same time (time is rounded to 1 minute),
+    ## we're ordering them by jitemid. So, the SQL we need is
+    ##      SELECT * FROM log2
+    ##      WHERE journalid=? AND rlogtime>? AND jitmemid<?
+    ##      ORDER BY rlogtime, jitemid DESC
+    ##      LIMIT 1
+    ## Alas, MySQL tries to do filesort for the query.
+    ## So, we sort by rlogtime only and fetch all (2, 10, 50) records
+    ## with the same rlogtime (we skip records if rlogtime is different from the first one).
+    ## If rlogtime of all fetched records is the same, increase the LIMIT and retry.
+    ## Then we sort them in Perl by jitemid and takes just one.
+    ##
+    my $result_ref;
+    foreach my $limit (2, 10, 50, 100) {
+        $result_ref = $dbr->selectall_arrayref(
+            "SELECT jitemid, anum, $field FROM log2 use index (rlogtime,revttime) ".
+                "WHERE journalid=? AND $field $cmp1 ? AND jitemid $cmp2 ? ".
+                $secwhere. " ".
+                "ORDER BY $field $order LIMIT $limit",
+            undef, $jid, $stime, $jitemid
+        );
+
+        my %hash_times = ();
+        map {$hash_times{$_->[2]} = 1} @$result_ref;
+
+        # If we has one the only 'time' in $limit fetched rows,
+        # may be $limit cuts off our record. Increase the limit and repeat.
+        if (((scalar keys %hash_times) > 1) || (scalar @$result_ref) < $limit) {
+            # Sort result by jitemid and get our id from a top.
+            my @result =  sort $cmp3 @$result_ref;
+            my ($id, $anum) = ($result[0]->[0], $result[0]->[1]);
+            return 0 unless $id;
             return wantarray() ? ($id, $anum) : ($id*256 + $anum);
         }
     }
     return 0;
 }
 
+##
+## Returns ID (a pair <jitemid, anum> in list context, ditmeid in scalar context)
+## of a journal record that follows/preceeds the given record.
+## Input: $u, $jitemid
+##
 sub get_itemid_after2  { return get_itemid_near2(@_, "after");  }
 sub get_itemid_before2 { return get_itemid_near2(@_, "before"); }
 
@@ -1798,7 +1798,7 @@ sub set_logprop
     $u->do("REPLACE INTO logprop2 (journalid, jitemid, propid, value) ".
            "VALUES $ins_values") if $ins_values;
     $u->do("DELETE FROM logprop2 WHERE journalid=? AND jitemid=? ".
-           "AND propid IN ($del_ids)", undef, $u->{'userid'}, $jitemid) if $del_ids;
+           "AND propid IN ($del_ids)", undef, $u->userid, $jitemid) if $del_ids;
 
     LJ::MemCache::delete([$uid,"logprop:$uid:$jitemid"]) if $kill_mem;
 }
@@ -1887,22 +1887,6 @@ sub load_log_props2
 }
 
 # <LJFUNC>
-# name: LJ::load_log_props2multi
-# class:
-# des:
-# info:
-# args:
-# des-:
-# returns:
-# </LJFUNC>
-sub load_log_props2multi
-{
-    &nodb;
-    my ($ids, $props) = @_;
-    _get_posts_raw_wrapper($ids, "prop", $props);
-}
-
-# <LJFUNC>
 # name: LJ::delete_entry
 # des: Deletes a user's journal entry
 # args: uuserid, jitemid, quick?, anum?
@@ -1931,8 +1915,10 @@ sub delete_entry
 
     my $dc = $u->log2_do(undef, "DELETE FROM log2 WHERE journalid=$jid AND jitemid=$jitemid $and");
     LJ::MemCache::delete([$jid, "log2:$jid:$jitemid"]);
+    LJ::MemCache::delete( [ $jid, "activeentries:$jid" ] );
     LJ::MemCache::decr([$jid, "log2ct:$jid"]) if $dc > 0;
-    LJ::memcache_kill($jid, "dayct");
+    LJ::memcache_kill($jid, "dayct2");
+    LJ::Hooks::run_hooks("deletepost", $jid, $jitemid, $anum);
 
     # if this is running the second time (started by the cmd buffer),
     # the log2 row will already be gone and we shouldn't check for it.
@@ -1956,6 +1942,11 @@ sub delete_entry
     # delete all comments
     LJ::delete_all_comments($u, 'L', $jitemid);
 
+    # fired to delete the post from the Sphinx search database
+    if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
+        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } ) );
+    }
+
     return 1;
 }
 
@@ -1973,6 +1964,7 @@ sub mark_entry_as_spam {
     $journalu = LJ::want_user($journalu);
     $jitemid += 0;
     return 0 unless $journalu && $jitemid;
+    return 0 if LJ::sysban_check( 'spamreport', $journalu->user );
 
     my $dbcr = LJ::get_cluster_def_reader($journalu);
     my $dbh = LJ::get_db_writer();
@@ -1990,6 +1982,42 @@ sub mark_entry_as_spam {
     $dbh->do('INSERT INTO spamreports (reporttime, posttime, journalid, posterid, subject, body, report_type) ' .
              'VALUES (UNIX_TIMESTAMP(), UNIX_TIMESTAMP(?), ?, ?, ?, ?, \'entry\')',
               undef, $item->{logtime}, $journalu->{userid}, $posterid, $subject, $body);
+
+    return 0 if $dbh->err;
+    return 1;
+}
+
+# Same as previous, but mark as spam moderated event selected by modid.
+sub reject_entry_as_spam {
+    my ($journalu, $modid) = @_;
+    $journalu = LJ::want_user($journalu);
+    $modid += 0;
+    return 0 unless $journalu && $modid;
+    return 0 if LJ::sysban_check( 'spamreport', $journalu->user );
+
+    my $dbcr = LJ::get_cluster_def_reader($journalu);
+    my $dbh = LJ::get_db_writer();
+    return 0 unless $dbcr && $dbh;
+
+    # step 1: get info we need
+    my ($posterid, $logtime) = $dbcr->selectrow_array(
+        "SELECT posterid, logtime FROM modlog WHERE journalid=? AND modid=?",
+        undef, $journalu->userid, $modid);
+
+    my $frozen = $dbcr->selectrow_array(
+        "SELECT request_stor FROM modblob WHERE journalid=? AND modid=?",
+        undef, $journalu->userid, $modid);
+
+    use Storable;
+    my $req = $frozen ? Storable::thaw($frozen) : undef;
+
+    my ($subject, $body) = ($req->{subject}, $req->{event});
+    return 0 unless $body;
+
+    # step 2: insert into spamreports
+    $dbh->do('INSERT INTO spamreports (reporttime, posttime, journalid, posterid, subject, body, report_type) ' .
+             'VALUES (UNIX_TIMESTAMP(), UNIX_TIMESTAMP(?), ?, ?, ?, ?, \'entry\')',
+              undef, $logtime, $journalu->{userid}, $posterid, $subject, $body);
 
     return 0 if $dbh->err;
     return 1;
@@ -2126,7 +2154,7 @@ sub item_link
     # XXX: should have an option of returning a url with escaped (&amp;)
     #      or non-escaped (&) arguments.  a new link object would be best.
     my $args = @args ? "?" . join("&amp;", @args) : "";
-    return LJ::journal_base($u) . "/$ditemid.html$args";
+    return $u->journal_base . "/$ditemid.html$args";
 }
 
 # <LJFUNC>
@@ -2137,17 +2165,15 @@ sub item_link
 #       and its hooks.
 # args: u, ditemid, remote, eventref, opts?
 # des-eventref:
-# des-opst:
+# des-opts:
 # returns:
 # </LJFUNC>
 
-sub expand_embedded
-{
-    &nodb;
+sub expand_embedded {
     my ($u, $ditemid, $remote, $eventref, %opts) = @_;
     LJ::Poll->expand_entry($eventref) unless $opts{preview};
     LJ::EmbedModule->expand_entry($u, $eventref, %opts);
-    LJ::run_hooks("expand_embedded", $u, $ditemid, $remote, $eventref, %opts);
+    LJ::Hooks::run_hooks("expand_embedded", $u, $ditemid, $remote, $eventref, %opts);
 }
 
 # <LJFUNC>
@@ -2189,5 +2215,127 @@ sub item_toutf8
     }
     return;
 }
+
+# function to fill in hash for basic currents
+sub currents {
+    my ( $props, $u, $opts ) = @_;
+    return unless ref $props eq 'HASH';
+    my %current;
+
+    my ( $key, $entry, $s2imgref );
+    if ( $opts && ref $opts ) {
+        $key = $opts->{key};
+        $entry = $opts->{entry};
+        $s2imgref = $opts->{s2imgref};
+    }
+
+    # Mood
+    if ( $props->{"${key}current_mood"} || $props->{"${key}current_moodid"} ) {
+        my $moodid = $props->{"${key}current_moodid"};
+        my $mood = $props->{"${key}current_mood"};
+        my $moodname;
+        my $moodpic;
+
+        # favor custom mood over system mood
+        if ( my $val = $mood ) {
+             LJ::CleanHTML::clean_subject( \$val );
+             $moodname = $val;
+        }
+
+        if ( my $val = $moodid ) {
+            $moodname ||= DW::Mood->mood_name( $val );
+            if ( defined $u ) {
+                my $themeid = LJ::isu( $u ) ? $u->moodtheme : undef;
+                # $u might be a hashref instead of a user object?
+                $themeid ||= ref $u ? $u->{moodthemeid} : undef;
+                my $theme = DW::Mood->new( $themeid );
+                my %pic;
+                if ( $theme && $theme->get_picture( $val, \%pic ) ) {
+                    if ( $s2imgref && ref $s2imgref ) {
+                        # return argument array for S2::Image
+                        $$s2imgref = [ $pic{pic}, $pic{w}, $pic{h} ];
+                    } else {
+                        $moodpic = "<img class='moodpic' src=\"$pic{pic}\" " .
+                                   "width='$pic{w}' height='$pic{h}' " .
+                                   "align='absmiddle' vspace='1' alt='' /> ";
+                    }
+                }
+            }
+        }
+
+        $current{Mood} = "$moodpic$moodname";
+    }
+
+    # Music
+    if ( $props->{"${key}current_music"} ) {
+        $current{Music} = $props->{"${key}current_music"};
+        LJ::CleanHTML::clean_subject( \$current{Music} );
+    }
+
+    # Location
+    if ( $props->{"${key}current_location"} || $props->{"${key}current_coords"} ) {
+        my $loc = eval { LJ::Location->new( coords   => $props->{"${key}current_coords"},
+                                            location => $props->{"${key}current_location"}
+                                          ) };
+        $current{Location} = $loc->as_html_current if $loc;
+    }
+
+    # Crossposts
+    if ( my $xpost = $props->{"${key}xpostdetail"} ) {
+        my $xposthash = DW::External::Account->xpost_string_to_hash( $xpost );
+        my $xpostlinks = "";
+        foreach my $xpostvalue ( values %$xposthash ) {
+            if ( $xpostvalue->{url} ) {
+                my $xpost_url = LJ::no_utf8_flag( $xpostvalue->{url} );
+                $xpostlinks .= " " if $xpostlinks;
+                $xpostlinks .= "<a href='$xpost_url'>$xpost_url</a>";
+            }
+        }
+        $current{Xpost} = $xpostlinks if $xpostlinks;
+    }
+
+    if ( $entry ) {
+        # Groups
+        my $group_names = $entry->group_names;
+        $current{Groups} = $group_names if $group_names;
+
+        # Tags
+        my $u = $entry->journal;
+        my $base = $u->journal_base;
+        my $itemid = $entry->jitemid;
+        my $logtags = LJ::Tags::get_logtags( $u, $itemid );
+        if ( $logtags->{$itemid} ) {
+            my @tags = map { "<a href='$base/tag/" . LJ::eurl( $_ ) .
+                             "'>" . LJ::ehtml( $_ ) . "</a>" }
+                       sort values %{ $logtags->{$itemid} };
+            $current{Tags} = join( ', ', @tags ) if @tags;
+        }
+    }
+
+    return %current;
+}
+
+# function to format table for currents display
+sub currents_table {
+    my ( %current ) = @_;
+    my $ret = '';
+    return $ret unless %current;
+
+    $ret .= "<table class='currents' border=0>\n";
+    foreach ( sort keys %current ) {
+        next unless $current{$_};
+
+        my $curkey = "talk.curname_" . $_;
+        my $curname = LJ::Lang::ml( $curkey );
+        $curname = "<b>Current $_:</b>" unless $curname;
+
+        $ret .= "<tr><td align='right'>$curname</td>";
+        $ret .= "<td>$current{$_}</td></tr>\n";
+    }
+    $ret .= "</table><p>\n";
+
+    return $ret;
+}
+
 
 1;

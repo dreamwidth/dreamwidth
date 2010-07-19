@@ -36,10 +36,12 @@ my $EditURI = $api->createEntry("$LJ::SITEROOT/interface/atom/post", $entry);
 ok($EditURI, "got an edit URI back, presumably posted");
 like($EditURI, qr!/atom/edit/1$!, "got the right URI back");
 
-my $entry = LJ::Entry->new($u, jitemid => 1);
-ok($entry, "got entry");
-ok($entry->valid, "entry is valid")
-    or die "rest will fail";
+{
+    my $entry = LJ::Entry->new($u, jitemid => 1);
+    ok($entry, "got entry");
+    ok($entry->valid, "entry is valid")
+        or die "rest will fail";
 
-is($entry->event_raw, $content, "item has right content");
+    is($entry->event_raw, $content, "item has right content");
+}
 

@@ -1,6 +1,18 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
 #
-# This is livejournal.com (ljcom)'s additions to LJ::ConfCheck, for the ljcom instance
-# of LiveJournal.
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+#
+# These are descriptions of various configuration options for the site.
+# See also etc/config.pl.
 #
 
 package LJ::ConfCheck;
@@ -104,24 +116,6 @@ add_conf('$COOKIE_DOMAIN',
          des => "The 'domain' value set on cookies sent to users.  By default, value is \".\$DOMAIN\".  Note the leading period, which is a wildcard for everything at or under \$DOMAIN.",
          );
 
-add_conf('$COOKIE_PATH',
-         required => 0,
-         des => "The 'path' value set on cookies sent to users.  By default, value is \"/\", and any other value probably wouldn't work anyway.",
-         STUPID_BECAUSE => "no use, since LJ must be rooted at /.",
-         );
-
-add_conf('@COOKIE_DOMAIN_RESET',
-         required => 0,
-         des => "Array of cookie domain values to send when deleting cookies from users.  Only useful when changing domains, and even then kinda useless.",
-         STUPID_BECAUSE => "ancient hack for one old specific use",
-         );
-
-add_conf('$COPPA_CHECK',
-         required => 0,
-         type => "bool",
-         des => "If set, new users are asked for their birthday for COPPA compliance.",
-         );
-
 add_conf('$DB_LOG_HOST',
          required => 0,
          type => "hostport",
@@ -167,11 +161,6 @@ add_conf('$DEFAULT_STYLE',
          allowed_keys => qw(core layout theme i18n i81nc),
          );
 
-add_conf('$DIRECTORY_SEPARATE',
-         type => 'bool',
-         des => "If true, only use the 'directory' DB role for the directory, and don't also try the 'slave' and 'master' roles.",
-         );
-
 add_conf('$DISABLE_MASTER',
          type => 'bool',
          des => "If set to true, access to the 'master' DB role is prevented, by breaking the get_dbh function.  Useful during master database migrations.",
@@ -213,17 +202,6 @@ add_conf('$EXAMPLE_USER_ACCOUNT',
          required => 0,
          type => "string",
          des => "The username of the example user account, for use in Support and documentation.  Must be an actual account on the site.",
-         );
-
-add_conf('$FB_DOMAIN',
-         type => 'hostname',
-         des => "Domain name for cooperating Fotobilder (media hosting/cataloging) installation",
-         );
-
-add_conf('$FB_SITEROOT',
-         type => 'url',
-         no_trailing_slash => 1,
-         des => "URL prefix to cooperating Fotobilder installation, without trailing slash.  For instance, http://pics.foo.com",
          );
 
 add_conf('$HOME',
@@ -269,6 +247,11 @@ add_conf('$MAX_FRIENDOF_LOAD',
          type => 'int',
          des => "The maximum number of friend-ofs ('fans'/'followers') to load for a given user.  Defaults to 5000.  Beyond that, a user is just too popular and saying 5,000 is usually sufficient because people aren't actually reading the list.",
          );
+
+add_conf('$MAX_WT_EDGES_LOAD',
+        type => 'int',
+        des => "The maximum number of users to load for watch/trust edges when we can afford to be sloppy about the results returned. It is possible to override this limit to get the full list, but most of the time, you won't need to. Defaults to 50,000.",
+        );
 
 add_conf('$MAX_SCROLLBACK_LASTN',
          type => 'int',
@@ -328,11 +311,6 @@ add_conf('$NEWUSER_CAPS',
          des => "Bitmask of capability classes that new users begin their accounts with.  By default users aren't in any capability classes and get only the default site-wide capabilities.  See also \%CAP.",
          );
 
-add_conf('$NEW_ENTRY_CLEANUP_HACK',
-         type => "bool",
-         des => "OLD HISTORIC BAGGAGE: Do not use!  There used to be a bug where only parts of entries got deleted, then there was another bug with per-user number allocation.  Together, they forced this option to be made for awhile, where new entries (when this is on) would blow away any old data if part of it was still there but wasn't supposed to be.  This includes deleting comments tied to those old entries.",
-         );
-
 add_conf('$QBUFFERD_DELAY',
          type => 'int',
          des => "Time to sleep between runs of qbuffered tasks.  Default is 15 seconds.",
@@ -344,10 +322,6 @@ add_conf('$RATE_COMMENT_AUTH',
 
 add_conf('$RATE_COMMENT_ANON',
          des => "Arrayref of rate rules to apply incoming comments from anonymous users .  Each rate rule is an arrayref of two items:  number of comments, and period of time.  If user makes more comments in period of time, comment is denied, at least without a captcha.",
-         );
-
-add_conf('$SCHOOLSMAX',
-         des => "Hashref of journaltype (P, C, I, ..) to maximum number of allowed schools for that journal type.",
          );
 
 add_conf('$SENDMAIL',
@@ -447,21 +421,9 @@ add_conf('$TALK_ABORT_REGEXP',
          type => 'regexp',
          des => "Regular expression which, when matched on incoming comment bodies, kills the comment.");
 
-add_conf('$TALK_MAX_URLS',
-         type => 'int',
-         des => "If set, up to this many URLs will be extracted from comments and stored for analysis.");
-
 add_conf('$TOOLS_RECENT_COMMENTS_MAX',
          type => 'int',
          des => "Number of recent comments to show on /tools/recent_comments.bml");
-
-add_conf('$UNDERAGE_ERROR',
-         type => 'html',
-         des => "Error message to show underage users.");
-
-add_conf('$USE_ADS',
-         type => 'int',
-         des => "True value to show banner ads on the site.  STILL IN DEVELOPMENT, DO NOT USE IN PRODUCTION");
 
 add_conf('$USERPIC_ROOT',
          type => 'url',
@@ -485,11 +447,6 @@ add_conf('$BIN_SOX',
 add_conf('$BIN_FESTIVAL',
          type => "program",
          des => "Path to festival.  Needed for audio captchas.");
-
-add_conf('$DYS_LEFT_TOP',
-         type => "html",
-         des => "HTML to show at the top left corner of the dystopia skin.",
-         STUPID_BECAUSE => "weird.  never used.");
 
 add_conf('$LOCKDIR',
          type => "directory",
@@ -532,9 +489,6 @@ add_conf('@DINSERTD_HOSTS',
 add_conf('%DB_REPORT_HANDLES',
          type => '',
          des => "");
-add_conf('$IMMEDIATE_LOGGING',
-         type => '',
-         des => "");
 add_conf('$FREECHILDREN_BCAST',
          type => '',
          des => "");
@@ -544,37 +498,7 @@ add_conf('$SENDSTATS_BCAST',
 add_conf('$MAX_FRIENDS_VIEW_AGE',
          type => '',
          des => "");
-add_conf('$LDAP_HOST',
-         type => '',
-         des => "");
-add_conf('$LDAP_UID',
-         type => '',
-         des => "");
-add_conf('$LDAP_BASE',
-         type => '',
-         des => "");
-add_conf('$PORTAL_TYPEMAP',
-         type => '',
-         des => "");
-add_conf('%PORTAL_TYPEMAP',
-         type => '',
-         des => "");
-add_conf('$PORTAL_DEBUG_CONTENT',
-         type => '',
-         des => "");
-add_conf('$PORTAL_BOX_PROFILE_START',
-         type => '',
-         des => "");
-add_conf('%PORTAL_PROFILED_BOX',
-         type => '',
-         des => "");
-add_conf('$PORTAL_BOX_PROFILE_END',
-         type => '',
-         des => "");
 add_conf('%COMMON_CODE',
-         type => '',
-         des => "");
-add_conf('$AUTH_EXISTS',
          type => '',
          des => "");
 add_conf('%FORCE_EMPTY_FRIENDS',
@@ -634,18 +558,6 @@ add_conf('%POST_WITHOUT_AUTH',
 add_conf('$ALLOW_PICS_OVER_QUOTA',
          type => '',
          des => "");
-add_conf('@PORTAL_COLS',
-         type => '',
-         des => "");
-add_conf('$PORTAL_LOGGED_IN',
-         type => '',
-         des => "");
-add_conf('$PORTAL_LOGGED_OUT',
-         type => '',
-         des => "");
-add_conf('$PORTAL_URI',
-         type => '',
-         des => "");
 add_conf('$SYSBAN_IP_REFRESH',
          type => '',
          des => "");
@@ -685,9 +597,6 @@ add_conf('%MOGILEFS_PREF_IP',
 add_conf('$SLOPPY_FRIENDS_THRESHOLD',
          type => '',
          des => "");
-add_conf('$AUTH_CHECK',
-         type => '',
-         des => "");
 add_conf('$WORK_REPORT_HOST',
          type => '',
          des => "");
@@ -700,13 +609,7 @@ add_conf('$BML_INC_DIR_ADMIN',
 add_conf('$BML_INC_DIR',
          type => '',
          des => "");
-add_conf('$FIX_USERCOUNTER_ENABLED',
-         type => '',
-         des => "");
 add_conf('%USERPROP_INIT',
-         type => '',
-         des => "");
-add_conf('$FB_SITENAME',
          type => '',
          des => "");
 add_conf('$SYND_CAPS',
@@ -757,12 +660,6 @@ add_conf('@MAIL_TRANSPORTS',
 add_conf('%MOGILEFS_CONFIG',
          type => '',
          des => "");
-add_conf('@PROTECTED_USERNAMES',
-         type => '',
-         des => "");
-add_conf('%PORTAL_DEFAULTBOXSTATES',
-         type => '',
-         des => "");
 add_conf('%SUPPORT_ABSTRACTS',
          type => '',
          des => "");
@@ -770,9 +667,6 @@ add_conf('%MINIMAL_STYLE',
          type => '',
          des => "");
 add_conf('%USERPROP_DEF',
-         type => '',
-         des => "");
-add_conf('@PORTAL_BOXES_HIDDEN',
          type => '',
          des => "");
 add_conf('@RBL_LIST',
@@ -790,16 +684,10 @@ add_conf('%DISABLED',
 add_conf('%HELPURL',
          type => '',
          des => "");
-add_conf('@PORTAL_BOXES',
-         type => '',
-         des => "");
 add_conf('@INITIAL_OPTIONAL_FRIENDS',
          type => '',
          des => "");
 add_conf('%FILEEDIT_VIA_DB',
-         type => '',
-         des => "");
-add_conf('%REQUIRED_TOS',
          type => '',
          des => "");
 add_conf('%SETTER',
@@ -823,9 +711,6 @@ add_conf('%HUMAN_CHECK',
 add_conf('%DBINFO',
          type => '',
          des => "");
-add_conf('%FOTOBILDER_IP',
-         type => '',
-         des => "");
 add_conf('@QBUFFERD_ISOLATE',
          type => '',
          des => "");
@@ -838,18 +723,9 @@ add_conf('$CSSPROXY',
          des => "If set, external CSS should be proxied through this URL (URL is given a ?u= argument with the escaped URL of CSS to clean.  If unset, remote CSS is blocked.",
          );
 
-add_conf('$ADSERVER',
-         type => 'url',
-         des => "Subdomain to use for adserving",
-         );
-
 add_conf('$PROFILE_BML_FILE',
          type => 'file',
-         des => "The file (relative to htdocs) to use for the profile URL.  Defaults to userinfo.bml",
-         );
-
-add_conf('%ALT_PROFILE_BML_FILE',
-         des => "Mapping of key (word chars) to file (like \$PROFILE_BML_FILE) to use to override the default \$PROFILE_BML_FILE.  Used if the ver=[key] URL parameter is used on a /profile URL.",
+         des => "The file (relative to htdocs) to use for the profile URL.  Defaults to profile.bml",
          );
 
 
@@ -858,8 +734,6 @@ my %bools = (
              'USER_VHOSTS' => "Let (at least some) users get *.\$USER_DOMAIN URLs.  They'll also need the 'userdomain' cap.",
              'USER_EMAIL' => "Let (at least some) users get email aliases on the site.  They'll also need the 'useremail' cap.  See also \$USER_DOMAIN",
              'USERPIC_BLOBSERVER' => "Store userpics on the 'blobserver'.  This is old.  MogileFS is the future.  You might want to use this option, though, for development, as blobserver in local-filesystem-mode is easy to setup.",
-             'UNIQ_COOKIES' => "Give each user a unique session cookie, unrelated to their login session cookie.",
-             'TOS_CHECK' => 'Make users agree to the Terms of Service.',
              'TRACK_URL_ACTIVE' => "record in memcached what URL a given host/pid is working on",
              'TRUST_X_HEADERS' => "LiveJournal should trust the upstream's X-Forwarded-For and similar headers.  Default is off (for direct connection to the net).  If behind your own reverse proxies, you should enable this.",
              'UNICODE' => "Unicode support is enabled.  The default has been 'on' for ages, and turning it off is nowadays not recommended or even known to be working/reliable.  Keep it enabled.",
@@ -867,15 +741,11 @@ my %bools = (
              'STATS_FORCE_SLOW' => "Make all stats hit the 'slow' database role, never using 'slave' or 'master'",
              'SERVER_DOWN' => "The site is globally marked as 'down' and users get an error message, as defined by \$SERVER_DOWN_MESSAGE and \$SERVER_DOWN_SUBJECT.  It's not clear why this should ever be used instead of \$SERVER_TOTALLY_DOWN",
              'SERVER_TOTALLY_DOWN' => "The site is globally marked as 'down' and users get an error message, as defined by \$SERVER_DOWN_MESSAGE and \$SERVER_DOWN_SUBJECT.  But compared to \$SERVER_DOWN, this error message is done incredibly early before any dispatch to different modules.",
-             'S2COMPILED_MIGRATION_DONE' => "Don't try to load compiled S2 layers from the global cluster.  Any new installation can enable this safely as a minor optimization.  The option only really makes sense for large, old sites.",
-             "S1_SHORTCOMINGS" => "Use the S2 style named 's1shortcomings' to handle page types that S1 can't handle.  Otherwise, BML is used.  This is off by defalut, but will eventually become on by default, and no longer an option.",
              "REQUIRE_TALKHASH" => "Require submitted comments to include a signed hidden value provided by the server.  Slows down comment-spammers, at least, in that they have to fetch pages first, instead of just blasting away POSTs.  Defaults to off.",
              "REQUIRE_TALKHASH_NOTOLD" => "If \$REQUIRE_TALKHASH is on, also make sure that the talkhash provided was issued in the past two hours.  Defaults to off.",
              "DONT_LOG_IMAGES" => "Don't log requests for images.",
-             "DONT_TOUCH_STYLES" => "During the upgrade populator, don't touch styles.  That is, consider the local styles the definitive ones, and any differences between the database and the distribution files should mean that the distribution is old, not the database.",
              "DO_GZIP" => "Compress text content sent to browsers.  Cuts bandwidth by over 50%.",
              "EVERYONE_VALID" => "Users don't need to validate their email addresses.",
-             "FB_QUOTA_NOTIFY" => "Do RPC requests to Fotobilder to inform it of disk quota changes.",
              "IS_DEV_SERVER" => "This is a development installation only, and not used for production.  A lot of debug info and intentional security holes for convenience are introduced when this is enabled.",
              "LOG_GTOP" => "Log per-request CPU and memory usage, using gtop libraries.",
              "NO_PASSWORD_CHECK" => "Don't do strong password checks.  Users can use any old dumb password they'd like.",
@@ -888,8 +758,6 @@ my %bools = (
              "OPENID_STATELESS" => "Speak stateless OpenID.  Slower, but no local state needs to be kept.",
              "ONLY_USER_VHOSTS" => "Don't allow www.* journals at /users/ and /~ and /community/.  Only allow them on their own user virtual host domains.",
              "USERPIC_MOGILEFS" => "Store userpics on MogileFS.",
-             "SECURE_PASSWORD_RESET" => "If enabled, do not email passwords in the clear from lostinfo.bml.  Instead, email a reset request that requires the user to follow the link which then generates a new password for their account.",
-             "USE_INNODB" => "Create new tables as InnoDB.",
              "CONCAT_RES" => "Instruct Perlbal to concatenate static files on non-SSL pages",
              "CONCAT_RES_SSL" => "Instruct Perlbal to concatenate static files on SSL pages",
              );

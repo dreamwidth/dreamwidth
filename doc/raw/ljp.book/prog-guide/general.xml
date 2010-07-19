@@ -95,6 +95,8 @@ your <filename>~/.emacs</filename> file.</para>
 <programlisting>
 (setq-default show-trailing-whitespace t)
 (setq-default default-indicate-empty-lines t)
+(setq-default indent-tabs-mode nil)
+(set-variable default-indicate-empty-lines t)
 </programlisting>
 <para>
 You can customize the file to help out with other guidelines too. If you want

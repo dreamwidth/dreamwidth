@@ -30,7 +30,7 @@
     </varlistentry>
     <varlistentry>
       <term>show-talkleft</term>
-      <listitem><simpara>Show the received and posted comment counts for each account on the <filename>userinfo.bml</filename>
+      <listitem><simpara>Show the received and posted comment counts for each account on the <filename>profile.bml</filename>
       page.</simpara></listitem>
     </varlistentry>
     <varlistentry>
@@ -39,7 +39,7 @@
     </varlistentry>
     <varlistentry>
       <term>feedster_search</term>
-      <listitem><simpara>Search public <acronym>RSS</acronym> entries using a link from the <filename>userinfo.bml</filename>
+      <listitem><simpara>Search public <acronym>RSS</acronym> entries using a link from the <filename>profile.bml</filename>
       page to an off-site search engine.</simpara></listitem>
     </varlistentry>    
     <varlistentry>
@@ -57,7 +57,7 @@
     </varlistentry>
    <varlistentry>
       <term>userinfo_clientusage</term>
-      <listitem><simpara>Show the clients a user has used, on their <uri>userinfo.bml</uri> page.</simpara></listitem>
+      <listitem><simpara>Show the clients a user has used, on their <uri>profile.bml</uri> page.</simpara></listitem>
     </varlistentry>    
     <varlistentry>    
       <term>force_pass_change</term>
@@ -78,31 +78,19 @@
       <listitem><simpara>Enable running of maintenance tasks by <filename>ljmaint.pl</filename>.</simpara></listitem>
     </varlistentry>
     <varlistentry>
-      <term>meme</term>
-      <listitem><simpara>Enable the meme-tracking feature for users to view a list of &url;s referenced in journal entries.</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
-      <term>nudge</term>
-      <listitem><simpara>Enable the <quote>Nudge a Friend</quote> button
-      on <filename>userinfo.bml</filename>, for users to <quote>nudge</quote> a friend to update again.</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
-      <term>portal</term>
-      <listitem><simpara>Show the <quote>Portal</quote>, which acts as a one-stop-shop of features, for users.</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
       <term>qbufferd_jobs</term>
       <listitem><simpara>Enable query buffering for high-load sites, by <filename>qbufferd.pl</filename>.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>recaptcha</term>
+      <listitem><simpara>Use older CAPTCHAs method, which automated tools may
+      find easier to guess, for human checks instead of using reCAPTCHA.</simpara></listitem>
     </varlistentry>
     <varlistentry>
       <term>richtext</term>
       <listitem><simpara>Enable the 
     <ulink url="http://www.fckeditor.net/"><acronym>FCK</acronym>editor</ulink>-based rich text
     interface at <filename>update.bml</filename>.</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
-      <term>schools</term>
-      <listitem><simpara>Enable the Schools and Schools Directory feature.</simpara></listitem>
     </varlistentry>
     <varlistentry>
       <term>tags</term>
@@ -137,6 +125,11 @@
         <varlistentry>
       <term>blockwatch</term>
       <listitem><simpara>Enable the event timing system (backend feature).</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>edit_comments</term>
+      <listitem><simpara>Enable ability for users (with <parameter>edit_comments</parameter> usercap) to edit 
+      their comments. A comment cannot be edited if it has been replied to or frozen.</simpara></listitem>
     </varlistentry>
     <varlistentry>
       <term>eventlogrecord</term>
@@ -194,6 +187,15 @@
       These relate to user-actions, such as a new comment posted on a particular entry.</simpara></listitem>
     </varlistentry>
     <varlistentry>
+      <term>latest_comments_rss</term>
+      <listitem><simpara>Enable <acronym>RSS</acronym> feed of comments (if the user has
+      the <parameter>latest_comments_rss</parameter> usercap) on journals.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>last_fm</term>
+      <listitem><simpara>Allows users to set their <systemitem class='domainname'>Last.fm</systemitem> username and have the 'Current Music' field automatically filled in from <systemitem class='domainname'>Last.fm</systemitem>, when posting a new entry.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
       <term>user_messaging</term>
       <listitem><simpara>Display the &esn; compose new user-to-user message form on <filename>/inbox/index.bml</filename>.</simpara></listitem>
     </varlistentry>
@@ -224,7 +226,7 @@
     </varlistentry>
    <varlistentry>
       <term>ljtalk</term>
-      <listitem><simpara>Display the <abbrev>LJ</abbrev>Talk Jabber icon on <filename>userinfo.bml</filename>.</simpara></listitem>
+      <listitem><simpara>Display the <abbrev>LJ</abbrev>Talk Jabber icon on <filename>profile.bml</filename>.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>infoshow_migrate</term>
@@ -232,7 +234,8 @@
     </varlistentry>
    <varlistentry>
       <term>module_reload</term>
-      <listitem><simpara>Automatically re-load changed library files without stopping/starting &apache; if the machine is set up as a development server.</simpara></listitem>
+      <listitem><simpara>Automatically re-load changed library files without stopping/starting &apache; if the machine is set up as a development server.
+      You could disable automatic re-loading to better simulate a live, production server.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>interests-community</term>
@@ -253,15 +256,11 @@
     </varlistentry>
    <varlistentry>
       <term>named_permalinks</term>
-      <listitem><simpara>Enable named permalinks, that is: <uri>http://example.com/this_is_a_named_uri.html</uri>.</simpara></listitem>
+      <listitem><simpara>Enable named permalinks, that is: <uri>http://example.com/this_is_a_named_uri.html (not yet implemented)</uri>.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>offsite_journal_search</term>
       <listitem><simpara>Allow custom-defined offsite journal search, created through a hook of the same name. This is in addition to <quote>feedster_search</quote>, which can still be separately disabled.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>portal_fade</term>
-      <listitem><simpara>Use a fade-in/fade-out effect on Portal boxes.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>rte_buttons</term>
@@ -270,22 +269,6 @@
    <varlistentry>
       <term>s2quickreply</term>
       <listitem><simpara>Allow QuickReply to be built in to S2 layers.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>sms</term>
-      <listitem><simpara>Global flag to enable the <acronym>SMS</acronym> messaging feature (and its user-interface) for users.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>sms_post_auto_subscribe</term>
-      <listitem><simpara>Show the <quote>Subscribe me to my <acronym>SMS</acronym> posts via <acronym>SMS</acronym></quote> button to users.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>sms_quota_check</term>
-      <listitem><simpara>Enable checking for how many <acronym>SMS</acronym> messages a user has sent out of their quota.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>sms_ui</term>
-      <listitem><simpara>Enable <acronym>SMS</acronym> user-interface for users. This enables links and management pages.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>syncitems</term>

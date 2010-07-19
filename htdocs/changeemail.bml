@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 body<=
@@ -27,7 +41,7 @@ body<=
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
 
     if ($LJ::USE_SSL && ! $LJ::IS_SSL && $FORM{'ssl'} ne "no") {
-        return BML::redirect("$LJ::SSLROOT/changeemail.bml$getextra");
+        return BML::redirect("$LJ::SSLROOT/changeemail$getextra");
     }
 
     my $crumb = $LJ::IS_SSL ? 'securechangeemail' : 'changeemail';
@@ -44,7 +58,7 @@ body<=
             $ret .= '<?p ' . BML::ml('.instructions', { sitename => $LJ::SITENAMESHORT }) . ' p?>';
         }
 
-        $ret .= "<form action='changeemail.bml$getextra' method='post'>\n";
+        $ret .= "<form action='changeemail$getextra' method='post'>\n";
         $ret .= LJ::html_hidden(mode => 'submit',
                                 ssl => $FORM{'ssl'});
 
@@ -66,23 +80,24 @@ body<=
         $ret .= "<div>$ML{'.label.oldemail'}<br />\n";
         $ret .= "<b>" . $old_email . "</b></div><br/>\n";
         $ret .= "<div>$ML{'.label.newemail'}<br />\n";
-        $ret .= "<input type='text' name='email' size='50' maxlength='50' /></div><br />\n";
+        $ret .= "<input type='text' name='email' size='50' maxlength='50' tabindex='1' /></div><br />\n";
         unless ($u->is_identity) {
             $ret .= "<div>" . BML::ml('.label.password2', { remote => LJ::ljuser($remote) }) . "<br />\n";
-            $ret .= "<input type='password' name='password' size='50' maxlength='50' /></div>\n";
+            $ret .= "<input type='password' name='password' size='50' maxlength='50' tabindex='2' /></div>\n";
         }
 
         $ret .= "standout?>\n";
         $ret .= "<br />\n";
         $ret .= "<?standout\n";
-        $ret .= "<input type='submit' value=\"$ML{'.btn.change'}\" />\n";
+        $ret .= "<input type='submit' tabindex='3' value=\"$ML{'.btn.change'}\" />\n";
         $ret .= "standout?>\n";
         $ret .= "</form>\n";
         return $ret;
     };
 
     if ($POST{'mode'} eq 'submit' && ($POST{'email'} || $POST{'password'})) {
-        my $password = $POST{'password'} unless $remote->is_identity;
+        my $password;
+        $password = $POST{'password'} unless $remote->is_identity;
         my $email = LJ::trim($POST{'email'});
 
         my @errors = ();
@@ -97,7 +112,7 @@ body<=
         }
 
         if ($LJ::USER_EMAIL and $POST{'email'} =~ /\@\Q$LJ::USER_DOMAIN\E$/i) {
-            push @errors, BML::ml(".error.lj_domain", { 'user' => $remote->{'user'}, 'domain' => $LJ::USER_DOMAIN, });
+            push @errors, BML::ml(".error.lj_domain2", { 'user' => $remote->{'user'}, 'domain' => $LJ::USER_DOMAIN, 'aopts' => "href='$LJ::SITEROOT/manage/profile/'" });
         }
 
         if ($POST{'email'} =~ /\s/) {
@@ -123,13 +138,13 @@ body<=
         $loginfo .= ", blocked: " . $blocked;
         $loginfo .= ", success: " . ((scalar @errors) ? 'false' : 'true');
 
-        LJ::statushistory_add($u->{userid}, $u->{userid}, 'email_changed', $loginfo);
+        LJ::statushistory_add( $u, $remote, 'email_changed', $loginfo );
 
         LJ::infohistory_add($u, 'email', $old_email, $u->{status});
 
         $u->log_event('email_change', { remote => $remote, new => $POST{'email'} });
 
-        LJ::run_hook('post_email_change',
+        LJ::Hooks::run_hook('post_email_change',
                      {
                          user     => $u,
                          newemail => $POST{'email'},
@@ -142,19 +157,57 @@ body<=
 
         LJ::update_user($u, $tochange);
 
+        # send letter to old email address
+        my @date = localtime(time);
+        LJ::send_mail({
+            'to'      => $old_email,
+            'from'    => $LJ::ADMIN_EMAIL,
+            'fromname' => $LJ::SITENAME,
+            'charset' => 'utf-8',
+            'subject' => $ML{'.newemail_old.subject'},
+            'body'    => BML::ml('.newemail_old.body2',
+                              { username          => $u->display_username,
+                                ip                => BML::get_remote_ip(),
+                                old_email         => $old_email,
+                                new_email         => $POST{'email'},
+                                email_change_link => $LJ::SITEROOT.'/changeemail',
+                                email_manage_link => $LJ::SITEROOT.'/tools/emailmanage',
+                                sitename          => $LJ::SITENAME,
+                                sitelink          => $LJ::SITEROOT,
+                                datetime          => sprintf("%02d:%02d %02d/%02d/%04d", @date[2,1], $date[3], $date[4]+1, $date[5]+1900),
+                              }),
+        }) unless $is_identity_no_email;
+
         # send validation mail
         my $aa = LJ::register_authaction($u->{'userid'}, "validateemail", $POST{'email'});
-        LJ::send_mail({
+        if ($is_identity_no_email) {
+            LJ::send_mail({
             'to' => $POST{'email'},
             'from' => $LJ::ADMIN_EMAIL,
+            'fromname' => $LJ::SITENAME,
             'charset' => 'utf-8',
-            'subject' => $ML{'/editinfo.bml.newemail.subject'},
-            'body' => BML::ml('/editinfo.bml.newemail.body2',
-                              { username => $u->{user},
+            'subject' => $ML{'.newemail.subject.openid'},
+            'body' => BML::ml('.newemail.body.openid',
+                              { username => $u->display_username,
                                 sitename => $LJ::SITENAME,
                                 sitelink => $LJ::SITEROOT,
                                 conflink => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
-        });
+            });
+        } else {
+            LJ::send_mail({
+                'to' => $POST{'email'},
+                'from' => $LJ::ADMIN_EMAIL,
+                'fromname' => $LJ::SITENAME,
+                'charset' => 'utf-8',
+                'subject' => $ML{'.newemail.subject'},
+                'body' => BML::ml('.newemail.body3',
+                                  { username => $u->display_username,
+                                    email => $u->email_raw,
+                                    sitename => $LJ::SITENAME,
+                                    sitelink => $LJ::SITEROOT,
+                                    conflink => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
+            });
+        }
 
         $body = "<?h1 $ML{'.success.header'} h1?><?p $ML{'.success.text'} p?>";
     } else {
@@ -165,8 +218,4 @@ body<=
 }
 _code?>
     <=body
-    page?><?_c <LJDEP>
-post: htdocs/changepassword.bml
-lib: Digest::MD5
-hook: post_changepassword
-    </LJDEP> _c?>
+    page?>

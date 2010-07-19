@@ -1,9 +1,22 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::MoodThemeChooser;
 
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 
 sub ajax { 1 }
 sub authas { 1 }
@@ -20,7 +33,7 @@ sub render_body {
     my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
     my $getsep = $getextra ? "&" : "?";
 
-    my $preview_moodthemeid = defined $opts{preview_moodthemeid} ? $opts{preview_moodthemeid} : $u->{moodthemeid};
+    my $preview_moodthemeid = defined $opts{preview_moodthemeid} ? $opts{preview_moodthemeid} : $u->moodtheme;
     my $forcemoodtheme = defined $opts{forcemoodtheme} ? $opts{forcemoodtheme} : $u->{opt_forcemoodtheme} eq 'Y';
 
     my $ret = "<fieldset><legend>" . $class->ml('widget.moodthemechooser.title') . "</legend>";
@@ -45,18 +58,18 @@ sub render_body {
 
     my $journalarg = $getextra ? "?journal=" . $u->user : "";
     $ret .= "<ul class='moodtheme-links nostyle'>";
-    $ret .= "<li><a href='$LJ::SITEROOT/moodlist.bml$journalarg'>" . $class->ml('widget.moodthemechooser.links.allthemes') . "</a></li>";
-    $ret .= "<li><a href='$LJ::SITEROOT/manage/moodthemes.bml$getextra'>" . $class->ml('widget.moodthemechooser.links.customthemes') . "</a></li>";
+    $ret .= "<li><a href='$LJ::SITEROOT/moodlist$journalarg'>" . $class->ml('widget.moodthemechooser.links.allthemes') . "</a></li>";
+    $ret .= "<li><a href='$LJ::SITEROOT/manage/moodthemes$getextra'>" . $class->ml('widget.moodthemechooser.links.customthemes') . "</a></li>";
     $ret .= "</ul>";
     $ret .= "</div>";
 
-    my $moodtheme_extra = LJ::run_hook("mood_theme_extra_content", $u, \@themes);
+    my $moodtheme_extra = LJ::Hooks::run_hook("mood_theme_extra_content", $u, \@themes);
     my $show_special = $moodtheme_extra ? "special" : "nospecial";
 
-    LJ::load_mood_theme($preview_moodthemeid);
-    my @show_moods = ('happy', 'sad', 'angry', 'tired');
+    my $mobj = DW::Mood->new( $preview_moodthemeid );
+    my @show_moods = qw( happy sad angry tired );
 
-    if ($preview_moodthemeid) {
+    if ( $mobj) {
         my $count = 0;
 
         $ret .= "<div class='moodtheme-preview moodtheme-preview-$show_special'>";
@@ -64,20 +77,24 @@ sub render_body {
         $ret .= "<tr>" unless $moodtheme_extra;
         foreach my $mood (@show_moods) {
             my %pic;
-            if (LJ::get_mood_picture($preview_moodthemeid, LJ::mood_id($mood), \%pic)) {
+            if ( $mobj->get_picture( $mobj->mood_id( $mood ), \%pic ) ) {
                 $ret .= "<tr>" if $moodtheme_extra && $count % 2 == 0;
                 $ret .= "<td><img class='moodtheme-img' align='absmiddle' alt='$mood' src=\"$pic{pic}\" width='$pic{w}' height='$pic{h}' /><br />$mood</td>";
                 $ret .= "</tr>" if $moodtheme_extra && $count % 2 != 0;
                 $count++;
             }
         }
-        if ($moodtheme_extra) {
+        if ( $moodtheme_extra ) {
             $ret .= "<tr><td colspan='2'>";
         } else {
             $ret .= "<td>";
         }
-        $ret .= "<p><a href='$LJ::SITEROOT/moodlist.bml?moodtheme=$preview_moodthemeid'>" . $class->ml('widget.moodthemechooser.viewtheme') . "</a></p>";
+        $ret .= "<p><a href='$LJ::SITEROOT/moodlist?moodtheme=$preview_moodthemeid'>";
+        $ret .= $class->ml( 'widget.moodthemechooser.viewtheme' ) . "</a></p>";
         $ret .= "</td></tr></table>";
+        my $mood_des = $mobj->des;
+        LJ::CleanHTML::clean( \$mood_des );
+        $ret .= "<p>$mood_des</p>";
         $ret .= "</div>";
     }
 

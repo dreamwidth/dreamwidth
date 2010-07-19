@@ -42,6 +42,9 @@ if (document.getElementById) {
     var subject_field = document.getElementById("subject");
     var subject_nohtml = document.getElementById("ljnohtmlsubj");
     hideMe(subject_nohtml);
+
+    var edit_nohtml = document.getElementById("nohtmledit");
+    hideMe(edit_nohtml);
 }
 
 var apicurl = "";
@@ -235,6 +238,17 @@ function subjectNoHTML(e) {
    }
 }
 
+function editNoHTML(e) {
+
+    var key;
+
+    key = getKey(e);
+
+    if (key == 60) {
+        showMe(edit_nohtml);
+    }
+}
+
 function getKey(e) {
    if (window.event) {
       return window.event.keyCode;
@@ -259,9 +273,11 @@ function otherOIDUser() {
 }
 
 function hideMe(e) {
-   e.className = 'display_none';
+   if ( e )
+      e.className = 'display_none';
 }
 
 function showMe(e) {
-   e.className = '';
+   if ( e )
+      e.className = '';
 }

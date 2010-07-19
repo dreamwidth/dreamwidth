@@ -1,7 +1,41 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Poll;
 use strict;
 use Carp qw (croak);
-use Class::Autouse qw (LJ::Entry LJ::Poll::Question LJ::Event::PollVote);
+use LJ::Entry;
+use LJ::Poll::Question;
+use LJ::Event::PollVote;
+use LJ::Typemap;
+
+##
+## Memcache routines
+##
+use base 'LJ::MemCacheable';
+    *_memcache_id                   = \&id;
+sub _memcache_key_prefix            { "poll" }
+sub _memcache_stored_props          {
+    # first element of props is a VERSION
+    # next - allowed object properties
+    return qw/ 1
+               ditemid itemid
+               pollid journalid posterid whovote whoview name status questions props
+               /;
+}
+    *_memcache_hashref_to_object    = \*absorb_row;
+sub _memcache_expires               { 24*3600 }
+
 
 # loads a poll
 sub new {
@@ -27,6 +61,7 @@ sub new {
 #   whovote: who can vote in this poll
 #   whoview: who can view this poll
 #   name: name of this poll
+#   status: set to 'X' when poll is closed
 sub create {
     my ($classref, %opts) = @_;
 
@@ -62,27 +97,17 @@ sub create {
         or die "Invalid journalid $journalid";
 
     my $dbh = LJ::get_db_writer();
-    my $sth;
 
-    if ($u->polls_clustered) {
-        # poll stored on user cluster
-        $u->do("INSERT INTO poll2 (journalid, pollid, posterid, whovote, whoview, name, ditemid) " .
-               "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
-               $journalid, $pollid, $posterid, $whovote, $whoview, $name, $ditemid);
-        die $u->errstr if $u->err;
+    $u->do( "INSERT INTO poll2 (journalid, pollid, posterid, whovote, whoview, name, ditemid) " .
+            "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
+            $journalid, $pollid, $posterid, $whovote, $whoview, $name, $ditemid );
+    die $u->errstr if $u->err;
 
-        # made poll, insert global pollid->journalid mapping into global pollowner map
-        $dbh->do("INSERT INTO pollowner (journalid, pollid) VALUES (?, ?)", undef,
-                 $journalid, $pollid);
+    # made poll, insert global pollid->journalid mapping into global pollowner map
+    $dbh->do( "INSERT INTO pollowner (journalid, pollid) VALUES (?, ?)", undef,
+              $journalid, $pollid );
 
-        die $dbh->errstr if $dbh->err;
-    } else {
-        # poll stored on global
-        $dbh->do("INSERT INTO poll (pollid, itemid, journalid, posterid, whovote, whoview, name) " .
-                 "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
-                 $pollid, $ditemid, $journalid, $posterid, $whovote, $whoview, $name);
-        die $dbh->errstr if $dbh->err;
-    }
+    die $dbh->errstr if $dbh->err;
 
     ## start inserting poll questions
     my $qnum = 0;
@@ -90,32 +115,19 @@ sub create {
     foreach my $q (@$questions) {
         $qnum++;
 
-        if ($u->polls_clustered) {
-            $u->do("INSERT INTO pollquestion2 (journalid, pollid, pollqid, sortorder, type, opts, qtext) " .
-                        "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
-                        $journalid, $pollid, $qnum, $qnum, $q->{'type'}, $q->{'opts'}, $q->{'qtext'});
-            die $u->errstr if $u->err;
-        } else {
-            $dbh->do("INSERT INTO pollquestion (pollid, pollqid, sortorder, type, opts, qtext) " .
-                          "VALUES (?, ?, ?, ?, ?, ?)", undef,
-                          $pollid, $qnum, $qnum, $q->{'type'}, $q->{'opts'}, $q->{'qtext'});
-            die $dbh->errstr if $dbh->err;
-        }
+        $u->do( "INSERT INTO pollquestion2 (journalid, pollid, pollqid, sortorder, type, opts, qtext) " .
+                "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
+                $journalid, $pollid, $qnum, $qnum, $q->{'type'}, $q->{'opts'}, $q->{'qtext'} );
+        die $u->errstr if $u->err;
 
         ## start inserting poll items
         my $inum = 0;
         foreach my $it (@{$q->{'items'}}) {
             $inum++;
 
-            if ($u->polls_clustered) {
-                $u->do("INSERT INTO pollitem2 (journalid, pollid, pollqid, pollitid, sortorder, item) " .
-                       "VALUES (?, ?, ?, ?, ?, ?)", undef, $journalid, $pollid, $qnum, $inum, $inum, $it->{'item'});
-                die $u->errstr if $u->err;
-            } else {
-                $dbh->do("INSERT INTO pollitem (pollid, pollqid, pollitid, sortorder, item) " .
-                         "VALUES (?, ?, ?, ?, ?)", undef, $pollid, $qnum, $inum, $inum, $it->{'item'});
-                die $dbh->errstr if $dbh->err;
-            }
+            $u->do( "INSERT INTO pollitem2 (journalid, pollid, pollqid, pollitid, sortorder, item) " .
+                    "VALUES (?, ?, ?, ?, ?, ?)", undef, $journalid, $pollid, $qnum, $inum, $inum, $it->{'item'} );
+            die $u->errstr if $u->err;
         }
         ## end inserting poll items
 
@@ -124,10 +136,19 @@ sub create {
 
     if (ref $classref eq 'LJ::Poll') {
         $classref->{pollid} = $pollid;
+        foreach my $prop (keys %{$opts{props}}) {
+            $classref->set_prop($prop, $opts{props}->{$prop});
+        }
+
         return $classref;
     }
 
-    return LJ::Poll->new($pollid);
+    my $pollobj = LJ::Poll->new($pollid);
+    foreach my $prop (keys %{$opts{props}}) {
+        $pollobj->set_prop($prop, $opts{props}->{$prop});
+    }
+
+    return $pollobj;
 }
 
 sub clean_poll {
@@ -137,31 +158,31 @@ sub clean_poll {
         return;
     }
 
-    my $poll_eat = [qw[head title style layer iframe applet object]];
-    my $poll_allow = [qw[a b i u strong em img]];
+    my $poll_eat    = [qw[head title style layer iframe applet object]];
+    my $poll_allow  = [qw[a b i u strong em img]];
     my $poll_remove = [qw[bgsound embed object caption link font]];
 
     LJ::CleanHTML::clean($ref, {
         'wordlength' => 40,
-        'addbreaks' => 0,
-        'eat' => $poll_eat,
-        'mode' => 'deny',
-        'allow' => $poll_allow,
-        'remove' => $poll_remove,
+        'addbreaks'  => 0,
+        'eat'        => $poll_eat,
+        'mode'       => 'deny',
+        'allow'      => $poll_allow,
+        'remove'     => $poll_remove,
     });
     LJ::text_out($ref);
 }
 
 sub contains_new_poll {
     my ($class, $postref) = @_;
-    return ($$postref =~ /<lj-poll\b/i);
+    return ($$postref =~ /<(?:lj-)?poll\b/i);
 }
 
 # parses poll tags and returns whatever polls were parsed out
 sub new_from_html {
     my ($class, $postref, $error, $iteminfo) = @_;
 
-    $iteminfo->{'posterid'} += 0;
+    $iteminfo->{'posterid'}  += 0;
     $iteminfo->{'journalid'} += 0;
 
     my $newdata;
@@ -182,7 +203,7 @@ sub new_from_html {
     my $p = HTML::TokeParser->new($postref);
 
     # if we're being called from mailgated, then we're not in web context and therefore
-    # do not have any BML::ml functionality.  detect this now and report errors in a 
+    # do not have any BML::ml functionality.  detect this now and report errors in a
     # plaintext, non-translated form to be bounced via email.
 
     # FIXME: the above comment is obsolete, we now have LJ::Lang::ml
@@ -222,8 +243,8 @@ sub new_from_html {
 
             ######## Begin poll tag
 
-            if ($tag eq "lj-poll") {
-                return $err->('poll.error.nested', { 'tag' => 'lj-poll' })
+            if ($tag eq "lj-poll" || $tag eq "poll") {
+                return $err->('poll.error.nested', { 'tag' => 'poll' })
                     if $popen;
 
                 $popen = 1;
@@ -234,13 +255,26 @@ sub new_from_html {
                 $popts{'whovote'} = lc($opts->{'whovote'}) || "all";
                 $popts{'whoview'} = lc($opts->{'whoview'}) || "all";
 
+                # "friends" equals "trusted" for backwards compatibility
+                $popts{whovote} = "trusted" if $popts{whovote} eq "friends";
+                $popts{whoview} = "trusted" if $popts{whoview} eq "friends";
+
+                my $journal = LJ::load_userid($iteminfo->{posterid});
+                if (LJ::Hooks::run_hook("poll_unique_prop_is_enabled", $journal)) {
+                    $popts{props}->{unique} = $opts->{unique} ? 1 : 0;
+                }
+                if (LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $journal)) {
+                    $popts{props}->{createdate} = $opts->{createdate} || undef;
+                }
+                LJ::Hooks::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
+
                 if ($popts{'whovote'} ne "all" &&
-                    $popts{'whovote'} ne "friends")
+                    $popts{'whovote'} ne "trusted")
                 {
                     return $err->('poll.error.whovote');
                 }
                 if ($popts{'whoview'} ne "all" &&
-                    $popts{'whoview'} ne "friends" &&
+                    $popts{'whoview'} ne "trusted" &&
                     $popts{'whoview'} ne "none")
                 {
                     return $err->('poll.error.whoview');
@@ -249,9 +283,9 @@ sub new_from_html {
 
             ######## Begin poll question tag
 
-            elsif ($tag eq "lj-pq")
+            elsif ($tag eq "lj-pq" || $tag eq "poll-question")
             {
-                return $err->('poll.error.nested', { 'tag' => 'lj-pq' })
+                return $err->('poll.error.nested', { 'tag' => 'poll-question' })
                     if $qopen;
 
                 return $err->('poll.error.missingljpoll')
@@ -330,10 +364,10 @@ sub new_from_html {
 
             ######## Begin poll item tag
 
-            elsif ($tag eq "lj-pi")
+            elsif ($tag eq "lj-pi" || $tag eq "poll-item")
             {
                 if ($iopen) {
-                    return $err->('poll.error.nested', { 'tag' => 'lj-pi' });
+                    return $err->('poll.error.nested', { 'tag' => 'poll-item' });
                 }
                 if (! $qopen) {
                     return $err->('poll.error.missingljpq');
@@ -369,8 +403,8 @@ sub new_from_html {
 
             ##### end POLL
 
-            if ($tag eq "lj-poll") {
-                return $err->('poll.error.tagnotopen', { 'tag' => 'lj-poll' })
+            if ($tag eq "lj-poll" || $tag eq "poll") {
+                return $err->('poll.error.tagnotopen', { 'tag' => 'poll' })
                     unless $popen;
 
                 $popen = 0;
@@ -386,13 +420,13 @@ sub new_from_html {
                 $pollobj->absorb_row(\%popts);
                 push @polls, $pollobj;
 
-                $append .= "<lj-poll-placeholder>";
+                $append .= "<poll-placeholder>";
             }
 
             ##### end QUESTION
 
-            elsif ($tag eq "lj-pq") {
-                return $err->('poll.error.tagnotopen', { 'tag' => 'lj-pq' })
+            elsif ($tag eq "lj-pq" || $tag eq "poll-question") {
+                return $err->('poll.error.tagnotopen', { 'tag' => 'poll-question' })
                     unless $qopen;
 
                 unless ($qopts{'type'} eq "scale" ||
@@ -415,8 +449,8 @@ sub new_from_html {
 
             ##### end ITEM
 
-            elsif ($tag eq "lj-pi") {
-                return $err->('poll.error.tagnotopen', { 'tag' => 'lj-pi' })
+            elsif ($tag eq "lj-pi" || $tag eq "poll-item") {
+                return $err->('poll.error.tagnotopen', { 'tag' => 'poll-item' })
                     unless $iopen;
 
                 $iopts{'item'} =~ s/^\s+//;
@@ -470,9 +504,9 @@ sub new_from_html {
 
     }
 
-    if ($popen) { return $err->('poll.error.unlockedtag', { 'tag' => 'lj-poll' }); }
-    if ($qopen) { return $err->('poll.error.unlockedtag', { 'tag' => 'lj-pq' }); }
-    if ($iopen) { return $err->('poll.error.unlockedtag', { 'tag' => 'lj-pi' }); }
+    if ($popen) { return $err->('poll.error.unlockedtag', { 'tag' => 'poll' }); }
+    if ($qopen) { return $err->('poll.error.unlockedtag', { 'tag' => 'poll-question' }); }
+    if ($iopen) { return $err->('poll.error.unlockedtag', { 'tag' => 'poll-item' }); }
 
     $$postref = $newdata;
     return @polls;
@@ -483,13 +517,17 @@ sub new_from_html {
 # if we have a complete poll object (sans pollid) we can save it to
 # the database and get a pollid
 sub save_to_db {
+
+    # OBSOLETE METHOD?
+
     my $self = shift;
     my %opts = @_;
 
     my %createopts;
 
-    # name is an optional field
+    # name and props are optional fields
     $createopts{name} = $opts{name} || $self->{name};
+    $createopts{props} = $opts{props} || $self->{props};
 
     foreach my $f (qw(ditemid journalid posterid questions whovote whoview)) {
         $createopts{$f} = $opts{$f} || $self->{$f} or croak "Field $f required for save_to_db";
@@ -502,48 +540,46 @@ sub save_to_db {
 # loads poll from db
 sub _load {
     my $self = shift;
+
     return $self if $self->{_loaded};
 
     croak "_load called on LJ::Poll with no pollid"
         unless $self->pollid;
 
+    # Requests context
+    if (my $obj = $LJ::REQ_CACHE_POLL{ $self->id }){
+        %{ $self }= %{ $obj }; # change object in memory
+        return $self;
+    }
+
+    # Try to get poll from MemCache
+    return $self if $self->_load_from_memcache;
+
+    # Load object from MySQL database
     my $dbr = LJ::get_db_reader();
 
     my $journalid = $dbr->selectrow_array("SELECT journalid FROM pollowner WHERE pollid=?", undef, $self->pollid);
     die $dbr->errstr if $dbr->err;
 
-    my $row;
+    my $row = '';
 
-    unless ($journalid) {
-        # this is probably not clustered, check global
-        $row = $dbr->selectrow_hashref("SELECT pollid, itemid, journalid, " .
-                                       "posterid, whovote, whoview, name " .
-                                       "FROM poll WHERE pollid=?", undef, $self->pollid);
-        die $dbr->errstr if $dbr->err;
-    } else {
-        my $u = LJ::load_userid($journalid)
-            or die "Invalid journalid $journalid";
+    my $u = LJ::load_userid( $journalid )
+        or die "Invalid journalid $journalid";
 
-        # double-check to make sure we are consulting the right table
-        if ($u->polls_clustered) {
-            # clustered poll
-            $row = $u->selectrow_hashref("SELECT pollid, journalid, ditemid, " .
-                                         "posterid, whovote, whoview, name " .
-                                         "FROM poll2 WHERE pollid=?", undef, $self->pollid);
-            die $u->errstr if $u->err;
-        } else {
-            # unclustered poll
-            $row = $dbr->selectrow_hashref("SELECT pollid, itemid, journalid, " .
-                                           "posterid, whovote, whoview, name " .
-                                           "FROM poll WHERE pollid=?", undef, $self->pollid);
-            die $dbr->errstr if $dbr->err;
-        }
-    }
+    $row = $u->selectrow_hashref( "SELECT pollid, journalid, ditemid, " .
+                                  "posterid, whovote, whoview, name, status " .
+                                  "FROM poll2 WHERE pollid=? " .
+                                  "AND journalid=?", undef, $self->pollid, $journalid );
+    die $u->errstr if $u->err;
 
     return undef unless $row;
 
     $self->absorb_row($row);
-    $self->{_loaded} = 1;
+    $self->{_loaded} = 1; # object loaded
+
+    # store constructed object in caches
+    $self->_store_to_memcache;
+    $LJ::REQ_CACHE_POLL{ $self->id } = $self;
 
     return $self;
 }
@@ -554,10 +590,56 @@ sub absorb_row {
 
     # questions is an optional field for creating a fake poll object for previewing
     $self->{ditemid} = $row->{ditemid} || $row->{itemid}; # renamed to ditemid in poll2
-    $self->{$_} = $row->{$_} foreach qw(pollid journalid posterid whovote whoview name questions);
+    $self->{$_} = $row->{$_} foreach qw(pollid journalid posterid whovote whoview name status questions props);
     $self->{_loaded} = 1;
+    return $self;
 }
 
+# Mark poll as closed
+sub close_poll {
+    my $self = shift;
+
+    # Nothing to do if poll is already closed
+    return if ($self->{status} eq 'X');
+
+    my $u = LJ::load_userid($self->journalid)
+        or die "Invalid journalid " . $self->journalid;
+
+    my $dbh = LJ::get_db_writer();
+
+    $u->do( "UPDATE poll2 SET status='X' where pollid=? AND journalid=?",
+            undef, $self->pollid, $self->journalid );
+    die $u->errstr if $u->err;
+
+    # poll status has changed
+    $self->_remove_from_memcache;
+    delete $LJ::REQ_CACHE_POLL{ $self->id };
+
+    $self->{status} = 'X';
+}
+
+# Mark poll as open
+sub open_poll {
+    my $self = shift;
+
+    # Nothing to do if poll is already open
+    return if ($self->{status} eq '');
+
+    my $u = LJ::load_userid($self->journalid)
+        or die "Invalid journalid " . $self->journalid;
+
+    my $dbh = LJ::get_db_writer();
+
+    $u->do( "UPDATE poll2 SET status='' where pollid=? AND journalid=?",
+            undef, $self->pollid, $self->journalid );
+    die $u->errstr if $u->err;
+
+    # poll status has changed
+    $self->_remove_from_memcache;
+    delete $LJ::REQ_CACHE_POLL{ $self->id };
+
+    $self->{status} = '';
+}
 ######### Accessors
 # ditemid
 *ditemid = \&itemid;
@@ -614,9 +696,34 @@ sub journal {
     return LJ::load_userid($self->journalid);
 }
 
-sub is_clustered {
+# return true if poll is closed
+sub is_closed {
     my $self = shift;
-    return $self->journal->polls_clustered;
+    $self->_load;
+    return $self->{status} eq 'X' ? 1 : 0;
+}
+
+# return true if remote is also the owner
+sub is_owner {
+    my ($self, $remote) = @_;
+    $remote ||= LJ::get_remote();
+
+    return 1 if $remote && $remote->userid == $self->posterid;
+    return 0;
+}
+
+# poll requires unique answers (by email address)
+sub is_unique {
+    my $self = shift;
+
+    return LJ::Hooks::run_hook("poll_unique_prop_is_enabled", $self->poster) && $self->prop("unique") ? 1 : 0;
+}
+
+# poll requires voters to be created on or before a certain date
+sub is_createdate_restricted {
+    my $self = shift;
+
+    return LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $self->poster) && $self->prop("createdate") ? 1 : 0;
 }
 
 # do we have a valid poll?
@@ -639,6 +746,16 @@ sub question {
 
 ##### Poll rendering
 
+# returns the time that the given user answered the given poll
+sub get_time_user_submitted {
+    my ( $self, $u ) = @_;
+
+    return $self->journal->selectrow_array( 'SELECT datesubmit FROM pollsubmission2 '.
+                                            'WHERE pollid=? AND userid=? AND journalid=?',
+                                            undef, $self->pollid, $u->userid, $self->journalid );
+
+}
+
 # expects a fake poll object (doesn't have to have pollid) and
 # an arrayref of questions in the poll object
 sub preview {
@@ -656,7 +773,9 @@ sub preview {
     }
 
     $ret .= "<br />\n";
-    $ret .= LJ::Lang::ml('poll.security', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote), 'whoview' => LJ::Lang::ml('poll.security.'.$self->whoview), });
+
+    my $whoview = $self->whoview eq "none" ? "none_remote" : $self->whoview;
+    $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote), 'whoview' => LJ::Lang::ml('poll.security.'.$whoview), });
 
     # iterate through all questions
     foreach my $q ($self->questions) {
@@ -691,6 +810,7 @@ sub render_ans {
 # opts:
 #   mode => enter|results|ans
 #   qid  => show a specific question
+#   page => page #
 sub render {
     my ($self, %opts) = @_;
 
@@ -698,29 +818,26 @@ sub render {
     my $ditemid = $self->ditemid;
     my $pollid = $self->pollid;
 
-    my $mode = delete $opts{mode};
-    my $qid  = delete $opts{qid};
+    my $mode     = delete $opts{mode};
+    my $qid      = delete $opts{qid};
+    my $page     = delete $opts{page};
+    my $pagesize = delete $opts{pagesize};
 
+    # Default pagesize.
+    $pagesize = 2000 unless $pagesize;
+
+    return "<b>[ Poll owner has been deleted ]</b>" unless $self->journal->clusterid;
     return "<b>[" . LJ::Lang::ml('poll.error.pollnotfound', { 'num' => $pollid }) . "]</b>" unless $pollid;
     return "<b>[" . LJ::Lang::ml('poll.error.noentry') . "</b>" unless $ditemid;
 
     my $can_vote = $self->can_vote;
-    my $can_voew = $self->can_view;
 
     my $dbr = LJ::get_db_reader();
 
     # update the mode if we need to
-    $mode = 'results' if !$remote && !$mode;
+    $mode = 'results' if ((!$remote && !$mode) || $self->is_closed);
     if ($remote && !$mode) {
-        my $time;
-        if ($self->is_clustered) {
-            $time = $self->journal->selectrow_array('SELECT datesubmit FROM pollsubmission2 '.
-                                                    'WHERE pollid=? AND userid=? AND journalid=?', undef, $pollid, $remote->userid, $self->journalid);
-        } else {
-            $time = $dbr->selectrow_array('SELECT datesubmit FROM pollsubmission '.
-                                          'WHERE pollid=? AND userid=?', undef, $pollid, $remote->userid);
-        }
-
+        my $time = $self->get_time_user_submitted($remote);
         $mode = $time ? 'results' : $can_vote ? 'enter' : 'results';
     }
 
@@ -740,7 +857,7 @@ sub render {
         my $text = $q->text;
         LJ::Poll->clean_poll(\$text);
         $ret .= $text;
-        $ret .= '<div>' . $q->answers_as_html . '</div>';
+        $ret .= '<div>' . $q->answers_as_html($self->journalid, $page, $pagesize) . '</div>';
         return $ret;
     }
 
@@ -756,16 +873,11 @@ sub render {
 
     my %preval;
 
-    if ($do_form) {
-        if ($self->is_clustered) {
-            $sth = $self->journal->prepare("SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=? AND journalid=?");
-            $sth->execute($pollid, $remote->{'userid'}, $self->journalid);
-        } else {
-            $sth = $dbr->prepare("SELECT pollqid, value FROM pollresult WHERE pollid=? AND userid=?");
-            $sth->execute($pollid, $remote->{'userid'});
-        }
+    if ( $do_form ) {
+        $sth = $self->journal->prepare( "SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=? AND journalid=?" );
+        $sth->execute( $pollid, $remote->userid, $self->journalid );
 
-        while (my ($qid, $value) = $sth->fetchrow_array) {
+        while ( my ( $qid, $value ) = $sth->fetchrow_array ) {
             $preval{$qid} = $value;
         }
 
@@ -781,30 +893,50 @@ sub render {
         $ret .= "<i>$name</i>";
     }
     $ret .= "<br />\n";
-    $ret .= LJ::Lang::ml('poll.security', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote),
-                                       'whoview' => LJ::Lang::ml('poll.security.'.$self->whoview) });
+    $ret .= "<span style='font-family: monospace; font-weight: bold; font-size: 1.2em;'>" .
+            LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
+        if ($self->is_closed);
 
+    my $whoview = $self->whoview;
+    if ($whoview eq "none") {
+        $whoview = $remote && $remote->id == $self->posterid ? "none_remote" : "none_others";
+    }
+    $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote),
+                                       'whoview' => LJ::Lang::ml('poll.security.'.$whoview) });
+
+    if ( $mode eq 'enter' && $self->can_view( $remote ) ) {
+        $ret .= "<br />\n";
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . LJ::Lang::ml( 'poll.seeresults' ) . "</a> ]  ";
+    } elsif ( $mode eq 'results' ) {
+        #include number of participants
+        my $sth = $self->journal->prepare( "SELECT count(DISTINCT userid) FROM pollresult2 WHERE pollid=? AND journalid=?" );
+        $sth->execute( $pollid, $self->journalid );
+        my ( $participants ) = $sth->fetchrow_array;
+        $ret .= LJ::Lang::ml('poll.participants', { 'total' => $participants });
+        $ret .= "<br />\n";
+        # change vote link
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter'>" . LJ::Lang::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
+    } else {
+        $ret .= "<br />\n";
+    }
+
+    my $results_table = "";
     ## go through all questions, adding to buffer to return
     foreach my $q (@qs) {
         my $qid = $q->pollqid;
         my $text = $q->text;
         LJ::Poll->clean_poll(\$text);
-        $ret .= "<p>$text</p><div style='margin: 10px 0 10px 40px'>";
+        $results_table .= "<p>$text</p><div style='margin: 10px 0 10px 40px'>";
 
         ### get statistics, for scale questions
         my ($valcount, $valmean, $valstddev, $valmedian);
         if ($q->type eq "scale") {
             # get stats
-            if ($self->is_clustered) {
-                $sth = $self->journal->prepare("SELECT COUNT(*), AVG(value), STDDEV(value) FROM pollresult2 " .
-                                               "WHERE pollid=? AND pollqid=? AND journalid=?");
-                $sth->execute($pollid, $qid, $self->journalid);
-            } else {
-                $sth = $dbr->prepare("SELECT COUNT(*), AVG(value), STDDEV(value) FROM pollresult WHERE pollid=? AND pollqid=?");
-                $sth->execute($pollid, $qid);
-            }
+            $sth = $self->journal->prepare( "SELECT COUNT(*), AVG(value), STDDEV(value) FROM pollresult2 " .
+                                            "WHERE pollid=? AND pollqid=? AND journalid=?" );
+            $sth->execute( $pollid, $qid, $self->journalid );
 
-            ($valcount, $valmean, $valstddev) = $sth->fetchrow_array;
+            ( $valcount, $valmean, $valstddev ) = $sth->fetchrow_array;
 
             # find median:
             $valmedian = 0;
@@ -817,15 +949,10 @@ sub render {
                 $mid = int(($valcount+1)/2);
                 my $skip = $mid-1;
 
-                if ($self->is_clustered) {
-                    $sth = $self->journal->prepare("SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=? " .
-                                         "ORDER BY value+0 LIMIT $skip,$fetch");
-                    $sth->execute($pollid, $qid, $self->journalid);
-                } else {
-                    $sth = $dbr->prepare("SELECT value FROM pollresult WHERE pollid=? AND pollqid=? " .
-                                         "ORDER BY value+0 LIMIT $skip,$fetch");
-                    $sth->execute($pollid, $qid);
-                }
+                $sth = $self->journal->prepare(
+                    "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=? " .
+                    "ORDER BY value+0 LIMIT $skip,$fetch" );
+                $sth->execute( $pollid, $qid, $self->journalid );
 
                 while (my ($v) = $sth->fetchrow_array) {
                     $valmedian += $v;
@@ -841,21 +968,16 @@ sub render {
         if ($mode eq "results") {
             ### to see individual's answers
             my $posterid = $self->posterid;
-            $ret .= qq {
+            $results_table .= qq {
                 <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;qid=$qid&amp;mode=ans'
-                     class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid'
+                     class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid' lj_page='0' lj_pagesize="$pagesize"
                      id="LJ_PollAnswerLink_${pollid}_$qid">
                 } . LJ::Lang::ml('poll.viewanswers') . "</a><br />" if $self->can_view;
 
             ### but, if this is a non-text item, and we're showing results, need to load the answers:
             if ($q->type ne "text") {
-                if ($self->is_clustered) {
-                    $sth = $self->journal->prepare("SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?");
-                    $sth->execute($pollid, $qid, $self->journalid);
-                } else {
-                    $sth = $dbr->prepare("SELECT value FROM pollresult WHERE pollid=? AND pollqid=?");
-                    $sth->execute($pollid, $qid);
-                }
+                $sth = $self->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
+                $sth->execute( $pollid, $qid, $self->journalid );
                 while (my ($val) = $sth->fetchrow_array) {
                     $usersvoted++;
                     if ($q->type eq "check") {
@@ -877,7 +999,7 @@ sub render {
         if ($q->type eq "text" && $do_form) {
             my ($size, $max) = split(m!/!, $q->opts);
 
-            $ret .= LJ::html_text({ 'size' => $size, 'maxlength' => $max,
+            $results_table .= LJ::html_text({ 'size' => $size, 'maxlength' => $max,
                                     'name' => "pollq-$qid", 'value' => $preval{$qid} });
         } elsif ($q->type eq 'drop' && $do_form) {
             #### drop-down list
@@ -888,7 +1010,7 @@ sub render {
                 LJ::Poll->clean_poll(\$item);
                 push @optlist, ($itid, $item);
             }
-            $ret .= LJ::html_select({ 'name' => "pollq-$qid",
+            $results_table .= LJ::html_select({ 'name' => "pollq-$qid",
                                       'selected' => $preval{$qid} }, @optlist);
         } elsif ($q->type eq "scale" && $do_form) {
             #### scales (from 1-10) questions
@@ -900,17 +1022,17 @@ sub render {
             # few opts, display radios
             if ($do_radios) {
 
-                $ret .= "<table><tr valign='top' align='center'>";
+                $results_table .= "<table><tr valign='top' align='center'>";
 
                 for (my $at=$from; $at<=$to; $at+=$by) {
-                    $ret .= "<td style='text-align: center;'>";
-                    $ret .= LJ::html_check({ 'type' => 'radio', 'name' => "pollq-$qid",
+                    $results_table .= "<td style='text-align: center;'>";
+                    $results_table .= LJ::html_check({ 'type' => 'radio', 'name' => "pollq-$qid",
                                              'value' => $at, 'id' => "pollq-$pollid-$qid-$at",
                                              'selected' => (defined $preval{$qid} && $at == $preval{$qid}) });
-                    $ret .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
+                    $results_table .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
                 }
 
-                $ret .= "</tr></table>\n";
+                $results_table .= "</tr></table>\n";
 
             # many opts, display select
             # but only if displaying form
@@ -920,7 +1042,7 @@ sub render {
                 for (my $at=$from; $at<=$to; $at+=$by) {
                     push @optlist, ($at, $at);
                 }
-                $ret .= LJ::html_select({ 'name' => "pollq-$qid", 'selected' => $preval{$qid} }, @optlist);
+                $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'selected' => $preval{$qid} }, @optlist);
             }
 
         } else {
@@ -930,10 +1052,10 @@ sub render {
             if ($q->type eq "scale") { # implies ! do_form
                 my $stddev = sprintf("%.2f", $valstddev);
                 my $mean = sprintf("%.2f", $valmean);
-                $ret .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
-                $ret .= "<br />\n";
+                $results_table .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
+                $results_table .= "<br />\n";
                 $do_table = 1;
-                $ret .= "<table>";
+                $results_table .= "<table>";
             }
 
             my @items = $self->question($qid)->items;
@@ -956,10 +1078,10 @@ sub render {
 
                 # displaying a radio or checkbox
                 if ($do_form) {
-                    $ret .= LJ::html_check({ 'type' => $q->type, 'name' => "pollq-$qid",
-                                             'value' => $itid, 'id' => "pollq-$pollid-$qid-$itid",
-                                             'selected' => ($preval{$qid} =~ /\b$itid\b/) });
-                    $ret .= " <label for='pollq-$pollid-$qid-$itid'>$item</label><br />";
+                    $results_table .= LJ::html_check({ 'type' => $q->type, 'name' => "pollq-$qid",
+                                              'value' => $itid, 'id' => "pollq-$pollid-$qid-$itid",
+                                              'selected' => ($preval{$qid} =~ /\b$itid\b/) });
+                    $results_table .= " <label for='pollq-$pollid-$qid-$itid'>$item</label><br />";
                     next;
                 }
 
@@ -969,28 +1091,30 @@ sub render {
                 my $width = 20+int(($count/$maxitvotes)*380);
 
                 if ($do_table) {
-                    $ret .= "<tr valign='middle'><td align='right'>$item</td>";
-                    $ret .= "<td><img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' width='7' alt='' />";
-                    $ret .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
-                    $ret .= "<img src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' /> ";
-                    $ret .= "<b>$count</b> ($percent%)</td></tr>";
+                    $results_table .= "<tr valign='middle'><td align='right'>$item</td><td>";
+                    $results_table .= LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
+                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
+                    $results_table .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
+                    $results_table .= "<b>$count</b> ($percent%)</td></tr>";
                 } else {
-                    $ret .= "<p>$item<br />";
-                    $ret .= "<span style='white-space: nowrap'><img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' alt='' />";
-                    $ret .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
-                    $ret .= "<img src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' /> ";
-                    $ret .= "<b>$count</b> ($percent%)</span></p>";
+                    $results_table .= "<p>$item<br /><span style='white-space: nowrap'>";
+                    $results_table .= LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
+                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
+                    $results_table .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
+                    $results_table .= "<b>$count</b> ($percent%)</span></p>";
                 }
             }
 
             if ($do_table) {
-                $ret .= "</table>";
+                $results_table .= "</table>";
             }
 
         }
 
-        $ret .= "</div>";
+        $results_table .= "</div>";
     }
+
+    $ret .= $results_table;
 
     if ($do_form) {
         $ret .= LJ::html_submit(
@@ -1012,13 +1136,26 @@ sub can_vote {
     # owner can do anything
     return 1 if $remote && $remote->userid == $self->posterid;
 
-    my $is_friend = $remote && LJ::is_friend($self->journalid, $remote->userid);
+    my $trusted = $remote && $self->journal->trusts_or_has_member( $remote );
 
-    return 0 if $self->whovote eq "friends" && !$is_friend;
+    return 0 if $self->whovote eq "trusted" && !$trusted;
 
-    if (LJ::is_banned($remote, $self->journalid) || LJ::is_banned($remote, $self->posterid)) {
-        return 0;
+    return 0 if $self->journal->has_banned( $remote )
+             or $self->poster->has_banned( $remote );
+
+    if ($self->is_createdate_restricted) {
+        my $propval = $self->prop("createdate");
+        if ($propval =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/) {
+            my $propdate = DateTime->new( year => $1, month => $2, day => $3, hour => 23, minute => 59, second => 59, time_zone => 'America/Los_Angeles' );
+            my $timecreate = DateTime->from_epoch( epoch => $remote->timecreate, time_zone => 'America/Los_Angeles' );
+
+            # make sure that timecreate is before or equal to propdate
+            return 0 if $propdate && $timecreate && DateTime->compare($timecreate, $propdate) == 1;
+        }
     }
+
+    my $can_vote_override = LJ::Hooks::run_hook("can_vote_poll_override", $self);
+    return 0 unless !defined $can_vote_override || $can_vote_override;
 
     return 1;
 }
@@ -1033,9 +1170,9 @@ sub can_view {
     # not the owner, can't view results
     return 0 if $self->whoview eq 'none';
 
-    # okay if everyone can view or if friends can view and remote is a friend
-    my $is_friend = $remote && LJ::is_friend($self->journalid, $remote->userid);
-    return 1 if $self->whoview eq "all" || ($self->whoview eq "friends" && $is_friend);
+    # okay if everyone can view or if trusted can view and remote is a friend
+    my $is_friend = $remote && $self->journal->trusts_or_has_member( $remote );
+    return 1 if $self->whoview eq "all" || ($self->whoview eq "trusted" && $is_friend);
 
     return 0;
 }
@@ -1051,17 +1188,10 @@ sub questions {
     croak "questions called on LJ::Poll with no pollid"
         unless $self->pollid;
 
-    my @qs;
-    my $sth;
+    my @qs = ();
 
-    if ($self->is_clustered) {
-        $sth = $self->journal->prepare('SELECT * FROM pollquestion2 WHERE pollid=? AND journalid=?');
-        $sth->execute($self->pollid, $self->journalid);
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $sth = $dbr->prepare('SELECT * FROM pollquestion WHERE pollid=?');
-        $sth->execute($self->pollid);
-    }
+    my $sth = $self->journal->prepare( 'SELECT * FROM pollquestion2 WHERE pollid=? AND journalid=?' );
+    $sth->execute( $self->pollid, $self->journalid );
 
     die $sth->errstr if $sth->err;
 
@@ -1073,7 +1203,58 @@ sub questions {
     @qs = sort { $a->sortorder <=> $b->sortorder } @qs;
     $self->{questions} = \@qs;
 
+    # store poll data with loaded questions
+    $self->_store_to_memcache;
+    $LJ::REQ_CACHE_POLL{ $self->id } = $self;
+
     return @qs;
+}
+
+
+########## Props
+# get the typemap for pollprop2
+sub typemap {
+    my $self = shift;
+
+    return LJ::Typemap->new(
+        table       => 'pollproplist2',
+        classfield  => 'name',
+        idfield     => 'propid',
+    );
+}
+
+sub prop {
+    my ($self, $propname) = @_;
+
+    my $tm = $self->typemap;
+    my $propid = $tm->class_to_typeid($propname);
+    my $u = $self->journal;
+
+    my $sth = $u->prepare("SELECT * FROM pollprop2 WHERE journalid = ? AND pollid = ? AND propid = ?");
+    $sth->execute($u->id, $self->pollid, $propid);
+    die $sth->errstr if $sth->err;
+
+    if (my $row = $sth->fetchrow_hashref) {
+        return $row->{propval};
+    }
+
+    return undef;
+}
+
+sub set_prop {
+    my ($self, $propname, $propval) = @_;
+
+    if (defined $propval) {
+        my $tm = $self->typemap;
+        my $propid = $tm->class_to_typeid($propname);
+        my $u = $self->journal;
+
+        $u->do("INSERT INTO pollprop2 (journalid, pollid, propid, propval) " .
+               "VALUES (?,?,?,?)", undef, $u->id, $self->pollid, $propid, $propval);
+        die $u->errstr if $u->err;
+    }
+
+    return 1;
 }
 
 ########## Class methods
@@ -1082,7 +1263,7 @@ package LJ::Poll;
 use strict;
 use Carp qw (croak);
 
-# takes a scalarref to entry text and expands lj-poll tags into the polls
+# takes a scalarref to entry text and expands (lj-)poll tags into the polls
 sub expand_entry {
     my ($class, $entryref) = @_;
 
@@ -1097,7 +1278,7 @@ sub expand_entry {
         return $poll->render;
     };
 
-    $$entryref =~ s/<lj-poll-(\d+)>/$expand->($1)/eg;
+    $$entryref =~ s/<(?:lj-)?poll-(\d+)>/$expand->($1)/eg;
 }
 
 sub process_submission {
@@ -1120,12 +1301,47 @@ sub process_submission {
         return 0;
     }
 
+    if ($poll->is_closed) {
+        $$error = LJ::Lang::ml('poll.isclosed');
+        return 0;
+    }
+
     unless ($poll->can_vote($remote)) {
         $$error = LJ::Lang::ml('poll.error.cantvote');
         return 0;
     }
 
-    my $dbh = LJ::get_db_writer() unless $poll->is_clustered;
+    # if unique prop is on, make sure that a particular email address can only vote once
+    if ($poll->is_unique) {
+        # make sure their email address is validated
+        unless ($remote->is_validated) {
+            $$error = LJ::Lang::ml('poll.error.notvalidated2', { aopts => "href='$LJ::SITEROOT/register'" });
+            return 0;
+        }
+
+        # if this particular user has already voted, let them change their answer
+        my $time = $poll->get_time_user_submitted($remote);
+        unless ($time) {
+            my $uids = $poll->journal->selectcol_arrayref( "SELECT userid FROM pollsubmission2 " .
+                                                           "WHERE journalid = ? AND pollid = ?",
+                                                           undef, $poll->journalid, $poll->pollid );
+
+            if (@$uids) {
+                my $remote_email = $remote->email_raw;
+                my $us = LJ::load_userids(@$uids);
+
+                foreach my $u (values %$us) {
+                    next unless $u;
+
+                    my $u_email = $u->email_raw;
+                    if (lc $u_email eq lc $remote_email) {
+                        $$error = LJ::Lang::ml('poll.error.alreadyvoted', { user => $u->ljuser_display });
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
 
     ### load all the questions
     my @qs = $poll->questions;
@@ -1147,33 +1363,21 @@ sub process_submission {
         }
         if ($val ne "") {
             $ct++;
-            if ($poll->is_clustered) {
-                $poll->journal->do("REPLACE INTO pollresult2 (journalid, pollid, pollqid, userid, value) VALUES (?, ?, ?, ?, ?)",
-                         undef, $poll->journalid, $pollid, $qid, $remote->userid, $val);
-            } else {
-
-                $dbh->do("REPLACE INTO pollresult (pollid, pollqid, userid, value) VALUES (?, ?, ?, ?)",
-                         undef, $pollid, $qid, $remote->userid, $val);
-            }
+            $poll->journal->do( "REPLACE INTO pollresult2 (journalid, pollid, pollqid, userid, value) VALUES (?, ?, ?, ?, ?)",
+                                undef, $poll->journalid, $pollid, $qid, $remote->userid, $val );
         } else {
-            if ($poll->is_clustered) {
-                $poll->journal->do("DELETE FROM pollresult2 WHERE journalid=? AND pollid=? AND pollqid=? AND userid=?",
-                         undef, $poll->journalid, $pollid, $qid, $remote->userid);
-            } else {
-                $dbh->do("DELETE FROM pollresult WHERE pollid=? AND pollqid=? AND userid=?",
-                         undef, $pollid, $qid, $remote->userid);
-            }
+            $poll->journal->do( "DELETE FROM pollresult2 WHERE journalid=? AND pollid=? AND pollqid=? AND userid=?",
+                                undef, $poll->journalid, $pollid, $qid, $remote->userid );
         }
     }
 
     ## finally, register the vote happened
-    if ($poll->is_clustered) {
-        $poll->journal->do("REPLACE INTO pollsubmission2 (journalid, pollid, userid, datesubmit) VALUES (?, ?, ?, NOW())",
-                           undef, $poll->journalid, $pollid, $remote->userid);
-    } else {
-        $dbh->do("REPLACE INTO pollsubmission (pollid, userid, datesubmit) VALUES (?, ?, NOW())",
-                 undef, $pollid, $remote->userid);
-    }
+    $poll->journal->do( "REPLACE INTO pollsubmission2 (journalid, pollid, userid, datesubmit) VALUES (?, ?, ?, NOW())",
+                        undef, $poll->journalid, $pollid, $remote->userid );
+
+    # if vote results are not cached, there is no need to modify cache
+    #$poll->_remove_from_memcache;
+    #delete $LJ::REQ_CACHE_POLL{ $poll->id };
 
     # don't notify if they blank-polled
     LJ::Event::PollVote->new($poll->poster, $remote, $poll)->fire
@@ -1182,88 +1386,28 @@ sub process_submission {
     return 1;
 }
 
-# take a user on dversion 7 and upgrade them to dversion 8 (clustered polls)
-sub make_polls_clustered {
-    my ($class, $u) = @_;
+sub dump_poll {
+    my $self = shift;
+    my $fh = shift || \*STDOUT;
 
-    return 1 if $u->dversion >= 8;
+    my @tables = qw(poll2 pollquestion2 pollitem2 pollsubmission2 pollresult2);
+    my $db = $self->journal;
+    my $id = $self->pollid;
 
-    my $dbh = LJ::get_db_reader()
-        or die "Could not get db reader";
-
-    # find polls this user owns
-    my $psth = $dbh->prepare("SELECT pollid, itemid, journalid, posterid, whovote, whoview, name " .
-                             "FROM poll WHERE journalid=?");
-    $psth->execute($u->userid);
-    die $psth->errstr if $psth->err;
-
-    while (my @prow = $psth->fetchrow_array) {
-        my $pollid = $prow[0];
-        # insert a copy into poll2
-        $u->do("INSERT INTO poll2 (pollid, ditemid, journalid, posterid, whovote, whoview, name) " .
-               "VALUES (?,?,?,?,?,?,?)", undef, @prow);
-        die $u->errstr if $u->err;
-
-        # map pollid -> userid
-        $dbh->do("INSERT INTO pollowner (journalid, pollid) VALUES (?, ?)", undef,
-                 $u->userid, $pollid);
-
-        # get questions
-        my $qsth = $dbh->prepare("SELECT pollid, pollqid, sortorder, type, opts, qtext FROM " .
-                                 "pollquestion WHERE pollid=?");
-        $qsth->execute($pollid);
-        die $qsth->errstr if $qsth->err;
-
-        # copy questions to clustered table
-        while (my @qrow = $qsth->fetchrow_array) {
-            my $pollqid = $qrow[1];
-
-            # insert question into pollquestion2
-            $u->do("INSERT INTO pollquestion2 (journalid, pollid, pollqid, sortorder, type, opts, qtext) " .
-                   "VALUES (?, ?, ?, ?, ?, ?, ?)", undef, $u->userid, @qrow);
-            die $u->errstr if $u->err;
-
-            # get items
-            my $isth = $dbh->prepare("SELECT pollid, pollqid, pollitid, sortorder, item FROM pollitem " .
-                                     "WHERE pollid=? AND pollqid=?");
-            $isth->execute($pollid, $pollqid);
-            die $isth->errstr if $isth->err;
-
-            # copy items
-            while (my @irow = $isth->fetchrow_array) {
-                # copy item to pollitem2
-                $u->do("INSERT INTO pollitem2 (journalid, pollid, pollqid, pollitid, sortorder, item) VALUES " .
-                       "(?, ?, ?, ?, ?, ?)", undef, $u->userid, @irow);
-                die $u->errstr if $u->err;
+    print $fh "<poll id='$id'>\n";
+    foreach my $t (@tables) {
+        my $sth = $db->prepare("SELECT * FROM $t WHERE pollid = ?");
+        $sth->execute($id);
+        while (my $data = $sth->fetchrow_hashref) {
+            print $fh "<$t ";
+            foreach my $k (sort keys %$data) {
+                my $v = LJ::ehtml($data->{$k});
+                print $fh "$k='$v' ";
             }
-        }
-
-        # copy submissions
-        my $ssth = $dbh->prepare("SELECT userid, datesubmit FROM pollsubmission WHERE pollid=?");
-        $ssth->execute($pollid);
-        die $ssth->errstr if $ssth->err;
-
-        while (my @srow = $ssth->fetchrow_array) {
-            # copy to pollsubmission2
-            $u->do("INSERT INTO pollsubmission2 (pollid, journalid, userid, datesubmit) " .
-                   "VALUES (?, ?, ?, ?)", undef, $pollid, $u->userid, @srow);
-            die $u->errstr if $u->err;
-        }
-
-        # copy results
-        my $rsth = $dbh->prepare("SELECT pollid, pollqid, userid, value FROM pollresult WHERE pollid=?");
-        $rsth->execute($pollid);
-        die $rsth->errstr if $rsth->err;
-
-        while (my @rrow = $rsth->fetchrow_array) {
-            # copy to pollresult2
-            $u->do("INSERT INTO pollresult2 (journalid, pollid, pollqid, userid, value) " .
-                   "VALUES (?, ?, ?, ?, ?)", undef, $u->userid, @rrow);
-            die $u->errstr if $u->err;
+            print $fh "/>\n";
         }
     }
-
-    return 1;
+    print $fh "</poll>\n";
 }
 
 1;

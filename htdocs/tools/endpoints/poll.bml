@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
@@ -17,9 +31,11 @@
     BML::finish();
     BML::noparse();
 
-    my $pollid  = $POST{pollid} or return $err->("No pollid");
-    my $pollqid = $POST{pollqid} or return $err->("No pollqid");
-    my $action  = $POST{action};
+    my $pollid   = $POST{pollid}  or return $err->("No pollid");
+    my $pollqid  = $POST{pollqid} or return $err->("No pollqid");
+    my $action   = $POST{action};
+    my $page     = $POST{page};
+    my $pagesize = $POST{pagesize} || 2000;
 
     my $poll = LJ::Poll->new($pollid) or return $err->("Error loading poll $pollid");
 
@@ -31,7 +47,9 @@
 
     if ($action eq 'get_answers') {
         my $question = $poll->question($pollqid) or return $err->("Error loading question $pollqid");
-        $ret->{answer_html} = $question->answers_as_html;
+        my $pages    = $question->answers_pages($poll->journalid, $pagesize);
+        $ret->{paging_html} = $question->paging_bar_as_html($page, $pages, $pagesize, $poll->journalid, $pollid, $pollqid);
+        $ret->{answer_html} = $question->answers_as_html($poll->journalid, $page, $pagesize, $pages);
     } else {
         return $err->("Invalid action $action");
     }
@@ -40,6 +58,7 @@
         %$ret,
         pollid  => $pollid,
         pollqid => $pollqid,
+        page    => $page,
     };
 
     sleep(1.5) if $LJ::IS_DEV_SERVER;

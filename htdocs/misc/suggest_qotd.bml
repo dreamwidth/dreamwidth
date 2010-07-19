@@ -1,0 +1,86 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
+<?page
+title=><?_ml .title _ml?>
+head<=
+<=head
+body<=
+<?_code
+{
+    use strict;
+    use vars qw($POST);
+
+    my $ret;
+    my $remote = LJ::get_remote()
+        or return "<?needlogin?>";
+
+    if (LJ::did_post()) {
+        return LJ::bad_input($ML{'error.invalidform'})
+            unless LJ::check_form_auth();
+
+        my $questions = LJ::ehtml($POST{questions});
+        my $credit = $POST{credit} ? "DOES" : "DOES NOT";
+
+        return LJ::bad_input($ML{'.error.noquestion'})
+            unless $questions;
+
+        my $user = $remote->user;
+
+        my $rv = LJ::send_mail({
+            to => "writersblock\@$LJ::DOMAIN",
+            from => "lj_noreply\@$LJ::DOMAIN",
+            charset => "utf-8",
+            subject => "Writer's Block Suggestion(s) from $user",
+            body => qq{
+The user $user $credit want credit for their Writer's Block suggestion(s).
+
+Their suggestion(s):
+
+$questions
+            },
+        });
+
+        return $ret . "<?p <strong>$ML{'.form.error.header'}</strong> $ML{'.form.error.sendfailed'} p?>"
+            unless $rv;
+
+        $ret .= "<?h2 $ML{'.success.header'} h2?>";
+        $ret .= "<?p $ML{'.success.text'} p?>";
+
+        return $ret;
+    }
+
+    $ret .= "<?p $ML{'.intro'} p?>";
+
+    $ret .= "<form action='suggest_qotd' method='post'>";
+    $ret .= LJ::form_auth();
+    $ret .= "<div style='padding: 10px; margin-left: 20px;'>";
+
+    $ret .= "<p><label for='questions'>$ML{'.form.question.label'}</label><br />";
+    $ret .= LJ::html_textarea({ id => 'questions', name => 'questions',
+                                        raw => "rows='10' cols='40' wrap='soft'" }) . "</p>";
+
+    $ret .= "<p>" . LJ::html_check({ id => 'credit', name => 'credit', selected => 1 }) . " ";
+    $ret .= "<label for='credit'>$ML{'.form.credit.label'}</label></p>";
+
+    $ret .= "<p>" . LJ::html_submit('submit', $ML{'.btn.submit'}) . "</p>";
+
+    $ret .= "</div>";
+    $ret .= "</form>";
+
+    return $ret;
+}
+_code?>
+<=body
+page?>

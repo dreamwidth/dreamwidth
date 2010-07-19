@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by 
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License. 
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Worker::TheSchwartz;
+use TheSchwartz::Worker::SendEmail;
+use Time::HiRes ();
+
+schwartz_decl('TheSchwartz::Worker::SendEmail', 'mass');
+
+TheSchwartz::Worker::SendEmail->set_HELO($LJ::DOMAIN);
+TheSchwartz::Worker::SendEmail->set_keep_exit_status(sub { $LJ::KEEP_EXITSTATUS{'SendEmail'} || 0 });
+TheSchwartz::Worker::SendEmail->set_on_5xx(sub {
+    my ($rcpt, $job, $details) = @_;
+    LJ::errobj('DieString', message => "send_email to $rcpt failed: $details")->log;
+});
+
+my $sclient = LJ::theschwartz( { role => 'mass' } );
+$sclient->set_verbose(sub {
+    my ($msg, $job) = @_;
+    $msg =~ s/\s+$//;
+    warn "$msg\n";
+    return unless $LJ::DEBUG{'ts-sendemail'};
+    return if $msg =~ /found no jobs$/;
+
+    my $handle = $job->handle->as_string;
+    my $now = sprintf("%0.05f", Time::HiRes::time());
+    LJ::errobj('DieString', message => "ts_info: $now: [$handle] $msg")->log;
+});
+
+schwartz_on_idle(sub {
+    $0 = "send-email [idle]";
+});
+schwartz_work();

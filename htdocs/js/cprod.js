@@ -23,7 +23,7 @@ CProd.next = function (evt) {
           });
 
   var req = HTTPReq.getJSON({
-      "url": "/tools/endpoints/cprod.bml",
+      "url": "/tools/endpoints/cprod",
       "method": "GET",
         "data": data,
       "onData": CProd.gotData

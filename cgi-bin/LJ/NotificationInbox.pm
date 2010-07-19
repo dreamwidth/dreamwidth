@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 # This package is for managing a queue of notifications
 # for a user.
 # Mischa Spiegelmock, 4/28/06
@@ -6,7 +19,9 @@ package LJ::NotificationInbox;
 
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw (LJ::NotificationItem LJ::Event LJ::NotificationArchive);
+use LJ::NotificationItem;
+use LJ::Event;
+use LJ::NotificationArchive;
 
 # constructor takes a $u
 sub new {
@@ -54,7 +69,7 @@ sub items {
     $self->{items} = \@items;
 
     # optimization:
-    #   now items are defined ... if any are comment 
+    #   now items are defined ... if any are comment
     #   objects we'll instantiate those ahead of time
     #   so that if one has its data loaded they will
     #   all benefit from a coalesced load
@@ -69,7 +84,7 @@ sub items {
 sub all_items {
     my $self = shift;
 
-    return grep { $_->event->class ne "LJ::Event::UserMessageSent" } $self->items;
+    return grep { $_->event && $_->event->class ne "LJ::Event::UserMessageSent" } $self->items;
 }
 
 # returns a list of friend-related notificationitems
@@ -83,10 +98,10 @@ sub friend_items {
 }
 
 # returns a list of friend-related notificationitems
-sub friendplus_items {
+sub circle_items {
     my $self = shift;
 
-    my @friend_events = friendplus_event_list();
+    my @friend_events = circle_event_list();
 
     my %friend_events = map { "LJ::Event::" . $_ => 1 } @friend_events;
     return grep { $friend_events{$_->event->class} } $self->items;
@@ -101,7 +116,7 @@ sub non_usermsg_items {
                            UserMessageSent
                            );
 
-    @usermsg_events = (@usermsg_events, (LJ::run_hook('usermsg_notification_types') || ()));
+    @usermsg_events = (@usermsg_events, (LJ::Hooks::run_hook('usermsg_notification_types') || ()));
 
     my %usermsg_events = map { "LJ::Event::" . $_ => 1 } @usermsg_events;
     return grep { !$usermsg_events{$_->event->class} } $self->items;
@@ -133,10 +148,10 @@ sub birthday_items {
     return $self->subset_items(@events);
 }
 
-sub befriended_items {
+sub encircled_items {
     my $self = shift;
 
-    my @events = ( 'Befriended' );
+    my @events = ( 'AddedToCircle' );
 
     return $self->subset_items(@events);
 }
@@ -149,12 +164,26 @@ sub entrycomment_items {
     return $self->subset_items(@events);
 }
 
+sub pollvote_items {
+    return $_[0]->subset_items( 'PollVote' );
+}
+
 # return a subset of notificationitems
 sub subset_items {
     my ($self, @subset) = @_;
 
      my %subset_events = map { "LJ::Event::" . $_ => 1 } @subset;
      return grep { $subset_events{$_->event->class} } $self->items;
+}
+
+sub singleentry_items {
+    my ( $self, $itemid ) = @_;
+    return grep {
+        $_->event->class eq "LJ::Event::JournalNewComment"
+        && $_->event->comment
+        && $_->event->comment->entry    # may have been deleted, which breaks all filter to entry comments
+        && $_->event->comment->entry->ditemid == $itemid
+    } $self->items;
 }
 
 # return flagged notifications
@@ -171,6 +200,13 @@ sub archived_items {
     my $u = $self->u;
     my $archive = $u->notification_archive;
     return $archive->items;
+}
+
+# return unread notifications
+sub unread_items {
+    my $self = shift;
+
+    return grep { $_->unread } $self->items;
 }
 
 sub count {
@@ -261,7 +297,7 @@ sub instantiate_comment_singletons {
     # instantiate all the comment singletons so that they will all be
     # loaded efficiently later as soon as preload_rows is called on
     # the first comment object
-    my @comment_items = grep { $_->event->class eq 'LJ::Event::JournalNewComment' } $self->items;
+    my @comment_items = grep { $_->event && $_->event->class eq 'LJ::Event::JournalNewComment' } $self->items;
     my @comment_events = map { $_->event } @comment_items;
     # instantiate singletons
     LJ::Comment->new($_->event_journal, jtalkid => $_->jtalkid) foreach @comment_events;
@@ -275,7 +311,7 @@ sub instantiate_message_singletons {
     # instantiate all the message singletons so that they will all be
     # loaded efficiently later as soon as preload_rows is called on
     # the first message object
-    my @message_items = grep { $_->event->class eq 'LJ::Event::UserMessageRecvd' } $self->items;
+    my @message_items = grep { $_->event && $_->event->class eq 'LJ::Event::UserMessageRecvd' } $self->items;
     my @message_events = map { $_->event } @message_items;
     # instantiate singletons
     LJ::Message->load({msgid => $_->arg1, journalid => $_->u->{userid}}) foreach @message_events;
@@ -361,7 +397,7 @@ sub enqueue {
     my $u = $self->u or die "No user";
 
     # if over the max, delete the oldest notification
-    my $max = $u->get_cap('inbox_max');
+    my $max = $u->count_inbox_max;
     my $skip = $max - 1; # number to skip to get to max
     if ($max && $self->count >= $max) {
 
@@ -510,12 +546,101 @@ sub toggle_bookmark {
 sub can_add_bookmark {
     my ($self, $count) = @_;
 
-    my $max = $self->u->get_cap('bookmark_max');
+    my $max = $self->u->count_bookmark_max;
     $count = $count || 1;
     my $bookmark_count = scalar $self->bookmark_items;
 
     return 0 if (($bookmark_count + $count) > $max);
     return 1;
+}
+
+sub delete_all {
+    my ( $self, $view, %args ) = @_;
+    my @items;
+
+    # Unless in folder 'Bookmarks', don't fetch any bookmarks
+    if ( $view eq 'all' ) {
+        @items = $self->all_items;
+        push @items, $self->usermsg_sent_items;
+    } elsif ( $view eq 'usermsg_recvd' ) {
+        @items = $self->usermsg_recvd_items;
+    } elsif ( $view eq 'circle' ) {
+        @items = $self->circle_items;
+        push @items, $self->birthday_items;
+        push @items, $self->encircled_items;
+    } elsif ( $view eq 'birthday' ) {
+        @items = $self->birthday_items;
+    } elsif ( $view eq 'encircled' ) {
+        @items = $self->encircled_items;
+    } elsif ( $view eq 'entrycomment' ) {
+        @items = $self->entrycomment_items;
+    } elsif ( $view eq 'bookmark' ) {
+        @items = $self->bookmark_items;
+    } elsif ( $view eq 'usermsg_sent' ) {
+        @items = $self->usermsg_sent_items;
+    } elsif ( $view eq 'singleentry' && $args{itemid} ) {
+        my $itemid = $args{itemid} + 0;
+        return unless $itemid;
+        @items = $self->singleentry_items( $itemid );
+    } elsif ( $view eq 'pollvote' ) {
+        @items = $self->pollvote_items;
+    } elsif ( $view eq 'unread' ) {
+        @items = $self->unread_items;
+    }
+
+    @items = grep { !$self->is_bookmark($_->qid) } @items
+        unless $view eq 'bookmark';
+
+    my @ret;
+    foreach my $item (@items) {
+        push @ret, {qid => $item->qid};
+    }
+
+    # Delete items
+    foreach my $item (@items) {
+        $item->delete;
+    }
+
+    return @ret;
+}
+
+sub mark_all_read {
+    my ( $self, $view, %args ) = @_;
+    my @items;
+
+    # Only get items in currently viewed folder and subfolders
+    if ( $view eq 'all' ) {
+        @items = $self->all_items;
+        push @items, $self->usermsg_sent_items;
+    } elsif ( $view eq 'usermsg_recvd' ) {
+        @items = $self->usermsg_recvd_items;
+    } elsif ( $view eq 'circle' ) {
+        @items = $self->circle_items;
+        push @items, $self->birthday_items;
+        push @items, $self->encircled_items;
+    } elsif ( $view eq 'birthday' ) {
+        @items = $self->birthday_items;
+    } elsif ( $view eq 'encircled' ) {
+        @items = $self->encircled_items;
+    } elsif ( $view eq 'entrycomment' ) {
+        @items = $self->entrycomment_items;
+    } elsif ( $view eq 'bookmark' ) {
+        @items = $self->bookmark_items;
+    } elsif ( $view eq 'usermsg_sent' ) {
+        @items = $self->usermsg_sent_items;
+    } elsif ( $view eq 'singleentry' && $args{itemid} ) {
+        my $itemid = $args{itemid} + 0;
+        return unless $itemid;
+        @items = $self->singleentry_items( $itemid );
+    } elsif ( $view eq 'pollvote' ) {
+        @items = $self->pollvote_items;
+    } elsif ( $view eq 'unread' ) {
+        @items = $self->unread_items;
+    }
+
+    # Mark read
+    $_->mark_read foreach @items;
+    return @items;
 }
 
 # Copy archive notice to inbox
@@ -559,9 +684,16 @@ sub ensure_queued {
 sub subset_unread_count {
     my ($self, @subset) = @_;
 
-     my %subset_events = map { "LJ::Event::" . $_ => 1 } @subset;
-     my @events = grep { $subset_events{$_->event->class} && $_->unread } $self->items;
-     return scalar @events;
+    my %subset_events = map { "LJ::Event::" . $_ => 1 } @subset;
+    my @events = grep { $_->event && $subset_events{$_->event->class} && $_->unread } $self->items;
+    return scalar @events;
+}
+
+sub all_event_count {
+    my $self = shift;
+
+    my @events = grep { $_->event && $_->event->class ne 'LJ::Event::UserMessageSent' && $_->unread } $self->items;
+    return scalar @events;
 }
 
 sub friend_event_count {
@@ -569,14 +701,19 @@ sub friend_event_count {
     return $self->subset_unread_count(friend_event_list());
 }
 
-sub friendplus_event_count {
+sub circle_event_count {
     my $self = shift;
-    return $self->subset_unread_count(friendplus_event_list());
+    return $self->subset_unread_count(circle_event_list());
 }
 
 sub entrycomment_event_count {
     my $self = shift;
     return $self->subset_unread_count(entrycomment_event_list());
+}
+
+sub pollvote_event_count {
+    my $self = shift;
+    return $self->subset_unread_count( 'PollVote' );
 }
 
 sub usermsg_recvd_event_count {
@@ -585,28 +722,35 @@ sub usermsg_recvd_event_count {
     return $self->subset_unread_count(@events);
 }
 
+sub usermsg_sent_event_count {
+    my $self = shift;
+    my @events = ('UserMessageSent' );
+    return $self->subset_unread_count(@events);
+}
+
 # Methods that return Arrays of Event categories
 sub friend_event_list {
     my @events = qw(
-                    Befriended
+                    AddedToCircle
+                    RemovedFromCircle
                     InvitedFriendJoins
                     CommunityInvite
                     NewUserpic
                     );
-    @events = (@events, (LJ::run_hook('friend_notification_types') || ()));
+    @events = (@events, (LJ::Hooks::run_hook('friend_notification_types') || ()));
     return @events;
 }
 
-sub friendplus_event_list {
+sub circle_event_list {
     my @events = qw(
-                    Befriended
+                    AddedToCircle
+                    RemovedFromCircle
                     InvitedFriendJoins
                     CommunityInvite
                     NewUserpic
-                    NewVGift
                     Birthday
                     );
-    @events = (@events, (LJ::run_hook('friend_notification_types') || ()));
+    @events = (@events, (LJ::Hooks::run_hook('friend_notification_types') || ()));
     return @events;
 }
 

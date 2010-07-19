@@ -1,10 +1,23 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 package LJ::CProd;
 # Mostly abstract base class for LiveJournal's contextual product/prodding.
 # Let users know about new/old features they can use but never have.
 use strict;
 use List::Util qw (shuffle);
-use Class::Autouse qw (LJ::Typemap);
+use LJ::Typemap;
 
 #################### Override:
 
@@ -197,7 +210,7 @@ sub _trackable_button {
 sub _trackable_link_url {
     my ($class, $href, $goodclick, $version) = @_;
     $version ||= 0;
-    return "$LJ::SITEROOT/misc/cprod.bml?class=$class&g=$goodclick&version=$version&to=" . LJ::eurl($href);
+    return "$LJ::SITEROOT/misc/cprod?class=$class&g=$goodclick&version=$version&to=" . LJ::eurl($href);
 }
 
 sub clickthru_button {
@@ -370,12 +383,14 @@ sub prod_to_show {
         # skip if they don't want it.
         next if $state && $state->{nothankstime};
 
-        push @poss, [$class, $cprodid, $state, $state ? $state->{acktime} : 0 ];
+        push @poss, [$class, $cprodid, $state, $state ? $state->{acktime} : 0, rand() ];
     }
-
+    
     return unless @poss;
 
-    foreach my $poss (sort { $a->[3] <=> $b->[3] } @poss) {
+    ## Sort CProds by date of show - oldest first.
+    ## If several have the same date (or never have been shown), sort randomly (i.e. shuffle)
+    foreach my $poss (sort { $a->[3] <=> $b->[3] || $a->[4] <=> $b->[4] } @poss) {
         my ($class, $cprodid, $state) = @$poss;
         eval "use $class; 1";
         if ($@) {

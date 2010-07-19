@@ -1,12 +1,38 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
+# This page displays all of the user's userpics along with all user-contributed text
+
     use strict;
     use vars qw(%GET $title $body $head);
+
+    BML::set_language_scope( '/allpics.bml' );
 
     $title = "$ML{'.title'}";
     $body = "";
     $head = "";
- 
+
+    my $r = BML::get_request();
+
+    # if new-style URLs, get the GET{user} arg from the request notes,
+    # which was set by LiveJournal.pm
+    unless ( $GET{user} ) {
+        $GET{user} = $r->notes->{_journal};
+    }
+
     my $user = LJ::canonical_username($GET{'user'});
     my $remote = LJ::get_remote();
     my $u = ! $user || $remote && $remote->{'user'} eq $user ? $remote : LJ::load_user($user);
@@ -16,23 +42,29 @@
         return;
     }
 
-    $u->preload_props("opt_blockrobots", "adult_content", "admin_content_flag") if $u->is_visible;
+    # redirect /icons to their subdomain urls
+    my $domain = BML::get_client_header( "Host" );
+    if ( $LJ::ONLY_USER_VHOSTS ) {
+        my $url = $u->journal_base . "/icons";
+
+        my $good_domain = $url;
+        $good_domain =~ s!^http://!!;
+        $good_domain =~ s!/.*!!;
+        if ( $domain ne $good_domain ) {
+            return BML::redirect( $url );
+        }
+    }
+
+    $u->preload_props("opt_blockrobots", "adult_content") if $u->is_visible;
     if (!$u->is_visible || $u->should_block_robots) {
         $head .= LJ::robot_meta_tags();
     }
 
-    my $ad = LJ::ad_display(type   => 'journal',
-                            orient => 'Journal-Medrect',
-                            user   => $u->{user},
-                            );
-    $body .= "<div class='ad-sidebar'>$ad</div>" if $ad;
 
     # no need for viewsome, due to the fact that none of this is private anyway.  just
     # allow anybody with any version of viewall to see userpics for non-V statusvis users
-    if ($GET{viewall} && LJ::check_priv($remote, 'canview', 'suspended')) {
-        LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
-                              "viewall", "allpics: $u->{'user'}, statusvis: " . $u->statusvis);
-    } else {
+    
+    unless ( $remote && $remote->view_priv_check( $u, $GET{viewall}, 'allpics' ) ) {
         if ($u->is_suspended) {
             $title = $ML{'error.suspended.title'};
             $body = "<?h1 $ML{'error.suspended.name'} h1?><?p " .
@@ -59,144 +91,200 @@
     }
 
     # redirect renamed users
-    if ($u->{'journaltype'} eq "R") {
-        LJ::load_user_props($u, "renamedto");
-        return BML::redirect("$LJ::SITEROOT/allpics.bml?user=$u->{'renamedto'}")
-            if $u->{'renamedto'};
+    if ( $u->is_redirect ) {
+        my $renamedto = $u->prop( "renamedto" );
+        return BML::redirect("$LJ::SITEROOT/allpics?user=$renamedto'}")
+            if $renamedto;
     }
 
-    my ($can_manage, $getextra);
-    if ($remote) {
-        $can_manage = LJ::can_manage($remote, $u->{'userid'});
-        $getextra = $can_manage && $remote->{'user'} ne $u->{'user'} ? "?authas=$u->{'user'}" : '';
+    my ( $can_manage, $getextra );
+    if ( $remote ) {
+        $can_manage = $remote->can_manage( $u );
+        $getextra = $can_manage && ! $remote->equals( $u )
+                    ? "?authas=" . $u->user : '';
     }
 
     #### show pictures
 
-    my $info = LJ::get_userpic_info($u, {'load_comments' => 1, 'load_urls' => 1});
-
-    my %keywords = ();
-    while (my ($kw, $pic) = each %{$info->{'kw'}}) {
-        LJ::text_out(\$kw);
-        push @{$keywords{$pic->{'picid'}}}, $kw;
-    }
-
-    my %comments = ();
-    while (my ($pic, $comment) = each %{$info->{'comment'}}) {
-        LJ::text_out(\$comment);
-        $comments{$pic} = $comment;
+    my $keyword_sort =  $GET{'keywordSort'};
+    if ( $keyword_sort ) {
+        $getextra = $getextra ? $getextra . "&keywordSort=1" : "?keywordSort=1";
     }
 
     my $piccount = 0;
 
-    my @pics;
-    my $defaultpicid = $u ? $u->{'defaultpicid'} : undef;
-
     # allow support to view inactive userpics for debugging
-    my $view_inactive = $GET{inactive} && (LJ::check_priv($remote, "supportviewscreened") ||
-                                           LJ::check_priv($remote, "supporthelp"));
+    my $view_inactive = $GET{inactive} && $remote &&
+                        ( $remote->has_priv( "supportviewscreened" ) || $remote->has_priv( "supporthelp" ) );
     $view_inactive ||= $can_manage;
 
-    push @pics, $info->{'pic'}->{$u->{'defaultpicid'}} if $defaultpicid;
-    push @pics, map { $info->{'pic'}->{$_} } sort { $a <=> $b }
-                grep { $_ != $defaultpicid && ($info->{'pic'}->{$_}->{'state'} eq 'N' || $view_inactive) &&
-                       $info->{'pic'}->{$_}->{'state'} ne 'X' }
-                keys %{$info->{'pic'}};
+    my @allpics = LJ::Userpic->load_user_userpics($u);
+    if ( @allpics ) {
+        if ( $keyword_sort ) {
+            @allpics = LJ::Userpic->separate_keywords( \@allpics );
+        } else {
+            my @newpics;
+            my $default_pic;
+            foreach my $pic ( @allpics ) {
+                my $keyword = $pic->keywords;
+                if ( $pic->is_default ) {
+                    $default_pic = { keyword => $keyword, userpic => $pic };
+                } elsif ( $pic->state eq 'N' || ( $view_inactive && $pic->state ne 'X' ) ) {
+                    push @newpics, { keyword => $keyword, userpic => $pic };
+                }
+            }
+            @allpics = ( $default_pic, @newpics );
+        }
+    }
 
-    foreach my $pic (@pics) {
+    # pagination code
 
+    my @pics;
+    my $pagingbar;
+    my $start_index = 0;
+    my $page_size = $LJ::ALLPICS_PAGESIZE;
+    if ($page_size && $page_size > 0) {
+        my $pic_count = scalar @allpics;
+        my $pagecount = int (($pic_count - 1) / $page_size) + 1;
+    
+        if ($pagecount > 0) {
+            my $page = $GET{page};
+            unless ($page) { $page = 1; }
+            
+            my $querystring = join('&', map { LJ::eurl($_) . '=' . LJ::eurl($GET{$_}) } grep { $_ ne 'page' } keys %GET);
+            $pagingbar = LJ::paging_bar($page, $pagecount, {
+                self_link => sub { BML::get_uri() . "?page=$_[0]&" . $querystring }, });
+            $start_index = $page_size * ($page -1);
+        }
+        @pics = splice( @allpics, $start_index, $start_index + $page_size - 1 );
+    } else {
+        @pics = @allpics;
+    }
+
+    foreach my $userpic_hash ( @allpics ) {
+
+        # if we have no default pic
+        next unless $userpic_hash;
+
+        my $userpic = $userpic_hash->{userpic};
+        my $keywords = $userpic_hash->{keyword};
+        
         if ($piccount++ == 0) {
             $body .= "<?h1 $ML{'.current'} h1?><?p ";
             if ($can_manage) {
                 $body .= BML::ml('.pics.owner', {'user' => LJ::ljuser($u),});
-                my $hook_text = LJ::run_hook('allpics_upsell_text', $u, $getextra);
+                my $hook_text = LJ::Hooks::run_hook('allpics_upsell_text', $u, $getextra);
                 if ($hook_text eq "") {
-                    $body .= ' ' . BML::ml('.edit4', {'aopts' => "href='$LJ::SITEROOT/editpics.bml$getextra'"});
+                    $body .= ' ' . BML::ml('.edit4', {'aopts' => "href='$LJ::SITEROOT/editicons$getextra'"});
                 } else {
                     $body .= $hook_text;
                 }
             } else {
-                $body .= BML::ml('.pics2', {'user' => LJ::ljuser($u), 'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$u->{user}'"});
+                $body .= BML::ml('.pics2', {'user' => LJ::ljuser($u), 'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user?journal=$u->{user}'"});
             }
-
-            $body .= " p?><div style='margin-left: 50px;'><table cellpadding='5' border='0' cellspacing='1'>";
+            
+            # show sort options
+            $body .= "<p>";
+            $body .= $keyword_sort ? '<a href = "' . $u->allpics_base . '">' . "$ML{'.sort.default'}</a>" : "$ML{'.sort.default'}";
+            $body .=" | ";
+            $body .= $keyword_sort ? "$ML{'.sort.keyword'}" : '<a href = "' . $u->allpics_base . '?keywordSort=1">' . "$ML{'.sort.keyword'}</a>";
+            $body .= "</p>\n";
+            
+            $body .= " p?><table class='allpics'>";
         }
-
+        
         ### Keywords
-        my $eh_keywords = join(", ", sort { lc($a) cmp lc($b) } @{$keywords{$pic->{'picid'}}||[]});
-        $eh_keywords = LJ::ehtml($eh_keywords);
-
+        my $eh_keywords = LJ::ehtml( $keywords );
+        
         if ($piccount % 2 == 1) {
-            $body .= "<tr valign='middle'>";
+            $body .= "<tr>";
         }
-
-        $body .= "<td align='center'>";
-
-        my ($apre, $apost);
-        if ($pic->{'url'}) {
-            $apre = "<a href='" . LJ::ehtml($pic->{'url'}) . "'>";
+        
+        $body .= "<td class='pic'>";
+        
+        my ( $apre, $apost );
+        if ( $userpic->url ) {
+            $apre = "<a href='" . LJ::ehtml( $userpic->url ) . "'>";
             $apost = "</a>";
         }
-
-        $body .= "$apre<img src='$LJ::USERPIC_ROOT/$pic->{'picid'}/$u->{'userid'}' ";
-        $body .= "width='$pic->{'width'}' height='$pic->{'height'}' alt='' border='0'/>$apost</td><td>";
-
-        if ($u->{'defaultpicid'} == $pic->{'picid'}) {
+        
+        # for each image, we know the picid, get the html imgtag
+        $body .= "$apre" . $userpic->imgtag . $apost . "</td><td class='desc'>";
+        
+        if ( $userpic->is_default ) {
             $body .= "$ML{'.default'}<br />";
         }
-
-        if ($view_inactive && $pic->{'state'} eq 'I') {
-            $body .= "<i>[$ML{'userpic.inactive'}]</i>&nbsp;" . LJ::help_icon('userpic_inactive') . "<br />";
+        
+        if ($view_inactive && $userpic->state eq 'I') {
+            $body .= "<em>[$ML{'userpic.inactive'}]</em>&nbsp;" . LJ::help_icon('userpic_inactive') . "<br />";
         }
-
-        if ($eh_keywords) {
-            $body .= "<b>$ML{'.keywords'}</b> $eh_keywords<br />";
+        
+        if ( $eh_keywords ) {
+            $body .= "<strong>$ML{'.keywords'}</strong> $eh_keywords<br />";
         }
-
+        
         # Comments
-        my $eh_comments = $comments{$pic->{'picid'}};
-        if ($eh_comments) {
+        my $eh_comments = $userpic->comment;
+        if ( $eh_comments ) {
+            LJ::text_out( BML::ebml( \$eh_comments ) );
             LJ::CleanHTML::clean(\$eh_comments, {
                 'wordlength' => 40,
                 'addbreaks' => 0,
                 'tablecheck' => 1,
                 'mode' => 'deny',
             });
-
-            $body .= "$eh_comments\n";
+            
+            $body .= "<strong>$ML{'.comment'}</strong> $eh_comments<br />\n";
         }
-
+        
+        # Description
+        my $eh_description = $userpic->description;
+        if ($eh_description) {
+            LJ::text_out( BML::ebml( \$eh_description ) );
+            LJ::CleanHTML::clean(\$eh_description, {
+                wordlength => 40,
+                addbreaks => 0,
+                tablecheck => 1,
+                mode => 'deny',
+            });
+            
+            $body .= "<strong>$ML{'.description'}</strong> $eh_description\n";
+        }
+        
         $body .= "</td>";
-
+        
         if ($piccount % 2 == 1) {
-            $body .= "<td width='50px'></td>";
+            $body .= "<td class='blank'></td>";
         } else {
             $body .= "</tr>\n";
         } 
     }
-
+    
     if ($piccount) {
         if ($piccount % 2 == 1) {
             # finish off this row.
             # we need 2 columns: the pic and the text.
             $body .= "<td colspan='2'></td></tr>";
         }
-        $body .= "</table></div>";
+        if ($pagingbar) {
+            $body .= "<tr><td colspan = '4'>";
+            $body .= $pagingbar;
+            $body .= "</td></tr>\n";
+        }
+        $body .= "</table>";
     } else {
         if ($can_manage) {
             $body = "<?h1 $ML{'.nopics.title'} h1?><?p ";
-            $body .= BML::ml('.nopics.text3', {'aopts' => "href='$LJ::SITEROOT/editpics.bml$getextra#upload'"}) . " p?>";
+            $body .= BML::ml('.nopics.text3', {'aopts' => "href='$LJ::SITEROOT/editicons$getextra#upload'"}) . " p?>";
         } else {
-            $body = "<?h1 $ML{'.nopics.title'} h1?><?p ". BML::ml('.nopics.text.other2', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$u->{user}'"}). " p?>";
+            $body = "<?h1 $ML{'.nopics.title'} h1?><?p ". BML::ml('.nopics.text.other2', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user?journal=$u->{user}'", username => $u->ljuser_display }). " p?>";
         }
     }
- 
+    
     return;
 }
 _code?><?page
 title=><?_code return $title; _code?>
 head=><?_code return $head; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-link: htdocs/editpics.bml
-</LJDEP> _c?>
+page?>

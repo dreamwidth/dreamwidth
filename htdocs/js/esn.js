@@ -68,7 +68,7 @@ ESN.initTrackBtns = function () {
     if (!Site || !Site.has_remote) return;
 
     // attach to all ljuser head icons
-    var trackBtns = DOM.getElementsByTagAndClassName(document, "img", "TrackButton");
+    var trackBtns = DOM.getElementsByTagAndClassName( document, "a", "TrackButton" );
 
     Array.prototype.forEach.call(trackBtns, function (trackBtn) {
         if (!trackBtn || !trackBtn.getAttribute) return;
@@ -82,7 +82,17 @@ ESN.initTrackBtns = function () {
 
 ESN.trackBtnClickHandler = function (evt) {
     var trackBtn = evt.target;
-    if (! trackBtn || trackBtn.tagName.toLowerCase() != "img") return true;
+    if ( ! trackBtn ) return true;
+
+    // don't show the popup if we want to open it in a new tab (ctrl+click or cmd+click)
+    if (evt && (evt.ctrlKey || evt.metaKey)) return false;
+
+    trackBtn.isIcon = false;
+
+    if ( trackBtn.tagName.toLowerCase() == "img" ) {
+        trackBtn = trackBtn.parentNode;
+        trackBtn.isIcon = true;
+    }
 
     Event.stop(evt);
 
@@ -142,7 +152,19 @@ ESN.trackBtnClickHandler = function (evt) {
         commentsTrackBtn = TrackCheckbox("someone replies in this comment thread", 1);
     } else {
         // entry tracking button
-        newEntryTrackBtn = TrackCheckbox(LJ_cmtinfo["journal"] + " posts a new entry", trackingNewEntries);
+        var journal; 
+        
+        if ( typeof LJ_cmtinfo !== 'undefined' ) {
+            journal = LJ_cmtinfo["journal"];
+        } else if ( typeof trackBtn.getAttribute( "journal" ) != "undefined" ) {
+            journal = trackBtn.getAttribute( "journal" );
+        } else if ( typeof Site !== 'undefined' ) {
+            journal = Site.currentJournal;
+        }
+
+        if ( journal ) {
+            newEntryTrackBtn = TrackCheckbox( journal + " posts a new entry", trackingNewEntries );
+        }
         commentsTrackBtn = TrackCheckbox("someone comments on this post", trackingNewComments);
     }
 
@@ -161,7 +183,7 @@ ESN.trackBtnClickHandler = function (evt) {
     btnsContainer.appendChild(saveChangesBtn);
 
     var custTrackLink = document.createElement("a");
-    custTrackLink.href = trackBtn.parentNode.href;
+    custTrackLink.href = trackBtn.href;
     btnsContainer.appendChild(custTrackLink);
     custTrackLink.innerHTML = "More Options";
     DOM.addClassName(custTrackLink, "track_moreopts");
@@ -170,7 +192,7 @@ ESN.trackBtnClickHandler = function (evt) {
 
     DOM.addEventListener(custTrackLink, "click", function (evt) {
         Event.stop(evt);
-        document.location.href = trackBtn.parentNode.href;
+        document.location.href = trackBtn.href;
         if (ESN.trackPopup) ESN.trackPopup.hide();
         return false;
     });
@@ -247,27 +269,26 @@ ESN.toggleSubscription = function (subInfo, evt, btn, sub) {
                 if (info.newentry_subid)
                     DOM.setElementAttribute(btn, "lj_newentry_subid", info.newentry_subid);
 
-                ["journalid", "arg1", "arg2", "etypeid"].forEach(function (param) {
-                    DOM.setElementAttribute(btn, "lj_" + param, 0);
-                });
-
                 DOM.setElementAttribute(btn, "title", 'Untrack This');
 
                 // update subthread tracking icons
                 var dtalkid = btn.getAttribute("lj_dtalkid");
-                if (dtalkid)
+                if ( dtalkid ) {
                     ESN.updateThreadIcons(dtalkid, "on");
-                else // not thread tracking button
-                    btn.src = Site.imgprefix + "/btn_tracking.gif";
+                } else { // not thread tracking button
+                    if ( ! btn.isIcon ) {
+                        var swapName = btn.innerHTML;
+                        btn.innerHTML = btn.getAttribute( "js_swapname" );
+                        DOM.setElementAttribute( btn, "js_swapname", swapName );
+                    } else {
+                        btn.firstChild.src = Site.imgprefix + "/silk/entry/untrack.png";
+                    }
+                }
             } else {
                 if (info["event_class"] == "LJ::Event::JournalNewComment")
                     DOM.setElementAttribute(btn, "lj_subid", 0);
                 else if (info["event_class"] == "LJ::Event::JournalNewEntry")
                     DOM.setElementAttribute(btn, "lj_newentry_subid", 0);
-
-                ["journalid", "arg1", "arg2", "etypeid"].forEach(function (param) {
-                    DOM.setElementAttribute(btn, "lj_" + param, info[param]);
-                });
 
                 DOM.setElementAttribute(btn, "title", 'Track This');
 
@@ -293,12 +314,18 @@ ESN.toggleSubscription = function (subInfo, evt, btn, sub) {
                     }
 
                     ESN.updateThreadIcons(dtalkid, state);
+
                 } else {
                     // not thread tracking button
-                    btn.src = Site.imgprefix + "/btn_track.gif";
+                    if ( ! btn.isIcon ) {
+                        var swapName = btn.innerHTML;
+                        btn.innerHTML = btn.getAttribute( "js_swapname" );
+                        DOM.setElementAttribute( btn, "js_swapname", swapName );
+                    } else {
+                        btn.firstChild.src = Site.imgprefix + "/silk/entry/track.png";
+                    }
                 }
             }
-
             if (info.auth_token)
                 DOM.setElementAttribute(btn, "lj_auth_token", info.auth_token);
             if (info.newentry_token)
@@ -374,18 +401,24 @@ ESN.updateThreadIcons = function (dtalkid, tracking) {
     var uri;
     switch (tracking) {
         case "on":
-            uri = "/btn_tracking.gif";
+            uri = "/silk/entry/untrack.png";
             break;
         case "off":
-            uri = "/btn_track.gif";
+            uri = "/silk/entry/track.png";
             break;
         case "parent":
-            uri = "/btn_tracking_thread.gif";
+            uri = "/silk/entry/untrack.png";
             break;
         default:
             alert("Unknown tracking state " + tracking);
             break;
     }
-
-    btn.src = Site.imgprefix + uri;
+    if ( typeof btn.firstChild.tagName != "undefined" && btn.firstChild.tagName.toLowerCase() == "img" ) {
+        btn.firstChild.src = Site.imgprefix + uri;
+    } else {
+        var swapName = btn.innerHTML;
+        btn.innerHTML = btn.getAttribute( "js_swapname" );
+        DOM.setElementAttribute( btn, "js_swapname", swapName );
+    }
+        
 };

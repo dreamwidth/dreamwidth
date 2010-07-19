@@ -1,14 +1,17 @@
 # -*-perl-*-
 
 use strict;
-use Test::More qw(no_plan);
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 
 require 'ljlib.pl';
-require 'ljlang.pl';
+use LJ::Lang;
 
 use LJ::Faq;
 use LJ::Test qw(memcache_stress);
+
+plan tests => 60;
+#plan skip_all => 'Fix this test! Is there support for Spanish?';
 
 sub run_tests {
     # constructor tests
@@ -30,7 +33,9 @@ sub run_tests {
             is($f->lang, $LJ::DEFAULT_LANG, "unknown language code falls back to default");
         }
 
-        foreach my $lang (qw(en es)) {
+        foreach my $lang (qw(en)) {
+
+        # FIXME: maybe test for en_DW as well? en = 'English, not site specific'; en_DW = 'English, site specific.'  So, in 'en', it's NOT OK to mention Dreamwidth, or, 'the red Tropospherical scheme', etc. But en_DW can be all about DW itself.
 
             my $f;
 

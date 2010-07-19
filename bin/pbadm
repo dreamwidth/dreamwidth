@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+#
+# pbadm
+#
+# Perlbal administrative helper script.
+#
+# Authors:
+#      kareila <kareila@livejournal.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use warnings;
+use strict;
+
+use Net::Telnet ();
+use Date::Format ('time2str');
+use Term::ANSIColor ('color');
+
+### USER CHANGEABLE CONSTANTS ###
+my $refresh = shift() || 10; # polling interval in seconds
+my $timeout = 5;  # max time to connect in seconds
+
+# intervals for color levels
+my $sev0 = 0;    my $sev0_color = 'green';
+my $sev1 = 100;  my $sev1_color = 'yellow';
+my $sev2 = 500;  my $sev2_color = 'bold yellow';
+my $sev3 = 1000; my $sev3_color = 'red';
+                 my $sev4_color = 'bold red'; # anything above sev3
+
+### READ CONFIG INFO ###
+require "$ENV{LJHOME}/etc/config-private.pl";
+my %hostinfo = %LJ::PERLBAL_SERVERS;
+die "\%LJ::PERLBAL_SERVERS not found, please check config" unless %hostinfo;
+my @servers = sort keys %hostinfo;
+
+### INITIALIZE NETWORK VARIABLES ###
+my %tcp; my %s1; my %s2;
+foreach (@servers)
+{
+    $tcp{$_} = new Net::Telnet (Timeout => $timeout, Telnetmode => 0);
+    my ($host, $port) = split ':', $hostinfo{$_};
+    $tcp{$_}->host($host); $tcp{$_}->port($port);
+    $tcp{$_}->errmode('return'); # don't die on connfail
+    $tcp{$_}->prompt('/\.$/'); # Perlbal end-of-data marker
+    $tcp{$_}->open(); # should stay open
+}
+
+### INFINITE POLLING LOOP ###
+until (0 > 1)
+{
+    my $timestr = time2str("%a %b %d %T %Y", time);
+    foreach my $server (@servers)
+    {
+        my @states = $tcp{$server}->cmd('states');
+        unless (@states)
+        {
+            $s1{$server} = 'DWN';
+            $s2{$server} = 'DOWN';
+            $tcp{$server}->open(); # try to reopen
+            next;
+        }
+        my $bh_xfer = 0; my $bh_wait = 0; my $backend = 0;
+        foreach (@states)
+        {
+            $bh_xfer = $1 if /Perlbal::BackendHTTP xfer_res (\d+)/;
+            $bh_wait = $1 if /Perlbal::BackendHTTP wait_res (\d+)/;
+            $backend = $1 if /Perlbal::ClientProxy wait_backend (\d+)/;
+        }
+        $s1{$server} = sprintf("%03d", $bh_xfer + $bh_wait);
+        $s2{$server} = sprintf("%04d", $backend);
+    }
+    print "$timestr: ";
+    foreach (@servers)
+    {
+        my $n = ($s2{$_} eq 'DOWN') ? $sev3 * 10 : $s2{$_};
+        print color $sev4_color if ($n > $sev3);
+        print color $sev3_color if ($n > $sev2 && $n <= $sev3);
+        print color $sev2_color if ($n > $sev1 && $n <= $sev2);
+        print color $sev1_color if ($n > $sev0 && $n <= $sev1);
+        print color $sev0_color if ($n == $sev0);
+        print "[$_ - $s1{$_}, $s2{$_}] ";
+        print color 'reset';
+    }
+    print "\n";
+    sleep $refresh;
+}
+

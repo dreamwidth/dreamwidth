@@ -1,0 +1,30 @@
+<?_code
+{
+    #
+    # shop/pp_notify.bml
+    #
+    # Pass through notification support for PayPal to give us status updates about
+    # something or other happening to one of our outstanding payments.
+    #
+    # Authors:
+    #      Mark Smith <mark@dreamwidth.org>
+    #
+    # Copyright (c) 2009 by Dreamwidth Studios, LLC.
+    #
+    # This program is free software; you may redistribute it and/or modify it under
+    # the same terms as Perl itself.  For a copy of the license, please reference
+    # 'perldoc perlartistic' or 'perldoc perlgpl'.
+    #
+
+    use strict;
+    use vars qw( %FORM );
+
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
+    return "notified"
+        if DW::Shop::Engine::PayPal->process_ipn( \%FORM );
+
+    return "failure";
+}
+_code?>

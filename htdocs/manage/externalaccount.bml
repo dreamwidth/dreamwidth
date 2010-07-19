@@ -1,0 +1,420 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
+<?page
+body<=
+<?_code
+use strict;
+{
+    use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
+    
+    if ($LJ::USE_SSL && ! $LJ::IS_SSL && $FORM{ssl} ne "no") {
+        my $getextra = $GET{acctid} ? "?acctid=" . LJ::eurl($GET{acctid}) : "";
+        return BML::redirect("$LJ::SSLROOT/manage/externalaccount$getextra");
+    }
+
+    BML::set_language_scope('/manage/externalaccount.bml');
+
+    LJ::need_res("stc/settings.css", "js/externalaccount.js");
+    LJ::set_active_crumb('manage');
+
+    my $remote = LJ::get_remote();
+
+    my $u = $remote ? LJ::want_user($remote->userid) : undef;
+
+    return "<?needlogin?>" unless $u;
+
+    my $max_accts = $u->count_max_xpost_accounts;
+
+    my %errs;
+
+    if (LJ::did_post()) {
+        my $result;
+        if ($POST{acctid}) {
+            $result = edit_external_account($u, \%POST, \%errs);
+        } else {
+            $result = create_external_account($u, \%POST, \%errs);
+        }
+        if ($result) {
+            return BML::redirect("$LJ::SITEROOT/manage/settings/?cat=othersites$result");
+        }
+    }
+
+    # this shows if we're creating a new account or editing an existing one.
+    my $editpage = 0;
+    my $editacct;
+    my $acctid = $GET{acctid} ? $GET{acctid} : $POST{acctid};
+    if ($acctid) {
+        $editacct = DW::External::Account->get_external_account($u, $acctid);
+        # if the account doesn't exist, ignore it.
+        if ($editacct) {
+            $editpage = 1;
+        }
+    }
+    
+    $title = $editpage ? $ML{'.title.edit'} : $ML{'.title.new'};
+
+    my $body .= qq {
+      <div id='settings_page'>
+        <form action="/manage/externalaccount" method="post" id="createacct">
+          <div id='xpost_add'>
+            <table class='setting_table'>
+    };
+
+    if ($editpage) {
+        $body .= LJ::html_hidden('acctid', $editacct->acctid);
+    }
+
+    my @sitevalues;
+    my @sites = DW::External::Site->get_xpost_sites;
+
+    foreach my $site (sort { $a->{sitename} cmp $b->{sitename} } @sites) {
+        push @sitevalues, $site->{siteid},  $site->{sitename};
+    }
+    # add custom
+    push @sitevalues, '-1';
+    push @sitevalues, $ML{'.setting.xpost.option.site.custom'};
+
+    my %protocols =  DW::External::XPostProtocol->get_all_protocols;
+    my %protocolselectmap;
+    foreach my $protocol (keys %protocols) {
+        $protocolselectmap{$protocol} = $protocol;
+    }
+
+    $body .= "<br />";
+
+    $body .= "<tr><td class='setting_label'><label for='site'>" . $ML{'.setting.xpost.option.site'} . "</label></td>";
+    if ($editpage) {
+        $body .= "<td>" . $editacct->servername . "</td>\n";
+    } else {
+        $body .= "<td>" . LJ::html_select({
+            name => "site", 
+            onchange => "updateSiteSelection()",
+            selected => $POST{site} || '2'
+                                          }, @sitevalues);
+        $body .= "<table id='customsite'>";
+    
+        $body .= "<tr><td class='setting_label'><label for='servicetype'>" . $ML{'.setting.xpost.option.servicetype'} . "</label></td>";
+        $body .= "<td>" . LJ::html_select({
+            name => "servicetype",
+            id => "servicetype",
+            onchange => "updateProtocolSelection" }, %protocolselectmap);
+        
+        my $servicetype_errdiv = errdiv(\%errs, "servicetype");
+        $body .= "<br />$servicetype_errdiv" if $servicetype_errdiv;
+        $body .= "</td></tr>\n";
+    
+        # hide if we have javascript, and if we haven't already selected
+        # a custom site.
+        if ($POST{"site"} ne -1) {
+            $body .= qq {
+          <script type='text/javascript'>
+             var customsitetable = document.getElementById('customsite');
+             customsitetable.style.display='none';
+          </script>
+        };
+        }
+
+        # servicename
+        $body .= "<tr class='customsite_all'><td class='setting_label'><label for='servicename'>" . $ML{'.setting.xpost.option.servicename'} . "</label></td>";
+        $body .= "<td>" . LJ::html_text({ 
+            name => "servicename",
+            id => "servicename",
+            value => $POST{servicename},
+            disabled => 0,
+            size => 40,
+            maxlength => 80,
+                                        });
+
+        my $servicename_errdiv = errdiv(\%errs, "servicename");
+        $body .= "<br />$servicename_errdiv" if $servicename_errdiv;
+        $body .= "</td></tr>\n";
+        
+        # serviceurl
+        $body .= "<tr class='customsite_all'><td class='setting_label'><label for='serviceurl'>" . $ML{'.setting.xpost.option.serviceurl'} . "</label></td>";
+        $body .= "<td>" . LJ::html_text({
+            name => "serviceurl",
+            id => "serviceurl",
+            value => $POST{serviceurl},
+            disabled => 0,
+            size => 40,
+            maxlength => 80,
+                                        });
+        my $serviceurl_errdiv = errdiv(\%errs, "serviceurl");
+        $body .= "<br />$serviceurl_errdiv" if $serviceurl_errdiv;
+        $body .= "</td></tr>\n";
+
+        $body .= "</table>"; # end customsite table
+        $body .= "</td></tr>\n"; # end 
+    }
+
+    $body .= "<tr><td class='setting_label'><label for='username'>" . $ML{'.setting.xpost.option.username'} . "</label></td>";
+    if ($editpage) {
+        $body .= "<td>" . $editacct->username . "</td>\n";
+    } else {
+        $body .= "<td>" . LJ::html_text({
+            name => "username",
+            id => "username",
+            value => $POST{username},
+            disabled => 0,
+            size => 40,
+            maxlength => 80,
+                                        });
+        $body .= "<br /><em>$ML{'.setting.xpost.option.username.info'}</em>";
+        my $username_errdiv = errdiv(\%errs, "username");
+        $body .= "<br />$username_errdiv" if $username_errdiv;
+        $body .= "</td></tr>\n";
+    }
+
+    $body .= "<tr><td class='setting_label'><label for='password'>" . $ML{'.setting.xpost.option.password'} . "</label></td>";
+
+    # we don't have the password itself, so either use "" (for no password /
+    # new account) or "__passwd__"
+    $body .= "<td>" . LJ::html_text({
+        name => "password",
+        id => "password",
+        value => $editpage ? "__passwd__" : $POST{password},
+        disabled => 0,
+        size => 40,
+        maxlength => 80,
+        type => 'password'
+    });
+    $body .= "<br /><em>$ML{'.setting.xpost.option.password.info'}</em>";
+    my $password_errdiv = errdiv(\%errs, "password");
+    $body .= "<br />$password_errdiv" if $password_errdiv;
+    my $accountinvalid_errdiv = errdiv(\%errs, "accountinvalid");
+    $body .= "<br />$accountinvalid_errdiv" if $accountinvalid_errdiv;
+    $body .= "</td></tr>\n";
+
+    $body .= "<tr><td class='setting_label'><label for='xpostbydefault'>" . $ML{'.setting.xpost.option.xpostbydefault'} . "</label></td>";
+    $body .= "<td>" . LJ::html_check({
+        name     => "xpostbydefault",
+        value    => 1,
+        id       => "xpostbydefault",
+        selected => $editpage ? $editacct->xpostbydefault : $POST{xpostbydefault}
+    });
+    my $xpostbydefault_errdiv = errdiv(\%errs, "xpostbydefault");
+    $body .= "<br />$xpostbydefault_errdiv" if $xpostbydefault_errdiv;
+    $body .= "</td></tr>\n";
+
+    $body .= "<tr><td class='setting_label'><label for='recordlink'>" . $ML{'.setting.xpost.option.recordlink'} . "</label></td>";
+    $body .= "<td>" . LJ::html_check({
+        name     => "recordlink",
+        value    => 1,
+        id       => "recordlink",
+        selected => $editpage ? $editacct->recordlink : $POST{recordlink}
+    });
+    my $recordlink_errdiv = errdiv(\%errs, "recordlink");
+    $body .= "<br />$recordlink_errdiv" if $recordlink_errdiv;
+    $body .= "</td></tr>\n";
+
+    $body .= "<tr><td class='setting_label'><label for='savepassword'>" . $ML{'.setting.xpost.option.savepassword'} . "</label></td>";
+    $body .= "<td>" . LJ::html_check({
+        name     => "savepassword",
+        value    => 1,
+        id       => "savepassword",
+        selected => LJ::did_post() ? 
+                      $POST{savepassword} :
+                      $editpage ? $editacct->password ne "" : 1,
+    });
+    my $savepassword_errdiv = errdiv(\%errs, "savepassword");
+    $body .= "<br />$savepassword_errdiv" if $savepassword_errdiv;
+    $body .= "</td></tr>\n";
+    
+    $body .= "<tr><td>";
+    $body .= "<br />";
+    $body .= LJ::html_submit(undef, $editpage ? $ML{'.btn.update'} : $ML{'.btn.create'});
+    $body .="</td></tr>\n";
+
+    $body .= "</table>";
+    $body .= "</div>";
+    $body .= "</form>";
+    $body .= "</div>";
+
+    return $body;
+}
+
+sub errdiv {
+    my ($errs, $key) = @_;
+    return "" unless $errs;
+
+    my $err = $errs->{$key}   or return "";
+    # FIXME: red is temporary.  move to css.
+    return "<div style='color: red' class='ljinlinesettingerror'>$err</div>";
+}
+
+# form handler.  does the actual new account creation.
+sub create_external_account {
+    my ($u, $POST, $errs) = @_;
+
+    # check to see if we're already at max.
+    my $max_accts = $u->count_max_xpost_accounts;
+    my @accounts = DW::External::Account->get_external_accounts($u);
+    my $acct_count = scalar @accounts;
+    if ($acct_count >= $max_accts) {
+        $errs->{servicetype} = $max_accts eq 1 ? BML::ml('.error.maxacct.singular', { max_accts => $max_accts }) : BML::ml('.error.maxacct.plural', { max_accts => $max_accts });
+        return 0;
+    }
+
+    # create new account
+    my %opts;
+
+    my $ok = 1;
+
+    # general properties, for all servers
+    $opts{password} = $POST->{password};
+    $opts{username} = $POST->{username};
+    $opts{xpostbydefault} = $POST->{xpostbydefault};
+    $opts{recordlink} = $POST->{recordlink};
+    $opts{savepassword} = $POST->{savepassword};
+
+    # username is required
+    if (! $opts{username}) {
+        $errs->{username} = BML::ml('.settings.xpost.error.username.required');
+        $ok = 0;
+    }
+    
+    # check if it's a default site or a custom site
+    if ($POST->{"site"} ne -1) {
+        # default site; just use the siteid
+        $opts{siteid} = $POST->{"site"};
+    } else {
+        # custom site
+        $opts{servicename} = $POST->{servicename};
+        $opts{servicetype} = $POST->{servicetype};
+        $opts{serviceurl} = $POST->{serviceurl};
+
+        # all three fields are required for custom sites
+        foreach my $reqfield( qw ( servicename servicetype serviceurl ) ) {
+            if (! $opts{$reqfield}) {
+                $errs->{$reqfield} = BML::ml(".settings.xpost.error.$reqfield.required");
+                $ok = 0;
+            }
+        }
+
+        # validate the site.
+        if ($ok) {
+            my $protocol = DW::External::XPostProtocol->get_protocol($opts{servicetype});
+            if (! $protocol) {
+                $errs->{servicetype} = BML::ml('.settings.xpost.error.servicetype', { servicetype => $opts{servicetype} });
+                $ok = 0;
+            } else {
+                my $valid = $protocol->validate_server($opts{serviceurl});
+                if (! $valid) {
+                    $errs->{serviceurl} = BML::ml('.settings.xpost.error.url', { url => $opts{serviceurl} });
+                    $ok = 0;
+                }
+            }
+        }
+    }
+
+    # verification of account info - only do this if $ok isn't already set to 0, so we have username/password and valid site info
+    if ( $ok ) {
+        my $account_valid = account_isvalid( $u, \%POST );
+        if ( $account_valid != 1 ) {
+            $ok = 0;
+            #create different error messages for different server errors. If we get some other error message, show the one we get from the server
+            if ( $account_valid eq "Invalid username" ) {
+                $errs->{username} = BML::ml('.settings.xpost.error.username.invalid');
+            } elsif ( $account_valid eq "Invalid password" ) {
+                $errs->{password} = BML::ml('.settings.xpost.error.password.invalid');
+            } elsif ( $account_valid eq "Client error: Your IP address is temporarily banned for exceeding the login failure rate." ) {
+                $errs->{accountinvalid} = BML::ml('.settings.xpost.error.ipban');
+           } else {
+                $errs->{accountinvalid} = $account_valid;
+           }
+        }
+    }
+
+    if ($ok) {
+        # if the user requested that we don't save their password, then
+        # don't save their password.
+        $opts{password} = "" unless $opts{savepassword};
+
+        my $new_acct = DW::External::Account->create($u, \%opts);
+        # FIXME add error if create fails.
+        if ($new_acct) {
+            return "&create=". $new_acct->acctid;
+        } else {
+            return 0;
+        }
+    }
+    
+    return $ok;
+}
+
+#check whether an account actually exists on the other service and whether the password is correct by sending a 'login' request
+sub account_isvalid {
+    my ( $u, $extacct ) = @_;
+    my $protocol_id, my $proxyurl;
+
+    # if the site was selected from the drop-down, we need to get the corresponding values.
+    # if it's user-entered, we can construct the site from these values.
+    # we only run this check if we have already validated the external site.
+    if  ( $extacct->{site} ne -1 ) {
+        my $siteid = $extacct->{site};
+        my $externalsite = DW::External::Site->get_site_by_id( $siteid );
+        $proxyurl = "http://" . $externalsite->{domain} . "/interface/xmlrpc";
+        $protocol_id = $externalsite->{servicetype};
+    } else {
+        $proxyurl = $extacct->{serviceurl}; 
+        $protocol_id = $extacct->{servicetype};
+    }
+
+    #need to encrypt password to send it
+    my $protocol = DW::External::XPostProtocol->get_protocol( $protocol_id );
+    my $encryptedpassword = $protocol->encrypt_password( $extacct->{password} );
+    $extacct->{encrypted_password} = $encryptedpassword;
+
+    #check to see whether we can log in with this data
+    my $authresp = DW::External::XPostProtocol::LJXMLRPC->call_xmlrpc( $proxyurl, 'login', {}, $extacct );
+
+    #if the validation was successful, return 1, if not return the error message
+    if ( $authresp->{success} ) {
+        return 1;
+    } else {
+        return $authresp->{error};
+    }
+}
+
+
+# form handler.  edits the given account.
+sub edit_external_account {
+    my ($u, $POST, $errs) = @_;
+    
+    my $acct = DW::External::Account->get_external_account($u, $POST{acctid});
+    return 0 unless $acct;
+    
+    my $newpw = $POST{password} || "";
+    if (! $POST{savepassword}) {
+        # don't save the password.
+        $acct->set_password("");
+    } elsif ($POST{password} ne "__passwd__") {
+        # we have a password
+        $acct->set_password($POST{password});
+    }
+    $acct->set_xpostbydefault($POST{xpostbydefault});
+    $acct->set_recordlink($POST{recordlink});
+
+    return "&update=" . $acct->acctid;
+}
+
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

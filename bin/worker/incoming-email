@@ -1,11 +1,24 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by 
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License. 
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::Worker::TheSchwartz;
 
 require "ljlib.pl";
 require "ljemailgateway.pl";
-require "supportlib.pl";
+use LJ::Support;
 require "sysban.pl";
 
 schwartz_decl('LJ::Worker::IncomingEmail');
@@ -101,21 +114,23 @@ sub work {
 
     my $subject = $head->get('Subject');
     chomp $subject;
+    $subject = LJ::trim( $subject );
 
     # simple/effective spam/bounce/virus checks:
     return dequeue("Bounce")      if $head->get("Return-Path") =~ /^\s*<>\s*$/;
     return dequeue("Spam")        if subject_is_bogus($subject);
     return dequeue("Virus found") if virus_check($entity);
+    return dequeue("Spam")        if $subject && $subject =~ /^\[SPAM: \d+\.?\d*\]/;
 
     # see if a hook is registered to handle this message
-    if (LJ::are_hooks("incoming_email_handler")) {
+    if (LJ::Hooks::are_hooks("incoming_email_handler")) {
 
         my $errmsg = "";
         my $retry  = 0;
 
         # incoming_email_handler hook will return a true value
         # if it chose to handle this incoming email
-        my $rv = LJ::run_hook("incoming_email_handler",
+        my $rv = LJ::Hooks::run_hook("incoming_email_handler",
                               entity => $entity,
                               errmsg => \$errmsg,
                               retry  => \$retry);
@@ -291,15 +306,15 @@ EMAIL_END
 
     # convert email body to utf-8
     my $content_type = $head->get('Content-type:');
-    my $charset      = $1
-      if $content_type =~ /\bcharset=[\'\"]?(\S+?)[\'\"]?[\s\;]/i;
-    if (   defined($charset)
-        && $charset !~ /^UTF-?8$/i
-        && Unicode::MapUTF8::utf8_supported_charset($charset) )
-    {
-        $body =
-          Unicode::MapUTF8::to_utf8(
-            { -string => $body, -charset => $charset } );
+    if ( $content_type =~ /\bcharset=[\'\"]?(\S+?)[\'\"]?[\s\;]/i ) {
+        my $charset = $1;
+        if ( defined $charset
+             && $charset !~ /^UTF-?8$/i
+             && Unicode::MapUTF8::utf8_supported_charset( $charset )
+           ) {
+            $body = Unicode::MapUTF8::to_utf8(
+                    { -string => $body, -charset => $charset } );
+        }
     }
 
     my $spid = LJ::Support::file_request(
@@ -374,8 +389,8 @@ sub subject_is_bogus {
         || $subject =~ /Attachment block message/i
         || $subject =~ /Use this patch immediately/i
         || $subject =~ /^YOUR PAYPAL\.COM ACCOUNT EXPIRES/i
-        || $subject =~ /^don\'t be late! ([\w\-]{1,15})$/i
-        || $subject =~ /^your account ([\w\-]{1,15})$/i
+        || $subject =~ /^don\'t be late! ([\w\-]{1,25})$/i
+        || $subject =~ /^your account ([\w\-]{1,25})$/i
         || $subject =~ /Message Undeliverable/i;
 }
 

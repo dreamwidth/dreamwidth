@@ -1,11 +1,13 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
+
+plan tests => 24;
 
 my $u = temp_user();
 my $u2 = temp_user();
@@ -18,7 +20,7 @@ my $run = sub {
 };
 
 is($run->("priv grant admin:* " . $u2->user),
-   "error: You are not authorized to run this command.");
+   "error: You are not permitted to grant admin:*");
 is($run->("priv_package list"),
    "error: You are not authorized to run this command.");
 $u->grant_priv("admin", "supporthelp");
@@ -43,21 +45,21 @@ $u->grant_priv("admin", "supportread/bananas");
 # one user, one priv
 is($run->("priv grant supporthelp:test " . $u2->user),
    "info: Granting: 'supporthelp' with arg 'test' for user '" . $u2->user . "'.");
-ok(LJ::check_priv($u2, "supporthelp", "test"), "has priv");
+ok($u2->has_priv( "supporthelp", "test" ), "has priv");
 
 is($run->("priv revoke supporthelp:test " . $u2->user),
    "info: Denying: 'supporthelp' with arg 'test' for user '" . $u2->user . "'.");
-ok(!LJ::check_priv($u2, "supporthelp", "test"), "no longer privved");
+ok(!$u2->has_priv( "supporthelp", "test" ), "no longer privved");
 
 is($run->("priv grant supporthelp:test,supporthelp:bananas " . $u2->user),
    "info: Granting: 'supporthelp' with arg 'test' for user '" . $u2->user . "'.\n"
    . "info: Granting: 'supporthelp' with arg 'bananas' for user '" . $u2->user . "'.");
-ok(LJ::check_priv($u2, "supporthelp", "test"), "has priv");
-ok(LJ::check_priv($u2, "supporthelp", "bananas"), "has priv");
+ok($u2->has_priv( "supporthelp", "test" ), "has priv");
+ok($u2->has_priv( "supporthelp", "bananas" ), "has priv");
 
 is($run->("priv revoke_all supporthelp " . $u2->user),
    "info: Denying: 'supporthelp' with all args for user '" . $u2->user . "'.");
-ok(!LJ::check_priv($u2, "supporthelp"), "no longer has priv");
+ok(!$u2->has_priv( "supporthelp" ), "no longer has priv");
 
 is($run->("priv revoke supporthelp " . $u2->user),
    "error: You must explicitly specify an empty argument when revoking a priv.\n"

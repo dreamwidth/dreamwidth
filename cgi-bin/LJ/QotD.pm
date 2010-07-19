@@ -1,7 +1,33 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::QotD;
 use strict;
 use Carp qw(croak);
 use List::Util qw(shuffle);
+
+sub get_domains {
+    my $class = shift;
+
+    return ( homepage => "Homepage" );
+}
+
+sub is_valid_domain {
+    my $class = shift;
+    my $domain = shift;
+
+    return scalar(grep { $_ eq $domain } $class->get_domains) ? 1 : 0;
+}
 
 # returns 'current' or 'old' depending on given start and end times
 sub get_type {
@@ -131,12 +157,26 @@ sub load_old_questions {
     return @rows;
 }
 
+sub filter_by_domain {
+    my $class = shift;
+    my $u = shift;
+    my $domain = shift;
+    my @questions = @_;
+
+    my @questions_ret;
+    foreach my $q (@questions) {
+        push @questions_ret, $q if $q->{domain} eq $domain;
+    }
+
+    return @questions_ret;
+}
+
 sub filter_by_eff_class {
     my $class = shift;
     my $u = shift;
     my @questions = @_;
 
-    my $eff_class = LJ::run_hook("qotd_get_eff_class", $u);
+    my $eff_class = LJ::Hooks::run_hook("qotd_get_eff_class", $u);
     return @questions unless $eff_class;
 
     my @questions_ret;
@@ -160,6 +200,7 @@ sub filter_by_country {
     my $class = shift;
     my $u = shift;
     my $skip = shift;
+    my $all = shift;
     my @questions = @_;
 
     # split the list into a list of questions with countries and a list of questions without countries
@@ -194,7 +235,7 @@ sub filter_by_country {
     # if the user has an unknown country or there are no questions
     # targeted at their country, or if we're looking at the history,
     # return all questions
-    if (@questions_ret && $skip == 0) {
+    if (@questions_ret && $skip == 0 && !$all) {
         return @questions_ret;
     } else {
         return (@questions_ret, @questions_without_countries);
@@ -206,6 +247,7 @@ sub get_questions {
     my %opts = @_;
 
     my $skip = defined $opts{skip} ? $opts{skip} : 0;
+    my $domain = defined $opts{domain} ? lc $opts{domain} : "homepage";
 
     # if true, get all questions for this user from the last month
     # overrides value of $skip
@@ -225,8 +267,9 @@ sub get_questions {
         }
     }
 
+    @questions = $class->filter_by_domain($u, $domain, @questions) unless $all;
     @questions = $class->filter_by_eff_class($u, @questions);
-    @questions = $class->filter_by_country($u, $skip, @questions);
+    @questions = $class->filter_by_country($u, $skip, $all, @questions);
 
     # sort questions in descending order by start time (newest first)
     @questions = 
@@ -268,14 +311,14 @@ sub store_question {
     # update existing question
     if ($vals{qid}) {
         $dbh->do("UPDATE qotd SET time_start=?, time_end=?, active=?, subject=?, text=?, tags=?, " .
-                 "from_user=?, img_url=?, extra_text=?, cap_mask=?, show_logged_out=?, countries=?, link_url=? WHERE qid=?",
-                 undef, (map { $vals{$_} } qw(time_start time_end active subject text tags from_user img_url extra_text cap_mask show_logged_out countries link_url qid)))
+                 "from_user=?, img_url=?, extra_text=?, cap_mask=?, show_logged_out=?, countries=?, link_url=?, domain=?, impression_url=?, is_special=? WHERE qid=?",
+                 undef, (map { $vals{$_} } qw(time_start time_end active subject text tags from_user img_url extra_text cap_mask show_logged_out countries link_url domain impression_url is_special qid)))
             or die "Error updating qotd: " . $dbh->errstr;
     }
     # insert new question
     else {
-        $dbh->do("INSERT INTO qotd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                 undef, "null", (map { $vals{$_} } qw(time_start time_end active subject text tags from_user img_url extra_text cap_mask show_logged_out countries link_url)))
+        $dbh->do("INSERT INTO qotd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                 undef, "null", (map { $vals{$_} } qw(time_start time_end active subject text tags from_user img_url extra_text cap_mask show_logged_out countries link_url domain impression_url is_special)))
             or die "Error adding qotd: " . $dbh->errstr;
     }
 
@@ -443,5 +486,22 @@ sub add_default_tags {
 
 # tag given to QotD entries
 sub entry_tag { "writer's block" }
+
+# parse the given URL
+# * replace '[[uniq]]' with a unique identifier
+sub parse_url {
+    my $class = shift;
+    my %opts = @_;
+
+    my $qid = $opts{qid};
+    my $url = $opts{url};
+
+    my $uniq = LJ::pageview_unique_string() . $qid;
+    $uniq = Digest::SHA1::sha1_hex($uniq);
+
+    $url =~ s/\[\[uniq\]\]/$uniq/g;
+
+    return $url;
+}
 
 1;

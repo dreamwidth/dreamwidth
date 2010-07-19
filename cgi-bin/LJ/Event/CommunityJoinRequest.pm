@@ -1,6 +1,19 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Event::CommunityJoinRequest;
 use strict;
-use Class::Autouse qw(LJ::Entry);
+use LJ::Entry;
 use Carp qw(croak);
 use base 'LJ::Event';
 
@@ -41,7 +54,7 @@ sub authurl {
 
 sub as_html {
     my $self = shift;
-    return sprintf("The user %s has <a href=\"$LJ::SITEROOT/community/pending.bml?comm=%s\">requested to join</a> the community %s.",
+    return sprintf("The user %s has <a href=\"$LJ::SITEROOT/community/pending?authas=%s\">requested to join</a> the community %s.",
                    $self->requestor->ljuser_display, $self->comm->user,
                    $self->comm->ljuser_display);
 }
@@ -50,8 +63,8 @@ sub as_html_actions {
     my ($self) = @_;
 
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='" . $self->requestor->profile_url . "'>View Profile</a>";
-    $ret .= " <a href='$LJ::SITEROOT/community/pending.bml?comm=" . $self->comm->user . "'>Manage Members</a>";
+    $ret .= " <a href='" . $self->requestor->profile_url . "'>View Profile</a> |";
+    $ret .= " <a href='$LJ::SITEROOT/community/pending?authas=" . $self->comm->user . "'>Manage Members</a>";
     $ret .= "</div>";
 
     return $ret;
@@ -70,70 +83,78 @@ sub as_string {
                    $self->comm->display_username);
 }
 
+my @_ml_strings_en = (
+    'esn.community_join_requst.subject',    # '[[comm]] membership request by [[who]]',
+    'esn.manage_membership_reqs',           # '[[openlink]]Manage [[communityname]]\'s membership requests[[closelink]]',
+    'esn.manage_community',                 # '[[openlink]]Manage your communities[[closelink]]',
+    'esn.community_join_requst.email_text', # 'Hi [[maintainer]],
+                                            #
+                                            #[[username]] has requested to join your community, [[communityname]].
+                                            #
+                                            #You can:',
+);
+
 sub as_email_subject {
-    my $self = shift;
-    return sprintf "%s membership request by %s",
-      $self->comm->display_username, $self->requestor->display_username;
+    my ($self, $u) = @_;
+    return LJ::Lang::get_text($u->prop('browselang'), 'esn.community_join_requst.subject', undef,
+        {
+            comm    => $self->comm->display_username,
+            who     => $self->requestor->display_username,
+        });
+}
+
+sub _as_email {
+    my ($self, $u, $is_html) = @_;
+
+    my $maintainer      = $is_html ? ($u->ljuser_display) : ($u->user);
+    my $username        = $is_html ? ($self->requestor->ljuser_display) : ($self->requestor->display_username);
+    my $user            = $self->requestor->user;
+    my $communityname   = $self->comm->user;
+    my $community       = $is_html ? ($self->comm->ljuser_display) : ($self->comm->display_username);
+    my $auth_url        = $self->authurl;
+    my $rej_url         = $auth_url;
+       $rej_url         =~ s/approve/reject/;
+    my $lang            = $u->prop('browselang');
+
+    # Precache text
+    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
+ 
+    my $vars = {
+        maintainer      => $maintainer,
+        username        => $username,
+        communityname   => $community,
+    };
+
+    return LJ::Lang::get_text($lang, 'esn.community_join_requst.email_text', undef, $vars) .
+        $self->format_options($is_html, $lang, $vars,
+        {
+            'esn.manage_request_approve'  => [ 1, $auth_url ],
+            'esn.manage_request_reject'   => [ 2, $rej_url ],
+            'esn.manage_membership_reqs'  => [ 3, "$LJ::SITEROOT/community/pending?authas=$communityname&jumpto=$user" ],
+            'esn.manage_community'        => [ 4, "$LJ::SITEROOT/community/manage" ],
+        }
+    );
 }
 
 sub as_email_string {
     my ($self, $u) = @_;
-
-    my $maintainer = $u->user;
-    my $username = $self->requestor->user;
-    my $communityname = $self->comm->user;
-    my $authurl = $self->authurl;
-    my $email = "Hi $maintainer,
-
-$username has requested to join your community, $communityname.
-
-You can:
-  - Approve $username\'s request to join
-    $authurl
-  - Manage $communityname\'s membership requests
-    $LJ::SITEROOT/community/pending.bml?comm=$communityname
-  - Manage your communities
-    $LJ::SITEROOT/community/manage.bml";
-
-    return $email;
+    return _as_email($self, $u, 0);
 }
 
 sub as_email_html {
     my ($self, $u) = @_;
-
-    my $maintainer = $u->ljuser_display;
-    my $user = $self->requestor->user;
-    my $username = $self->requestor->ljuser_display;
-    my $comm = $self->comm->user;
-    my $community = $self->comm->ljuser_display;
-    my $authurl = $self->authurl;
-
-    my $email = "Hi $maintainer,
-
-$username has requested to join your community, $community.
-
-You can:<ul>";
-
-    $email .= "<li><a href=\"$authurl\">Approve $user\'s request to join</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/community/pending.bml?comm=$comm\">Manage $comm\'s membership requests</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/community/manage.bml\">Manage your communities</a></li>";
-    $email .= "</ul>";
-
-    return $email;
-
-}
-
-sub as_sms {
-    my $self = shift;
-
-    return sprintf("%s requests membership in %s. Visit community settings to approve.",
-                   $self->requestor->display_username,
-                   $self->comm->display_username);
+    return _as_email($self, $u, 1);
 }
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-    return 'Someone requests membership in a community I maintain';
+    return BML::ml('event.community_join_requst'); # Someone requests membership in a community I maintain';
+}
+
+sub available_for_user {
+    my ($class, $u, $subscr) = @_;
+
+    return $u->is_identity ? 0 : 1;
 }
 
 package LJ::Error::Event::CommunityJoinRequest;

@@ -1,4 +1,17 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::WorkerResultStorage;
 use strict;
 use warnings;
@@ -17,13 +30,14 @@ sub new {
 
 sub handle { $_[0]->{handle} }
 
+# userid is optional and used to restrict access of other users to saved(!) result of job
 sub save_status {
     my ($self, %row) = @_;
 
     my $handle = $self->handle;
 
     my (@cols, @values);
-    foreach my $col (qw(result status)) {
+    foreach my $col (qw(result status userid)) {
         my $val = $row{$col};
         next unless $val;
 
@@ -80,16 +94,26 @@ sub status {
         my $percent  = $gm_status->percent || 0;
         %gearman_status = (progress => $progress, percent => $percent);
         $gearman_status{status} = 'running' if $gm_status->running;
+        $gearman_status{status} = 'running' if $gm_status->known; # running by queue server, client must wait - job is not completed yet
     }
 
     if (! $gm_status || ! $gm_status->running) {
         # got no info from gearman or task is not running, query db to see if we have info on this job
         my $dbh = LJ::get_db_writer() or die "Could not get DB handle";
-        my $row = $dbh->selectrow_hashref("SELECT handle, result, status, start_time, end_time " .
+        my $row = $dbh->selectrow_hashref("SELECT handle, result, status, start_time, end_time, userid " .
                                           "FROM jobstatus WHERE handle=?", undef, $self->handle);
         die $dbh->errstr if $dbh->err;
 
         if ($row) {
+            if (defined $row->{userid} and $row->{userid} != 0) { # we need user auth
+                my $remote = LJ::get_remote();
+                if ($row->{userid} != $remote->userid) {
+                    $gearman_status{status} = 'error';
+                    $gearman_status{result} = 'Security: user mismatch';
+                    return %gearman_status;
+                }
+            }
+
             for (qw(status start_time end_time result)) {
                 $rowinfo{$_} = $row->{$_} if defined $row->{$_};
             }

@@ -1,0 +1,55 @@
+[%- sections.title = '.title' | ml(sitename = site.nameshort) -%]
+
+[% IF transferred %]
+
+    <p>[% '.transferred' | ml(points = points, user = foru.ljuser_display) %]
+       [% IF anon; '.transferred.anon' | ml; ELSE; '.transferred.notify' | ml; END %]</p>
+
+[% ELSIF confirm %]
+
+    <p>[% IF anon; '.confirm.anon' | ml(points = points, user = foru.ljuser_display);
+          ELSE; '.confirm' | ml(points = points, user = foru.ljuser_display); END %]</p>
+
+    <form method='post'>
+        [% dw.form_auth %]
+        <input type='hidden' name='foruser' value='[% foru.user %]' />
+        <input type='hidden' name='points' value='[% points %]' />
+        <input type='hidden' name='anon' value='[% anon %]' />
+        <input type='hidden' name='confirm' value='1' />
+        <input type='submit' value='[% '.btn.confirm' | ml %]' />
+    </form>
+
+[% ELSE %]
+
+    <p>[% '.about' | ml(sitename = site.nameshort) %]</p>
+
+    [% IF ! has_points %]
+        [% '.about.nopoints' | ml(sitename = site.nameshort, aopts = "href='$roots.site/shop/points'") %]
+    [% ELSE %]
+
+        <p>[% '.about.points' | ml(points = has_points) %]</p>
+
+        <form method='post'>
+            [% dw.form_auth %]
+            <table class='shop-table-gift'>
+            [% IF foru %]
+                <tr><td>[% '.buying.for' | ml %]</td><td>[% foru.ljuser_display %]
+                    <input type='hidden' name='foruser' value='[% foru.user %]' />
+                </td></tr>
+            [% ELSE %]
+                <tr><td>[% '.buying.for' | ml %]</td><td><input type='text' name='foruser' maxlength='25' size='15' />
+                    [% IF errs.foruser %]<br /><strong>[% errs.foruser %][% END %]
+                </td></tr>
+            [% END %]
+            <tr><td>[% '.buying.points' | ml %]</td><td><input type='text' name='points' id='points' maxlength='4' size='10' value='[% points %]' />
+                [% '.buying.points.range' | ml %]
+                [% IF errs.points %]<br /><strong>[% errs.points %][% END %]
+            </td></tr>
+            <tr><td></td><td><input type='checkbox' name='anon' id='anon'> <label for='anon'>[% '.anon' | ml %]</label></td></tr>
+            <tr><td></td><td><input type='submit' value='[% '.btn.transfer' | ml %]' /></td></tr>
+            </table>
+        </form>
+
+    [% END %]
+
+[% END %]

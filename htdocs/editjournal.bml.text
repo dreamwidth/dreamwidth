@@ -7,7 +7,21 @@
 
 .desc=Please use the form below to find the entry you would like to edit.
 
+.edit.this.entry=Edit this Entry
+
+.error.getting=There was an error while loading this entry.
+
+.error.nofind=Could not find selected journal entry.
+
 .in=In community:
+
+.massprivacy=You also may want to use the <a [[aopts]]>mass privacy tool</a> to change the security of a group of entries at once.
+
+.no.entries.exist=The selected journal has no entries.
+
+.no.entries.found=No Entries Found
+
+.no.entries.match=No entries match the criteria you specified. Please go back and adjust your search.
 
 .recententries=most recent entries
 
@@ -16,6 +30,22 @@
 .success.delete=Journal entry was deleted.
 
 .success.deletespam=Additionally, the entry was marked as spam.  Thank you for your report.
+
+.success.edited=Journal entry was edited.
+
+.success.editedstillsuspended=Please note that your entry is still suspended.
+
+.success.editedunsuspend=Additionally, an unsuspension request has been opened at [[url]], and your entry will be reviewed soon.
+
+.success.fromhere=From here you can:
+
+.success.fromhere.editentry=Edit this entry again
+
+.success.fromhere.manageentries=Manage your journal entries
+
+.success.fromhere.viewentries=View journal entries
+
+.success.fromhere.viewentry=View this entry
 
 .success.head=Success
 

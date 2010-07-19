@@ -1,0 +1,10 @@
+;; -*- coding: utf-8 -*-
+
+.error.authfailed=Failed to connect to [[account]]
+
+.error.nochallenge=[[account]] does not support challenge/response authentication.
+
+.error.nosuchaccount=No account with ID [[acctid]] for user [[username]].
+
+.error.nouser=Sorry, you must be logged in to use this feature.
+

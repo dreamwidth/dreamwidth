@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+#
+# bin/worker/shop-creditcard-charge
+#
+# This Gearman worker handles attempting to charge a user for their credit card
+# transaction.  Goal is to be quick and useful.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+#
+# This file is not licensed and is part of the private repository of code for
+# Dreamwidth.  If you somehow get this file and you aren't DW staff, please
+# let us know.  Thanks.
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljlib.pl";
+
+use Gearman::Worker;
+use Storable qw/ thaw /;
+
+use LJ::Worker::Gearman;
+use DW::Pay;
+use DW::Shop;
+
+gearman_decl( 'dw_creditcard_charge'  => \&worker );
+gearman_work();
+
+sub worker {
+    my $job = $_[0];
+
+    my %in = %{ thaw( $job->arg ) || {} };
+    return
+        unless exists $in{cctransid} && $in{cctransid} > 0 &&
+               exists $in{cartid} && $in{cartid} > 0;
+
+    my $dbh = DW::Pay::get_db_writer()
+        or return undef;
+
+    # at this point, we can save the error since we have a cctransid
+    my $err = sub {
+        $dbh->do( 'UPDATE cc_trans SET jobstate = ?, joberr = ?, gctaskref = NULL WHERE cctransid = ?',
+                  undef, 'internal_failure', sprintf( shift(), @_ ), $in{cctransid} );
+        return undef;
+    };
+
+    my $cart = DW::Shop::Cart->get_from_cartid( $in{cartid} )
+        or return $err->( 'Failed to get cart %d.', $in{cartid} );
+    return $err->( 'Cart is not in valid state PEND_PAID, is in state %d.', $cart->state )
+        unless $cart->state == $DW::Shop::STATE_PEND_PAID;
+
+    # now attempt to charge the user for this purchase
+    my ( $res, $msg ) = $cart->engine->try_capture( %in );
+
+    # update to say that this has been paid, if it has
+    if ( $res ) {
+        $cart->state( $DW::Shop::STATE_PAID );
+        $msg = 'charged' . ( $msg ? " [$msg]" : '' );
+        $dbh->do( 'UPDATE cc_trans SET jobstate = ?, joberr = ?, gctaskref = NULL WHERE cctransid = ?',
+                  undef, 'paid', $msg, $in{cctransid} );
+
+    } else {
+        $cart->state( $DW::Shop::STATE_OPEN );
+        $msg = 'declined' . ( $msg ? " [$msg]" : '' );
+        $dbh->do( 'UPDATE cc_trans SET jobstate = ?, joberr = ?, gctaskref = NULL WHERE cctransid = ?',
+                  undef, 'failed', $msg, $in{cctransid} );
+    }
+
+    return 1;
+}
+

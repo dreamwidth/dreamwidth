@@ -1,4 +1,16 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by 
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License. 
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 #
 #  ljdb          connects to master
 #  ljdb --help
@@ -15,11 +27,11 @@ use Getopt::Long;
 my ($user, $role, $inactive, $help);
 usage() unless
     GetOptions(
-	       'help' => \$help,
-	       'inactive' => \$inactive,
-	       'role=s' => \$role,
-	       'user=s' => \$user,
-	       );
+               'help' => \$help,
+               'inactive' => \$inactive,
+               'role=s' => \$role,
+               'user=s' => \$user,
+               );
 usage() if $help;
 
 sub usage {
@@ -37,20 +49,20 @@ sub usage {
 }
 
 if (@ARGV) {
-    if ($ARGV[0] =~ /^\w{1,15}$/) {
-	$user = shift;
-	$inactive = 1;
+    if ($ARGV[0] =~ /^\w{1,25}$/) {
+        $user = shift;
+        $inactive = 1;
     } else {
-	usage();
+        usage();
     }
 }
-	
+        
 usage() if $role && ($user || $inactive);
 
 print "For more usage options, see: ljdb --help\n";
 
 if (!$role && $user) {
-    die "Bogus username" unless $user =~ /^\w{1,15}$/;
+    die "Bogus username" unless $user =~ /^\w{1,25}$/;
     my $dbs = LJ::DB::dbh_by_role('slave', 'master');
     my ($userid, $cid) = $dbs->selectrow_array('SELECT userid, clusterid FROM user WHERE user = ?', undef, $user);
     die "no such user\n" unless $userid && $cid;
@@ -59,16 +71,16 @@ if (!$role && $user) {
     print "user: $user / userid: $userid / clusterid: $cid";
 
     if (my $ab = $LJ::CLUSTER_PAIR_ACTIVE{$cid}) {
-	print " / active=$ab\n";
-	if ($inactive) {
-	    $role .= "b" if $ab eq 'a';
-	    $role .= "a" if $ab eq 'b';
-	} else {
-	    $role .= $ab;
-	}
+        print " / active=$ab\n";
+        if ($inactive) {
+            $role .= "b" if $ab eq 'a';
+            $role .= "a" if $ab eq 'b';
+        } else {
+            $role .= $ab;
+        }
     } else {
-	# type must be master/slave
-	$role .= "slave" if $inactive && grep { $_->{role}{"${role}slave"} } values %LJ::DBINFO;
+        # type must be master/slave
+        $role .= "slave" if $inactive && grep { $_->{role}{"${role}slave"} } values %LJ::DBINFO;
     }
     print "\n";
 }
@@ -85,26 +97,28 @@ foreach my $key (keys %LJ::DBINFO) {
     my $rec = $LJ::DBINFO{$key};
     if ($key eq "master") { $rec->{role}{master} = 1; };
     if ($rec->{role}{$role}) {
-	$dbname = $key;
-	$db = $rec;
-	last;
+        $dbname = $key;
+        $db = $rec;
+        last;
     }
 }
 
 die "no database record for role $role\n" unless $db;
 
 if ($db->{_fdsn}) {
-    $db->{_fdsn} =~ /^DBI:mysql:(\w+):host=(.+?)\|(\w+)\|(.+)/
-	or die "Bogus _fdsn format for $dbname: $db->{_fdsn}\n";
-    print "found: $1, $2, $3, $4\n";
+    $db->{_fdsn} =~ /^DBI:mysql:(\w+)[:;]host=(.+?)(?:;port=(\d+))?\|(\w+)\|(.+)/
+        or die "Bogus _fdsn format for $dbname: $db->{_fdsn}\n";
+    print "found: $1, $2, " . ($3 || '') . ", $4, $5\n";
     $db->{dbname} = $1;
     $db->{host} = $2;
-    $db->{user} = $3;
-    $db->{pass} = $4;
+    $db->{port} = $3;
+    $db->{user} = $4;
+    $db->{pass} = $5;
 }
 
 my $database = $db->{dbname} || "livejournal";
 
-print "...connecting to $dbname, $db->{host}, db: $database, user: $db->{user}\n\n";
+print "...connecting to $dbname, $db->{host}:$db->{port}, db: $database, user: $db->{user}\n\n";
 
-exec("mysql", "--host=$db->{host}", "--user=$db->{user}", "--password=$db->{pass}", "-A", $database);
+exec("mysql", "--host=$db->{host}", ($db->{port} ? "--port=$db->{port}" : ""),
+     "--user=$db->{user}", "--password=$db->{pass}", "-A", $database);

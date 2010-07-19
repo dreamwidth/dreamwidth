@@ -1,0 +1,425 @@
+layerinfo type = "layout";
+layerinfo name = "Crossroads";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/layout";
+layerinfo lang = "en";
+
+set layout_type = "two-columns-left";
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+##===============================
+##Text
+##===============================
+
+set entry_management_links = "text";
+set comment_management_links = "text";
+
+set text_entry_prev = "Previous";
+set text_entry_next = "Next";
+set text_mem_add = "Memory";
+set text_watch_comments = "Track";
+set text_unwatch_comments = "Untrack";
+set text_tell_friend = "Share";
+set text_post_comment = "Reply";
+set text_post_comment_friends = "Reply";
+
+##===============================
+##Fonts
+##===============================
+
+set font_base = "Verdana, Helvetica";
+set font_fallback = "sans-serif";
+set font_module_text = "Verdana, Helvetica, sans-serif";
+set font_module_heading = "Century Gothic, Verdana, sans-serif";
+set font_journal_title = "Century Gothic, Verdana, sans-serif";
+set font_journal_subtitle = "Century Gothic, Verdana, sans-serif";
+set font_entry_title = "Century Gothic, Verdana, sans-serif";
+
+##===============================
+##Layout
+##===============================
+
+function print_stylesheet () {
+
+var string no_icon = "$*IMGDIR/profile_icons/user.png";
+
+#function to make #tag background same as #entry background
+var string tagcolor = "";
+if ($*color_entry_background) {
+    $tagcolor = $*color_entry_background;
+}
+else {
+    $tagcolor = $*color_page_background; 
+}
+
+#ditto #comment body background
+var string commentcolor = "";
+if ($*color_entry_background) {
+    $commentcolor = $*color_entry_background;
+}
+else {
+    $commentcolor = $*color_page_background; 
+}
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .contents .userpic,
+            .comment .contents .userpic { left: 0; }
+            .entry .header,
+            .comment-wrapper .header { margin-left: 110px; }
+            .entry .header .entry-title,
+            .comment-title { margin-left: -4px; }
+            .entry-wrapper .contents .entry-poster { margin: 0 0 25px 110px; }
+            .comment-poster,
+            .comment .poster-ip { margin-left: 110px; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .contents .userpic,
+            .comment .contents .userpic { right: 0; }
+            .entry .header,
+            .comment-wrapper .header { margin-right: 110px; }
+            .entry .header .entry-title,
+            .comment-title { margin-right: -4px; }
+            .entry-wrapper .contents .entry-poster { margin: 0 110px 25px 0; }
+            .comment-poster,
+            .comment .poster-ip { margin-right: 110px; }
+            """;
+        }
+
+    """
+
+/* Crossroads  */
+
+blockquote { padding: 1em 1em .5em 2em;
+    font-style: italic;  } 
+blockquote > p:first-child { margin-top: 0; }
+dl dt { font-weight: bold; }
+
+h1, h2, h3, h4,
+.comment-title { font-family: $*font_journal_title;
+    font-weight: normal;
+    padding-left: .25em;
+    padding-right: .25em; }
+
+.entry-title a,
+.comment-title a { text-decoration: none; }
+
+a:hover {text-decoration: none;}
+
+body { margin: 0; }
+
+#canvas { position: relative;
+    padding-top: 1px; }
+
+/* header */
+#header { margin: 2em 0;
+    padding: 3em 2% 0 2%; }
+
+.two-columns-left #header .inner {padding-left: $*sidebar_width;}
+.three-columns-left #header .inner { padding-left: $*sidebar_width_doubled; }
+.two-columns-right #header .inner { padding-right: $*sidebar_width; }
+.three-columns-right #header .inner { padding-right: $*sidebar_width_doubled; }
+.three-columns-sides #header .inner { padding: 0 $*sidebar_width; }
+
+.two-columns-left #header,
+.three-columns-left #header,
+.three-columns-sides #header { text-align: right; }
+
+#content { margin: 0 2%; }
+
+/* main column */
+
+.navigation { text-align:  right; }
+.navigation ul { margin: 0 0 1em 0;
+    padding: .25em; }
+
+.page-day .navigation .page-back { float: left; }
+
+
+/* entries */
+.entry-wrapper { position: relative;
+    margin-bottom: 3em; }
+
+.entry { border: none; }
+
+.entry .header,
+.comment-wrapper .header { min-height: 60px; }
+
+.entry .contents .userpic,
+.comment .contents .userpic {width: 106px;
+    height: 106px;
+    position: absolute;
+    top: 0;
+    background: url("$no_icon") center no-repeat; }
+.entry .contents .userpic a,
+.comment .contents .userpic a { display: block;
+    height: 106px;
+    width: 106px;
+    background-color: $*color_page_background;}
+
+.entry-wrapper .contents .entry-poster { display: block; }
+.page-recent .entry-wrapper .entry-poster,
+.page-day .entry-wrapper .entry-poster { height: 1em; }
+
+.entry .datetime { font-size: small; }
+
+.entry-content { padding: .5em; }
+.entry-content li { margin-left: 1em; }
+.entry-content hr { display: block;
+    margin: 1em 10%; }
+
+.metadata { margin: 1em 0 0 .5em;
+    font-size: small; }
+.metadata.top-metadata { padding-top: .5em; }
+.metadata-label { font-style: italic; }
+.metadata ul { margin-top: 0; padding-top: 0;
+margin-bottom: 0; padding-bottom: 0; }
+.metadata ul li { margin-left: 0; padding-left: 0; }
+
+.metadata,
+.entry .footer { clear: both; }
+
+.entry .footer { margin: .5em 0 0 0;
+    background-color: $*color_entry_border; 
+    overflow: auto; /* Keeps floated elements inside */ }
+.entry .footer > .inner:first-child { font-size: small;
+    padding: 1px; } /*float uneveness fix */
+
+.entry .tag { padding: .5em;
+    margin: -1px;
+    background-color: $tagcolor; }
+.entry .tag-text { font-weight: bold; }
+
+ul.entry-management-links { float: left;
+    margin-top: .5em;
+    margin-bottom: .5em; }
+ul.entry-interaction-links { text-align: right;
+    margin-right: .5em;
+    margin-top: .5em;
+    margin-bottom: .5em; }
+
+.entry-management-links a:visited,
+.entry-interaction-links a:visited { color: $*color_entry_interaction_links; }
+
+/* comments */
+.comment-thread { margin-left: 1.5em; }
+.comment-depth-1 { margin-left: 0; }
+
+.comment-wrapper { position: relative;
+   padding-top: 1px;
+    margin-bottom: 1em; }
+
+.comment { background-color: $commentcolor; }
+
+.partial .comment { padding: 0;} 
+
+.partial .comment-title { display: inline; margin: 0; }
+
+.comment-title { margin: 0;
+    padding: .25em;
+    font-size: large;
+    min-height: 1em;
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title; }
+.comment-title a,
+.comment-title a:visited { color: $*color_entry_title; }
+
+.comment .header .datetime { display: block;
+    font-size: small;}
+
+.comment-poster { display: block; }
+
+.comment .poster-ip { font-size: x-small;
+    display: block; }
+
+.comment-content { margin-top: 2em;
+    padding: .25em .25em .5em .25em; }
+
+.comment .edittime { margin-top: 1em; }
+.comment-content .datetime { font-size: small;
+    font-style: italic; }
+
+.comment .multiform-checkbox { display: block;
+    text-align: right;
+    font-size: small;
+    font-style: italic;
+    background-color: $*color_page_background;
+    margin: -1px;}
+
+.comment .footer { margin: 0 0 .5em 0;
+    font-size: small;
+    background-color: $*color_entry_border; }
+.comment .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
+
+.comment-management-links { float: right;
+    margin-top: .5em;
+    margin-bottom: .5em; }
+.comment-interaction-links { text-align: left;
+    margin-right: .5em;
+    margin-top: .5em;
+    margin-bottom: .5em; }
+
+.bottomcomment, .comments-message { padding: .5em;
+    margin: 2em 0;
+    font-size: small;
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title; }
+
+.bottomcomment .entry-management-links,
+.bottomcomment .entry-interaction-links { margin: .25em 0 .5em 0; }
+
+.comment-pages { text-align: center; }
+
+#qrformdiv table { margin: .5em 1%;
+    width: 98%; }
+
+#postform { background-color: $*color_entry_background;
+    padding: .5em; } /* non-quick reply form */
+table.talkform { background-color: $*color_entry_background; }
+
+
+/* archive */
+
+/* year-by-month view */
+#archive-year .navigation { text-align: left;
+    margin-bottom: 2em; }
+
+div.month { margin: 1em 0 2em 0;}
+
+table.month td,
+table.month th { border-color: $*color_entry_border;
+    vertical-align: top;
+    padding: .25em; }
+
+.month caption { display: none; }
+
+#archive-year .month .footer { padding: .5em;
+text-align: center; }
+
+/* month-by-day view */
+#archive-month .navigation { text-align: center; }
+
+.month dl .tag-text { font-style: italic; }
+
+.month dl h3.entry-title { font-weight: bold; }
+
+/* day-by-entries view */
+.day h3.day-date { margin: 1.5em 0; }
+
+
+/* tags page */
+.tags-container { margin: 1em 2em;}
+
+
+/* sidebars */
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child { background-color: $*color_module_background;
+    color: $*color_module_text;
+    margin: 0 1em;
+    padding: .25em 0; }
+
+.two-columns-left #tertiary > .inner:first-child,
+.two-columns-right #tertiary > .inner:first-child { background-color: transparent; }
+
+.two-columns-left #tertiary,
+.two-columns-right #tertiary { margin-left: -1.5em; }
+
+.two-columns-left #secondary,
+.two-columns-right #secondary,
+.three-columns-left #secondary,
+.three-columns-left #tertiary,
+.three-columns-right #secondary,
+.three-columns-right #tertiary,
+.three-columns-sides #secondary,
+.three-columns-sides #tertiary { position: absolute;
+   top: 0;
+   margin: 0 !important;  }
+
+.two-columns-left #secondary,
+.three-columns-left #secondary,
+.three-columns-sides #secondary { left: 2%; }
+
+.two-columns-right #secondary,
+.three-columns-right #tertiary,
+.three-columns-sides #tertiary { right: 2%; }
+
+.three-columns-right #secondary { right: $*sidebar_width; }
+.three-columns-left #tertiary { left: $*sidebar_width; }
+
+.two-columns-left #tertiary .separator-after,
+.two-columns-right #tertiary .separator-after { clear: both; }
+
+.module { margin: 0;
+    padding-top: 0;
+    border: none; } 
+.two-columns-left #tertiary .module,
+.two-columns-right #tertiary .module { margin: 0 1.5em; }
+
+.module-header { font-size: large;  }
+#secondary .module-header a,
+#tertiary .module-header a,
+#secondary .module-header a:visited,
+#tertiary .module-header a:visited { color: $*color_module_title; }
+
+.module-content { padding: 0 .5em .25em .5em; }
+
+.module-content ul { margin-top: 0; padding-top: 0;
+    margin-left: .5em; padding-left: 0;
+    list-style: none; }
+.module-content ul ul { padding-left: 1em; }
+
+.module-userprofile .module-content,
+.module-syndicate .module-content { text-align: center; }
+
+.module-content ul.userlite-interaction-links { margin-top: .5em; }
+
+.module-calendar table { font-size: small;
+    margin: 0 auto; }
+#secondary .module-calendar td a,
+#tertiary .module-calendar td a { background-color: $*color_page_background;
+    color: $*color_page_text; }
+
+.module-navlinks { position: absolute;
+    top: 2.5em;
+    white-space: nowrap;
+    color: $*color_page_title;
+    background-color: transparent; }
+
+.module-navlinks ul { font-family: $*font_journal_title; }
+
+.two-columns-left .module-navlinks { left: $*sidebar_width; }
+.three-columns-left .module-navlinks { left: $*sidebar_width_doubled; }
+.two-columns-right .module-navlinks,
+.three-columns-right .module-navlinks { right: $*sidebar_width; }
+.three-columns-sides .module-navlinks  { left: $*sidebar_width; 
+    right: $*sidebar_width; }
+
+.module-navlinks ul { list-style: none;
+    margin: .25em auto;
+    font-size: small; }
+.module-navlinks li { display: inline;
+    padding: 0 .25em 0 .5em;
+    border-left: 1px solid; }
+.module-navlinks ul > li:first-child { border-left: none;
+    padding-left: 0; }
+.module-navlinks a,
+.module-navlinks a:visited { color: $*color_page_title !important; }
+
+
+/* footer */
+
+#footer { padding: 1em;
+margin-top: 1em; }
+
+.two-columns-left #footer,
+.three-columns-left #footer { text-align: right; }
+.three-columns-sides #footer { text-align: center; }
+
+#footer a { color: $*color_page_title; }
+
+$userpic_css
+    """;
+}

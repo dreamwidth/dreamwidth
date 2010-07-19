@@ -7,11 +7,15 @@
 
 .confirm.action=Are you sure you wish to delete the selected comments?
 
+.comment.screened.subject=(screened) 
+
 .deletedpost=<b>(Deleted post)</b>
 
 .deleteduser=<i>(Deleted user: [[username]])</i>
 
-.edittime=Edited at [[edittime]]
+.edittime=Edited [[editreason]] [[edittime]]
+
+.from_external=(from [[site]])
 
 .fromip=(from [[ip]])
 
@@ -21,7 +25,7 @@
 
 .posted=Comment Posted Successfully
 
-.qr.spellcheck=Check spelling and preview
+.qr.spellcheck=Check spelling
 
 .replysuspended=<b>(Reply from suspended user)</b>
 

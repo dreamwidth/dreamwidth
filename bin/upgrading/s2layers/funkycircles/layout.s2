@@ -1,0 +1,1125 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Funky Circles";
+layerinfo redist_uniq = "funkycircles/layout";
+layerinfo author_name = "900degrees";
+layerinfo lang = "en";
+
+##===============================
+## Display settings - images
+##===============================
+
+propgroup images_child {
+
+    property string[] image_entry_list_background_group {
+        des = "Entry footer links background image";
+        grouptype = "image";
+        }
+    set image_entry_list_background_group = [ "image_entry_list_background_url", "image_entry_list_background_repeat", "image_entry_list_background_position" ];
+        property string image_entry_list_background_url {
+        grouped = 1;
+        }
+    property string image_entry_list_background_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+    }
+    property string image_entry_list_background_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+    }
+    property string image_module_list { des = "Module list image"; }
+    property string image_module_list_hover { des = "Module list hover image"; }
+    property string image_module_list_active { des = "Module list active image"; }
+}
+
+##===============================
+## Journal style - colors
+##===============================
+
+propgroup colors_child {
+    property Color color_page_title_background { des = "Page title background color"; }
+    property Color color_page_subtitle_background { des = "Page subtitle background color"; }
+    property Color color_page_subtitle { des = "Page subtitle color"; }
+    property Color color_entry_userpic_border { des = "Entry userpic border color"; }
+    property Color color_entry_link_hover_background { des = "Entry hover link background color"; }
+    property Color color_entry_poster_border { des = "Entry poster border color"; }
+    property Color color_entry_footer_background { des = "Entry footer background color"; }
+    property Color color_entry_footer_text { des = "Entry footer text color"; }
+    property Color color_entry_footer_link { des = "Entry footer link color"; }
+    property Color color_entry_footer_link_active { des = "Entry footer active color"; }
+    property Color color_entry_footer_link_hover { des = "Entry footer hover link color"; }
+    property Color color_entry_footer_link_visited { des = "Entry footer visited link color"; }
+    property Color color_entry_footer_border { des = "Entry footer border color"; }
+}
+
+
+##===============================
+## Misc
+##===============================
+
+set layout_type = "two-columns-right";
+set text_posting_in = " in ";
+set entry_management_links = "text";
+set comment_management_links = "text";
+set custom_colors_template = "%%new%% .entry .contents .userpic img {background-color: %%background%%;} %%new%% .entry-title a {color: %%foreground%%;}";
+set layout_authors = [ { "name" => "900degrees", "type" => "user" } ];
+
+#=================
+# Fonts
+#=================
+
+set font_base = "Trebuchet MS, DejaVu Sans";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_journal_title = "Impact, MgOpen Moderna";
+set font_journal_title_size = "2";
+set font_journal_title_units ="em";
+set font_journal_subtitle_size = "1.5";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.2";
+set font_entry_title_units ="em";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+
+function print_stylesheet () {
+
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, "", $*color_header_background);
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+    var string page_title_colors = generate_color_css($*color_page_title, $*color_page_title_background, new Color);
+    var string page_subtitle_colors = generate_color_css($*color_page_subtitle, $*color_page_subtitle_background, new Color);
+    var string module_title_colors = generate_color_css($*color_module_title, new Color, new Color);
+    var string image_module_list_url = generate_image_url($*image_module_list);
+    var string image_module_list_active_url = generate_image_url($*image_module_list_active);
+    var string image_module_list_hover_url = generate_image_url($*image_module_list_hover);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
+    var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, $*color_entry_link_hover_background, new Color);
+    var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);
+    var string entry_footer_colors = generate_color_css($*color_entry_footer_text, $*color_entry_footer_background, new Color);
+    var string entry_footer_link_colors = generate_color_css($*color_entry_footer_link, new Color, new Color);
+    var string entry_footer_link_hover_colors = generate_color_css($*color_entry_footer_link_hover, new Color, new Color);
+    var string entry_footer_link_visited_colors = generate_color_css($*color_entry_footer_link_visited, new Color, new Color);
+    var string entry_list_background = generate_background_css ($*image_entry_list_background_url, $*image_entry_list_background_repeat, "", new Color);
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .contents .userpic,
+            .comment .contents .userpic {
+                left: -2.5em;
+                }
+
+            .entry .header,
+            .comment .header {
+                padding-left: 95px;
+                }
+
+            .page-recent .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+            .page-read .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-network .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-entry .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-reply .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+            .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
+            .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
+                margin-left: 80px;
+                }
+
+            .two-columns-left #primary > .inner:first-child,
+            .three-columns-left #primary > .inner:first-child {
+                padding: 1em 2em 1em 5em;
+                }
+
+            .three-columns-sides #primary > .inner:first-child {
+                padding: 1em 3em 1em 4.5em;
+                }
+
+            .two-columns-right #primary > .inner:first-child,
+            .three-columns-right #primary > .inner:first-child {
+                padding: 1em 3.5em 1em 3.5em;
+                }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .contents .userpic {
+                right: -1.1em;
+                }
+
+            .comment .contents .userpic {
+                right: -2.5em;
+                }
+
+            .entry .header,
+            .comment .header {
+                padding-right: 95px;
+                }
+
+            .page-recent .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+            .page-read .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-network .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-entry .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-reply .entry-wrapper.has-userpic .entry .contents .poster,
+            .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+            .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
+            .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
+                margin-right: 80px;
+                }
+
+            .two-columns-left #primary > .inner:first-child,
+            .three-columns-left #primary > .inner:first-child {
+                padding: 1em 3.5em 1em 3.5em;
+                }
+
+            .three-columns-sides #primary > .inner:first-child {
+                padding: 1em 4.5em 1em 3em;
+                }
+
+            .two-columns-right #primary > .inner:first-child,
+            .three-columns-right #primary > .inner:first-child {
+                padding: 1em 5em 1em 2em;
+                }
+            """;
+        }
+
+"""
+/* Funky Circles */
+
+/* Body
+***************************************************************************/
+body {
+    line-height: 1.5em;
+    margin: 0;
+    }
+
+#canvas {
+    $header_background
+    background-position: 100% 0%;
+    background-color: transparent !important;
+    }
+
+a,
+a:visited {
+    text-decoration: none;
+    }
+
+a:hover {
+    text-decoration: underline;
+    }
+
+q { font-style: italic;
+    }
+
+/* Header
+***************************************************************************/
+#header {
+    background-position: 100% 0%;
+    padding: 0;
+    padding-bottom: 1.65em;
+    box-shadow: -.667em .067em .667em #111;
+    -moz-box-shadow: -.667em .067em .667em #111;
+    -webkit-box-shadow: -.667em .067em .667em #111;
+    -khtml-box-shadow: -.667em .067em .667em #111;
+    }
+
+#header .inner {
+    $header_background
+    $page_subtitle_colors
+    background-position: 100% 5px;
+    }
+
+h1#title {
+    $header_background
+    background-position: 100% 0%;
+    $page_title_colors
+    font-weight: normal;
+    letter-spacing: -.034em;
+    line-height: 1em;
+    margin: 0;
+    padding: 1.1em .5em;
+    text-transform: uppercase;
+    word-spacing: .167em;
+    box-shadow: inset -.667em .067em .667em #111;
+    -moz-box-shadow: inset -.667em .067em .667em #111;
+    -webkit-box-shadow: -.667em .067em .667em #111;
+    -khtml-box-shadow: -.667em .067em .667em #111;
+    }
+
+h2#subtitle,
+h2#pagetitle {
+    font-weight: normal;
+    font-variant: small-caps;
+    letter-spacing: -.04em;
+    line-height: 1em;
+    margin: 0;
+    padding: .25em .6em;
+    text-transform: lowercase;
+    }
+
+/* Posts & Sidebar Containers
+***************************************************************************/
+#content {
+    margin: 0 4em;
+    }
+
+.one-column #content {
+    width: 80%;
+    margin: 0 auto;
+    }
+
+#primary {
+    margin-top: 2em;
+    }
+
+    .page-tags #primary {
+        margin-top: 6.6em;
+        }
+
+#secondary > .inner:first-child {
+    padding: 0;
+    }
+
+    .one-column #secondary > .inner:first-child {
+        padding-top: 1em;
+        }
+
+/* Navigation
+***************************************************************************/
+.navigation {
+    color: $*color_page_text;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+    .page-month .navigation .inner {
+        padding: 0 !important;
+        }
+
+    .navigation li {
+        margin: 0 0 0 1.5em;
+        padding: 0; 
+        }
+
+        .navigation li a {
+            border-bottom: 1px solid $*color_page_link;
+            border-top: 1px solid $*color_page_link;
+            padding: .2em .4em;
+            }
+
+            .navigation li a:visited {
+                border-bottom: 1px solid $*color_page_link_visited;
+                border-top: 1px solid $*color_page_link_visited;
+                }
+
+            .navigation li a:hover {
+                border-bottom: 1px solid $*color_page_link_hover;
+                border-top: 1px solid $*color_page_link_hover;
+                text-decoration: none !important;
+                }
+
+    .page-month .navigation {
+        color: $*color_page_link;
+        }
+
+        .page-month .navigation li a {
+            border: none;
+            padding-right: 0 !important;
+            }
+
+            .page-month .navigation li a:hover,
+            .page-month .navigation li a:visited {
+                border: none;
+                }
+
+        .page-month .navigation li:hover {
+            color: $*color_page_link_hover;
+            }
+
+.navigation .page-separator {
+    display: none;
+    }
+
+/* Posts
+***************************************************************************/
+.entry-wrapper,
+.comment-wrapper,
+.month-wrapper {
+    margin-bottom: 4em;
+    }
+
+    .page-entry .entry-wrapper,
+    .page-reply .entry-wrapper {
+        margin-top: 3.1em;
+        }
+
+    .comment-thread {
+        margin-left: 2.5em;
+        }
+
+    .comment-thread.comment-depth-1 {
+        margin-left: 0;
+        }
+
+
+    .comment-thread .partial {
+        margin-left: -2em;
+        margin-bottom: 2em !important;
+        }
+
+.entry,
+.page-entry .comment,
+.page-reply .comment {
+    background-color: transparent;
+    border: none;
+    position: relative;
+    }
+
+.entry .header,
+.comment .header {
+    padding-bottom: .5em;
+    }
+
+    .entry-wrapper.no-userpic .entry .header,
+    .comment-wrapper.no-userpic .comment .header {
+        padding-left: 0;
+        }
+
+.header,
+.page-tags h2 {
+    $entry_title_colors
+    }
+
+    .header a { $page_link_colors }
+    .header a:visited { $page_link_visited_colors }
+    .header a:hover { $page_link_hover_colors }
+
+    .entry-title,
+    .comment-title,
+    .page-tags h2 {
+        $entry_title_font
+        text-transform: uppercase;
+        }
+
+    .entry-title a,
+    .comment-title a {
+        $entry_title_colors
+        font-size: 1em !important;
+        }
+
+    .page-month dd h3 {
+        text-transform: uppercase;
+        }
+
+    .page-day h3.day-date {
+        display: none;
+        }
+
+    .entry .date:before {
+        content: "on ";
+        }
+
+    .entry .time:before,
+    .comment .time:before {
+        content: "at ";
+        }
+
+.entry .contents,
+.month .contents,
+.comment .contents,
+.comment-wrapper.partial,
+.page-month .month .inner,
+.page-tags .tags-container ul,
+.page-tags .tags-container .tags_cloud {
+    $entry_colors
+    border-width: 20px;
+    border-left: none;
+    border-right: none;
+    margin-bottom: 1em;
+    box-shadow: .067em .067em .667em #111;
+    -moz-box-shadow: .067em .067em .667em #111;
+    -webkit-box-shadow: .667em .067em .667em #111;
+    -khtml-box-shadow: .667em .067em .667em #111;
+    }
+
+    .comment-wrapper.partial {
+        margin-bottom: 4em;
+        }
+
+.entry-wrapper.no-userpic .entry .contents,
+.comment-wrapper.no-userpic .comment .contents,
+.month .contents,
+.page-month .month .inner {
+    padding: 2em;
+    }
+
+    .comment-wrapper.partial .comment {
+        padding: 0 .5em;
+        }
+
+    .page-recent .entry-wrapper.has-userpic.journal-type-C .entry .contents,
+    .page-read .entry-wrapper.has-userpic .entry .contents,
+    .page-network .entry-wrapper.has-userpic .entry .contents,
+    .page-entry .entry-wrapper.has-userpic .entry .contents,
+    .page-reply .entry-wrapper.has-userpic .entry .contents,
+    .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents,
+    .page-entry .comment-wrapper.has-userpic .comment .contents,
+    .page-reply .comment-wrapper.has-userpic .comment .contents {
+        padding: 10px 2em 2em 2em;
+        }
+
+    .page-recent .entry-wrapper.has-userpic.journal-type-P .entry .contents,
+    .page-day .entry-wrapper.has-userpic.journal-type-P .entry .contents {
+        padding: 55px 2em 2em 2em;
+        }
+
+    .page-tags .tags-container ul.ljtaglist {
+        margin: 0;
+        padding: 2em 2em 2em 5em;
+        }
+
+    .page-tags .tags-container .tags_cloud {
+        margin: 0;
+        padding: 2em;
+        }
+
+    .page-tags .tags-container .tags_multilevel li {
+        font-weight: bold;
+        }
+
+        .page-tags .tags-container .tags_multilevel ul {
+            background: none;
+            border: none;
+            list-style: disc;
+            margin: 1em 0;
+            padding: 0 0 0 2em;
+            box-shadow: none;
+            -moz-box-shadow: none;
+            -webkit-box-shadow: none;
+            -khtml--box-shadow: none;
+            }
+
+            .page-tags .tags-container .tags_multilevel ul li {
+                color: $*color_entry_border;
+                font-weight: normal;
+                margin-top: 0;
+                }
+
+                .page-tags .tags-container .tags_multilevel ul ul {
+                    list-style: circle;
+                    }
+
+                    .page-tags .tags-container .tags_multilevel ul ul li {
+                        color: $*color_entry_text;
+                        }
+
+.entry .contents a,
+.comment .contents a,
+.comment-wrapper.partial .comment a,
+.month .contents a,
+.page-month .month a,
+.page-tags .tags-container a {
+    $entry_link_colors
+    }
+
+    .entry .contents a:visited,
+    .comment .contents a:visited {
+         $entry_link_visited_colors
+        text-decoration: none !important;
+        }
+
+    .entry .contents a:hover,
+    .comment .contents a:hover,
+    .comment-wrapper.partial .comment a:hover,
+    .month .contents a:hover,
+    .page-month .month a:hover,
+    .page-tags .tags-container a:hover {
+        $entry_link_hover_colors
+        text-decoration: none !important;
+        }
+
+    .entry .contents .entry-content a,
+    .comment .contents .comment-content a {
+        text-decoration: underline !important;
+        }
+
+    .entry .contents .entry-content a:hover,
+    .comment .contents .comment-content a:hover,
+    .entry .contents .entry-content a:visited,
+    .comment .contents .comment-content a:visited {
+        text-decoration: none !important;
+        }
+
+    .comment-wrapper.partial .comment .comment-title {
+        display: inline;
+        padding-bottom: .5em;
+        }
+
+        .comment-wrapper.partial .comment .comment-title a {
+            $entry_colors
+            border: none;
+            }
+
+            .comment-wrapper.partial .comment .comment-title a:hover {
+                $entry_colors
+                    background-color: transparent;
+                border: none;
+                text-decoration: underline !important;
+                }
+
+.entry .contents .userpic,
+.comment .contents .userpic {
+    height: 100px;
+    position: absolute;
+    text-align: center;
+    top: -.7em;
+    width: 100px;
+    }
+
+    .entry-wrapper.no-userpic .entry .contents .userpic,
+    .comment-wrapper.no-userpic .comment .contents .userpic {
+        display: none;
+        }
+
+    .comment .contents .userpic {
+        top: -1.5em;
+        }
+
+    .entry .contents .userpic img,
+    .comment .contents .userpic {
+        background-color: $*color_entry_userpic_border;
+        padding: .7em;
+        box-shadow: .067em .067em .2em #111;
+        -moz-box-shadow: .067em .067em .2em #111;
+        -webkit-box-shadow: .067em .067em .2em #111;
+        -khtml-box-shadow: .067em .067em .2em #111;
+        }
+
+
+.page-recent .journal-type-C .entry .contents .poster,
+.page-read .entry .contents .poster,
+.page-network .entry .contents .poster,
+.page-entry .entry .contents .poster,
+.page-entry .comment .contents .poster,
+.page-reply .entry .contents .poster,
+.page-reply .comment .contents .poster,
+.page-day .journal-type-C .entry .contents .poster {
+    border-bottom: 1px dashed $*color_entry_poster_border !important;
+    display: block;
+    font-weight: bold;
+    padding-bottom: .5em;
+    }
+
+    .page-recent .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+    .page-read .entry-wrapper.has-userpic .entry .contents .poster,
+    .page-network .entry-wrapper.has-userpic .entry .contents .poster,
+    .page-entry .entry-wrapper.has-userpic .entry .contents .poster,
+    .page-reply .entry-wrapper.has-userpic .entry .contents .poster,
+    .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+    .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
+    .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
+        margin-bottom: 20px;
+        }
+
+    .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
+    .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
+        margin-bottom: 32px;
+        }
+
+    .page-recent .journal-type-C .entry .contents .poster:before,
+    .page-read .entry .contents .poster:before,
+    .page-network .entry .contents .poster:before,
+    .page-entry .entry .contents .poster:before,
+    .page-reply .entry .contents .poster:before,
+    .page-reply .comment .contents .poster:before,
+    .page-day .journal-type-C .entry .contents .poster:before {
+        content: 'Posted by ';
+        }
+
+    .entry-wrapper.no-userpic .entry .contents .poster,
+    .comment-wrapper.no-userpic .comment .contents .poster {
+        margin-left: 0;
+        }
+
+    .poster a {
+        text-decoration: none;
+        }
+
+.poster-ip:before {
+        content: "- ";
+    }
+
+#archive-year table * {
+        border: none;
+        text-align: center;
+        vertical-align: top;
+    }
+
+    #archive-year table caption {
+        font-weight: bold;
+        margin-bottom: .5em;
+        }
+
+    #archive-year table thead {
+        border-bottom: 1px solid $*color_entry_text;
+        border-top: 1px solid $*color_entry_text;
+        margin: .5em 0;
+        padding: .5em 0;
+        }
+
+    #archive-year td {
+            width: 14.285%;
+        }
+
+        #archive-year table td.day-has-entries {
+                font-weight: bold;
+            }
+
+            #archive-year table td.day-has-entries p {
+                    $entry_link_hover_colors
+                       padding: .2em;
+                }
+
+            #archive-year table td.day-has-entries a {
+                $entry_link_hover_colors
+                }
+
+                #archive-year table td.day-has-entries a:visited {
+                    color: $*color_entry_text !important;
+                    }
+
+                #archive-year table td.day-has-entries p:hover,
+                #archive-year table td.day-has-entries p:hover > a,
+                #archive-year table td.day-has-entries a:hover {
+                    $page_title_colors
+                    }
+
+.entry .contents .entry-content {
+    text-align: justify;
+    }    
+
+.entry .contents .metadata ul li {
+    list-style: url() inside disc;
+    }
+
+    .entry .contents .metadata .metadata-label {
+        font-style: italic;
+        }
+
+.entry .contents .metadata.top-metadata ul {
+    margin: 0;
+    }
+
+.entry .footer,
+.month .footer,
+.page-entry .comment .footer,
+.page-reply .comment .footer,
+.page-tags .tags-container .manage-tags-link,
+.bottomcomment, .comments-message {
+    $entry_footer_colors
+    padding: 0 .5em;
+    text-align: right;
+    box-shadow: .067em .067em .667em #111;
+    -moz-box-shadow: .067em .067em .667em #111;
+    -webkit-box-shadow: .067em .067em .667em #111;
+    -khtml-box-shadow: .067em .067em .667em #111;
+    }
+
+    .page-tags .tags-container .manage-tags-link {
+        margin-top: 1em;
+        padding: .5em;
+        }
+
+    .entry .footer a,
+    .month .footer a,
+    .page-entry .comment .footer a,
+    .page-reply .comment .footer a,
+    .page-tags .tags-container .manage-tags-link a,
+    .bottomcomment a {
+        $entry_footer_link_colors
+        }
+
+    .entry .footer a:visited,
+    .month .footer a:visited,
+    .page-entry .comment .footer a:visited,
+    .page-tags .tags-container .manage-tags-link a:visited,
+    .bottomcomment a:visited {
+        $entry_footer_link_visited_colors
+        }
+
+    .entry .footer a:hover,
+    .month .footer a:hover,
+    .page-entry .comment .footer a:hover,
+    .page-reply .comment .footer a:hover,
+    .page-tags .tags-container .manage-tags-link a:hover,
+    .bottomcomment a:hover {
+        $entry_footer_link_hover_colors
+        background-color: transparent;
+            text-decoration: underline !important;
+        }
+
+    .page-entry .comment .footer,
+    .page-reply .comment .footer {
+        padding: 0 .5em;
+            text-align: left;
+        }
+
+    .month .footer .inner {
+        padding: .5em 0;
+        }
+
+.entry .footer ul,
+.entry .footer ul li,
+.comment .footer ul,
+.comment .footer ul li,
+.page-month .tag ul,
+.page-month .tag ul li,
+.page-entry ul.entry-management-links,
+.page-entry ul.entry-interaction-links {
+    margin: 0;
+    padding: 0;
+}
+
+.entry .tag {
+    border-bottom: 1px dashed $*color_entry_footer_border;
+    padding: .5em 0;
+        text-align: left;
+    }
+
+    .page-month .tag {
+        margin: .5em 0;
+        }
+
+    .page-month .tag-text {
+            font-weight: bold;
+        }
+
+.entry ul.entry-management-links,
+.entry ul.entry-interaction-links,
+.comment ul.comment-management-links,
+.comment ul.comment-interaction-links,
+.bottomcomment ul.entry-interaction-links,
+.bottomcomment ul.entry-management-links {
+    display: inline-block;
+    padding: .5em 0;
+    }
+
+.comment span.multiform-checkbox {
+    padding-right: 1em;
+    }
+
+.comment ul.comment-interaction-links,
+.bottomcomment label {
+    border-top: 1px dashed $*color_entry_footer_border !important;
+    display: block;
+    text-align: right;
+    }
+
+.bottomcomment select,
+.bottomcomment input {
+    margin-bottom: .5em;
+    }
+
+    .entry ul.entry-management-links li,
+    .entry ul.entry-interaction-links li,
+    .comment ul.comment-management-links li,
+    .comment ul.comment-interaction-links li,
+    .bottomcomment ul.entry-management-links li,
+    .bottomcomment ul.entry-interaction-links li {
+        $entry_list_background
+        background-position: 100% 8px;
+        padding-right: 14px;
+        }
+
+        .entry ul.entry-interaction-links li:last-child,
+        .comment ul.comment-management-links li:last-child,
+        .comment ul.comment-interaction-links li:last-child,
+        .bottomcomment ul.entry-interaction-links li:last-child {
+            background: none;
+            padding-right: 0;
+            }
+
+.entry ul.entry-interaction-links {
+    padding-left: .35em;
+    }
+
+.comment-pages {
+    color: $*color_page_text;
+    margin: 1em 0;
+    text-align: right;
+    }
+
+#qrformdiv {
+    padding: 1.5em 1em;
+    }
+
+    #qrformdiv label {
+        border-top: none !important;
+        display: inline;
+        padding-top: 0;
+        text-align: left;
+    }
+
+    #qrformdiv table {
+        border: none !important;
+        margin: 0 auto;
+        }
+
+        #qrformdiv table td[align='center'] {
+            text-align: right;
+            }
+
+    #qrformdiv #subject {
+        width: 99%;
+        }
+
+    #qrformdiv span.de {
+        $page_link_visited_colors
+        }
+
+.page-reply #postform {
+    $entry_footer_colors
+    padding: .5em;
+    box-shadow: .067em .067em .667em #111;
+    -moz-box-shadow: .067em .067em .667em #111;
+    -webkit-box-shadow: .067em .067em .667em #111;
+    -khtml-box-shadow: .067em .067em .667em #111;
+    }
+
+    .page-reply #postform a {
+        $entry_footer_link_colors
+        }
+
+/* Sidebars
+***************************************************************************/
+
+#secondary,
+.three-columns-sides #tertiary,
+.three-columns-left #tertiary,
+.three-columns-right #tertiary {
+    margin-top: 7em;
+    }
+
+    .one-column #secondary {
+        margin-top: 0;
+        }
+
+#secondary .module,
+#tertiary .module {
+    margin-bottom: 4em;
+    }
+
+    .one-column #tertiary .module{
+            margin-bottom: .5em;
+        }
+
+/* Modules
+***************************************************************************/
+
+.module {
+    padding: 0 .5em;
+    }
+
+.module li {
+    list-style: url($image_module_list_url) disc;
+    margin: .5em;
+    }
+
+
+.module-navlinks li.current {
+        list-style: url($image_module_list_active_url) disc;
+        }
+
+    .module-navlinks li a.current {
+        $page_link_hover_colors
+        text-decoration: underline !important;
+        }
+
+    .module-navlinks li:hover {
+        list-style: url($image_module_list_hover_url) disc;
+        }
+
+.module-tags_multilevel ul li {
+    font-weight: bold;
+    margin-top: 1.5em;
+    }
+
+    .module-tags_multilevel ul ul li {
+        font-weight: normal;
+        list-style: url() disc;
+        margin-top: 0;
+        }
+
+        .module-tags_multilevel ul li:first-child {
+            margin-top: .5em;
+            }
+
+            .module-tags_multilevel ul ul ul li {
+                font-weight: normal;
+                list-style: url() circle;
+                }
+
+.module-userprofile {
+    text-align: center;
+    }
+
+    .module-userprofile .userpic {
+        margin-bottom: .5em;
+        }
+
+        .module-userprofile .userpic img {
+            background-color: $*color_header_background;
+            padding: .7em;
+            box-shadow: .067em .067em .2em #111;
+            -moz-box-shadow: .067em .067em .2em #111;
+            -webkit-box-shadow: .067em .067em .2em #111;
+            -khtml-box-shadow: .067em .067em .2em #111;
+            }
+
+    .module-userprofile .userlite-interaction-links li {
+        padding: 0;
+        }
+
+.module-calendar table {
+    border-spacing: 4px;
+    margin: 0 auto;
+    }
+
+    .module-calendar td {
+        padding: .3em;
+        width: 14.285%;
+        border-radius: .2em;
+        -moz-border-radius: .2em;
+        -webkit-border-radius: .2em;
+        -khtml-border-radius: .2em;
+        }
+
+        .module-calendar td.empty-day {
+            background-color: $*color_page_title_background;
+            color: $*color_entry_footer_link !important;
+            box-shadow: .067em .067em .134em #111;
+            -moz-box-shadow: .067em .067em .134em #111;
+            -webkit-box-shadow: .067em .067em .134em #111;
+            -khtml-box-shadow: .067em .067em .134em #111;
+            }
+
+        .module-calendar td.entry-day {
+            background-color: $*color_entry_border;
+            box-shadow: .067em .067em .134em #8c8c8c;
+            -moz-box-shadow: .067em .067em .134em #8c8c8c;
+            -webkit-box-shadow: .067em .067em .134em #8c8c8c;
+            -khtml-box-shadow: .067em .067em .134em #8c8c8c;
+            }
+
+            .module-calendar td.entry-day a {
+                color: $*color_entry_background !important;
+                padding: 0;
+                }
+
+            .module-calendar td.entry-day:hover {
+                background-color: $*color_entry_background;
+                }
+
+                .module-calendar td.entry-day a:visited {
+                    color: $*color_entry_footer_link !important;
+                    text-decoration: none !important;
+                    }
+
+                .module-calendar td.entry-day:hover > a,
+                .module-calendar td.entry-day a:hover {
+                    color: $*color_entry_text !important;
+                    text-decoration: none !important;
+                    }
+
+.module h2,
+.module h2 a {
+    text-align: center;
+    text-transform: uppercase;
+    $module_title_colors
+    }
+
+.module-search .search-form {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+.module-search .search-box,
+.module-search .search-button {
+    border: 0;
+    padding: .3em;
+    border-radius: .2em;
+    -moz-border-radius: .2em;
+    -webkit-border-radius: .2em;
+    -khtml-border-radius: .2em;
+    }
+
+.module-search .search-box {
+    background-color: $*color_entry_border;
+    color: $*color_entry_background;
+    width: 90%;
+    box-shadow: .067em .067em .134em #8c8c8c;
+    -moz-box-shadow: .067em .067em .134em #8c8c8c;
+    -webkit-box-shadow: .067em .067em .134em #8c8c8c;
+    -khtml-box-shadow: .067em .067em .134em #8c8c8c;
+    }
+
+.module-search .search-button {
+    background-color: $*color_page_title_background;
+    color: $*color_entry_footer_link;
+    margin-top: .3em;
+    box-shadow: .067em .067em .134em #111;
+    -moz-box-shadow: .067em .067em .134em #111;
+    -webkit-box-shadow: .067em .067em .134em #111;
+    -khtml-box-shadow: .067em .067em .134em #111;
+    }
+
+/* Footer
+***************************************************************************/
+
+#footer {
+    padding: 2em;
+    text-align: center;
+    text-transform: uppercase;
+    }
+
+    #footer a {
+        border-bottom: 1px solid $*color_footer_link;
+        border-top: 1px solid $*color_footer_link;
+        padding: .2em .5em;
+        }
+
+        #footer a:visited {
+            border-bottom: 1px solid $*color_footer_link_visited;
+            border-top: 1px solid $*color_footer_link_visited;
+            }
+
+        #footer a:hover {
+            border-bottom: 1px solid $*color_footer_link_hover;
+            border-top: 1px solid $*color_footer_link_hover;
+            text-decoration: none;
+            }
+
+$userpic_css
+""";
+}
+
+function print_module_navlinks() {
+    var Page p = get_page();
+    open_module("navlinks", "", "");
+    var string[] links = [];
+    
+    println """<ul class="module-list">""";
+    foreach var string k ($p.views_order) {
+        var string css = """$k""";
+        if ($p.view == $k) { $css = """current $k"""; }
+        println """<li class="module-list-item $css"><a href="$p.view_url{$k}" class="$css">"""+lang_viewname($k)+"""</a></li>""";
+    }
+    println "</ul>";
+
+    close_module();
+}
+

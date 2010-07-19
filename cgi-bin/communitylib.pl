@@ -1,12 +1,24 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 package LJ;
 
 use strict;
-use Class::Autouse qw(
-                      LJ::Event::CommunityInvite
-                      LJ::Event::CommunityJoinRequest
-                      );
+use LJ::Event::CommunityInvite;
+use LJ::Event::CommunityJoinRequest;
+use LJ::Event::CommunityJoinApprove;
+use LJ::Event::CommunityJoinReject;
 
 # <LJFUNC>
 # name: LJ::get_sent_invites
@@ -64,7 +76,7 @@ sub send_comm_invite {
     return undef unless $u && $cu && $mu;
 
     # step 1: if the user has banned the community, don't accept the invite
-    return LJ::error('comm_user_has_banned') if LJ::is_banned($cu, $u);
+    return LJ::error('comm_user_has_banned') if $u->has_banned( $cu );
 
     # step 2: lazily clean out old community invites.
     return LJ::error('db') unless $u->writer;
@@ -89,10 +101,11 @@ sub send_comm_invite {
         my $count = $cdbcr->selectrow_array("SELECT COUNT(*) FROM invitesent WHERE commid = ? " .
                                             "AND userid <> ? AND status = 'outstanding'",
                                             undef, $cu->{userid}, $u->{userid});
-        my $fr = LJ::get_friends($cu) || {};
-        my $max = int(scalar(keys %$fr) / 10); # can invite up to 1/10th of the community
-        $max = 50 if $max < 50;                # or 50, whichever is greater
-        return LJ::error('comm_invite_limit') if $count > $max;
+
+        # for now, limit to 500 outstanding invitations per community.  if this is not enough
+        # it can be raised or put back to the old system of using community size as an indicator
+        # of how many people to allow.
+        return LJ::error('comm_invite_limit') if $count > 500;
     }
 
     # step 5: setup arg string as url-encoded string
@@ -116,7 +129,7 @@ sub send_comm_invite {
     }
 
     # Fire community invite event
-    LJ::Event::CommunityInvite->new($u, $mu, $cu)->fire unless $LJ::DISABLED{esn};
+    LJ::Event::CommunityInvite->new($u, $mu, $cu)->fire if LJ::is_enabled('esn');
 
     # step 7: error check database work
     return LJ::error('db') if $u->err || $cu->err;
@@ -154,7 +167,8 @@ sub accept_comm_invite {
 
     # valid invite.  let's accept it as far as the community listing us goes.
     # 1, 0 means add comm to user's friends list, but don't auto-add P edge.
-    LJ::join_community($u, $cu, 1, 0) if $args->{member};
+    LJ::join_community( $u, $cu, 1, 0, moderated_add => 1 ) or return undef
+        if $args->{member};
 
     # now grant necessary abilities
     my %edgelist = (
@@ -239,6 +253,42 @@ sub get_pending_invites {
 }
 
 # <LJFUNC>
+# name: LJ::revoke_invites
+# des: Revokes a list of outstanding invitations to a community.
+# args: cuserid, userids
+# des-cuserid: a userid or u object of the community.
+# des-ruserids: userids to revoke invitations from.
+# returns: 1 if success, undef if error
+# </LJFUNC>
+sub revoke_invites {
+    my $cu = shift;
+    my @uids = @_;
+    $cu = LJ::want_user($cu);
+    return undef unless ($cu && @uids);
+
+    foreach my $uid (@uids) {
+        return undef unless int($uid) > 0;
+    }
+    my $in = join(',', @uids);
+
+    return LJ::error('db') unless $cu->writer;
+    $cu->do("DELETE FROM invitesent WHERE commid = ? AND " .
+            "userid IN ($in)", undef, $cu->{userid});
+    return LJ::error('db') if $cu->err;
+
+    # remove from inviterecv also,
+    # otherwise invite cannot be resent for over 30 days
+    foreach my $uid (@uids) {
+        my $u =  LJ::want_user($uid);
+        $u->do("DELETE FROM inviterecv WHERE userid = ? AND " .
+               "commid = ?", undef, $uid, $cu->{userid});
+    }
+
+    # success
+    return 1;
+}
+
+# <LJFUNC>
 # name: LJ::leave_community
 # des: Makes a user leave a community.  Takes care of all [special[reluserdefs]] and friend stuff.
 # args: uuserid, ucommid, defriend
@@ -253,12 +303,12 @@ sub leave_community {
     my $u = LJ::want_user($uuid);
     my $cu = LJ::want_user($ucid);
     $defriend = $defriend ? 1 : 0;
-    return LJ::error('comm_not_found') unless $u && $cu;
+    return LJ::error( 'comm_not_found' ) unless $u && $cu;
+    return LJ::error( 'comm_not_comm' ) unless $cu->is_community;
 
-    # defriend comm -> user
-    return LJ::error('comm_not_comm') unless $cu->{journaltype} =~ /[CS]/;
-    my $ret = $cu->remove_friend($u);
-    return LJ::error('comm_not_member') unless $ret; # $ret = number of rows deleted, should be 1 if the user was in the comm
+    # remove community membership
+    return undef
+        unless $u->remove_edge( $cu, member => {} );
 
     # clear edges that effect this relationship
     foreach my $edge (qw(P N A M)) {
@@ -267,7 +317,7 @@ sub leave_community {
 
     # defriend user -> comm?
     return 1 unless $defriend;
-    $u->remove_friend($cu);
+    $u->remove_edge( $cu, watch => {} );
 
     # don't care if we failed the removal of comm from user's friends list...
     return 1;
@@ -275,48 +325,51 @@ sub leave_community {
 
 # <LJFUNC>
 # name: LJ::join_community
-# des: Makes a user join a community.  Takes care of all [special[reluserdefs]] and friend stuff.
-# args: uuserid, ucommid, friend?, noauto?
+# des: Makes a user join a community.  Takes care of all [special[reluserdefs]] and watch stuff.
+# args: uuserid, ucommid, watch?, noauto?
 # des-uuserid: a userid or u object of the user doing the joining
 # des-ucommid: a userid or u object of the community being joined
-# des-friend: 1 to add this comm to user's friends list, else not
+# des-watch: 1 to add this comm to user's watch list, else not
 # des-noauto: if defined, 1 adds P edge, 0 does not; else, base on community postlevel
 # returns: 1 if success, undef if error of some sort (ucommid not a comm, uuserid already in
 #          comm, db error, etc)
 # </LJFUNC>
 sub join_community {
-    my ($uuid, $ucid, $friend, $canpost) = @_;
+    my ( $uuid, $ucid, $watch, $canpost, %opts ) = @_;
     my $u = LJ::want_user($uuid);
     my $cu = LJ::want_user($ucid);
-    $friend = $friend ? 1 : 0;
-    return LJ::error('comm_not_found') unless $u && $cu;
-    return LJ::error('comm_not_comm') unless $cu->{journaltype} eq 'C';
+    $watch = $watch ? 1 : 0;
+    return LJ::error( 'comm_not_found' ) unless $u && $cu;
+    return LJ::error( 'comm_not_comm' ) unless $cu->is_community;
 
-    # friend comm -> user
-    LJ::add_friend($cu->{userid}, $u->{userid});
+    # try to join the community, and return if it didn't work
+    $u->add_edge( $cu, member => {
+        moderated_add => $opts{moderated_add} ? 1 : 0,
+    } ) or return LJ::error('db');
 
     # add edges that effect this relationship... if the user sent a fourth
     # argument, use that as a bool.  else, load commrow and use the postlevel.
     my $addpostacc = 0;
-    if (defined $canpost) {
-        $addpostacc = $canpost ? 1 : 0;
-    } else {
-        my $crow = LJ::get_community_row($cu);
-        $addpostacc = $crow->{postlevel} eq 'members' ? 1 : 0;
+    # only person users can post
+    if ( $u->is_personal ) {
+        if ( defined $canpost ) {
+            $addpostacc = $canpost ? 1 : 0;
+        } else {
+            my $crow = LJ::get_community_row( $cu );
+            $addpostacc = $crow->{postlevel} eq 'members' ? 1 : 0;
+        }
     }
-    LJ::set_rel($cu->{userid}, $u->{userid}, 'P') if $addpostacc;
 
-    # friend user -> comm?
-    return 1 unless $friend;
+    LJ::set_rel( $cu->{userid}, $u->{userid}, 'P' ) if $addpostacc;
 
-    # don't do the work if they already friended the comm
-    return 1 if $u->has_friend($cu);
+    # user should watch comm?
+    return 1 unless $watch;
 
-    my $err = "";
-    return LJ::error("You have joined the community, but it has not been added to ".
-                     "your Friends list. " . $err) unless $u->can_add_friends(\$err);
+    # don't do the work if they already watch the comm
+    return 1 if $u->watches( $cu );
 
-    $u->friend_and_watch($cu);
+    # watch the comm
+    $u->add_edge( $cu, watch => {} );
 
     # done
     return 1;
@@ -377,6 +430,7 @@ sub get_pending_members {
     foreach (@$args) {
         push @list, $1+0 if $_ =~ /^targetid=(\d+)$/;
     }
+
     return \@list;
 }
 
@@ -404,24 +458,17 @@ sub approve_pending_member {
 
     # step 2, make user join the community
     # 1 means "add community to user's friends list"
-    return unless LJ::join_community($u->{userid}, $cu->{userid}, 1);
+    return unless LJ::join_community( $u, $cu, 1, undef, moderated_add => 1 );
 
     # step 3, email the user
-    my $email = "Dear $u->{name},\n\n" .
-                "Your request to join the \"$cu->{user}\" community has been approved.  If you " .
-                "wish to add this community to your friends page reading list, click the link below.\n\n" .
-                "\t$LJ::SITEROOT/friends/add.bml?user=$cu->{user}\n\n" .
-                "Please note that replies to this email are not sent to the community's maintainer(s). If you " .
-                "have any questions, you will need to contact them directly.\n\n" .
-                "Regards,\n$LJ::SITENAME Team";
-    LJ::send_mail({
-        to => $u->email_raw,
-        from => $LJ::BOGUS_EMAIL,
-        fromname => $LJ::SITENAME,
-        charset => 'utf-8',
-        subject => "Your Request to Join $cu->{user}",
-        body => $email,
-    });
+    my %params = (event => 'CommunityJoinApprove', journal => $u);
+    unless ($u->has_subscription(%params)) {
+        $u->subscribe(%params, method => 'Email');
+    }
+    LJ::Event::CommunityJoinApprove->new($u, $cu)->fire if LJ::is_enabled('esn');
+
+    $cu->memc_delete( "pendingmemct" );
+
     return 1;
 }
 
@@ -447,20 +494,14 @@ sub reject_pending_member {
     return unless $count;
 
     # step 2, email the user
-    my $email = "Dear $u->{name},\n\n" .
-                "Your request to join the \"$cu->{user}\" community has been declined.\n\n" .
-                "Replies to this email are not sent to the community's maintainer(s). If you would ".
-                "like to discuss the reasons for your request's rejection, you will need to contact ".
-                "a maintainer directly.\n\n" .
-                "Regards,\n$LJ::SITENAME Team";
-    LJ::send_mail({
-        to => $u->email_raw,
-        from => $LJ::BOGUS_EMAIL,
-        fromname => $LJ::SITENAME,
-        charset => 'utf-8',
-        subject => "Your Request to Join $cu->{user}",
-        body => $email,
-    });
+    my %params = (event => 'CommunityJoinReject', journal => $u);
+    unless ($u->has_subscription(%params)) {
+        $u->subscribe(%params, method => 'Email');
+    }
+    LJ::Event::CommunityJoinReject->new($u, $cu)->fire if LJ::is_enabled('esn');
+
+    $cu->memc_delete( "pendingmemct" );
+
     return 1;
 }
 
@@ -506,7 +547,7 @@ sub comm_join_request {
 
     # now prepare the emails
     foreach my $au (values %$admins) {
-        next unless $au;
+        next unless $au && !$au->is_expunged;
 
         # unless it's a hyphen, we need to migrate
         my $prop = $au->prop("opt_communityjoinemail");
@@ -524,8 +565,130 @@ sub comm_join_request {
         LJ::Event::CommunityJoinRequest->new($au, $u, $comm)->fire;
     }
 
+    $comm->memc_delete( 'pendingmemct' );
+
     return $aa;
 }
 
-1;
+sub maintainer_linkbar {
+    my $comm = shift;
+    my $page = shift;
 
+    my $username = $comm->user;
+    my @links;
+
+    my %manage_link_info = LJ::Hooks::run_hook('community_manage_link_info', $username);
+    if (keys %manage_link_info) {
+        push @links, $page eq "account" ?
+            "<strong>$manage_link_info{text}</strong>" :
+            "<a href='$manage_link_info{url}'>$manage_link_info{text}</a>";
+    }
+
+    push @links, (
+        $page eq "profile" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinfo2') . "</strong>" :
+            "<a href='$LJ::SITEROOT/manage/profile/?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinfo2') . "</a>",
+        $page eq "customize" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</strong>" :
+            "<a href='$LJ::SITEROOT/customize/?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</a>",
+        $page eq "settings" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/settings?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</a>",
+        $page eq "invites" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/sentinvites?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
+        $page eq "members" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/members?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
+        $page eq "queue" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.queue') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/moderate?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",
+
+    );
+
+    my $ret .= "<strong>" . LJ::Lang::ml('/community/manage.bml.managelinks', { user => $comm->ljuser_display }) . "</strong> ";
+    $ret .= join(" | ", @links);
+
+    return "<p style='margin-bottom: 20px;'>$ret</p>";
+}
+
+# Get membership and posting level settings for a community
+sub get_comm_settings {
+    my $c = shift;
+
+    my $cid = $c->{userid};
+    my ($membership, $postlevel);
+    my $memkey = [ $cid, "commsettings:$cid" ];
+
+    my $memval = LJ::MemCache::get($memkey);
+    ($membership, $postlevel) = @$memval if ($memval);
+    return ($membership, $postlevel)
+        if ( $membership && $postlevel );
+
+    my $dbr = LJ::get_db_reader();
+    ($membership, $postlevel) =
+        $dbr->selectrow_array("SELECT membership, postlevel FROM community WHERE userid=?", undef, $cid);
+
+    LJ::MemCache::set($memkey, [$membership,$postlevel] ) if ( $membership && $postlevel );
+
+    return ($membership, $postlevel);
+}
+
+# Set membership and posting level settings for a community
+sub set_comm_settings {
+    my ( $c, $u, $opts ) = @_;
+
+    die "Invalid users passed to set_comm_settings"
+        unless LJ::isu( $c ) && LJ::isu( $u );
+
+    die "User cannot modify this community"
+        unless $u->can_manage_other( $c );
+
+    die "Membership and posting levels are not available"
+        unless $opts->{membership} && $opts->{postlevel};
+
+    my $cid = $c->userid;
+
+    my $dbh = LJ::get_db_writer();
+    $dbh->do("REPLACE INTO community (userid, membership, postlevel) VALUES (?,?,?)" , undef, $cid, $opts->{membership}, $opts->{postlevel});
+
+    my $memkey = [ $cid, "commsettings:$cid" ];
+    LJ::MemCache::delete($memkey);
+
+    return;
+}
+
+sub get_mod_queue_count {
+    my $cu = LJ::want_user( shift );
+    return 0 unless $cu->is_community;
+
+    my $mqcount = $cu->memc_get( 'mqcount' );
+    return $mqcount if defined $mqcount;
+
+    # if it's not in memcache, hit the db
+    my $dbr = LJ::get_cluster_reader( $cu );
+    my $sql = "SELECT COUNT(*) FROM modlog WHERE journalid=" . $cu->id;
+    $mqcount = $dbr->selectrow_array( $sql ) || 0;
+
+    # store in memcache for 10 minutes
+    $cu->memc_set( 'mqcount' => $mqcount, 600 );
+    return $mqcount;
+}
+
+sub get_pending_members_count {
+    my $cu = LJ::want_user( shift );
+    return 0 unless $cu->is_community;
+
+    my $pending_count = $cu->memc_get( 'pendingmemct' );
+    return $pending_count if defined $pending_count;
+
+    # seems to be doing some additional parsing, which would make this
+    # number potentially incorrect if you just do SELECT COUNT
+    # so grab the parsed list and count it
+    $pending_count = scalar @{ LJ::get_pending_members( $cu ) };
+    $cu->memc_set( 'pendingmemct' => $pending_count, 600 );
+
+    return $pending_count;
+}
+
+1;

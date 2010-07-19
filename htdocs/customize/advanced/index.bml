@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 body<=
@@ -6,7 +20,7 @@ body<=
     LJ::set_active_crumb('advcustomize');
 
     my $u = LJ::get_effective_remote();
-    my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
     if ($no_layer_edit) {
         return $ML{'.error.advanced.editing.denied'};
     }
@@ -18,13 +32,13 @@ body<=
 <?p <?_ml .documentation.text _ml?> p?>
 <ul>
 <li><a href="<?siteroot?>/doc/s2/"><?_ml .s2doc.link _ml?></a> -- <?_ml .s2doc.desc _ml?></li>
-<li><a href="<?siteroot?>/customize/advanced/layerbrowse.bml"><?_ml .publiclayers.link _ml?></a> -- <?_ml .publiclayers.desc _ml?></li>
+<li><a href="<?siteroot?>/customize/advanced/layerbrowse"><?_ml .publiclayers.link _ml?></a> -- <?_ml .publiclayers.desc _ml?></li>
 </ul>
 
 <?h1 <?_ml .advancedoptions.header _ml?> h1?>
 <ul>
-<li><a href="<?siteroot?>/customize/advanced/layers.bml"><?_ml .yourlayers.link _ml?></a> -- <?_ml .yourlayers.desc _ml?></li>
-<li><a href="<?siteroot?>/customize/advanced/styles.bml"><?_ml .yourstyles.link _ml?></a> -- <?_ml .yourstyles.desc _ml?></li>
+<li><a href="<?siteroot?>/customize/advanced/layers"><?_ml .yourlayers.link _ml?></a> -- <?_ml .yourlayers.desc _ml?></li>
+<li><a href="<?siteroot?>/customize/advanced/styles"><?_ml .yourstyles.link _ml?></a> -- <?_ml .yourstyles.desc _ml?></li>
 </ul>';
 _code?>
 

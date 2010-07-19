@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <html>
 <head><title>Memcache view</title>
 <body>
@@ -10,9 +24,12 @@
 
 
  my $remote = LJ::get_remote();
+ my @displayprivs = ( "siteadmin:memcacheview", "siteadmin:*" );
+ my $numprivs = @displayprivs;
 
- return "<b>Error:</b> You don't have access to viewing memcache info."
-     unless (LJ::check_priv($remote, "siteadmin", "memcacheview"));
+ return "<?needlogin?>" unless $remote;
+ return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+     unless $remote->has_priv( "siteadmin", "memcacheview" ) || $LJ::IS_DEV_SERVER;
 
  return "<b>Error:</b> No memcache servers defined."
      unless @LJ::MEMCACHE_SERVERS;
@@ -102,7 +119,7 @@
 
      if ($key =~ /^log2:/) {
          my $item = {};
-         @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNNN", $val);
+         @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNQN", $val);
          $item->{'security'} = ($item->{'allowmask'} == 0 ? 'private' :
                                ($item->{'allowmask'} == 2**63 ? 'public' : 'usemask'));
          @$item{'jitemid', 'anum'} = ($item->{'ditemid'} >> 8, $item->{'ditemid'} % 256);
@@ -121,10 +138,10 @@
          push @$newval, unpack("N", substr($val, 1, 4)) 
              if $ver>=2;
          
-         my $n = (length($val) - $offset )/20;
+         my $n = (length($val) - $offset )/24;
          for (my $i=0; $i<$n; $i++) {
              my ($posterid, $eventtime, $rlogtime, $allowmask, $ditemid) =
-                 unpack("NNNNN", substr($val, $i*20+$offset, 20));
+                 unpack("NNNQN", substr($val, $i*24+$offset, 24));
             $eventtime = LJ::mysql_time($eventtime, 1);
             my $security = $allowmask == 0 ? 'private' :
                 ($allowmask == 2**63 ? 'public' : 'usemask');
@@ -260,7 +277,7 @@
  }
 
  $ret .= "<p>Enter your memcache query(-ies) below.</p>";
- $ret .= '<p>Here\'s the <a href="http://code.sixapart.com/svn/livejournal/trunk/doc/raw/memcache-keys.txt">reference</a> of key names.</p>';
+ $ret .= '<p>Here\'s the <a href="http://hg.dwscoalition.org/dw-free/file/tip/doc/raw/memcache-keys.txt">reference</a> of key names.</p>';
  $ret .= "<p>Shortcuts: <blockquote>#username -> userid<br /> ##username -> cid:userid<br />(number) -> number/256 </blockquote></p>";
 
  $ret .= '<form method="post" action="memcache_view.bml">';

@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Setting::Birthday;
 use base 'LJ::Setting';
 use strict;
@@ -18,7 +31,7 @@ sub as_html {
         if ($bdpart{day} eq "00") { $bdpart{day} = ""; }
     }
     $ret .= LJ::html_select({ 'name' => "${key}month", 'id' => "${key}month", 'class' => "select", 'selected' => int($bdpart{month}) },
-                            '', '', map { $_, LJ::Lang::ml(LJ::Lang::month_long_langcode($_)) } (1..12)) . " ";
+                            '', '', map { $_, LJ::Lang::month_long_ml($_) } (1..12)) . " ";
 
     $ret .= LJ::html_text({ 'name' => "${key}day", 'value' => $bdpart{day}, 'class' => 'text', 'size' => '3', 'maxlength' => '2' }) . " ";
     $ret .= LJ::html_text({ 'name' => "${key}year", 'value' => $bdpart{year}, 'class' => 'text', 'size' => '5', 'maxlength' => '4' });

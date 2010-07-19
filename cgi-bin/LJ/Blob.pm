@@ -1,12 +1,22 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+#
 # Wrapper around BlobClient.
 
 package LJ::Blob;
 use strict;
-use lib "$LJ::HOME/cgi-bin";
-use Class::Autouse qw(
-                      BlobClient
-                      BlobClient::Local
-                      );
+use BlobClient;
+use BlobClient::Local;
 
 my %bc_cache = ();
 my %bc_reader_cache = ();
@@ -48,12 +58,11 @@ sub _bc_from_path {
 # given a $u, returns that user's blob_clusterid, conditionally loading it
 sub _load_bcid {
     my $u = shift;
-    die "No user" unless $u;
+    die "No user" unless LJ::isu( $u );
     return $u->{blob_clusterid} if $u->{blob_clusterid};
 
-    LJ::load_user_props($u, "blob_clusterid");
-    return $u->{blob_clusterid} if $u->{blob_clusterid};
-    die "Couldn't find user $u->{user}'s blob_clusterid\n";
+    return $u->prop( "blob_clusterid" )
+        or die "Couldn't find user $u->{user}'s blob_clusterid\n";
 }
 
 # args: u, domain, fmt, bid

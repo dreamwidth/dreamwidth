@@ -1,0 +1,122 @@
+<?page
+
+# requests.bml - contains a list of all pending invite code requests
+#
+# Author: Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+body<=
+<?_code
+{
+    use strict;
+    use vars qw( %GET %POST $title );
+
+    $title = "View Invite Code Requests";
+
+    my $remote = LJ::get_remote;
+    return "<?needlogin?>" unless $remote;
+
+    return "You are not authorized to view this page."
+        unless $remote->has_priv( "payments" );
+
+    my $ret;
+
+    # outstanding invites
+    my @outstanding = DW::InviteCodeRequests->outstanding;
+    my @userids = map { $_->userid } @outstanding;
+    my $users = LJ::load_userids( @userids );
+
+    # count invites the user has
+    my %cts;
+    foreach my $u ( values %$users ) {
+        $cts{$u->id} = DW::InviteCodes->unused_count( userid => $u->id );
+    }
+
+    # subroutine for counting accounts registered to user's email.
+    my $pc_accts = sub {
+        my ( $u ) = @_;
+        if ( my @acctids = $u->accounts_by_email ) {
+            my $us = LJ::load_userids( @acctids );
+            my ( $pct, $cct ) = ( 0, 0 );
+            foreach ( @acctids ) {
+                next unless $us->{$_};
+                $pct++ if $us->{$_}->is_personal;
+                $cct++ if $us->{$_}->is_comm;
+            }
+            return "$pct/$cct";
+        } else {
+            return "N/A";
+        }
+    };
+
+    my $authed = undef;
+
+    $ret .= "<form method='post'>";
+    $ret .= LJ::form_auth();
+    $ret .= "<table>";
+    $ret .= "<tr><th>User</th><th>Time Generated</th><th>P/C</th><th>Ct</th><th>Give</th><th>Reason</th></tr>";
+    foreach my $outstanding ( @outstanding ) {
+        my $u = $users->{$outstanding->userid};
+        
+        # don't include in table if they're sysbanned
+        next if DW::InviteCodeRequests->invite_sysbanned( user => $u );
+
+        $ret .= "<tr>";
+        $ret .= "<td>" . $u->ljuser_display . "</td>";
+        $ret .= "<td>" . LJ::time_to_http( $outstanding->timegenerate ) . "</td>";
+        $ret .= "<td>" . $pc_accts->( $u ) . "</td>";
+        $ret .= "<td>" . $cts{$u->id} . "</td>";
+
+        # if we posted...
+        if ( LJ::did_post() ) {
+            unless ( defined $authed ) {
+                die "Failed form auth\n"
+                    unless LJ::check_form_auth();
+                $authed = 1;
+            }
+
+            my $ct = $POST{'ct_' . $outstanding->id};
+            if ( defined $ct && $ct =~ /^\d\d?$/ ) {
+                $ret .= '<td>';
+                if ( $ct > 0 ) {
+                    $outstanding->accept( num_invites => $ct+0 );
+                    $ret .= 'GAVE: ' . $ct;
+                } else {
+                    $outstanding->reject;
+                    $ret .= 'DENIED';
+                }
+                $ret .= '</td>';
+            } else {
+                $ret .= '<td>---</td>';
+            }
+        } else {
+            $ret .= "<td><input type='text' name='ct_" . $outstanding->id . "' size='2' maxlength='2' /></td>";
+        }
+
+        my $reason = $outstanding->reason || "( no reason given )";
+        $ret .= "<td><a href='review?user=$u->{user}'>$reason</a></td>";
+        $ret .= "</tr>";
+    }
+
+    $ret .= "</table><br />";
+    unless ( LJ::did_post() ) {
+        $ret .= "<input type='submit' value='Give/Reject' /><br /><br />";
+        $ret .= "This will give codes to people you have put a number in, and reject people who have 0 given.";
+    }
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<style type="text/css">
+td, th { padding: 2px; }
+</style>
+<=head
+page?>

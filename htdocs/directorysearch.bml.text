@@ -1,3 +1,71 @@
 ;; -*- coding: utf-8 -*-
+
+.and=and
+
+.between=Between
+
+.by_age=By Age
+
+.by_circle=By Circle
+
+.by_gender=By Gender
+
+.by_interest=By Interest
+
+.by_location=By Location
+
+.clear_form=Clear Form
+
+.country=Country:
+
+.date=date
+
+.day=day
+
+.display_by=Display by
+
+.display_results=Display Results
+
 .error.notloggedin=You must <a [[aopts]]>login</a> to use the directory.
 
+.female=Female
+
+.h1=Search Directory
+
+.male=Male
+
+.month=month
+
+.other_criteria=Other Criteria
+
+.picture=Picture
+
+.recently_updated=Recently Updated
+
+.records_per_page=Records per page:
+
+.search=Search!
+
+.state_province=State/Province:
+
+.text_only=Text only
+
+.title=Directory Search
+
+.updated_in_last=Updated in last
+
+.use_this_dir2=Use this directory to search for [[sitename]] users. If you fill in more than one blank, the directory will display results that match all your criteria. (e.g. user lives in "San Francisco" AND lists "music" as an interest.) Check out our <a [[aopts]]>community search</a> page to find new and interesting communities.
+
+.user_likes=User likes:
+
+.user_trusted_by=User is granted access by: [[input]]
+
+.user_trusts=User grants access to: [[input]]
+
+.user_watched_by=User is subscribed to by: [[input]]
+
+.user_watches=User is subscribed to: [[input]]
+
+.week=week
+
+.years_old=years old.

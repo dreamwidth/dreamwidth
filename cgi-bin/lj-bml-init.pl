@@ -1,10 +1,24 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use lib "$LJ::HOME/cgi-bin";
 use Errno qw(ENOENT);
 use LJ::Config;
 LJ::Config->load;
+use Apache::BML;
 
 foreach (@LJ::LANGS, @LJ::LANGS_IN_PROGRESS) {
     BML::register_isocode(substr($_, 0, 2), $_);
@@ -12,8 +26,8 @@ foreach (@LJ::LANGS, @LJ::LANGS_IN_PROGRESS) {
 }
 
 # set default path/domain for cookies
-BML::set_config("CookieDomain" => $LJ::COOKIE_DOMAIN);
-BML::set_config("CookiePath"   => $LJ::COOKIE_PATH);
+BML::set_config( "CookieDomain" => $LJ::COOKIE_DOMAIN );
+BML::set_config( "CookiePath"   => "/" );
 
 BML::register_hook("startup", sub {
     my $r = BML::get_request();

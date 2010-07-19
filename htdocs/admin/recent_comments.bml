@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <html>
 <head><title>Comment view</title>
 <body>
@@ -7,9 +21,12 @@
     use vars qw(%GET %POST);
     my $ret;
     my $remote = LJ::get_remote();
+    my @displayprivs = ( "siteadmin:commentview", "siteadmin:*" );
+    my $numprivs = @displayprivs;
 
-    return "<b>Error:</b> You don't have access to viewing recent comments."
-        unless LJ::check_priv($remote, "siteadmin", "commentview");
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless $remote->has_priv( "siteadmin", "commentview" );
 
     my $user = $GET{'user'};
     my $u;
@@ -20,10 +37,10 @@
     }
     unless ($u) {
         return "<form method='GET'>Username or (#userid) to view comments of: ".
-            "<input name='user' size='15' /><input type='submit' value='Load' /></form>";
+            "<input name='user' maxlength='25' size='25' /><input type='submit' value='Load' /></form>";
     }
     $user = $u->{'user'};
-    $ret .= "<a href='recent_comments.bml'>&lt;&lt;</a> <b>Recent comments of " . LJ::ljuser($u) . "</b> (\#$u->{userid})<br />\n";
+    $ret .= "<a href='recent_comments'>&lt;&lt;</a> <b>Recent comments of " . LJ::ljuser($u) . "</b> (\#$u->{userid})<br />\n";
 
     my $dbcr = LJ::get_cluster_reader($u);
     return "Error: can't get DB for user" unless $dbcr;
@@ -45,7 +62,7 @@
 
         if ($lrow) {
             my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
-            my $url = "$LJ::SITEROOT/users/$ju->{user}/$lrow->{ditemid}.html?thread=$talkid\#t$talkid";
+            my $url = "$LJ::SITEROOT/users/$ju->{user}/$lrow->{ditemid}.html?thread=$talkid" . LJ::Talk::comment_anchor( $talkid );
             $ret .= "$hr_ago hr ago in " . LJ::ljuser($ju) . ": <a href='$url'>$url</a><br />\n";
         } else {
             $ret .= "$hr_ago hr ago in " . LJ::ljuser($ju) . ": link unavailable<br />";

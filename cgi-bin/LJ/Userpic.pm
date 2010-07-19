@@ -1,9 +1,49 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Userpic;
 use strict;
 use Carp qw(croak);
 use Digest::MD5;
-use Class::Autouse qw (LJ::Event::NewUserpic);
+use LJ::Event::NewUserpic;
+use LJ::Constants;
+use Storable;
 
+##
+## Potential properties of an LJ::Userpic object
+##
+# picid		: (accessors picid, id) unique identifier for the object, generated
+# userid	: (accessor userid) the userid  associated with the object
+# state		: state
+# comment	: user submitted descriptive comment
+# description	: user submitted description
+# keywords	: user submitted keywords (all keywords in a single string)
+# dim		: (accessors width, height, dimensions) array:[width][height]
+# pictime	: pictime
+# flags		: flags
+# md5base64	: md5sum of of the image bitstream to prevent duplication
+# ext		: file extension, corresponding to mime types
+# location	: whether the image is stored in database or mogile
+
+##
+## virtual accessors
+##
+# url		: returns a URL directly to the userpic
+# fullurl	: returns the URL used at upload time, it if exists
+# altext	: description with keyword fallback; keyword-recently-used dependent
+# u, owner	: return the user object indicated by the userid
+
+# legal image types
 my %MimeTypeMap = (
                    'image/gif'  => 'gif',
                    'G'          => 'gif',
@@ -13,12 +53,16 @@ my %MimeTypeMap = (
                    'P'          => 'png',
                    );
 
-my %singletons;  # userid -> picid -> LJ::Userpic
+# all LJ::Userpics in memory
+# userid -> picid -> LJ::Userpic
+my %singletons;  
 
 sub reset_singletons {
     %singletons = ();
 }
 
+# LJ::Userpic constructor. Returns a LJ::Userpic object.
+# Return existing with userid and picid populated, or make new.
 sub instance {
     my ($class, $u, $picid) = @_;
     my $up;
@@ -28,11 +72,28 @@ sub instance {
         return $up if $up = $us->{$picid};
     }
 
+    # otherwise construct a new one with the given picid
     $up = $class->_skeleton($u, $picid);
     $singletons{$u->{userid}}->{$picid} = $up;
     return $up;
 }
 *new = \&instance;
+
+# LJ::Userpic accessor. Returns a LJ::Userpic object indicated by $picid, or
+# undef if userpic doesn't exist in the db.
+sub get {
+    my ($class, $u, $picid) = @_;
+
+    my @cache = LJ::Userpic->load_user_userpics($u);
+
+    if (@cache) {
+        foreach my $curr (@cache) {
+            return LJ::Userpic->new( $u, $curr->{picid} ) if $curr->{picid} == $picid;
+        }
+    }
+
+    return undef;
+}
 
 sub _skeleton {
     my ($class, $u, $picid) = @_;
@@ -50,15 +111,8 @@ sub new_from_md5 {
     my ($class, $u, $md5sum) = @_;
     die unless $u && length($md5sum) == 22;
 
-    my $sth;
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $sth = $u->prepare("SELECT * FROM userpic2 WHERE userid=? " .
-                           "AND md5base64=?");
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $sth = $dbr->prepare("SELECT * FROM userpic WHERE userid=? " .
-                             "AND md5base64=?");
-    }
+    my $sth = $u->prepare( "SELECT * FROM userpic2 WHERE userid=? " .
+                           "AND md5base64=?" );
     $sth->execute($u->{'userid'}, $md5sum);
     my $row = $sth->fetchrow_hashref
         or return undef;
@@ -108,31 +162,46 @@ sub valid {
 
 sub absorb_row {
     my ($self, $row) = @_;
-    for my $f (qw(userid picid width height comment location state url pictime flags md5base64)) {
+    for my $f (qw(userid picid width height comment description location state url pictime flags md5base64)) {
         $self->{$f} = $row->{$f};
     }
-    $self->{_ext} = $MimeTypeMap{$row->{fmt} || $row->{contenttype}};
+    my $key = $row->{fmt} || $row->{contenttype}; # avoid warnings on uninitialized value in hash element FIXME
+    $self->{_ext} = $MimeTypeMap{$key} if defined $key;
     return $self;
 }
 
-# accessors
+##
+## accessors
+##
 
-sub id {
+# FIXME: id and picid are identical. Eventually "id"
+# should go.
+
+# returns the picture ID associated with the object
+sub picid {
     return $_[0]->{picid};
 }
 
+*id = \&picid;
+
+#  returns the userid associated with the object
 sub userid {
     return $_[0]->{userid};
 }
 
+# FIXME: u and owner are identical in practice, since the method
+# userid returns the userid data element.  Eventually "owner" should
+# go.
+
+# given a userpic with a known userid, return the user object
 sub u {
-    my $self = shift;
-    return LJ::load_userid($self->userid);
+    return LJ::load_userid($_[0]->userid);
 }
 
+*owner = \&u;
+
 sub inactive {
-    my $self = shift;
-    return $self->state eq 'I';
+    return $_[0]->state eq 'I';
 }
 
 sub state {
@@ -149,6 +218,13 @@ sub comment {
     return $self->{comment};
 }
 
+sub description {
+    my $self = shift;
+    return $self->{description} if exists $self->{description};
+    $self->load_row;
+    return $self->{description};
+}
+
 sub width {
     my $self = shift;
     my @dims = $self->dimensions;
@@ -162,20 +238,12 @@ sub height {
     return undef unless @dims;
     return $dims[1];
 }
-
-sub picid {
-    my $self = shift;
-    return $self->{picid};
-}
-
 sub pictime {
-    my $self = shift;
-    return $self->{pictime};
+    return $_[0]->{pictime};
 }
 
 sub flags {
-    my $self = shift;
-    return $self->{flags};
+    return $_[0]->{flags};
 }
 
 sub md5base64 {
@@ -219,21 +287,21 @@ sub max_allowed_bytes {
 }
 
 
-sub owner {
-    my $self = shift;
-    return LJ::load_userid($self->{userid});
-}
-
+# Returns the direct link to the uploaded userpic
 sub url {
     my $self = shift;
 
-    if (my $hook_path = LJ::run_hook('construct_userpic_url', $self)) {
+    if (my $hook_path = LJ::Hooks::run_hook('construct_userpic_url', $self)) {
         return $hook_path;
     }
 
     return "$LJ::USERPIC_ROOT/$self->{picid}/$self->{userid}";
 }
 
+# Returns original URL used if userpic was originally uploaded
+# via a URL.
+# FIXME: Is this ever used? If not, should be deleted. If so,
+# should be renamed to source_url
 sub fullurl {
     my $self = shift;
     return $self->{url} if $self->{url};
@@ -241,23 +309,71 @@ sub fullurl {
     return $self->{url};
 }
 
-# returns an image tag of this image
+# given a userpic and a keyword, return the alt text
+sub alttext {
+    my ( $self, $kw ) = @_;
+
+    # load the alttext.  use description by default, keyword as fallback,
+    # and all keywords as final fallback (should be for default icon only).
+
+    # NOTE: This returns the alttext raw, and relies on the callers (usually
+    # but not always Userpic->imgtag) to strip any special characters.
+
+    if ($self->description) {
+        return $self->description;
+    } elsif ($kw) {
+        return $kw;
+    } else {
+        return $self->keywords;
+    }
+
+}
+
+# returns an image tag of this userpic
+# optional parameters (which must be explicitly passed) include
+# width, keyword, and user (object)
 sub imgtag {
     my $self = shift;
     my %opts = @_;
 
-    my $width = $opts{width}+0 || $self->width;
+    # if the width and keyword have been passed in  as explicit
+    # parameters, set them. Otherwise, take what ever is set in
+    # the userpic
+    my $width = $opts{width} || $self->width;
+    my $height = $opts{height} || $self->height;
+    my $keyword = $opts{keyword} || $self->keywords;
 
-    return '<img src="' . $self->url . '" width="' . $width .
-        '" alt="' . LJ::ehtml(scalar $self->keywords) . '" class="userpic-img" />';
+    # if no description is available for alttext, try to fall
+    # back to the keyword selected by the user (passed as a
+    # parameter to imgtag). Otherwise, use the entire keyword
+    # string from the userpic.
+
+    my $alttext = LJ::ehtml( $self->alttext( $keyword ) );
+
+    # if we passed in a user, format as if for entries or comments
+    # otherwise, print out keywords for additional context
+    my $title = "";
+    if ( $opts{user} ) {
+        $title = $opts{user}->display_name;
+        $title .= $opts{keyword} ? ": $opts{keyword}" : ": (default)";
+    } else {
+        $title = $keyword;
+    }    
+    $title = LJ::ehtml( $title );
+
+    return '<img src="' . $self->url . '" width="' . $width . 
+        '" height="' . $height . '" alt="' . $alttext . 
+        '" title="' . $title . '" class="userpic-img" />';
 }
 
+# FIXME: should have alt text, if it should be kept
 sub imgtag_lite {
     my $self = shift;
     return '<img src="' . $self->url . '" width="' . $self->width . '" height="' . $self->height .
         '" class="userpic-img" />';
 }
 
+# FIXME: should have alt text, if it should be kept
 sub imgtag_nosize {
     my $self = shift;
     return '<img src="' . $self->url . '" class="userpic-img" />';
@@ -275,6 +391,33 @@ sub imgtag_percentagesize {
     return '<img src="' . $self->url . '" width="' . $width . '" height="' . $height . '" class="userpic-img" />';
 }
 
+# pass a fixed height or width that you want to be the size of the userpic
+# must include either a height or width, if both are given the smaller of the two is used
+# returns the width and height attributes as a string to insert into an img tag
+sub img_fixedsize {
+    my $self = shift;
+    my %opts = @_;
+
+    my $width = $opts{width} || 0;
+    my $height = $opts{height} || 0;
+
+    if ( $width > 0 && $width < $self->width && 
+        ( !$height || ( $width <= $height && $self->width >= $self->height ) ) ) {
+        my $ratio = $width / $self->width;
+        $height = int( $self->height * $ratio );
+    } elsif ( $height > 0 && $height < $self->height ) {
+        my $ratio = $height / $self->height;
+        $width = int( $self->width * $ratio );
+    } else {
+        $width = $self->width;
+        $height = $self->height;
+    }
+
+    return 'height="' . $height . '" width="' . $width . '"';
+}
+
+
+
 # in scalar context returns comma-seperated list of keywords or "pic#12345" if no keywords defined
 # in list context returns list of keywords ( (pic#12345) if none defined )
 # opts: 'raw' = return '' instead of 'pic#12345'
@@ -286,18 +429,9 @@ sub keywords {
 
     croak "Invalid opts passed to LJ::Userpic::keywords" if keys %opts;
 
-    my $picinfo = LJ::get_userpic_info($self->{userid}, {load_comments => 0});
+    my $u = $self->owner;
 
-    # $picinfo is a hashref of userpic data
-    # keywords are stored in the "kw" field in the format keyword => {hash of some picture info}
-
-    # create a hash of picids => keywords
-    my $keywords = {};
-    foreach my $keyword (keys %{$picinfo->{kw}}) {
-        my $picid = $picinfo->{kw}->{$keyword}->{picid};
-        $keywords->{$picid} = [] unless $keywords->{$picid};
-        push @{$keywords->{$picid}}, $keyword if ($keyword && $picid);
-    }
+    my $keywords = $u->get_userpic_kw_map();
 
     # return keywords for this picid
     my @pickeywords = $keywords->{$self->id} ? @{$keywords->{$self->id}} : ();
@@ -332,11 +466,6 @@ sub imagedata {
         return $$data;
     }
 
-    my %MimeTypeMap = (
-                       'image/gif' => 'gif',
-                       'image/jpeg' => 'jpg',
-                       'image/png' => 'png',
-                       );
     my %MimeTypeMapd6 = (
                          'G' => 'gif',
                          'J' => 'jpg',
@@ -345,7 +474,7 @@ sub imagedata {
 
     my $data;
     if ($LJ::USERPIC_BLOBSERVER) {
-        my $fmt = ($u->{'dversion'} > 6) ? $MimeTypeMapd6{ $pic->{fmt} } : $MimeTypeMap{ $pic->{contenttype} };
+        my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
         $data = LJ::Blob::get($u, "userpic", $fmt, $self->{picid});
         return $data if $data;
     }
@@ -359,52 +488,33 @@ sub imagedata {
     return $data ? $data : undef;
 }
 
-# does the user's dataversion support userpic comments?
-sub supports_comments {
-    my $self = shift;
-
-    my $u = $self->owner;
-    return $u->{dversion} > 6;
-}
-
-# class method
-# does this user's dataversion support usepic comments?
-sub userpics_partitioned {
-    my ($class, $u) = @_;
-    Carp::croak("Not a valid \$u object") unless LJ::isu($u);
-    return $u->{dversion} > 6;
-}
-*user_supports_comments = \&userpics_partitioned;
-
 # TODO: add in lazy peer loading here
 sub load_row {
     my $self = shift;
     my $u = $self->owner;
+    return unless defined $u;
     return if $u->is_expunged;
 
-    my $cache = LJ::Userpic->get_cache($u);
-    if ($cache) {
-        foreach my $curr (@$cache) {
+    # Load all of the userpics from cache, or load them from the database and write them to cache
+    my @cache = LJ::Userpic->load_user_userpics($u);
+
+    if (@cache) {
+        foreach my $curr (@cache) {
             return $self->absorb_row($curr) if $curr->{picid} eq $self->picid;
         }
     }
 
-    my $row;
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $row = $u->selectrow_hashref("SELECT userid, picid, width, height, state, fmt, comment, location, url, " .
+    # If you get past this conditional something is wrong
+    # load_user_userpics  always returns a value
+
+    my $row = $u->selectrow_hashref( "SELECT userid, picid, width, height, state, fmt, comment, description, location, url, " .
                                      "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
                                      "FROM userpic2 WHERE userid=? AND picid=?", undef,
-                                     $u->{userid}, $self->{picid});
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $row = $dbr->selectrow_hashref("SELECT userid, picid, width, height, state, contenttype " .
-                                       "FROM userpic WHERE userid=? AND picid=?", undef,
-                                       $u->{userid}, $self->{picid});
-    }
+                                     $u->userid, $self->{picid} );
     $self->absorb_row($row) if $row;
 }
 
-# checks request cache and memcache, 
+# checks request cache and memcache,
 # returns: undef if nothing in cache
 #          arrayref of LJ::Userpic instances if found in cache
 sub get_cache {
@@ -418,9 +528,6 @@ sub get_cache {
     if ($u->{_userpicids}) {
         return [ map { LJ::Userpic->instance($u, $_) } @{$u->{_userpicids}} ];
     }
-
-    # no memcaching of userpic2 rows unless partitioned
-    return undef unless LJ::Userpic->userpics_partitioned($u);
 
     my $memkey = $class->memkey($u);
     my $memval = LJ::MemCache::get($memkey);
@@ -442,10 +549,9 @@ sub get_cache {
     return \@ret;
 }
 
+# $class->memkey( $u )
 sub memkey {
-    my $class = shift;
-    my $u = shift;
-    return [ $u, "userpic2:" . $u->id ];
+    return [ $_[1]->id, "userpic2:" . $_[1]->id ];
 }
 
 sub set_cache {
@@ -453,12 +559,9 @@ sub set_cache {
     my $u = shift;
     my $rows = shift;
 
-    # no memcaching of userpic2 rows unless partitioned
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        my $memkey = $class->memkey($u);
-        my @vals = map { LJ::MemCache::hash_to_array('userpic2', $_) } @$rows;
-        LJ::MemCache::set($memkey, \@vals, 60*30);
-    }
+    my $memkey = $class->memkey( $u );
+    my @vals = map { LJ::MemCache::hash_to_array( 'userpic2', $_ ) } @$rows;
+    LJ::MemCache::set( $memkey, \@vals, 60*30 );
 
     # set cache of picids on $u
     $u->{_userpicids} = [ map { $_->{picid} } @$rows ];
@@ -475,17 +578,10 @@ sub load_user_userpics {
     return @$cache if $cache;
 
     # select all of their userpics and iterate through them
-    my $sth;
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $sth = $u->prepare("SELECT userid, picid, width, height, state, fmt, comment, location, " .
+    my $sth = $u->prepare( "SELECT userid, picid, width, height, state, fmt, comment, description, location, " .
                            "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
-                           "FROM userpic2 WHERE userid=?");
-    } else {
-        my $dbh = LJ::get_db_writer();
-        $sth = $dbh->prepare("SELECT userid, picid, width, height, state, contenttype " .
-                             "FROM userpic WHERE userid=?");
-    }
-    $sth->execute($u->{'userid'});
+                           "FROM userpic2 WHERE userid=?" );
+    $sth->execute( $u->userid );
     die "Error loading userpics: clusterid=$u->{clusterid}, errstr=" . $sth->errstr if $sth->err;
 
     while (my $rec = $sth->fetchrow_hashref) {
@@ -496,16 +592,17 @@ sub load_user_userpics {
 
     # set cache if reasonable
     $class->set_cache($u, \@ret);
-    
+
     return map { LJ::Userpic->new_from_row($_) } @ret;
 }
 
 sub create {
-    my ($class, $u, %opts) = @_;
+    my ( $class, $u, %opts ) = @_;
     local $LJ::THROW_ERRORS = 1;
 
-    my $dataref = delete $opts{'data'};
-    my $maxbytesize = delete $opts{'maxbytesize'};
+    my $dataref = delete $opts{data};
+    my $maxbytesize = delete $opts{maxbytesize};
+    my $nonotify = delete $opts{nonotify};
     croak("dataref not a scalarref") unless ref $dataref eq 'SCALAR';
 
     croak("Unknown options: " . join(", ", scalar keys %opts)) if %opts;
@@ -515,6 +612,8 @@ sub create {
     };
 
     eval "use Image::Size;";
+    # FIXME the filetype is supposed to be returned intthe next call
+    # but according to the docs of Image::Size v3.2 it does not return that value
     my ($w, $h, $filetype) = Image::Size::imgsize($dataref);
     my $MAX_UPLOAD = $maxbytesize || LJ::Userpic->max_allowed_bytes($u);
 
@@ -547,9 +646,9 @@ sub create {
     my $base64 = Digest::MD5::md5_base64($$dataref);
 
     my $target;
-    if ($u->{dversion} > 6 && $LJ::USERPIC_MOGILEFS) {
+    if ( $LJ::USERPIC_MOGILEFS ) {
         $target = 'mogile';
-    } elsif ($LJ::USERPIC_BLOBSERVER) {
+    } elsif ( $LJ::USERPIC_BLOBSERVER ) {
         $target = 'blob';
     }
 
@@ -563,53 +662,31 @@ sub create {
     # start making a new onew
     my $picid = LJ::alloc_global_counter('P');
 
-    my $contenttype;
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $contenttype = {
+    my $contenttype = {
             'GIF' => 'G',
             'PNG' => 'P',
             'JPG' => 'J',
         }->{$filetype};
-    } else {
-        $contenttype = {
-            'GIF' => 'image/gif',
-            'PNG' => 'image/png',
-            'JPG' => 'image/jpeg',
-        }->{$filetype};
-    }
 
     @errors = (); # TEMP: FIXME: remove... using exceptions
 
     my $dberr = 0;
-    if ($u->{'dversion'} > 6) {
-        $u->do("INSERT INTO userpic2 (picid, userid, fmt, width, height, " .
-               "picdate, md5base64, location) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
-               undef, $picid, $u->{'userid'}, $contenttype, $w, $h, $base64, $target);
-        if ($u->err) {
-            push @errors, $err->($u->errstr);
-            $dberr = 1;
-        }
-    } else {
-        $dbh->do("INSERT INTO userpic (picid, userid, contenttype, width, height, " .
-                 "picdate, md5base64) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
-                 undef, $picid, $u->{'userid'}, $contenttype, $w, $h, $base64);
-        if ($dbh->err) {
-            push @errors, $err->($dbh->errstr);
-            $dberr = 1;
-        }
+    $u->do( "INSERT INTO userpic2 (picid, userid, fmt, width, height, " .
+            "picdate, md5base64, location) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
+            undef, $picid, $u->userid, $contenttype, $w, $h, $base64, $target );
+    if ( $u->err ) {
+        push @errors, $err->( $u->errstr );
+        $dberr = 1;
     }
 
     my $clean_err = sub {
-        if ($u->{'dversion'} > 6) {
-            $u->do("DELETE FROM userpic2 WHERE userid=? AND picid=?",
-                   undef, $u->{'userid'}, $picid) if $picid;
-        } else {
-            $dbh->do("DELETE FROM userpic WHERE picid=?", undef, $picid) if $picid;
-        }
+        $u->do( "DELETE FROM userpic2 WHERE userid=? AND picid=?",
+                undef, $u->userid, $picid ) if $picid;
         return $err->(@_);
     };
 
     ### insert the blob
+    $target ||= ''; # avoid warnings FIXME should this be set before the INSERT call?
     if ($target eq 'mogile' && !$dberr) {
         my $fh = LJ::mogclient()->new_file($u->mogfs_userpic_key($picid), 'userpics');
         if (defined $fh) {
@@ -647,10 +724,10 @@ sub create {
     LJ::throw(@errors);
 
     # now that we've created a new pic, invalidate the user's memcached userpic info
-    LJ::Userpic->delete_cache($u);
+    LJ::Userpic->delete_cache( $u );
 
-    my $upic = LJ::Userpic->new($u, $picid) or die "Error insantiating userpic";
-    LJ::Event::NewUserpic->new($upic)->fire unless $LJ::DISABLED{esn};
+    my $upic = LJ::Userpic->new( $u, $picid ) or die "Error insantiating userpic";
+    LJ::Event::NewUserpic->new( $upic )->fire if LJ::is_enabled('esn') && !$nonotify;
 
     return $upic;
 }
@@ -680,6 +757,8 @@ sub delete_cache {
     $memkey = [$u->{'userid'},"upiccom:$u->{'userid'}"];
     LJ::MemCache::delete($memkey);
     $memkey = [$u->{'userid'},"upicurl:$u->{'userid'}"];
+    LJ::MemCache::delete($memkey);
+    $memkey = [$u->{'userid'},"upicdes:$u->{'userid'}"];
     LJ::MemCache::delete($memkey);
 
     # userpic2 rows for a given $u
@@ -715,21 +794,12 @@ sub delete {
     $fail->() if $@;
 
     # userpic keywords
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        eval {
-            $u->do("DELETE FROM userpicmap2 WHERE userid=? " .
-                   "AND picid=?", undef, $u->{userid}, $picid) or die;
-            $u->do("DELETE FROM userpic2 WHERE picid=? AND userid=?",
-                   undef, $picid, $u->{'userid'}) or die;
-            };
-    } else {
-        eval {
-            my $dbh = LJ::get_db_writer();
-            $dbh->do("DELETE FROM userpicmap WHERE userid=? " .
-                 "AND picid=?", undef, $u->{userid}, $picid) or die;
-            $dbh->do("DELETE FROM userpic WHERE picid=?", undef, $picid) or die;
+    eval {
+        $u->do( "DELETE FROM userpicmap2 WHERE userid=? " .
+                "AND picid=?", undef, $u->userid, $picid ) or die;
+        $u->do( "DELETE FROM userpic2 WHERE picid=? AND userid=?",
+                undef, $picid, $u->userid ) or die;
         };
-    }
     $fail->() if $@;
 
     $u->log_event('delete_userpic', { picid => $picid });
@@ -738,7 +808,8 @@ sub delete {
     # TODO: we could fire warnings if they fail, then if $LJ::DIE_ON_WARN is set,
     # the ->warn methods on errobjs are actually dies.
     eval {
-        if ($self->location eq 'mogile') {
+        my $location = $self->location; # avoid warnings FIXME
+        if (defined $location and $location eq 'mogile') {
             LJ::mogclient()->delete($u->mogfs_userpic_key($picid));
         } elsif ($LJ::USERPIC_BLOBSERVER &&
                  LJ::Blob::delete($u, "userpic", $self->extension, $picid)) {
@@ -758,12 +829,27 @@ sub set_comment {
     local $LJ::THROW_ERRORS = 1;
 
     my $u = $self->owner;
-    return 0 unless LJ::Userpic->user_supports_comments($u);
     $comment = LJ::text_trim($comment, LJ::BMAX_UPIC_COMMENT(), LJ::CMAX_UPIC_COMMENT());
     $u->do("UPDATE userpic2 SET comment=? WHERE userid=? AND picid=?",
                   undef, $comment, $u->{'userid'}, $self->id)
         or die;
     $self->{comment} = $comment;
+
+    LJ::Userpic->delete_cache($u);
+    return 1;
+}
+
+sub set_description {
+    my ($self, $description) = @_;
+    local $LJ::THROW_ERRORS = 1;
+
+    my $u = $self->owner;
+    #return 0 unless LJ::Userpic->user_supports_descriptions($u);
+    $description = LJ::text_trim($description, LJ::BMAX_UPIC_DESCRIPTION, LJ::CMAX_UPIC_DESCRIPTION);
+    $u->do("UPDATE userpic2 SET description=? WHERE userid=? AND picid=?",
+                  undef, $description, $u->{'userid'}, $self->id)
+        or die;
+    $self->{description} = $description;
 
     LJ::Userpic->delete_cache($u);
     return 1;
@@ -785,13 +871,8 @@ sub set_keywords {
     my $sth;
     my $dbh;
 
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $sth = $u->prepare("SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?");
-    } else {
-        $dbh = LJ::get_db_writer();
-        $sth = $dbh->prepare("SELECT kwid FROM userpicmap WHERE userid=? AND picid=?");
-    }
-    $sth->execute($u->{'userid'}, $self->id);
+    $sth = $u->prepare( "SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?" );
+    $sth->execute( $u->userid, $self->id );
 
     my %exist_kwids;
     while (my ($kwid) = $sth->fetchrow_array) {
@@ -803,7 +884,7 @@ sub set_keywords {
     my $picid = $self->{picid};
 
     foreach my $kw (@keywords) {
-        my $kwid = (LJ::Userpic->userpics_partitioned($u)) ? LJ::get_keyword_id($u, $kw) : LJ::get_keyword_id($kw);
+        my $kwid = $u->get_keyword_id( $kw );
         next unless $kwid; # TODO: fire some warning that keyword was bogus
 
         if (++$c > $LJ::MAX_USERPIC_KEYWORDS) {
@@ -827,14 +908,12 @@ sub set_keywords {
     if (scalar @data) {
         my $bind = join(',', @bind);
 
-        if (LJ::Userpic->userpics_partitioned($u)) {
-            $u->do("REPLACE INTO userpicmap2 (userid, kwid, picid) VALUES $bind",
-                          undef, @data);
-        } else {
-            $dbh->do("INSERT INTO userpicmap (userid, kwid, picid) VALUES $bind",
-                            undef, @data);
-        }
+        $u->do( "REPLACE INTO userpicmap2 (userid, kwid, picid) VALUES $bind",
+                undef, @data );
     }
+
+    # clear the userpic-keyword map.
+    $u->clear_userpic_kw_map;
 
     # Let the user know about any we didn't save
     # don't throw until the end or nothing will be saved!
@@ -848,10 +927,100 @@ sub set_keywords {
     return 1;
 }
 
+
+# instance method:  takes two strings of comma-separated keywords, the first
+# being the new set of keywords, the second being the old set of keywords.
+#
+# the new keywords must be the same number as the old keywords; that is,
+# if the userpic has three keywords and you want to rename them, you must
+# rename them to three keywords (some can match).  otherwise there would be
+# some ambiguity about which old keywords should match up with the new
+# keywords.  if the number of keywords don't match, then an error is thrown
+# and no changes are made to the keywords for this userpic.
+# 
+# all new keywords must not currently be in use; you can't rename a keyword
+# to a keyword currently mapped to another (or the same) userpic.  this will
+# result in an error and no changes made to these keywords.
+#
+# the setting of new keywords is done by Userpic->set_keywords; the remapping
+# of existing pics is done asynchonously via TheSchwartz using the
+# DW::Worker::UserpicRenameWorker.
+sub set_and_rename_keywords {
+    my $self = shift;
+    my $new_keyword_string = $_[0];
+    my $orig_keyword_string = $_[1];
+
+    my $sclient = LJ::theschwartz();
+    
+    # error out if TheSchwartz isn't available.
+    LJ::errobj("Userpic::RenameKeywords",
+               origkw    => $orig_keyword_string,
+               newkw     => $new_keyword_string)->throw unless $sclient;
+
+    my @keywords = split(',', $new_keyword_string);
+    my @orig_keywords = split(',', $orig_keyword_string);
+
+    # don't allow renames involving no-keyword (pic#0001) values
+    if ( grep ( /^\s*pic\#\d+\s*$/, @orig_keywords ) || grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
+        LJ::errobj("Userpic::RenameBlankKeywords",
+                   origkw    => $orig_keyword_string,
+                   newkw     => $new_keyword_string)->throw;
+    }
+
+    # compare sizes
+    if (scalar @keywords ne scalar @orig_keywords) {
+        LJ::errobj("Userpic::MismatchRenameKeywords",
+                   origkw    => $orig_keyword_string,
+                   newkw     => $new_keyword_string)->throw;
+    }
+
+    #interleave these into a map, excluding duplicates
+    my %keywordmap;
+    foreach my $newkw (@keywords) {
+        my $origkw = shift(@orig_keywords);
+        # clear whitespace
+        $newkw =~ s/^\s+//; 
+        $newkw =~ s/\s+$//;
+        $origkw =~ s/^\s+//; 
+        $origkw =~ s/\s+$//;
+
+        $keywordmap{$origkw} = $newkw if $origkw ne $newkw;
+    }
+    
+    # make sure there is at least one change.
+    if (keys(%keywordmap)) {
+
+        #make sure that none of the target keywords already exist.
+        my $u = $self->owner;
+        foreach my $kw (keys %keywordmap) {
+            if (LJ::get_picid_from_keyword($u, $keywordmap{$kw}, -1) != -1) {
+                LJ::errobj("Userpic::RenameKeywordExisting",
+                           keyword => $keywordmap{$kw})->throw;
+            }
+        }
+        
+        # set the keywords for this userpic to the new set of keywords
+        $self->set_keywords(@keywords);
+        
+        # send to TheSchwartz to do the actual renaming
+        my $job = TheSchwartz::Job->new_from_array(
+            'DW::Worker::UserpicRenameWorker', { 
+                'uid' => $u->userid, 
+                'keywordmap' => Storable::nfreeze(\%keywordmap) } );
+        
+        unless ($job && $sclient->insert($job)) {
+            LJ::errobj("Userpic::RenameKeywords",
+                       origkw    => $orig_keyword_string,
+                       newkw     => $new_keyword_string)->throw;
+        }
+    }
+
+    return 1;
+}
+
 sub set_fullurl {
     my ($self, $url) = @_;
     my $u = $self->owner;
-    return 0 unless LJ::Userpic->userpics_partitioned($u);
     $u->do("UPDATE userpic2 SET url=? WHERE userid=? AND picid=?",
            undef, $url, $u->{'userid'}, $self->id);
     $self->{url} = $url;
@@ -859,6 +1028,65 @@ sub set_fullurl {
     LJ::Userpic->delete_cache($u);
 
     return 1;
+}
+
+# Sorts the given list of Userpics.
+sub sort {
+    my ( $class, $userpics ) = @_;
+    
+    return () unless ( $userpics && ref $userpics );
+
+    my %kwhash;
+    my %nokwhash;
+
+    for my $pic ( @$userpics ) {
+        my $pickw = $pic->keywords( raw => 1 );
+        if ( $pickw ) {
+            $kwhash{$pickw} = $pic;
+        } else {
+            $pickw = $pic->keywords;
+            $nokwhash{$pickw} = $pic;
+        }
+    }
+    my @sortedkw = sort keys %kwhash;
+    my @sortednokw = sort keys %nokwhash;
+
+    my @sortedpics;
+    foreach my $kw ( @sortedkw ) {
+        push @sortedpics, $kwhash{$kw};
+    }
+    foreach my $kw ( @sortednokw ) {
+        push @sortedpics, $nokwhash{$kw};
+    }
+
+    return @sortedpics;
+}
+
+# Organizes the given userpics by keyword.  Returns an array of hashes,
+# with values of keyword and userpic.
+sub separate_keywords {
+    my ( $class, $userpics ) = @_;
+
+    return () unless ( $userpics && ref $userpics );
+
+    my @userpic_array;
+    my @nokw_array;
+    foreach my $userpic ( @$userpics ) {
+        my @keywords = $userpic->keywords( raw => 1 );
+        foreach my $keyword ( @keywords ) {
+            if ( $keyword ) {
+                push @userpic_array, { keyword => $keyword, userpic => $userpic };
+            } else {
+                $keyword = $userpic->keywords;
+                push @nokw_array, { keyword => $keyword, userpic => $userpic };
+            }
+        } 
+    }
+        
+    @userpic_array = sort { $a->{keyword} cmp $b->{keyword} } @userpic_array;
+    push @userpic_array, sort { $a->{keyword} cmp $b->{keyword} } @nokw_array;
+
+    return @userpic_array;
 }
 
 ####
@@ -882,7 +1110,7 @@ sub lost_keywords_as_html {
 sub as_html {
     my $self = shift;
     my $num_words = $self->number_lost;
-    return BML::ml("/editpics.bml.error.toomanykeywords", {
+    return BML::ml("/editicons.bml.error.toomanykeywords", {
         numwords => $self->number_lost,
         words    => $self->lost_keywords_as_html,
         max      => $LJ::MAX_USERPIC_KEYWORDS,
@@ -894,9 +1122,9 @@ sub user_caused { 1 }
 sub fields      { qw(size max); }
 sub as_html {
     my $self = shift;
-    return BML::ml('/editpics.bml.error.filetoolarge',
+    return BML::ml('/editicons.bml.error.filetoolarge',
                    { 'maxsize' => $self->{'max'} .
-                         BML::ml('/editpics.bml.kilobytes')} );
+                         BML::ml('/editicons.bml.kilobytes')} );
 }
 
 package LJ::Error::Userpic::Dimensions;
@@ -904,7 +1132,7 @@ sub user_caused { 1 }
 sub fields      { qw(w h); }
 sub as_html {
     my $self = shift;
-    return BML::ml('/editpics.bml.error.imagetoolarge', {
+    return BML::ml('/editicons.bml.error.imagetoolarge', {
         imagesize => $self->{'w'} . 'x' . $self->{'h'}
         });
 }
@@ -914,8 +1142,47 @@ sub user_caused { 1 }
 sub fields      { qw(type); }
 sub as_html {
     my $self = shift;
-    return BML::ml("/editpics.bml.error.unsupportedtype",
+    return BML::ml("/editicons.bml.error.unsupportedtype",
                           { 'filetype' => $self->{'type'} });
+}
+
+package LJ::Error::Userpic::MismatchRenameKeywords;
+sub user_caused { 1 }
+sub fields      { qw(origkw newkw); }
+sub as_html {
+    my $self = shift;
+    return BML::ml("/editicons.bml.error.rename.mismatchedlength",
+                          { 'origkw' => $self->{'origkw'},
+                            'newkw' => $self->{'newkw'} });
+}
+
+package LJ::Error::Userpic::RenameBlankKeywords;
+sub user_caused { 1 }
+sub fields      { qw(origkw newkw); }
+sub as_html {
+    my $self = shift;
+    return BML::ml("/editicons.bml.error.rename.blankkw",
+                          { 'origkw' => $self->{'origkw'},
+                            'newkw' => $self->{'newkw'} });
+}
+
+package LJ::Error::Userpic::RenameKeywordExisting;
+sub user_caused { 1 }
+sub fields      { qw(keyword); }
+sub as_html {
+    my $self = shift;
+    return BML::ml("/editicons.bml.error.rename.keywordexists",
+                          { 'keyword' => $self->{'keyword'} });
+}
+
+package LJ::Error::Userpic::RenameKeywords;
+sub user_caused { 0 }
+sub fields      { qw(origkw newkw); }
+sub as_html {
+    my $self = shift;
+    return BML::ml("/editicons.bml.error.rename.keywords",
+                          { 'origkw' => $self->{'origkw'},
+                            'newkw' => $self->{'newkw'} });
 }
 
 package LJ::Error::Userpic::DeleteFailed;

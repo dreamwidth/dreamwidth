@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
@@ -14,7 +28,7 @@
     my $remote = LJ::get_remote();
 
     my $id = $GET{'id'};
-    return BML::redirect('layerbrowse.bml') unless $id =~ /^\d+$/;
+    return BML::redirect('layerbrowse') unless $id =~ /^\d+$/;
 
     my $lay = defined $pub->{$id} ? $pub->{$id} : LJ::S2::load_layer($id);
     return $err->($ML{'/customize/advanced/layerbrowse.bml.error.layerdoesntexist'})
@@ -26,14 +40,13 @@
         $layerinfo->{$id}->{'source_viewable'} : undef;
 
     # authorized to view this layer?
-    my $isadmin = !defined $pub->{$id} &&                          # public styles are pulled from the system
-                  (LJ::check_priv($remote, 'canview', 'styles') || # account, so we don't want to check privileges
-                   LJ::check_priv($remote, 'canview', '*'));       # in case they're private styles
+    my $isadmin = ! defined $pub->{$id} && $remote && $remote->has_priv( 'canview', 'styles' );
+    # public styles are pulled from the system account, so we don't
+    # want to check privileges in case they're private styles
     return $err->($ML{'/customize/advanced/layerbrowse.bml.error.cantviewlayer'})
         unless defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
-               $srcview == 1 ||
-               LJ::can_manage($remote, $lay->{'userid'}) ||
-               $isadmin;
+               $srcview == 1 || $isadmin || $remote &&
+               $remote->can_manage( LJ::load_userid( $lay->{userid} ) );
 
     my $s2code = LJ::S2::load_layer_source($id);
 
@@ -75,7 +88,7 @@
     my $ua = BML::get_client_header("User-Agent");
     if ($ua && $ua =~ /\bMSIE\b/) {
         my $filename = "s2source-$id.txt";
-        BML::get_request()->header_out('Content-Disposition' => "attachment; filename=$filename");
+        DW::Request->get->header_out('Content-Disposition' => "attachment; filename=$filename");
     }
 
     BML::noparse();

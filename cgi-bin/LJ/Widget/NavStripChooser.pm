@@ -1,9 +1,22 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::NavStripChooser;
 
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 
 sub ajax { 1 }
 sub authas { 1 }
@@ -16,46 +29,16 @@ sub render_body {
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
-    my $preview_moodthemeid = defined $opts{preview_moodthemeid} ? $opts{preview_moodthemeid} : $u->{moodthemeid};
-
     my $ret = "<fieldset><legend>" . $class->ml('widget.navstripchooser.title') . "</legend>";
     $ret .= "</fieldset>" if $u->prop('stylesys') == 2;
-    $ret .= "<p class='detail'>" . $class->ml('widget.navstripchooser.desc') . " " . LJ::help_icon('navstrip') . "</p>";
-
-    # choose where to display/see it
-    my $show_checked = $u->prop('show_control_strip') ? 1 : 0;
-    my $view_checked = $u->prop('view_control_strip') ? 1 : 0;
-
-    # If user cannot modify navstrip, the following two checkboxes should be disabled
-    my $show_disabled = LJ::run_hook('user_cannot_modify_navstrip', $u);
-
-    $ret .= "<p>" . $class->html_check(
-        name => "show_control_strip",
-        id => "show_control_strip",
-        selected => $show_checked,
-        disabled => defined $show_disabled ? $show_disabled : 0,
-    );
-    $ret .= " <label for='show_control_strip'>" . $class->ml('widget.navstripchooser.option.onjournal') . "</label></p>";
-
-    $ret .= "<p>" . $class->html_check(
-        name => "view_control_strip",
-        id => "view_control_strip",
-        selected => $view_checked,
-        disabled => defined $show_disabled ? $show_disabled : 0,
-    );
-    $ret .= " <label for='view_control_strip'>" . $class->ml('widget.navstripchooser.option.onothers') . "</label></p>";
+    $ret .= "<p class='detail'>" . $class->ml( 'widget.navstripchooser.desc', { aopts => "href='/manage/settings/?cat=display'" } ) . " " . LJ::help_icon('navstrip') . "</p>";
 
     $ret .= "<p>" . $class->ml('widget.navstripchooser.colors') . "</p>";
 
     # choose colors
-
-    # note: if both props have colors, they are guaranteed to be the same color
-    my $color_selected = "dark";
-    if ($u->prop('view_control_strip') && $u->prop('view_control_strip') ne "off_explicit") {
-        $color_selected = $u->prop('view_control_strip');
-    } elsif ($u->prop('show_control_strip') && $u->prop('show_control_strip') ne "off_explicit") {
-        $color_selected = $u->prop('show_control_strip');
-    }
+    my $color_selected = $u->prop( 'control_strip_color' ) ne ''
+        ? $u->prop( 'control_strip_color' )
+        : "dark";
 
     my ($theme, @props, %prop_is_used, %colors_values, %bgcolor_values, %fgcolor_values, %bordercolor_values, %linkcolor_values);
     if ($u->prop('stylesys') == 2) {
@@ -174,11 +157,6 @@ sub render_body {
     }
     $ret .= "</table>";
 
-    if ($u->prop('stylesys') != 2) {
-        $ret .= "<p>" . $class->ml('widget.navstripchooser.upgradetos2', {'aopts' => "href='$LJ::SITEROOT/customize/switch_system.bml'"}) . "</p>";
-        $ret .= "</fieldset>";
-    }
-
     return $ret;
 }
 
@@ -192,35 +170,23 @@ sub handle_post {
 
     my %override;
     my $post_fields_of_parent = LJ::Widget->post_fields_of_widget("CustomizeTheme");
-    my ($given_control_strip_color, $given_show_control_strip, $given_view_control_strip);
+    my ( $given_control_strip_color, $props );
     if ($post_fields_of_parent->{reset}) {
-        $given_control_strip_color = "dark";
-        $given_show_control_strip = 1;
-        $given_view_control_strip = 1;
+        $given_control_strip_color = "";
         $override{control_strip_bgcolor} = "";
         $override{control_strip_fgcolor} = "";
         $override{control_strip_bordercolor} = "";
         $override{control_strip_linkcolor} = "";
     } else {
         $given_control_strip_color = $post->{control_strip_color};
-        $given_show_control_strip = $post->{show_control_strip};
-        $given_view_control_strip = $post->{view_control_strip};
     }
 
-    my $color = $given_control_strip_color || "dark";
-    my $color_to_store = $color eq "light" ? "light" : "dark"; # we can only store dark or light in the user props
+    my $color = $given_control_strip_color;
 
-    my $props;
-    $props->{show_control_strip} = $given_show_control_strip ? $color_to_store : 'off_explicit';
-    $props->{view_control_strip} = $given_view_control_strip ? $color_to_store : 'off_explicit';
+    # we only want to store dark or light in the user props
+    $props->{control_strip_color} = $color if $color eq 'light' || $color eq 'dark';
 
-    my @uprops = qw( view_control_strip );
-    push @uprops, "show_control_strip" unless LJ::run_hook("user_cannot_modify_navstrip", $u);
-    foreach my $uprop (@uprops) {
-        my $eff_val = $props->{$uprop}; # effective value, since 0 isn't stored
-        $eff_val = "" unless $eff_val;
-        $u->set_prop($uprop, $eff_val);
-    }
+    $u->set_prop( 'control_strip_color', $props->{control_strip_color} );
 
     if ($color ne "layout_default" && $color ne "custom") {
         $override{custom_control_strip_colors} = "off";
@@ -253,7 +219,6 @@ sub handle_post {
     if ($u->prop('stylesys') == 2) {
         my $style = LJ::S2::load_style($u->prop('s2_style'));
         die "Style not found." unless $style && $style->{userid} == $u->id;
-
         LJ::Customize->save_s2_props($u, $style, \%override);
     }
 

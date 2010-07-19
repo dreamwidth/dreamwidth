@@ -1,9 +1,9 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More tests => 15;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'ljlang.pl';
+use LJ::Lang;
 use LJ::Console;
 use LJ::Test qw (temp_user);
 local $LJ::T_NO_COMMAND_PRINT = 1;

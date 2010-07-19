@@ -64,6 +64,21 @@ function getXTR () {
     return xtr;
 }
 
+function positionedOffset(element) {
+  var valueT = 0, valueL = 0;
+  do {
+    valueT += element.offsetTop  || 0;
+    valueL += element.offsetLeft || 0;
+    element = element.offsetParent;
+    if (element) {
+      if (element.tagName.toUpperCase() == 'BODY') break;
+      var p = DOM.getStyle(element, 'position');
+      if (p !== 'static') break;
+    }
+  } while (element);
+  return {x: valueL, y:valueT};
+}
+
 // push new element 'ne' after sibling 'oe' old element
 function addAfter (oe, ne) {
     if (oe.nextSibling) {
@@ -190,9 +205,8 @@ function getEventPos (e, fallBack)
         pos.x = e.clientX + scrollLeft();
         pos.y = e.clientY + scrollTop();
     } else {
-	var targ = fallBack || getTarget(e);
-	var pos = getElementPos(targ);
-	return pos;
+        var targ = fallBack || getTarget(e);
+        var pos = getElementPos(targ);
     }
     return pos;
 }
@@ -241,7 +255,7 @@ function deleteComment (ditemid) {
 
     killPopup();
 
-    var todel = document.getElementById("ljcmt" + ditemid);
+    var todel = document.getElementById("cmt" + ditemid);
 
     var col = 0;
     var pulse = 0;
@@ -305,7 +319,7 @@ function deleteComment (ditemid) {
 }
 
 function removeComment (ditemid, killChildren) {
-    var todel = document.getElementById("ljcmt" + ditemid);
+    var todel = document.getElementById("cmt" + ditemid);
     if (todel) {
         todel.style.display = 'none';
 
@@ -352,37 +366,41 @@ function createDeleteFunction (ae, dItemid) {
             if (!com || !remoteUser)
                 return true;
             var canAdmin = LJ_cmtinfo["canAdmin"];
+            var canSpam = LJ_cmtinfo["canSpam"];
 
             var clickTarget = getTarget(e);
-            var used_keyboard = clickTarget.nodeName == "A";
 
-            var pos = used_keyboard ? getElementPos(ae) : getEventPos(e);
-            var lx = pos.x + 5 - 250;
+            var pos = getEventPos(e);
+            var pos_offset = positionedOffset(ae)
+            var diff_x = DOM.findPosX(ae) - pos_offset.x
+            var diff_y = DOM.findPosY(ae) - pos_offset.y
+
+            var lx = pos.x - diff_x + 5 - 250;
             if (lx < 5) lx = 5;
             var de;
 
             if (curPopup && curPopup_id == dItemid) {
                 de = curPopup;
                 de.style.left = lx + "px";
-                de.style.top = (pos.y + 5) + "px";
+                de.style.top = (pos.y - diff_y + 5) + "px";
                 return stopEvent(e);
             }
 
             de = document.createElement("div");
             de.style.textAlign = "left";
-	    de.className = 'ljcmtmanage';
-	    de.style.height = "10px";
+            de.className = 'cmtmanage';
+            de.style.height = "10px";
             de.style.overflow = "hidden";
             de.style.position = "absolute";
             de.style.left = lx + "px";
-            de.style.top = (pos.y + 5) + "px";
+            de.style.top = (pos.y - diff_y + 5) + "px";
             de.style.width = "250px";
             de.style.zIndex = 3;
-  	    regEvent(de, "click", function (e) {
-		e = e || window.event;
+            regEvent(de, "click", function (e) {
+                e = e || window.event;
                 stopBubble(e);
-		return true;
-	    });
+                return true;
+            });
 
             var inHTML = "<form style='display: inline' id='ljdelopts" + dItemid + "'><span style='font-face: Arial; font-size: 8pt'><b>Delete comment?</b><br />";
             var lbl;
@@ -393,7 +411,7 @@ function createDeleteFunction (ae, dItemid) {
                 finalHeight -= 15;
             }
 
-            if (remoteUser != com.u && canAdmin) {
+            if (remoteUser != "" && remoteUser != com.u && canSpam) {
                 lbl = "ljpopdel" + dItemid + "spam";
                 inHTML += "<input type='checkbox' value='spam' id='" + lbl + "'> <label for='" + lbl + "'>Mark this comment as spam</label><br />";
             } else {
@@ -494,7 +512,13 @@ function updateLink (ae, resObj, clickTarget) {
     var did_something = 0;
 
     if (clickTarget && clickTarget.src && clickTarget.src == resObj.oldimage) {
+        clickTarget.setAttribute( 'title', resObj.newalt );
         clickTarget.src = resObj.newimage;
+        did_something = 1;
+    };
+
+    if ( ae && typeof clickTarget == "undefined" ) {
+        ae.innerHTML = resObj.newalt;
         did_something = 1;
     }
 
@@ -508,7 +532,7 @@ function updateLink (ae, resObj, clickTarget) {
         if (ae && ae.style)
             ae.style.display = 'none';
         if (clickTarget && clickTarget.style)
-            clickTarget.style.dispay = 'none';
+            clickTarget.style.display = 'none';
     }
 
 }
@@ -524,8 +548,6 @@ function createModerationFunction (ae, dItemid) {
 
         var clickTarget = getTarget(e);
 
-        var used_keyboard = clickTarget.nodeName == "A";
-
         var imgTarget;
         var imgs = ae.getElementsByTagName("img");
         if (imgs.length)
@@ -534,7 +556,7 @@ function createModerationFunction (ae, dItemid) {
         if (! clickTarget || typeof(clickTarget) != "object")
             return true;
 
-        var clickPos = used_keyboard ? getElementPos(imgTarget || ae) : getEventPos(e);
+        var clickPos = getEventPos(e);
 
         var de = document.createElement("img");
         de.style.position = "absolute";
@@ -558,6 +580,7 @@ function createModerationFunction (ae, dItemid) {
                     poofAt(clickPos);
                     updateLink(ae, resObj, imgTarget);
                     tsInProg[dItemid] = 0;
+
                 } else {
                     tsInProg[dItemid] = 0;
                 }
@@ -570,7 +593,7 @@ function createModerationFunction (ae, dItemid) {
 
         xtr.onreadystatechange = state_callback;
 
-        var postUrl = ae.href.replace(/.+talkscreen\.bml/, "/" + LJ_cmtinfo.journal + "/__rpc_talkscreen");
+        var postUrl = ae.href.replace(/.+talkscreen/, "/" + LJ_cmtinfo.journal + "/__rpc_talkscreen");
 
         //var postUrl = ae.href;
         xtr.open("POST", postUrl + "&jsmode=1", true);
@@ -588,17 +611,17 @@ function setupAjax () {
     var ct = document.links.length;
     for (var i=0; i<ct; i++) {
         var ae = document.links[i];
-        if (ae.href.indexOf("talkscreen.bml") != -1) {
+        if (ae.href.indexOf("talkscreen") != -1) {
             ae.onclick = createModerationFunction(ae, dItemid);
 
-        } else if (ae.href.indexOf("delcomment.bml") != -1) {
+        } else if (ae.href.indexOf("delcomment") != -1) {
 
             var findIDre = /id=(\d+)/;
             var reMatch = findIDre.exec(ae.href);
             if (! reMatch) return true;
 
             var dItemid = reMatch[1];
-            var todel = document.getElementById("ljcmt" + dItemid);
+            var todel = document.getElementById("cmt" + dItemid);
             if (! todel) return true;
 
             if (LJ_cmtinfo && LJ_cmtinfo.disableInlineDelete) continue;
@@ -620,5 +643,5 @@ function regEvent (target, evt, func) {
 if (document.getElementById && getXTR()) {
        regEvent(window, "load", setupAjax);
 	regEvent(document, "click", docClicked);
-        document.write("<style> div.ljcmtmanage { color: #000; background: #e0e0e0; border: 2px solid #000; padding: 3px; }</style>");
+        document.write("<style> div.cmtmanage { color: #000; background: #e0e0e0; border: 2px solid #000; padding: 3px; }</style>");
 }

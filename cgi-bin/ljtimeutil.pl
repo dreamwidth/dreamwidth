@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ;
 use strict;
 
@@ -127,15 +140,8 @@ sub time_to_w3c {
                    $hour, $min, $sec);
 }
 
-# <LJFUNC>
-# name: LJ::mysql_time
-# des:
-# class: time
-# info:
-# args:
-# des-:
-# returns:
-# </LJFUNC>
+# args: time in seconds from epoch; boolean for gmt instead of localtime
+# returns: date and time in ISO format
 sub mysql_time
 {
     my ($time, $gmt) = @_;
@@ -150,41 +156,15 @@ sub mysql_time
                    $ltime[0]);
 }
 
-# <LJFUNC>
-# name: LJ::alldatepart_s1
-# des: Gets date in MySQL format, produces s1dateformat.
-# class: time
-# args:
-# des-:
-# info: s1 dateformat is: "%a %W %b %M %y %Y %c %m %e %d %D %p %i %l %h %k %H"
-#       Sample string: Tue Tuesday Sep September 03 2003 9 09 30 30 30th AM 22 9 09 9 09.
-#       Thu Thursday Oct October 03 2003 10 10 2 02 2nd AM 33 9 09 9 09
-# returns:
-# </LJFUNC>
-sub alldatepart_s1
-{
-    my $time = shift;
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday) =
-        gmtime(LJ::mysqldate_to_time($time, 1));
-    my $ret = "";
-
-    $ret .= LJ::Lang::day_short($wday+1) . " " .
-      LJ::Lang::day_long($wday+1) . " " .
-      LJ::Lang::month_short($mon+1) . " " .
-      LJ::Lang::month_long($mon+1) . " " .
-      sprintf("%02d %04d %d %02d %d %02d %d%s ",
-              $year % 100, $year + 1900, $mon+1, $mon+1,
-              $mday, $mday, $mday, LJ::Lang::day_ord($mday));
-    $ret .= $hour < 12 ? "AM " : "PM ";
-    $ret .= sprintf("%02d %d %02d %d %02d", $min,
-                    ($hour+11)%12 + 1,
-                    ($hour+ 11)%12 +1,
-                    $hour,
-                    $hour);
-
-    return $ret;
+# args: time in seconds from epoch; boolean for gmt instead of localtime
+# returns: date in ISO format
+sub mysql_date {
+    my ( $time, $gmt ) = @_;
+    $time ||= time();
+    my @ltime = $gmt ? gmtime( $time ) : localtime( $time );
+    return sprintf( "%04d-%02d-%02d",
+                    $ltime[5]+1900, $ltime[4]+1, $ltime[3] );
 }
-
 
 # <LJFUNC>
 # name: LJ::alldatepart_s2

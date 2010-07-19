@@ -1,0 +1,694 @@
+#NEWLAYER: crossroads/april
+layerinfo type = "theme";
+layerinfo name = "April";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/april";
+
+#uses color palette "Aria" by Midoriko (http://www.colourlovers.com/palette/115327/Aria)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e9f6ff";
+set color_page_text = "#000";
+set color_page_link = "#F5C242";
+set color_page_link_visited = "#527998";
+set color_page_link_active = "#006";
+set color_page_title = "#000";
+set color_header_background = "#ABCEE4";
+set color_footer_background = "#ABCEE4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#fff";
+set color_entry_title = "#000";
+set color_entry_title_background = "#ABCEE4";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#F9E4A5";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#7299b8";
+set color_module_link_visited = "#426988";
+set color_module_link_active = "#006";
+
+
+#NEWLAYER: crossroads/bittersweet
+layerinfo type = "theme";
+layerinfo name = "Bittersweet";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/bittersweet";
+
+#uses color palette "i'm home again" by dinsdale (http://www.colourlovers.com/palette/130396/im_home_again)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#2B1A1A";
+set color_page_text = "#fff";
+set color_page_link = "#E7CDCE"; 
+set color_page_link_visited = "#979090"; 
+set color_page_link_active = "#ccc";
+set color_page_title = "#fff";
+set color_header_background = "#7A7172";
+set color_footer_background = "#7A7172";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#443738";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#7A7172";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#443738";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#E7CDCE";
+set color_module_link_visited = "#979090";
+set color_module_link_active = "#ccc";
+
+
+#NEWLAYER: crossroads/caramel
+layerinfo type = "theme";
+layerinfo name = "Caramel";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/caramel";
+
+#uses color palette "meow" by pinkpanda0466 (http://www.colourlovers.com/palette/164203/meow)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#FFEFE7";
+set color_page_text = "#000";
+set color_page_link = "#5F4F48"; 
+set color_page_link_visited = "#252525"; 
+set color_page_link_active = "#600";
+set color_page_title = "#fff";
+set color_header_background = "#D89576";
+set color_footer_background = "#D89576";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_title_background = "#D89576";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#D8B2A0";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#5F4F48";
+set color_module_link_visited = "#252525";
+set color_module_link_hover = "";
+set color_module_link_active = "#600";
+
+
+#NEWLAYER: crossroads/charcoalfire
+layerinfo type = "theme";
+layerinfo name = "Charcoal Fire";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/charcoalfire";
+
+#uses color palette "Holy crap!" by JLanphear (http://www.colourlovers.com/palette/41614/Holy_crap!)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#F8F4E9";
+set color_page_text = "#000";
+set color_page_link = "#e14A25"; 
+set color_page_link_visited = "#b11A00"; 
+set color_page_link_active = "#666";
+set color_page_title = "#fff";
+set color_header_background = "#4D4D4D";
+set color_footer_background = "#4D4D4D";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#EBE2D6";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#4D4D4D";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#EBE2D6";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#e14A25";
+set color_module_link_visited = "#b11A00";
+set color_module_link_active = "#666";
+
+
+#NEWLAYER: crossroads/cinnamoncream
+layerinfo type = "theme";
+layerinfo name = "Cinnamon Cream";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/cinnamoncream";
+
+#uses color palette "Vintage Christmas 6" by anglepoiselamp (http://www.colourlovers.com/palette/221715/Vintage_Christmas_6)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#FBF9F0";
+set color_page_text = "#000";
+set color_page_link = "#A80008"; 
+set color_page_link_visited = "#8D1009"; 
+set color_page_link_active = "#c00";
+set color_page_title = "#000";
+set color_header_background = "#D6CCB1";
+set color_footer_background = "#D6CCB1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#E8E4CE";
+set color_entry_title = "#000";
+set color_entry_title_background = "#D6CCB1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#E8E4CE";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#A80008";
+set color_module_link_visited = "#8D1009";
+set color_module_link_active = "#c00";
+
+
+#NEWLAYER: crossroads/coconut
+layerinfo type = "theme";
+layerinfo name = "Coconut";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/coconut";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+#uses color palette "Tropical Summer" by Harbinger (http://www.colourlovers.com/palette/61078/Tropical_Summer)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#F4F2E5";
+set color_page_text = "#000";
+set color_page_link = "#E09813"; 
+set color_page_link_visited = "#413C31"; 
+set color_page_link_active = "#960";
+set color_page_title = "#fff";
+set color_header_background = "#584F41";
+set color_footer_background = "#584F41";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#EAE5CE";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#584F41";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#EAE5CE";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#E09813";
+set color_module_link_visited = "#413C31";
+set color_module_link_active = "#960";
+
+
+#NEWLAYER: crossroads/descendingblue
+layerinfo type = "theme";
+layerinfo name = "Descending Blue";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/descendingblue";
+
+#uses color palette "Blue Heart" by sepme (http://www.colourlovers.com/palette/47333/Blue_Heart)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#B8C3D4";
+set color_page_text = "#000";
+set color_page_link = "#666"; 
+set color_page_link_visited = "#999"; 
+set color_page_link_active = "#009";
+set color_page_title = "#eee";
+set color_header_background = "#020041";
+set color_footer_background = "#020041";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fcfcff";
+set color_entry_border = "#fcfcff";
+set color_entry_title = "#eee";
+set color_entry_title_background = "#020041";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#525B79";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#eee";
+set color_module_link_visited = "#ccc";
+set color_module_link_active = "#000";
+
+
+#NEWLAYER: crossroads/lettuce
+layerinfo type = "theme";
+layerinfo name = "Lettuce";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/lettuce";
+
+#uses the "p r o l o g u e " palette by sugar! (http://www.colourlovers.com/palette/964086/p_r_o_l_o_g_u_e_*)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f3ffe4";
+set color_page_text = "#35372D";
+set color_page_link = "#b23A0B";
+set color_page_link_visited = "#921A00";
+set color_page_link_active = "#c00";
+set color_page_title = "#fff";
+set color_header_background = "#869F78";
+set color_footer_background = "#869F78";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#CCE5B4";
+set color_entry_title = "#000";
+set color_entry_title_background = "#A3C596";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#CCE5B4";
+set color_module_title = "#35372D";
+set color_module_text = "#35372D";
+set color_module_link = "#b23A0B";
+set color_module_link_visited = "#921A00";
+set color_module_link_hover = "";
+set color_module_link_active = "#c00";
+
+
+#NEWLAYER: crossroads/lilac
+layerinfo type = "theme";
+layerinfo name = "Lilac";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/lilac";
+
+#uses color palette "Secksy Purple" by Method264 (http://www.colourlovers.com/palette/12552/Secksy_Purple)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#E9DFEF";
+set color_page_text = "#000";
+set color_page_link = "#8B57A8"; 
+set color_page_link_visited = "#5B2778"; 
+set color_page_link_active = "#006";
+set color_page_title = "#fff";
+set color_header_background = "#BB9BCC";
+set color_footer_background = "#BB9BCC";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#D2BDDE";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#BB9BCC";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#D2BDDE";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#8B57A8";
+set color_module_link_visited = "#5B2778";
+set color_module_link_active = "#006";
+
+
+#NEWLAYER: crossroads/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo author_name = "zvi";
+layerinfo redist_uniq = "crossroads/nnwm2009";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+
+set color_header_background = "#ffefbd";
+
+set color_module_background = "#ffefbd";
+set color_module_text="#000000";
+set color_module_title = "#ef8229";
+
+set color_page_background = "#000000";
+set color_page_border = "#842021";
+set color_page_link = "#429ace";
+set color_page_link_active = "#A5CF39";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#ffffff";
+set color_page_title = "#ef8229";
+
+
+#NEWLAYER: crossroads/oldhoney
+layerinfo type = "theme";
+layerinfo name = "Old Honey";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/oldhoney";
+
+#uses color palette "3 minutes" by despise (http://www.colourlovers.com/palette/11806/3_minutes)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#FEFEE4";
+set color_page_text = "#000";
+set color_page_link = "#7A9B8C"; 
+set color_page_link_visited = "#104B4F"; 
+set color_page_link_active = "#069";
+set color_page_title = "#000";
+set color_header_background = "#D8C159";
+set color_footer_background = "#D8C159";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#FFED96";
+set color_entry_title = "#000";
+set color_entry_title_background = "#D8C159";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#FFED96";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#7A9B8C";
+set color_module_link_visited = "#104B4F";
+set color_module_link_active = "#069";
+
+
+#NEWLAYER: crossroads/orangejulius
+layerinfo type = "theme";
+layerinfo name = "Orange Julius";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/orangejulius";
+
+#uses color palette "sand in the place" by noaco96 (http://www.colourlovers.com/palette/912488/sand_in_the_place)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#F5D9AB";
+set color_page_text = "#000";
+set color_page_link = "#069"; 
+set color_page_link_visited = "#036"; 
+set color_page_link_active = "#096";
+set color_page_title = "#fff";
+set color_header_background = "#E08A34";
+set color_footer_background = "#E08A34";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#F1AE67";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#E08A34";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#F1AE67";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#069";
+set color_module_link_visited = "#036";
+set color_module_link_active = "#096";
+
+
+#NEWLAYER: crossroads/persimmon
+layerinfo type = "theme";
+layerinfo name = "Persimmon";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/persimmon";
+
+#uses color palette "sexy lady" by Alexia (http://www.colourlovers.com/palette/41615/sexy_lady)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#FFE9D8";
+set color_page_text = "#000";
+set color_page_link = "#3F6D8D"; 
+set color_page_link_visited = "#224B62"; 
+set color_page_link_active = "#006";
+set color_page_title = "#fff";
+set color_header_background = "#DC817C";
+set color_footer_background = "#DC817C";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#ECB3AC";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#DC817C";
+set color_entry_interaction_links = "#420";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ECB3AC";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#3F6D8D";
+set color_module_link_visited = "#224B62";
+set color_module_link_active = "#006";
+
+
+#NEWLAYER: crossroads/pineneedles
+layerinfo type = "theme";
+layerinfo name = "Pine Needles";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/pineneedles";
+
+#uses color palette "Musha" by moonaai (http://www.colourlovers.com/palette/912341/Musha)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#020E0C";
+set color_page_text = "#fff";
+set color_page_link = "#fDe6c4"; 
+set color_page_link_visited = "#cDb684"; 
+set color_page_link_active = "#F2AB69";
+set color_page_title = "#fff";
+set color_header_background = "#466253";
+set color_footer_background = "#466253";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#0B291F";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#466253";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#0B291F";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#fDe6c4";
+set color_module_link_visited = "#cDb684";
+set color_module_link_active = "#F2AB69";
+
+
+#NEWLAYER: crossroads/sherbert
+layerinfo type = "theme";
+layerinfo name = "Sherbert";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/sherbert";
+
+#uses color palette "believable response" by tnasis33 (p://www.colourlovers.com/palette/968808/believable_response)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#FEDDB2";
+set color_page_text = "#000";
+set color_page_link = "#8A6E60"; 
+set color_page_link_visited = "#380F15"; 
+set color_page_link_active = "#009";
+set color_page_title = "#fff";
+set color_header_background = "#E2ADB5";
+set color_footer_background = "#E2ADB5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#FFF3C3";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#E2ADB5";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#FFF3C3";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#8A6E60";
+set color_module_link_visited = "#380F15";
+set color_module_link_active = "#009";
+
+
+#NEWLAYER: crossroads/sky
+layerinfo type = "theme";
+layerinfo name = "Sky";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/sky";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+#uses color palette "Destined For Nothing" by Morriconei (http://www.colourlovers.com/palette/155638/Destined_For_Nothing)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#D8DFE7";
+set color_page_text = "#420";
+set color_page_link = "#583B3B"; 
+set color_page_link_visited = "#726161"; 
+set color_page_link_active = "#1F305C";
+set color_page_title = "#fff";
+set color_header_background = "#B5CCE6";
+set color_footer_background = "#B5CCE6";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#B5CCE6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#BBCCDF";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#583B3B";
+set color_module_link_visited = "#726161";
+set color_module_link_active = "#1F305C";
+
+
+#NEWLAYER: crossroads/spearmintice
+layerinfo type = "theme";
+layerinfo name = "Spearmint Ice";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "crossroads/spearmintice";
+
+#uses color palette "Hopeful Ghost" by manekineko (http://www.colourlovers.com/palette/137562/Hopeful_Ghost)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#E6EDEA";
+set color_page_text = "#000";
+set color_page_link = "#A3BCB3"; 
+set color_page_link_visited = "#81968E"; 
+set color_page_link_active = "#060";
+set color_page_title = "#fff";
+set color_header_background = "#A3BCB3";
+set color_footer_background = "#A3BCB3";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#B1C6BE";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#A3BCB3";
+set color_entry_interaction_links = "#EFF3F1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#B1C6BE";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#EFF3F1";
+set color_module_link_visited = "#EFF3F1";
+set color_module_link_active = "#000";

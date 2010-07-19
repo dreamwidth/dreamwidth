@@ -8,13 +8,23 @@ CreateAccount.init = function () {
     if (!$('create_bday_dd')) return;
     if (!$('create_bday_yyyy')) return;
 
-    DOM.addEventListener($('create_user'), "focus", CreateAccount.showTip.bindEventListener("create_user"));
-    DOM.addEventListener($('create_email'), "focus", CreateAccount.showTip.bindEventListener("create_email"));
-    DOM.addEventListener($('create_password1'), "focus", CreateAccount.showTip.bindEventListener("create_password1"));
-    DOM.addEventListener($('create_password2'), "focus", CreateAccount.showTip.bindEventListener("create_password1"));
-    DOM.addEventListener($('create_bday_mm'), "focus", CreateAccount.showTip.bindEventListener("create_bday_mm"));
-    DOM.addEventListener($('create_bday_dd'), "focus", CreateAccount.showTip.bindEventListener("create_bday_mm"));
-    DOM.addEventListener($('create_bday_yyyy'), "focus", CreateAccount.showTip.bindEventListener("create_bday_mm"));
+    CreateAccount.bubbleid = "";
+
+    DOM.addEventListener($('create_user'), "focus", CreateAccount.eventShowTip.bindEventListener("create_user"));
+    DOM.addEventListener($('create_email'), "focus", CreateAccount.eventShowTip.bindEventListener("create_email"));
+    DOM.addEventListener($('create_password1'), "focus", CreateAccount.eventShowTip.bindEventListener("create_password1"));
+    DOM.addEventListener($('create_password2'), "focus", CreateAccount.eventShowTip.bindEventListener("create_password1"));
+    DOM.addEventListener($('create_bday_mm'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+    DOM.addEventListener($('create_bday_dd'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+    DOM.addEventListener($('create_bday_yyyy'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+
+    DOM.addEventListener($('create_user'), "blur", CreateAccount.eventHideTip.bindEventListener("create_user"));
+    DOM.addEventListener($('create_email'), "blur", CreateAccount.eventHideTip.bindEventListener("create_email"));
+    DOM.addEventListener($('create_password1'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
+    DOM.addEventListener($('create_password2'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
+    DOM.addEventListener($('create_bday_mm'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+    DOM.addEventListener($('create_bday_dd'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+    DOM.addEventListener($('create_bday_yyyy'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
 
     if (!$('username_check')) return;
     if (!$('username_error')) return;
@@ -22,50 +32,69 @@ CreateAccount.init = function () {
     DOM.addEventListener($('create_user'), "blur", CreateAccount.checkUsername);
 }
 
-CreateAccount.showTip = function (evt) {
+CreateAccount.eventShowTip = function () {
     var id = this + "";
+    CreateAccount.id = id;
+    CreateAccount.showTip(id);
+}
 
-    var x = DOM.findPosX($(id));
-    var y = DOM.findPosY($(id));
+CreateAccount.eventHideTip = function () {
+    var id = this + "";
+    CreateAccount.id = id;
+    CreateAccount.hideTip(id);
+}
 
-    var text;
+CreateAccount.showTip = function (id) {
+    if (!id) return;
+
+    var drop, arrowdrop, text;
+
+    // Create the location for the tooltip
     if (id == "create_bday_mm") {
         text = CreateAccount.birthdate;
+        drop = 40;
+        arrowdrop = 53;
     } else if (id == "create_email") {
         text = CreateAccount.email;
+        drop = 10;
+        arrowdrop = 13;
     } else if (id == "create_password1") {
         text = CreateAccount.password;
+        drop = 20;
+        arrowdrop = 24;
     } else if (id == "create_user") {
         text = CreateAccount.username;
+        drop = 0;
+        arrowdrop = 3;
     }
 
-    if ($('tips_box') && $('tips_box_arrow')) {
-        // Firefox on Mac and IE6 need to be over to the right more than other browsers
-        var browser = new BrowserDetectLite();
-        var x_offset = 0;
-        if (browser.isGecko && browser.isMac) {
-            x_offset = 100;
-        } else if (browser.isIE6x) {
-            x_offset = 50;
-        }
+    var box = $('tips_box'), box_arr = $('tips_box_arrow');
+    if (box && box_arr) {
+        box.innerHTML = text;
 
-        $('tips_box').innerHTML = text;
+        box.style.top = drop + "%";
+        box.style.display = "block";
+        box.style.visibility = "visible";
 
-        $('tips_box').style.left = x + 160 + x_offset + "px";
-        $('tips_box').style.top = y - 188 + "px";
-        $('tips_box').style.display = "block";
-
-        $('tips_box_arrow').style.left = x + 149 + x_offset + "px";
-        $('tips_box_arrow').style.top = y - 183 + "px";
-        $('tips_box_arrow').style.display = "block";
+        box_arr.style.top = arrowdrop + "%";
+        box_arr.style.display = "block";
     }
+}
+
+CreateAccount.hideTip = function (id) {
+    if (!id) return;
+
+    // Set the tip to the empty string instead of just relying
+    // on CSS to maximize accessibility
+    $('tips_box').style.visibility = "hidden";
+    $('tips_box').innerHTML = "";
 }
 
 CreateAccount.checkUsername = function () {
     if ($('create_user').value == "") return;
 
     HTTPReq.getJSON({
-        url: "/tools/endpoints/checkforusername.bml?user=" + $('create_user').value,
+        url: "/tools/endpoints/checkforusername?user=" + $('create_user').value,
         method: "GET",
         onData: function (data) {
             if (data.error) {
@@ -74,12 +103,15 @@ CreateAccount.checkUsername = function () {
                 $('username_error_inner').innerHTML = data.error;
                 $('username_check').style.display = "none";
                 $('username_error').style.display = "inline";
+                $('create_user').setAttribute("aria-invalid", "true");
             } else {
                 if ($('username_error_main')) $('username_error_main').style.display = "none";
 
                 $('username_error').style.display = "none";
                 $('username_check').style.display = "inline";
+                $('create_user').setAttribute("aria-invalid", "false");
             }
+            CreateAccount.showTip(CreateAccount.id); // recalc
         },
         onError: function (msg) { }
     }); 

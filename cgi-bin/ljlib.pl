@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ;
 
 use strict;
@@ -15,7 +28,27 @@ BEGIN {
         unless $LJ::HOME && -d $LJ::HOME;
 }
 
+# now that the library is setup, we can start pulling things in.  start with
+# the configuration library we need.
 use lib "$LJ::HOME/cgi-bin";
+use LJ::Config;
+
+BEGIN {
+    # mod_perl does this early too, make sure we do as well
+    LJ::Config->load;
+
+    # arch support has to be done pretty early
+    if ( $LJ::ARCH32 ) {
+        $LJ::ARCH = 32;
+        $LJ::LOGMEMCFMT = 'NNNLN';
+        $LJ::PUBLICBIT = 2 ** 31;
+    } else {
+        $LJ::ARCH32 = 0;
+        $LJ::ARCH = 64;
+        $LJ::LOGMEMCFMT = 'NNNQN';
+        $LJ::PUBLICBIT = 2 ** 63;
+    }
+}
 
 use Apache2::Connection ();
 use Carp;
@@ -24,6 +57,7 @@ use DBI::Role;
 use Digest::MD5 ();
 use Digest::SHA1 ();
 use HTTP::Date ();
+use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
 use LJ::User;      # has a bunch of pkg LJ, non-OO methods at bottom
@@ -32,30 +66,27 @@ use LJ::Constants;
 use Time::Local ();
 use Storable ();
 use Compress::Zlib ();
-use Class::Autouse qw(
-                      DW::Request
-                      TheSchwartz
-                      TheSchwartz::Job
-                      LJ::AdTargetedInterests
-                      LJ::Comment
-                      LJ::Config
-                      LJ::Knob
-                      LJ::ExternalSite
-                      LJ::ExternalSite::Vox
-                      LJ::Message
-                      LJ::EventLogSink
-                      LJ::PageStats
-                      LJ::AccessLogSink
-                      LJ::ConvUTF8
-                      LJ::Userpic
-                      LJ::ModuleCheck
-                      IO::Socket::INET
-                      LJ::UniqCookie
-                      LJ::WorkerResultStorage
-                      LJ::EventLogRecord
-                      LJ::EventLogRecord::DeleteComment
-                      LJ::Vertical
-                      );
+use DW::Request;
+use TheSchwartz;
+use TheSchwartz::Job;
+use LJ::Comment;
+use LJ::ExternalSite;
+use LJ::Message;
+use LJ::PageStats;
+use LJ::AccessLogSink;
+use LJ::ConvUTF8;
+use LJ::Userpic;
+use LJ::ModuleCheck;
+use IO::Socket::INET;
+use LJ::UniqCookie;
+use LJ::WorkerResultStorage;
+use LJ::EventLogRecord;
+use LJ::EventLogRecord::DeleteComment;
+use DW::External::Account;
+use DW::External::User;
+use DW::Logic::LogItems;
+use LJ::CleanHTML;
+use DW::LatestFeed;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
@@ -65,8 +96,6 @@ sub Unicode::MapUTF8::AUTOLOAD {
     no strict 'refs';
     goto *{$Unicode::MapUTF8::AUTOLOAD}{CODE};
 }
-
-LJ::Config->load;
 
 sub END { LJ::end_request(); }
 
@@ -79,38 +108,35 @@ sub END { LJ::end_request(); }
                     "talk2", "talkprop2", "talktext2", "talkleft",
                     "userpicblob2", "subs", "subsprop", "has_subs",
                     "ratelog", "loginstall", "sessions", "sessions_data",
-                    "s1usercache", "modlog", "modblob",
-                    "userproplite2", "links", "s1overrides", "s1style",
-                    "s1stylecache", "userblob", "userpropblob",
+                    "modlog", "modblob", "userproplite2", "links",
+                    "userblob", "userpropblob",
                     "clustertrack2", "captcha_session", "reluser2",
                     "tempanonips", "inviterecv", "invitesent",
                     "memorable2", "memkeyword2", "userkeywords",
-                    "friendgroup2", "userpicmap2", "userpic2",
+                    "trust_groups", "userpicmap2", "userpic2",
                     "s2stylelayers2", "s2compiled2", "userlog",
                     "logtags", "logtagsrecent", "logkwsum",
                     "recentactions", "usertags", "pendcomments",
-                    "user_schools", "portal_config", "portal_box_prop",
-                    "loginlog", "active_user", "userblobcache",
-                    "notifyqueue", "cprod", "urimap",
-                    "sms_msg", "sms_msgprop", "sms_msgack",
-                    "sms_msgtext", "sms_msgerror",
+                    "loginlog", "active_user",
+                    "notifyqueue", "cprod", "blobcache",
                     "jabroster", "jablastseen", "random_user_set",
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2",
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
-                    "notifyarchive", "notifybookmarks",
+                    "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
+                    "logprop_history", "import_status", "externalaccount",
+                    "content_filters", "content_filter_data",
                     );
 
 # keep track of what db locks we have out
 %LJ::LOCK_OUT = (); # {global|user} => caller_with_lock
 
 require "ljdb.pl";
-require "taglib.pl";
+use LJ::Tags;
 require "ljtextutil.pl";
 require "ljtimeutil.pl";
 require "ljcapabilities.pl";
-require "ljmood.pl";
-require "ljhooks.pl";
+use DW::Mood;
 require "ljrelation.pl";
 require "ljuserpics.pl";
 
@@ -130,32 +156,26 @@ LJ::MemCache::init();
 $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
 
 # declare views (calls into ljviews.pl)
-@LJ::views = qw(lastn friends calendar day);
+@LJ::views = qw(lastn read archive day);
 %LJ::viewinfo = (
                  "lastn" => {
-                     "creator" => \&LJ::S1::create_view_lastn,
                      "des" => "Most Recent Events",
                  },
-                 "calendar" => {
-                     "creator" => \&LJ::S1::create_view_calendar,
-                     "des" => "Calendar",
+                 "archive" => {
+                     "des" => "Archive",
                  },
                  "day" => {
-                     "creator" => \&LJ::S1::create_view_day,
                      "des" => "Day View",
                  },
-                 "friends" => {
-                     "creator" => \&LJ::S1::create_view_friends,
-                     "des" => "Friends View",
+                 "read" => {
+                     "des" => "Reading Page",
                      "owner_props" => ["opt_usesharedpic", "friendspagetitle"],
                  },
-                 "friendsfriends" => {
-                     "creator" => \&LJ::S1::create_view_friends,
-                     "des" => "Friends of Friends View",
-                     "styleof" => "friends",
+                 "network" => {
+                     "des" => "Network View",
+                     "styleof" => "read",
                  },
                  "data" => {
-                     "creator" => \&LJ::Feed::create_view,
                      "des" => "Data View (RSS, etc.)",
                      "owner_props" => ["opt_whatemailshow", "no_mail_alias"],
                  },
@@ -165,16 +185,13 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                  "res" => {
                      "des" => "S2-specific resources (stylesheet)",
                  },
-                 "pics" => {
-                     "des" => "FotoBilder pics (root gallery)",
-                 },
                  "info" => {
-                     # just a redirect to userinfo.bml for now.
+                     # just a redirect to profile.bml for now.
                      # in S2, will be a real view.
                      "des" => "Profile Page",
                  },
                  "profile" => {
-                     # just a redirect to userinfo.bml for now.
+                     # just a redirect to profile.bml for now.
                      # in S2, will be a real view.
                      "des" => "Profile Page",
                  },
@@ -189,6 +206,9 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                      # real solution is some sort of better nav
                      # within journal styles.
                      "des" => "Update Journal",
+                 },
+                 "icons" => {
+                    "des" => "Icons",
                  },
                  );
 
@@ -227,7 +247,6 @@ sub get_blob_domainid
         "phonepost" => 2,
         "captcha_audio" => 3,
         "captcha_image" => 4,
-        "fotobilder" => 5,
     }->{$name};
     # FIXME: add hook support, so sites can't define their own
     # general code gets priority on numbers, say, 1-200, so verify
@@ -237,7 +256,7 @@ sub get_blob_domainid
 }
 
 sub _using_blockwatch {
-    if (LJ::conf_test($LJ::DISABLED{blockwatch})) {
+    unless ( LJ::is_enabled('blockwatch') ) {
         # Config override to disable blockwatch.
         return 0;
     }
@@ -321,41 +340,25 @@ sub mogclient {
 }
 
 sub theschwartz {
-    return LJ::Test->theschwartz() if $LJ::_T_FAKESCHWARTZ;
-    return $LJ::SchwartzClient     if $LJ::SchwartzClient;
+    return LJ::Test->theschwartz(@_) if $LJ::_T_FAKESCHWARTZ;
 
     my $opts = shift;
 
-    my $mode = $opts->{mode} || "";
-    my @dbs = @LJ::THESCHWARTZ_DBS;
-    push @dbs, @LJ::THESCHWARTZ_DBS_NOINJECT if $mode eq "drain";
+    my $role = $opts->{role} || "default";
 
-    if (@dbs) {
-        # FIXME: use LJ's DBI::Role system for this.
-        $LJ::SchwartzClient = TheSchwartz->new(databases => \@dbs);
+    return $LJ::SchwartzClient{$role} if $LJ::SchwartzClient{$role};
+
+    unless (scalar grep { defined $_->{role} } @LJ::THESCHWARTZ_DBS) { # old config
+        $LJ::SchwartzClient{$role} = TheSchwartz->new(databases => \@LJ::THESCHWARTZ_DBS);
+        return $LJ::SchwartzClient{$role};
     }
 
-    return $LJ::SchwartzClient;
-}
+    my @dbs = grep { $_->{role}->{$role} } @LJ::THESCHWARTZ_DBS;
+    die "Unknown role in LJ::theschwartz: '$role'" unless @dbs;
 
-sub sms_gateway {
-    my $conf_key = shift;
+    $LJ::SchwartzClient{$role} = TheSchwartz->new(databases => \@dbs);
 
-    # effective config key is 'default' if one wasn't specified or nonexistent
-    # config was specified, meaning fall back to default
-    unless ($conf_key && $LJ::SMS_GATEWAY_CONFIG{$conf_key}) {
-        $conf_key = 'default';
-    }
-
-    return $LJ::SMS_GATEWAY{$conf_key} ||= do {
-        my $class = "DSMS::Gateway" .
-            ($LJ::SMS_GATEWAY_TYPE ? "::$LJ::SMS_GATEWAY_TYPE" : "");
-
-        eval "use $class";
-        die "unable to use $class: $@" if $@;
-
-        $class->new(config => $LJ::SMS_GATEWAY_CONFIG{$conf_key});
-    };
+    return $LJ::SchwartzClient{$role};
 }
 
 sub gtop {
@@ -363,24 +366,6 @@ sub gtop {
     return $GTop ||= GTop->new;
 }
 
-# <LJFUNC>
-# name: LJ::get_newids
-# des: Lookup an old global ID and see what journal it belongs to and its new ID.
-# info: Interface to [dbtable[oldids]] table (URL compatability)
-# returns: Undef if non-existent or unconverted, or arrayref of [$userid, $newid].
-# args: area, oldid
-# des-area: The "area" of the id.  Legal values are "L" (log), to lookup an old itemid,
-#           or "T" (talk) to lookup an old talkid.
-# des-oldid: The old globally-unique id of the item.
-# </LJFUNC>
-sub get_newids
-{
-    my $sth;
-    my $db = LJ::get_dbh("oldids") || LJ::get_db_reader();
-    return $db->selectrow_arrayref("SELECT userid, newid FROM oldids ".
-                                   "WHERE area=? AND oldid=?", undef,
-                                   $_[0], $_[1]);
-}
 
 # <LJFUNC>
 # name: LJ::get_timeupdate_multi
@@ -395,7 +380,7 @@ sub get_timeupdate_multi {
     my ($opt, @uids) = @_;
 
     # allow optional opt hashref as first argument
-    unless (ref $opt eq 'HASH') {
+    if ( $opt && ref $opt ne 'HASH' ) {
         push @uids, $opt;
         $opt = {};
     }
@@ -435,583 +420,79 @@ sub get_timeupdate_multi {
     return \%timeupdate;
 }
 
-# <LJFUNC>
-# name: LJ::get_friend_items
-# des: Return friend items for a given user, filter, and period.
-# args: dbarg?, opts
-# des-opts: Hashref of options:
-#           - userid
-#           - remoteid
-#           - itemshow
-#           - skip
-#           - filter  (opt) defaults to all
-#           - friends (opt) friends rows loaded via [func[LJ::get_friends]]
-#           - friends_u (opt) u objects of all friends loaded
-#           - idsbycluster (opt) hashref to set clusterid key to [ [ journalid, itemid ]+ ]
-#           - dateformat:  either "S2" for S2 code, or anything else for S1
-#           - common_filter:  set true if this is the default view
-#           - friendsoffriends: load friends of friends, not just friends
-#           - u: hashref of journal loading friends of
-#           - showtypes: /[PICNY]/
-# returns: Array of item hashrefs containing the same elements
-# </LJFUNC>
-sub get_friend_items
-{
-    &nodb;
-    my $opts = shift;
 
+# <LJFUNC>
+# name: LJ::get_times_multi
+# des: Get the last update time and time create.
+# args: opt?, uids
+# des-opt: optional hashref, currently can contain 'memcache_only'
+#          to only retrieve data from memcache
+# des-uids: list of userids to load timeupdate and timecreate for
+# returns: hashref; uid => {timeupdate => unix timeupdate, timecreate => unix timecreate}
+# </LJFUNC>
+sub get_times_multi {
+    my ($opt, @uids) = @_;
+
+    # allow optional opt hashref as first argument
+    unless (ref $opt eq 'HASH') {
+        push @uids, $opt;
+        $opt = {};
+    }
+    return {} unless @uids;
+
+    my @memkeys = map { [$_, "tu:$_"], [$_, "tc:$_"] } @uids;
+    my $mem = LJ::MemCache::get_multi(@memkeys) || {};
+
+    my @need  = ();
+    my %times = ();
+    foreach my $uid (@uids) {
+        my ($tc, $tu) = ('', '');
+        if ($tu = $mem->{"tu:$uid"}) {
+            $times{updated}->{$uid} = unpack("N", $tu);
+        }
+        if ($tc = $mem->{"tc:$_"}){
+            $times{created}->{$_} = $tc;
+        }
+
+        push @need => $uid
+            unless $tc and $tu;
+    }
+
+    # if everything was in memcache, return now
+    return \%times if $opt->{'memcache_only'} or not @need;
+
+    # fill in holes from the database.  safe to use the reader because we
+    # only do an add to memcache, whereas postevent does a set, overwriting
+    # any potentially old data
     my $dbr = LJ::get_db_reader();
-    my $sth;
+    my $need_bind = join(",", map { "?" } @need);
 
-    my $userid = $opts->{'userid'}+0;
-    return () if $LJ::FORCE_EMPTY_FRIENDS{$userid};
+    # Fetch timeupdate and timecreate from DB.
+    # Timecreate is loaded in pre-emptive goals.
+    # This is tiny optimization for 'get_timecreate_multi',
+    # which is called right after this method during
+    # friends page generation.
+    my $sth = $dbr->prepare("
+        SELECT userid,
+               UNIX_TIMESTAMP(timeupdate),
+               UNIX_TIMESTAMP(timecreate)
+        FROM   userusage
+        WHERE
+               userid IN ($need_bind)");
+    $sth->execute(@need);
+    while (my ($uid, $tu, $tc) = $sth->fetchrow_array){
+        $times{updated}->{$uid} = $tu;
+        $times{created}->{$uid} = $tc;
 
-    # 'remote' opt takes precedence, then 'remoteid'
-    my $remote = $opts->{'remote'};
-    my $remoteid = $remote ? $remote->{'userid'} : 0;
-    if ($remoteid == 0 && $opts->{'remoteid'}) {
-        $remoteid = $opts->{'remoteid'} + 0;
-        $remote = LJ::load_userid($remoteid);
+        # set memcache for this row
+        LJ::MemCache::add([$uid, "tu:$uid"], pack("N", $tu), 30*60);
+        # set this for future use
+        LJ::MemCache::add([$uid, "tc:$uid"], $tc, 60*60*24); # as in LJ::User->timecreate
     }
 
-    # if ONLY_USER_VHOSTS is on (where each user gets his/her own domain),
-    # then assume we're also using domain-session cookies, and assume
-    # domain session cookies should be as most useless as possible,
-    # so don't let friends pages on other domains have protected content
-    # because really, nobody reads other people's friends pages anyway
-    if ($LJ::ONLY_USER_VHOSTS && $remote && $remoteid != $userid) {
-        $remote = undef;
-        $remoteid = 0;
-    }
-
-    my @items = ();
-    my $itemshow = $opts->{'itemshow'}+0;
-    my $skip = $opts->{'skip'}+0;
-    my $getitems = $itemshow + $skip;
-
-    my $filter = $opts->{'filter'}+0;
-
-    my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600*24*14;  # 2 week default.
-    my $lastmax = $LJ::EndOfTime - time() + $max_age;
-    my $lastmax_cutoff = 0; # if nonzero, never search for entries with rlogtime higher than this (set when cache in use)
-
-    # sanity check:
-    $skip = 0 if $skip < 0;
-
-    # given a hash of friends rows, strip out rows with invalid journaltype
-    my $filter_journaltypes = sub {
-        my ($friends, $friends_u, $memcache_only, $valid_types) = @_;
-        return unless $friends && $friends_u;
-        $valid_types ||= uc($opts->{'showtypes'});
-
-        # load u objects for all the given
-        LJ::load_userids_multiple([ map { $_, \$friends_u->{$_} } keys %$friends ], [$remote],
-                                  $memcache_only);
-
-        # delete u objects based on 'showtypes'
-        foreach my $fid (keys %$friends_u) {
-            my $fu = $friends_u->{$fid};
-            if ($fu->{'statusvis'} ne "V" ||
-                $valid_types && index(uc($valid_types), $fu->{journaltype}) == -1)
-            {
-                delete $friends_u->{$fid};
-                delete $friends->{$fid};
-            }
-        }
-
-        # all args passed by reference
-        return;
-    };
-
-    my @friends_buffer = ();
-    my $fr_loaded = 0;  # flag:  have we loaded friends?
-
-    # normal friends mode
-    my $get_next_friend = sub
-    {
-        # return one if we already have some loaded.
-        return $friends_buffer[0] if @friends_buffer;
-        return undef if $fr_loaded;
-
-        # get all friends for this user and groupmask
-        my $friends = LJ::get_friends($userid, $filter) || {};
-        my %friends_u;
-
-        # strip out rows with invalid journal types
-        $filter_journaltypes->($friends, \%friends_u);
-
-        # get update times for all the friendids
-        my $tu_opts = {};
-        my $fcount = scalar keys %$friends;
-        if ($LJ::SLOPPY_FRIENDS_THRESHOLD && $fcount > $LJ::SLOPPY_FRIENDS_THRESHOLD) {
-            $tu_opts->{memcache_only} = 1;
-        }
-        my $timeupdate = LJ::get_timeupdate_multi($tu_opts, keys %$friends);
-
-        # now push a properly formatted @friends_buffer row
-        foreach my $fid (keys %$timeupdate) {
-            my $fu = $friends_u{$fid};
-            my $rupdate = $LJ::EndOfTime - $timeupdate->{$fid};
-            my $clusterid = $fu->{'clusterid'};
-            push @friends_buffer, [ $fid, $rupdate, $clusterid, $friends->{$fid}, $fu ];
-        }
-
-        @friends_buffer = sort { $a->[1] <=> $b->[1] } @friends_buffer;
-
-        # note that we've already loaded the friends
-        $fr_loaded = 1;
-
-        # return one if we just found some, else we're all
-        # out and there's nobody else to load.
-        return @friends_buffer ? $friends_buffer[0] : undef;
-    };
-
-    # memcached friends of friends mode
-    $get_next_friend = sub
-    {
-        # return one if we already have some loaded.
-        return $friends_buffer[0] if @friends_buffer;
-        return undef if $fr_loaded;
-
-        # get journal's friends
-        my $friends = LJ::get_friends($userid) || {};
-        return undef unless %$friends;
-
-        my %friends_u;
-
-        # fill %allfriends with all friendids and cut $friends
-        # down to only include those that match $filter
-        my %allfriends = ();
-        foreach my $fid (keys %$friends) {
-            $allfriends{$fid}++;
-
-            # delete from friends if it doesn't match the filter
-            next unless $filter && ! ($friends->{$fid}->{'groupmask'}+0 & $filter+0);
-            delete $friends->{$fid};
-        }
-
-        # strip out invalid friend journaltypes
-        $filter_journaltypes->($friends, \%friends_u, "memcache_only", "P");
-
-        # get update times for all the friendids
-        my $f_tu = LJ::get_timeupdate_multi({'memcache_only' => 1}, keys %$friends);
-
-        # get friends of friends
-        my $ffct = 0;
-        my %ffriends = ();
-        foreach my $fid (sort { $f_tu->{$b} <=> $f_tu->{$a} } keys %$friends) {
-            last if $ffct > 50;
-            my $ff = LJ::get_friends($fid, undef, "memcache_only") || {};
-            my $ct = 0;
-            while (my $ffid = each %$ff) {
-                last if $ct > 100;
-                next if $allfriends{$ffid} || $ffid == $userid;
-                $ffriends{$ffid} = $ff->{$ffid};
-                $ct++;
-            }
-            $ffct++;
-        }
-
-        # strip out invalid friendsfriends journaltypes
-        my %ffriends_u;
-        $filter_journaltypes->(\%ffriends, \%ffriends_u, "memcache_only");
-
-        # get update times for all the friendids
-        my $ff_tu = LJ::get_timeupdate_multi({'memcache_only' => 1}, keys %ffriends);
-
-        # build friends buffer
-        foreach my $ffid (sort { $ff_tu->{$b} <=> $ff_tu->{$a} } keys %$ff_tu) {
-            my $rupdate = $LJ::EndOfTime - $ff_tu->{$ffid};
-            my $clusterid = $ffriends_u{$ffid}->{'clusterid'};
-
-            # since this is ff mode, we'll force colors to ffffff on 000000
-            $ffriends{$ffid}->{'fgcolor'} = "#000000";
-            $ffriends{$ffid}->{'bgcolor'} = "#ffffff";
-
-            push @friends_buffer, [ $ffid, $rupdate, $clusterid, $ffriends{$ffid}, $ffriends_u{$ffid} ];
-        }
-
-        @friends_buffer = sort { $a->[1] <=> $b->[1] } @friends_buffer;
-
-        # note that we've already loaded the friends
-        $fr_loaded = 1;
-
-        # return one if we just found some fine, else we're all
-        # out and there's nobody else to load.
-        return @friends_buffer ? $friends_buffer[0] : undef;
-
-    } if $opts->{'friendsoffriends'} && @LJ::MEMCACHE_SERVERS;
-
-    # old friends of friends mode
-    # - use this when there are no memcache servers
-    $get_next_friend = sub
-    {
-        # return one if we already have some loaded.
-        return $friends_buffer[0] if @friends_buffer;
-        return undef if $fr_loaded;
-
-        # load all user's friends
-        # TAG:FR:ljlib:old_friendsfriends_getitems
-        my %f;
-        my $sth = $dbr->prepare(qq{
-            SELECT f.friendid, f.groupmask, $LJ::EndOfTime-UNIX_TIMESTAMP(uu.timeupdate),
-            u.journaltype FROM friends f, userusage uu, user u
-            WHERE f.userid=? AND f.friendid=uu.userid AND u.userid=f.friendid AND u.journaltype='P'
-        });
-        $sth->execute($userid);
-        while (my ($id, $mask, $time, $jt) = $sth->fetchrow_array) {
-            next if $id == $userid; # don't follow user's own friends
-            $f{$id} = { 'userid' => $id, 'timeupdate' => $time, 'jt' => $jt,
-                        'relevant' => ($filter && !($mask & $filter)) ? 0 : 1 , };
-        }
-
-        # load some friends of friends (most 20 queries)
-        my %ff;
-        my $fct = 0;
-        foreach my $fid (sort { $f{$a}->{'timeupdate'} <=> $f{$b}->{'timeupdate'} } keys %f)
-        {
-            next unless $f{$fid}->{'jt'} eq "P" && $f{$fid}->{'relevant'};
-            last if ++$fct > 20;
-            my $extra;
-            if ($opts->{'showtypes'}) {
-                my @in;
-                if ($opts->{'showtypes'} =~ /P/) { push @in, "'P'"; }
-                if ($opts->{'showtypes'} =~ /Y/) { push @in, "'Y'"; }
-                if ($opts->{'showtypes'} =~ /C/) { push @in, "'C','S','N'"; }
-                $extra = "AND u.journaltype IN (".join (',', @in).")" if @in;
-            }
-
-            # TAG:FR:ljlib:old_friendsfriends_getitems2
-            my $sth = $dbr->prepare(qq{
-                SELECT u.*, UNIX_TIMESTAMP(uu.timeupdate) AS timeupdate
-                FROM friends f, userusage uu, user u WHERE f.userid=? AND
-                    f.friendid=uu.userid AND f.friendid=u.userid AND u.statusvis='V' $extra
-                    AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 14 DAY) LIMIT 100
-            });
-            $sth->execute($fid);
-            while (my $u = $sth->fetchrow_hashref) {
-                my $uid = $u->{'userid'};
-                next if $f{$uid} || $uid == $userid;  # we don't wanna see our friends
-
-                # timeupdate
-                my $time = $LJ::EndOfTime-$u->{'timeupdate'};
-                delete $u->{'timeupdate'}; # not a proper $u column
-
-                $ff{$uid} = [ $uid, $time, $u->{'clusterid'}, {}, $u ];
-            }
-        }
-
-        @friends_buffer = sort { $a->[1] <=> $b->[1] } values %ff;
-        $fr_loaded = 1;
-
-        return @friends_buffer ? $friends_buffer[0] : undef;
-
-    } if $opts->{'friendsoffriends'} && ! @LJ::MEMCACHE_SERVERS;
-
-    my $loop = 1;
-    my $itemsleft = $getitems;  # even though we got a bunch, potentially, they could be old
-    my $fr;
-
-    while ($loop && ($fr = $get_next_friend->()))
-    {
-        shift @friends_buffer;
-
-        # load the next recent updating friend's recent items
-        my $friendid = $fr->[0];
-
-        $opts->{'friends'}->{$friendid} = $fr->[3];  # friends row
-        $opts->{'friends_u'}->{$friendid} = $fr->[4]; # friend u object
-
-        my @newitems = LJ::get_log2_recent_user({
-            'clusterid' => $fr->[2],
-            'userid' => $friendid,
-            'remote' => $remote,
-            'itemshow' => $itemsleft,
-            'notafter' => $lastmax,
-            'dateformat' => $opts->{'dateformat'},
-            'update' => $LJ::EndOfTime - $fr->[1], # reverse back to normal
-        });
-
-        # stamp each with clusterid if from cluster, so ljviews and other
-        # callers will know which items are old (no/0 clusterid) and which
-        # are new
-        if ($fr->[2]) {
-            foreach (@newitems) { $_->{'clusterid'} = $fr->[2]; }
-        }
-
-        my $nextfr;
-
-        if (@newitems)
-        {
-            push @items, @newitems;
-
-            # For the next user, we need one event less for each event in
-            # @newitems that we're sure to keep, that is, with a logtime that
-            # makes it more recent than the "last updated" timestamp for the
-            # next user. This is usually at least 1, but if the most recent
-            # entry for the user retrieved in the previous round is invisible
-            # to $remote (or it's not $remote's friends page), it should be 0.
-            # Otherwise, excessive pruning may occur. See
-            # http://www.dreamwidth.org/show_bug.cgi?id=86.
-            #
-            # Note that this can in some cases prune more aggressively than was
-            # previously the case, if logtimes indicate that more than one
-            # entry in @newitems is guaranteed to be kept. Also note that this
-            # is a separate optimization than the one further down involving
-            # $lastmax, which checks for entries guaranteed *not* to be kept.
-
-            $nextfr ||= $get_next_friend->();
-            if ($nextfr) {
-                foreach my $it (@newitems) {
-                    last if $it->{'rlogtime'} < $nextfr->[1];
-                    $itemsleft--;
-                }
-            }
-
-            # sort all the total items by rlogtime (recent at beginning).
-            # if there's an in-second tie, the "newer" post is determined by
-            # the higher jitemid, which means nothing if the posts aren't in
-            # the same journal, but means everything if they are (which happens
-            # almost never for a human, but all the time for RSS feeds, once we
-            # remove the synsucker's 1-second delay between postevents)
-            @items = sort { $a->{'rlogtime'} <=> $b->{'rlogtime'} ||
-                            $b->{'jitemid'}  <=> $a->{'jitemid'}     } @items;
-
-            # cut the list down to what we need.
-            @items = splice(@items, 0, $getitems) if (@items > $getitems);
-        }
-
-        if (@items == $getitems)
-        {
-            $lastmax = $items[-1]->{'rlogtime'};
-            $lastmax = $lastmax_cutoff if $lastmax_cutoff && $lastmax > $lastmax_cutoff;
-
-            # stop looping if we know the next friend's newest entry
-            # is greater (older) than the oldest one we've already
-            # loaded.
-            $nextfr ||= $get_next_friend->();
-            $loop = 0 if ($nextfr && $nextfr->[1] > $lastmax);
-        }
-    }
-
-    # remove skipped ones
-    splice(@items, 0, $skip) if $skip;
-
-    # get items
-    foreach (@items) {
-        $opts->{'owners'}->{$_->{'ownerid'}} = 1;
-    }
-
-    # return the itemids grouped by clusters, if callers wants it.
-    if (ref $opts->{'idsbycluster'} eq "HASH") {
-        foreach (@items) {
-            push @{$opts->{'idsbycluster'}->{$_->{'clusterid'}}},
-            [ $_->{'ownerid'}, $_->{'itemid'} ];
-        }
-    }
-
-    return @items;
+    return \%times;
 }
 
-# <LJFUNC>
-# name: LJ::get_recent_items
-# class:
-# des: Returns journal entries for a given account.
-# info:
-# args: dbarg, opts
-# des-opts: Hashref of options with keys:
-#           -- err: scalar ref to return error code/msg in
-#           -- userid
-#           -- remote: remote user's $u
-#           -- remoteid: id of remote user
-#           -- clusterid: clusterid of userid
-#           -- tagids: arrayref of tagids to return entries with
-#           -- security: (public|friends|private) or a group number
-#           -- clustersource: if value 'slave', uses replicated databases
-#           -- order: if 'logtime', sorts by logtime, not eventtime
-#           -- friendsview: if true, sorts by logtime, not eventtime
-#           -- notafter: upper bound inclusive for rlogtime/revttime (depending on sort mode),
-#           defaults to no limit
-#           -- skip: items to skip
-#           -- itemshow: items to show
-#           -- viewall: if set, no security is used.
-#           -- dateformat: if "S2", uses S2's 'alldatepart' format.
-#           -- itemids: optional arrayref onto which itemids should be pushed
-# returns: array of hashrefs containing keys:
-#          -- itemid (the jitemid)
-#          -- posterid
-#          -- security
-#          -- alldatepart (in S1 or S2 fmt, depending on 'dateformat' req key)
-#          -- system_alldatepart (same as above, but for the system time)
-#          -- ownerid (if in 'friendsview' mode)
-#          -- rlogtime (if in 'friendsview' mode)
-# </LJFUNC>
-sub get_recent_items
-{
-    &nodb;
-    my $opts = shift;
-
-    my $sth;
-
-    my @items = ();             # what we'll return
-    my $err = $opts->{'err'};
-
-    my $userid = $opts->{'userid'}+0;
-
-    # 'remote' opt takes precedence, then 'remoteid'
-    my $remote = $opts->{'remote'};
-    my $remoteid = $remote ? $remote->{'userid'} : 0;
-    if ($remoteid == 0 && $opts->{'remoteid'}) {
-        $remoteid = $opts->{'remoteid'} + 0;
-        $remote = LJ::load_userid($remoteid);
-    }
-
-    my $max_hints = $LJ::MAX_SCROLLBACK_LASTN;  # temporary
-    my $sort_key = "revttime";
-
-    my $clusterid = $opts->{'clusterid'}+0;
-    my @sources = ("cluster$clusterid");
-    if (my $ab = $LJ::CLUSTER_PAIR_ACTIVE{$clusterid}) {
-        @sources = ("cluster${clusterid}${ab}");
-    }
-    unshift @sources, ("cluster${clusterid}lite", "cluster${clusterid}slave")
-        if $opts->{'clustersource'} eq "slave";
-    my $logdb = LJ::get_dbh(@sources);
-
-    # community/friend views need to post by log time, not event time
-    $sort_key = "rlogtime" if ($opts->{'order'} eq "logtime" ||
-                               $opts->{'friendsview'});
-
-    # 'notafter':
-    #   the friends view doesn't want to load things that it knows it
-    #   won't be able to use.  if this argument is zero or undefined,
-    #   then we'll load everything less than or equal to 1 second from
-    #   the end of time.  we don't include the last end of time second
-    #   because that's what backdated entries are set to.  (so for one
-    #   second at the end of time we'll have a flashback of all those
-    #   backdated entries... but then the world explodes and everybody
-    #   with 32 bit time_t structs dies)
-    my $notafter = $opts->{'notafter'} + 0 || $LJ::EndOfTime - 1;
-
-    my $skip = $opts->{'skip'}+0;
-    my $itemshow = $opts->{'itemshow'}+0;
-    if ($itemshow > $max_hints) { $itemshow = $max_hints; }
-    my $maxskip = $max_hints - $itemshow;
-    if ($skip < 0) { $skip = 0; }
-    if ($skip > $maxskip) { $skip = $maxskip; }
-    my $itemload = $itemshow + $skip;
-
-    my $mask = 0;
-    if ($remote && ($remote->{'journaltype'} eq "P" || $remote->{'journaltype'} eq "I") && $remoteid != $userid) {
-        $mask = LJ::get_groupmask($userid, $remoteid);
-    }
-
-    # decide what level of security the remote user can see
-    my $secwhere = "";
-    if ($userid == $remoteid || $opts->{'viewall'}) {
-        # no extra where restrictions... user can see all their own stuff
-        # alternatively, if 'viewall' opt flag is set, security is off.
-    } elsif ($mask) {
-        # can see public or things with them in the mask
-        $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $mask != 0))";
-    } else {
-        # not a friend?  only see public.
-        $secwhere = "AND security='public' ";
-    }
-
-    # because LJ::get_friend_items needs rlogtime for sorting.
-    my $extra_sql;
-    if ($opts->{'friendsview'}) {
-        $extra_sql .= "journalid AS 'ownerid', rlogtime, ";
-    }
-
-    # if we need to get by tag, get an itemid list now
-    my $jitemidwhere;
-    if (ref $opts->{tagids} eq 'ARRAY' && @{$opts->{tagids}}) {
-        # select jitemids uniquely
-        my $in = join(',', map { $_+0 } @{$opts->{tagids}});
-        my $jitemids = $logdb->selectcol_arrayref(qq{
-                SELECT DISTINCT jitemid FROM logtagsrecent WHERE journalid = ? AND kwid IN ($in)
-            }, undef, $userid);
-        die $logdb->errstr if $logdb->err;
-
-        # set $jitemidwhere iff we have jitemids
-        if (@$jitemids) {
-            $jitemidwhere = " AND jitemid IN (" .
-                            join(',', map { $_+0 } @$jitemids) .
-                            ")";
-        } else {
-            # no items, so show no entries
-            return ();
-        }
-    }
-
-    # if we need to filter by security, build up the where clause for that too
-    my $securitywhere;
-    if ($opts->{'security'}) {
-        my $security = $opts->{'security'};
-        if (($security eq "public") || ($security eq "private")) {
-            $securitywhere = " AND security = \"$security\"";
-        }
-        elsif ($security eq "friends") {
-            $securitywhere = " AND security = \"usemask\" AND allowmask = 1";
-        }
-        elsif ($security=~/^\d+$/) {
-            $securitywhere = " AND security = \"usemask\" AND (allowmask & " . (1 << $security) . ")";
-        }
-    }
-
-    my $sql;
-
-    my $dateformat = "%a %W %b %M %y %Y %c %m %e %d %D %p %i %l %h %k %H";
-    if ($opts->{'dateformat'} eq "S2") {
-        $dateformat = "%Y %m %d %H %i %s %w"; # yyyy mm dd hh mm ss day_of_week
-    }
-
-    $sql = qq{
-        SELECT jitemid AS 'itemid', posterid, security, $extra_sql
-               DATE_FORMAT(eventtime, "$dateformat") AS 'alldatepart', anum,
-               DATE_FORMAT(logtime, "$dateformat") AS 'system_alldatepart',
-               allowmask, eventtime, logtime
-        FROM log2 USE INDEX ($sort_key)
-        WHERE journalid=$userid AND $sort_key <= $notafter $secwhere $jitemidwhere $securitywhere
-        ORDER BY journalid, $sort_key
-        LIMIT $skip,$itemshow
-    };
-
-    unless ($logdb) {
-        $$err = "nodb" if ref $err eq "SCALAR";
-        return ();
-    }
-
-    $sth = $logdb->prepare($sql);
-    $sth->execute;
-    if ($logdb->err) { die $logdb->errstr; }
-
-    # keep track of the last alldatepart, and a per-minute buffer
-    my $last_time;
-    my @buf;
-    my $flush = sub {
-        return unless @buf;
-        push @items, sort { $b->{itemid} <=> $a->{itemid} } @buf;
-        @buf = ();
-    };
-
-    while (my $li = $sth->fetchrow_hashref) {
-        push @{$opts->{'itemids'}}, $li->{'itemid'};
-
-        $flush->() if $li->{alldatepart} ne $last_time;
-        push @buf, $li;
-        $last_time = $li->{alldatepart};
-
-        # construct an LJ::Entry singleton
-        my $entry = LJ::Entry->new($userid, jitemid => $li->{itemid});
-        $entry->absorb_row(%$li);
-    }
-    $flush->();
-
-    return @items;
-}
 
 # <LJFUNC>
 # name: LJ::register_authaction
@@ -1030,9 +511,7 @@ sub get_recent_items
 #          a 15 character string of random characters from
 #          [func[LJ::make_auth_code]].
 # </LJFUNC>
-sub register_authaction
-{
-    &nodb;
+sub register_authaction {
     my $dbh = LJ::get_db_writer();
 
     my $userid = shift;  $userid += 0;
@@ -1074,9 +553,7 @@ sub get_authaction {
 # des-shtype: The status history type code.
 # des-notes: Optional notes associated with this action.
 # </LJFUNC>
-sub statushistory_add
-{
-    &nodb;
+sub statushistory_add {
     my $dbh = LJ::get_db_writer();
 
     my $userid = shift;
@@ -1132,72 +609,18 @@ sub get_authas_user {
     return undef unless $remote;
 
     # remote is already what they want?
-    return $remote if $remote->{'user'} eq $user;
+    return $remote if $remote->user eq $user;
 
     # load user and authenticate
     my $u = LJ::load_user($user);
     return undef unless $u;
     return undef unless $u->{clusterid};
 
-    # does $u have admin access?
-    return undef unless LJ::can_manage($remote, $u);
+    # does $remote have admin access to $u?
+    return undef unless $remote->can_manage( $u );
 
     # passed all checks, return $u
     return $u;
-}
-
-
-# <LJFUNC>
-# name: LJ::shared_member_request
-# des: Registers an authaction to add a user to a
-#      shared journal and sends an approval e-mail.
-# returns: Hashref; output of LJ::register_authaction()
-#          includes datecreate of old row if no new row was created.
-# args: ju, u, attr?
-# des-ju: Shared journal user object
-# des-u: User object to add to shared journal
-# </LJFUNC>
-sub shared_member_request {
-    my ($ju, $u) = @_;
-    return undef unless ref $ju && ref $u;
-
-    my $dbh = LJ::get_db_writer();
-
-    # check for duplicates
-    my $oldaa = $dbh->selectrow_hashref("SELECT aaid, authcode, datecreate FROM authactions " .
-                                        "WHERE userid=? AND action='shared_invite' AND used='N' " .
-                                        "AND NOW() < datecreate + INTERVAL 1 HOUR " .
-                                        "ORDER BY 1 DESC LIMIT 1",
-                                        undef, $ju->{'userid'});
-    return $oldaa if $oldaa;
-
-    # insert authactions row
-    my $aa = LJ::register_authaction($ju->{'userid'}, 'shared_invite', "targetid=$u->{'userid'}");
-    return undef unless $aa;
-
-    # if there are older duplicates, invalidate any existing unused authactions of this type
-    $dbh->do("UPDATE authactions SET used='Y' WHERE userid=? AND aaid<>? " .
-             "AND action='shared_invite' AND used='N'",
-             undef, $ju->{'userid'}, $aa->{'aaid'});
-
-    my $body = "The maintainer of the $ju->{'user'} shared journal has requested that " .
-        "you be given posting access.\n\n" .
-        "If you do not wish to be added to this journal, just ignore this email.  " .
-        "However, if you would like to accept posting rights to $ju->{'user'}, click " .
-        "the link below to authorize this action.\n\n" .
-        "     $LJ::SITEROOT/approve/$aa->{'aaid'}.$aa->{'authcode'}\n\n" .
-        "Regards\n$LJ::SITENAME Team\n";
-
-    LJ::send_mail({
-        'to' => $u->email_raw,
-        'from' => $LJ::ADMIN_EMAIL,
-        'fromname' => $LJ::SITENAME,
-        'charset' => 'utf-8',
-        'subject' => "Community Membership: $ju->{'name'}",
-        'body' => $body
-        });
-
-    return $aa;
 }
 
 # <LJFUNC>
@@ -1209,10 +632,7 @@ sub shared_member_request {
 # des-aaid: Integer; the authaction ID.
 # des-auth: String; the auth string. (random chars the client already got)
 # </LJFUNC>
-sub is_valid_authaction
-{
-    &nodb;
-
+sub is_valid_authaction {
     # we use the master db to avoid races where authactions could be
     # used multiple times
     my $dbh = LJ::get_db_writer();
@@ -1249,34 +669,6 @@ sub mark_authaction_used
 sub get_urls
 {
     return ($_[0] =~ m!https?://[^\s\"\'\<\>]+!g);
-}
-
-# <LJFUNC>
-# name: LJ::record_meme
-# des: Records a URL reference from a journal entry to the [dbtable[meme]] table.
-# args: dbarg?, url, posterid, itemid, journalid?
-# des-url: URL to log
-# des-posterid: Userid of person posting
-# des-itemid: Itemid URL appears in.  This is the display itemid,
-#             which is the jitemid*256+anum from the [dbtable[log2]] table.
-# des-journalid: Optional, journal id of item, if item is clustered.  Otherwise
-#                this should be zero or undef.
-# </LJFUNC>
-sub record_meme
-{
-    my ($url, $posterid, $itemid, $jid) = @_;
-    return if $LJ::DISABLED{'meme'};
-
-    $url =~ s!/$!!;  # strip / at end
-    LJ::run_hooks("canonicalize_url", \$url);
-
-    # canonicalize_url hook might just erase it, so
-    # we don't want to record it.
-    return unless $url;
-
-    my $dbh = LJ::get_db_writer();
-    $dbh->do("REPLACE DELAYED INTO meme (url, posterid, journalid, itemid) " .
-             "VALUES (?, ?, ?, ?)", undef, $url, $posterid, $jid, $itemid);
 }
 
 # <LJFUNC>
@@ -1324,6 +716,8 @@ sub load_props
         $dbr ||= LJ::get_db_reader();
         my $sth = $dbr->prepare("SELECT * FROM $tablename");
         $sth->execute;
+        # check error in case table does not exist
+        warn "Error loading $tablename: $sth->errstr" and next if $sth->err;
         while (my $p = $sth->fetchrow_hashref) {
             $p->{'id'} = $p->{$keyname{$t}};
             $LJ::CACHE_PROP{$t}->{$p->{'name'}} = $p;
@@ -1355,7 +749,7 @@ sub get_prop
     }
 
     unless ($LJ::CACHE_PROP{$table}) {
-        warn "Prop table does not exist: $table" if $LJ::IS_DEV_SERVER;
+        warn "Prop table has no data: $table" if $LJ::IS_DEV_SERVER;
         return undef;
     }
 
@@ -1377,9 +771,7 @@ sub get_prop
 #                and their associated values being hashrefs to where you
 #                want that data to be populated.
 # </LJFUNC>
-sub load_codes
-{
-    &nodb;
+sub load_codes {
     my $req = shift;
 
     my $dbr = LJ::get_db_reader()
@@ -1419,10 +811,7 @@ sub load_codes
 # args: dbarg?, zip
 # des-zip: zip code
 # </LJFUNC>
-sub load_state_city_for_zip
-{
-    &nodb;
-
+sub load_state_city_for_zip {
     my $zip = shift;
     my ($zipcity, $zipstate);
 
@@ -1444,10 +833,7 @@ sub load_state_city_for_zip
 #      must be present, and either the "actual" argument (the correct
 #      password) must be set, or the first argument must be a user
 #      object ($u) with the 'password' key set.  This is the preferred
-#      way to validate a password (as opposed to doing it by hand),
-#      since <strong>this</strong> function will use a pluggable
-#      authenticator, if one is defined, so LiveJournal installations
-#       can be based off an LDAP server, for example.
+#      way to validate a password (as opposed to doing it by hand).
 # returns: boolean; 1 if authentication succeeded, 0 on failure
 # args: u, clear, md5, actual?, ip_banned?
 # des-clear: Clear text password the client is sending. (need this or md5)
@@ -1487,24 +873,6 @@ sub auth_okay
         LJ::handle_bad_login($u);
         return 0;
     };
-
-    # setup this auth checker for LDAP
-    if ($LJ::LDAP_HOST && ! $LJ::AUTH_CHECK) {
-        require LJ::LDAP;
-        $LJ::AUTH_CHECK = sub {
-            my ($user, $try, $type) = @_;
-            die unless $type eq "clear";
-            return LJ::LDAP::is_good_ldap($user, $try);
-        };
-    }
-
-    ## custom authorization:
-    if (ref $LJ::AUTH_CHECK eq "CODE") {
-        my $type = $md5 ? "md5" : "clear";
-        my $try = $md5 || $clear;
-        my $good = $LJ::AUTH_CHECK->($user, $try, $type);
-        return $good || $bad_login->();
-    }
 
     ## LJ default authorization:
     return 0 unless $actual;
@@ -1568,7 +936,7 @@ sub auth_digest {
     }
 
     # sanity checks
-    unless ($authname eq 'Digest' && $attrs{'qop'} eq 'auth' &&
+    unless ($authname eq 'Digest' && ( !defined $attrs{'qop'} || $attrs{'qop'} eq 'auth' ) &&
             $attrs{'realm'} eq 'lj' && (!defined $attrs{'algorithm'} || $attrs{'algorithm'} eq 'MD5')) {
         return $decline->(0);
     }
@@ -1606,11 +974,17 @@ sub auth_digest {
 
     # recalculate the hash and compare to response
 
+    my $qop = $attrs{qop};
     my $a1src = $u->user . ':lj:' . $u->password;
     my $a1 = Digest::MD5::md5_hex($a1src);
     my $a2src = $r->method . ":$attrs{'uri'}";
     my $a2 = Digest::MD5::md5_hex($a2src);
-    my $hashsrc = "$a1:$attrs{'nonce'}:$attrs{'nc'}:$attrs{'cnonce'}:$attrs{'qop'}:$a2";
+    my $hashsrc; 
+    if ( $qop eq 'auth' ) {
+        $hashsrc = "$a1:$attrs{'nonce'}:$attrs{'nc'}:$attrs{'cnonce'}:$attrs{'qop'}:$a2";
+    } else {
+        $hashsrc = "$a1:$attrs{'nonce'}:$a2";
+    }
     my $hash = Digest::MD5::md5_hex($hashsrc);
 
     return $decline->(0)
@@ -1822,6 +1196,8 @@ sub get_talktext2
                                "WHERE journalid=$journalid AND jtalkid IN ($in)");
         $sth->execute;
         while (my ($id, $subject, $body) = $sth->fetchrow_array) {
+            $subject = "" unless defined $subject;
+            $body = "" unless defined $body;
             LJ::text_uncompress(\$body);
             $lt->{$id} = [ $subject, $body ];
             LJ::MemCache::add([$journalid,"talkbody:$clusterid:$journalid:$id"], $body)
@@ -1899,11 +1275,7 @@ sub start_request
     %LJ::REQ_CACHE_USER_NAME = ();    # users by name
     %LJ::REQ_CACHE_USER_ID = ();      # users by id
     %LJ::REQ_CACHE_REL = ();          # relations from LJ::check_rel()
-    %LJ::REQ_CACHE_DIRTY = ();        # caches calls to LJ::mark_dirty()
     %LJ::REQ_LANGDATFILE = ();        # caches language files
-    %LJ::SMS::REQ_CACHE_MAP_UID = (); # cached calls to LJ::SMS::num_to_uid()
-    %LJ::SMS::REQ_CACHE_MAP_NUM = (); # cached calls to LJ::SMS::uid_to_num()
-    %LJ::S1::REQ_CACHE_STYLEMAP = (); # styleid -> uid mappings
     %LJ::S2::REQ_CACHE_STYLE_ID = (); # styleid -> hashref of s2 layers for style
     %LJ::S2::REQ_CACHE_LAYER_ID = (); # layerid -> hashref of s2 layer info (from LJ::S2::load_layer)
     %LJ::S2::REQ_CACHE_LAYER_INFO = (); # layerid -> hashref of s2 layer info (from LJ::S2::load_layer_info)
@@ -1918,13 +1290,13 @@ sub start_request
     %LJ::_ML_USED_STRINGS = ();       # strings looked up in this web request
     %LJ::REQ_CACHE_USERTAGS = ();     # uid -> { ... }; populated by get_usertags, so we don't load it twice
     $LJ::ADV_PER_PAGE = 0;            # Counts ads displayed on a page
+    $LJ::ACTIVE_RES_GROUP = undef;    # use whatever is current site default
 
     $LJ::CACHE_REMOTE_BOUNCE_URL = undef;
     LJ::Userpic->reset_singletons;
     LJ::Comment->reset_singletons;
     LJ::Entry->reset_singletons;
     LJ::Message->reset_singletons;
-    LJ::Vertical->reset_singletons;
 
     LJ::UniqCookie->clear_request_cache;
 
@@ -1953,45 +1325,60 @@ sub start_request
     DW::Request->reset;
 
     # include standard files if this is web-context
-    unless ($LJ::DISABLED{sitewide_includes}) {
-        if ( DW::Request->get ) {
-            # standard site-wide JS and CSS
-            LJ::need_res(qw(
-                            js/core.js
-                            js/dom.js
-                            js/httpreq.js
-                            js/livejournal.js
-                            js/common/AdEngine.js
-                            stc/lj_base.css
-                            ));
+    if ( DW::Request->get ) {
 
-            # esn ajax
-            LJ::need_res(qw(
-                            js/esn.js
-                            stc/esn.css
-                            ))
-                unless LJ::conf_test($LJ::DISABLED{esn_ajax});
+        # note that we're calling need_res and advising that these items
+        # are the new style global items
 
-            # contextual popup JS
-            LJ::need_res(qw(
-                            js/ippu.js
-                            js/lj_ippu.js
-                            js/hourglass.js
-                            js/contextualhover.js
-                            stc/contextualhover.css
-                            ))
-                if $LJ::CTX_POPUP;
+        LJ::need_res( {group=>'jquery'},
+            # jquery library is the big one, load first
+            $LJ::IS_DEV_SERVER ?
+                'js/jquery/jquery-1.3.2.js' :
+                'js/jquery/jquery-1.3.2.min.js',
 
-            # development JS
-            LJ::need_res(qw(
-                            js/devel.js
-                            js/livejournal-devel.js
-                            ))
-                if $LJ::IS_DEV_SERVER;
-        }
+            # the rest of the libraries
+            qw(
+                js/dw/dw-core.js
+            ),
+        );
+
+        # old/standard libraries are below here.
+
+        # standard site-wide JS and CSS
+        LJ::need_res(qw(
+                        js/core.js
+                        js/dom.js
+                        js/httpreq.js
+                        js/livejournal.js
+                        stc/lj_base.css
+                        ));
+
+        # esn ajax
+        LJ::need_res(qw(
+                        js/esn.js
+                        stc/esn.css
+                        ))
+            if LJ::is_enabled('esn_ajax');
+
+        # contextual popup JS
+        LJ::need_res(qw(
+                        js/ippu.js
+                        js/lj_ippu.js
+                        js/hourglass.js
+                        js/contextualhover.js
+                        stc/contextualhover.css
+                        ))
+            if $LJ::CTX_POPUP;
+
+        # development JS
+        LJ::need_res(qw(
+                        js/devel.js
+                        js/livejournal-devel.js
+                        ))
+            if $LJ::IS_DEV_SERVER;
     }
 
-    LJ::run_hooks("start_request");
+    LJ::Hooks::run_hooks("start_request");
 
     return 1;
 }
@@ -2044,43 +1431,11 @@ sub server_down_html
 sub get_cluster_description {
     my ($cid) = shift;
     $cid += 0;
-    my $text = LJ::run_hook('cluster_description', $cid);
+    my $text = LJ::Hooks::run_hook('cluster_description', $cid);
     return $text if $text;
 
     # default behavior just returns clusterid
     return $cid;
-}
-
-# <LJFUNC>
-# name: LJ::do_to_cluster
-# des: Given a subref, this function will pick a random cluster and run the subref,
-#      passing it the cluster id.  If the subref returns a 1, this function will exit
-#      with a 1.  Else, the function will call the subref again, with the next cluster.
-# args: subref
-# des-subref: Reference to a sub to call; @_ = (clusterid)
-# returns: 1 if the subref returned a 1 at some point, undef if it didn't ever return
-#          success and we tried every cluster.
-# </LJFUNC>
-sub do_to_cluster {
-    my $subref = shift;
-
-    # start at some random point and iterate through the clusters one by one until
-    # $subref returns a true value
-    my $size = @LJ::CLUSTERS;
-    my $start = int(rand() * $size);
-    my $rval = undef;
-    my $tries = $size > 15 ? 15 : $size;
-    foreach (1..$tries) {
-        # select at random
-        my $idx = $start++ % $size;
-
-        # get subref value
-        $rval = $subref->($LJ::CLUSTERS[$idx]);
-        last if $rval;
-    }
-
-    # return last rval
-    return $rval;
 }
 
 # <LJFUNC>
@@ -2150,261 +1505,77 @@ sub cmd_buffer_add
 }
 
 
+sub get_interest {
+    my $intid = shift;
+    return undef unless $intid && $intid =~ /^\d+$/;
+    my ( $int, $intcount );
+
+    my $memkey = [$intid, "introw:$intid"];
+    my $cached = LJ::MemCache::get( $memkey );
+    # memcache row is of form [$intid, $int, $intcount];
+
+    if ( $cached && ref $cached eq 'ARRAY' ) {
+        ( $intid, $int, $intcount ) = @$cached;
+    } else {
+        my $dbr = LJ::get_db_reader();
+        ( $int ) =
+            $dbr->selectrow_array( "SELECT keyword FROM sitekeywords WHERE kwid=?",
+                                          undef, $intid );
+        die $dbr->errstr if $dbr->err;
+        ( $intcount ) =
+            $dbr->selectrow_array( "SELECT intcount FROM interests WHERE intid=?",
+                                   undef, $intid );
+        die $dbr->errstr if $dbr->err;
+        LJ::MemCache::set( $memkey, [$intid, $int, $intcount], 3600*12 );
+    }
+
+    return wantarray() ? ($int, $intcount) : $int;
+}
+
+
 # <LJFUNC>
-# name: LJ::get_keyword_id
+# name: LJ::get_sitekeyword_id
 # class:
-# des: Get the id for a keyword.
-# args: uuid?, keyword, autovivify?
-# des-uuid: User object or userid to use.  Pass this <strong>only</strong> if
-#           you want to use the [dbtable[userkeywords]] clustered table!  If you
-#           do not pass user information, the [dbtable[keywords]] table
-#           on the global will be used.
+# des: Get the id for a global keyword.
+# args: keyword, autovivify?
 # des-keyword: A string keyword to get the id of.
-# returns: Returns a kwid into [dbtable[keywords]] or
-#          [dbtable[userkeywords]], depending on if you passed a user or not.
+# returns: Returns a kwid into [dbtable[sitekeywords]].
 #          If the keyword doesn't exist, it is automatically created for you.
 # des-autovivify: If present and 1, automatically create keyword.
 #                 If present and 0, do not automatically create the keyword.
 #                 If not present, default behavior is the old
 #                 style -- yes, do automatically create the keyword.
 # </LJFUNC>
-sub get_keyword_id
-{
-    &nodb;
-
-    # see if we got a user? if so we use userkeywords on a cluster
-    my $u;
-    if (@_ >= 2) {
-        $u = LJ::want_user(shift);
-        return undef unless $u;
-    }
-
-    my ($kw, $autovivify) = @_;
+sub get_sitekeyword_id {
+    my ( $kw, $autovivify ) = @_;
     $autovivify = 1 unless defined $autovivify;
 
     # setup the keyword for use
-    unless ($kw =~ /\S/) { return 0; }
-    $kw = LJ::text_trim($kw, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD);
+    return 0 unless $kw =~ /\S/;
+    $kw = LJ::text_trim( LJ::trim( $kw ), LJ::BMAX_SITEKEYWORD, LJ::CMAX_SITEKEYWORD );
 
     # get the keyword and insert it if necessary
-    my $kwid;
-    if ($u && $u->{dversion} > 5) {
-        # new style userkeywords -- but only if the user has the right dversion
-        $kwid = $u->selectrow_array('SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
-                                    undef, $u->{userid}, $kw) + 0;
-        if ($autovivify && ! $kwid) {
-            # create a new keyword
-            $kwid = LJ::alloc_user_counter($u, 'K');
-            return undef unless $kwid;
+    my $dbr = LJ::get_db_reader();
+    my $kwid = $dbr->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw ) + 0;
+    if ( $autovivify && ! $kwid ) {
+        # create a new keyword
+        $kwid = LJ::alloc_global_counter( 'K' );
+        return undef unless $kwid;
 
-            # attempt to insert the keyword
-            my $rv = $u->do("INSERT IGNORE INTO userkeywords (userid, kwid, keyword) VALUES (?, ?, ?)",
-                            undef, $u->{userid}, $kwid, $kw) + 0;
-            return undef if $u->err;
-
-            # at this point, if $rv is 0, the keyword is already there so try again
-            unless ($rv) {
-                $kwid = $u->selectrow_array('SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
-                                            undef, $u->{userid}, $kw) + 0;
-            }
-
-            # nuke cache
-            LJ::MemCache::delete([ $u->{userid}, "kws:$u->{userid}" ]);
-        }
-    } else {
-        # old style global
+        # attempt to insert the keyword
         my $dbh = LJ::get_db_writer();
-        my $qkw = $dbh->quote($kw);
+        my $rv = $dbh->do( "INSERT IGNORE INTO sitekeywords (kwid, keyword) VALUES (?, ?)", undef, $kwid, $kw );
+        return undef if $dbh->err;
 
-        # Making this a $dbr could cause problems due to the insertion of
-        # data based on the results of this query. Leave as a $dbh.
-        $kwid = $dbh->selectrow_array("SELECT kwid FROM keywords WHERE keyword=$qkw");
-        if ($autovivify && ! $kwid) {
-            $dbh->do("INSERT INTO keywords (kwid, keyword) VALUES (NULL, $qkw)");
-            $kwid = $dbh->{'mysql_insertid'};
+        # at this point, if $rv is 0, the keyword is already there so try again
+        unless ( $rv ) {
+            $kwid = $dbh->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw ) + 0;
+            return undef if $dbh->err;
         }
     }
     return $kwid;
 }
 
-sub get_interest {
-    my $intid = shift
-        or return undef;
-
-    # FIXME: caching!
-
-    my $dbr = LJ::get_db_reader();
-    my ($int, $intcount) = $dbr->selectrow_array
-        ("SELECT interest, intcount FROM interests WHERE intid=?",
-         undef, $intid);
-
-    return wantarray() ? ($int, $intcount) : $int;
-}
-
-sub get_interest_id {
-    my $int = shift
-        or return undef;
-
-    # FIXME: caching!
-
-    my $dbr = LJ::get_db_reader();
-    my ($intid, $intcount) = $dbr->selectrow_array
-        ("SELECT intid, intcount FROM interests WHERE interest=?",
-         undef, $int);
-
-    return wantarray() ? ($intid, $intcount) : $intid;
-}
-
-# <LJFUNC>
-# name: LJ::can_use_journal
-# class:
-# des:
-# info:
-# args:
-# des-:
-# returns:
-# </LJFUNC>
-sub can_use_journal
-{
-    &nodb;
-    my ($posterid, $reqownername, $res) = @_;
-
-    ## find the journal owner's info
-    my $uowner = LJ::load_user($reqownername);
-    unless ($uowner) {
-        $res->{'errmsg'} = "Journal \"$reqownername\" does not exist.";
-        return 0;
-    }
-    my $ownerid = $uowner->{'userid'};
-
-    # the 'ownerid' necessity came first, way back when.  but then
-    # with clusters, everything needed to know more, like the
-    # journal's dversion and clusterid, so now it also returns the
-    # user row.
-    $res->{'ownerid'} = $ownerid;
-    $res->{'u_owner'} = $uowner;
-
-    ## check if user has access
-    return 1 if LJ::check_rel($ownerid, $posterid, 'P');
-
-    # let's check if this community is allowing post access to non-members
-    LJ::load_user_props($uowner, "nonmember_posting");
-    if ($uowner->{'nonmember_posting'}) {
-        my $dbr = LJ::get_db_reader() or die "nodb";
-        my $postlevel = $dbr->selectrow_array("SELECT postlevel FROM ".
-                                              "community WHERE userid=$ownerid");
-        return 1 if $postlevel eq 'members';
-    }
-
-    # is the poster an admin for this community?
-    return 1 if LJ::can_manage($posterid, $uowner);
-
-    $res->{'errmsg'} = "You do not have access to post to this journal.";
-    return 0;
-}
-
-
-# <LJFUNC>
-# name: LJ::get_recommended_communities
-# class:
-# des: Get communities associated with a user.
-# info:
-# args: user, types
-# des-types: The default value for type is 'normal', which indicates a community
-#           is visible and has not been closed. A value of 'new' means the community has
-#           been created in the last 10 days. Last, a value of 'mm' indicates the user
-#           passed in is a maintainer or moderator of the community.
-# returns: array of communities
-# </LJFUNC>
-sub get_recommended_communities {
-    my $u = shift;
-    # Indicates relationship to user, or activity of community
-    my $type = shift() || {};
-    my %comms;
-
-    # Load their friendofs to determine community membership
-    my @ids = LJ::get_friendofs($u);
-    my %fro = %{ LJ::load_userids(@ids) || {} };
-
-    foreach my $ulocal (values %fro) {
-        next unless $ulocal->{'statusvis'} eq 'V';
-        next unless $ulocal->is_community;
-
-        # TODO: This is bad if they belong to a lot of communities,
-        # is a db query to global each call
-        my $ci = LJ::get_community_row($ulocal);
-        next if $ci->{'membership'} eq 'closed';
-
-        # Add to %comms
-        $type->{$ulocal->{userid}} = 'normal';
-        $comms{$ulocal->{userid}} = $ulocal;
-    }
-
-    # Contains timeupdate and timecreate in an array ref
-    my %times;
-    # Get usage information about comms
-    if (%comms) {
-        my $ids = join(',', keys %comms);
-
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT UNIX_TIMESTAMP(timeupdate), UNIX_TIMESTAMP(timecreate), userid ".
-                                 "FROM userusage WHERE userid IN ($ids)");
-        $sth->execute;
-
-        while (my @row = $sth->fetchrow_array) {
-            @{$times{$row[2]}} = @row[0,1];
-        }
-    }
-
-    # Prune the list by time last updated and make sure to
-    # display comms created in the past 10 days or where
-    # the inviter is a maint or mod
-    my $over30 = 0;
-    my $now = time();
-    foreach my $commid (sort {$times{$b}->[0] <=> $times{$a}->[0]} keys %comms) {
-        my $comm = $comms{$commid};
-        if ($now - $times{$commid}->[1] <= 86400*10) {
-            $type->{$commid} = 'new';
-            next;
-        }
-
-        my $maintainers = LJ::load_rel_user_cache($commid, 'A') || [];
-        my $moderators  = LJ::load_rel_user_cache($commid, 'M') || [];
-        foreach (@$maintainers, @$moderators) {
-            if ($_ == $u->{userid}) {
-                $type->{$commid} = 'mm';
-                next;
-            }
-        }
-
-        # Once a community over 30 days old is reached
-        # all subsequent communities will be older and can be deleted
-        if ($over30) {
-            delete $comms{$commid};
-            next;
-        } else {
-            if ($now - $times{$commid}->[0] > 86400*30) {
-                delete $comms{$commid};
-                $over30 = 1;
-            }
-        }
-    }
-
-    # If we still have more than 20 comms, delete any with less than
-    # five members
-    if (%comms > 20) {
-        foreach my $comm (values %comms) {
-            next unless $type->{$comm->{userid}} eq 'normal';
-
-            my $ids = LJ::get_friends($comm);
-            if (%$ids < 5) {
-                delete $comms{$comm->{userid}};
-            }
-        }
-    }
-
-    return values %comms;
-}
 
 # <LJFUNC>
 # name: LJ::load_talk_props2
@@ -2550,11 +1721,11 @@ sub blocking_report {
 # des: deletes comments, but not the relational information, so threading doesn't break
 # info: The tables [dbtable[talkprop2]] and [dbtable[talktext2]] are deleted from.  [dbtable[talk2]]
 #       just has its state column modified, to 'D'.
-# args: u, nodetype, nodeid, talkids+
+# args: u, nodetype, nodeid, talkids
 # des-nodetype: The thread nodetype (probably 'L' for log items)
 # des-nodeid: The thread nodeid for the given nodetype (probably the jitemid
 #              from the [dbtable[log2]] row).
-# des-talkids: List of talkids to delete.
+# des-talkids: List array of talkids to delete.
 # returns: scalar integer; number of items deleted.
 # </LJFUNC>
 sub delete_comments {
@@ -2578,17 +1749,20 @@ sub delete_comments {
 
     if ($num > 0) {
         $u->do("UPDATE talktext2 SET subject=NULL, body=NULL $where");
-        $u->do("DELETE FROM talkprop2 WHERE $where");
+        $u->do("DELETE FROM talkprop2 $where");
     }
 
     my @jobs;
     foreach my $talkid (@talkids) {
         my $cmt = LJ::Comment->new($u, jtalkid => $talkid);
         push @jobs, LJ::EventLogRecord::DeleteComment->new($cmt)->fire_job;
+        LJ::Hooks::run_hooks('delete_comment', $jid, $nodeid, $talkid); # jitemid, jtalkid
     }
 
     my $sclient = LJ::theschwartz();
     $sclient->insert_jobs(@jobs) if @jobs;
+
+    LJ::MemCache::delete( [ $jid, "activeentries:$jid" ] );
 
     return $num;
 }
@@ -2622,44 +1796,6 @@ sub color_todb
     return hex(substr($c, 1, 6));
 }
 
-
-# <LJFUNC>
-# name: LJ::event_register
-# des: Logs a subscribable event, if anybody is subscribed to it.
-# args: dbarg?, dbc, etype, ejid, eiarg, duserid, diarg
-# des-dbc: Cluster master of event
-# des-etype: One character event type.
-# des-ejid: Journalid event occurred in.
-# des-eiarg: 4 byte numeric argument
-# des-duserid: Event doer's userid
-# des-diarg: Event's 4 byte numeric argument
-# returns: boolean; 1 on success; 0 on fail.
-# </LJFUNC>
-sub event_register
-{
-    &nodb;
-    my ($dbc, $etype, $ejid, $eiarg, $duserid, $diarg) = @_;
-    my $dbr = LJ::get_db_reader();
-
-    # see if any subscribers first of all (reads cheap; writes slow)
-    return 0 unless $dbr;
-    my $qetype = $dbr->quote($etype);
-    my $qejid = $ejid+0;
-    my $qeiarg = $eiarg+0;
-    my $qduserid = $duserid+0;
-    my $qdiarg = $diarg+0;
-
-    my $has_sub = $dbr->selectrow_array("SELECT userid FROM subs WHERE etype=$qetype AND ".
-                                        "ejournalid=$qejid AND eiarg=$qeiarg LIMIT 1");
-    return 1 unless $has_sub;
-
-    # so we're going to need to log this event
-    return 0 unless $dbc;
-    $dbc->do("INSERT INTO events (evtime, etype, ejournalid, eiarg, duserid, diarg) ".
-             "VALUES (NOW(), $qetype, $qejid, $qeiarg, $qduserid, $qdiarg)");
-    return $dbc->err ? 0 : 1;
-}
-
 # <LJFUNC>
 # name: LJ::procnotify_add
 # des: Sends a message to all other processes on all clusters.
@@ -2671,9 +1807,7 @@ sub event_register
 #           required args for different commands.
 # returns: new serial number on success; 0 on fail.
 # </LJFUNC>
-sub procnotify_add
-{
-    &nodb;
+sub procnotify_add {
     my ($cmd, $argref) = @_;
     my $dbh = LJ::get_db_writer();
     return 0 unless $dbh;
@@ -2731,25 +1865,31 @@ sub procnotify_callback
         return;
     }
 
-    # contentflag key bans
-    if ($cmd eq "ban_contentflag") {
-        $LJ::CONTENTFLAG_BANNED{$arg->{'username'}} = $arg->{'exptime'};
+    # spamreport bans
+    if ( $cmd eq "ban_spamreport" ) {
+        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
         return;
     }
 
-    if ($cmd eq "unban_contentflag") {
-        delete $LJ::CONTENTFLAG_BANNED{$arg->{'username'}};
+    if ( $cmd eq "unban_spamreport" ) {
+        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
+        return;
+    }
+
+    # spamreport bans
+    if ( $cmd eq "ban_spamreport" ) {
+        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
+        return;
+    }
+
+    if ( $cmd eq "unban_spamreport" ) {
+        delete $LJ::SPAMREPORT_BANNED{$arg->{spamreport}};
         return;
     }
 
     # cluster switchovers
     if ($cmd eq 'cluster_switch') {
         $LJ::CLUSTER_PAIR_ACTIVE{ $arg->{'cluster'} } = $arg->{ 'role' };
-        return;
-    }
-
-    if ($cmd eq LJ::AdTargetedInterests->procnotify_key) {
-        LJ::AdTargetedInterests->reload;
         return;
     }
 }
@@ -2797,7 +1937,7 @@ sub md5_struct
         # see http://zilla.livejournal.org/show_bug.cgi?id=851
         eval { $md5->add($st); };
         if ($@) {
-            $st = pack('C*', unpack('C*', $st));
+            $st = LJ::no_utf8_flag ( $st );
             $md5->add($st);
         }
         return $md5;
@@ -2902,8 +2042,10 @@ sub get_secret
 #
 # LJ-generic domains:
 #  $dom: 'S' == style, 'P' == userpic, 'A' == stock support answer
-#        'C' == captcha, 'E' == external user, 'O' == school
-#        'L' == poLL,  'M' == Messaging
+#        'C' == captcha, 'E' == external user,
+#        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart,
+#        'F' == PubSubHubbub subscription id (F for Fred),
+#        'K' == sitekeyword, 'I' == shopping cart Item
 #
 sub alloc_global_counter
 {
@@ -2913,9 +2055,8 @@ sub alloc_global_counter
 
     # $dom can come as a direct argument or as a string to be mapped via hook
     my $dom_unmod = $dom;
-    # Yes, that's a duplicate L in the regex for xtra LOLS
-    unless ($dom =~ /^[MLOLSPACE]$/) {
-        $dom = LJ::run_hook('map_global_counter_domain', $dom);
+    unless ( $dom =~ /^[ESLPAHCMFKI]$/ ) {
+        $dom = LJ::Hooks::run_hook('map_global_counter_domain', $dom);
     }
     return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
         unless defined $dom;
@@ -2934,9 +2075,14 @@ sub alloc_global_counter
 
     # no prior counter rows - initialize one.
     if ($dom eq "S") {
-        $newmax = $dbh->selectrow_array("SELECT MAX(styleid) FROM s1stylemap");
+        confess 'Tried to allocate S1 counter.';
     } elsif ($dom eq "P") {
-        $newmax = $dbh->selectrow_array("SELECT MAX(picid) FROM userpic");
+        $newmax = 0;
+        foreach my $cid ( @LJ::CLUSTERS ) {
+            my $dbcm = LJ::get_cluster_master( $cid ) or return undef;
+            my $max = $dbcm->selectrow_array( 'SELECT MAX(picid) FROM userpic2' ) + 0;
+            $newmax = $max if $max > $newmax;
+        }
     } elsif ($dom eq "C") {
         $newmax = $dbh->selectrow_array("SELECT MAX(capid) FROM captchas");
     } elsif ($dom eq "E" || $dom eq "M") {
@@ -2945,15 +2091,24 @@ sub alloc_global_counter
         $newmax = 0;
     } elsif ($dom eq "A") {
         $newmax = $dbh->selectrow_array("SELECT MAX(ansid) FROM support_answers");
-    } elsif ($dom eq "O") {
-        $newmax = $dbh->selectrow_array("SELECT MAX(schoolid) FROM schools");
+    } elsif ($dom eq "H") {
+        $newmax = $dbh->selectrow_array("SELECT MAX(cartid) FROM shop_carts");
     } elsif ($dom eq "L") {
-        # pick maximum id from poll and pollowner
-        my $max_poll      = $dbh->selectrow_array("SELECT MAX(pollid) FROM poll");
-        my $max_pollowner = $dbh->selectrow_array("SELECT MAX(pollid) FROM pollowner");
-        $newmax = $max_poll > $max_pollowner ? $max_poll : $max_pollowner;
+        # pick maximum id from pollowner
+        $newmax = $dbh->selectrow_array( "SELECT MAX(pollid) FROM pollowner" );
+    } elsif ( $dom eq 'F' ) {
+        $newmax = $dbh->selectrow_array( 'SELECT MAX(id) FROM syndicated_hubbub2' );
+    } elsif ( $dom eq 'K' ) {
+        # pick maximum id from sitekeywords & interests
+        my $max_sitekeys  = $dbh->selectrow_array( "SELECT MAX(kwid) FROM sitekeywords" );
+        my $max_interests = $dbh->selectrow_array( "SELECT MAX(intid) FROM interests" );
+        $newmax = $max_sitekeys > $max_interests ? $max_sitekeys : $max_interests;
+    } elsif ( $dom eq 'I' ) {
+        # if we have no counter, start at 0, as we have no way of determining what
+        # the maximum used item id is
+        $newmax = 0;
     } else {
-        $newmax = LJ::run_hook('global_counter_init_value', $dom);
+        $newmax = LJ::Hooks::run_hook('global_counter_init_value', $dom);
         die "No alloc_global_counter initalizer for domain '$dom'"
             unless defined $newmax;
     }
@@ -2961,40 +2116,6 @@ sub alloc_global_counter
     $dbh->do("INSERT IGNORE INTO counter (journalid, area, max) VALUES (?,?,?)",
              undef, $uid, $dom, $newmax) or return LJ::errobj($dbh)->cond_throw;
     return LJ::alloc_global_counter($dom, 1);
-}
-
-sub system_userid {
-    return $LJ::CACHE_SYSTEM_ID if $LJ::CACHE_SYSTEM_ID;
-    my $u = LJ::load_user("system")
-        or die "No 'system' user available for LJ::system_userid()";
-    return $LJ::CACHE_SYSTEM_ID = $u->{userid};
-}
-
-sub blobcache_replace {
-    my ($key, $value) = @_;
-
-    die "invalid key: $key" unless length $key;
-
-    my $dbh = LJ::get_db_writer()
-        or die "Unable to contact global master";
-
-    return $dbh->do("REPLACE INTO blobcache SET bckey=?, dateupdate=NOW(), value=?",
-                    undef, $key, $value);
-}
-
-sub blobcache_get {
-    my $key = shift;
-
-    die "invalid key: $key" unless length $key;
-
-    my $dbr = LJ::get_db_reader()
-        or die "Unable to contact global reader";
-
-    my ($value, $timeupdate) =
-        $dbr->selectrow_array("SELECT value, UNIX_TIMESTAMP(dateupdate) FROM blobcache WHERE bckey=?",
-                              undef, $key);
-
-    return wantarray() ? ($value, $timeupdate) : $value;
 }
 
 sub note_recent_action {
@@ -3015,7 +2136,7 @@ sub note_recent_action {
         or return undef;
 
     # append to recentactions table
-    $dbcm->do("INSERT DELAYED INTO recentactions VALUES (?)", undef, $action);
+    $dbcm->do( "INSERT INTO recentactions VALUES (?)", undef, $action );
     return undef if $dbcm->err;
 
     return 1;
@@ -3198,8 +2319,14 @@ sub assert_is {
                caller => [caller()])->throw;
 }
 
+# no_utf8_flag previously used pack('C*',unpack('C*', $_[0]))
+# but that stopped working in Perl 5.10; see
+# http://bugs.dwscoalition.org/show_bug.cgi?id=640
 sub no_utf8_flag {
-    return pack('C*', unpack('C*', $_[0]));
+    # tell Perl to ignore the SvUTF8 flag in this scope.
+    use bytes;
+    # make a copy of the input string that doesn't have the flag at all.
+    return substr($_[0], 0);
 }
 
 # return true if root caller is a test file
@@ -3229,31 +2356,13 @@ sub conf_test {
 
 sub is_enabled {
     my $conf = shift;
-    return ! LJ::conf_test($LJ::DISABLED{$conf}, @_);
-}
-
-package LJ::S1;
-
-use vars qw($AUTOLOAD);
-sub AUTOLOAD {
-    if ($AUTOLOAD eq "LJ::S1::get_public_styles") {
-        require "ljviews.pl";
-        goto &$AUTOLOAD;
+    if ( $conf eq 'payments' ) {
+        my $remote = LJ::get_remote();
+        return 1 if $remote && $remote->can_beta_payments;
     }
-    Carp::croak("Undefined subroutine: $AUTOLOAD");
+    return ! LJ::conf_test( $LJ::DISABLED{$conf}, @_ );
 }
 
-package LJ::CleanHTML;
-
-use vars qw($AUTOLOAD);
-sub AUTOLOAD {
-    my $lib = "cleanhtml.pl";
-    if ($INC{$lib}) {
-        Carp::croak("Undefined subroutine: $AUTOLOAD");
-    }
-    require $lib;
-    goto &$AUTOLOAD;
-}
 
 package LJ::Error::InvalidParameters;
 sub opt_fields { qw(params) }

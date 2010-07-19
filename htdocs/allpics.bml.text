@@ -11,9 +11,13 @@
 
 .keywords=Keywords:
 
+.comment=Comment:
+
+.description=Description:
+
 .nopics.text.other=This user has not uploaded any user pictures.
 
-.nopics.text.other2=This user has not uploaded any userpics. <a [[aopts]]>Get notified</a> when they upload one.
+.nopics.text.other2=[[username]] has not uploaded any userpics. <a [[aopts]]>Get notified</a> when they upload one.
 
 .nopics.text3=You have no pictures uploaded. To upload one, go <a [[aopts]]>here</a>.
 
@@ -24,6 +28,10 @@
 .pics2=Here are the userpics for [[user]]. <a [[aopts]]>Get notified</a> when they upload a new one.
 
 .pics.owner=Here are the userpics for [[user]].
+
+.sort.default=Upload Order
+
+.sort.keyword=Keyword Order
 
 .title=User Pictures
 

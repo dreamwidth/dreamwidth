@@ -8,28 +8,79 @@
     use vars qw(%GET %POST);
 
     my $remote = LJ::get_remote();
-    return "You don't have access to do that.\n"
-        unless LJ::check_priv($remote, 'payments');
+    my @displayprivs = ( "payments" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $remote; 
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless $remote->has_priv( 'payments' );
 
     my $body = '<h1>Payment Manager</h1>';
 
+    if ( LJ::did_post() ) {
+        return "failed auth"
+            unless LJ::check_form_auth();
+
+        if ( $POST{givetime} ) {
+            my ( $who, $type, $months, $days, $datetime ) = ( $POST{user}, $POST{type}, $POST{months}, $POST{days}, $POST{datetime} );
+            my $u = LJ::load_user( $who )
+                or return "invalid user";
+
+            if ( $POST{submit} eq 'Edit' ) {
+              return "Invalid date/time format" unless $datetime =~ /^\d\d\d\d\-\d\d\-\d\d *( \d\d(:\d\d){1,2})?$/;
+              my $rv = DW::Pay::edit_expiration_datetime( $u, $datetime );
+              if ( $rv ) {
+                  LJ::statushistory_add( $u, $remote, 'paidstatus',
+                                         "Admin override: edit expiration date/time: $datetime" );
+                  return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
+              }
+              return "Error: " . DW::Pay::error_text() . "\n";
+            } 
+
+            return "invalid type"
+                unless $type =~ /^(?:seed|premium|paid|expire)$/;
+            $months = 0 if $months eq '';
+            $days = 0 if $days eq '';
+            $months = 99 if $type eq 'seed';
+
+            if ( $type eq 'expire' ) {
+                my $rv = DW::Pay::expire_user( $u, force => 1 );
+                if ( $rv ) {
+                    LJ::statushistory_add( $u, $remote, 'paidstatus',
+                                           "Admin override: expired account." );
+                    return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
+                }
+                    
+            } else {
+                my $rv = DW::Pay::add_paid_time( $u, $type, $months, $days );
+                if ( $rv ) {
+                    LJ::statushistory_add( $u, $remote, 'paidstatus',
+                                           "Admin override: gave paid time to user: months=$months days=$days type=$type" );
+                    return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
+                }
+            }
+            return "Error: " . DW::Pay::error_text() . "\n";
+        }
+
+        return "invalid option";
+    }
+
     if ($GET{view}) {
-        $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
+        $body .= '<p>[ <a href="/admin/pay/index">&lt;&lt; Back to Index</a> ]</p>';
 
         # allow editing a user's paid status
         my $u = LJ::load_user( $GET{view} );
         return "User does not exist.\n"
             unless $u;
 
-        my @actions = ();
         my $ps = DW::Pay::get_paid_status( $u );
+        my $body_date = '';
         if ( $ps ) {
             $body .= '<h2>Paid Status</h2>';
             $body .= LJ::ljuser( $u ) . ": " . DW::Pay::type_name( $ps->{typeid} );
 
             if ( $ps->{permanent} ) {
                 $body .= '; <strong>Permanent Status</strong> will never expire.';
-                push @actions, '', 'Use the override section to change account type';
 
             } else {
                 if ( $ps->{expiresin} > 0 ) {
@@ -37,176 +88,99 @@
                     my $exp = LJ::ago_text( $ps->{expiresin} );
                     $exp =~ s/ ago//;
                     $body .= "; expires $expt (<strong>$exp</strong>).";
+                    $body_date = <<EOF;
 
-                    if ( $ps->{typeid} == 1 ) {
-                        push @actions, 'set-premium', 'Change type to Premium Paid Account';
-                    } else {
-                        push @actions, 'set-basic', 'Change type to Basic Paid Account';
-                    }
-
-                    push @actions, 'extend-6', 'Extend existing type by 6 months',
-                                   'extend-12', 'Extend existing type by 12 months';
-
+<tr><td>Or edit expiration date:</td>
+<td align="center"><input type="text" name="datetime" maxlength="20" size="20" value="$expt"/></td>
+<td>    <input type="submit" name="submit" value="Edit" /></td></tr>
+EOF
                 } else {
                     $body .= '; <strong>expired</strong>.';
-
-                    push @actions, '', 'Use the override section to give user a different account type';
                 }
             }
-
         } else {
             $body .= '<p>User has never had a paid account of any kind.</p>';
-
-            push @actions, '', 'Use the override section to give user a paid account';
         }
 
-        $body .= qq|<p><a href="/admin/statushistory.bml?user=$u->{user}">View statushistory for user.</a></p>|;
+        # give the box for adding paid time to the user
+        my $auth = LJ::form_auth();
+        $body .= <<EOF;
+<br /><br />
+    <form method="post"><input type="hidden" name="givetime" value="1">
+    <input type="hidden" name="user" value="$u->{user}">$auth
+<table border='0' cellpadding='4'>
+<tr><td>Give Paid Time:
+    <select name="type">
+        <option value="paid">Paid Account</option>
+        <option value="premium">Paid Premium Account</option>
+        <option value="seed">Seed Account</option>
+        <option value="blank"></option>
+        <option value="expire">FORCE EXPIRATION</option>
+    </select></td>
+<td align="center">
+        for <input type="text" name="months" maxlength="2" size="3" /> months, 
+        <input type="text" name="days" maxlength="2" size="3" /> days
+</td>
+<td><input type="submit" name="submit" value="Give!" /></td></tr>
+$body_date
+</table>
+</form>
+<p><a href="/admin/statushistory?user=$u->{user}">View statushistory for user.</a></p>
+<h2>View Carts</h2>
+EOF
 
-        $body .= "<h2>Edit Status</h2>";
+        my @carts = DW::Shop::Cart->get_all( $u );
 
-        $body .= "<ul>";
-        while (my ($type, $name) = (shift @actions, shift @actions)) {
-            last unless $name;
+        if ( @carts ) {
+            $body .= "<table border='1'>";
+            $body .= "<tr><th>Cart Number</th><th>Date</th><th>Total</th>";
+            $body .= "<th>Payment Method</th><th>Status</th><th>Details</th>";
+            foreach my $cart ( @carts ) {
+                my $state = $cart->state;
+                my $paymentmethod = $cart->paymentmethod;
+                my $paystr = ( $paymentmethod ?
+                                   $ML{"/shop/receipt.bml.cart.paymentmethod.$paymentmethod"} :
+                                   "(not yet selected)" );
+                my $date = DateTime->from_epoch( epoch => $cart->starttime );
 
-            if ( $type ne '' ) {
-                $body .= qq|<li><a href="/admin/pay/index.bml?edit=$u->{user}&act=$type">$name</a></li>|;
-            } else {
-                $body .= "<li>$name</li>";
+                my $detailstext = "Details";
+                $detailstext .= " / Mark as Payment Received" if $state == $DW::Shop::STATE_PEND_PAID;
+
+                $body .= "<tr>";
+                $body .= "<td>" . $cart->id . "</td>";
+                $body .= "<td>" . $date->strftime( "%F %r %Z" ) . "</td>";
+                $body .= "<td>" . $cart->display_total . "</td>";
+                $body .= "<td>$paystr</td>";
+                $body .= "<td>$ML{\"/shop/receipt.bml.cart.status.$state\"}</td>";
+                $body .= "<td><a href='$LJ::SITEROOT/admin/pay/view?cartid=" . $cart->id . "'>$detailstext</a></td>";
+                $body .= "</tr>";
             }
+            $body .= "</table>";
         }
-        $body .= "</ul>";
-
-        $body .= "<h2>Hardcore Override</h2><p>These actions will change the paid status with no regard " .
-                 "for the existing paid status.  Their existing status will be thrown away!</p>";
-        $body .= "<ul>";
-
-        @actions = ('override-free', 'Override: reset to free account status',
-                    'override-basic-6', 'Override: 6 months Basic Paid status',
-                    'override-basic-12', 'Override: 12 months Basic Paid status',
-                    'override-basic-99', 'Override: permanent Basic Paid status',
-                    'override-premium-6', 'Override: 6 months Premium Paid status',
-                    'override-premium-12', 'Override: 12 months Premium Paid status',
-                    'override-premium-99', 'Override: permanent Premium Paid status',);
-        while (my ($type, $name) = (shift @actions, shift @actions)) {
-            last unless $type;
-
-            $body .= qq|<li><a href="/admin/pay/index.bml?edit=$u->{user}&act=$type">$name</a></li>|;
+        else {
+            $body .= "<p>This user has not made any orders.</p>";
         }
-
-        $body .= "</ul>";
-
-    } elsif ($GET{edit}) {
-        $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
-
-        # allow editing a user's paid status
-        my $u = LJ::load_user( $GET{edit} );
-        return "User does not exist.\n"
-            unless $u;
-
-        my $what = $GET{act};
-        return "No action.\n"
-            unless $what;
-
-        unless ( LJ::did_post() ) {
-            $body .= "<h2>CONFIRM</h2><p>You must confirm that you wish to take action <b>$what</b> on " . LJ::ljuser( $u ) . ".</p>";
-            $body .= "<form method='post' action='/admin/pay/index.bml?edit=$u->{user}&act=$what'>";
-            $body .= "<input type='submit' value='Confirmed!'>";
-            $body .= "</form>";
-            return $body;
-        }
-
-        my $note = sub {
-            LJ::statushistory_add( $u, $remote, 'paidstatus', sprintf( shift, @_ ) );
-        };
-
-        my $ps = DW::Pay::get_paid_status( $u );
-
-        if ( $what eq 'override-free' ) {
-            DW::Pay::update_paid_status( $u, permanent => 0, expiretime => 0 );
-            $note->( "Override: reverted to free." );
-        } elsif ( $what eq 'override-basic-6' ) {
-            DW::Pay::update_paid_status( $u, permanent => 0, typeid => 1, _set_months => 6 );
-            $note->( "Override: set to 6 months Basic." );
-        } elsif ( $what eq 'override-basic-12' ) {
-            DW::Pay::update_paid_status( $u, permanent => 0, typeid => 1, _set_months => 12 );
-            $note->( "Override: set to 12 months Basic." );
-        } elsif ( $what eq 'override-basic-99' ) {
-            DW::Pay::update_paid_status( $u, permanent => 1, typeid => 1 );
-            $note->( "Override: set to permanent Basic." );
-        } elsif ( $what eq 'override-premium-6' ) {
-            DW::Pay::update_paid_status( $u, permanent => 0, typeid => 2, _set_months => 6 );
-            $note->( "Override: set to 6 months Premium." );
-        } elsif ( $what eq 'override-premium-12' ) {
-            DW::Pay::update_paid_status( $u, permanent => 0, typeid => 2, _set_months => 12 );
-            $note->( "Override: set to 12 months Premium." );
-        } elsif ( $what eq 'override-premium-99' ) {
-            DW::Pay::update_paid_status( $u, permanent => 1, typeid => 2 );
-            $note->( "Override: set to permanent Premium." );
-        } elsif ( $what eq 'extend-6' ) {
-            DW::Pay::update_paid_status( $u, _add_months => 6 );
-            $note->( "Override: added 6 months to existing type." );
-        } elsif ( $what eq 'extend-12' ) {
-            DW::Pay::update_paid_status( $u, _add_months => 12 );
-            $note->( "Override: added 12 months to existing type." );
-        } else {
-            return "Invalid action.\n";
-        }
-
-        DW::Pay::sync_caps( $u );
-
-        BML::redirect( "$LJ::SITEROOT/admin/pay/index.bml?view=$u->{user}" );
-
-    } elsif ($GET{show} eq 'summary') {
-        $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
-
-        # show summary of payment information, i.e. how many accounts there are,
-        # of what types, and how many payments have been received broken down on a
-        # daily basis (last week) and monthly basis (forever)
-
-        my $dbr = DW::Pay::get_db_reader();
-
-        my $rows = $dbr->selectall_arrayref( q{
-                SELECT DATE_FORMAT(FROM_UNIXTIME(paydate), '%m-%d'), typeid, duration, COUNT(*), SUM(amount)
-                FROM dw_payments
-                WHERE paydate > UNIX_TIMESTAMP() - 86400*8
-                      AND status = 'paid-completed'
-                GROUP BY 1, 2, 3
-                ORDER BY 1 DESC, 2, 3
-            } );
-
-        $body .= '<h2>Past 7 Days</h2>';
-        $body .= '<table border="1"><tr><td>day</td><td>type</td><td>duration</td><td>sold</td><td>revenue</td></tr>';
-        foreach my $row ( @{ $rows || [] } ) {
-            $body .= "<tr><td>$row->[0]</td><td>" . DW::Pay::type_name( $row->[1] ) . "</td><td>$row->[2]</td>" .
-                     "<td>$row->[3]</td><td>\$$row->[4].00</td></tr>";
-        }
-        $body .= '</table>';
-
-        my $rows = $dbr->selectall_arrayref( q{
-                SELECT DATE_FORMAT(FROM_UNIXTIME(paydate), '%m-%Y'), typeid, duration, COUNT(*), SUM(amount)
-                FROM dw_payments
-                WHERE status = 'paid-completed'
-                GROUP BY 1, 2, 3
-                ORDER BY 1 DESC, 2, 3
-            } );
-
-        $body .= '<h2>All Time</h2>';
-        $body .= '<table border="1"><tr><td>month</td><td>type</td><td>duration</td><td>sold</td><td>revenue</td></tr>';
-        foreach my $row ( @{ $rows || [] } ) {
-            $body .= "<tr><td>$row->[0]</td><td>" . DW::Pay::type_name( $row->[1] ) . "</td><td>$row->[2]</td>" .
-                     "<td>$row->[3]</td><td>\$$row->[4].00</td></tr>";
-        }
-        $body .= '</table>';
 
     } else {
         # print the basic form
         $body .= <<EOF;
 
-<form method="get" action="/admin/pay/index.bml">
-
 <ul>
-    <li><a href="/admin/pay/index.bml?show=summary">Complete payment summary</a></li>
-    <li>Edit user: <input type="text" name="view" /> <input type="submit" value="Go" /></li>
+    <li>Edit user:
+      <form method="get" action="/admin/pay/index">
+      <input type="text" name="view" /> <input type="submit" value="Go" />
+      </form>
+    </li>
+    <li>View cart/order ID (or PayPal transaction ID):
+      <form method="get" action="/admin/pay/view">
+      <input type="text" name="cartid" /> <input type="submit" value="Go" />
+      </form>
+    </li>
+    <li>View invite code:
+      <form method="get" action="/admin/pay/view">
+      <input type="text" name="code" /> <input type="submit" value="Go" />
+      </form>
+    </li>
 </ul>
 
 EOF

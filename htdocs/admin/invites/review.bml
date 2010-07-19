@@ -1,0 +1,109 @@
+<?page
+
+# review.bml - individual invite-code-related user details, so an admin 
+# can review their outstanding invite code requests
+#
+# Author: Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+body<=
+<?_code
+{
+    use strict;
+    use vars qw( $title );
+    use DW::Pay;
+
+    $title = "Review Invite History";
+
+    my $remote = LJ::get_remote;
+    return "<?needlogin?>" unless $remote;
+
+    return "You are not authorized to view this page."
+        unless $remote->has_priv( "payments" );
+
+    my $ret;
+
+    if ( LJ::did_post ) {
+        return "<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}" unless LJ::check_form_auth;
+        my $request = DW::InviteCodeRequests->new( reqid => $POST{reqid} );
+        if ( $POST{action} eq "Accept" ) {
+            $request->accept( num_invites => $POST{num_invites} );
+        } elsif ( $POST{action} eq "Reject" ) {
+            $request->reject;
+        }
+    }
+
+    my $form = "<form method='GET'><label>User:</label> <input type='text' name='user' /> <input type='submit' value='View Invite History' /></form>"; 
+    return $form unless $GET{user};
+
+    my $u = LJ::load_user( $GET{user} );
+    return "<?h1 $ML{'Error'} h1?> <p>Invalid user.</p> $form" unless $u;
+
+    $ret .= "<?p User: " . $u->ljuser_display . " p?>";
+    $ret .= "<?h2 Invites h2?>";
+    # user cannot apply for invites when they still have pending invites, but they could have 
+    # received some from the distribution pool while the request was awaiting review
+    my $unused_count = DW::InviteCodes->unused_count( userid => $u->id );
+    $ret .= "<?p Number of unused invites: $unused_count p?>";
+
+    my @codes = DW::InviteCodes->by_owner( userid => $u->id );
+    $ret .= "<table>";
+    $ret .= "<tr><th>Recipient</th><th>Last Active</th><th>Paid?</th></tr>";
+
+    foreach my $code ( @codes ) {
+        my $recipient = LJ::load_userid( $code->recipient );
+        $ret .= "<tr>";        
+
+        if ( $recipient ) {
+            $ret .= "<td>" . $recipient->ljuser_display . "</td>";
+            $ret .= "<td>" . LJ::time_to_http( $recipient->get_timeactive ) . "</td>";
+            $ret .= "<td>Was or is currently paid</td>" if defined DW::Pay::get_paid_status( $recipient );
+        } else {
+            $ret .= "<td>unused</td><td>&nbsp;</td><td>&nbsp;</td>";
+        }
+        $ret .= "</tr>";
+    }
+    $ret .= "</table>";
+    
+    $ret .= "<?h2 Requests for Invite Codes h2?>";    
+    my @requests = DW::InviteCodeRequests->by_user( userid => $u->id );
+    $ret .= "<table>";
+    $ret .= "<tr><th>Requested on</th><th>Processed on</th><th>Status</th><th>Request reason</th></tr>";
+
+    foreach my $request ( @requests ) {
+        $ret .= "<tr>";
+        $ret .= "<td>" . LJ::time_to_http( $request->timegenerate ) . "</td>";
+        $ret .= "<td>" . ( $request->{timeprocessed} ? LJ::time_to_http( $request->timeprocessed ) : "&nbsp;" ) . "</td>";
+        $ret .= "<td>" . $request->status . "</td>";
+        $ret .= "<td>" . $request->reason . "</td>";
+        $ret .= "</tr>";
+    }
+    $ret .= "</table>";    
+
+    # being tyrannical, and forcing the earliest outstanding request to be the one which is processed
+    my $request = (grep {$_->{status} eq 'outstanding'} @requests)[0];
+    if ( $request ) {
+        $ret .= "<form method='POST'>";
+        $ret .= LJ::form_auth;
+        $ret .= LJ::html_hidden( "reqid", $request->id );
+        $ret .= "<?p " . LJ::labelfy( "num_invites", "Number of invites: " );
+        $ret .= LJ::html_text( { name => "num_invites", id => "num_invites", size => "3", value => "1" } );
+        $ret .= LJ::html_submit( "action", "Accept" ) . " p?>";
+        $ret .= "<?p " . LJ::html_submit( "action", "Reject" ) . " p?>";
+        $ret .= "</form>";
+    }
+    
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

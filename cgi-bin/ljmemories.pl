@@ -1,4 +1,16 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 package LJ::Memories;
 use strict;
@@ -21,17 +33,11 @@ sub count {
     return $count if $count;
 
     # now count
-    if ($u->{dversion} > 5) {
-        my $dbcr = LJ::get_cluster_def_reader($u);
-        $count = $dbcr->selectrow_array('SELECT COUNT(*) FROM memorable2 WHERE userid = ?',
-                                        undef, $u->{userid});
-        return undef if $dbcr->err;
-    } else {
-        my $dbh = LJ::get_db_writer();
-        $count = $dbh->selectrow_array('SELECT COUNT(*) FROM memorable WHERE userid = ?',
-                                       undef, $u->{userid});
-        return undef if $dbh->err;
-    }
+    my $dbcr = LJ::get_cluster_def_reader( $u );
+    $count = $dbcr->selectrow_array( 'SELECT COUNT(*) FROM memorable2 WHERE userid = ?',
+                                        undef, $u->{userid} );
+    return undef if $dbcr->err;
+
     $count += 0;
 
     # now put in memcache and return it
@@ -56,56 +62,41 @@ sub create {
     return undef unless $u && %{$opts || {}};
 
     # make sure we got enough options
-    my ($userid, $journalid, $ditemid, $des, $security) =
-        ($u->{userid}, map { $opts->{$_} } qw(journalid ditemid des security));
+    my ( $userid, $journalid, $ditemid, $des, $security ) =
+        ( $u->userid, map { $opts->{$_} } qw(journalid ditemid des security) );
     $userid += 0;
     $journalid += 0;
     $ditemid += 0;
     $security ||= 'public';
-    $kwids ||= [ LJ::get_keyword_id($u, '*') ]; # * means no category
+    $kwids ||= [ $u->get_keyword_id( '*' ) ]; # * means no category
     $des = LJ::trim($des);
     return undef unless $userid && $journalid && $ditemid && $des && $security && @$kwids;
     return undef unless $security =~ /^(?:public|friends|private)$/;
 
     # we have valid data, now let's insert it
-    if ($u->{dversion} > 5) {
-        return undef unless $u->writer;
+    return undef unless $u->writer;
 
-        # allocate memory id to use
-        my $memid = LJ::alloc_user_counter($u, 'R');
-        return undef unless $memid;
+    # allocate memory id to use
+    my $memid = LJ::alloc_user_counter( $u, 'R' );
+    return undef unless $memid;
 
-        # insert main memory
-        $u->do("INSERT INTO memorable2 (userid, memid, journalid, ditemid, des, security) " .
-               "VALUES (?, ?, ?, ?, ?, ?)", undef, $userid, $memid, $journalid, $ditemid, $des, $security);
+    # insert main memory
+    $u->do( "INSERT INTO memorable2 (userid, memid, journalid, ditemid, des, security) " .
+            "VALUES (?, ?, ?, ?, ?, ?)", undef, $userid, $memid, $journalid, $ditemid, $des, $security );
         return undef if $u->err;
 
-        # insert keywords
-        my $val = join ',', map { "($u->{userid}, $memid, $_)" } @$kwids;
-        $u->do("REPLACE INTO memkeyword2 (userid, memid, kwid) VALUES $val");
+    # insert keywords
+    my $val = join ',', map { "($userid, $memid, $_)" } @$kwids;
+    $u->do( "REPLACE INTO memkeyword2 (userid, memid, kwid) VALUES $val" );
 
-    } else {
-        my $dbh = LJ::get_db_writer();
-        return undef unless $dbh;
-
-        # insert main memory
-        $dbh->do("INSERT INTO memorable (userid, journalid, jitemid, des, security) " .
-                 "VALUES (?, ?, ?, ?, ?)", undef, $userid, $journalid, $ditemid, $des, $security);
-        return undef if $dbh->err;
-
-        # insert keywords
-        my $memid = $dbh->{mysql_insertid}+0;
-        my $val = join ',', map { "($memid, $_)" } @$kwids;
-        $dbh->do("REPLACE INTO memkeyword (memid, kwid) VALUES $val");
-    }
 
     # Delete the appropriate memcache entries
-    LJ::MemCache::delete([$u->{userid}, "memct:$u->{userid}"]);
-    my $filter = $journalid == $u->{userid} ? 'own' : 'other';
+    LJ::MemCache::delete( [$userid, "memct:$userid"] );
+    my $filter = $journalid == $userid ? 'own' : 'other';
     my $filter_char   = _map_filter_to_char($filter);
     my $security_char = _map_security_to_char($security);
-    my $memcache_key = "memkwcnt:$u->{userid}:$filter_char:$security_char";
-    LJ::MemCache::delete([$u->{userid}, $memcache_key]);
+    my $memcache_key = "memkwcnt:$userid:$filter_char:$security_char";
+    LJ::MemCache::delete( [$userid, $memcache_key] );
 
     return 1;
 }
@@ -120,33 +111,19 @@ sub create {
 # returns: 1 on success; undef on error.
 # </LJFUNC>
 sub delete_by_id {
-    my ($u, $memids) = @_;
-    $u = LJ::want_user($u);
+    my ( $u, $memids ) = @_;
+    $u = LJ::want_user( $u );
     $memids = [ $memids ] if $memids && !ref $memids; # so they can just pass a single thing...
     return undef unless $u && @{$memids || []};
 
-    # setup
-    my ($db, $table) = $u->{dversion} > 5 ?
-                       ($u, '2') :
-                       (LJ::get_db_writer(), '');
-
-    # if dversion 5, verify the ids
-    my $in = join ',', map { $_+0 } @$memids;
-    if ($u->{dversion} == 5) {
-        $memids = $db->selectcol_arrayref("SELECT memid FROM memorable WHERE userid = ? AND memid IN ($in)",
-                                          undef, $u->{userid});
-        return undef if $db->err;
-        return 1 unless @{$memids || []}; # if we got nothing, pretend success
-        $in = join ',', map { $_+0 } @$memids;
-    }
-
     # delete actual memory
-    $db->do("DELETE FROM memorable$table WHERE userid = ? AND memid IN ($in)", undef, $u->{userid});
-    return undef if $db->err;
+    my $in = join ',', map { $_ + 0 } @$memids;
+    $u->do("DELETE FROM memorable2 WHERE userid = ? AND memid IN ($in)", undef, $u->{userid});
+    return undef if $u->err;
 
     # delete keyword associations
-    my $euser = $u->{dversion} > 5 ? "userid = $u->{userid} AND" : '';
-    $db->do("DELETE FROM memkeyword$table WHERE $euser memid IN ($in)");
+    my $euser = "userid = $u->{userid} AND";
+    $u->do("DELETE FROM memkeyword2 WHERE $euser memid IN ($in)");
 
     # delete cache of count and keyword counts
     clear_memcache($u);
@@ -198,17 +175,10 @@ sub get_keyword_counts {
 
     if (@all_memids) {
         my $in = join ',', @all_memids;
-        if ($u->{dversion} > 5) {
-            my $dbcr = LJ::get_cluster_reader($u);
-            my $sql = "SELECT kwid, memid FROM memkeyword2 WHERE userid = $userid AND memid IN ($in)";
-            $mem_kw_rows = $dbcr->selectall_arrayref($sql);
-            return undef if $dbcr->err;
-        } else {
-            my $dbr = LJ::get_db_reader();
-            my $sql = "SELECT kwid, memid FROM memkeyword WHERE kwid IN ($in)";
-            $mem_kw_rows = $dbr->selectall_arrayref($sql);
-            return undef if $dbr->err;
-        }
+        my $dbcr = LJ::get_cluster_reader( $u );
+        my $sql = "SELECT kwid, memid FROM memkeyword2 WHERE userid = $userid AND memid IN ($in)";
+        $mem_kw_rows = $dbcr->selectall_arrayref( $sql );
+        return undef if $dbcr->err;
     }
 
     # Filter and Sum
@@ -316,7 +286,7 @@ sub _get_memcache_keyword_counts {
 
     # Loop over our memcache results, get counts and total them as we go
     my (%output_counts, @missing_keys);
-    my $memcache_counts = $LJ::DISABLED{'memkwcnt_memcaching'} ? {} : LJ::MemCache::get_multi(map { [$userid, $_] } @memcache_keys);
+    my $memcache_counts = LJ::is_enabled('memkwcnt_memcaching') ? LJ::MemCache::get_multi(map { [$userid, $_] } @memcache_keys) : {};
     foreach my $memcache_key (@memcache_keys) {
         my $counts = $memcache_counts->{$memcache_key};
         if ($counts) { # Add these memcache counts to totals
@@ -356,25 +326,18 @@ sub add_hash {
 # returns: Arrayref of keywordids; undef on error.
 # </LJFUNC>
 sub get_keywordids {
-    my ($u, $memid) = @_;
-    $u = LJ::want_user($u);
+    my ( $u, $memid ) = @_;
+    $u = LJ::want_user( $u );
     $memid += 0;
     return undef unless $u && $memid;
 
     # definitive reader/master because this function is usually called when
     # someone is on an edit page.
-    my $kwids;
-    if ($u->{dversion} > 5) {
-        my $dbcr = LJ::get_cluster_def_reader($u);
-        $kwids = $dbcr->selectcol_arrayref('SELECT kwid FROM memkeyword2 WHERE userid = ? AND memid = ?',
-                                           undef, $u->{userid}, $memid);
-        return undef if $dbcr->err;
+    my $dbcr = LJ::get_cluster_def_reader( $u );
+    my $kwids = $dbcr->selectcol_arrayref( 'SELECT kwid FROM memkeyword2 WHERE userid = ? AND memid = ?',
+                                           undef, $u->userid, $memid );
+    return undef if $dbcr->err;
 
-    } else {
-        my $dbh = LJ::get_db_writer();
-        $kwids = $dbh->selectcol_arrayref('SELECT kwid FROM memkeyword WHERE memid = ?', undef, $memid);
-        return undef if $dbh->err;
-    }
 
     # all good, return
     return $kwids;
@@ -391,38 +354,36 @@ sub get_keywordids {
 #              you want to update the memory to have.
 # returns: 1 on success, undef on error
 # </LJFUNC>
-sub update_memory {
-    my ($u, $memid, $upd) = @_;
-    $u = LJ::want_user($u);
-    $memid += 0;
-    return unless $u && $memid && %{$upd || {}};
-
-    # get database handle
-    my ($db, $table) = $u->{dversion} > 5 ?
-                       ($u, '2') :
-                       (LJ::get_db_writer(), '');
-    return undef unless $db;
-
-    # construct update lines... only valid things we can update are des and security
-    my @updates;
-    my $security_updated;
-    foreach my $what (keys %$upd) {
-        next unless $what =~ m/^(?:des|security)$/;
-        $security_updated = 1 if $what eq 'security';
-        push @updates, "$what=" . $db->quote($upd->{$what});
-    }
-    my $updstr = join ',', @updates;
-
-    # now perform update
-    $db->do("UPDATE memorable$table SET $updstr WHERE userid = ? AND memid = ?",
-            undef, $u->{userid}, $memid);
-    return undef if $db->err;
-
-    # Delete memcache entries if the security of the memory was updated
-    clear_memcache($u) if $security_updated;
-
-    return 1;
-}
+# sub update_memory {
+#     my ($u, $memid, $upd) = @_;
+#     $u = LJ::want_user($u);
+#     $memid += 0;
+#     return unless $u && $memid && %{$upd || {}};
+# 
+#     # get database handle
+#     my ($db, $table) = ($u, '2');
+#     return undef unless $db;
+# 
+#     # construct update lines... only valid things we can update are des and security
+#     my @updates;
+#     my $security_updated;
+#     foreach my $what (keys %$upd) {
+#         next unless $what =~ m/^(?:des|security)$/;
+#         $security_updated = 1 if $what eq 'security';
+#         push @updates, "$what=" . $db->quote($upd->{$what});
+#     }
+#     my $updstr = join ',', @updates;
+# 
+#     # now perform update
+#     $db->do("UPDATE memorable$table SET $updstr WHERE userid = ? AND memid = ?",
+#             undef, $u->{userid}, $memid);
+#     return undef if $db->err;
+# 
+#     # Delete memcache entries if the security of the memory was updated
+#     clear_memcache($u) if $security_updated;
+# 
+#     return 1;
+# }
 
 # this messy function gets memories based on an options hashref.  this is an
 # API API and isn't recommended for use by BML etc... add to the API and have
@@ -478,31 +439,23 @@ sub _memory_getter {
         $selwhere = "AND memid IN ($in)";
     } elsif ($opts->{byditemid} && $opts->{journalid}) {
         # or, they want to see if a memory exists for a particular item
-        my $selitemid = $u->{dversion} > 5 ? "ditemid" : "jitemid";
+        my $selitemid = "ditemid";
         $opts->{byditemid} += 0;
         $opts->{journalid} += 0;
         $selwhere = "AND journalid = $opts->{journalid} AND $selitemid = $opts->{byditemid}";
     } elsif ($opts->{byditemid}) {
         # get memory, OLD STYLE so journalid is 0
-        my $selitemid = $u->{dversion} > 5 ? "ditemid" : "jitemid";
+        my $selitemid = "ditemid";
         $opts->{byditemid} += 0;
         $selwhere = "AND journalid = 0 AND $selitemid = $opts->{byditemid}";
     }
 
     # load up memories into hashref
-    my (%memories, $sth);
-    if ($u->{dversion} > 5) {
-        # new clustered memories
-        my $dbcr = LJ::get_cluster_reader($u);
-        my $sql = "SELECT memid, userid, journalid, ditemid, $des security "
-           . "FROM memorable2 WHERE userid = ? $selwhere $secwhere $extrawhere";
-        $sth = $dbcr->prepare($sql);
-    } else {
-        # old global memories
-        my $dbr = LJ::get_db_reader();
-        $sth = $dbr->prepare("SELECT memid, userid, journalid, jitemid, $des security " .
-                             "FROM memorable WHERE userid = ? $selwhere $secwhere $extrawhere");
-    }
+    my ( %memories, $sth );
+    my $dbcr = LJ::get_cluster_reader( $u );
+    my $sql = "SELECT memid, userid, journalid, ditemid, $des security "
+            . "FROM memorable2 WHERE userid = ? $selwhere $secwhere $extrawhere";
+    $sth = $dbcr->prepare( $sql );
 
     # general execution and fetching for return
     $sth->execute($u->{userid});
@@ -537,13 +490,13 @@ sub _memory_getter {
 # des-memids: The rest of the memory ids.  Array.  (Pass them in as individual parameters...)
 # returns: Hashref of memories with keys being memid; undef on error.
 # </LJFUNC>
-sub get_by_id {
-    my $u = shift;
-    return {} unless @_; # make sure they gave us some ids
-
-    # pass to getter to get by id
-    return LJ::Memories::_memory_getter($u, { byid => [ map { $_+0 } @_ ] });
-}
+# sub get_by_id {
+#     my $u = shift;
+#     return {} unless @_; # make sure they gave us some ids
+# 
+#     # pass to getter to get by id
+#     return LJ::Memories::_memory_getter($u, { byid => [ map { $_+0 } @_ ] });
+# }
 
 # <LJFUNC>
 # name: LJ::Memories::get_by_ditemid
@@ -576,10 +529,10 @@ sub get_by_ditemid {
 # des-uuobj: User id or user object to get memories for.
 # returns: Hashref of memories with keys being memid; undef on error.
 # </LJFUNC>
-sub get_by_user {
-    # simply passes through to _memory_getter
-    return LJ::Memories::_memory_getter(@_);
-}
+# sub get_by_user {
+#     # simply passes through to _memory_getter
+#     return LJ::Memories::_memory_getter(@_);
+# }
 
 # <LJFUNC>
 # name: LJ::Memories::get_by_keyword
@@ -599,41 +552,21 @@ sub get_by_keyword {
     my $kw = defined $kwoid && !$kwid ? $kwoid : undef;
     return undef unless $u && ($kwid || defined $kw);
 
-    # two entirely separate codepaths, depending on the user's dversion.
     my $memids;
-    if ($u->{dversion} > 5) {
-        # the smart way
-        my $dbcr = LJ::get_cluster_reader($u);
-        return undef unless $dbcr;
+    my $dbcr = LJ::get_cluster_reader( $u );
+    return undef unless $dbcr;
 
-        # get keyword id if we don't have it
-        if (defined $kw) {
-            $kwid = $dbcr->selectrow_array('SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
-                                           undef, $u->{userid}, $kw)+0;
-        }
-        return undef unless $kwid;
-
-        # now get the actual memory ids
-        $memids = $dbcr->selectcol_arrayref('SELECT memid FROM memkeyword2 WHERE userid = ? AND kwid = ?',
-                                           undef, $u->{userid}, $kwid);
-        return undef if $dbcr->err;
-    } else {
-        # the dumb way
-        my $dbr = LJ::get_db_reader();
-        return undef unless $dbr;
-
-        # get keyword id if we don't have it
-        if (defined $kw) {
-            $kwid = $dbr->selectrow_array('SELECT kwid FROM keywords WHERE keyword = ?', undef, $kw)+0;
-        }
-        return undef unless $kwid;
-
-        # now get memory ids.  this has to join.  :(
-        $memids = $dbr->selectcol_arrayref('SELECT m.memid FROM memorable m, memkeyword mk ' .
-                                           'WHERE m.userid = ? AND mk.memid = m.memid AND mk.kwid = ?',
-                                           undef, $u->{userid}, $kwid);
-        return undef if $dbr->err;
+    # get keyword id if we don't have it
+    if ( defined $kw ) {
+        $kwid = $dbcr->selectrow_array( 'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
+                                        undef, $u->userid, $kw ) + 0;
     }
+    return undef unless $kwid;
+
+    # now get the actual memory ids
+    $memids = $dbcr->selectcol_arrayref( 'SELECT memid FROM memkeyword2 WHERE userid = ? AND kwid = ?',
+                                         undef, $u->{userid}, $kwid );
+    return undef if $dbcr->err;
 
     # return
     $memids = [] unless defined($memids);
@@ -660,47 +593,19 @@ sub get_keywords {
     return $ret if defined $ret;
     $ret = {};
 
-    if ($u->{dversion} > 5) {
-        # new style clustered code
-        my $dbcm = LJ::get_cluster_def_reader($u);
-        unless ($dbcm) {
-            $use_reader = 1;
-            $dbcm = LJ::get_cluster_reader($u);
-        }
-        my $ids = $dbcm->selectcol_arrayref('SELECT DISTINCT kwid FROM memkeyword2 WHERE userid = ?',
-                                            undef, $u->{userid});
-        if (@{$ids || []}) {
-            my $in = join ",", @$ids;
-            my $rows = $dbcm->selectall_arrayref('SELECT kwid, keyword FROM userkeywords ' .
-                                                 "WHERE userid = ? AND kwid IN ($in)", undef, $u->{userid});
-            $ret->{$_->[0]} = $_->[1] foreach @{$rows || []};
-        }
-
-    } else {
-        # old style code using global
-        my $dbh = LJ::get_db_writer();
-        unless ($dbh) {
-            $use_reader = 1;
-            $dbh = LJ::get_db_reader();
-        }
-        my $sth = $dbh->prepare("SELECT DISTINCT mk.kwid ".
-                                "FROM ".
-                                "  memorable m FORCE INDEX (uniq),".
-                                "  memkeyword mk ".
-                                "WHERE mk.memid=m.memid AND m.userid=?");
-        $sth->execute($u->{userid});
-        my @ids;
-        push @ids, $_ while $_ = $sth->fetchrow_array;
-
-        if (@ids) {
-            my $in = join(",", @ids);
-            $sth = $dbh->prepare("SELECT kwid, keyword FROM keywords WHERE kwid IN ($in)");
-            $sth->execute;
-
-            while (my ($id,$kw) = $sth->fetchrow_array) {
-                $ret->{$id} = $kw;
-            }
-        }
+    my $dbcm = LJ::get_cluster_def_reader( $u );
+    unless ( $dbcm ) {
+        $use_reader = 1;
+        $dbcm = LJ::get_cluster_reader( $u );
+    }
+    my $ids = $dbcm->selectcol_arrayref( 'SELECT DISTINCT kwid FROM memkeyword2 WHERE userid = ?',
+                                         undef, $u->userid );
+    if ( @{$ids || []} ) {
+        my $in = join ",", @$ids;
+        my $rows = $dbcm->selectall_arrayref( 'SELECT kwid, keyword FROM userkeywords ' .
+                                              "WHERE userid = ? AND kwid IN ($in)",
+                                              undef, $u->userid );
+        $ret->{$_->[0]} = $_->[1] foreach @{$rows || []};
     }
 
     my $expiration = $LJ::MEMCACHE_EXPIRATION{'memkwid'} || 86400;

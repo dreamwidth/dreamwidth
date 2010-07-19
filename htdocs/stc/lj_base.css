@@ -46,12 +46,14 @@ form {
     background-repeat: repeat-x;
     border: 1px solid #FF9999;
     padding: 8px;
+    color: #000000;
 }
 
 .Note .Inner {
-    background: #FFFFDD;
-    border: 1px solid #FFCC33;
+    background: #eee;
+    border: 1px solid #ccc;
     padding: 8px;
+    color: #000000;
 }
 
 div.lj_ippu {
@@ -131,6 +133,33 @@ div.lj_ippu_titlebar {
     color: #f00;
 }
 
-.ljedittime {
+.edittime {
     font-size: smaller;
+}
+
+.warning-background {
+    background-image: url('/img/message-warning.gif');
+}
+
+.user-search-display {
+    width: 300px;
+    height: 105px;
+    float: left;
+    margin-bottom: 5px;
+    margin-right: 10px;
+    vertical-align: top;
+}
+
+.user-search-display table td {
+    vertical-align: middle;
+}
+
+.example {
+    vertical-align: top;
+}
+
+.invisible {
+    position:absolute;
+    left:-10000px;
+    top:auto;
 }

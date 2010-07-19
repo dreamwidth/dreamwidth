@@ -133,7 +133,7 @@ POST
         selecttype
         howmany
 
-editpics.bml
+editicons.bml
 GET
         authas
 POST
@@ -352,21 +352,9 @@ POST
         prop_current_moodid
         prop_current_music
 
-userinfo.bml
+profile.bml
 GET
         mode
         user
         userid
         viewall
-
-utf8convert.bml 11/25
-GET
-        authas
-        mode
-        area
-        encid
-        forceview
-POST
-        mode
-        area
-        encid

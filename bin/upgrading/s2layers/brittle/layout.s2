@@ -1,0 +1,899 @@
+layerinfo type = "layout";
+layerinfo name = "Brittle";
+layerinfo redist_uniq = "brittle/layout";
+layerinfo author_name = "renoir";
+
+set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
+
+##===============================
+## Display settings - general
+##===============================
+
+propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+    property use layout_type;
+    property use tags_page_type;
+    property use sidebar_width;
+    property use userpics_position;
+    property use entry_metadata_position;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
+}
+
+set sidebar_width = "15em";
+set layout_type = "two-columns-right";
+set use_custom_friend_colors = false;
+set custom_foreground_element = "userpic_border";
+set custom_background_element = "userpic_background";
+
+##===============================
+## Journal style - colors
+##===============================
+
+propgroup colors {
+
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_link_hover;
+    property use color_page_link_visited;
+
+    property use color_footer_background;
+    property use color_footer_link;
+    property use color_footer_link_hover;
+    property use color_footer_link_visited;
+
+    property Color color_navigation_module_background { des = "Navigation module background color"; }
+    property Color color_navigation_module_link { des = "Navigation module link color"; }
+    property Color color_navigation_module_link_hover { des = "Navigation module hover link color"; }
+    property Color color_navigation_module_link_visited { des = "Navigation module visited link color"; }
+
+    property use color_entry_title;
+    property use color_entry_background;
+    property use color_entry_text;
+    property use color_entry_link;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
+}
+
+
+##===============================
+## Display settings - fonts
+##===============================
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+
+    property string font_entry_text {
+        des = "Preferred font for entry text";
+        maxlength = 25;
+        size = 15;
+        note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+        }
+    property string font_entry_text_size {
+        des = "Size of entry text font";
+        size = 3;
+        }
+    property string font_entry_text_units {
+        des = "Units for entry text size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+    }
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+
+    property string font_navigation_module_text {
+        des = "Preferred font for navigation module text";
+        maxlength = 25;
+        size = 15;
+        note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+        }
+    property string font_navigation_module_text_size {
+        des = "Size of navigation module text font";
+        size = 3;
+        }
+    property string font_navigation_module_text_units {
+        des = "Units for navigation module text size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property string font_other_module_text {
+        des = "Preferred font for module text other than navigation module";
+        maxlength = 25;
+        size = 15;
+        note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+        }
+    property string font_other_module_text_size {
+        des = "Size of module text font other than navigation module";
+        size = 3;
+        }
+    property string font_other_module_text_units {
+        des = "Units for module text size other than navigation module";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+    property string font_date_time {
+        des = "Preferred font for date and time in entries and comments";
+        maxlength = 25;
+        size = 15;
+        note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+        }
+    property string font_date_time_size {
+        des = "Size of font for date and time in entries and comments";
+        size = 3;
+        }
+    property string font_date_time_units {
+        des = "Units for date and time in entries and comments text size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
+
+}
+
+
+set font_base = "Georgia";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+
+set font_entry_text = "Georgia";
+set font_entry_text_size = "0.95";
+set font_entry_text_units = "em";
+set font_entry_title = "Georgia";
+set font_entry_title_size = "0.7";
+set font_entry_title_units = "em";
+
+set font_navigation_module_text = "Georgia";
+set font_navigation_module_text_size = "0.8";
+set font_navigation_module_text_units = "em";
+set font_other_module_text = "Georgia";
+set font_other_module_text_size = "0.8";
+set font_other_module_text_units = "em";
+set font_module_heading = "Georgia";
+set font_module_heading_size = "1";
+set font_module_heading_units = "em";
+
+set font_date_time = "Helvetica";
+set font_date_time_size = "0.6";
+set font_date_time_units = "em";
+
+##===============================
+## Display settings - images
+##===============================
+
+propgroup images {
+    property use image_background_page_group;
+    property use image_background_entry_group;
+}
+
+##===============================
+## Display settings - modules
+##===============================
+
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    property use module_customtext_group;
+    property use module_calendar_group;
+    property use module_pagesummary_group;
+    property use module_tags_group;
+    property use module_active_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+    property use module_credit_group;
+    property use module_search_group;
+}
+
+# explicitly define what sections the layout has available
+set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
+
+# set module order and sections
+set module_navlinks_order = 1;
+set module_navlinks_section = "one";
+set module_customtext_order = 2;
+set module_customtext_section = "one";
+set module_userprofile_order = 3;
+set module_userprofile_section = "two";
+set module_links_order = 5;
+set module_links_section = "two";
+set module_syndicate_order = 6;
+set module_syndicate_section = "two";
+set module_tags_order = 7;
+set module_tags_section = "two";
+set module_pagesummary_order = 8;
+set module_pagesummary_section = "two";
+set module_active_order = 9;
+set module_active_section = "two";
+set module_credit_order = 10;
+set module_credit_section = "two";
+set module_calendar_order = 13;
+set module_calendar_section = "two";
+set module_calendar_opts_type = "horizontal";
+
+##===============================
+## Custom CSS
+##===============================
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+propgroup text {
+##===============================
+## Text - main navigation
+##===============================
+
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_archive;
+    property use text_view_userinfo;
+    property use text_view_memories;
+    property use text_view_tags;
+
+##===============================
+## Text - entry comment-related
+##===============================
+
+    property use text_post_comment;
+    property use text_max_comments;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+    property use text_meta_music;
+    property use text_meta_mood;
+    property use text_meta_location;
+    property use text_tags;
+
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_tell_friend;
+    property use text_mem_add;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+    property use text_permalink;
+    property use text_stickyentry_subject;
+
+    property use text_module_customtext;
+    property use text_module_customtext_content;
+    property use text_module_customtext_url;
+}
+
+function Page::print_default_stylesheet() {
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+
+    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string entry_font = generate_font_css($*font_entry_text, $*font_fallback, $*font_entry_text_size, $*font_entry_text_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+    var string navigation_module_font = generate_font_css($*font_navigation_module_text, $*font_fallback, $*font_navigation_module_text_size, $*font_navigation_module_text_units);
+    var string other_module_font = generate_font_css($*font_other_module_text, $*font_fallback, $*font_other_module_text_size, $*font_other_module_text_units);
+    var string date_time_font = generate_font_css($*font_date_time, $*font_fallback, $*font_date_time_size, $*font_date_time_units);
+    var string input_textarea_font = generate_font_css($*font_date_time, $*font_fallback, "", "");
+
+    var Color bottom_border = $*color_entry_text -> lighter(90);
+    var Color solid_border = $*color_entry_background -> darker(25);
+    var Color blockquote_text = $*color_entry_text -> lighter(10);
+    var Color blockquote_background = $*color_entry_background -> darker(10);
+
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        div.entry div.userpic {
+            float: left;
+            margin: 0 0 0 -100px;
+            }
+        div.comment div.userpic {
+            float: left;
+            margin: 0 0 0 -110px;
+            }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        div.entry div.userpic {
+            float: right;
+            margin: 0 -100px 0 0;
+            }
+        div.comment div.userpic {
+            float: right;
+            margin: 0 -110px 0 0;
+            }
+        #secondary {
+            margin-left: 110px;
+        }
+        """;
+    }
+
+    """
+body {
+    padding: 0;
+    $page_background
+    $page_font
+    color: $*color_page_text;
+    line-height: 1.6em;
+    text-align: center;
+    }
+
+img { border: none; }
+
+a { text-decoration: none; }
+a, a:link { color: $*color_page_link;   }
+a:visited { color: $*color_page_link_visited; }
+a:hover { color: $*color_page_link_hover; }
+
+q { font-style: italic; }
+
+#canvas {
+    margin: 0 auto;
+    padding: 5% 0 5% 15%;
+    text-align: justify;
+    width: 85%;
+}
+
+#primary {
+    float: left;
+    width: 45%;
+    text-align: justify;
+    margin: 0 0.6em 0 0;
+    }
+
+#secondary {
+    float: left;
+    width: $*sidebar_width;
+    margin: 1px 0 0 0;
+    padding: 0 1em;
+    font-size: 1em;
+    color: $*color_navigation_module_background;
+}
+
+#tertiary {
+    clear: both;
+    width: 45%;
+    background-color: $*color_entry_background;
+    line-height: 125%;
+    }
+
+#tertiary > .inner:first-child { }
+
+#tertiary .separator-after { clear: both; }
+
+
+/*--- header + footer ---*/
+
+#header { display: none; }
+#footer {
+    background: $*color_footer_background;
+    width: 45%;
+    font-size: 0.7em;
+    text-transform: lowercase;
+    clear: both;
+    margin-top: 10px;
+}
+
+#footer a, #footer a:link, #footer a:active { $*color_footer_link; }
+#footer a:visited { $*color_footer_link_visited; }
+#footer a:hover { $*color_footer_link_hover; }
+
+#footer .inner { padding: 10px; }
+
+
+/*--- prev/next navigation ---*/
+
+li.page-back, li.page-forward {
+    display: inline;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    }
+
+li.page-separator { display: none; }
+
+div.navigation ul {
+    display: inline;
+    padding: 0;
+    margin: 0;
+    }
+
+
+/*--- entry ---*/
+
+.entry {
+    $entry_background
+    color: $*color_entry_text;
+    padding: 10px;
+    margin: 0 0 10px 0;
+    $entry_font
+    }
+
+.entry-content { margin: 10px 0 0 0; }
+
+.entry .header {
+    padding: 0;
+    margin: 0 0 10px 0;
+    border-bottom: 1px dotted $bottom_border;
+    }
+
+h3.entry-title {
+    margin: 0;
+    padding: 0;
+    $entry_title_font
+    font-weight: normal;
+    text-transform: lowercase;
+    letter-spacing: 1px;
+    color: $*color_entry_title;
+    }
+
+h3.entry-title a { color: $*color_entry_title; }
+
+.datetime {
+    $date_time_font
+    text-transform: uppercase;
+    color: $*color_entry_title;
+    }
+.datetime a { color: $*color_entry_title; }
+
+div.entry div.userpic {
+    display: block;
+    }
+
+div.entry div.userpic img {
+    width: 70px;
+    height: 70px; /*FIXME -- this shouldn't be hardcoded */
+    border: 5px solid $*color_navigation_module_background;
+    }
+
+span.poster {
+    $date_time_font
+    text-transform: uppercase;
+    }
+
+.metadata { margin: 1.25em 0 0 0; }
+
+.metadata.top-metadata { margin: 10px 0 1.25em 0; }
+
+div.metadata ul {
+    padding: 0;
+    margin: 0;
+    }
+
+div.metadata ul li {
+    list-style: none;
+    font-size: 60%;
+    font-weight: normal;
+    text-transform: lowercase;
+    color: $*color_entry_title;
+    letter-spacing: 0;
+    padding: 0;
+    }
+
+span.tag-text {
+    font-size: 60%;
+    text-transform: lowercase;
+    }
+
+div.tag ul {
+    padding: 0 0 0 13px;
+    margin: 0;
+    display: inline;
+    }
+
+div.tag ul li {
+    display: inline;
+    list-style: none;
+    font-size: 60%;
+    font-weight: normal;
+    text-transform: lowercase;
+    color: $*color_entry_title;
+    letter-spacing: 0;
+    padding: 0;
+    }
+
+ul.entry-management-links {
+    padding: 0;
+    margin: 10px 0 0 0;
+    }
+
+ul.entry-management-links li {
+    display: inline;
+    list-style: none;
+    font-size: 60%;
+    font-weight: normal;
+    text-transform: lowercase;
+    color: $*color_entry_title;
+    letter-spacing: 0;
+    padding: 0 5px 0 0;
+    }
+
+ul.entry-interaction-links {
+    padding: 0 0 5px 0;
+    margin: 10px 0 0 0;
+    text-align: center;
+    }
+
+ul.entry-interaction-links li {
+    display: inline;
+    list-style: none;
+    font-size: 65%;
+    font-weight: normal;
+    text-transform: uppercase;
+    color: $*color_entry_title;
+    letter-spacing: 0;
+    padding: 0 5px 0 0;
+    }
+
+
+/*-- archive --*/
+
+li.active {
+    list-style: none;
+    display: inline;
+    padding: 0;
+    margin: 10px;
+    }
+
+.month {
+    background-color: $*color_entry_background;
+    padding: 20px;
+    margin: 0;
+    }
+
+.month h3 {
+    $entry_title_font
+    font-weight: normal;
+    text-transform: lowercase;
+    letter-spacing: 1px;
+    padding: 0;
+    margin: 0;
+    text-align: right;
+    }
+
+.navigation ul { display: inline; }
+.navigation li { display: inline; list-style: none; }
+
+table.month { border: 0; }
+.month caption { display: none; }
+.month th {
+    text-align: center;
+    margin: 0 2px;
+    text-transform: lowercase;
+    font-weight: normal;
+    }
+.month td.day {
+    font-weight: normal;
+    color: $*color_entry_title;
+    }
+.month td.day-has-entries {
+    font-weight: normal;
+    color: $*color_entry_title;
+    }
+.month td.day-has-entries p {
+    padding: 0 0 0 5px;
+    margin: 0;
+    display: inline;
+    }
+.month table {
+    width: 100%;
+    border: 0;
+    margin: auto;
+    }
+
+td.day {
+    padding: 10px;
+    border: 0;
+    text-align: center;
+    }
+
+
+/*-- tags --*/
+
+.page-tags .tags-container {
+    background-color: $*color_entry_background;
+    $entry_font
+    padding: 10px;
+    margin: 0 0 10px 0;
+    }
+
+.page-tags .tags-container h2 {
+    margin: 0 0 10px 0;
+    padding: 0;
+    $entry_title_font
+    border-width: 0 0 1px 0;
+    border-style: dotted;
+    border-color: $bottom_border;
+    font-weight: normal;
+    text-transform: lowercase;
+    letter-spacing: 1px;
+    color: $*color_entry_title;
+    }
+
+.page-tags .ljtaglist { margin: 0; padding: 0; }
+.page-tags .ljtaglist li {
+    padding: 0 0 0 10px;
+    margin: 0;
+    text-transform: lowercase;
+    letter-spacing: 0;
+    list-style: none;
+    }
+.page-tags .tags_cloud { text-align: center; }
+
+/*--- comments ---*/
+
+.comment-title h4 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+#comments { $entry_font }
+
+hr.above-entry-interaction-links, hr.below-reply-container { display: none; }
+
+input, textarea {
+    background-color: $*color_entry_background;
+    color: $*color_entry_title;
+    padding: 2px;
+    border: 1px solid $bottom_border;
+    $input_textarea_font
+    font-size: 80%;
+    }
+
+textarea.textbox  { width: 90%!important; }
+
+.poster-ip {
+    $date_time_font
+    text-transform: uppercase;
+    color: $*color_entry_title;
+    display: block;
+    text-align: left;
+    }
+
+div.comment div.userpic {
+    display: block;
+    }
+
+div.comment div.userpic img {
+    width: 70px;
+    height: 70px; /*FIXME: don't hardcode userpic sizes!*/
+    border: 5px solid $*color_navigation_module_background;
+    }
+
+.comment {
+    background: $*color_entry_background;
+    padding: 20px;
+    margin: 0;
+    }
+.comment-wrapper { margin: 20px 0; padding: 0; }
+.comment-content { margin: 10px 0; }
+
+.bottomcomment, .comments-message {
+    background: $*color_entry_background;
+    padding: 20px;
+    margin: 0;
+    }
+
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links li, .comment-interaction-links li { display: inline; }
+
+#qrform table { border: 0!important; }
+
+.comment-poster {
+    $date_time_font
+    text-transform: uppercase;
+    color: $*color_entry_title;
+    }
+
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links li, .comment-interaction-links li { display: inline; }
+
+table.talkform {
+    background: $*color_entry_background;
+    $entry_font
+    padding: 10px;
+    margin: 0 0 10px 0;
+    }
+
+/*-- modules --*/
+
+#secondary .module {
+    $other_module_font
+    }
+
+#tertiary .module {
+    float: left;
+    padding: 0.5em 2em;
+    $other_module_font
+    }
+#secondary .module-navlinks { $navigation_module_font; }
+
+#tertiary .module-navlinks {
+    margin: 0;
+    padding: 1em 5%;
+    width: 90%;
+    }
+
+.module-navlinks {
+    padding: 10px;
+    margin: 0 0 0 -0.8em;
+    background-color: $*color_navigation_module_background;
+    text-transform: lowercase;
+    }
+
+.module-navlinks ul.module-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    }
+.module-navlinks ul.module-list li {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    }
+.module-navlinks ul.module-list li a, .module-navlinks ul.module-list li a:link { color: $*color_navigation_module_link; }
+.module-navlinks ul.module-list li a:visited { color: $*color_navigation_module_link_visited; }
+.module-navlinks ul.module-list li a:hover { color: $*color_navigation_module_link_hover; }
+
+
+.module-calendar { text-align: center; }
+.module-customtext {
+    padding: 0;
+    margin: 20px 0 0 0;
+    text-align: center;
+    }
+
+#secondary .module-customtext { color: $*color_navigation_module_background; }
+
+.module-header {
+    color: $*color_entry_title;
+    $module_title_font
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: lowercase;
+    border-style: dotted;
+    border-width: 0 0 1px 0;
+    border-color: $bottom_border;
+    }
+
+.module-customtext .module-header { text-align: center; }
+
+#secondary .module-header a,
+#secondary .module-header a:link,
+#secondary .module-header a:visited,
+#secondary .module-header a:hover
+    { color: $*color_navigation_module_background; }
+
+#tertiary .module-header a,
+#tertiary .module-header a:link,
+#tertiary .module-header a:visited,
+#tertiary .module-header a:hover
+    { color: $*color_entry_title;  }
+
+.module-userprofile .journal-name,
+.module-userprofile .userpic
+    { text-align: center; }
+
+.module-userprofile .userpic img { border:5px solid $*color_navigation_module_background; }
+
+ul.userlite-interaction-links {
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+    text-align: center;
+    }
+
+ul.userlite-interaction-links li {
+    display: inline;
+    padding: 0 0.2em;
+    }
+
+.module-tags_cloud, .module-time, .module-powered { width: 90%; }
+
+.tags_cloud li, .module-tags_cloud li { display: inline;
+    list-style-type: none; }
+
+.manage-tags-link {
+    text-align: right;
+    font-size: smaller;
+    text-transform: uppercase;
+    }
+
+.module-time, .module-powered {
+    border-style:dotted;
+    border-width: 0 0 1px 0;
+    border-color: $bottom_border;
+    letter-spacing: 1px;
+    line-height: 125%;
+    text-align: center;
+    padding-top: 1em;
+    }
+
+.module-search .search-form { margin: .2em auto; }
+.module-search .search-box { margin: .2em; }
+
+#tertiary .module-content ul {
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: disc;
+    margin-left: 1em;
+    padding-left: 0;
+    }
+
+#tertiary .module-content li {
+    margin: 0.5em 0;
+    line-height: 100%;
+    }
+
+
+/*-- extras --*/
+
+div.ContextualPopup {
+    position: relative;
+    margin: 0;
+    text-align: justify;
+    font-weight: normal;
+    $input_textarea_font
+    font-size: 50%;
+    color: $*color_entry_title;
+    line-height: 1.8em;
+    }
+
+div.ContextualPopup div.Inner {
+    color: $*color_entry_title !important;
+    border: 1px dotted $bottom_border;
+    background: $*color_entry_background !important;
+    padding: 10px;
+    }
+
+div.ContextualPopup .Userpic {
+    margin: 5px;
+    border: 1px dotted $bottom_border;
+    background: $*color_entry_background !important;
+    padding: 5px;
+    }
+
+blockquote {
+    background: $blockquote_background;
+    border: 1px solid $solid_border;
+    font-size: 70%;
+    font-style: italic;
+    padding: 40px 20px;
+    margin: 20px;
+    color: $blockquote_text;
+    }
+
+hr {
+    color: transparent;
+    height: 1px;
+    border-style: none;
+    border-bottom: 3px double $solid_border;
+    }
+
+$userpic_css
+
+""";
+
+}

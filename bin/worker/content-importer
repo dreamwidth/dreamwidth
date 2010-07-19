@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+#
+# content-importer
+#
+# Dispatches TheSchwartz jobs to actually handle content imports.
+#
+# Authors:
+#      Andrea Nall <anall@andreanall.com>
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+
+require 'ljlib.pl';
+
+use LJ::Worker::TheSchwartz;
+use DW::Worker::ContentImporter::LiveJournal::Bio;
+use DW::Worker::ContentImporter::LiveJournal::Comments;
+use DW::Worker::ContentImporter::LiveJournal::Entries;
+use DW::Worker::ContentImporter::LiveJournal::FriendGroups;
+use DW::Worker::ContentImporter::LiveJournal::Friends;
+use DW::Worker::ContentImporter::LiveJournal::Tags;
+use DW::Worker::ContentImporter::LiveJournal::Userpics;
+use DW::Worker::ContentImporter::UserPictures;
+
+schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Bio" );
+schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Comments" );
+schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Entries" );
+schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::FriendGroups" );
+schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Friends" );
+schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Tags" );
+schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Userpics" );
+schwartz_decl( "DW::Worker::ContentImporter::UserPictures" );
+
+$0 = 'content-importer [bored]';
+
+schwartz_work();

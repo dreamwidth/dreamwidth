@@ -29,12 +29,12 @@
 }
 #updateForm label.left {
     width: auto;
-    min-width: 6em;
+    min-width: 6.5em;
     line-height: 1.8em;
     font-size: 14px;
 }
 * html #updateForm label.left {
-    width: 6em;
+    width: 6.5em;
 }
 #updateForm label.options {
     font-size: 11px;
@@ -51,10 +51,10 @@
     float: left;
 }
 #updateForm span.inputgroup-left {
-    display: block; float: left; width: 48%; position: relative;
+    display: block; float: left; width: 50%; position: relative;
 }
 #updateForm span.inputgroup-right {
-    display: block; float: right; width: 50%;  position: relative;
+    display: block; float: right; width: 49%;  position: relative;
 }
 #updateForm span.inputgroup-right label.left {
     width: 11em;
@@ -84,19 +84,14 @@
 #lj_userpicselect {
     float: left;
     font-size: 85%;
-    color: #00C;
     margin: 4px 0px 0px 5px;
     position: relative;
     font-size: 85%;
 }
 #lj_userpicselect_img {
     display: block;
-    border: 1px solid #fff;
     height: 100px;
     position: relative;
-}
-#lj_userpicselect_img:hover {
-    border: 1px solid #003366;
 }
 #lj_userpicselect_img img {
     display: block;
@@ -114,18 +109,13 @@
     text-align: center;
     left: 0;
     top: 38px; 
-    color: #003366 !important;
     cursor: pointer;
     width: 100%;
 }
 #userpic_preview {
     width: 102px;
 }
-#userpic_preview_image.userpic_loggedout {
-    border: 1px solid #003366;
-}
 .userpic_preview_border {
-    border: 1px solid #ccc;
     text-align: center;
     height: 70px;
     padding-top: 30px;
@@ -134,6 +124,15 @@
     font-size: 90%;
     line-height: 110%;
 }
+
+#randomicon {
+    display: none;
+    font-size: 85%;
+    text-align: center;
+    float: left;
+    margin: 4px 0px 0px 5px;
+}
+
 #metainfo {
     float: left;
     margin-right: 10px;
@@ -151,7 +150,6 @@
     padding-left: 7.5em;
 }
 #infobox {
-    border-left: 1px solid #000;
     padding-left: 10px;
     float: right;
     margin-bottom: 10px;
@@ -163,41 +161,46 @@
 #infobox ul {
     list-style: none;
 }
-#entry {
+#compose-entry {
     clear: both;
     padding: 0px;
     margin: 0px;
     position: relative;
-    background: url(/img/entry-tab-bg.gif) repeat-x 0 bottom;
+	border-bottom: 1px solid #ccc;
 }
-#entry p {
+#compose-entry p {
     margin: 0 !important;
 }
-#entry ul {
+#compose-entry ul {
     float: right;
     clear: right;
     list-style: none;
     margin: 0;
     padding: 0;
 }
-#entry ul li {
+#compose-entry ul li {
     float: left;
     margin: 0 4px 0 0;
 }
-#entry ul li a {
+#compose-entry ul li a {
     display: block;
     padding: 8px 10px;
-    background-color: #fff;
     float: left;
     outline: none;
-    border: 1px solid #6699CC;
+	border: 1px solid #ccc;
     border-bottom: none;
 }
-#entry ul li.on {
+#compose-entry ul li.on {
+	
 }
-#entry ul li.on a {
+#compose-entry ul li.on a {
     font-weight: bold;
     padding-bottom: 9px;
+	margin-bottom: -2px;
+	background: #fff;
+}
+#compose-entry ul li.on a {
+	border-bottom: 1px solid #fff;
 }
 #metainfo, #metainfo label, #metainfo input.text, #metainfo strong {
     font-size: 14px;
@@ -206,19 +209,17 @@
     line-height: 1.5em ;
 }
 #subject {
-    /* width: 62%; */
-    width: 380px;
+    width: 52%;
+    /* width: 98%; */
     font-size: 16px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 #draft-container {
-    border-left: 1px solid #bbb;
-    border-right: 1px solid #bbb;
-    border-bottom: 1px solid #bbb;
-    border-top: none;
     margin-bottom: 4px;
     position: relative;
     padding: 0px 4px 2px 4px;
+	border: 1px solid #ccc;
+    border-top: none;
 }
 * html #draft-container {
     padding: 0; 
@@ -247,7 +248,6 @@
     display: block;
     margin-bottom: 4px;
     width: 100%;
-    background-color: #fff;
 }
 .errorbar {
     margin-bottom: 10px !important;
@@ -256,10 +256,8 @@
     margin: 0 0 0 15px !important;
 }
 #spellcheck-results {
-    border: 1px solid #6699CC;
     border-top: none;
     font-size: 95%;
-    background-color: #ffffdd;
     padding: 4px 6px;
 }
 #spellcheck-results p {
@@ -268,9 +266,10 @@
 #htmltools {
     padding: 2px 2px 2px 1px;
     position: relative;
-    border-right: 1px solid #bbb;
-    border-left: 1px solid #bbb;
     margin: 0;
+	background: #fff;
+	border-right: 1px solid #ccc;
+    border-left: 1px solid #ccc;
 }
 * html #htmltools ul {
     height: 20px;
@@ -279,8 +278,8 @@
     list-style: none;
     margin: 0;
     padding: 5px 2px 5px 2px;
-    border-bottom: 1px solid #8D8D8D;
     min-height: 18px;
+	border-bottom: 1px solid #8D8D8D;
 }
 #htmltools ul li {
     float: left;
@@ -330,19 +329,48 @@
     float: none;
     margin: 0 !important;
 }
-#options {
-    border: 1px solid #bbb;
-    background-color: #eee;
+#options, #public {
     padding: 10px;
+	background: #ddd;
 }
+#public {
+    margin-top: 10px;
+    position: relative;
+    padding-left: 34px;
+    font-size: .85em;
+}
+
+#public INPUT {
+    position: relative;
+    margin-left: -24px;
+    top: -2px; 
+    margin-right: 3px;
+    float: left; zoom:1;
+}
+/*:first-child+html #public INPUT {
+    margin-right: 3px;
+}*/
+* html #public INPUT {
+    margin-right: 1px;
+}
+
+#public LABEL {
+    font-weight: normal;
+    line-height: 1.4;
+    height: 1%;
+}
+* html #public LABEL {
+    float: left;
+}
+
 #prop_taglist {
     width: 80%;
 }
 #prop_current_moodid {
-    width: 32%;
+    width: 30%;
 }
 #prop_current_mood {
-    width: 17%;
+    width: 14%;
 }
 #prop_opt_backdated {
     clear: left;
@@ -353,6 +381,11 @@
 * html #prop_opt_backdated {
     margin-left: 3em;
 }
+
+#prop_adult_content {
+    width: 48%
+}
+
 #modifydate label.right {
     float: left;
     display: block;
@@ -392,12 +425,11 @@
     line-height: 0;
 }
 #submitbar {
-    background-color: #ddd;
-    border: 1px solid #aaa;    
     padding: 7px 10px;
     margin-top: 10px;
     text-align: center;
     position: relative;
+	background: #eee;
 }
 #security_container {
     width: 600px;
@@ -469,3 +501,71 @@
     width: 300px !important;
     padding: 5px 0;
 }
+
+.lastfm {
+    float: left;
+    width: 6.5em;
+    font-size: 11px;
+}
+
+.lastfm SPAN {
+    font-weight: normal;
+    color:#999;
+    font-size: 9px;
+    line-height: 100%;
+    display: block;
+    padding-top: 4px;
+}
+
+.lastfm_lnk {
+    text-indent: -3000px;
+    width: 101px;
+    height: 29px;
+    float: left;
+    background: url(/img/lastfm_logo.gif) no-repeat;
+    border-bottom: 0px !important;
+}
+
+div.inbox_formmes {
+    clear: left; 
+    margin-right: 160px; 
+    max-width: 790px;
+    min-width: 550px;
+}
+.inbox_formmes .subj-l {
+    float: left; 
+    width: 13%;
+}
+.inbox_formmes .subj-t {
+    width: 81%;
+}
+.msg_txt {
+    width: 94%
+}
+.inbox_formmes div.msg_txt textarea {
+    width: 100%;
+    height: 300px;
+}
+
+td.subject-desc {
+    padding-right:0;
+    width:2%;
+}
+
+#updateForm td.subject-desc label.left {
+    width:auto;
+    min-width: 1em;
+    /*_width: 5em;
+    w\idth: 5em;*/
+    padding-right: 1em;
+}
+
+td.tabs {
+    width:41%;
+}
+
+
+/* for entering the user tag */
+.userprompt {  padding: 0 1em 0.5em 1em; }
+.userprompt .submitbtncontainer {  margin-top: 1em; }
+.userprompt label { display: block; padding: 0.5em 0 0.1em 0; }

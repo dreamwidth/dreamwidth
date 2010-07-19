@@ -1,4 +1,17 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 #
 # This program deals with inserting/extracting text/language data
 # from the database.
@@ -47,10 +60,6 @@ Where <command> is one of:
   check        Check validity of text[-local].dat files
   wipedb       Remove all language/text data from database, including crumbs.
   wipecrumbs   Remove all crumbs from the database, leaving other text alone.
-  newitems     Search files in htdocs, cgi-bin, & bin and insert
-               necessary text item codes in database.
-               Optionally:
-                  --local-lang=..  If given, works on local site files too
   remove       takes two extra arguments: domain name and code, and removes
                that code and its text in all languages
 
@@ -63,7 +72,7 @@ unless (-d $ENV{'LJHOME'}) {
         "You must fix this before you can run this database update script.";
 }
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-require "$ENV{'LJHOME'}/cgi-bin/ljlang.pl";
+use LJ::Lang;
 require "$ENV{'LJHOME'}/cgi-bin/weblib.pl";
 
 my %dom_id;     # number -> {}
@@ -159,6 +168,7 @@ my $sth;
 unless ($dbh) {
     die "Can't connect to the database.\n";
 }
+$dbh->{RaiseError} = 1;
 
 # indenter
 my $idlev = 0;
@@ -173,7 +183,7 @@ my $out = sub {
     }
 };
 
-my @good = qw(load popstruct poptext dumptext dumptextcvs newitems wipedb
+my @good = qw(load popstruct poptext dumptext dumptextcvs wipedb
     makeusable copyfaq remove wipecrumbs loadcrumbs);
 
 popstruct() if $mode eq "popstruct" or $mode eq "load";
@@ -182,7 +192,6 @@ copyfaq() if $mode eq "copyfaq" or $mode eq "load";
 loadcrumbs() if $mode eq "loadcrumbs" or $mode eq "load";
 makeusable() if $mode eq "makeusable" or $mode eq "load";
 dumptext($1, 0, @ARGV) if $mode =~ /^dumptext(cvs)?$/;
-newitems() if $mode eq "newitems";
 wipedb() if $mode eq "wipedb";
 wipecrumbs() if $mode eq "wipecrumbs";
 remove(@ARGV) if $mode eq "remove" and scalar(@ARGV) == 2;
@@ -247,7 +256,7 @@ sub copyfaq {
     while (my ($cat, $name) = $sth->fetchrow_array) {
         next if exists $existing{"cat.$cat"};
         my $opts = { childrenlatest => 1 };
-        LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "cat.$cat", $name, $opts);
+        LJ::Lang::set_text( $domid, $ll->{'lncode'}, "cat.$cat", $name, $opts );
     }
 
     # faq items
@@ -259,9 +268,9 @@ sub copyfaq {
             exists $existing{"$faqid.2answer"} and
             exists $existing{"$faqid.3summary"};
         my $opts = { childrenlatest => 1 };
-        LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.1question", $q, $opts);
-        LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.2answer", $a, $opts);
-        LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.3summary", $s, $opts);
+        LJ::Lang::set_text( $domid, $ll->{'lncode'}, "$faqid.1question", $q, $opts );
+        LJ::Lang::set_text( $domid, $ll->{'lncode'}, "$faqid.2answer", $a, $opts );
+        LJ::Lang::set_text( $domid, $ll->{'lncode'}, "$faqid.3summary", $s, $opts );
     }
 
     $out->('-', "done.");
@@ -333,13 +342,13 @@ sub popstruct {
     $out->("Populating structure...", '+');
     foreach my $l (values %lang_id) {
         $out->("Inserting language: $l->{'lnname'}");
-        $dbh->do("INSERT INTO ml_langs (lnid, lncode, lnname, parenttype, parentlnid) ".
+        $dbh->do("REPLACE INTO ml_langs (lnid, lncode, lnname, parenttype, parentlnid) ".
                  "VALUES (" . join(",", map { $dbh->quote($l->{$_}) } qw(lnid lncode lnname parenttype parentlnid)) . ")");
     }
 
     foreach my $d (values %dom_id) {
         $out->("Inserting domain: $d->{'type'}\[$d->{'args'}\]");
-        $dbh->do("INSERT INTO ml_domains (dmid, type, args) ".
+        $dbh->do("REPLACE INTO ml_domains (dmid, type, args) ".
                  "VALUES (" . join(",", map { $dbh->quote($d->{$_}) } qw(dmid type args)) . ")");
     }
 
@@ -368,7 +377,7 @@ sub poptext {
 
     # learn about local files
     chdir "$ENV{LJHOME}" or die "Failed to chdir to \$LJHOME.\n";
-    my @textfiles = `find htdocs/ -name '*.text' -or -name '*.text.local'`;
+    my @textfiles = `find htdocs/ views/ -name '*.text' -or -name '*.text.local'`;
     chomp @textfiles;
     foreach my $tf (@textfiles) {
         my $is_local = $tf =~ /\.local$/;
@@ -379,6 +388,7 @@ sub poptext {
         }
         my $pfx = $tf;
         $pfx =~ s!^htdocs/!!;
+        $pfx =~ s!^views/!!;
         $pfx =~ s!\.text(\.local)?$!!;
         $pfx = "/$pfx";
         $source{"$ENV{'LJHOME'}/$tf"} = [$lang, $pfx];
@@ -409,23 +419,37 @@ sub poptext {
             unless (exists $existing_item{$l->{'lnid'}}) {
                 $existing_item{$l->{'lnid'}} = {};
                 my $sth = $dbh->prepare(qq{
-                    SELECT i.itcode, t.text   FROM ml_latest l, ml_items i, ml_text t WHERE i.dmid=1 AND l.dmid=1 AND i.itid=l.itid AND l.lnid=? AND t.lnid=l.lnid and t.txtid = l.txtid and i.dmid=i.dmid and t.dmid=i.dmid
+                    SELECT i.itcode, t.text
+                    FROM ml_latest l, ml_items i, ml_text t
+                    WHERE i.dmid=1 AND l.dmid=1 AND i.itid=l.itid AND l.lnid=?
+                      AND t.lnid=l.lnid and t.txtid = l.txtid
+                      AND i.dmid=i.dmid and t.dmid=i.dmid
                     });
                 $sth->execute($l->{lnid});
                 die $sth->errstr if $sth->err;
                 while (my ($code, $oldtext) = $sth->fetchrow_array) {
-                    $existing_item{$l->{'lnid'}}->{$code} = $oldtext;
+                    $existing_item{$l->{'lnid'}}->{ lc($code) } = $oldtext;
                 }
             }
 
+            # if this is the local/default language (which means people are likely to
+            # be translating it live on the site) then don't overwrite...
+            return if $lang eq $LJ::DEFAULT_LANG &&
+                      $existing_item{$l->{lnid}}->{$code};
+
+            # Remove last '\r' char from loaded from files text before compare.
+            # In database text stored without this '\r', LJ::Lang::set_text remove it
+            # before update database.
+            $text =~ s/\r//;
             unless ($existing_item{$l->{'lnid'}}->{$code} eq $text) {
                 $addcount++;
                 # if the text is changing, the staleness is at least 1
                 my $staleness = $metadata{'staleness'}+0 || 1;
 
-                my $res = LJ::Lang::set_text($dbh, 1, $l->{'lncode'}, $code, $text,
+                my $res = LJ::Lang::set_text(1, $l->{'lncode'}, $code, $text,
                                              { 'staleness' => $staleness,
-                                               'notes' => $metadata{'notes'}, });
+                                               'notes' => $metadata{'notes'},
+                                               'changeseverity' => 2, });
                 $out->("set: $code") if $opt_verbose;
                 unless ($res) {
                     $out->('x', "ERROR: " . LJ::Lang::last_error());
@@ -557,92 +581,6 @@ sub dumptext {
     $out->('-', 'done.');
 }
 
-sub newitems {
-    $out->("Searching for referenced text codes...", '+');
-    my $top = $ENV{'LJHOME'};
-    my @files;
-    push @files, qw(htdocs cgi-bin bin);
-    my %items;  # $scope -> $key -> 1;
-    while (@files) {
-        my $file = shift @files;
-        my $ffile = "$top/$file";
-        next unless -e $ffile;
-        if (-d $ffile) {
-            $out->("dir: $file");
-            opendir (MD, $ffile) or die "Can't open $file";
-            while (my $f = readdir(MD)) {
-                next if $f eq "." || $f eq ".." ||
-                    $f =~ /^\.\#/ || $f =~ /(\.png|\.gif|~|\#)$/;
-                unshift @files, "$file/$f";
-            }
-            closedir MD;
-        }
-        if (-f $ffile) {
-            my $scope = "local";
-            $scope = "general"
-                if -e ("$top/" . LJ::Lang::cvsprefix_shared() . "/$file");
-
-            open (F, $ffile) or die "Can't open $file";
-            my $line = 0;
-            while (<F>) {
-                $line++;
-                while (/BML::ml\([\"\'](.+?)[\"\']/g) {
-                    $items{$scope}->{$1} = 1;
-                }
-                while (/\(=_ML\s+(.+?)\s+_ML=\)/g) {
-                    my $code = $1;
-                    if ($code =~ /^\./ && $file =~ m!^htdocs/!) {
-                        $code = "$file$code";
-                        $code =~ s!^htdocs!!;
-                    }
-                    $items{$scope}->{$code} = 1;
-                }
-            }
-            close F;
-        }
-    }
-
-    $out->(sprintf("%d general and %d local found.",
-                   scalar keys %{$items{'general'}},
-                   scalar keys %{$items{'local'}}));
-
-    # [ General ]
-    my %e_general;  # code -> 1
-    $out->("Checking which general items already exist in database...");
-    my $sth = $dbh->prepare("SELECT i.itcode FROM ml_items i, ml_latest l WHERE ".
-                            "l.dmid=1 AND l.lnid=1 AND i.dmid=1 AND i.itid=l.itid ");
-    $sth->execute;
-    while (my $it = $sth->fetchrow_array) { $e_general{$it} = 1; }
-    $out->(sprintf("%d found", scalar keys %e_general));
-    foreach my $it (keys %{$items{'general'}}) {
-        next if exists $e_general{$it};
-        my $res = LJ::Lang::set_text($dbh, 1, "en", $it, undef, { 'staleness' => 4 });
-        $out->("Adding general: $it ... $res");
-    }
-
-    if ($opt_local_lang) {
-        my $ll = $lang_code{$opt_local_lang};
-        die "Bogus --local-lang argument\n" unless $ll;
-        die "Local-lang '$ll->{'lncode'}' parent isn't 'en'\n"
-            unless $ll->{'parentlnid'} == 1;
-        $out->("Checking which local items already exist in database...");
-
-        my %e_local;
-        $sth = $dbh->prepare("SELECT i.itcode FROM ml_items i, ml_latest l WHERE ".
-                             "l.dmid=1 AND l.lnid=$ll->{'lnid'} AND i.dmid=1 AND i.itid=l.itid ");
-        $sth->execute;
-        while (my $it = $sth->fetchrow_array) { $e_local{$it} = 1; }
-        $out->(sprintf("%d found\n", scalar keys %e_local));
-        foreach my $it (keys %{$items{'local'}}) {
-            next if exists $e_general{$it};
-            next if exists $e_local{$it};
-            my $res = LJ::Lang::set_text($dbh, 1, $ll->{'lncode'}, $it, undef, { 'staleness' => 4 });
-            $out->("Adding local: $it ... $res");
-        }
-    }
-    $out->('-', 'done.');
-}
-
 sub remove {
     my ($dmcode, $itcode, $no_error) = @_;
     my $dmid;
@@ -671,7 +609,7 @@ sub remove {
         $txtids .= $txtid;
     }
     $dbh->do("DELETE FROM ml_latest WHERE dmid=$dmid AND itid=$itid");
-    $dbh->do("DELETE FROM ml_text WHERE dmid=$dmid AND txtid IN ($txtids)");
+    $dbh->do("DELETE FROM ml_text WHERE dmid=$dmid AND txtid IN ($txtids)") if $txtids;
 
     $out->("-","done.");
 }

@@ -1,9 +1,22 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::S2PropGroup;
 
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 
 sub authas { 1 }
 sub need_res { qw( stc/widgets/s2propgroup.css js/colorpicker.js ) }
@@ -52,7 +65,7 @@ sub render_body {
             } else {
                 $row_class = $count % 2 == 0 ? " graybg" : "";
             }
-            $ret .= $class->output_prop($props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme);
+            $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
             $count++;
         }
         $ret .= "</table>";
@@ -70,19 +83,122 @@ sub render_body {
             }
             $header_printed = 1;
             $row_class = $count % 2 == 0 ? " graybg" : "";
-            $ret .= $class->output_prop($props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme);
+            $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
             $count++;
         }
         $ret .= "</table>" if $header_printed;
+    } elsif ( $propgroup eq "modules" ) {
+
+        my %prop_values = LJ::Customize->get_s2_prop_values( "module_layout_sections", $u, $style );
+        my $layout_sections_values = $prop_values{override};
+        my @layout_sections_order = split( /\|/, $layout_sections_values );
+
+        # allow to override the default property with your own custom property definition. Created and values set in layout layers.
+        my %grouped_prop_override = LJ::Customize->get_s2_prop_values( "grouped_property_override", $u, $style, noui => 1 );
+        %grouped_prop_override = %{$grouped_prop_override{override}} if %{$grouped_prop_override{override} || {}};
+
+        my %subheaders = @layout_sections_order;
+        $subheaders{none} = "Unassigned";
+        
+        # use the module section order as defined by the layout
+        my $i=0;
+        @layout_sections_order = grep { $i++ % 2 == 0; } @layout_sections_order;
+
+        my %prop_in_subheader;
+        foreach my $prop_name ( @$groupprops ) {
+            next unless $prop_name =~ /_group$/;
+
+            # use module_*_section for the dropdown 
+            my $prop_name_section = $prop_name;
+            $prop_name_section =~ s/(.*)_group$/\1_section/;
+
+            my $overriding_prop_name = $grouped_prop_override{$prop_name_section};
+
+            # module_*_section_override overrides module_*_section;
+            # for use in child layouts since they cannot redefine an existing property
+            my $prop_name_section_override = $props->{$overriding_prop_name}->{values};
+
+            # put this property under the proper subheader (this is the original; may be overriden)
+            my %prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
+
+            if ( $prop_name_section_override ) {
+                $prop_name_section = $overriding_prop_name;
+
+                # check if we have anything previously saved into the overriding property. If we don't we retain
+                # the value of the original (non-overridden) property, so we don't break existing customizations
+                my %overriding_prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
+                my $contains_values = 0;
+
+                foreach ( keys %overriding_prop_values ) {
+                    if ( defined $overriding_prop_values{$_} ) {
+                        $contains_values++;
+                        last;
+                    }
+                }
+
+                %prop_values = %overriding_prop_values if $contains_values;
+                $grouped_prop_override{"${prop_name_section}_values"} = \%prop_values;
+            }
+
+            # populate section dropdown values with the layout's list of available sections, if not already set
+            $props->{$prop_name_section}->{values} ||= $layout_sections_values;
+
+            if ( $prop_name_section_override ) {
+                my %override_sections = split( /\|/, $prop_name_section_override );
+
+                while ( my ( $key, $value ) = each %override_sections ) {
+                    unless ( $subheaders{$key} ) {
+                        $subheaders{$key} = $value;
+                        push @layout_sections_order, $key;
+                    }
+                }
+            }
+
+            # see whether a cap is needed for this module and don't show the module if the user does not have that cap
+            my $cap;
+            $cap = $props->{$prop_name}->{requires_cap};
+            next if $cap && !( $u->get_cap( $cap ) );
+
+            # force it to the "none" section, if property value is not a valid subheader
+            my $subheader = $subheaders{$prop_values{override}} ? $prop_values{override} : "none";
+            $prop_in_subheader{$subheader} ||= [];
+            push @{$prop_in_subheader{$subheader}}, $prop_name;
+        }
+
+        my $subheader_counter = 1; 
+        foreach my $subheader ( @layout_sections_order ) {
+            my $header_printed = 0;
+            foreach my $prop_name ( @{$prop_in_subheader{$subheader}} ) {
+                next if $class->skip_prop( $props->{$prop_name}, $prop_name, theme => $theme, user => $u, style => $style );
+
+                unless ($header_printed) {
+                    my $prop_list_class;
+                    $prop_list_class = " first" if $subheader_counter == 1;
+
+                    $ret .= "<div class='subheader subheader-modules on' id='subheader__modules__${subheader}'>$subheaders{$subheader}</div>";
+                    $ret .= "<table cellspacing='0' class='prop-list$prop_list_class' id='proplist__modules__${subheader}'>";
+                    $header_printed = 1;
+                    $subheader_counter++;
+                    $count = 1; # reset counter
+                }
+
+                $row_class = $count % 2 == 0 ? " graybg" : "";
+
+                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props, \%grouped_prop_override );
+                $count++;
+            }
+            $ret .= "</table>" if $header_printed;
+        }
+
     } else {
         my %subheaders = LJ::Customize->get_propgroup_subheaders;
 
-        # props under the "Page" subheader include all props in the group that aren't under any of the other subheaders
-        my %page_props = map { $_ => 1 } @$groupprops;
+        # props under the unsorted subheader include all props in the group that aren't under any of the other subheaders
+        my %unsorted_props = map { $_ => 1 } @$groupprops;
         foreach my $subheader (keys %subheaders) {
             my @subheader_props = eval "\$theme->${subheader}_props";
             foreach my $prop_name (@subheader_props) {
-                delete $page_props{$prop_name} if $page_props{$prop_name};
+                delete $unsorted_props{$prop_name} if $unsorted_props{$prop_name};
             }
         }
 
@@ -91,8 +207,8 @@ sub render_body {
             my $header_printed = 0;
 
             my @subheader_props;
-            if ($subheader eq "page") {
-                @subheader_props = keys %page_props;
+            if ( $subheader eq "unsorted" ) {
+                @subheader_props = keys %unsorted_props;
             } else {
                 @subheader_props = eval "\$theme->${subheader}_props";
             }
@@ -107,7 +223,8 @@ sub render_body {
                 # need to print the header inside the foreach because we don't want it printed if
                 # there's no props in this group that are also in this subheader
                 unless ($header_printed) {
-                    my $prop_list_class = " first" if $subheader_counter == 1;
+                    my $prop_list_class;
+                    $prop_list_class = " first" if $subheader_counter == 1;
 
                     $ret .= "<div class='subheader subheader-$propgroup on' id='subheader__${propgroup}__${subheader}'>$subheaders{$subheader}</div>";
                     $ret .= "<table cellspacing='0' class='prop-list$prop_list_class' id='proplist__${propgroup}__${subheader}'>";
@@ -117,7 +234,7 @@ sub render_body {
                 }
 
                 $row_class = $count % 2 == 0 ? " graybg" : "";
-                $ret .= $class->output_prop($props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme);
+                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
                 $count++;
             }
             $ret .= "</table>" if $header_printed;
@@ -178,6 +295,7 @@ sub skip_prop {
     }
 
     return 1 if $prop->{noui};
+    return 1 if $prop->{grouped};
 
     return 1 if $props_to_skip && $props_to_skip->{$prop_name};
 
@@ -192,39 +310,57 @@ sub skip_prop {
     return 1 if $prop_name eq "control_strip_bordercolor";
     return 1 if $prop_name eq "control_strip_linkcolor";
 
-    my $hook_rv = LJ::run_hook("skip_prop_override", $prop_name, user => $opts{user}, theme => $theme, style => $opts{style});
+    my $hook_rv = LJ::Hooks::run_hook("skip_prop_override", $prop_name, user => $opts{user}, theme => $theme, style => $opts{style});
     return $hook_rv if $hook_rv;
 
     return 0;
 }
 
 sub output_prop {
-    my $class = shift;
-    my $prop = shift;
-    my $prop_name = shift;
-    my $row_class = shift;
-    my $u = shift;
-    my $style = shift;
-    my $theme = shift;
-
+    my ( $class, $prop, $prop_name, $row_class, $u, $style, $theme, $props, $grouped_prop_override ) = @_;
+    
     # for themes that don't use the linklist_support prop
     my $linklist_tab;
     if (!$prop && $prop_name eq "linklist_support") {
         $linklist_tab = $theme->linklist_support_tab;
     }
+    
+    my $ret;
+    $ret .= "<tr class='prop-row$row_class' width='100%'>";
+
+    if ($linklist_tab) {
+        $ret .= "<td colspan='100%'>" . $class->ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} ) . "</td>";
+        $ret .= "</tr>";
+        return $ret;
+    }
+
+    $ret .= "<td class='prop-header'>" . LJ::eall( $prop->{des} ) . " " . LJ::help_icon( "s2opt_$prop->{name}" ) . "</td>"
+        unless $prop->{type} eq "Color" || $prop->{type} eq "string[]";
+
+   $ret .= $class->output_prop_element( $prop, $prop_name, $u, $style, $theme, $props, 0, $grouped_prop_override );
+
+    my $note = "";
+    $note .= LJ::eall( $prop->{note} ) if $prop->{note};
+    $ret .= "</tr><tr class='prop-row-note$row_class'><td colspan='100%' class='prop-note'>$note</td>" if $note;
+
+    $ret .= "</tr>";
+    return $ret;
+}
+
+sub output_prop_element {
+    my ( $class, $prop, $prop_name, $u, $style, $theme, $props, $is_group, $grouped_prop_override, $overriding_values ) = @_;
+    $grouped_prop_override ||= {};
+    $overriding_values ||= {};
 
     my $name = $prop->{name};
     my $type = $prop->{type};
 
     my $can_use = LJ::S2::can_use_prop($u, $theme->layout_uniq, $name);
 
-    my %prop_values = LJ::Customize->get_s2_prop_values($name, $u, $style);
+    my %prop_values = %$overriding_values ? %$overriding_values : LJ::Customize->get_s2_prop_values( $name, $u, $style );
+
     my $existing = $prop_values{existing};
     my $override = $prop_values{override};
-
-    if ($type eq "bool") {
-        $prop->{values} ||= "1|Yes|0|No";
-    }
 
     my %values = split(/\|/, $prop->{values});
     my $existing_display = defined $values{$existing} ? $values{$existing} : $existing;
@@ -232,28 +368,61 @@ sub output_prop {
     $existing_display = LJ::eall($existing_display);
 
     my $ret;
-    $ret .= "<tr class='prop-row$row_class' width='100%'>";
+    # visually grouped properties. Allow nesting to only two levels
+    if ( $type eq "string[]" && $is_group < 2 ) {
 
-    if ($linklist_tab) {
-        $ret .= "<td colspan='100%'>" . $class->ml('widget.s2propgroup.linkslisttab', {'name' => $linklist_tab}) . "</td>";
-        $ret .= "</tr>";
-        return $ret;
-    }
+        if ( $prop->{grouptype} eq "module" ) {
+            my $has_opts;
+            $ret .= "<td class='prop-grouped prop-$prop->{grouptype}' colspan=2>";
+            foreach my $prop_in_group ( @$override ) {
 
-    $ret .= "<td class='prop-header'>" . LJ::eall($prop->{des}) . " " . LJ::help_icon("s2opt_$name") . "</td>"
-        unless $type eq "Color";
+                my $overriding_values;
+                if ( $grouped_prop_override->{$prop_in_group} ) {
+                    $prop_in_group = $grouped_prop_override->{$prop_in_group};
+                    $overriding_values = $grouped_prop_override->{"${prop_in_group}_values"};
+                }
 
-    if ($prop->{values}) {
-        $ret .= "<td class='prop-input'>";
+                if ( $prop_in_group =~ /opts_group$/ ) {
+                    $has_opts = 1;
+                    next;
+                }
+                $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1, $grouped_prop_override, $overriding_values );
+            }
+            
+            my $modulename = $prop->{name};
+            $modulename =~ s/_group$//;
+            
+            $ret .= "<label for='${modulename}_show'>" . LJ::eall( $prop->{des} )  ."</label>";
+            
+            $ret .= $class->output_prop_element( $props->{"${modulename}_opts_group"}, "${modulename}_opts_group", $u, $style, $theme, $props, $is_group + 1 ) if $has_opts;
+
+            $ret .= "</td>";
+        } elsif ( $prop->{grouptype} eq "moduleopts" ) {
+            $ret .= "<ul class='prop-moduleopts'>";
+            foreach my $prop_in_group ( @$override ) {
+                $ret .= "<li>" . $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
+            }
+            $ret .= "</ul>";
+        } else {
+            $ret .= "<td class='prop-grouped prop-$prop->{grouptype}' colspan=2><label class='prop-header'>" . LJ::eall( $prop->{des} ) . " " . LJ::help_icon( "s2opt_$prop->{name}" ) . "</label>";
+    
+            foreach my $prop_in_group ( @$override ) {
+                $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
+            }
+            $ret .= "</td>";
+        }
+    } elsif ( $prop->{values} ) {
+        $ret .= "<td class='prop-input'>" unless $is_group;
         $ret .= $class->html_select(
             { name => $name,
               disabled => ! $can_use,
               selected => $override, },
             split(/\|/, $prop->{values})
         );
-        $ret .= "</td>";
+        $ret .= " <label>" . LJ::eall( $prop->{des} ) . "</label>" if $is_group && $prop->{des};
+        $ret .= "</td>" unless $is_group;
     } elsif ($type eq "int") {
-        $ret .= "<td class='prop-input'>";
+        $ret .= "<td class='prop-input'>" unless $is_group;
         $ret .= $class->html_text(
             name => $name,
             disabled => ! $can_use,
@@ -261,13 +430,33 @@ sub output_prop {
             maxlength => 5,
             size => 7,
         );
-        $ret .= "</td>";
+        $ret .= " <label>" . LJ::eall( $prop->{des} ) . "</label>" if $is_group && $prop->{des};
+        $ret .= "</td>" unless $is_group;
+    } elsif ($type eq "bool") {
+        $ret .= "<td class='prop-check'>" unless $is_group;
+        $ret .= $class->html_check(
+            name => $name,
+            disabled => ! $can_use,
+            selected => $override,
+            label => $prop->{label},
+            id => $name,
+        );
+        
+        # force the checkbox to be submitted, if the user unchecked it
+        # so that it can be processed (disabled) when handling the post
+        $ret .= $class->html_hidden(
+            "${name}",
+            "0",
+            { disabled => ! $can_use }
+        );
+
+        $ret .= "</td>" unless $is_group;
     } elsif ($type eq "string") {
         my ($rows, $cols, $full) = ($prop->{rows}+0,
                                     $prop->{cols}+0,
                                     $prop->{full}+0);
 
-        $ret .= "<td class='prop-input'>";
+        $ret .= "<td class='prop-input'>" unless $is_group;
         if ($full > 0) {
             $ret .= $class->html_textarea(
                 name => $name,
@@ -297,9 +486,9 @@ sub output_prop {
                 size => $size,
             );
         }
-        $ret .= "</td>";
+        $ret .= "</td>" unless $is_group;
     } elsif ($type eq "Color") {
-        $ret .= "<td class='prop-color'>";
+        $ret .= "<td class='prop-color'>" unless $is_group;
         $ret .= $class->html_color(
             name => $name,
             disabled => ! $can_use,
@@ -308,18 +497,13 @@ sub output_prop {
             onchange => "Customize.CustomizeTheme.form_change();",
             no_btn => 1,
         );
-        $ret .= "</td>";
+        $ret .= "</td>" unless $is_group;
         $ret .= "<td>" . LJ::eall($prop->{des}) . " " . LJ::help_icon("s2opt_$name") . "</td>";
     }
-
+    
     my $offhelp = ! $can_use ? LJ::help_icon('s2propoff', ' ') : "";
     $ret .= " $offhelp";
 
-    my $note = "";
-    $note .= LJ::eall($prop->{note}) if $prop->{note};
-    $ret .= "</tr><tr class='prop-row-note$row_class'><td colspan='100%' class='prop-note'>$note</td>" if $note;
-
-    $ret .= "</tr>";
     return $ret;
 }
 
@@ -348,7 +532,18 @@ sub handle_post {
         LJ::Customize->save_s2_props($u, $style, \%override, reset => 1);
         LJ::Customize->save_language($u, $post->{langcode}, reset => 1) if defined $post->{langcode};
     } else {
-        LJ::Customize->save_s2_props($u, $style, $post);
+        my %override = map { $_ => "" } keys %$post;
+        
+        # ignore all values after the first true $value
+        # only checkboxes have multiple values (forced post of 0,
+        # so we don't ignore checkboxes that the user just unchecked)
+        foreach my $key ( keys %$post ) {
+            foreach my $value ( split ( /\0/, $post->{$key} ) ) {
+                $override{$key} ||= $value;
+            }
+        }
+
+        LJ::Customize->save_s2_props($u, $style, \%override);
         LJ::Customize->save_language($u, $post->{langcode}) if defined $post->{langcode};
     }
 

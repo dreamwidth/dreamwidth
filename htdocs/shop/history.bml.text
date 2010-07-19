@@ -1,0 +1,21 @@
+;; -*- coding: utf-8 -*-
+
+.cart.details=View
+
+.cart.header.date=Date
+
+.cart.header.details=Details
+
+.cart.header.ordernumber=Order Number
+
+.cart.header.paymentmethod=Payment Method
+
+.cart.header.status=Status
+
+.cart.header.total=Total
+
+.nocarts=You have not placed any orders.
+
+.nocarts.extra=You have not placed any orders.  <a [[aopts]]>Want to purchase something?</a>
+
+.title=Order History

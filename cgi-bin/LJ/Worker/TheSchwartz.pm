@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Worker::TheSchwartz;
 use strict;
 use lib "$LJ::HOME/cgi-bin";
@@ -18,19 +31,42 @@ $SIG{TERM} = sub {
     $quit_flag = 1;
 };
 
-@EXPORT = qw(schwartz_decl schwartz_work schwartz_on_idle schwartz_on_afterwork schwartz_on_prework);
+@EXPORT = qw(schwartz_decl schwartz_work schwartz_on_idle schwartz_on_afterwork schwartz_on_prework schwartz_prioritize);
 
-my $sclient = LJ::theschwartz({mode => 'drain'}) or die "Could not get schwartz client";
-$sclient->set_verbose($verbose);
+my $sclient;
+my $prioritize = 0;
 
 my $on_idle = sub {};
 my $on_afterwork = sub {};
 
 my $on_prework = sub { 1 };  # return 1 to proceed and do work
 
+my $used_role;
+
+sub schwartz_init {
+    my ($role) = @_;
+    $role ||= 'drain';
+
+    $sclient = LJ::theschwartz({ role => $role }) or die "Could not get schwartz client";
+    $used_role = $role; # save success role
+    $sclient->set_verbose($verbose);
+    $sclient->set_prioritize( $prioritize );
+}
+
 sub schwartz_decl {
-    my ($classname) = @_;
+    my ($classname, $role) = @_;
+    $role ||= 'drain';
+
+    die "Already connected to TheSchwartz with role '$used_role'" if defined $used_role and $role ne $used_role;
+
+    schwartz_init($role) unless $sclient;
+
     $sclient->can_do($classname);
+}
+
+sub schwartz_prioritize {
+    $prioritize = $_[0] ? 1 : 0;
+    $sclient->set_prioritize( $prioritize ) if $sclient;
 }
 
 sub schwartz_on_idle {
@@ -51,6 +87,8 @@ sub schwartz_on_prework {
 
 sub schwartz_work {
     my $sleep = 0;
+
+    schwartz_init() unless $sclient;
 
     LJ::Worker->setup_mother();
 

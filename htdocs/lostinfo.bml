@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 body<=
@@ -5,6 +19,9 @@ body<=
 {
     use strict;
     use vars qw(%POST);
+    
+    use Class::Autouse qw( Captcha::reCAPTCHA );
+    use POSIX qw(strftime);
 
     LJ::set_active_crumb('lostinfo');
 
@@ -14,24 +31,54 @@ body<=
     unless (LJ::did_post()) {
         my $ret;
 
+#        $ret .= "<?h1 $ML{'.title'} h1?>\n";
+        $ret .= "<?h1 $ML{'.recaptcha.title'} h1?>\n";
+
+        $ret .= "<form action='lostinfo' method='post'>\n";
+
+        if (LJ::is_enabled("recaptcha")) {
+            my $c = Captcha::reCAPTCHA->new;
+            $ret .= $c->get_options_setter({ theme => 'white' });
+            $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}), '', $LJ::IS_SSL ) . "<br />\n";
+            $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
+        }
+
+
         $ret .= "<?h1 $ML{'.lostpassword.title'} h1?>\n";
-        $ret .= "<?p $ML{'.lostpassword.text'} p?>\n";
+        $ret .= "<?p " . BML::ml( ".lostpassword.text", { sitename => $LJ::SITENAMESHORT } ) ." p?>\n";
 
-        $ret .= "<form action='lostinfo.bml' method='post'>\n";
-        $ret .= "<?standout $ML{'.enter_username'}<br />\n";
-        $ret .= LJ::html_text({ 'name' => 'user', 'size' => 30, 'maxlength' => 15 }) . "<br /><br />\n";
-        $ret .= "$ML{'.enter_email_optional'}<br />\n";
-        $ret .= LJ::html_text({ 'name' => 'email_p', 'size' => 30, 'maxlength' => 50 }) . "\n";
-        $ret .= LJ::html_submit('lostpass', $ML{'.btn.proceed'}) . "\n";
-        $ret .= "standout?>\n</form>\n";
+        $ret .= "<div class='form-basic form-fix'><div class='tl'><div class='tr'><div class='br'><div class='bl'>\n";
+        $ret .= "<fieldset><label>$ML{'.enter_username'}</label>\n";
+        $ret .= LJ::html_text({ 'name' => 'user', 'id' => 'userlost', 'size' => 30, 'maxlength' => 25, onkeyup => 'enable_pass();'}) . "</fieldset>\n";
+        $ret .= "<fieldset><label>$ML{'.enter_email_optional'}</label>\n";
+        $ret .= LJ::html_text({ 'name' => 'email_p', 'size' => 30, 'maxlength' => 50 }) . "</fieldset>\n";
+        $ret .= "<div class='btn-set'>\n";
+        $ret .= LJ::html_submit('lostpass', $ML{'.btn.proceed'}, { id => 'lostpass' }) . "</div>\n";
+        $ret .= "</div></div></div></div></div>\n";
 
-        $ret .= "<form action='lostinfo.bml' method='post'>\n";
         $ret .= "<?h1 $ML{'.lostusername.title'} h1?>\n";
         $ret .= "<?p $ML{'.lostusername.text'} p?>\n";
-        $ret .= "<?standout $ML{'.enter_email'}<br />\n";
-        $ret .= LJ::html_text({ 'name' => 'email_u', 'size' => 30, 'maxlength' => 50 }) . "\n";
-        $ret .= LJ::html_submit('lostuser', $ML{'.btn.proceed'}) . "\n";
-        $ret .= "standout?>\n</form>\n";
+        $ret .= "<div class='form-basic form-fix'><div class='tl'><div class='tr'><div class='br'><div class='bl'>\n";
+        $ret .= "<fieldset><label>$ML{'.enter_email'}</label>\n";
+        $ret .= LJ::html_text({ 'name' => 'email_u', 'id' => 'email_u', 'size' => 30, 'maxlength' => 50, onkeyup => 'enable_user();' }) . "</fieldset>\n";
+        $ret .= "<div class='btn-set'>\n";
+        $ret .= LJ::html_submit('lostuser', $ML{'.btn.proceed'}, { id => 'lostuser' }) . "</div>\n";
+        $ret .= "</div></div></div></div></div>\n";
+
+        $ret .= qq( <script type="text/javascript">
+                    function enable_pass () {
+                        \$("lostpass").disabled = !\$("userlost").value;
+                    }
+                    function enable_user () {
+                        \$("lostuser").disabled = !\$("email_u").value;
+                    }
+
+                    enable_pass();
+                    enable_user();
+                    </script>
+                  );
+
+        $ret .= "</form>\n";
 
         return $ret;
     }
@@ -43,6 +90,21 @@ body<=
     # was merged into this file
 
     if ($POST{'lostpass'}) {
+
+        if (LJ::is_enabled("recaptcha")) {
+            if ($POST{recaptcha_response_field}) {
+                my $c = Captcha::reCAPTCHA->new;
+                my $result = $c->check_answer(
+                    LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
+                    $POST{'recaptcha_challenge_field'}, $POST{'recaptcha_response_field'}
+                );
+
+                return LJ::bad_input($ML{'.captcha.invalid'}) unless $result->{'is_valid'} eq '1';
+            } else {
+                return LJ::bad_input($ML{'.captcha.invalid'});
+            }
+        }
+
         my $email = LJ::trim($POST{'email_p'});
 
         my $u = LJ::load_user($POST{'user'});
@@ -58,11 +120,11 @@ body<=
             return "<?h1 $title h1?>\n<?p $msg p?>";
         };
 
-        if ($u->{'journaltype'} eq 'Y') {
+        if ( $u->is_syndicated ) {
             return $err->( $ML{'.error.syndicated'} );
         }
 
-        if ($u->{'journaltype'} eq 'C' && !length $u->password) {
+        if ( $u->is_community && ! length $u->password ) {
             # community with no password
             return $err->( $ML{'.error.commnopassword'} );
         }
@@ -99,50 +161,18 @@ body<=
 
         my $body;
 
-        if ($LJ::SECURE_PASSWORD_RESET) {
-            # register an auth action for them to reset their password
-            my $aa = LJ::register_authaction($u->{'userid'}, "reset_password", $email);
-            $body = BML::ml('/lostinfo_do.bml.lostpasswordmail.reset', {
-                                lostinfolink => "$LJ::SITEROOT/lostinfo.bml",
-                                sitename => $LJ::SITENAME,
-                                username => $u->{user},
-                                emailadr => $u->email_raw,
-                                resetlink => "$LJ::SITEROOT/changepassword.bml?auth=$aa->{aaid}.$aa->{authcode}",
-                            });
-            $body .= "\n\n" .BML::ml('/lostinfo_do.bml.lostpasswordmail.part3',
-                             { 'remoteip' => BML::get_remote_host() . " (" . BML::get_remote_ip() . ")" });
-            $body .= "\n\n";
-
-        } else {
-            # old method of mailing the password
-            $body = BML::ml('/lostinfo_do.bml.lostpasswordmail.part1',
-                           { 'sitename' => $LJ::SITENAME,
-                             'username' => $u->user,
-                             'password' => $u->password,
-                             'emailadr' => $u->email }) . "\n\n";
-
-            my $remote = LJ::get_remote();
-            LJ::statushistory_add($u->{'userid'}, $remote ? $remote->{'userid'} : 0, 'lostinfo', $email);
-
-            if ($u->{'status'} ne "A") {
-                my $aa = LJ::register_authaction($u->{'userid'}, "validateemail", $u->email_raw);
-                $body .= $ML{'/lostinfo_do.bml.lostpasswordmail.part2'} . "\n\n";
-                $body .= "    $LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}\n\n";
-            }
-
-            $body .= BML::ml('/lostinfo_do.bml.lostpasswordmail.part3',
-                             { 'remoteip' => BML::get_remote_host() . " (" . BML::get_remote_ip() . ")" });
-            $body .= "\n\n";
-
-            # section 4 is optional, and blank in 'en'
-            my $mline = $ML{'/lostinfo_do.bml.lostpasswordmail.part4'};
-            $body .= $mline . "\n\n" if $mline;
-
-            $body .= BML::ml('/lostinfo_do.bml.lostpasswordmail.part5',
-                             { 'journalurl' => "$LJ::SITEROOT/users/$u->{'user'}/",
-                               'updateurl'  => "$LJ::SITEROOT/update.bml?$u->{'user'}",
-                               'rooturl'    => "$LJ::SITEROOT/" }) . "\n";
-        }
+        # register an auth action for them to reset their password
+        my $aa = LJ::register_authaction($u->{'userid'}, "reset_password", $email);
+        $body = BML::ml('/lostinfo_do.bml.lostpasswordmail.reset', {
+                            lostinfolink => "$LJ::SITEROOT/lostinfo",
+                            sitename => $LJ::SITENAME,
+                            username => $u->{user},
+                            emailadr => $u->email_raw,
+                            resetlink => "$LJ::SITEROOT/changepassword?auth=$aa->{aaid}.$aa->{authcode}",
+                        });
+        $body .= "\n\n" .BML::ml('/lostinfo_do.bml.lostpasswordmail.part3',
+                        { 'remoteip' => BML::get_remote_host() . " (" . BML::get_remote_ip() . ")" });
+        $body .= "\n\n";
 
         LJ::send_mail({
             'to' => $email,
@@ -153,11 +183,34 @@ body<=
             'body' => $body,
         }) or die "Error: couldn't send email";
 
+        my $add_message = '';
+
+        if ( LJ::is_enabled('secret_question') ) {
+            my ($redir, $ml_key, $param) = LJ::Hooks::run_hook('use_secret', $u);
+            return BML::redirect($redir) if $redir ne '';
+
+            $add_message = "<?p " . BML::ml($ml_key, { datetime => strftime("%d.%m.%Y %H:%M", gmtime($param)) } ) . " p?>" if $ml_key ne '';
+        }
+
         return "<?h1 $ML{'/lostinfo_do.bml.password_mailed.title'} h1?>\n" .
-               "<?p $ML{'/lostinfo_do.bml.password_mailed.text'} p?>";
+               "<?p $ML{'/lostinfo_do.bml.password_mailed.text'} p?>" . $add_message;
     }
 
     if ($POST{'lostuser'}) {
+
+        if (LJ::is_enabled("recaptcha")) {
+            if ($POST{recaptcha_response_field}) {
+                my $c = Captcha::reCAPTCHA->new;
+                my $result = $c->check_answer(
+                    LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
+                    $POST{'recaptcha_challenge_field'}, $POST{'recaptcha_response_field'}
+                );
+
+                return LJ::bad_input($ML{'.captcha.invalid'}) unless $result->{'is_valid'} eq '1';
+            } else {
+                return LJ::bad_input($ML{'.captcha.invalid'});
+            }
+        }
 
         my $sendto = "";
         my $email = LJ::trim($POST{'email_u'});
@@ -165,10 +218,7 @@ body<=
             unless $email;
 
         my @users;
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT userid FROM email WHERE email=?");
-        $sth->execute($email);
-        while (my ($uid) = $sth->fetchrow_array) {
+        foreach my $uid ( LJ::User->accounts_by_email( $email ) ) {
             my $u = LJ::load_userid($uid);
             next unless $u && $u->{clusterid};  # not purged
 
@@ -201,7 +251,7 @@ body<=
             'subject' => "Lost Username",
             'body' => $body,
         }) or die "Error: couldn't send email";
-
+    
         return "<?h1 $ML{'/lostinfo_do.bml.username_mailed.title'} h1?>\n" .
                "<?p $ML{'/lostinfo_do.bml.username_mailed.text'} p?>";
     }
@@ -211,6 +261,4 @@ body<=
 }
 _code?>
 <=body
-page?><?_c <LJDEP>
-post: htdocs/lostinfo.bml
-</LJDEP> _c?>
+page?>

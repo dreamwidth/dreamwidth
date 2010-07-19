@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+#
 # Blogger API wrapper for LJ
 
 use strict;
@@ -70,6 +83,8 @@ sub newPost {
         'tz'    => 'guess',
     };
 
+    $req->{'props'}->{'interface'} = "blogger";
+
     my $res = LJ::Protocol::do_request("postevent", $req, \$err);
 
     if ($err) {
@@ -130,14 +145,14 @@ sub getUsersBlogs {
     my $us = LJ::load_userids(@$ids);
     my @list = ($u);
     foreach (sort { $a->{user} cmp $b->{user} } values %$us) {
-        next unless $_->{'statusvis'} eq "V";
+        next unless $_->is_visible;
         push @list, $_;
     }
 
     return [ map { {
-        'url' => LJ::journal_base($_) . "/",
-        'blogid' => $_->{'user'},
-        'blogName' => $_->{'name'},
+        url => $_->journal_base . "/",
+        blogid => $_->user,
+        blogName => $_->name_raw,
     } } @list ];
 }
 
@@ -220,15 +235,13 @@ sub getUserInfo {
     my $u = LJ::load_user($user) or die "Invalid login\n";
     die "Invalid login\n" unless LJ::auth_okay($u, $password);
 
-    LJ::load_user_props($u, "url");
-
     return {
         'userid' => $u->{'userid'},
         'nickname' => $u->{'user'},
         'firstname' => $u->{'name'},
         'lastname' => $u->{'name'},
         'email' => $u->email_raw,
-        'url' => $u->{'url'},
+        'url' => $u->prop( "url" ),
     };
 }
 

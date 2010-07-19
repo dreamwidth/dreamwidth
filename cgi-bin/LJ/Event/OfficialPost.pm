@@ -1,6 +1,19 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Event::OfficialPost;
 use strict;
-use Class::Autouse qw(LJ::Entry);
+use LJ::Entry;
 use Carp qw(croak);
 use base 'LJ::Event';
 
@@ -18,68 +31,133 @@ sub entry {
 }
 
 sub content {
-    my $self = shift;
-    return $self->entry->event_html;
+    my ( $self, $target, %opts ) = @_;
+    # force uncut for certain views (e-mail)
+    my $args = $opts{full} 
+            ? {} 
+            : { # double negatives, ouch!
+                ljcut_disable => ! $target->cut_inbox,
+                cuturl => $self->entry->url 
+              };
+
+    return $self->entry->event_html( $args );
+}
+
+sub content_summary {
+    my $entry = $_[0]->entry;
+    my $entry_summary = $entry->event_html_summary( 300 );
+
+    my $ret = $entry_summary;
+    $ret .= "..." if $entry->event_html ne $entry_summary;
+
+    return $ret;
 }
 
 sub is_common { 1 }
 
 sub zero_journalid_subs_means { 'all' }
 
+sub _construct_prefix {
+    my $self = shift;
+    return $self->{'prefix'} if $self->{'prefix'};
+    my ($classname) = (ref $self) =~ /Event::(.+?)$/;
+    return $self->{'prefix'} = 'esn.' . lc($classname);
+}
+
 sub as_email_subject {
     my $self = shift;
+    my $u = shift;
+    my $label = _construct_prefix($self);
+
+    # construct label
 
     if ($self->entry->subject_text) {
-        return sprintf "$LJ::SITENAMESHORT Announcement: %s", $self->entry->subject_text;
+        $label .= '.subject';
     } else {
-        return sprintf "$LJ::SITENAMESHORT Announcement: New %s announcement", $self->entry->journal->display_username;
+        $label .= '.nosubject';
     }
+
+    return LJ::Lang::get_text(
+        $u->prop("browselang"),
+        $label,
+        undef,
+        {
+            siteroot        => $LJ::SITEROOT,
+            sitename        => $LJ::SITENAME,
+            sitenameshort   => $LJ::SITENAMESHORT,
+            subject         => $self->entry->subject_text || '',
+            username        => $self->entry->journal->display_username,
+        });
 }
 
 sub as_email_html {
     my $self = shift;
+    my $u = shift;
 
     return sprintf "%s<br />
 <br />
-%s", $self->as_html, $self->content;
+%s", $self->as_html($u), $self->content( $u, full => 1 );
 }
 
 sub as_email_string {
     my $self = shift;
+    my $u = shift;
 
-    my $text = $self->content;
+    my $text = $self->content( $u, full => 1 );
     $text =~ s/\n+/ /g;
     $text =~ s/\s*<\s*br\s*\/?>\s*/\n/g;
     $text = LJ::strip_html($text);
 
     return sprintf "%s
 
-%s", $self->as_string, $text;
+%s", $self->as_string($u), $text;
 }
 
 sub as_html {
     my $self = shift;
+    my $u = shift;
     my $entry = $self->entry or return "(Invalid entry)";
-    return 'There is <a href="' . $entry->url . '">a new announcement</a> in ' . $entry->journal->ljuser_display;
+
+    return LJ::Lang::get_text(
+        $u->prop("browselang"),
+        _construct_prefix($self) . '.html2',
+        undef,
+        {
+            siteroot        => $LJ::SITEROOT,
+            sitename        => $LJ::SITENAME,
+            sitenameshort   => $LJ::SITENAMESHORT,
+            subject         => $self->entry->subject_text || '',
+            username        => $entry->journal->ljuser_display,
+            url             => $entry->url,
+            poster          => $self->entry->poster->ljuser_display,
+        });
 }
 
 sub as_string {
     my $self = shift;
+    my $u = shift;
     my $entry = $self->entry or return "(Invalid entry)";
-    return 'There is a new announcement in ' . $entry->journal->display_username . ' at ' . $entry->url;
-}
 
-sub as_sms {
-    my $self = shift;
-    my $entry = $self->entry or return "(Invalid entry)";
-    return sprintf("There is a new $LJ::SITENAMEABBREV announcement in %s. " .
-                   "Reply with READ %s to read it. Standard rates apply.",
-                   $entry->journal->display_username, $entry->journal->display_username);
+    return LJ::Lang::get_text(
+        $u->prop("browselang"),
+        _construct_prefix($self) . '.string2',
+        undef,
+        {
+            siteroot        => $LJ::SITEROOT,
+            sitename        => $LJ::SITENAME,
+            sitenameshort   => $LJ::SITENAMESHORT,
+            subject         => $self->entry->subject_text || '',
+            username        => $self->entry->journal->display_username,
+            url             => $entry->url,
+            poster          => $self->entry->poster->display_username,
+        });
 }
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-    return "$LJ::SITENAME makes a new announcement";
+    return BML::ml('event.officialpost', { sitename => $LJ::SITENAME }); # $LJ::SITENAME makes a new announcement
 }
+
+sub schwartz_role { 'mass' }
 
 1;

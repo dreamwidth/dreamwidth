@@ -36,11 +36,23 @@ my %ljconfig =
             'blocked_bot_uri' => {
                     'desc' => "Path (e.g. /bots) at which an informational page about your acceptable bot policies is documented.  This &uri; is excluded from anti-bot measures, so make sure it&apos;s as permissive as possible to allow humans in who may be lazy in their typing.  For example, leave off the trailing slash (/bots instead of /bots/) if your &uri; is a directory.",
             },
+            'blocked_password_email' => {
+                    'desc' => "If enabled, when a user attempts to change &email; addresses the new address is checked for validity; changing to [ljconfig[user_email]] addresses is also disallowed.",
+            },
             'deny_request_from_email' => {
                     'desc' => "Setup support &email; address to not accept new &email;s.  Basically if an address is specified below, any user who &email;s it out of the blue will be sent back a copy of the specified file along with their &email;.  Users will still be allowed to respond to &email;s from the support system, but they are not able to open a request by &email;ing the address. The value part of the hash is the name of an include file.  It will be loaded out of <filename class='directory'><parameter>\$<envar>LJHOME</envar></parameter>/htdocs/inc</filename>.  See [ljconfig[fileedit_via_db]] for how to make it read from &memcached;/&db;.",
                     'example' => "(
     'abuse\@\$DOMAIN' => 'bounce-abuse',
     );",
+                    'type' => "hash",
+            },
+            'email_change_requires_password' => {
+                    'desc' => "If enabled, users will not be able to edit their &email; address at <uri>manage/profile</uri>. Instead, a link
+                    to <filename>changeemail.bml</filename> will be displayed, and (non-&openid;) users will be prompted for their password at that page.",
+            },
+            'log_changeemail_ip' => {
+                    'desc' => "If enabled, when a user attempts to change their &email; address at <filename>changeemail.bml</filename>,
+                    their <acronym>IP</acronym> address is included with the record noting the change in the [dbtable[statushistory]] table.",
             },
             'rate_comment_anon' => {
                     'desc' => "Arrayref of rate rules to apply incoming comments from anonymous <quote>users</quote>.  It is switched off by default.  Each rate rule is an arrayref of two items:  number of comments, and period of time.  If user tries to make more comments in the specified time period, the comment is denied, at least without a &captcha;. In the example, anonymous comments will <emphasis>always</emphasis> require a &captcha;. For efficient anti-spammer rate-limiting we recommend you also run &memcached;, and set the appropriate <filename>ljconfig.pl</filename> variables ([ljconfig[memcache_compress_threshold]] and [ljconfig[memcache_servers]]).",
@@ -52,7 +64,7 @@ my %ljconfig =
                     'default' => "[ [ 200, 3600 ], [ 20, 60 ] ];",
             },
             'rbl_list' => {
-                    'desc' => "Real-time Block List support for comments. In the array specify providers you wish to use, like <systemitem class='domainname'>spamhaus.org</systemitem>&apos;s <acronym>XBL</acronym> list or <systemitem class='domainname'>openproxies.com</systemitem>&apos;s data, to help combat comment spam.",
+                    'desc' => "Real-time Block List support for comments. In the array specify providers you wish to use, like <systemitem class='domainname'>dsbl.org</systemitem>&apos;s or <systemitem class='domainname'>openproxies.com</systemitem>&apos;s data, to help combat comment spam.",
                     'type' => "array",
             },
             'require_talkhash' => {
@@ -61,16 +73,9 @@ my %ljconfig =
             'require_talkhash_notold' => {
                     'desc' => "If [ljconfig[require_talkhash]] is on, also make sure that the talkhash provided was issued in the past two hours.  Defaults to off.",
             },
-            'secure_password_reset' => {
-                    'desc' => "If enabled, do not &email; passwords in the clear from <filename>lostinfo.bml</filename>. Instead, &email; a link that allows the user to reset their password. The link authorizes the user to use <filename>changepassword.bml</filename>, without an old password.",
-            },
             'talk_abort_regexp' => {
                     'desc' => "Regular expression which, when matched on incoming comment bodies, kills the comment.",
                     # How is this different from @talkspam?
-            },
-            'talk_max_urls' => {
-                    'desc' => "If set, up to this many &url;s will be extracted from comments and stored (in the [dbtable[commenturls]] table) for analysis.",
-                    'example' => "500;",
             },
             'talkspam' => {
                     'desc' => "Filter comments for spam using this list of regular expressions.",
@@ -79,15 +84,12 @@ my %ljconfig =
         'morphese',
         );",
             },
-            'uniq_cookies' => {
-                    'desc' => "Set this boolean value to true, to give users a unique session cookie, unrelated to their login session cookie, to help fight abuse.",
-            },
         },
 
         'caps' => {
             'name' => "Capabilities/User Options",
             'allow_pics_over_quota' => {
-                    'desc' => "By default, when a user has more userpics than their account type allows, perhaps due to expiration of paid time, their least often used userpics (based on their journal posts) will be marked inactive. This happens whenever their account type is changed or they visit <filename>editpics.bml</filename>. They will no longer be available for use, and only the account owner may see them on <filename>editpics.bml</filename>. Turning this boolean setting true will circumvent this behavior. In other words, enabling this option lets users just keep whatever userpics they had when their account type changed.",
+                    'desc' => "By default, when a user has more userpics than their account type allows, perhaps due to expiration of paid time, their least often used userpics (based on their journal posts) will be marked inactive. This happens whenever their account type is changed or they visit <filename>editicons.bml</filename>. They will no longer be available for use, and only the account owner may see them on <filename>editicons.bml</filename>. Turning this boolean setting true will circumvent this behavior. In other words, enabling this option lets users just keep whatever userpics they had when their account type changed.",
             },
             'cap' => {
                     'desc' => "A hash that defines the capability class limits. The keys are bit numbers, from 0 &ndash; 15, and the values ".
@@ -112,16 +114,7 @@ my %ljconfig =
                     'desc' => "Do certain users get a forwarding &email; address, such as user\@\$DOMAIN?. This requires additional mail system configuration. Users will also need the <quote>useremail</quote> cap.",
             },
             'use_pgp' => {
-                    'desc' => "Let users set their <acronym>PGP</acronym>/<acronym>GPG</acronym> public key, and accept <acronym>PGP</acronym>/<acronym>GPG</acronym>-signed &email; for &email; posting. Requires <filename>GnuPG::Interface</filename> and <filename>Mail::GnuPG</filename> modules to be installed. Note: users need to use <acronym>GPG</acronym> version 1.2.4, or higher.",
-            },
-            'schoolsmax' => {
-                    'desc' => "Hashref of journaltype (P, C, I, &hellip;) to maximum number of allowed attended schools for that journal type.",
-                    'default' => "{
-    'P' => 25,
-    'I' => 25,
-    'S' => 25,
-    'C' => 50,
-    };",
+                    'desc' => "Let users set their <acronym>PGP</acronym>/<acronym>GPG</acronym> public key, and accept <acronym>PGP</acronym>/<acronym>GPG</acronym>-signed &email; for &email; posting. Requires <package>GnuPG::Interface</package> and <package>Mail::GnuPG</package> modules to be installed. Note: users need to use <acronym>GPG</acronym> version 1.2.4, or higher.",
             },
             'userprop_def' => {
                     'desc' => "This option defines the user-properties that users should have by default.",
@@ -154,6 +147,10 @@ my %ljconfig =
                     'default' => '( 1 )',
                     'example' => '( 1, 2, 3 )',
                     'type' => "array",
+            },
+        'cluster_pair_active' => {
+                'desc' => "A hash that defines master-master &db; cluster pairs.",
+                'type' => "hash",
             },
             'db_log_host' => {
                     'desc' => "An optional host:port to send <acronym>UDP</acronym> packets to with blocking reports.  The reports log the total amount of time used in a slow operation to a remote host via <acronym>UDP</acronym>.",
@@ -248,10 +245,6 @@ my %ljconfig =
                     "with the old 'cluster 0' which used the old &db; schema and the user creating an account can choose where they go. ".
                     "In reality, there's no use for this, it is only useful when working on the code. <emphasis>Deprecated</emphasis>. Instead, use: \$LJ::DEBUG{allow_cluster_select} = 1;.",
             },
-            'alt_profile_bml_file' => {
-                    'desc' => "Mapping of key (word chars) to file (like [ljconfig[profile_bml_file]]) to use to override the default \$LJ::PROFILE_BML_FILE.  Used if the ver=[key] &url; parameter is used on a /profile &url;.",
-                    'type' => "hash",
-            },
             'anti_squatter' => {
                     'desc' => "Set true if your installation is a publicly available development server and if you would like ".
                     "beta testers to ensure that they understand as such. If left alone your installation might become susceptible to ".
@@ -270,7 +263,7 @@ my %ljconfig =
             'post_without_auth' => {
                     'desc' => "Support explicit <acronym>IP</acronym> + community + user posting without passwords, for
                     internal purposes. You might want to use this if you want to make commits to your local &svn; repository but without parsing your local &svn; configuration,
-                    for example.",
+                    for example. An alternative to this hash is the generic <literal>post_noauth</literal> hook, which allows dynamically generating posters based on how you program the hook to be used.",
                     'type' => "hash",
                     'example' => "(
     '127.0.0.1' => {
@@ -411,18 +404,6 @@ my %ljconfig =
 
         'external_pluggable_auth' => {
             'name' => "External and Pluggable Authorization Support",
-            'ldap_base' => {
-                    'desc' => "The <acronym>DN</acronym> unique identifiers go here.  This is a required setting for &ldap; (Lightweight Directory Access Protocol) support.",
-                    'example' => "ou=People,dc=exampleorg,dc=com;",
-            },
-            'ldap_host' => {
-                    'desc' => "The host &uri; goes here. It accepts anything that the <systemitem>Net::LDAP</systemitem> constructor takes. This is a required setting for &ldap; support.",
-                    'example' => "ldap.example.com;",
-            },
-            'ldap_uid' => {
-                    'desc' => "An optional field containing the username.  It defaults to 'uid'.",
-                    'example' => "uid;",
-            },
             'openid_compat' => {
                     'desc' => "Support pre-1.0 &openid; specs as well as final spec.",
             },
@@ -440,19 +421,19 @@ my %ljconfig =
         'filesystem_related' => {
             'name' => "Filesystem Related",
             'blobinfo' => {
-                    'desc' => "Hash that contains the details for a number of blob servers. The format of the parameter is 'cluster' => 'directory'. The webserver user also needs to be able to access the given directory. If you wish to use &captcha;s image / audio generation for human checks, then this is a necessary parameter. <emphasis role='strong'>This is old. &mogfs; is the future</emphasis>. You might want to use this option, though, for development, as blobserver in local-filesystem-mode is easy to set up.",
+                    'desc' => "Hash that contains the details for a number of blob servers. The format of the parameter is 'cluster' => 'directory'. You also need to add a [ljconfig[userprop_def]] key: 'blob_clusterid' => 1,. The webserver user also needs to be able to access the given directory. If you wish to use &captcha;s image / audio generation for human checks, then this is a necessary parameter. <emphasis role='strong'>This is old. &mogfs; is the future</emphasis>. You might want to use this option, though, for development, as blobserver in local-filesystem-mode is easy to set up.",
                     'type' => "hash",
                     'example' => '%BLOBINFO = (
     "clusters" => {
-        "1" => "$LJ::HOME/var/blobs/",
+        "1" => "\$HOME/var/blobs/",
         },
     );'
             },
             'disable_media_uploads' => {
-                'desc' => "Boolean to disable all media uploads/modifications that would go to &mogfs;. This puts code that interacts with &mogfs; into read-only mode: editpics.bml - users can&apos;t delete/upload userpics while in this mode, and &captcha;s - can&apos;t generate new ones or delete old ones while flag on. You might set this if you needed to turn off your &mogfs; install, for example.",
+                'desc' => "Boolean to disable all media uploads/modifications that would go to &mogfs;. This puts code that interacts with &mogfs; into read-only mode: editicons.bml - users can&apos;t delete/upload userpics while in this mode, and &captcha;s - can&apos;t generate new ones or delete old ones while flag on. You might set this if you needed to turn off your &mogfs; install, for example.",
             },
             'mogilefs_config' => {
-                    'desc' => "If you are using &mogfs; on your site for userpics (the userpic factory requires &mogfs; in order to work) or other purposes, you will need to define this hash and complete the information in it. The <literal>your_class</literal> element allows you to define any special &mogfs; classes you need. If you want &captcha;s to come from a &mogfs; backend, enable [ljconfig[captcha_mogilefs]]; you also need a class called &apos;captcha&apos; in your domain, as in the example.",
+                    'desc' => "If you are using &mogfs; on your site for userpics (the userpic factory requires &mogfs; in order to work) or other purposes, you will need to define this hash and complete the information in it. Please see also [ljconfig[userpic_mogilefs]]. The <literal>your_class</literal> element allows you to define any special &mogfs; classes you need. If you want &captcha;s to come from a &mogfs; backend, enable [ljconfig[captcha_mogilefs]]; you also need a class called &apos;captcha&apos; in your domain, as in the example.",
                     'type' => "hash",
                     'example' => "(
     domain => 'example.com::lj',  # arbitrary namespace, not DNS domain
@@ -474,7 +455,7 @@ my %ljconfig =
     );",
             },
             'userpic_blobserver' => {
-                    'desc' => "If set to true, userpics are store as a file on the server rather than in the database. This depends on a <quote>Blob Server</quote> being set up in the [ljconfig[blobinfo]] section. <emphasis role='strong'>This is old. &mogfs; is the future</emphasis>. You might want to use this option, though, for development, as blobserver in local-filesystem-mode is easy to set up.",
+                    'desc' => "If set to true, userpics are store as a file on the server rather than in the database. This depends on a <quote>Blob Server</quote> being set up in the [ljconfig[blobinfo]] section. <emphasis role='strong'>This is old. &mogfs; is the future</emphasis>. You might want to use this option, though, for development, as blobserver in local-filesystem-mode is easy to set up. See also [ljconfig[perlbal_root]].",
             },
             'userpic_mogilefs' => {
                     'desc' => "Uncomment this to put new userpics in &mogfs;.",
@@ -593,6 +574,17 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
             'max_bans' => {
                     'desc' => "If you want to change the limit on how many bans a user can make, use this variable. The default is 5000, but it is site-configurable.",
             },
+            'mogile_path_cache_timeout' => {
+                    'desc' => "If using &mogfs; for userpics, and are not using \$LJ::REPROXY_DISABLE{userpics}, the server headers will advise they be cached for this value. Value is in seconds. Defaults to 3600 (one hour).",
+                    'default' => "3600",
+            },
+         'perlbal_root' => {
+                'desc' => "If you are reproxying userpics (on by default, but add this for it to work), and store userpics on a blobserver, set its location here so reproxy headers can be generated to the blobserver. Please see also [ljconfig[userpic_blobserver]] and [ljconfig[reproxy_disable]].",
+                'type' => "hash",
+                'example' => "(
+                    'userpics' => '/mnt/xy_blob',
+    );",
+            },
             'protected_usernames' => {
                     'desc' => "This is a list of regular expressions matching usernames that users on this &lj; installation can&apos;t create on their own.",
                     'type' => "array",
@@ -603,12 +595,16 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                     'type' => "array",
                     'example' => "('weblogscom', 'eg_comnewpost')",
             },
+            'qbufferd_pidfile' => {
+                    'desc' => "Sets the file to which the qbufferd.pl parent process records the process id of the daemon. The presence of the file ensures qbufferd.pl knows if it already has a process started. The value must be a valid path, as the parent has to kill the child process if the parent couldn&apos;t create or write to its pid.",
+                    'default' => '$LJ::HOME/var/qbufferd.pid',
+            },
             'random_user_period' => {
                     'desc' => "If you want to change the amount of time a user stays in the [dbtable[random_user_set]] table, change this. The random user search feature uses this. The value is in days (default is one week).",
                     'default' => "7",
             },
             'reproxy_disable' => {
-                    'desc' => "If you are using &perlbal; to balance your web site, it can use reproxying to distribute the files itself (in versions prior to 1.38, reproxying was enabled by default). You can use this option to disable that reproxying on an item-by-item basis. This can be useful for extremely busy sites without persistent connections between &perlbal; and <systemitem>mogstored</systemitem>, etc.  The hash is a set of file classes that should not be internally redirected to <systemitem>mogstored</systemitem> nodes.  Values are true, keys are one of 'userpics', 'captchas', or site-local file types like 'phoneposts' for <literal>ljcom</literal>.  See also \%LJ::USERPIC_REPROXY_DISABLE. The default is to allow all reproxying.",
+                    'desc' => "If you are using &perlbal; to balance your web site, it can use reproxying to distribute the files itself. You can use this option to disable that reproxying on an item-by-item basis. This can be useful for extremely busy sites without persistent connections between &perlbal; and <systemitem>mogstored</systemitem>, etc.  The hash is a set of file classes that should not be internally redirected to <systemitem>mogstored</systemitem> nodes / a blobserver.  Values are true, keys are one of 'userpics', 'captchas', or site-local file types like 'phoneposts' for <literal>ljcom</literal>. The default is to allow all reproxying.",
                     'type' => "hash",
                     'example' => "(
         userpics => 1,
@@ -632,10 +628,10 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
             },
             'usersearch_metafile_path' => {
                     'desc' => "File name and path the search-updater worker should use for the usersearch data file.",
-                    'example' => "\$LJ::HOME/var/usersearch.data",
+                    'default' => "\$LJ::HOME/var/usersearch.data",
             },
             'use_ssl' => {
-                    'desc' => "Links to &ssl; portions of the site should be visible.",
+                    'desc' => "Links to &ssl; portions of the site should be visible. This makes pages default to their SSL versions. If somebody can&apos;t do SSL due to proxies/etc, they can use insecure versions by appending ?ssl=no to the &url;.",
             },
         },
 
@@ -691,8 +687,13 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                     'default' => "7500;",
             },
             'qbufferd_clusters' => {
-                    'desc' => "If defined, list of clusters that qbufferd should use when retrieving and processing outstanding jobs.  Defaults to value of [ljconfig[clusters]].",
+                    'desc' => "If defined, list of clusters that qbufferd should use when retrieving and processing outstanding jobs.  Defaults to value of [ljconfig[clusters]]. You might set this if you removed a cluster you wanted to retire from \@LJ::CLUSTERS so it receives no new qbufferd jobs, but still needed to get qbufferd to process remaining jobs.",
                     'type' => "array",
+            },
+            'recent_tag_limit' => {
+                    'desc' => "The [dbtable[logtagsrecent]] table holds mapping on a set quantity of the most recent tags applied to an entry. This variable sets that quantity.",
+                    'example' => "100",
+                    'default' => "500",
             },
             'suicide' => {
                     'desc' => "Large processes should voluntarily kill themselves at the end of requests.",
@@ -713,7 +714,7 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
             },
 
             'synd_cluster' => {
-                    'desc' => "Syndicated accounts tend to have more database traffic than normal accounts, so it is a good idea to set up a separate cluster for them.".
+                    'desc' => "Syndicated accounts tend to have more database traffic than normal accounts, so it is a good idea to set up a separate cluster for them. ".
                     "If set to a cluster (defined by [ljconfig[clusters]]), all newly created accounts will reside on that cluster. If undefined, syndicated accounts are assigned
                     to user clusters (partitions) in the normal way.",
             },
@@ -725,12 +726,8 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
 
         'policy_options' => {
             'name' => "Policy Options",
-            'coppa_check' => {
-                    'desc' => "Collect birthdays to mark users as underage (under 13).  To make this work, you first need to create a new capability class for
-                    underage users. Then, set [ljconfig[underage_bit]] to be the bit number for the cap class to put underage users in. Off by default.",
-            },
             'no_password_check' => {
-                    'desc' => "Set this option true if you are running an installation using <literal>ljcom</literal> code and if you haven't installed the <filename>Crypt::Cracklib</filename> perl module. When enabled, the installation will not do strong password checks. Users can use any old dumb password they like.",
+                    'desc' => "Set this option true if you are running an installation using <literal>ljcom</literal> code and if you haven't installed the <package>Crypt::Cracklib</package> perl module. When enabled, the installation will not do strong password checks. Users can use any old dumb password they like.",
             },
             'required_tos' => {
                     'desc' => "Require users to agree to the <acronym>TOS</acronym>. The array items, respectively, allow you to: Set required version to enable tos version requirement mechanism, and change the messages displayed to users. The configurable title/html/text group values displayed are defaults, and are used if no 'domain'-specific values are defined in the rest of the array. The remaining items refer to: text/&html; to use when message displayed for a login action, an update action, posting a comment (this will just use the defaults above), protocol actions, and last, support requests.  The revision must be found in the first line of your <filename><parameter>\$<envar>LJHOME</envar></parameter>/htdocs/inc/legal-tos</filename> include file. <programlisting><![CDATA[<!-- \$Revision\$ -->]]></programlisting>",
@@ -771,108 +768,8 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                           "&svn; managed include file (<filename><parameter>\$<envar>LJHOME</envar></parameter>/htdocs/inc/legal-tos</filename>), ".
                           "and if the include file includes the following line at the top: <programlisting><![CDATA[<!-- \$Revision\$ -->]]></programlisting>",
             },
-            'underage_bit' => {
-                    'desc' => "Used in conjunction with [ljconfig[coppa_check]].",
-            },
-            'underage_error' => {
-                    'desc' => "Error message to show underage users.",
-                    'default' => "Sorry, your account needs to be &lt;a href='\$SITEROOT/agecheck/'&gt;age verified&lt;/&gt;
-before you can leave any comments.;",
-            },
             'use_acct_codes' => {
                     'desc' => "A boolean setting that makes joining the site require an <quote>invite code</quote> before being able to create a new account.  Not all features are implemented in the <literal>livejournal</literal>-only tree. &ljcom; used this for a period until late 2003. Note that this code might&apos;ve bitrotted, so perhaps it should be kept off.",
-            },
-        },
-
-        'portal' => {
-            'name' => "Portal Configuration",
-            'portal_boxes' => {
-                    'desc' => "The default portal boxes (&apos;portlets&apos;) a user will see.",
-                    'type' => "array",
-                    'default' => "(
-        'Birthdays',
-        'UpdateJournal',
-        'TextMessage',
-        'PopWithFriends',
-        'Friends',
-        'Manage',
-        'RecentComments',
-        'NewUser',
-        'FriendsPage',
-        'FAQ',
-        'Debug',
-        'Note',
-        'RandomUser',
-        'Tags',
-        'Reader',
-);",
-            },
-            'portal_defaultboxstates' => {
-                    'desc' => "The default sizes and positions of the boxes.",
-                    'type' => "hash",
-                    'default' => "(
-            'Birthdays' => {
-                    'added' => 1,
-                    'sort'  => 4,
-                    'col'   => 'R',
-            },
-            'FriendsPage' => {
-                    'added' => 1,
-                    'sort'  => 6,
-                    'col'   => 'L',
-            },
-            'FAQ' => {
-                    'added' => 1,
-                    'sort'  => 8,
-                    'col'   => 'R',
-            },
-            'Friends' => {
-                    'added' => 1,
-                    'sort'  => 10,
-                    'col'   => 'R',
-            },
-            'Manage' => {
-                    'added' => 1,
-                    'sort'  => 12,
-                    'col'   => 'L',
-            },
-            'PopWithFriends' => {
-                    'added' => 0,
-                    'col'   => 'R',
-            },
-            'RecentComments' => {
-                    'added' => 1,
-                    'sort'  => 10,
-                    'col'   => 'L',
-            },
-            'UpdateJournal' => {
-                    'added' => 1,
-                    'sort'  => 4,
-                    'col'   => 'L',
-            },
-            'NewUser' => {
-                    'added' => 1,
-                    'sort'  => 2,
-                    'col'   => 'L',
-            },
-            'TextMessage' => {
-                    'added'  => 1,
-                    'sort'   => 12,
-                    'col'    => 'R',
-            },
-            'Note' => {
-                    'notunique'  => 1,
-            },
-            'Reader' => {
-                    'notunique'  => 1,
-            },
-);",
-            },
-            'portal_boxes_hidden' => {
-                    'desc' => "A list of boxes that do not appear to users, by default.",
-                    'type' => "array",
-                    'default' => "('Debug',
-);",
             },
         },
 
@@ -970,14 +867,7 @@ before you can leave any comments.;",
                     'example' => "/var/lock/livejournal",
             },
             'log_gtop' => {
-                    'desc' => "Turn on statistics generation that shows memory/cpu usage deltas of the &apache; child for each request, for database logs.  It requires that the <filename>GTop</filename> module be installed.",
-            },
-            'maillock' => {
-                    'desc' => "Locking method that mailgated.pl should use when processing incoming &email;s from the <systemitem>Maildir</systemitem>. Values may be either: 'hostname', 'none', or 'ddlockd'. You can safely use 'none' if you have a single host processing mail, otherwise 'ddlockd' or 'hostname' is recommended, though 'hostname' means mail that arrived on a host that then crashes will not be processed until it comes back up. If you are using multiple mailgated processes, 'ddlockd' is recommended.",
-            },
-            'mailspool' => {
-                    'desc' => "With this, <systemitem>mailgated</systemitem> acts as a daemon, so libs are loaded only once, instead of once per incoming message. It allows for error and retry, and is <acronym>NFS</acronym> safe. This should be a path to a Maildir, matching the delivery location of your <acronym>MTA</acronym>.  If you are using <application>Sendmail</application>, you should deliver with <command>procmail</command> (versions 3.14 and above) for Maildir support.",
-                    'example' => '"/home/livejournal/mail"',
+                    'desc' => "Turn on statistics generation that shows memory/cpu usage deltas of the &apache; child for each request, for database logs.  It requires that the <package>GTop</package> module be installed.",
             },
             'smtp_server' => {
                     'desc' => "Host/<acronym>IP</acronym> to outgoing &smtp; server.  Takes precedence over [ljconfig[sendmail]]. This the recommended system to use for sending &email;.",
@@ -1100,7 +990,7 @@ before you can leave any comments.;",
                     'default' => "10;",
             },
             'profile_bml_file' => {
-                    'desc' => "The file (relative to htdocs) to use for the profile &url;.  Defaults to <filename>userinfo.bml</filename>",
+                    'desc' => "The file (relative to htdocs) to use for the profile &url;.  Defaults to <filename>profile.bml</filename>",
             },
             'stats_block_size' => {
                     'desc' => "Block size used in stats generation code that gets <replaceable>n</replaceable> rows from the database at a time.",
@@ -1125,9 +1015,6 @@ before you can leave any comments.;",
             },
             'fix_usercounter_enabled' => {
                     'desc' => "<emphasis role='strong'>Old historic baggage: Do not use.</emphasis> This boolean enables the <filename>fix_usercounter.bml</filename> tool at \$SITEROOT/admin. The tool reset user counters to resolve <quote>duplicate key error</quote> issues with journals. A better way to address the problem was found, making this tool redundant.",
-            },
-            'new_entry_cleanup_hack' => {
-                    'desc' => "<emphasis role='strong'>Old historic baggage: Do not use.</emphasis>  There used to be a bug where only parts of entries got deleted, then there was another bug with per-user number allocation.  Together, they forced this option to be made for awhile, where new entries (when this is on) would blow away any old data if part of it was still there but wasn't supposed to be.  This includes deleting comments tied to those old entries. Off by default.",
             },
         },
 
@@ -1180,14 +1067,8 @@ is being performed. Try again in a few minutes.",
                     'type' => "array",
                     'default' => "(
         { scheme => 'lynx', title => 'Lynx', },
-        { scheme => 'bluewhite', title => 'Blue White' },
-        );",
-                    'example' => "(
-        { scheme => 'bluewhite', title => 'Blue White' },
         { scheme => 'lynx', title => 'Lynx',
         thumb => [ 'schemethumb/lynx.png', 200, 166 ]  },
-        { scheme => 'opalcat', title => 'Opalcat' },
-        );",
             },
             's1_shortcomings' => {
                     'desc' => "Use the S2 style named 's1shortcomings' to handle page types that S1 can't handle.  Otherwise, &bml; is used.  This is off by default, but will eventually become on by default, and no longer an option.",

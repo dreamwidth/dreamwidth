@@ -227,6 +227,7 @@ class CommentInfo
 {
     var readonly string read_url "URL pointer to the 'Read Comments' view.";
     var readonly string post_url "URL pointer to the 'Post Comments' view.";
+    var readonly string permalink_url "Permanent URL for the entry.";
     var int count "Current number of comments available to be read by the viewer.";
     var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
     var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
@@ -303,6 +304,7 @@ class EntryLite
 
     var DateTime time "The user-specified time of the post, or the GMT time if it's a comment.";
     var DateTime system_time "The system time (in GMT) this entry or comment was posted.";
+    var bool timeformat24 "Indicates that the time should be displayed in 24-hour format";
 
     var UserLite poster "Author of the entry, or null if an anonymous comment";
     var UserLite journal "Journal the entry has been posted to";
@@ -328,6 +330,7 @@ class EntryLite
     function print_linkbar() "Print the link bar for this entry or comment.";
     function time_display () : string "Show the time of this post, with most useful information for user, and with tooltip for more.";
     function time_display (string datefmt, string timefmt) : string "time_display, with customized date/time formats.";
+    function builtin formatted_subject (string{} opts) : string "formats subject - outputs subject as html-link, gets hash of attributes - class and(or) style ";
 }
 
 class Entry extends EntryLite
@@ -336,8 +339,8 @@ class Entry extends EntryLite
     var readonly string security "The security level of the entry ('private', 'protected'), or blank if public.";
     var Image security_icon "A little icon which should be displayed somewhere on an entry to represent the security setting";
 
-    var readonly string age_restriction "The minimum age restriction ('14', '18'), or blank if unrestricted.";
-    var Image age_restriction_icon "A little icon which should be displayed somewhere on an entry to represent the minimum age restriction setting";
+    var readonly string adult_content_level "The adult content level ('NSFW', '18'), or blank if unrestricted.";
+    var Image adult_content_icon "A little icon which should be displayed somewhere on an entry to represent the adult content level";
 
     var Image mood_icon "Mood icon, or null.";
     var CommentInfo comments "Comment information on this entry";
@@ -354,9 +357,17 @@ class Entry extends EntryLite
     function print_link_next() "Print the link to the next entry in this journal.";
     function print_link_prev() "Print the link to the previous entry in this journal.";
     function builtin viewer_sees_ebox() [fixed] : bool
-    "True if opaque horizontal site-specific content boxes between entries should be displayed to the user.";
+    "Does nothing.";
     function builtin print_ebox() [fixed]
-    "Prints a small horizontal bar of site-specific content between entries in a journal.";
+    "Does nothing.";
+}
+
+class StickyEntry extends Entry
+"An entry that is shown on top of the journal's recent entries page"
+{
+    var Image sticky_entry_icon "A little icon displayed next to the subject of a sticky entry post";
+
+    function print_sticky_icon () "prints the icon into the subject line";
 }
 
 class Comment extends EntryLite
@@ -375,6 +386,7 @@ class Comment extends EntryLite
     var readonly string anchor "Direct link to comment, via HTML name anchors";
     var readonly bool comment_posted "True if comment was just posted by the current user.";
     var readonly bool edited "True if the comment has been edited.";
+    var readonly string editreason "The reason this comment was last edited";
 
     var readonly DateTime time_remote "The local time the comment appeared, in the remote user's (reader's) timezone.  Or undef if no remote user, or remote user hasn't set their timezone.";
     var readonly DateTime time_poster "The local time the comment appeared, in the commenter's timezone.  Or undef if anonymous comment, or commenter's timezone is unknown.";
@@ -477,6 +489,9 @@ class Page
     var readonly DateTime time
     "A DateTime object filled with the time (GMT) when the page was created.";
 
+    var bool timeformat24 
+    "Indicates that the time should be displayed in 24-hour format";
+
     var Link{} data_link "Links to various machine-readable data sources relating to this page";
     var string[] data_links_order "An array of data views which can be used to order the data_link hash";
 
@@ -503,16 +518,19 @@ class Page
     [method[Page.print_custom_head()]] if you want to supply custom head content.";
 
     function builtin print_hbox_top [fixed]
-    "Prints an horizontal bar of site-specific content at the top of a journal.";
+    "Does nothing.";
 
     function builtin print_hbox_bottom [fixed]
-    "Prints an horizontal bar of site-specific content at the bottom of a journal.";
+    "Does nothing.";
 
     function builtin print_vbox [fixed]
-    "Prints an vertical bar of site-specific content on a journal.";
+    "Does nothing.";
+
+    function builtin print_ad_box(string type) [fixed]
+    "Does nothing.";
 
     function builtin print_ad(string type) [fixed]
-    "Deprecated function.  Use print_hbox_(top|bottom) or print_vbox from now on.";
+    "Does nothing.";
 
     function builtin print_control_strip [fixed]
     "Prints a control strip for the user's convenience";
@@ -589,6 +607,13 @@ class RecentPage extends Page
     "Array of entries available to be seen by the viewer of the page.";
 
     var RecentNav nav;
+
+    var StickyEntry stickyentry
+    "Entry shown on top of the Recent Entries page";
+
+    function print_sticky_entry(StickyEntry s)
+    "function to print the sticky entry";
+
 }
 
 class FriendsPage extends RecentPage
@@ -813,19 +838,22 @@ function builtin viewer_is_member() : bool
 "Returns true if the user viewing the page is both logged in, and is a member of the community being viewed. Always returns false for personal journals, since they cannot have members.";
 
 function builtin viewer_sees_ads() [fixed] : bool
-"Deprecated function.  Use viewer_sees_hbox_(top|bottom) or viewer_sees_vbox from now on.";
+"Does nothing.";
 
 function builtin viewer_sees_vbox() [fixed] : bool
-"True if opaque vertical site-specific content box should be displayed to the user.";
+"Does nothing.";
 
 function builtin viewer_sees_hbox_top() [fixed] : bool
-"True if opaque horizontal site-specific content box should be displayed to the user at the top of the page.";
+"Does nothing.";
 
 function builtin viewer_sees_hbox_bottom() [fixed] : bool
-"True if opaque horizontal site-specific content box should be displayed to the user at the bottom of the page.";
+"Does nothing.";
+
+function builtin viewer_sees_ad_box(string type) [fixed] : bool
+"Does nothing.";
 
 function builtin viewer_sees_ebox() [fixed] : bool
-"True if the user has selected to see opaque content boxes between entries.";
+"Does nothing.";
 
 function builtin viewer_sees_control_strip [fixed] : bool
 "Returns true if reader will see the built in control strip.";
@@ -948,6 +976,12 @@ property string lang_fmt_time_short {
     des = "Time format.";
 }
 set lang_fmt_time_short = "%%hh%%:%%min%% %%a%%m";
+
+property string lang_fmt_time_short_24 {
+    noui = 1;
+    des = "Time format (24-hour).";
+}
+set lang_fmt_time_short_24 = "%%HH%%:%%min%%";
 
 property string lang_fmt_month_short {
     noui = 1;
@@ -1094,9 +1128,23 @@ property string text_meta_location {
 set text_meta_location = "Current Location";
 
 property string text_meta_groups {
-    des = "Text for 'Custom Friends Groups'";
+    des = "Text for 'Custom Access Groups'";
 }
-set text_meta_groups = "Custom Friends Groups";
+set text_meta_groups = "Custom Access Groups";
+
+property string text_meta_xpost {
+    des = "Text for 'Crossposts'";
+}
+set text_meta_xpost = "Crossposts";
+
+property string text_copyr_agree {
+    des = "Text for copyright post agree"; }
+set text_copyr_agree= "Hereinafter I give my permission to reproduce in any form";
+
+property string text_copyr_disagree {
+    des = "Text for copyright post disagree"; }
+set text_copyr_disagree= "The reproduction is prohibited in any form";
+
 
 property string text_post_comment {
     des = "Link text to leave a comment";
@@ -1116,11 +1164,11 @@ set text_max_comments = "Maximum comments reached";
 set text_read_comments = "1 comment // # comments";
 
 property string text_post_comment_friends {
-    des = "Link text to leave a comment on friends view entry";
+    des = "Link text to leave a comment from your reading page";
     example = "Leave a comment";
 }
 property string text_read_comments_friends {
-    des = "Link text to read comments on a friends view entry";
+    des = "Link text to read comments from your reading page";
     format = "plurals";
     example = "1 comment // # comments";
 }
@@ -1226,11 +1274,11 @@ property string text_view_month {
     example = "View Subjects";
 }
 set text_view_recent = "Recent Entries";
-set text_view_friends = "Friends";
-set text_view_friends_comm = "Members";
-set text_view_friends_filter = "Friends (Custom filter)";
-set text_view_friendsfriends = "Friends of Friends";
-set text_view_friendsfriends_filter = "Friends of Friends (Custom filter)";
+set text_view_friends = "Reading";
+set text_view_friends_comm = "Reading";
+set text_view_friends_filter = "Reading (Custom filter)";
+set text_view_friendsfriends = "Network";
+set text_view_friendsfriends_filter = "Network (Custom filter)";
 set text_view_archive = "Archive";
 set text_view_userinfo = "User Info";
 set text_view_memories = "Memories";
@@ -1300,6 +1348,11 @@ property string text_permalink {
 }
 set text_permalink = "Link";
 
+property string text_stickyentry_subject {
+    des = "Text that appears before the subject of the sticky entry";
+}
+set text_stickyentry_subject = "Sticky: ";
+
 property string text_edit_entry {
     des = "Text to edit an entry";
 }
@@ -1311,9 +1364,9 @@ property string text_edit_tags {
 set text_edit_tags = "Edit Tags";
 
 property string text_tell_friend {
-    des = "Text to tell a friend about an entry";
+    des = "Text to tell someone about an entry";
 }
-set text_tell_friend = "Tell a Friend";
+set text_tell_friend = "Tell Someone";
 
 property string text_mem_add {
     des = "Text to add an entry into memories";
@@ -1329,11 +1382,6 @@ property string text_unwatch_comments {
     des = "Text to stop tracking events on an entry";
 }
 set text_unwatch_comments = "Untrack This";
-
-property string text_flag {
-    des = "Text to flag an entry";
-}
-set text_flag = "Flag";
 
 property string text_month_screened_comments {
     des = "Text to indicate there are screened comments";
@@ -1370,6 +1418,11 @@ property string text_multiform_opt_unscreen {
 }
 set text_multiform_opt_unscreen = "Unscreen";
 
+property string text_multiform_opt_unscreen_to_reply {
+    des = "Text for the comment unscreening action it's showed instead of reply-link for screened comments";
+}
+set text_multiform_opt_unscreen_to_reply = "Unscreen to reply";
+    
 property string text_multiform_opt_screen {
     des = "Text for the comment screening action";
 }
@@ -1440,7 +1493,7 @@ property string font_base {
     maxlength = 25;
     "size" = 10;
     example = "Arial";
-    note = "Leave blank if you don't care.";
+    note = "Leave blank to use the default.";
 }
 set font_base = "";   # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
 
@@ -1488,14 +1541,14 @@ property string text_comment_ipaddr {
     maxlength = "20";
 }
 property string text_comment_edittime {
-    des = "Text of the 'Edited at' string at the bottom of edited comments";
-    example = "Edited at:";
+    des = "Text of the 'Edited' string at the bottom of edited comments";
+    example = "Edited";
     maxlength = "20";
 }
 set text_comment_from = "From:";
 set text_comment_date = "Date:";
 set text_comment_ipaddr = "IP Address:";
-set text_comment_edittime = "Edited at";
+set text_comment_edittime = "Edited";
 
 property string text_comment_reply {
     des = "Text to link to reply for comment";
@@ -1573,22 +1626,28 @@ property string text_icon_alt_groups {
     des = "Alternative text for icons of custom friends group entries";
     noui = 1;
 }
-property string text_icon_alt_14_plus {
-    des = "Alternative text for icons of 14+ entries";
+property string text_icon_alt_nsfw {
+    des = "Alternative text for icons of NSFW entries";
     noui = 1;
 }
-property string text_icon_alt_18_plus {
+property string text_icon_alt_18 {
     des = "Alternative text for icons of 18+ entries";
     noui = 1;
 }
+property string text_icon_alt_sticky_entry {
+    des = "Alternative text for icons of sticky entries";
+    noui = 1;
+}
+
 set text_icon_alt_protected = "[protected post]";
 set text_icon_alt_private = "[private post]";
 set text_icon_alt_groups = "[custom friends groups post]";
-set text_icon_alt_14_plus = "[14+]";
-set text_icon_alt_18_plus = "[18+]";
+set text_icon_alt_nsfw = "[NSFW]";
+set text_icon_alt_18 = "[18+]";
+set text_icon_alt_sticky_entry = "[sticky entry]";
 
 property bool use_shared_pic {
-    des = "Use community userpics instead of poster's userpic.";
+    des = "Use community icons instead of poster's icon";
 }
 set use_shared_pic = false;
 
@@ -1705,6 +1764,11 @@ property Color theme_linkcolor {
 set theme_linkcolor = "";
 
 ###[ global function implementations ]
+
+function modules_init() 
+{
+    # does nothing in core1. Placeholder, to prevent breakage
+}
 
 function prop_init ()
   "This function is the first thing called and is the place to set properties based on the values of other properties.  It's called before the style system looks at its builtin properties, so if you need to conditionally setup something based on your own custom properties, do it here.  You can't print from this function."
@@ -1859,13 +1923,15 @@ function lang_viewname(string viewid) [notags] : string
 {
     if ($viewid == "recent") { return $*text_view_recent; }
     if ($viewid == "archive") { return $*text_view_archive; }
-    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "read") { return $*text_view_friends; }
     if ($viewid == "day") { return "Day"; }
     if ($viewid == "month") { return "Month"; }
     if ($viewid == "userinfo") { return $*text_view_userinfo; }
     if ($viewid == "entry") { return "Read Comments"; }
     if ($viewid == "reply") { return "Post Comment"; }
     if ($viewid == "tags") { return "Tags"; }
+    if ($viewid == "memories") { return $*text_view_memories; }
+    if ($viewid == "network") { return $*text_view_friendsfriends; }
     return "Unknown View";
 }
 
@@ -1883,6 +1949,9 @@ function lang_metadata_title(string which) [fixed] : string
     }
     elseif ($which == "groups") {
         return $*text_meta_groups;
+    }
+    elseif ($which == "xpost") {
+        return $*text_meta_xpost;
     }
     else {
         return $which;
@@ -1935,15 +2004,13 @@ function userinfoicon(UserLite user) : Image {
     $uimage.height = 16;
 
     if ($user.journal_type == "C") {
-        $uimage->set_url("$*IMGDIR/community.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/community.png");
     } elseif ($user.journal_type == "Y") {
-        $uimage->set_url("$*IMGDIR/syndicated.gif");
-    } elseif ($user.journal_type == "N") {
-        $uimage->set_url("$*IMGDIR/newsinfo.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/feed.png");
     } elseif ($user.journal_type == "I") {
-        $uimage->set_url("$*IMGDIR/openid-profile.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/openid.png");
     } else {
-        $uimage->set_url("$*IMGDIR/userinfo.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/user.png");
         $uimage.width = 17;
         $uimage.height = 17;
     }
@@ -2034,7 +2101,7 @@ function FriendsPage::view_title() : string {
             }
         }
     }
-    elseif ($.friends_mode == "friendsfriends") {
+    elseif ($.friends_mode == "network") {
         if ($.filter_active) {
             if ($.filter_name != "") {
                 return $*text_view_friendsfriends+" ("+$.filter_name+")";
@@ -2071,7 +2138,7 @@ function Page::title() [notags] : string {
     if ($.view != "recent") {
         $title = $title + " - " + $this->view_title();
     }
-    if ($.view == "friends") {
+    if ($.view == "read") {
         $title = $this->view_title();
     }
     return $title;
@@ -2157,7 +2224,7 @@ function Page::print_linklist() {
 
 function Page::print_entry_poster(Entry e) {
     $e.poster->print();
-    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+    if ($.view == "read" and not $e.poster->equals($e.journal)) {
         " posting in ";
         $e.journal->print();
     }
@@ -2166,7 +2233,7 @@ function Page::print_entry(Entry e) {
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
     """<div class="entry" id="$e.dom_id">\n""";
     "<h3>$e.security_icon $e.subject</h3>\n";
-    if ($.view == "friends" or $e.poster.username != $e.journal.username) {
+    if ($.view == "read" or $e.poster.username != $e.journal.username) {
         "<div>"; $this->print_entry_poster($e); "</div>";
     }
     """<div class="entrytext">""";
@@ -2198,9 +2265,16 @@ function FriendsPage::print_entry(Entry e) {
     "</div>\n\n";
 }
 
+function RecentPage::print_sticky_entry(StickyEntry s)
+"function to print the sticky entry. can be overrised by styles to print it differently than other entries."
+{
+    $this->print_entry( $s );
+}
+
 function Comment::print_edit_text() {
     if ($this.edited) {
-        print "<br /><br /><span class='ljedittime'><em>$*text_comment_edittime " + $this->edittime_display() + "</em></span>";
+        var string editreason = $this.editreason == "" ? "" : "($this.editreason) ";
+        print "<br /><br /><span class='edittime'><em>$*text_comment_edittime $editreason" + $this->edittime_display() + "</em></span>";
     }
 }
 
@@ -2262,6 +2336,14 @@ function Entry::print_linkbar() {
     }
 }
 
+function StickyEntry::print_sticky_icon()
+"Can be used by layouts to print out sticky icons. Not used in core1"
+{
+    """<span class="sticky-entry-icon">""";
+    $this.sticky_entry_icon->print($*text_icon_alt_sticky_entry);
+    """</span>\n""";
+}
+
 ### RecentPage and related functions
 
 function RecentPage::print_body {
@@ -2314,7 +2396,11 @@ function EntryLite::time_display(string datefmt, string timefmt) : string {
         $datefmt = "med";
     }
     if ($timefmt == "") {
-        $timefmt = "short";
+        if ($this.timeformat24) {
+            $timefmt = "short_24";
+        } else {
+            $timefmt = "short";
+        }
     }
 
     var string ret;
@@ -2335,7 +2421,11 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
         $datefmt = "iso";
     }
     if ($timefmt == "") {
-        $timefmt = "short";
+        if ($this.timeformat24) {
+            $timefmt = "short_24";
+        } else {
+            $timefmt = "short";
+        }
     }
 
     var string tooltip = "";
@@ -2541,7 +2631,7 @@ function DayPage::print_body() {
 function CommentInfo::print_readlink {
     var Page p = get_page();
     print safe "<a href=\"$.read_url\">"+
-        get_plural_phrase($.count, $p.view == "friends" ?
+        get_plural_phrase($.count, ( $p.view == "read" or $p.view == "network" ) ?
                           "text_read_comments_friends" : "text_read_comments")+
     "</a>";
 }
@@ -2550,7 +2640,7 @@ function CommentInfo::print_postlink() {
     if ($.maxcomments) {
         print safe "$*text_max_comments";
     } else {
-        print safe "<a href=\"$.post_url\">"+($p.view == "friends" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+        print safe "<a href=\"$.post_url\">"+($p.view == "read" or $p.view == "network" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
     }
 }
 function CommentInfo::print() {

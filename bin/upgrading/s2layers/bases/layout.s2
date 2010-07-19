@@ -1,0 +1,754 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Bases";
+layerinfo "redist_uniq" = "bases/layout";
+layerinfo "author_name" = "Malionette";
+layerinfo "lang" = "en";
+
+set layout_type = "two-columns-right";
+set layout_authors = [ { "name" => "malionette", "type" => "user" } ];
+
+##===============================
+## Display settings - general
+##===============================
+
+propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+    property use layout_type;
+    property use tags_page_type;
+    property use userpics_position;
+    property use entry_metadata_position;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
+}
+
+set use_custom_friend_colors = false;
+set custom_foreground_element = "userpic_border";
+set custom_background_element = "userpic_background";
+
+##===============================
+## Journal style - colors
+##===============================
+
+propgroup colors {
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_link_active;
+    property use color_page_link_hover;
+    property use color_page_link_visited;
+    property use color_page_border;
+    property use color_page_title;
+    
+    property use color_header_background;
+
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_link;
+    property use color_module_link_active;
+    property use color_module_link_hover;
+    property use color_module_link_visited;
+    property use color_module_border;
+    property use color_module_title;
+    property use color_module_title_background;
+
+    property use color_entry_background;
+    property use color_entry_text;
+    property use color_entry_link;
+    property use color_entry_link_active;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
+    property use color_entry_border;
+    property use color_entry_title;
+    property use color_entry_title_background;
+    property use color_entry_interaction_links;
+    
+    property use color_comment_title_background;
+
+}
+
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
+}
+
+##===============================
+## Display settings - images
+##===============================
+
+propgroup images {
+    property use image_background_page_group;
+    property use image_background_header_group;
+    property use image_background_header_height;
+    property use image_background_entry_group;
+    property use image_background_module_group;
+}
+
+##===============================
+## Display settings - modules
+##===============================
+
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    property use module_customtext_group;
+    property use module_calendar_group;
+    property use module_pagesummary_group;
+    property use module_tags_group;
+    property use module_active_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+    property use module_credit_group;
+    property use module_search_group;
+}
+
+##===============================
+## Custom CSS
+##===============================
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+propgroup text {
+##===============================
+## Text - main navigation
+##===============================
+
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_archive;
+    property use text_view_userinfo;
+    property use text_view_memories;
+    property use text_view_tags;
+
+##===============================
+## Text - entry comment-related
+##===============================
+
+    property use text_post_comment;
+    property use text_max_comments;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+    property use text_meta_music; 
+    property use text_meta_mood; 
+    property use text_meta_location; 
+    property use text_tags; 
+
+    property use text_entry_prev;
+    property use text_entry_next; 
+    property use text_edit_entry; 
+    property use text_edit_tags; 
+    property use text_tell_friend; 
+    property use text_mem_add; 
+    property use text_watch_comments; 
+    property use text_unwatch_comments; 
+    property use text_permalink;
+    property use text_stickyentry_subject;
+
+    property use text_module_customtext;
+    property use text_module_customtext_content;
+    property use text_module_customtext_url;
+}
+
+set module_navlinks_show = false;
+set module_navlinks_section = "none";
+
+function Page::print()
+{
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+    """;
+                    print_module_navlinks();
+    """
+                    <div id="secondary"><div class="inner">
+                        """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+    """;
+    
+    """    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+set module_layout_sections = "none|(none)|one|Group One";
+set layout_type = "two-columns-right";
+
+set show_userpics_recent = true;
+set userpics_position = "right";
+
+set num_items_recent = 10;
+set num_items_reading = 10;
+
+set linklist_support = true;
+
+set font_base = "Arial";
+set font_fallback = "sans-serif";
+set font_base_size  = "1";
+set font_base_units = "em";
+
+set font_journal_title  = "Arial";
+set font_journal_title_size  = "2.25";
+set font_journal_title_units = "em";
+
+set font_journal_subtitle  = "Arial";
+set font_journal_subtitle_size  = "1.125";
+set font_journal_subtitle_units = "em";
+
+set font_module_text  = "Arial";
+set font_module_text_size  = "1";
+set font_module_text_units = "em";
+
+set font_module_heading  = "Arial";
+set font_module_heading_size  = "1";
+set font_module_heading_units = "em";
+
+set font_entry_title  = "Arial";
+set font_entry_title_size  = "1.25";
+set font_entry_title_units = "em";
+
+function Page::print_default_stylesheet()
+{
+
+var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+var string page_title_font = generate_font_css($*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+
+var string module_text_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+var string module_heading_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+
+var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, 
+    $*image_background_page_position, $*color_page_background);
+var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, 
+    $*image_background_header_position, $*color_header_background);
+var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, 
+    $*image_background_entry_position, $*color_entry_background );
+var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, 
+    $*image_background_module_position, $*color_module_background );
+var Color element_background = $*color_page_background->lighter();
+
+if ($*image_background_header_height > 0) 
+{ $header_background = """ $header_background height: """ + $*image_background_header_height + """px;"""; }
+
+if ($*image_background_header_url == "" ){}
+else { print """ #title, #subtitle, #pagetitle {display: none}"""; }
+
+    var string userpic_css = "";
+    if ($*userpics_position == "left") {
+        $userpic_css = """
+        .has-userpic .entry .userpic,
+        .has-userpic .comment .userpic { float: left; }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        .has-userpic .entry .userpic,
+        .has-userpic .comment .userpic { float: right; }
+        """;
+    }
+
+    """
+/* DREAMWIDTH :--- Bases. --- 
+Sven @ Fruitstyle.Dreamwidth.org 
+Do not remove this note. */
+
+/* ====================== PAGE ======================= */
+
+body {$page_font $page_background color: $*color_page_text; width: 100%; margin: 0; padding: 0;}
+
+#canvas {padding-top: 4%; padding-bottom: 4%; }
+
+#primary > .inner:first-child {padding: 0;}
+
+#secondary > .inner:first-child {padding: 0;}
+
+.one-column #secondary {display: none;}
+.one-column #primary {border: 0.083em solid $*color_page_border; background: $*color_entry_background; width: 90%; padding: 0; border-top: 0; position: absolute; margin-left: 5%; }
+.one-column #header { width: 90%;}
+
+.two-columns-right #secondary { margin-left: 66.4%; width: 16.667em; border: 0.083em solid $*color_page_border; background: color_entry_background; border-bottom: 0; }
+.two-columns-right #primary {border: 0.083em solid $*color_page_border; background: $*color_entry_background; width: 60.4%; padding: 0; border-top: 0; position: absolute; margin-left: 5%; }
+.two-columns-right #header { width: 60.4%;}
+
+/* ====================== RANDOM MARK UP AND CONDITIONALS ======================= */
+
+a {color: $*color_page_link; text-decoration: none;}
+a:active {color: $*color_page_link_active; text-decoration: none;}
+a:visited {color: $*color_page_link_visited; text-decoration: none;}
+a:hover, a:visited:hover, a:active:hover {color: $*color_page_link_hover; text-decoration: underline;}
+
+abbr {border-color: $*color_page_link; }
+
+blockquote {border-bottom: 0.083em solid $*color_page_border; clear: both; margin: 0.833em 1.667em 0.833em 1.667em; 
+            padding: 0.833em; background: $element_background; border-top: 0.583em solid $*color_page_link; }
+
+q { font-style: italic; }
+
+caption {font-size: 0.75em; text-transform: uppercase;}
+
+code {font: italic 1em georgia; }
+
+dt {font-weight: bold; border-bottom: 0.083em solid $*color_page_border;}
+dd {font-weight: normal;}
+
+h1 {font-size: 2.5em; font-weight: normal; }
+h2 {font-size: 2em; font-weight: normal; }
+h3 {font-size 1.5em; font-weight: normal; }
+h4 {font-size: 1.166em; font-weight: bold; }
+h5 {font-size: 1em; font-weight: bold; }
+h6 {font-size: 0.75em; font-weight: bold; }
+
+hr {border: 0.083em solid $*color_page_border;}
+
+input, select {border: 0.083em solid $*color_page_border; background: $*color_comment_title_background !important; font-size: 0.833em !important; color: $*color_page_text !important;}
+
+i {color: $*color_page_link_hover; }
+
+label {font-weight: bold;}
+
+ol {list-style: decimal-leading-zero; }
+
+pre {font-size: 1em;}
+
+sub, sup {color: $*color_page_text; }
+
+tt {font: 1.334em monospace; }
+
+textarea { margin: 0.5em; padding: 0.5em; border: 0.083em solid $*color_page_border; background: $*color_comment_title_background; color: $*color_page_text; font: italic 1em georgia;}
+
+ul { padding: 0 0 0 2em; list-style: square;}
+ul ul {list-style: circle;}
+
+.entry-content a img {border-bottom: 0.083em solid $*color_entry_link; }
+.entry-content a img:hover {border-color: $*color_entry_link_hover; }
+.entry-content .userpic, #comments .userpic {background: $*color_entry_background;}
+
+/* ====================== HEADER ======================= */
+
+#header { margin: 0 -100% 0 5%; padding: 0;
+         border-left: 0.083em solid $*color_page_border; border-top: 0.083em solid $*color_page_border; border-right: 0.083em solid $*color_page_border;}
+
+#title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; color: $*color_page_title; margin: 0; }
+
+#subtitle { $page_subtitle_font padding-left: 1.5em; color: $*color_page_title; }
+
+#header {$header_background }
+
+
+#pagetitle { border-bottom: 0.083em solid $*color_page_border; font-size: 1em; padding: 0 0 1em 2.2em; margin: 0.5em 0 0 0; }
+
+.entry-interaction-links li {display: inline; padding: 0.583em 0 0.583em 0 !important; border-left: 0.083em solid $*color_entry_background; border-right: 0.083em solid $*color_entry_background; }
+.entry-interaction-links li + li {border-left: 0; margin: 0 0 0 -0.25em;}
+.entry-interaction-links a {color: $*color_entry_interaction_links !important; padding: 0.583em 0.833em 0.583em 0.833em; font-weight: bold;}
+.entry-interaction-links a:hover{background: $*color_module_link_hover; text-decoration: underline; }
+
+#content > .inner > .module-navlinks .module-content {border-left: 0.083em solid $*color_module_border; border-right: 0; border-top: 0; border-bottom: 0;}
+
+#content > .inner > .module-navlinks .module-list {padding: 0; margin: 0.083em 0 0 5%; background: $*color_module_title_background; padding: 0.583em; position: absolute; }
+#content > .inner > .module-navlinks .module-list-item {list-style: none; display: inline; padding: 0.583em 0 0.583em 0;}
+#content > .inner > .module-navlinks .module-list-item a {color: $*color_module_title; font-size: 1em; font-weight: bold; text-decoration: none; padding: 0.583em 0.833em 0.583em 0.833em; border-left: 0.083em solid $*color_module_background; }
+#content > .inner > .module-navlinks .module-list-item:last-child { border-right: 0.083em solid $*color_module_background; }
+#content > .inner > .module-navlinks .module-list-item a:hover {background: $*color_module_link_hover; text-decoration: underline; }
+
+#content > .inner > .module-navlinks .module-list-item + .module-list-item { margin-left: -0.28em;}
+
+#content > .inner > .module-navlinks .current {
+background: $*color_module_link_hover; }
+
+/* ====================== SIDEBAR ======================= */
+
+.module { color: $*color_module_text; }
+.module a { color: $*color_module_link; }
+.module a:visited { color: $*color_module_link_visited; }
+.module a:active { color: $*color_module_link_active; }
+.module a:hover, #secondary a:visited:hover, #secondary a:active:hover { color: $*color_module_link_hover; }
+
+.module-header { text-align: center; margin: 0; list-style: none; background: $*color_module_title_background; padding: 0.6em 0 0.6em 0;
+                 $module_heading_font font-weight: bold; color: $*color_module_title; border-bottom: 0.083em solid $*color_module_background;}
+.module-header a, .module-header a:visited, .module-header a:active { text-decoration: underline; color: $*color_module_title;}
+.module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: $*color_comment_title_background;}
+
+.module-content {border-top: 0.083em solid $*color_module_border; $module_text_font }
+
+#secondary .module {background: $*color_module_background; padding: 0.083em 0 0.083em 0; border-bottom: 0.083em solid $*color_module_border; }
+
+#secondary .module-content { $module_background }
+
+/* -------- profile -------- */
+
+.module-userprofile {text-align: center; font-weight: bold; }
+
+.module-userprofile .userpic img{border: 0.083em solid $*color_module_border; padding: 0.2em; background: $*color_module_background; margin: 0 auto; margin-top: 1em; }
+.module-userprofile img {border: 0;}
+.module-userprofile img:hover {opacity: .7;}
+
+.module-userprofile .journal-name {margin: 0.5em 0 0.5em 0;}
+
+/* -------- profile - interactions -------- */
+
+.module-userprofile .userlite-interaction-links {margin: 0.583em 0 0.583em 0; padding: 0; list-style: none; overflow: hidden;}
+.module-userprofile li {display: inline; margin: 0 0.25em 0 0.25em;}
+
+.module-userprofile img { border-bottom: 0.083em solid transparent; padding: 0 0 0.25em 0; }
+.module-userprofile img:hover { border-bottom: 0.083em solid $*color_module_link_hover; }
+
+/* -------- navlinks -------- */
+
+#secondary .module-navlinks {padding-top: 0 !important;}
+#secondary .module-navlinks .module-content {border-top: 0; padding: 0; margin: 0;}
+#secondary .module-navlinks ul{list-style: none; margin: 0; padding: 0; }
+#secondary .module-navlinks li { padding: 0; margin: 0;}
+#secondary .module-navlinks li + li {border-top: 0.083em solid $*color_module_border;}
+
+#secondary .module-navlinks a {padding: 0.6em; display: block;}
+#secondary .module-navlinks a:hover {background: $*color_comment_title_background; color: $*color_module_link; text-decoration: none;}
+#secondary .module-navlinks .current {background: $*color_module_title_background; color: $*color_module_title; font-weight: bold;}
+
+/* -------- calendar -------- */
+
+.module-calendar table {width: 16.5em; text-align: center; border-collapse: collapse; margin: 0 0 0 -0.4em;}
+.module-calendar td {border-top: 0.083em solid $*color_module_border;}
+.module-calendar td .entry-day a {display: block; background: $element_background; }
+
+.module-calendar .module-content { padding: 0.5em;}
+
+/* -------- tags -------- */
+
+.module-typelist .module-list { padding-left: 2em; }
+.module-typelist .module-list .module-list-item {list-style-type: square; color: $*color_module_text; font-size: 0.833em; }
+.module-typelist .module-list .module-list-item a { text-align: left; font-size: 1.2em;}
+
+.module-tags_list .manage-tags-link {border-top: 0.083em solid $*color_module_border; padding-top: 0.5em; padding-bottom: 0.5em; text-align: center;}
+
+.module-tags_cloud .module-list {padding: 0.5em;}
+.module-tags_cloud li, .tags_cloud li {display: inline; list-style-type: none;}
+.module-tags_cloud .manage-tags-link {border-top: 0.083em solid $*color_module_border; margin-top: 0.5em; text-align: center;}
+
+.module-tags_multilevel .module-list { padding: 0.5em; margin: 0; }
+.module-tags_multilevel .module-list .module-list { border-top: 0.083em solid $*color_module_border; border-bottom: 0; padding: 1em; }
+.module-tags_multilevel .module-list .module-list-item {list-style-type: none; color: $*color_module_text;  border-bottom: 0.083em solid $*color_module_border; margin: 0;  }
+.module-tags_multilevel .module-list .module-list-item a { text-align: left; }
+
+.module-tags_multilevel .manage-tags-link {border-top: 0.083em solid $*color_module_border; padding-top: 0.5em; padding-bottom: 0.5em; text-align: center;}
+
+/* -------- summary -------- */
+
+.module-pagesummary ul {display: block; margin: 0; padding: 0.833em; list-style: none; color: $*color_module_text; font-size: 0.75em;}
+.module-pagesummary li {margin: 0.417em 0 0.417em 0; padding: 0 0 0.417em 0; border-bottom: 0.083em solid $*color_module_border;}
+/* wrap long content, particularly openid usernames */
+.module-pagesummary .ljuser {white-space: normal !important;}
+.module-pagesummary .module-content {word-wrap: break-word;}
+
+/* -------- syndicate -------- */
+
+.module-syndicate .module-content{text-align: center; padding: 0.5em; margin: 0;}
+.module-syndicate img:hover {opacity: .7;}
+
+/* -------- techie -------- */
+
+.module-time  .module-content, .module-powered .module-content {padding: 0.5em; border: 0; }
+
+/* -------- custom text -------- */
+
+.module-customtext .module-content {padding: 0.5em; }
+
+/* -------- credit -------- */
+
+.module-credit .module-content {padding: 0 0.5em 0 0.5em; }
+
+/* -------- search -------- */
+
+.search-form { margin: .2em auto; }
+.search-box { margin: .2em; }
+
+/* ====================== NAVIGATION BAR ======================= */
+
+.navigation ul {margin: 0; padding: 0; list-style: none; border-top: 0.083em solid $*color_page_border; }
+.navigation li {display: inline; padding: 0 1em 0 1em; border-right: 0.083em solid $*color_page_border; }
+li.page-separator {display: none;}
+.navigation li + li {margin-left: -0.25em;}
+
+/* ====================== ENTRIES ======================= */
+
+#primary a { color: $*color_entry_link; }
+#primary a:visited {color: $*color_entry_link_visited; }
+#primary a:active {color: $*color_entry_link_active; }
+#primary a:hover, #primary a:visited:hover, #primary a:active:hover {color: $*color_entry_link_hover; }
+
+#primary { color: $*color_entry_text; }
+
+#entries, .page-entry .entry, .page-tags .tags-container, .page-archive #archive-year, .page-month #archive-month, .page-reply .entry-title 
+{border-top: 2.417em solid $*color_module_title_background; margin-top: 0.083em;}
+
+#entries > .inner {border-top: 0.083em solid $*color_entry_background;}
+
+.entry-title {$entry_title_font border: 0.083em solid $*color_entry_border; border-left: 0; border-right: 0; padding: 0.5em; margin: 0; color: $*color_entry_text; background: $*color_entry_title_background; }
+.entry-title a {text-decoration: none; color: $*color_entry_title; }
+
+.datetime { font-size: 0.75em; text-transform: uppercase; display: block; color: $*color_entry_text; padding: 0.5em 1em 0.5em 1em; 
+border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_title_background; }
+
+.access-filter, .restrictions {float: left; margin: 0.25em 0.5em 0.25em 0.5em;}
+
+.has-userpic .entry .userpic { border: 0.083em solid $*color_entry_border; padding: 0.2em; margin: 0.5em; background: $*color_entry_background; }
+.entry .userpic img {border: 0;}
+.entry .userpic img:hover {opacity: .7;}
+
+.entry-poster { display: block; border-bottom: 0.083em solid $*color_entry_border; padding: 0.167em 0.833em 0.167em 0.833em;}
+.page-recent .journal-type-P .entry-poster, .page-recent .journal-type-Y .entry-poster {display: none;}
+.ljuser a b:hover { color: $*color_page_link_hover;}
+
+.entry-content { padding: 0.833em; min-height: 8.5em; border-bottom: 0.083em solid $*color_entry_border; $entry_background}
+
+.entry-content a img {border-width: 0.083em; padding: 0.25em;}
+.entry-content a img:hover {opacity: .7;}
+
+/* ====================== METADATA ======================= */
+
+.metadata ul {padding: 0; margin: 0; list-style: none; }
+.metadata li {padding: 0.167em 0.833em 0.167em 0.833em; margin: 0; border-bottom: 0.083em solid $*color_entry_border;} 
+.metadata-label {font-weight: bold; }
+.page-recent .journal-type-P .metadata.top-metadata li,
+.page-recent .journal-type-I .metadata.top-metadata li,
+.page-recent .journal-type-P .metadata.top-metadata li + li + li,
+.page-recent .journal-type-I .metadata.top-metadata li + li + li { background: $*color_entry_background; }
+.page-recent .journal-type-P .metadata.top-metadata li + li,
+.page-recent .journal-type-I .metadata.top-metadata li + li,
+.page-recent .journal-type-P .metadata.top-metadata li + li + li + li,
+.page-recent .journal-type-I .metadata.top-metadata li + li + li + li { background: $*color_comment_title_background; }
+
+/* ====================== ENTRY TAGS ======================= */
+
+.tag {margin: 0; padding: 0; border-bottom: 0.083em solid $*color_entry_border; background: $*color_entry_background; }
+.tag-text {float: left; font-weight: bold; padding: 0 0.5em 0 1em; }
+.tag ul { padding: 0; list-style: none; margin: 0; }
+.tag li {display: inline; margin: 0; }
+
+.metadata li, .metadata li + li + li {background: $*color_comment_title_background; color: }
+.metadata li + li , .metadata li + li + li + li {background: $*color_entry_background; }
+
+/* ====================== ENTRY TOOLS ======================= */
+
+.entry .footer { overflow: auto; background:  $*color_module_title_background; border-bottom: 0.083em solid $*color_entry_background;}
+.entry-interaction-links {margin: 0; list-style: none; padding: 0.583em; border-top: 0.083em solid $*color_entry_background;}
+.entry-interaction-links li {display: inline; padding: 0.583em 0 0.583em 0 !important; border-left: 0.083em solid $*color_entry_background; border-right: 0.083em solid $*color_entry_background; }
+.entry-interaction-links li + li {border-left: 0; margin: 0 0 0 -0.25em;}
+.entry-interaction-links a {color: $*color_entry_interaction_links !important; padding: 0.583em 0.833em 0.583em 0.833em; font-weight: bold;}
+.entry-interaction-links a:hover{background: $*color_module_link_hover; text-decoration: underline; }
+
+.entry-management-links { margin: 0.583em 0.583em 0 0; list-style: none; display: inline; float: right;}
+.entry-management-links li {display: inline; margin: 0 0.25em 0 0.25em; }
+
+.entry-management-links img { border-bottom: 0.083em solid transparent; padding: 0 0.25em 0.25em 0.25em; }
+.entry-management-links img:hover { border-bottom: 0.083em solid $*color_entry_interaction_links; opacity: 0.7; }
+
+li.first-item {margin-left: 0;}
+
+.page-entry li.edit_entry {margin-left: -0.25em !important;}
+
+/* ====================== COMMENT PAGES ======================= */
+
+.above-entry-interaction-links, .below-reply-container {display: none;}
+
+#comments { border-top: 0.083em solid $*color_entry_border; padding-top: 0.5em;}
+
+.comment { border: 0.083em solid $*color_entry_border; margin: 0 1em 0 1em; }
+.comment-title {font-size: normal 1.5em; padding: 0.5em; }
+.comment-title a {display: block; }
+
+.comment-title h4 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+.comment .datetime { border-top: 0.083em solid $*color_entry_border;}
+.comment-poster, .poster-ip {border-bottom: 0.083em solid $*color_entry_border; display: block; padding: 0 0.5em 0 0.5em; }
+
+.comment-pages {font-size: 0.833em; font-weight: lighter; text-align: center; padding: 0.833em; border-bottom: 0.083em solid $*color_entry_border;}
+
+.comment-content {padding: 0.5em; border-bottom: 0.083em solid $*color_entry_border; min-height: 7em;}
+.no-userpic .comment-content {min-height: 1em;}
+
+.has-userpic .comment .userpic {border: 0.083em solid $*color_entry_border; margin: 0.5em; padding: 0.2em; }
+
+.screened .comment-content {background: $element_background; padding: 0.833em; }
+
+.partial .comment {color: transparent; padding: 0 0 0.5em 0; min-width: 16.667em; background: $*color_entry_background;}
+.partial .comment-title {padding: 0.5em; font-size: 1.166em; font-weight: bold; }
+
+.comment-wrapper {padding-top: 0;}
+
+.bottomcomment, .comments-message {padding-bottom: 0.833em; text-align: center; margin: 0.833em 0 0 0; }
+.bottomcomment .entry-interaction-links {margin-bottom: 0.833em; text-align: left;}
+
+.ljcmtmanage, .Note .Inner {border: 0.083em solid $*color_page_border !important; background: $*color_entry_background !important; }
+.ljcmtmanage b {color: $*color_page_text; }
+
+/* ====================== COMMENT TOOLS ======================= */
+
+.comment .userpic img {border: 0;}
+.comment a img:hover {opacity: .7;}
+
+.comment-interaction-links {padding: 0; margin: 0; list-style: none; background: $*color_comment_title_background; padding: 0.25em; border-top: 0.083em solid $*color_entry_border;
+                            text-align: left; }
+.comment-interaction-links li {display: inline; padding: 0.25em 0 0.25em 0 !important; border-right: 0.083em solid $*color_entry_background; }
+.comment-interaction-links li + li { margin: 0 0 0 -0.25em; }
+.comment-interaction-links a { padding: 0.25em 0.417em 0.25em 0.417em; font-weight: bold;}
+.comment-interaction-links a:hover{background: $*color_entry_background; text-decoration: underline; }
+
+.comment-interaction-links li.first-item {border-left: 0.083em solid $*color_entry_background; }
+
+.comment-interaction-links .first-item {border-left: 0;}
+
+.comment-management-links { margin: 1.833em 0.5em 0 0; list-style: none; display: inline; float: right;}
+.comment-management-links li {display: inline; margin: 0.25em !important; }
+
+.comment-management-links img { padding: 0 0.25em 0.25em 0.25em; }
+.comment-management-links img:hover { opacity: 0.7; }
+
+li.frozen {font-size: 0.75em; text-transform: uppercase; padding: 0.5em 0.833em 0.25em 0.833em !important; }
+
+.multiform-checkbox { padding: 0.333em 0 0 0.25em; }
+
+#postform td b {color: $*color_page_text;}
+
+/* ====================== REPLY FORM ======================= */
+
+#qrform > table { border: 0 !important; border-spacing: 0 !important; width: 100%; margin: 0 0 1em 0; border-bottom: 0.083em solid $*color_page_border !important;}
+#qrform td { border-right: 0.083em solid $*color_page_border; border-top: 0.083em solid $*color_page_border !important; padding: 0.5em; font-size: 1em; }
+#qrform td + td { border-right: 0; font-size: 1em; }
+#subject {width: 80% !important; }
+.textbox {width: 94% !important; font-size: 1em;}
+
+#prop_picture_keyword { margin: 0 0 0 0.833em;}
+
+#postform {background: $*color_entry_background; border: 0.083em solid $*color_page_border; border: 0;}
+#postform table {border-spacing: 0; width: 100%; }
+#postform td { border-right: 0.083em solid $*color_page_border;  font-size: 1em; }
+#postform td + td { border-right: 0; font-size: 1em; text-transform: lowercase; font-weight: normal;}
+#postform tr + tr td { border-top: 0.083em solid $*color_page_border; padding: 0.417em; }
+
+#postform #userpics label{ margin: 0 0.25em 0 0.25em;}
+
+#postform table table {width: 100%; }
+#postform table table td {padding: 0.25em;}
+
+/* ====================== TAGS PAGES ======================= */
+
+ul.ljtaglist { margin: 0.5em; list-style: square; color: $*color_module_text; }
+.tags-container h2 {font-size: 1.667em; font-weight: normal; padding-left: 1em; border-top: 0.083em solid $*color_page_border; border-bottom: 0.083em solid $*color_page_border;  margin: 0;}
+.tags-container .manage-tags-link {padding: 0.5em 0 0.5em 1em; margin-top: 0.5em; border-top: 0.083em solid $*color_page_border;}
+
+div.ljtaglist {padding: 0.5em; }
+
+/* ====================== ARCHIVE PAGES ======================= */
+
+#archive-year .header h3 {font-size: 1.667em; border: 0.083em solid $*color_page_border; border-left: 0; border-right: 0; padding: 0.583em; margin: 0; }
+
+.month caption { display: none; }
+
+table.month {width: 100%; text-align: center; }
+.month th {padding: 0.833em 0 0 0;  border-color: $*color_page_border !important; }
+.month td {border-top: 0.083em solid $*color_page_border; border-color: $*color_page_border !important; width: 14%; }
+.month tr > td + td + td + td + td + td {width: 15% !important;}
+
+.day-has-entries span {float: left; margin: 0; width: 50%; padding: 0 0 0 25%;}
+.day-has-entries p{text-align: right; margin: 0; padding: 0 !important; }
+
+#archive-year .footer .inner {text-align: right; padding: 0 1em 0 0; }
+
+#archive-month dd, #archive-month dl {margin: 0; padding: 0; }
+#archive-month h3.entry-title {border: 0; font-size: 1em; font-weight: bold; display: block; border-bottom: 0.083em solid $*color_page_border;}
+#archive-month dt {border-top: 0.083em solid $*color_page_border; font-size: 1.667em; padding: 0 0 0 0.833em; }
+
+#archive-month ul {border-top: 0.083em solid $*color_page_border;}
+
+/* ====================== EXTRAS ======================= */
+
+#lj_controlstrip {width: 100%; }
+
+#lj_controlstrip td{border-right: 0.083em solid $*color_page_border; background: $*color_module_background; color: $*color_page_text; font-size: 1em; border-bottom: 0.083em solid $*color_page_border;}
+#lj_controlstrip a {color: $*color_page_link;}
+#lj_controlstrip a:visited {color: $*color_page_link_visited;}
+#lj_controlstrip a:active {color: $*color_page_link_active;}
+#lj_controlstrip a:hover, #lj_controlstrip a:visited:hover, #lj_controlstrip a:active:hover { color: $*color_page_link_hover; }
+
+#lj_controlstrip_statustext {color: $*color_page_text; }
+
+#lj_controlstrip table td {border: 0;}
+
+div.ContextualPopup {border: 0.083em solid $*color_page_border; background: $*color_entry_background; padding: 0.583em;}
+div.ContextualPopup div.Inner {border: 0; }
+div.ContextualPopup .Userpic {border: 0.083em solid $*color_page_border; padding: 0.25em; }
+
+$userpic_css
+
+    """;
+}

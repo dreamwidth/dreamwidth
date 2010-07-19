@@ -72,14 +72,6 @@ $caps_general{'textmessaging'} = {
     type => 'boolean',
     desc => 'Can use text messaging.',
 };
-$caps_general{'todomax'} = {
-    type => 'integer',
-    desc => 'Maximum number of todo items allowed.',
-};
-$caps_general{'todosec'} = {
-    type => 'boolean',
-    desc => 'Can make non-public todo items.',
-};
 $caps_general{'userdomain'} = {
     type => 'boolean',
     desc => 'Can view journal at http://user.$LJ::DOMAIN/',
@@ -104,6 +96,10 @@ $caps_general{'weblogscom'} = {
 $caps_general{'full_rss'} = {
     type => 'boolean',
     desc => 'Show the full text in the RSS view.',
+};
+$caps_general{'latest_comments_rss'} = {
+    type => 'boolean',
+    desc => 'Can have an RSS feed of journal comments received.',
 };
 $caps_general{'edit_comments'} = {
     type => 'boolean',
@@ -220,7 +216,7 @@ $caps_general{'subscriptions'} = {
 };
 $caps_general{'mass_privacy'} = {
     type => 'boolean',
-    desc => 'Can edit entries en-masse, at <filename>editprivacy.bml</filename>.',
+    desc => 'Can edit entries en masse, at <filename>editprivacy.bml</filename>.',
 };
 $caps_general{'tags_max'} = {
     type => 'integer',
@@ -292,7 +288,7 @@ $caps_general{'rateallowed-lostinfo'} = {
 };
 $caps_general{'bookmark_max'} = {
     type => 'integer',
-    desc => 'Maximum number of bookmarks, or flags, a user can use in their &esn; Inbox.',
+    desc => 'Maximum number of bookmarks a user can use in their &esn; Inbox.',
 };
 $caps_general{'viewmailqueue'} = {
     type => 'boolean',

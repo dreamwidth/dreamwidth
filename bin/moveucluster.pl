@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 ##############################################################################
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 =head1 NAME
 
@@ -229,6 +241,9 @@ sub parseOpts {
         $opts->{$opt} = eval "\$opt_$opt";
     }
 
+    # Have the same delete behavior despite of how the input delete parameter is specified: by 'delete=1' or by 'del=1'
+    $opts->{del} = $opts->{'delete'} if defined $opts->{'delete'} and not $opts->{del};
+
     return $opts;
 }
 
@@ -432,13 +447,13 @@ sub moveUser {
     # this is okay to call even if ! $dclust above
     $check_sig->($dbch, "dbch(database dst)");
 
-    # get a definitive source handle where deletes should happen in 
+    # get a definitive source handle where deletes should happen in
     # cases of sourcedel, etc
     $dboa = get_definitive_source_dbh($u);
     $check_sig->($dboa, "dboa(database src)");
 
-    # get a source handle to move from, which is not necessarily a 
-    # definitive copy of the source data... it could just be a 
+    # get a source handle to move from, which is not necessarily a
+    # definitive copy of the source data... it could just be a
     # movemaster slave
     $dbo = get_move_source_dbh($u);
     $check_sig->($dbo, "dbo(movemaster)");
@@ -485,7 +500,8 @@ sub moveUser {
     }
 
     if ($opts->{expungedel} && $u->{'statusvis'} eq "D" &&
-        LJ::mysqldate_to_time($u->{'statusvisdate'}) < time() - 86400*31) {
+        LJ::mysqldate_to_time($u->{'statusvisdate'}) < time() - 86400*31 &&
+        !$u->is_identity) {
 
         print "Expunging user '$u->{'user'}'\n";
         $dbh->do("INSERT INTO clustermove (userid, sclust, dclust, timestart, timedone) ".
@@ -505,29 +521,26 @@ sub moveUser {
         if ($opts->{del}) {
             print "Deleting expungeable user data...\n" if $optv;
 
-            # figure out if they have any S1 styles
-            my $styleids = $dboa->selectcol_arrayref("SELECT styleid FROM s1style WHERE userid = $userid");
-
+            $dbh->do("DELETE FROM domains WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM email_aliases WHERE alias = ?",
                      undef, "$u->{user}\@$LJ::USER_DOMAIN");
             $dbh->do("DELETE FROM userinterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM comminterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM syndicated WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM supportnotify WHERE userid = ?", undef, $u->id);
+            $dbh->do("DELETE FROM reluser WHERE userid = ?", undef, $u->id);
+            $dbh->do("DELETE FROM wt_edges WHERE from_userid = ?", undef, $u->id);
+
+            # no need for other users to ban this user any more
+            while ($dbh->do("DELETE FROM reluser WHERE targetid = ? AND type = 'B' LIMIT 1000", undef, $u->id) > 0) {
+                print "  deleted bans from reluser\n" if $optv;
+            }
 
             # now delete from the main tables
             foreach my $table (keys %$tinfo) {
                 my $pri = $tinfo->{$table}->{idxcol};
                 while ($dboa->do("DELETE FROM $table WHERE $pri=$userid LIMIT 1000") > 0) {
                     print "  deleted from $table\n" if $optv;
-                }
-            }
-
-            # and from the s1stylecache table
-            if (@$styleids) {
-                my $styleids_in = join(",", map { $dboa->quote($_) } @$styleids);
-                if ($dboa->do("DELETE FROM s1stylecache WHERE styleid IN ($styleids_in)") > 0) {
-                    print "  deleted from s1stylecache\n" if $optv;
                 }
             }
 
@@ -540,6 +553,7 @@ sub moveUser {
         } else {
             die "Could not load module LJ::Event::UserExpunged: $@";
         }
+        LJ::Hooks::run_hooks('purged_user', $u);
 
         return 1;
     }
@@ -668,7 +682,6 @@ sub moveUser {
     my %skip_table = (
                       "cmdbuffer" => 1,       # pre-flushed
                       "events" => 1,          # handled by qbufferd (not yet used)
-                      "s1stylecache" => 1,    # will be recreated
                       "captcha_session" => 1, # temporary
                       "tempanonips" => 1,     # temporary ip storage for spam reports
                       "recentactions" => 1,   # pre-flushed by clean_caches
@@ -677,8 +690,8 @@ sub moveUser {
                       "random_user_set" => 1, # "
                       );
 
-    $skip_table{'inviterecv'} = 1 if $u->{journaltype} ne 'P'; # non-person, skip invites received
-    $skip_table{'invitesent'} = 1 if $u->{journaltype} ne 'C'; # not community, skip invites sent
+    $skip_table{'inviterecv'} = 1 unless $u->is_person; # if not person, skip invites received
+    $skip_table{'invitesent'} = 1 unless $u->is_community; # if not community, skip invites sent
 
     # we had a concern at the time of writing this dependency optization
     # that we might use "log3" and "talk3" tables in the future with the
@@ -732,14 +745,12 @@ sub moveUser {
     # start copying from source to dest.
     my $rows = 0;
     my @to_delete;  # array of [ $table, $prikey ]
-    my @styleids;   # to delete, potentially
 
     foreach my $table (@tables) {
         next if $skip_table{$table};
 
         # people accounts don't have moderated posts
-        next if $u->{'journaltype'} eq "P" && ($table eq "modlog" ||
-                                               $table eq "modblob");
+        next if $u->is_person && ($table eq "modlog" || $table eq "modblob");
 
         # don't waste time looking at dependent tables with empty parents
         next if $dep{$table} && $was_empty{$dep{$table}};
@@ -833,7 +844,7 @@ sub moveUser {
             $flush->() if $sqlvals > 5000 || length($sqlins) > 800_000;
         };
 
-        # let tables perform extra processing on the $r before it's 
+        # let tables perform extra processing on the $r before it's
         # sent off for inserting.
         my $magic;
 
@@ -843,12 +854,6 @@ sub moveUser {
                 my $r = shift;
                 return unless length($r->[3]) > 200;
                 LJ::text_compress(\$r->[3]);
-            };
-        }
-        if ($table eq "s1style") {
-            $magic = sub {
-                my $r = shift;
-                push @styleids, $r->[0];
             };
         }
 
@@ -885,8 +890,7 @@ sub moveUser {
                     # (where InnoDB differs and stops when primary key
                     # doesn't match)
                     $batch_size = 25;
-                    if ($table eq "clustertrack2" || $table eq "userbio" ||
-                        $table eq "s1usercache" || $table eq "s1overrides") {
+                    if ($table eq "clustertrack2" || $table eq "userbio") {
                         # we know these only have 1 row, so 2 will be enough to show
                         # in one pass that we're done.
                         $batch_size = 2;
@@ -961,7 +965,7 @@ sub moveUser {
     # NOTE:  we've just finished moving a bunch of rows form $dbo to $dbch,
     #        which could have potentially been a very slow process since the
     #        time for the copy is directly proportional to the data a user
-    #        had to move.  We'll revalidate handles now to ensure that they 
+    #        had to move.  We'll revalidate handles now to ensure that they
     #        haven't died due to (insert eleventy billion circumstances here).
     #
 
@@ -1007,14 +1011,6 @@ sub moveUser {
                 print "  deleted from $table\n" if $optv;
             }
         }
-
-        # s1stylecache table
-        if (@styleids) {
-            my $styleids_in = join(",", map { $dboa->quote($_) } @styleids);
-            if ($dboa->do("DELETE FROM s1stylecache WHERE styleid IN ($styleids_in)") > 0) {
-                print "  deleted from s1stylecache\n" if $optv;
-            }
-        }
     } else {
         # at minimum, we delete the clustertrack2 row so it doesn't get
         # included in a future ljumover.pl query from that cluster.
@@ -1033,7 +1029,7 @@ sub fetchTableInfo
     my $memkey = "moveucluster:" . Digest::MD5::md5_hex(join(",",@tables));
     my $tinfo = LJ::MemCache::get($memkey) || {};
     foreach my $table (@tables) {
-        next if grep { $_ eq $table } qw(events s1stylecache cmdbuffer captcha_session recentactions pendcomments active_user random_user_set);
+        next if grep { $_ eq $table } qw(events cmdbuffer captcha_session recentactions pendcomments active_user random_user_set blobcache);
         next if $tinfo->{$table};  # no need to load this one
 
         # find the index we'll use

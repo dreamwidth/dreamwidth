@@ -32,3 +32,23 @@
 .s2propgroup-outer-expandcollapse {
     display: none;
 }
+
+.prop-grouped label.prop-header {
+    float: left;
+    clear: both;
+    width: 20em;
+}
+
+.prop-viewslist label {
+    float: none; 
+}
+
+.prop-viewslist label.prop-header {
+    float: none;
+    display: block;
+    width: auto;
+}
+
+.prop-moduleopts {
+    margin-left: 10em;
+}

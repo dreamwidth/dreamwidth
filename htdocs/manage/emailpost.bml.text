@@ -3,13 +3,9 @@
 
 .addresses.table.address=Address:
 
-.addresses.table.errors=Send errors?
-
 .addresses.text=Only the addresses listed below are allowed to post to your account via the email gateway. If no addresses are listed, posting via the email gateway will be disabled for your account. Marked addresses will receive errors if there are any to send.
 
 .error.invalidemail=Invalid email address: [[email]]
-
-.error.invalidimagesize=Image size must be [[size]] or less to disable the lj-cut.
 
 .error.invalidpin=Your PIN is currently limited to alphabet characters and numbers, and needs to be at least [[num]] [[?num|character|characters]] long.
 
@@ -55,11 +51,17 @@
 
 .help.header=How does this feature work?
 
-.help.headers.header=[[sitenameabbrev]] headers and security
+.help.headers.header2=Post headers and security
+
+.help.headers.compat.header=Compatibility with other sites
+
+.help.headers.compat.text=[[sitename]] also accepts old-style headers of the form "lj-headername" for backwards compatibility.  That means you can post to multiple LJ-based sites in the same email, using the same headers in the message, and have them interpreted correctly.
 
 .help.headers.options.comments.example=("[[off]]" or "[[noemail]]")
 
 .help.headers.options.header=Journal entry options
+
+.help.headers.options.location.example=Paris, France
 
 .help.headers.options.mood.example=happy
 
@@ -67,7 +69,7 @@
 
 .help.headers.options.tags.example=greyhounds, potato, wool
 
-.help.headers.options.text=Most journal specific features can be set via "lj-headers" in the body of your message. The lj-headers should be at the top of your message, separated by a newline. All lj-headers are completely optional, and simply override your journal defaults.
+.help.headers.options.text=Most journal specific features can be set via "post-headers" in the body of your message. The post-headers should be at the top of your message, separated by a newline. All post-headers are completely optional, and simply override your journal defaults.
 
 .help.headers.options.userpic.example=userpic keywords
 
@@ -86,41 +88,7 @@
 
 .help.headers.security.public.desc=The post is posted publicly.
 
-.help.headers.security.text=Security options are set via the lj-header "[[header]]". If the security type specified is unknown, the journal entry defaults to private. If no security is specified, the entry is posted according to your default journal security.
-
-.help.images.gallery.example=vacation photos
-
-.help.images.gallery.header=Choosing a gallery
-
-.help.images.gallery.text=You can specify what photo gallery you want your attachments uploaded into using the [[header]] header. If unspecified, the default gallery is '[[name]]'. If you decide to move your images into different galleries in the future, the images posted in your journal will still work correctly.
-
-.help.images.header=Image attachments
-
-.help.images.layout.header=Changing image layout
-
-.help.images.layout.text1=If you attach multiple images, you can change the way they appear in your journal via the [[header]] header.
-
-.help.images.layout.text2=By default, multiple images will be placed in a vertical layout:
-
-.help.images.layout.text3=Currently, the only other option is "[[horizontal]]".
-
-.help.images.ljcut.header=lj-cut behavior
-
-.help.images.ljcut.text=By default, images [[ljcutsize]] or smaller are placed in your journal without an <a [[aopts]]>lj-cut</a>. You can change this behavior using the [[header]] header. Valid options are "[[count]]" and "[[titles]]". Using "[[count]]", if you attached 3 images in your email message, the lj-cut would read, "( 3 images )". Setting the [[header]] header to "[[titles]]" changes the cut caption to the title of the filename, one cut per image. "( emo.jpg ) ( pict002.jpg ) ( me_and_bob.jpg )"
-
-.help.images.security.header=Image security
-
-.help.images.security.text1=Images are publicly viewable by default. Use the [[header]] header to change this behavior. Please note that image security is separate from your journal entry security! For example, you can have a journal entry that is private, while the pictures within it are public. This feature only changes the security on the images themselves - not the journal entry.
-
-.help.images.security.text2=Valid options are "[[option1]]", "[[option2]]", and "[[option3]]".
-
-.help.images.size.header=Changing the image display size
-
-.help.images.size.text1=You may attach images of any size. They will be displayed in your journal at a maximum size of [[maxsize]]. The default size is [[defaultsize]]. You may specify a size using the [[header]] header. Images larger than [[ljcutsize]] will be automatically placed behind an <a [[aopts]]>lj-cut</a>.
-
-.help.images.size.text2=Valid sizes are "[[size1]]", "[[size2]]", and "[[size3]]".
-
-.help.images.text=If you have <a [[aopts1]]>[[scrapbook]]</a> access (and enough disk quota), any image you attach to your email message will be automatically uploaded to your [[scrapbook]] account and displayed in your journal entry. All images above [[dimensions]] in size are displayed under an <a [[aopts2]]>lj-cut</a>. Using <a [[aopts3]]>lj-headers</a>, you can change the way the images look in your journal, as well as set various image attributes.
+.help.headers.security.text=Security options are set via the post-header "[[header]]". If the security type specified is unknown, the journal entry defaults to private. If no security is specified, the entry is posted according to your default journal security.
 
 .help.manage.header=Manage your emailpost settings
 
@@ -173,6 +141,8 @@
 .pin.header=PIN
 
 .pin.text=Your PIN is used only for the email gateway. Do not use your regular password for this. This way, if someone obtains your PIN, they can't obtain full access to your journal. The PIN should be at least [[num]] [[?num|character|characters]] long, and may only contain alphabet characters and/or numbers.
+
+.save=Save Settings
 
 .settings.entry.comments=Comments:
 
@@ -242,11 +212,13 @@
 
 .settings.image.size.select.default=default
 
-.settings.text=These settings apply to all journal updates via email. You can leave these options alone to let your journal defaults take over, or override on a per message basis using lj-headers. These settings (and lj-header overrides) are described <a [[aopts]]>here</a>.
+.settings.text=These settings apply to all journal updates via email. You can leave these options alone to let your journal defaults take over, or override on a per message basis using post-headers. These settings (and post-header overrides) are described <a [[aopts]]>here</a>.
 
 .sorry.acct=Sorry, updating your journal via email is not available for your account type.
 
 .success.header=Success
+
+.success.helpmessage=If you requested a summary of posting instructions, it should arrive in your email inbox shortly.
 
 .success.info=Click <a [[aopts]]>here</a> for information on how to use this feature.
 

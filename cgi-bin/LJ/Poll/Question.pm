@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Poll::Question;
 use strict;
 use Carp qw (croak);
@@ -46,18 +59,10 @@ sub _load {
     croak "_load called on a LJ::Poll::Question object with no pollqid"
         unless $self->pollqid;
 
-    my $sth;
+    my $sth = $self->poll->journal->prepare( 'SELECT * FROM pollquestion2 WHERE pollid=? AND pollqid=? and journalid=?' );
+    $sth->execute( $self->pollid, $self->pollqid, $self->poll->journalid );
 
-    if ($self->is_clustered) {
-        $sth = $self->poll->journal->prepare('SELECT * FROM pollquestion2 WHERE pollid=? AND pollqid=? and journalid=?');
-        $sth->execute($self->pollid, $self->pollqid, $self->poll->journalid);
-    } else {
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare('SELECT * FROM pollquestion WHERE pollid=? AND pollqid=?');
-        $sth->execute($self->pollid, $self->pollqid);
-    }
-
-    $self->absorb_row($sth->fetchrow_hashref);
+    $self->absorb_row( $sth->fetchrow_hashref );
 }
 
 # returns the question rendered for previewing
@@ -132,18 +137,9 @@ sub items {
 
     return @{$self->{items}} if $self->{items};
 
-    my $sth;
-
-    if ($self->is_clustered) {
-        $sth = $self->poll->journal->prepare('SELECT pollid, pollqid, pollitid, sortorder, item ' .
-                                             'FROM pollitem2 WHERE pollid=? AND pollqid=? AND journalid=?');
-        $sth->execute($self->pollid, $self->pollqid, $self->poll->journalid);
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $sth = $dbr->prepare('SELECT pollid, pollqid, pollitid, sortorder, item ' .
-                                             'FROM pollitem WHERE pollid=? AND pollqid=?');
-        $sth->execute($self->pollid, $self->pollqid);
-    }
+    my $sth = $self->poll->journal->prepare( 'SELECT pollid, pollqid, pollitid, sortorder, item ' .
+                                             'FROM pollitem2 WHERE pollid=? AND pollqid=? AND journalid=?' );
+    $sth->execute( $self->pollid, $self->pollqid, $self->poll->journalid );
 
     die $sth->errstr if $sth->err;
 
@@ -166,10 +162,6 @@ sub items {
 sub poll {
     my $self = shift;
     return $self->{poll};
-}
-sub is_clustered {
-    my $self = shift;
-    return $self->poll->is_clustered;
 }
 sub pollid {
     my $self = shift;
@@ -201,29 +193,54 @@ sub qtext {
     return $self->{qtext};
 }
 
+# Count answers pages
+sub answers_pages {
+    my $self = shift;
+    my $jid = shift;
+
+    my $pagesize = shift || 2000;
+
+    my $pages = 0;
+
+    # Get results count
+    my $sth = $self->poll->journal->prepare(
+        "SELECT COUNT(*) as count FROM pollresult2".
+        " WHERE pollid=? AND pollqid=? AND journalid=?" );
+    $sth->execute( $self->pollid, $self->pollqid, $jid );
+    die $sth->errstr if $sth->err;
+    $_ = $sth->fetchrow_hashref;
+    my $count = $_->{count};
+    $pages = 1 + int( ($count - 1) / $pagesize );
+    die $sth->errstr if $sth->err;
+
+    return $pages;
+}
+
 sub answers_as_html {
     my $self = shift;
+    my $jid = shift;
+
+    my $page     =  shift || 1;
+    my $pagesize =  shift || 2000;
+
+    my $pages = shift || $self->answers_pages($jid, $pagesize);
 
     my $ret = '';;
-    my $LIMIT = 2000;
-    my $sth;
 
-    if ($self->is_clustered) {
-        $sth = $self->poll->journal->prepare("SELECT pr.value, ps.datesubmit, pr.userid ".
-                                             "FROM pollresult2 pr, pollsubmission2 ps " .
-                                             "WHERE pr.pollid=? AND pollqid=? " .
-                                             "AND ps.pollid=pr.pollid AND ps.userid=pr.userid " .
-                                             "LIMIT $LIMIT");
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $sth = $dbr->prepare("SELECT pr.value, ps.datesubmit, pr.userid ".
-                             "FROM pollresult pr, pollsubmission ps " .
-                             "WHERE pr.pollid=? AND pollqid=? " .
-                             "AND ps.pollid=pr.pollid AND ps.userid=pr.userid ".
-                             "LIMIT $LIMIT");
-    }
-    $sth->execute($self->pollid, $self->pollqid);
+    my $LIMIT = $pagesize * ($page - 1) . "," . $pagesize;
+
+    # Get data
+    my $sth = $self->poll->journal->prepare(
+            "SELECT pr.value, ps.datesubmit, pr.userid " .
+            "FROM pollresult2 pr, pollsubmission2 ps " .
+            "WHERE pr.pollid=? AND pollqid=? " .
+            "AND ps.pollid=pr.pollid AND ps.userid=pr.userid " .
+            "AND ps.journalid=? ".
+            "LIMIT $LIMIT" );
+    $sth->execute( $self->pollid, $self->pollqid, $jid );
     die $sth->errstr if $sth->err;
+
+    my ( $pollid, $pollqid ) = ( $self->pollid, $self->pollqid );
 
     my @res;
     push @res, $_ while $_ = $sth->fetchrow_hashref;
@@ -249,12 +266,44 @@ sub answers_as_html {
         $ret .= "<div>" . $u->ljuser_display . " -- $value</div>\n";
     }
 
-    # temporary
-    if (@res == $LIMIT) {
-        $ret .= "<div>[" . LJ::Lang::ml('poll.error.truncated') . "]</div>";
-    }
-
     return $ret;
+}
+
+sub paging_bar_as_html {
+    my $self = shift;
+
+    my $page  =  shift      || 1;
+    my $pages =  shift      || 1;
+    my $pagesize = shift    || 2000;
+
+    my ($jid, $pollid, $pollqid) = @_;
+
+    my $href_opts = sub {
+        my $page = shift;
+        return  " class='LJ_PollAnswerLink'".
+                " lj_pollid='$pollid'".
+                " lj_qid='$pollqid'".
+                " lj_posterid='$jid'".
+                " lj_page='$page'".
+                " lj_pagesize='$pagesize'";
+    };
+
+    return LJ::paging_bar($page, $pages, { href_opts => $href_opts });
+}
+
+sub answers {
+    my $self = shift;
+
+    my $ret = '';
+    my $sth = $self->poll->journal->prepare( "SELECT userid, pollqid, value FROM pollresult2 " .
+                                             "WHERE pollid=? AND pollqid=?" );
+    $sth->execute( $self->pollid, $self->pollqid );
+    die $sth->errstr if $sth->err;
+
+    my @res;
+    push @res, $_ while $_ = $sth->fetchrow_hashref;
+
+    return @res;
 }
 
 1;

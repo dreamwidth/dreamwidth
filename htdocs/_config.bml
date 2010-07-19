@@ -1,6 +1,6 @@
 LookRoot $LJHOME/cgi-bin/bml/scheme
-DefaultScheme dreamwidth
 DefaultLanguage en
+DefaultScheme blueshift
 IncludePath inc/
 
 AllowOldSyntax 0
@@ -11,6 +11,3 @@ MildXSSProtection 1
 
 SubConfig: guide/, clients/, files/
 AllowCode 0
-
-
-

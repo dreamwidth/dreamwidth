@@ -1,13 +1,29 @@
 ;; -*- coding: utf-8 -*-
+.email.add.body1=You have just been added as a maintainer of the community [[comm]] by one of the current maintainers. As the maintainer, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove your maintainership or transfer your community to another user.
+
+.email.add.body2.html=To manage your communities please visit <a [[aopts]]>your community management page.</a>
+
+.email.add.body2.plain=To manage your communities please visit the following URL:
+
+.email.add.subject=You have been added as a maintainer of [[comm]]
+
+.email.close=Regards,
+
+.email.del.body=[[admin]] has removed you as a maintainer of the community [[comm]].
+
+.email.del.subject=Maintainership removal: [[comm]]
+
+.email.hello=Dear [[site]] user [[user]],
+
+.email.signed=[[site]] Team
+
 .error.adding=[[user]] has banned this community from sending them invitations.
 
 .error.alreadyadded=[[user]] was not added because they already have access to this community.
 
 .error.alreadysent=[[user]] could not be added because they were already sent a confirmation email on <i>[[datetime]]</i>.  Please wait for them to respond.
 
-.error.invaliduser=Cannot add community or syndicated account: [[user]]
-
-.error.ischild=Sorry, but [[user]] cannot be invited to this community because they do not have a registered birthday that is at least 14 years old.
+.error.invaliduser2=Cannot add [[type]] account: [[user]]
 
 .error.isminor=Sorry, but [[user]] cannot be invited to this community because they do not have a registered birthday that is at least 18 years old.
 
@@ -19,6 +35,8 @@
 
 .error.nocomm=Community not found.
 
+.error.nomaint=Your community, [[comm]], must have at least one maintainer. Please <a [[aopts]]>go back</a> and add a maintainer.
+
 .error.notactive=Account is not active: <b>[[user]]</b>
 
 .error.notcomm=[[user]] is not a community.
@@ -26,6 +44,12 @@
 .error.nouser=User does not exist: <b>[[user]]</b>
 
 .error.unknown=Error inviting [[user]].  Please make sure they're not already a member and try again.
+
+.jump=Jump to user
+
+.intro=You can define the roles of each of your members here.
+
+.intro.invite=To invite a user to your community, enter their username in one of the empty boxes below and select the checkboxes that correspond to the roles you which the user to have.
 
 .key.admin=<b>Maintainer</b>
 

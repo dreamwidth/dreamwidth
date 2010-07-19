@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 use Getopt::Long;
@@ -57,19 +70,25 @@ my $err = sub {
 };
 
 my %modules = (
+               "Date::Parse" => { 'deb' => 'libtimedate-perl' },
                "DateTime" => { 'deb' => 'libdatetime-perl' },
                "DBI" => { 'deb' => 'libdbi-perl',  },
                "DBD::mysql" => { 'deb' => 'libdbd-mysql-perl', },
                "Class::Autouse" => { 'deb' => 'libclass-autouse-perl', },
                "Digest::MD5" => { 'deb' => 'libmd5-perl', },
                "Digest::SHA1" => { 'deb' => 'libdigest-sha1-perl', },
-               "HTML::Template" => { 'deb' => 'libhtml-template-perl' },
                "Image::Size" => { 'deb' => 'libimage-size-perl', },
                "MIME::Lite" => { 'deb' => 'libmime-lite-perl', },
                "MIME::Words" => { 'deb' => 'libmime-perl', },
                "Compress::Zlib" => { 'deb' => 'libcompress-zlib-perl', },
-               "Net::DNS" => {
-                   'deb' => 'libnet-dns-perl',
+               "Net::DNS" => { 'deb' => 'libnet-dns-perl', },
+               "Template" => { 'deb' => 'libtemplate-perl', },
+               "CGI" => { deb => 'libcgi-pm-perl', },
+               "Net::OpenID::Server" => {
+                   opt => 'Required for OpenID server support.'
+               },
+               "Net::OpenID::Consumer" => {
+                   opt => 'Required for OpenID consumer support.'
                },
                "URI::URL" => { 'deb' => 'liburi-perl' },
                "HTML::Tagset" => { 'deb' => 'libhtml-tagset-perl' },
@@ -90,9 +109,11 @@ my %modules = (
                    'deb' => 'librpc-xml-perl',
                    'opt' => 'Required for outgoing XML-RPC support',
                },
+               "XMLRPC::Lite" => {},
                "SOAP::Lite" => {
                    'deb' => 'libsoap-lite-perl',
                    'opt' => 'Required for XML-RPC support.',
+                   'ver' => '0.710.8',
                },
                "Unicode::MapUTF8" => { 'deb' => 'libunicode-maputf8-perl', },
                "XML::RSS" => {
@@ -125,6 +146,9 @@ my %modules = (
                    'opt' => 'Required for OpenID support.',
                },
                "Unicode::CheckUTF8" => {},
+               "Captcha::reCAPTCHA" => {
+                   'deb' => 'libcaptcha-recaptcha-perl',
+               },
                "Digest::HMAC_SHA1" => {
                    'deb' => 'libdigest-hmac-perl',
                },
@@ -159,9 +183,7 @@ my %modules = (
                "IP::Country::Fast" => {
                    'opt' => "Required for country lookup with IP address.",
                },
-               "GTop" => {
-                   'opt' => "Required for Apache per-request database logging.",
-               },
+               "GTop" => {},
                );
 
 sub check_modules {
@@ -187,8 +209,28 @@ sub check_modules {
 
         my $ver_want = $modules{$mod}{ver};
         my $ver_got = $mod->VERSION;
-        if ($ver_want && $ver_got && $ver_got < $ver_want) {
-            push @errors, "Out of date module: $mod (need $ver_want, $ver_got installed)";
+
+        # handle version strings with multiple decimal points
+        # assumes there will never be a version part prepended
+        # only appended
+        if ( $ver_want && $ver_got ) {
+            my @parts_want = split( /\./, $ver_want );
+            my @parts_got  = split( /\./, $ver_got  );
+            my $invalid = 0;
+
+            while ( scalar @parts_want ) {
+                my $want_part = shift @parts_want || 0;
+                my $got_part = shift @parts_got || 0;
+
+                # If want_part is greater then got_part, older
+                # If got_part is greater then want_part, newer
+                # If they are the same, look at the next part pair
+                if ( $want_part != $got_part ) {
+                    $invalid = $want_part > $got_part ? 1 : 0;
+                    last;
+                }
+            }
+            push @errors, "Out of date module: $mod (need $ver_want, $ver_got installed)" if $invalid;
         }
     }
     if (@debs && -e '/etc/debian_version') {
@@ -221,8 +263,8 @@ sub check_env {
         exit 1 unless $good;
     }
 
-    $err->("No ljconfig.pl file found at $ENV{'LJHOME'}/etc/ljconfig.pl")
-        unless -e "$ENV{'LJHOME'}/etc/ljconfig.pl";
+    $err->("No config-local.pl file found at $ENV{'LJHOME'}/etc/config-local.pl")
+        unless -e "$ENV{'LJHOME'}/etc/config-local.pl";
 
     eval { require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl"; };
     $err->("Failed to load ljlib.pl: $@") if $@;

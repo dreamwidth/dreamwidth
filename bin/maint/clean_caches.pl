@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 $maint{'clean_caches'} = sub
 {
@@ -17,13 +29,8 @@ $maint{'clean_caches'} = sub
     print "-I- Cleaning duplock.\n";
     $dbh->do("DELETE FROM duplock WHERE instime < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
 
-    print "-I- Cleaning commenturl.\n";
-    $dbh->do("DELETE FROM commenturls WHERE timecreate < UNIX_TIMESTAMP() - 86400*30 LIMIT 50000");
-
-    if ($LJ::COPPA_CHECK && $LJ::UNIQ_COOKIES) {
-        print "-I- Cleaning underage uniqs.\n";
-        $dbh->do("DELETE FROM underage WHERE timeof < (UNIX_TIMESTAMP() - 86400*90) LIMIT 2000");
-    }
+    print "-I- Cleaning underage uniqs.\n";
+    $dbh->do("DELETE FROM underage WHERE timeof < (UNIX_TIMESTAMP() - 86400*90) LIMIT 2000");
 
     print "-I- Cleaning captcha sessions.\n";
     foreach my $c (@LJ::CLUSTERS) {
@@ -78,14 +85,6 @@ $maint{'clean_caches'} = sub
             }
         }
     }
-
-    print "-I- Cleaning meme.\n";
-    do {
-        $sth = $dbh->prepare("DELETE FROM meme WHERE ts < DATE_SUB(NOW(), INTERVAL 7 DAY) LIMIT 250");
-        $sth->execute;
-        if ($dbh->err) { print $dbh->errstr; }
-        print "    deleted ", $sth->rows, "\n";
-    } while ($sth->rows && ! $sth->err);
 
     print "-I- Cleaning old pending comments.\n";
     $count = 0;
@@ -332,32 +331,12 @@ $maint{'clean_caches'} = sub
         # nothing to insert, why bother?
         next unless %counts;
 
-        # TEMPORARY
-        # We want to move from using one letter, or prefixed with _ to
-        # mean local, to actual readable strings.  Instead of fighting
-        # a race when modifying the recentactions table, do it here instead.
-        # This could should be removable after the code is pushed live and this
-        # job has run.
-        # David (1/11/06);
-        my %whatmap = (
-                       'P'             => 'post',
-                       'post'          => 'post',
-                       '_F'            => 'phonepost',
-                       'phonepost'     => 'phonepost',
-                       '_M'            => 'phonepost_mp3',
-                       'phonepost_mp3' => 'phonepost_mp3',
-                       );
-
         # insert summary into global actionhistory table
         my @bind = ();
         my @vals = ();
         while (my ($what, $ct) = each %counts) {
             push @bind, "(UNIX_TIMESTAMP(),?,?,?)";
-
-            # TEMPORARY
-            my $cwhat = defined $whatmap{$what} ? $whatmap{$what} : $what;
-
-            push @vals, $cid, $cwhat, $ct;
+            push @vals, $cid, $what, $ct;
         }
         my $bind = join(",", @bind);
 

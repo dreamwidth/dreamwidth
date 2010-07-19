@@ -1,11 +1,22 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ;
 use strict;
 no warnings 'uninitialized';
 
-use Class::Autouse qw(
-                      LJ::ConvUTF8
-                      HTML::TokeParser
-                      );
+use LJ::ConvUTF8;
+use HTML::TokeParser;
 
 # <LJFUNC>
 # name: LJ::trim
@@ -200,6 +211,7 @@ sub ejs
     $a =~ s/&quot;/\\&quot;/g;
     $a =~ s/\r?\n/\\n/gs;
     $a =~ s/\r//gs;
+    $a =~ s/\xE2\x80[\xA8\xA9]//gs;
     return $a;
 }
 
@@ -208,7 +220,7 @@ sub ejs
 # does the double quotes for ya.
 sub ejs_string {
     my $str = ejs($_[0]);
-    $str =~ s!</script!</scri\" + \"pt!g;
+    $str =~ s!</script!</scri\" + \"pt!gi;
     return "\"" . $str . "\"";
 }
 
@@ -226,7 +238,7 @@ sub ejs_all
 # strip all HTML tags from a string
 sub strip_html {
     my $str = shift;
-    $str =~ s/\<lj user\=['"]?([\w-]+)['"]?\>/$1/g;   # "
+    $str =~ s/\<(lj user|user name)\=['"]?([\w-]+)['"]?\>/$2/g;   # "
     $str =~ s/\<([^\<])+\>//g;
     return $str;
 }
@@ -253,8 +265,8 @@ sub is_ascii {
 sub is_utf8 {
     my $text = shift;
 
-    if (LJ::are_hooks("is_utf8")) {
-        return LJ::run_hook("is_utf8", $text);
+    if (LJ::Hooks::are_hooks("is_utf8")) {
+        return LJ::Hooks::run_hook("is_utf8", $text);
     }
 
     require Unicode::CheckUTF8;
@@ -264,9 +276,40 @@ sub is_utf8 {
         *stab = *{"main::LJ::"};
         undef $stab{is_utf8};
     }
-    *LJ::is_utf8 = \&Unicode::CheckUTF8::is_utf8;
-    return Unicode::CheckUTF8::is_utf8($text);
+    *LJ::is_utf8 = \&LJ::is_utf8_wrapper;
+    return LJ::is_utf8_wrapper( $text );
 }
+
+# <LJFUNC>
+# name: LJ::is_utf8_wrapper
+# des: wraps the check for UTF-8 validity.
+# args: text
+# des-text: text to check for UTF-8 validity
+# returns: 1 if text is a valid UTF-8 stream, a reference, or null; 0 otherwise.
+# </LJFUNC>
+sub is_utf8_wrapper {
+    my $text = shift;
+
+    if ( defined $text && ! ref $text )  {
+        return Unicode::CheckUTF8::is_utf8( $text );
+    } else {
+        return 1;
+    }
+}
+
+
+# alternate version of "lc" that handles UTF-8
+# args: text string for lowercasing
+# returns: lowercase string
+sub utf8_lc {
+    use Encode;  # Perl 5.8 or higher
+
+    # get the encoded text to work with
+    my $text = decode( "UTF-8", $_[0] );
+    # return the lowercased text
+    return encode( "UTF-8", lc $text );
+}
+
 
 # <LJFUNC>
 # name: LJ::text_out
@@ -323,9 +366,7 @@ sub text_in
 #            text needs to be translated).
 # returns: converted text or undef on error
 # </LJFUNC>
-sub text_convert
-{
-    &nodb;
+sub text_convert {
     my ($text, $u, $error) = @_;
 
     # maybe it's pure ASCII?
@@ -564,50 +605,6 @@ sub html_newlines
     $text =~ s/\n/<br \/>/gm;
 
     return $text;
-}
-
-# given HTML, returns an arrayref of URLs to images that are in the HTML
-sub html_get_img_urls {
-    my $htmlref = shift;
-    my %opts = @_;
-
-    my $exclude_site_imgs = $opts{exclude_site_imgs} || 0;
-
-    my @image_urls;
-    my $p = HTML::TokeParser->new($htmlref);
-
-    while (my $token = $p->get_token) {
-        if ($token->[1] eq "img") {
-            my $attrs = $token->[2];
-            foreach my $attr (keys %$attrs) {
-                push @image_urls, $attrs->{$attr} if
-                    $attr eq "src" &&
-                    ($exclude_site_imgs ? $attrs->{$attr} !~ /^$LJ::IMGPREFIX/ : 1);
-            }
-        }
-    }
-
-    return \@image_urls;
-}
-
-# given HTML, returns an arrayref of link URLs that are in the HTML
-sub html_get_link_urls {
-    my $htmlref = shift;
-    my %opts = @_;
-
-    my @link_urls;
-    my $p = HTML::TokeParser->new($htmlref);
-
-    while (my $token = $p->get_token) {
-        if ($token->[0] eq "S" && $token->[1] eq "a") {
-            my $attrs = $token->[2];
-            foreach my $attr (keys %$attrs) {
-                push @link_urls, $attrs->{$attr} if $attr eq "href";
-            }
-        }
-    }
-
-    return \@link_urls;
 }
 
 1;

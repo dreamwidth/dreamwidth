@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
 
@@ -68,47 +80,17 @@ foreach my $uid (@delusers)
     # but with meta-data saying who used to own it
     # ..... hm, with clusters this is a pain.  let's not.
 
-    # delete memories
-    print "  memories\n";
-    while (($ids = $dbh->selectcol_arrayref("SELECT memid FROM memorable WHERE userid=$uid LIMIT 100")) && @{$ids})
-    {
-        my $in = join(",", @$ids);
-        print "  id: $in\n";
-        $runsql->($dbh, $user, "DELETE FROM memkeyword WHERE memid IN ($in)");
-        $runsql->($dbh, $user, "DELETE FROM memorable WHERE memid IN ($in)");
-    }
-
-    # delete todos
-    print "  todos\n";
-    while (($ids = $dbh->selectcol_arrayref("SELECT todoid FROM todo WHERE journalid=$uid LIMIT 100")) && @{$ids})
-    {
-        my $in = join(",", @$ids);
-        print "  id: $in\n";
-        $runsql->($dbh, $user, "DELETE FROM tododep WHERE todoid IN ($in)");
-        $runsql->($dbh, $user, "DELETE FROM todokeyword WHERE todoid IN ($in)");
-        $runsql->($dbh, $user, "DELETE FROM todo WHERE todoid IN ($in)");
-    }
-
     # delete userpics
     {
         print "  userpics\n";
-        if ($du->{'dversion'} > 6) {
-            $ids = $dbcm->selectcol_arrayref("SELECT picid FROM userpic2 WHERE userid=$uid");
-        } else {
-            $ids = $dbh->selectcol_arrayref("SELECT picid FROM userpic WHERE userid=$uid");
-        }
+        $ids = $dbcm->selectcol_arrayref("SELECT picid FROM userpic2 WHERE userid=$uid");
         my $in = join(",",@$ids);
         if ($in) {
             print "  userpics: $in\n";
             $runsql->($dbcm, $user, "DELETE FROM userpicblob2 WHERE userid=$uid AND picid IN ($in)");
-            if ($du->{'dversion'} > 6) {
-                $runsql->($dbcm, $user, "DELETE FROM userpic2 WHERE userid=$uid");
-                $runsql->($dbcm, $user, "DELETE FROM userpicmap2 WHERE userid=$uid");
-                $runsql->($dbcm, $user, "DELETE FROM userkeywords WHERE userid=$uid");
-            } else {
-                $runsql->($dbh, $user, "DELETE FROM userpic WHERE userid=$uid");
-                $runsql->($dbh, $user, "DELETE FROM userpicmap WHERE userid=$uid");
-            }
+            $runsql->($dbcm, $user, "DELETE FROM userpic2 WHERE userid=$uid");
+            $runsql->($dbcm, $user, "DELETE FROM userpicmap2 WHERE userid=$uid");
+            $runsql->($dbcm, $user, "DELETE FROM userkeywords WHERE userid=$uid");
         }
     }
 
@@ -126,11 +108,9 @@ foreach my $uid (@delusers)
 
     # misc:
     $runsql->($user, "DELETE FROM userusage WHERE userid=$uid");
-    $runsql->($user, "DELETE FROM friends WHERE userid=$uid");
-    $runsql->($user, "DELETE FROM friends WHERE friendid=$uid");
-    $runsql->($user, "DELETE FROM friendgroup WHERE userid=$uid");
-    $runsql->($dbcm, $user, "DELETE FROM friendgroup2 WHERE userid=$uid");
-    $runsql->($user, "DELETE FROM memorable WHERE userid=$uid");
+    $runsql->($user, "DELETE FROM wt_edges WHERE from_userid=$uid");
+    $runsql->($user, "DELETE FROM wt_edges WHERE to_userid=$uid");
+    $runsql->($dbcm, $user, "DELETE FROM trust_groups WHERE userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM memorable2 WHERE userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM userkeywords WHERE userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM memkeyword2 WHERE userid=$uid");

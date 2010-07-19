@@ -1,67 +1,105 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 nocache=>1
 _info?><?page
-title=>FAQ
+title=>FAQ Administration
 body<=
 
 <?_code
+{
+    use strict;
 
- my $dbh = LJ::get_db_writer();
+    my $dbh = LJ::get_db_writer();
 
- my $remote = LJ::get_remote();
- my %ac_add;
- my %ac_edit;
- LJ::remote_has_priv($remote, "faqadd", \%ac_add);
- LJ::remote_has_priv($remote, "faqedit", \%ac_edit);
+    my $remote = LJ::get_remote();
+    my @display_privs = ( "faqadd", "faqedit" );
+    my $numprivs = @display_privs;
 
- $ret = "";
- if (%ac_add)
- {
-     $ret .= "<A HREF=\"faqedit.bml\">[Add to FAQ]</A>\n";
- }
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
+        unless $remote->has_priv( "faqadd" ) || $remote->has_priv( "faqedit" ) || $remote->has_priv( "faqcat" );
 
- my %faqcat;
- my %faqq;
- $sth = $dbh->prepare("SELECT faqcat, faqcatname, catorder FROM faqcat");
- $sth->execute;
- while ($_ = $sth->fetchrow_hashref)
- {
-     $faqcat{$_->{'faqcat'}} = $_;
- }
- 
- $sth = $dbh->prepare("SELECT faqid, question, sortorder, faqcat, lastmodtime FROM faq");
- $sth->execute;
- while ($_ = $sth->fetchrow_hashref)
- {
-     $faqq{$_->{'faqcat'}}->{$_->{'faqid'}} = $_;
- }
+    my %ac_add  = $remote->priv_args( "faqadd" );
+    my %ac_edit = $remote->priv_args( "faqedit" );
 
- foreach my $faqcat (sort { $faqcat{$a}->{'catorder'} <=> $faqcat{$b}->{'catorder'} } keys %faqcat)
- {
-     $ret .= "<H2><A HREF=\"readcat.bml?faqcat=$faqcat\">" . LJ::ehtml($faqcat{$faqcat}->{'faqcatname'}) . "</A></H2>\n";
-     $ret .= "<UL>\n";
-     foreach my $faqid (sort { $faqq{$faqcat}->{$a}->{'sortorder'} <=> $faqq{$faqcat}->{$b}->{'sortorder'} } keys %{$faqq{$faqcat}})
-     {
-         my $fe = $faqq{$faqcat}->{$faqid};
-         next unless ($fe->{'question'});
-         my $q = LJ::ehtml($fe->{'question'});
-         $q =~ s/^\s+//; $q =~ s/\s+$//;
-         $q =~ s/\n/<BR>/g;
-         $ret .= "<LI>";
-         if ($ac_edit{'*'} || $ac_edit{$faqcat}) {
-             $ret .= "<A HREF=\"faqedit.bml?id=$faqid\">[edit]</A> ($fe->{'sortorder'}) ";
-         }
-         $ret .= "<B>{$faqid}</B> $q\n";
-     }
-     $ret .= "</UL>\n";
- }
+    my $ret = "";
+    $ret .= "<a href='faqedit'>[Add to FAQ]</a><br>\n"
+        if %ac_add;
+    $ret .= "<a href='faqcat'>[Manage FAQ Categories]</a>\n"
+        if $remote->has_priv( "faqcat" );
 
- return $ret;
+    my %faqcat;
+    my %faqq;
+    my $sth = $dbh->prepare( "SELECT faqcat, faqcatname, catorder FROM faqcat" );
+    $sth->execute;
+    $faqcat{$_->{faqcat}} = $_
+        while $_ = $sth->fetchrow_hashref;
 
+    my $dom = LJ::Lang::get_dom( "faq" );
+    my $lang = LJ::Lang::get_root_lang( $dom );
+    my @faqs = LJ::Faq->load_all( lang => $lang->{lncode}, allow_no_cat => 1 );
+    my $user;
+    my $user_url;
+
+    # Get remote username and journal URL, or example user's username and journal URL
+    if ( $remote ) {
+        $user = $remote->user;
+        $user_url = $remote->journal_base;
+    } else {
+        my $u = LJ::load_user( $LJ::EXAMPLE_USER_ACCOUNT );
+        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+    }
+
+    LJ::Faq->render_in_place( { lang => $lang, user => $user, url => $user_url }, @faqs );
+    push @{ $faqq{$_->faqcat} }, $_
+        foreach @faqs;
+
+    # Ensure 'no category' is last.
+    my @sorted_cats = sort { $faqcat{$a}->{catorder} <=> $faqcat{$b}->{catorder} } keys %faqcat;
+    
+    $faqcat{''} = {
+        faqcat => '',
+        faqcatname => '<No Category>',
+    };
+    
+    push @sorted_cats, '';
+    
+    foreach my $faqcat ( @sorted_cats ) {
+        $ret .= "<h2><a href='readcat?faqcat=$faqcat'>"
+            . LJ::ehtml( $faqcat{$faqcat}->{faqcatname} ) . "</a></h2>\n";
+        next unless $faqq{$faqcat} && @{ $faqq{$faqcat} };
+        $ret .= "<ul>\n";
+        foreach my $faq ( sort { $a->sortorder <=> $b->sortorder } @{ $faqq{$faqcat} } ) {
+            my $q = $faq->question_html;
+            next unless $q;
+            $q =~ s/^\s+//; $q =~ s/\s+$//;
+            $q =~ s|\n|<br />|g;
+            $ret .= "<li>";
+            $ret .= "<a href='faqedit?id=" . $faq->id . "'>[edit]</a> (" .
+                    $faq->sortorder . ") "
+                if $ac_edit{'*'} || $ac_edit{$faqcat};
+            $ret .= "<b>{" . $faq->faqid . "}</b> $q</li>\n";
+        }
+        $ret .= "</ul>\n";
+    }
+
+    return $ret;
+}
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-link: htdocs/admin/faq/readcat.bml, htdocs/admin/faq/faqedit.bml
-</LJDEP> _c?>
+page?>

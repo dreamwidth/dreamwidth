@@ -2,15 +2,20 @@
     padding-right: 20px;
 }
 
-.appwidget-createaccountprogressmeter .step-selected {
-    color: #213368;
+.appwidget-createaccountprogressmeter .step-selected .step-block-text {
     font-weight: bold;
 }
 
-.appwidget-createaccountprogressmeter .step-previous {
-    color: #4b5985;
+.appwidget-createaccountprogressmeter .step-block-active,
+.appwidget-createaccountprogressmeter .step-block-inactive {
+    display: block;
+    padding: 0;
+    width: 16px;
+    text-align: center;
+    float: left;
 }
 
-.appwidget-createaccountprogressmeter .step-next {
-    color: #666;
+.appwidget-createaccountprogressmeter .step-block-text {
+    float: left;
+    margin-left: 5px;
 }

@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Event::UserNewEntry;
 
 #
@@ -7,7 +20,7 @@ package LJ::Event::UserNewEntry;
 use strict;
 use Scalar::Util qw(blessed);
 use Carp qw(croak);
-use Class::Autouse qw(LJ::Entry);
+use LJ::Entry;
 use base 'LJ::Event';
 
 ############################################################################
@@ -78,12 +91,12 @@ sub matches_filter {
     return 0 unless $entry->visible_to($subscr->owner);
 
     # journalid of 0 means 'all friends', so if the poster is
-    # a friend of the subscription owner, then they match
-    return 1 if ! $subscr->journalid && LJ::is_friend($subscr->owner, $self->poster);
+    # watched by the subscription owner, then they match
+    return 1 if ! $subscr->journalid && $subscr->owner->watches( $self->poster );
 
     # otherwise we have a journalid, see if it's the specific
     # journal that the subscription is watching
-    return LJ::u_equals($subscr->journal, $self->poster);
+    return $subscr->journal->equals( $self->poster );
 }
 
 
@@ -97,19 +110,6 @@ sub as_string {
     my $about = $entry->subject_text ? " titled '" . $entry->subject_text . "'" : '';
     return sprintf("User '%s' made a new entry $about at: " . $self->entry->url,
                    $self->poster->{name});
-}
-
-sub as_sms {
-    my $self = shift;
-
-    my $entry = $self->entry;
-    my $where = "in their journal";
-    unless ($entry->posterid == $entry->journalid) {
-        $where = "in '" . $entry->journal->{user} . "'";
-    }
-
-    return sprintf("User '%s' posted $where", $self->poster->{user});
-
 }
 
 sub as_html {
@@ -131,13 +131,13 @@ sub subscription_as_html {
     # journal is the 'watched journal' of the subscription
     #  * 0 means the subscription is for posts by any friend
     my $journal = $subscr->journal;
-    return "Any of my friends posts a new entry anywhere."
-        unless $journal;
 
     # non-zero journal means the subscription refers to
     # posts made by a specific user
-    my $journaluser = $journal->ljuser_display;
-    return "$journaluser posts a new entry anywhere.";
+
+    return $journal ?
+        BML::ml('event.user_new_entry.user', { user => $journal->ljuser_display } ) : # $journaluser posts a new entry anywhere.
+        BML::ml('event.user_new_entry.any'); # "Any of my friends posts a new entry anywhere."
 }
 
 1;

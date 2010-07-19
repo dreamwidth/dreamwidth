@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -12,13 +26,13 @@
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
 
-    if ($u) {
-        LJ::load_user_props($u, "stylesys");
-        $u->{'stylesys'} ||= 1;
+    if ( $u ) {
+        $u->preload_props( "stylesys" );
+        $u->{'stylesys'} ||= 2;
+        $BMLCodeBlock::authas = $u->equals( $remote ) ? "" : "?authas=$authas";
     }
 
     $BMLCodeBlock::u = $u;
-    $BMLCodeBlock::authas = LJ::u_equals($u, $remote) ? "" : "?authas=$authas";
     return;
 }
 _code?>
@@ -68,19 +82,19 @@ body<=
     my $ret;
 
     my $remote = LJ::get_remote();
-    return BML::ml('.login2', {'aopts' => "href='$LJ::SITEROOT/login.bml?ret=1'"}) unless $remote;
+    return BML::ml('.login2', {'aopts' => "href='$LJ::SITEROOT/login?ret=1'"}) unless $remote;
 
     my $u = $BMLCodeBlock::u;
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
 
 
-    $ret .= "</a><form action='/manage/index.bml' method='get'>\n";
+    $ret .= "</a><form action='/manage/index' method='get'>\n";
     $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
     $ret .= "</form>\n\n";
 
     my $status = $u->{'status'} eq "A" ? $ML{'.youraccount.validated.yes'} :
-        "<a href='$LJ::SITEROOT/register.bml?authas=$u->{user}'>$ML{'.youraccount.validated.no'}</a>";
+        "<a href='$LJ::SITEROOT/register?authas=$u->{user}'>$ML{'.youraccount.validated.no'}</a>";
     my $is_identity_no_email = $u->is_identity && !$u->email_raw;
 
     $ret .= "<?h1 $ML{'.youraccount.header'} h1?><div style='margin-left: 2em;'>";
@@ -88,7 +102,7 @@ body<=
     $ret .= "<tr><th align='left'>$ML{'.youraccount.user'}</th><td>" . LJ::ljuser($u) . "</td></tr>";
     $ret .= "<tr><th align='left'>$ML{'.youraccount.name'}</th><td>" . LJ::ehtml($u->{'name'}) . "</td></tr>";
     if ($is_identity_no_email) {
-        $ret .= "<tr><th align='left'>$ML{'.youraccount.email'}</th><td><a href='$LJ::SITEROOT/changeemail.bml'>$ML{'.youraccount.setemail'}</a></td></tr>";
+        $ret .= "<tr><th align='left'>$ML{'.youraccount.email'}</th><td><a href='$LJ::SITEROOT/changeemail'>$ML{'.youraccount.setemail'}</a></td></tr>";
     } else {
         $ret .= "<tr><th align='left'>$ML{'.youraccount.email'}</th><td>" . $u->email_raw . " " . BML::ml('.youraccount.validated', {'status' => "<em>$status</em>"}) . "</td></tr>";
     }
@@ -106,44 +120,41 @@ header=><?_ml .settings_pref _ml?>
 about=><?_ml .information _ml?>
 list<=
 <li><a href="/manage/profile/<?authas?>" title="<?_ml .information.editinfo.about _ml?>"><?_ml /manage/profile/index.bml.title _ml?></a></li>
-<li><a href="/manage/comments/<?authas?>" title="<?_ml .information.comments.about _ml?>"><?_ml /manage/comments/index.bml.title2 _ml?></a></li>
+<li><a href="/manage/comments/<?authas?>" title="<?_ml .information.comments.about _ml?>"><?_ml .information.comments _ml?></a></li>
 <li><a href="/manage/settings/<?authas?>" title="<?_ml .information.settings.about _ml?>"><?_ml /manage/settings/index.bml.title _ml?></a></li>
 
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
 
-    return '<li><a href="/changepassword.bml" title="<?_ml .information.changepass.about _ml?>"><?_ml .information.changepass _ml?></a></li>';
+    return '<li><a href="/changepassword" title="<?_ml .information.changepass.about _ml?>"><?_ml .information.changepass _ml?></a></li>';
+_code?>
+
+<?_code
+    return LJ::Hooks::run_hook('extra_manage_setting');
 _code?>
 
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
 
-    return '<li><a href="./emailpost.bml" title="<?_ml .information.mobilepost.about _ml?>"><?_ml .information.mobilepost _ml?></a></li>';
+    return '<li><a href="./emailpost" title="<?_ml .information.mobilepost.about _ml?>"><?_ml .information.mobilepost _ml?></a></li>';
 _code?>
 
-<li><a href="./pubkey.bml" title="<?_ml .information.pubkey.about _ml?>"><?_ml .information.pubkey _ml?></a></li>
+<li><a href="./pubkey" title="<?_ml .information.pubkey.about _ml?>"><?_ml .information.pubkey _ml?></a></li>
 
 <?_code
     my $remote = LJ::get_remote();
 
     if ($remote && $remote->can_use_esn) {
-        return '<li><a href="/manage/subscriptions/" title="<?_ml .manage.subscriptions _ml?>"><?_ml /manage/subscriptions/index.bml.title _ml?></a></li>';
+        return '<li><a href="/manage/subscriptions/" title="<?_ml .manage.subscriptions.about _ml?>"><?_ml .manage.subscriptions _ml?></a></li>';
     } else {
         return '';
     }
 _code?>
 
-<li><a href="/schools/manage.bml" title="<?_ml .schools _ml?>"><?_ml .schools _ml?></a></li>
-<li><a href="/manage/logins.bml" title="Manage Logins">Manage Logins</a></li>
-<?_code
-    my $remote = LJ::get_remote();
-    return "" unless LJ::SMS->can_use_sms($remote);
-    return qq{<li><a href="/manage/mobile.bml" title="Mobile">Mobile Settings</a></li>};
-    
-_code?>
-<li><a href="/accountstatus.bml<?authas?>" title="<?_ml .information.status.about _ml?>">
+<li><a href="/manage/logins" title="<?_ml .manage.logins _ml?>"><?_ml .manage.logins _ml?></a></li>
+<li><a href="/accountstatus<?authas?>" title="<?_ml .information.status.about _ml?>">
 <?_code
 {
     my $remote = LJ::get_remote();
@@ -166,19 +177,21 @@ list<=
     my $authas = ref $u ? "?authas=$u->{user}" : "";
     my $authas_sep = $authas ? "&" : "?";
     my $customization;
-    $customization .= "<li><a href='/customize/index.bml$authas' title='$ML{'.customization.customize.about'}'><?_ml .customization.customize _ml?></a></li>";
+    $customization .= "<li><a href='/customize/index$authas' title='$ML{'.customization.customize.about'}'><?_ml .customization.customize _ml?></a></li>";
     if ($u->{'stylesys'} == 2) {
-        $customization .= "<li><a href='/customize/advanced/index.bml$authas' title='$ML{'.customization.advanced.about'}'><?_ml .customization.advanced _ml?></a></li>";
-        $customization .= "<li><a href='$LJ::SITEROOT/customize/options.bml$authas${authas_sep}group=linkslist' title='$ML{'.customization.links.about'}'><?_ml .customization.links _ml?></a></li>";
+        $customization .= "<li><a href='/customize/advanced/index$authas' title='$ML{'.customization.advanced.about'}'><?_ml .customization.advanced _ml?></a></li>";
+        $customization .= "<li><a href='$LJ::SITEROOT/customize/options$authas${authas_sep}group=linkslist' title='$ML{'.customization.links.about'}'><?_ml .customization.links _ml?></a></li>";
     }
     return $customization;
 }
 _code?>
-<li><a href="/customize/options.bml<?authas?>" title="<?_ml .customization.moodtheme.set _ml?>"><?_ml .customization.moodtheme.set.header _ml?></a></li>
-<li><a href="./moodthemes.bml<?authas?>" title="<?_ml .customization.moodtheme.editor _ml?>"><?_ml .customization.moodtheme.editor.header _ml?></a></li>
-<li><a href="/customize/options.bml<?authas?>" title="<?_ml .customization.navstrip _ml?>"><?_ml .customization.navstrip _ml?></a></li>
+<li><a href="/customize/options<?authas?>" title="<?_ml .customization.moodtheme.set _ml?>"><?_ml .customization.moodtheme.set.header _ml?></a></li>
+<li><a href="./moodthemes<?authas?>" title="<?_ml .customization.moodtheme.editor _ml?>"><?_ml .customization.moodtheme.editor.header _ml?></a></li>
+<li><a href="/customize/options<?authas?>" title="<?_ml .customization.navstrip _ml?>"><?_ml .customization.navstrip _ml?></a></li>
 <=list
 block?>
+
+</td><td>
 
 <?block
 header=><?_ml .entries.header _ml?>
@@ -186,30 +199,28 @@ about=><?_ml .entries        _ml?>
 list<=
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
 
-    return '<li><a href="/editjournal.bml" title="<?_ml .entries.edit.about _ml?>"><?_ml /editjournal.bml.title _ml?></a></li>';
+    return '<li><a href="/editjournal" title="<?_ml .entries.edit.about _ml?>"><?_ml /editjournal.bml.title _ml?></a></li>';
 _code?>
 
-<li><a href="/tools/memories.bml<?authas?>" title="<?_ml .entries.memories.about _ml?>"><?_ml /tools/memories.bml.title.memorable _ml?></a></li>
+<li><a href="/tools/memories<?authas?>" title="<?_ml .entries.memories.about _ml?>"><?_ml /tools/memories.bml.title.memorable _ml?></a></li>
+
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
-
-    my $authas = ref $u ? "?authas=$u->{user}" : "";
-    return $LJ::DISABLED{tags} ? "" :
-           "<li><a href='/manage/tags.bml$authas' title='<?_ml .entries.tags.about _ml?>'><?_ml .entries.tags.header _ml?></a></li>";
+    return '' if $u->is_identity;
+    return '' unless LJ::is_enabled('tags');
+    my $authas = $BMLCodeBlock::authas;
+    return qq(<li><a href="/manage/tags$authas" title="<?_ml .entries.tags.about _ml?>"><?_ml /manage/tags.bml.title2 _ml?></a></li>);
 
 _code?>
 <=list
 block?>
 
-</td><td>
-
 <?_code 
 {
     my $u = $BMLCodeBlock::u; my $ret;
-    LJ::run_hook('control_panel_column', $u, \$ret); 
+    LJ::Hooks::run_hook('control_panel_column', $u, \$ret); 
     return $ret;
 }
 _code?>
@@ -218,7 +229,7 @@ _code?>
 header=><?_ml .userpics.header _ml?>
 about=><?_ml .userpics        _ml?>
 list<=
-<li><a href="/editpics.bml<?authas?>"><?_ml .userpics.edit.about _ml?></a></li>
+<li><a href="/editicons<?authas?>"><?_ml .userpics.edit.about _ml?></a></li>
 <=list
 block?>
 
@@ -226,24 +237,25 @@ block?>
 header=><?_ml .friends.header _ml?>
 about=><?_ml .friends        _ml?>
 list<=
-<li><a href="/friends/edit.bml" title="<?_ml .friends.edit.about _ml?>"><?_ml /friends/edit.bml.title2 _ml?></a></li>
-<li><a href="/friends/editgroups.bml" title="<?_ml .friends.groups.about _ml?>"><?_ml /friends/editgroups.bml.title2 _ml?></a></li>
-<li><a href="/friends/filter.bml" title="<?_ml .friends.filter.about _ml?>"><?_ml .friends.filter _ml?></a></li>
+<li><a href="/manage/circle/edit" title="<?_ml .friends.edit.about _ml?>"><?_ml /manage/circle/edit.bml.title2 _ml?></a></li>
+<li><a href="/manage/circle/editfilters" title="<?_ml .friends.groups.about _ml?>"><?_ml /manage/circle/editfilters.bml.title2 _ml?></a></li>
+<li><a href="/manage/circle/filter" title="<?_ml .friends.filter.about _ml?>"><?_ml .friends.filter _ml?></a></li>
+<li><a href="/manage/invitecodes" title="<?_ml .invites.manage.about _ml?>"><?_ml .invites.manage _ml?></a></li>
 <=list
 block?>
 
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
 
     return qq(
 <?block
 header=><?_ml .communities.header _ml?>
 about=><?_ml .communities        _ml?>
 list<=
-<li><a href="/community/create.bml" title="<?_ml .communities.create.about _ml?>"><?_ml /community/create.bml.title _ml?></a></li>
-<li><a href="/community/manage.bml" title="<?_ml .communities.manage.about _ml?>"><?_ml /community/manage.bml.title2 _ml?></a></li>
-<li><a href="/manage/invites.bml" title="<?_ml .communities.invites.about _ml?>"><?_ml /manage/invites.bml.title _ml?></a></li>
+<li><a href="/community/create" title="<?_ml .communities.create.about _ml?>"><?_ml /community/create.bml.title _ml?></a></li>
+<li><a href="/community/manage" title="<?_ml .communities.manage.about _ml?>"><?_ml /community/manage.bml.title2 _ml?></a></li>
+<li><a href="/manage/invites" title="<?_ml .communities.invites.about _ml?>"><?_ml /manage/invites.bml.title _ml?></a></li>
 <=list
 block?>
           );
@@ -258,7 +270,7 @@ pretitle<=
     my $u = $BMLCodeBlock::u; my $ret;
     
     # user switcher
-    LJ::run_hook('control_panel_extra_info', $u, \$ret) if $u;
+    LJ::Hooks::run_hook('control_panel_extra_info', $u, \$ret) if $u;
     return $ret;
 }
 _code?>

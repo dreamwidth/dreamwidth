@@ -45,8 +45,8 @@ function writeRTE(rte, postvar, html, width, height, buttons) {
         document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_hyperlink.gif" width="25" height="24" alt="Insert Link" title="Insert Link" onClick="FormatText(\'' + rte + '\', \'createlink\')"></td>');
         document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_image.gif" width="25" height="24" alt="Add Image" title="Add Image" onClick="AddImage(\'' + rte + '\')"></td>');
         document.writeln('              <td>&nbsp;</td>');
-        document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_ljuser.gif" width="25" height="24" alt="Add LJ User" title="Add LJ User" onClick="AddLJTag(\'' + rte + '\', \'user\')"></td>');
-        document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_ljcut.gif" width="25" height="24" alt="Add LJ Cut" title="Add LJ Cut" onClick="AddLJTag(\'' + rte + '\', \'cut\')"></td>');
+        document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_ljuser.gif" width="25" height="24" alt="Add User" title="Add User" onClick="AddTag(\'' + rte + '\', \'user\')"></td>');
+        document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_ljcut.gif" width="25" height="24" alt="Add Cut" title="Add Cut" onClick="AddTag(\'' + rte + '\', \'cut\')"></td>');
         document.writeln('              <td>&nbsp;</td>');
         document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_undo.gif" width="25" height="24" alt="Undo" title="Undo" onClick="FormatText(\'' + rte + '\', \'undo\')"></td>');
         document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_redo.gif" width="25" height="24" alt="Redo" title="Redo" onClick="FormatText(\'' + rte + '\', \'redo\')"></td>');
@@ -96,16 +96,16 @@ function ChangeTSize(dir) {
     return textsize;
 }
 
-// Check for allowed lj user characters
+// Check for allowed user characters
 function goodChars(str) {
     var pattern = /^\w{1,15}$/i;
     return pattern.test(str);
 }
 
 // lj-user text
-function make_ljuser (res, type) {
+function make_user (res, type) {
     if (type != null) { // gecko
-        // manually build lj user node
+        // manually build user node
         var span = document.createElement("span");
         span.setAttribute("class", "ljuser");
 
@@ -117,7 +117,7 @@ function make_ljuser (res, type) {
         img.setAttribute("style", "vertical-align: bottom; border: 0;");
 
         var uinfo_link = document.createElement("a");
-        uinfo_link.setAttribute("href", siteroot + '/userinfo.bml?user=' + res);
+        uinfo_link.setAttribute("href", siteroot + '/profile?user=' + res);
         uinfo_link.appendChild(img);
 
         var userlink = document.createTextNode(res);
@@ -132,13 +132,13 @@ function make_ljuser (res, type) {
 
         rng.insertNode(span);
     } else { // ie
-        return "<span class=\"ljuser\" style='white-space: nowrap;'><a href='" + siteroot + "/userinfo.bml?user=" + res + "'><img src='" + siteroot + "/img/userinfo.gif' alt='userinfo' width='17' height='17' style='vertical-align: bottom; border: 0;' /></a><a href='" + siteroot + "/users/" + res + "/'><b>" + res + "</b></a></span> ";
+        return "<span class=\"ljuser\" style='white-space: nowrap;'><a href='" + siteroot + "/profile?user=" + res + "'><img src='" + siteroot + "/img/userinfo.gif' alt='userinfo' width='17' height='17' style='vertical-align: bottom; border: 0;' /></a><a href='" + siteroot + "/users/" + res + "/'><b>" + res + "</b></a></span> ";
     }
 }
 
 
 //Add LJ specific tags - lj user and lj-cut.
-function AddLJTag(rte, type) {
+function AddTag(rte, type) {
     var cw = document.getElementById(rte).contentWindow;
     var res;
 
@@ -151,7 +151,7 @@ function AddLJTag(rte, type) {
         res = rng.text;
     } 
 
-    // lj-user
+    // user
     if (type == 'user') {
         if (res == "" || res.length == 0) {
             // Nothing selected or totally unsupported
@@ -163,7 +163,7 @@ function AddLJTag(rte, type) {
                 }
                 cw.focus();
                 // tack onto the existing text
-                cw.document.body.innerHTML += make_ljuser(res);
+                cw.document.body.innerHTML += make_user(res);
                 return;
             } else {
                 return;
@@ -176,26 +176,26 @@ function AddLJTag(rte, type) {
         }
 
         if (rng.pasteHTML) {    // ie
-            rng.pasteHTML(make_ljuser(res));
+            rng.pasteHTML(make_user(res));
         } else {                // gecko
             var username = rng.toString();
             rng.deleteContents();
-            make_ljuser(username, "node");
+            make_user(username, "node");
         }
     }
 
-    // lj-cut
+    // cut
     if (type == 'cut') {
         var cut = prompt('Optional cut caption', '');
         if (cut != null) {
             var cuttag;
-            var cutend = "\n</lj-cut>\n";
+            var cutend = "\n</cut>\n";
             cw.focus();
 
             if (cut == "") {
-                cuttag = '<lj-cut>' + "\n";
+                cuttag = '<cut>' + "\n";
             } else {
-                cuttag = '<lj-cut text="' + cut + '">' + "\n";
+                cuttag = '<cut text="' + cut + '">' + "\n";
             }
 
             // give the user a chance to back out
@@ -218,9 +218,9 @@ function AddLJTag(rte, type) {
                 rng.insertNode(cut_s);
             } else { // nothing selected or totally unsupported
                 if (cut == "") {
-                    cuttag = '&lt;lj-cut&gt;' + "\n";
+                    cuttag = '&lt;cut&gt;' + "\n";
                 } else {
-                    cuttag = '&lt;lj-cut text="' + cut + '"&gt;' + "\n";
+                    cuttag = '&lt;cut text="' + cut + '"&gt;' + "\n";
                 }
                 cw.document.body.innerHTML += cuttag;
             }

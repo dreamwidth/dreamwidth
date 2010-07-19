@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::Location;
 
 use strict;
@@ -5,7 +18,7 @@ use base qw(LJ::Widget);
 use Carp qw(croak);
 use DateTime::TimeZone;
 
-my @location_props = qw/ country state city zip timezone sidx_loc/;
+my @location_props = qw/ country state city zip sidx_loc /;
 
 
 sub authas {1}
@@ -29,6 +42,8 @@ sub render_body {
 
     # use "authas"-aware code
     my $u = $class->get_effective_remote;
+
+    push @location_props, 'timezone' unless $opts{skip_timezone};
     $u->preload_props(@location_props);
 
     # displayed country may be specified in %opts hash
@@ -42,8 +57,7 @@ sub render_body {
     # check if specified country has regions
     my $regions_cfg = $class->country_regions_cfg($effective_country);
     # hashref of all regions for the specified country; it is initialized and used only if $regions_cfg is defined, i.e. the country has regions (states)
-    my $state_options = $class->region_options($regions_cfg)
-        if $regions_cfg;
+    my $state_options = $regions_cfg ? $class->region_options($regions_cfg) : undef;
 
 
     my $state_inline_desc = $class->ml('widget.location.fn.state.inline');
@@ -57,13 +71,14 @@ sub render_body {
 
         $ret .= "<tr><td class='field_class'>" . $class->ml('widget.location.fn.country') . "</td><td>";
     }
-    $ret .= $class->html_select('id'        => 'country_choice',
-                                'name'      => 'country',
-                                'selected'  => $effective_country,
-                                'class'     => 'country_choice_select',
-                                'list'      => $country_options,
-                                %{$opts{'country_input_attributes'} or {} },
-                                );
+    $ret .= $class->html_select( id        => 'country_choice',
+                                 name      => 'country',
+                                 title     => $class->ml( 'widget.location.fn.country' ),
+                                 selected  => $effective_country,
+                                 class     => 'country_choice_select',
+                                 list      => $country_options,
+                                 %{ $opts{'country_input_attributes'} or {} },
+                               );
     if ($minimal_display) {
         $ret .= " ";
     } else {
@@ -73,13 +88,14 @@ sub render_body {
     }
 
     # state
-    $ret .= $class->html_select('id' => 'reloadable_states',
-                                'name' => 'statedrop',
-                                'selected' => ($regions_cfg ? $effective_state : ''),
-                                'list' => $state_options,
-                                'style' => 'display:' . ($regions_cfg ? 'inline' : 'none'),
-                                %{$opts{'state_inputselect_attributes'} or {} },
-                                );
+    $ret .= $class->html_select( id => 'reloadable_states',
+                                 name => 'statedrop',
+                                 title     => $class->ml( 'widget.location.fn.state' ),
+                                 selected => ( $regions_cfg ? $effective_state : '' ),
+                                 list => $state_options,
+                                 style => 'display:' . ( $regions_cfg ? 'inline' : 'none' ),
+                                 %{ $opts{'state_inputselect_attributes'} or {} },
+                               );
     # other state?
     my $state_val = "";
     my $state_inline_color = "";
@@ -100,11 +116,11 @@ sub render_body {
     $ret .= $class->html_text('id' => 'written_state',
                               'name' => 'stateother',
                               'value' => $state_val,
-                              'size' => '20',
+                              'size' => '12',
                               'style' => 'display:' . ($regions_cfg ? 'none' : 'inline') . ";$state_inline_color",
                               'maxlength' => '50',
                               %minimal_display_state_attrs,
-                               %{$opts{'state_inputtext_attributes'} or {} },
+                               %{ $opts{'state_inputtext_attributes'} or {} },
                               );
     $ret .= "</span>";
 
@@ -132,14 +148,15 @@ sub render_body {
         }
 
         $ret .= "<tr><td class='field_class'>" . $class->ml('widget.location.fn.zip') . "</td><td>" unless $minimal_display;
-        $ret .= $class->html_text('id' => 'zip',
-                                  'name' => 'zip',
-                                  'value' => $zip_val,
-                                  'size' => '6', 'maxlength' => '5',
-                                  'disabled' => $minimal_display || $effective_country eq 'US' ? '' : 'disabled',
-                                  'style' => "display: " . ($minimal_display && $effective_country ne 'US' ? "none" : "inline") . ";$zip_inline_color",
-                                  %minimal_display_zip_attrs,
-                                  );
+        $ret .= $class->html_text( id => 'zip',
+                                   name => 'zip',
+                                   title => $class->ml( 'widget.location.fn.zip' ),
+                                   value => $zip_val,
+                                   size => '6', maxlength => '5',
+                                   disabled => $minimal_display || $effective_country eq 'US' ? '' : 'disabled',
+                                   style => "display: " . ( $minimal_display && $effective_country ne 'US' ? "none" : "inline" ) . ";$zip_inline_color",
+                                   %minimal_display_zip_attrs,
+                                 );
         $ret .= " <span class='helper'>(" . $class->ml('widget.location.zip.usonly') . ")</span></td></tr>\n" unless $minimal_display;
     }
 
@@ -158,15 +175,16 @@ sub render_body {
         }
 
         $ret .= "<tr><td class='field_class'>" . $class->ml('widget.location.fn.city') . "</td><td>" unless $minimal_display;
-        $ret .= $class->html_text('id' => 'city',
-                                  'name' => 'city',
-                                  'value' => $city_val,
-                                  'size' => '20',
-                                  'maxlength' => '255',
-                                  'style' => "display: " . ($minimal_display && $effective_country eq 'US' ? "none" : "inline") . ";$city_inline_color",
-                                  %minimal_display_city_attrs,
-                                   %{$opts{'state_input_attributes'} or {} },
-                                  );
+        $ret .= $class->html_text( id => 'city',
+                                   name => 'city',
+                                   title => $class->ml( 'widget.location.fn.city' ),
+                                   value => $city_val,
+                                   size => '20',
+                                   maxlength => '255',
+                                   style => "display: " . ($minimal_display && $effective_country eq 'US' ? "none" : "inline") . ";$city_inline_color",
+                                   %minimal_display_city_attrs,
+                                   %{ $opts{'state_input_attributes'} or {} },
+                                 );
         $ret .= "</td></tr>\n" unless $minimal_display;
     }
 
@@ -178,15 +196,16 @@ sub render_body {
             my $usmap = { map { $_ => $map->{$_} } grep { m!^US/! && $_ ne "US/Pacific-New" } keys %$map };
             my $camap = { map { $_ => $map->{$_} } grep { m!^Canada/! } keys %$map };
 
-            $ret .= $class->html_select('name' => 'timezone',
-                                        'selected' => $u->{'timezone'},
-                                        'list' => [
+            $ret .= $class->html_select( name => 'timezone',
+                                         selected => $u->{'timezone'},
+                                         title => $class->ml( 'widget.location.fn.timezone' ),
+                                         list => [
                                             "", $class->ml('widget.location.timezone.select'),
                                             (map { $usmap->{$_}, $_ } sort keys %$usmap),
                                             (map { $camap->{$_}, $_ } sort keys %$camap),
                                             map { $_, $_ } DateTime::TimeZone::all_names()
-                                        ]
-                                        );
+                                         ]
+                                       );
         }
         $ret .= "</td></tr>\n" unless $minimal_display;
     }
@@ -220,7 +239,8 @@ sub handle_post {
     $post->{zip} = "" if $post->{zip} eq $zip_inline_desc;
 
     # state and zip
-    my ($zipcity, $zipstate) = LJ::load_state_city_for_zip($post->{'zip'})
+    my ( $zipcity, $zipstate );
+    ( $zipcity, $zipstate ) = LJ::load_state_city_for_zip( $post->{'zip'} )
         if $post->{'country'} eq "US" && length $post->{'zip'} > 0;
 
     # country

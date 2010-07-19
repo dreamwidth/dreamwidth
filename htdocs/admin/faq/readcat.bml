@@ -1,63 +1,91 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 nocache=>1
 _info?><?page
 title=>Read FAQ
 body<=
 
-<CENTER>
-<A HREF="./"><B>(Back to FAQ Index)</B></A>
-</CENTER>
+<center>
+<a href="./"><b>(Back to FAQ Index)</b></a>
+</center>
 
 <?_code
+{
+    use strict;
 
- my $dbh = LJ::get_db_writer();
+    my $dbh = LJ::get_db_writer();
 
- $ret = "";
+    my $ret = "";
 
- my $qfaqcat = $dbh->quote($FORM{'faqcat'});
-
- my %faqcat;
- my %faqq;
- $sth = $dbh->prepare("SELECT faqcat, faqcatname, catorder FROM faqcat WHERE faqcat=$qfaqcat");
- $sth->execute;
- while ($_ = $sth->fetchrow_hashref)
- {
-     $faqcat{$_->{'faqcat'}} = $_;
- }
+    my $faqcatname = "<No Category>";
+    my $faqcat = $FORM{faqcat} || '';
+    if ( $faqcat ne '' ) {
+        my $sth = $dbh->prepare( "SELECT faqcatname FROM faqcat WHERE faqcat=?" );
+        $sth->execute( $faqcat );
+        ( $faqcatname ) = $sth->fetchrow_array;
+        return "Unknown FAQ cat $faqcat" unless defined $faqcatname;
+    }
  
- $sth = $dbh->prepare("SELECT faqid, question, sortorder, faqcat, answer, lastmodtime FROM faq WHERE faqcat=$qfaqcat");
- $sth->execute;
- while ($_ = $sth->fetchrow_hashref)
- {
-     $faqq{$_->{'faqid'}} = $_;
- }
+    my $remote = LJ::get_remote();
+    my $dom = LJ::Lang::get_dom( "faq" );
+    my $lang = LJ::Lang::get_root_lang( $dom );
+    my @faqs = LJ::Faq->load_all( lang => $lang->{lncode}, cat => $faqcat, allow_no_cat => 1  );
+    my $user;
+    my $user_url;
 
- foreach my $faqcat (sort { $faqcat{$a}->{'catorder'} <=> $faqcat{$b}->{'catorder'} } keys %faqcat)
- {
-     $ret .= "<h2>" . LJ::ehtml($faqcat{$faqcat}->{'faqcatname'}) . "</h2>\n";
-     $ret .= "<ul>\n";
-     foreach my $faqid (sort { $faqq{$a}->{'sortorder'} <=> $faqq{$b}->{'sortorder'} } grep { $faqq{$_}->{'faqcat'} eq $faqcat } keys %faqq)
-     {
-         next unless ($faqq{$faqid}->{'question'});
-         BML::note_mod_time($faqq{$faqid}->{'lastmodtime'}); 
-         my $q = LJ::ehtml($faqq{$faqid}->{'question'});
-         $q =~ s/^\s+//; $q =~ s/\s+$//;
-         $q =~ s!\n!<br />!g;
-         my $a = LJ::ehtml($faqq{$faqid}->{'answer'});
-         $a =~ s/^\s+//; $a =~ s/\s+$//;
-         $a =~ s/\n( +)/"\n" . "&nbsp;&nbsp;"x length($1)/eg;
-         $a =~ s!\n!<br />!g;
-         $ret .= "<p><table bgcolor='#c0c0c0'><tr><td><b>$q</b></td></tr></table>" . LJ::auto_linkify($a);
-     }
-     $ret .= "</ul>\n";
- }
+    # Get remote username and journal URL, or example user's username and journal URL
+    if ( $remote ) {
+        $user = $remote->user;
+        $user_url = $remote->journal_base;
+    } else {
+        my $u = LJ::load_user( $LJ::EXAMPLE_USER_ACCOUNT );
+        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+    }
 
- return $ret;
+    LJ::Faq->render_in_place( { lang => $lang, user => $user, url => $user_url }, @faqs );
 
+    $ret .= "<h2>" . LJ::ehtml( $faqcatname ) . "</h2>\n";
+    $ret .= "<ul>\n";
+    foreach my $faq ( sort { $a->sortorder <=> $b->sortorder } @faqs ) {
+        my $q = $faq->question_html;
+        next unless $q;
+        BML::note_mod_time( $faq->lastmodtime ); 
+        $q =~ s/^\s+//; $q =~ s/\s+$//;
+        $q =~ s!\n!<br />!g;
+        my $s = ( LJ::is_enabled( 'faq_summaries') && $faq->has_summary )
+            ? $faq->summary_html : '';
+        $s =~ s/^\s+//;
+        $s =~ s/\s+$//;
+        $s =~ s/\n( +)/"\n" . "&nbsp;&nbsp;"x length( $1 )/eg;
+        my $a = $faq->answer_html;
+        $a =~ s/^\s+//;
+        $a =~ s/\s+$//;
+        $a =~ s/\n( +)/"\n" . "&nbsp;&nbsp;"x length( $1 )/eg;
+        # Clean this as if it were an entry, but don't allow lj-cuts
+        LJ::CleanHTML::clean_event( \$s, { ljcut_disable => 1 } );
+        LJ::CleanHTML::clean_event( \$a, { ljcut_disable => 1 } );
+
+        $ret .= "<p><table bgcolor='#c0c0c0'><tr><td><b>$q</b></td></tr></table></p><div>$s</div><br /><div>$a</div>";
+    }
+    $ret .= "</ul>\n";
+
+    return $ret;
+}
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-link: htdocs/admin/faq/index.bml
-</LJDEP> _c?>
+page?>

@@ -1,12 +1,17 @@
 # -*-perl-*-
 
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::CProd;
 use LJ::Test qw(memcache_stress temp_user);
 
+if ( @LJ::CPROD_PROMOS ) {
+    plan tests => 4;
+} else {
+    plan skip_all => '@LJ::CPROD_PROMOS undefined.';
+}
 
 sub run_tests {
     my $u = temp_user();

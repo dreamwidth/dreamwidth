@@ -1,31 +1,41 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 no warnings 'uninitialized';
 
 use LJ::Constants;
-use Class::Autouse qw(
-                      LJ::Console
-                      LJ::Event::JournalNewEntry
-                      LJ::Event::UserNewEntry
-                      LJ::Event::Befriended
-                      LJ::Entry
-                      LJ::Poll
-                      LJ::EventLogRecord::NewEntry
-                      LJ::EventLogRecord::EditEntry
-                      LJ::Config
-                      );
+use LJ::Console;
+use LJ::Event::JournalNewEntry;
+use LJ::Event::UserNewEntry;
+use LJ::Event::AddedToCircle;
+use LJ::Entry;
+use LJ::Poll;
+use LJ::EventLogRecord::NewEntry;
+use LJ::EventLogRecord::EditEntry;
+use LJ::Config;
+use LJ::Comment;
 
 LJ::Config->load;
 
 use lib "$LJ::HOME/cgi-bin";
 
-require "taglib.pl";
-
-# have to do this else mailgate will croak with email posting, but only want
-# to do it if the site has enabled the hack
-require "talklib.pl" if $LJ::NEW_ENTRY_CLEANUP_HACK;
+use LJ::Tags;
+require "ljfeed.pl";
+use LJ::EmbedModule;
 
 #### New interface (meta handler) ... other handlers should call into this.
 package LJ::Protocol;
@@ -36,25 +46,24 @@ our $CannotBeShown = '(cannot be shown)';
 # error classes
 use constant E_TEMP => 0;
 use constant E_PERM => 1;
+# maximum items for get_friends_page function
+use constant FRIEND_ITEMS_LIMIT => 50;
 
 my %e = (
      # User Errors
      "100" => [ E_PERM, "Invalid username" ],
      "101" => [ E_PERM, "Invalid password" ],
-     "102" => [ E_PERM, "Can't use custom/private security on shared/community journals." ],
+     "102" => [ E_PERM, "Can't use custom security on community journals." ],
      "103" => [ E_PERM, "Poll error" ],
      "104" => [ E_TEMP, "Error adding one or more friends" ],
      "105" => [ E_PERM, "Challenge expired" ],
+     "106" => [ E_PERM, "Can only use administrator-locked security on community journals you manage." ],
      "150" => [ E_PERM, "Can't post as non-user" ],
      "151" => [ E_TEMP, "Banned from journal" ],
      "152" => [ E_PERM, "Can't make back-dated entries in non-personal journal." ],
      "153" => [ E_PERM, "Incorrect time value" ],
      "154" => [ E_PERM, "Can't add a redirected account as a friend" ],
      "155" => [ E_TEMP, "Non-authenticated email address" ],
-     "156" => [ E_TEMP, sub { # to reload w/o restart
-         LJ::tosagree_str('protocol' => 'text') ||
-         LJ::tosagree_str('protocol' => 'title')
-     } ],
      "157" => [ E_TEMP, "Tags error" ],
 
      # Client Errors
@@ -70,6 +79,10 @@ my %e = (
      "209" => [ E_PERM, "Parameter out of range" ],
      "210" => [ E_PERM, "Client tried to edit with corrupt data.  Preventing." ],
      "211" => [ E_PERM, "Invalid or malformed tag list" ],
+     "212" => [ E_PERM, "Message body is too long" ],
+     "213" => [ E_PERM, "Message body is empty" ],
+     "214" => [ E_PERM, "Message looks like spam" ],
+
 
      # Access Errors
      "300" => [ E_TEMP, "Don't have access to requested journal" ],
@@ -86,6 +99,12 @@ my %e = (
      "311" => [ E_TEMP, "Access temporarily disabled." ],
      "312" => [ E_TEMP, "Not allowed to add tags to entries in this journal" ],
      "313" => [ E_TEMP, "Must use existing tags for entries in this journal (can't create new ones)" ],
+     "314" => [ E_PERM, "Only paid users allowed to use this request" ],
+     "315" => [ E_PERM, "User messaging is currently disabled" ],
+     "316" => [ E_TEMP, "Poster is read-only and cannot post entries." ],
+     "317" => [ E_TEMP, "Journal is read-only and entries cannot be posted to it." ],
+     "318" => [ E_TEMP, "Poster is read-only and cannot edit entries." ],
+     "319" => [ E_TEMP, "Journal is read-only and its entries cannot be edited." ],
 
      # Limit errors
      "402" => [ E_TEMP, "Your IP address is temporarily banned for exceeding the login failure rate." ],
@@ -105,14 +124,14 @@ my %e = (
      "504" => [ E_PERM, "Protocol mode no longer supported." ],
      "505" => [ E_TEMP, "Account data format on server is old and needs to be upgraded." ], # cluster0
      "506" => [ E_TEMP, "Journal sync temporarily unavailable." ],
+     "507" => [ E_TEMP, "Method temporarily disabled; try again later." ],
 );
 
 sub translate
 {
     my ($u, $msg, $vars) = @_;
-
-    LJ::load_user_props($u, "browselang") unless $u->{'browselang'};
-    return LJ::Lang::get_text($u->{'browselang'}, "protocol.$msg", undef, $vars);
+    return LJ::Lang::get_text( LJ::isu( $u ) ? $u->prop( "browselang" ) : undef,
+                               "protocol.$msg", undef, $vars );
 }
 
 sub error_class
@@ -120,17 +139,6 @@ sub error_class
     my $code = shift;
     $code = $1 if $code =~ /^(\d\d\d):(.+)/;
     return $e{$code} && ref $e{$code} ? $e{$code}->[0] : undef;
-}
-
-sub error_is_transient
-{
-    my $class = error_class($_[0]);
-    return defined $class ? ! $class+0 : undef;
-}
-
-sub error_is_permanent
-{
-    return error_class($_[0]);
 }
 
 sub error_message
@@ -186,10 +194,337 @@ sub do_request
     if ($method eq "sessiongenerate")  { return sessiongenerate(@args);  }
     if ($method eq "sessionexpire")    { return sessionexpire(@args);    }
     if ($method eq "getusertags")      { return getusertags(@args);      }
+    if ($method eq "getfriendspage")   { return getfriendspage(@args);   }
+    if ($method eq "getinbox")         { return getinbox(@args);         }
+    if ($method eq "sendmessage")      { return sendmessage(@args);      }
+    if ($method eq "setmessageread")   { return setmessageread(@args);   }
+    if ($method eq "addcomment")       { return addcomment(@args);   }
 
     $r->notes->{codepath} = ""
         if $r;
+
     return fail($err,201);
+}
+
+
+sub addcomment
+{
+    my ($req, $err, $flags) = @_;
+    return undef unless authenticate($req, $err, $flags);
+    my $u = $flags->{'u'};
+
+    # some additional checks
+    return fail($err,314) unless $u->is_paid;
+    return fail($err,214) if LJ::Comment->is_text_spam( \ $req->{body} );
+
+    # create
+    my $comment = LJ::Comment->create(
+                        journal      => $u,
+                        ditemid      => $req->{ditemid},
+                        parenttalkid => ($req->{parenttalkid} || ($req->{parent} >> 8)),
+                               
+                        poster       => $u,
+                                
+                        body         => $req->{body},
+                        subject      => $req->{subject},
+
+                        props        => { picture_keyword => $req->{prop_picture_keyword} }
+                        );
+
+    # OK
+    return {
+             status      => "OK",
+             commentlink => $comment->url,
+             dtalkid     => $comment->dtalkid,
+             };
+}
+
+
+sub getfriendspage
+{
+    my ($req, $err, $flags) = @_;
+    return undef unless authenticate($req, $err, $flags);
+    my $u = $flags->{'u'};
+
+    my $itemshow = (defined $req->{itemshow}) ? $req->{itemshow} : 100;
+    return fail($err, 209, "Bad itemshow value") if $itemshow ne int($itemshow ) or $itemshow  <= 0 or $itemshow  > 100;
+    my $skip = (defined $req->{skip}) ? $req->{skip} : 0;
+    return fail($err, 209, "Bad skip value") if $skip ne int($skip ) or $skip  < 0 or $skip  > 100;
+
+    my @entries = LJ::get_friend_items({
+        'u' => $u,
+        'userid' => $u->{'userid'},
+        'remote' => $u,
+        'itemshow' => $itemshow,
+        'skip' => $skip,
+        'dateformat' => 'S2',
+    });
+
+    my @attrs = qw/subject_raw event_raw journalid posterid ditemid security/;
+
+    my @uids;
+
+    my @res = ();
+    my $lastsync = int $req->{lastsync};
+    foreach my $ei (@entries) {
+
+        next unless $ei;
+
+        # exit cycle if maximum friend items limit reached
+        last 
+            if scalar @res >= FRIEND_ITEMS_LIMIT; 
+
+        # if passed lastsync argument - skip items with logtime less than lastsync
+        if($lastsync) {
+            next 
+                if $LJ::EndOfTime - $ei->{rlogtime} <= $lastsync;
+        }
+        
+        my $entry = LJ::Entry->new_from_item_hash($ei);
+        next unless $entry;
+
+        # event result data structure
+        my %h = ();
+
+        # Add more data for public posts
+        foreach my $method (@attrs) {
+            $h{$method} = $entry->$method;
+        }
+
+        # log time value
+        $h{logtime} = $LJ::EndOfTime - $ei->{rlogtime};
+
+        push @res, \%h;
+
+        push @uids, $h{posterid}, $h{journalid};
+    }
+
+    my $users = LJ::load_userids(@uids);
+
+    foreach (@res) {
+        $_->{journalname} = $users->{ $_->{journalid} }->{'user'};
+        $_->{journaltype} = $users->{ $_->{journalid} }->{'journaltype'};
+        delete $_->{journalid};
+        $_->{postername} = $users->{ $_->{posterid} }->{'user'};
+        $_->{postertype} = $users->{ $_->{posterid} }->{'journaltype'};
+        delete $_->{posterid};
+    }
+
+    LJ::Hooks::run_hooks("getfriendspage", { 'userid' => $u->userid, });
+
+    return { 'entries' => [ @res ] };
+}
+
+sub getinbox
+{
+    my ($req, $err, $flags) = @_;
+    return undef unless authenticate($req, $err, $flags);
+    my $u = $flags->{'u'};
+
+    my $itemshow = (defined $req->{itemshow}) ? $req->{itemshow} : 100;
+    return fail($err, 209, "Bad itemshow value") if $itemshow ne int($itemshow ) or $itemshow  <= 0 or $itemshow  > 100;
+    my $skip = (defined $req->{skip}) ? $req->{skip} : 0;
+    return fail($err, 209, "Bad skip value") if $skip ne int($skip ) or $skip  < 0 or $skip  > 100;
+
+    # get the user's inbox
+    my $inbox = $u->notification_inbox or return fail($err, 500, "Cannot get user inbox");
+
+    my %type_number = (
+        AddedToCircle        => 1,
+        Birthday             => 2,
+        CommunityInvite      => 3,
+        CommunityJoinApprove => 4,
+        CommunityJoinReject  => 5,
+        CommunityJoinRequest => 6,
+        RemovedFromCircle    => 7,
+        InvitedFriendJoins   => 8,
+        JournalNewComment    => 9,
+        JournalNewEntry      => 10,
+        NewUserpic           => 11,
+        NewVGift             => 12,
+        OfficialPost         => 13,
+        PermSale             => 14,
+        PollVote             => 15,
+        SupOfficialPost      => 16,
+        UserExpunged         => 17,
+        UserMessageRecvd     => 18,
+        UserMessageSent      => 19,
+        UserNewComment       => 20,
+        UserNewEntry         => 21,
+    );
+    my %number_type = reverse %type_number;
+    
+    my @notifications;
+
+    my $sync_date;
+    # check lastsync for valid date
+    if ($req->{'lastsync'}) {
+        $sync_date = int $req->{'lastsync'};
+        if($sync_date <= 0) {
+            return fail($err,203,"Invalid syncitems date format (must be unixtime)");
+        }
+    }
+    
+    if ($req->{gettype}) {
+        @notifications = grep { $_->event->class eq "LJ::Event::" . $number_type{$req->{gettype}} } $inbox->items;
+    } else {
+        @notifications = $inbox->all_items;
+    }
+    
+    # By default, notifications are sorted as "oldest are the first"
+    # Reverse it by "newest are the first"
+    @notifications = reverse @notifications;
+
+    $itemshow = scalar @notifications - $skip if scalar @notifications < $skip + $itemshow;
+
+    my @res;
+    foreach my $item (@notifications[$skip .. $itemshow + $skip - 1]) {
+        next if $sync_date && $item->when_unixtime < $sync_date;
+
+        my $raw = $item->event->raw_info($u, {extended => $req->{extended}});
+        
+        my $type_index = $type_number{$raw->{type}};
+        if (defined $type_index) {
+            $raw->{type} = $type_index;
+        } else {
+            $raw->{typename} = $raw->{type};
+            $raw->{type} = 0;
+        }
+
+        $raw->{state} = $item->{state};
+
+        push @res, { %$raw, 
+                     when   => $item->when_unixtime,
+                     qid    => $item->qid,
+                   };
+    }
+
+    return { 'items' => \@res, 
+             'login' => $u->user, 
+             'journaltype' => $u->journaltype };
+}
+
+sub setmessageread {
+    my ($req, $err, $flags) = @_;
+
+    return undef unless authenticate($req, $err, $flags);
+    
+    my $u = $flags->{'u'};
+
+    # get the user's inbox
+    my $inbox = $u->notification_inbox or return fail($err, 500, "Cannot get user inbox");
+    my @result;
+    
+    # passing requested ids for loading
+    my @notifications = $inbox->all_items;
+
+    # Try to select messages by qid if specified
+    my @qids = @{$req->{qid}};
+    if (scalar @qids) {
+        foreach my $qid (@qids) {
+            my $item = eval {LJ::NotificationItem->new($u, $qid)};
+            $item->mark_read if $item;
+            push @result, { qid => $qid, result => 'set read'  };
+        }
+    } else { # Else select it by msgid for back compatibility
+        # make hash of requested message ids
+        my %requested_items = map { $_ => 1 } @{$req->{messageid}};
+
+        # proccessing only requested ids
+        foreach my $item (@notifications) {
+            my $msgid = $item->event->raw_info($u)->{msgid};
+            next unless $requested_items{$msgid}; 
+            # if message already read -
+            if ($item->{state} eq 'R') {
+                push @result, { msgid => $msgid, result => 'already red' };
+                next;
+            }
+            # in state no 'R' - marking as red
+            $item->mark_read;
+            push @result, { msgid => $msgid, result => 'set read'  };
+        }
+    }
+
+    return {
+        result => \@result
+    };
+
+}
+
+# Sends a private message from one account to another
+sub sendmessage
+{
+    my ($req, $err, $flags) = @_;
+
+    return fail($err, 315) unless LJ::is_enabled('user_messaging');
+
+    return undef unless authenticate($req, $err, $flags);
+    my $u = $flags->{'u'};
+
+    return fail($err, 305) if $u->is_suspended; # suspended cannot send private messages
+
+    my $msg_limit = $u->count_usermessage_length;
+
+    my @errors;
+
+    # test encoding and length
+    my $subject_text = $req->{'subject'};
+    return fail($err, 208, 'subject')
+        unless LJ::text_in($subject_text);
+
+    # test encoding and length
+    my $body_text = $req->{'body'};
+    return fail($err, 208, 'body')
+        unless LJ::text_in($body_text);
+
+    my ($msg_len_b, $msg_len_c) = LJ::text_length($body_text);
+    return fail($err, 212, 'found: ' . LJ::commafy($msg_len_c) . ' characters, it should not exceed ' . LJ::commafy($msg_limit))
+        unless ($msg_len_c <= $msg_limit);
+
+
+    return fail($err, 213, 'found: ' . LJ::commafy($msg_len_c) . ' characters, it should exceed zero')
+        if ($msg_len_c <= 0);
+
+    #test if to argument is present
+    return fail($err, 200, "to") unless exists $req->{'to'};
+    
+    my @to = (ref $req->{'to'}) ? @{$req->{'to'}} : ($req->{'to'});
+    return fail($err, 200) unless scalar @to;
+
+    # remove duplicates
+    my %to = map { lc($_), 1 } @to;
+    @to = keys %to;
+
+    my @msg;
+    BML::set_language('en'); # FIXME
+
+    foreach my $to (@to) {
+        my $tou = LJ::load_user($to);
+        return fail($err, 100, $to)
+            unless $tou;
+
+        my $msg = LJ::Message->new({
+                    journalid => $u->userid,
+                    otherid => $tou->userid,
+                    subject => $subject_text,
+                    body => $body_text,
+                    parent_msgid => defined $req->{'parent'} ? $req->{'parent'} + 0 : undef,
+                    userpic => $req->{'userpic'} || undef,
+                  });
+
+        push @msg, $msg 
+            if $msg->can_send(\@errors);
+    }
+    return fail($err, 203, join('; ', @errors))
+        if scalar @errors;
+
+    foreach my $msg (@msg) {
+        $msg->send(\@errors);
+    }
+
+    return { 'sent_count' => scalar @msg, 'msgid' => [ grep { $_ } map { $_->msgid } @msg ],
+             (@errors ? ('last_errors' => \@errors) : () ),
+           };
 }
 
 sub login
@@ -208,7 +543,7 @@ sub login
         if $ver>=1 and not $LJ::UNICODE;
 
     # do not let locked people log in
-    return fail($err, 308) if $u->{statusvis} eq 'L';
+    return fail($err, 308) if $u->is_locked;
 
     ## return a message to the client to be displayed (optional)
     login_message($req, $res, $flags);
@@ -255,6 +590,10 @@ sub login
             LJ::text_out(\$res->{'defaultpicurl'});
         }
     }
+    ## return caps, if they asked for them
+    if ($req->{'getcaps'}) {
+        $res->{'caps'} = $u->caps;
+    }
 
     ## return client menu tree, if requested
     if ($req->{'getmenus'}) {
@@ -270,7 +609,7 @@ sub login
     }
 
     ## tell some users they can hit the fast servers later.
-    $res->{'fastserver'} = 1 if LJ::get_cap($u, "fastserver");
+    $res->{'fastserver'} = 1 if $u->can_use_fastlane;
 
     ## user info
     $res->{'userid'} = $u->{'userid'};
@@ -286,7 +625,7 @@ sub login
 
     ## update or add to clientusage table
     if ($req->{'clientversion'} =~ /^\S+\/\S+$/ &&
-        ! $LJ::DISABLED{'clientversionlog'})
+        LJ::is_enabled('clientversionlog'))
     {
         my $client = $req->{'clientversion'};
 
@@ -405,8 +744,11 @@ sub checkfriends
     my $u = $flags->{'u'};
     my $res = {};
 
+    # FIXME: not updated for WTF yet
+    return fail( $err, 507 );
+
     # return immediately if they can't use this mode
-    unless (LJ::get_cap($u, "checkfriends")) {
+    unless ( $u->can_use_checkfriends ) {
         $res->{'new'} = 0;
         $res->{'interval'} = 36000;  # tell client to bugger off
         return $res;
@@ -518,7 +860,7 @@ sub common_event_validation
         $req->{'year'} < 1970 ||    # before unix time started = bad
         $req->{'year'} > 2037)      # after unix time ends = worse!  :)
     {
-        return fail($err,203,"Invalid year value.");
+        return fail($err,203,"Invalid year value (must be in the range 1970-2037).");
     }
     if ($req->{'mon'} !~ /^\d{1,2}$/ ||
         $req->{'mon'} < 1 ||
@@ -588,7 +930,7 @@ sub common_event_validation
             # only people should have unknown8bit entries.
             my $uowner = $flags->{u_owner} || $flags->{u};
             return fail($err,207,'Posting in a community with international or special characters require a Unicode-capable LiveJournal client.  Download one at http://www.livejournal.com/download/.')
-                if $uowner->{journaltype} ne 'P';
+                if ! $uowner->is_person;
 
             # so rest of site can change chars to ? marks until
             # default user's encoding is set.  (legacy support)
@@ -641,12 +983,12 @@ sub common_event_validation
     }
 
     # check props for inactive userpic
-    if (my $pickwd = $req->{'props'}->{'picture_keyword'}) {
+    if ( ( my $pickwd = $req->{'props'}->{'picture_keyword'} ) and !$flags->{allow_inactive}) {
         my $pic = LJ::get_pic_from_keyword($flags->{'u'}, $pickwd);
 
         # need to make sure they aren't trying to post with an inactive keyword, but also
         # we don't want to allow them to post with a keyword that has no pic at all to prevent
-        # them from deleting the keyword, posting, then adding it back with editpics.bml
+        # them from deleting the keyword, posting, then adding it back with editicons.bml
         delete $req->{'props'}->{'picture_keyword'} if ! $pic || $pic->{'state'} eq 'I';
     }
 
@@ -658,12 +1000,59 @@ sub common_event_validation
     return 1;
 }
 
+sub schedule_xposts {
+    my ( $u, $ditemid, $deletep, $fn ) = @_;
+    return unless LJ::isu( $u ) && $ditemid > 0;
+    return unless $fn && ref $fn eq 'CODE';
+
+    my ( @successes, @failures );
+    my $sclient = LJ::theschwartz() or return;
+    my @accounts = DW::External::Account->get_external_accounts( $u );
+
+    foreach my $acct ( @accounts ) {
+        my ( $xpostp, $info ) = $fn->( $acct );
+        next unless $xpostp;
+
+        my $jobargs = {
+            uid       => $u->userid,
+            accountid => $acct->acctid,
+            ditemid   => $ditemid + 0,
+            delete    => $deletep ? 1 : 0,
+            %{$info}
+        };
+
+        my $job = TheSchwartz::Job->new_from_array( 'DW::Worker::XPostWorker', $jobargs );
+        if ( $job && $sclient->insert($job) ) {
+            push @successes, $acct;
+        } else {
+            push @failures, $acct;
+        }
+    }
+
+    return ( \@successes, \@failures );
+}
+
 sub postevent
 {
     my ($req, $err, $flags) = @_;
     un_utf8_request($req);
 
-    return undef unless LJ::run_hook('post_noauth', $req) || authenticate($req, $err, $flags);
+    # if the importer is calling us, we want to allow it to post in all but the most extreme
+    # of cases.  and even then, we try our hardest to allow content to be posted.  setting this
+    # flag will bypass a lot of the safety restrictions about who can post where and when, so
+    # we trust the importer to be intelligent about this.  (And if you aren't the importer, don't
+    # use this option!!!)
+    my $importer_bypass = $flags->{importer_bypass} ? 1 : 0;
+    if ( $importer_bypass ) {
+        $flags->{nomod} = 1;
+        $flags->{ignore_tags_max} = 1;
+        $flags->{nonotify} = 1;
+        $flags->{noauth} = 1;
+        $flags->{usejournal_okay} = 1;
+        $flags->{no_xpost} = 1;
+    }
+
+    return undef unless LJ::Hooks::run_hook('post_noauth', $req) || authenticate($req, $err, $flags);
 
     # if going through mod queue, then we know they're permitted to post at least this entry
     return undef unless check_altusage($req, $err, $flags) || $flags->{nomod};
@@ -671,6 +1060,7 @@ sub postevent
     my $u = $flags->{'u'};
     my $ownerid = $flags->{'ownerid'}+0;
     my $uowner = $flags->{'u_owner'} || $u;
+
     # Make sure we have a real user object here
     $uowner = LJ::want_user($uowner) unless LJ::isu($uowner);
     my $clusterid = $uowner->{'clusterid'};
@@ -681,42 +1071,41 @@ sub postevent
     return fail($err,306) unless $dbh && $dbcm && $uowner->writer;
     return fail($err,200) unless $req->{'event'} =~ /\S/;
 
-    ### make sure community, shared, or news journals don't post
-    ### note: shared and news journals are deprecated.  every shared journal
-    ##        should one day be a community journal, of some form.
-    return fail($err,150) if ($u->{'journaltype'} eq "C" ||
-                              $u->{'journaltype'} eq "S" ||
-                              $u->{'journaltype'} eq "I" ||
-                              $u->{'journaltype'} eq "N");
-
-    # underage users can't do this
-    return fail($err,310) if $u->underage;
+    ### make sure community or identity journals don't post
+    return fail($err,150) if $u->is_community;
+    return fail($err,150) if ! $importer_bypass && $u->is_identity;
 
     # suspended users can't post
-    return fail($err,305) if ($u->{'statusvis'} eq "S");
+    return fail($err,305) if ! $importer_bypass && $u->is_suspended;
 
     # memorials can't post
-    return fail($err,309) if $u->{statusvis} eq 'M';
+    return fail($err,309) if ! $importer_bypass && $u->is_memorial;
 
     # locked accounts can't post
-    return fail($err,308) if $u->{statusvis} eq 'L';
+    return fail($err,308) if ! $importer_bypass && $u->is_locked;
 
     # check the journal's read-only bit
-    return fail($err,306) if LJ::get_cap($uowner, "readonly");
+    return fail($err,306) if $uowner->is_readonly;
 
     # is the user allowed to post?
-    return fail($err,404,$LJ::MSG_NO_POST) unless LJ::get_cap($u, "can_post");
+    return fail($err,404,$LJ::MSG_NO_POST) unless $importer_bypass || $u->can_post;
 
     # is the user allowed to post?
-    return fail($err,410) if LJ::get_cap($u, "disable_can_post");
+    return fail($err,410) if $u->can_post_disabled;
+
+    # read-only accounts can't post
+    return fail($err,316) if $u->is_readonly;
+
+    # read-only accounts can't be posted to
+    return fail($err,317) if $uowner->is_readonly;
 
     # can't post to deleted/suspended community
-    return fail($err,307) unless $uowner->{'statusvis'} eq "V";
+    return fail($err,307) unless $importer_bypass || $uowner->is_visible;
 
     # must have a validated email address to post to a community
     # unless this is approved from the mod queue (we'll error out initially, but in case they change later)
     return fail($err, 155, "You must have an authenticated email address in order to post to another account")
-        unless LJ::u_equals($u, $uowner) || $u->{'status'} eq 'A' || $flags->{'nomod'};
+        unless $u->equals( $uowner ) || $u->{'status'} eq 'A' || $flags->{'nomod'};
 
     # post content too large
     # NOTE: requires $req->{event} be binary data, but we've already
@@ -754,7 +1143,7 @@ sub postevent
     # confirm we can add tags, at least
     return fail($err, 312)
         if $req->{props} && $req->{props}->{taglist} &&
-           ! LJ::Tags::can_add_tags($uowner, $u);
+           ! ( $importer_bypass || LJ::Tags::can_add_tags( $uowner, $u ) );
 
     my $event = $req->{'event'};
 
@@ -771,17 +1160,16 @@ sub postevent
     # load userprops all at once
     my @poster_props = qw(newesteventtime dupsig_post);
     my @owner_props = qw(newpost_minsecurity moderated);
-    push @owner_props, 'opt_weblogscom' unless $req->{'props'}->{'opt_backdated'};
 
-    LJ::load_user_props($u, @poster_props, @owner_props);
-    if ($uowner->{'userid'} == $u->{'userid'}) {
-        $uowner->{$_} = $u->{$_} foreach (@owner_props);
+    $u->preload_props( @poster_props, @owner_props );
+    if ( $u->equals( $uowner ) ) {
+        $uowner->{$_} = $u->{$_} foreach @owner_props;
     } else {
-        LJ::load_user_props($uowner, @owner_props);
+        $uowner->preload_props( @owner_props );
     }
 
     # are they trying to post back in time?
-    if ($posterid == $ownerid && $u->{'journaltype'} ne 'Y' &&
+    if ($posterid == $ownerid && !$u->is_syndicated &&
         !$time_was_faked && $u->{'newesteventtime'} &&
         $eventtime lt $u->{'newesteventtime'} &&
         !$req->{'props'}->{'opt_backdated'}) {
@@ -812,21 +1200,25 @@ sub postevent
 
     my $qsecurity = $dbh->quote($security);
 
-    ### make sure user can't post with "custom/private security" on shared journals
+    ### make sure user can't post with "custom security" on communities
     return fail($err,102)
-        if ($ownerid != $posterid && # community post
-            ($req->{'security'} eq "private" ||
-            ($req->{'security'} eq "usemask" && $qallowmask != 1 )));
+        if $ownerid != $posterid && # community post
+           $req->{'security'} eq "usemask" && $qallowmask != 1;
+
+    ## make sure user can't post with "private security" on communities they don't manage
+    return fail( $err, 106 )
+        if $ownerid != $posterid && # community post
+           $req->{'security'} eq "private" &&
+           ! $u->can_manage( $uowner );
 
     # make sure this user isn't banned from posting here (if
     # this is a community journal)
-    return fail($err,151) if
-        LJ::is_banned($posterid, $ownerid);
+    return fail($err,151) if $uowner->has_banned( $u );
 
     # don't allow backdated posts in communities
     return fail($err,152) if
-        ($req->{'props'}->{"opt_backdated"} &&
-         $uowner->{'journaltype'} ne "P");
+        ( $req->{props}->{opt_backdated} &&
+         ! ( $importer_bypass || $uowner->is_person ) );
 
     # do processing of embedded polls (doesn't add to database, just
     # does validity checking)
@@ -834,10 +1226,8 @@ sub postevent
     if (LJ::Poll->contains_new_poll(\$event))
     {
         return fail($err,301,"Your account type doesn't permit creating polls.")
-            unless (LJ::get_cap($u, "makepoll")
-                    || ($uowner->{'journaltype'} eq "C"
-                        && LJ::get_cap($uowner, "makepoll")
-                        && LJ::can_manage_other($u, $uowner)));
+            unless ( $u->can_create_polls
+                    || ( $uowner->is_community && $uowner->can_create_polls ) );
 
         my $error = "";
         @polls = LJ::Poll->new_from_html(\$event, \$error, {
@@ -904,7 +1294,7 @@ sub postevent
     };
 
     # if posting to a moderated community, store and bail out here
-    if ($uowner->{'journaltype'} eq 'C' && $uowner->{'moderated'} && !$flags->{'nomod'}) {
+    if ($uowner->is_community && $uowner->{'moderated'} && !$flags->{'nomod'}) {
         # don't moderate admins, moderators & pre-approved users
         my $dbh = LJ::get_db_writer();
         my $relcount = $dbh->selectrow_array("SELECT COUNT(*) FROM reluser ".
@@ -913,15 +1303,19 @@ sub postevent
         unless ($relcount) {
             # moderation queue full?
             my $modcount = $dbcm->selectrow_array("SELECT COUNT(*) FROM modlog WHERE journalid=$ownerid");
-            return fail($err, 407) if $modcount >= LJ::get_cap($uowner, "mod_queue");
+            return fail($err, 407) if $modcount >= $uowner->count_max_mod_queue;
 
             $modcount = $dbcm->selectrow_array("SELECT COUNT(*) FROM modlog ".
                                                "WHERE journalid=$ownerid AND posterid=$posterid");
-            return fail($err, 408) if $modcount >= LJ::get_cap($uowner, "mod_queue_per_poster");
+            return fail($err, 408) if $modcount >= $uowner->count_max_mod_queue_per_poster;
 
             $req->{'_moderate'}->{'authcode'} = LJ::make_auth_code(15);
+
+            # create tag <lj-embed> from HTML-tag <embed>
+            LJ::EmbedModule->parse_module_embed($uowner, \$req->{event});
+
             my $fr = $dbcm->quote(Storable::freeze($req));
-            return fail($err, 409) if length($fr) > 200_000;
+            return fail($err, 409) if length($fr) > 600_000;
 
             # store
             my $modid = LJ::alloc_user_counter($uowner, "M");
@@ -939,6 +1333,9 @@ sub postevent
                 return fail($err, 501);
             }
 
+            # expire mod_queue_count memcache
+            $uowner->memc_delete( 'mqcount' );
+
             # alert moderator(s)
             my $mods = LJ::load_rel_user($dbh, $ownerid, 'M') || [];
             if (@$mods) {
@@ -946,37 +1343,54 @@ sub postevent
                 my $modlist = LJ::load_userids(@$mods);
 
                 my @emails;
+                my $ct;
                 foreach my $mod (values %$modlist) {
+                    last if $ct > 20;  # don't send more than 20 emails.
+
                     next unless $mod->is_visible;
 
-                    LJ::load_user_props($mod, 'opt_nomodemail');
-                    next if $mod->{opt_nomodemail};
+                    next if $mod->prop( 'opt_nomodemail' );
                     next if $mod->{status} ne "A";
 
-                    push @emails, $mod->email_raw;
+                    push @emails,
+                        {
+                            to          => $mod->email_raw,
+                            browselang  => $mod->prop('browselang'),
+                            charset     => $mod->mailencoding || 'utf-8',
+                        };
+
+                    ++$ct;
                 }
 
-                my $body = "There has been a new submission into the community '$uowner->{'user'}'\n".
-                            "which you moderate.\n\n" .
-                            "      User: $u->{'user'}\n" .
-                            "   Subject: $req->{'subject'}\n\n" .
-                            "Options:\n\n" .
-                            "  - Accept or reject this submission\n" .
-                            "    $LJ::SITEROOT/community/moderate.bml?comm=$uowner->{'user'}&modid=$modid\n" .
-                            "  - View the entire moderation queue\n".
-                            "    $LJ::SITEROOT/community/moderate.bml?comm=$uowner->{'user'}\n\n" .
-                            "--\n$LJ::SITENAME Team\n$LJ::SITEROOT/\n";
-
-                my $ct;
                 foreach my $to (@emails) {
-                    last if ++$ct > 20;  # don't send more than 20 emails.
+                    # TODO: html/plain text.
+                    my $body = LJ::Lang::get_text(
+                        $to->{'browselang'},
+                        'esn.moderated_submission.body', undef,
+                        {
+                            user        => $u->{'user'},
+                            subject     => $req->{'subject'},
+                            community   => $uowner->{'user'},
+                            modid       => $modid,
+                            siteroot    => $LJ::SITEROOT,
+                            sitename    => $LJ::SITENAME,
+                            moderateurl => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}&modid=$modid",
+                            viewurl     => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}",
+                        });
+
+                    my $subject = LJ::Lang::get_text(
+                        $to->{'browselang'},
+                        'esn.moderated_submission.subject2', undef,
+                        {
+                            community   => $uowner->{'user'}
+                        });
 
                     LJ::send_mail({
-                        'to' => $to,
-                        'from' => $LJ::ADMIN_EMAIL,
-                        'charset' => 'utf-8',
-                        'subject' => "Moderated submission notification",
-                        'body' => $body,
+                        'to'        => $to->{to},
+                        'from'      => $LJ::ADMIN_EMAIL,
+                        'charset'   => $to->{charset},
+                        'subject'   => $subject,
+                        'body'      => $body,
                     });
                 }
             }
@@ -991,20 +1405,15 @@ sub postevent
     $getlock->(); return $res if $res_done;
 
     # do rate-checking
-    if ($u->{'journaltype'} ne "Y" && ! LJ::rate_log($u, "post", 1)) {
+    if ( ! $u->is_syndicated && ! LJ::rate_log($u, "post", 1) && ! $importer_bypass ) {
         return $fail->($err,405);
     }
 
     my $jitemid = LJ::alloc_user_counter($uowner, "L");
     return $fail->($err,501,"No itemid could be generated.") unless $jitemid;
 
-    # bring in LJ::Entry with Class::Autouse
     LJ::Entry->can("dostuff");
     LJ::replycount_do($uowner, $jitemid, "init");
-
-    # remove comments and logprops on new entry ... see comment by this sub for clarification
-    LJ::Protocol::new_entry_cleanup_hack($u, $jitemid) if $LJ::NEW_ENTRY_CLEANUP_HACK;
-    my $verb = $LJ::NEW_ENTRY_CLEANUP_HACK ? 'REPLACE' : 'INSERT';
 
     my $dberr;
     $uowner->log2_do(\$dberr, "INSERT INTO log2 (journalid, jitemid, posterid, eventtime, logtime, security, ".
@@ -1015,7 +1424,7 @@ sub postevent
     return $fail->($err,501,$dberr) if $dberr;
 
     LJ::MemCache::incr([$ownerid, "log2ct:$ownerid"]);
-    LJ::memcache_kill($ownerid, "dayct");
+    $uowner->clear_daycounts( $qallowmask || $security );
 
     # set userprops.
     {
@@ -1028,7 +1437,7 @@ sub postevent
         $set_userprop{"newesteventtime"} = $eventtime
             if $posterid == $ownerid and not $req->{'props'}->{'opt_backdated'} and not $time_was_faked;
 
-        LJ::set_userprop($u, \%set_userprop);
+        $u->set_prop( \%set_userprop );
     }
 
     # end duplicate locking section
@@ -1053,25 +1462,16 @@ sub postevent
 
             my $pollid = $poll->pollid;
 
-            $event =~ s/<lj-poll-placeholder>/<lj-poll-$pollid>/;
+            $event =~ s/<poll-placeholder>/<poll-$pollid>/;
         }
     }
     #### /embedding
-
-    ### extract links for meme tracking
-    unless ($req->{'security'} eq "usemask" ||
-            $req->{'security'} eq "private")
-    {
-        foreach my $url (LJ::get_urls($event)) {
-            LJ::record_meme($url, $posterid, $ditemid, $ownerid);
-        }
-    }
 
     # record journal's disk usage
     my $bytes = length($event) + length($req->{'subject'});
     $uowner->dudata_set('L', $jitemid, $bytes);
 
-    $uowner->do("$verb INTO logtext2 (journalid, jitemid, subject, event) ".
+    $uowner->do("INSERT INTO logtext2 (journalid, jitemid, subject, event) ".
                 "VALUES ($ownerid, $jitemid, ?, ?)", undef, $req->{'subject'},
                 LJ::text_compress($event));
     if ($uowner->err) {
@@ -1081,6 +1481,12 @@ sub postevent
     }
     LJ::MemCache::set([$ownerid,"logtext:$clusterid:$ownerid:$jitemid"],
                       [ $req->{'subject'}, $event ]);
+
+    # warn the user of any bad markup errors
+    my $clean_event = $event;
+    my $errref;
+    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref } );
+    $res->{message} = translate( $u, $errref, { aopts => "href='$LJ::SITEROOT/editjournal?journal=" . $uowner->user . "&itemid=$ditemid'" } ) if $errref;
 
     # keep track of custom security stuff in other table.
     if ($uselogsec) {
@@ -1094,12 +1500,16 @@ sub postevent
     }
 
     # Entry tags
-    if ($req->{props} && defined $req->{props}->{taglist}) {
+    if ( $req->{props} && defined $req->{props}->{taglist} && $req->{props}->{taglist} ne '' ) {
         # slightly misnamed, the taglist is/was normally a string, but now can also be an arrayref.
         my $taginput = $req->{props}->{taglist};
 
+        my $tagerr = "";
         my $logtag_opts = {
             remote => $u,
+            ignore_max => $flags->{ignore_tags_max} ? 1 : 0,
+            force => $importer_bypass,
+            err_ref => \$tagerr,
         };
 
         if (ref $taginput eq 'ARRAY') {
@@ -1110,6 +1520,9 @@ sub postevent
         }
 
         my $rv = LJ::Tags::update_logtags($uowner, $jitemid, $logtag_opts);
+        return fail($err,157,$tagerr) unless $rv;
+        # the next line will propagate any "skippable" errors
+        $res->{message} = $tagerr if $tagerr;
     }
 
     # meta-data
@@ -1143,34 +1556,29 @@ sub postevent
     LJ::note_recent_action($uowner, 'post');
 
     # if the post was public, and the user has not opted out, try to insert into the random table;
-    # note we do INSERT INGORE since there will be lots of people posting every second, and that's
-    # the granularity we use
-    if ($security eq 'public' && LJ::u_equals($u, $uowner) && ! $u->prop('latest_optout')) {
-        $u->do("INSERT IGNORE INTO random_user_set (posttime, userid) VALUES (UNIX_TIMESTAMP(), ?)",
-               undef, $u->{userid});
+    # We're doing a REPLACE INTO because chances are the user will already
+    # be in there (having posted less than 7 days ago).
+    if ($security eq 'public' && ! $u->prop('latest_optout')) {
+        $u->do("REPLACE INTO random_user_set (posttime, userid, journaltype) VALUES (UNIX_TIMESTAMP(), ?, ?)",
+               undef, $uowner->{userid}, $uowner->{journaltype});
     }
 
     my @jobs;  # jobs to add into TheSchwartz
 
-    # notify weblogs.com of post if necessary
-    if (!$LJ::DISABLED{'weblogs_com'} && $u->{'opt_weblogscom'} && LJ::get_cap($u, "weblogscom") &&
-        $security eq "public" && !$req->{'props'}->{'opt_backdated'}) {
-        push @jobs, TheSchwartz::Job->new_from_array("LJ::Worker::Ping::WeblogsCom", {
-            'user' => $u->{'user'},
-            'title' => $u->{'journaltitle'} || $u->{'name'},
-            'url' => LJ::journal_base($u) . "/",
-        });
-      }
-
     my $entry = LJ::Entry->new($uowner, jitemid => $jitemid, anum => $anum);
 
+    if ( $u->equals( $uowner ) && $req->{xpost} ne '0' && ! $flags->{no_xpost} ) {
+        schedule_xposts( $u, $ditemid, 0, sub { ((shift)->xpostbydefault, {}) } );
+    }
+
     # run local site-specific actions
-    LJ::run_hooks("postpost", {
+    LJ::Hooks::run_hooks("postpost", {
         'itemid'    => $jitemid,
         'anum'      => $anum,
         'journal'   => $uowner,
         'poster'    => $u,
         'event'     => $event,
+        'eventtime' => $eventtime,
         'subject'   => $req->{'subject'},
         'security'  => $security,
         'allowmask' => $qallowmask,
@@ -1181,15 +1589,31 @@ sub postevent
 
     # cluster tracking
     LJ::mark_user_active($u, 'post');
-    LJ::mark_user_active($uowner, 'post') unless LJ::u_equals($u, $uowner);
+    LJ::mark_user_active($uowner, 'post') unless $u->equals( $uowner );
 
     $res->{'itemid'} = $jitemid;  # by request of mart
     $res->{'anum'} = $anum;
     $res->{'url'} = $entry->url;
 
-    push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
-    push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if (!$LJ::DISABLED{'esn-userevents'} || $LJ::_T_FIRE_USERNEWENTRY);
+    # if the caller told us not to fire events (importer?) then skip the user events,
+    # but still fire the logging events
+    unless ( $flags->{nonotify} ) {
+        push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
+        push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if LJ::is_enabled('esn-userevents') || $LJ::_T_FIRE_USERNEWENTRY;
+        push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;        
+
+        # PubSubHubbub Support
+        LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
+
+        # latest posts feed update
+        DW::LatestFeed->new_item( $entry );
+    }
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
+
+    # update the sphinx search engine
+    if ( @LJ::SPHINX_SEARCHD ) {
+        push @jobs, TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $uowner->id } );
+    }
 
     my $sclient = LJ::theschwartz();
     if ($sclient && @jobs) {
@@ -1203,6 +1627,8 @@ sub postevent
 sub editevent
 {
     my ($req, $err, $flags) = @_;
+    my $res = {};
+    my $deleted = 0;
     un_utf8_request($req);
 
     return undef unless authenticate($req, $err, $flags);
@@ -1225,14 +1651,11 @@ sub editevent
 
     my $itemid = $req->{'itemid'}+0;
 
-    # underage users can't do this
-    return fail($err,310) if $u->underage;
-
     # check the journal's read-only bit
-    return fail($err,306) if LJ::get_cap($uowner, "readonly");
+    return fail($err,306) if $uowner->is_readonly;
 
     # can't edit in deleted/suspended community
-    return fail($err,307) unless $uowner->{'statusvis'} eq "V";
+    return fail($err,307) unless $uowner->is_visible || $uowner->is_readonly;
 
     my $dbcm = LJ::get_cluster_master($uowner);
     return fail($err,306) unless $dbcm;
@@ -1241,11 +1664,16 @@ sub editevent
     return fail($err, 203, "Invalid friends group security set.")
         if $qallowmask > 1 && $qallowmask % 2;
 
-    ### make sure user can't change a post to "custom/private security" on shared journals
+    ### make sure user can't post with "custom security" on communities
     return fail($err,102)
-        if ($ownerid != $posterid && # community post
-            ($req->{'security'} eq "private" ||
-            ($req->{'security'} eq "usemask" && $qallowmask != 1 )));
+        if $ownerid != $posterid && # community post
+           $req->{'security'} eq "usemask" && $qallowmask != 1;
+
+    ## make sure user can't post with "private security" on communities they don't manage
+    return fail( $err, 106 )
+        if $ownerid != $posterid && # community post
+           $req->{'security'} eq "private" &&
+           ! $u->can_manage( $uowner );
 
     # make sure the new entry's under the char limit
     # NOTE: as in postevent, this requires $req->{event} to be binary data
@@ -1261,6 +1689,8 @@ sub editevent
         ("SELECT journalid AS 'ownerid', posterid, eventtime, logtime, ".
          "compressed, security, allowmask, year, month, day, ".
          "rlogtime, anum FROM log2 WHERE journalid=$ownerid AND jitemid=$itemid");
+
+    my $ditemid = $itemid * 256 + $oldevent->{anum};
 
     ($oldevent->{subject}, $oldevent->{event}) = $dbcm->selectrow_array
         ("SELECT subject, event FROM logtext2 ".
@@ -1281,34 +1711,47 @@ sub editevent
     return fail($err,302)
         unless ($ownerid == $oldevent->{'ownerid'});
 
+    ### load existing meta-data
+    my %curprops;
+    LJ::load_log_props2($dbcm, $ownerid, [ $itemid ], \%curprops);
+
+    # xpost helper for later
+    my $schedule_xposts = sub {
+        my $xpost_string = $curprops{$itemid}->{xpost};
+        if ( $xpost_string && $u->equals( $uowner ) && $req->{xpost} ne '0' ) {
+            my $xpost_info = DW::External::Account->xpost_string_to_hash( $xpost_string );
+            schedule_xposts( $u, $ditemid, $deleted,
+                             sub { ($xpost_info->{(shift)->acctid}, {}) } );
+        }
+    };
+
     ### what can they do to somebody elses entry?  (in shared journal)
-    if ($posterid != $oldevent->{'posterid'})
+    ### can edit it if they own or maintain the journal, but not if the journal is read-only
+    if ($posterid != $oldevent->{'posterid'} || $u->is_readonly || $uowner->is_readonly)
     {
         ## deleting.
         return fail($err,304)
-            if ($req->{'event'} !~ /\S/ && !
-                ($ownerid == $u->{'userid'} ||
-                 # community account can delete it (ick)
-
-                 LJ::can_manage_other($posterid, $ownerid)
-                 # if user is a community maintainer they can delete
-                 # it too (good)
-                 ));
+            if $req->{'event'} !~ /\S/ && ! $u->can_manage( $uowner );
 
         ## editing:
-        return fail($err,303)
-            if ($req->{'event'} =~ /\S/);
+        if ($req->{'event'} =~ /\S/) {
+            return fail($err,303) if $posterid != $oldevent->{'posterid'};
+            return fail($err,318) if $u->is_readonly;
+            return fail($err,319) if $uowner->is_readonly;
+        }
     }
 
     # simple logic for deleting an entry
     if (!$flags->{'use_old_content'} && $req->{'event'} !~ /\S/)
     {
+        $deleted = 1;
+
         # if their newesteventtime prop equals the time of the one they're deleting
         # then delete their newesteventtime.
-        if ($u->{'userid'} == $uowner->{'userid'}) {
-            LJ::load_user_props($u, { use_master => 1 }, "newesteventtime");
+        if ( $u->equals( $uowner ) ) {
+            $u->preload_props( { use_master => 1 }, "newesteventtime" );
             if ($u->{'newesteventtime'} eq $oldevent->{'eventtime'}) {
-                LJ::set_userprop($u, "newesteventtime", undef);
+                $u->set_prop( "newesteventtime", undef );
             }
         }
 
@@ -1318,7 +1761,7 @@ sub editevent
         # delete is initiated.
         $uowner->log_event('delete_entry', {
                 remote => $u,
-                actiontarget => ($req->{itemid} * 256 + $oldevent->{anum}),
+                actiontarget => $ditemid,
                 method => 'protocol',
             })
             unless $flags->{noauth};
@@ -1327,10 +1770,13 @@ sub editevent
 
         # clear their duplicate protection, so they can later repost
         # what they just deleted.  (or something... probably rare.)
-        LJ::set_userprop($u, "dupsig_post", undef);
+        $u->set_prop( "dupsig_post", undef );
+        $uowner->clear_daycounts( $qallowmask || $req->{security} );
 
-        my $res = { 'itemid' => $itemid,
-                    'anum' => $oldevent->{'anum'} };
+        # pass the delete
+        $schedule_xposts->();
+
+        $res = { itemid => $itemid, anum => $oldevent->{anum} };
         return $res;
     }
 
@@ -1341,7 +1787,7 @@ sub editevent
     # don't allow backdated posts in communities
     return fail($err,152) if
         ($req->{'props'}->{"opt_backdated"} &&
-         $uowner->{'journaltype'} ne "P");
+         ! $uowner->is_person);
 
     # make year/mon/day/hour/min optional in an edit event,
     # and just inherit their old values
@@ -1358,10 +1804,6 @@ sub editevent
     return undef
         unless common_event_validation($req, $err, $flags);
 
-    ### load existing meta-data
-    my %curprops;
-    LJ::load_log_props2($dbcm, $ownerid, [ $itemid ], \%curprops);
-
     ## handle meta-data (properties)
     my %props_byname = ();
     foreach my $key (keys %{$req->{'props'}}) {
@@ -1370,6 +1812,11 @@ sub editevent
             $props_byname{$key} = $req->{'props'}->{$key};
         }
     }
+    # additionally, if the 'opt_nocomments_maintainer' prop was set before and the poster now sets
+    # 'opt_nocomments' to 0 again, 'opt_nocomments_maintainer' should be set to 0 again, as well
+    # so comments are enabled again
+    $req->{props}->{opt_nocomments_maintainer} = 0 
+        if defined $req->{props}->{opt_nocomments} && !$req->{props}->{opt_nocomments};
 
     my $event = $req->{'event'};
     my $owneru = LJ::load_userid($ownerid);
@@ -1389,22 +1836,28 @@ sub editevent
            $req->{security} =~ /^(?:public|private|usemask)$/;
 
     my $do_tags = $req->{props} && defined $req->{props}->{taglist};
+    my $do_tags_security;
+    my $entry_tags;
+
     if ($oldevent->{security} ne $security || $qallowmask != $oldevent->{allowmask}) {
         # FIXME: this is a hopefully temporary hack which deletes tags from the entry
         # when the security has changed.  the real fix is to make update_logtags aware
         # of security changes so it can update logkwsum appropriately.
 
-        unless ($do_tags) {
-            # we need to fix security on this entry's tags, but the user didn't give us a tag list
-            # to work with, so we have to go get the tags on the entry, and construct a tag list,
-            # in order to pass to update_logtags down at the bottom of this whole update
-            my $tags = LJ::Tags::get_logtags($uowner, $itemid);
-            $tags = $tags->{$itemid};
-            $req->{props}->{taglist} = join(',', sort values %{$tags || {}});
-            $do_tags = 1; # bleh, force the update later
+        # we need to fix security on this entry's tags; if the user didn't give us a
+        # tag list to work with, we use the existing tags on this entry
+        unless ( $do_tags ) {
+            $entry_tags  = LJ::Tags::get_logtags($uowner, $itemid);
+            $entry_tags = $entry_tags->{$itemid};
+            $entry_tags = join(',', sort values %{$entry_tags || {}});
+            $req->{props}->{taglist} = $entry_tags;
         }
 
-        LJ::Tags::delete_logtags($uowner, $itemid);
+        # FIXME: temporary hack until we can make update_logtags recognize entry security edits
+        if ( LJ::Tags::can_control_tags( $uowner, $u ) || LJ::Tags::can_add_tags( $uowner, $u ) ) {
+            my $delete = LJ::Tags::delete_logtags( $uowner, $itemid );
+            $do_tags_security = 1;
+        }
     }
 
     my $qyear = $req->{'year'}+0;
@@ -1417,17 +1870,16 @@ sub editevent
         $qallowmask != $oldevent->{'allowmask'})
     {
         # are they changing their most recent post?
-        LJ::load_user_props($u, "newesteventtime");
-        if ($u->{userid} == $uowner->{userid} &&
-            $u->{newesteventtime} eq $oldevent->{eventtime}) {
+        if ( $u->equals( $uowner ) &&
+             $u->prop( "newesteventtime" ) eq $oldevent->{eventtime} ) {
             # did they change the time?
             if ($eventtime ne $oldevent->{eventtime}) {
                 # the newesteventtime is this event's new time.
-                LJ::set_userprop($u, "newesteventtime", $eventtime);
+                $u->set_prop( "newesteventtime", $eventtime );
             } elsif (!$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated}) {
                 # otherwise, if they set the backdated flag,
                 # then we no longer know the newesteventtime.
-                LJ::set_userprop($u, "newesteventtime", undef);
+                $u->set_prop( "newesteventtime", undef );
             }
         }
 
@@ -1442,13 +1894,13 @@ sub editevent
         # update memcached
         my $sec = $qallowmask;
         $sec = 0 if $security eq 'private';
-        $sec = 2**63 if $security eq 'public';
+        $sec = $LJ::PUBLICBIT if $security eq 'public';
 
-        my $row = pack("NNNNN", $oldevent->{'posterid'},
+        my $row = pack($LJ::LOGMEMCFMT, $oldevent->{'posterid'},
                        LJ::mysqldate_to_time($eventtime, 1),
                        LJ::mysqldate_to_time($oldevent->{'logtime'}, 1),
                        $sec,
-                       $itemid*256 + $oldevent->{'anum'});
+                       $ditemid);
 
         LJ::MemCache::set([$ownerid, "log2:$ownerid:$itemid"], $row);
 
@@ -1482,18 +1934,41 @@ sub editevent
         $uowner->dudata_set('L', $itemid, $bytes);
     }
 
+    my $clean_event = $event;
+    my $errref;
+    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref } );
+    $res->{message} = translate( $u, $errref, { aopts => "href='$LJ::SITEROOT/editjournal?journal=" . $uowner->user . "&itemid=$ditemid'" } ) if $errref;
+
     # up the revision number
     $req->{'props'}->{'revnum'} = ($curprops{$itemid}->{'revnum'} || 0) + 1;
     $req->{'props'}->{'revtime'} = time();
 
+    if ( $do_tags ) {
+        # we only want to update the tags if they've been modified
+        # so load the original entry tags
+        unless ( $entry_tags ) {
+            $entry_tags  = LJ::Tags::get_logtags($uowner, $itemid);
+            $entry_tags = $entry_tags->{$itemid};
+            $entry_tags = join(',', sort values %{$entry_tags || {}});
+        }
+
+        my $request_tags = [];
+        LJ::Tags::is_valid_tagstring( $req->{props}->{taglist}, $request_tags );
+        $request_tags = join( ",", sort @{ $request_tags || [] } );
+        $do_tags = ( $request_tags ne $entry_tags );
+    }
+
     # handle tags if they're defined
-    if ($do_tags) {
+    if ( $do_tags || $do_tags_security ) {
         my $tagerr = "";
         my $rv = LJ::Tags::update_logtags($uowner, $itemid, {
                 set_string => $req->{props}->{taglist},
                 remote => $u,
                 err_ref => \$tagerr,
             });
+
+        # we only want to fail if we tried to edit the tags, not if we just tried to edit the security
+        return fail( $err, 157, $tagerr ) if $tagerr && $do_tags;
     }
 
     # handle the props
@@ -1527,9 +2002,9 @@ sub editevent
     }
     return fail($err,501,$dbcm->errstr) if $dbcm->err;
 
-    LJ::memcache_kill($ownerid, "dayct");
+    $uowner->clear_daycounts( $oldevent->{allowmask} + 0 || $oldevent->{security}, $qallowmask || $security );
 
-    my $res = { 'itemid' => $itemid };
+    $res->{itemid} = $itemid;
     if (defined $oldevent->{'anum'}) {
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'} = LJ::item_link($uowner, $itemid, $oldevent->{'anum'});
@@ -1537,6 +2012,26 @@ sub editevent
 
     my $entry = LJ::Entry->new($ownerid, jitemid => $itemid);
     LJ::EventLogRecord::EditEntry->new($entry)->fire;
+
+    # fired to copy the post over to the Sphinx search database
+    if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
+        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $ownerid } ) );
+    }
+
+    # PubSubHubbub Support
+    my @jobs;
+    LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
+
+    LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );
+
+    my $sclient = LJ::theschwartz();
+    if ( $sclient && @jobs ) {
+        my @handles = $sclient->insert_jobs(@jobs);
+        # TODO: error on failure?  depends on the job I suppose?  property of the job?
+    }
+
+    # ensure our xposted edit fires
+    $schedule_xposts->();
 
     return $res;
 }
@@ -1561,7 +2056,7 @@ sub getevents
     return fail($err,502) unless $dbcr && $dbr;
 
     # can't pull events from deleted/suspended journal
-    return fail($err,307) unless $uowner->{'statusvis'} eq "V";
+    return fail($err,307) unless $uowner->is_visible || $uowner->is_readonly;
 
     my $reject_code = $LJ::DISABLE_PROTOCOL{getevents};
     if (ref $reject_code eq "CODE") {
@@ -1572,8 +2067,7 @@ sub getevents
 
     # if this is on, we sort things different (logtime vs. posttime)
     # to avoid timezone issues
-    my $is_community = ($uowner->{'journaltype'} eq "C" ||
-                        $uowner->{'journaltype'} eq "S");
+    my $is_community = $uowner->is_community;
 
     # in some cases we'll use the master, to ensure there's no
     # replication delay.  useful cases: getting one item, use master
@@ -1645,7 +2139,7 @@ sub getevents
     }
     elsif ($req->{'selecttype'} eq "syncitems")
     {
-        return fail($err,506) if $LJ::DISABLED{'syncitems'};
+        return fail($err,506) unless LJ::is_enabled('syncitems');
         my $date = $req->{'lastsync'} || "0000-00-00 00:00:00";
         return fail($err,203,"Invalid syncitems date format")
             unless ($date =~ /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/);
@@ -1654,10 +2148,9 @@ sub getevents
         # broken client loop prevention
         if ($req->{'lastsync'}) {
             my $pname = "rl_syncitems_getevents_loop";
-            LJ::load_user_props($u, $pname);
             # format is:  time/date/time/date/time/date/... so split
             # it into a hash, then delete pairs that are older than an hour
-            my %reqs = split(m!/!, $u->{$pname});
+            my %reqs = split( m!/!, $u->prop( $pname ) );
             foreach (grep { $_ < $now - 60*60 } keys %reqs) { delete $reqs{$_}; }
             my $count = grep { $_ eq $date } values %reqs;
             $reqs{$now} = $date;
@@ -1666,9 +2159,9 @@ sub getevents
                 # their client is busted.  (doesn't understand syncitems semantics)
                 return fail($err,406);
             }
-            LJ::set_userprop($u, $pname,
-                             join('/', map { $_, $reqs{$_} }
-                                  sort { $b <=> $a } keys %reqs));
+            $u->set_prop( $pname,
+                          join( '/', map { $_, $reqs{$_} }
+                                     sort { $b <=> $a } keys %reqs ) );
         }
 
         my %item;
@@ -1713,10 +2206,34 @@ sub getevents
         return fail($err,200,"Invalid selecttype.");
     }
 
+    my $mask = 0;
+    if ( $u && ( $u->is_person || $u->is_identity ) && $posterid != $ownerid ) {
+        # if this is a community we're viewing, fake the mask to select on, as communities
+        # no longer have masks to users
+        if ( $uowner->is_community ) {
+            $mask = $u->member_of( $uowner ) ? 1 : 0;
+        } else {
+            $mask = $uowner->trustmask( $u );
+        }
+    }
+
+    # check security!
+    my $secwhere;
+    if ( $u && $u->can_manage( $uowner ) ) {
+        # journal owners and community admins can see everything
+        $secwhere = "";
+    } elsif ( $mask ) {
+        # can see public or things with them in the mask
+        $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $mask != 0))";
+    } else {
+        # not on access list or a member; only see public.
+        $secwhere = "AND security='public'";
+    }
+
     # common SQL template:
     unless ($sql) {
         $sql = "SELECT jitemid, eventtime, security, allowmask, anum, posterid ".
-            "FROM log2 WHERE journalid=$ownerid $where $orderby $limit";
+            "FROM log2 WHERE journalid=$ownerid $where $secwhere $orderby $limit";
     }
 
     # whatever selecttype might have wanted us to use the master db.
@@ -1748,9 +2265,10 @@ sub getevents
             $evt->{'security'} = $sec;
             $evt->{'allowmask'} = $mask if $sec eq "usemask";
         }
-        $evt->{'anum'} = $anum;
-        $evt->{'poster'} = LJ::get_username($dbr, $jposterid) if $jposterid != $ownerid;
-        $evt->{'url'} = LJ::item_link($uowner, $itemid, $anum);
+        $evt->{anum} = $anum;
+        $evt->{poster} = LJ::get_username( $jposterid )
+            if $jposterid != $ownerid;
+        $evt->{url} = LJ::item_link( $uowner, $itemid, $anum );
         push @$events, $evt;
     }
 
@@ -1781,6 +2299,10 @@ sub getevents
             # FIXME: this goes away after we restructure APIs and
             # replycounts cease being transferred in props
             delete $props{$itemid}->{'replycount'};
+
+            # the xpost property is not something we should be distributing
+            # as it's a serialized string and confuses clients
+            delete $props{$itemid}->{xpost};
 
             my $evt = $evt_from_itemid{$itemid};
             $evt->{'props'} = {};
@@ -1819,7 +2341,7 @@ sub getevents
             foreach (keys %{$evt->{'props'}}) {
                 $evt->{'props'}->{$_} = LJ::text_convert($evt->{'props'}->{$_}, $uowner, \$error);
             }
-            return fail($err,208,"Cannot display this post. Please see $LJ::SITEROOT/support/encodings.bml for more information.")
+            return fail($err,208,"Cannot display this post.")
                 if $error;
         }
 
@@ -1834,7 +2356,7 @@ sub getevents
                 if ($req->{'selecttype'} eq 'day') {
                     $t->[0] = $t->[1] = $CannotBeShown;
                 } else {
-                    return fail($err,207,"Cannot display/edit a Unicode post with a non-Unicode client. Please see $LJ::SITEROOT/support/encodings.bml for more information.");
+                    return fail($err,207,"Cannot display/edit a Unicode post with a non-Unicode client. Please see $LJ::SITEROOT/support/encodings for more information.");
                 }
             }
         }
@@ -1880,339 +2402,14 @@ sub getevents
     return $res;
 }
 
-sub editfriends
-{
-    my ($req, $err, $flags) = @_;
-    return undef unless authenticate($req, $err, $flags);
-
-    my $u = $flags->{'u'};
-    my $userid = $u->{'userid'};
-    my $dbh = LJ::get_db_writer();
-    my $sth;
-
-    return fail($err,306) unless $dbh;
-
-    # do not let locked people do this
-    return fail($err, 308) if $u->{statusvis} eq 'L';
-
-    my $res = {};
-
-    ## first, figure out who the current friends are to save us work later
-    my %curfriend;
-    my $friend_count = 0;
-    # TAG:FR:protocol:editfriends1
-    $sth = $dbh->prepare("SELECT u.user FROM useridmap u, friends f ".
-                         "WHERE u.userid=f.friendid AND f.userid=$userid");
-    $sth->execute;
-    while (my ($friend) = $sth->fetchrow_array) {
-        $curfriend{$friend} = 1;
-        $friend_count++;
-    }
-    $sth->finish;
-
-    # perform the deletions
-  DELETEFRIEND:
-    foreach (@{$req->{'delete'}})
-    {
-        my $deluser = LJ::canonical_username($_);
-        next DELETEFRIEND unless ($curfriend{$deluser});
-
-        my $friendid = LJ::get_userid($deluser);
-        # TAG:FR:protocol:editfriends2_del
-        LJ::remove_friend($userid, $friendid);
-        $friend_count--;
-    }
-
-    my $error_flag = 0;
-    my $friends_added = 0;
-    my $fail = sub {
-        LJ::memcache_kill($userid, "friends");
-        LJ::mark_dirty($userid, "friends");
-        return fail($err, $_[0], $_[1]);
-    };
-
-    # only people, shared journals, and owned syn feeds can add friends
-    return $fail->(104, "Journal type cannot add friends")
-        unless ($u->{'journaltype'} eq 'P' ||
-                $u->{'journaltype'} eq 'S' ||
-                $u->{'journaltype'} eq 'I' ||
-                ($u->{'journaltype'} eq "Y" && $u->password));
-
-     my $sclient = LJ::theschwartz();
-
-    # perform the adds
-  ADDFRIEND:
-    foreach my $fa (@{$req->{'add'}})
-    {
-        unless (ref $fa eq "HASH") {
-            $fa = { 'username' => $fa };
-        }
-
-        my $aname = LJ::canonical_username($fa->{'username'});
-        unless ($aname) {
-            $error_flag = 1;
-            next ADDFRIEND;
-        }
-
-        $friend_count++ unless $curfriend{$aname};
-
-        my $err;
-        return $fail->(104, "$err")
-            unless $u->can_add_friends(\$err, { 'numfriends' => $friend_count });
-
-        my $fg = $fa->{'fgcolor'} || "#000000";
-        my $bg = $fa->{'bgcolor'} || "#FFFFFF";
-        if ($fg !~ /^\#[0-9A-F]{6,6}$/i || $bg !~ /^\#[0-9A-F]{6,6}$/i) {
-            return $fail->(203, "Invalid color values");
-        }
-
-        my $row = LJ::load_user($aname);
-        my $currently_is_friend = LJ::is_friend($u, $row);
-        my $currently_is_banned = LJ::is_banned($u, $row);
-
-        # XXX - on some errors we fail out, on others we continue and try adding
-        # any other users in the request. also, error message for redirect should
-        # point the user to the redirected username.
-        if (! $row) {
-            $error_flag = 1;
-        } elsif ($row->{'journaltype'} eq "R") {
-            return $fail->(154);
-        } elsif ($row->{'statusvis'} ne "V") {
-            $error_flag = 1;
-        } else {
-            $friends_added++;
-            my $added = { 'username' => $aname,
-                          'fullname' => $row->{'name'},
-                      };
-            if ($req->{'ver'} >= 1) {
-                LJ::text_out(\$added->{'fullname'});
-            }
-            push @{$res->{'added'}}, $added;
-
-            my $qfg = LJ::color_todb($fg);
-            my $qbg = LJ::color_todb($bg);
-
-            my $friendid = $row->{'userid'};
-
-            my $gmask = $fa->{'groupmask'};
-            if (! $gmask && $curfriend{$aname}) {
-                # if no group mask sent, use the existing one if this is an existing friend
-                # TAG:FR:protocol:editfriends3_getmask
-                my $sth = $dbh->prepare("SELECT groupmask FROM friends ".
-                                        "WHERE userid=$userid AND friendid=$friendid");
-                $sth->execute;
-                $gmask = $sth->fetchrow_array;
-            }
-            # force bit 0 on.
-            $gmask |= 1;
-
-            # TAG:FR:protocol:editfriends4_addeditfriend
-            $dbh->do("REPLACE INTO friends (userid, friendid, fgcolor, bgcolor, groupmask) ".
-                     "VALUES ($userid, $friendid, $qfg, $qbg, $gmask)");
-            return $fail->(501,$dbh->errstr) if $dbh->err;
-
-            my $memkey = [$userid,"frgmask:$userid:$friendid"];
-            LJ::MemCache::set($memkey, $gmask+0, time()+60*15);
-            LJ::memcache_kill($friendid, 'friendofs');
-            LJ::memcache_kill($friendid, 'friendofs2');
-
-            if ($sclient && !$currently_is_friend && !$currently_is_banned) {
-                my @jobs;
-                push @jobs, LJ::Event::Befriended->new(LJ::load_userid($friendid), LJ::load_userid($userid))->fire_job
-                    if !$LJ::DISABLED{esn};
-
-                push @jobs, TheSchwartz::Job->new(
-                                                  funcname => "LJ::Worker::FriendChange",
-                                                  arg      => [$userid, 'add', $friendid],
-                                                  ) unless $LJ::DISABLED{'friendchange-schwartz'};
-
-                $sclient->insert_jobs(@jobs) if @jobs;
-            }
-
-        }
-    }
-
-    return $fail->(104) if $error_flag;
-
-    # invalidate memcache of friends
-    LJ::memcache_kill($userid, "friends");
-    LJ::memcache_kill($userid, "friends2");
-    LJ::mark_dirty($userid, "friends");
-
-    return $res;
+# deprecated
+sub editfriends {
+    return fail( $_[1], 504 );
 }
 
-sub editfriendgroups
-{
-    my ($req, $err, $flags) = @_;
-    return undef unless authenticate($req, $err, $flags);
-
-    my $u = $flags->{'u'};
-    my $userid = $u->{'userid'};
-    my ($db, $fgtable, $bmax, $cmax) = $u->{dversion} > 5 ?
-                         ($u->writer, 'friendgroup2', LJ::BMAX_GRPNAME2, LJ::CMAX_GRPNAME2) :
-                         (LJ::get_db_writer(), 'friendgroup', LJ::BMAX_GRPNAME, LJ::CMAX_GRPNAME);
-    my $sth;
-
-    return fail($err,306) unless $db;
-
-    # do not let locked people do this
-    return fail($err, 308) if $u->{statusvis} eq 'L';
-
-    my $res = {};
-
-    ## make sure tree is how we want it
-    $req->{'groupmasks'} = {} unless
-        (ref $req->{'groupmasks'} eq "HASH");
-    $req->{'set'} = {} unless
-        (ref $req->{'set'} eq "HASH");
-    $req->{'delete'} = [] unless
-        (ref $req->{'delete'} eq "ARRAY");
-
-    # Keep track of what bits are already set, so we can know later
-    # whether to INSERT or UPDATE.
-    my %bitset;
-    my $groups = LJ::get_friend_group($userid);
-    foreach my $bit (keys %{$groups || {}}) {
-        $bitset{$bit} = 1;
-    }
-
-    ## before we perform any DB operations, validate input text
-    # (groups' names) for correctness so we can fail gracefully
-    if ($LJ::UNICODE) {
-        foreach my $bit (keys %{$req->{'set'}})
-        {
-            my $name = $req->{'set'}->{$bit}->{'name'};
-            return fail($err,207,"non-ASCII names require a Unicode-capable client")
-                if $req->{'ver'} < 1 and not LJ::is_ascii($name);
-            return fail($err,208,"Invalid group names. Please see $LJ::SITEROOT/support/encodings.bml for more information.")
-                unless LJ::text_in($name);
-        }
-    }
-
-    ## figure out deletions we'll do later
-    foreach my $bit (@{$req->{'delete'}})
-    {
-        $bit += 0;
-        next unless ($bit >= 1 && $bit <= 60);
-        $bitset{$bit} = 0;  # so later we replace into, not update.
-    }
-
-    ## do additions/modifications ('set' hash)
-    my %added;
-    foreach my $bit (keys %{$req->{'set'}})
-    {
-        $bit += 0;
-        next unless ($bit >= 1 && $bit <= 60);
-        my $sa = $req->{'set'}->{$bit};
-        my $name = LJ::text_trim($sa->{'name'}, $bmax, $cmax);
-
-        # can't end with a slash
-        $name =~ s!/$!!;
-
-        # setting it to name is like deleting it.
-        unless ($name =~ /\S/) {
-            push @{$req->{'delete'}}, $bit;
-            next;
-        }
-
-        my $qname = $db->quote($name);
-        my $qsort = defined $sa->{'sort'} ? ($sa->{'sort'}+0) : 50;
-        my $qpublic = $db->quote(defined $sa->{'public'} ? ($sa->{'public'}+0) : 0);
-
-        if ($bitset{$bit}) {
-            # so update it
-            my $sets;
-            if (defined $sa->{'public'}) {
-                $sets .= ", is_public=$qpublic";
-            }
-            $db->do("UPDATE $fgtable SET groupname=$qname, sortorder=$qsort ".
-                    "$sets WHERE userid=$userid AND groupnum=$bit");
-        } else {
-            $db->do("REPLACE INTO $fgtable (userid, groupnum, ".
-                    "groupname, sortorder, is_public) VALUES ".
-                    "($userid, $bit, $qname, $qsort, $qpublic)");
-        }
-        $added{$bit} = 1;
-    }
-
-
-    ## do deletions ('delete' array)
-    my $dbcm = LJ::get_cluster_master($u);
-
-    # ignore bits that aren't integers or that are outside 1-60 range
-    my @delete_bits = grep {$_ >= 1 and $_ <= 60} map {$_+0} @{$req->{'delete'}};
-    my $delete_mask = 0;
-    foreach my $bit (@delete_bits) {
-        $delete_mask |= (1 << $bit)
-    }
-
-    # remove the bits for deleted groups from all friends groupmasks
-    my $dbh = LJ::get_db_writer();
-    if ($delete_mask) {
-        # TAG:FR:protocol:editfriendgroups_removemasks
-        $dbh->do("UPDATE friends".
-                 "   SET groupmask = groupmask & ~$delete_mask".
-                 " WHERE userid = $userid");
-    }
-
-    foreach my $bit (@delete_bits)
-    {
-        # remove all posts from allowing that group:
-        my @posts_to_clean = ();
-        $sth = $dbcm->prepare("SELECT jitemid FROM logsec2 WHERE journalid=$userid AND allowmask & (1 << $bit)");
-        $sth->execute;
-        while (my ($id) = $sth->fetchrow_array) { push @posts_to_clean, $id; }
-        while (@posts_to_clean) {
-            my @batch;
-            if (scalar(@posts_to_clean) < 20) {
-                @batch = @posts_to_clean;
-                @posts_to_clean = ();
-            } else {
-                @batch = splice(@posts_to_clean, 0, 20);
-            }
-
-            my $in = join(",", @batch);
-            $u->do("UPDATE log2 SET allowmask=allowmask & ~(1 << $bit) ".
-                   "WHERE journalid=$userid AND jitemid IN ($in) AND security='usemask'");
-            $u->do("UPDATE logsec2 SET allowmask=allowmask & ~(1 << $bit) ".
-                   "WHERE journalid=$userid AND jitemid IN ($in)");
-
-            foreach my $id (@batch) {
-                LJ::MemCache::delete([$userid, "log2:$userid:$id"]);
-            }
-            LJ::MemCache::delete([$userid, "log2lt:$userid"]);
-        }
-        LJ::Tags::deleted_friend_group($u, $bit);
-        LJ::run_hooks('delete_friend_group', $u, $bit);
-
-        # remove the friend group, unless we just added it this transaction
-        unless ($added{$bit}) {
-            $db->do("DELETE FROM $fgtable WHERE ".
-                    "userid=$userid AND groupnum=$bit");
-        }
-    }
-
-    ## change friends' masks
-    # TAG:FR:protocol:editfriendgroups_changemasks
-    foreach my $friend (keys %{$req->{'groupmasks'}})
-    {
-        my $mask = int($req->{'groupmasks'}->{$friend}) | 1;
-        my $friendid = LJ::get_userid($dbh, $friend);
-
-        $dbh->do("UPDATE friends SET groupmask=$mask ".
-                 "WHERE userid=$userid AND friendid=?",
-                 undef, $friendid);
-        LJ::MemCache::set([$userid, "frgmask:$userid:$friendid"], $mask);
-    }
-
-    # invalidate memcache of friends/groups
-    LJ::memcache_kill($userid, "friends");
-    LJ::memcache_kill($userid, "fgrp");
-    LJ::mark_dirty($u, "friends");
-
-    # return value for this is nothing.
-    return {};
+# deprecated
+sub editfriendgroups {
+    return fail( $_[1], 504 );
 }
 
 sub sessionexpire {
@@ -2251,7 +2448,7 @@ sub sessiongenerate {
     };
 
     # do not let locked people do this
-    return fail($err, 308) if $u->{statusvis} eq 'L';
+    return fail($err, 308) if $u->is_locked;
 
     my $sess = LJ::Session->create($u, %$sess_opts);
 
@@ -2298,7 +2495,7 @@ sub list_friends
                    grep { $us->{$_->[0]} } @frow)
     {
         my $u = $us->{$f->[0]};
-        next if $opts->{'friendof'} && $u->{'statusvis'} ne 'V';
+        next if $opts->{'friendof'} && ! $u->is_visible;
 
         my $r = {
             'username' => $u->{'user'},
@@ -2333,16 +2530,14 @@ sub list_friends
         $r->{"type"} = {
             'C' => 'community',
             'Y' => 'syndicated',
-            'N' => 'news',
-            'S' => 'shared',
             'I' => 'identity',
-        }->{$u->{'journaltype'}} if $u->{'journaltype'} ne 'P';
+        }->{$u->journaltype} unless $u->is_person;
 
         $r->{"status"} = {
             'D' => "deleted",
             'S' => "suspended",
             'X' => "purged",
-        }->{$u->{'statusvis'}} if $u->{'statusvis'} ne 'V';
+        }->{$u->statusvis} unless $u->is_visible;
 
         push @$res, $r;
         # won't happen for zero limit (which means no limit)
@@ -2356,7 +2551,7 @@ sub syncitems
     my ($req, $err, $flags) = @_;
     return undef unless authenticate($req, $err, $flags);
     return undef unless check_altusage($req, $err, $flags);
-    return fail($err,506) if $LJ::DISABLED{'syncitems'};
+    return fail($err,506) unless LJ::is_enabled('syncitems');
 
     my $ownerid = $flags->{'ownerid'};
     my $uowner = $flags->{'u_owner'} || $flags->{'u'};
@@ -2473,11 +2668,11 @@ sub login_message
         $res->{'message'} = $pre . translate($u, $code, $args);
     };
 
-    return $msg->("readonly")          if LJ::get_cap($u, "readonly");
+    return $msg->("readonly")          if $u->is_readonly;
     return $msg->("not_validated")     if ($u->{'status'} eq "N" and not $LJ::EVERYONE_VALID);
     return $msg->("must_revalidate")   if ($u->{'status'} eq "T" and not $LJ::EVERYONE_VALID);
 
-    my $checkpass = LJ::run_hook("bad_password", { 'u' => $u });
+    my $checkpass = LJ::CreatePage->verify_password( u => $u );
     return $msg->("bad_password", { 'pre' => "$checkpass " }) if $checkpass;
 
     return $msg->("old_win32_client")  if $req->{'clientversion'} =~ /^Win32-MFC\/(1.2.[0123456])$/;
@@ -2488,6 +2683,13 @@ sub login_message
 sub list_friendgroups
 {
     my $u = shift;
+
+#    warn "ljprotocol.pl: list_friendgroups called.\n";
+    return [];
+
+# TODO(mark): this needs updating to determine if we should send trust groups?
+#             answer is yes, but we also need to move this to list_trustgroups
+#             so clients don't think those are friend groups.
 
     # get the groups for this user, return undef if error
     my $groups = LJ::get_friend_group($u);
@@ -2523,14 +2725,12 @@ sub hash_menus
                 { 'text' => "Recent Entries",
                   'url' => "$LJ::SITEROOT/users/$user/", },
                 { 'text' => "Calendar View",
-                  'url' => "$LJ::SITEROOT/users/$user/calendar", },
+                  'url' => "$LJ::SITEROOT/users/$user/archive", },
                 { 'text' => "Friends View",
-                  'url' => "$LJ::SITEROOT/users/$user/friends", },
+                  'url' => "$LJ::SITEROOT/users/$user/read", },
                 { 'text' => "-", },
                 { 'text' => "Your Profile",
-                  'url' => "$LJ::SITEROOT/userinfo.bml?user=$user", },
-                { 'text' => "Your To-Do List",
-                  'url' => "$LJ::SITEROOT/todo/?user=$user", },
+                  'url' => "$LJ::SITEROOT/profile?user=$user", },
                 { 'text' => "-", },
                 { 'text' => "Change Settings",
                   'sub' => [ { 'text' => "Personal Info",
@@ -2542,7 +2742,7 @@ sub hash_menus
                   'url' => "$LJ::SITEROOT/support/", }
                 ];
 
-    LJ::run_hooks("modify_login_menu", {
+    LJ::Hooks::run_hooks("modify_login_menu", {
         'menu' => $menu,
         'u' => $u,
         'user' => $user,
@@ -2581,7 +2781,7 @@ sub list_pickws
 sub list_moods
 {
     my $mood_max = int(shift);
-    LJ::load_moods();
+    DW::Mood->load_moods;
 
     my $res = [];
     return $res if $mood_max >= $LJ::CACHED_MOOD_MAX;
@@ -2601,9 +2801,6 @@ sub list_moods
 sub check_altusage
 {
     my ($req, $err, $flags) = @_;
-
-    # see note in ljlib.pl::can_use_journal about why we return
-    # both 'ownerid' and 'u_owner' in $flags
 
     my $alt = $req->{'usejournal'};
     my $u = $flags->{'u'};
@@ -2625,104 +2822,95 @@ sub check_altusage
     # complain if the username is invalid
     return fail($err,206) unless LJ::canonical_username($alt);
 
+    # we are going to load the alt user
+    $flags->{u_owner} = LJ::load_user( $alt );
+    $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;
     my $r = eval { BML::get_request() };
-
-    # allow usage if we're told explicitly that it's okay
-    if ($flags->{'usejournal_okay'}) {
-        $flags->{'u_owner'} = LJ::load_user($alt);
-        $flags->{'ownerid'} = $flags->{'u_owner'}->{'userid'};
-        $r->notes->{journalid} = $flags->{'ownerid'}
-            if $r && !$r->notes->{journalid};
-        return 1 if $flags->{'ownerid'};
-        return fail($err,206);
-    }
-
-    # otherwise, check for access:
-    my $info = {};
-    my $canuse = LJ::can_use_journal($u->{'userid'}, $alt, $info);
-    $flags->{'ownerid'} = $info->{'ownerid'};
-    $flags->{'u_owner'} = $info->{'u_owner'};
-    $r->notes->{journalid} = $flags->{'ownerid'}
+    $r->notes->{journalid} = $flags->{ownerid}
         if $r && !$r->notes->{journalid};
 
-    return 1 if $canuse || $flags->{'ignorecanuse'};
+    # allow usage if we're told explicitly that it's okay
+    if ( $flags->{usejournal_okay} ) {
+        return 1 if $flags->{ownerid};
+        return fail( $err, 206 );
+    }
 
-    # not allowed to access it
-    return fail($err,300);
+    # or, if they have explicitly said to ignore canuse
+    return 1 if $flags->{ignorecanuse};
+
+    # otherwise, check for access
+    return 1 if $u->can_post_to( $flags->{u_owner} );
+
+    # not allowed to access it, bad user, no post
+    return fail( $err, 300 );
 }
 
 sub authenticate
 {
-    my ($req, $err, $flags) = @_;
+    my ( $req, $err, $flags ) = @_;
 
-    my $username = $req->{'username'};
-    return fail($err,200) unless $username;
-    return fail($err,100) unless LJ::canonical_username($username);
+    my $username = $req->{username};
+    return fail( $err, 200 ) unless $username;
+    return fail( $err, 100 ) unless LJ::canonical_username($username);
 
-    my $u = $flags->{'u'};
-    unless ($u) {
-        my $dbr = LJ::get_db_reader();
-        return fail($err,502) unless $dbr;
-        $u = LJ::load_user($username);
+    my $u = $flags->{u};
+    unless ( $u ) {
+        my $dbr = LJ::get_db_reader()
+            or return fail( $err, 502 );
+        $u = LJ::load_user( $username );
     }
 
-    return fail($err,100) unless $u;
-    return fail($err,100) if ($u->{'statusvis'} eq "X");
-    return fail($err,505) unless $u->{'clusterid'};
+    return fail( $err, 100 ) unless $u;
+    return fail( $err, 100 ) if $u->is_expunged;
+    return fail( $err, 505 ) unless $u->{clusterid};
 
-    my $r = eval { BML::get_request() };
-    my $ip;
-    if ($r) {
-        $r->notes->{ljuser} = $u->{'user'}
-            unless $r->notes->{ljuser};
-        $r->notes->{journalid} = $u->{'userid'}
-            unless $r->notes->{journalid};
-        $ip = LJ::get_remote_ip();
+    my $r = DW::Request->get;
+    my $ip = LJ::get_remote_ip();
+
+    if ( $r ) {
+        $r->note( ljuser => $u->user )
+            unless $r->note( 'ljuser' );
+        $r->note( journalid => $u->id )
+            unless $r->note( 'journalid' );
     }
 
     my $ip_banned = 0;
     my $chal_expired = 0;
     my $auth_check = sub {
-        my $auth_meth = $req->{'auth_method'} || "clear";
-        if ($auth_meth eq "clear") {
-            return LJ::auth_okay($u,
-                                 $req->{'password'},
-                                 $req->{'hpassword'},
-                                 $u->password,
-                                 \$ip_banned);
+
+        my $auth_meth = $req->{auth_method} || 'clear';
+        if ( $auth_meth eq 'clear' ) {
+            return LJ::auth_okay(
+                $u, $req->{password}, $req->{hpassword}, $u->password, \$ip_banned
+            );
         }
-        if ($auth_meth eq "challenge") {
+        if ( $auth_meth eq 'challenge' ) {
             my $chal_opts = {};
-            my $chall_ok = LJ::challenge_check_login($u,
-                                                     $req->{'auth_challenge'},
-                                                     $req->{'auth_response'},
-                                                     \$ip_banned,
-                                                     $chal_opts);
+            my $chall_ok = LJ::challenge_check_login(
+                $u, $req->{auth_challenge}, $req->{auth_response}, \$ip_banned, $chal_opts
+            );
             $chal_expired = 1 if $chal_opts->{expired};
             return $chall_ok;
         }
-        if ($auth_meth eq "cookie") {
-            return unless $r && $r->header_in("X-LJ-Auth") eq "cookie";
+        if ( $auth_meth eq 'cookie' ) {
+            return unless $r && $r->header_in( 'X-LJ-Auth' ) eq 'cookie';
+
             my $remote = LJ::get_remote();
-            return $remote && $remote->{'user'} eq $username ? 1 : 0;
+            return $remote && $remote->user eq $username ? 1 : 0;
         }
     };
 
-    unless ($flags->{'nopassword'} ||
-            $flags->{'noauth'} ||
-            $auth_check->() )
+    unless ( $flags->{nopassword} ||
+             $flags->{noauth} ||
+             $auth_check->() )
     {
-        return fail($err,402) if $ip_banned;
-        return fail($err,105) if $chal_expired;
-        return fail($err,101);
+        return fail( $err, 402 ) if $ip_banned;
+        return fail( $err, 105 ) if $chal_expired;
+        return fail( $err, 101 );
     }
 
-    # if there is a require TOS revision, check for it now
-    return fail($err, 156, LJ::tosagree_str('protocol' => 'text'))
-        unless $u->tosagree_verify;
-
     # remember the user record for later.
-    $flags->{'u'} = $u;
+    $flags->{u} = $u;
     return 1;
 }
 
@@ -2734,43 +2922,6 @@ sub fail
     $code .= ":$des" if $des;
     $$err = $code if (ref $err eq "SCALAR");
     return undef;
-}
-
-# PROBLEM: a while back we used auto_increment fields in our tables so that we could have
-# automatically incremented itemids and such.  this was eventually phased out in favor of
-# the more portable alloc_user_counter function which uses the 'counter' table.  when the
-# counter table has no data, it finds the highest id already in use in the database and adds
-# one to it.
-#
-# a problem came about when users who last posted before alloc_user_counter went
-# and deleted all their entries and posted anew.  alloc_user_counter would find no entries,
-# this no ids, and thus assign id 1, thinking it's all clean and new.  but, id 1 had been
-# used previously, and now has comments attached to it.
-#
-# the comments would happen because there was an old bug that wouldn't delete comments when
-# an entry was deleted.  this has since been fixed.  so this all combines to make this
-# a necessity, at least until no buggy data exist anymore!
-#
-# this code here removes any comments that happen to exist for the id we're now using.
-sub new_entry_cleanup_hack {
-    my ($u, $jitemid) = @_;
-
-    # sanitize input
-    $jitemid += 0;
-    return unless $jitemid;
-    my $ownerid = LJ::want_userid($u);
-    return unless $ownerid;
-
-    # delete logprops
-    $u->do("DELETE FROM logprop2 WHERE journalid=$ownerid AND jitemid=$jitemid");
-
-    # delete comments
-    my $ids = LJ::Talk::get_talk_data($u, 'L', $jitemid);
-    return unless ref $ids eq 'HASH' && %$ids;
-    my $list = join ',', map { $_+0 } keys %$ids;
-    $u->do("DELETE FROM talk2 WHERE journalid=$ownerid AND jtalkid IN ($list)");
-    $u->do("DELETE FROM talktext2 WHERE journalid=$ownerid AND jtalkid IN ($list)");
-    $u->do("DELETE FROM talkprop2 WHERE journalid=$ownerid AND jtalkid IN ($list)");
 }
 
 sub un_utf8_request {
@@ -2871,11 +3022,46 @@ sub do_request
     if ($req->{'mode'} eq "getusertags") {
         return getusertags($req, $res, $flags);
     }
+    if ($req->{'mode'} eq "getfriendspage") {
+        return getfriendspage($req, $res, $flags);
+    }
 
     ### unknown mode!
     $res->{'success'} = "FAIL";
     $res->{'errmsg'} = "Client error: Unknown mode ($req->{'mode'})";
     return;
+}
+
+## flat wrapper
+sub getfriendspage
+{
+    my ($req, $res, $flags) = @_;
+
+    my $err = 0;
+    my $rq = upgrade_request($req);
+
+    my $rs = LJ::Protocol::do_request("getfriendspage", $rq, \$err, $flags);
+    unless ($rs) {
+        $res->{'success'} = "FAIL";
+        $res->{'errmsg'} = LJ::Protocol::error_message($err);
+        return 0;
+    }
+
+    my $ect = 0;
+    foreach my $evt (@{$rs->{'entries'}}) {
+        $ect++;
+        foreach my $f (qw(subject_raw journalname journaltype postername postertype ditemid security)) {
+            if (defined $evt->{$f}) {
+                $res->{"entries_${ect}_$f"} = $evt->{$f};
+            }
+        }
+        $res->{"entries_${ect}_event"} = LJ::eurl($evt->{'event_raw'});
+    }
+
+    $res->{'entries_count'} = $ect;
+    $res->{'success'} = "OK";
+
+    return 1;
 }
 
 ## flat wrapper
@@ -2897,6 +3083,7 @@ sub login
     $res->{'name'} = $rs->{'fullname'};
     $res->{'message'} = $rs->{'message'} if $rs->{'message'};
     $res->{'fastserver'} = 1 if $rs->{'fastserver'};
+    $res->{'caps'} = $rs->{'caps'} if $rs->{'caps'};
 
     # shared journals
     my $access_count = 0;
@@ -3297,6 +3484,8 @@ sub postevent
     my $rq = upgrade_request($req);
     flatten_props($req, $rq);
 
+    $rq->{'props'}->{'interface'} = "flat";
+
     my $rs = LJ::Protocol::do_request("postevent", $rq, \$err, $flags);
     unless ($rs) {
         $res->{'success'} = "FAIL";
@@ -3328,6 +3517,7 @@ sub editevent
         return 0;
     }
 
+    $res->{message} = $rs->{message} if $rs->{message};
     $res->{'success'} = "OK";
     $res->{'itemid'} = $rs->{'itemid'};
     $res->{'anum'} = $rs->{'anum'} if defined $rs->{'anum'};

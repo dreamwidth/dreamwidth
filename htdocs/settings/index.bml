@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -8,13 +22,13 @@
                      _default => qr/./);
 
     my $err = sub {
-        $title = "Error";
+        $title = $ML{'Error'};
         $body = $_[0];
         return;
     };
 
     my $remote = LJ::User->remote
-        or return $err->("must be logged in");
+        or return "<?needlogin?>";
 
     my $authas = $GET{'authas'} || $remote->user;
     my $u = LJ::get_authas_user($authas) || $remote;
@@ -22,7 +36,10 @@
     my $selminiclass = $GET{c};   # classname without LJ::Setting::
     my $selclass = $selminiclass ? "LJ::Setting::$selminiclass" : "";
 
-    my @settings = map { s!.+cgi-bin/!!; s!/!::!g; s/\.pm$//; $_ } (glob "$LJ::HOME/cgi-bin/LJ/Setting/*.pm");
+    my @settings = (
+        LJ::ModuleLoader->module_subclasses( "LJ::Setting" ),
+        LJ::ModuleLoader->module_subclasses( "DW::Setting" )
+    );
 
     my $tag = lc $GET{tag};
     my %tags = ();
@@ -42,8 +59,9 @@
     }
 
 
-    $title = "Change Settings";
-    $body = "<center>Which <a href='./'>setting</a> do you want to change today?  Enter tag:";
+    $title = $ML{'.change.settings'};
+    $body = "<center>";
+    $body .= BML::ml('.which.setting', {'link'=>"href='./'"});
     $body .= "<form method='get'><input name='tag' value='" . LJ::ehtml($GET{tag}) . "' style='text-align: center; font-size: 20pt; font-weight: bold; -moz-border-radius: 10px;' /></form></center>";
 
     unless ($tag || $selclass) {
@@ -60,11 +78,12 @@
 
     @matches = @{ $tags{$tag} || [] } unless @matches;
     unless (@matches) {
-        $body .= "<?h1 Sorry h1?><?p No options match '$tag'. p?>";
+        $body .= "<?h1 $ML{'.sorry'} h1?><?p $ML{'.no.options.match'} '$tag'. p?>";
         return;
     }
 
-    my $returns = LJ::Setting::save_all($u, \%POST, \@matches)
+    my $returns;
+    $returns = LJ::Setting::save_all( $u, \%POST, \@matches )
         if LJ::did_post();
 
     $body .= "<form method='get' action='./'>\n";
@@ -75,9 +94,9 @@
 
     $body .= "<form method='post'>";
     if ($tag) {
-        $body .= "<?h1 Options tagged '$tag': h1?>\n";
+        $body .= "<?h1 $ML{'.options.tagged'} '$tag': h1?>\n";
     } else {
-        $body .= "<?h1 The '$selminiclass' setting: h1?>\n";
+        $body .= "<?h1 " . BML::ml('.the.setting', {selminiclass=>$selminiclass}) . " h1?>\n";
     }
     foreach my $class (@matches) {
         unless (eval "use $class; 1;") {
@@ -85,7 +104,7 @@
             $del =~ s!::!/!;
             $del .= ".pm";
             delete $INC{$del};
-            $body .= "Failed to load $class: " . LJ::ehtml($@);
+            $body .= $ML{'.failed.to.load'} . "$class: " . LJ::ehtml($@);
             next;
         }
 
@@ -100,7 +119,7 @@
             $body .= "<div id='$pkgkey' style='margin: 0.5em; border: 2px solid $color; padding: 10px;'><div style='float:right'><a href='/settings/?c=$miniclass'>#</a></div>$html</div>";
         }
     }
-    $body .= "<input type='submit' value='Save' />";
+    $body .= "<input type='submit' value='$ML{'.save'}' />";
     $body .= "</form>";
 
     return;

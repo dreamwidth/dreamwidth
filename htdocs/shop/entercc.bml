@@ -1,0 +1,217 @@
+<?_c
+#
+# shop/entercc.bml
+#
+# Checkout page for letting the user enter credit card details.  WARNING: this
+# page ABSOLUTELY requires SSL, unless we're in a development environment, and
+# MUST NOT store credit card information ANYWHERE.  There are legal ramifications
+# if we were to store the information on our servers, or pass it around in any
+# sort of unencrypted manner!
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST $title /;
+    use Business::CreditCard;
+
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
+    # VERY IMPORTANT
+    die "SSL must be enabled."
+        unless $LJ::IS_DEV_SERVER || $LJ::USE_SSL;
+
+    # now, redirect them to the SSL page just in case they got here without SSL
+    # actually being on...
+    return "$LJ::SSLROOT/shop/entercc"
+        unless $LJ::IS_DEV_SERVER || $LJ::IS_SSL;
+
+    $title = $ML{'.title'};
+
+    # this page uses new style JS
+    LJ::need_res( 'stc/shop.css' );
+    LJ::set_active_resource_group( 'jquery' );
+
+    # get their shop/cart
+    my $cart = DW::Shop->get->cart;
+    return $ML{'.error.nocart'}
+        unless $cart;
+    return $ML{'.error.emptycart'}
+        unless $cart->has_items;
+
+    # if state is NOT open, then just redirect them to the wait page,
+    # which will do the Right Thing.  this typically is used in the case
+    # that the user double clicks on the form, or hits back and clicks
+    # submit again...
+    return BML::redirect( "$LJ::SITEROOT/shop/creditcard_wait?ordernum=" . $cart->ordernum . "&cctransid=" & $cart->{cctransid} )
+        unless $cart->state == $DW::Shop::STATE_OPEN;
+
+    # FIXME: if they have a $0 cart, we don't support that yet
+    return $ML{'.error.zerocart'}
+        if $cart->total_cash == 0.00;
+
+    # general purpose form renderer
+    my %err;
+    my $render_cc_form = sub {
+        # if any error, set the rest of the CC errors so the person can retype
+        if ( %err ) {
+            $err{ccnum} ||= $ML{'.error.reinput'};
+            $err{cvv2} ||= $ML{'.error.reinput'};
+        }
+
+        # need res...
+        LJ::need_res( {group => 'jquery'}, 'js/shop/creditcard.js' );
+
+        # load country codes, and US states
+        my ( %countries, %usstates );
+        LJ::load_codes( { country => \%countries } );
+        LJ::load_codes( { state => \%usstates } );
+
+        # accepted credit card list.  this should be populated by the hooks.
+        my $accepted_ccs = '(failed to get list of accepted credit cards)';
+        LJ::Hooks::run_hook( 'creditcard_accepted_ccs', \$accepted_ccs );
+
+        # now sort the above appropriately
+        my @countries = ( '--' => '', US => 'United States', map { $_ => $countries{$_} } sort { $countries{$a} cmp $countries{$b} } keys %countries );
+        my @usstates = ( '--' => '(select state)', map { $_ => $usstates{$_} } sort { $usstates{$a} cmp $usstates{$b} } keys %usstates );
+
+        my @form = (
+            firstname => LJ::html_text({ name => 'firstname', maxlength => 25, value => $POST{firstname} }),
+            lastname => LJ::html_text({ name => 'lastname', maxlength => 25, value => $POST{lastname} }),
+            '--' => '',
+            country => LJ::html_select({ name => 'country', id => 'country', selected => $POST{country} }, @countries ),
+            '--' => '',
+            street1 => LJ::html_text({ name => 'street1', maxlength => 100, value => $POST{street1}, size => 40 }),
+            street2 => LJ::html_text({ name => 'street2', maxlength => 100, value => $POST{street2}, size => 40 }),
+            city => LJ::html_text({ name => 'city', maxlength => 40, value => $POST{city} }),
+            state => LJ::html_select({ name => 'usstate', id => 'usstate', selected => $POST{usstate} }, @usstates ) . ' ' .
+                     LJ::html_text({ name => 'otherstate', id => 'otherstate', maxlength => 40, value => $POST{otherstate} }),
+            zip => LJ::html_text({ name => 'zip', maxlength => 20, value => $POST{zip} }),
+            phone => LJ::html_text({ name => 'phone', maxlength => 40, value => $POST{phone} }),
+            '--' => '',
+            ccnum => LJ::html_text({ name => 'ccnum', maxlength => 19 }) . $accepted_ccs,
+            cvv2 => LJ::html_text({ name => 'cvv2', maxlength => 4, size => 5 }),
+            expmon => LJ::html_select({ name => 'expmon', selected => $POST{expmon} }, map { $_ => LJ::Lang::month_long( $_ ) } 1..12 ),
+            expyear => LJ::html_select({ name => 'expyear', selected => $POST{expyear} }, map { $_ => $_ } 2010..2019 ),
+        );
+
+        my $out = "<?p $ML{'.about'} p?><?p <strong>" . LJ::Lang::ml( '.about.security', { sitename => $LJ::SITENAME } ) . "</strong> p?>";
+        $out .= "<form method='post'>" . LJ::form_auth() . "<table>";
+        while ( my ( $name, $edit ) = splice( @form, 0, 2 ) ) {
+            if ( $name eq '--' ) {
+                $out .= "<tr><td colspan='2'>&nbsp;</td></tr>";
+                next;
+            }
+
+            my $class = $err{$name} ? 'ccrow ccrowerr' : 'ccrow';
+            $out .= "<tr><td class='$class'>" . BML::ml( ".form.$name" ) . "</td>";
+            $out .= "<td class='$class'>" . $edit . "</td><td class='$class'>";
+            $out .= " <span style='font-color: red; font-weight: bold;'>Error: " . $err{$name} . "</span>"
+                if $err{$name};
+            $out .= "</td></tr>\n";
+        }
+        $out .= "</table><br /><?p ";
+        $out .= BML::ml( '.confirm.para', { amount => $cart->display_total_cash, sitename => $LJ::SITECOMPANY } );
+        $out .= " p?><br /><input type='submit' value='";
+        $out .= BML::ml( '.confirm.button', { amount => $cart->display_total_cash } );
+        $out .= "' /></form>";
+    };
+
+    # no paste, just return the form...
+    return $render_cc_form->()
+        unless LJ::did_post();
+
+    # check form auth
+    die "Invalid form auth!\n"
+        unless LJ::check_form_auth();
+
+    # check for errors... first, make sure we get everything that is required
+    my %in;
+    foreach my $name ( qw/ firstname lastname street1 street2 city country zip phone ccnum cvv2 expmon expyear / ) {
+        my $val = LJ::trim( $POST{$name} );
+        $val =~ s/\s+/ /; # canonicalize to single spaces
+
+        # double hyphens are special
+        $val = '' if $val eq '--';
+
+        # everything is required...except street2
+        unless ( $val || $name eq 'street2' || $name eq 'phone' ) {
+            $err{$name} = $ML{'.error.required'};
+            next;
+        }
+
+        # okay, we know we got something, validate the numerics
+        $in{$name} = $val;
+    }
+
+    # if US, then US state must be selected
+    $err{state} = $ML{'.error.required'}
+        if ( $in{country} eq 'US' && $POST{usstate} !~ /^\w\w$/ ) ||
+           ( $in{country} eq 'CA' && $POST{otherstate} !~ /\S/ );
+
+    # if there are any errors in fields (some required but not given) then
+    # we return to handle the form now
+    return $render_cc_form->()
+        if %err;
+
+    # must be valid states by now
+    $in{state} = LJ::trim( $in{country} eq 'US' ? $POST{usstate} : $POST{otherstate} );
+
+    # now do some more checking
+    $err{cvv2} = $ML{'.error.cvv2.invalid'}
+        unless $in{cvv2} =~ /^\d\d\d\d?$/;
+    $err{expmon} = $ML{'.error.required'}
+        unless $in{expmon} >= 1 && $in{expmon} <= 12;
+    $err{expyear} = $ML{'.error.required'}
+        unless $in{expyear} >= 2010 && $in{expmon} <= 2019;
+
+    # validating the credit card is more intense
+    $in{ccnum} =~ s/\D//g; # remove all non-numerics
+    $err{ccnum} = $ML{'.error.ccnum.invalid'}
+        unless validate( $in{ccnum} );
+
+    # verify that the zip code is right for US
+    $err{zip} = $ML{'.error.zip.invalidus'}
+        if $in{country} eq 'US' && $in{zip} !~ /^(?:\d\d\d\d\d)(?:-?\d\d\d\d)?$/;
+
+    # final error check
+    return $render_cc_form->()
+        if %err;
+
+    # establish the engine they're trying to use
+    my $eng = DW::Shop::Engine->get( creditcard => $cart );
+    return $ML{'.error.invalidpaymentmethod'}
+        unless $eng;
+
+    # set the payment method on the cart
+    $cart->paymentmethod( 'creditcard' );
+    $cart->state( $DW::Shop::STATE_PEND_PAID );
+
+    # stuff a new row in the database
+    my $cctransid = $eng->setup_transaction( %in, cartid => $cart->id, ip => BML::get_remote_ip() );
+    return $ML{'.error.megafail'}
+        unless $cctransid && $cctransid > 0;
+
+    # FIXME: mega hack, we're depending on the storable state of the cart here
+    # and this should really be in a db row somewhere so we can reverse it
+    $cart->{cctransid} = $cctransid;
+    $cart->save;
+
+    # redirect to the waiting page now
+    return BML::redirect( "$LJ::SITEROOT/shop/creditcard_wait?ordernum=" . $cart->ordernum . "&cctransid=" . $cctransid );
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+page?>

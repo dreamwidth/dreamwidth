@@ -1,15 +1,17 @@
 # -*-perl-*-
 
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'ljprotocol.pl';
-require 'talklib.pl';
 
 use LJ::Event;
+use LJ::Talk;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);
+
+plan tests => 27;
 
 # we want to test eight major cases here, matching and not matching for
 # four types of subscriptions, all of subscr etypeid = JournalNewComment
@@ -202,7 +204,7 @@ test_esn_flow(sub {
                 ok(! $email, "didn't get wildcard notification");
 
                 # add the friend back
-                LJ::add_friend($u1, $u2); # make u1 friend u2
+                $u1->add_edge( $u2, watch => { nonotify => 1 }); # make u1 watch u2
             }
         }
 
@@ -224,7 +226,7 @@ sub test_esn_flow {
     my $cv = shift;
     my $u1 = temp_user();
     my $u2 = temp_user();
-    LJ::add_friend($u1, $u2); # make u1 friend u2
+    $u1->add_edge( $u2, watch => { nonotify => 1 }); # make u1 watch u2
     $cv->($u1, $u2);
 }
 

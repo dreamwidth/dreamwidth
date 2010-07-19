@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 nocache=>1
 _info?><?_code
@@ -48,9 +62,9 @@ _info?><?_code
 
     # can't delete if you're suspended
     return $bad_input->($ML{'.error.suspended'})
-        if $remote->{statusvis} eq 'S';
+        if $remote->is_suspended;
 
-    return $error->($LJ::MSG_READONLY_USER) if LJ::get_cap($u, "readonly");
+    return $error->($LJ::MSG_READONLY_USER) if $u->is_readonly;
 
     my $dbcr = LJ::get_cluster_def_reader($u);
     return $error->($ML{'error.nodb'})
@@ -62,7 +76,7 @@ _info?><?_code
                                       "nodeid AS 'itemid', parenttalkid, journalid, posterid " .
                                       "FROM talk2 ".
                                       "WHERE journalid=? AND jtalkid=?",
-                                      undef, $u->{'userid'}, $tpid);
+                                      undef, $u->userid, $tpid);
 
     return $bad_input->($ML{'.error.nocomment'})
         unless $tp;
@@ -79,24 +93,25 @@ _info?><?_code
     # userid of user who posted journal entry
     my $jposterid = $dbcr->selectrow_array("SELECT posterid FROM log2 WHERE " .
                                            "journalid=? AND jitemid=?",
-                                           undef, $u->{'userid'}, $tp->{'itemid'});
+                                           undef, $u->userid, $tp->{itemid});
     my $jposter = LJ::load_userid($jposterid);
 
     # can $remote delete this comment?
     unless (LJ::Talk::can_delete($remote, $u, $jposter, $tp->{'userpost'})) {
-        my $err = $u->{'journaltype'} eq 'C' ? $ML{'.error.cantdelete.comm'} : $ML{'.error.cantdelete'};
+        my $err = $u->is_community ? $ML{'.error.cantdelete.comm'} : $ML{'.error.cantdelete'};
         return $error->($err);
     }
 
-    my $can_manage = LJ::can_manage($remote, $u);
+    my $can_manage = $remote->can_manage( $u );
 
     # can ban if can manage and the comment is by someone else and not anon
-    my $can_ban = $can_manage && $tp->{'posterid'}
-                  && $remote && $remote->{'userid'} != $tp->{'posterid'};
-    my $can_delthread = $can_manage || $jposterid == $remote->{userid};
+    my $can_ban = $can_manage && $tp->{posterid}
+                  && $remote && $remote->userid != $tp->{posterid};
+    my $can_delthread = $can_manage || $jposterid == $remote->userid;
 
     # can mark as spam if they're not the comment poster
-    my $can_spam = $remote && $remote->id != $tp->{'posterid'};
+    # or if the account is not sysbanned
+    my $can_spam = $remote && $remote->id != $tp->{'posterid'} && ! LJ::sysban_check( 'spamreport', $u->user ); 
 
     ### perform actions
     if (LJ::did_post() && $POST{'confirm'}) {
@@ -123,7 +138,7 @@ _info?><?_code
             $msg = BML::ml('.success.andban', { 'user' => LJ::ljuser($tp->{'userpost'}) });
         }
         $msg ||= $ML{'.success.noban'};
-        $msg .= "<?p $ML{'.success.spam'} p?>" if $POST{spam};
+        $msg .= "<?p $ML{'.success.spam'} p?>" if $POST{spam} && $can_spam;
 
         if ($jsmode) {
             BML::finish();
@@ -136,9 +151,9 @@ _info?><?_code
 
     ### show confirmation form
 
-    $body .= "<?h1 $ML{'.confirm.head'} h1?>";
-    $body .= "<?p $ML{'.confirm.body'} p?>";
-    $body .= "<form method='post' action='delcomment.bml?";
+#    $body .= "<?h1 $ML{'.confirm.head'} h1?>";
+#    $body .= "<?p $ML{'.confirm.body'} p?>";
+    $body .= "<form method='post' action='delcomment?";
     $body .= "journal=$u->{'user'}&id=$GET{'id'}'>\n";
     $body .= LJ::form_auth();
     $body .= "<?standout ";
@@ -152,7 +167,7 @@ _info?><?_code
         $body .= "</label></div>";
     }
 
-    if ($tp->{'posterid'} != $remote->{'userid'}) { # Despite the idea of natural selection, don't let users report their own comments as spam
+    if ( $can_spam ) { # Despite the idea of natural selection, don't let users report their own comments as spam
         $body .= "<div>" . LJ::html_check({name => 'spam', id => 'spam'});
         $body .= "<label for='spam'>$ML{'.confirm.spam'}</label></div>";
     }
@@ -166,7 +181,7 @@ _info?><?_code
 
     if ($can_manage) {
         my $msg = BML::ml('.changeoptions', { 'link' =>
-            "<a href='/manage/comments/?authas=$u->{'user'}'>$ML{'/manage/comments/index.bml.title'}</a>" });
+            "<a href='/manage/settings/?cat=privacy&authas=$u->{'user'}'>$ML{'/manage/settings/index.bml.title.self'}</a>" });
         $body .= "<?p $msg p?>";
     }
 
@@ -176,7 +191,4 @@ _info?><?_code
 _code?><?page
 title=><?_ml .title _ml?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-link: htdocs/manage/comments/index.bml
-post: htdocs/delcomment.bml
-</LJDEP> _c?>
+page?>

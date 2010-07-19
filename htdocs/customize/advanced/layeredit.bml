@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
@@ -9,7 +23,8 @@
     };
 
     # we need a valid id
-    my $id = $GET{'id'} if $GET{'id'} =~ /^\d+$/;
+    my $id;
+    $id = $GET{'id'} if $GET{'id'} =~ /^\d+$/;
     return $err->("You have not specified a layer to edit.")
         unless $id;
 
@@ -17,6 +32,10 @@
     my $remote = LJ::get_remote();
     return $err->("You must be logged in to edit layers.")
         unless $remote;
+        
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $remote);
+    return $err->($ML{'/customize/advanced/index.bml.error.advanced.editing.denied'})
+        if $no_layer_edit;
 
     # load layer
     my $lay = LJ::S2::load_layer($id);
@@ -31,16 +50,16 @@
         $lay->{b2lid} = $LJ::S2LID_REMAP{$b2lid};
     }
 
+    # get u of user they are acting as
+    my $u = LJ::load_userid( $lay->{userid} );
+
     # is authorized admin for this layer?
     return $err->('You are not authorized to edit this layer.')
-        unless LJ::can_manage($remote, $lay->{'userid'});
-
-    # get u of user they are acting as
-    my $u = $lay->{'userid'} == $remote->{'userid'} ? $remote : LJ::load_userid($lay->{'userid'});
+        unless $u && $remote->can_manage( $u );
 
     # check priv and ownership
     return $err->("You are not authorized to edit styles.")
-        unless LJ::get_cap($u, "s2styles");
+        unless $u->can_create_s2_styles;
 
     # at this point, they are authorized, allow viewing & editing
 
@@ -142,18 +161,14 @@
 // -->
 </script>
 
+$includes
+
 <!--[if IE]>
 <style type="text/css">
     html {
         overflow: hidden;
     }
-</style>
-<![endif]-->
 
-$includes
-
-<!--[if IE]>
-<style type="text/css">
     div.reference {
         height: expression(xGetElementById('statusbar').offsetTop - (42 + 9 + 10) + "px");
     }
@@ -195,9 +210,9 @@ $includes
 
 </head>
 <body onMouseMove="s2processDrag(event)" onMouseUp="s2endDrag(event)">
-        <form method="post">
-        $formauth
-        <input type="hidden" name="action" value="compile" />
+    <form method="post" name="s2" action="" onsubmit="return s2submit()">
+    $formauth
+    <input type="hidden" name="action" value="compile" />
 
     <div class="header">
         <h1>$title</h1>
@@ -207,6 +222,8 @@ $includes
         </div>
 
         <input type="submit" value="Save & Compile" class="compilelink" />
+
+        <a href="layers"><?_ml .advancedlayerlink _ml?></a>
     </div>
 
     <div class="main" id="maindiv">
@@ -274,14 +291,9 @@ $includes
         <div class="gutter"> </div>
         <div id="status">Ready.</div>
     </div>
+    
+    </form>
 
-<script type="text/javascript">
-    if (navigator.userAgent.indexOf('Safari') > -1) {
-        xGetElementById('main').style.width = '100%';
-    }
-
-        s2init();
-</script>
 
 </body>
 </html>

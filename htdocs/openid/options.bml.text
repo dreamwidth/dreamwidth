@@ -1,0 +1,17 @@
+.error.title=Error
+
+.error.no_support=OpenID server support is disabled
+
+.error.login=You need to be <a href='/login.bml?ret=1'>logged in</a> to manage your OpenID options.
+
+.error.form_tampering=Possible form tampering detected.
+
+.title=OpenID Options
+
+.main.trust.heading=Sites you trust
+
+.main.trust.content=You've marked these sites as able to verify your identity.  You may remove them here.
+
+.main.delete=Delete
+
+.main.none=(None)

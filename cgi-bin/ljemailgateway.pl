@@ -1,4 +1,17 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 package LJ::Emailpost;
 use strict;
@@ -18,12 +31,13 @@ BEGIN {
 require 'ljlib.pl';
 require 'ljemailgateway-web.pl';
 require 'ljprotocol.pl';
-require 'fbupload.pl';
+use Date::Parse;
 use HTML::Entities;
 use IO::Handle;
 use MIME::Words ();
 use XML::Simple;
 use Unicode::MapUTF8 ();
+use Encode;
 
 # $entity -- MIME object
 # $to -- left part of email address.  either a username, or "username+PIN"
@@ -44,7 +58,7 @@ sub process {
         $format, $tent,
 
         # pict upload vars
-        $fb_upload, $fb_upload_errstr,
+#       $fb_upload, $fb_upload_errstr,
     );
 
     $head = $entity->head;
@@ -57,8 +71,6 @@ sub process {
     ($user, $journal) = split(/\./, $user) if $user =~ /\./;
     $u = LJ::load_user($user);
     return unless $u && $u->is_visible;
-
-    LJ::load_user_props($u, 'emailpost_pin') unless (lc($pin) eq 'pgp' && $LJ::USE_PGP);
 
     # Pick what address to send potential errors to.
     $addrlist = LJ::Emailpost::get_allowed_senders($u);
@@ -117,10 +129,11 @@ sub process {
     $body =~ s/\s+$//;
 
     # Snag charset and do utf-8 conversion
-    my $content_type = $head->get('Content-type:');
+    my $content_type = $tent->head->get('Content-type:');
     $charset = $1 if $content_type =~ /\bcharset=['\"]?(\S+?)['\"]?[\s\;]/i;
     $format = $1 if $content_type =~ /\bformat=['\"]?(\S+?)['\"]?[\s\;]/i;
-    my $delsp = $1 if $content_type =~ /\bdelsp=['\"]?(\w+?)['\"]?[\s\;]/i;
+    my $delsp;
+    $delsp = $1 if $content_type =~ /\bdelsp=['\"]?(\w+?)['\"]?[\s\;]/i;
 
     if (defined($charset) && $charset !~ /^UTF-?8$/i) { # no charset? assume us-ascii
         return $err->("Unknown charset encoding type. ($charset)")
@@ -168,11 +181,12 @@ sub process {
             unless grep { lc($from) eq lc($_) } keys %$addrlist;
 
         return $err->("Unable to locate your PIN.") unless $pin;
-        return $err->("Invalid PIN.") unless lc($pin) eq lc($u->{emailpost_pin});
+        return $err->("Invalid PIN.")
+            unless lc( $pin ) eq lc( $u->prop( 'emailpost_pin' ) );
     }
 
     return $err->("Email gateway access denied for your account type.")
-        unless $LJ::T_ALLOW_EMAILPOST || LJ::get_cap($u, "emailpost");
+        unless $LJ::T_ALLOW_EMAILPOST || $u->can_emailpost;
 
     # Is this message from a sprint PCS phone?  Sprint doesn't support
     # MMS (yet) - when it does, we should just be able to rip this block
@@ -199,7 +213,8 @@ sub process {
 
         # ok, parse the XML.
         my $html = $tent->bodyhandle->as_string();
-        my $xml_string = $1 if $html =~ /<!-- lsPictureMail-Share-\w+-comment\n(.+)\n-->/is;
+        my $xml_string;
+        $xml_string = $1 if $html =~ /<!-- lsPictureMail-Share-\w+-comment\n(.+)\n-->/is;
         return $err->(
             "Unable to find XML content in PictureMail message.",
           ) unless $xml_string;
@@ -317,9 +332,9 @@ sub process {
     }
 
     # verizon crap.  remove paragraphs of text.
-    $body =~ s/This message was sent using PIX-FLIX.+?faster download\.//s;
+    $body =~ s/This message was sent using.+?Verizon.+?faster download\.//s;
 
-    # virgin mobile adds text to the *top* of the message, killing lj-headers.
+    # virgin mobile adds text to the *top* of the message, killing post-headers.
     # Kill this silly (and grammatically incorrect) string.
     if ($return_path && $return_path =~ /vmpix\.com$/) {
         $body =~ s/^This is an? MMS message\.\s+//ms;
@@ -378,110 +393,143 @@ sub process {
     # trim off excess whitespace (html cleaner converts to breaks)
     $body =~ s/\n+$/\n/;
 
+    # Pull the Date: header details
+    my ( $ss, $mm, $hh, $day, $month, $year, $zone ) =
+            strptime( $head->get( 'Date:' ) );
+
     # Find and set entry props.
     my $props = {};
-    my (%lj_headers, $amask);
+    my (%post_headers, $amask);
+    # first look for old style lj headers
     while ($body =~ s/^lj-(.+?):\s*(.+?)\n//is) {
-        $lj_headers{lc($1)} = LJ::trim($2);
+        $post_headers{lc($1)} = LJ::trim($2);
+    }
+    # next look for new style post headers
+    # so if both are specified, this value will be retained
+    while ($body =~ s/^post-(.+?):\s*(.+?)\n//is) {
+        $post_headers{lc($1)} = LJ::trim($2);
     }
     $body =~ s/^\s*//;
 
-    LJ::load_user_props(
-        $u,
+    # If we had an lj/post-date pseudo header, override the real Date header
+    ( $ss, $mm, $hh, $day, $month, $year, $zone ) =
+        strptime( $post_headers{date} ) if $post_headers{date};
+
+    # TZ is parsed into seconds, we want something more like -0800
+    $zone = defined $zone ? sprintf( '%+05d', $zone / 36 ) : 'guess';
+
+    $u->preload_props(
         qw/
           emailpost_userpic emailpost_security
           emailpost_comments emailpost_gallery
           emailpost_imgsecurity /
     );
 
-    # Get post options, using lj-headers first, and falling back
+    # Get post options, using post-headers first, and falling back
     # to user props.  If neither exist, the regular journal defaults
     # are used.
-    $props->{taglist} = $lj_headers{tags};
-    $props->{picture_keyword} = $lj_headers{'userpic'} ||
+    $props->{taglist} = $post_headers{tags};
+    $props->{picture_keyword} = $post_headers{'userpic'} ||
+                                $post_headers{'icon'} ||
                                 $u->{'emailpost_userpic'};
-    if (my $id = LJ::mood_id($lj_headers{'mood'})) {
+    if ( my $id = DW::Mood->mood_id( $post_headers{'mood'} ) ) {
         $props->{current_moodid}   = $id;
     } else {
-        $props->{current_mood}     = $lj_headers{'mood'};
+        $props->{current_mood}     = $post_headers{'mood'};
     }
-    $props->{current_music}    = $lj_headers{'music'};
-    $props->{current_location} = $lj_headers{'location'};
+    $props->{current_music}    = $post_headers{'music'};
+    $props->{current_location} = $post_headers{'location'};
     $props->{opt_nocomments} = 1
-      if $lj_headers{comments}      =~ /off/i
+      if $post_headers{comments}    =~ /off/i
       || $u->{'emailpost_comments'} =~ /off/i;
     $props->{opt_noemail} = 1
-      if $lj_headers{comments}      =~ /noemail/i
+      if $post_headers{comments}    =~ /noemail/i
       || $u->{'emailpost_comments'} =~ /noemail/i;
 
-    $lj_headers{security} = lc($lj_headers{security}) || $u->{'emailpost_security'};
-    if ($lj_headers{security} =~ /^(public|private|friends)$/) {
-        if ($1 eq 'friends') {
-            $lj_headers{security} = 'usemask';
+    $post_headers{security} = lc($post_headers{security}) || $u->{'emailpost_security'};
+    if ( $post_headers{security} =~ /^(public|private|friends|access)$/ ) {
+        if ( $1 eq 'friends' or $1 eq 'access' ) {
+            $post_headers{security} = 'usemask';
             $amask = 1;
         }
-    } elsif ($lj_headers{security}) { # Assume a friendgroup if unknown security mode.
+    } elsif ($post_headers{security}) { # Assume a friendgroup if unknown security mode.
         # Get the mask for the requested friends group, or default to private.
-        my $group = LJ::get_friend_group($u, { 'name'=>$lj_headers{security} });
+        my $group = $u->trust_groups( 'name' => $post_headers{security} );
         if ($group) {
             $amask = (1 << $group->{groupnum});
-            $lj_headers{security} = 'usemask';
+            $post_headers{security} = 'usemask';
         } else {
-            $err->("Friendgroup \"$lj_headers{security}\" not found.  Your journal entry was posted privately.",
+            $err->("Access group \"$post_headers{security}\" not found.  Your journal entry was posted privately.",
                    { nolog => 1 });
-            $lj_headers{security} = 'private';
+            $post_headers{security} = 'private';
         }
     }
 
     # if they specified a imgsecurity header but it isn't valid, default
     # to private.  Otherwise, set to what they specified.
-    $lj_headers{'imgsecurity'} = lc($lj_headers{'imgsecurity'}) ||
-                                 $u->{'emailpost_imgsecurity'}  || 'public';
-    $lj_headers{'imgsecurity'} = 'private'
-      unless $lj_headers{'imgsecurity'} =~ /^(private|regusers|friends|public)$/;
+    $post_headers{'imgsecurity'} = lc($post_headers{'imgsecurity'}) ||
+                                   $u->{'emailpost_imgsecurity'}  || 'public';
+    $post_headers{'imgsecurity'} = 'private'
+      unless $post_headers{'imgsecurity'} =~ /^(private|regusers|friends|public)$/;
 
     # upload picture attachments to fotobilder.
     # undef return value? retry posting for later.
-    $fb_upload = upload_images(
-        $entity, $u,
-        \$fb_upload_errstr,
-        {
-            imgsec  => $lj_headers{'imgsecurity'},
-            galname => $lj_headers{'gallery'} || $u->{'emailpost_gallery'}
-        }
-      ) || return $err->( $fb_upload_errstr, { retry => 1 } );
-
-    # if we found and successfully uploaded some images...
-    $body .= LJ::FBUpload::make_html( $u, $fb_upload, \%lj_headers )
-      if ref $fb_upload eq 'ARRAY';
-
-    # at this point, there are either no images in the message ($fb_upload == 1)
-    # or we had some error during upload that we may or may not want to retry
-    # from.  $fb_upload contains the http error code.
-    if (   $fb_upload == 400   # bad http request
-        || $fb_upload == 1401  # user has exceeded the fb quota
-        || $fb_upload == 1402  # user has exceeded the fb quota
-    ) {
-        # don't retry these errors, go ahead and post the body
-        # to the journal, postfixed with the remote error.
-        $body .= "\n";
-        $body .= "(Your picture was not posted: $fb_upload_errstr)";
-    }
-
-    # Fotobilder server error.  Retry.
-    return $err->( $fb_upload_errstr, { retry => 1 } ) if $fb_upload == 500;
+#     $fb_upload = upload_images(
+#         $entity, $u,
+#         \$fb_upload_errstr,
+#         {
+#             imgsec  => $post_headers{'imgsecurity'},
+#             galname => $post_headers{'gallery'} || $u->{'emailpost_gallery'}
+#         }
+#       ) || return $err->( $fb_upload_errstr, { retry => 1 } );
+# 
+#     # if we found and successfully uploaded some images...
+#     if (ref $fb_upload eq 'ARRAY') {
+#         my $fb_html = LJ::FBUpload::make_html( $u, $fb_upload, \%post_headers );
+#         ##
+#         ## A problem was here:
+#         ## $body is utf-8 text without utf-8 flag (see Unicode::MapUTF8::to_utf8),
+#         ## $fb_html is ASCII with utf-8 flag on (because uploaded image description
+#         ## is parsed by XML::Simple, see cgi-bin/fbupload.pl, line 153).
+#         ## When 2 strings are concatenated, $body is auto-converted (incorrectly)
+#         ## from Latin-1 to UTF-8.
+#         ##
+#         $fb_html = Encode::encode("utf8", $fb_html) if Encode::is_utf8($fb_html);
+#         $body .= $fb_html;
+#     }
+# 
+#     # at this point, there are either no images in the message ($fb_upload == 1)
+#     # or we had some error during upload that we may or may not want to retry
+#     # from.  $fb_upload contains the http error code.
+#     if (   $fb_upload == 400   # bad http request
+#         || $fb_upload == 1401  # user has exceeded the fb quota
+#         || $fb_upload == 1402  # user has exceeded the fb quota
+#     ) {
+#         # don't retry these errors, go ahead and post the body
+#         # to the journal, postfixed with the remote error.
+#         $body .= "\n";
+#         $body .= "(Your picture was not posted: $fb_upload_errstr)";
+#     }
+# 
+#     # Fotobilder server error.  Retry.
+#     return $err->( $fb_upload_errstr, { retry => 1 } ) if $fb_upload == 500;
 
     # build lj entry
     $req = {
-        'usejournal' => $journal,
-        'ver' => 1,
-        'username' => $user,
-        'event' => $body,
-        'subject' => $subject,
-        'security' => $lj_headers{security},
-        'allowmask' => $amask,
-        'props' => $props,
-        'tz'    => 'guess',
+        usejournal  => $journal,
+        ver         => 1,
+        username    => $user,
+        event       => $body,
+        subject     => $subject,
+        security    => $post_headers{security},
+        allowmask   => $amask,
+        props       => $props,
+        tz          => $zone,
+        year        => $year + 1900,
+        mon         => $month + 1,
+        day         => $day,
+        hour        => $hh,
+        min         => $mm,
     };
 
     # post!
@@ -558,8 +606,7 @@ sub get_entity
 sub check_sig {
     my ($u, $entity, $gpg_err) = @_;
 
-    LJ::load_user_props($u, 'public_key');
-    my $key = $u->{public_key};
+    my $key = LJ::isu( $u ) ? $u->prop( 'public_key' ) : undef;
     return 'no_key' unless $key;
 
     # Create work directory.
@@ -660,59 +707,59 @@ sub check_sig {
 # undef - failure during upload
 # http_code - failure during upload w/ code
 # hashref - { title => url } for each image uploaded
-sub upload_images
-{
-    my ($entity, $u, $rv, $opts) = @_;
-    return 1 unless LJ::get_cap($u, 'fb_can_upload') && $LJ::FB_SITEROOT;
-
-    my @imgs = get_entity($entity, 'image');
-    return 1 unless scalar @imgs;
-
-    my @images;
-    foreach my $img_entity (@imgs) {
-        my $img     = $img_entity->bodyhandle;
-        my $path    = $img->path;
-
-        my $result = LJ::FBUpload::do_upload(
-            $u, $rv,
-            {
-                path    => $path,
-                rawdata => \$img->as_string,
-                imgsec  => $opts->{'imgsec'},
-                galname => $opts->{'galname'},
-            }
-        );
-
-        # do upload() returned undef?  This is a posting error
-        # that should most likely be retried, due to something
-        # wrong on our side of things.
-        return if ! defined $result && $$rv;
-
-        # http error during upload attempt
-        # decide retry based on error type in caller
-        return $result unless ref $result;
-
-        # examine $result for errors
-        if ($result->{Error}->{code}) {
-            $$rv = $result->{Error}->{content};
-
-            # add 1000 to error code, so we can easily tell the
-            # difference between fb protocol error and
-            # http error when checking results.
-            return $result->{Error}->{code} + 1000;
-        }
-
-        push @images, {
-            url     => $result->{URL},
-            width   => $result->{Width},
-            height  => $result->{Height},
-            title   => $result->{Title},
-        };
-    }
-
-    return \@images if scalar @images;
-    return;
-}
+# sub upload_images
+# {
+#     my ($entity, $u, $rv, $opts) = @_;
+#     return 1 unless LJ::get_cap($u, 'fb_can_upload') && $LJ::FB_SITEROOT;
+# 
+#     my @imgs = get_entity($entity, 'image');
+#     return 1 unless scalar @imgs;
+# 
+#     my @images;
+#     foreach my $img_entity (@imgs) {
+#         my $img     = $img_entity->bodyhandle;
+#         my $path    = $img->path;
+# 
+#         my $result = LJ::FBUpload::do_upload(
+#             $u, $rv,
+#             {
+#                 path    => $path,
+#                 rawdata => \$img->as_string,
+#                 imgsec  => $opts->{'imgsec'},
+#                 galname => $opts->{'galname'},
+#             }
+#         );
+# 
+#         # do upload() returned undef?  This is a posting error
+#         # that should most likely be retried, due to something
+#         # wrong on our side of things.
+#         return if ! defined $result && $$rv;
+# 
+#         # http error during upload attempt
+#         # decide retry based on error type in caller
+#         return $result unless ref $result;
+# 
+#         # examine $result for errors
+#         if ($result->{Error}->{code}) {
+#             $$rv = $result->{Error}->{content};
+# 
+#             # add 1000 to error code, so we can easily tell the
+#             # difference between fb protocol error and
+#             # http error when checking results.
+#             return $result->{Error}->{code} + 1000;
+#         }
+# 
+#         push @images, {
+#             url     => $result->{URL},
+#             width   => $result->{Width},
+#             height  => $result->{Height},
+#             title   => $result->{Title},
+#         };
+#     }
+# 
+#     return \@images if scalar @images;
+#     return;
+# }
 
 sub dblog
 {

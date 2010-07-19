@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 nocache=>1
 _info?><?page
@@ -14,7 +28,7 @@ body<=
  my $mode = $FORM{'mode'} || "modify";
 
  unless ($remote) {
-     push @errors, BML::ml('.mustlogin', {login=>"href=\"/login.bml?ret=1\""});
+     push @errors, BML::ml('.mustlogin', {login=>"href=\"/login?ret=1\""});
  }
  if ($mode eq "save" && ! LJ::did_post) {
      push @errors, "<?requirepost?>";
@@ -28,7 +42,7 @@ body<=
  if ($mode eq "modify")
  {
      my $ret = "";
-     $ret .= "<form method='post' action='changenotify.bml'>\n";
+     $ret .= "<form method='post' action='changenotify'>\n";
      $ret .= "<input type='hidden' name='mode' value='save' />\n";
 
      $ret .= "<?h1 $ML{'.chagenotify.title'} h1?>";
@@ -102,7 +116,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/login.bml
-post: htdocs/support/changenotify.bml
-</LJDEP> _c?>
+page?>

@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Event::UserMessageRecvd;
 use strict;
 use Scalar::Util qw(blessed);
@@ -20,58 +33,62 @@ sub as_email_subject {
     my ($self, $u) = @_;
 
     my $other_u = $self->load_message->other_u;
+    my $lang    = $u->prop('browselang');
 
-    return sprintf "%s sent you a message", $other_u->display_username;
+    return LJ::Lang::get_text($lang, 'esn.email.pm.subject', undef,
+        {
+            sender => $self->load_message->other_u->display_username,
+        });
+}
+
+sub _as_email {
+    my ($self, $u, $is_html) = @_;
+
+    my $lang        = $u->prop('browselang');
+    my $msg         = $self->load_message;
+    my $replyurl    = "$LJ::SITEROOT/inbox/compose?mode=reply&msgid=" . $msg->msgid;
+    my $other_u     = $msg->other_u;
+    my $sender      = $other_u->user;
+    my $inbox       = "$LJ::SITEROOT/inbox/";
+    $inbox = "<a href=\"$inbox\">" . LJ::Lang::get_text($lang, 'esn.your_inbox') . "</a>" if $is_html;
+
+    my $vars = {
+        user            => $is_html ? ($u->ljuser_display) : ($u->user),
+        subject         => $is_html ? $msg->subject : $msg->subject_raw,
+        body            => $is_html ? $msg->body : $msg->body_raw,
+        sender          => $is_html ? ($other_u->ljuser_display) : ($other_u->user),
+        postername      => $other_u->display_name,
+        journal         => $other_u->display_name,
+        sitenameshort   => $LJ::SITENAMESHORT,
+        inbox           => $inbox,
+    };
+
+    my $body = LJ::Lang::get_text($lang, 'esn.email.pm_with_body', undef, $vars) .
+        $self->format_options($is_html, $lang, $vars,
+        {
+            'esn.reply_to_message' => [ 1, $replyurl ],
+            'esn.view_profile'     => [ 2, $other_u->profile_url ],
+            'esn.read_journal'     => [ $other_u->is_identity ? 0 : 3, $other_u->journal_base ],
+            'esn.add_watch'        => [ $u->watches( $other_u ) ? 0 : 4,
+                                             "$LJ::SITEROOT/manage/circle/add?user=$sender&action=subscribe" ],
+        }
+    );
+
+    if ($is_html) {
+        $body =~ s/\n/\n<br\/>/g unless $body =~ m!<br!i;
+    }
+
+    return $body;
 }
 
 sub as_email_string {
     my ($self, $u) = @_;
-
-    my $msg = $self->load_message;
-    my $other_u = $msg->other_u;
-    my $user = $u->user;
-    my $sender = $other_u->user;
-    my $subject = $msg->subject;
-
-    my $email = qq {Hi $user,
-
-$sender sent you a message on $LJ::SITENAMESHORT: $subject.
-
-Go to $LJ::SITEROOT/inbox/ to view your new messages.
-
-};
-    $email .= "Or you can:\n";
-    $email .= "  - View ${sender}'s profile\n    ". $other_u->profile_url ."\n";
-    $email .= "  - View ${sender}'s journal\n    ". $other_u->journal_base ."\n";
-    $email .= "  - Add ${sender} as a friend\n    $LJ::SITEROOT/friends/add.bml?user=$sender\n"
-        unless $u->is_friend($other_u);
-
-    return $email;
+    return _as_email($self, $u, 0);
 }
 
 sub as_email_html {
     my ($self, $u) = @_;
-
-    my $user = $u->ljuser_display;
-    my $other_u = $self->load_message->other_u;
-    my $sender = $other_u->ljuser_display;
-    my $username = $other_u->user;
-    my $subject = $self->load_message->subject;
-
-    my $email = qq {Hi $user,
-
-$sender sent you a message on $LJ::SITENAMESHORT: $subject.
-
-Go to <a href="$LJ::SITEROOT/inbox/">your Inbox</a> to view your new messages.
-
-};
-    $email .= "Or you can:\n";
-    $email .= "  - <a href='". $other_u->profile_url ."'>View ${username}'s profile</a>\n";
-    $email .= "  - <a href='". $other_u->journal_base ."'>View ${username}'s journal</a>\n";
-    $email .= "  - <a href='$LJ::SITEROOT/friends/add.bml?user=$username'>Add $username as friend</a>\n"
-        unless $u->is_friend($other_u);
-
-    return $email;
+    return _as_email($self, $u, 1);
 }
 
 sub load_message {
@@ -107,10 +124,11 @@ sub as_html_actions {
     my $u = LJ::want_user($msg->journalid);
 
     my $ret = "<div class='actions'>";
-    $ret .= " <a href='$LJ::SITEROOT/inbox/compose.bml?mode=reply&msgid=$msgid'>Reply</a>";
-    $ret .= " | <a href='$LJ::SITEROOT/friends/add.bml?user=". $msg->other_u->user ."'>Add as friend</a>"
-        unless $u->is_friend($msg->other_u);
-    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam.bml?msgid=". $msg->msgid ."'>Mark as Spam</a>";
+    $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Reply</a>";
+    $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add?user=". $msg->other_u->user ."&action=subscribe'>Add to reading list</a>"
+        unless $u->watches( $msg->other_u );
+    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Mark as Spam</a>"
+        unless LJ::sysban_check( 'spamreport', $u->user );
     $ret .= "</div>";
 
     return $ret;
@@ -126,24 +144,15 @@ sub as_string {
     return $ret;
 }
 
-sub as_sms {
-    my $self = shift;
-
-    my $subject = $self->load_message->subject;
-    my $other_u = $self->load_message->other_u;
-    return sprintf("You've received a new message \"%s\" from %s",
-                   $subject, $other_u->user);
-}
-
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-
     my $journal = $subscr->journal or croak "No user";
 
-    my $journal_is_owner = LJ::u_equals($journal, $subscr->owner);
-
-    my $user = $journal_is_owner ? "me" : $journal->ljuser_display;
-    return "Someone sends $user a message";
+    # "Someone sends $user a message"
+    # "Someone sends me a message"
+    return $journal->equals( $subscr->owner ) ?
+        BML::ml('event.user_message_recvd.me') :
+        BML::ml('event.user_message_recvd.user', { user => $journal->ljuser_display } );
 }
 
 sub content {
@@ -155,6 +164,17 @@ sub content {
     $body = LJ::html_newlines($body);
 
     return $body . $self->as_html_actions;
+}
+
+sub content_summary {
+    my $msg = $_[0]->load_message;
+    my $body = $msg->body;
+    my $body_summary = LJ::html_trim( $body, 300 );
+
+    my $ret = LJ::html_newlines( $body_summary );
+    $ret .= "..." if $body ne $body_summary;
+    $ret .= $_[0]->as_html_actions;
+    return $ret;
 }
 
 # override parent class sbuscriptions method to always return
@@ -200,21 +220,57 @@ sub display_pic {
     my ($msg, $u) = @_;
 
     my $pic;
-    if ($msg->userpic) {
+
+    # Get the userpic object
+    if ( $msg->userpic ) {
         $pic = LJ::Userpic->new_from_keyword($u, $msg->userpic);
     } else {
         $pic = $u->userpic;
     }
 
+    # Get the image URL and the alternative text. Don't set
+    # alternative text if there isn't any userpic.
+    my ( $userpic_src, $userpic_alt );
+    if ( $pic ) {
+        $userpic_src = $pic->url;
+        $userpic_alt = LJ::ehtml( $pic->alttext( $msg->userpic ) );
+    } else {
+        $userpic_src = "$LJ::IMGPREFIX/nouserpic.png";
+        $userpic_alt = "";
+    }
+
     my $ret;
-    $ret .= '<img src="';
-    $ret .= $pic ? $pic->url : "$LJ::STATPREFIX/horizon/nouserpic.png";
-    $ret .= '" width="50" align="top" />';
+    $ret .= '<img src="' . $userpic_src . '" alt="' .  $userpic_alt . '" width="50" align="top" />';
 
     return $ret;
 }
 
 # Event is always subscribed to
 sub always_checked { 1 }
+
+# return detailed data for XMLRPC::getinbox
+sub raw_info {
+    my ($self, $target) = @_;
+
+    my $res = $self->SUPER::raw_info;
+
+    my $msg = $self->load_message;
+
+    my $pic;
+    if ($msg->userpic) {
+        $pic = LJ::Userpic->new_from_keyword($msg->other_u, $msg->userpic);
+    } else {
+        $pic = $msg->other_u->userpic;
+    }
+
+    $res->{from} = $msg->other_u->user;
+    $res->{picture} = $pic->url if $pic;
+    $res->{subject} = $msg->subject;
+    $res->{body} = $msg->body;
+    $res->{msgid} = $msg->msgid;
+    $res->{parent} = $msg->parent_msgid if $msg->parent_msgid;
+
+    return $res;
+}
 
 1;

@@ -43,10 +43,9 @@ LiveJournal.initPage = function () {
     LiveJournal.pageLoaded = 1;
 
     // set up various handlers for every page
-    LiveJournal.initPlaceholders();
+    LiveJournal.initPagePlaceholders();
     LiveJournal.initLabels();
     LiveJournal.initInboxUpdate();
-    LiveJournal.initAds();
     LiveJournal.initPolls();
 
     // run other hooks
@@ -69,8 +68,9 @@ LiveJournal.initInboxUpdate = function () {
     if (! Site || ! Site.has_remote || ! Site.inbox_update_poll) return;
 
     // Don't run if no inbox count
-    var unread = $("LJ_Inbox_Unread_Count");
-    if (! unread) return;
+    var unread = $("Inbox_Unread_Count");
+    var unread_menu = $("Inbox_Unread_Count_Menu");
+    if (! unread && ! unread_menu) return;
 
     // Update every five minutes
     window.setInterval(LiveJournal.updateInbox, 1000 * 60 * 5);
@@ -97,15 +97,24 @@ LiveJournal.updateInbox = function () {
 LiveJournal.gotInboxUpdate = function (resp) {
     if (! resp || resp.error) return;
 
-    var unread = $("LJ_Inbox_Unread_Count");
-    if (! unread) return;
+    var unread = $("Inbox_Unread_Count");
+    var unread_menu = $("Inbox_Unread_Count_Menu");
+    if (! unread && ! unread_menu) return;
 
-    unread.innerHTML = resp.unread_count ? "  (" + resp.unread_count + ")" : "";
+    var unread_count = resp.unread_count? " (" + resp.unread_count + ")" : "";
+    if ( unread )
+        unread.innerHTML = unread_count;
+    if ( unread_menu )
+        unread_menu.innerHTML = unread_count;
 };
 
 // Search for placeholders and initialize them
-LiveJournal.initPlaceholders = function () {
-    var placeholders = DOM.getElementsByTagAndClassName(document, "img", "LJ_Placeholder") || [];
+LiveJournal.initPagePlaceholders = function () {
+  LiveJournal.initPlaceholders(document);
+}
+
+LiveJournal.initPlaceholders = function (srcElement) {
+    var placeholders = DOM.getElementsByTagAndClassName(srcElement, "img", "LJ_Placeholder") || [];
 
     Array.prototype.forEach.call(placeholders, function (placeholder) {
         var parent = DOM.getFirstAncestorByClassName(placeholder, "LJ_Placeholder_Container", false);
@@ -165,11 +174,6 @@ LiveJournal.labelClickHandler = function (evt) {
     return false;
 };
 
-// change drsc to src for ads
-LiveJournal.initAds = function () {
-    AdEngine.init();
-};
-
 // handy utilities to create elements with just text in them
 function _textSpan () { return _textElements("span", arguments); }
 function _textDiv  () { return _textElements("div", arguments);  }
@@ -185,8 +189,12 @@ function _textElements (eleType, txts) {
     return ele.length == 1 ? ele[0] : ele;
 };
 
+var PollPages = {
+    "hourglass": null
+};
+
 LiveJournal.initPolls = function () {
-    var pollLinks = DOM.getElementsByTagAndClassName(document, 'a', "LJ_PollAnswerLink") || [];  
+    var pollLinks = DOM.getElementsByTagAndClassName(document, 'a', "LJ_PollAnswerLink") || [];
 
     // attach click handlers to each answer link
     Array.prototype.forEach.call(pollLinks, function (pollLink) {
@@ -207,13 +215,18 @@ LiveJournal.pollAnswerLinkClicked = function (e) {
     var pollqid = this.getAttribute("lj_qid");
     if (! pollqid) return true;
 
+    var page     = this.getAttribute("lj_page");
+    var pagesize = this.getAttribute("lj_pagesize");
+
     var action = "get_answers";
 
     // Do ajax request to replace the link with the answers
     var params = {
-        "pollid" : pollid,
-        "pollqid": pollqid,
-        "action" : action
+        "pollid"   : pollid,
+        "pollqid"  : pollqid,
+        "page"     : page,
+        "pagesize" : pagesize,
+        "action"   : action
     };
 
     var opts = {
@@ -225,30 +238,62 @@ LiveJournal.pollAnswerLinkClicked = function (e) {
     };
 
     HTTPReq.getJSON(opts);
-    this.innerHTML = "<div class='lj_pollanswer_loading'>Loading...</div>";
+
+    if (!PollPages.hourglass) {
+        var coords = DOM.getAbsoluteCursorPosition(e);
+        PollPages.hourglass = new Hourglass();
+        PollPages.hourglass.init();
+        PollPages.hourglass.hourglass_at(coords.x, coords.y);
+        PollPages.e = e;
+    }
 
     return false;
 };
 
 LiveJournal.pollAnswersReceived = function (answers) {
     if (! answers) return false;
+
+    if (PollPages.hourglass) {
+        PollPages.hourglass.hide();
+        PollPages.hourglass = null;
+    }
+
     if (answers.error) return LiveJournal.ajaxError(answers.error);
 
     var pollid = answers.pollid;
     var pollqid = answers.pollqid;
     if (! pollid || ! pollqid) return false;
+    var page     = answers.page;
 
-    var linkEle = $("LJ_PollAnswerLink_" + pollid + "_" + pollqid);
-    if (! linkEle) return false;
+    var answerPagEle;
+    var answerEle;
+    if (page) {
+        answerPagEle = DOM.getElementsByTagAndClassName(document, 'div', "lj_pollanswer_paging")[0];
+        answerEle    = DOM.getElementsByTagAndClassName(document, 'div', "lj_pollanswer")[0];
+    } else {
+        var linkEle = $("LJ_PollAnswerLink_" + pollid + "_" + pollqid);
+        if (! linkEle) return false;
 
-    var answerEle = document.createElement("div");
-    DOM.addClassName(answerEle, "lj_pollanswer");
-    answerEle.innerHTML = answers.answer_html ? answers.answer_html : "(No answers)";
+        answerPagEle = document.createElement("div");
+        DOM.addClassName(answerPagEle, "lj_pollanswer_paging");
 
-    linkEle.parentNode.insertBefore(answerEle, linkEle);
-    linkEle.parentNode.removeChild(linkEle);
+        answerEle = document.createElement("div");
+        DOM.addClassName(answerEle, "lj_pollanswer");
+
+        linkEle.parentNode.insertBefore(answerEle,    linkEle);
+        linkEle.parentNode.insertBefore(answerPagEle, linkEle);
+
+        linkEle.parentNode.removeChild(linkEle);
+    }
+
+    answerPagEle.innerHTML  = answers.paging_html ? answers.paging_html : "";
+    answerEle.innerHTML     = answers.answer_html ? answers.answer_html : "(No answers)";
+
+    if (typeof ContextualPopup != "undefined")
+        ContextualPopup.setup();
+
+    LiveJournal.initPolls();
 };
-
 
 // gets a url for doing ajax requests
 LiveJournal.getAjaxUrl = function (action) {
@@ -283,25 +328,6 @@ LiveJournal.addClickHandlerToElementsWithClassName = function (callback, classNa
   items.forEach(function (item) {
     DOM.addEventListener(item, "click", callback);
   })
-};
-
-LiveJournal.insertAdsMulti = function (params) {
-  var i = 0;
-  var containers = [];
-
-  for (i = 0; i < params.length; i++) {
-    if (! params[i].html || params[i].html == "<ul>\n</ul>") continue;
-    AdEngine.insertAdResponse( params[i] );
-    containers.push(document.getElementById(params[i].id));
-  }
-
-    // add the ad box style to the containers
-    containers.forEach(function (container) {
-      if (! container) return;
-
-      DOM.addClassName(container.parentNode, "lj_content_ad");
-      DOM.removeClassName(container.parentNode, "lj_inactive_ad");
-    });
 };
 
 // given a URL, parse out the GET args and return them in a hash

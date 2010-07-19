@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
  use strict;
@@ -6,7 +20,7 @@
  $title = $ML{'.defaulttitle'};
  $body = $ML{'.defaultbody'};
 
- # S2 Redirector
+ # S2 monthview Redirector
  if ($POST{'redir_type'} eq "monthview") {
      my $user = LJ::canonical_username($POST{'redir_user'});
      my $vhost;
@@ -20,6 +34,20 @@
      return BML::redirect("$base/$year/$month/");
  }
 
+ # comment thread root redirector
+ my $talkid = $GET{talkid}+0;
+ if ( $GET{redir_type} eq "threadroot" && $talkid ) {
+    my $journal = $GET{journal};
+    my $u = LJ::load_user( $journal );
+    return unless $u;
+
+    my $comment = LJ::Comment->new( $u, dtalkid => $talkid );
+    return unless $comment;
+
+    my $threadroot = LJ::Comment->new( $u, jtalkid => $comment->threadrootid );
+    return BML::redirect(  $threadroot->url( LJ::viewing_style_args( %GET ) ) );
+ }
+  
  # prev/next talkread links
  my $itemid = $GET{'itemid'}+0;
  if ($GET{'journal'} && $itemid) 
@@ -41,14 +69,16 @@
      
      if ($GET{'dir'} eq "next") {
          $jumpid = LJ::get_itemid_after2($u, $itemid);
-         $body = $ML{'.error.noentry.next'};
+         $body = "<p>$ML{'.error.noentry.next'}</p>";
      } elsif ($GET{'dir'} eq "prev") {
          $jumpid = LJ::get_itemid_before2($u, $itemid);
-         $body = $ML{'.error.noentry.prev'};
+         $body = "<p>$ML{'.error.noentry.prev'}</p>";
      }
 
-     if ($jumpid) {
-         return BML::redirect(LJ::journal_base($u) . "/$jumpid.html");
+    $body .= "<p>" . BML::ml( '.link.to.journal', { journal => $u->ljuser_display } ) . "</p>";
+
+     if ( $jumpid ) {
+         return BML::redirect( $u->journal_base . "/$jumpid.html" );
      }
  }
 

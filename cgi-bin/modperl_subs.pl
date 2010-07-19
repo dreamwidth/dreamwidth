@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 # to be require'd by modperl.pl
 
@@ -8,6 +21,12 @@ use strict;
 package LJ;
 
 use Apache2::ServerUtil ();
+
+use LJ::Config;
+
+BEGIN {
+    LJ::Config->load;
+}
 
 use Apache::LiveJournal;
 use Apache::BML;
@@ -22,28 +41,28 @@ use Time::HiRes ();
 use Image::Size ();
 use POSIX ();
 
-use LJ::Portal ();
+use LJ::Hooks;
 use LJ::Blob;
 use LJ::Captcha;
 use LJ::Faq;
+use DW::BusinessRules::InviteCodes;
+use DW::BusinessRules::InviteCodeRequests;
 
-use Class::Autouse qw(
-                      DateTime
-                      DateTime::TimeZone
-                      LJ::CProd
-                      LJ::OpenID
-                      LJ::Location
-                      LJ::SpellCheck
-                      LJ::TextMessage
-                      LJ::ModuleCheck
-                      LJ::Widget
-                      MogileFS::Client
-                      DDLockClient
-                      LJ::BetaFeatures
-                      LJ::Config
-                      );
+use DateTime;
+use DateTime::TimeZone;
+use LJ::CProd;
+use LJ::OpenID;
+use LJ::Location;
+use LJ::SpellCheck;
+use LJ::TextMessage;
+use LJ::ModuleCheck;
+use LJ::Widget;
+use MogileFS::Client;
+use DDLockClient;
+use LJ::BetaFeatures;
+use DW::InviteCodes;
+use DW::InviteCodeRequests;
 
-LJ::Config->load;
 
 # force XML::Atom::* to be brought in (if we have it, it's optional),
 # unless we're in a test.
@@ -51,42 +70,34 @@ BEGIN {
     LJ::ModuleCheck->have_xmlatom unless LJ::is_from_test();
 }
 
-# in web context, Class::Autouse will load this, which loads MapUTF8.
+# this loads MapUTF8.
 # otherwise, we'll rely on the AUTOLOAD in ljlib.pl to load MapUTF8
-use Class::Autouse qw(LJ::ConvUTF8);
+use LJ::ConvUTF8;
 
-# other things we generally want to load in web context, but don't need
-# in testing context:  (not autoloaded normal ways)
-use Class::Autouse qw(
-                      MIME::Words
-                      );
+use MIME::Words;
 
 # Try to load DBI::Profile
 BEGIN { $LJ::HAVE_DBI_PROFILE = eval "use DBI::Profile (); 1;" }
 
-require "ljlang.pl";
+use LJ::Lang;
+use LJ::Links;
+use LJ::Syn;
 require "htmlcontrols.pl";
 require "weblib.pl";
 require "imageconf.pl";
 require "propparse.pl";
-require "supportlib.pl";
-require "supportstatslib.pl";
-require "cleanhtml.pl";
-require "talklib.pl";
-require "ljtodo.pl";
+use LJ::Support;
+use LJ::CleanHTML;
+use LJ::Talk;
 require "ljfeed.pl";
-require "ljlinks.pl";
 require "emailcheck.pl";
 require "ljmemories.pl";
 require "ljmail.pl";
 require "sysban.pl";
-require "synlib.pl";
 require "communitylib.pl";
-require "taglib.pl";
-require "schoollib.pl";
-require "accountcodes.pl";
+use LJ::Tags;
 require "ljemailgateway-web.pl";
-require "customizelib.pl";
+use LJ::Customize;
 
 # preload site-local libraries, if present:
 require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"
@@ -95,7 +106,7 @@ require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"
 # defer loading of hooks, better that in the future, the hook loader
 # will be smarter and only load in the *.pm files it needs to fulfill
 # the hooks to be run
-LJ::load_hooks_dir() unless LJ::is_from_test();
+LJ::Hooks::_load_hooks_dir() unless LJ::is_from_test();
 
 $LJ::IMGPREFIX_BAK = $LJ::IMGPREFIX;
 $LJ::STATPREFIX_BAK = $LJ::STATPREFIX;
@@ -115,7 +126,6 @@ sub setup_start {
         }
         DBI->install_driver("mysql");
         LJ::CleanHTML::helper_preload();
-        LJ::Portal->load_portal_boxes;
     }
 
     # set this before we fork
@@ -135,7 +145,7 @@ sub setup_restart {
     LJ::ModPerl::add_httpd_config(q{
 
 # User-friendly error messages
-ErrorDocument 404 /404-error.html
+ErrorDocument 404 /404-error.bml
 ErrorDocument 500 /500-error.html
 
 # This interferes with LJ's /~user URI, depending on the module order
@@ -155,9 +165,9 @@ DirectoryIndex index.html index.bml
 });
 
     # setup child init handler to seed random using a good entropy source
-    Apache2::ServerUtil->server->push_handlers(PerlChildInitHandler => sub {
+    eval { Apache2::ServerUtil->server->push_handlers(PerlChildInitHandler => sub {
         srand(LJ::urandom_int());
-    });
+    }); };
 
     if ($LJ::BML_DENY_CONFIG) {
         LJ::ModPerl::add_httpd_config("PerlSetVar BML_denyconfig \"$LJ::BML_DENY_CONFIG\"\n");
@@ -176,7 +186,7 @@ DirectoryIndex index.html index.bml
 });
     }
 
-    unless ($LJ::DISABLED{ignore_htaccess}) {
+    if ( LJ::is_enabled('ignore_htaccess') ) {
         LJ::ModPerl::add_httpd_config(qq{
 
 <Directory />
@@ -192,7 +202,7 @@ DirectoryIndex index.html index.bml
 
 sub add_httpd_config {
     my $text = shift;
-    Apache2::ServerUtil->server->add_config( [ split /\n/, $text ] );
+    eval { Apache2::ServerUtil->server->add_config( [ split /\n/, $text ] ); };
 }
 
 setup_start();

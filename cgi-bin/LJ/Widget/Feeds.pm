@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::Feeds;
 
 use strict;
@@ -10,12 +23,12 @@ sub render_body {
     my $class = shift;
     my %opts = @_;
 
+    my $r = DW::Request->get;
     my $remote = LJ::get_remote();
     my $get = $class->get_args;
-    my $cart = $get->{'cart'} || $BML::COOKIE{cart};
     my $body;
     $body .= "<h2 class='solid-neutral'>" . $class->ml('widget.feeds.title') . "</h2>";
-    $body .= "<a href='$LJ::SITEROOT/syn/list.bml' class='more-link'>" .
+    $body .= "<a href='$LJ::SITEROOT/feeds/list' class='more-link'>" .
              $class->ml('widget.feeds.viewall') . "</a>";
 
     # get user IDs of most popular feeds
@@ -41,7 +54,7 @@ sub render_body {
 
     # Form to add or find feeds
     if ($remote) {
-        $body .= "<form method='post' action='$LJ::SITEROOT/syn/'>";
+        $body .= "<form method='post' action='$LJ::SITEROOT/feeds/'>";
         $body .= LJ::html_hidden('userid', $remote->userid);
         $body .= "<b>" . $class->ml('widget.feeds.find') . "</b> ";
         my $prompt = $class->ml('widget.feeds.enterRSS');

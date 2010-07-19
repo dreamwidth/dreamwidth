@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*- mode: bml -*-
 {
     use strict;
@@ -13,14 +27,11 @@
     my $sessid = $POST{'sessid'} || $GET{'sessid'};
     my $nojs = $GET{'nojs'};
 
-    # can't do challenge/response with LDAP.
-    $nojs = 1 if $LJ::LDAP_HOST;
-
     my $logged_out_html = sub {
         my $username = $u ? $u->display_username : $user;
         my $old_remote = LJ::load_user($username);
         return BML::redirect("$LJ::SITEROOT/") unless $old_remote;
-        my $html = LJ::run_hook("logout_page_html", $old_remote, get_ret => $GET{ret}, post_ret => $POST{ret}, nojs => $nojs);
+        my $html = LJ::Hooks::run_hook("logout_page_html", $old_remote, get_ret => $GET{ret}, post_ret => $POST{ret}, nojs => $nojs);
 
         if ($html) {
             $title = $ML{'.title.loggedout'};
@@ -39,7 +50,8 @@
             return;
         }
 
-        my $cursess = $u->session if $u;
+        my $cursess;
+        $cursess = $u->session if $u;
 
         if ($cursess &&
             $user eq $u->{'user'} &&
@@ -48,18 +60,17 @@
             $u->logout;
 
             # Redirect within the site if ret=1
-            my $referer = BML::get_client_header('Referer');
-            if ($GET{'ret'} == 1 && $referer && $referer =~ /\Q$LJ::DOMAIN\E/) {
+            if ( $GET{'ret'} == 1 && LJ::check_referer() ) {
                 my $uniq = DW::Request->get->note('uniq');
-                if ($uniq) {
-                    LJ::MemCache::set("loginout:$uniq", 1, time() + 15);
-                }
-                return BML::redirect("$referer");
+                LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
+                my $referer = BML::get_client_header( 'Referer' );
+                return BML::redirect( $referer || "$LJ::SITEROOT/" );
             }
 
             # Redirect to offsite uri if allowed.
             if ($POST{'ret'}) {
-                my $redir_host = $1 if $POST{'ret'} =~ m#^http://([\.:\w-]+)#i;
+                my $redir_host;
+                $redir_host = $1 if $POST{'ret'} =~ m#^http://([\.:\w-]+)#i;
                 return BML::redirect($POST{'ret'}) if $LJ::REDIRECT_ALLOWED{$redir_host};
             }
 
@@ -70,7 +81,7 @@
             {
                 return BML::redirect($POST{ret_fail} . LJ::eurl('incorrect_sessid'));
             }
-            $body .= "<form action='logout.bml' method='post'>";
+            $body .= "<form action='logout' method='post'>";
             $body .= LJ::html_hidden('ret', $GET{'ret'}) if $GET{'ret'};
             $body .= LJ::html_hidden("user", $u->{'user'},
                                      "sessid", $u->{'_session'}->{'sessid'});
@@ -90,7 +101,7 @@
                                                      "userid=$u->{'userid'} AND timeexpire > UNIX_TIMESTAMP() ".
                                                      "AND sessid <> $curid");
             if (@$sessions) {
-                $body .= "<form method='post' action='logout.bml'>";
+                $body .= "<form method='post' action='logout'>";
                 $body .= LJ::html_hidden("action:killall", '1');
                 $body .= "<?h1 $ML{'.killall.head'} h1?><?p $ML{'.killall.text'} ";
                 $body .= "<blockquote><input type='submit' value='$ML{'.killall.btn'}'></blockquote> p?></form>";

@@ -1,16 +1,24 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
-title=>Statistics
 body<=
-
-<?h1 <?sitename?> Statistics h1?>
-<?p
-The following statistics may be interesting for some of you.  Note that for speed, most of this page is only updated every 24 hours.  However, certain parts are live.  Raw data can be picked up <a href="stats/stats.txt">here</a>.
-p?>
-<?hr?>
 
 <?_code
 
  use strict;
+ use vars qw/ $title /;
 
  LJ::set_active_crumb('stats');
 
@@ -19,6 +27,8 @@ p?>
 
  my $now = time();
  my %stat = ();
+ $title = BML::ml( '.title', { sitenameshort => $LJ::SITENAMESHORT } );
+ 
 
  $sth = $dbr->prepare("SELECT statcat, statkey, statval FROM stats WHERE statcat IN ('userinfo', 'client', 'age', 'gender', 'account', 'size')");
  $sth->execute;
@@ -51,55 +61,63 @@ p?>
  my $active = $stat{'size'}->{'accounts_active_30'}+0;
 
  my $ret = "";
- $ret .= "<?h1 Users h1?>\n";
- $ret .= "<?p How many users, and how many of those are active? p?> <ul>";
- $ret .= "<li><b>Total accounts: </b> $total</li>\n";
- $ret .= "<li><b>... active in some way: </b> $active</li>\n" if $active;
- $ret .= "<li><b>... that have ever updated: </b> $usedever</li>\n";
- $ret .= "<li><b>... updating in last 30 days: </b> $used30</li>\n";
- $ret .= "<li><b>... updating in last 7 days: </b> $used7</li>\n";
- $ret .= "<li><b>... updating in past 24 hours: </b> $usedlastday</li>\n";
+$ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } ) . "</p>";
+ $ret .= "<h1>$ML{'.users.header'}</h1>";
+ $ret .= "<p>$ML{'.users.desc'}</p>";
+ $ret .= "<li><b>$ML{'.users.total'} </b> $total</li>\n";
+ $ret .= "<li><b>$ML{'.users.total.active'} </b> $active</li>\n" if $active;
+ $ret .= "<li><b>$ML{'.users.total.everupdate'} </b> $usedever</li>\n";
+ $ret .= "<li><b>$ML{'.users.total.last30'} </b> $used30</li>\n";
+ $ret .= "<li><b>$ML{'.users.total.last7'} </b> $used7</li>\n";
+ $ret .= "<li><b>$ML{'.users.total.last24'} </b> $usedlastday</li>\n";
  $ret .= "</ul> \n";
 
- $ret .= "<?h1 Gender h1?>\n";
- $ret .= "<?p Who is more likely to maintain a journal? p?><ul>";
+ $ret .= "<h1>$ML{'.gender.header'}</h1>";
+ $ret .= "<p>$ML{'.gender.desc'}</p><ul>";
  {
-     my $male = $stat{'gender'}->{'M'}+0;
-     my $female = $stat{'gender'}->{'F'}+0;
-     my $other = $stat{'gender'}->{'O'}+0;
-     my $tot = $male+$female+$other;
-     $tot ||= 1;
-     $ret .= "<li><b>Female: </b> $female (" . sprintf("%0.1f", $female*100/($tot||1)) . "%)</li>";
-     $ret .= "<li><b>Male: </b> $male (" . sprintf("%0.1f", $male*100/($tot||1)) . "%)</li>";
-     $ret .= "<li><b>Other: </b> $other (" . sprintf("%0.1f", $other*100/($tot||1)) . "%)</li>";
- }
- $ret .= "<li><b>Unspecified: </b> " . ($stat{'gender'}->{'U'}+0) . "</li>";
- $ret .= "</ul>\n";
+     my $male   = $stat{ gender }->{ M } + 0;
+     my $female = $stat{ gender }->{ F } + 0;
+     my $other  = $stat{ gender }->{ O } + 0;
+     my $unspec = $stat{ gender }->{ U } + 0;
 
- LJ::run_hook('statspage', {
+     my $tot = ($male + $female + $other + $unspec) || 1;
+
+     my $fpc = sprintf( "%0.1f", $female * 100 / $tot );
+     my $mpc = sprintf( "%0.1f", $male   * 100 / $tot );
+     my $opc = sprintf( "%0.1f", $other  * 100 / $tot );
+     my $upc = sprintf( "%0.1f", $unspec * 100 / $tot );
+
+     $ret .= "<li><b>$ML{'.gender.female'} </b> $female ($fpc%)</li>";
+     $ret .= "<li><b>$ML{'.gender.male'} </b> $male ($mpc%)</li>";
+     $ret .= "<li><b>$ML{'.gender.other'} </b> $other ($opc%)</li>";
+     $ret .= "<li><b>$ML{'.gender.unspecified'} </b> $unspec ($upc%)</li>";
+ }
+     $ret .= "</ul>\n";
+
+ LJ::Hooks::run_hook('statspage', {
      stat => \%stat,
      ret => \$ret,
  });
 
- unless ($LJ::DISABLED{'stats-recentupdates'}) 
+ if ( LJ::is_enabled('stats-recentupdates') ) 
  { 
-     $ret .= "<?h1 Recent Updates h1?>\n";
-     $ret .= "<?p The following are the 10 most recently updated journals: p?><ul>";
-     $sth = $dbr->prepare("SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) ORDER BY uu.timeupdate DESC LIMIT 10");
+     $ret .= "<h1>$ML{'.recent.header'}</h1>";
+     $ret .= "<p>$ML{'.recent.desc'}</p><ul>";
+     $sth = $dbr->prepare( "SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) AND u.journaltype <> 'Y' ORDER BY uu.timeupdate DESC LIMIT 10" );
      $sth->execute;
      my $ct;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
          $ret .= "<li><a href='/users/$iuser/'><?_eh $iname _eh?></a>, $itime</li>\n";
          $ct++;
      }
-     $ret .= "<li><i>stat not available</i></li>" unless $ct;
+     $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
      $ret .= "</ul> \n";
  }
 
- unless ($LJ::DISABLED{'stats-newjournals'}) 
+ if ( LJ::is_enabled('stats-newjournals') ) 
  {
-     $ret .= "<?h1 New Journals h1?>\n";
-     $ret .= "<?p The following are the 10 most recently created journals.  It's very likely these users haven't modified their journals much, and probably haven't written much in them yet either... p?><ul>";
+     $ret .= "<h1>$ML{'.new.header'}</h1>";
+     $ret .= "<p>$ML{'.new.desc'}</p><ul>";
      $sth = $dbr->prepare("SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL ORDER BY uu.timecreate DESC LIMIT 10");
      $sth->execute;
      my $ct;
@@ -107,13 +125,13 @@ p?>
          $ret .= "<li><a href='/users/$iuser/'><?_eh $iname _eh?></a>, $itime</li>\n";
          $ct++;
      }
-     $ret .= "<li><i>stat not available</i></li>" unless $ct;
+     $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
      $ret .= "</ul>\n";
  }
 
- $ret .= "<?h1 Demographics h1?>\n";
+     $ret .= "<h1>$ML{'.demographics.header'}</h1>";
  {
-     $ret .= "<?p The following are the 15 most popular countries $LJ::SITENAMESHORT is used in: p?><ul>";
+     $ret .= "<p>$ML{'.demographics.desc.countries'}</p><ul>";
      my $ct;
      foreach my $key (sort { $stat{'country'}->{$b} <=> $stat{'country'}->{$a} }
                       keys %{$stat{'country'}})
@@ -121,45 +139,47 @@ p?>
          $ret .= "<li><b>$key</b> - $stat{'country'}->{$key}</li>\n";
          $ct++;
      }
-     $ret .= "<li><i>stat not available</i></li>" unless $ct;
+     $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
      $ret .= "</ul>\n";
  }
 
  {
-     $ret .= "The following are the 15 most popular U.S. states $LJ::SITENAMESHORT is used in: <ul>";
+     $ret .= "<p>$ML{'.demographics.desc.states'}</p><ul>";
      my $ct;
      foreach my $key (sort { $stat{'state'}->{$b} <=> $stat{'state'}->{$a} } keys %{$stat{'state'}})
      {
          $ret .= "<li><b>$key</b> - $stat{'state'}->{$key}</li>\n";
          $ct++;
      }
-     $ret .= "<li><i>stat not available</i></li>" unless $ct;
+     $ret .= "<li><i>$ML{'.notavailable'}</i></li>" unless $ct;
      $ret .= "</ul> \n";
  }
 
  # ages
  my %age = ();
  my $maxage = 1;
+ my $lowage = 13;
+ my $highage = 119;  # given db floor of 1890 (as of 2009)
  foreach my $key (keys %{$stat{'age'}}) {
      $age{$key} = $stat{'age'}->{$key};
-     if ($stat{'age'}->{$key} > $maxage) { $maxage = $stat{'age'}->{$key}; }
+     $maxage = $age{$key} if $age{$key} > $maxage;
  }
- my @ages = grep { $_ >= 13  && $_ <= 55 } sort { $a <=> $b } sort keys %age;
+ my @ages = grep { $_ >= $lowage  && $_ <= $highage } sort { $a <=> $b } keys %age;
  if (@ages) {
-     $ret .= "<?h1 Age Distribution h1?><?p The following shows the age distribution " .
-             "of $LJ::SITENAMESHORT users: p?>\n";
+     $ret .= "<h1>$ML{'.age.header'}</h1>";
+     $ret .= "<p>$ML{'.age.desc'}</p>";
      $ret .= "<table>\n";
      my $lastage = 0;
      foreach my $age (@ages) {
          my $width = int(400 * $age{$age}/$maxage);
-         $ret .= "<tr><td align='right'><b>$age</b></td><td>$age{$age}</td><td><img src=\"/img/bluedot.gif\" height='10' width='$width' /></td></tr>\n";
+         $ret .= "<tr><td align='right'><b>$age&nbsp;</b></td><td>$age{$age}&nbsp;</td><td><img src=\"/img/bluedot.gif\" height='10' width='$width' /></td></tr>\n";
          $lastage = $_;
      }
      $ret .= "</table>\n";
  }
 
  # clients (if enabled)
- unless ($LJ::DISABLED{'clientversionlog'}) {
+ if ( LJ::is_enabled('clientversionlog') ) {
 
      ### sum up clients over different versions
      foreach my $c (keys %{$stat{'client'}}) {
@@ -180,13 +200,14 @@ p?>
              $c =~ s/^\Q$cn\E\///;
              $out .= LJ::ehtml($c) . " ($count), ";
          }
-         chop $ret; chop $ret;  # remove trailing ", "
+         chop $out; chop $out;  # remove trailing ", "
          $out .= "</font>\n";
          $out .= "</td></tr>\n";
      }
 
      if ($out) {
-         $ret .= "<?h1 Client Usage h1?><?p How people update their journals (over the last 30 days): p?>\n";
+         $ret .= "<h1>$ML{'.client.header'}</h1>";
+         $ret .= "<p>$ML{'.client.desc'}</p>";
          $ret .= "<table cellpadding='3'>\n";
          $ret .= $out;
          $ret .= "</table>\n";
@@ -201,12 +222,6 @@ p?>
  ### graphs!
  $ret .= "<?h1 Pretty Graphs! h1?><?p These are the most fun, aren't they? p?>";
  
- $ret .= "<?h2 Journal entries -- last 60 days h2?><?p How often do people post over the last 60 days? p?>";
- $ret .= "<p align='center'><img src=\"stats/postsbyday.png\" width='520' height='350' /></p>";
-
- $ret .= "<?h2 Journal entries -- by week, ever h2?><?p What's the week-to-week trend? p?>";
- $ret .= "<p align='center'><img src=\"stats/postsbyweek.png\" width='520' height='350' /></p>";
-
  $ret .= "<?h2 New accounts -- last 60 days h2?><?p How fast are we growing? p?>";
  $ret .= "<p align='center'><img src=\"stats/newbyday.png\" width='520' height='350' /></p>";
 
@@ -215,7 +230,5 @@ p?>
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/stats/, htdocs/support/faqbrowse.bml
-img: htdocs/img/bluedot.gif, htdocs/stats/postsbyday.png, htdocs/stats/postsbyweek.png, htdocs/stats/newbyday.png
-</LJDEP> _c?>
+title=><?_code return $title; _code?>
+page?>

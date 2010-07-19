@@ -5,7 +5,6 @@ Customize.init = function () {
     Customize.layoutid = 0;
     Customize.designer = "";
     Customize.search = "";
-    Customize.filter_available = 0;
     Customize.page = 1;
     Customize.show = 12;
     Customize.hourglass = null;
@@ -26,10 +25,6 @@ Customize.init = function () {
 
     if (pageGetArgs["search"]) {
         Customize.search = pageGetArgs["search"];
-    }
-
-    if (pageGetArgs["filter_available"]) {
-        Customize.filter_available = pageGetArgs["filter_available"];
     }
 
     if (pageGetArgs["page"]) {

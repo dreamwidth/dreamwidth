@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 package LJ::S2;
@@ -28,7 +41,7 @@ sub YearPage
     my $maxyear = @years ? $years[-1] : undef;
     my $year = $get->{'year'};  # old form was /users/<user>/calendar?year=1999
 
-    # but the new form is purtier:  */calendar/2001
+    # but the new form is purtier:  */archive/2001
     if (! $year && $opts->{'pathextra'} =~ m!^/(\d\d\d\d)/?\b!) {
         $year = $1;
     }
@@ -38,9 +51,18 @@ sub YearPage
 
     $p->{'year'} = $year;
     $p->{'years'} = [];
-    foreach (@years) {
-        push @{$p->{'years'}}, YearYear($_, "$p->{'base_url'}/$_/", $_ == $p->{'year'});
+
+    my $displayed_index;
+    for my $i ( 0..$#years ) {
+        my $year = $years[$i];
+        push @{$p->{'years'}}, YearYear($year, "$p->{'base_url'}/$year/", $year == $p->{'year'});
+        $displayed_index = $i if $year == $p->{year};
     }
+
+    $p->{head_content} .= qq{<link rel="prev" href="$p->{years}->[$displayed_index-1]->{url}" />\n} 
+        if $displayed_index > 0;
+    $p->{head_content} .= qq{<link rel="next" href="$p->{years}->[$displayed_index+1]->{url}" />\n} 
+        if $displayed_index < $#years; 
 
     $p->{'months'} = [];
 

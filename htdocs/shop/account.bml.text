@@ -1,0 +1,31 @@
+;; -*- coding: utf-8 -*-
+
+.backlink=Back to [[sitename]] Shop
+
+.btn.addtocart=Add to Order
+
+.error.invalidself=You must be logged in as a personal account in order to purchase paid time for yourself.
+
+.error.invalidself.perm=You cannot purchase any paid time for yourself because you have a Seed Account.
+
+.error.noselection=You must select an item to add to your cart.
+
+.giftfor.anonymous=Anonymous gift?
+
+.giftfor.deliverydate=Delivery date:
+
+.giftfor.email=Email address to receive the account creation code for this account:
+
+.giftfor.username=Username to receive this account:
+
+.giftfor.username.random=Random active free user
+
+.intro.gift=Please choose the type of paid account that you'd like to purchase for an existing account.
+
+.intro.new=Please choose the type of paid account that you'd like to purchase for a new account.
+
+.intro.random=Please choose the type of paid account that you'd like to purchase for a random active free account.
+
+.intro.self=Please choose the type of paid account that you'd like to purchase for your account [[user]].
+
+.title=Buy a Paid Account

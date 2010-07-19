@@ -21,8 +21,6 @@
         'checkfriends_interval' => 60,
         'checkfriends' => 1,
         'styles' => 0,
-        'todomax' => 25,
-        'todosec' => 0,
         'friendsviewupdate' => 30,
         'findsim' => 1,
         'getselfemail' => 0,

@@ -1,6 +1,20 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::InboxFolderNav;
 
 use strict;
+use vars qw(%GET %POST);
 use base qw(LJ::Widget);
 use Carp qw(croak);
 
@@ -17,6 +31,7 @@ sub need_res {
 sub render_body {
     my $class = shift;
     my %opts = @_;
+    my @errors;
 
     my $body;
 
@@ -26,36 +41,62 @@ sub render_body {
                       : " <span class='unread_count'></span>";
     };
 
-    my $remote = LJ::get_remote();
+    my $subfolder_link = sub {
+        my $link_view = shift;
+        my $link_label = shift;
+        my $class = shift || "";
+        my $unread = shift || "";
+        my $img = shift || 0;
+
+        $class .= " active" if $opts{view} eq $link_view;
+
+        my $link = qq{<a href=".?view=$link_view" class="$class" id="esn_folder_$link_view">};
+        $link .= BML::ml( $link_label );
+        $link .= " $img" if $img;
+        $link .= $unread if $unread;
+        $link .= qq{</a>\n};
+        return $link;
+    };
+
+    my $remote = LJ::get_remote()
+        or return "<?needlogin?>";
+
     my $inbox = $remote->notification_inbox
-        or die "Could not retrieve inbox for user $remote->{user}";
+        or return LJ::error_list( BML::ml('inbox.error.couldnt_retrieve_inbox', { 'user' => $remote->{user} }) );
 
     # print number of new alerts
-    my $unread_count = $inbox->unread_count;
-    my $alert_plural = $unread_count == 1 ? 'message' : 'messages';
+    my $unread_count = $inbox->all_event_count;
+    my $alert_plural = $unread_count == 1 ? 'inbox.message' : 'inbox.messages';
     $alert_plural .= $unread_count ? '!' : '.';
-    my $unread_all = $unread_html->($unread_count);
-    my $unread_usermsg_recvd = $unread_html->($inbox->usermsg_recvd_event_count);
-    my $unread_friend = $unread_html->($inbox->friendplus_event_count);
-    my $unread_entrycomment = $unread_html->($inbox->entrycomment_event_count);
     my $message_button = "";
     $message_button = qq{
-        <form action="$LJ::SITEROOT/inbox/compose.bml" method="GET">
-        <input type="submit" value="New Message" style="width: 100%">
-        </form>} unless $LJ::DISABLED{user_messaging};
+        <form action="./compose" method="GET">
+        <input type="submit" value="<?_ml inbox.menu.new_message.btn _ml?>" style="width: 100%">
+        </form>} if LJ::is_enabled('user_messaging');
+
 
     $body .= qq{
             $message_button
             <div class="folders"><p>
-            <a href="$LJ::SITEROOT/inbox/" id="esn_folder_all">All$unread_all</a>};
-    $body .= qq{<a href="$LJ::SITEROOT/inbox/?view=usermsg_recvd" id="esn_folder_usermsg_recvd">Messages$unread_usermsg_recvd</a>} unless $LJ::DISABLED{user_messaging};
-    $body .= qq{<a href="$LJ::SITEROOT/inbox/?view=friendplus" id="esn_folder_friendplus">Friend Updates$unread_friend</a>
-              <a href="$LJ::SITEROOT/inbox/?view=birthday" class="subs" id="esn_folder_birthday">Birthdays</a>
-              <a href="$LJ::SITEROOT/inbox/?view=befriended" class="subs" id="esn_folder_befriended">New Friends</a><a href=".?view=entrycomment" id="esn_folder_entrycomment">Entries &amp; Comments$unread_entrycomment</a>
-            ---
-            <a href="$LJ::SITEROOT/inbox/?view=bookmark" id="esn_folder_bookmark">Flagged <img src="$LJ::IMGPREFIX/flag_on.gif" width="12" height="14" border="0" /></a>};
-    $body .= qq{<a href="$LJ::SITEROOT/inbox/?view=usermsg_sent" id="esn_folder_usermsg_sent">Sent</a>\n} unless $LJ::DISABLED{user_messaging};
-    $body .= qq{<a href="$LJ::SITEROOT/inbox/?view=archived" id="esn_folder_archived">Archive</a>\n} unless $LJ::DISABLED{esn_archive};
+    };
+
+    my $unread_all_html = $unread_html->( $unread_count );
+    $body .= '<a href="." id="esn_folder_all"';
+    $body .= ' class="active"' unless $opts{view};
+    $body .= "><?_ml inbox.menu.all _ml?>$unread_all_html</a>";
+    $body .= $subfolder_link->( "usermsg_recvd", "inbox.menu.messages", "subs", 
+        $unread_html->( $inbox->usermsg_recvd_event_count ) ) if LJ::is_enabled( 'user_messaging' );
+    $body .= $subfolder_link->( "circle", "inbox.menu.circle_updates", "subs", $unread_html->( $inbox->circle_event_count ) );
+    $body .= $subfolder_link->( "birthday", "inbox.menu.birthdays", "subsubs" );
+    $body .= $subfolder_link->( "encircled", "inbox.menu.encircled", "subsubs" );
+    $body .= $subfolder_link->( "entrycomment", "inbox.menu.entries_and_comments", "subs", $unread_html->( $inbox->entrycomment_event_count ) );
+    $body .= $subfolder_link->( "pollvote", "inbox.menu.poll_votes", "subs", $unread_html->( $inbox->pollvote_event_count ) );
+    $body .= qq{<span class="subs">---</span>\n};
+    $body .= $subfolder_link->( "unread", "inbox.menu.unread", "subs", $unread_all_html );
+    $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", "", LJ::img( 'flag', '' ) );
+    $body .= $subfolder_link->( "usermsg_sent", "inbox.menu.sent", "subs", 
+        $unread_html->( $inbox->usermsg_sent_event_count ) ) if LJ::is_enabled( 'user_messaging' );
+    $body .= $subfolder_link->( "archived", "inbox.menu.archive", "subs" ) if LJ::is_enabled( 'esn_archive' );
     $body .= qq{
             </p></div>&nbsp;<br />
     };

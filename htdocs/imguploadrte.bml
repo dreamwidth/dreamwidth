@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -11,9 +25,9 @@
     my $u = LJ::User->remote;
     return "<?needlogin?>" unless $u;
 
-    LJ::need_res("stc/display_none.css",
-                 "js/photobucket_jw.js",
-                 "js/browserdetect.js");
+    LJ::need_res( "stc/display_none.css",
+                 "js/browserdetect.js" );
+    LJ::need_res( "js/photobucket_jw.js" ) if $LJ::PHOTOBUCKET_JWIDGET_ID;
     my $js = "";
     if ($GET{upload_count} || LJ::did_post()) {
 
@@ -32,7 +46,6 @@
     }
 
     my $step = 1;
-    my $fbenabled = LJ::get_cap($u, 'fb_account') && LJ::get_cap($u, 'fb_can_upload');
     my $ret = '';
 
     $$head .= qq{
@@ -46,17 +59,14 @@
         .insobjOuter div.ex { font: 8pt sans-serif; color: #888; font-style: italic;}
           .img_error { color: red; font-weight: bold; text-align: center; }
         </style>
-        <script>
-        var fileaction = '$LJ::FB_SITEROOT/interface/webupload';
-        var fbroot     = '$LJ::SITEROOT/__using/$LJ::FB_DOMAIN';
-        </script>
-                <script src="$LJ::STATPREFIX/fck/editor/dialog/common/fck_dialog_common.js" type="text/javascript"></script>
-                <script src="$LJ::STATPREFIX/fck/editor/dialog/fck_image/fck_image.js" type="text/javascript"></script>
-                $js
-                <link href="$LJ::STATPREFIX/fck/editor/dialog/common/fck_dialog_common.css" rel="stylesheet" type="text/css" />
+        <script src="$LJ::STATPREFIX/fck/editor/dialog/common/fck_dialog_common.js" type="text/javascript"></script>
+        <script src="$LJ::STATPREFIX/fck/editor/dialog/fck_image/fck_image.js" type="text/javascript"></script>
+        $js
+        <link href="$LJ::STATPREFIX/fck/editor/dialog/common/fck_dialog_common.css" rel="stylesheet" type="text/css" />
         };
 
     #taken from the original fck_image.html    
+    #insert HTML for an image tag, given an image URL and assorted metadata (alt text, dimensions, etc)
     $ret .= qq{
                 <div id="divInfo">
                         <table cellspacing="1" cellpadding="1" border="0" width="99%" height="99%">
@@ -72,7 +82,7 @@
                        </td></tr>
                        <tr>
                        <td><span fckLang="DlgImgAlt">Short Description</span><br />
-                       <input id="txtAlt" style="WIDTH: 9%" type="text"><br />
+                       <input id="txtAlt" style="WIDTH: 80%" type="text"><br />
                        </td></tr>
                        <tr height="100%">
                        <td valign="top">
@@ -127,73 +137,18 @@
                        <td><span fckLang="DlgImgPreview">Preview</span></td></tr>
                        <tr>
                        <td valign="top">
-                       <iframe class="ImagePreviewArea" src="$LJ::SITEROOT/imgpreview.bml" frameborder="no" marginheight="0" marginwidth="0"></iframe>
+                       <iframe class="ImagePreviewArea" src="$LJ::SITEROOT/imgpreview" frameborder="no" marginheight="0" marginwidth="0"></iframe>
                        </td></tr>
                        </table></td></tr>
                        </table></td></tr>
                        </table>
                        </div>
-                       <div id="divUpload" style="DISPLAY: none">
                    };
 
-        # taken from imgupload.bml with customization for rte
-        $ret .= "<div class='insobjOuter' id='insobjOuter'>";
-        $ret .= "<form style='display:inline' id='insobjform' enctype='multipart/form-data' action='imguploadrte.bml' method='post' onsubmit='return InObFCK.onSubmit()' >";
-        
-        $ret .= "<table width='99%' height='99%' border='0' cellpadding='0' cellspacing='0'><tr height='20' class='insObjTitle' id='insObjTitle'><td align='left' colspan='2'><p class='wintitle' id='wintitle'>Insert Image</p></td></tr>";
-        
-# content
-        $ret .= "<tr><td colspan='2'><div class='insobjContent' id='img_iframe_holder' style='display: none; margin: 0px 0px 0px 0px;'></div><div id='img_fromwhere' class='insobjContent'>";
-        
-        $ret .= "<table cellspacing='8' valign='top'>";
-
-        $ret .= "<tr><td id='img_error' class='img_error' colspan='2'></td></tr>";
-
-        # from file
-        $ret .= "<tr valign='top' colspan='2'><td>";
-        $ret .= LJ::html_check({
-            'type'=> 'radio',
-            'name'=> 'method',
-            'id'=> 'fromfile',
-            'value' => 'file',
-            'disabled' => $fbenabled ? 0 : 1,
-        });
-        $ret .= " <label for='fromfile'>Image from file</label>:</td></tr><tr><td colspan='2'>";
-        $ret .= LJ::html_hidden('redir_to_auth_base', '2', 'sec1', '255');
-
-        my $disabled = $fbenabled ? '' : "disabled='1'";
-
-        $ret .= "<div id='filediv'><input type='file' name='file1' id='fromfileentry' size='50' $disabled /></div>";
-
-        my $msg = LJ::run_hook('update_insobj_fb', $fbenabled) || "Upload a file from your computer";
-        $ret .= "<div class='ex'>$msg</div>";
-        $ret .= "</td></tr>";
-
-        # from Fotobilder
-        if ($fbenabled) {
-            $ret .= "<tr><td colspan='2'>";
-            $ret .= LJ::html_check({
-                'type' => 'radio',
-                'name' => 'method',
-                'id' => 'fromfb',
-                'value'=> 'fb',
-            });
-
-            $ret .= " <label for='fromfb'>$ML{'/imgupload.bml.gallery.label'}</label></td></tr>";
-}
-        $ret .= "</table>";
-
-        $ret .= "<br /><font size='1' color='gray'><i>$ML{'.size'}</i></font></div></td></tr><tr height='20' class='insobjNav' id='insobjNav'><td align='left'><div style='margin-left: 10px'>";
-        $ret .= "<input type='button' name='btn:prev' id='btnPrev' style='display:none' value='&lt;-- Back' />";
-        $ret .= "</div></td>";
-        $ret .= "<td align='right'><div style='margin-right: 10px'>";
-        $ret .= LJ::html_submit('btn:next', 'Insert', { 'id' => 'btnNext' });
-        $ret .= "</div></td></tr></table>";
-        $ret .= "</form></div><script>InObFCK.setupIframeHandlers();</script>";
-
         # taken from orig fck_image.html
+        # link tab
         $ret .= qq{
-                </div>
+                <script>InObFCK.setupIframeHandlers();</script>
                 <div id="divLink" style="DISPLAY: none">
                 <table cellspacing="1" cellpadding="1" border="0" width="100%">
                 <tr>
@@ -202,6 +157,7 @@
                 <span fckLang="DlgLnkURL">URL</span><br />
                 <input id="txtLnkUrl" style="WIDTH: 100%" type="text" onblur="UpdatePreview();" />
                 </div>
+                <div>This link will wrap around the image you have inserted.</div>
                 <div id="divLnkBrowseServer" align="right">
                 <input type="button" value="Browse Server" fckLang="DlgBtnBrowseServer" onclick="LnkBrowseServer();" />
                 </div>
@@ -255,25 +211,32 @@
                 <span fckLang="DlgGenStyle">Style</span><br />
                 <input id="txtAttStyle" style="WIDTH: 100%" type="text">
                 </div>
-                <div id="divPhotobucket" style="DISPLAY: none">
-                <script type="text/javascript">
-                    // Safari can't use the advanced JWidget integration so the callback
-                    // URL is set to nothing
-                    var cb_url = "&url=" + escape(seedurl);
-                    var inRTE = true;
-                    var browser = new BrowserDetectLite();
-                    if (browser.isSafari) cb_url = '';
-
-                    document.write('<iframe name="jwidget" id="jwidget" src="http://photobucket.com/svc/jwidget.php?width=360&height=400&largeThumb=true&pbaffsite='+pb_affsite_id+'&bg=%23F7F7F7&border=false&bordercolor=%23000000'+cb_url+'&linkType=url&textcolor=%23000000&linkcolor=%230000FF&media=image&btntxt=Paste&dimensions=true&promo=false" bgcolor="transparent" width="99%" height="440" frameborder="0" scrolling="no"></iframe>');
-                </script>
-                </div>
             };
-
-        $$body = $ret;
-        $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb.bml';";
-        $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
-        $$head .= LJ::res_includes();
-        return;
+    
+        # photobucket tab
+        if ( $LJ::PHOTOBUCKET_JWIDGET_ID ) {
+            $ret .= qq{
+                    <div id="divPhotobucket" style="DISPLAY: none">
+                    <script type="text/javascript">
+                        // Safari can't use the advanced JWidget integration so the callback
+                        // URL is set to nothing
+                        var cb_url = "&url=" + escape(seedurl);
+                        var inRTE = true;
+                        var browser = new BrowserDetectLite();
+                        if (browser.isSafari) cb_url = '';
+    
+                        document.write('<iframe name="jwidget" id="jwidget" src="http://photobucket.com/svc/jwidget.php?width=360&height=400&largeThumb=true&pbaffsite='+pb_affsite_id+'&bg=%23F7F7F7&border=false&bordercolor=%23000000'+cb_url+'&linkType=url&textcolor=%23000000&linkcolor=%230000FF&media=image&btntxt=Paste&dimensions=false&promo=false" bgcolor="transparent" width="99%" height="440" frameborder="0" scrolling="no"></iframe>');
+                    </script>
+                    </div>
+                };
+    
+            $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb';";
+            $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
+        }
+    
+    $$body = $ret;
+    $$head .= LJ::res_includes();
+    return;
 }
 _code?>
 <html>

@@ -28,3 +28,7 @@ function s2initIndex()
 {
 	s2index = new Object();
 }
+
+LiveJournal.register_hook('page_load', function () {
+  s2init();
+});

@@ -1,0 +1,31 @@
+;; -*- coding: utf-8 -*-
+
+.error.cannot_provide_identity=The site you just came from seems to want to verify <a href='[[url]]'>an identity</a> that you, as [[user]], cannot provide.
+
+.error.failed_sign_url=Failed to make signed return URL.
+
+.error.failed_to_save=Failed to save
+
+.error.invalid_site_address=Invalid site address
+
+.error.login_needed=You need to be logged in to grant another site permission to know your identity.
+
+.error.need_to_login=You Need to Login
+
+.error.openid_support_disabled=OpenID consumer support is disabled
+
+.error.possible_form_tampering=Possible form tampering detected.
+
+.form.address=The address wanting permission is:
+
+.form.button.no=No.
+
+.form.button.yes_always=Yes; always.
+
+.form.button.yes_this_time=Yes; just this time.
+
+.form.passid=Do you want to pass your identity to them?
+
+.form.request2=The site you just came from has asked [[sitename]] to prove that you own this [[sitename]] account. If you allow this, we will <b>not</b> give them access to your [[sitename]] account or password, or any information that isn't already public in your account. All we'll do is tell [[refurl]] that you control the account [[url]].
+
+.form.title2=Pass identity along?

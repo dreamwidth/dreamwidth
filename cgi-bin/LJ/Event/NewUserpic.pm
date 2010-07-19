@@ -1,7 +1,20 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Event::NewUserpic;
 use strict;
 use base 'LJ::Event';
-use Class::Autouse qw(LJ::Entry);
+use LJ::Entry;
 use Carp qw(croak);
 
 sub new {
@@ -14,22 +27,15 @@ sub new {
 sub as_string {
     my $self = shift;
 
-    return $self->event_journal->display_username . " has uploaded a new userpic.";
+    return $self->event_journal->display_username . " has uploaded a new icon.";
 }
 
 sub as_html {
     my $self = shift;
     my $up = $self->userpic;
-    return "(Deleted userpic)" unless $up && $up->valid;
+    return "(Deleted icon)" unless $up && $up->valid;
 
-    return $self->event_journal->ljuser_display . " has uploaded a new <a href='" . $up->url . "'>userpic</a>.";
-}
-
-sub as_sms {
-    my $self = shift;
-
-    return $self->event_journal->display_username . " has uploaded a new userpic. You can view it at: " .
-        $self->userpic->url;
+    return $self->event_journal->ljuser_display . " has uploaded a new <a href='" . $up->url . "'>icon</a>.";
 }
 
 sub as_email_string {
@@ -39,30 +45,40 @@ sub as_email_string {
     my $username = $u->user;
     my $poster = $self->userpic->owner->user;
     my $userpic = $self->userpic->url;
+    my $comment = LJ::strip_html( $self->userpic->comment ) || '(none)';
+    my $description = LJ::strip_html( $self->userpic->description ) || '(none)';
     my $journal_url = $self->userpic->owner->journal_base;
+    my $icons_url = $self->userpic->owner->allpics_base;
     my $profile = $self->userpic->owner->profile_url;
+
+    LJ::text_out( \$comment );
+    LJ::text_out( \$description );
 
     my $email = "Hi $username,
 
-$poster has uploaded a new userpic! You can see it at:
+$poster has uploaded a new icon! You can see it at:
    $userpic
+
+Description: $description
+
+Comment: $comment
 
 You can:
 
-  - View all of $poster\'s userpics:
-    $LJ::SITEROOT/allpics.bml?user=$poster";
+  - View all of $poster\'s icons:
+    $icons_url";
 
-    unless (LJ::is_friend($u, $self->userpic->owner)) {
+    unless ( $u->watches( $self->userpic->owner ) ) {
         $email .= "
-  - Add $poster as a friend:
-    $LJ::SITEROOT/friends/add.bml?user=$poster";
+  - Add $poster to your reading list:
+    $LJ::SITEROOT/manage/circle/add?user=$poster&action=subscribe";
     }
 
 $email .= "
   - View their journal:
     $journal_url
   - View their profile:
-    $profile";
+    $profile\n\n";
 
     return $email;
 }
@@ -76,18 +92,27 @@ sub as_email_html {
     my $poster = $self->userpic->owner->ljuser_display;
     my $postername = $self->userpic->owner->user;
     my $userpic = $self->userpic->imgtag;
+    my $comment = LJ::ehtml( $self->userpic->comment ) || '(none)';
+    my $description = LJ::ehtml( $self->userpic->description ) || '(none)';
     my $journal_url = $self->userpic->owner->journal_base;
+    my $icons_url = $self->userpic->owner->allpics_base;
     my $profile = $self->userpic->owner->profile_url;
+
+    LJ::text_out( \$comment );
+    LJ::text_out( \$description );
 
     my $email = "Hi $username,
 
-$poster has uploaded a new userpic:
+$poster has uploaded a new icon:
 <blockquote>$userpic</blockquote>
+<p>Description: $description</p>
+<p>Comment: $comment</p>
+
 You can:<ul>";
 
-    $email .= "<li><a href=\"$LJ::SITEROOT/allpics.bml?user=$postername\">View all of $postername\'s userpics</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/friends/add.bml?user=$postername\">Add $postername as a friend</a></li>"
-        unless (LJ::is_friend($u, $self->userpic->owner));
+    $email .= "<li><a href=\"$icons_url\">View all of $postername\'s icons</a></li>";
+    $email .= "<li><a href=\"$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe\">Add $postername to your reading list</a></li>"
+        unless $u->watches( $self->userpic->owner );
     $email .= "<li><a href=\"$journal_url\">View their journal</a></li>";
     $email .= "<li><a href=\"$profile\">View their profile</a></li></ul>";
 
@@ -109,29 +134,35 @@ sub content {
     return $up->imgtag;
 }
 
-sub as_email_subject {
-    my $self = shift;
-    return sprintf "%s uploaded a new userpic!", $self->event_journal->display_username;
+# short enough that we can just use this the normal content as the summary
+sub content_summary {
+    return $_[0]->content( @_ );
 }
 
-sub zero_journalid_subs_means { "friends" }
+sub as_email_subject {
+    my $self = shift;
+    return sprintf "%s uploaded a new icon!", $self->event_journal->display_username;
+}
+
+sub zero_journalid_subs_means { "watched" }
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-
     my $journal = $subscr->journal;
 
-    return "One of my friends uploads a new userpic" unless $journal;
-
-    my $ljuser = $subscr->journal->ljuser_display;
-    return "$ljuser uploads a new userpic";
+    # "One of the accounts I subscribe to uploads a new userpic"
+    # or "$ljuser uploads a new userpic";
+    return $journal ?
+        BML::ml('event.userpic_upload.user',
+            { user => $journal->ljuser_display }) :
+        BML::ml('event.userpic_upload.me');
 }
 
 # only users with the track_user_newuserpic cap can use this
 sub available_for_user  {
     my ($class, $u, $subscr) = @_;
 
-    return 0 if ! $u->get_cap('track_user_newuserpic') &&
+    return 0 if ! $u->can_track_new_userpic &&
         $subscr->journalid;
 
     return 1;

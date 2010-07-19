@@ -86,10 +86,7 @@ function s2keyPressed(e)
 				nxinsertText(area, "\t");
 				area.focus();
 			}
-			e.returnValue = false;
-			e.cancelBubble = true;
-			e.preventDefault();
-			e.stopPropagation();
+			Event.preventDefault(e);
 			return false;
 		} else
 			s2sense(e.charCode);
@@ -102,16 +99,13 @@ function s2IETabKeyPressedHandler(e)
 {
 	var area = s2getCodeArea();
 
-	if (nxIE && e) {
+	if (( nxIE || navigator.userAgent.toLowerCase().indexOf('safari') ) && e) {
 		if (e.keyCode == 9) {
 			if (!s2acceptCompletion()) {
 				nxinsertText(area, "\t");
 				area.focus();
 			}
-			e.returnValue = false;
-			e.cancelBubble = true;
-			e.preventDefault();
-			e.stopPropagation();
+			Event.preventDefault(e);
 			return false;
 		}
 	}
@@ -267,6 +261,16 @@ function s2buildReference()
 	s2buildClasses();
 	s2buildFunctions();
 	s2buildProperties();
+	
+	if (window.name)
+	{
+		setTimeout(function() {
+			var pos = window.name.split(':'), textarea = s2getCodeArea();
+			textarea.scrollTop = +pos[0] || 0;
+			nxpositionCursor(textarea, pos[1] || 0)
+			window.name = '';
+		}, 1)
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -454,4 +458,11 @@ function s2initDrag()
 	}
 		
 	return true;
+}
+
+function s2submit()
+{
+	// save position textarea, where reload page
+	var textarea = s2getCodeArea();
+	window.name = textarea.scrollTop + ':' + nxgetPositionCursor(textarea);
 }

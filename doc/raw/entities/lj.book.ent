@@ -54,6 +54,7 @@
 <!ENTITY lj.admin.console.ref             SYSTEM "../lj.book/admin/console.ref.gen.xml">
 <!ENTITY lj.admin.sysban                  SYSTEM "../lj.book/admin/sysban.xml">
 <!ENTITY lj.admin.site_scaling            SYSTEM "../lj.book/admin/site_scaling.xml">
+<!ENTITY lj.admin.appx.faq               SYSTEM "../lj.book/admin/admin_appx.faq.xml">
 
 <!-- Features -->
 

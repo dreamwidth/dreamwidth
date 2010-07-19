@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 body<=
@@ -20,8 +34,17 @@ body<=
         return $ret;
     }
 
-    my $cname = $GET{comm};
-    return BML::redirect("$LJ::SITEROOT/community/manage.bml") unless $cname;
+    # old GET arg
+    if ($GET{comm}) {
+        return BML::redirect("$LJ::SITEROOT/community/sentinvites?authas=$GET{comm}");
+    }
+
+    my $cname = $GET{authas};
+    return BML::redirect("$LJ::SITEROOT/community/manage") unless $cname;
+
+    $ret .= "<form action='sentinvites' method='GET'>\n";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => 'C' });
+    $ret .= "</form>\n\n";
 
     # get $c object
     my $c = LJ::load_user($cname);
@@ -31,16 +54,16 @@ body<=
     }
 
     # make sure it is a comm
-    unless ($c->{'journaltype'} eq 'C') {
+    unless ( $c->is_community ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
         $ret .= BML::ml('.error.notcomm', { 'user' => LJ::ljuser($c) });
         $ret .= " p?>";
         return $ret;
     }
 
-    my $cid = $c->{'userid'};
+    my $cid = $c->userid;
     # is $remote an admin?
-    unless (LJ::can_manage_other($remote, $c)) {
+    unless ( $remote->can_manage_other( $c ) ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
         $ret .= BML::ml('/community/members.bml.error.noaccess', 
                         { 'comm' => LJ::ljuser($cname, { 'type' => 'C' }) });
@@ -48,11 +71,29 @@ body<=
         return $ret;
     }
 
+    $ret .= LJ::maintainer_linkbar($c, "invites");
+
+    # Process revoked invitations
+    if ($POST{'action:revoke'}) {
+        # validate form auth
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
+        my @userids;
+        foreach (grep { /^revoke_invite/ } keys %POST) {
+            push @userids, $POST{$_};
+        }
+        if (LJ::revoke_invites($c, @userids)) {
+            $ret .= "<div class='warningbar'> " .
+                    BML::ml('.invites.cancelled', { num => scalar @userids }) .
+                    "</div>";
+        }
+    }
+
     # columns of our table, excluding username
     my @attribs = ('post');
     my @titleattribs = ('P');
-    LJ::load_user_props($c, 'moderated');
-    if ($c->{moderated}) {
+    if ( $c->prop( 'moderated' ) ) {
         push @attribs, ('preapprove', 'moderate');
         push @titleattribs, ('U', 'M');
     }
@@ -80,10 +121,17 @@ body<=
     }
 
     # hop out if there were no invites
-    unless (%users) {
+    unless ( %users ) {
+        # display a different message depending on what category of invitations we're looking for
         return "$ret<?h1 $ML{'.none.title'} h1?><?p " .
-               BML::ml('.none.body', { aopts => "href='/community/members.bml?comm=$c->{user}'" }) .
-               " p?>";
+            BML::ml( '.none.'.$GET{show}.'.body', { aopts => "href='/community/members?authas=$c->{user}'" } ) .
+            " p?>"
+            if ( $GET{show} eq 'accepted' || $GET{show} eq 'rejected' || $GET{show} eq 'outstanding' );
+
+        # return with a general message if we didn't match one of the above special cases
+        return "$ret<?h1 $ML{'.none.title'} h1?><?p " .
+            BML::ml( '.none.body', { aopts => "href='/community/members?authas=$c->{user}'" } ) .
+            " p?>";
     }
     
     # sorting method;
@@ -119,9 +167,10 @@ body<=
 
     # how to make links back to this page
     my $self_link = sub {
-        my $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
-        my $filter = "&show=$GET{'show'}" if $GET{'show'};
-        return "sentinvites.bml?comm=$cname&page=$_[0]$sort$filter";
+        my ( $sort, $filter ) = ( "", "" );
+        $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
+        $filter = "&show=$GET{'show'}" if $GET{'show'};
+        return "sentinvites?authas=$cname&page=$_[0]$sort$filter";
     };
 
     my %items = BML::paging(\@users, $jumppage || $GET{'page'}, $page_size);
@@ -130,44 +179,42 @@ body<=
     @users = @{$items{'items'}};
 
     # output starts here
-    $ret .= "<?p " . BML::ml('/community/members.bml.name', { 'name' => LJ::ljuser($cname, { 'type' => 'C' }) });
-    $ret .= " " . BML::ml('/community/members.bml.settings', { 'link' => "settings.bml?comm=$cname"}) . " p?>";
 
     # jump to user
     if ($items{'pages'} > 1) {
-        $ret .= "<form method='post' action='sentinvites.bml?comm=$cname'>";
+        $ret .= "<form method='post' action='sentinvites?authas=$cname'>";
         $ret .= "<div style='margin-left: 30px;'>Jump to user: ";
         $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
-                                'size' => '10', 'maxlength' => '15' }) . " ";
+                                'size' => '10', 'maxlength' => '25' }) . " ";
         $ret .= LJ::html_submit(undef, 'Go') . "</div>";
         $ret .= "</form>";
         $ret .= $navbar;
     }
 
     # setup showlinks
-    my $showlinks = "<form method='get' action='/community/sentinvites.bml'>";
-    $showlinks .= LJ::html_hidden('comm', $c->{user});
-    $showlinks .= "Filter to: ";
-    $showlinks .= LJ::html_select({ name => 'show', selected => $GET{show} }, map { $_, $_ } qw(all accepted outstanding rejected));
-    $showlinks .= LJ::html_submit(undef, 'Refresh');
+    my $showlinks = "<form method='get' action='/community/sentinvites'>";
+    $showlinks .= LJ::html_hidden('authas', $c->{user});
+    $showlinks .= $ML{'.filterto'};
+    $showlinks .= LJ::html_select( { name => 'show', selected => $GET{show} }, all => $ML{'.filterto.opts.all'}, accepted => $ML{'.filterto.opts.accepted'}, rejected => $ML{'.filterto.opts.rejected'}, outstanding => $ML{'.filterto.opts.outstanding'} );
+    $showlinks .= LJ::html_submit( undef, $ML{'.filterto.btn.refresh'} );
     $showlinks .= "</form>";
 
-    my $filter = "&show=$GET{show}" if $GET{show};
-    my $sortlink = BML::get_uri() . "?comm=$cname$filter&sort=";
+    my $filter = $GET{show} ? "&show=$GET{show}" : "";
+    my $sortlink = BML::get_uri() . "?authas=$cname$filter&sort=";
     $ret .= "<br /><div align='center'>$showlinks";
     $ret .= <<END; 
 <table class='borderedtable' cellpadding='2' cellspacing='0'>
 <tr style="border-bottom: solid 1px black;">
-    <th style='border-right: solid 1px black;'>P</th>
-    <td style='border-bottom: solid 1px black; border-right: solid 1px black;'>Posting Access</td>
-    <th style='border-right: solid 1px black;'>U</th>
-    <td style='border-bottom: solid 1px black;'>Unmoderated</td>
+    <th style='border-right: solid 1px black;'>$ML{'.key.posting.abbrev'}</th>
+    <td style='border-bottom: solid 1px black; border-right: solid 1px black;'>$ML{'.key.posting'}</td>
+    <th style='border-right: solid 1px black;'>$ML{'.key.unmoderated.abbrev'}</th>
+    <td style='border-bottom: solid 1px black;'>$ML{'.key.unmoderated'}</td>
 </tr>
 <tr style="border-bottom: solid 1px black;">
-    <th style='border-right: solid 1px black; border-bottom: none;'>M</th>
-    <td style='border-right: solid 1px black;'>Moderator</td>
-    <th style='border-right: solid 1px black; border-bottom: none;'>A</th>
-    <td>Maintainer</td>
+    <th style='border-right: solid 1px black; border-bottom: none;'>$ML{'.key.moderator.abbrev'}</th>
+    <td style='border-right: solid 1px black;'>$ML{'.key.moderator'}</td>
+    <th style='border-right: solid 1px black; border-bottom: none;'>$ML{'.key.maintainer.abbrev'}</th>
+    <td>$ML{'.key.maintainer'}</td>
 </tr>
 </table>
 <br />
@@ -180,8 +227,12 @@ END
     $ret .= "<th><a href='${sortlink}status'>$ML{'.key.status'}</a></th>";
     $ret .= "</tr>\n";
 
+    $ret .= "<form method='post'>";
+    $ret .= LJ::form_auth();
+    my $can_revoke = 0;
+
     # checkboxes and such
-    my $yes = '<img src="/img/blue_check.gif" width="15" height="15" border="0">';
+    my $yes = LJ::img( 'check', '' );
     my $no = '-';
 
     # rows for existing users
@@ -196,12 +247,31 @@ END
         }
         $ret .= "<td>" . LJ::ljuser($_->{maintainer}, { type => 'P' }) . "</td>";
         $ret .= "<td>$_->{date}</td>";
-        $ret .= "<td>$_->{status}</td>";
+
+        # display checkbox for outstanding invites so they can be revoked
+        # also set flag indicating there are invitations that can be revoked
+        if ($_->{status} eq 'outstanding') {
+            $can_revoke = 1;
+            $ret .= "<td>$_->{status} " .
+                    LJ::html_check({ 'type' => 'checkbox',
+                                     'name' => 'revoke_invite_' . $_->{userid},
+                                     'value' => $_->{userid} }) .
+                    " </td>";
+        } else {
+            $ret .= "<td>$_->{status}</td>";
+        }
+
+
         $ret .= "</tr>\n";
     }
 
     $ret .= "</table>\n";
-    $ret .= "<br /><a href='/community/members.bml?comm=$c->{user}'>$ML{'.send'}</a>";
+    $ret .= "<p>" . LJ::html_submit( 'action:revoke', $ML{'.cancel'}) .  "</p>"
+        if $can_revoke;
+    $ret .= "</form>";
+
+
+    $ret .= "<br /><a href='/community/members?authas=$c->{user}'>$ML{'.send'}</a>";
     $ret .= "</div>\n\n";
     $ret .= $navbar;
     return $ret;

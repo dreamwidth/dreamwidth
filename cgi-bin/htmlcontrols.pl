@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 package LJ;
 
@@ -37,28 +49,60 @@ sub html_datetime
                                             $5 > 0 ? $5 : "",
                                             $6 > 0 ? $6 : "");
     }
-    $ret .= html_select({ 'name' => "${name}_mm", 'id' => "${id}_mm", 'selected' => $mm, 'class' => 'select',
-                          'disabled' => $disabled, %extra_opts },
-                         map { $_, LJ::Lang::ml(LJ::Lang::month_long_langcode($_)) } (1..12));
-    $ret .= html_text({ 'name' => "${name}_dd", 'id' => "${id}_dd", 'size' => '2', 'class' => 'text',
-                        'maxlength' => '2', 'value' => $dd,
-                        'disabled' => $disabled, %extra_opts });
-    $ret .= html_text({ 'name' => "${name}_yyyy", 'id' => "${id}_yyyy", 'size' => '4', 'class' => 'text',
-                        'maxlength' => '4', 'value' => $yyyy,
-                        'disabled' => $disabled, %extra_opts });
+    $ret .= html_select({ 'name' => "${name}_mm", 
+                          'id' => "${id}_mm", 
+                          'selected' => $mm, 
+                          'class' => 'select',
+                          'title' => 'month',
+                          'disabled' => $disabled, %extra_opts,
+                        },
+                        map { $_, LJ::Lang::month_long_ml($_) } (1..12));
+    $ret .= html_text({ 'name' => "${name}_dd", 
+                        'id' => "${id}_dd", 
+                        'size' => '2', 
+                        'class' => 'text',
+                        'maxlength' => '2', 
+                        'value' => $dd,
+                        'title' => 'day',
+                        'disabled' => $disabled, %extra_opts,
+                      });
+    $ret .= html_text({ 'name' => "${name}_yyyy", 
+                        'id' => "${id}_yyyy", 
+                        'size' => '4', 
+                        'class' => 'text',
+                        'maxlength' => '4', 
+                        'value' => $yyyy,
+                        'title' => 'year',
+                        'disabled' => $disabled, %extra_opts,
+                      });
     unless ($opts->{'notime'}) {
         $ret .= ' ';
-        $ret .= html_text({ 'name' => "${name}_hh", 'id' => "${id}_hh", 'size' => '2',
-                            'maxlength' => '2', 'value' => $hh,
-                            'disabled' => $disabled }) . ':';
-        $ret .= html_text({ 'name' => "${name}_nn", 'id' => "${id}_nn", 'size' => '2',
-                            'maxlength' => '2', 'value' => $nn,
-                            'disabled' => $disabled });
+        $ret .= html_text({ 'name' => "${name}_hh", 
+                            'id' => "${id}_hh", 
+                            'size' => '2',
+                            'maxlength' => '2', 
+                            'value' => $hh,
+                            'title' => 'hour',
+                            'disabled' => $disabled,
+                          }) . ':';
+        $ret .= html_text({ 'name' => "${name}_nn", 
+                            'id' => "${id}_nn", 
+                            'size' => '2',
+                            'maxlength' => '2', 
+                            'value' => $nn,
+                            'title' => 'minutes',
+                            'disabled' => $disabled,
+                          });
         if ($opts->{'seconds'}) {
             $ret .= ':';
-            $ret .= html_text({ 'name' => "${name}_ss", 'id' => "${id}_ss", 'size' => '2',
-                                'maxlength' => '2', 'value' => $ss,
-                                'disabled' => $disabled });
+            $ret .= html_text({ 'name' => "${name}_ss", 
+                                'id' => "${id}_ss", 
+                                'size' => '2',
+                                'maxlength' => '2', 
+                                'value' => $ss,
+                                'title' => 'seconds',
+                                'disabled' => $disabled,
+                              });
         }
     }
 
@@ -94,6 +138,7 @@ sub html_datetime_decode
 # des: Creates a drop-down box or listbox HTML form element (the <select> tag).
 # info:
 # args: opts
+# A hashref with an attribute of optgroup will be treated as a list of of value => text pairs within an optgroup
 # des-opts: A hashref of options. Special options are:
 #           'raw' - inserts value unescaped into select tag;
 #           'noescape' - won't escape key values if set to 1;
@@ -122,7 +167,8 @@ sub html_select
     $ret .= ">\n";
 
     # build hashref from arrayref if multiple selected
-    my $selref = { map { $_, 1 } @{$opts->{'selected'}} }
+    my $selref;
+    $selref = { map { $_, 1 } @{$opts->{'selected'}} }
         if $opts->{'multiple'} && ref $opts->{'selected'} eq 'ARRAY';
 
     my $did_sel = 0;
@@ -139,28 +185,42 @@ sub html_select
             $text = shift @items;
         }
 
-        my $sel = "";
-        # multiple-mode or single-mode?
-        if (ref $selref eq 'HASH' && $selref->{$value} ||
-            $opts->{'selected'} eq $value && !$did_sel++) {
-
-            $sel = " selected='selected'";
+        if ( $it->{optgroup} ) {
+            $ret .= "<optgroup label='$it->{optgroup}'>";
+            $ret .= LJ::_html_option( $_->{value}, $_->{text}, {}, $opts, $ehtml, $selref, \$did_sel )
+                foreach @{$it->{items} || []};
+            $ret .= "</optgroup>";
+        } else {
+            $ret .= LJ::_html_option( $value, $text, $it, $opts, $ehtml,
+                $selref, \$did_sel );
         }
-        $value  = $ehtml ? ehtml($value) : $value;
-
-        my $id;
-        if ($opts->{'include_ids'} && $opts->{'name'} ne "" && $value ne "") {
-            $id = " id='$opts->{'name'}_$value'";
-        }
-
-        # is this individual option disabled?
-        my $dis = $it->{'disabled'} ? " disabled='disabled' style='color: #999;'" : '';
-
-        $ret .= "<option value=\"$value\"$id$sel$dis>" .
-                 ($ehtml ? ehtml($text) : $text) . "</option>\n";
     }
     $ret .= "</select>";
     return $ret;
+}
+
+sub _html_option {
+    my ( $value, $text, $item, $opts, $ehtml, $selref, $did_sel ) = @_;
+
+    my $sel = "";
+    # multiple-mode or single-mode?
+    if ( ref $selref eq 'HASH' && $selref->{$value} ||
+        $opts->{selected} eq $value && ! $$did_sel++ ) {
+
+        $sel = " selected='selected'";
+    }
+    $value  = $ehtml ? ehtml( $value ) : $value;
+
+    my $id;
+    if ( $opts->{include_ids} && $opts->{name} ne "" && $value ne "" ) {
+        $id = " id='$opts->{'name'}_$value'";
+    }
+
+    # is this individual option disabled?
+    my $dis = $item->{disabled} ? " disabled='disabled' style='color: #999;'" : '';
+
+    return "<option value=\"$value\"$id$sel$dis>" .
+             ( $ehtml ? ehtml( $text ) : $text ) . "</option>\n";
 }
 
 # <LJFUNC>
@@ -235,7 +295,7 @@ sub html_text
 
     my $disabled = $opts->{'disabled'} ? " disabled='disabled'" : "";
     my $ehtml = $opts->{'noescape'} ? 0 : 1;
-    my $type = $opts->{'type'} eq 'password' ? 'password' : 'text';
+    my $type = $opts->{'type'} eq 'password' || $opts->{'type'} eq 'search' ? $opts->{'type'} : 'text';
     my $ret;
     $ret .= "<input type=\"$type\"";
     foreach (grep { ! /^(type|disabled|raw|noescape)$/ } keys %$opts) {

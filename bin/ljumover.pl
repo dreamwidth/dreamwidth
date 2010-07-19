@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 ##############################################################################
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 =head1 NAME
 
@@ -931,8 +943,8 @@ sub start {
         $self->message( "Unlocking %d remaining users.", values %{$self->{userThreads}} );
 
         foreach my $thread ( values %{$self->{userThreads}} ) {
-            $thread->unlock;
             LJ::disconnect_dbs();
+            $thread->unlock;
             my $dbh = LJ::get_db_writer() or die "Couldn't get a db_writer.";
             $dbh->do( "DELETE FROM clustermove_inprogress WHERE userid = ?",
                       undef, $thread->userid )
@@ -962,8 +974,8 @@ sub reapChildren {
         $self->{fakeMovedUsers}{$thread->userid} = 1 if $thread->testingMode;
         delete $self->{userThreads}{$thread->userid};
 
-        $thread->unlock;
         LJ::disconnect_dbs();
+        $thread->unlock;
         my $dbh = LJ::get_db_writer() or die "Couldn't get a db_writer.";
         $dbh->do( "DELETE FROM clustermove_inprogress WHERE userid = ?",
                   undef, $thread->userid )
@@ -1236,6 +1248,7 @@ sub new {
     my ( $user, $userid, $src, $dest ) = @_;
 
     # Lock the user
+    LJ::disconnect_dbs();
     LJ::update_user( $userid, {raw => "caps=caps|(1<<$ReadOnlyBit)"} );
 
     return bless {

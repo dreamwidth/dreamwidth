@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 body<=
@@ -18,6 +32,15 @@ body<=
         return $ret;
     }
 
+    # old GET arg
+    if ($GET{comm}) {
+        return BML::redirect("$LJ::SITEROOT/community/moderate?authas=$GET{comm}");
+    }
+
+    $ret .= "<form action='moderate' method='GET'>\n";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => 'C' });
+    $ret .= "</form>\n\n";
+
     my $mode = $POST{'mode'};
     my ($saved_comm, $saved_modid) = ("", 0);
 
@@ -36,18 +59,21 @@ body<=
         }
         my $dbcm = LJ::get_cluster_master($c);
 
-        unless (LJ::check_rel($c, $remote, 'M')) {
+        unless ( $remote->can_moderate( $c ) ) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p " .
                 BML::ml('.error.noaccess', {'comm'=>"<?ljcomm $c->{'user'} ljcomm?>"}) . " p?>";
             return $ret;
         }
+
+        $ret .= LJ::maintainer_linkbar($c, "queue");
+
         # use dbcm to read to minimize collisions between moderators due to replication lag
         my $entry = $dbcm->selectrow_hashref("SELECT * FROM modlog WHERE journalid=? AND modid=?",
                                              undef, $c->{'userid'}, $modid);
         my $frozen = $dbcm->selectrow_array("SELECT request_stor FROM modblob WHERE journalid=? AND modid=?",
                                             undef, $c->{'userid'}, $modid);
 
-        my $req = Storable::thaw($frozen) if $frozen;
+        my $req = $frozen ? Storable::thaw($frozen) : undef;
         unless ($frozen && $entry && $req->{'_moderate'}->{'authcode'} && $req->{'_moderate'}->{'authcode'} eq $POST{'auth'}) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noentry'} p?>";
             return $ret;
@@ -63,7 +89,6 @@ body<=
         # we need to fix up the username based on the userid we stored
         $req->{user} = $poster->user;
         $req->{username} = $poster->user;
-
         if ($mode eq 'approve_do') {
             my $res = LJ::Protocol::do_request('postevent', $req, \$prot_err, {'nomod'=>1, 'noauth'=>1});
             if ($res) { # succeeded
@@ -91,6 +116,10 @@ body<=
             $ret .= "<?h1 $ML{'.rejected.header'} h1?><?p $ML{'.rejected.text'} p?>";
             ($do_mail, $why_mail) = (1, 'reject')
                 if $poster->{'status'} eq 'A';
+
+            if ($POST{'mark_as_spam'} && !LJ::reject_entry_as_spam($c->{'userid'}, $modid)) {
+                    $success = 0;
+            }
         }
 
         $do_mail = 1 unless $poster->is_visible;
@@ -102,6 +131,8 @@ body<=
             my $body = "Your message submitted to the moderated community $c->{'user'} ";
             if ($why_mail eq 'success') {
                 $body .= "has been approved and successfully posted.\n\n$posturl";
+                $body .= "The moderator that approved your post has attached the following note: \n\n$POST{why}\n\n"
+                    if $POST{why};
             } elsif ($why_mail eq 'proterror') {
                 $body .= "has been approved, but failed to be posted due to the following protocol error:\n$prot_err\n\n";
             } elsif ($why_mail eq 'reject') {
@@ -149,15 +180,18 @@ body<=
             $c->do("DELETE FROM modblob WHERE journalid=? AND modid=?",
                    undef, $c->{'userid'}, $modid);
 
+            # expire mod_queue_count memcache
+            $c->memc_delete( 'mqcount' );
+
         # FALL THROUGH to showing the list of entries in this community
         } else {
             $ret .= "<p>";
             $ret .= BML::ml('Backlink', {
-                'link'=>'/community/manage.bml',
+                'link'=>'/community/manage',
                 'text'=>$ML{'.manage'},
                 }) . "<br />";
             $ret .= BML::ml('Backlink', {
-                'link'=>"/community/moderate.bml?comm=$c->{'user'}",
+                'link'=>"/community/moderate?authas=$c->{'user'}",
                 'text'=>$ML{'.moderate'},
                 }) . "<br />";
             $ret .= "</p>";
@@ -165,25 +199,34 @@ body<=
         }
     }
 
-    my $comm = $saved_comm || ($mode eq 'action' ? $POST{'comm'} : $GET{'comm'});
+    my $comm = $saved_comm || ($mode eq 'action' ? $POST{'comm'} : $GET{authas});
     my $modid = $saved_modid || ($mode eq 'action' ? $POST{'modid'} : $GET{'modid'});
     $modid += 0;
 
     # redirect to community/manage if a GET request with no arg
-    return BML::redirect("manage.bml") unless $comm;
+    return BML::redirect("manage") unless $comm;
 
     my $c = LJ::load_user($comm);
     unless ($c) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.notfound'} p?>";
         return $ret;
     }
+
+    my $can_spam = LJ::sysban_check( 'spamreport', $c->user ) ? 0 : 1;
+
     my $dbcr = LJ::get_cluster_def_reader($c);
 
-    unless (LJ::check_rel($c, $remote, 'M')) {
-        $ret .= "<?h1 $ML{'Error'} h1?><?p " .
-            BML::ml('.error.noaccess', {'comm'=>"<?ljcomm $comm ljcomm?>"}) . " p?>";
+    unless ( $remote->can_moderate( $c ) ) {
+        $ret .= "<?h1 $ML{'Error'} h1?>";
+        if ( $c->has_moderated_posting ) {
+            $ret .= "<?p " . BML::ml( '.error.noaccess', { comm => $c->ljuser_display } ) . " p?>";
+        } else {
+            $ret .= "<?p " . BML::ml( '.error.notmoderated' ) . " p?>";
+        }
         return $ret;
     }
+
+    $ret .= LJ::maintainer_linkbar($c, "queue") unless LJ::did_post() && ($mode eq 'approve_do' || $mode eq 'reject_do');
 
     my $formauth = LJ::form_auth();
 
@@ -202,7 +245,7 @@ body<=
         my $req = Storable::thaw($frreq);
         my $poster = LJ::load_userid($posterid);
         $ret .= "<?h1 $ML{'.approve.header'} h1?><?p $ML{'.approve.text'} p?>";
-        $ret .= "<p><form method='post' action='/community/moderate.bml'><center>";
+        $ret .= "<p><form method='post' action='/community/moderate'><center>";
         $ret .= $formauth;
         $ret .= "<input type='hidden' name='mode' value='approve_do'>";
         $ret .= "<input type='hidden' name='cid' value='$c->{'userid'}'>";
@@ -210,13 +253,22 @@ body<=
         $ret .= "<input type='hidden' name='auth' value='" . $req->{'_moderate'}->{'authcode'} . "'>";
         $ret .= "<input type='submit' value='$ML{'.approve.button'}'>";
         $ret .= "</center>";
+        if ( $poster && $poster->email_status eq 'A' ) {
+            $ret .= "<?p $ML{'.approve.note'} p?>";
+            $ret .= LJ::html_textarea({
+                name => "why",
+                class => "text",
+                rows => 10,
+                cols => 60,
+            });
+        }
         $ret .= "<p><input type='checkbox' name='preapprove'> " .
             BML::ml('.approve.preapprove', {'user'=>"<?ljuser $poster->{'user'} ljuser?>"});
         $ret .= "</form>";
         return $ret;
     }
 
-    if ($mode eq 'action' && $POST{'action:reject'}) {
+    if ($mode eq 'action' && ($POST{'action:reject'} || $POST{'action:mark_as_spam'})) {
         my ($posterid, $frreq);
         if ($modid) {
             ($posterid, $frreq) = $dbcr->selectrow_array
@@ -231,12 +283,13 @@ body<=
         my $req = Storable::thaw($frreq);
         my $poster = LJ::load_userid($posterid);
         $ret .= "<?h1 $ML{'.reject.header'} h1?><?p $ML{'.reject.text'} p?>";
-        $ret .= "<p><form method='post' action='/community/moderate.bml'><center>";
+        $ret .= "<p><form method='post' action='/community/moderate'><center>";
         $ret .= $formauth;
         $ret .= "<input type='hidden' name='mode' value='reject_do'>";
         $ret .= "<input type='hidden' name='cid' value='$c->{'userid'}'>";
         $ret .= "<input type='hidden' name='modid' value='$modid'>";
         $ret .= "<input type='hidden' name='auth' value='" . $req->{'_moderate'}->{'authcode'} . "'>";
+        $ret .= "<input type='hidden' name='mark_as_spam' value='1'>" if $POST{'action:mark_as_spam'};
         $ret .= "<input type='submit' value='$ML{'.reject.button'}'>";
         $ret .= "</center>";
         if ($poster->{'status'} eq 'A') {
@@ -269,7 +322,7 @@ body<=
             my %users;
             LJ::load_userids_multiple([ map { $_->{'posterid'}, \$users{$_->{'posterid'}} } @entries ]);
             foreach (sort { $a->{'logtime'} lt $b->{'logtime'} } @entries) {
-                my $link = "/community/moderate.bml?comm=$comm&amp;modid=" . $_->{'modid'};
+                my $link = "/community/moderate?authas=$comm&amp;modid=" . $_->{'modid'};
                 my $subject = $_->{'subject'} ? LJ::eall($_->{'subject'}) : "<i>[No Subject]</i>";
                 $ret .= "<tr><td>$_->{'logtime'}</td>" .
                     "<td><?ljuser " . $users{$_->{'posterid'}}->{'user'} . " ljuser?></td>" .
@@ -283,7 +336,7 @@ body<=
         }
         $ret .= "</div>";
         $ret .= BML::ml('Backlink', {
-            'link'=>'/community/manage.bml',
+            'link'=>'/community/manage',
             'text'=>$ML{'.manage'},
         }) . "<br />";
 
@@ -332,20 +385,24 @@ body<=
             return $poll->preview;
         };
 
-        $event =~ s/<lj-poll-placeholder>/$poll_preview->()/eg;
+        $event =~ s/<poll-placeholder>/$poll_preview->()/eg;
         LJ::CleanHTML::clean_event(\$event, {'preformatted' => $req->{'props'}->{'opt_preformatted'},
                                              'cutpreview' => 1,
                                              'cuturl' => '#',
                                          });
+
+        # create iframe from <lj-embed> tag
+        LJ::EmbedModule->expand_entry($c, \$event);
+
         BML::ebml(\$event);
 
         $ret .= "<p>";
         $ret .= BML::ml('Backlink', {
-            'link'=>'/community/manage.bml',
+            'link'=>'/community/manage',
             'text'=>$ML{'.manage'},
         }) . "<br />";
         $ret .= BML::ml('Backlink', {
-            'link'=>"/community/moderate.bml?comm=$comm",
+            'link'=>"/community/moderate?authas=$comm",
             'text'=>$ML{'.moderate'},
         }) . "<br />";
         $ret .= "</p>";
@@ -381,49 +438,22 @@ body<=
         my $actions .= "<input type='hidden' name='mode' value='action' />";
         $actions .= "<input type='hidden' name='comm' value='$comm' />";
         $actions .= "<input type='hidden' name='modid' value='$modid' />";
-        $actions .= "<input type='submit' name='action:approve' value='$ML{'.choice.approve'}' style='font-size: 15pt; background: $ML{'.choice.bkapprove'}; color: #000000' />";
-        $actions .= "&nbsp;&nbsp;<input type='submit' name='action:reject' value='$ML{'.choice.reject'}' style='font-size: 15pt; background: $ML{'.choice.bkreject'}; color: #000000' />";
+        $actions .= "<input type='submit' name='action:approve' value='$ML{'.choice.approve'}' style='font-size: 15pt; background: #82dd88; color: #000000' />";
+        $actions .= "&nbsp;&nbsp;<input type='submit' name='action:reject' value='$ML{'.choice.reject'}' style='font-size: 15pt; background: #e08291; color: #000000' />";
+        $actions .= "&nbsp;&nbsp;<input type='submit' name='action:mark_as_spam' value='$ML{'.choice.mark_as_spam'}' style='font-size: 15pt; background: #e08291; color: #000000' />" if $can_spam;
 
-        $ret .= "<form method='post' action='/community/moderate.bml'>";
+        $ret .= "<form method='post' action='/community/moderate'>";
         $ret .= BML::fill_template("standout", {'DATA'=> $actions});
         $ret .= "</form>";
 
-        my %current;
-        if ($props->{'current_mood'} || $props->{'current_moodid'}) {
-            $current{'Mood'} = $props->{'current_mood'};
-            LJ::CleanHTML::clean_subject(\$current{'Mood'});
-            my $mid = $props->{'current_moodid'};
-            if ($mid) {
-                my $theme = $up->{'moodthemeid'};
-                my %pic;
-                my $name = LJ::mood_name($mid);
-                if (LJ::get_mood_picture($theme, $mid, \%pic)) {
-                    $current{'Mood'} = "<img src='$pic{'pic'}' align='absmiddle' width='$pic{'w'}' height='$pic{'h'}' vspace='1'> $name";
-                } else {
-                    $current{'Mood'} = $name;
-                }
-            }
-        }
-        if ($props->{'current_music'}) {
-            $current{'Music'} = $props->{'current_music'};
-            LJ::CleanHTML::clean_subject(\$current{'Music'});
-        }
+        my %current = LJ::currents( $props, $up );
+
         if ($props->{'taglist'}) {
             $current{'Tags'} = join(", ", sort split(/\s*,\s*/, $props->{'taglist'}));
         }
 
         $ret .= "<div style='margin-left: 30px'>";
-        if (%current)
-        {
-            $ret .= "<table border=0>\n";
-            foreach (sort keys %current) {
-                my $curkey = "talk.curname_" . $_;
-                my $curname = BML::ml($curkey);
-                $curname = "<b>Current $_:</b>" unless $curname;
-                $ret .= "<tr><td align=right>$curname</td><td>$current{$_}</td></tr>\n";
-            }
-            $ret .= "</table><p>\n";
-        }
+        $ret .= LJ::currents_table( %current );
 
         ### security indicator
         my $sec = "";

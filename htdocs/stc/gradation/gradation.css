@@ -1,0 +1,1479 @@
+/** Gradation Vertical CSS
+ *
+ * Authors:
+ *     Emily Ravenwood <ravenwood@alltrees.org>
+ *
+ * Copyright (c) 2009 by Dreamwidth Studios, LLC.
+ *
+ * This program is free software; you may redistribute it and/or modify it under
+ * the same terms as Perl itself.  For a copy of the license, please reference
+ * 'perldoc perlartistic' or 'perldoc perlgpl'.
+ */
+
+ /*  Colors:
+     vrylt=#888888 (borders)
+    dk=#333333 (standout, hover ul)
+    vrydk=#222222 (hover a)
+    med=#444444 (inactive tabs, evencomment)
+    lt=#666666 (active tabs)
+    altlt=#555555 (oddcomment, footer border)
+*/
+
+
+/**
+ * pieces from Erik Meyer's CSS Reset Reloaded
+ * @link            http://meyerweb.com/eric/thoughts/2007/05/01/reset-reloaded/
+ */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    margin:          0;
+    padding:         0;
+    border:          0;
+    outline:         0;
+    font-size:       100%;
+    vertical-align:  baseline;
+    background:      transparent;
+}
+
+/* @note    remove default border of linked images */
+a img, :link img, :visited img {
+    border: none;
+}
+
+ol, ul {
+    list-style:      none;
+}
+
+/**
+ * Global
+ */
+
+body {
+    font-family: Arial, Verdana, sans-serif;
+    line-height: 1.25em;
+    background-image: url('/img/gradation/blackfade.png');
+    background-position: top;
+    background-repeat: repeat-x;
+    background-color: #111111;
+    color: #e9e9e0;
+}
+
+H1, H2, H3, H4 {
+    padding: 1em 0;
+    line-height: 1em;
+    }
+H1 { font-size: 175%; }
+H2 { font-size: 150%; }
+#content H2 { font-size: 125%; }
+H3 { font-size: 125%; }
+H4 { font-size: 100%; }
+
+ul { list-style: circle;
+    margin-left: 1em; }
+
+a:link,
+.link {
+    color: #CCCC99;
+}
+a:visited {
+    color: #999966;
+}
+a:hover,
+a:active,
+.link:hover {
+    text-decoration: none;
+}
+
+#canvas {
+    padding-top: 1px;  /*to ensue margin*/
+    margin-top: 120px;
+}
+#page {
+    padding-top: 1px;  /*to ensue margin*/
+}
+
+
+/**
+ * Header
+ */
+#masthead {
+    position: absolute;
+    top: 30px;
+    right: 1em;
+    }
+    #sitename {
+        font-weight: bold;
+        font-size: 175%;
+        }
+    #sitename a { color: #ffffff; }
+
+#account-links {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100px;
+    padding-top: .5em;
+    text-align: left;
+    font-size: small;
+    color: #ffffff;
+    z-index: 200; /*keep log-in on top of search bar*/
+}
+#account-links ul { list-style: none;
+        margin-left: 0;
+        padding-left: 0;
+        margin-top: 5px;
+        white-space: nowrap; /* to make sure the links don't wrap under short usernames */
+        }
+#account-links li { display: inline; }
+#account-links a {color: #ffffff; }
+
+#account-links-text { margin-left: 100px; }
+
+#account-links #login-table { margin-left: 5px; }
+#account-links #login-table td {
+    padding: 3px;
+    text-align: left;
+}
+#account-links #login-table td.input-cell,
+#account-links #login-table td.remember-me-cell {
+    text-align: left;
+}
+#account-links #login_user,
+#account-links #login_password {  }
+#account-links-userpic { text-align: center;
+    height: 100px;
+    width: 100px;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    }
+    #account-links-userpic img {
+        border: none;
+        }
+
+#header-search { position: absolute;
+    top: 120px;
+    right: 0;
+    width: 100%;
+    height: 2.5em;
+    text-align: right;
+    background-color: #444444;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    }
+    #header-search .appwidget-search {
+        margin-right: .5em;
+        margin-top: .25em;
+        }
+    #header-search #search {  }
+
+/**
+ * Menu
+ */
+
+/* Vertical */
+
+body {
+    background-color: #222222;
+    }
+
+#canvas.vertical-nav {
+    margin-left: 8.25em;
+    min-height: 60em;
+    background-color: #111111;
+    padding-bottom: 1px; /* to ensure margin*/
+    }
+
+#canvas.vertical-nav #header-search { z-index: 100; }
+
+#canvas.vertical-nav #menu { position: absolute;
+    top: 120px;
+    left: 0;
+    width: 8.25em;
+    background-color: #222222;
+    }
+#canvas.vertical-nav #menu ul { margin-top: 3.5em; /*to clear search bar */
+        padding-left: 0;
+        margin-left: 0;
+        font-size: small;
+        list-style: none;
+        }
+#canvas.vertical-nav #menu ul ul {
+            margin-top: 0;  /* undo the above*/
+        }
+#canvas.vertical-nav #menu a {color: #ffffff;
+    display: block;
+    text-decoration: none; }
+    #menu a:hover { background-color: #444444; }
+    #menu .topnav a {font-weight: bold;
+        padding: .20em 5px;}
+    #menu .subnav a {font-weight: normal;
+        padding: .20em 5px .20em 1em; }
+
+/* Horizontal */
+
+#canvas.horizontal-nav { background-color: #111111; }
+
+#canvas.horizontal-nav #menu {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    background-color: #444;
+    height: 2.5em;
+    width: auto;
+    line-height: 2.5em;
+    clear: both;
+	padding-left: .5em;
+	z-index: 100;
+	border-top: 1px solid #000;
+	border-bottom: 1px solid #000;
+}
+#canvas.horizontal-nav #menu ul { margin-left: 0; 
+	padding-left: 0;
+	list-style: none; }
+#canvas.horizontal-nav #menu ul li {
+    float: left;
+    position: relative;
+    display: block;
+    height: 100%;
+    width: 0;
+}
+#canvas.horizontal-nav #menu ul > li {
+    width: auto;
+}
+#canvas.horizontal-nav #menu ul li a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    text-indent: 1.5em;
+    padding-right: 0.75em;
+}
+/* .hover is a class added by js for the currently hovered/focused menu */
+#canvas.horizontal-nav #menu ul li.hover a {
+    height: 100%;
+    background-color: #333;
+    color: #fff;
+    width: 100%;
+}
+#canvas.horizontal-nav #menu ul li.hover a:hover {
+    background-color: #222;
+    cursor: pointer;
+}
+#canvas.horizontal-nav #menu ul li ul {
+    display: none;
+}
+#canvas.horizontal-nav #menu ul li.hover ul {
+    display: block;
+    position: absolute;
+    top: 2.5em;
+    left: 0;
+    width: 14em;
+    background-color: #333;
+}
+#canvas.horizontal-nav #menu ul li ul li {
+    float: none;
+    width: 100%;
+}
+#canvas.horizontal-nav #menu ul li ul li a {
+    text-align: left;
+    display: block;
+    width: 100%;
+}
+
+/* This is to make the update page look decent in horizontal */
+
+#canvas.horizontal-nav #updateForm { margin: 0 auto; }
+
+/**
+ * Footer
+ */
+#footer {
+    margin: 1em;
+    text-align: center;
+    border-top: 1px solid #555555;
+    }
+    #footer ul { list-style: none;
+        margin: .25em 0;
+        margin-left: 0;
+        padding-left: 0;
+        }
+    #footer li { display: inline; }
+    #footer p { margin: .25em 0;
+        padding: 0;
+        font-size: small;
+        color: #999999;
+        }
+
+/**
+ * #content
+ */
+#content { margin: 0;
+    padding: 1px 1em 1em 1.5em;
+    margin-top: 2em;
+}
+
+#content p {
+    margin-bottom: 1em;
+}
+#content p.note {
+    font-style: italic;
+    font-size: 0.8em;
+}
+#content ul.bullet-list {
+    list-style: square outside;
+    margin-left: 2em;
+    margin-bottom: 1em;
+}
+
+/* TALKPAGE.CSS AND HARDCODE OVERRIDES*/
+.cmtbar-odd {
+    border-bottom: none !important;
+    border-right: none !important;
+    background-color: #444444 !important;
+    background-image: url("/img/gradation/blackfade.png");
+    background-position: top;
+    background-repeat: repeat-x;
+}
+.cmtbar-even {
+    border-bottom: none !important;
+    border-right: none !important;
+    background-color: #555555 !important;
+    background-image: url("/img/gradation/blackfade.png");
+    background-position: top;
+    background-repeat: repeat-x;
+}
+
+/*insert class of screened comments here*/ {
+    background-color: #333333; }
+
+/* PROFILE.CSS OVERRIDES */
+#profile_top {
+    min-width: 0;
+}
+
+
+/* layer tables */
+table.table_layerbrowse,
+table#table_yourlayers { border-collapse: collapse; }
+
+table.table_layerbrowse,
+table.table_layerbrowse td,
+table#table_yourlayers,
+table#table_yourlayers td { border: 1px solid #888888; }
+
+table#table_layerbrowse_classes,
+table#table_layerbrowse_classes td {border: none; }
+
+table.table_layerbrowse td,
+table#table_yourlayers td { padding: .15em .25em; }
+
+/**
+ * Content Layouts
+ *
+ * Content layouts are determined based on the class assigned to #content. Potential layouts include:
+ * -- wide sidebars
+ * -- thin sidebars
+ * -- equal width/height columns
+ * -- full page (default)
+ *
+ * Columns/rows inside of #content are named primary, secondary, tertiary, etc and
+ * content is placed inside based on order of importance.
+ */
+
+ /* ER Note:  Unsure of actual use of these, taking a stab at them anyway, mostly re-measuring width */
+
+/* full page (default) */
+#primary,
+#secondary {
+    margin-bottom: 2em;
+}
+/* 2 column wide right sidebar */
+.layout-wide-right-sidebar #primary {
+    width: 65%;
+    margin-right: 1.25em;
+    float: left;
+    padding: 0;
+}
+.layout-wide-right-sidebar #secondary {
+    float: right;
+    width: 30%;
+    margin: 0;
+    padding: 0;
+    padding-top: 0.5em;
+}
+/**
+ * Panels are generic boxes for divs inside of #content
+ */
+#content #primary .panel,
+#content #secondary .panel {
+    width: 100%;
+    border-width: 1px 0 1px 0;
+    border-color: #ccc;
+    border-style: solid;
+    margin: 0 0 0.155567em 0;
+    overflow: hidden;
+}
+#content .panel .sidebar,
+#content .panel .contents,
+#content .panel .item,
+#content .panel .actions {
+    border-color: #ccc;
+}
+#content #primary .panel h2 {
+    line-height: 2em;
+    border-style: none;
+}
+#content #primary .panel p {
+    clear: both;
+}
+#content #secondary .panel h2 {
+    line-height: 30px;
+    border-style: none;
+}
+#content .panel .sidebar ul {
+     list-style: none;
+     margin-left: 0;
+}
+#content .panel ul {
+    list-style: circle;
+    margin-left: 1em;
+}
+
+/**
+ * Panels have different styles for different content layouts
+ */
+.layout-wide-right-sidebar #primary .panel .sidebar {
+    float: left;
+    width: 22%;
+}
+.layout-wide-right-sidebar #primary .panel .contents {
+    float: left;
+    padding-top: 6px;
+    padding-left: 14px;
+    border-left: 1px solid #ccc;
+    width: 75%;
+    line-height: 1.8;
+}
+.layout-wide-right-sidebar #secondary .panel .contents {
+    margin: 0.5em 0;
+    line-height: 1.8;
+}
+/* panel-first class is added through js */
+#content .panel-first {
+    border-top: 0 !important;
+}
+
+
+/**
+ * Form field styles
+ */
+.dw-field-default {
+    color: #eee;
+    font-style: italic;
+}
+.standout {
+    text-align: center;
+}
+.standout .standout-inner {
+    background-color: #333333;
+    color: #eee;
+    border: 1px solid #555555;
+    margin-top: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+}
+.standout .standout-inner td {
+    padding: 0.5em;
+}
+
+.standout-inner a:hover, .standout-inner a:active, .standout-inner a:hover {
+
+}
+
+/**
+ * Start overriding some classes set in dw-free/htdocs/stc/
+ * Other site scheme designers: use your own colors here
+ * /
+
+/* editicons.css */
+#uploadBox {
+    background-color: #333333;
+    border: 1px solid #888888;
+    margin: 0 20px 0 0;
+}
+
+/* profile.css */
+
+.section, .username, .actions li {
+    background-color: #666666;
+    border-bottom: 1px solid #888888;
+    border-top: 1px solid #888888;
+    color: #eee;
+}
+
+.section img, .username img {
+    padding-left: 3px;
+}
+
+.section_body p,
+.section_body th,
+.section_body .inner_section_header { color: #eee; }
+
+/* customize.css */
+
+.theme-current {
+    background-color: #444444;
+    border: 1px solid #888888;
+}
+
+/* widgets/customizetheme.css, themechooser.css, themenav.css,
+currenttheme.css */
+
+.layout-item.current {
+    background-color: #666666;
+    border: 1px solid #888888;
+}
+
+h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-item .theme-icons {
+    border: 1px solid #888888;
+}
+
+.theme-item .theme-button-disabled, .layout-item .layout-button-disabled {
+    background: #444444;
+}
+
+.theme-item {
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+.customize-button, .theme-item .theme-button, .layout-item
+.layout-button {
+    background: #444444;
+    border: 2px solid #888888;
+    border-top: 2px solid #444444;
+    border-left: 2px solid #444444;
+}
+
+
+.theme-nav-content, .customize-content {
+    border: 1px solid #888888;
+    border-left: none;
+}
+
+.theme-selector-nav {
+    background-color: #666666;
+}
+
+.theme-nav li a, .theme-nav-small li {
+    border-right: 1px solid #888888;
+}
+
+.theme-nav-small a { color: #ccc; }
+
+.theme-nav li.on a {
+    border: 1px solid #888888;
+    border-right: none;
+}
+
+.theme-nav-separator {
+    border-right: 1px solid #888888;
+}
+
+.theme-nav-separator hr {
+    border-top: 1px solid #888888;
+}
+
+.customize-content .subheader {
+    background-color: #666666;
+    border-bottom: 1px solid #888888;
+}
+
+.customize-content .subheader.on {
+    background-color: #666666;
+}
+
+.customize-nav {
+    background-color: #444444;
+}
+
+.customize-nav li a, .customize-nav li li  {
+    border-right: 1px solid #888888;
+}
+
+.customize-nav li.on a, .customize-nav li.on ul {
+    border: 1px solid #888888;
+    border-right: none;
+    border-top: none;
+}
+
+.customize-nav li.on {
+    border-top: 1px solid #888888;
+}
+
+.moodtheme-preview, .appwidget-linkslist .tips-box {
+    background-color: #666666;
+    border: 1px solid #888888;
+}
+
+.theme-current-links {
+    border-bottom: 1px solid #888888;
+    border-right: 1px solid #888888;
+}
+
+.theme-nav li a:visited, .customize-nav li a:visited {
+    color: #eee;
+    font-weight: bold;
+}
+
+
+/* more, detailed by page*/
+/*customizetheme.css*/
+.customize-button {
+    color: #fff;
+    background: #444444;
+    border: 2px solid #888888;
+}
+.customize-inner-wrapper {
+    background: url("/img/gradation/gradgray-borderpixel.gif") repeat-y scroll 134px 50%;
+}
+.customize-content .subheader {
+    background-image: url("/img/gradation/gradgray-arrow-right.gif");
+    background-position: left center;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid #666666;
+}
+.customize-content .subheader.on {
+    background-image: url("/img/gradation/gradgray-arrow-down.gif");
+    background-position: left center ;
+    background-repeat: no-repeat;
+}
+.customize-nav li.on a,
+.customize-nav li.on ul {
+    background: #111111;
+}
+.customize-nav li.on a {
+    border-right: 1px solid #111111;
+}
+.customize-nav li.on li a {
+    background: #111111;
+    border-right: 1px solid #111111;
+}
+.customize-nav li.on li {
+    border-right: 1px solid #111111;
+}
+.customize-nav li a:visited {
+
+}
+
+
+/*themenav.css*/
+.theme-nav-inner-wrapper {
+    background: url("/img/gradation/gradgray-borderpixel.gif") repeat-y scroll 134px 50%;
+}
+.theme-selector-nav {
+    background-color: #444444;
+}
+.theme-nav li.on a {
+    background-color: #111111 ;
+}
+.theme-nav li a:visited {
+
+}
+.theme-nav-separator {
+    border-right: 1px solid #666666;
+}
+.theme-nav-separator hr {
+    border-top: 1px solid #666666;
+}
+
+/*currentheme.css*/
+.theme-current-content h3 {
+    color: #eee;
+}
+.theme-current-image {
+     border: 1px solid #111111;
+}
+.theme-current-links {
+    background-color: #111111;
+    border: 1px solid #888888;
+    padding: 3px 5px;
+}
+.theme-current ul li {
+    background: url("/img/customize/arrow.gif") no-repeat 0 5px;
+}
+
+/*themechooser*/
+.theme-item {
+    border: 1px solid #111111;
+}
+.theme-item.current {
+    border: 1px solid #444444;
+    background-color: #666666;
+}
+.theme-item img.theme-preview {
+    border: 1px solid #666666;
+}
+.theme-item.special h4,
+.theme-item.special .theme-desc {
+    background-color: #666666;
+}
+.theme-item .theme-button {
+    color: #fff;
+    background: #444444;
+    border: 2px solid #888888;
+}
+.theme-item .theme-button-disabled {
+    background: #999;
+}
+.theme-item .theme-icons {
+    border: 1px solid #666666;
+    background-color: #111111;
+}
+.theme-time,
+.theme-upgrade-icon {
+    color: #eee !important;
+}
+.theme-upgrade-icon:hover .theme-upgrade-level,
+.theme-time:hover span.theme-availability {
+    background-color: #111111;
+}
+.theme-paging a:visited {
+
+}
+
+/*s2propgroup.css */
+
+.graybg {
+    background-color: #333;
+}
+
+/* inbox */
+
+.folders a.active {
+    font-weight: bold;
+    background-color: #333333;
+    border: 1px solid #999999;
+}
+
+/* lj_settings.css */
+
+.section_head, table.alternating-rows th, div.username {
+    background-color: #666666;
+    color: #CCC;
+}
+
+.field_name { background: #333333; }
+
+/* comm_promo.css */
+
+div.CommunityPromoBox {
+    border: 1px solid #333333;
+}
+
+/* settings.css */
+
+#settings_save {
+    background: #666666;
+}
+
+#settings_nav li a {
+    background: #444444;
+    border: 1px solid #888888;
+    border-bottom: none;
+    color: #eeeeee;
+}
+
+#settings_nav li a:hover, #settings_nav li a.active {
+    background: #666666;
+}
+
+#settings_nav_title p {
+    background: #666666;
+    border-left: 1px solid #888888;
+}
+
+.color-light {
+    color: #666;
+}
+
+/* cprod.css */
+
+.cprod.h3 {
+    background: #444444;
+
+}
+
+.cprod content {
+    border: 1px solid #888888;
+}
+
+
+/* allpics styling */
+
+table.allpics {
+    margin-left: 50px;
+}
+
+.allpics td {
+    vertical-align: bottom;
+}
+
+.allpics .userpic-img {
+    margin-right: 1em;
+    margin-top: 15px;
+}
+
+.allpics blank {
+    width: 50px;
+}
+
+
+/* editfilters styling */
+
+table.editfilters td {
+    padding: 5px;
+}
+
+
+/* FAQ */
+
+.faqlist {
+    list-style: square outside;
+    margin-bottom: 2em;
+}
+
+/* Inbox - Compose */
+
+.inbox-compose {
+    width: 100%;
+}
+
+.inbox-compose td {
+    vertical-align: top;
+}
+
+
+/* manage/invitecodes.bml */
+
+.invitecodes td {
+    padding: 5px;
+}
+
+
+/* shop pages */
+
+/* this is so the main shop page does not look like toasted ass */
+.shopbox, .appwidget-shopitemgroupdisplay {
+    min-width: 20em;
+    min-height: 10em;
+    float: none;
+}
+
+.shopbox, .appwidget-shopitemgroupdisplay,
+.shop-account-status, .shop-error, .shop-cart-status,
+.shop-cart td, .shop-cart th, .shop-item-highlight {
+    border: 1px solid #888888;
+}
+
+.shop-cart th, .shop-cart td.total, .shop-cart-status {
+    background-color: #222;
+}
+
+.shop-account-status {
+    background-color: #815E00; 
+}
+
+/* create flow */
+
+.create-form td {
+    padding: 5px;
+}
+
+.appwidget-createaccount .create-button {
+    color: #eee;
+    background-color: #444444;
+}
+
+.appwidget-createaccountprogressmeter .step-block-active {
+    color: #111111;
+    background-color: #888888;
+}
+
+.appwidget-createaccountprogressmeter .step-block-inactive {
+    color: #111111;
+    background-color: #444444;
+}
+
+.appwidget-createaccountprogressmeter .step-selected {
+    color: #888888;
+}
+
+.appwidget-createaccountprogressmeter .step-previous {
+    color: #444444;
+}
+
+.appwidget-createaccountprogressmeter .step-next {
+    color: #111111;
+}
+
+.appwidget-createaccountprofile .header {
+    color: #888888;
+}
+
+.appwidget-createaccountprofile .field-name {
+    background-color: #e0e0e0;
+}
+
+
+/* Site Map, override page-level style */
+dd ul li {list-style: circle !important;
+    margin-left: 2em !important; }
+dt {font-weight: bold !important;
+    margin-top: 10px !important;}
+#maplinks-left {margin-right: 2% !important;
+    width: 48% !important;
+    float: left !important;}
+#maplinks-right {margin-left: 2% !important;
+    width: 48% !important;
+    float: right !important;}
+
+/* lj_base-app.css */
+hr.hr {
+    color: #888888;
+    background-color: #888888;
+}
+
+input.create-account {
+    color: #fff;
+    background: #444444;
+    border: 2px solid #888888;
+}
+input.text,
+textarea.text,
+select {
+    /*background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;*/
+    background-color: #222;
+    border: 1px solid #666666;
+    border-top: 1px solid #888888;
+    border-left: 1px solid #888888;
+    color: #ccc;
+}
+textarea,
+input { background-color: #222 !important;
+color: #fff !important;
+border: 1px solid #888 !important; }
+.detail {
+
+}
+h2.widget-header {
+
+}
+
+table.alternating-rows th {
+    border-top: 1px solid #888888;
+    border-bottom: 1px solid #888888;
+    background-color: #333;
+}
+table.alternating-rows tr.altrow1 {
+    background-color: #222;
+}
+table.alternating-rows tr.altrow2 {
+    background-color: #333;
+}
+table.alternating-rows td {
+    border-bottom: 1px solid #888888;
+}
+
+.appwidget .more-link {
+    color: #888888 !important;
+    background: url('/img/arrow-double-black.gif') no-repeat 0 60%;
+}
+
+.arrow-link,
+.more-link {
+    background: url('/img/arrow-double-black.gif') no-repeat 0 50%;
+}
+
+.message {
+    border: 5px solid #eee;
+}
+.message blockquote {
+    border: 1px solid #aaa;
+}
+
+.standout-border {
+    border: 1px solid #888888;
+}
+.standout-background {
+    background-color: #444444;
+}
+
+div.right-sidebar {
+    color: #fff;
+    background-color: #444444;
+    border: 1px solid #888888;
+}
+.textbutton {
+    color: #888888;
+}
+/*NOTE: corner.gif is white*/
+h2.solid-neutral {
+    background-color: #444444;
+    color: #fff;
+}
+h2.solid-blue { /*which is now solid not-blue*/
+    background-color: #444444;
+    color: #fff;
+}
+.solid-neutral {
+    background: #444444;
+}
+input.bright {
+    background-color: #444444;
+    border: 1px solid #888888;
+    color: #fff;
+}
+.helper {
+    /*color: #666;*/
+}
+.rounded-box {
+    background: no-repeat;
+    zoom: 1;
+}
+.rounded-box .rounded-box-tr {
+    background: 100% 0 no-repeat;
+}
+.rounded-box .rounded-box-bl {
+    background: 0 100% no-repeat;
+}
+.rounded-box .rounded-box-br {
+    background: 100% 100% no-repeat;
+    padding: 2px; /* border width */
+}
+
+
+/* esn.css */
+.Subscribe tr.Inactive {
+    color: #aaa;
+}
+
+.Subscribe tr.Disabled {
+    background-color: #111;
+    color: #777;
+}
+
+.Subscribe tr.altrow {
+    background-color: #333;
+}
+
+.Subscribe tr.Inactive a {
+    color: #aaa;
+}
+.Subscribe td p {
+    color: #999;
+    background: #111111;
+}
+
+.CategoryRow td {
+    border-bottom: 1px solid #444444;
+}
+
+#Subscriptions tr.lighter {
+    background-color: #666666;
+}
+#Subscriptions tr.darker {
+    background-color: #444444;
+}
+#SubscribeSaveButtons {
+    border: 1px solid #888888;
+    }
+
+.NotificationTable tr.Selected {
+    background-color: #444444;
+}
+
+.NotificationTable tr.Selected td {
+    border-top: 1px solid #888888;
+}
+.NotificationTable #all_Body > .Selected:first-child td {
+    border-top: none;
+}
+
+.NotificationTable td {
+    padding: 2px;
+}
+.NotificationTable .inbox {
+
+}
+
+/*.NotificationTable .inbox .header .checkbox {
+    border-top: 1px solid #888888;
+    border-bottom: 1px solid #888888;
+    border-left: 1px solid #888888;
+}
+
+.NotificationTable .inbox .header .actions {
+    border-top: 1px solid #888888;
+    border-bottom: 1px solid #888888;
+    border-right: 1px solid #888888;
+}*/
+
+.inbox .header {
+    background: #666666;
+}
+
+.InboxItem_Read {
+    color: #888;
+}
+span.InboxItem_Read:hover {
+    color: #eee;
+}
+span.InboxItem_Read a {
+    color: #999 !important;
+}
+span.InboxItem_Read:hover a {
+    color: inherit !important;
+}
+
+.inbox .alt {
+    background: #333;
+}
+.inbox td.NoItems {
+    color: #ddd;
+}
+.inbox td.time {
+    color: #ccc;
+}
+
+.folders a {
+    color: #fff;
+    border: 1px solid #111111;
+}
+.folders a:visited, .folders a:link {
+    color: #fff;
+}
+.folders a:hover {
+    border: 1px solid #666666;
+    background-color: #666666;
+}
+
+.ippu {
+    color: #eee
+}
+.ippu .track_title {
+    color: #444444;
+}
+
+/* entry.css */
+a#lj_userpicselect {
+    color: #888888;
+}
+#lj_userpicselect_img {
+    border: 1px solid #111111;
+}
+#lj_userpicselect_img:hover {
+    border: 1px solid #888888;
+}
+#lj_userpicselect_img_txt {
+    color: #888888 !important;
+}
+#userpic_preview_image.userpic_loggedout {
+    border: 1px solid #888888;
+}
+.userpic_preview_border {
+    border: 1px solid #ccc;
+}
+#infobox {
+    border-left: 1px solid #eee;
+}
+#entry {
+    border-bottom: 1px solid #bbb;
+}
+#entry ul li a {
+    background-color: #222;
+    border: 1px solid #bbb;
+    border-bottom: none;
+}
+#entry ul li.on a {
+    background-color: #222;
+    border-bottom: 1px solid #222;
+}
+#draft-container {
+    border: 1px solid #bbb;
+    border-top: none;
+}
+#draftstatus {
+    background-color: #222;
+}
+#spellcheck-results {
+    border: 1px solid #444444;
+    background-color: #222;
+}
+#htmltools {
+    border-right: 1px solid #bbb;
+    border-left: 1px solid #bbb;
+    background: #222;
+}
+#htmltools ul {
+    border-bottom: 1px solid #8D8D8D;
+}
+#options, #public, #submitbar {
+    border: 1px solid #888888;
+    background-color: #444444;
+}
+#public {
+    /*color:#666;*/
+}
+
+
+/* contextualhover.css */
+div.ContextualPopup div.Inner {
+    background-color: #444444 !important;
+    color: #fff !important;
+    border: 1px solid #888888;
+    }
+div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
+        color: #ccc !important;
+        }
+
+/* profile.css */
+
+.section, .username, .actions li {
+    background-color: #444444 !important;
+    border: none;
+    color: #fff;
+}
+
+.actions li { border-top: 1px solid #888888; }
+
+.section img, .username img {
+    padding-left: 3px;
+}
+
+.tooltip {
+    border-bottom: 1px dotted #fff;
+}
+li.profile_join_disabled, li.profile_addtrust_disabled,
+li.profile_addsub_comm_disabled, li.profile_addsub_feed_disabled,
+li.profile_addsub_person_disabled, li.profile_postentry_disabled,
+li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
+    color: #999;
+}
+.details_stats p {
+        color: #aaa;
+    }
+.details_stats .account_level {
+        color: #fff;
+    }
+.section span.section_link {
+        color: #ccc;
+    }
+.section_body .inner_section_header {
+
+    }
+.section_body_title {
+
+}
+.profile th {
+
+}
+
+/* tags.css */
+#selected_tags {
+    color: #999;
+}
+
+.taginfo {
+    background-image: none;
+    background-color: #222;
+    border-color: #888;
+    color: #CCC;
+}
+
+.tagbox {
+    background-color: #222;
+    color: #CCC;
+}
+
+.tagfield {
+    color: #999;
+    border: 1px solid #888888;
+}
+
+.tagfield:focus {
+    color: #fff;
+    border: 1px solid #888888;
+}
+
+.tagfield_error {
+    border: 1px solid red;
+    background-color: #ecd7d7;
+}
+
+.proptbl .h {
+    background-image: none;
+    background-color: #222;
+}
+
+.proptbl .t {
+    background-color: #333;
+    border-right: 1px solid #888888;
+}
+
+.proptbl .r {
+    background-color: #333;
+    border-right: 1px solid #888888;
+}
+
+.proptbl .rv {
+    background-color: #444444;
+}
+
+.edittbl .l, .lsep {
+    border-right: 1px solid;
+}
+
+.edittbl .sep {
+    border-top: 1px solid;
+}
+
+.tagbox_nohist {
+    background-color: #444444;
+}
+
+/* manage/settings */
+
+.display_label {
+    color: #fff;
+}
+
+.display_option, .mobile_option, .privacy_option, .othersites_option {
+    color: #fff;
+}
+
+.xpost_footer_preview {
+    border: 1px solid #fff;
+    background: #333;
+}
+
+/* Support */
+
+div.box {
+    color: #fff !important;
+}
+
+div.adult_warning {
+    background-color: #333;
+    border: 1px solid #fff;
+    padding: 0 10px;
+}
+
+/* This makes the FAQ header not overlap with itself */
+.box h1 {
+    line-height: 1em;
+}
+
+div.blue {
+    background-color: #3D606B !important;
+    border:1px solid #6DB5C2 !important;
+}
+
+div.green {
+    background-color: #2B5229 !important;
+    border:1px solid #53914D !important;
+}
+
+.green, .green td {
+    background-color: #2B5229 !important;
+}
+.yellow, .yellow td {
+    background-color: #815E00 !important;
+}
+.red, .red td {
+    background-color: #831815 !important;
+}
+.clicked, .clicked td {
+    background-color: #3D606B !important;
+}
+
+/* For the manage/circle page */
+/* These are in the page CSS, so must be important. */
+
+.editfriends td, .editfriends td, .editfriends th, #addfriends td, #addfriends th {
+    border-color: #888 !important;
+}
+
+.editfriends tr:hover {
+    background-color: #333 !important;
+}
+
+/* /manage/circle/filters */
+
+.editfilters select {
+    background-color: #222;
+    color: #CCC;
+}
+
+/* For the manage/banusers page */
+
+.userslist-table tr.odd {
+    background-color: #222;
+}
+
+.userslist-table tr.even {
+    background-color: #111;
+}
+
+/* Import */
+
+h1.gradient, h2.gradient, h3.gradient, h4.gradient, h5.gradient {
+    background-image: none;
+    background-color: #222;
+    border-color: #888;
+}
+
+.importer .importoption {
+    background-color: #222;
+    border-color: #888;
+}
+
+.importer .importoption p {
+    color: #888;
+}
+
+.importer-status .table-header {
+    background-color: #222;
+}
+
+.importer-status td {
+    border-color: #444;
+}
+
+/* Update */
+
+/* # Makes sure the tab doesn't end up white */
+#compose-entry ul li.on a {
+    background-color: #222;
+}
+
+/* manage/subscriptions/filters */
+
+#cf-select, #cf-edit, #cf-filtopts, #cf-intro {
+    background-color: #222;
+    border-color: #888;
+}
+
+div#cf-edit select {
+    background-color: #111;
+    border-color: #888;
+    color: #888;
+}

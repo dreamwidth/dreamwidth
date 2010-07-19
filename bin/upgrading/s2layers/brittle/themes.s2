@@ -1,0 +1,291 @@
+#NEWLAYER: brittle/barnhouse
+layerinfo "type" = "theme";
+layerinfo "name" = "Barnhouse";
+layerinfo redist_uniq = "brittle/barnhouse";
+layerinfo author_name = "edgeraven";
+
+set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+
+## Page Colors
+
+set color_page_background = "#bc3d26";
+set color_page_text = "#0e0e0e";
+set color_page_link = "#8f1600";
+set color_page_link_hover = "#672700";
+set color_page_link_visited = "#4C1C00";
+
+## Header and Footer Colors
+
+set color_footer_background = "#fc9180";
+set color_footer_link = "#8f1600";
+set color_footer_link_hover = "#672700";
+set color_footer_link_visited = "#4C1C00";
+
+## Entry Colors
+
+set color_entry_background = "#fc9180";
+set color_entry_text = "#0e0e0e";
+set color_entry_link = "#8f1600";
+set color_entry_link_hover = "#672700";
+set color_entry_link_visited = "#4C1C00";
+
+## Module Colors
+
+set color_navigation_module_background = "#fc9180";
+set color_navigation_module_link = "#8f1600";
+set color_navigation_module_link_hover = "#672700";
+set color_navigation_module_link_visited = "#4C1C00";
+
+#NEWLAYER: brittle/drab
+layerinfo "type" = "theme";
+layerinfo "name" = "Drab";
+layerinfo redist_uniq = "brittle/drab";
+layerinfo author_name = "edgeraven";
+
+set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+
+## Page Colours
+
+set color_page_text = "#202020";
+set color_page_link = "#722a2a";
+set color_page_link_hover = "#c34848";
+set color_page_link_visited = "#6e6d45";
+
+## Header/Footer Colours
+
+set color_footer_background = "#cfce82";
+set color_footer_link = "#722a2a";
+set color_footer_link_hover = "#c34848";
+set color_footer_link_visited = "#6e6d45";
+
+## Entry Colours
+
+set color_entry_background = "#cfce82";
+set color_entry_link = "#722a2a";
+set color_entry_link_hover = "#c34848";
+set color_entry_link_visited = "#6e6d45";
+set color_entry_text = "#202020";
+set color_entry_title = "#202020";
+
+##Module Colours
+
+set color_navigation_module_background = "#cfce82";
+set color_navigation_module_link = "#722a2a";
+set color_navigation_module_link_hover = "#c34848";
+set color_navigation_module_link_visited = "#6e6d45";
+
+##Background Image
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "brittle/drab.png";
+
+#NEWLAYER: brittle/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "brittle/nnwm2009";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_entry_text = "#ffffff";
+set color_entry_background = "#000000";
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+set color_navigation_module_background = "#ffefbd";
+set color_page_background = "#000000";
+set color_page_link = "#429ace";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#ffffff";
+
+#NEWLAYER: brittle/oldroses
+layerinfo type = "theme";
+layerinfo name = "Old Roses";
+layerinfo redist_uniq = "brittle/oldroses";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#E3D7DB";
+set color_page_text = "#000000";
+set color_page_link = "#64434B";
+set color_page_link_hover = "#B18698";
+set color_page_link_visited = "#64434B";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#E3D7DB";
+set color_footer_link = "#64434B";
+set color_footer_link_hover = "#B18698";
+set color_footer_link_visited = "#64434B";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#64434B";
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000000";
+set color_entry_link = "#64434B";
+set color_entry_link_hover = "#B18698";
+set color_entry_link_visited = "#64434B";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#64434B";
+set color_navigation_module_link = "#E3D7DB";
+set color_navigation_module_link_hover = "#B18698";
+set color_navigation_module_link_visited = "#E3D7DB";
+
+#NEWLAYER: brittle/rust
+layerinfo type = "theme";
+layerinfo name = "Rust";
+layerinfo redist_uniq = "brittle/rust";
+layerinfo author_name = "renoir";
+
+set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ECE5CE";
+set color_page_text = "#7A7A7A";
+set color_page_link = "#5F8A92";
+set color_page_link_hover = "#ACC5C9";
+set color_page_link_visited = "#8DA8AD";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#FFFFFF";
+set color_footer_link = "#5F8A92";
+set color_footer_link_hover = "#ACC5C9";
+set color_footer_link_visited = "#8DA8AD";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#939393";
+set color_entry_background = "#FFFFFF";
+set color_entry_text = "#7A7A7A";
+set color_entry_link = "#5F8A92";
+set color_entry_link_hover = "#ACC5C9";
+set color_entry_link_visited = "#8DA8AD";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#7A6A53";
+set color_navigation_module_link = "#ACC5C9";
+set color_navigation_module_link_hover = "#CBDADC";
+set color_navigation_module_link_visited = "#DBE6E7";
+
+#NEWLAYER: brittle/softblue
+layerinfo type = "theme";
+layerinfo name = "Soft Blue";
+layerinfo redist_uniq = "brittle/softblue";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#CDE6FA";
+set color_page_text = "#000811";
+set color_page_link = "#2d4253";
+set color_page_link_hover = "#91bad0";
+set color_page_link_visited = "#2d4253";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#CDE6FA";
+set color_footer_link = "#2d4253";
+set color_footer_link_hover = "#91bad0";
+set color_footer_link_visited = "#2d4253";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#2d4253";
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000811";
+set color_entry_link = "#2d4253";
+set color_entry_link_hover = "#91bad0";
+set color_entry_link_visited = "#2d4253";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#2d4253";
+set color_navigation_module_link = "#CDE6FA";
+set color_navigation_module_link_hover = "#91bad0";
+set color_navigation_module_link_visited = "#CDE6FA";
+
+#NEWLAYER: brittle/softgreen
+layerinfo type = "theme";
+layerinfo name = "Soft Green";
+layerinfo redist_uniq = "brittle/softgreen";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#B0C9AF";
+set color_page_text = "#0C140B";
+set color_page_link = "#557254";
+set color_page_link_hover = "#83AA81";
+set color_page_link_visited = "#557254";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#B0C9AF";
+set color_footer_link = "#557254";
+set color_footer_link_hover = "#83AA81";
+set color_footer_link_visited = "#557254";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#557254";
+set color_entry_background = "#FFFFFF";
+set color_entry_text = "#0C140B";
+set color_entry_link = "#557254";
+set color_entry_link_hover = "#83AA81";
+set color_entry_link_visited = "#557254";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#557254";
+set color_navigation_module_link = "#B0C9AF";
+set color_navigation_module_link_hover = "#83AA81";
+set color_navigation_module_link_visited = "#B0C9AF";

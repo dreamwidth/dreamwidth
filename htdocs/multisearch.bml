@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -10,15 +24,13 @@
     my $output = lc($POST{'output'}) || lc($GET{'output'});
     my $dbr = LJ::get_db_reader();
 
-    my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Search-Skyscraper', search_arg => $q );
-
     if ($type eq "nav_and_user" || $type eq "nav") {
         # Some special shortcuts used for easy navigation
         if ($q =~ /^faq (\d+)$/) {
-            return BML::redirect("$LJ::SITEROOT/support/faqbrowse.bml?faqid=$1&view=full");
+            return BML::redirect("$LJ::SITEROOT/support/faqbrowse?faqid=$1&view=full");
         }
         if ($q =~ /^req(uest)? (\d+)$/) {
-            return BML::redirect("$LJ::SITEROOT/support/see_request.bml?id=$2");
+            return BML::redirect("$LJ::SITEROOT/support/see_request?id=$2");
         }
         if ($q =~ m!(.+)/(pics|full)!) {
             if (my $u = LJ::load_user($1)) {
@@ -41,14 +53,14 @@
                 # presumably users will start registering usernames that match our site navigation tags,
                 # so let's preempt that and throw them into a lame bottom section when site-defined tags
                 # are alse present.
-                $last_is_untrusted = 1 if $u->{statusvis} eq "V";
+                $last_is_untrusted = 1 if $u->is_visible;
             }
         }
 
         my $eq = LJ::ehtml($q);
         if (@dests == 0) {
             $title = "No matches";
-            $body = $ad . "<?h1 $ML{'Error'} h1?><?p No site page or username matches your search for <b>$eq</b>. p?>";
+            $body = "<?h1 $ML{'Error'} h1?><?p No site page or username matches your search for <b>$eq</b>. p?>";
             return;
         }
         if (@dests == 1) {
@@ -56,7 +68,7 @@
         }
 
         $title = "Choices";
-        $body = $ad . "<?h1 Multiple Choices h1?>";
+        $body = "<?h1 Multiple Choices h1?>";
 
         my @cats = ({
             title => "Site pages",
@@ -83,7 +95,7 @@
                 } else {
                     $link = "<a href=\"" . LJ::ehtml($dst->url) . "\">" . LJ::ehtml($dst->title) . "</a>";
                 }
-                if (!$lju || ($lju && $lju->{statusvis} eq "V")) {
+                if ( ! $lju || $lju->is_visible ) {
                     $body .= "<li>$link</li>\n";
                 }
             }
@@ -106,7 +118,7 @@
         if ($user) {
             my $url;
             if ($what eq "pics") {
-                $url = "$LJ::SITEROOT/allpics.bml?user=$user";
+                $url = "$LJ::SITEROOT/allpics?user=$user";
             } elsif ($output eq "foaf") {
                 $url = LJ::journal_base($user) . '/data/foaf';
             } else {
@@ -114,22 +126,22 @@
                     $url = $u->profile_url;
                     $url .= "?mode=full" if $what eq 'full';
                 } else {
-                    $url = "$LJ::SITEROOT/userinfo.bml?user=$user";
+                    $url = "$LJ::SITEROOT/profile?user=$user";
                 }
             }
             return BML::redirect($url);
         } else {
-            return BML::redirect("$LJ::SITEROOT/random.bml");
+            return BML::redirect("$LJ::SITEROOT/random");
         }
     }
 
     if ($type eq "int") {
         my $int = lc($q);
         if ($int) {
-            return BML::redirect("$LJ::SITEROOT/interests.bml?int=" . LJ::eurl($int));
+            return BML::redirect("$LJ::SITEROOT/interests?int=" . LJ::eurl($int));
         } else {
             $title = $ML{'.nointerest.title'};
-            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.nointerest.text'} p?>";
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.nointerest.text'} p?>";
             return;
         }
     }
@@ -138,7 +150,7 @@
         my $email = lc($q);
         unless ($email) {
             $title = $ML{'.noaddress.title'};
-            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.noaddress.text'} p?>";
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.noaddress.text'} p?>";
             return;
         } else {
             my $uid = $dbr->selectrow_array("SELECT userid FROM user WHERE journaltype='P' AND statusvis='V' ".
@@ -153,17 +165,16 @@
                 }, undef, $email);
             }
             if (my $u = LJ::load_userid($uid)) {
-                LJ::load_user_props($u, "opt_whatemailshow");
-                if ($u->{'opt_whatemailshow'} eq "A" || $u->{'opt_whatemailshow'} eq "B") {
+                if ($u->opt_whatemailshow eq "A" || $u->opt_whatemailshow eq "B") {
                     if ($output eq "foaf") {
-                        return BML::redirect(LJ::journal_base($u) . '/data/foaf');
+                        return BML::redirect( $u->journal_base . '/data/foaf' );
                     } else {
-                        return BML::redirect($u->profile_url);
+                        return BML::redirect( $u->profile_url );
                     }
                 }
             }
             $title = $ML{'.nomatch.title'};
-            $body = $ad . "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
+            $body = "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
             return;
         }
     }
@@ -197,7 +208,7 @@
 
         # If we haven't returned already then the search turned up nothing.
         $title = $ML{'.nomatch.title'};
-        $body = $ad . "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
+        $body = "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
         return;
     }
 
@@ -206,7 +217,7 @@
         my @parts = split(/\s*,\s*/, $q);
         if (@parts==0 || @parts>3) {
             $title = $ML{'.formaterror'};
-            $body .= $ad . "<?h1 $ML{'.region.head'} h1?><?p " . BML::ml('.region.bodytext2', {'aopts' => "href='$LJ::SITEROOT/directorysearch.bml'"}) . " p?>";
+            $body .= "<?h1 $ML{'.region.head'} h1?><?p " . BML::ml('.region.bodytext2', {'aopts' => "href='$LJ::SITEROOT/directorysearch'"}) . " p?>";
             return;
         }
 
@@ -232,16 +243,16 @@
             }
         }
         ($city, $state, $country) = map { LJ::eurl($_); } ($city, $state, $country);
-        return BML::redirect("$LJ::SITEROOT/directory.bml?s_loc=1&loc_cn=$country&loc_st=$state&loc_ci=$city&opt_sort=ut&opt_format=pics&opt_pagesize=50");
+        return BML::redirect("$LJ::SITEROOT/directory?s_loc=1&loc_cn=$country&loc_st=$state&loc_ci=$city&opt_sort=ut&opt_format=pics&opt_pagesize=50");
     }
 
     if ($type eq "faq") {
         my $term = lc($q);
         if ($term) {
-            return BML::redirect("$LJ::SITEROOT/support/faqsearch.bml?q=" . LJ::eurl($term));
+            return BML::redirect("$LJ::SITEROOT/support/faqsearch?q=" . LJ::eurl($term));
         } else {
             $title = $ML{'.nofaqsearch.title'};
-            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.nofaqsearch.text'} p?>";
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.nofaqsearch.text'} p?>";
             return;
         }
     }
@@ -250,7 +261,7 @@
     if ($type) {
         # TODO: check return value of this hook, and fall back to another
         # hook that shows the results here, rather than redirecting to another page
-        return LJ::run_hook('multisearch_custom_search_redirect', {
+        return LJ::Hooks::run_hook('multisearch_custom_search_redirect', {
             type  => $type,
             query => $q, });
     }
@@ -260,9 +271,4 @@
 _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-link: htdocs/talkread.bml, htdocs/allpics.bml, htdocs/userinfo.bml, htdocs/random.bml
-link: htdocs/interests.bml, htdocs/directorysearch.bml, htdocs/directory.bml
-hook: multisearch_custom_search_redirect
-</LJDEP> _c?>
-
+page?>

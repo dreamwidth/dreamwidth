@@ -1,0 +1,61 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
+<?page
+title=><?_ml .title _ml?>
+
+head<=
+<style type="text/css">
+.name {
+	width: 10em;
+	text-align: right;
+	font-weight: bold;
+	vertical-align: top;
+	}
+</style>
+<=head
+
+body<=
+<?_code
+    LJ::set_active_crumb('friends');
+_code?>
+
+<?p <?_ml .about _ml?> p?>
+<table cellspacing='2' cellpadding='5' border='0'>
+<tr>
+  <td class='name'><a href="<?siteroot?>/manage/circle/invite"><?_ml .invite.title _ml?></a></td>
+  <td><?_code BML::ml('.invite.about2', { sitename => $LJ::SITENAMESHORT }); _code?></td>
+</tr>
+<tr>
+  <td class='name'><a href="<?siteroot?>/manage/circle/edit"><?_ml /manage/circle/edit.bml.title3 _ml?></a></td>
+  <td><?_ml .edit.about _ml?></td>
+</tr>
+<tr>
+  <td class='name'><a href="<?siteroot?>/manage/circle/editfilters"><?_ml /manage/circle/editfilters.bml.title2 _ml?></a></td>
+  <td><?_ml .editgroups.about _ml?> <?_ml .filter _ml?></td>
+</tr>
+<tr>
+  <td class='name'><a href="<?siteroot?>/manage/circle/filter"><?_ml /manage/circle/filter.bml.title2 _ml?></a></td>
+  <td><?_ml .filter.about _ml?></td>
+</tr>
+</table>
+<?p p?>
+<?h1 <?_ml .security.header _ml?> h1?>
+<?p <?_ml .security _ml?> p?>
+<ul>
+  <li><?_ml .security.only _ml?></li>
+  <li><?_ml .security.custom _ml?></li>
+</ul>
+<=body
+page?>

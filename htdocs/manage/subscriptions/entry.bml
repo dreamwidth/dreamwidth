@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 body<=
 <?_code
@@ -8,7 +22,7 @@ body<=
 
     $title = 'Manage Message Settings';
 
-    return "Not ready" if $LJ::DISABLED{'esn'};
+    return "Not ready" unless LJ::is_enabled('esn');
 
     use Class::Autouse qw(LJ::NotificationMethod LJ::Event);
 
@@ -35,38 +49,56 @@ body<=
     return LJ::error_list("Invalid entry") unless $entry && $entry->valid;
     return LJ::error_list("You are not authorized to subscribe to this entry.") unless $entry->visible_to($remote);
 
-    my $categories = [{
-        'Track' => [
-                    LJ::Subscription::Pending->new(
-                                                   $remote,
-                                                   event   => "JournalNewComment",
-                                                   arg1    => $ditemid,
-                                                   journal => $journal,
-                                                   default_selected => 1,
-                                                   flags   => LJ::Subscription::TRACKING,
-                                                   ),
-                    LJ::Subscription::Pending->new(
-                                                   $remote,
-                                                   event   => "JournalNewEntry",
-                                                   arg1    => '?',
-                                                   journal => $journal,
-                                                   flags   => LJ::Subscription::TRACKING,
-                                                   ),
-                    LJ::Subscription::Pending->new(
-                                                   $remote,
-                                                   event   => "JournalNewEntry",
-                                                   journal => $journal,
-                                                   flags   => LJ::Subscription::TRACKING,
-                                                   ),
-                    ],
-                }];
+    my $cat_title = 'Track Entry';
+    my $categories =
+        [
+            { $cat_title =>
+                [
+                    LJ::Subscription::Pending->new( $remote,
+                        event   => "JournalNewComment",
+                        arg1    => $ditemid,
+                        journal => $journal,
+                        default_selected => 1,
+                        flags   => LJ::Subscription::TRACKING,
+                    ),
+                ],
+            }
+        ];
 
-    $body .= LJ::subscribe_interface($remote,
-                                     journal      => $journal,
-                                     categories   => $categories,
-                                     ret_url      => $entry->url,
-                                     default_selected_notifications => ['LJ::NotificationMethod::Email'],
-                                     );
+    # only administrators of a community and members of a paid community 
+    # should be given the option to track all comments on another journal
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewComment",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        ) if $remote->can_track_all_community_comments( $journal );
+
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewEntry",
+            arg1    => '?',
+            journal => $journal,
+            entry   => $entry,
+            flags   => LJ::Subscription::TRACKING,
+        ),
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewEntry",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        );
+
+    my $referer = BML::get_client_header('Referer');
+    my ( $style ) = ( $referer =~ /\b(style=\w+)/ );
+    $style = LJ::viewing_style_args( split( /=/, $style ) );
+
+    $body .= LJ::subscribe_interface( $remote,
+                 journal      => $journal,
+                 categories   => $categories,
+                 ret_url      => $entry->url . "?$style",
+                 default_selected_notifications => ['LJ::NotificationMethod::Email'],
+                 post_to_settings_page => 1,
+             );
 
     return $body;
 }

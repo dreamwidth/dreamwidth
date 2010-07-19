@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 package LJ;
 use strict;
@@ -10,15 +23,12 @@ use lib "$LJ::HOME/cgi-bin";
 require "crumbs.pl";
 
 use Carp;
-use Class::Autouse qw(
-                      DW::Request
-                      LJ::Event
-                      LJ::Subscription::Pending
-                      LJ::M::ProfilePage
-                      LJ::Directory::Search
-                      LJ::Directory::Constraint
-                      LJ::M::FriendsOf
-                      );
+use DW::External::Site;
+use DW::Request;
+use LJ::Event;
+use LJ::Subscription::Pending;
+use LJ::Directory::Search;
+use LJ::Directory::Constraint;
 
 # <LJFUNC>
 # name: LJ::img
@@ -43,22 +53,30 @@ sub img
     my $type = shift;  # either "" or "input"
     my $attr = shift;
 
-    my $attrs;
-    if ($attr) {
-        if (ref $attr eq "HASH") {
-            foreach (keys %$attr) {
-                $attrs .= " $_=\"" . LJ::ehtml($attr->{$_}) . "\"";
+    my ( $attrs, $alt, $ssl );
+    if ( $attr ) {
+        if ( ref $attr eq "HASH" ) {
+            if ( exists $attr->{alt} ) {
+                $alt = LJ::ehtml( $attr->{alt} );
+                delete $attr->{alt};
             }
+            if ( exists $attr->{ssl} ) {
+                $ssl = $attr->{ssl} && $LJ::IS_SSL;
+                delete $attr->{ssl};
+            }
+            $attrs .= " $_=\"" . LJ::ehtml( $attr->{$_} ) . "\""
+                foreach keys %$attr;
         } else {
             $attrs = " name=\"$attr\"";
         }
     }
 
     my $i = $LJ::Img::img{$ic};
-    my $alt = LJ::Lang::string_exists($i->{'alt'}) ? LJ::Lang::ml($i->{'alt'}) : $i->{'alt'};
+    my $imgprefix = $ssl ? $LJ::SSLIMGPREFIX : $LJ::IMGPREFIX;
+    $alt ||= LJ::Lang::string_exists( $i->{alt} ) ? LJ::Lang::ml( $i->{alt} ) : $i->{alt};
     if ($type eq "") {
-        return "<img src=\"$LJ::IMGPREFIX$i->{'src'}\" width=\"$i->{'width'}\" ".
-            "height=\"$i->{'height'}\" alt=\"$alt\" title=\"$alt\" ".
+        return "<img src=\"$imgprefix$i->{src}\" width=\"$i->{width}\" ".
+            "height=\"$i->{height}\" alt=\"$alt\" title=\"$alt\" ".
             "border='0'$attrs />";
     }
     if ($type eq "input") {
@@ -83,9 +101,7 @@ sub date_to_view_links
     return unless $date =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/;
 
     my ($y, $m, $d) = ($1, $2, $3);
-    my ($nm, $nd) = ($m+0, $d+0);   # numeric, without leading zeros
-    my $user = $u->{'user'};
-    my $base = LJ::journal_base($u);
+    my $base = $u->journal_base;
 
     my $ret;
     $ret .= "<a href=\"$base/$y/\">$y</a>-";
@@ -130,7 +146,7 @@ sub valid_stylesheet_url {
 
     my $cleanit = sub {
         # allow tag, if we're doing no css cleaning
-        return 1 if $LJ::DISABLED{'css_cleaner'};
+        return 1 unless LJ::is_enabled('css_cleaner');
 
         # remove tag, if we have no CSSPROXY configured
         return 0 unless $LJ::CSSPROXY;
@@ -249,8 +265,8 @@ sub help_icon_html {
     my $url = $LJ::HELPURL{$topic} or return "";
     my $pre = shift || "";
     my $post = shift || "";
-    # FIXME: use LJ::img() here, not hard-coding width/height
-    return "$pre<a href=\"$url\" class=\"helplink\" target=\"_blank\"><img src=\"$LJ::IMGPREFIX/help.gif\" alt=\"Help\" title=\"Help\" width='14' height='14' border='0' /></a>$post";
+    return "$pre<a href=\"$url\" class=\"helplink\" target=\"_blank\">" .
+           LJ::img( 'help', '' ) . "</a>$post";
 }
 
 # <LJFUNC>
@@ -338,43 +354,6 @@ sub warning_list
     return $ret;
 }
 
-sub tosagree_widget {
-    my ($checked, $errstr) = @_;
-
-    return
-        "<div class='formitemDesc'>" .
-        BML::ml('tos.mustread',
-                { aopts => "target='_new' href='$LJ::SITEROOT/legal/tos.bml'" }) .
-        "</div>" .
-        "<iframe width='684' height='300' src='/legal/tos-mini.bml' " .
-        "style='border: 1px solid gray;'></iframe>" .
-        "<div>" . LJ::html_check({ name => 'agree_tos', id => 'agree_tos',
-                                   value => '1', selected =>  $checked }) .
-        "<label for='agree_tos'>" . BML::ml('tos.haveread') . "</label></div>" .
-        ($errstr ? "<?inerr $errstr inerr?>" : '');
-}
-
-sub tosagree_html {
-    my $domain = shift;
-
-    my $ret = "<?h1 $LJ::REQUIRED_TOS{title} h1?>";
-
-    my $html_str = LJ::tosagree_str($domain => 'html');
-    $ret .= "<?p $html_str p?>" if $html_str;
-
-    $ret .= "<div style='margin-left: 40px; margin-bottom: 20px;'>";
-    $ret .= LJ::tosagree_widget(@_);
-    $ret .= "</div>";
-
-    return $ret;
-}
-
-sub tosagree_str {
-    my ($domain, $key) = @_;
-
-    return ref $LJ::REQUIRED_TOS{$domain} && $LJ::REQUIRED_TOS{$domain}->{$key} ?
-        $LJ::REQUIRED_TOS{$domain}->{$key} : $LJ::REQUIRED_TOS{$key};
-}
 
 # <LJFUNC>
 # name: LJ::did_post
@@ -415,18 +394,20 @@ sub paging_bar
     my $self_link = $opts->{'self_link'} ||
                     sub { BML::self_link({ 'page' => $_[0] }) };
 
+    my $href_opts = $opts->{'href_opts'} || sub { '' };
+
     my $navcrap;
     if ($pages > 1) {
         $navcrap .= "<center><font face='Arial,Helvetica' size='-1'><b>";
         $navcrap .= BML::ml('ljlib.pageofpages',{'page'=>$page, 'total'=>$pages}) . "<br />";
         my $left = "<b>&lt;&lt;</b>";
-        if ($page > 1) { $left = "<a href='" . $self_link->($page-1) . "'>$left</a>"; }
+        if ($page > 1) { $left = "<a href='" . $self_link->($page-1) . "'" . $href_opts->($page-1) . ">$left</a>"; }
         my $right = "<b>&gt;&gt;</b>";
-        if ($page < $pages) { $right = "<a href='" . $self_link->($page+1) . "'>$right</a>"; }
+        if ($page < $pages) { $right = "<a href='" . $self_link->($page+1) . "'" . $href_opts->($page+1) . ">$right</a>"; }
         $navcrap .= $left . " ";
         for (my $i=1; $i<=$pages; $i++) {
             my $link = "[$i]";
-            if ($i != $page) { $link = "<a href='" . $self_link->($i) . "'>$link</a>"; }
+            if ($i != $page) { $link = "<a href='" . $self_link->($i) . "'" .  $href_opts->($i) . ">$link</a>"; }
             else { $link = "<font size='+1'><b>$link</b></font>"; }
             $navcrap .= "$link ";
         }
@@ -562,10 +543,25 @@ sub check_referer {
 
     # get referer and check
     return 1 unless $referer;
-    return 1 if $LJ::SITEROOT   && $referer =~ m!^$LJ::SITEROOT$uri!;
-    return 1 if $LJ::DOMAIN     && $referer =~ m!^http://$LJ::DOMAIN$uri!;
-    return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^http://$LJ::DOMAIN_WEB$uri!;
-    return 1 if $uri =~ m!^http://! && $referer eq $uri;
+
+    my ( $origuri, $origreferer ) = ( $uri, $referer );
+
+    # escape any regex characters, like the '.' in '.bml'
+    $uri = quotemeta( $uri );
+
+    # allow us to properly check URIs without .bml extensions
+    if ( $origuri =~ /\.bml($|\?)/ ) {
+      my $checkend = ( $1 eq '?' ? '' : '(?:$|\\?)' );
+      $uri     =~ s/\\.bml($|\\\?)/$1$checkend/;
+      $referer =~ s/\.bml($|\?)/$1/;
+    }
+
+    return 1 if $LJ::SITEROOT   && $referer =~ m!^\Q$LJ::SITEROOT\E$uri!;
+    return 1 if $LJ::SSLROOT    && $referer =~ m!^\Q$LJ::SSLROOT\E$uri!;
+    return 1 if $LJ::DOMAIN     && $referer =~ m!^http://\Q$LJ::DOMAIN\E$uri!;
+    return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^http://\Q$LJ::DOMAIN_WEB\E$uri!;
+    return 1 if $LJ::USER_VHOSTS && $referer =~ m!^http://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
+    return 1 if $origuri =~ m!^https?://! && $origreferer eq $origuri;
     return undef;
 }
 
@@ -630,44 +626,45 @@ sub check_form_auth {
 # class: web
 # des: Creates the hidden div that stores the QuickReply form.
 # returns: undef upon failure or HTML for the div upon success
-# args: user, remote, ditemid, stylemine, userpic.
+# args: user, remote, ditemid, style args, userpic, viewing thread
 # des-u: user object or userid for journal reply in.
 # des-ditemid: ditemid for this comment.
-# des-stylemine: if the user has specified style=mine for this page.
+# des-style_opts: the viewing style arguments on this page, as a hashref.
 # des-userpic: alternate default userpic.
 # </LJFUNC>
 sub create_qr_div {
 
-    my ($user, $ditemid, $stylemine, $userpic, $viewing_thread) = @_;
+    my ( $user, $ditemid, $style_opts, $userpic, $viewing_thread ) = @_;
     my $u = LJ::want_user($user);
     my $remote = LJ::get_remote();
     return undef unless $u && $remote && $ditemid;
-    return undef if $remote->underage;
 
-    $stylemine ||= 0;
+    $style_opts ||= {};
+
     my $qrhtml;
 
-    LJ::load_user_props($remote, "opt_no_quickreply");
-    return undef if $remote->{'opt_no_quickreply'};
+    return undef if $remote->prop( "opt_no_quickreply" );
 
-    $qrhtml .= "<div id='qrformdiv'><form id='qrform' name='qrform' method='POST' action='$LJ::SITEROOT/talkpost_do.bml'>";
+    $qrhtml .= "<div id='qrformdiv'><form id='qrform' name='qrform' method='POST' action='$LJ::SITEROOT/talkpost_do'>";
     $qrhtml .= LJ::form_auth();
 
-    my $stylemineuri = $stylemine ? "style=mine&" : "";
-    my $basepath =  LJ::journal_base($u) . "/$ditemid.html?${stylemineuri}";
+    my $stylemineuri = $style_opts ? LJ::viewing_style_args( $style_opts ) : "";
+    my $basepath =  $u->journal_base . "/$ditemid.html?${stylemineuri}";
+    my $usertype = ($remote->openid_identity && $remote->is_validated) ? 'openid_cookie' : 'cookieuser';
     $qrhtml .= LJ::html_hidden({'name' => 'replyto', 'id' => 'replyto', 'value' => ''},
                                {'name' => 'parenttalkid', 'id' => 'parenttalkid', 'value' => ''},
                                {'name' => 'journal', 'id' => 'journal', 'value' => $u->{'user'}},
                                {'name' => 'itemid', 'id' => 'itemid', 'value' => $ditemid},
-                               {'name' => 'usertype', 'id' => 'usertype', 'value' => 'cookieuser'},
-                               {'name' => 'userpost', 'id' => 'userpost', 'value' => $remote->{'user'}},
+                               {'name' => 'usertype', 'id' => 'usertype', 'value' => $usertype },
                                {'name' => 'qr', 'id' => 'qr', 'value' => '1'},
                                {'name' => 'cookieuser', 'id' => 'cookieuser', 'value' => $remote->{'user'}},
                                {'name' => 'dtid', 'id' => 'dtid', 'value' => ''},
                                {'name' => 'basepath', 'id' => 'basepath', 'value' => $basepath},
-                               {'name' => 'stylemine', 'id' => 'stylemine', 'value' => $stylemine},
                                {'name' => 'viewing_thread', 'id' => 'viewing_thread', 'value' => $viewing_thread},
                                );
+    while ( my ( $key, $value ) = each %$style_opts ) {
+        $qrhtml .= LJ::html_hidden( { name => $key, id => $key, value => $value } );
+    }
 
     # rate limiting challenge
     {
@@ -698,7 +695,7 @@ sub create_qr_div {
         if ($res{'pickw_count'}) {
             $qrhtml .= BML::ml('/talkpost.bml.label.picturetouse2',
                                {
-                                   'aopts'=>"href='$LJ::SITEROOT/allpics.bml?user=$remote->{'user'}'"});
+                                   'aopts'=>"href='" . $remote->allpics_base . "'"});
             my @pics;
             for (my $i=1; $i<=$res{'pickw_count'}; $i++) {
                 push @pics, $res{"pickw_$i"};
@@ -711,13 +708,13 @@ sub create_qr_div {
             # userpic browse button
             $qrhtml .= qq {
                 <input type="button" id="lj_userpicselect" value="Browse" />
-                } unless $LJ::DISABLED{userpicselect} || ! $remote->get_cap('userpicselect');
+                } if $remote->can_use_userpic_select;
 
             $qrhtml .= LJ::help_icon_html("userpics", " ");
         }
     }
 
-    $qrhtml .= "</td></tr>";
+    $qrhtml .= "<span id='quotebuttonspan'></span></td></tr>";
 
     $qrhtml .= "<tr><td align='right'>";
     $qrhtml .= "<b>".BML::ml('/talkpost.bml.opt.subject')."</b></td>";
@@ -740,6 +737,13 @@ sub create_qr_div {
                                  'raw' => 'onclick="if (checkLength()) {submitform();}"'
                                  });
 
+    $qrhtml .="&nbsp;" . LJ::html_submit('submitpview', BML::ml('talk.btn.preview'),
+                               { 'id' => 'submitpview',
+                                 'raw' => 'onclick="preview()"'
+                                 });
+
+    $qrhtml .= LJ::html_hidden('submitpreview', '0');
+
     $qrhtml .= "&nbsp;" . LJ::html_submit('submitmoreopts', BML::ml('/talkread.bml.button.more'),
                                           { 'id' => 'submitmoreopts',
                                             'raw' => 'onclick="if (moreopts()) {submitform();}"'
@@ -750,11 +754,14 @@ sub create_qr_div {
         $qrhtml .= "</label>";
     }
 
-    LJ::load_user_props($u, 'opt_logcommentips');
-    if ($u->{'opt_logcommentips'} eq 'A') {
+    if ($u->opt_logcommentips eq 'A') {
         $qrhtml .= '<br />';
         $qrhtml .= LJ::deemp(BML::ml('/talkpost.bml.logyourip'));
         $qrhtml .= LJ::help_icon_html("iplogging", " ");
+    }
+    if ( !$remote || ( $remote && $remote->is_identity && !$u->trusts_or_has_member( $remote ) ) ) {
+        $qrhtml .= '<br />';
+        $qrhtml .= LJ::deemp( BML::ml( '/talkpost.bml.linkstripped' ) );
     }
 
     $qrhtml .= "</td></tr></table>";
@@ -794,41 +801,13 @@ sub create_qr_div {
                }
            };
 
+    # quick quote button
+    $ret .= LJ::Talk::js_quote_button( 'body' );
+
     $ret .= "\n</script>";
 
-    $ret .= qq {
-        <script type="text/javascript" language="JavaScript">
-            DOM.addEventListener(window, "load", function (evt) {
-                // attach userpicselect code to userpicbrowse button
-                var ups_btn = \$("lj_userpicselect");
-                if (ups_btn) {
-                    DOM.addEventListener(ups_btn, "click", function (evt) {
-                     var ups = new UserpicSelect();
-                     ups.init();
-                     ups.setPicSelectedCallback(function (picid, keywords) {
-                         var kws_dropdown = \$("prop_picture_keyword");
-
-                         if (kws_dropdown) {
-                             var items = kws_dropdown.options;
-
-                             // select the keyword in the dropdown
-                             keywords.forEach(function (kw) {
-                                 for (var i = 0; i < items.length; i++) {
-                                     var item = items[i];
-                                     if (item.value == kw) {
-                                         kws_dropdown.selectedIndex = i;
-                                         return;
-                                     }
-                                 }
-                             });
-                         }
-                     });
-                     ups.show();
-                 });
-                }
-            });
-        </script>
-        } unless $LJ::DISABLED{userpicselect} || ! $remote->get_cap('userpicselect');
+    $ret .= LJ::Talk::js_iconbrowser_button()
+        if $remote->can_use_userpic_select;
 
     return $ret;
 }
@@ -854,14 +833,20 @@ sub make_qr_link
     return undef unless defined $dtid && $linktext && $replyurl;
 
     my $remote = LJ::get_remote();
-    LJ::load_user_props($remote, "opt_no_quickreply");
-    unless ($remote->{'opt_no_quickreply'}) {
+    unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
         my $pid = int($dtid / 256);
 
         $basesubject =~ s/^(Re:\s*)*//i;
         $basesubject = "Re: $basesubject" if $basesubject;
         $basesubject = LJ::ehtml(LJ::ejs($basesubject));
         my $onclick = "return quickreply(\"$dtid\", $pid, \"$basesubject\")";
+
+        my $r = DW::Request->get;
+        my $ju;
+        $ju = LJ::load_userid( $r->note( 'journalid' ) )
+            if $r and $r->note( 'journalid' );
+
+        $onclick = "" if $ju && $ju->does_not_allow_comments_from( $remote );
         return "<a onclick='$onclick' href='$replyurl' >$linktext</a>";
     } else { # QR Disabled
         return "<a href='$replyurl' >$linktext</a>";
@@ -877,14 +862,16 @@ sub make_qr_link
 # </LJFUNC>
 sub get_lastcomment {
     my $remote = LJ::get_remote();
-    return (undef, undef) unless $remote;
+    my ( $talkid, $jid );
 
     # Figure out their last post
-    my $memkey = [$remote->{'userid'}, "lastcomm:$remote->{'userid'}"];
-    my $memval = LJ::MemCache::get($memkey);
-    my ($jid, $talkid) = split(/:/, $memval) if $memval;
+    if ( $remote ) {
+        my $memkey = [$remote->{'userid'}, "lastcomm:$remote->{'userid'}"];
+        my $memval = LJ::MemCache::get( $memkey );
+        ( $jid, $talkid ) = split( /:/, $memval ) if $memval;
+    }
 
-    return ($talkid, $jid);
+    return ( $talkid, $jid );
 }
 
 # <LJFUNC>
@@ -932,6 +919,47 @@ sub deemp {
     "<span class='de'>$_[0]</span>";
 }
 
+=head2 C<< LJ::viewing_style_args( %arguments ) >>
+Takes a list of viewing styles arguments from a list, makes sure they are valid values,
+and returns them as a string that can be appended to the URL. Looks for "s2id", "format", "style"
+=cut
+sub viewing_style_args {
+    my ( %args ) = @_;
+
+    %args = %{ LJ::viewing_style_opts( %args ) };
+
+    my @valid_args;
+    while ( my ( $key, $value ) = each %args ) {
+            push @valid_args, "$key=$value";
+    }
+
+    return join "&", @valid_args;
+}
+
+=head2 C<< LJ::viewing_style_opts( %arguments ) >>
+Takes a list of viewing styles arguments from a list, and returns a hashref of valid values
+=cut
+
+sub viewing_style_opts {
+    my ( %args ) = @_;
+
+    my $valid_style_args = {
+        format => { light => 1 },
+        style  => { light => 1, site => 1, mine => 1 },
+    };
+
+    my %ret;
+
+    # only accept purely numerical s2ids
+    $ret{s2id} = $args{s2id} if $args{s2id} && $args{s2id} =~ /^\d+$/;
+
+    for my $key( qw ( format style ) ) {
+        $ret{$key} = $args{$key} if $valid_style_args->{$key}->{$args{$key}};
+    }
+
+    return \%ret;
+}
+
 # <LJFUNC>
 # name: LJ::entry_form
 # class: web
@@ -954,7 +982,9 @@ sub entry_form {
 
     my $out = "";
     my $remote = $opts->{'remote'};
-    my ($moodlist, $moodpics, $userpics);
+    my $altlogin = $opts->{'altlogin'};
+    my $userpic_display = $altlogin ? 'none' : 'block';
+    my ($moodlist, $moodpics, $userpics, $altcode);
 
     # usejournal has no point if you're trying to use the account you're logged in as,
     # so disregard it so we can assume that if it exists, we're trying to post to an
@@ -962,6 +992,10 @@ sub entry_form {
     if ($remote && $opts->{usejournal} && $remote->{user} eq $opts->{usejournal}) {
         delete $opts->{usejournal};
     }
+
+    # Temp fix for FF 2.0.0.17
+    my $rte_is_supported = LJ::is_enabled('rte_support', BML::get_client_header("User-Agent"));
+    $opts->{'richtext_default'} = 0 unless $rte_is_supported;
 
     $opts->{'richtext'} = $opts->{'richtext_default'};
     my $tabnum = 10; #make allowance for username and password
@@ -993,13 +1027,19 @@ sub entry_form {
         my $userpic_preview = "";
 
             # User Picture
-            if ($res && ref $res->{'pickws'} eq 'ARRAY' && scalar @{$res->{'pickws'}} > 0) {
+            if (!$altlogin && ($res && ref $res->{'pickws'} eq 'ARRAY' && scalar @{$res->{'pickws'}} > 0)) {
                 my @pickws = map { ($_, $_) } @{$res->{'pickws'}};
                 my $num = 0;
-                $userpics .= "    userpics[$num] = \"$res->{'defaultpicurl'}\";\n";
+                $userpics .= "    userpics[$num] = \"$res->{defaultpicurl}\";\n";
+                $altcode .= "     alttext[$num] = \"" . BML::ml('entryform.opt.defpic') . "\";\n";
                 foreach (@{$res->{'pickwurls'}}) {
                     $num++;
                     $userpics .= "    userpics[$num] = \"$_\";\n";
+                }
+                $num = 0;
+                foreach ( @{$res->{pickws}} ) {
+                    $num++;
+                    $altcode .= "     alttext[$num] = \"" . LJ::ejs($_) . "\";\n";
                 }
                 $$onload .= " userpic_preview();";
 
@@ -1010,7 +1050,9 @@ sub entry_form {
                     <script type="text/javascript" language="JavaScript"><!--
                         if (document.getElementById) {
                             var userpics = new Array();
+                            var alttext = new Array();
                             $userpics
+                            $altcode
                             function userpic_preview() {
                                 if (! document.getElementById) return false;
                                 var userpic_select          = document.getElementById('prop_picture_keyword');
@@ -1030,18 +1072,23 @@ sub entry_form {
                                         \$('userpic_msg').style.display = 'none';
                                     }
                                     userpic_preview_image.src = userpics[userpic_select.selectedIndex];
+                                    userpic_preview_image.alt = alttext[userpic_select.selectedIndex];
                                 } else {
                                     userpic_preview.className += " userpic_preview_border";
-                                    userpic_preview.innerHTML = '<a href="$LJ::SITEROOT/editpics.bml"><img src="" alt="selected userpic" id="userpic_preview_image" style="display: none;" /><span id="userpic_msg">' + userpic_msg + '</span></a>';
+                                    userpic_preview.innerHTML = '<a href="$LJ::SITEROOT/editicons"><img src="" alt="selected userpic" id="userpic_preview_image" style="display: none;" /><span id="userpic_msg">' + userpic_msg + '</span></a>';
                                 }
                             }
                         }
                     //--></script>
                     };
 
+                my $thumbnail_text = BML::ml( '/update.bml.link.view_thumbnails' );
                 $$head .= qq {
                     <script type="text/javascript" language="JavaScript">
                     // <![CDATA[
+                        var ml = new Object();
+                        ml.viewthumbnails_link = "$thumbnail_text";
+
                         DOM.addEventListener(window, "load", function (evt) {
                         // attach userpicselect code to userpicbrowse button
                             var ups_btn = \$("lj_userpicselect");
@@ -1109,32 +1156,19 @@ sub entry_form {
                     });
                     // ]]>
                     </script>
-                } unless $LJ::DISABLED{userpicselect} || ! $remote->get_cap('userpicselect');
+                } if $remote->can_use_userpic_select;
 
                 # libs for userpicselect
-                LJ::need_res(qw(
-                                js/core.js
-                                js/dom.js
-                                js/json.js
-                                js/template.js
-                                js/ippu.js
-                                js/lj_ippu.js
-                                js/userpicselect.js
-                                js/httpreq.js
-                                js/hourglass.js
-                                js/inputcomplete.js
-                                stc/ups.css
-                                js/datasource.js
-                                js/selectable_table.js
-                                )) if ! $LJ::DISABLED{userpicselect} && $remote->get_cap('userpicselect');
+                LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+                    if $remote->can_use_userpic_select;
 
                 $out .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
                 $out .= "\n";
 
-            } elsif (!$remote)  {
-                $out .= "<div id='userpic'><p id='userpic_preview'><img src='/img/userpic_loggedout.gif' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
+            } elsif (!$remote || $altlogin)  {
+                $out .= "<div id='userpic'><p id='userpic_preview'><img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
             } else {
-                $out .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editpics.bml'>Upload a userpic</a></p></div>";
+                $out .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editicons'>Upload a userpic</a></p></div>";
             }
 
 
@@ -1147,10 +1181,11 @@ sub entry_form {
             # communities the user can post in
             my $usejournal = $opts->{'usejournal'};
             if ($usejournal) {
-                $out .= "<p id='usejournal_list' class='pkg'>\n";
+                $out .= "<p id='usejournal_single' class='pkg'>\n";
                 $out .= "<label for='usejournal' class='left'>" . BML::ml('entryform.postto') . "</label>\n";
                 $out .= LJ::ljuser($usejournal);
-                $out .= LJ::html_hidden('usejournal' => $usejournal, 'usejournal_set' => 'true');
+                $out .= LJ::html_hidden({ name => 'usejournal', value => $usejournal, id => 'usejournal_username' });
+                $out .= LJ::html_hidden( usejournal_set => 'true' );
                 $out .= "</p>\n";
             } elsif ($res && ref $res->{'usejournals'} eq 'ARRAY') {
                 my $submitprefix = BML::ml('entryform.update3');
@@ -1158,7 +1193,7 @@ sub entry_form {
                 $out .= "<label for='usejournal' class='left'>" . BML::ml('entryform.postto') . "</label>\n";
                 $out .= LJ::html_select({ 'name' => 'usejournal', 'id' => 'usejournal', 'selected' => $usejournal,
                                     'tabindex' => $tabindex->(), 'class' => 'select',
-                                    "onchange" => "changeSubmit('".$submitprefix."','".$remote->{'user'}."'); getUserTags('$remote->{user}');" },
+                                    "onchange" => "changeSubmit('".$submitprefix."','".$remote->{'user'}."'); getUserTags('$remote->{user}'); changeSecurityOptions('$remote->{user}'); XPostAccount.updateXpostFromJournal('$remote->{user}');" },
                                     "", $remote->{'user'},
                                     map { $_, $_ } @{$res->{'usejournals'}}) . "\n";
                 $out .= "</p>\n";
@@ -1211,7 +1246,7 @@ sub entry_form {
                     $num++;
                     $userpics .= "    userpics[$num] = \"$_\";\n";
                 }
-                $out .= "<p id='userpic_select_wrapper' class='pkg'>\n";
+                $out .= "<p id='userpic_select_wrapper' class='pkg' style='display: $userpic_display;'>\n";
                 $out .= "<label for='prop_picture_keyword' class='left'>" . BML::ml('entryform.userpic') . "</label>\n" ;
                 $out .= LJ::html_select({'name' => 'prop_picture_keyword', 'id' => 'prop_picture_keyword', 'class' => 'select',
                                          'selected' => $opts->{'prop_picture_keyword'}, 'onchange' => "userpic_preview()",
@@ -1220,9 +1255,13 @@ sub entry_form {
                                         @pickws) . "\n";
                 $out .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
                 # userpic browse button
-                $$onload .= " insertViewThumbs();" if ! $LJ::DISABLED{userpicselect} && $remote->get_cap('userpicselect');
+                $$onload .= " insertViewThumbs();" if $remote->can_use_userpic_select;
+ 
+                # random icon button
+                $out .= "<a href='javascript:void(0)' onclick='randomicon();' id='randomicon'>" . BML::ml('entryform.userpic.random') . "</a>";
                 $out .= LJ::help_icon_html("userpics", "", " ") . "\n";
                 $out .= "</p>\n\n";
+                $$onload .= " showRandomIcon();";
 
             }
 
@@ -1232,12 +1271,12 @@ sub entry_form {
         ### Other Posting Options
         {
         $out .= "<div id='infobox'>\n";
-        $out .= LJ::run_hook('entryforminfo', $opts->{'usejournal'}, $opts->{'remote'});
+        $out .= LJ::Hooks::run_hook('entryforminfo', $opts->{'usejournal'}, $opts->{'remote'});
         $out .= "</div><!-- end #infobox -->\n\n";
         }
 
         ### Subject
-        $out .= "<div id='entry' class='pkg'>\n";
+        $out .= "<div id='compose-entry' class='pkg'>\n";
 
         if ($opts->{prop_qotdid} && !$opts->{richtext}) {
             my $qotd = LJ::QotD->get_single_question($opts->{prop_qotdid});
@@ -1250,12 +1289,13 @@ sub entry_form {
                                 'tabindex' => $tabindex->(),
                                 'disabled' => $opts->{'disabled_save'}}) . "\n";
         $out .= "<ul id='entry-tabs' style='display: none;'>\n";
-        $out .= "<li id='jrich'>" . BML::ml("entryform.htmlokay.rich4", { 'opts' => 'href="javascript:void(0);" onclick="return useRichText(\'draft\', \'' . $LJ::WSTATPREFIX. '\');"' })  . "</li>\n";
+        $out .= "<li id='jrich'>" . BML::ml("entryform.htmlokay.rich4", { 'opts' => 'href="javascript:void(0);" onclick="return useRichText(\'draft\', \'' . $LJ::WSTATPREFIX. '\');"' })  . "</li>\n" if $rte_is_supported;
         $out .= "<li id='jplain' class='on'>" . BML::ml("entryform.plainswitch2", { 'aopts' => 'href="javascript:void(0);" onclick="return usePlainText(\'draft\');"' }) . "</li>\n";
         $out .= "</ul>";
         $out .= "</div><!-- end #entry -->\n\n";
         $$onload .= " showEntryTabs();";
         }
+
 
         ### Display Spell Check Results:
         $out .= "<div id='spellcheck-results'><strong>" . BML::ml('entryform.spellchecked') . "</strong><br />$opts->{'spellcheck_html'}</div>\n"
@@ -1273,9 +1313,9 @@ sub entry_form {
     $out .= "<li class='image'><a href='javascript:void(0);' onclick='InOb.handleInsertImage();' title='"
         . BML::ml('fckland.ljimage') . "'>" . BML::ml('entryform.insert.image2') . "</a></li>\n";
     $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='Embed Media'>"
-        . "Embed Media</a></li>\n" unless $LJ::DISABLED{embed_module};
+        . "Embed Media</a></li>\n" if LJ::is_enabled('embed_module');
     $out .= "</ul>\n";
-    my $format_selected = $opts->{'prop_opt_preformatted'} || $opts->{'event_format'} ? "checked='checked'" : "";
+    my $format_selected = ( $opts->{mode} eq "update" && $remote && $remote->disable_auto_formatting ) || $opts->{'prop_opt_preformatted'} || $opts->{'event_format'} ? "checked='checked'" : "";
     $out .= "<span id='linebreaks'><input type='checkbox' class='check' value='preformatted' name='event_format' id='event_format' $format_selected  />
             <label for='event_format'>" . BML::ml('entryform.format3') . "</label>" . LJ::help_icon_html("noautoformat", "", " ") . "</span>\n";
     $out .= "</div>\n\n";
@@ -1304,9 +1344,18 @@ sub entry_form {
         if (t) {
 RTE
 
+    my @sites = DW::External::Site->get_sites;
+    my @sitevalues;
+    foreach my $site (sort { $a->{sitename} cmp $b->{sitename} } @sites) {
+        push @sitevalues, { domain => $site->{domain}, sitename => $site->{sitename} };
+    }
+
     $out .= "var FCKLang;\n";
     $out .= "if (!FCKLang) FCKLang = {};\n";
     $out .= "FCKLang.UserPrompt = \"".LJ::ejs(BML::ml('fcklang.userprompt'))."\";\n";
+    $out .= "FCKLang.UserPrompt_User = \"".LJ::ejs(BML::ml('fcklang.userprompt.user'))."\";\n";
+    $out .= "FCKLang.UserPrompt_Site = \"".LJ::ejs(BML::ml('fcklang.userprompt.site'))."\";\n";
+    $out .= "FCKLang.UserPrompt_SiteList =" . LJ::js_dumper( \@sitevalues ) . ";\n";
     $out .= "FCKLang.InvalidChars = \"".LJ::ejs(BML::ml('fcklang.invalidchars'))."\";\n";
     $out .= "FCKLang.LJUser = \"".LJ::ejs(BML::ml('fcklang.ljuser'))."\";\n";
     $out .= "FCKLang.VideoPrompt = \"".LJ::ejs(BML::ml('fcklang.videoprompt'))."\";\n";
@@ -1348,7 +1397,7 @@ RTE
         ### Options
 
             # Tag labeling
-            unless ($LJ::DISABLED{tags}) {
+            if ( LJ::is_enabled('tags') ) {
                 $out .= "<p class='pkg'>";
                 $out .= "<label for='prop_taglist' class='left options'>" . BML::ml('entryform.tags') . "</label>";
                 $out .= LJ::html_text(
@@ -1374,7 +1423,7 @@ RTE
                 my @moodlist = ('', BML::ml('entryform.mood.noneother'));
                 my $sel;
 
-                my $moods = LJ::get_moods();
+                my $moods = DW::Mood->get_moods;
 
                 foreach (sort { $moods->{$a}->{'name'} cmp $moods->{$b}->{'name'} } keys %$moods) {
                     push @moodlist, ($_, $moods->{$_}->{'name'});
@@ -1385,15 +1434,21 @@ RTE
                     }
                 }
 
-                if ($remote) {
-                    LJ::load_mood_theme($remote->{'moodthemeid'});
-                      foreach my $mood (keys %$moods) {
-                          if (LJ::get_mood_picture($remote->{'moodthemeid'}, $moods->{$mood}->{id}, \ my %pic)) {
-                              $moodlist .= "    moods[" . $moods->{$mood}->{id} . "] = \"" . $moods->{$mood}->{name} . "\";\n";
-                              $moodpics .= "    moodpics[" . $moods->{$mood}->{id} . "] = \"" . $pic{pic} . "\";\n";
-                          }
-                      }
-                      $$onload .= " mood_preview();";
+                if ( $remote ) {
+                    my $r_theme = DW::Mood->new( $remote->{'moodthemeid'} );
+                    foreach my $mood ( keys %$moods ) {
+                        my $moodid = $moods->{$mood}->{id};
+                        if ( $r_theme && $r_theme->get_picture(
+                                $moodid, \ my %pic ) ) {
+                            $moodlist .= "    moods[" . $moodid;
+                            $moodlist .= "] = \"";
+                            $moodlist .= $moods->{$mood}->{name} . "\";\n";
+                            $moodpics .= "    moodpics[" . $moodid;
+                            $moodpics .= "] = \"";
+                            $moodpics .= $pic{pic} . "\";\n";
+                        }
+                    }
+                    $$onload .= " mood_preview();";
                 $$head .= <<MOODS;
 <script type="text/javascript" language="JavaScript"><!--
 if (document.getElementById) {
@@ -1422,7 +1477,7 @@ MOODS
             # Comment Settings
             my $comment_settings_selected = sub {
                 return "noemail" if $opts->{'prop_opt_noemail'};
-                return "nocomments" if $opts->{'prop_opt_nocomments'};
+                return "nocomments" if $opts->{prop_opt_nocomments} || $opts->{prop_opt_nocomments_maintainer};
                 return $opts->{'comment_settings'};
             };
 
@@ -1432,10 +1487,13 @@ MOODS
                 return "Enabled";
             };
 
+            my $nocomments_display = $opts->{prop_opt_nocomments_maintainer} ? 
+                'entryform.comment.settings.nocomments.maintainer' : 'entryform.comment.settings.nocomments';
+
             my $comment_settings_default = BML::ml('entryform.comment.settings.default5', {'aopts' => $comment_settings_journaldefault->()});
             $out .= LJ::html_select({ 'name' => "comment_settings", 'id' => 'comment_settings', 'class' => 'select', 'selected' => $comment_settings_selected->(),
-                                  'tabindex' => $tabindex->() },
-                                "", $comment_settings_default, "nocomments", BML::ml('entryform.comment.settings.nocomments',"noemail"), "noemail", BML::ml('entryform.comment.settings.noemail'));
+                'tabindex' => $tabindex->() },
+                 "", $comment_settings_default, "nocomments", BML::ml( $nocomments_display ,"noemail" ), "noemail", BML::ml( 'entryform.comment.settings.noemail' ));
             $out .= LJ::help_icon_html("comment", "", " ");
             $out .= "\n";
             $out .= "</span>\n";
@@ -1443,11 +1501,15 @@ MOODS
 
             # Current Location
             $out .= "<p class='pkg'>";
-            unless ($LJ::DISABLED{'web_current_location'}) {
+            if ( LJ::is_enabled( 'web_current_location' ) ) {
                 $out .= "<span class='inputgroup-left'>";
-                $out .= "<label for='prop_current_location' class='left options'>" . BML::ml('entryform.location') . "</label>";
-                $out .= LJ::html_text({ 'name' => 'prop_current_location', 'value' => $opts->{'prop_current_location'}, 'id' => 'prop_current_location',
-                                        'class' => 'text', 'size' => '35', 'maxlength' => '60', 'tabindex' => $tabindex->() }) . "\n";
+                $out .= "<label for='prop_current_location' class='left options'>" . BML::ml( 'entryform.location' ) . "</label>";
+                $out .= LJ::html_text({ name => 'prop_current_location',
+                                        value => $opts->{prop_current_location},
+                                        id => 'prop_current_location',
+                                        class => 'text', size => '35',
+                                        maxlength => '60',
+                                        tabindex => $tabindex->() }) . "\n";
                 $out .= "</span>";
             }
 
@@ -1472,13 +1534,17 @@ MOODS
             $out .= "<span class='inputgroup-left'>\n";
             $out .= "<label for='prop_current_music' class='left options'>" . BML::ml('entryform.music') . "</label>\n";
             # BML::ml('entryform.music')
-            $out .= LJ::html_text({ 'name' => 'prop_current_music', 'value' => $opts->{'prop_current_music'}, 'id' => 'prop_current_music',
-                                    'class' => 'text', 'size' => '35', 'maxlength' => LJ::std_max_length(), 'tabindex' => $tabindex->() }) . "\n";
+            $out .= LJ::html_text({ name => 'prop_current_music',
+                                    value => $opts->{prop_current_music},
+                                    id => 'prop_current_music',
+                                    class => 'text', size => '35',
+                                    maxlength => LJ::std_max_length(),
+                                    tabindex => $tabindex->() }) . "\n";
             $out .= "</span>\n";
             $out .= "<span class='inputgroup-right'>";
 
             # Content Flag
-            if (LJ::is_enabled("content_flag")) {
+            if ( LJ::is_enabled( 'adult_content' ) ) {
                 my @adult_content_menu = (
                     "" => BML::ml('entryform.adultcontent.default'),
                     none => BML::ml('entryform.adultcontent.none'),
@@ -1499,7 +1565,7 @@ MOODS
             $out .= "</span>\n";
             $out .= "</p>\n";
 
-            if (LJ::is_enabled("content_flag")) {
+            if ( LJ::is_enabled( 'adult_content' ) ) {
                  $out .= "<p class='pkg'>";
                  $out .= "<label for='prop_adult_content_reason' class='left options'>" . BML::ml('entryform.adultcontentreason') . "</label>";
                  $out .= LJ::html_text(
@@ -1517,16 +1583,120 @@ MOODS
                  $out .= "</p>";
             }
 
-            $out .= "<p class='pkg'>\n";
-            $out .= "<span class='inputgroup-left'></span>";
+            if ( $remote && ! $altlogin ) {
+                # crosspost
+                my @accounts = DW::External::Account->get_external_accounts($remote);
+                
+                # populate the per-account html first, so that we only have to
+                # go through them once.
+                my $accthtml = "";
+                my $xpostbydefault = 0;
+                my $xpost_tabindex = $tabindex->();
+                my $did_spellcheck = $opts->{ spellcheck_html } ? 1 : 0;
+                if (scalar @accounts) {
+                    my $xpoststring = $opts->{prop_xpost};
+                    my $xpost_selected = DW::External::Account->xpost_string_to_hash($xpoststring);
+                    foreach my $acct (@accounts) {
+                        # print the checkbox for each account
+                        my $acctid = $acct->acctid;
+                        my $acctname = $acct->displayname;
+                        my $selected;
+                        if ($opts->{mode} eq 'edit') {
+                            $selected = $xpost_selected->{$acct->acctid} ? "1" : "0";
+                        } elsif ( $did_spellcheck ) {
+                            $selected = $opts->{ "prop_xpost_$acctid" };
+                        } else {
+                            $selected = $acct->xpostbydefault;
+                        }
+                        $accthtml .= "<tr><td><label for='prop_xpost_$acctid' class='left options'>$acctname</label></td>\n";
+                        $accthtml .= "<td>" . LJ::html_check({
+                            'type'     => 'checkbox',
+                            'name'     => "prop_xpost_$acctid",
+                            'id'       => "prop_xpost_$acctid",
+                            'class'    => 'check xpost_acct_checkbox',
+                            'value'    => '1',
+                            'selected' => $selected,
+                            'tabindex' => $tabindex->(),
+                            'onchange' => 'XPostAccount.xpostAcctUpdated();',
+                                                             }) . "</td>\n";
+                        $xpostbydefault = 1 if $selected;
+                        
+                        $accthtml .= "<td>";
+                        unless ($acct->password) {
+                        # password field if no password
+                            $accthtml .= "<span id='prop_xpost_pwspan_$acctid'>";
+                            $accthtml .= "<label for='prop_xpost_password_$acctid'>" . BML::ml('xpost.password') . "</label>";
+                            $accthtml .= LJ::html_text({
+                                'name' => "prop_xpost_password_$acctid",
+                                'id' => "prop_xpost_password_$acctid",
+                                'value' => "",
+                                'disabled' => 0,
+                                'size' => 40,
+                                'maxlength' => 80,
+                                'type' => 'password',
+                                'class' => 'xpost_pw'
+                            });
+                            $accthtml .= "<span class='xpost_pwstatus' id='prop_xpost_pwstatus_$acctid'></span>";
+                            $accthtml .= "<input type='hidden' name='prop_xpost_chal_$acctid' id='prop_xpost_chal_$acctid' class='xpost_chal' />";
+                            $accthtml .= "<input type='hidden' name='prop_xpost_resp_$acctid' id='prop_xpost_resp_$acctid'/>";
+                            $accthtml .= "</span>";
+                        }
+                        $accthtml .= "</td>\n";
+
+                        $accthtml .= "</tr>\n";
+                    }
+                }
+                $out .= qq [
+                    <script type="text/javascript" language="JavaScript">
+                      // xpost messages
+                      var xpostUser = '$remote->{user}';
+                ];
+                $out .= "var xpostCheckingMessage = '" . BML::ml('xpost.nopw.checking') . "';\n";
+                $out .= "var xpostCancelLabel =  '" . BML::ml('xpost.nopw.cancel') . "';\n";
+                $out .= "var xpostPwRequired = '" . BML::ml('xpost.nopw.required') . "';\n";
+                $out .= "</script>\n";
+                $out .= "<div id='xpostdiv'>\n";
+                $out .= "<p><label for='prop_xpost_check' class='left options'>" . BML::ml('entryform.xpost') . "</label>";
+                $out .= LJ::html_check({
+                    'type'     => 'checkbox',
+                    'name'     => 'prop_xpost_check',
+                    'id'       => 'prop_xpost_check',
+                    'class'    => 'check',
+                    'value'    => '1',
+                    'selected' => $xpostbydefault,
+                    'disabled' => (scalar @accounts) ? '0' : '1',
+                    'tabindex' => $xpost_tabindex,
+                    'onchange' => 'XPostAccount.xpostButtonUpdated();',
+                                       });
+                $out .= LJ::help_icon_html('prop_xpost_check');
+                $out .= "<a href = '/manage/settings/?cat=othersites'>" . BML::ml('entryform.xpost.manage') . "</a>";
+                $out .= "</p>\n<table>";
+                $out .= $accthtml;
+                $out .= "</table>\n";
+                
+                $out .= "</div>\n";
+                $out .= qq [ 
+              <p class='pkg'>
+              <span class='inputgroup-left'></span>
+                       ];
+            }
+
+            ### Other Posting Options
+            $out .= LJ::Hooks::run_hook('add_extra_entryform_fields', { opts => $opts, tabindex => $tabindex });
+
             $out .= "<span class='inputgroup-right'>";
             # extra submit button so make sure it posts the form when person presses enter key
             if ($opts->{'mode'} eq "edit") {
-                $out .= "<input type='submit' name='action:save' class='hidden_submit' />";
+                $out .= "<input type='submit' name='action:save' class='hidden_submit xpost_submit' />";
             }
             if ($opts->{'mode'} eq "update") {
-                $out .= "<input type='submit' name='action:update' class='hidden_submit' />";
+                $out .= "<input type='submit' name='action:update' class='hidden_submit xpost_submit' />";
             }
+
+            # submit_value field to emulate the submit button selected if we
+            # have to submit with javascript
+            $out .= "<input type='hidden' name='submit_value' />";
+
             my $preview;
             $preview    = "<input type='button' value='" . BML::ml('entryform.preview') . "' onclick='entryPreview(this.form)' tabindex='" . $tabindex->() . "' />";
             if(!$opts->{'disabled_save'}) {
@@ -1541,13 +1711,89 @@ if (document.getElementById) {
 PREVIEW
             }
             if ($LJ::SPELLER && !$opts->{'disabled_save'}) {
-                $out .= LJ::html_submit('action:spellcheck', BML::ml('entryform.spellcheck'), { 'tabindex' => $tabindex->() }) . "&nbsp;";
+                $out .= LJ::html_submit('action:spellcheck', BML::ml('entryform.spellcheck'), { onclick => 'XPostAccount.doSpellcheck()', tabindex => $tabindex->() }) . "&nbsp;";
             }
+            # Update posting date/time
+            $out .= "<input type='button' value='" . BML::ml( 'entryform.updatedate' ) . "' onclick='settime(\"" . LJ::ejs( BML::ml( 'entryform.dateupdated' ) ) . "\", this);' tabindex='" . $tabindex->() . "' />";
             $out .= "</span>\n";
             $out .= "</p>\n";
         }
 
+    ### Community maintainer bar
 
+    if ($opts->{'maintainer_mode'}) {
+        $out .= "<p class='pkg'>\n";
+        $out .= "<em>" . BML::ml('entryform.maintainer') . "</em>\n";
+        $out .= "</p>\n";
+
+        # adult content settings
+        if ( LJ::is_enabled( 'adult_content' ) ) {
+            $out .= "<p class='pkg'>\n";
+            my %poster_adult_content_menu = (
+                "" => BML::ml('entryform.adultcontent.default'),
+                none => BML::ml('entryform.adultcontent.none'),
+                concepts => BML::ml('entryform.adultcontent.concepts'),
+                explicit => BML::ml('entryform.adultcontent.explicit'),
+            );
+
+            my @adult_content_menu = (
+                "" => BML::ml('entryform.adultcontent.poster', {setting => $poster_adult_content_menu{$opts->{prop_adult_content}}}),
+                none => BML::ml('entryform.adultcontent.none'),
+                concepts => BML::ml('entryform.adultcontent.concepts'),
+                explicit => BML::ml('entryform.adultcontent.explicit'),
+            );
+
+            $out .= "<label for='prop_adult_content_maintainer' class='left options'>" . BML::ml('entryform.adultcontent.maintainer') . "</label>\n";
+            $out .= LJ::html_select({
+                name => 'prop_adult_content_maintainer',
+                id => 'prop_adult_content_maintainer',
+                class => 'select',
+                selected => $opts->{prop_adult_content_maintainer} || "",
+                tabindex => $tabindex->(),
+            }, @adult_content_menu);
+            $out .= LJ::help_icon_html("adult_content", "", " ");
+            $out .= "</p>\n";
+
+             $out .= "<p class='pkg'>";
+             $out .= "<label for='prop_adult_content_maintainer_reason' class='left options'>" . BML::ml('entryform.adultcontentreason.maintainer') . "</label>";
+             $out .= LJ::html_text(
+                 {
+                     'name'      => 'prop_adult_content_maintainer_reason',
+                     'id'        => 'prop_adult_content_maintainer_reason',
+                     'class'     => 'text',
+                     'size'      => '35',
+                     'maxlength' => '255',
+                     'value'     => $opts->{'prop_adult_content_maintainer_reason'},
+                     'tabindex'  => $tabindex->(),
+                 }
+             );
+             $out .= LJ::help_icon_html('adult_content_reason');
+             $out .= "</p>";
+        }
+
+        # comment disabling/enabling
+        # only possible if comments weren't disabled by poster
+        unless ( $opts->{prop_opt_nocomments} ) {
+            $out .= "<p class='pkg'>";
+            $out .= "<label for='prop_opt_nocomments_maintainer' class='left options'>" . BML::ml( 'entryform.comment.disable' ) . "</label>";
+
+            # comment disabling is done via a checkbox as it has only two settings
+            # if we got this far, this is always set to the maintainer setting
+            my $selected = $opts->{prop_opt_nocomments_maintainer};
+            $out .= LJ::html_check( 
+                {
+                    type     => 'checkbox',
+                    name     => "prop_opt_nocomments_maintainer",
+                    id       => "prop_opt_nocomments_maintainer",
+                    class    => 'check',
+                    value    => '1',
+                    selected => $selected,
+                    tabindex => $tabindex->(),
+                }
+            );
+            $out .= "</p>";
+        }
+    }
 
     $out .= "</div><!-- end #options -->\n\n";
 
@@ -1555,19 +1801,46 @@ PREVIEW
     {
         $out .= "<div id='submitbar' class='pkg'>\n\n";
 
-        $out .= "<div id='security_container'>\n";
-        $out .= "<label for='security'>" . BML::ml('entryform.security2') . " </label>\n";
-
         # Security
-            {
-                $$onload .= " setColumns();" if $remote;
-                my @secs = ("public", BML::ml('label.security.public2'), "friends", BML::ml('label.security.friends'),
-                            "private", BML::ml('label.security.private2'));
+        my $secbar = 0;
+            if ($opts->{'mode'} eq "update" || !$opts->{'disabled_save'}) {
+                my $usejournalu = LJ::load_user($opts->{usejournal});
+                my $is_comm = $usejournalu && $usejournalu->is_comm ? 1 : 0;
 
-                my @secopts;
-                if ($res && ref $res->{'friendgroups'} eq 'ARRAY' && scalar @{$res->{'friendgroups'}} && !$opts->{'usejournal'}) {
-                    push @secs, ("custom", BML::ml('label.security.custom'));
+                my $string_public = LJ::ejs(BML::ml('label.security.public2'));
+                my $string_friends = LJ::ejs(BML::ml('label.security.accesslist'));
+                my $string_friends_comm = LJ::ejs(BML::ml('label.security.members'));
+                my $string_private = LJ::ejs(BML::ml('label.security.private2'));
+                my $string_admin = LJ::ejs( BML::ml( 'label.security.maintainers' ) );
+                my $string_custom = LJ::ejs(BML::ml('label.security.custom'));
+
+                $out .= qq{
+                    <script>var UpdateFormStrings = new Object();
+                    UpdateFormStrings.public = "$string_public";
+                    UpdateFormStrings.friends = "$string_friends";
+                    UpdateFormStrings.friends_comm = "$string_friends_comm";
+                    UpdateFormStrings.private = "$string_private";
+                    UpdateFormStrings.custom = "$string_custom";
+                    UpdateFormStrings.admin = "$string_admin";</script>
+                };
+
+
+                $$onload .= " setColumns();" if $remote;
+                my @secs = ("public", $string_public, "friends", $is_comm ? $string_friends_comm : $string_friends);
+                push @secs, ("private", $string_private) unless $is_comm;
+                push @secs, ( "private", $string_admin ) if $is_comm && $remote && $remote->can_manage( $usejournalu );
+
+                my ( @secopts, @trust_groups );
+                @trust_groups = $remote->trust_groups if $remote;
+                if ( scalar @trust_groups && !$is_comm ) {
+                    push @secs, ("custom", $string_custom);
                     push @secopts, ("onchange" => "customboxes()");
+                }
+                
+                if ( @secs ) {
+                    $secbar = 1;
+                    $out .= "<div id='security_container'>\n";
+                    $out .= "<label for='security'>" . BML::ml('entryform.security2') . " </label>\n";
                 }
 
                 $out .= LJ::html_select({ 'id' => "security", 'name' => 'security', 'include_ids' => 1,
@@ -1575,17 +1848,18 @@ PREVIEW
                                           'tabindex' => $tabindex->(), @secopts }, @secs) . "\n";
 
                 # if custom security groups available, show them in a hideable div
-                if ($res && ref $res->{'friendgroups'} eq 'ARRAY' && scalar @{$res->{'friendgroups'}}) {
+                if ( scalar @trust_groups ) {
                     my $display = $opts->{'security'} eq "custom" ? "block" : "none";
                     $out .= LJ::help_icon("security", "<span id='security-help'>\n", "\n</span>\n");
                     $out .= "<div id='custom_boxes' class='pkg' style='display: $display;'>\n";
                     $out .= "<ul id='custom_boxes_list'>";
-                    foreach my $fg (@{$res->{'friendgroups'}}) {
+                    foreach my $group ( @trust_groups ) {
+                        my $fg = $group->{groupnum};
                         $out .= "<li>";
-                        $out .= LJ::html_check({ 'name' => "custom_bit_$fg->{'id'}",
-                                                 'id' => "custom_bit_$fg->{'id'}",
-                                                 'selected' => $opts->{"custom_bit_$fg->{'id'}"} || $opts->{'security_mask'}+0 & 1 << $fg->{'id'} }) . " ";
-                        $out .= "<label for='custom_bit_$fg->{'id'}'>" . LJ::ehtml($fg->{'name'}) . "</label>\n";
+                        $out .= LJ::html_check({ 'name' => "custom_bit_$fg",
+                                                 'id' => "custom_bit_$fg",
+                                                 'selected' => $opts->{"custom_bit_$fg"} || $opts->{'security_mask'}+0 & 1 << $fg }) . " ";
+                        $out .= "<label for='custom_bit_$fg'>" . LJ::ehtml( $group->{groupname} ) . "</label>\n";
                         $out .= "</li>";
                     }
                     $out .= "</ul>";
@@ -1595,7 +1869,7 @@ PREVIEW
 
         if ($opts->{'mode'} eq "update") {
             my $onclick = "";
-            $onclick .= "convert_post('draft');return sendForm('updateForm');" if ! $LJ::IS_SSL;
+            $onclick .= "return sendForm('updateForm');" if ! $LJ::IS_SSL;
 
             my $defaultjournal;
             my $not_a_journal = 0;
@@ -1610,31 +1884,59 @@ PREVIEW
 
             $$onload .= " changeSubmit('" . BML::ml('entryform.update3') . "', '$defaultjournal');";
             $$onload .= " getUserTags('$defaultjournal');" unless $not_a_journal;
+            $$onload .= " changeSecurityOptions('$defaultjournal');" unless $opts->{'security'};
 
             $out .= LJ::html_submit('action:update', BML::ml('entryform.update4'),
-                    { 'onclick' => $onclick, 'class' => 'submit', 'id' => 'formsubmit',
-                      'tabindex' => $tabindex->() }) . "&nbsp;\n"; }
+                    { 'onclick' => $onclick, 
+                      'class' => 'submit xpost_submit', 
+                      'id' => 'formsubmit',
+                      'tabindex' => $tabindex->() }) . "&nbsp;\n";
+        }
 
         if ($opts->{'mode'} eq "edit") {
             my $onclick = "";
-            $onclick .= "convert_post('draft');return sendForm('updateForm');" if ! $LJ::IS_SSL;
+            $onclick .= "return true;" if ! $LJ::IS_SSL;
 
-            $out .= LJ::html_submit('action:save', BML::ml('entryform.save'),
-                                    { 'onclick' => $onclick, 'disabled' => $opts->{'disabled_save'},
-                                      'tabindex' => $tabindex->() }) . "&nbsp;\n";
+            if (!$opts->{'disabled_save'}) {
+                $out .= LJ::html_submit('action:save', BML::ml('entryform.save'),
+                                        { 'onclick' => $onclick, 
+                                          'disabled' => $opts->{'disabled_save'},
+                                          'class' => 'xpost_submit',
+                                          'tabindex' => $tabindex->() }) . "&nbsp;\n";
+            } elsif ( $opts->{maintainer_mode} ) {
+                $out .= LJ::html_submit('action:savemaintainer', BML::ml('entryform.save.maintainer'),
+                                        { 'onclick' => $onclick, 
+                                          'disabled' => !$opts->{'maintainer_mode'},
+                                          'class' => 'xpost_submit',
+                                          'tabindex' => $tabindex->() }) . "&nbsp;\n";
+            }
+
+            if (!$opts->{'disabled_save'} && $opts->{suspended} && !$opts->{unsuspend_supportid}) {
+                $out .= LJ::html_submit('action:saveunsuspend', BML::ml('entryform.saveandrequestunsuspend2'),
+                                        { 'onclick' => $onclick, 
+                                          'disabled' => $opts->{'disabled_save'},
+                                          'class' => 'xpost_submit',
+                                          'tabindex' => $tabindex->() }) . "&nbsp;\n";
+            }
+
+            # do a double-confirm on delete if we have crossposts that
+            # would also get removed
+            my $delete_onclick = "return XPostAccount.confirmDelete('" . LJ::ejs(BML::ml('entryform.delete.confirm')) . "', '" . LJ::ejs(BML::ml('entryform.delete.xposts.confirm')) . "')";
             $out .= LJ::html_submit('action:delete', BML::ml('entryform.delete'), {
                 'disabled' => $opts->{'disabled_delete'},
+                'class' => 'xpost_submit',
                 'tabindex' => $tabindex->(),
-                'onclick' => "return confirm('" . LJ::ejs(BML::ml('entryform.delete.confirm')) . "')" }) . "&nbsp;\n";
+                'onclick' => $delete_onclick }) . "&nbsp;\n";
 
             if (!$opts->{'disabled_spamdelete'}) {
                 $out .= LJ::html_submit('action:deletespam', BML::ml('entryform.deletespam'), {
                     'onclick' => "return confirm('" . LJ::ejs(BML::ml('entryform.deletespam.confirm')) . "')",
+                    'class' => 'xpost_submit',
                     'tabindex' => $tabindex->() }) . "\n";
             }
         }
 
-        $out .= "</div><!-- end #security_container -->\n\n";
+        $out .= "</div><!-- end #security_container -->\n\n" if $secbar;
         $out .= "</div><!-- end #submitbar -->\n\n";
         $out .= "</div><!-- end #entry-form-wrapper -->\n\n";
 
@@ -1654,7 +1956,7 @@ sub entry_form_subject_widget {
     if ($class) {
         $class = qq { class="$class" };
     }
-    return qq { <input name="subject" $class/> };
+    return qq { <input name="subject" id="subject" $class/> };
 }
 
 # entry form hidden date field
@@ -1679,7 +1981,7 @@ sub entry_form_entry_widget {
         $class = qq { class="$class" };
     }
 
-    return qq { <textarea cols=50 rows=10 name="event" $class></textarea> };
+    return qq { <textarea cols=50 rows=10 name="event" id="event" $class></textarea> };
 }
 
 
@@ -1710,19 +2012,19 @@ sub entry_form_postto_widget {
     push @journals, $remote->{'user'};
     push @journals, $remote->{'user'};
     @journals = sort @journals;
-    $ret .= LJ::html_select({ 'name' => 'usejournal', 'selected' => $remote->{'user'}}, @journals) . "\n";
+    $ret .= LJ::html_select( { name => 'usejournal', id => 'usejournal', selected => $remote->user }, @journals ) . "\n";
     return $ret;
 }
 
 sub entry_form_security_widget {
     my $ret = '';
 
-    my @secs = ("public", BML::ml('label.security.public'),
-                "private", BML::ml('label.security.private'),
-                "friends", BML::ml('label.security.friends'));
+    my @secs = ( "public", BML::ml( 'label.security.public2' ),
+                 "friends", BML::ml( 'label.security.accesslist' ),
+                 "private", BML::ml( 'label.security.private2' ) );
 
-    $ret .= LJ::html_select({ 'name' => 'security'},
-                            @secs);
+    $ret .= LJ::html_select( { name => 'security', id => 'security' },
+                            @secs );
 
     return $ret;
 }
@@ -1730,15 +2032,75 @@ sub entry_form_security_widget {
 sub entry_form_tags_widget {
     my $ret = '';
 
-    return '' if $LJ::DISABLED{tags};
+    return '' unless LJ::is_enabled('tags');
 
     $ret .= LJ::html_text({
                               'name'      => 'prop_taglist',
+                              'id'        => 'prop_taglist',
                               'size'      => '35',
                               'maxlength' => '255',
                           });
     $ret .= LJ::help_icon('addtags');
 
+    return $ret;
+}
+
+sub entry_form_usericon_widget {
+    my $remote = shift;
+    return undef unless LJ::isu( $remote );
+
+    my $ret;
+
+    my %res;
+    LJ::do_request({ mode => "login",
+                     ver => $LJ::PROTOCOL_VER,
+                     user => $remote->user,
+                     getpickws => 1, },
+                     \%res, { noauth => 1, userid => $remote->userid }
+                   );
+
+    if ($res{pickw_count}) {
+
+        my @icons;
+        for ( my $i = 1; $i <= $res{pickw_count}; $i++ ) {
+            push @icons, $res{"pickw_$i"};
+        }
+
+        @icons = sort { lc( $a ) cmp lc( $b ) } @icons;
+        $ret .= LJ::html_select( { name => 'prop_picture_keyword',
+                                   id => 'prop_picture_keyword' },
+                                   ( "", BML::ml( 'entryform.opt.defpic' ),
+                                     map { ( $_, $_ ) } @icons )
+                                );
+    }
+    return $ret;
+}
+
+sub entry_form_xpost_widget {
+    my ( $remote ) = @_;
+    return unless $remote;
+
+    my $ret;
+    my @accounts = DW::External::Account->get_external_accounts( $remote );
+    @accounts = grep { $_->xpostbydefault } @accounts;
+
+    if ( @accounts ) {
+        $ret .= LJ::html_hidden( {
+            name => 'prop_xpost_check', 
+            id => 'prop_xpost_check',
+            value => 1,
+        } );
+
+        foreach my $acct ( @accounts ) {
+            my $acctid = $acct->acctid;
+            $ret .= LJ::html_hidden( {
+                    name => "prop_xpost_$acctid",
+                    id => "prop_xpost_$acctid",
+                    value => 1,
+                } );
+        }
+    }
+    
     return $ret;
 }
 
@@ -1819,7 +2181,7 @@ sub entry_form_decode
     $req->{"prop_opt_noemail"}      ||= $POST->{'comment_settings'} eq "noemail" ? 1 : 0;
     $req->{'prop_opt_backdated'}      = $POST->{'prop_opt_backdated'} ? 1 : 0;
 
-    if (LJ::is_enabled("content_flag")) {
+    if ( LJ::is_enabled( 'adult_content' ) ) {
         $req->{prop_adult_content} = $POST->{prop_adult_content};
         $req->{prop_adult_content} = ""
             unless $req->{prop_adult_content} eq "none" || $req->{prop_adult_content} eq "concepts" || $req->{prop_adult_content} eq "explicit";
@@ -1863,11 +2225,15 @@ sub entry_form_decode
 
     ## see if an "other" mood they typed in has an equivalent moodid
     if ($POST->{'prop_current_mood'}) {
-        if (my $id = LJ::mood_id($POST->{'prop_current_mood'})) {
+        if ( my $id = DW::Mood->mood_id( $POST->{'prop_current_mood'} ) ) {
             $req->{'prop_current_moodid'} = $id;
             delete $req->{'prop_current_mood'};
         }
     }
+
+    # process site-specific options
+    LJ::Hooks::run_hooks('decode_entry_form', $POST, $req);
+
     return $req;
 }
 
@@ -1931,11 +2297,24 @@ sub js_dumper {
     }
 }
 
+# optional first argument: hashref with options
+# other arguments: resources to include
 sub need_res {
+    my %opts;
+    if ( ref $_[0] eq 'HASH' ) {
+        %opts = %{ shift() };
+    }
+
+    my $group = $opts{group};
+
     foreach my $reskey (@_) {
         die "Bogus reskey $reskey" unless $reskey =~ m!^(js|stc)/!;
-        unless ($LJ::NEEDED_RES{$reskey}++) {
-            push @LJ::NEEDED_RES, $reskey;
+
+        # we put javascript in the 'default' group and CSS in the 'all' group
+        # since we need CSS everywhere and we are switching JS groups
+        my $lgroup = $group || ( $reskey =~ /^js/ ? 'default' : 'all' );
+        unless ($LJ::NEEDED_RES{$lgroup}->{$reskey}++) {
+            push @LJ::NEEDED_RES, [ $lgroup, $reskey ];
         }
     }
 }
@@ -1982,17 +2361,19 @@ sub res_includes {
     my $hasremote = $remote ? 1 : 0;
 
     # ctxpopup prop
-    my $ctxpopup = 1;
-    $ctxpopup = 0 if $remote && ! $remote->prop("opt_ctxpopup");
+    my $ctxpopup_icons = 1;
+    my $ctxpopup_userhead = 1;
+    $ctxpopup_icons = 0 if $remote && ! $remote->opt_ctxpopup_icons;
+    $ctxpopup_userhead = 0 if $remote && ! $remote->opt_ctxpopup_userhead;
 
     # poll for esn inbox updates?
-    my $inbox_update_poll = $LJ::DISABLED{inbox_update_poll} ? 0 : 1;
+    my $inbox_update_poll = LJ::is_enabled('inbox_update_poll');
 
     # are media embeds enabled?
-    my $embeds_enabled = $LJ::DISABLED{embed_module} ? 0 : 1;
+    my $embeds_enabled = LJ::is_enabled('embed_module');
 
     # esn ajax enabled?
-    my $esn_async = LJ::conf_test($LJ::DISABLED{esn_ajax}) ? 0 : 1;
+    my $esn_async = LJ::is_enabled('esn_ajax');
 
     my %site = (
                 imgprefix => "$imgprefix",
@@ -2001,7 +2382,9 @@ sub res_includes {
                 currentJournalBase => "$journal_base",
                 currentJournal => "$journal",
                 has_remote => $hasremote,
-                ctx_popup => $ctxpopup,
+                ctx_popup => ( $ctxpopup_icons || $ctxpopup_userhead ),
+                ctx_popup_icons => $ctxpopup_icons,
+                ctx_popup_userhead => $ctxpopup_userhead,
                 inbox_update_poll => $inbox_update_poll,
                 media_embed_enabled => $embeds_enabled,
                 esn_async => $esn_async,
@@ -2012,14 +2395,14 @@ sub res_includes {
 
     # include standard JS info
     $ret .= qq {
-        <script language="JavaScript" type="text/javascript">
+        <script type="text/javascript">
             var Site;
             if (!Site)
                 Site = {};
 
             var site_p = $site_params;
             var site_k = $site_param_keys;
-            for (var i = 0; i < site_k.length; i++) {
+            for (var i = 0; site_k.length > i; i++) {
                 Site[site_k[i]] = site_p[site_k[i]];
             }
        </script>
@@ -2040,7 +2423,16 @@ sub res_includes {
         $oldest{$type} = $modtime if $modtime > $oldest{$type};
     };
 
-    foreach my $key (@LJ::NEEDED_RES) {
+    foreach my $resrow (@LJ::NEEDED_RES) {
+
+        # determine if this resource is part of the resource group that is active;
+        # or 'default' if no group explicitly active
+        my ( $group, $key ) = @$resrow;
+        next if
+            $group ne 'all' &&
+            ( ( defined $LJ::ACTIVE_RES_GROUP && $group ne $LJ::ACTIVE_RES_GROUP ) ||
+              ( ! defined $LJ::ACTIVE_RES_GROUP && $group ne 'default' ) );
+
         my $path;
         my $mtime = _file_modtime($key, $now);
         if ($key =~ m!^stc/fck/! || $LJ::FORCE_WSTAT{$key}) {
@@ -2094,6 +2486,11 @@ sub res_includes {
     return $ret;
 }
 
+# called to set the active resource group
+sub set_active_resource_group {
+    $LJ::ACTIVE_RES_GROUP = $_[0];
+}
+
 # Returns HTML of a dynamic tag could given passed in data
 # Requires hash-ref of tag => { url => url, value => value }
 sub tag_cloud {
@@ -2127,8 +2524,8 @@ sub tag_cloud {
         my $pt     = int($base_font_size + $percentile->($ct) * $font_size_range);
         $ret .= "<a ";
         $ret .= "id='taglink_$tag' " unless $opts->{ignore_ids};
-        $ret .= "href='" . LJ::ehtml($tagurl) . "' style='color: <?altcolor2?>; font-size: ${pt}pt; text-decoration: none'><span style='color: <?altcolor2?>'>";
-        $ret .= LJ::ehtml($tag) . "</span></a>\n";
+        $ret .= "href='" . LJ::ehtml($tagurl) . "' style='font-size: ${pt}pt; text-decoration: none'>";
+        $ret .= LJ::ehtml($tag) . "</a>\n";
 
         # build hash of tagname => final point size for refresh
         $tagdata{$tag} = $pt;
@@ -2138,697 +2535,105 @@ sub tag_cloud {
     return $ret;
 }
 
-sub get_next_ad_id {
-    return ++$LJ::REQ_GLOBAL{'curr_ad_id'};
-}
-
-##
-## Function LJ::check_page_ad_block. Return answer (true/false) to question:
-## Should we show ad of this type on this page.
-## Args: uri of the page and orient of the ad block (e.g. 'App-Confirm')
-##
-sub check_page_ad_block {
-    my $uri = shift;
-    my $orient = shift;
-
-    # The AD_MAPPING hash may contain code refs
-    # This allows us to choose an ad based on some logic
-    # Example: If LJ::did_post() show 'App-Confirm' type ad
-    my $ad_mapping = LJ::run_hook('get_ad_uri_mapping', $uri) ||
-        LJ::conf_test($LJ::AD_MAPPING{$uri});
-
-    return 1 if $ad_mapping eq $orient;
-    return 1 if ref($ad_mapping) eq 'HASH' && $ad_mapping->{$orient};
-    return;
-}
-
-# returns a hash with keys "layout" and "theme"
-# "theme" is empty for S1 users
-sub get_style_for_ads {
-    my $u = shift;
-
-    my %ret;
-    $ret{layout} = "";
-    $ret{theme} = "";
-
-    # Values for custom layers, default themes, and S1 styles
-    my $custom_layout = "custom_layout";
-    my $custom_theme = "custom_theme";
-    my $default_theme = "default_theme";
-    my $s1_prefix = "s1_";
-
-    if ($u->prop('stylesys') == 2) {
-        my %style = LJ::S2::get_style($u);
-        my $public = LJ::S2::get_public_layers();
-
-        # get layout
-        my $layout = $public->{$style{layout}}->{uniq}; # e.g. generator/layout
-        $layout =~ s/\/\w+$//;
-
-        # get theme
-        # if the theme id == 0, then we have no theme for this layout (i.e. default theme)
-        my $theme;
-        if ($style{theme} == 0) {
-            $theme = $default_theme;
-        } else {
-            $theme = $public->{$style{theme}}->{uniq}; # e.g. generator/mintchoc
-            $theme =~ s/^\w+\///;
-        }
-
-        $ret{layout} = $layout ? $layout : $custom_layout;
-        $ret{theme} = $theme ? $theme : $custom_theme;
-    } else {
-        my $view = DW::Request->get->note('view');
-        $view = "lastn" if $view eq "";
-
-        if ($view =~ /^(?:friends|day|calendar|lastn)$/) {
-            my $pubstyles = LJ::S1::get_public_styles();
-            my $styleid = $u->prop("s1_${view}_style");
-
-            my $layout = "";
-            if ($pubstyles->{$styleid}) {
-                $layout = $pubstyles->{$styleid}->{styledes}; # e.g. Clean and Simple
-                $layout =~ s/\W//g;
-                $layout =~ s/\s//g;
-                $layout = lc $layout;
-                $layout = $s1_prefix . $layout;
-            }
-
-            $ret{layout} = $layout ? $layout : $s1_prefix . $custom_layout;
-        }
-    }
-
-    return %ret;
-}
-
-sub get_search_term {
-    my $uri = shift;
-    my $search_arg = shift;
-
-    my %search_pages = (
-        '/interests.bml' => 1,
-        '/directory.bml' => 1,
-        '/multisearch.bml' => 1,
-    );
-
-    return "" unless $search_pages{$uri};
-
-    my $term = "";
-    my $args = DW::Request->get->query_string;
-    if ($uri eq '/interests.bml') {
-        if ($args =~ /int=([^&]+)/) {
-            $term = $1;
-        }
-    } elsif ($uri eq '/directory.bml') {
-        if ($args =~ /int_like=([^&]+)/) {
-            $term = $1;
-        }
-    } elsif ($uri eq '/multisearch.bml') {
-        $term = $search_arg;
-    }
-
-    # change +'s to spaces
-    $term =~ s/\+/ /;
-
-    return $term;
-}
-
-
-sub email_ads {
-    my %opts = @_;
-
-    my $channel = $opts{channel};
-    my $from_email = $opts{from_email};
-    my $to_u = $opts{to_u};
-
-    return '' unless LJ::run_hook('should_show_ad', {
-        ctx  => 'app',
-        user => $to_u,
-        remote => $to_u,
-        type => $channel,
-    });
-
-    return '' unless LJ::run_hook('should_show_email_ad', $to_u);
-
-    my $adid = get_next_ad_id();
-    my $divid = "ad_$adid";
-
-    my %adcall = (
-                  r  => rand(),
-                  p  => 'lj',
-                  channel => $channel,
-                  type => 'user',
-                  user => $to_u->id,
-                  gender => $to_u->gender_for_adcall,
-                  hR => Digest::MD5::md5_hex(lc($from_email)),
-                  hS => Digest::MD5::md5_hex(lc($to_u->email_raw)),
-                  site => "lj.email",
-                  );
-
-    my $age = $to_u->age_for_adcall;
-    $adcall{age} = $age if $age;
-
-    my $adparams = LJ::encode_url_string(\%adcall, 
-                                         [ sort { length $adcall{$a} <=> length $adcall{$b} } 
-                                           grep { length $adcall{$_} } 
-                                           keys %adcall ] );
-
-    # allow 24 bytes for escaping overhead
-    $adparams = substr($adparams, 0, 1_000);
-
-    my $image_url = $LJ::ADSERVER . '/image/?' . $adparams;
-    my $click_url = $LJ::ADSERVER . '/click/?' . $adparams;
-
-    my $adhtml = "<a href='$click_url'><img src='$image_url' /></a>";
-
-    return $adhtml;
-}
-
-# this returns ad html given a search string
-sub search_ads {
-    my %opts = @_;
-
-    return '' if LJ::conf_test($LJ::DISABLED{content_ads});
-
-    return '' unless $LJ::USE_JS_ADCALL_FOR_SEARCH;
-
-    my $remote = LJ::get_remote();
-
-    return '' unless LJ::run_hook('should_show_ad', {
-        ctx  => 'app',
-        user => $remote,
-        type => '',
-    });
-
-    return '' unless LJ::run_hook('should_show_search_ad');
-
-    my $query = delete $opts{query} or croak "No search query specified in call to search_ads";
-    my $count = int(delete $opts{count} || 1);
-    my $adcount = int(delete $opts{adcount} || 3);
-
-    my $adid = get_next_ad_id();
-    my $divid = "ad_$adid";
-
-    my @divids = map { "ad_$_" } (1 .. $count);
-
-    my %adcall = (
-                  u  => join(',', map { $adcount } @divids), # how many ads to show in each
-                  r  => rand(),
-                  q  => $query,
-                  id => join(',', @divids),
-                  p  => 'lj',
-                  add => 'lj_content_ad',
-                  remove => 'lj_inactive_ad',
-                  );
-
-    if ($remote) {
-        $adcall{user} = $remote->id;
-    }
-
-    my $adparams = LJ::encode_url_string(\%adcall, 
-                                         [ sort { length $adcall{$a} <=> length $adcall{$b} } 
-                                           grep { length $adcall{$_} } 
-                                           keys %adcall ] );
-
-    # allow 24 bytes for escaping overhead
-    $adparams = substr($adparams, 0, 1_000);
-
-    my $url = $LJ::ADSERVER . '/google/?' . $adparams;
-
-    my $adhtml;
-
-    my $adcall = '';
-    if (++$LJ::REQ_GLOBAL{'curr_search_ad_id'} == $count) {
-        $adcall .= qq { <script charset="utf-8" id="ad${adid}s" src="$url"></script>\n };
-        $adcall .= qq { <script language="javascript" src="http://www.google.com/afsonline/show_afs_ads.js"></script> };
-    }
-
-    $adhtml = qq {
-        <div class="lj_inactive_ad" id="$divid" style="clear: left;">
-            $adcall
-        </div>
-        <div class='lj_inactive_ad clear'>&nbsp;</div>
-    };
-
-    return $adhtml;
-}
-
-sub ads {
-    my %opts = @_;
-
-    return "" unless $LJ::USE_ADS;
-
-    my $adcall_url = LJ::run_hook('construct_adcall', %opts);
-    my $hook_did_adurl = $adcall_url ? 1 : 0;
-
-    # WARNING: $ctx is terribly named and not an S2 context
-    my $ctx      = $opts{'type'};
-    my $orient   = $opts{'orient'};
-    my $user     = $opts{'user'};
-    my $pubtext  = $opts{'pubtext'};
-    my $tags     = $opts{'tags'};
-    my $colors   = $opts{'colors'};
-    my $position = $opts{'position'};
-    my $search_arg = $opts{'search_arg'};
-    my $interests_extra = $opts{'interests_extra'};
-    my $vertical = $opts{'vertical'};
-    my $page     = $opts{'page'};
-
-    ##
-    ## Some BML files contains calls to LJ::ads inside them.
-    ## When LJ::ads is called from BML files, special prefix 'BML-' is used.
-    ## $pagetype is essentially $orient without leading 'BML-' prefix.
-    ## E.g. $orient = 'BML-App-Confirm', $pagetype = 'App-Confirm'
-    ## Prefix 'BML-' is also used in the ad config file (%LJ::AD_MAPPING).
-    ##
-    my $pagetype = $orient;
-    $pagetype =~ s/^BML-//;
-
-    # first 500 words
-    $pubtext =~ s/<.+?>//g;
-    $pubtext = text_trim($pubtext, 1000);
-    my @words = grep { $_ } split(/\s+/, $pubtext);
-    my $max_words = 500;
-    @words = @words[0..$max_words-1] if @words > $max_words;
-    $pubtext = join(' ', @words);
-
-    # first 15 tags
-    my $max_tags = 15;
-    my @tag_names;
-    if ($tags) {
-        @tag_names = scalar @$tags > $max_tags ? @$tags[0..$max_tags-1] : @$tags;
-    }
-    my $tag_list = join(',', @tag_names);
-
-    my $debug = $LJ::DEBUG{'ads'};
-
-    # are we constructing JavaScript adcalls?
-    my $use_js_adcall = LJ::conf_test($LJ::USE_JS_ADCALL) ? 1 : 0;
-
-    # Don't show an ad unless we're in debug mode, or our hook says so.
-    return '' unless $debug || LJ::run_hook('should_show_ad', {
-        ctx  => $ctx,
-        user => $user,
-        type => $pagetype,
-    });
-
-    # If we don't know about this page type, can't do much of anything
-    my $ad_page_mapping = LJ::run_hook('get_page_mapping', $pagetype) || $LJ::AD_PAGE_MAPPING{$pagetype};
-    unless ($ad_page_mapping) {
-        warn "No mapping for page type $pagetype"
-            if $LJ::IS_DEV_SERVER && $LJ::AD_DEBUG;
-
-        return '';
-    }
-
-    my $r = DW::Request->get;
-    my %adcall = ();
-
-    # Make sure this mapping is correct for app ads, journal ads only call this function
-    # once when they directly want a specific type of ads.  App ads on the other hand
-    # are called via the site scheme, so this function may be called half a dozen times
-    # on each page creation.
-    if ($ctx eq "app") {
-        my $uri = BML::get_uri();
-        $uri = $uri =~ /\/$/ ? "$uri/index.bml" : $uri;
-
-        # Try making the uri from request notes if it doesn't match
-        # and uri ends in .html
-        if (!LJ::check_page_ad_block($uri,$orient) && $r->header_in('Host') ne $LJ::DOMAIN_WEB) {
-            if ($uri = $r->note('bml_filename')) {
-                $uri =~ s!$LJ::HOME/(?:ssldocs|htdocs)!!;
-                $uri = $uri =~ /\/$/ ? "$uri/index.bml" : $uri;
-            }
-        }
-
-        # Make sure that the page type passed in is what the config says this
-        # page actually is.
-        return '' unless LJ::check_page_ad_block($uri,$orient) || $opts{'force'};
-
-        # If it was a search provide the query to the targeting engine
-        # for more relevant results
-        $adcall{search_term} = LJ::get_search_term($uri, $search_arg);
-
-        # Special case talkpost.bml and talkpost_do.bml as user pages
-        if ($uri =~ /^\/talkpost(?:_do)?\.bml$/) {
-            $adcall{type} = 'user';
-        }
-    }
-
-    $adcall{adunit}  = $ad_page_mapping->{adunit};      # ie skyscraper, FIXME: this is ignored by adserver now
-    my $addetails    = LJ::run_hook('get_ad_details', $adcall{adunit}) || $LJ::AD_TYPE{$adcall{adunit}};   # hashref of meta-data or scalar to directly serve
-
-    return '' unless $addetails;
-
-    $adcall{channel} = $pagetype;
-    $adcall{type}    = $adcall{type} || $ad_page_mapping->{target}; # user|content
-
-
-    $adcall{url}     = 'http://' . $r->header_in('Host') . $r->uri;
-
-    $adcall{contents} = $pubtext;
-    $adcall{tags} = $tag_list;
-    $adcall{pos} = $position;
-
-    $adcall{cbg} = $colors->{bgcolor};
-    $adcall{ctext} = $colors->{fgcolor};
-    $adcall{cborder} = $colors->{bordercolor};
-    $adcall{clink} = $colors->{linkcolor};
-    $adcall{curl} = $colors->{linkcolor};
-
-    unless (ref $addetails eq "HASH") {
-        LJ::run_hooks('notify_ad_block', $addetails);
-        $LJ::ADV_PER_PAGE++;
-        return $addetails;
-    }
-
-    # addetails is a hashref now:
-    $adcall{width}   = $addetails->{width};
-    $adcall{height}  = $addetails->{height};
-
-    $adcall{vc} = $vertical;
-    $adcall{pn} = $page;
-
-    my $remote = LJ::get_remote();
-    if ($remote) {
-
-        # pass userid
-        $adcall{user} = $remote->id;
-
-        # Pass age to targeting engine
-        my $age = $remote->age_for_adcall;
-        $adcall{age} = $age if $age;
-
-        # Pass country to targeting engine if user shares this information
-        if ($remote->can_show_location) {
-            $adcall{country} = $remote->prop('country');
-        }
-
-        # Pass gender to targeting engine
-        $adcall{gender} = $remote->gender_for_adcall;
-
-        # User selected ad content categories
-        $adcall{categories} = $remote->prop('ad_categories');
-
-        # User's notable interests
-        $adcall{interests} = LJ::interests_for_adcall($remote, extra => $interests_extra);
-
-        # Pass email address domain
-        my $email = $remote->email_raw;
-        $email =~ /\.([^\.]+)$/;
-        $adcall{ed} = $1;
-    }
-    $adcall{gender} ||= "unknown"; # for logged-out users
-
-    if ($ctx eq 'journal') {
-        my $u = $opts{user} ? LJ::load_user($opts{user}) : LJ::load_userid($r->note('journalid'));
-        $opts{entry} = LJ::Entry->new_from_url($adcall{url});
-
-        if ($u) {
-            if (!$adcall{categories} && !$adcall{interests}) {
-                # If we have neither categories or interests, load the content author's
-                $adcall{categories} = $u->prop('ad_categories');
-                $adcall{interests} = LJ::interests_for_adcall($u, extra => $interests_extra);
-            }
-
-            # set the country to the content author's
-            # if it's not set, and default the language to the author's language
-            $adcall{country} ||= $u->prop('country') if $u->can_show_location;
-            $adcall{language} = $u->prop('browselang');
-
-            # pass style info
-
-            my %GET = BML::get_request()->args;
-            my $styleu = $GET{style} eq "mine" && $remote ? $remote : $u;
-            my %style = LJ::get_style_for_ads($styleu);
-            $adcall{layout} = defined $style{layout} ? $style{layout} : "";
-            $adcall{theme} = defined $style{theme} ? $style{theme} : "";
-
-            # pass ad placement info
-            $adcall{adplacement} = LJ::S2::current_box_type($u);
-        }
-    }
-
-    # Language this page is displayed in
-    # set the language to the current user's preferences if they are logged in
-    $adcall{language} = $r->note('langpref') if $remote;
-    $adcall{language} =~ s/_LJ//; # Trim _LJ postfixJ
-
-    # What type of account level do they have?
-    if ($remote) {
-        # Logged in? This is either a plus user or a basic user.
-        $adcall{accttype} = $remote->in_class('plus') ? 'ADS' : 'FREE';
-    } else {
-        # aNONymous user
-        $adcall{accttype} = 'NON';
-    }
-    $adcall{accttype} = $remote ?
-        $remote->in_class('plus') ? 'ADS' : 'FREE' :   # Ads or Free if logged in
-        'NON';                                         # Not logged in
-
-    # incremental Ad ID within this page
-    my $adid = get_next_ad_id();
-
-    # specific params for SixApart adserver
-    $adcall{p}  = 'lj';
-    if ($use_js_adcall) {
-        $adcall{f}  = 'AdEngine.insertAdResponse';
-        $adcall{id} = "ad$adid";
-    }
-
-    # cache busting and unique-ad logic
-    my $pageview_uniq = LJ::pageview_unique_string();
-    $adcall{r} = "$pageview_uniq:$adid"; # cache buster
-    $adcall{pagenum} = $pageview_uniq;   # unique ads
-
-    LJ::run_hook("transform_adcall", \%opts, \%adcall);
-
-    # Build up escaped query string of adcall parameters
-    my $adparams = LJ::encode_url_string(\%adcall, 
-                                         [ sort { length $adcall{$a} <=> length $adcall{$b} } 
-                                           grep { length $adcall{$_} } 
-                                           keys %adcall ] );
-
-    # ghetto, but allow 24 bytes for escaping overhead
-    $adparams = substr($adparams, 0, 1_000);
-
-    my $adhtml;
-    $adhtml .= "\n<div class=\"ljad ljad$adcall{adunit}\" id=\"\">\n";
-
-    my $ad_url = my $advertising_url = LJ::run_hook("get_advertising_url") || "http://www.sixapart.com/about/advertising/";
-    my $label = LJ::Lang::ml('web.ads.advertisement', {aopts=>"href='$ad_url'"});
-    $adhtml .= "<h4 style='float: left; margin-bottom: 2px; margin-top: 2px; clear: both;'>$label</h4>\n";
-
-    # use adcall_url from hook if it specified one
-    $adcall_url ||= $LJ::ADSERVER;
-
-    # final adcall urls for iframe/js serving types
-    my $iframe_url   = $hook_did_adurl ? $adcall_url : "$adcall_url/show?$adparams";
-    my $js_url       = $hook_did_adurl ? $adcall_url : "$adcall_url/js/?$adparams";
-
-    # For leaderboards, entryboxes, and box ads, show links on the top right
-    if ($adcall{adunit} =~ /^leaderboard/ || $adcall{adunit} =~ /^entrybox/ || $adcall{adunit} =~ /^medrect/) {
-        $adhtml .= "<div style='float: right; margin-bottom: 3px; padding-top: 0px; line-height: 1em; white-space: nowrap;'>\n";
-
-        if ($LJ::IS_DEV_SERVER || exists $LJ::DEBUG{'ad_url_markers'}) {
-            my $marker = $LJ::DEBUG{'ad_url_markers'} || '#';
-            # This is so while working on ad related problems I can easily open the iframe in a new window
-            $adhtml .= "<a href=\"$iframe_url\">$marker</a> | \n";
-        }
-        $adhtml .= "<a href='$LJ::SITEROOT/manage/account/adsettings.bml'>" . LJ::Lang::ml('web.ads.customize') . "</a>\n" if $remote;
-        $adhtml .= "</div>\n";
-    }
-
-    if ($debug) {
-        my $ehpub = LJ::ehtml($pubtext) || "[no text targeting]";
-        $adhtml .= "<div style='width: $adcall{width}px; height: $adcall{height}px; border: 1px solid green; color: #ff0000'>$ehpub</div>\n";
-    } else {
-        # Iframe with call to ad targeting server
-        my $dim_style = join("; ",
-                             "width: " . LJ::ehtml($adcall{width}) . "px",
-                             "height: " . LJ::ehtml($adcall{height}) . "px" );
-
-        # Call ad via JavaScript or iframe
-        if ($use_js_adcall && ! $hook_did_adurl) {
-            # TODO: Makes sure these ad calls don't get cached
-            $adhtml .= "<div id=\"ad$adid\" style='$dim_style; clear: left'>";
-            $adhtml .= "<script id=\"ad${adid}s\" defersrc=\"$js_url\"></script>";
-            $adhtml .= "</div>";
-        } else {
-            $adhtml .= "<iframe src='$iframe_url' frameborder='0' scrolling='no' id='adframe' style='$dim_style'></iframe>";
-        }
-    }
-
-    # For non-leaderboards, non-entryboxes, and non-box ads, show links on the bottom right
-    unless ($adcall{adunit} =~ /^leaderboard/ || $adcall{adunit} =~ /^entrybox/ || $adcall{adunit} =~ /^medrect/) {
-        $adhtml .= "<div style='text-align: right; margin-top: 2px; white-space: nowrap;'>\n";
-        if ($LJ::IS_DEV_SERVER || exists $LJ::DEBUG{'ad_url_markers'}) {
-            my $marker = $LJ::DEBUG{'ad_url_markers'} || '#';
-            # This is so while working on ad related problems I can easily open the iframe in a new window
-            $adhtml .= "<a href=\"$iframe_url\">$marker</a> | \n";
-        }
-        $adhtml .= "<a href='$LJ::SITEROOT/manage/account/adsettings.bml'>" . LJ::Lang::ml('web.ads.customize') . "</a>\n" if $remote;
-        $adhtml .= "</div>\n";
-    }
-    $adhtml .= "</div>\n";
-
-    LJ::run_hooks('notify_ad_block', $adhtml);
-    $LJ::ADV_PER_PAGE++;
-    return $adhtml;
-}
-
-# this function will filter out blocked interests, as well filter out interests which
-# cause the 
-sub interests_for_adcall {
-    my $u = shift;
-    my %opts = @_;
-
-    # base ad call is 300-400 bytes, we'll allow interests to be around 600
-    # which is unlikely to go over IE's 1k URL limit.
-    my $max_len = $opts{max_len} || 600;
-
-    my $int_len = 0;
-
-    my @interest_list = $u->notable_interests(100);
-
-    # pass in special interest if this ad relates to the QotD
-    if ($opts{extra} && $opts{extra} eq "qotd") {
-        my $extra = LJ::run_hook("qotd_tag", $u);
-        unshift @interest_list, $extra if $extra;
-    }
-
-    return join(',', 
-                grep { 
-
-                    # not a blocked interest
-                    ! defined $LJ::AD_BLOCKED_INTERESTS{$_} && 
-
-                    # and we've not already got over 768 bytes of interests
-                    # -- +1 is for comma
-                    ($int_len += length($_) + 1) <= $max_len;
-                        
-                    } @interest_list
-                );
-}
-
-# for use when calling an ad from BML directly
-sub ad_display {
-    my %opts = @_;
-
-    # can specify whether the wrapper div on the ad is used or not
-    my $use_wrapper = defined $opts{use_wrapper} ? $opts{use_wrapper} : 1;
-
-    my $ret = LJ::ads(%opts);
-
-    my $extra;
-    if ($ret =~ /"ljad ljad(.+?)"/i) {
-        # Add a badge ad above all skyscrapers
-        # First, try to print a badge ad in journal context (e.g. S1 comment pages)
-        # Then, if it doesn't print, print it in user context (e.g. normal app pages)
-        if ($1 eq "skyscraper") {
-            $extra = LJ::ads(type => $opts{'type'},
-                             orient => 'Journal-Badge',
-                             user => $opts{'user'},
-                             search_arg => $opts{'search_arg'},
-                             force => '1' );
-            $extra = LJ::ads(type => $opts{'type'},
-                             orient => 'App-Extra',
-                             user => $opts{'user'},
-                             search_arg => $opts{'search_arg'},
-                             force => '1' )
-                        unless $extra;
-        }
-        $ret = $extra . $ret
-    }
-
-    my $pagetype = $opts{orient};
-    $pagetype =~ s/^BML-//;
-    $pagetype = lc $pagetype;
-
-    $ret = $opts{below_ad} ? "$ret<br />$opts{below_ad}" : $ret;
-    $ret = $ret && $use_wrapper ? "<div class='ljadwrapper-$pagetype'>$ret</div>" : $ret;
-
-    return $ret;
-}
-
 sub control_strip
 {
     my %opts = @_;
     my $user = delete $opts{user};
+    my $baseuri = delete $opts{baseuri};
 
     my $journal = LJ::load_user($user);
     my $show_strip = 1;
-    if (LJ::are_hooks("show_control_strip")) {
-        $show_strip = LJ::run_hook("show_control_strip", { user => $user });
-    }
+    $show_strip = LJ::Hooks::run_hook( "show_control_strip" ) if ( LJ::Hooks::are_hooks( "show_control_strip" ) );
 
     return "" unless $show_strip;
 
     my $remote = LJ::get_remote();
 
     my $r = DW::Request->get;
-    my $args = $r->query_string;
+    my $args = $baseuri ? delete $opts{args} : $r->query_string; # use passed in args if we have a passed in location
+    my $view = delete $opts{view} || $r->note( 'view' );
+
     my $querysep = $args ? "?" : "";
-    my $uri = "http://" . $r->header_in('Host') . $r->uri . $querysep . $args;
-    $uri = LJ::eurl($uri);
+    my $uri = $baseuri ? "http://$baseuri" : "http://" . $r->header_in('Host') . $r->uri;
+    $uri .= "$querysep$args";
+    my $euri = LJ::eurl($uri);
+    my $create_link = LJ::Hooks::run_hook("override_create_link_on_navstrip", $journal) || "<a href='$LJ::SITEROOT/create'>" . BML::ml('web.controlstrip.links.create', {'sitename' => $LJ::SITENAMESHORT}) . "</a>";
 
     # Build up some common links
     my %links = (
-                 'login'             => "<a href='$LJ::SITEROOT/?returnto=$uri'>$BML::ML{'web.controlstrip.links.login'}</a>",
-                 'post_journal'      => "<a href='$LJ::SITEROOT/update.bml'>$BML::ML{'web.controlstrip.links.post2'}</a>",
+                 'login'             => "<a href='$LJ::SITEROOT/?returnto=$euri'>$BML::ML{'web.controlstrip.links.login'}</a>",
+                 'post_journal'      => "<a href='$LJ::SITEROOT/update'>$BML::ML{'web.controlstrip.links.post2'}</a>",
                  'home'              => "<a href='$LJ::SITEROOT/'>" . $BML::ML{'web.controlstrip.links.home'} . "</a>",
-                 'recent_comments'   => "<a href='$LJ::SITEROOT/tools/recent_comments.bml'>$BML::ML{'web.controlstrip.links.recentcomments'}</a>",
-                 'manage_friends'    => "<a href='$LJ::SITEROOT/friends/'>$BML::ML{'web.controlstrip.links.managefriends'}</a>",
-                 'manage_entries'    => "<a href='$LJ::SITEROOT/editjournal.bml'>$BML::ML{'web.controlstrip.links.manageentries'}</a>",
-                 'invite_friends'    => "<a href='$LJ::SITEROOT/friends/invite.bml'>$BML::ML{'web.controlstrip.links.invitefriends'}</a>",
-                 'create_account'    => "<a href='$LJ::SITEROOT/create.bml'>" . BML::ml('web.controlstrip.links.create', {'sitename' => $LJ::SITENAMESHORT}) . "</a>",
-                 'syndicated_list'   => "<a href='$LJ::SITEROOT/syn/list.bml'>$BML::ML{'web.controlstrip.links.popfeeds'}</a>",
-                 'learn_more'        => LJ::run_hook('control_strip_learnmore_link') || "<a href='$LJ::SITEROOT/'>$BML::ML{'web.controlstrip.links.learnmore'}</a>",
+                 'recent_comments'   => "<a href='$LJ::SITEROOT/tools/recent_comments'>$BML::ML{'web.controlstrip.links.recentcomments'}</a>",
+                 'manage_friends'    => "<a href='$LJ::SITEROOT/manage/circle/'>$BML::ML{'web.controlstrip.links.managecircle'}</a>",
+                 'manage_entries'    => "<a href='$LJ::SITEROOT/editjournal'>$BML::ML{'web.controlstrip.links.manageentries'}</a>",
+                 'invite_friends'    => "<a href='$LJ::SITEROOT/manage/circle/invite'>$BML::ML{'web.controlstrip.links.invitefriends'}</a>",
+                 'create_account'    => $create_link,
+                 'syndicated_list'   => "<a href='$LJ::SITEROOT/feeds/list'>$BML::ML{'web.controlstrip.links.popfeeds'}</a>",
+                 'learn_more'        => LJ::Hooks::run_hook('control_strip_learnmore_link') || "<a href='$LJ::SITEROOT/'>$BML::ML{'web.controlstrip.links.learnmore'}</a>",
                  'explore'           => "<a href='$LJ::SITEROOT/explore/'>" . BML::ml('web.controlstrip.links.explore', { sitenameabbrev => $LJ::SITENAMEABBREV }) . "</a>",
+                 'confirm'           => "<a href='$LJ::SITEROOT/register'>$BML::ML{'web.controlstrip.links.confirm'}</a>",
                  );
 
     if ($remote) {
-        if ($remote->can_see_content_flag_button( content => $journal )) {
-            my $flag_url = LJ::ContentFlag->adult_flag_url($journal);
-            $links{'flag'} = "<a href='" . $flag_url . "'>" . LJ::Lang::ml('web.controlstrip.links.flag') . "</a>";
-        }
+        my $unread = $remote->notification_inbox->unread_count;
+        $links{inbox} .= "<a href='$LJ::SITEROOT/inbox/'>$BML::ML{'web.controlstrip.links.inbox'}";
+        $links{inbox} .= " ($unread)" if $unread;
+        $links{inbox} .= "</a>";
 
-        $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/friends/'>$BML::ML{'web.controlstrip.links.viewfriendspage2'}</a>";
-        $links{'add_friend'} = "<a href='$LJ::SITEROOT/friends/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addfriend'}</a>";
-        if ($journal->is_syndicated || $journal->is_news) {
-            $links{'add_friend'} = "<a href='$LJ::SITEROOT/friends/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
-            $links{'remove_friend'} = "<a href='$LJ::SITEROOT/friends/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
+        $links{settings} = "<a href='$LJ::SITEROOT/manage/settings'>$BML::ML{'web.controlstrip.links.settings'}</a>";
+        $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
+        $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
+        $links{'edit_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
+        $links{'track_user'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackuser'}</a>";
+        if ($journal->is_syndicated ) {
+            $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
+            $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}&action=remove'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
         }
         if ($journal->is_community) {
-            $links{'join_community'}   = "<a href='$LJ::SITEROOT/community/join.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.joincomm'}</a>";
-            $links{'leave_community'}  = "<a href='$LJ::SITEROOT/community/leave.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.leavecomm'}</a>";
-            $links{'watch_community'}  = "<a href='$LJ::SITEROOT/friends/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.watchcomm'}</a>";
-            $links{'unwatch_community'}   = "<a href='$LJ::SITEROOT/community/leave.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.removecomm'}</a>";
-            $links{'post_to_community'}   = "<a href='$LJ::SITEROOT/update.bml?usejournal=$journal->{user}'>$BML::ML{'web.controlstrip.links.postcomm'}</a>";
+            $links{'join_community'}   = "<a href='$LJ::SITEROOT/community/join?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.joincomm'}</a>"
+                unless $journal->is_closed_membership;
+            $links{'leave_community'}  = "<a href='$LJ::SITEROOT/community/leave?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.leavecomm'}</a>";
+            $links{'watch_community'}  = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.watchcomm'}</a>";
+            $links{'unwatch_community'}   = "<a href='$LJ::SITEROOT/community/leave?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.removecomm'}</a>";
+            $links{'post_to_community'}   = "<a href='$LJ::SITEROOT/update?usejournal=$journal->{user}'>$BML::ML{'web.controlstrip.links.postcomm'}</a>";
             $links{'edit_community_profile'} = "<a href='$LJ::SITEROOT/manage/profile/?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommprofile'}</a>";
-            $links{'edit_community_invites'} = "<a href='$LJ::SITEROOT/community/sentinvites.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
-            $links{'edit_community_members'} = "<a href='$LJ::SITEROOT/community/members.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
+            $links{'edit_community_invites'} = "<a href='$LJ::SITEROOT/community/sentinvites?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
+            $links{'edit_community_members'} = "<a href='$LJ::SITEROOT/community/members?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
+            $links{'track_community'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackcomm'}</a>";
+            $links{'queue'} = "<a href='$LJ::SITEROOT/community/moderate?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.queue'}</a>";
         }
     }
     my $journal_display = LJ::ljuser($journal);
     my %statustext = (
                     'yourjournal'       => $BML::ML{'web.controlstrip.status.yourjournal'},
-                    'yourfriendspage'   => $BML::ML{'web.controlstrip.status.yourfriendspage'},
-                    'yourfriendsfriendspage' => $BML::ML{'web.controlstrip.status.yourfriendsfriendspage'},
+                    'yourfriendspage'   => $BML::ML{'web.controlstrip.status.yourreadingpage'},
+                    'yourfriendsfriendspage' => $BML::ML{'web.controlstrip.status.yournetworkpage'},
                     'personal'          => BML::ml('web.controlstrip.status.personal', {'user' => $journal_display}),
-                    'personalfriendspage' => BML::ml('web.controlstrip.status.personalfriendspage', {'user' => $journal_display}),
-                    'personalfriendsfriendspage' => BML::ml('web.controlstrip.status.personalfriendsfriendspage', {'user' => $journal_display}),
+                    'personalfriendspage' => BML::ml('web.controlstrip.status.personalreadingpage', {'user' => $journal_display}),
+                    'personalfriendsfriendspage' => BML::ml('web.controlstrip.status.personalnetworkpage', {'user' => $journal_display}),
                     'community'         => BML::ml('web.controlstrip.status.community', {'user' => $journal_display}),
                     'syn'               => BML::ml('web.controlstrip.status.syn', {'user' => $journal_display}),
-                    'news'              => BML::ml('web.controlstrip.status.news', {'user' => $journal_display, 'sitename' => $LJ::SITENAMESHORT}),
                     'other'             => BML::ml('web.controlstrip.status.other', {'user' => $journal_display}),
-                    'mutualfriend'      => BML::ml('web.controlstrip.status.mutualfriend', {'user' => $journal_display}),
-                    'friend'            => BML::ml('web.controlstrip.status.friend', {'user' => $journal_display}),
-                    'friendof'          => BML::ml('web.controlstrip.status.friendof', {'user' => $journal_display}),
+                    'mutualtrust' => BML::ml('web.controlstrip.status.mutualtrust', {'user' => $journal_display}),
+                    'mutualtrust_mutualwatch' => BML::ml('web.controlstrip.status.mutualtrust_mutualwatch', {'user' => $journal_display}),
+                    'mutualtrust_watch' => BML::ml('web.controlstrip.status.mutualtrust_watch', {'user' => $journal_display}),
+                    'mutualtrust_watchedby' => BML::ml('web.controlstrip.status.mutualtrust_watchedby', {'user' => $journal_display}),
+                    'mutualwatch' => BML::ml('web.controlstrip.status.mutualwatch', {'user' => $journal_display}),
+                    'trust_mutualwatch' => BML::ml('web.controlstrip.status.trust_mutualwatch', {'user' => $journal_display}),
+                    'trust_watch' => BML::ml('web.controlstrip.status.trust_watch', {'user' => $journal_display}),
+                    'trust_watchedby' => BML::ml('web.controlstrip.status.trust_watchedby', {'user' => $journal_display}),
+                    'trustedby_mutualwatch' => BML::ml('web.controlstrip.status.trustedby_mutualwatch', {'user' => $journal_display}),
+                    'trustedby_watch' => BML::ml('web.controlstrip.status.trustedby_watch', {'user' => $journal_display}),
+                    'trustedby_watchedby' => BML::ml('web.controlstrip.status.trustedby_watchedby', {'user' => $journal_display}),
                     'maintainer'        => BML::ml('web.controlstrip.status.maintainer', {'user' => $journal_display}),
                     'memberwatcher'     => BML::ml('web.controlstrip.status.memberwatcher', {'user' => $journal_display}),
                     'watcher'           => BML::ml('web.controlstrip.status.watcher', {'user' => $journal_display}),
                     'member'            => BML::ml('web.controlstrip.status.member', {'user' => $journal_display}),
+                    'trusted'           => BML::ml('web.controlstrip.status.trusted', {'user' => $journal_display}),
+                    'watched'           => BML::ml('web.controlstrip.status.watched', {'user' => $journal_display}),
+                    'trusted_by'        => BML::ml('web.controlstrip.status.trustedby', {'user' => $journal_display}),
+                    'watched_by'        => BML::ml('web.controlstrip.status.watchedby', {'user' => $journal_display}),
                     );
     # Style the status text
     foreach my $key (keys %statustext) {
@@ -2838,9 +2643,11 @@ sub control_strip
     my $ret;
     if ($remote) {
         my $remote_display  = LJ::ljuser($remote);
-        if ($remote->{'defaultpicid'}) {
-            my $url = "$LJ::USERPIC_ROOT/$remote->{'defaultpicid'}/$remote->{'userid'}";
-            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editpics.bml'><img src='$url' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" height='43' /></a></td>";
+        my $userpic = $remote->userpic;
+        if ( $userpic ) {
+            my $wh = $userpic->img_fixedsize( width => 43, height => 43 );
+            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editicons'>";
+            $ret .= "<img src='" . $userpic->url . "' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" $wh /></a></td>";
         } else {
             my $tinted_nouserpic_img = "";
 
@@ -2856,68 +2663,64 @@ sub control_strip
                     }
                 }
             }
-            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editpics.bml'>";
+            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editicons'>";
             if ($tinted_nouserpic_img eq "") {
-                $ret .= "<img src='$LJ::IMGPREFIX/controlstrip/nouserpic.gif' alt=\"$BML::ML{'web.controlstrip.nouserpic.alt'}\" title=\"$BML::ML{'web.controlstrip.nouserpic.title'}\" height='43' />";
+                $ret .= "<img src='$LJ::IMGPREFIX/controlstrip/nouserpic.gif' ";
             } else {
-                $ret .= "<img src='$tinted_nouserpic_img' alt=\"$BML::ML{'web.controlstrip.nouserpic.alt'}\" title=\"$BML::ML{'web.controlstrip.nouserpic.title'}\" height='43' />";
+                $ret .= "<img src='$tinted_nouserpic_img' ";
             }
+            $ret .= "alt=\"$BML::ML{'web.controlstrip.nouserpic.alt'}\" title=\"$BML::ML{'web.controlstrip.nouserpic.title'}\" height='43' width='43' />";
             $ret .= "</a></td>";
         }
-        $ret .= "<td id='lj_controlstrip_user' nowrap='nowrap'><form id='Greeting' class='nopic' action='$LJ::SITEROOT/logout.bml?ret=1' method='post'><div>";
+        $ret .= "<td id='lj_controlstrip_user' nowrap='nowrap'><form id='Greeting' class='nopic' action='$LJ::SITEROOT/logout?ret=1' method='post'><div>";
         $ret .= "<input type='hidden' name='user' value='$remote->{'user'}' />";
         $ret .= "<input type='hidden' name='sessid' value='$remote->{'_session'}->{'sessid'}' />"
             if $remote->session;
         my $logout = "<input type='submit' value=\"$BML::ML{'web.controlstrip.btn.logout'}\" id='Logout' />";
         $ret .= "$remote_display $logout";
+        $ret .= "&nbsp;&nbsp; $links{confirm}" unless $remote->is_validated;
         $ret .= "</div></form>\n";
-        $ret .= "$links{'home'}&nbsp;&nbsp; $links{'post_journal'}&nbsp;&nbsp; $links{'view_friends_page'}";
+        $ret .= "$links{home}&nbsp;&nbsp; $links{post_journal}&nbsp;&nbsp;" unless $remote->is_identity;
+        $ret .= "$links{view_friends_page}&nbsp;&nbsp;$links{settings}&nbsp;&nbsp;$links{inbox}";
         $ret .= "</td>\n";
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
-        if (LJ::u_equals($remote, $journal)) {
-            if ($r->note('view') eq "friends") {
+        if ( $remote->equals( $journal ) ) {
+            if ( $view eq "read" ) {
                 $ret .= $statustext{'yourfriendspage'};
-            } elsif ($r->note('view') eq "friendsfriends") {
+            } elsif ( $view eq "network" ) {
                 $ret .= $statustext{'yourfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'yourjournal'};
             }
             $ret .= "<br />";
-            if ($r->note('view') eq "friends") {
+            if ( $view eq "read" || $view eq "network" ) {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
-                my %res;
-                # FIXME: make this use LJ::Protocol::do_request
-                LJ::do_request({ 'mode' => 'getfriendgroups',
-                                 'ver'  => $LJ::PROTOCOL_VER,
-                                 'user' => $remote->{'user'}, },
-                               \%res, { 'noauth' => 1, 'userid' => $remote->{'userid'} });
-                my %group;
-                foreach my $k (keys %res) {
-                    if ($k =~ /^frgrp_(\d+)_name/) {
-                        $group{$1}->{'name'} = $res{$k};
-                    }
-                    elsif ($k =~ /^frgrp_(\d+)_sortorder/) {
-                        $group{$1}->{'sortorder'} = $res{$k};
-                    }
-                }
-                foreach my $g (sort { $group{$a}->{'sortorder'} <=> $group{$b}->{'sortorder'} } keys %group) {
-                    push @filters, "filter:" . lc($group{$g}->{'name'}), $group{$g}->{'name'};
+                # content_filters returns an array of content filters this user had, sorted by sortorder
+                # since this is only shown if $remote->equals( $journal ) , we don't have to care whether a filter is public or not
+                my @custom_filters = $journal->content_filters;
+
+                foreach my $f ( @custom_filters ) {
+                    push @filters, "filter:" . lc( $f->name ), $f->name;
                 }
 
                 my $selected = "all";
-                if ($r->uri eq "/friends" && $r->query_string ne "") {
-                    $selected = "showpeople"      if $r->query_string eq "show=P&filter=0";
-                    $selected = "showcommunities" if $r->query_string eq "show=C&filter=0";
-                    $selected = "showsyndicated"  if $r->query_string eq "show=Y&filter=0";
-                } elsif ($r->uri =~ /^\/friends\/?(.+)?/i) {
+                if ($r->uri eq "/read" && $r->query_string ne "") {
+                    $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
+                    $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
+                    $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
+                } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
                     my $filter = $1 || "default view";
-                    $selected = "filter:" . LJ::durl(lc($filter));
+                    $selected = "filter:" . LJ::durl( lc( $filter ) );
+                } elsif ($r->uri eq "/network" && $r->query_string ne "") {
+                    $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
+                    $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
+                    $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
                 }
 
                 $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";
-                $ret .= "$BML::ML{'web.controlstrip.select.friends.label'} <form method='post' style='display: inline;' action='$LJ::SITEROOT/friends/filter.bml'>\n";
-                $ret .= LJ::html_hidden("user", $remote->{'user'}, "mode", "view", "type", "allfilters");
+                $ret .= "$BML::ML{'web.controlstrip.select.friends.label'} <form method='post' style='display: inline;' action='$LJ::SITEROOT/manage/circle/filter'>\n";
+                $ret .= LJ::html_hidden( "user", $remote->{'user'}, "mode", "view", "type", "allfilters", "pageview", $view );
                 $ret .= LJ::html_select({'name' => "view", 'selected' => $selected }, @filters) . " ";
                 $ret .= LJ::html_submit($BML::ML{'web.controlstrip.btn.view'});
                 $ret .= "</form>";
@@ -2926,106 +2729,152 @@ sub control_strip
                 $ret .= "$links{'recent_comments'}&nbsp;&nbsp; $links{'manage_entries'}&nbsp;&nbsp; $links{'invite_friends'}";
             }
         } elsif ($journal->is_personal || $journal->is_identity) {
-            my $friend = LJ::is_friend($remote, $journal);
-            my $friendof = LJ::is_friend($journal, $remote);
+            my $trusted = $remote->trusts( $journal );
+            my $trusted_by = $journal->trusts( $remote );
+            my $mutual_trust = $trusted && $trusted_by ? 1 : 0;
+            my $watched = $remote->watches( $journal );
+            my $watched_by = $journal->watches( $remote );
+            my $mutual_watch = $watched && $watched_by ? 1 : 0;
 
-            if ($friend and $friendof) {
-                $ret .= "$statustext{'mutualfriend'}<br />";
-                $ret .= "$links{'manage_friends'}";
-            } elsif ($friend) {
-                $ret .= "$statustext{'friend'}<br />";
-                $ret .= "$links{'manage_friends'}";
-            } elsif ($friendof) {
-                $ret .= "$statustext{'friendof'}<br />";
-                $ret .= "$links{'add_friend'}";
+            if ( $mutual_trust && $mutual_watch ) {
+                $ret .= "$statustext{mutualtrust_mutualwatch}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $mutual_trust && $watched ) {
+                $ret .= "$statustext{mutualtrust_watch}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $mutual_trust && $watched_by ) {
+                $ret .= "$statustext{mutualtrust_watchedby}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted && $mutual_watch ) {
+                $ret .= "$statustext{trust_mutualwatch}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted_by && $mutual_watch ) {
+                $ret .= "$statustext{trustedby_mutualwatch}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $mutual_trust ) {
+                $ret .= "$statustext{mutualtrust}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $mutual_watch ) {
+                $ret .= "$statustext{mutualwatch}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted && $watched ) {
+                $ret .= "$statustext{trust_watch}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted && $watched_by ) {
+                $ret .= "$statustext{trust_watchedby}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted_by && $watched ) {
+                $ret .= "$statustext{trustedby_watch}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted_by && $watched_by ) {
+                $ret .= "$statustext{trustedby_watchedby}<br />";
+                $ret .= "$links{add_friend}";
+            } elsif ( $trusted ) {
+                $ret .= "$statustext{trusted}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted_by ) {
+                $ret .= "$statustext{trusted_by}<br />";
+                $ret .= "$links{add_friend}";
+            } elsif ( $watched ) {
+                $ret .= "$statustext{watched}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $watched_by ) {
+                $ret .= "$statustext{watched_by}<br />";
+                $ret .= "$links{add_friend}";
             } else {
-                if ($r->note('view') eq "friends") {
+                if ( $view eq "read" ) {
                     $ret .= $statustext{'personalfriendspage'};
-                } elsif ($r->note('view') eq "friendsfriends") {
+                } elsif ( $view eq "network" ) {
                     $ret .= $statustext{'personalfriendsfriendspage'};
                 } else {
                     $ret .= $statustext{'personal'};
                 }
                 $ret .= "<br />$links{'add_friend'}";
             }
+            $ret .= "&nbsp;&nbsp; $links{'track_user'}";
         } elsif ($journal->is_community) {
-            my $watching = LJ::is_friend($remote, $journal);
-            my $memberof = LJ::is_friend($journal, $remote);
-            my $haspostingaccess = LJ::check_rel($journal, $remote, 'P');
-            if (LJ::can_manage_other($remote, $journal)) {
-                $ret .= "$statustext{'maintainer'}<br />";
-                if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
+            my $watching = $remote->watches( $journal );
+            my $memberof = $remote->member_of( $journal );
+            my $haspostingaccess = $remote->can_post_to( $journal );
+            my $isclosedcommunity = $journal->is_closed_membership;
+
+            if ( $remote->can_manage_other( $journal ) ) {
+                $ret .= "$statustext{maintainer}<br />";
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
+
+                if ( $journal->prop( 'moderated' ) ) {
+                    $ret .= "$links{queue} [" . LJ::get_mod_queue_count( $journal ) . "]&nbsp;&nbsp;";
+                } else {
+                    $ret .= "$links{edit_community_profile}&nbsp;&nbsp;";
                 }
-                $ret .= "$links{'edit_community_profile'}&nbsp;&nbsp; $links{'edit_community_invites'}&nbsp;&nbsp; $links{'edit_community_members'}";
+
+                $ret .= "$links{edit_community_invites}&nbsp;&nbsp;$links{edit_community_members}";
+
             } elsif ($watching && $memberof) {
-                $ret .= "$statustext{'memberwatcher'}<br />";
-                if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
-                }
-                $ret .= $links{'leave_community'};
+                $ret .= "$statustext{memberwatcher}<br />";
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
+                $ret .= $links{leave_community};
+                $ret .= "&nbsp;&nbsp;" . $links{track_community};
+
             } elsif ($watching) {
-                $ret .= "$statustext{'watcher'}<br />";
-                if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
-                }
-                $ret .= "$links{'join_community'}&nbsp;&nbsp; $links{'unwatch_community'}";
+                $ret .= "$statustext{watcher}<br />";
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
+                $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :
+                     "$links{join_community}&nbsp;&nbsp; ";
+                $ret .= $links{unwatch_community};
+                $ret .= "&nbsp;&nbsp;" . $links{track_community};
+
             } elsif ($memberof) {
-                $ret .= "$statustext{'member'}<br />";
-                if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
-                }
-                $ret .= "$links{'watch_community'}&nbsp;&nbsp; $links{'leave_community'}";
+                $ret .= "$statustext{member}<br />";
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
+                $ret .= "$links{watch_community}&nbsp;&nbsp; $links{'leave_community'}";
+                $ret .= "&nbsp;&nbsp;" . $links{track_community};
+
             } else {
-                $ret .= "$statustext{'community'}<br />";
-                if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
-                }
-                $ret .= "$links{'join_community'}&nbsp;&nbsp; $links{'watch_community'}";
+                $ret .= "$statustext{community}<br />";
+                $ret .= "$links{post_to_community}&nbsp;&nbsp; "
+                    if $haspostingaccess;
+                $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :
+                    "$links{join_community}&nbsp;&nbsp; ";
+                $ret .= $links{watch_community};
+                $ret .= "&nbsp;&nbsp;" . $links{track_community};
             }
         } elsif ($journal->is_syndicated) {
-            $ret .= "$statustext{'syn'}<br />";
-            if ($remote && !LJ::is_friend($remote, $journal)) {
-                $ret .= "$links{'add_friend'}&nbsp;&nbsp; ";
-            } elsif ($remote && LJ::is_friend($remote, $journal)) {
-                $ret .= "$links{'remove_friend'}&nbsp;&nbsp; ";
+            $ret .= "$statustext{syn}<br />";
+            if ( $remote && !$remote->watches( $journal ) ) {
+                $ret .= "$links{add_friend}&nbsp;&nbsp; ";
+            } elsif ( $remote && $remote->watches( $journal ) ) {
+                $ret .= "$links{remove_friend}&nbsp;&nbsp; ";
             }
-            $ret .= $links{'syndicated_list'};
-        } elsif ($journal->is_news) {
-            $ret .= "$statustext{'news'}<br />";
-            if ($remote && !LJ::is_friend($remote, $journal)) {
-                $ret .= $links{'add_friend'};
-            } else {
-                $ret .= "&nbsp;";
-            }
+            $ret .= $links{syndicated_list};
         } else {
-            $ret .= "$statustext{'other'}<br />";
+            $ret .= "$statustext{other}<br />";
             $ret .= "&nbsp;";
         }
 
-        if ($remote->can_see_content_flag_button( content => $journal )) {
-            $ret .= "&nbsp;&nbsp; $links{flag}";
-        }
-
-        $ret .= LJ::run_hook('control_strip_logo', $remote, $journal);
+        $ret .= LJ::Hooks::run_hook('control_strip_logo', $remote, $journal);
         $ret .= "</td>";
 
     } else {
 
-        my $show_login_form = LJ::run_hook("show_control_strip_login_form", $journal);
+        my $show_login_form = LJ::Hooks::run_hook("show_control_strip_login_form", $journal);
         $show_login_form = 1 if !defined $show_login_form;
 
         if ($show_login_form) {
             my $chal = LJ::challenge_generate(300);
-            my $contents = LJ::run_hook('control_strip_userpic_contents', $uri) || "&nbsp;";
+            my $contents = LJ::Hooks::run_hook('control_strip_userpic_contents', $euri) || "&nbsp;";
             $ret .= <<"LOGIN_BAR";
                 <td id='lj_controlstrip_userpic'>$contents</td>
-                <td id='lj_controlstrip_login' style='background-image: none;' nowrap='nowrap'><form id="login" class="lj_login_form" action="$LJ::SITEROOT/login.bml?ret=1" method="post"><div>
+                <td id='lj_controlstrip_login' style='background-image: none;' nowrap='nowrap'><form id="login" class="lj_login_form" action="$LJ::SITEROOT/login?ret=1" method="post"><div>
                 <input type="hidden" name="mode" value="login" />
                 <input type='hidden' name='chal' id='login_chal' class='lj_login_chal' value='$chal' />
                 <input type='hidden' name='response' id='login_response' class='lj_login_response' value='' />
                 <table cellspacing="0" cellpadding="0" style="margin-right: 1em;"><tr><td>
-                <label for="xc_user">$BML::ML{'/login.bml.login.username'}</label> <input type="text" name="user" size="7" maxlength="17" tabindex="1" id="xc_user" value="" />
+                <label for="xc_user">$BML::ML{'/login.bml.login.username'}</label> <input type="text" name="user" size="7" maxlength="27" tabindex="1" id="xc_user" value="" />
                 </td><td>
                 <label style="margin-left: 3px;" for="xc_password">$BML::ML{'/login.bml.login.password'}</label> <input type="password" name="password" size="7" tabindex="2" id="xc_password" class='lj_login_password' />
 LOGIN_BAR
@@ -3033,7 +2882,8 @@ LOGIN_BAR
             $ret .= "</td></tr>";
 
             $ret .= "<tr><td valign='top'>";
-            $ret .= "<a href='$LJ::SITEROOT/lostinfo.bml'>$BML::ML{'web.controlstrip.login.forgot'}</a>";
+            $ret .= "<a href='$LJ::SITEROOT/openid/' tabindex='5'>$BML::ML{'web.controlstrip.login.openid'}</a>";
+            $ret .= " <a href='$LJ::SITEROOT/lostinfo' tabindex='6'>$BML::ML{'web.controlstrip.login.forgot'}</a>";
             $ret .= "</td><td style='font: 10px Arial, Helvetica, sans-serif;' valign='top' colspan='2' align='right'>";
             $ret .= "<input type='checkbox' id='xc_remember' name='remember_me' style='height: 10px; width: 10px;' tabindex='3' />";
             $ret .= "<label for='xc_remember'>$BML::ML{'web.controlstrip.login.remember'}</label>";
@@ -3041,16 +2891,16 @@ LOGIN_BAR
 
             $ret .= '</div></form></td>';
         } else {
-            my $contents = LJ::run_hook('control_strip_loggedout_userpic_contents', $uri) || "&nbsp;";
+            my $contents = LJ::Hooks::run_hook('control_strip_loggedout_userpic_contents', $euri) || "&nbsp;";
             $ret .= "<td id='lj_controlstrip_loggedout_userpic'>$contents</td>";
         }
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
 
         if ($journal->is_personal || $journal->is_identity) {
-            if ($r->note('view') eq "friends") {
+            if ( $view eq "read" ) {
                 $ret .= $statustext{'personalfriendspage'};
-            } elsif ($r->note('view') eq "friendsfriends") {
+            } elsif ( $view eq "network" ) {
                 $ret .= $statustext{'personalfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'personal'};
@@ -3059,8 +2909,6 @@ LOGIN_BAR
             $ret .= $statustext{'community'};
         } elsif ($journal->is_syndicated) {
             $ret .= $statustext{'syn'};
-        } elsif ($journal->is_news) {
-            $ret .= $statustext{'news'};
         } else {
             $ret .= $statustext{'other'};
         }
@@ -3068,11 +2916,55 @@ LOGIN_BAR
         $ret .= "<br />";
         $ret .= "$links{'login'}&nbsp;&nbsp; " unless $show_login_form;
         $ret .= "$links{'create_account'}&nbsp;&nbsp; $links{'learn_more'}";
-        $ret .= LJ::run_hook('control_strip_logo', $remote, $journal);
+        $ret .= LJ::Hooks::run_hook('control_strip_logo', $remote, $journal);
         $ret .= "</td>";
     }
 
-    LJ::run_hooks('add_extra_cells_in_controlstrip', \$ret);
+    # search box and ?style=mine/?style=light options
+    my @view_options;
+    #determine whether style is "mine", and define new uri variable to manipulate
+    #note: all expressions case-insensitive
+    my $currentstylemine = ($uri =~ m/style=mine/i);
+    my $newuri = LJ::ehtml( $uri );
+    #manipulate destination URI for the style links
+    if ($currentstylemine) {
+        #if last character before style=mine is a &, it can be deleted together with style=mine,
+        #since a ? will still be in front of the other arguments in the string
+        if ($newuri =~ m/\&style=mine/i) {
+            $newuri =~ s/\&style=mine//i;
+        } else {
+            #else the last character before style=mine was a "?" and should not be deleted.
+            #also, delete "&" after style=mine if there is one
+            $newuri =~ s/style=mine\&?//i;
+        }
+        #delete any trailing character - for example
+        #trailing "?" if only "?style=mine" was present in the first place
+        $newuri =~ s/\W$//;
+    }
+    my $querysep2;
+    #check whether newuri still has arguments to determine whether "?" or "&" needs to be used for next argument added
+    if ($newuri =~ m/\?/) {
+        $querysep2 = "&";
+    } else {
+        $querysep2 = "?";
+    }
+    #appropriate links depending on whether style is "mine"
+    if ($remote) {
+        if ($currentstylemine) {
+            push @view_options, "<a href='$newuri'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.origstyle' ) . "</a>"
+        } else {
+            push @view_options, "<a href='$newuri${querysep2}style=mine'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle' ) . "</a>"
+        }
+    }
+    #style=light available on every page that supports showing the navstrip
+    push @view_options, "<a href='$newuri${querysep2}style=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>";
+
+    $ret .= "<td id='lj_controlstrip_search'>";
+    $ret .= LJ::Widget::Search->render;
+    $ret .= LJ::Lang::ml( 'web.controlstrip.reloadpage' ) . "&nbsp;&nbsp; "
+        if @view_options;
+    $ret .= join( "&nbsp;&nbsp; ", @view_options );
+    $ret .= "</td>";
 
     return "<table id='lj_controlstrip' cellpadding='0' cellspacing='0'><tr valign='top'>$ret</tr></table>";
 }
@@ -3094,12 +2986,17 @@ sub control_strip_js_inject
                     js/login.js
                     ));
 
+    my $r = DW::Request->get;
+    my $baseuri = $r->header_in( 'Host' ) . $r->uri;
+    my $args = LJ::eurl( $r->query_string );
+    my $view = $r->note( 'view' );
+
     $ret .= qq{
 <script type='text/javascript'>
     function controlstrip_init() {
         if (! \$('lj_controlstrip') ){
             HTTPReq.getJSON({
-              url: "/$user/__rpc_controlstrip?user=$user",
+              url: "/$user/__rpc_controlstrip?user=$user&baseuri=$baseuri&args=$args&view=$view",
               onData: function (data) {
                   var body = document.getElementsByTagName("body")[0];
                   var div = document.createElement("div");
@@ -3126,13 +3023,17 @@ sub rte_js_vars {
     # of the poll button in the RTE.
     # Also remove any RTE buttons that have been set to disabled.
     my $canmakepoll = "true";
-    $canmakepoll = "false" if ($remote && !LJ::get_cap($remote, 'makepoll'));
+    $canmakepoll = "false" if ($remote && ! $remote->can_create_polls );
     $ret .= "<script type='text/javascript'>\n";
     $ret .= "    var RTEdisabled = new Array();\n";
     my $rte_disabled = $LJ::DISABLED{rte_buttons} || {};
     foreach my $key (keys %$rte_disabled) {
         $ret .= "    RTEdisabled['$key'] = true;" if $rte_disabled->{$key};
     }
+
+    # detect whether image upload and photobucket are set up
+    my $photobucket_is_setup = $LJ::PHOTOBUCKET_JWIDGET_ID ? "true" : "false";
+
     $ret .= qq^
         var canmakepoll = $canmakepoll;
 
@@ -3143,6 +3044,9 @@ sub rte_js_vars {
                 }
             }
         }
+        
+        var SiteConfig = new Object();
+        SiteConfig.ImagePhotobucket = $photobucket_is_setup;
     </script>^;
 
     return $ret;
@@ -3161,6 +3065,8 @@ sub subscribe_interface {
     my $getextra     = delete $opts{'getextra'} || '';
     my $ret_url      = delete $opts{ret_url} || '';
     my $def_notes    = delete $opts{'default_selected_notifications'} || [];
+    my $settings_page= delete $opts{'settings_page'} || 0;
+    my $post_to_settings_page = delete $opts{'post_to_settings_page'} || 0;
 
     croak "Invalid user object passed to subscribe_interface" unless LJ::isu($journalu);
 
@@ -3173,15 +3079,24 @@ sub subscribe_interface {
     LJ::need_res('js/esn.js');
 
     my @categories = $catref ? @$catref : ();
+    my $ui_inbox  = BML::ml('subscribe_interface.inbox');
+    my $ui_manage = BML::ml('subscribe_interface.manage_settings');
+    my $ui_notify = BML::ml('subscribe_interface.notify_me2', { sitenameabbrev => $LJ::SITENAMEABBREV });
+    my $ui_by     = BML::ml('subscribe_interface.by2');
 
-    my $ret = qq {
-            <div id="manageSettings">
-            <span class="esnlinks"><a href="$LJ::SITEROOT/inbox/">Inbox</a> | Manage Settings</span>
-            <form method='POST' action='$LJ::SITEROOT/manage/subscriptions/$getextra'>
-            $formauth
-    };
+    my $ret = "<div id='manageSettings'>";
 
-    my $events_table = '<table class="Subscribe" cellpadding="0" cellspacing="0">';
+    unless ($settings_page) {
+        $ret .= "<span class='esnlinks'><a href='$LJ::SITEROOT/inbox/'>$ui_inbox</a> | $ui_manage</span>";
+    }
+
+    if ($post_to_settings_page) {
+        $ret .= "<form method='POST' action='$LJ::SITEROOT/manage/settings/?cat=notifications'>$formauth";
+    } elsif (!$settings_page) {
+        $ret .= "<form method='POST' action='$LJ::SITEROOT/manage/subscriptions/$getextra'>$formauth";
+    }
+
+    my $events_table = $settings_page ? '<table class="Subscribe" style="clear: none;" cellpadding="0" cellspacing="0">' : '<table class="Subscribe" cellpadding="0" cellspacing="0">';
 
     my @notify_classes = LJ::NotificationMethod->all_classes or return "No notification methods";
 
@@ -3191,7 +3106,7 @@ sub subscribe_interface {
     my $tracking = [];
 
     # title of the tracking category
-    my $tracking_cat = "Notices";
+    my $tracking_cat = "Subscription Tracking";
 
     # if showtracking, add things the user is tracking to the categories
     if ($showtracking) {
@@ -3216,7 +3131,8 @@ sub subscribe_interface {
     my $catid = 0;
 
     my %shown_subids = ();
-
+    # ( LJ::NotificationMethod::Inbox => {active => x, total => y }, LJ::NotificationMethod::Email => ...)
+    my %num_subs_by_type = ();
     foreach my $cat_hash (@categories) {
         my ($category, $cat_events) = %$cat_hash;
 
@@ -3235,6 +3151,13 @@ sub subscribe_interface {
         foreach my $cat_event (@$cat_events) {
             if ((ref $cat_event) =~ /Subscription/) {
                 push @$pending, $cat_event;
+            } elsif ($cat_event =~ /^LJ::Setting/) {
+                # special subscription that's an LJ::Setting instead of an LJ::Subscription
+                if ($settings_page) {
+                    push @$pending, $cat_event;
+                } else {
+                    next;
+                }
             } else {
                 my $pending_sub = LJ::Subscription::Pending->new($u,
                                                                  event => $cat_event,
@@ -3243,15 +3166,19 @@ sub subscribe_interface {
             }
         }
 
+        my $cat_title_key = lc($category);
+        $cat_title_key =~ s/ /-/g;
+        my $cat_title = BML::ml('subscribe_interface.category.'.$cat_title_key);
+        my $first_class = $catid == 0 ? " CategoryRowFirst" : "";
         $cat_html .= qq {
             <div class="CategoryRow-$catid">
-                <tr class="CategoryRow">
+                <tr class="CategoryRow$first_class">
                 <td>
-                <span class="CategoryHeading">$category</span>
-                <span class="CategoryHeadingNote">Notify me when...</span>
+                <span class="CategoryHeading">$cat_title</span><br />
+                <span class="CategoryHeadingNote">$ui_notify</span>
                 </td>
                 <td class="Caption">
-                By
+                $ui_by
                 </td>
             };
 
@@ -3260,12 +3187,16 @@ sub subscribe_interface {
         {
             unless ($is_tracking_category) {
                 foreach my $pending_sub (@$pending) {
-                    my %sub_args = $pending_sub->sub_info;
-                    delete $sub_args{ntypeid};
-                    $sub_args{method} = 'Inbox';
+                    if (!ref $pending_sub) {
+                        push @pending_subscriptions, $pending_sub;
+                    } else {
+                        my %sub_args = $pending_sub->sub_info;
+                        delete $sub_args{ntypeid};
+                        $sub_args{method} = 'Inbox';
 
-                    my @existing_subs = $u->has_subscription(%sub_args);
-                    push @pending_subscriptions, (scalar @existing_subs ? @existing_subs : $pending_sub);
+                        my @existing_subs = $u->has_subscription(%sub_args);
+                        push @pending_subscriptions, (scalar @existing_subs ? @existing_subs : $pending_sub);
+                    }
                 }
             } else {
                 push @pending_subscriptions, @$tracking;
@@ -3285,6 +3216,7 @@ sub subscribe_interface {
             } elsif ($notify_class->url) {
                 $title = "<a href='" . $notify_class->url . "'>$title</a>";
             }
+            $title .= " " . LJ::help_icon($notify_class->help_url) if $notify_class->help_url;
 
             my $checkall_box = LJ::html_check({
                 id       => "CheckAll-$catid-$ntypeid",
@@ -3295,7 +3227,7 @@ sub subscribe_interface {
             });
 
             $cat_html .= qq {
-                <td>
+                <td style='vertical-align: bottom;'>
                     $checkall_box
                     </td>
                 };
@@ -3304,27 +3236,63 @@ sub subscribe_interface {
         $cat_html .= '</tr>';
 
         # inbox method
+        my $special_subs = 0;
+        my $unavailable_subs = 0;
+        my $sub_count = 0;
         foreach my $pending_sub (@pending_subscriptions) {
+            my $upgrade_notice = ( !$u->is_paid && $pending_sub->disabled($u) ) ? " &dagger;" : "";
+            if (!ref $pending_sub) {
+                next if $u->is_identity && $pending_sub->disabled($u);
+
+                my $disabled_class = $pending_sub->disabled($u) ? "Disabled" : "";
+                my $altrow_class = $sub_count % 2 == 1 ? "altrow" : "";
+                my $hidden = $pending_sub->selected($u) ? "" : " style='visibility: hidden;'";
+                my $sub_title = " " . $pending_sub->htmlcontrol_label($u);
+                $sub_title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $sub_title if $pending_sub->disabled($u);
+
+                $cat_html .= "<tr class='$disabled_class $altrow_class'>";
+                $cat_html .= "<td>" . $pending_sub->htmlcontrol($u) . "$sub_title*";
+                $cat_html .= "$upgrade_notice";
+                $cat_html .= "</td>";
+                $cat_html .= "<td>&nbsp;</td>";
+                foreach my $notify_class (@notify_classes) {
+                    if ($notify_class eq "LJ::NotificationMethod::Email") {
+                        $cat_html .= "<td class='NotificationOptions'$hidden>" . $pending_sub->htmlcontrol($u, undef, undef, notif => 1, notif_catid => $catid, notif_ntypeid => 2) . "</td>";
+                    } else {
+                        $cat_html .= "<td class='NotificationOptions'$hidden>" . LJ::html_check({ disabled => 1 }) . "</td>";
+                    }
+                }
+                $cat_html .= "</tr>";
+
+                $special_subs++;
+                $sub_count++;
+                next;
+            }
+
+            next if $u->is_identity && !$pending_sub->enabled;
+
             # print option to subscribe to this event, checked if already subscribed
             my $input_name = $pending_sub->freeze or next;
             my $title      = $pending_sub->as_html or next;
             my $subscribed = ! $pending_sub->pending;
 
             unless ($pending_sub->enabled) {
-                $title = LJ::run_hook("disabled_esn_sub") . $title;
+                $title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $title . $upgrade_notice;
+                $unavailable_subs++;
             }
             next if ! $pending_sub->event_class->is_visible && $showtracking;
 
             my $evt_class = $pending_sub->event_class or next;
             unless ($is_tracking_category) {
                 next unless eval { $evt_class->subscription_applicable($pending_sub) };
-                next if LJ::u_equals($journalu, $u) && $pending_sub->journalid && $pending_sub->journalid != $u->{userid};
+                next if $u->equals( $journalu ) && $pending_sub->journalid && $pending_sub->journalid != $u->{userid};
             } else {
                 my $no_show = 0;
 
                 foreach my $cat_info_ref (@$catref) {
                     while (my ($_cat_name, $_cat_events) = each %$cat_info_ref) {
                         foreach my $_cat_event (@$_cat_events) {
+                            next if $_cat_event =~ /^LJ::Setting/;
                             unless (ref $_cat_event) {
                                 $_cat_event = LJ::Subscription::Pending->new($u, event => $_cat_event);
                             }
@@ -3338,18 +3306,34 @@ sub subscribe_interface {
                 next if $no_show;
             }
 
-            my $selected = $pending_sub->default_selected;
+            my $special_selected = 0;
+            if ($settings_page) {
+                # if non-ESN comment notifications are turned on, then check the box for
+                # the JournalNewComment event as well, since JournalNewComment notifications
+                # are a subset of the non-ESN notifications
+                my $etypeid = $pending_sub->etypeid;
+                if (!$is_tracking_category && LJ::Event->class($etypeid) =~ /JournalNewComment/ && LJ::Setting::CommentEmailNotify->selected($u)) {
+                    $special_selected = 1;
+                }
+            }
+
+            my $selected = $special_selected || $pending_sub->default_selected;
 
             my $inactiveclass = $pending_sub->active ? '' : 'Inactive';
             my $disabledclass = $pending_sub->enabled ? '' : 'Disabled';
+            my $altrowclass = $sub_count % 2 == 1 ? "altrow" : "";
 
-            $cat_html  .= "<tr class='$inactiveclass $disabledclass'><td>";
+            $cat_html  .= "<tr class='$inactiveclass $disabledclass $altrowclass'><td>";
 
             if ($is_tracking_category && ! $pending_sub->pending) {
                 my $subid = $pending_sub->id;
-                $cat_html .= qq {
-                    <a href='?deletesub_$subid=1'><img src="$LJ::IMGPREFIX/portal/btn_del.gif" /></a>
-                };
+                my $auth_token = $u->ajax_auth_token( "/__rpc_esn_subs",
+                    subid => $subid,
+                    action => 'delsub'
+                );
+                my $deletesub_url = $settings_page ? "$LJ::SITEROOT/manage/settings/?cat=notifications&deletesub_$subid=1" : "?deletesub_$subid=1";
+                $cat_html .= "<a href='$deletesub_url' class='delete-button' subid=$subid auth_token=$auth_token>";
+                $cat_html .= LJ::img( 'btn_trash', '' ) . "</a>\n";
             }
             my $always_checked = eval { "$evt_class"->always_checked; };
             my $disabled = $always_checked ? 1 : !$pending_sub->enabled;
@@ -3372,12 +3356,21 @@ sub subscribe_interface {
             }
 
             $shown_subids{$pending_sub->id}++ unless $pending_sub->pending;
+            # for the inbox
+            # "total" includes default subs (those at the top) which are active
+            #   and any subs for tracking an entry/comment, whether active or inactive
+            # "active" only counts subs which are selected
+            # don't count disabled, even if they're checked, because they don't count against your limit
+            if ( ! $disabled &&  ( $is_tracking_category || $selected ) ) {
+                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{total}++;
+                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{active}++ if $selected;
+            }
 
             $cat_empty = 0;
 
             # print out notification options for this subscription (hidden if not subscribed)
             $cat_html .= "<td>&nbsp;</td>";
-            my $hidden = ($pending_sub->default_selected || ($subscribed && $pending_sub->active)) ? '' : 'style="visibility: hidden;"';
+            my $hidden = ($special_selected || $pending_sub->default_selected || ($subscribed && $pending_sub->active)) ? '' : 'style="visibility: hidden;"';
 
             # is there an inbox notification for this?
             my %sub_args = $pending_sub->sub_info;
@@ -3404,7 +3397,7 @@ sub subscribe_interface {
                 my $notify_input_name = $note_pending->freeze;
 
                 # select email method by default
-                my $note_selected = (scalar @subs) ? 1 : (!$selected && $note_class eq 'LJ::NotificationMethod::Email');
+                my $note_selected = (scalar @subs) ? 1 : ((!$selected || $special_selected) && $note_class eq 'LJ::NotificationMethod::Email');
 
                 # check the box if it's marked as being selected by default UNLESS
                 # there exists an inbox subscription and no email subscription
@@ -3431,25 +3424,42 @@ sub subscribe_interface {
                         value => (scalar @subs) ? 1 : 0,
                     });
                 }
+
+                # for other notification methods
+                # "total" includes default subs (those at the top) which are active,
+                #   and any subs for tracking an entry/comment, where the sub is active
+                #   (because inbox is selected, revealing the notification checkbox)
+                # "active" only counts subs which are selected
+                # don't count disabled, even if they're checked, because they don't count against your limit
+                if ( ! $disabled && ! $hidden && ( $is_tracking_category || $note_selected ) ) {
+                    $num_subs_by_type{$note_class}->{total}++;
+                    $num_subs_by_type{$note_class}->{active}++ if $note_selected;
+                }
+
             }
+
+            $cat_html .= "</tr>";
+            $sub_count++;
         }
+
+        my $cols = 2 + (scalar @notify_classes);
 
         # show blurb if not tracking anything
         if ($cat_empty && $is_tracking_category) {
-            my $blurb = qq {
-                <?p To start getting notices, click on the
-                    <img src="$LJ::SITEROOT/img/btn_track.gif" width="22" height="20" valign="absmiddle" alt="Notify Me"/>
-                    icon when you are
-                    browsing $LJ::SITENAMESHORT. You can use notices to keep an eye on comment threads,
-                    user updates and new posts. p?>
+            my $blurb = "<?p <strong>" . LJ::Lang::ml('subscribe_interface.nosubs.title') . "</strong><br />";
+            $blurb .= LJ::Lang::ml( 'subscribe_interface.nosubs.text',
+                { img => LJ::img( 'track', '', { align => 'absmiddle',
+                                  alt => $ui_notify } ) } ) . " p?>";
 
-            };
-
-            my $cols = 2 + (scalar @notify_classes);
             $cat_html .= "<td colspan='$cols'>$blurb</td>";
         }
 
-        $cat_html .= '</tr></div>';
+        $cat_html .= "</tr>";
+        $cat_html .= "<tr><td colspan='$cols' style='font-size: smaller;'>* " . LJ::Lang::ml( 'subscribe_interface.special_subs.note', { sitenameabbrev => $LJ::SITENAMEABBREV } ) . "</td></tr>" if $special_subs;
+        $cat_html .= "<tr><td colspan='$cols' style='font-size: smaller;'>&dagger; " .
+                     LJ::Lang::ml('subscribe_interface.unavailable_subs.note') . "</td></tr>"
+            if !$u->is_paid && ( $special_subs || $unavailable_subs );
+        $cat_html .= "</div>";
         $events_table .= $cat_html unless ($is_tracking_category && !$showtracking);
 
         $catid++;
@@ -3467,17 +3477,49 @@ sub subscribe_interface {
         'value' => join(',', map { $_->ntypeid } LJ::NotificationMethod->all_classes),
     });
 
+    my $subscription_stats = "";
+    if ( $settings_page ) {
+        # show how many subscriptions we have active / inactive
+        # there's a bit of a trick here: each row counts as a maximum of one subscription.
+        # However, forced subscriptions don't count (e.g., "Someone sends me a message" for inbox)
+        # Also, if we activate an inbox subscription but not its email, the total number of subs
+        # per notification method goes out of sync.
+        # Regardless, once we hit the limit for *any* method, we get a warning. So we take
+        # whichever method has the most total / active and use that figure in our message.
+
+        my $max_active_method = 0;
+        my $max_total_method = 0;
+
+        foreach my $method_class ( keys %num_subs_by_type ) {
+            $max_active_method = $num_subs_by_type{$method_class}->{active}
+                if $num_subs_by_type{$method_class}->{active} > $max_active_method;
+            $max_total_method = $num_subs_by_type{$method_class}->{total}
+                if $num_subs_by_type{$method_class}->{total} > $max_total_method;
+        }
+
+        my $paid_max = LJ::get_cap( 'paid', 'subscriptions' );
+        my $u_max  = $u->max_subscriptions;
+        # max for total number of subscriptions (generally it is $paid_max)
+        my $system_max  = $u_max > $paid_max ? $u_max : $paid_max;
+
+        $subscription_stats .= "<div class='subscription_stats'>" . LJ::Lang::ml( 'subscribe_interface.subs.total',  {
+                            active =>  $max_active_method,
+                            max_active => $u_max,
+                            total => $max_total_method,
+                            max_total => $system_max,
+                    } ) . "</div>";
+    }
+    
     $ret .= qq {
         $ntypeids
             $catids
             $events_table
+            $subscription_stats
         };
 
     $ret .= LJ::html_hidden({name => 'mode', value => 'save_subscriptions'});
     $ret .= LJ::html_hidden({name => 'ret_url', value => $ret_url});
-
-    # print info stuff
-    my $extra_sub_status = LJ::run_hook("sub_status_extra", $u) || '';
+    $ret .= LJ::html_hidden({name => 'post_to_settings_page', value => $post_to_settings_page});
 
     # print buttons
     my $referer = BML::get_client_header('Referer');
@@ -3487,14 +3529,18 @@ sub subscribe_interface {
     $uri =~ s/index\.bml//;
     $referer =~ s/index\.bml//;
 
-    $ret .= $extra_sub_status;
+    unless ($settings_page) {
+        $ret .= '<?standout ' .
+            LJ::html_submit(BML::ml('subscribe_interface.save')) . ' ' .
+            ($referer && $referer ne $uri ? "<input type='button' value='".BML::ml('subscribe_interface.cancel')."' onclick='window.location=\"$referer\"' />" : '')
+            . '';
+        $ret .= "standout?>";
+    }
 
-    $ret .= '<?standout ' .
-        LJ::html_submit('Save') . ' ' .
-        ($referer && $referer ne $uri ? "<input type='button' value='Cancel' onclick='window.location=\"$referer\"' />" : '')
-        . '';
+    $ret .= "</div>";
+    $ret .= "</form>" if !$settings_page || $post_to_settings_page;
 
-    $ret .= "standout?> </div></form>";
+    return $ret;
 }
 
 # returns a placeholder link
@@ -3516,36 +3562,6 @@ sub placeholder_link {
                 </a>
             </div>
         };
-}
-
-# Returns replacement for lj-replace tags
-sub lj_replace {
-    my $key = shift;
-    my $attr = shift;
-
-    # Return hook if hook output not undef
-    if (LJ::are_hooks("lj-replace_$key")) {
-        my $replace = LJ::run_hook("lj-replace_$key");
-        return $replace if defined $replace;
-    }
-
-    # Return value of coderef if key defined
-    my %valid_keys = ( 'first_post' => \&lj_replace_first_post );
-
-    if (my $cb = $valid_keys{$key}) {
-        die "$cb is not a valid coderef" unless ref $cb eq 'CODE';
-        return $cb->($attr);
-    }
-
-    return undef;
-}
-
-# Replace for lj-replace name="first_post"
-sub lj_replace_first_post {
-    return unless LJ::is_web_context();
-    return BML::ml('web.lj-replace.first_post', {
-                   'update_link' => "href='$LJ::SITEROOT/update.bml'",
-                   });
 }
 
 # this returns the right max length for a VARCHAR(255) database
@@ -3622,7 +3638,11 @@ $LJ::COMMON_CODE{'autoradio_check'} = q{
 # returns HTML which should appear before </body>
 sub final_body_html {
     my $before_body_close = "";
-    LJ::run_hooks('insert_html_before_body_close', \$before_body_close);
+    LJ::Hooks::run_hooks('insert_html_before_body_close', \$before_body_close);
+
+    my $pagestats_obj = LJ::pagestats_obj();
+    $before_body_close .= $pagestats_obj->render
+        if $pagestats_obj;
 
     return $before_body_close;
 }
@@ -3648,29 +3668,37 @@ sub pageview_unique_string {
 # </LJFUNC>
 sub site_schemes {
     my @schemes = @LJ::SCHEMES;
-    LJ::run_hooks('modify_scheme_list', \@schemes);
+    LJ::Hooks::run_hooks('modify_scheme_list', \@schemes);
+    @schemes = grep { !$_->{disabled} } @schemes;
     return @schemes;
 }
 
-# returns a random value between 0 and $num_choices-1 for a particular uniq
-# if no uniq available, just returns a random value between 0 and $num_choices-1
-sub ab_testing_value {
-    my %opts = @_;
+# sets up appropriate js for journals that need a special statusvis message at the top
+# returns some js that must be added onto the journal page's head
+sub statusvis_message_js {
+    my $u = shift;
 
-    return $LJ::DEBUG{ab_testing_value} if defined $LJ::DEBUG{ab_testing_value};
+    return "" unless $u;
 
-    my $num_choices = $opts{num_choices} || 2;
-    my $uniq = LJ::UniqCookie->current_uniq;
+    return "" unless $u->is_locked || $u->is_memorial || $u->is_readonly;
 
-    my $val;
-    if ($uniq) {
-        $val = unpack("I", $uniq);
-        $val %= $num_choices;
-    } else {
-        $val = int(rand($num_choices));
+    my $statusvis_full;
+    $statusvis_full = "locked"   if $u->is_locked;
+    $statusvis_full = "memorial" if $u->is_memorial;
+    $statusvis_full = "readonly" if $u->is_readonly;
+
+    LJ::need_res("js/statusvis_message.js");
+    return "<script>Site.StatusvisMessage=\"" . LJ::Lang::ml("statusvis_message.$statusvis_full") . "\";</script>";
+}
+
+# returns canonical link for use in header of journal pages
+sub canonical_link {
+    my ( $url, $tid ) = @_;
+    if ( $tid += 0 ) {  # sanitize input
+        $url .= "?thread=$tid" . LJ::Talk::comment_anchor( $tid );
     }
+    return qq{<link rel="canonical" href="$url" />\n};
 
-    return $val;
 }
 
 1;

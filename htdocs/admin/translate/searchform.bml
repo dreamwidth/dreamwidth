@@ -1,0 +1,80 @@
+<html>
+<head><title>Search Form</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body marginwidth='0' marginheight='0'>
+
+<form target='res' action='search' method='get'>
+<input type='hidden' name='lang' value='<?_code $FORM{'lang'} _code?>'>
+<input type='hidden' name='search' value='sev'>
+
+[<a href="./" target='_top'>&lt;-- Back</a>]
+<?_code
+ my $lang = $FORM{'lang'};
+ my $l = LJ::Lang::get_lang($lang);
+ BML::finish() unless $l;
+ return "<b>" . ($l ? $l->{'lnname'} : "Invalid language") . "</b>";
+_code?>
+
+<p>By Severity: (<a href='help-severity' target='main'>help</a>)<br /><select name='stale'>
+<option value="0">0</option>
+<option value="0+">0+</option>
+<option value="1">1</option>
+<option value="1+" selected='selected'>1+</option>
+<option value="2">2</option>
+<option value="2+">2+</option>
+<option value="3">3</option>
+<option value="3+">3+</option>
+<option value="4">4</option>
+</select><input type='submit' value='Search'/>
+</p>
+</form>
+
+<form target='res' action='search' method='get'>
+<input type='hidden' name='lang' value='<?_code $FORM{'lang'} _code?>'>
+<input type='hidden' name='search' value='txt'>
+
+<p>Search
+<?_code
+ my $ret;
+ my $l = LJ::Lang::get_lang($FORM{'lang'});
+ my $pl = LJ::Lang::get_lang_id($l->{'parentlnid'});
+ my @opt = ("src" => $l->{'lnname'});
+ if ($pl) { push @opt, "parent", $pl->{'lnname'} };
+ push @opt, "code", "Item Code";
+ $ret .= LJ::html_select({ 'name' => 'searchwhat' },
+                         @opt);
+ $ret .= "<br />Area: ";
+ $ret .= LJ::html_select({ 'name' => 'searchdomain' },
+                         0, "(all)",
+                         map { $_->{'dmid'}, $_->{'uniq'} }
+                         sort { $a->{'dmid'} <=> $b->{'dmid'} } LJ::Lang::get_domains());
+ return $ret;
+_code?>
+    <br />Text: <input name='searchtext' size='15'><input type='submit' value='Search'>
+</p>
+</form>
+
+<?_code
+ my $l = LJ::Lang::get_lang($FORM{'lang'});
+ return '' unless $l->{'lncode'} eq $LJ::DEFAULT_LANG || !$l->{'parentlnid'};
+
+ my $ret = <<HTML;
+<form target='res' action='search' method='get'>
+<input type='hidden' name='lang' value='$l->{lncode}'>
+<input type='hidden' name='search' value='flg'>
+<p><table><tr><td>Prf:</td>
+<td><input type='radio' name='searchflagproofed' value='whatev'>Both</td>
+<td><input type='radio' name='searchflagproofed' value='yes'>Yes</td>
+<td><input type='radio' name='searchflagproofed' value='no'>No</td></tr>
+<tr><td>Upd:</td>
+<td><input type='radio' name='searchflagupdated' value='whatev'>Both</td>
+<td><input type='radio' name='searchflagupdated' value='yes'>Yes</td>
+<td><input type='radio' name='searchflagupdated' value='no'>No</td></tr></table>
+<input type='submit' value='Search'></p></form>
+HTML
+ return $ret;
+_code?>
+
+</body>
+</html>

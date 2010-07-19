@@ -1,35 +1,46 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <html>
 <head>
-<title><?_code return $LJ::SITENAMESHORT; _code?> Mobile</title>
+<title><?_code BML::ml( ".title", { sitename => $LJ::SITENAMESHORT } ) _code?></title>
 <meta name="viewport" content="width = 320" />
 </head>
 <body>
-<h1><?_code return $LJ::SITENAMESHORT; _code?> Mobile</h1>
+<h1><?_code BML::ml( ".intro.header", { sitename => $LJ::SITENAMESHORT } ) _code?></h1>
 <p><?_code
 {
     my $u = LJ::User->remote;
     my $ret = "";
-    $ret .= $u ? "Hello, <b>" . $u->display_name . "</b>!\n" : "";
+    $ret .= $u ? BML::ml( ".intro.hello", { user => "<b>" . $u->display_name . "</b>" } ) . "\n" : "";
 
-    $ret .= "<p>Welcome to the mobile version of $LJ::SITENAMESHORT.</p>"
+    $ret .= "<p>" . BML::ml( ".intro.text", { sitename => $LJ::SITENAMESHORT } ) . "</p>"
         unless $u;
 
-    $ret .= "<h2>Options:</h2><ul>";
+    $ret .= "<h2><?_ml .options.header _ml?></h2><ul>";
 
     unless ($u) {
-	$ret .= <<OPTS
-<li><a href="login.bml">Log in</a> -- required</li>
-OPTS
-
+        $ret .= "<li>" . BML::ml( ".options.login_prompt", { aopts => "href='login'"  } ) . "</li>";
     }
 
 
     if ($u) {
-	$ret .= "<li><a href='login.bml'>Log in</a> -- you're currently logged in as ";
+        $ret .= "<li>" . BML::ml( ".options.logged_in", { aopts => "href='login'" } );
         $ret .= $u->display_name . "</li>";
-        $ret .= '<li><a href="post.bml">Post to LiveJournal</a></li>'
-            unless $u->{'journaltype'} eq 'I';
-        $ret .= '<li><a href="friends.bml">Read friends page</a></li>';
+        $ret .= "<li>" . BML::ml( ".options.post", { aopts => "href='post'", sitename => $LJ::SITENAMESHORT } ). "</li>"
+            unless $u->is_identity;
+        $ret .= "<li>" . BML::ml( ".options.readingpage", { aopts => "href='read'" } ) . "</li>";
     }
 
 return $ret;

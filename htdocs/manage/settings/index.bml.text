@@ -16,17 +16,55 @@
 
 .bdayreminder.note=Note: This feature is currently disabled, but may be re-enabled in the future.
 
+.btn.save=Save
+
+.btn.deleteinactive=Delete all inactive subscriptions
+
+.cat.account=Account
+
+.cat.account.desc=Basic account settings
+
+.cat.display=Display
+
+.cat.display.desc=Viewing options, site navigation, and language
+
+.cat.history=History
+
+.cat.history.desc=Account history
+
+.cat.mobile=Mobile
+
+.cat.mobile.desc=Voice post, text messaging, and mobile options
+
+.cat.notifications=Notifications
+
+.cat.notifications.desc=Notification and subscription tracking options
+
+.cat.othersites=Other Sites
+
+.cat.othersites.desc=Configure interactions with external sites
+
+.cat.privacy=Privacy
+
+.cat.privacy.desc=Journal privacy options
+
 .commentpage=View comment pages in your own journal style
 
 .commentpage.text=When you follow a comment link from your Friends page, you can view that comment page in your own journal style.
+
+.confirm.deleteinactive=Are you sure you want to delete all inactive subscriptions?
 
 .contextualhover=Show contextual hover menu
 
 .contextualhover.text=Contextual hover menus appear when you hover over userhead images or userpics.
 
+.errors=There were errors with your submission.  Please look below to fix them.
+
 .finished.save_button=Save Changes
 
-.fn.adultcontentflag=Age Limits
+.form.confirm=Save your changes?
+
+.fn.adultcontentflag=Adult Content
 
 .fn.adultcontentreason=Age Limit Reason
 
@@ -36,8 +74,6 @@
 
 .fn.contextualhover=Contextual Hover Menu
 
-.fn.gettingstarted=Getting Started Module
-
 .fn.imageplace=Image placeholders
 
 .fn.jabber=Online Status
@@ -46,25 +82,15 @@
 
 .fn.minsecurity=Entry Security
 
-.fn.navstrip=Navigation strip
-
 .fn.safesearch=Safe Search Filtering
 
 .fn.scheme=Scheme
 
 .fn.searchincl=Search inclusion
 
-.fn.verticalincl=Explore Area Inclusion
+.fn.public=Publicity
 
 .fn.viewingadult=Viewing Age Limited Content
-
-.fn.weblogs=Weblogs.com
-
-.gettingstarted=Show Getting Started module
-
-.gettingstarted.text=The Getting Started module displays on the homepage and confirmation pages until the required tasks have been completed.
-
-.gettingstarted.text.completed=Because you have completed all of the required tasks, the Getting Started module will not display.
 
 .imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
 
@@ -81,6 +107,10 @@
 .imageplace.text=Placeholders replace inline images with links, and are useful if you are browsing at work or over a slow connection.
 
 .intro=Customize your viewing, notification and additional privacy options.
+
+.intro2=Customize your viewing, notification and additional privacy options. You may also want to edit your <a [[aopts1]]>profile settings</a> or your <a [[aopts2]]>comment settings</a>.
+
+.intro3=You can edit your account settings below. You may also want to edit your <a [[aopts1]]>profile</a> or your <a [[aopts2]]>journal style</a>.
 
 .jabber=Show [[jabbertitle]] online status to:
 
@@ -102,27 +132,14 @@
 
 .minsecurity.public=Everyone (Public)
 
-.navstrip=The navigation strip is a small toolbar that can show at the top of your journal/community, as well as when you're browsing other journals and communities. It provides:
-
-.navstrip.choose=Choose the navigation strip color you prefer:
-
-.navstrip.choose.dark=Dark gray
-
-.navstrip.choose.light=Light gray
-
-.navstrip.customcolors=To use custom colors on your journal style, enable the "Navigation strip colors" option under the <a [[aopts]]>Custom Options</a> tab within the "Journal Display" area.
-
-.navstrip.list1=Quick links to your own journal, the update page, and your Friends page
-
-.navstrip.list2=Options appropriate to the page you are looking at, i.e. filters for your Friends page
-
-.navstrip.list3=Community management options and more
-
-.navstrip.options=Navigation strip display options:
-
-.navstrip.options.see=Always see the navigation strip when you view any journal or community
-
-.navstrip.options.show=Always show the navigation strip to anyone who views your journal or community
+.public<<
+I hereby give my authorization to reproduce and/or 
+distribute any part or all of my Content by third parties, with the
+identification of the name and source, but without any modification.
+This authorization is remuneration free. Except as stated herein, none 
+of the Content may be transferred, copied, republished and distributed 
+in any form or by any means for commercial use.
+.
 
 .safesearch2=You can choose to filter mature or offensive content out of search results.
 
@@ -133,6 +150,8 @@
 .safesearch.select.none=Do not filter my results
 
 .searchincl=Minimize your journal's inclusion in search engine results
+
+.searchincl2=Minimize your journal's inclusion in search engine results. Selecting this option also means that your entries will not be publicized at external sites that have content partnership with [[sitename]].
 
 .searchincl.text=We can instruct search engines not to include your journal entries in their search results. Not all search engines recognize this request; if you do not want a journal entry to show up in search results, then make sure it is posted private or Friends-only.
 
@@ -150,6 +169,10 @@
 
 .security.visibility.nobody=Nobody
 
+.success=You have successfully saved your account settings.
+
+.success.deleteinactive=You have successfully deleted all inactive subscriptions.
+
 .success.header=Success!
 
 .success.text=Your viewing options have been updated.
@@ -166,9 +189,9 @@
 
 .title=Viewing Options
 
-.verticalincl=Exclude your entries from site explore areas
+.title.comm=[[user]]'s Account Settings
 
-.verticalincl.text=Journal entries posted private or Friends-only are automatically excluded.
+.title.self=My Account Settings
 
 .viewingadult=Collapse content marked as inappropriate for anyone under:
 
@@ -178,6 +201,6 @@
 
 .viewingadult.select.none=Do not collapse
 
-.weblogscom=Notify Weblogs.com when I post new public entries
+.you.could.not.auth=You could not be authenticated as the specified user.
 
-.weblogscom.text=Weblogs.com, a VeriSign service, is a ping server that automatically notifies subscribers when new content is posted to a website or a blog, allowing many more people to be aware of updates to your journal.
+.you.can.change=You can change other viewing options by <a [[login]]>logging in</a>. If you don't have an account, you can <a [[create.bml]]>create one now</a>.

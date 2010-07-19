@@ -1,11 +1,12 @@
 ;; -*- coding: utf-8 -*-
+
 .btn.change=Change email address
 
 .error.invalidemail=Invalid email address.
 
 .error.invalidpassword=Invalid password.
 
-.error.lj_domain=You cannot enter an @[[domain]] email address.  Enter your real address in that field.  If you're a paid user, your [[user]]@[[domain]] address will forward to your real address.  To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option.
+.error.lj_domain2=You cannot enter an @[[domain]] email address.  Enter your real address in that field.  If you're a paid user, your [[user]]@[[domain]] address will forward to your real address.  To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option on the <a [[aopts]]>Manage Profile</a> page.
 
 .error.nospace=No spaces are allowed in an e-mail address.
 
@@ -24,6 +25,51 @@
 .label.password2=[[remote]]'s current password:
 
 .label.username=Username:
+
+.newemail.body3<<
+You have changed the address for your [[sitename]] account "[[username]]" to this address: [[email]].
+
+To finish confirming your email address, please visit this URL:
+
+    [[conflink]]
+
+You may have to copy and paste this link into your browser's window.
+
+Sincerely,
+[[sitename]] Team
+[[siteroot]]
+.
+
+.newemail.body.openid<<
+You have just entered an email address for your OpenID account "[[username]]" at [[sitename]]. To validate this address, please go to:
+
+[[conflink]]
+
+Regards,
+[[sitename]] Team
+[[sitelink]]
+.
+
+
+.newemail_old.body2<<
+Someone just changed the e-mail address for your [[sitename]] account "[[username]]".
+ip: [[ip]]
+old email: [[old_email]]
+new email: [[new_email]]
+
+You can change your email here: [[email_change_link]],
+or you can to manage your previous addresses here: [[email_manage_link]]
+
+Regards,
+[[sitename]] Team
+[[sitelink]]
+.
+
+.newemail_old.subject=E-mail Address Changed
+
+.newemail.subject.openid=Email Address Added
+
+.newemail.subject=Email Address Changed
 
 .noemail=(None)
 

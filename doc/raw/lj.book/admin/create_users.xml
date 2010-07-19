@@ -13,6 +13,6 @@
   </para>
   <para>
     If your service is live, simply visit <filename>/create.bml</filename>. With this page, you can create as many users as you like.
-    If you are using &ldap;, you should instead create accounts in your &ldap; external authorization source.</para>
+  </para>
 </chapter>
 

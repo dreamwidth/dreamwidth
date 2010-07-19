@@ -50,6 +50,12 @@ When you're done, click "Save Changes".
 
 .error.findsim_do.intnotfound=Interest wasn't found.
 
+.error.ignored=Sorry, we're unable to help you find users matching the interests you've provided.
+
+.error.longinterest=As [[sitename]] does not support interests longer than [[maxlen]] characters, your search for <b>[[old_int]]</b> was converted into a search for <b>[[new_int]]</b> instead.
+
+.error.nodata=Sorry, interest data currently unavailable.
+
 .error.nointerests=The selected user does not exist or has not specified any interests.
 
 .findsim.searchwait=<b>Please note:</b> Search will take several seconds.  Be patient.
@@ -92,6 +98,10 @@ When you're done, click "Save Changes".
 
 .interests.viewpop=View popular interests
 
+.lastupdated.false=Never updated
+
+.lastupdated.true=Updated [[time]]
+
 .login.enterinfo=Enter your username and password to modify your interests.
 
 .login.proceed=Proceed...
@@ -100,7 +110,15 @@ When you're done, click "Save Changes".
 
 .morestuff2=More fun stuff can be found on the <a [[aopts]]>interests page</a>.
 
+.nocomms.header=Relevant communities
+
+.nocomms.text=There are no communities interested in "<b>[[int]]</b>." You can <a [[aopts]]>create one</a>!
+
 .nointerests.text2=Don't have any interests listed? Add some by going to the <a [[aopts]]>Edit Personal Information</a> page.
+
+.nousers.header=Interested users
+
+.nousers.text=There are no users interested in <b>[[int]]</b>. If you are interested in this and would like to be added to this list, <a [[aopts_manage]]>click here</a>. More fun stuff can be found on the <a [[aopts_int]]>interests page</a>.
 
 .popular.disabled=Sorry, the popular interests feature is unavailable.
 

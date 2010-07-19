@@ -1,0 +1,5 @@
+.stats { text-align: right; }
+
+table.stats-matrix { border-collapse: collapse; }
+table.stats-matrix th { width: 10em; }
+table.stats-matrix td { padding: 0.3em 3em; text-align: center; }

@@ -1,0 +1,135 @@
+#!/usr/bin/perl
+#
+# sphinx-search-gm
+#
+# This Gearman worker is responsible for taking a search and issuing it to the
+# Sphinx searchd.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljlib.pl";
+
+use Encode;
+use Gearman::Worker;
+use LJ::Worker::Gearman;
+use Sphinx::Search;
+use Storable;
+
+gearman_decl( 'sphinx_search'  => \&sphinx_search );
+gearman_work();
+
+sub sphinx_search {
+    my $job = $_[0];
+
+    my $args = Storable::thaw( $job->arg ) || {};
+    return undef unless $args->{query};
+
+    my $sx = Sphinx::Search->new();
+    $sx->SetServer( @LJ::SPHINX_SEARCHD );
+
+    $sx->SetMatchMode( SPH_MATCH_ALL )
+       ->SetSortMode( SPH_SORT_RELEVANCE )
+       ->SetMaxQueryTime( 15_000 )
+       ->SetLimits( $args->{offset} || 0, 20 );
+
+    # adjust the match mode if there are quotes around the entire query
+    if ( $args->{query} =~ s/^['"](.+)['"]$/$1/ ) {
+        $sx->SetMatchMode( SPH_MATCH_PHRASE );
+    }
+
+    # setup the sort they've requested
+    if ( $args->{sort_by} eq 'new' ) {
+        $sx->SetSortMode( SPH_SORT_ATTR_DESC, 'date_posted' );
+    } elsif ( $args->{sort_by} eq 'old' ) {
+        $sx->SetSortMode( SPH_SORT_ATTR_ASC, 'date_posted' );
+    }
+    
+    # filter to a journal if we have a userid set; else, filter on allow_global_search items
+    $sx->SetFilter( 'journal_id', [ $args->{userid} ] )
+        if $args->{userid};
+    $sx->SetFilter( 'allow_global_search', [ 1 ] )
+        unless $args->{userid};
+
+    # security filtering is a dangerous game.  basically, the caller tells us whether to
+    # ignore security or gives us a mask of bits to work with.  from that we intuit what
+    # security options to enable on our filters to Sphinx.
+    unless ( $args->{ignore_security} ) {
+        # allow public posts and anything the mask allows
+        my @bits = ( 102, LJ::bit_breakdown( $args->{allowmask} ) );
+        $sx->SetFilter( 'security_bits', \@bits );
+    }
+
+    my $res = $sx->Query( $args->{query} );
+    return undef unless $res;
+
+    # try to build some excerpts of these searches, which involves us loading
+    # up the exact entry contents...
+    if ( $res->{total} > 0 ) {
+
+        # this is weird, I push the hashrefs onto @out from $res->{matches} for
+        # convenience only... they're the same hashrefs you know and love
+        my @out;
+
+        foreach my $match ( @{ $res->{matches} } ) {
+            my $entry = LJ::Entry->new( $match->{journal_id}, jitemid => $match->{jitemid} );
+            if ( $entry && $entry->valid ) {
+                # use text only version of event for excerpt purposes.  best effort.
+                $match->{entry} = $entry->event_text;
+                $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
+                $match->{entry} = LJ::strip_html( $match->{entry} );
+                $match->{entry} ||= "(this entry only contains html content)";
+
+                # we don't munge the subject... just clean it
+                $match->{subject} = $entry->subject_text || '(no subject)';
+
+                # also useful information that we want for later
+                $match->{url} = $entry->url;
+                $match->{tags} = $entry->tag_map;
+                $match->{security} = $entry->security;
+                $match->{security} = 'access'
+                    if $match->{security} eq 'usemask' &&
+                       $entry->allowmask == 1;
+                $match->{eventtime} = $entry->eventtime_mysql;
+
+            } else {
+                # something happened, couldn't get the entry
+                $match->{entry} = '(sorry, this entry has been deleted or is otherwise unavailable)';
+                $match->{subject} = 'Entry deleted or unavailable.';
+            }
+            push @out, $match;
+        }
+
+        # FIXME: this should use some other index name than 'test1' heh, and we should probably
+        # try to figure out the language of the journal being searched (or the searcher?) and use
+        # an appropriate stemming library?  (future expansion opportunity)
+        my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1stemmed', $args->{query}, {} ) || [];
+
+        # if we have a matching number of excerpts to events, then we can determine
+        # which one goes with which post.
+        if ( scalar( @out ) == scalar( @$exc ) ) {
+            foreach my $m ( @out ) {
+                delete $m->{entry};
+                $m->{excerpt} = shift @$exc;
+            }
+
+        } else {
+            # something terrible has happened..., user gets no excerpts :(
+            foreach my $m ( @out ) {
+                delete $m->{entry};
+                $m->{excerpt} = '(something terrible happened to the excerpts)';
+            }
+        }
+    }
+
+    return Storable::nfreeze( $res );
+}

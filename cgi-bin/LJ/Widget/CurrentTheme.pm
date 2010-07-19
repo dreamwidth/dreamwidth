@@ -1,9 +1,22 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::CurrentTheme;
 
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 
 sub ajax { 1 }
 sub authas { 1 }
@@ -20,10 +33,9 @@ sub render_body {
     my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
     my $getsep = $getextra ? "&" : "?";
 
-    my $filterarg = $opts{filter_available} ? "&filter_available=1" : "";
     my $showarg = $opts{show} != 12 ? "&show=$opts{show}" : "";
     my $no_theme_chooser = defined $opts{no_theme_chooser} ? $opts{no_theme_chooser} : 0;
-    my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
 
     my $theme = LJ::Customize->get_current_theme($u);
     my $userlay = LJ::S2::get_layers_of_user($u);
@@ -36,12 +48,12 @@ sub render_body {
     $ret .= "<img src='" . $theme->preview_imgurl . "' class='theme-current-image' />";
     $ret .= "<h3>" . $theme->name . "</h3>";
 
-    my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$filterarg$showarg' class='theme-current-layout'><em>$layout_name</em></a>";
-    my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$filterarg$showarg' class='theme-current-cat'";
+    my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$showarg' class='theme-current-layout'><em>$layout_name</em></a>";
+    my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-current-cat'";
     $ret .= "<p class='theme-current-desc'>";
     if ($designer) {
-        my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($designer) . "$filterarg$showarg' class='theme-current-designer'>$designer</a>";
-        if (LJ::run_hook("layer_is_special", $theme->uniq)) {
+        my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($designer) . "$showarg' class='theme-current-designer'>$designer</a>";
+        if (LJ::Hooks::run_hook("layer_is_special", $theme->uniq)) {
             $ret .= $class->ml('widget.currenttheme.specialdesc', {'aopts' => $special_link_opts, 'designer' => $designer_link});
         } else {
             $ret .= $class->ml('widget.currenttheme.desc', {'layout' => $layout_link, 'designer' => $designer_link});
@@ -57,14 +69,15 @@ sub render_body {
     if ($no_theme_chooser) {
         $ret .= "<li><a href='$LJ::SITEROOT/customize/$getextra'>" . $class->ml('widget.currenttheme.options.newtheme') . "</a></li>";
     } else {
-        $ret .= "<li><a href='$LJ::SITEROOT/customize/options.bml$getextra'>" . $class->ml('widget.currenttheme.options.change') . "</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.currenttheme.options.change') . "</a></li>";
     }
     if (! $no_layer_edit && $theme->is_custom && $theme->available_to($u)) {
+        $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced'>" . $class->ml( 'widget.currenttheme.options.advancedcust' ) . "</a></li>";
         if ($theme->layoutid && !$theme->layout_uniq) {
-            $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->layoutid . "'>" . $class->ml('widget.currenttheme.options.editlayoutlayer') . "</a></li>";
+            $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->layoutid . "'>" . $class->ml('widget.currenttheme.options.editlayoutlayer') . "</a></li>";
         }
         if ($theme->themeid && !$theme->uniq) {
-            $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->themeid . "'>" . $class->ml('widget.currenttheme.options.editthemelayer') . "</a></li>";
+            $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->themeid . "'>" . $class->ml('widget.currenttheme.options.editthemelayer') . "</a></li>";
         }
     }
 
@@ -92,7 +105,7 @@ sub js {
                 var getArgs = LiveJournal.parseGetArgs(filter_link.href);
                 for (var arg in getArgs) {
                     if (!getArgs.hasOwnProperty(arg)) continue;
-                    if (arg == "authas" || arg == "filter_available" || arg == "show") continue;
+                    if (arg == "authas" || arg == "show") continue;
                     DOM.addEventListener(filter_link, "click", function (evt) { Customize.ThemeNav.filterThemes(evt, arg, getArgs[arg]) });
                     break;
                 }

@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_code return $ML{'.title'}; _code?>
 body<=
@@ -10,59 +24,47 @@ body<=
     LJ::set_active_crumb('editprofile');
     LJ::need_res('stc/lj_base.css', 'stc/lj_settings.css');
 
-    # We only show one ad on a page, so if this
-    # hook returns an ad use that instead of the one
-    # defined by the page
-    my $ad_override = LJ::run_hook('identity_section_ad');
-
-    my $print_with_ad = sub {
-        my $str = shift;
-
-        my $ad_full_width = LJ::ad_display( type => 'app', orient => 'BML-App-Full-Width' );
-        return $ad_override ? $str : $ad_full_width . $str;
-    };
-
-    return $print_with_ad->(LJ::server_down_html()) if $LJ::SERVER_DOWN;
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
     my $remote = LJ::get_remote()
-        or return $print_with_ad->("<?needlogin?>");
-
-    if ($remote->underage) {
-        return BML::redirect("$LJ::SITEROOT/agecheck/?s=1");
-    }
+        or return "<?needlogin?>";
 
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
-    return $print_with_ad->(LJ::bad_input("You could not be authenticated as the specified user."))
+    return LJ::bad_input("You could not be authenticated as the specified user.")
         unless $u;
 
-    return $print_with_ad->($LJ::MSG_READONLY_USER) if $u->readonly;
+    return $LJ::MSG_READONLY_USER if $u->readonly;
 
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
+    my $getsep = $getextra ? "&" : "?";
 
     ### user is now authenticated ###
 
     # The settings used on this page
     my @settings = ();
-    push @settings, "LJ::Setting::UserMessaging" unless $LJ::DISABLED{'user_messaging'};
+    push @settings, "LJ::Setting::UserMessaging" if LJ::is_enabled('user_messaging');
+    push @settings, "LJ::Setting::FindByEmail" if LJ::is_enabled('opt_findbyemail');
+    push @settings, "DW::Setting::ProfileEmail";
+    push @settings, "DW::Setting::TxtMsgSetup";
 
     my $dbr = LJ::get_db_reader();
     my $sth;
 
     # load user props
-    LJ::load_user_props(
-        $u, { use_master => 1 },
-        qw/ opt_whatemailshow
-          country state city zip timezone
+    $u->preload_props( { use_master => 1 },
+        qw/ country state city zip timezone
           icq aolim yahoo msn url jabber
           google_talk skype gizmo
-          urlname gender opt_hidefriendofs
+          twitter delicious
+          urlname gender last_fm_user
+          opt_hidefriendofs opt_hidememberofs
           sidx_bdate sidx_bday sidx_loc
-          opt_showmutualfriends opt_showschools
+          opt_showmutualfriends
           opt_showbday opt_showlocation
           opt_sharebday
-          comm_theme opt_showljtalk/
+          comm_theme opt_showljtalk opt_showonlinestatus/
     );
 
     # to store values before they undergo normalisation
@@ -73,22 +75,19 @@ body<=
     foreach (values %$u) { LJ::text_out(\$_); }
 
     # load and clean bio
-    $u->{'bio'} = LJ::get_bio($u);
-    $saved{'bio'} = $u->{'bio'};
-    LJ::EmbedModule->parse_module_embed($u, \$u->{'bio'}, edit => 1);
-    LJ::text_out(\$u->{'bio'}, "force");
+    my $bio = $u->bio;
+    $saved{bio} = $bio;
+    LJ::EmbedModule->parse_module_embed( $u, \$bio, edit => 1 );
+    LJ::text_out( \$bio, "force" );
 
-    # load interests
-    my $uints = LJ::get_interests($u, { forceids => 1 });
-    my %interests = ();
-    foreach (@$uints) {
-        $interests{$_->[1]} = $_->[0];  # $interests{name} = intid
-    }
+    # load interests: $interests{name} = intid
+    my %interests = %{ $u->interests( { forceids => 1 } ) };
+
 
     ###
     ### no post, show edit form
     ###
-    unless (LJ::did_post()) {
+    unless ( LJ::did_post() ) {
 
         my $ret;
 
@@ -98,67 +97,96 @@ body<=
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
         $ret .= "</form>\n\n";
 
-        $ret .= "<?p " . BML::ml(".intro1", { 'aopts1' => "href='$LJ::SITEROOT/manage/comments/$getextra'",
-                                             'aopts2' => "href='$LJ::SITEROOT/manage/settings/$getextra'"} )
-                . " p?>";
+        $ret .= "<div style='margin: 1em 0;'> ";
+        $ret .= BML::ml( ".intro", { aopts1 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'",
+                                     aopts2 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=display'" } );
+        $ret .= "</div>";
+
+        $ret .= qq {
+<h2> $ML{'.jumpto'} <a href='#identity'>$ML{'.section.id'}</a> |
+    <a href='#contact'>$ML{'.section.contact'}</a> |
+    <a href='#bio'>$ML{'.section.bio2'}</a> |
+    <a href='#interests'>$ML{'.section.interests'}</a> |
+    <a href='#display'>$ML{'.section.display'}</a>
+</h2>
+        };
 
         $ret .= "</div>\n";
 
-        $ret.= "<div class='ljclear'></div>\n";
-
+        $ret .= "<div class='ljclear'></div>\n";
 
         $ret .= "<form method='post' action='./$getextra'>\n";
         $ret .= LJ::form_auth();
 
+        $ret .= "<table width='100%' style='margin: 1em 0;'>\n";
+
         # personal information
-        $ret .= "<div class='section_head'> $ML{'.section.id'} </div>\n";
+        $ret .= qq {
+    <tr class='section_head'><td width='75%' colspan=2>
+    <a name='identity'></a>$ML{'.section.id'}
+    </td><td class='view_options'>
+    $ML{'.showto'}</td></tr>
+
+        };
 
         ### Picture Settings
-        $ret .= "<table class='field_block'>\n";
-
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.userpic'}</td>\n";
+        $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.userpic2'}</td>\n";
         $ret .= "<td><div style='width: 100px; height: 100px; float: left; text-align: center; border: 1px solid #ddd'>";
         if ($u->{'defaultpicid'}) {
             my $picid = $u->{'defaultpicid'};
             my %userpics = ();
+            # FIXME: this repetitive load will be fixed in bug
+            # 513. For now, memcache keeps this from hitting the
+            # db twice.
             LJ::load_userpics(\%userpics, [ $u, $picid ]);
-            $ret .= "<img src=\"$LJ::USERPIC_ROOT/$picid/$u->{'userid'}\" width='$userpics{$picid}->{'width'}' height='$userpics{$picid}->{'height'}' alt='$u->{'user'}' border='0'>";
+            my $userpic_obj = LJ::Userpic->new( $u, $picid );
+            $ret .= $userpic_obj->imgtag;
         } else {
             $ret .= "<br /><i>($ML{'.userpic.none'})</i>";
         }
         $ret .= "</div><div style='margin-left: 110px'>\n";
         $ret .= "<span class='helper'>$ML{'.userpic'}</span>";
         $ret .= LJ::help_icon('upic_keywords');
-        $ret .= "<?p <a href='$LJ::SITEROOT/editpics.bml$getextra'>$ML{'.userpic.change'}</a> p?>\n";
+        $ret .= "<?p <a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";
-        $ret .= "<td rowspan=5 style='padding-left: 20px'>$ad_override</td>" if $ad_override;
-        $ret .= "</tr>\n";
 
-        # name
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.name'}</td>\n";
-        if (LJ::text_in($saved{'name'})) {
-            $ret .= "<td><div style='float: left'>";
-            $ret .= LJ::html_text({ 'name' => 'name', 'value' => $u->{'name'},
-                                    'size' => '40', 'maxlength' => '50' });
-            $ret .= "&nbsp; </div><div class='helper'>$ML{'.name'}</div>";
-            $ret .= "</td></tr>\n";
-        } else {
-            $ret .= "<td>" . LJ::html_hidden('name_absent', 'yes');
-            $ret .= "<?inerr " . BML::ml('.error.invalidname2', {'aopts' => "href='$LJ::SITEROOT/utf8convert.bml'"}) . " inerr?></td></tr>\n";
-        }
-
-        # gender
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.gender'}</td><td>";
-        $ret .= LJ::html_select({ 'name' => 'gender', 'selected' => $u->{'gender'} || 'U' },
-                                  'F' => $ML{'.gender.female'},
-                                  'M' => $ML{'.gender.male'},
-                                  'O' => $ML{'.gender.other'},
-                                  'U' => $ML{'.gender.unspecified'}, );
+        $ret .= "<td class='selectvis'>";
+        $ret .= "<?p <i> $ML{'.security.visibility.everybody2'} </i> p?>";
         $ret .= "</td></tr>\n";
 
+        # name
+        $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.name2'}</td>\n<td>";
+        if (LJ::text_in($saved{'name'})) {
+            $ret .= "<div style='float: left'>";
+            $ret .= LJ::html_text( { name => 'name', value => $u->name_orig,
+                                     title => $ML{'.fn.name2'},
+                                     size => '35', maxlength => '50' } );
+            $ret .= "&nbsp; </div><div class='helper'>$ML{'.name'}</div>";
+        } else {
+            $ret .= LJ::html_hidden( 'name_absent', 'yes' );
+            $ret .= "<?inerr " . BML::ml( '.error.invalidname2', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"} ) . " inerr?>";
+        }
+
+        $ret .= "</td>\n<td class='selectvis'>";
+        $ret .= "<?p <i> $ML{'.security.visibility.everybody2'} </i> p?>";
+        $ret .= "</td></tr>\n";
+
+        if ( $u->is_individual ) {
+            # gender
+            $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.gender'}</td><td>";
+            $ret .= LJ::html_select( { name => 'gender', title => $ML{'.fn.gender'},
+                                       selected => $u->prop( 'gender' ) || 'U' },
+                                     F => $ML{'.gender.female'},
+                                     M => $ML{'.gender.male'},
+                                     O => $ML{'.gender.other'},
+                                     U => $ML{'.gender.unspecified'}, );
+            $ret .= "</td>\n<td class='selectvis'>";
+            $ret .= "<?p <i> $ML{'.security.visibility.nobody'} </i> p?>";
+            $ret .= "</td></tr>\n";
+        }
 
         # birthday
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.birthday'}</td><td>";
+        $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.birthday'}</td><td>";
         my %bdpart;
         if ($u->{'bdate'} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/) {
             ($bdpart{'year'}, $bdpart{'month'}, $bdpart{'day'}) = ($1, $2, $3);
@@ -166,302 +194,356 @@ body<=
             if ($bdpart{'day'} eq "00") { $bdpart{'day'} = ""; }
         }
 
-        $ret .= LJ::html_select({ 'name' => 'month', 'selected' => int($bdpart{'month'}) },
-                                '', '', map { $_, $ML{LJ::Lang::month_long_langcode($_)} } (1..12)) . " ";
-        $ret .= LJ::html_text({ 'name' => 'day', 'value' => $bdpart{'day'}, 'size' => '3', 'maxlength' => '2' }) . " ";
-        $ret .= LJ::html_text({ 'name' => 'year', 'value' => $bdpart{'year'}, 'size' => '5', 'maxlength' => '4' });
-        $ret .= "<div class='helper'>$ML{'.birthday.underage'}</div>" if $u->is_child;
-
-        # For children only allow them to update birthdate info if it already exists
-        $ret .= "<div style=\"padding-top: .5em;\">\n";
-        $ret .= " <label for='opt_sharebday'>$ML{'.share.birthday'}</label>\n";
-        my $opt_sharebday = ($u->opt_sharebday =~ m/^(A|F|N|R)$/) ? $u->opt_sharebday : 'F';
-        $ret .= LJ::html_select({ 'name' => 'opt_sharebday',
-                                  'selected' => $opt_sharebday },
-                                  { text => BML::ml(".security.visibility.everybody"),
-                                    value => "A",
-                                    disabled => $u->is_child,},
-                                  { text => BML::ml(".security.visibility.regusers"),
-                                    value => "R",
-                                    disabled => $u->is_child,},
-                                  { text => BML::ml(".security.visibility.friends"),
-                                    value => "F",
-                                    disabled => $u->is_child,},
-                                  { text => BML::ml(".security.visibility.nobody"),
-                                    value => "N",});
-
-        $ret .= "</div>\n";
+        $ret .= LJ::html_select( { name => 'month', title => $ML{'.fn.birthday.month'},
+                                 selected => int( $bdpart{'month'} ) },
+                                '', '',
+                                map { $_, LJ::Lang::month_long_ml($_) } (1..12) );
+        $ret .= " ";
+        $ret .= LJ::html_text( { name => 'day', value => $bdpart{'day'},
+                                 size => '3', maxlength => '2',
+                                 title => $ML{'.fn.birthday.day'} } );
+        $ret .= " ";
+        $ret .= LJ::html_text( { name => 'year', value => $bdpart{'year'},
+                                 size => '5', maxlength => '4',
+                                 title => $ML{'.fn.birthday.year'} } );
 
         $ret .= "<div style=\"padding-top: .5em;\">\n";
-        $ret .= " <label for='opt_showbday'>$ML{'.show.birthday'}</label>\n";
-        $u->{'opt_showbday'} = "F" unless $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
-        $ret .= LJ::html_select({ 'name' => 'opt_showbday',
-                                  'selected' => $u->{'opt_showbday'} },
-                                "N" => BML::ml(".show.birthday.nothing"),
-                                "D" => BML::ml(".show.birthday.day"),
-                                "Y" => BML::ml(".show.birthday.year"),
-                                "F" => BML::ml(".show.birthday.full"));
+        $u->{'opt_showbday'} = "D" unless $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
+        $ret .= LJ::html_select( { name => 'opt_showbday',
+                                   title => $ML{'.fn.birthday.level'},
+                                   selected => $u->{'opt_showbday'} },
+                                 N => $ML{'.show.birthday.nothing2'},
+                                 D => $ML{'.show.birthday.day2'},
+                                 Y => $ML{'.show.birthday.year2'},
+                                 F => $ML{'.show.birthday.full2'} );
         $ret .= "</div>\n";
 
+        $ret .= "</td>\n<td class='selectvis'>";
+        my $opt_sharebday = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
+        $ret .= LJ::html_select( { name => 'opt_sharebday',
+                                   title => BML::ml( '.privacy.title',
+                                            { name => $ML{'.fn.birthday'} } ),
+                                   selected => $opt_sharebday },
+                                 A => $ML{'.security.visibility.everybody2'},
+                                 R => $ML{'.security.visibility.regusers'},
+                                 F => $ML{'.security.visibility.access'},
+                                 N => $ML{'.security.visibility.nobody'} );
         $ret .= "</td></tr>\n";
 
-        # schools
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.schools'}</td><td>";
+        #location
+        $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.location'}</td><td>\n";
+        $ret .= LJ::Widget::Location->render( skip_timezone => 1, minimal_display => 1 );
 
-        $ret .= "$ML{'.schools'}:  ";
-        $ret .= LJ::html_select({ 'name' => 'opt_showschools',
-                                  'selected' => $u->{'opt_showschools'} },
-                                "Y" => BML::ml(".security.visibility.everybody"),
-                                "F" => BML::ml(".security.visibility.friends"),
-                                "N"  => BML::ml(".security.visibility.nobody") );
-        $ret .= " &nbsp; <a href='$LJ::SITEROOT/schools/manage.bml$getextra'>$ML{'.schools.manage'}</a></td></tr>\n";
-        $ret .= "</table>\n";
-
-        ## COMMUNITY THEME
-
-        if ($u->is_community) {
-            $ret .= "<div class='section_head'>$ML{'.section.theme'}</div>\n";
-            $ret .= $ML{'.theme'} . "<br />";
-            $ret .= LJ::html_text({ 'name' => 'comm_theme', 'value' => $u->{comm_theme},
-                                    'size' => '50', 'maxlength' => '100' });
-        }
-
-        ## INTERESTS
-
-        {
-            ### Interests
-            $ret .= "<div class='section_head'>$ML{'.section.interests'}</div>\n";
-            my @eintsl;
-            foreach (sort keys %interests) {
-                push @eintsl, $_ if LJ::text_in($_);
-            }
-
-            $ret .= "<table>\n";
-
-            $ret .= "<tr><td colspan='2'>$ML{'.fn.interests'}</td></tr>";
-            $ret .= "<tr><td>";
-            $ret .= LJ::html_textarea({ 'name' => 'interests', 'value' => join(", ", @eintsl),
-                                        'rows' => '10', 'cols' => '50', 'wrap' => 'soft' });
-            $ret .= "</td><td class='example'>";
-            $ret .= "<?p $ML{'.interest.line1'} p?>";
-            $ret .= "<?p $ML{'.interest.line2'} p?>";
-            $ret .= "<?p $ML{'.interest.line3'} p?>";
-            $ret .= "<?p $ML{'.interest.line4'} p?>";
-            $ret .= "<?p $ML{'.interest.line5'} p?>";
-            $ret .= "</td></tr>\n\n";
-
-            $ret .= "</table>\n";
-        }
-
-        ## BIO
-
-        ### User bio
-        $ret .= "<div class='section_head'>$ML{'.section.bio'}</div>";
-        if (LJ::text_in($saved{'bio'})) {
-            $ret .= "<table class='field_block'>";
-            $ret .= "<tr><td colspan='2'>$ML{'.fn.bio'}<br />\n";
-            $ret .= LJ::html_textarea({ 'name' => 'bio', 'rows' => '10', 'cols' => '50',
-                                        'wrap' => 'soft', 'value' => $u->{'bio'}, 'style' => "width: 90%", }) . "</td></tr>\n";
-            $ret .= "</table>\n";
-        } else {
-            $ret .= LJ::html_hidden('bio_absent', 'yes');
-            $ret .= "<?p <?inerr " . BML::ml('.error.invalidbio', {'aopts' => "href='$LJ::SITEROOT/utf8convert.bml'"}) . " inerr?> p?>\n";
-        }
-
-        $ret .= "<div class='section_head'>$ML{'.section.web'}</div>\n";
-
-        $ret .= "<table class='field_block'>\n";
-        # url
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.link'}</td><td>";
-        $ret .= LJ::html_text({ 'name' => 'url', 'value' => $u->{'url'}, 'size' => '40', 'maxlength' => '255' });
-        $ret .= " <span class='helper'>($ML{'.optional'})</span></td></tr>\n";
-
-        # urlname
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.sitename'}</td><td>";
-        $ret .= LJ::html_text({ 'name' => 'urlname', 'value' => $u->{'urlname'}, 'size' => '40', 'maxlength' => '255' });
-        $ret .= " <span class='helper'>($ML{'.optional'})</span></td></tr>\n";
-        $ret .= "</table>\n";
-
-        $ret .= "<div class='section_head'>$ML{'.section.location'}\n";
-        $ret .= "<span class='view_options'>";
-        $ret .= "<label for='opt_showlocation'>$ML{'.location'}</label> ";
-        $ret .= LJ::html_select({ 'name' => 'opt_showlocation',
-                                   'selected' => $u->opt_showlocation },
-                                "Y" => BML::ml(".security.visibility.everybody"),
-                                "R" => BML::ml(".security.visibility.regusers"),
-                                "F" => BML::ml(".security.visibility.friends"),
-                                "N" => BML::ml(".security.visibility.nobody"));
-        $ret .= "</span></div>";
-
-        $ret .= LJ::Widget::Location->render;
-
+        $ret .= "</td><td class='selectvis'>";
+        $ret .= LJ::html_select( { name => 'opt_showlocation',
+                                   title => BML::ml( '.privacy.title',
+                                            { name => $ML{'.fn.location'} } ),
+                                   selected => $u->opt_showlocation },
+                                 Y => $ML{'.security.visibility.everybody2'},
+                                 R => $ML{'.security.visibility.regusers'},
+                                 F => $ML{'.security.visibility.access'},
+                                 N => $ML{'.security.visibility.nobody'} );
+        $ret .= "</td></tr>\n";
 
         ## CONTACT INFO
-        $ret .= "<div class='section_head'>$ML{'.section.contact'} \n";
+        $ret .= qq {
+    <tr class='section_head'><td width='75%' colspan=2>
+    <a name='contact'></a>$ML{'.section.contact2'}</td>
+    <td class='view_options'> $ML{'.showto'}</td></tr>
 
-        # contactshow_sec
-        $ret .= "<span class='view_options'>$ML{'.fn.contactinfo'} ";
-        $ret .= LJ::html_select({ 'name' => 'allow_contactshow',
-                                      'selected' => $u->opt_showcontact},
-                                      { text => BML::ml(".security.visibility.everybody"),
-                                        value => "Y",
-                                        disabled => $u->is_child,},
-                                      { text => BML::ml(".security.visibility.regusers"),
-                                        value => "R",
-                                        disabled => $u->is_child,},
-                                      { text => BML::ml(".security.visibility.friends"),
-                                        value => "F",},
-                                      { text => BML::ml(".security.visibility.nobody"),
-                                        value => "N",});
+    <tr class='section_subhead'><td colspan=3>
+    $ML{'.subsection.web'}</td></tr>
+        };
 
+        # url
+        $ret .= "<tr class='field_block'><td class='field_name'>\n";
+        $ret .= "$ML{'.fn.link2'}</td><td>";
+        $ret .= LJ::html_text( { name => 'url', value => $u->{'url'},
+                                 title => $ML{'.fn.link2'},
+                                 size => '45', maxlength => '255' } );
+        $ret .= "</td><td class='selectvis'>";
+        $ret .= "<?p <i> $ML{'.security.visibility.everybody2'} </i> p?>";
+        $ret .= "</td></tr>\n";
 
-        $ret .= "</span></div>\n";
-
-        $ret .= "<table class='field_block'>\n";
+        # urlname
+        $ret .= "<tr class='field_block'><td class='field_name'>\n";
+        $ret .= "$ML{'.fn.sitename2'}</td><td>";
+        $ret .= LJ::html_text( { name => 'urlname', value => $u->{'urlname'},
+                                 title => $ML{'.fn.sitename2'},
+                                 size => '45', maxlength => '255' } );
+        $ret .= "</td><td class='selectvis'>";
+        $ret .= "<?p <i> $ML{'.security.visibility.everybody2'} </i> p?>";
         $ret .= "</td></tr>\n";
 
         # email
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.email'}</td><td>\n";
-        if ($LJ::EMAIL_CHANGE_REQUIRES_PASSWORD) {
-            $ret .= "<b>" . $u->email_raw . "</b> &nbsp; <a href='$LJ::SITEROOT/changeemail.bml$getextra'>$ML{'.email.change'}</a>";
-        } else {
-            $ret .= LJ::html_text({ 'name' => 'email', 'value' => $u->email_raw, 'size' => '40', 'maxlength' => '50' });
-        }
+        my $curr_privacy = { Y => $ML{'.security.visibility.everybody2'},
+                             R => $ML{'.security.visibility.regusers'},
+                             F => $ML{'.security.visibility.access'},
+                             N => $ML{'.security.visibility.nobody'},
+                           }->{$u->opt_showcontact};
+        $ret .= qq{
+    <tr class='section_subhead'><td colspan=2>$ML{'.subsection.messaging'}
+    </td><td class='view_options'>
+    <a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'>
+    $ML{'.fn.privacy'}: $curr_privacy</a></td></tr>\n
+        };
+
+        my $u_email_raw = $u->email_raw;
+
+        $ret .= qq {
+    <tr class='field_block'><td class='field_name'>
+    $ML{'.fn.email.system'}</td><td style='vertical-align: middle'>
+    <b>$u_email_raw</b> &nbsp; <a href='$LJ::SITEROOT/changeemail$getextra'>
+    $ML{'.email.change.system'}</a></td><td class='selectvis'>
+
+        };
 
         # opt_whatemailshow
-        $ret .= "<br />\n$ML{'.fn.emaildisplay'}: ";
-        my $cur = $u->{'opt_whatemailshow'};
-        my @vals = ( ($LJ::USER_EMAIL && LJ::get_cap($u, "useremail"))
-                     ? ("A" => BML::ml(".email.opt.prime"),
-                        "L" => BML::ml(".email.opt.lj"),
-                        "B" => BML::ml(".email.opt.both"),
-                        "N" => BML::ml(".email.opt.dont"))
-                     : ("A" => BML::ml(".email.opt.show"),
-                        "N" => BML::ml(".email.opt.no_show")));
-        $ret .= LJ::html_select({ 'name' => 'opt_whatemailshow', 'selected' => $cur }, @vals) . "\n";
+        my $cur = $u->opt_whatemailshow;
+        # drop BVL values that govern site alias; we input that below instead
+        $cur =~ tr/BVL/AAN/;  # D reset later
+        $ret .= LJ::html_select( { name => 'opt_whatemailshow',
+                                   title => BML::ml( '.display.title',
+                                            { name => $ML{'.fn.email.system'} } ),
+                                   selected => $cur },
+                                 A => $ML{'.security.visibility.privacy'},
+                                 N => $ML{'.security.visibility.noshow'} );
+        $ret .= "</td></tr>\n";
+
+        $ret .= "<tr class='field_block'><td class='field_name'> $ML{'.fn.email.display'}</td><td>\n";
+
+        $ret .= DW::Setting::ProfileEmail->option( $u );
+        $ret .= "<br /><span class='helper'>$ML{'.email.profile'}</span>";
+
+        $ret .= "</td><td class='selectvis'>";
+#        $ret .= "<?p <i> $ML{'.security.visibility.same'} </i> p?>";
 
         $ret .= "</td></tr>\n";
 
-        if ($u->is_person) {
-
-        # opt_usermsg
-        unless ($LJ::DISABLED{'user_messaging'}) {
-            $ret .= "<tr><td class='field_name'>LJ User Messaging</td><td>";
-            $ret .= LJ::Setting::UserMessaging->as_html($u);
+        if ( $LJ::USER_EMAIL && $u->can_have_email_alias && ! $u->prop( "no_mail_alias" ) ) {
+            $ret .= "<tr class='field_block'><td class='field_name'>";
+            $ret .= BML::ml( '.fn.email.site', { siteabbrev => $LJ::SITENAMEABBREV } );
+            $ret .= "</td><td style='vertical-align: middle'>\n";
+            $ret .= $u->username . "\@$LJ::USER_DOMAIN";
+            $ret .= "</td><td class='selectvis'>";
+            # this is where we get BVL back
+            my $checked = ( $u->opt_whatemailshow =~ /[BVL]/ ) ? 'Y' : 'N';
+            $ret .= LJ::html_select( { name => 'opt_usesite',
+                                       title => BML::ml( '.display.title',
+                                                { name => $ML{'.fn.email.site'} } ),
+                                       selected => $checked },
+                                     Y => $ML{'.security.visibility.privacy'},
+                                     N => $ML{'.security.visibility.noshow'} );
             $ret .= "</td></tr>\n";
         }
 
-        # chat thingies
-        $ret .= "<tr><td colspan='2'></td></tr><tr><td class='field_name' colspan='2' style='text-align: center;'>$ML{'.fn.imservices2'}</td></tr>";
+        if ( $u->is_person ) {
 
-        $u->{'gizmo'} = $u->gizmo_account();
-
-        my $ljtalk_title = '<a href="' . LJ::run_hook('jabber_link') . '">' .
-            LJ::run_hook('jabber_title') . '</a>';
-
-        foreach my $p (
-                       ["ljtalk", $ljtalk_title, 40],
-                       ["aolim", $ML{'.chat.aolim'}, 28], ["icq", $ML{'.chat.icquin'}, 12],
-                       ["yahoo", $ML{'.chat.yahooid'}, 33], ["msn", $ML{'.chat.msnusername'}, 60],
-                       ["jabber", $ML{'.chat.jabber'}, 60], ["google_talk", $ML{'.chat.googletalk'}, 60],
-                       ["skype", $ML{'.chat.skype'}, 40],
-                       ["gizmo", $ML{'.chat.gizmo'}, 40])
-
-        {
-            next if $p->[0] eq "ljtalk" && $LJ::DISABLED{ljtalk};
-
-            $ret .= "<tr><td class='field_name'>$p->[1]</td><td>";
-            unless ($p->[0] eq "ljtalk") {
-                $ret .= LJ::html_text({ 'name' => $p->[0], 'value' => $u->{$p->[0]}, 'size' => '20', 'maxlength' => $p->[2] });
-            } else {
-                $ret .= $u->ljtalk_id;
+            if ( LJ::is_enabled( 'ljtalk' ) ) {
+                $ret .= "<tr class='field_block'><td class='field_name'>";
+                $ret .= BML::ml( '.fn.ljtalk.address', { siteabbrev => $LJ::SITENAMEABBREV } );
+                $ret .= "</td><td style='vertical-align: middle'>" . $u->ljtalk_id;
                 # Don't show LJ Talk field? (opt_showljtalk)
-                $ret .= LJ::html_check({ 'type' => 'check',
-                                         'name' => 'opt_showljtalk',
-                                         'id' => 'opt_showljtalk',
-                                         'selected' => $u->hide_ljtalk });
-                $ret .= "<label for='opt_showljtalk' style='font-size: 10px;'>$ML{'.showljtalk'}</label>";
+                $ret .= "</td><td class='selectvis'>";
+                $ret .= LJ::html_select( { name => 'opt_showljtalk',
+                                           id => 'opt_showljtalk',
+                                           title => BML::ml( '.display.title',
+                                                    { name => $ML{'.fn.ljtalk.address'} } ),
+                                           selected => $u->hide_ljtalk ? 'N' : 'Y' },
+                                         Y => $ML{'.security.visibility.privacy'},
+                                         N => $ML{'.security.visibility.noshow'} );
+                $ret .= "</td></tr>\n";
+
+                my $jabber_title = LJ::Hooks::run_hook("jabber_title") || $ML{'/manage/settings/index.bml.jabber.title'};
+                $ret .= "<tr class='field_block'><td class='field_name'>";
+                $ret .= BML::ml( '.fn.ljtalk.status', { siteabbrev => $LJ::SITENAMEABBREV } );
+                $ret .= "</td><td>$ML{'.fn.showljtalk'}<br />";
+                $ret .= "<span class='helper'>" . BML::ml('/manage/settings/index.bml.jabber.text', {'jabbertitle' => $jabber_title}) . "</span>";
+                # Jabber Online Status
+                $ret .= "</td><td class='selectvis'>";
+                $ret .= LJ::html_select( { name => 'opt_showonlinestatus',
+                                           id => 'opt_showonlinestatus',
+                                           title => BML::ml( '.privacy.title',
+                                                    { name => $ML{'.fn.ljtalk.status'} } ),
+                                           selected => $u->opt_showonlinestatus },
+                                         Y => $ML{'.security.visibility.everybody2'},
+                                         F => $ML{'.security.visibility.access'},
+                                         N => $ML{'.security.visibility.nobody'} );
+                $ret .= "</td></tr>\n";
             }
+
+            # opt_findbyemail
+            if ( LJ::is_enabled( 'opt_findbyemail' ) ) {
+                $ret .= "<tr class='field_block'><td class='field_name'>";
+                $ret .= LJ::Setting::FindByEmail->label . "</td><td><span class='helper'>";
+                $ret .= BML::ml( 'settings.findbyemail.helper', {
+                    sitename => $LJ::SITENAMESHORT,
+                    siteabbrev => $LJ::SITENAMEABBREV } );
+                $ret .= "</span></td>\n<td class='selectvis'>";
+                $ret .= LJ::Setting::FindByEmail->as_html( $u, undef, { minimal_display => 1, helper => 0 } );
+                $ret .= "</td></tr>\n";
+            }
+
+            # opt_usermsg
+            if ( LJ::is_enabled( 'user_messaging' ) ) {
+                $ret .= "<tr class='field_block'><td class='field_name'>";
+                $ret .= LJ::Setting::UserMessaging->label;
+                $ret .= "</td><td><span class='helper'>";
+                $ret .= BML::ml( 'settings.usermessaging.helper', { sitename => $LJ::SITENAMESHORT } );
+                $ret .= "</span></td>\n<td class='selectvis'>";
+                $ret .= LJ::Setting::UserMessaging->option( $u, undef, { minimal_display => 1, helper => 0 } );
+                $ret .= "</td></tr>\n";
+            }
+
+        } # end is_person check
+
+        if ( $u->can_use_textmessaging ) {
+
+            $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.section.textmsg'}</td><td>\n";
+
+            $ret .= DW::Setting::TxtMsgSetup->option( $u, undef, { info_only => 1 } );
+            $ret .= "</td>\n<td class='selectvis'>";
+            $ret .= DW::Setting::TxtMsgSetup->option( $u, undef, { vis_only => 1 } );
+
             $ret .= "</td></tr>\n";
         }
-        $ret .= "</td></tr>\n";
+        
+        if ( $u->is_person ) {
+
+            # chat thingies
+
+            $ret .= qq{
+    <tr class='section_subhead'><td colspan=2>$ML{'.subsection.other'}
+    </td><td class='view_options'>
+    <a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'>
+    $ML{'.fn.privacy'}: $curr_privacy</a></td></tr>\n
+        };
+
+            $u->{'gizmo'} = $u->gizmo_account();
+
+            $ret .= "<tr><td colspan=3><table>";
+            my $oddeven = 0;
+
+            foreach my $p (
+                           ["aolim", $ML{'.chat.aolim'}, 28], ["icq", $ML{'.chat.icquin'}, 12],
+                           ["yahoo", $ML{'.chat.yahooid'}, 33], ["msn", $ML{'.chat.msnusername'}, 60],
+                           ["jabber", $ML{'.chat.jabber'}, 60], ["google_talk", $ML{'.chat.googletalk'}, 60],
+                           ["skype", $ML{'.chat.skype'}, 40],
+                           ["gizmo", $ML{'.chat.gizmo'}, 40],
+                           ["twitter", $ML{ '.services.twitter' }, 40],
+                           ["delicious", $ML{ '.services.delicious' }, 40],
+                           ["last_fm_user", $ML{'.services.last_fm'}, 255],
+                          )
+
+            {
+                $oddeven = !$oddeven;
+                $ret .= "<tr class='field_block'>" if $oddeven;
+                $ret .= "<td class='field_name' width='20%'>$p->[1]</td><td width='30%'>";
+                $ret .= LJ::html_text( { name => $p->[0],
+                                         value => $u->{$p->[0]},
+                                         title => $p->[1],
+                                         size => '20',
+                                         maxlength => $p->[2] } );
+                $ret .= "</td>\n";
+                $ret .= "</tr>" unless $oddeven;
+            }
+
+            $ret .= "<td></td><td></td></tr>" if $oddeven;
+            $ret .= "</table></td></tr>\n";
 
         } # end is_person check
 
         $ret .= "</table>\n";
 
-        ## TEXT MESSAGING
+        ## BIO
 
-        $ret .= "<a name='txtmsg'></a><div class='section_head'>$ML{'.section.textmsg'}\n";
-        unless (LJ::get_cap($u, "textmessaging")) {
-            my $inline;
-            if ($inline .= LJ::run_hook("cprod_inline", $u, 'TextMessaging')) {
-                $ret .= "</div>$inline";
-            } else {
-                $ret .= "</div>".BML::ml('cprod.textmessaging.text3.v1');
-            }
-        }
-        if (LJ::get_cap($u, "textmessaging")) {
-            my $tminfo = LJ::TextMessage->tm_info($u, remap_result => 1);
-            foreach (values %$tminfo) { LJ::text_out(\$_); }
-            $tminfo->{'security'} = "N" if ($u->{'txtmsg_status'} eq 'off' || $u->{'txtmsg_status'} eq 'none');
-
-            $ret .= "<span class='view_options'>$ML{'.fn.txtmsg'}";
-            $ret .= LJ::html_select({ 'name' => 'txtmsg_security', 'selected' => $tminfo->{'security'} },
-                                      "all" => BML::ml(".security.visibility.everybody"),
-                                      "reg" => BML::ml(".security.visibility.regusers"),
-                                      "friends" => BML::ml(".security.visibility.friends"),
-                                      "N"   => BML::ml(".security.visibility.nobody") );
-            $ret .= "</span></div>\n";
-
-            $ret .= "<table class='field_block'>\n";
-
-            foreach (values %$tminfo) { LJ::text_out(\$_); }
-
-            $ret .= "<tr><td class='field_name'>$ML{'.fn.servprov'}</td><td>";
-            {
-                my @opts = ("", "");
-                foreach my $p (LJ::TextMessage::providers()) {
-                    my $info = LJ::TextMessage::provider_info($p);
-                    push @opts, ($p, $info->{'name'});
-                }
-                $ret .= LJ::html_select({ 'name' => 'txtmsg_provider',
-                                          'selected' => $tminfo->{'provider'}, },
-                                          @opts);
-            }
-
-            $ret .= " " . BML::ml('.txt.details', {'aopts' => "href='$LJ::SITEROOT/tools/textmessage.bml?mode=details'"}) . "</td></tr>\n";
-            $ret .= "<tr><td class='field_name'>$ML{'.fn.txtnum'}</td><td>";
-            $ret .= LJ::html_text({ 'name' => 'txtmsg_number',  'value' => $tminfo->{'number'},
-                                    'size' => '15', 'maxlength' => '40' });
-            $ret .= "</td></tr>\n";
-            $ret .= "</table>\n";
+        $ret .= "<div class='section_head'><a name='bio'></a>$ML{'.section.bio2'}</div>";
+        if ( LJ::text_in( $saved{'bio'} ) ) {
+            $ret .= $u->is_identity ? $ML{'.fn.bio.openid'} : $ML{'.fn.bio'};
+            $ret .= "<br />\n";
+            $ret .= LJ::html_textarea( { name => 'bio',
+                                         title => $ML{'.section.bio2'},
+                                         rows => '10', cols => '50',
+                                         wrap => 'soft',
+                                         style => "width: 90%",
+                                         value => $bio } );
+        } else {
+            $ret .= LJ::html_hidden('bio_absent', 'yes');
+            $ret .= "<?p <?inerr " . BML::ml('.error.invalidbio', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"}) . " inerr?> p?>\n";
         }
 
-        ## FRIENDS
-        $ret .= "<div class='section_head'>$ML{'.section.friends'}</div>\n";
+        ## INTERESTS
 
-        $ret .= "<table class='field_block'>\n";
+        $ret .= "<div class='section_head'><a name='interests'></a>$ML{'.section.interests'}</div>\n";
+
+        if ( $u->is_community ) {
+            $ret .= $ML{'.fn.commdescription2'} . "<br />";
+            $ret .= LJ::html_text( { name => 'comm_theme',
+                                     title => $ML{'.fn.commdesc'},
+                                     value => $u->{comm_theme},
+                                     size => '50', maxlength => '100' } );
+            $ret .=  "<br /><br />";
+        }
+
+        my @eintsl;
+        foreach ( sort keys %interests ) {
+            push @eintsl, $_ if LJ::text_in( $_ );
+        }
+
+        $ret .= $ML{'.fn.interests'};
+        $ret .= LJ::html_textarea( { name => 'interests',
+                                     title => $ML{'.section.interests'},
+                                     value => join(", ", @eintsl),
+                                     rows => '10', cols => '50', wrap => 'soft',
+                                     style => "width: 90%" } );
+
+        ## CIRCLE
+        $ret .= "<table width='100%' style='margin: 1em 0;'>";
+        $ret .= "<tr class='section_head'><td width='75%' colspan=3>";
+        $ret .= "<a name='display'></a>";
+        $ret .= $u->is_community ? $ML{'.section.display.members'} : $ML{'.section.display.circle'};
+        $ret .= "</td></tr>\n";
 
         # opt_showmutualfriends
-        $ret .= "<tr><td class='field_name'><label for='opt_showmutualfriends'>$ML{'.fn.mutualfriends'}</label></td><td>";
-        $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_showmutualfriends', 'id' => 'opt_showmutualfriends',
-                                 'selected' => $u->{'opt_showmutualfriends'} });
-        $ret .= " <label for='opt_showmutualfriends'>$ML{'.mutualfriends'}</label></td></tr>\n";
+        unless ( $u->is_community ) {
+            $ret .= "<tr class='field_block'><td class='field_name'>";
+            $ret .= "$ML{'.fn.mutualfriends3'}</td><td width='10px'>";
+            $ret .= LJ::html_check( { type => 'check', name => 'opt_showmutualfriends',
+                                      id => 'opt_showmutualfriends', selected => $u->{'opt_showmutualfriends'} } );
+            $ret .= "</td><td style='vertical-align: middle'>";
+            $ret .= "<label for='opt_showmutualfriends'>$ML{'.mutualfriends3'}</label>";
+            $ret .= "</td></tr>\n";
+        }
 
         # opt_hidefriendofs
-        $ret .= "<tr><td class='field_name'><label for='opt_hidefriendofs'>$ML{'.fn.friendof'}</label></td><td>";
-        $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_hidefriendofs', 'id' => 'opt_hidefriendofs',
-                                 'selected' => ! $u->{'opt_hidefriendofs'} });
-        $ret .= " <label for='opt_hidefriendofs'>$ML{'.friendof'}</label></td></tr>\n";
+        $ret .= "<tr class='field_block'><td class='field_name' width='15%'>";
+        $ret .= $u->is_community ? $ML{'.fn.subscriberof'} : $ML{'.fn.friendof3'};
+        $ret .= "</td><td width='10px'>";
+        $ret .= LJ::html_check( { type => 'check', name => 'opt_hidefriendofs',
+                                  id => 'opt_hidefriendofs', selected => ! $u->{'opt_hidefriendofs'} } );
+        $ret .= "</td><td style='vertical-align: middle'><label for='opt_hidefriendofs'>";
+        $ret .= $u->is_community ? $ML{'.subscriberof'} : $ML{'.friendof3'};
+        $ret .= "</label></td></tr>\n";
+
+        # opt_hidememberofs
+        unless ( $u->is_community ) {
+            $ret .= "<tr class='field_block'><td class='field_name'>";
+            $ret .= "$ML{'.fn.comms'}</td><td width='10px'>";
+            $ret .= LJ::html_check( { type => 'check', name => 'opt_hidememberofs',
+                                      id => 'opt_hidememberofs', selected => ! $u->{'opt_hidememberofs'} } );
+            $ret .= "</td><td style='vertical-align: middle'>";
+            $ret .= "<label for='opt_hidememberofs'>$ML{'.comms'}</label></td></tr>\n";
+        }
 
         $ret .= "</table>\n";
+
+        $ret .= LJ::Hooks::run_hook("profile_settings_extra", $u);
 
         # ending submit block
         $ret .= "<?standout " . LJ::html_submit(undef, $ML{'.save_button'}) . " standout?>\n";
         $ret .= "</form>\n";
 
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
 
@@ -469,10 +551,10 @@ body<=
     ### we have a post, process edits
     ###
 
-    if (LJ::did_post()) {
-        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>") unless LJ::check_form_auth();
+    if ( LJ::did_post() ) {
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>" unless LJ::check_form_auth();
 
-        return $print_with_ad->("<?badinput?>") unless LJ::text_in(\%POST);
+        return "<?badinput?>" unless LJ::text_in(\%POST);
 
         # name
         unless (LJ::trim($POST{'name'}) || defined($POST{'name_absent'})) {
@@ -502,39 +584,16 @@ body<=
             push @errors, $ML{'.error.day.outofrange'};
         }
 
-        if ($u->is_child && $POST{'opt_sharebday'} ne "N") {
-            push @errors, $ML{'.error.bday.child'};
-        }
-
         if (@errors == 0 && $POST{'day'} > LJ::days_in_month($POST{'month'}, $POST{'year'})) {
             push @errors, $ML{'.error.day.notinmonth'};
         }
 
-        # email
-        unless ($LJ::EMAIL_CHANGE_REQUIRES_PASSWORD) {
-            if (!$POST{'email'}) {
-                push @errors, $ML{'.error.email.none'};
-            }
-
-            if ($LJ::USER_EMAIL and $POST{'email'} =~ /\@\Q$LJ::USER_DOMAIN\E$/i) {
-                push @errors, BML::ml(".error.email.lj_domain", { 'user' => $u->{'user'}, 'domain' => $LJ::USER_DOMAIN, });
-            }
-
-            if ($POST{'email'} =~ /\s/) {
-                push @errors, $ML{'.error.email.no_space'};
-            }
-
-            unless (@errors) {
-                LJ::check_email($POST{'email'}, \@errors);
-            }
-        }
-
-        if ($u->is_child && $POST{'allow_contactshow'} =~ /[YR]/) {
-            push @errors, $ML{'.error.contact.child'};
-        }
-
         if ($POST{'LJ__Setting__UserMessaging_opt_usermsg'} && !$POST{'LJ__Setting__UserMessaging_opt_usermsg'} =~ /^[MFNY]$/) {
-            push @errors, BML::ml(".error.usermessaging");
+            push @errors, $ML{'.error.usermessaging'};
+        }
+
+        if ($POST{'LJ__Setting__FindByEmail_opt_findbyemail'} && !$POST{'LJ__Setting__FindByEmail_opt_findbyemail'} =~ /^[HNY]$/) {
+            push @errors, $ML{'.error.findbyemail'};
         }
 
         # bio
@@ -542,40 +601,16 @@ body<=
             push @errors, $ML{'.error.bio.toolong'};
         }
 
-        # text messaging
-        if ($POST{'txtmsg_security'} =~ m/^(all|reg|friends)$/) {
-            unless ($POST{'txtmsg_provider'}) {
-                push @errors, $ML{'.error.txt.require_provider'};
-            }
-            unless ($POST{'txtmsg_number'}) {
-                push @errors, $ML{'.error.txt.require.number'};
-            }
-        }
-
         # FIXME: validation AND POSTING are handled by widgets' handle_post() methods
         # (introduce validate_post() ?)
         my $save_search_index = $POST{'opt_showlocation'} =~ /^[YR]$/;
         LJ::Widget->handle_post(\%POST, 'Location' => {save_search_index => $save_search_index});
 
-        return $print_with_ad->('') if @errors;
+        return LJ::error_list( @errors ) if @errors;
 
         ### no errors
 
         my $dbh = LJ::get_db_writer();
-
-        my $email_changed = (($u->email_raw ne $POST{'email'}) && !$LJ::EMAIL_CHANGE_REQUIRES_PASSWORD);
-        if ($email_changed) {
-            # record old email address;
-            LJ::infohistory_add($u, 'email', $u->email_raw, $u->{status});
-
-            $u->log_event('email_change', { remote => $remote, new => $POST{'email'} });
-
-            LJ::run_hook('post_email_change',
-                         {
-                             user     => $u,
-                             newemail => $POST{'email'},
-                         });
-          }
 
         $POST{'url'} =~ s/\s+$//; $POST{'url'} =~ s/^\s+//;
         if ($POST{'url'} && $POST{'url'} !~ /^https?:\/\//) {
@@ -589,21 +624,16 @@ body<=
 
         my $newbio = defined($POST{'bio_absent'}) ? $saved{'bio'} : $POST{'bio'};
         my $has_bio = ($newbio =~ /\S/) ? "Y" : "N";
-        my $txtmsg_status = $POST{'txtmsg_security'} =~ m/^(all|reg|friends)$/ ? "on" : "off";
         # setup what we're gonna update in the user table:
         my %update = (
                       'name' => $newname,
                       'bdate' => sprintf("%04d-%02d-%02d", $POST{'year'}, $POST{'month'}, $POST{'day'}),
-                      'status' => ($email_changed && $u->{'status'} eq "A") ? "T" : $u->{'status'},
                       'has_bio' => $has_bio,
                       'allow_getljnews' => $POST{'allow_getljnews'} ? "Y" : "N",
-                      'txtmsg_status' => $txtmsg_status,
                       );
 
-        $update{'email'} = $POST{'email'} unless $LJ::EMAIL_CHANGE_REQUIRES_PASSWORD;
-
         if ($POST{'allow_contactshow'}) {
-            $update{'allow_contactshow'} = $POST{'allow_contactshow'} if $POST{'allow_contactshow'} =~ m/^(N|R|Y|F)$/;
+            $update{'allow_contactshow'} = $POST{'allow_contactshow'} if $POST{'allow_contactshow'} =~ m/^[NRYF]$/;
         }
 
         if (defined $POST{'oldenc'}) {
@@ -619,16 +649,21 @@ body<=
             # opts
             $POST{'opt_showmutualfriends'} = $POST{'opt_showmutualfriends'} ? 1 : 0;
             $POST{'opt_hidefriendofs'} = $POST{'opt_hidefriendofs'} ? 0 : 1;
-            $POST{'opt_showschools'} = 'N' unless $POST{'opt_showschools'} =~ m/^(N|R|Y|F)$/;
+            $POST{'opt_hidememberofs'} = $POST{'opt_hidememberofs'} ? 0 : 1;
             $POST{'gender'} = 'U' unless $POST{'gender'} =~ m/^[UMFO]$/;
-            $POST{'opt_sharebday'} = undef unless $POST{'opt_sharebday'} =~ m/^(A|F|N|R)$/;
-            $POST{'opt_showbday'} = 'F' unless $POST{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
+            $POST{'opt_sharebday'} = undef unless $POST{'opt_sharebday'} =~ m/^[AFNR]$/;
+            $POST{'opt_showbday'} = 'D' unless $POST{'opt_showbday'} =~ m/^[DFNY]$/;
             # undefined means show to everyone, "N" means don't show
-            $POST{'opt_showlocation'} = undef unless $POST{'opt_showlocation'} =~ m/^(N|R|Y|F)$/;
+            $POST{'opt_showlocation'} = undef unless $POST{'opt_showlocation'} =~ m/^[NRYF]$/;
             # Does the user want to show the LJ Talk field?  Y=Yes, N=No
             # In this case, the question is actually if they want to hide
             # it, hence looking for a value of 'N' before 'Y'.
             $POST{'opt_showljtalk'} = $POST{'opt_showljtalk'} ? 'N' : 'Y';
+            $POST{'opt_showonlinestatus'} = '' unless $POST{'opt_showonlinestatus'} =~ m/^[YFN]$/;
+            # change value of opt_whatemailshow based on opt_usesite and
+            # $u->profile_email (changed above by DW::Setting::ProfileEmail)
+            $POST{'opt_whatemailshow'} =~ tr/A/D/ if $u->profile_email;
+            $POST{'opt_whatemailshow'} =~ tr/ADN/BVL/ if $POST{'opt_usesite'} eq 'Y';
 
             # for the directory.
             $POST{'sidx_bdate'} = undef;
@@ -654,11 +689,13 @@ body<=
               opt_whatemailshow comm_theme
               icq aolim yahoo msn url jabber
               google_talk skype
-              urlname gender opt_hidefriendofs
+              twitter delicious
+              urlname gender last_fm_user
+              opt_hidefriendofs opt_hidememberofs
               sidx_bdate sidx_bday
-              opt_showmutualfriends opt_showschools
+              opt_showmutualfriends
               opt_showbday opt_showlocation opt_showljtalk
-              opt_sharebday
+              opt_sharebday opt_showonlinestatus
             );
 
             # reset the gizmo account for this user account
@@ -666,12 +703,13 @@ body<=
                 if $u->gizmo_account ne $POST{'gizmo'};
 
             # set userprops
+            my %prop;
             foreach my $uprop (@uprops) {
                 my $eff_val = $POST{$uprop};   # effective value, since 0 isn't stored
                 $eff_val = "" unless $eff_val;
-                my $mem_only = $eff_val eq $u->{$uprop};
-                LJ::set_userprop($u, $uprop, $eff_val, $mem_only);
+                $prop{$uprop} = $eff_val;
             }
+            $u->set_prop( \%prop );
 
             # location or bday could've changed... (who cares about checking exactly)
             $u->invalidate_directory_record;
@@ -684,75 +722,49 @@ body<=
         LJ::EmbedModule->parse_module_embed($u, \$POST{'bio'});
         $u->set_bio($POST{'bio'}, $POST{'bio_absent'});
 
-        # update their text messaging info
-        my $tminfo = LJ::TextMessage->tm_info($u);
-        # Check that text messaging is turned off and either
-        # the provider or number have been set to null
-        if ($txtmsg_status eq "off" &&
-            (($tminfo->{'provider'} && ! $POST{'txtmsg_provider'}) ||
-            ($tminfo->{'number'} && ! $POST{'txtmsg_number'})) )
-        {
-            $dbh->do("DELETE FROM txtmsg WHERE userid=?", undef, $u->{'userid'});
-        } elsif ($txtmsg_status eq "on") {
-            $dbh->do("REPLACE INTO txtmsg (userid, provider, number, security) VALUES (?, ?, ?, ?)",
-                     undef, $u->{'userid'}, $POST{'txtmsg_provider'}, $POST{'txtmsg_number'}, $POST{'txtmsg_security'});
-        }
-
         # update interests
         unless ($POST{'interests_absent'}) {
+            my $maxinterests = $u->count_max_interests;
+
             my @ints = LJ::interest_string_to_list($POST{'interests'});
             my $intcount = scalar(@ints);
             my @interrors = ();
 
             # Don't bother validating the interests if there are already too many
-            return $print_with_ad->(LJ::bad_input( BML::ml('error.interest.excessive', { intcount => $intcount }) )) if $intcount > 150;
+            return LJ::bad_input( BML::ml('error.interest.excessive2',
+                                  { intcount => $intcount,
+                                    maxinterests => $maxinterests } ) )
+                if $intcount > $maxinterests;
 
             # Clean interests, and make sure they're valid
             my @valid_ints = LJ::validate_interest_list(\@interrors, @ints);
             if (@interrors > 0) {
-                return $print_with_ad->(LJ::bad_input( map { BML::ml(@$_) } @interrors ));
+                return LJ::bad_input( map { BML::ml(@$_) } @interrors );
             }
 
-            LJ::set_interests($u, \%interests, \@valid_ints);
+            $u->set_interests( \%interests, \@valid_ints );
         }
 
-        # actions if email changed
-        if ($email_changed) {
-            my $aa = {};
-            $aa = LJ::register_authaction($u->{'userid'},
-                                          "validateemail", $POST{'email'});
-
-            LJ::send_mail({
-                'to' => $POST{'email'},
-                'from' => $LJ::ADMIN_EMAIL,
-                'charset' => 'utf-8',
-                'subject' => $ML{'/editinfo.bml.newemail.subject'},
-                'body' => BML::ml('/editinfo.bml.newemail.body2',
-                                  { username => $u->{user},
-                                    sitename => $LJ::SITENAME,
-                                    sitelink => $LJ::SITEROOT,
-                                    conflink => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
-            });
-        }
+        LJ::Hooks::run_hooks('profile_save', $u);
+        LJ::Hooks::run_hook('set_profile_settings_extra', $u, \%POST);
 
         # tell the user all is well
         my $base = $u->journal_base;
         my $profile_url = $u->profile_url;
-        my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
-        return $ad_box . "<?h1 $ML{'.success.header'} h1?>\n" .
+        return "<?h1 $ML{'.success.header'} h1?>\n" .
                          "<?p $ML{'.success.text'} p?>" .
                          "<?p $ML{'.success.gonext'} p?>" .
                          "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
                          "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-                         "<li><a href='$LJ::SITEROOT/editpics.bml$getextra'>$ML{'.success.editpics'}</a></li></ul>" .
-                         LJ::Widget::GettingStarted->render;
+                         "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
     }
 
     # should never happen
-    return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.unknownmode'} p?>");
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'error.unknownmode'} p?>";
 
 }
 _code?>
 <=body
+bodyopts=><?_code return "id='page_manageprofile' class='self_wrap'" _code?>
 <?_comment head=><?_code return $headextra; _code?> _comment?>
 page?>

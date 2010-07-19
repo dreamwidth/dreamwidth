@@ -1,0 +1,44 @@
+;; -*- coding: utf-8 -*-
+
+.cart.date=<strong>Order Date:</strong> [[date]]
+
+.cart.status=<strong>Current Order Status:</strong> [[status]]
+
+.cart.status.1|note=This status should never be possible on the receipt page!
+.cart.status.1=Open
+
+.cart.status.2|note=This status should never be possible on the receipt page!
+.cart.status.2=Checked out
+
+.cart.status.3=Waiting for payment
+
+.cart.status.4=Payment received
+
+.cart.status.5=Processed and completed
+
+.cart.status.6=Refund approved and pending
+
+.cart.status.7=Refunded
+
+.cart.status.8|note=This status should never be possible on the receipt page!
+.cart.status.8=Closed before completion
+
+.cart.status.9=Charge declined
+
+.cart.paymentmethod=<strong>Payment Method:</strong> [[paymentmethod]]
+
+.cart.paymentmethod.checkmoneyorder=Check/Money Order
+
+.cart.paymentmethod.checkmoneyorder.extra=Please make your check or money order out to: [[sitecompany]]</p><p>Mail it to: [[address]]
+
+.cart.paymentmethod.creditcard=Credit Card
+
+.cart.paymentmethod.creditcardpp=Credit Card
+
+.cart.paymentmethod.gco=Google Checkout Account
+
+.cart.paymentmethod.paypal=PayPal Account
+
+.error.invalidordernum=Your order number is invalid.
+
+.title=Order #[[num]]

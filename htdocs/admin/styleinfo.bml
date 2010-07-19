@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=>Style Info
 body<=
@@ -7,13 +21,18 @@ body<=
     use vars qw(%POST %GET);
 
     my $remote = LJ::get_remote();
-    BML::redirect("$LJ::SITEROOT/customize/")
+
+    return "<?needlogin?>" unless $remote;
+
+    my @displayprivs = ( "any support privilege" );
+    my $numprivs = @displayprivs;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::Support::has_any_support_priv($remote) || $LJ::IS_DEV_SERVER;
 
     my $ret;
     $ret .= "<form method='POST'>";
     $ret .= "View user: ";
-    $ret .= LJ::html_text({name => 'user', maxlength => '15', size => '15', value => $GET{user} || $POST{user}});
+    $ret .= LJ::html_text({name => 'user', maxlength => '25', size => '25', value => $GET{user} || $POST{user}});
     $ret .= LJ::html_submit(value => "View");
     $ret .= "</form>";
     $ret .= "<?hr?>";
@@ -53,7 +72,7 @@ body<=
         foreach my $lay (sort { $a cmp $b } keys %{$s2style->{'layer'}}) {
             my $lid = $s2style->{'layer'}->{$lay};
             if ($lid) {
-                $ret .= "<li>$lay: <a href='$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$lid'>";
+                $ret .= "<li>$lay: <a href='$LJ::SITEROOT/customize/advanced/layerbrowse?id=$lid'>";
                 $ret .= (defined $pub->{$lid} ? 'public' : 'custom') . "</a> (#$lid)</li>";
             } else {
                 $ret .= "<li>$lay: none</li>";
@@ -62,27 +81,7 @@ body<=
 
     } else {
         $ret .= "<?h2 S1 h2?>";
-
-        $ret .= "<ul>";
-        foreach my $view (@LJ::views) {
-            my $styid = $u->prop("s1_${view}_style");
-            my $uri = $u->journal_base;
-
-            if ($view eq "friends" || $view eq "calendar") {
-                $uri .= "/$view";
-            } elsif ($view eq "day") {
-                my ($dday, $dmon, $dyear) = (localtime(time))[3,4,5];
-                $uri .= sprintf("/%04d/%02d/%02d", $dyear+1900, $dmon+1, $dday);
-            }
-            $ret .= "<li><a href='$uri'>$view</a>: <a href='$LJ::SITEROOT/styles/browse/styleinfo.bml?styleid=$styid'>$styid</a></li>";
-        }
-        $ret .= "</ul>";
-
-        if ($u->{'useoverrides'} eq 'Y') {
-            $ret .= "<?p (<a href='/support/see_overrides.bml?user=" . $u->user . "'>view overrides</a>) p?>";
-        } else {
-            $ret .= "<?p This user does not have any overrides. p?>";
-        }
+        $ret .= "<?p S1 died... did you get the memo? p?>";
 
     }
 

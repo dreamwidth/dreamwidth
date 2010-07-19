@@ -1,20 +1,24 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
- * For further information visit:
- * 		http://www.fckeditor.net/
- * 
- * "Support Open Source software. What about a donation today?"
- * 
- * File Name: mn.js
- * 	Mongolian language file.
- * 
- * File Authors:
- * 		Lkamtseren ODONBAATAR (odonbaatarl@yahoo.com)
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * Mongolian language file.
  */
 
 var FCKLang =
@@ -40,11 +44,13 @@ RemoveFormat		: "Формат авч хаях",
 InsertLinkLbl		: "Линк",
 InsertLink			: "Линк Оруулах/Засварлах",
 RemoveLink			: "Линк авч хаях",
-Anchor				: "Insert/Edit Anchor",	//MISSING
+VisitLink			: "Open Link",	//MISSING
+Anchor				: "Холбоос Оруулах/Засварлах",
+AnchorDelete		: "Холбоос Авах",
 InsertImageLbl		: "Зураг",
 InsertImage			: "Зураг Оруулах/Засварлах",
-InsertFlashLbl		: "Flash",	//MISSING
-InsertFlash			: "Insert/Edit Flash",	//MISSING
+InsertFlashLbl		: "Флаш",
+InsertFlash			: "Флаш Оруулах/Засварлах",
 InsertTableLbl		: "Хүснэгт",
 InsertTable			: "Хүснэгт Оруулах/Засварлах",
 InsertLineLbl		: "Зураас",
@@ -66,6 +72,10 @@ RightJustify		: "Баруун талд байрлуулах",
 BlockJustify		: "Блок хэлбэрээр байрлуулах",
 DecreaseIndent		: "Догол мөр нэмэх",
 IncreaseIndent		: "Догол мөр хасах",
+Blockquote			: "Хайрцаглах",
+CreateDiv			: "Create Div Container",	//MISSING
+EditDiv				: "Edit Div Container",	//MISSING
+DeleteDiv			: "Remove Div Container",	//MISSING
 Undo				: "Хүчингүй болгох",
 Redo				: "Өмнөх үйлдлээ сэргээх",
 NumberedListLbl		: "Дугаарлагдсан жагсаалт",
@@ -83,47 +93,59 @@ BGColor				: "Фонны өнгө",
 Source				: "Код",
 Find				: "Хайх",
 Replace				: "Солих",
-SpellCheck			: "Check Spell",	//MISSING
-UniversalKeyboard	: "Universal Keyboard",	//MISSING
-PageBreakLbl		: "Page Break",	//MISSING
-PageBreak			: "Insert Page Break",	//MISSING
+SpellCheck			: "Үгийн дүрэх шалгах",
+UniversalKeyboard	: "Униварсал гар",
+PageBreakLbl		: "Хуудас тусгаарлах",
+PageBreak			: "Хуудас тусгаарлагч оруулах",
 
-Form			: "Form",	//MISSING
-Checkbox		: "Checkbox",	//MISSING
-RadioButton		: "Radio Button",	//MISSING
-TextField		: "Text Field",	//MISSING
-Textarea		: "Textarea",	//MISSING
-HiddenField		: "Hidden Field",	//MISSING
-Button			: "Button",	//MISSING
-SelectionField	: "Selection Field",	//MISSING
-ImageButton		: "Image Button",	//MISSING
+Form			: "Форм",
+Checkbox		: "Чекбокс",
+RadioButton		: "Радио товч",
+TextField		: "Техт талбар",
+Textarea		: "Техт орчин",
+HiddenField		: "Нууц талбар",
+Button			: "Товч",
+SelectionField	: "Сонгогч талбар",
+ImageButton		: "Зурагтай товч",
+
+FitWindow		: "editor-н хэмжээг томруулах",
+ShowBlocks		: "Block-уудыг үзүүлэх",
 
 // Context Menu
 EditLink			: "Холбоос засварлах",
-InsertRow			: "Мөр оруулах",
+CellCM				: "Нүх/зай",
+RowCM				: "Мөр",
+ColumnCM			: "Багана",
+InsertRowAfter		: "Мөр дараа нь оруулах",
+InsertRowBefore		: "Мөр өмнө нь оруулах",
 DeleteRows			: "Мөр устгах",
-InsertColumn		: "Багана оруулах",
+InsertColumnAfter	: "Багана дараа нь оруулах",
+InsertColumnBefore	: "Багана өмнө нь оруулах",
 DeleteColumns		: "Багана устгах",
-InsertCell			: "Нүх оруулах",
+InsertCellAfter		: "Нүх/зай дараа нь оруулах",
+InsertCellBefore	: "Нүх/зай өмнө нь оруулах",
 DeleteCells			: "Нүх устгах",
 MergeCells			: "Нүх нэгтэх",
-SplitCell			: "Нүх тусгайрлах",
-TableDelete			: "Delete Table",	//MISSING
-CellProperties		: "Хоосон зайн шинж чанар",
+MergeRight			: "Баруун тийш нэгтгэх",
+MergeDown			: "Доош нэгтгэх",
+HorizontalSplitCell	: "Нүх/зайг босоогоор нь тусгаарлах",
+VerticalSplitCell	: "Нүх/зайг хөндлөнгөөр нь тусгаарлах",
+TableDelete			: "Хүснэгт устгах",
+CellProperties		: "Нүх/зай зайн шинж чанар",
 TableProperties		: "Хүснэгт",
 ImageProperties		: "Зураг",
-FlashProperties		: "Flash Properties",	//MISSING
+FlashProperties		: "Флаш шинж чанар",
 
-AnchorProp			: "Anchor Properties",	//MISSING
-ButtonProp			: "Button Properties",	//MISSING
-CheckboxProp		: "Checkbox Properties",	//MISSING
-HiddenFieldProp		: "Hidden Field Properties",	//MISSING
-RadioButtonProp		: "Radio Button Properties",	//MISSING
-ImageButtonProp		: "Image Button Properties",	//MISSING
-TextFieldProp		: "Text Field Properties",	//MISSING
-SelectionFieldProp	: "Selection Field Properties",	//MISSING
-TextareaProp		: "Textarea Properties",	//MISSING
-FormProp			: "Form Properties",	//MISSING
+AnchorProp			: "Холбоос шинж чанар",
+ButtonProp			: "Товчны шинж чанар",
+CheckboxProp		: "Чекбоксны шинж чанар",
+HiddenFieldProp		: "Нууц талбарын шинж чанар",
+RadioButtonProp		: "Радио товчны шинж чанар",
+ImageButtonProp		: "Зурган товчны шинж чанар",
+TextFieldProp		: "Текст талбарын шинж чанар",
+SelectionFieldProp	: "Согогч талбарын шинж чанар",
+TextareaProp		: "Текст орчны шинж чанар",
+FormProp			: "Форм шинж чанар",
 
 FontFormats			: "Хэвийн;Formatted;Хаяг;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Paragraph (DIV)",
 
@@ -136,22 +158,23 @@ UnknownToolbarItem	: "Багажны хэсгийн \"%1\" item мэдэгдэх
 UnknownCommand		: "\"%1\" комманд нэр мэдагдэхгүй байна",
 NotImplemented		: "Зөвшөөрөгдөхгүй комманд",
 UnknownToolbarSet	: "Багажны хэсэгт \"%1\" оноох, үүсээгүй байна",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
-BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
-DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+NoActiveX			: "Таны үзүүлэгч/browser-н хамгаалалтын тохиргоо editor-н зарим боломжийг хязгаарлаж байна. Та \"Run ActiveX controls ба plug-ins\" сонголыг идвэхитэй болго.",
+BrowseServerBlocked : "Нөөц үзүүгч нээж чадсангүй. Бүх popup blocker-г disabled болгоно уу.",
+DialogBlocked		: "Харилцах цонхонд энийг нээхэд боломжгүй ээ. Бүх popup blocker-г disabled болгоно уу.",
+VisitLinkBlocked	: "It was not possible to open a new window. Make sure all popup blockers are disabled.",	//MISSING
 
 // Dialogs
 DlgBtnOK			: "OK",
 DlgBtnCancel		: "Болих",
 DlgBtnClose			: "Хаах",
-DlgBtnBrowseServer	: "Browse Server",	//MISSING
+DlgBtnBrowseServer	: "Сервер харуулах",
 DlgAdvancedTag		: "Нэмэлт",
-DlgOpOther			: "&lt;Other&gt;",	//MISSING
-DlgInfoTab			: "Info",	//MISSING
-DlgAlertUrl			: "Please insert the URL",	//MISSING
+DlgOpOther			: "<Бусад>",
+DlgInfoTab			: "Мэдээлэл",
+DlgAlertUrl			: "URL оруулна уу",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;Оноохгүй&gt;",
+DlgGenNotSet		: "<Оноохгүй>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Хэлний чиглэл",
 DlgGenLangDirLtr	: "Зүүнээс баруун (LTR)",
@@ -176,7 +199,7 @@ DlgImgUpload		: "Хуулах",
 DlgImgAlt			: "Тайлбар текст",
 DlgImgWidth			: "Өргөн",
 DlgImgHeight		: "Өндөр",
-DlgImgLockRatio		: "Lock Ratio",
+DlgImgLockRatio		: "Радио түгжих",
 DlgBtnResetSize		: "хэмжээ дахин оноох",
 DlgImgBorder		: "Хүрээ",
 DlgImgHSpace		: "Хөндлөн зай",
@@ -193,17 +216,17 @@ DlgImgAlignTextTop	: "Текст дээр",
 DlgImgAlignTop		: "Дээд талд",
 DlgImgPreview		: "Уридчлан харах",
 DlgImgAlertUrl		: "Зурагны URL-ын төрлийн сонгоно уу",
-DlgImgLinkTab		: "Link",	//MISSING
+DlgImgLinkTab		: "Линк",
 
 // Flash Dialog
-DlgFlashTitle		: "Flash Properties",	//MISSING
-DlgFlashChkPlay		: "Auto Play",	//MISSING
-DlgFlashChkLoop		: "Loop",	//MISSING
-DlgFlashChkMenu		: "Enable Flash Menu",	//MISSING
-DlgFlashScale		: "Scale",	//MISSING
-DlgFlashScaleAll	: "Show all",	//MISSING
-DlgFlashScaleNoBorder	: "No Border",	//MISSING
-DlgFlashScaleFit	: "Exact Fit",	//MISSING
+DlgFlashTitle		: "Флаш  шинж чанар",
+DlgFlashChkPlay		: "Автоматаар тоглох",
+DlgFlashChkLoop		: "Давтах",
+DlgFlashChkMenu		: "Флаш цэс идвэхжүүлэх",
+DlgFlashScale		: "Өргөгтгөх",
+DlgFlashScaleAll	: "Бүгдийг харуулах",
+DlgFlashScaleNoBorder	: "Хүрээгүй",
+DlgFlashScaleFit	: "Яг тааруулах",
 
 // Link Dialog
 DlgLnkWindowTitle	: "Линк",
@@ -215,26 +238,26 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Энэ хуудасандах холбоос",
 DlgLnkTypeEMail		: "E-Mail",
 DlgLnkProto			: "Протокол",
-DlgLnkProtoOther	: "&lt;бусад&gt;",
+DlgLnkProtoOther	: "<бусад>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Холбоос сонгох",
 DlgLnkAnchorByName	: "Холбоосын нэрээр",
 DlgLnkAnchorById	: "Элемэнт Id-гаар",
-DlgLnkNoAnchors		: "&lt;Баримт бичиг холбоосгүй байна&gt;",
+DlgLnkNoAnchors		: "(Баримт бичиг холбоосгүй байна)",
 DlgLnkEMail			: "E-Mail Хаяг",
-DlgLnkEMailSubject	: "Message Subject",
+DlgLnkEMailSubject	: "Message гарчиг",
 DlgLnkEMailBody		: "Message-ийн агуулга",
 DlgLnkUpload		: "Хуулах",
 DlgLnkBtnUpload		: "Үүнийг серверрүү илгээ",
 
 DlgLnkTarget		: "Байрлал",
-DlgLnkTargetFrame	: "&lt;Агуулах хүрээ&gt;",
-DlgLnkTargetPopup	: "&lt;popup цонх&gt;",
+DlgLnkTargetFrame	: "<Агуулах хүрээ>",
+DlgLnkTargetPopup	: "<popup цонх>",
 DlgLnkTargetBlank	: "Шинэ цонх (_blank)",
 DlgLnkTargetParent	: "Эцэг цонх (_parent)",
 DlgLnkTargetSelf	: "Төстэй цонх (_self)",
 DlgLnkTargetTop		: "Хамгийн түрүүн байх цонх (_top)",
-DlgLnkTargetFrameName	: "Target Frame Name",	//MISSING
+DlgLnkTargetFrameName	: "Очих фремын нэр",
 DlgLnkPopWinName	: "Popup цонхны нэр",
 DlgLnkPopWinFeat	: "Popup цонхны онцлог",
 DlgLnkPopResize		: "Хэмжээ өөрчлөх",
@@ -253,6 +276,7 @@ DlgLnkPopTop		: "Дээд байрлал",
 DlnLnkMsgNoUrl		: "Линк URL-ээ төрөлжүүлнэ үү",
 DlnLnkMsgNoEMail	: "Е-mail хаягаа төрөлжүүлнэ үү",
 DlnLnkMsgNoAnchor	: "Холбоосоо сонгоно уу",
+DlnLnkMsgInvPopName	: "popup нэр нь үсгэн тэмдэгтээр эхэлсэн байх ба хоосон зай агуулаагүй байх ёстой.",
 
 // Color Dialog
 DlgColorTitle		: "Өнгө сонгох",
@@ -272,7 +296,7 @@ DlgTableRows		: "Мөр",
 DlgTableColumns		: "Багана",
 DlgTableBorder		: "Хүрээний хэмжээ",
 DlgTableAlign		: "Эгнээ",
-DlgTableAlignNotSet	: "&lt;Оноохгүй&gt;",
+DlgTableAlignNotSet	: "<Оноохгүй>",
 DlgTableAlignLeft	: "Зүүн талд",
 DlgTableAlignCenter	: "Төвд",
 DlgTableAlignRight	: "Баруун талд",
@@ -280,10 +304,10 @@ DlgTableWidth		: "Өргөн",
 DlgTableWidthPx		: "цэг",
 DlgTableWidthPc		: "хувь",
 DlgTableHeight		: "Өндөр",
-DlgTableCellSpace	: "Нүх хоорондын зай",
-DlgTableCellPad		: "Нүх доторлох",
+DlgTableCellSpace	: "Нүх хоорондын зай (spacing)",
+DlgTableCellPad		: "Нүх доторлох(padding)",
 DlgTableCaption		: "Тайлбар",
-DlgTableSummary		: "Summary",	//MISSING
+DlgTableSummary		: "Тайлбар",
 
 // Table Cell Dialog
 DlgCellTitle		: "Хоосон зайн шинж чанар",
@@ -292,25 +316,28 @@ DlgCellWidthPx		: "цэг",
 DlgCellWidthPc		: "хувь",
 DlgCellHeight		: "Өндөр",
 DlgCellWordWrap		: "Үг таслах",
-DlgCellWordWrapNotSet	: "&lt;Оноохгүй&gt;",
+DlgCellWordWrapNotSet	: "<Оноохгүй>",
 DlgCellWordWrapYes	: "Тийм",
 DlgCellWordWrapNo	: "Үгүй",
 DlgCellHorAlign		: "Босоо эгнээ",
-DlgCellHorAlignNotSet	: "&lt;Оноохгүй&gt;",
+DlgCellHorAlignNotSet	: "<Оноохгүй>",
 DlgCellHorAlignLeft	: "Зүүн",
 DlgCellHorAlignCenter	: "Төв",
 DlgCellHorAlignRight: "Баруун",
 DlgCellVerAlign		: "Хөндлөн эгнээ",
-DlgCellVerAlignNotSet	: "&lt;Оноохгүй&gt;",
+DlgCellVerAlignNotSet	: "<Оноохгүй>",
 DlgCellVerAlignTop	: "Дээд тал",
 DlgCellVerAlignMiddle	: "Дунд",
 DlgCellVerAlignBottom	: "Доод тал",
 DlgCellVerAlignBaseline	: "Baseline",
-DlgCellRowSpan		: "Нийт мөр",
-DlgCellCollSpan		: "Нийт багана",
+DlgCellRowSpan		: "Нийт мөр (span)",
+DlgCellCollSpan		: "Нийт багана (span)",
 DlgCellBackColor	: "Фонны өнгө",
 DlgCellBorderColor	: "Хүрээний өнгө",
 DlgCellBtnSelect	: "Сонго...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Хай мөн Дарж бич",
 
 // Find Dialog
 DlgFindTitle		: "Хайх",
@@ -327,155 +354,173 @@ DlgReplaceReplAllBtn	: "Бүгдийг нь Солих",
 DlgReplaceWordChk		: "Тэнцэх бүтэн үг",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "Таны browser-ын хамгаалалтын тохиргоо editor-д автоматаар буулгах үйлдэлийг зөвшөөрөхгүй байна. (Ctrl+V) товчны хослолыг ашиглана уу.",
 PasteErrorCut	: "Таны browser-ын хамгаалалтын тохиргоо editor-д автоматаар хайчлах үйлдэлийг зөвшөөрөхгүй байна. (Ctrl+X) товчны хослолыг ашиглана уу.",
 PasteErrorCopy	: "Таны browser-ын хамгаалалтын тохиргоо editor-д автоматаар хуулах үйлдэлийг зөвшөөрөхгүй байна. (Ctrl+C) товчны хослолыг ашиглана уу.",
 
 PasteAsText		: "Plain Text-ээс буулгах",
 PasteFromWord	: "Word-оос буулгах",
 
-DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<STRONG>Ctrl+V</STRONG>) and hit <STRONG>OK</STRONG>.",	//MISSING
-DlgPasteIgnoreFont		: "Ignore Font Face definitions",	//MISSING
-DlgPasteRemoveStyles	: "Remove Styles definitions",	//MISSING
-DlgPasteCleanBox		: "Clean Up Box",	//MISSING
-
+DlgPasteMsg2	: "(<strong>Ctrl+V</strong>) товчийг ашиглан paste хийнэ үү. Мөн <strong>OK</strong> дар.",
+DlgPasteSec		: "Таны үзүүлэгч/browser/-н хамгаалалтын тохиргооноос болоод editor clipboard өгөгдөлрүү шууд хандах боломжгүй. Энэ цонход дахин paste хийхийг оролд.",
+DlgPasteIgnoreFont		: "Тодорхойлогдсон Font Face зөвшөөрнө",
+DlgPasteRemoveStyles	: "Тодорхойлогдсон загварыг авах",
 
 // Color Picker
 ColorAutomatic	: "Автоматаар",
 ColorMoreColors	: "Нэмэлт өнгөнүүд...",
 
 // Document Properties
-DocProps		: "Document Properties",	//MISSING
+DocProps		: "Баримт бичиг шинж чанар",
 
 // Anchor Dialog
-DlgAnchorTitle		: "Anchor Properties",	//MISSING
-DlgAnchorName		: "Anchor Name",	//MISSING
-DlgAnchorErrorName	: "Please type the anchor name",	//MISSING
+DlgAnchorTitle		: "Холбоос шинж чанар",
+DlgAnchorName		: "Холбоос нэр",
+DlgAnchorErrorName	: "Холбоос төрөл оруулна уу",
 
 // Speller Pages Dialog
-DlgSpellNotInDic		: "Not in dictionary",	//MISSING
-DlgSpellChangeTo		: "Change to",	//MISSING
-DlgSpellBtnIgnore		: "Ignore",	//MISSING
-DlgSpellBtnIgnoreAll	: "Ignore All",	//MISSING
-DlgSpellBtnReplace		: "Replace",	//MISSING
-DlgSpellBtnReplaceAll	: "Replace All",	//MISSING
-DlgSpellBtnUndo			: "Undo",	//MISSING
-DlgSpellNoSuggestions	: "- No suggestions -",	//MISSING
-DlgSpellProgress		: "Spell check in progress...",	//MISSING
-DlgSpellNoMispell		: "Spell check complete: No misspellings found",	//MISSING
-DlgSpellNoChanges		: "Spell check complete: No words changed",	//MISSING
-DlgSpellOneChange		: "Spell check complete: One word changed",	//MISSING
-DlgSpellManyChanges		: "Spell check complete: %1 words changed",	//MISSING
+DlgSpellNotInDic		: "Толь бичиггүй",
+DlgSpellChangeTo		: "Өөрчлөх",
+DlgSpellBtnIgnore		: "Зөвшөөрөх",
+DlgSpellBtnIgnoreAll	: "Бүгдийг зөвшөөрөх",
+DlgSpellBtnReplace		: "Дарж бичих",
+DlgSpellBtnReplaceAll	: "Бүгдийг Дарж бичих",
+DlgSpellBtnUndo			: "Буцаах",
+DlgSpellNoSuggestions	: "- Тайлбаргүй -",
+DlgSpellProgress		: "Дүрэм шалгаж байгаа үйл явц...",
+DlgSpellNoMispell		: "Дүрэм шалгаад дууссан: Алдаа олдсонгүй",
+DlgSpellNoChanges		: "Дүрэм шалгаад дууссан: үг өөрчлөгдөөгүй",
+DlgSpellOneChange		: "Дүрэм шалгаад дууссан: 1 үг өөрчлөгдсөн",
+DlgSpellManyChanges		: "Дүрэм шалгаад дууссан: %1 үг өөрчлөгдсөн",
 
-IeSpellDownload			: "Spell checker not installed. Do you want to download it now?",	//MISSING
+IeSpellDownload			: "Дүрэм шалгагч суугаагүй байна. Татаж авахыг хүсч байна уу?",
 
 // Button Dialog
-DlgButtonText	: "Text (Value)",	//MISSING
-DlgButtonType	: "Type",	//MISSING
+DlgButtonText		: "Тэкст (Утга)",
+DlgButtonType		: "Төрөл",
+DlgButtonTypeBtn	: "Товч",
+DlgButtonTypeSbm	: "Submit",
+DlgButtonTypeRst	: "Болих",
 
 // Checkbox and Radio Button Dialogs
-DlgCheckboxName		: "Name",	//MISSING
-DlgCheckboxValue	: "Value",	//MISSING
-DlgCheckboxSelected	: "Selected",	//MISSING
+DlgCheckboxName		: "Нэр",
+DlgCheckboxValue	: "Утга",
+DlgCheckboxSelected	: "Сонгогдсон",
 
 // Form Dialog
-DlgFormName		: "Name",	//MISSING
-DlgFormAction	: "Action",	//MISSING
-DlgFormMethod	: "Method",	//MISSING
+DlgFormName		: "Нэр",
+DlgFormAction	: "Үйлдэл",
+DlgFormMethod	: "Арга",
 
 // Select Field Dialog
-DlgSelectName		: "Name",	//MISSING
-DlgSelectValue		: "Value",	//MISSING
-DlgSelectSize		: "Size",	//MISSING
-DlgSelectLines		: "lines",	//MISSING
-DlgSelectChkMulti	: "Allow multiple selections",	//MISSING
-DlgSelectOpAvail	: "Available Options",	//MISSING
-DlgSelectOpText		: "Text",	//MISSING
-DlgSelectOpValue	: "Value",	//MISSING
-DlgSelectBtnAdd		: "Add",	//MISSING
-DlgSelectBtnModify	: "Modify",	//MISSING
-DlgSelectBtnUp		: "Up",	//MISSING
-DlgSelectBtnDown	: "Down",	//MISSING
-DlgSelectBtnSetValue : "Set as selected value",	//MISSING
-DlgSelectBtnDelete	: "Delete",	//MISSING
+DlgSelectName		: "Нэр",
+DlgSelectValue		: "Утга",
+DlgSelectSize		: "Хэмжээ",
+DlgSelectLines		: "Мөр",
+DlgSelectChkMulti	: "Олон сонголт зөвшөөрөх",
+DlgSelectOpAvail	: "Идвэхтэй сонголт",
+DlgSelectOpText		: "Тэкст",
+DlgSelectOpValue	: "Утга",
+DlgSelectBtnAdd		: "Нэмэх",
+DlgSelectBtnModify	: "Өөрчлөх",
+DlgSelectBtnUp		: "Дээш",
+DlgSelectBtnDown	: "Доош",
+DlgSelectBtnSetValue : "Сонгогдсан утга оноох",
+DlgSelectBtnDelete	: "Устгах",
 
 // Textarea Dialog
-DlgTextareaName	: "Name",	//MISSING
-DlgTextareaCols	: "Columns",	//MISSING
-DlgTextareaRows	: "Rows",	//MISSING
+DlgTextareaName	: "Нэр",
+DlgTextareaCols	: "Багана",
+DlgTextareaRows	: "Мөр",
 
 // Text Field Dialog
-DlgTextName			: "Name",	//MISSING
-DlgTextValue		: "Value",	//MISSING
-DlgTextCharWidth	: "Character Width",	//MISSING
-DlgTextMaxChars		: "Maximum Characters",	//MISSING
-DlgTextType			: "Type",	//MISSING
-DlgTextTypeText		: "Text",	//MISSING
-DlgTextTypePass		: "Password",	//MISSING
+DlgTextName			: "Нэр",
+DlgTextValue		: "Утга",
+DlgTextCharWidth	: "Тэмдэгтын өргөн",
+DlgTextMaxChars		: "Хамгийн их тэмдэгт",
+DlgTextType			: "Төрөл",
+DlgTextTypeText		: "Текст",
+DlgTextTypePass		: "Нууц үг",
 
 // Hidden Field Dialog
-DlgHiddenName	: "Name",	//MISSING
-DlgHiddenValue	: "Value",	//MISSING
+DlgHiddenName	: "Нэр",
+DlgHiddenValue	: "Утга",
 
 // Bulleted List Dialog
-BulletedListProp	: "Bulleted List Properties",	//MISSING
-NumberedListProp	: "Numbered List Properties",	//MISSING
-DlgLstType			: "Type",	//MISSING
-DlgLstTypeCircle	: "Circle",	//MISSING
-DlgLstTypeDisc		: "Disc",	//MISSING
-DlgLstTypeSquare	: "Square",	//MISSING
-DlgLstTypeNumbers	: "Numbers (1, 2, 3)",	//MISSING
-DlgLstTypeLCase		: "Lowercase Letters (a, b, c)",	//MISSING
-DlgLstTypeUCase		: "Uppercase Letters (A, B, C)",	//MISSING
-DlgLstTypeSRoman	: "Small Roman Numerals (i, ii, iii)",	//MISSING
-DlgLstTypeLRoman	: "Large Roman Numerals (I, II, III)",	//MISSING
+BulletedListProp	: "Bulleted жагсаалын шинж чанар",
+NumberedListProp	: "Дугаарласан жагсаалын шинж чанар",
+DlgLstStart			: "Эхлэх",
+DlgLstType			: "Төрөл",
+DlgLstTypeCircle	: "Тойрог",
+DlgLstTypeDisc		: "Тайлбар",
+DlgLstTypeSquare	: "Square",
+DlgLstTypeNumbers	: "Тоо (1, 2, 3)",
+DlgLstTypeLCase		: "Жижиг үсэг (a, b, c)",
+DlgLstTypeUCase		: "Том үсэг (A, B, C)",
+DlgLstTypeSRoman	: "Жижиг Ром тоо (i, ii, iii)",
+DlgLstTypeLRoman	: "Том Ром тоо (I, II, III)",
 
 // Document Properties Dialog
-DlgDocGeneralTab	: "General",	//MISSING
-DlgDocBackTab		: "Background",	//MISSING
-DlgDocColorsTab		: "Colors and Margins",	//MISSING
-DlgDocMetaTab		: "Meta Data",	//MISSING
+DlgDocGeneralTab	: "Ерөнхий",
+DlgDocBackTab		: "Фоно",
+DlgDocColorsTab		: "Захын зай ба Өнгө",
+DlgDocMetaTab		: "Meta өгөгдөл",
 
-DlgDocPageTitle		: "Page Title",	//MISSING
-DlgDocLangDir		: "Language Direction",	//MISSING
-DlgDocLangDirLTR	: "Left to Right (LTR)",	//MISSING
-DlgDocLangDirRTL	: "Right to Left (RTL)",	//MISSING
-DlgDocLangCode		: "Language Code",	//MISSING
-DlgDocCharSet		: "Character Set Encoding",	//MISSING
-DlgDocCharSetOther	: "Other Character Set Encoding",	//MISSING
+DlgDocPageTitle		: "Хуудасны гарчиг",
+DlgDocLangDir		: "Хэлний чиглэл",
+DlgDocLangDirLTR	: "Зүүнээс баруунруу (LTR)",
+DlgDocLangDirRTL	: "Баруунаас зүүнрүү (RTL)",
+DlgDocLangCode		: "Хэлний код",
+DlgDocCharSet		: "Encoding тэмдэгт",
+DlgDocCharSetCE		: "Төв европ",
+DlgDocCharSetCT		: "Хятадын уламжлалт (Big5)",
+DlgDocCharSetCR		: "Крил",
+DlgDocCharSetGR		: "Гред",
+DlgDocCharSetJP		: "Япон",
+DlgDocCharSetKR		: "Солонгос",
+DlgDocCharSetTR		: "Tурк",
+DlgDocCharSetUN		: "Юникод (UTF-8)",
+DlgDocCharSetWE		: "Баруун европ",
+DlgDocCharSetOther	: "Encoding-д өөр тэмдэгт оноох",
 
-DlgDocDocType		: "Document Type Heading",	//MISSING
-DlgDocDocTypeOther	: "Other Document Type Heading",	//MISSING
-DlgDocIncXHTML		: "Include XHTML Declarations",	//MISSING
-DlgDocBgColor		: "Background Color",	//MISSING
-DlgDocBgImage		: "Background Image URL",	//MISSING
-DlgDocBgNoScroll	: "Nonscrolling Background",	//MISSING
-DlgDocCText			: "Text",	//MISSING
-DlgDocCLink			: "Link",	//MISSING
-DlgDocCVisited		: "Visited Link",	//MISSING
-DlgDocCActive		: "Active Link",	//MISSING
-DlgDocMargins		: "Page Margins",	//MISSING
-DlgDocMaTop			: "Top",	//MISSING
-DlgDocMaLeft		: "Left",	//MISSING
-DlgDocMaRight		: "Right",	//MISSING
-DlgDocMaBottom		: "Bottom",	//MISSING
-DlgDocMeIndex		: "Document Indexing Keywords (comma separated)",	//MISSING
-DlgDocMeDescr		: "Document Description",	//MISSING
-DlgDocMeAuthor		: "Author",	//MISSING
-DlgDocMeCopy		: "Copyright",	//MISSING
-DlgDocPreview		: "Preview",	//MISSING
+DlgDocDocType		: "Баримт бичгийн төрөл Heading",
+DlgDocDocTypeOther	: "Бусад баримт бичгийн төрөл Heading",
+DlgDocIncXHTML		: "XHTML агуулж зарлах",
+DlgDocBgColor		: "Фоно өнгө",
+DlgDocBgImage		: "Фоно зурагны URL",
+DlgDocBgNoScroll	: "Гүйдэггүй фоно",
+DlgDocCText			: "Текст",
+DlgDocCLink			: "Линк",
+DlgDocCVisited		: "Зочилсон линк",
+DlgDocCActive		: "Идвэхитэй линк",
+DlgDocMargins		: "Хуудасны захын зай",
+DlgDocMaTop			: "Дээд тал",
+DlgDocMaLeft		: "Зүүн тал",
+DlgDocMaRight		: "Баруун тал",
+DlgDocMaBottom		: "Доод тал",
+DlgDocMeIndex		: "Баримт бичгийн индекс түлхүүр үг (таслалаар тусгаарлагдана)",
+DlgDocMeDescr		: "Баримт бичгийн тайлбар",
+DlgDocMeAuthor		: "Зохиогч",
+DlgDocMeCopy		: "Зохиогчийн эрх",
+DlgDocPreview		: "Харах",
 
 // Templates Dialog
-Templates			: "Templates",	//MISSING
-DlgTemplatesTitle	: "Content Templates",	//MISSING
-DlgTemplatesSelMsg	: "Please select the template to open in the editor<br>(the actual contents will be lost):",	//MISSING
-DlgTemplatesLoading	: "Loading templates list. Please wait...",	//MISSING
-DlgTemplatesNoTpl	: "(No templates defined)",	//MISSING
+Templates			: "Загварууд",
+DlgTemplatesTitle	: "Загварын агуулга",
+DlgTemplatesSelMsg	: "Загварыг нээж editor-рүү сонгож оруулна уу<br />(Одоогийн агууллагыг устаж магадгүй):",
+DlgTemplatesLoading	: "Загваруудыг ачааллаж байна. Түр хүлээнэ үү...",
+DlgTemplatesNoTpl	: "(Загвар тодорхойлогдоогүй байна)",
+DlgTemplatesReplace	: "Одоогийн агууллагыг дарж бичих",
 
 // About Dialog
-DlgAboutAboutTab	: "About",	//MISSING
-DlgAboutBrowserInfoTab	: "Browser Info",	//MISSING
+DlgAboutAboutTab	: "Тухай",
+DlgAboutBrowserInfoTab	: "Мэдээлэл үзүүлэгч",
+DlgAboutLicenseTab	: "Лиценз",
 DlgAboutVersion		: "Хувилбар",
-DlgAboutLicense		: "GNU цөөн ерөнхий нийтийн лицензийн ангилалд багтсан зөвшөөрөлтэй",
-DlgAboutInfo		: "Мэдээллээр туслах"
-}
+DlgAboutInfo		: "Мэдээллээр туслах",
+
+// Div Dialog
+DlgDivGeneralTab	: "General",	//MISSING
+DlgDivAdvancedTab	: "Advanced",	//MISSING
+DlgDivStyle		: "Style",	//MISSING
+DlgDivInlineStyle	: "Inline Style"	//MISSING
+};

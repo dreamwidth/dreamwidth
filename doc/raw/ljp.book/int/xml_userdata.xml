@@ -7,11 +7,13 @@
 <title>Data Formats</title>
 
 <para>&lj; provides user content in a variety of machine-readable formats.
-You may like to create a page for your site listing these.
-Using the <literal>$LJ::BLOCKED_BOT_URI</literal> <abbrev>config</abbrev> variable, you
-can direct automated bots, spiders, data-miners, etc., to that page &mdash; you
-could also include information there on the rate limits you decide to
-set for your site.</para>
+You should encourage users to use these resources instead of 
+<quote>screen-scraping</quote> user pages. You may
+like to create a page for your site listing these. Using the
+<literal>$LJ::BLOCKED_BOT_URI</literal> <abbrev>config</abbrev> variable,
+you can direct automated bots, spiders, data-miners, etc., to that page
+&mdash; you could also include information there on the rate limits you decide
+to set for your site.</para>
 
 <para>Note: The examples below use user subdomains.
 If you do not have the <link linkend="ljconfig.only_user_vhosts">$LJ::ONLY_USER_VHOSTS</link>
@@ -31,12 +33,21 @@ It is available with public entries only at:</para>
 <para>If you want security-restricted posts included and you have access to view them,
 you may request the auth-required version of the feed using &http; Digest auth, using:</para>
 <para><uri>http://exampleusername.&domain;/data/rss?auth=digest</uri></para>
+<para>Other optional feed &url; arguments (use <parameter>&amp;arg=value</parameter> if
+the &url; already contains a question mark):
+<itemizedlist mark="box">
+<listitem><para>Filter on entries with a specific tag: <parameter>?tag=tagname</parameter></para></listitem>
+<listitem><para>Filter on multiple tags: <parameter>?tag=tag1,tag2</parameter></para></listitem>
+<listitem><para>Filter on a single entry: <parameter>?itemid=xxxx</parameter></para></listitem>
+</itemizedlist></para>
 </listitem>
 </varlistentry>
 
 <varlistentry><term><ulink url="http://www.atomenabled.org/developers/syndication/atom-format-spec.php">Atom</ulink></term>
 <listitem>
-<para>A user&apos;s recent entries syndicated using the Atom &xml; format. Available at the &url; with or without auth:</para>
+<para>A user&apos;s recent entries syndicated using the Atom (1.0) &xml; format.
+The optional <acronym>RSS</acronym> feed arguments can also be used with
+Atom feeds. Available at the &url; with or without auth:</para>
 <para><uri>http://exampleusername.&domain;/data/atom</uri></para>
 <para><uri>http://exampleusername.&domain;/data/atom?auth=digest</uri></para>
 </listitem>
@@ -44,7 +55,7 @@ you may request the auth-required version of the feed using &http; Digest auth, 
 
 <varlistentry><term><acronym><ulink url="http://xmlns.com/foaf/0.1/">FOAF</ulink></acronym></term>
 <listitem>
-<para>A user&apos;s information page using the Friend of a Friend &xml; format. Available at the &url;:</para>
+<para>A user&apos;s profile page using the Friend of a Friend &xml; format. Available at the &url;:</para>
 <para><uri>http://exampleusername.&domain;/data/foaf</uri></para>
 </listitem>
 </varlistentry>
@@ -65,7 +76,15 @@ The remote user&apos;s profile information in the vCard format. Available at the
 </listitem>
 </varlistentry>
 
-<varlistentry><term>Userpic data</term>
+<varlistentry><term>Journal Comments</term>
+<listitem>
+<para>A user&apos;s recently received comments, in order of oldest
+first, using the <acronym>RSS</acronym> format. Available at the &url;:</para>
+<para><uri>http://exampleusername.&domain;/data/comments</uri></para>
+</listitem>
+</varlistentry>
+
+<varlistentry><term>Userpic Data</term>
 <listitem>
 <para>A user&apos;s userpic data in a machine-readable 
 (<ulink url="http://www.atomenabled.org/developers/syndication/atom-format-spec.php">Atom</ulink>) format.
@@ -113,8 +132,38 @@ If it would be violating rate-limits, the &lj; installation does not have to go 
 
 </variablelist>
 
-<para>You should encourage users to use these resources instead of 
-<quote>screen-scraping</quote> user pages.</para>
+<para><emphasis role="strong">Other Markup</emphasis></para>
+
+<variablelist>
+<varlistentry><term>Microformat Markup</term>
+<listitem>
+<para>User and community profile pages have
+<ulink url="http://microformats.org/wiki/hcard">hCard</ulink> microformat markup for
+username, name, userpic, location, birthday, and email.</para>
+<para>The friend lists on profile pages have
+<acronym><ulink url="http://gmpg.org/xfn/">XFN</ulink></acronym> (&xhtml;
+Friends Network) microformat markup describing friends, communities a member
+is a part of, and members of a community.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry><term>Indexing Content</term>
+<listitem>
+<para>Users can enable a <quote>Minimize your journal&apos;s inclusion in
+search engine results</quote> option on their account. In addition to
+<filename>robots.txt</filename> protocol instructions
+and <quote>noindex</quote> <sgmltag class="element">meta</sgmltag> tags
+on their &html; pages, this will add two similar directives to &xml; feeds,
+avoiding the need to fetch &html; just to find <quote>noindex</quote>.</para>
+<para>The journal&apos;s <acronym>RSS</acronym> feed of entries
+will contain the word NOINDEX within the <sgmltag>copyright</sgmltag> tag.
+Similarly, a user&apos;s Atom recent entries and userpic data feeds contain:</para>
+<para><synopsis><markup>&lt;feed xmlns="http://www.w3.org/2005/Atom" xmlns:idx="urn:atom-extension:indexing" idx:index="no"&gt;</markup></synopsis>
+</para>
+
+</listitem>
+</varlistentry>
+</variablelist>
 
 <para><emphasis role="strong">Other, &ljcom;-specific, Resources:</emphasis></para>
 
@@ -135,10 +184,36 @@ It is not designed to be be effective on users/communities with excessively larg
 </listitem>
 </varlistentry>
 
+<varlistentry><term><quote>Latest Entries</quote></term>
+<listitem>
+<para>A feed of the latest entries posted to the site, in <acronym>RSS</acronym> format.
+Available at the &uri;:</para>
+<para><uri>http://www.livejournal.com/stats/latest-rss.bml</uri></para>
+<para>A &html; rendered version is at <uri>http://www.livejournal.com/stats/latest.bml</uri></para>
+</listitem>
+</varlistentry>
+
+<varlistentry><term><quote>Latest Images</quote></term>
+<listitem>
+<para>The latest &lj; images (from public entries), in &xml; format. Available at the &uri;:</para>
+<para><uri>http://www.livejournal.com/stats/latest-img.bml</uri></para>
+</listitem>
+</varlistentry>
+
 <varlistentry><term><quote>Update Stream</quote></term>
 <listitem>
-<para>For a live stream of all &sixapart; (including &ljcomweb;) posts, see:</para>
-<para><uri>http://updates.sixapart.com/</uri></para>
+<para>A live Atom stream of all public &sixapart; (with &ljcomweb;) entries.</para>
+<para>Information: <uri>http://updates.sixapart.com/</uri>
+Endpoint: <uri>http://updates.sixapart.com/atom-stream.xml</uri></para>
+</listitem>
+</varlistentry>
+
+<varlistentry><term><quote>Relationship Update Stream</quote></term>
+<listitem>
+<para>A live XFN-derived Atom stream of all public &sixapart; (with
+&ljcomweb;) social relationship changes.</para>
+<para>Information: <uri>http://updates.elsewhere.im/</uri>
+Endpoint: <uri>http://updates.elsewhere.im/atom-stream.xml</uri></para>
 </listitem>
 </varlistentry>
 

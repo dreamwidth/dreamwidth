@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::InboxFolder;
 
 use strict;
@@ -44,6 +57,7 @@ sub render_body {
     my $nitems = $opts{items};
     my $page = $opts{page} || 1;
     my $view = $opts{view} || "all";
+    my $itemid = int( $opts{itemid} || 0 );
     my $remote = LJ::get_remote();
 
     my $unread_count = 1; #TODO get real number
@@ -60,6 +74,11 @@ sub render_body {
                     id    => "inbox_view",
                   });
 
+    $msgs_body .= LJ::html_hidden({
+                    name => "itemid",
+                    value => "$itemid",
+                    id => "inbox_itemid",
+                  });
     # pagination
     my $page_limit = 15;
     $page = 1 if $page < 1;
@@ -80,33 +99,46 @@ sub render_body {
         });
 
         return qq {
-             <tr class="header">
+             <tr class="header" id="ActionRow$sfx">
                     <td class="checkbox">$checkall</td>
                     <td class="actions" colspan="2">
                         <span class="Pages">
                             Page $page of $last_page
-                            <input type="button" id="Page_Prev_$sfx" value="Previous" $prev_disabled />
-                            <input type="button" id="Page_Next_$sfx" value="Next" $next_disabled />
+                            <input type="button" id="Page_Prev_$sfx" value="<?_ml widget.inbox.menu.previous_page.btn _ml?>" $prev_disabled />
+                            <input type="button" id="Page_Next_$sfx" value="<?_ml widget.inbox.menu.next_page.btn _ml?>" $next_disabled />
                         </span>
-                        <input type="submit" name="markRead_$sfx" value="Read" $disabled id="${name}_MarkRead_$sfx" />
-                        <input type="submit" name="markUnread_$sfx" value="Unread" id="${name}_MarkUnread_$sfx" />
-                        <input type="submit" name="delete_$sfx" value="Delete" id="${name}_Delete_$sfx" />
-                        <input type="submit" name="markAllRead_$sfx" value="Mark All Read" $disabled id="${name}_MarkAllRead_$sfx" />
+                        <input type="submit" name="markRead_$sfx" value="<?_ml widget.inbox.menu.mark_read.btn _ml?>" $disabled id="${name}_MarkRead_$sfx" />
+                        <input type="submit" name="markUnread_$sfx" value="<?_ml widget.inbox.menu.mark_unread.btn _ml?>" id="${name}_MarkUnread_$sfx" />
+                        <input type="submit" name="delete_$sfx" value="<?_ml widget.inbox.menu.delete.btn _ml?>" id="${name}_Delete_$sfx" />
                     </td>
             </tr>
         };
     };
-    # create table of messages
-    my $messagetable = qq {
-     <div id="${name}_Table" class="NotificationTable">
-        <table id="${name}" class="inbox" cellspacing="0" border="0" cellpadding="0">
+
+    my $markdeleteall = sub {
+        my $sfx = shift;
+
+        return qq {
+            <div style="text-align: center; margin-bottom: 20px; margin-top: 20px;">
+                <input type="submit" name="markAllRead_$sfx" value="<?_ml widget.inbox.menu.mark_all_read.btn _ml?>" $disabled id="${name}_MarkAllRead_$sfx" style="margin-right: 5em; width: 12em;" />
+                <input type="submit" name="deleteAll_$sfx" value="<?_ml widget.inbox.menu.delete_all.btn _ml?>" $disabled id="${name}_DeleteAll_$sfx" style="width: 12em;" />
+            </div>
         };
+    };
+
+    # create table of messages
+    my $messagetable = $markdeleteall->(1);
+
+    $messagetable .= qq {
+        <div id="${name}_Table" class="NotificationTable">
+        <table id="${name}" class="inbox" cellspacing="0" border="0" cellpadding="0">
+    };
     $messagetable .= $actionsrow->(1);
     $messagetable .= "<tbody id='${name}_Body'>";
 
     unless (@$nitems) {
         $messagetable .= qq {
-            <tr><td class="NoItems" colspan="3">No Messages</td></tr>
+            <tr><td class="NoItems" colspan="3" id="NoMessageTD"><?_ml inbox.nomessages _ml?></td></tr>
             };
     }
 
@@ -134,10 +166,11 @@ sub render_body {
         });
 
         # HTML for displaying bookmark flag
-        my $bookmark = $inbox->is_bookmark($qid)
-            ? "on"
-            : "off";
-        $bookmark = "<a href='$LJ::SITEROOT/inbox/?page=$page&bookmark_$bookmark=$qid'><img src='$LJ::IMGPREFIX/flag_$bookmark.gif' width='16' height='18' class='InboxItem_Bookmark' border='0' /></a>";
+        my $bookmark = 'bookmark_'
+                     . $inbox->is_bookmark( $qid ) ? "on" : "off";
+        $bookmark = "<a href='$LJ::SITEROOT/inbox/?page=$page&$bookmark=$qid'>"
+                  . LJ::img( $bookmark, "", { class => 'InboxItem_Bookmark' } )
+                  . "</a>";
 
         my $when = LJ::ago_text(time() - $inbox_item->when_unixtime);
         my $contents = $inbox_item->as_html || '';
@@ -154,11 +187,11 @@ sub render_body {
             $expanded ||= $remote->prop('esn_inbox_default_expand');
             $expanded = 0 if $inbox_item->read;
 
-            my $img = $expanded ? "expand.gif" : "collapse.gif";
+            my $expand_img = $expanded ? "inbox_expand" : "inbox_collapse";
 
-            $expandbtn = qq {
-                <a href="$LJ::SITEROOT/inbox/?page=$page&expand=$qid"><img src="$LJ::IMGPREFIX/$img" class="InboxItem_Expand" border="0" /></a>
-                };
+            $expandbtn .= qq { <a href="$LJ::SITEROOT/inbox/?page=$page&expand=$qid"> };
+            $expandbtn .= LJ::img( $expand_img, '', { class => 'InboxItem_Expand' } );
+            $expandbtn .= "</a>\n";
 
             my $display = $expanded ? "block" : "none";
 
@@ -181,8 +214,10 @@ sub render_body {
     }
 
     $messagetable .= $actionsrow->(2);
+
     $messagetable .= '</tbody></table></div>';
 
+    $messagetable .= $markdeleteall->(2);
 
     $msgs_body .= $messagetable;
 

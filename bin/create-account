@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by 
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License. 
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+
+use Getopt::Long;
+
+my ( $user, $email, $pass );
+GetOptions(
+        'user=s' => \$user,
+        'password=s' => \$pass,
+        'email=s' => \$email,
+    ) or die "usage: $0 -u USERNAME -e EMAIL\n";
+die "usage: $0 -u USERNAME -e EMAIL [-p PASSWORD]\n"
+    unless $user && $email;
+
+$user = LJ::canonical_username( $user );
+die "Username invalid\n"
+    unless $user;
+die "Email invalid\n"
+    unless $email && $email =~ /^[^@]+@[^@]+\.\w+$/;
+
+LJ::MemCache::delete( 'uidof:' . $user );
+my $u2 = LJ::load_user( $user )
+    and die "User already exists\n";
+
+my $password = $pass || '';
+unless ( $password ) {
+    $password .= substr( 'abcdefghijklmnopqrstuvwxyzABCEFGHIJKLMNOPQRSTUVWXYZ0123456789', int(rand()*62), 1 ) for 1..10;
+}
+
+my $u = LJ::User->create_personal( user => $user, email => $email, password => $password )
+    or die "unable to create account?\n";
+
+print "User: $u->{user}($u->{userid}) created with password $password.\n";

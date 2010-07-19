@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
 use Getopt::Long;
@@ -46,7 +58,7 @@ unless (($list   && (($banid && ! $an_opt) || (! $banid && $an_opt)) ||
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
 my $dbh = LJ::get_db_writer();
 
-# list bands
+# list bans
 if ($list) {
     my $where;
     if ($banid) {
@@ -113,10 +125,10 @@ if ($add) {
                                          'exptime' => LJ::mysqldate_to_time($banuntil) });
         LJ::MemCache::delete("sysban:uniq");
     }
-    if ($what eq 'contentflag') {
-        LJ::procnotify_add("ban_contentflag", { 'username' => $value,
-                                                'exptime' => LJ::mysqldate_to_time($banuntil) });
-        LJ::MemCache::delete("sysban:contentflag");
+    if ( $what eq 'spamreport' ) {
+        LJ::procnotify_add( 'ban_spamreport', { spamreport => $value,
+                                                exptime => LJ::mysqldate_to_time( $banuntil ) } );
+        LJ::MemCache::delete( 'sysban:spamreport' );
     }
 
     # log in statushistory
@@ -155,9 +167,9 @@ if ($modify) {
             LJ::MemCache::delete("sysban:uniq");
         }
 
-        if ($ban->{'what'} eq 'contentflag') {
-            LJ::procnotify_add("unban_contentflag", { 'username' => $value || $ban->{'value'} });
-            LJ::MemCache::delete("sysban:contentflag");
+        if ( $ban->{what} eq 'spamreport' ) {
+            LJ::procnotify_add( 'unban_spamreport', { spamreport => $value || $ban->{value} } );
+            LJ::MemCache::delete( 'sysban:spamreport' );
         }
     }
         
@@ -184,12 +196,12 @@ if ($modify) {
             LJ::procnotify_add("ban_uniq", { 'uniq' => $value || $ban->{'value'},
                                              'exptime' => LJ::mysqldate_to_time($new_banuntil) });
             LJ::MemCache::delete("sysban:uniq");
-        }
+       }
 
-        if ($ban->{'what'} eq 'contentflag') {
-            LJ::procnotify_add("ban_contentflag", { 'username' => $value || $ban->{'value'},
-                                                    'exptime' => LJ::mysqldate_to_time($new_banuntil) });
-            LJ::MemCache::delete("sysban:contentflag");
+        if ( $ban->{what} eq 'spamreport' ) {
+            LJ::procnotify_add( 'ban_spamreport', { spamreport => $value || $ban->{value},
+                                                    exptime => LJ::mysqldate_to_time( $new_banuntil ) } );
+            LJ::MemCache::delete( 'sysban:spamreport' );
         }
     }
 

@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 body<=
 <?_code
@@ -5,11 +19,14 @@ body<=
     # this is for viewing the properties set on a particular entry
     use strict;
     use vars qw($ret %POST);
+    use DW::External::Account;
 
     my $remote = LJ::get_remote();
-    my $is_admin = LJ::check_priv($remote, "canview", "entryprops");
-    return BML::redirect("$LJ::SITEROOT/editjournal.bml")
-        unless $is_admin || $LJ::IS_DEV_SERVER;
+    my @display_privs = ( "canview:entryprops", "canview:*" );
+    my $numprivs = @display_privs;
+
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
+        unless $LJ::IS_DEV_SERVER || ( $remote && $remote->has_priv( "canview", "entryprops" ) );
 
     $ret .= "<form method='POST'>";
     $ret .= "View properties for URL: ";
@@ -27,14 +44,10 @@ body<=
     # WE HAEV ENTRY!!
 
     my $subject;
-    if ($entry->subject_html) {
-        if ($entry->visible_to($remote)) {
-            $subject = $entry->subject_html;
-        } else {
-            $subject = "<em>hidden</em>";
-        }
+    if ($entry->visible_to($remote)) {
+        $subject = $entry->subject_html ? $entry->subject_html : "<em>no subject</em>";
     } else {
-        $subject = "<em>no subject</em>";
+        $subject = "<em>hidden</em>";
     }
 
     my $security = $entry->security;
@@ -53,8 +66,7 @@ body<=
     $ret .= "(journal wide minsecurity: " . ($entry->journal->prop("newpost_minsecurity") || "public") . ")<br />";
     $ret .= "<strong>User Date/Time</strong>: " . $entry->eventtime_mysql . "<br />";
     $ret .= "<strong>Server Date/Time</strong>: " . $entry->logtime_mysql . "<br />";
-    $ret .= "<strong>Journal Adult Content</strong>: " . ($entry->journal->adult_content || "none")
-        . " (admin setting: " . ($entry->admin_content_flag || "none") . ")<br />";
+    $ret .= "<strong>Journal Adult Content</strong>: " . ( $entry->journal->adult_content || "none" ) . "<br />";
 
     $ret .= "<br />";
 
@@ -65,9 +77,23 @@ body<=
     foreach my $prop (sort keys %props) {
         my $extra = "";
         if (my $p = LJ::get_prop("log", $prop)) {
-            $extra = "<br /><small>$p->{des}</small>";
             # an ugly hack, i know
             $props{$prop} = LJ::mysql_time($props{$prop}) if $p->{des} =~ /unix/i;
+            
+            # render xpost prop into human readable form
+            if ( $prop eq "xpost" || $prop eq "xpostdetail" ) {
+                my %external_accounts_map = map { $_->acctid => $_->servername } DW::External::Account->get_external_accounts( $entry->poster );
+                my %xpost_map = %{ DW::External::Account->xpost_string_to_hash( $props{$prop} ) };
+                if ( $prop eq "xpost" ) {
+                    $props{$prop} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => $xpost_map{$_}" } keys %xpost_map;
+                    $p->{des} .= " (site name => itemid)";
+                } else {
+                    $props{$prop} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => { $xpost_map{$_}->{itemid}, $xpost_map{$_}->{url} }" } keys %xpost_map;
+                    $p->{des} .= " (site name => { itemid, url })";
+                }
+            }
+
+            $extra = "<br /><small>$p->{des}</small>";
         }
 
         $ret .= "<li><strong>$prop</strong>: $props{$prop}$extra</li><br />";

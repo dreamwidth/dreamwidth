@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 # this class represents a pending subscription, used for presenting to the user
 # a subscription that doesn't exist yet
 
@@ -5,7 +18,8 @@ package LJ::Subscription::Pending;
 use base 'LJ::Subscription';
 use strict;
 use Carp qw(croak carp);
-use Class::Autouse qw (LJ::Event LJ::NotificationMethod);
+use LJ::Event;
+use LJ::NotificationMethod;
 
 sub new {
     my $class = shift;
@@ -23,6 +37,10 @@ sub new {
     my $arg2             = delete $opts{arg2} || 0;
     my $default_selected = delete $opts{default_selected} || 0;
     my $flags            = delete $opts{flags} || 0;
+
+    # optional entry arg
+    # used to provide need additional context, not saved
+    my $entry = delete $opts{entry};
 
     $journalu = LJ::want_user($journalu) if $journalu;
 
@@ -56,6 +74,7 @@ sub new {
         userid           => $u->{userid},
         u                => $u,
         journal          => $journalu,
+        entry            => $entry,
         etypeid          => $etypeid,
         ntypeid          => $ntypeid,
         arg1             => $arg1,
@@ -72,6 +91,7 @@ sub pending { 1 }
 
 sub journal           { $_[0]->{journal}}
 sub journalid         { $_[0]->{journal} ? $_[0]->{journal}->{userid} : 0 }
+sub entry             { $_[0]->{entry} };
 sub default_selected  { $_[0]->{default_selected} && ! $_[0]->disabled }
 
 sub disabled {

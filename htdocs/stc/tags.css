@@ -1,3 +1,8 @@
+table#table_managetags { width: 96%; } 
+
+table#table_managetags td { vertical-align: top;
+	padding: 1%; }
+
 fieldset
 {
     border: 1px solid #cdcdcd;
@@ -20,7 +25,6 @@ legend
 
 .tagsort
 {
-    border-top: 1px solid #cdcdcd;
     font-size: 0.8em;
 }
 
@@ -73,23 +77,6 @@ legend
     background-image: url(/img/level5.gif);
 }
 
-.tagfield
-{
-    border: 1px solid #cdcdcd;
-}
-
-.tagfield_error
-{
-    border: 1px solid red;
-    background-color: #ecd7d7;
-}
-
-.tagfield:focus
-{
-    background-color: #eee;
-    border: 1px solid black;
-}
-
 .btn
 {
     border-left:   1px solid #999;
@@ -111,7 +98,6 @@ legend
 {
     padding: 5px;
     margin-bottom: 10px;
-    color: #777;
     width: 300px;
     white-space: wrap;
 }
@@ -146,27 +132,20 @@ legend
 /* count type */
 .proptbl .t
 {
-    color: #777;
     text-align: right;
-    background-color: #fbfbfb;
-    border-right: 1px solid #cdcdcd;
 }
 
 /* results */
 .proptbl .r
 {
-    color: #777;
     text-align: right;
-    background-color: #fbfbfb;
     font-weight: bold;
-    border-right: 1px solid #cdcdcd;
 }
 
 /* result value */
 .proptbl .rv
 {
     text-align: center;
-    background-color: #eee;
     font-weight: bold;
 }
 
@@ -183,25 +162,18 @@ legend
     text-align: right;
     vertical-align: top;
     white-space: nowrap;
-    border-right: 1px solid #777;
 }
 
 /* separator line */
 .edittbl .sep
 {
-    border-top: 1px solid #777;
     white-space: nowrap;
 }
 
-.curtags
-{
-    color: #777;
-}
 
 .tagbox_nohist
 {
     width: 300px;
-    background-color: #eee;
     padding: 4px;
     height: 250px;
 }

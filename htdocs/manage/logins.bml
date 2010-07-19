@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 body<=
@@ -17,15 +31,14 @@ body<=
 
     my $body = my $user = '';
     my $adminmode = 0;
-    if (LJ::check_priv($u, 'canview', 'sessions') ||
-        LJ::check_priv($u, 'canview', '*')) {
+    if ( $u && $u->has_priv( 'canview', 'sessions' ) ) {
         $user = LJ::canonical_username($GET{'user'} || $POST{'user'});
-        $body .= "<form method='GET' action='logins.bml'>\n";
+        $body .= "<form method='GET' action='logins'>\n";
         $body .= "<label for='user'>$ML{'.user'} ";
         $body .= LJ::html_text({'name' => 'user',
                                 'id' => 'user',
                                 'value' => $user,
-                                'maxlength' => '15',
+                                'maxlength' => '25',
                                 'size' => '15'}) . "</label>\n";
         $body .= LJ::html_submit('View') . "\n</form>\n";
         $u = LJ::load_user($user) if $user;
@@ -45,7 +58,7 @@ body<=
 
         my $sid = $POST{'x'};
         $sessions->{$sid}->destroy if $sessions->{$sid};
-        return BML::redirect("logins.bml");
+        return BML::redirect("logins");
     }
 
     my $sth = $u->prepare("SELECT logintime, sessid, ip, ua FROM loginlog WHERE userid=?")
@@ -88,7 +101,7 @@ body<=
             $body .= "<td style='whitespace: nowrap; font-size: 0.75em'>$ML{'.loggedin.table.current'}</td>";
         } elsif(!$user) {
             $body .= "<td>\n<form method='POST' ";
-            $body .= "action='$LJ::SITEROOT/manage/logins.bml'>\n";
+            $body .= "action='$LJ::SITEROOT/manage/logins'>\n";
             $body .= LJ::html_hidden('loguser' => $user) if $user;
             $body .= LJ::html_hidden('x' => $login->[1]) . "\n";
             $body .= LJ::form_auth() . "\n";

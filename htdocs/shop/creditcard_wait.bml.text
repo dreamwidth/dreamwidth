@@ -1,0 +1,17 @@
+;; -*- coding: utf-8 -*-
+
+.state.failed=We're sorry, but your payment has been declined by our credit card processor.  You may wish to try an alternative payment method, or ensure that you accurately entered your billing information.
+
+.state.internal_failure=We're sorry, but something failed internally on our end attempting to process your payment.  Your credit card has probably not been charged.
+
+.state.paid=Your payment has been successful.  We will process your order in the next few minutes.  Please keep an eye on your email for a confirmation.
+
+.state.queued=We are attempting to process your payment request, please wait...
+
+.title=Please Wait
+
+.title.internal_failure=Internal Failure
+
+.title.paid=Payment Received
+
+.title.queued=Please Wait

@@ -5,7 +5,7 @@
 
 .cat.all=All
 
-.interim=The support queue is intended for use by people with support privileges.
+.notifylink=Receive <a [[url]]>notifications</a> of support activity.
 
 .requests.type=requests of type
 

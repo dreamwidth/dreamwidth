@@ -25,11 +25,16 @@
 
 .permissions.none=(You do not have permission to edit tags on this entry.)
 
+.readonly.journal=This journal is read-only.  Its entry tags cannot be edited.
+
+.readonly.poster=This poster is read-only.  The tags for their entry cannot be edited.
+
 .subject=Subject:
 
 .title=Edit Tags on Entry
 
-.users=User's tags:
+.users=[[user]]'s tags:
 
 .view=<a [[aopts]]>View</a> this entry.
 
+.xpost.notrespected.editentry=If this is important to you, <a [[aopts]]>edit this entry directly</a> to add the tags.

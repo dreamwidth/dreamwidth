@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -11,17 +25,17 @@
     };
 
     my $u = LJ::load_user($POST{user})
-        or return $err->("Invalid username");
+        or return $err->( "<?_ml .login.invalid_username  _ml?>" );
 
     my ($banned, $ok);
     $ok = LJ::auth_okay($u, $POST{password}, undef, undef, \$banned);
 
     if ($banned) {
-        return $err->("Your IP address is temporarily banned for exceeding the login failure rate.");
+        return $err->( "<?_ml .login.ip_banned _ml?>" );
     }
 
     unless ($ok) {
-        return $err->("Bad password");
+        return $err->( "<?_ml .login.badpass _ml?>" );
     }
 
     my $etime = time() + 60*60*24*60;
@@ -43,27 +57,27 @@ h2 { font-size: 110%; text-decoration: underline; padding-bottom: 0; margin-bott
 p { margin-top: 0.3em; }
 form { margin-left: 2em; }
 </style>
-
+<title><?_ml .page.title _ml?></title>
 </head>
 <body>
-<a href="./">&lt;&lt; Back</a> to LiveJournal Mobile.
+<?_code return BML::ml( ".login.back", { aopts => "href='./'", sitename => $LJ::SITENAMESHORT } ) _code?>
 <h1>Login</h1>
 
-<h2>SSL secure login</h2>
-<p>Secure using SSL, but may not work on all mobile devices:</p>
-<form method='post' action='<?_code return $LJ::SSLROOT _code?>/mobile/login.bml'>
-Username: <input name='user' size='15' /><br />
-Password: <input name='password' type='password' size='15' />
-<input type='submit' value="Login" />
+<h2><?_ml .ssl.header _ml?></h2>
+<p<?_ml .ssl.text _ml?></p>
+<form method='post' action='<?_code return $LJ::SSLROOT _code?>/mobile/login'>
+<?_ml .form.username _ml?>: <input name='user' size='15' /><br />
+<?_ml .form.password _ml?>: <input name='password' type='password' size='15' />
+<input type='submit' value="<?_ml .form.button _ml?>" />
 </form>
 
-<h2>Insecure basic login</h2>
-<p>This sends your password unprotected, probably over the air.  Not a good idea on Wifi.  Probably okay over a mobile carrier's data network.</p>
+<h2><?_ml .basic.header _ml?></h2>
+<p><?_ml .basic.text _ml?></p>
 
-<form method='post' action='<?_code return $LJ::SITEROOT _code?>/mobile/login.bml'>
-Username: <input name='user' size='15' /><br />
-Password: <input name='password' type='password' size='15' />
-<input type='submit' value="Login" />
+<form method='post' action='<?_code return $LJ::SITEROOT _code?>/mobile/login'>
+<?_ml .form.username _ml?>: <input name='user' size='15' /><br />
+<?_ml .form.password _ml?>: <input name='password' type='password' size='15' />
+<input type='submit' value="<?_ml .form.button _ml?>" />
 </form>
 
 </body>

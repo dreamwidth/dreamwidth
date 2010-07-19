@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+#
 # AtomAPI support for LJ
 
 package Apache::LiveJournal::Interface::ElsewhereInfo;
@@ -5,9 +18,7 @@ package Apache::LiveJournal::Interface::ElsewhereInfo;
 use strict;
 use Apache2::Const qw(:common);
 use lib "$LJ::HOME/cgi-bin";
-use Class::Autouse qw(
-                      JSON
-                      );
+use JSON;
 
 # for Class::Autouse (so callers can 'ping' this method to lazy-load this class)
 sub load { 1 }
@@ -50,11 +61,11 @@ sub handle {
     # find what node type we're dealing with
     my $node_type;
     my $node_ident = $u->user;
-    if ($u->is_community || $u->is_shared || $u->is_news) {
+    if ( $u->is_community ) {
         $node_type = 'group';
-    } elsif ($u->is_person) {
+    } elsif ( $u->is_person ) {
         $node_type = 'person';
-    } elsif ($u->is_identity) {
+    } elsif ( $u->is_identity ) {
         $node_type = 'openid';
         $node_ident = $u->url; # should be identity type O
     } else {

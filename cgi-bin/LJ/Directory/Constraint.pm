@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Directory::Constraint;
 use strict;
 use warnings;
@@ -9,8 +22,11 @@ use LJ::Directory::SetHandle;
 use LJ::Directory::Constraint::Age;
 use LJ::Directory::Constraint::Interest;
 use LJ::Directory::Constraint::UpdateTime;
-use LJ::Directory::Constraint::HasFriend;
-use LJ::Directory::Constraint::FriendOf;
+use LJ::Directory::Constraint::Trusts;
+use LJ::Directory::Constraint::TrustedBy;
+use LJ::Directory::Constraint::Watches;
+use LJ::Directory::Constraint::WatchedBy;
+use LJ::Directory::Constraint::MemberOf;
 use LJ::Directory::Constraint::Location;
 use LJ::Directory::Constraint::JournalType;
 use LJ::Directory::Constraint::Test;
@@ -19,7 +35,7 @@ sub constraints_from_formargs {
     my ($pkg, $postargs) = @_;
 
     my @ret;
-    foreach my $type (qw(Age Location UpdateTime Interest HasFriend FriendOf JournalType)) {
+    foreach my $type (qw(Age Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType)) {
        my $class = "LJ::Directory::Constraint::$type";
        my $con = eval { $class->new_from_formargs($postargs) };
        if ($con) {

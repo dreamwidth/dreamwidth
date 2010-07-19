@@ -1,10 +1,10 @@
 .layout-item .layout-button {
     font-size: 11px;
     color: #fff;
-    background: #559A40;
-    border: 2px solid #76AE65;
-    border-bottom: 2px solid #447C33;
-    border-right: 2px solid #447C33;
+    background: #f4717a;
+    border: 2px solid #f6828b;
+    border-bottom: 2px solid #c1272d;
+    border-right: 2px solid #c1272d;
 }
 .layout-item .layout-button-disabled {
     background: #88CD73;
@@ -19,7 +19,7 @@
     font-size: 11px;
 }
 .layout-item.current {
-    border: 1px solid #C7E0F6;
+    border: 1px solid #ffd8d8;
     background-color: #ECF6FF;
 }
 .layout-item .layout-desc {

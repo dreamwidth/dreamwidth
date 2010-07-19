@@ -18,6 +18,17 @@ LJWidgetIPPU = new Class(LJWidget, {
         if (opts.width && opts.height)
           ippu.setDimensions(opts.width, opts.height);
 
+        if (opts.overlay) {
+            if (IPPU.isIE()) {
+                this.ippu.setModal(true);
+                this.ippu.setOverlayVisible(true);
+                this.ippu.setClickToClose(false);
+            } else {
+                this.ippu.setModal(true);
+                this.ippu.setOverlayVisible(true);
+            }
+        }
+
         if (opts.center) ippu.center();
         ippu.show();
 
@@ -71,6 +82,7 @@ LJWidgetIPPU = new Class(LJWidget, {
       hexColor += hexColor + hexColor;
 
       ele.style.color = "#" + hexColor;
+      this.ippu.center();
     },
 
     // override doAjaxRequest to add _widget_ippu = 1

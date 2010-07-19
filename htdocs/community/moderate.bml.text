@@ -3,6 +3,8 @@
 
 .approve.header=Approve this entry?
 
+.approve.note=You can attach a note to the poster and it will be emailed to the user.
+
 .approve.preapprove=Also, add user [[user]] to the list of pre-approved users for this community.
 
 .approve.text=Are you sure you want to approve this entry?
@@ -25,11 +27,9 @@
 
 .choice.approve=Approve
 
-.choice.bkapprove=#82dd88
-
-.choice.bkreject=#e08291
-
 .choice.reject=Reject
+
+.choice.mark_as_spam=Reject and mark as spam
 
 .error.noaccess=You do not moderate the community [[comm]].
 
@@ -38,6 +38,8 @@
 .error.nolist=You do not moderate any communities.
 
 .error.notfound=Community account not found.
+
+.error.notmoderated=This community is not set to moderated posting.
 
 .manage=Manage communities
 

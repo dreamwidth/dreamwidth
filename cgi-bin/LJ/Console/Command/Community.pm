@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Console::Command::Community;
 
 use strict;
@@ -40,8 +53,9 @@ sub execute {
     return $self->error("Unknown user: $user")
         unless $target;
 
-    my $can_add = LJ::can_manage($remote, $comm) || LJ::check_priv($remote, "sharedjournal", "*");
-    my $can_remove = $can_add || LJ::u_equals($remote, $target);
+    my $can_add = $remote && ( $remote->can_manage( $comm ) ||
+                               $remote->has_priv( "sharedjournal", "*" ) );
+    my $can_remove = $can_add || ( $remote && $remote->equals( $target ) );
 
     return $self->error("You cannot add users to this community.")
         if $action eq 'add' && !$can_add;

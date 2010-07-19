@@ -9,6 +9,7 @@
   &lj.admin.console;
   &lj.admin.sysban;
   &lj.admin.site_scaling;
+  &lj.admin.appx.faq;
 </part>
 <!-- 
 Local Variables:

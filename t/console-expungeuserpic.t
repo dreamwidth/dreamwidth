@@ -1,6 +1,6 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Console;
@@ -25,7 +25,14 @@ my $file_contents = sub {
 my $upfile = "$ENV{LJHOME}/t/data/userpics/good.jpg";
 die "No such file $upfile" unless -e $upfile;
 
-my $up = LJ::Userpic->create($u, data => $file_contents->($upfile));
+my $up;
+eval { $up = LJ::Userpic->create($u, data => $file_contents->($upfile)) };
+if ( $@ ) {
+    plan skip_all => "MogileFS failure: $@";
+    exit 0;
+} else {
+    plan tests => 3;
+}
 
 is($run->("expunge_userpic " . $up->url),
    "error: You are not authorized to run this command.");
@@ -35,6 +42,3 @@ is($run->("expunge_userpic " . $up->url),
    "success: Userpic '" . $up->id . "' for '" . $u->user . "' expunged.");
 
 ok($up->state eq "X", "Userpic actually expunged.");
-
-
-

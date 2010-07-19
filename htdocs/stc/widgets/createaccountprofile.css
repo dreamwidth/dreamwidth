@@ -12,7 +12,6 @@
 
 .appwidget-createaccountprofile .field-name {
     font-size: 12px;
-    background-color: #dee9f1;
     font-weight: bold;
     text-align: right;
     width: 70px;
@@ -25,8 +24,7 @@
 }
 
 .appwidget-createaccountprofile .header {
-    color: #213368;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     margin: 0;
 }

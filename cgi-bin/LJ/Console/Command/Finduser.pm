@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Console::Command::Finduser;
 
 use strict;
@@ -17,7 +30,7 @@ sub usage { '<criteria> <data>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "finduser");
+    return $remote && $remote->has_priv( "finduser" );
 }
 
 sub execute {
@@ -97,22 +110,10 @@ sub execute {
         $self->info("  User is currently in read-only mode.")
             if $u->readonly;
 
-        if ($u->underage) {
-            my $reason;
-            if ($u->underage_status eq 'M') {
-                $reason = "manual set (see statushistory type set_underage)";
-            } elsif ($u->underage_status eq 'Y') {
-                $reason = "provided birthdate";
-            } elsif ($u->underage_status eq 'O') {
-                $reason = "unique cookie";
-            }
-            $self->info("  User is marked underage due to $reason");
-        }
-
         $self->info("  Last updated: " . ($timeupdate->{$userid} ? LJ::time_to_http($timeupdate->{$userid}) : "Never"))
             if $opt eq 'timeupdate';
 
-        foreach (LJ::run_hooks("finduser_extrainfo", { 'dbh' => $dbh, 'u' => $u })) {
+        foreach (LJ::Hooks::run_hooks("finduser_extrainfo", $u)) {
             next unless $_->[0];
             $self->info($_) foreach (split(/\n/, $_->[0]));
         }

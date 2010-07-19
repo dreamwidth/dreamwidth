@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=>Support Stock Answers
 body<=
@@ -20,9 +34,8 @@ body<=
 
     # editing is based on ability to grant supporthelp.  and throw an error if they
     # posted but can't edit.
-    my $canedit = ($spcatid && LJ::check_priv($remote, 'admin', "supporthelp/$cats->{$spcatid}->{catkey}")) ||
-                  LJ::check_priv($remote, 'admin', 'supporthelp') ||
-                  LJ::check_priv($remote, 'admin', '*');
+    my $canedit = ( $spcatid && $remote && $remote->has_priv( 'admin', "supporthelp/$cats->{$spcatid}->{catkey}" ) ) ||
+                  ( $remote && $remote->has_priv( 'admin', 'supporthelp' ) );
     if (LJ::did_post()) {
         return "<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}" unless LJ::check_form_auth();
         return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access.to.actions'} p?>"
@@ -46,7 +59,7 @@ body<=
     my $ansid = ($GET{ansid} || 0) + 0;
 
     my $ret = "<?h1 $ML{'.stock.answers'} h1?>";
-    my $self = "$LJ::SITEROOT/support/stock_answers.bml";
+    my $self = "$LJ::SITEROOT/support/stock_answers";
 
     if ($POST{'action:delete'}) {
         my $dbh = LJ::get_db_writer();

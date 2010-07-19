@@ -1,0 +1,17 @@
+;; -*- coding: utf-8 -*-
+.comm.success=Success
+
+.commreject.text=You have rejected the membership request of [[user]] in [[comm]].
+
+.error.actionperformed=This action has already been performed
+
+.error.rejecting=There was an error rejecting this request to join.
+
+.error.internerr.invalidaction=Internal error: invalid action
+
+.error.invalidargument=Invalid argument given
+
+.error.unknownactiontype=Unknown action type
+
+.title=Action Reject
+

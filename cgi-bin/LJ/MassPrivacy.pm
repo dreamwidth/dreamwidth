@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::MassPrivacy;
 
 # LJ::MassPrivacy object
@@ -112,15 +125,12 @@ sub handle {
 
 
     # better logging
-    # Used when logging to statushistory
-    my $sys_u = LJ::load_user('system');
     # only print 200 characters  of error message to log
     # allow some space at the end for error location message
     if (@errs) {
         my $errmsg = join(', ', @errs);
         $errmsg = substr($errmsg, 0, 200) . "... ";
-        LJ::statushistory_add($u->{'userid'}, $sys_u,
-                              "mass_privacy", "Error: $errmsg");
+        LJ::statushistory_add( $u, $u, "mass_privacy", "Error: $errmsg" );
         die $errmsg;
     }
 
@@ -131,7 +141,7 @@ sub handle {
               "been changed to be " . $privacy{$opts->{e_security}} . ".\n\n" .
               "If you made this change by mistake, or if you want to change " .
               "the security on more of your entries, you can do so at " .
-              "$LJ::SITEROOT/editprivacy.bml\n\n" .
+              "$LJ::SITEROOT/editprivacy\n\n" .
               "Thanks!\n\n" .
               "$LJ::SITENAME Team\n" .
               "$LJ::SITEROOT";
@@ -146,11 +156,10 @@ sub handle {
         'body' => $msg,
     });
 
-    LJ::statushistory_add($u->{'userid'}, $sys_u,
-                          "mass_privacy", "Success: $okay_ct " .
-                          $privacy{$opts->{s_security}} . " entries " .
-                          $timeframe . "have now " . "been changed to be " .
-                          $privacy{$opts->{e_security}});
+    LJ::statushistory_add( $u, $u, "mass_privacy", "Success: $okay_ct " .
+                           $privacy{$opts->{s_security}} . " entries " .
+                           $timeframe . "have now " . "been changed to be " .
+                           $privacy{$opts->{e_security}} );
 
     return 1;
 }
@@ -159,7 +168,7 @@ sub handle {
 package LJ::Worker::MassPrivacy;
 use base 'TheSchwartz::Worker';
 
-use Class::Autouse qw(LJ::MassPrivacy);
+use LJ::MassPrivacy;
 
 sub work {
     my ($class, $job) = @_;

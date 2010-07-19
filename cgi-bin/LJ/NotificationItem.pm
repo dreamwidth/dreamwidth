@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 # This is a class representing a notification that came out of an
 # LJ::NotificationInbox. You can tell it to mark itself as
 # read/unread, delete it, and get the event that it contains out of
@@ -9,10 +22,8 @@ use strict;
 use warnings;
 no warnings "redefine";
 
-use Class::Autouse qw(
-                      LJ::NotificationInbox
-                      LJ::Event
-                      );
+use LJ::NotificationInbox;
+use LJ::Event;
 use Carp qw(croak);
 
 *new = \&instance;
@@ -72,8 +83,6 @@ sub title {
         return eval { $self->event->as_html($self->u) } || $@;
     } elsif ($mode eq "im") {
         return eval { $self->event->as_im($self->u) } || $@;
-    } elsif ($mode eq "sms") {
-        return eval { $self->event->as_sms($self->u) } || $@;
     }
 }
 
@@ -83,6 +92,13 @@ sub as_html {
     croak "Too many args passed to NotificationItem->as_html" if scalar @_;
     return "(Invalid event)" unless $self->event;
     return eval { $self->event->content($self->u) } || $@;
+}
+
+sub as_html_summary {
+    my $self = shift;
+    croak "Too many args passed to NotificationItem->as_html_summary" if scalar @_;
+    return "(Invalid event)" unless $self->event; 
+    return eval { $self->event->content_summary( $self->u ) } || $@;
 }
 
 # returns the event that this item refers to

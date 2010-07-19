@@ -1,7 +1,22 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
     use vars qw(%POST);
+    use DW::External::User;
     use LJ::Auth;
     use JSON;
 
@@ -15,18 +30,36 @@
     };
 
     my $username = $POST{'username'};
-    my $u = LJ::load_user($username);
+    my $site = $POST{site};
 
     my %ret;
 
     BML::set_content_type('text/javascript; charset=utf-8');
     BML::finish();
 
+    my $u;
+
+    if ( $site ) {
+        # verify that this is a proper site
+        $u = DW::External::User->new( user => $username, site => $site );
+        if ( $u ) {
+            $ret{userstr} = '<user site="' . $u->site->{domain} . '" name="' . $u->user . '">';
+            $ret{ljuser} = $u->ljuser_display;
+        }
+    }
+
+    unless ( $u ) {
+        $u = LJ::load_user( $username );
+        $ret{userstr} = "<user name=\"$username\">";
+        $ret{ljuser} = LJ::ljuser( $u );
+    }
+
+    # more general error message if we may have been trying to show an external site
+    return $err->("Invalid user or site") if $site && ! $u;
+
+    # more specific error message if we are loading a user on the site
     return $err->("No such user") unless $u;
-
-    $ret{ljuser} = LJ::ljuser($u);
-    $ret{userstr} = "<lj user=\"$username\">";
-
+    
     sleep(1.5) if $LJ::IS_DEV_SERVER;
 
     $ret{success} = 1;

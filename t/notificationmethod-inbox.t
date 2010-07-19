@@ -1,16 +1,16 @@
 #!/usr/bin/perl
 
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
 use LJ::Test qw(temp_user memcache_stress);
 
-use Class::Autouse qw(
-                      LJ::Event::Befriended
-                      LJ::NotificationMethod::Inbox
-                      );
+plan tests => 45;
+
+use LJ::NotificationMethod::Inbox;
+use LJ::Event::AddedToCircle;
 
 my $u;
 my $valid_u = sub {
@@ -72,9 +72,9 @@ sub run_tests{
 
         my $ev;
 
-        my $fromu = $u; # yeah, you can friend yourself
-        $ev = LJ::Event::Befriended->new($u, $fromu);
-        ok(ref $ev && ! $@, "created LJ::Event::Befriended object");
+        my $fromu = $u; # yeah, you can watch yourself
+        $ev = LJ::Event::AddedToCircle->new( $u, $fromu, 2 );
+        ok(ref $ev && ! $@, "created LJ::Event::AddedToCircle object");
 
         # failures
         eval { LJ::NotificationMethod::Inbox::notify() };

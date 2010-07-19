@@ -1,0 +1,263 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+
+<?_code
+{
+    use strict;
+    use vars qw(%POST);
+
+    my $dbh = LJ::get_db_writer();
+    my $u = LJ::get_remote();
+
+    unless ($u) {
+        return "<?needlogin?>";
+    }
+    return "<?h1 $ML{'error.suspended.title'} h1?><?p $ML{'error.suspended.text'} p?>" if $u->is_suspended;
+
+    if (LJ::did_post() && $POST{'userid'} != $u->{'userid'}) {
+        return "<?h1 $ML{'.invalid.submission'} h1?><?p $ML{'.user.nomatch'} p?>";
+    }
+
+    my $error = sub {
+        return "<?h1 $ML{'Error'} h1?><?p $_[0] p?><?p " .
+                BML::ml('Backlink', {'link' => '/feeds/', 'text' => $ML{'.back'}}) . " p?>";
+    };
+
+    # add custom feed
+    if ($POST{'action:addcustom'} || $GET{'url'}) {
+        my $acct = LJ::trim($POST{'acct'});
+        my $url = LJ::trim($POST{'synurl'} || $GET{'url'});
+        $url =~ s!^feed://!http://!;  # eg, feed://www.example.com/
+        $url =~ s/^feed://;           # eg, feed:http://www.example.com/
+
+        if ($acct ne "") {
+            return $error->($ML{'.invalid.accountname'})
+                if $acct && $acct !~ /^\w{3,20}$/; # This needs to be 5 less then the username limt.
+            return $error->( $ML{'.invalid.reserved'} )
+                if LJ::User->is_protected_username( $acct );
+            # Postpend _feed here, username should be valid by this point.
+            $acct .= "_feed";
+        }
+        if ($url ne "") {
+            return $error->($ML{'.invalid.url'})
+                unless $url =~ m!^http://([^:/]+)(?::(\d+))?!;
+            my $hostname = $1;
+            my $port = $2;
+            return $error->($ML{'.invalid.cantadd'})
+                if $hostname =~ /\Q$LJ::DOMAIN\E/i;
+
+            return $error->($ML{'.invalid.port'})
+                if defined $port && $port != 80 && $port < 1024;
+            $url =~ s/:80// if $port == 80;
+        }
+
+        my $su;  # account to add
+        if ($url) {
+            $su = $dbh->selectrow_hashref("SELECT u.user, s.* FROM syndicated s, useridmap u ".
+                                          "WHERE s.synurl=? AND s.userid=u.userid",
+                                          undef, $url);
+
+            unless ($su) {
+                # check cap to create new feeds
+                return $error->($ML{'.error.nocreate'})
+                    unless $u->can_create_feeds;
+
+                # if no account name, give them a proper entry form to pick one, but don't reprompt
+                # for the url, just pass that through (we'll recheck it anyway, though)
+                unless ($acct) {
+                    my $ret .= "<?h1 $ML{'.create'} h1?><?p " . BML::ml( '.create.name2', { 'feedurl' => LJ::eurl( $url ) } ) . " p?>";
+                    $ret .= "<form method='post' action='./'>";
+                    $ret .= LJ::html_hidden("userid", $u->{'userid'}, 'synurl', $url);
+                    $ret .= "<blockquote>";
+                    $ret .= "<p>$ML{'.account'} <input size='15' maxlength='20' name='acct' />";
+                    $ret .= "<p><input name='action:addcustom' type='submit' value='" . LJ::ehtml($ML{'.create'}) . "' />";
+                    $ret .= "</blockquote></form>";
+                    return $ret;
+                }
+
+                return "<?h1 $ML{'.invalid.needname.title'} h1?><?p $ML{'.invalid.needname.text'} p?>"
+                    unless $acct;
+
+                # create a safeagent to fetch the feed for validation purposes
+                my $ua = LJ::get_useragent(
+                                           role     => 'syn_new',
+                                           max_size => (1024 * 300),
+                                           );
+                $ua->agent("$LJ::SITENAME ($LJ::ADMIN_EMAIL; Initial check)");
+
+                my $res = $ua->get($url);
+                my $content = $res && $res->is_success ? $res->content : undef;
+
+                unless ($content) {
+                    my $msg = $u->show_raw_errors ? $res->status_line : $ML{'.invalid.http.text'};
+                    return "<?h1 $ML{'.invalid.http.title'} h1?><?p $msg p?>";
+                }
+
+                # Start out with the syn_url being equal to the url
+                # they entered of the resource.  If we end up parsing
+                # the resource and finding it has a link to the real
+                # feed, we then want to save the real feed address
+                # to suck from.
+                my $syn_url = $url;
+                # analyze link/meta tags
+                while ($content =~ m!<(link|meta)\b([^>]+)>!g) {
+                    my ($type, $val) = ($1, $2);
+                    # RSS/Atom
+                    # <link rel="alternate" type="application/(?:rss|atom)+xml" title="RSS" href="http://...." />
+                    # FIXME: deal with relative paths (eg, href="blah.rss") ... right now we need the full URI
+                    if ($type eq "link" &&
+                        $val =~ m!rel=.alternate.!i &&
+                        $val =~ m!type=.application/(?:rss|atom)\+xml.!i &&
+                        $val =~ m!href=[\"\'](http://[^\"\']+)[\"\']!i) {
+                        $syn_url = $1;
+                    }
+                }
+
+
+                # Did we find a link to the real feed?  If so,
+                # grab it
+                if ($syn_url ne $url) {
+                    my $adu = $dbh->selectrow_hashref("SELECT u.user FROM syndicated s, useridmap u ".
+                                                      "WHERE s.synurl=? AND s.userid=u.userid",
+                                                      undef, $syn_url);
+                    if ($adu) {
+                        return BML::redirect("$LJ::SITEROOT/manage/circle/add?user=$adu->{user}&action=subscribe");
+                    } else {
+                        $res = $ua->get($syn_url);
+                        $content = $res && $res->is_success ? $res->content : "";
+                    }
+                }
+
+                # check whatever we did get for validity (or pseudo-validity)
+                return "<?h1 $ML{'.invalid.notrss.title'} h1?><?p $ML{'.invalid.notrss.text'} p?>"
+                    unless $content =~ m/<(\w+:)?(?:rss|feed|RDF)/; # Must have a <[?:]rss <[?:]feed (for Atom support) <[?:]RDF
+
+                # create the feed account
+                my $synfeed = LJ::User->create_syndicated(
+                                                          'user'    => $acct,
+                                                          'feedurl' => $syn_url,
+                                                          );
+
+                return "<?h1 $ML{'.invalid.inuse.title'} h1?><?p $ML{'.invalid.inuse.text'} p?>"
+                    unless $synfeed;
+
+                $u->add_edge( $synfeed, watch => 1 );
+
+                $su = $dbh->selectrow_hashref("SELECT u.user, s.* FROM syndicated s, useridmap u ".
+                                              "WHERE s.userid=? AND s.userid=u.userid",
+                                              undef, $synfeed->id);
+            }
+
+        } elsif ($acct) {
+            # account but no URL, we can add this in any case
+            $su = $dbh->selectrow_hashref("SELECT u.user, s.* FROM syndicated s, useridmap u ".
+                                          "WHERE u.userid=s.userid AND u.user=?",
+                                          undef, $acct);
+            unless ($su) {
+                return $error->($ML{'.invalid.notexist'});
+            }
+        } else {
+            # need at least a URL
+            return $error->($ML{'.invalid.needurl'});
+        }
+
+        return $error->($ML{'.error.unknown'}) unless $su;
+
+        # at this point, we have a new account, or an old account, but we have an account, so
+        # let's redirect them to the add page
+        return BML::redirect("$LJ::SITEROOT/manage/circle/add?user=$su->{user}&action=subscribe");
+    }
+
+    # get most popular feeds from memcache
+    my $popsyn = LJ::Syn::get_popular_feeds();
+
+    # load user's watch list so we can strip feeds they already watch
+    my %watched = map { $_ => 1 } $u->watched_userids;
+
+    # populate @pop and add users they've chosen to add
+    my @pop;
+    my %urls;
+    my %names;
+    for (0 .. 99) {
+        next if not defined $popsyn->[$_];
+        my ($user, $name, $suserid, $url, $count) = @{ $popsyn->[$_] };
+        $names{$user} = $name;
+
+        my $suser = LJ::load_userid( $suserid ) or next;
+        $urls{$user} = $suser->prop( 'url' );
+
+        # skip suspended/deleted accounts, already watched feeds
+        next if $watched{$suserid} || !$suser->is_visible;
+
+        if ($POST{'action:add'} && $POST{"add_$user"}) {
+            $u->add_edge( $suser, watch => {} );
+        } else {
+            push @pop, [ $user, $url, $count ];
+            last if @pop >= 20;
+        }
+    }
+
+    # intro paragraph
+    my $title = BML::ml('.using.title', {'sitename' => $LJ::SITENAME});
+    my $ret = "<?h1 $title h1?><?p $ML{'.using.text'} p?>";
+    $ret .= "<?p " . BML::ml('.top1000.text', {'aopts' => "href='$LJ::SITEROOT/feeds/list'"}) . " p?>";
+
+    $ret .= "<form method='post' action='./'>";
+    $ret .= LJ::html_hidden("userid", $u->{'userid'});
+
+    $ret .= "<?h1 $ML{'.add.byurl.title'} h1?><?p $ML{'.add.byurl.text'} p?>";
+    unless ( $u->can_create_feeds ) {
+        my $inline;
+        if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'Syn')) {
+            $ret .= $inline;
+        } else {
+            $ret .= "<p>".BML::ml('cprod.syn.text.v1')."</p>";
+        }
+    }
+    $ret .= "<blockquote>";
+    $ret .= "<p>$ML{'.feed.url'} <input size='40' maxlength='255' name='synurl' />";
+    $ret .= "<p><input name='action:addcustom' type='submit' value='" . LJ::ehtml($ML{'.add'}) . "' />";
+    $ret .= "</blockquote>";
+
+    $ret .= "</form>";
+
+    $ret .= "<form method='post' action='./'>";
+    $ret .= LJ::html_hidden("userid", $u->{'userid'});
+
+    if (@pop) {
+        $ret .= "<?h1 $ML{'.add.pop.title'} h1?><?p $ML{'.add.pop.text'} p?>";
+        $ret .= "<p><table cellpadding='3' style='margin-bottom: 10px; width: 80%;'>";
+        $ret .= "<tr><td><b>$ML{'.table.account'}</b></td><td><b>$ML{'.table.feed'}</b></td><td></td>";
+        $ret .= "<td align='right'><b>$ML{'.table.watchers'}</b></td></tr>";
+        foreach (@pop) {
+            my ($user, $url, $count) = @$_;
+            $ret .= "<tr>";
+            $ret .= "<td nowrap='nowrap' valign='top'><input type='checkbox' value='1' name='add_$user' /> ";
+            $ret .= LJ::ljuser($user, { 'type' => 'Y' }) . "</td>";
+            $ret .= "<td valign='top'>";
+            if ($urls{$user}) {
+                my $displayurl = $urls{$user};
+                $displayurl = substr($urls{$user}, 0, 50) . "..." if length $displayurl > 60;
+                $ret .= "$names{$user}<br /><a href='$urls{$user}'>$displayurl</a></td>";
+            } else {
+                $ret .= "$names{$user}</td>";
+            }
+            $ret .= "<td valign='top'><a href='$url'>" . LJ::img('xml', '', { border => 0 }) . "</a></td>";
+            $ret .= "<td align='right' valign='top'>$count</td>";
+            $ret .= "</tr>";
+        }
+        $ret .= "<tr><td align='left' colspan='4'>";
+        $ret .= "<input type='submit' name='action:add' value='" . LJ::ehtml($ML{'.add.selected'}) . "'>";
+        $ret .= "</td></tr>";
+        $ret .= "</table>";
+    }
+
+    $ret .= "</form>";
+
+    return $ret;
+}
+_code?>
+
+<=body
+page?>

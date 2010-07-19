@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+#
+# DW::Worker::StatsCollection - Collect statistics
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+
+package DW::Worker::StatsCollection;
+
+=head1 NAME
+
+DW::Worker::StatsCollection - Collect statistics
+
+=cut
+
+use strict;
+use warnings;
+use lib "$ENV{LJHOME}/cgi-bin";
+use YAML;
+use DW::StatStore;
+
+use base 'LJ::Worker::Manual';
+
+my $conf_file = "$ENV{LJHOME}/etc/stats-collection.conf";
+
+# return 1 if we did work, false if not.
+sub work {
+    my $class = shift;
+
+    my $conf = YAML::LoadFile( $conf_file )
+        or die "Unable to load YAML formatted config: $conf_file\n";
+
+    my %module_categories;
+    foreach my $module ( LJ::ModuleLoader::module_subclasses( 'DW::StatData' ) ) {
+        eval "use $module";
+        die "use $module: $@" if $@;
+        $module_categories{$module->category} = $module;
+        $class->cond_debug( "Module $module is category " . $module->category );
+    }
+    
+    foreach my $job ( keys %{$conf} ) {
+        my $module = $module_categories{$job};
+
+        unless ( $module ) {
+            warn "stats-collection: No stat data module matching '$job'\n";
+            next;
+        }
+
+        my $keylist = $conf->{$job} eq '*' ? $module->keylist : $conf->{$job};
+
+        $class->cond_debug( "Category $job, module $module, requested keys "
+                            . join( ", ", @$keylist ) );
+
+        my $data = $module->collect( @$keylist );
+        $class->cond_debug( join( ", ", map { "$_=$data->{$_}" }
+                                            keys %$data ) );
+        DW::StatStore->add( $job, %$data )
+            or warn "stats-collection: can't store data collected for $job\n";
+    }
+
+    return 1;
+}
+
+############
+## Run once
+DW::Worker::StatsCollection->work;
+
+
+=head1 BUGS
+
+=head1 AUTHORS
+
+Afuna <coder.dw@afunamatata.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2009 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+=cut

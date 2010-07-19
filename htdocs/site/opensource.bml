@@ -1,0 +1,45 @@
+<?page
+
+# site/opensource.bml
+#
+# Page explaining our stance on Open Source, licensing information for our
+# stuff and credit for other people's stuff that we use.
+#
+# Authors:
+#      Rachel Walmsley <rho@rho.me.uk>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+body<=
+<h1><?_ml .os.header _ml?></h1>
+
+<p><?_ml .os.intro _ml?></p>
+
+<p><?_code return BML::ml ('.os.dw', {'sitenameshort' => $LJ::SITENAMESHORT}); _code?></p>
+
+<p><?_ml .os.lj _ml?></p>
+
+<h1><?_ml .licensing.header _ml?></h1>
+
+<p><?_ml .licensing.main _ml?></p>
+
+<h1><?_ml .attrib.header _ml?></h1>
+
+<p><?_code return BML::ml ('.attrib.silk', {'sitenameshort' => $LJ::SITENAMESHORT}); _code?></p>
+
+<p><?_code return BML::ml ('.attrib.circular', {'sitenameshort' => $LJ::SITENAMESHORT}); _code?></p>
+
+<h1><?_ml .development.header _ml?></h1>
+
+<p><?_ml .development.main _ml?></p>
+
+<p><?_ml .development.directions _ml?></p>
+
+<=body
+windowtitle=><?_ml .title _ml?>
+page?>

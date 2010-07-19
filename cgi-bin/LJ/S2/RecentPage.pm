@@ -1,3 +1,17 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
+
 use strict;
 package LJ::S2;
 
@@ -15,27 +29,29 @@ sub RecentPage
     $opts->{'addfeeds'} = 1;
 
     my $p = Page($u, $opts);
-    $p->{'_type'} = "RecentPage";
-    $p->{'view'} = "recent";
-    $p->{'entries'} = [];
+    $p->{_type} = "RecentPage";
+    $p->{view} = "recent";
+    $p->{entries} = [];
+    $p->{filter_active} = 0;
+    $p->{filter_name} = "";
+    $p->{filter_tags} = 0;
 
     # Link to the friends page as a "group", for use with OpenID "Group Membership Protocol"
     {
         my $is_comm = $u->is_community;
         my $friendstitle = $LJ::SITENAMESHORT." ".($is_comm ? "members" : "friends");
         my $rel = "group ".($is_comm ? "members" : "friends made");
-        my $friendsurl = $u->journal_base."/friends"; # We want the canonical form here, not the vhost form
+        my $friendsurl = $u->journal_base."/read"; # We want the canonical form here, not the vhost form
         $p->{head_content} .= '<link rel="'.$rel.'" title="'.LJ::ehtml($friendstitle).'" href="'.LJ::ehtml($friendsurl)."\" />\n";
     }
 
-    my $user = $u->{'user'};
-    my $journalbase = LJ::journal_base($user, $opts->{'vhost'});
+    my $user = $u->user;
+    my $journalbase = $u->journal_base( $opts->{'vhost'} );
 
     my $datalink = sub {
         my ($what, $caption) = @_;
         return Link($p->{'base_url'} . "/data/$what" . ($opts->{tags} ? "?tag=".join(",", map({ LJ::eurl($_) } @{$opts->{tags}})) : ""),
-                    $caption,
-                    Image("$LJ::IMGPREFIX/data_$what.gif", 32, 15, $caption));
+                    $caption, Image_std( $what ) );
     };
 
     $p->{'data_link'} = {
@@ -44,7 +60,18 @@ sub RecentPage
     };
     $p->{'data_links_order'} = [ qw(rss atom) ];
 
-    LJ::load_user_props($remote, "opt_nctalklinks", "opt_ljcut_disable_lastn");
+    $remote->preload_props( "opt_nctalklinks", "opt_cut_disable_journal") if $remote;
+
+    if ( $opts->{tags} ) {
+        $p->{filter_active} = 1;
+        $p->{filter_name} = join(", ", @{$opts->{tags}});
+        $p->{filter_tags} = 1;
+    }
+
+    if ( $opts->{securityfilter} ) {
+        $p->{filter_active} = 1;
+        $p->{filter_name} = $opts->{securityfilter};
+    } 
 
     my $get = $opts->{'getargs'};
 
@@ -61,7 +88,18 @@ sub RecentPage
         $p->{'head_content'} .= qq{<meta name="ICBM" content="$icbm" />\n};
     }
 
-    my $itemshow = S2::get_property_value($opts->{'ctx'}, "page_recent_items")+0;
+    # load for ajax cuttag
+    LJ::need_res( 'js/cuttag-ajax.js' );
+    my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
+    my $expanded = BML::ml( 'widget.cuttag.expanded' );
+    $p->{'head_content'} .= qq[
+  <script type='text/javascript'>
+  expanded = '$expanded';
+  collapsed = '$collapsed';
+  </script>
+    ];
+
+    my $itemshow = S2::get_property_value($opts->{'ctx'}, "num_items_recent")+0;
     if ($itemshow < 1) { $itemshow = 20; }
     elsif ($itemshow > 50) { $itemshow = 50; }
 
@@ -70,183 +108,105 @@ sub RecentPage
     if ($skip < 0) { $skip = 0; }
     if ($skip > $maxskip) { $skip = $maxskip; }
 
+    # honor ?style=mine
+    my $mine = $get->{'style'} eq "mine" ? "mine" : "";
+
     # do they want to view all entries, regardless of security?
     my $viewall = 0;
     my $viewsome = 0;
-    if ($get->{'viewall'} && LJ::check_priv($remote, "canview", "suspended")) {
-        LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
-                              "viewall", "lastn: $user, statusvis: $u->{'statusvis'}");
-        $viewall = LJ::check_priv($remote, 'canview', '*');
-        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+    if ( $remote ) {
+        ( $viewall, $viewsome ) =
+            $remote->view_priv_check( $u, $get->{viewall}, 'lastn' );
     }
 
     ## load the itemids
     my @itemids;
     my $err;
-    my @items = LJ::get_recent_items({
-        'clusterid' => $u->{'clusterid'},
-        'clustersource' => 'slave',
-        'viewall' => $viewall,
-        'userid' => $u->{'userid'},
-        'remote' => $remote,
-        'itemshow' => $itemshow,
-        'skip' => $skip,
-        'tagids' => $opts->{tagids},
-        'security' => $opts->{'securityfilter'},
-        'itemids' => \@itemids,
-        'dateformat' => 'S2',
-        'order' => ($u->{'journaltype'} eq "C" || $u->{'journaltype'} eq "Y")  # community or syndicated
-            ? "logtime" : "",
-        'err' => \$err,
-    });
+    my @items = $u->recent_items(
+        clusterid     => $u->{clusterid},
+        clustersource => 'slave',
+        viewall       => $viewall,
+        remote        => $remote,
+        itemshow      => $itemshow + 1,
+        skip          => $skip,
+        tagids        => $opts->{tagids},
+        security      => $opts->{securityfilter},
+        itemids       => \@itemids,
+        dateformat    => 'S2',
+        order         => ( $u->is_community || $u->is_syndicated ) ? 'logtime' : '',
+        err           => \$err,
+    );
+
+    my $is_prev_exist = scalar @items - $itemshow > 0 ? 1 : 0;
+    pop @items if $is_prev_exist;
 
     die $err if $err;
 
-    ### load the log properties
-    my %logprops = ();
-    my $logtext;
-    LJ::load_log_props2($u->{'userid'}, \@itemids, \%logprops);
-    $logtext = LJ::get_logtext2($u, @itemids);
-
+    # prepare sticky entry for S2 - only show sticky entry on first page of Recent Entries, not on skip= pages
+    # or tag and security subfilters
+    my $stickyentry;
+    $stickyentry = $u->get_sticky_entry
+        if $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
+    # only show if visible to user
+    if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
+        # create S2 entry object and show first on page
+        my $entry = Entry_from_entryobj( $u, $stickyentry, $opts ); 
+        # sticky entry specific things
+        my $sticky_icon = Image_std( 'sticky-entry' );
+        $entry->{_type} = 'StickyEntry';
+        $entry->{sticky_entry_icon} = $sticky_icon;
+        # show on top of page
+        push @{$p->{entries}}, $entry;
+    }
+    
     my $lastdate = "";
     my $itemnum = 0;
     my $lastentry = undef;
 
-    my (%apu, %apu_lite);  # alt poster users; UserLite objects
+    my (%apu);  # alt poster users
     foreach (@items) {
-        next unless $_->{'posterid'} != $u->{'userid'};
-        $apu{$_->{'posterid'}} = undef;
-    }
-    if (%apu) {
-        LJ::load_userids_multiple([map { $_, \$apu{$_} } keys %apu], [$u]);
-        $apu_lite{$_} = UserLite($apu{$_}) foreach keys %apu;
+        next unless $_->{posterid} != $u->{userid};
+        $apu{$_->{posterid}} = undef;
     }
 
-    # load tags
-    my $idsbyc = { $u->{clusterid} => [ ] };
-    push @{$idsbyc->{$u->{clusterid}}}, [ $u->{userid}, $_->{itemid} ]
-        foreach @items;
-    my $tags = LJ::Tags::get_logtagsmulti($idsbyc);
-
-    my $userlite_journal = UserLite($u);
+    $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_journal' ) );
 
   ENTRY:
     foreach my $item (@items)
     {
-        my ($posterid, $itemid, $security, $allowmask, $alldatepart) =
-            map { $item->{$_} } qw(posterid itemid security allowmask alldatepart);
+        my ($posterid, $itemid, $anum) =
+            map { $item->{$_} } qw(posterid itemid anum);
 
-        my $replycount = $logprops{$itemid}->{'replycount'};
-        my $subject = $logtext->{$itemid}->[0];
-        my $text = $logtext->{$itemid}->[1];
-        if ($get->{'nohtml'}) {
-            # quote all non-LJ tags
-            $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-            $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        }
-
+        # need to increment before possibly doing a next, so that the skiplinks will work
         $itemnum++;
 
-        # don't show posts from suspended users unless the user doing the viewing says to (and is allowed)
-        next ENTRY if $apu{$posterid} && $apu{$posterid}->{'statusvis'} eq 'S' && !$viewsome;
+        my $ditemid = $itemid * 256 + $anum;
+        next if $itemnum > 0 && $stickyentry && $stickyentry->ditemid == $ditemid;
 
-        if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
-            LJ::item_toutf8($u, \$subject, \$text, $logprops{$itemid});
-        }
+        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 
+        # don't show posts from suspended users or suspended posts unless the user doing the viewing says to (and is allowed)
+        next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && !$viewsome;
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
+
+        # create S2 entry, journal posted to is $u
+        my $entry = $lastentry = Entry_from_entryobj( $u, $entry_obj, $opts );
+
+        # end_day and new_day need to be set
+        my $alldatepart = LJ::alldatepart_s2( $entry_obj->{eventtime} );
         my $date = substr($alldatepart, 0, 10);
         my $new_day = 0;
-        if ($date ne $lastdate) {
+        if ( $date ne $lastdate ) {
             $new_day = 1;
             $lastdate = $date;
-            $lastentry->{'end_day'} = 1 if $lastentry;
+            $lastentry->{end_day} = 1 if $lastentry;
         }
+        $entry->{new_day} = $new_day,
 
-        LJ::CleanHTML::clean_subject(\$subject) if $subject;
+        push @{$p->{entries}}, $entry;
 
-        my $ditemid = $itemid * 256 + $item->{'anum'};
-        LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
-                                              'cuturl' => LJ::item_link($u, $itemid, $item->{'anum'}),
-                                              'ljcut_disable' => $remote->{"opt_ljcut_disable_lastn"}, });
-        LJ::expand_embedded($u, $ditemid, $remote, \$text);
-
-        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
-        $text = LJ::ContentFlag->transform_post(post => $text, journal => $u,
-                                                remote => $remote, entry => $entry_obj);
-
-        my @taglist;
-        while (my ($kwid, $kw) = each %{$tags->{"$u->{userid} $itemid"} || {}}) {
-            push @taglist, Tag($u, $kwid => $kw);
-        }
-        LJ::run_hooks('augment_s2_tag_list', u => $u, jitemid => $itemid, tag_list => \@taglist);
-        @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
-
-        if ($opts->{enable_tags_compatibility} && @taglist) {
-            $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
-        }
-
-        my $nc = "";
-        $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
-
-        my $permalink = "$journalbase/$ditemid.html";
-        my $readurl = $permalink;
-        $readurl .= "?$nc" if $nc;
-        my $posturl = $permalink . "?mode=reply";
-
-        my $comments_enabled = ($u->{'opt_showtalklinks'} eq "Y" && ! $logprops{$itemid}->{'opt_nocomments'}) ? 1 : 0;
-        my $has_screened = ($logprops{$itemid}->{'hasscreened'} && ($remote->{'user'} eq $u->{'user'}|| LJ::can_manage($remote, $u))) ? 1 : 0;
-
-        my $comments = CommentInfo({
-            'read_url' => $readurl,
-            'post_url' => $posturl,
-            'count' => $replycount,
-            'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
-            'enabled' => $comments_enabled,
-            'screened' => $has_screened,
-            'show_readlink' => $comments_enabled && ($replycount || $has_screened),
-            'show_postlink' => $comments_enabled,
-        });
-
-        my $userlite_poster = $userlite_journal;
-        my $pu = $u;
-        if ($u->{'userid'} != $posterid) {
-            $userlite_poster = $apu_lite{$posterid} or die "No apu_lite for posterid=$posterid";
-            $pu = $apu{$posterid};
-        }
-        my $pickw = LJ::Entry->userpic_kw_from_props($logprops{$itemid});
-        my $userpic = Image_userpic($pu, 0, $pickw);
-
-        if ($security eq "public" && !$LJ::REQ_GLOBAL{'text_of_first_public_post'}) {
-            $LJ::REQ_GLOBAL{'text_of_first_public_post'} = $text;
-
-            if (@taglist) {
-                $LJ::REQ_GLOBAL{'tags_of_first_public_post'} = [map { $_->{name} } @taglist];
-            }
-        }
-
-        my $entry = $lastentry = Entry($u, {
-            'subject' => $subject,
-            'text' => $text,
-            'dateparts' => $alldatepart,
-            'system_dateparts' => $item->{system_alldatepart},
-            'security' => $security,
-            'age_restriction' => $entry_obj->adult_content_calculated,
-            'allowmask' => $allowmask,
-            'props' => $logprops{$itemid},
-            'itemid' => $ditemid,
-            'journal' => $userlite_journal,
-            'poster' => $userlite_poster,
-            'comments' => $comments,
-            'new_day' => $new_day,
-            'end_day' => 0,   # if true, set later
-            'tags' => \@taglist,
-            'userpic' => $userpic,
-            'permalink_url' => $permalink,
-        });
-
-        push @{$p->{'entries'}}, $entry;
-        LJ::run_hook('notify_event_displayed', $entry_obj);
-    } # end huge while loop
+        LJ::Hooks::run_hook('notify_event_displayed', $entry_obj);
+    }
 
     # mark last entry as closing.
     $p->{'entries'}->[-1]->{'end_day'} = 1 if @{$p->{'entries'} || []};
@@ -264,10 +224,14 @@ sub RecentPage
         my $newskip = $skip - $itemshow;
         $newskip = 0 if $newskip <= 0;
         $nav->{'forward_skip'} = $newskip;
-        $nav->{'forward_url'} = LJ::make_link("$p->{base_url}/", { skip     => ($newskip                   || ""),
-                                                                   tag      => (LJ::eurl($get->{tag})      || ""),
-                                                                   security => (LJ::eurl($get->{security}) || "") });
+        $nav->{'forward_url'} = LJ::make_link( "$p->{'base_url'}/",
+                                { skip     => $newskip                        || "",
+                                  style    => $mine                           || "",
+                                  s2id     => LJ::eurl( $get->{s2id} )        || "",
+                                  tag      => LJ::eurl( $get->{tag} )         || "",
+                                  security => LJ::eurl( $get->{security} )    || "" } );
         $nav->{'forward_count'} = $itemshow;
+        $p->{head_content} .= qq{<link rel="next" href="$nav->{forward_url}" />\n}
     }
 
     # unless we didn't even load as many as we were expecting on this
@@ -279,13 +243,17 @@ sub RecentPage
             my $date_slashes = $lastdate;  # "yyyy mm dd";
             $date_slashes =~ s! !/!g;
             $nav->{'backward_url'} = "$p->{'base_url'}/$date_slashes";
-        } else {
+        } elsif ($is_prev_exist) {
             my $newskip = $skip + $itemshow;
-            $nav->{'backward_url'} = LJ::make_link("$p->{'base_url'}/", { skip     => ($newskip                   || ""),
-                                                                          tag      => (LJ::eurl($get->{tag})      || ""),
-                                                                          security => (LJ::eurl($get->{security}) || "") });
+            $nav->{'backward_url'} = LJ::make_link( "$p->{'base_url'}/",
+                                     { skip     => $newskip                        || "",
+                                       style    => $mine                           || "",
+                                       s2id     => LJ::eurl( $get->{s2id} )        || "",
+                                       tag      => LJ::eurl( $get->{tag} )         || "",
+                                       security => LJ::eurl( $get->{security} )    || "" } );
             $nav->{'backward_skip'} = $newskip;
         }
+        $p->{head_content} .= qq{<link rel="prev" href="$nav->{backward_url}" />\n};
     }
 
     $p->{'nav'} = $nav;

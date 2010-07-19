@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?> 
 body<=
@@ -27,21 +41,6 @@ body<=
         return "<?needlogin?>";
     }
 
-    if ($remote && ! $remote->tosagree_verify) {
-        my $ret = "<?h1 " . LJ::tosagree_str('support' => 'title') . " h1?>";
-
-        my $html_str = LJ::tosagree_str('support' => 'html');
-        if ($html_str) {
-            $ret .= "<?p $html_str p?>";
-        } else {
-            $ret .= BML::ml
-                ('tos.mustread',
-                 { aopts => "target='_new' href='$LJ::SITEROOT/legal/tos.bml'" });
-        }
-
-        return $ret;
-    }
-
     my $scat = $sp->{_cat};
     my $problemarea = $scat->{'catname'};
     my $catkey = $scat->{'catkey'};
@@ -57,14 +56,14 @@ body<=
     my $auth_arg = $FORM{'auth'} ? "&amp;auth=$FORM{'auth'}" : "";
     my $successlinks = BML::ml('.successlinks2',
         {   'number'    => $sp->{'spid'},
-            'aopts1'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}$auth_arg'",
-            'aopts2'    => "href='$LJ::SITEROOT/support/help.bml'",
-            'aopts3'    => "href='$LJ::SITEROOT/support/help.bml?cat=$scat->{'catkey'}'",
-            'aopts8'    => "href='$LJ::SITEROOT/support/help.bml?cat=$scat->{'catkey'}&amp;state=green'",
-            'aopts4'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=prev'",
-            'aopts5'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=next'",
-            'aopts6'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=cprev'",
-            'aopts7'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=cnext'",
+            'aopts1'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}$auth_arg'",
+            'aopts2'    => "href='$LJ::SITEROOT/support/help'",
+            'aopts3'    => "href='$LJ::SITEROOT/support/help?cat=$scat->{'catkey'}'",
+            'aopts8'    => "href='$LJ::SITEROOT/support/help?cat=$scat->{'catkey'}&amp;state=green'",
+            'aopts4'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=prev'",
+            'aopts5'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=next'",
+            'aopts6'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=cprev'",
+            'aopts7'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=cnext'",
         });
 
     ### insert record
@@ -82,6 +81,32 @@ body<=
     return LJ::bad_input($ML{'.internal.changecat'})
         if $FORM{'changecat'} && ($type ne "internal" || ! LJ::Support::can_perform_actions($sp, $remote));
 
+    return LJ::bad_input($ML{'.internal.changelanguage'})
+        if LJ::is_enabled("support_request_language") && $FORM{'changelanguage'} && ($type ne "internal" || ! LJ::Support::can_read_internal($sp, $remote));
+
+    # make sure that the tier/answer combination is valid
+    my $tier;
+    my $require_tier = 0; # tier isn't required for now
+    if (LJ::is_enabled("support_response_tier")) {
+        my $is_answer = $type eq "answer" && LJ::Support::can_help($sp, $remote) ? 1 : 0;
+        my $is_approval = $type eq "internal" && LJ::Support::can_help($sp, $remote) && $FORM{approveans} && $FORM{approveas} eq "answer" ? 1 : 0;
+        my $is_internal = $type eq "internal" && LJ::Support::can_make_internal($sp, $remote) ? 1 : 0;
+
+        if ($FORM{settier}) {
+            return LJ::bad_input($ML{'.internal.settier'})
+                unless $is_answer || $is_approval || $is_internal;
+
+            $tier = $FORM{settier};
+            $tier =~ s/^tier//;
+            $tier += 0;
+
+            return LJ::bad_input($ML{'.invalid.badtier'})
+                unless $tier =~ /^[123]$/;
+        } elsif ($require_tier && ($is_answer || $is_approval)) {
+            return LJ::bad_input($ML{'.invalid.notier'});
+        }
+    }
+
     return LJ::bad_input($ML{'.internal.touch'})
         if ($FORM{'touch'} || $FORM{'untouch'}) &&
             ($type ne "internal" || ! LJ::Support::can_perform_actions($sp, $remote));
@@ -90,7 +115,7 @@ body<=
         if $FORM{'changesum'} && ($type ne "internal" || ! LJ::Support::can_change_summary($sp, $remote));
 
     return LJ::bad_input($ML{'.invalid.blank'})
-        if $FORM{'body'} !~ /\S/ && !$FORM{'approveans'} && !$FORM{'changecat'} &&
+        if $FORM{'body'} !~ /\S/ && !$FORM{'approveans'} && !$FORM{'changecat'} && !$FORM{'changelanguage'} && (!$FORM{'settier'} || $type eq "answer") &&
             !$FORM{'touch'} && !$FORM{'untouch'} && !$FORM{'changesum'} && !$FORM{'bounce_email'};
 
     # Load up vars for approvals
@@ -116,6 +141,15 @@ body<=
 
         return LJ::bad_input($ML{'.invalid.notcat'})
             unless ($cats->{$newcat});
+    }
+
+    # check language
+    my $newlang;
+    if (LJ::is_enabled("support_request_language") && $FORM{'changelanguage'}) {
+        $newlang = $FORM{'changelanguage'};
+
+        return LJ::bad_input($ML{'.invalid.notlang'})
+            unless grep { $newlang eq $_ } @LJ::LANGS;
     }
 
     # get dbh now, it's always needed
@@ -150,7 +184,7 @@ body<=
         my @email_errors;
         foreach my $email (@form_emails) {
 
-            # see if it's a valid lj username
+            # see if it's a valid username
             unless ($email =~ /\@/) {
                 my $eu = LJ::load_user($email); # $email is a username
                 $email = $eu->email_raw if $eu;
@@ -184,7 +218,7 @@ body<=
             'fromname' => $sp->{'reqname'},
             'headers' => { 'X-Bounced-By' => $remote->{'user'} },
             'subject' => "$sp->{'subject'} (support request #$sp->{'spid'})",
-            'body' => "$message\n\n$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}",
+            'body' => "$message\n\n$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}",
         });
 
         # close request, nobody gets credited
@@ -204,15 +238,27 @@ body<=
         $dbh->do("UPDATE support SET spcatid=$newcat WHERE spid=$spid");
         $status .= "Changing from $catkey => $cats->{$newcat}->{'catkey'}\n\n";
         $sp->{'spcatid'} = $newcat; # update category so IC e-mail goes to right place
+
+        LJ::Hooks::run_hook("support_changecat_extra_actions", spid => $spid, catkey => $cats->{$newcat}->{catkey});
     }
 
     ## approving a screened response
     if ($FORM{'approveans'}) {
+        my $sql_extra;
+        if ($tier) {
+            $sql_extra = ", tier=${tier}0";
+        }
+
         # $res, $splid defined above
         # approve
         my $qtype = $dbh->quote($FORM{'approveas'});
-        $dbh->do("UPDATE supportlog SET type=$qtype WHERE splid=$splid");
-        $status .= "(Approving $FORM{'approveas'} \#$splid)\n\n";
+        $dbh->do("UPDATE supportlog SET type=$qtype$sql_extra WHERE splid=$splid");
+        if ($sql_extra) {
+            $status .= "(Approving $FORM{'approveas'} \#$splid as Tier $tier)\n\n";
+        } else {
+            $status .= "(Approving $FORM{'approveas'} \#$splid)\n\n";
+        }
+        $tier = undef; # we don't want the approval IC to have a tier, so delete this.
         LJ::Support::mail_response_to_user($sp, $splid);
     }
 
@@ -224,12 +270,62 @@ body<=
         $status .= "Changing subject from \"$sp->{'subject'}\" to \"$FORM{'summary'}\".\n\n";
     }
 
+    # change language and set it in the summary
+    if (LJ::is_enabled("support_request_language") && $FORM{'changelanguage'}) {
+        my %langs;
+        my $lang_list = LJ::Lang::get_lang_names();
+        for (my $i = 0; $i < @$lang_list; $i = $i+2) {
+            $langs{$lang_list->[$i]} = $lang_list->[$i+1];
+        }
+        my $oldlang = LJ::Support::prop($spid, "language");
+
+        LJ::Support::set_prop($spid, "language", $newlang);
+
+        my $summary = $FORM{summary} ? $FORM{summary} : $sp->{subject};
+        $summary =~ s/[\n\r]//g;
+        my $summary_has_lang = 0;
+        my $summary_edited = 0;
+        while ($summary =~ /\[(.+?)\]/g) {
+            my $summary_lang = $1;
+            if ($summary_lang eq $newlang) {
+                $summary_has_lang = 1;
+                last;
+            }
+            if ($langs{$summary_lang}) {
+                if ($newlang =~ /^en_/) {
+                    $summary =~ s/\[$summary_lang\]//;
+                } else {
+                    $summary =~ s/\[$summary_lang\]/\[$newlang\]/;
+                }
+                $summary_has_lang = 1;
+                $summary_edited = 1;
+                last;
+            }
+        }
+        unless ($summary_has_lang || $newlang =~ /^en_/) {
+            $summary = "[$newlang] $summary";
+            $summary_edited = 1;
+        }
+        if ($summary && $summary_edited) {
+            my $qnewsub = $dbh->quote($summary);
+            $dbh->do("UPDATE support SET subject=$qnewsub WHERE spid=$spid");
+        }
+
+        $status .= "Changing language from \"[$oldlang] $langs{$oldlang}\" to \"[$newlang] $langs{$newlang}\".\n\n";
+    }
+
+    # set the tier of the request using an internal comment instead of an answer
+    if ($tier && $type eq "internal") {
+        $status .= "Setting request to Tier $tier.\n\n";
+    }
+
     my $splid = LJ::Support::append_request($sp, {
         'body' => $status . $FORM{'body'},
         'type' => $type,
         'faqid' => $faqid,
         'uniq' => $r->note('uniq'),
         'remote' => $remote,
+        'tier' => $tier,
     });
 
     LJ::Support::mail_response_to_user($sp, $splid)
@@ -242,7 +338,4 @@ _code?>
 <?_code return BML::ml('.back.support2', {'aopts' => "href='$LJ::SITEROOT/support/'"}); _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/login.bml, htdocs/support/see_request.bml, htdocs/support/help.bml
-link: htdocs/support/index.bml
-</LJDEP> _c?>
+page?>

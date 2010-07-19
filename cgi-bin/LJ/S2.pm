@@ -1,26 +1,38 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 package LJ::S2;
 
 use strict;
-use lib "$LJ::HOME/src/s2";
+use DW;
+use lib DW->home . "/src/s2";
 use S2;
 use S2::Color;
-use Class::Autouse qw(
-                      S2::Checker
-                      S2::Compiler
-                      HTMLCleaner
-                      LJ::CSS::Cleaner
-                      LJ::S2::RecentPage
-                      LJ::S2::YearPage
-                      LJ::S2::DayPage
-                      LJ::S2::FriendsPage
-                      LJ::S2::MonthPage
-                      LJ::S2::EntryPage
-                      LJ::S2::ReplyPage
-                      LJ::S2::TagsPage
-                      );
+use S2::Checker;
+use S2::Compiler;
+use HTMLCleaner;
+use LJ::CSS::Cleaner;
+use LJ::S2::RecentPage;
+use LJ::S2::YearPage;
+use LJ::S2::DayPage;
+use LJ::S2::FriendsPage;
+use LJ::S2::MonthPage;
+use LJ::S2::EntryPage;
+use LJ::S2::ReplyPage;
+use LJ::S2::TagsPage;
 use Storable;
 use Apache2::Const qw/ :common /;
 use POSIX ();
@@ -38,23 +50,14 @@ sub make_journal
     my $ret;
     $LJ::S2::ret_ref = \$ret;
 
-    my ($entry, $page);
-    my $con_opts = {};
+    my ( $entry, $page, $use_modtime );
 
     if ($view eq "res") {
-
-        # the s1shortcomings virtual styleid doesn't have a styleid
-        # so we're making the rule that it can't have resource URLs.
-        if ($styleid eq "s1short") {
-            $opts->{'handler_return'} = 404;
-            return;
-        }
-
         if ($opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) {
             $styleid = $1;
-            $entry = "print_stylesheet()";
+            $entry = [ qw( Page::print_default_stylesheet() print_stylesheet() Page::print_theme_stylesheet() ) ];
             $opts->{'contenttype'} = 'text/css';
-            $con_opts->{'use_modtime'} = 1;
+            $use_modtime = 1;
         } else {
             $opts->{'handler_return'} = 404;
             return;
@@ -63,16 +66,15 @@ sub make_journal
 
     $u->{'_s2styleid'} = $styleid + 0;
 
-    $con_opts->{'u'} = $u;
-    $con_opts->{'style_u'} = $opts->{'style_u'};
-    my $ctx = s2_context($r, $styleid, $con_opts);
+    # try to get an S2 context
+    my $ctx = s2_context( $styleid, use_modtime => $use_modtime, u => $u, style_u => $opts->{style_u} );
     unless ($ctx) {
         $opts->{'handler_return'} = OK;
         return;
     }
 
-    my $lang = 'en';
-    LJ::run_hook('set_s2bml_lang', $ctx, \$lang);
+    my $lang = $remote && $remote->prop( "browselang" );
+    LJ::Hooks::run_hook('set_s2bml_lang', $ctx, \$lang);
 
     # note that's it's very important to pass LJ::Lang::get_text here explicitly
     # rather than relying on BML::set_language's fallback mechanism, which won't
@@ -81,9 +83,26 @@ sub make_journal
     BML::set_language($lang, \&LJ::Lang::get_text);
 
     # let layouts disable EntryPage / ReplyPage, using the BML version
-    # instead.
-    unless ($styleid eq "s1short") {
-        if ($ctx->[S2::PROPS]->{'view_entry_disabled'} && ($view eq "entry" || $view eq "reply")) {
+    # instead.  Unless we are using siteviews, because that is what
+    # will be handling the "BML" views.
+    if ($styleid eq "siteviews") {
+        $r->notes->{ 'no_control_strip' } = 1;
+
+        # kill the flag
+        ${$opts->{'handle_with_bml_ref'}} = 0;
+        ${$opts->{'handle_with_siteviews_ref'}} = 1;
+        $opts->{siteviews_extra_content} ||= {};
+
+        my $siteviews_class = {
+            '_type' => "Siteviews",
+            '_input_captures' => [],
+            '_content' => $opts->{siteviews_extra_content},
+        };
+        
+        $ctx->[S2::SCRATCH]->{siteviews_enabled} = 1;
+        $ctx->[S2::PROPS]->{SITEVIEWS} = $siteviews_class;
+    } else {
+        if ( ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} && ( $view eq "entry" || $view eq "reply" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -106,18 +125,18 @@ sub make_journal
 
     foreach ("name", "url", "urlname") { LJ::text_out(\$u->{$_}); }
 
-    $u->{'_journalbase'} = LJ::journal_base($u->{'user'}, $opts->{'vhost'});
+    $u->{'_journalbase'} = $u->journal_base( $opts->{'vhost'} );
 
     my $view2class = {
         lastn    => "RecentPage",
-        calendar => "YearPage",
+        archive  => "YearPage",
         day      => "DayPage",
-        friends  => "FriendsPage",
+        read     => "FriendsPage",
         month    => "MonthPage",
         reply    => "ReplyPage",
         entry    => "EntryPage",
         tag      => "TagsPage",
-        friendsfriends  => "FriendsPage",
+        network  => "FriendsPage",
     };
 
     if (my $class = $view2class->{$view}) {
@@ -141,8 +160,9 @@ sub make_journal
     return $page if $page && ref $page ne 'HASH';
 
     # Include any head stc or js head content
-    LJ::run_hooks("need_res_for_journals", $u);
-    $page->{head_content} .= LJ::res_includes();
+    LJ::Hooks::run_hooks("need_res_for_journals", $u);
+    my $extra_js = LJ::statusvis_message_js($u);
+    $page->{head_content} .= LJ::res_includes() . $extra_js;
 
     s2_run($r, $ctx, $opts, $entry, $page);
 
@@ -160,6 +180,8 @@ sub make_journal
     # area, copy it into the "real" content type field.
     $opts->{contenttype} = $ctx->[S2::SCRATCH]->{contenttype}
         if defined $ctx->[S2::SCRATCH]->{contenttype};
+
+    $ret = $page->{'LJ_cmtinfo'} . $ret if $opts->{'need_cmtinfo'} and defined $page->{'LJ_cmtinfo'};
 
     return $ret;
 }
@@ -238,7 +260,14 @@ sub s2_run
 
     S2::Builtin::LJ::start_css($ctx) if $css_mode;
     eval {
-        S2::run_code($ctx, $entry, $page);
+        if ( ref $entry ) {
+            foreach ( @$entry ) {
+                S2::run_code( $ctx, $_, $page )
+                    if S2::function_exists( $ctx, $_ );
+            }
+        } else {
+            S2::run_code( $ctx, $entry, $page );
+        }
     };
     S2::Builtin::LJ::end_css($ctx) if $css_mode;
 
@@ -405,9 +434,7 @@ sub load_layers {
         }
     }
 
-    # now we have to go through everything again and verify they're all loaded and
-    # otherwise do a fallback to the global
-    my @to_load;
+    # now we have to go through everything again and verify they're all loaded
     foreach my $lid (@from_db) {
         next if S2::layer_loaded($lid);
 
@@ -421,28 +448,43 @@ sub load_layers {
             next;
         }
 
-        if ($LJ::S2COMPILED_MIGRATION_DONE) {
-            LJ::MemCache::set([ $lid, "s2c:$lid" ], [ time(), 0 ]);
-            next;
-        }
-
-        push @to_load, $lid;
+        LJ::MemCache::set( [ $lid, "s2c:$lid" ], [ time(), 0 ] );
     }
-    return $maxtime unless @to_load;
 
-    # get the dbh and start loading these
-    my $dbr = LJ::S2::get_s2_reader();
-    die "Failure getting S2 database handle in LJ::S2::load_layers\n"
-        unless $dbr;
-
-    my $where = join(' OR ', map { "s2lid=$_" } @to_load);
-    my $sth = $dbr->prepare("SELECT s2lid, compdata, comptime FROM s2compiled WHERE $where");
-    $sth->execute;
-    while (my ($id, $comp, $comptime) = $sth->fetchrow_array) {
-        S2::load_layer($id, $comp, $comptime);
-        $maxtime = $comptime if $comptime > $maxtime;
-    }
     return $maxtime;
+}
+
+sub is_public_internal_layer {
+    my $layerid = shift;
+
+    my $pub = get_public_layers();
+    while ($layerid) {
+        # doesn't exist, probably private
+        return 0 unless defined $pub->{$layerid};
+        my $internal = $pub->{$layerid}->{is_internal};
+
+        return 1 if defined $internal && $internal;
+        return 0 if defined $internal && ! $internal;
+
+        $layerid = $pub->{$layerid}->{b2lid};
+    }
+    return 0;
+}
+
+# whether all layers in this style are public
+sub style_is_public {
+    my $style = $_[0];
+    return 0 unless $style;
+
+    my %lay_info;
+    LJ::S2::load_layer_info( \%lay_info, [ $style->{layer}->{layout}, $style->{layer}->{theme}, $style->{layer}->{user}, $style->{layer}->{i18n}, $style->{layer}->{i18nc} ] );
+
+    my $pub = get_public_layers();
+    while ( my ( $layerid, $layerinfo ) = each %lay_info ) {
+        return 0 unless $pub->{$layerid} || $layerinfo->{is_public};
+    }
+
+    return 1;
 }
 
 # find existing re-distributed layers that are in the database
@@ -458,7 +500,7 @@ sub get_public_layers
     }
 
     $sysid ||= LJ::get_userid("system");
-    my $layers = get_layers_of_user($sysid, "is_system", [qw(des note author author_name author_email)]);
+    my $layers = get_layers_of_user($sysid, "is_system", [qw(des note author author_name author_email is_internal)]);
 
     $LJ::CACHED_PUBLIC_LAYERS = $layers if $layers;
     LJ::MemCache::set("s2publayers", $layers, 60*10) if $layers;
@@ -485,12 +527,12 @@ sub b2lid_remap
 sub get_layers_of_user
 {
     my ($u, $is_system, $infokeys) = @_;
-    
-    my $subst_user = LJ::run_hook("substitute_s2_layers_user", $u);
+
+    my $subst_user = LJ::Hooks::run_hook("substitute_s2_layers_user", $u);
     if (defined $subst_user && LJ::isu($subst_user)) {
         $u = $subst_user;
     }
-    
+
     my $userid = LJ::want_userid($u);
     return undef unless $userid;
     undef $u unless LJ::isu($u);
@@ -647,18 +689,18 @@ sub get_style
 
 sub s2_context
 {
-    my $r = shift;
-    my $styleid = shift;
-    my $opts = shift || {};
+    my ( $styleid, %opts ) = @_;
 
-    my $u = $opts->{u} || LJ::get_active_journal();
-    my $style_u = $opts->{style_u} || $u;
+    # get arguments we'll use frequently
+    my $r = DW::Request->get;
+    my $u = $opts{u} || LJ::get_active_journal();
+    my $remote = $opts{remote} || LJ::get_remote();
+    my $style_u = $opts{style_u} || $u;
 
     # but it doesn't matter if we're using the minimal style ...
     my %style;
     eval {
-        my $r = BML::get_request();
-        if ($r->notes->{use_minimal_scheme}) {
+        if ( $r->notes( 'use_minimal_scheme' ) ) {
             my $public = get_public_layers();
             while (my ($layer, $name) = each %LJ::MINIMAL_STYLE) {
                 next unless $name ne "";
@@ -669,10 +711,10 @@ sub s2_context
         }
     };
 
-    # styleid of "s1short" is special in that it makes a
-    # dynamically-created s2 context
-    if ($styleid eq "s1short") {
-        %style = s1_shortcomings_style($u);
+    if ( $styleid eq "siteviews" ) {
+        %style = siteviews_style( $u, $remote, $opts{mode} );
+    } elsif ( $styleid eq "sitefeeds" ) {
+        %style = sitefeeds_style();
     }
 
     if (ref($styleid) eq "CODE") {
@@ -705,29 +747,25 @@ sub s2_context
     }
     unless ($okay) {
         # load the default style instead, if we just tried to load a real one and failed
-        if ($styleid) { return s2_context($r, 0, $opts); }
+        return s2_context( 0, %opts )
+            if $styleid;
 
         # were we trying to load the default style?
-        $r->content_type("text/html");
-        # FIXME: not necessary in ModPerl 2.0?
-        #$r->send_http_header();
-        $r->print("<b>Error preparing to run:</b> One or more layers required to load the stock style have been deleted.");
+        $r->content_type( 'text/html' );
+        $r->print( '<b>Error preparing to run:</b> One or more layers required to load the stock style have been deleted.' );
         return undef;
     }
 
-    if ($opts->{'use_modtime'})
-    {
-        my $ims = $r->headers_in->{"If-Modified-Since"};
-        my $ourtime = LJ::time_to_http($modtime);
-        if ($ims eq $ourtime) {
+    # if we are supposed to use modtime checking (i.e. for stylesheets) then go
+    # ahead and do that logic now
+    if ( $opts{use_modtime} ) {
+        if ( $r->header_in( 'If-Modified-Since' ) eq LJ::time_to_http( $modtime )) {
             # 304 return; unload non-public layers
             LJ::S2::cleanup_layers(@layers);
-            $r->status_line("304 Not Modified");
-            # FIXME: not necessary in ModPerl 2.0?
-            #$r->send_http_header();
+            $r->status_line( '304 Not Modified' );
             return undef;
         } else {
-            $r->headers_out->{"Last-Modified"} = $ourtime;
+            $r->set_last_modified( $modtime );
         }
     }
 
@@ -741,9 +779,12 @@ sub s2_context
         $ctx->[S2::SCRATCH] ||= {};
 
         LJ::S2::populate_system_props($ctx);
+        LJ::S2::alias_renamed_props( $ctx );
+        LJ::S2::alias_overriding_props( $ctx );
         S2::set_output(sub {});  # printing suppressed
         S2::set_output_safe(sub {});
         eval { S2::run_code($ctx, "prop_init()"); };
+        eval { S2::run_code( $ctx, "modules_init()" ); };
         escape_all_props($ctx, \@layers);
 
         return $ctx unless $@;
@@ -751,14 +792,9 @@ sub s2_context
 
     # failure to generate context; unload our non-public layers
     LJ::S2::cleanup_layers(@layers);
-
-    my $err = $@;
-    $r->content_type("text/html");
-    # FIXME: not necessary in ModPerl 2.0 anymore?
-    #$r->send_http_header();
-    $r->print("<b>Error preparing to run:</b> $err");
+    $r->content_type( 'text/html' );
+    $r->print( '<b>Error preparing to run:</b> ' . $@ );
     return undef;
-
 }
 
 sub escape_all_props {
@@ -807,7 +843,7 @@ sub escape_prop_value {
         }
         elsif ($mode eq 'css') {
             my $clean = $css_c->clean($_[0]);
-            LJ::run_hook('css_cleaner_transform', \$clean);
+            LJ::Hooks::run_hook('css_cleaner_transform', \$clean);
             $_[0] = $clean;
         }
         elsif ($mode eq 'css-attrib') {
@@ -830,15 +866,16 @@ sub escape_prop_value {
     }
 }
 
-sub s1_shortcomings_style {
-    my $u = shift;
+sub siteviews_style {
+    my ( $u, $remote, $mode ) = @_;
     my %style;
 
     my $public = get_public_layers();
     %style = (
-              core => "core1",
-              layout => "s1shortcomings/layout",
-              );
+              core => "core2",
+              layout => "siteviews/layout",
+              theme => "siteviews/default",
+    );
 
     # convert the value names to s2layerid
     while (my ($layer, $name) = each %style) {
@@ -850,6 +887,24 @@ sub s1_shortcomings_style {
     return %style;
 }
 
+sub sitefeeds_style {
+    return unless %$LJ::DEFAULT_FEED_STYLE;
+
+    my $public = get_public_layers();
+
+    my %style;
+
+    # convert the value names to s2layerid
+    while ( my ( $layer, $name ) = each %$LJ::DEFAULT_FEED_STYLE ) {
+        next unless $public->{$name};
+        my $id = $public->{$name}->{'s2lid'};
+        $style{$layer} = $id;
+    }
+
+    return %style;
+}
+
+
 # parameter is either a single context, or just a bunch of layerids
 # will then unregister the non-public layers
 sub cleanup_layers {
@@ -858,47 +913,9 @@ sub cleanup_layers {
     S2::unregister_layer($_) foreach grep { ! $pub->{$_} } @unload;
 }
 
-sub clone_layer
-{
-    die "LJ::S2::clone_layer() has not been ported to use s2compiled2, but this function is not currently in use anywhere; if you use this function, please update it to use s2compiled2.\n";
-
-    my $id = shift;
-    return 0 unless $id;
-
-    my $dbh = LJ::get_db_writer();
-    my $r;
-
-    $r = $dbh->selectrow_hashref("SELECT * FROM s2layers WHERE s2lid=?", undef, $id);
-    return 0 unless $r;
-    $dbh->do("INSERT INTO s2layers (b2lid, userid, type) VALUES (?,?,?)",
-             undef, $r->{'b2lid'}, $r->{'userid'}, $r->{'type'});
-    my $newid = $dbh->{'mysql_insertid'};
-    return 0 unless $newid;
-
-    foreach my $t (qw(s2compiled s2info s2source)) {
-        if ($t eq "s2source") {
-            $r = LJ::S2::load_layer_source_row($id);
-        } else {
-            $r = $dbh->selectrow_hashref("SELECT * FROM $t WHERE s2lid=?", undef, $id);
-        }
-        next unless $r;
-        $r->{'s2lid'} = $newid;
-
-        # kinda hacky:  we have to update the layer id
-        if ($t eq "s2compiled") {
-            $r->{'compdata'} =~ s/\$_LID = (\d+)/\$_LID = $newid/;
-        }
-
-        $dbh->do("INSERT INTO $t (" . join(',', keys %$r) . ") VALUES (".
-                 join(',', map { $dbh->quote($_) } values %$r) . ")");
-    }
-
-    return $newid;
-}
-
 sub create_style
 {
-    my ($u, $name, $cloneid) = @_;
+    my ( $u, $name ) = @_;
 
     my $dbh = LJ::get_db_writer();
     return 0 unless $dbh && $u->writer;
@@ -906,33 +923,16 @@ sub create_style
     my $uid = $u->{userid} + 0
         or return 0;
 
-    my $clone;
-    $clone = load_style($cloneid) if $cloneid;
-
-    # can't clone somebody else's style
-    return 0 if $clone && $clone->{'userid'} != $uid;
-
     # can't create name-less style
     return 0 unless $name =~ /\S/;
 
     $dbh->do("INSERT INTO s2styles (userid, name, modtime) VALUES (?,?, UNIX_TIMESTAMP())",
-             undef, $u->{'userid'}, $name);
+             undef, $u->userid, $name);
     my $styleid = $dbh->{'mysql_insertid'};
     return 0 unless $styleid;
 
-    if ($clone) {
-        $clone->{'layer'}->{'user'} =
-            LJ::clone_layer($clone->{'layer'}->{'user'});
-
-        my $values;
-        foreach my $ly ('core','i18nc','layout','theme','i18n','user') {
-            next unless $clone->{'layer'}->{$ly};
-            $values .= "," if $values;
-            $values .= "($uid, $styleid, '$ly', $clone->{'layer'}->{$ly})";
-        }
-        $u->do("REPLACE INTO s2stylelayers2 (userid, styleid, type, s2lid) ".
-               "VALUES $values") if $values;
-    }
+    # in case we had an invalid / empty value from before
+    LJ::MemCache::delete([$styleid, "s2s:$styleid"]);
 
     return $styleid;
 }
@@ -949,7 +949,7 @@ sub load_user_styles
     my $load_using = sub {
         my $db = shift;
         my $sth = $db->prepare("SELECT styleid, name FROM s2styles WHERE userid=?");
-        $sth->execute($u->{'userid'});
+        $sth->execute( $u->userid );
         while (my ($id, $name) = $sth->fetchrow_array) {
             $styles{$id} = $name;
         }
@@ -976,9 +976,7 @@ sub delete_user_style
     my $dbh = LJ::get_db_writer();
     return 0 unless $dbh && $u->writer;
 
-    foreach my $t (qw(s2styles s2stylelayers)) {
-        $dbh->do("DELETE FROM $t WHERE styleid=?", undef, $styleid)
-    }
+    $dbh->do("DELETE FROM s2styles WHERE styleid=?", undef, $styleid);
     $u->do("DELETE FROM s2stylelayers2 WHERE userid=? AND styleid=?", undef,
            $u->{userid}, $styleid);
 
@@ -1009,7 +1007,7 @@ sub load_style
 
     my $memkey = [$id, "s2s:$id"];
     my $style = LJ::MemCache::get($memkey);
-    unless ($style) {
+    unless ( defined $style ) {
         $db ||= LJ::S2::get_s2_reader()
             or die "Unable to get S2 reader";
         $style = $db->selectrow_hashref("SELECT styleid, userid, name, modtime ".
@@ -1017,7 +1015,7 @@ sub load_style
                                         undef, $id);
         die $db->errstr if $db->err;
 
-        LJ::MemCache::add($memkey, $style, 3600);
+        LJ::MemCache::add($memkey, $style || {}, 3600);
     }
     return undef unless $style;
 
@@ -1050,7 +1048,7 @@ sub create_layer
 }
 
 # takes optional $u as first argument... if user argument is specified, will
-# look through s2stylelayers and delete all mappings that this user has to
+# look through s2stylelayers2 and delete all mappings that this user has to
 # this particular layer.
 sub delete_layer
 {
@@ -1085,9 +1083,6 @@ sub delete_layer
             # map in the ids we got from the user's styles and clear layers referencing
             # this particular layer id
             my $in = join(',', map { $_ + 0 } @ids);
-            $dbh->do("DELETE FROM s2stylelayers WHERE styleid IN ($in) AND s2lid = ?",
-                     undef, $lid);
-
             $u->do("DELETE FROM s2stylelayers2 WHERE userid=? AND styleid IN ($in) AND s2lid = ?",
                    undef, $u->{userid}, $lid);
 
@@ -1140,14 +1135,8 @@ sub get_style_layers
         return 1;
     };
 
-    unless ($fetch->($u, "SELECT type, s2lid FROM s2stylelayers2 " .
-                     "WHERE userid=? AND styleid=?", $u->{userid}, $styleid)) {
-        my $dbh = LJ::get_db_writer();
-        if ($fetch->($dbh, "SELECT type, s2lid FROM s2stylelayers WHERE styleid=?",
-                     $styleid)) {
-            LJ::S2::set_style_layers_raw($u, $styleid, %stylay);
-        }
-    }
+    $fetch->( $u, "SELECT type, s2lid FROM s2stylelayers2 " .
+                  "WHERE userid=? AND styleid=?", $u->userid, $styleid );
 
     # set in memcache
     LJ::MemCache::set($memkey, \%stylay);
@@ -1155,43 +1144,8 @@ sub get_style_layers
     return \%stylay;
 }
 
-# the old interfaces.  handles merging with global database data if necessary.
 sub set_style_layers
 {
-    my ($u, $styleid, %newlay) = @_;
-    my $dbh = LJ::get_db_writer();
-    return 0 unless $dbh && $u->writer;
-
-    my @lay = ('core','i18nc','layout','theme','i18n','user');
-    my %need = map { $_, 1 } @lay;
-    delete $need{$_} foreach keys %newlay;
-    if (%need) {
-        # see if the needed layers are already on the user cluster
-        my ($sth, $t, $lid);
-
-        $sth = $u->prepare("SELECT type FROM s2stylelayers2 WHERE userid=? AND styleid=?");
-        $sth->execute($u->{'userid'}, $styleid);
-        while (($t) = $sth->fetchrow_array) {
-            delete $need{$t};
-        }
-
-        # if we still don't have everything, see if they exist on the
-        # global cluster, and we'll merge them into the %newlay being
-        # posted, so they end up on the user cluster
-        if (%need) {
-            $sth = $dbh->prepare("SELECT type, s2lid FROM s2stylelayers WHERE styleid=?");
-            $sth->execute($styleid);
-            while (($t, $lid) = $sth->fetchrow_array) {
-                $newlay{$t} = $lid;
-            }
-        }
-    }
-
-    set_style_layers_raw($u, $styleid, %newlay);
-}
-
-# just set in user cluster, not merging with global
-sub set_style_layers_raw {
     my ($u, $styleid, %newlay) = @_;
     my $dbh = LJ::get_db_writer();
     return 0 unless $dbh && $u->writer;
@@ -1241,6 +1195,39 @@ sub populate_system_props
     $ctx->[S2::PROPS]->{'STATDIR'} = $LJ::STATPREFIX;
 }
 
+# renamed some props from core1 => core2. Make sure that S2 still handles these variables correctly when working with a core1 layer
+sub alias_renamed_props
+{
+    my $ctx = shift;
+    $ctx->[S2::PROPS]->{num_items_recent} = $ctx->[S2::PROPS]->{page_recent_items}
+        if exists $ctx->[S2::PROPS]->{page_recent_items};
+
+    $ctx->[S2::PROPS]->{num_items_reading} = $ctx->[S2::PROPS]->{page_friends_items}
+        if exists $ctx->[S2::PROPS]->{page_friends_items};
+
+    $ctx->[S2::PROPS]->{reverse_sortorder_day} = $ctx->[S2::PROPS]->{page_day_sortorder} eq 'reverse' ? 1 : 0
+        if exists $ctx->[S2::PROPS]->{page_day_sortorder};
+
+    $ctx->[S2::PROPS]->{reverse_sortorder_year} = $ctx->[S2::PROPS]->{page_year_sortorder} eq 'reverse' ? 1 : 0
+        if exists $ctx->[S2::PROPS]->{page_year_sortorder};
+
+    $ctx->[S2::PROPS]->{use_journalstyle_entry_page} = ! $ctx->[S2::PROPS]->{view_entry_disabled}
+        if exists $ctx->[S2::PROPS]->{view_entry_disabled};
+}
+
+# use the "grouped_property_override" property to determine whether a custom property should override a default property.
+# one potential use: to customize which sections a module may show up in.
+sub alias_overriding_props {
+    my $ctx = $_[0];
+
+    my %overrides = %{$ctx->[S2::PROPS]->{grouped_property_override} || {}};
+    return unless %overrides;
+
+    while ( my ( $original, $overriding ) = each %overrides ) {
+        $ctx->[S2::PROPS]->{$original} = $ctx->[S2::PROPS]->{$overriding} if $ctx->[S2::PROPS]->{$overriding};
+    }
+}
+
 sub layer_compile_user
 {
     my ($layer, $overrides) = @_;
@@ -1249,10 +1236,11 @@ sub layer_compile_user
     return 0 unless $layer->{'s2lid'};
     return 1 unless ref $overrides;
     my $id = $layer->{'s2lid'};
-    my $s2 = "layerinfo \"type\" = \"user\";\n";
+    my $s2 = LJ::Lang::ml( 's2theme.autogenerated.warning' );
+    $s2 .= "layerinfo \"type\" = \"user\";\n";
     $s2 .= "layerinfo \"name\" = \"Auto-generated Customizations\";\n";
 
-    foreach my $name (keys %$overrides) {
+    foreach my $name (sort keys %$overrides) {
         next if $name =~ /\W/;
         my $prop = $overrides->{$name}->[0];
         my $val = $overrides->{$name}->[1];
@@ -1302,15 +1290,15 @@ sub layer_compile
         $s2ref = \$s2;
     }
 
-    my $is_system = $layer->{'userid'} == LJ::get_userid("system");
-    my $untrusted = ! $LJ::S2_TRUSTED{$layer->{'userid'}} && ! $is_system;
+    my $is_system = $layer->{userid} == LJ::get_userid( "system" );
+    my $untrusted = ! $LJ::S2_TRUSTED{$layer->{userid}} && ! $is_system;
 
     # system writes go to global.  otherwise to user clusters.
     my $dbcm;
     if ($is_system) {
         $dbcm = $dbh;
     } else {
-        my $u = LJ::load_userid($layer->{'userid'});
+        my $u = LJ::load_userid( $layer->{userid} );
         $dbcm = $u;
     }
 
@@ -1383,11 +1371,11 @@ sub layer_compile
         my $gzipped = LJ::text_compress($compiled);
         $dbcm->do("REPLACE INTO s2compiled2 (userid, s2lid, comptime, compdata) ".
                   "VALUES (?, ?, UNIX_TIMESTAMP(), ?)", undef,
-                  $layer->{'userid'}, $lid, $gzipped) or die "replace into s2compiled2 (lid = $lid)";
-
-        # delete from memcache; we can't store since we don't know the exact comptime
-        LJ::MemCache::delete([ $lid, "s2c:$lid" ]);
+                  $layer->{userid}, $lid, $gzipped) or die "replace into s2compiled2 (lid = $lid)";
     }
+
+    # delete from memcache; we can't store since we don't know the exact comptime
+    LJ::MemCache::delete([ $lid, "s2c:$lid" ]);
 
     # caller might want the compiled source
     if (ref $opts->{'compiledref'} eq "SCALAR") {
@@ -1477,37 +1465,17 @@ sub set_layer_source
 sub load_layer_source
 {
     my $s2lid = shift;
-
-    # s2source is the old global MyISAM table that contains s2 layer sources
-    # s2source_inno is new global InnoDB table that contains new layer sources
-    # -- lazy migration is done whenever an insert/delete happens
-
     my $dbh = LJ::get_db_writer();
 
-    # first try InnoDB table
-    my $s2source = $dbh->selectrow_array("SELECT s2code FROM s2source_inno WHERE s2lid=?", undef, $s2lid);
-    return $s2source if $s2source;
-
-    # fall back to MyISAM
-    return $dbh->selectrow_array("SELECT s2code FROM s2source WHERE s2lid=?", undef, $s2lid);
+    return $dbh->selectrow_array( "SELECT s2code FROM s2source_inno WHERE s2lid=?", undef, $s2lid );
 }
 
 sub load_layer_source_row
 {
     my $s2lid = shift;
-
-    # s2source is the old global MyISAM table that contains s2 layer sources
-    # s2source_inno is new global InnoDB table that contains new layer sources
-    # -- lazy migration is done whenever an insert/delete happens
-
     my $dbh = LJ::get_db_writer();
 
-    # first try InnoDB table
-    my $s2source = $dbh->selectrow_hashref("SELECT * FROM s2source_inno WHERE s2lid=?", undef, $s2lid);
-    return $s2source if $s2source;
-
-    # fall back to MyISAM
-    return $dbh->selectrow_hashref("SELECT * FROM s2source WHERE s2lid=?", undef, $s2lid);
+    return $dbh->selectrow_hashref( "SELECT * FROM s2source_inno WHERE s2lid=?", undef, $s2lid );
 }
 
 sub get_layout_langs
@@ -1537,7 +1505,7 @@ sub get_layout_themes
             next unless /^\d+$/;
             my $v = $src->{$_};
             $v->{b2layer} = $src->{$src->{$_}->{b2lid}}; # include layout information
-            my $is_active = LJ::run_hook("layer_is_active", $v->{'uniq'});
+            my $is_active = LJ::Hooks::run_hook("layer_is_active", $v->{'uniq'});
             push @themes, $v if
                 ($v->{type} eq "theme" &&
                  $layid &&
@@ -1630,9 +1598,9 @@ sub get_policy
 sub can_use_layer
 {
     my ($u, $uniq) = @_;  # $uniq = redist_uniq value
-    return 1 if LJ::get_cap($u, "s2styles");
+    return 1 if $u->can_create_s2_styles;
     return 0 unless $uniq;
-    return 1 if LJ::run_hook('s2_can_use_layer', {
+    return 1 if LJ::Hooks::run_hook('s2_can_use_layer', {
         u => $u,
         uniq => $uniq,
     });
@@ -1654,8 +1622,8 @@ sub can_use_layer
 sub can_use_prop
 {
     my ($u, $uniq, $prop) = @_;  # $uniq = redist_uniq value
-    return 1 if LJ::get_cap($u, "s2styles");
-    return 1 if LJ::get_cap($u, "s2props");
+    return 1 if $u->can_create_s2_styles;
+    return 1 if $u->can_create_s2_props;
     my $pol = get_policy();
     my $can = 0;
     my @layers = ('*');
@@ -1789,8 +1757,8 @@ sub Tag
     my $t = {
         _type => 'Tag',
         _id => $kwid,
-        name => LJ::ehtml($kw),
-        url => LJ::journal_base($u) . '/tag/' . LJ::eurl($kw),
+        name => LJ::ehtml( $kw ),
+        url => $u->journal_base . '/tag/' . LJ::eurl( $kw ),
     };
 
     return $t;
@@ -1804,8 +1772,8 @@ sub TagDetail
     my $t = {
         _type => 'TagDetail',
         _id => $kwid,
-        name => LJ::ehtml($tag->{name}),
-        url => LJ::journal_base($u) . '/tag/' . LJ::eurl($tag->{name}),
+        name => LJ::ehtml( $tag->{name} ),
+        url => $u->journal_base . '/tag/' . LJ::eurl( $tag->{name} ),
         use_count => $tag->{uses},
         visibility => $tag->{security_level},
     };
@@ -1820,6 +1788,22 @@ sub TagDetail
     return $t;
 }
 
+sub TagList
+{
+    my ( $tags, $u, $jitemid, $opts, $taglist ) = @_;
+
+    while ( my ( $kwid, $keyword ) = each %{ $tags || {} } ) {
+        push @$taglist, Tag( $u, $kwid => $keyword );
+    }
+
+    LJ::Hooks::run_hooks( 'augment_s2_tag_list', u => $u, jitemid => $jitemid, tag_list => $taglist );
+    @$taglist = sort { $a->{name} cmp $b->{name} } @$taglist;
+
+    return "" if $opts->{no_entry_body};
+    return "" unless $opts->{enable_tags_compatibility} && @$taglist;
+    return LJ::S2::get_tags_text( $opts->{ctx}, $taglist );
+}
+
 sub Entry
 {
     my ($u, $arg) = @_;
@@ -1828,8 +1812,8 @@ sub Entry
         'link_keyseq' => [ 'edit_entry', 'edit_tags' ],
         'metadata' => {},
     };
-    foreach (qw(subject text journal poster new_day end_day
-                comments userpic permalink_url itemid tags)) {
+    foreach ( qw( subject text journal poster new_day end_day
+                comments userpic permalink_url itemid tags timeformat24 ) ) {
         $e->{$_} = $arg->{$_};
     }
 
@@ -1842,11 +1826,10 @@ sub Entry
     $e->{'depth'} = 0;  # Entries are always depth 0.  Comments are 1+.
 
     my $link_keyseq = $e->{'link_keyseq'};
-    push @$link_keyseq, 'mem_add' unless $LJ::DISABLED{'memories'};
-    push @$link_keyseq, 'tell_friend' unless $LJ::DISABLED{'tellafriend'};
-    push @$link_keyseq, 'watch_comments' unless $LJ::DISABLED{'esn'};
-    push @$link_keyseq, 'unwatch_comments' unless $LJ::DISABLED{'esn'};
-    push @$link_keyseq, 'flag' unless LJ::conf_test($LJ::DISABLED{content_flag});
+    push @$link_keyseq, 'mem_add' if LJ::is_enabled('memories');
+    push @$link_keyseq, 'tell_friend' if LJ::is_enabled('tellafriend');
+    push @$link_keyseq, 'watch_comments' if LJ::is_enabled('esn');
+    push @$link_keyseq, 'unwatch_comments' if LJ::is_enabled('esn');
 
     # Note: nav_prev and nav_next are not included in the keyseq anticipating
     #      that their placement relative to the others will vary depending on
@@ -1870,46 +1853,35 @@ sub Entry
         $e->{'security_icon'} = Image_std("security-private");
     }
 
-    $e->{'age_restriction'} = "";
-    if ($arg->{'age_restriction'} eq "explicit") {
-        $e->{'age_restriction'} = "18";
-        $e->{'age_restriction_icon'} = Image_std("age-18");
-    } elsif ($arg->{'age_restriction'} eq "concepts") {
-        $e->{'age_restriction'} = "14";
-        $e->{'age_restriction_icon'} = Image_std("age-14");
+    $e->{adult_content_level} = "";
+    if ($arg->{adult_content_level} eq "explicit") {
+        $e->{adult_content_level} = "18";
+        $e->{adult_content_icon} = Image_std("adult-18");
+    } elsif ($arg->{adult_content_level} eq "concepts") {
+        $e->{adult_content_level} = "NSFW";
+        $e->{adult_content_icon} = Image_std("adult-nsfw");
     } else {
         # do nothing.
     }
 
-    my $p = $arg->{'props'};
-    if ($p->{'current_music'}) {
-        $e->{'metadata'}->{'music'} = $p->{'current_music'};
-        LJ::CleanHTML::clean_subject(\$e->{'metadata'}->{'music'});
-    }
-    if (my $mid = $p->{'current_moodid'}) {
-        my $theme = defined $arg->{'moodthemeid'} ? $arg->{'moodthemeid'} : $u->{'moodthemeid'};
-        my %pic;
-        $e->{'mood_icon'} = Image($pic{'pic'}, $pic{'w'}, $pic{'h'})
-            if LJ::get_mood_picture($theme, $mid, \%pic);
-        if (my $mood = LJ::mood_name($mid)) {
-            my $extra = LJ::run_hook("current_mood_extra", $theme) || "";
-            $e->{'metadata'}->{'mood'} = "$mood$extra";
-        }
-    }
-    if ($p->{'current_mood'}) {
-        $e->{'metadata'}->{'mood'} = $p->{'current_mood'};
-        LJ::CleanHTML::clean_subject(\$e->{'metadata'}->{'mood'});
-    }
+    my $m_arg = $arg;
+    # if moodthemeid not given, look up the user's if we have it
+    $m_arg = $u if ! defined $arg->{moodthemeid} && LJ::isu( $u );
 
-    if ($p->{'current_location'} || $p->{'current_coords'}) {
-        my $loc = eval { LJ::Location->new(coords   => $p->{'current_coords'},
-                                           location => $p->{'current_location'}) };
-        $e->{'metadata'}->{'location'} = $loc->as_html_current if $loc;
-    }
+    my $p = $arg->{props};
+    my $img_arg;
+    my %current = LJ::currents( $p, $m_arg, { s2imgref => \$img_arg } );
+    $e->{metadata}->{lc $_} = $current{$_} foreach keys %current;
+    $e->{mood_icon} = Image( @$img_arg ) if defined $img_arg;
+
+    my $r = BML::get_request();
 
     # custom friend groups
-    my $entry = LJ::Entry->new($e->{journal}->{_u}, ditemid => $e->{itemid});
-    my $group_names = $entry->group_names;
+    my $group_names = $arg->{group_names};
+    unless ( $group_names ) {
+        my $entry = LJ::Entry->new($e->{journal}->{_u}, ditemid => $e->{itemid});
+        $group_names = $entry->group_names;
+    }
     $e->{metadata}->{groups} = $group_names if $group_names;
 
     # TODO: Populate this field more intelligently later, but for now this will
@@ -1919,6 +1891,119 @@ sub Entry
     $e->{text_must_print_trusted} = 1 if $e->{text} =~ m!<(script|object|applet|embed|iframe)\b!i;
 
     return $e;
+}
+
+#returns an S2 Entry from a user object and an entry object
+sub Entry_from_entryobj
+{
+    my ($u, $entry_obj, $opts) = @_;
+    my $remote = LJ::get_remote();
+    my $get = $opts->{getargs};
+    my $no_entry_body = $opts->{no_entry_body};
+
+    my $anum = $entry_obj->anum;
+    my $jitemid = $entry_obj->jitemid;
+    my $ditemid = $entry_obj->ditemid;
+
+    # $journal: journal posted to
+    my $journalid = $entry_obj->journalid;
+    my $journal = LJ::load_userid( $journalid );
+
+    # is style=mine used?  or if remote has it on and this entry is not part of
+    # their journal.  if either are yes, it needs to be added to comment links
+    my %opt_stylemine = $remote && $remote->prop( 'opt_stylemine' ) && $remote->id != $journalid ? ( style => 'mine' ) : ();
+    my $style_args = LJ::viewing_style_args( %$get, %opt_stylemine );
+    
+    #load and prepare subject and text of entry
+    my $subject = LJ::CleanHTML::quote_html( $entry_obj->subject_html, $get->{nohtml} );
+    my $text = $no_entry_body ? "" : LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
+    LJ::item_toutf8( $journal, \$subject, \$text, $entry_obj->props ) if $LJ::UNICODE && $entry_obj->props->{unknown8bit};
+
+    my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
+
+    unless ( $no_entry_body ) {
+        # cleaning the entry text: cuts and such
+        my $cut_disable = $opts->{cut_disable};
+        my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum, $style_args ),
+            ljcut_disable => $cut_disable,
+            journal => $journal->username,
+            ditemid => $ditemid,
+            suspend_msg => $suspend_msg,
+            unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0,
+            preformatted => $entry_obj->prop( "opt_preformatted" ),
+        };
+
+        # reading pages might need to display image placeholders
+        my $cleanhtml_extra = $opts->{cleanhtml_extra} || {};
+        foreach my $k ( keys %$cleanhtml_extra ) {
+            $cleanhtml_opts->{$k} = $cleanhtml_extra->{$k}
+        }
+        LJ::CleanHTML::clean_event( \$text, $cleanhtml_opts );
+    
+        LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
+        $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $journal,
+                                                         remote => $remote, entry => $entry_obj );
+    }
+
+    # journal: posted to; poster: posted by
+    my $posterid = $entry_obj->posterid;
+    my $userlite_journal = UserLite ( $journal );
+    my $poster = $journal;
+    # except for communities, posterid and journalid should match, only load separate UserLite object if that is not the case
+    my $userlite_poster = $userlite_journal;
+    unless ( $posterid == $journalid ) {
+        $poster = LJ::load_userid( $posterid );
+        $userlite_poster = UserLite( $poster );
+    }
+
+    # loading S2 Userpic
+    my $userpic;
+    my $kw = $entry_obj->userpic_kw_from_props( $entry_obj->props );
+
+    # if the post was made in a community, use either the userpic it was posted with or the community pic depending on the style setting
+    if ( $posterid == $journalid || !S2::get_property_value($opts->{ctx}, 'use_shared_pic') ) {
+        $userpic = Image_userpic( $poster, $entry_obj->userpic->picid, $kw ) if $entry_obj->userpic;
+    } else {
+        $userpic = Image_userpic( $journal, $journal->userpic->picid ) if $journal->userpic;
+    }
+
+    # override used moodtheme if necessary
+    my $moodthemeid = $u->prop( 'opt_forcemoodtheme' ) eq 'Y' ?
+        $u->moodtheme : $poster->moodtheme;
+
+    # tags loading and sorting
+    my $tags = LJ::Tags::get_logtags( $journal, $jitemid );
+    my $taglist = [];
+    $text .= TagList( $tags->{$jitemid}, $journal, $jitemid, $opts, $taglist );
+
+    # building the CommentInfo and Entry objects
+    my $comments = CommentInfo( $entry_obj->comment_info(
+        u => $u, remote => $remote, style_args => $style_args, journal => $journal
+    ) );
+
+    my $entry = Entry( $u, {
+        subject => $subject,
+        text => $text,
+        dateparts => LJ::alldatepart_s2( $entry_obj->{eventtime} ),
+        system_dateparts => LJ::alldatepart_s2( $entry_obj->{logtime} ),
+        security => $entry_obj->security,
+        adult_content_level => $entry_obj->adult_content_calculated || $journal->adult_content_calculated,
+        allowmask => $entry_obj->allowmask,
+        props => $entry_obj->props,
+        itemid => $ditemid,
+        journal => $userlite_journal,
+        poster => $userlite_poster,
+        comments => $comments,
+        new_day => 0,   #if true, set later
+        end_day => 0,   #if true, set later
+        userpic => $userpic,
+        tags => $taglist,
+        permalink_url => $entry_obj->url,
+        moodthemeid => $moodthemeid,
+        timeformat24 => $remote && $remote->use_24hour_time
+        } );
+
+    return $entry;
 }
 
 sub Friend
@@ -1962,6 +2047,16 @@ sub Page
     my $linkobj = LJ::Links::load_linkobj($u);
     my $linklist = [ map { UserLink($_) } @$linkobj ];
 
+    my $remote = LJ::get_remote();
+    my $tz_remote;
+    if ($remote) {
+        my $tz = $remote->prop( "timezone" );
+        $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
+    }
+
+    my $style_args = LJ::viewing_style_args( %$get );
+    $style_args = $style_args ? "?$style_args" : "";
+
     my $p = {
         '_type' => 'Page',
         '_u' => $u,
@@ -1970,37 +2065,46 @@ sub Page
         'journal' => User($u),
         'journal_type' => $u->{'journaltype'},
         'time' => DateTime_unix(time),
+        'local_time' => $tz_remote ? DateTime_tz( time, $tz_remote ) : DateTime_unix(time),
         'base_url' => $base_url,
         'stylesheet_url' => "$base_url/res/$styleid/stylesheet?$stylemodtime",
         'view_url' => {
-            'recent'   => "$base_url/",
-            'userinfo' => $u->profile_url,
-            'archive'  => "$base_url/calendar",
-            'friends'  => "$base_url/friends",
-            'tags'     => "$base_url/tag",
+            recent   => "$base_url/$style_args",
+            userinfo => $u->profile_url,
+            archive  => "$base_url/archive$style_args",
+            read     => "$base_url/read$style_args",
+            network  => "$base_url/network$style_args",
+            tags     => "$base_url/tag/$style_args",
+            memories => "$LJ::SITEROOT/tools/memories?user=$u->{user}",
         },
         'linklist' => $linklist,
-        'views_order' => [ 'recent', 'archive', 'friends', 'userinfo' ],
+        'views_order' => [ 'recent', 'archive', 'read', 'tags', 'memories', 'userinfo' ],
         'global_title' =>  LJ::ehtml($u->{'journaltitle'} || $u->{'name'}),
         'global_subtitle' => LJ::ehtml($u->{'journalsubtitle'}),
         'head_content' => '',
         'data_link' => {},
         'data_links_order' => [],
+        '_styleopts' => \%{ LJ::viewing_style_opts( %$get ) },
+        timeformat24 => $remote && $remote->use_24hour_time
     };
 
     if ($LJ::UNICODE && $opts && $opts->{'saycharset'}) {
         $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset=' . $opts->{'saycharset'} . "\" />\n";
     }
 
-    my $remote = LJ::get_remote();
-    if (LJ::are_hooks('s2_head_content_extra')) {
-        $p->{head_content} .= LJ::run_hook('s2_head_content_extra', $remote, $opts->{r});
+    if (LJ::Hooks::are_hooks('s2_head_content_extra')) {
+        $p->{head_content} .= LJ::Hooks::run_hook('s2_head_content_extra', $remote, $opts->{r});
     }
 
     # Automatic Discovery of RSS/Atom
     if ($opts && $opts->{'addfeeds'}) {
-        $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS" href="$p->{'base_url'}/data/rss" />\n};
-        $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom" href="$p->{'base_url'}/data/atom" />\n};
+        if ( $opts->{'tags'} ) {
+            my $taglist = join( ',', map( { LJ::eurl($_) } @{$opts->{tags}} ) );
+            $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: filtered by selected tags" href="$p->{'base_url'}/data/rss?tag=$taglist" />\n};
+            $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: filtered by selected tags" href="$p->{'base_url'}/data/atom?tag=$taglist" />\n};
+        }
+        $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: all entries" href="$p->{'base_url'}/data/rss" />\n};
+        $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: all entries" href="$p->{'base_url'}/data/atom" />\n};
         $p->{'head_content'} .= qq{<link rel="service.feed" type="application/atom+xml" title="AtomAPI-enabled feed" href="$LJ::SITEROOT/interface/atomapi/$u->{'user'}/feed" />\n};
         $p->{'head_content'} .= qq{<link rel="service.post" type="application/atom+xml" title="Create a new post" href="$LJ::SITEROOT/interface/atomapi/$u->{'user'}/post" />\n};
     }
@@ -2008,20 +2112,13 @@ sub Page
     # OpenID information if the caller asked us to include it here.
     $p->{'head_content'} .= $u->openid_tags if $opts && $opts->{'addopenid'};
 
-    # Ads and control strip
-    my $show_ad = LJ::run_hook('should_show_ad', {
-        ctx  => "journal",
-        user => $u->{user},
-    });
-    $p->{'head_content'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n} if $show_ad;
+    # other useful link rels
+    $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
 
-    my $show_control_strip = LJ::run_hook('show_control_strip', {
-        user => $u->{user},
-    });
+    # Control strip
+    my $show_control_strip = LJ::Hooks::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
-        LJ::run_hook('control_strip_stylesheet_link', {
-            user => $u->{user},
-        });
+        LJ::Hooks::run_hook( 'control_strip_stylesheet_link' );
         $p->{'head_content'} .= LJ::control_strip_js_inject( user => $u->{user} );
     }
 
@@ -2034,20 +2131,49 @@ sub Page
         $p->{head_content} .= qq{<meta name="foaf:maker" content="foaf:mbox_sha1sum '$digest'" />\n};
     }
 
-    # Identity (type I) accounts only have friends views
-    $p->{'views_order'} = [ 'friends', 'userinfo' ] if $u->{'journaltype'} eq 'I';
+    # Identity (type I) accounts only have read views
+    $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
+    # feed accounts only have recent entries views
+    $p->{views_order} = [ 'recent', 'archive', 'userinfo' ] if $u->is_syndicated;
+    $p->{views_order} = [ 'recent', 'archive', 'read', 'network', 'tags', 'memories', 'userinfo' ] if $u->can_use_network_page;
+
+    $p->{has_activeentries} = 0;
+
+    # don't need to load active entries if the user does not have the cap to display them
+    if ( $u->can_use_active_entries ) {
+        my @active = $u->active_entries;
+
+        # array to hold the Entry objects
+        my @activeentries;
+        foreach my $itemid ( @active ) {
+            my $entry_obj = LJ::Entry->new( $u, jitemid => $itemid );
+
+            # copy over $opts so that we don't inadvertently affect other things
+            my $activeentry_opts = { %{$opts || {}}, no_entry_body => 1 };
+
+            # only show the entries $remote has the permission to view
+            if ( $entry_obj->visible_to( $remote ) ) {
+                my $activeentry = Entry_from_entryobj( $u, $entry_obj, $activeentry_opts );
+                push @{$p->{activeentries}}, $activeentry;
+
+                # if at least one is accessible to $remote , show active entries module on journal page
+                $p->{has_activeentries} = 1;
+            }
+        }
+    }
 
     return $p;
 }
 
 sub Link {
-    my ($url, $caption, $icon) = @_;
+    my ($url, $caption, $icon, %extra) = @_;
 
     my $lnk = {
         '_type'   => 'Link',
         'caption' => $caption,
         'url'     => $url,
         'icon'    => $icon,
+        'extra'   => {%extra},
     };
 
     return $lnk;
@@ -2072,36 +2198,77 @@ sub Image_std
     my $ctx = $LJ::S2::CURR_CTX or die "No S2 context available ";
 
     unless ($LJ::S2::RES_MADE++) {
-        $LJ::S2::RES_CACHE = {
-            'security-protected' => Image("$LJ::IMGPREFIX/icon_protected.gif", 14, 15, $ctx->[S2::PROPS]->{'text_icon_alt_protected'}),
-            'security-private' => Image("$LJ::IMGPREFIX/icon_private.gif", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_private'}),
-            'security-groups' => Image("$LJ::IMGPREFIX/icon_groups.gif", 19, 16, $ctx->[S2::PROPS]->{'text_icon_alt_groups'}),
-            'age-14' => Image("$LJ::IMGPREFIX/icon_14.gif", 14, 15, $ctx->[S2::PROPS]->{'text_icon_alt_14_plus'}),
-            'age-18' => Image("$LJ::IMGPREFIX/icon_18.gif", 14, 15, $ctx->[S2::PROPS]->{'text_icon_alt_18_plus'}),
+        $LJ::S2::RES_CACHE = {};
+        my $textmap = {
+            'security-protected' => 'text_icon_alt_protected',
+            'security-private' => 'text_icon_alt_private',
+            'security-groups' => 'text_icon_alt_groups',
+            'adult-nsfw' => 'text_icon_alt_nsfw',
+            'adult-18' => 'text_icon_alt_18',
+            'sticky-entry' => 'text_icon_alt_sticky_entry',
         };
+        foreach ( keys %$textmap ) {
+            my $i = $LJ::Img::img{$_};
+            $LJ::S2::RES_CACHE->{$_} =
+                Image( "$LJ::IMGPREFIX$i->{src}",
+                       $i->{width}, $i->{height},
+                       $ctx->[S2::PROPS]->{ $textmap->{$_} } );
+        }
+
+        # additional icons from imageconf.pl
+        # with alt text from translation system
+        my @ic = qw( btn_del btn_freeze btn_unfreeze btn_scr btn_unscr
+                     editcomment editentry edittags tellfriend memadd
+                     prev_entry next_entry track untrack foaf atom rss );
+        foreach ( @ic ) {
+            my $i = $LJ::Img::img{$_};
+            $LJ::S2::RES_CACHE->{$_} =
+                Image( "$LJ::IMGPREFIX$i->{src}",
+                       $i->{width}, $i->{height},
+                       LJ::Lang::ml( $i->{alt} ) );
+        }
     }
     return $LJ::S2::RES_CACHE->{$name};
 }
 
 sub Image_userpic
 {
-    my ($u, $picid, $kw) = @_;
+    my ( $u, $picid, $kw, $width, $height ) = @_;
 
     $picid ||= LJ::get_picid_from_keyword($u, $kw);
+    return Null("Image") unless $picid;
 
-    my $pi = LJ::get_userpic_info($u, {load_comments => 1});
-    my $p = $pi->{'pic'}->{$picid};
-    my $k = $pi->{'kw'};
-    my $kwstr = join(', ', ( grep { $k->{$_}{'picid'} eq $picid } (keys %$k) ) );
-    my $alttext = $kwstr;
+    # get the Userpic object
+    my $p = LJ::Userpic->new($u, $picid);
 
-    return Null("Image") unless $p;
+    #  load the dimensions, unless they have been passed in explicitly
+    $width ||= $p->width;
+    $height ||= $p->height;
+
+    # load the alttext.  use description by default, keyword as fallback,
+    # and all keywords as final fallback (should be for default icon only).
+    my $description = $p->description;
+    my $alttext;
+
+    if ($description) {
+        $alttext = $description;
+    } elsif ($kw) {
+        $alttext = $kw;
+    } else {
+        my $kwstr = $p->keywords;
+        $alttext = $kwstr;
+    }
+
+    my $title = $u->display_name;
+    $title .= $kw ? ": $kw" : ": (default)";
+
     return {
         '_type' => "Image",
         'url' => "$LJ::USERPIC_ROOT/$picid/$u->{'userid'}",
-        'width' => $p->{'width'},
-        'height' => $p->{'height'},
-        'alttext' => $alttext,
+        'width' => $width,
+        'height' => $height,
+        'alttext' => LJ::ehtml( $alttext ),
+        'extra' => { title => LJ::ehtml( $title ) },
     };
 }
 
@@ -2157,7 +2324,6 @@ sub User
     my $o = UserLite($u);
     $o->{'_type'} = "User";
     $o->{'default_pic'} = Image_userpic($u, $u->{'defaultpicid'});
-    $o->{'userpic_listing_url'} = "$LJ::SITEROOT/allpics.bml?user=".$u->{'user'};
     $o->{'website_url'} = LJ::ehtml($u->{'url'});
     $o->{'website_name'} = LJ::ehtml($u->{'urlname'});
     return $o;
@@ -2188,22 +2354,22 @@ sub UserLite
     $o = {
         '_type' => 'UserLite',
         '_u' => $u,
+        'user' => LJ::ehtml($u->user),
         'username' => LJ::ehtml($u->display_name),
         'name' => LJ::ehtml($u->{'name'}),
         'journal_type' => $u->{'journaltype'},
+        'userpic_listing_url' => $u->allpics_base,
         'data_link' => {
             'foaf' => Link("$LJ::SITEROOT/users/" . LJ::ehtml($u->{'user'}) . '/data/foaf',
                            "FOAF",
-                           Image("$LJ::IMGPREFIX/data_foaf.gif", 32, 15, "FOAF")),
+                           Image_std( "foaf" ) ),
         },
         'data_links_order' => [ "foaf" ],
         'link_keyseq' => [ ],
     };
     my $lks = $o->{link_keyseq};
-    push @$lks, qw(add_friend post_entry todo memories);
-    push @$lks, "tell_friend"  unless $LJ::DISABLED{'tellafriend'};
-    push @$lks, "search"  unless $LJ::DISABLED{'offsite_journal_search'};
-    push @$lks, "nudge"  unless $LJ::DISABLED{'nudge'};
+    push @$lks, qw(manage_membership trust watch post_entry track message);
+    push @$lks, 'tell_friend' if LJ::is_enabled('tellafriend');
 
     # TODO: Figure out some way to use the userinfo_linkele hook here?
 
@@ -2222,35 +2388,9 @@ sub nth_entry_seen {
     return $LJ::REQ_GLOBAL{'nth_entry_keys'}->{$key} = ++$LJ::REQ_GLOBAL{'nth_entry_ct'};
 }
 
-sub curr_page_supports_ebox {
-    return $LJ::S2::CURR_PAGE->{'view'} =~ /^(?:recent|friends|day)$/ ? 1 : 0;
-}
-
-sub current_box_type {
-    my $u = shift;
-
-    # Must be an ad user to see any box
-    return undef unless S2::Builtin::LJ::viewer_sees_ads();
-
-    # S1 users always see vboxes
-    return "vbox" unless $u->prop('stylesys') == 2;
-
-    # Ads between posts are shown if:
-    # 1. eboxes are enabled for the site AND
-    # 2. User has selected the ebox option AND
-    # 3. eboxes are supported by the current page or there is no current page
-    if ($u->can_use_ebox) {
-        return "ebox" if $u->prop('journal_box_entries') && (LJ::S2::curr_page_supports_ebox() || !$LJ::S2::CURR_PAGE->{'view'});
-    }
-
-    # Horizontal ads are shown if:
-    # 1. ebox isn't applicable AND
-    # 2. User has selected the hbox option
-    return "hbox" if $u->prop('journal_box_placement') eq 'h';
-
-    # Otherwise, vbox is the default
-    return "vbox";
-}
+# adectomy
+sub current_box_type {}
+sub curr_page_supports_ebox { 0 }
 
 
 ###############
@@ -2259,14 +2399,18 @@ package S2::Builtin::LJ;
 use strict;
 
 sub UserLite {
-    my ($ctx,$username) = @_;
-    my $u = LJ::load_user($username);
+    my ($ctx,$user) = @_;
+    my $u = LJ::load_user($user);
     return LJ::S2::UserLite($u);
 }
 
 sub start_css {
     my ($ctx) = @_;
     my $sc = $ctx->[S2::SCRATCH];
+
+    # Always increment, but only continue if it was 0
+    return if $sc->{_css_depth}++;
+
     $sc->{_start_css_pout}   = S2::get_output();
     $sc->{_start_css_pout_s} = S2::get_output_safe();
     $sc->{_start_css_buffer} = "";
@@ -2281,6 +2425,9 @@ sub end_css {
     my ($ctx) = @_;
     my $sc = $ctx->[S2::SCRATCH];
 
+    # Only decrement _css_depth if it is non-zero, only continue if it becomes zero
+    return unless $sc->{_css_depth} && (--$sc->{_css_depth} == 0);
+
     # restore our printer/safe printer
     S2::set_output($sc->{_start_css_pout});
     S2::set_output_safe($sc->{_start_css_pout_s});
@@ -2290,7 +2437,7 @@ sub end_css {
     my $cleaner = LJ::CSS::Cleaner->new;
 
     my $clean = $cleaner->clean($css);
-    LJ::run_hook('css_cleaner_transform', \$clean);
+    LJ::Hooks::run_hook('css_cleaner_transform', \$clean);
 
     $sc->{_start_css_pout}->("/* Cleaned CSS: */\n" .
                              $clean .
@@ -2383,7 +2530,7 @@ sub get_url
     # now get data from one of two paths, depending on if we were given a UserLite
     # object or a string for the username, so make sure we have the username.
     if (ref $obj eq 'HASH') {
-        $user = $obj->{username};
+        $user = $obj->{user};
     } else {
         $user = $obj;
     }
@@ -2393,7 +2540,6 @@ sub get_url
 
     # construct URL to return
     $view = "profile" if $view eq "userinfo";
-    $view = "calendar" if $view eq "archive";
     $view = "" if $view eq "recent";
     my $base = $u->journal_base;
     return "$base/$view";
@@ -2430,42 +2576,89 @@ sub pageview_unique_string {
 
 sub viewer_logged_in
 {
-    my ($ctx) = @_;
     my $remote = LJ::get_remote();
     return defined $remote;
 }
 
 sub viewer_is_owner
 {
-    my ($ctx) = @_;
     my $remote = LJ::get_remote();
     return 0 unless $remote;
     return 0 unless defined($LJ::S2::CURR_PAGE);
-    return $remote->{'userid'} == $LJ::S2::CURR_PAGE->{'_u'}->{'userid'};
+    return $remote->equals( $LJ::S2::CURR_PAGE->{_u} );
 }
 
+# NOTE: this method is old and deprecated, but we still support it for people
+# who are importing styles from old sites.  since we don't know if the style
+# is asking if the viewer is "watched" or if they're "trusted", we default to
+# returning true if they're trusted.  since we believe that the majority of
+# trust relationships also include a watch relationship, this should be the
+# right behavior in 90%+ of cases.  in the few that it is not, we humbly
+# suggest that people update their styles to use the DW core/functions.
 sub viewer_is_friend
 {
-    my ($ctx) = @_;
+    return viewer_has_access();
+}
+
+sub viewer_has_access
+{
     my $remote = LJ::get_remote();
     return 0 unless $remote;
     return 0 unless defined($LJ::S2::CURR_PAGE);
 
-    my $ju = $LJ::S2::CURR_PAGE->{'_u'};
-    return 0 if $ju->{journaltype} eq 'C';
-    return LJ::is_friend($ju, $remote);
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return viewer_is_member() if $ju->is_community;
+    return $ju->trusts( $remote );
+}
+
+sub viewer_is_subscribed {
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return $remote->watches( $ju );
 }
 
 sub viewer_is_member
 {
-    my ($ctx) = @_;
     my $remote = LJ::get_remote();
     return 0 unless $remote;
     return 0 unless defined($LJ::S2::CURR_PAGE);
 
-    my $ju = $LJ::S2::CURR_PAGE->{'_u'};
-    return 0 if $ju->{journaltype} ne 'C';
-    return LJ::is_friend($ju, $remote);
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return 0 unless $ju->is_community;
+    return $remote->member_of( $ju );
+}
+
+sub viewer_is_admin {
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return 0 unless $ju->is_community;
+    return $remote->can_manage( $ju );
+}
+
+sub viewer_is_moderator {
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return 0 unless $ju->is_community;
+    return $remote->can_moderate( $ju );
+}
+
+sub viewer_can_manage_tags
+{
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
+    return $remote->can_control_tags( $ju );
 }
 
 sub viewer_sees_control_strip
@@ -2473,95 +2666,48 @@ sub viewer_sees_control_strip
     return 0 unless $LJ::USE_CONTROL_STRIP;
 
     my $r = BML::get_request();
-    return LJ::run_hook('show_control_strip', {
-        userid => $r->notes->{journalid},
-    });
+    return LJ::Hooks::run_hook( 'show_control_strip' );
 }
 
-sub viewer_sees_vbox
-{
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
-    return 0 unless $u;
+# Returns true if the viewer can search this person's journal
+sub viewer_can_search {
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined $LJ::S2::CURR_PAGE;
+ 
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
 
-    if (LJ::S2::current_box_type($u) eq "vbox") {
-        return 1;
-    }
-
-    return 0;
+    # return based on this function 
+    return $ju->allow_search_by( $remote );
 }
 
-sub viewer_sees_hbox_top
-{
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
-    return 0 unless $u;
+# Returns a search form for this journal
+sub print_search_form {
+    return "" unless defined($LJ::S2::CURR_PAGE);
 
-    if (LJ::S2::current_box_type($u) eq "hbox") {
-        return 1;
-    }
+    my $ju = $LJ::S2::CURR_PAGE->{_u};
 
-    return 0;
+    my $search_form = '<div class="search-form">';
+    $search_form .= '<form method="post" action="'. $LJ::SITEROOT. '/search?user=' . $ju->user . '">';
+    $search_form .= LJ::form_auth();
+    $search_form .= '<input class="search-box" type="text" name="query" maxlength="255">';
+    $search_form .= '<input class="search-button" type="submit" value="' . $_[1] . '" />';
+    $search_form .= '</form></div>';
+
+    S2::pout( $search_form );
 }
 
-sub viewer_sees_hbox_bottom
-{
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
-    return 0 unless $u;
-    my $type = LJ::S2::current_box_type($u);
-
-    if ($type eq "hbox" || $type eq "vbox") {
-        return 1;
-    }
-
-    return 0;
-}
-
-sub viewer_sees_ebox {
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
-    return 0 unless $u;
-
-    if (LJ::S2::current_box_type($u) eq "ebox") {
-        return 1;
-    }
-
-    return 0;
-}
-
-sub Entry__viewer_sees_ebox
-{
-    my ($ctx, $this) = @_;
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
-    return 0 unless $u;
-
-    my $curr_entry_ct = LJ::S2::nth_entry_seen($this);
-    my $entries = $LJ::S2::CURR_PAGE->{'entries'} || [];
-    my $total_entry_ct = @$entries;
-
-    if (LJ::S2::current_box_type($u) eq "ebox") {
-        return 1 if LJ::run_hook('viewer_sees_ebox',
-            curr_entry_ct => $curr_entry_ct,
-            total_entry_ct => $total_entry_ct,
-            journalu => $u,
-        );
-    }
-
-    return 0;
-}
-
-sub viewer_sees_ads
-{
-    return 0 unless $LJ::USE_ADS;
-
-    my $r = BML::get_request();
-    return LJ::run_hook('should_show_ad', {
-        ctx  => 'journal',
-        userid => $r->notes->{journalid},
-    });
-}
+# maintained only for compatibility with core1, eventually these can be removed
+# when we've upgraded everybody.  or we keep this cruft until the cows come home
+# as a stolid reminder to our past.
+sub viewer_sees_vbox  { 0 }
+sub viewer_sees_hbox_top { 0 }
+sub viewer_sees_hbox_bottom { 0 }
+sub viewer_sees_ad_box { 0 }
+sub viewer_sees_ebox { 0 }
+sub viewer_sees_ads { 0 }
+sub _get_Entry_ebox_args { 0 }
+sub Entry__viewer_sees_ebox { 0 }
 
 sub control_strip_logged_out_userpic_css
 {
@@ -2569,7 +2715,7 @@ sub control_strip_logged_out_userpic_css
     my $u = LJ::load_userid($r->notes->{journalid});
     return '' unless $u;
 
-    return LJ::run_hook('control_strip_userpic', $u);
+    return LJ::Hooks::run_hook('control_strip_userpic', $u);
 }
 
 sub control_strip_logged_out_full_userpic_css
@@ -2578,7 +2724,7 @@ sub control_strip_logged_out_full_userpic_css
     my $u = LJ::load_userid($r->notes->{journalid});
     return '' unless $u;
 
-    return LJ::run_hook('control_strip_loggedout_userpic', $u);
+    return LJ::Hooks::run_hook('control_strip_loggedout_userpic', $u);
 }
 
 sub weekdays
@@ -2631,11 +2777,11 @@ sub style_is_active {
     my $themeid = $ctx->[S2::LAYERLIST]->[2];
     my $pub = LJ::S2::get_public_layers();
 
-    my $layout_is_active = LJ::run_hook("layer_is_active", $pub->{$layoutid}->{uniq});
+    my $layout_is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$layoutid}->{uniq});
     return 0 unless !defined $layout_is_active || $layout_is_active;
 
     if (defined $themeid) {
-        my $theme_is_active = LJ::run_hook("layer_is_active", $pub->{$themeid}->{uniq});
+        my $theme_is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$themeid}->{uniq});
         return 0 unless !defined $theme_is_active || $theme_is_active;
     }
 
@@ -2928,8 +3074,8 @@ sub _Comment__get_link
     my ($ctx, $this, $key) = @_;
     my $page = get_page();
     my $u = $page->{'_u'};
-    my $post_user = $page->{'entry'} ? $page->{'entry'}->{'poster'}->{'username'} : undef;
-    my $com_user = $this->{'poster'} ? $this->{'poster'}->{'username'} : undef;
+    my $post_user = $page->{'entry'} ? $page->{'entry'}->{'poster'}->{'user'} : undef;
+    my $com_user = $this->{'poster'} ? $this->{'poster'}->{'user'} : undef;
     my $remote = LJ::get_remote();
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
     my $dtalkid = $this->{talkid};
@@ -2937,40 +3083,51 @@ sub _Comment__get_link
 
     if ($key eq "delete_comment") {
         return $null_link unless LJ::Talk::can_delete($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/delcomment.bml?journal=$u->{'user'}&amp;id=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/delcomment?journal=$u->{'user'}&amp;id=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_delete"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_del.gif", 22, 20));
+                            LJ::S2::Image_std( 'btn_del' ) );
     }
     if ($key eq "freeze_thread") {
         return $null_link if $this->{'frozen'};
         return $null_link unless LJ::Talk::can_freeze($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=freeze&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=freeze&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_freeze"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_freeze.gif", 22, 20));
+                            LJ::S2::Image_std( 'btn_freeze' ) );
     }
     if ($key eq "unfreeze_thread") {
         return $null_link unless $this->{'frozen'};
         return $null_link unless LJ::Talk::can_unfreeze($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=unfreeze&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_unfreeze"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_unfreeze.gif", 22, 20));
+                            LJ::S2::Image_std( 'btn_unfreeze' ) );
     }
     if ($key eq "screen_comment") {
         return $null_link if $this->{'screened'};
         return $null_link unless LJ::Talk::can_screen($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=screen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=screen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_screen"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_scr.gif", 22, 20));
+                            LJ::S2::Image_std( 'btn_scr' ) );
     }
     if ($key eq "unscreen_comment") {
         return $null_link unless $this->{'screened'};
         return $null_link unless LJ::Talk::can_unscreen($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=unscreen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=unscreen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_unscreen"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_unscr.gif", 22, 20));
+                            LJ::S2::Image_std( 'btn_unscr' ) );
     }
+
+    # added new button
+    if ($key eq "unscreen_to_reply") {
+        #return $null_link unless $this->{'screened'};
+        #return $null_link unless LJ::Talk::can_unscreen($remote, $u, $post_user, $com_user);
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=unscreen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+                            $ctx->[S2::PROPS]->{"text_multiform_opt_unscreen_to_reply"},
+                            LJ::S2::Image_std( 'btn_unscr' ) );
+    }
+
+
     if ($key eq "watch_thread" || $key eq "unwatch_thread" || $key eq "watching_parent") {
-        return $null_link if $LJ::DISABLED{'esn'};
+        return $null_link unless LJ::is_enabled('esn');
         return $null_link unless $remote && $remote->can_use_esn;
 
         if ($key eq "unwatch_thread") {
@@ -2982,23 +3139,24 @@ sub _Comment__get_link
             my $subscr = $subs[0];
             return $null_link unless $subscr;
 
-            my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+            my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                        subid  => $subscr->id,
-                                                       action => 'delsub');
+                                                       action => 'delsub' );
 
             my $etypeid = 'LJ::Event::JournalNewComment'->etypeid;
 
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments.bml?journal=$u->{'user'}&amp;talkid=" . $comment->dtalkid,
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=" . $comment->dtalkid,
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_untrack"},
-                                LJ::S2::Image("$LJ::IMGPREFIX/btn_tracking.gif", 22, 20, 'Untrack this',
-                                              'lj_etypeid'    => $etypeid,
-                                              'lj_journalid'  => $u->id,
-                                              'lj_subid'      => $subscr->id,
-                                              'class'         => 'TrackButton',
-                                              'id'            => 'lj_track_btn_' . $dtalkid,
-                                              'lj_dtalkid'    => $dtalkid,
-                                              'lj_arg2'       => $comment->jtalkid,
-                                              'lj_auth_token' => $auth_token));
+                                LJ::S2::Image_std( 'untrack' ),
+                                'lj_etypeid'    => $etypeid,
+                                'lj_journalid'  => $u->id,
+                                'lj_subid'      => $subscr->id,
+                                'class'         => 'TrackButton',
+                                'id'            => 'lj_track_btn_' . $dtalkid,
+                                'lj_dtalkid'    => $dtalkid,
+                                'lj_arg2'       => $comment->jtalkid,
+                                'lj_auth_token' => $auth_token,
+                                'js_swapname' => $ctx->[S2::PROPS]->{text_multiform_opt_track} );
         }
 
         return $null_link if $remote->has_subscription(journal => $u, event => "JournalNewComment", arg2 => $comment->jtalkid);
@@ -3032,7 +3190,7 @@ sub _Comment__get_link
                          etypeid   => $etypeid,
                          arg2      => LJ::Comment->new($comment->entry->journal, dtalkid => $dtalkid)->jtalkid,
                          );
-        my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs', action => 'addsub', %subparams);
+        my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs', action => 'addsub', %subparams );
 
         my %btn_params = map { ('lj_' . $_, $subparams{$_}) } keys %subparams;
 
@@ -3041,16 +3199,17 @@ sub _Comment__get_link
         $btn_params{'lj_subid'}      = 0;
         $btn_params{'lj_dtalkid'}    = $dtalkid;
         $btn_params{'id'}            = "lj_track_btn_" . $dtalkid;
+        $btn_params{'js_swapname'}   = $ctx->[S2::PROPS]->{text_multiform_opt_untrack};
 
         if ($key eq "watch_thread" && !$watching_parent) {
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments.bml?journal=$u->{'user'}&amp;talkid=$dtalkid",
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
-                                LJ::S2::Image("$LJ::IMGPREFIX/btn_track.gif", 22, 20, 'Track This', %btn_params));
+                                LJ::S2::Image_std( 'track' ), %btn_params );
         }
         if ($key eq "watching_parent" && $watching_parent) {
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments.bml?journal=$u->{'user'}&amp;talkid=$dtalkid",
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
-                                LJ::S2::Image("$LJ::IMGPREFIX/btn_tracking_thread.gif", 22, 20, 'Untrack This', %btn_params));
+                                LJ::S2::Image_std( 'untrack' ), %btn_params );
         }
         return $null_link;
     }
@@ -3059,12 +3218,12 @@ sub _Comment__get_link
         my $edit_url = $this->{edit_url} || $comment->edit_url;
         return LJ::S2::Link($edit_url,
                             $ctx->[S2::PROPS]->{"text_multiform_opt_edit"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_edit.gif", 22, 20));
+                            LJ::S2::Image_std( 'editcomment' ) );
     }
     if ($key eq "expand_comments") {
-        return $null_link unless LJ::run_hook('show_thread_expander');
-        ## show "Expand" link only if 
-        ## 1) the comment is collapsed 
+        return $null_link unless $u->show_thread_expander( $remote );
+        ## show "Expand" link only if
+        ## 1) the comment is collapsed
         ## 2) any of comment's children are collapsed
         my $show_expand_link;
         if (!$this->{full} and !$this->{deleted}) {
@@ -3122,7 +3281,7 @@ sub _print_quickreply_link
     return unless $target =~ /^\w+$/; # if no target specified bail the fuck out
 
     my $opt_class = $opts->{'class'};
-    undef $opt_class unless $opt_class =~ /^[\w\s]+$/;
+    undef $opt_class unless $opt_class =~ /^[\w\s-]+$/;
 
     my $opt_img = LJ::CleanHTML::canonical_url($opts->{'img_url'});
     $replyurl = LJ::CleanHTML::canonical_url($replyurl);
@@ -3157,9 +3316,8 @@ sub _print_quickreply_link
 
     my $page = get_page();
     my $remote = LJ::get_remote();
-    LJ::load_user_props($remote, "opt_no_quickreply");
     my $onclick = "";
-    unless ($remote->{'opt_no_quickreply'}) {
+    unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
         my $pid = (int($target)&&$page->{'_type'} eq 'EntryPage') ? int($target /256) : 0;
 
         $basesubject =~ s/^(Re:\s*)*//i;
@@ -3170,7 +3328,8 @@ sub _print_quickreply_link
     }
 
     $onclick = "" unless $page->{'_type'} eq 'EntryPage';
-    $onclick = "" if $LJ::DISABLED{'s2quickreply'};
+    $onclick = "" unless LJ::is_enabled('s2quickreply');
+    $onclick = "" if $page->{'_u'}->does_not_allow_comments_from( $remote );
 
     # See if we want to force them to change their password
     my $bp = LJ::bad_password_redirect({ 'returl' => 1 });
@@ -3213,8 +3372,8 @@ sub _print_reply_container
         my $ditemid = $page->{'entry'}{'itemid'} || 0;
 
         my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
-        my $thread = $page->{'viewing_thread'} + 0 || "";
-        $S2::pout->(LJ::create_qr_div($u, $ditemid, $page->{'_stylemine'} || 0, $userpic, $thread));
+        my $thread = $page->{_viewing_thread_id} + 0 || "";
+        $S2::pout->( LJ::create_qr_div( $u, $ditemid, $page->{_styleopts}, $userpic, $thread ) );
     }
 }
 
@@ -3260,7 +3419,7 @@ sub Comment__expand_link
     my $title = $opts->{title} ? " title='" . LJ::ehtml($opts->{title}) . "'" : "";
     my $class = $opts->{class} ? " class='" . LJ::ehtml($opts->{class}) . "'" : "";
 
-    return "<a href='$this->{thread_url}'$title$class onClick=\"Expander.make(this,'$this->{thread_url}','$this->{talkid}'); return false;\">$text</a>";
+    return "<a href='$this->{expand_url}'$title$class onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}'); return false;\">$text</a>";
 }
 
 sub Comment__print_expand_link
@@ -3272,12 +3431,20 @@ sub Page__print_trusted
 {
     my ($ctx, $this, $key) = @_;
 
+    # use 'username' so that we can put 'foo.site.com' in the hash instead of
+    # having to look up their 'ext_nnnn' name
     my $username = $this->{journal}->{username};
     my $fullkey = "$username-$key";
 
-    return $S2::pout->("Error, no print_trusted key '$fullkey' defined.") unless exists ($LJ::TRUSTED_S2_WHITELIST{$fullkey});
-
-    $S2::pout->(LJ::conf_test($LJ::TRUSTED_S2_WHITELIST{$fullkey}));
+    if ($LJ::TRUSTED_S2_WHITELIST_USERNAMES{$username}) {
+        # more restrictive way: username-key
+        $S2::pout->(LJ::conf_test($LJ::TRUSTED_S2_WHITELIST{$fullkey}))
+            if exists $LJ::TRUSTED_S2_WHITELIST{$fullkey};
+    } else {
+        # less restrictive way: key
+        $S2::pout->(LJ::conf_test($LJ::TRUSTED_S2_WHITELIST{$key}))
+            if exists $LJ::TRUSTED_S2_WHITELIST{$key};
+    }
 }
 
 # class 'date'
@@ -3324,11 +3491,19 @@ my %dt_vars = (
                'A' => "(\$time->{hour} < 12 ? 'A' : 'P')",
             );
 
+sub _dt_vars_html {
+    my $datecode = shift;
+
+    return qq{ "/",$dt_vars{yyyy}, "/", $dt_vars{mm}, "/", $dt_vars{dd}, "/" } if $datecode =~ /^(d|dd|dayord)$/;
+    return qq{ "/",$dt_vars{yyyy}, "/", $dt_vars{mm}, "/" } if $datecode =~ /^(m|mm|mon|month)$/;
+    return qq{ "/",$dt_vars{yyyy}, "/" } if $datecode =~ /^(yy|yyyy)$/;
+}
 sub Date__date_format
 {
-    my ($ctx, $this, $fmt) = @_;
+    my ($ctx, $this, $fmt, $as_link) = @_;
     $fmt ||= "short";
-    my $c = \$ctx->[S2::SCRATCH]->{'_code_datefmt'}->{$fmt};
+    # formatted as link is separate from format as not link
+    my $c = \$ctx->[S2::SCRATCH]->{'_code_datefmt'}->{$fmt . $as_link};
     return $$c->($this) if ref $$c eq "CODE";
     if (++$ctx->[S2::SCRATCH]->{'_code_datefmt_count'} > 15) { return "[too_many_fmts]"; }
     my $realfmt = $fmt;
@@ -3337,12 +3512,19 @@ sub Date__date_format
     } elsif ($fmt eq "iso") {
         $realfmt = "%%yyyy%%-%%mm%%-%%dd%%";
     }
+
+
     my @parts = split(/\%\%/, $realfmt);
     my $code = "\$\$c = sub { my \$time = shift; return join('',";
     my $i = 0;
     foreach (@parts) {
-        if ($i % 2) { $code .= $dt_vars{$_} . ","; }
-        else { $_ = LJ::ehtml($_); $code .= "\$parts[$i],"; }
+        if ($i % 2) {
+            # translate date %%variable%% to value
+            my $link = _dt_vars_html( $_ );
+            $code .= $as_link && $link
+                ? qq{"<a href=\\\"", $link, "\\\">", $dt_vars{$_},"</a>",}
+                : $dt_vars{$_} . ",";
+        } else { $_ = LJ::ehtml( $_ ); $code .= "\$parts[$i],"; }
         $i++;
     }
     $code .= "); };";
@@ -3386,44 +3568,26 @@ sub UserLite__get_link
 {
     my ($ctx, $this, $key) = @_;
 
-    my $u = $this->{_u};
-    my $user = $u->{user};
-    my $remote = LJ::get_remote();
-    my $is_remote = defined($remote) && $remote->{userid} eq $u->{userid};
-    my $has_journal = $u->{journaltype} ne 'I';
+    my $linkbar = $this->{_u}->user_link_bar( LJ::get_remote() );
 
     my $button = sub {
-        return LJ::S2::Link($_[0], $_[1], LJ::S2::Image("$LJ::IMGPREFIX/$_[2]", 22, 20));
+        my ( $link, $key ) = @_;
+        return undef unless $link;
+
+        my $caption = $ctx->[S2::PROPS]->{userlite_interaction_links} eq "text"
+            ? $ctx->[S2::PROPS]->{"text_user_$key"}
+            : $link->{title};
+        return LJ::S2::Link( $link->{url}, $caption, LJ::S2::Image( $link->{image}, $link->{width} || 20, $link->{height} || 18 ) );
     };
 
-    if ($key eq 'add_friend' && defined($remote)) {
-        return $button->("$LJ::SITEROOT/friends/add.bml?user=$user", "Add $user to friends list", "btn_addfriend.gif");
-    }
-    if ($key eq 'post_entry') {
-        return undef unless $has_journal and LJ::can_use_journal($remote->{'userid'}, $user);
-
-        my $caption = $is_remote ? "Update your journal" : "Post in $user";
-        return $button->("$LJ::SITEROOT/update.bml?usejournal=$user", $caption, "btn_edit.gif");
-    }
-    if ($key eq 'todo') {
-        my $caption = $is_remote ? "Your to-do list" : "${user}'s to-do list";
-        return $button->("$LJ::SITEROOT/todo/?user=$user", $caption, "btn_todo.gif");
-    }
-    if ($key eq 'memories') {
-        my $caption = $is_remote ? "Your memories" : "${user}'s memories";
-        return $button->("$LJ::SITEROOT/tools/memories.bml?user=$user", $caption, "btn_memories.gif");
-    }
-    if ($key eq 'tell_friend' && $has_journal && !$LJ::DISABLED{'tellafriend'}) {
-        my $caption = $is_remote ? "Tell a friend about your journal" : "Tell a friend about $user";
-        return $button->("$LJ::SITEROOT/tools/tellafriend.bml?user=$user", $caption, "btn_tellfriend.gif");
-    }
-    if ($key eq 'search' && $has_journal && !$LJ::DISABLED{'offsite_journal_search'}) {
-        my $caption = $is_remote ? "Search your journal" : "Search $user";
-        return $button->("$LJ::SITEROOT/tools/search.bml?user=$user", $caption, "btn_search.gif");
-    }
-    if ($key eq 'nudge' && !$is_remote && $has_journal && $u->{journaltype} ne 'C') {
-        return $button->("$LJ::SITEROOT/friends/nudge.bml?user=$user", "Nudge $user", "btn_nudge.gif");
-    }
+    return $button->( $linkbar->manage_membership, $key ) if $key eq 'manage_membership';
+    return $button->( $linkbar->trust, $key ) if $key eq 'trust';
+    return $button->( $linkbar->watch, $key ) if $key eq 'watch';
+    return $button->( $linkbar->post, $key ) if $key eq 'post_entry';
+    return $button->( $linkbar->message, $key ) if $key eq 'message';
+    return $button->( $linkbar->track, $key ) if $key eq 'track';
+    return $button->( $linkbar->memories, $key ) if $key eq 'memories';
+    return $button->( $linkbar->tellafriend, $key ) if $key eq 'tell_friend';
 
     # Else?
     return undef;
@@ -3435,7 +3599,7 @@ sub EntryLite__get_link
     my ($ctx, $this, $key) = @_;
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
 
-    if ($this->{_type} eq 'Entry') {
+    if ( $this->{_type} eq 'Entry' || $this->{_type} eq 'StickyEntry' ) {
         return _Entry__get_link($ctx, $this, $key);
     }
     elsif ($this->{_type} eq 'Comment') {
@@ -3447,6 +3611,70 @@ sub EntryLite__get_link
 }
 *Entry__get_link = \&EntryLite__get_link;
 *Comment__get_link = \&EntryLite__get_link;
+
+# method for smart converting raw subject to html-link
+sub EntryLite__formatted_subject {
+    my ($ctx, $this, $attrs) = @_;
+    my $subject = $this->{subject};
+
+    # Figure out what subject to show. Even if the settings are configured
+    # to show nothing for entries or comments without subjects, there should
+    # always be at a minimum a hidden visibility subject line for screenreaders.
+    my $set_subject = sub {
+        my ( $all_subs, $always ) = @_;
+        return unless $subject eq "";  # no subject
+
+        my $text_nosubject = $ctx->[S2::PROPS]->{text_nosubject};
+        if ( $text_nosubject ne "" ) {
+            # if text_nosubject is set, use it as the subject if
+            # all_entrysubjects/all_commentsubjects is true,
+            # or if we're in the month view for entries,
+            # or if we're in the collapsed view for comments
+
+            $subject = $text_nosubject
+                if $ctx->[S2::PROPS]->{$all_subs} || $always;
+
+        }
+        if ( $subject eq "" ) {
+            # still no subject, so use hidden text_nosubject_screenreader
+            $subject = $ctx->[S2::PROPS]->{text_nosubject_screenreader};
+            $attrs->{class} .= " invisible";
+        }
+    };
+
+    # Leave the subject as is if it exists. Otherwise, determine what to show.
+    if ( $this->{_type} eq 'Entry' || $this->{_type} eq 'StickyEntry' ) {
+
+        $set_subject->( 'all_entrysubjects', $LJ::S2::CURR_PAGE->{view} eq 'month' );
+
+    } elsif ( $this->{_type} eq "Comment" ) {
+
+        $set_subject->( 'all_commentsubjects', ! $this->{full} );
+
+    }
+
+    # display subject as-is (cleaned but not wrapped in a link)
+    # if subject has a link and we are on a full comment/single entry view and don't need to click through
+    # TODO: how about other HTML tags?
+    if ( $subject =~ /href/ && ( $this->{full} || $LJ::S2::CURR_PAGE->{view} eq "reply" ||  $LJ::S2::CURR_PAGE->{view} eq "entry" ) ) {
+        return $subject;
+    } else {
+        # we need to be able to click through this subject, so remove links
+        LJ::CleanHTML::clean( \$subject, { noexpandembedded => 1, mode => "allow", remove => [ "a" ] } );
+        my $class = $attrs->{class} ? " class=\"" . LJ::ehtml( $attrs->{class} ) . "\" " : '';
+        my $style = $attrs->{style} ? " style=\"" . LJ::ehtml( $attrs->{style} ) . "\" " : '';
+
+        # additional cleaning for title attribute, necessary to enable
+        # screenreaders to see the names of the invisible links
+        my $title = $subject;
+        LJ::CleanHTML::clean_subject_all( \$title );
+
+        return "<a title=\"$title\" href=\"$this->{permalink_url}\"$class$style>$subject</a>";
+    }
+}
+
+*Entry__formatted_subject = \&EntryLite__formatted_subject;
+*Comment__formatted_subject = \&EntryLite__formatted_subject;
 
 sub EntryLite__get_tags_text
 {
@@ -3469,58 +3697,53 @@ sub EntryLite__get_plain_subject
 sub _Entry__get_link
 {
     my ($ctx, $this, $key) = @_;
-    my $journal = $this->{'journal'}->{'username'};
-    my $poster = $this->{'poster'}->{'username'};
+    my $journal = $this->{'journal'}->{'user'};
+    my $poster = $this->{'poster'}->{'user'};
     my $remote = LJ::get_remote();
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
     my $journalu = LJ::load_user($journal);
+    my $esnjournal = $journalu->is_community ? $journal : $poster;
 
     if ($key eq "edit_entry") {
-        return $null_link unless $remote && ($remote->{'user'} eq $journal ||
-                                        $remote->{'user'} eq $poster ||
-                                        LJ::can_manage($remote, LJ::load_user($journal)));
-        return LJ::S2::Link("$LJ::SITEROOT/editjournal.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return $null_link
+            unless $remote && ( $remote->user eq $journal ||
+                                $remote->user eq $poster  ||
+                                $remote->can_manage( $journalu ) );
+        return LJ::S2::Link("$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_edit_entry"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_edit.gif", 22, 20));
+                            LJ::S2::Image_std( 'editentry' ) );
     }
     if ($key eq "edit_tags") {
-        return $null_link unless $remote && LJ::Tags::can_add_tags(LJ::load_user($journal), $remote);
-        return LJ::S2::Link("$LJ::SITEROOT/edittags.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        my $entry = LJ::Entry->new( $journalu, ditemid => $this->{itemid} );
+        
+        return $null_link unless $remote && LJ::Tags::can_add_entry_tags( $remote, $entry );
+        return LJ::S2::Link("$LJ::SITEROOT/edittags?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_edit_tags"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_edittags.gif", 22, 20));
+                            LJ::S2::Image_std( 'edittags' ) );
     }
     if ($key eq "tell_friend") {
-        return $null_link if $LJ::DISABLED{'tellafriend'};
-        my $entry = LJ::Entry->new($journalu->{'userid'}, ditemid => $this->{'itemid'});
+        return $null_link unless LJ::is_enabled('tellafriend');
+        my $entry = LJ::Entry->new( $journalu->userid, ditemid => $this->{itemid} );
         return $null_link unless $entry->can_tellafriend($remote);
-        return LJ::S2::Link("$LJ::SITEROOT/tools/tellafriend.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/tools/tellafriend?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_tell_friend"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_tellfriend.gif", 22, 20));
+                            LJ::S2::Image_std( 'tellfriend' ) );
     }
     if ($key eq "mem_add") {
-        return $null_link if $LJ::DISABLED{'memories'};
-        return LJ::S2::Link("$LJ::SITEROOT/tools/memadd.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return $null_link unless LJ::is_enabled('memories');
+        return LJ::S2::Link("$LJ::SITEROOT/tools/memadd?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_mem_add"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_memories.gif", 22, 20));
+                            LJ::S2::Image_std( 'memadd' ) );
     }
     if ($key eq "nav_prev") {
-        return LJ::S2::Link("$LJ::SITEROOT/go.bml?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=prev",
+        return LJ::S2::Link("$LJ::SITEROOT/go?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=prev",
                             $ctx->[S2::PROPS]->{"text_entry_prev"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_prev.gif", 22, 20));
+                            LJ::S2::Image_std( 'prev_entry' ) );
     }
     if ($key eq "nav_next") {
-        return LJ::S2::Link("$LJ::SITEROOT/go.bml?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=next",
+        return LJ::S2::Link("$LJ::SITEROOT/go?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=next",
                             $ctx->[S2::PROPS]->{"text_entry_next"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_next.gif", 22, 20));
-    }
-    if ($key eq "flag") {
-        return $null_link unless LJ::is_enabled("content_flag");
-
-        my $entry = LJ::Entry->new($journalu, ditemid => $this->{itemid});
-        return $null_link unless $remote && $remote->can_see_content_flag_button( content => $entry );
-        return LJ::S2::Link(LJ::ContentFlag->adult_flag_url($entry),
-                            $ctx->[S2::PROPS]->{"text_flag"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/button-flag.gif", 22, 20));
+                            LJ::S2::Image_std( 'next_entry' ) );
     }
 
     my $etypeid          = 'LJ::Event::JournalNewComment'->etypeid;
@@ -3535,12 +3758,12 @@ sub _Entry__get_link
     my $newentry_auth_token;
 
     if ($newentry_sub) {
-        $newentry_auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        $newentry_auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                          subid     => $newentry_sub->id,
                                                          action    => 'delsub',
                                                          );
     } elsif ($remote) {
-        $newentry_auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        $newentry_auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                          journalid => $journalu->id,
                                                          action    => 'addsub',
                                                          etypeid   => $newentry_etypeid,
@@ -3548,7 +3771,7 @@ sub _Entry__get_link
     }
 
     if ($key eq "watch_comments") {
-        return $null_link if $LJ::DISABLED{'esn'};
+        return $null_link unless LJ::is_enabled('esn');
         return $null_link unless $remote && $remote->can_use_esn;
         return $null_link if $remote->has_subscription(
                                                        journal => LJ::load_user($journal),
@@ -3558,28 +3781,30 @@ sub _Entry__get_link
                                                        require_active => 1,
                                                        );
 
-        my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                    journalid => $journalu->id,
                                                    action    => 'addsub',
                                                    etypeid   => $etypeid,
                                                    arg1      => $this->{itemid},
                                                    );
 
-        return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_watch_comments"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_track.gif", 22, 20, 'Track This',
-                                          'lj_journalid'        => $journalu->id,
-                                          'lj_etypeid'          => $etypeid,
-                                          'lj_subid'            => 0,
-                                          'lj_arg1'             => $this->{itemid},
-                                          'lj_auth_token'       => $auth_token,
-                                          'lj_newentry_etypeid' => $newentry_etypeid,
-                                          'lj_newentry_token'   => $newentry_auth_token,
-                                          'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
-                                          'class'               => 'TrackButton'));
+                            LJ::S2::Image_std( 'track' ),
+                            'lj_journalid'        => $journalu->id,
+                            'lj_etypeid'          => $etypeid,
+                            'lj_subid'            => 0,
+                            'lj_arg1'             => $this->{itemid},
+                            'lj_auth_token'       => $auth_token,
+                            'lj_newentry_etypeid' => $newentry_etypeid,
+                            'lj_newentry_token'   => $newentry_auth_token,
+                            'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
+                            'class'               => 'TrackButton',
+                            'js_swapname'         => $ctx->[S2::PROPS]->{text_unwatch_comments},
+                            'journal'              => $esnjournal );
     }
     if ($key eq "unwatch_comments") {
-        return $null_link if $LJ::DISABLED{'esn'};
+        return $null_link unless LJ::is_enabled('esn');
         return $null_link unless $remote && $remote->can_use_esn;
         my @subs = $remote->has_subscription(
                                              journal => LJ::load_user($journal),
@@ -3591,22 +3816,24 @@ sub _Entry__get_link
         my $subscr = $subs[0];
         return $null_link unless $subscr;
 
-        my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                    subid  => $subscr->id,
-                                                   action => 'delsub');
+                                                   action => 'delsub' );
 
-        return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_unwatch_comments"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/btn_tracking.gif", 22, 20, 'Untrack this',
-                                          'lj_journalid'        => $journalu->id,
-                                          'lj_subid'            => $subscr->id,
-                                          'lj_etypeid'          => $etypeid,
-                                          'lj_arg1'             => $this->{itemid},
-                                          'lj_auth_token'       => $auth_token,
-                                          'lj_newentry_etypeid' => $newentry_etypeid,
-                                          'lj_newentry_token'   => $newentry_auth_token,
-                                          'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
-                                          'class'               => 'TrackButton'));
+                            LJ::S2::Image_std( 'untrack' ),
+                            'lj_journalid'        => $journalu->id,
+                            'lj_subid'            => $subscr->id,
+                            'lj_etypeid'          => $etypeid,
+                            'lj_arg1'             => $this->{itemid},
+                            'lj_auth_token'       => $auth_token,
+                            'lj_newentry_etypeid' => $newentry_etypeid,
+                            'lj_newentry_token'   => $newentry_auth_token,
+                            'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
+                            'class'               => 'TrackButton',
+                            'js_swapname'         => $ctx->[S2::PROPS]->{text_watch_comments},
+                            'journal'             => $esnjournal );
     }
 }
 
@@ -3624,11 +3851,13 @@ sub EntryPage__print_multiform_actionline
     my ($ctx, $this) = @_;
     return unless $this->{'multiform_on'};
     my $pr = $ctx->[S2::PROPS];
-    $S2::pout->($pr->{'text_multiform_des'} . "\n" .
-                LJ::html_select({'name' => 'mode' },
+    my @actions = qw( unscreen screen delete );
+    push @actions, "deletespam"  unless  LJ::sysban_check( 'spamreport', $this->{entry}->{journal}->{username} );
+    $S2::pout->( LJ::labelfy( 'multiform_mode', $pr->{text_multiform_des} ) . "\n" .
+                LJ::html_select( { name => 'mode', id => 'multiform_mode' },
                                 "" => "",
                                 map { $_ => $pr->{"text_multiform_opt_$_"} }
-                                qw(unscreen screen delete deletespam)) . "\n" .
+                                @actions ) . "\n" .
                 LJ::html_submit('', $pr->{'text_multiform_btn'},
                                 { "onclick" =>
                                       'return ((document.multiform.mode.value != "delete" ' .
@@ -3647,9 +3876,9 @@ sub EntryPage__print_multiform_start
 {
     my ($ctx, $this) = @_;
     return unless $this->{'multiform_on'};
-    $S2::pout->("<form style='display: inline' method='post' action='$LJ::SITEROOT/talkmulti.bml' name='multiform'>\n" .
+    $S2::pout->("<form style='display: inline' method='post' action='$LJ::SITEROOT/talkmulti' name='multiform'>\n" .
                 LJ::html_hidden("ditemid", $this->{'entry'}->{'itemid'},
-                                "journal", $this->{'entry'}->{'journal'}->{'username'}) . "\n");
+                                "journal", $this->{'entry'}->{'journal'}->{'user'}) . "\n");
 }
 
 sub Page__print_control_strip
@@ -3671,246 +3900,45 @@ sub Page__print_control_strip
 *ReplyPage__print_control_strip = \&Page__print_control_strip;
 *TagsPage__print_control_strip = \&Page__print_control_strip;
 
-sub Page__print_hbox_top
-{
-    my ($ctx, $this) = @_;
-
-    my $user = $this->{journal}->{username};
-    my $journalu = LJ::load_user($this->{journal}->{username})
-        or die "unable to load journal user: $user";
-
-    # get ad with site-specific hook
-    {
-        my $colors = _get_colors_for_ad($ctx);
-
-        my $qotd = 0;
-        if ($LJ::S2::CURR_PAGE->{view} eq "entry" || $LJ::S2::CURR_PAGE->{view} eq "reply") {
-            my $entry = LJ::Entry->new($journalu, ditemid => $LJ::S2::CURR_PAGE->{entry}->{itemid});
-            $qotd = $entry->is_special_qotd_entry if $entry;
-        }
-
-        my $ad_html = LJ::run_hook('hbox_top_ad_content', {
-            journalu => $journalu,
-            pubtext  => $LJ::REQ_GLOBAL{text_of_first_public_post},
-            tags     => $LJ::REQ_GLOBAL{tags_of_first_public_post},
-            colors   => $colors,
-            vertical => $LJ::REQ_GLOBAL{verticals_of_first_public_post},
-            interests_extra => $qotd ? "qotd" : "",
-        });
-        $S2::pout->($ad_html) if $ad_html;
-    }
-}
-
-sub Page__print_hbox_bottom
-{
-    my ($ctx, $this) = @_;
-
-    my $user = $this->{journal}->{username};
-    my $journalu = LJ::load_user($this->{journal}->{username})
-        or die "unable to load journal user: $user";
-
-    # get ad with site-specific hook
-    {
-        my $colors = _get_colors_for_ad($ctx);
-
-        my $qotd = 0;
-        if ($LJ::S2::CURR_PAGE->{view} eq "entry" || $LJ::S2::CURR_PAGE->{view} eq "reply") {
-            my $entry = LJ::Entry->new($journalu, ditemid => $LJ::S2::CURR_PAGE->{entry}->{itemid});
-            $qotd = $entry->is_special_qotd_entry if $entry;
-        }
-
-        my $ad_html;
-        if ($journalu->prop('journal_box_placement') eq 'h') {
-            $ad_html = LJ::run_hook('hbox_bottom_ad_content', {
-                journalu => $journalu,
-                pubtext  => $LJ::REQ_GLOBAL{text_of_first_public_post},
-                tags     => $LJ::REQ_GLOBAL{tags_of_first_public_post},
-                colors   => $colors,
-                vertical => $LJ::REQ_GLOBAL{verticals_of_first_public_post},
-                interests_extra => $qotd ? "qotd" : "",
-            });
-        } else {
-            $ad_html = LJ::run_hook('hbox_with_vbox_ad_content', {
-                journalu => $journalu,
-                pubtext  => $LJ::REQ_GLOBAL{text_of_first_public_post},
-                tags     => $LJ::REQ_GLOBAL{tags_of_first_public_post},
-                colors   => $colors,
-                vertical => $LJ::REQ_GLOBAL{verticals_of_first_public_post},
-                interests_extra => $qotd ? "qotd" : "",
-            });
-        }
-        $S2::pout->($ad_html) if $ad_html;
-    }
-}
-
-sub Page__print_vbox
-{
-    my ($ctx, $this) = @_;
-
-    my $user = $this->{journal}->{username};
-    my $journalu = LJ::load_user($this->{journal}->{username})
-        or die "unable to load journal user: $user";
-
-    # next standard ad calls specified by site-specific hook
-    {
-        my $colors = _get_colors_for_ad($ctx);
-
-        my $qotd = 0;
-        if ($LJ::S2::CURR_PAGE->{view} eq "entry" || $LJ::S2::CURR_PAGE->{view} eq "reply") {
-            my $entry = LJ::Entry->new($journalu, ditemid => $LJ::S2::CURR_PAGE->{entry}->{itemid});
-            $qotd = $entry->is_special_qotd_entry if $entry;
-        }
-
-        my $ad_html = LJ::run_hook('vbox_ad_content', {
-            journalu => $journalu,
-            pubtext  => $LJ::REQ_GLOBAL{text_of_first_public_post},
-            tags     => $LJ::REQ_GLOBAL{tags_of_first_public_post},
-            colors   => $colors,
-            vertical => $LJ::REQ_GLOBAL{verticals_of_first_public_post},
-            interests_extra => $qotd ? "qotd" : "",
-        });
-        $S2::pout->($ad_html) if $ad_html;
-    }
-}
-
-sub Entry__print_ebox
-{
-    my ($ctx, $this) = @_;
-    my $r = BML::get_request();
-    my $journalu = LJ::load_userid($r->notes->{journalid})
-        or die "unable to load journal user";
-
-    my $curr_entry_ct = LJ::S2::nth_entry_seen($this);
-    my $entries = $LJ::S2::CURR_PAGE->{'entries'} || [];
-    my $total_entry_ct = @$entries;
-
-    $LJ::REQ_GLOBAL{ebox_count} = $LJ::REQ_GLOBAL{ebox_count} > 1 ? $LJ::REQ_GLOBAL{ebox_count} : 1;
-
-    if (LJ::S2::current_box_type($journalu) eq "ebox") {
-        if (LJ::run_hook('viewer_sees_ebox',
-            curr_entry_ct => $curr_entry_ct,
-            total_entry_ct => $total_entry_ct,
-            journalu => $journalu,
-        ))
-        {
-            my $colors = _get_colors_for_ad($ctx);
-            my $pubtext;
-            my @tag_names;
-
-            # If this entry is public, get this entry's text and tags
-            # If this entry is non-public, get the first public entry's text and tags
-            if ($this->{security}) { # if non-public
-                $pubtext = $LJ::REQ_GLOBAL{text_of_first_public_post};
-                @tag_names = @{$LJ::REQ_GLOBAL{tags_of_first_public_post} || []};
-            } else { # if public
-                $pubtext = $this->{text};
-                if (@{$this->{tags}}) {
-                    @tag_names = map { $_->{name} } @{$this->{tags}};
-                }
-            }
-
-            my $qotd = 0;
-            if ($LJ::S2::CURR_PAGE->{view} eq "entry" || $LJ::S2::CURR_PAGE->{view} eq "reply") {
-                my $entry = LJ::Entry->new($journalu, ditemid => $LJ::S2::CURR_PAGE->{entry}->{itemid});
-                $qotd = $entry->is_special_qotd_entry if $entry;
-            }
-
-            # get ad with site-specific hook
-            my $ad_html = LJ::run_hook('ebox_ad_content', {
-                journalu => $journalu,
-                pubtext  => $pubtext,
-                tags     => \@tag_names,
-                colors   => $colors,
-                position => $LJ::REQ_GLOBAL{ebox_count},
-                interests_extra => $qotd ? "qotd" : "",
-            });
-            $LJ::REQ_GLOBAL{ebox_count}++;
-            $S2::pout->($ad_html) if $ad_html;
-        }
-    }
-}
-
-sub _get_colors_for_ad {
-    my $ctx = shift;
-
-    # Load colors from the layout and remove the # in front of them
-    my ($bgcolor, $fgcolor, $bordercolor, $linkcolor);
-    my $bgcolor_prop = S2::get_property_value($ctx, "theme_bgcolor");
-    my $fgcolor_prop = S2::get_property_value($ctx, "theme_fgcolor");
-    my $bordercolor_prop = S2::get_property_value($ctx, "theme_bordercolor");
-    my $linkcolor_prop = S2::get_property_value($ctx, "theme_linkcolor");
-
-    if ($bgcolor_prop) {
-        $bgcolor = $bgcolor_prop->{as_string};
-        $bgcolor =~ s/^#//;
-    }
-    if ($fgcolor_prop) {
-        $fgcolor = $fgcolor_prop->{as_string};
-        $fgcolor =~ s/^#//;
-    }
-    if ($bordercolor_prop) {
-        $bordercolor = $bordercolor_prop->{as_string};
-        $bordercolor =~ s/^#//;
-    }
-    if ($linkcolor_prop) {
-        $linkcolor = $linkcolor_prop->{as_string};
-        $linkcolor =~ s/^#//;
-    }
-
-    my %colors = (
-        bgcolor     => $bgcolor,
-        fgcolor     => $fgcolor,
-        bordercolor => $bordercolor,
-        linkcolor   => $linkcolor,
-    );
-
-    return \%colors;
-}
-
-# deprecated, should use print_(v|h)box
-sub Page__print_ad
-{
-    my ($ctx, $this, $type) = @_;
-
-    my $ad = LJ::ads(
-                     type    => 'journal',
-                     orient  => $type,
-                     user    => $LJ::S2::CURR_PAGE->{'journal'}->{'username'},
-                     pubtext => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
-                     );
-    return '' unless $ad;
-
-    $S2::pout->($ad);
-}
-
-# map vbox/hbox/ebox methods into *Page classes
-foreach my $class (qw(RecentPage FriendsPage YearPage MonthPage DayPage EntryPage ReplyPage TagsPage)) {
-    foreach my $func (qw(print_ad print_vbox print_hbox_top print_hbox_bottom print_ebox)) {
-        eval "*${class}__$func = \&Page__$func";
-    }
-}
-
+# removed as part of generic ads removal
+sub Page__print_hbox_top {}
+sub Page__print_hbox_bottom {}
+sub Page__print_vbox {}
+sub Page__print_ad_box {}
+sub Entry__print_ebox {}
+sub Page__print_ad {}
 
 sub Page__visible_tag_list
 {
-    my ($ctx, $this) = @_;
+    my ($ctx, $this, $limit) = @_;
+
+    $limit ||= "";
     return $this->{'_visible_tag_list'}
-        if defined $this->{'_visible_tag_list'};
+        if defined $this->{'_visible_tag_list'} && ! $limit;
 
     my $remote = LJ::get_remote();
     my $u = $LJ::S2::CURR_PAGE->{'_u'};
     return [] unless $u;
 
-    my $tags = LJ::Tags::get_usertags($u, { remote => $remote });
-    return [] unless $tags;
+    # use the cached tag list, if we have it
+    my @taglist = @{$this->{'_visible_tag_list'} || []};
 
-    my @taglist;
-    foreach my $kwid (keys %{$tags}) {
-        # only show tags for display
-        next unless $tags->{$kwid}->{display};
+    unless ( @taglist) {
+        my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
+        return [] unless $tags;
 
-        # create tag object
-        push @taglist, LJ::S2::TagDetail($u, $kwid => $tags->{$kwid});
+        foreach my $kwid (keys %{$tags}) {
+            # only show tags for display
+            next unless $tags->{$kwid}->{display};
+
+            # create tag object
+            push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid} );
+        }
+    }
+
+    if ($limit) {
+        @taglist = sort { $b->{use_count} <=> $a->{use_count} } @taglist;
+        @taglist = splice @taglist, 0, $limit;
     }
 
     @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
@@ -4014,6 +4042,8 @@ sub userlite_base_url
 {
     my ($ctx, $UserLite) = @_;
     my $u = $UserLite->{_u};
+    return "#"
+            unless $UserLite && $u;
     return $u->journal_base;
 }
 
@@ -4037,21 +4067,27 @@ sub PalItem
 
 sub YearMonth__month_format
 {
-    my ($ctx, $this, $fmt) = @_;
+    my ($ctx, $this, $fmt, $as_link) = @_;
     $fmt ||= "long";
-    my $c = \$ctx->[S2::SCRATCH]->{'_code_monthfmt'}->{$fmt};
+    my $c = \$ctx->[S2::SCRATCH]->{'_code_monthfmt'}->{$fmt . $as_link};
     return $$c->($this) if ref $$c eq "CODE";
     if (++$ctx->[S2::SCRATCH]->{'_code_timefmt_count'} > 15) { return "[too_many_fmts]"; }
     my $realfmt = $fmt;
     if (defined $ctx->[S2::PROPS]->{"lang_fmt_month_$fmt"}) {
         $realfmt = $ctx->[S2::PROPS]->{"lang_fmt_month_$fmt"};
     }
+
     my @parts = split(/\%\%/, $realfmt);
     my $code = "\$\$c = sub { my \$time = shift; return join('',";
     my $i = 0;
     foreach (@parts) {
-        if ($i % 2) { $code .= $dt_vars{$_} . ","; }
-        else { $_ = LJ::ehtml($_); $code .= "\$parts[$i],"; }
+        if ($i % 2) {
+            # translate date %%variable%% to value
+            my $link = _dt_vars_html( $_ );
+            $code .= $as_link && $link
+                ? qq{"<a href=\\\"", $link, "\\\">", $dt_vars{$_},"</a>",}
+                : $dt_vars{$_} . ",";
+        } else { $_ = LJ::ehtml( $_ ); $code .= "\$parts[$i],"; }
         $i++;
     }
     $code .= "); };";
@@ -4078,11 +4114,21 @@ sub UserLite__equals
 *User__equals = \&UserLite__equals;
 *Friend__equals = \&UserLite__equals;
 
+sub string__index
+{
+    use utf8;
+    my ($ctx, $this, $substr, $position) = @_;
+    return index( $this, $substr, $position );
+}
+
 sub string__substr
 {
     my ($ctx, $this, $start, $length) = @_;
-    use utf8;
-    return substr($this, $start, $length);
+
+    use Encode qw/decode_utf8 encode_utf8/;
+    my $ustr = decode_utf8($this);
+    my $result = substr($ustr, $start, $length);
+    return encode_utf8($result);
 }
 
 sub string__length
@@ -4132,6 +4178,22 @@ sub string__contains
     use utf8;
     my ($ctx, $this, $str) = @_;
     return $this =~ /\Q$str\E/;
+}
+
+sub string__replace
+{
+    use utf8;
+    my ($ctx, $this, $find, $replace) = @_;
+    $this =~ s/\Q$find\E/$replace/g;
+    return $this;
+}
+
+sub string__split
+{
+    use utf8;
+    my ($ctx, $this, $splitby) = @_;
+    my @result = split /\Q$splitby\E/, $this;
+    return \@result;
 }
 
 sub string__repeat
@@ -4231,5 +4293,43 @@ sub string__css_keyword_list
     return join(' ', @out);
 }
 
+sub Siteviews__need_res
+{
+    my ($ctx, $this, $res) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+    LJ::need_res($res);
+}
+
+sub Siteviews__start_capture {
+    my ($ctx, $this) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+
+    # force flush
+    S2::get_output()->("");
+
+    push @{$this->{_input_captures}}, $LJ::S2::ret_ref;
+    my $text = "";
+    $LJ::S2::ret_ref = \$text;
+}
+
+sub Siteviews__end_capture {
+    my ($ctx, $this) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+
+    return "" unless scalar( @{$this->{_input_captures}} );
+
+    # force flush
+    S2::get_output()->("");
+    my $text_ref = $LJ::S2::ret_ref;
+    $LJ::S2::ret_ref = pop @{$this->{_input_captures}};
+    return $$text_ref;
+}
+
+sub Siteviews__set_content {
+    my ($ctx, $this, $content, $text) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+    
+    $this->{_content}->{$content} = $text;
+}
 
 1;

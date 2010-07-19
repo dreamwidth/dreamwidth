@@ -1,9 +1,23 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::ThemeChooser;
 
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::S2Theme LJ::Customize );
+use LJ::S2Theme;
+use LJ::Customize;
 
 sub ajax { 1 }
 sub authas { 1 }
@@ -25,17 +39,16 @@ sub render_body {
     my $layoutid = defined $opts{layoutid} ? $opts{layoutid} : 0;
     my $designer = defined $opts{designer} ? $opts{designer} : "";
     my $search = defined $opts{search} ? $opts{search} : "";
-    my $filter_available = defined $opts{filter_available} ? $opts{filter_available} : 0;
     my $page = $opts{page} || 1;
     my $show = $opts{show} || 12;
 
-    my $filterarg = $filter_available ? "&filter_available=1" : "";
     my $showarg = $show != 12 ? "&show=$opts{show}" : "";
 
     my $viewing_featured = !$cat && !$layoutid && !$designer;
 
     my %cats = LJ::Customize->get_cats($u);
     my $ret .= "<div class='theme-selector-content pkg'>";
+    $ret .= "<script>Customize.ThemeChooser.confirmation = \"" . $class->ml('widget.themechooser.confirmation') . "\";</script>";
 
     my @getargs;
     my @themes;
@@ -45,6 +58,9 @@ sub render_body {
     } elsif ($cat eq "custom") {
         push @getargs, "cat=custom";
         @themes = LJ::S2Theme->load_by_user($u);
+    } elsif ($cat eq "base") {
+        push @getargs, "cat=base";
+        @themes = LJ::S2Theme->load_default_themes();
     } elsif ($cat) {
         push @getargs, "cat=$cat";
         @themes = LJ::S2Theme->load_by_cat($cat);
@@ -61,28 +77,28 @@ sub render_body {
         @themes = LJ::S2Theme->load_by_cat("featured");
     }
 
-    if ($filter_available) {
-        push @getargs, "filter_available=$filter_available";
-        @themes = LJ::S2Theme->filter_available($u, @themes);
-    }
-
     if ($show != 12) {
         push @getargs, "show=$show";
     }
 
     @themes = LJ::Customize->remove_duplicate_themes(@themes);
 
-    # sort themes with custom at the end, then alphabetically
-    @themes =
-        sort { $a->is_custom <=> $b->is_custom }
-        sort { lc $a->name cmp lc $b->name } @themes;
+    if ( $cat eq "base" ) {
+        # sort alphabetically by layout
+        @themes = sort { lc $a->layout_name cmp lc $b->layout_name } @themes;
+    } else {
+        # sort themes with custom at the end, then alphabetically by theme
+        @themes =
+            sort { $a->is_custom <=> $b->is_custom }
+            sort { lc $a->name cmp lc $b->name } @themes;
+    }
 
-    LJ::run_hooks("modify_theme_list", \@themes, user => $u, cat => $cat);
+    LJ::Hooks::run_hooks("modify_theme_list", \@themes, user => $u, cat => $cat);
 
     # remove any themes from the array that are not defined or whose layout or theme is not active
     for (my $i = 0; $i < @themes; $i++) {
-        my $layout_is_active = LJ::run_hook("layer_is_active", $themes[$i]->layout_uniq);
-        my $theme_is_active = LJ::run_hook("layer_is_active", $themes[$i]->uniq);
+        my $layout_is_active = LJ::Hooks::run_hook("layer_is_active", $themes[$i]->layout_uniq);
+        my $theme_is_active = LJ::Hooks::run_hook("layer_is_active", $themes[$i]->uniq);
 
         unless ((defined $themes[$i]) &&
             (!defined $layout_is_active || $layout_is_active) &&
@@ -135,36 +151,36 @@ sub render_body {
         } elsif (!$theme->themeid && !$current_theme->themeid) {
             $theme_types{current} = 1 if $theme->layoutid == $current_theme->layoutid;
         }
-        $theme_types{upgrade} = 1 if !$filter_available && !$theme->available_to($u);
-        $theme_types{special} = 1 if LJ::run_hook("layer_is_special", $theme->uniq);
+        $theme_types{upgrade} = 1 if !$theme->available_to($u);
+        $theme_types{special} = 1 if LJ::Hooks::run_hook("layer_is_special", $theme->uniq);
 
         
         my ($theme_class, $theme_options, $theme_icons) = ("", "", "");
         
         $theme_icons .= "<div class='theme-icons'>" if $theme_types{upgrade} || $theme_types{special};
         if ($theme_types{current}) {
-            my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
+            my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
 
             $theme_class .= " current";
-            $theme_options .= "<strong><a href='$LJ::SITEROOT/customize/options.bml$getextra'>" . $class->ml('widget.themechooser.theme.customize') . "</a></strong>";
+            $theme_options .= "<strong><a href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.themechooser.theme.customize') . "</a></strong>";
             if (! $no_layer_edit && $theme->is_custom && !$theme_types{upgrade}) {
                 if ($theme->layoutid && !$theme->layout_uniq) {
-                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->layoutid . "'>" . $class->ml('widget.themechooser.theme.editlayoutlayer') . "</a></strong>";
+                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->layoutid . "'>" . $class->ml('widget.themechooser.theme.editlayoutlayer') . "</a></strong>";
                 }
                 if ($theme->themeid && !$theme->uniq) {
-                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->themeid . "'>" . $class->ml('widget.themechooser.theme.editthemelayer') . "</a></strong>";
+                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->themeid . "'>" . $class->ml('widget.themechooser.theme.editthemelayer') . "</a></strong>";
                 }
             }
         }
         if ($theme_types{upgrade}) {
             $theme_class .= " upgrade";
             $theme_options .= "<br />" if $theme_options;
-            $theme_options .= LJ::run_hook("customize_special_options", $u, $theme);
-            $theme_icons .= LJ::run_hook("customize_special_icons", $u, $theme);
+            $theme_options .= LJ::Hooks::run_hook("customize_special_options", $u, $theme);
+            $theme_icons .= LJ::Hooks::run_hook("customize_special_icons", $u, $theme);
         }
         if ($theme_types{special}) {
-            $theme_class .= " special" if $viewing_featured && LJ::run_hook("should_see_special_content", $u);
-            $theme_icons .= LJ::run_hook("customize_available_until", $theme);
+            $theme_class .= " special" if $viewing_featured && LJ::Hooks::run_hook("should_see_special_content", $u);
+            $theme_icons .= LJ::Hooks::run_hook("customize_available_until", $theme);
         }
         $theme_icons .= "</div><!-- end .theme-icons -->" if $theme_icons;
 
@@ -177,20 +193,20 @@ sub render_body {
 
         my $preview_redirect_url;
         if ($theme->themeid) {
-            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect.bml$getextra${getsep}themeid=" . $theme->themeid;
+            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect$getextra${getsep}themeid=" . $theme->themeid;
         } else {
-            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect.bml$getextra${getsep}layoutid=" . $theme->layoutid;
+            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect$getextra${getsep}layoutid=" . $theme->layoutid;
         }
         $ret .= "<a href='$preview_redirect_url' target='_blank' class='theme-preview-link' title='" . $class->ml('widget.themechooser.theme.preview') . "'>";
 
         $ret .= "<img src='$LJ::IMGPREFIX/customize/preview-theme.gif' class='theme-preview-image' /></a>";
         $ret .= $theme_icons;
 
-        my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$filterarg$showarg' class='theme-layout'><em>$theme_layout_name</em></a>";
-        my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$filterarg$showarg' class='theme-cat'";
-        $ret .= "<p class='theme-desc'>";
+        my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$showarg' class='theme-layout'><em>$theme_layout_name</em></a>";
+        my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-cat'";
+        $ret .= "<div class='theme-action'><p class='theme-desc'>";
         if ($theme_designer) {
-            my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($theme_designer) . "$filterarg$showarg' class='theme-designer'>$theme_designer</a>";
+            my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($theme_designer) . "$showarg' class='theme-designer'>$theme_designer</a>";
             if ($theme_types{special}) {
                 $ret .= $class->ml('widget.themechooser.theme.specialdesc', {'aopts' => $special_link_opts, 'designer' => $designer_link});
             } else {
@@ -215,7 +231,7 @@ sub render_body {
             );
             $ret .= $class->end_form;
         }
-        $ret .= "</div><!-- end .theme-item -->";
+        $ret .= "</div><!-- end .theme-action --></div><!-- end .theme-item -->";
     }
     $ret .= "</div><!-- end .themes-area --->";
 
@@ -279,7 +295,7 @@ sub print_paging {
         $ret .= $class->start_form;
         $ret .= "<span class='item'>" . $class->ml('widget.themechooser.page') . " ";
         $ret .= $class->ml('widget.themechooser.page.maxpage', { currentpage => $currentpage, maxpage => $max_page }) . " ";
-        $ret .= LJ::Widget::ThemeNav->html_submit( page_dropdown_submit => $class->ml('widget.themechooser.btn.page'), { id => "page_dropdown_btn_$location" }) . "</span>";
+        $ret .= "<noscript>" . LJ::Widget::ThemeNav->html_submit( page_dropdown_submit => $class->ml('widget.themechooser.btn.page') ) . "</noscript></span>";
         $ret .= $class->end_form;
 
         if ($page + 1 <= $max_page) {
@@ -303,7 +319,7 @@ sub print_paging {
         selected => $show, },
         @shows,
     ) . " ";
-    $ret .= LJ::Widget::ThemeNav->html_submit( show_dropdown_submit => $class->ml('widget.themechooser.btn.show'), { id => "show_dropdown_btn_$location" }) . "</span>";
+    $ret .= "<noscript>" . LJ::Widget::ThemeNav->html_submit( show_dropdown_submit => $class->ml('widget.themechooser.btn.show') ) . "</noscript></span>";
     $ret .= $class->end_form;
 
     $ret .= " <span id='paging_msg_area_$location'></span>";
@@ -324,7 +340,7 @@ sub handle_post {
     my $layoutid = $post->{apply_layoutid}+0;
 
     # we need to load sponsor's themes for sponsored users
-    my $substitue_user = LJ::run_hook("substitute_s2_layers_user", $u);
+    my $substitue_user = LJ::Hooks::run_hook("substitute_s2_layers_user", $u);
     my $effective_u = defined $substitue_user ? $substitue_user : $u;
     my $theme;
     if ($themeid) {
@@ -336,6 +352,7 @@ sub handle_post {
     }
 
     LJ::Customize->apply_theme($u, $theme);
+    LJ::Hooks::run_hooks('apply_theme', $u);
 
     return;
 }
@@ -344,18 +361,6 @@ sub js {
     q [
         initWidget: function () {
             var self = this;
-
-            if ($('page_dropdown_btn_top'))
-                $('page_dropdown_btn_top').style.display = "none";
-
-            if ($('page_dropdown_btn_bottom'))
-                $('page_dropdown_btn_bottom').style.display = "none";
-
-            if ($('show_dropdown_btn_top'))
-                $('show_dropdown_btn_top').style.display = "none";
-
-            if ($('show_dropdown_btn_bottom'))
-                $('show_dropdown_btn_bottom').style.display = "none";
 
             var filter_links = DOM.getElementsByClassName(document, "theme-cat");
             filter_links = filter_links.concat(DOM.getElementsByClassName(document, "theme-layout"));
@@ -372,7 +377,7 @@ sub js {
                 } else {
                     for (var arg in getArgs) {
                         if (!getArgs.hasOwnProperty(arg)) continue;
-                        if (arg == "authas" || arg == "filter_available" || arg == "show") continue;
+                        if (arg == "authas" || arg == "show") continue;
                         DOM.addEventListener(filter_link, "click", function (evt) { Customize.ThemeNav.filterThemes(evt, arg, getArgs[arg]) });
                         break;
                     }
@@ -417,18 +422,14 @@ sub js {
                 layoutid: Customize.layoutid,
                 designer: Customize.designer,
                 search: Customize.search,
-                filter_available: Customize.filter_available,
                 page: Customize.page,
                 show: Customize.show,
                 theme_chooser_id: $('theme_chooser_id').value
             });
-            Customize.CurrentTheme.updateContent({
-                filter_available: Customize.filter_available,
-                show: Customize.show
-            });
             Customize.LayoutChooser.updateContent({
                 ad_layout_id: $('ad_layout_id').value
             });
+            alert(Customize.ThemeChooser.confirmation);
         },
         previewTheme: function (evt, href) {
             window.open(href, 'theme_preview', 'resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');

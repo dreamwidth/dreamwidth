@@ -10,13 +10,17 @@
     use Date::Parse;
 
     my $remote = LJ::get_remote();
-    return "You don't have access to do that.\n"
-        unless LJ::check_priv($remote, 'payments');
+    my @displayprivs = ( "payments" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless $remote->has_priv( 'payments' );
 
     my $body = '<h1>Payment Status Import Tool</h1>';
 
     if (LJ::did_post()) {
-        $body .= '<p>[ <a href="/admin/pay/import.bml">&lt;&lt; Back to Index</a> ]</p>';
+        $body .= '<p>[ <a href="/admin/pay/import">&lt;&lt; Back to Index</a> ]</p>';
 
         #my $note = sub {
         #    LJ::statushistory_add( $u, $remote, 'paidstatus', sprintf( shift, @_ ) );
@@ -100,7 +104,7 @@
         # print the basic form
         $body .= <<EOF;
 
-<form method="post" action="/admin/pay/import.bml">
+<form method="post" action="/admin/pay/import">
 
 <p>To import data, please paste it in the box below.  The format is:</p>
 <p><strong>username , account type , expiration date</strong></p>

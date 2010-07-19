@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -18,26 +32,29 @@
         $state = LJ::eurl($state);
         $reporttime = LJ::mysql_time($reporttime);
         $reporttime = $etext if $etext;
-        return "<a href=\"spamreports.bml?mode=view&amp;by=$by&amp;what=$what&amp;state=$state\">$reporttime</a>";
+        return "<a href=\"spamreports?mode=view&amp;by=$by&amp;what=$what&amp;state=$state\">$reporttime</a>";
     };
     my $dellink = sub {
         my ($srids, $text, $extra) = @_;
-        return "<form method=\"post\" action=\"spamreports.bml\">" .
+        return "<form method=\"post\" action=\"spamreports\">" .
             LJ::html_hidden('mode', 'del') .
             LJ::html_hidden('srids', join(',', @$srids)) .
-            LJ::html_hidden('ret', "spamreports.bml?" . join('&amp;', map { "$_=" . LJ::eurl($GET{$_}) } keys %GET)) .
+            LJ::html_hidden('ret', "spamreports?" . join('&amp;', map { "$_=" . LJ::eurl($GET{$_}) } keys %GET)) .
             LJ::html_submit('submit', $text) .
             $extra . 
             "</form>";
     };
     # login check
     my $remote = LJ::get_remote();
-    return $error->("You must be logged in to be here.")
+    return $error->("<?needlogin?>")
         unless $remote;
     
     # priv check
-    return $error->("You do not have the necessary privilege to be here.")
-        unless LJ::check_priv($remote, 'siteadmin', 'spamreports');
+    my @displayprivs = ( "siteadmin:spamreports", "siteadmin:*" );
+    my $numprivs = @displayprivs;
+
+    return $error->(BML::ml("admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} ))
+        unless $remote && $remote->has_priv( 'siteadmin', 'spamreports' );
 
     # show the top 10 spam reports by IP
     my $mode = lc($GET{mode} || $POST{mode});
@@ -145,7 +162,7 @@
         my ($by, $what, $state) = (lc($GET{by}), $GET{what}, lc($GET{state}));
         $by = '' unless $by =~ /^(?:ip|poster(?:id)?)$/;
         $state = 'open' unless $state =~ /^(?:open|closed)$/;
-        $body .= "<?p [ <a href=\"spamreports.bml\">&lt;&lt; Front Page</a> ] ";
+        $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; Front Page</a> ] ";
         
         # open/closed links
         my $eargs = LJ::eurl("?by=$by&what=$what&state");
@@ -165,7 +182,7 @@
         } elsif ($by eq 'poster') {
             my $u = LJ::load_user($what);
             return $error->('No such user.') unless $u;
-            $title = "Spam Reports - Comments By $u->{user}";
+            $title = "Spam Reports - Comments By " . $u->ljuser_display;
 
             # Now just pretend that user used 'posterid'
             $by = 'posterid';
@@ -177,7 +194,7 @@
         }
 
         # see if we should call a hook for extra actions?
-        $body .= LJ::run_hook('spamreport_notification', $remote, { $by => $what })
+        $body .= LJ::Hooks::run_hook('spamreport_notification', $remote, { $by => $what })
             if $state eq 'open' && $by eq 'posterid';
 
         # now the general info gathering
@@ -230,8 +247,7 @@
         $in = "'$in'";
 
         if ($POST{'sysban_ip'} && !LJ::sysban_validate("talk_ip_test", $POST{'sysban_ip'})) {
-            LJ::sysban_create('what' => 'talk_ip_test', value => $POST{'sysban_ip'},
-                              'banlength' => 0, note => "anonymous spamreports");
+            LJ::sysban_create('what' => 'talk_ip_test', 'value' => $POST{'sysban_ip'}, 'bandays' => 0, 'note' => 'anonymous spamreports');
         }
 
         $count = $dbh->do("UPDATE spamreports SET state='closed' WHERE srid IN($in) AND state='open'");
@@ -239,9 +255,10 @@
         $backlink = "[ <a href='$POST{ret}'>&lt;&lt; Go Back</a> ]";
 
         $title = "Close Reports";
-        $body .= "<?p [ <a href=\"spamreports.bml\">&lt;&lt; Front Page</a> ] $backlink p?>\n";
+        $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; Front Page</a> ] $backlink p?>\n";
+
         my $s = $count == 1 ? '' : 's';
-        $body .= "Closed $count report$s.\n";
+        $body .= $count > 0 ? "Closed $count report$s.\n" : "Reports were already closed.";
 
     } else {
         # standard
@@ -249,17 +266,17 @@
                      last01hr => 'Last 1 Hour', last06hr => 'Last 6 Hours', last24hr => 'Last 24 Hours');
         $body .= "<?p Available reports: p?>\n<ul>";
         foreach (sort keys %modes) {
-            $body .= "<li><a href=\"spamreports.bml?mode=$_\">$modes{$_}</a>";
+            $body .= "<li><a href=\"spamreports?mode=$_\">$modes{$_}</a>";
             if ($_ =~ /last/) {
                 # this is a last view, so we have other options
-                $body .= " [<a href=\"spamreports.bml?mode=${_}_u\">users</a>, ";
-                $body .= "<a href=\"spamreports.bml?mode=${_}_a\">anonymous</a>]";
+                $body .= " [<a href=\"spamreports?mode=${_}_u\">users</a>, ";
+                $body .= "<a href=\"spamreports?mode=${_}_a\">anonymous</a>]";
             }
             $body .= "</li>";
         }
-        $body .= qq{<li><form method="GET" action="spamreports.bml" style="display: inline; margin: 0;">
+        $body .= qq{<li><form method="GET" action="spamreports" style="display: inline; margin: 0;">
             <label for="repu">Reports for user:
-                <input type="text" name="what" size="15" maxlength="15" id="repu" />
+                <input type="text" name="what" size="25" maxlength="25" id="repu" />
                 <input type="hidden" name="by" value="poster" />
                 <input type="hidden" name="mode" value="view" />
             </label></form></li>
@@ -269,7 +286,7 @@
 
     # now spit out the requested table
     return unless @headers;
-    $body .= "<?p [ <a href=\"spamreports.bml\">&lt;&lt; Front Page</a> ] p?>";
+    $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; Front Page</a> ] p?>";
     $body .= "<table width=\"50%\">\n<tr>";
     $body .= "<th align=\"center\">$_</th>" foreach @headers;
     $body .= "</tr>\n";

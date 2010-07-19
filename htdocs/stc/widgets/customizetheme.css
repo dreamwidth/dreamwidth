@@ -1,18 +1,9 @@
 .customize-button {    
     font-size: 11px;
-    color: #fff;
-    background: #559A40;
-    border: 2px solid #76AE65;
-    border-bottom: 2px solid #447C33;
-    border-right: 2px solid #447C33;
 }
 .customize-buttons {
     text-align: right;
     margin-top: 10px;
-}
-
-.customize-inner-wrapper {
-    background: url(/img/customize/bluepixel.gif) repeat-y scroll 134px 50%;
 }
 
 .customize-wrapper h2 {
@@ -30,23 +21,18 @@
     padding: 0 15px 25px 15px;
     margin: 0 0 15px 134px;
     position: relative;
-    border: 1px solid #C7E0F6;
-    border-left: none;
+    border-left: none; 
+    zoom: 1;
 
 }
 .customize-content .subheader {
     font-size: 13px;
     font-weight: bold;
     padding: 5px 0 5px 25px;
-    background: #ECF6FF url(/img/customize/arrow-right.gif) left center no-repeat;
-    border-bottom: 1px solid #C7E0F6;
     display: inline-block;
 }
 .customize-content .subheader[class] {
     display: block;
-}
-.customize-content .subheader.on {
-    background: #ECF6FF url(/img/customize/arrow-down.gif) left center no-repeat;
 }
 .customize-content fieldset {
     border-bottom: 0px none;
@@ -57,7 +43,6 @@
 
 .customize-content fieldset legend {
     font-size: 22px;
-    color: #777;
     font-style: normal;
     margin: 0;
     padding: 0 7px 0 6px;
@@ -71,7 +56,6 @@
 .customize-content h3 {
     font-style: normal;
     font-weight: normal;
-    color: #777;
     font-size: 22px;
     text-align: middle;
 }
@@ -79,13 +63,11 @@
 .customize-nav {
     float: left;
     width: 135px;
-    background-color: #ECF6FF;
 }
 .customize-nav li a {
     text-decoration: none;
     display: block;
     padding: 3px 6px;
-    border-right: 1px solid #C7E0F6;
 }
 .customize-nav li a:hover {
     text-decoration: underline;
@@ -99,28 +81,17 @@
     padding: 3px 0;
     margin: 0;
     font-size: 11px;
-    border-right: 1px solid #C7E0F6;
 }
 .customize-nav li.on a,
 .customize-nav li.on ul {
-    border: 1px solid #C7E0F6;
     border-right: none;
     font-weight: bold;
-    background: #fff;
 }
-
-.customize-nav li.on a {
-    background: #fff url(/img/customize/arrow-right.gif) no-repeat right 50%;
-    border-right: 1px solid #FFFFFF;
-}
-
 .customize-nav li.heading a {
     border-bottom: none;
 }
 
 .customize-nav li.on li a {
-    background: #fff;
-    border-right: 1px solid #FFFFFF;
     font-weight: normal;
     border: none;
 }
@@ -130,13 +101,9 @@
     border-top: none;
 }
 .customize-nav li.on li {
-    border-right: 1px solid #fff;
     width: 113px;
 }
 
-.customize-nav li a:visited {
-    color: #00c;
-}
 
 * html .customize-nav li a {
     display: inline-block;

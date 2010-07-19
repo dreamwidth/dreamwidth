@@ -37,13 +37,15 @@
 
 .error.dupdomainalias=Another user has already registered themselves as using your selected domain alias.
 
+.error.samedomainalias=You can't point to a domain on this site.
+
 .error.stylenotavailable=One of the styles you've selected is not available.  This is either the result of somebody deleting the style, or you trying to pick one that you don't have access to.
 
 .friends.about=Here are options that control how your friends page looks.
 
 .friends.head=Friends View
 
-.friends.opt.usesharedpic.about=This option controls what picture you see on your friends page when a user posts in a shared or community journal.  If you check it, then you'll see the community's icon.  If you leave it unchecked, then you'll see the person that's actually posting's personal user icon.
+.friends.opt.usesharedpic.about=This option controls what picture you see on your friends page when a user posts in a community journal.  If you check it, then you'll see the community's icon.  If you leave it unchecked, then you'll see the person that's actually posting's personal user icon.
 
 .friends.opt.usesharedpic.head=Use shared journal pictures instead of poster's user picture
 

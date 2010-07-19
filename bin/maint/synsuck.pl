@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
 use vars qw(%maint %maintinfo);
@@ -22,7 +34,7 @@ $maint{'synsuck'} = sub
         # need to get some more rows
         my $dbh = LJ::get_db_writer();
         my $current_jobs = join(",", map { $dbh->quote($_->[0]) } values %child_jobs);
-        my $in_sql = " AND u.userid NOT IN ($current_jobs)" if $current_jobs;
+        my $in_sql = $current_jobs ? " AND u.userid NOT IN ($current_jobs)" : "";
         my $sth = $dbh->prepare("SELECT u.user, s.userid, s.synurl, s.lastmod, " .
                                 "       s.etag, s.numreaders, s.checknext " .
                                 "FROM user u, syndicated s " .

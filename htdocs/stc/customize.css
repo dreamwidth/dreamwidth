@@ -3,24 +3,20 @@ h2.widget-header {
     clear: left;
     font-family: Arial;
     font-weight: bold;
-    background: #ededed url(/img/corner.gif) no-repeat 0 0;
     margin: 0 0 8px 0 !important;
     padding: 5px 8px !important;
-    color: #222;
     border: none !important;
 }
 
 .theme-current {
     float: right;
     width: 35%;
-    background-color: #ECF6FF;
     margin-bottom: 15px;
 }
 
 .theme-titles {
-    float: right;
+    float: left;
     width: 63%;
-    margin-right: 2%;
     margin-bottom: 15px;
 }
 
@@ -55,4 +51,13 @@ form.theme-switcher {
 .beta-feedback a {
     padding-left: 35px;
     background: url(/img/beta.gif) no-repeat 0 50%;
+}
+
+.theme-titles P {
+    overflow: hidden;
+    zoom: 1;
+}
+
+.theme-item {
+    border: 1px solid #666;
 }

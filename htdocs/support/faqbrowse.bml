@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 head<=
 <?searchcss?>
@@ -26,12 +40,15 @@ body<=
     use strict;
     use vars qw(%GET);
 
+    LJ::need_res( 'stc/faq.css' );
+
     # get faqid and redirect to faq.bml if none
     my $faqidarg = $GET{'faqid'} + 0;
+    # FIXME: disallow both faqid and faqcat (or ignore one)
     my $faqcatarg = $GET{'faqcat'};
     
     unless ($faqidarg || $faqcatarg) {
-        return BML::redirect("faq.bml");
+        return BML::redirect("faq");
     }
     
     # make title and body references to BML scratch area
@@ -49,34 +66,15 @@ body<=
     $altlang = 0 unless $mll && $mld;
     my $lang = $altlang ? $curlang : $deflang;
 
-    my $mode = $GET{'view'} eq 'full' ? 'answer' : 'summary';
+    my $mode = ($GET{'view'} eq 'full' || $faqidarg) ? 'answer' : 'summary';
 
     my @faqs;
-
-    my $dbr = LJ::get_db_reader();
-    if ($faqidarg) {
-        # loading single faqid
-        $$title = BML::ml('.title_num', { 'num' => $faqidarg });
-        @faqs = (LJ::Faq->load($faqidarg, lang => $lang));
-
-    } elsif ($faqcatarg) {
-        # loading entire faqcat
-        my $catname;
-        if ($altlang) {
-            $catname = LJ::Lang::get_text($curlang, "cat.$faqcatarg", $mld->{'dmid'});
-        } else {
-            $catname = $dbr->selectrow_array("SELECT faqcatname FROM faqcat WHERE faqcat=?",
-                                                undef, $faqcatarg);
-            die $dbr->errstr if $dbr->err;
-        }
-
-        $$title = BML::ml('.title_cat', { 'catname' => LJ::ehtml($catname) });
-        @faqs = LJ::Faq->load_all(lang => $lang, cat => $faqcatarg);
-    }
 
     my $remote = LJ::get_remote();
     my $user;
     my $user_url;
+
+    $$body .= "<div id='faq'>";
 
     # Get remote username and journal URL, or example user's username and journal URL
     if ($remote) {
@@ -88,7 +86,34 @@ body<=
         $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
     }
 
-    LJ::Faq->render_in_place({lang => $lang, user => $user, url => $user_url}, @faqs);
+    my $dbr = LJ::get_db_reader();
+    if ( $faqidarg ) {
+        # loading single faqid
+        @faqs = ( LJ::Faq->load( $faqidarg, lang => $lang ) );
+        unless ( $faqs[0] ) {
+            $$title = BML::ml( '.error.title_nofaq', { faqid => $faqidarg } );
+            $$body = BML::ml( '.error.nofaq' );
+            return $_[1]->{'body'};
+        }
+        $faqs[0]->render_in_place( { user => $user, url => $user_url } );
+        $$title = $faqs[0]->question_html;
+    } elsif ( $faqcatarg ) {
+        # loading entire faqcat
+        my $catname;
+        if ( $altlang ) {
+            $catname = LJ::Lang::get_text( $curlang, "cat.$faqcatarg", $mld->{dmid} );
+        } else {
+            $catname = $dbr->selectrow_array( "SELECT faqcatname FROM faqcat WHERE faqcat=?",
+                                              undef, $faqcatarg );
+            die $dbr->errstr if $dbr->err;
+        }
+
+        $$title = BML::ml( '.title_cat', { catname => LJ::ehtml( $catname ) } );
+        @faqs = sort { $a->sortorder <=> $b->sortorder }
+                     LJ::Faq->load_all( lang => $lang, cat => $faqcatarg );
+        LJ::Faq->render_in_place( { lang => $lang, user => $user,
+                                    url => $user_url }, @faqs );
+    }
 
     my $count = 0;
     my $dbh;
@@ -99,7 +124,7 @@ body<=
         $dbh ||= LJ::get_db_writer();
 
         # log this faq view
-        if ($remote && ! $LJ::DISABLED{faquses}) {
+        if ( $remote && LJ::is_enabled('faquses') ) {
             $dbh->do("REPLACE INTO faquses (faqid, userid, dateview) ".
                      "VALUES (?, ?, NOW())", undef, $faqid,
                      $remote->{'userid'});
@@ -110,8 +135,22 @@ body<=
         my $summary = $f->summary_raw;
         my $answer = $f->answer_raw;
 
-        # Old FAQs don't have summaries, so show the answer instead
-        $summary = $answer unless $f->has_summary;
+        # What to display?
+        my $display_summary;
+        my $display_answer;
+        if ( $mode eq 'answer' ) { # answer, summary if present
+            $display_answer = 1;
+            $display_summary = $f->has_summary;
+        } else { # summary if there's one, answer if there's no summary
+            $display_summary = $f->has_summary;
+            $display_answer = !$display_summary;
+        }
+
+        # If summaries are disabled, pretend the FAQ doesn't have one.
+        unless ( LJ::is_enabled( 'faq_summaries' ) ) {
+            $display_answer ||= $display_summary;
+            $display_summary = 0;
+        }
 
         # escape question
         my $question = $f->question_html;
@@ -119,9 +158,10 @@ body<=
         $question =~ s/\n/<br \/>/g;
         
         # Clean this as if it were an entry, but don't allow lj-cuts
-        LJ::CleanHTML::clean_event(\$summary, {'ljcut_disable' => 1});
+        LJ::CleanHTML::clean_event(\$summary, {'ljcut_disable' => 1})
+            if $display_summary;
         LJ::CleanHTML::clean_event(\$answer,  {'ljcut_disable' => 1})
-            if $f->has_summary;
+            if $display_answer;
 
         # Highlight search terms
         my $term = sub {
@@ -134,6 +174,8 @@ body<=
             $question =~ s/(\Q$qterm\E)/$term->($1)/ige;
 
             # don't highlight terms in URLs or HTML tags
+            # FIXME: if the search term is present in a tag, should still
+            # highlight occurences outside tags.
             $summary =~ s!((?:https?://[^>]+)?\Q$qterm\E)!$term->($1)!ige
                 unless $summary =~ m!<[^>]*\Q$qterm\E[^>]*>!;
 
@@ -141,65 +183,68 @@ body<=
                 unless $answer =~ m!<[^>]*\Q$qterm\E[^>]*>!;
         }
 
-        if (LJ::are_hooks("faq.$faqid.transform")) {
-           # run hook to transform the text of this FAQ before it's finally rendered
-           LJ::run_hook("faq.$faqid.transform", $remote,
-                        question => \$question, summary => \$summary, answer => \$answer);
-        }
+        # run hook to transform the text of this FAQ before it's rendered
+        # FIXME: hook is responsible for clean-up if it changes $display_*
+        # from false to true. Should that be checked/enforced here instead?
+        # FIXME: do we even need that hook? It looks like LJ only ever used
+        # it to add stuff to LJ Talk FAQs, for Gizmo sponsorship.
+        LJ::Hooks::run_hook( "faq.$faqid.transform", $remote, question => \$question,
+                      summary => \$summary, display_summary => \$display_summary,
+                      answer => \$answer, display_answer => \$display_answer)
+            if LJ::Hooks::are_hooks( "faq.$faqid.transform" );
 
         # display output
-        $$body .= "<?h1";
         if ($faqcatarg) {
+            $$body .= "<?h1";
             $$body .= " <a style='text-decoration: none;' " .
-                      "href='faqbrowse.bml?faqid=$faqid'>&#x00bb;</a>";
+                      "href='faqbrowse?faqid=$faqid'>&#x00bb;</a>";
+            $$body .= " $question h1?>";
         }
-        $$body .= " $question h1?>";
         $$body .= "<div style='margin-left: 20px;'>";
 
-        $$body .= "<div name='summary' id='summary'>$summary</div>";
-        $$body .= "<br />";
+        if ( $display_summary ) {
+            $$body .= "<div name='summary' id='summary'>$summary</div>";
+            $$body .= "<br />";
 
-        if ($mode eq 'summary' && $f->has_summary) {
-            my $q = "&amp;q=" . LJ::eurl($qterm) if $qterm;
+            unless ( $display_answer ) {
+                my $q = $qterm ? "&amp;q=" . LJ::eurl($qterm) : "";
 
-            $$body .= "<div id='rm' name='rm'>";
-            my $oc = $faqcatarg ? '' : "onclick='return showAnswer();'";
-            $$body .= "<b>(&nbsp;<a $oc href='faqbrowse.bml?faqid=$faqid$q&amp;view=full'>" .
-                "$ML{'.more'}</a>&nbsp;)</b>";
-            $$body .= "</div>";
+                $$body .= "<div id='rm' name='rm'>";
+                my $oc = $faqcatarg ? '' : "onclick='return showAnswer();'";
+                $$body .= "<b>(&nbsp;<a $oc href='faqbrowse?faqid=$faqid$q&amp;view=full'>" .
+                    "$ML{'.more'}</a>&nbsp;)</b>";
+                $$body .= "</div>";
+            }
         }
 
-        if (!$faqcatarg && $f->has_summary) {
-            # If we're just viewing one faq and it has a summary
-            if ($mode eq 'answer') {
-                $$body .= "<div id='answer' name='answer'>$answer</div>";
-            } else {
-                $$body .= "<div id='answer' name='answer' style='display: none'>$answer</div>";
-            }
+        if ( $display_answer ) {
+            $$body .= "<div id='answer' name='answer'>$answer</div>";
+        } else {
+            $$body .= "<div id='answer' name='answer' style='display: none'>$answer</div>";
         }
 
         $$body .= "</div>";
 
         my $lastmodwho = LJ::get_username($f->lastmoduserid);
         if ($lastmodwho) {
+            # FIXME: lastmodtime and lastmodwho should be vars in .lastupdated
             $$body .= "<p align=\"right\"><b>$ML{'.lastupdated'}</b><br />"
                 . $f->lastmodtime . " ($lastmodwho)</p>";
         }
 
         $backfaqcat = $f->faqcat;
-        if (LJ::check_priv($remote, "faqedit", "*") ||
-            LJ::check_priv($remote, "faqedit", $backfaqcat))
+        if ( $remote && $remote->has_priv( "faqedit", $backfaqcat ) )
         {
-            $$body .= "<p align=\"right\"><a href=\"/admin/faq/faqedit.bml?id=$faqid\">$ML{'.edit.faq'}</a></p>";
+            $$body .= "<p align=\"right\"><a href=\"/admin/faq/faqedit?id=$faqid\">$ML{'.edit.faq'}</a></p>";
         }
 
         # this is incredibly ugly. i'm sorry.
-        if ($altlang && LJ::check_priv($remote, "translate", $curlang)) {
+        if ( $altlang && $remote && $remote->has_priv( "translate", $curlang ) ) {
             my @itids;
             push @itids, LJ::Lang::get_itemid($mld->{'dmid'}, "$faqid.$_")
                 foreach qw(1question 3summary 2answer);
             my $items = join(",", map { $mld->{'dmid'} . ":" . $_ } @itids);
-            $$body .= "<p align=\"right\"><a href=\"/translate/editpage.bml?lang=$curlang&amp;items=$items\">";
+            $$body .= "<p align=\"right\"><a href=\"/translate/editpage?lang=$curlang&amp;items=$items\">";
             $$body .= "$ML{'.translate.faq'}</a></p>";
         }
 
@@ -224,26 +269,32 @@ body<=
 
      $$body .= "<?hr?>";
 
+     $$body .= qq(
+         <p style="float:right; text-align:right;"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
+         <img alt="$ML{'.cc.imgalt'}" style="border-width: 0;" src="http://i.creativecommons.org/l/by-sa/3.0/us/88x31.png" />
+         </a><br /><a href="$LJ::SITEROOT/site/opensource">$ML{'.cc.licensing'}</a></p>
+     );
+
      if ($categoryname) {
-         $$body .= BML::ml('.backfaqcat3', {'aopts' => "href='/support/faqbrowse.bml?faqcat=$backfaqcat'", 'categoryname' => $categoryname}) . "<br />"
+         $$body .= BML::ml('.backfaqcat3', {'aopts' => "href='/support/faqbrowse?faqcat=$backfaqcat'", 'categoryname' => $categoryname}) . "<br />"
             if $backfaqcat && $faqidarg;
      } else {
-         $$body .= BML::ml('.backfaqcat2', {'aopts' => "href='/support/faqbrowse.bml?faqcat=$backfaqcat'"}) . "<br />"
+         $$body .= BML::ml('.backfaqcat2', {'aopts' => "href='/support/faqbrowse?faqcat=$backfaqcat'"}) . "<br />"
             if $backfaqcat && $faqidarg;
      }
 
-     $$body .= BML::ml('.backfaq2', { 'aopts' => 'href="faq.bml"' }) . "<br />";
-     $$body .= BML::ml('.backsearch', { 'aopts' => 'href="/support/faqsearch.bml"' }) . "<br />";
+     $$body .= BML::ml('.backfaq2', { 'aopts' => 'href="faq"' }) . "<br />";
+     $$body .= BML::ml('.backsearch', { 'aopts' => 'href="/support/faqsearch"' }) . "<br />";
      $$body .= BML::ml('.backsupport2', { 'aopts' => 'href="/support/"' });
 
      # we're dynamic, set title as crumb title
      LJ::set_dynamic_crumb($_[1]->{'title'}, 'faq');
+
+     $$body .= "</div>";
 
      return $_[1]->{'body'};
 }
 _code?>
 <=body
 title=><?_code return $_[1]->{'title'}; _code?>
-page?><?_c <LJDEP>
-link: htdocs/support/index.bml, htdocs/support/faq.bml
-</LJDEP> _c?>
+page?>

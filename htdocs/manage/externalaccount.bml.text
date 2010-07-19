@@ -1,0 +1,59 @@
+;; -*- coding: utf-8 -*-
+
+.btn.create=Create
+
+.btn.update=Update
+
+.error.maxacct.plural=You are already at your limit of [[max_accts]] accounts.
+
+.error.maxacct.singular=You are already at your limit of [[max_accts]] account.
+
+.settings.xpost.error.ipban=Too many log-in attempts. Please try creating the account again later.
+
+.settings.xpost.error.password.invalid=Invalid password.
+
+.settings.xpost.error.password.required=Password is required.
+
+.settings.xpost.error.servicename.required=Service Name is required.
+
+.settings.xpost.error.servicetype=No Service type [[servicetype]].
+
+.settings.xpost.error.servicetype.required=Service Type is required.
+
+.settings.xpost.error.serviceurl.required=Service URL is required.
+
+.settings.xpost.error.url=Error connecting to service:  [[url]]
+
+.settings.xpost.error.username.invalid=Invalid username.
+
+.settings.xpost.error.username.required=Username is required.
+
+.setting.xpost.option.password=Password
+
+.setting.xpost.option.password.info=(Please make sure you have caps-lock disabled and enter the correct password.)
+
+.setting.xpost.option.recordlink=Display Cross Post Links
+
+.setting.xpost.option.savepassword=Save Password
+
+.setting.xpost.option.servicename=Custom Service Name
+
+.setting.xpost.option.servicetype=Custom Service Type
+
+.setting.xpost.option.serviceurl=Custom Service URL
+
+.setting.xpost.option.service.ljxmlrpc.url=LJ XML-RPC URL
+
+.setting.xpost.option.site=Site
+
+.setting.xpost.option.site.custom=Other Site
+
+.setting.xpost.option.username=Username
+
+.setting.xpost.option.username.info=(Please enter a valid username on the selected service. Crossposting to community accounts is not possible.)
+
+.setting.xpost.option.xpostbydefault=Cross Post by Default
+
+.title.edit=Edit External Account
+
+.title.new=New External Account

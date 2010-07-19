@@ -1,60 +1,50 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
+
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljdb.pl";
+
 use DBI;
 use Getopt::Long;
+use Time::HiRes ();
 
-my $help = 0;
-my $opt_fh = 0;
-my $opt_fix = 0;
-my $opt_start = 0;
-my $opt_stop = 0;
-my $opt_err = 0;
-my $opt_all = 0;
-my $opt_tablestatus;
-my $opt_checkreport = 0;
-my $opt_verbose;
-my $opt_rates;
-my @opt_run;
+my ( $help, $opt_err, $opt_all ) = ( 0, 0, 0 );
+my ( $opt_checkreport, $opt_verbose, $opt_rates ) = ( 0, undef, undef );
+
 exit 1 unless GetOptions('help' => \$help,
-                         'flushhosts' => \$opt_fh,
-                         'start' => \$opt_start,
-                         'stop' => \$opt_stop,
                          'checkreport' => \$opt_checkreport,
                          'rates' => \$opt_rates,
-                         'fix' => \$opt_fix,
-                         'run=s' => \@opt_run,
                          'onlyerrors' => \$opt_err,
                          'all' => \$opt_all,
-                         'tablestatus' => \$opt_tablestatus,
                          'verbose' => \$opt_verbose,
                          );
-
-unless (-d $ENV{'LJHOME'}) {
-    die "\$LJHOME not set.\n";
-}
 
 if ($help) {
     die ("Usage: dbcheck.pl [opts] [[cmd] args...]\n" .
          "    --all           Check all hosts, even those with no weight assigned.\n" .
          "    --help          Get this help\n" .
-         "    --flushhosts    Send 'FLUSH HOSTS' to each db as root.\n".
-         "    --fix           Fix (once) common problems.\n".
          "    --checkreport   Show tables that haven't been checked in a while.\n".
-         "    --stop          Stop replication.\n".
-         "    --start         Start replication.\n".
-         "    --run <sql>     Run arbitrary SQL.\n".
          "    --onlyerrors    Will be silent unless there are errors.\n".
-         "    --tablestatus   Show warnings about full/sparse tables.\n".
          "\n".
          "Commands\n".
          "   (none)           Shows replication status.\n".
          "   queries <host>   Shows active queries on host, sorted by running time.\n"
          );
 }
-
-require "$ENV{'LJHOME'}/cgi-bin/ljdb.pl";
 
 debug("Connecting to master...");
 my $dbh = LJ::DB::dbh_by_role("master");
@@ -94,11 +84,8 @@ while ($_ = $sth->fetchrow_hashref) {
     $rolebyid{$id}->{$_->{role}} = [ $_->{norm}, $_->{curr} ];
 }
 
-check_report() if $opt_checkreport;
-rate_report() if $opt_rates;
-
 my %root_handle;  # name -> $db
-my $root_handle = sub {
+my $get_root_handle = sub {
     my $name = shift;
     return $root_handle{$name} if exists $root_handle{$name};
     debug("Connecting to '$name' ...");
@@ -115,7 +102,7 @@ my $check_master_status = sub {
     my $dbid = shift;
     my $d = $dbinfo{$dbid};
     die "Bogus DB: $dbid" unless $d;
-    my $db = $root_handle->($d->{name});
+    my $db = $get_root_handle->($d->{name});
     next unless $db;
 
     my ($masterfile, $masterpos) = $db->selectrow_array("SHOW MASTER STATUS");
@@ -133,13 +120,12 @@ my $check = sub {
         my %drole;  # display role -> 1
         foreach my $role (grep { $role{$_}{$dbid}[1] } keys %{$rolebyid{$dbid}}) {
             my $drole = $role;
-            $drole =~ s/cluster(\d+)\d/cluster${1}0/;
             $drole{$drole} = 1;
         }
         $roles = join(", ", sort keys %drole);
     }
 
-    my $db = $root_handle->($d->{name});
+    my $db = $get_root_handle->($d->{name});
     unless ($db) {
         printf("%4d %-18s %4s %16s  %14s  ($roles)\n",
                $dbid,
@@ -151,7 +137,7 @@ my $check = sub {
     }
 
     my $tzone;
-    (undef, $tzone) = $db->selectrow_array("show variables like 'timezone'");
+    (undef, $tzone) = $db->selectrow_array("show variables like 'system_time_zone'");
     $tzone ||= "???";
 
     $sth = $db->prepare("SHOW PROCESSLIST");
@@ -166,13 +152,11 @@ my $check = sub {
         $pcount_busy++ if $r->{'State'};
     }
 
-    my @master_logs;
     my $log_count = 0;
     if ($master_status{$dbid} && $master_status{$dbid}->[1]) {
         $sth = $db->prepare("SHOW MASTER LOGS");
         $sth->execute;
         while (my ($log) = $sth->fetchrow_array) {
-            push @master_logs, $log;
             $log_count++;
         }
     }
@@ -229,8 +213,10 @@ my $check = sub {
        $extra_version) unless $opt_err;
 };
 
-$check_master_status->($_) foreach (sorted_dbids());
+check_report() if $opt_checkreport;
+rate_report() if $opt_rates;
 
+$check_master_status->($_) foreach (sorted_dbids());
 $check->($_) foreach (sorted_dbids());
 
 if (@errors) {
@@ -296,7 +282,8 @@ sub _sorted_dbids {
 
     # then clusters, in order
     foreach my $id (sort { $minclust{$a} <=> $minclust{$b} ||
-                               $is_master{$b} <=> $is_master{$a} }
+                               $is_master{$b} <=> $is_master{$a} ||
+                               $dbinfo{$a}->{name} cmp $dbinfo{$b}->{name} }
                     grep { ! $added{$_} && $minclust{$_} } keys %dbinfo) {
         $add->($id);
     }
@@ -308,7 +295,7 @@ sub check_report {
                       keys %dbinfo) {
         my $d = $dbinfo{$dbid};
         die "Bogus DB: $dbid" unless $d;
-        my $db = $root_handle->($d->{name});
+        my $db = $get_root_handle->($d->{name});
 
         unless ($db) {
             print "$d->{name}\t?\t?\t?\n";
@@ -331,8 +318,6 @@ sub check_report {
     exit 0;
 }
 
-use Time::HiRes ();
-
 sub rate_report {
     my %prev;  # dbid -> [ time, questions ]
 
@@ -342,7 +327,7 @@ sub rate_report {
         foreach my $dbid (sorted_dbids()) {
             my $d = $dbinfo{$dbid};
             die "Bogus DB: $dbid" unless $d;
-            my $db = $root_handle->($d->{name});
+            my $db = $get_root_handle->($d->{name});
 
             next unless $db;
             my (undef, $qs) = $db->selectrow_array("SHOW STATUS LIKE 'Questions'");

@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Worker::Gearman;
 use strict;
 use lib "$LJ::HOME/cgi-bin";
@@ -20,10 +33,13 @@ my $opt_verbose;
 die "Unknown options" unless
     GetOptions("verbose|v" => \$opt_verbose);
 
-@EXPORT = qw(gearman_decl gearman_work gearman_set_idle_handler);
+@EXPORT = qw(gearman_decl gearman_work gearman_set_idle_handler gearman_set_requester_id);
 
 my $worker = Gearman::Worker->new;
 my $idle_handler;
+my $requester_id; # userid, who requested job, optional
+
+sub gearman_set_requester_id { $requester_id = $_[0]; }
 
 sub gearman_decl {
     my $name = shift;
@@ -92,6 +108,7 @@ sub gearman_work {
         my $handle = shift;
 
         LJ::start_request();
+        undef $requester_id;
 
         # save to db that we are starting the job
         if ($save_result) {
@@ -112,9 +129,11 @@ sub gearman_work {
         $res ||= '';
 
         if ($save_result && $storage) {
-            $storage->save_status(result   => $res,
-                                  status   => 'success',
-                                  end_time => 1);
+            my %row = (result   => $res,
+                       status   => 'success',
+                       end_time => 1);
+            $row{userid} = $requester_id if defined $requester_id;
+            $storage->save_status(%row);
         }
     };
 
@@ -124,34 +143,39 @@ sub gearman_work {
         $err ||= '';
 
         if ($save_result && $storage) {
-            $storage->save_status(result   => $err,
-                                  status   => 'error',
-                                  end_time => 1);
+            my %row = (result   => $err,
+                       status   => 'error',
+                       end_time => 1);
+            $row{userid} = $requester_id if defined $requester_id;
+            $storage->save_status(%row);
         }
 
     };
 
     while (1) {
-          $periodic_checks->();
-          warn "waiting for work...\n" if $opt_verbose;
+        $periodic_checks->();
+        warn "waiting for work...\n" if $opt_verbose;
 
-          # do the actual work
-          $worker->work(
-                        stop_if     => sub { $_[0] },
-                        on_complete => $complete_cb,
-                        on_fail     => $fail_cb,
-                        on_start    => $start_cb,
-                        );
+        # do the actual work
+        eval {
+            $worker->work(
+                stop_if     => sub { $_[0] },
+                on_complete => $complete_cb,
+                on_fail     => $fail_cb,
+                on_start    => $start_cb,
+            );
+        };
+        warn $@ if $@;
 
-          if ($idle_handler) {
-              eval { 
-                  LJ::start_request();
-                  $idle_handler->();
-                  LJ::end_request();
-              };
-              warn $@ if $@;
-          }
-      }
+        if ($idle_handler) {
+            eval { 
+                LJ::start_request();
+                $idle_handler->();
+                LJ::end_request();
+            };
+            warn $@ if $@;
+        }
+    }
 }
 
 # --------------

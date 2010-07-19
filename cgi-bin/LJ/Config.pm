@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+#
 # this is a module to handle the configuration of a LJ server
 package LJ::Config;
 
@@ -8,22 +21,23 @@ $LJ::HOME ||= $ENV{LJHOME};
 $LJ::CONFIG_LOADED = 0;
 $LJ::CACHE_CONFIG_MODTIME = 0;
 
+# what files to check for config, ORDER MATTERS, please go from most specific
+# to least specific.  files later in the chain should be careful to not clobber
+# anything.
+@LJ::CONFIG_FILES = qw(
+        etc/config-private.pl
+        etc/config-local.pl
+        etc/config.pl
+        cgi-bin/ljdefaults.pl
+    );
+
 # loads all configurations from scratch
 sub load {
     my $class = shift;
     my %opts = @_;
     return if ! $opts{force} && $LJ::CONFIG_LOADED;
 
-    # 1. Load ljconfig
-    # 2. Load policy configs
-    # 3. Load database-backed config overrides
-    # 4. Load ljoverrides.pl
-    # 5. Load ljdefaults.pl (designed to not clobber stuff)
-
-    __PACKAGE__->load_ljconfig;
-    __PACKAGE__->load_policy;
-    __PACKAGE__->load_overrides;
-    __PACKAGE__->load_defaults;
+    __PACKAGE__->load_config;
 
     $LJ::CONFIG_LOADED = 1;
 }
@@ -37,7 +51,6 @@ sub reload {
         $LJ::DBIRole->set_sources(\%LJ::DBINFO);
         LJ::MemCache::reload_conf();
         LJ::ExternalSite->forget_site_objs;
-        LJ::EventLogSink->forget_sink_objs;
         LJ::AccessLogSink->forget_sink_objs;
 
         # reload MogileFS config
@@ -55,38 +68,13 @@ sub reload {
     warn "Errors reloading config: $@" if $@;
 }
 
-# load user-supplied config changes
-sub load_ljconfig {
-    do "$LJ::HOME/etc/ljconfig.pl";
-    $LJ::CACHE_CONFIG_MODTIME_LASTCHECK = time();
-}
-
-# load defaults (should not clobber any existing configs)
-sub load_defaults {
-    do "$LJ::HOME/cgi-bin/ljdefaults.pl";
-}
-
-# loads policy configuration
-sub load_policy {
-    my $policyconfig = "$LJ::HOME/etc/policyconfig.pl";
-    return unless -e $policyconfig;
-    do "$policyconfig";
-}
-
-# load config overrides
-sub load_overrides {
-    if (-e "$LJ::HOME/cgi-bin/ljconfig.pl") {
-        warn "You are still using cgi-bin/ljconfig.pl. This has been deprecated, please use etc/ljconfig.pl and etc/ljoverrides.pl instead.";
-
-        # but ignore ljconfig if both exist.
-        unless (-e "$LJ::HOME/etc/ljconfig.pl") {
-            do "$LJ::HOME/cgi-bin/ljconfig.pl";
-        }
+# load configuration files
+sub load_config {
+    foreach my $fn ( @LJ::CONFIG_FILES ) {
+        do "$LJ::HOME/$fn"
+            if -e "$LJ::HOME/$fn";
     }
-
-    my $overrides = "$LJ::HOME/etc/ljoverrides.pl";
-    return unless -e $overrides;
-    do $overrides;
+    $LJ::CACHE_CONFIG_MODTIME_LASTCHECK = time();
 }
 
 # handle reloading at the start of a new web request
@@ -96,9 +84,17 @@ sub start_request_reload {
     # if the file has changed
     my $now = time();
     if ($now - $LJ::CACHE_CONFIG_MODTIME_LASTCHECK > 10) {
-        my $modtime = (stat("$LJ::HOME/etc/ljconfig.pl"))[9]
-            || (stat("$LJ::HOME/cgi-bin/ljconfig.pl"))[9];
-        if (!$LJ::CACHE_CONFIG_MODTIME || $modtime > $LJ::CACHE_CONFIG_MODTIME) {
+
+        my $modtime;
+        foreach my $fn ( @LJ::CONFIG_FILES ) {
+            next unless -e "$LJ::HOME/$fn";
+            my $cmodtime = (stat("$LJ::HOME/$fn"))[9];
+            $modtime = $cmodtime
+                if ! defined $modtime || $modtime < $cmodtime;
+        }
+
+        if ( ! $LJ::CACHE_CONFIG_MODTIME || $modtime > $LJ::CACHE_CONFIG_MODTIME ) {
+
             # reload config and update cached modtime
             $LJ::CACHE_CONFIG_MODTIME = $modtime;
             __PACKAGE__->reload;
@@ -107,8 +103,8 @@ sub start_request_reload {
             $LJ::IMGPREFIX_BAK = $LJ::IMGPREFIX;
             $LJ::STATPREFIX_BAK = $LJ::STATPREFIX;
             $LJ::USERPICROOT_BAK = $LJ::USERPIC_ROOT;
-
             $LJ::LOCKER_OBJ = undef;
+
             if ($modtime > $now - 60) {
                 # show to stderr current reloads.  won't show
                 # reloads happening from new apache children
@@ -117,10 +113,11 @@ sub start_request_reload {
                 # a different hours/days ago.
                 #
                 # only print when we're in web-context
-                print STDERR "[$$] ljconfig.pl reloaded\n"
+                print STDERR "[$$] Configuration file(s) reloaded.\n"
                     if eval { BML::get_request() };
             }
         }
+
         $LJ::CACHE_CONFIG_MODTIME_LASTCHECK = $now;
     }
 }

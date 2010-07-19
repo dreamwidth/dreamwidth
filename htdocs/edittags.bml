@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_code $ML{'.title'} _code?>
 body<=
@@ -10,8 +24,7 @@ body<=
     return "<?needlogin?>" unless $remote;
 
     my $err = sub { return "<?h1 $ML{'Error'} h1?><?p $_[0] p?>"; };
-    return $err->($ML{'.disabled'})
-        if $LJ::DISABLED{tags};
+    return $err->($ML{'.disabled'}) unless LJ::is_enabled('tags');
 
     LJ::need_res("stc/tags.css", "js/tags.js");
 
@@ -22,7 +35,9 @@ body<=
 
     my $journal = $GET{journal} || $POST{journal};
     my $u = LJ::load_user($journal);
-    return $err->($ML{'.invalid.journal'}) unless $u && $u->{statusvis} eq 'V';
+    return $err->($ML{'.invalid.journal'}) unless $u;
+    return $err->($ML{'.readonly.journal'}) if $u->is_readonly;
+    return $err->($ML{'.invalid.journal'}) unless $u->is_visible;
 
     my $ditemid = ($GET{itemid} || $POST{itemid})+0;
     my $anum = $ditemid % 256;
@@ -32,14 +47,11 @@ body<=
     my $logrow = LJ::get_log2_row($u, $jitemid);
     return $err->($ML{'.invalid.entry'}) unless $logrow;
     return $err->($ML{'.invalid.entry'}) unless $logrow->{anum} == $anum;
-    return $err->($ML{'.invalid.notauthorized'})
-        unless LJ::can_view($remote, $logrow);
 
-    # poster must be visible too
-    if ($logrow->{posterid} != $u->{userid}) {
-        my $pu = LJ::load_userid($logrow->{posterid});
-        return $err->($ML{'.invalid.journal'}) if $u->{statusvis} ne 'V';
-    }
+    my $ent = LJ::Entry->new_from_item_hash( $logrow )
+        or die "Unable to create entry object.\n";
+    return $err->( $ML{'.invalid.notauthorized'} )
+        unless $ent->visible_to( $remote );
 
     if (LJ::did_post()) {
         return $err->($ML{'.invalid.link'})
@@ -53,7 +65,7 @@ body<=
         });
         return $err->($tagerr) unless $rv;
 
-        BML::redirect( LJ::journal_base($u) . "/$ditemid.html" );
+        BML::redirect( $u->journal_base . "/$ditemid.html" );
         #$msg = "<div class='update_good'>Tags successfully updated.</div>";
     }
 
@@ -68,24 +80,39 @@ body<=
     LJ::CleanHTML::clean_subject(\$subj);
     LJ::CleanHTML::clean_event(\$evt, \%opts);
 
+    # prevent BML tags interpretation inside post body
+    $subj =~ s/<\?/&lt;?/g;
+    $subj =~ s/\?>/?&gt;/g;
+    $evt =~ s/<\?/&lt;?/g;
+    $evt =~ s/\?>/?&gt;/g;
+
     my $logtags = LJ::Tags::get_logtags($u, $jitemid);
     my $usertags = LJ::Tags::get_usertags($u, { remote => $remote }) || {};
     $logtags = $logtags->{$jitemid} || {};
     my $logtagstr = join ', ', map { LJ::ejs($_) } sort values %$logtags;
 
-    $ret .= "<?p $ML{'.intro'} p?><br />";
+    $ret .= "<?p $ML{'.intro'} p?>";
+    if ( $ent->prop( 'xpost' ) ) {
+        $ret .= "<?p " . BML::ml( 'xpost.notrespected', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=othersites'" } );
+        $ret .= " " . BML::ml( '.xpost.notrespected.editentry', { aopts => "href='$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$ditemid'" } );
+        $ret .= " p?><br />";
+    }
+
     $ret .= "<script type='text/javascript'> var cur_taglist = '$logtagstr'; </script>";
 
     $ret .= '<table class="edittbl" cellpadding="0" cellspacing="0" width="50%">';
     $ret .= "<tr><td class='l'>$ML{'.subject'}</td><td>$subj</td></tr>" if $subj;
-    $ret .= "<tr><td class='l'>$ML{'.entry'}</td><td>$evt</td></tr>";
-    $ret .= "<tr><td class='l'>&nbsp;</td><td>&nbsp</td></tr>"; # spacer
+
+    $ret .= '<form method="POST" action="/edittags" id="edit_tagform">';
+    $ret .= LJ::html_hidden('journal', $journal);
+    $ret .= LJ::html_hidden('itemid', $GET{itemid} || $POST{itemid});
+    $ret .= LJ::form_auth();
 
     $ret .= "<tr><td class='l'>$ML{'.current'}</td>";
-    $ret .= '<form method="POST" action="/edittags.bml" id="edit_tagform">';
-    $ret .= LJ::form_auth();
     $ret .= "<td class='sep'>";
-    if ( LJ::Tags::can_add_tags($u, $remote) ) {
+
+    my $can_add_entry_tags = LJ::Tags::can_add_entry_tags( $remote, LJ::Entry->new($u, ditemid => $ditemid ) );
+    if ( $can_add_entry_tags ) {
         $ret .= LJ::html_text(
             {
                 name  => 'edittags',
@@ -104,7 +131,7 @@ body<=
     }
     $ret .= "</td></tr>";
 
-    $ret .= "<tr><td class='l'>$ML{'.users'}</td><td class='curtags'>";
+    $ret .= "<tr><td class='l'>" . BML::ml('.users', { user => $u->user }) . "</td><td class='curtags'>";
 
     if ( scalar keys %$usertags ) {
         $ret .= "<select name='tags' multiple='multiple' class='tagbox_nohist' " .
@@ -118,15 +145,15 @@ body<=
     }
 
     $ret .= "<br /><br />";
-    $ret .= "$ML{'.permissions.add.yes'}<br />" if LJ::Tags::can_add_tags($u, $remote);
+    $ret .= "$ML{'.permissions.add.yes'}<br />" if $can_add_entry_tags;
     $ret .= "$ML{'.permissions.control.yes'}<br />" if LJ::Tags::can_control_tags($u, $remote);
-    $ret .= BML::ml('.view', { aopts => 'href="' . LJ::journal_base($u) . "/$ditemid.html" . '"' });
+    $ret .= BML::ml('.view', { aopts => 'href="' . $u->journal_base . "/$ditemid.html" . '"' });
     $ret .= "</td></tr>";
+    $ret .= '</form>';
+
+    $ret .= "<tr><td class='l'>$ML{'.entry'}</td><td class='sep' style='white-space: normal'>$evt</td></tr>";
 
     $ret .= '</table>';
-    $ret .= LJ::html_hidden('journal', $journal);
-    $ret .= LJ::html_hidden('itemid', $GET{itemid} || $POST{itemid});
-    $ret .= '</form>';
 
     return $ret;
 }

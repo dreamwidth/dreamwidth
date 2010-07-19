@@ -1,11 +1,24 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::SynSuck;
 use strict;
 use HTTP::Status;
 
 use lib "$LJ::HOME/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
 require "ljprotocol.pl";
-require "parsefeed.pl";
-require "cleanhtml.pl";
+use LJ::ParseFeed;
+use LJ::CleanHTML;
 
 sub update_feed {
     my ($urow, $verbose) = @_;
@@ -73,10 +86,10 @@ sub get_content {
         if $etag;
 
     my ($content, $too_big);
-    my $max_size = $LJ::SYNSUCK_MAX_SIZE || 150; # in kb
+    my $max_size = $LJ::SYNSUCK_MAX_SIZE || 3000; # in kb
     my $syn_u = LJ::load_user($user);
-    if ($syn_u && LJ::check_priv($syn_u, "siteadmin", "largefeedsize")) {
-        $max_size = $LJ::SYNSUCK_LARGE_MAX_SIZE || 300; # in kb
+    if ( $syn_u && $syn_u->has_priv( "siteadmin", "largefeedsize" ) ) {
+        $max_size = $LJ::SYNSUCK_LARGE_MAX_SIZE || 6000; # in kb
     }
     my $res = eval {
         $ua->request($req, sub {
@@ -96,7 +109,7 @@ sub get_content {
         # same request
         delay($userid, 3*60, "parseerror");
 
-        LJ::set_userprop($userid, "rssparseerror", $res->status_line());
+        $syn_u->set_prop( "rssparseerror", $res->status_line() ) if $syn_u;
         return;
     }
 
@@ -146,6 +159,11 @@ sub process_content {
         $content =~ s/encoding=([\"\'])(.+?)\1/encoding='windows-1252'/;
     }
 
+    # ANOTHER hack: if a feed asks for ANSI_v3.4-1968 (ASCII), alias it to us-ascii
+    if ( $encoding =~ /^ANSI_X3.4-1968$/i ) {
+        $content =~ s/encoding=([\"\'])(.+?)\1/encoding='us-ascii'/;
+    }
+
     # parsing time...
     my ($feed, $error) = LJ::ParseFeed::parse_feed($content);
     if ($error) {
@@ -153,9 +171,24 @@ sub process_content {
         print "Parse error! $error\n" if $verbose;
         delay($userid, 3*60, "parseerror");
         $error =~ s! at /.*!!;
-        $error =~ s/^\n//; # cleanup of newline at the beggining of the line
-        LJ::set_userprop($userid, "rssparseerror", $error);
+        $error =~ s/^\n//; # cleanup of newline at the beginning of the line
+        my $syn_u = LJ::load_user( $user );
+        $syn_u->set_prop( "rssparseerror", $error ) if $syn_u;
         return;
+    }
+
+    # register feeds that can support hubbub.
+    if ( LJ::is_enabled( 'hubbub' ) && $feed->{self} && $feed->{hub} ) {
+        # this is a square operation.  register every "self" and the feed url along
+        # with the $synurl with every hub they say they talk to.  but for sanity,
+        # don't let them force us onto more than 10 subscriptions...
+        my $ct = 0;
+        foreach my $topic ( $synurl, @{ $feed->{self} } ) {
+            foreach my $hub ( @{ $feed->{hub} } ) {
+                last if $ct++ >= 10;
+                register_hubbub_feed( $userid, $topic, $hub );
+            }
+        }
     }
 
     # another sanity check
@@ -240,8 +273,9 @@ sub process_content {
         # we don't want perl knowing that and fucking stuff up
         # for us behind our back in random places all over
         # http://zilla.livejournal.org/show_bug.cgi?id=1037
-        foreach my $attr (qw(id subject text link)) {
-            $it->{$attr} = pack('C*', unpack('C*', $it->{$attr}));
+        foreach my $attr (qw(id subject text link author)) {
+            next unless exists $it->{$attr} && defined $it->{$attr};
+            $it->{$attr} = LJ::no_utf8_flag ( $it->{$attr} );
         }
 
         my $dig = LJ::md5_struct($it)->b64digest;
@@ -264,6 +298,11 @@ sub process_content {
         print "[$$] $dig - $it->{'subject'}\n" if $verbose;
         $it->{'text'} =~ s/^\s+//;
         $it->{'text'} =~ s/\s+$//;
+
+        my $author = "";
+        if ( defined $it->{author} ) {
+            $author = "<p class='syndicationauthor'>Posted by " . LJ::ehtml( $it->{author} ) . "</p>";
+        }
 
         my $htmllink;
         if (defined $it->{'link'}) {
@@ -315,7 +354,7 @@ sub process_content {
             'username' => $user,
             'ver' => 1,
             'subject' => $it->{'subject'},
-            'event' => "$htmllink$it->{'text'}",
+            'event' => "$author$htmllink$it->{'text'}",
             'year' => $year,
             'mon' => $mon,
             'day' => $day,
@@ -393,20 +432,20 @@ sub process_content {
         return;
     }
 
-    # update syndicated account's userinfo if necessary
-    LJ::load_user_props($su, "url", "urlname");
+    # update syndicated account's profile if necessary
+    $su->preload_props( "url", "urlname" );
     {
         my $title = $feed->{'title'};
         $title = $su->{'user'} unless LJ::is_utf8($title);
         if (defined $title && $title ne $su->{'name'}) {
             $title =~ s/[\n\r]//g;
             LJ::update_user($su, { name => $title });
-            LJ::set_userprop($su, "urlname", $title);
+            $su->set_prop( "urlname", $title );
         }
 
         my $link = $feed->{'link'};
         if ($link && $link ne $su->{'url'}) {
-            LJ::set_userprop($su, "url", $link);
+            $su->set_prop( "url", $link );
         }
 
         my $bio = $su->bio;
@@ -426,9 +465,8 @@ sub process_content {
 
     # update reader count while we're changing things, but not
     # if feed is stale (minimize DB work for inactive things)
-    if ($newcount || ! defined $readers) {
-        $readers = $dbh->selectrow_array("SELECT COUNT(*) FROM friends WHERE ".
-                                         "friendid=?", undef, $userid);
+    if ( $newcount || ! defined $readers ) {
+        $readers = $su->watched_by_userids;
     }
 
     # if readers are gone, don't check for a whole day
@@ -441,11 +479,132 @@ sub process_content {
     return 1;
 }
 
+# this takes in data that says a feed supports hubbub.  note that we don't want to ever
+# die here, since that will kill the synsuck process.  we're not that important.  ignore
+# errors, it just means we won't get pings for this feed.  (but next time, we'll try to
+# setup hubbub again, so if it's transient it should go away.)
+sub register_hubbub_feed {
+    my ( $uid, $topicurl, $huburl ) = @_;
+    return unless $uid && $topicurl && $huburl;
+
+    # bail if topicurl and huburl don't pass some sanity checks
+    # FIXME: why isn't there an LJ::valid_url function?  we do this sort of check in
+    # approximately 13,341,394 places...
+    return unless $topicurl =~ /^https?:/ &&
+                  $huburl   =~ /^https?:/;
+
+    # now load things since our data seems OK
+    my $dbh = LJ::get_db_writer() or return;
+    my $u = LJ::load_userid( $uid ) or return;
+
+    # since we can have many records for a given feed, we want to see if we have an exact
+    # match for this particular combination.
+    my $row = $dbh->selectrow_hashref(
+        q{SELECT id, huburl, topicurl, leasegoodto, verifytoken
+          FROM syndicated_hubbub2 WHERE userid = ? AND huburl = ? AND topicurl = ?},
+        undef, $u->id, $huburl, $topicurl
+    );
+    return if $dbh->errstr;
+
+    # if we do, then we want to update this row with a new lastseenat so our collector
+    # doesn't purge this subscription later
+    if ( $row && $row->{id} ) {
+        $dbh->do( 'UPDATE syndicated_hubbub2 SET lastseenat = UNIX_TIMESTAMP() WHERE id = ?',
+                  undef, $row->{id} );
+        return;
+    }
+
+    # this row (exactly) doesn't exist, so register it
+    my $id = LJ::alloc_global_counter( 'F' ) or return;
+    $dbh->do(
+        q{INSERT IGNORE INTO syndicated_hubbub2 (id, userid, huburl, topicurl, leasegoodto, verifytoken, lastseenat)
+          VALUES (?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())},
+        undef, $id, $u->id, $huburl, $topicurl, undef, LJ::rand_chars( 64 )
+    );
+
+    # no error checking for reasons above...
+}
+
+
+# called by the hubbub bml when someone posts something to us and says that feeds
+# have been updated.
+# FIXME: they actually give us enough data to update our feeds with the post
+# content, but for now, we're just scheduling a synsuck job to go update a feed.
+# this is suboptimal.  we have to implement the hub.challenge parameter and
+# post our subscriptions using HTTPS before we can do the "proper" way, though.
+sub process_hubbub_notification {
+    my $bodyref = shift;
+
+    # needed for the future; get it early
+    my $sclient = LJ::theschwartz() or die;
+    my $dbh = LJ::get_db_writer() or die;
+
+    # FIXME: this probably will explode horribly with aggregated content, so as
+    # soon as that becomes supported somewhere, we need to fix this
+
+    # try to parse with our feed parser
+    my ( $feed, $error ) = LJ::ParseFeed::parse_feed( $$bodyref );
+    if ( $error ) {
+        # clean up the error a little for the logs...
+        $error =~ s!^\n?(.+?)(?: at /.+)?$!$1!s;
+        $error =~ s!\n! !;
+        warn "[$$] PubSubHubbub notification parse failed: $error\n";
+        return;
+    }
+
+    # worked, get self which should be the topic url
+    unless ( $feed->{self} && ref $feed->{self} eq 'ARRAY' ) {
+        warn "[$$] PubSubHubbub notification has no self link(s)?\n";
+        return;
+    }
+
+    # now select everybody that uses this topic url.  note that this is actually kind of
+    # weird.  in theory we should only ever have one topicurl mapped to one feed, but if
+    # someone comes along and maps a bunch of topicurls to their feeds first, they can
+    # "break" hubbub subscriptions for popular feeds.  so we just make it so that we
+    # allow N feeds to have the same topic url and we schedule a refresh for all of them.
+    # a little more work for us and potentially more traffic, but it's better than the
+    # alternative...
+    my ( %uniqid, @rows );
+    foreach my $topic ( @{ $feed->{self} } ) {
+        my $rowrefs = $dbh->selectall_arrayref(
+            'SELECT id, userid FROM syndicated_hubbub2 WHERE topicurl = ?',
+            undef, $topic
+        );
+        die if $dbh->err;
+
+        foreach my $row ( @$rowrefs ) {
+            next if $uniqid{$row->[0]}++;
+            push @rows, $row;
+        }
+    }
+
+    # iterate over each user
+    foreach my $row ( @rows ) {
+        my ( $id, $uid ) = @$row;
+
+        # update the times pinged of this row
+        $dbh->do( 'UPDATE syndicated_hubbub2 SET timespinged = timespinged + 1 WHERE id = ?',
+                  undef, $id );
+
+        # user must still be visible for us to care
+        my $u = LJ::load_userid( $uid ) or die;
+        next unless $u->is_visible;
+
+        # great! schedule a synsuck job :-)
+        $sclient->insert_jobs( TheSchwartz::Job->new(
+            funcname => 'DW::Worker::SynSuck',
+            arg      => { userid => $u->id },
+            uniqkey  => "synsuck:" . $u->id,
+            priority => 200, # arbitrary, high, try to go fast
+        ) );
+
+        # let devserver know
+        warn "[$$] PubSubHubbub notification scheduled job for " . $u->user . "(" . $u->id . ").\n"
+            if $LJ::IS_DEV_SERVER;
+    }
+    return;
+}
+
+
 1;
-
-
-# Local Variables:
-# mode: perl
-# c-basic-indent: 4
-# indent-tabs-mode: nil
-# End:

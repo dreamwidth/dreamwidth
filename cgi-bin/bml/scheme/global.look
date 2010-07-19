@@ -1,11 +1,24 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by 
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License. 
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 _parent=>../../lj-bml-blocks.pl
 
-loginboxstyle=>{Ss}background: url(/img/userinfo.gif) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;
-commloginboxstyle=>{Ss}background: url(/img/community.gif) no-repeat; background-color: #fff; background-position: 0px 2px; padding-left: 19px; color: #00C; font-weight: bold;
+loginboxstyle=>{Ss}background: url(/img/silk/identity/user.png) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;
+commloginboxstyle=>{Ss}background: url(/img/silk/identity/community.png) no-repeat; background-color: #fff; background-position: 0px 2px; padding-left: 19px; color: #00C; font-weight: bold;
 
-SECURITYPRIVATE=>{Ss}<img src="<?imgprefix?>/icon_private.gif" width=16 height=16 align=absmiddle>
-SECURITYPROTECTED=>{Ss}<img src="<?imgprefix?>/icon_protected.gif" width=14 height=15 align=absmiddle>
-SECURITYGROUPS=>{Ss}<img src="<?imgprefix?>/icon_groups.gif" width=19 height=16 align=absmiddle>
+SECURITYPRIVATE=>{Ss}<img src="<?imgprefix?>/silk/entry/private.png" width=16 height=16 align=absmiddle>
+SECURITYPROTECTED=>{Ss}<img src="<?imgprefix?>/silk/entry/locked.png" width=14 height=15 align=absmiddle>
+SECURITYGROUPS=>{Ss}<img src="<?imgprefix?>/silk/entry/filtered.png" width=21 height=13 align=absmiddle>
 HELP=>{DR}(<a href="%%data%%"><i>help</i></a>)
 INERR=>{DR}<font color="#ff0000"><b>%%data%%</b></font>
 SOERROR=>{DR}<div><b>%%data%%</b></div>
@@ -26,18 +39,21 @@ REQUIREPOST=><?_ml bml.requirepost _ml?>
 
 LOAD_PAGE_INFO<=
 <?_code
+### PLEASE NOTE: This block is deprecated. To print the menu navigation in a scheme,
+###              use the <?menunav?> block.
+
 #line 3
 @sidebar = ({ 'name' => 'Home',
            'uri' => '/',
            'match' => "^/(index\\.bml)?(\\?.*)?\$",
            'children' => [
                   { 'name' => 'Create Journal',
-                'uri' => '/create.bml', },
+                'uri' => '/create', },
                   { 'name' => 'Update',
-                'uri' => '/update.bml',
+                'uri' => '/update',
 #                'children' => [
 #                           { 'name' => 'Full Update',
-#                         'uri' => '/update.bml?mode=full', }
+#                         'uri' => '/update?mode=full', }
 #                           ],
                 },
                   ],
@@ -45,13 +61,13 @@ LOAD_PAGE_INFO<=
          { 'name' => 'Find Users',
            'children' => [
                          { 'name' => 'Random!',
-                'uri' => '/random.bml', },
+                'uri' => '/random', },
                          { 'name' => 'By Region',
-                'uri' => '/directory.bml', },
+                'uri' => '/directory', },
                          { 'name' => 'By Interest',
-                'uri' => '/interests.bml', },
+                'uri' => '/interests', },
                               { 'name' => 'Search',
-                'uri' => '/directorysearch.bml', }
+                'uri' => '/directorysearch', }
                   ], },
          { 'name' => 'Manage ...',
            uri => '/manage/',
@@ -61,13 +77,13 @@ LOAD_PAGE_INFO<=
                   { 'name' => 'Your Style',
                 'uri' => '/customize/', },
                   { 'name' => 'Your Friends',
-                'uri' => '/friends/edit.bml', },
+                'uri' => '/manage/circle/edit', },
                   { 'name' => 'Your Entries',
-                'uri' => '/editjournal.bml', },
+                'uri' => '/editjournal', },
                   { 'name' => 'Your Pictures',
-                'uri' => '/editpics.bml', },
+                'uri' => '/editicons', },
                   { 'name' => 'Your Password',
-                'uri' => '/changepassword.bml', },
+                'uri' => '/changepassword', },
                   ],
        },
          { 'name' => 'Developer Area',
@@ -76,21 +92,21 @@ LOAD_PAGE_INFO<=
            'recursematch' => "^/developer/",
            'children' => [
                   { 'name' => 'Style System',
-                'uri' => '/developer/styles.bml',
+                'uri' => '/developer/styles',
                 'children' => [
                            { 'name' => 'View Types',
-                         'uri' => '/developer/views.bml', },
+                         'uri' => '/developer/views', },
                            { 'name' => 'Variable List',
-                         'uri' => '/developer/varlist.bml', },
+                         'uri' => '/developer/varlist', },
                            ],
                 },
                   { 'name' => 'Embedding',
-                'uri' => '/developer/embedding.bml', },
+                'uri' => '/developer/embedding', },
                   { 'name' => 'Protocol',
-                'uri' => '/developer/protocol.bml',
+                'uri' => '/developer/protocol',
                 'children' => [
                            { 'name' => 'Mode List',
-                         'uri' => '/developer/modelist.bml', }
+                         'uri' => '/developer/modelist', }
                            ],
                 },
                   ],
@@ -98,9 +114,9 @@ LOAD_PAGE_INFO<=
          { 'name' => 'Need Help?',
            'children' => [
                   { 'name' => 'Lost Password?',
-                'uri' => '/lostinfo.bml', },
+                'uri' => '/lostinfo', },
                   { 'name' => 'FAQ / Guide',
-                'uri' => '/support/faq.bml', },
+                'uri' => '/support/faq', },
                   { 'name' => 'Support Area',
                 'uri' => '/support/', },
                   ],
@@ -110,7 +126,7 @@ LOAD_PAGE_INFO<=
  my $remote = LJ::get_remote();
  my $remuser = $remote ? $remote->{'user'} : "";
  my $uri = BML::get_uri();
- if ($remuser ne "" && $uri ne "/logout.bml")
+ if ($remuser ne "" && $uri ne "/logout")
  {
      my $subdomain = $remuser;
      $subdomain =~ s/_/-/g;
@@ -123,22 +139,22 @@ LOAD_PAGE_INFO<=
                              { 'name' => 'Calendar',
                                'uri' => "/users/$remuser/calendar", },
                              { 'name' => 'Friends',
-                               'uri' => "/users/$remuser/friends",
-                               'extra' => "/friend/filter.bml",
+                               'uri' => "/users/$remuser/read",
+                               'extra' => "/friend/filter",
                                },
                              ],
                       },
                     { 'name' => 'User Info',
-                      'uri' => "/userinfo.bml?user=$remuser", },
+                      'uri' => "/profile?user=$remuser", },
                     { 'name' => 'Memories',
-                      'uri' => "/tools/memories.bml?user=$remuser", },
+                      'uri' => "/tools/memories?user=$remuser", },
                     { 'name' => 'Logout',
-                      'uri' => '/logout.bml', },
+                      'uri' => '/logout', },
                     ]
                     };
- } elsif ($uri ne "/login.bml") {
+ } elsif ($uri ne "/login") {
      unshift @sidebar, { 'name' => "Log In",
-             'uri' => '/login.bml', }
+             'uri' => '/login', }
  }
 
 return "";
@@ -205,7 +221,7 @@ HOTCOLOR=>{S}#ff0000
 EMCOLORLITE=>{S}#e2e2e2
 ALTCOLOR1=>{S}#eeeeee
 ALTCOLOR2=>{S}#dddddd
-screenedbarcolor=>{S}#d0d0d0
+screenedbarcolor=>{S}#707070
 
 CHOICE=>{P}<dt><a href="%%data2%%"><font size="+1"><tt><b>%%data1%%</b></tt></font></a><dd><font size="2">%%data3%%</font>
 
@@ -268,3 +284,38 @@ BREADCRUMBS<=
     return "<div id='ljbreadcrumbs'>" . join(" : ", @ret) . "</div>";
 _code?>
 <=BREADCRUMBS
+
+# Dreamwidth menu structure
+menunav<=
+<?_code
+{
+    use DW::Logic::MenuNav;
+
+    my $ret;
+
+    $ret .= "<ul>\n";
+
+    my $nav_links = DW::Logic::MenuNav->get_menu_navigation;   # defaults to remote
+
+    foreach my $cathash ( @{ $nav_links } ) {
+        my $cat = $cathash->{name};
+        my @submenu = @{ $cathash->{items} };
+        my @displayed = ();
+        foreach my $item ( @submenu ) {
+            push @displayed, "<li class='subnav'><a href='$item->{url}'>" . BML::ml( "$item->{text}", $item->{text_opts} ) . "</a></li>" if $item->{display};
+        }
+        if ( @displayed ) {   # only display a top-level menu if any of its items are displayed
+            $ret .= "<li id='${cat}_topnav' class='topnav'><a href='$LJ::SITEROOT/nav/$cat'>$ML{\"menunav.$cat\"}</a>\n";
+            $ret .= "<ul id='${cat}_subnav' class='subnav_container'>\n";
+            $ret .= join( "\n", @displayed ) . "\n";
+            $ret .= "</ul>\n";
+            $ret .= "</li>\n";
+        }
+    }
+
+    $ret .= "</ul>\n";
+
+    return $ret;
+}
+_code?>
+<=menunav

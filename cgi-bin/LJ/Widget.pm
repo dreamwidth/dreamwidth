@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget;
 
 use strict;
@@ -7,6 +20,7 @@ use LJ::Auth;
 
 # FIXME: don't really need all widgets now
 LJ::ModuleLoader->autouse_subclasses("LJ::Widget");
+LJ::ModuleLoader->autouse_subclasses("DW::Widget");
 
 our $currentId = 1;
 
@@ -21,6 +35,10 @@ sub new {
 }
 
 sub need_res {
+    return ();
+}
+
+sub need_res_opts {
     return ();
 }
 
@@ -46,7 +64,7 @@ sub start_form {
     if ($class->authas) {
         my $u = $opts{authas} || $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas};
         $u = LJ::load_user($u) unless LJ::isu($u);
-        my $authas = $u->user if LJ::isu($u);
+        my $authas = LJ::isu($u) ? $u->user : undef;
 
         if ($authas && !$LJ::REQ_GLOBAL{widget_authas_form}) {
             $ret .= $class->html_hidden({ name => "authas", value => $authas, id => "_widget_authas" });
@@ -96,7 +114,9 @@ sub render {
     my $ret = "<div class='appwidget appwidget-$css_subclass' id='$widget_ele_id'>\n";
 
     my $rv = eval {
-        my $widget = ref $class ? $class : "LJ::Widget::$subclass";
+        my $widget = $class;
+
+        my $opts = { $widget->need_res_opts };
 
         # include any resources that this widget declares
         if (defined $opt_hash{stylesheet_override}) {
@@ -106,27 +126,33 @@ sub render {
             foreach my $file ($widget->need_res) {
                 if ($file =~ m!^[^/]+\.(js|css)$!i) {
                     next if $1 eq 'css';
-                    LJ::need_res("js/widgets/$subclass/$file");
+                    LJ::need_res( $opts, "js/widgets/$subclass/$file" );
                     next;
                 }
-                LJ::need_res($file) unless $file =~ /\.css$/i;
+                LJ::need_res( $opts, $file ) unless $file =~ /\.css$/i;
             }
         } else {
             foreach my $file ($widget->need_res) {
                 if ($file =~ m!^[^/]+\.(js|css)$!i) {
                     my $prefix = $1 eq 'js' ? "js" : "stc";
-                    LJ::need_res("$prefix/widgets/$subclass/$file");
+                    LJ::need_res( $opts, "$prefix/widgets/$subclass/$file" );
                     next;
                 }
-                LJ::need_res($file);
+                LJ::need_res( $opts, $file );
             }
         }
         LJ::need_res($opt_hash{stylesheet}) if $opt_hash{stylesheet};
 
         return $widget->render_body(@opts);
-    } or $class->handle_error($@);
+    };
 
-    $ret .= $rv;
+    if ( defined $rv && $rv =~ /\w/ ) {
+        $ret .= $rv;
+    } elsif ( $@ ) {
+        $ret .= "<strong>[Error: $@]</strong";
+#        $class->handle_error;
+    }
+
     $ret .= "</div><!-- end .appwidget-$css_subclass -->\n";
 
     return $ret;
@@ -309,7 +335,7 @@ sub subclass {
     my $class = shift;
     $class = ref $class if ref $class;
     return $class unless $class =~ /::/;
-    return ($class =~ /LJ::Widget::([\w:]+)$/)[0];
+    return ($class =~ /(?:LJ|DW)::Widget::([\w:]+)$/)[0];
 }
 
 # wrapper around BML... for now
@@ -367,6 +393,23 @@ sub wrapped_js {
             LiveJournal.register_hook("page_load", function () { $widgetvar.initWidget() });
         </script>
     };
+}
+
+# allows given form fields to be passed into the widget's handle_post, even if they don't have the widget prefix on them
+# this is needed for recaptcha modules in widgets
+sub use_specific_form_fields {
+    my $class = shift;
+    my %opts = @_;
+
+    my $post = $opts{post};
+    my $widget = $opts{widget};
+    my %given_fields = map { $_ => 1 } @{$opts{fields}};
+
+    foreach my $field (%$post) {
+        $post->{"Widget[$widget]_$field"} = $post->{$field} if $given_fields{$field};
+    }
+
+    return;
 }
 
 package LJ::Error::WidgetError;
@@ -718,6 +761,10 @@ widget and returns the results of that POST to C<render>.
 Returns a list of paths to static files that should be included on the page that
 the widget is called on (i.e. CSS and JS).  Can be subclassed.
 
+=item C<need_res_opts>
+
+Returns a hash of opts that can be passed to need_res -- for example, ( group => 'jquery' ). Can be subclassed.
+
 =item C<post_fields_by_widget>
 
 Returns a hashref of the POST fields for each widget that was handled via
@@ -733,6 +780,13 @@ Should be called on the parent class.
 
 Same as C<post_fields_of_widget>, but returns the POST fields for the widget
 it's called on.
+
+=item C<use_specific_form_fields>
+
+Given the POST values and a list of specific fields, this will allow those
+fields to be passed into the widget's C<handle_post> even if they don't have
+the necessary widget prefix on them.  This is currently used for widgets that
+have a reCAPTCHA module, since you can't modify the name of the fields for it.
 
 =item C<get_args>
 
@@ -774,7 +828,11 @@ Wrapper around BML::decl_params().
 
 Wrapper around LJ::form_auth().
 
+=back
+
 =head2 AJAX-Related Methods
+
+=over 4
 
 =item C<js>
 
@@ -788,7 +846,11 @@ widgets can be used.  If a C<page_js_obj> parameter is passed in, its value is
 used to create a JavaScript variable that holds the widget JavaScript object in
 it.
 
+=back
+
 =head2 Flags for Widgets
+
+=over 4
 
 =item C<ajax>
 
@@ -804,7 +866,11 @@ Can be subclassed.
 Returns if a widget supports authas authentication or not (in GET or POST).  Can
 be subclassed.
 
+=back
+
 =head2 Form Utility Methods
+
+=over 4
 
 =item C<start_form>
 
@@ -859,7 +925,11 @@ if C<handle_post> is being used.
 
 The prefix that's added on to form element names to make them widget-specific.
 
+=back
+
 =head2 Translation String Methods
+
+=over 4
 
 =item C<ml_key>
 

@@ -1,10 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.birthday=Show your birthday to other users
-
-.birthday.year.opt=year is optional
-
-.birthday.underage=Users under the age of 14 cannot display their age on profiles.
-
 .chat.aolim=AOL IM
 
 .chat.gizmo=Gizmo Project
@@ -21,39 +15,35 @@
 
 .chat.yahooid=Yahoo! ID
 
-.country.choose=Pick a country
+.comms=Display communities of which you are a member.
+
+.display.title=Display Settings for [[name]]
 
 .email=Email
 
-.email.change=Change email
+.email.change.system=Change email used by system
 
-.email.opt.both=Both (primary email + LiveJournal email)
+.email.opt.both.actual=Show actual email + [[sitenameshort]] email
 
-.email.opt.dont=Don't display my email address
+.email.opt.both.display=Show display email + [[sitenameshort]] email
 
-.email.opt.lj=LiveJournal email only
+.email.opt.site=[[sitenameshort]] email only
 
-.email.opt.no_show=Don't show email address
-
-.email.opt.prime=Primary email only
-
-.email.opt.show=Show email address
-
-.error.bday.child=Users under the age of 14 cannot display their birthday.
+.email.profile=If specified, this address will be displayed <i>instead of</i> the system email if shown.
 
 .error.bio.toolong=Your user bio is too long.
-
-.error.contact.child=Users under the age of 14 cannot publically share their contact information.
 
 .error.day.notinmonth=Invalid day for that month.
 
 .error.day.outofrange=Invalid birthday day.  Enter a day from 1-31.
 
-.error.email.lj_domain=You cannot enter an @[[domain]] email address. Enter your real address in that field. If you're a paid user, your [[user]]@[[domain]] address will forward to your real address. To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option.
+.error.email.lj_domain2=You cannot enter an @[[domain]] email address.  Enter your real address in that field.  If you're a paid user, your [[user]]@[[domain]] address will forward to your real address.  To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option on the <a [[aopts]]>Manage Profile</a> page.
 
 .error.email.none=You must provide your email address
 
 .error.email.no_space=No spaces are allowed in an email address. If you're on AOL, remember that your Internet Email address is your screen name with all spaces removed, followed by <b>@aol.com</b>
+
+.error.findbyemail=Invalid option for find by email.
 
 .error.invalidbio=Your stored bio contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
 
@@ -87,41 +77,65 @@
 
 .fn.bio=Tell other users about yourself or your journal. If you want to display graphics, counters, or other HTML, you can enter it here.
 
+.fn.bio.openid=Tell other users about yourself. No HTML is allowed.
+
 .fn.birthday=Birthday
+
+.fn.birthday.day=Day of birth
+
+.fn.birthday.level=Amount of birthday information to share
+
+.fn.birthday.month=Month of birth
+
+.fn.birthday.year=Year of birth
 
 .fn.city=City
 
-.fn.contactinfo=Who can view your contact info?
+.fn.commdesc=Community Description
+
+.fn.commdescription2=Briefly describe the central focus of your community. This community description will be shown in interest searches.
+
+.fn.comms=Communities
 
 .fn.country=Country
 
-.fn.email=Primary email
+.fn.email.display=Profile email
 
-.fn.emaildisplay=Display
+.fn.email.site=[[siteabbrev]] email
 
-.fn.friendof="Friend of" list
+.fn.email.system=System email
+
+.fn.friendof3=Circled By
 
 .fn.gender=Gender
 
-.fn.imservices2=Instant Messaging
-
 .fn.interests=List all your interests, separated by commas, to allow other users to find you using the Interest Search.
 
-.fn.link=Link
+.fn.link2=Link URL
 
-.fn.mutualfriends=Mutual friends
+.fn.ljtalk.address=[[siteabbrev]] Chat Address
 
-.fn.name=Name
+.fn.ljtalk.status=[[siteabbrev]] Chat Status
+
+.fn.location=Location
+
+.fn.mutualfriends3=Mutual Lists
+
+.fn.name2=Display Name
+
+.fn.privacy=Privacy Level
 
 .fn.province=or non-US State/province/territory
 
-.fn.schools=Schools
-
 .fn.servprov=Service Provider
 
-.fn.sitename=Name
+.fn.showljtalk=Who can see your online chat status?
+
+.fn.sitename2=Link Name
 
 .fn.state=State
+
+.fn.subscriberof=Subscriber list
 
 .fn.timezone=Timezone
 
@@ -129,11 +143,11 @@
 
 .fn.txtnum=Full phone number
 
-.fn.userpic=Default userpic
+.fn.userpic2=Default Icon
 
 .fn.zip=ZIP Code
 
-.friendof=Show other users who have friended you, but you have not friended
+.friendof3=Show all accounts that have given you access or subscribed to you, and not just the ones you reciprocate.
 
 .gender.female=Female
 
@@ -143,77 +157,79 @@
 
 .gender.unspecified=(Unspecified)
 
-.im=IM/Chat
+.intro=This is where you fill in the information to be displayed on your Profile. You don't have to display all of this information to everyone; you can set options below. You may also want to edit your <a [[aopts1]]>privacy settings</a> or your <a [[aopts2]]>viewing options</a>.
 
-.interest.line1=Short single-word phrases are best.
+.jumpto=Jump to:
 
-.interest.line2=Rule of thumb: You should be able to put the interest in the sentence "I like ________".
-
-.interest.line3=When referring to nouns, use the plural form for consistency, e.g.: "I like DVDs" instead of "I like DVD".
-
-.interest.line4=<font color='#009000'><b>GOOD</b></font> Example: <b>biking, snow skiing, computers, dvds, mp3s, cheese</b>
-
-.interest.line5=<font color='#ff0000'><b>BAD</b></font> Example: <b>I like lots of bands and watching movies and talking to friends and going to clubs.</b>  That sort of stuff goes in your bio below.
-
-.intro1=Here's where you fill out your Profile page. You don't have to display all of your info to everyone - check out the options below. You may also want to edit your <a [[aopts1]]>comment settings</a> or your <a [[aopts2]]>viewing options</a>.
-
-.location=Show your location to
-
-.mutualfriends=Show friends who have also friended you
+.mutualfriends3=Split access list into "mutual access", "also has access to", and "also gives access to". <br />Split subscriptions into "mutual subscriptions", "other subscriptions", and "other subscribers".
 
 .name=Your name will be displayed on your Profile and in search results
 
-.optional=Optional
+.privacy.title=Privacy Settings for [[name]]
 
 .save_button=Save Changes
 
-.schools=Show your schools to
-
-.schools.manage=Manage schools
-
-.section.bio=Bio
+.section.bio2=Mini Bio
 
 .section.contact=Contact Info
 
-.section.friends=Friends
+.section.contact2=Contact Info and Links
+
+.section.display=Display Options
+
+.section.display.circle=Circle Display Options
+
+.section.display.members=Member Display Options
 
 .section.id=Identity
 
 .section.interests=Interests
 
-.section.location=Location
-
 .section.textmsg=Text Messaging
 
-.section.theme=Community Theme
+.security.visibility.access=Access Only
 
-.section.web=Web Page
-
-.security.visibility.everybody=Everybody
-
-.security.visibility.friends=Friends only
+.security.visibility.everybody2=Everyone
 
 .security.visibility.nobody=Nobody
 
+.security.visibility.noshow=Do not show
+
+.security.visibility.privacy=Obey privacy level
+
 .security.visibility.regusers=Registered Users
 
-.share.birthday=Show your Birthday to:
+.security.visibility.same=Same as above
 
-.show.birthday=Birthday display options:
+.select.provider=-- Select Carrier --
 
-.show.birthday.day=Display only the month and day
+.services.delicious=Delicious Username
 
-.show.birthday.full=Display month, day, and year
+.services.last_fm=Last.fm Username
 
-.show.birthday.nothing=Do not display
+.services.twitter=Twitter Username
 
-.show.birthday.year=Display only the year
+.show.birthday.day2=Show only month and day
 
-.showljtalk=Do not show field?
+.show.birthday.full2=Show month, day, and year
+
+.show.birthday.nothing2=Do not show on profile
+
+.show.birthday.year2=Show only year
+
+.showto=Show to:
 
 .state.us=US States
 
-.success.editpics=Manage your userpics
+.subscriberof=Show subscribers of the community
+
+.subsection.messaging=Email and Messaging
+
+.subsection.other=Other Sites
+
+.subsection.web=Website (Optional)
+
+.success.editicons=Manage your userpics
 
 .success.editprofile=Edit your profile
 
@@ -224,8 +240,6 @@
 .success.text=Your profile has been updated.
 
 .success.viewprofile=View your profile
-
-.theme=Briefly describe the central focus of your community. This will be shown in interest searches.
 
 .timezone.select=(Select your timezone)
 

@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC.
 #
 # LJ::SpellCheck class
 # See perldoc documentation at the end of this file.
@@ -7,7 +10,7 @@
 #
 # This package is released under the LGPL (GNU Library General Public License)
 #
-# A copy of the license has been included with the software as LGPL.txt.  
+# A copy of the license has been included with the software as LGPL.txt.
 # If not, the license is available at:
 #      http://www.gnu.org/copyleft/library.txt
 #
@@ -17,104 +20,122 @@
 package LJ::SpellCheck;
 
 use strict;
-use FileHandle;
-use IPC::Open2;
-use POSIX ":sys_wait_h";
+use warnings;
 
-use vars qw($VERSION);
-$VERSION = '1.0';
+use Config;
+use constant PERLIO_IS_ENABLED => $Config{useperlio};
+
+use vars qw( $VERSION );
+$VERSION = '2.0';
 
 # Good spellcommand values:
-#    ispell -a -h  (default)
-#    /usr/local/bin/aspell pipe -H --sug-mode=fast --ignore-case
+#    /usr/bin/ispell -a -h
+#    /usr/bin/aspell pipe -H --sug-mode=fast --ignore-case
+#
+# Use the full path to the command, not just the command name.
+#
+# If you want to include an external dictionary containing site-specific
+# terms, you can add a "-p /path/to/dictionary" to the program arguments
 
 sub new {
     my ($class, $args) = @_;
     my $self = {};
     bless $self, ref $class || $class;
 
-    $self->{'command'} = $args->{'spellcommand'} || "ispell -a -h";
-    $self->{'color'} = $args->{'color'} || "#FF0000";
+    my $command = $args->{spellcommand} || "/usr/bin/aspell pipe -H --sug-mode=fast --ignore-case";
+    my @command_args = split /\s+/, $command;
+
+    $self->{command} = shift @command_args;
+    $self->{command_args} = \@command_args;
+
+    $self->{color} = $args->{color} || "#FF0000";
     return $self;
 }
 
-# This function takes a block of text to spell-check and returns HTML 
-# to show suggesting correction, if any.  If the return from this 
+# This function takes a block of text to spell-check and returns HTML
+# to show suggesting correction, if any.  If the return from this
 # function is empty, then there were no misspellings found.
 
 sub check_html {
-    my $self = shift;
-    my $journal = shift;
+    my ( $self, $journal, $no_ehtml ) = @_;
+
+    return "" unless $$journal;
+
+    my $r = DW::Request->get;
+    my ( $iwrite, $iread ) = $r->spawn( $self->{command}, $self->{command_args} );
     
-    my $iread = new FileHandle;
-    my $iwrite = new FileHandle;
-    my $ierr = new FileHandle;
-    my $pid;
+    my $read_data = sub {
+        my ( $fh ) = @_;
+        my $data;
+        $data = <$fh> if PERLIO_IS_ENABLED || IO::Select->new( $fh )->can_read( 10 );
+        return defined $data ? $data : '';
+    };
 
-    # work-around for mod_perl
-    my $tie_stdin = tied *STDIN;
-    untie *STDIN if $tie_stdin;
+    my $ehtml_substr = sub {
+        my ( $a, $b, $c ) = @_;
+        # we can't substr( @_ ) directly, it won't compile
+        my $str = substr( $a, $b, $c );
+        return $no_ehtml ? $str : LJ::ehtml( $str );
+    };
 
-    $iwrite->autoflush(1);
+    # header from aspell/ispell
+    my $banner = $read_data->( $iread );
+    return "<?errorbar Spell checker not set up properly. banner=$banner errorbar?>" unless $banner =~ /^@\(#\)/;
 
-    $pid = open2($iread, $iwrite, $self->{'command'}) || die "spell process failed";
-    die "Couldn't find spell checker\n" unless $pid;
-    my $banner = <$iread>;
-    die "banner=$banner\n" unless ($banner =~ /^@\(\#\)/);
+    # send the command to shell-escape
     print $iwrite "!\n";
-    
+
     my $output = "";
     my $footnotes = "";
     
-    my ($srcidx, $lineidx, $mscnt, $other_bad);
+    my ( $srcidx, $lineidx, $mscnt, $other_bad );
     $lineidx = 1;
     $mscnt = 0;
-    foreach my $inline (split(/\n/, $$journal)) {
-	$srcidx = 0;
-	chomp($inline);
-	print $iwrite "^$inline\n";
-	
-	my $idata;
-	do {
-	    $idata = <$iread>;
-	    chomp($idata);
-	    
-	    if ($idata =~ /^& /) {
-		$idata =~ s/^& (\S+) (\d+) (\d+): //;
-		$mscnt++;
-		my ($word, $sugcount, $ofs) = ($1, $2, $3);
-		$ofs -= 1; # because ispell reports "1" for first character
-		
-		$output .= LJ::ehtml(substr($inline, $srcidx, $ofs-$srcidx));
-		$output .= "<font color=\"$self->{'color'}\">".LJ::ehtml($word)."</font>";
-		
-		$footnotes .= "<tr valign=top><td align=right><font color=$self->{'color'}>".LJ::ehtml($word).
-                              "</font></td><td>".LJ::ehtml($idata)."</td></tr>";
-		
-		$srcidx = $ofs + length($word);
-	    } elsif ($idata =~ /^\# /) {
-		$other_bad = 1;
-		$idata =~ /^\# (\S+) (\d+)/;
-		my ($word, $ofs) = ($1, $2);
-		$ofs -= 1; # because ispell reports "1" for first character
-		$output .= LJ::ehtml(substr($inline, $srcidx, $ofs-$srcidx));
-		$output .= "<font color=\"$self->{'color'}\">".LJ::ehtml($word)."</font>";
-		$srcidx = $ofs + length($word);
-	    }
-	} while ($idata ne "");
-	$output .= LJ::ehtml(substr($inline, $srcidx, length($inline)-$srcidx)) . "<br>\n";
-	$lineidx++;
+    foreach my $inline ( split( /\n/, $$journal ) ) {
+        $srcidx = 0;
+        chomp( $inline );
+        print $iwrite "^$inline\n";
+        
+        my $idata;
+        do {
+            $idata = $read_data->( $iread );
+            chomp( $idata );
+            
+            if ( $idata =~ /^& / ) {
+                $idata =~ s/^& (\S+) (\d+) (\d+): //;
+                $mscnt++;
+                my ( $word, $sugcount, $ofs ) = ( $1, $2, $3 );
+                my $e_word = $no_ehtml ? $word : LJ::ehtml( $word );
+                my $e_idata = $no_ehtml ? $idata : LJ::ehtml( $idata );
+                $ofs -= 1; # because ispell reports "1" for first character
+                
+                $output .= $ehtml_substr->( $inline, $srcidx, $ofs - $srcidx );
+                $output .= "<font color=\"$self->{'color'}\">$e_word</font>";
+                
+                $footnotes .= "<tr valign=top><td align=right><font color=$self->{'color'}>$e_word" .
+                              "&nbsp;</font></td><td>$e_idata</td></tr>";
+                
+                $srcidx = $ofs + length( $word );
+            } elsif ($idata =~ /^\# /) {
+                $other_bad = 1;
+                $idata =~ /^\# (\S+) (\d+)/;
+                my ( $word, $ofs ) = ( $1, $2 );
+                my $e_word = $no_ehtml ? $word : LJ::ehtml( $word );
+                $ofs -= 1; # because ispell reports "1" for first character
+                $output .= $ehtml_substr->( $inline, $srcidx, $ofs - $srcidx );
+                $output .= "&nbsp;<font color=\"$self->{'color'}\">$e_word</font>&nbsp;";
+                $srcidx = $ofs + length( $word );
+            }
+        } while ( $idata ne "" );
+            $output .= $ehtml_substr->( $inline, $srcidx, length( $inline ) - $srcidx ) . "<br>\n";
+            $lineidx++;
     }
 
     $iread->close;
     $iwrite->close;
- 
-    $pid = waitpid($pid, 0);
 
-    # return mod_perl to previous state, though not necessary?
-    tie *STDIN, $tie_stdin if $tie_stdin;
 
-    return (($mscnt || $other_bad) ? "$output<p><b>Suggestions:</b><table cellpadding=3 border=0>$footnotes</table>" : "");
+    return ( ( $mscnt || $other_bad ) ? "$output<p><b>Suggestions:</b><table cellpadding=3 border=0>$footnotes</table>" : "" );
 }
 
 1;
@@ -128,8 +149,8 @@ LJ::SpellCheck - let users check spelling on web pages
 
   use LJ::SpellCheck;
   my $s = new LJ::SpellCheck { 'spellcommand' => 'ispell -a -h',
-			       'color' => '#ff0000',
-			   };
+                   'color' => '#ff0000',
+               };
 
   my $text = "Lets mispell thigns!";
   my $correction = $s->check_html(\$text);
@@ -147,7 +168,7 @@ The only method on the object is check_html, which takes a reference to the text
 
 =head1 BUGS
 
-Sometimes the opened spell process hangs and eats up tons of CPU.  Fixed now, though... I think.
+Version 1.0 had some logic to do a waitpid, I suspect to fix a problem where sometimes the opened spell process would and eats up tons of CPU. Because this calls aspell in another manner (doesn't return the PID and may not trigger the bug), the waitpid has been removed. If any issues crop up, revisit this.
 
 check_html returns HTML we like.  You may not.  :)
 
@@ -155,5 +176,5 @@ check_html returns HTML we like.  You may not.  :)
 
 Evan Martin, evan@livejournal.com
 Brad Fitzpatrick, bradfitz@livejournal.com
-
+Afuna, coder.dw@afunamatata.com
 =cut

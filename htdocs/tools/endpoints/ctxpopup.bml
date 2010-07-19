@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
@@ -66,7 +80,8 @@
     # actions to generate auth tokens for
     my @actions = ();
 
-    $ret{url_addfriend} = "$LJ::SITEROOT/friends/add.bml?user=" . $u->{user};
+    $ret{url_addtrust} = "$LJ::SITEROOT/manage/circle/add?user=" . $u->{user} . "&action=access";
+    $ret{url_addwatch} = "$LJ::SITEROOT/manage/circle/add?user=" . $u->{user} . "&action=subscribe";
 
     my $up = $u->userpic;
     if ($up) {
@@ -80,48 +95,52 @@
         } elsif ($u->is_identity) {
             $ret{url_userpic} = "$LJ::IMGPREFIX/identity_100x100.png";
         } else {
-            $ret{url_userpic} = "$LJ::IMGPREFIX/ctxpopup-nopic.gif";
+            $ret{url_userpic} = "$LJ::IMGPREFIX/nouserpic.png";
         }
         $ret{userpic_w} = 100;
         $ret{userpic_h} = 100;
     }
 
     if ($remote) {
-        $ret{is_friend}    = LJ::is_friend($remote, $u);
-        $ret{is_friend_of} = LJ::is_friend($u, $remote);
-        $ret{is_requester} = LJ::u_equals($remote, $u);
+        $ret{is_trusting}   = $remote->trusts( $u );
+        $ret{is_trusted_by} = $u->trusts( $remote );
+        $ret{is_watching}   = $remote->watches( $u );
+        $ret{is_watched_by} = $u->watches( $remote );
+        $ret{is_requester}  = $remote->equals( $u );
+        $ret{other_is_identity} = $u->is_identity;
+        $ret{self_is_identity} = $remote->is_identity;
     }
 
     $ret{is_logged_in}  = $remote ? 1 : 0;
 
     if ($u->is_comm) {
-        $ret{url_joincomm}   = "$LJ::SITEROOT/community/join.bml?comm=" . $u->{user};
-        $ret{url_leavecomm}  = "$LJ::SITEROOT/community/leave.bml?comm=" . $u->{user};
-        $ret{is_member} = LJ::is_friend($u, $remote) if $remote;
+        $ret{url_joincomm}   = "$LJ::SITEROOT/community/join?comm=" . $u->{user};
+        $ret{url_leavecomm}  = "$LJ::SITEROOT/community/leave?comm=" . $u->{user};
+        $ret{is_member} = $remote->member_of( $u ) if $remote;
+        $ret{is_closed_membership} = $u->is_closed_membership;
 
         push @actions, 'join', 'leave';
     }
 
     # generate auth tokens
     if ($remote) {
-        push @actions, 'addFriend', 'removeFriend';
+        push @actions, 'addTrust', 'addWatch', 'removeTrust', 'removeWatch', 'setBan' , 'setUnban';
         foreach my $action (@actions) {
-            $ret{"${action}_authtoken"} = LJ::Auth->ajax_auth_token(
-                                                                    $remote,
-                                                                    $uri,
-                                                                    target => $u->user,
-                                                                    action => $action,
-                                                                    );
+            $ret{"${action}_authtoken"} = $remote->ajax_auth_token(
+                                                                   $uri,
+                                                                   target => $u->user,
+                                                                   action => $action,
+                                                                  );
         }
     }
 
     sleep(1.5) if $LJ::IS_DEV_SERVER;
-
-    my %extrainfo = LJ::run_hook("ctxpopup_extra_info", $u);
+    my %extrainfo = LJ::Hooks::run_hook("ctxpopup_extra_info", $u);
     %ret = (%ret, %extrainfo);
 
-    $ret{success} = 1;
+    $ret{is_banned} = $remote->has_banned( $u ) ? 1 : 0 if $remote;
 
+    $ret{success} = 1;
     return LJ::js_dumper(\%ret);
 }
 _code?>

@@ -1,5 +1,6 @@
 ;; -*- coding: utf-8 -*-
-.button.changecommunity=Update Settings
+
+.button.changecommunity2=Save Changes
 
 .button.createcommunity=Create Community
 
@@ -17,25 +18,27 @@
 
 .error.notfound=Community account not found.
 
+.error.postingguidelinesentryinvalid=Invalid Dreamwidth entry ID or URL entered.
+
 .error.samenames=Maintainer account and community account cannot be the same.
+
+.label.adultcontentconcepts=Users should be warned that the content in this community should be viewed with discretion.
+
+.label.adultcontentconcepts2=<b>Viewing Discretion Advised</b><br />Users will be warned that the content in this community should be viewed with discretion.
+
+.label.adultcontentexplicit=Users under the age of 18 should not be able to join this community or view its entries.
+
+.label.adultcontentexplicit2=<b>Explicit Adult Content</b><br />Users under the age of [[age]] will be not be able to join this community or view its entries.
 
 .label.adultcontentheader=Age Limits
 
-.label.adultcontentconcepts=Age 14 and over
+.label.adultcontentheader2=Adult Content Setting
 
-.label.adultcontentexplicit=Age 18 and over
+.label.adultcontentnone=No adult content.
 
-.label.adultcontentnone=No age limits
+.label.adultcontentnone2=<b>No Adult Content</b>
 
-.label.adultcontentnote=This is a global setting for the community.
-
-.label.adultcontenttext=Does this community require age filtering?
-
-.label.anybodycan=<b>All Members</b><br />Anybody can post immediately once a member.
-
-.label.changeheader=Change Community Settings
-
-.label.changetext=Here you can change the settings for the community you own or maintain.
+.label.adultcontenttext2=Does your community have adult content?
 
 .label.closedmemb2=<b>Closed Membership</b><br />Nobody can join the community.
 
@@ -55,12 +58,6 @@
 
 .label.community=Community:
 
-.label.createheader=Create Community
-
-.label.createtext2=From here you can create a community account. A community is a special type of account that other users can join and post in.
-
-.label.createtext2_example=For an example of a community, check out the <a [[aopts]]>[[commname]] Community</a>.
-
 .label.howoperates=Choose how your community operates.  You can change these later.
 
 .label.maintainer=Maintainer:
@@ -73,23 +70,9 @@
 
 .label.moderatedmemb=<b>Moderated Membership</b><br />Requests to join are emailed to you for approval.
 
-.label.modheader=Entry Moderation
+.label.moderation=Moderate entries to your community?
 
-.label.modis=<b>Moderated</b><br />New entries must be approved by a moderator.
-
-.label.modisnt=<b>Unmoderated</b><br />New entries appear immediately.
-
-.label.modtext=Are submissions to this community moderated?
-
-.label.nmcan=<b>Non-Members Can Post</b><br />Users can post to this community without having to join it.
-
-.label.nmcan2=<b>Allow all users to post</b><br />Users can post to this community without having to join it.
-
-.label.nmcant=<b>Non-Members Cannot Post</b><br />Users have to join this community in order to post in it.
-
-.label.nmcant2=<b>Only members can post</b><br />Users have to join this community in order to post in it.
-
-.label.nmheader=Non-Member Posting Restrictions
+.label.moderationyes=New entries must be approved by a moderator before they appear in the community.
 
 .label.nmtext=Can users post to this community without having to join it?
 
@@ -97,21 +80,29 @@
 
 .label.password=Password:
 
-.label.postaccess=Member Posting Restrictions
+.label.postingaccess=Posting Access
+
+.label.postingaccessanybody=<b>Anybody</b><br />Any user can post to this community without having to join it.
+
+.label.postingaccessmembers=<b>All Members</b><br />Any user can post to this community once they've joined it.
+
+.label.postingaccessselect=<b>Select Members</b><br />Members can post only if a maintainer gives them access.
+
+.label.postingguidelinesentry=URL or ID of your community's posting guidelines entry (leave blank if you don't want to link to an entry):
 
 .label.rellinks=Relevant links:
 
-.label.selcan=<b>Select Members</b><br />Only some members are able to post, once a maintainer gives them access.
+.label.showjoinpostlink=Post to community
+
+.label.showwhatlinks=What links should be displayed to users when they join your community?
+
+.label.successpagedisplay=Join Links
 
 .label.username=Username:
 
 .label.whocanjoin=Who can join your community?
 
-.label.whocanpost=Do you want to allow only certain members the ability to post?
-
-.manage2=Manage communities
-
-.members2=Members
+.label.whocanpost2=Who can post entries to your community?
 
 .name=<b>Community name:</b> [[name]]
 

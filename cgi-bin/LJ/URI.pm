@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 # This is a module for handling URIs
 use strict;
 
@@ -38,19 +51,6 @@ sub handle {
     # handle URI redirects
     if (my $url = $LJ::URI_REDIRECT{$uri}) {
         return Apache::LiveJournal::redir($r, $url, HTTP_MOVED_TEMPORARILY);
-    }
-
-    # handle vertical URLs
-    my $args = $r->args;
-    my $full_uri = $uri;
-    $full_uri .= "?$args" if $args;
-    if (my $v = LJ::Vertical->load_by_url($full_uri)) {
-        if ($v->is_canonical_url($full_uri)) {
-            my $args_for_redir = "?$args" if $args;
-            return Apache::LiveJournal::redir($r, $v->url . $args_for_redir);
-        } else {
-            return LJ::URI->bml_handler($r, "explore/index.bml");
-        }
     }
 
     return undef;

@@ -74,11 +74,12 @@
 
 <!ENTITY ljorgweb "<ulink url='http://www.livejournal.org/'>LiveJournal.org</ulink>">
 <!ENTITY ljcomweb "<ulink url='http://www.livejournal.com/'>LiveJournal.com</ulink>">
+<!ENTITY ljlabsweb "<ulink url='http://www.livejournal.com/labs.bml'>LiveJournal Labs</ulink>">
 <!ENTITY dangaweb "<ulink url='http://www.danga.com/'>Danga Interactive</ulink>">
 <!ENTITY sixacode "<ulink url='http://code.sixapart.com/'>Six Apart Code</ulink>">
 <!ENTITY sixapart "<ulink url='http://www.sixapart.com/'>Six Apart</ulink>">
 <!ENTITY supweb "<ulink url='http://www.sup.com/en/'>SUP</ulink>">
-<!ENTITY ljrep "<ulink url='http://code.sixapart.com/svn/livejournal'>code.sixapart.com/svn/livejournal</ulink>">
+<!ENTITY ljrep "<ulink url='http://code.sixapart.com/svn/livejournal/'>code.sixapart.com/svn/livejournal</ulink>">
 <!ENTITY ljcomrep "<ulink url='http://code.sixapart.com/svn/livejournal'>code.sixapart.com/svn/ljcom</ulink>">
 <!ENTITY rtweb "<ulink url='http://rt.livejournal.org/'>Bug and Project Tracking System</ulink>">
 <!ENTITY ljclientsweb "<ulink url='http://community.livejournal.com/lj_clients/profile'>lj_clients</ulink>">
@@ -90,5 +91,5 @@
 
 <!ENTITY debianweb "<ulink url='http://www.debian.org/'>Debian GNU/Linux</ulink>">
 
-<!-- End of DocBook additional general entities V1.1 -->
+<!-- End of DocBook additional general entities V1.2 -->
 

@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+#
 # AtomAPI support for LJ
 
 package Apache::LiveJournal::Interface::AtomAPI;
@@ -7,12 +20,8 @@ use Apache2::Const qw(:common);
 use Digest::SHA1;
 use MIME::Base64;
 use lib "$LJ::HOME/cgi-bin";
-use Class::Autouse qw(
-                      LJ::ModuleCheck
-                      );
-
-require 'parsefeed.pl';
-require 'fbupload.pl';
+use LJ::ModuleCheck;
+use LJ::ParseFeed;
 
 # for Class::Autouse (so callers can 'ping' this method to lazy-load this class)
 sub load { 1 }
@@ -72,7 +81,6 @@ HTML
     $type = $mime{$type} || 'text/html';
     $r->status_line("$status $msgs{$status}");
     $r->content_type($type);
-    $r->send_http_header();
     $r->print($out);
     return OK;
 };
@@ -104,58 +112,7 @@ sub handle_upload
     return respond($r, 400, "Unsupported MIME type: $mime") unless $mime_area;
 
     if ($mime_area eq 'image') {
-
-        return respond($r, 400, "Unable to upload media. Your account doesn't have the required access.")
-            unless LJ::get_cap($u, 'fb_can_upload') && $LJ::FB_SITEROOT;
-
-        my $err;
-        LJ::load_user_props(
-            $u,
-            qw/ emailpost_gallery emailpost_imgsecurity /
-        );
-
-        my $summary = LJ::trim( $entry->summary() );
-
-        my $fb = LJ::FBUpload::do_upload(
-            $u, \$err,
-            {
-                path    => $entry->title(),
-                rawdata => \$entry->content()->body(),
-                imgsec  => $u->{emailpost_imgsecurity},
-                caption => $summary,
-                galname => $u->{emailpost_gallery} || 'Mobile',
-            }
-        );
-
-        return respond($r, 500, "There was an error uploading the media: $err")
-            if $err || ! $fb;
-
-        if (ref $fb && $fb->{Error}->{code}) {
-            my $errstr = $fb->{Error}->{content};
-            return respond($r, 500, "There was an error uploading the media: $errstr");
-        }
-
-        my $atom_reply = XML::Atom::Entry->new();
-        $atom_reply->title( $fb->{Title} );
-
-        if ($standalone) {
-            $atom_reply->summary('Media post');
-            my $id = "atom:$u->{user}:$fb->{PicID}";
-            $fb->{Summary} = $summary;
-
-            $u->set_cache("lifeblog_fb:$fb->{PicID}", $fb);
-
-            $atom_reply->id( "urn:fb:$LJ::FB_DOMAIN:$id" );
-        }
-
-        my $link = XML::Atom::Link->new();
-        $link->type('text/html');
-        $link->rel('alternate');
-        $link->href( $fb->{URL} );
-        $atom_reply->add_link($link);
-
-        $r->header_out("Location", $fb->{URL});
-        return respond($r, 201, \$atom_reply->as_xml(), 'atom');
+        return respond( $r, 400, "Unable to upload media." );
     }
 }
 
@@ -239,37 +196,6 @@ sub handle_post {
         }
     }
 
-    # Retrieve fotobilder media links from clients that embed via
-    # standalone tags or service.upload transfers.  Add to post entry
-    # body.
-    my $body  = $entry->content()->body();
-    my @links = $entry->link();
-    my (@images, $link_count);
-    foreach my $link (@links) {
-        # $link is now a valid XML::Atom::Link object
-        my $rel  = $link->get('rel');
-        my $type = $link->get('type');
-        my $id   = $link->get('href');
-
-        next unless $rel eq 'related' && check_mime($type) &&
-            $id =~ /^urn:fb:\Q$LJ::FB_DOMAIN\E:atom:\w+:(\d+)$/;
-
-        my $fb_picid = $1;
-
-        my $fb = $u->cache("lifeblog_fb:$fb_picid");
-        next unless $fb;
-
-        push @images, {
-            url     => $fb->{URL},
-            width   => $fb->{Width},
-            height  => $fb->{Height},
-            caption => $fb->{Summary},
-            title   => $fb->{Title}
-        };
-    }
-
-    $body .= LJ::FBUpload::make_html( $u, \@images );
-
     my $preformatted = $entry->get
         ("http://sixapart.com/atom/post#", "convertLineBreaks") eq 'false' ? 1 : 0;
 
@@ -280,11 +206,13 @@ sub handle_post {
         'username'    => $u->{'user'},
         'lineendings' => 'unix',
         'subject'     => $entry->title(),
-        'event'       => $body,
+        'event'       => $entry->content()->body(),
         'props'       => { opt_preformatted => $preformatted, taglist => \@tags },
         'tz'          => 'guess',
         %$security_opts,
     };
+
+    $req->{'props'}->{'interface'} = "atom";
 
     my $err;
     my $res = LJ::Protocol::do_request("postevent",
@@ -438,7 +366,7 @@ sub handle_edit {
 
         # the AtomEntry must include <id> which must match the one we sent
         # on GET
-        unless ($entry->id() =~ m#atom1:$u->{'user'}:(\d+)$# &&
+        unless ($entry->id =~ m#,\d{4}-\d{2}-\d{2}:$u->{userid}:(\d+)$# &&
                 $1 == $olditem->{'itemid'}*256 + $olditem->{'anum'}) {
             return respond($r, 400, "Incorrect <b>&lt;id&gt;</b> field in this request.");
         }
@@ -553,7 +481,8 @@ sub handle_feed {
 # authentication, calls the appropriate method handler, and
 # prints the response.
 sub handle {
-    my $r = shift;
+    # FIXME: Move this up to caller(s).
+    my $r = DW::Request->get;
 
     return respond($r, 404, "This server does not support the Atom API.")
         unless LJ::ModuleCheck->have_xmlatom;
@@ -590,8 +519,7 @@ sub handle {
     # TODO: Add communities?
     my $method = $r->method;
     if ( $method eq 'GET' && ! $action ) {
-        LJ::load_user_props( $u, 'journaltitle' );
-        my $title = $u->{journaltitle} || $u->{user};
+        my $title = $u->prop( 'journaltitle' ) || $u->user;
         my $feed = XML::Atom::Feed->new();
 
         my $add_link = sub {
@@ -608,13 +536,11 @@ sub handle {
             $add_link->($subservice);
         }
 
-        $add_link->('upload') if LJ::get_cap($u, 'fb_can_upload') && $LJ::FB_SITEROOT;
-
         my $link = XML::Atom::Link->new();
         $link->title($title);
         $link->type('text/html');
         $link->rel('alternate');
-        $link->href( LJ::journal_base($u) );
+        $link->href( $u->journal_base );
         $feed->add_link($link);
 
         return respond($r, 200, \$feed->as_xml(), 'atom');
@@ -640,8 +566,8 @@ sub handle {
     # we've authenticated successfully and remote is set. But can remote
     # manage the requested account?
     my $remote = LJ::get_remote();
-    unless (LJ::can_manage($remote, $u)) {
-        return respond($r, 403, "User <b>$remote->{'user'}</b> has no administrative access to account <b>$u->{user}</b>.");
+    unless ( $remote && $remote->can_manage( $u ) ) {
+        return respond( $r, 403, "User <b>$remote->{user}</b> has no administrative access to account <b>$u->{user}</b>." );
     }
 
     # handle the requested action

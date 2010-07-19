@@ -1,0 +1,181 @@
+/*
+    stc/shop.css
+   
+    CSS classes for rendering the various shop widgets and components.
+   
+    Authors:
+         Mark Smith <mark@dreamwidth.org>
+         Janine Smith <janine@netrophic.com>
+   
+    Copyright (c) 2009 by Dreamwidth Studios, LLC.
+   
+    This program is free software; you may redistribute it and/or modify it under
+    the same terms as Perl itself.  For a copy of the license, please reference
+    'perldoc perlartistic' or 'perldoc perlgpl'.
+*/
+
+
+.shopbox, .appwidget-shopitemgroupdisplay {
+    border: 1px solid #c1272d;
+    margin: 10px;
+    padding: 5px;
+    min-width: 30em;
+    max-width: 35em;
+    min-height: 20em;
+    float: left;
+}
+
+.leftybox {
+    max-width: 35em;
+    float: left;
+    margin: 10px;
+}
+
+.shop-account-status {
+    border: solid 1px #c1272d;
+    background-color: #ffff00;
+    float: right;
+    width: 30em;
+    padding: 5px;
+    margin: 10px;
+}
+
+.shop-table {
+    margin: 1em auto;
+    min-width: 50em;
+}
+
+.shop-table td {
+    vertical-align: top;
+    padding-left: 1em;
+}
+
+.shop-table-gift {
+    margin: 1em;
+}
+
+.shop-table-gift td {
+    vertical-align: top;
+    padding: 0.2em;
+}
+
+.shop-error {
+    border: 1px solid #c1272d;
+    clear: both;
+    padding: 5px;
+    margin: 10px;
+}
+
+.shop-cart-status {
+    border: 1px solid #c1272d;
+    background-color: #c5c5c5;
+    padding: 0.5em;
+}
+
+.shop-cart-status ul {
+    list-style: none;
+    margin: 0;
+    padding-bottom: 1.5em;
+}
+
+.shop-cart-status ul li {
+    float: left;
+    margin-right: 1em;
+}
+
+.shop-cart {
+    margin: 1em;
+}
+
+.shop-cart th {
+    background-color: #c5c5c5;
+}
+
+.shop-cart td, .shop-cart th {
+    border: 1px solid #c1272d;
+    padding: 0.5em;
+    text-align: center;
+}
+
+.shop-cart td.total {
+    font-weight: bold;
+    text-align: right;
+    background-color: #e0e0e0;
+}
+
+.shop-cart-btn {
+    margin-left: 1em;
+}
+
+.shop-item-highlight {
+    color: #c1272d;
+    font-weight: bold;
+}
+
+.shop-footnote {
+    font-size: smaller;
+}
+
+.ccrow {
+    padding: 3px;
+}
+
+.ccrowerr {
+    background-color: #ccc;
+}
+
+.shop-points-status {
+    margin: 20px;
+    border: 1px solid #c1272d;
+    padding: 0.5em;
+    font-size: larger;
+}
+
+.status-bar-options {
+    float: right;
+}
+
+.status-bar-option {
+    margin-left: 1em;
+    font-weight: bold;
+}
+
+.shop-category {
+    margin-top: 20px;
+}
+
+.shop-category-title {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.shop-category-items {
+    margin-left: 10px;
+}
+
+.shop-category-item {
+    margin-left: 30px;
+}
+
+#shop-status-bar {
+    margin: 20px;
+    padding: 0.5em;
+    font-size: larger;
+}
+
+.shop-status-left {
+    width: 25%;
+    float: left;
+}
+
+.shop-status-right {
+    width: 25%;
+    float: right;
+    text-align: right;
+}
+
+.shop-status-middle {
+    float: left;
+    width: 50%;
+    text-align: center;
+}

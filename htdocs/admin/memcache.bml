@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
 #line 3
@@ -8,8 +22,12 @@
     use Time::HiRes ();
 
     my $u = LJ::get_remote();
-    return "You must be logged in to view this tool." unless $u;
-    return "You don't have 'siteadmin' priv." unless LJ::check_priv($u, "siteadmin", "memcacheview");
+    my @displayprivs = ( "siteadmin:memcacheview", "siteadmin:*" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $u;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless $u->has_priv( "siteadmin", "memcacheview" );
 
     my $prev_hits = $u ? LJ::MemCache::get([$u->{'userid'},"mcrate:$u->{'userid'}"]) : undef;
 
@@ -21,7 +39,7 @@
     }
     $mode ||= "overview";
 
-    $ret .= "<div class='topbar'>[<a href='memcache.bml'>Overview</a>]\n";
+    $ret .= "<div class='topbar'>[<a href='memcache'>Overview</a>]\n";
 
     if ($mode eq "overview") {
 	$ret .= <<"END_TOP";
@@ -85,7 +103,7 @@ END_TOP
 	my $hit_rate = sprintf("%0.02f%%", $stat{''}{'get_hits'}/($stat{''}{'get_hits'}+$stat{''}{'get_misses'}||1)*100);
 
 	if ($mode eq "overview") {
-	    $ret .= "<tr><td><a href='memcache.bml?host=$host'>$host</a></td>\n";
+	    $ret .= "<tr><td><a href='memcache?host=$host'>$host</a></td>\n";
 	    $ret .= "<td>$hit_rate";
 	    if ($prev_hits && $prev_hits->{$host}) {
 		my $nh = $now_hits{$host};
@@ -130,7 +148,7 @@ END_TOP
 	}
 
 	if ($mode eq "host" && $host eq $GET{'host'}) {
-	    $ret .= "[<a href='memcache.bml?host=$host&amp;mode=raw'>Raw Data</a>]</div>";
+	    $ret .= "[<a href='memcache?host=$host&amp;mode=raw'>Raw Data</a>]</div>";
 	    $ret .= "<h1>Details for $host</h1>";
 
 	    $ret .= "<h2>Slab classes</h2>";
@@ -151,7 +169,7 @@ END_TOP
 	}
 
 	if ($mode eq "raw" && $host eq $GET{'host'}) {
-	    $ret .= "[<a href='memcache.bml?host=$host'>Host Stats</a>]</div>";
+	    $ret .= "[<a href='memcache?host=$host'>Host Stats</a>]</div>";
 	    $ret .= "<h1>Raw data for $host</h1>";
 	    $ret .= "<pre>$log</pre>";
 	}

@@ -85,12 +85,28 @@ function nxpositionCursor(obj, pos)
 {
 	if (nxIE) {
 		var range = obj.createTextRange();
-		range.move('character', from);
+		range.collapse(true);
+		range.moveEnd('character', pos);
+		range.moveStart('character', pos);
 		range.select();		// TODO: test this
 	} else {
 		obj.selectionStart = obj.selectionEnd = pos;
 		obj.focus();
 	}
+}
+
+function nxgetPositionCursor(obj)
+{
+	if ('selectionStart' in obj) {
+		return obj.selectionStart;
+	}
+	if (document.selection && document.selection.createRange) {
+		obj.focus();
+		var range = document.selection.createRange();
+		return 0 - range.duplicate().moveStart('character', -100000);
+	}
+
+	return 0;
 }
 
 // Scrolls the object to the given line out of the given total number of lines.
@@ -177,7 +193,7 @@ function nxinsertText(obj, text)
 		obj.value = val.substring(0, obj.selectionEnd) + text +
 			val.substring(obj.selectionEnd);
 			
-		obj.selectionEnd = oend + text.length;
+		obj.setSelectionRange(oend + text.length, oend + text.length);
 		obj.scrollTop = otop;
 	}
 }

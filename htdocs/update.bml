@@ -1,7 +1,22 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
     use vars qw(%GET %POST %ML);
+    use DW::External::Page;
     BML::decl_params(_default => qr/./);
 
     # $_[1] is a pre-request scratch area
@@ -29,16 +44,18 @@
         return;
     }
 
+    # invalid usejournal
+    if ($GET{usejournal} && !LJ::load_user($GET{usejournal})) {
+        $$body = $ML{'.error.invalidusejournal'};
+        return;
+    }
+
     # get remote and see if they can post right now
     my $remote = LJ::get_remote();
 
     # Errors that are unlikely to change between starting
     # to compose an entry and submitting it.
     if ($remote) {
-        if ($remote->underage) {
-            return BML::redirect("$LJ::SITEROOT/agecheck/?s=1");
-        }
-
         return if LJ::bad_password_redirect();
 
         if ($remote->identity) {
@@ -47,14 +64,14 @@
             return;
         }
 
-        if (! LJ::get_cap($remote, "can_post")) {
+        if (! $remote->can_post ) {
             $$title = $ML{'.error.cantpost.title'};
             $$body = $LJ::MSG_NO_POST || $ML{'.error.cantpost'};
             return;
         }
 
-        if (LJ::get_cap($remote, "disable_can_post")) {
-            unless (LJ::run_hook("update.bml_disable_can_post", {
+        if ( $remote->can_post_disabled ) {
+            unless (LJ::Hooks::run_hook("update.bml_disable_can_post", {
                 title => $title, body => $body,
             })) {
                 $$title = $ML{'.error.disabled.title'};
@@ -67,7 +84,7 @@
     my %res = ();
 
     # see if we need to do any transformations
-    LJ::run_hooks("transform_update_$POST{transform}", \%GET, \%POST) if $POST{transform};
+    LJ::Hooks::run_hooks("transform_update_$POST{transform}", \%GET, \%POST) if $POST{transform};
 
     LJ::need_res('stc/display_none.css', 'stc/lj_base.css', 'stc/entry.css', 'js/inputcomplete.js');
 
@@ -92,17 +109,32 @@
     my $event   = $POST{'event'}   || $GET{'event'};
     my $tags    = $POST{'prop_taglist'} || $GET{'prop_taglist'};
 
+    # if a share url was passed in, fill in the fields with the appropriate text
+    if ( $GET{share} && ( my $page = DW::External::Page->new( url => $GET{share} ) ) ) {
+        $subject = LJ::ehtml( $page->title );
+        $event = '<a href="' . $page->url . '">' . ( LJ::ehtml( $page->description ) || $subject || $page->url ) . "</a>\n\n";
+    }
+
     # if a QotD id was passed in, fill in the fields with that QotD
     my $qid = $GET{qotd}+0;
-    if ($qid) {
-        my $qotd = LJ::QotD->get_single_question($qid);
-        if ($qotd) {
-            $subject = LJ::Widget::QotD->subject_text($qotd, user => $remote);
-            $event = LJ::Widget::QotD->embed_text($qotd);
-            $tags = LJ::Widget::QotD->tags_text($qotd);
-            my $text = LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ], form_disabled => 1 );
-            $$head .= "<script>LiveJournal.qotdText = \"" . LJ::ejs($text) . "\";</script>";
-        }
+    my $qotd;
+    $qotd = LJ::QotD->get_single_question($qid) if $qid;
+    if ($qotd) {
+        $subject = LJ::Widget::QotD->subject_text($qotd, user => $remote);
+        $event = LJ::Widget::QotD->embed_text($qotd);
+        $tags = LJ::Widget::QotD->tags_text($qotd);
+        my $text = LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ], form_disabled => 1 );
+        $$head .= "<script>LiveJournal.qotdText = \"" . LJ::ejs($text) . "\";</script>";
+    }
+
+    # try to call a hook to fill in the fields
+    my $override_fields = LJ::Hooks::run_hook('update_fields', \%GET);
+    my $opt_preformatted = 0;
+    if ($override_fields) {
+            $event      = $override_fields->{'event'}   if exists($override_fields->{'event'});
+            $subject    = $override_fields->{'subject'} if exists($override_fields->{'subject'});
+            $tags       = $override_fields->{'tags'}    if exists($override_fields->{'tags'});
+            $opt_preformatted = $override_fields->{'prop_opt_preformatted'} if exists($override_fields->{'prop_opt_preformatted'});
     }
 
     ### define some bools with common logic ###
@@ -153,7 +185,7 @@
         if ($altlogin_display eq 'none') {
             $auth.= "<p id='remotelogin' class='pkg'>\n";
             $auth .= "<label for='current_username' class='left'>" . BML::ml('entryform.postas') . "</label>\n";
-            $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> <a href='$LJ::SITEROOT/update.bml?altlogin=1' id='remotelogin_content' class='small'>$ML{'entryform.switchuser'}</a>\n";
+            $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> <a href='$LJ::SITEROOT/update?altlogin=1' id='remotelogin_content' class='small'>$ML{'entryform.switchuser'}</a>\n";
             $auth .= "</p>\n\n";
         }
         # table with username/password fields
@@ -161,7 +193,7 @@
         $auth .= "<p class='pkg'>\n";
         $auth .= "<label for='altlogin_username' class='left'>$ML{'.username'}</label>\n";
         $auth .=  LJ::html_text({ 'name' => 'user', 'id' => 'altlogin_username', 'class' => 'text', 'size' => '15', 
-                'maxlength' => '15', 'tabindex' => '5', 'value' => $POST{'user'} || $GET{'user'} }) . "\n";
+                'maxlength' => '25', 'tabindex' => '5', 'value' => $POST{'user'} || $GET{'user'} }) . "\n";
         $auth .= "</p>\n";
         $auth .= "<p class='pkg'>\n";
         $auth .= "<label for='altlogin_password' class='left'>$ML{'.password'}</label>\n";
@@ -181,6 +213,12 @@
         $getextra .= "qotd=" . LJ::eurl($GET{qotd}) . "&" if $GET{'qotd'};
         chop $getextra;
 
+        # if crossposter values were checked, remember them
+        my %xpost_vals;
+        foreach ( grep { /^prop_xpost_/ } ( keys %POST, keys %GET ) ) {
+            $xpost_vals{ $_ } = $POST{ $_ } || $GET{ $_ };
+        }
+
         my $entry = {
             'mode' => "update",
             'auth_as_remote' => $auth_as_remote,
@@ -193,17 +231,22 @@
             'remote' => $remote,
             'spellcheck_html' => $spellcheck_html,
             'clientversion' => "WebUpdate/2.0.0",
-            'richtext' => $LJ::DISABLED{'richtext'} ? 0 : 1,
+            'richtext' => LJ::is_enabled('richtext'),
             'richtext_default' => $remote ? $remote->new_entry_editor eq 'rich' ? 1 : 0  # User setting
                                           : $LJ::DEFAULT_EDITOR       eq 'rich' ? 1 : 0, # Site default
             'include_insert_object' => $GET{'insobj'},
             'prop_qotdid' => $qid,
+            'altlogin' => $GET{altlogin} ? 1 : 0,
+            'prop_opt_preformatted' => $opt_preformatted ? 1 : 0,
+            
+            %xpost_vals,
         };
 
         if ($remote) {
             $entry->{prop_opt_default_noemail} = $remote->prop('opt_gettalkemail');
             $entry->{prop_opt_default_nocomments} = $remote->prop('opt_showtalklinks');
             $entry->{prop_opt_default_screening} = $remote->prop('opt_whoscreened');
+            $entry->{prop_last_fm_user} = $remote->prop('last_fm_user');
         }
         
         if ($did_post) {
@@ -240,15 +283,13 @@
             $$body .= " warningbar?><br /></div>";
         }
 
-        $$body .= "\n\n<form method='post' action='update.bml$getextra' id='updateForm' name='updateForm'>\n\n";
+        $$body .= "\n\n<form method='post' action='update$getextra' id='updateForm' name='updateForm'>\n\n";
         $$body .= LJ::form_auth();
-
-        if ($opts->{require_tos}){
-            $$body .= LJ::tosagree_html('update', $POST{agree_tos}, $errors->{require_tos});
-        }
 
         $$body .= LJ::entry_form($entry, \$$head, $onload, $errors);
         $$body .= "</form><!-- end #updateForm -->\n";
+
+        $$body .= LJ::Widget::SettingProdDisplay->render;
 
         return;
     };
@@ -283,23 +324,6 @@
             $flags = { 'noauth' => 1, 'u' => $remote };
             $user = $remote->{'user'};
             $u = $remote;
-        }
-
-        if ($u && ! $u->tosagree_verify) {
-            if ($POST{agree_tos}) {
-                my $err = "";
-                unless ($u->tosagree_set(\$err)) {
-                    # error
-                    $errors->{require_tos} = $err;
-                    $print_entry_form->({ require_tos => 1 });
-                    return;
-                }
-                # successfully set
-            } else {
-                $errors->{require_tos} = $ML{'tos.error'};
-                $print_entry_form->({ require_tos => 1 });
-                return;
-            }
         }
 
         # Check if the account they're posting to is read-only
@@ -352,6 +376,7 @@
                     'password'    => $POST{'password'},
                     'usejournal'  => $POST{'usejournal'},
                     'tz'          => 'guess',
+                    'xpost'       => '0'
                     );
 
         LJ::entry_form_decode(\%req, \%POST);
@@ -366,20 +391,26 @@
 
         if (!$errors) {
             # examine response
-            my $update_message;
+            my $protocol_message;
             if ($res{'success'} eq "OK" && $res{'message'}) {
-                $update_message = LJ::auto_linkify(LJ::ehtml($res{'message'}));
+                $protocol_message = LJ::auto_linkify(LJ::ehtml($res{'message'}));
             }
-
-            # report results
-            $$body .= "<?p <strong>$ML{'.updating'}</strong> ";
 
             if ($res{'success'} ne 'OK') {
                 # update failed?
+                $$body .= "<?p <strong>$ML{'.update.status.failed'}</strong> ";
+
                 $$body .= "<br /><?errorbar <strong>$ML{'.error.update'}</strong> ";
                 $$body .= LJ::ehtml($res{'errmsg'}) . " errorbar?>";
                 $$body .= "<br /> p?>";
             } else {
+
+                # update succeeded
+                $$body .= "<?p <strong>$ML{'.update.status.succeeded'}</strong> ";
+
+                # persist the default value of the disable auto-formatting option
+                $u->disable_auto_formatting( $POST{event_format} ? 1 : 0 );
+
                 # Clear out a draft
                 $remote->set_prop('entry_draft', '')
                     if $remote;
@@ -400,6 +431,8 @@
                 } else {
 
                     # update success
+                    my $updatemessage = '.update.success2';
+
                     if ($POST{'usejournal'}) {
                         $ju = LJ::load_user($POST{'usejournal'});  # posting as community
                     } elsif ($user) {
@@ -407,42 +440,86 @@
                     } else {
                         $ju = $remote;                             # posting as remote
                     };
-                    $$body .= BML::ml('.update.success2', {'aopts' => "href='" . $ju->journal_base . "/'"});
+                    
+                    if ( $ju->is_community ) { # changes the update message if journal is from a community
+                        $updatemessage = '.update.success2.community';
+                    }
+
+                    $$body .= BML::ml( $updatemessage, {'aopts' => "href='" . $ju->journal_base . "/'"} );
+                    $$body .= "<br />$protocol_message" if $protocol_message;
                     my $juser = $ju->{'user'};
                     my ($itemid, $anum) = ($res{'itemid'}, $res{'anum'});
                     $itemlink = LJ::item_link($ju, $itemid, $anum);
+                    my $orig_itemid = $itemid;
                     $itemid = $itemid * 256 + $anum;
+
+                    my $edititemlink = "/editjournal?journal=$juser&itemid=$itemid";
+
+                    # crosspost if we're posting to our own journal and have
+                    # selected crosspost.
+                    if ($ju == $remote && ($POST{prop_xpost_check} || $GET{prop_xpost_check})) {
+                        my ($xpost_successes, $xpost_errors) =
+                            LJ::Protocol::schedule_xposts($remote, $itemid, 0,
+                                                          sub {
+                                                              my $acctid = (shift)->acctid;
+                                                              ($POST{"prop_xpost_$acctid"} || $GET{"prop_xpost_$acctid"},
+                                                               {password => $POST{"prop_xpost_password_$acctid"}
+                                                                            || $GET{"prop_xpost_password_$acctid"},
+                                                                auth_challenge => $POST{"prop_xpost_chal_$acctid"}
+                                                                                  || $GET{"prop_xpost_chal_$acctid"},
+                                                                auth_response => $POST{"prop_xpost_resp_$acctid"}
+                                                                                 || $GET{"prop_xpost_resp_$acctid"}})
+                                                          });
+                        $$body .= "<ul>\n";
+                        $$body .= join("\n",
+                                       map { "<li>"
+                                             . BML::ml('xpost.request.success',
+                                                       {account => $_->displayname})
+                                             . "</li>" }
+                                           @{$xpost_successes});
+                        $$body .= join("\n",
+                                       map { "<li><div style='color: red;'><strong>"
+                                             . BML::ml('xpost.request.failed',
+                                                       {account => $_->displayname,
+                                                        editurl => $edititemlink })
+                                             . " </strong></div></li>" }
+                                           @{$xpost_errors});
+                        $$body .= "</ul>\n";
+                        $$body .= "<br/>";
+                    }
 
                     my $writersblocklink = '';
 
-                    if ($qid && LJ::run_hook('show_qotd_extra_text', $remote)) {
-                        $writersblocklink = "<li><a href=\"$LJ::SITEROOT/misc/latestqotd.bml?qid=$qid\">View answers to Writer's Block</a></li>";
+                    if ($qid && LJ::Hooks::run_hook('show_qotd_extra_text', $remote)) {
+                        $writersblocklink = "<li><a href=\"$LJ::SITEROOT/misc/latestqotd?qid=$qid\">View answers to Writer's Block</a></li>";
+                    }
+
+                    my @after_entry_post_extra_options = LJ::Hooks::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
+                    my $after_entry_post_extra_options = join('', map {$_->[0]} @after_entry_post_extra_options) || '';
+
+                    my $backdatedlink = '';
+                    if ( $POST{prop_opt_backdated} or $GET{prop_opt_backdated} ) {
+                        # we have to do some gymnastics to figure out the entry date
+                        my $e = LJ::Entry->new_from_url( $itemlink );
+                        my ( $y, $m, $d ) = ( $e->{eventtime} =~ /^(\d+)-(\d+)-(\d+)/ );
+                        my $url = $ju->journal_base . "/$y/$m/$d/";
+                        $backdatedlink = "<li><a href=\"$url\">"
+                                       . "$ML{'.success.links.backdated'}</a></li>";
                     }
 
                     $$body .= " p?><?p $ML{'.success.links'} p?><ul>" . $writersblocklink .
-                        "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" .
-                        "<li><a href=\"/editjournal.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.edit'}</a></li>" .
-                        "<li><a href=\"/tools/memadd.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
-                        "<li><a href=\"/edittags.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
+                        "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" . $backdatedlink .
+                        "<li><a href=\"$edititemlink\">$ML{'.success.links.edit'}</a></li>" .
+                        "<li><a href=\"/tools/memadd?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
+                        "<li><a href=\"/edittags?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
+                        $after_entry_post_extra_options .
                         "</ul>";
-
-                    $$body .= LJ::Widget::GettingStarted->render;
                 }
 
                 $$body .= "</td><td style=\"padding-left: 2em;\">";
 
-                {
-
-                    $$body .= LJ::ad_display(
-                        type => 'app',
-                        orient => 'BML-App-Confirm',
-                        below_ad => LJ::CProd->full_box_for($u, width => 300),
-                        interests_extra => $GET{qotd} ? "qotd" : "",
-                    );
-                }
-
                 $$body .= "</td></tr></table>";
-                $$body .= LJ::run_hook('after_entry_post_extra_html', user => $ju, itemlink => $itemlink, request => \%req);
+                $$body .= LJ::Hooks::run_hook('after_entry_post_extra_html', user => $ju, itemlink => $itemlink, request => \%req);
                 return;
             }
         }
@@ -451,34 +528,9 @@
     $$body .= "<table width='100%'><tr valign='top'><td>";
     $print_entry_form->();
     $$body .= "</td>";
-
-    {
-        my $old_ad = 0;
-        my $ad = LJ::ads( type => 'app', orient => 'BML-App-Func-1column', interests_extra => $GET{qotd} ? "qotd" : "" );
-        unless ($ad) {
-            $ad = LJ::ads( type => 'app', orient => 'BML-App-Confirm', interests_extra => $GET{qotd} ? "qotd" : "" );
-            $old_ad = 1;
-        }
-
-        my $extra = "";
-        if ($ad =~ /"ljad ljad(.+?)"/i) {
-            if ($1 eq "skyscraper" || $1 eq "medrect") { # Add a badge ad above all skyscrapers
-                $extra = LJ::ads( type => 'app', orient => 'BML-App-Extra', interests_extra => $GET{qotd} ? "qotd" : "" );
-                $extra .= LJ::ads( type => 'app', orient => 'BML-App-Double-Confirm', interests_extra => $GET{qotd} ? "qotd" : "" );
-            }
-            if ($old_ad) {
-                $$body .= "<td class='$1' style='width: 300px; padding-left: 2em;'>";
-                $$body .= "$ad$extra";
-            } else {
-                $$body .= "<td style='width: 160px; padding-left: 2em;'>";
-                $$body .= "$extra$ad";
-            }
-        } else {
-            $$body .= "<td>";
-        }
-    }
-
+    $$body .= "<td>";
     $$body .= "</td></tr></table>";
+
     return;
 }
 
@@ -492,6 +544,7 @@ head<=
 <?_code
 {
     use strict;
+    use Storable;
 
     my $ret = $_[1]->{'head'};
 
@@ -503,23 +556,43 @@ head<=
                     js/entry.js
                     js/poll.js
                     js/browserdetect.js
+                    js/xpost.js
                     ));
 
     # draft autosave and restore
+    # The $draft variable contains the draft itself. The hash contains the various
+    # fields of the user's draft properties (subject, tags, music, etc.)
     my $remote = LJ::get_remote();
     my $draft = '""';
+    my %draft_properties;
+    my $draft_subject_raw = "";
     if ($remote) {
+        # Here we get the value of the userprop 'draft_properties', containing
+        # a frozen Storable string, which we then thaw into a hash by the same
+        # name.
         $draft = LJ::ejs_string($remote->prop('entry_draft'));
+        %draft_properties = $remote->prop( 'draft_properties' ) ? 
+            %{Storable::thaw( $remote->prop( 'draft_properties' ) )} : ' ';
+
+        # store raw for later use; will be escaped later
+        $draft_subject_raw = $draft_properties{subject};
+
+        %draft_properties = map { $_ => LJ::ejs_string( $draft_properties{$_} ) }
+            qw( subject userpic taglist moodid mood location1 music adultreason commentset commentscr adultcnt );
     }
 
     my $eMLautosave = LJ::ejs(BML::ml('.draft.autosave', { 'time' => '[[time]]' }));
-    my $eMLconfirm = LJ::ejs($ML{'.draft.confirm'});
     my $eMLrestored = LJ::ejs($ML{'.draft.restored'});
+
+    # not enough to just escape the draft_subject, we want to escape the entire thing, just in case the translation text
+    # for.draft.confirm2 contains JS-breaking characters such as apostrophes
+    my $eMLconfirm = LJ::ejs_string( BML::ml( '.draft.confirm2', 
+                { subjectline => "\"$draft_subject_raw\"" } ) );
 
     # Setup draft saving and try to restore from a draft
     # unless we did a post action
     my $initDraft = '';
-    if ($remote && !$LJ::DISABLED{'update_draft'}) {
+    if ( $remote && LJ::is_enabled('update_draft') ) {
         # While transforms aren't considered posts, we don't want to
         # prompt the user to restore from a draft on a transform
         if (!LJ::did_post()) {
@@ -540,7 +613,20 @@ head<=
     $ret .= qq^
     <script type="text/javascript">
     //<![CDATA[
-        var restoredDraft = $draft;
+        
+        // These JS variables contain the contents of the various draft fields.
+        var restoredDraft       = $draft;
+        var restoredSubject     = $draft_properties{subject};
+        var restoredUserpic     = $draft_properties{userpic};
+        var restoredTaglist     = $draft_properties{taglist};
+        var restoredMoodID      = $draft_properties{moodid};
+        var restoredMood        = $draft_properties{mood};
+        var restoredLocation    = $draft_properties{location1};
+        var restoredMusic       = $draft_properties{music};
+        var restoredAdultReason = $draft_properties{adultreason};
+        var restoredCommentSet  = $draft_properties{commentset};
+        var restoredCommentScr  = $draft_properties{commentscr};
+        var restoredAdultCnt    = $draft_properties{adultcnt};
 
         function init_update_bml() {
             $initDraft
@@ -552,32 +638,42 @@ head<=
         LJDraft.autoSaveInterval = $LJ::AUTOSAVE_DRAFT_INTERVAL;
         LJDraft.savedMsg = '$eMLautosave';
 
-            function initDraft(askToRestore) {
-                if (askToRestore && restoredDraft) {
-                    if (confirm("$eMLconfirm")) {
-                        \$("draft").value = restoredDraft;
-                        \$("draftstatus").value = '$eMLrestored ';
-                    } else {
-                        // Clear out their current draft
-                        LJDraft.save('');
-                    }
+        function initDraft(askToRestore) {
+            if (askToRestore && restoredDraft) {
+                if (confirm($eMLconfirm)) {
+                  // If the user wants to restore the draft, we place the
+                  // values of their saved draft into the form.
+                  \$("draft").value = restoredDraft;
+                  \$("draftstatus").value = '$eMLrestored ';
+                  \$("subject").value = restoredSubject;
+                  if ( \$("prop_picture_keyword") ) {
+                      \$("prop_picture_keyword").selectedIndex = restoredUserpic;
+                  }
+                  \$("prop_taglist").value                 = restoredTaglist;
+                  \$("prop_current_moodid").selectedIndex  = restoredMoodID;
+                  \$("prop_current_mood").value            = restoredMood;
+                  \$("prop_current_location").value        = restoredLocation;
+                  \$("prop_current_music").value           = restoredMusic;
+                  \$("prop_adult_content_reason").value    = restoredAdultReason;
+                  \$("comment_settings").selectedIndex     = restoredCommentSet;
+                  \$("prop_opt_screening").selectedIndex   = restoredCommentScr;
+                  \$("prop_adult_content").selectedIndex   = restoredAdultCnt;
+                } else {
+                    // Clear out their current draft
+                    LJDraft.save('');
+                    LJDraft.clearProperties();
                 }
-                LJDraft.startTimer();
            }
+            LJDraft.startTimer();
+       }
     //]]>
     </script>^;
 
     $ret .= (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : "";
+
     return $ret;
 }
 _code?>
 
 <=head
-page?><?_c <LJDEP>
-lib: LJ::SpellCheck
-link: htdocs/users, htdocs/download/index.bml, htdocs/moodlist.bml
-link: htdocs/update.bml, htdocs/lostinfo.bml, htdocs/support/faqbrowse.bml
-link: htdocs/allpics.bml
-post: htdocs/update.bml
-</LJDEP> _c?>
-
+page?>

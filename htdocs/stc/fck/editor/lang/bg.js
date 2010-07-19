@@ -1,20 +1,24 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
- * For further information visit:
- * 		http://www.fckeditor.net/
- * 
- * "Support Open Source software. What about a donation today?"
- * 
- * File Name: bg.js
- * 	Bulgarian language file.
- * 
- * File Authors:
- * 		Miroslav Ivanov (miro@primal-chaos.net)
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * Bulgarian language file.
  */
 
 var FCKLang =
@@ -40,7 +44,9 @@ RemoveFormat		: "Изтрий форматирането",
 InsertLinkLbl		: "Връзка",
 InsertLink			: "Добави/Редактирай връзка",
 RemoveLink			: "Изтрий връзка",
+VisitLink			: "Open Link",	//MISSING
 Anchor				: "Добави/Редактирай котва",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Изображение",
 InsertImage			: "Добави/Редактирай изображение",
 InsertFlashLbl		: "Flash",
@@ -66,6 +72,10 @@ RightJustify		: "Подравняване в дясно",
 BlockJustify		: "Двустранно подравняване",
 DecreaseIndent		: "Намали отстъпа",
 IncreaseIndent		: "Увеличи отстъпа",
+Blockquote			: "Blockquote",	//MISSING
+CreateDiv			: "Create Div Container",	//MISSING
+EditDiv				: "Edit Div Container",	//MISSING
+DeleteDiv			: "Remove Div Container",	//MISSING
 Undo				: "Отмени",
 Redo				: "Повтори",
 NumberedListLbl		: "Нумериран списък",
@@ -98,16 +108,28 @@ Button			: "Бутон",
 SelectionField	: "Падащо меню с опции",
 ImageButton		: "Бутон-изображение",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+ShowBlocks		: "Show Blocks",	//MISSING
+
 // Context Menu
 EditLink			: "Редактирай връзка",
-InsertRow			: "Добави ред",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Изтрий редовете",
-InsertColumn		: "Добави колона",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Изтрий колоните",
-InsertCell			: "Добави клетка",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Изтрий клетките",
 MergeCells			: "Обедини клетките",
-SplitCell			: "Раздели клетката",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Изтрий таблицата",
 CellProperties		: "Параметри на клетката",
 TableProperties		: "Параметри на таблицата",
@@ -136,9 +158,10 @@ UnknownToolbarItem	: "Непознат инструмент \"%1\"",
 UnknownCommand		: "Непозната команда \"%1\"",
 NotImplemented		: "Командата не е имплементирана",
 UnknownToolbarSet	: "Панелът \"%1\" не съществува",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
+NoActiveX			: "Your browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
 BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
 DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+VisitLinkBlocked	: "It was not possible to open a new window. Make sure all popup blockers are disabled.",	//MISSING
 
 // Dialogs
 DlgBtnOK			: "ОК",
@@ -146,12 +169,12 @@ DlgBtnCancel		: "Отказ",
 DlgBtnClose			: "Затвори",
 DlgBtnBrowseServer	: "Разгледай сървъра",
 DlgAdvancedTag		: "Подробности...",
-DlgOpOther			: "&lt;Друго&gt;",
+DlgOpOther			: "<Друго>",
 DlgInfoTab			: "Информация",
 DlgAlertUrl			: "Моля, въведете пълния път (URL)",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;не е настроен&gt;",
+DlgGenNotSet		: "<не е настроен>",
 DlgGenId			: "Идентификатор",
 DlgGenLangDir		: "посока на речта",
 DlgGenLangDirLtr	: "От ляво на дясно",
@@ -215,12 +238,12 @@ DlgLnkTypeURL		: "Пълен път (URL)",
 DlgLnkTypeAnchor	: "Котва в текущата страница",
 DlgLnkTypeEMail		: "Е-поща",
 DlgLnkProto			: "Протокол",
-DlgLnkProtoOther	: "&lt;друго&gt;",
+DlgLnkProtoOther	: "<друго>",
 DlgLnkURL			: "Пълен път (URL)",
 DlgLnkAnchorSel		: "Изберете котва",
 DlgLnkAnchorByName	: "По име на котвата",
 DlgLnkAnchorById	: "По идентификатор на елемент",
-DlgLnkNoAnchors		: "&lt;Няма котви в текущия документ&gt;",
+DlgLnkNoAnchors		: "(Няма котви в текущия документ)",
 DlgLnkEMail			: "Адрес за е-поща",
 DlgLnkEMailSubject	: "Тема на писмото",
 DlgLnkEMailBody		: "Текст на писмото",
@@ -228,8 +251,8 @@ DlgLnkUpload		: "Качи",
 DlgLnkBtnUpload		: "Прати на сървъра",
 
 DlgLnkTarget		: "Цел",
-DlgLnkTargetFrame	: "&lt;рамка&gt;",
-DlgLnkTargetPopup	: "&lt;дъщерен прозорец&gt;",
+DlgLnkTargetFrame	: "<рамка>",
+DlgLnkTargetPopup	: "<дъщерен прозорец>",
 DlgLnkTargetBlank	: "Нов прозорец (_blank)",
 DlgLnkTargetParent	: "Родителски прозорец (_parent)",
 DlgLnkTargetSelf	: "Активния прозорец (_self)",
@@ -253,6 +276,7 @@ DlgLnkPopTop		: "Координати - Y",
 DlnLnkMsgNoUrl		: "Моля, напишете пълния път (URL)",
 DlnLnkMsgNoEMail	: "Моля, напишете адреса за е-поща",
 DlnLnkMsgNoAnchor	: "Моля, изберете котва",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Изберете цвят",
@@ -292,16 +316,16 @@ DlgCellWidthPx		: "пиксели",
 DlgCellWidthPc		: "проценти",
 DlgCellHeight		: "Височина",
 DlgCellWordWrap		: "пренасяне на нов ред",
-DlgCellWordWrapNotSet	: "&lt;Не е настроено&gt;",
+DlgCellWordWrapNotSet	: "<Не е настроено>",
 DlgCellWordWrapYes	: "Да",
 DlgCellWordWrapNo	: "не",
 DlgCellHorAlign		: "Хоризонтално подравняване",
-DlgCellHorAlignNotSet	: "&lt;Не е настроено&gt;",
+DlgCellHorAlignNotSet	: "<Не е настроено>",
 DlgCellHorAlignLeft	: "Ляво",
 DlgCellHorAlignCenter	: "Център",
 DlgCellHorAlignRight: "Дясно",
 DlgCellVerAlign		: "Вертикално подравняване",
-DlgCellVerAlignNotSet	: "&lt;Не е настроено&gt;",
+DlgCellVerAlignNotSet	: "<Не е настроено>",
 DlgCellVerAlignTop	: "Горе",
 DlgCellVerAlignMiddle	: "По средата",
 DlgCellVerAlignBottom	: "Долу",
@@ -311,6 +335,9 @@ DlgCellCollSpan		: "повече от една колона",
 DlgCellBackColor	: "фонов цвят",
 DlgCellBorderColor	: "цвят на рамката",
 DlgCellBtnSelect	: "Изберете...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Търси",
@@ -327,7 +354,6 @@ DlgReplaceReplAllBtn	: "Замести всички",
 DlgReplaceWordChk		: "Търси същата дума",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "Настройките за сигурност на вашия бразуър не разрешават на редактора да изпълни вмъкването. За целта използвайте клавиатурата (Ctrl+V).",
 PasteErrorCut	: "Настройките за сигурност на вашия бразуър не разрешават на редактора да изпълни изрязването. За целта използвайте клавиатурата (Ctrl+X).",
 PasteErrorCopy	: "Настройките за сигурност на вашия бразуър не разрешават на редактора да изпълни запаметяването. За целта използвайте клавиатурата (Ctrl+C).",
 
@@ -335,10 +361,9 @@ PasteAsText		: "Вмъкни като чист текст",
 PasteFromWord	: "Вмъкни от MS Word",
 
 DlgPasteMsg2	: "Вмъкнете тук съдъжанието с клавиатуарата (<STRONG>Ctrl+V</STRONG>) и натиснете <STRONG>OK</STRONG>.",
+DlgPasteSec		: "Because of your browser security settings, the editor is not able to access your clipboard data directly. You are required to paste it again in this window.",	//MISSING
 DlgPasteIgnoreFont		: "Игнорирай шрифтовите дефиниции",
 DlgPasteRemoveStyles	: "Изтрий стиловите дефиниции",
-DlgPasteCleanBox		: "Изчисти",
-
 
 // Color Picker
 ColorAutomatic	: "По подразбиране",
@@ -370,8 +395,11 @@ DlgSpellManyChanges		: "Проверката за правопис завърш�
 IeSpellDownload			: "Инструментът за проверка на правопис не е инсталиран. Желаете ли да го инсталирате ?",
 
 // Button Dialog
-DlgButtonText	: "Текст (Стойност)",
-DlgButtonType	: "Тип",
+DlgButtonText		: "Текст (Стойност)",
+DlgButtonType		: "Тип",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Име",
@@ -420,6 +448,7 @@ DlgHiddenValue	: "Стойност",
 // Bulleted List Dialog
 BulletedListProp	: "Параметри на ненумерирания списък",
 NumberedListProp	: "Параметри на нумерирания списък",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Тип",
 DlgLstTypeCircle	: "Окръжност",
 DlgLstTypeDisc		: "Кръг",
@@ -442,6 +471,15 @@ DlgDocLangDirLTR	: "От ляво на дясно",
 DlgDocLangDirRTL	: "От дясно на ляво",
 DlgDocLangCode		: "Код на езика",
 DlgDocCharSet		: "Кодиране на символите",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Друго кодиране на символите",
 
 DlgDocDocType		: "Тип на документа",
@@ -471,11 +509,18 @@ DlgTemplatesTitle	: "Шаблони",
 DlgTemplatesSelMsg	: "Изберете шаблон <br>(текущото съдържание на редактора ще бъде загубено):",
 DlgTemplatesLoading	: "Зареждане на списъка с шаблоните. Моля изчакайте...",
 DlgTemplatesNoTpl	: "(Няма дефинирани шаблони)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "За",
 DlgAboutBrowserInfoTab	: "Информация за браузъра",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "версия",
-DlgAboutLicense		: "Лиценз по условията на GNU Lesser General Public License",
-DlgAboutInfo		: "За повече информация посетете"
-}
+DlgAboutInfo		: "За повече информация посетете",
+
+// Div Dialog
+DlgDivGeneralTab	: "General",	//MISSING
+DlgDivAdvancedTab	: "Advanced",	//MISSING
+DlgDivStyle		: "Style",	//MISSING
+DlgDivInlineStyle	: "Inline Style"	//MISSING
+};

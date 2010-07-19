@@ -1,0 +1,65 @@
+<?page
+body<=
+<?_code
+{
+    # Admin page to generate and distribute from a pool of invites.
+    #
+    # Authors:
+    #      Afuna <coder.dw@afunamatata.com>
+    #
+    # Copyright (c) 2009 by Dreamwidth Studios, LLC.
+    #
+    # This program is free software; you may redistribute it and/or modify it
+    # under the same terms as Perl itself. For a copy of the license, please
+    # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+    use strict;
+    use vars qw(%POST);
+
+    my $remote = LJ::get_remote();
+    return LJ::error_noremote() unless $remote;
+
+    return BML::redirect( $LJ::SITEROOT )
+        unless $remote->has_priv( 'payments' );
+
+    my $ret;
+
+    my $classes = DW::BusinessRules::InviteCodes::user_classes();
+
+    $ret .= '<form method="POST">';
+    $ret .= LJ::labelfy( 'num_invites', "$ML{'.field.numinvites.label'} " );
+    $ret .= LJ::html_text( { id => 'num_invites', name => 'num_invites' } ) . '<br />';
+    $ret .= LJ::labelfy( 'user_class', "$ML{'.field.distribute.label'} ");
+    $ret .= LJ::html_select( { id => 'user_class', name => 'user_class' }, %$classes ) . '<br />';
+    $ret .= LJ::labelfy( 'reason', "$ML{'.field.reason.label'} " );
+    $ret .= LJ::html_text( { id => 'reason', name => 'reason', maxlength => 255 } ) . '<br />';
+    $ret .= LJ::html_submit( value => $ML{'.btn.distribute'} );
+    $ret .= LJ::form_auth;
+    $ret .= '</form>';
+
+    if ( LJ::did_post ) {
+        return LJ::error_list( $ML{'error.invalidform'} )
+            unless LJ::check_form_auth;
+
+        my $num_invites_requested = $POST{num_invites};
+        my $selected_user_class = $POST{user_class};
+        my $reason = $POST{reason};
+
+        my $sclient = LJ::theschwartz()
+            or return LJ::error_list( $ML{'error.noschwartz'} );
+        $sclient->insert('DW::Worker::DistributeInvites',
+                         { requester => $remote->userid,
+                           searchclass => $selected_user_class,
+                           invites => $num_invites_requested,
+                           reason => $reason } )
+            or return LJ::error_list( $ML{'.error.cantinsertjob'} );
+
+        $ret .= "<?hr?>";
+        $ret .= $ML{'.success.jobstarted'};
+    }
+    return $ret;
+}
+_code?>
+<=body
+title=> <?_code return $ML{'.title'}; _code?>
+page?>

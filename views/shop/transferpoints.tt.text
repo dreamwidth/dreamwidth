@@ -1,0 +1,29 @@
+.about=This page allows you to transfer [[sitename]] Points to another user.
+
+.about.nopoints=<strong>You have no points to transfer.</strong>  You can buy some for yourself or someone else in the <a [[aopts]]>[[sitename]] Store</a>.
+
+.about.points=You have <strong>[[points]] [[?points|point|points]]</strong> on your account.  You may transfer some or all of these points by filling out the form below.  Once you are done, click the submit button and you will be taken to a confirmation page.  After confirming, the points will be transferred.
+
+.anon=Transfer points anonymously
+
+.btn.confirm=Confirm Transfer Request
+
+.btn.transfer=Transfer Points
+
+.buying.for=Transfer To:
+
+.buying.points=Points to Transfer:
+
+.buying.points.range=(1 to 5,000 points)
+
+.confirm=You have requested to transfer [[points]] [[?points|point|points]] to [[user]].  If you are sure you wish to do this, please click the button below.
+
+.confirm.anon=You have requested to anonymously transfer [[points]] [[?points|point|points]] to [[user]].  They will not know the points came from you.  If you are sure you wish to do this, please click the button below.
+
+.title=[[sitename]] Points Transfers
+
+.transferred=You have successfully transferred [[points]] [[?points|point|points]] to [[user]].
+
+.transferred.anon=An anonymous notification has been sent to advise of this transfer.
+
+.transferred.notify=A notification has been sent to advise of this transfer.

@@ -1,7 +1,20 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::S2Theme;
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 use LJ::ModuleLoader;
 
 LJ::ModuleLoader->autouse_subclasses("LJ::S2Theme");
@@ -14,6 +27,42 @@ sub init {
 ##################################################
 # Class Methods
 ##################################################
+
+sub default_themes {
+    my $class = $_[0];
+
+    my %default_themes;
+
+    %default_themes = (
+        bases => 'bases/tropical',
+        basicboxes => 'basicboxes/green',
+        blanket => 'blanket/peach',
+        boxesandborders => 'boxesandborders/gray',
+        brittle => 'brittle/rust',
+        core2base => 'core2base/testing',
+        crossroads => 'crossroads/lettuce',
+        drifting => 'drifting/blue',
+        easyread => 'easyread/green',
+        fluidmeasure => 'fluidmeasure/spice',
+        funkycircles => 'funkycircles/darkpurple',
+        modular => 'modular/mediterraneanpeach',
+        negatives => 'negatives/black',
+        nouveauoleanders => 'nouveauoleanders/sienna',
+        refriedtablet => 'refriedtablet/refriedclassic',
+        skittlishdreams => 'skittlishdreams/orange',
+        steppingstones => 'steppingstones/purple',
+        tranquilityiii => 'tranquilityiii/nightsea',
+        zesty => 'zesty/white',
+    );
+
+    my %local_default_themes = eval "use LJ::S2Theme_local; 1;"
+        ? $class->local_default_themes
+        : ();
+
+    %default_themes = ( %default_themes, %local_default_themes );
+
+    return %default_themes;
+}
 
 # returns the uniq of the default theme for the given layout id or uniq (for lazy migration)
 sub default_theme {
@@ -33,28 +82,8 @@ sub default_theme {
     # remove the /layout part of the uniq to just get the layout name
     $layout =~ s/\/layout$//;
 
-    my %default_themes = (
-        'classic' => 'classic/standard',
-        'cleansimple' => 'cleansimple/standard',
-        'deardiary' => 'deardiary/royalty',
-        'digitalmultiplex' => 'digitalmultiplex/classic',
-        'disjointed' => 'disjointed/periwinkle',
-        'generator' => 'generator/nautical',
-        'haven' => 'haven/indigoblue',
-        'lickable' => 'lickable/aqua-marine',
-        'magazine' => 'magazine/standard',
-        'notepad' => 'notepad/unruled',
-        'punquin' => 'punquin/standard',
-        'refriedpaper' => 'refriedpaper/clean',
-        'sixhtml' => 'sixhtml/powell-street',
-        'sturdygesture' => 'sturdygesture/boxedin',
-        'stylecontest' => 'stylecontest/the_late_show',
-        'tabularindent' => 'tabularindent/standard',
-        'variableflow' => 'variableflow/realteal',
-    );
-
-    my %local_default_themes = eval "use LJ::S2Theme_local; 1;" ? $class->local_default_themes($layout, %opts) : ();
-    my $default_theme = $default_themes{$layout} || $local_default_themes{$layout};
+    my %default_themes = $class->default_themes;
+    my $default_theme = $default_themes{$layout};
     die "Default theme for layout $layout does not exist." unless $default_theme;
     return $default_theme;
 }
@@ -157,12 +186,27 @@ sub load_default_of {
     my %opts = @_;
 
     my $default_theme = $class->default_theme($layoutid, %opts);
-    return $class->load_by_uniq($default_theme);
+    return $default_theme ? $class->load_by_uniq($default_theme) : undef;
+}
+
+sub load_default_themes {
+    my $class = $_[0];
+
+    my @themes;
+
+    my %default_themes = $class->default_themes;
+    return unless %default_themes;
+
+    foreach my $uniq ( values %default_themes ) {
+        my $theme = $class->load_by_uniq( $uniq, silent_failure => 1 );
+        push @themes, $theme if $theme;
+    }
+
+    return @themes;
 }
 
 sub load_by_uniq {
-    my $class = shift;
-    my $uniq = shift;
+    my ( $class, $uniq, %opts ) = @_;
 
     my $pub = LJ::S2::get_public_layers();
     if ($pub->{$uniq} && $pub->{$uniq}->{type} eq "theme") {
@@ -171,7 +215,13 @@ sub load_by_uniq {
         return $class->load_by_layoutid($pub->{$uniq}->{s2lid});
     }
 
-    die "Given uniq is not a valid layout or theme: $uniq";
+    my $msg = "Given uniq is not a valid layout or theme: $uniq";
+    if ( $opts{silent_failure} ) {
+        warn $msg;
+        return undef;
+    } else {
+        die $msg;
+    }
 }
 
 sub load_by_cat {
@@ -286,6 +336,7 @@ sub load_all {
     foreach my $layer (keys %$pub) {
         next unless $layer =~ /^\d+$/;
         next unless $pub->{$layer}->{type} eq "theme";
+        next if LJ::S2::is_public_internal_layer($layer);
         push @themes, $class->new( themeid => $layer );
     }
 
@@ -294,22 +345,6 @@ sub load_all {
     }
 
     return @themes;
-}
-
-# given an array of themes, return an array of only those themes available to the given user
-sub filter_available {
-    my $class = shift;
-    my $u = shift;
-    my @themes = @_;
-
-    die "Invalid user object." unless LJ::isu($u);
-
-    my @themes_ret;
-    foreach my $theme (@themes) {
-        push @themes_ret, $theme if $theme->available_to($u);
-    }
-
-    return @themes_ret;
 }
 
 # custom layouts without themes need special treatment when creating an S2Theme object
@@ -366,7 +401,7 @@ sub new {
     my $layers = LJ::S2::get_public_layers();
     my $is_custom = 0;
     my %outhash = ();
-    unless (ref $layers->{$themeid}) {
+    unless ($layers->{$themeid} && $layers->{$themeid}->{uniq}) {
         if ($opts{user}) {
             my $u = $opts{user};
             die "Invalid user object." unless LJ::isu($u);
@@ -425,7 +460,7 @@ sub new {
     $theme_class = "LJ::S2Theme::$theme_class";
 
     # package name for the layout
-    my $layout_class = $self->{uniq};
+    my $layout_class = $self->{uniq} || $self->{layout_uniq};
     $layout_class =~ s/\/.+//;
     $layout_class =~ s/-/_/g;
     $layout_class = "LJ::S2Theme::$layout_class";
@@ -601,7 +636,7 @@ sub get_preview_styleid {
 
     # get the styleid of the _for_preview style
     my $styleid = $u->prop('theme_preview_styleid');
-    my $style = LJ::S2::load_style($styleid) if $styleid;
+    my $style = $styleid ? LJ::S2::load_style( $styleid ) : undef;
     if (!$styleid || !$style) {
         $styleid = LJ::S2::create_style($u, "_for_preview");
         $u->set_prop('theme_preview_styleid', $styleid);
@@ -627,14 +662,17 @@ sub get_preview_styleid {
     # we don't have a style for this theme, so get the new layers and set them to _for_preview directly
     my %style = LJ::S2::get_style($u);
     my $i18n_layer = $self->get_custom_i18n_layer_for_theme($u);
-    my $user_layer = $self->get_custom_user_layer_for_theme($u);
+    
+    # for the i18nc layer, match the user's preferences if they're not switching cores
+    # if they are switching cores, we don't know what the equivalent should be
+    my $i18nc_layer = ( $self->coreid == $style{core} ) ? $style{i18nc} : undef;
+    
     my %layers = (
-        core   => $style{core},
-        i18nc  => $style{i18nc},
+        core   => $self->coreid,
+        i18nc  => $i18nc_layer,
         layout => $self->layoutid,
         i18n   => $i18n_layer,
         theme  => $self->themeid,
-        user   => $user_layer,
     );
     LJ::S2::set_style_layers($u, $styleid, %layers);
 
@@ -677,6 +715,9 @@ sub hidden_props {
 # props by category heading
 sub display_option_props {
     qw(
+        num_items_recent
+        num_items_reading
+        use_journalstyle_entry_page
         page_recent_items
         page_friends_items
         view_entry_disabled
@@ -684,30 +725,177 @@ sub display_option_props {
         linklist_support
     )
 }
-sub navigation_props { () }
-sub navigation_box_props { () }
-sub text_props { () }
-sub title_props { () }
-sub title_box_props { () }
-sub top_bar_props { () }
-sub header_props { () }
-sub tabs_and_headers_props { () }
-sub header_bar_props { () }
-sub icon_props { () }
-sub sidebar_props { () }
-sub caption_bar_props { () }
-sub entry_props { () }
-sub comment_props { () }
-sub sidebox_props { () }
-sub links_sidebox_props { () }
-sub tags_sidebox_props { () }
-sub multisearch_sidebox_props { () }
-sub free_text_sidebox_props { () }
-sub hotspot_area_props { () }
-sub calendar_props { () }
-sub component_props { () }
-sub setup_props { () }
-sub ordering_props { () }
-sub custom_props { () }
+
+sub module_props {
+    qw (
+        text_module_links
+        text_module_pagesummary
+        text_module_syndicate
+        text_module_tags
+        text_module_active_entries
+        text_generated_on
+        text_tags_manage
+        text_tag_uses
+        text_module_customtext
+        text_module_customtext_content
+        text_module_customtext_url
+        color_module_background
+        color_module_text
+        color_module_border
+        color_module_link
+        color_module_link_active
+        color_module_link_hover
+        color_module_link_visited
+        color_module_title
+        color_module_title_background
+        font_module_heading
+        font_module_heading_size
+        font_module_heading_units
+        font_module_text
+        font_module_text_size
+        font_module_text_units
+        image_background_module_group
+        image_background_module_url
+        image_background_module_repeat
+        image_background_module_position
+    )
+}
+
+sub navigation_props { 
+    qw (
+        text_view_archive
+        text_view_friends
+        text_view_friends_comm
+        text_view_friends_filter
+        text_view_network
+        text_view_memories
+        text_view_recent
+        text_view_userinfo
+        text_view_tags
+    ) 
+}
+
+sub header_props {
+    qw (
+        text_tags_page_header
+        color_header_background
+        color_header_link 
+        color_header_link_active 
+        color_header_link_hover 
+        color_header_link_visited
+        font_journal_title
+        font_journal_title_size
+        font_journal_title_units
+        font_journal_subtitle
+        font_journal_subtitle_size
+        font_journal_subtitle_units
+        image_background_header_group
+        image_background_header_url
+        image_background_header_repeat
+        image_background_header_position
+        image_background_header_height
+    )
+}
+
+sub footer_props {
+    qw (
+        color_footer_background
+        color_footer_link
+        color_footer_link_active
+        color_footer_link_hover
+        color_footer_link_visited
+    )
+}
+
+sub entry_props {
+    qw (
+        text_edit_entry
+        text_edit_tags
+        text_mem_add
+        text_post_comment
+        text_read_comments
+        text_post_comment_friends
+        text_read_comments_friends
+        text_permalink
+        text_stickyentry_subject
+        text_entry_prev
+        text_entry_next
+        text_tell_friend
+        text_meta_mood
+        text_meta_music
+        text_meta_groups
+        text_meta_location
+        text_nosubject
+        text_watch_comments
+        text_unwatch_comments
+        text_tags
+        color_entry_link
+        color_entry_link_active
+        color_entry_link_hover
+        color_entry_link_visited
+        color_entry_border
+        color_entry_background
+        color_entry_text
+        color_entry_title
+        color_entry_title_background
+        color_entry_interaction_links
+        color_entry_interaction_links_background
+        color_entry_interaction_links_hover
+        color_entry_interaction_links_active
+        color_entry_interaction_links_visited
+        font_entry_title
+        font_entry_title_size
+        font_entry_title_units
+        image_background_entry_group
+        image_background_entry_url
+        image_background_entry_repeat
+        image_background_entry_position
+    )
+}
+
+sub comment_props {
+    qw (
+        text_comment_date
+        text_comment_edittime
+        text_comment_expand
+        text_comment_from
+        text_comment_frozen
+        text_comment_ipaddr
+        text_comment_parent
+        text_comment_posted
+        text_comment_reply
+        text_comment_thread
+        color_comment_title_background
+    )
+}
+
+sub archive_props {
+    qw (
+        text_day_next
+        text_day_prev
+        text_view_month
+    )
+}
+
+sub page_props {
+    qw (
+        color_page_background
+        color_page_text
+        color_page_link
+        color_page_link_active
+        color_page_link_hover
+        color_page_link_visited
+        color_page_title
+        color_page_border
+        font_base
+        font_fallback
+        font_base_size
+        font_base_units
+        image_background_page_group
+        image_background_page_url
+        image_background_page_repeat
+        image_background_page_position
+    )
+}
 
 1;

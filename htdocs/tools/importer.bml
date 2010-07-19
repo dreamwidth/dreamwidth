@@ -1,0 +1,73 @@
+<?page
+
+#
+# htdocs/tools/importer.bml
+#
+# Step-by-step wizard that helps a person import content into their journal.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#      Adam Roe <adam@sinkingpuppies.com>
+#      Janine Smith <janine@netrophic.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
+    use Digest::MD5 qw/ md5_hex /;
+
+    if ( $LJ::USE_SSL && !$LJ::IS_SSL && $GET{ssl} ne 'no' ) {
+        return BML::redirect( "$LJ::SSLROOT/tools/importer" );
+    }
+
+    LJ::need_res( 'stc/importer.css' );
+
+    $title = $ML{'.title'};
+
+    my $remote = LJ::get_remote()
+        or return "<?needlogin?>";
+
+    return $ML{'.error.notperson'}
+        unless $remote->is_person;
+
+    if ( LJ::did_post() ) {
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
+        my %from_post = LJ::Widget->handle_post( \%POST, qw( ImportStatus ImportChooseSource ImportChooseData ImportConfirm ) );
+        if ( $from_post{notloggedin} ) {
+            return "<?needlogin?>";
+        } elsif ( $from_post{refresh} ) {
+            return BML::redirect( "$LJ::SITEROOT/tools/importer" );
+        } elsif ( $from_post{ret} ) {
+            return "<div class='importer'>$from_post{ret}</div>";
+        }
+    }
+
+    my $ret = "<p class='intro'>" . BML::ml( '.intro', { sitename => $LJ::SITENAMESHORT, user => $remote->ljuser_display } ) . "</p>";
+    $ret .= LJ::Widget::ImportQueueStatus->render;
+
+    if ( LJ::Widget::ImportStatus->should_render ) {
+        $ret .= LJ::Widget::ImportStatus->render;
+    } else {
+        $ret .= "<div class='importer'>" . LJ::Widget::ImportChooseSource->render . "</div>";
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

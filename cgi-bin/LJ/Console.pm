@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 # LJ::Console family of libraries
 #
 # Initial structure:
@@ -20,8 +33,10 @@ use Carp qw(croak);
 use LJ::ModuleLoader;
 
 my @CLASSES = LJ::ModuleLoader->module_subclasses("LJ::Console::Command");
+my @DWCLASSES = LJ::ModuleLoader->module_subclasses("DW::Console::Command");
+
 my %cmd2class;
-foreach my $class (@CLASSES) {
+foreach my $class (@CLASSES, @DWCLASSES) {
     eval "use $class";
     die "Error loading class '$class': $@" if $@;
     $cmd2class{$class->cmd} = $class;
@@ -174,34 +189,30 @@ sub command_list_html {
 sub command_reference_html {
     my $pkg = shift;
 
-    my $ret = "<dl>";
+    my $ret;
 
     foreach my $cmd (sort keys %cmd2class) {
         my $class = $cmd2class{$cmd};
-        next if $class->is_hidden;
-        next unless $class->can_execute;
+        my $style = $class->can_execute ? "enabled" : "disabled";
 
-        $ret .= "<a name='cmd.$cmd'><dt><p><table width=100% cellpadding=2><tr><td bgcolor=#d0d0d0>";
-
-        $ret .= "<tt><a style='text-decoration: none' href='#cmd.$cmd'><b>$cmd</b></a> ";
+        $ret .= "<hr /><div class='$style'><a name='cmd.$cmd'><h2><code><b>$cmd</b></a> ";
         $ret .= LJ::ehtml($class->usage);
-        $ret .= "</tt></td></tr></table>";
+        $ret .= "</code></h2>\n";
+        $ret .= "<p><em><?_ml error.console.notpermitted _ml?></em></p>" unless $class->can_execute;
 
-        $ret .= "</dt><dd><p>" . $class->desc;
+        $ret .= $class->desc;
 
         if ($class->args_desc) {
             my $args = $class->args_desc;
-            $ret .= "<p><dl>";
+            $ret .= "<dl>";
             while (my ($arg, $des) = splice(@$args, 0, 2)) {
-                $ret .= "<dt><b><i>$arg</i></b></dt><dd>$des</dd>";
+                $ret .= "<dt><strong><em>$arg</em></strong></dt><dd>$des</dd>\n";
             }
             $ret .= "</dl>";
         }
-
-        $ret .= "</dd></a>";
+        $ret .= "</div>";
     }
 
-    $ret .= "</dl>";
 
     return $ret;
 }

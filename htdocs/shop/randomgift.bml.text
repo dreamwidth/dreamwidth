@@ -1,0 +1,39 @@
+;; -*- coding: utf-8 -*-
+
+.backlink=Back to [[sitename]] Shop
+
+.form.getanother.P=Find a different random active free user
+
+.form.getanother.C=Find a different random active free community
+
+.form.switchtype.C=Find a random active free user
+
+.form.switchtype.P=Find a random active free community
+
+.form.submit=Purchase a Paid Account for [[username]]
+
+.intro.P=Here is a random active free user who may appreciate a paid account.  If you'd like to find a different random user, just <a [[aopts]]>refresh</a>.
+
+.intro.C=Here is a random active free community who may appreciate a paid account.  If you'd like to find a different random community, just <a [[aopts]]>refresh</a>.
+
+.label.createdate=Created on:
+
+.label.lastupdated=Last updated on:
+
+.label.numcomments=Number of comments posted:
+
+.label.numcommunities=Number of communities they are a member of:
+
+.label.numentries=Number of entries posted:
+
+.label.nummembers=Number of members:
+
+.label.username=Username:
+
+.nousers.P=There are currently no active free users.
+
+.nousers.C=There are currently no active free communities.
+
+.title.P=Find a Random Active Free User
+
+.title.C=Find a Random Active Free Community

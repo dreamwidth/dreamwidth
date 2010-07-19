@@ -15,6 +15,10 @@
 
 .change.cat=Change Category
 
+.change.language=Change Language:
+
+.change.language.nolang=(no language set)
+
 .change.summary=Change summary
 
 .clear=Clear
@@ -31,7 +35,7 @@
 
 .diagnostics=Diagnostics
 
-.email.validared=email validated?
+.email.validated=email validated?
 
 .email.user=Email/User:
 
@@ -97,7 +101,11 @@ and correct, it will be sent to the user. p?>
 
 .post.comment=Post a comment or solution
 
+.post.moreinformation=Include more information
+
 .postbutton=Post Comment/Solution
+
+.postbuttoninfo=Submit More Information
 
 .posted=Posted
 
@@ -137,6 +145,20 @@ and correct, it will be sent to the user. p?>
 
 .supportcategory=Support category
 
+.tier=Tier:
+
+.tier.0=Tier 0
+
+.tier.1=Tier 1
+
+.tier.2=Tier 2
+
+.tier.3=Tier 3
+
+.tier.selectone=(select one)
+
+.tier.set=Set Tier for Response:
+
 .timeposted=Time posted
 
 .title=Request #[[reqid]]
@@ -146,8 +168,6 @@ and correct, it will be sent to the user. p?>
 .take.out.of.queue=Take out of Queue:
 
 .unable.connect=(unable to connect to cluster, some data temporarily unavailable)
-
-.underage=underage
 
 .uniquecookie=unique cookie 
 

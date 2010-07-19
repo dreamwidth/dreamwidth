@@ -1,12 +1,20 @@
 #!/usr/bin/perl
 #
-# <LJDEP>
-# lib: cgi-bin/ljlib.pl
-# </LJDEP>
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 use strict;
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-require "$ENV{'LJHOME'}/cgi-bin/ljviews.pl";
 
 my $dbh = LJ::get_db_writer();
 
@@ -134,7 +142,7 @@ foreach my $k (keys %output) {
 print "Dumping proplists.dat\n";
 open (my $plg, ">$ENV{LJHOME}/bin/upgrading/proplists.dat") or die;
 open (my $pll, ">$ENV{LJHOME}/bin/upgrading/proplists-local.dat") or die;
-foreach my $table ('userproplist', 'talkproplist', 'logproplist', 'usermsgproplist') {
+foreach my $table ('userproplist', 'talkproplist', 'logproplist', 'usermsgproplist', 'pollproplist2') {
     my $sth = $dbh->prepare("DESCRIBE $table");
     $sth->execute;
     my @cols = ();
@@ -167,28 +175,6 @@ foreach my $table ('userproplist', 'talkproplist', 'logproplist', 'usermsgpropli
     }
 
 }
-
-# now dump school related information
-print "Dumping schools.dat\n";
-open(F, ">$ENV{LJHOME}/bin/upgrading/schools.dat") or die;
-$sth = $dbh->prepare('SELECT name, country, state, city, url FROM schools');
-$sth->execute;
-while (my @row = $sth->fetchrow_array) {
-    my $line = '"' . join('","', map { $_ || "" } @row) . '"';
-    print F "$line\n";
-}
-close F;
-
-# and do S1 styles (ugly schema)
-print "Dumping s1styles.dat\n";
-require "$ENV{'LJHOME'}/bin/upgrading/s1style-rw.pl";
-my $ss = {};
-my $pubstyles = LJ::S1::get_public_styles({ 'formatdata' => 1});
-foreach my $s (values %$pubstyles) {
-    my $uniq = "$s->{'type'}/$s->{'styledes'}";
-    $ss->{$uniq}->{$_} = $s->{$_} foreach keys %$s;
-}
-s1styles_write($ss);
 
 # and dump mood info
 print "Dumping moods.dat\n";

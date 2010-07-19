@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Location;
 use strict;
 use warnings;
@@ -60,7 +73,16 @@ sub as_posneg_comma {
 sub as_html_current {
     my $self = shift;
     my $e_text = LJ::ehtml($self->{location} || $self->as_posneg_comma);
-    my $e_mapquery = LJ::eurl($self->as_posneg_comma || $self->{location});
+
+    my $e_mapquery;
+    ## example url from http://maps.google.com/support/bin/answer.py?answer=18539&topic=10780:
+    ## http://maps.google.com/maps?q=37.771008,+-122.41175+(You+can+insert+your+text+here)
+    if ($self->as_posneg_comma) {
+        $e_mapquery = LJ::eurl($self->as_posneg_comma);
+        $e_mapquery .= LJ::eurl(' (' . $self->{location} . ')') if $self->{location};
+    } else {
+        $e_mapquery = LJ::eurl($self->{location});
+    }
     my $map_service = $LJ::MAP_SERVICE || "http://maps.google.com/maps?q=";
     return "<a href='$map_service$e_mapquery'>$e_text</a>";
 }

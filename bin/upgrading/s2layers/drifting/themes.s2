@@ -1,0 +1,184 @@
+#NEWLAYER: drifting/blue
+layerinfo type = "theme";
+layerinfo name = "Drifting Blue";
+layerinfo redist_uniq = "drifting/blue";
+
+set color_page_background         = "#eef3fa";
+set color_page_text               = "#234163";
+set color_page_link               = "#5a799d";
+set color_page_link_visited       = "#234163";
+set color_page_link_active        = "#ff0000";
+set color_page_border             = "#5a799d";
+
+set color_header_background       = "#5a799d";
+
+set color_module_border           = "#5a799d";
+set color_module_title            = "#5a799d";
+
+set color_entry_border            = "#5a799d";
+set color_entry_background        = "#ffffff";
+set color_entry_title             = "#5a799d";
+set color_entry_text              = "#000000";
+
+set color_page_title              = "#ffffff";
+set color_page_subtitle           = "#5a799d";
+
+set image_background_header_url = "drifting/hdr_bg.jpg";
+set image_background_header_repeat = "repeat";
+set image_header_left = "drifting/hdr_left.jpg";
+set image_header_right = "drifting/hdr_right.jpg";
+set image_module_header_url = "drifting/hdr_icon.gif";
+
+#NEWLAYER: drifting/chocolatecherry
+layerinfo type = "theme";
+layerinfo name = "Chocolate Cherry";
+layerinfo redist_uniq = "drifting/chocolatecherry";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_entry_background = "#4d0012";
+set color_entry_border = "#80404f";
+set color_entry_text = "#ffe6eb";
+set color_entry_title = "#ff80eb";
+set color_module_border = "#ffe6eb";
+set color_header_background = "#000000";
+set color_module_title = "#000000";
+set color_page_background = "#80404f";
+set color_page_border = "#ffe6eb";
+set color_page_link_active = "#ff5600";
+set color_page_link = "#ff80eb";
+set color_page_link_visited = "#ff809d";
+set color_page_subtitle = "#4D0040";
+set color_page_text = "#ffe6eb";
+set color_page_title = "#804075";
+
+#NEWLAYER: drifting/go
+layerinfo type = "theme";
+layerinfo name = "Go";
+layerinfo redist_uniq = "drifting/go";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_active = "#d01b52";
+set color_page_link_visited = "#6ccf1b";
+set color_page_background = "#9dff80";
+set color_page_link = "#005030";
+set color_page_title = "#00b36e";
+set color_page_border = "#00b36e";
+set color_page_subtitle = "#6ccf1b";
+set color_module_border = "#6ccf1b";
+set color_entry_text = "#00b36e";
+set color_entry_border = "#6ccf1b";
+set color_page_text = "#00b36e";
+set color_module_title = "#00b36e";
+set color_entry_title = "#00b36e";
+
+#NEWLAYER: drifting/idolatry
+layerinfo type = "theme";
+layerinfo name = "Idolatry";
+layerinfo author_name = "zvi";
+layerinfo redist_uniq = "drifting/idolatry";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_active = "#000000";
+set color_page_background = "#470a0f";
+set color_page_link = "#be8200";
+set color_page_title = "#ffda9f";
+set color_module_border = "#45080d";
+set color_entry_text = "#470a0f";
+set color_entry_border = "#45080d";
+set color_page_text = "#470a0f";
+set color_module_title = "#be8200";
+set color_entry_title = "#ffda9f";
+set color_page_link_visited = "#f8c432";
+set color_page_border = "#45080d";
+set color_page_subtitle = "#f8c432";
+set color_entry_background = "#FFF8F0";
+
+function Page::print_theme_stylesheet() {
+
+    """
+    #footer { color: $*color_module_title ;}
+    """;
+
+}
+
+#NEWLAYER: drifting/lightondark
+layerinfo type = "theme";
+layerinfo name = "Light on Dark";
+layerinfo redist_uniq = "drifting/lightondark";
+layerinfo author_name = "cesy";
+
+set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+
+set color_page_link_active = "#ffcccc";
+set color_page_background = "#000000";
+set color_page_link = "#ddddff";
+set color_page_title = "#666666";
+set image_background_header_repeat = "repeat";
+set color_module_border = "#ffffff";
+set color_entry_text = "#ffffff";
+set color_entry_border = "#ffffff";
+set color_page_text = "#ffffff";
+set color_module_title = "#999999";
+set color_header_background = "#999999";
+set image_background_page_position = "top left";
+set color_entry_title = "#ffffff";
+set color_page_link_visited = "#ffffcc";
+set image_background_page_repeat = "repeat";
+set color_page_border = "#ffffff";
+set color_page_subtitle = "#666666";
+set color_entry_background = "#000000";
+
+#NEWLAYER: drifting/softblues
+layerinfo type = "theme";
+layerinfo name = "Soft Blues";
+layerinfo redist_uniq = "drifting/softblues";
+layerinfo author_name = "ambrya";
+ 
+set layout_authors = [ { "name" => "ambrya", "type" => "user" } ];
+
+set color_page_background = "#a59fd7";
+set color_page_text = "#1b1551";
+set color_page_link = "#295d97";
+set color_page_link_visited = "#295d97";
+set color_page_border = "#1b3f6b";
+
+set color_header_background = "#a59fd7";
+
+set color_module_border = "#1b3f6b";
+
+set color_entry_border = "#1b3f6b";
+set color_entry_background = "#928ad7";
+set color_entry_title = "#2300a3";
+
+set color_page_subtitle = "#295d97";
+
+set image_header_right = "drifting/softblues-hdr_right.jpg";
+
+
+function Page::print_theme_stylesheet() {
+    """
+    #header h1#title {
+        margin-left: 10px;
+    }
+
+    #header h2#subtitle {
+        margin-left: 110px;
+    }
+
+    #header,
+    .header-right {
+        height: 5.813em;
+    }
+
+    .header-right {
+        background-position: top right;
+        background-repeat: no-repeat;
+        width: 250px;
+    }
+    """;
+}

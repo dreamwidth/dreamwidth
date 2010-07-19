@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 nocache=>1
 _info?><?page
@@ -24,62 +38,6 @@ body<=
 
     ### perform actions according to the action type
 
-    # invite users to communities
-    if ($aa->{'action'} eq 'comm_invite') {
-
-        my $dbh = LJ::get_db_writer();
-
-        my $targetid = $arg->{'targetid'};
-        return LJ::bad_input($ML{'.error.internerr.invalidaction'}) unless $targetid;
-
-        # add to community
-        if ($arg->{'member'}) {
-            LJ::add_friend($aa->{userid}, $targetid);
-        }
-
-        # set up rels with this community
-        my @rels = ();
-        push @rels, 'A' if $arg->{'admin'};
-        push @rels, 'P' if $arg->{'post'};
-        push @rels, 'M' if $arg->{'moderate'};
-        push @rels, 'N' if $arg->{'preapprove'};
-
-        if (@rels) {
-            LJ::set_rel_multi( map { [$aa->{userid}, $targetid, $_] } @rels );
-        }
-
-        # mark this authaction as used
-        $dbh->do("UPDATE authactions SET used='Y' WHERE aaid=?", undef, $aa->{'aaid'});
-
-        # return success
-        my $username = LJ::get_username($aa->{'userid'});
-        return "<?h1 $ML{'.comm.success'} h1?>".
-               '<?p '.BML::ml('.comm.text',
-               {'comm'=>LJ::ljuser($username),
-                'aopts'=>'href="'.$LJ::SITEROOT.'/friends/add.bml?user='.$username.'"'}).
-               ' p?>';
-    }
-
-    # invite users to shared journals
-    if ($aa->{'action'} eq 'shared_invite') {
-        my $dbh = LJ::get_db_writer();
-
-        my $targetid = $arg->{'targetid'};
-        return LJ::bad_input($ML{'.error.internerr.invalidaction'}) unless $targetid;
-
-        LJ::set_rel($aa->{'userid'}, $targetid, 'P');
-
-        # mark this authaction as used
-        $dbh->do("UPDATE authactions SET used='Y' WHERE aaid=?", undef, $aa->{'aaid'});
-
-        my $username = LJ::get_username($aa->{'userid'});
-        return "<?h1 $ML{'.shared.success'} h1?>".
-               '<?p '.BML::ml('.shared.text',
-               {'shared'=>LJ::ljuser($username),
-                'aopts'=>'href="'.$LJ::SITEROOT.'/friends/add.bml?user='.$username.'"'}).
-               ' p?>';
-    }
-
     # approve someone joining a community
     if ($aa->{action} eq 'comm_join_request') {
         my $dbh = LJ::get_db_writer();
@@ -99,7 +57,7 @@ body<=
                '<?p ' . BML::ml('.commjoin.text', {
                            user => LJ::ljuser($username),
                            comm => LJ::ljuser($commname),
-                           aopts => "href=\"$LJ::SITEROOT/community/members.bml?comm=$commname\"",
+                           aopts => "href=\"$LJ::SITEROOT/community/members.bml?authas=$commname\"",
                         }) . ' p?>';
     }
 

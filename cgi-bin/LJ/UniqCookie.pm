@@ -1,4 +1,17 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 package LJ::UniqCookie;
 
@@ -97,7 +110,7 @@ sub set_memcache_by_user {
     my $uid = LJ::want_userid($u_arg)
         or croak "invalid user arg: $u_arg";
 
-    # we store uid => [] and uniq => [], so defined but false 
+    # we store uid => [] and uniq => [], so defined but false
     # is okay as a value of these memcache keys, but not as part of the key
     my $exptime = 3600;
     LJ::MemCache::set("uid2uniqs:$uid" => $uniq_list, $exptime);
@@ -131,7 +144,7 @@ sub set_memcache_by_uniq {
         push @userids, $uid;
     }
 
-    # we store uid => [] and uniq => [], so defined but false 
+    # we store uid => [] and uniq => [], so defined but false
     # is okay as a value of these memcache keys, but not as part of the key
     my $exptime = 3600;
     LJ::MemCache::set("uniq2uids:$uniq" => \@userids, $exptime);
@@ -161,7 +174,7 @@ sub save_mapping {
     my $dbh = LJ::get_db_writer()
         or die "unable to contact global master for uniq mapping";
 
-    # allow tests to specify an insertion time callback which specifies 
+    # allow tests to specify an insertion time callback which specifies
     # how we calculate insertion times for rows
     my $time_sql = "UNIX_TIMESTAMP()";
     if ($LJ::_T_UNIQCOOKIE_MODTIME_CB) {
@@ -180,7 +193,7 @@ sub save_mapping {
     $class->clear_request_cache;
 
     # we clean on cache misses in ->load_mapping, but we also want
-    # to randomly clean on write actions so that we don't end up 
+    # to randomly clean on write actions so that we don't end up
     # with users who write many rows but for some reason never
     # load any rows, and are therefore never cleaned
     if ($class->should_lazy_clean) {
@@ -212,15 +225,14 @@ sub is_disabled {
     my $remote = LJ::get_remote();
     my $uniq   = $class->current_uniq;
 
-    return 1 unless $LJ::UNIQ_COOKIES;
-    return LJ::conf_test($LJ::DISABLED{uniq_mapping}, $remote, $uniq);
+    return ! LJ::is_enabled('uniq_mapping', $remote, $uniq);
 }
 
 sub guess_remote {
     my $class = shift;
 
     my $uniq = $class->current_uniq;
-    return undef unless $uniq;
+    return unless $uniq;
 
     my $uid = $class->load_mapping( uniq => $uniq );
     return LJ::load_userid($uid);
@@ -230,7 +242,7 @@ sub guess_remote {
 # if 'remote' passed in, returns mapped uniq
 sub load_mapping {
     my $class = shift;
-    return undef if $class->is_disabled;
+    return if $class->is_disabled;
 
     my %opts = @_;
 
@@ -380,7 +392,7 @@ sub ensure_cookie_value {
     my $class = shift;
     return unless LJ::is_web_context();
 
-    my $r = BML::get_request();
+    my $r = DW::Request->get;
     return unless $r;
     
     my ($uniq, $uniq_time, $uniq_extra) = $class->parts_from_cookie;
@@ -401,15 +413,15 @@ sub ensure_cookie_value {
 
     my $new_cookie_value = "$uniq:$now";
     my $hook_saved_mapping = 0;
-    if (LJ::are_hooks('transform_ljuniq_value')) {
-        $new_cookie_value = LJ::run_hook
+    if (LJ::Hooks::are_hooks('transform_ljuniq_value')) {
+        $new_cookie_value = LJ::Hooks::run_hook
             ('transform_ljuniq_value',
              { value => $new_cookie_value,
                extra => $uniq_extra,
                hook_saved_mapping => \$hook_saved_mapping});
 
         # if it changed the actual uniq identifier (first part)
-        # then we'll need to 
+        # then we'll need to
         $uniq = $class->parts_from_value($new_cookie_value);
     }
 
@@ -425,10 +437,13 @@ sub ensure_cookie_value {
     # set uniq cookies for all cookie_domains
     my @domains = ref $LJ::COOKIE_DOMAIN ? @$LJ::COOKIE_DOMAIN : ($LJ::COOKIE_DOMAIN);
     foreach my $dom (@domains) {
-        $r->err_headers_out->add("Set-Cookie" =>
-                                 "ljuniq=$new_cookie_value; " .
-                                 "expires=" . LJ::time_to_cookie($now + 86400*60) . "; " .
-                                 ($dom ? "domain=$dom; " : "") . "path=/");
+        $r->add_cookie(
+            name    => 'ljuniq',
+            value   => $new_cookie_value,
+            expires => '+60d',
+            domain  => $dom || undef,
+            path    => '/'
+        );
     }
 
     return;
@@ -440,13 +455,12 @@ sub sysban_should_block {
 
     my $r = BML::get_request();
     my $uri = $r->uri;
+    return 0 if $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0;
 
     # if cookie exists, check for sysban
     if (my @cookieparts = $class->parts_from_cookie) {
         my ($uniq, $uniq_time, $uniq_extra) = @cookieparts;
-        if (LJ::sysban_check('uniq', $uniq) && index($uri, $LJ::BLOCKED_BOT_URI) != 0) {
-            return 1;
-        }
+        return 1 if LJ::sysban_check( 'uniq', $uniq );
     }
 
     return 0;
@@ -457,14 +471,9 @@ sub parts_from_cookie {
     my $class = shift;
     return unless LJ::is_web_context();
 
-    my $r = BML::get_request();
-    my $cookieval = $r->headers_in->{"Cookie"};
+    my $r = DW::Request->get;
 
-    if ($cookieval =~ /\bljuniq\s*=\s*([a-zA-Z0-9]{15}):(\d+)([^;]+)/) {
-        return wantarray() ? ($1, $2, $3) : $1;
-    }
-
-    return;
+    return $class->parts_from_value( $r->cookie( 'ljuniq' ) );
 }
 
 # returns: (uniq_val, uniq_time, uniq_extra)
@@ -506,13 +515,13 @@ sub current_uniq {
     return $val if $val;
 
     # otherwise, legacy place is in $r->notes
-    return undef unless LJ::is_web_context();
+    return unless LJ::is_web_context();
 
     my $r = BML::get_request();
 
     # see if a uniq is set for this request
     # -- this accounts for cases when the cookie was initially
-    #    set in this request, so it wasn't received in an 
+    #    set in this request, so it wasn't received in an
     #    incoming headerno cookie was sent in
     return $r->notes->{uniq};
 }

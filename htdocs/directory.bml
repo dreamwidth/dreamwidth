@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 body<=
 <?_code
@@ -7,7 +21,7 @@ body<=
     use LJ::Widget;
     use vars qw(%GET %POST %FORM $title $headextra @errors @warnings);
 
-    $title = 'Directory Search';
+    $title = $ML{'.title'};
 
     LJ::need_res(qw(
                     stc/directory.css
@@ -18,7 +32,7 @@ body<=
     return "<?needlogin?>" unless $remote;
 
     return LJ::CProd->inline($remote, inline => 'Directory') || BML::ml('cprod.directory.text3.v1')
-        unless $remote->get_cap("directory");
+        unless $remote->can_use_directory;
 
     my $ret = '';
 
@@ -35,13 +49,16 @@ body<=
             $count{$_->{'statcat'}}->{$_->{'statkey'}} = $_->{'statval'};
         }
 
+        my $mapimg = LJ::img( 'us_map', '', { id => "USMap", border => 0,
+                                              usemap => "#state_test",
+                                              ismap => 'ismap' } );
         $ret .= qq {
             <div id="States">
                 <?h1 $ML{'.browse.usa.title'} h1?>
                 <?p $ML{'.browse.usa.desc'} p?>
                 <form action='get' name="stateForm">
                 <div>
-                <img id="USMap" alt="US Map" src="$LJ::IMGPREFIX/us_map.gif" width='489' height='315' border='0' usemap="#state_test" ismap='ismap' />
+                $mapimg
                 <div id="StateInfo"></div>
                 </div>
                 </form>
@@ -116,7 +133,7 @@ body<=
             next unless ($count{'stateus'}->{$state});
             my $shape = "poly";
             if ($coords =~ /^[^,]+,[^,]+,[^,]+,[^,]+$/) { $shape = "RECTANGLE"; }
-            $ret .= "<area shape='$shape' alt='$state' coords=\"$coords\" href=\"/directory.bml?s_loc=1&amp;loc_cn=US&amp;loc_st=$state&amp;opt_sort=ut\" onmouseover=\"Directory.updateStatus('";
+            $ret .= "<area shape='$shape' alt='$state' coords=\"$coords\" href=\"/directory?s_loc=1&amp;loc_cn=US&amp;loc_st=$state&amp;opt_sort=ut\" onmouseover=\"Directory.updateStatus('";
             $ret .= BML::eall($state{$state});
             $ret .= " - ";
             $ret .= ($count{'stateus'}->{$state}+0);
@@ -146,7 +163,7 @@ body<=
         foreach (sort { $country{$a} cmp $country{$b} } keys %{$count{'country'}})
         {
             $count++;
-            $ret .= "<li><a href=\"/directory.bml?s_loc=1&amp;loc_cn=$_&amp;opt_sort=ut\">$country{$_}</a> <i>($count{'country'}->{$_})</i></li>\n";
+            $ret .= "<li><a href=\"/directory?s_loc=1&amp;loc_cn=$_&amp;opt_sort=ut\">$country{$_}</a> <i>($count{'country'}->{$_})</i></li>\n";
             if ($col==0 && $count > ($total/2)) { $ret .= "</ul></td><td align='left'><ul>"; $col = 1; }
         }
         $ret .= "</ul></td></tr></table></div>";
@@ -168,9 +185,10 @@ body<=
         $refurl .= ($args ? "&" : "?") . 'start_search=1';
         $headextra = "<meta http-equiv='Refresh' content='1;URL=$refurl' id='refresher' />";
 
+        my $dots = LJ::img( 'searchdots', '' );
         $ret .= qq {
             <div id="SearchWaitText" style='text-align: center;'>
-               <b>$ML{'.search.title'}<img src='$LJ::IMGPREFIX/searchingdots.gif' alt='...' width='18' height='12' /></b>
+               <b>$ML{'.search.title'}$dots</b>
                <p>$ML{'.search.monkey'}</p>
             </div>
         };
@@ -181,17 +199,50 @@ body<=
     # Do the actual search
 
     my $url = "$LJ::SITEROOT/";
-    $url .= $GET{journaltype} && $GET{journaltype} eq "C" ? "community/search.bml"
-                                                          : "directorysearch.bml";
+    $url .= $GET{journaltype} && $GET{journaltype} eq "C" ? "community/search"
+                                                          : "directorysearch";
     $ret .= qq {
         <div id="NewSearch">
-            <a href="$url"><< New search</a>
+            <a href="$url"><< $ML{'.new_search'}</a>
         </div>
-        <?h1 Search Results h1?>
     };
 
-    if (LJ::run_hook("interest_search_ignore", query => $GET{int_like})) {
-        $ret .= "Sorry, we're unable to help you find users matching the interests you've provided.";
+    $ret .= qq {
+        <?h1 $ML{'.search_results'} h1?>
+    };
+
+
+    my ( $uri, $args ) = ( BML::get_uri(), BML::get_query_string() );
+
+    $args =~ s/(\?|\&)page=\d*//gi;
+    $args =~ s/(\?|\&)journaltype=[CPI]?//gi;
+    $args =~ s/(\?|\&)start_search=\d*//gi;
+    $uri .= '?' . $args if $args;
+
+    my $filter_url = LJ::ehtml( $LJ::SITEROOT . $uri );
+    $filter_url .= ($args ? "&" : "?") . 'start_search=1';
+
+    my $all_search = "$ML{'.new_all_search'}";
+    $all_search = "<a href='$filter_url'>$all_search</a>"
+        if uc( $GET{journaltype} ) =~ /^[CPI]$/;
+
+    my $community_search = "$ML{'.new_community_search'}";
+    $community_search = "<a href='$filter_url&journaltype=C'>$community_search</a>"
+        unless uc( $GET{journaltype} ) eq 'C';
+
+    my $user_search = "$ML{'.new_user_search'}";
+    $user_search = "<a href='$filter_url&journaltype=P'>$user_search</a>"
+        unless uc( $GET{journaltype} ) eq 'P';
+
+    my $identity_search = "$ML{ '.new_identity_search' }";
+    $identity_search = "<a href='$filter_url&journaltype=I'>$identity_search</a>"
+        unless uc( $GET{journaltype} ) eq 'I';
+
+    $ret .= qq {\n<div id="FilterSearch">$ML{'.new_search_show'}&nbsp;$all_search&nbsp;|&nbsp;};
+    $ret .= qq {$community_search&nbsp;|&nbsp;$user_search&nbsp;|&nbsp;$identity_search</div>\n};
+
+    if (LJ::Hooks::run_hook("interest_search_ignore", query => $GET{int_like})) {
+        $ret .= $ML{'.unable_find_users'};
         return $ret;
     }
 
@@ -216,7 +267,7 @@ body<=
     $res = $dir->search while !$res;
 
     unless ($res) {
-        $ret .= "<?errorbar There was an error searching the directory. Please try again in a few minutes. errorbar?>";
+        $ret .= "<?errorbar $ML{'.errar.search_dir'} errorbar?>";
         return $ret;
     }
 
@@ -224,7 +275,7 @@ body<=
     my @users     = $res->users;
 
     unless (@users) {
-        $ret .= "<?standout No Results Found! standout?>";
+        $ret .= "<?standout $ML{'.no_results'} standout?>";
         return $ret;
     }
 

@@ -9,7 +9,7 @@
 
 .label.infoerror=The specified community information is not valid.
 
-.label.lastmaintainer=You are not allowed to leave this community because you are the sole maintainer.  If you wish to leave the community, please appoint another maintainer and then try leaving again.
+.label.lastmaintainer.deletedcomm=You are the last maintainer for this deleted community. If you leave now, it will not be possible to restore the community, should you change your mind in the future.
 
 .label.logoutfirst2=To leave a community you must first <a [[aopts]]>log in</a>.
 
@@ -21,7 +21,7 @@
 
 .label.removed5=You are now removed from the [[commname]] Community.
 
-.label.removefromfriends=Also remove "[[user]]" from friends list.
+.label.removefromfriends=Also remove "[[user]]" from subscriptions.
 
 .success=Success
 

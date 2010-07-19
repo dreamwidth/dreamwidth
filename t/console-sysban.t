@@ -1,12 +1,14 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'sysban.pl';
 use LJ::Console;
 use LJ::Test qw (temp_user);
 local $LJ::T_NO_COMMAND_PRINT = 1;
+
+plan tests => 6;
 
 my $u = temp_user();
 LJ::set_remote($u);

@@ -1,36 +1,32 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ;
 use strict;
+use Carp qw/ croak /;
 
 # <LJFUNC>
 # name: LJ::load_userpics
-# des: Loads a bunch of userpic at once.
+# des: Loads a bunch of userpics at once.
 # args: dbarg?, upics, idlist
 # des-upics: hashref to load pictures into, keys being the picids.
 # des-idlist: [$u, $picid] or [[$u, $picid], [$u, $picid], +] objects
 #             also supports deprecated old method, of an array ref of picids.
 # </LJFUNC>
-sub load_userpics
-{
-    &nodb;
+sub load_userpics {
     my ($upics, $idlist) = @_;
 
     return undef unless ref $idlist eq 'ARRAY' && $idlist->[0];
-
-    # deal with the old calling convention, just an array ref of picids eg. [7, 4, 6, 2]
-    if (! ref $idlist->[0] && $idlist->[0]) { # assume we have an old style caller
-        my $in = join(',', map { $_+0 } @$idlist);
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT userid, picid, width, height " .
-                                "FROM userpic WHERE picid IN ($in)");
-
-        $sth->execute;
-        while ($_ = $sth->fetchrow_hashref) {
-            my $id = $_->{'picid'};
-            undef $_->{'picid'};
-            $upics->{$id} = $_;
-        }
-        return;
-    }
 
     # $idlist needs to be an arrayref of arrayrefs,
     # HOWEVER, there's a special case where it can be
@@ -70,16 +66,11 @@ sub load_userpics
     }
 
     my %db_load;
-    my @load_list_d6;
     foreach my $row (@load_list) {
         # ignore users on clusterid 0
         next unless $row->[0]->{clusterid};
 
-        if ($row->[0]->{'dversion'} > 6) {
-            push @{$db_load{$row->[0]->{'clusterid'}}}, $row;
-        } else {
-            push @load_list_d6, $row;
-        }
+        push @{$db_load{$row->[0]->{clusterid}}}, $row;
     }
 
     foreach my $cid (keys %db_load) {
@@ -115,36 +106,6 @@ sub load_userpics
             LJ::MemCache::set([$id,"userpic.$id"], LJ::MemCache::hash_to_array("userpic", $ur));
         }
     }
-
-    # following path is only for old style d6 userpics... don't load any if we don't
-    # have any to load
-    return unless @load_list_d6;
-
-    my $dbr = LJ::get_db_writer();
-    my $picid_in = join(',', map { $_->[1] } @load_list_d6);
-    my $sth = $dbr->prepare("SELECT userid, picid, width, height, contenttype, state, ".
-                            "       UNIX_TIMESTAMP(picdate) AS 'picdate' ".
-                            "FROM userpic WHERE picid IN ($picid_in)");
-    $sth->execute;
-    while (my $ur = $sth->fetchrow_hashref) {
-        my $id = delete $ur->{'picid'};
-        $upics->{$id} = $ur;
-
-        # force into numeric context so they'll be smaller in memcache:
-        foreach my $k (qw(userid width height picdate)) {
-            $ur->{$k} += 0;
-        }
-        $ur->{location} = "?";
-        $ur->{flags} = undef;
-        $ur->{fmt} = {
-            'image/gif' => 'G',
-            'image/jpeg' => 'J',
-            'image/png' => 'P',
-        }->{delete $ur->{contenttype}};
-
-        $LJ::CACHE_USERPIC{$id} = $ur;
-        LJ::MemCache::set([$id,"userpic.$id"], LJ::MemCache::hash_to_array("userpic", $ur));
-    }
 }
 
 # <LJFUNC>
@@ -167,47 +128,30 @@ sub expunge_userpic {
     # get the pic information
     my $state;
 
-    if ($u->{'dversion'} > 6) {
-        my $dbcm = LJ::get_cluster_master($u);
-        return undef unless $dbcm && $u->writer;
+    my $dbcm = LJ::get_cluster_master( $u );
+    return undef unless $dbcm && $u->writer;
 
-        $state = $dbcm->selectrow_array('SELECT state FROM userpic2 WHERE userid = ? AND picid = ?',
-                                        undef, $u->{'userid'}, $picid);
-        return undef unless $state; # invalid pic
-        return $u->{'userid'} if $state eq 'X'; # already expunged
+    $state = $dbcm->selectrow_array( 'SELECT state FROM userpic2 WHERE userid = ? AND picid = ?',
+                                     undef, $u->userid, $picid );
+    return undef unless $state; # invalid pic
+    return $u->userid if $state eq 'X'; # already expunged
 
-        # else now mark it
-        $u->do("UPDATE userpic2 SET state='X' WHERE userid = ? AND picid = ?", undef, $u->{'userid'}, $picid);
-        return LJ::error($dbcm) if $dbcm->err;
-        $u->do("DELETE FROM userpicmap2 WHERE userid = ? AND picid = ?", undef, $u->{'userid'}, $picid);
-    } else {
-        my $dbr = LJ::get_db_reader();
-        return undef unless $dbr;
-
-        $state = $dbr->selectrow_array('SELECT state FROM userpic WHERE picid = ?',
-                                       undef, $picid);
-        return undef unless $state; # invalid pic
-        return $u->{'userid'} if $state eq 'X'; # already expunged
-
-        # else now mark it
-        my $dbh = LJ::get_db_writer();
-        return undef unless $dbh;
-        $dbh->do("UPDATE userpic SET state='X' WHERE picid = ?", undef, $picid);
-        return LJ::error($dbh) if $dbh->err;
-        $dbh->do("DELETE FROM userpicmap WHERE userid = ? AND picid = ?", undef, $u->{'userid'}, $picid);
-    }
+    # else now mark it
+    $u->do( "UPDATE userpic2 SET state='X' WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
+    return LJ::error( $dbcm ) if $dbcm->err;
+    $u->do( "DELETE FROM userpicmap2 WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
 
     # now clear the user's memcache picture info
-    LJ::Userpic->delete_cache($u);
+    LJ::Userpic->delete_cache( $u );
 
     # call the hook and get out of here
-    my @rval = LJ::run_hooks('expunge_userpic', $picid, $u->{'userid'});
-    return ($u->{'userid'}, map {$_->[0]} grep {$_ && @$_ && $_->[0]} @rval);
+    my @rval = LJ::Hooks::run_hooks( 'expunge_userpic', $picid, $u->userid );
+    return ( $u->userid, map {$_->[0]} grep {$_ && @$_ && $_->[0]} @rval );
 }
 
 # <LJFUNC>
 # name: LJ::activate_userpics
-# des: Wrapper around LJ::User->activate_userpics for compatibility.
+# des: des: Wrapper around [func[LJ::User::activate_userpics]] for compatibility.
 # args: uuserid
 # returns: undef on failure 1 on success
 # </LJFUNC>
@@ -230,7 +174,7 @@ sub activate_userpics
 # des: Given a user, gets their userpic information.
 # args: uuid, opts?
 # des-uuid: userid, or user object.
-# des-opts: Optional; hash of options, 'load_comments'.
+# des-opts: Optional; hash of options, 'load_comments', 'load_urls', 'load_descriptions'.
 # returns: hash of userpicture information;
 #          for efficiency, we store the userpic structures
 #          in memcache in a packed format.
@@ -251,14 +195,14 @@ sub get_userpic_info
     my $u = LJ::want_user($uuid); # This should almost always be in memory already
     return undef unless $u && $u->{clusterid};
 
-    # in the cache, cool, well unless it doesn't have comments or urls
+    # in the cache, cool, well unless it doesn't have comments or urls or descriptions
     # and we need them
     if (my $cachedata = $LJ::CACHE_USERPIC_INFO{$userid}) {
         my $good = 1;
-        if ($u->{'dversion'} > 6) {
-            $good = 0 if $opts->{'load_comments'} && ! $cachedata->{'_has_comments'};
-            $good = 0 if $opts->{'load_urls'} && ! $cachedata->{'_has_urls'};
-        }
+        $good = 0 if $opts->{load_comments} && ! $cachedata->{_has_comments};
+        $good = 0 if $opts->{load_urls} && ! $cachedata->{_has_urls};
+        $good = 0 if $opts->{load_descriptions} && ! $cachedata->{_has_descriptions};
+
         return $cachedata if $good;
     }
 
@@ -299,55 +243,75 @@ sub get_userpic_info
             }
         }
 
-        if ($u->{'dversion'} > 6) {
+        # Load picture comments
+        if ( $opts->{load_comments} ) {
+            my $commemkey = [$u->userid, "upiccom:" . $u->userid];
+            my $comminfo = LJ::MemCache::get( $commemkey );
 
-            # Load picture comments
-            if ($opts->{'load_comments'}) {
-                my $commemkey = [$u->{'userid'}, "upiccom:$u->{'userid'}"];
-                my $comminfo = LJ::MemCache::get($commemkey);
-
-                if ($comminfo) {
-                    my ($pos, $nulpos);
-                    $pos = $nulpos = 0;
-                    while (($nulpos = index($comminfo, "\0", $pos)) > 0) {
-                        my $comment = substr($comminfo, $pos, $nulpos-$pos);
-                        my $id = unpack("N", substr($comminfo, $nulpos+1, 4));
-                        $pos = $nulpos + 5; # skip NUL + 4 bytes.
-                        $info->{'pic'}->{$id}->{'comment'} = $comment;
-                        $info->{'comment'}->{$id} = $comment;
-                    }
-                    $info->{'_has_comments'} = 1;
-                } else { # Requested to load comments, but they aren't in memcache
-                         # so force a db load
-                    undef $info;
+            if ( defined( $comminfo ) ) {
+                my ( $pos, $nulpos );
+                $pos = $nulpos = 0;
+                while ( ($nulpos = index( $comminfo, "\0", $pos )) > 0 ) {
+                    my $comment = substr( $comminfo, $pos, $nulpos-$pos );
+                    my $id = unpack( "N", substr( $comminfo, $nulpos+1, 4 ) );
+                    $pos = $nulpos + 5; # skip NUL + 4 bytes.
+                    $info->{pic}->{$id}->{comment} = $comment;
+                    $info->{comment}->{$id} = $comment;
                 }
+                $info->{_has_comments} = 1;
+            } else { # Requested to load comments, but they aren't in memcache
+                     # so force a db load
+                undef $info;
             }
+        }
 
-            # Load picture urls
-            if ($opts->{'load_urls'} && $info) {
-                my $urlmemkey = [$u->{'userid'}, "upicurl:$u->{'userid'}"];
-                my $urlinfo = LJ::MemCache::get($urlmemkey);
+        # Load picture urls
+        if ( $opts->{load_urls} && $info ) {
+            my $urlmemkey = [$u->userid, "upicurl:" . $u->userid];
+            my $urlinfo = LJ::MemCache::get( $urlmemkey );
 
-                if ($urlinfo) {
-                    my ($pos, $nulpos);
-                    $pos = $nulpos = 0;
-                    while (($nulpos = index($urlinfo, "\0", $pos)) > 0) {
-                        my $url = substr($urlinfo, $pos, $nulpos-$pos);
-                        my $id = unpack("N", substr($urlinfo, $nulpos+1, 4));
-                        $pos = $nulpos + 5; # skip NUL + 4 bytes.
-                        $info->{'pic'}->{$id}->{'url'} = $url;
-                    }
-                    $info->{'_has_urls'} = 1;
-                } else { # Requested to load urls, but they aren't in memcache
-                         # so force a db load
-                    undef $info;
+            if ( defined( $urlinfo ) ) {
+                my ( $pos, $nulpos );
+                $pos = $nulpos = 0;
+                while ( ($nulpos = index( $urlinfo, "\0", $pos )) > 0 ) {
+                    my $url = substr( $urlinfo, $pos, $nulpos-$pos );
+                    my $id = unpack( "N", substr( $urlinfo, $nulpos+1, 4 ) );
+                    $pos = $nulpos + 5; # skip NUL + 4 bytes.
+                    $info->{pic}->{$id}->{url} = $url;
                 }
+                $info->{_has_urls} = 1;
+            } else { # Requested to load urls, but they aren't in memcache
+                     # so force a db load
+                undef $info;
+            }
+        }
+
+        # Load picture descriptions
+        if ( $opts->{load_descriptions} && $info ) {
+            my $descmemkey = [$u->userid, "upicdes:" . $u->userid];
+            my $descinfo = LJ::MemCache::get( $descmemkey );
+
+            if ( defined ( $descinfo ) ) {
+                my ( $pos, $nulpos );
+                $pos = $nulpos = 0;
+                while ( ($nulpos = index( $descinfo, "\0", $pos )) > 0 ) {
+                    my $description = substr( $descinfo, $pos, $nulpos-$pos );
+                    my $id = unpack( "N", substr( $descinfo, $nulpos+1, 4 ) );
+                    $pos = $nulpos + 5; # skip NUL + 4 bytes.
+                    $info->{pic}->{$id}->{description} = $description;
+                    $info->{description}->{$id} = $description;
+                }
+                $info->{_has_descriptions} = 1;
+            } else { # Requested to load descriptions, but they aren't in memcache
+                     # so force a db load
+                undef $info;
             }
         }
     }
 
     my %minfocom; # need this in this scope
     my %minfourl;
+    my %minfodesc;
     unless ($info) {
         $info = {
             'pic' => {},
@@ -359,36 +323,28 @@ sub get_userpic_info
         my $db = @LJ::MEMCACHE_SERVERS ? LJ::get_db_writer() : LJ::get_db_reader();
         return undef unless $dbcr && $db;
 
-        if ($u->{'dversion'} > 6) {
-            $sth = $dbcr->prepare("SELECT picid, width, height, state, userid, comment, url ".
-                                  "FROM userpic2 WHERE userid=?");
-        } else {
-            $sth = $db->prepare("SELECT picid, width, height, state, userid ".
-                                "FROM userpic WHERE userid=?");
-        }
-        $sth->execute($u->{'userid'});
+        $sth = $dbcr->prepare( "SELECT picid, width, height, state, userid, comment, url, description ".
+                               "FROM userpic2 WHERE userid=?" );
+        $sth->execute( $u->userid );
         my @pics;
         while (my $pic = $sth->fetchrow_hashref) {
             next if $pic->{state} eq 'X'; # no expunged pics in list
             push @pics, $pic;
             $info->{'pic'}->{$pic->{'picid'}} = $pic;
-            $minfocom{int($pic->{picid})} = $pic->{comment} if $u->{'dversion'} > 6
-                && $opts->{'load_comments'} && $pic->{'comment'};
-            $minfourl{int($pic->{'picid'})} = $pic->{'url'} if $u->{'dversion'} > 6
-                && $opts->{'load_urls'} && $pic->{'url'};
+            $minfocom{int($pic->{picid})} = $pic->{comment}
+                if $opts->{load_comments} && $pic->{comment};
+            $minfourl{int($pic->{picid})} = $pic->{url}
+                if $opts->{load_urls} && $pic->{url};
+            $minfodesc{int($pic->{picid})} = $pic->{description}
+                if $opts->{load_descriptions} && $pic->{description}; 
         }
 
 
         $picstr = join('', map { pack("NCCA", $_->{picid},
                                  $_->{width}, $_->{height}, $_->{state}) } @pics);
 
-        if ($u->{'dversion'} > 6) {
-            $sth = $dbcr->prepare("SELECT k.keyword, m.picid FROM userpicmap2 m, userkeywords k ".
-                                  "WHERE k.userid=? AND m.kwid=k.kwid AND m.userid=k.userid");
-        } else {
-            $sth = $db->prepare("SELECT k.keyword, m.picid FROM userpicmap m, keywords k ".
-                                "WHERE m.userid=? AND m.kwid=k.kwid");
-        }
+        $sth = $dbcr->prepare( "SELECT k.keyword, m.picid FROM userpicmap2 m, userkeywords k ".
+                               "WHERE k.userid=? AND m.kwid=k.kwid AND m.userid=k.userid" );
         $sth->execute($u->{'userid'});
         my %minfokw;
         while (my ($kw, $id) = $sth->fetchrow_array) {
@@ -403,30 +359,37 @@ sub get_userpic_info
         $minfo = [ $VERSION_PICINFO, $picstr, $kwstr ];
         LJ::MemCache::set($memkey, $minfo);
 
-        if ($u->{'dversion'} > 6) {
+        if ( $opts->{load_comments} ) {
+            $info->{comment} = \%minfocom;
+            my $commentstr = join( '', map { pack( "Z*N", $minfocom{$_}, $_ ) } keys %minfocom );
 
-            if ($opts->{'load_comments'}) {
-                $info->{'comment'} = \%minfocom;
-                my $commentstr = join('', map { pack("Z*N", $minfocom{$_}, $_) } keys %minfocom);
+            my $memkey = [$u->userid, "upiccom:" . $u->userid];
+            LJ::MemCache::set( $memkey, $commentstr );
 
-                my $memkey = [$u->{'userid'}, "upiccom:$u->{'userid'}"];
-                LJ::MemCache::set($memkey, $commentstr);
+            $info->{_has_comments} = 1;
+        }
 
-                $info->{'_has_comments'} = 1;
-            }
+        if ($opts->{load_urls}) {
+            my $urlstr = join( '', map { pack( "Z*N", $minfourl{$_}, $_ ) } keys %minfourl );
 
-            if ($opts->{'load_urls'}) {
-                my $urlstr = join('', map { pack("Z*N", $minfourl{$_}, $_) } keys %minfourl);
+            my $memkey = [$u->userid, "upicurl:" . $u->userid];
+            LJ::MemCache::set( $memkey, $urlstr );
 
-                my $memkey = [$u->{'userid'}, "upicurl:$u->{'userid'}"];
-                LJ::MemCache::set($memkey, $urlstr);
+            $info->{_has_urls} = 1;
+        }
 
-                $info->{'_has_urls'} = 1;
-            }
+        if ($opts->{load_descriptions}) {
+            $info->{description} = \%minfodesc;
+            my $descstring = join( '', map { pack( "Z*N", $minfodesc{$_}, $_ ) } keys %minfodesc );
+
+            my $memkey = [$u->userid, "upicdes:" . $u->userid];
+            LJ::MemCache::set( $memkey, $descstring );
+
+            $info->{_has_descriptions} = 1;
         }
     }
 
-    $LJ::CACHE_USERPIC_INFO{$u->{'userid'}} = $info;
+    $LJ::CACHE_USERPIC_INFO{$u->userid} = $info;
     return $info;
 }
 

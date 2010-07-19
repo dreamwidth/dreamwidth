@@ -1,10 +1,20 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Message;
 use strict;
 use Carp qw/ croak /;
-
-use Class::Autouse qw(
-                      LJ::Typemap
-                      );
+use LJ::Typemap;
 
 my %singletons = (); # journalid-msgid
 
@@ -22,6 +32,13 @@ sub new {
 
     # unknown fields
     croak("Invalid fields: " . join(",", keys %$opts)) if (%$opts);
+
+    # Handle renamed users
+    my $other_u = LJ::want_user($self->{otherid});
+    if ($other_u && $other_u->is_renamed) {
+        $other_u = $other_u->get_renamed_user;
+        $self->{otherid} = $other_u->{userid};
+    }
 
     my $journalid = $self->{journalid} || undef;
     my $msgid = $self->{msgid} || undef;
@@ -80,12 +97,16 @@ sub save_to_db {
     my $same_cluster = $orig_u->clusterid eq $rcpt_u->clusterid;
 
     # Begin DB Transaction
-    my $o_rv = $orig_u->begin_work;
-    my $r_rv = $rcpt_u->begin_work unless $same_cluster;
+    my ( $o_rv, $r_rv );
+    $o_rv = $orig_u->begin_work;
+    $r_rv = $rcpt_u->begin_work
+        unless $same_cluster;
 
     # Write to DB
-    my $orig_write = $self->_save_sender_message;
     my $rcpt_write = $self->_save_recipient_message;
+    # Already inserted in _save_sender_message, when sending to yourself
+    my $orig_write = $orig_u->equals( $rcpt_u ) ? 1 : $self->_save_sender_message;
+
     if ($orig_write && $rcpt_write) {
         $orig_u->commit;
         $rcpt_u->commit unless $same_cluster;
@@ -361,14 +382,18 @@ sub can_send {
     my $ou = $self->_orig_u;
     my $ru = $self->_rcpt_u;
 
-    # Can't send to yourself
-    if ($ou->equals($ru)) {
-        push @$errors, BML::ml('error.message.yourself');
-    }
-
     # Can only send to other individual users
     unless ($ru->is_person || $ru->is_identity) {
         push @$errors, BML::ml('error.message.individual', { 'ljuser' => $ru->ljuser_display });
+        return 0;
+    }
+
+    # Can not send to deleted or expunged journals
+    if ($ru->is_deleted || $ru->is_expunged) {
+        push @$errors,
+             $ru->is_deleted
+                ? BML::ml('error.message.deleted', { 'ljuser' => $ru->ljuser_display })
+                : BML::ml('error.message.expunged', { 'ljuser' => $ru->ljuser_display });
         return 0;
     }
 
@@ -381,7 +406,7 @@ sub can_send {
     # Will this message put sender over rate limit
     unless ($self->rate_multiple && $ou->rate_check('usermessage', $self->rate_multiple)) {
         my $up;
-        $up = LJ::run_hook('upgrade_message', $ou, 'message');
+        $up = LJ::Hooks::run_hook('upgrade_message', $ou, 'message');
         $up = "<br />$up" if ($up);
         push @$errors, "This message will exceed your limit and cannot be sent.$up";
         return 0;
@@ -399,7 +424,7 @@ sub rate_multiple {
     my $ou = $self->_orig_u;
     my $ru = $self->_rcpt_u;
 
-    return 10 unless ($ru->has_friend($ou) || $self->{parent_msgid});
+    return 10 unless $ru->trusts( $ou ) || $self->{parent_msgid};
     return 1;
 }
 

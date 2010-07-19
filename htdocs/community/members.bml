@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 body<=
@@ -8,14 +22,7 @@ body<=
 
     LJ::set_active_crumb('commmembers');
 
-    my $print_with_ad = sub {
-        my $str = shift;
-
-        my $ad_func_2col = LJ::ad_display( type => 'app', orient => 'BML-App-Func-2column' );
-        return $str . $ad_func_2col;
-    };
-
-    return $print_with_ad->(LJ::server_down_html()) if $LJ::SERVER_DOWN;
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
     my $ret;
 
@@ -23,36 +30,47 @@ body<=
     my $remote = LJ::get_remote();
     unless ($remote) {
         $ret .= "<?needlogin?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
-    my $cname = $GET{'comm'};
-    return BML::redirect("$LJ::SITEROOT/community/manage.bml") unless $cname;
+    # old GET arg
+    if ($GET{comm}) {
+        return BML::redirect("$LJ::SITEROOT/community/members?authas=$GET{comm}");
+    }
+
+    my $cname = $GET{authas};
+    return BML::redirect("$LJ::SITEROOT/community/manage") unless $cname;
+
+    $ret .= "<form action='members' method='GET'>\n";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => 'C' });
+    $ret .= "</form>\n\n";
 
     # get $c object
     my $c = LJ::load_user($cname);
     unless ($c) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nocomm'} p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     # make sure it is a comm
-    unless ($c->is_comm || $c->is_shared || $c->is_news) {
+    unless ( $c->is_comm ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
-        $ret .= BML::ml('.error.notcomm', { 'user' => LJ::ljuser($c) });
+        $ret .= BML::ml( '.error.notcomm', { user => LJ::ljuser($c) } );
         $ret .= " p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
-    my $cid = $c->{'userid'};
+    my $cid = $c->userid;
     # is $remote an admin?
-    unless (LJ::can_manage_other($remote, $c)) {
+    unless ( $remote->can_manage_other( $c ) ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
-        $ret .= BML::ml('.error.noaccess',
-                        { 'comm' => LJ::ljuser($cname, { 'type' => 'C' }) });
+        $ret .= BML::ml( '.error.noaccess',
+                        { comm => LJ::ljuser( $cname, { type => 'C' } ) } );
         $ret .= " p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
+
+    $ret .= LJ::maintainer_linkbar($c, "members");
 
     my @allattribs = ('member', 'post', 'preapprove', 'moderate', 'admin');
     my %attrshort = ( X => 'member', P => 'post', N => 'preapprove', M => 'moderate', A => 'admin');
@@ -61,7 +79,7 @@ body<=
     # saving a form submission
     if ($POST{'action:update'}) {
         # validate form auth
-        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>")
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
             unless LJ::check_form_auth();
 
         my @userids = split(',', $POST{'ids'});
@@ -91,53 +109,48 @@ body<=
 
             next unless $given_user;
 
-            my $target = LJ::load_user($given_user);
+            my $target = LJ::load_user_or_identity( $given_user );
             unless ($target) {
-                push @add_errors, BML::ml('.error.nouser',
-                                          { 'user' => $given_user });
+                push @add_errors, BML::ml( '.error.nouser',
+                                           { user => $given_user } );
                 next;
             }
 
             my $target_disp = LJ::ljuser($target);
 
-            unless ($target->{statusvis} eq 'V') {
-                push @add_errors, BML::ml('.error.notactive',
-                                          { 'user' => $target_disp });
+            unless ( $target->is_visible ) {
+                push @add_errors, BML::ml( '.error.notactive',
+                                           { user => $target_disp } );
                 next;
             }
 
             my @attr = grep { defined $POST{"add_${num}_$_"} } @saveattribs;
             unless (@attr) {
-                push @add_errors, BML::ml('.error.noattr',
-                                          { 'user' => $target_disp,
-                                            'type' => $target->{'journaltype'} });
+                push @add_errors, BML::ml( '.error.noattr',
+                                           { user => $target_disp,
+                                             type => $target->{'journaltype'} } );
                 next;
             }
 
-            unless ($target->{'journaltype'} eq 'P') {
-                push @add_errors, BML::ml('.error.invaliduser',
-                                          { 'user' => $target_disp,
-                                            'type' => $target->{'journaltype'} });
+            unless ( $target->is_individual ) {
+                push @add_errors, BML::ml( '.error.invaliduser2',
+                                           { user => $target_disp,
+                                             type => $target->journaltype_readable } );
                 next;
             }
 
             if (grep { $target->{'userid'} == $_ } @userids) {
-                push @add_errors, BML::ml('.error.alreadyadded',
-                                          { 'user' => $target_disp,
-                                            'type' => $target->{'journaltype'} });
+                push @add_errors, BML::ml( '.error.alreadyadded',
+                                           { user => $target_disp,
+                                             type => $target->{'journaltype'} } );
                 next;
             }
 
             my $adult_content;
             unless ($target->can_join_adult_comm( comm => $c, adultref => \$adult_content )) {
-                if ($adult_content eq "concepts") {
-                    push @add_errors, BML::ml('.error.ischild',
-                                              { 'user' => $target_disp });
-
-                    next;
-                } elsif ($adult_content eq "explicit") {
-                    push @add_errors, BML::ml('.error.isminor',
-                                              { 'user' => $target_disp });
+                if ( $adult_content eq "explicit" ) {
+                    push @add_errors, BML::ml( '.error.isminor',
+                                               { user => $target_disp } );
 
                     next;
                 }
@@ -146,7 +159,7 @@ body<=
             # insert authactions row
             push @to_add, [ $target, \@attr ];
         }
-        return $print_with_ad->(LJ::bad_input(@add_errors)) if @add_errors;
+        return LJ::bad_input(@add_errors) if @add_errors;
 
         # now do the additions if any were needed
         my @fail;
@@ -166,14 +179,14 @@ body<=
             my @bad;
             foreach (@fail) {
                 if ($_->[1] eq 'comm_user_has_banned') {
-                    push @bad, BML::ml('.error.adding', { user => LJ::ljuser($_->[0]) });
+                    push @bad, BML::ml( '.error.adding', { user => LJ::ljuser( $_->[0] ) } );
                 } elsif ($_->[1] eq 'comm_invite_limit') {
-                    push @bad, BML::ml('.error.limit', { user => LJ::ljuser($_->[0]) });
+                    push @bad, BML::ml( '.error.limit', { user => LJ::ljuser( $_->[0] ) } );
                 } else {
-                    push @bad, BML::ml('.error.unknown', { user => LJ::ljuser($_->[0]) });
+                    push @bad, BML::ml( '.error.unknown', { user => LJ::ljuser( $_->[0] ) } );
                 }
             }
-            return $print_with_ad->(LJ::bad_input(@bad));
+            return LJ::bad_input(@bad);
         }
 
         # initialize lists of users to update and delete
@@ -199,6 +212,7 @@ body<=
 
         # users already in community
         my $maints = 0;
+        my $us = LJ::load_userids(@userids);
         my (%addr, %delr); # store additions and removals sorted by userid
         foreach my $id (@userids) {
             $id = $id + 0;
@@ -216,24 +230,27 @@ body<=
                     }
                 }
             }
-            $maints++ if $POST{"edit_${id}_admin"};
+            $maints++ if $POST{"edit_${id}_admin"} && !$us->{$id}->is_expunged;
         }
 
         # can't remove ALL maintainers, give them an error so they can
         # go back and decide who to keep
         if (! $other_maints && $maints < 1) {
-             $ret .= "<?h1 $ML{'Error'} h1?><?p Your community, " .
-                     LJ::ljuser($cname, { 'type' => 'C' }) .
-                     ", must have at least one maintainer. " .
-                     "Please <a href='" . BML::get_uri() . "?comm=$cname'>" .
-                     "go back</a> and add a maintainer. p?>";
-             return $print_with_ad->($ret);
+            $ret .= "<?h1 $ML{'Error'} h1?><?p ";
+            $ret .= BML::ml( '.error.nomaint',
+                {
+                    comm  => LJ::ljuser( $cname, { 'type' => 'C' } ),
+                    aopts => "href='" . BML::get_uri() . "?authas=$cname'",
+                } );
+            $ret .= " p?>";
+            return $ret;
         }
 
         # delete members
-        if (%{$delete{'member'}}) {
-            # TAG:FR:bml_comm_members:del_members
-            LJ::remove_friend($cid, [ keys %{$delete{'member'}} ]);
+        foreach my $uid ( keys %{ $delete{member} || {} } ) {
+            my $temp_u = LJ::load_userid( $uid )
+                or next;
+            $temp_u->remove_edge( $cid, member => {} );
         }
 
         # create a closure to send a notification email to a user if they are
@@ -283,39 +300,58 @@ body<=
             }
         };
 
+        my $maintainer_notify = sub {
+            my ( $maint_u, $log_event, $ml_str ) = @_;
+            $c->log_event( $log_event, { actiontarget => $maint_u->id, remote => $remote } );
+
+            # send email to the maintainer
+            my $mailusername = $maint_u->user;
+            my $mailusercname = $c->name_raw;
+            my $mailclink = $c->journal_base( ['community'] );
+            my $mailcommanlink = "$LJ::SITEROOT/community/manage";
+
+            my $html;
+
+            $html .= "<p>";
+            $html .= BML::ml( '.email.hello', { site => $LJ::SITENAMESHORT, user => $mailusername } );
+            $html .= "</p>\n<p>";
+            if ( $ml_str eq 'del' ) {
+                $html .= BML::ml( ".email.$ml_str.body", { admin => $remote->user, comm => qq(<a href="$mailclink">$mailusercname</a>) } );
+            } else {  # add
+                $html .= BML::ml( ".email.$ml_str.body1", { comm => qq(<a href="$mailclink">$mailusercname</a>) } );
+                $html .= "</p>\n<p>";
+                $html .= BML::ml( ".email.$ml_str.body2.html", { aopts => "href='" . $mailcommanlink . "'" } );
+            }
+            $html .= "</p>\n<p>$ML{'.email.close'}<br/>\n";
+            $html .= BML::ml( '.email.signed', { site => $LJ::SITENAME } );
+            $html .= "<br/>$LJ::SITEROOT</p>";
+
+            my $plain;
+
+            $plain .= BML::ml( '.email.hello', { site => $LJ::SITENAMESHORT, user => $mailusername } );
+            $plain .= "\n\n";
+            if ( $ml_str eq 'del' ) {
+                $plain .= BML::ml( ".email.$ml_str.body", { admin => $remote->user, comm => $mailusercname } );
+            } else {  # add
+                $plain .= BML::ml( ".email.$ml_str.body1", { comm => $mailusercname } );
+                $plain .= "\n\n" . $ML{".email.$ml_str.body2.plain"} . "\n\n$mailcommanlink";
+            }
+            $plain .= "\n\n$ML{'.email.close'}\n";
+            $plain .= BML::ml( '.email.signed', { site => $LJ::SITENAME } );
+            $plain .= "\n$LJ::SITEROOT\n";
+
+            my $subject = BML::ml( ".email.$ml_str.subject", { comm => $mailusercname } );
+            $sendmail->( $maint_u, $html, $plain, $subject );
+        };
+
         # get all the maintainers who were removed
         my $changedmaintainers = LJ::load_userids(keys %{$delete{admin}}, keys %{$add{admin}});
 
         foreach my $uid (keys %{$delete{admin} || {}}) {
-            # log maintainer deletions
-            $c->log_event('maintainer_remove', { actiontarget => $uid, remote => $remote });
-
             my $delmaintu = $changedmaintainers->{$uid};
             next unless $delmaintu;
 
-            # send email to the poor maintainer who got removed
-            my $mailusername = $delmaintu->{user};
-            my $mailusercname = $c->{name};
-            my $mailclink = LJ::journal_base($c, ['community']);
-
-            my $html = qq(
-<p>Dear $LJ::SITENAMESHORT user $mailusername,</p>
-<p>$remote->{user} has removed you as a maintainer of the community <a href="$mailclink">$mailusercname.</a></p>
-<p>Regards,<br/>
-$LJ::SITENAME Team<br/>$LJ::SITEROOT</p>
-                          );
-
-            my $plain = qq(
-Dear $LJ::SITENAMESHORT user $mailusername,
-
-$remote->{user} has removed you as a maintainer of the community $mailusercname.
-
-Regards,
-$LJ::SITENAME Team
-$LJ::SITEROOT
-                           );
-            my $subject = "Maintainership removal: $mailusercname";
-            $sendmail->($delmaintu, $html, $plain, $subject);
+            $maintainer_notify->( $delmaintu, 'maintainer_remove', 'del' );
         }
 
         # delete other rel edges
@@ -332,7 +368,7 @@ $LJ::SITEROOT
             foreach my $id (keys %{$add{'member'}}) {
                 next if $was{$id}->{'member'};
                 my $u = LJ::load_userid($id);
-                if (LJ::u_equals($u, $remote)) {
+                if ( $remote->equals( $u ) ) {
                     # you're allowed to add yourself as member
                     LJ::join_community($remote, $c);
                 } else {
@@ -340,47 +376,17 @@ $LJ::SITEROOT
                         # if it succeeded, push the reinvited information
                         push @msgs, BML::ml('.reinvited2',
                             { user => LJ::ljuser($u),
-                              aopts => "href='$LJ::SITEROOT/manage/invites.bml'" });
+                              aopts => "href='$LJ::SITEROOT/manage/invites'" });
                     }
                 }
             }
         }
 
         foreach my $uid (keys %{$add{admin} || {}}) {
-            # log maintainer additions
-            $c->log_event('maintainer_add', { actiontarget => $uid, remote => $remote });
-
             my $newmaintu = $changedmaintainers->{$uid};
             next unless $newmaintu;
 
-            # send email to the new maintainer
-            my $mailusername = $newmaintu->{user};
-            my $mailusercname = $c->{name};
-            my $mailclink = LJ::journal_base($c, ['community']);
-            my $mailcommanlink = "$LJ::SITEROOT/community/manage.bml";
-
-            my $html = qq(
-<p>Dear $LJ::SITENAMESHORT user $mailusername,</p>
-<p>You have just been added as a maintainer of the community <a href="$mailclink">$mailusercname</a> by one of the current maintainers. As the maintainer, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove your maintainership or transfer your community to another user.</p>
-<p>To manage your communities please visit <a href="$mailcommanlink">your community management page.</a></p>
-<p>Regards,<br/>
-$LJ::SITENAME Team<br/>$LJ::SITEROOT</p>
-                          );
-
-            my $plain = qq(
-Dear $LJ::SITENAMESHORT user $mailusername,
-You have just been added as a maintainer of the community $mailusercname by one of the current maintainers. As the maintainer, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove your maintainership or transfer your community to another user.
-
-To manage your communities please visit the following URL:
-
-$mailcommanlink
-
-Regards,
-$LJ::SITENAME Team
-$LJ::SITEROOT
-                           );
-            my $subject = "You have been added as a maintainer of $mailusercname";
-            $sendmail->($newmaintu, $html, $plain, $subject);
+            $maintainer_notify->( $newmaintu, 'maintainer_add', 'add' );
         }
 
         # set rels in db/memcache
@@ -411,17 +417,10 @@ $LJ::SITEROOT
             push @msgs, LJ::ljuser($users{$id}) . ":<ul>$str</ul>" if $str;
         }
 
-        my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
-        $ret .= $ad_box . "<?h1 $ML{'.success.header'} h1?>";
-        if (@msgs) {
-            $ret .= "<?p $ML{'.success.message2'} p?>\n<ul>";
-            $ret .= "<li>$_</li>\n" foreach @msgs;
-            $ret .= "</ul>";
-        }
         if (@invited) {
             $ret .= "<?p ";
             $ret .= BML::ml('.success.invited2',
-                            { aopts => "href='$LJ::SITEROOT/manage/invites.bml'" });
+                            { aopts => "href='$LJ::SITEROOT/manage/invites'" });
             $ret .= " p?><ul>";
             foreach my $row (@invited) {
                 $ret .= "<li>" . LJ::ljuser($row->[0]) . ": ";
@@ -432,8 +431,7 @@ $LJ::SITEROOT
             $ret .= "</ul>";
         }
         $ret .= "<?p $ML{'.success.nochanges'} p?>" unless @msgs || @invited;
-        $ret .= "<?p " . BML::ml('.success.return2', {'aopts' => "href='" . BML::get_uri() . "?comm=$cname'"}) . " p?>";
-        $ret .= LJ::Widget::GettingStarted->render;
+        $ret .= "<?p " . BML::ml( '.success.return2', { aopts => "href='" . BML::get_uri() . "?authas=$cname'" } ) . " p?>";
 
         return $ret;
 
@@ -447,34 +445,24 @@ $LJ::SITEROOT
     # need a dbr now
     my $dbr = LJ::get_db_reader();
 
-    # get community members
-    # TAG:FR:bml_comm_members:get_members
-    my $sth = $dbr->prepare("SELECT u.userid, u.user FROM useridmap u, friends f " .
-                            "WHERE u.userid=f.friendid AND f.userid=?");
-    $sth->execute($cid);
-
-    while (my ($id, $user) = $sth->fetchrow_array) {
-        $users{$id}->{'userid'} = $id;
-        $users{$id}->{'name'} = $user;
-        $users{$id}->{'member'} = 1;
-    }
-
+    # get all community edges
+    # FIXME: kind of lame to do it this way, manually, instead of having accessors for this...
     my $sth = $dbr->prepare("SELECT r.targetid, r.type, u.user FROM reluser r, useridmap u " .
-                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ('A','P','M','N')");
+                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ('A','P','M','N','E')");
     $sth->execute($cid);
 
     my %count;
     while (my ($id, $type, $user) = $sth->fetchrow_array) {
         $users{$id}->{'userid'} = $id;
         $users{$id}->{'name'} = $user;
-        my $key = {'A'=>'admin','P'=>'post','M'=>'moderate','N'=>'preapprove'}->{$type};
+        my $key = {'A'=>'admin','P'=>'post','M'=>'moderate','N'=>'preapprove','E'=>'member'}->{$type};
         $users{$id}->{$key} = 1;
         $count{$type}++;
     }
 
     # columns of our table, excluding username
     my @attribs = ('member', 'post');
-    LJ::load_user_props($c, 'moderated');
+    $c->preload_props( 'moderated' );
     push @attribs, ('preapprove')
         if $c->{'moderated'} || $count{'N'};
     push @attribs, ('moderate')
@@ -512,8 +500,8 @@ $LJ::SITEROOT
 
     # how to make links back to this page
     my $self_link = sub {
-        my $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
-        return "members.bml?comm=$cname&page=$_[0]$sort";
+        my $sort = $GET{'sort'} ? "&sort=$GET{'sort'}" : "";
+        return "members?authas=$cname&page=$_[0]$sort";
     };
 
     my %items = BML::paging(\@users, $jumppage || $GET{'page'}, $page_size);
@@ -522,23 +510,23 @@ $LJ::SITEROOT
     @users = @{$items{'items'}};
 
     # output starts here
-    $ret .= "<?p " . BML::ml('.name', { 'name' => LJ::ljuser($cname, { 'type' => 'C' }) });
-    $ret .= " " . BML::ml('Actionlink', {'link' => "<a href='$LJ::SITEROOT/community/settings.bml?comm=$cname'>$ML{'.settings2'}</a>"}) . " p?>";
+    $ret .= BML::ml('.intro', { aopts1 => "href='$LJ::HELPURL{maintainership}'", aopts2 => "href='$LJ::HELPURL{add_to_comm}'" }) . "<br /><br />";
+    $ret .= $ML{'.intro.invite'};
 
-    $ret .= "<form method='post' action='members.bml?comm=$cname'>";
+    $ret .= "<form method='post' action='members?authas=$cname'>";
     $ret .= LJ::form_auth();
 
     # jump to user
     if ($items{'pages'} > 1) {
-        $ret .= "<div style='margin-left: 30px;'>Jump to user: ";
+        $ret .= "<div style='margin-left: 30px;'>$ML{'.jump'}: ";
         $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
-                                'class' => 'text', 'size' => '10', 'maxlength' => '15' }) . " ";
+                                'class' => 'text', 'size' => '10', 'maxlength' => '25' }) . " ";
         $ret .= LJ::html_submit(undef, 'Go') . "</div>";
 
         $ret .= $navbar;
     }
 
-    my $sortlink = BML::get_uri() . "?comm=$cname&sort=";
+    my $sortlink = BML::get_uri() . "?authas=$cname&sort=";
     $ret .= "<br /><div align='center'><table class='alternating-rows' cellpadding='0' cellspacing='0'>\n<tr>" .
             "<th><a href='${sortlink}name'>$ML{'.key.user'}</a></th>";
     $ret .= "<th><a href='${sortlink}$_'>".$ML{".key.$_"}."</a></th>" for (@attribs);
@@ -567,7 +555,7 @@ $LJ::SITEROOT
         foreach(1..5) {
             my $rstyle = ($rc++ & 1) ? "altrow2" : "altrow1";
             $ret .= "<tr class='$rstyle'><td>";
-            $ret .= LJ::html_text({ 'name' => "add_$_", 'size' => '10', 'class' => 'text', 'maxlength' => '15' }) . "</td>";
+            $ret .= LJ::html_text({ 'name' => "add_$_", 'size' => '10', 'class' => 'text', 'maxlength' => '25' }) . "</td>";
             foreach my $key (@attribs) {
                 $ret .= "<td style='text-align: center;'>";
                 if ($key eq 'member' || $key eq 'post') {
@@ -592,7 +580,7 @@ $LJ::SITEROOT
 
     $ret .= $navbar;
 
-    return $print_with_ad->($ret);
+    return $ret;
 
 }
 _code?>

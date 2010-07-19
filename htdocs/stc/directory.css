@@ -51,3 +51,7 @@ div.NewSearch {
 #CountryBrowse {
     margin-top: 2em;
 }
+
+#FilterSearch {
+    padding: 5px 0 15px 0;
+}

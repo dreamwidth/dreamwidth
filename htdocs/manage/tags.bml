@@ -1,25 +1,57 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
-title=><?_code return $ML{'.title2'}; _code?>
 body<=
 <?_code
 {
     use strict;
-    use vars qw(%POST %GET);
+    use vars qw(%POST %GET $headextra);
 
     LJ::set_active_crumb('managetags');
 
     return "<?h1 $ML{'Error'} h1?><?p $ML{'/edittags.bml.disabled'} p?>"
-        if $LJ::DISABLED{tags};
+        unless LJ::is_enabled('tags');
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
     LJ::need_res("stc/tags.css", "js/tags.js");
 
+   $headextra = <<HEAD;
+<script type="text/javascript">
+    var ml = new Object();
+
+    ml.counts_label = "$ML{'.label.counts'}";
+    ml.public_label = "$ML{'.label.public'}";
+    ml.private_label = "$ML{'.label.private'}";
+    ml.trusted_label = "$ML{'.label.trusted'}";
+    ml.filters_label = "$ML{'.label.filters'}";
+    ml.total_label = "$ML{'.label.total'}";
+    ml.security_label = "$ML{'.label.security'}";
+    ml.na_label = "$ML{'.label.notapplicable'}";
+    ml.rename_btn = "$ML{'.button.rename'}";
+    ml.merge_btn = "$ML{'.button.merge'}";
+
+</script>
+HEAD
+
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
+    my $ret;
 
     # do user requested changes
     my $add_text = $ML{'.addnew'};
@@ -31,7 +63,7 @@ body<=
         if ($POST{add} or ($POST{'add_field'} && $POST{'add_field'} ne $add_text)) {
             my $tagerr = "";
             my $rv = LJ::Tags::create_usertag($u, $POST{'add_field'}, { display => 1, err_ref => \$tagerr });
-            return LJ::bad_input($tagerr) unless $rv;
+            $ret .= "<?errorbar $tagerr errorbar?>" unless $rv;
         }
 
         # Deleting tags
@@ -45,28 +77,48 @@ body<=
         if ($POST{rename}) {
             my @tagnames = map { s/\d+_//; $_; } split /\0/, $POST{tags};
             my $new_tag = LJ::trim($POST{rename_field});
-            $new_tag =~ s/,.*//;
+            if ( $new_tag =~ /,/ ) {
+                $ret .= "<?errorbar $ML{'.error.rename.multiple'} errorbar?>";
+            } else {
+                my $tagerr = "";
+                my $rv = LJ::Tags::rename_usertag( $u, 'name', $tagnames[0], $new_tag, \$tagerr );
+                $ret .= "<?errorbar $tagerr errorbar?>" unless $rv;
+            }
+        }
 
-            # FIXME: merge support later
-            LJ::Tags::rename_usertag( $u, 'name', $tagnames[0], $new_tag );
+        if ( $POST{merge} ) {
+            my @tagnames = map { s/\d+_//; $_; } split /\0/, $POST{tags};
+
+            # get the new name for the tags
+            my $new_tagname = LJ::trim( $POST{merge_field} );
+
+            if ( $new_tagname =~ /,/ ) {
+                $ret .= "<?errorbar $ML{'.error.rename.multiple'} errorbar?>";
+            } else {
+                my $tagerr = "";
+                my $rv = LJ::Tags::merge_usertags( $u, $new_tagname, \$tagerr, @tagnames );
+                $ret .= "<?errorbar $tagerr errorbar?>" unless $rv;
+            }
         }
 
         if ($POST{'show posts'}) {
             # this should do some cute ajax display later.
             my $tags = LJ::Tags::get_usertags( $u ); # we redirect, so we don't double load anyway
             my $taglist = LJ::eurl(join ',', map { $tags->{$_}->{name} } map { /^(\d+)_/; $1; } split /\0/, $POST{tags});
-            BML::redirect( LJ::journal_base($u) . "/tag/$taglist" );
+            BML::redirect( $u->journal_base . "/tag/$taglist" );
         }
 
         if ($POST{'save_levels'}) {
             my $add = $POST{"add_level"};
             my $control = $POST{"control_level"};
 
-            return LJ::bad_input($ML{'.error.invalidsettings'})
-               unless $add =~ /^(?:private|public|friends|group:\d+)$/ &&
-               $control =~ /^(?:private|public|friends|group:\d+)$/;
+            if ( $add =~ /^(?:private|public|protected|author_admin|group:\d+)$/
+                && $control =~ /^(?:private|public|protected|group:\d+)$/ ) {
 
-            $u->set_prop("opt_tagpermissions", "$add,$control");
+                $u->set_prop("opt_tagpermissions", "$add,$control");
+            } else {
+                $ret .= "<?errorbar $ML{'.error.invalidsettings'} errorbar?>";
+            }
         }
     }
 
@@ -123,10 +175,10 @@ body<=
         rename => $ML{'.hint.rename'},
         delete => $ML{'.hint.delete'},
         entries => $ML{'.hint.entries'},
+        merge => $ML{'.hint.merge'},
     };
 
     my $sp = '&nbsp;&nbsp;';
-    my $ret;
 
     # user switcher
     $ret .= "<form method='GET'>\n";
@@ -146,7 +198,7 @@ body<=
         my $sec = $tag->{security};
         my ($pub, $pri, $fr, $tot) =
                 ($sec->{public}, $sec->{private},
-                 $sec->{friends}, $tag->{uses});
+                 $sec->{protected}, $tag->{uses});
         my $grp = $tot - ($pub+$pri+$fr);
         $ret .= "tags[$_] = [ '" . LJ::ejs($tag->{name}) . "', '$tag->{security_level}', $pub, $pri, $fr, $grp, $tot ];\n";
     }
@@ -158,12 +210,12 @@ body<=
     $ret .= qq{
     <form method="POST" name="tagform" id="tagform">
     $formauth
-    <table cellpadding="0" cellspacing="0" align="center">
+    <table id="table_managetags" cellpadding="0" cellspacing="0" align="center">
     <tr><td valign="top">
         <fieldset>
-            <legend>$ML{'.label.yours'}</legend>
-            <div style="padding-top: 6px;">
-    };
+            <legend>};
+    $ret .= BML::ml( '.label.yours', { tagnum => $tagcount, tagmax => $u->count_tags_max } );
+    $ret .= qq(</legend>\n            <div style="padding-top: 6px;">);
 
     my $tagsort = sub {
         $GET{sort} eq 'use' ?
@@ -184,10 +236,10 @@ body<=
             $ret .= "<option class='level$tag->{histogram_group}' ";
             $ret .= "value='$value'>$etag</option>";
         }
-        $ret .= "</select>";
+        $ret .= "</select>\n                ";
         $ret .= "<div class='tagsort'>";
-        $ret .= $GET{sort} eq 'use' ? BML::ml('.sort.a', { aopts => "href='$LJ::SITEROOT/manage/tags.bml?authas=$u->{user}&sort=alpha'" }) :
-                                      BML::ml('.sort.b', { aopts => "href='$LJ::SITEROOT/manage/tags.bml?authas=$u->{user}&sort=use'" });
+        $ret .= $GET{sort} eq 'use' ? BML::ml('.sort.a', { aopts => "href='$LJ::SITEROOT/manage/tags?authas=$u->{user}&sort=alpha'" }) :
+                                      BML::ml('.sort.b', { aopts => "href='$LJ::SITEROOT/manage/tags?authas=$u->{user}&sort=use'" });
         $ret .= '</div>';
     } else {
         $ret .= "<div class='taginfo'>$ML{'.none'}</div>"
@@ -210,8 +262,8 @@ body<=
                     onClick='return validate_input(this, \"add_field\", \"$add_text\")'>";
 
     $ret .= '
-        </div>
-        </div>
+                </div>
+            </div>
         </fieldset>
     </td>
     <td valign="top">';
@@ -241,7 +293,28 @@ body<=
          );
         $ret .= '<br /><br />';
 
-        my $del_conf = $ML{'.confirm.delete'};
+        $ret .= LJ::html_text(
+            {
+                 name    => 'merge_field',
+                 size    => 30,
+                 class   => 'tagfield',
+                 onClick => 'reset_field(this)',
+             }
+          );
+         $ret .= $sp;
+         my $merge_conf = LJ::ejs( $ML{'.confirm.merge'} );
+         $ret .= LJ::html_submit(
+             'merge', $ML{'.button.merge'},
+             {
+                 class   => 'btn',
+                 title   => $mo->{merge},
+                 onClick => "return confirm('$merge_conf')",
+              }
+          );
+
+         $ret .= '<br /><br />';
+
+        my $del_conf = LJ::ejs( $ML{'.confirm.delete'} );
         $ret .= LJ::html_submit(
             'delete', $ML{'.button.delete'},
             {
@@ -271,29 +344,35 @@ body<=
     $ret .= '<tr><td colspan="2"><br /><fieldset><legend>' . $ML{'.label.settings'}. '</legend>';
     $ret .= '<div style="padding-top: 6px;">';
 
-    my @groups = ("public", $ML{'.setting.public'});
+    my @control_groups = ("public", $ML{'.setting.public'});
 
     if ($u->is_person) {
-        push @groups, ("friends", $ML{'.setting.friends'});
-        push @groups, ("private", $ML{'.setting.private'});
+        push @control_groups, ("protected", $ML{'.setting.trusted'});
+        push @control_groups, ("private", $ML{'.setting.private'});
     } else {
-        push @groups, ("friends", $ML{'.setting.members'});
-        push @groups, ("private", $ML{'.setting.maintainers'});
+        push @control_groups, ("protected", $ML{'.setting.members'});
+        push @control_groups, ("private", $ML{'.setting.maintainers'});
     }
 
-    my $grouplist = LJ::get_friend_group($u);
-    push @groups,  map  { "group:" . $_, $grouplist->{$_}->{groupname} }
-    sort { $grouplist->{$a}->{groupname} cmp $grouplist->{$b}->{groupname} }
-    keys %$grouplist;
+    my @add_groups = @control_groups;
+    push @add_groups, ( "author_admin", $ML{'.setting.author_admin'} )
+        if $u->is_community;
+
+    my @grouplist = $u->trust_groups;
+    my @custom_groups;
+    push @custom_groups, map { "group:" . $_->{groupnum}, $_->{groupname} } @grouplist;
+
+    push @control_groups, @custom_groups;
+    push @add_groups, @custom_groups;
 
     my $security = LJ::Tags::get_permission_levels($u);
 
     $ret .= "<div class='tagsec'> "
-        . LJ::html_select({ name => 'control_level', selected => $security->{control} }, @groups)
+        . LJ::html_select({ name => 'control_level', selected => $security->{control} }, @control_groups)
         . " $ML{'.setting.desc.control'} </div>";
 
     $ret .= "<div class='tagsec'>"
-            . LJ::html_select({ name => 'add_level', selected => $security->{add} }, @groups)
+            . LJ::html_select({ name => 'add_level', selected => $security->{add} }, @add_groups)
             . " $ML{'.setting.desc.add'} </div>";
 
     $ret .= "<div align='center'>";
@@ -315,4 +394,8 @@ body<=
 } _code?>
 <=body
 bodyopts=>onLoad="initTagPage()"
+title=><?_code return $ML{'.title2'}; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
 page?>

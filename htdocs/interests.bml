@@ -1,11 +1,23 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
 head<=
 <style>
     div.tagcloud a { text-decoration: none; }
-    div.tagcloud a:visited { color: #00f; }
-    div.tagcloud a:link { color: #00f; }
-    li { padding-bottom: 3px; }
+    ul.contentlist li { padding-bottom: 3px; }
 </style>
 <=head
 
@@ -17,35 +29,31 @@ body<=
 
     LJ::need_res( qw( stc/interests.css ) );
 
-    my $print_with_ad = sub {
-        my $str = shift;
-
-        my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
-        return $ad_box . $str;
-    };
-
     LJ::set_active_crumb('searchinterests');
 
-    return $print_with_ad->("<?badinput?>") unless LJ::text_in(\%GET) && LJ::text_in(\%POST);
+    return "<?badinput?>"
+        unless LJ::text_in(\%GET) && LJ::text_in(\%POST);
 
     my $did_post = LJ::did_post();
 
     my $remote = LJ::get_remote();
 
-    my $table = sub { $_[0]->{'journaltype'} eq 'C' ? 'comminterests' : 'userinterests' };
+    my $maxinterests = $remote ? $remote->count_max_interests : 0;
+
+    my $table = sub { $_[0]->is_community ? 'comminterests' : 'userinterests' };
 
     if (!$did_post && $GET{'view'} eq "popular") {
-        return $print_with_ad->($ML{'.popular.disabled'}) if $LJ::DISABLED{'interests-popular'};
+        return $ML{'.popular.disabled'} unless LJ::is_enabled('interests-popular');
         my $ret = '';
         $ret .= "<?h1 $ML{'.popular.head'} h1?><?p $ML{'.popular.text'} ";
 
-        $ret .= BML::ml('.popular.textmode', { 'aopts' => "href='$LJ::SITEROOT/interests.bml?view=popular&mode=text'" })
+        $ret .= BML::ml('.popular.textmode', { 'aopts' => "href='$LJ::SITEROOT/interests?view=popular&mode=text'" })
             unless $GET{mode} eq 'text';
 
         $ret .= " p?>";
 
         my $rows = LJ::Stats::get_popular_interests();
-        return $print_with_ad->("Sorry, interest data currently unavailable.") unless @$rows;
+        return $ML{'.error.nodata'} unless @$rows;
 
         my %interests;
         foreach my $int_array (@$rows)
@@ -54,7 +62,7 @@ body<=
             $interests{$int} = {
                                 int   => $int,
                                 eint  => LJ::ehtml($int),
-                                url   => "/interests.bml?int=" . LJ::eurl($int),
+                                url   => "/interests?int=" . LJ::eurl($int),
                                 value => $count,
                                 };
         }
@@ -69,7 +77,7 @@ body<=
             $ret .= "</table>";
         }
 
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     if ((!$did_post && $GET{'mode'} eq "add" && $GET{'intid'}) ||
@@ -80,92 +88,90 @@ body<=
         my $ret = '';
         unless ($remote) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.add.mustlogin'} p?>";
-            return $print_with_ad->($ret);
+            return $ret;
         }
 
-        # force them to either come from the interests.bml page, or have posted the request.
+        # force them to either come from the interests page, or have posted the request.
         # if both fail, ask them to confirm with a post form.
 
-        my $dbr = LJ::get_db_reader();
-
-        unless ($did_post || BML::get_client_header('Referer') =~ /^\Q$LJ::SITEROOT\E\/interests\.bml\?/)
+        unless ( $did_post || LJ::check_referer('/interests.bml') )
         {
-            my ($int) = $dbr->selectrow_array("SELECT interest FROM interests WHERE intid=?", undef, $intid);
+            my $int = LJ::get_interest( $intid );
             LJ::text_out(\$int);
 
             $ret .= "<?h1 $ML{'.add.confirm.head'} h1?>";
             $ret .= "<?p " . BML::ml(".add.confirm.text", {'interest' => $int});
-            $ret .= "<form method='post' action='interests.bml'><div align='center'>";
+            $ret .= "<form method='post' action='interests'><div align='center'>";
             $ret .= LJ::html_hidden('mode' => 'add', 'intid' => $intid);
             $ret .= LJ::html_submit(undef, BML::ml(".add.btn.text", {'interest' => $int}));
             $ret .= LJ::form_auth();
             $ret .= "</div></form> p?>";
-            return $print_with_ad->($ret);
+            return $ret;
         }
 
-        my $rints = LJ::get_interests($remote);
+        my $rints = $remote->get_interests();
         my $count = scalar(@$rints);
 
         # account for the case where we bypass the POST due to the referer
-        return $print_with_ad->($ML{'error.invalidform'}) unless !$did_post || LJ::check_form_auth();
+        return $ML{'error.invalidform'} unless !$did_post || LJ::check_form_auth();
 
-        if ($count >= 150) {
-            $ret .= "<?h1 $ML{'.add.toomany.head'} h1?><?p " .BML::ml(".add.toomany.text", {'maxinterests' => "150"}) ." p?>";
-            return $print_with_ad->($ret);
+        if ($count >= $maxinterests) {
+            $ret .= "<?h1 $ML{'.add.toomany.head'} h1?><?p " .BML::ml(".add.toomany.text", {'maxinterests' => $maxinterests}) ." p?>";
+            return $ret;
         }
 
         my $dbh = LJ::get_db_writer();
         my $uitable = $table->($remote);
         $dbh->do("INSERT INTO $uitable (userid, intid) VALUES (?, ?)",
-                 undef, $remote->{'userid'}, $intid);
+                 undef, $remote->userid, $intid);
         LJ::memcache_kill($remote, "intids");
         unless ($dbh->err) {
             $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid=?", undef, $intid);
         }
 
         # if a community, remove any old rows from userinterests
-        if ($remote->{'journaltype'} eq 'C') {
-            $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $remote->{'userid'});
+        if ( $remote->is_community ) {
+            $dbh->do( "DELETE FROM userinterests WHERE userid=?", undef, $remote->userid );
         }
 
         $ret .= "<?h1 $ML{'.add.added.head'} h1?><?p $ML{'.add.added.text'} p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     if (!$did_post && $GET{'mode'} eq "findsim_do") {
-        return $print_with_ad->($ML{'error.tempdisabled'}) if $LJ::DISABLED{'interests-findsim'};
+        return $ML{'error.tempdisabled'} unless LJ::is_enabled('interests-findsim');
 
-        return $print_with_ad->($ML{'.findsim_do.account.notallowed'}) unless LJ::get_cap($remote, "findsim");
+        return $ML{'.findsim_do.account.notallowed'} unless $remote && $remote->can_find_similar;
 
         my $ret = "";
         my $u = LJ::load_user($GET{'user'});
-        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.username_notfound'} p?>") unless $u;
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.username_notfound'} p?>" unless $u;
 
         my @ints;
         my %intcount;
         my $dbr = LJ::get_db_reader();
         my $sth = $dbr->prepare("SELECT i.intid, i.intcount FROM userinterests ui, interests i ".
                                 "WHERE ui.userid=? AND ui.intid=i.intid");
-        $sth->execute($u->{'userid'});
+        $sth->execute( $u->userid );
         while (my ($intid, $count) = $sth->fetchrow_array) {
             push @ints, $intid;
             $intcount{$intid} = $count || 1;
         }
         unless (@ints) {
             my $msg = BML::ml('.findsim_do.notdefined', { 'user' => LJ::ljuser($u) });
-            return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $msg p?>");
+            return "<?h1 $ML{'Error'} h1?><?p $msg p?>";
         }
 
         my %pt_count;
         my %pt_weight;
         foreach my $int (@ints) {
             # the magic's in this limit clause.  that's what makes this work.  perfect 
-            # results?  no.  but who cares if somebody that lists "music" or "women"
+            # results?  no.  but who cares if somebody that lists "music" or "reading"
             # doesn't get an extra point towards matching you.  we care about more unique interests.
             my $sth = $dbr->prepare("SELECT userid FROM userinterests WHERE intid=? LIMIT 500");
             $sth->execute($int);
             while (my $uid = $sth->fetchrow_array) {
-                next if $uid == $u->{'userid'};
+                next if $uid == $u->userid;
                 $pt_weight{$uid} += (1 / log($intcount{$int}+1));
                 $pt_count{$uid}++;
             }
@@ -177,7 +183,7 @@ body<=
         }
 
         my @matches = sort { $magic{$b} <=> $magic{$a} } keys %magic;
-        if (@matches > 150) { @matches = @matches[0..149]; }
+        if (@matches > $maxinterests) { @matches = @matches[0..( $maxinterests - 1 )]; }
         my $sth = $dbr->prepare("SELECT userid, user FROM useridmap WHERE userid IN (" . join(",",@matches) . ")");
         $sth->execute;
         my %username;
@@ -186,7 +192,7 @@ body<=
         }
 
         unless (@matches) {
-            return $print_with_ad->("<?h1 $ML{'.findsim_do.nomatch.head'} h1?><?p " .BML::ml(".findsim_do.nomatch.text", {'user' => LJ::ljuser($u)}) ." p?>");
+            return "<?h1 $ML{'.findsim_do.nomatch.head'} h1?><?p " .BML::ml(".findsim_do.nomatch.text", {'user' => LJ::ljuser($u)}) ." p?>";
         }
 
         $ret .= "<?h1 $ML{'.findsim_do.similar.head'} h1?><?p " .BML::ml(".findsim_do.similar.text", {'user' => LJ::ljuser($u)}) ." p?>";
@@ -203,47 +209,47 @@ body<=
         $ret .= "</table></p>";
 
         $ret .= "<?h1 $ML{'.findsim_do.magic.head'} h1?><?p $ML{'.findsim_do.magic.text'} p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     if (!$did_post && $GET{'mode'} eq "enmasse")
     {
-        return $print_with_ad->("<?needlogin?>") unless $remote;
+        return "<?needlogin?>" unless $remote;
 
         my $authas = $GET{'authas'} || $remote->{'user'};
         my $u = LJ::get_authas_user($authas);
-        return $print_with_ad->(LJ::bad_input(BML::ml('.error.enmasse.noaccess', {'user' => LJ::ljuser($authas)}))) unless $u;
+        return LJ::bad_input(BML::ml('.error.enmasse.noaccess', {'user' => LJ::ljuser($authas)})) unless $u;
 
         my $altauthas = $remote->{'user'} ne $u->{'user'};
         my $getextra = $altauthas ? "?authas=$u->{'user'}" : '';
 
-        my $userid = $u->{'userid'};
-        my $username = $u->{'user'};
+        my $userid = $u->userid;
+        my $username = $u->user;
         my $fromu = LJ::load_user($GET{'fromuser'} || $username);
 
         my %uint;
 
         my %fromint;
-        my $fints = LJ::get_interests($fromu);
+        my $fints = $fromu->get_interests();
         foreach (@$fints) {
             $fromint{$_->[1]} = $_->[0]+0;
         }
 
-        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'.error.nointerests'} p?>") unless %fromint;
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nointerests'} p?>" unless %fromint;
 
-        my $ret = "<?p <form method='get' action='interests.bml'>";
+        my $ret = "<?p <form method='get' action='interests'>";
         $ret .= LJ::html_hidden(mode => 'enmasse', fromuser => $fromu->{'user'});
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
-        $ret .= "</form> p?><form method='post' action='interests.bml$getextra'>";
+        $ret .= "</form> p?><form method='post' action='interests$getextra'>";
         $ret .= "<?h1 $ML{'.enmasse.header'} h1?><?p ";
 
-        if ($u->{'userid'} == $fromu->{'userid'}) {
+        if ( $u->equals( $fromu ) ) {
             %uint = %fromint;
             $ret .= $ML{'.enmasse.body.you'};
         } else {
             my $in = join (",", map { $fromint{$_} } keys %fromint);
 
-            my $uints = LJ::get_interests($u);
+            my $uints = $u->get_interests();
             foreach (@$uints) {
                 $uint{$_->[1]} = $_->[0];
             }
@@ -290,21 +296,22 @@ body<=
 
         $ret .= "<?h1 $ML{'.finished.header'} h1?><?p $ML{'.finished.about'} p?><?standout ";
         $ret .= LJ::html_submit(undef, $ML{'.finished.save_button'}) . " standout?></form>";
-        return $print_with_ad->($ret);
+
+        return $ret;
     }
 
     if ($did_post && $POST{'mode'} eq "enmasse_do") {
-        return $print_with_ad->("<?needlogin?>") unless $remote;
+        return "<?needlogin?>" unless $remote;
 
         my $authas = $GET{'authas'} || $remote->{'user'};
         my $u = LJ::get_authas_user($authas);
-        return $print_with_ad->(LJ::bad_input($ML{'.error.noauth'})) unless $u;
+        return LJ::bad_input($ML{'.error.noauth'}) unless $u;
 
         my $uitable = $table->($u);
         my %uint;
         my $intcount = 0;
 
-        my $uints = LJ::get_interests($u);
+        my $uints = $u->get_interests();
         foreach (@$uints) {
             $uint{$_->[0]} = $_->[1];  # uint{intid} = interest
             $intcount++;
@@ -323,17 +330,17 @@ body<=
             my $intid_in = join(",", @todel);
             my $dbh = LJ::get_db_writer();
             $dbh->do("DELETE FROM $uitable WHERE userid=? AND intid IN ($intid_in)",
-                     undef, $u->{'userid'});
+                     undef, $u->userid);
             $dbh->do("UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)");
             $deleted = 1;
         }
         if (@toadd) {
-            if ($intcount + scalar @toadd > 150) {
+            if ($intcount + scalar @toadd > $maxinterests) {
                 $toomany = 1;
             } else {
                 my $dbh = LJ::get_db_writer();
                 my $sqlp = "(?,?)" . (",(?,?)" x (scalar(@toadd) - 1));
-                my @bindvars = map { ($u->{'userid'}, $_) } @toadd;
+                my @bindvars = map { ( $u->userid, $_ ) } @toadd;
                 $dbh->do("REPLACE INTO $uitable (userid, intid) VALUES $sqlp", undef, @bindvars);
 
                 my $intid_in = join(",", @toadd);
@@ -343,19 +350,19 @@ body<=
         }
 
         # if a community, remove any old rows from userinterests
-        if ($u->{'journaltype'} eq 'C') {
+        if ( $u->is_community ) {
             my $dbh = LJ::get_db_writer();
-            $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $u->{'userid'});
+            $dbh->do( "DELETE FROM userinterests WHERE userid=?", undef, $u->userid );
         }
 
         my $ret = "<?h1 $ML{'.results.header'} h1?><?p ";
         if ($deleted) {
             $ret .= $added   ? $ML{'.results.both'}
-                  : $toomany ? BML::ml('.results.del_and_toomany', {'intcount' => 150})
+                  : $toomany ? BML::ml('.results.del_and_toomany', {'intcount' => $maxinterests})
                   : $ML{'.results.deleted'};
         } else {
             $ret .= $added   ? $ML{'.results.added'}
-                  : $toomany ? BML::ml('.results.toomany', {'intcount' => 150})
+                  : $toomany ? BML::ml('.results.toomany', {'intcount' => $maxinterests})
                   : $ML{'.results.nothing'};
         }
 
@@ -368,39 +375,41 @@ body<=
             if ($POST{'fromuser'} ne "" && $POST{'fromuser'} ne $u->{'user'});
         $ret .= " p?>";
         LJ::memcache_kill($u, "intids");
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
-    if (!$did_post && ($GET{'intid'} || $GET{'int'})) {
-        my $sth;
-        my $dbr = LJ::get_db_reader();
-        my ($interest, $intid, $intcount);
-        if ($GET{'intid'}) {
-            ($interest, $intid, $intcount) = $dbr->selectrow_array("SELECT interest, intid, intcount
-                FROM interests WHERE intid=?", undef, $GET{'intid'});
-        } else {
-            ($interest, $intid, $intcount) = $dbr->selectrow_array("SELECT interest, intid, intcount
-                FROM interests WHERE interest=?", undef, $GET{'int'});
-        }
-
+    if ( ! $did_post && ( $GET{intid} || $GET{int} ) ) {
+        my $intid = $GET{intid} ? $GET{intid} :
+            LJ::get_sitekeyword_id( $GET{int}, 0 );
+        my ( $interest, $intcount ) = LJ::get_interest( $intid );
+        
         my $check_int = $GET{int} || $interest;
-        if (LJ::run_hook("interest_search_ignore", query => $check_int, intid => $intid)) {
-            return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p Sorry, we're unable to help you find users matching the interests you've provided. p?>");
+        if (LJ::Hooks::run_hook("interest_search_ignore", query => $check_int, intid => $intid)) {
+            return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.ignored'} p?>";
         }
 
-        my $search_ad = LJ::search_ads(query => $GET{int}, count => 2) if $GET{int};
         my $e_int = LJ::ehtml($GET{int});
 
         my $ret = '';
 
+        # determine whether the interest is too long: if the interest already exists, a long interest will result in $e_int and the return value of LJ::get_interest not matching
+        # if it didn't already exist, we fall back on just checking the length of $e_int
+        my $exists = $interest;
+        if ( ( $exists && $e_int ne $interest ) || length( $e_int ) > LJ::CMAX_SITEKEYWORD ) {
+
+            # if the searched-for interest is too long, we use the short version from here on
+            $interest = $exists ? $interest : substr ( $e_int, 0, LJ::CMAX_SITEKEYWORD );
+            $ret .= "<?p " . BML::ml( '.error.longinterest', { sitename => $LJ::SITENAMESHORT, old_int => $e_int, new_int => $interest, maxlen => LJ::CMAX_SITEKEYWORD } ) . " p?>";
+        }
+
         $ret .= "<table>";
         $ret .= "<tr valign='middle'><td class='findandmodify'>$ML{'.interested.in'}</td>";
-        $ret .= "<td class='findandmodify'><form method='get' action='interests.bml'>";
+        $ret .= "<td class='findandmodify'><form method='get' action='interests'>";
         $ret .= LJ::html_text({name => 'int', size => 20, value => $interest || $e_int}) . "&nbsp;";
         $ret .= LJ::html_submit(undef, $ML{'.interested.btn.find'});
         $ret .= "</form></td></tr>";
         $ret .= "<tr valign='middle'><td class='findandmodify'>$ML{'.enmasse.intro'}</td>";
-        $ret .= "<td class='findandmodify'><form method='get' action='interests.bml'>";
+        $ret .= "<td class='findandmodify'><form method='get' action='interests'>";
         $ret .= LJ::html_text({name => 'fromuser', size => 20}) . "&nbsp;";
         $ret .= LJ::html_submit(undef, $ML{'.enmasse.btn'});
         $ret .= LJ::html_hidden('mode', 'enmasse');
@@ -408,60 +417,53 @@ body<=
         $ret .= "</table>";
 
         # no results
-        return $print_with_ad->(qq {
-            $ret
-            $search_ad
-                <?h1 Relevant communities h1?>
-                <?p There are no communities interested in <b>"$e_int</b>." You can
-                <a href="$LJ::SITEROOT/community/create.bml"> create one</a>! p?>
-
-                <?h1 Interested users h1?>
-                <?p There are no users interested in <b>$e_int</b>. If you are interested in this 
-                and would like to be added to this list, <a href='$LJ::SITEROOT/manage/profile/'>click here</a>. 
-                More fun stuff can be found on the <a href='$LJ::SITEROOT/interests.bml'>interests page</a>. p?>
-        }) unless $interest;
+        unless ( $exists ) {
+            $ret .= "<?h1 $ML{'.nocomms.header'} h1?><?p ";
+            $ret .= BML::ml( '.nocomms.text', { 'int' => $interest, 'aopts' => qq(href="$LJ::SITEROOT/community/create") } );
+            $ret .= " p?><?h1 $ML{'.nousers.header'} h1?><?p ";
+            $ret .= BML::ml( '.nousers.text', { 'int' => $interest, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests'" } );
+            $ret .= " p?>";
+            return $ret;
+        } 
 
         $intid += 0;
 
         ### hook
-        my $hide_ad = 0;
-        LJ::run_hooks("interests_bml", {
+        LJ::Hooks::run_hooks("interests_bml", {
             'intid'   => $intid,
             'int'     => $interest,
             'ret'     => \$ret,
-            'hide_ad' => \$hide_ad,
         });
 
-        $ret .= $search_ad unless $hide_ad;
-
         ### communities
+        my $dbr = LJ::get_db_reader();
         my $LIMIT = 500;
 
+        my $int_query = sub {
+            my $i = shift;  # comminterests or userinterests
+            my $q = "SELECT $i.userid FROM $i, userusage
+                     WHERE $i.intid = ? AND $i.userid = userusage.userid
+                     ORDER BY userusage.timeupdate DESC LIMIT $LIMIT";
+            my $uref = $dbr->selectall_arrayref( $q, undef, $intid );
+            return LJ::load_userids( map { $_->[0] } @$uref );
+            # can't trust LJ::load_userids to maintain sort order
+        };
+ 
         my $should_show = sub {
             my $u = shift;
-
             return $u->should_show_in_search_results( for => $remote );
         };
 
-        unless ($LJ::DISABLED{'interests-community'}) {
-            my @uids;
-            $sth = $dbr->prepare("SELECT userid FROM comminterests WHERE intid=? LIMIT $LIMIT");
-            $sth->execute($intid);
-            push @uids, $_ while $_ = $sth->fetchrow_array;
-            my @other_uids = LJ::run_hook("get_other_interested_comms", $interest, $remote);
-            foreach my $uid (@other_uids) {
-                push @uids, $uid;
-            }
-
-            my $updated = LJ::get_timeupdate_multi(@uids);
-            my $us = LJ::load_userids(@uids);
+        if ( LJ::is_enabled( 'interests-community' ) ) {
+            my $us = $int_query->( "comminterests" );
+            my $updated = LJ::get_timeupdate_multi( keys %$us );
             my @cl = sort { $updated->{$b->id} <=> $updated->{$a->id} || $a->user cmp $b->user }
-                     grep { $_ && $_->is_visible && $should_show->($_) } values %$us;
+                     grep { $_ && $_->is_visible && $should_show->( $_ ) } values %$us;
 
             my $count = @cl;
             my $list;
 
-            my $show_comm_promos = !LJ::conf_test($LJ::DISABLED{"community_themes"});
+            my $show_comm_promos = LJ::is_enabled('community_themes');
 
             foreach (@cl) {
                 my $name = $_->{name};
@@ -470,10 +472,9 @@ body<=
 
                 $list .= " <small class='lastupdated'>(";
                 if ($updated->{$_->id} > 0) {
-                    $list .= "Updated ";
-                    $list .= LJ::ago_text(time() - $updated->{$_->id});
+                    $list .= BML::ml( '.lastupdated.true', { 'time' => LJ::ago_text( time() - $updated->{$_->id} ) } );
                 } else {
-                    $list .= "Never updated";
+                    $list .= BML::ml( '.lastupdated.false' );
                 }
                 $list .= ")</small>";
 
@@ -485,7 +486,7 @@ body<=
 
             if (@cl) {
                 $ret .= "<h1>" . BML::ml(".communities.header", {'interest' => $interest}) ."</h1>";
-                $ret .= "<p class='matches'><b>" . BML::ml('.matches2', {'num' => $count}) . "</b><ul>$list</ul></p>";
+                $ret .= "<p class='matches'><b>" . BML::ml('.matches2', {'num' => $count}) . "</b><ul class='contentlist'>$list</ul></p>";
             }
         }
 
@@ -493,15 +494,11 @@ body<=
 
         $ret .= "<h1>" . BML::ml(".users.header", {'interest' => $interest}) . "</h1>\n<p class='interestinfo'>";
         if ($remote) {
-            $ret .= " " . BML::ml('.addint2', {'aopts' => "href='$LJ::SITEROOT/interests.bml?mode=add&amp;intid=$intid'"});
+            $ret .= " " . BML::ml('.addint2', {'aopts' => "href='$LJ::SITEROOT/interests?mode=add&amp;intid=$intid'"});
         }
-        $ret .= " " . BML::ml('.morestuff2', {'aopts' => "href='$LJ::SITEROOT/interests.bml'"}) . "</p>";
+        $ret .= " " . BML::ml('.morestuff2', {'aopts' => "href='$LJ::SITEROOT/interests'"}) . "</p>";
 
-        my @uids;
-        $sth = $dbr->prepare("SELECT userid FROM userinterests WHERE intid=? LIMIT $LIMIT");
-        $sth->execute($intid);
-        push @uids, $_ while $_ = $sth->fetchrow_array;
-        my $us = LJ::load_userids(@uids);
+        my $us = $int_query->( "userinterests" );
         my @ul = grep { $_
                             && $_->is_visible              # visible users
                             && !$_->is_community           # that aren't communities
@@ -522,27 +519,28 @@ body<=
 
         $ret .= "<div style='text-align: center'>$navbar</div><br />";
         $ret .= $results;
+        $ret .= "<div style='text-align: center; clear: both'>$navbar</div><br />";
 
-        return $hide_ad ? $ret : $print_with_ad->($ret);
+        return $ret;
     }
 
     my $ret = "";
     $ret .= "<?p $ML{'.interests.text'} p?>";
     $ret .= "<table cellspacing='5' style='margin-top: 10px; margin-left: 30px; margin-bottom: 10px;'>";
 
-    unless ($LJ::DISABLED{'interests-popular'}) {
+    if ( LJ::is_enabled('interests-popular') ) {
         $ret .= "<tr valign='top'><td colspan='2'>";
-        $ret .= "<a href=\"interests.bml?view=popular\">$ML{'.interests.viewpop'}</a></td></tr>";
+        $ret .= "<a href=\"interests?view=popular\">$ML{'.interests.viewpop'}</a></td></tr>";
     }
 
     $ret .= "<tr valign='top'><td align='left'>$ML{'.interested.in'}</td>";
-    $ret .= "<td><form method='get' action='interests.bml'>";
+    $ret .= "<td><form method='get' action='interests'>";
     $ret .= LJ::html_text({name => 'int', size => 20}) . "&nbsp;";
     $ret .= LJ::html_submit(undef, $ML{'.interested.btn.find'});
     $ret .= "</form></td></tr>";
 
-    if (!$LJ::DISABLED{'interests-findsim'} && $remote && LJ::get_cap($remote, "findsim")) {
-        $ret .= "<tr valign='top'><td>$ML{'.interests.findsim'}</td><td><form method='get' action='interests.bml'>";
+    if ( LJ::is_enabled('interests-findsim') && $remote && $remote->can_find_similar ) {
+        $ret .= "<tr valign='top'><td>$ML{'.interests.findsim'}</td><td><form method='get' action='interests'>";
         $ret .= LJ::html_hidden('mode', 'findsim_do');
         $ret .= LJ::html_text({name => 'user', value => $remote->{'user'}, size => 20}) . "&nbsp;";
         $ret .= LJ::html_submit(undef, $ML{'.interested.btn.find'});
@@ -550,7 +548,7 @@ body<=
     }
 
     $ret .= "<tr valign='top'><td>$ML{'.enmasse.intro'}</td>";
-    $ret .= "<td><form method='get' action='interests.bml'>";
+    $ret .= "<td><form method='get' action='interests'>";
     $ret .= LJ::html_text({name => 'fromuser', size => 20}) . "&nbsp;";
     $ret .= LJ::html_submit(undef, $ML{'.enmasse.btn'});
     $ret .= LJ::html_hidden('mode', 'enmasse');
@@ -559,23 +557,8 @@ body<=
     $ret .= "</table>";
     $ret .= BML::ml('.nointerests.text2', {'aopts' => "href='$LJ::SITEROOT/manage/profile/'"});
 
-    return $print_with_ad->($ret);
-}
-_code?>
-
-<?_code
-{
-    my $ret = '';
-    $ret .= "<div class='clear'>&nbsp;</div>";
-    $ret .= LJ::search_ads(query => $GET{int}, count => 2) if $GET{int};
-
     return $ret;
 }
 _code?>
-
 <=body
-page?><?_c <LJDEP>
-link: htdocs/interests.bml, htdocs/manage/profile/index.bml
-post: htdocs/interests.bml
-form: htdocs/interests.bml
-</LJDEP> _c?>
+page?>

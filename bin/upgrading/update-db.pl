@@ -1,4 +1,16 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 #
 # This program will bring your LiveJournal database schema up-to-date
 #
@@ -11,8 +23,7 @@ use File::Path ();
 use File::Basename ();
 use File::Copy ();
 use Image::Size ();
-BEGIN { require "ljlib.pl";
-        require "ljviews.pl"; }
+BEGIN { require "ljlib.pl"; }
 use LJ::S2;
 use MogileFS::Admin;
 
@@ -44,7 +55,7 @@ GetOptions("runsql" => \$opt_sql,
            );
 
 $opt_nostyles = 1 unless LJ::is_enabled("update_styles");
-$opt_innodb = 1 if $LJ::USE_INNODB;
+$opt_innodb = 1;
 
 if ($opt_help) {
     die "Usage: update-db.pl
@@ -191,36 +202,11 @@ if ($opt_pop) {
     populate_database();
 }
 
-# make sure they don't have cluster0 users (support for that will be going away)
-# Note:  now cluster 0 means expunged (as well as statuvis 'X'), so there's
-# an option to disable the warning if you're running new code and know what's up.
-# if they're running modern code (with dversion 6 users), we won't check
-unless ($dbh->selectrow_array("SELECT userid FROM user WHERE dversion >= 6 LIMIT 1")) {
-    my $cluster0 = $dbh->selectrow_array("SELECT COUNT(*) FROM user WHERE clusterid=0");
-    if ($cluster0) {
-        print "\n", "* "x35, "\nWARNING: You have $cluster0 users on cluster 0.\n\n".
-            "Support for that old database schema is deprecated and will be removed soon.\n".
-            "You should stop updating from CVS until you've moved all your users to a cluster \n".
-            "(probably cluster '1', which you can run on the same database). \n".
-            "See bin/moveucluster.pl for instructions.\n" . "* "x35 . "\n\n";
-    }
-}
-
 print "# Done.\n";
 
 ############################################################################
 
 sub populate_database {
-    # system user
-    my $made_system;
-    ($su, $made_system) = vivify_system_user();
-
-    # we have a flag to disable population of s1/s2 if the user requests
-    unless ($opt_nostyles) {
-        populate_s1();
-        populate_s2();
-    }
-
     # check for old style external_foaf_url (indexed:1, cldversion:0)
     my $prop = LJ::get_prop('user', 'external_foaf_url');
     if ($prop->{indexed} == 1 && $prop->{cldversion} == 0) {
@@ -228,18 +214,27 @@ sub populate_database {
         system("$ENV{'LJHOME'}/bin/upgrading/migrate-userprop.pl", 'external_foaf_url');
     }
 
-    populate_schools();
     populate_basedata();
     populate_proplists();
-    populate_moods();
     clean_schema_docs();
     populate_mogile_conf();
     schema_upgrade_scripts();
 
+    # system user
+    my $made_system;
+    ($su, $made_system) = vivify_system_user();
+
+    populate_moods();
+    populate_external_moods();
+    # we have a flag to disable population of s1/s2 if the user requests
+    unless ($opt_nostyles) {
+        populate_s2();
+    }
+
     print "\nThe system user was created with a random password.\nRun \$LJHOME/bin/upgrading/make_system.pl to change its password and grant the necessary privileges."
         if $made_system;
 
-    print "\nRemember to also run:\n  bin/upgrading/texttool.pl load\n  bin/upgrading/copy-emailpass-out-of-user\n\n"
+    print "\nRemember to also run:\n  bin/upgrading/texttool.pl load\n\n"
         if $LJ::IS_DEV_SERVER;
 
 }
@@ -258,42 +253,6 @@ sub vivify_system_user {
         $freshly_made = 1;
     }
     return wantarray ? ($su, $freshly_made) : $su;
-}
-
-sub populate_s1 {
-    # S1
-    print "Populating public system styles (S1):\n";
-    require "$ENV{'LJHOME'}/bin/upgrading/s1style-rw.pl";
-    my $ss = s1styles_read();
-    foreach my $uniq (sort keys %$ss) {
-
-        my $s = $ss->{$uniq};
-        my $existing = LJ::S1::check_dup_style($su, $s->{'type'}, $s->{'styledes'});
-
-        # update
-        if ($existing) {
-            if ($LJ::DONT_TOUCH_STYLES) {
-                next;
-            }
-            if ( LJ::S1::update_style($existing->{'styleid'},
-                                      { map { $_, $s->{$_} } qw(formatdata is_embedded is_colorfree) }) ) {
-                print "  $uniq: ";
-                print "updated \#$existing->{'styleid'}\n";
-            }
-            next;
-        }
-
-        # insert new
-        my %opts = ( "is_public" => 'Y', "opt_cache" => 'Y',
-                     map { $_, $s->{$_} } qw(styledes type formatdata is_embedded is_colorfree lastupdate));
-        LJ::S1::create_style($su, \%opts)
-            or die "Error: unable to create style!  Database potentially unavailable?";
-        print "  $uniq: ";
-        print "added\n";
-    }
-
-    # delete s1pubstyc from memcache
-    LJ::MemCache::delete("s1pubstyc");
 }
 
 sub populate_s2 {
@@ -458,7 +417,7 @@ sub populate_s2 {
     if ($LJ::IS_DEV_SERVER) {
         # now, delete any system layers that don't below (from previous imports?)
         my @del_ids;
-        my $sth = $dbh->prepare("SELECT s2lid FROM s2layers WHERE userid=?");
+        my $sth = $dbh->prepare("SELECT s2lid FROM s2layers WHERE userid=? AND NOT type='user'");
         $sth->execute($sysid);
         while (my $id = $sth->fetchrow_array) {
             next if $known_id{$id};
@@ -481,42 +440,6 @@ sub populate_s2 {
         }
     }
 
-    }
-}
-
-sub populate_schools {
-    # see if we have any schools so far, if we do, no import -- this is easier than
-    # doing a COUNT(*) which can be somewhat slow in InnoDB
-    my $sid = $dbh->selectrow_array('SELECT schoolid FROM schools LIMIT 1');
-    die "#  ERROR: " . $dbh->errstr . "\n" if $dbh->err;
-
-    # show message about schools
-    if ($sid) {
-        print "Skipping school data population -- manual population of new data required.\n";
-
-    # okay to populate
-    } elsif (open(F, "$ENV{LJHOME}/bin/upgrading/schools.dat")) {
-        print "Populating school data.\n";
-
-        my $sid;
-        while (<F>) {
-            chomp;
-
-            # make sure we have a line in the right format
-            next unless /^"(.+?)","(.+?)","(.*?)","(.*?)","(.*?)"$/;
-            my ($name, $country, $state, $city, $url) = ($1, $2, $3, $4, $5);
-
-            # get sid and insert (but don't fail on duplicate)
-            $sid ||= LJ::alloc_global_counter('O');
-            my $ct = $dbh->do("INSERT IGNORE INTO schools (schoolid, name, country, city, state, url) " .
-                            "VALUES (?, ?, ?, ?, ?, ?)", undef, $sid, $name, $country, $city, $state, $url);
-            die "#  ERROR: " . $dbh->errstr . "\n" if $dbh->err;
-
-            # if we actually inserted, undef $sid so we get a new one next round
-            $sid = undef
-                if $ct > 0;
-        }
-        close F;
     }
 }
 
@@ -560,6 +483,7 @@ sub populate_proplist_file {
               'logproplist'  => 'name',
               'talkproplist' => 'name',
               'usermsgproplist' => 'name',
+              'pollproplist2'   => 'name',
               );
 
     my $table;  # table
@@ -607,70 +531,104 @@ sub populate_proplist_file {
     close($fh);
 }
 
-sub populate_moods {
-    # moods
-    my $moodfile = "$ENV{'LJHOME'}/bin/upgrading/moods.dat";
-    if (open(M, $moodfile)) {
-        print "Populating mood data.\n";
+sub populate_external_moods {
+    my $moodfile = "$ENV{'LJHOME'}/bin/upgrading/moods-external.dat";
 
-        my %mood;   # id -> [ mood, parent_id ]
-        my $sth = $dbh->prepare("SELECT moodid, mood, parentmood FROM moods");
-        $sth->execute;
-        while (@_ = $sth->fetchrow_array) { $mood{$_[0]} = [ $_[1], $_[2] ]; }
+    if ( open MOODFILE, "<$moodfile" ) {
+        print "Populating mood data for external sites.\n";
 
-        my %moodtheme;  # name -> [ id, des ]
-        $sth = $dbh->prepare("SELECT moodthemeid, name, des FROM moodthemes WHERE is_public='Y'");
-        $sth->execute;
-        while (@_ = $sth->fetchrow_array) { $moodtheme{$_[1]} = [ $_[0], $_[2] ]; }
+        # $siteid => { $mood => { siteid => $siteid, mood => $mood, moodid => $moodid } }
+        my $moods = $dbh->selectall_hashref( "SELECT siteid, mood, moodid FROM external_site_moods", [ 'siteid', 'mood' ] );
 
-        my $themeid;  # current themeid (from existing db or just made)
-        my %data;     # moodid -> "$url$width$height" (for equality test)
+        foreach my $line ( <MOODFILE> ) {
+            chomp $line;
 
-        while (<M>) {
-            chomp;
-            if (/^MOOD\s+(\d+)\s+(.+)\s+(\d+)\s*$/) {
-                my ($id, $mood, $parid) = ($1, $2, $3);
-                if (! $mood{$id} || $mood{$id}->[0] ne $mood ||
-                    $mood{$id}->[1] ne $parid) {
-                    $dbh->do("REPLACE INTO moods (moodid, mood, parentmood) VALUES (?,?,?)",
-                             undef, $id, $mood, $parid);
+            if ( $line =~ /^(\d+)\s+(\d+)\s+(.+)$/ ) {
+                my ( $siteid, $moodid, $mood ) = ( $1, $2, $3 );
+
+                unless ( $moods->{$siteid} && $moods->{$siteid}->{$mood} && $moods->{$siteid}->{$mood}->{moodid} eq $moodid ) {
+                    $dbh->do(
+                        "REPLACE INTO external_site_moods ( siteid, mood, moodid ) VALUES ( ?, ?, ? )",
+                        undef, $siteid, $mood, $moodid
+                    );
                 }
-            }
-
-            if (/^MOODTHEME\s+(.+?)\s*:\s*(.+)$/) {
-                my ($name, $des) = ($1, $2);
-                %data = ();
-                if ($moodtheme{$name}) {
-                    $themeid = $moodtheme{$name}->[0];
-                    if ($moodtheme{$name}->[1] ne $des) {
-                        $dbh->do("UPDATE moodthemes SET des=? WHERE moodthemeid=?", undef,
-                                 $des, $themeid);
-                    }
-                    $sth = $dbh->prepare("SELECT moodid, picurl, width, height ".
-                                         "FROM moodthemedata WHERE moodthemeid=?");
-                    $sth->execute($themeid);
-                    while (@_ = $sth->fetchrow_array) {
-                        $data{$_[0]} = "$_[1]$_[2]$_[3]";
-                    }
-                } else {
-                    $dbh->do("INSERT INTO moodthemes (ownerid, name, des, is_public) ".
-                             "VALUES (?,?,?,'Y')", undef, $su->{'userid'}, $name, $des);
-                    $themeid = $dbh->{'mysql_insertid'};
-                    die "Couldn't generate themeid for theme $name\n" unless $themeid;
-                }
-                next;
-            }
-
-            if (/^(\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s*$/) {
-                next unless $themeid;
-                my ($moodid, $url, $w, $h) = ($1, $2, $3, $4);
-                next if $data{$moodid} eq "$url$w$h";
-                $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, picurl, width, height) ".
-                         "VALUES (?,?,?,?,?)", undef, $themeid, $moodid, $url, $w, $h);
-                LJ::MemCache::delete([$themeid, "moodthemedata:$themeid"]);
             }
         }
-        close M;
+
+        close MOODFILE;
+    }
+}
+
+sub populate_moods {
+    foreach my $file ( "moods.dat", "moods-local.dat" ) {
+        my $moodfile = "$ENV{'LJHOME'}/bin/upgrading/$file";
+        if ( open( M, $moodfile ) ) {
+            my $local = $file eq "moods-local.dat" ? "local " : "";
+            print "Populating ${local}mood data.\n";
+            
+            my %mood;   # id -> [ mood, parent_id ]
+            my $sth = $dbh->prepare("SELECT moodid, mood, parentmood, weight FROM moods");
+            $sth->execute;
+            while (@_ = $sth->fetchrow_array) { $mood{$_[0]} = [ $_[1], $_[2], $_[3] ]; }
+            
+            my %moodtheme;  # name -> [ id, des ]
+            $sth = $dbh->prepare("SELECT moodthemeid, name, des FROM moodthemes WHERE is_public='Y'");
+            $sth->execute;
+            while (@_ = $sth->fetchrow_array) { $moodtheme{$_[1]} = [ $_[0], $_[2] ]; }
+            
+            my $themeid;  # current themeid (from existing db or just made)
+            my %data;     # moodid -> "$url$width$height" (for equality test)
+            
+            while (<M>) {
+                chomp;
+                if (/^MOOD\s+(\d+)\s+(.+)\s+(\d+)\s+(\d+)\s*$/) {
+                    my ($id, $mood, $parid, $weight) = ($1, $2, $3, $4);
+                    if (! $mood{$id} || $mood{$id}->[0] ne $mood ||
+                        $mood{$id}->[1] ne $parid) {
+                        $dbh->do( "REPLACE INTO moods (moodid, mood, parentmood, weight) VALUES (?,?,?,?)",
+                                 undef, $id, $mood, $parid, $weight );
+                    } elsif ( ! defined $mood{$id}->[2]) {
+                        $dbh->do( "UPDATE moods SET weight = ? WHERE moodid = ?",
+                            undef, $weight, $id );
+                    }
+                }
+            
+                if (/^MOODTHEME\s+(.+?)\s*:\s*(.+)$/) {
+                    my ($name, $des) = ($1, $2);
+                    %data = ();
+                    if ($moodtheme{$name}) {
+                        $themeid = $moodtheme{$name}->[0];
+                        if ($moodtheme{$name}->[1] ne $des) {
+                            $dbh->do("UPDATE moodthemes SET des=? WHERE moodthemeid=?", undef,
+                                     $des, $themeid);
+                        }
+                        $sth = $dbh->prepare("SELECT moodid, picurl, width, height ".
+                                             "FROM moodthemedata WHERE moodthemeid=?");
+                        $sth->execute($themeid);
+                        while (@_ = $sth->fetchrow_array) {
+                            $data{$_[0]} = "$_[1]$_[2]$_[3]";
+                        }
+                    } else {
+                        $dbh->do("INSERT INTO moodthemes (ownerid, name, des, is_public) ".
+                                 "VALUES (?,?,?,'Y')", undef, $su->{'userid'}, $name, $des);
+                        $themeid = $dbh->{'mysql_insertid'};
+                        die "Couldn't generate themeid for theme $name\n" unless $themeid;
+                    }
+                    next;
+                }
+            
+                if (/^(\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s*$/) {
+                    next unless $themeid;
+                    my ($moodid, $url, $w, $h) = ($1, $2, $3, $4);
+                    next if $data{$moodid} eq "$url$w$h";
+                    $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, picurl, width, height) ".
+                             "VALUES (?,?,?,?,?)", undef, $themeid, $moodid, $url, $w, $h);
+                    LJ::MemCache::delete([$themeid, "moodthemedata:$themeid"]);
+                }
+            }
+            close M;
+            LJ::MemCache::delete( "moods_public" );
+        }
     }
 }
 
@@ -724,36 +682,8 @@ sub populate_mogile_conf {
 }
 
 sub schema_upgrade_scripts {
-    # convert users from dversion2 (no weekuserusage)
-    if (my $d2 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=2 LIMIT 1")) {
-        $dbh->do("UPDATE user SET dversion=3 WHERE dversion=2");
-    }
-
-    # convert users from dversion3 (unclustered props)
-    if (my $d3 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=3 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/pop-clusterprops.pl", 3);
-    }
-
-    # convert users from dversion4 (unclustered s1styles)
-    if (my $d4 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=4 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/d4d5-global.pl");
-    }
-
-    # convert users from dversion5 (unclustered memories and friend groups)
-    if (my $d5 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=5 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/d5d6-mkf.pl");
-    }
-
-    # convert users from dversion6 (unclustered user pictures)
-    if (my $d6 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=6 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/d6d7-userpics.pl");
-    }
-
-    # convert users from dversion7 (unclustered polls)
-    if (my $d7 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=7 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/d7d8-polls.pl")
-            && warn "Error upgrading to dversion 8\n";
-    }
+    # none right now, when DW has some upgrades you can look back at this file's history
+    # to see what kind of stuff goes in here
 }
 
 sub skip_opt
@@ -846,7 +776,6 @@ sub create_table
 sub drop_table
 {
     my $table = shift;
-    return if $cluster && ! defined $clustered_table{$table};
 
     if ($opt_drop) {
         do_sql("DROP TABLE $table");

@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -32,33 +46,38 @@
     # do first expand_embedded pass with the preview flag to extract
     # embedded content before cleaning and replace with tags
     # the cleaner won't eat
-    LJ::expand_embedded($u, $ditemid, $remote, \$event, preview => 1);
+    LJ::EmbedModule->parse_module_embed($u, \$event, preview => 1,);
     # clean content normally
     LJ::CleanHTML::clean_event(\$event, {
         preformatted => $req{'prop_opt_preformatted'},
     });
     # expand the embedded content for reals
-    LJ::expand_embedded($u, $ditemid, $remote, \$event);
+    LJ::EmbedModule->expand_entry($u, \$event, preview => 1,);
 
-    my $r = BML::get_request;
+    my $r = BML::get_request();
     my $ctx;
 
     if ($u && $up) {
-        ### Load necessary props
-        my @needed_props = ("stylesys", "s2_style", "url", "urlname",
-                            "opt_usesharedpic", "journaltitle", "journalsubtitle",);
+        $r->notes->{_journal} = $u->{user};
+        $r->notes->{journalid} = $u->{userid};
 
-        LJ::load_user_props($u, @needed_props);
+        ### Load necessary props
+        my @needed_props = qw( stylesys s2_style url urlname
+                               opt_usesharedpic journaltitle
+                               journalsubtitle );
+
+        $u->preload_props( @needed_props );
 
         ### Determine style system to preview with
         my $get_styleinfo = sub {
             if ( $u->{'stylesys'} == 2 ) {
                 my $forceflag = 0;
-                LJ::run_hooks("force_s1", $u, \$forceflag);
+                LJ::Hooks::run_hooks("force_s1", $u, \$forceflag);
 
                 # check whether to use custom comment pages
-                $ctx = LJ::S2::s2_context($r, $u->{'s2_style'});
-                my $view_entry_disabled = $ctx->[S2::PROPS]->{'view_entry_disabled'} if $ctx;
+                $ctx = LJ::S2::s2_context( $u->{s2_style} );
+                my $view_entry_disabled;
+                $view_entry_disabled = ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} if $ctx;
             
                 return (2, $u->{'s2_style'}) unless $forceflag || $view_entry_disabled;
             }
@@ -71,6 +90,8 @@
         $stylesys = 1; $styleid = 0;
     }
 
+    # TODO: clean up this codepath/logic
+    # "stylesys == 1" in here means that you're viewing a BML page, not customized comemnts
     if ($stylesys == 1) {
         # pre-load common strings for little speed and less typing later
         # (we're doing this *after* set_language_scope is called, because
@@ -91,6 +112,9 @@
             $subject = LJ::text_trim($subject, 0, length($req{'subject'}) || 40);
         }
 
+        $ret .= "<?page\n";
+        $ret .= "body<=\n";
+
         $ret .= "<p>";
 
         if ($u) {
@@ -100,20 +124,12 @@
             my $pic   = $upics->{'pic'}->{$picid};
 
             if ($pic) {
-                my $alt = $up->{'name'};
-                if ($req{'prop_picture_keyword'}) {
-                    $alt .= ": $req{'prop_picture_keyword'}";
-                }
-                LJ::text_out(\$alt);
-                $alt = LJ::ehtml($alt);
-                $ret .= "<td><img src='$LJ::USERPIC_ROOT/$picid/$u->{'userid'}' width='$pic->{'width'}' ".
-                    "height='$pic->{'height'}' align='absmiddle' ".
-                    "hspace='3' title='$alt' alt=''></td>";
+                my $userpic = LJ::Userpic->new( $up, $picid );
+                $ret .= "<td>" . $userpic->imgtag . "</td>";   
             }
 
             $ret .= "<td>";
-            my $is_shared = $u->{'journaltype'} eq 'C' || $u->{'journaltype'} eq 'S';
-            if ($is_shared) {
+            if ( $u->is_community ) {
                 $ret .= BML::ml("talk.somebodywrote_comm", { 'realname' => LJ::ehtml($up->{'name'}),
                                                              'userlink' => LJ::ljuser($up),
                                                              'commlink' => LJ::ljuser($u) });
@@ -132,50 +148,27 @@
         }
 
         ## dump the log entry, unless we're browsing a thread.
-        my %current;
-        if ($req{'prop_current_mood'} || $req{'prop_current_moodid'}) {
-            my $themeid = $up->{'moodthemeid'};
-            my $moodid = $req{'prop_current_moodid'};
-            my $mood = $req{'prop_current_mood'};
+        my %current = LJ::currents( \%req, $up, { key => 'prop_' } );
 
-            my $moodname;
-            my $moodpic;
-
-            # favor custom mood over system mood
-            if (my $val = $mood) {
-                LJ::CleanHTML::clean_subject(\$val);
-                $moodname = $val;
-            }
-
-            if (my $val = $moodid) {
-                $moodname ||= LJ::mood_name($val);
-                my %pic;
-                if (LJ::get_mood_picture($themeid, $val, \%pic)) {
-                    $moodpic = "<img src=\"$pic{'pic'}\" align='absmiddle' width='$pic{'w'}' " .
-                               "height='$pic{'h'}' vspace='1' alt='' /> ";
-                }
-            }
-
-            $current{'Mood'} = "$moodpic$moodname";
-        }
-        if ($req{'prop_current_music'}) {
-            $current{'Music'} = $req{'prop_current_music'};
-            LJ::CleanHTML::clean_subject(\$current{'Music'});
+        # custom friend groups
+        if ( $u ) {
+            $current{Groups} = $u->security_group_display( $req{allowmask} );
+            delete $current{Groups} unless $current{Groups};
         }
 
-        $ret .= "<div style='margin-left: 30px'>";
-
-        if (%current)
-        {
-            $ret .= "<table border=0>\n";
-            foreach (sort keys %current) {
-                my $curkey = "talk.curname_" . $_;
-                my $curname = BML::ml($curkey);
-                $curname = "<b>Current $_:</b>" unless $curname;
-                $ret .= "<tr><td align=right>$curname</td><td>$current{$_}</td></tr>\n";
-            }
-            $ret .= "</table><p>\n";
+        my @taglist = ();
+        LJ::Tags::is_valid_tagstring( $POST{prop_taglist}, \@taglist );
+        if ( @taglist ) {
+            my $base = $u ? $u->journal_base : "";
+            $current{Tags} = join( ', ',
+                                   map { "<a href='$base/tag/" . LJ::eurl( $_ ) . "'>" . LJ::ehtml( $_ ) . "</a>" }
+                                   @taglist
+                               );
         }
+
+        $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
+
+        $ret .= LJ::currents_table( %current );
 
         ### security indicator
         my $sec = "";
@@ -188,6 +181,12 @@
         $sec .= "<br />\n" unless $sec eq "" or $req{'subject'};
         $ret .= $sec;
 
+        # prevent BML tags interpretation inside post body
+        $subject =~ s/<\?/<?/g;
+        $subject =~ s/\?>/?>/g;
+        $event =~ s/<\?/<?/g;
+        $event =~ s/\?>/?>/g;
+
         ###
         if ($subject) {
             BML::ebml(\$subject);
@@ -198,13 +197,17 @@
         $ret .= "</div>";
 
         $ret .= "<br clear='all' /><hr width='100%' size='2' align='center' />";
+        
+        $ret .= "\n<=body";
+        $ret .= "\npage?>";
+
     } else {
         $LJ::S2::ret_ref = \$ret;
         my $opts;
         $opts->{'r'} = $r;
 
         $u->{'_s2styleid'} = $styleid + 0;
-        $u->{'_journalbase'} = LJ::journal_base($u->{'user'});
+        $u->{'_journalbase'} = $u->journal_base;
 
         $LJ::S2::CURR_CTX = $ctx;
 
@@ -223,6 +226,7 @@
         my $comments = LJ::S2::CommentInfo({
             'read_url' => "#",
             'post_url' => "#",
+            'permalink_url' => "#",
             'count' => "0",
             'maxcomments' => 0,
             'enabled' => ($u->{'opt_showtalklinks'} eq "Y" && !
@@ -230,15 +234,21 @@
                 'screened' => 0,
             });
 
-        # build tag objects, faking kwid as '0'
+        # build tag objects, faking kwid as '-1'
         # * invalid tags will be stripped by is_valid_tagstring()
         my @taglist = ();
         LJ::Tags::is_valid_tagstring($POST{prop_taglist}, \@taglist);
-        @taglist = map { LJ::S2::Tag($u, 0, $_) } @taglist;
+        @taglist = map { LJ::S2::Tag($u, -1, $_) } @taglist;
+
+        # build metadata props
+        $req{props}->{$_} = $req{"prop_".$_}
+            foreach ( qw( current_music current_location current_coords current_moodid current_mood ) );
+
+        # custom friends groups
+        my $group_names = $u ? $u->security_group_display( $req{allowmask} ) : undef;
 
         # format it
         my $raw_subj = $req{'subject'};
-
         my $s2entry = LJ::S2::Entry($u, {
             'subject' => $subject,
             'text' => $event,
@@ -246,7 +256,7 @@
             'security' => $req{'security'},
             'allowmask' => $req{'allowmask'},
             'props' => $req{'props'},
-            'itemid' => 0,
+            'itemid' => -1,
             'comments' => $comments,
             'journal' => $userlite_journal,
             'poster' => $userlite_poster,
@@ -255,6 +265,8 @@
             'tags' => \@taglist,
             'userpic' => $userpic,
             'permalink_url' => "#",
+            adult_content_level => $req{prop_adult_content},
+            group_names => $group_names,
         });
 
         $p->{'multiform_on'} = 0;

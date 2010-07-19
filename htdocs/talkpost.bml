@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 body<=
 <?_code
@@ -9,10 +23,14 @@ body<=
 
     return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
-    LJ::need_res('stc/display_none.css');
+    LJ::need_res(qw (stc/display_none.css stc/talkpage.css) );
 
     my $remote = LJ::get_remote();
     my $errtxt;
+
+    # libs for userpicselect
+    LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+        if $remote && $remote->can_use_userpic_select;
 
     my $pics = LJ::Talk::get_subjecticons();
 
@@ -50,22 +68,20 @@ body<=
     return $ML{'talk.error.nojournal'} unless $u;
 
     $r->notes->{journalid} = $u->{'userid'};
-    return $LJ::MSG_READONLY_USER if LJ::get_cap($u, "readonly");
+    return $LJ::MSG_READONLY_USER if $u->is_readonly;
 
     my $dbcr = LJ::get_cluster_def_reader($u);
 
     return $LJ::MSG_READONLY_USER if $LJ::CLUSTER_DOWN{0} || ! $dbcr;
 
     # redirect if account was renamed
-    if ($u->{'journaltype'} eq "R") {
-        LJ::load_user_props($u, "renamedto");
-        if ($u->{'renamedto'} ne "") {
-            my $id = $FORM{'itemid'}+0;
-            return BML::redirect(LJ::journal_base($u->{'renamedto'}) . "/$id.html?mode=reply");
-        }
+    if ( $u->is_redirect ) {
+        my $id = $FORM{'itemid'} + 0;
+        my $redirect = $u->redirect_rename( "/$id.html?mode=reply" );
+        return $redirect if $redirect;
     }
 
-    LJ::run_hooks("need_res_for_journals", $u);
+    LJ::Hooks::run_hooks("need_res_for_journals", $u);
 
     my $ret = "";
 
@@ -76,7 +92,7 @@ body<=
     {
         my $qparentid = $init->{'replyto'};
 
-        my $sql = "SELECT t.posterid, t.nodetype, t.nodeid AS 'itemid', ".
+        my $sql = "SELECT t.posterid, t.nodetype, t.jtalkid, t.nodeid AS 'itemid', ".
             "UNIX_TIMESTAMP()-UNIX_TIMESTAMP(t.datepost) AS 'secondsold', ".
             "t.state, l.anum FROM talk2 t, log2 l WHERE l.journalid=$u->{'userid'} AND ".
             "l.jitemid=t.nodeid AND t.journalid=$u->{'userid'} AND t.jtalkid=$qparentid";
@@ -112,9 +128,6 @@ body<=
 
     my $itemid = $init->{'itemid'};
 
-    my $stylemine = $init->{'style'} eq "mine" ? "style=mine" : "";
-    my $formatlight = $GET{'format'} eq 'light' ? 'format=light' : '';
-
     ## load the journal item
     my $item = LJ::Talk::get_journal_item($u, $itemid);
 
@@ -130,9 +143,13 @@ body<=
     my $props = $item->{'props'};
 
     my $ditemid = $init->{'ditemid'};
-    my $talkurl = LJ::journal_base($u) . "/$ditemid.html";
-    my $entry = LJ::Entry->new($u, ditemid => $ditemid);
+    my $talkurl = $u->journal_base . "/$ditemid.html";
+    my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
 
+    # canonical link to the entry or comment thread
+    $head .= LJ::canonical_link( $entry->url, $GET{replyto} );
+
+    my $toplevel = $parpost ? 0 : 1;
     $parpost ||= $item;  # if there's no parent post, remote is reply to top-level item
 
     my ($up, $ur);  # $up = user posted journal item; $ur = user remote is replying to
@@ -142,26 +159,41 @@ body<=
 
     return if LJ::bad_password_redirect();
 
-    my @user_props = ("opt_logcommentips", "opt_whoscreened");
-    push @user_props, qw( opt_blockrobots adult_content admin_content_flag ) if $u->is_visible;
+    my @user_props = ("opt_whoscreened");
+    push @user_props, qw( opt_blockrobots adult_content ) if $u->is_visible;
     $u->preload_props(@user_props);
     if (!$u->is_visible || $u->should_block_robots || ($entry && $entry->should_block_robots)) {
         $head = LJ::robot_meta_tags();
     }
 
-    # check suspended
+    # check suspended user
     return "<?h1 $ML{'talk.error.suspended.title'} h1?><?p $ML{'talk.error.suspended'} p?>"
         if $u->is_suspended || $up->is_suspended ||
            $ur && $ur->is_suspended;
+
+    # check read-only user
+    return "<?h1 $ML{'talk.error.readonly_remote.title'} h1?><?p $ML{'talk.error.readonly_remote'} p?>"
+        if $remote && $remote->is_readonly;
+    return "<?h1 $ML{'talk.error.readonly_journal.title'} h1?><?p $ML{'talk.error.readonly_journal'} p?>"
+        if $u->is_readonly;
 
     # check deleted
     return "<?h1 $ML{'talk.error.deleted.title'} h1?><?p $ML{'talk.error.deleted'} p?>"
         if ($u->is_deleted);
 
-    # checked screened post
-    return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_screened'} p?>"
-        if $parpost->{'state'} eq "S"
-           && ! LJ::Talk::can_unscreen($remote, $u, $up, ($ur ? $ur->{'user'} : undef));
+    # check suspended entry
+    # reply page of suspended entry cannot be accessed by anyone, even entry poster
+    return "<?h1 $ML{'talk.error.suspended.title'} h1?><?p " . BML::ml('talk.error.suspendedentryreply', { aopts => "href='" . $u->journal_base . "/'" }) . " p?>"
+        if $entry && $entry->is_suspended;
+
+    my $parentcomment;
+    $parentcomment = LJ::Comment->new( $u, jtalkid => $parpost->{jtalkid} ) unless $toplevel;
+
+    # check for screened comment
+    if ( $parentcomment ) {
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_screened'} p?>"
+            if $parpost->{'state'} eq "S" && !$parentcomment->visible_to( $remote );
+    }
 
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_deleted'} p?>"
         if $parpost->{'state'} eq "D";
@@ -171,7 +203,7 @@ body<=
         if $parpost->{'state'} eq "F";
 
     # don't allow anonymous comments on syndicated items
-    if ($u->{'journaltype'} eq "Y" && $u->{'opt_whocanreply'} eq "all") {
+    if ( $u->is_syndicated && $u->{'opt_whocanreply'} eq "all" ) {
         $u->{'opt_whocanreply'} = "reg";
     }
 
@@ -181,14 +213,17 @@ body<=
     my $event = !$FORM{'replyto'} ? $item->{'event'} : $parpost->{'body'};
     my $preformatted = $FORM{'replyto'} eq "" ? $props->{'opt_preformatted'} : $parpost->{'opt_preformatted'};
 
-    LJ::CleanHTML::clean_event(\$event, $preformatted);
+    my $suspend_msg = $entry && $entry->should_show_suspend_msg_to($remote) ? 1 : 0;
+    LJ::CleanHTML::clean_event(\$event, { 'preformatted' => $preformatted,
+                                          'suspend_msg' => $suspend_msg,
+                                          'unsuspend_supportid' => $suspend_msg ? $entry->prop("unsuspend_supportid") : 0, });
     LJ::expand_embedded($u, $ditemid, $remote, \$event);
     BML::ebml(\$event);
 
-    $ret .= "<table><tr valign='middle'>";
+    $ret .= "<table id='poster'><tr>";
 
     my $pickw = $init->{'replyto'} ? $parpost->{'picture_keyword'} : $props->{'picture_keyword'};
-    LJ::run_hook('notify_event_displayed', $entry);
+    LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
     my $userpic;
     if ($init->{'replyto'}) {
@@ -200,22 +235,14 @@ body<=
 
     my %userpics;
     if ($userpic) {
-        # not auto-vivifying $ur here because $picid is based
-        # on $ur existing in the first place
-        my $alt = $ur->{'name'};
-        $alt .= ": $pickw" if $pickw;
-        $alt = LJ::ehtml($alt);
-        my ($w, $h) = $userpic->dimensions;
-        $ret .= "<td><img src='" . $userpic->url . "'' width='$w' height='$h' " .
-                "align='absmiddle' ".
-                "hspace='3' title='$alt' alt='' /></td>";
+        $ret .= "<td class='userpic' valign='bottom'>" .  $userpic->imgtag . "</td>";
     }
 
-    $ret .= "<td>";
+    $ret .= "<td class='attrib' valign='bottom'>";
 
     # who-wrote-where
     {
-        my $suffix = LJ::u_equals($ur, $u) ? "" : "_comm";
+        my $suffix = $u->equals( $ur ) ? "" : "_comm";
 
         # user logged in
         if ($ur) {
@@ -234,7 +261,7 @@ body<=
     unless ($init->{'replyto'}) {
         my $etime = $item->{'eventtime'};
         $etime =~ s!(\d\d\d\d)-(\d\d)-(\d\d)!LJ::date_to_view_links($u, $&)!e;
-        $ret .= "<br /><font size='-1'>@ $etime</font>";
+        $ret .= "<br /><span class='time'>@ $etime</span>";
     }
 
     $ret .= "</td></tr></table>";
@@ -244,62 +271,21 @@ body<=
                                      'remote' => $remote, 'itemid' => $ditemid, });
     }
 
-    my %current;
-    if ($props->{'current_mood'} || $props->{'current_moodid'}) {
-        my $themeid = $up->{'moodthemeid'};
-        my $moodid = $props->{'current_moodid'};
-        my $mood = $props->{'current_mood'};
-
-        my $moodname;
-        my $moodpic;
-
-        # favor custom mood over system mood
-        if (my $val = $mood) {
-            LJ::CleanHTML::clean_subject(\$val);
-            $moodname = $val;
-        }
-
-        if (my $val = $moodid) {
-            $moodname ||= LJ::mood_name($val);
-            my %pic;
-            if (LJ::get_mood_picture($themeid, $val, \%pic)) {
-                $moodpic = "<img src=\"$pic{'pic'}\" align='absmiddle' width='$pic{'w'}' " .
-                           "height='$pic{'h'}' vspace='1' alt='' /> ";
-            }
-        }
-
-        $current{'Mood'} = "$moodpic$moodname";
-    }
-    if ($props->{'current_music'}) {
-        $current{'Music'} = $props->{'current_music'};
-        LJ::CleanHTML::clean_subject(\$current{'Music'});
+    if ($u->is_locked) {
+        $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.locked'}</div>";
+    } elsif ($u->is_memorial) {
+        $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.memorial'}</div>";
+    } elsif ($u->is_readonly) {
+        $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.readonly'}</div>";
     }
 
-    if ($props->{'current_location'} || $props->{'current_coords'}) {
-        my $loc = eval { LJ::Location->new(coords   => $props->{'current_coords'},
-                                           location => $props->{'current_location'}) };
-        $current{'Location'} = $loc->as_html_current if $loc;
-    }
+    my %current = LJ::currents( $props, $up, { entry => $entry } );
+    # for some reason we don't display tags here
+    delete $current{Tags};
 
-    # custom friend groups
-    my $group_names = $entry->group_names;
-    $current{'Groups'} = $group_names if $group_names;
+    $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
 
-
-    $ret .= "<div style='margin-left: 30px'>";
-
-    ### currents
-    if (! $init->{'replyto'} && %current)
-    {
-        $ret .= "<table border=0>\n";
-        foreach (sort keys %current) {
-            my $curkey = "talk.curname_" . $_;
-            my $curname = BML::ml($curkey);
-            $curname = "<b>Current $_:</b>" unless $curname;
-            $ret .= "<tr><td align=right>$curname</td><td>$current{$_}</td></tr>\n";
-        }
-        $ret .= "</table><p>\n";
-    }
+    $ret .= LJ::currents_table( %current ) unless $init->{replyto};
 
     ### security indicator
     my $sec = "";
@@ -329,42 +315,52 @@ body<=
             LJ::CleanHTML::clean_subject(\$cleansubject);
             BML::ebml(\$cleansubject);
           }
-        $ret .= "<font face=\"Arial,Helvetica\" size='+1'><i><b>$cleansubject</b></i></font><br />\n";
+        $ret .= "<div id='entrysubj'>$cleansubject</div><br />\n";
     }
 
     $ret .= $event;
     $ret .= "</div>";
 
+    # links to reply, thread from start, parent comment, and thread
+    if ( $parentcomment ) {
+        $ret .= "<br /><div id='comment-interaction-links'>";
+
+        my $reply_url = LJ::Talk::talkargs( $parentcomment->reply_url, LJ::viewing_style_args( %GET ) );
+        $ret .= "(<a href='". $reply_url . "'>" . $ML{'talk.replytothis'} . "</a>)";
+
+        # only link to thread from start / parent comment if this isn't a top-level comment
+        if ( $parentcomment->parent ) {
+            my $threadstart_url = $parentcomment->threadroot_url( LJ::viewing_style_args( %GET ) );
+            $ret .= " (<a href='". $threadstart_url . "'>" . $ML{'talk.threadrootlink'} . "</a>)";
+
+            my $parent_url = $parentcomment->parent_url( LJ::viewing_style_args( %GET ) );
+            $ret .= " (<a href='". $parent_url . "'>" . $ML{'talk.parentlink'} . "</a>)";
+        }
+
+        my $thread_url = $parentcomment->url( LJ::viewing_style_args( %GET ) );
+        $ret .= " (<a href='". $thread_url . "'>" . $ML{'talk.threadlink'} . "</a>)";
+
+        $ret .= "</div>";
+    }
+
     $ret .= "<br clear='both' /><hr size='2' align='center' />";
 
     my $qotd = 0;
-    $qotd = $entry->is_special_qotd_entry if $entry;
-
-    my @verticals = $entry->verticals_list_for_ad;
-    if (@verticals) {
-        $LJ::REQ_GLOBAL{verticals_of_first_public_post} = join(",", @verticals);
-    }
-
-    my $ad = LJ::ad_display(type   => 'journal',
-                            orient => 'Journal-Indiv-Entry',
-                            user   => $u->user,
-                            use_wrapper => 0,
-                            vertical => $LJ::REQ_GLOBAL{verticals_of_first_public_post},
-                            interests_extra => $qotd ? "qotd" : "",
-                            );
-
-    if ($ad) {
-        $ret .= $ad;
-        $ret .= "<hr width='100%' size='2' align='center' />";
-    }
+    $qotd = $entry->prop("qotdid") if $entry;
 
     my $jarg = "journal=$u->{'user'}&amp;";
-    my $readurl = LJ::Talk::talkargs($talkurl, $stylemine, $formatlight);
+    my $readurl = LJ::Talk::talkargs($talkurl, LJ::viewing_style_args( %GET ) );
 
-    $ret .= "<p align='center' class='lesstop'><b>(<a href=\"$readurl#comments\">$ML{'talk.commentsread'}</a>)</b></p>";
+    my $replycount = $entry->prop( "replycount" );
+    my $readlink_text = BML::ml( "talk.commentsread.counted",
+                                 { replycount => $replycount } );
+    $readlink_text = BML::ml( "talk.commentsread.nocomments" )
+        if $replycount == 0;
+
+    $ret .= "<p align='center' class='lesstop'><b>(<a href=\"$readurl#comments\">$readlink_text</a>)</b></p>";
 
     # can a comment even be made?
-    if ($props->{'opt_nocomments'}) {
+    if ( $entry->comments_disabled ) {
         $ret .= "<?h1 $ML{'Sorry'} h1?><?p $ML{'.error.nocommentspost'} p?>";
         return $ret;
     }
@@ -372,8 +368,8 @@ body<=
         $ret .= "<?h1 $ML{'Sorry'} h1?><?p $ML{'.error.nocommentsjournal'} p?>";
         return $ret;
     }
-    unless (LJ::get_cap($u, "get_comments") ||
-            ($remote && LJ::get_cap($remote, "leave_comments"))) {
+    unless ($u->can_get_comments ||
+            ($remote && $remote->can_leave_comments)) {
         $ret .= "<?h1 $ML{'Sorry'} h1?><?p ";
         $ret .= $LJ::MSG_NO_COMMENT || "Sorry, you cannot leave comments at this time.";
         $ret .= " p?>";
@@ -388,8 +384,9 @@ body<=
                                  'parpost'   => $parpost,
                                  'replyto'   => $init->{replyto},
                                  'ditemid'   => $ditemid,
-                                 'stylemine' => $GET{'style'} eq "mine",
-                                 'form'      => \%FORM });
+                                 'form'      => \%FORM,
+                                 'do_captcha' => LJ::Talk::Post::require_captcha_test($remote, $u, $FORM{body}, $ditemid)});
+
     BML::noparse();
     return $ret;
 }
@@ -401,8 +398,4 @@ head<=
 <?_code return (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : ""; _code?>
 <=head
 windowtitle=><?_ml /talkpost.bml.title _ml?>
-page?><?_c <LJDEP>
-post: htdocs/talkpost_do.bml
-link: htdocs/talkread.bml, htdocs/allpics.bml, htdocs/create.bml
-</LJDEP> _c?>
-
+page?>

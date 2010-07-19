@@ -62,6 +62,7 @@ function pageload (dotime) {
 function customboxes (e) {
     if (! e) var e = window.event;
     if (! document.getElementById) return false;
+
     
     f = document.updateForm;
     if (! f) return false;
@@ -107,8 +108,9 @@ function altlogin (e) {
     remotelogin.style.display = 'none';
     
     var usejournal_list = $('usejournal_list');
-    if (! usejournal_list) return false;
-    usejournal_list.style.display = 'none';
+    if (usejournal_list) {
+        usejournal_list.style.display = 'none';
+    }
 
     var readonly = $('readonly');
     var userbox = f.user;
@@ -123,31 +125,40 @@ function altlogin (e) {
 
     var userpic_preview = $('userpic_preview');
     if (userpic_preview) {
-        userpic_preview.style.display = 'none';
+        userpic_preview.className = "";
+        userpic_preview.innerHTML = "<img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout' />";
     }
 
     var mood_preview = $('mood_preview');
     mood_preview.style.display = 'none';
 
+    changeSubmit('Post to Journal');
+
+    $('xpostdiv').style.display = 'none';
+
+    if ($('usejournal_username')) {
+        changeSecurityOptions($('usejournal_username').value);
+    } else {
+        changeSecurityOptions('');
+    }
+
     f = document.updateForm;
     if (! f) return false;
-    f.action = 'update.bml?altlogin=1';
+    f.action = 'update?altlogin=1';
     
+    if (f.security) {
+        f.security.options[3] = null;
+        f.security.selectedIndex = 0;
+    }
+
     var custom_boxes = $('custom_boxes');
     if (! custom_boxes) return false;
     custom_boxes.style.display = 'none';
-    if (f.security) {
-        f.security.options[3] = null;
-    }
-    
-    f.security.selectedIndex = 0;
 
     if (e) {
         e.cancelBubble = true;
         if (e.stopPropagation) e.stopPropagation();
     }
-
-    changeSubmit('Post to Journal');
 
     return false;    
 }
@@ -164,7 +175,7 @@ function defaultDate() {
 
 function insertViewThumbs() {
     var lj_userpicselect = $('lj_userpicselect');
-    lj_userpicselect.innerHTML = 'View Thumbnails';
+    lj_userpicselect.innerHTML = ml.viewthumbnails_link;
 }
 
 function mood_preview() {
@@ -206,7 +217,7 @@ function mood_preview() {
 function entryPreview(entryForm) {
     var f=entryForm;
     var action=f.action;
-    f.action='/preview/entry.bml'; 
+    f.action='/preview/entry'; 
     f.target='preview';
     window.open('','preview','width=760,height=600,resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');
     f.submit(); 
@@ -300,7 +311,7 @@ function setColumns(number) {
     listWrapper.removeChild(listObj);
 }
 
-function settime() {
+function settime( dateUpdatedText, fromButton ) {
     function twodigit (n) {
         if (n < 10) { return "0" + n; }
         else { return n; }
@@ -328,8 +339,13 @@ function settime() {
     var cYear = now.getYear() < 1900 ? now.getYear() + 1900 : now.getYear();
     var cHour = now.getHours();
     var cMinute = twodigit(now.getMinutes());
-    currentdate.innerHTML = mNames[cMonth] + " " + cDay + ", " + cYear + ", " + cHour + ":" + cMinute;
-    
+    var cDateText = mNames[cMonth] + " " + cDay + ", " + cYear + ", " + cHour + ":" + cMinute;
+    currentdate.innerHTML = cDateText;
+
+    if ( dateUpdatedText && fromButton ) {
+       return LJ_IPPU.showNote( dateUpdatedText + " " + cDateText, fromButton );
+    }
+
     return false;
 }
 
@@ -343,7 +359,7 @@ function getUserTags(defaultjournal) {
     }
 
     HTTPReq.getJSON({
-        url: "/tools/endpoints/gettags.bml?user=" + user,
+        url: "/tools/endpoints/gettags?user=" + user,
         method: "GET",
         onData: function (data) {
             // disable any InputComplete objects that are already on the tag field
@@ -360,6 +376,102 @@ function getUserTags(defaultjournal) {
         },
         onError: function (msg) { }
     });
+}
+
+function _changeOptionState(option, enable) {
+    if (option) {
+        if (enable) {
+            option.disabled = false;
+            option.style.color = "";
+        } else {
+            option.disabled = true;
+            option.style.color = "#999";
+        }
+    }
+}
+
+function changeSecurityOptions(defaultjournal) {
+    var user = defaultjournal;
+    if ($('usejournal') && $('usejournal').value != "") {
+        user = $('usejournal').value;
+    }
+
+    HTTPReq.getJSON({
+        url: "/tools/endpoints/getsecurityoptions?user=" + user,
+        method: "GET",
+        onData: function (data) {
+            if ($('security')) {
+                // first empty out whatever is in the drop-down
+                for (i = 0; i < $('security').options.length; i++) {
+                    $('security').options[i] = null;
+                }
+
+                // if the user is known
+                if (data.ret) {
+                    // give the appropriate security options for the account type
+                    if (data.ret['is_comm']) {
+                        $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                        $('security').options[1] = new Option(UpdateFormStrings.friends_comm, 'friends');
+                        if ( data.ret['can_manage'] ) {
+                            $('security').options[2] = new Option(UpdateFormStrings.admin, 'private');
+                        }
+                    } else {
+                        $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                        $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');
+                        $('security').options[2] = new Option(UpdateFormStrings.private, 'private');
+                        if (data.ret['friend_groups_exist']) {
+                            $('security').options[3] = new Option(UpdateFormStrings.custom, 'custom');
+                        }
+                    }
+
+                    // select the minsecurity value and disable the values with lesser security
+                    if (data.ret['minsecurity'] == "friends") {
+                        $('security').selectedIndex = 1;
+                        _changeOptionState($('security').options[0], false);
+                    } else if (data.ret['minsecurity'] == "private") {
+                        $('security').selectedIndex = 2;
+                        _changeOptionState($('security').options[0], false);
+                        _changeOptionState($('security').options[1], false);
+                        _changeOptionState($('security').options[3], false);
+                    } else {
+                        $('security').selectedIndex = 0;
+                        _changeOptionState($('security').options[0], true);
+                        _changeOptionState($('security').options[1], true);
+                        _changeOptionState($('security').options[2], true);
+                        _changeOptionState($('security').options[3], true);
+                    }
+
+                    // remove custom friends groups boxes if needed
+                    customboxes();
+
+                // if the user is not known
+                } else {
+                    // personal journal, but no custom option, and no minsecurity
+                    $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                    $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');
+                    $('security').options[2] = new Option(UpdateFormStrings.private, 'private');
+                    $('security').selectedIndex = 0;
+                    _changeOptionState($('security').options[0], true);
+                    _changeOptionState($('security').options[1], true);
+                    _changeOptionState($('security').options[2], true);
+                }
+            }
+        },
+        onError: function (msg) { }
+    });
+}
+
+function showRandomIcon() {
+    $('randomicon').style.display = 'inline';
+}
+
+function randomicon() {
+    var icons_list = document.getElementById('prop_picture_keyword');
+    // we need to ignore the "(default)" option for this code
+    var numberoficons = icons_list.length-1;
+    var randomnumber=Math.floor(Math.random()*numberoficons);
+    icons_list.selectedIndex = randomnumber+1;
+    userpic_preview();
 }
 
 ///////////////////// Insert Object code
@@ -433,7 +545,7 @@ InOb.handleInsertSelect = function () {
     if (selected == 0) {
         return true;
     } else if (selected == 1) {
-        include = 'imgupload.bml';
+        include = 'imgupload';
     } else {
         alert('Unknown index selected');
         return false;
@@ -453,21 +565,21 @@ InOb.handleInsertEmbed = function () {
     var cb = function (content) {
         var form = $("updateForm");
         if (! form || ! form.event);
-        form.event.value += "\n<lj-embed>\n" + content + "\n</lj-embed>";
+        form.event.value += "\n<site-embed>\n" + content + "\n</site-embed>";
     };
     entry_insert_embed(cb);
 }
 
 InOb.handleInsertImage = function () {
     var include;
-    include = '/imgupload.bml';
+    include = '/imgupload';
     onInsertObject(include);
     return true;
 }
 InOb.handleInsertVideo = function() {
     var videoUrl = prompt('Please enter a video URL:');
     var draft = $('draft');
-    var video = "<lj-template name=\"video\">" + videoUrl + "</lj-template>";
+    var video = "<site-template name=\"video\">" + videoUrl + "</site-template>";
     draft.value = draft.value + video;
 }
 
@@ -524,7 +636,8 @@ InOb.selectRadio = function (which) {
 
     if (which != 'fromfile') {
         var filediv = currentPopupWindow.document.getElementById('filediv');
-        filediv.innerHTML = filediv.innerHTML;
+        if (filediv)
+            filediv.innerHTML = filediv.innerHTML;
     }
 
     // focus and change next button
@@ -800,26 +913,123 @@ LJDraft.save = function (drafttext, cb) {
 
     HTTPReq.getJSON({
       method: "POST",
-      url: "/tools/endpoints/draft.bml",
+      url: "/tools/endpoints/draft",
       onData: finished,
       onError: function () { LJDraft.saveInProg = false; },
       data: HTTPReq.formEncoded({"saveDraft": drafttext})
     });
+
 };
 
+
 LJDraft.startTimer = function () {
+    var draftProperties = new Object();
+
+    // Get all the properties, excluding the draft body, of the user's draft so
+    // that we can pass them to LJDraft.checkProperties. We do this here to
+    // avoid querying draft.bml every second, and thus spamming MySQL to death.
+    HTTPReq.getJSON({
+      method: "GET",
+      url: "/tools/endpoints/draft",
+      onData: function (resObj) {
+              draftProperties = resObj;
+              }, 
+      data: HTTPReq.formEncoded({"getProperties": 1})
+      });
+
     setInterval(LJDraft.checkIfDirty, 1000);  // check every second
+    setInterval(function () {LJDraft.checkProperties(draftProperties)}, 1000);
     LJDraft.epoch = 0;
+};
+
+LJDraft.clearProperties = function () { //Clear all the draft's properties
+    HTTPReq.getJSON({                   //Excluding the Body.
+      method: "POST",
+      url: "/tools/endpoints/draft",
+      data: HTTPReq.formEncoded({"clearProperties": 1})
+      });
+};
+
+//Check and see if one of the draft's properties was changed.
+//If so, save them all through draft.bml.
+LJDraft.checkProperties = function (properties) {
+    if ( $("prop_picture_keyword") ) { //In case the user has no userpics
+        var currentUserpic = $("prop_picture_keyword").selectedIndex;
+    };
+    var currentSubject = $("subject").value;
+    var currentTaglist = $("prop_taglist").value;
+    var currentMoodID = $("prop_current_moodid").selectedIndex;
+    var currentMood = $("prop_current_mood").value;
+    var currentLocation = $("prop_current_location").value;
+    var currentMusic = $("prop_current_music").value;
+    var currentAdultReason = $("prop_adult_content_reason").value;
+    var currentCommentSet = $("comment_settings").selectedIndex;
+    var currentCommentScr = $("prop_opt_screening").selectedIndex;
+    var currentAdultCnt = $("prop_adult_content").selectedIndex;
+
+
+    currentAdultReason = convert_to_draft(currentAdultReason);
+    currentMusic = convert_to_draft(currentMusic);
+    currentLocation = convert_to_draft(currentLocation);
+    currentSubject = convert_to_draft(currentSubject);
+    currentTaglist = convert_to_draft(currentTaglist);
+    currentMood = convert_to_draft(currentMood);
+
+    if ( currentUserpic     != properties.userpic     ||
+         currentSubject     != properties.subject     ||
+         currentTaglist     != properties.taglist     ||
+         currentMoodID      != properties.moodid      ||
+         currentMood        != properties.mood        ||
+         currentLocation    != properties.location1   || //avoiding saved JS term
+         currentMusic       != properties.music       ||
+         currentAdultReason != properties.adultreason ||
+         currentCommentSet  != properties.commentset  ||
+         currentCommentScr  != properties.commentscr  ||
+         currentAdultCnt    != properties.adultcnt       ) 
+       {
+         
+         properties.userpic = currentUserpic;
+         properties.subject = currentSubject;
+         properties.taglist = currentTaglist;
+         properties.moodid  = currentMoodID;
+         properties.mood    = currentMood;
+         properties.location1 = currentLocation;
+         properties.music     = currentMusic;
+         properties.adultreason = currentAdultReason;
+         properties.commentset  = currentCommentSet;
+         properties.commentscr  = currentCommentScr;
+         properties.adultcnt    = currentAdultCnt;
+
+         HTTPReq.getJSON({
+           method: "POST",
+           url: "/tools/endpoints/draft",
+           data: HTTPReq.formEncoded({"saveUserpic":     currentUserpic,
+                                      "saveSubject":     currentSubject,
+                                      "saveTaglist":     currentTaglist,
+                                      "saveMoodID":      currentMoodID,
+                                      "saveMood":        currentMood,
+                                      "saveLocation":    currentLocation,
+                                      "saveMusic":       currentMusic,
+                                      "saveAdultReason": currentAdultReason,
+                                      "saveCommentSet":  currentCommentSet,
+                                      "saveCommentScr":  currentCommentScr,
+                                      "saveAdultCnt":    currentAdultCnt    })
+           });
+    };
 };
 
 LJDraft.checkIfDirty = function () {
     LJDraft.epoch++;
     var curBody;
 
-    if (!$("draft")) return false;
+    // If the draft is empty, delete it.
+    if ( !$( "draft" ) ) {
+        LJDraft.save("");
+    };
     if ($("draft").style.display == 'none') { // Need to check this to deal with hitting the back button
         // Since they may start using the RTE in the middle of writing their
         // entry, we should just get the editor each time.
+        if (! FCKeditor_LOADED) return;
         if (! FCKeditorAPI) return;
         var oEditor = FCKeditorAPI.GetInstance('draft');
         if (oEditor.GetXHTML) {

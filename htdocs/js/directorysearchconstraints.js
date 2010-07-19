@@ -339,8 +339,11 @@ var DirectorySearchConstraintTypes = [
                                       "Country",
                                       "City",
                                       "State",
-                                      "HasFriend",
-                                      "FriendOf"
+                                      "Trusts",
+                                      "TrustedBy",
+                                      "Watches",
+                                      "WatchedBy",
+                                      "MemberOf"
 ];
 
 var DirectorySearchConstraintPrototypes = {
@@ -383,14 +386,29 @@ var DirectorySearchConstraintPrototypes = {
       unique: true
   },
 
-  HasFriend: {
-      fieldNames: ["fr_user"],
-      displayName: "Has Friend"
+  Trusts: {
+      fieldNames: ["user_trusts"],
+      displayName: "User Trusts"
   },
 
-  FriendOf: {
-      fieldNames: ["fro_user"],
-      displayName: "Is Friend Of"
+  TrustedBy: {
+      fieldNames: ["user_trusted_by"],
+      displayName: "User Trusted By"
+  },
+
+  Watches: {
+      fieldNames: ["user_watches"],
+      displayName: "User Watches"
+  },
+
+  WatchedBy: {
+      fieldNames: ["user_watched_by"],
+      displayName: "User Watched By"
+  },
+
+  MemberOf: {
+      fieldNames: ["user_is_member"],
+      displayName: "User is Member Of"
   },
 
   UpdateTime: {

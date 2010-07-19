@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
 
 package Apache::LiveJournal::PalImg;
 
@@ -18,8 +30,9 @@ sub handler
 {
     my $r = shift;
     my $uri = $r->uri;
+
     my ($base, $ext, $extra) = $uri =~ m!^/palimg/(.+)\.(\w+)(.*)$!;
-    $r->notes("codepath" => "img.palimg");
+    $r->notes->{codepath} = "img.palimg";
     return 404 unless $base && $base !~ m!\.\.!;
 
     my $disk_file = "$LJ::HOME/htdocs/palimg/$base.$ext";
@@ -112,25 +125,25 @@ sub send_file
     }
 
     $etag = '"' . $etag . '"';
-    my $ifnonematch = $r->header_in("If-None-Match");
+    my $ifnonematch = $r->headers_in->{'If-None-Match'};
     return HTTP_NOT_MODIFIED if
         defined $ifnonematch && $etag eq $ifnonematch;
 
     # send the file
     $r->content_type($opts->{'mime'});
-    $r->header_out("Content-length", $opts->{'size'});
-    $r->header_out("ETag", $etag);
+    $r->headers_out->{'Content-length'} = $opts->{'size'};
+    $r->headers_out->{ETag} = $etag;
     if ($opts->{'modtime'}) {
         $r->update_mtime($opts->{'modtime'});
         $r->set_last_modified();
     }
-    $r->send_http_header();
 
     # HEAD request?
     return OK if $r->method eq "HEAD";
 
-    my $fh = Apache::File->new($disk_file);
+    open my $fh, $disk_file;
     return 404 unless $fh;
+
     binmode($fh);
 
     my $palette;
@@ -146,7 +159,11 @@ sub send_file
     }
 
     $r->print($palette) if $palette; # when palette modified.
-    $r->send_fd($fh); # sends remaining data (or all of it) quickly
+
+    # now read the rest of the file, but let's max on a 1MB image for sanity
+    read $fh, my $buf, 1024*1024;
+    $r->print( $buf ) if $buf;
+    
     $fh->close();
     return OK;
 }

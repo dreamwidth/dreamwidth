@@ -4,12 +4,12 @@
     <title>Resources</title>
     <para><variablelist>
         <varlistentry>
-          <term><ulink url="&siteroot;/customize/">Customization area</ulink></term>
+          <term><ulink url="&siteroot;/customize/">Customize Journal area</ulink></term>
           <listitem><simpara>Regular end-user destination to select layouts and corresponding themes with
             pretty graphical previews, and graphical wizard to override text/colors.</simpara></listitem>
         </varlistentry>
         <varlistentry>
-          <term><ulink url="&siteroot;/customize/advanced/">Advanced area</ulink></term>
+          <term><ulink url="&siteroot;/customize/advanced/">Developer area</ulink></term>
           <listitem><simpara>Create styles &amp; layers. View the S2 source and documentation page of any
             public layer, notably the core layer and all the classes, functions and properties it provides.
           </simpara></listitem>

@@ -16,7 +16,7 @@
 </varlistentry>
 <varlistentry><term>3</term>
 <listitem><para><database class="table">weekuserusage</database>
- populated (Note: this table is now gone)</para></listitem>
+ populated (Note: this table is now obsolete)</para></listitem>
 </varlistentry>
 <varlistentry><term>4</term>
 <listitem><para>

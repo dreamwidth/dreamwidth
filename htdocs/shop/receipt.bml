@@ -1,0 +1,96 @@
+<?_c
+
+#
+# shop/receipt.bml
+#
+# This page shows your receipt for your order.
+#
+# Authors:
+#      Janine Smith <janine@netrophic.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+_c?>
+<?_code
+{
+    use strict;
+    use vars qw/ %POST /;
+
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
+    my $err = DW::Shop->remote_sysban_check;
+    return $err if $err;
+
+    my $ordernum = $GET{ordernum};
+
+    my $cart = DW::Shop::Cart->get_from_ordernum( $ordernum );
+    return $ML{'.error.invalidordernum'}
+        unless $cart;
+
+    my $state = $cart->state;
+    my $paymentmethod = $cart->paymentmethod;
+    my $orderdate = DateTime->from_epoch( epoch => $cart->starttime );
+
+    # cart cannot be in open, closed, or checkout state
+    return BML::redirect( "$LJ::SITEROOT/shop/cart" )
+        if $state == $DW::Shop::STATE_OPEN || $state == $DW::Shop::STATE_CLOSED || $state == $DW::Shop::STATE_CHECKOUT;
+
+    my $title = BML::ml( '.title', { num => $cart->id } );
+
+    my $ret;
+    $ret .= qq{
+        <html>
+        <head>
+        <style type='text/css'>
+        table {
+            border: 1px solid #000;
+            border-spacing: 0;
+        }
+        table td, table th {
+            border: 1px solid #000;
+            padding: 5px;
+        }
+        table td.total {
+            font-weight: bold;
+            text-align: right;
+        }
+        </style>
+        <title>$title</title>
+        </head>
+        <body>
+    };
+    $ret .= "<h1>$title</h1>";
+    $ret .= "<p>" . BML::ml( '.cart.status', { status => $ML{".cart.status.$state"} } ) . "<br />";
+    $ret .= BML::ml( '.cart.paymentmethod', { paymentmethod => $ML{".cart.paymentmethod.$paymentmethod"} } ) . "</br />";
+    $ret .= BML::ml( '.cart.date', { date => $orderdate->strftime( "%F %r %Z" ) }) . "</p>";
+    if ( $paymentmethod eq 'checkmoneyorder' ) {
+        my $address = "<p>$LJ::SITECOMPANY<br />Order #" . $cart->id . "<br />$LJ::SITEADDRESS</p>";
+        $ret .= "<p>" . BML::ml( ".cart.paymentmethod.$paymentmethod.extra", { sitecompany => "<strong>$LJ::SITECOMPANY</strong>", address => $address } ) . "</p>";
+    }
+    $ret .= LJ::Widget::ShopCart->render( receipt => 1, cart => $cart );
+
+    # if we're in beta, allow them to confirm the cart, if needed
+    if ( $LJ::ENABLE_BETA_TOOLS && $cart->state == $DW::Shop::STATE_PEND_PAID ) {
+        if ( LJ::did_post() && $POST{setpaid } ) {
+            return "invalid form post\n"
+                unless LJ::check_form_auth();
+            $cart->state( $DW::Shop::STATE_PAID );
+            return BML::redirect( "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum );
+        }
+
+        $ret .= "<br /><form method='post'><input type='hidden' name='setpaid' value='1' />";
+        $ret .= LJ::form_auth();
+        $ret .= "<input type='submit' value='DEBUG: Set Payment Received' /></form>";
+    }
+
+    $ret .= "</body></html>";
+
+    return $ret;
+}
+_code?>

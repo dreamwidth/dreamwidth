@@ -9,17 +9,21 @@
 
 .backsupport2=Back to the <a [[aopts]]>support area</a>.
 
+.cc.imgalt=Creative Commons License
+
+.cc.licensing=Licensing
+
 .edit.faq=Edit this FAQ
 
 .error.nofaq=The specified FAQ does not exist.
+
+.error.title_nofaq=Error retrieving FAQ [[faqid]]
 
 .lastupdated=Last Updated:
 
 .more=Read More
 
 .title_cat=FAQ - [[catname]]
-
-.title_num=FAQ Question #[[num]]
 
 .translate.faq=Translate this FAQ
 

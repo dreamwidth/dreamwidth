@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
@@ -48,7 +62,7 @@
             my $typedes = " ($lay->{'type'}" . (! $is_child ? ": <b>$lid</b>" : '') . ")";
 
             # show link to detailed view
-            $body .= "<li><a href='layerbrowse.bml?id=$lay->{'uniq'}'>" . LJ::ehtml($layerinfo{$lid}->{'name'});
+            $body .= "<li><a href='layerbrowse?id=$lay->{'uniq'}'>" . LJ::ehtml($layerinfo{$lid}->{'name'});
             $body .= "</a>$typedes</li>\n";
 
             # done unless there are children to recurse through
@@ -58,10 +72,10 @@
             if ($lay->{'type'} eq 'layout' && $GET{'expand'} != $lid) {
                 my $num_children = 0;
                 foreach my $child (@{$lay->{'children'}}) {
-                    my $is_active = LJ::run_hook("layer_is_active", $pub->{$child}->{uniq});
+                    my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$child}->{uniq});
                     $num_children++ if !defined $is_active || $is_active;
                 }
-                $body .= "<ul><li>[<a href='layerbrowse.bml?expand=$lid'>";
+                $body .= "<ul><li>[<a href='layerbrowse?expand=$lid'>";
                 $body .= BML::ml('.layerchildren', {'numchildren' => $num_children}) . "</a>]</li></ul>";
                 return;
             }
@@ -75,7 +89,7 @@
             # expand children
             $body .= "<ul>";
             foreach (@children) {
-                my $is_active = LJ::run_hook("layer_is_active", $pub->{$_}->{uniq});
+                my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$_}->{uniq});
                 next unless !defined $is_active || $is_active;
                 $self->($self, $_);
             }
@@ -87,7 +101,7 @@
         # iterate through core layers
         $body .= "<ul>";
         foreach (grep { $pub->{$_}->{'b2lid'} == 0 } grep { /^\d+$/ } keys %$pub) {
-            my $is_active = LJ::run_hook("layer_is_active", $pub->{$_}->{uniq});
+            my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$_}->{uniq});
             next unless !defined $is_active || $is_active;
             $recurse->($recurse, $_);  # start from the top
         }
@@ -117,13 +131,12 @@
         $layerinfo->{$id}->{'source_viewable'} : undef;
 
     # do they have access?
-    my $isadmin = !defined $pub->{$id} &&                          # public styles are pulled from the system
-                  (LJ::check_priv($remote, 'canview', 'styles') || # account, so we don't want to check privileges
-                   LJ::check_priv($remote, 'canview', '*'));       # in case they're private styles
+    my $isadmin = ! defined $pub->{$id} && $remote && $remote->has_priv( 'canview', 'styles' );
+    my $can_manage = $remote && $remote->can_manage( LJ::load_userid( $layer->{userid} ) );
+    # public styles are pulled from the system account, so we don't
+    # want to check privileges in case they're private styles
     return $err->($ML{'.error.cantviewlayer'})
-        unless defined $pub->{$id} || $srcview == 1 ||
-               LJ::can_manage($remote, $layer->{'userid'}) ||
-               $isadmin;
+        unless defined $pub->{$id} || $srcview == 1 || $isadmin || $can_manage;
 
     LJ::S2::load_layers($id);
     my $s2info = S2::get_layer_all($id);
@@ -145,28 +158,26 @@
     $body .= "<br />";
     # link to layer list if this is a public layer, otherwise user's layer list
     if (defined $pub->{$id}) {
-        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layerbrowse.bml", 'text' => $ML{'.nav.publiclayers'} }) . "\n";
+        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layerbrowse", 'text' => $ML{'.nav.publiclayers'} }) . "\n";
     } else {
-        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layers.bml", 'text' => $ML{'.nav.yourlayers'} }) . "\n";
-        $body .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=$id'>$ML{'.nav.editlayer'}</a>" }) . "\n";
+        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layers", 'text' => $ML{'.nav.yourlayers'} }) . "\n";
+        $body .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/customize/advanced/layeredit?id=$id'>$ML{'.nav.editlayer'}</a>" }) . "\n";
     }
 
 
     if ($layer->{'b2lid'}) {
-        $body .= BML::ml('Actionlink', { 'link' => "<a href=\"$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$layer->{'b2lid'}\">$ML{'.nav.parentlayer'}</a>" }) . "\n";
+        $body .= BML::ml('Actionlink', { 'link' => "<a href=\"$LJ::SITEROOT/customize/advanced/layerbrowse?id=$layer->{'b2lid'}\">$ML{'.nav.parentlayer'}</a>" }) . "\n";
     }
-    if (defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
-            $srcview == 1 ||
-            LJ::can_manage($remote, $layer->{'userid'}) ||
-            $isadmin) {
+    if ( defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
+            $srcview == 1 || $can_manage || $isadmin ) {
 
-        $body .= BML::ml('Actionlink', { 'link' => "$ML{'.nav.viewsource'} <a href=\"$LJ::SITEROOT/customize/advanced/layersource.bml?id=$id\">$ML{'.nav.viewsource.raw'}</a> | <a href=\"$LJ::SITEROOT/customize/advanced/layersource.bml?id=$id&fmt=html\">$ML{'.nav.viewsource.highlighted'}</a>" }) . "\n";
+        $body .= BML::ml('Actionlink', { 'link' => "$ML{'.nav.viewsource'} <a href=\"$LJ::SITEROOT/customize/advanced/layersource?id=$id\">$ML{'.nav.viewsource.raw'}</a> | <a href=\"$LJ::SITEROOT/customize/advanced/layersource?id=$id&fmt=html\">$ML{'.nav.viewsource.highlighted'}</a>" }) . "\n";
     }
 
     # layerinfo
     if (my $info = $s2info->{'info'}) {
         $body .= "<?h1 $ML{'.layerinfo.header'} h1?>";
-        $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2'>";
+        $body .= "<table id='table_layerbrowse_layerinfo' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2'>";
         foreach my $k (sort keys %$info) {
             my ($ek, $ev) = map { LJ::ehtml($_) } ($k, $info->{$k});
             $title = $ev if $k eq "name";
@@ -213,7 +224,7 @@
     # sets
     if (my $set = $s2info->{'set'}) {
         $body .= "<?h1 $ML{'.propertiesset.header'} h1?>";
-        $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
+        $body .= "<table id='table_layerbrowse_properties' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
         foreach my $k (sort keys %$set) {
             my $v = $set->{$k};
 
@@ -228,7 +239,7 @@
     my $gb = $s2info->{'global'};
     if (ref $gb eq "HASH" && %$gb) {
         $body .= "<?h1 $ML{'.globalfunctions.header'} h1?>";
-        $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
+        $body .= "<table id='table_layerbrowse_global' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
         foreach my $fname (sort keys %$gb) {
             my $rt = $gb->{$fname}->{'returntype'};
             if (defined $class->{$rt}) {
@@ -241,7 +252,7 @@
             my $args = $gb->{$fname}->{'args'};
             $xlink_args->(\$args);
             
-            $body .= "<tr><td><nobr><a name='func.$fname'><tt>$args : $rt</tt></a></nobr></td><td>$ds</td></tr>";
+            $body .= "<tr><td class='func'><a name='func.$fname'><tt>$args : $rt</tt></a></td><td>$ds</td></tr>";
         }
         $body .= "</table>";
     }
@@ -251,7 +262,7 @@
     {
         # class index
         $body .= "<?h1 $ML{'.classes.header'} h1?>";
-        $body .= "<table style='margin-bottom: 10px'><tr valign='top' align='left'>";
+        $body .= "<table id='table_layerbrowse_classes' class='table_layerbrowse' style='margin-bottom: 10px'><tr valign='top' align='left'>";
         $body .= "<td width='50%'>$ML{'.classes.sort.alphabetical'}";
         $body .= "<ul>";
         foreach my $cname (sort { lc($a) cmp lc($b) } keys %$class) {
@@ -306,7 +317,7 @@
             };
             $add->($add, $cname);
 
-            $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.members.header'} h2?>" if %var;
+            $body .= "<table id='table_layerbrowse_members' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.members.header'} h2?>" if %var;
             foreach (sort keys %var) {
                 my $type = $var{$_}->{'type'};
                 $type =~ s/(\w+)/defined $class->{$1} ? "[class[$1]]" : $1/eg;
@@ -323,7 +334,7 @@
             }
             $body .= "</table>" if %var;
             
-            $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.methods.header'} h2?>" if %func;
+            $body .= "<table id='table_layerbrowse_methods' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.methods.header'} h2?>" if %func;
             foreach (sort keys %func) {
                 my $rt = $func{$_}->{'returntype'};
                 if (defined $class->{$rt}) {
@@ -336,7 +347,7 @@
                 my $args = $_;
                 $xlink_args->(\$args);
 
-                $body .= "<tr><td><nobr><a name='meth.${cname}::$_'><tt>$args : $rt</tt></a></nobr></td><td>$ds</td></tr>";
+                $body .= "<tr><td class='method'><a name='meth.${cname}::$_'><tt>$args : $rt</tt></a></td><td>$ds</td></tr>";
             }
             $body .= "</table>" if %func;
         }
@@ -347,6 +358,23 @@
 
 }
 _code?><?page title=><?_code return $title; _code?>
+head<=
+<style type='text/css'>
+table.table_layerbrowse td.func, table.table_layerbrowse td.method {
+    padding-left: 1.7em;
+    text-indent: -1.5em;
+}
+
+table.table_layerbrowse td {
+    padding: 3px;
+}
+
+table#table_layerbrowse_classes ul {
+    list-style: circle outside none;
+    margin-left: 1em;
+}
+</style>
+<=head
 body=><?_code return $body; _code?>
 page?>
     

@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <html>
 <head><title>Status History</title></head>
 <body>
@@ -10,17 +24,20 @@
 
     # check privs
     my $remote = LJ::get_remote();
-    unless (LJ::check_priv($remote, "historyview") || $LJ::IS_DEV_SERVER) {
-        return "Sorry, you don't have access to view this page.";
-    }
+    my @displayprivs =( "historyview" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless $remote->has_priv( "historyview" ) || $LJ::IS_DEV_SERVER;
 
     my $ret;
 
     $ret .= "Fill in at least one field below:";
-    $ret .= "<form method='post' action='statushistory.bml'>\n";
+    $ret .= "<form method='post' action='statushistory'>\n";
     $ret .= LJ::html_hidden('orderby', $FORM{'orderby'}, 'flow', $FORM{'flow'}) . "\n";
-    $ret .= "User: " . LJ::html_text({ 'name' => 'user', 'size' => '15', 'maxlength' => '15' }) . "\n";
-    $ret .= "Admin: " . LJ::html_text({ 'name' => 'admin', 'size' => '15', 'maxlength' => '15' }) . "\n";
+    $ret .= "User: " . LJ::html_text({ 'name' => 'user', 'size' => '25', 'maxlength' => '25' }) . "\n";
+    $ret .= "Admin: " . LJ::html_text({ 'name' => 'admin', 'size' => '25', 'maxlength' => '25' }) . "\n";
     $ret .= "Type: " . LJ::html_text({ 'name' => 'type', 'size' => '20', 'maxlength' => '20' }) . "\n";
     $ret .= LJ::html_submit('query_submit', 'Search');
     $ret .= "</form>\n\n";
@@ -48,7 +65,8 @@
         push @where, "s.shtype=$qt";
     }
 
-    my $where = "WHERE " . join(" AND ", @where) . " " if @where;
+    my $where = "";
+    $where = "WHERE " . join(" AND ", @where) . " " if @where;
 
     my $orderby = 'shdate';
     foreach (qw(user admin shdate shtype notes)) {
@@ -75,7 +93,7 @@
     $ret .= "</b></p>\n";
     $ret .= "<table border='1' cellpadding='5' width='100%'>\n<tr>";
     foreach (qw(user admin shtype shdate notes)) {
-        my $link = "statushistory.bml?user=$FORM{'user'}&admin=$FORM{'admin'}&type=$FORM{'type'}&orderby=$_";
+        my $link = "statushistory?user=$FORM{'user'}&admin=$FORM{'admin'}&type=$FORM{'type'}&orderby=$_";
         $link .= $FORM{'orderby'} eq $_ && $FORM{'flow'} eq 'asc' ? "&flow=desc" : "&flow=asc";
         $ret .= "<td><b><a href='$link'>$_</a></b></td>";
     }
@@ -86,8 +104,8 @@
     while (my $hist = $sth->fetchrow_hashref) {
         # see if they can see this item: either they have unarged historyview or
         # they have historyview:shtype
-        next unless LJ::check_priv($remote, 'historyview', '') ||
-                    LJ::check_priv($remote, 'historyview', $hist->{shtype});
+        next unless $remote && ( $remote->has_priv( 'historyview', '' ) ||
+                    $remote->has_priv( 'historyview', $hist->{shtype} ) );
 
         $ret .= "<tr>";
         foreach (qw(user admin shtype shdate notes)) {

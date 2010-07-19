@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Directory::MajorRegion;
 use strict;
 use warnings;
@@ -96,8 +109,31 @@ if (!@reg || $LJ::_T_DEFAULT_MAJREGIONS) {
                              ]
                 ],
                 [66, "CA"],
-                [67, "UK"],
+                [ 152, 'CA-AB', part_of => 'CA' ],
+                [ 153, 'CA-BC', part_of => 'CA' ],
+                [ 154, 'CA-MB', part_of => 'CA' ],
+                [ 155, 'CA-NB', part_of => 'CA' ],
+                [ 156, 'CA-NL', part_of => 'CA' ],
+                [ 157, 'CA-NT', part_of => 'CA' ],
+                [ 158, 'CA-NS', part_of => 'CA' ],
+                [ 159, 'CA-NU', part_of => 'CA' ],
+                [ 160, 'CA-ON', part_of => 'CA' ],
+                [ 161, 'CA-PE', part_of => 'CA' ],
+                [ 162, 'CA-QC', part_of => 'CA' ],
+                [ 163, 'CA-SK', part_of => 'CA' ],
+                [ 164, 'CA-YT', part_of => 'CA' ],
+
+
+#                [67, "UK"],
                 [68, "AU"],
+                [ 165, 'AU-ACT', part_of => 'AU' ],
+                [ 166, 'AU-NSW', part_of => 'AU' ],
+                [ 167, 'AU-NT', part_of => 'AU' ],
+                [ 168, 'AU-QLD', part_of => 'AU' ],
+                [ 169, 'AU-SA', part_of => 'AU' ],
+                [ 170, 'AU-TAS', part_of => 'AU' ],
+                [ 171, 'AU-VIC', part_of => 'AU' ],
+                [ 172, 'AU-WA', part_of => 'AU' ],
 
                 [69, 'RU-1', part_of => 'RU'],
                 [70, 'RU-2', part_of => 'RU'],

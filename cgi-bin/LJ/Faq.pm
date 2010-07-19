@@ -1,4 +1,17 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 package LJ::Faq;
 
@@ -29,7 +42,8 @@ sub new {
 
     $self->{$_} = delete $opts{$_}
         foreach qw(faqid question summary answer faqcat lastmoduserid sortorder lastmodtime unixmodtime);
-    $self->{lang}     = delete $opts{lang} || $LJ::DEFAULT_LANG;
+    # FIXME: shouldn't that be the root language of the faq domain instead?
+    $self->{lang} = delete $opts{lang} || $LJ::DEFAULT_LANG;
 
     croak("unknown parameters: " . join(", ", keys %opts))
         if %opts;
@@ -62,6 +76,7 @@ sub load {
         or die "Unable to contact global reader";
 
     my $faq;
+    # FIXME: shouldn't that be the root language of the faq domain instead?
     if ($lang eq $LJ::DEFAULT_LANG) {
         my $f = $dbr->selectrow_hashref
             ("SELECT faqid, question, summary, answer, faqcat, lastmoduserid, ".
@@ -70,6 +85,7 @@ sub load {
              "FROM faq WHERE faqid=?",
              undef, $faqid);
         die $dbr->errstr if $dbr->err;
+        return undef unless $f;
         $faq = $class->new(%$f, lang => $lang);
 
     } else { # Don't load fields that lang_update_in_place will overwrite.
@@ -79,6 +95,7 @@ sub load {
              "FROM faq WHERE faqid=?",
              undef, $faqid);
         die $dbr->errstr if $dbr->err;
+        return undef unless $f;
         $faq = $class->new(%$f, lang => $lang);
         $faq->lang_update_in_place;
     }
@@ -104,9 +121,17 @@ sub load_all {
 
     my %opts = @_;
     my $lang = delete $opts{lang} || $LJ::DEFAULT_LANG;
-    my $faqcat = delete $opts{"cat"};
-    my $wherecat = "faqcat "
-        . (length $faqcat ? "= " . $dbr->quote($faqcat) : "!= ''");
+    my $faqcat = delete $opts{cat};
+    my $allow_no_cat = delete $opts{allow_no_cat} || 0;
+    
+    my $wherecat = "";
+    if ( $allow_no_cat ) {
+        $wherecat = "WHERE faqcat = " . $dbr->quote($faqcat) if defined $faqcat;
+    } else {
+        $wherecat = "WHERE faqcat "
+            . (length $faqcat ? "= " . $dbr->quote($faqcat) : "!= ''");
+    }
+
     croak("unknown parameters: " . join(", ", keys %opts))
         if %opts;
 
@@ -116,13 +141,13 @@ sub load_all {
             ("SELECT faqid, question, summary, answer, faqcat, lastmoduserid, ".
              "DATE_FORMAT(lastmodtime, '%M %D, %Y') AS lastmodtime, ".
              "UNIX_TIMESTAMP(lastmodtime) AS unixmodtime, sortorder ".
-             "FROM faq WHERE $wherecat");
+             "FROM faq $wherecat");
 
     } else { # Don't load fields that lang_update_in_place will overwrite.
         $sth = $dbr->prepare
             ("SELECT faqid, faqcat, ".
              "UNIX_TIMESTAMP(lastmodtime) AS unixmodtime, sortorder ".
-             "FROM faq WHERE $wherecat");
+             "FROM faq $wherecat");
     }
     $sth->execute;
     die $sth->errstr if $sth->err;
@@ -132,6 +157,7 @@ sub load_all {
         push @faqs, $class->new(%$f);
     }
 
+    # FIXME: shouldn't that be the root language of the faq domain instead?
     if ($lang ne $LJ::DEFAULT_LANG) {
         $class->lang_update_in_place($lang => @faqs);
     }
@@ -352,8 +378,8 @@ sub render_in_place {
         }
     };
 
-    # FAQ titles can't have item references.
     foreach my $faq (@faqs) {
+        $collect_item_codes->($faq->question_raw);
         $collect_item_codes->($faq->summary_raw) if $faq->has_summary;
         $collect_item_codes->($faq->answer_raw);
     }
@@ -441,7 +467,7 @@ sub load_matching {
     croak("unknown parameters: " . join(", ", keys %opts))
         if %opts;
 
-    my @faqs = $class->load_all(lang => $lang);
+    my @faqs = $class->load_all( lang => $lang, allow_no_cat => 1 );
     die "unable to load faqs" unless @faqs;
 
     my %scores  = (); # faqid => score

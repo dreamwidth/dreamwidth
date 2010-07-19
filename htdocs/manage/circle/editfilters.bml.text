@@ -1,0 +1,58 @@
+;; -*- coding: utf-8 -*-
+.btn.add=&gt;&gt; Add
+
+.btn.ge.del=Delete
+
+.btn.ge.new=New
+
+.btn.ge.ren=Rename
+
+.btn.gs.private=Private
+
+.btn.gs.public=Public
+
+.btn.mv.down=Move down
+
+.btn.mv.up=Move up
+
+.btn.remove=&lt;&lt; Remove
+
+.confirm.delete=Are you sure you wish to delete this access filter?
+
+.done.btn=Save Changes
+
+.done.header=Done?
+
+.done.text=When you are done, press the button below to save your changes.
+
+.error.max60=You have reached the maximum limit of 60 access filters. If you have deleted one or more access filters but have not saved the changes yet, do so now, then come back to this page and reload it. You will then be able to create new access filters.
+
+.error.text=The server returned the following error message:
+
+.group.public=(public)
+
+.ingroup=In access filter:
+
+.ingroup.not=Not in access filter:
+
+.prompt.newname=Enter the name for the new access filter:
+
+.prompt.rename=Rename this access filter to:
+
+.saved.action.post=Post an entry
+
+.saved.action.subscription=Manage subscription filters
+
+.saved.header=Saved
+
+.saved.text=Your access filters are now saved.
+
+.subfilters=You are currently managing your access filters.  <a [[aopts]]>Manage your subscription filters?</a>
+
+.text=This page allows you to edit your filters.  Currently, you can only edit your access filters, which are used for setting security on items.  Reading filters, which are used for filtering your reading page, are not yet currently supported.  This page requires JavaScript to work.
+
+.text.sec=<strong>Security note:</strong> If you wish to delete an access filter and make a new access filter, do <strong>not</strong> do this by renaming one access filter and then editing it. If you do this, all your old entries which are accessible to the old access filter will then be accessible to the new access filter.
+
+.title2=Manage Access Filters
+
+.yourgroups=Your access filters:

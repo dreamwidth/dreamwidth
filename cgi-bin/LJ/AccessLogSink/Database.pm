@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::AccessLogSink::Database;
 use strict;
 use base 'LJ::AccessLogSink';
@@ -60,7 +73,7 @@ sub log {
                 "whnunix INT UNSIGNED,".
                 "server VARCHAR(30),".
                 "addr VARCHAR(15) NOT NULL,".
-                "ljuser VARCHAR(15),".
+                "ljuser VARCHAR(25),".
                 "remotecaps INT UNSIGNED,".
                 "journalid INT UNSIGNED,". # userid of what's being looked at
                 "journaltype CHAR(1),".   # journalid's journaltype
@@ -109,8 +122,7 @@ sub log {
     $self->extra_values($rec, $copy);
 
     my $ins = sub {
-        my $delayed = $LJ::IMMEDIATE_LOGGING ? "" : "DELAYED";
-        $dbl->do("INSERT $delayed INTO $table (" . join(',', keys %$copy) . ") ".
+        $dbl->do("INSERT INTO $table (" . join(',', keys %$copy) . ") ".
                  "VALUES (" . join(',', map { $dbl->quote($copy->{$_}) } keys %$copy) . ")");
     };
 

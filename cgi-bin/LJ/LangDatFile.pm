@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::LangDatFile;
 use strict;
 use warnings;
@@ -34,7 +47,10 @@ sub parse {
         my $del;
         my $action_line;
 
-        if ($line =~ /^(\S+?)=(.*)/) {
+        if ($line =~ /^[\#\;]/) {
+            # comment line
+            next;
+        } elsif ($line =~ /^(\S+?)=(.*)/) {
             ($code, $text) = ($1, $2);
             $action_line = 1;
         } elsif ($line =~ /^\!\s*(\S+)/) {
@@ -50,9 +66,6 @@ sub parse {
             }
             chomp $text;  # remove file new-line (we added it)
             $action_line = 1;
-        } elsif ($line =~ /^[\#\;]/) {
-            # comment line
-            next;
         } elsif ($line =~ /\S/) {
             croak "$filename:$lnum: Bogus format.";
         }
@@ -62,9 +75,8 @@ sub parse {
             $self->{meta}->{$code}->{$1} = $text;
             $action_line = 1;
         }
-
         next unless $action_line;
-        $self->{values}->{$code} = $text;
+        $self->{values}->{ lc($code) } = $text;
     }
 
     close $datfile;
@@ -81,7 +93,7 @@ sub value {
     my ($self, $key) = @_;
 
     return undef unless $key;
-    return $self->{values}->{$key};
+    return $self->{values}->{ lc($key) };
 }
 
 sub foreach_key {
@@ -109,7 +121,7 @@ sub set {
     return 0 unless $k;
     $v ||= '';
 
-    $self->{values}->{$k} = $v;
+    $self->{values}->{ lc($k) } = $v;
     return 1;
 }
 

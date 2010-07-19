@@ -1,9 +1,22 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 package LJ::S2;
-use Class::Autouse qw/LJ::ContentFlag/;
+use DW::Logic::AdultContent;
 
 sub FriendsPage
 {
@@ -15,15 +28,24 @@ sub FriendsPage
 
     my $p = Page($u, $opts);
     $p->{'_type'} = "FriendsPage";
-    $p->{'view'} = "friends";
+    $p->{view} = $opts->{view} eq "network" ? "network" : "read";
     $p->{'entries'} = [];
     $p->{'friends'} = {};
     $p->{'friends_title'} = LJ::ehtml($u->{'friendspagetitle'});
-    $p->{'filter_active'} = 0;
-    $p->{'filter_name'} = "";
 
     # Add a friends-specific XRDS reference
     $p->{'head_content'} .= qq{<meta http-equiv="X-XRDS-Location" content="}.LJ::ehtml($u->journal_base).qq{/data/yadis/friends" />\n};
+
+    # load for ajax cuttag
+    LJ::need_res( 'js/cuttag-ajax.js' );
+    my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
+    my $expanded = BML::ml( 'widget.cuttag.expanded' );
+    $p->{'head_content'} .= qq[
+  <script type='text/javascript'>
+  expanded = '$expanded';
+  collapsed = '$collapsed';
+  </script>
+    ];
 
     my $sth;
     my $user = $u->{'user'};
@@ -60,19 +82,19 @@ sub FriendsPage
 
     my $ret;
 
-    LJ::load_user_props($remote, "opt_nctalklinks", "opt_stylemine", "opt_imagelinks", "opt_ljcut_disable_friends");
+    $remote->preload_props( "opt_nctalklinks", "opt_stylemine", "opt_imagelinks", "opt_imageundef", "opt_cut_disable_reading" ) if $remote;
 
     # load options for image links
     my ($maximgwidth, $maximgheight) = (undef, undef);
     ($maximgwidth, $maximgheight) = ($1, $2)
-        if ($remote && $remote->{'userid'} == $u->{'userid'} &&
-            $remote->{'opt_imagelinks'} =~ m/^(\d+)\|(\d+)$/);
+        if ( $remote && $remote->equals( $u ) &&
+             $remote->{opt_imagelinks} =~ m/^(\d+)\|(\d+)$/ );
 
     ## never have spiders index friends pages (change too much, and some
     ## people might not want to be indexed)
     $p->{'head_content'} .= LJ::robot_meta_tags();
 
-    my $itemshow = S2::get_property_value($opts->{'ctx'}, "page_friends_items")+0;
+    my $itemshow = S2::get_property_value($opts->{'ctx'}, "num_items_reading")+0;
     if ($itemshow < 1) { $itemshow = 20; }
     elsif ($itemshow > 50) { $itemshow = 50; }
 
@@ -82,60 +104,68 @@ sub FriendsPage
     if ($skip < 0) { $skip = 0; }
     my $itemload = $itemshow+$skip;
 
-    my $filter;
-    my $group;
-    my $common_filter = 1;
+    my $events_date   = ($get->{date} =~ m!^(\d{4})-(\d\d)-(\d\d)$!)
+                        ? LJ::mysqldate_to_time("$1-$2-$3")
+                        : 0;
 
-    if (defined $get->{'filter'} && $remote && $remote->{'user'} eq $user) {
-        $filter = $get->{'filter'};
-        $common_filter = 0;
-        $p->{'filter_active'} = 1;
-        $p->{'filter_name'} = "";
+    # allow toggling network mode
+    $p->{friends_mode} = 'network'
+        if $opts->{view} eq 'network';
+
+    # try to get a group name if they specified one
+    my $group_name = '';
+    if ( $group_name = $opts->{pathextra} ) {
+        $group_name =~ s!^/!!;
+        $group_name =~ s!/$!!;
+        $group_name = LJ::durl( $group_name );
+    }
+
+    # try to get a content filter, try a specified group name first, fall back to Default,
+    # and failing that try Default View (for the old school diehards)
+    my $cf = $u->content_filters( name => $group_name || "Default" ) ||
+             $u->content_filters( name => "Default View" );
+
+    my $filter;
+    if ( $opts->{securityfilter} ) {
+            $p->{filter_active} = 1;
+            $p->{filter_name} = $opts->{securityfilter};
     } else {
-        if ($opts->{'pathextra'}) {
-            $group = $opts->{'pathextra'};
-            $group =~ s!^/!!;
-            $group =~ s!/$!!;
-            if ($group) { $group = LJ::durl($group); $common_filter = 0; }
-        }
-        if ($group) {
-            $p->{'filter_active'} = 1;
-            $p->{'filter_name'} = LJ::ehtml($group);
-        }
-        my $grp = LJ::get_friend_group($u, { 'name' => $group || "Default View" });
-        my $bit = $grp->{'groupnum'};
-        my $public = $grp->{'is_public'};
-        if ($bit && ($public || ($remote && $remote->{'user'} eq $user))) {
-            $filter = (1 << $bit);
-        } elsif ($group) {
-            $opts->{'badfriendgroup'} = 1;
+    # but we can't just use a filter, we have to make sure the person is allowed to
+        if ( ( $get->{filter} ne "0" ) && $cf && ( $u->equals( $remote ) || $cf->public ) ) {
+            $filter = $cf;
+
+        # if we couldn't use the group, then we can throw an error, but ONLY IF they specified
+        # a group name manually.  if we tried to load the default on our own, don't toss an
+        # error as that would let a user disable their friends page.
+        } elsif ( $group_name ) {
+            $opts->{badfriendgroup} = 1;  # nobiscuit
             return 1;
         }
     }
 
-    if ($opts->{'view'} eq "friendsfriends") {
-        $p->{'friends_mode'} = "friendsfriends";
+    if ( $filter && !$filter->is_default ) {
+        $p->{filter_active} = 1;
+        $p->{filter_name} = $filter->name;
     }
 
     ## load the itemids
-    my %friends;
-    my %friends_row;
-    my %idsbycluster;
-    my @items = LJ::get_friend_items({
-        'u' => $u,
-        'userid' => $u->{'userid'},
-        'remote' => $remote,
-        'itemshow' => $itemshow,
-        'skip' => $skip,
-        'filter' => $filter,
-        'common_filter' => $common_filter,
-        'friends_u' => \%friends,
-        'friends' => \%friends_row,
-        'idsbycluster' => \%idsbycluster,
-        'showtypes' => $get->{'show'},
-        'friendsoffriends' => $opts->{'view'} eq "friendsfriends",
-        'dateformat' => 'S2',
-    });
+    my ( %friends, %friends_row, %idsbycluster );
+    my @items = $u->watch_items(
+        itemshow          => $itemshow + 1,
+        skip              => $skip,
+        content_filter    => $filter,
+        friends_u         => \%friends,
+        friends           => \%friends_row,
+        idsbycluster      => \%idsbycluster,
+        showtypes         => $get->{show},
+        friendsoffriends  => $opts->{view} eq 'network',
+        security          => $opts->{securityfilter},
+        dateformat        => 'S2',
+        events_date       => $events_date,
+    );
+
+    my $is_prev_exist = scalar @items - $itemshow > 0 ? 1 : 0;
+    pop @items if $is_prev_exist;
 
     while ($_ = each %friends) {
         # we expect fgcolor/bgcolor to be in here later
@@ -144,16 +174,6 @@ sub FriendsPage
     }
 
     return $p unless %friends;
-
-    ### load the log properties
-    my %logprops = ();  # key is "$owneridOrZero $[j]itemid"
-    LJ::load_log_props2multi(\%idsbycluster, \%logprops);
-
-    # load the text of the entries
-    my $logtext = LJ::get_logtext2multi(\%idsbycluster);
-
-    # load tags on these entries
-    my $logtags = LJ::Tags::get_logtagsmulti(\%idsbycluster);
 
     my %posters;
     {
@@ -166,169 +186,48 @@ sub FriendsPage
             if @posterids;
     }
 
-    my %objs_of_picid;
-    my @userpic_load;
-
-    my %lite;   # posterid -> s2_UserLite
-    my $get_lite = sub {
-        my $id = shift;
-        return $lite{$id} if $lite{$id};
-        return $lite{$id} = UserLite($posters{$id} || $friends{$id});
-    };
-
     my $eventnum = 0;
     my $hiddenentries = 0;
+    $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_reading' ) );
+
   ENTRY:
     foreach my $item (@items)
     {
-        my ($friendid, $posterid, $itemid, $security, $allowmask, $alldatepart) =
-            map { $item->{$_} } qw(ownerid posterid itemid security allowmask alldatepart);
+        my ($friendid, $posterid, $itemid, $anum) =
+            map { $item->{$_} } qw(ownerid posterid itemid anum);
 
+        # $fr = journal posted in, can be community
         my $fr = $friends{$friendid};
-        $p->{'friends'}->{$fr->{'user'}} ||= Friend($fr);
+        $p->{friends}->{$fr->{user}} ||= Friend($fr);
 
-        my $clusterid = $item->{'clusterid'}+0;
-        my $datakey = "$friendid $itemid";
-
-        my $replycount = $logprops{$datakey}->{'replycount'};
-        my $subject = $logtext->{$datakey}->[0];
-        my $text = $logtext->{$datakey}->[1];
-        if ($get->{'nohtml'}) {
-            # quote all non-LJ tags
-            $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-            $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        }
-
-        if ($LJ::UNICODE && $logprops{$datakey}->{'unknown8bit'}) {
-            LJ::item_toutf8($friends{$friendid}, \$subject, \$text, $logprops{$datakey});
-        }
-
-        my ($friend, $poster);
-        $friend = $poster = $friends{$friendid}->{'user'};
-
-        LJ::CleanHTML::clean_subject(\$subject) if $subject;
-
-        my $ditemid = $itemid * 256 + $item->{'anum'};
-
-        my $stylemine = "";
-        $stylemine .= "style=mine" if $remote && $remote->{'opt_stylemine'} &&
-                                      $remote->{'userid'} != $friendid;
-
-        LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$datakey}->{'opt_preformatted'},
-                                             'cuturl' => LJ::item_link($friends{$friendid}, $itemid, $item->{'anum'}, $stylemine),
-                                             'maximgwidth' => $maximgwidth,
-                                             'maximgheight' => $maximgheight,
-                                             'ljcut_disable' => $remote->{'opt_ljcut_disable_friends'}, });
-        LJ::expand_embedded($friends{$friendid}, $ditemid, $remote, \$text);
-
-        my $entry_obj = LJ::Entry->new($friends{$friendid}, ditemid => $ditemid);
-        $text = LJ::ContentFlag->transform_post(post => $text, journal => $friends{$friendid},
-                                                remote => $remote, entry => $entry_obj);
-
-        my $userlite_poster = $get_lite->($posterid);
-        my $userlite_journal = $get_lite->($friendid);
+        my $ditemid = $itemid * 256 + $anum;
+        my $entry_obj = LJ::Entry->new( $fr, ditemid => $ditemid );
 
         # get the poster user
         my $po = $posters{$posterid} || $friends{$posterid};
 
-        # don't allow posts from suspended users
-        if ($po->{'statusvis'} eq 'S') {
+        # don't allow posts from suspended users or suspended posts
+        if ($po->is_suspended || ($entry_obj && $entry_obj->is_suspended_for($remote))) {
             $hiddenentries++; # Remember how many we've skipped for later
             next ENTRY;
         }
 
-        my $eobj = LJ::Entry->new($friends{$friendid}, ditemid => $ditemid);
+        # reading page might need placeholder images
+        $opts->{cleanhtml_extra} = {
+            maximgheight => $maximgheight,
+            maximgwidth =>  $maximgwidth,
+            imageplaceundef => $remote ? $remote->{'opt_imageundef'} : undef
+        };
 
-        # do the picture
-        my $picid = 0;
-        my $picu = undef;
-        if ($friendid != $posterid && S2::get_property_value($opts->{ctx}, 'use_shared_pic')) {
-            # using the community, the user wants to see shared pictures
-            $picu = $friends{$friendid};
+        # make S2 entry
+        my $entry = Entry_from_entryobj( $u, $entry_obj, $opts );
 
-            # use shared pic for community
-            $picid = $friends{$friendid}->{defaultpicid};
-        } else {
-            # we're using the poster for this picture
-            $picu = $po;
-
-            # check if they specified one
-            $picid = $eobj->userpic ? $eobj->userpic->picid : 0;
-        }
-
-        my $nc = "";
-        $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
-
-        my $journalbase = LJ::journal_base($friends{$friendid});
-        my $permalink = $eobj->url;
-        my $readurl = LJ::Talk::talkargs($permalink, $nc, $stylemine);
-        my $posturl = LJ::Talk::talkargs($permalink, "mode=reply", $stylemine);
-
-        my $comments = CommentInfo({
-            'read_url' => $readurl,
-            'post_url' => $posturl,
-            'count' => $replycount,
-            'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
-            'enabled' => ($friends{$friendid}->{'opt_showtalklinks'} eq "Y" &&
-                          ! $logprops{$datakey}->{'opt_nocomments'}) ? 1 : 0,
-            'screened' => ($logprops{$datakey}->{'hasscreened'} && $remote &&
-                           ($remote->{'user'} eq $fr->{'user'} || LJ::can_manage($remote, $fr))) ? 1 : 0,
-        });
-        $comments->{show_postlink} = $comments->{enabled};
-        $comments->{show_readlink} = $comments->{enabled} && ($replycount || $comments->{screened});
-
-        my $moodthemeid = $u->{'opt_forcemoodtheme'} eq 'Y' ?
-            $u->{'moodthemeid'} : $friends{$friendid}->{'moodthemeid'};
-
-        my @taglist;
-        while (my ($kwid, $kw) = each %{$logtags->{$datakey} || {}}) {
-            push @taglist, Tag($friends{$friendid}, $kwid => $kw);
-        }
-        LJ::run_hooks('augment_s2_tag_list', u => $u, jitemid => $itemid, tag_list => \@taglist);
-        @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
-
-        if ($opts->{enable_tags_compatibility} && @taglist) {
-            $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
-        }
-
-        if ($security eq "public" && !$LJ::REQ_GLOBAL{'text_of_first_public_post'}) {
-            $LJ::REQ_GLOBAL{'text_of_first_public_post'} = $text;
-
-            if (@taglist) {
-                $LJ::REQ_GLOBAL{'tags_of_first_public_post'} = [map { $_->{name} } @taglist];
-            }
-        }
-
-        my $entry = Entry($u, {
-            'subject' => $subject,
-            'text' => $text,
-            'dateparts' => $alldatepart,
-            'system_dateparts' => $item->{'system_alldatepart'},
-            'security' => $security,
-            'age_restriction' => $eobj->adult_content_calculated,
-            'allowmask' => $allowmask,
-            'props' => $logprops{$datakey},
-            'itemid' => $ditemid,
-            'journal' => $userlite_journal,
-            'poster' => $userlite_poster,
-            'comments' => $comments,
-            'new_day' => 0,  # setup below
-            'end_day' => 0,  # setup below
-            'userpic' => undef,
-            'tags' => \@taglist,
-            'permalink_url' => $permalink,
-            'moodthemeid' => $moodthemeid,
-        });
-        $entry->{'_ymd'} = join('-', map { $entry->{'time'}->{$_} } qw(year month day));
-
-        if ($picid && $picu) {
-            push @userpic_load, [ $picu, $picid ];
-            push @{$objs_of_picid{$picid}}, \$entry->{'userpic'};
-        }
+        $entry->{_ymd} = join('-', map { $entry->{'time'}->{$_} } qw(year month day));
 
         push @{$p->{'entries'}}, $entry;
         $eventnum++;
-        LJ::run_hook('notify_event_displayed', $eobj);
+
+        LJ::Hooks::run_hook('notify_event_displayed', $entry_obj);
     } # end while
 
     # set the new_day and end_day members.
@@ -348,18 +247,6 @@ sub FriendsPage
         }
     }
 
-    # load the pictures that were referenced, then retroactively populate
-    # the userpic fields of the Entries above
-    my %userpics;
-    LJ::load_userpics(\%userpics, \@userpic_load);
-
-    foreach my $picid (keys %userpics) {
-        my $up = Image("$LJ::USERPIC_ROOT/$picid/$userpics{$picid}->{'userid'}",
-                       $userpics{$picid}->{'width'},
-                       $userpics{$picid}->{'height'});
-        foreach (@{$objs_of_picid{$picid}}) { $$_ = $up; }
-    }
-
     # make the skip links
     my $nav = {
         '_type' => 'RecentNav',
@@ -368,51 +255,43 @@ sub FriendsPage
         'count' => $eventnum,
     };
 
-    my $base = "$u->{'_journalbase'}/$opts->{'view'}";
-    if ($group) {
-        $base .= "/" . LJ::eurl($group);
-    }
-
-    # $linkfilter is distinct from $filter: if user has a default view,
-    # $filter is now set according to it but we don't want it to show in the links.
-    # $incfilter may be true even if $filter is 0: user may use filter=0 to turn
-    # off the default group
-    my $linkfilter = $get->{'filter'} + 0;
-    my $incfilter = defined $get->{'filter'};
+    my $base = "$u->{_journalbase}/$opts->{view}";
+    $base .= "/" . LJ::eurl( $group_name )
+        if $group_name;
 
     # if we've skipped down, then we can skip back up
     if ($skip) {
         my %linkvars;
-        $linkvars{'filter'} = $linkfilter if $incfilter;
         $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
+        $linkvars{'date'} = $get->{date} if $get->{date};
+        $linkvars{filter} = $get->{filter}+0 if defined $get->{filter};
         my $newskip = $skip - $itemshow;
         if ($newskip > 0) { $linkvars{'skip'} = $newskip; }
         else { $newskip = 0; }
         $nav->{'forward_url'} = LJ::make_link($base, \%linkvars);
         $nav->{'forward_skip'} = $newskip;
         $nav->{'forward_count'} = $itemshow;
+        $p->{head_content} .= qq#<link rel="next" href="$nav->{forward_url}" />\n#;
     }
 
     ## unless we didn't even load as many as we were expecting on this
     ## page, then there are more (unless there are exactly the number shown
-    ## on the page, but who cares about that)
+    ## on the page, but who cares about that ... well, we do now...)
     # Must remember to count $hiddenentries or we'll have no skiplinks when > 1
-    unless (($eventnum + $hiddenentries) != $itemshow || $skip == $maxskip) {
+    unless (($eventnum + $hiddenentries) != $itemshow || $skip == $maxskip || !$is_prev_exist) {
         my %linkvars;
-        $linkvars{'filter'} = $linkfilter if $incfilter;
         $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
+        $linkvars{'date'} = $get->{'date'} if $get->{'date'};
+        $linkvars{filter} = $get->{filter}+0 if defined $get->{filter};
         my $newskip = $skip + $itemshow;
         $linkvars{'skip'} = $newskip;
         $nav->{'backward_url'} = LJ::make_link($base, \%linkvars);
         $nav->{'backward_skip'} = $newskip;
         $nav->{'backward_count'} = $itemshow;
+        $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;
     }
 
-    $p->{'nav'} = $nav;
-
-    if ($get->{'mode'} eq "framed") {
-        $p->{'head_content'} .= "<base target='_top' />";
-    }
+    $p->{nav} = $nav;
 
     return $p;
 }

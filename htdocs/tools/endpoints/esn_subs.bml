@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
@@ -18,14 +32,14 @@
         });
     };
 
-    return $err->("Sorry async ESN is not enabled") if LJ::conf_test($LJ::DISABLED{esn_ajax});
+    return $err->("Sorry async ESN is not enabled") unless LJ::is_enabled('esn_ajax');
 
     # get user
     my $remote = LJ::get_remote()
         or return $err->("Sorry, you must be logged in to use this feature.");
 
     # check auth token
-    return $err->("Invalid auth token") unless LJ::Auth->check_ajax_auth_token($remote, '/__rpc_esn_subs', %POST);
+    return $err->("Invalid auth token") unless $remote->check_ajax_auth_token( '/__rpc_esn_subs', %POST );
 
     my $action = $POST{action} or return $err->("No action specified");
     my $success = 0;
@@ -49,7 +63,7 @@
         $ret{subscribed} = 0;
 
 
-        my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                    action    => 'addsub',
                                                    %postauth,
                                                    );
@@ -60,6 +74,10 @@
             $ret{auth_token} = $auth_token;
         }
     } elsif ($action eq 'addsub') {
+
+        return $err->("Reached limit of " . $remote->count_max_subscriptions . " active subscriptions")
+            unless $remote->can_add_inbox_subscription;
+
         my %subparams = ();
 
         return $err->("Invalid subscription parameters") unless (defined $POST{journalid}) && $POST{etypeid}+0;
@@ -77,6 +95,7 @@
         return $err->($@) if $@;
 
         if ($subscr) {
+            $subscr->activate;
             $success = 1;
             $ret{msg} = "Subscribed";
             $ret{subscribed} = 1;
@@ -96,9 +115,9 @@
                 $ret{dtalkid} = $cmt->dtalkid if $cmt;
             }
 
-            my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+            my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                        subid  => $subscr->id,
-                                                       action => 'delsub');
+                                                       action => 'delsub' );
 
             if ($subscr->event_class eq 'LJ::Event::JournalNewEntry') {
                 $ret{newentry_token} = $auth_token;

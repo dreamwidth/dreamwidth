@@ -139,10 +139,10 @@
       </varlistentry>
        <varlistentry>
         <term>Content in a rich variety of formats</term>
-        <listitem><simpara>As well as publishing entries in <acronym>RSS</acronym>/Atom formats, your 
-        installation publishes various account metadata in an &xml;-based format. 
-        These include <acronym>OPML</acronym> feeds listing subscribed syndicated feed accounts, 
-        an Atom feed listing userpics updated to an account, 
+        <listitem><simpara>As well as publishing entries in <acronym>RSS</acronym>/Atom formats,
+        your installation publishes various <link linkend="ljp.int.xml_userdata.data_formats">account metadata</link> in
+        an &xml;-based format. These include <acronym>OPML</acronym> feeds listing subscribed
+        syndicated feed accounts, an Atom feed listing userpics updated to an account,
         contact information in vCard and <acronym>FOAF</acronym> 
         format, and more.</simpara></listitem>
       </varlistentry>
@@ -294,18 +294,6 @@
         <term>Directory</term>
         <listitem><simpara>Users have access to the directory of users, where they
             can search by location, age, interest, etc.</simpara></listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Schools Directory</term>
-        <listitem><simpara>The Schools Directory lets a user search for users
-            and communities associated with a specific school from around the world.</simpara></listitem>
-      </varlistentry>
-            <varlistentry>
-        <term>meme tracking</term>
-        <listitem><simpara>Users can view a list of &url;s that have been most
-            referenced in journal entries site-wide. Users can also check to see where
-            those &url;s are being referenced. (By some slight alteration, users can
-            also see if anyone on your installation is linking to a specific &url;, and where.)</simpara></listitem>
       </varlistentry>
       <varlistentry>
         <term>Random feature</term>

@@ -1,0 +1,66 @@
+#entrysubj {
+    font-weight: bold;
+    font-style: italic;
+    font-size: larger;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#poster {
+    margin-top: 10px;
+}
+
+#qrform {
+    padding-bottom: 20px;
+}
+
+#qrform td, .talkform td {
+    padding: 2px;
+    vertical-align: top;
+}
+
+
+.userpic {
+    margin-bottom: 0px;
+    vertical-align: bottom;
+}
+
+.attrib {
+    vertical-align: bottom;
+    padding-left: 10px;
+}
+
+.time {
+    font-style: italic;
+}
+
+.currents td {
+    padding-right: 10px;
+}
+
+
+.commentsubject {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.datepost {
+    font-size: smaller;
+}
+
+.talkargs {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.cmtbar-odd img, .cmtbar-even img {
+    padding-right: 10px;
+}
+
+td .commentbody {
+    margin-bottom: 15px;
+}
+
+a .userpic-img {
+    border: none;
+}

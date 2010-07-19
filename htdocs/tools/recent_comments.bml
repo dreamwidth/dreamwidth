@@ -1,8 +1,19 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_ml .title _ml?>
-head<=
-<script src='/js/commentmanage.js'></script>
-<=head
 body<=
 <?_code
 {
@@ -11,6 +22,7 @@ body<=
     my $ret;
     my %LJ_cmtinfo;
 
+    LJ::need_res('js/commentmanage.js');
     LJ::set_active_crumb('managecomments');
 
     my $remote = LJ::get_remote();
@@ -28,10 +40,12 @@ body<=
 
     my $user = $u->{'user'};
 
+    $LJ_cmtinfo{canSpam} = LJ::sysban_check( 'spamreport', $user ) ? 0 : 1;
+
     my $dbcr = LJ::get_cluster_reader($u);
     return "Error: can't get DB for user" unless $dbcr;
 
-    my $max = $u->get_cap("tools_recent_comments_display");
+    my $max = $u->count_recent_comments_display;
 
     # how many comments to display by default
     $GET{show} = $max if $GET{show} > $max;
@@ -39,13 +53,13 @@ body<=
     my $count = $GET{show} || ($max > 25 ? 25 : $max);
 
     # authas switcher form
-    $ret .= "<form method='get' action='/tools/recent_comments.bml'>\n";
+    $ret .= "<form method='get' action='/tools/recent_comments'>\n";
     $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $ret .= "</form>\n\n";
 
     my (@recv, @posted, %talkids);
     my %need_userid;
-    $need_userid{$u->{userid}} = 1 if $u->{'journaltype'} eq 'C'; # Need to load the community for logtext
+    $need_userid{$u->{userid}} = 1 if $u->is_community; # Need to load the community for logtext
     my %logrow;  # "jid nodeid" -> $logrow
     my %need_logids;  # hash of "journalid jitemid" => [journalid, jitemid]
 
@@ -55,7 +69,7 @@ body<=
     my $jargent ="journal=$u->{'user'}&amp;";
 
     # Retrieve received
-    {
+    if ( $u->is_person || $u->is_community ) {
         @recv = $u->get_recent_talkitems($count);
         foreach my $post (@recv) {
             $need_userid{$post->{posterid}} = 1 if $post->{posterid};
@@ -66,7 +80,7 @@ body<=
     }
 
     # Retrieve posted
-    if ($u->{journaltype} eq "P") {
+    if ($u->is_individual) {
         $sth = $dbcr->prepare("SELECT posttime, journalid, nodetype, nodeid, jtalkid, publicitem ".
                               "FROM talkleft ".
                               "WHERE userid=?  ORDER BY posttime DESC LIMIT $count");
@@ -80,35 +94,47 @@ body<=
         }
     }
 
-    $ret .= "<?standout <div style='text-align: center'>";
-    $ret .= "<a name='received'></a>";
-    $ret .= BML::ml('Actionlink', { 'link' => "Latest Received"}) . " ";
-    $ret .= BML::ml('Actionlink', { 'link' => "<a href='#posted'>Latest Posted</a>"}) . " "
-        if $u->is_person;
-    $ret .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/manage/comments'>$ML{'.managesettings'}</a>"});
+    my $standoutbox = sub {
+        # anchors for 'latest received' and  'latest posted', link to Manage Comment Settings
+        # options for how many comments to view
+        # Turning results into a function, since it's going to be used elsewhere.
+        my $anchorname = $_[0];
+        my $anchor = $anchorname ? "#$anchorname" : "";
+        my $standoutbox = "<?standout <div style='text-align: center'>";
+        $standoutbox .= "<a name='$anchorname'></a>";
 
-    $ret .= "<br />";
-    $ret .= " View [ ";
-    my @values = qw(10 25 50 100);
-    push @values, $count
-        unless grep { $count == $_ } @values;
-    push @values, $max
-        unless grep { $max == $_ } @values;
-    my $getextra = LJ::u_equals($u, $remote) ? "" : "&authas=" . $u->user;
+        my $latest_received = $anchorname eq "received" ? $ML{'.latest.received'} : "<a href='#received'>$ML{'.latest.received'}</a>";
+        my $latest_posted = $anchorname eq "posted" ? $ML{'.latest.posted'} : "<a href='#posted'>$ML{'.latest.posted'}</a>";
+        $standoutbox .= BML::ml( 'Actionlink', { link => $latest_received } ) . " "
+            if $u->is_person || $u->is_community;
+        $standoutbox .= BML::ml( 'Actionlink', { link => $latest_posted } ) . " "
+            if $u->is_person;
+        my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
+        $standoutbox .= BML::ml('Actionlink', { link => "<a href='$LJ::SITEROOT/manage/comments$getextra'>$ML{'.managesettings'}</a>"});
 
-    foreach my $val (sort { $a <=> $b } @values) {
-        next if $val > $max;
-        if ($val == $count) {
-            $ret .= " <b>$val</b> ";
-        } else {
-            $ret .= " <a href='?show=$val$getextra'>$val</a> ";
+        $standoutbox .= "<br />";
+        $standoutbox .= " $ML{ '.view.latest' } [ ";
+        my @values = qw(10 25 50 100);
+        push @values, $count
+            unless grep { $count == $_ } @values;
+        push @values, $max
+            unless grep { $max == $_ } @values;
+        my $getextra = $u->equals( $remote ) ? "" : "&authas=" . $u->user;
+
+        @values = sort { $a <=> $b } @values;
+
+        foreach my $val ( @values ) {
+            next if $val > $max;
+            if ( $val == $count ) {
+                $standoutbox .= " <b>$val</b> ";
+            } else {
+                $standoutbox .= " <a href='?show=$val$getextra$anchor'>$val</a> ";
+            }
         }
-    }
-    $ret .= "] Latest Comments </div> standout?>";
-
-    $ret .= "<?h1 Latest Received h1?>";
-    $ret .= "<?p " . (%talkids ? "Last $count comments posted in " : "No comments have been posted in ") . LJ::ljuser($u) . " p?>";
-
+        $standoutbox .= "] $ML{ '.comments' } </div> standout?>";
+        # end anchor/standout box.
+    };
+ 
     @recv = sort { $b->{datepostunix} <=> $a->{datepostunix} } @recv;
     my @recv_talkids = map { $_->{'jtalkid'} } @recv;
 
@@ -125,125 +151,142 @@ body<=
         push @{$need_logtext->{$ju->{clusterid}} ||= []}, $need;
     }
 
-    my $comment_text = LJ::get_talktext2($u, keys %talkids);
-    my $log_text     = LJ::get_logtext2multi($need_logtext);
-    my $root = LJ::journal_base($u);
+    my $comment_text = LJ::get_talktext2( $u, keys %talkids );
+    my $log_text     = LJ::get_logtext2multi( $need_logtext );
+    my $root = $u->journal_base;
 
-    $ret .= "<table style='width: 100%' cellpadding='5' cellspacing='0'>";
-    foreach my $r (@recv) {
-        next unless $r->{nodetype} eq "L";
-        next if $r->{state} eq "D";
+    # Begin "latest received" box. We only want to see this if we're a
+    # community or personal account, since OpenID accounts can't
+    # post entries and thus can't receive comments:
 
-        my $pu = $us->{$r->{posterid}};
-        next if $pu->{statusvis} =~ /[XS]/;
+    if ( $u->is_person || $u->is_community ) {
+        $ret .= $standoutbox->( "received" );
+        $ret .= "<?h1 $ML{ '.latest.received' } h1?>";
+        $ret .= "<?p " . (%talkids ? BML::ml('.last.num.posted.in', {num => $count}) : "$ML{ '.no.comments.posted' }") . " " . LJ::ljuser($u) . " p?>";
+        $ret .= "<table style='width: 100%' cellpadding='5' cellspacing='0'>";
+        foreach my $r (@recv) {
+            next unless $r->{nodetype} eq "L";
+            next if $r->{state} eq "D";
 
-        $r->{'props'} = $props{$r->{'jtalkid'}};
+            my $pu = $us->{$r->{posterid}};
+            next if $pu && ( $pu->is_expunged || $pu->is_suspended );
 
-        my $lrow = $logrow{"$u->{userid} $r->{nodeid}"} ||= LJ::get_log2_row($u, $r->{'nodeid'});
-        my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
+            $r->{'props'} = $props{$r->{'jtalkid'}};
 
-        my $ditemid = "$root/$lrow->{ditemid}.html";
-        my $talkurl = "$root/$lrow->{ditemid}.html?thread=$talkid\#t$talkid";
+            my $lrow = $logrow{"$u->{userid} $r->{nodeid}"} ||= LJ::get_log2_row($u, $r->{'nodeid'});
+            my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
 
-        my $bgcolor = "transparent";
-        my $state = "";
-        if ($r->{state} eq "S") {
-            $bgcolor = BML::fill_template("screenedbarcolor");
-            $state = "Screened";
-        } elsif ($r->{state} eq "D") {
-            $state = "Deleted";
-        } elsif ($r->{state} eq "F") {
-            $state = "Frozen";
-        }
+            my $ditemid = "$root/$lrow->{ditemid}.html";
+            my $commentanchor = LJ::Talk::comment_anchor( $talkid );
+            my $talkurl = "$root/$lrow->{ditemid}.html?thread=$talkid$commentanchor";
 
-        my $ljcmt = $LJ_cmtinfo{$talkid} = {};
-        $ljcmt->{u} = $pu ? $pu->{user} : "";
-
-        $ret .= "<tr valign='top' id='ljcmtbar$talkid'><td style='width: 150px; line-height: 1.5em; border-top: 1px solid #999; background-color: $bgcolor' id='cmtbar$talkid'>";
-         $ret .= (LJ::isu($pu) ? LJ::ljuser($pu) : "Anonymous") . "<br />";
-
-        $ret .= LJ::ago_text($now - $r->{datepostunix}) . "<br />";
-        $ret .= "<div id='state$talkid'>$state</div>" if $r->{state} ne "D";
-
-        unless ($r->{state} eq "D")
-        {
-            $ret .= "<a href='/delcomment.bml?${jargent}id=$talkid'>" . LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
-            if ($r->{'state'} ne 'F') {
-                $ret .= "<a href='/talkscreen.bml?mode=freeze&amp;${jargent}talkid=$talkid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+            my $bgcolor = "transparent";
+            my $state = "";
+            if ($r->{state} eq "S") {
+                $bgcolor = BML::fill_template("screenedbarcolor");
+                $state = "Screened";
+            } elsif ($r->{state} eq "D") {
+                $state = "Deleted";
+            } elsif ($r->{state} eq "F") {
+                $state = "Frozen";
             }
 
-            if ($r->{'state'} eq 'F') {
-                $ret .= "<a href='/talkscreen.bml?mode=unfreeze&amp;${jargent}talkid=$talkid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+            my $ljcmt = $LJ_cmtinfo{$talkid} = {};
+            $ljcmt->{u} = $pu ? $pu->{user} : "";
+
+            $ret .= "<tr valign='top' id='cmtbar$talkid'><td style='width: 150px; line-height: 1.5em; border-top: 1px solid #999; background-color: $bgcolor' id='cmtbar$talkid'>";
+            $ret .= (LJ::isu($pu) ? LJ::ljuser($pu) : $ML{ '.anonymous' }) . "<br />";
+
+            $ret .= LJ::ago_text($now - $r->{datepostunix}) . "<br />";
+            $ret .= "<div id='state$talkid'>$state</div>" if $r->{state} ne "D";
+
+            unless ($r->{state} eq "D") {
+                $ret .= "<a href='/delcomment?${jargent}id=$talkid'>";
+                $ret .= LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                if ($r->{'state'} ne 'F') {
+                    $ret .= "<a href='/talkscreen?mode=freeze&amp;${jargent}talkid=$talkid'>";
+                    $ret .= LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                }
+
+                if ($r->{'state'} eq 'F') {
+                    $ret .= "<a href='/talkscreen?mode=unfreeze&amp;${jargent}talkid=$talkid'>";
+                    $ret .= LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                }
+
+                if ($r->{'state'} ne 'S') {
+                   $ret .= "<a href='/talkscreen?mode=screen&amp;${jargent}talkid=$talkid'>";
+                    $ret .= LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                }
+
+                if ($r->{'state'} eq 'S') {
+                     $ret .= "<a href='/talkscreen?mode=unscreen&amp;${jargent}talkid=$talkid'>";
+                     $ret .= LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                 }
             }
 
-            if ($r->{'state'} ne 'S') {
-                $ret .= "<a href='/talkscreen.bml?mode=screen&amp;${jargent}talkid=$talkid'>" . LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+            # FIXME: (David?) We'll have to make talk_multi.bml understand jtalkids in multiple posts
+            #$ret .= " <nobr><input type='checkbox' name='selected_$r->{jtalkid}' id='s$r->{jtalkid}' />";
+            #$ret .= " <label for='s$r->{jtalkid}'>$ML{'/talkread.bml.select'}</label></nobr>";
+
+            $ret .= "</td><td id='" . LJ::Talk::comment_htmlid( $talkid );
+            $ret .= "' style='text-align: left; border-top: 1px solid #999; border-left: 1px solid #999'>";
+
+            my $subject = $log_text->{"$u->{userid} $r->{nodeid}"}[0];
+            LJ::CleanHTML::clean_subject(\$subject) if $subject ne "";
+
+            $ret .= "<strong style='float: left; text-decoration: underline'>$subject</strong> " if $subject ne "";
+            $ret .= "<strong style='float: right'>(<a href='$ditemid'>$ML{ '.entry.link' }</a>)</strong>" unless $lrow->{ditemid} == undef;
+            $ret .= "<br /><br />";
+            my $subject = LJ::ehtml($comment_text->{$r->{jtalkid}}[0]);
+
+            if ($subject && $subject !~ /^Re:\s*$/) {
+                $ret .= "<cite>$subject</cite><br />";
             }
 
-            if ($r->{'state'} eq 'S') {
-                 $ret .= "<a href='/talkscreen.bml?mode=unscreen&amp;${jargent}talkid=$talkid'>" . LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
-             }
-         }
-
-        # FIXME: (David?) We'll have to make talk_multi.bml understand jtalkids in multiple posts
-        #$ret .= " <nobr><input type='checkbox' name='selected_$r->{jtalkid}' id='s$r->{jtalkid}' />";
-        #$ret .= " <label for='s$r->{jtalkid}'>$ML{'/talkread.bml.select'}</label></nobr>";
-
-        $ret .= "</td><td id='ljcmt$talkid' style='text-align: left; border-top: 1px solid #999; border-left: 1px solid #999'>";
-
-        my $subject = $log_text->{"$u->{userid} $r->{nodeid}"}[0];
-        LJ::CleanHTML::clean_subject(\$subject) if $subject ne "";
-
-        $ret .= "<strong style='float: left; text-decoration: underline'>$subject</strong> " if $subject ne "";
-        $ret .= "<strong style='float: right'>(<a href='$ditemid'>Entry Link</a>)</strong>" unless $lrow->{ditemid} == undef;
-        $ret .= "<br /><br />";
-        my $subject = LJ::ehtml($comment_text->{$r->{jtalkid}}[0]);
-
-        if ($subject && $subject !~ /^Re:\s*$/) {
-            $ret .= "<cite>$subject</cite><br />";
-        }
-
-        my $comment = $comment_text->{$r->{jtalkid}}[1];
-        LJ::CleanHTML::clean_comment(\$comment, { 'preformatted' => $r->{'props'}->{'opt_preformatted'},
+            my $comment = $comment_text->{$r->{jtalkid}}[1];
+            LJ::CleanHTML::clean_comment(\$comment, { 'preformatted' => $r->{'props'}->{'opt_preformatted'},
                                                   'anon_comment' => !LJ::isu($pu),
                                                   'nocss' => 1,
                                               });
-        BML::ebml(\$comment);
+            BML::ebml(\$comment);
 
-        $ret .= "$comment<br /><br />";
+            $ret .= "$comment<br /><br />";
 
-        $ret .= "(<a href='$talkurl'>Comment Link</a>) " unless $r->{state} eq "D" || $lrow->{ditemid} == undef;
+            $ret .= "(<a href='$talkurl'>$ML{ '.comment.link' }</a>) " unless $r->{state} eq "D" || $lrow->{ditemid} == undef;
 
-        my $stylemine = 0;
-        my $replyurl = LJ::Talk::talkargs($ditemid, "replyto=$talkid", $stylemine);
-        if ($lrow->{ditemid} == undef) {
-            $ret .= "<strong>(Post Deleted)</strong>";
-        } elsif ($r->{'state'} eq 'F') {
-            $ret .= "($ML{'talk.frozen'}) ";
-        } elsif ($r->{'state'} eq "D") {
-            $ret .= "<strong>(Comment Deleted)</strong>";
-        } else {
-            $ret .= "(<a href='$replyurl'>$ML{'talk.replytothis'}</a>) ";
+            my $stylemine = 0;
+            my $replyurl = LJ::Talk::talkargs($ditemid, "replyto=$talkid", $stylemine);
+            if ($lrow->{ditemid} == undef) {
+                $ret .= "<strong>($ML{ '.post.deleted' })</strong>";
+            } elsif ($r->{'state'} eq 'F') {
+                $ret .= "($ML{'talk.frozen'}) ";
+            } elsif ($r->{'state'} eq "D") {
+                $ret .= "<strong>($ML{ '.comment.deleted' })</strong>";
+            } else {
+                $ret .= "(<a href='$replyurl'>$ML{'talk.replytothis'}</a>) ";
+            }
+
+            $ret .= "</td></tr>";
+
         }
+        $ret .= "</table>";
 
-        $ret .= "</td></tr>";
-
-    }
-    $ret .= "</table>";
-
-    $ret .= "<?p " . BML::ml('/tools/recent_comments.bml.maxnotshown',
+        $ret .= "<?p " . BML::ml('/tools/recent_comments.bml.maxnotshown',
                              { 'current' => $max, 'max' => $LJ::TOOLS_RECENT_COMMENTS_MAX }).
-                                 " p?>" unless $max == $LJ::TOOLS_RECENT_COMMENTS_MAX;
+                                 " p?>" unless $max >= $LJ::TOOLS_RECENT_COMMENTS_MAX;
+    }
 
-    if ($u->{journaltype} eq "P") {
-        $ret .= "<div style='text-align: center; margin-top: 1em'><a name='posted'></a>" .
-            BML::ml('Actionlink', { 'link'=>"<a href='#received'>Latest Received</a>"}) .
-            BML::ml('Actionlink', { 'link' => "Latest Posted"}) . " " .
-            "</div>";
-        $ret .= "<?h1 Latest Posted h1?><?p Last $count comments " . LJ::ljuser($u) . " has posted. p?>";
+    # End "latest received" box.
+
+    if ($u->is_individual) {
+
+        $ret .= $standoutbox->( "posted" );
+        $ret .= "<?h1 $ML{ '.latest.posted' } h1?><?p " . BML::ml('.last.num.posted.by', {num => $count, user => LJ::ljuser($u) }) . " p?>";
         my %jcount;  # jid -> ct
         $ret .= "<table style='text-align: left'>";
-        $ret .= "<tr><th>Time</th><th>Location</th></tr>";
+        $ret .= "<tr><th>$ML{ '.time' }</th><th>&nbsp;$ML{ '.location' }</th><th>&nbsp;$ML{ '.delete' }</th>";
+        $ret .= "<th>&nbsp;$ML{ '.edit' }</th>" if $remote->can_edit_comments;
+        $ret .= "</tr>";
 
         foreach my $r (@posted) {
             $jcount{$r->{'journalid'}}++;
@@ -253,31 +296,51 @@ body<=
             my $lrow = $logrow{"$ju->{userid} $r->{nodeid}"} ||= LJ::get_log2_row($ju, $r->{'nodeid'});
             my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
 
+            my $comment = LJ::Comment->new( $ju, dtalkid => $talkid );
+
             my $logurl = $ju->journal_base . "/$lrow->{ditemid}.html";
-            my $talkurl = "$logurl?thread=$talkid\#t$talkid";
+            my $commentanchor = LJ::Talk::comment_anchor( $talkid );
+            my $talkurl = "$logurl?thread=$talkid$commentanchor";
 
             my $hr_ago = LJ::ago_text($now - $r->{'posttime'});
             my $subject;
+            my $delete;
+            my $editlink;
+
             if (defined $lrow->{ditemid}) {
                 $hr_ago = "<a href='$talkurl'>$hr_ago</a>";
                 $subject = $log_text->{"$r->{journalid} $r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
                 LJ::CleanHTML::clean_subject(\$subject);
                 $subject = "$subject <a href='$logurl'>(link)</a>";
+
+                # add a sign if the comment has replies
+                $subject .= "*" if $comment->has_nondeleted_children;
+
+                # delete link, very helpful for when the user does not have access to that entry anymore
+                $delete = "&nbsp;<a href='$LJ::SITEROOT/delcomment?journal=$ju->{'user'}&amp;id=$talkid'>$ML{ '.delete.link' }</a>";
+
+                # edit link, if comment can be edited
+                $editlink = "&nbsp;<a href='" . LJ::Talk::talkargs( $comment->edit_url ) . "'>$ML{ '.edit.link' }</a>" if $comment->remote_can_edit;
+
+
             } else {
-                $subject = "Post Deleted";
+                $subject = $ML{ '.post.deleted' };
             }
 
-            my $links = "[<a href='$talkurl'>Comment</a>] [<a href='$logurl'>Entry</a>]\n";
-            $ret .= "<tr><td>$hr_ago</td><td>" . LJ::ljuser($ju->{user}) . ": $subject</td></tr>";
+            $ret .= "<tr><td>$hr_ago</td><td>" . LJ::ljuser($ju->{user}) . ": $subject</td><td>$delete</td>";
+            $ret .= "<td>$editlink</td>" if $remote->can_edit_comments;
+            $ret .= "</tr>";
         }
         $ret .= "</table>";
     }
+
+    $ret .= $ML{ '.reply' };
 
     my $js_screen_color = "\"" . LJ::ejs(BML::get_template_def("screenedbarcolor")) . "\"";
     $ret .= "<script>var LJ_cmtinfo = " . LJ::js_dumper(\%LJ_cmtinfo) . ";\n" .
         "function userhook_screen_comment_ARG (talkid) { setStyle('cmtbar'+talkid, 'background', $js_screen_color); setInner('state'+talkid, 'Screened'); }\n".
         "function userhook_unscreen_comment_ARG (talkid) { setStyle('cmtbar'+talkid, 'background', 'transparent'); setInner('state'+talkid, ''); }\n".
-        "function userhook_delete_comment_ARG (talkid) { hideElement('ljcmtbar'+talkid); }\n".
+        "function userhook_delete_comment_ARG (talkid) { hideElement('cmtbar'+talkid); }\n".
         "var Site; if (!Site) Site = new Object(); Site.imgprefix = \"$LJ::IMGPREFIX\";\n".
         "</script>";
 

@@ -27,7 +27,7 @@
     <title>Notes</title>
     <listitem><simpara>The Blogger &api; does not support the use of post titles (subjects). To set a title for your post
         include the title wrapped in &lt;title&gt; tags in your post body.</simpara></listitem>
-    <listitem><simpara>&lj;-specific meta data (current mood and music) are supported by including a line consisting of <parameter>lj-<replaceable>metadatakey</replaceable>: metadata</parameter> in the post body (e.g. <parameter>lj-mood: happy</parameter>).</simpara></listitem>
+    <listitem><simpara>&lj;-specific meta data (current mood and music) are supported by including a case-insensitive line consisting of <parameter>lj-<replaceable>metadatakey</replaceable>: metadata</parameter> in the post body (e.g. <parameter>lj-mood: happy</parameter>).</simpara></listitem>
     <listitem><simpara>The <parameter>publish</parameter> parameter is always set true.</simpara></listitem>
     <listitem><simpara>blogger.getUserInfo will return the account's name for both <parameter>firstname</parameter> and <parameter>lastname</parameter>.</simpara></listitem>
     <listitem><simpara>Due to the differences between Blogger and &lj; template systems, the <methodname>blogger.getTemplate</methodname> and <methodname>blogger.setTemplate</methodname> methods are not supported.</simpara></listitem>

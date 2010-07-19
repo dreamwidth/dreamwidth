@@ -1,9 +1,22 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::CustomizeTheme;
 
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 
 sub authas { 1 }
 sub need_res { qw( stc/widgets/customizetheme.css ) }
@@ -57,7 +70,7 @@ sub render_body {
     ### Navigation ###
 
     $ret .= "<ul class='customize-nav nostyle' id='customize_theme_nav_links'>";
-    $ret .= "<li" . $nav_class->("display") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra'>" . $class->ml('widget.customizetheme.nav.display') . "</a>";
+    $ret .= "<li" . $nav_class->("display") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.customizetheme.nav.display') . "</a>";
     $ret .= "<ul>";
     $ret .= "<li>" . $class->ml('widget.customizetheme.nav.display.moodthemes') . "</li>";
     $ret .= "<li>" . $class->ml('widget.customizetheme.nav.display.navstrip') . "</li>";
@@ -82,7 +95,7 @@ sub render_body {
     }
 
     if ($print_style_header) {
-        $ret .= "<li" . $nav_class->("style") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra${getsep}group=style'>" . $class->ml('widget.customizetheme.nav.style') . "</a>";
+        $ret .= "<li" . $nav_class->("style") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=style'>" . $class->ml('widget.customizetheme.nav.style') . "</a>";
         $ret .= "<ul>";
 
         foreach my $g (@style_groups_order) {
@@ -102,14 +115,14 @@ sub render_body {
         next if $g eq "customcss";
 
         my $name = LJ::Customize->propgroup_name($g, $u, $style);
-        $ret .= "<li" . $nav_class->($g) . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra${getsep}group=$g'>$name</a></li>";
+        $ret .= "<li" . $nav_class->($g) . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=$g'>$name</a></li>";
     }
 
-    $ret .= "<li" . $nav_class->("linkslist") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra${getsep}group=linkslist'>" . $class->ml('widget.customizetheme.nav.linkslist') . "</a></li>";
+    $ret .= "<li" . $nav_class->("linkslist") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=linkslist'>" . $class->ml('widget.customizetheme.nav.linkslist') . "</a></li>";
 
     if ($has_group{customcss}) {
         my $name = LJ::Customize->propgroup_name("customcss", $u, $style);
-        $ret .= "<li" . $nav_class->("customcss") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra${getsep}group=customcss'>$name</a></li>";
+        $ret .= "<li" . $nav_class->("customcss") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=customcss'>$name</a></li>";
     }
 
     $ret .= "</ul>";
@@ -151,7 +164,7 @@ sub render_body {
             props => $groups{props},
             propgroup => "presentation",
             groupprops => $groups{groupprops}->{presentation},
-            show_lang_chooser => 1,
+            show_lang_chooser => 0,
         );
         $ret .= "</div>";
 

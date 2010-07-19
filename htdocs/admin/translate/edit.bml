@@ -1,0 +1,14 @@
+<html>
+<head>
+ <title>Language Editor</title>
+</head>
+
+<frameset cols="200,*">
+  <frameset rows="230,*">
+    <frame name="search" src="searchform?lang=<?_code return $FORM{'lang'}; _code?>">
+    <frame name="res" src="search?lang=<?_code return $FORM{'lang'}; _code?>&amp;stale=1%2B&amp;search=sev">
+  </frameset>
+  <frame name="main" src="welcome">
+</frameset>
+
+</html>

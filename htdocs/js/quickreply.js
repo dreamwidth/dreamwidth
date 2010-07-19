@@ -31,7 +31,7 @@
         var subject = xGetElementById('subject');
 
         // Is this a dumb browser?
-        if( !ptalkid || !rto || !dtid_field || !qr_div || !cur_div || !qr_form || 
+        if( !ptalkid || !rto || !dtid_field || !qr_div || !cur_div || !qr_form ||
             !qr_form_div || !subject) {
             return true;
         }
@@ -116,11 +116,13 @@
    function submitform()
    {
         var submitmore = xGetElementById('submitmoreopts');
+        var submitpview = xGetElementById('submitpview');
         var submit = xGetElementById('submitpost');
         if (!submitmore || !submit) return false;
 
         submit.disabled = true;
         submitmore.disabled = true;
+        submitpview.disabled = true;
 
         // New top-level comments
         var dtid = xGetElementById('dtid');
@@ -129,11 +131,18 @@
         }
 
         var qr_form = xGetElementById('qrform');
-        qr_form.action = Site.siteroot + '/talkpost_do.bml';
+        qr_form.action = Site.siteroot + '/talkpost_do';
         qr_form.submit();
 
         // don't do default form action
         return false;
+   }
+
+   function preview()
+   {
+        var qr_form = xGetElementById('qrform');
+        qr_form.submitpreview.value=1;
+        submitform();
    }
 
    function swapnodes (orig, to_swap) {
@@ -150,10 +159,11 @@
    }
 
    function checkLength() {
-        var textbox = xGetElementById('body');
-        if (!textbox) return true;
-        if (textbox.value.length > 4300) {
-             alert('Sorry, but your comment of ' + textbox.value.length + ' characters exceeds the maximum character length of 4300.  Please try shortening it and then post again.');
+        var qr_form = xGetElementById('qrform');
+        if (!qr_form) return true;
+        var textbox = qr_form.body;
+        if (textbox.value.length > 16000) {
+             alert('Sorry, but your comment of ' + textbox.value.length + ' characters exceeds the maximum character length of 16000.  Please try shortening it and then post again.');
              return false;
         }
         return true;
@@ -161,8 +171,9 @@
 
     // Maintain entry through browser navigations.
     function save_entry() {
-        var qr_body = xGetElementById('body');
-        if (!qr_body) return false;
+        var qr_form = xGetElementById('qrform');
+        if (!qr_form) return false;
+        var qr_body = qr_form.body;
         var qr_subject = xGetElementById('subject');
         var do_spellcheck = xGetElementById('do_spellcheck');
         var qr_dtid = xGetElementById('dtid');
@@ -207,8 +218,9 @@
 
                 quickreply(dtid.value, ptid.value, saved_body.value);
 
-                var body = xGetElementById('body');
-                if (! body) return false;
+                var qr_form = xGetElementById('qrform');
+                if (!qr_form) return false;
+                var body = qr_form.body
                 body.value = saved_body.value;
 
                 // Some browsers require we explicitly set this after the div has moved

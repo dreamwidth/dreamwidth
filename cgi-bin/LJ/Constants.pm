@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 # LJ::Constants module, but actually loads everything into package
 # "LJ". doesn't export to other modules.  for compat, other callers
 # still can do LJ::BMAX_NAME, etc
@@ -19,8 +32,8 @@ $LJ::MAX_32BIT_SIGNED = 2147483647;
 
 use constant BMAX_SUBJECT => 255; # *_SUBJECT for journal events, not comments
 use constant CMAX_SUBJECT => 100;
-use constant BMAX_COMMENT => 9000;
-use constant CMAX_COMMENT => 4300;
+use constant BMAX_COMMENT => 65535;
+use constant CMAX_COMMENT => 16000;
 use constant BMAX_MEMORY  => 150;
 use constant CMAX_MEMORY  => 80;
 use constant BMAX_NAME    => 100;
@@ -35,12 +48,14 @@ use constant BMAX_GRPNAME2 => 90; # introduced in dversion6, when we widened the
 use constant CMAX_GRPNAME2 => 40; # but we have to keep the old GRPNAME around while dversion5 exists
 use constant BMAX_BIO     => 65535;
 use constant CMAX_BIO     => 65535;
-use constant BMAX_EVENT   => 65535;
-use constant CMAX_EVENT   => 65535;
-use constant BMAX_INTEREST => 100;
-use constant CMAX_INTEREST => 50;
+use constant BMAX_EVENT   => 450000;
+use constant CMAX_EVENT   => 300000;
+use constant BMAX_SITEKEYWORD => 100;
+use constant CMAX_SITEKEYWORD => 50;
 use constant BMAX_UPIC_COMMENT => 255;
 use constant CMAX_UPIC_COMMENT => 120;
+use constant BMAX_UPIC_DESCRIPTION => 255;
+use constant CMAX_UPIC_DESCRIPTION => 120;
 
 # user.dversion values:
 #    0: unclustered  (unsupported)
@@ -52,6 +67,10 @@ use constant CMAX_UPIC_COMMENT => 120;
 #    6: clustered memories, friend groups, and keywords (for memories)
 #    7: clustered userpics, keyword limiting, and comment support
 #    8: clustered polls
+#
+# Dreamwidth installations should ALL be dversion >= 8.  We do not support anything
+# else and are ripping out code to support all previous dversions.
+#
 use constant MAX_DVERSION => 8;
 $LJ::MAX_DVERSION = MAX_DVERSION;
 

@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -48,36 +62,21 @@
     # we may want to redirect later in successfull cases, based on this ugly blob of logic
     # return 1 if $want_success_redirect is handling the request, otherwise 0 and the caller should handle
     my $want_success_redirect = sub {
-        if ($POST{returnto}) {
+        my $redirect_url;
+        if ( $POST{returnto} ) {
             # this passes in the URI of the page to redirect to on success, eg:
-            # /manage/profile/index.bml?authas=test or whatever
-            my $uri = $POST{returnto};
-            if ($uri =~ /^\//) {
-                $uri = $LJ::SITEROOT . $uri;
+            # /manage/profile/index?authas=test or whatever
+            $redirect_url = $POST{returnto};
+            if ($redirect_url =~ /^\//) {
+                $redirect_url = $LJ::SITEROOT . $redirect_url;
             }
-            BML::redirect($uri);
-            return 1;
+        } elsif ( $POST{ret} && $POST{ret} != 1 ) {
+            $redirect_url = $POST{ret};
         }
-
-        # Redirect to offsite uri if allowed, and not an internal LJ redirect. ('ret' == 1)
-        if ($POST{ret} && $POST{ret} != 1) {
-            my $redir_host = $1 if $POST{ret} =~ m#^http://([\.:\w-]+)#i;
-        
-            # if the redirect is going to FotoBilder, and they don't have the fb_account cap,
-            # then we don't redirect them, but keep them here and display an error message
-            my $u = LJ::load_user($user);
-            if ($redir_host =~ /$LJ::FB_DOMAIN/ && ! LJ::get_cap($u, 'fb_account')) {
-                return 1 if $want_fail_redirect->("fotobilder_denied");
-
-                $body = LJ::bad_input("Your account type does not allow logins to remote FotoBilder sites");
-                return 1;
-            }
-        
-            if ($LJ::REDIRECT_ALLOWED{$redir_host} || $redir_host eq $LJ::DOMAIN_WEB) {
-                LJ::run_hook('login_redirect_extra', $redir_host);
-                BML::redirect($POST{ret});
-                return 1;
-            }
+        if ( $redirect_url && DW::Controller::validate_redirect_url( $redirect_url ) ) {
+            LJ::Hooks::run_hook( 'login_redirect_extra', $redirect_url );
+            BML::redirect( $redirect_url );
+            return 1;
         }
 
         return 0;
@@ -90,13 +89,9 @@
         return;
     }
 
-    my $require_tos = 0;
 
     my $login_html = sub {
         my $nojs = $GET{'nojs'};
-
-        # can't do challenge/response with LDAP.
-        $nojs = 1 if $LJ::LDAP_HOST;
 
         my $getextra = $nojs ? '?nojs=1' : '';
 
@@ -113,48 +108,49 @@
             $body .= "</div>\n";
 
         } elsif (LJ::did_post() && $POST{'action:logout'}) {
-            my $url = $old_remote ? "$LJ::SITEROOT/logout.bml?user=" . $old_remote->user : "$LJ::SITEROOT/logout.bml";
+            my $url = $old_remote ? "$LJ::SITEROOT/logout?user=" . $old_remote->user : "$LJ::SITEROOT/logout";
             return BML::redirect($url);
         }
 
         $body .= "<table cellpadding='0' cellspacing='0'><tr><td style='padding-right:20px; vertical-align: top'>";
-        if ($require_tos) {
-            my $err_code = (ref $require_tos eq 'HASH') ? $require_tos->{code} : 'tos_required';
-            return if $want_fail_redirect->($err_code);
-
-            $body .= "<div style='margin-left: 40px; margin-bottom: 20px;'>";
-            my $tos_err = ref $require_tos eq 'HASH' ? $require_tos->{err} : undef;
-            $body .= LJ::tosagree_html('login', $POST{agree_tos}, $tos_err);
-            $body .= "</div>";
-        }
 
         if ($remote) {
             my $base = $remote->journal_base;
 
             $body .= "<?p " . BML::ml(".loggedin.text2",
                                       { 'username' => LJ::ljuser($remote)} ) . " p?>\n";
+            if ($remote->is_identity && !$remote->is_validated) {
+                $body .= "<?warningbar " . BML::ml('.loggedin.openidemail', { aopts1 => "href='$LJ::SITEROOT/changeemail'", aopts2 => "href='$LJ::SITEROOT/register'" }) . " warningbar?>";
+            }
             $body .= "<br />\n";
-            $body .= "<div style='float: left; padding: 5px 10px 0px 10px;'>";
-            $body .= "<img src='/img/pencil.gif'></div>\n";
-            $body .= "<div style='margin-left: 36px;'>";
-            $body .= "<?h2 <a href='$LJ::SITEROOT/update.bml'>";
-            $body .= "$ML{'.loggedin.suggesthead1'}</a> h2?>\n";
-            $body .= "$ML{'.loggedin.suggest1'}<br />&nbsp;</div>\n";
+
+            if ( $GET{'continue_to'} ) {
+                $body .= "<div style='margin-left: 36px'>";
+                $body .= "<?h2 <a href=\"" . LJ::ehtml( $GET{'continue_to'} ) . "\">";
+                $body .= BML::ml( '.loggedin.continueto', { 'continue_url' => LJ::ehtml ( $GET{'continue_to'} ) } ) . "</a> h2?>\n";
+                $body .= "</div>\n";
+                $body .= "<br />\n";
+            }
+
+            unless ( $remote->is_identity ) {
+                $body .= "<div style='float: left; padding: 5px 10px 0px 10px;'>";
+                $body .= LJ::img( 'post', '' ) . "</div>\n";
+                $body .= "<div style='margin-left: 36px;'>";
+                $body .= "<?h2 <a href='$LJ::SITEROOT/update'>";
+                $body .= "$ML{'.loggedin.suggesthead1'}</a> h2?>\n";
+                $body .= "$ML{'.loggedin.suggest1'}<br />&nbsp;\n";
+                $body .= "</div>\n";
+            }
+
             $body .= "<div style='float: left; padding: 5px 10px 0px 10px'>";
-            $body .= "<img src='/img/userinfo.gif'></div>\n";
+            $body .= LJ::img( 'id_user', '', { alt => '' } ) . "</div>\n";
             $body .= "<div style='margin-left: 36px'>";
-            $body .= "<?h2 <a href='$base/friends/'>";
+            $body .= "<?h2 <a href='$base/read'>";
             $body .= "$ML{'.loggedin.suggesthead2'}</a> h2?>\n";
             $body .= "$ML{'.loggedin.suggest2'}<br />&nbsp;</div>\n";
-            $body .= "<div style='float: left; padding: 5px 10px 0px 10px'>";
-            $body .= "<img src='/img/pencil.gif'></div>\n";
-            $body .= "<div style='margin-left: 36px'>";
-            $body .= "<?h2 <a href=\"http://my.$LJ::DOMAIN/\">";
-            $body .= BML::ml(".loggedin.suggesthead3", { 'siteabbrev' => $LJ::SITENAMEABBREV } ) . "</a> h2?>\n";
-            $body .= BML::ml(".loggedin.suggest4", { 'siteabbrev' => $LJ::SITENAMEABBREV } );
-            $body .= "</div>\n<br />\n";
+            $body .= "<br />\n";
 
-            $body .= "<form action='login.bml$getextra' method='post' id='login'>\n";
+            $body .= "<form action='login$getextra' method='post' id='login'>\n";
             $body .= LJ::form_auth();
             $body .= "<?h2 $ML{'.login.changelog'} h2?>";
             $body .= "<table cellpadding='3' style='width: 300px; background-color: #ededed; border: 1px solid #aaa'>\n";
@@ -211,7 +207,7 @@
             $body .= "<div class='login-create-account'>\n";
             $body .= "<hr class='hr' />\n";
             $body .= "<h4>$ML{'.createaccount.header'}</h4>\n";
-            $body .= "<form action='<?siteroot?>/create.bml' method='get'><input type='submit' value='$ML{'.createaccount.button'}' class='create-account' /></form>\n";
+            $body .= "<form action='<?siteroot?>/create' method='get'><input type='submit' value='$ML{'.createaccount.button'}' class='create-account' /></form>\n";
             $body .= "<ul>\n";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit1'}</li>";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit2'}</li>";
@@ -219,38 +215,23 @@
             $body .= "<li>$ML{'.createaccount.whylogin.benefit4'}</li>";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit5'}</li>";
             $body .= "</ul>\n";
-            $body .= "<p><a href='<?siteroot?>/tour/'>$ML{'.createaccount.tour'}</a></p>\n";
             $body .= "</div><!-- end .login-create-account -->\n";
             $body .= "</div><!-- end .columns-2-left -->\n";
-            $body .= "<div class='columns-2-right'>\n";
-            my $ad = LJ::ads( force => 1, type => 'app', orient => 'BML-App-Confirm' );
-            $body .= $ad unless $LJ::IS_SSL;
-            $body .= "</div><!-- end .columns-2-right -->\n";
         }
 
-        $body .= "</td><td valign='top' style='padding-top: 10px'>\n";
-        if ($remote) {
-            my $box = LJ::CProd->full_box_for($remote, width => 300);
-            # because post_login_news is really post_login_ad in ljcom ....
-            # unfortunate hook name  :/
-            if (!$box || LJ::run_hook('should_show_ad', { ctx => "app", })) {
-                $body .= LJ::run_hook('post_login_news');
-                $body .= "<br />\n";
-            }
-            $body .= $box;
-        }
         $body .= "</td></tr></table>";
         return $body;
     };
     my $logout_remote = sub {
         $remote->kill_session if $remote;
-        foreach (qw(langpref BMLschemepref)) {
-            delete $COOKIE{$_} if $COOKIE{$_};
+        my $r = DW::Request->get;
+        foreach ( qw(langpref BMLschemepref) ) {
+            $r->delete_cookie( name => $_ ) if $r->cookie( $_ );
         }
-        $remote      = undef;
+        $remote  = undef;
         $cursess = undef;
-        LJ::set_remote(undef);
-        LJ::run_hooks("post_logout");
+        LJ::set_remote( undef );
+        LJ::Hooks::run_hooks( "post_logout" );
     };
 
     if (LJ::did_post()) {
@@ -275,12 +256,6 @@
             $do_change = 0;
         }
 
-        if ($do_change && ! $remote->tosagree_verify) {
-            $do_change = 0;
-            $do_logout = 1;
-            $require_tos = 1;
-        }
-
         if ($do_logout) {
             $logout_remote->();
             $title = BML::ml(".login.title", { 'sitename' => $LJ::SITENAMESHORT} );
@@ -302,15 +277,15 @@
 
             if (! $u) {
                 my $euser = LJ::eurl($user);
-                push @errors, [ unknown_user => BML::ml('.error.notuser', { 'aopts' => "href='$LJ::SITEROOT/create.bml?user=$euser'" })]
+                push @errors, [ unknown_user => BML::ml('.error.notuser', { 'aopts' => "href='$LJ::SITEROOT/create?user=$euser'" })]
                     unless $u;
             } else {
                 push @errors, [ purged_user => "$ML{'error.purged.text'}" ] if $u->is_expunged;
                 push @errors, [ community_disabled_login => "$ML{'error.nocommlogin'}" ]
-                    if $u->{'journaltype'} eq 'C' && $LJ::DISABLED{'community-logins'};
+                    if $u->is_community && ! LJ::is_enabled('community-logins');
             }
 
-            if (LJ::get_cap($u, "readonly")) {
+            if ( $u && $u->is_readonly ) {
                 return if $want_fail_redirect->("database_readonly");
 
                 $body = LJ::bad_input("The database is temporarily in read-only mode, so creating new login sessions is temporarily down.  Please try again later.");
@@ -338,55 +313,39 @@
                 if ($chal_opts->{'expired'}) {
                     push @errors, [ expired_challenge => $ML{'error.expiredchal'}];
                 } else {
-                    push @errors, [ bad_password => $ML{'error.badpassword'} ];
+                    push @errors, [ bad_password => BML::ml( 'error.badpassword2', { aopts => "href='$LJ::SITEROOT/lostinfo'" } ) ];
                 }
             }
 
             push @errors, [ account_locked => 'This account is locked and cannot be logged in to at this time.' ]
-                if $u->{statusvis} eq 'L';
+                if $u && $u->is_locked;
 
             if (@errors) {
                 $login_html->();
                 return;
             }
 
-            LJ::load_user_props($u, "browselang", "schemepref", "legal_tosagree");
-
-            unless ($u->tosagree_verify) {
-                if ($POST{agree_tos}) {
-                    my $err = "";
-                    unless ($u->tosagree_set(\$err)) {
-                        # failed to save userprop, why?
-                        $require_tos = { err => $err , code => 'fail_tosagree_set'};
-                        return $login_html->();
-                    }
-                    # else, successfully set... log them in
-                } else {
-                    # didn't check agreement checkbox
-                    $require_tos = { err => $ML{'tos.error'}, code => 'tos_required' };
-                    return $login_html->();
-                }
-            }
+            # at this point, $u is known good
+            $u->preload_props( "browselang", "schemepref" );
 
             my $exptype = ($POST{'expire'} eq "never" || $POST{'remember_me'}) ? "long" : "short";
             my $bindip  = ($POST{'bindip'} eq "yes") ? BML::get_remote_ip() : "";
 
             $u->make_login_session($exptype, $bindip);
+            LJ::Hooks::run_hook('user_login', $u);
             $cursess = $u->session;
 
             return if $want_success_redirect->();
 
             my $referer = BML::get_client_header('Referer');
-            if ($POST{'ref'} =~ /\Q$LJ::DOMAIN\E/ && $POST{'ref'} !~ m!/logout\.bml$! &&
-                $POST{'ref'} !~ /[\n\r]/)
-            {
+            if ( $POST{'ref'} =~ /\Q$LJ::DOMAIN\E/ &&                   # page on our site
+                 ! LJ::check_referer( '/logout.bml', $POST{'ref'} ) &&  # but not the logout page
+                 $POST{'ref'} !~ /[\n\r]/ ) {                           # and no newline spoofing
                 return BML::redirect("$POST{'ref'}");
-            } elsif ($GET{'ret'} == 1 && $referer && $referer =~ /\Q$LJ::DOMAIN\E/) {
+            } elsif ( $GET{'ret'} == 1 && LJ::check_referer() ) {
                 my $uniq = BML::get_request()->notes->{uniq};
-                if ($uniq) {
-                    LJ::MemCache::set("loginout:$uniq", 1, time() + 15);
-                }
-                return BML::redirect("$referer");
+                LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
+                return BML::redirect( $referer || "$LJ::SITEROOT/" );
             }
 
             LJ::set_remote($u);
@@ -401,14 +360,6 @@
 
     return if $want_success_redirect->();
 
-    # otherwise if it's a get request, and the user is logged in
-    # but has agreed to an old terms of service, log them out
-    # and force a TOS validation
-    if ($remote && ! LJ::did_post() && ! $remote->tosagree_verify) {
-        $require_tos = 1;
-        $logout_remote->();
-    }
-
     $login_html->();
     return;
 }
@@ -419,8 +370,4 @@ head<=
 <=head
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-hook: post_login login_formopts
-link: htdocs/login.bml, htdocs/todo/index.bml, htdocs/users, htdocs/create.bml, htdocs/lostinfo.bml
-post: htdocs/login.bml
-</LJDEP> _c?>
+page?>

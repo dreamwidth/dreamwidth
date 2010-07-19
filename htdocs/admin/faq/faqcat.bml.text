@@ -1,0 +1,45 @@
+;; -*- coding: utf-8 -*-
+
+.addcat.intro=Complete the below form to add a new category to the FAQ.
+
+.addcat.success=Category successfully added.
+
+.addcat.title=Add a new FAQ category
+
+.btn.addcat=Add Category
+
+.btn.catsave=Save Category
+
+.btn.deletecat=Delete Category
+
+.btn.editcat=Edit Category
+
+.btn.sortup=Sort Up
+
+.btn.sortdown=Sort Down
+
+.catsort.success=Category successfully sorted [[direction]].
+
+.deletecat.confirm=Are you sure you want to delete this FAQ category?
+
+.deletecat.success=Category successfully delete.
+
+.editcat.intro=Use the below form to edit this category
+
+.editcat.success=Category successfully edited.
+
+.editcat.title=Edit FAQ Category
+
+.editcats.intro=Use the below options to edit, delete and sort existing FAQ categories.
+
+.editcats.title=Edit existing FAQ categories
+
+.faqcat.title=Manage FAQ Categories
+
+.label.catkey=Category Key
+
+.label.catname=Category Name
+
+.label.catorder=Category Order
+
+.link.faqmain=Back to FAQ Administration Area

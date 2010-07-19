@@ -1,5 +1,30 @@
+/* Relative container allows a parent container to something which
+   needs absolute positioning around it */
+.relative-container {
+   position: relative;
+}
+
+.error-list {
+    background-color: #fcf6db;
+    border: 1px solid #ffdfc0;
+    padding: 1em;
+    padding-left: 3em;
+    margin-top: 3em;
+}
+
+div.error-list ol, div.error-list li {
+    list-style-type: decimal;
+}
+
+.errors-present {
+    font-weight: bold;
+    color: #f00;
+}
+
 .appwidget-createaccount .field-name {
     text-align: right;
+    width: 125px;
+    vertical-align: top;
 }
 
 .appwidget-createaccount .field-desc {
@@ -18,6 +43,7 @@
     width: 12px;
     height: 19px;
     z-index: 100;
+    left: 489px;
 }
 
 .appwidget-createaccount #tips_box {
@@ -25,14 +51,12 @@
     position: absolute;
     background-color: #fcf6db;
     border: 1px solid #ffdfc0;
-    padding: 10px;
+    padding: 5px;
     width: 300px;
+    left: 500px;
 }
 
 .appwidget-createaccount .create-button {
-    color: #fff;
-    background-color: #213368;
-    border: 1px solid #fff;
     font-size: 14px;
     font-weight: bold;
     padding: 5px;
@@ -43,6 +67,17 @@
     display: none;
 }
 
+span.appwidget-createaccount #username_check,
+span.appwidget-createaccount #username_error {
+    display: block;
+    width: 330px;
+}
+
 .appwidget-createaccount #username_error_inner {
     font-weight: bold;
+}
+
+li.formitemFlag {
+    font-weight: bold;
+    color: #f00;
 }

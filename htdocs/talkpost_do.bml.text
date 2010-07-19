@@ -14,6 +14,8 @@
 
 .error.friendsonly=Only friends of [[user]] may post in this journal.
 
+.error.invalidform=Invalid form submission. You may have left the reply form open too long, or logged out since you opened the page. Please try posting again.
+
 .error.membersonly=Only members of [[user]] can post in this community.
 
 .error.lostcookie=Your login cookie seems to have disappeared?
@@ -21,6 +23,8 @@
 .error.manybytes=Sorry, but your comment of [[current]] exceeds the maximum byte length of [[limit]]. Please go back, shorten it, and try posting it again.
 
 .error.manychars=Sorry, but your comment of [[current]] characters exceeds the maximum character length of [[limit]]. Please go back, shorten it, and try posting it again.
+
+.error.maxcomments=Sorry, this entry already has the maximum number of comments allowed.
 
 .error.mustlogin=You must be logged in or using a username/password to reply to this protected entry.
 
@@ -38,11 +42,13 @@
 
 .error.notamember=Sorry, you are not a member of <b>[[user]]</b>, and commenting is restricted to members only.
 
-.error.nousername=You did not enter your LiveJournal username.  You can choose to post as "Anonymous" if you don't have a LiveJournal user account.
+.error.nousername=You did not enter your [[sitename]] username.  You can choose to post as "Anonymous" if you don't have a [[sitename]] user account.
+
+.error.nousername.noanon=You did not enter your [[sitename]] username and this user does not allow anonymous commenting. Please go back and enter your [[sitename]] username and password to comment.
 
 .error.noverify2=Sorry, you aren't allowed to post comments until your email address has been validated. If you've lost the confirmation email to do this, you can <a [[aopts]]>have it re-sent</a>.
 
-.error.postshared=You can't post as a shared or community account.  Shared accounts represent groups of people, not individual people.
+.error.postshared=You can't post as a community account.
 
 .error.purged=Your journal has been deleted and purged.  You can't post messages.
 
@@ -70,9 +76,13 @@
 
 .success.screened.comm2=Your comment has been added. According to this community's settings, it was marked as screened, and will be visible only to you and the community maintainers until they choose to unscreen it. You can view your comment <a [[aopts]]>here</a>.
 
+.success.screened.comm.owncomm=Your comment has been added. According to this community's settings, it was marked as screened, and will be visible only to you and any other community admins until one of you chooses to unscreen it. You can view your comment <a [[aopts]]>here</a>.
+
 .success.screened.user.anon2=Your anonymous comment has been added. According to this journal's settings, it was marked as screened, and will be visible only to the journal's owner until the owner chooses to unscreen it. You can go back to the comment thread <a [[aopts]]>here</a>.
 
 .success.screened.user2=Your comment has been added. According to this journal's settings, it was marked as screened, and will be visible only to you and the journal's owner until the owner chooses to unscreen it. You can view your comment <a [[aopts]]>here</a>.
+
+.success.screened.user.ownjournal=Your comment has been added. According to this journal's settings, it was marked as screened, and will be visible only to you until you choose to unscreen it. You can view your comment <a [[aopts]]>here</a>.
 
 .success.title=Success
 

@@ -1,9 +1,22 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Widget::ManageSiteMessages;
 
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::SiteMessages );
+use LJ::SiteMessages;
 
 sub need_res { }
 
@@ -26,7 +39,7 @@ sub render_body {
         $month = $time[4]+1;
     }
 
-    $ret .= "<?p (<a href='$LJ::SITEROOT/admin/sitemessages/add.bml'>Add a site message</a>) p?>";
+    $ret .= "<?p (<a href='$LJ::SITEROOT/admin/sitemessages/add'>Add a site message</a>) p?>";
     $ret .= "<?p Select a month to view all messages that started during that month. p?>";
 
     # TODO: supported way for widgets to do GET forms?
@@ -55,7 +68,7 @@ sub render_body {
         $ret .= "<td>" . $start_date->strftime("%F %r %Z")  . "</td>";
         $ret .= "<td>" . $end_date->strftime("%F %r %Z")  . "</td>";
         $ret .= $class->get_active_text($row->{mid}, $row->{active});
-        $ret .= "<td>(<a href='$LJ::SITEROOT/admin/sitemessages/add.bml?mid=$row->{mid}'>edit</a>)</td>";
+        $ret .= "<td>(<a href='$LJ::SITEROOT/admin/sitemessages/add?mid=$row->{mid}'>edit</a>)</td>";
         $ret .= "</tr>";
     }
     $ret .= "</table>";

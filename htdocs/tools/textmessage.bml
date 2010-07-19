@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=>Send a Text Message
 body<=
@@ -21,17 +35,15 @@ body<=
             $ret .= "<P><B>$info->{'name'}</B> ($ML{'.providers.from'} $info->{'fromlimit'}, $ML{'.providers.msg'} $info->{'msglimit'}, $ML{'.providers.total'} $info->{'totlimit'})<BR>$info->{'notes'}";
         }
         $ret .= "</UL>";
-        add_footer();
-        return $ret;
+        return add_footer( $ret );
     }
 
     unless ($user) {
         $ret .= "<?h1 $ML{'.enter.user.head'} h1?>".
             "<?p ".BML::ml('.enter.user.text2', { sitenameshort => $LJ::SITENAMESHORT })." p?>".
-            "<div style='margin-left: 40px'><form method='get' action='textmessage.bml'>$ML{'.enter.user.input'} <input type='text' size='15' maxlength='15' name='user' /> <input type='submit' value=\"$ML{'.enter.user.submit'}\" /></form></div>".
+            "<div style='margin-left: 40px'><form method='get' action='textmessage'>$ML{'.enter.user.input'} <input type='text' size='15' maxlength='15' name='user' /> <input type='submit' value=\"$ML{'.enter.user.submit'}\" /></form></div>".
             "<p>".BML::ml('.setup.text', { aopts => "href='$LJ::SITEROOT/manage/profile/'" })."</p>";
-        add_footer();
-        return $ret;
+        return add_footer( $ret );
     }
 
     my $u = LJ::load_user($user);
@@ -40,25 +52,22 @@ body<=
     if (!$u) {
         $ret .= "<?h1 $ML{'.error.unavailable.head'} h1?><?p ".
             BML::ml('.error.unavailable.notfound', { user => $user })." p?>";
-        add_footer();
-        return $ret;
+        return add_footer( $ret );
     }
 
     if ($u->{'txtmsg_status'} eq "on") {
         $tminfo = LJ::TextMessage->tm_info($u);
     }
 
-    unless (LJ::get_cap($u, "textmessaging")) {
-        $ret .= "$ML{'.error.unavailable.head'} h1?><?p $ML{'.error.unavailable.notpermitted'} p?>";
-        add_footer();
-        return $ret;
+    unless ( $u->can_use_textmessaging ) {
+        $ret .= "<?h1 $ML{'.error.unavailable.head'} h1?><?p $ML{'.error.unavailable.notpermitted'} p?>";
+        return add_footer( $ret );
     }
 
     unless ($tminfo) {
         $ret .= "<?h1 $ML{'.error.unavailable.head'} h1?><?p ".
-            BML::ml('.error.unavailable.notsetup', { sitenameshort => $LJ::SITENAMESHORT }) . " p?>";
-        add_footer();
-        return $ret;
+            BML::ml('.error.unavailable.notsetup', { user => $user, sitenameshort => $LJ::SITENAMESHORT }) . " p?>";
+        return add_footer( $ret );
     }
 
     my $remote = LJ::get_remote();
@@ -69,17 +78,15 @@ body<=
         }
         unless ($remote) {
             $ret .= "<?h1 $ML{'.error.notloggedin.head'} h1?><?p ".
-                BML::ml('.error.notloggedin.text', { aopts => "href='/login.bml?ret=1'", andbefriend => $andbefriend}) . " p?>";
-            add_footer();
-            return $ret;
+                BML::ml('.error.notloggedin.text', { aopts => "href='/login?ret=1'", andbefriend => $andbefriend}) . " p?>";
+            return add_footer( $ret );
         }
 
         if ($tminfo->{'security'} eq "friends" && $u->{'userid'} != $remote->{'userid'}) {
-            unless (LJ::is_friend($u->{'userid'}, $remote->{'userid'})) {
+            unless ( $u->trusts_or_has_member( $remote ) ) {
                 $ret .= "<?h1 $ML{'.error.unauthorized.head'} h1?><?p ".
                     BML::ml('.error.unauthorized.text', { user => $u->{'user'} }) ." p?>";
-                add_footer();
-                return $ret;
+                return add_footer( $ret );
             }
         }
     }
@@ -87,8 +94,7 @@ body<=
     if ($remote && $u->has_banned($remote)) {
         $ret .= "<?h1 $ML{'.error.banned.head'} h1?><?p ".
             BML::ml('.error.banned.text', { user => $u->ljuser_display })." p?>";
-        add_footer();
-        return $ret;
+        return add_footer( $ret );
     }
 
     ###### authorized.
@@ -111,9 +117,8 @@ body<=
         s/(\d{3,})/'x'x length $1/eg foreach @errors;
 
         return LJ::bad_input(@errors) if @errors;
-
         $ret .= "<?h1 $ML{'.success.head'} h1?><?p $ML{'.success.text'} p?>";
-        return add_footer();
+        return add_footer( $ret );
     }
 
     my $pinfo = LJ::TextMessage::provider_info($tminfo->{'provider'});
@@ -122,7 +127,7 @@ body<=
         BML::ml('.form.text', { user => $u->{'user'} }) ."p?>";
 
     $ret .= "<ul>";
-    $ret .= "<form name='frmMsg' method='post' action='textmessage.bml'><input type='hidden' name='user' value=\"$u->{'user'}\" />";
+    $ret .= "<form name='frmMsg' method='post' action='textmessage'><input type='hidden' name='user' value=\"$u->{'user'}\" />";
     $ret .= LJ::form_auth();
     $ret .= "<b>$ML{'.form.message.from'} </b> ";
     my $maxlen = $pinfo->{'totlimit'};
@@ -142,22 +147,20 @@ body<=
     $ret .= "<p><input type='submit' value=\"$ML{'.form.message.submit'}\" /></p>";
     $ret .= "</form></ul>";
 
-    add_footer();
-    return $ret;
+    return add_footer( $ret );
 
     sub add_footer
     {
+        my $ret = shift;
+
         my $howwork = $LJ::HELP_URL{'textmessaging_about'} ? 
             BML::ml('.footer.howwork.text', { aopts => "href='$LJ::HELP_URL{'textmessaging_about'}'" }) ."<br />" : "";
         $ret .= "<p><hr /><font size='-1'>$howwork".$ML{'.footer.disclaimer.text'}."</font></p>";
+
+        return $ret;
     }
 
 }
 _code?>
 <=body
-page?><?_c <LJDEP>
-lib: LJ::TextMessage
-link: htdocs/login.bml, htdocs/support/faqbrowse.bml
-form: htdocs/tools/textmessage.bml
-post: htdocs/tools/textmessage.bml
-</LJDEP> _c?>
+page?>

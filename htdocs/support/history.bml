@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=>Support Request History
 body<=
@@ -11,7 +25,7 @@ body<=
 
     # supporthelp anywhere lets them in
     return "You are not authorized to view this page."
-        unless LJ::check_priv($remote, 'supporthelp');
+        unless $remote && $remote->has_priv( 'supporthelp' );
 
     my $ret;
     if ($GET{user} || $GET{email} || $GET{userid}) {
@@ -67,7 +81,7 @@ body<=
                 };
                 push @userids, $row->[4] if $row->[4];
             }
-            my $us = LJ::load_userids(@userids) if @userids;
+            my $us = @userids ? LJ::load_userids(@userids) : undef;
 
             # get categories
             my $cats = LJ::Support::load_cats();
@@ -81,7 +95,7 @@ body<=
 
                 # print out this request row
                 $ret .= '<tr>';
-                $ret .= "<td><a href=\"see_request.bml?id=$reqs{$id}->{spid}\">$reqs{$id}->{subject}</a></td>\n";
+                $ret .= "<td><a href=\"see_request?id=$reqs{$id}->{spid}\">$reqs{$id}->{subject}</a></td>\n";
                 $ret .= "<td align='center'>$reqs{$id}->{state}</td>\n";
                 $ret .= '<td align="center">';
                 if ($reqs{$id}->{state} eq 'closed' && $reqs{$id}->{winner}) {
@@ -102,7 +116,7 @@ body<=
     }
 
     $ret .= "<table><tr><th colspan='2'>Search for Requests</th></tr>";
-    $ret .= "<form method='get' action='history.bml'>";
+    $ret .= "<form method='get' action='history'>";
     $ret .= "<tr><td>By Email:</td><td><input type='text' name='email'></td></tr>";
     $ret .= "<tr><td>By Username:</td><td><input type='text' name='user'></td></tr>";
     $ret .= "<tr><td>By Userid:</td><td><input type='text' name='userid'></td></tr>";

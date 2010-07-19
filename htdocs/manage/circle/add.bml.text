@@ -1,0 +1,104 @@
+;; -*- coding: utf-8 -*-
+
+.add.header=Success
+
+.add.next.friends=View your reading page
+
+.add.next.message=Send this user a message
+
+.add.next.modify=Modify your circle
+
+.add.next.postingguidelines=Read this community's posting guidelines
+
+.add.next.posttocommunity=Post to this community
+
+.add.text2=[[ljuser]]'s status in your circle has been updated.
+
+.add.title=Circle Updated!
+
+.add.trust=Grant access: they can read your journal entries that you restrict to your access list
+
+.add.watch=Subscribe: you can read their journal entries on your reading page
+
+.btn.add=Add [[user]]
+
+.btn.cancel=Cancel
+
+.btn.modify=Modify
+
+.btn.remove=Remove
+
+.colors.bg=Background
+
+.colors.disclaimer=Not all styles support this option
+
+.colors.fg=Foreground
+
+.colors.header=Colors
+
+.colors.help.text1=Click the colored boxes to the right for a pre-set color.  Choose a custom color by entering in the hex value or by clicking on the box to the left.
+
+.colors.help.text2=Hover your mouse over a color to see its name and hex value.
+
+.colors.hover=(Hover your mouse over a color to see its name)
+
+.colors.text=Select the colors that will represent [[user]] on your reading page (only applicable if you subscribe to them).
+
+.confirm.text=To add <b>[[user]]</b> to your friends list, click the button below.
+
+.confirm.text1.community2=Adding a community allows you to read the community's public posts on your reading page. If you would like to post to the community and be listed as a member, you'll need to <a [[aopts]]>join the community</a>.
+
+.confirm.text1.community2.openid=Adding a community allows you to read the community's public posts on your reading page.
+
+.confirm.text1.feed=Adding a feed allows you to read new content from the feed on your reading page.
+
+.confirm.text1.notvisible=This account is deleted, purged, or suspended.  You can only remove it from your circle.  Clicking the button below will remove both its access and subscription.
+
+.confirm.text1.person=Choose one or both of the following:
+
+.confirm.title.community2=Modify subscription to [[user]]?
+
+.confirm.title.community2.add=Subscribe to [[user]]?
+
+.confirm.title.person2=Modify [[user]]'s status in your circle?
+
+.confirm.title.person2.add=Add [[user]] to your circle?
+
+.confirm.title.syn2=Modify subscription to [[user]]?
+
+.confirm.title.syn2.add=Subscribe to [[user]]?
+
+.disclaimer=This will not allow maintainers or members of the community to view your friends-only posts.
+
+.error.notvisible=The account [[user]] cannot be added to your circle because it is deleted, purged, or suspended.
+
+.error.sessionchanged=Session info changed. Try again.
+
+.error1.title=Add Friend
+
+.error2.text2=Invalid or missing username given. To add a friend, go to the <a [[aopts]]>edit friends</a> page.
+
+.error3.text1=[[user]] is on your Friends list. You can modify the custom friends groups you've chosen for him/her.
+
+.error3.text2=[[user]] is currently on your Friends list. You may remove him/her if you wish.
+
+.error3.title=Modify Friend
+
+.groups.header=Friends Groups
+
+.groups.nogroup=No friend groups set up.
+
+.groups.text1=<i>Optional:</i> Include in one or more access filters.  <strong>You must grant access to the user by selecting the first box above in order to add them to any access filters.</strong>
+
+.groups.reading=<i>Optional:</i> Include in one or more subscription filters.  <strong>You must subscribe to the user by selecting the second box above in order to add them to any subscription filters.</strong>
+
+.optional=Optional
+
+.remove.header=Success
+
+.remove.text=User [[ljuser]] was removed from your friend list.  You can view your friends page <a href="[[url]]">here</a>.
+
+.remove.text2=[[ljuser]] has now been removed from your friend list.  You can view your updated  <a [[aopts]]>friends page</a> or go back to your <a [[aopts2]]>profile</a>.
+
+.remove.title=Friend Removed!
+

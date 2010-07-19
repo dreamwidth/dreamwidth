@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 body<=
 <?_code
@@ -31,13 +45,7 @@ body<=
 
     return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
-    LJ::need_res('stc/display_none.css');
-
     my $editid = $POST{editid};
-
-    # Set the title to be for an error, it will be changed later
-    # upon sucess
-    $title = $ML{'Error'};
 
     # OpenID support
     # openid is a bit of hackery but we'll check to make sure they're
@@ -52,7 +60,7 @@ body<=
 
         if ($GET{'openid.mode'} eq 'id_res') { # Verify their identity
 
-            unless ($GET{'openid.return_to'} =~ m!^\Q$LJ::SITEROOT\E/talkpost_do\.bml!) {
+            unless ( LJ::check_referer('/talkpost_do.bml', $GET{'openid.return_to'}) ) {
                 return LJ::bad_input("Invalid return_to");
             }
 
@@ -109,17 +117,23 @@ body<=
     my $journalu = LJ::load_user($POST{journal});
     return LJ::bad_input('Unknown journal.  Please go back and try again.') unless $journalu;
 
+    LJ::need_res('stc/display_none.css');
+    # libs for userpicselect
+    LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+        if $remote && $remote->can_use_userpic_select;
+
     # FIXME: this isn't entirely correct, if ecphash is present but ignored/incorrect
     # that fix would need to be done in talklib.pl
-    return "<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}"
-        if $remote && ! ($skip_form_auth || $POST{'ecphash'} || LJ::check_form_auth());
+
+    # show this error along with the regenerated comment form down below
+    push @errors, $ML{'.error.invalidform'} if $remote && ! ( $skip_form_auth || $POST{ecphash} || LJ::check_form_auth() );
 
     ## preview
     # ignore errors for previewing
     if ($POST{'submitpreview'} || ($POST{'qr'} && $POST{'do_spellcheck'})) {
         my $cookie_auth;
         $cookie_auth = 1 if $POST{usertype} eq "cookieuser";
-        my $talkurl = LJ::journal_base($journalu) . "/$POST{itemid}.html";
+        my $talkurl = $journalu->journal_base . "/$POST{itemid}.html";
         $title = $ML{'.title.preview'};
         return LJ::Talk::Post::make_preview($talkurl, $cookie_auth, \%POST);
     }
@@ -132,15 +146,7 @@ body<=
     # Required for challenge/response login, since we also need to regenerate an auth token.
     # We repopulate what we can via hidden fields - however the objects (journalu & parpost) must be recreated here.
 
-    # if the user leaving the comment hasn't agreed to the current TOS, and they
-    # didn't click the agreement checkbox, return the form back to them
-    my $require_tos = 0;
-    my $commentu = $init ? $init->{comment}->{u} : undef;
-    if ($init && ! $POST{agree_tos} && $commentu && ! $commentu->tosagree_verify) {
-        $require_tos = 1;
-    }
-
-    if (! $init || $require_tos) {
+    unless ( $init ) {
         my ($sth, $parpost);
         my $dbcr = LJ::get_cluster_def_reader($journalu);
         return LJ::bad_input('No database connection present.  Please go back and try again.') unless $dbcr;
@@ -156,21 +162,11 @@ body<=
         return LJ::Talk::talkform({ 'remote'      => $remote,
                                     'journalu'    => $journalu,
                                     'parpost'     => $parpost,
-                                    'replyto'     => $POST{replyto},
+                                    'replyto'     => $POST{replyto} || $POST{parenttalkid},
                                     'ditemid'     => $POST{itemid},
-                                    'require_tos' => $require_tos,
                                     'do_captcha'  => $need_captcha,
-                                    'stylemine'   => $GET{'style'} eq "mine",
                                     'errors'      => \@errors,
                                     'form'        => \%POST });
-    }
-
-    # checked $POST{agree_tos} was checked above if it was necessary,
-    # now we just need to save the userprop
-    if ($commentu && ! $commentu->tosagree_verify && $POST{agree_tos}) {
-        my $err = "";
-        return LJ::bad_input($err)
-            unless $commentu->tosagree_set(\$err);
     }
 
 
@@ -182,15 +178,28 @@ body<=
     my $comment  = $init->{comment};
     my $item     = $init->{item};
 
+    my $unscreen_parent = $POST{unscreen_parent} ? 1 : 0;
+
     # check max comments only if posting a new comment (not when editing)
     unless ($editid) {
-        return LJ::bad_input("Sorry, this entry already has the maximum number of comments allowed.")
+        return LJ::bad_input($ML{'.error.maxcomments'})
             if LJ::Talk::Post::over_maxcomments($journalu, $item->{'jitemid'});
     }
 
     # no replying to frozen comments
     return LJ::bad_input($ML{'/talkpost.bml.error.noreply_frozen'})
         if $parent->{state} eq 'F';
+
+    # no replying to suspended entries, even by entry poster
+    my $entry = LJ::Entry->new($journalu, jitemid => $item->{jitemid});
+    return LJ::bad_input($ML{'/talkpost.bml.error.noreply_suspended'})
+        if $entry && $entry->is_suspended;
+
+    # no replying to entries/comments in an entry where the remote user or journal are read-only
+    return LJ::bad_input($ML{'/talkpost.bml.error.noreply_readonly_remote'})
+        if $remote && $remote->is_readonly;
+    return LJ::bad_input($ML{'/talkpost.bml.error.noreply_readonly_journal'})
+        if $journalu && $journalu->is_readonly;
 
     ## insertion or editing
     my $wasscreened = ($parent->{state} eq 'S');
@@ -200,7 +209,7 @@ body<=
             return LJ::bad_input($err);
         }
     } else {
-        unless (LJ::Talk::Post::post_comment($entryu, $journalu, $comment, $parent, $item, \$err)) {
+        unless ( LJ::Talk::Post::post_comment( $entryu, $journalu, $comment, $parent, $item, \$err, $unscreen_parent ) ) {
             return LJ::bad_input($err);
         }
     }
@@ -208,15 +217,11 @@ body<=
     # Yeah, we're done.
     my $dtalkid = $comment->{talkid}*256 + $item->{anum};
 
-    # Allow style=mine for QR redirects
-    my $stylemine = $POST{'stylemine'} ? 'style=mine' : '';
+    # Allow style=mine, etc for QR redirects
+    my $style_args = LJ::viewing_style_args( %POST );
 
-    my $commentlink;
-    if ($POST{'viewing_thread'} eq '') {
-        $commentlink = LJ::Talk::talkargs($talkurl, "view=$dtalkid", $stylemine) . "#t$dtalkid";
-    } else {
-        $commentlink = LJ::Talk::talkargs($talkurl, "thread=$POST{viewing_thread}", $stylemine) . "#t$dtalkid";
-    }
+    my $cthread = $POST{'viewing_thread'} ? "thread=$POST{viewing_thread}" : "view=$dtalkid";
+    my $commentlink = LJ::Talk::talkargs( $talkurl, $cthread, $style_args ) . LJ::Talk::comment_anchor( $dtalkid );
 
     my $ret = "";
     $ret .= "<?h1 $ML{'.success.title'} h1?>";
@@ -233,12 +238,23 @@ body<=
         $mlcode = '.success.message2';
     } else {
         # otherwise, it's a screened comment.
-        if ($journalu->{'journaltype'} eq 'C') {
-            $mlcode = $POST{'usertype'} eq 'anonymous' ? '.success.screened.comm.anon2'
-                                                       : '.success.screened.comm2';
-        } else {
-            $mlcode = $POST{'usertype'} eq 'anonymous' ? '.success.screened.user.anon2'
-                                                       : '.success.screened.user2';
+        my $commentu = $init ? $init->{comment}->{u} : undef;
+        if ( $journalu && $journalu->is_community ) {
+            if ( $POST{'usertype'} eq 'anonymous' ) {
+                $mlcode = 'success.screened.comm.anon2';
+            } elsif ( $commentu && $commentu->can_manage( $journalu ) ) {
+                $mlcode = '.success.screened.comm.owncomm';
+            } else {
+                $mlcode = '.success.screened.comm2';
+            }
+        } else {  # not a community
+            if ( $POST{'usertype'} eq 'anonymous' ) {
+                $mlcode = '.success.screened.user.anon2';
+            } elsif ( $commentu && $commentu->equals( $journalu ) ) {
+                $mlcode = '.success.screened.user.ownjournal';
+            } else {
+                $mlcode = '.success.screened.user2';
+            }
         }
     }
 
@@ -264,8 +280,4 @@ title=><?_code return $title _code?>
 head<=
 <?_code return (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : ""; _code?>
 <=head
-page?><?_c <LJDEP>
-lib: LJ::SpellCheck
-link: htdocs/lostinfo.bml, htdocs/userinfo.bml, htdocs/talkread.bml
-post: htdocs/talkpost_do.bml
-</LJDEP> _c?>
+page?>

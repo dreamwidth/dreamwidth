@@ -1,0 +1,300 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Stepping Stones";
+layerinfo redist_uniq = "steppingstones/layout";
+layerinfo author_name = "branchandroot";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+set layout_type = "three-columns-left";
+
+function print_stylesheet() {
+    var string entry_userpic_background = generate_background_css( "$*IMGDIR/profile_icons/user.png", "no-repeat", "center", $*color_entry_border );
+
+    var string header_colors = generate_color_css( $*color_page_title, $*color_header_background, new Color );
+    var string navigation_colors = generate_color_css( new Color, $*color_entry_background, new Color );
+
+    var string entry_colors = generate_color_css( new Color, $*color_entry_background, new Color );
+    var string entry_userpic_colors = generate_color_css( new Color, $*color_entry_border, new Color );
+
+    var string tertiary_colors = generate_color_css( new Color, $*color_module_background, new Color );
+    var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
+    var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
+    var string footer_link_colors = generate_color_css( $*color_page_title, new Color, new Color );
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .contents .userpic { left: -1.5em; }
+            .comment .contents .userpic { float: left;
+                margin: 0 .5em .5em -1.5em; }
+            .entry .header { padding-left: 100px; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .contents .userpic { right: -1.5em; }
+            .comment .contents .userpic { float: right;
+                margin: 0 -1.5em .5em .5em; }
+           .entry .header { padding-right: 100px; }
+            """;
+        }
+    """
+/* Stepping Stones */
+
+blockquote { border-left: 3px solid $*color_entry_border;
+    padding-left: .5em; } 
+dl dt { font-weight: bold; }
+
+a {  }
+a:hover { text-decoration: none; }
+
+body { margin: 0;
+    border: none;
+    font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif; }
+
+H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
+
+#page { border: none; }
+
+/* header */
+#header { background-color: transparent; }
+#header > .inner:first-child { margin: 1em;
+    padding: .5em 1em;
+    $header_colors }
+
+.one-column #header > .inner:first-child,
+.two-columns-left #header > .inner:first-child,
+.three-columns-left #header > .inner:first-child { margin-left: 2em; }
+
+.two-columns-right #header > .inner:first-child,
+.three-columns-right #header > .inner:first-child {margin-right: 2em; }
+
+.three-columns-sides #header > .inner:first-child { margin-right: 2em; margin-left: 2em; }
+
+#pagetitle { font-size: medium; }
+
+.one-column #pagetitle,
+.two-columns-left #pagetitle { text-align: right;
+      margin-left: $*sidebar_width;  }
+
+
+.three-columns-left #pagetitle { text-align: right;
+    margin-left: $*sidebar_width_doubled; }
+
+.two-columns-right #pagetitle { text-align: left;
+      margin-right: $*sidebar_width; }
+
+
+.three-columns-right #pagetitle { text-align: left;
+    margin-right: $*sidebar_width_doubled; }
+
+.three-columns-sides #pagetitle { text-align: center;
+      margin-left: $*sidebar_width;
+      margin-right: $*sidebar_width; }
+
+#pagetitle span { font-size: large; }
+
+/* main column */
+#primary > .inner:first-child {
+    padding: 0 2em;
+}
+
+.navigation { text-align:  right; }
+.navigation ul { margin: 0;
+    padding: .25em;
+    display: inline;
+    $navigation_colors }
+
+/* entries */
+.entry-wrapper { margin-top: 2em;
+    margin-bottom: 4em;
+    margin-left: .5em; }
+
+.entry li { margin-left: 1em; }
+.entry-content hr { display: block;
+    margin: 1em 10%; }
+
+.entry { position: relative;
+    $entry_colors
+    padding: .5em;
+    border: none;}
+
+.entry .contents { padding: .5em .5em 0 .5em; }
+
+.entry .contents .userpic { position: absolute;
+    top: -3em;
+    width: 110px;
+    height: 110px;
+    $entry_userpic_background
+    text-align: center; }
+.entry .contents .userpic a { display: block;
+    height: 106px;
+    width: 102px;
+    margin: auto;
+    $entry_userpic_colors }
+.entry .contents .userpic img { margin-top: 5px; }
+
+.entry-content { margin: 1em 0; }
+
+.metadata { margin: 1em 0 0 0; }
+.metadata.top-metadata { margin-bottom: 2em; }
+.metadata-label { font-weight: bold; }
+.metadata ul li { margin-left: 0; padding-left: 0; }
+
+.entry .footer { margin: .5em 0; }
+.entry .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
+
+.entry .tag { margin-left: .25em; }
+.entry .tag li { margin-left: 0; padding: .25em .10em; }
+.entry .tag-text { font-weight: bold; }
+
+ul.entry-management-links { float: left;
+    margin-left: -1em;
+    margin-top: 1em; }
+ul.entry-interaction-links { text-align: right;
+    margin-top: 1em;
+    margin-bottom: .25em;
+    min-height: 17px; } /* prevent entry-management icons from shoving quickreply aside */
+
+/* comments */
+.comment { margin-bottom: 1em;
+    margin-left: 1em;
+    $entry_colors
+    padding: .5em }
+
+.partial .comment { margin-bottom: 0;} 
+
+.comment-title { margin: 0;
+    padding: 0 0 .25em 0;
+    font-weight: bold; }
+.partial .comment-title { display: inline; }
+
+.comment .contents { margin-top: .5em ; }
+
+.comment .poster-ip { font-size: small;
+    color: #999999; }
+
+.comment .contents .userpic { $entry_userpic_background
+    height: 110px;
+    width: 110px;
+    text-align: center; }
+.comment .contents .userpic a { display: block;
+    height: 102px;
+    width: 102px;
+    $entry_userpic_colors }
+.comment .contents .userpic img { margin: 5px; }
+
+.comment-content { margin-top: 1em; }
+
+.comment .edittime { margin-top: 1em; }
+.comment .header .datetime { color: $*color_entry_title; }
+
+.comment .multiform-checkbox { display: block;
+    text-align: right;
+    font-size: small;
+    color: $*color_entry_text;
+}
+
+.comment .footer { margin: .5em 0; }
+.comment .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
+
+.comment-management-links { float: right; }
+.comment-interaction-links { text-align: left; }
+
+.bottomcomment, .comments-message { padding: 1px 1px 3px 1px;
+    $navigation_colors }
+
+.bottomcomment .entry-management-links,
+.bottomcomment .entry-interaction-links { margin: .25em 0 .5em 0; }
+
+.comment-pages { text-align: center; }
+
+#qrdiv { margin: 1em; }
+#qrdiv table { width: 100%; }
+
+
+/* tags */
+
+.page-tags .tags-container { $entry_colors
+    padding: 1em;
+    margin-left: -1em; }
+
+
+/* archive */
+
+/* year-by-month view */
+#archive-year .navigation { text-align: left; }
+
+div.month { margin: 2em 0 2em -1em;
+    $entry_colors
+    padding: 1em; } /*both year and month pages */
+
+table.month td,
+table.month th { border-color: #999999;
+    vertical-align: top; }
+
+.month caption { display: none; }
+
+#archive-year .month .footer { padding: .5em;
+text-align: center; }
+
+/* month-by-day view */
+#archive-month .navigation { text-align: center; }
+#archive-month .navigation ul { display: block; }
+
+.month dl .tag-text { font-style: italic; }
+
+.month dl h3.entry-title { font-weight: bold; }
+
+/* day-by-entries view */
+.day .inner > h3:first-child { text-align: center; }
+
+
+/* sidebars */
+
+#secondary, #tertiary { margin-top: -5em; }
+
+.one-column #secondary,
+.one-column #tertiary { margin-top: 0; }
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child { padding: 0;
+    margin: 1em;
+    $tertiary_colors }
+
+.two-columns-left #tertiary > .inner:first-child,
+.two-columns-right #tertiary > .inner:first-child { background-color: transparent; }
+
+.two-columns-left #tertiary .module,
+.two-columns-right #tertiary .module { margin-right: 1em; }
+
+.module {  padding: .6em; 
+    margin-bottom: 1em;
+    border: none; }
+
+.module-header { 
+    font-size: large;
+    padding: 1px 3px; }
+.module-header a,
+.module-header a:visited { $module_header_link_colors }
+
+.module-userprofile { text-align: center; }
+.module-userprofile .module-header { text-align: left; }
+
+.module-navlinks ul,
+.module-typelist ul { list-style: none; }
+
+.module-calendar table { font-size: small; }
+
+
+/* footer */
+#footer { background-color: transparent; }
+#footer > .inner:first-child { $footer_colors
+    padding: .5em;
+    margin: 1em 2em; }
+#footer a { $footer_link_colors }
+
+$userpic_css
+""";
+
+}

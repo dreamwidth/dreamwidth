@@ -1,0 +1,156 @@
+#!/usr/bin/perl
+#
+# bin/worker/sphinx-copier
+#
+# Responsible for ensuring a user is up to date when they make a new post or
+# edit an existing one.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Worker::TheSchwartz;
+
+schwartz_decl( 'DW::Worker::Sphinx::Copier' );
+schwartz_work();
+
+# ============================================================================
+package DW::Worker::Sphinx::Copier;
+use base 'TheSchwartz::Worker';
+use Encode;
+use LJ::DBUtil;
+
+sub work {
+    my ( $class, $job ) = @_;
+    my $a = $job->arg;
+
+    my $u = LJ::load_userid( $a->{userid} )
+        or die "Invalid userid: $a->{userid}.\n";
+    return $job->completed unless $u->is_person || $u->is_community;
+
+    my $dbto = LJ::get_dbh( 'sphinx_search' )
+        or die "Unable to connect to Sphinx search database.\n";
+    my $p_revtime = LJ::get_prop( log => 'revtime' )
+        or die "No logprop revtime?\n";
+
+    # annotate copier is going
+    warn "[$$] Sphinx copier started for " . $u->user . "(" . $u->id . ").\n";
+
+    # we have to use utf8 when we write to the db
+    $dbto->do( 'SET NAMES \'utf8\'' );
+
+    # figure out which posts the search db knows
+    my $sphinx_times = $dbto->selectall_hashref(
+        'SELECT jitemid, revtime FROM posts_raw WHERE journal_id = ?',
+        'jitemid', undef, $u->id
+    );
+    die $dbto->errstr if $dbto->err;
+
+    # now get the times for all of their posts from the database (inactive if possible)
+    my $dbfrom = LJ::get_cluster_master( $u->clusterid );
+    die "No dbfrom available.\n" unless $dbfrom;
+
+    # okay, we're actually getting the times now
+    my $db_times = $dbfrom->selectall_hashref(
+        qq{SELECT l.jitemid, UNIX_TIMESTAMP(l.logtime) AS 'createtime', lp.value AS 'edittime'
+           FROM log2 l LEFT JOIN logprop2 lp ON (l.journalid = lp.journalid AND l.jitemid = lp.jitemid AND lp.propid = ?)
+               WHERE l.journalid = ?},
+        'jitemid', undef, $p_revtime->{id}, $u->id
+    );
+    die $dbfrom->errstr if $dbfrom->err;
+
+    # three doors: ignore, copy, delete
+    my ( @copy_jitemids, @delete_jitemids );
+
+    # now iterate through and find entirely NEW and EDITED posts
+    foreach my $jitemid ( keys %$db_times ) {
+
+        # we have to decide which time to use.  we want the edit time if one is available,
+        # but we'll use the createtime if not
+        $db_times->{$jitemid} = $db_times->{$jitemid}->{edittime} || $db_times->{$jitemid}->{createtime};
+        $sphinx_times->{$jitemid} = $sphinx_times->{$jitemid}->{revtime};
+
+        next if exists $sphinx_times->{$jitemid} &&
+                $sphinx_times->{$jitemid} == $db_times->{$jitemid};
+
+        push @copy_jitemids, $jitemid;
+    }
+
+    # now find deleted posts
+    foreach my $jitemid ( keys %$sphinx_times ) {
+        next if exists $db_times->{$jitemid};
+
+        warn "[$$] Deleting post #$jitemid.\n";
+        push @delete_jitemids, $jitemid;
+    }
+
+    # deletes are easy...
+    if ( @delete_jitemids ) {
+        my $ct = $dbto->do( 'DELETE FROM posts_raw WHERE journal_id = ? AND jitemid IN (' .
+                            join( ',', @delete_jitemids ) . ')', undef, $u->id ) + 0;
+        die $dbto->errstr if $dbto->err;
+
+        warn "[$$] Actually deleted $ct posts.\n";
+    }
+
+    # now to copy entries.  this is not done enmasse since the major case will be after a user
+    # already has most of their posts copied and they are just updating one or two.
+    foreach my $jitemid ( @copy_jitemids ) {
+        my $row = $dbfrom->selectrow_hashref(
+            q{SELECT l.journalid, l.jitemid, l.posterid, l.security, l.allowmask, l.logtime, lt.subject, lt.event
+              FROM log2 l INNER JOIN logtext2 lt ON (l.journalid = lt.journalid AND l.jitemid = lt.jitemid)
+              WHERE l.journalid = ? AND l.jitemid = ?},
+            undef, $u->id, $jitemid
+        );
+        die $dbfrom->errstr if $dbfrom->err;
+
+        # we need extra security bits for some metadata.  we have to do this this way because
+        # it makes it easier to later do searches on various combinations of things at the same
+        # time...  also, even though these are bits, we're not going to ever use them as actual bits.
+        my @extrabits;
+        push @extrabits, 101 if $row->{security} eq 'private';
+        push @extrabits, 102 if $row->{security} eq 'public';
+
+        # have to do some more munging
+        $row->{edittime} = $db_times->{$jitemid};
+        $row->{allowmask} = join ',', LJ::bit_breakdown( $row->{allowmask} ), @extrabits;
+        $row->{allowpublic} = $u->include_in_global_search ? 1 : 0;
+
+        # very important, the search engine can't index compressed crap...
+        foreach ( qw/ subject event / ) {
+            LJ::text_uncompress( \$row->{$_} );
+
+            # required, we store raw-bytes in our own database but the Sphinx system expects
+            # things to be proper UTF-8, this does it.
+            $row->{$_} = Encode::decode( 'utf8', $row->{$_} );
+        }
+
+        # insert
+        $dbto->do(
+            q{REPLACE INTO posts_raw (id, journal_id, jitemid, poster_id, security_bits, allow_global_search, date_posted,
+                                      title, data, revtime)
+              VALUES (NULL, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?)},
+            undef, map { $row->{$_} } qw/ journalid jitemid posterid allowmask allowpublic logtime subject event edittime /
+        );
+        die $dbto->errstr if $dbto->err;
+
+        # let the viewer know what they missed
+        warn "[$$] Inserted post #$jitemid for " . $u->user . "(" . $u->id . ").\n";
+    }
+
+    # all good
+    return $job->completed;
+}
+
+sub keep_exit_status_for { 0 }
+sub grab_for { 1800 }
+sub max_retries { 3 }
+sub retry_delay { 1800 }

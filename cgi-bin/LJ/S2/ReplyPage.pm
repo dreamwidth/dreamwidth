@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 package LJ::S2;
@@ -20,25 +33,55 @@ sub ReplyPage
 
     my ($entry, $s2entry) = EntryPage_entry($u, $remote, $opts);
     return if $opts->{'suspendeduser'};
+
+    # reply page of suspended entry cannot be accessed by anyone, even entry poster
+    if ($entry && $entry->is_suspended) {
+        $opts->{suspendedentry} = 1;
+        return;
+    }
+
+    # read-only users can't comment anywhere
+    if ($remote && $remote->is_readonly) {
+        $opts->{readonlyremote} = 1;
+        return;
+    }
+
+    # no one can comment in a read-only journal
+    if ($u->is_readonly) {
+        $opts->{readonlyjournal} = 1;
+        return;
+    }
+
     return if $opts->{'handler_return'};
     return if $opts->{'redir'};
+    return if $opts->{internal_redir};
+
     my $ditemid = $entry->ditemid;
+    my $replytoid = $get->{replyto} ? $get->{replyto} : 0;
+
+    # canonical link to the entry or comment thread
+    $p->{head_content} .= LJ::canonical_link( $entry->url, $replytoid );
+
     $p->{'head_content'} .= $LJ::COMMON_CODE{'chalresp_js'};
 
     LJ::need_res('stc/display_none.css');
+    
+    # libs for userpicselect
+    LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+        if $remote && $remote->can_use_userpic_select;
 
     if ($u->should_block_robots || $entry->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
     }
 
     $p->{'entry'} = $s2entry;
-    LJ::run_hook('notify_event_displayed', $entry);
+    LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
     # setup the replying item
     my $replyto = $s2entry;
     my $editid = $get->{edit} ? $get->{edit} : 0;
-    my $replytoid = $get->{replyto} ? $get->{replyto} : 0;
     my $parpost;
+    my $parentcomment;
 
     my $comment;
     my %comment_values;
@@ -53,7 +96,7 @@ sub ReplyPage
             my $querysep = $args ? "?" : "";
             my $redir = LJ::eurl("http://$host$uri$querysep$args");
 
-            $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir";
+            $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin";
             return;
         }
         unless ($comment->remote_can_edit(\$errref)) {
@@ -93,13 +136,14 @@ sub ReplyPage
             $parpost = $db->selectrow_hashref($sql);
             last if $parpost;
         }
+        my $parentcomment = LJ::Comment->new( $u, jtalkid => $re_talkid );
         unless ($parpost and $parpost->{'state'} ne 'D') {
             # FIXME: This is a hack. See below...
 
             $opts->{status} = "404 Not Found";
             return "<p>This comment has been deleted; you cannot reply to it.</p>";
         }
-        if ($parpost->{'state'} eq 'S' && !LJ::Talk::can_unscreen($remote, $u, $s2entry->{'poster'}->{'username'}, undef)) {
+        if ( $parpost->{state} eq 'S' && !$parentcomment->visible_to( $remote ) ) {
             $opts->{'handler_return'} = 403;
             return;
         }
@@ -110,6 +154,14 @@ sub ReplyPage
             #    For now, this hack will work; this error is pretty uncommon anyway.
             $opts->{status} = "403 Forbidden";
             return "<p>This thread has been frozen; no more replies are allowed.</p>";
+        }
+        if ($entry->is_suspended) {
+            $opts->{status} = "403 Forbidden";
+            return "<p>This entry has been suspended; you cannot reply to it.</p>";
+        }
+        if ($remote && $remote->is_readonly) {
+            $opts->{status} = "403 Forbidden";
+            return "<p>You are read-only.  You cannot reply to this entry.</p>";
         }
 
         my $tt = LJ::get_talktext2($u, $re_talkid);
@@ -128,21 +180,35 @@ sub ReplyPage
         my $comment_userpic;
         if ($parpost->{'posterid'}) {
             $pu = LJ::load_userid($parpost->{'posterid'});
-            return $opts->{handler_return} = 403 if $pu->{statusvis} eq 'S'; # do not show comments by suspended users
+            return $opts->{handler_return} = 403 if $pu->is_suspended; # do not show comments by suspended users
             $s2poster = UserLite($pu);
 
-            # FIXME: this is a little heavy:
-            $comment_userpic = Image_userpic($pu, 0, $parpost->{'props'}->{'picture_keyword'});
+            my $pickw = LJ::Entry->userpic_kw_from_props($parpost->{'props'});
+            $comment_userpic = Image_userpic($pu, 0, $pickw);
         }
 
         LJ::CleanHTML::clean_comment(\$parpost->{'body'},
                                      {
                                          'preformatted' => $parpost->{'props'}->{'opt_preformatted'},
-                                         'anon_comment' => !$parpost->{posterid} || $pu->{'journaltype'} eq 'I',
+                                         'anon_comment' => !$parpost->{posterid} || ( $pu->is_identity && !$u->trusts_or_has_member( $pu ) ),
                                      });
 
 
         my $dtalkid = $re_talkid * 256 + $entry->anum;
+        my $cmtobj = LJ::Comment->new( $u, dtalkid => $dtalkid );
+
+        my $tz_remote;
+        my $datetime_remote;
+        my $datetime_poster;
+        if ( $remote ) {
+            my $tz = $remote->prop( "timezone" );
+            $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
+        }
+
+        $datetime_remote = $tz_remote ? DateTime_tz( $cmtobj->unixtime, $tz_remote ) : undef;
+        $datetime_poster = $parentcomment ? DateTime_tz( $cmtobj->unixtime, $parentcomment->poster ) : undef;
+
+        my $replyargs = LJ::viewing_style_args( %$get );
         $replyto = {
             '_type' => 'Comment',
             'subject' => LJ::ehtml($parpost->{'subject'}),
@@ -151,26 +217,32 @@ sub ReplyPage
             'poster' => $s2poster,
             'journal' => $s2entry->{'journal'},
             'metadata' => {},
-            'permalink_url' => $u->{'_journalbase'} . "/$ditemid.html?view=$dtalkid#t$dtalkid",
+            'permalink_url' => $cmtobj->url( $replyargs ),
             'depth' => 1,
+            'parent_url' => $cmtobj->parent_url( $replyargs ),
+            'threadroot_url' => $cmtobj->threadroot_url( $replyargs ),
             'time' => $datetime,
             'system_time' => $datetime,
+            'time_remote' => $datetime_remote,
+            'time_poster' => $datetime_poster,
             'tags' => [],
             'talkid' => $dtalkid,
             'link_keyseq' => [ 'delete_comment' ],
             'screened' => $parpost->{'state'} eq "S" ? 1 : 0,
             'frozen' => $parpost->{'state'} eq "F" ? 1 : 0,
             'deleted' => $parpost->{'state'} eq "D" ? 1 : 0,
+            'full' => 1,
+            timeformat24 => $remote && $remote->use_24hour_time,
         };
 
         # Conditionally add more links to the keyseq
         my $link_keyseq = $replyto->{'link_keyseq'};
         push @$link_keyseq, $replyto->{'screened'} ? 'unscreen_comment' : 'screen_comment';
         push @$link_keyseq, $replyto->{'frozen'} ? 'unfreeze_thread' : 'freeze_thread';
-        push @$link_keyseq, "watch_thread" unless $LJ::DISABLED{'esn'};
-        push @$link_keyseq, "unwatch_thread" unless $LJ::DISABLED{'esn'};
-        push @$link_keyseq, "watching_parent" unless $LJ::DISABLED{'esn'};
-        unshift @$link_keyseq, "edit_comment" if LJ::is_enabled("edit_comments");
+        push @$link_keyseq, "watch_thread" if LJ::is_enabled('esn');
+        push @$link_keyseq, "unwatch_thread" if LJ::is_enabled('esn');
+        push @$link_keyseq, "watching_parent" if LJ::is_enabled('esn');
+        unshift @$link_keyseq, "edit_comment" if LJ::is_enabled('edit_comments');
     }
 
     $p->{'replyto'} = $replyto;
@@ -181,8 +253,8 @@ sub ReplyPage
         '_u' => $u,
         '_ditemid' => $ditemid,
         '_parpost' => $parpost,
-        '_stylemine' => $get->{'style'} eq "mine",
         '_values' => \%comment_values,
+        '_styleopts' => $p->{_styleopts},
     };
 
     return $p;
@@ -206,8 +278,9 @@ sub ReplyForm__print
                                      'parpost'   => $parpost,
                                      'replyto'   => $parent,
                                      'ditemid'   => $form->{'_ditemid'},
-                                     'stylemine' => $form->{'_stylemine'},
-                                     'form'      => $post_vars, }));
+                                     'styleopts' => $form->{_styleopts},
+                                     'form'      => $post_vars, 
+                                     'do_captcha' => LJ::Talk::Post::require_captcha_test($remote, $u, $post_vars->{body}, $form->{'_ditemid'})}));
 
 }
 

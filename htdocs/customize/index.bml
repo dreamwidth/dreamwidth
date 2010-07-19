@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 body<=
 <?_code
@@ -6,7 +20,7 @@ body<=
     use vars qw(%GET %POST $title $headextra @errors @warnings);
     LJ::need_res(qw( stc/customize.css js/customize.js ));
 
-    $title = $ML{'.title'};
+    $title = $ML{'.title2'};
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
@@ -19,13 +33,9 @@ body<=
     # extra arguments for get requests
     my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
 
-    # if using s1, either prompt the user to switch to s2 or redirect to the s1 customization page
+    # if using s1, switch them to s2
     unless ($u->prop('stylesys') == 2) {
-        if ($u->prop('s1_confirmed')) {
-            return BML::redirect("$LJ::SITEROOT/customize/s1/$getextra");
-        } else {
-            return BML::redirect("$LJ::SITEROOT/customize/switch_system.bml$getextra");
-        }
+        $u->set_prop( stylesys => 2 );
     }
 
     # make sure there's a style set and load it
@@ -38,7 +48,6 @@ body<=
     my $layoutid = defined $GET{layoutid} ? $GET{layoutid} : 0;
     my $designer = defined $GET{designer} ? $GET{designer} : "";
     my $search = defined $GET{search} ? $GET{search} : "";
-    my $filter_available = defined $GET{filter_available} ? $GET{filter_available} : 0;
     my $page = defined $GET{page} ? $GET{page} : 1;
     my $show = defined $GET{show} ? $GET{show} : 12;
 
@@ -49,7 +58,7 @@ body<=
             return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
                 unless LJ::check_form_auth();
 
-            return BML::redirect("$LJ::SITEROOT/customize/options.bml$getextra");
+            return BML::redirect("$LJ::SITEROOT/customize/options$getextra");
         }
         my @errors = LJ::Widget->handle_post(\%POST, qw(JournalTitles ThemeChooser ThemeNav LayoutChooser AdLayout));
         $ret .= LJ::bad_input(@errors) if @errors;
@@ -67,7 +76,7 @@ body<=
     my $current_theme = LJ::Widget::CurrentTheme->new;
     $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );
     $ret .= "<div class='theme-current pkg'>";
-    $ret .= $current_theme->render( filter_available => $filter_available, show => $show );
+    $ret .= $current_theme->render( show => $show );
     $ret .= "</div><!-- end .theme-current -->";
 
     my $journal_titles = LJ::Widget::JournalTitles->new;
@@ -85,7 +94,6 @@ body<=
         layoutid => $layoutid,
         designer => $designer,
         search => $search,
-        filter_available => $filter_available,
         page => $page,
         show => $show,
         headextra => \$headextra,

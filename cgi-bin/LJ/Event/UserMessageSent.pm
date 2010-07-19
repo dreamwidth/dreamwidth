@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Event::UserMessageSent;
 use strict;
 use Scalar::Util qw(blessed);
@@ -64,6 +77,17 @@ sub content {
     return $body;
 }
 
+sub content_summary {
+    my $msg = $_[0]->load_message;
+    my $body = $msg->body;
+    my $body_summary = LJ::html_trim( $body, 300 );
+
+    my $ret = LJ::html_newlines( $body_summary );
+    $ret .= "..." if $body ne $body_summary;
+    $ret .= $_[0]->as_html_actions;
+    return $ret;
+}
+
 # override parent class sbuscriptions method to always return
 # a subscription object for the user
 sub subscriptions {
@@ -115,12 +139,45 @@ sub display_pic {
         $pic = $u->userpic;
     }
 
+    # Get the image URL and the alternative text. Don't set
+    # alternative text if there isn't any userpic.
+    my ( $userpic_src, $userpic_alt );
+    if ( $pic ) {
+        $userpic_src = $pic->url;
+        $userpic_alt = LJ::ehtml( $pic->alttext( $msg->userpic ) );
+    } else {
+        $userpic_src = "$LJ::IMGPREFIX/nouserpic.png";
+        $userpic_alt = "";
+    }
+
     my $ret;
-    $ret .= '<img src="';
-    $ret .= $pic ? $pic->url : "$LJ::STATPREFIX/horizon/nouserpic.png";
-    $ret .= '" width="50" align="top" />';
+    $ret .= '<img src="' . $userpic_src . '" alt="' .  $userpic_alt . '" width="50" align="top" />';
 
     return $ret;
+}
+
+# return detailed data for XMLRPC::getinbox
+sub raw_info {
+    my ($self, $target) = @_;
+
+    my $res = $self->SUPER::raw_info;
+
+    my $msg = $self->load_message;
+    my $sender_u = LJ::want_user($msg->journalid);
+
+    my $pic;
+    if ($msg->userpic) {
+        $pic = LJ::Userpic->new_from_keyword($sender_u, $msg->userpic);
+    } else {
+        $pic = $sender_u->userpic;
+    }
+
+    $res->{to} = $msg->other_u->user;
+    $res->{picture} = $pic->url if $pic;
+    $res->{subject} = $msg->subject;
+    $res->{body} = $msg->body;
+
+    return $res;
 }
 
 1;

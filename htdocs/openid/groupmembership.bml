@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 
     # This script implements the draft "OpenID Group Membership Protocol"
@@ -41,12 +55,12 @@
     };
     my $findusernamefriends = sub {
         my $uri = shift;
-        return $1 if ($uri =~ m!^http://([a-z0-9\-]+).\Q$LJ::USER_DOMAIN\E/friends$!);
-        return $1 if ($uri =~ m!^\Q$LJ::SITEROOT\E/users/(\w+)/friends$!);
-        return $1 if ($uri =~ m!^\Q$LJ::SITEROOT\E/community/(\w+)/friends$!);
+        return $1 if ($uri =~ m!^http://([a-z0-9\-]+).\Q$LJ::USER_DOMAIN\E/read$!);
+        return $1 if ($uri =~ m!^\Q$LJ::SITEROOT\E/users/(\w+)/read$!);
+        return $1 if ($uri =~ m!^\Q$LJ::SITEROOT\E/community/(\w+)/read$!);
 
-        return $1 if ($uri =~ m!^http://community.\Q$LJ::USER_DOMAIN\E/\w/friends$!);
-        return $1 if ($uri =~ m!^http://users.\Q$LJ::USER_DOMAIN\E/\w/friends$!);
+        return $1 if ($uri =~ m!^http://community.\Q$LJ::USER_DOMAIN\E/\w/read$!);
+        return $1 if ($uri =~ m!^http://users.\Q$LJ::USER_DOMAIN\E/\w/read$!);
         return undef;
     };
 
@@ -67,7 +81,7 @@
     # Finally, make sure the canonical journal URL was used.
     #  (this is where we catch all those ljcom-specific cases above, since they'll never match
     #   on generic LJ)
-    return $failnotfound->("Must use canonical URI for group (".$u->journal_base."/friends)") unless $groupuri eq $u->journal_base."/friends";
+    return $failnotfound->("Must use canonical URI for group (".$u->journal_base."/read)") unless $groupuri eq $u->journal_base."/read";
 
     # Now, are we checking membership or are we enumerating members?
     my $memberuri = $GET{'grpmember.identifier'};
@@ -100,7 +114,7 @@
         };
         
         return $nonmember->() unless $memberu;
-        return $nonmember->() unless $u->has_friend($memberu);
+        return $nonmember->() unless $u->trusts_or_has_member( $memberu );
         return $member->();
     }
     else {

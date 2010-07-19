@@ -1,10 +1,21 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Session;
 use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
-use Class::Autouse qw(
-                      LJ::EventLogRecord::SessionExpired
-                      );
+use LJ::EventLogRecord::SessionExpired;
 
 use constant VERSION => 1;
 
@@ -191,7 +202,8 @@ sub expiration_time {
     # expiration time if we have it,
     return $sess->{timeexpire} if $sess->{timeexpire};
 
-    return time() + LJ::Session->session_length($sess->{exptype});
+    $sess->{timeexpire} = time() + LJ::Session->session_length($sess->{exptype});
+    return $sess->{timeexpire};
 }
 
 # return format of the "ljloggedin" cookie.
@@ -237,14 +249,6 @@ sub domsess_cookie_string {
         LJ::eurl($LJ::COOKIE_GEN || "");
 
     return $value;
-}
-
-# this is just a wrapper around domsess
-sub fb_cookie_string {
-
-    # FIXME: can we just use domsess's function like this?
-    #        might be more differences so we need to write a new one?
-    return domsess_cookie_string(@_);
 }
 
 # sets new ljmastersession cookie given the session object
@@ -297,16 +301,6 @@ sub update_master_cookie {
                    domain          => $LJ::DOMAIN,
                    path            => '/',
                    delete          => 1);
-    }
-
-    # set fb global cookie
-    if ($LJ::FB_SITEROOT) {
-        my $fb_cookie = fb_cookie();
-        set_cookie($fb_cookie    => $sess->fb_cookie_string($fb_cookie),
-                   domain        => $LJ::DOMAIN,
-                   path          => '/',
-                   http_only     => 1,
-                   @expires,);
     }
 
     return;
@@ -391,21 +385,38 @@ sub try_renew {
     }
 }
 
-
 ############################################################################
 #  CLASS METHODS
 ############################################################################
 
 # NOTE: internal function REQUIRES trusted input
 sub helper_url {
-    my ($class, $domcook) = @_;
-    return unless $domcook;
+    my ($class, $dest) = @_;
 
-    my @parts = split(/\./, $domcook);
-    my $url = "http://$parts[1].$LJ::USER_DOMAIN/";
-    $url .= "$parts[2]/" if @parts == 3;
-    $url .= "__setdomsess";
-    return $url;
+    return unless $dest;
+
+    my $u = LJ::get_remote();
+    unless ($u) {
+        LJ::Session->clear_master_cookie;
+        return $dest;
+    }
+
+    my $domcook = LJ::Session->domain_cookie($dest) or
+        return;
+
+    if ($dest =~ m!^(https?://)([^/]*?)\.\Q$LJ::USER_DOMAIN\E/?([^/]*)!) {
+        my $url = "$1$2.$LJ::USER_DOMAIN/";
+        if ($LJ::SUBDOMAIN_FUNCTION{lc($2)} eq "journal") {
+            $url .= "$3/" if $3 && ($3 ne '/'); # 'http://community.livejournal.com/name/__setdomsess'
+        }
+
+        my $sess = $u->session;
+        my $cookie = $sess->domsess_cookie_string($domcook);
+        return $url . "__setdomsess?dest=" . LJ::eurl($dest) .
+            "&k=" . LJ::eurl($domcook) . "&v=" . LJ::eurl($cookie);
+    }
+
+    return;
 }
 
 # given a URL (or none, for current url), what domain cookie represents this URL?
@@ -436,7 +447,7 @@ sub domain_journal {
 
     $url ||= _current_url();
     return undef unless
-        $url =~ m!^http://(.+?)(/.*)$!;
+        $url =~ m!^https?://(.+?)(/.*)$!;
 
     my ($host, $path) = ($1, $2);
     $host = lc($host);
@@ -445,7 +456,7 @@ sub domain_journal {
     return undef if $host eq lc($LJ::DOMAIN_WEB) || $host eq lc($LJ::DOMAIN);
 
     return undef unless
-        $host =~ m!^([\w-]{1,50})\.\Q$LJ::USER_DOMAIN\E$!;
+        $host =~ m!^([\w-\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!;
 
     my $subdomain = lc($1);
     if ($LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal") {
@@ -466,36 +477,28 @@ sub url_owner {
     return LJ::canonical_username($user);
 }
 
-sub fb_cookie {
-    my ($class) = @_;
-
-    # where $subdomain is actually a username:
-    return "ljsession";
-}
-
 # CLASS METHOD
 #  -- frontend to session_from_domain_cookie and session_from_master_cookie below
 sub session_from_cookies {
     my $class = shift;
     my %getopts = @_;
 
-    # must be in web context
-    return undef unless eval { BML::get_request(); };
+    my $r = DW::Request->get;
+    return undef unless $r;
 
     my $sessobj;
 
     my $domain_cookie = LJ::Session->domain_cookie;
-
     if ($domain_cookie) {
         # journal domain
-        $sessobj = LJ::Session->session_from_domain_cookie(\%getopts, @{ $BML::COOKIE{"$domain_cookie\[\]"} || [] });
+        $sessobj = LJ::Session->session_from_domain_cookie( \%getopts, $r->cookie_multi( $domain_cookie ) );
     } else {
         # this is the master cookie at "www.livejournal.com" or "livejournal.com";
-        my @cookies = @{ $BML::COOKIE{'ljmastersession[]'} || [] };
+        my @cookies = $r->cookie_multi( 'ljmastersession' );
         # but support old clients who are just sending an "ljsession" cookie which they got
         # from ljprotocol's "generatesession" mode.
-        unless (@cookies) {
-            @cookies = @{ $BML::COOKIE{'ljsession[]'} || [] };
+        unless ( @cookies ) {
+            @cookies = $r->cookie_multi( 'ljsession' );
             $getopts{old_cookie} = 1;
         }
         $sessobj = LJ::Session->session_from_master_cookie(\%getopts, @cookies);
@@ -510,16 +513,19 @@ sub session_from_domain_cookie {
     my $class = shift;
     my $opts = ref $_[0] ? shift() : {};
 
+    my $r = DW::Request->get;
+
     # the logged-in cookie
-    my $li_cook = $BML::COOKIE{'ljloggedin'};
+    my $li_cook = $r->cookie( 'ljloggedin' );
     return undef unless $li_cook;
 
     my $no_session = sub {
         my $reason = shift;
+        warn "No session found: $reason\n" if $LJ::IS_DEV_SERVER;
+
         my $rr = $opts->{redirect_ref};
-        if ($rr) {
-            $$rr = "$LJ::SITEROOT/misc/get_domain_session.bml?return=" . LJ::eurl(_current_url());
-        }
+        $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(_current_url()) if $rr;
+
         return undef;
     };
 
@@ -529,23 +535,11 @@ sub session_from_domain_cookie {
     my $domcook = LJ::Session->domain_cookie;
 
     foreach my $cookie (@cookies) {
-        my $sess = valid_domain_cookie($domcook, $cookie, $li_cook);
-        next unless $sess;
-        return $sess;
+        my $sess = valid_domain_cookie($domcook, $cookie->[0], $li_cook);
+        return $sess if $sess;
     }
 
     return $no_session->("no valid cookie");
-}
-
-sub session_from_fb_cookie {
-    my $class = shift;
-
-    my $domcook  = LJ::Session->fb_cookie;
-    my $fbcookie = $BML::COOKIE{$domcook};
-    return undef unless $fbcookie;
-
-    my $sess = valid_fb_cookie($domcook, $fbcookie);
-    return $sess;
 }
 
 
@@ -560,12 +554,14 @@ sub session_from_master_cookie {
     my @cookies = grep { $_ } @_;
     return undef unless @cookies;
 
+    my $r = DW::Request->get;
+
     my $errs       = delete $opts->{errlist} || [];
     my $tried_fast = delete $opts->{tried_fast} || do { my $foo; \$foo; };
     my $ignore_ip  = delete $opts->{ignore_ip} ? 1 : 0;
     my $old_cookie = delete $opts->{old_cookie} ? 1 : 0;
 
-    delete $opts->{'redirect_ref'};  # we don't use this
+    delete $opts->{redirect_ref};  # we don't use this
     croak("Unknown options") if %$opts;
 
     my $now = time();
@@ -573,11 +569,11 @@ sub session_from_master_cookie {
     # our return value
     my $sess;
 
-    my $li_cook = $BML::COOKIE{'ljloggedin'};
+    my $li_cook = $r->cookie( 'ljloggedin' );
 
   COOKIE:
-    foreach my $sessdata (@cookies) {
-        my ($cookie, $gen) = split(m!//!, $sessdata);
+    foreach my $sessdata ( @cookies ) {
+        my ( $cookie, $gen ) = split( m!//!, $sessdata->[0] );
 
         my ($version, $userid, $sessid, $auth, $flags);
 
@@ -623,7 +619,7 @@ sub session_from_master_cookie {
         }
 
         # locked accounts can't be logged in
-        if ($u->{statusvis} eq 'L') {
+        if ( $u->is_locked ) {
             $err->("User account is locked.");
             next COOKIE;
         }
@@ -707,15 +703,6 @@ sub clear_master_cookie {
                domain          => $LJ::DOMAIN,
                path            => '/',
                delete          => 1);
-
-    # set fb global cookie
-    if ($LJ::FB_SITEROOT) {
-        my $fb_cookie = fb_cookie();
-        set_cookie($fb_cookie    => "",
-                   domain        => $LJ::DOMAIN,
-                   path          => '/',
-                   delete        => 1);
-    }
 }
 
 
@@ -733,24 +720,35 @@ sub session_length {
 
 # given an Apache $r object, returns the URL to go to after setting the domain cookie
 sub setdomsess_handler {
-    my ($class, $r) = @_;
+    my ($class) = @_;
 
-    # FIXME: ModPerl 2.0: best way to do this?  has to be a better way of handling incoming
-    # requests so that we don't have to parse input at all these stages...
-    Apache::BML::parse_inputs( $r );
-    my %get = %{ BML::get_GET() || {} };
+    my $r = DW::Request->get;
 
-    my $dest    = $get{'dest'};
-    my $domcook = $get{'k'};
-    my $cookie  = $get{'v'};
+    my $get = $r->get_args;
 
-    my $is_valid = valid_destination($dest);
-    return "$LJ::SITEROOT" unless $is_valid;
+    my $dest    = $get->{'dest'};
+    my $domcook = $get->{'k'};
+    my $cookie  = $get->{'v'};
 
-    $is_valid = valid_domain_cookie($domcook, $cookie, $BML::COOKIE{'ljloggedin'});
-    return $dest           unless $is_valid;
+    return "$LJ::SITEROOT" unless valid_destination($dest);
+    return $dest unless valid_domain_cookie( $domcook, $cookie, $r->cookie( 'ljloggedin' ) );
 
-    my $path    = path_of_domcook($domcook);
+    my $path = '/'; # By default cookie path is root
+
+    # If it is not the master domain
+
+    if ($dest =~ m!^https?://(.+?)(/.*)$!) {
+        my ($host, $url_path) = (lc($1), $2);
+        my ($subdomain, $user);
+
+        if (    $host =~ m!^([\w-\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!
+            && ($subdomain = lc($1))                                # undef: not on a user-subdomain
+            && ($LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal")
+            && ($url_path =~ m!^/(\w{1,15})\b!) ) {
+                $path = '/' . lc($1) . '/' if $1;
+        }
+    }
+
     my $expires = $LJ::DOMSESS_EXPIRATION || 0; # session-cookie only
     set_cookie($domcook   => $cookie,
                path       => $path,
@@ -760,7 +758,7 @@ sub setdomsess_handler {
     # add in a trailing slash, if URL doesn't have at least two slashes.
     # otherwise the path on the cookie above (which is like /community/)
     # won't be caught when we bounce them to /community.
-    unless ($dest =~ m!^http://.+?/.+?/! || $path eq "/") {
+    unless ($dest =~ m!^https?://.+?/.+?/! || $path eq "/") {
         # add a slash unless we can slip one in before the query parameters
         $dest .= "/" unless $dest =~ s!\?!/?!;
     }
@@ -793,13 +791,6 @@ sub domsess_signature {
     return $sig;
 }
 
-# same logic as domsess_signature, so just a wrapper
-sub fb_signature {
-    my ($time, $sess, $fbcook) = @_;
-
-    return domsess_signature($time, $sess, $fbcook);
-}
-
 # function or instance method.
 # FIXME: update the documentation for memkeys
 sub _memkey {
@@ -817,7 +808,7 @@ sub _memkey {
 sub set_cookie {
     my ($key, $value, %opts) = @_;
 
-    my $r = eval { BML::get_request() };
+    my $r = DW::Request->get;
     return unless $r;
 
     my $http_only = delete $opts{http_only};
@@ -828,8 +819,8 @@ sub set_cookie {
     croak("Invalid cookie options: " . join(", ", keys %opts)) if %opts;
 
     # Mac IE 5 can't handle HttpOnly, so filter it out
-    if ($http_only && ! $LJ::DEBUG{'no_mac_ie_httponly'}) {
-        my $ua = $r->headers_in->{'User-Agent'};
+    if ($http_only && ! $LJ::DEBUG{no_mac_ie_httponly}) {
+        my $ua = $r->header_in( 'User-Agent' );
         $http_only = 0 if $ua =~ /MSIE.+Mac_/;
     }
 
@@ -842,24 +833,26 @@ sub set_cookie {
         $expires = 5 if $delete;
     }
 
-    my $cookiestr = $key . '=' . $value;
-    $cookiestr .= '; expires=' . LJ::time_to_cookie($expires) if $expires;
-    $cookiestr .= '; domain=' . $domain if $domain;
-    $cookiestr .= '; path=' . $path if $path;
-    $cookiestr .= '; HttpOnly' if $http_only;
-
-    $r->err_headers_out->add('Set-Cookie' => $cookiestr);
+    $r->add_cookie(
+        name     => $key,
+        value    => $value,
+        expires  => $expires ? LJ::time_to_cookie($expires) : undef,
+        domain   => $domain || undef,
+        path     => $path || undef,
+        httponly => $http_only ? 1 : 0,
+    );
 
     # Backwards compatability for older browsers
     my @labels = split(/\./, $domain);
-    if ($domain && scalar @labels == 2 && ! $LJ::DEBUG{'no_extra_dot_cookie'}) {
-        my $cookiestr = $key . '=' . $value;
-        $cookiestr .= '; expires=' . LJ::time_to_cookie($expires) if $expires;
-        $cookiestr .= '; domain=.' . $domain;
-        $cookiestr .= '; path=' . $path if $path;
-        $cookiestr .= '; HttpOnly' if $http_only;
-
-        $r->err_headers_out->add('Set-Cookie' => $cookiestr);
+    if ($domain && scalar @labels == 2 && ! $LJ::DEBUG{no_extra_dot_cookie}) {
+        $r->add_cookie(
+            name     => $key,
+            value    => $value,
+            expires  => $expires ? LJ::time_to_cookie($expires) : undef,
+            domain   => $domain,
+            path     => $path || undef,
+            httponly => $http_only ? 1 : 0,
+        );
     }
 }
 
@@ -893,6 +886,8 @@ sub valid_domain_cookie {
 
     my $not_valid = sub {
         my $reason = shift;
+        warn "Invalid domain cookie: $reason\n" if $LJ::IS_DEV_SERVER;
+
         return undef;
     };
 
@@ -929,35 +924,9 @@ sub valid_domain_cookie {
     return $sess;
 }
 
-sub valid_fb_cookie {
-    my ($domcook, $val) = @_;
-    my $opts = {
-        ignore_age     => 1,
-        ignore_li_cook => 1,
-    };
-    return valid_domain_cookie($domcook, $val, undef, $opts);
-}
-
 sub valid_destination {
     my $dest = shift;
-    my $rx = valid_dest_rx();
-    return $dest =~ /$rx/;
-}
-
-sub valid_dest_rx {
-    return qr!^http://[\w-]+\.\Q$LJ::USER_DOMAIN\E/.*!;
-}
-
-sub path_of_domcook {
-    my $domcook = shift;
-    # if domcookie is 3 parts (ljdomsess.community.knitting), then restrict
-    # path of the cookie to /knitting/.  by default path is /
-    my @parts = split(/\./, $domcook);
-    my $path = "/";
-    if (@parts == 3) {
-        $path = "/" . $parts[-1] . "/";
-    }
-    return $path;
+    return $dest =~ qr!^http://[\w\-\.]+\.\Q$LJ::USER_DOMAIN\E/.*!;
 }
 
 sub valid_cookie_generation {

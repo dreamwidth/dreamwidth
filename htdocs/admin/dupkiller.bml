@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -7,15 +21,18 @@
     my $ret;
     my $remote = LJ::get_remote();
 
-    return "Not logged in" unless $remote;
-    return "<b>Error:</b> You don't have access to do this."
-	unless LJ::check_priv($remote, "supporthelp");
+    my @display_privs = ( "supporthelp" );
+    my $numprivs = @display_privs;
+
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
+        unless $remote->has_priv( "supporthelp" );
 
     unless (LJ::did_post()) {
 	$ret .= "<h1>duplicate entry killer</h1>\n";
 	$ret .= "<form method='post'>";
         $ret .= LJ::form_auth();
-	$ret .= "Kill duplicates for user: <input name='user' size='15'> <input type='submit' value=\"Kill\">";
+	$ret .= "Kill duplicates for user: <input name='user' maxlength='25' size='25'> <input type='submit' value=\"Kill\">";
 	$ret .= "</form>";
 	return $ret;
     }
@@ -113,8 +130,4 @@
 
 
 }
-_code?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-form: htdocs/admin/capedit.bml
-post: htdocs/admin/capedit.bml
-</LJDEP _c?>
+_code?>

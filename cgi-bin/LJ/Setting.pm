@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Setting;
 use strict;
 use warnings;
@@ -5,11 +18,21 @@ use Carp qw(croak);
 use LJ::ModuleLoader;
 
 # Autouse all settings
-LJ::ModuleLoader->autouse_subclasses("LJ::Setting");
+LJ::ModuleLoader->autouse_subclasses( "LJ::Setting" );
+LJ::ModuleLoader->autouse_subclasses( "DW::Setting" );
 
 # ----------------------------------------------------------------------------
 
+sub should_render { 1 }
+sub disabled { 0 }
+sub selected { 0 }
 sub tags { () }
+sub label { "" }
+sub actionlink { "" }
+sub helpurl { "" }
+sub option { "" }
+sub htmlcontrol { "" }
+sub htmlcontrol_label { "" }
 
 sub error_check {
     my ($class, $u, $args) = @_;
@@ -36,9 +59,7 @@ sub save {
 
     my %posted;  # class -> key -> value
     while (my ($k, $v) = each %$postargs) {
-        next unless $k =~ /^LJ__Setting__([a-zA-Z0-9]+)_(\w+)$/;
-        my $class = "LJ::Setting::$1";
-        my $key = $2;
+        my ( $class, $key ) = class_from_key( $k );
         $posted{$class}{$key} = $v;
     }
 
@@ -51,6 +72,16 @@ sub save {
 # ----------------------------------------------------------------------------
 
 # Don't override:
+
+# Internal method to do *proper* argument -> class/key mapping.
+sub class_from_key {
+    my ( $val ) = @_;
+
+    my ( $class, $key ) = $val =~ /^((?:[a-zA-Z0-9]+__)+[a-zA-Z0-9]+)_([\w\[\]]+)$/;
+    $class =~ s/__/::/g if $class;
+
+    return ( $class, $key );
+}
 
 sub pkgkey {
     my $class = shift;
@@ -75,14 +106,14 @@ sub errdiv {
 
 # don't override this.
 sub errors {
-    my ($class, %map) = @_;
+    my ( $class, %map ) = @_;
 
     my $errclass = $class;
-    $errclass =~ s/^LJ::Setting:://;
-    $errclass = "LJ::Error::SettingSave::" . $errclass;
-    eval "\@${errclass}::ISA = ('LJ::Error::SettingSave');";
+    $errclass =~ s/^([a-zA-Z0-9]+)::Setting:://;
+    $errclass = "$1::Error::SettingSave::" . $errclass;
+    eval "\@${errclass}::ISA = ( 'LJ::Error::SettingSave' );";
 
-    my $eo = eval { $errclass->new(map => \%map) };
+    my $eo = eval { $errclass->new( map => \%map ) };
     $eo->log;
     $eo->throw;
 }
@@ -127,15 +158,13 @@ sub error_map {
 # returns any errors and the post args for each setting
 sub save_all {
     shift if $_[0] eq __PACKAGE__;
-    my ($u, $post, $all_settings) = @_;
+    my ( $u, $post, $all_settings ) = @_;
     my %posted;  # class -> key -> value
     my %returns;
 
-    while (my ($k, $v) = each %$post) {
-        next unless $k =~ /^LJ__Setting__([a-zA-Z0-9]+)_(\w+)$/;
-        my $class = "LJ::Setting::$1";
-        my $key = $2;
-        $class =~ s/__/::/g;
+    while ( my ( $k, $v ) = each %$post ) {
+        my ( $class, $key ) = class_from_key( $k );
+        next unless $class;
         $posted{$class}{$key} = $v;
     }
 
@@ -191,22 +220,23 @@ sub args_from_save {
 
 sub ml {
     my ($class, $code, $vars) = @_;
-    my $string;
 
-    # if the given string exists, return it
-    # if the given string is "_none", return nothing
-    $string = LJ::Lang::ml($code, $vars);
-    return "" if $string eq "_none";
-    return $string if LJ::Lang::string_exists($code, $vars);
+    # can pass in a string and check 2 places in order:
+    # 1) setting.foo.text => general .setting.foo.text (overridden by current page)
+    # 2) setting.foo.text => general setting.foo.text  (defined in en(_LJ).dat)
 
-    # if the global version of this string exists, return it
-    # if the global version of this string is "_none", return nothing
+    # whether passed with or without a ".", eat that immediately
     $code =~ s/^\.//;
-    $string = LJ::Lang::ml($code, $vars);
-    return "" if $string eq "_none";
-    return $string if LJ::Lang::string_exists($code, $vars);
 
-    # return the class name
+    # 1) try with a ., for current page override in 'general' domain
+    # 2) try without a ., for global version in 'general' domain
+    foreach my $curr_code (".$code", $code) {
+        my $string = LJ::Lang::ml($curr_code, $vars);
+        return "" if $string eq "_none";
+        return $string unless LJ::Lang::is_missing_string($string);
+    }
+
+    # return the class name if we didn't find anything
     $class =~ /.+::(\w+)$/;
     return $1;
 }

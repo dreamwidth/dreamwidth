@@ -1,10 +1,28 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 
  my $format = $FORM{'format'} || "html";
 
  my $remote = LJ::get_remote();
- return"<b>Error:</b> You don't have access to administer databases."
- unless (LJ::check_priv($remote, "siteadmin", "mysqlstatus"));
+ my @displayprivs = ( "siteadmin:mysqlstatus", "siteadmin:*" );
+ my $numprivs = @displayprivs;
+
+ return "<?needlogin?>" unless $remote;
+ return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+     unless $remote->has_priv( "siteadmin", "mysqlstatus" );
 
  my $dbh = LJ::get_db_writer();
 
@@ -32,7 +50,7 @@
      }
  }
  if ($format eq "html") {
-     $ret .= "<p>Or, view <a href=\"mysql_status.bml?mode=$mode&format=text\">as text</a>.<p>";
+     $ret .= "<p>Or, view <a href=\"mysql_status?mode=$mode&format=text\">as text</a>.<p>";
  }
 
  if ($mode eq "status")

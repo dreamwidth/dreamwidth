@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 ############################################################################
 package LJ::NavTag;
 use strict;
@@ -93,7 +106,7 @@ sub new {
     return $self;
 }
 
-# $destobj = LJ::NavTag::Dest->new_from_url("http://www.livejournal.com/userinfo.bml?user=brad");
+# $destobj = LJ::NavTag::Dest->new_from_url("http://www.livejournal.com/profile.bml?user=brad");
 sub new_from_url {
     my ($class, $url) = @_;
     foreach my $type (LJ::NavTag->valid_types) {
@@ -153,13 +166,13 @@ sub url {
     my $user = $self->{dest};
     my $u = LJ::load_user($user);
     return $u->profile_url if $u;
-    return "$LJ::SITEROOT/userinfo.bml?user=$user";
+    return "$LJ::SITEROOT/profile.bml?user=$user";
 }
 
 sub dest_from_url {
     my ($class, $url) = @_;
     # FIXME: broken.  wrong URL type
-    return undef unless $url =~ m!/userinfo.bml\?user=(\w+)!;
+    return undef unless $url =~ m!/profile.bml\?user=(\w+)!;
     return LJ::NavTag::Dest->new(type  => "LJUSER",
                                  dest  => $1);
 }

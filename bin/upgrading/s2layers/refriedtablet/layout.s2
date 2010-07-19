@@ -1,0 +1,554 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Refried Tablet";
+layerinfo "redist_uniq" = "refriedtablet/layout";
+layerinfo "author_name" = "zvi";
+layerinfo "lang" = "en";
+
+set layout_type = "two-columns-right";
+set layout_authors = [ { "name" => "zvi", "type" => "user" }, {"name" => "Aaron B. Russell", "url" => "http://lostentropy.com/" } ];
+
+##===============================
+## Display settings - general
+##===============================
+
+set use_custom_friend_colors = true;
+set custom_colors_template =  "%%new%% .userpic img { border-color: %%background%% %%foreground%%; border: 1px solid;
+}";
+
+##===============================
+## Journal style - colors
+##===============================
+
+propgroup colors_child {
+    property Color color_entry_text_nsfw { des = "Not Safe For Work text";
+}
+    property Color color_entry_background_nsfw { des = "Not Safe For Work background";
+}
+    property Color color_comment_text_screened { des = "Screened text";
+}
+    property Color color_comment_background_screened { des = "Screened background";
+}
+    property Color color_comment_text_frozen { des = "Frozen text";
+}
+    property Color color_comment_background_frozen { des = "Frozen background";
+}
+
+}
+
+##===============================
+## Display settings - fonts
+##===============================
+
+propgroup fonts_child {
+    property string font_view_text { des = "Preferred font for page view title";
+}
+    property string font_view_text_units { des = "Units for page view text size";
+}
+    property string font_view_text_size { des = "Size of page view text font";
+}
+}
+
+set font_base = "\"NimbusRoman No9 L\", Rekha, Georgia";
+set font_fallback = "serif";
+set font_base_size = "100";
+set font_base_units = "%";
+set font_journal_title = "Loma, Verdana, Geneva, sans-serif";
+set font_journal_title_size = "2";
+set font_journal_title_units = "em";
+set font_journal_subtitle = "Loma, Verdana, Geneva, sans-serif";
+set font_journal_subtitle_size = "1.5";
+set font_journal_subtitle_units = "em";
+set font_view_text = "Loma, Verdana, Geneva, sans-serif";
+set font_view_text_size = "1.25";
+set font_view_text_units = "em";
+set font_entry_title = "\"NimbusRoman No9 L\", Rekha, Georgia";
+set font_entry_title_size = "1";
+set font_entry_title_units = "em";
+set font_module_heading = "Loma, Verdana, Geneva, sans-serif";
+set font_module_heading_size = "1.1";
+set font_module_heading_units = "em";
+set font_module_text = "Loma, Verdana, Geneva, sans-serif";
+set font_module_text_size = "0.83";
+set font_module_text_units = "em";
+
+function print_stylesheet () {
+
+    var string view_text_font = generate_font_css($*font_view_text, $*font_fallback, $*font_view_text_size, $*font_view_text_units);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
+    var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic .entry .header, .has-userpic .entry .poster {
+                left: 105px;
+                margin-right: 105px;
+                }
+            .entry .inner .userpic {
+                float: left;
+                }
+            .restrictions-18 .entry .userpic, .restrictions-NSFW .entry  .userpic {
+                float: left;
+                }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic .entry .header, .has-userpic .entry .poster {
+                right: 105px;
+                margin-left: 105px;
+                }
+            .entry .inner .userpic {
+                float: right;
+                right: 0;
+                }
+            .restrictions-18 .entry .userpic, .restrictions-NSFW .entry  .userpic {
+                float: right;
+                }
+            """;
+        }
+
+"""
+/* Refried Tablet CSS */
+
+/* WHOLE PAGE */
+
+A {
+    text-decoration: none;
+}
+
+A:active {
+    text-decoration: underline;
+}
+
+A:hover {
+    text-decoration: underline;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+}
+ 
+#content { color:
+    $*color_entry_text;
+}
+
+/* using color entry text as default text color in the content area.
+    This allows us to use the page default as the color for the page view subheading. */
+
+p,td,tr,table,hr,br,ul,ol,li {
+    line-height:1.5em;
+    text-align:justify;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: $*font_journal_title;
+}
+
+q { font-style: italic;
+}
+
+/* PAGE HEADER */
+
+#canvas {
+    border-top: $*color_page_border 20px solid; /* page border color */} 
+
+h1#title, h2#subtitle {
+font-weight:900;
+    letter-spacing:.1em;
+    margin: 0em auto;
+    padding-bottom: 0em;
+}
+
+h1#title {
+    line-height: 1em;
+}
+
+h1#title:after {
+    content: ": ";
+}
+
+h2#subtitle { line-height: 0.75em;
+}
+
+#header {
+    border-top: $*color_entry_background 3px solid;  /* same color as entry background color */
+    border-bottom: $*color_module_border 2px solid; /* same color as module border */
+}
+ 
+h2#pagetitle {color: $*color_page_text;  /* using the page text color */
+    $view_text_font
+    font-weight:bold;
+    text-transform:uppercase;
+    letter-spacing:.2em;
+    clear: both;
+    padding-right: 5em;
+    padding-top: 0em;
+}
+
+h2#pagetitle:after {
+    content: " PAGE";
+}
+
+.page-archive h2#pagetitle:after {
+    content: " ARCHIVE PAGE";
+}
+
+.page-entry h2#pagetitle:after, .page-read h2#pagetitle:after {
+    content: "";
+}
+ 
+/* ENTRIES */
+ 
+/* Make the headers a different color than the rest of the text. */
+.tag, .metadata, .entry .inner .header, .entry .inner .poster, .entry .inner .userpic, .entry-title  {
+    $entry_title_colors
+    $entry_title_font
+    line-height:1.4em;
+    font-weight: bold;
+}
+
+/* Add identifiers to the header content, pt 1 */
+h3.entry-title:before {
+    content: "Subject: ";
+}
+
+h3.entry-title {
+    margin-bottom: 0em;
+    padding-bottom: 0em;
+    $entry_title_font
+}
+
+/* replace icons for restrictions with text */
+.restrictions-18 .entry-title:after {
+    display: block; 
+    content: "Rating: Restricted to adults 18 and older.";
+    color: $*color_entry_text_nsfw;
+    background-color: $*color_entry_background_nsfw;
+}
+
+.restrictions-NSFW .entry-title:after {
+    display: block; content: "Rating: Discretion advised. Not safe for work.";
+}
+
+span.restrictions {
+    display: none;
+}
+
+/* Add identifiers to the header content, pt 2 */
+.entry .header .datetime:before {
+    content: "Date: ";
+}
+
+/* replace icons for security with text */
+.security-public .entry .header:after {
+    content: "Security: Public";
+    display: block;
+    clear: left;
+}
+
+.security-private .entry .header:after {
+    content: "Security: Private";
+    display: block;
+    clear: left;
+}
+.security-protected .entry .header:after {
+    content: "Security: Access Only";
+    display: block;
+    clear: left;
+}
+
+.security-custom .entry .header:after {
+    content: "Security: Access Filter";
+    display: block;
+    clear: left;
+}
+
+.access-filter {
+    display: none;
+}
+
+/* Add identifiers to the header content, pt 3 */
+.entry .poster:before {
+    content: "Poster: ";
+}
+
+.page-recent .journal-type-P .entry .poster:before {
+    content: " ";
+}
+
+.entry .inner .userpic {
+    margin-bottom: 1em;
+}
+
+/* make metadata and tags more header-ish */
+.metadata {
+    padding: 0em;
+    margin: 0em;
+    margin-top: 1em;
+    margin-bottom: -1em;
+}
+
+.has-userpic .metadata.top-metadata {
+    margin-top: 5em;
+    margin-bottom: -5em !important;
+}
+
+.no-userpic .metadata.top-metadata {
+    margin-top: 0;
+}
+
+.metadata ul {
+    margin: 0em;
+    padding: 0em;
+}
+
+.metadata li {
+    line-height: 1.4em;
+    margin: 0em auto;
+}
+
+.tags {
+    margin-bottom: 0em;
+}
+
+div.inner > ul {
+    margin-top: 0em;
+}
+
+/* put the icons on the same line as the text entry management stuff */
+.entry-management-links {
+    float: right;
+    display: inline;
+}
+
+/* Put a line under all the entries, add space between entries */
+.entry-wrapper {
+    border-bottom: 1px $*color_entry_border solid;
+    padding-bottom: 1em;
+    margin-bottom: 1.5em;
+}
+
+.entry {
+    border: 0px red solid;
+}
+
+/* make user pic next to header info,
+add space beneath so they don't print over entry text,
+and keep subject lines from poking into sidebars  */
+
+.entry .inner {
+    position: relative;
+}
+
+.has-userpic .entry .header, .has-userpic .entry .poster {
+    position: relative;
+}
+
+.entry .inner .userpic {
+    position: absolute;
+    top: -4em;
+}
+
+.restrictions-18 .entry .userpic, .restrictions-NSFW .entry  .userpic {
+    position: absolute;
+    top: -5.25em;  
+} /* the restricted entries have an extra line, so they need extra top space */
+
+.entry .entry-content {
+    position: relative;
+    top: 5em;
+    margin-bottom: 5em;
+}
+.no-userpic .entry-content {
+    position: static;
+    margin-bottom: auto;
+}
+
+/* Make text entry management links left-align and pretty */
+.entry .inner {
+    margin-bottom: 1em;
+}
+
+ul.entry-interaction-links {
+    text-align: left;
+}
+ul.entry-interaction-links li {
+    font-size: 0.8em;
+    color: $*color_entry_title;
+    font-family: $*font_journal_title;
+    line-height:1.4em;
+    text-transform: uppercase;
+}
+
+ul.entry-interaction-links li:before {
+    content: "| ";
+}
+
+ul.entry-interaction-links li:first-child:before  {
+content: "";
+}
+
+/* SIDEBARS AND MODULES */
+
+/* make headers pretty */
+div h2.module-header {
+    border-top: 1px $*color_module_border solid;
+    border-bottom: 2px $*color_module_border solid;
+    padding: 0em 1em 0.25em 1em;
+    margin-bottom: 1em;
+    margin: 0em;
+    font-weight:bold;
+    letter-spacing: .1em;
+    text-transform: lowercase;
+}
+
+/* get rid of padding so that the header borders go all the way to the sides, add border around the columns */
+#secondary {
+    padding: 0em;
+    border: thin $*color_module_border solid;
+}
+
+/* make sidebars hit the bottom of the header */
+
+#secondary .inner:first-child {
+    padding: 0em;
+}
+
+.three-columns-sides #tertiary .inner:first-child, .three-columns-left #tertiary .inner:first-child, 
+.three-columns-right #tertiary .inner:first-child {
+    padding-top: 0em;
+}
+
+/* avoid triple borders on the top of the top module */
+#secondary .module:first-child h2.module-header {
+    border-top: 0px $*color_module_border solid;
+}
+
+/* but keep the line on the top of a one column implementation */
+.one-column #secondary .module:first-child h2 {
+    border-top: 1px $*color_module_border solid;
+}
+
+/* add padding to module content because whitespace is good! But we don't need so much on ul and table. */
+.module-content {
+    margin: 1em;
+}
+
+.module-content ul, .module-content table {
+    margin: 0 0.5em;
+}
+
+/* make lists prettier */
+.module-content li {
+    text-align: left;
+    list-style-type: none;
+    list-style-position: inside;
+}
+
+/* special case for the navlinks module, add line because it has no h2 */
+.module-navlinks {
+    border-top: 1px $*color_module_border solid;
+}
+
+/* special case for the syndicate tags, too close to top */
+.module-syndicate .module-content {
+    margin-top: .5em;
+}
+
+/* special case for the profile module, make user interaction links properly space and align */
+.module-userprofile .userlite-interaction-links {
+    margin-top: 1em;
+    margin-left: 0em;
+}
+
+/* don't make tertiary modules in two column into 15px boxes, the data doesn't fit!*/
+.two-columns-left #tertiary .module, .two-columns-right #tertiary .module {
+    clear: both;
+    width: auto;
+    margin: 0em auto;
+    padding: 0em;
+    border-width: 0px;
+
+}
+
+/* color match the tertiary modules in two column styles to the page, but give it a module-y top border */
+
+.two-columns-left #tertiary .module, .two-columns-right #tertiary .module {
+    $page_background
+    $page_colors
+    border-width: 0px;
+}
+
+.two-columns-left #tertiary .module a, .two-columns-right #tertiary .module a {
+    $page_link_colors
+}
+
+.two-columns-left #tertiary .module a:active, .two-columns-right #tertiary .module a:active {
+    $page_link_active_colors
+}
+
+.two-columns-left #tertiary .module a:hover, .two-columns-right #tertiary .module a:hover {
+    $page_link_hover_colors
+}
+
+.two-columns-left #tertiary .module a:visited, .two-columns-right #tertiary .module a:visited {
+    $page_link_visited_colors
+}
+
+.two-columns-left #tertiary, .two-columns-right #tertiary {
+    $module_background
+}
+
+/* add room to breathe on one-column implementations */
+.one-column #secondary, .one-column #tertiary, .one-column #primary {
+    padding:5%;
+    width:90%;
+}
+
+
+/* COMMENTS */
+
+/* add line between comments, same color as line between entries */
+.comment-wrapper {
+    border-bottom: thin $*color_entry_border inset;
+}
+
+/* make comment headers headerish */
+.comment .inner .header, .comment .inner .contents .poster, .comment .inner .contents .poster-ip {
+    $entry_title_colors
+    $entry_title_font
+    line-height:1.4em;
+    font-weight: bold;
+}
+
+/* visually distinguish screened/frozen comments */
+.screened {
+    font-family: "Nimbus Mono L", "Courier New", monospace;
+    font-size: .9em;
+    font-weight: 300;
+    background-color: $*color_comment_background_screened;
+    color: $*color_comment_text_screened
+}
+.frozen {
+    font-family: "Nimbus Mono L", "Courier New", monospace;
+    font-size: .9em;
+    font-weight: 300;
+    background-color: $*color_comment_background_frozen;
+    color: $*color_comment_text_frozen
+    }
+
+$userpic_css
+""";
+
+}

@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -23,8 +37,7 @@
     my $pollid = ($FORM{'id'} || $FORM{'pollid'})+0;
 
     unless ($pollid) {
-        $body .= BML::ml('.gotocreate2', {'aopts' => "href='$LJ::SITEROOT/poll/create.bml'"});
-        return;
+        return BML::redirect( "$LJ::SITEROOT/poll/create" );
     }
 
     my $poll = LJ::Poll->new($pollid);
@@ -38,9 +51,22 @@
     my $u = $poll->journal;
 
     my $mode = "";
-    foreach my $m ([ "enter", $ML{'.filloutpoll'} ], [ "results" , $ML{'.viewresults'} ]) {
-        if ($FORM{'mode'} eq $m->[0]) {
+    $mode = $FORM{'mode'} if ($FORM{'mode'} =~ /(enter|results|ans)/);
+
+    # Handle opening and closing of polls
+    # We do this first because a closed poll will alter how a poll is displayed
+    if ( $poll->is_owner( $remote ) || $remote && $remote->can_manage( $u ) ) {
+        if ($FORM{'mode'} =~ /(close|open)/) {
             $mode = $FORM{'mode'};
+            $poll->close_poll if ($mode eq 'close');
+            $poll->open_poll if ($mode eq 'open');
+            $mode = 'results' ;
+        }
+    }
+
+    foreach my $m ([ "enter", $ML{'.filloutpoll'} ], [ "results" , $ML{'.viewresults'} ]) {
+        next if ($m->[0] eq "enter" && $poll->is_closed);
+        if ($mode eq $m->[0]) {
             $body .= "<b>[ $m->[1] ]</b> ";
         } else {
             $body .= "<a href=\"$LJ::SITEROOT/poll/?id=$pollid&amp;mode=$m->[0]\">[ $m->[1] ]</a> ";
@@ -61,7 +87,12 @@
 
     $body .= "<a href='" . $entry->url . "'>[ $ML{'.discuss'} ]</a> ";
 
-    if ($FORM{'mode'} eq "ans") { $mode = "ans"; } # also allowed, but not shown
+    # Links for closing/reopening polls
+    if ( $poll->is_owner($remote) || $remote && $remote->can_manage( $u ) ) {
+        $body .= $poll->is_closed ?
+            "<a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=open'>[ $ML{'.reopen'} ]</a> " :
+            "<a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=close'>[ $ML{'.close'} ]</a> ";
+    }
 
     $body .= "<hr><p>";
 
@@ -89,14 +120,11 @@
         return BML::redirect($entry->url);
     }
 
-    $body .= $poll->render(mode => $mode, qid => $FORM{qid});
+    $body .= $poll->render(mode => $mode, qid => $FORM{qid},
+                page => $FORM{page}, pagesize => $FORM{pagesize});
     return;
 }
 _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl, cgi-bin/cleanhtml.pl
-link: htdocs/poll/index.bml, htdocs/talkread.bml, htdocs/support/faqbrowse.bml, htdocs/poll/create.bml
-</LJDEP> _c?>
-
+page?>

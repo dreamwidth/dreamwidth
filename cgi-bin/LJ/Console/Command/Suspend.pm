@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Console::Command::Suspend;
 
 use strict;
@@ -6,18 +19,18 @@ use Carp qw(croak);
 
 sub cmd { "suspend" }
 
-sub desc { "Suspend an account." }
+sub desc { "Suspend an account or entry." }
 
 sub args_desc { [
-                 'username or email address' => "The username of the account to suspend, or an email address to suspend all accounts at that address.",
-                 'reason' => "Why you're suspending the account.",
+                 'username or email address or entry url' => "The username of the account to suspend, or an email address to suspend all accounts at that address, or an entry URL to suspend a single entry within an account",
+                 'reason' => "Why you're suspending the account or entry.",
                  ] }
 
-sub usage { '<username or email address> <reason>' }
+sub usage { '<username or email address or entry url> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "suspend");
+    return $remote && $remote->has_priv( "suspend" );
 }
 
 sub execute {
@@ -26,22 +39,50 @@ sub execute {
     return $self->error("This command takes two arguments. Consult the reference.")
         unless $user && $reason && scalar(@args) == 0;
 
+    my $remote = LJ::get_remote();
+    my $openid_only = $remote->has_priv( "suspend", "openid" ) && ! $remote->has_priv( "suspend", "*" );
+
+    my $entry = LJ::Entry->new_from_url($user);
+    if ($entry) {
+        my $poster = $entry->poster;
+        my $journal = $entry->journal;
+
+        return $self->error("You are not authorized to suspend entries.")
+            if $openid_only;
+
+        return $self->error("Invalid entry.")
+            unless $entry->valid;
+
+        return $self->error("Entry is already suspended.")
+            if $entry->is_suspended;
+
+        $entry->set_prop( statusvis => "S" );
+
+        $reason = "entry: " . $entry->url . "; reason: $reason";
+        LJ::statushistory_add($journal, $remote, "suspend", $reason);
+        LJ::statushistory_add($poster, $remote, "suspend", $reason)
+            unless $journal->equals($poster);
+
+        return $self->print("Entry " . $entry->url . " suspended.");
+    }
+
     my @users;
     if ($user !~ /@/) {
         push @users, $user;
 
     } else {
+
+        return $self->error( "You are not authorized to suspend by email address." )
+            if $openid_only;
+
         $self->info("Acting on users matching email $user");
 
-        my $dbr = LJ::get_db_reader();
-        my $userids = $dbr->selectcol_arrayref('SELECT userid FROM email WHERE email = ?', undef, $user);
-        return $self->error("Database error: " . $dbr->errstr)
-            if $dbr->err;
+        my @userids = LJ::User->accounts_by_email( $user );
+        return $self->error( "No users found matching the email address $user." )
+            unless @userids;
 
-        return $self->error("No users found matching the email address $user.")
-            unless $userids && @$userids;
+        my $us = LJ::load_userids( @userids );
 
-        my $us = LJ::load_userids(@$userids);
         foreach my $u (values %$us) {
             push @users, $u->user;
         }
@@ -72,23 +113,16 @@ sub execute {
             next;
         }
 
-        LJ::update_user($u, { statusvis => 'S', raw => 'statusvisdate=NOW()' });
-        $u->{statusvis} = 'S';
-
-        my $remote = LJ::get_remote();
-        LJ::statushistory_add($u, $remote, "suspend", $reason);
-
-        eval { $u->fb_push };
-        warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
-
-        LJ::run_hooks("account_cancel", $u);
-
-        if (my $resp = LJ::run_hook("cdn_purge_userpics", $u)) {
-            my ($type, $msg) = @$resp;
-            $self->$type($msg);
+        if ( $openid_only && ! $u->is_identity ) {
+            $self->error( "$username is not an identity account." );
+            next;
         }
 
-        $self->info("User '$username' suspended.");
+        my $err;
+        $self->error($err)
+            unless $u->set_suspended($remote, $reason, \$err);
+
+        $self->print("User '$username' suspended.");
     }
 
     return 1;

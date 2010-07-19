@@ -1,4 +1,17 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 package LJ::Feed;
 use strict;
@@ -9,11 +22,12 @@ use XML::Atom::Person;
 use XML::Atom::Feed;
 
 my %feedtypes = (
-    rss  => \&create_view_rss,
-    atom => \&create_view_atom,
-    foaf => \&create_view_foaf,
-    yadis => \&create_view_yadis,
-    userpics => \&create_view_userpics,
+    rss         => { handler => \&create_view_rss,  need_items => 1 },
+    atom        => { handler => \&create_view_atom, need_items => 1 },
+    foaf        => { handler => \&create_view_foaf,                 },
+    yadis       => { handler => \&create_view_yadis,                },
+    userpics    => { handler => \&create_view_userpics,             },
+    comments    => { handler => \&create_view_comments,             },
 );
 
 sub make_feed
@@ -24,45 +38,44 @@ sub make_feed
     my $feedtype = $1;
     my $viewfunc = $feedtypes{$feedtype};
 
-    unless ($viewfunc) {
+    unless ( $viewfunc && LJ::isu( $u ) ) {
         $opts->{'handler_return'} = 404;
         return undef;
     }
-
-    $opts->{noitems} = 1 if $feedtype eq 'foaf' or $feedtype eq 'yadis';
 
     $r->note('codepath' => "feed.$feedtype") if $r;
 
     my $dbr = LJ::get_db_reader();
 
-    my $user = $u->{'user'};
+    my $user = $u->user;
 
-    LJ::load_user_props($u, qw/ journaltitle journalsubtitle opt_synlevel /);
+    $u->preload_props( qw/ journaltitle journalsubtitle opt_synlevel / );
 
     LJ::text_out(\$u->{$_})
         foreach ("name", "url", "urlname");
 
-    # opt_synlevel will default to 'full'
-    $u->{'opt_synlevel'} = 'full'
-        unless $u->{'opt_synlevel'} =~ /^(?:full|summary|title)$/;
+    # opt_synlevel will default to 'cut'
+    $u->{'opt_synlevel'} = 'cut'
+        unless $u->{'opt_synlevel'} =~ /^(?:full|cut|summary|title)$/;
 
     # some data used throughout the channel
     my $journalinfo = {
         u         => $u,
-        link      => LJ::journal_base($u) . "/",
-        title     => $u->{journaltitle} || $u->{name} || $u->{user},
-        subtitle  => $u->{journalsubtitle} || $u->{name},
+        link      => $u->journal_base . "/",
+        title     => $u->{journaltitle} || $u->name_raw || $u->user,
+        subtitle  => $u->{journalsubtitle} || $u->name_raw,
         builddate => LJ::time_to_http(time()),
     };
 
     # if we do not want items for this view, just call out
-    return $viewfunc->($journalinfo, $u, $opts)
-        if ($opts->{'noitems'});
+    $opts->{'contenttype'} = 'text/xml; charset='.$opts->{'saycharset'};
+    return $viewfunc->{handler}->($journalinfo, $u, $opts)
+        unless ($viewfunc->{need_items});
 
     # for syndicated accounts, redirect to the syndication URL
     # However, we only want to do this if the data we're returning
     # is similar. (Not FOAF, for example)
-    if ($u->{'journaltype'} eq 'Y') {
+    if ( $u->is_syndicated ) {
         my $synurl = $dbr->selectrow_array("SELECT synurl FROM syndicated WHERE userid=$u->{'userid'}");
         unless ($synurl) {
             return 'No syndication URL available.';
@@ -76,7 +89,7 @@ sub make_feed
     ## load the itemids
     my (@itemids, @items);
 
-    # for consistency, we call ditemids "itemid" in user-facing settings 
+    # for consistency, we call ditemids "itemid" in user-facing settings
     my $ditemid = $FORM{itemid}+0;
 
     if ($ditemid) {
@@ -97,18 +110,17 @@ sub make_feed
             alldatepart => LJ::alldatepart_s2($entry->eventtime_mysql),
         };
     } else {
-        @items = LJ::get_recent_items({
-            'clusterid' => $u->{'clusterid'},
-            'clustersource' => 'slave',
-            'remote' => $remote,
-            'userid' => $u->{'userid'},
-            'itemshow' => 25,
-            'order' => "logtime",
-            'tagids' => $opts->{tagids},
-            'itemids' => \@itemids,
-            'friendsview' => 1,           # this returns rlogtimes
-            'dateformat' => "S2",         # S2 format time format is easier
-        });
+        @items = $u->recent_items(
+            clusterid => $u->{clusterid},
+            clustersource => 'slave',
+            remote => $remote,
+            itemshow => 25,
+            order => 'logtime',
+            tagids => $opts->{tagids},
+            itemids => \@itemids,
+            friendsview => 1,           # this returns rlogtimes
+            dateformat => 'S2',         # S2 format time format is easier
+        );
     }
 
     $opts->{'contenttype'} = 'text/xml; charset='.$opts->{'saycharset'};
@@ -149,6 +161,9 @@ sub make_feed
     # conjunction with a static request for a file on disk that has been
     # stat()ed in the course of the current request. It is inappropriate and
     # "dangerous" to use it for dynamic content.
+
+    # verify that our headers are good; especially check to see if we should
+    # return a 304 (Not Modified) response.
     if ((my $status = $r->meets_conditions) != $r->OK) {
         $opts->{handler_return} = $status;
         return undef;
@@ -171,8 +186,10 @@ sub make_feed
         # load required data
         my $itemid  = $it->{'itemid'};
         my $ditemid = $itemid*256 + $it->{'anum'};
+        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
 
-        next ENTRY if $posteru{$it->{'posterid'}} && $posteru{$it->{'posterid'}}->{'statusvis'} eq 'S';
+        next ENTRY if $posteru{$it->{'posterid'}} && $posteru{$it->{'posterid'}}->is_suspended;
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
             LJ::item_toutf8($u, \$logtext->{$itemid}->[0],
@@ -198,14 +215,18 @@ sub make_feed
 
             # users without 'full_rss' get their logtext bodies truncated
             # do this now so that the html cleaner will hopefully fix html we break
-            unless (LJ::get_cap($u, 'full_rss')) {
+            unless ( $u->can_use_full_rss ) {
                 my $trunc = LJ::text_trim($event, 0, 80);
                 $event = "$trunc $readmore" if $trunc ne $event;
             }
 
             LJ::CleanHTML::clean_event(\$event,
-                                       { 'wordlength' => 0, 'preformatted' => $logprops{$itemid}->{'opt_preformatted'} });
-
+                                       {
+                                        wordlength => 0,
+                                        preformatted => $logprops{$itemid}->{opt_preformatted},
+                                        cuturl => $u->{opt_synlevel} eq 'cut' ? "$journalinfo->{link}$ditemid.html" : "",
+                                        to_external_site => 1,
+                                       });
             # do this after clean so we don't have to about know whether or not
             # the event is preformatted
             if ($u->{'opt_synlevel'} eq 'summary') {
@@ -219,7 +240,7 @@ sub make_feed
                 }
             }
 
-            while ($event =~ /<lj-poll-(\d+)>/g) {
+            while ($event =~ /<(?:lj-)?poll-(\d+)>/g) {
                 my $pollid = $1;
 
                 my $name = LJ::Poll->new($pollid)->name;
@@ -229,8 +250,12 @@ sub make_feed
                     $name = "#$pollid";
                 }
 
-                $event =~ s!<lj-poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
+                $event =~ s!<(lj-)?poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
             }
+
+            my %args = $r->query_string;
+            LJ::EmbedModule->expand_entry($u, \$event, expand_full => 1)
+                if %args && $args{'unfold_embed'};
 
             $ppid = $1
                 if $event =~ m!<lj-phonepost journalid=[\'\"]\d+[\'\"] dpid=[\'\"](\d+)[\'\"]( /)?>!;
@@ -240,7 +265,7 @@ sub make_feed
         if ($logprops{$itemid}->{'current_mood'}) {
             $mood = $logprops{$itemid}->{'current_mood'};
         } elsif ($logprops{$itemid}->{'current_moodid'}) {
-            $mood = LJ::mood_name($logprops{$itemid}->{'current_moodid'}+0);
+            $mood = DW::Mood->mood_name( $logprops{$itemid}->{'current_moodid'}+0 );
         }
 
         my $createtime = $LJ::EndOfTime - $it->{rlogtime};
@@ -259,15 +284,16 @@ sub make_feed
             tags       => [ values %{$logtags->{$itemid} || {}} ],
             security   => $it->{security},
             posterid   => $it->{posterid},
+            replycount => $logprops{$itemid}->{'replycount'},
         };
         push @cleanitems, $cleanitem;
-        push @entries,    LJ::Entry->new($u, ditemid => $ditemid);
+        push @entries,    $entry_obj;
     }
 
     # fix up the build date to use entry-time
     $journalinfo->{'builddate'} = LJ::time_to_http($LJ::EndOfTime - $items[0]->{'rlogtime'}),
 
-    return $viewfunc->($journalinfo, $u, $opts, \@cleanitems, \@entries);
+    return $viewfunc->{handler}->($journalinfo, $u, $opts, \@cleanitems, \@entries);
 }
 
 # the creator for the RSS XML syndication view
@@ -279,8 +305,9 @@ sub create_view_rss
 
     # header
     $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
-    $ret .= LJ::run_hook("bot_director", "<!-- ", " -->") . "\n";
-    $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/'>\n";
+    $ret .= LJ::Hooks::run_hook("bot_director", "<!-- ", " -->") . "\n";
+    $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/' " .
+            "xmlns:atom10='http://www.w3.org/2005/Atom'>\n";
 
     # channel attributes
     $ret .= "<channel>\n";
@@ -293,6 +320,13 @@ sub create_view_rss
     $ret .= "  <lj:journal>" . $u->user . "</lj:journal>\n";
     $ret .= "  <lj:journaltype>" . $u->journaltype_readable . "</lj:journaltype>\n";
     # TODO: add 'language' field when user.lang has more useful information
+
+    if ( LJ::is_enabled( 'hubbub' ) ) {
+        $ret .= "  <atom10:link rel='self' href='" . $u->journal_base . "/data/rss' />\n";
+        foreach my $hub (@LJ::HUBBUB_HUBS) {
+            $ret .= "  <atom10:link rel='hub' href='" . LJ::exml($hub) . "' />\n";
+        }
+    }
 
     ### image block, returns info for their current userpic
     if ($u->{'defaultpicid'}) {
@@ -336,13 +370,14 @@ sub create_view_rss
         }
         $ret .= "  <category>$_</category>\n" foreach map { LJ::exml($_) } @{$it->{tags} || []};
         # support 'podcasting' enclosures
-        $ret .= LJ::run_hook( "pp_rss_enclosure",
+        $ret .= LJ::Hooks::run_hook( "pp_rss_enclosure",
                 { userid => $u->{userid}, ppid => $it->{ppid} }) if $it->{ppid};
         # TODO: add author field with posterid's email address, respect communities
         $ret .= "  <lj:music>" . LJ::exml($it->{music}) . "</lj:music>\n" if $it->{music};
         $ret .= "  <lj:mood>" . LJ::exml($it->{mood}) . "</lj:mood>\n" if $it->{mood};
         $ret .= "  <lj:security>" . LJ::exml($it->{security}) . "</lj:security>\n" if $it->{security};
-        $ret .= "  <lj:poster>" . LJ::exml($poster->user) . "</lj:poster>\n" unless LJ::u_equals($u, $poster);
+        $ret .= "  <lj:poster>" . LJ::exml($poster->user) . "</lj:poster>\n" unless $u->equals( $poster );
+        $ret .= "  <lj:reply-count>$it->{replycount}</lj:reply-count>\n";
         $ret .= "</item>\n";
     }
 
@@ -394,7 +429,7 @@ sub create_view_atom
         my ( $rel, $type, $href, $title ) = @_;
         my $link = XML::Atom::Link->new( Version => 1 );
         $link->rel($rel);
-        $link->type($type);
+        $link->type($type) if $type;
         $link->href($href);
         $link->title( $title ) if $title;
         return $link;
@@ -415,10 +450,10 @@ sub create_view_atom
             $xml->getDocumentElement->setAttribute( "idx:index", "no" );
         }
 
-        $xml->insertBefore( $xml->createComment( LJ::run_hook("bot_director") ), $xml->documentElement());
+        $xml->insertBefore( $xml->createComment( LJ::Hooks::run_hook("bot_director") ), $xml->documentElement());
 
         # attributes
-        $feed->id( "urn:lj:$LJ::DOMAIN:atom1:$u->{user}" );
+        $feed->id( $u->atomid );
         $feed->title( $j->{'title'} || $u->{user} );
         if ( $j->{'subtitle'} ) {
             $feed->subtitle( $j->{'subtitle'} );
@@ -459,6 +494,12 @@ sub create_view_atom
                 'Create a new entry'
             )
         ) if $opts->{'apilinks'};
+
+        if ( LJ::is_enabled( 'hubbub' ) ) {
+            foreach my $hub (@LJ::HUBBUB_HUBS) {
+                $feed->add_link($make_link->('hub', undef, $hub));
+            }
+        }
     }
 
     my $posteru = LJ::load_userids( map { $_->{posterid} } @$cleanitems);
@@ -472,7 +513,7 @@ sub create_view_atom
         my $entry = XML::Atom::Entry->new( Version => 1 );
         my $entry_xml = $entry->{doc};
 
-        $entry->id("urn:lj:$LJ::DOMAIN:atom1:$u->{user}:$ditemid");
+        $entry->id( $u->atomid . ":$ditemid" );
 
         # author isn't required if it is in the main <feed>
         # only add author if we are in a single entry view, or
@@ -491,6 +532,9 @@ sub create_view_atom
 
         $entry->add_link(
             $make_link->( 'alternate', 'text/html', "$j->{'link'}$ditemid.html" )
+        );
+        $entry->add_link(
+            $make_link->( 'self', 'text/xml', "$api/?itemid=$ditemid" )
         );
 
         $entry->add_link(
@@ -527,6 +571,12 @@ sub create_view_atom
             $entry_xml->getDocumentElement->appendChild( $category );
         }
 
+        if ($it->{'music'}) {
+            my $music = $entry_xml->createElement( 'lj:music' );
+            $music->appendTextNode( $it->{'music'} );
+            $entry_xml->getDocumentElement->appendChild( $music );
+        }
+
         # if syndicating the complete entry
         #   -print a content tag
         # elsif syndicating summaries
@@ -544,7 +594,7 @@ sub create_view_atom
             $content->appendTextNode( $it->{'event'} );
             $entry_xml->getDocumentElement->appendChild( $content );
         };
-        if ($u->{'opt_synlevel'} eq 'full') {
+        if ( $u->{'opt_synlevel'} eq 'full' || $u->{'opt_synlevel'} eq 'cut' ) {
             # Do this manually for now, until XML::Atom supports new
             # content type classifications.
             $make_content->('content');
@@ -566,12 +616,12 @@ sub create_view_atom
 # create a FOAF page for a user
 sub create_view_foaf {
     my ($journalinfo, $u, $opts) = @_;
-    my $comm = ($u->{journaltype} eq 'C');
+    my $comm = $u->is_community;
 
     my $ret;
 
     # return nothing if we're not a user
-    unless ($u->{journaltype} eq 'P' || $comm) {
+    unless ( $u->is_person || $comm ) {
         $opts->{handler_return} = 404;
         return undef;
     }
@@ -580,13 +630,13 @@ sub create_view_foaf {
     $opts->{contenttype} = 'application/rdf+xml; charset=' . $opts->{saycharset};
 
     # setup userprops we will need
-    LJ::load_user_props($u, qw{
+    $u->preload_props( qw{
         aolim icq yahoo jabber msn icbm url urlname external_foaf_url country city journaltitle
-    });
+    } );
 
     # create bare foaf document, for now
     $ret = "<?xml version='1.0'?>\n";
-    $ret .= LJ::run_hook("bot_director", "<!-- ", " -->");
+    $ret .= LJ::Hooks::run_hook("bot_director", "<!-- ", " -->");
     $ret .= "<rdf:RDF\n";
     $ret .= "   xml:lang=\"en\"\n";
     $ret .= "   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
@@ -598,8 +648,8 @@ sub create_view_foaf {
 
     # precompute some values
     my $digest = "";
+    my $remote = LJ::get_remote();
     if ($u->is_validated) {
-        my $remote = LJ::get_remote();
         my $email_visible = $u->email_visible($remote);
         $digest = Digest::SHA1::sha1_hex("mailto:$email_visible") if $email_visible;
     }
@@ -614,11 +664,11 @@ sub create_view_foaf {
     # user location
     if ($u->{'country'}) {
         my $ecountry = LJ::eurl($u->{'country'});
-        $ret .= "    <ya:country dc:title=\"$ecountry\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry\"/>\n";
+        $ret .= "    <ya:country dc:title=\"$ecountry\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry\"/>\n" if $u->can_show_location($remote);
         if ($u->{'city'}) {
             my $estate = '';  # FIXME: add state.  Yandex didn't need it.
             my $ecity = LJ::eurl($u->{'city'});
-            $ret .= "    <ya:city dc:title=\"$ecity\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity\"/>\n";
+            $ret .= "    <ya:city dc:title=\"$ecity\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity\"/>\n" if $u->can_show_location($remote);
        }
     }
 
@@ -668,54 +718,25 @@ sub create_view_foaf {
         my $count = $u->number_of_posts;
         $ret .= "    <ya:blogActivity>\n";
         $ret .= "      <ya:Posts>\n";
-        $ret .= "        <ya:feed rdf:resource=\"" . LJ::journal_base($u) ."/data/foaf\" dc:type=\"application/rss+xml\" />\n";
+        $ret .= "        <ya:feed rdf:resource=\"" . $u->journal_base ."/data/rss\" dc:type=\"application/rss+xml\" />\n";
         $ret .= "        <ya:posted>$count</ya:posted>\n";
         $ret .= "      </ya:Posts>\n";
         $ret .= "    </ya:blogActivity>\n";
     }
 
     # include a user's journal page and web site info
-    $ret .= "    <foaf:weblog rdf:resource=\"" . LJ::journal_base($u) . "/\"/>\n";
+    $ret .= "    <foaf:weblog rdf:resource=\"" . $u->journal_base . "/\"/>\n";
     if ($u->{url}) {
         $ret .= "    <foaf:homepage rdf:resource=\"" . LJ::eurl($u->{url});
         $ret .= "\" dc:title=\"" . LJ::exml($u->{urlname}) . "\" />\n";
     }
 
     # user bio
-    if ($u->{'has_bio'} eq "Y") {
-        $u->{'bio'} = LJ::get_bio($u);
-        LJ::text_out(\$u->{'bio'});
-        LJ::CleanHTML::clean_userbio(\$u->{'bio'});
-        $ret .= "    <ya:bio>" . LJ::exml($u->{'bio'}) . "</ya:bio>\n";
-    }
-
-    # user schools
-    if ($u->{'journaltype'} ne 'Y' &&
-        !$LJ::DISABLED{'schools'}  &&
-        ($u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y')) {
-
-        my $schools = LJ::Schools::get_attended($u);
-        if ($u->{'journaltype'} ne 'C' && $schools && %$schools ) {
-             my @links;
-             foreach my $sid (sort { $schools->{$a}->{year_start} <=> $schools->{$b}->{year_start} } keys %$schools) {
-                 my $link = "$LJ::SITEROOT/schools/" .
-                     "?ctc=" . LJ::eurl($schools->{$sid}->{country}) .
-                     "&sc=" . LJ::eurl($schools->{$sid}->{state}) .
-                     "&cc=" . LJ::eurl($schools->{$sid}->{city}) .
-                     "&sid=" . $sid ;
-                 my $ename = LJ::ehtml($schools->{$sid}->{name});
-                 $ret .= "    <ya:school\n";
-                 $ret .= "       rdf:resource=\"" . LJ::exml($link) . "\"\n";
-                 if (defined $schools->{$sid}->{year_start}) {
-                     $ret .= "       ya:dateStart=\"$schools->{$sid}->{year_start}\"\n";
-                 }
-                 if (defined $schools->{$sid}->{year_end}) {
-                     $ret .= "       ya:dateFinish=\"$schools->{$sid}->{year_end}\"\n";
-                 }
-
-                 $ret .= "       dc:title=\"$ename\"/>\n";
-             }
-         }
+    if ( $u->has_bio ) {
+        my $bio = $u->bio;
+        LJ::text_out( \$bio );
+        LJ::CleanHTML::clean_userbio( \$bio );
+        $ret .= "    <ya:bio>" . LJ::exml( $bio ) . "</ya:bio>\n";
     }
 
     # icbm/location info
@@ -727,7 +748,7 @@ sub create_view_foaf {
 
     # interests, please!
     # arrayref of interests rows: [ intid, intname, intcount ]
-    my $intu = LJ::get_interests($u);
+    my $intu = $u->get_interests();
     foreach my $int (@$intu) {
         LJ::text_out(\$int->[1]); # 1==interest
         $ret .= "    <foaf:interest dc:title=\"". LJ::exml($int->[1]) . "\" " .
@@ -735,23 +756,26 @@ sub create_view_foaf {
     }
 
     # check if the user has a "FOAF-knows" group
-    my $groups = LJ::get_friend_group($u->{userid}, { name => 'FOAF-knows' });
-    my $mask = $groups ? 1 << $groups->{groupnum} : 0;
+    my $has_foaf_group = $u->trust_groups( name => 'FOAF-knows' ) ? 1 : 0;
 
     # now information on who you know, limited to a certain maximum number of users
-    my $friends = LJ::get_friends($u->{userid}, $mask);
-    my @ids = keys %$friends;
+    my @ids;
+    if ( $has_foaf_group ) {
+        @ids = keys %{ $u->trust_group_members( name => 'FOAF-knows' ) };
+    } else {
+        @ids = $u->trusted_userids;
+    }
+
     @ids = splice(@ids, 0, $LJ::MAX_FOAF_FRIENDS) if @ids > $LJ::MAX_FOAF_FRIENDS;
 
     # now load
-    my %users;
-    LJ::load_userids_multiple([ map { $_, \$users{$_} } @ids ], [$u]);
+    my $users = LJ::load_userids( @ids );
 
     # iterate to create data structure
-    foreach my $friendid (@ids) {
-        next if $friendid == $u->{userid};
-        my $fu = $users{$friendid};
-        next if $fu->{statusvis} =~ /[DXS]/ || $fu->{journaltype} ne 'P';
+    foreach my $trustid ( @ids ) {
+        next if $trustid == $u->id;
+        my $fu = $users->{$trustid};
+        next if $fu->is_inactive || ! $fu->is_person;
 
         my $name = LJ::exml($fu->name_raw);
         my $tagline = LJ::exml($fu->prop('journaltitle') || '');
@@ -763,8 +787,8 @@ sub create_view_foaf {
         $ret .= "        <foaf:member_name>$name</foaf:member_name>\n";
         $ret .= "        <foaf:tagLine>$tagline</foaf:tagLine>\n";
         $ret .= "        <foaf:image>$upicurl</foaf:image>\n" if $upicurl;
-        $ret .= "        <rdfs:seeAlso rdf:resource=\"" . LJ::journal_base($fu) ."/data/foaf\" />\n";
-        $ret .= "        <foaf:weblog rdf:resource=\"" . LJ::journal_base($fu) . "/\"/>\n";
+        $ret .= "        <rdfs:seeAlso rdf:resource=\"" . $fu->journal_base ."/data/foaf\" />\n";
+        $ret .= "        <foaf:weblog rdf:resource=\"" . $fu->journal_base . "/\"/>\n";
         $ret .= "      </foaf:Person>\n";
         $ret .= $comm ? "    </foaf:member>\n" : "    </foaf:knows>\n";
     }
@@ -779,7 +803,7 @@ sub create_view_foaf {
 # YADIS capability discovery
 sub create_view_yadis {
     my ($journalinfo, $u, $opts) = @_;
-    my $person = ($u->{journaltype} eq 'P');
+    my $person = $u->is_person;
 
     my $ret = "";
 
@@ -794,15 +818,15 @@ sub create_view_yadis {
 
     my $view;
     if ($viewchunk eq '') {
-        $view = "recent";    
+        $view = "recent";
     }
-    elsif ($viewchunk eq '/friends') {
-        $view = "friends";    
+    elsif ($viewchunk eq '/read') {
+        $view = "read";
     }
     else {
         $view = undef;
     }
-    
+
     if ($view eq 'recent') {
         # Only people (not communities, etc) can be OpenID authenticated
         if ($person && LJ::OpenID->server_enabled) {
@@ -812,18 +836,18 @@ sub create_view_yadis {
             $println->('    </Service>');
         }
     }
-    elsif ($view eq 'friends') {
+    elsif ($view eq 'read') {
         $println->('    <Service xmlns:gm="http://openid.net/xmlns/groupmembership/xrds">');
         $println->('        <Type>http://openid.net/xmlns/groupmembership</Type>');
         $println->('        <URI>'.LJ::exml($LJ::SITEROOT).'/openid/groupmembership.bml</URI>');
-        $println->('        <LocalID>'.LJ::exml($u->journal_base.'/friends').'</LocalID>');
+        $println->('        <LocalID>'.LJ::exml($u->journal_base.'/read').'</LocalID>');
         $println->('        <gm:CanEnumerate /><gm:CanQuery />');
         $println->('    </Service>');
     }
 
     # Local site-specific content
     # TODO: Give these hooks access to $view somehow?
-    LJ::run_hook("yadis_service_descriptors", \$ret);
+    LJ::Hooks::run_hook("yadis_service_descriptors", \$ret);
 
     $println->('</XRD></xrds:XRDS>');
     return $ret;
@@ -864,31 +888,37 @@ sub create_view_userpics {
         $xml->getDocumentElement->setAttribute( "idx:index", "no" );
     }
 
-    my $bot = LJ::run_hook("bot_director");
+    my $bot = LJ::Hooks::run_hook("bot_director");
     $xml->insertBefore( $xml->createComment( $bot ), $xml->documentElement())
         if $bot;
 
-    $feed->id( "urn:lj:$LJ::DOMAIN:atom1:$u->{user}:userpics" );
+    $feed->id( $u->atomid . ":userpics" );
     $feed->title( "$u->{user}'s userpics" );
 
     $feed->author( $author );
-    $feed->add_link( $make_link->( 'alternate', 'text/html', "$LJ::SITEROOT/allpics.bml?user=$u->{user}" ) );
+    $feed->add_link( $make_link->( 'alternate', 'text/html', $u->allpics_base ) );
     $feed->add_link( $make_link->( 'self', 'text/xml', $u->journal_base() . "/data/userpics" ) );
 
     # now start building all the userpic data
     # start up by loading all of our userpic information and creating that part of the feed
-    my $info = LJ::get_userpic_info($u, {'load_comments' => 1, 'load_urls' => 1});
+    my $info = LJ::get_userpic_info( $u, { load_comments => 1, load_urls => 1, load_descriptions => 1 } );
 
     my %keywords = ();
     while (my ($kw, $pic) = each %{$info->{kw}}) {
         LJ::text_out(\$kw);
-        push @{$keywords{$pic->{picid}}}, LJ::ehtml($kw);
+        push @{$keywords{$pic->{picid}}}, LJ::exml($kw);
     }
 
     my %comments = ();
     while (my ($pic, $comment) = each %{$info->{comment}}) {
         LJ::text_out(\$comment);
-        $comments{$pic} = LJ::ehtml($comment);
+        $comments{$pic} = LJ::strip_html($comment);
+    }
+
+    my %descriptions = ();
+    while ( my( $pic, $description ) = each %{$info->{description}} ) {
+        LJ::text_out(\$description);
+        $descriptions{$pic} = LJ::strip_html($description);
     }
 
     my @pics;
@@ -914,7 +944,7 @@ sub create_view_userpics {
         my $entry = XML::Atom::Entry->new( Version => 1 );
         my $entry_xml = $entry->{doc};
 
-        $entry->id("urn:lj:$LJ::DOMAIN:atom1:$u->{user}:userpics:$pic->{picid}");
+        $entry->id( $u->atomid . ":userpics:$pic->{picid}" );
 
         my $title = ($pic->{picid} == $u->{defaultpicid}) ? "default userpic" : "userpic";
         $entry->title( $title );
@@ -928,12 +958,18 @@ sub create_view_userpics {
         $entry_xml->getDocumentElement->appendChild( $content );
 
         foreach my $kw (@{$keywords{$pic->{picid}}}) {
-            my $ekw = LJ::exml( $kw );
             my $category = $entry_xml->createElement( 'category' );
-            $category->setAttribute( 'term', $ekw );
+            $category->setAttribute( 'term', $kw );
             $category->setNamespace( $ns );
             $entry_xml->getDocumentElement->appendChild( $category );
         }
+
+        if ( $descriptions{$pic->{picid}} ) {
+            my $content = $entry_xml->createElement( 'title' );
+            $content->setNamespace( $ns );
+            $content->appendTextNode( $descriptions{$pic->{picid}} );
+            $entry_xml->getDocumentElement->appendChild( $content );
+        };
 
         if($comments{$pic->{picid}}) {
             my $content = $entry_xml->createElement( "summary" );
@@ -947,5 +983,107 @@ sub create_view_userpics {
 
     return $normalize_ns->( $feed->as_xml() );
 }
+
+
+sub create_view_comments
+{
+    my ($journalinfo, $u, $opts) = @_;
+
+    unless ( LJ::is_enabled('latest_comments_rss', $u) ) {
+        $opts->{handler_return} = 404;
+        return 404;
+    }
+
+    unless ( $u->can_use_latest_comments_rss ) {
+        $opts->{handler_return} = 403;
+        return;
+    }
+
+    my $ret;
+    $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
+    $ret .= LJ::Hooks::run_hook("bot_director", "<!-- ", " -->") . "\n";
+    $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/'>\n";
+
+    # channel attributes
+    $ret .= "<channel>\n";
+    $ret .= "  <title>" . LJ::exml($journalinfo->{title}) . "</title>\n";
+    $ret .= "  <link>$journalinfo->{link}</link>\n";
+    $ret .= "  <description>Latest comments in " . LJ::exml($journalinfo->{title}) . "</description>\n";
+    $ret .= "  <managingEditor>" . LJ::exml($journalinfo->{email}) . "</managingEditor>\n" if $journalinfo->{email};
+    $ret .= "  <lastBuildDate>$journalinfo->{builddate}</lastBuildDate>\n";
+    $ret .= "  <generator>LiveJournal / $LJ::SITENAME</generator>\n";
+    $ret .= "  <lj:journal>" . $u->user . "</lj:journal>\n";
+    $ret .= "  <lj:journaltype>" . $u->journaltype_readable . "</lj:journaltype>\n";
+    # TODO: add 'language' field when user.lang has more useful information
+
+    ### image block, returns info for their current userpic
+    if ($u->{'defaultpicid'}) {
+        my $pic = {};
+        LJ::load_userpics($pic, [ $u, $u->{'defaultpicid'} ]);
+        $pic = $pic->{$u->{'defaultpicid'}}; # flatten
+
+        $ret .= "  <image>\n";
+        $ret .= "    <url>$LJ::USERPIC_ROOT/$u->{'defaultpicid'}/$u->{'userid'}</url>\n";
+        $ret .= "    <title>" . LJ::exml($journalinfo->{title}) . "</title>\n";
+        $ret .= "    <link>$journalinfo->{link}</link>\n";
+        $ret .= "    <width>$pic->{'width'}</width>\n";
+        $ret .= "    <height>$pic->{'height'}</height>\n";
+        $ret .= "  </image>\n\n";
+    }
+
+    my @comments = $u->get_recent_talkitems(25);
+    foreach my $r (@comments)
+    {
+        my $c = LJ::Comment->new($u, jtalkid => $r->{jtalkid});
+        my $thread_url = $c->thread_url;
+        my $subject = $c->subject_raw;
+        LJ::CleanHTML::clean_subject_all(\$subject);
+
+        $ret .= "<item>\n";
+        $ret .= "  <guid isPermaLink='true'>$thread_url</guid>\n";
+        $ret .= "  <pubDate>" . LJ::time_to_http($r->{datepostunix}) . "</pubDate>\n";
+        $ret .= "  <title>" . LJ::exml($subject) . "</title>\n" if $subject;
+        $ret .= "  <link>$thread_url</link>\n";
+        # omit the description tag if we're only syndicating titles
+        unless ($u->{'opt_synlevel'} eq 'title') {
+            my $body = $c->body_raw;
+            LJ::CleanHTML::clean_subject_all(\$body);
+            $ret .= "  <description>" . LJ::exml($body) . "</description>\n";
+        }
+        $ret .= "</item>\n";
+    }
+
+    $ret .= "</channel>\n";
+    $ret .= "</rss>\n";
+
+
+    return $ret;
+}
+
+sub generate_hubbub_jobs {
+    my ( $u, $joblist ) = @_;
+
+    return unless LJ::is_enabled( 'hubbub' );
+
+    foreach my $hub ( @LJ::HUBBUB_HUBS ) {
+        my $make_hubbub_job = sub {
+            my $type = shift;
+
+            my $topic_url = $u->journal_base . "/data/$type";
+            return TheSchwartz::Job->new(
+                funcname => 'TheSchwartz::Worker::PubSubHubbubPublish',
+                arg => {
+                    hub => $hub,
+                    topic_url => $topic_url,
+                },
+                coalesce => $hub,
+            );
+        };
+
+        push @$joblist, $make_hubbub_job->("rss");
+        push @$joblist, $make_hubbub_job->("atom");
+    }
+}
+
 
 1;

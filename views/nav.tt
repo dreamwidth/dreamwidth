@@ -1,0 +1,22 @@
+[%# nav.tt
+
+Page that shows the sub-level navigation links given the top-level navigation header
+
+Authors:
+    foxfirefey <skittisheclipse@gmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- IF cat; sections.title = cat_title; ELSE; sections.title = '.title' | ml; END -%]
+
+[% FOREACH menu = menu_nav %]
+    [% IF NOT cat %]<h2 class="[% menu.name %]">[% menu.title | html %]</h2>[% END %]
+    <ul>
+    [% FOREACH menu_item = menu.items %]
+        <li><a href="[% menu_item.url | url %]">[% menu_item.text | html %]</a></li>
+    [% END %]
+    </ul>
+[% END %]

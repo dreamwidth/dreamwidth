@@ -1,11 +1,13 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
+
+plan tests => 7;
 
 my $u = temp_user();
 my $u2 = temp_user();
@@ -26,7 +28,7 @@ my $run = sub {
 };
 
 # all of these should fail.
-foreach my $to (qw(person news community)) {
+foreach my $to (qw(person community)) {
     is($run->("change_journal_type $commname $to $owner"),
        "error: You are not authorized to run this command.");
 }
@@ -34,9 +36,9 @@ foreach my $to (qw(person news community)) {
 ### NOW CHECK WITH PRIVS
 $u->grant_priv("changejournaltype");
 
-my $types = { 'community' => 'C', 'person' => 'P', 'news' => 'N' };
+my $types = { 'community' => 'C', 'person' => 'P' };
 
-foreach my $to (qw(person news community)) {
+foreach my $to (qw(person community)) {
     is($run->("change_journal_type $commname $to $owner"),
        "success: User $commname converted to a $to account.");
     $comm = LJ::load_user($comm->user);
@@ -45,5 +47,5 @@ foreach my $to (qw(person news community)) {
 
 ### check that 'shared' is not a valid journaltype
 is($run->("change_journal_type $commname shared $owner"),
-   "error: Type argument must be 'person', 'community', or 'news'.");
+   "error: Type argument must be 'person' or 'community'.");
 

@@ -1,6 +1,5 @@
 .appwidget-qotd {
-    border-bottom: 1px solid #ededed;
-    padding: 10px;
+    padding-top: 10px;
     margin: 0 !important;
 }
 
@@ -10,9 +9,14 @@
 }
 
 .qotd-archive-item-question {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     padding-bottom: 5px;
+}
+
+.qotd-archive-item-answers {
+    border-bottom: 1px solid #ededed;
+    padding-bottom: 10px;
 }
 
 .qotd-archive-item-answers a {

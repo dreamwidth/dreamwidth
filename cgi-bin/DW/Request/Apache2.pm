@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Andrea Nall <anall@andreanall.com>
 #
 # Copyright (c) 2008 by Dreamwidth Studios, LLC.
 #
@@ -15,19 +16,26 @@
 #
 
 package DW::Request::Apache2;
-
 use strict;
-use Apache2::Const -compile => qw/ :common REDIRECT HTTP_NOT_MODIFIED /;
+use DW::Request::Base;
+use base 'DW::Request::Base';
+
+use Apache2::Const -compile => qw/ :common :http /;
 use Apache2::Log ();
 use Apache2::Request;
 use Apache2::Response ();
 use Apache2::RequestRec ();
 use Apache2::RequestUtil ();
 use Apache2::RequestIO ();
+use Apache2::SubProcess ();
 
 use fields (
             'r',         # The Apache2::Request object
+
+            # these are mutually exclusive; if you use one you can't use the other
+            'content',   # raw content
             'post_args', # hashref of POST arguments
+            'get_args',  # hashref of GET arguments
         );
 
 # creates a new DW::Request object, based on what type of server environment we
@@ -35,10 +43,12 @@ use fields (
 sub new {
     my DW::Request::Apache2 $self = $_[0];
     $self = fields::new( $self ) unless ref $self;
+    $self->SUPER::new;
 
     # setup object
     $self->{r}         = $_[1];
     $self->{post_args} = undef;
+    $self->{content}   = undef;
 
     # done
     return $self;
@@ -73,14 +83,44 @@ sub query_string {
     return $self->{r}->args;
 }
 
+# returns the raw content of the body; note that this can be particularly
+# slow, so you should only call this if you really need it...
+sub content {
+    my DW::Request::Apache2 $self = $_[0];
+
+    die "already loaded post_args\n"
+        if defined $self->{post_args};
+
+    return $self->{content} if defined $self->{content};
+
+    my $buff = '';
+    while ( my $ct = $self->{r}->read( my $buf, 65536 ) ) {
+        $buff .= $buf;
+        last if $ct < 65536;
+    }
+    return $self->{content} = $buff;
+}
+
 # get POST arguments as an APR::Table object (which is a tied hashref)
 sub post_args {
     my DW::Request::Apache2 $self = $_[0];
-    unless ( $self->{post_args} ) {
+
+    die "already loaded content\n"
+        if defined $self->{content};
+
+    unless ( defined $self->{post_args} ) {
         my $tmp_r = Apache2::Request->new( $self->{r} );
         $self->{post_args} = $tmp_r->body;
     }
     return $self->{post_args};
+}
+
+sub get_args {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{get_args} if defined $self->{get_args};
+
+    my %gets = LJ::parse_args( $self->query_string );
+    return $self->{get_args} = \%gets;
 }
 
 # searches for a given note and returns the value, or sets it
@@ -90,6 +130,16 @@ sub note {
         return $self->{r}->notes->{$_[1]};
     } else {
         return $self->{r}->notes->{$_[1]} = $_[2];
+    }
+}
+
+# searches for a given pnote and returns the value, or sets it
+sub pnote {
+    my DW::Request::Apache2 $self = $_[0];
+    if ( scalar( @_ ) == 2 ) {
+        return $self->{r}->pnotes->{$_[1]};
+    } else {
+        return $self->{r}->pnotes->{$_[1]} = $_[2];
     }
 }
 
@@ -113,6 +163,28 @@ sub header_out {
     }
 }
 
+# appends a value to a header
+sub header_out_add {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r}->headers_out->add( $_[1] , $_[2] );
+}
+
+# searches for a given header and returns the value, or sets it
+sub err_header_out {
+    my DW::Request::Apache2 $self = $_[0];
+    if ( scalar( @_ ) == 2 ) {
+        return $self->{r}->err_headers_out->{$_[1]};
+    } else {
+        return $self->{r}->err_headers_out->{$_[1]} = $_[2];
+    }
+}
+
+# appends a value to a header
+sub err_header_out_add {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r}->err_headers_out->add( $_[1] , $_[2] );
+}
+
 # returns the ip address of the connected person
 sub get_remote_ip {
     my DW::Request::Apache2 $self = $_[0];
@@ -125,10 +197,19 @@ sub set_last_modified {
     return $self->{r}->set_last_modified($_[1]);
 }
 
+sub status {
+    my DW::Request::Apache2 $self = $_[0];
+    if (scalar(@_) == 2) {
+        $self->{r}->status($_[1]+0);
+    } else {
+        return $self->{r}->status();
+    }
+}
+
 sub status_line {
     my DW::Request::Apache2 $self = $_[0];
     if (scalar(@_) == 2) {
-        # Apparently both status and status_line must be set
+        # If we set status_line, we must also set status.
         my ($status) = $_[1] =~ m/^(\d+)/;
         $self->{r}->status($status);
         return $self->{r}->status_line($_[1]);
@@ -154,10 +235,87 @@ sub read {
     return $ret;
 }
 
+# return the internal Apache2 request object
+sub r {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r};
+}
+
+# calls the method as a handler.
+sub call_response_handler {
+    my DW::Request::Apache2 $self = shift;
+
+    $self->{r}->handler( 'perl-script' );
+    $self->{r}->push_handlers( PerlResponseHandler => $_[0] );
+
+    return Apache2::Const::OK;
+}
+
+# FIXME: Temporary, until BML is gone / converted
+# FIXME: This is only valid from a response handler
+sub call_bml {
+    my DW::Request::Apache2 $self = shift;
+
+    $self->note(bml_filename => $_[0]);
+
+    return Apache::BML::handler($self->{r});
+}
+
+# simply sets the location header and returns REDIRECT
+sub redirect {
+    my $self = $_[0];
+    $self->header_out( Location => $_[1] );
+    return $self->REDIRECT;
+}
+
 # constants
 sub OK {
     my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::OK;
+}
+
+sub REDIRECT {
+    my DW::Request::Apache2 $self = $_[0];
+    return Apache2::Const::REDIRECT;
+}
+
+sub NOT_FOUND {
+    my DW::Request::Apache2 $self = $_[0];
+    return Apache2::Const::NOT_FOUND;
+}
+
+sub SERVER_ERROR {
+    return Apache2::Const::SERVER_ERROR;
+}
+
+sub HTTP_UNAUTHORIZED {
+    return Apache2::Const::HTTP_UNAUTHORIZED;
+}
+
+sub HTTP_BAD_REQUEST {
+    return Apache2::Const::HTTP_BAD_REQUEST;
+}
+
+sub HTTP_UNSUPPORTED_MEDIA_TYPE {
+    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
+}
+
+sub HTTP_INTERNAL_SERVER_ERROR {
+    return Apache2::Const::HTTP_INTERNAL_SERVER_ERROR;
+}
+
+sub HTTP_METHOD_NOT_ALLOWED {
+    return Apache2::Const::HTTP_METHOD_NOT_ALLOWED;
+}
+
+sub FORBIDDEN {
+    return Apache2::Const::FORBIDDEN;
+}
+
+# spawn a process for an external program
+sub spawn {
+    my DW::Request::Apache2 $self = shift;
+    return $self->{r}->spawn_proc_prog( @_ );
 }
 
 1;

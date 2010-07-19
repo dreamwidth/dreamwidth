@@ -1,5 +1,18 @@
 #!/usr/bin/perl
 #
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 
 use strict;
 use vars qw(%maint);
@@ -13,8 +26,7 @@ $maint{'genstats'} = sub
 {
     my @which = @_ || qw(users countries 
                          states gender clients
-                         pop_interests meme popfaq
-                         schools);
+                         pop_interests popfaq);
     
     # popular faq items
     LJ::Stats::register_stat
@@ -55,7 +67,7 @@ $maint{'genstats'} = sub
                    my $db = $db_getter->();
                    return undef unless $db;
 
-                   return {} if $LJ::DISABLED{'interests-popular'};
+                   return {} unless LJ::is_enabled('interests-popular');
 
                    # see what the previous min was, then subtract 20% of max from it
                    my ($prev_min, $prev_max) = $db->selectrow_array("SELECT MIN(statval), MAX(statval) " .
@@ -63,8 +75,9 @@ $maint{'genstats'} = sub
                    my $stat_min = int($prev_min - (0.2*$prev_max));
                    $stat_min = 1 if $stat_min < 1;
 
-                   my $sth = $db->prepare("SELECT interest, intcount FROM interests WHERE intcount>? " .
-                                          "ORDER BY intcount DESC, interest ASC LIMIT 400");
+                   my $sth = $db->prepare( "SELECT k.keyword, i.intcount FROM interests AS i, sitekeywords AS k " .
+                                           "WHERE k.kwid=i.intid AND i.intcount>? " .
+                                           "ORDER BY i.intcount DESC, k.keyword ASC LIMIT 400" );
                    $sth->execute($stat_min);
                    die $db->errstr if $db->err;
 
@@ -78,34 +91,6 @@ $maint{'genstats'} = sub
 
        });
 
-    # popular memes
-    LJ::Stats::register_stat
-        ({ 'type' => "global",
-           'jobname' => "meme",
-           'statname' => "popmeme",
-           'handler' =>
-               sub {
-                   my $db_getter = shift;
-                   return undef unless ref $db_getter eq 'CODE';
-                   my $db = $db_getter->();
-                   return undef unless $db;
-
-                   return {} if $LJ::DISABLED{'meme'};
-
-                   my $sth = $db->prepare("SELECT url, count(*) FROM meme " .
-                                          "GROUP BY 1 ORDER BY 2 DESC LIMIT 100");
-                   $sth->execute;
-                   die $db->errstr if $db->err;
-
-                   my %ret;
-                   while (my ($url, $count) = $sth->fetchrow_array) {
-                       $ret{$url} = $count;
-                   }
-
-                   return \%ret;
-               },
-         });
-
     # clients
     LJ::Stats::register_stat
         ({ 'type' => "global",
@@ -118,7 +103,7 @@ $maint{'genstats'} = sub
                    my $db = $db_getter->();
                    return undef unless $db;
 
-                   return {} if $LJ::DISABLED{'clientversionlog'};
+                   return {} unless LJ::is_enabled('clientversionlog');
 
                    my $usertotal = $db->selectrow_array("SELECT MAX(userid) FROM user");
                    my $blocks = LJ::Stats::num_blocks($usertotal);
@@ -360,49 +345,6 @@ $maint{'genstats'} = sub
 
          });
 
-    # schools
-    LJ::Stats::register_stat
-        ({
-            'type' => "global",
-            'jobname' => "schools",
-            'statname' => "schools",
-            'handler' =>
-                sub {
-                    my $db_getter = shift;
-                    return undef unless ref $db_getter eq 'CODE';
-                    my $db = $db_getter->();
-                    return undef unless $db;
-
-                    # We want to make sure the country detail information is always showing the current
-                    # top 10.  Thus we must delete old stat data from the table before doing these new
-                    # calculations.  If we don't, then a country which is no longer in the top 10 will
-                    # still be written into the stats.txt file with stale data.  Maybe someday we'll
-                    # write an API to make this seem less hacky.
-                    my $dbh = LJ::Stats::get_db("dbh");
-                    $dbh->do("DELETE FROM stats WHERE statcat='schools'");
-
-                    my @approved_total = $db->selectrow_array("SELECT COUNT(*) FROM schools");
-                    my @pending_total  = $db->selectrow_array("SELECT COUNT(*) FROM schools_pending");
-
-                    my %ret;
-
-                    my $approved_counts = $db->selectall_hashref("SELECT country, COUNT(*) as count FROM schools GROUP BY country ORDER BY count DESC LIMIT 10", 'country');
-                    my $pending_counts  = $db->selectall_hashref("SELECT country, COUNT(*) as count FROM schools_pending GROUP BY country ORDER BY count DESC", 'country');
-
-                    $ret{'approved'} = $approved_total[0];
-                    $ret{'pending'}  = $pending_total[0];
-
-                    foreach (sort { $approved_counts->{$b}->{'count'} <=> $approved_counts->{$a}->{'count'} } keys %$approved_counts) {
-                        $ret{"approved_$_"} = $approved_counts->{$_}->{'count'};
-                    }
-
-                    foreach (sort { $pending_counts->{$b}->{'count'} <=> $pending_counts->{$a}->{'count'} } keys %$pending_counts) {
-                        $ret{"pending_$_"} = $pending_counts->{$_}->{'count'};
-                    }
-
-                    return \%ret;
-                },
-        });
 
     # run stats
     LJ::Stats::run_stats(@which);
@@ -442,7 +384,7 @@ $maint{'genstats_size'} = sub {
                    my $db = $db_getter->();
                    return undef unless $db;
 
-                   # not that this isn't a total of current accounts (some rows may have 
+                   # not that this isn't a total of current accounts (some rows may have
                    # been deleted), but rather a total of accounts ever created
                    my $size = $db->selectrow_array("SELECT MAX(userid) FROM user");
                    return { 'accounts' => $size };
@@ -542,25 +484,5 @@ $maint{'genstats_weekly'} = sub
     print "-I- Done.\n";
 };
 
-$maint{'memeclean'} = sub
-{
-    my $dbh = LJ::get_db_writer();
-
-    print "-I- Cleaning memes.\n";
-    my $sth = $dbh->prepare("SELECT statkey FROM stats WHERE statcat='popmeme'");
-    $sth->execute;
-    die $dbh->errstr if $dbh->err;
-
-    while (my $url = $sth->fetchrow_array) {
-        my $copy = $url;
-        LJ::run_hooks("canonicalize_url", \$copy);
-        unless ($copy) {
-            my $d = $dbh->quote($url);
-            $dbh->do("DELETE FROM stats WHERE statcat='popmeme' AND statkey=$d");
-            print "    deleting: $url\n";
-        }
-    }
-    print "-I- Done.\n";
-};
 
 1;

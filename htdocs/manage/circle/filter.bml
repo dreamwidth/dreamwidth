@@ -1,0 +1,79 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
+<?_code
+{
+    use strict;
+    use vars qw($title $body %ML %POST);
+
+    $title = $ML{'.title3'};
+    $body = "";
+    
+    LJ::set_active_crumb('filterfriends');
+    
+    if ($POST{'mode'} eq "view") 
+    {
+        # for safety, since we will be redirecting to this page be strict in the value we accept for the pageview
+        my $pageview = $POST{pageview} eq "network" ? "network" : "read";
+
+        my $user = lc($POST{'user'});
+        my $extra;
+        if ( $POST{type} eq "allfilters" ) {
+            my $view = $POST{'view'};
+            if ( $view eq "all" ) {
+                $extra = "?filter=0";
+            } elsif ($view eq "showpeople") {
+                $extra = "?show=P&filter=0";
+            } elsif ($view eq "showcommunities") {
+                $extra = "?show=C&filter=0";
+            } elsif ($view eq "showsyndicated") {
+                $extra = "?show=F&filter=0";
+            } elsif ($view =~ /filter:(.+)?/) {
+                $extra = "/$1";
+            }
+        }
+        my $u = LJ::load_user($user);
+        BML::redirect($u->journal_base() . "/$pageview${extra}");
+    }
+
+    my $remote = LJ::get_remote();
+
+    unless ($remote) { $body .= "<?needlogin?>"; return; }
+
+    my @groups = $remote->content_filters;
+
+    unless ( @groups ) {
+        $body = "<?h1 $ML{'.error.nogroups.header2'} h1?><?p " . BML::ml('.error.nogroups3', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/filters'"}) . " p?>";
+        return;
+    }
+
+    $body .= "<?h1 $ML{'.select.header2'} h1?><?p ";
+    $body .= BML::ml('.select2', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/filters'"});
+    $body .= " p?><div style='margin-left: 30px; margin-bottom: 1em'>";
+
+    foreach my $g ( @groups )
+    {
+        my $url = $remote->journal_base . "/read/" . LJ::eurl( $g->name );
+        $body .= " <a href='$url'>" . LJ::ehtml( $g->name ) . "</a><br />\n";
+    }
+
+    $body .= "</div>";
+    $body .= "<?p " . BML::ml('.editgroups2', { 'link' => "<a href='editfilters'>$ML{'/manage/circle/editfilters.bml.title2'}</a>" }) . " p?>";
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>

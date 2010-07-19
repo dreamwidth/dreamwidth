@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 localblocks<=
 crit<=
@@ -15,7 +29,7 @@ bar<=
 <=bar
 <=localblocks
 _info?><?page
-title=>Directory Search
+title=><?_ml .title _ml?>
 body<=
 <?_code
 {
@@ -24,33 +38,36 @@ body<=
 }
 _code?>
 
-<?h1 Search Directory h1?>
-
 <?_code
 {
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
     return LJ::CProd->inline($remote, inline => 'Directory') || BML::ml('cprod.directory.text3.v1')
-        unless $remote->get_cap("directory");
+        unless $remote->can_use_directory;
 
     return "";
 }
 _code?>
 
-<?p Use this directory to search for LiveJournal users. If you fill in more than one blank, the directory will display results that match all your criteria. (i.e user lives in "San Francisco" AND lists "music" as an interest.). Check out our <a href="/community/search.bml">community search</a> page to find new and interesting communities. p?>
+<?p 
+<?_code
+    my $ret = BML::ml('.use_this_dir2', { 'aopts' => "href='$LJ::SITEROOT/community/search'", sitename => $LJ::SITENAMESHORT });
+    return $ret;
+_code?>
+ p?>
 
 <?hr?>
 
 <center>
 
-<form style='margin-top: 1.5em' action='/directory.bml' method='get'>
+<form style='margin-top: 1.5em' action='/directory' method='get'>
 
 <table cellpadding='4' cellspacing='0' border='0'>
 
 <!--- location --->
 <?crit
-name=>By Location
+name=><?_ml .by_location _ml?>
 code=>s_loc
 form<=
 <?_code
@@ -66,63 +83,46 @@ form<=
     return $ret;
 }
 _code?>
-<?_comment 
-
-<table>
-<tr><td align='right'>Country:</td><td align='left'>
-<?_code
-{
-    LJ::load_codes({ "country" => \%countries });
-    return LJ::html_select({
-        'name' => 'loc_cn',
-    }, "", "", map { $_, $countries{$_} } "US", sort { $countries{$a} cmp $countries{$b} } keys %countries);
-}
-_code?>
-</td></tr>
-<tr><td align='right'>State/Province:</td><td align='left'><input name="loc_st" /></td></tr>
-<tr><td align='right'>City:</td><td align='left'><input name="loc_ci" /></td></tr>
-</table>
-_comment?>
 
 <=form
 crit?>
 
 <!---- update time ----->
 <?crit
-name=>Recently Updated
+name=><?_ml .recently_updated _ml?>
 code=>s_ut
 form<=
-Updated in last 
+<?_ml .updated_in_last _ml?> 
 <select name="ut_days">
 <option value="">-------</option>
-<option value="1">day</option>
-<option value="7">week</option>
-<option value="30">month</option>
+<option value="1"><?_ml .day _ml?></option>
+<option value="7"><?_ml .week _ml?></option>
+<option value="30"><?_ml .month _ml?></option>
 </select>
 <=form
 crit?>
 
 <!---- age ----->
 <?crit
-name=>By Age
+name=><?_ml .by_age _ml?>
 code=>s_age
 form<=
-Between 
-<input name="age_min" size='3' maxlength='3' /> and 
-<input name="age_max" size='3' maxlength='3' /> years old.
+<?_ml .between _ml?> 
+<input name="age_min" size='3' maxlength='3' /> <?_ml .and _ml?> 
+<input name="age_max" size='3' maxlength='3' /> <?_ml .years_old _ml?>
 <=form
 crit?>
 
 <?_c  DISABLED because of privacy policy.  add later when 'public gender' option
 <!---- gender ----->
 <?crit
-name=>By Gender
+name=><?_ml .by_gender _ml?>
 code=>s_gen
 form<=
 User is: <select name="gen_sel">
 <option></option>
-<option value="F">Female</option>
-<option value="M">Male</option>
+<option value="F"><?_ml .female _ml?></option>
+<option value="M"><?_ml .male _ml?></option>
 <option value="O">Other</option>
 </select>
 <=form
@@ -131,27 +131,33 @@ _c?>
 
 <!---- interest ----->
 <?crit
-name=>By Interest
+name=><?_ml .by_interest _ml?>
 code=>s_int
 form<=
-User likes: <input name="int_like" size='30' />
+<?_ml .user_likes _ml?> <input name="int_like" size='30' />
 <=form
 crit?>
 
-<!---- has friend ----->
+<!---- trust/watch ----->
 <?crit
-name=>By Friends
+name=><?_ml .by_circle _ml?>
 code=>s_fr
 form<=
-User lists <input name="fr_user" size='15' maxlength='15' /> as a friend.<br />
-<input name="fro_user" size='15' maxlength='15' /> lists user as a friend.
+<?_code
+    my $ret = BML::ml( '.user_trusts', { input => "<input name=\"user_trusts\" size='15' maxlength='25' />" } ) . "<br />";
+    $ret .= BML::ml( '.user_trusted_by', { input => "<input name=\"user_trusted_by\" size='15' maxlength='25' />" } ) . "<br />";
+    $ret .= BML::ml( '.user_watches', { input => "<input name=\"user_watches\" size='15' maxlength='25' />" } ) . "<br />";
+    $ret .= BML::ml( '.user_watched_by', { input => "<input name=\"user_watched_by\" size='15' maxlength='25' />" } );
+
+    return $ret;
+_code?>
 <=form
 crit?>
 
 <?_c no index on this yet.  need a userprop boolean.
 <!----- other ------>
 <?bar
-name=>Other Criteria
+name=><?_ml .other_criteria _ml?>
 form<=
 <input type='checkbox' name="s_withpic" value='1' /> Only users with pictures
 <=form
@@ -160,23 +166,23 @@ _c?>
 
 <!---- output formatting ----->
 <?bar
-name=>Display Results
+name=><?_ml .display_results _ml?>
 form<=
 
 <table>
 <tr>
 <td align='right'>
-Display by
+<?_ml .display_by _ml?>
 </td><td>
 <select name="opt_format">
-<option value="pics">Picture</option>
-<option value="simple">Text only</option>
+<option value="pics"><?_ml .picture _ml?></option>
+<option value="simple"><?_ml .text_only _ml?></option>
 </select>
 </td></tr>
 
 <tr>
 <td align='right'>
-Records per page:
+<?_ml .records_per_page _ml?>
 </td><td>
 <select name="opt_pagesize">
 <option value="25">25</option>
@@ -192,8 +198,8 @@ bar?>
 
 <!--- submit --->
 <tr bgcolor='<?emcolor?>'><td colspan='2' align='center'>
-  <input type='submit' value="Search!" />
-  <input type='reset' value="Clear Form" />
+  <input type='submit' value="<?_ml .search _ml?>" />
+  <input type='reset' value="<?_ml .clear_form _ml?>" />
 </td></tr>
 
 </table>
@@ -202,6 +208,4 @@ bar?>
 </center>
 
 <=body
-page?><?_c <LJDEP>
-form: htdocs/directory.bml
-</LJDEP> _c?>
+page?>

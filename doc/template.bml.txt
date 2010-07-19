@@ -1,0 +1,52 @@
+<?_c
+#
+# pagename.bml
+#
+# description of what the page is supposed to do
+#
+# Authors:
+#      Author Name <email@email.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
+
+    # this is how you include custom CSS/JS/etc
+    LJ::need_res( qw// );
+
+    # translated/custom page title can go here
+    $title = "A title!";
+
+    # for pages that require authentication
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    # allow the remote user to authenticate as another account (community, etc)
+    my $authas = $GET{authas} || $remote->user;
+    my $u = LJ::get_authas_user( $authas );
+    return LJ::bad_input( $ML{'error.invalidauth'} )
+        unless $u;
+
+    my $ret;
+
+    $ret .= "A template!";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

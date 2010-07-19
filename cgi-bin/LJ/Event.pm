@@ -1,14 +1,25 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Event;
 use strict;
 no warnings 'uninitialized';
 
 use Carp qw(croak);
 use LJ::ModuleLoader;
-use Class::Autouse qw(
-                      LJ::ESN
-                      LJ::Subscription
-                      LJ::Typemap
-                      );
+use LJ::ESN;
+use LJ::Subscription;
+use LJ::Typemap;
 
 my @EVENTS = LJ::ModuleLoader->module_subclasses("LJ::Event");
 foreach my $event (@EVENTS) {
@@ -25,8 +36,10 @@ foreach my $event (@EVENTS) {
 #                                   ($ju,$jtalkid)   # TODO: should probably be ($ju,$jitemid,$jtalkid)
 #    LJ::Event::UserNewComment     -- a user left a new comment somewhere
 #                                   ($u,$journalid,$jtalkid)
-#    LJ::Event::Befriended         -- user $fromuserid added $u as a friend
-#                                   ($u,$fromuserid)
+#    LJ::Event::AddedToCircle      -- user $fromuserid added $u to their circle; $actionid is 1 (trust) or 2 (watch)
+#                                   ($u,$fromuserid,$actionid)
+#    LJ::Event::RemovedFromCircle  -- user $fromuserid removed $u to their circle; $actionid is 1 (trust) or 2 (watch)
+#                                   ($u,$fromuserid,$actionid)
 #    LJ::Event::CommunityInvite    -- user $fromuserid invited $u to join $commid community)
 #                                   ($u,$fromuserid, $commid)
 #    LJ::Event::InvitedFriendJoins -- user $u1 was invited to join by $u2 and created a journal
@@ -39,12 +52,12 @@ foreach my $event (@EVENTS) {
 #                                   ($u)
 #    LJ::Event::PollVote           -- $u1 voted in poll $p posted by $u
 #                                   ($u, $u1, $up)
-#    LJ::Event::Defriended         -- user $fromuserid removed $u as a friend
-#                                   ($u,$fromuserid)
 #    LJ::Event::UserMessageRecvd   -- user $u received message with ID $msgid from user $otherid
 #                                   ($u, $msgid, $otherid)
 #    LJ::Event::UserMessageSent    -- user $u sent message with ID $msgid to user $otherid
 #                                   ($u, $msgid, $otherid)
+#    LJ::Event::ImportStatus       -- user $u has received an import status notification
+#                                   ($u, $item, $hashref)
 sub new {
     my ($class, $u, @args) = @_;
     croak("too many args")        if @args > 2;
@@ -95,11 +108,27 @@ sub is_common {
 # not show up in normal UI
 sub is_visible { 1 }
 
+# Override this with a true if notification to this event should be sent
+# even if user account is not in active state.
+sub is_significant { 0 }
+
 # Whether Inbox is always subscribed to
 sub always_checked { 0 }
 
 # Override this with HTML containing the actual event
 sub content { '' }
+# Override this with HTML containing a summary of the event text (may be left blank)
+sub content_summary { '' }
+
+# Override this to provide details, method for XMLRPC::getinbox
+sub raw_info {
+    my $self = shift;
+
+    my $subclass = ref $self;
+    $subclass =~ s/LJ::Event:?:?//;
+
+    return { type => $subclass };
+}
 
 sub as_string {
     my ($self, $u) = @_;
@@ -171,13 +200,6 @@ sub subscription_as_html {
     return $class . " arg1: $arg1 arg2: $arg2 user: $user";
 }
 
-sub as_sms {
-    my $self = shift;
-    my $str = $self->as_string;
-    return $str if length $str <= 160;
-    return substr($str, 0, 157) . "...";
-}
-
 # override in subclasses
 sub subscription_applicable {
     my ($class, $subscr) = @_;
@@ -191,6 +213,9 @@ sub available_for_user  {
 
     return 1;
 }
+
+# override for very hard events
+sub schwartz_role { 'default' }
 
 ############################################################################
 #            Don't override
@@ -215,9 +240,9 @@ sub process_fired_events {
 # are no subscriptions for the event.
 sub fire {
     my $self = shift;
-    return 0 if $LJ::DISABLED{'esn'};
+    return 0 unless LJ::is_enabled('esn');
 
-    my $sclient = LJ::theschwartz();
+    my $sclient = LJ::theschwartz( { role => $self->schwartz_role } );
     return 0 unless $sclient;
 
     my $job = $self->fire_job or
@@ -232,7 +257,7 @@ sub fire {
 # return undef.
 sub fire_job {
     my $self = shift;
-    return if $LJ::DISABLED{'esn'};
+    return unless LJ::is_enabled('esn');
 
     if (my $val = $LJ::DEBUG{'firings'}) {
         if (ref $val eq "CODE") {
@@ -260,11 +285,15 @@ sub subscriptions {
     my $allmatch = 0;
     my $zeromeans = $self->zero_journalid_subs_means;
 
-    my @wildcards_from;
-    if ($zeromeans eq 'friends') {
-        # find friendofs, add to @wildcards_from
-        @wildcards_from = LJ::get_friendofs($self->u);
-    } elsif ($zeromeans eq 'all') {
+    my @wildcards_from; # used to hold the trusted and/or watched by lists for $self->u
+    if ( $zeromeans eq 'trusted' ) {
+        @wildcards_from = $self->u->trusted_by_userids;
+    } elsif ( $zeromeans eq 'watched' ) {
+        @wildcards_from = $self->u->watched_by_userids;
+    } elsif ( $zeromeans eq 'trusted_or_watched' ) {
+        my %unique_ids = map { $_ => 1 } ( $self->u->trusted_by_userids, $self->u->watched_by_userids );
+        @wildcards_from = keys %unique_ids;
+    } elsif ( $zeromeans eq 'all' ) {
         $allmatch = 1;
     }
 
@@ -426,38 +455,52 @@ sub all_classes {
     return $tm->all_classes;
 }
 
-# Returns path to template file by event type for certain language, journal and e-mail section.
-#
-# @params:  section = [subject | body_html | body_text]
-#           lang    = [ en | ru | ... ]
-#
-# @returns: filename or undef if template could not be found.
-#
-sub template_file_for {
-    my $self = shift;
-    my %opts = @_;
+sub format_options {
+    my ($self, $is_html, $lang, $vars, $urls, $extra) = @_;
 
-    return if LJ::conf_test($LJ::DISABLED{template_files});
-
-    my $section      = $opts{section};
-    my $lang         = $opts{lang} || 'default';
-    my ($event_type) = (ref $self) =~ /\:([^:]+)$/; #
-    my $journal_name = $self->event_journal->user;
-
-    # all ESN e-mail templates are located in:
-    #    $LJHOME/templates/ESN/$event_type/$language/$journal_name
-    #
-    # go though file paths until found existing one
-    foreach my $file (
-        "$event_type/$lang/$journal_name/$section.tmpl",
-        "$event_type/$lang/default/$section.tmpl",
-        "$event_type/default/$journal_name/$section.tmpl",
-        "$event_type/default/default/$section.tmpl",
-    ) {
-        $file = "$LJ::HOME/templates/ESN/$file"; # add common prefix
-        return $file if -e $file;
+    my ($tag_p, $tag_np, $tag_li, $tag_nli, $tag_ul, $tag_nul, $tag_br) = ('','','','','','',"\n");
+ 
+    if ($is_html) {
+        $tag_p  = '<p>';    $tag_np  = '</p>';
+        $tag_li = '<li>';   $tag_nli = '</li>';
+        $tag_ul = '<ul>';   $tag_nul = '</ul>';
     }
-    return undef;
+
+    my $options = $tag_br . $tag_br . $tag_ul;
+
+    if ($is_html) {
+        $vars->{'closelink'} = '</a>';
+        $options .=
+            join('',
+                map {
+                    my $key = $_;
+                    $vars->{'openlink'} = '<a href="' . $urls->{$key}->[1] . '">';
+                    $tag_li . LJ::Lang::get_text($lang, $key, undef, $vars) . $tag_nli;
+                    }
+                    sort { $urls->{$a}->[0] <=> $urls->{$b}->[0] }
+                        grep { $urls->{$_}->[0] }
+                            keys %$urls);
+    } else {
+        $vars->{'openlink'} = '';
+        $vars->{'closelink'} = '';
+        $options .=
+            join('',
+                map {
+                    my $key = $_;
+                    '  - ' . LJ::Lang::get_text($lang, $key, undef, $vars) . ":\n" .
+                    '    ' . $urls->{$key}->[1] . "\n"
+                    }
+                    sort { $urls->{$a}->[0] <=> $urls->{$b}->[0] }
+                        grep { $urls->{$_}->[0] }
+                            keys %$urls);
+        chomp($options);
+    }
+
+    $options .= $extra if $extra;
+
+    $options .= $tag_nul . $tag_br; 
+
+    return $options;
 }
 
 1;

@@ -1,0 +1,13 @@
+;; -*- coding: utf-8 -*-
+.editgroups2=If you want to edit your access groups, go to the [[link]] page.
+
+.error.nogroups.header2=No Filters Defined
+
+.error.nogroups3=You cannot filter your reading list because you must first <a [[aopts]]>set up your subscription filters</a>.
+
+.select2=Click the subscription filter you want to view on your reading list, or <a [[aopts]]>edit your subscription filters</a>.
+
+.select.header2=Select Filters
+
+.title3=Filter Reading Page
+

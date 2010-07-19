@@ -1,15 +1,51 @@
 ;; -*- coding: utf-8 -*-
+
+.cancel=Cancel Invitations
+
 .date=Date Sent
 
 .error.notcomm=[[user]] is not a community.
 
+.filterto=Filter to:
+
+.filterto.btn.refresh=Refresh
+
+.filterto.opts.accepted=accepted
+
+.filterto.opts.all=all
+
+.filterto.opts.outstanding=outstanding
+
+.filterto.opts.rejected=rejected
+
+.invites.cancelled=[[num]] [[?num|invitation|invitations]] cancelled.
+
 .key.date=Date
+
+.key.maintainer.abbrev=A
+
+.key.maintainer=Maintainer
+
+.key.moderator.abbrev=M
+
+.key.moderator=Moderator
+
+.key.posting.abbrev=P
+
+.key.posting=Posting
 
 .key.sentby=Sent By
 
 .key.status=Status
 
+.key.unmoderated.abbrev=U
+
+.key.unmoderated=Unmoderated
+
 .none.body=No invites have been sent in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
+.none.accepted.body=No invites have been accepted in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
+.none.rejected.body=No invites have been rejected in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
+.none.outstanding.body=No outstanding invites have been found from the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
 
 .none.title=No Invites Found
 

@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code # -*-bml-*-
 {
     use strict;
@@ -22,7 +36,7 @@
     BML::noparse();
 
     return $err->("Sorry widget AJAX is not enabled")
-        if LJ::conf_test($LJ::DISABLED{widget_ajax});
+        unless LJ::is_enabled('widget_ajax');
 
     my $remote = LJ::get_remote();
 
@@ -64,7 +78,7 @@
         # just a normal post request, handle it and then return status
 
         local $LJ::WIDGET_NO_AUTH_CHECK = 1 if
-            LJ::Auth->check_ajax_auth_token($remote, "/_widget", auth_token => delete $POST{auth_token});
+            $remote->check_ajax_auth_token( "/_widget", auth_token => delete $POST{auth_token} );
 
         my %res;
 
@@ -78,7 +92,7 @@
         $ret{_widget_post} = 1;
 
         # generate new auth token for future requests if succesfully checked auth token
-        $ret{auth_token} = LJ::Auth->ajax_auth_token($remote, "/_widget") if $LJ::WIDGET_NO_AUTH_CHECK;
+        $ret{auth_token} = $remote->ajax_auth_token( "/_widget" ) if $LJ::WIDGET_NO_AUTH_CHECK;
     }
 
     if (delete $POST{_widget_update}) {

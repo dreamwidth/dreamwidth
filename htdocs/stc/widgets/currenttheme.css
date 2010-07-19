@@ -1,12 +1,9 @@
-.theme-current h2.widget-header {
-    background-color: #C7E0F6;
-}
+
 .theme-current-content {
     padding: 0 8px 8px 8px;
 }
 .theme-current-content h3 {
     font-size: 14px;
-    color: #000;
     font-style: normal;
     margin: 0;
     padding: 0;
@@ -14,7 +11,6 @@
 .theme-current-image {
     float: left;
     margin-right: 8px;
-    border: 1px solid #fff;
     width: 120px;
     height: 91px;
 }
@@ -24,12 +20,8 @@
     padding: 0;
 }
 .theme-current-links {
-    background-color: #fff;
     font-size: 11px;
     margin-left: 130px;
-    border-right: 1px solid #C4DEF7;
-    border-bottom: 1px solid #C4DEF7;
-    padding: 3px 5px; color: #777;
 }
 .theme-current ul {
     margin-top: 3px;
@@ -37,6 +29,5 @@
 .theme-current ul li {
     padding: 0 0 0 8px;
     margin-bottom: 2px;
-    background: url(/img/customize/arrow.gif) no-repeat 0 5px;
     font-size: 11px;
 }

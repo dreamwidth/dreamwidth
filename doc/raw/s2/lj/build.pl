@@ -24,7 +24,7 @@ if ($opt_getxsl) {
     chdir "$home/doc/raw/build" or die "Where is build dir?";
     unlink "xsl-docbook.tar.gz";
     my $fetched =  0;
-    my $url = "http://code.sixapart.com/svn/ljdocbook/trunk/dist/xsl/xsl-docbook.tar.gz";
+    my $url = "http://code.livejournal.org/svn/ljdocbook/trunk/dist/xsl/xsl-docbook.tar.gz";
     my @fetcher = ([ 'wget', "wget $url", ],
                    [ 'lynx', "lynx -source $url > xsl-docbook.tar.gz", ],
                    [ 'GET', "GET $url > xsl-docbook.tar.gz", ]);
@@ -125,7 +125,7 @@ sub autogen_core
         $$r =~ s/\[function\[(.+?)\]\]/<link linkend=\"&s2.idroot;core$cv.func.$1\">$1<\/link>/g;
         $$r =~ s/\[member\[(.+?)\]\]/<link linkend=\"&s2.idroot;core$cv.member.$1\">$1<\/link>/g;
 
-        my @parts = split(/\s*\/\/\s*/, $$r);
+        my @parts = split(/\s*\/\/\/\s*/, $$r);
         if (@parts > 1) {
             $$r = shift @parts;
             my $see_also;
@@ -234,6 +234,7 @@ sub autogen_core
     {
         print AC "<section id='&s2.idroot;core$cv.classes'>\n";
         print AC "  <title>Classes</title>\n";
+        print AC "  <toc/>\n";
         foreach my $cname (sort { lc($a) cmp lc($b) } keys %$class) {
             print AC "<refentry id='&s2.idroot;core$cv.class.$cname'>";
             print AC "<refmeta><refentrytitle>$cname Class</refentrytitle></refmeta>";

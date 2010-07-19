@@ -1,12 +1,25 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_info
 localblocks<=
 
 crit<=
-{F}
-<tr bgcolor='<?emcolor?>'>
+{FpRs}<tr bgcolor='<?emcolor?>'>
 <td align='left' colspan='2'><b>%%name%%</b>
 </tr>
-<tr><td>&nbsp;</td><td>%%form%%</td></tr>
+<tr align='left'><td>&nbsp;</td><td>%%form%%</td></tr>
 <=crit
 
 bar<=
@@ -27,9 +40,9 @@ body<=
 
 <?_code
 {
-    my $remote = LJ::get_remote();
-    if (LJ::are_hooks("cprod_redirect_user")) {
-        return LJ::run_hook("cprod_redirect_user", $remote);
+    my $remote = LJ::get_remote() or return "<?needlogin?>";
+    if (LJ::Hooks::are_hooks("cprod_redirect_user")) {
+        return LJ::Hooks::run_hook("cprod_redirect_user", $remote);
     }
     return;
 }
@@ -38,9 +51,9 @@ _code?>
 <?h1 <?_ml .label.searchcomm _ml?> h1?>
 <?p <?_ml .label.selecriteria _ml?> p?>
 
-<CENTER>
+<center>
 
-<form action="/directory.bml">
+<form action="/directory">
 
 <table cellpadding='4' cellspacing='0' border='0'>
 
@@ -50,25 +63,19 @@ name=><?_ml .label.bylocation _ml?>
 code=>s_loc
 form<=
 
-<table>
-<tr><td align='right'><?_ml .label.country _ml?></td><td>
 <?_code
 {
-    use strict;
-    LJ::set_active_crumb('commsearch');
-
-    my %countries = ();
-    LJ::load_codes({ "country" => \%countries });
-    return LJ::html_select({ 'name' => 'loc_cn',  },
-                           '', '',
-                           map { $_, $countries{$_} } 
-                           ("US", sort { $countries{$a} cmp $countries{$b} } keys %countries));
-} 
+    my $w = LJ::Widget::GeoSearchLocation->new;
+    my $ret = '';
+    $ret .= "<style> .field_class {text-align: right;} </style>\n";
+    $ret .= $w->render(
+        country => '',
+        state => '',
+        city => '',
+    );
+    return $ret;
+}
 _code?>
-</td></tr>
-<tr><td align='right'><?_ml .label.stateprovince _ml?></td><td><input name="loc_st" /></td></tr>
-<tr><td align='right'><?_ml .label.city _ml?></td><td><input name="loc_ci" /></td></tr>
-</table>
 
 <=form
 crit?>
@@ -102,7 +109,7 @@ crit?>
 name=><?_ml .label.hasmember _ml?>
 code=>s_fr
 form<=
-Contains user <input name="fr_user" size='15' maxlength='15' /> as a member.
+Contains user <input name="user_is_member" size='15' maxlength='25' /> as a member.
 <=form
 crit?>
 
@@ -152,6 +159,3 @@ bar?>
 
 <=body
 page?>
-<?_c <LJDEP>
-form: htdocs/directory.bml
-</LJDEP> _c?>

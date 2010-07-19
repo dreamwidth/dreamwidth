@@ -1,3 +1,16 @@
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+
 package LJ::Test;
 require Exporter;
 use strict;
@@ -11,12 +24,10 @@ use vars qw(@ISA @EXPORT);
 # Test::FakeApache because that really fucks with things.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-use Class::Autouse qw(
-                      DBI
-                      LJ::ModuleCheck
-                      );
+use DBI;
+use LJ::ModuleCheck;
 @ISA = qw(Exporter);
-@EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed alloc_sms_num fake_apache);
+@EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed fake_apache);
 
 my @temp_userids;  # to be destroyed later
 END {
@@ -62,7 +73,7 @@ sub theschwartz {
 }
 
 sub temp_user {
-    shift() if $_[0] eq __PACKAGE__;
+    shift() if defined($_[0]) and $_[0] eq __PACKAGE__;
     my %args = @_;
     my $underscore  = delete $args{'underscore'};
     my $journaltype = delete $args{'journaltype'}  || "P";
@@ -86,7 +97,7 @@ sub temp_user {
 }
 
 sub temp_comm {
-    shift() if $_[0] eq __PACKAGE__;
+    shift() if defined($_[0]) and $_[0] eq __PACKAGE__;
 
     # make a normal user
     my $u = temp_user();
@@ -103,7 +114,7 @@ sub temp_comm {
 }
 
 sub temp_feed {
-    shift() if $_[0] eq __PACKAGE__;
+    shift() if defined($_[0]) and $_[0] eq __PACKAGE__;
 
     # make a normal user
     my $u = temp_user();
@@ -179,18 +190,6 @@ sub memcache_stress (&) {
 
     # restore our memcache client object from before.
     LJ::MemCache::set_memcache($pre_mem);
-}
-
-sub alloc_sms_num {
-    my $sms_num;
-
-    for (1..100) {
-        $sms_num = '+1';
-        $sms_num .= int(rand(10)) foreach (1..10);
-        return $sms_num unless LJ::SMS->num_to_uid($sms_num);
-    }
-
-    die "Unable to allocate SMS number after 100 tries";
 }
 
 package LJ::Test::FakeMemCache;
@@ -288,28 +287,6 @@ sub forget_dead_hosts {}
 
 package LJ::User;
 
-# set the user up for sms
-sub t_activate_sms {
-    my ($u) = @_;
-    $u->set_sms_number(
-                       LJ::Test::alloc_sms_num(),
-                       verified => 'Y'
-                       );
-}
-
-# pretend the user sent us an SMS
-sub t_receive_sms {
-    my ($u, $message) = @_;
-
-    my $msg = LJ::SMS::Message->new(
-                                    owner => $u,
-                                    from => $u,
-                                    body_text => $message,
-                                    );
-
-    LJ::SMS::MessageHandler->handle($msg);
-}
-
 # post a fake entry in a community journal
 sub t_post_fake_comm_entry {
     my $u = shift;
@@ -370,12 +347,13 @@ sub t_post_fake_entry {
 
 package LJ::Entry;
 
+use LJ::Talk;
+
 # returns LJ::Comment object or dies on failure
 sub t_enter_comment {
     my ($entry, %opts) = @_;
     my $jitemid = $entry->jitemid;
 
-    require 'talklib.pl';
 
     # entry journal/u
     my $entryu = $entry->journal;
@@ -409,7 +387,7 @@ sub t_enter_comment {
                                  $entry->journal,
                                  $commentref,
                                  {talkid => $parenttalkid, state => 'A'},
-                                 {itemid => $jitemid, state => 'A'},
+                                 {itemid => $jitemid, state => 'A', opt_noemail => 1},
                                  \$err,
                                  );
 

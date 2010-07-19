@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?_code
 {
     use strict;
@@ -44,11 +58,11 @@
         return;
     }
 
-    if ($u->{'journaltype'} eq "R") {
-        LJ::load_user_props($u, "renamedto");
-        if ($u->{'renamedto'}) {
-            return BML::redirect(sprintf(LJ::journal_base($u->{'renamedto'}) . "/%04d/%02d/", $FORM{'y'}, $FORM{'m'}));
-        }
+    if ( $u->is_redirect ) {
+        my $redirect = $u->redirect_rename(
+                         sprintf( "/%04d/%02d/", $FORM{'y'}, $FORM{'m'} )
+                       );
+        return $redirect if $redirect;
     }
 
     my $remote = LJ::get_remote();
@@ -56,14 +70,11 @@
     # do they have the viewall priv?
     my $viewall = 0;
     my $viewsome = 0;
-    if ($GET{'viewall'} && LJ::check_priv($remote, "canview")) {
-        LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
-                              "viewall", "month: $u->{'user'}, statusvis: " . $u->statusvis);
-        $viewall = LJ::check_priv($remote, 'canview', '*');
-        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
-
-    # check for deleted/suspended
-    } else {
+    if ( $remote ) {
+        ( $viewall, $viewsome ) =
+            $remote->view_priv_check( $u, $GET{viewall}, 'month' );
+    }
+    unless ( $viewsome ) {
 
         # check suspended
         if ($u->is_suspended) {
@@ -78,12 +89,12 @@
         }
     }
 
-    $u->preload_props("opt_blockrobots", "adult_content", "admin_content_flag") if $u->is_visible;
+    $u->preload_props("opt_blockrobots", "adult_content") if $u->is_visible;
     if (!$u->is_visible || $u->should_block_robots) {
         $head .= LJ::robot_meta_tags();
     }
 
-    my $base = LJ::journal_base($u);
+    my $base = $u->journal_base;
 
     if (LJ::did_post()) {
         my $newuri = sprintf("$base/%04d/%02d/", $POST{'y'}, $POST{'m'});
@@ -91,11 +102,11 @@
     }
 
     my $secwhere = "AND l.security='public'";
-    if ($remote) {
-        if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
+    if ( $remote ) {
+        if ( $remote->equals( $u ) || $viewall ) {
             $secwhere = "";   # see everything
-        } elsif ($remote->{'journaltype'} eq 'P') {
-            my $gmask = LJ::get_groupmask($u, $remote);
+        } elsif ( $remote->is_person ) {
+            my $gmask = $u->trustmask( $remote );
             $secwhere = "AND (l.security='public' OR (l.security='usemask' AND l.allowmask & $gmask))"
                 if $gmask;
         }
@@ -113,7 +124,7 @@
     $title = $monlang;
     $title .= ", $year - $u->{'user'}";
 
-    my $is_person = $u->{'journaltype'} eq "P";
+    my $is_person = $u->is_person;
     if ($is_person) {
         $body .= "<?h1 Month View h1?><?p Here are the subjects of all posts by user " . LJ::ljuser($u->{'user'}) . " in $monlang, $year. p?>";
     } else {
@@ -127,8 +138,10 @@
         my @prev = ($year, $month-1);
         if ($prev[1] < 1) { @prev = ($year-1, 12); }
 
-        my $next = "<a href=\"" . $base . "/$next[0]/" . sprintf("%02d", $next[1]) . "/\"><img src=\"$LJ::IMGPREFIX/btn_next.gif\" width='22' height='20' border='0'></a>";
-        my $prev = "<a href=\"" . $base . "/$prev[0]/" . sprintf("%02d", $prev[1]) . "/\"><img src=\"$LJ::IMGPREFIX/btn_prev.gif\" width='22' height='20' border='0'></a>";
+        my $next = "<a href='" . $base . "/$next[0]/" . sprintf("%02d", $next[1]) . "/'>";
+        $next .= LJ::img( "btn_next", "", { border => 0 } ) . "</a>";
+        my $prev = "<a href='" . $base . "/$prev[0]/" . sprintf("%02d", $prev[1]) . "/'>";
+        $prev .= LJ::img( "btn_prev", "", { border => 0 } ) . "</a>";
 
         $body .= "<?standout \n";
         $body .= "<form method='post' action='$LJ::SITEROOT/view/' style='display:inline'><input type='hidden' name='type' value='month' /><input type='hidden' name='user' value='$u->{'user'}' />";
@@ -147,6 +160,17 @@
 
     $body .= "<dl>\n";
 
+    if ($u->is_locked) {
+        $body .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.locked'}</div>";
+    } elsif ($u->is_memorial) {
+        $body .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.memorial'}</div>";
+    } elsif ($u->is_readonly) {
+        $body .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.readonly'}</div>";
+    }
+
+    $body .= "<dl>\n";
+
+    # load items
     my $db = LJ::get_cluster_reader($u);
     my $sth = $db->prepare("SELECT l.jitemid, l.anum, l.day, l.eventtime, l.posterid, ".
                            "l.replycount, l.security, l.allowmask ".
@@ -172,6 +196,9 @@
     {
         my ($itemid, $anum, $day, $eventtime, $posterid, $replycount, $security, $allowmask) = @$it;
         next if $u{$posterid}->is_suspended && !$viewsome;
+
+        my $entry = LJ::Entry->new($u, jitemid => $itemid);
+        next if $entry && $entry->is_suspended_for($remote);
 
         my $subject = $lt->{$itemid}->[0];
         my $poster = $u{$posterid}->{user};

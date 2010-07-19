@@ -1,0 +1,286 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
+<?_code
+{
+    use strict;
+    use vars qw(%GET $title $body);
+
+    LJ::set_active_crumb('invitefriend');
+
+    $title = $ML{'.title'};
+    $body = "";
+
+    my $err = sub {
+        $title = $ML{'Error'};
+        $body = LJ::bad_input(@_);
+        return;
+    };
+
+    my $u = LJ::get_remote();
+    unless ($u) {
+        $body = "<?needlogin?>";
+        return;
+    }
+
+    my %ierr;
+    my $email = $POST{invite_email} || '';
+    my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT) . "/create?from=$u->{user}";
+
+    
+    my @invitecodes;
+    my $code;
+    
+    if ( $LJ::USE_ACCT_CODES )  {
+        @invitecodes = DW::InviteCodes->by_owner_unused( userid => $u->id );
+
+        if ( $u->is_identity ) {
+            $body = BML::ml( '.error.openid', { sitename => $LJ::SITENAMESHORT } );
+            return;
+        }
+
+        unless ( @invitecodes ) {
+            $body = $ML{'.msg.noinvitecodes'};
+            $body .= " " . BML::ml( '.msg.noinvitecodes.requestmore', { aopts => "href='$LJ::SITEROOT/manage/invitecodes'" } )
+                if DW::BusinessRules::InviteCodeRequests::can_request( user => $u );
+            return;
+        }
+
+        $code = $POST{code} || $invitecodes[0]->code;
+        $create_link .= "&code=".$code;
+        
+        # sort so that those which have been sent are last on the list
+        @invitecodes = sort { ( $a->timesent || 0 ) <=> ( $b->timesent || 0 ) } @invitecodes;
+    }
+
+    my $validate_form = sub {
+        my $rv = 1;
+        my $bogus = sub {
+            my $key = shift;
+            my $msg = shift;
+            $ierr{$key} = $msg;
+            $rv = 0;
+        };
+
+        $bogus->('form_auth', $ML{'error.invalidform'}) unless LJ::check_form_auth();
+
+        if ($email) {
+            my @errs;
+            LJ::check_email($email, \@errs);
+            $bogus->("email", BML::ml('.error.bademail2', {'errormsg' => @errs})) if @errs;
+
+            if ($LJ::USER_EMAIL && $email =~ /$LJ::USER_DOMAIN$/) {
+                $bogus->("email", $ML{'.error.useralreadyhasaccount'});
+            }
+
+            unless ( $LJ::USE_ACCT_CODES ) {
+                my $dbh = LJ::get_db_reader();
+                my $ct = $dbh->selectrow_array("SELECT COUNT(*) FROM email WHERE email = ?", undef, $email);
+
+                if ($ct > 0) {
+                    my $findfriends_userhasaccount = LJ::Hooks::run_hook("findfriends_invite_user_has_account");
+                    if ($findfriends_userhasaccount) {
+                        $bogus->("email", $findfriends_userhasaccount);
+                    } else {
+                        $bogus->("email", $ML{'.error.useralreadyhasaccount'});
+                    }
+                }
+            }
+
+        } else {
+            $bogus->("email", $ML{'.error.noemail'});
+        }
+
+        if ($POST{'msg'} =~ /<(img|image)\s+src/i) {
+            $bogus->("msg", $ML{'.error.noimagesallowed'});
+        }
+
+        foreach ( LJ::get_urls( $POST{'msg'} ) ) {
+            if ( $_ !~ m!^https?://([\w-]+\.)?$LJ::DOMAIN(/.*)?$!i ) {
+                $bogus->( "msg", "$_<br />" . BML::ml( '.error.nooffsitelinksallowed', { sitename => $LJ::SITENAMESHORT } ) );
+                last;
+            }
+        }
+
+        return $rv;
+    };
+
+    # inline error
+    my $inerr = sub {
+        my $key = shift;
+        my $post = shift || "";
+        return "" unless $ierr{$key};
+        return "<span style='color: #c00; line-height: 22px;'>$ierr{$key}</span>$post";
+    };
+
+    my $msg_subject = BML::ml('.msg_subject', { username => $u->display_username, sitenameshort => $LJ::SITENAMESHORT });
+    my $msg_body_top = BML::ml('.msg_body_top', { displayname => $u->name_html, username => $u->display_username, sitename => $LJ::SITENAMESHORT });
+    my $msg_body_bottom = BML::ml('.msg_body_bottom', { createlink => $create_link, username => $u->display_username });
+    my $msg_sig = BML::ml('.msg_sig', { sitename => $LJ::SITENAMESHORT, siteroot => "$LJ::SITEROOT/" });
+    my $msg_custom = $ML{'.msg_custom'};
+
+    my $msg_subject_display = $msg_subject;
+    $msg_subject_display =~ s/\n/<br \/>/g;
+
+    my $msg_body_top_display = $msg_body_top;
+    $msg_body_top_display =~ s/\n/<br \/>/g;
+
+    my $msg_body_bottom_display = $msg_body_bottom;
+    $msg_body_bottom_display =~ s/\n/<br \/>/g;
+    # the code shown will be the code last posted, not the code that will be sent
+    # so just wipe it out, to prevent any confusion
+    $msg_body_bottom_display =~ s/(&code=).{20}/$1xxxxxxxxxxxxx/;
+
+    my $msg_sig_display = $msg_sig;
+    $msg_sig_display =~ s/\n/<br \/>/g;
+
+    my $msg_custom_display = $msg_custom;
+    $msg_custom_display =~ s/\n/<br \/>/g;
+
+    my $msg_footer = BML::ml('.msg_footer2', {
+        sitenameshort => $LJ::SITENAMESHORT,
+        siteroot => "$LJ::SITEROOT/",
+        username => $u->display_username,
+        name => $u->name_html,
+        adminemail => $LJ::ADMIN_EMAIL,
+    });
+
+    my $code_sent;
+    if (LJ::did_post() && $validate_form->()) {
+
+        if (LJ::rate_log($u, 'invitefriend', 1)) {
+
+            my $given_msg_custom = $POST{msg} ? "$POST{msg}\n\n" : "";
+            LJ::send_mail({
+                to       => $email,
+                from     => $LJ::BOGUS_EMAIL,
+                fromname => $u->{name},
+                subject  => $msg_subject,
+                body     => "$msg_body_top\n\n$given_msg_custom$msg_body_bottom\n\n$msg_sig\n\n$msg_footer",
+            });
+
+            $u->log_event('friend_invite_sent', {
+                remote => $u,
+                extra => $email,
+            });
+
+            if ( $LJ::USE_ACCT_CODES ) {
+                # mark an invite code as sent
+                my $invite_obj = DW::InviteCodes->new( code => $code );
+                $invite_obj->send_code( email => $email );
+
+                $body .= "<?standout " . BML::ml( '.success.code', { email  => $email, invitecode => $code } );
+                $body .= BML::ml( '.success.invitemore' )
+                    if DW::InviteCodes->unused_count( userid => $u->id ) > 1;
+                $body .= " standout?>";
+
+                $code_sent = 1;
+
+            } else {
+                $body .= "<?standout " . BML::ml('.success', { email => $email }) . " standout?>";
+            }
+
+            # Blank email so the form is redisplayed for a new
+            # recipient, but with the same message
+            $email = '';
+
+       # Over rate limit
+       } else {
+           $body = BML::ml('.error.overratelimit', {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/manage/circle/invite'"});
+           return;
+       }
+    }
+
+    my $findfriends_intro = LJ::Hooks::run_hook("findfriends_invite_intro");
+    if ($findfriends_intro) {
+        $body .= $findfriends_intro;
+    } elsif ( $LJ::USE_ACCT_CODES ) {
+        my $unusedinvites = DW::InviteCodes->unused_count( userid => $u->id );
+        $body .= "<?p " . BML::ml('.intro.code3', { aopts => "href='$LJ::SITEROOT/manage/invitecodes'" , num => $unusedinvites, notif => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'" } ) . " p?>";
+    } else {
+        $body .= "<?p " . BML::ml('.intro', { aopts => "href='$create_link'", createlink => $create_link} ) . " p?>";
+    }
+
+    $body .= "<form method='post'>";
+    $body .= LJ::form_auth();
+
+    $body .= "<div style='margin: 20px 0 20px 20px;'>";
+    $body .= "<label for='email'>$ML{'.form.input.email'}</label> ";
+    $body .= LJ::html_text({ name => "invite_email", id => "email", class => 'text', value => $email }) . " ";
+    $body .= LJ::html_submit($ML{'.btn.invite2'});
+    if ($inerr->("email")) {
+        $body .= "<br />" . $inerr->("email");
+    }
+    
+    if ( $LJ::USE_ACCT_CODES ) {
+        $body .= "<br />" . LJ::labelfy("code-".$invitecodes[0]->code, $ML{'.form.input.code'});
+
+        my $is_first = 1;
+        foreach my $invitecode ( splice( @invitecodes, 0, 5 ) ) {
+        
+            my $label = $invitecode->code;
+            
+            if ( $invitecode->code eq $POST{code} && $code_sent ) {
+                $label .= " - " . $ML{'.form.codelist.justsent'};
+            } elsif ( $invitecode->timesent ) {
+                $label .= " - " . BML::ml( '.form.codelist.alreadysent', { 
+                    date => LJ::time_to_http( $invitecode->timesent ) 
+                  })
+            }
+            
+            $body .= "<p>";
+            $body .= LJ::html_check( { 
+                    selected => $is_first,
+                    name => "code", 
+                    id => "code-".$invitecode->code, 
+                    type=> "radio", 
+                    value => $invitecode->code, 
+                    label => $label,
+            } );
+            $body .= "</p>";
+            $is_first = 0 if $invitecode->code ne $POST{code};
+        }
+    }
+    
+    $body .= "</div>";
+
+    $body .= $inerr->('form_auth');
+
+    $body .= "<p>$ML{'.form.input.message'}</p>" . $inerr->("msg", "<br />");
+    $body .= "<div style='color: #000; background-color: #eee; border: 1px solid #000; margin-bottom: 15px; padding: 15px; width: 95%'>";
+    $body .= "<p style='margin-top: 0;'><strong>$ML{'.msg_subject.header'}</strong> $msg_subject_display</p>";
+    $body .= "<p><strong>$ML{'.msg.header'}</strong></p>";
+    $body .= "<div style='margin-left: 15px;'>";
+    $body .= "<p>$msg_body_top_display</p>";
+    $body .= LJ::html_textarea({
+        name => "msg",
+        value => LJ::did_post() ? $POST{msg} : $msg_custom_display,
+        class => "text",
+        rows => 5,
+        cols => 70,
+    });
+    $body .= "<p>$msg_body_bottom_display</p>";
+    $body .= "</div>";
+    $body .= $msg_sig_display;
+    $body .= "</div>";
+    
+    $body .= LJ::html_submit($ML{'.btn.invite2'});
+    $body .= "</form>";
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>

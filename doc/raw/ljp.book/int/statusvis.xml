@@ -5,7 +5,7 @@
 <subtitle>Status Visibility Types</subtitle>
 
 <para><quote>statusvis</quote> stands for <quote>status visibility</quote>
-and is the basic way that accounts are marked with various statuses. 
+and is the basic way that accounts are marked with various statuses.
 This column in the user table is a single character and is taken from the list below:</para>
 
 <variablelist>
@@ -60,6 +60,14 @@ new posts added to them.</para>
 <para>Accounts in this status are frozen.  They cannot be logged in to, cannot
 receive comments or post comments, cannot post entries, cannot edit
 entries, and basically cannot do anything on the site with this account.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry><term>O - read-only</term>
+<listitem>
+<para>Setting a journal to read-only status makes it so the user cannot post
+entries or comments (or receive them in the case of a community), but can
+still delete them if they wish.</para>
 </listitem>
 </varlistentry>
 

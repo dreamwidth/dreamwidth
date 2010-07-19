@@ -1,3 +1,17 @@
+<?_c
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC. These files were originally licensed under
+# the terms of the license supplied by Live Journal, Inc, which can
+# currently be found at:
+#
+# http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+#
+# In accordance with the original license, this code and all its
+# modifications are provided under the GNU General Public License.
+# A copy of that license can be found in the LICENSE file included as
+# part of this distribution.
+_c?>
 <?page
 title=><?_code $ML{'.title'} _code?>
 body<=
@@ -14,11 +28,9 @@ body<=
     my $u = LJ::load_user($remote->{'user'});
 
     return "This feature is currently disabled."
-        if $LJ::DISABLED{mass_privacy};
+        unless LJ::is_enabled('mass_privacy');
 
-    unless ($u->get_cap('mass_privacy')) {
-        return "<?standout $ML{'.unable'} standout?>";
-    }
+    return "<?standout $ML{'.unable'} standout?>" unless $u->can_use_mass_privacy;
 
     my $mode = $POST{'mode'} || $GET{'mode'} || "init";
     my $more_public = 0; # flag indiciating if security is becoming more public
@@ -77,11 +89,12 @@ body<=
         $ret .= LJ::bad_input(@errors) if @errors;
         $ret .= "<?p $ML{'.intro'} p?>";
 
-        $ret .= "<?p " . BML::ml('.calendar',
-                                { aopts => "href='" . $u->journal_base() . "/calendar/'" })
+        $ret .= "<?p " . BML::ml('.archive',
+                                { aopts => "href='" . $u->journal_base() . "/archive/'" })
                 . " p?>\n";;
+        $ret .= "<?p " . BML::ml( 'xpost.respected', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=othersites'" } ) . " p?>";
 
-        $ret .= "<form method='post' action='./editprivacy.bml'>";
+        $ret .= "<form method='post' action='./editprivacy'>";
         $ret .= "<?h1 $ML{'.timeframe'} h1?>";
         $ret .= "<table><tr><td>\n";
         $ret .= LJ::html_check({ 'type' => 'radio', 'name' => 'time',
@@ -100,7 +113,7 @@ body<=
                                 'value' => $POST{'s_year'} || '1999',
                                 'maxlength' => '4' }) . " ";
         $ret .= LJ::html_select({ 'name' => 's_mon', 'selected' => int($POST{'s_mon'}) },
-                                  map { $_, $ML{LJ::Lang::month_long_langcode($_)} } (1..12)) . " ";
+                                  map { $_, LJ::Lang::month_long_ml($_) } (1..12)) . " ";
         $ret .= LJ::html_select({ 'name' => 's_day', 'selected' => int($POST{'s_day'}) },
                                   map { $_, $_ } (1..31)) . "<br/>\n";
         $ret .= "\n$ML{'.timeframe.range.end'}: ";
@@ -108,7 +121,7 @@ body<=
                                 'value' => $POST{'e_year'},
                                 'maxlength' => '4' }) . " ";
         $ret .= LJ::html_select({ 'name' => 'e_mon', 'selected' => int($POST{'e_mon'}) },
-                                  map { $_, $ML{LJ::Lang::month_long_langcode($_)} } (1..12)) . " ";
+                                  map { $_, LJ::Lang::month_long_ml($_) } (1..12)) . " ";
         $ret .= LJ::html_select({ 'name' => 'e_day', 'selected' => int($POST{'e_day'}) },
                                   map { $_, $_ } (1..31)) . "<br/>\n";
         $ret .= "</td></tr></table>";
@@ -139,7 +152,7 @@ body<=
 
         my ($posts, $s_unixtime, $e_unixtime);
         my $form_root = $more_public ? $LJ::SSLROOT : ".";
-        my $body = "<form method='post' action='$form_root/editprivacy.bml'>";
+        my $body = "<form method='post' action='$form_root/editprivacy'>";
 
         $body .= LJ::bad_input(@errors) if @errors;
         $body .= "<p>Change \"$security{$POST{'s_security'}}[1]\" posts to \"$security{$POST{'e_security'}}[2]\"";
@@ -208,7 +221,7 @@ body<=
                                                        e_security => $security{$POST{e_security}}[0],
                                                        s_unixtime => $POST{s_unixtime},
                                                        e_unixtime => $POST{e_unixtime} } );
-                return BML::redirect("$LJ::SITEROOT/editprivacy.bml?mode=secured");
+                return BML::redirect("$LJ::SITEROOT/editprivacy?mode=secured");
             }
         }
 

@@ -1,0 +1,19 @@
+;; -*- coding: utf-8 -*-
+
+.alt.happy=happy
+
+.alt.indicator=[[score]] out of [[top]]
+
+.alt.sad=sad
+
+.current_mood=Current Mood
+
+.current_moods=Current Moods
+
+.emotional_weather=Emotional Weather
+
+.info=Here you can see [[sitename]]'s current mood! This is the most-used mood on the last 1000 <a [[aopts]]>latest posts</a>.
+
+.no_data=There is currently no current mood to display. Please check later.
+
+.title=Mood of Service

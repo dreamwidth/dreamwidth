@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC.
 #
 # LJ::TextMessage class
 # See perldoc documentation at the end of this file.
@@ -17,12 +20,9 @@
 package LJ::TextMessage;
 
 use URI::Escape;  # FIXME: don't use this (uri_escape() below), when we have LJ::eurl() as our standard
-
-use Class::Autouse qw(
-                      HTTP::Request
-                      LWP::UserAgent
-                      MIME::Lite
-                      );
+use  HTTP::Request;
+use  LWP::UserAgent;
+use  MIME::Lite;
 
 use strict;
 use vars qw($VERSION %providers);
@@ -895,7 +895,8 @@ $VERSION = '1.5.6';
 
 sub providers
 {
-    return sort { lc($providers{$a}->{'name'}) cmp lc($providers{$b}->{'name'}) } keys %providers;
+    my %uniq_keys = map { remap($_) => 1 } keys %providers;
+    return sort { lc($providers{$a}->{'name'}) cmp lc($providers{$b}->{'name'}) } keys %uniq_keys;
 }
 
 sub provider_info
@@ -1002,7 +1003,7 @@ sub send
     {
         send_mail($self, {
             'to'        => $self->{'number'},
-            'from'      => "LiveJournal",
+            'from'      => $LJ::SITENAMESHORT,
             'body'      => "(f:$msg->{'from'})$msg->{'message'}",
         },$errors);
     }
@@ -1102,7 +1103,7 @@ sub send
             'to'        => "$self->{'number'}\@blsdcs.net",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1376,7 +1377,7 @@ sub send
             'to'        => "$self->{'number'}\@messaging.nextel.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1416,7 +1417,7 @@ sub send
             'to'        => "$self->{'number'}\@pcs.ntelos.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1554,7 +1555,7 @@ sub send
             'to'        => "(f:$msg->{'from'})$self->{'number'}\@qwestmp.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1634,7 +1635,7 @@ sub send
             'to'        => "(f:$msg->{'from'}) $self->{'number'}\@messaging.sprintpcs.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1644,7 +1645,7 @@ sub send
             'to'        => "$self->{'number'}\@sprintpcs.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1700,7 +1701,7 @@ sub send
             'to'        => "$self->{'number'}\@msg.telus.com",
             'from'      => "$msg->{'from'}",
             'body'      => "(f:$msg->{'from'})$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1746,7 +1747,7 @@ sub send
             'to'        => "$self->{'number'}\@t-mobile.uk.net",
             'subject'   => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'from'      => "LJ",
+            'from'      => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1756,7 +1757,7 @@ sub send
             'to'        => "$self->{'number'}\@tmomail.net",
             'subject'   => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'from'      => "LJ",
+            'from'      => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1766,7 +1767,7 @@ sub send
             'to'        => "$self->{'number'}\@tmail.com",
             'subject'   => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'from'      => "LJ",
+            'from'      => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1803,7 +1804,7 @@ sub send
             'to'        => "$self->{'number'}\@vtext.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1849,7 +1850,7 @@ sub send
             'to' => "$self->{'number'}\@vodafone.es",
             'from' => $msg->{'from'},
             'subject' => $msg->{'message'},
-            'body' => "Your LiveJournal Text Message has been placed into the subject line."
+            'body' => "Your $LJ::SITENAMESHORT Text Message has been placed into the subject line."
         },$errors);
     }
 
@@ -1938,7 +1939,7 @@ sub send
             'to' => "$self->{'number'}\@vodafone.net",
             'from' => $msg->{'from'},
             'subject' => $msg->{'message'},
-            'body' => "Your LiveJournal Text Message has been placed into the subject line."
+            'body' => "Your $LJ::SITENAMESHORT Text Message has been placed into the subject line."
         },$errors);
     }
 
@@ -2053,6 +2054,35 @@ sub tm_info {
     }
 
     return $result;
+}
+
+# get only the text message security level that the user has set
+# possible values: all, friends, reg, none
+sub tm_security {
+    my ($self, $u) = @_;
+
+    my $userid = $u->id;
+    my $security;
+
+    $security = $u->{_txtmsgsecurity};
+    return $security if $security;
+
+    my $memkey = [$userid, "txtmsgsecurity:$userid"];
+    $security = LJ::MemCache::get($memkey);
+    if ($security) {
+        $u->{_txtmsgsecurity} = $security;
+        return $security;
+    }
+
+    $security = "none" if $u->{txtmsg_status} eq "off" || $u->{txtmsg_status} eq "none";
+    unless ($security) {
+        my $tminfo = LJ::TextMessage->tm_info($u);
+        $security = $tminfo && $tminfo->{security} ? $tminfo->{security} : "none";
+    }
+    $u->{_txtmsgsecurity} = $security;
+    LJ::MemCache::set($memkey, $security, 60*5);
+
+    return $security;
 }
 
 1;
