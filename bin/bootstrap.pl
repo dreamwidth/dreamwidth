@@ -2,7 +2,7 @@
 
 use strict;
 
-# check for svn in a known place
+# check for hg in a known place
 die "Expected hg in /usr/bin ... not found!\n"
     unless -e '/usr/bin/hg';
 
@@ -22,8 +22,7 @@ unless ( -d "$LJHOME/cvs" ) {
     print "Seems we need to start at the beginning, fetching dw-free...\n";
     mkdir( "$LJHOME/cvs" );
     system( '/usr/bin/hg -q clone http://hg.dwscoalition.org/dw-free cvs/dw-free' );
-    system( '/usr/bin/hg --cwd cvs/dw-free -q update -C production' );
-    system( '/usr/bin/hg --cwd cvs/dw-free -q update -C' );
+    system( '/usr/bin/hg --cwd cvs/dw-free -q update -C tip' );
     system( "/bin/cp $LJHOME/cvs/dw-free/cvs/multicvs.conf $LJHOME/cvs" );
 
     die "Something failed...\n"
