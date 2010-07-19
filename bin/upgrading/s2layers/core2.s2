@@ -3387,8 +3387,16 @@ function Page::print_wrapper_start()
 function Page::print_wrapper_start(string{} opts) 
 "This function adds standard classes to the body of a page.  Pass extra options to it if necessary.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    var string class = $opts{"class"} ? """class="$opts{"class"}" """ : "";
     var string control_strip = viewer_sees_control_strip() ? "has-navstrip" : "no-navstrip";
+    var string logged_in = viewer_logged_in() ? "logged-in" : "logged-out";
+    var string owner = viewer_is_owner() ? "my-journal" : "";
+    var string subscribed = viewer_is_subscribed() ? "subscribed" : "not-subscribed";
+    var string access = viewer_has_access() ? "has-access" : "no-access";
+    
+    var string member = viewer_is_member() ? "is-member" : "non-member";
+    var string admin = viewer_is_admin() ? "is-admin" : "";
+    var string moderator = viewer_is_moderator() ? "is-moderator" : "";
+    
     var string column_count = "";
     var string column_side = "";
 
@@ -3399,7 +3407,12 @@ function Page::print_wrapper_start(string{} opts)
     if ( $*layout_type->contains("left") ) { $column_side = " column-left"; }
     if ( $*layout_type->contains("sides") ) { $column_side = " column-left column-right"; }
 
-    """<body class="page-$.view $column_count$column_side $*layout_type $class $control_strip">\n""";
+    var string community_options = "";
+    if ( $this.journal.journal_type == "C" ) {
+         $community_options = "$member $admin $moderator";
+    }
+
+    """<body class="page-$.view $column_count$column_side $*layout_type $opts{"class"} $logged_in $owner $subscribed $access $community_options $control_strip">\n""";
 }
 
 function Page::print_wrapper_end() 
