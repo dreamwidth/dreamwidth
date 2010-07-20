@@ -54,6 +54,46 @@ function Page::print_theme_stylesheet() {
     """;
 }
 
+#NEWLAYER: bases/comfort
+layerinfo type = "theme";
+layerinfo name = "Comfort";
+layerinfo redist_uniq = "bases/comfort";
+layerinfo author_name = "timeasmymeasure";
+ 
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+set color_page_background = "#dacba4";
+set color_page_border = "#972648";
+set color_page_link = "#4e8693";
+set color_page_link_active = "#4e8693";
+set color_page_link_hover = "#972648";
+set color_page_link_visited = "#4e8693";
+set color_page_text = "#452b22";
+set color_page_title = "#452b22";
+
+set color_comment_title_background = "#e1d1a9";
+
+set color_entry_background = "#f2f0ce";
+set color_entry_border = "#972648";
+set color_entry_text = "#452b22";
+set color_entry_title = "#972648";
+set color_entry_title_background = "#e5d5ad";
+
+set color_header_background = "#f2f0ce";
+
+set color_module_background = "#f2f0ce";
+set color_module_border = "#972648";
+set color_module_text = "#452b22";
+set color_module_title = "#4e8693";
+set color_module_title_background = "#e5d5ad";
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: #972648;}
+    """;
+}
+
+
 #NEWLAYER: bases/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light On Dark";
@@ -361,4 +401,41 @@ input, select { color: $*color_module_text !important; background-color: $*color
 #lj_controlstrip_statustext, #lj_controlstrip td { color: $*color_module_text !important; }
 
 """;
+}
+
+
+#NEWLAYER: bases/velvetsteel
+layerinfo type = "theme";
+layerinfo name = "Velvet Steel";
+layerinfo redist_uniq = "bases/velvetsteel";
+layerinfo author_name = "timeasmymeasure";
+ 
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+set color_comment_title_background = "#cccccc";
+set color_entry_background = "#ffffff";
+set color_entry_border = "#949494";
+set color_entry_interaction_links = "#603048";
+set color_entry_title = "#303030";
+set color_entry_title_background = "#e8e8e8";
+
+set color_header_background = "#ffffff";
+
+set color_module_background = "#ffffff";
+set color_module_border = "#949494";
+set color_module_title = "#783060";
+set color_module_title_background = "#bfbfbf";
+
+set color_page_background = "#eaeaea";
+set color_page_border = "#949494";
+set color_page_link = "#783060";
+set color_page_link_active = "#783060";
+set color_page_link_hover = "#603048";
+set color_page_link_visited = "#783060";
+set color_page_text = "#303030";
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: #603048;}
+    """;
 }
