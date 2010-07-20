@@ -2304,6 +2304,14 @@ sub comment_anchor {
     return "#cmt$id";
 }
 
+sub treat_as_anon {
+    my ( $pu, $u ) = @_;
+    return 1 unless LJ::isu( $pu );  # anonymous is not OK
+    return 0 unless $pu->is_identity;  # OK unless OpenID
+    # if OpenID, not OK unless they're granted access
+    return LJ::isu( $u ) ? ! $u->trusts_or_has_member( $pu ) : 1;
+}
+
 package LJ::Talk::Post;
 
 use Text::Wrap;

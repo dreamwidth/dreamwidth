@@ -136,9 +136,9 @@ sub EntryPage
             my $dtalkid = $com->{'talkid'} * 256 + $entry->anum;
             my $text = LJ::CleanHTML::quote_html( $com->{body}, $get->{nohtml} );
 
-            LJ::CleanHTML::clean_comment(\$text, { 'preformatted' => $com->{'props'}->{'opt_preformatted'},
-                                                   'anon_comment' => !$pu || ( $pu->is_identity && !$u->trusts_or_has_member( $pu ) ),
-                                               });
+            LJ::CleanHTML::clean_comment( \$text, { preformatted => $com->{props}->{opt_preformatted},
+                                                    anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
+                                                  } );
 
             # local time in mysql format to gmtime
             my $datetime = DateTime_unix($com->{'datepost_unix'});

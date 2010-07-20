@@ -244,10 +244,10 @@ body<=
             }
 
             my $comment = $comment_text->{$r->{jtalkid}}[1];
-            LJ::CleanHTML::clean_comment(\$comment, { 'preformatted' => $r->{'props'}->{'opt_preformatted'},
-                                                  'anon_comment' => !LJ::isu($pu),
-                                                  'nocss' => 1,
-                                              });
+            LJ::CleanHTML::clean_comment( \$comment, { preformatted => $r->{props}->{opt_preformatted},
+                                                       anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
+                                                       nocss => 1,
+                                                     } );
             BML::ebml(\$comment);
 
             $ret .= "$comment<br /><br />";
