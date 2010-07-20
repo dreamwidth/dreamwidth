@@ -53,6 +53,70 @@ set color_page_subtitle = "#4D0040";
 set color_page_text = "#ffe6eb";
 set color_page_title = "#804075";
 
+#NEWLAYER: drifting/comfortzone
+layerinfo type = "theme";
+layerinfo name = "Comfort Zone";
+layerinfo redist_uniq = "drifting/comfortzone";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+set color_entry_background = "#f2f0ce";
+set color_entry_border = "#5897a6";
+set color_entry_text = "#452b22";
+set color_entry_title = "#972648";
+set color_header_background = "#f2f0ce";
+set color_module_border = "#5897a6";
+set color_module_title = "#972648";
+set color_page_background = "#d9cba3";
+set color_page_border = "#5897a6";
+set color_page_link = "#972648";
+set color_page_link_hover = "#5897a6";
+set color_page_link_active = "#972648";
+set color_page_link_visited = "#972648";
+set color_page_subtitle = "#452b22";
+set color_page_text = "#422820";
+set color_page_title = "#972648";
+
+#NEWLAYER: drifting/desertme
+layerinfo type = "theme";
+layerinfo name = "Desert Me";
+layerinfo redist_uniq = "drifting/desertme";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+set color_entry_background = "#ffedb8";
+set color_entry_border = "#fae4a2";
+set color_entry_text = "#785E47";
+set color_entry_title = "#785E47";
+set color_header_background = "#ffedb8";
+set color_module_border = "#fae4a2";
+set color_module_title = "#785E47";
+set color_page_background = "#fae4a2";
+set color_page_border = "#ffedb8";
+set color_page_link = "#008885";
+set color_page_link_active = "#008885";
+set color_page_link_hover = "#09B0AD";
+set color_page_link_visited = "#008885";
+set color_page_subtitle = "#008885";
+set color_page_text = "#785E47";
+set color_page_title = "#785E47";
+set font_base = "tahoma, arial";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_entry_title = "Georgia";
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Georgia";
+set font_journal_title_size = "2";
+set font_module_heading = "Georgia";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+set font_module_text_units = "em";
+set image_background_header_height = 70;
+
 #NEWLAYER: drifting/go
 layerinfo type = "theme";
 layerinfo name = "Go";
@@ -182,3 +246,61 @@ function Page::print_theme_stylesheet() {
     }
     """;
 }
+
+#NEWLAYER: drifting/sweetpossibilities
+layerinfo type = "theme";
+layerinfo name = "Sweet Possibilities";
+layerinfo redist_uniq = "drifting/sweetpossibilities";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+set color_entry_background = "#f0d8a8";
+set color_entry_border = "#a81830";
+set color_entry_text = "#4F1450";
+set color_entry_title = "#f0d8a8";
+set color_header_background = "#f0d8a8";
+set color_module_border = "#a81830";
+set color_module_title = "#c01848";
+set color_page_background = "#581e1e";
+set color_page_border = "#a81830";
+set color_page_link = "#c01848";
+set color_page_link_active = "#c01848";
+set color_page_link_visited = "#c01848";
+set color_page_subtitle = "#4F1450";
+set color_page_text = "#4F1450";
+set color_page_title = "#c01848";
+
+#NEWLAYER: drifting/winterclarity
+layerinfo type = "theme";
+layerinfo name = "Winter Clarity";
+layerinfo redist_uniq = "drifting/winterclarity";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#a7a7a7";
+set color_entry_text = "#707070";
+set color_entry_title = "#569d71";
+set color_header_background = "#ffffff";
+set color_module_border = "#569d71";
+set color_module_title = "#569d71";
+set color_page_background = "#f1f1f1";
+set color_page_border = "#a7a7a7";
+set color_page_link = "#569d71";
+set color_page_link_active = "#569d71";
+set color_page_link_visited = "#569d71";
+set color_page_subtitle = "#a7a7a7";
+set color_page_text = "#585858";
+set color_page_title = "#569d71";
+set font_base = "Trebuchet  MS, Arial";
+set font_entry_title = "Trebuchet  MS, Arial";
+set font_entry_title_units = "em";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Verdana";
+set font_journal_title_size = "2.5";
+set font_module_heading = "Trebuchet  MS, Arial";
+set font_module_heading_units = "em";
+set font_module_text_units = "em";
+set font_title_fallback = "sans-serif";
