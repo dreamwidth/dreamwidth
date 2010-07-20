@@ -2816,7 +2816,7 @@ sub set_prop {
         $table = 'userpropblob' if $p->{datatype} eq 'blobchar';
 
         # only assign db for update action if value has changed
-        unless ( $value eq $u->{$propname} ) {
+        unless ( exists $u->{$propname} && $value eq $u->{$propname} ) {
             my $db = $action{$table}->{db} ||= (
                 $table !~ m{userprop(lite2|blob)}
                     ? LJ::get_db_writer()  # global
@@ -2826,17 +2826,17 @@ sub set_prop {
 
         # determine if this is a replacement or a deletion
         if ( defined $value && $value ) {
-            push @{ $action{$table}->{replace} }, [ $p->{id}, $value ];
+            push @{ $action{$table}->{replace} }, [ $p->{id}, $value, $propname ];
         } else {
-            push @{ $action{$table}->{delete} }, $p->{id};
+            push @{ $action{$table}->{delete} }, [ $p->{id}, "", $propname ];
         }
     }
 
     # keep in memcache for 24 hours and update user object in memory
     my $memc = sub {
-        my ( $p, $v ) = @_;
+        my ( $p, $v, $propname ) = @{ $_[0] };
         LJ::MemCache::set( [ $userid, "uprop:$userid:$p" ], $v, 3600 * 24 );
-        $u->{$p} = $v;
+        $u->{$propname} = $v eq "" ? undef : $v;
     };
 
     # Execute prepared actions.
@@ -2848,15 +2848,15 @@ sub set_prop {
                 $db->do( "REPLACE INTO $table (userid, upropid, value) VALUES $vals" );
                 die $db->errstr if $db->err;
             }
-            $memc->( $_->[0], $_->[1] ) foreach @$list;
+            $memc->( $_ ) foreach @$list;
         }
         if ( my $list = $action{$table}->{delete} ) {
             if ( $db ) {
-                my $in = join( ',', @$list );
+                my $in = join( ',', map { $_->[0] } @$list );
                 $db->do( "DELETE FROM $table WHERE userid=$userid AND upropid IN ($in)" );
                 die $db->errstr if $db->err;
             }
-            $memc->( $_, "" ) foreach @$list;
+            $memc->( $_ ) foreach @$list;
         }
     }
 
