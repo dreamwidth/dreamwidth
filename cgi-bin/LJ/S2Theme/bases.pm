@@ -8,28 +8,26 @@ sub designer { "Malionette" }
 
 package LJ::S2Theme::bases::beechy;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( ) }
-sub designer { "malionette" }
+sub cats { qw() }
 
 package LJ::S2Theme::bases::comfort;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::bases::lightondark;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "cesy" }
 
 package LJ::S2Theme::bases::nnwm2009;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::bases::steele;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( ) }
-sub designer { "malionette" }
+sub cats { qw() }
 
 package LJ::S2Theme::bases::strawberrysundae;
 use base qw( LJ::S2Theme::bases );
@@ -38,7 +36,7 @@ sub designer { "sky" }
 
 package LJ::S2Theme::bases::summerholiday;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "rb" }
 
 package LJ::S2Theme::bases::sunandsand;
@@ -52,9 +50,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::bases::velvetsteel;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "timeasmymeasure" }
 
-
 1;
-

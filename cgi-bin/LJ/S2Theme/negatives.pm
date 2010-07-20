@@ -1,11 +1,10 @@
 package LJ::S2Theme::negatives;
 use base qw( LJ::S2Theme );
 
-sub cats { qw() }
-sub designer { "phoenix" }
-
 sub layouts { ( "1" => "one-column", "2l" => "two-columns-left", "2r" => "two-columns-right" ) }
 sub layout_prop { "layout_type" }
+
+sub designer { "phoenix" }
 
 package LJ::S2Theme::negatives::autumn;
 use base qw( LJ::S2Theme::negatives );
@@ -14,7 +13,7 @@ sub designer { "busaikko" }
 
 package LJ::S2Theme::negatives::azure;
 use base qw( LJ::S2Theme::negatives );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "daven" }
 
 package LJ::S2Theme::negatives::black;
@@ -60,7 +59,6 @@ package LJ::S2Theme::negatives::nnwm2009;
 use base qw( LJ::S2Theme::negatives );
 sub cats { qw() }
 sub designer { "zvi" }
-
 
 package LJ::S2Theme::negatives::pumpkinjuice;
 use base qw( LJ::S2Theme::negatives );
