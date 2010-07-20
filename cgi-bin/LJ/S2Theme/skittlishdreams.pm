@@ -72,4 +72,3 @@ use base qw( LJ::S2Theme::skittlishdreams );
 sub cats { qw( featured ) }
 
 1;
-

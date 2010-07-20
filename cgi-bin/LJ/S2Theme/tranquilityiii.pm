@@ -6,7 +6,6 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
-
 package LJ::S2Theme::tranquilityiii::brick;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw() }
@@ -27,7 +26,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::tranquilityiii::marbleiii;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::nightsea;
@@ -36,17 +35,17 @@ sub cats { qw() }
 
 package LJ::S2Theme::tranquilityiii::nnwm2009;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw(  ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::tranquilityiii::olive;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw(  ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::shallows;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw(  ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::wintergreen;
@@ -55,4 +54,3 @@ sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 1;
-

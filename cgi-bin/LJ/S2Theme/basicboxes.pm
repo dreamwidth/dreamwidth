@@ -6,7 +6,6 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
-
 package LJ::S2Theme::basicboxes::burgundy;
 use base qw( LJ::S2Theme::basicboxes );
 sub cats { qw() }
@@ -21,7 +20,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::eggplant;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "kareila" }
 
 package LJ::S2Theme::basicboxes::green;

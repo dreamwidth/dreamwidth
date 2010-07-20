@@ -6,17 +6,17 @@ sub layout_prop { "layout_type" }
 
 package LJ::S2Theme::core2base::dazzle;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw(  ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::kelis;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw( featured ) }        
+sub cats { qw( featured ) }
 sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::muted;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw( ) }        
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::nnwm2009;
@@ -26,15 +26,16 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::shanice;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw() }        
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::tabac;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw(  ) }        
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::testing;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw()}
+sub cats { qw() }
+
 1;

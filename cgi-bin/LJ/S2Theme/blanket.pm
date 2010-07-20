@@ -14,37 +14,37 @@ sub header_props {
 
 package LJ::S2Theme::blanket::forest;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::blanket::green;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::blanket::islandsandcities;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "sarken" }
 
 package LJ::S2Theme::blanket::jewels;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::blanket::kingsandrunaways;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "sarken" }
 
 package LJ::S2Theme::blanket::nnwm2009;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::blanket::ocean;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::blanket::peach;
@@ -53,7 +53,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::blanket::shallows;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::blanket::sprung;
@@ -63,7 +63,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::blanket::thetealandthegrey;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "twtd" }
 
 1;
