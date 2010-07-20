@@ -16,7 +16,10 @@ propgroup presentation {
     property use layout_type;
     property use tags_page_type;
     property use sidebar_width;
-    property use userpics_position;
+    property string entryicons_position {
+       des = "Place icons on the same side or opposite the sidebar";
+       values = "same|Same side as sidebar|opposite|Opposite the sidebar";
+    }
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -27,6 +30,7 @@ propgroup presentation {
 
 set sidebar_width = "15em";
 set layout_type = "two-columns-right";
+set entryicons_position = "opposite";
 set use_custom_friend_colors = false;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
@@ -296,9 +300,9 @@ function Page::print_default_stylesheet() {
     var Color blockquote_text = $*color_entry_text -> lighter(10);
     var Color blockquote_background = $*color_entry_background -> darker(10);
 
-    var string userpic_css = "";
-    if ($*userpics_position == "left") {
-        $userpic_css = """
+    var string entryicon_css = "";
+    if ($*entryicons_position == "opposite") {
+        $entryicon_css = """
         div.entry div.userpic {
             float: left;
             margin: 0 0 0 -100px;
@@ -309,8 +313,8 @@ function Page::print_default_stylesheet() {
             }
         """;
     }
-    elseif ($*userpics_position == "right") {
-        $userpic_css = """
+    elseif ($*entryicons_position == "same") {
+        $entryicon_css = """
         div.entry div.userpic {
             float: right;
             margin: 0 -100px 0 0;
@@ -892,7 +896,7 @@ hr {
     border-bottom: 3px double $solid_border;
     }
 
-$userpic_css
+$entryicon_css
 
 """;
 
