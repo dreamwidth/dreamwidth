@@ -87,7 +87,7 @@ set color_module_title_background = "#e5d5ad";
 
 function Page::print_theme_stylesheet() {
     """
-    .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: #972648;}
+    .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: $*color_page_link_hover;}
     """;
 }
 
@@ -432,6 +432,6 @@ set color_page_text = "#303030";
 
 function Page::print_theme_stylesheet() {
     """
-    .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: #603048;}
+    .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: $*color_page_link_hover;}
     """;
 }
