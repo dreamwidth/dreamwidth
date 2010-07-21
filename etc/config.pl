@@ -52,6 +52,8 @@
             users => 'journal',
             syndicated => 'journal',
             cssproxy => 'cssproxy',
+            shop => 'shop',
+            mobile => 'mobile', 
         );
 
 

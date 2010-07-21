@@ -837,6 +837,14 @@ sub trans
         } elsif ($func eq 'support') {
             return redir($r, "$LJ::SITEROOT/support/");
 
+        } elsif ($func eq 'shop') {
+
+            return redir($r, "$LJ::SITEROOT/shop$uri");
+
+        } elsif ($func eq 'mobile') {
+
+            return redir($r, "$LJ::SITEROOT/mobile$uri");
+
         } elsif (ref $func eq "ARRAY" && $func->[0] eq "changehost") {
 
             return redir($r, "http://$func->[1]$uri$args_wq");
