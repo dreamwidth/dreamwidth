@@ -180,7 +180,6 @@
     $MOGILEFS_CONFIG{domain}                 ||= 'livejournal';
     $MOGILEFS_CONFIG{classes}                ||= {};
     $MOGILEFS_CONFIG{classes}->{userpics}    ||= 3;
-    $MOGILEFS_CONFIG{classes}->{captcha}     ||= 2;
 
     # Default to allow all reproxying.
     %REPROXY_DISABLE = () unless %REPROXY_DISABLE;
@@ -196,11 +195,6 @@
     # max content length we should read via ATOM api
     # 25MB
     $MAX_ATOM_UPLOAD ||= 26214400;
-
-    $CAPTCHA_AUDIO_MAKE ||= 100;
-    $CAPTCHA_AUDIO_PREGEN ||= 100;
-    $CAPTCHA_IMAGE_PREGEN ||= 500;
-    $CAPTCHA_IMAGE_RAW ||= "$LJ::HOME/htdocs/img/captcha";
 
     $DEFAULT_EDITOR ||= 'rich';
 
@@ -246,7 +240,6 @@
     # setup default limits for mogilefs classes
     if (%LJ::MOGILEFS_CONFIG) {
         my %classes = (userpics => 3,
-                       captcha => 2,
                        temp => 2,
                        );
         $LJ::MOGILEFS_CONFIG{classes} ||= {};

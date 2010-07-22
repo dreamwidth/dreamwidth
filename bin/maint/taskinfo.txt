@@ -13,11 +13,6 @@ clean_caches.pl:
 synsuck.pl:
   synsuck - Polls needed remote, syndicated RSS/etc and updates journals.
 
-captcha.pl:
-  gen_audio_captchas - Generate any needed new audio challenges.
-  gen_image_captchas - Generate any needed new graphical challenges.
-  clean_captchas - Purge old challenges from the database.
-
 generic.pl:
   joinmail - Generates daily email digests for community join requests
   clean_spamreports - Clean out data from the spamreports table older than 90 days.

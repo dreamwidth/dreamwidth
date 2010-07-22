@@ -16,7 +16,7 @@ package LJ::Widget::SubmitRequest;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Captcha::reCAPTCHA;
+use DW::Captcha;
 
 use LJ::ModuleLoader;
 LJ::ModuleLoader->autouse_subclasses('LJ::Widget::SubmitRequest');
@@ -115,15 +115,11 @@ sub render_body {
     $ret .= $class->html_textarea(name => 'message', rows => '15', cols => '70', wrap => 'soft', value => $post->{message});
     $ret .= "</p></div>";
 
-    if ($LJ::HUMAN_CHECK{support_submit} && LJ::is_enabled("recaptcha") && !$remote) {
-        my $c = Captcha::reCAPTCHA->new;
-
-        $ret .= "<h5>" . $class->ml('widget.support.submit.captcha') . "</h5>";
+    my $captcha = DW::Captcha->new( 'support_submit_anon' );
+    if ( ! $remote && $captcha->enabled ) {
+        $ret .= "<h5>" . $class->ml( 'captcha.title' ) . "</h5>";
         $ret .= "<div style='margin-left: 30px'>";
-        $ret .= "<p><?de " . $class->text_captcha(%opts) . " de?></p>";
-        $ret .= "<div style='position: relative; height: 1%;'>" . $c->get_options_setter({ theme => 'white' });
-        $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}) ) . "</div>";
-        $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
+        $ret .= $captcha->print;
         $ret .= "</div>";
     }
 
@@ -157,8 +153,6 @@ sub text_intro { "" }
 
 sub text_question { $_[0]->ml('widget.support.submit.question.note') }
 
-sub text_captcha { $_[0]->ml('widget.support.submit.captcha.note', { email => $LJ::SUPPORT_EMAIL }) }
-
 sub text_submit { $_[0]->ml('widget.support.submit.button') }
 
 sub handle_post {
@@ -184,14 +178,10 @@ sub handle_post {
     my @errors;
     LJ::check_email($post->{'email'}, \@errors) if $post->{'email'};
 
-    if ($LJ::HUMAN_CHECK{support_submit} && LJ::is_enabled("recaptcha") && !$remote) {
-        my $c = Captcha::reCAPTCHA->new;
-        my $result = $c->check_answer(
-            LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{REMOTE_ADDR},
-            $post->{recaptcha_challenge_field}, $post->{recaptcha_response_field}
-        );
-
-        push @errors, $class->ml('widget.support.submit.error.captcha') unless $result->{is_valid} eq '1';
+    unless ( $remote ) {
+        my $captcha = DW::Captcha->new( 'support_submit_anon', %{$post || {}} );
+        my $captcha_error;
+        push @errors, $captcha_error unless $captcha->validate( err_ref => \$captcha_error );
     }
 
     if (LJ::is_enabled("support_request_language")) {

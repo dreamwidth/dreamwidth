@@ -43,6 +43,8 @@ Sincerely,
 
 .error.valid=That user's email address is already validated.
 
+.form.submit=Continue
+
 .new.101.community.answer=Discussion groups built around every topic imaginable. From music to ninjas, there's something here for you.
 
 .new.101.community.question=What is a community?
@@ -74,7 +76,3 @@ Sincerely,
 .trans.body=Your new email address has been validated.
 
 .trans.header=Success
-
-.validate.human.title=Please, verify that you are human
-
-.validate.human.submit=Continue

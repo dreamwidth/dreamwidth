@@ -884,6 +884,8 @@ register_tabledrop("schools_pending");
 register_tabledrop("user_schools");
 register_tabledrop("userblobcache");
 register_tabledrop("commenturls");
+register_tabledrop("captchas");
+register_tabledrop("captcha_session");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -1550,22 +1552,6 @@ CREATE TABLE secrets  (
 )
 EOC
 
-# Captcha table
-register_tablecreate("captchas", <<'EOC');
-CREATE TABLE captchas (
-    capid       INT UNSIGNED NOT NULL auto_increment,
-    type        enum('image','audio'),
-    issuetime   INT UNSIGNED NOT NULL DEFAULT 0,
-    answer      CHAR(10),
-    userid      INT UNSIGNED NOT NULL DEFAULT 0,
-    anum        SMALLINT UNSIGNED NOT NULL,
-
-    INDEX(type,issuetime),
-    INDEX(userid),
-    PRIMARY KEY(capid)
-)
-EOC
-
 # Challenges table (for non-memcache support)
 register_tablecreate("challenges", <<'EOC');
 CREATE TABLE challenges (
@@ -1598,18 +1584,6 @@ CREATE TABLE openproxy (
     src         VARCHAR(80),
 
     PRIMARY KEY (addr)
-)
-EOC
-
-register_tablecreate("captcha_session", <<'EOC');  # clustered
-CREATE TABLE captcha_session (
-    sess char(20) NOT NULL default '',
-    sesstime int(10) unsigned NOT NULL default '0',
-    lastcapid int(11) default NULL,
-    trynum smallint(6) default '0',
-
-    PRIMARY KEY  (`sess`),
-    KEY sesstime (`sesstime`)
 )
 EOC
 
@@ -3359,11 +3333,6 @@ register_alter(sub {
         do_alter("spamreports", "ALTER TABLE spamreports ADD COLUMN posttime INT(10) UNSIGNED " .
                  "NOT NULL AFTER reporttime, ADD COLUMN state ENUM('open', 'closed') DEFAULT 'open' " .
                  "NOT NULL AFTER posttime");
-    }
-
-    if (column_type("captchas", "location") eq '') {
-        do_alter("captchas", "ALTER TABLE captchas " .
-                 "ADD location ENUM('blob','mogile') DEFAULT NULL AFTER type");
     }
 
     if (column_type("spamreports", "report_type") eq '') {

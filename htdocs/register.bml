@@ -100,23 +100,18 @@ body<=
      }
 
      ## if the user is OpenID, prove that he or she is human
-     if ( $u->is_identity && LJ::is_enabled("recaptcha") ) {
-        require Captcha::reCAPTCHA;
-        my $c = Captcha::reCAPTCHA->new;
-        if ($POST{recaptcha_response_field}) {
-            my $result = $c->check_answer(
-                LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
-                $POST{'recaptcha_challenge_field'}, $POST{'recaptcha_response_field'}
-            );
-            return "<?h1 $ML{'Error'} h1?><?p $result->{error}  p?>" unless $result->{is_valid};
-        }
-        else {
-            my $ret = "<?h1 $ML{'.validate.human.title'} h1?>";
+     if ( $u->is_identity ) {
+        my $captcha = DW::Captcha->new( 'validate_openid', %POST );
+
+        if ( $captcha->response ) {
+            my $err_ref;
+            return LJ::bad_input( $err_ref )
+                unless $captcha->validate( err_ref => \$err_ref );
+        } else {
+            my $ret = "<?h1 $ML{'captcha.title'} h1?>";
             $ret .= "<form method='POST' action='$LJ::SITEROOT/register'><input type='hidden' name='qs' value='$qs'>";
-            $ret .= $c->get_options_setter({ theme => 'white' });
-            $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}) );
-            $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
-            $ret .= "<input type='submit' value='$ML{'.validate.human.submit'}' ></form>";
+            $ret .= $captcha->print;
+            $ret .= "<input type='submit' value='$ML{'.form.submit'}' ></form>";
             return $ret;
         }
      }

@@ -43,7 +43,6 @@ use POSIX ();
 
 use LJ::Hooks;
 use LJ::Blob;
-use LJ::Captcha;
 use LJ::Faq;
 use DW::BusinessRules::InviteCodes;
 use DW::BusinessRules::InviteCodeRequests;
@@ -98,6 +97,8 @@ require "communitylib.pl";
 use LJ::Tags;
 require "ljemailgateway-web.pl";
 use LJ::Customize;
+
+use DW::Captcha;
 
 # preload site-local libraries, if present:
 require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"

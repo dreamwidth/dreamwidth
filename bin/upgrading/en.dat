@@ -32,6 +32,12 @@ btn.search=Search
 
 captcha.accessibility.contact=If you are unable to use this captcha for any reason, please contact us by email at [[email]]
 
+captcha.button=Continue
+
+captcha.invalid=Incorrect response in the antispam field. Please try again.
+
+captcha.title=Please fill out the CAPTCHA as an anti-spam measure
+
 cleanhtml.suspend_msg=This is a suspended entry.
 
 cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened, and your entry will be reviewed soon.
@@ -4164,7 +4170,7 @@ widget.createaccount.error.username.purged=The username you entered is that of a
 
 widget.createaccount.field.birthdate=Birthdate:
 
-widget.createaccount.field.captcha=Prove you're human:
+widget.createaccount.field.captcha2=Anti-spam measure:
 
 widget.createaccount.field.captcha.hear=Type the numbers you hear:
 
@@ -4899,8 +4905,6 @@ Your request has been filed. You can track the progress of your request at:
 <blockquote><a href='[[url]]'>[[url]]</a></blockquote>
 If you have any other questions or comments, you can add them to that request at any time.
 .
-
-widget.support.submit.error.captcha=Incorrect response to human test.
 
 widget.support.submit.language=Language
 

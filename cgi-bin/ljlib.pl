@@ -110,7 +110,7 @@ sub END { LJ::end_request(); }
                     "ratelog", "loginstall", "sessions", "sessions_data",
                     "modlog", "modblob", "userproplite2", "links",
                     "userblob", "userpropblob",
-                    "clustertrack2", "captcha_session", "reluser2",
+                    "clustertrack2", "reluser2",
                     "tempanonips", "inviterecv", "invitesent",
                     "memorable2", "memkeyword2", "userkeywords",
                     "trust_groups", "userpicmap2", "userpic2",
@@ -245,8 +245,6 @@ sub get_blob_domainid
     my $id = {
         "userpic" => 1,
         "phonepost" => 2,
-        "captcha_audio" => 3,
-        "captcha_image" => 4,
     }->{$name};
     # FIXME: add hook support, so sites can't define their own
     # general code gets priority on numbers, say, 1-200, so verify
@@ -2042,7 +2040,7 @@ sub get_secret
 #
 # LJ-generic domains:
 #  $dom: 'S' == style, 'P' == userpic, 'A' == stock support answer
-#        'C' == captcha, 'E' == external user,
+#        'E' == external user,
 #        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart,
 #        'F' == PubSubHubbub subscription id (F for Fred),
 #        'K' == sitekeyword, 'I' == shopping cart Item
@@ -2083,8 +2081,6 @@ sub alloc_global_counter
             my $max = $dbcm->selectrow_array( 'SELECT MAX(picid) FROM userpic2' ) + 0;
             $newmax = $max if $max > $newmax;
         }
-    } elsif ($dom eq "C") {
-        $newmax = $dbh->selectrow_array("SELECT MAX(capid) FROM captchas");
     } elsif ($dom eq "E" || $dom eq "M") {
         # if there is no extuser or message counter row
         # start at 'ext_1'  - ( the 0 here is incremented after the recurse )

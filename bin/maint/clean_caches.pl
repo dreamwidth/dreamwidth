@@ -32,13 +32,6 @@ $maint{'clean_caches'} = sub
     print "-I- Cleaning underage uniqs.\n";
     $dbh->do("DELETE FROM underage WHERE timeof < (UNIX_TIMESTAMP() - 86400*90) LIMIT 2000");
 
-    print "-I- Cleaning captcha sessions.\n";
-    foreach my $c (@LJ::CLUSTERS) {
-        my $dbcm = LJ::get_cluster_master($c);
-        next unless $dbcm;
-        $dbcm->do("DELETE FROM captcha_session WHERE sesstime < UNIX_TIMESTAMP()-86400");
-    }
-
     print "-I- Cleaning blobcache.\n";
     $dbh->do("DELETE FROM blobcache WHERE dateupdate < NOW() - INTERVAL 30 DAY");
 

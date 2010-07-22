@@ -38,8 +38,8 @@ body<=
     my $code_valid = $LJ::USE_ACCT_CODES ? 0 : 1;
     my $code;
     if ( LJ::did_post() ) {
-        LJ::Widget->use_specific_form_fields( post => \%POST, widget => "CreateAccount", fields => [ qw( recaptcha_response_field recaptcha_challenge_field ) ] )
-            if $LJ::HUMAN_CHECK{create} && LJ::is_enabled( 'recaptcha' );
+        LJ::Widget->use_specific_form_fields( post => \%POST, widget => "CreateAccount", fields => [ DW::Captcha->form_fields ] )
+            if DW::Captcha->enabled( 'create' );
         %from_post = LJ::Widget->handle_post( \%POST, ( 'CreateAccount' ) );
     } elsif ( $LJ::USE_ACCT_CODES ) {
         $code = LJ::trim( $GET{code} );

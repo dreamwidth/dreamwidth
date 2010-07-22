@@ -19,9 +19,9 @@ use LJ::Event::JournalNewComment;
 use LJ::Event::UserNewComment;
 use LJ::Comment;
 use LJ::EventLogRecord::NewComment;
-use Captcha::reCAPTCHA;
 use LJ::OpenID;
 use MIME::Words;
+use DW::Captcha;
 use Carp qw(croak);
 
 # dataversion for rate limit logging
@@ -1803,45 +1803,9 @@ sub talkform {
     }
 
     # Display captcha challenge if over rate limits.
-    if ($opts->{do_captcha}) {
-        if (LJ::is_enabled("recaptcha")) {
-            my $c = Captcha::reCAPTCHA->new;
-            $ret .= $c->get_options_setter({ theme => 'white' });
-            $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}) );
-            $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
-        } else {
-            my ($wants_audio, $captcha_sess, $captcha_chal);
-            $wants_audio = 1 if lc($form->{answer}) eq 'audio';
-
-            # Captcha sessions
-            my $cid = $journalu->{clusterid};
-            $captcha_chal = $form->{captcha_chal} || LJ::challenge_generate(900);
-            $captcha_sess = LJ::get_challenge_attributes($captcha_chal);
-            my $dbcr = LJ::get_cluster_reader($journalu);
-
-            my $try = 0;
-            if ($form->{captcha_chal}) {
-                $try = $dbcr->selectrow_array('SELECT trynum FROM captcha_session ' .
-                                              'WHERE sess=?', undef, $captcha_sess);
-            }
-            $ret .= '<br /><br />';
-
-            # Visual challenge
-            if (! $wants_audio && ! $form->{audio_chal}) {
-                $ret .= "<div class='formitemDesc'>$BML::ML{'/create.bml.captcha.desc'}</div>";
-                $ret .= "<img src='/captcha/image.bml?chal=$captcha_chal&amp;cid=$cid&amp;try=$try' width='175' height='35' />";
-                $ret .= "<br /><br />$BML::ML{'/create.bml.captcha.answer'}";
-            }
-            # Audio challenge
-            else {
-                $ret .= "<div class='formitemDesc'>$BML::ML{'/create.bml.captcha.audiodesc'}</div>";
-                $ret .= "<a href='/captcha/audio.bml?chal=$captcha_chal&amp;cid=$cid&amp;try=$try'>$BML::ML{'/create.bml.captcha.play'}</a> &nbsp; ";
-                $ret .= LJ::html_hidden(audio_chal => 1);
-            }
-            $ret .= LJ::html_text({ name =>'answer', size =>15 });
-            $ret .= LJ::html_hidden(captcha_chal => $captcha_chal);
-        }
-        $ret .= '<br />';
+    if ( $opts->{do_captcha} ) {
+        my $captcha = DW::Captcha->new;
+        $ret .= $captcha->print;
     }
 
     if ( $editid ) {
@@ -3405,44 +3369,22 @@ sub init {
     $init->{comment} = $comment;
 
     # anti-spam captcha check
-    if (ref $need_captcha eq 'SCALAR') {
-
+    if ( ref $need_captcha eq 'SCALAR' ) {
         # see if they're in the second+ phases of a captcha check.
         # are they sending us a response?
-        if (LJ::is_enabled("recaptcha") && $form->{recaptcha_response_field}) {
+
+        my $captcha = DW::Captcha->new( undef, %{$form || {}} );
+
+        if ( $captcha->enabled && $captcha->response ) {
             # assume they won't pass and re-set the flag
             $$need_captcha = 1;
 
-            my $c = Captcha::reCAPTCHA->new;
-            my $result = $c->check_answer(
-                LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
-                $form->{'recaptcha_challenge_field'}, $form->{'recaptcha_response_field'}
-            );
-
-            return $err->("Incorrect response to spam robot challenge.") unless $result->{is_valid} eq '1';
-        } elsif (!LJ::is_enabled("recaptcha") && $form->{captcha_chal}) {
-
-            # assume they won't pass and re-set the flag
-            $$need_captcha = 1;
-
-            # if they typed "audio", we don't double-check if they still need
-            # a captcha (they still do), they just want an audio version.
-            if (lc($form->{answer}) eq 'audio') {
-                return;
-            }
-
-            my ($capid, $anum) = LJ::Captcha::session_check_code($form->{captcha_chal},
-                                                                 $form->{answer}, $journalu);
-
-            return $err->("Incorrect response to spam robot challenge.") unless $capid && $anum;
-            my $expire_u = $comment->{'u'} || LJ::load_user('system');
-            LJ::Captcha::expire($capid, $anum, $expire_u->{userid});
-
+            my $captcha_error;
+            return $err->( $captcha_error ) unless $captcha->validate( err_ref => \$captcha_error );
         } else {
-            $$need_captcha = LJ::Talk::Post::require_captcha_test($comment->{'u'}, $journalu, $form->{body}, $ditemid);
-            if ($$need_captcha) {
-                return $err->("Please confirm you are a human below.");
-            }
+            $$need_captcha = LJ::Talk::Post::require_captcha_test( $comment->{'u'}, $journalu, $form->{body}, $ditemid );
+
+            return $err->( LJ::Lang::ml( 'captcha.title' ) ) if $$need_captcha;
         }
     }
 
@@ -3461,7 +3403,10 @@ sub init {
 # </LJFUNC>
 sub require_captcha_test {
     my ($commenter, $journal, $body, $ditemid) = @_;
-    
+
+    # only require captcha if the site is properly configured for it
+    return 0 unless DW::Captcha->site_enabled;
+
     ## anonymous commenter user =
     ## not logged-in user, or OpenID without validated e-mail
     my $anon_commenter = !LJ::isu($commenter) || 
@@ -3470,11 +3415,11 @@ sub require_captcha_test {
     ##
     ## 1. Check rate by remote user and by IP (for anonymous user)
     ##
-    if ($LJ::HUMAN_CHECK{anonpost} || $LJ::HUMAN_CHECK{authpost}) {
-        return 1 if !LJ::Talk::Post::check_rate($commenter, $journal);
+    if ( DW::Captcha->enabled( 'anonpost' ) || DW::Captcha->enabled( 'authpost' ) ) {
+        return 1 unless LJ::Talk::Post::check_rate( $commenter, $journal );
     }
-    if ($LJ::HUMAN_CHECK{anonpost} && $anon_commenter) {
-        return 1 if LJ::sysban_check('talk_ip_test', LJ::get_remote_ip());
+    if ( DW::Captcha->enabled( 'anonpost' ) && $anon_commenter) {
+        return 1 if LJ::sysban_check( 'talk_ip_test', LJ::get_remote_ip() );
     }
 
 
@@ -3514,8 +3459,8 @@ sub require_captcha_test {
     ## 4. Global (site) settings
     ## See if they have any tags or URLs in the comment's body
     ##
-    if ($LJ::HUMAN_CHECK{'comment_html_auth'} 
-        || ($LJ::HUMAN_CHECK{'comment_html_anon'} && $anon_commenter))
+    if ( DW::Captcha->enabled( 'comment_html_auth' )
+        || ( DW::Captcha->enabled( 'comment_html_anon' ) && $anon_commenter))
     {
         if ($body =~ /<[a-z]/i) {
             # strip white-listed bare tags w/o attributes,

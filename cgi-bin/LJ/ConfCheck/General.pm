@@ -71,40 +71,6 @@ add_conf('$COMMUNITY_EMAIL',
          type => "email",
          );
 
-add_conf('$CAPTCHA_AUDIO_PREGEN',
-         required => 0,
-         default => 500,
-         des => "The max number of audio captchas to pre-generate ahead of time.",
-         type => "int",
-         );
-
-add_conf('$CAPTCHA_AUDIO_MAKE',
-         required => 0,
-         des => "The max number of audio captchas to make per-process.  Should be less than CAPTCHA_AUDIO_PREGEN.  Useful for farming out generation of CAPTCHA_AUDIO_PREGEN to lots of machines.",
-         type => "int",
-         STUPID_BECAUSE => "after each generation, processes should just double-check the number available, then we can kill this configuration variable",
-         );
-
-add_conf('$CAPTCHA_IMAGE_PREGEN',
-         required => 0,
-         default => 1000,
-         des => "The max number of image captchas to pre-generate ahead of time.",
-         type => "int",
-         );
-
-add_conf('$CAPTCHA_IMAGE_RAW',
-         required => 0,
-         des => "What image files to use to generate image captchas.",
-         default => '$LJ::HOME/htdocs/img/captcha',
-         );
-
-add_conf('$CAPTCHA_MOGILEFS',
-         required => 0,
-         type => "bool",
-         des => "If true, captchas are stored in MogileFS.",
-         STUPID_BECAUSE => "Should just be: if using MogileFS, store them there, else not.",
-         );
-
 add_conf('$COMPRESS_TEXT',
          required => 0,
          type => "bool",
@@ -444,10 +410,6 @@ add_conf('$BIN_SOX',
          type => "program",
          des => "Path to sox.  Needed for audio captcas.");
 
-add_conf('$BIN_FESTIVAL',
-         type => "program",
-         des => "Path to festival.  Needed for audio captchas.");
-
 add_conf('$LOCKDIR',
          type => "directory",
          des => "A directory to use for lock files if you're not using ddlockd for locking.");
@@ -466,7 +428,7 @@ add_conf('$MEMCACHE_CB_CONNECT_FAIL',
          des => "Callback when a connection to a memcached instance fails.  Subref gets the IP address that was being connected to, but without the port number.");
 
 add_conf('%REPROXY_DISABLE',
-         des => "Set of file classes that shouldn't be internally redirected to mogstored nodes.  Values are true, keys are one of 'userpics', 'captchas', or site-local file types like 'phoneposts' for ljcom.  Seee also \%USERPIC_REPROXY_DISABLE");
+         des => "Set of file classes that shouldn't be internally redirected to mogstored nodes.  Values are true, keys are one of 'userpics', or site-local file types like 'phoneposts' for ljcom.  Seee also \%USERPIC_REPROXY_DISABLE");
 
 add_conf('%DEBUG',
          type => '',
@@ -705,9 +667,9 @@ add_conf('%HOOKS',
 add_conf('%GZIP_OKAY',
          type => '',
          des => "");
-add_conf('%HUMAN_CHECK',
-         type => '',
-         des => "");
+add_conf('%CAPTCHA_FOR',
+         type => 'hash',
+         des => '$captcha_type => 1 if we should display a captcha on this page; $captcha_type => 0, or leave out of the hash, if we shouldn\'t display a captcha on this page.');
 add_conf('%DBINFO',
          type => '',
          des => "");
