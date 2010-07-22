@@ -2784,9 +2784,10 @@ sub remove_from_class {
 # or also accepts a hashref of propname keys and corresponding values.
 # Returns boolean indicating success or failure.
 sub set_prop {
-    my ( $u, $prop, $value ) = @_;
+    my ( $u, $prop, $value, $opts ) = @_;
     my $userid = $u->userid + 0;
     my $hash = ref $prop eq "HASH" ? $prop : { $prop => $value };
+    $opts ||= {};
 
     my %action;  # $table -> {"replace"|"delete"} -> [ "($propid, $qvalue)" | propid ]
     my %multihomed;  # { $propid => $value }
@@ -2816,7 +2817,7 @@ sub set_prop {
         $table = 'userpropblob' if $p->{datatype} eq 'blobchar';
 
         # only assign db for update action if value has changed
-        unless ( exists $u->{$propname} && $value eq $u->{$propname} ) {
+        unless ( $opts->{skip_db} && $value eq $u->{$propname} ) {
             my $db = $action{$table}->{db} ||= (
                 $table !~ m{userprop(lite2|blob)}
                     ? LJ::get_db_writer()  # global
