@@ -11,7 +11,7 @@ use LJ::Talk;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);
 
-plan tests => 27;
+plan tests => 36;
 
 # we want to test eight major cases here, matching and not matching for
 # four types of subscriptions, all of subscr etypeid = JournalNewComment
@@ -22,6 +22,9 @@ plan tests => 27;
 #    S3:     n ditemid jtalkid   all new comments UNDER comment n/jtalkid (in ditemid)
 #    S4:     0       0       0   all new comments from any journal you watch
 #    -- NOTE: This test is disabled unless JournalNewComment allows it
+
+# we also want to test for matching and not matching cases for JournalNewComment::TopLevel 
+# a subclass of JournalNewComment
 
 my %got_email = ();   # userid -> received email
 
@@ -219,6 +222,65 @@ test_esn_flow(sub {
         ok(! $email, "Did not receive notification");
         $subsc->delete;
     }
+
+
+    # LJ::Event::JournalNewComment::TopLevel
+    my $u2e5 = eval { $u2->t_post_fake_entry };
+
+    # subscribe to replies to a thread
+    my $subsc = $u1->subscribe(
+                            event   => "JournalNewComment::TopLevel",
+                            method  => "Email",
+                            journal => $u2,
+                            arg1    => $u2e5->ditemid,
+                            );
+    ok( $subsc, "Subscribed" );
+
+    # post a top-level comment
+    $comment = $u2e5->t_enter_comment;
+    ok( $comment, "Posted comment" );
+
+    $proc_events->();
+
+    $email = $got_email{$u1->{userid}};
+    ok( $email, "Got notified" );
+
+    $email = $got_email{$u2->{userid}};
+    ok( ! $email, "Unsubscribed watcher not notified" );
+
+    # reply to a comment on this entry, make sure we're not notified
+    my $reply = $comment->t_reply;
+    ok( $reply, "Posted reply" );
+
+    $email = $got_notified->( $u1 );
+    ok( ! $email, "didn't get notified" );
+
+    $subsc->delete;
+
+    my $u2e6 = eval { $u2->t_post_fake_entry };
+    $subsc = $u1->subscribe(
+                            event   => "JournalNewComment",
+                            method  => "Email",
+                            journal => $u2,
+                            arg1    => $u2e6->ditemid,
+                            );
+
+    my $subsc2 = $u1->subscribe( 
+                    event  => "JournalNewComment::TopLevel",
+                    method  => "Email",
+                    journal => $u2,
+                    arg1    => $u2e6->ditemid,
+                );
+    ok( $subsc2, "Subscribed to new top-level comments on this journal" );
+
+    $comment = $u2e6->t_enter_comment( u => $u2 );
+    ok( $comment, "Posted comment" );
+
+    $proc_events->();
+    is( $got_email{$u1->userid}, 1, "No duplicate emails");
+
+    $subsc->delete;
+    $subsc2->delete;
 
 });
 

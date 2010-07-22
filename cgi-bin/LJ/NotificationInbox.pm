@@ -179,7 +179,7 @@ sub subset_items {
 sub singleentry_items {
     my ( $self, $itemid ) = @_;
     return grep {
-        $_->event->class eq "LJ::Event::JournalNewComment"
+        ( $_->event->class eq "LJ::Event::JournalNewComment" || $_->event->class eq "LJ::Event::JournalNewComment::TopLevel" )
         && $_->event->comment
         && $_->event->comment->entry    # may have been deleted, which breaks all filter to entry comments
         && $_->event->comment->entry->ditemid == $itemid
@@ -297,7 +297,7 @@ sub instantiate_comment_singletons {
     # instantiate all the comment singletons so that they will all be
     # loaded efficiently later as soon as preload_rows is called on
     # the first comment object
-    my @comment_items = grep { $_->event && $_->event->class eq 'LJ::Event::JournalNewComment' } $self->items;
+    my @comment_items = grep { $_->event && ( $_->event->class eq 'LJ::Event::JournalNewComment' || $_->event->class eq 'LJ::Event::JournalNewComment::TopLevel' ) } $self->items;
     my @comment_events = map { $_->event } @comment_items;
     # instantiate singletons
     LJ::Comment->new($_->event_journal, jtalkid => $_->jtalkid) foreach @comment_events;
@@ -755,7 +755,7 @@ sub circle_event_list {
 }
 
 sub entrycomment_event_list {
-    my @events = ( 'JournalNewEntry', 'JournalNewComment');
+    my @events = ( 'JournalNewEntry', 'JournalNewComment', 'JournalNewComment::TopLevel' );
     return @events;
 }
 

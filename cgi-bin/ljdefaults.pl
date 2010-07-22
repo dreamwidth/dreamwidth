@@ -205,6 +205,7 @@
                                JournalNewComment
                                JournalNewEntry
                                UserNewComment
+                               JournalNewComment::TopLevel
                                UserNewEntry
                                CommunityInvite
                                CommunityJoinRequest

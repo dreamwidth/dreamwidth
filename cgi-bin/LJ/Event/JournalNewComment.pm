@@ -28,6 +28,10 @@ sub new {
     return $class->SUPER::new($comment->journal, $comment->jtalkid);
 }
 
+sub related_events {
+    return map { $_->etypeid } ( $_[0], "LJ::Event::JournalNewComment::TopLevel" );
+}
+
 sub is_common { 1 }
 
 my @_ml_strings_en = (
@@ -326,13 +330,13 @@ sub as_html_actions {
 # 33 event.journal_new_comment.user_journal.untitled_entry.untitled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>the thread</a> by (Anonymous) in <a href='[[entryurl]]'>en entry</a> in [[user]]
 # -- now, let's begin.
 sub subscription_as_html {
-    my ($class, $subscr) = @_;
+    my ( $class, $subscr, $key_prefix ) = @_;
 
     my $arg1 = $subscr->arg1;
     my $arg2 = $subscr->arg2;
     my $journal = $subscr->journal;
 
-    my $key = 'event.journal_new_comment';
+    my $key = $key_prefix || 'event.journal_new_comment';
 
     if (!$journal) {
 ### 01 event.journal_new_comment.friend=Someone comments in any journal on my friends page

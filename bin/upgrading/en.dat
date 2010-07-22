@@ -1925,6 +1925,18 @@ event.journal_new_entry.taglist.full=Other tags
 
 event.journal_new_entry.user=[[user]] posts a new entry.
 
+event.journal_new_top_comment.my_journal.deleted=Someone makes a new top-level comment on a deleted entry in my journal
+
+event.journal_new_top_comment.my_journal.titled_entry=Someone makes a new top-level comment on <a href='[[entryurl]]'>[[entrydesc]]</a> in my journal
+
+event.journal_new_top_comment.my_journal.untitled_entry=Someone makes a new top-level comment on <a href='[[entryurl]]'>an entry</a> in my journal
+
+event.journal_new_top_comment.user_journal.deleted=Someone makes a new top-level comment on a deleted entry in [[user]]
+
+event.journal_new_top_comment.user_journal.titled_entry=Someone makes a new top-level comment on <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+
+event.journal_new_top_comment.user_journal.untitled_entry=Someone makes a new top-level comment on <a href='[[entryurl]]'>an entry</a> in [[user]]
+
 event.officialpost=[[sitename]] makes a new announcement
 
 event.poll_vote.id=Someone votes in poll #[[pollid]]
