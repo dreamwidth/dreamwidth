@@ -1331,8 +1331,8 @@ sub start_request
         LJ::need_res( {group=>'jquery'},
             # jquery library is the big one, load first
             $LJ::IS_DEV_SERVER ?
-                'js/jquery/jquery-1.3.2.js' :
-                'js/jquery/jquery-1.3.2.min.js',
+                'js/jquery/jquery-1.4.2.js' :
+                'js/jquery/jquery-1.4.2.min.js',
 
             # the rest of the libraries
             qw(
