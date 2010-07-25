@@ -488,7 +488,8 @@ use strict;
                 <div class='EditIconsStatus'>
             };
 
-        $body .= "<p><strong>" . BML::ml('.piclimitstatus', {current => scalar @userpics, max => $max}) . "</strong></p>";;
+        $body .= "<p><strong>" . BML::ml( '.piclimitstatus', { current => scalar @userpics, max => $max } ) . "</strong> ";
+        $body .= BML::ml( '.view.allicons', { aopts => "href='" . $u->allpics_base . "'" } ) . "</p>";
         if (scalar @userpics >= $max) {
             my $inline;
             if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'EditPics')) {

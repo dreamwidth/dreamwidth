@@ -6068,7 +6068,7 @@ sub activate_userpics {
 
 sub allpics_base {
     my $u = shift;
-    return $u->journal_base . "/icons";;
+    return $u->journal_base . "/icons";
 }
 
 # clears the internally cached mapping of userpics to keywords for this

@@ -143,6 +143,8 @@
 
 .userpic=Userpic [[num]]: 
 
+.view.allicons=[<a [[aopts]]>View all uploaded icons</a>]
+
 .warning.keywords=One or more of your pictures do not have keywords defined and thus cannot currently be used
 
 .warning.keywords.faq=One or more of your pictures do not have <a [[aopts]]>keywords</a> defined and thus cannot currently be used
