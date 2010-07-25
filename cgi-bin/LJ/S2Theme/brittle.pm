@@ -1,7 +1,7 @@
 package LJ::S2Theme::brittle;
 use base qw( LJ::S2Theme );
 
-sub layouts { ( "2r" => "two-columns-right" ) }
+sub layouts { ( "2l" => "two-columns-left", "2r" => "two-columns-right" ) }
 sub layout_prop { "layout_type" }
 
 sub designer { "renoir" }
