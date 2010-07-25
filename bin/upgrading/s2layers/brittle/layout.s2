@@ -477,8 +477,8 @@ div.entry div.userpic {
     }
 
 div.entry div.userpic img {
-    width: 70px;
-    height: 70px; /*FIXME -- this shouldn't be hardcoded */
+    width: 64%;
+    height: auto;
     border: 5px solid $*color_navigation_module_background;
     }
 
@@ -693,8 +693,8 @@ div.comment div.userpic {
     }
 
 div.comment div.userpic img {
-    width: 70px;
-    height: 70px; /*FIXME: don't hardcode userpic sizes!*/
+    width: 64%;
+    height: auto;
     border: 5px solid $*color_navigation_module_background;
     }
 
