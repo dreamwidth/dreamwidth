@@ -2018,7 +2018,7 @@ property string text_view_tags {
 set text_view_recent = "Recent Entries";
 set text_view_recent_tagged = "Entries tagged with ";
 set text_view_friends = "Reading";
-set text_view_friends_comm = "Reading";
+set text_view_friends_comm = "Member Posts";
 set text_view_friends_filter = "Reading (Custom filter)";
 set text_view_network = "Network";
 set text_view_network_filter = "Network (Custom filter)";
@@ -2923,9 +2923,16 @@ function lang_ordinal(string num) [notags, fixed] : string
 function lang_viewname(string viewid) [notags] : string
 "Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout. Sets strings according to layer or wizard supplied string properties."
 {
+    var Page p = get_page();
     if ($viewid == "recent") { return $*text_view_recent; }
     if ($viewid == "archive") { return $*text_view_archive; }
-    if ($viewid == "read") { return $*text_view_friends; }
+    if ($viewid == "read") {
+        if ( $p.journal.journal_type == "C" ) {
+            return $*text_view_friends_comm;
+        } else {
+            return $*text_view_friends;
+        }
+    }
     if ($viewid == "network") { return $*text_view_network; }
     if ($viewid == "day") { return "Day"; }
     if ($viewid == "month") { return "Month"; }
@@ -2934,7 +2941,6 @@ function lang_viewname(string viewid) [notags] : string
     if ($viewid == "reply") { return "Post Comment"; }
     if ($viewid == "tags") { return "$*text_view_tags"; }
     if ($viewid == "memories") { return $*text_view_memories; }
-    if ($viewid == "network") { return $*text_view_network; }
     return "Unknown View";
 }
 
