@@ -2887,7 +2887,7 @@ sub set_prop {
             return 0 if $u->err;
 
             # set memcache and update user object
-            $memc->( $propid, $pvalue );
+            $memc->( [ $propid, $pvalue ] );
         }
     }
 
