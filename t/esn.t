@@ -9,8 +9,7 @@ use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);
 
-#plan tests => 15;
-plan skip_all => 'Fix this test!';
+plan tests => 15;
 
 @LJ::EVENT_TYPES = ('LJ::Event::ForTest1', 'LJ::Event::ForTest2');
 $LJ::_T_FAST_TEMP_USER = 1;
@@ -18,9 +17,9 @@ $LJ::_T_FAST_TEMP_USER = 1;
 my $up;
 my $u = temp_user();
 
-# create another user and make $u2 friend $u
+# create another user and make $u2 watch $u
 my $u2 = temp_user();
-LJ::add_friend($u2, $u);
+$u2->add_edge( $u, watch => { nonotify => 1 } );
 
 my ($evt, $evt2);
 
@@ -93,11 +92,11 @@ sub wipe_typeids {
 
 package LJ::Event::ForTest1;
 use base 'LJ::Event';
-sub zero_journalid_subs_means { "friends" }
+sub zero_journalid_subs_means { "watched" }
 
 package LJ::Event::ForTest2;
 use base 'LJ::Event';
-sub zero_journalid_subs_means { "friends" }
+sub zero_journalid_subs_means { "watched" }
 
 package LJ::NotificationMethod::ForTest;
 use base 'LJ::NotificationMethod';
