@@ -130,7 +130,7 @@ body<=
                 $nonmember_posting = 1;
             }
 
-            LJ::update_user($cu, { journaltype => 'C', password => '' });
+            $cu->update_self( { journaltype => 'C', password => '' } );
             if ($mode eq 'create') {
                 LJ::set_rel($cu, $remote, 'A');
 

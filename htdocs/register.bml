@@ -116,7 +116,7 @@ body<=
         }
      }
 
-     LJ::update_user($u, { status => 'A' });
+     $u->update_self( { status => 'A' } );
      $u->update_email_alias;
      LJ::Hooks::run_hook('email_verified', $u);
 

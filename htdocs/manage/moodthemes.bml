@@ -275,7 +275,7 @@ body<=
                 foreach ( keys %update ) {
                     delete $update{$_} if $u->{$_} eq $update{$_};
                 }
-                LJ::update_user( $u, \%update );
+                $u->update_self( \%update );
                 return BML::redirect( $self_uri );
             }
         } elsif ( $POST{isnew} != 1 ) {

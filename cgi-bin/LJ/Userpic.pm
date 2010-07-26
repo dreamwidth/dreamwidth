@@ -738,7 +738,7 @@ sub make_default {
     my $u = $self->owner
         or die;
 
-    LJ::update_user($u, { defaultpicid => $self->id });
+    $u->update_self( { defaultpicid => $self->id } );
     $u->{'defaultpicid'} = $self->id;
 }
 

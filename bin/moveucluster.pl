@@ -508,9 +508,9 @@ sub moveUser {
                  "VALUES (?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())", undef, 
                  $userid, $sclust, 0);
 
-        LJ::update_user($userid, { clusterid => 0,
-                                   statusvis => 'X',
-                                   raw => "caps=caps&~(1<<$readonly_bit), statusvisdate=NOW()" })
+        $u->update_self( { clusterid => 0,
+                           statusvis => 'X',
+                           raw => "caps=caps&~(1<<$readonly_bit), statusvisdate=NOW()" } )
             or die "Couldn't update user to expunged";
 
         # note that we've expunged this user in the "expunged_users" db table
@@ -606,8 +606,8 @@ sub moveUser {
     my $cmid = $dbh->{'mysql_insertid'};
 
     # set readonly cap bit on user
-    unless ($opts->{prelocked} ||
-            LJ::update_user($userid, { raw => "caps=caps|(1<<$readonly_bit)" }))
+    unless ( $opts->{prelocked} ||
+             $u->update_self( { raw => "caps=caps|(1<<$readonly_bit)" } ) )
     {
         die "Failed to set readonly bit on user: $user\n";
     }
@@ -983,12 +983,12 @@ sub moveUser {
     my $unlocked;
     if (! $verify_code || $verify_code->()) {
         # unset readonly and move to new cluster in one update
-        $unlocked = LJ::update_user($userid, { clusterid => $dclust, raw => "caps=caps&~(1<<$readonly_bit)" });
+        $unlocked = $u->update_self( { clusterid => $dclust, raw => "caps=caps&~(1<<$readonly_bit)" } );
         print "Moved.\n" if $optv;
     } else {
         # job server went away or we don't have permission to flip the clusterid attribute
         # so just unlock them
-        $unlocked = LJ::update_user($userid, { raw => "caps=caps&~(1<<$readonly_bit)" });
+        $unlocked = $u->update_self( { raw => "caps=caps&~(1<<$readonly_bit)" } );
         die "Job server said no.\n";
     }
 

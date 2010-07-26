@@ -642,7 +642,7 @@ body<=
 
         my $save_rv = LJ::Setting->save_all($remote, \%POST, \@settings);
 
-        LJ::update_user($u, \%update);
+        $u->update_self( \%update );
 
         ### change any of the userprops ?
         {

@@ -143,8 +143,7 @@ sub test_esn_flow {
     my $u2 = temp_user();
 
     # need a community for $u1 and $u2 to play in
-    my $ucomm = temp_user();
-    LJ::update_user($ucomm, { journaltype => 'C' });
+    my $ucomm = temp_comm();
 
     LJ::add_friend($u1, $u2); # make u1 friend u2
     $cv->($u1, $u2, $ucomm);

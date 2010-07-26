@@ -104,7 +104,7 @@ sub execute {
             next;
         }
 
-        LJ::update_user($u->{'userid'}, { statusvis => 'V', raw => 'statusvisdate=NOW()' });
+        $u->update_self( { statusvis => 'V', raw => 'statusvisdate=NOW()' } );
         $u->{statusvis} = 'V';
 
         LJ::statushistory_add($u, $remote, "unsuspend", $reason);

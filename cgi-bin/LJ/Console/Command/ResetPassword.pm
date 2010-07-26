@@ -49,7 +49,7 @@ sub execute {
     return $self->error("Failed to insert old password into infohistory.")
         unless $rval;
 
-    LJ::update_user($u, { password => $newpass, })
+    $u->update_self( { password => $newpass, } )
         or return $self->error("Failed to set new password for $username");
 
     $u->kill_all_sessions;

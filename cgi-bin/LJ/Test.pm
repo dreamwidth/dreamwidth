@@ -103,7 +103,7 @@ sub temp_comm {
     my $u = temp_user();
 
     # update journaltype
-    LJ::update_user($u, { journaltype => 'C' });
+    $u->update_self( { journaltype => 'C' } );
 
     # communities always have a row in 'community'
     my $dbh = LJ::get_db_writer();
@@ -120,7 +120,7 @@ sub temp_feed {
     my $u = temp_user();
 
     # update journaltype
-    LJ::update_user($u, { journaltype => 'Y' });
+    $u->update_self( { journaltype => 'Y' } );
 
     # communities always have a row in 'syndicated'
     my $dbh = LJ::get_db_writer();

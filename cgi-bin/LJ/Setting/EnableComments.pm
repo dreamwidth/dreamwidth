@@ -72,7 +72,7 @@ sub save {
     my $showtalklinks = $val eq "none" ? "N" : "Y";
     my $whocanreply = $val eq "none" ? $u->{opt_whocanreply} : $val;
 
-    LJ::update_user($u, { opt_showtalklinks => $showtalklinks, opt_whocanreply => $whocanreply });
+    $u->update_self( { opt_showtalklinks => $showtalklinks, opt_whocanreply => $whocanreply } );
 
     return 1;
 }

@@ -39,11 +39,11 @@ memcache_stress(sub {
     my $name;
     {
         $name = "My name is " . rand();
-        LJ::update_user($u, { name => $name });
+        $u->update_self( { name => $name } );
         is($u->{name}, $name, "name changed after update");
 
         $name = "My name is " . rand();
-        LJ::update_user($u, { raw => "name='$name'" });
+        $u->update_self( { raw => "name='$name'" } );
         is($u->{name}, $name, "name changed after raw update");
     }
 

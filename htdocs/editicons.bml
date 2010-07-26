@@ -723,7 +723,7 @@ sub update_userpics
         }
     } elsif ($new_default eq '0' && $u->{'defaultpicid'}) {
         # selected the "no default picture" option
-        LJ::update_user($u, { defaultpicid => 0 });
+        $u->update_self( { defaultpicid => 0 } );
         $u->{'defaultpicid'} = 0;
     }
     

@@ -75,7 +75,7 @@ sub save {
     my ($class, $u, $args) = @_;
 
     my $val = $class->get_arg($args, "commentemailnotify") ? "Y" : "N";
-    LJ::update_user($u, { opt_gettalkemail => $val });
+    $u->update_self( { opt_gettalkemail => $val } );
 
     return 1;
 }

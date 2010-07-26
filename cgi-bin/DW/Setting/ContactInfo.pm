@@ -80,7 +80,7 @@ sub save {
     $class->error_check( $u, $args );
 
     my $val = $class->get_arg( $args, "contactinfo" );
-    LJ::update_user( $u, { allow_contactshow => $val } );
+    $u->update_self( { allow_contactshow => $val } );
 
     return 1;
 }
