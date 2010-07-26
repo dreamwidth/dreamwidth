@@ -341,8 +341,9 @@ sub t_post_fake_entry {
 
     die "Error posting: $res{errmsg}" unless $res{'success'} eq "OK";
     my $jitemid = $res{itemid} or die "No itemid";
+    my $ju = $opts{usejournal} ? LJ::load_user( $opts{usejournal} ) : $u;
 
-    return LJ::Entry->new($u, jitemid => $jitemid);
+    return LJ::Entry->new( $ju, jitemid => $jitemid );
 }
 
 package LJ::Entry;
