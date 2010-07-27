@@ -3616,6 +3616,8 @@ subscribe_interface.category.notices=Notices
 
 subscribe_interface.category.subscription-tracking=Subscription Tracking
 
+subscribe_interface.category.track-comments=Track These Comments
+
 subscribe_interface.category.track-entry=Track This Entry
 
 subscribe_interface.category.track-user=Track This User
