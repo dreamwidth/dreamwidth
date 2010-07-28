@@ -45,6 +45,9 @@ sub render_body {
            } ) unless $opts->{no_auth};
 
     my $has_icons = $res && ref $res->{pickws} eq 'ARRAY' && scalar @{ $res->{pickws} } > 0;
+
+    my $userpic_msg_default = LJ::Lang::ml( 'entryform.userpic.default' );
+    my $userpic_msg_upload  = LJ::Lang::ml( 'entryform.userpic.upload' );
     my $defpic = LJ::Lang::ml( 'entryform.opt.defpic' );
     my $onload = $opts->{onload};
 
@@ -83,8 +86,8 @@ sub render_body {
                             \$('userpic').style.display = 'block';
                         }
                         var userpic_msg;
-                        if (userpics[0] == "") { userpic_msg = 'Choose default userpic' }
-                        if (userpics.length == 0) { userpic_msg = 'Upload a userpic' }
+                        if (userpics[0] == "") { userpic_msg = '$userpic_msg_default' }
+                        if (userpics.length == 0) { userpic_msg = '$userpic_msg_upload' }
 
                         if (userpic_select && userpics[userpic_select.selectedIndex] != "") {
                             \$('userpic_preview').className = '';
@@ -195,7 +198,7 @@ sub render_body {
     } elsif ( !$u || $opts->{altlogin} )  {
         $$pic .= "<div id='userpic'><p id='userpic_preview'><img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
     } else {
-        $$pic .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editicons'>Upload a userpic</a></p></div>";
+        $$pic .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editicons'>$userpic_msg_upload</a></p></div>";
     }
 
     if ( $has_icons ) {

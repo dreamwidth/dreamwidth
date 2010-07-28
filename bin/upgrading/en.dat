@@ -1157,7 +1157,11 @@ entryform.userpic=Userpic:
 
 entryform.userpic.choose=Choose userpic
 
+entryform.userpic.default=Choose default userpic
+
 entryform.userpic.random=Choose random icon
+
+entryform.userpic.upload=Upload a userpic
 
 entryform.userpics=User Picture Icon:
 
