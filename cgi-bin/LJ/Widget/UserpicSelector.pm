@@ -24,50 +24,49 @@ sub need_res {
 }
 
 sub handle_post {
-    my $class = shift;
-
     return;
 }
 
 sub render_body {
-    my ($class, $user, $head, $pic, $picform, $opts) = @_;
+    my ( $class, $u, $head, $pic, $picform, $opts ) = @_;
 
-    my $u = $user;
-    return "" unless $u;
+    return "" unless LJ::isu( $u );
     return "" unless LJ::is_enabled('userpicselect') || $u->can_use_userpic_select;
 
     my $res;
-    $res = LJ::Protocol::do_request("login", {
-        "ver" => $LJ::PROTOCOL_VER,
-        "username" => $u->{'user'},
-        "getpickws" => 1,
-        "getpickwurls" => 1,
-    }, undef, {
-        "noauth" => 1,
-        "u" => $u,
-    });
+    $res = LJ::Protocol::do_request( "login", {
+               ver => $LJ::PROTOCOL_VER,
+               username => $u->user,
+               getpickws => 1,
+               getpickwurls => 1,
+           }, undef, {
+               noauth => 1,
+               u => $u,
+           } ) unless $opts->{no_auth};
 
-    ### Userpic
-    my $userpic_preview = "";
+    my $has_icons = $res && ref $res->{pickws} eq 'ARRAY' && scalar @{ $res->{pickws} } > 0;
+    my $defpic = LJ::Lang::ml( 'entryform.opt.defpic' );
+    my $onload = $opts->{onload};
 
-    # User Picture
-    if ($res && ref $res->{'pickws'} eq 'ARRAY' && scalar @{$res->{'pickws'}} > 0) {
-        my @pickws = map { ($_, $_) } @{$res->{'pickws'}};
+    if ( ! $opts->{altlogin} && $has_icons ) {
+        # start with default picture info
         my $num = 0;
-        my $userpics .= "    userpics[$num] = \"$res->{'defaultpicurl'}\";\n";
-        my $altcode .= "     alttext[$num] = \"" . BML::ml('entryform.opt.defpic') . "\";\n";
-        foreach (@{$res->{'pickwurls'}}) {
+        my $userpics .= "    userpics[$num] = \"$res->{defaultpicurl}\";\n";
+        my $altcode .= "     alttext[$num] = \"$defpic\";\n";
+
+        foreach ( @{ $res->{pickwurls} } ) {
             $num++;
             $userpics .= "    userpics[$num] = \"$_\";\n";
         }
-        $num = 0;
-        foreach ( @{$res->{pickws}} ) {
+
+        $num = 0;  # reset
+
+        foreach ( @{ $res->{pickws} } ) {
            $num++;
            $altcode .= "     alttext[$num] = \"" . LJ::ejs($_) . "\";\n";
         }
 
-        my $userpic_link_text;
-        $userpic_link_text = BML::ml('entryform.userpic.choose') if $u;
+        $$onload .= " userpic_preview();" if $onload;
 
         $$head .= qq {
             <script type="text/javascript" language="JavaScript"><!--
@@ -78,7 +77,7 @@ sub render_body {
                     $altcode
                     function userpic_preview() {
                         if (! document.getElementById) return false;
-                        var userpic_select          = document.getElementById('prop_picture_keyword');
+                        var userpic_select = document.getElementById('prop_picture_keyword');
 
                         if (\$('userpic') && \$('userpic').style.display == 'none') {
                             \$('userpic').style.display = 'block';
@@ -103,11 +102,21 @@ sub render_body {
                     }
                 }
             //--></script>
+        };
+
+        my $viewthumbnails_link = '';
+        if ( $opts->{entry_js} ) {
+            my $thumbnail_text = LJ::Lang::ml( '/update.bml.link.view_thumbnails' );
+            $viewthumbnails_link = qq {
+                var ml = new Object();
+                ml.viewthumbnails_link = "$thumbnail_text";
             };
+        }
 
         $$head .= qq {
             <script type="text/javascript" language="JavaScript">
             // <![CDATA[
+                $viewthumbnails_link
                 DOM.addEventListener(window, "load", function (evt) {
                 // attach userpicselect code to userpicbrowse button
                     var ups_btn = \$("lj_userpicselect");
@@ -177,36 +186,58 @@ sub render_body {
             </script>
         } if $u->can_use_userpic_select;
 
-        $$pic .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
-        $$pic .= "\n";
-
-        $$picform .= "<p id='userpic_select_wrapper' class='pkg'>\n";
-        $$picform .= "<label for='prop_picture_keyword' class='left'>" . BML::ml('entryform.userpic') . " </label> \n" ;
-        $$picform .= LJ::html_select({
-                         'name' => 'prop_picture_keyword',
-                         'id' => 'prop_picture_keyword',
-                         'class' => 'select',
-                         'selected' => $opts->{'prop_picture_keyword'},
-                         'onchange' => "userpic_preview()",
-                        },
-                        "", BML::ml('entryform.opt.defpic'),
-                        @pickws) . "\n";
-        $$picform .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
-        # userpic browse button
-        $$picform .= LJ::help_icon_html("userpics", "", " ") . "\n";
-        $$picform .= "</p>\n\n";
-        $$picform .= q {
-                       <script type="text/javascript" language="JavaScript">
-                       userpic_preview();
-                 };
-        $$picform .= "insertViewThumbs()"
-            if $u->can_use_userpic_select;
-        $$picform .= "</script>\n";
-
-    } elsif (!$u)  {
+        $$pic .= "<div id='userpic' style='display: none;'><p id='userpic_preview'>";
+        $$pic .= "<a href='javascript:void(0);' id='lj_userpicselect_img'>";
+        $$pic .= "<img src='' alt='selected userpic' id='userpic_preview_image' />";
+        $$pic .= "<span id='lj_userpicselect_img_txt'>";
+        $$pic .= LJ::Lang::ml( 'entryform.userpic.choose' );
+        $$pic .= "</span></a></p></div>\n";
+    } elsif ( !$u || $opts->{altlogin} )  {
         $$pic .= "<div id='userpic'><p id='userpic_preview'><img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
     } else {
         $$pic .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editicons'>Upload a userpic</a></p></div>";
+    }
+
+    if ( $has_icons ) {
+
+        my @pickws = map { ( $_, $_ ) } @{ $res->{pickws} };
+
+        my $display = '';
+        if ( exists $opts->{altlogin} ) {
+            my $userpic_display = $opts->{altlogin} ? 'none' : 'block';
+            $display = " style='display: $userpic_display;'";
+        }
+        my $tabindex = $opts->{entry_js} ? '~~TABINDEX~~' : undef;
+
+        $$picform .= "<p id='userpic_select_wrapper' class='pkg'$display>\n";
+        $$picform .= "<label for='prop_picture_keyword' class='left'>";
+        $$picform .= LJ::Lang::ml( 'entryform.userpic' ) . " </label>\n" ;
+        $$picform .= LJ::html_select( {
+                         name => 'prop_picture_keyword',
+                         id => 'prop_picture_keyword',
+                         class => 'select',
+                         selected => $opts->{prop_picture_keyword},
+                         onchange => "userpic_preview()",
+                         tabindex => $tabindex,
+                     }, "", $defpic, @pickws ) . "\n";
+        $$picform .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
+        # userpic browse button
+        if ( $onload ) {
+            $$onload .= " insertViewThumbs();" if $u->can_use_userpic_select;
+            # random icon button
+            $$picform .= "<a href='javascript:void(0)' onclick='randomicon();' id='randomicon'>";
+            $$picform .= LJ::Lang::ml( 'entryform.userpic.random' ) . "</a>";
+            $$onload .= " showRandomIcon();";
+        } else {
+            $$picform .= q {
+                           <script type="text/javascript" language="JavaScript">
+                           userpic_preview();
+                           };
+            $$picform .= "insertViewThumbs()" if $u->can_use_userpic_select;
+            $$picform .= "</script>\n";
+        }
+        $$picform .= LJ::help_icon_html( "userpics", "", " " );
+        $$picform .= "</p>\n\n";
     }
 
 
