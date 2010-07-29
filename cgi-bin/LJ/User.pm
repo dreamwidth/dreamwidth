@@ -2797,6 +2797,7 @@ sub set_prop {
 
     my %action;  # $table -> {"replace"|"delete"} -> [ "($propid, $qvalue)" | propid ]
     my %multihomed;  # { $propid => $value }
+    my %propnames;   # { $propid => $propname }
 
     # Accumulate prepared actions.
     foreach my $propname ( keys %$hash ) {
@@ -2809,6 +2810,7 @@ sub set_prop {
 
         my $p = LJ::get_prop( "user", $propname ) or
             die "Attempted to set invalid userprop $propname.";
+        $propnames{ $p->{id} } = $propname;
 
         if ( $p->{multihomed} ) {
             # collect into array for later handling
@@ -2833,17 +2835,17 @@ sub set_prop {
 
         # determine if this is a replacement or a deletion
         if ( defined $value && $value ) {
-            push @{ $action{$table}->{replace} }, [ $p->{id}, $value, $propname ];
+            push @{ $action{$table}->{replace} }, [ $p->{id}, $value ];
         } else {
-            push @{ $action{$table}->{delete} }, [ $p->{id}, "", $propname ];
+            push @{ $action{$table}->{delete} }, $p->{id};
         }
     }
 
     # keep in memcache for 24 hours and update user object in memory
     my $memc = sub {
-        my ( $p, $v, $propname ) = @{ $_[0] };
+        my ( $p, $v ) = @_;
         LJ::MemCache::set( [ $userid, "uprop:$userid:$p" ], $v, 3600 * 24 );
-        $u->{$propname} = $v eq "" ? undef : $v;
+        $u->{ $propnames{$p} } = $v eq "" ? undef : $v;
     };
 
     # Execute prepared actions.
@@ -2855,15 +2857,15 @@ sub set_prop {
                 $db->do( "REPLACE INTO $table (userid, upropid, value) VALUES $vals" );
                 die $db->errstr if $db->err;
             }
-            $memc->( $_ ) foreach @$list;
+            $memc->( $_->[0], $_->[1] ) foreach @$list;
         }
         if ( my $list = $action{$table}->{delete} ) {
             if ( $db ) {
-                my $in = join( ',', map { $_->[0] } @$list );
+                my $in = join( ',', @$list );
                 $db->do( "DELETE FROM $table WHERE userid=$userid AND upropid IN ($in)" );
                 die $db->errstr if $db->err;
             }
-            $memc->( $_ ) foreach @$list;
+            $memc->( $_, "" ) foreach @$list;
         }
     }
 
@@ -2893,7 +2895,7 @@ sub set_prop {
             return 0 if $u->err;
 
             # set memcache and update user object
-            $memc->( [ $propid, $pvalue ] );
+            $memc->( $propid, $pvalue );
         }
     }
 
