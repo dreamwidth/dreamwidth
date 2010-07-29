@@ -371,7 +371,7 @@ body<=
     $ret .= LJ::name_caps($u->{'caps'}) || "<i>$ML{'.unknown'}</i>";
     $ret .= "</td></tr>\n";
 
-    if ( $u->userid ) {
+    if ($u->{'userid'}) {
         $ret .= "<tr valign='top'><td align='right'><b>$LJ::SITENAMESHORT:</b></td><td>";
 
         if ($u->is_expunged) {
@@ -552,18 +552,19 @@ body<=
             $most_recent_tier = $le->{tier};
         }
 
-        my $up = LJ::load_userid( $le->{userid} );
-        my $remote_is_up = $remote && $remote->equals( $up );
+        next if ($le->{'type'} eq "internal" && ! (LJ::Support::can_read_internal($sp, $remote) ||
+                                                   ($remote && $remote->{'userid'} == $le->{'userid'} )));
+        next if ($le->{'type'} eq "screened" && ! (LJ::Support::can_read_screened($sp, $remote) ||
+                                                   ($remote && $remote->{'userid'} == $le->{'userid'} )));
 
-        next if $le->{type} eq "internal" && ! ( LJ::Support::can_read_internal( $sp, $remote )
-                                                 || $remote_is_up );
-        next if $le->{type} eq "screened" && ! ( LJ::Support::can_read_screened( $sp, $remote )
-                                                 || $remote_is_up );
-        next if $le->{type} eq "screened" && $up && !$up->is_visible;
+        my $up = LJ::load_userid($le->{'userid'});
+        next if ($le->{'type'} eq "screened") && $up && !$up->is_visible;
 
-        push @screened, $le if $le->{type} eq "screened";
+        if ($le->{'type'} eq "screened") {
+            push @screened, $le;
+        }
 
-        my $message = $le->{message};
+        my $message = $le->{'message'};
         my %url;
         my $urlN = 0;
 
