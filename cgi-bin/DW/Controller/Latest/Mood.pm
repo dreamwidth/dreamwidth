@@ -45,11 +45,12 @@ sub mood_handler {
     my $moods = LJ::MemCache::get( "latest_moods" ) || [];
     my $out = {};
     my $num_top = 5;
+    my $count = scalar @$moods;
 
-    if ( scalar @$moods ) {
+    if ( $count ) {
         my %counts;
         my $score = 0;
-        my $count = scalar @$moods;
+        my $to_show = $count > $num_top ? $num_top : $count;
 
         my $metadata = DW::Mood->get_moods;
 
@@ -59,7 +60,8 @@ sub mood_handler {
         }
 
         my @names = sort { $counts{$b} <=> $counts{$a} || $a cmp $b } keys %counts;
-        my %top_counts = map { ($_,$counts{$_}) } splice( @names, 0, $num_top );
+        my @highest = @names[0..( $to_show - 1)];
+        my %top_counts = map { ($_,$counts{$_}) } @highest;
         my @top_mood;
         foreach my $mood ( @names ) {
             if ( $counts{$mood} == $counts{$names[0]} ) {
@@ -72,7 +74,7 @@ sub mood_handler {
         $out->{counts} = \%top_counts;
         $out->{score} = int($score / $count);
         $out->{score} = $r->get_args->{score} if defined $r->get_args->{score};
-        $out->{highest} = [ splice( @names, 0, $num_top ) ];
+        $out->{highest} = \@highest;
         $out->{top_mood} = \@top_mood;
     } else {
         $out->{no_data} = 1;
