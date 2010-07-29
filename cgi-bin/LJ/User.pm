@@ -8423,7 +8423,9 @@ sub make_journal {
             }
 
             # resource URLs have the styleid in it
-            if ($view eq "res" && $opts->{'pathextra'} =~ m!^/(\d+)/!) {
+            # unless they're a special style, like sitefeeds (which have no styleid)
+            # in which case, let them fall through. Something else will handle it
+            if ( $view eq "res" && $opts->{'pathextra'} =~ m!^/(\d+)/! && $1 ) {
                 return (2, $1);
             }
 
