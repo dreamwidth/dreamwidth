@@ -642,6 +642,7 @@ sub is_valid_tagstring {
         $tag =~ s/\s+/ /g; # condense multiple spaces to a single space
         $tag = LJ::text_trim($tag, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD);
         $tag = LJ::utf8_lc( $tag );
+        $tag = LJ::trim( $tag ); # after trucating, there may be a trailing space
         return $tag;
     };
 

@@ -5921,7 +5921,7 @@ sub get_keyword_id
 
     # setup the keyword for use
     return 0 unless $kw =~ /\S/;
-    $kw = LJ::text_trim( $kw, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
+    $kw = LJ::trim( LJ::text_trim( $kw, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD ) );
 
     # get the keyword and insert it if necessary
     my $kwid = $u->selectrow_array( 'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
