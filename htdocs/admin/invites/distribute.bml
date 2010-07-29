@@ -45,6 +45,17 @@ body<=
         my $selected_user_class = $POST{user_class};
         my $reason = $POST{reason};
 
+        # sanitize the number of invites
+        $num_invites_requested =~ s/[^0-9]//g;
+        $num_invites_requested += 0;
+
+        return LJ::error_list( $ML{ '.error.noinvites' } ) unless $num_invites_requested;
+
+        # sanitize selected user class
+        my $class_names = DW::BusinessRules::InviteCodes::user_classes();
+        return LJ::error_list( LJ::Lang::ml( '.error.nosuchclass', { class => $selected_user_class } ) )
+            unless exists $class_names->{$selected_user_class};
+
         my $sclient = LJ::theschwartz()
             or return LJ::error_list( $ML{'error.noschwartz'} );
         $sclient->insert('DW::Worker::DistributeInvites',

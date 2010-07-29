@@ -2,6 +2,10 @@
 
 .error.cantinsertjob=Unable to start TheSchwartz job for invite codes distribution.
 
+.error.nosuchclass=The selection class "[[class]]" does not exist.
+
+.error.noinvites=Cannot distribute 0 invites!
+
 .field.distribute.label=Distribute to:
 
 .field.numinvites.label=Number of invites:
