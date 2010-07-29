@@ -166,10 +166,10 @@ body<=
             if $match->{security} eq 'usemask' && ! $mu->equals( $remote );
 
         my $icon = {
-                public => '',
-                private => LJ::img( "security-private",   "" );
-                usemask => LJ::img( "security-groups",    "" );
-                access  => LJ::img( "security-protected", "" );
+                public  => '',
+                private => LJ::img( "security-private",   "" ),
+                usemask => LJ::img( "security-groups",    "" ),
+                access  => LJ::img( "security-protected", "" ),
             }->{$match->{security}};
 
         my $tags = join( ', ', map { "<strong>" . $match->{tags}->{$_} . "</strong>" } keys %{ $match->{tags} } );
