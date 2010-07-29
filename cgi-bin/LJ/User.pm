@@ -145,7 +145,7 @@ sub create {
     $dbh->do("INSERT INTO userusage (userid, timecreate) VALUES (?, NOW())",
              undef, $userid);
 
-    my $u = LJ::load_userid($userid, "force");
+    my $u = LJ::load_userid( $userid, "force" ) or return;
 
     my $status   = $opts{status}   || ($LJ::EVERYONE_VALID ? 'A' : 'N');
     my $name     = $opts{name}     || $username;
@@ -153,8 +153,8 @@ sub create {
     my $email    = $opts{email}    || "";
     my $password = $opts{password} || "";
 
-    LJ::update_user($u, { 'status' => $status, 'name' => $name, 'bdate' => $bdate,
-                          'email' => $email, 'password' => $password, %LJ::USER_INIT });
+    $u->update_self( { status => $status, name => $name, bdate => $bdate,
+                       email => $email, password => $password, %LJ::USER_INIT } );
 
     my $remote = LJ::get_remote();
     $u->log_event('account_create', { remote => $remote });
@@ -520,8 +520,8 @@ sub set_statusvis {
         });
 
     # do update
-    return LJ::update_user($u, { statusvis => $statusvis,
-                                 raw => 'statusvisdate=NOW()' });
+    return $u->update_self( { statusvis => $statusvis,
+                              raw => 'statusvisdate=NOW()' } );
 }
 
 
@@ -1761,6 +1761,12 @@ sub uncache_prop {
 }
 
 
+sub update_self {
+    my ( $u, $ref ) = @_;
+    return LJ::update_user( $u, $ref );
+}
+
+
 # returns self (the $u object which can be used for $u->do) if
 # user is writable, else 0
 sub writer {
@@ -2523,7 +2529,7 @@ sub modify_caps {
     }
 
     # get a u object directly from the db
-    my $u = LJ::load_userid( $userid, "force" );
+    my $u = LJ::load_userid( $userid, "force" ) or return;
 
     # add new caps
     my $newcaps = int( $u->{caps} );
@@ -2560,7 +2566,7 @@ sub modify_caps {
     }
 
     # update user row
-    return 0 unless LJ::update_user( $u, { caps => $newcaps } );
+    return 0 unless $u->update_self( { caps => $newcaps } );
 
     $u->{caps} = $newcaps;
     $argu->{caps} = $newcaps;
@@ -2784,12 +2790,14 @@ sub remove_from_class {
 # or also accepts a hashref of propname keys and corresponding values.
 # Returns boolean indicating success or failure.
 sub set_prop {
-    my ( $u, $prop, $value ) = @_;
+    my ( $u, $prop, $value, $opts ) = @_;
     my $userid = $u->userid + 0;
     my $hash = ref $prop eq "HASH" ? $prop : { $prop => $value };
+    $opts ||= {};
 
     my %action;  # $table -> {"replace"|"delete"} -> [ "($propid, $qvalue)" | propid ]
     my %multihomed;  # { $propid => $value }
+    my %propnames;   # { $propid => $propname }
 
     # Accumulate prepared actions.
     foreach my $propname ( keys %$hash ) {
@@ -2802,6 +2810,7 @@ sub set_prop {
 
         my $p = LJ::get_prop( "user", $propname ) or
             die "Attempted to set invalid userprop $propname.";
+        $propnames{ $p->{id} } = $propname;
 
         if ( $p->{multihomed} ) {
             # collect into array for later handling
@@ -2816,7 +2825,7 @@ sub set_prop {
         $table = 'userpropblob' if $p->{datatype} eq 'blobchar';
 
         # only assign db for update action if value has changed
-        unless ( $value eq $u->{$propname} ) {
+        unless ( $opts->{skip_db} && $value eq $u->{$propname} ) {
             my $db = $action{$table}->{db} ||= (
                 $table !~ m{userprop(lite2|blob)}
                     ? LJ::get_db_writer()  # global
@@ -2836,7 +2845,7 @@ sub set_prop {
     my $memc = sub {
         my ( $p, $v ) = @_;
         LJ::MemCache::set( [ $userid, "uprop:$userid:$p" ], $v, 3600 * 24 );
-        $u->{$p} = $v;
+        $u->{ $propnames{$p} } = $v eq "" ? undef : $v;
     };
 
     # Execute prepared actions.
@@ -3029,7 +3038,7 @@ sub _lazy_migrate_infoshow {
     }
 
     # setting allow_infoshow to ' ' means we've migrated it
-    LJ::update_user($u, { allow_infoshow => ' ' })
+    $u->update_self( { allow_infoshow => ' ' } )
         or die "unable to update user after infoshow migration";
     $u->{allow_infoshow} = ' ';
 
@@ -3257,7 +3266,7 @@ sub set_bio {
     my $newbio = $bio_absent eq "yes" ? $oldbio : $text;
     my $has_bio = ( $newbio =~ /\S/ ) ? "Y" : "N";
 
-    LJ::update_user( $u, { has_bio => $has_bio } );
+    $u->update_self( { has_bio => $has_bio } );
 
     # update their bio text
     return if ( $oldbio eq $text ) || ( $bio_absent eq "yes" );
@@ -4367,7 +4376,7 @@ sub reset_email {
 
     $update_opts ||= { status => 'T' };
     $update_opts->{email} = $newemail;
-    LJ::update_user( $u, $update_opts ) or
+    $u->update_self( $update_opts ) or
         return $errsub->( LJ::Lang::ml( "email.emailreset.error",
                                         { user => $u->user } ) );
 
@@ -5912,7 +5921,7 @@ sub get_keyword_id
 
     # setup the keyword for use
     return 0 unless $kw =~ /\S/;
-    $kw = LJ::text_trim( $kw, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
+    $kw = LJ::trim( LJ::text_trim( $kw, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD ) );
 
     # get the keyword and insert it if necessary
     my $kwid = $u->selectrow_array( 'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
@@ -6067,7 +6076,7 @@ sub activate_userpics {
 
 sub allpics_base {
     my $u = shift;
-    return $u->journal_base . "/icons";;
+    return $u->journal_base . "/icons";
 }
 
 # clears the internally cached mapping of userpics to keywords for this
@@ -7119,18 +7128,12 @@ sub memcache_set_u
 }
 
 
+# FIXME: this should go away someday... see bug 2760
 sub update_user
 {
-    my ($arg, $ref) = @_;
-    my @uid;
-
-    if (ref $arg eq "ARRAY") {
-        @uid = @$arg;
-    } else {
-        @uid = want_userid($arg);
-    }
-    @uid = grep { $_ } map { $_ + 0 } @uid;
-    return 0 unless @uid;
+    my ( $u, $ref ) = @_;
+    my $uid = LJ::want_userid( $u ) + 0;
+    return 0 unless $uid;
 
     my @sets;
     my @bindparams;
@@ -7140,9 +7143,9 @@ sub update_user
             $used_raw = 1;
             push @sets, $v;
         } elsif ($k eq 'email') {
-            set_email($_, $v) foreach @uid;
+            LJ::set_email( $uid, $v );
         } elsif ($k eq 'password') {
-            set_password($_, $v) foreach @uid;
+            LJ::set_password( $uid, $v );
         } else {
             push @sets, "$k=?";
             push @bindparams, $v;
@@ -7153,31 +7156,28 @@ sub update_user
     return 0 unless $dbh;
     {
         local $" = ",";
-        my $where = @uid == 1 ? "userid=$uid[0]" : "userid IN (@uid)";
+        my $where = "userid=$uid";
         $dbh->do("UPDATE user SET @sets WHERE $where", undef,
                  @bindparams);
         return 0 if $dbh->err;
     }
     if (@LJ::MEMCACHE_SERVERS) {
-        LJ::memcache_kill($_, "userid") foreach @uid;
+        LJ::memcache_kill( $uid, "userid" );
     }
 
     if ($used_raw) {
         # for a load of userids from the master after update
         # so we pick up the values set via the 'raw' option
-        require_master(sub { LJ::load_userids(@uid) });
+        require_master( sub { LJ::load_userid($uid) } );
     } else {
-        foreach my $uid (@uid) {
-            while (my ($k, $v) = each %$ref) {
-                my $cache = $LJ::REQ_CACHE_USER_ID{$uid} or next;
-                $cache->{$k} = $v;
-            }
+        while ( my ($k, $v) = each %$ref ) {
+            my $cache = $LJ::REQ_CACHE_USER_ID{$uid} or next;
+            $cache->{$k} = $v;
         }
     }
 
-    # log this updates
-    LJ::Hooks::run_hooks("update_user", userid => $_, fields => $ref)
-        for @uid;
+    # log this update
+    LJ::Hooks::run_hooks( "update_user", userid => $uid, fields => $ref );
 
     return 1;
 }

@@ -95,13 +95,7 @@ body<=
                                        flags   => LJ::Subscription::TRACKING,
                                        ) if $remote->can_track_all_community_comments ( $journal );
 
-    my $categories = [
-                      {
-                          'Comments' => [
-                                         @pending,
-                                         ],
-                                     },
-                      ];
+    my $categories = [ { 'Track Comments' => [ @pending ] } ];
 
     my $referer = BML::get_client_header('Referer');
     my ( $style ) = ( $referer =~ /\b(style=\w+)/ );

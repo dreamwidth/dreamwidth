@@ -5,13 +5,13 @@ use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'ljprotocol.pl';
+require 'communitylib.pl';
 
 use LJ::Event;
-use LJ::Test qw(memcache_stress temp_user);
+use LJ::Test qw(memcache_stress temp_user temp_comm);
 use FindBin qw($Bin);
 
-# plan tests => ;
-plan skip_all => 'Fix this test!';
+plan tests => 48;
 
 # so this event firing isn't disabled:
 local $LJ::_T_FIRE_USERNEWENTRY = 1;
@@ -70,7 +70,7 @@ memcache_stress(sub {
         ok($subsc->delete, "Deleted subscription");
 
         ###### S2:
-        if (LJ::Event::JournalNewEntry->zero_journalid_subs_means eq "friends") {
+        if (LJ::Event::JournalNewEntry->zero_journalid_subs_means eq "trusted_or_watched") {
             # subscribe $u1 to all comments on all friends journals
             # subscribe $u1 to all posts on $u2
             my $subsc = $u1->subscribe(
@@ -84,7 +84,7 @@ memcache_stress(sub {
             test_post($u1, $u2, $ucomm);
 
             # remove $u2 from $u1's friends list, post in $u2 and make sure $u1 isn't notified
-            LJ::remove_friend($u1, $u2); # make u1 friend u2
+            $u1->remove_edge( $u2, watch => { nonotify => 1 }, trust => { nonotify => 1 } );
             $u2->t_post_fake_entry;
             my $email = $got_notified->($u1);
             ok(! $email, "u1 did not get notified because u2 is no longer his friend");
@@ -104,29 +104,38 @@ sub test_post {
     my ($u1, $u2, $ucomm) = @_;
     my $email;
 
-    LJ::set_rel($ucomm, $u2, "P");
+    my $do_post = sub {
+        my ( $u, $usejournal, %opts ) = @_;
+        if ( $usejournal ) {
+            return eval { $u->t_post_fake_comm_entry( $ucomm, %opts ) };
+        } else {
+            return eval { $u->t_post_fake_entry( %opts ) };
+        }
+    };
+
+    # u2 must have membership for usemask posting
+    die unless $u2->add_edge( $ucomm, member => {} );
     foreach my $usejournal (0..1) {
-        my %opts = $usejournal ? ( usejournal => $ucomm->{user} ) : ();
         my $suffix = $usejournal ? " in comm" : "";
 
         my $state = "(state: mem=$mem_round,s1s2=$s1s2,usejournal=$usejournal)";
 
         # post an entry in $u2
-        my $u2e1 = eval { $u2->t_post_fake_entry(%opts) };
+        my $u2e1 = $do_post->( $u2, $usejournal );
         ok($u2e1, "made a post$suffix");
         is($@, "", "no errors");
 
         # S1 failing case:
         # post an entry on $u1, where nobody's subscribed
-        my $u1e1 = eval { $u1->t_post_fake_entry(%opts) };
+        my $u1e1 = $do_post->( $u1, $usejournal );
         ok($u1e1, "did a post$suffix");
 
         # make sure we did not get notification
-        $email = $got_notified->($u1);
+        $email = $got_notified->($u2);
         ok(! $email, "got no email");
 
         # S1 failing case, posting to u2, due to security
-        my $u2e2f = eval { $u2->t_post_fake_entry(%opts, security => "friends") };
+        my $u2e2f = $do_post->( $u2, $usejournal, security => "friends" );
         ok($u2e2f, "did a post$suffix");
         is($u2e2f->security, "usemask", "is actually friends only");
 
@@ -143,10 +152,9 @@ sub test_esn_flow {
     my $u2 = temp_user();
 
     # need a community for $u1 and $u2 to play in
-    my $ucomm = temp_user();
-    LJ::update_user($ucomm, { journaltype => 'C' });
+    my $ucomm = temp_comm();
 
-    LJ::add_friend($u1, $u2); # make u1 friend u2
+    $u1->add_edge( $u2, watch => { nonotify => 1 }, trust => { nonotify => 1 } ); # make u1 friend u2
     $cv->($u1, $u2, $ucomm);
 }
 

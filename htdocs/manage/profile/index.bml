@@ -642,7 +642,7 @@ body<=
 
         my $save_rv = LJ::Setting->save_all($remote, \%POST, \@settings);
 
-        LJ::update_user($u, \%update);
+        $u->update_self( \%update );
 
         ### change any of the userprops ?
         {
@@ -709,7 +709,7 @@ body<=
                 $eff_val = "" unless $eff_val;
                 $prop{$uprop} = $eff_val;
             }
-            $u->set_prop( \%prop );
+            $u->set_prop( \%prop, undef, { skip_db => 1 } );
 
             # location or bday could've changed... (who cares about checking exactly)
             $u->invalidate_directory_record;

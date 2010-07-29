@@ -6,10 +6,9 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
-
 package LJ::S2Theme::steppingstones::chocolate;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::cleargreen;
 use base qw( LJ::S2Theme::steppingstones );
@@ -18,24 +17,24 @@ sub designer { "ambrya" }
 
 package LJ::S2Theme::steppingstones::duskyrose;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::gray;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::nnwm2009;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::steppingstones::olive;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::pool;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::purple;
 use base qw( LJ::S2Theme::steppingstones );
@@ -43,10 +42,10 @@ sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::shadows;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::sunset;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw() }
 
 1;

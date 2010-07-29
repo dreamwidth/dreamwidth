@@ -193,7 +193,19 @@ ul.entry-interaction-links { text-align: right;
 .comment-title { margin: 0;
    padding: 0 0 .25em 0;
    font-weight: bold; }
-.partial .comment-title { display: inline; }
+
+.partial .comment-title {
+   display: inline;
+   margin-right: .2em;
+   }
+
+.partial .comment-title h4 {
+   display: inline;
+   }
+
+.partial .comment-poster:before {
+   content: "- ";
+   }
 
 .comment .poster-ip { font-size: small;
    color: #999999; }

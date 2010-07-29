@@ -71,7 +71,7 @@ sub save {
     if (my $prop = $class->prop_name) {
         return $u->set_prop($prop, $new_val);
     } elsif (my $field = $class->user_field) {
-        return LJ::update_user($u, { $field => $new_val });
+        return $u->update_self( { $field => $new_val } );
     }
     croak "No prop_name or user_field set";
 }

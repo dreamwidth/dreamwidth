@@ -69,9 +69,9 @@ else {
             .entry .header,
             .comment-wrapper .header { margin-left: 110px; }
             .entry .header .entry-title,
-            .comment-title { margin-left: -4px; }
+            .full .comment-title { margin-left: -4px; }
             .entry-wrapper .contents .entry-poster { margin: 0 0 25px 110px; }
-            .comment-poster,
+            .full .comment-poster,
             .comment .poster-ip { margin-left: 110px; }
             """;
         }
@@ -82,9 +82,9 @@ else {
             .entry .header,
             .comment-wrapper .header { margin-right: 110px; }
             .entry .header .entry-title,
-            .comment-title { margin-right: -4px; }
+            .full .comment-title { margin-right: -4px; }
             .entry-wrapper .contents .entry-poster { margin: 0 110px 25px 0; }
-            .comment-poster,
+            .full .comment-poster,
             .comment .poster-ip { margin-right: 110px; }
             """;
         }
@@ -214,9 +214,23 @@ ul.entry-interaction-links { text-align: right;
 
 .comment { background-color: $commentcolor; }
 
-.partial .comment { padding: 0;} 
+.partial .comment {
+    line-height: 1.75em;
+    padding: 0;
+    }
 
-.partial .comment-title { display: inline; margin: 0; }
+.partial .comment-title {
+   display: inline;
+   margin-right: .2em;
+   }
+
+.partial .comment-title h4 {
+   display: inline;
+   }
+
+.partial .comment-poster:before {
+   content: "- ";
+   }
 
 .comment-title { margin: 0;
     padding: .25em;
@@ -227,10 +241,11 @@ ul.entry-interaction-links { text-align: right;
 .comment-title a,
 .comment-title a:visited { color: $*color_entry_title; }
 
-.comment .header .datetime { display: block;
-    font-size: small;}
+.comment .header .datetime { font-size: small; }
 
-.comment-poster { display: block; }
+.full .comment .header .datetime { display: block; }
+
+.full .comment-poster { display: block; }
 
 .comment .poster-ip { font-size: x-small;
     display: block; }

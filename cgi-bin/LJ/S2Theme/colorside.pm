@@ -8,17 +8,12 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::colorside::lightondark;
 use base qw( LJ::S2Theme::colorside );
-
-sub cats { qw () }
-
+sub cats { qw() }
 sub designer { "cesy" }
 
 package LJ::S2Theme::colorside::nnwm2009;
 use base qw( LJ::S2Theme::colorside );
-
-sub cats { qw () }
-
+sub cats { qw() }
 sub designer { "zvi" }
-
 
 1;

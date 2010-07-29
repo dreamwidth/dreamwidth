@@ -341,9 +341,21 @@ ul.entry-interaction-links,
     }
 
 .partial .comment { padding: .25em .5em; }
-.partial .comment-title { display: inline;
+
+.partial .comment-title {
     background-color: transparent;
-    }
+   display: inline;
+   margin-right: .2em;
+   }
+
+.partial .comment-title h4 {
+   display: inline;
+   }
+
+.partial .comment-poster:before {
+   content: "- ";
+   }
+
 .partial .comment-title a {color: $*color_page_text; }
 
 #qrformdiv { clear: both;

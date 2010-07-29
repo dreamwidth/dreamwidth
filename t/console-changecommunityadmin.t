@@ -35,11 +35,11 @@ is($run->("change_community_admin " . $u2->user . " " . $u->user),
 is($run->("change_community_admin " . $comm->user . " " . $comm2->user),
    "error: New owner doesn't exist or isn't a person account.");
 
-LJ::update_user($u, { 'status' => 'T' });
+$u->update_self( { status => 'T' } );
 is($run->("change_community_admin " . $comm->user . " " . $u->user),
    "error: New owner's email address isn't validated.");
 
-LJ::update_user($u, { 'status' => 'A' });
+$u->update_self( { status => 'A' } );
 is($run->("change_community_admin " . $comm->user . " " . $u->user),
    "success: Transferred maintainership of '" . $comm->user . "' to '" . $u->user . "'.");
 

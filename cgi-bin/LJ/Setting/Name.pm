@@ -52,8 +52,8 @@ sub save_text {
     my ($class, $u, $txt) = @_;
     $txt = LJ::trim($txt);
     $txt = LJ::text_trim($txt, LJ::BMAX_NAME, LJ::CMAX_NAME);
-    return 0 unless LJ::update_user($u, { name => $txt });
-    LJ::load_userid($u->{userid}, "force");
+    return 0 unless $u && $u->update_self( { name => $txt } );
+    LJ::load_userid( $u->userid, "force" );
     return 1;
 }
 

@@ -16,7 +16,10 @@ propgroup presentation {
     property use layout_type;
     property use tags_page_type;
     property use sidebar_width;
-    property use userpics_position;
+    property string entryicons_position {
+       des = "Place icons on the same side or opposite the sidebar";
+       values = "same|Same side as sidebar|opposite|Opposite the sidebar";
+    }
     property use entry_metadata_position;
     property use use_custom_friend_colors;
     property use use_shared_pic;
@@ -27,6 +30,7 @@ propgroup presentation {
 
 set sidebar_width = "15em";
 set layout_type = "two-columns-right";
+set entryicons_position = "opposite";
 set use_custom_friend_colors = false;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
@@ -279,6 +283,13 @@ propgroup text {
 }
 
 function Page::print_default_stylesheet() {
+
+    var string sidebar_position = "";
+    var string sidebar_position_opposite = "";
+
+    if ($*layout_type == "two-columns-right") { $sidebar_position = "right"; $sidebar_position_opposite = "left"; }
+    elseif ($*layout_type == "two-columns-left") { $sidebar_position = "left"; $sidebar_position_opposite = "right"; }
+
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
 
@@ -296,31 +307,35 @@ function Page::print_default_stylesheet() {
     var Color blockquote_text = $*color_entry_text -> lighter(10);
     var Color blockquote_background = $*color_entry_background -> darker(10);
 
-    var string userpic_css = "";
-    if ($*userpics_position == "left") {
-        $userpic_css = """
+    var string entryicon_css = "";
+    if ($*entryicons_position == "opposite") {
+        $entryicon_css = """
         div.entry div.userpic {
-            float: left;
-            margin: 0 0 0 -100px;
+            float: $sidebar_position_opposite;
+            margin: 0;
+            margin-$sidebar_position_opposite: -100px;
             }
         div.comment div.userpic {
-            float: left;
-            margin: 0 0 0 -110px;
+            float: $sidebar_position_opposite;
+            margin: 0;
+            margin-$sidebar_position_opposite: -110px;
             }
         """;
     }
-    elseif ($*userpics_position == "right") {
-        $userpic_css = """
+    elseif ($*entryicons_position == "same") {
+        $entryicon_css = """
         div.entry div.userpic {
-            float: right;
-            margin: 0 -100px 0 0;
+            float: $sidebar_position;
+            margin: 0;
+            margin-$sidebar_position: -100px;
             }
         div.comment div.userpic {
-            float: right;
-            margin: 0 -110px 0 0;
+            float: $sidebar_position;
+            margin: 0;
+            margin-$sidebar_position: -110px;
             }
         #secondary {
-            margin-left: 110px;
+            margin-$sidebar_position_opposite: 110px;
         }
         """;
     }
@@ -346,20 +361,22 @@ q { font-style: italic; }
 
 #canvas {
     margin: 0 auto;
-    padding: 5% 0 5% 15%;
+    padding: 5% 0;
+    padding-$sidebar_position_opposite: 15%;
     text-align: justify;
     width: 85%;
 }
 
 #primary {
-    float: left;
+    float: $sidebar_position_opposite;
     width: 45%;
     text-align: justify;
-    margin: 0 0.6em 0 0;
+    margin: 0;
+    margin-$sidebar_position: .6em;
     }
 
 #secondary {
-    float: left;
+    float: $sidebar_position_opposite;
     width: $*sidebar_width;
     margin: 1px 0 0 0;
     padding: 0 1em;
@@ -369,6 +386,7 @@ q { font-style: italic; }
 
 #tertiary {
     clear: both;
+    margin-$sidebar_position: auto;
     width: 45%;
     background-color: $*color_entry_background;
     line-height: 125%;
@@ -389,6 +407,7 @@ q { font-style: italic; }
     text-transform: lowercase;
     clear: both;
     margin-top: 10px;
+    margin-$sidebar_position: auto;
 }
 
 #footer a, #footer a:link, #footer a:active { $*color_footer_link; }
@@ -458,8 +477,8 @@ div.entry div.userpic {
     }
 
 div.entry div.userpic img {
-    width: 70px;
-    height: 70px; /*FIXME -- this shouldn't be hardcoded */
+    width: 64%;
+    height: auto;
     border: 5px solid $*color_navigation_module_background;
     }
 
@@ -674,8 +693,8 @@ div.comment div.userpic {
     }
 
 div.comment div.userpic img {
-    width: 70px;
-    height: 70px; /*FIXME: don't hardcode userpic sizes!*/
+    width: 64%;
+    height: auto;
     border: 5px solid $*color_navigation_module_background;
     }
 
@@ -892,7 +911,7 @@ hr {
     border-bottom: 3px double $solid_border;
     }
 
-$userpic_css
+$entryicon_css
 
 """;
 

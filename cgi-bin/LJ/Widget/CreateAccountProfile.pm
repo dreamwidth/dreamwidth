@@ -229,7 +229,7 @@ sub handle_post {
     LJ::EmbedModule->parse_module_embed($u, \$post->{bio});
 
     unless (keys %{$from_post{errors}}) {
-        LJ::update_user($u, { name => $post->{name} });
+        $u->update_self( { name => $post->{name} } );
         $u->invalidate_directory_record;
         $u->set_prop('gender', $post->{gender});
         $u->set_interests($old_interests, \@valid_ints);

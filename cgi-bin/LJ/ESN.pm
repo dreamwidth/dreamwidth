@@ -56,7 +56,14 @@ sub jobs_of_unique_matching_subs {
         warn "jobs of unique subs (@subs) matching event (@$params)\n";
     }
 
-    foreach my $s (grep { $evt->matches_filter($_) } @subs) {
+    my %related = map { $_=> 1 } $evt->related_events;
+
+    foreach my $s ( grep {
+        $related{$_->etypeid}
+            ? bless( $evt, $_->event_class )->matches_filter( $_ )
+            : $evt->matches_filter( $_ )
+        } @subs ) {
+
         next if $has_done{$s->unique}++;
         push @subjobs, TheSchwartz::Job->new(
                                              funcname => 'LJ::Worker::ProcessSub',

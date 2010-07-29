@@ -154,7 +154,7 @@ sub save {
     my $txtmsg_status = $cleared || ( $security && $security eq 'none' )
                         ? "off" : "on";
 
-    LJ::update_user( $u, { 'txtmsg_status' => $txtmsg_status } );
+    $u->update_self( { txtmsg_status => $txtmsg_status } );
 
     my $dbh = LJ::get_db_writer();
 

@@ -19,30 +19,29 @@ body<=
 {
     use strict;
     use vars qw(%POST);
-    
-    use Class::Autouse qw( Captcha::reCAPTCHA );
+
     use POSIX qw(strftime);
 
     LJ::set_active_crumb('lostinfo');
 
     return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
+    my %captcha_fields;
+    @captcha_fields{DW::Captcha->form_fields} = @POST{DW::Captcha->form_fields};
+    my $captcha = DW::Captcha->new( 'lostinfo', %captcha_fields );
+
+    my $captcha_error;
+
     # no post action, just show query form
     unless (LJ::did_post()) {
         my $ret;
-
-#        $ret .= "<?h1 $ML{'.title'} h1?>\n";
-        $ret .= "<?h1 $ML{'.recaptcha.title'} h1?>\n";
+        
+        $ret .=  "<?h1 $ML{'captcha.title'} h1?>\n"
+            if $captcha->enabled;
 
         $ret .= "<form action='lostinfo' method='post'>\n";
 
-        if (LJ::is_enabled("recaptcha")) {
-            my $c = Captcha::reCAPTCHA->new;
-            $ret .= $c->get_options_setter({ theme => 'white' });
-            $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}), '', $LJ::IS_SSL ) . "<br />\n";
-            $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
-        }
-
+        $ret .= $captcha->print;
 
         $ret .= "<?h1 $ML{'.lostpassword.title'} h1?>\n";
         $ret .= "<?p " . BML::ml( ".lostpassword.text", { sitename => $LJ::SITENAMESHORT } ) ." p?>\n";
@@ -91,19 +90,8 @@ body<=
 
     if ($POST{'lostpass'}) {
 
-        if (LJ::is_enabled("recaptcha")) {
-            if ($POST{recaptcha_response_field}) {
-                my $c = Captcha::reCAPTCHA->new;
-                my $result = $c->check_answer(
-                    LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
-                    $POST{'recaptcha_challenge_field'}, $POST{'recaptcha_response_field'}
-                );
-
-                return LJ::bad_input($ML{'.captcha.invalid'}) unless $result->{'is_valid'} eq '1';
-            } else {
-                return LJ::bad_input($ML{'.captcha.invalid'});
-            }
-        }
+        return LJ::bad_input( $captcha_error ) unless
+            $captcha->validate( err_ref => \$captcha_error );
 
         my $email = LJ::trim($POST{'email_p'});
 
@@ -198,19 +186,8 @@ body<=
 
     if ($POST{'lostuser'}) {
 
-        if (LJ::is_enabled("recaptcha")) {
-            if ($POST{recaptcha_response_field}) {
-                my $c = Captcha::reCAPTCHA->new;
-                my $result = $c->check_answer(
-                    LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
-                    $POST{'recaptcha_challenge_field'}, $POST{'recaptcha_response_field'}
-                );
-
-                return LJ::bad_input($ML{'.captcha.invalid'}) unless $result->{'is_valid'} eq '1';
-            } else {
-                return LJ::bad_input($ML{'.captcha.invalid'});
-            }
-        }
+        return LJ::bad_input( $captcha_error ) unless
+            $captcha->validate( err_ref => \$captcha_error );
 
         my $sendto = "";
         my $email = LJ::trim($POST{'email_u'});

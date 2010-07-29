@@ -1,3 +1,52 @@
+#NEWLAYER: skittlishdreams/academy
+layerinfo type = "theme";
+layerinfo name = "Academy";
+layerinfo redist_uniq = "skittlishdreams/academy";
+layerinfo author_name = "Sarken";
+
+set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+
+set image_background_page_url = " ";
+set image_background_header_url = "skittlishdreams/academy_bg.gif";
+set image_background_container_url = "skittlishdreams/academy_shaddow.gif";
+set image_background_footer_url = "skittlishdreams/academy_bgb.gif";
+set image_background_module_url = "skittlishdreams/academy_box.gif";
+set image_background_entry_url = "skittlishdreams/academy_edge.gif";
+set image_background_navigation_url = "skittlishdreams/academy_circle.gif";
+
+set image_background_header_height = 120;
+
+set color_entry_metadata_text = "#bbbbbb";
+set color_entry_text = "#0d0d0d";
+set color_entry_background = "#ffffff";
+set color_entry_title = "#f2f2f2";
+set color_entry_title_border = "#063235";
+set color_entry_title_border_alt = "#063235";
+set color_entry_title_background = "#063235";
+set color_footer_background = "#e1cc33";
+set color_footer_link = "#ffffff";
+set color_header_background = "#cab72d";
+set color_module_background = "#f2f2f2";
+set color_module_text = "#848484";
+set color_module_link = "#444444";
+set color_module_title = "#444444";
+set color_page_background = "#063235";
+set color_page_border = "#f2f2f2";
+set color_page_details_text = "#bbbbbb";
+set color_page_link = "#119aa3";
+set color_page_link_hover = "#aaaaaa";
+set color_page_link_visited = "#b9a62a";
+set color_page_text = "#555555";
+set color_page_title = "#ffffff";
+
+function print_stylesheet () {
+
+"""
+.entry-title, .entry-title a { color: $*color_entry_title;}
+.entry .userpic a, .comment .userpic a, .entry, .comment, .text_noentries_day { border-color: $*color_header_background; }
+""";
+}
+
 #NEWLAYER: skittlishdreams/blue
 layerinfo type = "theme";
 layerinfo name = "Blue";
@@ -90,6 +139,53 @@ set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
 set color_entry_metadata_text = "#881111";
 
+#NEWLAYER: skittlishdreams/desertcream
+layerinfo type = "theme";
+layerinfo name = "Desert Cream";
+layerinfo redist_uniq = "skittlishdreams/desertcream";
+layerinfo author_name = "Sarken";
+
+set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+
+set image_background_page_url = " ";
+set image_background_header_url = "skittlishdreams/desertcream_bg.gif";
+set image_background_container_url = "skittlishdreams/desertcream_shaddow.gif";
+set image_background_footer_url = "skittlishdreams/desertcream_bgb.gif";
+set image_background_module_url = "skittlishdreams/desertcream_box.gif";
+set image_background_entry_url = "skittlishdreams/desertcream_edge.gif";
+set image_background_navigation_url = "skittlishdreams/desertcream_circle.gif";
+
+set image_background_header_height = 120;
+
+set color_entry_metadata_text = "#BFBDB0";
+set color_entry_text = "#555555";
+set color_entry_background = "#ffffff";
+set color_entry_title = "#C7B560";
+set color_entry_title_border = "#eeeeee";
+set color_entry_title_border_alt = "#eeeeee";
+set color_footer_background = "#A7BD9B";
+set color_footer_link = "#efefef";
+set color_header_background = "#92A588";
+set color_module_background = "#BDD2B1";
+set color_module_text = "#777777";
+set color_module_link = "#ffffff";
+set color_module_title = "#ffffff";
+set color_page_background = "#EDEADA";
+set color_page_border = "#BDD2B1";
+set color_page_details_text = "#bbbbbb";
+set color_page_link = "#8EB37A";
+set color_page_link_hover = "#C7B560";
+set color_page_link_visited = "#AD9625";
+set color_page_text = "#555555";
+set color_page_title = "#ffffff";
+
+function print_stylesheet () {
+
+"""
+.entry-title, .entry-title a { color: $*color_entry_title;}
+""";
+}
+
 #NEWLAYER: skittlishdreams/green
 layerinfo type = "theme";
 layerinfo name = "Green";
@@ -135,6 +231,102 @@ set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
 set color_entry_metadata_text = "#881111";
+
+#NEWLAYER: skittlishdreams/inthebag
+layerinfo type = "theme";
+layerinfo name = "In the Bag";
+layerinfo redist_uniq = "skittlishdreams/inthebag";
+layerinfo author_name = "Sarken";
+
+set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+
+set image_background_page_url = " ";
+set image_background_header_url = "skittlishdreams/inthebag_bg.gif";
+set image_background_container_url = "skittlishdreams/inthebag_shaddow.gif";
+set image_background_footer_url = "skittlishdreams/inthebag_bgb.gif";
+set image_background_module_url = "skittlishdreams/inthebag_box.gif";
+set image_background_entry_url = "skittlishdreams/inthebag_edge.gif";
+set image_background_navigation_url = "skittlishdreams/inthebag_circle.gif";
+
+set image_background_header_height = 120;
+
+set color_entry_metadata_text = "#88826E";
+set color_entry_text = "#222222";
+set color_entry_background = "#D6CCAD";
+set color_entry_title = "#5D9315";
+set color_entry_title_border = "#D6CCAD";
+set color_entry_title_border_alt = "#D6CCAD";
+set color_entry_title_background = "#D6CCAD";
+set color_footer_background = "#2E5962";
+set color_footer_link = "#ffffff";
+set color_header_background = "#417D8A";
+set color_module_background = "#69A618";
+set color_module_text = "#222222";
+set color_module_link = "#ffffff";
+set color_module_title = "#ffffff";
+set color_page_background = "#695E55";
+set color_page_border = "#69A618";
+set color_page_details_text = "#7F7967";
+set color_page_link = "#34707D";
+set color_page_link_hover = "#5D9315";
+set color_page_link_visited = "#695E55";
+set color_page_text = "#222222";
+set color_page_title = "#ffffff";
+
+function print_stylesheet () {
+
+"""
+.entry-title, .entry-title a { color: $*color_entry_title;}
+.entry .userpic a, .comment .userpic a, .entry, .comment, .text_noentries_day { border-color: $*color_footer_background; }
+""";
+}
+
+#NEWLAYER: skittlishdreams/likesunshine
+layerinfo type = "theme";
+layerinfo name = "Like Sunshine";
+layerinfo redist_uniq = "skittlishdreams/likesunshine";
+layerinfo author_name = "Sarken";
+
+set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+
+set image_background_page_url = "skittlishdreams/likesunshine_page.gif";
+set image_background_header_url = "skittlishdreams/likesunshine_bg.gif";
+set image_background_container_url = "skittlishdreams/likesunshine_shaddow.gif";
+set image_background_footer_url = "skittlishdreams/likesunshine_bgb.gif";
+set image_background_module_url = "skittlishdreams/likesunshine_box.gif";
+set image_background_entry_url = "skittlishdreams/likesunshine_edge.gif";
+set image_background_navigation_url = "skittlishdreams/likesunshine_circle.gif";
+
+set image_background_header_height = 120;
+
+set color_entry_metadata_text = "#878499";
+set color_entry_text = "#555555";
+set color_entry_background = "#ffffff";
+set color_entry_title = "#6c6398";
+set color_entry_title_border = "#eeeeee";
+set color_entry_title_border_alt = "#eeeeee";
+set color_footer_background = "#99530f";
+set color_footer_link = "#efefef";
+set color_header_background = "#d17114";
+set color_module_background = "#f6d645";
+set color_module_text = "#A68A28";
+set color_module_link = "#ffffff";
+set color_module_title = "#ffffff";
+set color_page_background = "#e0e0e0";
+set color_page_border = "#f6d645";
+set color_page_details_text = "#aaaaaa";
+set color_page_link = "#eabe25";
+set color_page_link_hover = "#6c6398";
+set color_page_link_visited = "#d17114";
+set color_page_text = "#555555";
+set color_page_title = "#ffffff";
+
+function print_stylesheet () {
+
+"""
+.entry-title, .entry-title a { color: $*color_entry_title;}
+""";
+}
 
 #NEWLAYER: skittlishdreams/orange
 layerinfo type = "theme";
@@ -273,6 +465,55 @@ set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
 set color_entry_metadata_text = "#881111";
+
+#NEWLAYER: skittlishdreams/snowcherries
+layerinfo type = "theme";
+layerinfo name = "Snow Cherries";
+layerinfo redist_uniq = "skittlishdreams/snowcherries";
+layerinfo author_name = "Sarken";
+
+set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+
+set image_background_page_url = " ";
+set image_background_header_url = "skittlishdreams/snowcherries_bg.gif";
+set image_background_container_url = "skittlishdreams/snowcherries_shaddow.gif";
+set image_background_footer_url = "skittlishdreams/snowcherries_bgb.gif";
+set image_background_module_url = "skittlishdreams/snowcherries_box.gif";
+set image_background_entry_url = "skittlishdreams/snowcherries_edge.gif";
+set image_background_navigation_url = "skittlishdreams/snowcherries_circle.gif";
+
+set image_background_header_height = 120;
+
+set color_entry_metadata_text = "#575F5D";
+set color_entry_text = "#333333";
+set color_entry_background = "#81877B";
+set color_entry_title = "#2E353F";
+set color_entry_title_border = "#81877B";
+set color_entry_title_border_alt = "#81877B";
+set color_entry_title_background = "#81877B";
+set color_footer_background = "#a61216";
+set color_footer_link = "#ffffff";
+set color_header_background = "#DB181C";
+set color_module_background = "#5A6360";
+set color_module_text = "#222222";
+set color_module_link = "#ffffff";
+set color_module_title = "#ffffff";
+set color_page_background = "#2E353F";
+set color_page_border = "#5A6360";
+set color_page_details_text = "#49504E";
+set color_page_link = "#910004";
+set color_page_link_hover = "#C4D7D2";
+set color_page_link_visited = "#0E3870";
+set color_page_text = "#222222";
+set color_page_title = "#ffffff";
+
+function print_stylesheet () {
+
+"""
+.entry-title, .entry-title a { color: $*color_entry_title;}
+.entry .userpic a, .comment .userpic a, .entry, .comment, .text_noentries_day { border-color: $*color_page_details_text; }
+""";
+}
 
 #NEWLAYER: skittlishdreams/violet
 layerinfo type = "theme";

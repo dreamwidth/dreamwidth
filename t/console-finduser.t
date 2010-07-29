@@ -21,7 +21,7 @@ is($run->("finduser " . $u->user),
    "error: You are not authorized to run this command.");
 $u->grant_priv("finduser");
 
-LJ::update_user($u, { 'email' => $u->user . "\@$LJ::DOMAIN", 'status' => 'A' });
+$u->update_self( { email => $u->user . "\@$LJ::DOMAIN", status => 'A' } );
 $u = LJ::load_user($u->user);
 
 is($run->("finduser " . $u->user),

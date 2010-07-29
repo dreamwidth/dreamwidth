@@ -32,6 +32,12 @@ btn.search=Search
 
 captcha.accessibility.contact=If you are unable to use this captcha for any reason, please contact us by email at [[email]]
 
+captcha.button=Continue
+
+captcha.invalid=Incorrect response in the antispam field. Please try again.
+
+captcha.title=Please fill out the CAPTCHA as an anti-spam measure
+
 cleanhtml.suspend_msg=This is a suspended entry.
 
 cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened, and your entry will be reviewed soon.
@@ -1151,7 +1157,11 @@ entryform.userpic=Userpic:
 
 entryform.userpic.choose=Choose userpic
 
+entryform.userpic.default=Choose default userpic
+
 entryform.userpic.random=Choose random icon
+
+entryform.userpic.upload=Upload a userpic
 
 entryform.userpics=User Picture Icon:
 
@@ -1918,6 +1928,18 @@ event.journal_new_entry.taglist.entry=Entry tags
 event.journal_new_entry.taglist.full=Other tags
 
 event.journal_new_entry.user=[[user]] posts a new entry.
+
+event.journal_new_top_comment.my_journal.deleted=Someone makes a new top-level comment on a deleted entry in my journal
+
+event.journal_new_top_comment.my_journal.titled_entry=Someone makes a new top-level comment on <a href='[[entryurl]]'>[[entrydesc]]</a> in my journal
+
+event.journal_new_top_comment.my_journal.untitled_entry=Someone makes a new top-level comment on <a href='[[entryurl]]'>an entry</a> in my journal
+
+event.journal_new_top_comment.user_journal.deleted=Someone makes a new top-level comment on a deleted entry in [[user]]
+
+event.journal_new_top_comment.user_journal.titled_entry=Someone makes a new top-level comment on <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+
+event.journal_new_top_comment.user_journal.untitled_entry=Someone makes a new top-level comment on <a href='[[entryurl]]'>an entry</a> in [[user]]
 
 event.officialpost=[[sitename]] makes a new announcement
 
@@ -3598,6 +3620,8 @@ subscribe_interface.category.notices=Notices
 
 subscribe_interface.category.subscription-tracking=Subscription Tracking
 
+subscribe_interface.category.track-comments=Track These Comments
+
 subscribe_interface.category.track-entry=Track This Entry
 
 subscribe_interface.category.track-user=Track This User
@@ -4164,7 +4188,7 @@ widget.createaccount.error.username.purged=The username you entered is that of a
 
 widget.createaccount.field.birthdate=Birthdate:
 
-widget.createaccount.field.captcha=Prove you're human:
+widget.createaccount.field.captcha2=Anti-spam measure:
 
 widget.createaccount.field.captcha.hear=Type the numbers you hear:
 
@@ -4899,8 +4923,6 @@ Your request has been filed. You can track the progress of your request at:
 <blockquote><a href='[[url]]'>[[url]]</a></blockquote>
 If you have any other questions or comments, you can add them to that request at any time.
 .
-
-widget.support.submit.error.captcha=Incorrect response to human test.
 
 widget.support.submit.language=Language
 

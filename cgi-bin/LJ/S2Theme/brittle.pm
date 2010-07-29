@@ -1,7 +1,7 @@
 package LJ::S2Theme::brittle;
 use base qw( LJ::S2Theme );
 
-sub layouts { ( "2r" => "two-columns-right" ) }
+sub layouts { ( "2l" => "two-columns-left", "2r" => "two-columns-right" ) }
 sub layout_prop { "layout_type" }
 
 sub designer { "renoir" }
@@ -38,22 +38,22 @@ sub entry_props {
 
 package LJ::S2Theme::brittle::barnhouse;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "edgeraven" }
 
 package LJ::S2Theme::brittle::drab;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "edgeraven" }
 
 package LJ::S2Theme::brittle::nnwm2009;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::brittle::oldroses;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::brittle::rust;
@@ -62,7 +62,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::brittle::softblue;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::brittle::softgreen;

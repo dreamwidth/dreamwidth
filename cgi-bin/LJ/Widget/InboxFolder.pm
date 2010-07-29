@@ -167,7 +167,7 @@ sub render_body {
 
         # HTML for displaying bookmark flag
         my $bookmark = 'bookmark_'
-                     . $inbox->is_bookmark( $qid ) ? "on" : "off";
+                     . ( $inbox->is_bookmark( $qid ) ? "on" : "off" );
         $bookmark = "<a href='$LJ::SITEROOT/inbox/?page=$page&$bookmark=$qid'>"
                   . LJ::img( $bookmark, "", { class => 'InboxItem_Bookmark' } )
                   . "</a>";

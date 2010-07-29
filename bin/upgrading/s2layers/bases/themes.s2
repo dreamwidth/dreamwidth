@@ -2,10 +2,8 @@
 layerinfo type = "theme";
 layerinfo name = "Beechy";
 layerinfo redist_uniq = "bases/beechy";
-layerinfo author_name = "malionette";
+layerinfo author_name = "Malionette";
  
-set layout_authors = [ { "name" => "malionette", "type" => "user" } ];
-
 set color_page_background = "#74c6b3";
 set color_page_text = "#606060"; 
 set color_page_link = "#589d96";
@@ -53,6 +51,46 @@ function Page::print_theme_stylesheet() {
     #content > .inner > .module-navlinks .module-list { background: $*color_page_link; }
     """;
 }
+
+#NEWLAYER: bases/comfort
+layerinfo type = "theme";
+layerinfo name = "Comfort";
+layerinfo redist_uniq = "bases/comfort";
+layerinfo author_name = "timeasmymeasure";
+ 
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+set color_page_background = "#dacba4";
+set color_page_border = "#972648";
+set color_page_link = "#4e8693";
+set color_page_link_active = "#4e8693";
+set color_page_link_hover = "#972648";
+set color_page_link_visited = "#4e8693";
+set color_page_text = "#452b22";
+set color_page_title = "#452b22";
+
+set color_comment_title_background = "#e1d1a9";
+
+set color_entry_background = "#f2f0ce";
+set color_entry_border = "#972648";
+set color_entry_text = "#452b22";
+set color_entry_title = "#972648";
+set color_entry_title_background = "#e5d5ad";
+
+set color_header_background = "#f2f0ce";
+
+set color_module_background = "#f2f0ce";
+set color_module_border = "#972648";
+set color_module_text = "#452b22";
+set color_module_title = "#4e8693";
+set color_module_title_background = "#e5d5ad";
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: $*color_page_link_hover;}
+    """;
+}
+
 
 #NEWLAYER: bases/lightondark
 layerinfo type = "theme";
@@ -104,14 +142,48 @@ function Page::print_theme_stylesheet()
 """;
 }
 
+#NEWLAYER: bases/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "bases/nnwm2009";
+layerinfo author_name = "zvi";   
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_header_background = "#ffefbd";
+set color_module_background = "#ffefbd";
+set color_module_text = "#000000";
+set color_module_title = "#ef8229";
+set color_page_background = "#000000";
+set color_page_border = "#842021";
+set color_page_link = "#429ace";
+set color_page_link_active = "#a5cf39";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#ffffff";
+set color_page_title = "#ef8229";
+
+set font_base = "Arial";
+set font_base_size = "1";
+set font_base_units = "em";
+
+function Page::print_theme_stylesheet () {
+"""
+
+input, select { color: $*color_module_text !important; background-color: $*color_module_background !important; }
+#pagetitle { color: $*color_module_text; background-color: $*color_module_background !important; }
+#lj_controlstrip_statustext, #lj_controlstrip td { color: $*color_module_text !important; }
+
+""";
+}
+
+
 #NEWLAYER: bases/steele
 layerinfo type = "theme";
 layerinfo name = "Steele";
 layerinfo redist_uniq = "bases/steele";
-layerinfo author_name = "malionette";
+layerinfo author_name = "Malionette";
  
-set layout_authors = [ { "name" => "malionette", "type" => "user" } ];
-
 set color_page_background = "#333333";
 set color_page_text = "#eeeeee"; 
 set color_page_link = "#8f9ba5";
@@ -193,6 +265,48 @@ function Page::print_theme_stylesheet()
 
 }
 
+
+#NEWLAYER: bases/summerholiday
+layerinfo type = "theme";
+layerinfo name = "Summer Holiday";
+layerinfo redist_uniq = "bases/summerholiday";
+layerinfo author_name = "rb";
+
+set layout_authors = [ { "name" => "rb", "type" => "user" } ];
+
+set color_page_background = "#fce4ae";
+set color_page_text = "#000"; 
+set color_page_link = "#217efc";
+set color_page_link_active = "#217efc";
+set color_page_link_hover = "#0055ff";
+set color_page_link_visited = "#217efc"; 
+set color_page_border = "#dddddd";
+set color_page_title = "#000";
+
+set color_header_background = "#ffffff";
+
+set color_module_background = "#ffffff";
+set color_module_border = "#dddddd";
+set color_module_link = "#217efc";
+set color_module_link_active = "#217efc";
+set color_module_link_hover = "#0055ff";
+set color_module_link_visited = "#217efc";
+set color_module_text = "#000";
+set color_module_title = "#fff";
+set color_module_title_background = "#217efc";
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#dddddd";
+set color_entry_interaction_links = "#ffffff";
+set color_entry_link = "#217efc";
+set color_entry_link_active = "#217efc";
+set color_entry_link_hover = "#0055ff";
+set color_entry_link_visited = "#217efc";
+set color_entry_text = "#000";
+set color_entry_title = "#217efc";
+set color_entry_title_background = "#ffffff";
+
+set color_comment_title_background = "#c3d4fe";
 
 #NEWLAYER: bases/sunandsand
 layerinfo type = "theme";
@@ -286,79 +400,38 @@ set color_entry_title_background = "#ffffff";
 
 set color_comment_title_background = "#d1efef";
 
-#NEWLAYER: bases/summerholiday
+#NEWLAYER: bases/velvetsteel
 layerinfo type = "theme";
-layerinfo name = "Summer Holiday";
-layerinfo redist_uniq = "bases/summerholiday";
-layerinfo author_name = "rb";
+layerinfo name = "Velvet Steel";
+layerinfo redist_uniq = "bases/velvetsteel";
+layerinfo author_name = "timeasmymeasure";
+ 
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
-set layout_authors = [ { "name" => "rb", "type" => "user" } ];
-
-set color_page_background = "#fce4ae";
-set color_page_text = "#000"; 
-set color_page_link = "#217efc";
-set color_page_link_active = "#217efc";
-set color_page_link_hover = "#0055ff";
-set color_page_link_visited = "#217efc"; 
-set color_page_border = "#dddddd";
-set color_page_title = "#000";
+set color_comment_title_background = "#cccccc";
+set color_entry_background = "#ffffff";
+set color_entry_border = "#949494";
+set color_entry_interaction_links = "#603048";
+set color_entry_title = "#303030";
+set color_entry_title_background = "#e8e8e8";
 
 set color_header_background = "#ffffff";
 
 set color_module_background = "#ffffff";
-set color_module_border = "#dddddd";
-set color_module_link = "#217efc";
-set color_module_link_active = "#217efc";
-set color_module_link_hover = "#0055ff";
-set color_module_link_visited = "#217efc";
-set color_module_text = "#000";
-set color_module_title = "#fff";
-set color_module_title_background = "#217efc";
+set color_module_border = "#949494";
+set color_module_title = "#783060";
+set color_module_title_background = "#bfbfbf";
 
-set color_entry_background = "#ffffff";
-set color_entry_border = "#dddddd";
-set color_entry_interaction_links = "#ffffff";
-set color_entry_link = "#217efc";
-set color_entry_link_active = "#217efc";
-set color_entry_link_hover = "#0055ff";
-set color_entry_link_visited = "#217efc";
-set color_entry_text = "#000";
-set color_entry_title = "#217efc";
-set color_entry_title_background = "#ffffff";
+set color_page_background = "#eaeaea";
+set color_page_border = "#949494";
+set color_page_link = "#783060";
+set color_page_link_active = "#783060";
+set color_page_link_hover = "#603048";
+set color_page_link_visited = "#783060";
+set color_page_text = "#303030";
 
-set color_comment_title_background = "#c3d4fe";
-
-#NEWLAYER: bases/nnwm2009
-layerinfo type = "theme";
-layerinfo name = "NNWM 2009";
-layerinfo redist_uniq = "bases/nnwm2009";
-layerinfo author_name = "zvi";   
-
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
-
-set color_header_background = "#ffefbd";
-set color_module_background = "#ffefbd";
-set color_module_text = "#000000";
-set color_module_title = "#ef8229";
-set color_page_background = "#000000";
-set color_page_border = "#842021";
-set color_page_link = "#429ace";
-set color_page_link_active = "#a5cf39";
-set color_page_link_hover = "#842021";
-set color_page_link_visited = "#ef4921";
-set color_page_text = "#ffffff";
-set color_page_title = "#ef8229";
-
-set font_base = "Arial";
-set font_base_size = "1";
-set font_base_units = "em";
-
-function Page::print_theme_stylesheet () {
-"""
-
-input, select { color: $*color_module_text !important; background-color: $*color_module_background !important; }
-#pagetitle { color: $*color_module_text; background-color: $*color_module_background !important; }
-#lj_controlstrip_statustext, #lj_controlstrip td { color: $*color_module_text !important; }
-
-""";
+function Page::print_theme_stylesheet() {
+    """
+    .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: $*color_page_link_hover;}
+    """;
 }

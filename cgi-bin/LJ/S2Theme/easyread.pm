@@ -32,7 +32,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::easyread::hcwhite;
 use base qw( LJ::S2Theme::easyread );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::easyread::lcorange;

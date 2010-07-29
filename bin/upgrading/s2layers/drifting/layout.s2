@@ -709,7 +709,7 @@ function Page::print_default_stylesheet()
         overflow: auto;
     }
 
-    .comment .poster {
+    .full .comment .poster {
        display: block;
        width: auto;
        text-align: center;

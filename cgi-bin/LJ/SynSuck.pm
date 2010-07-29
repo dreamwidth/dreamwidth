@@ -439,7 +439,7 @@ sub process_content {
         $title = $su->{'user'} unless LJ::is_utf8($title);
         if (defined $title && $title ne $su->{'name'}) {
             $title =~ s/[\n\r]//g;
-            LJ::update_user($su, { name => $title });
+            $su->update_self( { name => $title } );
             $su->set_prop( "urlname", $title );
         }
 

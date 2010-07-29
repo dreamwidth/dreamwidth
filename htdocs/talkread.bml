@@ -611,9 +611,9 @@ body<=
 
                 $ret .= "</td></tr><tr><td class='commentbody usercontent'>";
 
-                LJ::CleanHTML::clean_comment(\$post->{'body'}, { 'preformatted' => $post->{'props'}->{'opt_preformatted'},
-                                                                 'anon_comment' => !$pu || ( $pu->is_identity && !$u->trusts_or_has_member( $pu ) ),
-                                                             });
+                LJ::CleanHTML::clean_comment( \$post->{body}, { preformatted => $post->{'props'}->{'opt_preformatted'},
+                                                                anon_comment => LJ::Talk::treat_as_anon( $pu, $u ),
+                                                              } );
                 BML::ebml(\$post->{'body'});
                 my $event = LJ::CleanHTML::quote_html( $post->{body}, $GET{nohtml} );
                 my $edit_html = $edittime ? "<br /><br /><span class='edittime'><em>" . BML::ml('.edittime', { editreason => $editreason, edittime => $edittime }) . "</em></span>" : "";

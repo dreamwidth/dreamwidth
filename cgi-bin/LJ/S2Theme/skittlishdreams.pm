@@ -18,6 +18,10 @@ sub entry_props {
     return $self->_append_props( "entry_props", @props );
 }
 
+package LJ::S2Theme::skittlishdreams::academy;
+use base qw( LJ::S2Theme::skittlishdreams );
+sub cats { qw() }
+sub designer { "sarken" }
 
 package LJ::S2Theme::skittlishdreams::blue;
 use base qw( LJ::S2Theme::skittlishdreams );
@@ -27,9 +31,24 @@ package LJ::S2Theme::skittlishdreams::cyan;
 use base qw( LJ::S2Theme::skittlishdreams );
 sub cats { qw() }
 
+package LJ::S2Theme::skittlishdreams::desertcream;
+use base qw( LJ::S2Theme::skittlishdreams );
+sub cats { qw() }
+sub designer { "sarken" }
+
 package LJ::S2Theme::skittlishdreams::green;
 use base qw( LJ::S2Theme::skittlishdreams );
 sub cats { qw() }
+
+package LJ::S2Theme::skittlishdreams::inthebag;
+use base qw( LJ::S2Theme::skittlishdreams );
+sub cats { qw() }
+sub designer { "sarken" }
+
+package LJ::S2Theme::skittlishdreams::likesunshine;
+use base qw( LJ::S2Theme::skittlishdreams );
+sub cats { qw() }
+sub designer { "sarken" }
 
 package LJ::S2Theme::skittlishdreams::orange;
 use base qw( LJ::S2Theme::skittlishdreams );
@@ -43,9 +62,13 @@ package LJ::S2Theme::skittlishdreams::red;
 use base qw( LJ::S2Theme::skittlishdreams );
 sub cats { qw() }
 
+package LJ::S2Theme::skittlishdreams::snowcherries;
+use base qw( LJ::S2Theme::skittlishdreams );
+sub cats { qw() }
+sub designer { "sarken" }
+
 package LJ::S2Theme::skittlishdreams::violet;
 use base qw( LJ::S2Theme::skittlishdreams );
 sub cats { qw( featured ) }
 
 1;
-

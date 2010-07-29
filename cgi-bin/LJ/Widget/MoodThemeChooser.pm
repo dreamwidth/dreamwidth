@@ -132,7 +132,7 @@ sub handle_post {
     foreach (keys %update) {
         delete $update{$_} if $u->{$_} eq $update{$_};
     }
-    LJ::update_user($u, \%update) if %update;
+    $u->update_self( \%update ) if %update;
 
     # reload the user object to force the display of these changes
     $u = LJ::load_user($u->user, 'force');

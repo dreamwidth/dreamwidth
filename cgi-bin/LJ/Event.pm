@@ -34,6 +34,8 @@ foreach my $event (@EVENTS) {
 #                                   ($u,$journalid,$ditemid)
 #    LJ::Event::JournalNewComment  -- a journal has a new comment in it
 #                                   ($ju,$jtalkid)   # TODO: should probably be ($ju,$jitemid,$jtalkid)
+#    LJ::Event::JournalNewComment::TopLevel -- a journal has a new top-level comment in it
+#                                   ($ju,$jitemid)
 #    LJ::Event::UserNewComment     -- a user left a new comment somewhere
 #                                   ($u,$journalid,$jtalkid)
 #    LJ::Event::AddedToCircle      -- user $fromuserid added $u to their circle; $actionid is 1 (trust) or 2 (watch)
@@ -311,15 +313,17 @@ sub subscriptions {
         my $udbh = LJ::get_cluster_master($cid)
             or die;
 
+        my $events_list = join( ",", $self->related_events );
+
         # first we find exact matches (or all matches)
         my $journal_match = $allmatch ? "" : "AND journalid=?";
         my $limit_sql = ($limit && $limit_remain) ? "LIMIT $limit_remain" : '';
         my $sql = "SELECT userid, subid, is_dirty, journalid, etypeid, " .
             "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
-            "FROM subs WHERE etypeid=? $journal_match $and_enabled $limit_sql";
+            "FROM subs WHERE etypeid IN ($events_list) $journal_match $and_enabled $limit_sql";
 
         my $sth = $udbh->prepare($sql);
-        my @args = ($self->etypeid);
+        my @args;
         push @args, $self->u->id unless $allmatch;
         $sth->execute(@args);
         if ($sth->err) {
@@ -339,10 +343,10 @@ sub subscriptions {
             my $sth = $udbh->prepare(
                                      "SELECT userid, subid, is_dirty, journalid, etypeid, " .
                                      "arg1, arg2, ntypeid, createtime, expiretime, flags  " .
-                                     "FROM subs USE INDEX(PRIMARY) WHERE etypeid=? AND journalid=0 $and_enabled AND userid IN ($jidlist)"
+                                     "FROM subs USE INDEX(PRIMARY) WHERE etypeid IN ($events_list) AND journalid=0 $and_enabled AND userid IN ($jidlist)"
                                      );
 
-            $sth->execute($self->etypeid);
+            $sth->execute;
             die $sth->errstr if $sth->err;
 
             while (my $row = $sth->fetchrow_hashref) {
@@ -428,6 +432,13 @@ sub etypeid {
         or return undef;
 
     return $tm->class_to_typeid($class);
+}
+
+# return a list of related events, for considering as one group
+# to avoid dupes when processing subs
+# list includes your own etypeid
+sub related_events {
+    return $_[0]->etypeid;
 }
 
 # Class method

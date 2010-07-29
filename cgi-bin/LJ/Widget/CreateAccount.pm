@@ -17,7 +17,7 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 use LJ::CreatePage;
-use Captcha::reCAPTCHA;
+use DW::Captcha;
 
 sub need_res { qw( stc/widgets/createaccount.css js/widgets/createaccount.js js/browserdetect.js ) }
 
@@ -206,65 +206,13 @@ sub render_body {
     # at best, WAI-ARIA code is not wrapped around the
     # captcha functionality.
     my $label_captcha = $errors->{'captcha'} ? "errors-present" : "errors-absent"; 
-      
-    if ($LJ::HUMAN_CHECK{create}) {
-        if (LJ::is_enabled("recaptcha")) {
-            $ret .= "<tr valign='top'><td class='$label_captcha'>"
-                    .  $class->ml('widget.createaccount.field.captcha')
-                    .  "</td>\n<td>";
 
-            my $c = Captcha::reCAPTCHA->new;
-            $ret .= $c->get_options_setter({ theme => 'white' });
-            $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}), '', $LJ::IS_SSL );
-            $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
-        } else {
-            # flag to indicate they've submitted with 'audio' as the answer to the captcha challenge
-            my $wants_audio = $from_post->{wants_audio} || 0;
-
-            # captcha id
-            my $capid = $from_post->{capid};
-            my $anum = $from_post->{anum};
-
-            my ($captcha_chal, $captcha_sess);
-
-            my $answer = $post->{answer};
-            undef $answer if $errors->{captcha} || $wants_audio;
-            $captcha_chal = $post->{captcha_chal};
-            undef $captcha_chal if $errors->{captcha};
-
-            $captcha_chal = $captcha_chal || LJ::challenge_generate(900);
-            $captcha_sess = LJ::get_challenge_attributes($captcha_chal);
-
-            $ret .= "<tr valign='top'><td class='$label_captcha'>"
-                  . $class->ml('widget.createaccount.field.captcha')
-                  . "</td>\n<td>";
-
-            if ($wants_audio || $post->{audio_chal}) { # audio
-                my $url = $capid && $anum ? # previously entered correctly
-                    "$LJ::SITEROOT/captcha/audio.bml?capid=$capid&amp;anum=$anum" :
-                    "$LJ::SITEROOT/captcha/audio.bml?chal=$captcha_chal";
-
-                $ret .= "<a href='$url'>" . $class->ml('widget.createaccount.field.captcha.play') . "</a>";
-                $ret .= $class->html_hidden( audio_chal => 1 );
-                $ret .= "<p class='field-desc'>" . $class->ml('widget.createaccount.field.captcha.hear') . "</p>";
-            } else { # visual
-                my $url = $capid && $anum ? # previously entered correctly
-                    "$LJ::SITEROOT/captcha/image.bml?capid=$capid&amp;anum=$anum" :
-                    "$LJ::SITEROOT/captcha/image.bml?chal=$captcha_chal";
-
-                $ret .= "<img src='$url' width='175' height='35' />";
-                $ret .= "<p class='field-desc'>" . $class->ml('widget.createaccount.field.captcha.visual') . "</p>";
-            }
-
-            $ret .= $class->html_text(
-                name => 'answer',
-                id => 'create_answer',
-                size => 28,
-                value => $answer,
-            );
-            $ret .= $class->html_hidden( captcha_chal => $captcha_chal );
-        }
-
+    my $captcha = DW::Captcha->new( 'create', %{$post || {}} );
+    if ( $captcha->enabled ) {
+        $ret .= "<tr valign='top'><td class='$label_captcha'>"
+                .  $class->ml('widget.createaccount.field.captcha2')
+                .  "</td>\n<td>";
+        $ret .= $captcha->print;
         $ret .= "</td></tr>\n";
     }
 
@@ -343,17 +291,6 @@ sub handle_post {
 
     my %from_post;
     my $remote = LJ::get_remote();
-
-    # flag to indicate they've submitted with 'audio' as the answer to the captcha
-    my $wants_audio = $from_post{wants_audio} = 0;
-
-    # captcha id
-    my ($capid, $anum);
-
-    # if they've given 'audio' as the answer to the captcha
-    if ($LJ::HUMAN_CHECK{create} && !LJ::is_enabled("recaptcha") && lc $post->{answer} eq 'audio') {
-        $wants_audio = $from_post{wants_audio} = 1;
-    }
 
     $post->{user} = LJ::trim($post->{user});
     my $user = LJ::canonical_username($post->{user});
@@ -458,33 +395,17 @@ sub handle_post {
     $from_post{errors}->{email} = join(", ", @email_errors) if @email_errors;
 
     # check the captcha answer if it's turned on
-    if ($LJ::HUMAN_CHECK{create}) {
-        if (LJ::is_enabled("recaptcha")) {
-            if ($post->{recaptcha_response_field}) {
-                my $c = Captcha::reCAPTCHA->new;
-                my $result = $c->check_answer(
-                    LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
-                    $post->{'recaptcha_challenge_field'}, $post->{'recaptcha_response_field'}
-                );
-
-                $from_post{errors}->{captcha} = $class->ml('widget.createaccount.error.captcha.invalid') unless $result->{'is_valid'} eq '1';
-            } else {
-                $from_post{errors}->{captcha} = $class->ml('widget.createaccount.error.captcha.invalid');
-            }
-        } elsif (!$wants_audio) {
-            ($capid, $anum) = LJ::Captcha::session_check_code($post->{captcha_chal}, $post->{answer});
-            $from_post{errors}->{captcha} = $class->ml('widget.createaccount.error.captcha.invalid') unless $capid && $anum;
-            $from_post{capid} = $capid;
-            $from_post{anum} = $anum;
-        }
-    }
+    my $captcha = DW::Captcha->new( 'create',  %{$post || {}} );
+    my $captcha_error;
+    $from_post{errors}->{captcha} = $captcha_error
+        unless $captcha->validate( err_ref => \$captcha_error );
 
     # check TOS agreement
     $from_post{errors}->{tos} = $class->ml( 'widget.createaccount.error.tos' ) unless $post->{tos};
 
     # create user and send email as long as the user didn't double-click submit
     # (or they tried to re-create a purged account)
-    unless ($second_submit || keys %{$from_post{errors}} || (!LJ::is_enabled("recaptcha") && $wants_audio)) {
+    unless ( $second_submit || keys %{$from_post{errors}} ) {
         my $bdate = sprintf("%04d-%02d-%02d", $post->{bday_yyyy}, $post->{bday_mm}, $post->{bday_dd});
 
         my $nu = LJ::User->create_personal(
@@ -499,11 +420,6 @@ sub handle_post {
             code => $code,
         );
         return $class->ml('widget.createaccount.error.cannotcreate') unless $nu;
-
-        if ($LJ::HUMAN_CHECK{create} && !LJ::is_enabled("recaptcha")) {
-            # mark the captcha for deletion
-            LJ::Captcha::expire($capid, $anum, $nu->id);
-        }
 
         # send welcome mail... unless they're underage
         my $aa = LJ::register_authaction($nu->id, "validateemail", $email);

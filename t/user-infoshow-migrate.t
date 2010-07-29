@@ -17,7 +17,7 @@ sub new_temp_user {
     ok(LJ::isu($u), 'temp user created');
 
     # force it to Y, since we're testing migration here
-    LJ::update_user($u, { 'allow_infoshow' => "Y"});
+    $u->update_self( { allow_infoshow => 'Y' } );
     $u->clear_prop("opt_showlocation");
     $u->clear_prop("opt_showbday");
 
@@ -39,7 +39,7 @@ sub run_tests {
             my $u = new_temp_user();
             if ($mode eq 'off') {
                 my $uid = $u->{userid};
-                LJ::update_user($u, { allow_infoshow => 'N' });
+                $u->update_self( { allow_infoshow => 'N' } );
                 is($u->{allow_infoshow}, 'N', 'allow_infoshow set to N');
 
                 my $temp_var = $getter->($u);

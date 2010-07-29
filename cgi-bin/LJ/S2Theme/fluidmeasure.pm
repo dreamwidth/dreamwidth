@@ -8,22 +8,22 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::fluidmeasure::beachaftersunset;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::fluidmeasure::marblei;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::fluidmeasure::marbleii;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::fluidmeasure::mutedseashore;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "cimorene" }
 
 package LJ::S2Theme::fluidmeasure::nnwm2009;
@@ -37,7 +37,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::fluidmeasure::pigeonblue;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::fluidmeasure::spice;
@@ -53,4 +53,3 @@ use base qw( LJ::S2Theme::fluidmeasure );
 sub cats { qw( featured ) }
 
 1;
-

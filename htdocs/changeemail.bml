@@ -155,7 +155,7 @@ body<=
         };
         $tochange->{status} = 'T' if $u->{status} eq 'A';
 
-        LJ::update_user($u, $tochange);
+        $u->update_self( $tochange );
 
         # send letter to old email address
         my @date = localtime(time);

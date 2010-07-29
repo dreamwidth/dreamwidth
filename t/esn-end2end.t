@@ -57,6 +57,7 @@ sub test_esn_flow {
         } else {
             $cv->($u1, $u2, $path);
         }
+        sleep 1;
     }
 }
 

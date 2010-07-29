@@ -13,12 +13,14 @@
 
 package LJ::Setting::CommentCaptcha;
 use base 'LJ::Setting';
+use DW::Captcha;
 use strict;
 use warnings;
 
 sub should_render {
     my ($class, $u) = @_;
 
+    return 0 unless DW::Captcha->site_enabled;
     return $u && !$u->is_identity ? 1 : 0;
 }
 

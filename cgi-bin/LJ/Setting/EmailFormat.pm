@@ -77,7 +77,7 @@ sub save {
     $class->error_check($u, $args);
 
     my $val = $class->get_arg($args, "emailformat");
-    LJ::update_user($u, { opt_htmlemail => $val });
+    $u->update_self( { opt_htmlemail => $val } );
 
     return 1;
 }

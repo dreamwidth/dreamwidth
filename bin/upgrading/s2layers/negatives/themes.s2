@@ -1,3 +1,38 @@
+#NEWLAYER: negatives/autumn
+layerinfo type = "theme";
+layerinfo name = "Autumn";
+layerinfo redist_uniq = "negatives/autumn";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_background = "#9e2d00";
+set color_page_text = "#160131";
+set color_page_link_active = "#9e2d00";
+set color_page_link = "#160131";
+set color_page_link_hover = "#6ac49e";
+set color_page_link_visited = "#006c3e";
+
+set color_entry_interaction_links_active = "#d89175";
+set color_entry_border = "#1A4231";
+set color_entry_interaction_links = "#d8cf75";
+set color_entry_interaction_links_visited = "#936fc4";
+set color_entry_link_hover = "#6ac49e";
+set color_entry_link = "#491500";
+set color_entry_link_visited = "#613625";
+set color_entry_interaction_links_hover = "#6ac49e";
+set color_entry_link_active = "#9e2d00";
+set color_entry_background = "#d8cf75";
+
+set color_module_link_hover = "#6ac49e";
+set color_module_background = "#9E2D00";
+set color_module_title = "#9e9000";
+set color_module_link = "#000000";
+set color_module_link_active = "#9e2d00";
+set color_module_text = "#9e900";
+set color_module_border = "#160131";
+set color_module_link_visited = "#ffffff";
+
 #NEWLAYER: negatives/azure
 layerinfo type = "theme";
 layerinfo name = "Azure";
@@ -275,6 +310,144 @@ set color_module_link_hover = "#e39307";
 set color_module_link_active = "#8B0000";
 set color_module_link_visited = "#8B0000";
 
+#NEWLAYER: negatives/bridalbouquet
+layerinfo type = "theme";
+layerinfo name = "Bridal Bouquet";
+layerinfo redist_uniq = "negatives/bridalbouquet";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_background = "#ffe1c0";
+set color_page_text = "#000000";
+set color_page_link_active = "#ac1e00";
+set color_page_link = "#ac5a00";
+set color_page_link_hover = "#ff8500";
+set color_page_link_visited = "#ac7b00";
+
+set color_entry_interaction_links_active = "#ac1e00";
+set color_entry_border = "#c47c2d";
+set color_entry_interaction_links = "#ac5a00";
+set color_entry_interaction_links_visited = "#ac5a00";
+set color_entry_link_hover = "#ff8500";
+set color_entry_link = "#ac5a00";
+set color_entry_link_visited = "#ac7b00";
+set color_entry_interaction_links_hover = "#c4482d";
+set color_entry_link_active = "#ac1e00";
+set color_entry_background = "#ffe1c0";
+
+set color_module_link_hover = "#ff8500";
+set color_module_background = "#ffe1c0";
+set color_module_title = "#ac5a00";
+set color_module_link = "#ac5a00";
+set color_module_link_active = "#ac1e00";
+set color_module_text = "#000000";
+set color_module_border = "#c47c2d";
+set color_module_link_visited = "#ac7b00";
+
+#NEWLAYER: negatives/corporateembrace
+layerinfo type = "theme";
+layerinfo name = "Corporate Embrace";
+layerinfo redist_uniq = "negatives/corporateembrace";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_background = "#9090c0";
+set color_page_text = "#000000";
+set color_page_link_active = "#7777c0";
+set color_page_link = "#2a2a5e";
+set color_page_link_hover = "#7777c0";
+set color_page_link_visited = "#292944";
+
+set color_entry_interaction_links_active = "#7777c0";
+set color_entry_border = "#0c0c3a";
+set color_entry_interaction_links = "#0C0C3A";
+set color_entry_interaction_links_visited = "#292944";
+set color_entry_link_hover = "#7777c0";
+set color_entry_link = "#2a2a5e";
+set color_entry_link_visited = "#292944";
+set color_entry_interaction_links_hover = "#7777c0";
+set color_entry_link_active = "#7777c0";
+set color_entry_background = "#9090c0";
+
+set color_module_link_hover = "#7777c0";
+set color_module_background = "#9090c0";
+set color_module_title = "#480125";
+set color_module_link = "#2a2a5e";
+set color_module_link_active = "#7777c0";
+set color_module_text = "#000000";
+set color_module_border = "#0c0c3a";
+set color_module_link_visited = "#292944";
+
+#NEWLAYER: negatives/easyreader
+layerinfo type = "theme";
+layerinfo name = "Easy Reader";
+layerinfo redist_uniq = "negatives/easyreader";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_link_active = "#2c4402";
+set color_page_link = "#2a1867";
+set color_page_text = "#000000";
+set color_page_background = "#965014";
+set color_page_link_visited = "#5e8b13";
+set color_page_link_hover = "#8b74db";
+
+set color_entry_interaction_links_active = "#e6c5a8";
+set color_entry_border = "#492303";
+set color_entry_interaction_links = "#e6c5a8";
+set color_entry_interaction_links_visited = "#b7e46a";
+set color_entry_link_hover = "#8b74db";
+set color_entry_link = "#2a1867";
+set color_entry_link_visited = "#5e8b13";
+set color_entry_interaction_links_hover = "#8b74db";
+set color_entry_link_active = "#2c4402";
+set color_entry_background = "#e6a46b";
+set color_entry_text = "000000";
+
+set color_module_link_hover = "#8b74db";
+set color_module_background = "#e6a46b";
+set color_module_title = "#000000";
+set color_module_border = "#492303";
+set color_module_link = "#2a1867";
+set color_module_link_visited = "#5e8b13";
+set color_module_link_active = "#2c4402";
+set color_module_text = "#000000";
+
+set image_background_module_position = "top left";
+
+#NEWLAYER: negatives/evening
+layerinfo type = "theme";
+layerinfo name = "Evening";
+layerinfo redist_uniq = "negatives/evening";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_background = "#000000";
+set color_page_text = "#fd7d83";
+set color_page_link_active = "#750006";
+set color_page_link = "#fd7d83";
+set color_page_link_visited = "#fd7d83";
+set color_page_link_hover = "#fde0e2";
+
+set color_entry_background = "#ffffff";
+set color_entry_text = "000000";
+set color_entry_link = "#fd7d83";
+set color_entry_link_hover = "#380003";
+set color_entry_link_visited = "#4a1b1e";
+set color_entry_link_active = "#750006";
+set color_entry_border = "#750006";
+
+set color_module_link_hover = "#380003";
+set color_module_border = "#750006";
+set color_module_link = "#fde0e2";
+set color_module_link_visited = "#fd7d83";
+set color_module_link_active = "#750006";
+set color_module_text = "#ffffff";
+
 #NEWLAYER: negatives/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light On Dark";
@@ -437,3 +610,143 @@ set color_module_link_active = "#38BBFC";
 set color_module_link_visited = "#38BBFC";
 set color_page_link_active = "#38BBFC";
 set color_page_link_visited  = "#38BBFC";	
+
+#NEWLAYER: negatives/spring
+layerinfo type = "theme";
+layerinfo name = "Spring";
+layerinfo redist_uniq = "negatives/spring";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_background = "#ffea8d";
+set color_page_text = "#c8434d";
+set color_page_link_active = "#7ac76e";
+set color_page_link = "#d7777e";
+set color_page_link_hover = "#7e70b8";
+set color_page_link_visited = "#5641ab";
+
+set color_entry_interaction_links_active = "#7ac76e";
+set color_entry_border = "#80e96f";
+set color_entry_interaction_links = "#5641ab";
+set color_entry_interaction_links_visited = "#4fb93e";
+set color_entry_link_hover = "#ffe679";
+set color_entry_link = "#d7777e";
+set color_entry_link_visited = "#5641ab";
+set color_entry_interaction_links_hover = "#7e70b8";
+set color_entry_link_active = "#7ac76e";
+set color_entry_background = "#ffe884";
+
+set color_module_link_hover = "#7e70b8";
+set color_module_background = "#ffea8d";
+set color_module_title = "#c8434d";
+set color_module_link = "#d7777e";
+set color_module_link_active = "#7ac76e";
+set color_module_text = "#000000";
+set color_module_border = "#4fb93e";
+set color_module_link_visited = "#5641ab";
+
+#NEWLAYER: negatives/summer
+layerinfo type = "theme";
+layerinfo name = "Summer";
+layerinfo redist_uniq = "negatives/summer";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_background = "#ffffff";
+set color_page_text = "#000000";
+set color_page_link_active = "#5d038e";
+set color_page_link = "#c75a00";
+set color_page_link_hover = "#c7c700";
+set color_page_link_visited = "#008383";
+
+set color_entry_interaction_links_active = "#5d038e";
+set color_entry_border = "#d7d722";
+set color_entry_interaction_links = "#168d8d";
+set color_entry_interaction_links_visited = "#73f9f9";
+set color_entry_link_hover = "#cc78fa";
+set color_entry_link = "#c75a00";
+set color_entry_link_visited = "#008383";
+set color_entry_interaction_links_hover = "#c7c700";
+set color_entry_link_active = "#5d038e";
+set color_entry_background = "#ffe8d5";
+
+set color_module_link_hover = "#c7c700";
+set color_module_background = "#ffb476";
+set color_module_title = "#000000";
+set color_module_link = "#c75a00";
+set color_module_link_active = "#5d038e";
+set color_module_text = "#000000";
+set color_module_border = "#d77422";
+set color_module_link_visited = "#008383";
+
+#NEWLAYER: negatives/winter
+layerinfo type = "theme";
+layerinfo name = "Winter";
+layerinfo redist_uniq = "negatives/winter";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_background = "#606193";
+set color_page_text = "#202260";
+set color_page_link_active = "#4e7b25";
+set color_page_link = "#202260";
+set color_page_link_hover = "#cecffb";
+set color_page_link_visited = "#9f926e";
+
+set color_entry_interaction_links_active = "#4e7b25";
+set color_entry_border = "#8d6270";
+set color_entry_interaction_links = "#d2bd7d";
+set color_entry_interaction_links_visited = "#8a712a";
+set color_entry_link_hover = "#cecffb";
+set color_entry_link = "#7a2540";
+set color_entry_link_visited = "#9f926e";
+set color_entry_interaction_links_hover = "#fdfafc";
+set color_entry_link_active = "#778e63";
+set color_entry_background = "#e6a46b";
+
+set color_module_link_hover = "#8b74db";
+set color_module_background = "#cecffb";
+set color_module_title = "#202260";
+set color_module_link = "#202260";
+set color_module_link_active = "#4e7b25";
+set color_module_text = "#000000";
+set color_module_border = "#7a2540";
+set color_module_link_visited = "#9f926e";
+
+#NEWLAYER: negatives/yozakura
+layerinfo type = "theme";
+layerinfo name = "Yo-zakura";
+layerinfo redist_uniq = "negatives/yozakura";
+layerinfo author_name = "busaikko";
+
+set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+
+set color_page_background = "#c62677";
+set color_page_text = "#000000";
+set color_page_link_active = "#580802";
+set color_page_link = "#480125";
+set color_page_link_hover = "#23b83d";
+set color_page_link_visited = "#582b02";
+
+set color_entry_interaction_links_active = "#3cca55";
+set color_entry_border = "#000000";
+set color_entry_interaction_links = "#ffffff";
+set color_entry_interaction_links_visited = "#3cca55";
+set color_entry_link_hover = "#23b83d";
+set color_entry_link = "#014304";
+set color_entry_link_visited = "#582b02";
+set color_entry_interaction_links_hover = "#3cca55";
+set color_entry_link_active = "#580802";
+set color_entry_background = "#ffffff";
+
+set color_module_link_hover = "#ff8500";
+set color_module_background = "#000000";
+set color_module_title = "#480125";
+set color_module_link = "#014304";
+set color_module_link_active = "#580802";
+set color_module_text = "#ffffff";
+set color_module_border = "#c62677";
+set color_module_link_visited = "#582b02";

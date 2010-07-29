@@ -90,7 +90,7 @@ sub save {
     my %update = (
         'bdate' => sprintf("%04d-%02d-%02d", $year, $month, $day),
     );
-    LJ::update_user($u, \%update);
+    $u->update_self( \%update );
 
     # for the directory
     my $sidx_bday = sprintf("%02d-%02d", $month, $day);

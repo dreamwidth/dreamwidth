@@ -41,7 +41,7 @@ sub entry_props {
 
 package LJ::S2Theme::funkycircles::atomicorange;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::funkycircles::chocolaterose;
 use base qw( LJ::S2Theme::funkycircles );
@@ -49,7 +49,7 @@ sub cats { qw( featured ) }
 
 package LJ::S2Theme::funkycircles::darkblue;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::funkycircles::darkpurple;
 use base qw( LJ::S2Theme::funkycircles );
@@ -61,15 +61,15 @@ sub cats { qw() }
 
 package LJ::S2Theme::funkycircles::industrialpink;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::funkycircles::industrialteal;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw() }
 
 package LJ::S2Theme::funkycircles::lightondark;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "cesy" }
 
 package LJ::S2Theme::funkycircles::nevermore;
@@ -84,6 +84,6 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::funkycircles::seablues;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw() }
 
 1;

@@ -74,7 +74,7 @@ sub execute {
     my $to_oldurl = $dbh->selectrow_array("SELECT synurl FROM syndicated WHERE userid=?", undef, $to_u->id);
 
     # 1) set up redirection for 'from_user' -> 'to_user'
-    LJ::update_user($from_u, { 'journaltype' => 'R', 'statusvis' => 'R' });
+    $from_u->update_self( { journaltype => 'R', statusvis => 'R' } );
     $from_u->set_prop("renamedto", $to_user)
         or return $self->error("Unable to set userprop.  Database unavailable?");
 

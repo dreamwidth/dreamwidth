@@ -11,7 +11,7 @@ plan tests => 7;
 
 my $u = temp_user();
 my $u2 = temp_user();
-LJ::update_user($u2, { status => 'A' });
+$u2->update_self( { status => 'A' } );
 $u2 = LJ::load_user($u2->user);
 
 my $comm = temp_comm();

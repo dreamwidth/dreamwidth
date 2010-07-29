@@ -1067,8 +1067,11 @@ is being performed. Try again in a few minutes.",
                     'type' => "array",
                     'default' => "(
         { scheme => 'lynx', title => 'Lynx', },
+        );",
+                    'example' => "(
         { scheme => 'lynx', title => 'Lynx',
         thumb => [ 'schemethumb/lynx.png', 200, 166 ]  },
+        );",
             },
             's1_shortcomings' => {
                     'desc' => "Use the S2 style named 's1shortcomings' to handle page types that S1 can't handle.  Otherwise, &bml; is used.  This is off by default, but will eventually become on by default, and no longer an option.",

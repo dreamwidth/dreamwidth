@@ -981,10 +981,9 @@ sub entry_form {
     my ($opts, $head, $onload, $errors) = @_;
 
     my $out = "";
-    my $remote = $opts->{'remote'};
-    my $altlogin = $opts->{'altlogin'};
-    my $userpic_display = $altlogin ? 'none' : 'block';
-    my ($moodlist, $moodpics, $userpics, $altcode);
+    my $remote = $opts->{remote};
+    my $altlogin = $opts->{altlogin};
+    my ( $moodlist, $moodpics );
 
     # usejournal has no point if you're trying to use the account you're logged in as,
     # so disregard it so we can assume that if it exists, we're trying to post to an
@@ -1008,172 +1007,35 @@ sub entry_form {
     $out .= "\n<input type='hidden' name='chal' id='login_chal' value='$chal' />\n";
     $out .= "<input type='hidden' name='response' id='login_response' value='' />\n\n";
     $out .= LJ::error_list($errors->{entry}) if $errors->{entry};
-    # do a login action to get pics and usejournals, but only if using remote
-    my $res;
-    if ($opts->{'auth_as_remote'}) {
-        $res = LJ::Protocol::do_request("login", {
-            "ver" => $LJ::PROTOCOL_VER,
-            "username" => $remote->{'user'},
-            "getpickws" => 1,
-            "getpickwurls" => 1,
-        }, undef, {
-            "noauth" => 1,
-            "u" => $remote,
-        });
-    }
 
-    ### Userpic
+    ### Icon Selection
 
-        my $userpic_preview = "";
+    my $pic = '';      # displays chosen/default pic                                 
+    my $picform = '';  # displays form drop-down                                 
 
-            # User Picture
-            if (!$altlogin && ($res && ref $res->{'pickws'} eq 'ARRAY' && scalar @{$res->{'pickws'}} > 0)) {
-                my @pickws = map { ($_, $_) } @{$res->{'pickws'}};
-                my $num = 0;
-                $userpics .= "    userpics[$num] = \"$res->{defaultpicurl}\";\n";
-                $altcode .= "     alttext[$num] = \"" . BML::ml('entryform.opt.defpic') . "\";\n";
-                foreach (@{$res->{'pickwurls'}}) {
-                    $num++;
-                    $userpics .= "    userpics[$num] = \"$_\";\n";
-                }
-                $num = 0;
-                foreach ( @{$res->{pickws}} ) {
-                    $num++;
-                    $altcode .= "     alttext[$num] = \"" . LJ::ejs($_) . "\";\n";
-                }
-                $$onload .= " userpic_preview();";
+    LJ::Widget::UserpicSelector->render( $remote, \$$head, \$pic, \$picform,
+                { prop_picture_keyword => $opts->{prop_picture_keyword},
+                  no_auth => ! $opts->{auth_as_remote}, onload => $onload,
+                  altlogin => $altlogin, entry_js => 1 } );    
 
-                my $userpic_link_text;
-                $userpic_link_text = BML::ml('entryform.userpic.choose') if $remote;
+    # libs for userpicselect
+    LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+        if ! $altlogin && $remote && $remote->can_use_userpic_select;
 
-                $$head .= qq {
-                    <script type="text/javascript" language="JavaScript"><!--
-                        if (document.getElementById) {
-                            var userpics = new Array();
-                            var alttext = new Array();
-                            $userpics
-                            $altcode
-                            function userpic_preview() {
-                                if (! document.getElementById) return false;
-                                var userpic_select          = document.getElementById('prop_picture_keyword');
-
-                                if (\$('userpic') && \$('userpic').style.display == 'none') {
-                                    \$('userpic').style.display = 'block';
-                                }
-                                var userpic_msg;
-                                if (userpics[0] == "") { userpic_msg = 'Choose default userpic' }
-                                if (userpics.length == 0) { userpic_msg = 'Upload a userpic' }
-
-                                if (userpic_select && userpics[userpic_select.selectedIndex] != "") {
-                                    \$('userpic_preview').className = '';
-                                    var userpic_preview_image = \$('userpic_preview_image');
-                                    userpic_preview_image.style.display = 'block';
-                                    if (\$('userpic_msg')) {
-                                        \$('userpic_msg').style.display = 'none';
-                                    }
-                                    userpic_preview_image.src = userpics[userpic_select.selectedIndex];
-                                    userpic_preview_image.alt = alttext[userpic_select.selectedIndex];
-                                } else {
-                                    userpic_preview.className += " userpic_preview_border";
-                                    userpic_preview.innerHTML = '<a href="$LJ::SITEROOT/editicons"><img src="" alt="selected userpic" id="userpic_preview_image" style="display: none;" /><span id="userpic_msg">' + userpic_msg + '</span></a>';
-                                }
-                            }
-                        }
-                    //--></script>
-                    };
-
-                my $thumbnail_text = BML::ml( '/update.bml.link.view_thumbnails' );
-                $$head .= qq {
-                    <script type="text/javascript" language="JavaScript">
-                    // <![CDATA[
-                        var ml = new Object();
-                        ml.viewthumbnails_link = "$thumbnail_text";
-
-                        DOM.addEventListener(window, "load", function (evt) {
-                        // attach userpicselect code to userpicbrowse button
-                            var ups_btn = \$("lj_userpicselect");
-                            var ups_btn_img = \$("lj_userpicselect_img");
-                        if (ups_btn) {
-                            DOM.addEventListener(ups_btn, "click", function (evt) {
-                                var ups = new UserpicSelect();
-                                ups.init();
-                                ups.setPicSelectedCallback(function (picid, keywords) {
-                                    var kws_dropdown = \$("prop_picture_keyword");
-
-                                    if (kws_dropdown) {
-                                        var items = kws_dropdown.options;
-
-                                        // select the keyword in the dropdown
-                                        keywords.forEach(function (kw) {
-                                            for (var i = 0; i < items.length; i++) {
-                                                var item = items[i];
-                                                if (item.value == kw) {
-                                                    kws_dropdown.selectedIndex = i;
-                                                    userpic_preview();
-                                                    return;
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                                ups.show();
-                            });
-                        }
-                        if (ups_btn_img) {
-                            DOM.addEventListener(ups_btn_img, "click", function (evt) {
-                                var ups = new UserpicSelect();
-                                ups.init();
-                                ups.setPicSelectedCallback(function (picid, keywords) {
-                                    var kws_dropdown = \$("prop_picture_keyword");
-
-                                    if (kws_dropdown) {
-                                        var items = kws_dropdown.options;
-
-                                        // select the keyword in the dropdown
-                                        keywords.forEach(function (kw) {
-                                            for (var i = 0; i < items.length; i++) {
-                                                var item = items[i];
-                                                if (item.value == kw) {
-                                                    kws_dropdown.selectedIndex = i;
-                                                    userpic_preview();
-                                                    return;
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                                ups.show();
-                            });
-                            DOM.addEventListener(ups_btn_img, "mouseover", function (evt) {
-                                var msg = \$("lj_userpicselect_img_txt");
-                                msg.style.display = 'block';
-                            });
-                            DOM.addEventListener(ups_btn_img, "mouseout", function (evt) {
-                                var msg = \$("lj_userpicselect_img_txt");
-                                msg.style.display = 'none';
-                            });
-                        }
-                    });
-                    // ]]>
-                    </script>
-                } if $remote->can_use_userpic_select;
-
-                # libs for userpicselect
-                LJ::need_res( LJ::Talk::init_iconbrowser_js() )
-                    if $remote->can_use_userpic_select;
-
-                $out .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
-                $out .= "\n";
-
-            } elsif (!$remote || $altlogin)  {
-                $out .= "<div id='userpic'><p id='userpic_preview'><img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
-            } else {
-                $out .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editicons'>Upload a userpic</a></p></div>";
-            }
-
+    $out .= $pic;
 
     ### Meta Information Column 1
     {
+        # do a login action to get usejournals, but only if using remote
+        my $res;
+        $res = LJ::Protocol::do_request( "login", {
+                   ver => $LJ::PROTOCOL_VER,
+                   username => $remote->user,
+               }, undef, {
+                   noauth => 1,
+                   u => $remote,
+               } ) if $opts->{auth_as_remote};
+
         $out .= "<div id='metainfo'>\n\n";
         # login info
         $out .= $opts->{'auth'};
@@ -1237,33 +1099,12 @@ sub entry_form {
             $$onload .= " defaultDate();";
         }
 
-            # User Picture
-            if ($res && ref $res->{'pickws'} eq 'ARRAY' && scalar @{$res->{'pickws'}} > 0) {
-                my @pickws = map { ($_, $_) } @{$res->{'pickws'}};
-                my $num = 0;
-                $userpics .= "    userpics[$num] = \"$res->{'defaultpicurl'}\";\n";
-                foreach (@{$res->{'pickwurls'}}) {
-                    $num++;
-                    $userpics .= "    userpics[$num] = \"$_\";\n";
-                }
-                $out .= "<p id='userpic_select_wrapper' class='pkg' style='display: $userpic_display;'>\n";
-                $out .= "<label for='prop_picture_keyword' class='left'>" . BML::ml('entryform.userpic') . "</label>\n" ;
-                $out .= LJ::html_select({'name' => 'prop_picture_keyword', 'id' => 'prop_picture_keyword', 'class' => 'select',
-                                         'selected' => $opts->{'prop_picture_keyword'}, 'onchange' => "userpic_preview()",
-                                         'tabindex' => $tabindex->() },
-                                        "", BML::ml('entryform.opt.defpic'),
-                                        @pickws) . "\n";
-                $out .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
-                # userpic browse button
-                $$onload .= " insertViewThumbs();" if $remote->can_use_userpic_select;
- 
-                # random icon button
-                $out .= "<a href='javascript:void(0)' onclick='randomicon();' id='randomicon'>" . BML::ml('entryform.userpic.random') . "</a>";
-                $out .= LJ::help_icon_html("userpics", "", " ") . "\n";
-                $out .= "</p>\n\n";
-                $$onload .= " showRandomIcon();";
-
-            }
+        # User Picture
+        {
+            my $tab = $tabindex->();
+            $picform =~ s/~~TABINDEX~~/$tab/;
+            $out .= $picform;
+        }
 
         $out .= "</div><!-- end #metainfo -->\n\n";
 

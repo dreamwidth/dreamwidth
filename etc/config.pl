@@ -52,6 +52,8 @@
             users => 'journal',
             syndicated => 'journal',
             cssproxy => 'cssproxy',
+            shop => 'shop',
+            mobile => 'mobile', 
         );
 
 
@@ -734,7 +736,6 @@
 
     # In addition to setting up MogileFS above, you need to enable some options
     # if you want to use MogileFS.
-    #$CAPTCHA_MOGILEFS = 1; # turn this on to put captchas in MogileFS
     #$USERPIC_MOGILEFS = 1; # uncomment to put new userpics in MogileFS
 
     # if you are using Perlbal to balance your web site, by default it uses
@@ -743,7 +744,6 @@
     # item by item basis.
     #%REPROXY_DISABLE = (
     #    userpics => 1,
-    #    captchas => 1,
     #);
 
     # Some people on portable devices may have troubles viewing the nice site
@@ -814,6 +814,17 @@
     # page that 'noanon_ip' sysbanned users can access to get more information
     # on why they're banned
     # $BLOCKED_ANON_URI = '';
+
+    %CAPTCHA_FOR = (
+        create   => 0,
+        lostinfo => 1,
+        validate_openid => 1,
+        support_submit_anon => 0,
+        anonpost => 1,
+        authpost => 0,
+        comment_html_anon => 1,
+        comment_html_auth => 0,
+    );
 }
 
 1;

@@ -61,6 +61,14 @@ body<=
                         default_selected => 1,
                         flags   => LJ::Subscription::TRACKING,
                     ),
+
+                    LJ::Subscription::Pending->new( $remote,
+                        event   => "JournalNewComment::TopLevel",
+                        arg1    => $ditemid,
+                        journal => $journal,
+                        default_selected => 0,
+                        flags   => LJ::Subscription::TRACKING,
+                    ),
                 ],
             }
         ];

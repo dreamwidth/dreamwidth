@@ -62,7 +62,7 @@ sub execute {
     $dbh->do("DELETE FROM infohistory WHERE userid = ?", undef, $ucomm->id);
 
     # change password to blank and set email of community to new maintainer's email
-    LJ::update_user($ucomm, { password => '', email => $unew->email_raw });
+    $ucomm->update_self( { password => '', email => $unew->email_raw } );
     $ucomm->update_email_alias;
 
     # log to statushistory
