@@ -1,0 +1,32 @@
+# dw/etc/clrs.txt
+#
+# Defines colours to be used by DW::Graphs
+#
+# Authors:
+#      Anarres <anarres@dreamwidth.org> 
+#
+# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+# Solid colours 
+90  132 0         solid0
+146 13  27        solid1
+17  6   82        solid2
+229 187 27        solid3
+13  61  37        solid4
+
+# Colours for pie charts
+126 175 210      pie_blue
+243 151 62       pie_orange
+119 203 162      pie_bluegreen
+165 198 64       pie_green
+237 211 68       pie_yellow
+215 139 169      pie_pink
+
+# Other
+247 247 247      background
+197 53  60       dw_red
+248 248 248      nearly_white
