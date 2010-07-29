@@ -176,9 +176,24 @@ ul.entry-interaction-links li.entry-readlink { font-weight: bold; }
 #comments .separator-after { border-top: 1px solid;
     height: 1em; }
 
-.partial .comment { padding: 0;} 
+.partial .comment {
+    line-height: 1.75em;
+    padding: 0;
+    }
 
-.partial .comment-title { display: inline; margin: 0; }
+.partial .comment-title {
+   display: inline;
+   margin: 0;
+   margin-right: .2em;
+   }
+
+.partial .comment-title h4 {
+   display: inline;
+   }
+
+.partial .comment-poster:before {
+   content: "- ";
+   }
 
 .comment .poster-ip { font-size: small;
     color: #999999; }

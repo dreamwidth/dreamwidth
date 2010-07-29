@@ -354,7 +354,15 @@ padding-top: 2em; } /*die in a fire, IE7*/
 .comment-title a { color: $*color_entry_title; }
 .partial .comment-title { display: inline; margin: -.5em 0 0 0; }
 
-.comment .datetime { float: right;
+.partial .comment-title h4 {
+    display: inline;
+    }
+
+.partial .comment-poster:before {
+    content: "- ";
+    }
+
+.full .comment .datetime { float: right;
     margin-top: -1.5em;
     white-space: nowrap; }
 

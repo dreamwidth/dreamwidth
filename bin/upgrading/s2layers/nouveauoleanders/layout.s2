@@ -227,6 +227,11 @@ ul.entry-interaction-links { text-align: right;
 .comment-wrapper { margin-bottom: 1em; 
     background: url("$comment_background_stretch") top left repeat-x;
     padding-top: 1px;}
+
+.comment-wrapper.partial {
+    background: none;
+}
+
 .comment-wrapper-odd { margin-right: 48px; }
 .comment-wrapper-even { margin-left: 48px; }
 .comment-wrapper-odd .comment { background: url("$comment_background_end_odd") top right no-repeat; 
@@ -240,23 +245,51 @@ ul.entry-interaction-links { text-align: right;
 
 .comment { padding: 30px 1em 0 1em }
 
-.partial .comment { padding: 0;} 
-
-.partial .comment-title { display: inline; margin: 0; }
+.partial .comment {
+    background: none;
+    padding: 0;
+    }
 
 .comment-wrapper-odd .header { text-align: left;
     padding-right: 50px; }
 .comment-wrapper-even .header { text-align: right;
     padding-left: 50px; }
 
-.comment-title { margin: .25em 0 0 0;
+.comment-title h4 {
+    background: none;
+    color: $*color_page_link;
+    line-height: 1em;
+    min-height: 0;
+    margin: .25em 0 0 0;
     padding: .25em 0;
     font-size: large; }
 
-.comment .datetime { display: block;
+.comment-title h4 a {
+   color: $*color_page_link;
+   }
+
+.comment-title h4 a:visited {
+   color: $*color_page_link_visited;
+   }
+
+.partial .comment-title {
+   display: inline;
+   margin: 0;
+   margin-right: .2em;
+   }
+
+.partial .comment-title h4 {
+   display: inline;
+   }
+
+.partial .comment-poster:before {
+   content: "- ";
+   }
+
+.full .comment .datetime { display: block;
     font-size: small;}
-.comment-wrapper-odd .datetime { padding-left: 110px; }
-.comment-wrapper-even .datetime { padding-right: 110px; }
+.comment-wrapper-odd.full .datetime { padding-left: 110px; }
+.comment-wrapper-even.full .datetime { padding-right: 110px; }
 
 .comment-wrapper-even .contents { text-align: right; }
 .comment-wrapper-even .comment-content { text-align: left; }
