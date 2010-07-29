@@ -606,7 +606,6 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 }
 
 .entry-wrapper-even .entry-title, .comment-wrapper-even .comment-title {border: solid 1px $*color_entry_title_border_alt; $entry_title_colors }
-.partial .comment-title {display: inline; }
 
 .userpic a {background-color: $*color_page_border; border: 0px; }
 .entry .userpic a, .comment .userpic a {background-color: $*color_entry_background; border: solid 2px $*color_page_border; display: block; position: absolute; top: -66px; padding: 5px; }
@@ -649,7 +648,7 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 
 .entry .footer hr {display: none; }
 .entry .metadata-label {font-weight: bold; }
-.comment-poster {display: inline-block; min-width: 40%; }
+.full .comment-poster {display: inline-block; min-width: 40%; }
 
 #content > hr {display: none; }
 
@@ -728,6 +727,23 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 
 .journal-name { font-size: 1.8em; }
 .journal-website-name { font-size: 1.6em; } 
+
+.partial .comment-title {
+    display: inline;
+    margin-right: .2em;
+    }
+
+.partial .comment-title h4 {
+    display: inline;
+    }
+
+.partial .comment-poster:before {
+    content: "- ";
+    }
+
+.partial .comment .datetime {
+    display: inline;
+    }
 
 $entryicon_css
 

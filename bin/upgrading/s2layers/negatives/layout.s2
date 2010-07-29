@@ -473,6 +473,13 @@ function Page::print_default_stylesheet()
     }
     .partial .comment-title {
         display: inline;
+        margin-right: .2em;
+    }
+    .partial .comment-title h4 {
+        display: inline;
+    }
+    .partial .comment-poster:before {
+        content: "- ";
     }
     .entry a, .comment a {
         color: $*color_entry_link;

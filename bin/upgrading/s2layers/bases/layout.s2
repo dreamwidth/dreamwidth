@@ -632,8 +632,8 @@ li.first-item {margin-left: 0;}
     padding: 0;
 }
 
-.comment .datetime { border-top: 0.083em solid $*color_entry_border;}
-.comment-poster, .poster-ip {border-bottom: 0.083em solid $*color_entry_border; display: block; padding: 0 0.5em 0 0.5em; }
+.full .comment .datetime { border-top: .083em solid $*color_entry_border;}
+.full .comment-poster, .poster-ip { border-bottom: .083em solid $*color_entry_border; display: block; padding: 0 .5em; }
 
 .comment-pages {font-size: 0.833em; font-weight: lighter; text-align: center; padding: 0.833em; border-bottom: 0.083em solid $*color_entry_border;}
 
@@ -645,7 +645,9 @@ li.first-item {margin-left: 0;}
 .screened .comment-content {background: $element_background; padding: 0.833em; }
 
 .partial .comment {color: transparent; padding: 0 0 0.5em 0; min-width: 16.667em; background: $*color_entry_background;}
-.partial .comment-title {padding: 0.5em; font-size: 1.166em; font-weight: bold; }
+.partial .comment-title { font-size: 1.166em; font-weight: bold; }
+.partial .comment-poster { color: $*color_entry_text; padding-left: .5em; }
+.partial .comment .datetime { border: 0; display: inline; background: none; margin: 0; padding: 0;}
 
 .comment-wrapper {padding-top: 0;}
 
