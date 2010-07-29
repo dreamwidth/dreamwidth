@@ -86,7 +86,9 @@ sub print {
 
 sub validate { 
     my ( $self, %opts ) = @_;
-    return unless $self->enabled;
+
+    # if disabled, then it's always valid to allow the post to go through
+    return 1 unless $self->enabled;
 
     $self->init_opts( %opts );
 
