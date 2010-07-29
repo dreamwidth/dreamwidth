@@ -3777,7 +3777,7 @@ register_alter(sub {
                   q{ALTER TABLE syndicated_hubbub2 ADD COLUMN timespinged INT UNSIGNED NOT NULL DEFAULT '0'} );
     }
 
-    if ( table_relevant( "logkwsum" ) && ! check_dbnote( "logkwsum_fix_filtered_counts" ) ) {
+    if ( table_relevant( "logkwsum" ) && ! check_dbnote( "logkwsum_fix_filtered_counts_2010" ) ) {
         # this is a very, very racy situation ... we want to do an update of this data, but if anybody
         # else is actively using this table, they're going to be inserting bad data on top of us which
         # will leave SOMEONE in an inconsistent state.  let's warn the user that they should have the site
@@ -3812,6 +3812,7 @@ EOF
                   WHERE logtags.journalid = log2.journalid
                     AND logtags.jitemid = log2.jitemid
                     AND log2.security = 'usemask'
+                    AND log2.allowmask > 0
                   GROUP BY journalid, kwid, allowmask
             }
         );
@@ -3822,7 +3823,9 @@ EOF
                   FROM log2, logtags
                   WHERE logtags.journalid = log2.journalid
                     AND logtags.jitemid = log2.jitemid
-                    AND log2.security = 'private'
+                    AND ( log2.security = 'private'
+                          OR ( log2.security = 'usemask'
+                               AND log2.allowmask = 0 ) )
                   GROUP BY journalid, kwid
             }
         );
@@ -3839,7 +3842,7 @@ EOF
         );
 
         do_sql( 'UNLOCK TABLES' );
-        set_dbnote( "logkwsum_fix_filtered_counts", 1 );
+        set_dbnote( "logkwsum_fix_filtered_counts_2010", 1 );
     }
 
     unless ( column_type( 'clustertrack2', 'accountlevel' ) ) {
