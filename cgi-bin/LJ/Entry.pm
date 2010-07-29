@@ -2154,7 +2154,7 @@ sub item_link
     # XXX: should have an option of returning a url with escaped (&amp;)
     #      or non-escaped (&) arguments.  a new link object would be best.
     my $args = @args ? "?" . join("&amp;", @args) : "";
-    return $u->journal_base . "/$ditemid.html$args";
+    return LJ::journal_base( $u ) . "/$ditemid.html$args";
 }
 
 # <LJFUNC>
