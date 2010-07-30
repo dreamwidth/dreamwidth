@@ -8683,7 +8683,8 @@ sub make_journal {
 
     # FIXME: pretty this up at some point, to maybe auto-redirect to
     # the external URL or something, but let's just do this for now
-    if ( $u->is_identity && $view ne "read" ) {
+    # res is a resource, such as an external stylesheet
+    if ( $u->is_identity && ! ( $view eq "read" || $view eq "res" ) ) {
         my $location = $u->openid_identity;
         my $warning = BML::ml( 'error.nojournal.openid', { aopts => "href='$location'", id => $location } );
         return $error->( $warning, "404 Not here" );
