@@ -54,7 +54,8 @@ sub make_journal
 
     if ($view eq "res") {
         if ($opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) {
-            $styleid = $1;
+            $styleid = $1 unless $styleid eq "sitefeeds";
+
             $entry = [ qw( Page::print_default_stylesheet() print_stylesheet() Page::print_theme_stylesheet() ) ];
             $opts->{'contenttype'} = 'text/css';
             $use_modtime = 1;
