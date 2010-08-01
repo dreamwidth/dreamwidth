@@ -33,7 +33,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::manilaenvelope;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "zvi" }
 
 package LJ::S2Theme::basicboxes::peach;

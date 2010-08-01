@@ -49,7 +49,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::crossroads::oldhoney;
 use base qw( LJ::S2Theme::crossroads );
-sub cats { qw( featured ) }
+sub cats { qw() }
 
 package LJ::S2Theme::crossroads::orangejulius;
 use base qw( LJ::S2Theme::crossroads );

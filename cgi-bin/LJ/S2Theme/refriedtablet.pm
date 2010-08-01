@@ -44,11 +44,11 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::refriedtablet::seeded;
 use base qw( LJ::S2Theme::refriedtablet );
-sub cats { qw( featured ) }
+sub cats { qw() }
 
 package LJ::S2Theme::refriedtablet::teals;
 use base qw( LJ::S2Theme::refriedtablet );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "edgeraven" }
 
 1;

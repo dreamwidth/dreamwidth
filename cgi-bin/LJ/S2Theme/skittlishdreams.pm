@@ -69,6 +69,6 @@ sub designer { "sarken" }
 
 package LJ::S2Theme::skittlishdreams::violet;
 use base qw( LJ::S2Theme::skittlishdreams );
-sub cats { qw( featured ) }
+sub cats { qw() }
 
 1;

@@ -34,7 +34,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::pool;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::steppingstones::purple;
 use base qw( LJ::S2Theme::steppingstones );

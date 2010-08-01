@@ -12,7 +12,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::tranquilityiii::freshblue;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "forthwritten" }
 
 package LJ::S2Theme::tranquilityiii::lightondark;

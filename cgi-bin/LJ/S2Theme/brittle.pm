@@ -67,7 +67,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::brittle::softgreen;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "dancing_serpent" }
 
 1;

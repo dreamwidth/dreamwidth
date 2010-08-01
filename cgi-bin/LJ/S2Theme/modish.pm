@@ -28,7 +28,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::modish::verdigris;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "zvi" }
 
 1;

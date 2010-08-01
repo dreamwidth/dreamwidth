@@ -24,7 +24,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::blanket::islandsandcities;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "sarken" }
 
 package LJ::S2Theme::blanket::jewels;

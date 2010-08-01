@@ -21,7 +21,7 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::boxesandborders::lightondark;
 use base qw( LJ::S2Theme::boxesandborders );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "cesy" }
 
 package LJ::S2Theme::boxesandborders::nnwm2009;

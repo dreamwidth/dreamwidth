@@ -29,7 +29,7 @@ sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::modular::greensummer;
 use base qw( LJ::S2Theme::modular );
-sub cats { qw ( ) }
+sub cats { qw ( featured ) }
 
 package LJ::S2Theme::modular::irisatdusk;
 use base qw( LJ::S2Theme::modular );

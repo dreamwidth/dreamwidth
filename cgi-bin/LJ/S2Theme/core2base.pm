@@ -11,7 +11,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::kelis;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::muted;
