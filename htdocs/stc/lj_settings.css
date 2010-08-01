@@ -4,7 +4,7 @@
 
 .field_block {
     margin: 5px 0px 5px 0px;
-    border-bottom: 3px ridge #fff;
+    border-bottom: 1px solid #fff;
 }
 
 .field_block td {

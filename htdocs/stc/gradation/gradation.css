@@ -771,6 +771,10 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     color: #CCC;
 }
 
+.section_subhead {
+    background-color: #888888;
+}
+
 .field_name { background: #333333; }
 
 /* comm_promo.css */
