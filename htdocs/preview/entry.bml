@@ -278,7 +278,7 @@ _c?>
             $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
         }
 
-        # Don't show the navigation strip
+        # Don't show the navigation strip or invisible content
         $p->{'head_content'} .= qq{
             <style type="text/css">
             html body {
@@ -286,6 +286,11 @@ _c?>
             }
             #lj_controlstrip {
                 display: none !important;
+            }
+            .invisible {
+                position: absolute;
+                left: -10000px;
+                top: auto;
             }
             </style>
         };
