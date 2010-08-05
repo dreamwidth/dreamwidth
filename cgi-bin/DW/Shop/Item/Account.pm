@@ -295,7 +295,10 @@ sub allow_account_conversion {
     # no existing user; assume no previous conflicting account
     return 1 unless LJ::isu( $u );
 
+    # no previous paid status; assume no conflicts
     my $paid_status = DW::Pay::get_paid_status( $u );
+    return 1 unless $paid_status;
+
     my $from = DW::Pay::type_shortname( $paid_status->{typeid} );
 
     # doesn't match premium => paid, so allow it
