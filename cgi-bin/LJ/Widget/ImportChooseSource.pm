@@ -46,11 +46,13 @@ sub render_body {
             url => 'insanejournal.com',
             display_name => 'InsaneJournal',
         },
-        {
-            name => 'journalfen',
-            url => 'journalfen.net',
-            display_name => 'JournalFen',
-        },
+        # FIXME: Temporarily disabled because something is broken on JF
+        # re-enable when it starts working!
+        #{
+        #    name => 'journalfen',
+        #    url => 'journalfen.net',
+        #    display_name => 'JournalFen',
+        #},
     );
 
     my $ret;
