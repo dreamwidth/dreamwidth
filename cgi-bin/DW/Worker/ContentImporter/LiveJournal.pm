@@ -435,8 +435,11 @@ sub call_xmlrpc {
 
     my $chal;
     while ( ! $chal ) {
-        my $get_chal = $class->xmlrpc_call_helper( $opts, $xmlrpc, 'LJ.XMLRPC.getchallenge' );
-        $chal = $get_chal->{challenge};
+        my $res = $class->xmlrpc_call_helper( $opts, $xmlrpc, 'LJ.XMLRPC.getchallenge', $depth );
+        if ( $res && $res->{fault} ) {
+            return $res;
+        }
+        $chal = $res->{challenge};
     }
 
     my $response = md5_hex( $chal . ( $opts->{md5password} || $opts->{password_md5} || md5_hex( $opts->{password} ) ) );
