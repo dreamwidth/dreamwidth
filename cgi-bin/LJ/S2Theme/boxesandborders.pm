@@ -17,7 +17,6 @@ sub cats { qw() }
 package LJ::S2Theme::boxesandborders::gray;
 use base qw( LJ::S2Theme::boxesandborders );
 sub cats { qw() }
-sub designer { "branchandroot" }
 
 package LJ::S2Theme::boxesandborders::lightondark;
 use base qw( LJ::S2Theme::boxesandborders );
