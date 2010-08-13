@@ -245,7 +245,7 @@ var string page_title_colors = generate_color_css( $*color_page_title->lighter()
 var string module_colors = generate_color_css( $*color_module_text, $*color_module_background, new Color );
 var string module_title_colors = generate_color_css( $*color_module_title, $*color_module_title_background, new Color );
 
-var string entry_colors = generate_color_css( new Color, $*color_entry_background, new Color );
+var string entry_colors = generate_color_css( $*color_entry_text, $*color_entry_background, new Color );
 var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
 var string userpic_colors = generate_color_css( new Color, $*color_entry_background, $*color_entry_border->darker() );
 
