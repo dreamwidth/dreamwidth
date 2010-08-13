@@ -31,7 +31,6 @@ sub render_body {
 
     my $no_theme_chooser = defined $opts{no_theme_chooser} ? $opts{no_theme_chooser} : 0;
 
-    my $ad_layout_id = defined $opts{ad_layout_id} ? $opts{ad_layout_id} : 0;
     my $headextra = $opts{headextra};
 
     my $ret;
@@ -39,14 +38,6 @@ sub render_body {
     $ret .= $no_theme_chooser ? $class->ml('widget.layoutchooser.title_nonum') : $class->ml('widget.layoutchooser.title');
     $ret .= "</h2>";
     $ret .= "<div class='layout-content'>";
-
-    if (eval "use LJ::Widget::AdLayout; 1;" && LJ::Widget::AdLayout->should_render_for_u($u)) {
-        my $ad_layout = LJ::Widget::AdLayout->new( id => $ad_layout_id );
-        $ad_layout_id = $ad_layout->{id} unless $ad_layout_id;
-        $$headextra .= $ad_layout->wrapped_js( page_js_obj => "Customize" ) if $headextra;
-
-        $ret .= $ad_layout->render;
-    }
 
     # Column option
     my $current_theme = LJ::Customize->get_current_theme($u);
@@ -98,7 +89,6 @@ sub render_body {
         }
     }
 
-    $ret .= $class->html_hidden({ name => "ad_layout_id", value => $ad_layout_id, id => "ad_layout_id" });
     $ret .= "</div>";
 
     return $ret;
@@ -156,8 +146,7 @@ sub js {
             this.doPostAndUpdateContent({
                 layout_choice: given_layout_choice,
                 layout_prop: form["Widget[LayoutChooser]_layout_prop"].value + "",
-                show_sidebar_prop: form["Widget[LayoutChooser]_show_sidebar_prop"].value + "",
-                ad_layout_id: $('ad_layout_id').value
+                show_sidebar_prop: form["Widget[LayoutChooser]_show_sidebar_prop"].value
             });
 
             Event.stop(evt);

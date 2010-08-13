@@ -60,7 +60,7 @@ body<=
 
             return BML::redirect("$LJ::SITEROOT/customize/options$getextra");
         }
-        my @errors = LJ::Widget->handle_post(\%POST, qw(JournalTitles ThemeChooser ThemeNav LayoutChooser AdLayout));
+        my @errors = LJ::Widget->handle_post(\%POST, qw(JournalTitles ThemeChooser ThemeNav LayoutChooser));
         $ret .= LJ::bad_input(@errors) if @errors;
     }
 

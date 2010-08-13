@@ -426,9 +426,6 @@ sub js {
                 show: Customize.show,
                 theme_chooser_id: $('theme_chooser_id').value
             });
-            Customize.LayoutChooser.updateContent({
-                ad_layout_id: $('ad_layout_id').value
-            });
             alert(Customize.ThemeChooser.confirmation);
         },
         previewTheme: function (evt, href) {
