@@ -754,7 +754,8 @@ table.talkform {
 
 .module-navlinks {
     padding: 10px;
-    margin: 0 0 0 -0.8em;
+    margin: 0;
+    margin-$sidebar_position_opposite: -.8em;
     background-color: $*color_navigation_module_background;
     text-transform: lowercase;
     }
