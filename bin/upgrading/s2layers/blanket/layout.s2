@@ -249,7 +249,7 @@ var string entry_colors = generate_color_css( $*color_entry_text, $*color_entry_
 var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
 var string userpic_colors = generate_color_css( new Color, $*color_entry_background, $*color_entry_border->darker() );
 
-var string input_colors = generate_color_css( $*color_page_text, $*color_entry_background, $*color_entry_border );
+var string input_colors = generate_color_css( $*color_entry_text, $*color_entry_background, $*color_entry_border );
 
 var string active_month_colors = generate_color_css( $*color_page_link_hover->darker(), new Color, new Color );
 var string month_header_colors = generate_color_css( $*color_entry_border->darker(130), $*color_entry_border, new Color );
