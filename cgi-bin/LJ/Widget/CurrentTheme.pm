@@ -80,10 +80,12 @@ sub render_body {
             $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->themeid . "'>" . $class->ml('widget.currenttheme.options.editthemelayer') . "</a></li>";
         }
     }
-
-    unless ($no_theme_chooser) {
+    if ($no_theme_chooser) {
+        $ret .= "<li><a href='$LJ::SITEROOT/customize/options$getextra#layout'>" . $class->ml('widget.currenttheme.options.layout') . "</a></li>";
+    } else {
         $ret .= "<li><a href='$LJ::SITEROOT/customize/$getextra#layout'>" . $class->ml('widget.currenttheme.options.layout') . "</a></li>";
     }
+
     $ret .= "</ul>";
     $ret .= "</div><!-- end .theme-current-links -->";
     $ret .= "</div><!-- end .theme-current-content -->";

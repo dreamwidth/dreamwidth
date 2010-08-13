@@ -24,6 +24,10 @@ h2.widget-header {
     clear: both;
 }
 
+.layout-selector-wrapper {
+    margin-bottom: 15px;
+}
+
 .theme-customize {
     text-align: right;
     clear: both;

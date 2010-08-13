@@ -49,7 +49,7 @@ body<=
     my $ret;
 
     if (LJ::did_post()) {
-        my @errors = LJ::Widget->handle_post(\%POST, qw(CustomizeTheme JournalTitles MoodThemeChooser NavStripChooser S2PropGroup LinksList));
+        my @errors = LJ::Widget->handle_post(\%POST, qw(CustomizeTheme JournalTitles MoodThemeChooser NavStripChooser S2PropGroup LinksList LayoutChooser));
         $ret .= LJ::bad_input(@errors) if @errors;
     }
 
@@ -84,6 +84,16 @@ body<=
         post => \%POST,
     );
     $ret .= "</div><!-- end .customize-wrapper -->";
+
+    my $layout_chooser = LJ::Widget::LayoutChooser->new;
+    $headextra .= $layout_chooser->wrapped_js( page_js_obj => "Customize" );
+    $ret .= "<a name='layout'></a>";
+    $ret .= "<div class='layout-selector-wrapper pkg'>";
+    $ret .= $layout_chooser->render(
+        headextra => \$headextra,
+        no_theme_chooser => 1,
+    );
+    $ret .= "</div><!-- end .layout-selector-wrapper' -->";
 
     $ret .= "<h2 class='widget-header'><?_ml .advanced _ml?></h2>";
     $ret .= "<a href='advanced/'><?_ml .advanced _ml?></a>";

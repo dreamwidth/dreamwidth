@@ -4572,6 +4572,8 @@ widget.layoutchooser.layout.apply=Apply Layout
 
 widget.layoutchooser.title=3. Choose a Page Setup
 
+widget.layoutchooser.title_nonum=Choose a Page Setup
+
 widget.linkslist.about=Use the form below to create a list of links that will appear on your journal.
 
 widget.linkslist.about.blank=Enter a "-" for the title to create a blank line (not in all themes).

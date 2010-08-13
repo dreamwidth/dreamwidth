@@ -29,11 +29,15 @@ sub render_body {
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);
 
+    my $no_theme_chooser = defined $opts{no_theme_chooser} ? $opts{no_theme_chooser} : 0;
+
     my $ad_layout_id = defined $opts{ad_layout_id} ? $opts{ad_layout_id} : 0;
     my $headextra = $opts{headextra};
 
     my $ret;
-    $ret .= "<h2 class='widget-header'>" . $class->ml('widget.layoutchooser.title') . "</h2>";
+    $ret .= "<h2 class='widget-header'>";
+    $ret .= $no_theme_chooser ? $class->ml('widget.layoutchooser.title_nonum') : $class->ml('widget.layoutchooser.title');
+    $ret .= "</h2>";
     $ret .= "<div class='layout-content'>";
 
     if (eval "use LJ::Widget::AdLayout; 1;" && LJ::Widget::AdLayout->should_render_for_u($u)) {
