@@ -310,32 +310,30 @@ function Page::print_default_stylesheet() {
     var string entryicon_css = "";
     if ($*entryicons_position == "opposite") {
         $entryicon_css = """
-        div.entry div.userpic {
-            float: $sidebar_position_opposite;
-            margin: 0;
-            margin-$sidebar_position_opposite: -100px;
-            }
+        div.entry div.userpic,
         div.comment div.userpic {
             float: $sidebar_position_opposite;
-            margin: 0;
+            margin-$sidebar_position_opposite: -100px;
+            text-align: $sidebar_position;
+            }
+        div.comment div.userpic {
             margin-$sidebar_position_opposite: -110px;
             }
         """;
     }
     elseif ($*entryicons_position == "same") {
         $entryicon_css = """
-        div.entry div.userpic {
-            float: $sidebar_position;
-            margin: 0;
-            margin-$sidebar_position: -100px;
-            }
+        div.entry div.userpic,
         div.comment div.userpic {
             float: $sidebar_position;
-            margin: 0;
+            margin-$sidebar_position: -100px;
+            text-align: $sidebar_position;
+            }
+        div.comment div.userpic {
             margin-$sidebar_position: -110px;
             }
         #secondary {
-            margin-$sidebar_position_opposite: 110px;
+            margin-$sidebar_position_opposite: 100px;
         }
         """;
     }
@@ -474,11 +472,14 @@ h3.entry-title a { color: $*color_entry_title; }
 
 div.entry div.userpic {
     display: block;
+    height: auto;
+    margin: 0;
+    width: 80px;
     }
 
 div.entry div.userpic img {
-    width: 70px;
-    height: 70px; /*FIXME -- this shouldn't be hardcoded */
+    max-width: 70px;
+    height: auto;
     border: 5px solid $*color_navigation_module_background;
     }
 
@@ -690,11 +691,14 @@ textarea.textbox  { width: 90%!important; }
 
 div.comment div.userpic {
     display: block;
+    height: auto;
+    margin: 0;
+    width: 80px;
     }
 
 div.comment div.userpic img {
-    width: 70px;
-    height: 70px; /*FIXME: don't hardcode userpic sizes!*/
+    max-width: 70px;
+    height: auto;
     border: 5px solid $*color_navigation_module_background;
     }
 
