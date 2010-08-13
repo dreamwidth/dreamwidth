@@ -351,7 +351,7 @@ sub jtalkid {
 
 sub dtalkid {
     my $self = shift;
-    my $entry = $self->entry;
+    my $entry = $self->entry or return undef;
     return ($self->jtalkid * 256) + $entry->anum;
 }
 
