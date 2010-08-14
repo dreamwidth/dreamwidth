@@ -52,6 +52,9 @@ sub execute {
     my $to_u = LJ::load_user($to_user)
         or return $self->error("Invalid user: '$to_user'.");
 
+    return $self->error( "Trying to merge into yourself: '$to_user'." )
+        if $from_u->equals( $to_u );
+
     # we don't want to unlimit this, so reject if we have too many users
     my @ids = $from_u->watched_by_userids( limit => $LJ::MAX_WT_EDGES_LOAD+1 );
     return $self->error( "Unable to merge feeds. Too many users are watching the feed '" . $from_u->user . "'. We only allow merges for feeds with at most $LJ::MAX_WT_EDGES_LOAD watchers." )
