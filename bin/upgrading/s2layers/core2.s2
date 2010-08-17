@@ -4693,8 +4693,9 @@ function RecentPage::print_body {
 
 function RecentPage::print_navigation( string{} opts ) [fixed] {
     var bool empty = $.nav.backward_url == "" and $.nav.forward_url == "";
+    var string emptyclass = $empty ? "empty" : "";
     """
-    <div class="navigation $opts{"class"}">
+    <div class="navigation $opts{"class"} $emptyclass">
         <div class="inner">
     """;
 
@@ -5046,8 +5047,10 @@ function MonthPage::print_body {
 }
 
 function MonthPage::print_navigation( string{} opts ) [fixed] {
+    var bool empty = $.prev_url == "" and $.next_url == "";
+    var string emptyclass = $empty ? "empty" : "";
     """
-    <div class="navigation $opts{"class"}">
+    <div class="navigation $opts{"class"} $emptyclass">
         <div class="inner"> 
             <ul>
             <form method='post' action='$.redir.url'>
@@ -5142,8 +5145,9 @@ function DayPage::print_body() {
 
 function DayPage::print_navigation( string{} opts ) [fixed] {
     var bool empty = $.prev_url == "" and $.next_url == "";
+    var string emptyclass = $empty ? "empty" : "";
     """
-    <div class="navigation $opts{"class"}">
+    <div class="navigation $opts{"class"} $emptyclass">
         <div class="inner">
     """;
     
