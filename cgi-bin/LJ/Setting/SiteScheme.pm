@@ -68,6 +68,7 @@ sub option {
 
     my $errdiv = $class->errdiv($errs, "sitescheme");
     $ret .= "<br />$errdiv" if $errdiv;
+    $ret .= "<br /><a href='$LJ::SITEROOT/customize/'>" . $class->ml('setting.sitescheme.journal.style') . "</a>";
 
     return $ret;
 }

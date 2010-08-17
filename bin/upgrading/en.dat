@@ -2872,6 +2872,8 @@ setting.selfcommentemail.option=I comment in someone's journal, on any entry
 
 setting.sitescheme.error.invalid=Invalid site scheme.
 
+setting.sitescheme.journal.style=Would you like to select your journal style?
+
 setting.sitescheme.label=Site Scheme
 
 setting.stickyentry.error.invalid=Invalid Dreamwidth entry ID or URL entered. 
