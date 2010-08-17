@@ -169,7 +169,7 @@ EOC
             my $replyurl = $obj->reply_url;
 
             $ret .= <<EOF;
-<div class='latest-entry'>
+<div class='latest-entry usercontent'>
     <div class='tags'>$tags</div>
     <div class='author'>$user ($time)</div>
     <div class='subject'>$subj</div>
