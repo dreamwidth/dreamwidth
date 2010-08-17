@@ -122,7 +122,7 @@ function handleRadios(sel) {
         }
     }
 
-    if (sel_pickw.disabled = (sel != 1)) sel_pickw.value='';
+    if (sel_pickw.disabled = (sel != 1 && sel != 4 )) sel_pickw.value='';
 }
 
 function submitHandler() {
