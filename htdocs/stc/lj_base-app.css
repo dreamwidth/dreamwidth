@@ -127,12 +127,6 @@ div.columns-2-r300 .columns-2-right {
 .appwidget .more-link:hover {
     text-decoration: underline;
 }
-/* add this class to anything to make upgrade icon appear next to it */
-
-.upgrade-account {
-    padding-right: 18px;
-    background: url('/horizon/upgrade-paid-icon.gif') no-repeat right 50%;
-}
 
 .arrow-link,
 .more-link {
