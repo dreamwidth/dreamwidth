@@ -19,6 +19,7 @@ _c?><?_code
     use strict;
     use vars qw/ %GET %POST /;
     use LJ::SynSuck;
+    use CGI::Util qw( unescape );
 
     # general purpose handler sub
     my $ret = sub {
@@ -84,7 +85,7 @@ _c?><?_code
     # if the topic url doesn't match, then that's a terrible thing and we're not sure
     # why, so log extra information
     return $err->( 'topic_url mismatch: db=' . $topicurldb . ', hub=' . $topicurl )
-        unless $topicurl eq $topicurldb;
+        unless lc unescape( $topicurl ) eq lc $topicurldb;
 
     # validate the user is still valid (didn't get suspended or anything)
     my $u = LJ::load_userid( $uid ) or return $fail->( 'failed to load user' );
