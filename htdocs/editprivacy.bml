@@ -80,7 +80,7 @@ body<=
 
     # map security form values to 0) DB value 1) From string 2) To string
     my %security = ( 'public'  => ['public', BML::ml('label.security.public2'), BML::ml('label.security.public2')],
-                     'friends' => ['usemask', BML::ml('label.security.friends'), BML::ml('label.security.friends')],
+                     'friends' => ['usemask', BML::ml('label.security.accesslist'), BML::ml('label.security.accesslist')],
                      'private' => ['private', BML::ml('label.security.private2'), BML::ml('label.security.private2')]);
 
     # Initial view of page

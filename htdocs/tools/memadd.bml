@@ -49,7 +49,7 @@ _c?>
     my $authextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
 
     my %secopts = ( 'public' => $ML{'label.security.public'},
-                    'friends' => $ML{'label.security.friends'},
+                    'friends' => $ML{'label.security.accesslist'},
                     'private' => $ML{'label.security.private'}, );
 
     if ( $memoryu->is_community ) {

@@ -41,11 +41,11 @@ sub option {
     my $minsecurity = $class->get_arg($args, "minsecurity") || $u->prop("newpost_minsecurity");
 
     my @options = (
-        "" => $class->ml('setting.minsecurity.option.select.public'),
-        friends => $u->is_community ? $class->ml('setting.minsecurity.option.select.members') : $class->ml('setting.minsecurity.option.select.friends'),
+        "" => $class->ml('setting.minsecurity.option.select.public2'),
+        friends => $u->is_community ? $class->ml('setting.minsecurity.option.select.members2') : $class->ml('setting.minsecurity.option.select.accesslist'),
         private => $u->is_community ?
-        $class->ml( 'setting.minsecurity.option.select.admin' ) :
-        $class->ml( 'setting.minsecurity.option.select.private' )
+        $class->ml( 'setting.minsecurity.option.select.admins' ) :
+        $class->ml( 'setting.minsecurity.option.select.private2' )
     );
 
 
