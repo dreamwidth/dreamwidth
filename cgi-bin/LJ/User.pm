@@ -621,8 +621,6 @@ sub info_for_js {
                is_syndicated    => $u->is_syndicated,
                is_identity      => $u->is_identity,
                );
-    # Without url_message "Send Message" link should not display
-    $ret{url_message} = $u->message_url unless ($u->opt_usermsg eq 'N');
 
     LJ::Hooks::run_hook("extra_info_for_js", $u, \%ret);
 

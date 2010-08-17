@@ -109,6 +109,8 @@ _c?>
         $ret{is_requester}  = $remote->equals( $u );
         $ret{other_is_identity} = $u->is_identity;
         $ret{self_is_identity} = $remote->is_identity;
+        $ret{can_message} = $u->can_receive_message( $remote );
+        $ret{url_message} = $u->message_url;
     }
 
     $ret{is_logged_in}  = $remote ? 1 : 0;
