@@ -4,28 +4,28 @@ layerinfo name = "Burgundy";
 layerinfo redist_uniq = "basicboxes/burgundy";
 layerinfo author_name = "branchandroot";
 
-# using the A Glass of Red Wine palette by Leopard (http://www.colourlovers.com/palette/912330/A_Glass_of_Red_Wine)
+# Uses the A Glass of Red Wine palette by Leopard (http://www.colourlovers.com/palette/912330/A_Glass_of_Red_Wine)
+set layout_resources = [ { "name" => "A Glass of Red Wine", "url" => "http://www.colourlovers.com/palette/912330/A_Glass_of_Red_Wine" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#621F37";
-set color_page_link = "#eee3e3";
 set color_page_border = "#420B1F";
+set color_page_link = "#eee3e3";
 set color_page_title = "#eee3e3";
-
 set color_header_background = "#7B2C49";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
-set color_entry_text = "#000000";
+set color_entry_background = "#fff";
+set color_entry_border = "#420B1F";
 set color_entry_link = "#8B3C59";
 set color_entry_link_visited = "#5E1E36";
-set color_entry_border = "#420B1F";
+set color_entry_text = "#000";
 set color_entry_title = "#eee3e3";
 set color_entry_title_background = "#7B2C49";
 
@@ -34,8 +34,8 @@ set color_entry_title_background = "#7B2C49";
 ##===============================
 
 set color_module_background = "#7B2C49";
-set color_module_text = "#420B1F";
 set color_module_border = "#420B1F";
+set color_module_text = "#420B1F";
 set color_module_title = "#420B1F";
 set color_module_title_background = "#eee3e3";
 
@@ -46,28 +46,28 @@ layerinfo name = "Denim";
 layerinfo redist_uniq = "basicboxes/denim";
 layerinfo author_name = "branchandroot";
 
-# using the On the Down Low palette by llucious (http://www.colourlovers.com/palette/912662/On_the_Down_Low)
+# Uses the On the Down Low palette by llucious (http://www.colourlovers.com/palette/912662/On_the_Down_Low)
+set layout_resources = [ { "name" => "On the Down Low", "url" => "http://www.colourlovers.com/palette/912662/On_the_Down_Low" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#687385";
-set color_page_link = "#eAe9eC";
 set color_page_border = "#595D74";
+set color_page_link = "#eAe9eC";
 set color_page_title = "#eAe9eC";
-
 set color_header_background = "#748896";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
-set color_entry_text = "#000000";
+set color_entry_background = "#fff";
+set color_entry_border = "#595D74";
 set color_entry_link = "#748896";
 set color_entry_link_visited = "#939FA8";
-set color_entry_border = "#595D74";
+set color_entry_text = "#000";
 set color_entry_title = "#eAe9eC";
 set color_entry_title_background = "#748896";
 
@@ -76,10 +76,11 @@ set color_entry_title_background = "#748896";
 ##===============================
 
 set color_module_background = "#748896";
-set color_module_text = "#595D74";
 set color_module_border = "#595D74";
+set color_module_text = "#595D74";
 set color_module_title = "#595D74";
 set color_module_title_background = "#eAe9eC";
+
 
 #NEWLAYER: basicboxes/ecru
 layerinfo type = "theme";
@@ -87,28 +88,28 @@ layerinfo name = "Ecru";
 layerinfo redist_uniq = "basicboxes/ecru";
 layerinfo author_name = "branchandroot";
 
-# using the My first palette palette by Josos (http://www.colourlovers.com/palette/913706/My_first_palette)
+# Uses the My first palette palette by Josos (http://www.colourlovers.com/palette/913706/My_first_palette)
+set layout_resources = [ { "name" => "My first palette", "url" => "http://www.colourlovers.com/palette/913706/My_first_palette" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#DEDBCA";
+set color_page_border = "#aFaD96";
 set color_page_link = "#fff";
-set color_page_border = "#aFaD96"; 
 set color_page_title = "#fff";
-
 set color_header_background = "#DEDBD1";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
-set color_entry_text = "#000000";
+set color_entry_background = "#fff";
+set color_entry_border = "#aFaD96";
 set color_entry_link = "#aFaD96";
 set color_entry_link_visited = "#aaa";
-set color_entry_border = "#aFaD96";
+set color_entry_text = "#000";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#DEDBD1";
 
@@ -117,9 +118,9 @@ set color_entry_title_background = "#DEDBD1";
 ##===============================
 
 set color_module_background = "#DEDBD1";
-set color_module_text = "#666"; 
-set color_module_border = "#aFaD96"; 
-set color_module_title = "#666"; 
+set color_module_border = "#aFaD96";
+set color_module_text = "#666";
+set color_module_title = "#666";
 set color_module_title_background = "#fffefd";
 
 
@@ -136,10 +137,9 @@ set layout_authors = [ { "name" => "kareila", "type" => "user" } ];
 ##===============================
 
 set color_page_background = "#40095d";
-set color_page_link = "#a8b257";
 set color_page_border = "#908aa6";
+set color_page_link = "#a8b257";
 set color_page_title = "#a8b257";
-
 set color_header_background = "#641471";
 
 ##===============================
@@ -147,10 +147,10 @@ set color_header_background = "#641471";
 ##===============================
 
 set color_entry_background = "#641471";
-set color_entry_text = "#bb90e0";
+set color_entry_border = "#908aa6";
 set color_entry_link = "#a8b257";
 set color_entry_link_visited = "#908aa6";
-set color_entry_border = "#908aa6";
+set color_entry_text = "#bb90e0";
 set color_entry_title = "#641471";
 set color_entry_title_background = "#a8b257";
 
@@ -159,8 +159,8 @@ set color_entry_title_background = "#a8b257";
 ##===============================
 
 set color_module_background = "#641471";
-set color_module_text = "#bb90e0";
 set color_module_border = "#bb90e0";
+set color_module_text = "#bb90e0";
 set color_module_title = "#a8b257";
 set color_module_title_background = "#641471";
 
@@ -176,21 +176,20 @@ layerinfo author_name = "branchandroot";
 ##===============================
 
 set color_page_background = "#818f48";
-set color_page_link = "#e9eed3";
 set color_page_border = "#566030";
+set color_page_link = "#e9eed3";
 set color_page_title = "#e9eed3";
-
 set color_header_background = "#92a252";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
-set color_entry_text = "#000000";
+set color_entry_background = "#fff";
+set color_entry_border = "#566030";
 set color_entry_link = "#92a252";
 set color_entry_link_visited = "#acbf60";
-set color_entry_border = "#566030";
+set color_entry_text = "#000";
 set color_entry_title = "#e9eed3";
 set color_entry_title_background = "#92a252";
 
@@ -199,8 +198,8 @@ set color_entry_title_background = "#92a252";
 ##===============================
 
 set color_module_background = "#92a252";
-set color_module_text = "#566030";
 set color_module_border = "#566030";
+set color_module_text = "#566030";
 set color_module_title = "#566030";
 set color_module_title_background = "#e9eed3";
 
@@ -211,28 +210,28 @@ layerinfo name = "Leaf";
 layerinfo redist_uniq = "basicboxes/leaf";
 layerinfo author_name = "branchandroot";
 
-# using the Medusa's Hair palette by orangeword (http://www.colourlovers.com/palette/912486/Medusa_Hair)
+# Uses the Medusa's Hair palette by orangeword (http://www.colourlovers.com/palette/912486/Medusa_Hair)
+set layout_resources = [ { "name" => "Medusa's Hair", "url" => "http://www.colourlovers.com/palette/912486/Medusa_Hair" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#4C6B2F";
-set color_page_link = "#e9eee0";
 set color_page_border = "#24400B";
+set color_page_link = "#e9eee0";
 set color_page_title = "#e9eee0";
-
 set color_header_background = "#608042";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
-set color_entry_text = "#000000";
+set color_entry_background = "#fff";
+set color_entry_border = "#24400B";
 set color_entry_link = "#608042";
 set color_entry_link_visited = "#304F14";
-set color_entry_border = "#24400B";
+set color_entry_text = "#000";
 set color_entry_title = "#e9eee0";
 set color_entry_title_background = "#608042";
 
@@ -241,44 +240,53 @@ set color_entry_title_background = "#608042";
 ##===============================
 
 set color_module_background = "#608042";
-set color_module_text = "#24400B";
 set color_module_border = "#24400B";
+set color_module_text = "#24400B";
 set color_module_title = "#24400B";
 set color_module_title_background = "#e9eee0";
 
 
 #NEWLAYER: basicboxes/manilaenvelope
-layerinfo "type" = "theme";
-layerinfo "name" = "Manila Envelope";
+layerinfo type = "theme";
+layerinfo name = "Manila Envelope";
 layerinfo redist_uniq = "basicboxes/manilaenvelope";
 layerinfo author_name = "zvi";
 
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_comment_title_background = "#f0d890";
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f0e8d1";
+set color_page_border = "#789090";
+set color_page_link = "#c01830";
+set color_page_link_active = "#30bf17";
+set color_page_link_hover = "#1730bf";
+set color_page_link_visited = "#a617bf";
+set color_page_text = "#001830";
+set color_page_title = "#001830";
+set color_header_background = "#f0d890";
+set color_footer_background = "#f0e8d1";
+
+##===============================
+## Entry Colors
+##===============================
 
 set color_entry_border = "#789090";
 set color_entry_interaction_links = "#c01830";
 set color_entry_text = "#001830";
 set color_entry_title = "#001830";
+set color_comment_title_background = "#f0d890";
 
-set color_footer_background = "#f0e8d1";
-
-set color_header_background = "#f0d890";
+##===============================
+## Module Colors
+##===============================
 
 set color_module_background = "#f0e8d1";
 set color_module_border = "#789090";
 set color_module_title = "#001830";
 set color_module_title_background = "#f0d890";
-
-set color_page_background = "#f0e8d1";
-set color_page_border = "#789090";
-set color_page_link_active = "#30bf17";
-set color_page_link = "#c01830";
-set color_page_link_hover = "#1730bf";
-set color_page_link_visited = "#a617bf";
-set color_page_text = "#001830";
-set color_page_title = "#001830";
 
 
 #NEWLAYER: basicboxes/peach
@@ -287,28 +295,28 @@ layerinfo name = "Peach";
 layerinfo redist_uniq = "basicboxes/peach";
 layerinfo author_name = "branchandroot";
 
-# using the Pure palette by Sruoloc (http://www.colourlovers.com/palette/912313/Pure)
+# Uses the Pure palette by Sruoloc (http://www.colourlovers.com/palette/912313/Pure)
+set layout_resources = [ { "name" => "Pure", "url" => "http://www.colourlovers.com/palette/912313/Pure" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#FFDDBA";
-set color_page_link = "#125468"; 
 set color_page_border = "#FFCD9C";
+set color_page_link = "#125468";
 set color_page_title = "#125468";
-
 set color_header_background = "#FFEBD6";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
-set color_entry_text = "#000000";
+set color_entry_background = "#fff";
+set color_entry_border = "#FFCD9C";
 set color_entry_link = "#FFCD9C";
 set color_entry_link_visited = "#FFDDBA";
-set color_entry_border = "#FFCD9C";
+set color_entry_text = "#000";
 set color_entry_title = "#125468";
 set color_entry_title_background = "#FFEBD6";
 
@@ -317,10 +325,11 @@ set color_entry_title_background = "#FFEBD6";
 ##===============================
 
 set color_module_background = "#FFEBD6";
-set color_module_text = "#fFbD8C";
 set color_module_border = "#FFCD9C";
+set color_module_text = "#fFbD8C";
 set color_module_title = "#125468";
 set color_module_title_background = "#FFF6ED";
+
 
 #NEWLAYER: basicboxes/repose
 layerinfo type = "theme";
@@ -335,23 +344,22 @@ set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
 ##===============================
 
 set color_page_background = "#2C1503";
-set color_page_link = "#9F632C";
-set color_page_text = "#ffffff";
 set color_page_border = "#7bb4ab";
-set color_page_title = "#ffffff";
-
+set color_page_link = "#9F632C";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
 set color_header_background = "#7bb4ab";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
-set color_entry_text = "#000000";
+set color_entry_background = "#fff";
+set color_entry_border = "#2C1503";
 set color_entry_link = "#7bb4ab";
 set color_entry_link_visited = "#7bb4ab";
-set color_entry_border = "#2C1503";
-set color_entry_title = "#ffffff";
+set color_entry_text = "#000";
+set color_entry_title = "#fff";
 set color_entry_title_background = "#7bb4ab";
 
 ##===============================
@@ -359,7 +367,7 @@ set color_entry_title_background = "#7bb4ab";
 ##===============================
 
 set color_module_background = "#A6DAD1";
-set color_module_text = "#43230a";
 set color_module_border = "#7bb4ab";
+set color_module_text = "#43230a";
 set color_module_title = "#43230a";
-set color_module_title_background = "#ffffff";
+set color_module_title_background = "#fff";
