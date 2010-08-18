@@ -252,6 +252,8 @@ h1#title {
 
 h2#subtitle,
 h2#pagetitle {
+    background: transparent;
+    color: $*color_page_subtitle;
     font-weight: normal;
     font-variant: small-caps;
     letter-spacing: -.04em;
@@ -696,6 +698,7 @@ h2#pagetitle {
                 #archive-year table td.day-has-entries p:hover > a,
                 #archive-year table td.day-has-entries a:hover {
                     $page_title_colors
+                    color: $*color_page_title !important;
                     }
 
 .entry .contents .entry-content {
