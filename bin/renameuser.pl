@@ -155,7 +155,8 @@ sub rename_user
                                         'userid' => $u->{'userid'} });
 
     $dbh->do( "INSERT INTO renames (renid, auth, cartid, renuserid, fromuser, touser, rendate) ".
-              "VALUES ( NULL, '[manual]', 0, $u->{userid}, $qfrom, $qto, NOW() )" );
+              "VALUES ( NULL, '[manual]', 0, ?, $qfrom, $qto, ? )",
+              undef, $u->userid, time );
 
     return 1;
 }

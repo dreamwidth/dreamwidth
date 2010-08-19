@@ -260,8 +260,8 @@ sub apply {
 
     # modify self
     my $dbh = LJ::get_db_writer();
-    $dbh->do( "UPDATE renames SET renuserid=?, fromuser=?, touser=?, rendate=NOW() WHERE renid=?",
-        undef, $opts{userid}, $opts{from}, $opts{to}, $self->id );
+    $dbh->do( "UPDATE renames SET renuserid=?, fromuser=?, touser=?, rendate=? WHERE renid=?",
+        undef, $opts{userid}, $opts{from}, $opts{to}, time, $self->id );
 
     # modify status in the cart
     if ( $self->cartid ) {
