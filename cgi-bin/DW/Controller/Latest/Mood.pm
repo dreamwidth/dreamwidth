@@ -50,7 +50,6 @@ sub mood_handler {
     if ( $count ) {
         my %counts;
         my $score = 0;
-        my $to_show = $count > $num_top ? $num_top : $count;
 
         my $metadata = DW::Mood->get_moods;
 
@@ -59,7 +58,10 @@ sub mood_handler {
             $counts{$metadata->{$moodid}->{name}}++;
         }
 
-        my @names = sort { $counts{$b} <=> $counts{$a} || $a cmp $b } keys %counts;
+        my @counts_keys = keys %counts;
+        my $to_show = scalar @counts_keys > $num_top ? $num_top : scalar @counts_keys;
+
+        my @names = sort { $counts{$b} <=> $counts{$a} || $a cmp $b } @counts_keys;
         my @highest = @names[0..( $to_show - 1)];
         my %top_counts = map { ($_,$counts{$_}) } @highest;
         my @top_mood;
