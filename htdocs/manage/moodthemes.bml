@@ -329,7 +329,8 @@ body<=
             $ret .= "</form> p?>\n";
 
         } elsif ( $themeid )  { # Save their changes
-            my $theme = DW::Mood->new( $themeid );
+            my $theme = DW::Mood->new( $themeid ) or return
+                    "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>";
 
             # Update the name or description if needed
             if ( $info->{name} ne $POST{name} ) {
@@ -338,13 +339,12 @@ body<=
             }
 
             # The fun part of figuring out what needs to be changed in the db
-            my $dbh = LJ::get_db_writer();
-            my (@repl_values, @repl_bind, @del_values, @del_bind);
-            foreach my $key (keys %POST) {
+            my @picdata;
+            foreach my $key ( keys %POST ) {
                 # A key that is fully numeric signifies an actual mood theme.
                 # We then build off this id number to get other information needed
                 # about what the user specified.
-                if ($key =~ /(^\d+$)/) {
+                if ( $key =~ /(^\d+$)/ ) {
                     my $mid = $1;
                     my $width = $POST{$mid.'w'};
                     my $height = $POST{$mid.'h'};
@@ -352,49 +352,31 @@ body<=
                     my $mname = DW::Mood->mood_name( $mid );
 
                     # inherited, don't represent in db
-                    if ($POST{$mid.'check'} eq 'checked') {
-                        push @del_values, $mid;
-                        push @del_bind, ("?");
-                        $ret .= BML::ml('.mood.deleted', {'mood' => "$mname($mid)"}) . "<br />\n";
+                    if ( $POST{$mid.'check'} eq 'checked' ) {
+                        push @picdata, [ $mid, {} ];
+                        $ret .= BML::ml( '.mood.deleted', { mood => "$mname($mid)"} ) . "<br />\n";
                         next;
                     }
 
                     # one of these is blank, so delete the mood
-                    if (!$picurl || $width == 0 || $height == 0) {
-                        push @del_values, $mid;
-                        push @del_bind, ("?");
+                    unless ( $picurl && $width && $height ) {
+                        push @picdata, [ $mid, {} ];
                         next;
                     }
 
                     # we have a picurl, width, and height. add it.
-                    if ($picurl =~ m!^https?://[^\'\"\0\s]+$!) {
-                        push @repl_values, ($themeid, $mid, $picurl, $width, $height);
-                        push @repl_bind, ("(?, ?, ?, ?, ?)");
-                        $ret .= BML::ml('.mood.setpic', {'mood' => "$mname($mid)", 'url' => $picurl}) . "<br />\n";
+                    if ( $picurl =~ m!^https?://[^\'\"\0\s]+$! ) {
+                        push @picdata, [ $mid, { picurl => $picurl, width => $width, height => $height } ];
+                        $ret .= BML::ml( '.mood.setpic', { mood => "$mname($mid)", url => $picurl } ) . "<br />\n";
                     }
                 }
             }
 
-            if (@del_values) {
-                my $bind = join(",", @del_bind);
-                my $p = $dbh->do("DELETE FROM moodthemedata WHERE moodthemeid=? AND moodid IN($bind)",
-                                 undef, $themeid, @del_values);
-                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>" unless $p;
-            }
-
-            if (@repl_values) {
-                my $bind = join(",", @repl_bind);
-                my $i = $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, " .
-                                 "picurl, width, height) VALUES $bind", undef, @repl_values);
-                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>" unless $i;
-            }
-
-            # Kill any memcache data about this moodtheme
-            DW::Mood->clear_cache( $themeid );
-            $u->delete_moodtheme_cache;
+            my $err;
+            $theme->set_picture_multi( \@picdata, \$err ) or
+                return "<?h1 $ML{'Error'} h1?><?p $err p?>";
 
             $ret .= "<br />$ML{'.saved'}<br /><br />\n";
-            return BML::redirect( $self_uri );
         }
 
         $ret .= BML::ml('Backlink', {

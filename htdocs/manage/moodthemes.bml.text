@@ -29,7 +29,11 @@
 
 .error.nonamegiven=You must specify a name for this theme.
 
+.error.notanumber=Width and height for "[[moodname]]" must be numeric.
+
 .error.notyourtheme=You do not have permission to edit this theme.
+
+.error.picurltoolong=Moodpic URLs cannot exceed 200 characters.
 
 .mood.deleted=[[mood]] was deleted and will now be represented by its parent.
 

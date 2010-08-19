@@ -43,32 +43,18 @@ sub execute {
     return $self->error("Sorry, your account type doesn't let you create new mood themes")
         unless $remote->can_create_moodthemes;
 
-    my $owner = DW::Mood->ownerid( $themeid );
-    return $self->error("You do not own this mood theme.")
-        unless $owner == $remote->id;
+    my $theme = DW::Mood->new( $themeid );
+    return $self->error( "You do not own this mood theme." )
+        unless $theme && $theme->ownerid == $remote->id;
 
-    my $dbh = LJ::get_db_writer() or
-        return $self->error( "Database unavailable" );
+    my $err;
+    return $self->error( $err ) unless
+        $theme->set_picture( $moodid, { picurl => $picurl,
+                                        width  => $width,
+                                        height => $height }, \$err );
 
-    $width += 0;
-    $height += 0;
-    $moodid += 0;
-
-    if (!$picurl || $width == 0 || $height == 0) {
-        $dbh->do("DELETE FROM moodthemedata WHERE moodthemeid = ? AND moodid= ?", undef, $themeid, $moodid);
-        $self->print("Data deleted for theme #$themeid, mood #$moodid.");
-    } elsif ( length($picurl) > 200 ) {
-        $self->error("Moodpic URLs cannot exceed 200 characters.");
-    } else {
-        $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, picurl, width, height) VALUES (?, ?, ?, ?, ?)",
-                 undef, $themeid, $moodid, $picurl, $width, $height);
-        $self->print("Data inserted for theme #$themeid, mood #$moodid.");
-    }
-
-    $self->error("Database error: " . $dbh->errstr)
-        if $dbh->err;
-
-    DW::Mood->clear_cache( $themeid );
+    my $verb = ( $picurl && $width && $height ) ? 'inserted' : 'deleted';
+    $self->print( "Data $verb for theme #$themeid, mood #$moodid." );
 
     return 1;
 }

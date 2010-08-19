@@ -213,6 +213,71 @@ sub get_picture {
     return 0;  # couldn't find a picture anywhere in the parent chain
 }
 
+# object method to update or delete a mood icon
+# arguments: moodid; hashref containing new mood icon data; error ref
+# returns: 1 on success, undef otherwise.
+sub set_picture {
+    my ( $self, $moodid, $pic, $err, $dbh ) = @_;
+    my $errsub = sub { $$err = $_[0] if ref $err; return undef };
+    return $errsub->( LJ::Lang::ml( "/manage/moodthemes.bml.error.cantupdatetheme" ) )
+        unless $self->id and $moodid and ref $pic and $moodid =~ /^\d+$/;
+
+    my ( $picurl, $w, $h ) = @{ $pic }{ qw/ picurl width height / };
+    return $errsub->( LJ::Lang::ml( "/manage/moodthemes.bml.error.notanumber",
+                      { moodname => $self->mood_name( $moodid ) } ) )
+        if ( $w and $w !~ /^\d+$/ ) or ( $h and $h !~ /^\d+$/ );
+    return $errsub->( LJ::Lang::ml( "/manage/moodthemes.bml.error.picurltoolong" ) )
+        if $picurl and length $picurl > 200;
+
+    $dbh ||= LJ::get_db_writer() or
+        return $errsub->( LJ::Lang::ml( "error.nodb" ) );
+
+    if ( $picurl && $w && $h ) {  # do update
+        $dbh->do( "REPLACE INTO moodthemedata (moodthemeid, moodid," .
+                  " picurl, width, height) VALUES (?, ?, ?, ?, ?)",
+                 undef, $self->id, $moodid, $picurl, $w, $h );
+    } else {  # do delete
+        $dbh->do( "DELETE FROM moodthemedata WHERE moodthemeid = ?" .
+                  " AND moodid= ?", undef, $self->id, $moodid );
+    }
+    return $errsub->( LJ::Lang::ml( "error.dberror" ) . $dbh->errstr )
+        if $dbh->err;
+    $self->clear_cache;
+
+    return 1;
+}
+
+# object method to update or delete multiple mood icons in one transaction
+# arguments: arrayref of data arrayrefs [ $moodid => \%pic ]; error ref
+# returns: 1 on success, undef otherwise.
+sub set_picture_multi {
+    my ( $self, $data, $err ) = @_;
+    die "Need array reference for set_picture_multi"
+        unless ref $data eq "ARRAY";
+
+    my $errsub = sub { $$err = $_[0] if ref $err; return undef };
+    my $dbh = LJ::get_db_writer() or
+        return $errsub->( LJ::Lang::ml( "error.nodb" ) );
+    $dbh->begin_work;
+    return $errsub->( LJ::Lang::ml( "error.dberror" ) . $dbh->errstr )
+        if $dbh->err;
+
+    foreach ( @$data ) {
+        # we pass the database handle for transaction continuity
+        my $rv = $self->set_picture( $_->[0], $_->[1], $err, $dbh );
+        unless ( $rv ) {  # abort transaction
+            $dbh->rollback;
+            return undef;  # error message already in $err
+        }
+    }
+
+    $dbh->commit;
+    return $errsub->( LJ::Lang::ml( "error.dberror" ) . $dbh->errstr )
+        if $dbh->err;
+
+    return 1;
+}
+
 # get theme description (adapted from LJ::mood_theme_des)
 # arguments: theme id (only required if called as class method)
 sub des {
