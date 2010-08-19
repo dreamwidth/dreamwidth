@@ -33,6 +33,17 @@
     </div>
 </div>
 
+<div class='shop-category'>
+    <div class='shop-category-title'>[% '.title.renames' | ml %]</div>
+    <div class='shop-category-items'>
+[% IF remote AND remote.is_personal %]
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/renames?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/renames?for=gift">[% '.for.different' | ml %]</a></span>
+[% ELSE %]
+        <span class='shop-category-item'>[% '.renames.login' | ml %]</span>
+[% END %]
+    </div>
+</div>
 
 [%#
 
@@ -48,11 +59,4 @@ Here for future expansion ...
 </div>
 
 
-<div class='shop-category'>
-    <div class='shop-category-title'>Rename Tokens for ...</div>
-    <div class='shop-category-items'>
-        <span class='shop-category-item'><a href="...">yourself</a> (username)</span>
-        <span class='shop-category-item'><a href="...">your circle</a></span>
-    </div>
-</div>
 %]

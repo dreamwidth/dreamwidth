@@ -1,0 +1,21 @@
+;; -*- coding: utf-8 -*-
+
+.backlink=Back to [[sitename]] Shop
+
+.btn.addtocart=Add to Order
+
+.error.invalidself=You must be logged in as a personal account in order to purchase a rename token for yourself.
+
+.giftfor.anonymous=Anonymous gift?
+
+.giftfor.deliverydate=Delivery date:
+
+.giftfor.username=Username to receive this rename token:
+
+.intro.gift=Buy a rename token for someone else to allow them to change their journal's username.
+
+.intro.self=Buy a rename token for your journal to change your username.
+
+.action=Once your payment has gone through, the token will be listed on <a [[aopts]]>the rename page</a>.
+
+.title=Buy a Rename Token

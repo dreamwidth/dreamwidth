@@ -434,9 +434,12 @@ sub get_item {
 # get/set state
 sub state {
     my ( $self, $newstate ) = @_;
+    return $self->{state} unless defined $newstate;
+    return $self->{state} if $self->{state} == $newstate;
 
-    return $self->{state}
-        unless defined $newstate;
+    # alert the items that the cart's state has changed, this allows items to do things
+    # that happen when the state changes.
+    $_->cart_state_changed( $newstate ) foreach @{$self->items};
 
     LJ::Hooks::run_hooks( 'shop_cart_state_change', $self, $newstate );
 

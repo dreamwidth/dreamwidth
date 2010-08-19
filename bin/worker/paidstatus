@@ -316,6 +316,8 @@ sub scan_cart {
     my ( $unapplied, %saw_ids ) = ( 0 );
     $log->( 'Iterating over items.' );
     foreach my $item ( @{ $cart->items } ) {
+        next unless $item->apply_automatically;
+
         $log->( 'Found item [%d] %s.', $item->id, $item->short_desc );
 
         # rare case where we've found the cart generating items with the same

@@ -14,8 +14,12 @@
 
 .points.login=You must log in to a personal account to buy points.
 
+.renames.login=You must log in to a personal account to buy a rename token.
+
 .title=[[sitename]] Shop
 
 .title.paidacc=Buy a Paid Account for...
 
 .title.points=Buy [[site]] Points for...
+
+.title.renames=Buy a Rename Token for...

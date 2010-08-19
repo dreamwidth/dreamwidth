@@ -438,6 +438,27 @@ sub circle_users {
 *LJ::User::circle_users = \&circle_users;
 
 
+# return users who trust you
+sub trusted_by_users {
+    my $u = shift;
+    my @trustedbyids = $u->trusted_by_userids;
+    my $users = LJ::load_userids(@trustedbyids);
+    return values %$users if wantarray;
+    return $users;
+}
+*LJ::User::trusted_by_users = \&trusted_by_users;
+
+
+# return users who watch you
+sub watched_by_users {
+    my $u = shift;
+    my @watchedbyids = $u->watched_by_userids;
+    my $users = LJ::load_userids(@watchedbyids);
+    return values %$users if wantarray;
+    return $users;
+}
+*LJ::User::watched_by_users = \&watched_by_users;
+
 # returns array of trusted by uids.  by default, limited at 50,000 items.
 sub trusted_by_userids {
     my ( $u, %args ) = @_;

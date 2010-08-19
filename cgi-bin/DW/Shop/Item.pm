@@ -109,6 +109,17 @@ sub new {
 }
 
 
+=head2 C<< $self->apply_automatically >>
+
+True if you want the item to be applied via the paidstatus worker, and false 
+if you wish to apply the item yourself (usually triggered by a user action).
+
+Subclasses may override.
+
+=cut
+
+sub apply_automatically { 1 }
+
 =head2 C<< $self->apply >>
 
 Called when we are told we need to apply this item, i.e., turn it on. Note that we 

@@ -104,7 +104,8 @@
     #    paid6  => [  13,  6, 'paid', 130   ],
     #    paid12 => [  25, 12, 'paid', 250   ],
     #    seed   => [ 200, 99, 'seed', 2000   ],
-    #    points => [],
+    #    points => [],     # if present, sell points
+    #    rename => [ 15, undef, undef, 150 ],
     #);
 
 }

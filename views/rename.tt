@@ -1,0 +1,122 @@
+[%# rename.tt
+
+Page where you can use a rename token.
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- dw.need_res( 'stc/rename.css' ) -%]
+
+[%- sections.title = '.title' | ml -%]
+
+[% IF error_list %]
+    <p>[% '.error.header' | ml %]</p>
+    <ul class='error-list'>
+        [% FOREACH error = error_list %]
+            <li>[% error %] </li>
+        [% END %]
+    </ul>
+[% END %]
+
+[% IF token %]
+    <form method="POST" id="renameform">
+        [%- dw.form_auth # hidden input field HTML -%]
+
+
+        <fieldset class="rename">
+            <legend>[%- '.form.rename.header' | ml %]</legend>
+            <div class="formfield">
+                <label for="token">[%- '.form.rename.token.label' | ml -%]</label> [%- form.token | html -%]
+            </div>
+            <div class="formfield">
+                <label>[%- '.form.rename.fromuser.label' | ml -%]</label> [% form.from | html %]
+            </div>
+            <div class="formfield">
+                <label for="touser">[%- '.form.rename.touser.label' | ml -%]</label><input type="text" id="touser" name="touser" value="[%- form.to | html -%]" />
+            </div>
+            <div class="formfield">
+                <fieldset>
+                <legend>What do you want to do with your old username?</legend>
+                <input type="radio" name="redirect" value="forward" id="redirect_forward" [% 'checked="checked"' IF form.redirect == "forward" %]/><label for="redirect_forward">[%- '.form.rename.forward.label' | ml %]</label>
+                <p class='detail'>[%- '.form.rename.forward.note' | ml( journalurl = form.journalurl ) %]</p>
+                <input type="radio" name="redirect" value="disconnect" id="redirect_disconnect" [% 'checked="checked"' IF form.redirect == 'disconnect' %]/><label for="redirect_disconnect">[%- '.form.rename.disconnect.label' | ml %]</label>
+                <p class='detail'>[%- '.form.rename.disconnect.note' | ml( journalurl = form.journalurl ) %]</p>
+                </fieldset>
+            </div>
+        </fieldset>
+
+
+        <fieldset class="relationships">
+            <legend>[% '.form.relationships.header' | ml %]</legend>
+            [% FOREACH rel IN [ "watched_by", "trusted_by", "watched", "trusted", "communities" ] %]
+                <div class="formfield">
+                    <input type="checkbox" name="rel_options" value="[% rel %]" id="rel_[% rel %]" [%- 'checked="checked"' IF form.rel_options.$rel -%] /><label for="rel_[% rel %]">[% ".form.relationships.$rel" | ml %]</label>
+                </div>
+            [% END %]
+        </fieldset>
+
+        <fieldset class="others">
+            <legend>[% '.form.others.header' | ml %]</legend>
+            <div class="formfield">
+                <input type="checkbox" name="others" value="email" id="others_email" [%- 'checked="checked"' IF form.others.email -%]/><label for="others_email">[% '.form.others.email' | ml( sitename = site.nameshort ) %] <span id="others_email_note">([% '.form.others.email.note' | ml %])</span></label>
+            </div>
+        </fieldset>
+
+        <input type="submit" value="Rename Journal" />
+    </form>
+
+[% ELSE %]
+    [% IF invalidtoken %]
+        <p>
+        [% '.token.invalid' | ml( token = invalidtoken )  | html %]
+        </p>
+    [% ELSIF usedtoken %]
+        <p>
+        [% '.token.used' | ml( token = usedtoken ) | html %]
+        </p>
+    [% ELSE %]
+        <p>[% '.checkusername.intro' | ml %]</p>
+
+        [% IF checkusername.status %]
+            <p>[% ".checkusername.status.${checkusername.status}"  | ml( user = checkusername.user ) | html %]</p>
+            [% IF checkusername.errors %]
+                <ul class='error-list'>
+                [% FOREACH error = checkusername.errors %]
+                    <li>[% error %] </li>
+                [% END %]
+                </ul>
+            [% END %]
+        [% END %]
+
+        <form method="GET" id="checkusername"> 
+            <label for="username_for_rename">[% '.checkusername.label' | ml %]: <input id="username_for_rename" name="checkuser" value="[% checkusername.user | html %]" />
+            <input type="submit" value="[% '.checkusername.submit' | ml %]" />
+        </form>
+    [% END %]
+
+    <hr />
+
+    [% IF unused_tokens %]
+        <p>[% '.token.list.header' | ml %]</p>
+        <ul>
+        [% FOREACH token = unused_tokens %]
+            <li>[% token.token | html %] - <a href="/rename/[%- token.token | url %]
+            [%- IF checkusername.user AND checkusername.status == 'available' ~%]
+                ?to=[% checkusername.user | url ~%]
+                ">[% '.token.list.item.withname' | ml( username = checkusername.user ) %]
+            [%- ELSE ~%]
+                ">[% '.token.list.item' | ml %]
+            [% END ~%]
+            </a></li>
+        [% END %]
+        </ul>
+    [% ELSE %]
+        [%- '.token.notoken' | ml(aopts = "href='/shop/renames?for=self'") -%]
+    [% END %]
+[% END %]
+

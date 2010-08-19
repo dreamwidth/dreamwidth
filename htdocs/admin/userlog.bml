@@ -128,6 +128,12 @@ FORM
         } elsif ( $row->{action} eq 'impersonator' ) {
             my $u = LJ::load_userid( $row->{actiontarget} );
             $action = "Did impersonate on " . ( $u ? $u->ljuser_display : "(no target)" ) . ": " .  LJ::ehtml( $extra->{reason} );
+        } elsif ( $row->{action} eq 'rename' ) {
+            $action = "Renamed from '$extra->{from}' to '$extra->{to}'.";
+            $action .= "<br />Deleted: $extra->{del}" if $extra->{del};
+            $action .= "<br />Redirected: $extra->{redir}" if $extra->{redir};
+        } elsif ( $row->{action} eq 'redirect' ) {
+            $action = $extra->{action} eq "add" ? "Added redirect: $extra->{renamedto}" : "Removed redirect: $extra->{renamedto}";
         } elsif (my $info = LJ::Hooks::run_hook('userlog_rows', $row)) {
             $action = $info;
         } else {

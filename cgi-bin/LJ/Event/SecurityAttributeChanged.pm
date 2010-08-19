@@ -82,8 +82,7 @@ sub new {
         die "This event (uid=$userid, what=username) was not found in logs"
             unless $timechange;
 
-        die "Event (uid=$userid, what=username) was not found in logs".
-            " has wrong old username: $oldvalue instead of $old_username"
+        die "Event (uid=$userid, what=username) has wrong old username: $oldvalue instead of $old_username"
                 if $oldvalue ne $old_username;
 
         my ($timechange2, $oldvalue2) = $sth->fetchrow_array;

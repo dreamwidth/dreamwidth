@@ -24,6 +24,7 @@ use DW::Shop::Cart;
 use DW::Shop::Engine;
 use DW::Shop::Item::Account;
 use DW::Shop::Item::Points;
+use DW::Shop::Item::Rename;
 
 # constants across the site
 our $MIN_ORDER_COST = 3.00; # cost in USD minimum.  this only comes into affect if

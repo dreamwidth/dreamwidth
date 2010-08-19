@@ -1,0 +1,76 @@
+;; -*- coding: utf-8 -*-
+
+.checkusername.intro=Input your desired username, to check whether it is available for renaming to.
+
+.checkusername.label=Desired username
+
+.checkusername.status.available="[[user]]" is available for renaming.
+
+.checkusername.status.unavailable="[[user]]" is not available.
+
+.checkusername.submit=Check Username Availability
+
+.error.header=Unable to perform rename. Please correct the following and try again:
+
+.error.invalidform=There was a problem with processing the form: the page may have been left open too long. Please try submitting the form again.
+
+.error.nojournal=You did not provide a journal to rename.
+
+.error.noredirectopt=You need to choose whether to forward your old username to your new username, or else to drop the connection.
+
+.error.emailnoalias=The email alias feature is not available to your current account level.
+
+.error.emailnotforward=You cannot forward emails sent to your [[emaildomain]] address to your new username, because you have not chosen to redirect your old username to your new one.
+
+.form.relationships.header=Relationships
+
+.form.relationships.communities=Keep community memberships and administration roles
+
+.form.relationships.trusted=Keep outgoing access (people you have granted access to)
+
+.form.relationships.trusted_by=Keep incoming access (people who have granted you access)
+
+.form.relationships.watched=Keep outgoing subscriptions (people you are subscribed to)
+
+.form.relationships.watched_by=Keep incoming subscriptions (people who are subscribed to you)
+
+
+.form.others.header=Others
+
+.form.others.email=Redirect emails sent to your old [[sitename]] email address
+
+.form.others.email.note=your old username must also redirect to your desired username
+
+
+.form.rename.header=Rename
+
+.form.rename.disconnect.label=Disconnect your old username from your new username, leaving the old username free to use
+
+.form.rename.disconnect.note=[[journalurl]] will not point to your new username; comments and community entries that you posted will still show your new username.
+
+.form.rename.forward.label=Forward your old username to your new username
+
+.form.rename.forward.note=[[journalurl]] will automatically redirect to your new username.
+
+.form.rename.fromuser.label=Rename from
+
+.form.rename.token.label=Rename token
+
+.form.rename.touser.label=Rename to
+
+
+.success=Successfully renamed journal from [[from]] to [[to]].
+
+.title=Rename Journal
+
+.token.invalid=Invalid token: [[token]]
+
+.token.list.header=You have these unused tokens:
+
+.token.list.item=Use token to rename journal
+
+.token.list.item.withname=Use token to rename journal to [[username]]
+
+.token.notoken=<a [[aopts]]>Purchase a rename token</a> to perform a rename.
+
+.token.used=Token has been used: [[token]]

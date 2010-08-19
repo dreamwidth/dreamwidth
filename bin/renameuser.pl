@@ -55,7 +55,7 @@ unless ($args{force}) {
         print "Both accounts aren't valid.\n";
         exit 1;
     }
-    unless (lc($acct[0]->raw_email) eq lc($acct[1]->raw_email)) {
+    unless (lc($acct[0]->email_raw) eq lc($acct[1]->email_raw)) {
         print "Email addresses don't match.\n";
         print "   " . $acct[0]->raw_email . "\n";
         print "   " . $acct[1]->raw_email . "\n";
@@ -154,7 +154,8 @@ sub rename_user
     LJ::procnotify_add("rename_user", { 'user' => $u->{'user'},
                                         'userid' => $u->{'userid'} });
 
-    $dbh->do("INSERT INTO renames (renid, token, payid, userid, fromuser, touser, rendate) ".
-             "VALUES (NULL,'[manual]',0,$u->{userid},$qfrom,$qto,NOW())");
+    #$dbh->do("INSERT INTO renames (renid, token, payid, userid, fromuser, touser, rendate) ".
+    #         "VALUES (NULL,'[manual]',0,$u->{userid},$qfrom,$qto,NOW())");
+
     return 1;
 }

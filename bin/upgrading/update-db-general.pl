@@ -3036,6 +3036,20 @@ EOC
 
 # NOTE: new table declarations go ABOVE here ;)
 
+register_tablecreate('renames', <<'EOC');
+CREATE TABLE renames (
+    renid INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    auth CHAR(13) NOT NULL,
+    cartid INT UNSIGNED,
+    ownerid INT UNSIGNED NOT NULL,
+    renuserid INT UNSIGNED NOT NULL,
+    fromuser CHAR(25),
+    touser CHAR(25),
+    rendate INT UNSIGNED,
+    
+    INDEX (ownerid)
+)
+EOC
 
 ### changes
 

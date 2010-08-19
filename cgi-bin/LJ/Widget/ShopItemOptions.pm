@@ -152,6 +152,12 @@ sub handle_post {
             DW::Shop::Item::Account->new( type => $post->{accttype}, %item_data )
         );
         return ( error => $err ) unless $rv;
+    } elsif ( $post->{item} eq "rename" ) {
+        my ( $rv, $err ) = $cart->add_item(
+            DW::Shop::Item::Rename->new( cannot_conflict => 1, %item_data )
+        );
+
+        return ( error => $err ) unless $rv;
     }
 
     return;
