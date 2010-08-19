@@ -154,7 +154,7 @@ sub rename_user
     LJ::procnotify_add("rename_user", { 'user' => $u->{'user'},
                                         'userid' => $u->{'userid'} });
 
-    $dbh->do( "INSERT INTO renames (renid, token, payid, userid, fromuser, touser, rendate) ".
+    $dbh->do( "INSERT INTO renames (renid, auth, cartid, renuserid, fromuser, touser, rendate) ".
               "VALUES ( NULL, '[manual]', 0, $u->{userid}, $qfrom, $qto, NOW() )" );
 
     return 1;
