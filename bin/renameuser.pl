@@ -57,8 +57,8 @@ unless ($args{force}) {
     }
     unless (lc($acct[0]->email_raw) eq lc($acct[1]->email_raw)) {
         print "Email addresses don't match.\n";
-        print "   " . $acct[0]->raw_email . "\n";
-        print "   " . $acct[1]->raw_email . "\n";
+        print "   " . $acct[0]->email_raw . "\n";
+        print "   " . $acct[1]->email_raw . "\n";
         exit 1;
     }
     unless ($acct[0]->password eq $acct[1]->password) {
@@ -154,8 +154,8 @@ sub rename_user
     LJ::procnotify_add("rename_user", { 'user' => $u->{'user'},
                                         'userid' => $u->{'userid'} });
 
-    #$dbh->do("INSERT INTO renames (renid, token, payid, userid, fromuser, touser, rendate) ".
-    #         "VALUES (NULL,'[manual]',0,$u->{userid},$qfrom,$qto,NOW())");
+    $dbh->do( "INSERT INTO renames (renid, token, payid, userid, fromuser, touser, rendate) ".
+              "VALUES ( NULL, '[manual]', 0, $u->{userid}, $qfrom, $qto, NOW() )" );
 
     return 1;
 }
