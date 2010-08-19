@@ -701,7 +701,7 @@ sub s2_context
     # but it doesn't matter if we're using the minimal style ...
     my %style;
     eval {
-        if ( $r->notes( 'use_minimal_scheme' ) ) {
+        if ( $r->note( 'use_minimal_scheme' ) ) {
             my $public = get_public_layers();
             while (my ($layer, $name) = each %LJ::MINIMAL_STYLE) {
                 next unless $name ne "";
