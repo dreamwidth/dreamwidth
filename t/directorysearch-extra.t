@@ -51,10 +51,10 @@ memcache_stress(sub {
 
     # test friend/friendof searching
     {
-        $u1->add_friend($u2);
-        $u2->add_friend($u1);
-        $u1->remove_friend($u1);
-        $u2->remove_friend($u2);
+        $u1->add_edge( $u2, watch => { nonotify => 1 } );
+        $u2->add_edge( $u1, watch => { nonotify => 1 } );
+        $u1->remove_edge( $u1, watch => { nonotify => 1 } );
+        $u2->remove_edge( $u2, watch => { nonotify => 1 } );
 
         $search = LJ::Directory::Search->new;
         $search->add_constraint(LJ::Directory::Constraint::HasFriend->new(userid => $u2->userid));

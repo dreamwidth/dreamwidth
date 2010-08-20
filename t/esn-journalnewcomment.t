@@ -200,7 +200,7 @@ test_esn_flow(sub {
                 ok(! $email, "Non-subscribed user did not get notification");
 
                 # remove the friend
-                LJ::remove_friend($u1, $u2);
+                $u1->remove_edge( $u2, watch => { nonotify => 1 } );
 
             } elsif ($pass == 2) {
                 $email = $got_email{$u1->{userid}};

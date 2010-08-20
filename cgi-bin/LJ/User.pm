@@ -6169,22 +6169,6 @@ sub email {
 }
 
 
-*has_friend = \&is_friend;
-sub is_friend {
-    confess 'LJ::User->is_friend is deprecated';
-}
-
-
-sub add_friend {
-    confess 'LJ::User->add_friend deprecated.';
-}
-
-
-sub remove_friend {
-    confess 'LJ::User->remove_friend has been deprecated.';
-}
-
-
 # FIXME: Needs updating for WTF
 sub opt_showmutualfriends {
     my $u = shift;
@@ -6222,7 +6206,7 @@ use Carp;
 
 ########################################################################
 ### Please keep these categorized and alphabetized for ease of use.
-### If you need a new category, add it at the end, BEFORE category 99.
+### If you need a new category, add it at the end.
 ### Categories kinda fuzzy, but better than nothing. Weird numbers are
 ### to match the sections above -- please check up there if adding.
 ###
@@ -6243,7 +6227,6 @@ use Carp;
 ###  21. Password Functions
 ###  24. Styles and S2-Related Functions
 ###  28. Userpic-Related Functions
-###  99. Miscellaneous Legacy Items
 
 ########################################################################
 ###  1. Creating and Deleting Accounts
@@ -8747,12 +8730,5 @@ sub userpic_count {
                                    undef, $u->userid );
 }
 
-
-########################################################################
-###  99. Miscellaneous Legacy Items
-
-# FIXME: these are deprecated and no longer used; check what calls them and kill it.
-sub add_friend    { confess 'LJ::add_friend has been deprecated.';    }
-sub remove_friend { confess 'LJ::remove_friend has been deprecated.'; }
 
 1;

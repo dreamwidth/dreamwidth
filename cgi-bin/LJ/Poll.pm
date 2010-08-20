@@ -1171,8 +1171,8 @@ sub can_view {
     return 0 if $self->whoview eq 'none';
 
     # okay if everyone can view or if trusted can view and remote is a friend
-    my $is_friend = $remote && $self->journal->trusts_or_has_member( $remote );
-    return 1 if $self->whoview eq "all" || ($self->whoview eq "trusted" && $is_friend);
+    my $has_access = $remote && $self->journal->trusts_or_has_member( $remote );
+    return 1 if $self->whoview eq "all" || ( $self->whoview eq "trusted" && $has_access );
 
     return 0;
 }

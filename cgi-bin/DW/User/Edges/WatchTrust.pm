@@ -1109,7 +1109,8 @@ sub _can_add_wt_edge {
             $fr_user = LJ::want_user($fr_user);
         }
 
-        return 1 if $fr_user && $fr_user->is_friend($u);
+        return 1 if $fr_user &&
+                    ( $fr_user->watches( $u ) || $fr_user->trusts( $u ) );
     }
 
     unless ($u->rate_log('addfriend', 1)) {
