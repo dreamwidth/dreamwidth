@@ -33,6 +33,56 @@ set color_module_link = "#eAdDc6";
 set color_module_link_visited = "#CABDA6";
 
 
+#NEWLAYER: tranquilityiii/clearmessages
+layerinfo type = "theme";
+layerinfo name = "Clear Messages";
+layerinfo redist_uniq = "tranquilityiii/clearmessages";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e6cfa8";
+set color_page_link = "#366e92";
+set color_page_link_active = "#366e92";
+set color_page_link_hover = "#4890c0";
+set color_page_link_visited = "#366e92";
+set color_page_text = "#3A3229";
+set color_page_title = "#366e92";
+set color_header_background = "#fff";
+set color_footer_background = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_title_background = "#e6cfa8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_title = "#366e92";
+set color_module_title_background = "#e6cfa8";
+
+function Page::print_theme_stylesheet() {
+    """
+    .entry-title, .module-header {
+        padding: 5px;
+        }
+
+    .module-header {
+        margin-bottom: 5px;
+        }
+    """;
+}
+
+
 #NEWLAYER: tranquilityiii/freshblue
 layerinfo type = "theme";
 layerinfo name = "Fresh Blue";
@@ -385,6 +435,64 @@ set color_module_title_background = "#cccc99";
 set color_module_title = "#000000";
 
 
+#NEWLAYER: tranquilityiii/seadeep
+layerinfo type = "theme";
+layerinfo name = "Sea Deep";
+layerinfo redist_uniq = "tranquilityiii/seadeep";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#719983";
+set color_page_link = "#516156";
+set color_page_link_active = "#516156";
+set color_page_link_hover = "#648774";
+set color_page_link_visited = "#516156";
+set color_page_text = "#0b0f0c";
+set color_header_background = "#aadbc2";
+set color_footer_background = "#aadbc2";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_comment_title_background = "#aadbc2";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#aadbc2";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS, Arial";
+set font_journal_title = "Trebuchet MS";
+set font_journal_title_size = "2.5";
+set font_journal_title_units = "em";
+set font_entry_title = "Trebuchet MS, Arial";
+set font_module_heading = "Trebuchet MS, Arial";
+
+function Page::print_theme_stylesheet() {
+    """
+    .entry-title, .module-header {
+        padding: 5px;
+        }
+
+    .module-header {
+        margin-bottom: 5px;
+        }
+    """;
+}
+
+
 #NEWLAYER: tranquilityiii/shallows
 layerinfo type = "theme";
 layerinfo name = "Shallows";
@@ -446,6 +554,70 @@ set color_module_link_visited = "#effeff";
 
 set color_module_title = "#000000";
 set color_module_title_background = "#6ab1b2";
+
+
+#NEWLAYER: tranquilityiii/stonemask
+layerinfo type = "theme";
+layerinfo name = "Stone Mask";
+layerinfo redist_uniq = "tranquilityiii/stonemask";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#c0c0a8";
+set color_page_border = "#c0c0a8";
+set color_page_link = "#9b6e58";
+set color_page_link_active = "#9b6e58";
+set color_page_link_hover = "#A3725C";
+set color_page_link_visited = "#9b6e58";
+set color_page_text = "#494840";
+set color_page_title = "#9b6e58";
+set color_header_background = "#d8d8c0";
+set color_footer_background = "#d8d8c0";
+set color_footer_link = "#825949";
+set color_footer_link_active = "#825949";
+set color_footer_link_hover = "#b48067";
+set color_footer_link_visited = "#825949";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d8d8c0";
+set color_entry_border = "#d8d8c0";
+set color_entry_interaction_links = "#825949";
+set color_entry_link = "#9b6e58";
+set color_entry_link_active = "#9b6e58";
+set color_entry_link_hover = "#A3725C";
+set color_entry_link_visited = "#9b6e58";
+set color_entry_text = "#494840";
+set color_entry_title = "#825949";
+set color_entry_title_background = "#c0c0a8";
+set color_comment_title_background = "#d8d8c0";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d8d8c0";
+set color_module_border = "#d8d8c0";
+set color_module_title_background = "#c0c0a8";
+
+function Page::print_theme_stylesheet() {
+    """
+    .entry-title, .module-header {
+        padding: 5px;
+        }
+
+    .module-header {
+        margin-bottom: 5px;
+        }
+    """;
+}
 
 
 #NEWLAYER: tranquilityiii/wintergreen
