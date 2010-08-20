@@ -294,8 +294,6 @@ layerinfo name = "Peach";
 layerinfo redist_uniq = "blanket/peach";
 layerinfo author_name = "renoir";
 
-set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
-
 ##===============================
 ## Page Colors
 ##===============================
