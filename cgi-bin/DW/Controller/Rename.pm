@@ -47,6 +47,9 @@ sub rename_handler {
     my $post_args = DW::Request->get->post_args || {};
     my $get_args = DW::Request->get->get_args || {};
 
+    $get_args->{type} ||= "P";
+    $get_args->{type} = "P" unless $get_args->{type} =~ m/^(P|C)$/;
+
     if ( $r->method eq "POST" ) {
 
         # this is kind of ugly. Basically, it's a rendered template if it's a success, and a list of errors if it failed
@@ -74,15 +77,31 @@ sub rename_handler {
         } else {
             $vars->{token} = $token;
 
+            # not using the regular authas logic because we want to exclude the current username
+            my $authas =  LJ::make_authas_select( $remote,
+                {   selectonly => 1,
+                    type => $get_args->{type},
+                    authas => $post_args->{authas} || $get_args->{authas},
+                } );
+
+            $authas .= $remote->user if $get_args->{type} eq "P";
+
+            my @rel_types = $get_args->{type} eq "P"
+                ? qw( trusted_by watched_by trusted watched communities )
+                : ();
+
             # initialize the form based on previous posts (in case of error) or with some default values
             $vars->{form} = {
-                from        => $remote->user,
-                journalurl  => $remote->journal_base,
+                authas      => $authas,
+                journaltype => $get_args->{type},
+                journalurl  => $get_args->{type} eq "P" ? $remote->journal_base : LJ::journal_base( "communityname", "community" ),
+                pageurl     => "/rename/" . $token->token,
                 token       => $token->token,
                 to          => $post_args->{touser} || $get_args->{to} || "",
                 redirect    => $post_args->{redirect} || "disconnect",
+                rel_types   => \@rel_types,
                 rel_options => %$post_args ? { map { $_ => 1 } $post_args->get( "rel_options" ) }
-                                            : { map { $_ => 1 } qw( trusted_by watched_by trusted watched communities ) },
+                                            : { map { $_ => 1 } @rel_types },
                 others      => %$post_args ? { map { $_ => 1 } $post_args->get( "others" ) }
                                             : { email => 0 },
             };
@@ -102,13 +121,12 @@ sub rename_handler {
 sub handle_post {
     my ( $token, $post_args ) = @_;
 
-    # FIXME: replace with official tt-implementation
     return ( 0, [ LJ::Lang::ml( '/rename.tt.error.invalidform' ) ] ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
 
     my $errref = [];
 
     # the journal we are going to rename; yourself or (eventually) a community you maintain
-    my $journal = LJ::get_remote();
+    my $journal = LJ::get_authas_user( $post_args->{authas} );
     push @$errref, LJ::Lang::ml( '/rename.tt.error.nojournal' ) unless $journal;
 
     my $fromusername = $journal ? $journal->user : "";
@@ -136,7 +154,7 @@ sub handle_post {
     }
 
     # try the rename and see if there are any errors
-    $journal->rename( $tousername, token => $token, redirect => $redirect_journal, redirect_email => $other_opts{email}, %del_rel, errref => $errref );
+    $journal->rename( $tousername, user => LJ::get_remote(), token => $token, redirect => $redirect_journal, redirect_email => $other_opts{email}, %del_rel, errref => $errref );
 
     return ( 1, success_ml( "/rename.tt.success", { from => $fromusername, to => $journal->user } ) ) unless @$errref;
 

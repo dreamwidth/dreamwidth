@@ -191,15 +191,20 @@ sub make_authas_select {
     # only do most of form if there are options to select from
     if (@list > 1 || $list[0] ne $u->{'user'}) {
         my $ret;
-        my $label = $BML::ML{'web.authas.label'};
-        $label = $BML::ML{'web.authas.label.comm'} if ($opts->{'type'} eq "C");
-        $ret = ($opts->{'label'} || $label) . " ";
+        unless ( $opts->{selectonly} ) {
+            my $label = $BML::ML{'web.authas.label'};
+            $label = $BML::ML{'web.authas.label.comm'} if ($opts->{'type'} eq "C");
+            $ret = ($opts->{'label'} || $label) . " ";
+        }
+
         $ret .= LJ::html_select({ 'name' => 'authas',
                                  'selected' => $opts->{'authas'} || $u->{'user'},
                                  'class' => 'hideable',
                                  },
                                  map { $_, $_ } @list) . " ";
-        $ret .= LJ::html_submit(undef, $opts->{'button'} || $BML::ML{'web.authas.btn'});
+        $ret .= LJ::html_submit(undef, $opts->{'button'} || $BML::ML{'web.authas.btn'})
+            unless $opts->{selectonly};
+
         return $ret;
     }
 

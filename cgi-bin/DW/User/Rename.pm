@@ -99,22 +99,37 @@ sub can_rename_to {
         return 0;
     }
 
-    # only personal accounts can be renamed
+    my $check_basics = sub {
+        my ( $fromu, $tou ) = @_;
+
+        # able to rename to unregistered accounts
+        return { ret => 1 } unless $tou;
+
+        # some journals can not be renamed to
+        if ( $tou->is_suspended || $tou->is_readonly || $tou->is_locked || $tou->is_memorial || $tou->is_renamed ) {
+            push @$errref, LJ::Lang::ml( 'rename.error.invalidstatusto', { to => $tou->ljuser_display } );
+            return { ret => 0 };
+        }
+
+        # expunged users can always be renamed to
+        return { ret => 1 } if $tou->is_expunged;
+
+        # communities cannot be renamed to
+        if ( ! $tou->is_personal ) {
+            push @$errref, LJ::Lang::ml( 'rename.error.invalidjournaltypeto' );
+            return { ret => 0 };
+        }
+    };
+
+    # only personal and community accounts can be renamed
     if ( $self->is_personal ) {
 
         # able to rename to unregistered accounts
         my $tou = LJ::load_user( $tousername );
-        return 1 unless $tou;
 
-        # some journals can not be renamed to
-        if ( $tou->is_suspended || $tou->is_readonly || $tou->is_locked || $tou->is_memorial || $tou->is_renamed ) {
-            push @$errref, LJ::Lang::ml( 'rename.error.invalidstatusto', { to => $self->ljuser_display } );
-            return 0;
-        }
-
-        # expunged users can always be renamed to
-        return 1 if $tou->is_expunged;
-
+        # check basic stuff that is common for all types of renames
+        my $rv = $check_basics->( $self, $tou );
+        return $rv->{ret} if $rv;
 
         # deleted and visible journals have extra safeguards:
         # person-to-person
@@ -122,6 +137,21 @@ sub can_rename_to {
 
         push @$errref, LJ::Lang::ml( 'rename.error.unauthorized', { to => $tou->ljuser_display } );
         return 0;
+    } elsif ( $self->is_community && LJ::isu( $opts{user} ) ) {
+        my $admin = $opts{user};
+
+        # user must be able to control (be an admin of) community
+        return 0 unless $admin->can_manage_other( $self );
+
+        my $tou = LJ::load_user( $tousername );
+
+        # check basic stuff that is common for all renames       
+        my $rv = $check_basics->( $self, $tou );
+        return $rv->{ret} if $rv;
+
+        # community-to-person
+        # able to rename to another personal journal under admin's control
+        return 1 if DW::User::Rename::_are_same_person( $admin, $tou );
     }
 
     # be strict in what we accept
@@ -147,8 +177,9 @@ sub rename {
 
     my $errref = $opts{errref} || [];
 
+    my $remote = LJ::isu( $opts{user} ) ? $opts{user} : $self;
     push @$errref, LJ::Lang::ml( 'rename.error.tokeninvalid' ) unless $opts{token} && $opts{token}->isa( "DW::RenameToken" )
-            && $opts{token}->ownerid == $self->userid;
+            && $opts{token}->ownerid == $remote->userid;
     push @$errref, LJ::Lang::ml( 'rename.error.tokenapplied' ) if $opts{token} && $opts{token}->applied;
 
     my $can_rename_to = $self->can_rename_to( $tousername, %opts );
@@ -254,7 +285,16 @@ sub _rename {
 
     $self->break_redirects;
     DW::User::Rename->create_redirect_journal( $fromusername, $tousername ) if $opts{redirect};
-    my $del = $self->delete_relationships( del_trusted_by => $opts{del_trusted_by}, del_watched_by => $opts{del_watched_by}, del_trusted => $opts{del_trusted}, del_watched => $opts{del_watched}, del_communities => $opts{del_communities} );
+
+    my $del = "";
+    if ( $self->is_personal ) {
+        $del = $self->delete_relationships(
+            del_trusted_by => $opts{del_trusted_by},
+            del_watched_by => $opts{del_watched_by},
+            del_trusted => $opts{del_trusted},
+            del_watched => $opts{del_watched},
+            del_communities => $opts{del_communities} );
+    }
 
     # this deletes the email under the old username
     DW::User::Rename->break_email_redirection( $fromusername, $tousername ) unless $opts{redirect} && $opts{redirect_email};
@@ -349,6 +389,8 @@ Delete a list of relationships. Returns a string representation of which relatio
 =cut
 sub delete_relationships {
     my ( $self, %opts ) = @_;
+
+    return unless $self->is_personal;
 
     if ( $opts{del_trusted_by} ) {
         foreach ( $self->trusted_by_users ) {

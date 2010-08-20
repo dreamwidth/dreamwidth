@@ -44,19 +44,35 @@
 
 .form.rename.header=Rename
 
-.form.rename.disconnect.label=Disconnect your old username from your new username, leaving the old username free to use
+.form.rename.disconnect.label.C=Disconnect the old username from the new username, leaving the old username free to use
 
-.form.rename.disconnect.note=[[journalurl]] will not point to your new username; comments and community entries that you posted will still show your new username.
+.form.rename.disconnect.label.P=Disconnect your old username from your new username, leaving the old username free to use
 
-.form.rename.forward.label=Forward your old username to your new username
+.form.rename.disconnect.note.C=[[journalurl]] will not point to the new username.
 
-.form.rename.forward.note=[[journalurl]] will automatically redirect to your new username.
+.form.rename.disconnect.note.P=[[journalurl]] will not point to your new username; comments and community entries that you posted will still show your new username.
+
+.form.rename.forward.label.C=Forward your community's old username to the new username
+
+.form.rename.forward.label.P=Forward your old username to your new username
+
+.form.rename.forward.note.C=[[journalurl]] will automatically redirect to your community's new username.
+
+.form.rename.forward.note.P=[[journalurl]] will automatically redirect to your new username.
 
 .form.rename.fromuser.label=Rename from
+
+.form.rename.oldusername.header.C=What do you want to do with your community's old username?
+
+.form.rename.oldusername.header.P=What do you want to do with your old username?
 
 .form.rename.token.label=Rename token
 
 .form.rename.touser.label=Rename to
+
+.form.switchtype.comm=rename a community you own
+
+.form.switchtype.journal=rename your journal
 
 
 .success=Successfully renamed journal from [[from]] to [[to]].
@@ -70,6 +86,10 @@
 .token.list.item=Use token to rename journal
 
 .token.list.item.withname=Use token to rename journal to [[username]]
+
+.token.list.item.comm= Use token to rename a community
+
+.token.list.item.comm.withname=Use token to rename a community to [[username]]
 
 .token.notoken=<a [[aopts]]>Purchase a rename token</a> to perform a rename.
 

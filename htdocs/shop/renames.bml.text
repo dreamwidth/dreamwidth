@@ -12,9 +12,9 @@
 
 .giftfor.username=Username to receive this rename token:
 
-.intro.gift=Buy a rename token for someone else to allow them to change their journal's username.
+.intro.gift=Buy a rename token for someone else to allow them to change their journal's username, or the username of a community they manage.
 
-.intro.self=Buy a rename token for your journal to change your username.
+.intro.self=Buy a rename token for your journal to change your username, or the username of a community you manage.
 
 .action=Once your payment has gone through, the token will be listed on <a [[aopts]]>the rename page</a>.
 

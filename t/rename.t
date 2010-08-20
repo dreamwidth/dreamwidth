@@ -299,8 +299,7 @@ note( "-- username issues" );
 }
 
 note( "-- community-to-unregistered" );
-TODO: {
-    local $TODO = "community to unregistered";
+{
     my $admin = temp_user();
     my $fromu = temp_comm();
     my $tousername = $fromu->username . "_renameto";
@@ -315,8 +314,9 @@ TODO: {
 
     ok( ! LJ::load_user( $tousername ), "Username '$tousername' is unregistered" );
     ok( $fromu->can_rename_to( $tousername, user => $admin ), "Can rename to $tousername" );
-    ok( $fromu->rename( $tousername, token => new_token( $fromu ), user => $admin ), "Renamed community to $tousername" );
+    ok( $fromu->rename( $tousername, token => new_token( $admin ), user => $admin ), "Renamed community to $tousername" );
 
+    LJ::update_user( $admin, { status => 'A' } );
     ok( $admin->is_validated, "Admin was validated so could rename.");
     LJ::update_user( $admin, { status => 'N' } );
     ok( ! $admin->is_validated && ! $fromu->can_rename_to( $tousername . "_rename", user => $admin ), "Admin no longer validated; can no longer rename" );
@@ -351,13 +351,12 @@ TODO: {
     ok( $admin->can_manage( $tou ), "User can manage community tou" );
 
     ok( $fromu->can_rename_to( $tousername, user => $admin ), $admin->user . " can rename community fromu to existing community $tousername (is admin of both)" );
-    ok( $fromu->rename( $tousername, token => new_token( $fromu ), user => $admin ), $admin->user . " renamed community fromu to existing community $tousername" );
+    ok( $fromu->rename( $tousername, token => new_token( $admin ), user => $admin ), $admin->user . " renamed community fromu to existing community $tousername" );
 }
 
 note( "-- community-to-personal" );
-TODO: {
-    local $TODO = "community to personal";
-    my ( $admin, $tou ) = $create_users->(); 
+{
+    my ( $admin, $tou ) = $create_users->( validated => 1 ); 
     my $fromu = temp_comm();
     my $tousername = $tou->user;
 
@@ -367,14 +366,14 @@ TODO: {
 
     ok( ! $fromu->can_rename_to( $tousername, user => $admin ), "Cannot rename fromu to existing user $tousername (tou is a personal journal not under admin's control)" );
 
-    ( $admin, $tou ) = $create_users->( match => 1 ); 
+    ( $admin, $tou ) = $create_users->( match => 1, validated => 1 ); 
     $tousername = $tou->user;
 
     # make admin of fromu
     LJ::set_rel( $fromu, $admin, "A" );
     delete $LJ::REQ_CACHE_REL{$fromu->userid."-".$admin->userid."-A"};
     ok( $fromu->can_rename_to( $tousername, user => $admin ), $admin->user . " can rename community fromu to existing user $tousername (tou is a personal journal under admin's control)" );
-    ok( $fromu->rename( $tousername, token => new_token( $fromu ), user => $admin ), $admin->user . " renamed community fromu to existing community $tousername" );
+    ok( $fromu->rename( $tousername, token => new_token( $admin ), user => $admin ), $admin->user . " renamed community fromu to existing community $tousername" );
 }
 
 note( "-- personal-to-community" );

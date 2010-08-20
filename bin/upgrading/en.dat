@@ -2433,6 +2433,8 @@ protocol.readonly=Your account is temporarily in read-only mode.  Some operation
 
 rename.error.invalidaccounttype=Only personal journals can own rename tokens.
 
+rename.error.invalidjournaltypeto=This username is in use and is not a personal journal; only personal journals may be renamed to.
+
 rename.error.invalidfrom=Tried to rename an invalid journal.
 
 rename.error.invalidstatusfrom=Cannot rename [[from]]: must be an active journal, not deleted or suspended.
