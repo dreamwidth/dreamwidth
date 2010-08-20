@@ -34,7 +34,7 @@ sub whereami_handler {
     return $rv unless $ok;
 
     my $vars = { %$rv,
-        cluster_name => $LJ::CLUSTER_NAME{$rv->{u}->clusterid} || LJ::Lang::ml( '.cluster.unknown' ),
+        cluster_name => $LJ::CLUSTER_NAME{$rv->{u}->clusterid} || LJ::Lang::ml( '/misc/whereami.tt.cluster.unknown' ),
     };
 
     return DW::Template->render_template( 'misc/whereami.tt', $vars );
