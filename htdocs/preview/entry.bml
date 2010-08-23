@@ -112,6 +112,8 @@ _c?>
             $subject = LJ::text_trim($subject, 0, length($req{'subject'}) || 40);
         }
 
+        LJ::need_res( qw( stc/talkpage.css ) );
+
         $ret .= "<?page\n";
         $ret .= "body<=\n";
 
@@ -143,7 +145,7 @@ _c?>
             $req{'hour'} = int($req{'hour'});
             $req{'min'} = int($req{'min'});
 
-            $ret .= "<br /><font size='-1'>@ $etime $req{'hour'}:$req{'min'}:00</font>";
+            $ret .= "<br /><span class='time'>@ $etime $req{'hour'}:$req{'min'}:00</span>";
             $ret .= "</td></tr></table>";
         }
 
@@ -190,7 +192,7 @@ _c?>
         ###
         if ($subject) {
             BML::ebml(\$subject);
-            $ret .= "<font face='Arial,Helvetica' size='+1'><i><b>$subject</b></i></font><br />\n";
+            $ret .= "<div id='entrysubj'>$subject</div><br />\n";
         }
 
         $ret .= $event;
