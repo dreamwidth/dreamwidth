@@ -179,7 +179,10 @@ sub do_request
 
     if ($method eq "login")            { return login(@args);            }
     if ($method eq "getfriendgroups")  { return getfriendgroups(@args);  }
+    if ($method eq "gettrustgroups")   { return gettrustgroups(@args);   }
     if ($method eq "getfriends")       { return getfriends(@args);       }
+    if ($method eq "getcircle")        { return getcircle(@args);        }
+    if ($method eq "editcircle")       { return editcircle(@args);       }
     if ($method eq "friendof")         { return friendof(@args);         }
     if ($method eq "checkfriends")     { return checkfriends(@args);     }
     if ($method eq "getdaycounts")     { return getdaycounts(@args);     }
@@ -651,17 +654,23 @@ sub login
     return $res;
 }
 
+#deprecated
 sub getfriendgroups
 {
-    my ($req, $err, $flags) = @_;
-    return undef unless authenticate($req, $err, $flags);
-    my $u = $flags->{'u'};
+    return fail( $_[1], 504 );
+}
+
+sub gettrustgroups
+{
+    my ( $req, $err, $flags ) = @_;
+    return undef unless authenticate( $req, $err, $flags );
+    my $u = $flags->{u};
     my $res = {};
-    $res->{'friendgroups'} = list_friendgroups($u);
-    return fail($err, 502, "Error loading friend groups") unless $res->{'friendgroups'};
-    if ($req->{'ver'} >= 1) {
-        foreach (@{$res->{'friendgroups'} || []}) {
-            LJ::text_out(\$_->{'name'});
+    $res->{trustgroups} = list_trustgroups( $u );
+    return fail( $err, 502, "Error loading trust groups" ) unless $res->{trustgroups};
+    if ( $req->{ver} >= 1 ) {
+        foreach ( @{$res->{trustgroups} || []} ) {
+            LJ::text_out( \$_->{name} );
         }
     }
     return $res;
@@ -714,6 +723,77 @@ sub getfriends
     });
     if ($req->{'ver'} >= 1) {
         foreach(@{$res->{'friends'}}) { LJ::text_out(\$_->{'fullname'}) };
+    }
+    return $res;
+}
+
+sub getcircle
+{
+    my ( $req,  $err,  $flags ) = @_;
+    return undef unless authenticate( $req,  $err,  $flags );
+    my $u = $flags->{u};
+    my $res = {};
+    my $limit = $LJ::MAX_WT_EDGES_LOAD;
+    $limit = $req->{limit} 
+      if defined $req->{limit} && $req->{limit} < $limit;
+
+    if ( $req->{includetrustgroups} ) {
+      $res->{trustgroups} = list_trustgroups( $u );
+      return fail( $err,  502,  "Error loading trust groups" ) unless $res->{trustgroups};
+      if ( $req->{ver} >= 1 ) {
+        LJ::text_out( \$_->{name} )
+            foreach ( @{$res->{trustgroups} || []} );
+      }
+    }
+    if ( $req->{includecontentfilters} ) {
+      $res->{contentfilters} = list_contentfilters( $u );
+      return fail( $err, 502, "Error loading content filters" ) unless $res->{contentfilters};
+      if ( $req->{ver} >= 1 ) {
+        LJ::text_out( \$_->{name} )
+            foreach ( @{$res->{contentfilters} || []} );
+      }
+    }
+    if ( $req->{includewatchedusers} ) {
+      $res->{watchedusers} = list_users( $u, 
+                                         limit => $limit,
+                                         watched => 1,
+                                         includebdays => $req->{includebdays},
+                                       );
+      if ( $req->{ver} >= 1 ) {
+        LJ::text_out( \$_->{fullname} )
+            foreach ( @{$res->{watchedusers} || []} );
+      }
+    }
+    if ( $req->{includewatchedby} ) {
+      $res->{watchedbys} = list_users( $u, 
+                                       limit => $limit,
+                                       watchedby => 1,
+                                     );
+      if ( $req->{ver} >= 1 ) {
+        LJ::text_out( \$_->{fullname} ) 
+            foreach ( @{$res->{watchedbys} || []} );
+      }
+    }
+    if ( $req->{includetrustedusers} ) {
+      $res->{trustedusers} = list_users( $u, 
+                                         limit => $limit,
+                                         trusted => 1,
+                                         includebdays => $req->{includebdays},
+                                       );
+      if ($req->{ver} >= 1) {
+        LJ::text_out(\$_->{fullname})
+            foreach (@{$res->{trustedusers} || []});
+      }
+    }
+    if ( $req->{includetrustedby} ) {
+      $res->{trustedbys} = list_users( $u, 
+                                       limit => $limit,
+                                       trustedby => 1,
+                                     );
+      if ( $req->{ver} >= 1 ) {
+        LJ::text_out( \$_->{fullname} )
+            foreach ( @{$res->{trustedbys} || []} );
+      }
     }
     return $res;
 }
@@ -2412,6 +2492,144 @@ sub editfriendgroups {
     return fail( $_[1], 504 );
 }
 
+sub editcircle 
+{
+    my ( $req, $err, $flags ) = @_;
+    return undef unless authenticate( $req, $err, $flags );
+  
+    my $u = $flags->{u};
+    my $res = {};
+
+    if ( ref $req->{settrustgroups} eq 'HASH' ) {
+      while ( my ( $bit, $group ) = each %{$req->{settrustgroups}} ) {
+        my $name = $group->{name};
+        my $sortorder = $group->{sort};
+        my $public = $group->{public};
+        my %params = ( id => $bit,
+                       groupname => $name,
+                       _force_create => 1
+                     );
+      
+        $params{sortorder} = $sortorder if defined $sortorder;
+        $params{is_public} = $public if defined $public;
+        $u->edit_trust_group( %params );
+      }
+    }
+  
+    if ( ref $req->{deletetrustgroups} eq 'ARRAY' ) {
+      foreach my $bit ( @{$req->{deletetrustgroups}} ) {
+        $u->delete_trust_group( id => $bit );
+      }
+    }
+
+    if ( ref $req->{setcontentfilters} eq 'HASH' ) {
+      while ( my ( $bit, $group ) = each %{$req->{setcontentfilters} } ) {
+        my $name = $group->{name};
+        my $public = $group->{public};
+        my $sortorder = $group->{sort};
+        my $cf = $u->content_filters( id => $bit );
+        if ( $cf ) {
+          $cf->name( $name )
+            if $name && $name ne $cf->name;
+          $cf->public( $public )
+            if ( defined $public ) && $public ne $cf->public;
+          $cf->sortorder( $sortorder )
+            if ( defined $sortorder ) && $sortorder ne $cf->sortorder;
+        } else {
+          my $fid = $u->create_content_filter( name => $name, public => $public, sortorder => $sortorder );
+          my $added = { 
+                       id => $fid,
+                       name => $name,
+                      };
+          push @{$res->{addedcontentfilters}}, $added;
+        }
+      }
+    }
+  
+    if ( ref $req->{deletecontentfilters} eq 'ARRAY' ) {
+      foreach my $bit ( @{$req->{deletecontentfilters}} ) {
+        $u->delete_content_filter( id => $bit );
+      }
+    }
+
+    if ( ref $req->{add} eq 'ARRAY' ) {
+      foreach my $row ( @{$req->{add}} ) {
+        my $other_user = LJ::load_user( $row->{username} );
+        return fail( $err, 203 ) unless $other_user; 
+        my $other_userid = $other_user->{userid};
+
+        if ( defined ( $row->{groupmask} ) ) {
+          $u->add_edge( $other_userid, trust => {
+                                                 mask => $row->{groupmask},
+                                                 nonotify => 1,
+                                                } );
+        } else {
+          if ( $row->{edge} & 1 ) {
+            $u->add_edge ( $other_userid, trust => { 
+                                                    nonotify => $u->trusts ( $other_userid ) ? 1 : 0,
+                                                   } );
+          } else {
+            $u->remove_edge ( $other_userid, trust => { 
+                                                       nonotify => $u->trusts ( $other_userid ) ? 0 : 1,
+                                                      } );         
+          }
+          if ( $row->{edge} & 2 ) {
+            my $fg = $row->{fgcolor} || "#000000";
+            my $bg = $row->{bgcolor} || "#FFFFFF";
+            $u->add_edge ( $other_userid, watch => {
+                                                    fgcolor => LJ::color_todb( $fg ),
+                                                    bgcolor => LJ::color_todb( $bg ),
+                                                    nonotify => $u->watches ( $other_userid ) ? 1 : 0,
+                                                   } );
+          } else {
+            $u->remove_edge ( $other_userid, watch => { 
+                                                       nonotify => $u->watches ( $other_userid ) ? 0 : 1,
+                                                      } );
+          }
+          if ( $row->{edge} ) {
+            my $myid = $u->userid;
+            my $added = { 
+                         username => $other_user->{user},
+                         fullname => $other_user->{name},
+                         trusted => $u->trusts ( $other_userid ), 
+                         trustedby => $other_user->trusts ( $myid ),
+                         watched => $u->watches ( $other_userid ),
+                         watchedby => $other_user->watches ( $myid )
+                        };
+            push @{$res->{added}}, $added;
+          }
+        }
+      }
+    }
+
+    # if ( ref $req->{delete} eq 'ARRAY' ) {
+    #   foreach my $row ( @{$req->{delete}} ) {
+    #     not implemented yet - maybe unnecessary
+    #   }
+    # }
+
+    if ( ref $req->{addtocontentfilters} eq 'ARRAY' ) {
+      foreach my $row ( @{$req->{addtocontentfilters}} ) {
+        my $other_user = LJ::load_user( $row->{username} );
+        return fail( $err, 203 ) unless $other_user; 
+        my $other_userid = $other_user->{userid};
+        my $cf = $u->content_filters( id => $row->{id} );
+        $cf->add_row( userid => $other_userid ) if $cf;
+      }
+    }
+
+    if ( ref $req->{deletefromcontentfilters} eq 'ARRAY' ) {
+      foreach my $row ( @{$req->{deletefromcontentfilters}} ) {
+        my $other_user = LJ::load_user( $row->{username} ); 
+        return fail( $err, 203 ) unless $other_user; 
+        my $other_userid = $other_user->{userid};
+        my $cf = $u->content_filters( id => $row->{id} );
+        $cf->delete_row( $other_userid ) if $cf;
+      }
+    }
+    return $res;
+}
+
 sub sessionexpire {
     my ($req, $err, $flags) = @_;
     return undef unless authenticate($req, $err, $flags);
@@ -2544,6 +2762,74 @@ sub list_friends
         last if @$res == $limitnum;
     }
     return $res;
+}
+
+sub list_users
+{
+    my ($u, %opts) = @_;
+
+    my %hide;
+    my $list = LJ::load_rel_user( $u, 'B' );
+    $hide{$_} = 1 foreach @{$list||[]};
+
+
+    my $friendof = $opts{trustedby} || $opts{watchedby};
+    my ( $filter,  @userids );
+    if ( $friendof ) {
+      @userids = $opts{trustedby} ? $u->trusted_by_userids : $u->watched_by_userids;
+    } else {
+      $filter = $opts{trusted} ? $u->trust_list : $u->watch_list;
+      @userids = keys %{$filter};
+    }
+  
+    my $limitnum = $opts{limit} + 0;
+    my @res;
+
+    my $us = LJ::load_userids( @userids );
+    while ( my( $userid, $u ) = each %$us ) {
+      next unless LJ::isu( $u );
+      next if $friendof && ! $u->is_visible;
+      next if $hide{$userid};
+    
+      my $r = {
+               username => $u->user,
+               fullname => $u->display_name
+              };
+
+      if ( $u->identity ) {
+        my $i = $u->identity;
+        $r->{identity_type} = $i->pretty_type;
+        $r->{identity_value} = $i->value;
+        $r->{identity_display} = $u->display_name;
+      }
+    
+      if ( $opts{includebdays} ) {
+        $r->{birthday} = $u->bday_string;
+      }
+    
+      unless ( $friendof ) {
+        $r->{fgcolor} = LJ::color_fromdb( $filter->{$userid}->{fgcolor} );
+        $r->{bgcolor} = LJ::color_fromdb( $filter->{$userid}->{bgcolor} );
+        $r->{groupmask} = $filter->{$userid}->{groupmask};
+      }
+    
+      $r->{type} = {
+                    C => 'community',
+                    Y => 'syndicated',
+                    I => 'identity',
+                   }->{$u->journaltype} unless $u->is_person;
+    
+      $r->{status} = {
+                      D => 'deleted',
+                      S => 'suspended',
+                      X => 'purged',
+                     }->{$u->statusvis} unless $u->is_visible;
+    
+      push @res, $r;
+      # won't happen for zero limit (which means no limit)
+      last if scalar @res == $limitnum;
+    }
+    return \@res;
 }
 
 sub syncitems
@@ -2686,13 +2972,13 @@ sub list_friendgroups
 
 #    warn "ljprotocol.pl: list_friendgroups called.\n";
     return [];
+}
 
-# TODO(mark): this needs updating to determine if we should send trust groups?
-#             answer is yes, but we also need to move this to list_trustgroups
-#             so clients don't think those are friend groups.
+sub list_trustgroups
+{
+    my $u = shift;
 
-    # get the groups for this user, return undef if error
-    my $groups = LJ::get_friend_group($u);
+    my $groups = $u->trust_groups;
     return undef unless $groups;
 
     # we got all of the groups, so put them into an arrayref sorted by the
@@ -2705,6 +2991,23 @@ sub list_friendgroups
               values %$groups;
 
     return \@res;
+}
+
+sub list_contentfilters
+{
+    my $u = shift;
+    my @filters = $u->content_filters;
+    return [] unless @filters;
+
+    my @res = map { { id => $_->{id},         name => $_->{name},
+                      public => $_->{public}, sortorder => $_->{sortorder}, 
+                      data => join ( ' ', 
+                                    map { my $uid = $_; 
+                                          LJ::load_userid( $uid )->user } 
+                                    ( keys %{$u->content_filters (id => $_->id )->data} ) ) } }
+       @filters;          
+    
+    return \@res;   
 }
 
 sub list_usejournals {
@@ -2980,6 +3283,9 @@ sub do_request
     if ($req->{'mode'} eq "getfriendgroups") {
         return getfriendgroups($req, $res, $flags);
     }
+    if ($req->{'mode'} eq "gettrustgroups") {
+        return gettrustgroups($req, $res, $flags);
+    }
     if ($req->{'mode'} eq "getfriends") {
         return getfriends($req, $res, $flags);
     }
@@ -3155,6 +3461,26 @@ sub getfriendgroups
     }
     $res->{'success'} = "OK";
     populate_friend_groups($res, $rs->{'friendgroups'});
+
+    return 1;
+}
+
+## flat wrapper
+sub gettrustgroups
+{
+    my ($req, $res, $flags) = @_;
+
+    my $err = 0;
+    my $rq = upgrade_request($req);
+
+    my $rs = LJ::Protocol::do_request('gettrustgroups', $rq, \$err, $flags);
+    unless ($rs) {
+        $res->{success} = "FAIL";
+        $res->{errmsg} = LJ::Protocol::error_message($err);
+        return 0;
+    }
+    $res->{success} = "OK";
+    populate_groups($res, 'tr', $rs->{trustgroups});
 
     return 1;
 }
@@ -3673,6 +3999,22 @@ sub populate_friend_groups
         if ($num > $maxnum) { $maxnum = $num; }
     }
     $res->{'frgrp_maxnum'} = $maxnum;
+}
+
+## given a $res hashref and trust group (arrayref), flattens it
+sub populate_groups
+{
+    my ($res, $pfx, $fr) = @_;
+
+    my $maxnum = 0;
+    foreach my $fg ( @$fr ) {
+        my $num = $fg->{id};
+        $res->{"${pfx}_${num}_name"} = $fg->{name};
+        $res->{"${pfx}_${num}_sortorder"} = $fg->{sortorder};
+        $res->{"${pfx}_${num}_public"} = 1 if $fg->{public};
+        $maxnum = $num if ($num > $maxnum);
+    }
+    $res->{"${pfx}_maxnum"} = $maxnum;
 }
 
 ## given a menu tree, flattens it into $res hashref
