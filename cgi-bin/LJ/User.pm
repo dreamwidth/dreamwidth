@@ -5397,6 +5397,11 @@ sub grant_priv {
 
     return 1 if $u->has_priv( $priv, $arg );
 
+    if ( $arg && $arg ne '*' && $priv !~ /^support/ ) {
+        my $valid_args = LJ::list_valid_args( $priv );
+        return 0 if $valid_args and not $valid_args->{$arg};
+    }
+
     my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
                                        " WHERE privcode = ?", undef, $priv);
     return 0 unless $privid;
