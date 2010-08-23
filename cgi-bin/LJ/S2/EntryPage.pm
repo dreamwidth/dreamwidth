@@ -18,8 +18,6 @@
 use strict;
 package LJ::S2;
 
-use Carp;
-
 # these are needed for S2::PROPS
 use DW;
 use lib DW->home . "/src/s2";
@@ -98,14 +96,12 @@ sub EntryPage
     my $view_num = ($view_arg =~ /(\d+)/) ? $1 : undef;
 
     my %userpic;
-    my %user;
     my $copts = {
         'flat' => $flat_mode,
         'thread' => ($get->{'thread'} >> 8),
         'page' => $get->{'page'},
         'view' => $view_num,
         'userpicref' => \%userpic,
-        'userref' => \%user,
         # user object is cached from call just made in EntryPage_entry
         'up' => LJ::load_user($s2entry->{'poster'}->{'user'}),
         'viewall' => $viewall,
@@ -131,8 +127,7 @@ sub EntryPage
         my ($self, $destlist, $srclist, $depth) = @_;
 
         foreach my $com (@$srclist) {
-            my $pu = $com->{'posterid'} ? $user{$com->{'posterid'}} : undef;
-
+            my $pu = $com->{upost};
             my $dtalkid = $com->{'talkid'} * 256 + $entry->anum;
             my $text = LJ::CleanHTML::quote_html( $com->{body}, $get->{nohtml} );
 
@@ -206,18 +201,14 @@ sub EntryPage
                 if ($pu) {
                     $poster = UserLite($pu);
                 } else {
-                    # I can't determine where this code is called, if it ever is?  so for now,
-                    # let's spit out a backtrace so we can figure out how this case happens.  we need
-                    # to fix it since the journal_type is wrong in some cases.
-                    # FIXME: watch logs
-                    Carp::cluck "LJ::S2::EntryPage faked a UserLite; userpost=$com->{userpost}:";
-                    
+                    # posterid is invalid userid
+                    # we don't have the info, so fake a UserLite
                     $poster = {
-                        '_type' => 'UserLite',
-                        'username' => $com->{'userpost'},
-                        'user' => $com->{'userpost'},
-                        'name' => $com->{'userpost'},  # we don't have this, so fake it
-                        'journal_type' => 'P',         # fake too, but only people can post, so correct
+                        _type => 'UserLite',
+                        username => undef,
+                        user => undef,
+                        name => undef,
+                        journal_type => 'P',  # best guess
                     };
                 }
             }
