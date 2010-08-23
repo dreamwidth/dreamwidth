@@ -1801,8 +1801,6 @@ If you did not change your username, it means that your journal's security was c
 This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters.
 .
 
-esn.someone_must_unscreen=Someone else must unscreen it before you can reply to it.
-
 esn.supofficialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
 
 esn.supofficialpost.nosubject=[[sitenameshort]] Announcement: New [[username]] announcement

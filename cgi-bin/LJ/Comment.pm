@@ -1134,7 +1134,6 @@ my @_ml_strings_en = (
 
     'esn.screened',                                                              # 'This comment was screened.',
     'esn.you_must_unscreen',                                                     # 'You must respond to it or unscreen it before others can see it.',
-    'esn.someone_must_unscreen',                                                 # 'Someone else must unscreen it before you can reply to it.',
     'esn.here_you_can',                                                          # 'From here, you can:',
 
     'esn.view_thread',                                                           # '[[openlink]]View the thread[[closelink]] starting from this comment',
@@ -1480,9 +1479,10 @@ sub _format_mail_both {
                                               $posteru ? $posteru->{user} : undef);
 
     if ($self->is_screened) {
-        $body .= LJ::Lang::get_text($lang, 'esn.screened', undef) .
-            LJ::Lang::get_text($lang, $can_unscreen ? 'esn.you_must_unscreen' : 'esn.someone_must_unscreen', undef) .
-            "\n";
+        $body .= LJ::Lang::get_text( $lang, 'esn.screened', undef ) . " ";
+        $body .= LJ::Lang::get_text( $lang, 'esn.you_must_unscreen', undef )
+            if $can_unscreen;
+        $body .= "\n";
     }
 
     $body .= LJ::Lang::get_text($lang, 'esn.here_you_can', undef, $vars);
