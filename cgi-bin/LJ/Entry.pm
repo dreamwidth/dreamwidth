@@ -2150,11 +2150,12 @@ sub item_link
 {
     my ($u, $itemid, $anum, @args) = @_;
     my $ditemid = $itemid*256 + $anum;
+    $u = LJ::load_user( $u ) unless LJ::isu( $u );
 
     # XXX: should have an option of returning a url with escaped (&amp;)
     #      or non-escaped (&) arguments.  a new link object would be best.
     my $args = @args ? "?" . join("&amp;", @args) : "";
-    return LJ::journal_base( $u ) . "/$ditemid.html$args";
+    return $u->journal_base . "/$ditemid.html$args";
 }
 
 # <LJFUNC>

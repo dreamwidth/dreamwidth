@@ -218,21 +218,23 @@ _c?>
              { security => $securities, filter => $filter });
      return $dberr->() unless defined $memoryhash;
      my @memories = $sortfunc{$sort}->( values %$memoryhash );
+     my $mem_us = LJ::load_userids( map { $_->{journalid} } @memories );
 
      $body .= "<form method='post' action='./memories?user=$user$authasarge'>\n" . LJ::form_auth()
          if $is_owner && $GET{multidelete};
      $body .= "<ul>\n";
      foreach my $mem (@memories) {
-         my $user = $mem->{user};
+         my $memuser = $mem->{user};
+         my $mem_u = $mem_us->{ $mem->{journalid} };
          my $eh_des = LJ::ehtml($mem->{'des'});
          LJ::text_out(\$eh_des);
 
          my ($entrylink, $editlink);
-         if ($user) {
-             my $itemid = int($mem->{'ditemid'} / 256);
-             my $anum = $mem->{'ditemid'} % 256;
-             $entrylink = LJ::item_link($user, $itemid, $anum);
-             $editlink = "/tools/memadd?journal=$user&amp;itemid=$mem->{ditemid}$authasarge";
+         if ( $memuser && $mem_u ) {
+             my $itemid = int( $mem->{ditemid} / 256 );
+             my $anum = $mem->{ditemid} % 256;
+             $entrylink = LJ::item_link( $mem_u, $itemid, $anum );
+             $editlink = "/tools/memadd?journal=$memuser&amp;itemid=$mem->{ditemid}$authasarge";
          } else {
              $entrylink = "/talkread?itemid=$mem->{ditemid}";
              $editlink = "/tools/memadd?itemid=$mem->{ditemid}$authasarge";
@@ -246,11 +248,11 @@ _c?>
                  if $GET{multidelete};
          }
 
-         my %icons = (
-            'friends' => "<?securityprotected?>",
-            'private' => "<?securityprivate?>",
-         );
-         $body .= "<p><li>$delete <a href=\"$entrylink\"><b>$eh_des</b></a> $edit $icons{$mem->{security}}<br /><font size='-1'><b>$user</b></font></li>";
+         my $icon = {
+                      friends => "<?securityprotected?>",
+                      private => "<?securityprivate?>",
+                    }->{ $mem->{security} } || '';
+         $body .= "<p><li>$delete <a href=\"$entrylink\"><b>$eh_des</b></a> $edit $icon<br /><font size='-1'><b>$memuser</b></font></li>";
      }
      $body .= "</ul>";
      if ($is_owner && $GET{multidelete}) {
