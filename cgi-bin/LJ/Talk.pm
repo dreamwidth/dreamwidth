@@ -3632,7 +3632,11 @@ sub make_preview {
     my $spellcheck_html;
     # clean first; if the cleaner finds it invalid, don't spellcheck, so that we
     # can show the user the error.
-    my $cleanok = LJ::CleanHTML::clean_comment(\$event, $form->{'prop_opt_preformatted'});
+    my $remote = LJ::get_remote();
+    my $u = LJ::load_user( $form->{journal} );
+    my $cleanok = LJ::CleanHTML::clean_comment( \$event,
+                  { anon_comment => LJ::Talk::treat_as_anon( $remote, $u ),
+                    preformatted => $form->{prop_opt_preformatted} } );
     if (defined($cleanok) && $LJ::SPELLER && $form->{'do_spellcheck'}) {
         my $s = new LJ::SpellCheck { 'spellcommand' => $LJ::SPELLER,
                                      'color' => '<?hotcolor?>', };
