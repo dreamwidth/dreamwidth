@@ -673,6 +673,7 @@ sub get_preview_styleid {
         layout => $self->layoutid,
         i18n   => $i18n_layer,
         theme  => $self->themeid,
+        user   => 0,
     );
     LJ::S2::set_style_layers($u, $styleid, %layers);
 
