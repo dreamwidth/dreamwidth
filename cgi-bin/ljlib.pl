@@ -2483,7 +2483,7 @@ sub list_valid_args {
         support_email => "Can ban support requests from emails",
         support_uniq  => "Can ban support requests from sessions",
         support_user  => "Can ban support requests from users",
-        talk_ip_test  => "Can ban IPs from leaving comments",
+        talk_ip_test  => "Can force IPs to complete CAPTCHA to leave comments",
         uniq          => "Can ban specific browser sessions",
         user          => "Can ban specific users",
     } if $priv eq 'sysban';
