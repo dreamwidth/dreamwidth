@@ -3073,7 +3073,10 @@ function UserLite::print()
 function UserLite::print_interaction_links()
 "This function prints the \"subscribe to journal, add user to access list, post to community, track journal, etc, etc\" items, and wraps them in a standarized class."
 {
-    """<ul class="userlite-interaction-links">""";
+
+    var string display_type = ($*userlite_interaction_links == "text") ? " text-links" : " icon-links";
+
+    """<ul class="userlite-interaction-links$display_type">""";
     # FIXME: HTML is not valid if there are no items inside a list, so there should be a
     # check that there are user interaction links before opening the ul class.
     var Link link;
@@ -4515,9 +4518,12 @@ function EntryLite::print_management_links() {}
 function Comment::print_management_links()
 "Prints comment management links, aka delete/screen/freeze/track."
 {
+
+    var string display_type = ($*comment_management_links == "text") ? " text-links" : " icon-links";
+
     # FIXME: HTML is not valid if there are no items inside a list, so there should
     # be a check that there are comment management links before opening the ul class.
-    """<ul class="comment-management-links">""";
+    """<ul class="comment-management-links$display_type">""";
     var Link link;
     var int count;
     var string extras;
@@ -4592,11 +4598,13 @@ function Entry::print_management_links()
     ## There's no point in showing previous/next links on pages which show
     ## multiple entries anyway, so we only print them on EntryPage and ReplyPage.
 
+    var string display_type = ($*entry_management_links == "text") ? " text-links" : " icon-links";
+
     var Page p = get_page();
     var int count;
     var string extras;
     $count = 0;
-    """<ul class="entry-management-links">""";
+    """<ul class="entry-management-links$display_type">""";
     var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
     if ($show_interentry) {
         $count ++;

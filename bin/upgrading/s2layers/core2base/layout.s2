@@ -678,14 +678,20 @@ table.month td p {
 .module-user-links .module-content {
     text-align: center;
 }
-ul.userlite-interaction-links {
+
+ul.userlite-interaction-links.icon-links {
     list-style: none;
     margin-left: 0;
     padding-left: 0;
 }
-ul.userlite-interaction-links li {
+
+ul.userlite-interaction-links.icon-links li {
     display: inline;
     padding: 0 .20em;
+}
+
+ul.userlite-interaction-links.text-links {
+    text-align: left;
 }
 
 .module-calendar .module-content {

@@ -467,7 +467,7 @@ div h2.module-header {
 }
 
 /* special case for the profile module, make user interaction links properly space and align */
-.module-userprofile .userlite-interaction-links {
+.module-userprofile .userlite-interaction-links.icon-links {
     margin-top: 1em;
     margin-left: 0em;
 }

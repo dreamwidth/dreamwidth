@@ -472,6 +472,15 @@ function Page::print_default_stylesheet()
         padding-right: 5px;
     }
 
+    .userlite-interaction-links.icon-links {
+        padding: 0;
+        text-align: center;
+        }
+
+    .userlite-interaction-links.icon-links li {
+        display: inline;
+        }
+
     #secondary .manage-tags-link {
         font-size: 0.8em;
         margin-bottom: 1em;
