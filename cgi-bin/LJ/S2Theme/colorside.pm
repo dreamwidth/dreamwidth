@@ -6,6 +6,16 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
+package LJ::S2Theme::colorside::bedrock;
+use base qw( LJ::S2Theme::colorside );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
+package LJ::S2Theme::colorside::colorblockade;
+use base qw( LJ::S2Theme::colorside );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
 package LJ::S2Theme::colorside::lightondark;
 use base qw( LJ::S2Theme::colorside );
 sub cats { qw() }
@@ -15,5 +25,10 @@ package LJ::S2Theme::colorside::nnwm2009;
 use base qw( LJ::S2Theme::colorside );
 sub cats { qw() }
 sub designer { "zvi" }
+
+package LJ::S2Theme::colorside::scatteredfields;
+use base qw( LJ::S2Theme::colorside );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
 
 1;

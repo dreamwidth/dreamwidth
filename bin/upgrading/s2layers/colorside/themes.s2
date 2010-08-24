@@ -1,3 +1,156 @@
+#NEWLAYER: colorside/bedrock
+layerinfo type = "theme";
+layerinfo name = "Bedrock";
+layerinfo redist_uniq = "colorside/bedrock";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d9c7b9";
+set color_page_border = "#a48d7b";
+set color_page_link = "#998373";
+set color_page_text = "#3E342E";
+set color_page_title = "#79665b";
+set color_header_background = "#eae1da";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f5f0ed";
+set color_entry_title = "#998373";
+set color_entry_title_background = "#eae1da";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f5f0ed";
+set color_module_title = "#998373";
+set color_module_title_background = "#eae1da";
+
+function Page::print_theme_stylesheet () {
+    """
+    #header,
+    #title, #subtitle, #pagetitle,
+    .entry-content,
+    .module-header {
+        padding: 5px;
+        }
+
+    #title, #subtitle, #pagetitle {
+        margin-bottom: -5px;
+        }
+
+    .entry .poster,
+    .entry .metadata {
+        padding: 0 5px;
+        }
+
+    .entry-title a {
+        color: $*color_entry_title;
+        }
+
+    .module-header a {
+        color: $*color_module_title;
+        }
+    """;
+}
+
+
+#NEWLAYER: colorside/colorblockade
+layerinfo type = "theme";
+layerinfo name = "Color Blockade";
+layerinfo redist_uniq = "colorside/colorblockade";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fafbec";
+set color_page_border = "#f6f7e8";
+set color_page_link = "#e86197";
+set color_page_link_active = "#e86197";
+set color_page_link_hover = "#afe0d0";
+set color_page_link_visited = "#e86197";
+set color_page_text = "#ac9797";
+set color_header_background = "#fefff0";
+set color_footer_background = "fefff0";
+set color_footer_link = "#8db4a4";
+set color_footer_link_active = "#8db4a4";
+set color_footer_link_hover = "#e86197";
+set color_footer_link_visited = "#8db4a4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fefff0";
+set color_entry_interaction_links = "#8db4a4";
+set color_entry_link = "#e86197";
+set color_entry_link_active = "#e86197";
+set color_entry_link_hover = "#8db4a4";
+set color_entry_link_visited = "#e86197";
+set color_entry_title = "#fefff0";
+set color_entry_title_background = "#afe0d0";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fefff0";
+set color_module_link = "#8db4a4";
+set color_module_link_active = "#8db4a4";
+set color_module_link_hover = "#e86197";
+set color_module_link_visited = "#8db4a4";
+set color_module_title = "#fefff0";
+set color_module_title_background = "#e86197";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Tahoma";
+set font_entry_title = "Tahoma";
+set font_journal_title = "Tahoma";
+set font_module_heading = "Tahoma";
+
+function Page::print_theme_stylesheet () {
+    """
+    #header,
+    #title, #subtitle, #pagetitle,
+    .entry-content,
+    .module-header {
+        padding: 5px;
+        }
+
+    #title, #subtitle, #pagetitle {
+        margin-bottom: -5px;
+        }
+
+    .entry .poster,
+    .entry .metadata {
+        padding: 0 5px;
+        }
+
+    .entry-title a {
+        color: $*color_entry_title;
+        }
+
+    .module-header a {
+        color: $*color_module_title;
+        }
+    """;
+}
+
+
 #NEWLAYER: colorside/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light on Dark";
@@ -71,3 +224,80 @@ function Page::print_theme_stylesheet () {
 """
 #title, #pagetitle { padding-left: 5px; }
 """ ;}
+
+
+#NEWLAYER: colorside/scatteredfields
+layerinfo type = "theme";
+layerinfo name = "Scattered Fields";
+layerinfo redist_uniq = "colorside/scatteredfields";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffffff";
+set color_page_border = "#d8d8a8";
+set color_page_link = "#d92300";
+set color_page_link_active = "#d92300";
+set color_page_link_hover = "#ed2800";
+set color_page_link_visited = "#d92300";
+set color_page_text = "#301818";
+set color_page_title = "#9D9C7A";
+set color_header_background = "#f7f7de";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f7f7de";
+set color_entry_text = "#301818";
+set color_entry_title_background = "#d8d8a8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7f7de";
+set color_module_text = "#301818";
+set color_module_title = "#d92300";
+set color_module_title_background = "#d8d8a8";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS, Helvetica";
+set font_entry_title = "Trebuchet MS, Helvetica";
+set font_journal_title = "Trebuchet MS, Helvetica";
+set font_module_heading = "Trebuchet MS, Helvetica";
+
+function Page::print_theme_stylesheet () {
+    """
+    #header,
+    #title, #subtitle, #pagetitle,
+    .entry-content,
+    .module-header {
+        padding: 5px;
+        }
+
+    #title, #subtitle, #pagetitle {
+        margin-bottom: -5px;
+        }
+
+    .entry .poster,
+    .entry .metadata {
+        padding: 0 5px;
+        }
+
+    .entry-title a {
+        color: $*color_entry_title;
+        }
+
+    .module-header a {
+        color: $*color_module_title;
+        }
+    """;
+}
