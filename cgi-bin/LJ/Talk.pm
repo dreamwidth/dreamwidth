@@ -3658,10 +3658,18 @@ sub make_preview {
     # actually composing a comment includes it.  It is then put into this
     # form about 20 lines below: foreach (keys %$form).
     $ret .= "<div style='width: 90%'><form method='post'><p>\n";
+    $ret .= "<label for='subject'>$BML::ML{'/talkpost_do.bml.preview.edit.subject'}</label>";
     $ret .= "<input name='subject' size='50' maxlength='100' value='" . LJ::ehtml($form->{'subject'}) . "' /><br />";
+    $ret .= "<label for='body'>$BML::ML{'/talkpost_do.bml.preview.edit.body'}</label>";
     $ret .= "<textarea class='textbox' rows='10' cols='50' wrap='soft' name='body' style='width: 100%'>";
     $ret .= LJ::ehtml($form->{'body'});
     $ret .= "</textarea></p>";
+
+    # editreason
+    if ( $form->{edit} or $form->{editid} ) {
+        $ret .= "<label for='editreason'>$BML::ML{'/talkpost_do.bml.preview.edit.editreason'}</label>";
+        $ret .= "<input name='editreason' size='75' maxlength='255' value='" . LJ::ehtml( $form->{editreason} ) . "' />";
+    }
 
     # change mode:
     delete $form->{'submitpreview'}; $form->{'submitpost'} = 1;
@@ -3672,7 +3680,7 @@ sub make_preview {
     delete $form->{'do_spellcheck'};
     foreach (keys %$form) {
         $ret .= LJ::html_hidden($_, $form->{$_})
-            unless $_ eq 'body' || $_ eq 'subject' || $_ eq 'prop_opt_preformatted';
+            unless $_ eq 'body' || $_ eq 'subject' || $_ eq 'prop_opt_preformatted' || $_ eq 'editreason';
     }
 
     $ret .= "<br /><input type='submit' value='$BML::ML{'/talkpost_do.bml.preview.submit'}' />\n";
