@@ -20,6 +20,16 @@ use base qw( LJ::S2Theme::nouveauoleanders );
 sub cats { qw() }
 sub designer { "dancing_serpent" }
 
+package LJ::S2Theme::nouveauoleanders::palejewels;
+use base qw( LJ::S2Theme::nouveauoleanders );
+sub cats { qw() }
+sub designer { "dancing_serpent" }
+
+package LJ::S2Theme::nouveauoleanders::peridot;
+use base qw( LJ::S2Theme::nouveauoleanders );
+sub cats { qw() }
+sub designer { "dancing_serpent" }
+
 package LJ::S2Theme::nouveauoleanders::piquant;
 use base qw( LJ::S2Theme::nouveauoleanders );
 sub cats { qw() }
@@ -31,6 +41,11 @@ sub cats { qw() }
 package LJ::S2Theme::nouveauoleanders::sienna;
 use base qw( LJ::S2Theme::nouveauoleanders );
 sub cats { qw() }
+
+package LJ::S2Theme::nouveauoleanders::tearose;
+use base qw( LJ::S2Theme::nouveauoleanders );
+sub cats { qw() }
+sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::nouveauoleanders::wisteria;
 use base qw( LJ::S2Theme::nouveauoleanders );

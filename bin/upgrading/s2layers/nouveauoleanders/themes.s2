@@ -160,6 +160,124 @@ set color_module_text = "#cc8833";
 set color_module_title = "#cc8833";
 
 
+#NEWLAYER: nouveauoleanders/palejewels
+layerinfo "type" = "theme";
+layerinfo "name" = "Pale Jewels";
+layerinfo author_name = "dancing_serpent";
+layerinfo redist_uniq = "nouveauoleanders/palejewels";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e9faee";
+set color_page_link = "#886c9d";
+set color_page_link_active = "#ff9966";
+set color_page_link_hover = "#ff9966";
+set color_page_link_visited = "#886c9d";
+set color_page_text = "#363636";
+set color_page_title = "#e9faee";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#363636";
+set color_footer_background = "#363636";
+set color_footer_link = "#ad5176";
+set color_footer_link_active = "#ff9966";
+set color_footer_link_hover = "#ff9966";
+set color_footer_link_visited = "#ad5176";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e9faee";
+set color_entry_link = "#886c9d";
+set color_entry_link_active = "#ff9966";
+set color_entry_link_hover = "#ff9966";
+set color_entry_link_visited = "#886c9d";
+set color_entry_text = "#363636";
+set color_entry_title = "#363636";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#a3a68a";
+set color_module_link = "#ad5176";
+set color_module_link_active = "#ff9966";
+set color_module_link_hover = "#ff9966";
+set color_module_link_visited = "#ad5176";
+set color_module_text = "#363636";
+set color_module_title = "#e9faee";
+set color_module_title_background = "#363636";
+
+
+#NEWLAYER: nouveauoleanders/peridot
+layerinfo "type" = "theme";
+layerinfo "name" = "Peridot";
+layerinfo author_name = "dancing_serpent";
+layerinfo redist_uniq = "nouveauoleanders/peridot";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e5f3c7";
+set color_page_link = "#67792a";
+set color_page_link_active = "#ff8e3c";
+set color_page_link_hover = "#ff8e3c";
+set color_page_link_visited = "#67792a";
+set color_page_text = "#000000";
+set color_page_title = "#e5f3c7";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#000000";
+set color_footer_background = "#000000";
+set color_footer_link = "#8ca53a";
+set color_footer_link_active = "#ff8e3c";
+set color_footer_link_hover = "#ff8e3c";
+set color_footer_link_visited = "#8ca53a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e5f3c7";
+set color_entry_link = "#67792a";
+set color_entry_link_active = "#ff8e3c";
+set color_entry_link_hover = "#ff8e3c";
+set color_entry_link_visited = "#67792a";
+set color_entry_text = "#000000";
+set color_entry_title = "#000000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#8ca53a";
+set color_module_link = "#e5f3c7";
+set color_module_link_active = "#ff8e3c";
+set color_module_link_hover = "#ff8e3c";
+set color_module_link_visited = "#e5f3c7";
+set color_module_text = "#000000";
+set color_module_title = "#e5f3c7";
+set color_module_title_background = "#000000";
+
+
 #NEWLAYER: nouveauoleanders/piquant
 layerinfo "type" = "theme";
 layerinfo "name" = "Piquant";
@@ -312,6 +430,65 @@ set color_module_link_hover = "";
 set color_module_link_active = "#900";
 set color_module_title = "#fff";
 set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/tearose
+layerinfo "type" = "theme";
+layerinfo "name" = "Tea Rose";
+layerinfo author_name = "dancing_serpent";
+layerinfo redist_uniq = "nouveauoleanders/tearose";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e3d7db";
+set color_page_link = "#64434b";
+set color_page_link_active = "#b18698";
+set color_page_link_hover = "#b18698";
+set color_page_link_visited = "#64434b";
+set color_page_text = "#000000";
+set color_page_title = "#e3d7db";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#000000";
+set color_footer_background = "#000000";
+set color_footer_link = "#64434b";
+set color_footer_link_active = "#b18698";
+set color_footer_link_hover = "#b18698";
+set color_footer_link_visited = "#64434b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e3d7db";
+set color_entry_link = "#64434b";
+set color_entry_link_active = "#b18698";
+set color_entry_link_hover = "#b18698";
+set color_entry_link_visited = "#64434b";
+set color_entry_text = "#000000";
+set color_entry_title = "#000000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#64434b";
+set color_module_link = "#e3d7db";
+set color_module_link_active = "#b18698";
+set color_module_link_hover = "#b18698";
+set color_module_link_visited = "#e3d7db";
+set color_module_text = "#000000";
+set color_module_title = "#e3d7db";
+set color_module_title_background = "#000000";
 
 
 #NEWLAYER: nouveauoleanders/wisteria
