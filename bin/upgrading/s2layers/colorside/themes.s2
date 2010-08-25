@@ -159,40 +159,55 @@ layerinfo author_name = "cesy";
 
 set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
 
-set color_footer_link_hover = "#ccffcc";
-set color_page_link_active = "#ffcccc";
-set color_page_link = "#ddddff";
-set color_module_link_hover = "#ccffcc";
-set color_module_background = "#000000";
-set color_entry_border = "#ffffff";
-set color_entry_text = "#ffffff";
-set color_module_title = "#ffffff";
-set color_page_text = "#ffffff";
-set color_footer_background = "#666666";
-set color_header_background = "#666666";
-set color_page_border = "#999999";
-set color_entry_interaction_links = "#ffffff";
-set color_comment_title_background = "#000000";
-set color_page_background = "#000000";
-set color_module_title_background = "#666666";
-set color_entry_link_hover = "#ccffcc";
-set color_page_title = "#ffffff";
-set color_footer_link_active = "#ffcccc";
-set color_footer_link_visited = "#ffffcc";
-set color_module_border = "#ffffff";
-set color_entry_link = "#ddddff";
-set color_module_link = "#ddddff";
-set color_entry_link_visited = "#ffffcc";
-set color_module_link_visited = "#ffffcc";
-set color_entry_title = "#ffffff";
-set color_page_link_visited = "#ffffcc";
-set color_entry_title_background = "#000000";
-set color_page_link_hover = "#ccffcc";
-set color_entry_link_active = "#ffcccc";
-set color_module_link_active = "#ffcccc";
-set color_module_text = "#ffffff";
-set color_entry_background = "#000000";
-set color_footer_link = "#ddddff";
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#999";
+set color_page_link = "#ddf";
+set color_page_link_active = "#fcc";
+set color_page_link_hover = "#cfc";
+set color_page_link_visited = "#ffc";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#666";
+set color_footer_background = "#666";
+set color_footer_link = "#ddf";
+set color_footer_link_active = "#fcc";
+set color_footer_link_hover = "#cfc";
+set color_footer_link_visited = "#ffc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#fff";
+set color_entry_interaction_links = "#fff";
+set color_entry_link = "#ddf";
+set color_entry_link_active = "#fcc";
+set color_entry_link_hover = "#cfc";
+set color_entry_link_visited = "#ffc";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#000";
+set color_comment_title_background = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#000";
+set color_module_border = "#fff";
+set color_module_link = "#ddf";
+set color_module_link_active = "#fcc";
+set color_module_link_hover = "#cfc";
+set color_module_link_visited = "#ffc";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#666";
+
 
 #NEWLAYER: colorside/nnwm2009
 layerinfo type = "theme";
@@ -202,28 +217,37 @@ layerinfo author_name = "zvi";
 
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_footer_background = "#ffefbd";
-set color_footer_link = "#ef8229";
+##===============================
+## Page Colors
+##===============================
 
-set color_header_background = "#ffefbd";
-
-set color_module_background = "#ffefbd";
-set color_module_text="#000000";
-set color_module_title = "#ef8229";
-
-set color_page_background = "#000000";
+set color_page_background = "#000";
 set color_page_border = "#842021";
 set color_page_link = "#429ace";
 set color_page_link_active = "#A5CF39";
 set color_page_link_hover = "#842021";
 set color_page_link_visited = "#ef4921";
-set color_page_text = "#ffffff";
+set color_page_text = "#fff";
 set color_page_title = "#ef8229";
+set color_header_background = "#ffefbd";
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffefbd";
+set color_module_text="#000";
+set color_module_title = "#ef8229";
 
 function Page::print_theme_stylesheet () {
-"""
-#title, #pagetitle { padding-left: 5px; }
-""" ;}
+    """
+    #title, #pagetitle {
+        padding-left: 5px;
+        }
+    """;
+}
 
 
 #NEWLAYER: colorside/scatteredfields
@@ -238,7 +262,7 @@ set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 ## Page Colors
 ##===============================
 
-set color_page_background = "#ffffff";
+set color_page_background = "#fff";
 set color_page_border = "#d8d8a8";
 set color_page_link = "#d92300";
 set color_page_link_active = "#d92300";

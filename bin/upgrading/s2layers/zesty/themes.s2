@@ -1,5 +1,4 @@
 #NEWLAYER: zesty/white
 layerinfo type = "theme";
-layerinfo name = "Zesty White";
+layerinfo name = "White";
 layerinfo redist_uniq = "zesty/white";
-

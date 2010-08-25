@@ -1,172 +1,261 @@
 #NEWLAYER: easyread/clovers
-layerinfo "type" = "theme";
-layerinfo "name" = "Clovers!";
+layerinfo type = "theme";
+layerinfo name = "Clovers!";
 layerinfo redist_uniq = "easyread/clovers";
 layerinfo author_name = "zvi";
+
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_page_link_visited = "#6B8E23";
-set color_page_link_active = "#FFD700";
+##===============================
+## Page Colors
+##===============================
+
 set color_page_background = "#FFD700";
-set color_header_background = "#6B8E23";
 set color_page_link = "#FF8C00";
+set color_page_link_active = "#FFD700";
+set color_page_link_visited = "#6B8E23";
 set color_page_title = "#FF8C00";
-set color_entry_text = "#000000";
-set color_entry_background = "#ffffff";
+set color_header_background = "#6B8E23";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_text = "#000";
+set color_entry_background = "#fff";
 
 
 #NEWLAYER: easyread/green
-layerinfo "type" = "theme";
-layerinfo "name" = "Green";
+layerinfo type = "theme";
+layerinfo name = "Green";
 layerinfo redist_uniq = "easyread/green";
 layerinfo author_name = "Ricky Buchanan";
 layerinfo author_email = "ricky@notdoneliving.net";
 
+##===============================
+## Page Colors
+##===============================
+
 set color_page_background = "#bdedc3";
-set color_page_text = "#000000";
 set color_page_link = "#0b5606";
 set color_page_link_active = "#f8100f";
 set color_page_link_visited = "#062f03";
-set color_entry_background = "#bdedc3";
-set color_entry_text = "#000000";
-set color_header_background = "#117f09";
+set color_page_text = "#000";
 set color_page_title = "#fff";
+set color_header_background = "#117f09";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#bdedc3";
+set color_entry_text = "#000";
 
 
 #NEWLAYER: easyread/hcblack
-layerinfo "type" = "theme";
-layerinfo "name" = "High Contrast Black";
+layerinfo type = "theme";
+layerinfo name = "High Contrast Black";
 layerinfo redist_uniq = "easyread/hcblack";
 layerinfo author_name = "zvi";
+
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_page_link_visited = "#FF00FF";
-set color_page_link_active = "#ff0000";
-set color_page_background = "#000000";
-set color_header_background = "#000000";
-set color_page_link = "#ffff00";
-set color_page_title = "#ffffff";
-set color_entry_text = "#ffffff";
-set color_page_text = "#ffffff";
-set color_entry_background = "#000000";
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#ff0";
+set color_page_link_active = "#f00";
+set color_page_link_visited = "#f0f";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_text = "#fff";
 
 
 #NEWLAYER: easyread/hcblackandyellow
-layerinfo "type" = "theme";
-layerinfo "name" = "High Contrast Black and Yellow";
+layerinfo type = "theme";
+layerinfo name = "High Contrast Black and Yellow";
 layerinfo redist_uniq = "easyread/hcblackandyellow";
 layerinfo author_name = "zvi";
+
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_page_link_visited = "#aaff00";
-set color_page_link_active = "#fffbe6";
-set color_page_background = "#000000";
-set color_header_background = "#000000";
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
 set color_page_link = "#D280FF";
-set color_page_title = "#ffff00";
-set color_entry_text = "#ffff00";
-set color_page_text = "#ffff00";
-set color_entry_background = "#000000";
+set color_page_link_active = "#fffbe6";
+set color_page_link_visited = "#af0";
+set color_page_text = "#ff0";
+set color_page_title = "#ff0";
+set color_header_background = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_text = "#ff0";
 
 
 #NEWLAYER: easyread/hcblueyellow
-layerinfo "type" = "theme";
-layerinfo "name" = "High Contrast Blue and Yellow";
+layerinfo type = "theme";
+layerinfo name = "High Contrast Blue and Yellow";
 layerinfo redist_uniq = "easyread/hcblueyellow";
 layerinfo author_name = "zvi";
+
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
+##===============================
+## Page Colors
+##===============================
+
 set color_page_background = "#3D00FF";
-set color_page_link_active = "#FFAA00";
-set color_page_link = "#ffffff";
-set color_entry_text = "#FFFF00";
-set color_page_text = "#FFFF00";
-set color_page_link_visited = "#FFFF00";
+set color_page_link = "#fff";
+set color_page_link_active = "#fa0";
+set color_page_link_visited = "#ff0";
+set color_page_text = "#ff0";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_text = "#ff0";
 
 
 #NEWLAYER: easyread/hcwhite
-layerinfo "type" = "theme";
-layerinfo "name" = "High Contrast White";
+layerinfo type = "theme";
+layerinfo name = "High Contrast White";
 layerinfo redist_uniq = "easyread/hcwhite";
 layerinfo author_name = "zvi";
+
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_page_link_visited = "#FF0000";
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_link = "#00f";
 set color_page_link_active = "#800080";
-set color_page_background = "#ffffff";
-set color_header_background = "#ffffff";
-set color_page_link = "#0000FF";
-set color_page_title = "#000000";
-set color_entry_text = "#000000";
-set color_page_text = "#000000";
-set color_entry_background = "#ffffff";
+set color_page_link_visited = "#f00";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
 
 
 #NEWLAYER: easyread/lcorange
-layerinfo "type" = "theme";
-layerinfo "name" = "Low Contrast Orange";
+layerinfo type = "theme";
+layerinfo name = "Low Contrast Orange";
 layerinfo redist_uniq = "easyread/lcorange";
 layerinfo author_name = "zvi";
+
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_page_link_visited = "#357381";
-set color_page_link_active = "#000000";
+##===============================
+## Page Colors
+##===============================
+
 set color_page_background = "#d19152";
-set color_header_background = "#d19152";
 set color_page_link = "#ff8f1f";
-set color_page_title = "#ffefa6";
-set color_entry_text = "#d19152";
+set color_page_link_active = "#000";
+set color_page_link_visited = "#357381";
 set color_page_text = "#ffefa6";
+set color_page_title = "#ffefa6";
+set color_header_background = "#d19152";
+
+##===============================
+## Entry Colors
+##===============================
+
 set color_entry_background = "#ffefa6";
+set color_entry_text = "#d19152";
 
 
-#NEWLAYER: easyread/nnwm2009    
-layerinfo "type" = "theme"; 
-layerinfo "name" = "NNWM 2009";
+#NEWLAYER: easyread/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "easyread/nnwm2009";
 layerinfo author_name = "zvi";
+
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_footer_background = "#ffefbd";
-set color_footer_link = "#ef8229";
+##===============================
+## Page Colors
+##===============================
 
-set color_header_background = "#ffefbd";
-
-set color_module_background = "#ffefbd"; 
-set color_module_text="#000000";
-set color_module_title = "#ef8229";
-
-set color_page_background = "#000000";
+set color_page_background = "#000";
 set color_page_border = "#842021";
 set color_page_link = "#429ace";
 set color_page_link_active = "#A5CF39";
-set color_page_link_hover = "#842021";  
+set color_page_link_hover = "#842021";
 set color_page_link_visited = "#ef4921";
-set color_page_text = "#ffffff"; 
+set color_page_text = "#fff";
 set color_page_title = "#ef8229";
+set color_header_background = "#ffefbd";
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffefbd";
+set color_module_text="#000";
+set color_module_title = "#ef8229";
 
 function print_stylesheet () {
-"""
-#tertiary { color: $*color_module_text;
-    background-color: $*color_module_background; }
-.module-header { color $*color_module_title; }
-"""
-;}
+    """
+    #tertiary {
+        color: $*color_module_text;
+        background-color: $*color_module_background;
+        }
+
+    .module-header { color $*color_module_title; }
+    """;
+    }
 
 
 #NEWLAYER: easyread/toros
-layerinfo "type" = "theme";
-layerinfo "name" = "Toros!";
+layerinfo type = "theme";
+layerinfo name = "Toros!";
 layerinfo redist_uniq = "easyread/toros";
 layerinfo author_name = "zvi";
+
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_page_link_visited = "#000000";
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#f00";
 set color_page_link_active = "#FF7400";
-set color_page_background = "#000000";
-set color_header_background = "#ff0000";
-set color_page_link = "#ff0000";
-set color_page_title = "#000000";
-set color_entry_text = "#000000";
-set color_page_text = "#ffffff";
-set color_entry_background = "#ffffff";
+set color_page_link_visited = "#000";
+set color_page_text = "#fff";
+set color_page_title = "#000";
+set color_header_background = "#f00";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
