@@ -89,6 +89,9 @@ _c?>
         'text' => $ML{'.back2'},
     }) . "\n";
     $body .= BML::ml("Actionlink", {
+        'link' => "<a href='$LJ::SITEROOT/doc/s2/'>$ML{'.nav.documentation'}</a>",
+    }) . "\n";
+    $body .= BML::ml("Actionlink", {
         'link' => "<a href='$LJ::SITEROOT/customize/advanced/layerbrowse'>$ML{'.nav.publiclayers'}</a>",
     }) . "\n";
     my $styles_arg = $noactions ? "?user=" . $u->user : "?authas=" . $u->user;
