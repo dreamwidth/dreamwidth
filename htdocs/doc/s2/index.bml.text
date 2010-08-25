@@ -1,0 +1,30 @@
+;; -*- coding: utf-8 -*-
+.title=Style Documentation
+
+.css.header=CSS Documentation
+
+.css.overview=Overview
+
+.css.selectors=Detailed Style Structure
+
+.css.stylestructure=Style Structure Overview
+
+.css.tutorial=Syntax Tutorial
+
+.intro.css=CSS (Cascading Style Sheets) are used to provide visual styling to web content. [[sitename]] styles are designed to be mostly customizable via CSS, with many classes built into the core of the style system. Please note that this CSS documentation centers around documenting the core system; the plain version of which is called Tabula Rasa. However, many classes will be available in all core2 styles; other layouts will mainly have only a different page structure.
+
+.intro.s2=S2 (Style System 2) is a programming language designed to be a generic style system for web applications, which can give users a lot of control over their own style. It has properties in common with Perl, Python, and Java. These guides are meant to give current and potential [[sitename]] style makers the tools they need to understand and work with S2.
+
+.s2.cookbook=Cookbook
+
+.s2.guide=Guide Index
+
+.s2.header=S2 Documentation
+
+.s2.language=Language Tutorial
+
+.s2.overview=Style System Overview
+
+.s2.props=Properties
+
+.s2.troubleshoot=Troubleshooting
