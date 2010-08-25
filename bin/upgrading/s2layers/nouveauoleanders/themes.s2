@@ -56,6 +56,8 @@ layerinfo "name" = "Hunter Green";
 layerinfo author_name = "dancing_serpent";
 layerinfo redist_uniq = "nouveauoleanders/huntergreen";
 
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
 set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
 
 ##===============================
@@ -111,6 +113,8 @@ layerinfo "type" = "theme";
 layerinfo "name" = "Nightfall";
 layerinfo author_name = "dancing_serpent";
 layerinfo redist_uniq = "nouveauoleanders/nightfall";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
 
