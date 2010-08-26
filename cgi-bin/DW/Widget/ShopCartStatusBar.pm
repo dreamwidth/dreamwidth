@@ -23,7 +23,8 @@ use Carp qw/ croak /;
 
 use DW::Shop;
 
-sub need_res { qw( stc/shop.css ) }
+sub need_res { qw( stc/shop.css stc/shop-colors.css ) }
+sub need_res_opts { priority => $LJ::OLD_RES_PRIORITY }
 
 sub render_body {
     my ( $class, %opts ) = @_;

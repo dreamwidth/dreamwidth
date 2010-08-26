@@ -1,0 +1,32 @@
+.shopbox, div.appwidget-shopitemgroupdisplay {
+    border: 1px solid #c1272d;
+}
+.shop-account-status {
+    border: solid 1px #c1272d;
+    background-color: #ffff00;
+}
+.shop-error {
+    border: 1px solid #c1272d;
+}
+.shop-cart-status {
+    border: 1px solid #c1272d;
+    background-color: #c5c5c5;
+}
+.shop-cart th {
+    background-color: #c5c5c5;
+}
+.shop-cart td, .shop-cart th {
+    border: 1px solid #c1272d;
+}
+.shop-cart td.total {
+    background-color: #e0e0e0;
+}
+.shop-item-highlight {
+    color: #c1272d;
+}
+.ccrowerr {
+    background-color: #ccc;
+}
+.shop-points-status {
+    border: 1px solid #c1272d;
+}

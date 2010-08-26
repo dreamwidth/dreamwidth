@@ -153,7 +153,7 @@ _c?>
             $body .= "<form action='login$getextra' method='post' id='login'>\n";
             $body .= LJ::form_auth();
             $body .= "<?h2 $ML{'.login.changelog'} h2?>";
-            $body .= "<table cellpadding='3' style='width: 300px; background-color: #ededed; border: 1px solid #aaa'>\n";
+            $body .= "<table cellpadding='3' class='solid-neutral' style='width: 300px; border: 1px solid #aaa'>\n";
             $body .= "<tr><td colspan='2' style='white-space: nowrap;'>";
             # expiration
             my $curexp = $cursess ? $cursess->exptype : "short";

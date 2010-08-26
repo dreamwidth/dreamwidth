@@ -54,6 +54,7 @@ sub _shop_controller {
 
     # the entire shop uses these files
     LJ::need_res( 'stc/shop.css' );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/shop-colors.css' );
     LJ::set_active_resource_group( 'jquery' );
 
     # figure out what shop/cart to use

@@ -19,6 +19,7 @@ use Carp qw(croak);
 
 sub authas { 1 }
 sub need_res { qw( stc/widgets/linkslist.css ) }
+sub need_res_opts { priority => $LJ::OLD_RES_PRIORITY }
 
 sub render_body {
     my $class = shift;

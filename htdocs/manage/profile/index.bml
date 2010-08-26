@@ -22,7 +22,7 @@ body<=
     use LJ::Setting;
 
     LJ::set_active_crumb('editprofile');
-    LJ::need_res('stc/lj_base.css', 'stc/lj_settings.css');
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/lj_settings.css' );
 
     return LJ::server_down_html() if $LJ::SERVER_DOWN;
 

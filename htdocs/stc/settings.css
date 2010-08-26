@@ -6,9 +6,6 @@
 .smaller {
     font-size: 11px;
 }
-.disabled {
-    color: #999;
-}
 
 /* Layout */
 #intro {
@@ -18,7 +15,6 @@
     min-width: 625px;
 }
 #settings_save {
-    background: #eee;
     padding: 5px 7px;
 }
 
@@ -32,33 +28,22 @@
     float: left;
 }
 #settings_nav li a {
-    color: #000;
     text-decoration: none;
     display: block;
     margin-right: 5px;
     padding: 2px 7px;
     font-weight: bold;
-    background: #ddd;
-	border: 1px solid #ccc;
 	border-bottom: none;
-}
-#settings_nav li a:hover, #settings_nav li a.active {
-    background: #eee;
 }
 #settings_nav li.disabled {
     display: block;
     margin-right: 5px;
     padding: 2px 7px;
     font-weight: bold;
-    color: #999;
-    background: #efefef;
-    border: 1px solid #ccc;
 	border-bottom: none;
 }
 #settings_nav_title p {
     clear: left;
-    background: #eee;
-	border-left: 1px solid #ccc;
     padding: 4px 10px;
     display: block;
     margin: 0;
@@ -66,25 +51,21 @@
 }
 
 /* Shared Content */
-.account table, .display table, .mobile table, .privacy table, .history table, .advertising table, .othersites table {
+.account table, .display table, .mobile table, .privacy table, .history table, .othersites table {
     width: 100%;
 }
-.account td, .display td, .mobile td, .privacy td, .history td, .advertising td, .othersites td {
-    border-bottom: 1px #ccc solid;
+.account td, .display td, .mobile td, .privacy td, .history td, .othersites td {
     padding: 10px 10px 10px 5px;
 }
-.account td.last, .display td.last, .mobile td.last, .privacy td.last, .history td.last, .advertising td.last, .othersites td.last {
+.account td.last, .display td.last, .mobile td.last, .privacy td.last, .history td.last, .othersites td.last {
     border-bottom: none;
 }
-.account td.help, .display td.help, .mobile td.help, .privacy td.help, .history td.help, .advertising td.help, .othersites td.help {
+.account td.help, .display td.help, .mobile td.help, .privacy td.help, .history td.help, .othersites td.help {
     width: 14px;
     text-align: right;
 }
 .account_label, .display_label, .mobile_label, .privacy_label, .history_label, .othersites_label {
     font-weight: bold;
-}
-.display_option, .mobile_option, .privacy_option, .othersites_option {
-    color: #000;
 }
 
 /* Account Content */
@@ -95,7 +76,6 @@
     text-align: right;
 }
 .account_stats {
-    /*background: #eee;*/
     padding: 5px 10px;
     line-height: 18px;
 }
@@ -122,7 +102,6 @@
 }
 .mobile td.setting_label {
     text-align: right;
-    /*color: #000;*/
 }
 .mobile_label, .mobile .help {
     vertical-align: top;
@@ -139,29 +118,7 @@
     margin-bottom: 0;
 }
 
-/* Advertising Content */
-.advertising table.setting_table {
-    width: auto;
-    margin: 0;
-}
-.advertising table.setting_table td {
-    border: 0;
-    padding: 0;
-    vertical-align: top;
-}
-.advertising p {
-    margin-top: 0;
-}
-.advertising .example {
-    font-size: .8em;
-    color: #666;
-}
-.advertising .category {
-    padding-left: 1px;
-    margin-bottom: 10px;
-    margin-left: 20px;
-}
-
+/* other sites */
 .othersites table.setting_table td.checkbox {
     text-align: center;
 }
@@ -171,8 +128,6 @@
 }
 
 .xpost_footer_preview {
-    border: 1px solid #000000;
     width: 100%;
-    background: #EEEEEE;
     padding: 10px 5px 10px 5px;
 }

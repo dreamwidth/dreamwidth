@@ -18,7 +18,8 @@ body<=
 {
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
-    LJ::need_res(qw( stc/customize.css js/customize.js ));
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/customize.css" );
+    LJ::need_res( "js/customize.js" );
 
     $title = $ML{'.title2'};
 

@@ -22,7 +22,8 @@ body<=
     use strict;
     use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
 
-    LJ::need_res( qw( stc/profile.css js/profile.js ) );
+    LJ::need_res( "js/profile.js" );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/profile.css" );
 
     BML::set_language_scope( '/profile.bml' );
 

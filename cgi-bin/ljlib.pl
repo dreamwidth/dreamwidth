@@ -1328,7 +1328,7 @@ sub start_request
         # note that we're calling need_res and advising that these items
         # are the new style global items
 
-        LJ::need_res( {group=>'jquery'},
+        LJ::need_res( { group => 'jquery', priority => $LJ::LIB_RES_PRIORITY },
             # jquery library is the big one, load first
             $LJ::IS_DEV_SERVER ?
                 'js/jquery/jquery-1.4.2.js' :
@@ -1343,7 +1343,7 @@ sub start_request
         # old/standard libraries are below here.
 
         # standard site-wide JS and CSS
-        LJ::need_res(qw(
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
                         js/core.js
                         js/dom.js
                         js/httpreq.js
@@ -1352,14 +1352,14 @@ sub start_request
                         ));
 
         # esn ajax
-        LJ::need_res(qw(
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
                         js/esn.js
                         stc/esn.css
                         ))
             if LJ::is_enabled('esn_ajax');
 
         # contextual popup JS
-        LJ::need_res(qw(
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
                         js/ippu.js
                         js/lj_ippu.js
                         js/hourglass.js
@@ -1369,7 +1369,7 @@ sub start_request
             if $LJ::CTX_POPUP;
 
         # development JS
-        LJ::need_res(qw(
+        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
                         js/devel.js
                         js/livejournal-devel.js
                         ))

@@ -47,7 +47,6 @@ use strict;
     }
 
     LJ::need_res(qw(
-                    stc/lj_base.css
                     stc/editicons.css
                     js/progressbar.js
                     js/ljprogressbar.js
@@ -350,7 +349,7 @@ use strict;
             # upload form (with perlbal upload-tracking)
             $body .= qq {
                 <iframe name='upiframe' width='1' height='1' style='border: none'></iframe>
-                <div id='uploadBox' class='pkg'><div id='uploadBox-inner'>
+                <div id='uploadBox' class='box pkg'><div id='uploadBox-inner'>
                     <form enctype="multipart/form-data" action="editicons$suffix$getextra" method='post' id='uploadPic'>
                     <input type="hidden" id="go_to" name="go_to" value="editicons$suffix$getextra" />
             };

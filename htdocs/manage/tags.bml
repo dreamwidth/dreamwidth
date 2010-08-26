@@ -27,7 +27,8 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    LJ::need_res("stc/tags.css", "js/tags.js");
+    LJ::need_res( "js/tags.js" );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/tags.css" );
 
    $headextra = <<HEAD;
 <script type="text/javascript">

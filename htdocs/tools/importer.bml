@@ -28,7 +28,7 @@ body<=
         return BML::redirect( "$LJ::SSLROOT/tools/importer" );
     }
 
-    LJ::need_res( 'stc/importer.css' );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/importer.css' );
 
     $title = $ML{'.title'};
 

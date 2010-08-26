@@ -21,6 +21,7 @@ use LJ::Customize;
 sub ajax { 1 }
 sub authas { 1 }
 sub need_res { qw( stc/widgets/moodthemechooser.css ) }
+sub need_res_opts { priority => $LJ::OLD_RES_PRIORITY }
 
 sub render_body {
     my $class = shift;

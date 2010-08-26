@@ -315,9 +315,22 @@
     # default to limit to 50,000 watch or trust edges to load
     $LJ::MAX_WT_EDGES_LOAD ||= 50_000;
 
-
     # to avoid S2 error "Excessive recursion detected and stopped."
     $S2::MAX_RECURSION ||= 500;
+
+    # not expected to need to be changed
+    # default priority for libraries and resources in a sitescheme,
+    # so that they come before any stylesheets declared by the page itself
+    $LJ::LIB_RES_PRIORITY = 3;
+    $LJ::SCHEME_RES_PRIORITY = 2;
+
+    # FIXME: remove the need for this, it's a hack of a hack of a hack
+    # it used to be that site scheme pages were called later than page-level CSS
+    # so page-level CSS was written with that assumption, and overrode some colors
+    # now that site scheme pages are called earlier than page-level CSS
+    # (as they should be) some pages look weird.
+    # So let us temporarily force old behavior on existing files
+    $LJ::OLD_RES_PRIORITY = 5;
 }
 
 

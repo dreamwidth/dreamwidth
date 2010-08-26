@@ -86,7 +86,8 @@ _c?>
     # see if we need to do any transformations
     LJ::Hooks::run_hooks("transform_update_$POST{transform}", \%GET, \%POST) if $POST{transform};
 
-    LJ::need_res('stc/display_none.css', 'stc/lj_base.css', 'stc/entry.css', 'js/inputcomplete.js');
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
+    LJ::need_res('stc/display_none.css', 'stc/lj_base.css', 'js/inputcomplete.js');
 
     ## figure out times
     my $now = DateTime->now;

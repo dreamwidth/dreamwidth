@@ -21,11 +21,15 @@ hr {
 #userpic_authas {
     margin-bottom: 10px;
 }
+.box {
+    background-color: #eee;
+}
+
 #uploadBox {
     float: left;
     width: 300px;
     margin: 0 15px 0 0;
-	background: #eee; }
+}
 	
 #uploadBox-inner  {
     padding: 6px 12px;

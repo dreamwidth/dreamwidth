@@ -16,7 +16,6 @@
 
 
 .shopbox, div.appwidget-shopitemgroupdisplay {
-    border: 1px solid #c1272d;
     margin: 10px;
     padding: 5px;
     min-width: 30em;
@@ -32,8 +31,6 @@
 }
 
 .shop-account-status {
-    border: solid 1px #c1272d;
-    background-color: #ffff00;
     float: right;
     width: 30em;
     padding: 5px;
@@ -60,15 +57,12 @@
 }
 
 .shop-error {
-    border: 1px solid #c1272d;
     clear: both;
     padding: 5px;
     margin: 10px;
 }
 
 .shop-cart-status {
-    border: 1px solid #c1272d;
-    background-color: #c5c5c5;
     padding: 0.5em;
 }
 
@@ -87,12 +81,7 @@
     margin: 1em;
 }
 
-.shop-cart th {
-    background-color: #c5c5c5;
-}
-
 .shop-cart td, .shop-cart th {
-    border: 1px solid #c1272d;
     padding: 0.5em;
     text-align: center;
 }
@@ -100,7 +89,6 @@
 .shop-cart td.total {
     font-weight: bold;
     text-align: right;
-    background-color: #e0e0e0;
 }
 
 .shop-cart-btn {
@@ -108,7 +96,6 @@
 }
 
 .shop-item-highlight {
-    color: #c1272d;
     font-weight: bold;
 }
 
@@ -120,13 +107,8 @@
     padding: 3px;
 }
 
-.ccrowerr {
-    background-color: #ccc;
-}
-
 .shop-points-status {
     margin: 20px;
-    border: 1px solid #c1272d;
     padding: 0.5em;
     font-size: larger;
 }

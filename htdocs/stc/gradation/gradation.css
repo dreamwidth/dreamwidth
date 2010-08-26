@@ -926,7 +926,7 @@ table.editfilters td {
 }
 
 .appwidget-createaccountprogressmeter .step-next {
-    color: #111111;
+    color: #666666;
 }
 
 .appwidget-createaccountprofile .header {
@@ -935,6 +935,14 @@ table.editfilters td {
 
 .appwidget-createaccountprofile .field-name {
     background-color: #e0e0e0;
+}
+
+.error-list {
+    background-color: #916E10;
+}
+
+.errors-present, li.formitemFlag {
+    color: #731815;
 }
 
 

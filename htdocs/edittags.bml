@@ -26,7 +26,8 @@ body<=
     my $err = sub { return "<?h1 $ML{'Error'} h1?><?p $_[0] p?>"; };
     return $err->($ML{'.disabled'}) unless LJ::is_enabled('tags');
 
-    LJ::need_res("stc/tags.css", "js/tags.js");
+    LJ::need_res( "js/tags.js" );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/tags.css" );
 
     my ($ret, $msg);
 

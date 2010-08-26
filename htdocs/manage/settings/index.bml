@@ -22,6 +22,7 @@ body<=
     BML::set_language_scope('/manage/settings/index.bml');
 
     LJ::need_res("stc/settings.css", "js/settings.js");
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/settings-colors.css" );
     LJ::set_active_crumb('manage');
 
     my $remote = LJ::get_remote();

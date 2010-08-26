@@ -1,0 +1,37 @@
+/* Common */
+.disabled {
+    color: #999;
+}
+#settings_save {
+    background: #eee;
+}
+
+/* Tabs */
+#settings_nav li a {
+    color: #000;
+    background: #ddd;
+	border: 1px solid #ccc;
+}
+
+#settings_nav li a:hover, #settings_nav li a.active {
+    background: #eee;
+}
+#settings_nav li.disabled {
+    color: #999;
+    background: #efefef;
+    border: 1px solid #ccc;
+}
+#settings_nav_title p {
+    background: #eee;
+	border-left: 1px solid #ccc;
+}
+.account td, .display td, .mobile td, .privacy td, .history td, .othersites td {
+    border-bottom: 1px #ccc solid;
+}
+.display_option, .mobile_option, .privacy_option, .othersites_option {
+    color: #000;
+}
+.xpost_footer_preview {
+    border: 1px solid #000000;
+    background: #EEEEEE;
+}

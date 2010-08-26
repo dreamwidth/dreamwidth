@@ -64,7 +64,7 @@ sub option {
                 size => 40,
                 maxlength => 80,
             });
-            $ret .= " <label for='${key}emailposting_senderrors$i' style='color: #000;'>";
+            $ret .= " <label for='${key}emailposting_senderrors$i'>";
             $ret .= $class->ml( 'setting.emailposting.option.senderrors' ) . "</label>";
             $ret .= " " . LJ::html_check( {
                 name => "${key}emailposting_senderrors$i",
@@ -76,7 +76,7 @@ sub option {
                             ? 1 : 0,
             } );
             $ret .= "<br />";
-            $ret .= " <label for='${key}emailposting_helpmessage$i' style='color: #000;'>";
+            $ret .= " <label for='${key}emailposting_helpmessage$i'>";
             $ret .= $class->ml( 'setting.emailposting.option.helpmessage' ) . "</label>";
             $ret .= " " . LJ::html_check( {
                 name => "${key}emailposting_helpmessage$i",
