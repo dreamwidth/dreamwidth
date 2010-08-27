@@ -1,3 +1,42 @@
+#NEWLAYER: brittle/argyle
+layerinfo "type" = "theme";
+layerinfo "name" = "Argyle";
+layerinfo redist_uniq = "brittle/argyle";
+layerinfo author_name = "edgeraven";
+
+set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+
+#PAGE COLOURS
+set color_page_link = "#5b7882";
+set color_page_link_hover = "#769CA9";
+set color_page_link_visited = "#3B4E55";
+set color_page_text = "#111111";
+
+## HEADER / FOOTER 
+set color_footer_background = "#ecf1f2";
+set color_footer_link = "#5b7882";
+set color_footer_link_hover = "#769CA9";
+set color_footer_link_visited = "#3B4E55";
+
+## ENTRY COLOURS 
+set color_entry_background = "#ecf1f2";
+set color_entry_link = "#5b7882";
+set color_entry_link_hover = "#769CA9";
+set color_entry_link_visited = "#3B4E55";
+set color_entry_text = "#111111";
+set color_entry_title = "#5b7882";
+
+## NAV MODULE 
+set color_navigation_module_background = "#cbdbe0";
+set color_navigation_module_link = "#435860";
+set color_navigation_module_link_hover = "#5b7882";
+set color_navigation_module_link_visited = "#253136";
+
+## BACKGROUND IMAGE 
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "brittle/argyle.png";
+
 #NEWLAYER: brittle/barnhouse
 layerinfo "type" = "theme";
 layerinfo "name" = "Barnhouse";
@@ -35,6 +74,123 @@ set color_navigation_module_background = "#fc9180";
 set color_navigation_module_link = "#8f1600";
 set color_navigation_module_link_hover = "#672700";
 set color_navigation_module_link_visited = "#4C1C00";
+
+#NEWLAYER: brittle/buttercupyellow
+layerinfo "type" = "theme";
+layerinfo "name" = "Buttercup Yellow";
+layerinfo redist_uniq = "brittle/buttercupyellow";
+layerinfo author_name = "edgeraven";
+
+set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+
+## PAGE COLOURS
+set color_page_link = "#A33535";
+set color_page_link_hover = "#EE4D4D";
+set color_page_link_visited = "#672121";
+set color_page_text = "#151515";
+
+## HEADER/FOOTER COLOURS
+set color_footer_background = "#fff29b";
+set color_footer_link = "#A33535";
+set color_footer_link_hover = "#EE4D4D";
+set color_footer_link_visited = "#672121";
+
+## ENTRY COLOURS
+set color_entry_background = "#fff29b";
+set color_entry_link = "#A33535";
+set color_entry_link_hover = "#EE4D4D";
+set color_entry_link_visited = "#672121";
+set color_entry_text = "#151515";
+set color_entry_title = "#151515";
+
+## NAV MODULE
+set color_navigation_module_background = "#ffe537";
+set color_navigation_module_link = "#A33535";
+set color_navigation_module_link_hover = "#EE4D4D";
+set color_navigation_module_link_visited = "#672121";
+
+## BACKGROUND IMAGE
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "brittle/buttercupyellow.png";
+
+#NEWLAYER: brittle/certainfrogs
+layerinfo "type" = "theme";
+layerinfo "name" = "Certain Frogs";
+layerinfo redist_uniq = "brittle/certainfrogs";
+layerinfo author_name = "edgeraven";
+
+set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+
+## PAGE COLOURS 
+set color_page_link = "#1693A5";
+set color_page_link_hover = "#02AAB0";
+set color_page_link_visited = "#0F6671";
+set color_page_text = "#0c0c0c";
+
+## HEADER / FOOTER 
+set color_footer_background = "#e1ffb3";
+set color_footer_link = "#1693A5";
+set color_footer_link_hover = "#02AAB0";
+set color_footer_link_visited = "#0F6671";
+
+## ENTRY COLOURS
+set color_entry_background = "#e1ffb3";
+set color_entry_link = "#1693A5";
+set color_entry_link_hover = "#02AAB0";
+set color_entry_link_visited = "#0F6671";
+set color_entry_text = "#0c0c0c";
+set color_entry_title = "#0c0c0c";
+
+## NAV MODULE 
+set color_navigation_module_background = "#e1ffb3";
+set color_navigation_module_link = "#1693A5";
+set color_navigation_module_link_hover = "#02AAB0";
+set color_navigation_module_link_visited = "#0F6671";
+
+## BACKGROUND IMAGE
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "brittle/certainfrogs.png";
+
+#NEWLAYER: brittle/chinesepink
+layerinfo "type" = "theme";
+layerinfo "name" = "Chinese Pink";
+layerinfo redist_uniq = "brittle/chinesepink";
+layerinfo author_name = "edgeraven";
+
+set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+
+## PAGE COLOURS
+set color_page_link = "#5f3c30";
+set color_page_link_hover = "#5f2b1b";
+set color_page_link_visited = "#7D4D3F";
+set color_page_text = "#090909";
+
+## HEADER/FOOTER COLOURS
+set color_footer_background = "#ff9858";
+set color_footer_link = "#5f3c30";
+set color_footer_link_hover = "#5f2b1b";
+set color_footer_link_visited = "#7D4D3F";
+
+## ENTRY COLOURS
+set color_entry_background = "#ff9858";
+set color_entry_link = "#5f3c30";
+set color_entry_link_hover = "#5f2b1b";
+set color_entry_link_visited = "#7D4D3F";
+set color_entry_text = "#090909";
+set color_entry_title = "#090909";
+
+## NAV MODULE 
+set color_navigation_module_background = "#ff9150";
+set color_navigation_module_link = "#5f3c30";
+set color_navigation_module_link_hover = "#5f2b1b";
+set color_navigation_module_link_visited = "#7D4D3F";
+
+## BACKGROUND IMAGE
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "brittle/chinesepink.png";
 
 #NEWLAYER: brittle/drab
 layerinfo "type" = "theme";
@@ -76,8 +232,6 @@ set color_navigation_module_link_visited = "#6e6d45";
 
 ##Background Image
 
-set image_background_entry_position = "top left";
-set image_background_entry_repeat = "repeat";
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
 set image_background_page_url = "brittle/drab.png";
