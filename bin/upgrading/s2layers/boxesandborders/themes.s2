@@ -319,6 +319,50 @@ set color_calendar_module_hasday_background = "#D7B6AF";
 set color_navigation_module_background = "#D29A89";
 
 
+#NEWLAYER: boxesandborders/poppyfields
+layerinfo type = "theme";
+layerinfo name = "Poppy Fields";
+layerinfo redist_uniq = "boxesandborders/poppyfields";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fdfbee";
+set color_page_link = "#d92300";
+set color_page_link_active = "#d92300";
+set color_page_link_hover = "#fa2900";
+set color_page_link_visited = "#d92300";
+set color_page_text = "#473b26";
+set color_page_title = "#473b26";
+set color_header_background = "#d8d8a8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f7f7de";
+set color_entry_border = "#d8d8a8";
+set color_entry_text = "#301818";
+set color_entry_title = "#d92300";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7f7de";
+set color_module_border = "#d8d8a8";
+set color_module_text = "#301818";
+set color_module_title = "#d92300";
+set color_module_title_background = "#d8d8a8";
+set color_calendar_module_emptyday_background = "#d8d8a8";
+set color_calendar_module_hasday_background = "#ed2800";
+set color_navigation_module_background = "#d92300";
+
+
 #NEWLAYER: boxesandborders/rainyday
 layerinfo "type" = "theme";
 layerinfo "name" = "Rainy Day";
@@ -360,3 +404,126 @@ set color_module_border = "#353F4F";
 set color_calendar_module_emptyday_background = "#7C86A6";
 set color_calendar_module_hasday_background = "#353F4F";
 set color_navigation_module_background = "#353F4F";
+
+
+#NEWLAYER: boxesandborders/retrocandy
+layerinfo type = "theme";
+layerinfo name = "Retro Candy";
+layerinfo redist_uniq = "boxesandborders/retrocandy";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f4d59a";
+set color_page_link = "#c77864";
+set color_page_link_active = "#c77864";
+set color_page_link_hover = "#d89078";
+set color_page_link_visited = "#c77864";
+set color_page_text = "#003048";
+set color_page_title = "#003048";
+set color_header_background = "#f0c060";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fce2b0";
+set color_entry_border = "#003048";
+set color_entry_text = "#301818";
+set color_entry_title = "#cb6d5b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fce2b0";
+set color_module_border = "#003048";
+set color_module_text = "#301818";
+set color_module_title = "#cb6d5b";
+set color_module_title_background = "#f0c060";
+set color_calendar_module_emptyday_background = "#f0c060";
+set color_calendar_module_hasday_background = "#cb6d5b";
+set color_navigation_module_background = "#d6816b";
+
+
+#NEWLAYER: boxesandborders/silverfox
+layerinfo type = "theme";
+layerinfo name = "Silver Fox";
+layerinfo redist_uniq = "boxesandborders/silverfox";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ebebeb";
+set color_page_link = "#3f3f3f";
+set color_page_link_active = "#3f3f3f";
+set color_page_link_hover = "#7a7a7a";
+set color_page_link_visited = "#3f3f3f";
+set color_page_text = "#6d6d6d";
+set color_page_title = "#616161";
+set color_header_background = "#c9c9c9";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e1e1e1";
+set color_entry_title = "#4b4b4b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e1e1e1";
+set color_module_title = "#4b4b4b";
+set color_module_title_background = "#c9c9c9";
+set color_calendar_module_emptyday_background = "#ebebeb";
+set color_calendar_module_hasday_background = "#bbb";
+set color_navigation_module_background = "#4B4B4B";
+
+
+#NEWLAYER: boxesandborders/sunnydays
+layerinfo type = "theme";
+layerinfo name = "Sunny Days";
+layerinfo redist_uniq = "boxesandborders/sunnydays";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f4f4f4";
+set color_page_link = "#18a8f0";
+set color_page_link_active = "#18a8f0";
+set color_page_link_hover = "#f0a800";
+set color_page_link_visited = "#18a8f0";
+set color_page_text = "#222";
+set color_header_background = "#f0c018";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f8f8f8";
+set color_entry_border = "#f0a800";
+set color_entry_title = "#222";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#f0a800";
+set color_module_title = "#222";
+set color_module_title_background = "#f8f8f8";
+set color_calendar_module_hasday_background = "#18a8f0";
+set color_navigation_module_background = "#18a8f0";

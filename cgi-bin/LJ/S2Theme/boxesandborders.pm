@@ -36,8 +36,28 @@ package LJ::S2Theme::boxesandborders::pinkafterdark;
 use base qw( LJ::S2Theme::boxesandborders );
 sub cats { qw() }
 
+package LJ::S2Theme::boxesandborders::poppyfields;
+use base qw( LJ::S2Theme::boxesandborders );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
 package LJ::S2Theme::boxesandborders::rainyday;
 use base qw( LJ::S2Theme::boxesandborders );
 sub cats { qw() }
+
+package LJ::S2Theme::boxesandborders::retrocandy;
+use base qw( LJ::S2Theme::boxesandborders );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
+package LJ::S2Theme::boxesandborders::silverfox;
+use base qw( LJ::S2Theme::boxesandborders );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
+package LJ::S2Theme::boxesandborders::sunnydays;
+use base qw( LJ::S2Theme::boxesandborders );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
 
 1;
