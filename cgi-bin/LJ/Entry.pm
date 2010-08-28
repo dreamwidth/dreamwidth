@@ -1703,7 +1703,7 @@ sub get_itemid_near2
         return 0;
     }
 
-    my $dbr = LJ::get_cluster_reader($u);
+    my $dbr = LJ::get_cluster_reader($u) or return 0;
     my $jid = $u->{'userid'}+0;
     my $field = $u->is_person ? "revttime" : "rlogtime";
 
