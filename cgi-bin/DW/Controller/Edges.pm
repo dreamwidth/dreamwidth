@@ -28,20 +28,14 @@ use JSON;
 DW::Routing->register_string(  "/data/edges", \&edges_handler, user => 1, format => 'json' );
 
 my $formats = {
-    'json' => [ "application/json; charset=utf-8", sub { $_[0]->print( objToJson( $_[1] ) ); } ],
+    'json' => sub { $_[0]->print( objToJson( $_[1] ) ); },
 };
 
 sub edges_handler {
     my $opts = shift;
     my $r = DW::Request->get;
 
-    # allow them to pick what format they want the data in, but bail if they ask for one
-    # we don't understand
-    my $format = $formats->{$opts->format};
-    return $r->NOT_FOUND if ! $format;
-
-    # content type early on
-    $r->content_type( $format->[0] );
+    my $format = $formats->{ $opts->format };
 
     # Outputs an error message
     my $error_out = sub {
@@ -108,7 +102,7 @@ sub edges_handler {
         map { $_ => { name => $us->{$_}->user, type => $us->{$_}->journaltype } } keys %$us
     };
 
-    $format->[1]->( $r, $response );
+    $format->( $r, $response );
 
     return $r->OK;
 }

@@ -102,6 +102,18 @@ Return the format.
 
 sub format { return $_[0]->{format}; }
 
+=head2 C<< $self->format_valid >>
+
+Returns if the format is valid for this CallInfo
+
+=cut
+
+sub format_valid {
+    my $formats = $_[0]->{__hash}->{formats};
+    return 1 if $formats == 1;
+    return $formats->{$_[0]->format} || 0;
+}
+
 =head2 C<< $self->role >>
 
 Current mode: 'app' or 'user' or 'ssl'

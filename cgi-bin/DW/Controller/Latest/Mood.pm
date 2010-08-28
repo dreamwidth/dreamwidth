@@ -22,7 +22,7 @@ use DW::Request;
 use DW::Mood;
 use JSON;
 
-DW::Routing->register_string( "/latest/mood", \&mood_handler );
+DW::Routing->register_string( "/latest/mood", \&mood_handler, formats => [ 'html', 'json' ] );
 
 sub mood_handler {
     my $r = DW::Request->get;
@@ -38,9 +38,7 @@ sub mood_handler {
         },
     };
     
-    my $format = $formats->{ $_[0]->format || 'html' };
-
-    return $r->NOT_FOUND if ! $format;
+    my $format = $formats->{ $_[0]->format };
 
     my $moods = LJ::MemCache::get( "latest_moods" ) || [];
     my $out = {};

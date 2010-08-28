@@ -21,7 +21,7 @@ use warnings;
 use DW::Routing;
 use JSON;
 
-DW::Routing->register_string( "/__rpc_cuttag", \&cutexpander_handler, app => 1, user => 1 );
+DW::Routing->register_string( "/__rpc_cuttag", \&cutexpander_handler, app => 1, user => 1, format => 'json' );
 
 my $formats = {
     'json' => [ "application/json; charset=utf-8", sub { $_[0]->print( objToJson( $_[1] ) ); } ],

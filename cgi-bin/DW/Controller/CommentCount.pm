@@ -23,7 +23,7 @@ use warnings;
 use DW::Routing;
 use Image::Magick;
 
-DW::Routing->register_string("/tools/commentcount", \&commentcount_handler, app => 1);
+DW::Routing->register_string("/tools/commentcount", \&commentcount_handler, app => 1, format => 'png' );
 
 sub commentcount_handler {
     my $r = DW::Request->get;
@@ -50,7 +50,6 @@ sub commentcount_handler {
     $image->Read("label:$count");
 
     # return the image
-    $r->content_type("image/png");
     $r->print( $image->ImageToBlob( magick => "png" ) );
 
     return $r->OK;

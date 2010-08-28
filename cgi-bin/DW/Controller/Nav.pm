@@ -26,7 +26,7 @@ use JSON;
 
 # Defines the URL for routing.  I could use register_string( '/nav' ... ) if I didn't want to capture arguments
 # This is an application page, not a user styled page, and the default format is HTML (ie, /nav gives /nav.html)
-DW::Routing->register_regex( qr!^/nav(?:/([a-z]*))?$!, \&nav_handler, app => 1 );
+DW::Routing->register_regex( qr!^/nav(?:/([a-z]*))?$!, \&nav_handler, app => 1, formats => [ 'html', 'json' ] );
 
 # handles menu nav pages
 sub nav_handler {

@@ -35,6 +35,7 @@ my $default_content_types = {
     'html' => "text/html; charset=utf-8",
     'json' => "application/json; charset=utf-8",
     'plain' => "text/plain; charset=utf-8",
+    'png' => "image/png",
 };
 
 LJ::ModuleLoader->require_subclasses( "DW::Controller" )
@@ -159,6 +160,10 @@ sub _call_hash {
     $opts->prepare_for_call;
 
     my $format = $opts->format;
+    # check for format validity
+    return $r->NOT_FOUND unless $opts->format_valid;
+
+    # apply default content type if it exists
     $r->content_type( $default_content_types->{$format} )
         if $default_content_types->{$format};
 
@@ -204,7 +209,6 @@ sub _call_hash {
 
 sub _static_helper {
     my $r = DW::Request->get;
-    return $r->NOT_FOUND unless $_[0]->format eq 'html';
     return  DW::Template->render_template( $_[0]->args );
 }
 
@@ -220,17 +224,7 @@ Static page helper.
 
 =item filename - template filename
 
-=item Opts:
-
-=over
-
-=item ssl - If this sub should run for ssl.
-
-=item app - 1 if app
-
-=item user - 1 if user
-
-=back
+=item Opts ( see register_string )
 
 =back
 
@@ -255,13 +249,17 @@ sub register_static {
 
 =over
 
-=item ssl - If this sub should run for ssl.
-
 =item args - passed verbatim to sub.
+
+=item ssl - If this sub should run for ssl.
 
 =item app - 1 if app
 
 =item user - 1 if user
+
+=item format - What format should be used, defaults to HTML
+
+=item formats - An array of possible formats, or 1 to allow everything.
 
 =back
 
@@ -272,15 +270,9 @@ sub register_static {
 sub register_string {
     my ( $class, $string, $sub, %opts ) = @_;
 
-    $opts{app} = 1 if ! defined $opts{app} && ! $opts{user};
-    my $hash = {
-        args   => $opts{args},
+    my $hash = _apply_defaults( \%opts, {
         sub    => $sub,
-        ssl    => $opts{ssl} || 0,
-        app    => $opts{app} || 0,
-        user   => $opts{user} || 0,
-        format => $opts{format} || 'html',
-    };
+    });
     $string_choices{'app'  . $string} = $hash if $hash->{app};
     $string_choices{'ssl'  . $string} = $hash if $hash->{ssl};
     $string_choices{'user' . $string} = $hash if $hash->{user};
@@ -294,19 +286,7 @@ sub register_string {
 
 =item sub - sub
 
-=item Opts:
-
-=over
-
-=item ssl - If this sub should run for ssl.
-
-=item args - passed verbatim to sub.
-
-=item app - 1 if app
-
-=item user - 1 if user
-
-=back
+=item Opts ( see register_string )
 
 =back
 
@@ -315,19 +295,35 @@ sub register_string {
 sub register_regex {
     my ( $class, $regex, $sub, %opts ) = @_;
 
-    $opts{app} = 1 if ! defined $opts{app} && !$opts{user};
-    my $hash = {
+    my $hash = _apply_defaults( \%opts, {
         regex  => $regex,
-        args   => $opts{args},
         sub    => $sub,
-        ssl    => $opts{ssl} || 0,
-        app    => $opts{app} || 0,
-        user   => $opts{user} || 0,
-        format => $opts{format} || 'html',
-    };
+    });
     push @{$regex_choices{app}}, $hash if $hash->{app};
     push @{$regex_choices{ssl}}, $hash if $hash->{ssl};
     push @{$regex_choices{user}}, $hash if $hash->{user};
+}
+
+# internal method, intentionally no POD
+# applies default for opts and hash
+
+sub _apply_defaults {
+    my ( $opts, $hash ) = @_;
+
+    $hash ||= 0;
+    $opts->{app} = 1 if ! defined $opts->{app} && !$opts->{user};
+    $hash->{args} = $opts->{args};
+    $hash->{ssl} = $opts->{ssl} || 0;
+    $hash->{app} = $opts->{app} || 0;
+    $hash->{user} = $opts->{user} || 0;
+    $hash->{format} = $opts->{format} || 'html';
+
+    my $formats = $opts->{formats} || [ $hash->{format} ];
+    $formats = { map { ( $_, 1 ) } @$formats } if ( ref($formats) eq 'ARRAY' );
+
+    $hash->{formats} = $formats;
+
+    return $hash;
 }
 
 =head1 AUTHOR
