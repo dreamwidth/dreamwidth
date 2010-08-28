@@ -227,6 +227,8 @@ body<=
         my $username = $u->user;
         my $fromu = LJ::load_user($GET{'fromuser'} || $username);
 
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nointerests'} p?>" unless $fromu;
+
         my %uint;
 
         my %fromint;
