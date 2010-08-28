@@ -36,7 +36,7 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $randompaidgifts = $class->get_arg( $args, "randompaidgifts" ) || $u->prop( "opt_randompaidgifts" );
+    my $randompaidgifts = $class->get_arg( $args, "randompaidgifts" ) || $u->prop( "opt_randompaidgifts" ) || 'Y';
 
     my $ret = LJ::html_check({
         name => "${key}randompaidgifts",
