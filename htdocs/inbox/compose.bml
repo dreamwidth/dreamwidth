@@ -73,7 +73,7 @@ body<=
             my ($msg_len_b, $msg_len_c) = LJ::text_length($msg_body_text);
             push @errors, BML::ml( ".error.message.length",
                   { msg_length => LJ::commafy( $msg_len_c ),
-                  => msg_limit -> LJ::commafy( $msg_limit ) } )
+                    msg_limit => LJ::commafy( $msg_limit ) } )
                 unless ($msg_len_c <= $msg_limit);
 
             # checks if the PM is empty (no text)
