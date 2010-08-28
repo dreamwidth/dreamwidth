@@ -192,6 +192,7 @@ sub unread {
 # delete this item from its inbox
 sub delete {
     my $self = shift;
+    return unless $self->owner;
     my $inbox = $self->owner->notification_inbox;
 
     # delete from the inbox so the inbox stays in sync
