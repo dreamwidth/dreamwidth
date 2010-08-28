@@ -150,14 +150,15 @@ sub manage_membership {
         # if logged out, OR, not a member
         } else {
             my @comm_settings = LJ::get_comm_settings($u);
+            my $closed = ( $comm_settings[0] && $comm_settings[0] eq 'closed' ) ? 1 : 0;
 
             my $link = {
                 text_ml => 'userlinkbar.joincomm',
             };
 
             # if they're not allowed to join at this moment (many reasons)
-            if ($comm_settings[0] eq 'closed' || !$remote || !$u->is_visible) {
-                $link->{title_ml} = $comm_settings[0] eq 'closed' ?
+            if ( $closed || !$remote || !$u->is_visible ) {
+                $link->{title_ml} = $closed ?
                                         'userlinkbar.joincomm.title.closed' :
                                         'userlinkbar.joincomm.title.loggedout';
                 $link->{image}    = 'community_join_disabled.png';
