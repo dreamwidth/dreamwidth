@@ -305,7 +305,8 @@ function Page::print_default_stylesheet()
     var string userpic_css = "";
     if ($*userpics_position == "left") {
         $userpic_css = """
-        .userpic{
+        .entry .userpic,
+        .comment .userpic {
             float: left;
             margin-right: 2px;
         }
@@ -313,7 +314,8 @@ function Page::print_default_stylesheet()
     }
     elseif ($*userpics_position == "right") {
         $userpic_css = """
-        .userpic{
+        .entry .userpic,
+        .comment .userpic {
             float: right;
         }
         """;
@@ -452,8 +454,6 @@ function Page::print_default_stylesheet()
         list-style-type: none; 
     }
 
-    .userpic{
-        float:right;}
     .entry, .entry-wrapper, .comment, .comment-wrapper {
         min-height: 110px;
         border:5px solid $*color_entry_border;
@@ -547,7 +547,7 @@ function Page::print_default_stylesheet()
         color: $*color_entry_interaction_links_active;
     }
  
-    .userlite-interaction-links.icon-links ul, .entry-management-links ul, .comment-management-links ul {
+    .userlite-interaction-links.icon-links, .entry-management-links ul, .comment-management-links ul {
         list-style: none;
         margin-left: 0;
         padding-left: 0;
@@ -633,6 +633,11 @@ function Page::print_default_stylesheet()
     .subject {
         $entry_title_font
     }
+
+    .two-columns-right .module-section-one .module-userprofile .userpic {
+        text-align: right;
+    }
+
     .module-section-two .module-calendar,
     .module-section-three .module-calendar {
         text-align: center;
