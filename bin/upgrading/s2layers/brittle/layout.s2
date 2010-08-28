@@ -820,7 +820,7 @@ table.talkform {
 
 .module-userprofile .userpic img { border:5px solid $*color_navigation_module_background; }
 
-ul.userlite-interaction-links {
+ul.userlite-interaction-links.icon-links {
     list-style-image: none;
     list-style-position: outside;
     list-style-type: none;
@@ -829,7 +829,7 @@ ul.userlite-interaction-links {
     text-align: center;
     }
 
-ul.userlite-interaction-links li {
+ul.userlite-interaction-links.icon-links li {
     display: inline;
     padding: 0 0.2em;
     }

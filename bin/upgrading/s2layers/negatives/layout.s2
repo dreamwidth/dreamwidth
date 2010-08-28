@@ -513,7 +513,7 @@ function Page::print_default_stylesheet()
         display: inline;
         padding-left: 0;
     }
-    .entry-title, .userlite-interaction-links li,
+    .entry-title, .userlite-interaction-links.icon-links li,
     .entry-management-links li, .entry-interaction-links li,
     .comment-interaction-links li, .comment-management-links li {
         display: inline;
@@ -547,10 +547,10 @@ function Page::print_default_stylesheet()
         color: $*color_entry_interaction_links_active;
     }
  
-    .userlite-interaction-links ul, .entry-management-links ul, .comment-management-links ul {
+    .userlite-interaction-links.icon-links ul, .entry-management-links ul, .comment-management-links ul {
         list-style: none;
-	margin-left: 0;
-	padding-left: 0;
+        margin-left: 0;
+        padding-left: 0;
     }
 
     .tags-container {

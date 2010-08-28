@@ -466,7 +466,7 @@ ul.userlite-interaction-links {
     padding-left: 0;
 }
 
-ul.userlite-interaction-links li {
+ul.userlite-interaction-links.icon-links li {
     display: inline;
 }
 

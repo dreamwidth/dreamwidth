@@ -325,8 +325,8 @@ div.module-navlinks ul.module-list li { display: inline; margin: 0 1em 0 0; list
 #secondary .module-content li { margin: .5em 0; }
 .module-photo .module-content { text-align: center; }
 .module-user-links .module-content { text-align: center; }
-ul.userlite-interaction-links { list-style: none; margin-left: 0; padding-left: 0; }
-ul.userlite-interaction-links li { display: inline; padding: 0 .20em; }
+ul.userlite-interaction-links.icon-links { list-style: none; margin-left: 0; padding-left: 0; }
+ul.userlite-interaction-links.icon-links li { display: inline; padding: 0 .20em; }
 .module-calendar td a { display: block; padding: 2px; }
 .module-credit dt, .module-credit dd { display: inline; margin: 0; padding: 0; }
 .module-credit dt { font-weight: bold; margin-right: 0.5em; }
