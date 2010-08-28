@@ -145,7 +145,8 @@ sub handle_post {
     # an explanation
     $entry->title(   LJ::no_utf8_flag( $entry->title         ));
     $entry->link(    LJ::no_utf8_flag( $entry->link          ));
-    $entry->content( LJ::no_utf8_flag( $entry->content->body ));
+    $entry->content( LJ::no_utf8_flag( $entry->content->body ))
+        if $entry->content;
 
     my @tags;
 
