@@ -1,29 +1,26 @@
 #NEWLAYER: nouveauoleanders/dustyantique
-layerinfo "type" = "theme";
-layerinfo "name" = "Dusty Antique";
-layerinfo author_name = "branchandroot";
+layerinfo type = "theme";
+layerinfo name = "Dusty Antique";
 layerinfo redist_uniq = "nouveauoleanders/dustyantique";
+layerinfo author_name = "branchandroot";
 
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
-
-#uses the "i'm home again" palette by dinsdale (http://www.colourlovers.com/palette/130396/im_home_again)
+# Uses the "i'm home again" palette by dinsdale (http://www.colourlovers.com/palette/130396/im_home_again)
+set layout_resources =
+    [
+        { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" },
+        { "name" => "I'm home again", "url" => "http://www.colourlovers.com/palette/130396/im_home_again" }
+    ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#7A7172";
-set color_page_text = "#fff";
 set color_page_link = "#E7CDCE";
-set color_page_link_visited = "#2B1A1A";
-set color_page_link_hover = "";
 set color_page_link_active = "#fed";
+set color_page_link_visited = "#2B1A1A";
+set color_page_text = "#fff";
 set color_page_title = "#fff";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#2B1A1A";
 set color_footer_background = "#2B1A1A";
 set color_footer_link = "#fff";
@@ -41,82 +38,72 @@ set color_entry_title = "#fff";
 ##===============================
 
 set color_module_background = "#443738";
-set color_module_text = "#fff";
 set color_module_link = "#fff";
-set color_module_link_visited = "#ccc";
-set color_module_link_hover = "";
 set color_module_link_active = "#E7CDCE";
+set color_module_link_visited = "#ccc";
+set color_module_text = "#fff";
 set color_module_title = "#fff";
 set color_module_title_background = "#282421";
 
 
 #NEWLAYER: nouveauoleanders/huntergreen
-layerinfo "type" = "theme";
-layerinfo "name" = "Hunter Green";
-layerinfo author_name = "dancing_serpent";
+layerinfo type = "theme";
+layerinfo name = "Hunter Green";
 layerinfo redist_uniq = "nouveauoleanders/huntergreen";
+layerinfo author_name = "dancing_serpent";
 
 set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
-
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
-set color_page_background = "#ffffff";
-set color_page_link = "#006600";
+set color_page_background = "#fff";
+set color_page_link = "#060";
 set color_page_link_active = "#b2cc64";
 set color_page_link_hover = "#b2cc64";
-set color_page_link_visited = "#006600";
-set color_page_text = "#000000";
-set color_page_title = "#ffffff";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "#003300";
-set color_footer_background = "#003300";
-set color_footer_link = "#ffffff";
+set color_page_link_visited = "#060";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#030";
+set color_footer_background = "#030";
+set color_footer_link = "#fff";
 set color_footer_link_active = "#b2cc64";
 set color_footer_link_hover = "#b2cc64";
-set color_footer_link_visited = "#ffffff";
+set color_footer_link_visited = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
-set color_entry_border = "#000000";
-set color_entry_link = "#006600";
+set color_entry_background = "#fff";
+set color_entry_border = "#000";
+set color_entry_link = "#060";
 set color_entry_link_active = "#b2cc64";
 set color_entry_link_hover = "#b2cc64";
-set color_entry_link_visited = "#006600";
-set color_entry_text = "#000000";
-set color_entry_title = "#000000";
+set color_entry_link_visited = "#060";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_background = "#006600";
-set color_module_link = "#ffffff";
+set color_module_background = "#060";
+set color_module_link = "#fff";
 set color_module_link_active = "#b2cc64";
 set color_module_link_hover = "#b2cc64";
-set color_module_link_visited = "#ffffff";
-set color_module_title = "#ffffff";
+set color_module_link_visited = "#fff";
+set color_module_title = "#fff";
 
 
 #NEWLAYER: nouveauoleanders/nightfall
-layerinfo "type" = "theme";
-layerinfo "name" = "Nightfall";
-layerinfo author_name = "dancing_serpent";
+layerinfo type = "theme";
+layerinfo name = "Nightfall";
 layerinfo redist_uniq = "nouveauoleanders/nightfall";
+layerinfo author_name = "dancing_serpent";
 
 set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
-
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
 
 ##===============================
 ## Page Colors
@@ -126,17 +113,12 @@ set color_page_background = "#293b3f";
 set color_page_border = "#293b3f";
 set color_page_link = "#a7581d";
 set color_page_link_visited = "#a7581d";
-set color_page_text = "#cc8833";
-set color_page_title = "#cc8833";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
+set color_page_text = "#c83";
+set color_page_title = "#c83";
+set color_header_background = "#000302";
 set color_footer_background = "#000302";
 set color_footer_link = "#a7581d";
 set color_footer_link_visited = "#a7581d";
-set color_header_background = "#000302";
 
 ##===============================
 ## Entry Colors
@@ -146,8 +128,8 @@ set color_entry_background = "#293b3f";
 set color_entry_border = "#293b3f";
 set color_entry_link = "#a7581d";
 set color_entry_link_visited = "#a7581d";
-set color_entry_text = "#cc8833";
-set color_entry_title = "#cc8833";
+set color_entry_text = "#c83";
+set color_entry_title = "#c83";
 
 ##===============================
 ## Module Colors
@@ -156,19 +138,17 @@ set color_entry_title = "#cc8833";
 set color_module_background = "#192c3a";
 set color_module_link = "#a7581d";
 set color_module_link_visited = "#a7581d";
-set color_module_text = "#cc8833";
-set color_module_title = "#cc8833";
+set color_module_text = "#c83";
+set color_module_title = "#c83";
 
 
 #NEWLAYER: nouveauoleanders/palejewels
-layerinfo "type" = "theme";
-layerinfo "name" = "Pale Jewels";
-layerinfo author_name = "dancing_serpent";
+layerinfo type = "theme";
+layerinfo name = "Pale Jewels";
 layerinfo redist_uniq = "nouveauoleanders/palejewels";
+layerinfo author_name = "dancing_serpent";
 
 set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
-
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
 
 ##===============================
 ## Page Colors
@@ -176,21 +156,16 @@ set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.opencli
 
 set color_page_background = "#e9faee";
 set color_page_link = "#886c9d";
-set color_page_link_active = "#ff9966";
-set color_page_link_hover = "#ff9966";
+set color_page_link_active = "#f96";
+set color_page_link_hover = "#f96";
 set color_page_link_visited = "#886c9d";
 set color_page_text = "#363636";
 set color_page_title = "#e9faee";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#363636";
 set color_footer_background = "#363636";
 set color_footer_link = "#ad5176";
-set color_footer_link_active = "#ff9966";
-set color_footer_link_hover = "#ff9966";
+set color_footer_link_active = "#f96";
+set color_footer_link_hover = "#f96";
 set color_footer_link_visited = "#ad5176";
 
 ##===============================
@@ -199,8 +174,8 @@ set color_footer_link_visited = "#ad5176";
 
 set color_entry_background = "#e9faee";
 set color_entry_link = "#886c9d";
-set color_entry_link_active = "#ff9966";
-set color_entry_link_hover = "#ff9966";
+set color_entry_link_active = "#f96";
+set color_entry_link_hover = "#f96";
 set color_entry_link_visited = "#886c9d";
 set color_entry_text = "#363636";
 set color_entry_title = "#363636";
@@ -211,8 +186,8 @@ set color_entry_title = "#363636";
 
 set color_module_background = "#a3a68a";
 set color_module_link = "#ad5176";
-set color_module_link_active = "#ff9966";
-set color_module_link_hover = "#ff9966";
+set color_module_link_active = "#f96";
+set color_module_link_hover = "#f96";
 set color_module_link_visited = "#ad5176";
 set color_module_text = "#363636";
 set color_module_title = "#e9faee";
@@ -220,14 +195,12 @@ set color_module_title_background = "#363636";
 
 
 #NEWLAYER: nouveauoleanders/peridot
-layerinfo "type" = "theme";
-layerinfo "name" = "Peridot";
-layerinfo author_name = "dancing_serpent";
+layerinfo type = "theme";
+layerinfo name = "Peridot";
 layerinfo redist_uniq = "nouveauoleanders/peridot";
+layerinfo author_name = "dancing_serpent";
 
 set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
-
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
 
 ##===============================
 ## Page Colors
@@ -238,15 +211,10 @@ set color_page_link = "#67792a";
 set color_page_link_active = "#ff8e3c";
 set color_page_link_hover = "#ff8e3c";
 set color_page_link_visited = "#67792a";
-set color_page_text = "#000000";
+set color_page_text = "#000";
 set color_page_title = "#e5f3c7";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "#000000";
-set color_footer_background = "#000000";
+set color_header_background = "#000";
+set color_footer_background = "#000";
 set color_footer_link = "#8ca53a";
 set color_footer_link_active = "#ff8e3c";
 set color_footer_link_hover = "#ff8e3c";
@@ -261,8 +229,8 @@ set color_entry_link = "#67792a";
 set color_entry_link_active = "#ff8e3c";
 set color_entry_link_hover = "#ff8e3c";
 set color_entry_link_visited = "#67792a";
-set color_entry_text = "#000000";
-set color_entry_title = "#000000";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
 
 ##===============================
 ## Module Colors
@@ -273,37 +241,34 @@ set color_module_link = "#e5f3c7";
 set color_module_link_active = "#ff8e3c";
 set color_module_link_hover = "#ff8e3c";
 set color_module_link_visited = "#e5f3c7";
-set color_module_text = "#000000";
+set color_module_text = "#000";
 set color_module_title = "#e5f3c7";
-set color_module_title_background = "#000000";
+set color_module_title_background = "#000";
 
 
 #NEWLAYER: nouveauoleanders/piquant
-layerinfo "type" = "theme";
-layerinfo "name" = "Piquant";
-layerinfo author_name = "branchandroot";
+layerinfo type = "theme";
+layerinfo name = "Piquant";
 layerinfo redist_uniq = "nouveauoleanders/piquant";
+layerinfo author_name = "branchandroot";
 
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
-
-#uses the "I'm a fat tomato" palette by BobWestbrook (http://www.colourlovers.com/palette/912675/Im_a_fat_tomato)
+# Uses the "I'm a fat tomato" palette by BobWestbrook (http://www.colourlovers.com/palette/912675/Im_a_fat_tomato)
+set layout_resources =
+    [
+        { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" },
+        { "name" => "I'm a fat tomato", "url" => "http://www.colourlovers.com/palette/912675/Im_a_fat_tomato" }
+    ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#9E9767";
-set color_page_text = "#fff";
 set color_page_link = "#eee";
-set color_page_link_visited = "#ddd";
-set color_page_link_hover = "";
 set color_page_link_active = "#c00";
+set color_page_link_visited = "#ddd";
+set color_page_text = "#fff";
 set color_page_title = "#fff";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#3A0404";
 set color_footer_background = "#4A0404";
 set color_footer_link = "#fff";
@@ -321,41 +286,36 @@ set color_entry_title = "#fff";
 ##===============================
 
 set color_module_background = "#524D2D";
-set color_module_text = "#fff";
 set color_module_link = "#fff";
 set color_module_link_visited = "#ddd";
-set color_module_link_hover = "";
-set color_module_link_active = "";
+set color_module_text = "#fff";
 set color_module_title = "#fff";
 set color_module_title_background = "#000";
 
 
 #NEWLAYER: nouveauoleanders/seaandsalt
-layerinfo "type" = "theme";
-layerinfo "name" = "Sea and Salt";
-layerinfo author_name = "branchandroot";
+layerinfo type = "theme";
+layerinfo name = "Sea and Salt";
 layerinfo redist_uniq = "nouveauoleanders/seaandsalt";
+layerinfo author_name = "branchandroot";
 
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
-
-#uses the "Oceanside Twilight" palette by BlueLou (http://www.colourlovers.com/palette/912345/Oceanside_Twilight)
+# Uses the "Oceanside Twilight" palette by BlueLou (http://www.colourlovers.com/palette/912345/Oceanside_Twilight)
+set layout_resources =
+    [
+        { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" },
+        { "name" => "Oceanside Twilight", "url" => "http://www.colourlovers.com/palette/912345/Oceanside_Twilight" }
+    ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#fff";
-set color_page_text = "#000";
 set color_page_link = "#125468";
-set color_page_link_visited = "#1A3148";
-set color_page_link_hover = "";
 set color_page_link_active = "#cc6";
+set color_page_link_visited = "#1A3148";
+set color_page_text = "#000";
 set color_page_title = "#fff";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#1A3148";
 set color_footer_background = "#1A3148";
 set color_footer_link = "#fff";
@@ -373,39 +333,30 @@ set color_entry_title = "#000";
 ##===============================
 
 set color_module_background = "#125468";
-set color_module_text = "#fff";
 set color_module_link = "#eee";
-set color_module_link_visited = "#ddd";
-set color_module_link_hover = "";
 set color_module_link_active = "#ffd";
+set color_module_link_visited = "#ddd";
+set color_module_text = "#fff";
 set color_module_title = "#fff";
 set color_module_title_background = "#000";
 
 
 #NEWLAYER: nouveauoleanders/sienna
-layerinfo "type" = "theme";
-layerinfo "name" = "Sienna";
-layerinfo author_name = "branchandroot";
+layerinfo type = "theme";
+layerinfo name = "Sienna";
 layerinfo redist_uniq = "nouveauoleanders/sienna";
-
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+layerinfo author_name = "branchandroot";
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#fff";
-set color_page_text = "#000";
 set color_page_link = "#900";
-set color_page_link_visited = "#600";
-set color_page_link_hover = "";
 set color_page_link_active = "#f00";
+set color_page_link_visited = "#600";
+set color_page_text = "#000";
 set color_page_title = "#fff";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#000";
 set color_footer_background = "#000";
 set color_footer_link = "#fff";
@@ -423,24 +374,21 @@ set color_entry_title = "#000";
 ##===============================
 
 set color_module_background = "#7C7363";
-set color_module_text = "#fff";
 set color_module_link = "#fff";
-set color_module_link_visited = "#ddd";
-set color_module_link_hover = "";
 set color_module_link_active = "#900";
+set color_module_link_visited = "#ddd";
+set color_module_text = "#fff";
 set color_module_title = "#fff";
 set color_module_title_background = "#000";
 
 
 #NEWLAYER: nouveauoleanders/tearose
-layerinfo "type" = "theme";
-layerinfo "name" = "Tea Rose";
-layerinfo author_name = "dancing_serpent";
+layerinfo type = "theme";
+layerinfo name = "Tea Rose";
 layerinfo redist_uniq = "nouveauoleanders/tearose";
+layerinfo author_name = "dancing_serpent";
 
 set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
-
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
 
 ##===============================
 ## Page Colors
@@ -451,15 +399,10 @@ set color_page_link = "#64434b";
 set color_page_link_active = "#b18698";
 set color_page_link_hover = "#b18698";
 set color_page_link_visited = "#64434b";
-set color_page_text = "#000000";
+set color_page_text = "#000";
 set color_page_title = "#e3d7db";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "#000000";
-set color_footer_background = "#000000";
+set color_header_background = "#000";
+set color_footer_background = "#000";
 set color_footer_link = "#64434b";
 set color_footer_link_active = "#b18698";
 set color_footer_link_hover = "#b18698";
@@ -474,8 +417,8 @@ set color_entry_link = "#64434b";
 set color_entry_link_active = "#b18698";
 set color_entry_link_hover = "#b18698";
 set color_entry_link_visited = "#64434b";
-set color_entry_text = "#000000";
-set color_entry_title = "#000000";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
 
 ##===============================
 ## Module Colors
@@ -486,38 +429,35 @@ set color_module_link = "#e3d7db";
 set color_module_link_active = "#b18698";
 set color_module_link_hover = "#b18698";
 set color_module_link_visited = "#e3d7db";
-set color_module_text = "#000000";
+set color_module_text = "#000";
 set color_module_title = "#e3d7db";
-set color_module_title_background = "#000000";
+set color_module_title_background = "#000";
 
 
 #NEWLAYER: nouveauoleanders/wisteria
-layerinfo "type" = "theme";
-layerinfo "name" = "Wisteria";
-layerinfo author_name = "branchandroot";
+layerinfo type = "theme";
+layerinfo name = "Wisteria";
 layerinfo redist_uniq = "nouveauoleanders/wisteria";
+layerinfo author_name = "branchandroot";
 
-set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
-
-#uses the "Siren" palette by Faeleia (http://www.colourlovers.com/palette/912366/Siren)
+# Uses the "Siren" palette by Faeleia (http://www.colourlovers.com/palette/912366/Siren)
+set layout_resources =
+    [
+        { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" },
+        { "name" => "Siren", "url" => "http://www.colourlovers.com/palette/912366/Siren" }
+    ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#fff";
-set color_page_text = "#000";
 set color_page_link = "#D7B55C";
-set color_page_link_visited = "#9F7DA1";
-set color_page_link_hover = "";
 set color_page_link_active = "#c00";
+set color_page_link_visited = "#9F7DA1";
+set color_page_text = "#000";
 set color_page_title = "#fff";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "#4A3549";#293066
+set color_header_background = "#4A3549";
 set color_footer_background = "#4A3549";
 set color_footer_link = "#fff";
 set color_footer_link_visited = "#ddd";
@@ -534,11 +474,9 @@ set color_entry_title = "#000";
 ##===============================
 
 set color_module_background = "#856685";
-set color_module_text = "#fff";
 set color_module_link = "#eee";
-set color_module_link_visited = "#ddd";
-set color_module_link_hover = "";
 set color_module_link_active = "#D7B55C";
+set color_module_link_visited = "#ddd";
+set color_module_text = "#fff";
 set color_module_title = "#fff";
 set color_module_title_background = "#000";
-

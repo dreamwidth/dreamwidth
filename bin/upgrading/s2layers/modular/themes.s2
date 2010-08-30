@@ -1,26 +1,20 @@
 #NEWLAYER: modular/amberandgreen
 layerinfo type = "theme";
 layerinfo name = "Amber and Green";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/amberandgreen";
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/amberandgreen-background.png";
+layerinfo author_name = "branchandroot";
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#000";
-set color_page_text = "#4c4";
-set color_page_link = "#ec3"; 
-set color_page_link_visited = "#b90";
-set color_page_link_active = "#6cc";
-set color_page_title = "#eee";
 set color_page_border = "#444";
+set color_page_link = "#ec3";
+set color_page_link_active = "#6cc";
+set color_page_link_visited = "#b90";
+set color_page_text = "#4c4";
+set color_page_title = "#eee";
 set color_header_background = "#333";
 set color_footer_background = "#333";
 
@@ -29,14 +23,9 @@ set color_footer_background = "#333";
 ##===============================
 
 set color_entry_background = "#111";
+set color_entry_border = "#444";
 set color_entry_title = "#eee";
 set color_entry_title_background = "#333";
-set color_entry_border = "#444";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#333";
 
 ##===============================
@@ -44,37 +33,36 @@ set color_comment_title_background = "#333";
 ##===============================
 
 set color_module_background = "#111";
+set color_module_border = "#444";
 set color_module_title = "#eee";
 set color_module_title_background = "#333";
-set color_module_border = "#444";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/amberandgreen-background.png";
 
 
 #NEWLAYER: modular/bubblegum
 layerinfo type = "theme";
 layerinfo name = "Bubblegum";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/bubblegum";
-
-set layout_resources = [ { "name" => "Meow", "url" => "http://www.colourlovers.com/palette/164203/meow" } ];
+layerinfo author_name = "branchandroot";
 
 # Uses the palette "Meow" by pinkpanda0466 (http://www.colourlovers.com/palette/164203/meow)
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/bubblegum-background.png";
+set layout_resources = [ { "name" => "Meow", "url" => "http://www.colourlovers.com/palette/164203/meow" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#FFEFE7";
-set color_page_text = "#252525";
-set color_page_link = "#E6A3A3"; 
-set color_page_link_visited = "#D9B2B2";
-set color_page_link_active = "#6cc";
 set color_page_border = "#bFaFa8";
+set color_page_link = "#E6A3A3";
+set color_page_link_active = "#6cc";
+set color_page_link_visited = "#D9B2B2";
+set color_page_text = "#252525";
 set color_header_background = "#FFEFE7";
 set color_footer_background = "#FFEFE7";
 
@@ -83,14 +71,9 @@ set color_footer_background = "#FFEFE7";
 ##===============================
 
 set color_entry_background = "#fff";
+set color_entry_border = "#bFaFa8";
 set color_entry_title = "#5F4F48";
 set color_entry_title_background = "#FFEFE7";
-set color_entry_border = "#bFaFa8";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#FFEFE7";
 
 ##===============================
@@ -98,38 +81,37 @@ set color_comment_title_background = "#FFEFE7";
 ##===============================
 
 set color_module_background = "#fff";
+set color_module_border = "#bFaFa8";
 set color_module_title = "#5F4F48";
 set color_module_title_background = "#FFEFE7";
-set color_module_border = "#bFaFa8";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/bubblegum-background.png";
 
 
 #NEWLAYER: modular/coffeeandcream
 layerinfo type = "theme";
 layerinfo name = "Coffee and Cream";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/coffeeandcream";
-
-set layout_resources = [ { "name" => "Black & White Photos", "url" => "http://www.colourlovers.com/palette/912388/Black__White_Photos" } ];
+layerinfo author_name = "branchandroot";
 
 ## Uses the palette "Black & White Photos" by ladysuean (http://www.colourlovers.com/palette/912388/Black__White_Photos)
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/coffeeandcream-background.png";
+set layout_resources = [ { "name" => "Black & White Photos", "url" => "http://www.colourlovers.com/palette/912388/Black__White_Photos" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#473F34";
-set color_page_text = "#282421";
-set color_page_link = "#79a3bB"; 
-set color_page_link_visited = "#406389";
-set color_page_link_active = "#c66";
-set color_page_title = "#fff";
 set color_page_border = "#282421";
+set color_page_link = "#79a3bB";
+set color_page_link_active = "#c66";
+set color_page_link_visited = "#406389";
+set color_page_text = "#282421";
+set color_page_title = "#fff";
 set color_header_background = "#DCCDB0";
 set color_footer_background = "#DCCDB0";
 set color_footer_link = "#fff";
@@ -139,14 +121,9 @@ set color_footer_link = "#fff";
 ##===============================
 
 set color_entry_background = "#fff";
+set color_entry_border = "#282421";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#DCCDB0";
-set color_entry_border = "#282421";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#DCCDB0";
 
 ##===============================
@@ -154,38 +131,37 @@ set color_comment_title_background = "#DCCDB0";
 ##===============================
 
 set color_module_background = "#fff";
+set color_module_border = "#282421";
 set color_module_title = "#fff";
 set color_module_title_background = "#DCCDB0";
-set color_module_border = "#282421";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/coffeeandcream-background.png";
 
 
 #NEWLAYER: modular/distinctblue
 layerinfo type = "theme";
 layerinfo name = "Distinct Blue";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/distinctblue";
-
-set layout_resources = [ { "name" => "Blue Jupiter", "url" => "http://www.colourlovers.com/palette/965705/Blue_Jupiter" } ];
+layerinfo author_name = "branchandroot";
 
 ## Uses the palette "Blue Jupiter" by memomo (http://www.colourlovers.com/palette/965705/Blue_Jupiter)
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/distinctblue-background.png";
+set layout_resources = [ { "name" => "Blue Jupiter", "url" => "http://www.colourlovers.com/palette/965705/Blue_Jupiter" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#473F34";
-set color_page_text = "#fff";
-set color_page_link = "#C7E7F4"; 
-set color_page_link_visited = "#89B3CB";
-set color_page_link_active = "#cc6";
-set color_page_title = "#fff";
 set color_page_border = "#825C2F";
+set color_page_link = "#C7E7F4";
+set color_page_link_active = "#cc6";
+set color_page_link_visited = "#89B3CB";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
 set color_header_background = "#1F305C";
 set color_footer_background = "#1F305C";
 set color_footer_link = "#fff";
@@ -195,14 +171,9 @@ set color_footer_link = "#fff";
 ##===============================
 
 set color_entry_background = "#111";
+set color_entry_border = "#825C2F";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#1F305C";
-set color_entry_border = "#825C2F";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#1F305C";
 
 ##===============================
@@ -210,16 +181,22 @@ set color_comment_title_background = "#1F305C";
 ##===============================
 
 set color_module_background = "#111";
+set color_module_border = "#825C2F";
 set color_module_title = "#fff";
 set color_module_title_background = "#1F305C";
-set color_module_border = "#825C2F";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/distinctblue-background.png";
 
 
 #NEWLAYER: modular/freshprose
 layerinfo type = "theme";
 layerinfo name = "Fresh Prose";
-layerinfo author_name = "timeasmymeasure";
 layerinfo redist_uniq = "modular/freshprose";
+layerinfo author_name = "timeasmymeasure";
 
 set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
@@ -234,28 +211,23 @@ set color_page_link_active = "#b68187";
 set color_page_link_hover = "#885b5a";
 set color_page_link_visited = "#b68187";
 set color_page_text = "#705f50";
-set color_header_background = "#ffffff";
-set color_footer_background = "#ffffff";
+set color_header_background = "#fff";
+set color_footer_background = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
+set color_entry_background = "#fff";
 set color_entry_border = "#f6f7f2";
 set color_entry_title_background = "#f6f7f2";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#f6f7f2";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_background = "#ffffff";
+set color_module_background = "#fff";
 set color_module_border = "#f6f7f2";
 set color_module_title_background = "#f6f7f2";
 
@@ -263,30 +235,23 @@ set color_module_title_background = "#f6f7f2";
 #NEWLAYER: modular/greensummer
 layerinfo type = "theme";
 layerinfo name = "Green Summer";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/greensummer";
-
-set layout_resources = [ { "name" => "p r o l o g u e", "url" => "http://www.colourlovers.com/palette/964086/p_r_o_l_o_g_u_e_*" } ];
+layerinfo author_name = "branchandroot";
 
 ## Uses the palette "p r o l o g u e " by sugar! (http://www.colourlovers.com/palette/964086/p_r_o_l_o_g_u_e_*)
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/greensummer-background.png";
+set layout_resources = [ { "name" => "p r o l o g u e", "url" => "http://www.colourlovers.com/palette/964086/p_r_o_l_o_g_u_e_*" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#473F34";
-set color_page_text = "#35372D";
-set color_page_link = "#D25A2B"; 
-set color_page_link_visited = "#a22A0B";
-set color_page_link_active = "#66c";
-set color_page_title = "#fff";
 set color_page_border = "#35372D";
+set color_page_link = "#D25A2B";
+set color_page_link_active = "#66c";
+set color_page_link_visited = "#a22A0B";
+set color_page_text = "#35372D";
+set color_page_title = "#fff";
 set color_header_background = "#869F78";
 set color_footer_background = "#869F78";
 set color_footer_link = "#fff";
@@ -296,14 +261,9 @@ set color_footer_link = "#fff";
 ##===============================
 
 set color_entry_background = "#fff";
+set color_entry_border = "#35372D";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#869F78";
-set color_entry_border = "#35372D";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#869F78";
 
 ##===============================
@@ -311,38 +271,37 @@ set color_comment_title_background = "#869F78";
 ##===============================
 
 set color_module_background = "#fff";
+set color_module_border = "#35372D";
 set color_module_title = "#fff";
 set color_module_title_background = "#869F78";
-set color_module_border = "#35372D";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/greensummer-background.png";
 
 
 #NEWLAYER: modular/irisatdusk
 layerinfo type = "theme";
 layerinfo name = "Iris at Dusk";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/irisatdusk";
-
-set layout_resources = [ { "name" => "Plum Together", "url" => "http://www.colourlovers.com/palette/1015963/Plum_Together" } ];
+layerinfo author_name = "branchandroot";
 
 ## Uses the palette "Plum Together" by o2bqueen (http://www.colourlovers.com/palette/1015963/Plum_Together)
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/irisatdusk-background.png";
+set layout_resources = [ { "name" => "Plum Together", "url" => "http://www.colourlovers.com/palette/1015963/Plum_Together" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#6B586E";
-set color_page_text = "#000";
-set color_page_link = "#919e68"; 
-set color_page_link_visited = "#8b8f74";
-set color_page_link_active = "#c66";
-set color_page_title = "#fff";
 set color_page_border = "#6B586E";
+set color_page_link = "#919e68";
+set color_page_link_active = "#c66";
+set color_page_link_visited = "#8b8f74";
+set color_page_text = "#000";
+set color_page_title = "#fff";
 set color_header_background = "#b6a2b8";
 set color_footer_background = "#b6a2b8";
 set color_footer_link = "#fff";
@@ -352,14 +311,9 @@ set color_footer_link = "#fff";
 ##===============================
 
 set color_entry_background = "#fff";
+set color_entry_border = "#6B586E";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#b6a2b8";
-set color_entry_border = "#6B586E";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#b6a2b8";
 
 ##===============================
@@ -367,38 +321,37 @@ set color_comment_title_background = "#b6a2b8";
 ##===============================
 
 set color_module_background = "#fff";
+set color_module_border = "#6B586E";
 set color_module_title = "#fff";
 set color_module_title_background = "#b6a2b8";
-set color_module_border = "#6B586E";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/irisatdusk-background.png";
 
 
 #NEWLAYER: modular/mediterraneanpeach
 layerinfo type = "theme";
 layerinfo name = "Mediterranean Peach";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/mediterraneanpeach";
-
-set layout_resources = [ { "name" => "Nantes", "url" => "http://www.colourlovers.com/palette/448043/nantes" } ];
+layerinfo author_name = "branchandroot";
 
 ## Uses the palette "nantes" by mimossito (http://www.colourlovers.com/palette/448043/nantes)
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/mediterraneanpeach-background.png";
+set layout_resources = [ { "name" => "Nantes", "url" => "http://www.colourlovers.com/palette/448043/nantes" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#473F34";
-set color_page_text = "#2B1A1A";
-set color_page_link = "#E69B5E"; 
-set color_page_link_visited = "#EDB98E";
-set color_page_link_active = "#c66";
-set color_page_title = "#fff";
 set color_page_border = "#2B1A1A";
+set color_page_link = "#E69B5E";
+set color_page_link_active = "#c66";
+set color_page_link_visited = "#EDB98E";
+set color_page_text = "#2B1A1A";
+set color_page_title = "#fff";
 set color_header_background = "#486B82";
 set color_footer_background = "#486B82";
 set color_footer_link = "#fff";
@@ -408,14 +361,9 @@ set color_footer_link = "#fff";
 ##===============================
 
 set color_entry_background = "#fff";
+set color_entry_border = "#2B1A1A";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#486B82";
-set color_entry_border = "#2B1A1A";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#486B82";
 
 ##===============================
@@ -423,38 +371,37 @@ set color_comment_title_background = "#486B82";
 ##===============================
 
 set color_module_background = "#fff";
+set color_module_border = "#2B1A1A";
 set color_module_title = "#fff";
 set color_module_title_background = "#486B82";
-set color_module_border = "#2B1A1A";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/mediterraneanpeach-background.png";
 
 
 #NEWLAYER: modular/olivetree
 layerinfo type = "theme";
 layerinfo name = "Olive Tree";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/olivetree";
-
-set layout_resources = [ { "name" => "I'm a fat tomato", "url" => "http://www.colourlovers.com/palette/912675/Im_a_fat_tomato" } ];
+layerinfo author_name = "branchandroot";
 
 ## Uses the palette "I'm a fat tomato" by BobWestbrook (http://www.colourlovers.com/palette/912675/Im_a_fat_tomato)
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/olivetree-background.png";
+set layout_resources = [ { "name" => "I'm a fat tomato", "url" => "http://www.colourlovers.com/palette/912675/Im_a_fat_tomato" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#fff";
-set color_page_text = "#000";
-set color_page_link = "#b70202"; 
-set color_page_link_visited = "#910D0D";
-set color_page_link_active = "#33c";
-set color_page_title = "#fff";
 set color_page_border = "#322D0D";
+set color_page_link = "#b70202";
+set color_page_link_active = "#33c";
+set color_page_link_visited = "#910D0D";
+set color_page_text = "#000";
+set color_page_title = "#fff";
 set color_header_background = "#524D2D";
 set color_footer_background = "#524D2D";
 set color_footer_link = "#fff";
@@ -464,14 +411,9 @@ set color_footer_link = "#fff";
 ##===============================
 
 set color_entry_background = "#fff";
+set color_entry_border = "#322D0D";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#524D2D";
-set color_entry_border = "#322D0D";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#524D2D";
 
 ##===============================
@@ -479,16 +421,22 @@ set color_comment_title_background = "#524D2D";
 ##===============================
 
 set color_module_background = "#fff";
+set color_module_border = "#322D0D";
 set color_module_title = "#fff";
 set color_module_title_background = "#524D2D";
-set color_module_border = "#322D0D";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/olivetree-background.png";
 
 
 #NEWLAYER: modular/purplehaze
 layerinfo type = "theme";
 layerinfo name = "Purple Haze";
-layerinfo author_name = "timeasmymeasure";
 layerinfo redist_uniq = "modular/purplehaze";
+layerinfo author_name = "timeasmymeasure";
 
 set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
@@ -496,70 +444,58 @@ set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 ## Page Colors
 ##===============================
 
+set color_page_background = "#ededed";
+set color_page_border = "#ededed";
 set color_page_link = "#787878";
 set color_page_link_active = "#787878";
 set color_page_link_hover = "#989898";
 set color_page_link_visited = "#787878";
-set color_page_text = "#000000";
-set color_page_title = "#ffffff";
-set color_page_background = "#ededed";
-set color_page_border = "#ededed";
-set color_footer_background = "#b6a2b8";
-set color_footer_link = "#ffffff";
+set color_page_text = "#000";
+set color_page_title = "#fff";
 set color_header_background = "#b6a2b8";
+set color_footer_background = "#b6a2b8";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#ffffff";
+set color_entry_background = "#fff";
 set color_entry_border = "#ededed";
-set color_entry_title = "#ffffff";
+set color_entry_title = "#fff";
 set color_entry_title_background = "#b6a2b8";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#b6a2b8";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_background = "#ffffff";
+set color_module_background = "#fff";
 set color_module_border = "#ededed";
-set color_module_title = "#ffffff";
+set color_module_title = "#fff";
 set color_module_title_background = "#b6a2b8";
 
 
 #NEWLAYER: modular/swiminthesea
 layerinfo type = "theme";
 layerinfo name = "Swim in the Sea";
-layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "modular/swiminthesea";
-
-set layout_resources = [ { "name" => "Tip My Hat", "url" => "http://www.colourlovers.com/palette/916462/Tip_My_Hat" } ];
+layerinfo author_name = "branchandroot";
 
 ## Uses the palette "Tip My Hat" by Highwireart (http://www.colourlovers.com/palette/916462/Tip_My_Hat)
-
-##===============================
-## Page Images
-##===============================
-
-set image_background_page_url = "modular/swiminthesea-background.png";
+set layout_resources = [ { "name" => "Tip My Hat", "url" => "http://www.colourlovers.com/palette/916462/Tip_My_Hat" } ];
 
 ##===============================
 ## Page Colors
 ##===============================
 
 set color_page_background = "#8Da7d8";
-set color_page_text = "#000";
-set color_page_link = "#8Da7d8"; 
-set color_page_link_visited = "#A5BEE7";
-set color_page_link_active = "#6c6";
-set color_page_title = "#1E1D19";
 set color_page_border = "#b1a897";
+set color_page_link = "#8Da7d8";
+set color_page_link_active = "#6c6";
+set color_page_link_visited = "#A5BEE7";
+set color_page_text = "#000";
+set color_page_title = "#1E1D19";
 set color_header_background = "#EFEEE9";
 set color_footer_background = "#EFEEE9";
 
@@ -568,14 +504,9 @@ set color_footer_background = "#EFEEE9";
 ##===============================
 
 set color_entry_background = "#fff";
+set color_entry_border = "#b1a897";
 set color_entry_title = "#1E1D19";
 set color_entry_title_background = "#EFEEE9";
-set color_entry_border = "#b1a897";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#EFEEE9";
 
 ##===============================
@@ -583,6 +514,12 @@ set color_comment_title_background = "#EFEEE9";
 ##===============================
 
 set color_module_background = "#fff";
+set color_module_border = "#b1a897";
 set color_module_title = "#1E1D19";
 set color_module_title_background = "#EFEEE9";
-set color_module_border = "#b1a897";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_url = "modular/swiminthesea-background.png";
