@@ -13,6 +13,7 @@
 
 package LJ::CProd::FriendsFriends;
 use base 'LJ::CProd';
+use strict;
 
 sub applicable {
     my ($class, $u) = @_;

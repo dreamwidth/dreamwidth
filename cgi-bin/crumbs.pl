@@ -15,6 +15,7 @@
 #
 # Stores all global crumbs and builds the crumbs hash
 
+use strict;
 use Errno qw(ENOENT);
 
 %LJ::CRUMBS = (

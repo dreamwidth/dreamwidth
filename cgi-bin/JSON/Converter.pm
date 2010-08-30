@@ -14,6 +14,7 @@
 package JSON::Converter;
 ##############################################################################
 
+use strict;
 use Carp;
 
 $JSON::Converter::VERSION = 1.00;
@@ -169,19 +170,19 @@ sub valueToJson {
 }
 
 
-%esc = (
-    "\n" => '\n',
-    "\r" => '\r',
-    "\t" => '\t',
-    "\f" => '\f',
-    "\b" => '\b',
-    "\"" => '\"',
-    "\\" => '\\\\',
-);
-
-
 sub _stringfy {
     my $arg = shift;
+
+    my %esc = (
+        "\n" => '\n',
+        "\r" => '\r',
+        "\t" => '\t',
+        "\f" => '\f',
+        "\b" => '\b',
+        "\"" => '\"',
+        "\\" => '\\\\',
+    );
+
     $arg =~ s/([\\"\n\r\t\f\b])/$esc{$1}/eg;
     $arg =~ s/([\x00-\x07\x0b\x0e-\x1f])/'\\u00' . unpack('H2',$1)/eg;
     return '"' . $arg . '"';

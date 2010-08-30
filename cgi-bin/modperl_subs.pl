@@ -84,7 +84,6 @@ use LJ::Syn;
 require "htmlcontrols.pl";
 require "weblib.pl";
 require "imageconf.pl";
-require "propparse.pl";
 use LJ::Support;
 use LJ::CleanHTML;
 use LJ::Talk;

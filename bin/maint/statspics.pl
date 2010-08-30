@@ -13,7 +13,10 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
+use strict;
 use GD::Graph::bars;
+
+my %maint;
 
 $maint{'genstatspics'} = sub
 {

@@ -18,6 +18,9 @@
 # and edit it there.  This file only provides backup default values for upgrading.
 #
 
+use strict;
+no strict "vars";
+
 {
     package LJ;
     use Sys::Hostname ();

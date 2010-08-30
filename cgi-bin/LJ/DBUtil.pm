@@ -12,6 +12,7 @@
 # part of this distribution.
 
 package LJ::DBUtil;
+use strict;
 
 use lib "$LJ::HOME/cgi-bin";
 require "ljlib.pl";

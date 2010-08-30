@@ -13,6 +13,10 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
+use strict;
+
+my %maint;
+
 $maint{'clean_caches'} = sub
 {
     my $dbh = LJ::get_db_writer();
@@ -164,7 +168,7 @@ $maint{'clean_caches'} = sub
 
         my $dbcm = LJ::get_cluster_master($cid);
         unless ($dbcm) {
-            print "    cluster down: $clusterid\n";
+            print "    cluster down: $cid\n";
             next;
         }
 
@@ -279,7 +283,7 @@ $maint{'clean_caches'} = sub
 
         my $dbcm = LJ::get_cluster_master($cid);
         unless ($dbcm) {
-            print "    cluster down: $clusterid\n";
+            print "    cluster down: $cid\n";
             next;
         }
 

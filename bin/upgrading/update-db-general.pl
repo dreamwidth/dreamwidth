@@ -14,6 +14,8 @@
 # database schema & data info
 #
 
+use strict;
+
 mark_clustered(@LJ::USER_TABLES);
 
 register_tablecreate("authactions", <<'EOC');

@@ -17,6 +17,7 @@
 #
 
 package LJ;
+use strict;
 
 # <LJFUNC>
 # name: LJ::check_email

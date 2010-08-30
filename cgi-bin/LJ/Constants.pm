@@ -16,6 +16,7 @@
 # still can do LJ::BMAX_NAME, etc
 
 package LJ;
+use strict;
 
 use constant ENDOFTIME => 2147483647;
 $LJ::EndOfTime = 2147483647;  # for string interpolation

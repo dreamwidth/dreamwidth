@@ -12,6 +12,7 @@
 # part of this distribution.
 
 package LJ::JSUtil;
+use strict;
 
 #<LJFUNC>
 # name: LJ::JSUtil::autocomplete

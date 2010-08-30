@@ -13,7 +13,7 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-
+use strict;
 use lib "$LJ::HOME/cgi-bin";
 use Errno qw(ENOENT);
 use LJ::Config;

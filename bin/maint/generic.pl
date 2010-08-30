@@ -13,6 +13,9 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
+use strict;
+
+my %maint;
 
 $maint{joinmail} = sub {
     # this needs to be resumeable, so that it can run once every 10 or 15 minutes to digest things
