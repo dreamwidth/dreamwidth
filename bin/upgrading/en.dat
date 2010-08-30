@@ -1197,6 +1197,10 @@ error.deleted.title=Deleted Account
 
 error.expiredchal=Login window expired.  Please try again.
 
+error.guidelines.none=[[user]] has not defined an entry for their community guidelines. See <a [[aopts]]>their profile</a> for further information about the community.
+
+error.guidelines.notcomm=Community guidelines are only available for communities.
+
 error.interest.bytes=Sorry, you have listed an interest with [[bytes]] bytes.  Each interest has a limit of [[bytes_max]] bytes.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
 
 error.interest.bytes.chars=Sorry, you have listed an interest with [[bytes]] bytes, and [[chars]] characters.  Each interest has a limit of [[bytes_max]] bytes, and [[chars_max]] characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".

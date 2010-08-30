@@ -58,6 +58,8 @@
 
 .label.community=Community:
 
+.label.guidelines=<a [[aopts]]>Community guidelines</a> - consistent link to your community guidelines entry
+
 .label.howoperates=Choose how your community operates.  You can change these later.
 
 .label.maintainer=Maintainer:

@@ -2704,6 +2704,16 @@ sub get_posting_guidelines_entry {
     return undef;
 }
 
+sub posting_guidelines_url {
+    my $u = $_[0];
+
+    return "" unless $u->is_community;
+
+    my $posting_guidelines = $u->posting_guidelines_entry;
+    return "" unless $posting_guidelines;
+
+    return $u->journal_base . "/guidelines";
+}
 
 sub profile_url {
     my ($u, %opts) = @_;

@@ -135,10 +135,7 @@ body<=
         my $post_url;
         $post_url = $LJ::SITEROOT . "/update?usejournal=" . $cu->user
             if $show_join_post_link && $remote->can_post_to( $cu );
-        my $posting_guidelines_entry = $cu->get_posting_guidelines_entry;
-        my $posting_guidelines_entry_url;
-        $posting_guidelines_entry_url = $posting_guidelines_entry->url
-            if $posting_guidelines_entry;
+        my $posting_guidelines_entry_url = $cu->posting_guidelines_url;
 
         $ret .= "<?h1 $ML{'.success'} h1?><?p " . BML::ml('.label.membernow6',
                                                           { 'commname' => LJ::ljuser($cu) }) . " p?>";

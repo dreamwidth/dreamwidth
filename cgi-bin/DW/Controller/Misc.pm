@@ -27,6 +27,7 @@ use DW::Template;
 
 DW::Routing->register_string( '/misc/whereami', \&whereami_handler, app => 1 );
 DW::Routing->register_string( '/pubkey',        \&pubkey_handler,   app => 1 );
+DW::Routing->register_string( '/guidelines',    \&community_guidelines, user => 1 );
 
 # handles the /misc/whereami page
 sub whereami_handler {
@@ -50,6 +51,24 @@ sub pubkey_handler {
     $rv->{u}->preload_props( 'public_key' ) if $rv->{u};
 
     return DW::Template->render_template( 'misc/pubkey.tt', $rv );
+}
+
+sub community_guidelines {
+    my ( $opts ) = @_;
+    my $r = DW::Request->get;
+
+    my $u = LJ::load_user( $opts->username );
+    return error_ml( 'error.invaliduser' )  
+        unless LJ::isu( $u );
+
+    return error_ml( 'error.guidelines.notcomm' )
+        unless $u->is_community;
+
+    my $guidelines_entry = $u->get_posting_guidelines_entry;
+    return error_ml( 'error.guidelines.none', { user => $u->ljuser_display, aopts => "href='" . $u->profile_url . "'" } )
+        unless $guidelines_entry;
+
+    return $r->redirect( $guidelines_entry->url );
 }
 
 1;

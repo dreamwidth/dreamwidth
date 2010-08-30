@@ -191,8 +191,13 @@ body<=
             }
 
             $ret .= "<?p $ML{'.label.rellinks'} <ul><li><a href='" . $cu->journal_base . "'>$ML{'.label.commsite'}</a></li>";
-            $ret .= "<li><a href='" . $cu->profile_url() . "'>$ML{'.label.comminfo'}</a></li><li>"
-                . BML::ml('.label.managepage', { 'aopts' => 'href="/community/manage"' }) . "</li></ul> p?>";
+            $ret .= "<li><a href='" . $cu->profile_url() . "'>$ML{'.label.comminfo'}</a></li>"
+                . "<li>" . BML::ml('.label.managepage', { aopts => 'href="/community/manage"' }) . "</li>";
+
+            my $posting_guidelines_url = $cu->posting_guidelines_url;
+            $ret .= "<li>" . BML::ml('.label.guidelines', { aopts => "href='$posting_guidelines_url'"} ) . "</li>"
+                if $posting_guidelines_url;
+            $ret .= "</ul> p?>";
 
             return $ret;
         }
