@@ -1,2 +1,2 @@
 [%- sections.title = 'error' | ml -%]
-<p><strong>[% message %]</strong></p>
+<p>[% message %]</p>
