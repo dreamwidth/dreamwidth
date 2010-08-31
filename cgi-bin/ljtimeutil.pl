@@ -145,7 +145,7 @@ sub time_to_w3c {
 sub mysql_time
 {
     my ($time, $gmt) = @_;
-    $time ||= time();
+    $time = time() unless defined $time;
     my @ltime = $gmt ? gmtime($time) : localtime($time);
     return sprintf("%04d-%02d-%02d %02d:%02d:%02d",
                    $ltime[5]+1900,
@@ -160,7 +160,7 @@ sub mysql_time
 # returns: date in ISO format
 sub mysql_date {
     my ( $time, $gmt ) = @_;
-    $time ||= time();
+    $time = time() unless defined $time;
     my @ltime = $gmt ? gmtime( $time ) : localtime( $time );
     return sprintf( "%04d-%02d-%02d",
                     $ltime[5]+1900, $ltime[4]+1, $ltime[3] );
