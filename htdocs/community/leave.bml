@@ -61,7 +61,7 @@ _c?>
         if ($watching && !$memberof) {
             $remote->remove_edge( $cu, watch => {} );
         } else {
-            LJ::leave_community($remote, $cu, $FORM{removefriend});
+            $remote->leave_community( $cu, $FORM{removefriend} );
         }
 
         # success message

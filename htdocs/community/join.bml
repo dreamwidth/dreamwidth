@@ -74,7 +74,7 @@ body<=
         return "<?h1 $ML{'Error'} h1?><?p $adult_err p?>";
     }
 
-    my $ci = LJ::get_community_row($cu);
+    my $ci = $cu->get_community_row;
     my $cuserid = $ci->{'userid'};
 
     LJ::text_out(\$ci->{'name'});
@@ -111,14 +111,14 @@ body<=
         # can members join this community openly?
         if ($ci->{membership} ne 'open') {
             # hit up the maintainers to let them know a join was requested
-            LJ::comm_join_request($cu, $remote);
+            $cu->comm_join_request( $remote );
             $ret = "<?h1 $ML{'.reqsubmitted.title'} h1?><?p $ML{'.reqsubmitted.body'} p?> ";
             $ret .= $next_links;
             return $ret;
           }
 
         # join community
-        my $joined = LJ::join_community($remote, $cu);
+        my $joined = $remote->join_community( $cu );
         unless ($joined) {
             return "<?h1 $ML{'error'} h1?>"
                    . "<?p " . LJ::last_error() . " p?>";

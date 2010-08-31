@@ -70,7 +70,7 @@ body<=
         return $ret;
     }
 
-    $ret .= LJ::maintainer_linkbar($c, "members");
+    $ret .= $c->maintainer_linkbar( "members" );
 
     my @allattribs = ('member', 'post', 'preapprove', 'moderate', 'admin');
     my %attrshort = ( X => 'member', P => 'post', N => 'preapprove', M => 'moderate', A => 'admin');
@@ -168,7 +168,7 @@ body<=
             foreach my $row (@to_add) {
                 # good, let's extend an invite to this person
                 my ($target, $attrs) = @$row;
-                if (LJ::send_comm_invite($target, $c, $remote, $attrs)) {
+                if ( $target->send_comm_invite( $c, $remote, $attrs ) ) {
                     push @invited, $row;
                 } else {
                     push @fail, [ $target, LJ::last_error_code() ];
@@ -370,12 +370,12 @@ body<=
                 my $u = LJ::load_userid($id);
                 if ( $remote->equals( $u ) ) {
                     # you're allowed to add yourself as member
-                    LJ::join_community($remote, $c);
+                    $remote->join_community( $c );
                 } else {
-                    if (LJ::send_comm_invite($u, $c, $remote, [ 'member' ])) {
+                    if ( $u && $u->send_comm_invite( $c, $remote, [ 'member' ] ) ) {
                         # if it succeeded, push the reinvited information
                         push @msgs, BML::ml('.reinvited2',
-                            { user => LJ::ljuser($u),
+                            { user => $u->ljuser_display,
                               aopts => "href='$LJ::SITEROOT/manage/invites'" });
                     }
                 }

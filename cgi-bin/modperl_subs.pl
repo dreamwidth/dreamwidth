@@ -92,7 +92,7 @@ require "emailcheck.pl";
 require "ljmemories.pl";
 require "ljmail.pl";
 require "sysban.pl";
-require "communitylib.pl";
+use LJ::Community;
 use LJ::Tags;
 require "ljemailgateway-web.pl";
 use LJ::Customize;

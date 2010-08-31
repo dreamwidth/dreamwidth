@@ -64,7 +64,7 @@ sub execute {
         if $action eq 'remove' && !$can_remove;
 
     # since adds are blocked, at this point we know we're removing the user
-    LJ::leave_community($target, $comm);
+    $target->leave_community( $comm );
     return $self->print("User " . $target->user . " removed from " . $comm->user);
 }
 

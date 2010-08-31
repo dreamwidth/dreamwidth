@@ -42,7 +42,7 @@ body<=
     my $ret;
 
     # get pending invites
-    my $pending = LJ::get_pending_invites($u) || [];
+    my $pending = $u->get_pending_invites || [];
 
     # short out?
     return "<?h1 $ML{'.none.title'} h1?><?p $ML{'.none.body'} p?>"
@@ -69,10 +69,10 @@ body<=
 
             # now take actions?
             if ($POST{"pending_$commid"} eq 'yes') {
-                my $rval = LJ::accept_comm_invite($u, $us->{$commid});
+                my $rval = $u->accept_comm_invite( $us->{$commid} );
                 push @accepted, [ $commid, $args ] if $rval;
             } elsif ($POST{"pending_$commid"} eq 'no') {
-                my $rval = LJ::reject_comm_invite($u, $us->{$commid});
+                my $rval = $u->reject_comm_invite( $us->{$commid} );
                 push @rejected, $commid if $rval;
             } else {
                 push @undecided, $commid;

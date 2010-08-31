@@ -53,11 +53,11 @@ body<=
         my $modid = $POST{'modid'}+0;
 
         my $c = LJ::load_userid($cid);
-        unless ($c) {
+        my $dbcm = LJ::get_cluster_master( $c );
+        unless ( $c && $dbcm ) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.notfound'} p?>";
             return $ret;
         }
-        my $dbcm = LJ::get_cluster_master($c);
 
         unless ( $remote->can_moderate( $c ) ) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p " .
@@ -65,7 +65,7 @@ body<=
             return $ret;
         }
 
-        $ret .= LJ::maintainer_linkbar($c, "queue");
+        $ret .= $c->maintainer_linkbar( "queue" );
 
         # use dbcm to read to minimize collisions between moderators due to replication lag
         my $entry = $dbcm->selectrow_hashref("SELECT * FROM modlog WHERE journalid=? AND modid=?",
@@ -226,7 +226,8 @@ body<=
         return $ret;
     }
 
-    $ret .= LJ::maintainer_linkbar($c, "queue") unless LJ::did_post() && ($mode eq 'approve_do' || $mode eq 'reject_do');
+    $ret .= $c->maintainer_linkbar( "queue" )
+        unless LJ::did_post() && ( $mode eq 'approve_do' || $mode eq 'reject_do' );
 
     my $formauth = LJ::form_auth();
 

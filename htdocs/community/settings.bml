@@ -148,8 +148,8 @@ body<=
                 LJ::statushistory_add($cu, $remote, "change_journal_type", $msg);
             }
 
-            LJ::set_comm_settings($cu, $remote, { membership => $qmembership,
-                                   postlevel => $qpostlevel });
+            $cu->set_comm_settings( $remote, { membership => $qmembership,
+                                    postlevel => $qpostlevel } );
 
             # lazy-cleanup: if a community has subscriptions (most likely
             # due to a personal->comm conversion), nuke those subs.
@@ -182,7 +182,7 @@ body<=
             # since journaltype changed
             $cu->invalidate_directory_record;
 
-            $ret .= LJ::maintainer_linkbar($cu, "settings");
+            $ret .= $cu->maintainer_linkbar( "settings" );
             $ret .= "<?h1 $ML{'.success'} h1?>";
             if ($mode eq 'create') {
                 $ret .= "<?p $ML{'.label.commcreated'} p?>";
@@ -270,7 +270,7 @@ body<=
     } else {
         LJ::set_active_crumb('commsettings');
           $ret .= LJ::html_hidden('cuser', $cname);
-          $ret .= LJ::maintainer_linkbar($c, "settings");
+          $ret .= $c->maintainer_linkbar( "settings" );
     }
 
     $ret .= "<div id='left-column'>";

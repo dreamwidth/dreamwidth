@@ -74,12 +74,11 @@ _c?>
         $success = $remote->remove_edge( $targetu, watch => {} );
     } elsif ( $action eq 'join' ) {
         my $error;
-        my $can_join = $remote->can_join( $targetu, errref => \$error ) ? 1 : 0;
-        if ( $can_join ) {
-            $success = LJ::join_community( $remote, $targetu );
+        if ( $remote->can_join( $targetu, errref => \$error ) ) {
+            $success = $remote->join_community( $targetu );
         } else {
             if ( $error eq LJ::Lang::ml( 'edges.join.error.targetnotopen' ) && $targetu->is_moderated_membership ) {
-                LJ::comm_join_request( $targetu, $remote );
+                $targetu->comm_join_request( $remote );
                 $ret{note} = BML::ml( '/community/join.bml.reqsubmitted.body' );
             } else {
                 return $err->( $error );
@@ -94,7 +93,7 @@ _c?>
         $targetu->log_event( 'maintainer_remove', { actiontarget => $remote->id, remote => $remote } )
             if $remote->can_manage( $targetu );
 
-        $success = LJ::leave_community( $remote, $targetu );
+        $success = $remote->leave_community( $targetu );
     } elsif ( $action eq 'setBan' ) {
         my $list_of_banned = LJ::load_rel_user($remote, 'B') || [ ];
 

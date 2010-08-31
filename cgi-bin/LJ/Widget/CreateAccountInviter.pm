@@ -149,9 +149,9 @@ sub handle_post {
             if ( LJ::isu( $joinu ) ) {
                 # try to join the community
                 # if it fails and the community's moderated, send a join request and watch it
-                unless ( LJ::join_community( $u, $joinu, 1 ) ) {
+                unless ( $u->join_community( $joinu, 1 ) ) {
                     if ( $joinu->is_moderated_membership ) {
-                        LJ::comm_join_request( $joinu, $u );
+                        $joinu->comm_join_request( $u );
                         $u->add_edge( $joinu, watch => {} );
                     }
                 }

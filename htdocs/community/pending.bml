@@ -56,10 +56,10 @@ body<=
         return $ret;
     }
 
-    $ret .= LJ::maintainer_linkbar($c);
+    $ret .= $c->maintainer_linkbar( "pending" );
 
     # hit up the database to find pending members
-    my $pendids = LJ::get_pending_members($c) || [];
+    my $pendids = $c->get_pending_members || [];
     my $us = LJ::load_userids(@$pendids);
 
     # nothing pending?
@@ -91,10 +91,10 @@ body<=
             }
 
             if ($POST{"pending_$id"} eq 'on' and $POST{"approve"}) {
-                LJ::approve_pending_member($cid, $id);
+                $c->approve_pending_member( $us->{$id} );
                 $added++;
             } elsif ($POST{"pending_$id"} eq 'on' and $POST{"reject"}) {
-                LJ::reject_pending_member($cid, $id);
+                $c->reject_pending_member( $us->{$id} );
                 $rejected++;
             } elsif ($POST{"pending_$id"} eq 'on' and $POST{"reject_ban"}) {
                 my $banlist = LJ::load_rel_user($c, 'B') || [];
@@ -106,7 +106,7 @@ body<=
                     LJ::Hooks::run_hooks('ban_set', $c, $us->{$id});
                     $banned++;
 
-                    LJ::reject_pending_member($cid, $id); # only in case of successful ban
+                    $c->reject_pending_member( $us->{$id} ); # only in case of successful ban
                     $rejected++; # for keeping this user in list for later reject
                 }
             }

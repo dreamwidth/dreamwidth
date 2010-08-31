@@ -149,7 +149,7 @@ sub manage_membership {
 
         # if logged out, OR, not a member
         } else {
-            my @comm_settings = LJ::get_comm_settings($u);
+            my @comm_settings = $u->get_comm_settings;
             my $closed = ( $comm_settings[0] && $comm_settings[0] eq 'closed' ) ? 1 : 0;
 
             my $link = {

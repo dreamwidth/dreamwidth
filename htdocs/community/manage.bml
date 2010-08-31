@@ -66,10 +66,10 @@ body<=
            next unless $cu && ( $cu->is_visible || $cu->is_readonly );
            $names{$uid} = [ $cu->{user}, $cu->{name}, -1 ];
            if ($mods{$uid}) {
-               $modcount{$uid} = $names{$uid}[2] = LJ::get_mod_queue_count( $uid );
+               $modcount{$uid} = $names{$uid}[2] = $cu->get_mod_queue_count;
            }
            if ($membership eq 'moderated') {
-               my $ids = LJ::get_pending_members($uid) || [];
+               my $ids = $cu->get_pending_members || [];
                $pending{$uid} = scalar @$ids;
            }
        }

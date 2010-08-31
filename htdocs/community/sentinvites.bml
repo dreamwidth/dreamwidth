@@ -71,7 +71,7 @@ body<=
         return $ret;
     }
 
-    $ret .= LJ::maintainer_linkbar($c, "invites");
+    $ret .= $c->maintainer_linkbar( "invites" );
 
     # Process revoked invitations
     if ($POST{'action:revoke'}) {
@@ -83,7 +83,7 @@ body<=
         foreach (grep { /^revoke_invite/ } keys %POST) {
             push @userids, $POST{$_};
         }
-        if (LJ::revoke_invites($c, @userids)) {
+        if ( $c->revoke_invites( @userids ) ) {
             $ret .= "<div class='warningbar'> " .
                     BML::ml('.invites.cancelled', { num => scalar @userids }) .
                     "</div>";
@@ -101,7 +101,7 @@ body<=
     push @titleattribs, 'A';
 
     # now get sent invites and the users involved
-    my $sent = LJ::get_sent_invites($c) || [];
+    my $sent = $c->get_sent_invites || [];
     my @ids;
     push @ids, ($_->{userid}, $_->{maintid}) foreach @$sent;
     my $us = LJ::load_userids(@ids);

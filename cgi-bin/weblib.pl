@@ -2658,7 +2658,7 @@ sub control_strip
                     if $haspostingaccess;
 
                 if ( $journal->prop( 'moderated' ) ) {
-                    $ret .= "$links{queue} [" . LJ::get_mod_queue_count( $journal ) . "]&nbsp;&nbsp;";
+                    $ret .= "$links{queue} [" . $journal->get_mod_queue_count . "]&nbsp;&nbsp;";
                 } else {
                     $ret .= "$links{edit_community_profile}&nbsp;&nbsp;";
                 }

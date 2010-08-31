@@ -511,7 +511,7 @@ sub _basic_info_comm_membership {
 
     return $ret unless $u->is_community;
 
-    my ( $membership, $postlevel ) = LJ::get_comm_settings( $u );
+    my ( $membership, $postlevel ) = $u->get_comm_settings;
 
     my $membership_string = LJ::Lang::ml( '.commsettings.membership.open' );
     if ( $membership eq "moderated" ) {
@@ -537,7 +537,7 @@ sub _basic_info_comm_postlevel {
 
     return $ret unless $u->is_community;
 
-    my ( $membership, $postlevel ) = LJ::get_comm_settings( $u );
+    my ( $membership, $postlevel ) = $u->get_comm_settings;
 
     my $postlevel_string = LJ::Lang::ml( '.commsettings.postlevel.members' );
     if ( $postlevel eq "select" ) {

@@ -43,19 +43,20 @@ body<=
         my $dbh = LJ::get_db_writer();
 
         # get user we're adding
-        my $targetid = $arg->{targetid};
-        return LJ::bad_input($ML{'.error.internerr.invalidaction'}) unless $targetid;
+        my $targetu = LJ::load_userid( $arg->{targetid} );
+        return LJ::bad_input($ML{'.error.internerr.invalidaction'}) unless $targetu;
 
-        return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.rejecting'} p?>"
-            unless LJ::reject_pending_member($aa->{userid}, $targetid);
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.approving'} p?>"
+            unless my $cu = LJ::load_userid( $aa->{userid} );
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.approving'} p?>"
+            unless $cu->reject_pending_member( $targetu );
 
         # return success
-        my $commname = LJ::get_username($aa->{userid});
-        my $username = LJ::get_username($targetid);
+        my $commname = $cu->user;
         return "<?h1 $ML{'.comm.success'} h1?>".
                '<?p ' . BML::ml('.commreject.text', {
-                           user => LJ::ljuser($username),
-                           comm => LJ::ljuser($commname),
+                           user => $targetu->ljuser_display,
+                           comm => $cu->ljuser_display,
                            aopts => "href=\"$LJ::SITEROOT/community/members?authas=$commname\"",
                         }) . ' p?>';
     }

@@ -3,12 +3,12 @@ use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'communitylib.pl';
+use LJ::Community;
 use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
 
-plan tests => 6;
+plan tests => 8;
 
 my $u = temp_user();
 my $u2 = temp_user();
@@ -34,13 +34,15 @@ is($run->("community " . $comm->user . " add " . $u->user),
 is($run->("community " . $comm2->user . " remove " . $u2->user),
    "error: You cannot remove users from this community.");
 
-LJ::join_community($comm, $u2);
+$u2->join_community( $comm );
+ok( $u2->member_of( $comm ), "User is currently member of community." );
 is($run->("community " . $comm->user . " remove " . $u2->user),
    "success: User " . $u2->user . " removed from " . $comm->user);
 ok( ! $u2->member_of( $comm ), "User removed from community." );
 
 # test case where user's removing themselves
-LJ::join_community($comm2, $u);
+$u->join_community( $comm2 );
+ok( $u->member_of( $comm2 ), "User is currently member of community." );
 is($run->("community " . $comm2->user . " remove " . $u->user),
    "success: User " . $u->user . " removed from " . $comm2->user);
 ok( ! $u->member_of( $comm2 ), "User removed self from community." );

@@ -202,13 +202,14 @@ sub create_community {
     $u->set_prop("moderated", $opts{moderated}+0);
     $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled( 'adult_content' );
 
-    my $remote = LJ::get_remote();
-    LJ::set_rel($u, $remote, "A");  # maintainer
-    LJ::set_rel($u, $remote, "M") if $opts{moderated}; # moderator if moderated
-    LJ::join_community($remote, $u, 1, 1); # member
+    if ( my $remote = LJ::get_remote() ) {
+        LJ::set_rel($u, $remote, "A");  # maintainer
+        LJ::set_rel($u, $remote, "M") if $opts{moderated}; # moderator if moderated
+        $remote->join_community( $u, 1, 1 ); # member
 
-    LJ::set_comm_settings($u, $remote, { membership => $opts{membership},
-                                         postlevel => $opts{postlevel} });
+        $u->set_comm_settings( $remote, { membership => $opts{membership},
+                                          postlevel => $opts{postlevel} } );
+    }
     return $u;
 }
 
@@ -3947,7 +3948,7 @@ sub can_post_to {
 
     # let's check if this community is allowing post access to non-members
     if ( $targetu->has_open_posting ) {
-        my ( $ml, $pl ) = LJ::get_comm_settings( $targetu );
+        my ( $ml, $pl ) = $targetu->get_comm_settings;
         return 1 if $pl eq 'members';
     }
 
@@ -3981,7 +3982,7 @@ sub membership_level {
 
     return undef unless $u->is_community;
 
-    my ( $membership_level, $post_level ) = LJ::get_comm_settings( $u );
+    my ( $membership_level ) = $u->get_comm_settings;
     return $membership_level || undef;
 }
 

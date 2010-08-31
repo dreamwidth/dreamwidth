@@ -54,14 +54,14 @@ sub render_body {
         foreach my $cu ( sort { $a->user cmp $b->user }  values %$us ) {
             next unless $cu->is_visible;
 
-            my ( $membership, $postlevel ) = LJ::get_comm_settings( $cu );
+            my ( $membership, $postlevel ) = $cu->get_comm_settings;
 
             my $pending_entries_count;
-            $pending_entries_count = LJ::get_mod_queue_count( $cu )
+            $pending_entries_count = $cu->get_mod_queue_count
                 if $mods{$cu->userid};
 
             my $pending_members_count;
-            $pending_members_count = LJ::get_pending_members_count( $cu )
+            $pending_members_count = $cu->get_pending_members_count
                 if $membership eq "moderated" && $admin{$cu->userid};
             if ( $pending_members_count || $pending_entries_count ) {
                 $list .= "<dt>" . $cu->ljuser_display;
