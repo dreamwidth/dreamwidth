@@ -20,7 +20,7 @@ body<=
     return LJ::error_noremote() unless $remote;
 
     return BML::redirect( $LJ::SITEROOT )
-        unless $remote->has_priv( 'payments' );
+        unless $remote->can_manage_invites_light;
 
     my $ret;
 

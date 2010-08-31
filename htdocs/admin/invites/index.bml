@@ -26,6 +26,7 @@ body<=
 
     my $haspayments = $remote->has_priv( "payments" );
     my $hasfinduser = $remote->has_priv ( "finduser", "codetrace" );
+    my $hasinvites  = $remote->can_manage_invites_light;
 
     my $ret;
 
@@ -33,16 +34,16 @@ body<=
         if $hasfinduser;
 
     $ret .= "<div class='itemhead'><a href='distribute'><?_ml .distribute.head _ml?></a></div><div class='itemdef'><?_ml .distribute.desc _ml?></div>"
-        if $haspayments;
+        if $hasinvites;
 
     $ret .= "<div class='itemhead'><a href='requests'><?_ml .requests.head _ml?></a></div><div class='itemdef'><?_ml .requests.desc _ml?></div>"
-        if $haspayments;
+        if $hasinvites;
 
     $ret .= "<div class='itemhead'><a href='review'><?_ml .review.head _ml?></a></div><div class='itemdef'><?_ml .review.desc _ml?></div>"
         if $haspayments;
 
     $ret .= "<div class='itemhead'><a href='promo?state=active'><?_ml .promo.head _ml?></a></div><div class='itemdef'><?_ml .promo.desc _ml?></div>"
-        if $haspayments;
+        if $hasinvites;
 
 
     return $ret;

@@ -1978,6 +1978,15 @@ sub can_leave_comments {
     return $_[0]->get_cap( 'leave_comments' ) ? 1 : 0;
 }
 
+sub can_manage_invites_light {
+    my $u = $_[0];
+
+    return 1 if $u->has_priv( "payments" );
+    return 1 if $u->has_priv( "siteadmin", "invites" );
+
+    return 0;
+}
+
 sub can_map_domains {
     return $_[0]->get_cap( 'domainmap' ) ? 1 : 0;
 }

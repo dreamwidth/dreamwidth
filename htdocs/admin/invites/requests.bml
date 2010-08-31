@@ -22,7 +22,7 @@ body<=
     return "<?needlogin?>" unless $remote;
 
     return "You are not authorized to view this page."
-        unless $remote->has_priv( "payments" );
+        unless $remote->can_manage_invites_light;
 
     my $ret;
 
@@ -99,7 +99,7 @@ body<=
         }
 
         my $reason = $outstanding->reason || "( no reason given )";
-        $ret .= "<td><a href='review?user=$u->{user}'>$reason</a></td>";
+        $ret .= $remote->has_priv( "payments" ) ? "<td><a href='review?user=$u->{user}'>$reason</a></td>" : "<td>$reason</td>";
         $ret .= "</tr>";
     }
 

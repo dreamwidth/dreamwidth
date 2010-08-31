@@ -2446,6 +2446,7 @@ sub list_valid_args {
         commentview    => "Access to /admin/recent_comments",
         emailqueue     => "Access to /tools/recent_email",
         entry_redirect => "Access to /misc/entry_redirect",
+        invites        => "Access to some invites functionality under /admin/invites",
         largefeedsize  => "Overrides synsuck_max_size for a feed",
         memcacheview   => "Access to /admin/memcache",
         mysqlstatus    => "Access to /admin/mysql_status",
