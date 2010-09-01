@@ -58,6 +58,16 @@ sub need_res {
     return LJ::need_res( @_ );
 }
 
+=head2 active_resource_group
+
+Set the resource group to be loaded for this page.
+
+=cut
+
+sub active_resource_group {
+    return LJ::set_active_resource_group( $_[1] );
+}
+
 =head2 ml_scope
 
 Get or set the ML scope of the template
