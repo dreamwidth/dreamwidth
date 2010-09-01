@@ -2159,6 +2159,9 @@ sub need_res {
     foreach my $reskey (@_) {
         die "Bogus reskey $reskey" unless $reskey =~ m!^(js|stc)/!;
 
+        $reskey =~ s/\.(js|css)$/.min.$1/
+            if $opts{optimize} && ! $LJ::IS_DEV_SERVER;
+
         # we put javascript in the 'default' group and CSS in the 'all' group
         # since we need CSS everywhere and we are switching JS groups
         my $lgroup = $group || ( $reskey =~ /^js/ ? 'default' : 'all' );

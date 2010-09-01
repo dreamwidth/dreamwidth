@@ -40,8 +40,12 @@ head<=
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
     <?_code
-        LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY }, "stc/lj_base-app.css" );
-        LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY }, "stc/blueshift/blueshift.css" );
+        LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY },
+            qw( stc/jquery/jquery.ui.theme.smoothness.css
+                stc/lj_base-app.css
+                stc/blueshift/blueshift.css
+            )
+        );
 
     _code?>
     <?_code LJ::res_includes(); _code?>
