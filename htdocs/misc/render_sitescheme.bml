@@ -21,7 +21,7 @@ body<=
 {
     use strict;
     use DW::Request;
-    use vars qw/ $title $windowtitle $head /;
+    use vars qw/ $title $windowtitle $head $contentopts /;
 
     my $r = DW::Request->get;
     my $code = $r->pnote( 'render_sitescheme_code' );
@@ -31,6 +31,7 @@ body<=
     $head = $extras->{head} || "";
     $title = $extras->{title} || "";
     $windowtitle = $extras->{windowtitle} || "";
+    $contentopts = $extras->{contentopts};
 
     return BML::ebml($code);
 }
@@ -39,4 +40,5 @@ _code?>
 head=><?_code return BML::ebml( $head ); _code?>
 title=><?_code return BML::ebml( $title ); _code?>
 windowtitle=><?_code return BML::ebml( $windowtitle ); _code?>
+contentopts=><?_code return defined $contentopts ? BML::ebml( $contentopts ) : "<?contentopts?>"; _code?>
 page?>
