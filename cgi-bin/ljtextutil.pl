@@ -511,7 +511,7 @@ sub text_uncompress
 # function to trim a string containing HTML.  this will auto-close any
 # html tags that were still open when the string was truncated
 sub html_trim {
-    my ($text, $char_max) = @_;
+    my ( $text, $char_max, $truncated ) = @_;
 
     return $text unless $char_max;
 
@@ -560,6 +560,7 @@ sub html_trim {
                 # truncate and stop parsing
                 $content = LJ::text_trim($content, undef, ($char_max - $content_len));
                 $out .= $content;
+                $$truncated = 1;
                 last;
             }
 

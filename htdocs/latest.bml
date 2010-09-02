@@ -161,10 +161,10 @@ EOC
             }
             my $time = LJ::ago_text( $now - $obj->logtime_unix );
             my $url = $obj->url;
-            my $evt = $obj->event_html_summary( 2000, { cuturl => $url, preformatted => $obj->prop( 'opt_preformatted' ) } );
-            # put a "(Read more)" link at the end of the text if the entry had to be shortened - this will be unnecessarily printed if
-            # the text is exactly 2,000 characters long
-            $evt .= ' <a href="' . $url . '">(Read more)</a>' if length( $evt ) >= 2000; 
+            my $truncated;
+            my $evt = $obj->event_html_summary( 2000, { cuturl => $url, preformatted => $obj->prop( 'opt_preformatted' ) }, \$truncated );
+            # put a "(Read more)" link at the end of the text if the entry had to be shortened
+            $evt .= ' <a href="' . $url . '">(Read more)</a>' if $truncated; 
             my $comments = $obj->reply_count == 1 ? "1 comment" : ( $obj->reply_count > 0 ? $obj->reply_count . ' comments' : 'no comments' );
             my $replyurl = $obj->reply_url;
 

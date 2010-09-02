@@ -738,8 +738,8 @@ sub event_html
 
 # like event_html, but trimmed to $char_max
 sub event_html_summary {
-    my ($self, $char_max, $opts) = @_;
-    return LJ::html_trim($self->event_html($opts), $char_max);
+    my ($self, $char_max, $opts, $trunc_ref) = @_;
+    return LJ::html_trim($self->event_html($opts), $char_max, $trunc_ref);
 }
 
 sub event_text
