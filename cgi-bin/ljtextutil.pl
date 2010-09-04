@@ -560,7 +560,7 @@ sub html_trim {
                 # truncate and stop parsing
                 $content = LJ::text_trim($content, undef, ($char_max - $content_len));
                 $out .= $content;
-                $$truncated = 1;
+                $$truncated = 1 if ref $truncated;
                 last;
             }
 
