@@ -40,5 +40,5 @@ _code?>
 head=><?_code return BML::ebml( $head ); _code?>
 title=><?_code return BML::ebml( $title ); _code?>
 windowtitle=><?_code return BML::ebml( $windowtitle ); _code?>
-contentopts=><?_code return defined $contentopts ? BML::ebml( $contentopts ) : "<?contentopts?>"; _code?>
+contentopts=><?_code return BML::ebml( $contentopts ); _code?>
 page?>

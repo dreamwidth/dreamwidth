@@ -28,8 +28,6 @@ standout<=
 {DRps}<div class='standout'><table class='standout-inner'><tr><td>%%data%%</td></tr></table></div>
 <=standout
 
-contentopts=>class='layout-wide-right-sidebar'
-
 head<=
 <head>
     <title>
