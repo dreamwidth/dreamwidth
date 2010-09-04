@@ -12,8 +12,7 @@ set layout_authors = [ { "name" => "zvi", "type" => "user" }, {"name" => "Aaron 
 ##===============================
 
 set use_custom_friend_colors = true;
-set custom_colors_template =  "%%new%% .userpic img { border-color: %%background%% %%foreground%%; border: 1px solid;
-}";
+set custom_colors_template =  "%%new%% .userpic img { border-color: %%background%% %%foreground%%; border: 1px solid;} ";
 
 ##===============================
 ## Journal style - colors
