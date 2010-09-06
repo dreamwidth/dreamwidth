@@ -66,7 +66,7 @@ sub MonthPage
         ( $viewall, $viewsome ) =
             $remote->view_priv_check( $u, $get->{viewall}, 'month' );
 
-        if ( $viewall || $remote->equals( $u ) || $remote->can_manage( $u ) ) {
+        if ( $viewall || $remote->can_manage( $u ) ) {
             $secwhere = "";   # see everything
         } elsif ( $remote->is_individual ) {
             my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );
@@ -152,7 +152,7 @@ sub MonthPage
 
     $p->{'months'} = [];
 
-    my $days = LJ::get_daycounts($u, $remote) || [];
+    my $days = $u->get_daycounts( $remote ) || [];
     my $lastmo;
     foreach my $day (@$days) {
         my ($oy, $om) = ($day->[0], $day->[1]);

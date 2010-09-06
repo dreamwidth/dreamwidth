@@ -5544,6 +5544,77 @@ sub revoke_priv_all {
 =head2 Styles and S2-Related Functions
 =cut
 
+# returns undef on error, or otherwise arrayref of arrayrefs,
+# each of format [ year, month, day, count ] for all days with
+# non-zero count.  examples:
+#  [ [ 2003, 6, 5, 3 ], [ 2003, 6, 8, 4 ], ... ]
+#
+sub get_daycounts {
+    my ( $u, $remote, $not_memcache ) = @_;
+    return undef unless LJ::isu( $u );
+    my $uid = $u->id;
+
+    my $memkind = 'p'; # public only, changed below
+    my $secwhere = "AND security='public'";
+    my $viewall = 0;
+
+    if ( LJ::isu( $remote ) ) {
+        # do they have the viewall priv?
+        my $r = eval { Apache->request; }; # web context
+        my %getargs = $r ? $r->args : undef;
+        if ( defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' ) {
+            $viewall = $remote->has_priv( 'canview', '*' );
+            LJ::statushistory_add( $u->userid, $remote->userid,
+                "viewall", "archive" ) if $viewall;
+        }
+
+        if ( $viewall || $remote->can_manage( $u ) ) {
+            $secwhere = "";   # see everything
+            $memkind = 'a'; # all
+        } elsif ( $remote->is_individual ) {
+            my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );
+            if ( $gmask ) {
+                $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))";
+                $memkind = 'g' . $gmask; # friends case: allowmask == gmask == 1
+            }
+        }
+    }
+
+    my $memkey = [$uid, "dayct2:$uid:$memkind"];
+    unless ($not_memcache) {
+        my $list = LJ::MemCache::get($memkey);
+        if ($list) {
+            # this was an old version of the stored memcache value
+            # where the first argument was the list creation time
+            # so throw away the first argument
+            shift @$list unless ref $list->[0];
+            return $list;
+        }
+    }
+
+    my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
+    my $sth = $dbcr->prepare("SELECT year, month, day, COUNT(*) ".
+                             "FROM log2 WHERE journalid=? $secwhere GROUP BY 1, 2, 3");
+    $sth->execute($uid);
+    my @days;
+    while (my ($y, $m, $d, $c) = $sth->fetchrow_array) {
+        # we force each number from string scalars (from DBI) to int scalars,
+        # so they store smaller in memcache
+        push @days, [ int($y), int($m), int($d), int($c) ];
+    }
+
+    if ( $memkind ne "g1" && $memkind =~ /^g\d+$/ ) {
+        # custom groups are cached for only 15 minutes
+        LJ::MemCache::set( $memkey, [@days], 15 * 60 );
+    } else {
+        # all other security levels are cached indefinitely
+        # because we clear them when there are updates
+        LJ::MemCache::set( $memkey, [@days]  );
+    }
+    return \@days;
+}
+
+
 sub journal_base {
     return LJ::journal_base( @_ );
 }
@@ -8150,82 +8221,6 @@ sub set_password {
 
 =head2 Styles and S2-Related Functions (LJ)
 =cut
-
-# returns undef on error, or otherwise arrayref of arrayrefs,
-# each of format [ year, month, day, count ] for all days with
-# non-zero count.  examples:
-#  [ [ 2003, 6, 5, 3 ], [ 2003, 6, 8, 4 ], ... ]
-#
-sub get_daycounts
-{
-    my ($u, $remote, $not_memcache) = @_;
-    # NOTE: $remote not yet used.  one of the oldest LJ shortcomings is that
-    # it's public how many entries users have per-day, even if the entries
-    # are protected.  we'll be fixing that with a new table, but first
-    # we're moving everything to this API.
-
-    $u = LJ::want_user( $u ) or return undef;
-    my $uid = $u->id;
-
-    my $memkind = 'p'; # public only, changed below
-    my $secwhere = "AND security='public'";
-    my $viewall = 0;
-    if ($remote) {
-        # do they have the viewall priv?
-        my $r = eval { Apache->request; }; # web context
-        my %getargs = $r ? $r->args : undef;
-        if ( defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' and ( $remote && $remote->has_priv( 'canview', '*' ) ) ) {
-            $viewall = 1;
-            LJ::statushistory_add( $u->userid, $remote->userid,
-                "viewall", "archive" );
-        }
-
-        if ( $remote->userid == $uid || $viewall || $remote->can_manage( $u ) ) {
-            $secwhere = "";   # see everything
-            $memkind = 'a'; # all
-        } elsif ( $remote->is_individual ) {
-            my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );
-            if ( $gmask ) {
-                $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))";
-                $memkind = 'g' . $gmask; # friends case: allowmask == gmask == 1
-            }
-        }
-    }
-
-    my $memkey = [$uid, "dayct2:$uid:$memkind"];
-    unless ($not_memcache) {
-        my $list = LJ::MemCache::get($memkey);
-        if ($list) {
-            # this was an old version of the stored memcache value
-            # where the first argument was the list creation time
-            # so throw away the first argument
-            shift @$list unless ref $list->[0];
-            return $list;
-        }
-    }
-
-    my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
-    my $sth = $dbcr->prepare("SELECT year, month, day, COUNT(*) ".
-                             "FROM log2 WHERE journalid=? $secwhere GROUP BY 1, 2, 3");
-    $sth->execute($uid);
-    my @days;
-    while (my ($y, $m, $d, $c) = $sth->fetchrow_array) {
-        # we force each number from string scalars (from DBI) to int scalars,
-        # so they store smaller in memcache
-        push @days, [ int($y), int($m), int($d), int($c) ];
-    }
-
-    if ( $memkind ne "g1" && $memkind =~ /^g\d+$/ ) {
-        # custom groups are cached for only 15 minutes
-        LJ::MemCache::set( $memkey, [@days], 15 * 60 );
-    } else {
-        # all other security levels are cached indefinitely
-        # because we clear them when there are updates
-        LJ::MemCache::set( $memkey, [@days]  );
-    }
-    return \@days;
-}
-
 
 # <LJFUNC>
 # name: LJ::journal_base

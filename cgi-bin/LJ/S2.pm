@@ -1653,10 +1653,11 @@ sub get_journal_day_counts
     return $s2page->{'_day_counts'} if defined $s2page->{'_day_counts'};
 
     my $u = $s2page->{'_u'};
+    return {} unless LJ::isu( $u );
     my $counts = {};
 
     my $remote = LJ::get_remote();
-    my $days = LJ::get_daycounts($u, $remote) or return {};
+    my $days = $u->get_daycounts( $remote ) or return {};
     foreach my $day (@$days) {
         $counts->{$day->[0]}->{$day->[1]}->{$day->[2]} = $day->[3];
     }

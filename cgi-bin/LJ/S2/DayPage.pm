@@ -142,8 +142,7 @@ sub DayPage
     # find near days
     my ($prev, $next);
     my $here = sprintf("%04d%02d%02d", $year, $month, $day);        # we are here now
-    foreach (@{LJ::get_daycounts($u, $remote)})
-    {
+    foreach ( @{ $u->get_daycounts( $remote ) } ) {
         $_ = sprintf("%04d%02d%02d", (@$_)[0 .. 2]);    # map each date as YYYYMMDD number
         if ($_ < $here && (!$prev || $_ > $prev)) {     # remember in $prev less then $here last date
             $prev = $_;

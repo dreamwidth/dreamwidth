@@ -907,9 +907,10 @@ sub getdaycounts
     my $u = $flags->{'u'};
     my $uowner = $flags->{'u_owner'} || $u;
     my $ownerid = $flags->{'ownerid'};
+    return fail($err,502) unless LJ::isu( $uowner );
 
     my $res = {};
-    my $daycts = LJ::get_daycounts($uowner, $u);
+    my $daycts = $uowner->get_daycounts( $u );
     return fail($err,502) unless $daycts;
 
     foreach my $day (@$daycts) {
