@@ -37,6 +37,7 @@ sub commentcount_handler {
         my $ditemid = $args->{ditemid};
         my $uid = LJ::get_userid( $args->{user} );
         $entry = LJ::Entry->new( $uid, ditemid => $ditemid ) if $uid;
+        $entry = undef unless $entry && $entry->valid;
     }
 
     $count = $entry->reply_count if $entry;
