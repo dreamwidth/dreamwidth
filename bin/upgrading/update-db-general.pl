@@ -3880,20 +3880,20 @@ EOF
                   "ALTER TABLE externalaccount ADD COLUMN recordlink enum('1','0') NOT NULL default '0'");
     }
 
-     unless ( column_type( 'import_data', 'options' ) ) {
-         do_alter( 'import_data',
-                   q{ALTER TABLE import_data ADD COLUMN options BLOB} );
-     }
+    unless ( column_type( 'import_data', 'options' ) ) {
+        do_alter( 'import_data',
+                  q{ALTER TABLE import_data ADD COLUMN options BLOB} );
+    }
 
-     unless ( column_type( 'moods', 'weight' ) ) {
-         do_alter( 'moods',
-                    q{ALTER TABLE moods ADD COLUMN weight tinyint unsigned default NULL} );
-     }
+    unless ( column_type( 'moods', 'weight' ) ) {
+        do_alter( 'moods',
+                  q{ALTER TABLE moods ADD COLUMN weight tinyint unsigned default NULL} );
+    }
 
-     unless ( column_type( 'poll2', 'isanon' ) ) {
-         do_alter( 'poll2',
-                   "ALTER TABLE poll2 ADD COLUMN isanon enum('yes','no') NOT NULL default 'no'");
-     }
+    unless ( column_type( 'poll2', 'isanon' ) ) {
+        do_alter( 'poll2',
+                  "ALTER TABLE poll2 ADD COLUMN isanon enum('yes','no') NOT NULL default 'no'");
+    }
 });
 
 
