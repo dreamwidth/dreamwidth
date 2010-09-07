@@ -137,6 +137,11 @@ sub rename_user
         return 0;
     }
 
+    if ( LJ::load_user( $to, 'force' ) ) {
+        $error = "User already exists: $to";
+        return 0;
+    }
+
     foreach my $table (qw(user useridmap))
     {
         $dbh->do("UPDATE $table SET user=$qto WHERE user=$qfrom");
