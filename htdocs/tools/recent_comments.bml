@@ -143,16 +143,17 @@ body<=
 
     my $us = LJ::load_userids(keys %need_userid);
 
-    # setup the parameter to get_logtext2multi
-    my $need_logtext = {};
-    foreach my $need (values %need_logids) {
-        my $ju = $us->{$need->[0]};
-        next unless $ju;
-        push @{$need_logtext->{$ju->{clusterid}} ||= []}, $need;
+    # setup the parameter to get_posts_raw
+    my @need_logtext;
+    foreach my $need ( values %need_logids ) {
+        my ( $ownerid, $itemid ) = @$need;
+        my $ju = $us->{$ownerid} or next;
+        push @need_logtext, [ $ju->{clusterid}, $ownerid, $itemid ];
     }
 
     my $comment_text = LJ::get_talktext2( $u, keys %talkids );
-    my $log_text     = LJ::get_logtext2multi( $need_logtext );
+    my $log_data     = LJ::get_posts_raw( { text_only => 1 }, @need_logtext );
+    my $log_text     = $log_data->{text};
     my $root = $u->journal_base;
 
     # Begin "latest received" box. We only want to see this if we're a
@@ -231,7 +232,7 @@ body<=
             $ret .= "</td><td id='" . LJ::Talk::comment_htmlid( $talkid );
             $ret .= "' style='text-align: left; border-top: 1px solid #999; border-left: 1px solid #999'>";
 
-            my $subject = $log_text->{"$u->{userid} $r->{nodeid}"}[0];
+            my $subject = $log_text->{"$u->{userid}:$r->{nodeid}"}[0];
             LJ::CleanHTML::clean_subject(\$subject) if $subject ne "";
 
             $ret .= "<strong style='float: left; text-decoration: underline'>$subject</strong> " if $subject ne "";
@@ -309,7 +310,7 @@ body<=
 
             if (defined $lrow->{ditemid}) {
                 $hr_ago = "<a href='$talkurl'>$hr_ago</a>";
-                $subject = $log_text->{"$r->{journalid} $r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
+                $subject = $log_text->{"$r->{journalid}:$r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
                 LJ::CleanHTML::clean_subject(\$subject);
                 $subject = "$subject <a href='$logurl'>(link)</a>";
 

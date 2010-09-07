@@ -1086,63 +1086,6 @@ use LJ::EmbedModule;
 use DW::External::Account;
 
 # <LJFUNC>
-# name: LJ::get_logtext2multi
-# des: Gets log text from clusters.
-# info: Fetches log text from clusters. Trying slaves first if available.
-# returns: hashref with keys being "jid jitemid", values being [ $subject, $body ]
-# args: idsbyc
-# des-idsbyc: A hashref where the key is the clusterid, and the data
-#             is an arrayref of [ ownerid, itemid ] array references.
-# </LJFUNC>
-sub get_logtext2multi {
-    return _get_posts_raw_wrapper(shift, "text");
-}
-
-# this function is used to translate the old get_logtext2multi function
-# into using the new get_posts_raw.  eventually, the above function should
-# be taken out of the rest of the code, at which point this function can also die.
-sub _get_posts_raw_wrapper {
-    # args:
-    #   { cid => [ [jid, jitemid]+ ] }
-    #   "text" or "props"
-    #   optional hashref to put return value in.  (see get_logtext2multi docs)
-    # returns: that hashref.
-    my ($idsbyc, $type, $ret) = @_;
-
-    my $opts = {};
-    if ($type eq 'text') {
-        $opts->{text_only} = 1;
-    } elsif ($type eq 'prop') {
-        $opts->{prop_only} = 1;
-    } else {
-        return undef;
-    }
-
-    my @postids;
-    while (my ($cid, $ids) = each %$idsbyc) {
-        foreach my $pair (@$ids) {
-            push @postids, [ $cid, $pair->[0], $pair->[1] ];
-        }
-    }
-    my $rawposts = LJ::get_posts_raw($opts, @postids);
-
-    # add replycounts fields to props
-    if ($type eq "prop") {
-        while (my ($k, $v) = each %{$rawposts->{"replycount"}||{}}) {
-            $rawposts->{prop}{$k}{replycount} = $rawposts->{replycount}{$k};
-        }
-    }
-
-    # translate colon-separated (new) to space-separated (old) keys.
-    $ret ||= {};
-    while (my ($id, $data) = each %{$rawposts->{$type}}) {
-        $id =~ s/:/ /;
-        $ret->{$id} = $data;
-    }
-    return $ret;
-}
-
-# <LJFUNC>
 # name: LJ::get_posts_raw
 # des: Gets raw post data (text and props) efficiently from clusters.
 # info: Fetches posts from clusters, trying memcache and slaves first if available.
