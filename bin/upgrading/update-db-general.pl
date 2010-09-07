@@ -2355,6 +2355,7 @@ CREATE TABLE poll2 (
     ditemid INT UNSIGNED NOT NULL,
     whovote ENUM('all','friends','ofentry') NOT NULL DEFAULT 'all',
     whoview ENUM('all','friends','ofentry','none') NOT NULL DEFAULT 'all',
+    isanon enum('yes','no') NOT NULL default 'no',
     name VARCHAR(255) DEFAULT NULL,
 
     PRIMARY KEY  (journalid,pollid)
