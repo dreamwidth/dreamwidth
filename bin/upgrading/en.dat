@@ -2381,6 +2381,8 @@ poll.error.whoview=whoview must be 'all', 'friends', or 'none'.
 
 poll.error.whovote=whovote must be 'all' or 'friends'.
 
+poll.isanonymous=This poll is anonymous.
+
 poll.isclosed=This poll is closed.
 
 poll.participants=, participants: [[total]]

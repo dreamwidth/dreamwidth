@@ -49,7 +49,7 @@ _c?>
         my $question = $poll->question($pollqid) or return $err->("Error loading question $pollqid");
         my $pages    = $question->answers_pages($poll->journalid, $pagesize);
         $ret->{paging_html} = $question->paging_bar_as_html($page, $pages, $pagesize, $poll->journalid, $pollid, $pollqid);
-        $ret->{answer_html} = $question->answers_as_html($poll->journalid, $page, $pagesize, $pages);
+        $ret->{answer_html} = $question->answers_as_html($poll->journalid, $poll->isanon, $page, $pagesize, $pages);
     } else {
         return $err->("Invalid action $action");
     }

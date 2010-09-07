@@ -28,9 +28,9 @@ sub _memcache_key_prefix            { "poll" }
 sub _memcache_stored_props          {
     # first element of props is a VERSION
     # next - allowed object properties
-    return qw/ 1
+    return qw/ 2
                ditemid itemid
-               pollid journalid posterid whovote whoview name status questions props
+               pollid journalid posterid isanon whovote whoview name status questions props
                /;
 }
     *_memcache_hashref_to_object    = \*absorb_row;
@@ -78,7 +78,8 @@ sub create {
         $journalid = $opts{journalid} or croak "No journalid";
         $posterid  = $opts{posterid} or croak "No posterid";
     }
-
+    
+    my $isanon = $opts{isanon} or croak "No isanon";
     my $whovote = $opts{whovote} or croak "No whovote";
     my $whoview = $opts{whoview} or croak "No whoview";
     my $name    = $opts{name} || '';
@@ -98,9 +99,9 @@ sub create {
 
     my $dbh = LJ::get_db_writer();
 
-    $u->do( "INSERT INTO poll2 (journalid, pollid, posterid, whovote, whoview, name, ditemid) " .
-            "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
-            $journalid, $pollid, $posterid, $whovote, $whoview, $name, $ditemid );
+    $u->do( "INSERT INTO poll2 (journalid, pollid, posterid, isanon, whovote, whoview, name, ditemid) " .
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", undef,
+            $journalid, $pollid, $posterid, $isanon, $whovote, $whoview, $name, $ditemid );
     die $u->errstr if $u->err;
 
     # made poll, insert global pollid->journalid mapping into global pollowner map
@@ -252,6 +253,7 @@ sub new_from_html {
                 $popts{'questions'} = [];
 
                 $popts{'name'} = $opts->{'name'};
+                $popts{'isanon'} = $opts->{'isanon'} || "no";
                 $popts{'whovote'} = lc($opts->{'whovote'}) || "all";
                 $popts{'whoview'} = lc($opts->{'whoview'}) || "all";
 
@@ -267,7 +269,9 @@ sub new_from_html {
                     $popts{props}->{createdate} = $opts->{createdate} || undef;
                 }
                 LJ::Hooks::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
-
+                
+                $popts{'isanon'} = "no" unless ($popts{'isanon'} eq "yes");
+                
                 if ($popts{'whovote'} ne "all" &&
                     $popts{'whovote'} ne "trusted")
                 {
@@ -529,7 +533,7 @@ sub save_to_db {
     $createopts{name} = $opts{name} || $self->{name};
     $createopts{props} = $opts{props} || $self->{props};
 
-    foreach my $f (qw(ditemid journalid posterid questions whovote whoview)) {
+    foreach my $f (qw(ditemid journalid posterid questions isanon whovote whoview)) {
         $createopts{$f} = $opts{$f} || $self->{$f} or croak "Field $f required for save_to_db";
     }
 
@@ -567,7 +571,7 @@ sub _load {
         or die "Invalid journalid $journalid";
 
     $row = $u->selectrow_hashref( "SELECT pollid, journalid, ditemid, " .
-                                  "posterid, whovote, whoview, name, status " .
+                                  "posterid, isanon, whovote, whoview, name, status " .
                                   "FROM poll2 WHERE pollid=? " .
                                   "AND journalid=?", undef, $self->pollid, $journalid );
     die $u->errstr if $u->err;
@@ -590,7 +594,7 @@ sub absorb_row {
 
     # questions is an optional field for creating a fake poll object for previewing
     $self->{ditemid} = $row->{ditemid} || $row->{itemid}; # renamed to ditemid in poll2
-    $self->{$_} = $row->{$_} foreach qw(pollid journalid posterid whovote whoview name status questions props);
+    $self->{$_} = $row->{$_} foreach qw(pollid journalid posterid isanon whovote whoview name status questions props);
     $self->{_loaded} = 1;
     return $self;
 }
@@ -652,6 +656,11 @@ sub name {
     my $self = shift;
     $self->_load;
     return $self->{name};
+}
+sub isanon {
+    my $self = shift;
+    $self->_load;
+    return $self->{isanon};
 }
 sub whovote {
     my $self = shift;
@@ -774,6 +783,9 @@ sub preview {
 
     $ret .= "<br />\n";
 
+    $ret .= "This poll is <b>anonymous</b><br/>\n"
+        if ($self->isanon eq "yes");
+
     my $whoview = $self->whoview eq "none" ? "none_remote" : $self->whoview;
     $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote), 'whoview' => LJ::Lang::ml('poll.security.'.$whoview), });
 
@@ -857,7 +869,7 @@ sub render {
         my $text = $q->text;
         LJ::Poll->clean_poll(\$text);
         $ret .= $text;
-        $ret .= '<div>' . $q->answers_as_html($self->journalid, $page, $pagesize) . '</div>';
+        $ret .= '<div>' . $q->answers_as_html($self->journalid, $self->isanon, $page, $pagesize) . '</div>';
         return $ret;
     }
 
@@ -897,6 +909,9 @@ sub render {
     $ret .= "<span style='font-family: monospace; font-weight: bold; font-size: 1.2em;'>" .
             LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
         if ($self->is_closed);
+    
+    $ret .= "This poll is <b>anonymous</b><br/>\n"
+        if ($self->isanon eq "yes");
 
     my $whoview = $self->whoview;
     if ($whoview eq "none") {

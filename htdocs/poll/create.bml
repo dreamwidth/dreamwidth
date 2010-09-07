@@ -146,6 +146,7 @@ _c?>
         my $poll = {
             "name" => "",
             "count" => "0",
+            "isanon" => "no",
             "whoview" => "all",
             "whovote" => "all",
             "pq" => [],
@@ -157,7 +158,7 @@ _c?>
             if $POST{'count'} > $RULES{'elements'}->{'max'};
 
         # form properties
-        foreach my $it (qw(count name whoview whovote)) {
+        foreach my $it (qw(count name isanon whoview whovote)) {
             $poll->{$it} = $POST{$it} if $POST{$it};
         }
 
@@ -403,11 +404,20 @@ _c?>
         $ret .= "<div style='margin: 10px 0 20px 40px'><b>$ML{'.haserrors'}</b></div>\n"
             if %$err;
 
-        ### Poll Properties -- name, whovote, whoview
+        ### Poll Properties -- name, isanon, whovote, whoview
 
         $ret .= "<?h1 $ML{'.properties'} h1?>\n";
 
         $ret .= "<div style='margin-left: 40px; margin-bottom: 20px'>\n";
+        
+        $ret .= "<p>" . LJ::html_check({
+            name => 'isanon',
+            id => 'isanon',
+            label => $ML{'.isanon'}, 
+            value => "yes",
+            selected => ( $poll->{isanon} eq "yes" )
+        }) . "</p>\n";
+        
         $ret .= "<p>$ML{'.whoview2'}<br /><select name='whoview'>\n";
         foreach my $sec ( qw(all trusted none) ) {
             $ret .= "<option value='$sec'";
@@ -576,7 +586,7 @@ _c?>
             my $ret;
 
             # start out the tag
-            $ret .= "<poll name='" . LJ::ehtml($poll->{'name'}) . "' whovote='" . LJ::ehtml($poll->{'whovote'}) . "' whoview='" . LJ::ehtml($poll->{'whoview'}) . "'>\n";
+            $ret .= "<poll name='" . LJ::ehtml($poll->{'name'}) . "' isanon='" . $poll->{'isanon'} . "' whovote='" . LJ::ehtml($poll->{'whovote'}) . "' whoview='" . LJ::ehtml($poll->{'whoview'}) . "'>\n";
 
             # go through and make <poll-question> tags
             foreach my $q (0..$poll->{'count'}-1) {

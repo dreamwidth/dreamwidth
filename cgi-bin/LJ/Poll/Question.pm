@@ -219,6 +219,7 @@ sub answers_pages {
 sub answers_as_html {
     my $self = shift;
     my $jid = shift;
+    my $isanon = shift;
 
     my $page     =  shift || 1;
     my $pagesize =  shift || 2000;
@@ -236,6 +237,7 @@ sub answers_as_html {
             "WHERE pr.pollid=? AND pollqid=? " .
             "AND ps.pollid=pr.pollid AND ps.userid=pr.userid " .
             "AND ps.journalid=? ".
+            "ORDER BY ps.datesubmit " .
             "LIMIT $LIMIT" );
     $sth->execute( $self->pollid, $self->pollqid, $jid );
     die $sth->errstr if $sth->err;
@@ -245,7 +247,8 @@ sub answers_as_html {
     my @res;
     push @res, $_ while $_ = $sth->fetchrow_hashref;
     @res = sort { $a->{datesubmit} cmp $b->{datesubmit} } @res;
-
+    
+    my $user_i = 0;    #incrementer for user anonymous ids
     foreach my $res (@res) {
         my ($userid, $value) = ($res->{userid}, $res->{value}, $res->{pollqid});
         my @items = $self->items;
@@ -263,7 +266,9 @@ sub answers_as_html {
         }
 
         LJ::Poll->clean_poll(\$value);
-        $ret .= "<div>" . $u->ljuser_display . " -- $value</div>\n";
+        my $user_display = $isanon eq "yes" ? "User <b>#" . ++$user_i . "</b>" : $u->ljuser_display;
+
+        $ret .= "<div>" . $user_display . " -- $value</div>\n";
     }
 
     return $ret;

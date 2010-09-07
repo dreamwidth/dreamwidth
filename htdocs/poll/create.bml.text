@@ -39,6 +39,8 @@
 
 .insertquestion=Insert question here:
 
+.isanon=Anonymize poll results. No one can see who voted, not even you.
+
 .options=Options:
 
 .options.limitreached=Option limit reached

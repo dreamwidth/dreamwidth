@@ -68,21 +68,23 @@ sub pollname {
 
 sub as_string {
     my $self = shift;
+    
+    my $voter = ($self->poll->isanon eq "yes") ? "Anonymous user" : $self->voter->display_username;
     return sprintf("%s has voted in %s at %s",
-                   $self->voter->display_username, $self->pollname, $self->entry->url);
+                   $voter, $self->pollname, $self->entry->url);
 }
 
 sub as_html {
     my $self = shift;
-    my $voter = $self->voter;
+    my $voter = ($self->poll->isanon eq "yes") ? "Anonymous user" : $self->voter->ljuser_display;
     my $poll = $self->poll;
 
-    return sprintf("%s has voted in a deleted poll", $voter->ljuser_display)
+    return sprintf("%s has voted in a deleted poll", $voter)
         unless $poll && $poll->valid;
 
     my $entry = $self->entry;
     return sprintf("%s has voted <a href='%s'>in %s</a>",
-                   $voter->ljuser_display, $entry->url, $self->pollname);
+                   $voter, $entry->url, $self->pollname);
 }
 
 sub as_html_actions {
@@ -122,10 +124,11 @@ sub as_email_subject {
 
 sub _as_email {
     my ($self, $u, $is_html) = @_;
+    my $voter = $is_html ? ($self->voter->ljuser_display) : ($self->voter->display_username);
 
     my $vars = {
         user     => $is_html ? ($u->ljuser_display) : ($u->display_username),
-        voter    => $is_html ? ($self->voter->ljuser_display) : ($self->voter->display_username),
+        voter    => ($self->poll->isanon eq "yes") ? "Anonymous user" : $voter,
         pollname => $self->pollname,
     };
 

@@ -3889,6 +3889,11 @@ EOF
          do_alter( 'moods',
                     q{ALTER TABLE moods ADD COLUMN weight tinyint unsigned default NULL} );
      }
+
+     unless ( column_type( 'poll2', 'isanon' ) ) {
+         do_alter( 'poll2',
+                   "ALTER TABLE poll2 ADD COLUMN isanon enum('yes','no') NOT NULL default 'no'");
+     }
 });
 
 
