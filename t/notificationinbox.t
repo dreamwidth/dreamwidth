@@ -7,18 +7,17 @@ use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
-#plan tests =>;
-plan skip_all => 'Fix this test! LJ/Event/Befriended.pm is missing';
+plan tests => 58;
 
 # Set more manageable limit for testing
-$LJ::CAP_DEF{'inbox_max'} = 10;
+$LJ::CAP{0..15}->{inbox_max} = 10;
 
 use LJ::Test qw(temp_user memcache_stress);
 
 use LJ::NotificationInbox;
 use LJ::NotificationItem;
 use LJ::Event;
-#use LJ::Event::Befriended;
+use LJ::Event::AddedToCircle;
 
 my $u = temp_user();
 my $u2 = temp_user();
@@ -41,7 +40,7 @@ sub run_tests {
 
     # create an event to enqueue and enqueue it
     {
-        $evt = LJ::Event::Befriended->new($u, $u2);
+        $evt = LJ::Event::AddedToCircle->new( $u, $u2, 2 );
         ok($evt, "Made event");
         # enqueue this event
         $qid = $q->enqueue(event => $evt);
@@ -86,7 +85,7 @@ sub run_tests {
 
     # test the max number of events
     {
-        $evt = LJ::Event::Befriended->new($u, $u2);
+        $evt = LJ::Event::AddedToCircle->new( $u, $u2, 2 );
         # enqueue max numbers of events
         for (my $i=1; $i<=$max; $i++) {
             $q->enqueue(event => $evt);
@@ -94,7 +93,7 @@ sub run_tests {
         @notifications = $q->items;
         ok((scalar @notifications) == $max, "Got max number of items");
 
-        my $evt2 = LJ::Event::Befriended->new($u, $u2);
+        my $evt2 = LJ::Event::AddedToCircle->new( $u, $u2, 2 );
         my $qid1 = $q->enqueue(event => $evt);
         my $qid2 = $q->enqueue(event => $evt2);
         @notifications = $q->items;
