@@ -200,6 +200,107 @@ LiveJournal.initPolls = function () {
     Array.prototype.forEach.call(pollLinks, function (pollLink) {
         DOM.addEventListener(pollLink, "click", LiveJournal.pollAnswerLinkClicked.bindEventListener(pollLink));
     });
+
+    var pollButtons = DOM.getElementsByTagAndClassName(document, 'input', "LJ_PollSubmit") || []; 
+    
+    // attaches a click handler to all poll submit buttons
+    Array.prototype.forEach.call(pollButtons, function (pollButton) {
+        DOM.addEventListener(pollButton, "click", LiveJournal.pollButtonClicked.bindEventListener(pollButton));
+    });
+    
+    var pollForms = DOM.getElementsByTagAndClassName(document, 'form', "LJ_PollForm") || []; 
+    
+    // attach submit handlers to each poll form
+    Array.prototype.forEach.call(pollForms, function (pollForm) {
+        DOM.addEventListener(pollForm, "submit", LiveJournal.pollFormSubmitted.bindEventListener(pollForm));
+    });
+};
+
+LiveJournal.pollButtonClicked = function (e) {  
+    // shows the hourglass. The submit event wouldn't update the coordinates, so the click event
+    // had to be used for this
+    if (!PollPages.hourglass) {
+        var coords = DOM.getAbsoluteCursorPosition(e);
+        PollPages.hourglass = new Hourglass();
+        PollPages.hourglass.init();
+        PollPages.hourglass.hourglass_at(coords.x, coords.y+25);    // 25 is added to the y axis, otherwise the button would cover it
+        PollPages.e = e;
+    }
+    
+    return true;
+};
+
+LiveJournal.pollFormSubmitted = function (e) {
+    Event.stop(e);
+    
+    var formObject = LiveJournal.getFormObject(this);  //gets the form ready for serialization
+
+    var opts = {
+        "url"    : LiveJournal.getAjaxUrl("pollvote"),
+        "method" : "POST",
+        "data"   : HTTPReq.formEncoded(formObject),
+        "onData" : LiveJournal.pollVoteSubmitted,
+        "onError": LiveJournal.pollVoteSubmitted
+    };
+
+    HTTPReq.getJSON(opts);
+    
+    return false;
+};
+
+LiveJournal.pollVoteSubmitted = function (results) {
+    if (! results) return false;
+
+    if (PollPages.hourglass) {
+        PollPages.hourglass.hide();
+        PollPages.hourglass = null;
+    }
+    
+    if (results.error) return LiveJournal.ajaxError(results.error);
+    
+    resultsDiv = document.getElementById("poll-"+results.pollid+"-container");
+
+    resultsDiv.innerHTML = results.results_html;
+    
+    LiveJournal.initPolls();
+};
+
+LiveJournal.getFormObject = function (form) {
+
+    var inputs = form.getElementsByTagName("input");
+    
+    var formObject = new Object();
+    
+    for (var i = 0; i < inputs.length; i++) {
+        var obj = inputs[i];
+        
+        if (obj.type == "checkbox") {
+            if (!formObject[obj.name]) {
+                formObject[obj.name] = new Array();
+            }
+            if (obj.checked)
+                formObject[obj.name].push(obj.value);
+        }
+        else if (obj.type == "radio") {
+           if (obj.checked) {
+              formObject[obj.name] = obj.value;
+           }
+        }
+        else 
+        {
+            formObject[obj.name] = obj.value;
+        }
+    }
+    
+    var selects = form.getElementsByTagName("select");
+
+    for (var i = 0; i < selects.length; i++) {
+        var sel = selects[i];
+        formObject[sel.name] = sel.options[sel.selectedIndex].value;
+    }
+    
+    return formObject;
+
 };
 
 // invocant is the pollLink from above

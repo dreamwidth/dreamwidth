@@ -881,9 +881,10 @@ sub render {
             $preval{$qid} = $value;
         }
 
-        $ret .= "<form action='$LJ::SITEROOT/poll/?id=$pollid' method='post'>";
+        $ret .= "<div id='poll-$pollid-container'><form class='LJ_PollForm' action='$LJ::SITEROOT/poll/?id=$pollid' method='post'>";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden('pollid', $pollid);
+        $ret .= LJ::html_hidden('id', $pollid);    #for the ajax request
     }
 
     $ret .= "<b><a href='$LJ::SITEROOT/poll/?id=$pollid'>" . LJ::Lang::ml('poll.pollnum', { 'num' => $pollid }) . "</a></b> ";
@@ -1120,7 +1121,7 @@ sub render {
         $ret .= LJ::html_submit(
                                 'poll-submit',
                                 LJ::Lang::ml('poll.submit'),
-                                {class => 'LJ_PollSubmit'}) . "</form>\n";;
+                                {class => 'LJ_PollSubmit'}) . "</form></div>\n";;
     }
 
     return $ret;

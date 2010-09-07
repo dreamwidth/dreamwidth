@@ -1,0 +1,89 @@
+<?_c
+#
+# /tools/endpoints/pollvote.bml
+#
+# Submits a poll vote using AJAX, rendering the results
+#
+# Authors:
+#      Joao Portela <agnorpt@gmail.com>
+#
+# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?>
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%POST);
+    use JSON;
+
+    my $ret = {};
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            error => "Error: $msg",
+        });
+    };
+
+    BML::set_content_type('text/javascript; charset=utf-8');
+    BML::finish();
+    BML::noparse();
+
+    foreach (values %POST) {
+        s/\0/,/g;
+    }
+    
+    my $remote = LJ::get_remote();
+
+    my $pollid = $POST{pollid}  or return $err->("No pollid");
+
+    my $poll = LJ::Poll->new($pollid);
+
+    unless ($poll && $poll->valid) {
+        return $err->("Poll not found");
+    }
+
+    my $u = $poll->journal;
+
+    # load the item being shown
+    my $entry = $poll->entry;
+    unless ($entry) {
+        return $err->("Post was deleted");
+    }
+
+    unless ($entry->visible_to($remote)) {
+        return $err->("You don't have the permissions to view this poll");
+    }
+    
+    unless (LJ::did_post()) {
+        return $err->("Post is required");
+    }
+
+    unless (LJ::check_form_auth()) {
+        return $err->("Form is invalid");
+    }
+    
+    my $error;
+    LJ::Poll->process_submission(\%POST, \$error);
+    if ($error) {
+        return $err->($error);
+    }
+
+    $ret->{results_html} = $poll->render(mode => "results");
+
+    $ret = {
+        %$ret,
+        pollid  => $pollid
+    };
+    
+    sleep(1.5) if $LJ::IS_DEV_SERVER;
+
+    return LJ::js_dumper($ret);
+}
+
+_code?>
+
