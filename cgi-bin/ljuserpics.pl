@@ -109,67 +109,6 @@ sub load_userpics {
 }
 
 # <LJFUNC>
-# name: LJ::expunge_userpic
-# des: Expunges a userpic so that the system will no longer deliver this userpic.  If
-#      your site has off-site caching or something similar, you can also define a hook
-#      "expunge_userpic" which will be called with a picid and userid when a pic is
-#      expunged.
-# args: u, picid
-# des-picid: ID of the picture to expunge.
-# des-u: User object
-# returns: undef on error, or the userid of the picture owner on success.
-# </LJFUNC>
-sub expunge_userpic {
-    # take in a picid and expunge it from the system so that it can no longer be used
-    my ($u, $picid) = @_;
-    $picid += 0;
-    return undef unless $picid && ref $u;
-
-    # get the pic information
-    my $state;
-
-    my $dbcm = LJ::get_cluster_master( $u );
-    return undef unless $dbcm && $u->writer;
-
-    $state = $dbcm->selectrow_array( 'SELECT state FROM userpic2 WHERE userid = ? AND picid = ?',
-                                     undef, $u->userid, $picid );
-    return undef unless $state; # invalid pic
-    return $u->userid if $state eq 'X'; # already expunged
-
-    # else now mark it
-    $u->do( "UPDATE userpic2 SET state='X' WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
-    return LJ::error( $dbcm ) if $dbcm->err;
-    $u->do( "DELETE FROM userpicmap2 WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
-
-    # now clear the user's memcache picture info
-    LJ::Userpic->delete_cache( $u );
-
-    # call the hook and get out of here
-    my @rval = LJ::Hooks::run_hooks( 'expunge_userpic', $picid, $u->userid );
-    return ( $u->userid, map {$_->[0]} grep {$_ && @$_ && $_->[0]} @rval );
-}
-
-# <LJFUNC>
-# name: LJ::activate_userpics
-# des: des: Wrapper around [func[LJ::User::activate_userpics]] for compatibility.
-# args: uuserid
-# returns: undef on failure 1 on success
-# </LJFUNC>
-sub activate_userpics
-{
-    my $u = shift;
-    return undef unless LJ::isu($u);
-
-    # if a userid was given, get a real $u object
-    $u = LJ::load_userid($u, "force") unless isu($u);
-
-    # should have a $u object now
-    return undef unless isu($u);
-
-    return $u->activate_userpics;
-}
-
-# <LJFUNC>
 # name: LJ::get_userpic_info
 # des: Given a user, gets their userpic information.
 # args: uuid, opts?

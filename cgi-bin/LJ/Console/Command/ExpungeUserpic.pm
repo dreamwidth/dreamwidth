@@ -48,8 +48,7 @@ sub execute {
     return $self->error("Invalid userpic URL.")
         unless $u;
 
-    # the actual expunging happens in ljlib
-    my ($rval, @hookval) = LJ::expunge_userpic($u, $picid);
+    my ( $rval, @hookval ) = $u->expunge_userpic( $picid );
 
     return $self->error("Error expunging userpic.") unless $rval;
 

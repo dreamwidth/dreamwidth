@@ -6181,6 +6181,39 @@ sub clear_userpic_kw_map {
     $self->{picid_kw_map} = undef;
 }
 
+# Expunges a userpic so that the system will no longer deliver this userpic.
+# If your site has off-site caching or something similar, you can also define
+# a hook "expunge_userpic" which will be called with a picid and userid when
+# a pic is expunged.
+sub expunge_userpic {
+    my ( $u, $picid ) = @_;
+    $picid += 0;
+    return undef unless $picid && LJ::isu( $u );
+
+    # get the pic information
+    my $state;
+
+    my $dbcm = LJ::get_cluster_master( $u );
+    return undef unless $dbcm && $u->writer;
+
+    $state = $dbcm->selectrow_array( 'SELECT state FROM userpic2 WHERE userid = ? AND picid = ?',
+                                     undef, $u->userid, $picid );
+    return undef unless $state; # invalid pic
+    return $u->userid if $state eq 'X'; # already expunged
+
+    # else now mark it
+    $u->do( "UPDATE userpic2 SET state='X' WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
+    return LJ::error( $dbcm ) if $dbcm->err;
+    $u->do( "DELETE FROM userpicmap2 WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
+
+    # now clear the user's memcache picture info
+    LJ::Userpic->delete_cache( $u );
+
+    # call the hook and get out of here
+    my @rval = LJ::Hooks::run_hooks( 'expunge_userpic', $picid, $u->userid );
+    return ( $u->userid, map {$_->[0]} grep {$_ && @$_ && $_->[0]} @rval );
+}
+
 sub get_userpic_count {
     my $u = shift or return undef;
     my $count = scalar LJ::Userpic->load_user_userpics($u);
