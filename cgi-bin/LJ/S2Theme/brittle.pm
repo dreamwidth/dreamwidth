@@ -1,5 +1,6 @@
 package LJ::S2Theme::brittle;
 use base qw( LJ::S2Theme );
+use strict;
 
 sub layouts { ( "2l" => "two-columns-left", "2r" => "two-columns-right" ) }
 sub layout_prop { "layout_type" }

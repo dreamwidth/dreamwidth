@@ -12,7 +12,6 @@ foreach my $line (@files) {
     next unless $path =~ /\.(pl|pm)$/;
     # skip stuff we're less concerned about or don't control
     next if $path =~ m:\b(doc|etc|fck|miscperl|src|s2)/:;
-    next if $path =~ m:/S2Theme/:;
     $check{$rel} = 1;
 }
 

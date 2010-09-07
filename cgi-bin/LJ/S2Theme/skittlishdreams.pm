@@ -1,5 +1,6 @@
 package LJ::S2Theme::skittlishdreams;
 use base qw( LJ::S2Theme );
+use strict;
 
 sub layouts { ( "2r" => "two-columns-right", "2l" => "two-columns-left" ) }
 sub layout_prop { "layout_type" }
