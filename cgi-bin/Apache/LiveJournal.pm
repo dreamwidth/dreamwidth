@@ -1136,10 +1136,7 @@ sub userpic_content
     my $u = LJ::load_userid($userid);
     return NOT_FOUND unless $u && ! ( $u->is_expunged || $u->is_suspended );
 
-    my %upics;
-    LJ::load_userpics(\%upics, [ $u, $picid ]);
-    my $pic = $upics{$picid} or return NOT_FOUND;
-    return NOT_FOUND if $pic->{'userid'} != $userid || $pic->{state} eq 'X';
+    my $pic = LJ::Userpic->get( $u, $picid ) or return NOT_FOUND;
 
     # Read the mimetype from the pichash if dversion 7
     $mime = { 'G' => 'image/gif',

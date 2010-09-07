@@ -1408,18 +1408,11 @@ sub _format_mail_both {
         my $pichtml;
         my $pic_kw = $self->prop('picture_keyword');
 
-        if ($posteru && $posteru->{defaultpicid} || $pic_kw) {
-            my $pic = $pic_kw ? LJ::get_pic_from_keyword($posteru, $pic_kw) : undef;
-            my $picid = $pic ? $pic->{picid} : $posteru->{defaultpicid};
-            unless ($pic) {
-                my %pics;
-                LJ::load_userpics(\%pics, [ $posteru, $posteru->{defaultpicid} ]);
-                $pic = $pics{$picid};
-                # load_userpics doesn't return picid, but we rely on it above
-                $picid = $picid;
-            }
-            if ($pic) {
-                $pichtml = "<img src=\"$LJ::USERPIC_ROOT/$picid/$pic->{userid}\" align='absmiddle' ".
+        if ( $posteru ) {
+            my $pic = LJ::Userpic->new_from_keyword( $posteru, $pic_kw ) || $posteru->userpic;
+
+            if ( $pic && $pic->load_row ) {
+                $pichtml = "<img src=\"$LJ::USERPIC_ROOT/$pic->{picid}/$pic->{userid}\" align='absmiddle' ".
                     "width='$pic->{width}' height='$pic->{height}' ".
                     "hspace='1' vspace='2' alt='' /> ";
             }

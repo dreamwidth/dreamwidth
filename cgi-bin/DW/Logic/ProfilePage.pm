@@ -106,7 +106,7 @@ sub userpic {
     
         # now determine what caption text to show
         if ( $remote && $remote->can_manage( $u ) ) {
-            if ( LJ::userpic_count( $u ) ) {
+            if ( $u->get_userpic_count ) {
                 $ret->{userpic_url} = $u->allpics_base;
                 $ret->{caption_text} = LJ::Lang::ml( '.section.edit' );
                 $ret->{caption_url} = "$LJ::SITEROOT/editicons?authas=$user"
@@ -116,7 +116,7 @@ sub userpic {
                 $ret->{caption_url} = "$LJ::SITEROOT/editicons?authas=$user"
             }
         } else {
-            if ( LJ::userpic_count( $u ) ) {
+            if ( $u->get_userpic_count ) {
                 $ret->{userpic_url} = $u->allpics_base;
             }
         }
@@ -290,7 +290,7 @@ sub userpic_stats {
     my $u = $self->{u};
     my @ret;
 
-    my $ct = LJ::userpic_count( $u );
+    my $ct = $u->get_userpic_count;
     push @ret, LJ::Lang::ml( '.details.userpics', {
         num_raw => $ct,
         num_comma => LJ::commafy( $ct ),

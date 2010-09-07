@@ -3522,9 +3522,10 @@ sub post_comment {
 
     # they don't have a duplicate...
     unless ($jtalkid) {
+        my ( $posteru, $kw ) = ( $comment->{u}, $comment->{picture_keyword} );
         # XXX do select and delete $talkprop{'picture_keyword'} if they're lying
-        my $pic = LJ::get_pic_from_keyword($comment->{u}, $comment->{picture_keyword});
-        delete $comment->{picture_keyword} unless $pic && $pic->{'state'} eq 'N';
+        my $pic = LJ::Userpic->new_from_keyword( $posteru, $kw );
+        delete $comment->{picture_keyword} unless $pic && $pic->state eq 'N';
         $comment->{pic} = $pic;
 
         # put the post in the database

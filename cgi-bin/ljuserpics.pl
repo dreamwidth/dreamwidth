@@ -393,34 +393,6 @@ sub get_userpic_info
     return $info;
 }
 
-# <LJFUNC>
-# name: LJ::get_pic_from_keyword
-# des: Given a userid and keyword, returns the pic row hashref.
-# args: u, keyword
-# des-keyword: The keyword of the userpic to fetch.
-# returns: hashref of pic row found
-# </LJFUNC>
-sub get_pic_from_keyword
-{
-    my ($u, $kw) = @_;
-    my $info = LJ::get_userpic_info($u) or
-        return undef;
-
-    if (my $pic = $info->{'kw'}{$kw}) {
-        return $pic;
-    }
-
-    # the lame "pic#2343" thing when they didn't assign a keyword
-    if ($kw =~ /^pic\#(\d+)$/) {
-        my $picid = $1;
-        if (my $pic = $info->{'pic'}{$picid}) {
-            return $pic;
-        }
-    }
-
-    return undef;
-}
-
 sub get_picid_from_keyword
 {
     my ($u, $kw, $default) = @_;

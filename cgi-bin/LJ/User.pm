@@ -6322,7 +6322,6 @@ use Carp;
 ###  19. OpenID and Identity Functions
 ###  21. Password Functions
 ###  24. Styles and S2-Related Functions
-###  28. Userpic-Related Functions
 
 ########################################################################
 ###  1. Creating and Deleting Accounts
@@ -8724,30 +8723,6 @@ sub make_journal {
     # if we get here, then we tried to run the old S1 path, so die and hope that
     # somebody comes along to fix us :(
     confess 'Tried to run S1 journal rendering path.';
-}
-
-
-########################################################################
-###  28. Userpic-Related Functions
-
-=head2 Userpic-Related Functions (LJ)
-=cut
-
-# <LJFUNC>
-# name: LJ::userpic_count
-# des: Gets a count of userpics for a given user.
-# args: dbarg?, upics, idlist
-# des-upics: hashref to load pictures into, keys being the picids
-# des-idlist: [$u, $picid] or [[$u, $picid], [$u, $picid], +] objects
-#             also supports deprecated old method, of an array ref of picids.
-# </LJFUNC>
-sub userpic_count {
-    my $u = shift or return undef;
-
-    my $dbcr = LJ::get_cluster_def_reader( $u ) or return undef;
-    return $dbcr->selectrow_array( "SELECT COUNT(*) FROM userpic2 " .
-                                   "WHERE userid=? AND state <> 'X'",
-                                   undef, $u->userid );
 }
 
 
