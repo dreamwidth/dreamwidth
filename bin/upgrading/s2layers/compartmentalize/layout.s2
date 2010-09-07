@@ -1,0 +1,597 @@
+layerinfo type = "layout";
+layerinfo name = "Compartmentalize";
+layerinfo redist_uniq = "compartmentalize/layout";
+layerinfo author_name = "timeasmymeasure";
+layerinfo author_email = "timeasmymeasure@gmail.com";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Layout
+##===============================
+
+set layout_type = "two-columns-left";
+set userpics_position = "right";
+set entry_metadata_position = "top";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+
+set font_journal_title = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_journal_title_size = "1.5";
+set font_journal_title_units = "em";
+
+set font_journal_subtitle = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_journal_subtitle_size = "1.1";
+set font_journal_subtitle_units = "em";
+
+set font_entry_title = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_entry_title_size = "1.1";
+set font_entry_title_units = "em";
+
+set font_module_heading = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_module_heading_size = "1.1";
+set font_module_heading_units = "em";
+
+function print_stylesheet () {
+
+    var string header_colors = generate_color_css($*color_page_title, $*color_header_background, $*color_entry_border);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic div.entry div.userpic {
+                float: left;
+                margin: -4em 1em 1em 0;
+                }
+            .has-userpic div.entry div.header,
+            .has-userpic div.comment div.header {
+                margin-left: 118px;
+                text-align: right;
+                }
+            .has-userpic div.comment div.userpic {
+                float: left;
+                margin: -1em 1em 0 0;
+                }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic div.entry div.userpic {
+                float: right;
+                margin: -4em 0 1em 1em;
+                }
+            .has-userpic div.entry div.header,
+            .has-userpic div.comment div.header {
+                margin-right: 118px;
+                }
+            .has-userpic div.comment div.userpic {
+                float: right;
+                margin: -1em 0 0 1em;
+                }
+            """;
+        }
+"""
+
+* {
+    margin: 0;
+    padding: 0;
+    }
+
+body {
+    margin: 1em 0 0 0;
+    }
+
+#canvas {
+    width: 92%;
+    margin: 0 auto;
+    }
+
+#primary > .inner:first-child {
+    padding: 0;
+    }
+
+.column-left #primary > .inner:first-child {
+    padding-left: 1em;
+    }
+
+.column-right #primary > .inner:first-child {
+    padding-right: 1em;
+    }
+
+#secondary > .inner:first-child {
+    padding: 0;
+    }
+
+#tertiary > .inner:first-child {
+    padding: 0;
+    }
+
+.three-columns-left #tertiary > .inner:first-child {
+    padding-left: 1em;
+    }
+
+.three-columns-right #tertiary > .inner:first-child {
+    padding-left: 1em;
+    }
+
+a {
+   text-decoration: none;
+   }
+
+blockquote {
+    $entry_colors
+    border-top: 10px solid $*color_entry_border;
+    margin: 2em 2em 2em 5em;
+    padding: .7em;
+    width: 70%;
+    }
+
+ul {
+    list-style: square;
+    list-style-position: inside;
+    margin: .5em 1em;
+    }
+
+ol li {
+    list-style: decimal;
+    list-style-position: inside;
+    margin: .5em 1.5em;
+    }
+
+/*--- Titles ---*/
+
+#header {
+    $header_colors
+    border-top: 20px solid $*color_entry_border;
+    margin: 0 0 1em 0;
+    padding: 1em;
+    }
+
+h1#title,
+h2#pagetitle {
+    font-weight: lighter;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+h2#subtitle {
+    text-align: right;
+    text-transform: lowercase;
+    font-weight: lighter;
+    }
+
+/*--- Journal Navigation ---*/
+
+.navigation {
+    $entry_colors
+    border-top: 20px solid $*color_entry_border;
+    font-weight: bold;
+    margin: 0 0 1em 0;
+    text-transform: uppercase;
+    }
+
+.navigation a {
+    color: $*color_entry_title;
+    }
+
+.navigation.empty {
+    display: none;
+    }
+
+li.page-separator {
+    display: none;
+    }
+
+/*--- Sidebar aka Modules ---*/
+
+.module {
+    border-top: 20px solid $*color_module_border;
+    margin: 0 0 1em 0;
+    padding: .5em;
+    }
+
+h2.module-header {
+    font-weight: bold;
+    margin: 0 0 .5em 0;
+    text-transform: uppercase;
+    }
+
+h2.module-header a {
+    color: $*color_module_title;
+    }
+
+div.module-content div.userpic {
+    text-align: center;
+    }
+
+div.module-content div.userpic img {
+    border: 1px solid $*color_module_border;
+    border-top: 10px solid $*color_module_border;
+    padding: .5em;
+    }
+
+div.journal-name {
+    text-transform: uppercase;
+    margin: .5em 0 0 0;
+    text-align: center;
+    }
+
+div.journal-website-name {
+    text-transform: uppercase;
+    text-align: center;
+    }
+
+ul.userlite-interaction-links.icon-links {
+    margin: .5em 0 0 0;
+    text-align: center;
+    }
+
+ul.userlite-interaction-links.icon-links li {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+ul.userlite-interaction-links.text-links li {
+    padding: 0 0 0 .5em;
+    list-style: none;
+    }
+
+ul.module-list {
+    list-style: none;
+    }
+
+ul.module-list li {
+    padding: 0 0 0 .5em;
+    list-style: none;
+    }
+
+div.module-navlinks, div.module-navlinks a {
+    color: $*color_module_title;
+    font-family: $*font_module_heading;
+    font-weight: bold;
+    text-align: right;
+    }
+
+div.module-navlinks ul.module-list {
+    color: $*color_module_title;
+    list-style: none;
+    text-transform: uppercase;
+    }
+
+div.manage-tags-link {
+    margin: .5em 0 0 0;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+div.module-calendar th {
+    border: 1px solid $*color_module_border;
+    font-weight: lighter;
+    margin: 0 .2em;
+    padding: .3em;
+    text-transform: uppercase;
+    }
+
+div.module-calendar td.empty-day {
+    border: 1px solid $*color_module_border;
+    margin: 0 .2em;
+    text-transform: uppercase;
+    }
+
+div.module-calendar td.entry-day {
+    background: $*color_page_background;
+    border: 1px solid $*color_module_border;
+    margin: 0 .1em;
+    text-transform: uppercase;
+    }
+
+/*--- Entries ---*/
+
+.entry {
+    border-top: 20px solid $*color_entry_border;
+    margin: 0 0 1em 0;
+    padding: 1em;
+    }
+
+div.entry-content {
+    margin: 1em 0 0 0;
+    }
+
+div.entry div.header {
+    color: $*color_entry_title;
+    margin: 0 0 .5em 0;
+    padding: 0;
+    }
+
+h3.entry-title {
+    color: $*color_entry_title;
+    text-transform: uppercase;
+    font-weight: bold;
+    }
+
+.datetime {
+    font-size: .75em;
+    text-transform: uppercase;
+    }
+
+span.poster {
+    margin: 1em 0;
+    }
+
+div.entry div.userpic img {
+    border: 1px solid $*color_entry_border;
+    border-top: 10px solid $*color_entry_border;
+    padding: 8px;
+    }
+
+div.entry div.footer {
+    clear: both;
+    }
+
+ul.entry-management-links {
+    margin: .5em 0 0 0;
+    text-align: center;
+    }
+
+ul.entry-management-links li {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+ul.entry-interaction-links {
+    margin: .5em 0 0 0;
+    padding: 0;
+    text-align: center;
+    }
+
+ul.entry-interaction-links li {
+    color: $*color_entry_title;
+    font-weight: normal;
+    margin: 0 .5em 0 0;
+    padding: 0;
+    text-transform: uppercase;
+    }
+
+ul.entry-interaction-links a,
+ul.entry-interaction-links a:visited,
+ul.entry-interaction-links a:hover,
+ul.entry-interaction-links a:active {
+    color: $*color_entry_title;
+    font-size: $*font_entry_title_size;
+    }
+
+hr.above-entry-interaction-links, hr.below-reply-container {
+    display: none;
+    }
+
+/*--- Comments ---*/
+
+.comment {
+    $entry_colors
+    border-top: 20px solid $*color_entry_border;
+    padding: 1em;
+    }
+
+.comment-content {
+    margin: 0;
+    }
+
+.comment-title, .comment-title a {
+    color: $*color_entry_title;
+    font-size: $*font_entry_title_size;
+    font-weight: bold;
+    text-transform: uppercase;
+    }
+
+.comment-poster {
+    font-weight: lighter;
+    text-transform: lowercase;
+    }
+
+textarea.textbox {
+    border: 1px solid;
+    width: 80% !important;
+    }
+
+#qrform table {
+    border: 0 !important;
+    }
+
+.comment-wrapper {
+    margin: .5em 0;
+    }
+
+table.talkform {
+    margin: 0 0 .5em 0;
+    padding: .5em;
+    }
+
+div.comment div.userpic {
+    display: block;
+    }
+
+div.comment div.userpic img {
+    border: 1px solid $*color_entry_border;
+    border-top: 10px solid $*color_entry_border;
+    padding: 8px;
+    }
+
+div.comment div.footer {
+    clear: both;
+    }
+
+.bottomcomment {
+    margin: .5em 0;
+    padding: .5em;
+    }
+
+.comment-management-links li, .comment-interaction-links li {
+    text-transform: uppercase;
+    }
+
+hr.above-entry-interaction-links, hr.below-reply-container {
+    display: none;
+    }
+
+/*--- Currents and Tags AKA Metadata ---*/
+
+.metadata {
+    font-size: .8em;
+    margin: 1em 0 0 0;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+.metadata ul {
+    margin: 0;
+    padding: 0;
+    }
+
+.metadata-item-location, .metadata-item-music, .metadata-item-mood, .tag ul {
+    text-align: right;
+    }
+
+.tag {
+    font-size: .8em;
+    margin: .5em 0 .5em 0;
+    text-transform: uppercase;
+    }
+
+span.tag-text {
+    text-transform: uppercase;
+    }
+
+.tag ul li {
+    font-weight: normal;
+    margin: .5em .2em 0 0;
+    text-align: right;
+    }
+
+/*--- Tags Page ---*/
+
+.page-tags .tags-container {
+    $entry_colors
+    border-top: 20px solid $*color_entry_border;
+    margin: 0 0 .5em 0;
+    padding: 1em;
+    }
+
+.page-tags h2 {
+    font-weight: normal;
+    text-transform: uppercase;
+    }
+
+/*--- Archive Page ---*/
+
+.month table {
+    background: $*color_entry_background;
+    margin: auto;
+    width: 100%;
+    }
+
+table .month {
+    background: $*color_entry_background;
+    }
+
+.month {
+    $entry_colors
+    border-top: 20px solid $*color_entry_border;
+    margin: 0 0 1em 0;
+    padding: 1em;
+    }
+
+.month caption {
+    display: none;
+    }
+
+.month h3 {
+    font-weight: normal;
+    text-transform: uppercase;
+    }
+
+.month th {
+    background: $*color_page_background;
+    border: none !important;
+    border: 1px solid $*color_entry_border !important;
+    color: $*color_page_text;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    }
+
+.month td.day {
+    $entry_colors
+    font-weight: normal;
+    padding: .5em;
+    text-align: center;
+    }
+
+.month td.day-empty {
+    $entry_colors
+    }
+
+.month td.day-has-entries {
+    background: $*color_page_background;
+    border: 1px solid $*color_entry_border;
+    color: $*color_page_text;
+    font-weight: normal;
+    }
+
+.month td.day-has-entries p {
+    display: inline;
+    font-weight: bold;
+    padding: 0 0 0 .5em;
+    }
+
+/*--- Contextual Pop-up ---*/
+
+div.ContextualPopup {
+    color: $*color_page_text;
+    margin: auto;
+    text-align: left;
+    text-transform: uppercase;
+    }
+
+div.ContextualPopup div.Inner {
+    $entry_colors
+    border-top: 10px solid $*color_entry_border;
+    }
+
+div.ContextualPopup .Userpic {
+    $entry_colors
+    border-top: 5px solid $*color_entry_border;
+    margin:  5px;
+    padding: 5px;
+    }
+
+div.ContextualPopup .Content {
+    $entry_colors
+    color: $*color_entry_text;
+    margin: auto;
+    }
+
+div.ContextualPopup .Relation {
+    color: $*color_entry_text;
+    text-transform: uppercase;
+    }
+
+div.ContextualPopup div.Inner a,
+div.ContextualPopup div.Inner a:visited,
+div.ContextualPopup div.Inner a:link {
+    color: $*color_entry_link;
+    text-decoration: none !important;
+    }
+
+$userpic_css
+
+""";
+}

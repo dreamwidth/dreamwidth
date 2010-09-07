@@ -39,6 +39,7 @@ sub default_themes {
         blanket => 'blanket/peach',
         boxesandborders => 'boxesandborders/gray',
         brittle => 'brittle/rust',
+        compartmentalize => 'compartmentalize/poppyfields',
         core2base => 'core2base/testing',
         crossroads => 'crossroads/lettuce',
         drifting => 'drifting/blue',

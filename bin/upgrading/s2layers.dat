@@ -28,6 +28,9 @@ brittle/themes          theme+          brittle/layout
 colorside/layout        layout(core2base/layout)    core2
 colorside/themes        theme+          colorside/layout
 
+compartmentalize/layout layout(core2base/layout)    core2
+compartmentalize/themes theme+                      compartmentalize/layout
+
 core2base/layout        layout          core2
 core2base/themes        theme+          core2base/layout
 
