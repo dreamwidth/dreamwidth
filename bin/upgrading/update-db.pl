@@ -666,16 +666,20 @@ sub populate_mogile_conf {
     # now start verifying classes
     foreach my $class (keys %{$LJ::MOGILEFS_CONFIG{classes} || {}}) {
         if ($exists->{$domain}->{$class}) {
-            if ($exists->{$domain}->{$class} != $LJ::MOGILEFS_CONFIG{classes}->{$class}) {
+            # version 2.35 of mogilefs changed this to a hashref
+            my $mindevcount = ref $exists->{$domain}->{$class} eq 'HASH'
+                ? $exists->{$domain}->{$class}->{mindevcount}
+                : $exists->{$domain}->{$class};
+            if ( $mindevcount != $LJ::MOGILEFS_CONFIG{classes}->{$class} ) {
                 # update the mindevcount since it's changed
                 print "\tUpdating class $class...\n";
-                $mgd->update_class($domain, $class, $LJ::MOGILEFS_CONFIG{classes}->{$class})
+                $mgd->update_class( $domain, $class, { mindevcount => $LJ::MOGILEFS_CONFIG{classes}->{$class} } )
                     or die "Error: Unable to update class.\n";
             }
         } else {
             # create it
             print "\tCreating class $class...\n";
-            $mgd->create_class($domain, $class, $LJ::MOGILEFS_CONFIG{classes}->{$class})
+            $mgd->create_class( $domain, $class, { mindevcount => $LJ::MOGILEFS_CONFIG{classes}->{$class} } )
                 or die "Error: Unable to create class.\n";
         }
     }
