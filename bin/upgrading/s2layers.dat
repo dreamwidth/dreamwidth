@@ -1,80 +1,80 @@
-################################################################
-# base filename         layer type      parent
+############################################################################
+# base filename          layer type                  parent
 
-core1                   core            -
-core2                   core            -
+core1                    core                        -
+core2                    core                        -
 
-siteviews/layout        layout          core2
-siteviews/themes        theme+          siteviews/layout
+siteviews/layout         layout                      core2
+siteviews/themes         theme+                      siteviews/layout
 
-sitefeeds/layout        layout(core2base/layout)    core2
-sitefeeds/themes        theme+                      sitefeeds/layout
+sitefeeds/layout         layout(core2base/layout)    core2
+sitefeeds/themes         theme+                      sitefeeds/layout
 
-bases/layout            layout          core2
-bases/themes            theme+          bases/layout
+bases/layout             layout                      core2
+bases/themes             theme+                      bases/layout
 
-basicboxes/layout       layout(core2base/layout)    core2
-basicboxes/themes       theme+                      basicboxes/layout
+basicboxes/layout        layout(core2base/layout)    core2
+basicboxes/themes        theme+                      basicboxes/layout
 
-blanket/layout          layout          core2
-blanket/themes          theme+          blanket/layout
+blanket/layout           layout                      core2
+blanket/themes           theme+                      blanket/layout
 
-boxesandborders/layout  layout(core2base/layout)    core2
-boxesandborders/themes  theme+                      boxesandborders/layout
+boxesandborders/layout   layout(core2base/layout)    core2
+boxesandborders/themes   theme+                      boxesandborders/layout
 
-brittle/layout          layout          core2
-brittle/themes          theme+          brittle/layout
+brittle/layout           layout                      core2
+brittle/themes           theme+                      brittle/layout
 
-colorside/layout        layout(core2base/layout)    core2
-colorside/themes        theme+          colorside/layout
+colorside/layout         layout(core2base/layout)    core2
+colorside/themes         theme+                      colorside/layout
 
-compartmentalize/layout layout(core2base/layout)    core2
-compartmentalize/themes theme+                      compartmentalize/layout
+compartmentalize/layout  layout(core2base/layout)    core2
+compartmentalize/themes  theme+                      compartmentalize/layout
 
-core2base/layout        layout          core2
-core2base/themes        theme+          core2base/layout
+core2base/layout         layout                      core2
+core2base/themes         theme+                      core2base/layout
 
-crossroads/layout       layout(core2base/layout)    core2
-crossroads/themes       theme+          crossroads/layout
+crossroads/layout        layout(core2base/layout)    core2
+crossroads/themes        theme+                      crossroads/layout
 
-drifting/layout         layout          core2
-drifting/themes         theme+          drifting/layout
+drifting/layout          layout                      core2
+drifting/themes          theme+                      drifting/layout
 
-easyread/layout         layout          core2
-easyread/themes         theme+          easyread/layout
+easyread/layout          layout                      core2
+easyread/themes          theme+                      easyread/layout
 
-funkycircles/layout     layout(core2base/layout)    core2
-funkycircles/themes     theme+                      funkycircles/layout
+fluidmeasure/layout      layout(core2base/layout)    core2
+fluidmeasure/themes      theme+                      fluidmeasure/layout
 
-fluidmeasure/layout     layout(core2base/layout)    core2
-fluidmeasure/themes     theme+                      fluidmeasure/layout
+funkycircles/layout      layout(core2base/layout)    core2
+funkycircles/themes      theme+                      funkycircles/layout
 
-modish/layout           layout(core2base/layout)    core2
-modish/themes           theme+          modish/layout
+modish/layout            layout(core2base/layout)    core2
+modish/themes            theme+                      modish/layout
 
 modular/layout           layout(core2base/layout)    core2
 modular/themes           theme+                      modular/layout
 
-negatives/layout        layout          core2
-negatives/themes        theme+          negatives/layout
+negatives/layout         layout                      core2
+negatives/themes         theme+                      negatives/layout
 
-nouveauoleanders/layout           layout(core2base/layout)    core2
-nouveauoleanders/themes           theme+          nouveauoleanders/layout
+nouveauoleanders/layout  layout(core2base/layout)    core2
+nouveauoleanders/themes  theme+                      nouveauoleanders/layout
 
-refriedtablet/layout    layout(core2base/layout)    core2
-refriedtablet/themes    theme+          refriedtablet/layout
+refriedtablet/layout     layout(core2base/layout)    core2
+refriedtablet/themes     theme+                      refriedtablet/layout
 
-skittlishdreams/layout        layout    core2
-skittlishdreams/themes        theme+    skittlishdreams/layout
+skittlishdreams/layout   layout                      core2
+skittlishdreams/themes   theme+                      skittlishdreams/layout
 
-steppingstones/layout   layout(core2base/layout)    core2
-steppingstones/themes   theme+                      steppingstones/layout
+steppingstones/layout    layout(core2base/layout)    core2
+steppingstones/themes    theme+                      steppingstones/layout
 
-tranquilityiii/layout   layout(core2base/layout)    core2
-tranquilityiii/themes   theme+                      tranquilityiii/layout
+tranquilityiii/layout    layout(core2base/layout)    core2
+tranquilityiii/themes    theme+                      tranquilityiii/layout
 
-zesty/layout            layout          core2
-zesty/themes            theme+          zesty/layout
+zesty/layout             layout                      core2
+zesty/themes             theme+                      zesty/layout
 
 # include local file
 s2layers-local.dat      INCLUDE
