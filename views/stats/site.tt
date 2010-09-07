@@ -22,13 +22,33 @@ the same terms as Perl itself. For a copy of the license, please reference
 <h2>[% '.accounts.title' | ml %]</h2>
 
 [%# number of accounts (total+by type) %]
+
 [% IF accounts_by_type.defined %]
     <ul>
-    [% FOREACH t = [ 'total' 'personal' 'identity' ] %]
+    [% FOREACH t = [ 'total' 'personal' 'identity' 'community' 'syndicated' ] %]
         <li>[% ".accounts.bytype.$t" | ml %] [% accounts_by_type.$t %]</li>
     [% END %]
     </ul>
     [% total_pc = accounts_by_type.personal + accounts_by_type.community %]
+
+[%# Accounts by type pie chart %]
+<h3 class="graphtitle">[% '.graphtitle.accounts' | ml %]</h3>
+<img src="accounts_by_type?personal=[% accounts_by_type.personal ~%]
+    &community=[% accounts_by_type.community ~%]
+    &identity=[% accounts_by_type.identity ~%]
+    &syndicated=[% accounts_by_type.syndicated ~%]
+    &personal_label=[% '.label.personal' | ml ~%]
+    &community_label=[% '.label.community' | ml ~%]
+    &identity_label=[% '.label.identity' | ml ~%]
+    &syndicated_label=[% '.label.syndicated' | ml %]"
+class="piechart" alt="" />
+<p>
+[% '.accounts.explanation.personal' | ml %]
+[% '.accounts.explanation.community' | ml %]
+[% '.accounts.explanation.identity' | ml %]
+[% '.accounts.explanation.syndicated' | ml %]
+</p>
+
 [% ELSE %]
     [% '.error.notavailable' | ml %]
 [% END %]
@@ -56,8 +76,72 @@ the same terms as Perl itself. For a copy of the license, please reference
     [% '.error.notavailable' | ml %]
 [% END %]
 
+[%# Active personal accounts bar chart %]
+<h3 class="graphtitle">[% '.graphtitle.active.personal' | ml %]</h3>
+<img src="active_personal_accounts?active_free_p=[% active_accounts.active_30d_free_P ~%]
+    &active_allpaid_p=[% active_accounts.active_allpaid_P ~%]
+    &active_7d_free_p=[% active_accounts.active_7d_free_P ~%]
+    &active_7d_allpaid_p=[% active_accounts.active_7d_allpaid_P ~%]
+    &active_1d_free_p=[% active_accounts.active_1d_free_P ~%]
+    &active_1d_allpaid_p=[% active_accounts.active_1d_allpaid_P ~%]
+    &bar_paid_label=[% '.label.bar.paid' | ml ~%]
+    &bar_free_label=[% '.label.bar.free' | ml ~%]
+    &bar_30d_label=[% '.label.bar.30d' | ml ~%]
+    &bar_7d_label=[% '.label.bar.7d' | ml ~%]
+    &bar_1d_label=[% '.label.bar.1d' | ml %]"
+alt="[% '.active.free30' | ml %] [% active_accounts.active_30d_free_P %];
+    [%= '.active.paid30' | ml %] [% active_accounts.active_allpaid_P %];
+    [%= '.active.free7' | ml %] [% active_accounts.active_7d_free_P %];
+    [%= '.active.paid7' | ml %] [% active_accounts.active_7d_allpaid_P %];
+    [%= '.active.free1' | ml %] [% active_accounts.active_1d_free_P %];
+    [%= '.active.paid1' | ml %] [% active_accounts.active_1d_allpaid_P %]"
+class="bargraph" />
+
+[%# Active community accounts bar chart %]
+<h3 class="graphtitle">[% '.graphtitle.active.community' | ml %]</h3>
+<img src="active_community_accounts?active_free_c=[% active_accounts.active_30d_free_C ~%]
+    &active_allpaid_c=[% active_accounts.active_allpaid_C ~%]
+    &active_7d_free_c=[% active_accounts.active_7d_free_C ~%]
+    &active_7d_allpaid_c=[% active_accounts.active_7d_allpaid_C ~%]
+    &active_1d_free_c=[% active_accounts.active_1d_free_C ~%]
+    &active_1d_allpaid_c=[% active_accounts.active_1d_allpaid_C ~%]
+    &bar_paid_label=[% '.label.bar.paid' | ml ~%]
+    &bar_free_label=[% '.label.bar.free' | ml ~%]
+    &bar_30d_label=[% '.label.bar.30d' | ml ~%]
+    &bar_7d_label=[% '.label.bar.7d' | ml ~%]
+    &bar_1d_label=[% '.label.bar.1d' | ml %]"
+alt="[% '.active.free30' | ml %] [% active_accounts.active_30d_free_C %];
+    [%= '.active.paid30' | ml %] [% active_accounts.active_allpaid_C %];
+    [%= '.active.free7' | ml %] [% active_accounts.active_7d_free_C %];
+    [%= '.active.paid7' | ml %] [% active_accounts.active_7d_allpaid_C %];
+    [%= '.active.free1' | ml %] [% active_accounts.active_1d_free_C %];
+    [%= '.active.paid1' | ml %] [% active_accounts.active_1d_allpaid_C %]"
+class="bargraph" />
+
+[%# Active identity accounts bar graph %]
+<h3 class="graphtitle">[% '.graphtitle.active.identity' | ml %]</h3>
+<img src="active_identity_accounts?active_free_i=[% active_accounts.active_30d_free_I ~%]
+    &active_allpaid_i=[% active_accounts.active_allpaid_I ~%]
+    &active_7d_free_i=[% active_accounts.active_7d_free_I ~%]
+    &active_7d_allpaid_i=[% active_accounts.active_7d_allpaid_I ~%]
+    &active_1d_free_i=[% active_accounts.active_1d_free_I ~%]
+    &active_1d_allpaid_i=[% active_accounts.active_1d_allpaid_I ~%]
+    &bar_paid_label=[% '.label.bar.paid' | ml ~%]
+    &bar_free_label=[% '.label.bar.free' | ml ~%]
+    &bar_30d_label=[% '.label.bar.30d' | ml ~%]
+    &bar_7d_label=[% '.label.bar.7d' | ml ~%]
+    &bar_1d_label=[% '.label.bar.1d' | ml %]"
+alt="[% '.active.free30' | ml %] [% active_accounts.active_30d_free_I %];
+    [%= '.active.paid30' | ml %] [% active_accounts.active_allpaid_I %];
+    [%= '.active.free7' | ml %] [% active_accounts.active_7d_free_I %];
+    [%= '.active.paid7' | ml %] [% active_accounts.active_7d_allpaid_I %];
+    [%= '.active.free1' | ml %] [% active_accounts.active_1d_free_I %];
+    [%= '.active.paid1' | ml %] [% active_accounts.active_1d_allpaid_I %]"
+class="bargraph" />
+
 [%# Paid accounts (by level), with % of total (P+C) and active %]
 <h2>[% '.paid.title' | ml %]</h2>
+<p>[% '.paid.explanation' | ml %]</p>
 [% IF paid.defined %]
     <table class='stats-matrix'><tr>
     [% FOREACH h = [ 'level' 'number' 'pct_total' 'pct_active' ] %]
@@ -85,3 +169,15 @@ the same terms as Perl itself. For a copy of the license, please reference
 [% ELSE %]
     [% '.error.notavailable' | ml %]
 [% END %]
+
+[%# Paid accounts pie chart %]
+<h3 class="graphtitle">[% '.graphtitle.paid' | ml %]</h3>
+<img src="paid_accounts?paid=[% active_accounts.active_30d_paid ~%]
+    &premium=[% active_accounts.active_30d_premium ~%]
+    &seed=[% active_accounts.active_30d_seed ~%]
+    &active_30d_free=[% active_accounts.active_30d_free ~%]
+    &paid_label=[% '.label.active_paid' | ml ~%]
+    &premium_label=[% '.label.active_premium' | ml ~%]
+    &seed_label=[% '.label.active_seed' | ml ~%]
+    &active_free_label=[% '.label.active_free' | ml %]"
+alt="" class='piechart' />

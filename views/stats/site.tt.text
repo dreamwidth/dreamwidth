@@ -1,24 +1,90 @@
 ;; -*- coding: utf-8 -*-
 
-.accounts.bytype.total=Total:
-
-.accounts.bytype.personal=Personal (users):
-
-.accounts.bytype.identity=External identity (OpenID, etc.):
-
-.accounts.title=Number of accounts
-
 .active.bytime.active_1d=Last 24 hours:
 
 .active.bytime.active_7d=Last 7 days:
 
 .active.bytime.active_30d=Last 30 days:
 
+.accounts.bytype.community=Community:
+
+.accounts.bytype.identity=External identity (OpenID, etc.):
+
+.accounts.bytype.personal=Personal (users):
+
+.accounts.bytype.syndicated=Syndicated:
+
+.accounts.bytype.total=Total:
+
+.accounts.explanation.community=<em>Community</em>: communities based around some shared interest.<br />
+
+.accounts.explanation.identity=<em>External identity</em>: accounts where the user doesn't have a Dreamwidth user name, but instead logs in with <a href="http://www.dreamwidth.org/openid/">OpenID</a>.<br />
+
+.accounts.explanation.personal=<em>Personal</em>: personal accounts.<br />
+
+.accounts.explanation.syndicated=<em>Syndicated</em>: accounts which display an Atom or RSS feed originatingfrom some other site.<br />
+
+.accounts.title=Number of accounts
+
 .active.desc=These are accounts who logged in, posted an entry, commented, or edited a comment during the period indicated. For entries posted to communities, both the poster and the community are counted.
+
+.active.free1=free accounts active in the past 1 day:
+
+.active.paid1=paid accounts active in the past 1 day:
+
+.active.free7=free accounts active in the past 7 days:
+
+.active.paid7=paid accounts active in the past 7 days:
+
+.active.free30=free accounts active in the past 30 days:
+
+.active.paid30=paid accounts active in the past 30 days:
 
 .active.title=Active accounts
 
 .error.notavailable=(Sorry, those statistics aren't available right now.)
+
+.graphtitle.active.community=Bar graph: Community accounts which have<br /> been active in the past 1 day, 7 days, and 30 days
+
+.graphtitle.active.identity=Bar graph: Identity accounts which have<br /> been active in the past 1 day, 7 days, and 30 days
+
+.graphtitle.active.personal=Bar graph: Personal accounts which have been active<br /> in the past 1 day, 7 days, and 30 days
+
+.graphtitle.accounts=Pie chart: Dreamwidth accounts,<br /> divided by account type:
+
+.graphtitle.paid=Pie chart: Active accounts: paid,<br />paid-premium, paid-seed, and free:
+
+.label.active_free=active free
+
+.label.active_paid=active paid
+
+.label.active_premium=active prem.
+
+.label.active_seed=active seed
+
+.label.bar.1d=1 day
+
+.label.bar.7d=7 days
+
+.label.bar.30d=30 days
+
+.label.bar.free=free
+
+.label.bar.paid=paid
+
+.label.community=community
+
+.label.identity=identity
+
+.label.paid=paid
+
+.label.personal=personal
+
+.label.premium=premium
+
+.label.seed=seed
+
+.label.syndicated=syndicated
 
 .note.roundedtonearesttenthofpct=Note: all percentages are rounded (up or down) to the nearest 0.1%.
 
@@ -29,6 +95,8 @@
 .paid.colhdr.pct_total=% of total accounts
 
 .paid.colhdr.pct_active=% of active accounts
+
+.paid.explanation=There are two levels of paid accounts, 'paid' and 'premium paid', which offer extra services compared to free accounts. 'Seed' accounts offer the level of services as 'premium paid', but are permanent. <a href="http://www.dreamwidth.org/support/faqbrowse?faqid=4">Information on paid accounts</a>.
 
 .paid.rowhdr.activepaid=Active paid/premium/seed
 

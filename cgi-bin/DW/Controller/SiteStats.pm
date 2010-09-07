@@ -102,8 +102,10 @@ sub _dashes_to_underlines {
 
 Public stats data
 
-Returns hashref of variables to pass to the template. Note: doesn't check
-or care whether user should have access. That's for the caller to do.
+Returns hashref of variables to pass to the template. For example,
+$vars->{accounts_by_type}->{personal} has a value equal to the number of
+personal accounts. Note: doesn't check or care whether user should have
+access. That's for the caller to do.
 
 =cut
 
@@ -134,6 +136,84 @@ sub public_data {
                 @{$paid->keylist} }
         if defined $paid;
 
+    # Now we have all the raw data we need, but need to calculate some quantities:
+
+    # Total personal and community accounts
+    $vars->{accounts_by_type}->{total_PC} =
+        $vars->{accounts_by_type}->{personal} +
+        $vars->{accounts_by_type}->{community};
+
+    # Total active personal and community accounts
+    $vars->{active_accounts}->{active_PC} =
+        $vars->{active_accounts}->{active_30d_free_P} +
+        $vars->{active_accounts}->{active_30d_paid_P} +
+        $vars->{active_accounts}->{active_30d_premium_P} +
+        $vars->{active_accounts}->{active_30d_seed_P} +
+        $vars->{active_accounts}->{active_30d_free_C} +
+        $vars->{active_accounts}->{active_30d_paid_C} +
+        $vars->{active_accounts}->{active_30d_premium_C} +
+        $vars->{active_accounts}->{active_30d_seed_C};
+
+    # Total active allpaid (paid, premium, and seed) accounts
+    $vars->{active_accounts}->{active_allpaid} =
+        $vars->{active_accounts}->{active_30d_paid} +
+        $vars->{active_accounts}->{active_30d_premium} +
+        $vars->{active_accounts}->{active_30d_seed};
+
+    # Total active allpaid (paid, premium, and seed) personal accounts
+    $vars->{active_accounts}->{active_allpaid_P} =
+        $vars->{active_accounts}->{active_30d_paid_P} +
+        $vars->{active_accounts}->{active_30d_premium_P} +
+        $vars->{active_accounts}->{active_30d_seed_P};
+
+    # Total allpaid personal accounts active in the past 7 days
+    $vars->{active_accounts}->{active_7d_allpaid_P} =
+        $vars->{active_accounts}->{active_7d_paid_P} +
+        $vars->{active_accounts}->{active_7d_premium_P} +
+        $vars->{active_accounts}->{active_7d_seed_P};
+
+    # Total allpaid personal accounts active in the past 1 day
+    $vars->{active_accounts}->{active_1d_allpaid_P} =
+        $vars->{active_accounts}->{active_1d_paid_P} +
+        $vars->{active_accounts}->{active_1d_premium_P} +
+        $vars->{active_accounts}->{active_1d_seed_P};
+
+    # Total active allpaid community accounts
+    $vars->{active_accounts}->{active_allpaid_C} =
+        $vars->{active_accounts}->{active_30d_paid_C} +
+        $vars->{active_accounts}->{active_30d_premium_C} +
+        $vars->{active_accounts}->{active_30d_seed_C};
+
+    # Total allpaid community accounts active in the past 7 days
+    $vars->{active_accounts}->{active_7d_allpaid_C} =
+        $vars->{active_accounts}->{active_7d_paid_C} +
+        $vars->{active_accounts}->{active_7d_premium_C} +
+        $vars->{active_accounts}->{active_7d_seed_C};
+
+    # Total allpaid community accounts active in the past 1 day
+    $vars->{active_accounts}->{active_1d_allpaid_C} =
+        $vars->{active_accounts}->{active_1d_paid_C} +
+        $vars->{active_accounts}->{active_1d_premium_C} +
+        $vars->{active_accounts}->{active_1d_seed_C};
+
+    # Total active allpaid identity accounts
+    $vars->{active_accounts}->{active_allpaid_I} =
+        $vars->{active_accounts}->{active_30d_paid_I} +
+        $vars->{active_accounts}->{active_30d_premium_I} +
+        $vars->{active_accounts}->{active_30d_seed_I};
+
+    # Total allpaid identity accounts active in the past 7 days
+    $vars->{active_accounts}->{active_7d_allpaid_I} =
+        $vars->{active_accounts}->{active_7d_paid_I} +
+        $vars->{active_accounts}->{active_7d_premium_I} +
+        $vars->{active_accounts}->{active_7d_seed_I};
+
+    # Total allpaid identity accounts active in the past 1 day
+    $vars->{active_accounts}->{active_1d_allpaid_I} =
+        $vars->{active_accounts}->{active_1d_paid_I} +
+        $vars->{active_accounts}->{active_1d_premium_I} +
+        $vars->{active_accounts}->{active_1d_seed_I};
+
     return $vars;
 }
 
@@ -151,7 +231,7 @@ sub admin_data {
 
 <<COMMENT;
 
-FIXME: remove this when you have implemented them all 
+FIXME: remove this when you have implemented them all
 
 * Number of accounts, total (done)
 * Number of accounts active (done)

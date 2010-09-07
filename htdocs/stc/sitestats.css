@@ -3,3 +3,8 @@
 table.stats-matrix { border-collapse: collapse; }
 table.stats-matrix th { width: 10em; }
 table.stats-matrix td { padding: 0.3em 3em; text-align: center; }
+
+img.piechart { width: 200px; padding-top: 0.5em; padding-bottom: 1em; }
+img.bargraph { width: 300px; }
+
+.graphtitle { font-size: 1.1em; font-weight: normal; color:#c1272d; padding-top: 2em; }
