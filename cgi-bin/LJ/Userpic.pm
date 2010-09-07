@@ -81,18 +81,14 @@ sub instance {
 
 # LJ::Userpic accessor. Returns a LJ::Userpic object indicated by $picid, or
 # undef if userpic doesn't exist in the db.
-# TODO: add in lazy peer loading here?
 sub get {
-    my ( $class, $u, $picid ) = @_;
-    return unless LJ::isu( $u );
-    return if $u->is_expunged;
+    my ($class, $u, $picid) = @_;
 
-    my @cache = $class->load_user_userpics( $u );
+    my @cache = LJ::Userpic->load_user_userpics($u);
 
     if (@cache) {
-        my $obj = ref $class ? $class : $class->new( $u, $picid );
         foreach my $curr (@cache) {
-            return $obj->absorb_row( $curr ) if $curr->{picid} == $picid;
+            return LJ::Userpic->new( $u, $curr->{picid} ) if $curr->{picid} == $picid;
         }
     }
 
@@ -276,9 +272,13 @@ sub dimensions {
     # width and height probably loaded from DB
     return ($self->{width}, $self->{height}) if ($self->{width} && $self->{height});
 
-    # if not, load them explicitly
-    $self->load_row;
-    return ( $self->{width}, $self->{height} );
+    my %upics;
+    my $u = LJ::load_userid($self->{userid});
+    LJ::load_userpics(\%upics, [ $u, $self->{picid} ]);
+    my $up = $upics{$self->{picid}} or
+        return ();
+
+    return ($up->{width}, $up->{height});
 }
 
 sub max_allowed_bytes {
@@ -488,12 +488,30 @@ sub imagedata {
     return $data ? $data : undef;
 }
 
-# get : class :: load_row : object
+# TODO: add in lazy peer loading here
 sub load_row {
     my $self = shift;
+    my $u = $self->owner;
+    return unless defined $u;
+    return if $u->is_expunged;
 
-    # use class method
-    return $self->get( $self->owner, $self->picid );
+    # Load all of the userpics from cache, or load them from the database and write them to cache
+    my @cache = LJ::Userpic->load_user_userpics($u);
+
+    if (@cache) {
+        foreach my $curr (@cache) {
+            return $self->absorb_row($curr) if $curr->{picid} eq $self->picid;
+        }
+    }
+
+    # If you get past this conditional something is wrong
+    # load_user_userpics  always returns a value
+
+    my $row = $u->selectrow_hashref( "SELECT userid, picid, width, height, state, fmt, comment, description, location, url, " .
+                                     "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
+                                     "FROM userpic2 WHERE userid=? AND picid=?", undef,
+                                     $u->userid, $self->{picid} );
+    $self->absorb_row($row) if $row;
 }
 
 # checks request cache and memcache,
@@ -558,10 +576,10 @@ sub load_user_userpics {
     my $cache = $class->get_cache($u);
     return @$cache if $cache;
 
-    # select all of their userpics
+    # select all of their userpics and iterate through them
     my $data = $u->selectall_hashref(
         "SELECT userid, picid, width, height, state, fmt, comment," .
-        " description, location, url, UNIX_TIMESTAMP(picdate) AS 'pictime'," .
+        " description, location, UNIX_TIMESTAMP(picdate) AS 'pictime'," .
         " flags, md5base64 FROM userpic2 WHERE userid=? AND state <> 'X'",
         'picid', undef, $u->userid );
     die "Error loading userpics: clusterid=$u->{clusterid}, errstr=" . $u->errstr
@@ -572,7 +590,7 @@ sub load_user_userpics {
     # set cache if reasonable
     $class->set_cache($u, \@ret);
 
-    return map { $class->new_from_row($_) } @ret;
+    return map { LJ::Userpic->new_from_row($_) } @ret;
 }
 
 sub create {
