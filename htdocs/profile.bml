@@ -250,7 +250,7 @@ body<=
             <span class='expandcollapse on' id='$opts{section_name}_header'>
                 ) . LJ::img( 'arrow-down', '', { id => "$opts{section_name}_arrow",
                 align => "absmiddle" } ) . qq(
-                $header_image$ML{$opts{section_name_ml}}
+                $header_image <a name='$opts{section_link}'>$ML{$opts{section_name_ml}}</a>
             </span>
         ) : "$header_image$ML{$opts{section_name_ml}}";
 
@@ -286,12 +286,12 @@ body<=
                 <span class='expandcollapse on' id='$opts{section_name}_header'>
                     ) . LJ::img( 'arrow-down', '', { id => "$opts{section_name}_arrow",
                     align => "absmiddle" } ) . qq(
-                    $section_name$section_hidden_text
+                    <a name='$opts{section_link}'>$section_name$section_hidden_text</a>
                 </span>
             );
             $body = qq( <div class='inner_section_body' id='$opts{section_name}_body'>$opts{body}</div> );
         } else {
-            $collapse_text = $section_name;
+            $collapse_text = "<a name='$opts{section_link}'>$section_name</a>";
             $body = $opts{body};
         }
 
@@ -465,6 +465,7 @@ body<=
         $ret .= $content_block->(
             section_name    => 'basics',
             section_name_ml => '.basicinfo.header',
+            section_link    => 'basics',
             body            => $bibody,
             links           => $links,
         );
@@ -501,6 +502,7 @@ body<=
         $ret .= $content_block->(
             section_name    => 'hubbub',
             section_name_ml => '.hubbub.header',
+            section_link    => 'hubbub',
             body            => $fredbody,
         );
     }
@@ -520,6 +522,7 @@ body<=
         $ret .= $content_block->(
             section_name    => 'bio',
             section_name_ml => $u->is_individual ? '.bio.header' : '.about.header',
+            section_link    => 'bio',
             body            => "<div class='usercontent'>$biobody</div>",
             links           => $links,
         );
@@ -558,6 +561,7 @@ body<=
 
         $connectbody .= $content_inner_block->(
             section_name_ml => { ml => '.label.interests', opts => { num => $intcount } },
+            section_link    => 'interests',
             extra_classes   => " first",
             body            => "<div class='inner_section_body'>$intlist</div>",
             links           => $links,
@@ -589,6 +593,7 @@ body<=
             if $remote && $remote->can_manage( $u );
         $connectbody .= $content_inner_block->(
             section_name_ml => '.im.header2',
+            section_link    => 'services',
             extra_attrs     => $new_im_margin,
             body            => "<table>$imlist</table>",
             links           => $links,
@@ -601,6 +606,7 @@ body<=
         $ret .= $content_block->(
             section_name    => 'connect',
             section_name_ml => '.label.connect',
+            section_link    => 'connect',
             body            => $connectbody,
         );
     }
@@ -622,6 +628,7 @@ body<=
             $maintbody = $content_inner_block->(
                 section_name    => 'maints',
                 section_name_ml => { ml => '.label.maintainers', opts => { num => scalar @maintlist } },
+                section_link    => 'maintainers',
                 extra_classes   => ' first',
                 body            => $listusers->( \@maintlist ),
             );
@@ -631,6 +638,7 @@ body<=
         if ( @modlist ) {
             $modbody = $content_inner_block->(
                 section_name    => 'mods',
+                section_link    => 'moderators',
                 section_name_ml => { ml => '.label.moderators', opts => { num => scalar @modlist } },
                 body            => $listusers->( \@modlist ),
             );
@@ -643,6 +651,7 @@ body<=
             $ret .= $content_block->(
                 section_name    => 'admins',
                 section_name_ml => '.admins.header',
+                section_link    => 'administrators',
                 links           => $links,
                 body            => "$maintbody$modbody",
                 collapsible     => 0,
@@ -718,6 +727,7 @@ body<=
         $trusted_by_body = $content_inner_block->(
             section_name    => 'trusted_by_people',
             section_name_ml => $mlsn->( '.people.trusted_by', \@trusted_by_list ),
+            section_link    => 'trusted_by',
             extra_classes   => ' first',
             body            => $listusers->( \@trusted_by_list ),
             hidable         => 1,
@@ -731,6 +741,7 @@ body<=
             $trusted_body .= $content_inner_block->(
                 section_name    => 'mutually_trusted_people',
                 section_name_ml => $mlsn->( '.people.mutually_trusted', \@mutually_trusted_list ),
+                section_link    => 'mutually_trusted',
                 extra_classes   => ' first',
                 body            => $listusers->( \@mutually_trusted_list ),
             );
@@ -740,6 +751,7 @@ body<=
             $trusted_body .= $content_inner_block->(
                 section_name    => 'not_mutually_trusted_people',
                 section_name_ml => $mlsn->( '.people.not_mutually_trusted', \@not_mutually_trusted_list ),
+                section_link    => 'not_mutually_trusted',
                 body            => $listusers->( \@not_mutually_trusted_list ),
             );
 
@@ -748,6 +760,7 @@ body<=
             $trusted_by_body = $content_inner_block->(
                 section_name    => 'not_mutually_trusted_by_people',
                 section_name_ml => $mlsn->( '.people.not_mutually_trusted_by', \@not_mutually_trusted_by_list ),
+                section_link    => 'not_mutually_trusted_by',
                 body            => $listusers->( \@not_mutually_trusted_by_list ),
                 hidable         => 1,
             );
@@ -758,6 +771,7 @@ body<=
         $watched_body .= $content_inner_block->(
             section_name    => 'mutually_watched_people',
             section_name_ml => $mlsn->( '.people.mutually_watched', \@mutually_watched_list ),
+            section_link    => 'mutually_watched',
             body            => $listusers->( \@mutually_watched_list ),
         );
 
@@ -766,6 +780,7 @@ body<=
         $watched_body .= $content_inner_block->(
             section_name    => 'not_mutually_watched_people',
             section_name_ml => $mlsn->( '.people.not_mutually_watched', \@not_mutually_watched_list ),
+            section_link    => 'not_mutually_watched',
             body            => $listusers->( \@not_mutually_watched_list ),
         );
 
@@ -774,6 +789,7 @@ body<=
         $watched_by_body = $content_inner_block->(
             section_name    => 'not_mutually_watched_by_people',
             section_name_ml => $mlsn->( '.people.not_mutually_watched_by', \@not_mutually_watched_by_list ),
+            section_link    => 'not_mutually_watched_by',
             body            => $listusers->( \@not_mutually_watched_by_list ),
             hidable         => 1,
         );
@@ -784,6 +800,7 @@ body<=
             $trusted_body = $content_inner_block->(
                 section_name    => 'trusted_people',
                 section_name_ml => $mlsn->( '.people.trusted', \@trusted_list ),
+                section_link    => 'trusted',
                 extra_classes   => ' first',
                 body            => $listusers->( \@trusted_list ),
             );
@@ -793,6 +810,7 @@ body<=
             $trusted_by_body = $content_inner_block->(
                 section_name    => 'trusted_by_people',
                 section_name_ml => $mlsn->( '.people.trusted_by', \@trusted_by_list ),
+                section_link    => 'trusted_by',
                 body            => $listusers->( \@trusted_by_list ),
                 hidable         => 1,
             );
@@ -804,6 +822,7 @@ body<=
             $watched_body = $content_inner_block->(
                 section_name    => 'watched_people',
                 section_name_ml => $mlsn->( '.people.watched', \@watched_list ),
+                section_link    => 'watched_people',
                 body            => $listusers->( \@watched_list ),
             );
         }
@@ -813,6 +832,7 @@ body<=
             $members_body = $content_inner_block->(
                 section_name    => 'members_people',
                 section_name_ml => $mlsn->( '.people.members', \@members_list ),
+                section_link    => 'members',
                 extra_classes   => ' first',
                 body            => $listusers->( \@members_list ),
             );
@@ -821,6 +841,7 @@ body<=
             $posting_access_from_body = $content_inner_block->(
                 section_name    => 'posting_access_from_people',
                 section_name_ml => $mlsn->( '.people.posting_access_from', \@posting_access_from_list ),
+                section_link    => 'posting_access_from',
                 body            => $listusers->( \@posting_access_from_list ),
                 hidable         => 1,
             );
@@ -831,6 +852,7 @@ body<=
         $watched_by_body = $content_inner_block->(
             section_name    => 'watched_by_people',
             section_name_ml => $mlsn->( '.people.watched_by', \@watched_by_list ),
+            section_link    => 'watched_by',
             body            => $listusers->( \@watched_by_list ),
             hidable         => 1,
         );
@@ -852,6 +874,7 @@ body<=
         $ret .= $content_block->(
             section_name    => 'people',
             section_name_ml => $u->is_community ? '.members.header' : '.people.header',
+            section_link    => 'people',
             header_image    => $u->is_community ? '' : "$LJ::IMGPREFIX/silk/identity/user.png",
             links           => $links,
             body            => "$trusted_body$trusted_by_body$watched_body$members_body$watched_by_body$posting_access_from_body",
@@ -870,6 +893,7 @@ body<=
             $member_of_body = $content_inner_block->(
                 section_name    => 'member_of_comms',
                 section_name_ml => $mlsn->( '.comms.member_of', \@member_of_list ),
+                section_link    => 'member_of',
                 extra_classes   => ' first',
                 body            => $listusers->( \@member_of_list ),
                 hidable         => 1,
@@ -879,6 +903,7 @@ body<=
             $posting_access_to_body = $content_inner_block->(
                 section_name    => 'posting_access_to_comms',
                 section_name_ml => $mlsn->( '.comms.posting_access_to', \@posting_access_to_list ),
+                section_link    => 'posting_access_to',
                 body            => $listusers->( \@posting_access_to_list ),
                 hidable         => 1,
             );
@@ -889,6 +914,7 @@ body<=
         $watched_body = $content_inner_block->(
             section_name    => 'watched_comms',
             section_name_ml => $mlsn->( '.comms.watched', \@watched_list ),
+            section_link    => 'watched_communities',
             body            => $listusers->( \@watched_list ),
         );
 
@@ -902,6 +928,7 @@ body<=
             $ret .= $content_block->(
                 section_name    => 'comms',
                 section_name_ml => '.comms.header',
+                section_link    => 'communities',
                 header_image    => "$LJ::IMGPREFIX/silk/identity/community.png",
                 links           => $links,
                 body            => "$member_of_body$watched_body$posting_access_to_body",
@@ -921,6 +948,7 @@ body<=
         $watched_body = $content_inner_block->(
             section_name    => 'watched_feeds',
             section_name_ml => $mlsn->( '.feeds.watched', \@watched_list ),
+            section_link    => 'watched_feeds',
             extra_classes   => ' first',
             body            => $listusers->( \@watched_list ),
         );
@@ -935,6 +963,7 @@ body<=
             $ret .= $content_block->(
                 section_name    => 'feeds',
                 section_name_ml => '.feeds.header',
+                section_link    => 'feeds',
                 header_image    => "$LJ::IMGPREFIX/silk/identity/feed.png",
                 links           => $links,
                 body            => "$watched_body",
@@ -971,6 +1000,7 @@ body<=
         $ret .=  $content_block->(
             section_name   => 'linking',
             section_name_ml => '.label.linking',
+            section_link    => 'linking',
             body           => $link_body,
             hidable        => 1,
          );
