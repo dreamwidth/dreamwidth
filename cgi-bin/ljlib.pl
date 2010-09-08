@@ -87,6 +87,7 @@ use DW::External::User;
 use DW::Logic::LogItems;
 use LJ::CleanHTML;
 use DW::LatestFeed;
+use LJ::Support;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
