@@ -6,46 +6,68 @@ layerinfo author_name = "Sarken";
 
 set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
 
-set image_background_page_url = " ";
-set image_background_header_url = "skittlishdreams/academy_bg.gif";
-set image_background_container_url = "skittlishdreams/academy_shaddow.gif";
-set image_background_footer_url = "skittlishdreams/academy_bgb.gif";
-set image_background_module_url = "skittlishdreams/academy_box.gif";
-set image_background_entry_url = "skittlishdreams/academy_edge.gif";
-set image_background_navigation_url = "skittlishdreams/academy_circle.gif";
+##===============================
+## Page Colors
+##===============================
 
-set image_background_header_height = 120;
+set color_page_background = "#063235";
+set color_page_border = "#f2f2f2";
+set color_page_details_text = "#bbb";
+set color_page_link = "#119aa3";
+set color_page_link_hover = "#aaa";
+set color_page_link_visited = "#b9a62a";
+set color_page_text = "#555";
+set color_page_title = "#fff";
+set color_header_background = "#cab72d";
+set color_footer_background = "#e1cc33";
+set color_footer_link = "#fff";
 
-set color_entry_metadata_text = "#bbbbbb";
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_metadata_text = "#bbb";
 set color_entry_text = "#0d0d0d";
-set color_entry_background = "#ffffff";
 set color_entry_title = "#f2f2f2";
 set color_entry_title_border = "#063235";
 set color_entry_title_border_alt = "#063235";
 set color_entry_title_background = "#063235";
-set color_footer_background = "#e1cc33";
-set color_footer_link = "#ffffff";
-set color_header_background = "#cab72d";
+
+##===============================
+## Module Colors
+##===============================
+
 set color_module_background = "#f2f2f2";
+set color_module_link = "#444";
 set color_module_text = "#848484";
-set color_module_link = "#444444";
-set color_module_title = "#444444";
-set color_page_background = "#063235";
-set color_page_border = "#f2f2f2";
-set color_page_details_text = "#bbbbbb";
-set color_page_link = "#119aa3";
-set color_page_link_hover = "#aaaaaa";
-set color_page_link_visited = "#b9a62a";
-set color_page_text = "#555555";
-set color_page_title = "#ffffff";
+set color_module_title = "#444";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/academy_shaddow.gif";
+set image_background_entry_url = "skittlishdreams/academy_edge.gif";
+set image_background_footer_url = "skittlishdreams/academy_bgb.gif";
+set image_background_header_height = 120;
+set image_background_header_url = "skittlishdreams/academy_bg.gif";
+set image_background_module_url = "skittlishdreams/academy_box.gif";
+set image_background_navigation_url = "skittlishdreams/academy_circle.gif";
 
 function print_stylesheet () {
+    """
+    .entry-title, .entry-title a {
+        color: $*color_entry_title;
+        }
 
-"""
-.entry-title, .entry-title a { color: $*color_entry_title;}
-.entry .userpic a, .comment .userpic a, .entry, .comment, .text_noentries_day { border-color: $*color_header_background; }
-""";
+    .entry .userpic a, .comment .userpic a,
+    .entry, .comment, .text_noentries_day {
+        border-color: $*color_header_background;
+        }
+    """;
 }
+
 
 #NEWLAYER: skittlishdreams/blue
 layerinfo type = "theme";
@@ -53,45 +75,56 @@ layerinfo name = "Blue";
 layerinfo redist_uniq = "skittlishdreams/blue";
 layerinfo author_name = "Kaigou";
 
-## theme color: #0870C9
-
-set image_background_page_url = "skittlishdreams/bg.gif";
-set image_background_header_url = "skittlishdreams/header_bg.gif";
-set image_background_container_url = "skittlishdreams/left_bg.gif";
-set image_background_footer_url = "skittlishdreams/footer_bg.gif";
-set image_background_module_url = "skittlishdreams/blue_box.gif";
-set image_background_entry_url = "skittlishdreams/blue_edge.gif";
-set image_background_navigation_url = "skittlishdreams/blue_circle.gif";
-
-set color_page_border = "#0870C9";
-set color_page_link = "#0870C9";
-set color_page_link_visited = "#0870C9";
-set color_module_background = "#0870C9";
-set color_entry_title = "#0870C9";
+##===============================
+## Page Colors
+##===============================
 
 set color_page_background = "#e3e3e3";
-
+set color_page_border = "#0870C9";
+set color_page_details_text = "#888";
+set color_page_link = "#0870C9";
+set color_page_link_hover = "#16E";
+set color_page_link_visited = "#0870C9";
+set color_page_text = "#666";
+set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
 
-set color_page_text = "#666666";
-set color_page_title = "#ddd";
-set color_page_details_text = "#888888";
-
-set color_page_link_hover = "#16E";
-
-set color_module_text = "#DDD";
-set color_module_link = "#FFF";
-set color_module_title = "#FFF";
+##===============================
+## Entry Colors
+##===============================
 
 set color_entry_background = "#FFF";
+set color_entry_metadata_text = "#811";
 set color_entry_text = "#444";
+set color_entry_title = "#0870C9";
 set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
-set color_entry_metadata_text = "#881111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#0870C9";
+set color_module_link = "#FFF";
+set color_module_text = "#DDD";
+set color_module_title = "#FFF";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_entry_url = "skittlishdreams/blue_edge.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_module_url = "skittlishdreams/blue_box.gif";
+set image_background_navigation_url = "skittlishdreams/blue_circle.gif";
+set image_background_page_url = "skittlishdreams/bg.gif";
+
 
 #NEWLAYER: skittlishdreams/cyan
 layerinfo type = "theme";
@@ -99,45 +132,56 @@ layerinfo name = "Cyan";
 layerinfo redist_uniq = "skittlishdreams/cyan";
 layerinfo author_name = "Kaigou";
 
-## theme color: #1088F7
-
-set image_background_page_url = "skittlishdreams/bg.gif";
-set image_background_header_url = "skittlishdreams/header_bg.gif";
-set image_background_container_url = "skittlishdreams/left_bg.gif";
-set image_background_footer_url = "skittlishdreams/footer_bg.gif";
-set image_background_module_url = "skittlishdreams/cyan_box.gif";
-set image_background_entry_url = "skittlishdreams/cyan_edge.gif";
-set image_background_navigation_url = "skittlishdreams/cyan_circle.gif";
-
-set color_page_border = "#1088F7";
-set color_page_link = "#1088F7";
-set color_page_link_visited = "#1088F7";
-set color_module_background = "#1088F7";
-set color_entry_title = "#1088F7";
+##===============================
+## Page Colors
+##===============================
 
 set color_page_background = "#e3e3e3";
-
+set color_page_border = "#1088F7";
+set color_page_details_text = "#888";
+set color_page_link = "#1088F7";
+set color_page_link_hover = "#16E";
+set color_page_link_visited = "#1088F7";
+set color_page_text = "#666";
+set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
 
-set color_page_text = "#666666";
-set color_page_title = "#ddd";
-set color_page_details_text = "#888888";
-
-set color_page_link_hover = "#16E";
-
-set color_module_text = "#DDD";
-set color_module_link = "#FFF";
-set color_module_title = "#FFF";
+##===============================
+## Entry Colors
+##===============================
 
 set color_entry_background = "#FFF";
+set color_entry_metadata_text = "#811";
 set color_entry_text = "#444";
+set color_entry_title = "#1088F7";
 set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
-set color_entry_metadata_text = "#881111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#1088F7";
+set color_module_link = "#FFF";
+set color_module_text = "#DDD";
+set color_module_title = "#FFF";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_entry_url = "skittlishdreams/cyan_edge.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_module_url = "skittlishdreams/cyan_box.gif";
+set image_background_navigation_url = "skittlishdreams/cyan_circle.gif";
+set image_background_page_url = "skittlishdreams/bg.gif";
+
 
 #NEWLAYER: skittlishdreams/desertcream
 layerinfo type = "theme";
@@ -147,44 +191,62 @@ layerinfo author_name = "Sarken";
 
 set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
 
-set image_background_page_url = " ";
-set image_background_header_url = "skittlishdreams/desertcream_bg.gif";
-set image_background_container_url = "skittlishdreams/desertcream_shaddow.gif";
-set image_background_footer_url = "skittlishdreams/desertcream_bgb.gif";
-set image_background_module_url = "skittlishdreams/desertcream_box.gif";
-set image_background_entry_url = "skittlishdreams/desertcream_edge.gif";
-set image_background_navigation_url = "skittlishdreams/desertcream_circle.gif";
+##===============================
+## Page Colors
+##===============================
 
-set image_background_header_height = 120;
-
-set color_entry_metadata_text = "#BFBDB0";
-set color_entry_text = "#555555";
-set color_entry_background = "#ffffff";
-set color_entry_title = "#C7B560";
-set color_entry_title_border = "#eeeeee";
-set color_entry_title_border_alt = "#eeeeee";
-set color_footer_background = "#A7BD9B";
-set color_footer_link = "#efefef";
-set color_header_background = "#92A588";
-set color_module_background = "#BDD2B1";
-set color_module_text = "#777777";
-set color_module_link = "#ffffff";
-set color_module_title = "#ffffff";
 set color_page_background = "#EDEADA";
 set color_page_border = "#BDD2B1";
-set color_page_details_text = "#bbbbbb";
+set color_page_details_text = "#bbb";
 set color_page_link = "#8EB37A";
 set color_page_link_hover = "#C7B560";
 set color_page_link_visited = "#AD9625";
-set color_page_text = "#555555";
-set color_page_title = "#ffffff";
+set color_page_text = "#555";
+set color_page_title = "#fff";
+set color_header_background = "#92A588";
+set color_footer_background = "#A7BD9B";
+set color_footer_link = "#efefef";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_metadata_text = "#BFBDB0";
+set color_entry_text = "#555";
+set color_entry_title = "#C7B560";
+set color_entry_title_border = "#eee";
+set color_entry_title_border_alt = "#eee";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#BDD2B1";
+set color_module_link = "#fff";
+set color_module_text = "#777";
+set color_module_title = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/desertcream_shaddow.gif";
+set image_background_entry_url = "skittlishdreams/desertcream_edge.gif";
+set image_background_footer_url = "skittlishdreams/desertcream_bgb.gif";
+set image_background_header_height = 120;
+set image_background_header_url = "skittlishdreams/desertcream_bg.gif";
+set image_background_module_url = "skittlishdreams/desertcream_box.gif";
+set image_background_navigation_url = "skittlishdreams/desertcream_circle.gif";
 
 function print_stylesheet () {
-
-"""
-.entry-title, .entry-title a { color: $*color_entry_title;}
-""";
+    """
+    .entry-title, .entry-title a {
+        color: $*color_entry_title;
+        }
+    """;
 }
+
 
 #NEWLAYER: skittlishdreams/green
 layerinfo type = "theme";
@@ -192,45 +254,57 @@ layerinfo name = "Green";
 layerinfo redist_uniq = "skittlishdreams/green";
 layerinfo author_name = "Kaigou";
 
-## theme color: #61AC00
-
-set image_background_page_url = "skittlishdreams/bg.gif";
-set image_background_header_url = "skittlishdreams/header_bg.gif";
-set image_background_container_url = "skittlishdreams/left_bg.gif";
-set image_background_footer_url = "skittlishdreams/footer_bg.gif";
-set image_background_module_url = "skittlishdreams/green_box.gif";
-set image_background_entry_url = "skittlishdreams/green_edge.gif";
-set image_background_navigation_url = "skittlishdreams/green_circle.gif";
-
-set color_page_border = "#61AC00";
-set color_page_link = "#61AC00";
-set color_page_link_visited = "#61AC00";
-set color_module_background = "#61AC00";
-set color_entry_title = "#61AC00";
+##===============================
+## Page Colors
+##===============================
 
 set color_page_background = "#e3e3e3";
-
+set color_page_border = "#61AC00";
+set color_page_details_text = "#888";
+set color_page_link = "#61AC00";
+set color_page_link_hover = "#16E";
+set color_page_link_visited = "#61AC00";
+set color_page_text = "#666";
+set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
 
-set color_page_text = "#666666";
-set color_page_title = "#ddd";
-set color_page_details_text = "#888888";
-
-set color_page_link_hover = "#16E";
-
-set color_module_text = "#DDD";
-set color_module_link = "#FFF";
-set color_module_title = "#FFF";
+##===============================
+## Entry Colors
+##===============================
 
 set color_entry_background = "#FFF";
+set color_entry_metadata_text = "#811";
 set color_entry_text = "#444";
+set color_entry_title = "#61AC00";
 set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
-set color_entry_metadata_text = "#881111";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#61AC00";
+set color_module_link = "#FFF";
+set color_module_text = "#DDD";
+set color_module_title = "#FFF";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_entry_url = "skittlishdreams/green_edge.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_module_url = "skittlishdreams/green_box.gif";
+set image_background_navigation_url = "skittlishdreams/green_circle.gif";
+set image_background_page_url = "skittlishdreams/bg.gif";
+
 
 #NEWLAYER: skittlishdreams/inthebag
 layerinfo type = "theme";
@@ -240,46 +314,68 @@ layerinfo author_name = "Sarken";
 
 set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
 
-set image_background_page_url = " ";
-set image_background_header_url = "skittlishdreams/inthebag_bg.gif";
-set image_background_container_url = "skittlishdreams/inthebag_shaddow.gif";
-set image_background_footer_url = "skittlishdreams/inthebag_bgb.gif";
-set image_background_module_url = "skittlishdreams/inthebag_box.gif";
-set image_background_entry_url = "skittlishdreams/inthebag_edge.gif";
-set image_background_navigation_url = "skittlishdreams/inthebag_circle.gif";
+##===============================
+## Page Colors
+##===============================
 
-set image_background_header_height = 120;
-
-set color_entry_metadata_text = "#88826E";
-set color_entry_text = "#222222";
-set color_entry_background = "#D6CCAD";
-set color_entry_title = "#5D9315";
-set color_entry_title_border = "#D6CCAD";
-set color_entry_title_border_alt = "#D6CCAD";
-set color_entry_title_background = "#D6CCAD";
-set color_footer_background = "#2E5962";
-set color_footer_link = "#ffffff";
-set color_header_background = "#417D8A";
-set color_module_background = "#69A618";
-set color_module_text = "#222222";
-set color_module_link = "#ffffff";
-set color_module_title = "#ffffff";
 set color_page_background = "#695E55";
 set color_page_border = "#69A618";
 set color_page_details_text = "#7F7967";
 set color_page_link = "#34707D";
 set color_page_link_hover = "#5D9315";
 set color_page_link_visited = "#695E55";
-set color_page_text = "#222222";
-set color_page_title = "#ffffff";
+set color_page_text = "#222";
+set color_page_title = "#fff";
+set color_header_background = "#417D8A";
+set color_footer_background = "#2E5962";
+set color_footer_link = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#D6CCAD";
+set color_entry_metadata_text = "#88826E";
+set color_entry_text = "#222";
+set color_entry_title = "#5D9315";
+set color_entry_title_border = "#D6CCAD";
+set color_entry_title_border_alt = "#D6CCAD";
+set color_entry_title_background = "#D6CCAD";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#69A618";
+set color_module_link = "#fff";
+set color_module_text = "#222";
+set color_module_title = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/inthebag_shaddow.gif";
+set image_background_entry_url = "skittlishdreams/inthebag_edge.gif";
+set image_background_footer_url = "skittlishdreams/inthebag_bgb.gif";
+set image_background_header_height = 120;
+set image_background_header_url = "skittlishdreams/inthebag_bg.gif";
+set image_background_module_url = "skittlishdreams/inthebag_box.gif";
+set image_background_navigation_url = "skittlishdreams/inthebag_circle.gif";
 
 function print_stylesheet () {
+    """
+    .entry-title, .entry-title a {
+        color: $*color_entry_title;
+        }
 
-"""
-.entry-title, .entry-title a { color: $*color_entry_title;}
-.entry .userpic a, .comment .userpic a, .entry, .comment, .text_noentries_day { border-color: $*color_footer_background; }
-""";
+    .entry .userpic a, .comment .userpic a,
+    .entry, .comment, .text_noentries_day {
+        border-color: $*color_footer_background;
+        }
+    """;
 }
+
 
 #NEWLAYER: skittlishdreams/likesunshine
 layerinfo type = "theme";
@@ -289,44 +385,63 @@ layerinfo author_name = "Sarken";
 
 set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
 
-set image_background_page_url = "skittlishdreams/likesunshine_page.gif";
-set image_background_header_url = "skittlishdreams/likesunshine_bg.gif";
-set image_background_container_url = "skittlishdreams/likesunshine_shaddow.gif";
-set image_background_footer_url = "skittlishdreams/likesunshine_bgb.gif";
-set image_background_module_url = "skittlishdreams/likesunshine_box.gif";
-set image_background_entry_url = "skittlishdreams/likesunshine_edge.gif";
-set image_background_navigation_url = "skittlishdreams/likesunshine_circle.gif";
+##===============================
+## Page Colors
+##===============================
 
-set image_background_header_height = 120;
-
-set color_entry_metadata_text = "#878499";
-set color_entry_text = "#555555";
-set color_entry_background = "#ffffff";
-set color_entry_title = "#6c6398";
-set color_entry_title_border = "#eeeeee";
-set color_entry_title_border_alt = "#eeeeee";
-set color_footer_background = "#99530f";
-set color_footer_link = "#efefef";
-set color_header_background = "#d17114";
-set color_module_background = "#f6d645";
-set color_module_text = "#A68A28";
-set color_module_link = "#ffffff";
-set color_module_title = "#ffffff";
 set color_page_background = "#e0e0e0";
 set color_page_border = "#f6d645";
-set color_page_details_text = "#aaaaaa";
+set color_page_details_text = "#aaa";
 set color_page_link = "#eabe25";
 set color_page_link_hover = "#6c6398";
 set color_page_link_visited = "#d17114";
-set color_page_text = "#555555";
-set color_page_title = "#ffffff";
+set color_page_text = "#555";
+set color_page_title = "#fff";
+set color_header_background = "#d17114";
+set color_footer_background = "#99530f";
+set color_footer_link = "#efefef";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_metadata_text = "#878499";
+set color_entry_text = "#555";
+set color_entry_title = "#6c6398";
+set color_entry_title_border = "#eee";
+set color_entry_title_border_alt = "#eee";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f6d645";
+set color_module_link = "#fff";
+set color_module_text = "#A68A28";
+set color_module_title = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/likesunshine_shaddow.gif";
+set image_background_entry_url = "skittlishdreams/likesunshine_edge.gif";
+set image_background_footer_url = "skittlishdreams/likesunshine_bgb.gif";
+set image_background_header_height = 120;
+set image_background_header_url = "skittlishdreams/likesunshine_bg.gif";
+set image_background_module_url = "skittlishdreams/likesunshine_box.gif";
+set image_background_navigation_url = "skittlishdreams/likesunshine_circle.gif";
+set image_background_page_url = "skittlishdreams/likesunshine_page.gif";
 
 function print_stylesheet () {
-
-"""
-.entry-title, .entry-title a { color: $*color_entry_title;}
-""";
+    """
+    .entry-title, .entry-title a {
+        color: $*color_entry_title;
+        }
+    """;
 }
+
 
 #NEWLAYER: skittlishdreams/orange
 layerinfo type = "theme";
@@ -334,45 +449,56 @@ layerinfo name = "Orange";
 layerinfo redist_uniq = "skittlishdreams/orange";
 layerinfo author_name = "Kaigou";
 
-## theme color: #F79910
- 
-set image_background_page_url = "skittlishdreams/bg.gif";
-set image_background_header_url = "skittlishdreams/header_bg.gif";
-set image_background_container_url = "skittlishdreams/left_bg.gif";
-set image_background_footer_url = "skittlishdreams/footer_bg.gif";
-set image_background_module_url = "skittlishdreams/orange_box.gif";
-set image_background_entry_url = "skittlishdreams/orange_edge.gif";
-set image_background_navigation_url = "skittlishdreams/orange_circle.gif";
-
-set color_page_border = "#F79910";
-set color_page_link = "#F79910";
-set color_page_link_visited = "#F79910";
-set color_module_background = "#F79910";
-set color_entry_title = "#F79910";
+##===============================
+## Page Colors
+##===============================
 
 set color_page_background = "#e3e3e3";
-
+set color_page_border = "#F79910";
+set color_page_details_text = "#888";
+set color_page_link = "#F79910";
+set color_page_link_hover = "#16E";
+set color_page_link_visited = "#F79910";
+set color_page_text = "#666";
+set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
 
-set color_page_text = "#666666";
-set color_page_title = "#ddd";
-set color_page_details_text = "#888888";
-
-set color_page_link_hover = "#16E";
-
-set color_module_text = "#DDD";
-set color_module_link = "#FFF";
-set color_module_title = "#FFF";
+##===============================
+## Entry Colors
+##===============================
 
 set color_entry_background = "#FFF";
+set color_entry_metadata_text = "#811";
 set color_entry_text = "#444";
+set color_entry_title = "#F79910";
 set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
-set color_entry_metadata_text = "#881111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#F79910";
+set color_module_link = "#FFF";
+set color_module_text = "#DDD";
+set color_module_title = "#FFF";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_entry_url = "skittlishdreams/orange_edge.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_module_url = "skittlishdreams/orange_box.gif";
+set image_background_navigation_url = "skittlishdreams/orange_circle.gif";
+set image_background_page_url = "skittlishdreams/bg.gif";
+
 
 #NEWLAYER: skittlishdreams/pink
 layerinfo type = "theme";
@@ -380,45 +506,56 @@ layerinfo name = "Pink";
 layerinfo redist_uniq = "skittlishdreams/pink";
 layerinfo author_name = "Kaigou";
 
-## theme color: #F122BE
-
-set image_background_page_url = "skittlishdreams/bg.gif";
-set image_background_header_url = "skittlishdreams/header_bg.gif";
-set image_background_container_url = "skittlishdreams/left_bg.gif";
-set image_background_footer_url = "skittlishdreams/footer_bg.gif";
-set image_background_module_url = "skittlishdreams/pink_box.gif";
-set image_background_entry_url = "skittlishdreams/pink_edge.gif";
-set image_background_navigation_url = "skittlishdreams/pink_circle.gif";
-
-set color_page_border = "#F122BE";
-set color_page_link = "#F122BE";
-set color_page_link_visited = "#F122BE";
-set color_module_background = "#F122BE";
-set color_entry_title = "#F122BE";
+##===============================
+## Page Colors
+##===============================
 
 set color_page_background = "#e3e3e3";
-
+set color_page_border = "#F122BE";
+set color_page_details_text = "#888";
+set color_page_link = "#F122BE";
+set color_page_link_hover = "#16E";
+set color_page_link_visited = "#F122BE";
+set color_page_text = "#666";
+set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
 
-set color_page_text = "#666666";
-set color_page_title = "#ddd";
-set color_page_details_text = "#888888";
-
-set color_page_link_hover = "#16E";
-
-set color_module_text = "#DDD";
-set color_module_link = "#FFF";
-set color_module_title = "#FFF";
+##===============================
+## Entry Colors
+##===============================
 
 set color_entry_background = "#FFF";
+set color_entry_metadata_text = "#811";
 set color_entry_text = "#444";
+set color_entry_title = "#F122BE";
 set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
-set color_entry_metadata_text = "#881111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#F122BE";
+set color_module_link = "#FFF";
+set color_module_text = "#DDD";
+set color_module_title = "#FFF";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_entry_url = "skittlishdreams/pink_edge.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_module_url = "skittlishdreams/pink_box.gif";
+set image_background_navigation_url = "skittlishdreams/pink_circle.gif";
+set image_background_page_url = "skittlishdreams/bg.gif";
+
 
 #NEWLAYER: skittlishdreams/red
 layerinfo type = "theme";
@@ -426,45 +563,56 @@ layerinfo name = "Red";
 layerinfo redist_uniq = "skittlishdreams/red";
 layerinfo author_name = "Kaigou";
 
-## theme color: #C90808
-
-set image_background_page_url = "skittlishdreams/bg.gif";
-set image_background_header_url = "skittlishdreams/header_bg.gif";
-set image_background_container_url = "skittlishdreams/left_bg.gif";
-set image_background_footer_url = "skittlishdreams/footer_bg.gif";
-set image_background_module_url = "skittlishdreams/red_box.gif";
-set image_background_entry_url = "skittlishdreams/red_edge.gif";
-set image_background_navigation_url = "skittlishdreams/red_circle.gif";
-
-set color_page_border = "#C90808";
-set color_page_link = "#C90808";
-set color_page_link_visited = "#C90808";
-set color_module_background = "#C90808";
-set color_entry_title = "#C90808";
+##===============================
+## Page Colors
+##===============================
 
 set color_page_background = "#e3e3e3";
-
+set color_page_border = "#C90808";
+set color_page_details_text = "#888";
+set color_page_link = "#C90808";
+set color_page_link_hover = "#16E";
+set color_page_link_visited = "#C90808";
+set color_page_text = "#666";
+set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
 
-set color_page_text = "#666666";
-set color_page_title = "#ddd";
-set color_page_details_text = "#888888";
-
-set color_page_link_hover = "#16E";
-
-set color_module_text = "#DDD";
-set color_module_link = "#FFF";
-set color_module_title = "#FFF";
+##===============================
+## Entry Colors
+##===============================
 
 set color_entry_background = "#FFF";
+set color_entry_metadata_text = "#811";
 set color_entry_text = "#444";
+set color_entry_title = "#C90808";
 set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
-set color_entry_metadata_text = "#881111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#C90808";
+set color_module_link = "#FFF";
+set color_module_text = "#DDD";
+set color_module_title = "#FFF";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_entry_url = "skittlishdreams/red_edge.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_module_url = "skittlishdreams/red_box.gif";
+set image_background_navigation_url = "skittlishdreams/red_circle.gif";
+set image_background_page_url = "skittlishdreams/bg.gif";
+
 
 #NEWLAYER: skittlishdreams/snowcherries
 layerinfo type = "theme";
@@ -474,46 +622,68 @@ layerinfo author_name = "Sarken";
 
 set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
 
-set image_background_page_url = " ";
-set image_background_header_url = "skittlishdreams/snowcherries_bg.gif";
-set image_background_container_url = "skittlishdreams/snowcherries_shaddow.gif";
-set image_background_footer_url = "skittlishdreams/snowcherries_bgb.gif";
-set image_background_module_url = "skittlishdreams/snowcherries_box.gif";
-set image_background_entry_url = "skittlishdreams/snowcherries_edge.gif";
-set image_background_navigation_url = "skittlishdreams/snowcherries_circle.gif";
+##===============================
+## Page Colors
+##===============================
 
-set image_background_header_height = 120;
-
-set color_entry_metadata_text = "#575F5D";
-set color_entry_text = "#333333";
-set color_entry_background = "#81877B";
-set color_entry_title = "#2E353F";
-set color_entry_title_border = "#81877B";
-set color_entry_title_border_alt = "#81877B";
-set color_entry_title_background = "#81877B";
-set color_footer_background = "#a61216";
-set color_footer_link = "#ffffff";
-set color_header_background = "#DB181C";
-set color_module_background = "#5A6360";
-set color_module_text = "#222222";
-set color_module_link = "#ffffff";
-set color_module_title = "#ffffff";
 set color_page_background = "#2E353F";
 set color_page_border = "#5A6360";
 set color_page_details_text = "#49504E";
 set color_page_link = "#910004";
 set color_page_link_hover = "#C4D7D2";
 set color_page_link_visited = "#0E3870";
-set color_page_text = "#222222";
-set color_page_title = "#ffffff";
+set color_page_text = "#222";
+set color_page_title = "#fff";
+set color_header_background = "#DB181C";
+set color_footer_background = "#a61216";
+set color_footer_link = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#81877B";
+set color_entry_metadata_text = "#575F5D";
+set color_entry_text = "#333";
+set color_entry_title = "#2E353F";
+set color_entry_title_border = "#81877B";
+set color_entry_title_border_alt = "#81877B";
+set color_entry_title_background = "#81877B";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#5A6360";
+set color_module_text = "#222";
+set color_module_link = "#fff";
+set color_module_title = "#fff";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/snowcherries_shaddow.gif";
+set image_background_entry_url = "skittlishdreams/snowcherries_edge.gif";
+set image_background_footer_url = "skittlishdreams/snowcherries_bgb.gif";
+set image_background_header_height = 120;
+set image_background_header_url = "skittlishdreams/snowcherries_bg.gif";
+set image_background_module_url = "skittlishdreams/snowcherries_box.gif";
+set image_background_navigation_url = "skittlishdreams/snowcherries_circle.gif";
 
 function print_stylesheet () {
+    """
+    .entry-title, .entry-title a {
+        color: $*color_entry_title;
+        }
 
-"""
-.entry-title, .entry-title a { color: $*color_entry_title;}
-.entry .userpic a, .comment .userpic a, .entry, .comment, .text_noentries_day { border-color: $*color_page_details_text; }
-""";
+    .entry .userpic a, .comment .userpic a,
+    .entry, .comment, .text_noentries_day {
+        border-color: $*color_page_details_text;
+        }
+    """;
 }
+
 
 #NEWLAYER: skittlishdreams/violet
 layerinfo type = "theme";
@@ -521,42 +691,52 @@ layerinfo name = "Violet";
 layerinfo redist_uniq = "skittlishdreams/violet";
 layerinfo author_name = "Kaigou";
 
-## theme color: #AE3BD4
-
-set image_background_page_url = "skittlishdreams/bg.gif";
-set image_background_header_url = "skittlishdreams/header_bg.gif";
-set image_background_container_url = "skittlishdreams/left_bg.gif";
-set image_background_footer_url = "skittlishdreams/footer_bg.gif";
-set image_background_module_url = "skittlishdreams/violet_box.gif";
-set image_background_entry_url = "skittlishdreams/violet_edge.gif";
-set image_background_navigation_url = "skittlishdreams/violet_circle.gif";
-
-set color_page_border = "#AE3BD4";
-set color_page_link = "#AE3BD4";
-set color_page_link_visited = "#AE3BD4";
-set color_module_background = "#AE3BD4";
-set color_entry_title = "#AE3BD4";
+##===============================
+## Page Colors
+##===============================
 
 set color_page_background = "#e3e3e3";
-
+set color_page_border = "#AE3BD4";
+set color_page_details_text = "#888";
+set color_page_link = "#AE3BD4";
+set color_page_link_visited = "#AE3BD4";
+set color_page_link_hover = "#16E";
+set color_page_text = "#666";
+set color_page_title = "#ddd";
 set color_header_background = "#1C1C1C";
 set color_footer_background = "#1C1C1C";
 set color_footer_link = "#bababa";
 set color_footer_link_hover = "#fff";
 
-set color_page_text = "#666666";
-set color_page_title = "#ddd";
-set color_page_details_text = "#888888";
-
-set color_page_link_hover = "#16E";
-
-set color_module_text = "#DDD";
-set color_module_link = "#FFF";
-set color_module_title = "#FFF";
+##===============================
+## Entry Colors
+##===============================
 
 set color_entry_background = "#FFF";
+set color_entry_metadata_text = "#811";
 set color_entry_text = "#444";
+set color_entry_title = "#AE3BD4";
 set color_entry_title_background = "#FFF";
 set color_entry_title_border = "#EEE";
 set color_entry_title_border_alt = "#DDD";
-set color_entry_metadata_text = "#881111";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#AE3BD4";
+set color_module_link = "#FFF";
+set color_module_text = "#DDD";
+set color_module_title = "#FFF";
+
+##===============================
+## Images
+##===============================
+
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_entry_url = "skittlishdreams/violet_edge.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_module_url = "skittlishdreams/violet_box.gif";
+set image_background_navigation_url = "skittlishdreams/violet_circle.gif";
+set image_background_page_url = "skittlishdreams/bg.gif";
