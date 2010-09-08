@@ -57,6 +57,10 @@ _c?>
                   "by" => 1,             # default by value for a scale
                   "maxitems" => 20,         # maximum number of items allowed in a scale
               },
+              "checkbox" => {
+                  "checkmin" => 0,      # number of checkboxes a user must tick in that question (default 0: no limit)  
+                  "checkmax" => 255,    # maximum number of checkboxes a user is allowed to tick in that question
+              },
               );
 
     # type name mappings
@@ -176,7 +180,7 @@ _c?>
             my $qrec = {};
 
             # validate question attributes
-            foreach my $atr (qw(type question opts size maxlength from to by)) {
+            foreach my $atr (qw(type question opts size maxlength from to by checkmin checkmax)) {
                 my $val = $POST{"pq_${q}_$atr"};
                 next unless defined $val;
 
@@ -246,6 +250,12 @@ _c?>
 
                     next;
                 }
+                
+                if ($atr eq 'checkmin') {
+                    $qrec->{'checkmin'} = int($POST{"pq_${q}_checkmin"}) || 0;
+                    $qrec->{'checkmax'} = int($POST{"pq_${q}_checkmax"}) || 255;
+                    next;
+                }
 
                 # otherwise, let it by.
                 $qrec->{$atr} = $val;
@@ -261,17 +271,31 @@ _c?>
                 if (length($POST{"pq_${q}_opt_$o"}) > $RULES{'items'}->{'maxlength'}) {
                     $qrec->{'opt'}->[$o] = substr($POST{"pq_${q}_opt_$o"}, 0, $RULES{'items'}->{'maxlength'});
                     $err->{$q}->{$o}->{'items'} = $ML{'.error.texttoobig'};
-                } else {
+                    $num_opts++;
+                } elsif (length($POST{"pq_${q}_opt_$o"}) > 0){
                     # no change necessary
                     $qrec->{'opt'}->[$o] = $POST{"pq_${q}_opt_$o"};
+                    $num_opts++;
                 }
-
-                $num_opts++;
             }
 
             # too few options specified?
             if ($num_opts < $RULES{'items'}->{'min'} && $qrec->{'type'} =~ /^(drop|check|radio)$/) {
                 $err->{$q}->{'items'} = $ML{'.error.allitemsblank'};
+            }
+
+            # checks if minimum and maximum options for checkboxes are OK
+            
+            if ($qrec->{'type'} == 'check') {
+                my $checkmin = $qrec->{'checkmin'};
+                if ($checkmin > $num_opts) {
+                    $err->{$q}->{'checkmin'} = $ML{'.error.checkmintoohigh'};
+                }
+                
+                my $checkmax = $qrec->{'checkmax'};
+                if ($checkmax < $checkmin) {
+                    $err->{$q}->{'checkmax'} = $ML{'.error.checkmaxtoolow'};
+                }
             }
         }
 
@@ -527,6 +551,20 @@ _c?>
                 $ret .= $elem->{'opts'} < $RULES{'items'}->{'max'}
                     ? "<br />" . LJ::html_submit("request:$q:do", undef, { 'raw' => " value='More &gt;&gt;'" }) . "\n"
                     : "<br /><?de [$ML{'.options.limitreached'}] de?>\n";
+                
+                if ($elem->{'type'} eq 'check') {
+                    $ret .= "<br/>";
+                    foreach my $atr ( qw(checkmin checkmax) ) {
+                        $ret .= $ML{"." . $atr};
+                        $ret .= LJ::html_text({ 'name' => "pq_${q}_$atr",
+                                                'value' => defined $elem->{$atr} ? $elem->{$atr} : $RULES{'checkbox'}->{$atr},
+                                                'size' => '3', 'maxlength' => '9' }) . "\n";
+                    }                           
+                    foreach my $atr ( qw(checkmin checkmax) ) {
+                       $ret .= "<br /><font size='1'><b>[$err->{$q}->{$atr}]</b></font>\n"
+                            if $err->{$q}->{$atr};
+                    }
+                } 
 
             # text type
             } elsif ($elem->{'type'} eq 'text') {
@@ -602,6 +640,10 @@ _c?>
                     foreach my $el ( qw(from to by) ) {
                         $ret .= " $el='" . LJ::ehtml($elem->{$el}) . "'";
                     }
+                } elsif ($elem->{'type'} eq 'check') {
+                     foreach my $el ( qw(checkmin checkmax) ) {
+                         $ret .= " $el='" . LJ::ehtml($elem->{$el}) . "'";
+                     }
                 }
                 $ret .= ">\n";
                 $ret .= $elem->{'question'} . "\n" if $elem->{'question'};

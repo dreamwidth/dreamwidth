@@ -327,6 +327,26 @@ sub new_from_html {
 
                     $qopts{'opts'} = "$size/$max";
                 }
+                if ($qopts{'type'} eq "check") {
+                    my $checkmin = 0;
+                    my $checkmax = 255;
+                    
+                    if (defined $opts->{'checkmin'}) {
+                        $checkmin = int($opts->{'checkmin'});
+                    }
+                    if (defined $opts->{'checkmax'}) {
+                        $checkmax = int($opts->{'checkmax'});
+                    }
+                    if ($checkmin < 0) {
+                        return $err->('poll.error.checkmintoolow');
+                    }
+                    if ($checkmax < $checkmin) {
+                        return $err->('poll.error.checkmaxtoolow');
+                    }
+
+                    $qopts{'opts'} = "$checkmin/$checkmax";
+                    
+                }
                 if ($qopts{'type'} eq "scale")
                 {
                     my $from = 1;
@@ -942,7 +962,29 @@ sub render {
         my $qid = $q->pollqid;
         my $text = $q->text;
         LJ::Poll->clean_poll(\$text);
-        $results_table .= "<p>$text</p><div style='margin: 10px 0 10px 40px'>";
+        $results_table .= "<p>$text</p>";
+        
+        # shows how many options a user must/can choose if that restriction applies
+        if ($q->type eq 'check' && $do_form) {
+            my ($mincheck, $maxcheck) = split(m!/!, $q->opts);
+            $mincheck ||= 0;
+            $maxcheck ||= 255;
+            
+            if ($mincheck > 0 && $mincheck eq $maxcheck ) {
+                $results_table .= "<i>You must choose exactly <b>" . $mincheck . "</b> options</i><br />\n";
+            }
+            else {
+                if ($mincheck > 0) {
+                    $results_table .= "<i>You must choose at least <b>" . $mincheck . "</b> options</i><br />\n";
+                }
+            
+                if ($maxcheck < 255) {
+                    $results_table .= "<i>You can choose up to <b>" . $maxcheck . "</b> options</i><br />\n";
+                }
+            }
+        }
+        
+        $results_table .= "<div style='margin: 10px 0 10px 40px'>";
 
         ### get statistics, for scale questions
         my ($valcount, $valmean, $valstddev, $valmedian);
@@ -1303,6 +1345,8 @@ sub process_submission {
     my $error = shift;
     my $sth;
 
+    my $error_code = 1;
+
     my $remote = LJ::get_remote();
 
     unless ($remote) {
@@ -1369,6 +1413,22 @@ sub process_submission {
         if ($q->type eq "check") {
             ## multi-selected items are comma separated from htdocs/poll/index.bml
             $val = join(",", sort { $a <=> $b } split(/,/, $val));
+            if (length($val) > 0) { # if the user answered to this question
+                my $num_opts = split(/,/, $val);    # returns the number of options they answered
+                
+                my ($checkmin, $checkmax) = split(m!/!, $q->opts);
+            
+                if($num_opts < $checkmin) {
+                    $$error = LJ::Lang::ml('poll.error.checkfewoptions', {'question' => $qid, 'options' => $checkmin});
+                    $error_code = 2;
+                    $val = "";
+                }
+                if($num_opts > $checkmax) {
+                    $$error = LJ::Lang::ml('poll.error.checktoomuchoptions', {'question' => $qid, 'options' => $checkmax});
+                    $error_code = 2;
+                    $val = "";
+                }
+            }
         }
         if ($q->type eq "scale") {
             my ($from, $to, $by) = split(m!/!, $q->opts);
@@ -1399,7 +1459,7 @@ sub process_submission {
     LJ::Event::PollVote->new($poll->poster, $remote, $poll)->fire
         if $ct;
 
-    return 1;
+    return $error_code;
 }
 
 sub dump_poll {

@@ -78,6 +78,24 @@ sub preview_as_html {
         LJ::Poll->clean_poll(\$qtext);
           $ret .= "<p>$qtext</p>\n";
       }
+      if ($type eq 'check') {
+          my ($mincheck, $maxcheck) = split(m!/!, $opts);
+          $mincheck ||= 0;
+          $maxcheck ||= 255;
+          
+          if ($mincheck > 0 && $mincheck eq $maxcheck ) {
+              $ret .= "<i>You must choose exactly <b>" . $mincheck . "</b> options</i><br />\n";
+          }
+          else {
+              if ($mincheck > 0) {
+                  $ret .= "<i>You must choose at least <b>" . $mincheck . "</b> options</i><br />\n";
+              }
+
+              if ($maxcheck < 255) {
+                  $ret .= "<i>You can choose up to <b>" . $maxcheck . "</b> options</i><br />\n";
+              }
+         }
+    }
     $ret .= "<div style='margin: 10px 0 10px 40px'>";
 
     # text questions

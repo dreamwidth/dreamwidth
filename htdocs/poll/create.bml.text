@@ -11,6 +11,10 @@
 
 .button.startover=Start Over
 
+.checkmin=Minimum options required: 
+
+.checkmax=Maximum options accepted: 
+
 .elements.limitreached=Element limit reached
 
 .error.accttype=Your account type does not permit you to use the poll creation feature.
@@ -18,6 +22,10 @@
 .error.accttype2=Your account type does not permit you to use the poll creation feature.
 
 .error.allitemsblank=All items cannot be blank.
+
+.error.checkmintoohigh=Minimum value for checkbox options is too high
+
+.error.checkmaxtoolow=Maximum value for checkbox options is too low
 
 .error.notext=You need text explaining your question
 

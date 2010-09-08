@@ -111,7 +111,12 @@ _c?>
         }
 
         my $error;
-        LJ::Poll->process_submission(\%FORM, \$error);
+        my $error_code = LJ::Poll->process_submission(\%FORM, \$error);
+        if ($error_code eq 2) {
+            $body .= $poll->render(mode => "enter");    
+            $body .= $error;
+            return;
+        }
         if ($error) {
             $title = $ML{'Error'};
             $body .= $error;

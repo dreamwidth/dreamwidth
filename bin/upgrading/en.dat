@@ -2333,6 +2333,14 @@ poll.error.cantview=Error: you don't have access to view these poll results.
 
 poll.error.cantvote=Sorry, you don't have permission to vote in this particular poll.
 
+poll.error.checkfewoptions=You must select at least <b>[[options]]</b> options in question <b>#[[question]]</b>, or you can choose to skip it.
+
+poll.error.checkmaxtoolow=Checkmax attribute must be higher than Checkmin attribute.
+
+poll.error.checkmintoolow=Checkmin attribute must be positive.
+
+poll.error.checktoomuchoptions=You can only select up to <b>[[options]]</b> in question <b>#[[question]]</b>.
+
 poll.error.missingljpoll=All lj-pq tags must be nested inside an enclosing lj-poll tag.
 
 poll.error.missingljpq=All lj-pi tags must be nested inside an enclosing lj-pq tag.
