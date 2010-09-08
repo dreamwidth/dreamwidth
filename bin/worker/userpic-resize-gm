@@ -26,6 +26,6 @@ gearman_work();
 sub lj_upf_resize {
     my $job = shift;
     my $args = eval { Storable::thaw($job->arg) } || [];
-    return Storable::nfreeze(LJ::_get_upf_scaled(@$args));
+    return Storable::nfreeze( LJ::Userpic->_get_upf_scaled( @$args ) );
 }
 

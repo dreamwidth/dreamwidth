@@ -200,7 +200,7 @@ use strict;
                 return $err->("Invalid userpic creation parameters.") if (!$scaledsizemax || !$x2);
 
                 my $picinfo = eval {
-                    LJ::get_upf_scaled(
+                    LJ::Userpic->get_upf_scaled(
                         x1 => $x1,
                         y1 => $y1,
                         x2 => $x2,
@@ -802,7 +802,7 @@ sub parse_post_uploads
                             }
                             
                             eval {
-                                my $picinfo = LJ::get_upf_scaled(
+                                my $picinfo = LJ::Userpic->get_upf_scaled(
                                     size => 100,
                                     u    => $u,
                                     mogkey => "upf_${counter}:$u->{userid}"

@@ -42,7 +42,7 @@ _c?>
 
     if (!$w || !$h) {
         # we do not have the width and height passed in, we have to compute it ourselves
-        my $upf = LJ::get_upf_scaled(size => $scaledSizeMax, userid => $remote->{userid}, mogkey => "upf_$GET{index}:$remote->{userid}");
+        my $upf = LJ::Userpic->get_upf_scaled( size => $scaledSizeMax, userid => $remote->userid, mogkey => "upf_$GET{index}:$remote->{userid}" );
         ($w, $h) = ($upf->[2], $upf->[3]) if ($upf && $upf->[2]);
     }
 

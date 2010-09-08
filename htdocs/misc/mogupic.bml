@@ -28,7 +28,7 @@ _c?><?_code
     my $size = int($GET{'size'});
     $size = 640 if $size <= 0 || $size > 640;
 
-    my $upf = LJ::get_upf_scaled(size => $size, userid => $u->id, mogkey => "upf_$GET{index}:$u->{userid}");
+    my $upf = LJ::Userpic->get_upf_scaled( size => $size, userid => $u->id, mogkey => "upf_$GET{index}:$u->{userid}" );
 
     return $ML{'.error.image'} unless $upf;
 
