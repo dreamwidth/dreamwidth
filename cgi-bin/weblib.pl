@@ -231,7 +231,7 @@ sub make_postto_select {
     my $label  = $opts->{label}  || $BML::ML{'web.postto.label'};
     my $button = $opts->{button} || $BML::ML{'web.postto.btn'};
 
-    my @list = $u->posting_access_list;
+    my @list = ( $u, $u->posting_access_list );
     # only do most of form if there are options to select from
     if ( @list > 1 ) {
         return "$label " .
