@@ -44,7 +44,7 @@ sub bday {
 sub matches_filter {
     my ($self, $subscr) = @_;
 
-    return $self->bdayuser->can_show_bday(to => $subscr->owner) ? 1 : 0;
+    return $self->bdayuser->can_notify_bday(to => $subscr->owner) ? 1 : 0;
 }
 
 sub as_string {

@@ -3520,6 +3520,19 @@ sub can_join_adult_comm {
 }
 
 
+# Birthday logic -- should a notification be sent?
+# Currently the same logic as can_show_bday with an exception for
+# journals that have memorial status.
+sub can_notify_bday {
+    my ( $u, %opts ) = @_;
+    croak "invalid user object passed" unless LJ::isu( $u );
+
+    return 0 if $u->is_memorial;
+
+    return $u->can_show_bday( %opts );
+}
+
+
 # Birthday logic -- can any of the birthday info be shown
 # This will return true if any birthday info can be shown
 sub can_share_bday {

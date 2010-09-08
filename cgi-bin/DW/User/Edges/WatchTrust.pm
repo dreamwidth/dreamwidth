@@ -381,7 +381,7 @@ sub get_birthdays {
     my @results;
     foreach my $ub ( @bdays ) {
         my $u = $uids->{$ub->[0]};
-        next unless $u->is_personal && $u->can_show_bday;
+        next unless $u->is_personal && $u->can_notify_bday;
 
         push @results, [ $ub->[1]->month, $ub->[1]->day, $u->user ];
     }
