@@ -19,15 +19,15 @@ use Carp qw(croak);
 
 sub cmd { "priv" }
 
-sub desc { "Grant or revoke user privileges." }
+sub desc { "Grant or revoke user privileges, or list available privileges and their arguments." }
 
 sub args_desc { [
-                 'action'    => "'grant', 'revoke', or 'revoke_all' to revoke all args for a given priv",
-                 'privs'     => "Comma-delimited list of priv names, priv:arg pairs, or package names (prefixed with #)",
-                 'usernames' => "Comma-delimited list of usernames",
+                 'action'    => "'list', 'grant', 'revoke', or 'revoke_all' to revoke all args for a given priv.",
+                 'privs'     => "Comma-delimited list of priv names, priv:arg pairs, or package names (prefixed with #). Required for all actions except 'list'. Using 'list' with no arguments will return results for all privs.",
+                 'usernames' => "Comma-delimited list of usernames (not used for 'list').",
                  ] }
 
-sub usage { '<action> <privs> <usernames>' }
+sub usage { '<action> [ <privs> [ <usernames> ] ]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
@@ -37,26 +37,38 @@ sub can_execute {
 sub execute {
     my ($self, $action, $privs, $usernames, @args) = @_;
 
-    return $self->error("This command takes three arguments. Consult the reference.")
-        unless $action && $privs && $usernames && scalar(@args) == 0;
+    return $self->error( "This command takes one, two, or three arguments. Consult the reference." )
+        unless $action && scalar(@args) == 0;
 
-    return $self->error("Action must be one of 'grant', 'revoke', or 'revoke_all'")
-        unless $action =~ /(?:grant|revoke|revoke\_all)/;
+    return $self->error( "Action must be one of 'list', 'grant', 'revoke', or 'revoke_all'" )
+        unless $action =~ /(?:list|grant|revoke|revoke\_all)/;
 
-    my @users = split /,/, $usernames;
+    return $self->error( "'$action' requires two arguments. Consult the reference." )
+        if $action ne 'list' && !$usernames;
+
     my $dbh = LJ::get_db_reader();
 
     my @privs;
-    foreach my $priv (split /,/, $privs) {
-        if ($priv !~ /^#/) {
-            push @privs, [ split /:/, $priv, 2 ];
-        } else {
-            # now we have a priv package
-            my $pname = substr($priv, 1);
-            my $privs = $dbh->selectall_arrayref("SELECT c.privname, c.privarg "
-                                                 . "FROM priv_packages p, priv_packages_content c "
-                                                 . "WHERE c.pkgid = p.pkgid AND p.name = ?", undef, $pname);
-            push @privs, [ @$_ ] foreach @{$privs || []};
+    if ( $action eq 'list' && !$privs ) {
+        # list all privs
+        $privs = $dbh->selectcol_arrayref( "SELECT privcode FROM priv_list ORDER BY privcode" );
+        push @privs, [ $_, undef ] foreach @$privs;
+    } else {
+        foreach my $priv (split /,/, $privs) {
+            if ($priv !~ /^#/) {
+                push @privs, [ split /:/, $priv, 2 ];
+            } else {
+                # now we have a priv package
+                if ( $action eq 'list' ) {
+                    $self->error( "Use the priv_package command to list packages." );
+                    next;
+                }
+                my $pname = substr($priv, 1);
+                my $privs = $dbh->selectall_arrayref("SELECT c.privname, c.privarg "
+                                                     . "FROM priv_packages p, priv_packages_content c "
+                                                     . "WHERE c.pkgid = p.pkgid AND p.name = ?", undef, $pname);
+                push @privs, [ @$_ ] foreach @{$privs || []};
+            }
         }
     }
 
@@ -66,6 +78,19 @@ sub execute {
     my $remote = LJ::get_remote();
     foreach my $pair (@privs) {
         my ($priv, $arg) = @$pair;
+
+        if ( $action eq "list" ) {
+            my $args = LJ::list_valid_args( $priv );
+            my @arglist = sort keys %$args;
+            if ( @arglist ) {
+                $self->info( "Accepted arguments for $priv:" );
+                $self->info( " '$_' - $args->{$_}" ) foreach @arglist;
+            } else {
+                $self->error( "No arguments available for $priv." )
+            }
+            next;
+        }
+
         unless ( $remote && ( $remote->has_priv( "admin", "$priv" ) || $remote->has_priv( "admin", "$priv/$arg" ) ) ) {
             $self->error("You are not permitted to $action $priv:$arg");
             next;
@@ -84,7 +109,7 @@ sub execute {
             next;
         }
 
-        foreach my $user (@users) {
+        foreach my $user ( split /,/, $usernames ) {
             my $u = LJ::load_user($user);
             unless ($u) {
                 $self->error("Invalid username: $user");
