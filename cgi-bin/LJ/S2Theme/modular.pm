@@ -15,6 +15,11 @@ package LJ::S2Theme::modular::bubblegum;
 use base qw( LJ::S2Theme::modular );
 sub cats { qw() }
 
+package LJ::S2Theme::modular::calculatedrisks;
+use base qw( LJ::S2Theme::modular );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
 package LJ::S2Theme::modular::coffeeandcream;
 use base qw( LJ::S2Theme::modular );
 sub cats { qw() }
@@ -44,7 +49,17 @@ package LJ::S2Theme::modular::olivetree;
 use base qw( LJ::S2Theme::modular );
 sub cats { qw() }
 
+package LJ::S2Theme::modular::patchwork;
+use base qw( LJ::S2Theme::modular );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
 package LJ::S2Theme::modular::purplehaze;
+use base qw( LJ::S2Theme::modular );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
+package LJ::S2Theme::modular::subtlemisses;
 use base qw( LJ::S2Theme::modular );
 sub cats { qw() }
 sub designer { "timeasmymeasure" }

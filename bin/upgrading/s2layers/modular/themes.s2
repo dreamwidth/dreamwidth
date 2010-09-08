@@ -92,6 +92,47 @@ set color_module_title_background = "#FFEFE7";
 set image_background_page_url = "modular/bubblegum-background.png";
 
 
+#NEWLAYER: modular/calculatedrisks
+layerinfo type = "theme";
+layerinfo name = "Calculated Risks";
+layerinfo redist_uniq = "modular/calculatedrisks";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fbd59f";
+set color_page_link = "#729387";
+set color_page_link_hover = "#95bfb1";
+set color_page_text = "#4a2d09";
+set color_page_title = "#fcf2c5";
+set color_header_background = "#603048";
+set color_footer_background = "#603048";
+set color_footer_link = "#95bfb1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fcf2c5";
+set color_entry_border = "#603048";
+set color_entry_title = "#95bfb1";
+set color_entry_title_background = "#603048";
+set color_comment_title_background = "#603048";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fcf2c5";
+set color_module_border = "#603048";
+set color_module_title = "#95bfb1";
+set color_module_title_background = "#603048";
+
+
 #NEWLAYER: modular/coffeeandcream
 layerinfo type = "theme";
 layerinfo name = "Coffee and Cream";
@@ -432,6 +473,48 @@ set color_module_title_background = "#524D2D";
 set image_background_page_url = "modular/olivetree-background.png";
 
 
+#NEWLAYER: modular/patchwork
+layerinfo type = "theme";
+layerinfo name = "Patchwork";
+layerinfo redist_uniq = "modular/patchwork";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e0c96c";
+set color_page_link = "#6d7757";
+set color_page_link_hover = "#90906c";
+set color_page_text = "#8b6a4a";
+set color_page_title = "#cab974";
+set color_header_background = "#835c33";
+set color_footer_background = "#835c33";
+set color_footer_link = "#f5ffc0";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f5ffc0";
+set color_entry_border = "#90906c";
+set color_entry_interaction_links = "#835c33";
+set color_entry_title = "#f5ffc0";
+set color_entry_title_background = "#835c33";
+set color_comment_title_background = "#835c33";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f5ffc0";
+set color_module_border = "#90906c";
+set color_module_title = "#f5ffc0";
+set color_module_title_background = "#835c33";
+
+
 #NEWLAYER: modular/purplehaze
 layerinfo type = "theme";
 layerinfo name = "Purple Haze";
@@ -474,6 +557,48 @@ set color_module_background = "#fff";
 set color_module_border = "#ededed";
 set color_module_title = "#fff";
 set color_module_title_background = "#b6a2b8";
+
+
+#NEWLAYER: modular/subtlemisses
+layerinfo type = "theme";
+layerinfo name = "Subtle Misses";
+layerinfo redist_uniq = "modular/subtlemisses";
+layerinfo author_name = "timeasmymeasure";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d1c089";
+set color_page_link = "#b31d4a";
+set color_page_link_hover = "#7F584E";
+set color_page_text = "#151101";
+set color_page_title = "#d1c089";
+set color_header_background = "#412e28";
+set color_footer_background = "#412e28";
+set color_footer_link = "#d9cea5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e9ddb1";
+set color_entry_border = "#412e28";
+set color_entry_interaction_links = "#412e28";
+set color_entry_title = "#d9cea5";
+set color_entry_title_background = "#412e28";
+set color_comment_title_background = "#412e28";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e9ddb1";
+set color_module_border = "#412e28";
+set color_module_title = "#d9cea5";
+set color_module_title_background = "#412e28";
 
 
 #NEWLAYER: modular/swiminthesea
