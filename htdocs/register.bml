@@ -159,7 +159,7 @@ body<=
      return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
 
-     my @authas = LJ::get_authas_list($remote);
+     my @authas = $remote->get_authas_list;
      my @list;
 
      if (@authas > 1) {  # only display if they can auth as anyone other than themselves

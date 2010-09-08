@@ -3974,6 +3974,37 @@ sub can_post_to {
 }
 
 
+# Get an array of usernames a given user can authenticate as.
+# Valid keys for opts hashref:
+#     - type: filter by given journaltype (P or C)
+#     - cap:  filter by users who have given cap
+#     - showall: override hiding of non-visible/non-read-only journals
+sub get_authas_list {
+    my ( $u, $opts ) = @_;
+
+    # Two valid types, Personal or Community
+    $opts->{type} = undef unless $opts->{type} =~ m/^[PC]$/;
+
+    my $ids = LJ::load_rel_target( $u, 'A' );
+    return undef unless $ids;
+    my %users = %{ LJ::load_userids( @$ids ) };
+
+    return map { $_->user }
+           grep { ! $opts->{cap}  || $_->get_cap( $opts->{cap} ) }
+           grep { ! $opts->{type} || $opts->{type} eq $_->journaltype }
+
+           # unless overridden, hide non-visible/non-read-only journals.
+           # always display the user's acct
+           grep { $opts->{showall} || $_->is_visible || $_->is_readonly || $_->equals( $u ) }
+
+           # can't work as an expunged account
+           grep { ! $_->is_expunged && $_->clusterid > 0 }
+
+           # put $u at the top of the list, then sort the rest
+           ( $u,  sort { $a->user cmp $b->user } values %users );
+}
+
+
 # What journals can this user post to?
 sub posting_access_list {
     my $u = shift;
@@ -6559,7 +6590,6 @@ use Carp;
 ###  8. Formatting Content Shown to Users
 ###  9. Logging and Recording Actions
 ###  12. Comment-Related Functions
-###  13. Community-Related Functions and Authas
 ###  15. Email-Related Functions
 ###  16. Entry-Related Functions
 ###  17. Interest-Related Functions
@@ -8131,84 +8161,6 @@ sub delete_all_comments {
     }
     return 1;
 
-}
-
-
-########################################################################
-###  13. Community-Related Functions and Authas
-
-=head2 Community-Related Functions and Authas (LJ)
-=cut
-
-# <LJFUNC>
-# name: LJ::get_authas_list
-# des: Get a list of usernames a given user can authenticate as.
-# returns: an array of usernames.
-# args: u, opts?
-# des-opts: Optional hashref.  keys are:
-#           - type: 'P' to only return users of journaltype 'P'.
-#           - cap:  cap to filter users on.
-# </LJFUNC>
-sub get_authas_list {
-    my ($u, $opts) = @_;
-
-    # used to accept a user type, now accept an opts hash
-    $opts = { 'type' => $opts } unless ref $opts;
-
-    # Two valid types, Personal or Community
-    $opts->{'type'} = undef unless $opts->{'type'} =~ m/^(P|C)$/;
-
-    my $ids = LJ::load_rel_target($u, 'A');
-    return undef unless $ids;
-
-    # load_userids_multiple
-    my %users;
-    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
-
-    return map { $_->user }
-               grep { ! $opts->{'cap'} || LJ::get_cap($_, $opts->{'cap'}) }
-               grep { ! $opts->{'type'} || $opts->{'type'} eq $_->{'journaltype'} }
-
-               # unless overridden, hide non-visible/non-read-only journals. always display the user's acct
-               grep { $opts->{'showall'} || $_->is_visible || $_->is_readonly || $_->equals( $u ) }
-
-               # can't work as an expunged account
-               grep { ! $_->is_expunged && $_->clusterid > 0 }
-               $u,  sort { $a->user cmp $b->user } values %users;
-}
-
-
-# <LJFUNC>
-# name: LJ::get_postto_list
-# des: Get the list of usernames a given user can post to.
-# returns: an array of usernames
-# args: u, opts?
-# des-opts: Optional hashref.  keys are:
-#           - type: 'P' to only return users of journaltype 'P'.
-#           - cap:  cap to filter users on.
-# </LJFUNC>
-sub get_postto_list {
-    my ($u, $opts) = @_;
-
-    # used to accept a user type, now accept an opts hash
-    $opts = { 'type' => $opts } unless ref $opts;
-
-    # only one valid type right now
-    $opts->{'type'} = 'P' if $opts->{'type'};
-
-    my $ids = LJ::load_rel_target($u, 'P');
-    return undef unless $ids;
-
-    # load_userids_multiple
-    my %users;
-    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
-
-    return $u->user, sort map { $_->user }
-                         grep { ! $opts->{'cap'} || LJ::get_cap($_, $opts->{'cap'}) }
-                         grep { ! $opts->{'type'} || $opts->{'type'} eq $_->{'journaltype'} }
-                         grep { $_->clusterid > 0 }
-                         grep { $_->is_visible }
-                         values %users;
 }
 
 

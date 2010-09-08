@@ -181,35 +181,35 @@ sub valid_stylesheet_url {
 #           'authas' - current user, gets selected in drop-down;
 #           'label' - label to go before form elements;
 #           'button' - button label for submit button;
-#           others - arguments to pass to [func[LJ::get_authas_list]].
+#           'type' - journaltype (affects label & list filtering)
+#           others - arguments to pass to $u->get_authas_list.
 # </LJFUNC>
 sub make_authas_select {
-    my ($u, $opts) = @_; # type, authas, label, button
+    my ( $u, $opts ) = @_; # type, authas, label, button
 
-    my @list = LJ::get_authas_list($u, $opts);
+    my $authas = $opts->{authas} || $u->user;
+    my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
+    my $label  = $opts->{label};
+
+    $label ||= $opts->{type} eq "C" ? $BML::ML{'web.authas.label.comm'}
+                                    : $BML::ML{'web.authas.label'};
+
+    my @list = $u->get_authas_list( $opts );
 
     # only do most of form if there are options to select from
-    if (@list > 1 || $list[0] ne $u->{'user'}) {
-        my $ret;
-        unless ( $opts->{selectonly} ) {
-            my $label = $BML::ML{'web.authas.label'};
-            $label = $BML::ML{'web.authas.label.comm'} if ($opts->{'type'} eq "C");
-            $ret = ($opts->{'label'} || $label) . " ";
-        }
+    if ( @list > 1 || $list[0] ne $u->user ) {
+        my $ret = LJ::html_select( { name => 'authas', selected => $authas,
+                                     class => 'hideable' },
+                                   map { $_, $_ } @list );
 
-        $ret .= LJ::html_select({ 'name' => 'authas',
-                                 'selected' => $opts->{'authas'} || $u->{'user'},
-                                 'class' => 'hideable',
-                                 },
-                                 map { $_, $_ } @list) . " ";
-        $ret .= LJ::html_submit(undef, $opts->{'button'} || $BML::ML{'web.authas.btn'})
+        $ret = "$label $ret " . LJ::html_submit( undef, $button )
             unless $opts->{selectonly};
 
         return $ret;
     }
 
     # no communities to choose from, give the caller a hidden
-    return  LJ::html_hidden('authas', $opts->{'authas'} || $u->{'user'});
+    return LJ::html_hidden( authas => $authas );
 }
 
 # <LJFUNC>
@@ -220,27 +220,28 @@ sub make_authas_select {
 # returns: string of HTML elements
 # args: u, opts?
 # des-opts: Optional.  Valid keys are:
-#           'postto' - current user, gets selected in drop-down;
+#           'authas' - current user, gets selected in drop-down;
 #           'label' - label to go before form elements;
 #           'button' - button label for submit button;
-#           others - arguments to pass to [func[LJ::get_postto_list]].
 # </LJFUNC>
 sub make_postto_select {
-    my ($u, $opts) = @_; # type, authas, label, button
+    my ( $u, $opts ) = @_;
 
-    my @list = LJ::get_postto_list($u, $opts);
+    my $authas = $opts->{authas} || $u->user;
+    my $label  = $opts->{label}  || $BML::ML{'web.postto.label'};
+    my $button = $opts->{button} || $BML::ML{'web.postto.btn'};
 
+    my @list = $u->posting_access_list;
     # only do most of form if there are options to select from
-    if (@list > 1) {
-        return ($opts->{'label'} || $BML::ML{'web.postto.label'}) . " " .
-               LJ::html_select({ 'name' => 'authas',
-                                 'selected' => $opts->{'authas'} || $u->{'user'}},
-                                 map { $_, $_ } @list) . " " .
-               LJ::html_submit(undef, $opts->{'button'} || $BML::ML{'web.postto.btn'});
+    if ( @list > 1 ) {
+        return "$label " .
+               LJ::html_select( { name => 'authas', selected => $authas },
+                                map { $_->user, $_->user } @list ) . " " .
+               LJ::html_submit( undef, $button );
     }
 
     # no communities to choose from, give the caller a hidden
-    return  LJ::html_hidden('authas', $opts->{'authas'} || $u->{'user'});
+    return LJ::html_hidden( authas => $authas );
 }
 
 # <LJFUNC>
