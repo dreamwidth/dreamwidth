@@ -38,6 +38,7 @@ $u2->join_community( $comm );
 ok( $u2->member_of( $comm ), "User is currently member of community." );
 is($run->("community " . $comm->user . " remove " . $u2->user),
    "success: User " . $u2->user . " removed from " . $comm->user);
+delete $LJ::REQ_CACHE_REL{$comm->userid."-".$u2->userid."-E"};
 ok( ! $u2->member_of( $comm ), "User removed from community." );
 
 # test case where user's removing themselves
@@ -45,4 +46,5 @@ $u->join_community( $comm2 );
 ok( $u->member_of( $comm2 ), "User is currently member of community." );
 is($run->("community " . $comm2->user . " remove " . $u->user),
    "success: User " . $u->user . " removed from " . $comm2->user);
+delete $LJ::REQ_CACHE_REL{$comm2->userid."-".$u->userid."-E"};
 ok( ! $u->member_of( $comm2 ), "User removed self from community." );

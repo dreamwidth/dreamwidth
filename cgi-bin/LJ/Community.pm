@@ -15,7 +15,6 @@
 package LJ::User;
 
 use strict;
-use warnings;
 use LJ::Event::CommunityInvite;
 use LJ::Event::CommunityJoinRequest;
 use LJ::Event::CommunityJoinApprove;
@@ -305,7 +304,8 @@ sub join_community {
             $addpostacc = $canpost ? 1 : 0;
         } else {
             my $crow = $cu->get_community_row;
-            $addpostacc = $crow->{postlevel} eq 'members' ? 1 : 0;
+            $addpostacc = $crow->{postlevel} eq 'members' ? 1 : 0
+                if defined $crow->{postlevel};
         }
     }
 
@@ -337,7 +337,7 @@ sub get_community_row {
         $dbr->selectrow_array('SELECT membership, postlevel FROM community WHERE userid=?',
                               undef, $cu->{userid});
     return if $dbr->err;
-    return unless $membership && $postlevel;
+    return unless $membership;
 
     # return result hashref
     my $row = {
