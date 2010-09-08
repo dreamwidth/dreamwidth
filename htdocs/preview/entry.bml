@@ -121,14 +121,10 @@ _c?>
 
         if ($u) {
             $ret .= "<table><tr valign='middle'>";
-            my $picid = LJ::get_picid_from_keyword($up, $req{'prop_picture_keyword'});
-            my $upics = LJ::get_userpic_info($up);
-            my $pic   = $upics->{'pic'}->{$picid};
 
-            if ($pic) {
-                my $userpic = LJ::Userpic->new( $up, $picid );
-                $ret .= "<td>" . $userpic->imgtag . "</td>";   
-            }
+            my $pic = LJ::Userpic->new_from_keyword( $up, $req{prop_picture_keyword} );
+            my $imgtag = $pic ? $pic->imgtag : undef;
+            $ret .= "<td>$imgtag</td>" if $imgtag;
 
             $ret .= "<td>";
             if ( $u->is_community ) {

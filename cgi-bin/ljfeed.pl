@@ -901,7 +901,7 @@ sub create_view_userpics {
 
     # now start building all the userpic data
     # start up by loading all of our userpic information and creating that part of the feed
-    my $info = LJ::get_userpic_info( $u, { load_comments => 1, load_urls => 1, load_descriptions => 1 } );
+    my $info = $u->get_userpic_info( { load_comments => 1, load_urls => 1, load_descriptions => 1 } );
 
     my %keywords = ();
     while (my ($kw, $pic) = each %{$info->{kw}}) {

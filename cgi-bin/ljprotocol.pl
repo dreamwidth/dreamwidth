@@ -3058,9 +3058,10 @@ sub hash_menus
 
 sub list_pickws
 {
-    my $u = shift;
+    my ( $u ) = @_;
+    return [] unless LJ::isu( $u );
 
-    my $pi = LJ::get_userpic_info($u);
+    my $pi = $u->get_userpic_info;
     my @res;
 
     my %seen;  # mashifiedptr -> 1
