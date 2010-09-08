@@ -42,7 +42,6 @@ use Image::Size ();
 use POSIX ();
 
 use LJ::Hooks;
-use LJ::Blob;
 use LJ::Faq;
 use DW::BusinessRules::InviteCodes;
 use DW::BusinessRules::InviteCodeRequests;

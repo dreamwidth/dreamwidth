@@ -24,7 +24,6 @@ use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
 
 # needed to call S2::set_domain() so early:
 use LJ::S2;
-use LJ::Blob;
 use Apache::LiveJournal::Interface::Blogger;
 use Apache::LiveJournal::Interface::AtomAPI;
 use Apache::LiveJournal::Interface::ElsewhereInfo;
@@ -1196,26 +1195,6 @@ sub userpic_content
         return OK;
     }
 
-    # dversion < 7 reproxy file path
-    if ( !$LJ::REPROXY_DISABLE{userpics} &&
-         exists $LJ::PERLBAL_ROOT{userpics} &&
-         $r->headers_in->{'X-Proxy-Capabilities'} &&
-         $r->headers_in->{'X-Proxy-Capabilities'} =~ m{\breproxy-file\b}i )
-    {
-        # Get the blobroot and load the pic hash
-        my $root = $LJ::PERLBAL_ROOT{userpics};
-
-        # Now ask the blob lib for the path to send to the reproxy
-        eval { LJ::Blob->can("autouse"); };
-        my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
-        my $path = LJ::Blob::get_rel_path( $root, $u, "userpic", $fmt, $picid );
-
-        $r->headers_out->{'X-REPROXY-FILE'} = $path;
-        $send_headers->();
-
-        return OK;
-    }
-
     # try to get it from disk if in disk-cache mode
     if ($disk_cache) {
         if (-s $r->finfo) {
@@ -1240,18 +1219,10 @@ sub userpic_content
     unless ($data) {
         $lastmod = $pic->{'picdate'};
 
-        if ($LJ::USERPIC_BLOBSERVER) {
-            eval { LJ::Blob->can("autouse"); };
-            my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
-            $data = LJ::Blob::get($u, "userpic", $fmt, $picid);
-        }
-
-        unless ($data) {
-            my $dbb = LJ::get_cluster_reader($u);
-            return SERVER_ERROR unless $dbb;
-            $data = $dbb->selectrow_array("SELECT imagedata FROM userpicblob2 WHERE ".
-                                          "userid=$pic->{'userid'} AND picid=$picid");
-        }
+        my $dbb = LJ::get_cluster_reader( $u );
+        return SERVER_ERROR unless $dbb;
+        $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE " .
+                                       "userid=$pic->{userid} AND picid=$picid" );
     }
 
     return NOT_FOUND unless $data;

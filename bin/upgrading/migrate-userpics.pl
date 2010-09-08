@@ -15,7 +15,6 @@
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-use LJ::Blob;
 use LJ::User;
 use Getopt::Long;
 use IPC::Open3;
@@ -231,14 +230,10 @@ sub handle_userid {
 
         my $format = { G => 'gif', J => 'jpg', P => 'png' }->{$fmt};
 
-        # if the picture is from the blobserver
         my $data;
-        if ( $loc eq 'blob' ) {
-
-            $data = LJ::Blob::get($u, "userpic", $format, $picid);
 
         # no target?  then it's in the database
-        } elsif ( ! defined $loc ) {
+        unless ( defined $loc ) {
 
             ($data) = $dbcm->selectrow_array(
                 'SELECT imagedata FROM userpicblob2 WHERE userid = ? AND picid = ?',

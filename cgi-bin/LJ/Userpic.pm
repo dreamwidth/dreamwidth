@@ -452,21 +452,13 @@ sub imagedata {
         return $$data;
     }
 
-    # check blobserver
-    my $data;
-    if ($LJ::USERPIC_BLOBSERVER) {
-        my $fmt = $self->extension;
-        $data = LJ::Blob::get( $u, "userpic", $fmt, $self->picid );
-        return $data if $data;
-    }
-
     # check userpicblob2 table
     my $dbb = LJ::get_cluster_reader($u)
         or return undef;
 
-    $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE ".
-                                   "userid=? AND picid=?", undef, $self->userid,
-                                   $self->picid );
+    my $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE ".
+                                      "userid=? AND picid=?", undef, $self->userid,
+                                      $self->picid );
     return $data ? $data : undef;
 }
 
@@ -603,12 +595,7 @@ sub create {
 
     my $base64 = Digest::MD5::md5_base64($$dataref);
 
-    my $target;
-    if ( $LJ::USERPIC_MOGILEFS ) {
-        $target = 'mogile';
-    } elsif ( $LJ::USERPIC_BLOBSERVER ) {
-        $target = 'blob';
-    }
+    my $target = $LJ::USERPIC_MOGILEFS ? 'mogile' : undef;
 
     my $dbh = LJ::get_db_writer();
 
@@ -643,9 +630,7 @@ sub create {
         return $err->(@_);
     };
 
-    ### insert the blob
-    $target ||= ''; # avoid warnings FIXME should this be set before the INSERT call?
-    if ($target eq 'mogile' && !$dberr) {
+    if ( $target && $target eq 'mogile' && !$dberr ) {
         my $fh = LJ::mogclient()->new_file($u->mogfs_userpic_key($picid), 'userpics');
         if (defined $fh) {
             $fh->print($$dataref);
@@ -656,18 +641,13 @@ sub create {
             push @errors, $clean_err->("Unable to contact storage server.  Your picture has not been saved.");
         }
 
-        # even in the non-LJ::Blob case we use the userblob table as a means
+        # even for mogile we use the userblob table as a means
         # to track the number and size of user blob assets
         my $dmid = LJ::get_blob_domainid('userpic');
         $u->do("INSERT INTO userblob (journalid, domain, blobid, length) ".
                "VALUES (?, ?, ?, ?)", undef, $u->{userid}, $dmid, $picid, $size);
 
-    } elsif ($target eq 'blob' && !$dberr) {
-        my $et;
-        my $fmt = lc($filetype);
-        my $rv = LJ::Blob::put($u, "userpic", $fmt, $picid, $$dataref, \$et);
-        push @errors, $clean_err->("Error saving to media server: $et") unless $rv;
-    } elsif (!$dberr) {
+    } elsif ( !$dberr ) {  # use userpicblob2 table in database
         my $dbcm = LJ::get_cluster_master($u);
         return $err->($BML::ML{'error.nodb'}) unless $dbcm;
         $u->do("INSERT INTO userpicblob2 (userid, picid, imagedata) " .
@@ -941,11 +921,10 @@ sub delete {
         my $location = $self->location; # avoid warnings FIXME
         if (defined $location and $location eq 'mogile') {
             LJ::mogclient()->delete($u->mogfs_userpic_key($picid));
-        } elsif ($LJ::USERPIC_BLOBSERVER &&
-                 LJ::Blob::delete($u, "userpic", $self->extension, $picid)) {
-        } elsif ($u->do("DELETE FROM userpicblob2 WHERE ".
-                        "userid=? AND picid=?", undef,
-                        $u->{userid}, $picid) > 0) {
+        } else {
+            $u->do( "DELETE FROM userpicblob2 WHERE ".
+                    "userid=? AND picid=?", undef,
+                    $u->userid, $picid );
         }
     };
 

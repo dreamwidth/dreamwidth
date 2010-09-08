@@ -6,7 +6,6 @@ use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Userpic;
 use LJ::Test;
-use LJ::Blob;
 use FindBin qw($Bin);
 use Digest::MD5;
 chdir "$Bin/data/userpics" or die "Failed to chdir to t/data/userpics";
