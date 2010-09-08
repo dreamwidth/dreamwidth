@@ -391,7 +391,10 @@ sub recent_items
     #   second at the end of time we'll have a flashback of all those
     #   backdated entries... but then the world explodes and everybody
     #   with 32 bit time_t structs dies)
-    my $notafter = $args{'notafter'} + 0 || $LJ::EndOfTime - 1;
+    #
+    # Unless we are not on a friends view, then want to use the actual end of time.
+    my $notafter = $args{notafter} + 0;
+    $notafter ||= $args{friendsview} ? $LJ::EndOfTime - 1 : $LJ::EndOfTime;
 
     my $skip = $args{'skip'}+0;
     my $itemshow = $args{'itemshow'}+0;
