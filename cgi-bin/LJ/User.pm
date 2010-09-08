@@ -6589,7 +6589,6 @@ use Carp;
 ###  6. What the App Shows to Users
 ###  8. Formatting Content Shown to Users
 ###  9. Logging and Recording Actions
-###  12. Comment-Related Functions
 ###  15. Email-Related Functions
 ###  16. Entry-Related Functions
 ###  17. Interest-Related Functions
@@ -8113,54 +8112,6 @@ sub rate_log
     }
 
     return 1;
-}
-
-
-########################################################################
-###  12. Comment-Related Functions
-
-=head2 Comment-Related Functions (LJ)
-=cut
-
-# <LJFUNC>
-# name: LJ::delete_all_comments
-# des: deletes all comments from a post, permanently, for when a post is deleted
-# info: The tables [dbtable[talk2]], [dbtable[talkprop2]], [dbtable[talktext2]],
-#       are deleted from, immediately.
-# args: u, nodetype, nodeid
-# des-nodetype: The thread nodetype (probably 'L' for log items).
-# des-nodeid: The thread nodeid for the given nodetype (probably the jitemid
-#             from the [dbtable[log2]] row).
-# returns: boolean; success value
-# </LJFUNC>
-sub delete_all_comments {
-    my ($u, $nodetype, $nodeid) = @_;
-
-    my $dbcm = LJ::get_cluster_master($u);
-    return 0 unless $dbcm && $u->writer;
-
-    # delete comments
-    my ($t, $loop) = (undef, 1);
-    my $chunk_size = 200;
-    while ($loop &&
-           ($t = $dbcm->selectcol_arrayref("SELECT jtalkid FROM talk2 WHERE ".
-                                           "nodetype=? AND journalid=? ".
-                                           "AND nodeid=? LIMIT $chunk_size", undef,
-                                           $nodetype, $u->userid, $nodeid))
-           && $t && @$t)
-    {
-        my $in = join(',', map { $_+0 } @$t);
-        return 1 unless $in;
-        foreach my $table (qw(talkprop2 talktext2 talk2)) {
-            $u->do( "DELETE FROM $table WHERE journalid=? AND jtalkid IN ($in)",
-                    undef, $u->userid );
-        }
-        # decrement memcache
-        LJ::MemCache::decr( [$u->userid, "talk2ct:" . $u->userid], scalar(@$t) );
-        $loop = 0 unless @$t == $chunk_size;
-    }
-    return 1;
-
 }
 
 
