@@ -1164,7 +1164,7 @@ sub load_comments
                     $kw = $post->{'props'}->{'picture_keyword'};
                 }
                 my $pu = $opts->{'userref'}->{$post->{'posterid'}};
-                my $id = LJ::get_picid_from_keyword($pu, $kw);
+                my $id = $pu ? $pu->get_picid_from_keyword( $kw ) : undef;
                 $post->{'picid'} = $id;
                 push @load_pic, [ $pu, $id ];
             }

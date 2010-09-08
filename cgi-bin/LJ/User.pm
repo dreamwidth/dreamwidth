@@ -6227,6 +6227,27 @@ sub expunge_userpic {
     return ( $u->userid, map {$_->[0]} grep {$_ && @$_ && $_->[0]} @rval );
 }
 
+sub get_picid_from_keyword {
+    my ( $u, $kw, $default ) = @_;
+    $default ||= ref $u ? $u->{defaultpicid} : 0;
+    return $default unless $kw;
+
+    my $info = LJ::isu( $u ) ? $u->get_userpic_info : undef;
+    return $default unless $info;
+
+    my $pr = $info->{'kw'}{$kw};
+    # normal keyword
+    return $pr->{picid} if $pr->{picid};
+
+    # the silly "pic#2343" thing when they didn't assign a keyword
+    if ( $kw =~ /^pic\#(\d+)$/ ) {
+        my $picid = $1;
+        return $picid if $info->{'pic'}{$picid};
+    }
+
+    return $default;
+}
+
 sub get_userpic_count {
     my $u = shift or return undef;
     my $count = scalar LJ::Userpic->load_user_userpics($u);
@@ -7893,7 +7914,7 @@ sub user_search_display {
     my $get_picid = sub {
         my $u = shift;
         return $u->{'defaultpicid'} unless $args{'pickwd'};
-        return LJ::get_picid_from_keyword($u, $args{'pickwd'});
+        return $u->get_picid_from_keyword( $args{pickwd} );
     };
 
     my $ret;

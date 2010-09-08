@@ -1591,11 +1591,8 @@ sub userpic {
     my $key = $self->prop('picture_keyword');
 
     # return the picture from keyword, if defined
-    my $picid = LJ::get_picid_from_keyword($up, $key);
-    return LJ::Userpic->new($up, $picid) if $picid;
-
     # else return poster's default userpic
-    return $up->userpic;
+    return LJ::Userpic->new_from_keyword( $up, $key ) || $up->userpic;
 }
 
 sub poster_ip {

@@ -2237,7 +2237,7 @@ sub Image_userpic
 {
     my ( $u, $picid, $kw, $width, $height ) = @_;
 
-    $picid ||= LJ::get_picid_from_keyword($u, $kw);
+    $picid ||= $u->get_picid_from_keyword( $kw ) if LJ::isu( $u );
     return Null("Image") unless $picid;
 
     # get the Userpic object

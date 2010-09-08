@@ -226,9 +226,8 @@ body<=
     LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
     my $userpic;
-    if ($init->{'replyto'}) {
-        my $picid = LJ::get_picid_from_keyword($ur, $pickw);
-        $userpic = LJ::Userpic->new($ur, $picid) if $picid;
+    if ( $init->{replyto} ) {
+        $userpic = LJ::Userpic->new_from_keyword( $ur, $pickw );
     } else {
         $userpic = $entry->userpic;
     }

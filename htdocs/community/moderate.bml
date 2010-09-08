@@ -411,20 +411,19 @@ body<=
         $ret .= "<p>";
         $ret .= "<table><tr valign='middle'>";
 
-        my $picid = LJ::get_picid_from_keyword($up, $props->{'picture_keyword'});
+        my $picid = $up ? $up->get_picid_from_keyword( $props->{picture_keyword} ) : undef;
 
         my %userpics;
-        if ($picid) {
+        if ( $picid ) {
             LJ::load_userpics(\%userpics, [ $up, $picid ]);
-              my $alt = $up->{'name'};
-              if ($props->{'picture_keyword'}) {
-                  $alt .= ": $props->{'picture_keyword'}";
-              }
-              $alt = LJ::ehtml($alt);
-              $ret .= "<td><img src='$LJ::USERPIC_ROOT/$picid/$up->{'userid'}' width='$userpics{$picid}->{'width'}' ".
-                  "height='$userpics{$picid}->{'height'}' align='absmiddle' ".
-                  "hspace='3' title='$alt' alt=''></td>";
-          }
+            my $alt = $up->{name};
+            $alt .= ": $props->{picture_keyword}"
+                if $props->{picture_keyword};
+            $alt = LJ::ehtml( $alt );
+            $ret .= "<td><img src='$LJ::USERPIC_ROOT/$picid/$up->{'userid'}' width='$userpics{$picid}->{'width'}' ".
+                "height='$userpics{$picid}->{'height'}' align='absmiddle' ".
+                "hspace='3' title='$alt' alt=''></td>";
+        }
 
         $ret .= "<td>";
         $ret .= BML::ml("talk.somebodywrote_comm", { 'realname' => BML::eall($up->{'name'}),

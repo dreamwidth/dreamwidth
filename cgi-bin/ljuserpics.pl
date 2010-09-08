@@ -108,27 +108,5 @@ sub load_userpics {
     }
 }
 
-sub get_picid_from_keyword
-{
-    my ($u, $kw, $default) = @_;
-    $default ||= (ref $u ? $u->{'defaultpicid'} : 0);
-    return $default unless $kw;
-
-    my $info = LJ::isu( $u ) ? $u->get_userpic_info : undef;
-    return $default unless $info;
-
-    my $pr = $info->{'kw'}{$kw};
-    # normal keyword
-    return $pr->{picid} if $pr->{picid};
-
-    # the lame "pic#2343" thing when they didn't assign a keyword
-    if ($kw =~ /^pic\#(\d+)$/) {
-        my $picid = $1;
-        return $picid if $info->{'pic'}{$picid};
-    }
-
-    return $default;
-}
-
 1;
 

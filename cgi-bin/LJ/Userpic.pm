@@ -149,12 +149,12 @@ sub new_from_row {
 
 sub new_from_keyword
 {
-    my ($class, $u, $kw) = @_;
+    my ( $class, $u, $kw ) = @_;
+    return undef unless LJ::isu( $u );
 
-    my $picid = LJ::get_picid_from_keyword($u, $kw) or
-        return undef;
+    my $picid = $u->get_picid_from_keyword( $kw );
 
-    return $class->new($u, $picid);
+    return $picid ? $class->new( $u, $picid ) : undef;
 }
 
 # instance methods
@@ -1149,10 +1149,10 @@ sub set_and_rename_keywords {
 
         #make sure that none of the target keywords already exist.
         my $u = $self->owner;
-        foreach my $kw (keys %keywordmap) {
-            if (LJ::get_picid_from_keyword($u, $keywordmap{$kw}, -1) != -1) {
-                LJ::errobj("Userpic::RenameKeywordExisting",
-                           keyword => $keywordmap{$kw})->throw;
+        foreach my $kw ( values %keywordmap ) {
+            if ( $u && $u->get_picid_from_keyword( $kw, -1 ) != -1 ) {
+                LJ::errobj( "Userpic::RenameKeywordExisting",
+                            keyword => $kw )->throw;
             }
         }
         

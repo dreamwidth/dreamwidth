@@ -591,7 +591,7 @@ body<=
         # reply header
         my $header = "";
         if ($up && LJ::Support::can_see_helper($sp, $remote)) {
-            my $picid = LJ::get_picid_from_keyword($up, '_support') || $up->{defaultpicid};
+            my $picid = $up->get_picid_from_keyword( '_support' ) || $up->{defaultpicid};
             $userpics{$picid} or LJ::load_userpics(\%userpics, [[ $up, $picid ]]);
             $header = "<table style='margin-top: 15px;'><tr valign='bottom'>";
             if ($picid && !$up->is_suspended) {
