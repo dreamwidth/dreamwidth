@@ -132,15 +132,9 @@ body<=
         ### Picture Settings
         $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.userpic2'}</td>\n";
         $ret .= "<td><div style='width: 100px; height: 100px; float: left; text-align: center; border: 1px solid #ddd'>";
-        if ($u->{'defaultpicid'}) {
-            my $picid = $u->{'defaultpicid'};
-            my %userpics = ();
-            # FIXME: this repetitive load will be fixed in bug
-            # 513. For now, memcache keeps this from hitting the
-            # db twice.
-            LJ::load_userpics(\%userpics, [ $u, $picid ]);
-            my $userpic_obj = LJ::Userpic->new( $u, $picid );
-            $ret .= $userpic_obj->imgtag;
+        if ( $u->{'defaultpicid'} ) {
+            my $icon = $u->userpic;
+            $ret .= $icon->imgtag;
         } else {
             $ret .= "<br /><i>($ML{'.userpic.none'})</i>";
         }

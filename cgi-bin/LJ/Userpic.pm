@@ -125,17 +125,10 @@ sub new_from_md5 {
 
 sub preload_default_userpics {
     my ($class, @us) = @_;
-    my %upics;
-    LJ::load_userpics(\%upics, [
-                                map { [ $_, $_->{defaultpicid} ] }
-                                grep { $_->{defaultpicid} }
-                                @us
-                                ]);
+
     foreach my $u (@us) {
-        my $up = $u->userpic       or next;
-        my $row = $upics{$up->id}  or next;
-        $row->{picid} = $up->id;
-        $up->absorb_row($row);
+        my $up = $u->userpic or next;
+        $up->load_row;
     }
 }
 
@@ -160,8 +153,7 @@ sub new_from_keyword
 # instance methods
 
 sub valid {
-    my $self = shift;
-    return defined $self->state;
+    return defined $_[0]->state;
 }
 
 sub absorb_row {
@@ -209,35 +201,35 @@ sub inactive {
 }
 
 sub state {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{state} if defined $self->{state};
     $self->load_row;
     return $self->{state};
 }
 
 sub comment {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{comment} if exists $self->{comment};
     $self->load_row;
     return $self->{comment};
 }
 
 sub description {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{description} if exists $self->{description};
     $self->load_row;
     return $self->{description};
 }
 
 sub width {
-    my $self = shift;
+    my $self = $_[0];
     my @dims = $self->dimensions;
     return undef unless @dims;
     return $dims[0];
 }
 
 sub height {
-    my $self = shift;
+    my $self = $_[0];
     my @dims = $self->dimensions;
     return undef unless @dims;
     return $dims[1];
@@ -251,19 +243,18 @@ sub flags {
 }
 
 sub md5base64 {
-    my $self = shift;
-    return $self->{md5base64};
+    return $_[0]->{md5base64};
 }
 
 sub extension {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{_ext} if $self->{_ext};
     $self->load_row;
     return $self->{_ext};
 }
 
 sub location {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{location} if $self->{location};
     $self->load_row;
     return $self->{location};
@@ -271,7 +262,7 @@ sub location {
 
 # returns (width, height)
 sub dimensions {
-    my $self = shift;
+    my $self = $_[0];
 
     # width and height probably loaded from DB
     return ($self->{width}, $self->{height}) if ($self->{width} && $self->{height});
@@ -289,7 +280,7 @@ sub max_allowed_bytes {
 
 # Returns the direct link to the uploaded userpic
 sub url {
-    my $self = shift;
+    my $self = $_[0];
 
     if (my $hook_path = LJ::Hooks::run_hook('construct_userpic_url', $self)) {
         return $hook_path;
@@ -303,7 +294,7 @@ sub url {
 # FIXME: Is this ever used? If not, should be deleted. If so,
 # should be renamed to source_url
 sub fullurl {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{url} if $self->{url};
     $self->load_row;
     return $self->{url};
@@ -333,8 +324,7 @@ sub alttext {
 # optional parameters (which must be explicitly passed) include
 # width, keyword, and user (object)
 sub imgtag {
-    my $self = shift;
-    my %opts = @_;
+    my ( $self, %opts ) = @_;
 
     # if the width and keyword have been passed in  as explicit
     # parameters, set them. Otherwise, take what ever is set in
@@ -368,22 +358,22 @@ sub imgtag {
 
 # FIXME: should have alt text, if it should be kept
 sub imgtag_lite {
-    my $self = shift;
+    my $self = $_[0];
     return '<img src="' . $self->url . '" width="' . $self->width . '" height="' . $self->height .
         '" class="userpic-img" />';
 }
 
 # FIXME: should have alt text, if it should be kept
 sub imgtag_nosize {
-    my $self = shift;
+    my $self = $_[0];
     return '<img src="' . $self->url . '" class="userpic-img" />';
 }
 
 # pass the decimal version of a percentage that you want to shrink/increase the userpic by
 # default is 50% of original size
 sub imgtag_percentagesize {
-    my $self = shift;
-    my $percentage = shift || 0.5;
+    my ( $self, $percentage ) = @_;
+    $percentage ||= 0.5;
 
     my $width = int($self->width * $percentage);
     my $height = int($self->height * $percentage);
@@ -395,8 +385,7 @@ sub imgtag_percentagesize {
 # must include either a height or width, if both are given the smaller of the two is used
 # returns the width and height attributes as a string to insert into an img tag
 sub img_fixedsize {
-    my $self = shift;
-    my %opts = @_;
+    my ( $self, %opts ) = @_;
 
     my $width = $opts{width} || 0;
     my $height = $opts{height} || 0;
@@ -422,8 +411,7 @@ sub img_fixedsize {
 # in list context returns list of keywords ( (pic#12345) if none defined )
 # opts: 'raw' = return '' instead of 'pic#12345'
 sub keywords {
-    my $self = shift;
-    my %opts = @_;
+    my ( $self, %opts ) = @_;
 
     my $raw = delete $opts{raw} || undef;
 
@@ -450,47 +438,41 @@ sub keywords {
 }
 
 sub imagedata {
-    my $self = shift;
+    my $self = $_[0];
 
-    my %upics;
+    $self->load_row or return undef;
     my $u = $self->owner;
-    LJ::load_userpics(\%upics, [ $u, $self->{picid} ]);
-    my $pic = $upics{$self->{picid}} or
-        return undef;
 
-    return undef if $pic->{'userid'} != $self->{userid} || $pic->{state} eq 'X';
+    return undef if $self->state eq 'X';
 
-    if ($pic->{location} eq "M") {
-        my $key = $u->mogfs_userpic_key( $self->{picid} );
+    # check mogile
+    if ( $self->location eq "M" ) {
+        my $key = $u->mogfs_userpic_key( $self->picid );
         my $data = LJ::mogclient()->get_file_data( $key );
         return $$data;
     }
 
-    my %MimeTypeMapd6 = (
-                         'G' => 'gif',
-                         'J' => 'jpg',
-                         'P' => 'png',
-                         );
-
+    # check blobserver
     my $data;
     if ($LJ::USERPIC_BLOBSERVER) {
-        my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
-        $data = LJ::Blob::get($u, "userpic", $fmt, $self->{picid});
+        my $fmt = $self->extension;
+        $data = LJ::Blob::get( $u, "userpic", $fmt, $self->picid );
         return $data if $data;
     }
 
+    # check userpicblob2 table
     my $dbb = LJ::get_cluster_reader($u)
         or return undef;
 
-    $data = $dbb->selectrow_array("SELECT imagedata FROM userpicblob2 WHERE ".
-                                  "userid=? AND picid=?", undef, $self->{userid},
-                                  $self->{picid});
+    $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE ".
+                                   "userid=? AND picid=?", undef, $self->userid,
+                                   $self->picid );
     return $data ? $data : undef;
 }
 
 # get : class :: load_row : object
 sub load_row {
-    my $self = shift;
+    my $self = $_[0];
 
     # use class method
     return $self->get( $self->owner, $self->picid );
@@ -500,8 +482,7 @@ sub load_row {
 # returns: undef if nothing in cache
 #          arrayref of LJ::Userpic instances if found in cache
 sub get_cache {
-    my $class = shift;
-    my $u = shift;
+    my ( $class, $u ) = @_;
 
     # check request cache first!
     # -- this gets populated when a ->load_user_userpics call happens,
@@ -537,9 +518,7 @@ sub memkey {
 }
 
 sub set_cache {
-    my $class = shift;
-    my $u = shift;
-    my $rows = shift;
+    my ( $class, $u, $rows ) = @_;
 
     my $memkey = $class->memkey( $u );
     my @vals = map { LJ::MemCache::hash_to_array( 'userpic2', $_ ) } @$rows;
@@ -567,7 +546,7 @@ sub load_user_userpics {
     die "Error loading userpics: clusterid=$u->{clusterid}, errstr=" . $u->errstr
         if $u->err;
 
-    my @ret = values %$data;
+    my @ret = sort { $a->{picid} <=> $b->{picid} } values %$data;
 
     # set cache if reasonable
     $class->set_cache($u, \@ret);
@@ -587,7 +566,7 @@ sub create {
     croak("Unknown options: " . join(", ", scalar keys %opts)) if %opts;
 
     my $err = sub {
-        my $msg = shift;
+        my $msg = $_[0];
     };
 
     eval "use Image::Size;";
@@ -794,23 +773,17 @@ sub _get_upf_scaled
 
     # converts an ImageMagick object to the form returned to our callers
     my $imageParams = sub {
-        my $im = shift;
+        my $im = $_[0];
         my $blob = $im->ImageToBlob;
         return [\$blob, $im->Get('MIME'), $im->Get('width'), $im->Get('height')];
     };
 
     # compute new width and height while keeping aspect ratio
     my $getSizedCoords = sub {
-        my $newsize = shift;
+        my ( $newsize, $img ) = @_;
 
-        my $fromw = $ow;
-        my $fromh = $oh;
-
-        my $img = shift;
-        if ($img) {
-            $fromw = $img->Get('width');
-            $fromh = $img->Get('height');
-        }
+        my $fromw = $img ? $img->Get('width') : $ow;
+        my $fromh = $img ? $img->Get('height') : $oh;
 
         return (int($newsize * $fromw/$fromh), $newsize) if $fromh > $fromw;
         return ($newsize, int($newsize * $fromh/$fromw));
@@ -931,7 +904,7 @@ sub delete_cache {
 # delete this userpic
 # TODO: error checking/throw errors on failure
 sub delete {
-    my $self = shift;
+    my $self = $_[0];
     local $LJ::THROW_ERRORS = 1;
 
     my $fail = sub {
@@ -1103,9 +1076,7 @@ sub set_keywords {
 # of existing pics is done asynchonously via TheSchwartz using the
 # DW::Worker::UserpicRenameWorker.
 sub set_and_rename_keywords {
-    my $self = shift;
-    my $new_keyword_string = $_[0];
-    my $orig_keyword_string = $_[1];
+    my ( $self, $new_keyword_string, $orig_keyword_string ) = @_;
 
     my $sclient = LJ::theschwartz();
     
@@ -1255,17 +1226,17 @@ sub user_caused { 1 }
 sub fields      { qw(userpic lost); }
 
 sub number_lost {
-    my $self = shift;
+    my $self = $_[0];
     return scalar @{ $self->field("lost") };
 }
 
 sub lost_keywords_as_html {
-    my $self = shift;
+    my $self = $_[0];
     return join(", ", map { LJ::ehtml($_) } @{ $self->field("lost") });
 }
 
 sub as_html {
-    my $self = shift;
+    my $self = $_[0];
     my $num_words = $self->number_lost;
     return BML::ml("/editicons.bml.error.toomanykeywords", {
         numwords => $self->number_lost,
@@ -1278,7 +1249,7 @@ package LJ::Error::Userpic::Bytesize;
 sub user_caused { 1 }
 sub fields      { qw(size max); }
 sub as_html {
-    my $self = shift;
+    my $self = $_[0];
     return BML::ml('/editicons.bml.error.filetoolarge',
                    { 'maxsize' => $self->{'max'} .
                          BML::ml('/editicons.bml.kilobytes')} );
@@ -1288,7 +1259,7 @@ package LJ::Error::Userpic::Dimensions;
 sub user_caused { 1 }
 sub fields      { qw(w h); }
 sub as_html {
-    my $self = shift;
+    my $self = $_[0];
     return BML::ml('/editicons.bml.error.imagetoolarge', {
         imagesize => $self->{'w'} . 'x' . $self->{'h'}
         });
@@ -1298,7 +1269,7 @@ package LJ::Error::Userpic::FileType;
 sub user_caused { 1 }
 sub fields      { qw(type); }
 sub as_html {
-    my $self = shift;
+    my $self = $_[0];
     return BML::ml("/editicons.bml.error.unsupportedtype",
                           { 'filetype' => $self->{'type'} });
 }
@@ -1307,7 +1278,7 @@ package LJ::Error::Userpic::MismatchRenameKeywords;
 sub user_caused { 1 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
-    my $self = shift;
+    my $self = $_[0];
     return BML::ml("/editicons.bml.error.rename.mismatchedlength",
                           { 'origkw' => $self->{'origkw'},
                             'newkw' => $self->{'newkw'} });
@@ -1317,7 +1288,7 @@ package LJ::Error::Userpic::RenameBlankKeywords;
 sub user_caused { 1 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
-    my $self = shift;
+    my $self = $_[0];
     return BML::ml("/editicons.bml.error.rename.blankkw",
                           { 'origkw' => $self->{'origkw'},
                             'newkw' => $self->{'newkw'} });
@@ -1327,7 +1298,7 @@ package LJ::Error::Userpic::RenameKeywordExisting;
 sub user_caused { 1 }
 sub fields      { qw(keyword); }
 sub as_html {
-    my $self = shift;
+    my $self = $_[0];
     return BML::ml("/editicons.bml.error.rename.keywordexists",
                           { 'keyword' => $self->{'keyword'} });
 }
@@ -1336,7 +1307,7 @@ package LJ::Error::Userpic::RenameKeywords;
 sub user_caused { 0 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
-    my $self = shift;
+    my $self = $_[0];
     return BML::ml("/editicons.bml.error.rename.keywords",
                           { 'origkw' => $self->{'origkw'},
                             'newkw' => $self->{'newkw'} });

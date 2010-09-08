@@ -138,7 +138,6 @@ require "ljtimeutil.pl";
 require "ljcapabilities.pl";
 use DW::Mood;
 require "ljrelation.pl";
-require "ljuserpics.pl";
 
 require "$LJ::HOME/cgi-bin/ljlib-local.pl"
     if -e "$LJ::HOME/cgi-bin/ljlib-local.pl";

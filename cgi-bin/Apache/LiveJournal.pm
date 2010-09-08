@@ -40,6 +40,7 @@ use XMLRPC::Transport::HTTP;
 use LJ::URI;
 use DW::Routing;
 use DW::Template;
+use LJ::Talk;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -1137,7 +1138,7 @@ sub userpic_content
     return NOT_FOUND unless $u && ! ( $u->is_expunged || $u->is_suspended );
 
     my %upics;
-    LJ::load_userpics(\%upics, [ $u, $picid ]);
+    LJ::Talk::load_userpics(\%upics, [ $u, $picid ]);
     my $pic = $upics{$picid} or return NOT_FOUND;
     return NOT_FOUND if $pic->{'userid'} != $userid || $pic->{state} eq 'X';
 

@@ -296,11 +296,10 @@ sub make_feed
     return $viewfunc->{handler}->($journalinfo, $u, $opts, \@cleanitems, \@entries);
 }
 
-# the creator for the RSS XML syndication view
-sub create_view_rss
-{
-    my ($journalinfo, $u, $opts, $cleanitems) = @_;
-
+# helper method for create_view_rss and create_view_comments
+sub _init_talkview {
+    my ( $journalinfo, $u, $opts, $talkview ) = @_;
+    my $hubbub = $talkview eq 'rss' && LJ::is_enabled( 'hubbub' );
     my $ret;
 
     # header
@@ -310,10 +309,14 @@ sub create_view_rss
             "xmlns:atom10='http://www.w3.org/2005/Atom'>\n";
 
     # channel attributes
+    my $desc = { rss => LJ::exml( "$journalinfo->{title} - $LJ::SITENAME" ),
+                 comments => "Latest comments in "
+                           . LJ::exml( $journalinfo->{title} ) };
+
     $ret .= "<channel>\n";
     $ret .= "  <title>" . LJ::exml($journalinfo->{title}) . "</title>\n";
     $ret .= "  <link>$journalinfo->{link}</link>\n";
-    $ret .= "  <description>" . LJ::exml("$journalinfo->{title} - $LJ::SITENAME") . "</description>\n";
+    $ret .= "  <description>" . $desc->{$talkview} . "</description>\n";
     $ret .= "  <managingEditor>" . LJ::exml($journalinfo->{email}) . "</managingEditor>\n" if $journalinfo->{email};
     $ret .= "  <lastBuildDate>$journalinfo->{builddate}</lastBuildDate>\n";
     $ret .= "  <generator>LiveJournal / $LJ::SITENAME</generator>\n";
@@ -321,7 +324,7 @@ sub create_view_rss
     $ret .= "  <lj:journaltype>" . $u->journaltype_readable . "</lj:journaltype>\n";
     # TODO: add 'language' field when user.lang has more useful information
 
-    if ( LJ::is_enabled( 'hubbub' ) ) {
+    if ( $hubbub ) {
         $ret .= "  <atom10:link rel='self' href='" . $u->journal_base . "/data/rss' />\n";
         foreach my $hub (@LJ::HUBBUB_HUBS) {
             $ret .= "  <atom10:link rel='hub' href='" . LJ::exml($hub) . "' />\n";
@@ -329,19 +332,27 @@ sub create_view_rss
     }
 
     ### image block, returns info for their current userpic
-    if ($u->{'defaultpicid'}) {
-        my $pic = {};
-        LJ::load_userpics($pic, [ $u, $u->{'defaultpicid'} ]);
-        $pic = $pic->{$u->{'defaultpicid'}}; # flatten
+    if ( $u->{'defaultpicid'} ) {
+        my $icon = $u->userpic;
+        my $url = $icon->url;
+        my ( $width, $height ) = $icon->dimensions;
 
         $ret .= "  <image>\n";
-        $ret .= "    <url>$LJ::USERPIC_ROOT/$u->{'defaultpicid'}/$u->{'userid'}</url>\n";
-        $ret .= "    <title>" . LJ::exml($journalinfo->{title}) . "</title>\n";
+        $ret .= "    <url>$url</url>\n";
+        $ret .= "    <title>" . LJ::exml( $journalinfo->{title} ) . "</title>\n";
         $ret .= "    <link>$journalinfo->{link}</link>\n";
-        $ret .= "    <width>$pic->{'width'}</width>\n";
-        $ret .= "    <height>$pic->{'height'}</height>\n";
+        $ret .= "    <width>$width</width>\n";
+        $ret .= "    <height>$height</height>\n";
         $ret .= "  </image>\n\n";
     }
+
+    return $ret;
+}
+
+sub create_view_rss {
+    my ( $journalinfo, $u, $opts, $cleanitems ) = @_;
+
+    my $ret = _init_talkview( $journalinfo, $u, $opts, 'rss' );
 
     my %posteru = ();  # map posterids to u objects
     LJ::load_userids_multiple([map { $_->{'posterid'}, \$posteru{$_->{'posterid'}} } @$cleanitems], [$u]);
@@ -921,21 +932,21 @@ sub create_view_userpics {
         $descriptions{$pic} = LJ::strip_html($description);
     }
 
-    my @pics;
-    push @pics, map { $info->{pic}->{$_} } sort { $a <=> $b }
-                      grep { $info->{pic}->{$_}->{state} eq 'N' } keys %{$info->{pic}};
+    my @pics = map { $info->{pic}->{$_} } sort { $a <=> $b }
+               grep { $info->{pic}->{$_}->{state} eq 'N' }
+               keys %{ $info->{pic} };
 
-    my $entry;
-    my %picdata;
-
-    # this is lame, but we have to do this iteration twice; we load the userpic data first, so that
-    # we can figure out what the most recently-uploaded userpic is. we need to put that into the feed
-    # before any of the <entry> values.
+    # FIXME: It sucks that there are two different methods for aggregating
+    #        the information for a user's set of icons, one of which doesn't
+    #        include keywords and the other of which doesn't include pictime.
+    #        But hey, at least they both use caching.
+    
+    my %pictimes = map { $_->picid => $_->pictime }
+                       LJ::Userpic->load_user_userpics( $u );
 
     my $latest = 0;
-    foreach my $pic (@pics) {
-        LJ::load_userpics(\%picdata, [$u, $pic->{picid}] );
-        $latest = ($latest < $picdata{$pic->{picid}}->{picdate}) ? $picdata{$pic->{picid}}->{picdate} : $latest;
+    foreach my $pictime ( values %pictimes ) {
+        $latest = ($latest < $pictime) ? $pictime : $latest;
     }
 
     $feed->updated( LJ::time_to_w3c($latest, 'Z') );
@@ -949,7 +960,7 @@ sub create_view_userpics {
         my $title = ($pic->{picid} == $u->{defaultpicid}) ? "default userpic" : "userpic";
         $entry->title( $title );
 
-        $entry->updated( LJ::time_to_w3c($picdata{$pic->{picid}}->{picdate}, 'Z') );
+        $entry->updated( LJ::time_to_w3c( $pictimes{ $pic->{picid} }, 'Z') );
 
         my $content;
         $content = $entry_xml->createElement( "content" );
@@ -985,9 +996,8 @@ sub create_view_userpics {
 }
 
 
-sub create_view_comments
-{
-    my ($journalinfo, $u, $opts) = @_;
+sub create_view_comments {
+    my ( $journalinfo, $u, $opts ) = @_;
 
     unless ( LJ::is_enabled('latest_comments_rss', $u) ) {
         $opts->{handler_return} = 404;
@@ -999,37 +1009,7 @@ sub create_view_comments
         return;
     }
 
-    my $ret;
-    $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
-    $ret .= LJ::Hooks::run_hook("bot_director", "<!-- ", " -->") . "\n";
-    $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/'>\n";
-
-    # channel attributes
-    $ret .= "<channel>\n";
-    $ret .= "  <title>" . LJ::exml($journalinfo->{title}) . "</title>\n";
-    $ret .= "  <link>$journalinfo->{link}</link>\n";
-    $ret .= "  <description>Latest comments in " . LJ::exml($journalinfo->{title}) . "</description>\n";
-    $ret .= "  <managingEditor>" . LJ::exml($journalinfo->{email}) . "</managingEditor>\n" if $journalinfo->{email};
-    $ret .= "  <lastBuildDate>$journalinfo->{builddate}</lastBuildDate>\n";
-    $ret .= "  <generator>LiveJournal / $LJ::SITENAME</generator>\n";
-    $ret .= "  <lj:journal>" . $u->user . "</lj:journal>\n";
-    $ret .= "  <lj:journaltype>" . $u->journaltype_readable . "</lj:journaltype>\n";
-    # TODO: add 'language' field when user.lang has more useful information
-
-    ### image block, returns info for their current userpic
-    if ($u->{'defaultpicid'}) {
-        my $pic = {};
-        LJ::load_userpics($pic, [ $u, $u->{'defaultpicid'} ]);
-        $pic = $pic->{$u->{'defaultpicid'}}; # flatten
-
-        $ret .= "  <image>\n";
-        $ret .= "    <url>$LJ::USERPIC_ROOT/$u->{'defaultpicid'}/$u->{'userid'}</url>\n";
-        $ret .= "    <title>" . LJ::exml($journalinfo->{title}) . "</title>\n";
-        $ret .= "    <link>$journalinfo->{link}</link>\n";
-        $ret .= "    <width>$pic->{'width'}</width>\n";
-        $ret .= "    <height>$pic->{'height'}</height>\n";
-        $ret .= "  </image>\n\n";
-    }
+    my $ret = _init_talkview( $journalinfo, $u, $opts, 'comments' );
 
     my @comments = $u->get_recent_talkitems(25);
     foreach my $r (@comments)

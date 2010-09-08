@@ -311,14 +311,8 @@ body<=
     $ret .= "<table class='support-requesttable'>\n";
     $ret .= "<tr><td valign='bottom' align='right'><b>$ML{'.from'}</b></td><td>";
     
-    if ($u->{'defaultpicid'} && !$u->is_suspended) {
-        my %pic;
-        my $picid = $u->{'defaultpicid'};
-        # FIXME: this repetitive load will be fixed in bug
-        # 513. For now, memcache keeps this from hitting the
-        # db twice.
-        LJ::load_userpics(\%pic, [ $u, $picid ]);
-        my $userpic_obj = LJ::Userpic->new( $u, $picid );
+    if ( $u->{'defaultpicid'} && !$u->is_suspended ) {
+        my $userpic_obj = $u->userpic;
         $ret .= "<a href='" . $u->allpics_base . "'>";
         $ret .= $userpic_obj->imgtag;
         $ret .= "</a>";
@@ -539,8 +533,6 @@ body<=
                 $ML{'.private.request'}."</div>";
     }
 
-    my %userpics;  # id -> {..}
-
     my @screened;
     my $most_recent_tier = 0;
     my $curlang = BML::get_language();
@@ -592,15 +584,16 @@ body<=
         my $header = "";
         if ($up && LJ::Support::can_see_helper($sp, $remote)) {
             my $picid = $up->get_picid_from_keyword( '_support' ) || $up->{defaultpicid};
-            $userpics{$picid} or LJ::load_userpics(\%userpics, [[ $up, $picid ]]);
+            my $icon = $picid ? LJ::Userpic->new( $up, $picid ) : undef;
             $header = "<table style='margin-top: 15px;'><tr valign='bottom'>";
-            if ($picid && !$up->is_suspended) {
-                $header .= "<td><img src='$LJ::USERPIC_ROOT/$picid/$up->{'userid'}' width='$userpics{$picid}->{'width'}' height='$userpics{$picid}->{'height'}' hspace='3' alt='$up->{'user'}'/></td>";
+            if ( $icon && !$up->is_suspended ) {
+                my $alt = $up->display_name;
+                my $src = $icon->url;
+                my ( $width, $height ) = $icon->dimensions;
+                $header .= "<td><img src='$src' width='$width' height='$height' hspace='3' alt='$alt'/></td>";
             }
-            $header .= "<td>" . LJ::ljuser($up->{'user'}, { 'full' => 1 });
-            if (!$up->is_suspended) {
-                $header .= " - " . LJ::ehtml($up->{'name'});
-            }
+            $header .= "<td>" . LJ::ljuser( $u, { full => 1 } );
+            $header .= " - " . $up->name_html unless $up->is_suspended;
             $header .= "</td></tr></table>\n"
         }
 
