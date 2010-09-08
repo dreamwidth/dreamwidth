@@ -43,6 +43,7 @@ use DW::Pay;
 use DW::User::ContentFilters;
 use DW::User::Edges;
 
+use LJ::Community;
 use LJ::Subscription;
 use LJ::Identity;
 use LJ::Auth;
@@ -3970,43 +3971,6 @@ sub can_post_to {
     return 1 if $u->can_manage( $targetu );
 
     return 0;
-}
-
-
-# helper methods for checking some values about communities
-sub is_closed_membership    { $_[0]->membership_level eq 'closed' ? 1 : 0;    }
-sub is_moderated_membership { $_[0]->membership_level eq 'moderated' ? 1 : 0; }
-sub is_open_membership      { $_[0]->membership_level eq 'open' ? 1 : 0;      }
-sub has_moderated_posting   { $_[0]->prop( 'moderated' );                     }
-sub has_open_posting        { $_[0]->prop( 'nonmember_posting' ) ? 1 : 0;     }
-
-
-# returns an array of maintainer userids
-sub maintainer_userids {
-    my $u = shift;
-
-    return () unless $u->is_community;
-    return @{LJ::load_rel_user_cache( $u->id, 'A' )};
-}
-
-
-# returns the membership level of a community
-sub membership_level {
-    my $u = shift;
-
-    return undef unless $u->is_community;
-
-    my ( $membership_level ) = $u->get_comm_settings;
-    return $membership_level || undef;
-}
-
-
-# returns an array of moderator userids
-sub moderator_userids {
-    my $u = shift;
-
-    return () unless $u->is_community && $u->prop( 'moderated' );
-    return @{LJ::load_rel_user_cache( $u->id, 'M' )};
 }
 
 

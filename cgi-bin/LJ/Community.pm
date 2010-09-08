@@ -279,7 +279,6 @@ sub leave_community {
     return 1;
 }
 
-# name: LJ::join_community
 # des: Makes a user join a community.  Takes care of all [special[reluserdefs]] and watch stuff.
 # args: u joining, u of comm, watch?, noauto?
 # des-watch: 1 to add this comm to user's watch list, else not
@@ -616,5 +615,39 @@ sub get_pending_members_count {
 
     return $pending_count;
 }
+
+# returns the membership level of a community
+sub membership_level {
+    my ( $u ) = @_;
+
+    return undef unless $u->is_community;
+
+    my ( $membership_level ) = $u->get_comm_settings;
+    return $membership_level || undef;
+}
+
+# helper methods for checking some values about communities
+sub is_closed_membership    { $_[0]->membership_level eq 'closed' ? 1 : 0;    }
+sub is_moderated_membership { $_[0]->membership_level eq 'moderated' ? 1 : 0; }
+sub is_open_membership      { $_[0]->membership_level eq 'open' ? 1 : 0;      }
+sub has_moderated_posting   { $_[0]->prop( 'moderated' );                     }
+sub has_open_posting        { $_[0]->prop( 'nonmember_posting' ) ? 1 : 0;     }
+
+# returns an array of maintainer userids
+sub maintainer_userids {
+    my ( $u ) = @_;
+
+    return () unless $u->is_community;
+    return @{LJ::load_rel_user_cache( $u->id, 'A' )};
+}
+
+# returns an array of moderator userids
+sub moderator_userids {
+    my ( $u ) = @_;
+
+    return () unless $u->is_community && $u->has_moderated_posting;
+    return @{LJ::load_rel_user_cache( $u->id, 'M' )};
+}
+
 
 1;
