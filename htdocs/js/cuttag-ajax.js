@@ -6,6 +6,12 @@ CutTagHandler = new Class(Object, {
     init: function(journal, ditemid, cutid) {
       this.identifier = 'cuttag_' + journal + '_' + ditemid + '_' + cutid;
       this.ajaxUrl = "/__rpc_cuttag?journal=" + journal + "&ditemid=" + ditemid + "&cutid=" + cutid;
+
+      this.data = {
+        journal: journal,
+        ditemid: ditemid,
+        cutid: cutid
+      };
     },
 
     // returns if the div controlled by this handler is open
@@ -61,6 +67,14 @@ CutTagHandler = new Class(Object, {
         var replaceDiv = $('div-' + this.identifier);
         replaceDiv.innerHTML=resObj.text;
         replaceDiv.style.display="block";
+
+        if ( replaceDiv.offsetHeight > 100 ) {
+            var closeEnd = document.createElement("span");
+
+            closeEnd.innerHTML = ' <a href="#span-'+this.identifier+'" onclick=" CutTagHandler.toggleCutTag(\''+this.data.journal+'\', \''+this.data.ditemid+'\', \''+this.data.cutid+'\');"><img style="border: 0;" src="' + Site.imgprefix + '/collapse-end.gif" aria-controls="div-cuttag_' + this.identifier + '" alt="' + expanded + '" title="' + expanded + '"/></a>';
+            replaceDiv.appendChild(closeEnd);
+        }
+
         DOM.addClassName(replaceDiv, "cuttag-open");
         $('img-' + this.identifier).alt=expanded;
         $('img-' + this.identifier).title=expanded;
