@@ -1877,6 +1877,9 @@ function builtin htmlattr(string name, string value) : string
 function builtin htmlattr(string name, int value) : string
 "If the value isn't blank, return in HTML attribute format with a leading space.  HTML of name is not escaped.";
 
+function builtin keys_alpha(string{} elements) : string[]
+"Return the keys of the array in alphabetically sorted order.";
+
 ### Language
 
 function lang_map_plural (int n) : int {
@@ -2290,7 +2293,7 @@ function EntryLite::print_text() [fixed] {
 function Entry::print_metadata() {
     if (size $.metadata) {
         """<div class="metadata">\n""";
-        foreach var string m ($.metadata) {
+        foreach var string m ( keys_alpha( $.metadata ) ) {
             "<div><strong>$m</strong>: ";
             if ($m == "mood") {
                 " $.mood_icon ";

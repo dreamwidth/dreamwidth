@@ -1007,6 +1007,9 @@ function builtin htmlattr(string name, int value) : string
 function builtin print_search_form(string button_text) 
 "Prints a search form, with the button text as the label to the submit button.";
 
+function builtin keys_alpha(string{} elements) : string[]
+"Return the keys of the array in alphabetically sorted order.";
+
 ##[ properties ]
 
 propgroup colors = "Colors";
@@ -4431,7 +4434,7 @@ function Entry::print_metadata() {
     if (size $.metadata) {
         var string position = ($*entry_metadata_position == "top") ? " top-metadata" : " bottom-metadata";
         """<div class="metadata$position">\n<ul>\n""";
-        foreach var string m ($.metadata) {
+        foreach var string m ( keys_alpha( $.metadata ) ) {
             var string metadata_name = lang_metadata_title($m);
             """<li><span class="metadata-label metadata-label-$m">$metadata_name: </span>""";
             if ($m == "mood") {

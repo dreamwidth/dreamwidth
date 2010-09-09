@@ -4334,4 +4334,12 @@ sub Siteviews__set_content {
     $this->{_content}->{$content} = $text;
 }
 
+sub keys_alpha {
+    my ( $ctx, $ref ) = @_;
+    return undef unless ref $ref eq 'HASH';
+
+    # return reference to array of sorted keys
+    return [ sort { $a cmp $b } keys %$ref ];
+}
+
 1;
