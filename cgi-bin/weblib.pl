@@ -968,6 +968,61 @@ sub viewing_style_opts {
     return \%ret;
 }
 
+=head2 C<< LJ::create_url($path,%opts) >>
+If specified, path must begin with a /
+
+args being a list of arguments to create.
+opts can contain:
+host -- link to different domains
+args -- get arguments to add
+ssl -- use ssl
+fragment -- add fragment identifier
+cur_args -- hashref of current GET arguments to the page
+keep_args -- arguments to keep
+viewing_style -- include viewing style args
+=cut
+
+sub create_url {
+    my ( $path, %opts ) = @_;
+
+    my $r = DW::Request->get;
+    my %out_args = %{ $opts{args} || {} };
+
+    my $host = $opts{host} || $r->header_in("Host");
+    $path ||= $r->uri;
+
+    # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
+    $opts{ssl} = $LJ::IS_SSL unless $opts{host} || exists $opts{ssl};
+
+    my $url = ( $opts{ssl} ? "https" : "http" ) . "://$host$path";
+    $url .= "#" . $opts{fragment} if $opts{fragment};
+
+    my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
+
+    # Move over viewing style arguments
+    if( $opts{viewing_style} ) {
+        my $vs_args = LJ::viewing_style_opts( %$orig_args );
+        foreach my $k ( keys %$vs_args ) {
+            $out_args{$k} = $vs_args->{$k} unless exists $out_args{$k};
+        }
+    }
+
+    # Move over arguments that we need to keep
+    foreach my $k ( @{$opts{keep_args}} ) {
+        $out_args{$k} = $orig_args->{$k} if exists $orig_args->{$k} && ! exists $out_args{$k};
+    }
+
+    foreach my $k ( keys %out_args ) {
+        delete $out_args{$k} unless defined $out_args{$k};
+    }
+
+    my $args = encode_url_string( \%out_args );
+
+    $url .= "?$args" if $args;
+
+    return $url;
+}
+
 # <LJFUNC>
 # name: LJ::entry_form
 # class: web
