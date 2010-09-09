@@ -716,6 +716,8 @@ sub create_qr_div {
                 <input type="button" id="lj_userpicselect" value="Browse" />
                 } if $remote->can_use_userpic_select;
 
+            $qrhtml .= "<a href='javascript:void(0)' onclick='randomicon();' id='randomicon'>" . BML::ml('/talkpost.bml.userpic.random') . "</a>";
+
             $qrhtml .= LJ::help_icon_html("userpics", " ");
         }
     }

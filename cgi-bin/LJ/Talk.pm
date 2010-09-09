@@ -1849,11 +1849,15 @@ sub talkform {
             $ret .= '<input type="button" id="lj_userpicselect" value="Browse" />';
             $ret .= LJ::Talk::js_iconbrowser_button();
         }
-                
+
+        # random icon button - hidden for non-JS
+        $ret .= "<a href='javascript:void(0)' onclick='randomicon();' class='ljhidden' id='randomicon'>" . BML::ml('.userpic.random') ."</a>";
+
         $ret .= LJ::help_icon_html("userpics", " ");
     }
 
-    $ret .= "&nbsp;&nbsp;<label for='prop_opt_preformatted'>$BML::ML{'.opt.noautoformat'}</label>";
+    $ret .= "<br />";
+    $ret .= "<label for='prop_opt_preformatted'>$BML::ML{'.opt.noautoformat'}</label>";
     $ret .= LJ::html_check(
                            {
                                name  => 'prop_opt_preformatted',

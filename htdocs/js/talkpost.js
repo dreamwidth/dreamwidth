@@ -45,6 +45,8 @@ if (document.getElementById) {
 
     var edit_nohtml = document.getElementById("nohtmledit");
     hideMe(edit_nohtml);
+
+    showRandomIcon();
 }
 
 var apicurl = "";
@@ -225,6 +227,19 @@ function subjectIconChange(icon) {
         }
         subjectIconListToggle();
     }
+}
+
+function showRandomIcon() {
+    var randomicon = document.getElementById("randomicon");
+    randomicon.setAttribute("class", "randomicon");
+}
+
+function randomicon() {
+    var icons_list = document.getElementById('prop_picture_keyword');
+    // we need to ignore the "(default)" option for this code
+    var numberoficons = icons_list.length-1;
+    var randomnumber=Math.floor(Math.random()*numberoficons) +1;
+    icons_list.selectedIndex = randomnumber;
 }
 
 function subjectNoHTML(e) {

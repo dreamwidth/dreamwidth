@@ -145,6 +145,14 @@
         submitform();
    }
 
+   function randomicon() {
+        var icons_list = document.getElementById('prop_picture_keyword');
+        // we need to ignore the "(default)" option for this code
+        var numberoficons = icons_list.length-1;
+        var randomnumber=Math.floor(Math.random()*numberoficons) +1;
+        icons_list.selectedIndex = randomnumber;
+    }
+
    function swapnodes (orig, to_swap) {
         var orig_pn = xParent(orig, true);
         var next_sibling = orig.nextSibling;
