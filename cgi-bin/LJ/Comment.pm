@@ -143,8 +143,7 @@ sub new_from_url {
 # </LJFUNC>
 
 sub create {
-    my $class = shift;
-    my %opts  = @_;
+    my ( $class, %opts ) = @_;
     
     my $need_captcha = delete($opts{ need_captcha }) || 0;
 
@@ -253,7 +252,7 @@ sub threadroot_url {
 }
 
 sub reply_url {
-    my $self    = shift;
+    my $self    = $_[0];
 
     my $dtalkid = $self->dtalkid;
     my $entry   = $self->entry;
@@ -272,7 +271,7 @@ sub parent_url {
 }
 
 sub unscreen_url {
-    my $self    = shift;
+    my $self    = $_[0];
 
     my $dtalkid = $self->dtalkid;
     my $entry   = $self->entry;
@@ -285,7 +284,7 @@ sub unscreen_url {
 }
 
 sub delete_url {
-    my $self    = shift;
+    my $self    = $_[0];
 
     my $dtalkid = $self->dtalkid;
     my $entry   = $self->entry;
@@ -297,7 +296,7 @@ sub delete_url {
 }
 
 sub edit_url {
-    my $self    = shift;
+    my $self    = $_[0];
 
     my $dtalkid = $self->dtalkid;
     my $entry   = $self->entry;
@@ -308,7 +307,7 @@ sub edit_url {
 
 # return img tag of userpic that the comment poster used
 sub poster_userpic {
-    my $self = shift;
+    my $self = $_[0];
     my $pic_kw = $self->prop('picture_keyword');
     my $posteru = $self->poster;
 
@@ -326,37 +325,34 @@ sub poster_userpic {
 
 # return LJ::User of journal comment is in
 sub journal {
-    my $self = shift;
-    return LJ::load_userid($self->{journalid});
+    return LJ::load_userid( $_[0]->{journalid} );
 }
 
 sub journalid {
-    my $self = shift;
-    return $self->{journalid};
+    return $_[0]->{journalid};
 }
 
 # return LJ::Entry of entry comment is in, or undef if it's not
 # a nodetype of L
 sub entry {
-    my $self = shift;
+    my $self = $_[0];
 
     return undef unless $self && $self->valid;
     return LJ::Entry->new($self->journal, jitemid => $self->nodeid);
 }
 
 sub jtalkid {
-    my $self = shift;
-    return $self->{jtalkid};
+    return $_[0]->{jtalkid};
 }
 
 sub dtalkid {
-    my $self = shift;
+    my $self = $_[0];
     my $entry = $self->entry or return undef;
     return ($self->jtalkid * 256) + $entry->anum;
 }
 
 sub nodeid {
-    my $self = shift;
+    my $self = $_[0];
 
     # we want to fast-path and not preload_rows here if we can avoid it...
     # this sometimes gets called en masse on a bunch of comments, and
@@ -369,7 +365,7 @@ sub nodeid {
 }
 
 sub nodetype {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self->unloaded_singletons] );
     return $self->{nodetype};
 }
@@ -425,14 +421,14 @@ sub threadrootid {
 
 
 sub parenttalkid {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self->unloaded_singletons ]);
     return $self->{parenttalkid};
 }
 
 # returns a LJ::Comment object for the parent
 sub parent {
-    my $self = shift;
+    my $self = $_[0];
     my $ptalkid = $self->parenttalkid or return undef;
 
     return LJ::Comment->new($self->journal, jtalkid => $ptalkid);
@@ -440,7 +436,7 @@ sub parent {
 
 # returns an array of LJ::Comment objects with parentid == $self->jtalkid
 sub children {
-    my $self = shift;
+    my $self = $_[0];
 
     my $entry = $self->entry;
     return grep { $_->{parenttalkid} == $self->{jtalkid} } $entry->comment_list;
@@ -451,9 +447,7 @@ sub children {
 }
 
 sub has_children {
-    my $self = shift;
-
-    return $self->children ? 1 : 0;
+    return $_[0]->children ? 1 : 0;
 }
 
 sub has_nondeleted_children {
@@ -466,7 +460,7 @@ sub has_nondeleted_children {
 # object, even though that jitemid hasn't been created yet, or was
 # previously deleted)
 sub valid {
-    my $self = shift;
+    my $self = $_[0];
     my $u = $self->journal;
     return 0 unless $u && $u->{clusterid};
     __PACKAGE__->preload_rows([ $self->unloaded_singletons ]);
@@ -475,25 +469,24 @@ sub valid {
 
 # when was this comment left?
 sub unixtime {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self->unloaded_singletons ]);
     return LJ::mysqldate_to_time($self->{datepost}, 0);
 }
 
 # returns LJ::User object for the poster of this entry, or undef for anonymous
 sub poster {
-    my $self = shift;
-    return LJ::load_userid($self->posterid);
+    return LJ::load_userid( $_[0]->posterid );
 }
 
 sub posterid {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self->unloaded_singletons ]);
     return $self->{posterid};
 }
 
 sub all_singletons {
-    my $self = shift;
+    my $self = $_[0];
     my @singletons;
     push @singletons, values %{$singletons{$_}} foreach keys %singletons;
     return @singletons;
@@ -501,20 +494,17 @@ sub all_singletons {
 
 # returns an array of unloaded comment singletons
 sub unloaded_singletons {
-    my $self = shift;
-    return grep { ! $_->{_loaded_row} } $self->all_singletons;
+    return grep { ! $_->{_loaded_row} } $_[0]->all_singletons;
 }
 
 # returns an array of comment singletons which don't have text loaded yet
 sub unloaded_text_singletons {
-    my $self = shift;
-    return grep { ! $_->{_loaded_text} } $self->all_singletons;
+    return grep { ! $_->{_loaded_text} } $_[0]->all_singletons;
 }
 
 # returns an array of comment singletons which don't have prop rows loaded yet
 sub unloaded_prop_singletons {
-    my $self = shift;
-    return grep { ! $_->{_loaded_props} } $self->all_singletons;
+    return grep { ! $_->{_loaded_props} } $_[0]->all_singletons;
 }
 
 # class method:
@@ -550,7 +540,7 @@ sub preload_rows {
 # returns true if loaded, zero if not.
 # also sets _loaded_text and subject and event.
 sub _load_text {
-    my $self = shift;
+    my $self = $_[0];
     return 1 if $self->{_loaded_text};
 
     my $entry  = $self->entry;
@@ -711,7 +701,7 @@ sub props {
 }
 
 sub _load_props {
-    my $self = shift;
+    my $self = $_[0];
     return 1 if $self->{_loaded_props};
 
     # find singletons which don't already have text loaded
@@ -826,21 +816,21 @@ sub set_props_raw {
 
 # raw utf8 text, with no HTML cleaning
 sub subject_raw {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text  unless $self->{_loaded_text};
     return $self->{subject};
 }
 
 # raw text as user sent us, without transcoding while correcting for unknown8bit
 sub subject_orig {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text unless $self->{_loaded_text};
     return $self->{subject_orig} || $self->{subject};
 }
 
 # raw utf8 text, with no HTML cleaning
 sub body_raw {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text unless $self->{_loaded_text};
 
     # die if we didn't load any body text
@@ -851,14 +841,14 @@ sub body_raw {
 
 # raw text as user sent us, without transcoding while correcting for unknown8bit
 sub body_orig {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text unless $self->{_loaded_text};
     return $self->{body_orig} || $self->{body};
 }
 
 # comment body, cleaned
 sub body_html {
-    my $self = shift;
+    my $self = $_[0];
 
     my $opts;
     $opts->{preformatted} = $self->prop("opt_preformatted");
@@ -877,49 +867,44 @@ sub body_html_summary {
 
 # comment body, plaintext
 sub body_text {
-    my $self = shift;
-
+    my $self = $_[0];
     my $body = $self->body_html;
     return LJ::strip_html($body);
 }
 
 sub subject_html {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text unless $self->{_loaded_text};
     return LJ::ehtml($self->{subject});
 }
 
 sub subject_text {
-    my $self = shift;
+    my $self = $_[0];
     my $subject = $self->subject_raw;
     return LJ::ehtml($subject);
 }
 
 sub state {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self->unloaded_singletons] );
     return $self->{state};
 }
 
 
 sub is_active {
-    my $self = shift;
-    return $self->state eq 'A' ? 1 : 0;
+    return $_[0]->state eq 'A' ? 1 : 0;
 }
 
 sub is_screened {
-    my $self = shift;
-    return $self->state eq 'S' ? 1 : 0;
+    return $_[0]->state eq 'S' ? 1 : 0;
 }
 
 sub is_deleted {
-    my $self = shift;
-    return $self->state eq 'D' ? 1 : 0;
+    return $_[0]->state eq 'D' ? 1 : 0;
 }
 
 sub is_frozen {
-    my $self = shift;
-    return $self->state eq 'F' ? 1 : 0;
+    return $_[0]->state eq 'F' ? 1 : 0;
 }
 
 sub visible_to {
@@ -951,15 +936,13 @@ sub visible_to {
 }
 
 sub remote_can_delete {
-    my $self = shift;
-
+    my $self = $_[0];
     my $remote = LJ::User->remote;
     return $self->user_can_delete($remote);
 }
 
 sub user_can_delete {
-    my $self = shift;
-    my $targetu = shift;
+    my ( $self, $targetu ) = @_;
     return 0 unless LJ::isu($targetu);
 
     my $journalu = $self->journal;
@@ -970,17 +953,13 @@ sub user_can_delete {
 }
 
 sub remote_can_edit {
-    my $self = shift;
-    my $errref = shift;
-
+    my ( $self, $errref ) = @_;
     my $remote = LJ::get_remote();
     return $self->user_can_edit($remote, $errref);
 }
 
 sub user_can_edit {
-    my $self = shift;
-    my $u = shift;
-    my $errref = shift;
+    my ( $self, $u, $errref ) = @_;
 
     return 0 unless $u;
 
@@ -1053,14 +1032,14 @@ sub user_can_edit {
 }
 
 sub mark_as_spam {
-    my $self = shift;
+    my $self = $_[0];
     LJ::Talk::mark_comment_as_spam($self->poster, $self->jtalkid)
 }
 
 
 # returns comment action buttons (screen, freeze, delete, etc...)
 sub manage_buttons {
-    my $self = shift;
+    my $self = $_[0];
     my $dtalkid = $self->dtalkid;
     my $journal = $self->journal;
     my $jargent = "journal=$journal->{'user'}&amp;";
@@ -1102,7 +1081,7 @@ sub manage_buttons {
 
 # returns info for javscript comment management
 sub info {
-    my $self = shift;
+    my $self = $_[0];
     my $remote = LJ::get_remote() or return;
 
     my %LJ_cmtinfo;
@@ -1124,7 +1103,7 @@ sub blockquote {
 
 # used for comment email notification headers
 sub email_messageid {
-    my $self = shift;
+    my $self = $_[0];
     return "<" . join("-", "comment", $self->journal->id, $self->dtalkid) . "\@$LJ::DOMAIN>";
 }
 
@@ -1191,9 +1170,7 @@ my @_ml_strings_en = (
 
 # Implementation for both format_text_mail and format_html_mail.
 sub _format_mail_both {
-    my $self = shift;
-    my $targetu = shift;
-    my $is_html = shift;
+    my ( $self, $targetu, $is_html ) = @_;
 
     my $parent  = $self->parent;
     my $entry   = $self->entry;
@@ -1519,8 +1496,7 @@ sub _format_mail_both {
 }
 
 sub format_text_mail {
-    my $self = shift;
-    my $targetu = shift;
+    my ( $self, $targetu ) = @_;
     croak "invalid targetu passed to format_text_mail"
         unless LJ::isu($targetu);
 
@@ -1528,8 +1504,7 @@ sub format_text_mail {
 }
 
 sub format_html_mail {
-    my $self = shift;
-    my $targetu = shift;
+    my ( $self, $targetu ) = @_;
     croak "invalid targetu passed to format_html_mail"
         unless LJ::isu($targetu);
 
@@ -1537,7 +1512,7 @@ sub format_html_mail {
 }
 
 sub delete {
-    my $self = shift;
+    my $self = $_[0];
 
     return LJ::Talk::delete_comment
         ( $self->journal,
@@ -1547,7 +1522,7 @@ sub delete {
 }
 
 sub delete_thread {
-    my $self = shift;
+    my $self = $_[0];
 
     return LJ::Talk::delete_thread
         ( $self->journal,
@@ -1562,11 +1537,10 @@ sub delete_thread {
 #   LJ::Comment->is_text_spam( $some_text );
 #
 sub is_text_spam($\$) {
-    my $class = shift;
+    my ( $class, $ref ) = @_;
 
     # REF on text
-    my $ref   = shift; 
-       $ref   = \$ref unless ref ($ref) eq 'SCALAR';
+    $ref = \$ref unless ref ($ref) eq 'SCALAR';
     
     my $plain = $$ref; # otherwise we modify the source text
        $plain = LJ::CleanHTML::clean_comment(\$plain);
@@ -1583,7 +1557,7 @@ sub is_text_spam($\$) {
 # it will unify interface between Entry and Comment: $foo->userpic will
 # work correctly for both Entry and Comment objects
 sub userpic {
-    my $self = shift;
+    my $self = $_[0];
 
     my $up = $self->poster;
     return unless $up;
@@ -1596,14 +1570,12 @@ sub userpic {
 }
 
 sub poster_ip {
-    my $self = shift;
-
-    return $self->prop("poster_ip");
+    return $_[0]->prop("poster_ip");
 }
 
 # sets the new poster IP and returns the value that was set
 sub set_poster_ip {
-    my $self = shift;
+    my $self = $_[0];
 
     return "" unless LJ::is_web_context();
 
@@ -1638,15 +1610,11 @@ sub edit_reason {
 }
 
 sub edit_time {
-    my $self = shift;
-
-    return $self->prop("edit_time");
+    return $_[0]->prop("edit_time");
 }
 
 sub is_edited {
-    my $self = shift;
-
-    return $self->edit_time ? 1 : 0;
+    return $_[0]->edit_time ? 1 : 0;
 }
 
 1;
