@@ -318,7 +318,7 @@ body<=
                 $subject .= "*" if $comment->has_nondeleted_children;
 
                 # delete link, very helpful for when the user does not have access to that entry anymore
-                $delete = "&nbsp;<a href='$LJ::SITEROOT/delcomment?journal=$ju->{'user'}&amp;id=$talkid'>$ML{ '.delete.link' }</a>";
+                $delete = $comment->is_deleted ? "&nbsp;$ML{ '.comment.deleted' }" : "&nbsp;<a href='$LJ::SITEROOT/delcomment?journal=$ju->{'user'}&amp;id=$talkid'>$ML{ '.delete.link' }</a>";
 
                 # edit link, if comment can be edited
                 $editlink = "&nbsp;<a href='" . LJ::Talk::talkargs( $comment->edit_url ) . "'>$ML{ '.edit.link' }</a>" if $comment->remote_can_edit;
