@@ -109,6 +109,8 @@ sub ReplyPage
         }
 
         $parpost = $comment->parent;
+        # for comments where the parent comment is deleted, we pretend the parent comment doesn't exist so the user can edit
+        $parpost = undef if $parpost && $parpost->is_deleted;
         $replytoid = $parpost ? $comment->parent->dtalkid : 0;
 
         $comment_values{edit} = $editid;
