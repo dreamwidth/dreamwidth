@@ -181,7 +181,10 @@ no strict "vars";
     # indicating where to reach your local MogileFS server.
     %MOGILEFS_CONFIG = () unless defined %MOGILEFS_CONFIG;
     $MOGILEFS_CONFIG{domain}                 ||= 'livejournal';
+    $MOGILEFS_CONFIG{timeout}                ||= 3;
+
     $MOGILEFS_CONFIG{classes}                ||= {};
+    $MOGILEFS_CONFIG{classes}->{temp}        ||= 2;
     $MOGILEFS_CONFIG{classes}->{userpics}    ||= 3;
 
     # Default to allow all reproxying.
@@ -240,17 +243,6 @@ no strict "vars";
     }
 
     $USERPROP_DEF{'blob_clusterid'} ||= 1;
-
-    # setup default limits for mogilefs classes
-    if (%LJ::MOGILEFS_CONFIG) {
-        my %classes = (userpics => 3,
-                       temp => 2,
-                       );
-        $LJ::MOGILEFS_CONFIG{classes} ||= {};
-        foreach my $class (keys %classes) {
-            $LJ::MOGILEFS_CONFIG{classes}{$class} ||= $classes{$class};
-        }
-    }
 
     # random user defaults to a week
     $RANDOM_USER_PERIOD = 7;
