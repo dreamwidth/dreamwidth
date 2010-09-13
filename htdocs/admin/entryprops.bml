@@ -83,7 +83,12 @@ body<=
             # render xpost prop into human readable form
             if ( $prop eq "xpost" || $prop eq "xpostdetail" ) {
                 my %external_accounts_map = map { $_->acctid => $_->servername } DW::External::Account->get_external_accounts( $entry->poster );
-                my %xpost_map = %{ DW::External::Account->xpost_string_to_hash( $props{$prop} ) };
+
+                # FIXME: temporary; trying to figure out when this is undef
+                my $xpost_prop = $props{$prop};
+                my $xpost_hash = DW::External::Account->xpost_string_to_hash( $props{$prop} );
+                my %xpost_map = %{ $xpost_hash || {} };
+
                 if ( $prop eq "xpost" ) {
                     $props{$prop} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => $xpost_map{$_}" } keys %xpost_map;
                     $p->{des} .= " (site name => itemid)";
@@ -91,6 +96,10 @@ body<=
                     $props{$prop} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => { $xpost_map{$_}->{itemid}, $xpost_map{$_}->{url} }" } keys %xpost_map;
                     $p->{des} .= " (site name => { itemid, url })";
                 }
+
+                # FIXME: temporary
+                $props{$prop} .= "raw information about $prop - <input type='text' value='$xpost_prop' />" 
+                    unless $xpost_hash;
             }
 
             $extra = "<br /><small>$p->{des}</small>";
