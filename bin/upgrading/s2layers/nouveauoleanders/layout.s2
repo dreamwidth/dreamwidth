@@ -45,6 +45,18 @@ set font_module_text = "";
 
 set image_background_header_url = "nouveauoleanders/johnny_automatic_oleander_design-blk-sm-trans.png";
 
+##===============================
+## Navigation Module
+##===============================
+
+    property string module_navlinks_section_override {
+       values = "none|(none)|header|Header|one|Group One|two|Group Two";
+       grouped = 1;
+       }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "header";
 
 ##===============================
 ## Layout
@@ -53,6 +65,65 @@ set image_background_header_url = "nouveauoleanders/johnny_automatic_oleander_de
 set layout_type = "two-columns-left";
 property string userpics_position { noui = 1; }
 
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_module_section("header");
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+                    <div id="secondary"><div class="inner">
+                        """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+    """;
+    
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
 
 function print_stylesheet () {
 
@@ -68,6 +139,41 @@ function print_stylesheet () {
     var string comment_background_end_even = "$*STATDIR/nouveauoleanders/steren-short-rev2.png";
 
     var string no_icon_url = "$*IMGDIR/profile_icons/user.png";
+
+    var string navlinks_css = "";
+        if ($*module_navlinks_section == "header") {
+            $navlinks_css = """
+            .module-navlinks {
+                background-color: transparent;
+                color: $*color_page_title;
+                font-family: $*font_journal_title;
+                font-size: small;
+                left: 220px;
+                position: absolute;
+                right: 220px;
+                text-align: center;
+                top: 1em;
+                }
+
+            .module-navlinks ul {
+                list-style: none;
+                margin: .25em auto;
+                }
+
+            .module-navlinks li {
+                border-left: 1px solid;
+                display: inline;
+                padding: 0 .25em 0 .5em;
+                }
+
+            .module-navlinks ul > li:first-child {
+                border-left: none;
+                }
+            """;
+        }
+        else {
+            $navlinks_css = "";
+        }
 
     """
 
@@ -124,7 +230,7 @@ body { margin: 0;
     color: $*color_page_title;
     background: $*color_header_background url("$*STATDIR/$*image_background_header_url") top right no-repeat;
     padding: 1px;}
-#header .inner { background: url("$*STATDIR/$*image_background_header_url") top left no-repeat;
+#header > .inner:first-child { background: url("$*STATDIR/$*image_background_header_url") top left no-repeat;
     margin-top: -1px;
     padding: 3em 2em 1em 2em; }
 
@@ -427,22 +533,7 @@ margin-left: 0; padding-left: 0; }
 
 .module-syndicate .module-content { text-align: left; }
 
-.module-navlinks { position: absolute;
-    top: 1em;
-    left: 220px;
-    right: 220px;
-    text-align: center;
-    color: $*color_page_title;
-    background-color: transparent;
-    font-size: small;
-    font-family: $*font_journal_title; }
-.module-navlinks ul { list-style: none;
-    margin: .25em auto;  }
-.module-navlinks li { display: inline;
-    padding: 0 .25em 0 .5em;
-    border-left: 1px solid; }
-.module-navlinks ul > li:first-child { border-left: none; }
-
+$navlinks_css
 
 /* footer */
 

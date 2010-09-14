@@ -34,6 +34,83 @@ set color_navigation_module_background = "";
 set color_calendar_module_emptyday_background = "";
 set color_calendar_module_hasday_background = "";
 
+##===============================
+## Navigation Module
+##===============================
+
+    property string module_navlinks_section_override {
+       values = "none|(none)|header|Header|one|Group One|two|Group Two";
+       grouped = 1;
+       }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "header";
+
+##===============================
+##Layout
+##===============================
+
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_module_section("header");
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+                    <div id="secondary"><div class="inner">
+                        """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+    """;
+    
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
 function Page::print_global_title() {
 
     if ($*display_header_decoration) {
@@ -77,6 +154,54 @@ function print_stylesheet() {
                 margin: 0 0 .5em .5em; }
             """;
         }
+
+    var string navlinks_css = "";
+        if ($*module_navlinks_section == "header") {
+            $navlinks_css = """
+            .module-navlinks {
+                background: $*color_navigation_module_background;
+                border: none;
+                left: 0;
+                margin: 0;
+                padding: 0;
+                position: absolute;
+                text-align: left;
+                top: 1em;
+                width: 100%;
+                }
+
+            .module-navlinks ul {
+                background: $*color_navigation_module_background;
+                list-style: none;
+                margin: 0;
+                padding-left: 1em;
+                }
+
+            .module-navlinks ul li {
+                border-left: 1px solid $*color_page_border;
+                border-right: 1px solid $*color_page_border;
+                display: inline;
+                margin: 0;
+                padding: .25em .5em;
+                }
+
+            .module-navlinks ul li a {
+                font-size: small;
+                padding: .15em .5em;
+                text-decoration: none;
+                $module_link_colors
+                }
+
+            .module-navlinks ul li a:hover {
+                text-decoration: underline;
+                $module_link_hover_colors
+                }
+            """;
+        }
+        else {
+            $navlinks_css = "";
+        }
+
     """
 
 /* Boxes and Borders */
@@ -295,33 +420,9 @@ text-decoration: none; }
 .module-userprofile { text-align: center; }
 .module-userprofile .module-header { text-align: left; }
 
-.module-navlinks ul,
 .module-typelist ul { list-style: none; }
 
-.module-navlinks { position: absolute;
-    top: 1em;
-    left: 0;
-    margin: 0;
-    padding: 0;
-    border: none;
-    background: $*color_navigation_module_background;
-    width: 100%; }
-
-.module-navlinks ul { margin: 0;
-    padding-left: 1em;
-    background: $*color_navigation_module_background; }
-
-.module-navlinks ul li { display: inline;
-    padding: .25em .5em;
-    margin: 0;
-    border-left: 1px solid $*color_page_border;
-    border-right: 1px solid $*color_page_border; }
-.module-navlinks ul li a { font-size: small;
-    padding: .15em .5em;
-    $module_link_colors
-    text-decoration: none; }
-.module-navlinks ul li a:hover { $module_link_hover_colors
-    text-decoration: underline; }
+$navlinks_css
 
 .module-customtext .module-content { padding: .25em 0; }
 
