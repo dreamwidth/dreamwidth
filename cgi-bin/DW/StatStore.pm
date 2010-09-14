@@ -9,7 +9,7 @@
 #      Pau Amma <pauamma@cpan.org>
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -27,7 +27,7 @@ DW::StatStore -- Statistics store update and retrieval
 
   # get pony stats from one day ago
   DW::StatStore->get( 'ponies' );
-  
+
   # get pony stats over the last 30 days
   DW::StatStore->get( 'ponies', 30 );
 
@@ -57,6 +57,10 @@ sub add {
     my $dbh = LJ::get_db_writer()
         or return undef;
 
+    # Using UNIX_TIMESTAMP can cause partial retrievals in get_latest if the
+    # database server clock ticks between keys for the category.
+    my $now = time;
+
     while ( my ( $key, $val ) = splice( @stats, 0, 2 ) ) {
         my $key_id = $class->to_id( $key )
             or next;
@@ -65,8 +69,8 @@ sub add {
         # statistics is not the end of the world
         $dbh->do(
             q{INSERT INTO site_stats (category_id, key_id, insert_time, value)
-              VALUES (?, ?, UNIX_TIMESTAMP(), ?)},
-            undef, $catkey_id, $key_id, $val+0
+              VALUES (?, ?, ?, ?)},
+            undef, $catkey_id, $key_id, $now, $val+0
         );
     }
 

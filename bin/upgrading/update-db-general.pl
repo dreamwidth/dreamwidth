@@ -3895,6 +3895,36 @@ EOF
         do_alter( 'poll2',
                   "ALTER TABLE poll2 ADD COLUMN isanon enum('yes','no') NOT NULL default 'no'");
     }
+
+    # Merge within-category split timestamps
+    if ( table_relevant( "site_stats" )
+         && !check_dbnote( "unsplit_stats_timestamps" ) ) {
+        # Because category+key+time is a UNIQUE key, there's no need to check
+        # for duplicates or inconsistencies. Instead, just rely on mysql
+        # complaining. Update is idempotent, interruptible, and restartable.
+        my $stats = $dbh->selectall_hashref(
+                              qq{ SELECT category_id, insert_time, COUNT(*)
+                                      FROM site_stats
+                                      GROUP BY category_id, insert_time
+                                      ORDER BY category_id ASC,
+                                               insert_time ASC; },
+                              [ qw( category_id insert_time ) ] );
+        die $dbh->errstr if $dbh->err || !defined $stats;
+        foreach my $cat ( keys %$stats ) {
+            my $lasttime;
+            foreach my $time ( sort { $a <=> $b } keys %{$stats->{$cat}} ) {
+                # Arbitrary limit is arbitrary
+                if ( defined $lasttime and $time - $lasttime < 60 ) {
+                    do_sql( qq{ UPDATE site_stats SET insert_time = $lasttime
+                                     WHERE category_id = $cat
+                                           AND insert_time = $time } );
+                } else {
+                    $lasttime = $time;
+                }
+            }
+        }
+        set_dbnote( "unsplit_stats_timestamps", 1 )
+    }
 });
 
 
