@@ -676,6 +676,9 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 .view_options {
 
 }
+.zebra_row {
+    background-color: #ffd;
+}
 
 /* comm_promo.css */
 

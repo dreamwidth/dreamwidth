@@ -777,6 +777,10 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 .field_name { background: #333333; }
 
+.zebra_row {
+    background-color: #1a1a1a;
+}
+
 /* comm_promo.css */
 
 div.CommunityPromoBox {
