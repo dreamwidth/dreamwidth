@@ -87,14 +87,21 @@ sub get {
     return unless LJ::isu( $u );
     return if $u->is_expunged;
 
+    my $obj = ref $class ? $class : $class->new( $u, $picid );
     my @cache = $class->load_user_userpics( $u );
 
-    if (@cache) {
-        my $obj = ref $class ? $class : $class->new( $u, $picid );
-        foreach my $curr (@cache) {
+    foreach my $curr ( @cache ) {
             return $obj->absorb_row( $curr ) if $curr->{picid} == $picid;
-        }
     }
+
+    # check the database directly (for expunged userpics,
+    # which aren't included in load_user_userpics)
+    my $row = $u->selectrow_hashref( "SELECT userid, picid, width, height, state, " .
+                                     "fmt, comment, description, location, url, " .
+                                     "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
+                                     "FROM userpic2 WHERE userid=? AND picid=?", undef,
+                                     $u->userid, $picid );
+    return $obj->absorb_row( $row ) if $row;
 
     return undef;
 }
