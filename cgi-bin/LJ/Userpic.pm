@@ -165,10 +165,13 @@ sub valid {
 
 sub absorb_row {
     my ($self, $row) = @_;
+    return $self unless $row && ref $row eq 'HASH';
     for my $f (qw(userid picid width height comment description location state url pictime flags md5base64)) {
         $self->{$f} = $row->{$f};
     }
-    my $key = $row->{fmt} || $row->{contenttype}; # avoid warnings on uninitialized value in hash element FIXME
+    my $key;
+    $key ||= $row->{fmt} if exists $row->{fmt};
+    $key ||= $row->{contenttype} if exists $row->{contenttype};
     $self->{_ext} = $MimeTypeMap{$key} if defined $key;
     return $self;
 }
@@ -176,9 +179,6 @@ sub absorb_row {
 ##
 ## accessors
 ##
-
-# FIXME: id and picid are identical. Eventually "id"
-# should go.
 
 # returns the picture ID associated with the object
 sub picid {
@@ -192,10 +192,6 @@ sub userid {
     return $_[0]->{userid};
 }
 
-# FIXME: u and owner are identical in practice, since the method
-# userid returns the userid data element.  Eventually "owner" should
-# go.
-
 # given a userpic with a known userid, return the user object
 sub u {
     return LJ::load_userid($_[0]->userid);
@@ -204,7 +200,15 @@ sub u {
 *owner = \&u;
 
 sub inactive {
-    return $_[0]->state eq 'I';
+    my $self = $_[0];
+    my $state = defined $self->state ? $self->state : '';
+    return $state eq 'I';
+}
+
+sub expunged {
+    my $self = $_[0];
+    my $state = defined $self->state ? $self->state : '';
+    return $state eq 'X';
 }
 
 sub state {
@@ -267,6 +271,12 @@ sub location {
     return $self->{location};
 }
 
+sub in_mogile {
+    my $self = $_[0];
+    my $loc = defined $self->location ? $self->location : '';
+    return $loc eq 'mogile';
+}
+
 # returns (width, height)
 sub dimensions {
     my $self = $_[0];
@@ -298,8 +308,7 @@ sub url {
 
 # Returns original URL used if userpic was originally uploaded
 # via a URL.
-# FIXME: Is this ever used? If not, should be deleted. If so,
-# should be renamed to source_url
+# FIXME: should be renamed to source_url
 sub fullurl {
     my $self = $_[0];
     return $self->{url} if $self->{url};
@@ -450,10 +459,10 @@ sub imagedata {
     $self->load_row or return undef;
     my $u = $self->owner;
 
-    return undef if $self->state eq 'X';
+    return undef if $self->expunged;
 
     # check mogile
-    if ( $self->location eq "M" ) {
+    if ( $self->in_mogile ) {
         my $key = $u->mogfs_userpic_key( $self->picid );
         my $data = LJ::mogclient()->get_file_data( $key );
         return $$data;
@@ -925,8 +934,7 @@ sub delete {
     # TODO: we could fire warnings if they fail, then if $LJ::DIE_ON_WARN is set,
     # the ->warn methods on errobjs are actually dies.
     eval {
-        my $location = $self->location; # avoid warnings FIXME
-        if (defined $location and $location eq 'mogile') {
+        if ( $self->in_mogile ) {
             LJ::mogclient()->delete($u->mogfs_userpic_key($picid));
         } else {
             $u->do( "DELETE FROM userpicblob2 WHERE ".
