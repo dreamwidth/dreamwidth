@@ -111,7 +111,7 @@ sub render_body {
 
             # use module_*_section for the dropdown 
             my $prop_name_section = $prop_name;
-            $prop_name_section =~ s/(.*)_group$/\1_section/;
+            $prop_name_section =~ s/(.*)_group$/$1_section/;
 
             my $overriding_prop_name = $grouped_prop_override{$prop_name_section};
 

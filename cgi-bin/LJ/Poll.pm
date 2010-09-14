@@ -1414,7 +1414,8 @@ sub process_submission {
             ## multi-selected items are comma separated from htdocs/poll/index.bml
             $val = join(",", sort { $a <=> $b } split(/,/, $val));
             if (length($val) > 0) { # if the user answered to this question
-                my $num_opts = split(/,/, $val);    # returns the number of options they answered
+                my @num_opts = split( /,/, $val );
+                my $num_opts = scalar @num_opts;  # returns the number of options they answered
                 
                 my ($checkmin, $checkmax) = split(m!/!, $q->opts);
             

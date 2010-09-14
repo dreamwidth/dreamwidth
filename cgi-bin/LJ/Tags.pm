@@ -1351,7 +1351,7 @@ sub merge_usertags {
     my $exists = $tags->{$u->get_keyword_id( $newname )} ? 1 : 0;
     my %merge_from = map { $_ => 1 } @merge_from;
     return $err->( LJ::Lang::ml( 'taglib.error.mergetoexisting', { tagname => LJ::ehtml( $merge_to ) } ) )
-        if $exists && ! %merge_from->{$merge_to};
+        if $exists && ! $merge_from{$merge_to};
 
     # if necessary, create new tag id
     my $merge_to_id;
@@ -1405,7 +1405,7 @@ sub merge_usertags {
     if ( $exists ) {
         my %merge_to_jitemids = map { $_ => 1 } @merge_to_jitemids;
         while ( my $jitemid = $sth->fetchrow_array ) {
-            push @jitemids, $jitemid unless %merge_to_jitemids->{$jitemid};
+            push @jitemids, $jitemid unless $merge_to_jitemids{$jitemid};
         }
     } else {
         push @jitemids, $_
@@ -1417,12 +1417,12 @@ sub merge_usertags {
     # add the tag to all entries we need to change, in both logtags and logtagsrecent
     if ( @jitemids ) {
         foreach my $jitemid ( @jitemids ) {
-            my $sth = $u->prepare( "INSERT INTO logtags (journalid, jitemid, kwid) VALUES ( ?, ?, ? )");
+            $sth = $u->prepare( "INSERT INTO logtags (journalid, jitemid, kwid) VALUES ( ?, ?, ? )");
             return $rollback->() if $u->err || ! $sth;
             $sth->execute( $userid, $jitemid, $merge_to_id );
             return $rollback->() if $sth->err;
 
-            my $sth = $u->prepare( "INSERT INTO logtagsrecent (journalid, jitemid, kwid) VALUES ( ?, ?, ? )");
+            $sth = $u->prepare( "INSERT INTO logtagsrecent (journalid, jitemid, kwid) VALUES ( ?, ?, ? )");
             return $rollback->() if $u->err || ! $sth;
             $sth->execute( $userid, $jitemid, $merge_to_id );
             return $rollback->() if $sth->err;
@@ -1437,13 +1437,13 @@ sub merge_usertags {
 
     # while we previously only needed the jitemids of the entries we needed to add the tag to, we now need all the ones it is a tag on after the transaction
     # including the one it was already on before the merge
-    my $sth = $u->prepare( "SELECT jitemid FROM logtags WHERE journalid= ? AND kwid= ?" );
+    $sth = $u->prepare( "SELECT jitemid FROM logtags WHERE journalid= ? AND kwid= ?" );
     return $rollback->() if $u->err || ! $sth;
     $sth->execute( $userid, $merge_to_id );
     return $rollback->() if $sth->err;
 
     # we need all jitemids in an array for later cache clearing
-    my @jitemids;
+    @jitemids = ();
     while ( my $itemid = $sth->fetchrow_array ) {
         push @jitemids, $itemid;
     }
@@ -1452,7 +1452,7 @@ sub merge_usertags {
     # this can only get executed if the tags we are merging are actually in use on entries
     # since we don't need logkwsum entries for tags that exist and are not used on entries, we can just skip this for them
     if ( @jitemids ) {
-        my $sth = $u->prepare( "SELECT security, allowmask FROM log2 WHERE journalid=? AND jitemid IN (" . join( ", ", ( "?" ) x @jitemids ) . ")" );
+        $sth = $u->prepare( "SELECT security, allowmask FROM log2 WHERE journalid=? AND jitemid IN (" . join( ", ", ( "?" ) x @jitemids ) . ")" );
         return $rollback->() if $u->err || ! $sth;
 
         $sth->execute( $userid, @jitemids );
@@ -1492,7 +1492,7 @@ sub merge_usertags {
 
     # delete other tags from database and entries 
     foreach my $table ( qw( usertags logtags logtagsrecent logkwsum ) ) {
-        my $sth = $u->prepare( "DELETE FROM $table WHERE journalid = ? AND kwid IN (" . join( ", ", ( "?" ) x @merge_from_ids ) . ")" );
+        $sth = $u->prepare( "DELETE FROM $table WHERE journalid = ? AND kwid IN (" . join( ", ", ( "?" ) x @merge_from_ids ) . ")" );
         return $rollback->() if $u->err || ! $sth;
 
         $sth->execute( $userid, @merge_from_ids );

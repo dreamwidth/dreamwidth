@@ -462,7 +462,7 @@ sub handle_post {
         }
 
         my $stop_output;
-        my $body;
+        $body = undef;
         my $redirect = $opts{ret};
         LJ::Hooks::run_hook('underage_redirect', {
             u => $nu,

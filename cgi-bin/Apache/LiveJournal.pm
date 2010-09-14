@@ -1178,7 +1178,7 @@ sub userpic_content
 
             # reproxy file
             else {
-                $r->headers_out->{'X-REPROXY-FILE'} => $paths->[0];
+                $r->headers_out->{'X-REPROXY-FILE'} = $paths->[0];
             }
 
             $send_headers->();

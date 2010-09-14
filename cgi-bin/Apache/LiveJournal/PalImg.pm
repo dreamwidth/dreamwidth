@@ -141,7 +141,7 @@ sub send_file
     # HEAD request?
     return OK if $r->method eq "HEAD";
 
-    open my $fh, $disk_file;
+    open my ( $fh ), $disk_file;
     return 404 unless $fh;
 
     binmode($fh);

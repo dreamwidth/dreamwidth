@@ -205,7 +205,7 @@ sub confirm_order {
     $self->email( $res->{email} );
 
     # and now try to capture the payment
-    my $res = $self->_pp_req(
+    $res = $self->_pp_req(
         'DoExpressCheckoutPayment',
         token         => $self->token,
         payerid       => $self->payerid,
