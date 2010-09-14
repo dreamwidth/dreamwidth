@@ -23,6 +23,9 @@
     # keep this enabled only if this site is a development server
     $IS_DEV_SERVER = 1;
 
+    # turn on warnings for all files. Will turn up a lot of stuff in the logs.
+    $ENABLE_GLOBAL_WARNINGS = 0;
+
     # home directory
     $HOME = $ENV{'LJHOME'};
 

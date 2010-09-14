@@ -26,7 +26,7 @@ use LJ::Config;
 
 BEGIN {
     LJ::Config->load;
-    $^W = 1 if $LJ::IS_DEV_SERVER;
+    $^W = 1 if $LJ::IS_DEV_SERVER && $LJ::ENABLE_GLOBAL_WARNINGS;
 }
 
 use Apache::LiveJournal;
