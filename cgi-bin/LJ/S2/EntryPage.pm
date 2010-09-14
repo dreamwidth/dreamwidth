@@ -23,8 +23,6 @@ use DW;
 use lib DW->home . "/src/s2";
 use S2;
 
-use Carp;
-
 sub EntryPage
 {
     my ($u, $remote, $opts) = @_;
@@ -206,18 +204,14 @@ sub EntryPage
                 if ($pu) {
                     $poster = UserLite($pu);
                 } else {
-                    # I can't determine where this code is called, if it ever is?  so for now,
-                    # let's spit out a backtrace so we can figure out how this case happens.  we need
-                    # to fix it since the journal_type is wrong in some cases.
-                    # FIXME: watch logs
-                    Carp::cluck "LJ::S2::EntryPage faked a UserLite; userpost=$com->{userpost}:";
-                    
+                    # posterid is invalid userid
+                    # we don't have the info, so fake a UserLite
                     $poster = {
-                        '_type' => 'UserLite',
-                        'username' => $com->{'userpost'},
-                        'user' => $com->{'userpost'},
-                        'name' => $com->{'userpost'},  # we don't have this, so fake it
-                        'journal_type' => 'P',         # fake too, but only people can post, so correct
+                        _type => 'UserLite',
+                        username => undef,
+                        user => undef,
+                        name => undef,
+                        journal_type => 'P',  # best guess
                     };
                 }
             }
