@@ -20,7 +20,6 @@ function print_stylesheet () {
     var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
     var string comment_header_colors = generate_color_css( $*color_page_title, $*color_header_background, $*color_entry_border );
     var string comment_title_colors = generate_color_css( $*color_page_title, new Color, new Color );
-    var string bottomcomment_colors = generate_color_css( new Color, $*color_page_title, $*color_header_background );
 
     var string module_colors = generate_color_css( $*color_module_text, $*color_module_background, $*color_module_border );
     var string module_header_colors = generate_color_css( $*color_module_title, $*color_module_title_background, $*color_module_border );
@@ -199,9 +198,11 @@ ul.entry-interaction-links { text-align: right;
 .comment-management-links { float: right; }
 .comment-interaction-links { text-align: left; }
 
-.bottomcomment, .comments-message { $bottomcomment_colors
-    padding: .25em; }
-    
+.bottomcomment, .comments-message {
+    $module_header_colors
+    padding: .25em;
+    }
+
 .bottomcomment .entry-management-links,
 .bottomcomment .entry-interaction-links { margin: .25em 0 .5em 0; }
 
