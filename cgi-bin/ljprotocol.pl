@@ -2199,9 +2199,9 @@ sub getevents
 
         # okay, follow me here... see how we add the revttime predicate
         # even if no beforedate key is present?  you're probably saying,
-        # that's retarded -- you're saying: "revttime > 0", that's like
+        # what, huh? -- you're saying: "revttime > 0", that's like
         # saying, "if entry occurred at all."  yes yes, but that hints
-        # mysql's braindead optimizer to use the right index.
+        # mysql's optimizer to use the right index.
         my $rtime_after = 0;
         my $rtime_what = $is_community ? "rlogtime" : "revttime";
         if ($req->{'beforedate'}) {
@@ -2314,7 +2314,7 @@ sub getevents
 
     # common SQL template:
     unless ($sql) {
-        $sql = "SELECT jitemid, eventtime, security, allowmask, anum, posterid ".
+        $sql = "SELECT jitemid, eventtime, logtime, security, allowmask, anum, posterid ".
             "FROM log2 WHERE journalid=$ownerid $where $secwhere $orderby $limit";
     }
 
@@ -2330,22 +2330,23 @@ sub getevents
     my $count = 0;
     my @itemids = ();
     my $res = {};
-    my $events = $res->{'events'} = [];
+    my $events = $res->{events} = [];
     my %evt_from_itemid;
 
-    while (my ($itemid, $eventtime, $sec, $mask, $anum, $jposterid) = $sth->fetchrow_array)
+    while (my ($itemid, $eventtime, $logtime, $sec, $mask, $anum, $jposterid) = $sth->fetchrow_array)
     {
         $count++;
         my $evt = {};
-        $evt->{'itemid'} = $itemid;
+        $evt->{itemid} = $itemid;
         push @itemids, $itemid;
 
         $evt_from_itemid{$itemid} = $evt;
 
-        $evt->{"eventtime"} = $eventtime;
+        $evt->{eventtime} = $eventtime;
+        $evt->{logtime} = $logtime;
         if ($sec ne "public") {
-            $evt->{'security'} = $sec;
-            $evt->{'allowmask'} = $mask if $sec eq "usemask";
+            $evt->{security} = $sec;
+            $evt->{allowmask} = $mask if $sec eq "usemask";
         }
         $evt->{anum} = $anum;
         $evt->{poster} = LJ::get_username( $jposterid )
@@ -3905,37 +3906,37 @@ sub getevents
 
     my $rs = LJ::Protocol::do_request("getevents", $rq, \$err, $flags);
     unless ($rs) {
-        $res->{'success'} = "FAIL";
-        $res->{'errmsg'} = LJ::Protocol::error_message($err);
+        $res->{success} = "FAIL";
+        $res->{errmsg} = LJ::Protocol::error_message($err);
         return 0;
     }
 
     my $ect = 0;
     my $pct = 0;
-    foreach my $evt (@{$rs->{'events'}}) {
+    foreach my $evt (@{$rs->{events}}) {
         $ect++;
-        foreach my $f (qw(itemid eventtime security allowmask subject anum url poster)) {
+        foreach my $f (qw(itemid eventtime logtime security allowmask subject anum url poster)) {
             if (defined $evt->{$f}) {
                 $res->{"events_${ect}_$f"} = $evt->{$f};
             }
         }
-        $res->{"events_${ect}_event"} = LJ::eurl($evt->{'event'});
+        $res->{"events_${ect}_event"} = LJ::eurl($evt->{event});
 
-        if ($evt->{'props'}) {
-            foreach my $k (sort keys %{$evt->{'props'}}) {
+        if ($evt->{props}) {
+            foreach my $k (sort keys %{$evt->{props}}) {
                 $pct++;
-                $res->{"prop_${pct}_itemid"} = $evt->{'itemid'};
+                $res->{"prop_${pct}_itemid"} = $evt->{itemid};
                 $res->{"prop_${pct}_name"} = $k;
-                $res->{"prop_${pct}_value"} = $evt->{'props'}->{$k};
+                $res->{"prop_${pct}_value"} = $evt->{props}->{$k};
             }
         }
     }
 
-    unless ($req->{'noprops'}) {
-        $res->{'prop_count'} = $pct;
+    unless ($req->{noprops}) {
+        $res->{prop_count} = $pct;
     }
-    $res->{'events_count'} = $ect;
-    $res->{'success'} = "OK";
+    $res->{events_count} = $ect;
+    $res->{success} = "OK";
 
     return 1;
 }

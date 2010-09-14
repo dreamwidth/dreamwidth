@@ -582,6 +582,10 @@ The unique integer ItemID of the <I>n</I>th item being returned.
 .des
 The time the user posted (or said they posted, rather, since users can back-date posts) the <I>n</I>th item being returned.
 }
+{ events_<I>n</I>_logtime
+.des
+The UTC time that the server logged when the post was first created.
+}
 { events_<I>n</I>_event
 .des
 The <I>n</I>th event text itself.  This value is first truncated if the <TT>truncate</TT> variable is set, and then it is URL-encoded (alphanumerics stay the same, weird symbols to <TT>%hh</TT>, and spaces to <TT>+</TT> signs, just like URLs or post request).  This allows posts with line breaks to come back on one line.

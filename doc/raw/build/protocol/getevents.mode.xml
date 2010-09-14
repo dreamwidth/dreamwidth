@@ -131,6 +131,10 @@ The unique integer ItemID of the item being returned.
 The time the user posted (or said they posted, rather, since users can back-date posts) the item being returned.
 </des></scalar></key>
 
+<key name="logtime" count="1"><scalar><des>
+The UTC time that the server logged when the post was first created.
+</des></scalar></key>
+
 <key name="security" count="1"><scalar><des>
 If this variable is not returned, then the security of the post is <emphasis>public</emphasis>, otherwise this value will be <emphasis>private</emphasis> or usemask.
 </des></scalar></key>
@@ -190,6 +194,10 @@ Server: Apache/1.3.4 (Unix)
 &lt;value&gt;&lt;string&gt;2020-02-20 02:20:00&lt;/string&gt;&lt;/value&gt;
 
 &lt;/member&gt;
+&lt;member&gt;&lt;name&gt;logtime&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2020-02-20 08:23:48&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
 &lt;member&gt;&lt;name&gt;event&lt;/name&gt;
 &lt;value&gt;&lt;string&gt;yes its true its ...&lt;/string&gt;&lt;/value&gt;
 &lt;/member&gt;
@@ -205,6 +213,10 @@ Server: Apache/1.3.4 (Unix)
 &lt;value&gt;&lt;struct&gt;
 &lt;member&gt;&lt;name&gt;eventtime&lt;/name&gt;
 &lt;value&gt;&lt;string&gt;2002-07-14 11:17:00&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;logtime&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-14 17:17:51&lt;/string&gt;&lt;/value&gt;
 
 &lt;/member&gt;
 &lt;member&gt;&lt;name&gt;event&lt;/name&gt;
