@@ -38,18 +38,20 @@ use warnings;
 use DW::Routing;
 use DW::Graphs;
 
-DW::Routing->register_string("/stats/accounts_by_type", \&accounts_by_type, app => 1);
+DW::Routing->register_string("/stats/accounts_by_type",
+	\&accounts_by_type, app => 1, format=>'png');
 
 DW::Routing->register_string("/stats/active_community_accounts",
-    \&active_community_accounts, app => 1);
+    \&active_community_accounts, app => 1, format=>'png');
 
 DW::Routing->register_string("/stats/active_identity_accounts",
-    \&active_identity_accounts, app => 1);
+    \&active_identity_accounts, app => 1, format=>'png');
 
 DW::Routing->register_string("/stats/active_personal_accounts",
-    \&active_personal_accounts, app => 1);
+    \&active_personal_accounts, app => 1, format=>'png');
 
-DW::Routing->register_string("/stats/paid_accounts", \&paid_accounts, app => 1);
+DW::Routing->register_string("/stats/paid_accounts",
+	\&paid_accounts, app => 1, format=>'png');
 
 =head2 C<< DW::Controller::Graphs::accounts_by_type( ) >>
 
