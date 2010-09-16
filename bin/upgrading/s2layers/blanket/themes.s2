@@ -128,7 +128,6 @@ set color_module_title = "#5c6b7a";
 ##===============================
 
 set font_base = "'Lucida Grande', 'Lucida'";
-set font_base_size = ".9";
 
 
 #NEWLAYER: blanket/jewels

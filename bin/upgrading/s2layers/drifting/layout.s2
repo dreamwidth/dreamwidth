@@ -153,11 +153,17 @@ propgroup fonts
 
 set font_base         = "Arial";
 set font_fallback     = "sans-serif";
-set font_base_size  = "16";
-set font_base_units = "px";
+set font_base_size  = "1";
+set font_base_units = "em";
 set font_journal_title  = "Times New Roman";
 set font_journal_title_size  = "2.8";
 set font_journal_title_units = "em";
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+set font_module_heading_size = "1.1";
+set font_module_heading_units = "em";
+set font_module_text_size = ".9";
+set font_module_text_units = "em";
 set font_title_fallback = "serif";
 
 # PRESENTATION
@@ -358,7 +364,7 @@ function Page::print_default_stylesheet()
     q { font-style: italic; }
 
     h2 {
-        font-size: 0.9em;
+        font-size: 1em;
         color: $*color_module_title;
         font-weight: bold;
     }
@@ -370,7 +376,7 @@ function Page::print_default_stylesheet()
         padding: 3px;
         padding-left: 10px;
         margin-top: 0px;
-        font-size: 1em;
+        $module_title_font
     }
 
     .day-title,
@@ -380,11 +386,7 @@ function Page::print_default_stylesheet()
         background: $*color_page_background;
         padding: 3px;
         padding-left: 10px;
-        font-size: 1.1em;
-    }
-
-    .module h2 {
-        $module_title_font
+        font-size: 1.2em;
     }
 
     .module-content {
@@ -468,7 +470,6 @@ function Page::print_default_stylesheet()
     #secondary .module-list {
         list-style: none;
         padding-left: 20px;
-        font-size: 0.8em;
         padding-right: 5px;
     }
 
@@ -482,7 +483,6 @@ function Page::print_default_stylesheet()
         }
 
     #secondary .manage-tags-link {
-        font-size: 0.8em;
         margin-bottom: 1em;
         text-align: center;
     }
@@ -521,7 +521,7 @@ function Page::print_default_stylesheet()
        display: block;
        width: auto;
        text-align: center;
-       font-size: 0.8em;
+       font-size: .9em;
     }
 
     .userpic img {
@@ -550,7 +550,6 @@ function Page::print_default_stylesheet()
 
     .module-calendar td {
         width: 24px;
-        font-size: 11px;
         margin: 1px;
         text-align: center;
         border: 1px solid $*color_module_border;
@@ -566,7 +565,6 @@ function Page::print_default_stylesheet()
     ***************************************************************************/
     .module-credit dl {
         padding: 0 0 0 20px;
-        font-size: 0.8em;
     }
     .module-credit dt, .module-credit dd {
         display: inline;
@@ -606,7 +604,6 @@ function Page::print_default_stylesheet()
         background: $*color_page_background;
         padding: 3px;
         padding-left: 10px;
-        font-size: 1em;
         font-weight: bold;
     }
 
@@ -619,7 +616,7 @@ function Page::print_default_stylesheet()
     ***************************************************************************/
     .entry {
         padding: 0px 5px 5px 10px;
-        font-size: 0.9em;
+        font-size: .9em;
         overflow: auto;
     }
 
@@ -633,7 +630,7 @@ function Page::print_default_stylesheet()
         border: 1px solid $*color_entry_border;
         border-left: none;
         $module_header_background
-        font-size: 1.1em;
+        font-size: 1.2em;
         font-weight: bold;
         padding-left: 10px;
         margin: 0px -5px 15px -10px;
@@ -647,7 +644,6 @@ function Page::print_default_stylesheet()
         padding: 0px;
         margin: 0px;
         display: inline;
-        font-size: 1.1em;
         color: $*color_entry_title;
         $entry_title_font
     }
@@ -663,7 +659,6 @@ function Page::print_default_stylesheet()
 
     .datetime {
         font-weight: bold;
-        font-size: 0.9em;
     }
 
     .datetime a {
@@ -673,7 +668,6 @@ function Page::print_default_stylesheet()
 
     .tag {
         font-weight: bold;
-        font-size: 0.9em;
         margin-top: 10px;
         margin-bottom: 10px;
         margin-left: 0px;
@@ -682,7 +676,7 @@ function Page::print_default_stylesheet()
     .tag ul li {
         display: inline;
         font-weight: normal;
-        font-size: 1.1em;
+        font-size: 1.2em;
     }
 
     .tag ul {
@@ -696,7 +690,7 @@ function Page::print_default_stylesheet()
     .entry-interaction-links {
         padding: 0px;
         margin-left: 0px;
-        font-size: 1em;
+        font-size: 1.1em;
         display: inline;
     }
 
@@ -722,7 +716,7 @@ function Page::print_default_stylesheet()
        display: block;
        width: auto;
        text-align: center;
-       font-size: 0.8em;
+       font-size: .9em;
     }
 
     .comment-interaction-links,
@@ -768,7 +762,6 @@ function Page::print_default_stylesheet()
 
     .comment-content {
         padding-left: 10px;
-        font-size: 0.9em;
         color: $*color_entry_text;
     }
 
@@ -780,12 +773,7 @@ function Page::print_default_stylesheet()
         padding-top: 10px;
     }
 
-    .comment .comment-content .datetime {
-        font-size: 0.9em;
-    }
-
     .comment .comment-content .poster-ip {
-        font-size: 0.9em;
         font-style: italic;
         display: block;
         margin-bottom: 10px;
@@ -798,14 +786,13 @@ function Page::print_default_stylesheet()
     /* Mass Actions, Comments Message
     ***************************************************************************/
     .bottomcomment, .comments-message {
-        font-size: 0.9em;
         margin: 1em;
     }
 
     /* Archive
     ***************************************************************************/
     .day-entries {
-        font-size: 0.8em;
+        font-size: .9em;
     }
 
     .day-entries .subjectlist {
@@ -831,7 +818,7 @@ function Page::print_default_stylesheet()
 
     .month-table td {
         padding: 3px;
-        font-size: 0.8em;
+        font-size: .9em;
         width: 30px;
         height: 40px;
         border-right: 1px solid $*color_entry_border;
@@ -842,7 +829,7 @@ function Page::print_default_stylesheet()
 
     .month-table th {
         padding: 3px;
-        font-size: 0.8em;
+        font-size: .9em;
         width: 30px;
         height: 30px;
         border-right: 1px solid $*color_entry_border;
@@ -873,7 +860,7 @@ function Page::print_default_stylesheet()
 
     .month-entries .day-entries .subjectlist h3 {
         font-weight: normal;
-        font-size: 1em;
+        font-size: 1.1em;
         display: inline;
         padding-left: 10px;
     }
@@ -903,14 +890,13 @@ function Page::print_default_stylesheet()
 
     .ljtaglist {
         list-style: none;
-        font-size: 0.9em;
         padding-left: 10px;
     }
 
     /* Footer
     ***************************************************************************/
     #footer {
-        font-size: 0.7em;
+        font-size: .8em;
         font-weight: normal;
         border-right: 1px solid $*color_module_border;
         border-top: 1px solid $*color_module_border;

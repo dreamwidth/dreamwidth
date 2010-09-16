@@ -810,8 +810,6 @@ set color_header_background = "#000000";
 ##===============================
 
 set font_base = "Times";
-set font_base_size = "0.875";
-set font_base_units = "em";
 set font_entry_title = "Times";
 set font_entry_title_size = "1.25";
 set font_entry_title_units = "em";

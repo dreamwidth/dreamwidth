@@ -62,11 +62,6 @@ set color_module_link_active = "#ffffff";
 set color_module_link_hover = "#ffffff";
 set color_module_link_visited = "#cccccc";
 
-set font_base = "Georgia";
-set font_fallback = "serif";
-set font_base_size = ".9";
-set font_base_units = "em";
-
 function Page::print_theme_stylesheet()
 {
 """
