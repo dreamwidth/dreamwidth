@@ -554,7 +554,7 @@ sub process_hubbub_notification {
 
     # worked, get self which should be the topic url
     unless ( $feed->{self} && ref $feed->{self} eq 'ARRAY' ) {
-        warn "[$$] PubSubHubbub notification has no self link(s)?\n";
+        warn "[$$] PubSubHubbub notification has no self link(s)? type => $feed->{type}, website => $feed->{link} \n";
         return;
     }
 
