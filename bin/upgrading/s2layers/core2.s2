@@ -1512,9 +1512,11 @@ set module_credit_order = 14;
 set module_credit_section = "one";
 
 property string{}[] layout_authors { noui = 1;  des = "The layout author (or authors). Accepts 'name', 'url', 'type'"; }
+property string{}[] theme_authors { noui = 1;  des = "The theme author (or authors). Accepts 'name', 'url', 'type'"; }
 property string{}[] layout_resources { noui = 1; des = "Resources used in the layout. Accepts 'name', 'url'"; }
 
 set layout_authors = [];
+set theme_authors = [];
 set layout_resources = [];
 
 property string[] module_search_group {
@@ -2435,7 +2437,13 @@ property string text_generated_on {
 
 property string text_powered_by { noui = 1; des = "Text to describe what site hosts the journal"; }
 
-property string text_layout_authors { noui = 1; des = "Text label for the layout author"; }
+property string text_layout_authors { noui = 1; des = "Text label for the style author"; }
+property string text_base_layout_authors {
+    noui = 1;
+    des = "Text label for the base style author";
+    note = "Used when style and theme have different authors";
+}
+property string text_theme_authors { noui = 1; des = "Text label for the theme author"; }
 property string text_layout_resources { noui = 1; des = "Text label for the layout resources"; }
 
 property string text_posting_in {
@@ -2470,7 +2478,9 @@ set text_default_separator = " | ";
 set text_view_month = "View Subjects";
 set text_generated_on = "Page generated";
 set text_powered_by = "Powered by";
-set text_layout_authors = "Layout:";
+set text_layout_authors = "Style:";
+set text_base_layout_authors = "Base style:";
+set text_theme_authors = "Theme:";
 set text_layout_resources = "Resources:";
 set text_posting_in = " posting in ";
 set text_nosubject = "(no subject)";
@@ -4001,10 +4011,13 @@ function print_module_links() {
 }
 function print_module_credit() {
     var string ret = "";
-    var int authors_size = size $*layout_authors;
-    if ( $authors_size > 0 ) {
+    var int layout_authors_size = size $*layout_authors;
+    var int theme_authors_size = size $*theme_authors;
+    var string text_style_authors = ($theme_authors_size > 0) ? $*text_base_layout_authors : $*text_layout_authors;
+
+    if ( $layout_authors_size > 0) {
         var int count = 0;
-        $ret = $ret  + "<dt>$*text_layout_authors</dt> ";
+        $ret = $ret  + "<dt>$text_style_authors</dt> ";
         foreach var string{} author ( $*layout_authors ) {
             var string item;
             if ( $author{"url"} != "" ) {
@@ -4021,7 +4034,31 @@ function print_module_credit() {
 
             $ret = $ret + "<dd>$item";
             $count++;
-            if ($count < $authors_size ) { $ret = $ret + ","; }
+            if ($count < $layout_authors_size ) { $ret = $ret + ","; }
+            $ret = $ret + "</dd>\n";
+        }
+    }
+
+    if ( $theme_authors_size > 0) {
+        var int count = 0;
+        $ret = $ret  + "<dt>$*text_theme_authors</dt> ";
+        foreach var string{} author ( $*theme_authors ) {
+            var string item;
+            if ( $author{"url"} != "" ) {
+                $item = "<a href='" + $author{"url"} + "'>" + $author{"name"} + "</a>";
+            } elseif ( $author{"type"} == "user" ) {
+                var UserLite u = UserLite( $author{"name"} );
+                if ( defined $u ) {
+                    $item = $u->ljuser();
+                }
+            }
+            if ( $item == "" ) {
+                $item = $author{"name"};
+            }
+
+            $ret = $ret + "<dd>$item";
+            $count++;
+            if ($count < $theme_authors_size ) { $ret = $ret + ","; }
             $ret = $ret + "</dd>\n";
         }
     }

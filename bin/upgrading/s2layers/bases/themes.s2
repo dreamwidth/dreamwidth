@@ -80,7 +80,7 @@ layerinfo name = "Comfort";
 layerinfo redist_uniq = "bases/comfort";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -134,7 +134,7 @@ layerinfo name = "Light On Dark";
 layerinfo redist_uniq = "bases/lightondark";
 layerinfo author_name = "cesy";
 
-set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+set theme_authors = [ { "name" => "cesy", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -197,7 +197,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "bases/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -294,7 +294,7 @@ layerinfo name = "Strawberry Sundae";
 layerinfo redist_uniq = "bases/strawberrysundae";
 layerinfo author_name = "sky";
 
-set layout_authors = [ { "user" => "sky", "type" => "user" } ];
+set theme_authors = [ { "name" => "sky", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -353,7 +353,7 @@ layerinfo name = "Summer Holiday";
 layerinfo redist_uniq = "bases/summerholiday";
 layerinfo author_name = "rb";
 
-set layout_authors = [ { "name" => "rb", "type" => "user" } ];
+set theme_authors = [ { "name" => "rb", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -406,7 +406,7 @@ layerinfo name = "Sun and Sand";
 layerinfo redist_uniq = "bases/sunandsand";
 layerinfo author_name = "twtd";
 
-set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
+set theme_authors = [ { "name" => "twtd", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -518,7 +518,7 @@ layerinfo name = "Velvet Steel";
 layerinfo redist_uniq = "bases/velvetsteel";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
