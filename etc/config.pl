@@ -144,6 +144,7 @@
                  free_create => 1,
                  googlecheckout => 1,
                  'interests-findsim' => 0,
+                 icon_renames => 0,
                  memories => 0,
                  opt_findbyemail => 1,
                  payments => 0,

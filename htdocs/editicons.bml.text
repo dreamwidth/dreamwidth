@@ -99,6 +99,8 @@
 
 .label.rename=Rename Keywords
 
+.label.rename.disabled=Renaming keywords is temporarily disabled
+
 .makedefault=Make this your <u>d</u>efault picture
 
 .makedefault.key|notes=Enter here a <b>lower-case</b> version of the letter you underlined in ".makedefault". This is the shortcut key for the makedefault option.

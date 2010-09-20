@@ -520,7 +520,7 @@ use strict;
             $body .= "<div class='pkg userpic_wrapper'>";
             $body .= "<span class='EditIconsUserpic'>" .  $pic->imgtag . "</span>\n";
 
-            # TODO: if no keywords then light grey text and empty out when you click in it
+            # FIXME: if no keywords then light grey text and empty out when you click in it
             my $keywords = $pic->keywords;
             my $comment = $pic->comment;
             my $description = $pic->description;
@@ -537,10 +537,15 @@ use strict;
             if ($display_rename) {
                 $body .= "<div id='rename_div_$pid' class='userpic_rename pkg'>\n";
                 $body .= "<script type='text/javascript'>document.getElementById('rename_div_$pid').style.display = 'none';</script>\n";
-                $body .= LJ::html_check({ 'type' => 'checkbox', 'name' => "rename_keyword_$pid", 'class' => "checkbox",
-                                          'id' => "rename_keyword_$pid", 'value' => 1,
-                                          'disabled' => $LJ::DISABLE_MEDIA_UPLOADS });
-                $body .= "<label for='rename_keyword_$pid'>$ML{'.label.rename'}</label>"; 
+                if ( LJ::is_enabled( "icon_renames" ) ) {
+                    $body .= LJ::html_check({ 'type' => 'checkbox', 'name' => "rename_keyword_$pid", 'class' => "checkbox",
+                                              'id' => "rename_keyword_$pid", 'value' => 1,
+                                              'disabled' => $LJ::DISABLE_MEDIA_UPLOADS });
+                    $body .= "<label for='rename_keyword_$pid'>$ML{'.label.rename'}</label>";
+                } else {
+                    $body .= "$ML{'.label.rename.disabled'}";
+                }
+
                 $body .= "</div>\n";
             }
             $body .= "</div>\n";
@@ -662,11 +667,15 @@ sub update_userpics
         # only modify if changing the data, make sure not collidiing with other edits, etc
         if ($POST{"kw_$picid"} ne $POST{"kw_orig_$picid"}) {
             my $kws = $POST{"kw_$picid"};
-            
+
             if ($POST{"rename_keyword_$picid"}) {
-                eval {
-                    $up->set_and_rename_keywords($kws, $POST{"kw_orig_$picid"});
-                } or push @errors, $@->as_html;
+                if ( LJ::is_enabled( "icon_renames" ) ) {
+                    eval {
+                       $up->set_and_rename_keywords($kws, $POST{"kw_orig_$picid"});
+                    } or push @errors, $@->as_html;
+                } else {
+                    push @errors, $ML{'.label.rename.disabled'};
+                }
             } else {
                 eval {
                     $up->set_keywords($kws);
