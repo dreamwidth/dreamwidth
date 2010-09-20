@@ -20,6 +20,11 @@ package LJ::S2Theme::steppingstones::duskyrose;
 use base qw( LJ::S2Theme::steppingstones );
 sub cats { qw() }
 
+package LJ::S2Theme::steppingstones::friendlycolors;
+use base qw( LJ::S2Theme::steppingstones );
+sub cats { qw() }
+sub designer { "kareila" }
+
 package LJ::S2Theme::steppingstones::gray;
 use base qw( LJ::S2Theme::steppingstones );
 sub cats { qw() }

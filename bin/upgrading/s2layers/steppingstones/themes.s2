@@ -117,6 +117,158 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: steppingstones/friendlycolors
+layerinfo type = "theme";
+layerinfo name = "Friendly Colors";
+layerinfo redist_uniq = "steppingstones/friendlycolors";
+layerinfo author_name = "kareila";
+
+set layout_authors = [ { "name" => "kareila", "type" => "user" } ];
+set layout_type = "two-columns-left";
+
+set use_custom_friend_colors = true;
+set custom_foreground_element = "custom";
+set custom_background_element = "custom";
+set custom_colors_template = "%%new%% .entry .contents .userpic { background-color: %%background%%; } %%new%% .entry .contents .userpic a { background-color: %%foreground%%; }";
+set module_pagesummary_opts_comments_tooltip = false;
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#D1D4F0";
+set color_page_link = "#7885E3";
+set color_page_link_visited = "#3C4ECF";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#9DA6ED";
+set color_footer_background = "#9DA6ED";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#7885E3";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#7D8BF5";
+set color_module_link = "#eee";
+set color_module_link_visited = "#c6c6f6";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+
+function Page::print_theme_stylesheet () {
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .entry .header { padding-left: 0; }
+            .entry .contents .userpic { left: -1em; }
+            .entry-poster, .entry-content, .entry .metadata { margin-left: 110px; }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .entry .header { padding-right: 0; }
+            .entry .contents .userpic { right: -1em; }
+            .entry-poster, .entry-content, .entry .metadata { margin-right: 110px; }
+            """;
+        }
+    """
+    /* one column: module display */
+    
+    .one-column #tertiary,
+    .one-column #secondary {
+        width: 100%;
+        }
+    
+    .one-column #secondary .module {
+        float: left;
+        }
+    
+    .one-column #secondary .module-section-one > .inner {
+        background-color: $*color_module_background;
+        float: left;
+        }
+    
+    /* module ul style tweaks */
+    
+    .module-content ul,
+    .module-navlinks ul,
+    .module-typelist ul {
+        list-style: inherit;
+        padding-left: 1em;
+        }
+    
+    .navigation ul {
+        background-color: $*color_module_background;
+        }
+    
+    .navigation ul a {
+        color: $*color_module_link;
+        }
+    
+    .navigation ul a:visited {
+        color: $*color_module_link_visited;
+        }
+    
+    .pagesummary-commentcount {
+        display: block;
+        }
+    
+    /* reposition userpics */
+
+    $userpic_css
+    
+    .entry .contents .userpic,
+    .entry .contents {
+        min-height: 110px;
+        }
+    
+    .entry .contents > .inner {
+        position: relative;
+        }
+    
+    .entry .contents .userpic {
+        top: 0;
+        height: 100%;
+        background-position-y: 0 !important;
+        background-position: 50% 0;  /* Firefox */
+        width: 110px;
+        padding-top: 2px;
+        }
+    
+    .entry .contents .userpic a {
+        padding: 2px;
+        }
+
+    .entry .contents .userpic,
+    .entry .contents .userpic a {
+        background-color: $*color_entry_background;
+        }
+
+    .entry .contents .userpic img {
+        margin-top: 3px;
+        }
+
+    .entry .footer ul.entry-management-links,
+    .entry .footer ul.entry-interaction-links {
+        margin-top: .5em;
+        }
+    
+    /* monospace weekday names on archive page */
+    
+    table.month th {
+        font-family: Lucida Console, Monaco, monospace;
+        }
+
+    """;
+}
+
+
 #NEWLAYER: steppingstones/gray
 layerinfo type = "theme";
 layerinfo name = "Gray";
