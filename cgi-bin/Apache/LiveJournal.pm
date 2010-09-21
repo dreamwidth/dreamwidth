@@ -39,7 +39,6 @@ use XMLRPC::Transport::HTTP;
 use LJ::URI;
 use DW::Routing;
 use DW::Template;
-use LJ::Talk;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -1136,22 +1135,16 @@ sub userpic_content
 
     # Load the user object and pic and make sure the picture is viewable
     my $u = LJ::load_userid($userid);
-    return NOT_FOUND unless $u && ! ( $u->is_expunged || $u->is_suspended );
-
-    my %upics;
-    LJ::Talk::load_userpics(\%upics, [ $u, $picid ]);
-    my $pic = $upics{$picid} or return NOT_FOUND;
-    return NOT_FOUND if $pic->{'userid'} != $userid || $pic->{state} eq 'X';
+    my $pic = LJ::Userpic->get( $u, $picid, { no_expunged => 1 } )
+        or return NOT_FOUND;
 
     # Read the mimetype from the pichash if dversion 7
-    $mime = { 'G' => 'image/gif',
-              'J' => 'image/jpeg',
-              'P' => 'image/png', }->{$pic->{fmt}};
+    $mime = $pic->mimetype;
 
     ### Handle reproxyable requests
 
     # For dversion 7+ and mogilefs userpics, follow this path
-    if ($pic->{location} eq 'M' ) {  # 'M' for mogilefs
+    if ( $pic->in_mogile ) {
         my $key = $u->mogfs_userpic_key( $picid );
 
         if ( !$LJ::REPROXY_DISABLE{userpics} &&
@@ -1219,12 +1212,12 @@ sub userpic_content
 
     # else, get it from db.
     unless ($data) {
-        $lastmod = $pic->{'picdate'};
+        $lastmod = $pic->picdate;
 
         my $dbb = LJ::get_cluster_reader( $u );
         return SERVER_ERROR unless $dbb;
         $data = $dbb->selectrow_array( "SELECT imagedata FROM userpicblob2 WHERE " .
-                                       "userid=$pic->{userid} AND picid=$picid" );
+                                       "userid=$userid AND picid=$picid" );
     }
 
     return NOT_FOUND unless $data;
@@ -1233,7 +1226,7 @@ sub userpic_content
         # make $realfile /userpic-userid, and $file /userpic
         my $realfile = $file;
         unless ($file =~ s/-\d+$//) {
-            $realfile .= "-$pic->{'userid'}";
+            $realfile .= "-$userid";
         }
 
         # delete short file on Unix if it exists

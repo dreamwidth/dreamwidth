@@ -83,9 +83,9 @@ sub instance {
 # undef if userpic doesn't exist in the db.
 # TODO: add in lazy peer loading here?
 sub get {
-    my ( $class, $u, $picid ) = @_;
+    my ( $class, $u, $picid, $opts ) = @_;
     return unless LJ::isu( $u );
-    return if $u->is_expunged;
+    return if $u->is_expunged || $u->is_suspended;
 
     my $obj = ref $class ? $class : $class->new( $u, $picid );
     my @cache = $class->load_user_userpics( $u );
@@ -96,6 +96,7 @@ sub get {
 
     # check the database directly (for expunged userpics,
     # which aren't included in load_user_userpics)
+    return undef if $opts && $opts->{no_expunged};
     my $row = $u->selectrow_hashref( "SELECT userid, picid, width, height, state, " .
                                      "fmt, comment, description, location, url, " .
                                      "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
@@ -245,6 +246,11 @@ sub height {
     return undef unless @dims;
     return $dims[1];
 }
+
+sub picdate {
+    return LJ::mysql_time( $_[0]->pictime );
+}
+
 sub pictime {
     return $_[0]->{pictime};
 }
@@ -255,6 +261,13 @@ sub flags {
 
 sub md5base64 {
     return $_[0]->{md5base64};
+}
+
+sub mimetype {
+    my $self = $_[0];
+    return { gif => 'image/gif',
+             jpg => 'image/jpeg',
+             png => 'image/png' }->{ $self->extension };
 }
 
 sub extension {
