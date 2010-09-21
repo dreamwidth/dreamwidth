@@ -221,14 +221,15 @@ sub startaccum {
     $data = ""; # defining $data triggers accumulation
     $ddepth = 1;
 
-    $dholder = undef 
-        unless $name;
-    # if $name is a scalarref, it's actually our $dholder
-    if (ref($name) eq 'SCALAR') {
-        $dholder = $name;
+    if ( $name ) {
+        # if $name is a scalarref, it's actually our $dholder
+        if ( ref $name eq 'SCALAR' ) {
+            $dholder = $name;
+        } else {
+            $dholder = $item ? \$item->{$name} : \$feed->{$name};
+        }
     } else {
-        $dholder = ($item ? \$item->{$name} : \$feed->{$name})
-            if $name;
+        $dholder = undef;  # no $name
     }
     return;
 }
@@ -303,6 +304,15 @@ sub StartTag {
                 swallow();
                 last TAGS;
             }
+
+            # if multiple alternates are specified, prefer the one
+            # that doesn't have a type of text/plain.
+            # see also t/parsefeed-atom-link2.t
+            if ( $holder->{link} && $_{type} && $_{type} eq 'text/plain' ) {
+                swallow();
+                last TAGS;
+            }
+
             $holder->{'link'} = $_{'href'};
             return err("No href attribute in <link>")
                 unless $holder->{'link'};

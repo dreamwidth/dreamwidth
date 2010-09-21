@@ -5,12 +5,11 @@ use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
 require 'ljlib.pl';
 
-#plan tests => ;
-plan skip_all => 'Fix this test!';
+plan tests => 8;
 
 #  These tests are of the correct identification of an "alternate" link.
-#  We assume here that an HTML alternate link is preferred over text/plain, despite the
-# fact that preferring the latter is technically allowed.
+#  We assume here that an HTML alternate link is preferred over text/plain,
+#  despite the fact that preferring the latter is technically allowed.
 
 # This is taken verbatim from James Snell's set of test cases:
 #    <http://www.snellspace.com/public/linktests.xml>
