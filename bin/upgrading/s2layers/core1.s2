@@ -195,9 +195,12 @@ class Link
 
     function print_button
     "Output this Link as a clickable button using [member[Link.icon]]";
-
+    
     function as_string() : string
     "Return the button HTML link.";
+    
+    function print_raw
+    "Blank function for backwards compatibility with LiveJournal";
 }
 
 class ItemRange
@@ -2680,6 +2683,10 @@ function Link::as_string() [fixed] : string {
     }
 
     return """<a href="$.url"><img border='0' width="$.icon.width" height="$.icon.height" alt="$ealt" title="$ealt" src="$.icon.url" $extraParams /></a>""";
+}
+
+function Link::print_raw() {
+# blank function so that LJ layouts will compile
 }
 
 # Redirector
