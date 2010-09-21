@@ -525,6 +525,14 @@ function Page::print_default_stylesheet()
     .entry-title a:hover {
         color: $*color_entry_link_hover;
     }
+
+    /* To prevent overlapping when icon's on the left */
+    /* and list is the first thing in content */
+    .entry-content li,
+    .comment-content li {
+        list-style-position: inside;
+        }
+
     .entry-management-links, .entry-management-links a,
     .entry-interaction-links, .entry-interaction-links a,
     .comment-interaction-links, .comment-interaction-links a{

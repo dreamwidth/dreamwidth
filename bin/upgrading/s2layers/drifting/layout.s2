@@ -625,6 +625,13 @@ function Page::print_default_stylesheet()
         color: $*color_entry_text;
     }
 
+    /* To prevent overlapping when icon's on the left */
+    /* and list is the first thing in content */
+    .entry-content li,
+    .comment-content li {
+        list-style-position: inside;
+        }
+
     .entry .subject {
         padding: 3px;
         border: 1px solid $*color_entry_border;

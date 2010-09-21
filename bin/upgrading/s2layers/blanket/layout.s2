@@ -350,6 +350,13 @@ h3.entry-title a { $entry_title_colors }
 
 span.poster { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; $page_title_colors }
 
+/* To prevent overlapping when icon's on the left */
+/* and list is the first thing in content */
+.entry-content li,
+.comment-content li {
+    list-style-position: inside;
+    }
+
 .metadata { margin: 2em 0 0 0; }
 .metadata.top-metadata { margin: 1em 0 2em 0; }
 div.metadata ul { padding: 0; margin: 0; }
