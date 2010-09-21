@@ -315,7 +315,7 @@ sub entry_to_req {
     my $entryprops = $entry->props;
     $req->{props} = {};
     # only bring over these properties
-    for my $entrykey (qw ( adult_content current_coords current_location current_music opt_backdated opt_nocomments opt_noemail opt_preformatted opt_screening picture_keyword qotdid taglist used_rte pingback )) {
+    for my $entrykey (qw ( adult_content current_coords current_location current_music opt_backdated opt_nocomments opt_noemail opt_preformatted opt_screening picture_keyword taglist used_rte pingback )) {
         $req->{props}->{$entrykey} = $entryprops->{$entrykey} if defined $entryprops->{$entrykey};
     }
 

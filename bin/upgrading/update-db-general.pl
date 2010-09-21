@@ -888,6 +888,7 @@ register_tabledrop("userblobcache");
 register_tabledrop("commenturls");
 register_tabledrop("captchas");
 register_tabledrop("captcha_session");
+register_tabledrop("qotd");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -2448,21 +2449,6 @@ CREATE TABLE embedcontent (
 )
 EOC
 
-register_tablecreate("qotd", <<'EOC');
-CREATE TABLE qotd (
-    qid           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    time_start    INT UNSIGNED NOT NULL DEFAULT '0',
-    time_end      INT UNSIGNED NOT NULL DEFAULT '0',
-    active        ENUM('Y','N') NOT NULL DEFAULT 'Y',
-    text          TEXT NOT NULL DEFAULT '',
-    img_url       VARCHAR(255) DEFAULT NULL,
-
-    PRIMARY KEY (qid),
-    INDEX (time_start),
-    INDEX (time_end)
-)
-EOC
-
 register_tablecreate("jobstatus", <<'EOC');
 CREATE TABLE jobstatus (
     handle VARCHAR(100) PRIMARY KEY,
@@ -3470,12 +3456,6 @@ register_alter(sub {
                  "ALTER TABLE subs DROP INDEX etypeid, ADD INDEX etypeid (etypeid, journalid, userid)");
     }
 
-    # add a column
-    unless (column_type("qotd", "tags")) {
-        do_alter("qotd",
-                 "ALTER TABLE qotd ADD tags VARCHAR(255) DEFAULT NULL AFTER text");
-    }
-
     # fix primary key
     unless (index_name("pollresult2", "UNIQUE:journalid-pollid-pollqid-userid")) {
         do_alter("pollresult2",
@@ -3495,47 +3475,12 @@ register_alter(sub {
                  "ADD INDEX (userid)");
     }
 
-    # add a column
-    unless (column_type("qotd", "extra_text")) {
-        do_alter("qotd",
-                 "ALTER TABLE qotd ADD extra_text TEXT DEFAULT NULL");
-    }
-
-    # add a column
-    unless (column_type("qotd", "subject")) {
-        do_alter("qotd",
-                 "ALTER TABLE qotd " .
-                 "ADD subject VARCHAR(255) NOT NULL DEFAULT '' AFTER active, " .
-                 "ADD from_user CHAR(15) DEFAULT NULL AFTER tags");
-    }
-
     unless (column_type("usermsgproplist", "scope")) {
         do_alter("usermsgproplist",
                  "ALTER TABLE usermsgproplist ADD scope ENUM('general', 'local') "
                  . "DEFAULT 'general' NOT NULL");
     }
 
-    unless (column_type("qotd", "cap_mask")) {
-        do_alter("qotd",
-                 "ALTER TABLE qotd " .
-                 # bitmask representation of cap classes that this question applies to
-                 "ADD cap_mask SMALLINT UNSIGNED NOT NULL, " .
-                 # show to logged out users or not
-                 "ADD show_logged_out ENUM('Y','N') NOT NULL DEFAULT 'N', " .
-                 "ADD countries VARCHAR(255)");
-
-        # set all current questions to be shown to all classes and logged out users
-        if (table_relevant("qotd")) {
-            my $mask = LJ::mask_from_bits(keys %LJ::CAP);
-            do_sql("UPDATE qotd SET cap_mask=$mask, show_logged_out='Y'");
-        }
-    }
-
-    unless (column_type("qotd", "link_url")) {
-        do_alter("qotd",
-                 "ALTER TABLE qotd " .
-                 "ADD link_url VARCHAR(255) NOT NULL DEFAULT ''");
-    }
 
     if (table_relevant("spamreports") && column_type("spamreports", "report_type") !~ /message/) {
         # cache table by running select
@@ -3560,12 +3505,6 @@ register_alter(sub {
                  "ADD INDEX (status)");
     }
 
-    unless (column_type("qotd", "domain")) {
-        do_alter("qotd",
-                 "ALTER TABLE qotd " .
-                 "ADD domain VARCHAR(255) NOT NULL DEFAULT 'homepage'");
-    }
-
     unless (column_type("log2", "allowmask") =~ /^bigint/) {
         do_alter("log2",
                  q{ ALTER TABLE log2 MODIFY COLUMN allowmask BIGINT UNSIGNED NOT NULL });
@@ -3585,18 +3524,6 @@ register_alter(sub {
         do_alter("logproplist",
                  "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') ".
                  "DEFAULT 'user' NOT NULL");
-    }
-
-    unless (column_type("qotd", "impression_url")) {
-        do_alter("qotd",
-                 "ALTER TABLE qotd " .
-                 "ADD impression_url VARCHAR(255) DEFAULT NULL");
-    }
-
-    unless (column_type("qotd", "is_special")) {
-        do_alter("qotd",
-                 "ALTER TABLE qotd " .
-                 "ADD is_special ENUM('Y','N') NOT NULL DEFAULT 'N'");
     }
 
     unless (column_type("jobstatus", "userid")) {

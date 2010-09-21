@@ -1316,13 +1316,6 @@ logproplist.picture_keyword:
   sortorder: 30
   ownership: user
 
-logproplist.qotdid:
-  datatype: 
-  des: Writer's block ID
-  prettyname: Writer's block ID
-  sortorder: 104
-  ownership: user
-
 logproplist.revnum:
   datatype: num
   des: Number of times this post has been edited.

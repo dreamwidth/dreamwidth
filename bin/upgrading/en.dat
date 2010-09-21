@@ -4199,12 +4199,6 @@ widget.accountstatistics.tags2=[[num_comma]] <a [[aopts]]>[[?num_raw|Tag|Tags]]<
 
 widget.accountstatistics.title=Account Stats
 
-widget.addqotd.extratext=Extra Text (optional):
-
-widget.addqotd.extratext.note=HTML allowed
-
-widget.addqotd.is_special=Is this a special question?
-
 widget.betafeature.btn.off=Turn OFF beta testing
 
 widget.betafeature.btn.on=Turn ON beta testing
@@ -4725,10 +4719,6 @@ widget.location.timezone.select=(Select your timezone)
 
 widget.location.zip.usonly=5 digit ZIP code; US residents only
 
-widget.manageqotd.extratext=Extra Text
-
-widget.manageqotd.is_special=Special?
-
 widget.moodthemechooser.desc=Mood themes are small icons that describe your mood or the mood of a post. Select from a variety of faces and characters.
 
 widget.moodthemechooser.forcetheme=use this mood theme on my friends page
@@ -4772,42 +4762,6 @@ widget.paidaccountstatus.accounttype=Your current account type is:
 widget.paidaccountstatus.expiretime=Your paid time expires:
 
 widget.popularinterests.viewall=view all popular interests
-
-widget.qotd.answer=Answer
-
-widget.qotd.archivelink=Writer's Block Archive
-
-widget.qotd.entry.subject=Writer's Block: [[subject]]
-
-widget.qotd.entry.submittedby=Submitted By [[user]]
-
-widget.qotd.suggestions=Suggestions
-
-widget.qotd.title=Writer's Block
-
-widget.qotd.view.more=View more
-
-widget.qotd.view.other.answers=View other answers
-
-widget.qotd.viewanswers=View Answers
-
-widget.qotdarchive.skip.next=Newer
-
-widget.qotdarchive.skip.previous=Older
-
-widget.qotdresponses.answer.the.question=Answer the Question
-
-widget.qotdresponses.explore=Explore
-
-widget.qotdresponses.no.entries.to.display=No entries to display
-
-widget.qotdresponses.previous=Previous
-
-widget.qotdresponses.read.more=Read More
-
-widget.qotdresponses.read.your.friends.page=Read your Friends Page
-
-widget.qotdresponses.there.are.no.answers=There are no answers to this Writer's Block.
 
 widget.quickupdate.entry=Entry
 

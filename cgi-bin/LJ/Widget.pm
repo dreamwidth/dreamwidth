@@ -696,8 +696,7 @@ strings are defined within en.dat or en_LJ.dat with the string name of
 BML pages, which will override what's defined in en(_LJ).dat.
 
 Strings in the "widget" ML domain get there when a user inputs text that should
-be translatable in a widget web form on the site.  The QotD widget and its admin
-widgets are examples of widgets that use this ML domain.
+be translatable in a widget web form on the site.  
 
 In almost all cases, methods are called on subclasses of this parent class, and
 not on the parent class itself.  It is explicitly noted when a method should be

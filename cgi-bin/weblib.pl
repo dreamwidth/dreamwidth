@@ -1184,11 +1184,6 @@ sub entry_form {
         ### Subject
         $out .= "<div id='compose-entry' class='pkg'>\n";
 
-        if ($opts->{prop_qotdid} && !$opts->{richtext}) {
-            my $qotd = LJ::QotD->get_single_question($opts->{prop_qotdid});
-            $out .= "<div style='margin-bottom: 10px;' id='qotd_html_preview'>" . LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ], no_answer_link => 1 ) . "</div>";
-        }
-
         $out .= "<label class='left' for='subject'>" . BML::ml('entryform.subject') . "</label>\n";
         $out .= LJ::html_text({ 'name' => 'subject', 'value' => $opts->{'subject'},
                                 'class' => 'text', 'id' => 'subject', 'size' => '43', 'maxlength' => '100',
@@ -2070,7 +2065,7 @@ sub entry_form_decode
                 prop_opt_screening prop_opt_noemail
                 prop_opt_preformatted prop_opt_nocomments
                 prop_current_location prop_current_coords
-                prop_taglist prop_qotdid)) {
+                prop_taglist )) {
         $req->{$_} = $POST->{$_};
     }
 

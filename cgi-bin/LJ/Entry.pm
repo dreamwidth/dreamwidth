@@ -970,26 +970,6 @@ sub comments_disabled_maintainer {
     return $self->prop( 'opt_nocomments_maintainer' ) && !$self->comments_disabled_poster;
 }
 
-sub qotdid {
-    my $self = shift;
-
-    return $self->prop('qotdid');
-}
-
-# don't use this anymore, instead check for is_special flag on question
-sub is_special_qotd_entry {
-    my $self = shift;
-
-    my $qotdid = $self->qotdid;
-    my $poster = $self->poster;
-
-    if ($qotdid && $poster && LJ::Hooks::run_hook("show_qotd_title_change", $poster)) {
-        return 1;
-    }
-
-    return 0;
-}
-
 sub should_block_robots {
     my $self = shift;
 

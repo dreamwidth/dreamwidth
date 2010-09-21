@@ -131,10 +131,6 @@ function useRichText(textArea, statPrefix) {
     setTimeout("LJUser('" + textArea + "')", 2000);
 
 
-    if ($("qotd_html_preview")) {
-       $("qotd_html_preview").style.display='none';
-    }
-
     $("switched_rte_on").value = '1';
 
     return false; // do not follow link
@@ -147,10 +143,6 @@ function usePlainText(textArea) {
     var oEditor = FCKeditorAPI.GetInstance(textArea);
     if (! oEditor) return;
     var editor_frame = $(textArea + '___Frame');
-
-    if ($("qotd_html_preview")) {
-       $("qotd_html_preview").style.display='block';
-    }
 
     var html = oEditor.GetXHTML(false);
     html = convertToTags(html);
@@ -187,7 +179,6 @@ function convert_post(textArea) {
     var html = oEditor.GetXHTML(false);
 
     var tags = convert_poll_to_tags(html, true);
-    tags = convert_qotd_to_ljtags(tags, true);
 
     $(textArea).value = tags;
     oEditor.SetData(tags);
@@ -197,7 +188,6 @@ function convert_to_draft(html) {
     if ( $("switched_rte_on").value == '0' ) return html;
 
     var out = convert_poll_to_tags(html, true);
-    out = convert_qotd_to_ljtags(out, true);
     out = out.replace(/\n/g, '');
 
     return out;
@@ -235,26 +225,6 @@ function generate_pollHTML(ljtags, pollID) {
     return tags;
 }
 
-function convert_qotd_to_ljtags (html, post) {
-    var tags = html.replace(/<div .*qotdid=['"]?(\d+)['"]? .*class=['"]?ljqotd['"]?.*>[^\b]*<\/div>(<br \/>)*/g, "<lj-template name=\"qotd\" id=\"$1\"></lj-template>");
-    tags = tags.replace(/<div .*class=['"]?ljqotd['"]? .*qotdid=['"]?(\d+)['"]?.*>[^\b]*<\/div>(<br \/>)*/g, "<lj-template name=\"qotd\" id=\"$1\"></lj-template>");
-    return tags;
-}
-
-function convert_qotd_to_HTML(plaintext) {
-    var qotdText = LiveJournal.qotdText;
-
-    var styleattr = " style='cursor: default; -moz-user-select: all; -moz-user-input: none; -moz-user-focus: none; -khtml-user-select: all;'";
-
-    var html = plaintext;
-    html = html.replace(/<lj-template name=['"]?qotd['"]? id=['"]?(\d+)['"]?>.*?<\/lj-template>(<br \/>)*/g, "<div class=\"ljqotd\" qotdid=\"$1\" contenteditable=\"false\"" + styleattr + ">" + qotdText + "</div>\n\n");
-    html = html.replace(/<lj-template id=['"]?(\d+)['"]? name=['"]?qotd['"]?>.*?<\/lj-template>(<br \/>)*/g, "<div class=\"ljqotd\" qotdid=\"$1\" contenteditable=\"false\"" + styleattr + ">" + qotdText + "</div>\n\n");
-    html = html.replace(/<lj-template name=['"]?qotd['"]? id=['"]?(\d+)['"]? \/>(<br \/>)*/g, "<div class=\"ljqotd\" qotdid=\"$1\" contenteditable=\"false\"" + styleattr + ">" + qotdText + "</div>\n\n");
-    html = html.replace(/<lj-template id=['"]?(\d+)['"]? name=['"]?qotd['"]? \/>(<br \/>)*/g, "<div class=\"ljqotd\" qotdid=\"$1\" contenteditable=\"false\"" + styleattr + ">" + qotdText + "</div>\n\n");
-
-    return html;
-}
-
 // Constant used to check if FCKeditorAPI is loaded
 var FCKeditor_LOADED = false;
 
@@ -285,7 +255,6 @@ function convertToTags(html) {
     html = html.replace(/<div class=['"]ljcut['"]>(.+?)<\/div>/g, '<cut>$1</cut>');
 
     html = convert_poll_to_tags(html);
-    html = convert_qotd_to_ljtags(html);
     return html;
 }
 
@@ -298,7 +267,6 @@ function convertToHTMLTags(html, statPrefix) {
     html = html.replace(/<(lj|site)-embed\s*(id="(\d*)")?\s*>\s*(.*)\s*<\/\1-embed>/gim, '<div class="ljembed" embedid="$3">$4</div>');
 
     html = convert_poll_to_HTML(html);
-    html = convert_qotd_to_HTML(html);
 
     return html;
 }

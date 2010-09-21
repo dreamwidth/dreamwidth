@@ -443,10 +443,6 @@ body<=
 
             $ret .= "</tr></table>";
 
-            my $qotd = LJ::QotD->get_single_question($entry->{prop_qotdid});
-            my $qotd_text = LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ] );
-            my $escaped_qotd_text = LJ::ejs($qotd_text);
-
             # javascript to initialize entry form since we've just called into entry_form
             # -- shove into \$head which is a reference into $_[1]->{head} and will
             #    be placed in the correct BML head portion later
@@ -459,7 +455,6 @@ body<=
             $onload
         }
     //]]>
-    LiveJournal.qotdText = "$escaped_qotd_text";
     </script>
 };
 

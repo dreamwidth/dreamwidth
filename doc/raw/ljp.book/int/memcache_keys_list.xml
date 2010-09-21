@@ -632,13 +632,6 @@
     </row>
     <row>
         <entry></entry>
-        <entry>qotd:&lt;type&gt;</entry>
-        <entry><acronym>QotD</acronym>s of the type &lt;type&gt; (&apos;current&apos; or &apos;old&apos;)</entry>
-        <entry>livejournal</entry>
-        <entry>Widget</entry>
-    </row>
-    <row>
-        <entry></entry>
         <entry>sitemessages</entry>
         <entry>site messages</entry>
         <entry>livejournal</entry>

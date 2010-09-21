@@ -116,18 +116,6 @@ _c?>
         $event = '<a href="' . $page->url . '">' . ( LJ::ehtml( $page->description ) || $subject || $page->url ) . "</a>\n\n";
     }
 
-    # if a QotD id was passed in, fill in the fields with that QotD
-    my $qid = $GET{qotd}+0;
-    my $qotd;
-    $qotd = LJ::QotD->get_single_question($qid) if $qid;
-    if ($qotd) {
-        $subject = LJ::Widget::QotD->subject_text($qotd, user => $remote);
-        $event = LJ::Widget::QotD->embed_text($qotd);
-        $tags = LJ::Widget::QotD->tags_text($qotd);
-        my $text = LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ], form_disabled => 1 );
-        $$head .= "<script>LiveJournal.qotdText = \"" . LJ::ejs($text) . "\";</script>";
-    }
-
     # try to call a hook to fill in the fields
     my $override_fields = LJ::Hooks::run_hook('update_fields', \%GET);
     my $opt_preformatted = 0;
@@ -211,7 +199,6 @@ _c?>
         # their settings from the GET requests
         my $getextra = '?';
         $getextra .= "altlogin=1&" if $GET{'altlogin'};
-        $getextra .= "qotd=" . LJ::eurl($GET{qotd}) . "&" if $GET{'qotd'};
         chop $getextra;
 
         # if crossposter values were checked, remember them
@@ -236,7 +223,6 @@ _c?>
             'richtext_default' => $remote ? $remote->new_entry_editor eq 'rich' ? 1 : 0  # User setting
                                           : $LJ::DEFAULT_EDITOR       eq 'rich' ? 1 : 0, # Site default
             'include_insert_object' => $GET{'insobj'},
-            'prop_qotdid' => $qid,
             'altlogin' => $GET{altlogin} ? 1 : 0,
             'prop_opt_preformatted' => $opt_preformatted ? 1 : 0,
             
@@ -385,7 +371,6 @@ _c?>
             $errors->{'entry'} = $ML{'.error.noentry'};
         }
 
-        $req{prop_qotdid} = $qid;
 
         my %res;
         LJ::do_request(\%req, \%res, $flags);
@@ -489,11 +474,6 @@ _c?>
                         $$body .= "<br/>";
                     }
 
-                    my $writersblocklink = '';
-
-                    if ($qid && LJ::Hooks::run_hook('show_qotd_extra_text', $remote)) {
-                        $writersblocklink = "<li><a href=\"$LJ::SITEROOT/misc/latestqotd?qid=$qid\">View answers to Writer's Block</a></li>";
-                    }
 
                     my @after_entry_post_extra_options = LJ::Hooks::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
                     my $after_entry_post_extra_options = join('', map {$_->[0]} @after_entry_post_extra_options) || '';
@@ -508,7 +488,7 @@ _c?>
                                        . "$ML{'.success.links.backdated'}</a></li>";
                     }
 
-                    $$body .= " p?><?p $ML{'.success.links'} p?><ul>" . $writersblocklink .
+                    $$body .= " p?><?p $ML{'.success.links'} p?><ul>" .
                         "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" . $backdatedlink .
                         "<li><a href=\"$edititemlink\">$ML{'.success.links.edit'}</a></li>" .
                         "<li><a href=\"/tools/memadd?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .

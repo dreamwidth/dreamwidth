@@ -329,9 +329,6 @@ body<=
 
     $ret .= "<br style='clear: both' /><hr width='100%' size='2' align='center' />";
 
-    my $qotd = 0;
-    $qotd = $entry->prop("qotdid") if $entry;
-
 
     my $view_arg = $GET{'view'} || "";
     my $flat_mode = ($view_arg =~ /\bflat\b/);

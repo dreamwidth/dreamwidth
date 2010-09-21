@@ -45,11 +45,6 @@ sub new {
                 'security'       => $e->security,
                 );
 
-    # qotdid if one is associated with this entry
-    if (my $qotdid = $e->prop('qotdid')) {
-        $args{'prop.qotdid'} = $e->prop('qotdid');
-    }
-
     return $class->SUPER::new(%args);
 }
 

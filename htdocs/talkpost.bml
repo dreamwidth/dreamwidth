@@ -346,9 +346,6 @@ body<=
 
     $ret .= "<br clear='both' /><hr size='2' align='center' />";
 
-    my $qotd = 0;
-    $qotd = $entry->prop("qotdid") if $entry;
-
     my $jarg = "journal=$u->{'user'}&amp;";
     my $readurl = LJ::Talk::talkargs($talkurl, LJ::viewing_style_args( %GET ) );
 
