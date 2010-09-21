@@ -258,28 +258,29 @@ sub _db_sysban_populate {
 # returns: hashref on success, undef on failure
 # </LJFUNC>
 sub sysban_populate_full {
-    my ($where, $what) = @_;
-    return LJ::_db_sysban_populate_full($where, $what);
+    return LJ::_db_sysban_populate_full( @_ );
 }
 
 sub _db_sysban_populate_full {
-    my ($where, $what) = @_;
+    my ( $where, $what, $limit, $skip ) = @_;
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
     # build cache from db
-    my $sth = $dbh->prepare("SELECT banid, value, 
-                                UNIX_TIMESTAMP(banuntil), note " .
-                            "FROM sysban " .
-                            "WHERE status='active' AND what=? " .
-                            "AND NOW() > bandate " .
-                            "AND (NOW() < banuntil OR banuntil IS NULL)");
-    $sth->execute($what);
+    my $limitsql = $limit ? " ORDER BY banid DESC LIMIT ? OFFSET ?" : "";
+    my $sth = $dbh->prepare( "SELECT banid, value, " .
+                             "UNIX_TIMESTAMP(banuntil), note " .
+                             "FROM sysban " .
+                             "WHERE status='active' AND what=? " .
+                             "AND NOW() > bandate " .
+                             "AND (NOW() < banuntil OR banuntil IS NULL)" .
+                             $limitsql );
+    $sth->execute( $what, $limit, $skip );
     return undef if $sth->err;
     while (my ($banid, $val, $exp, $note) = $sth->fetchrow_array) {
-        $where->{$val}->{'banid'} = $banid || 0;
-        $where->{$val}->{'expire'} = $exp || 0;
-        $where->{$val}->{'note'} = $note || 0;
+        $where->{$val}->{banid}  = $banid || 0;
+        $where->{$val}->{expire} = $exp   || 0;
+        $where->{$val}->{note}   = $note  || 0;
     }
 
     return $where;

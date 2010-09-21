@@ -75,6 +75,7 @@ body<=
     else                      { $action = undef; }
 
     my $bantype = $POST{'bantype'};
+    my $skip = $POST{skip} ? $POST{skip} + 0 : 0;
 
     my $ret = "<form method='post' action='sysban'>";
     $ret   .= LJ::form_auth();
@@ -101,8 +102,9 @@ FORM
         return $err->("Invalid form") unless LJ::check_form_auth();
         
         my $existing_bans = {};
+        my $limit = 20;
 
-        LJ::sysban_populate_full( $existing_bans, $bantype );
+        LJ::sysban_populate_full( $existing_bans, $bantype, $limit, $skip );
 
         $ret = <<QUERYFORM;
 <table>
@@ -145,6 +147,26 @@ QUERYFORM
 QUERYFORM
         }
         $ret .= "</table>";
+
+        if ( keys %$existing_bans >= $limit ) {
+            $ret .= "\n<form method='post' action='sysban'>";
+            $ret .= LJ::form_auth();
+            $ret .= LJ::html_hidden( query => 'Query' );
+            $ret .= LJ::html_hidden( bantype => $bantype );
+            $ret .= LJ::html_hidden( skip => $skip + $limit );
+            $ret .= LJ::html_submit( submit => "<< Previous $limit" );
+            $ret .= "</form>";
+        }
+
+        if ( $skip ) {
+            $ret .= "\n<form method='post' action='sysban'>";
+            $ret .= LJ::form_auth();
+            $ret .= LJ::html_hidden( query => 'Query' );
+            $ret .= LJ::html_hidden( bantype => $bantype );
+            $ret .= LJ::html_hidden( skip => $skip - $limit );
+            $ret .= LJ::html_submit( submit => "Next $limit >>" );
+            $ret .= "</form>";
+        }
 
     }
 
