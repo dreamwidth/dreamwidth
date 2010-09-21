@@ -452,7 +452,8 @@ sub watched_by_users {
 sub trusted_by_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'not a valid user object';
-    my $limit = int(delete $args{limit}) || $LJ::MAX_WT_EDGES_LOAD;
+    my $limit = delete $args{limit} || 0;
+    $limit = int( $limit ) || $LJ::MAX_WT_EDGES_LOAD;
     confess 'unknown option' if %args;
 
     return DW::User::Edges::WatchTrust::Loader::_wt_userids(
@@ -466,7 +467,8 @@ sub trusted_by_userids {
 sub trusted_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'not a valid user object';
-    my $limit = int(delete $args{limit}) || $LJ::MAX_WT_EDGES_LOAD;
+    my $limit = delete $args{limit} || 0;
+    $limit = int( $limit ) || $LJ::MAX_WT_EDGES_LOAD;
     confess 'unknown option' if %args;
 
     return DW::User::Edges::WatchTrust::Loader::_wt_userids(
@@ -480,7 +482,8 @@ sub trusted_userids {
 sub watched_by_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'not a valid user object';
-    my $limit = int(delete $args{limit}) || $LJ::MAX_WT_EDGES_LOAD;
+    my $limit = delete $args{limit} || 0;
+    $limit = int( $limit ) || $LJ::MAX_WT_EDGES_LOAD;
     confess 'unknown option' if %args;
 
     return DW::User::Edges::WatchTrust::Loader::_wt_userids(
@@ -494,7 +497,8 @@ sub watched_by_userids {
 sub watched_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'not a valid user object';
-    my $limit = int(delete $args{limit}) || $LJ::MAX_WT_EDGES_LOAD;
+    my $limit = delete $args{limit} || 0;
+    $limit = int( $limit ) || $LJ::MAX_WT_EDGES_LOAD;
     confess 'unknown option' if %args;
 
     return DW::User::Edges::WatchTrust::Loader::_wt_userids(
@@ -702,7 +706,8 @@ sub trust_groups {
     my ( $u, %opts ) = @_;
     $u = LJ::want_user( $u )
         or confess 'invalid user object';
-    my $bit = delete( $opts{id} )+0;
+    my $id = delete $opts{id};
+    my $bit = defined $id ? $id + 0 : 0;
     confess 'invalid bit number' if $bit < 0 || $bit > 60;
     my $name = lc delete( $opts{name} );
     confess 'invalid arguments' if %opts;

@@ -103,7 +103,7 @@ sub RecentPage
     if ($itemshow < 1) { $itemshow = 20; }
     elsif ($itemshow > 50) { $itemshow = 50; }
 
-    my $skip = $get->{'skip'}+0;
+    my $skip = $get->{skip} ? $get->{skip} + 0 : 0;
     my $maxskip = $LJ::MAX_SCROLLBACK_LASTN-$itemshow;
     if ($skip < 0) { $skip = 0; }
     if ($skip > $maxskip) { $skip = $maxskip; }

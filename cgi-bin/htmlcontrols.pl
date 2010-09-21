@@ -204,14 +204,14 @@ sub _html_option {
 
     my $sel = "";
     # multiple-mode or single-mode?
-    if ( ref $selref eq 'HASH' && $selref->{$value} ||
-        $opts->{selected} eq $value && ! $$did_sel++ ) {
+    if ( $selref && ( ref $selref eq 'HASH' ) && $selref->{$value} ||
+        $opts->{selected} && ( $opts->{selected} eq $value ) && ! $$did_sel++ ) {
 
         $sel = " selected='selected'";
     }
     $value  = $ehtml ? ehtml( $value ) : $value;
 
-    my $id;
+    my $id = '';
     if ( $opts->{include_ids} && $opts->{name} ne "" && $value ne "" ) {
         $id = " id='$opts->{'name'}_$value'";
     }
@@ -247,7 +247,7 @@ sub html_check
     my $disabled = $opts->{'disabled'} ? " disabled='disabled'" : "";
     my $ehtml = $opts->{'noescape'} ? 0 : 1;
     my $ret;
-    if ($opts->{'type'} eq "radio") {
+    if ( $opts->{type} && $opts->{type} eq "radio" ) {
         $ret .= "<input type='radio'";
     } else {
         $ret .= "<input type='checkbox'";
@@ -268,6 +268,8 @@ sub html_check
 # in a label, respecting HTML
 sub labelfy {
     my ($id, $text) = @_;
+    $id = '' unless defined $id;
+    $text = '' unless defined $text;
 
     $text =~ s!
         ^([^<]+)
@@ -295,11 +297,15 @@ sub html_text
 
     my $disabled = $opts->{'disabled'} ? " disabled='disabled'" : "";
     my $ehtml = $opts->{'noescape'} ? 0 : 1;
-    my $type = $opts->{'type'} eq 'password' || $opts->{'type'} eq 'search' ? $opts->{'type'} : 'text';
-    my $ret;
+    my $type = 'text';
+    $type = $opts->{type} if $opts->{type} &&
+                             ( $opts->{type} eq 'password' ||
+                               $opts->{type} eq 'search' );
+    my $ret = '';
     $ret .= "<input type=\"$type\"";
     foreach (grep { ! /^(type|disabled|raw|noescape)$/ } keys %$opts) {
-        $ret .= " $_=\"" . ($ehtml ? ehtml($opts->{$_}) : $opts->{$_}) . "\"";
+        my $val = $opts->{$_} || '';
+        $ret .= " $_=\"" . ( $ehtml ? LJ::ehtml( $val ) : $val ) . "\"";
     }
     if ($opts->{'raw'}) { $ret .= " $opts->{'raw'}"; }
     $ret .= "$disabled />";
@@ -412,7 +418,7 @@ sub html_hidden
         my $name = shift;
         my $val;
         my $ehtml = 1;
-        my $extra;
+        my $extra = '';
         if (ref $name eq 'HASH') {
             my $opts = $name;
 
@@ -466,14 +472,14 @@ sub html_submit
         $name = undef;
     }
 
-    my ($eopts, $disabled, $raw);
+    my ( $eopts, $disabled, $raw ) = ( '','','' );
     my $type = 'submit';
 
     my $ehtml;
     if ($opts && ref $opts eq 'HASH') {
         $disabled = " disabled='disabled'" if $opts->{'disabled'};
         $raw = " $opts->{'raw'}" if $opts->{'raw'};
-        $type = 'reset' if $opts->{'type'} eq 'reset';
+        $type = 'reset' if $opts->{type} && $opts->{type} eq 'reset';
 
         $ehtml = $opts->{'noescape'} ? 0 : 1;
         foreach (grep { ! /^(raw|disabled|noescape|type)$/ } keys %$opts) {

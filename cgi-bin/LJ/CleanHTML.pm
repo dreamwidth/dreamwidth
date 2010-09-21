@@ -1011,7 +1011,7 @@ sub clean
             }
 
             my $auto_format = $addbreaks &&
-                ($opencount{'table'} <= ($opencount{'td'} + $opencount{'th'})) &&
+                ( ( $opencount{table} || 0 ) <= ( $opencount{td} + $opencount{th} ) ) &&
                  ! $opencount{'pre'} &&
                  ! $opencount{'lj-raw'};
 

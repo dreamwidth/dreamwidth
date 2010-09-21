@@ -563,7 +563,7 @@ sub get_layers_of_user
 
     foreach (keys %layers) {
         # setup uniq alias.
-        if ($layers{$_}->{'uniq'} ne "") {
+        if ( defined $layers{$_}->{uniq} && $layers{$_}->{uniq} ne "" ) {
             $layers{$layers{$_}->{'uniq'}} = $layers{$_};
         }
 
@@ -856,7 +856,7 @@ sub escape_prop_value {
             my $clean = $css_c->clean_property($_[0]);
             $_[0] = $clean;
         }
-        else { # plain
+        elsif ( defined $_[0] ) { # plain
             $_[0] =~ s/</&lt;/g;
             $_[0] =~ s/>/&gt;/g;
             $_[0] =~ s!\n!<br />!g;

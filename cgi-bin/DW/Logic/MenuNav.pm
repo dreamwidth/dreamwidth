@@ -41,7 +41,7 @@ sub get_menu_navigation {
 
     $u ||= LJ::get_remote();
 
-    my ( $userpic_count, $userpic_max, $inbox_count );
+    my ( $userpic_count, $userpic_max, $inbox_count ) = ( 0,0,0 );
     if ( $u ) {
         $userpic_count = $u->get_userpic_count;
         $userpic_max = $u->userpic_quota;

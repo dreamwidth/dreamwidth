@@ -393,7 +393,7 @@ sub recent_items
     #   with 32 bit time_t structs dies)
     #
     # Unless we are not on a friends view, then want to use the actual end of time.
-    my $notafter = $args{notafter} + 0;
+    my $notafter = $args{notafter} ? $args{notafter} + 0 : 0;
     $notafter ||= $args{friendsview} ? $LJ::EndOfTime - 1 : $LJ::EndOfTime;
 
     my $skip = $args{'skip'}+0;
@@ -432,7 +432,7 @@ sub recent_items
     }
 
     # because LJ::get_friend_items needs rlogtime for sorting.
-    my $extra_sql;
+    my $extra_sql = '';
     if ($args{'friendsview'}) {
         $extra_sql .= "journalid AS 'ownerid', rlogtime, ";
     }
@@ -537,7 +537,8 @@ sub recent_items
     while (my $li = $sth->fetchrow_hashref) {
         push @{$args{'itemids'}}, $li->{'itemid'};
 
-        $flush->() if $li->{alldatepart} ne $last_time;
+        $flush->() unless defined $last_time &&
+                          $li->{alldatepart} eq $last_time;
         push @buf, $li;
         $last_time = $li->{alldatepart};
 

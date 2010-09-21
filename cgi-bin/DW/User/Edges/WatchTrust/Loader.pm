@@ -36,8 +36,9 @@ sub _trustmask {
 
         $mask = $dbr->selectrow_array(
             'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
-            undef, $from_userid, $to_userid ) + 0; # force numeric
+            undef, $from_userid, $to_userid );
         return 0 if $dbr->err;
+        $mask = $mask ? $mask + 0 : 0; # force numeric
 
         LJ::MemCache::set( $memkey, $mask, 3600 );
     }

@@ -962,7 +962,9 @@ sub viewing_style_opts {
     $ret{s2id} = $args{s2id} if $args{s2id} && $args{s2id} =~ /^\d+$/;
 
     for my $key( qw ( format style ) ) {
-        $ret{$key} = $args{$key} if $valid_style_args->{$key}->{$args{$key}};
+        $ret{$key} = $args{$key}
+            if $valid_style_args->{$key} &&
+               $valid_style_args->{$key}->{$args{$key}};
     }
 
     return \%ret;
@@ -1855,11 +1857,10 @@ PREVIEW
 
 # entry form subject
 sub entry_form_subject_widget {
-    my $class = shift;
+    my $class = $_[0];
 
-    if ($class) {
-        $class = qq { class="$class" };
-    }
+    $class = $class ? qq { class="$class" } : '';
+
     return qq { <input name="subject" id="subject" $class/> };
 }
 
@@ -1879,11 +1880,9 @@ sub entry_form_date_widget {
 
 # entry form event text box
 sub entry_form_entry_widget {
-    my $class = shift;
+    my $class = $_[0];
 
-    if ($class) {
-        $class = qq { class="$class" };
-    }
+    $class = $class ? qq { class="$class" } : '';
 
     return qq { <textarea cols=50 rows=10 name="event" id="event" $class></textarea> };
 }
@@ -2173,6 +2172,7 @@ sub js_dumper {
         my $ret = "[" . join(", ", map { js_dumper($_) } @$obj) . "]";
         return $ret;
     } else {
+        $obj = '' unless defined $obj;
         return $obj if $obj =~ /^\d+$/;
         return "\"" . LJ::ejs($obj) . "\"";
     }
@@ -2332,7 +2332,7 @@ sub res_includes {
         $what .= "?v=$modtime" unless $do_concat;
 
         push @{$list{$type} ||= []}, $what;
-        $oldest{$type} = $modtime if $modtime > $oldest{$type};
+        $oldest{$type} = $modtime if $modtime > ( $oldest{$type} || 0 );
     };
 
     foreach my $by_priority ( reverse @LJ::NEEDED_RES ) {
@@ -2468,9 +2468,8 @@ sub control_strip
     my $args = $baseuri ? delete $opts{args} : $r->query_string; # use passed in args if we have a passed in location
     my $view = delete $opts{view} || $r->note( 'view' );
 
-    my $querysep = $args ? "?" : "";
     my $uri = $baseuri ? "http://$baseuri" : "http://" . $r->header_in('Host') . $r->uri;
-    $uri .= "$querysep$args";
+    $uri .= $args ? "?$args" : "";
     my $euri = LJ::eurl($uri);
     my $create_link = LJ::Hooks::run_hook("override_create_link_on_navstrip", $journal) || "<a href='$LJ::SITEROOT/create'>" . BML::ml('web.controlstrip.links.create', {'sitename' => $LJ::SITENAMESHORT}) . "</a>";
 
@@ -2771,7 +2770,7 @@ sub control_strip
             $ret .= "&nbsp;";
         }
 
-        $ret .= LJ::Hooks::run_hook('control_strip_logo', $remote, $journal);
+        $ret .= LJ::Hooks::run_hook('control_strip_logo', $remote, $journal) || '';
         $ret .= "</td>";
 
     } else {
@@ -2887,7 +2886,7 @@ LOGIN_BAR
 sub control_strip_js_inject
 {
     my %opts = @_;
-    my $user = delete $opts{user};
+    my $user = delete $opts{user} || '';
 
     my $ret;
 
@@ -2903,8 +2902,8 @@ sub control_strip_js_inject
 
     my $r = DW::Request->get;
     my $baseuri = $r->header_in( 'Host' ) . $r->uri;
-    my $args = LJ::eurl( $r->query_string );
-    my $view = $r->note( 'view' );
+    my $args = LJ::eurl( $r->query_string ) || '';
+    my $view = $r->note( 'view' ) || '';
 
     $ret .= qq{
 <script type='text/javascript'>

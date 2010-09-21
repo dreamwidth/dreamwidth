@@ -478,10 +478,9 @@ sub parts_from_cookie {
 
 # returns: (uniq_val, uniq_time, uniq_extra)
 sub parts_from_value {
-    my $class = shift;
-    my $value = shift;
+    my ( $class, $value ) = @_;
 
-    if ($value =~ /^([a-zA-Z0-9]{15}):(\d+)(.+)$/) {
+    if ( $value && $value =~ /^([a-zA-Z0-9]{15}):(\d+)(.+)$/ ) {
         return wantarray() ? ($1, $2, $3) : $1;
     }
 
@@ -489,15 +488,14 @@ sub parts_from_value {
 }
 
 sub set_current_uniq {
-    my $class = shift;
-    my $uniq = shift;
+    my ( $class, $uniq ) = @_;
 
     $LJ::REQ_CACHE{current_uniq} = $uniq;
 
     return unless LJ::is_web_context();
 
     my $r = BML::get_request();
-    $r->notes->{uniq} = $uniq;
+    $r->notes->{uniq} = $uniq if $r;
 
     return;
 }

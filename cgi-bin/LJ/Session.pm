@@ -406,7 +406,8 @@ sub helper_url {
 
     if ($dest =~ m!^(https?://)([^/]*?)\.\Q$LJ::USER_DOMAIN\E/?([^/]*)!) {
         my $url = "$1$2.$LJ::USER_DOMAIN/";
-        if ($LJ::SUBDOMAIN_FUNCTION{lc($2)} eq "journal") {
+        if ( $LJ::SUBDOMAIN_FUNCTION{ lc($2) } &&
+             $LJ::SUBDOMAIN_FUNCTION{ lc($2) } eq "journal" ) {
             $url .= "$3/" if $3 && ($3 ne '/'); # 'http://community.livejournal.com/name/__setdomsess'
         }
 
@@ -456,10 +457,11 @@ sub domain_journal {
     return undef if $host eq lc($LJ::DOMAIN_WEB) || $host eq lc($LJ::DOMAIN);
 
     return undef unless
-        $host =~ m!^([\w-\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!;
+        $host =~ m!^([-\w\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!;
 
     my $subdomain = lc($1);
-    if ($LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal") {
+    if ( $LJ::SUBDOMAIN_FUNCTION{$subdomain} &&
+         $LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal" ) {
         return undef unless $path =~ m!^/(\w{1,15})\b!;
         my $user = lc($1);
         return wantarray ? ($subdomain, $user) : $user;
@@ -595,7 +597,7 @@ sub session_from_master_cookie {
         }
 
         # must do this first so they can't trick us
-        $$tried_fast = 1 if $flags =~ /\.FS\b/;
+        $$tried_fast = 1 if $flags && $flags =~ /\.FS\b/;
 
         next COOKIE if $bogus;
 
@@ -741,8 +743,9 @@ sub setdomsess_handler {
         my ($host, $url_path) = (lc($1), $2);
         my ($subdomain, $user);
 
-        if (    $host =~ m!^([\w-\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!
+        if (    $host =~ m!^([-\w\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!
             && ($subdomain = lc($1))                                # undef: not on a user-subdomain
+            &&  $LJ::SUBDOMAIN_FUNCTION{$subdomain}
             && ($LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal")
             && ($url_path =~ m!^/(\w{1,15})\b!) ) {
                 $path = '/' . lc($1) . '/' if $1;
@@ -843,8 +846,9 @@ sub set_cookie {
     );
 
     # Backwards compatability for older browsers
+    return unless defined $domain;
     my @labels = split(/\./, $domain);
-    if ($domain && scalar @labels == 2 && ! $LJ::DEBUG{no_extra_dot_cookie}) {
+    if ( scalar @labels == 2 && ! $LJ::DEBUG{no_extra_dot_cookie} ) {
         $r->add_cookie(
             name     => $key,
             value    => $value,
@@ -926,13 +930,14 @@ sub valid_domain_cookie {
 
 sub valid_destination {
     my $dest = shift;
-    return $dest =~ qr!^http://[\w\-\.]+\.\Q$LJ::USER_DOMAIN\E/.*!;
+    return $dest =~ qr!^http://[-\w\.]+\.\Q$LJ::USER_DOMAIN\E/!;
 }
 
 sub valid_cookie_generation {
-    my $gen    = shift;
+    my $gen    = shift || '';
     my $dgen   = LJ::durl($gen);
     foreach my $okay ($LJ::COOKIE_GEN, @LJ::COOKIE_GEN_OKAY) {
+        $okay = '' unless defined $okay;
         return 1 if $gen  eq $okay;
         return 1 if $dgen eq $okay;
     }

@@ -90,7 +90,7 @@ sub parse {
     my %results;
     my %results_multi;
 
-    my @pairs = split( "[;,] ?", $_[1] );
+    my @pairs = split( "[;,] ?", defined $_[1] ? $_[1] : '' );
     foreach ( @pairs ) {
         $_ =~ s/\s*(.*?)\s*/$1/;
         my ( $key, $value ) = split( "=", $_, 2 );

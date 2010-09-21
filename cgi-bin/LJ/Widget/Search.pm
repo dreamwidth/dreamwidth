@@ -36,7 +36,7 @@ sub render_body {
         im => $class->ml( 'widget.search.iminfo' ),
     );
 
-    if ( $single_search eq "interest" ) {
+    if ( $single_search && $single_search eq "interest" ) {
         $ret .= "<p class='search-interestonly'>" . $class->ml( 'widget.search.interestonly' ) . "</p>";
         $select_box = LJ::html_hidden( type => "int" );
         $search_btn = LJ::html_submit( $class->ml( 'widget.search.interestonly.btn' ) );

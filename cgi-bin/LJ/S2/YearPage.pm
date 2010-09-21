@@ -148,7 +148,7 @@ sub YearMonth {
         while (my $im = each %$h) {
             next if $im >= $month;
             my $val = $iy * 12 + $im;
-            if ($val < $nowval && $val > $maxbefore) {
+            if ( $val < $nowval && ( !$maxbefore || $val > $maxbefore ) ) {
                 $maxbefore = $val;
                 $calmon->{'prev_url'} = $p->{'_u'}->{'_journalbase'} . sprintf("/%04d/%02d/", $iy, $im);
                 $calmon->{'prev_date'} = Date($iy, $im, 0);

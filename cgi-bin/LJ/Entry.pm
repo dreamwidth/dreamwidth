@@ -1024,9 +1024,9 @@ sub group_names {
 }
 
 sub statusvis {
-    my $self = shift;
-
-    return $self->prop("statusvis") eq "S" ? "S" : "V";
+    my $self = $_[0];
+    my $vis = $self->prop("statusvis") || '';
+    return $vis eq "S" ? "S" : "V";
 }
 
 sub is_visible {
@@ -2206,7 +2206,7 @@ sub currents {
 
     my ( $key, $entry, $s2imgref );
     if ( $opts && ref $opts ) {
-        $key = $opts->{key};
+        $key = $opts->{key} || '';
         $entry = $opts->{entry};
         $s2imgref = $opts->{s2imgref};
     }
