@@ -40,7 +40,7 @@ layerinfo name = "Clear Green";
 layerinfo redist_uniq = "steppingstones/cleargreen";
 layerinfo author_name = "ambrya";
 
-set layout_authors = [ { "name" => "ambrya", "type" => "user" } ];
+set theme_authors = [ { "name" => "ambrya", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -123,7 +123,7 @@ layerinfo name = "Friendly Colors";
 layerinfo redist_uniq = "steppingstones/friendlycolors";
 layerinfo author_name = "kareila";
 
-set layout_authors = [ { "name" => "kareila", "type" => "user" } ];
+set theme_authors = [ { "name" => "kareila", "type" => "user" } ];
 set layout_type = "two-columns-left";
 
 set use_custom_friend_colors = true;
@@ -312,7 +312,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "steppingstones/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

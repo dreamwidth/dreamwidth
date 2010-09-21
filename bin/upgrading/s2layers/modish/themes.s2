@@ -4,7 +4,7 @@ layerinfo name = "Blue Spruce";
 layerinfo redist_uniq = "modish/bluespruce";
 layerinfo author_name = "sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -65,7 +65,7 @@ layerinfo name = "Cinnamon Plum Tea";
 layerinfo redist_uniq = "modish/cinnamonplumtea";
 layerinfo author_name = "sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -135,7 +135,7 @@ layerinfo name = "Clean Sheets";
 layerinfo redist_uniq = "modish/cleansheets";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -163,7 +163,7 @@ layerinfo name = "Greyscale";
 layerinfo redist_uniq = "modish/greyscale";
 layerinfo author_name = "twtd";
 
-set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
+set theme_authors = [ { "name" => "twtd", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -204,7 +204,7 @@ layerinfo name = "Houlihan";
 layerinfo redist_uniq = "modish/houlihan";
 layerinfo author_name = "sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -281,7 +281,7 @@ layerinfo name = "Moonlight";
 layerinfo redist_uniq = "modish/moonlight";
 layerinfo author_name = "sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -347,7 +347,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "modish/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -380,7 +380,7 @@ layerinfo name = "Plastic Grass";
 layerinfo author_name = "zvi";
 layerinfo redist_uniq = "modish/plasticgrass";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -403,7 +403,7 @@ layerinfo name = "Porcelain Teacup";
 layerinfo redist_uniq = "modish/porcelainteacup";
 layerinfo author_name = "sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -456,7 +456,7 @@ layerinfo name = "Trusty";
 layerinfo redist_uniq = "modish/trusty";
 layerinfo author_name = "sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -542,7 +542,7 @@ layerinfo name = "Verdigris";
 layerinfo author_name = "zvi";
 layerinfo redist_uniq = "modish/verdigris";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

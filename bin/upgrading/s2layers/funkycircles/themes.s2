@@ -641,7 +641,7 @@ layerinfo name = "Light On Dark";
 layerinfo redist_uniq = "funkycircles/lightondark";
 layerinfo author_name = "cesy";
 
-set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+set theme_authors = [ { "name" => "cesy", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -730,7 +730,7 @@ layerinfo name = "Nevermore";
 layerinfo redist_uniq = "funkycircles/nevermore";
 layerinfo author_name = "wizard101";
 
-set layout_authors = [ { "name" => "wizard101", "type" => "user" } ];
+set theme_authors = [ { "name" => "wizard101", "type" => "user" } ];
 set layout_resources = [ { "name" => "Wordle", "url" => "http://www.wordle.net/" } ];
 
 ##===============================
@@ -850,7 +850,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "funkycircles/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 set color_footer_background = "#ffefbd";
 set color_footer_link = "#ef8229";

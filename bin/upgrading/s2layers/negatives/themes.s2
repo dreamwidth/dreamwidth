@@ -4,7 +4,7 @@ layerinfo name = "Autumn";
 layerinfo redist_uniq = "negatives/autumn";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_background = "#9e2d00";
 set color_page_text = "#160131";
@@ -39,7 +39,7 @@ layerinfo name = "Azure";
 layerinfo redist_uniq = "negatives/azure";
 layerinfo author_name = "daven";
 
-set layout_authors = [ { "name" => "daven", "type" => "user" }];
+set theme_authors = [ { "name" => "daven", "type" => "user" }];
 
 set color_page_background = "#343370";
 set color_page_text = "#ffffff";
@@ -257,7 +257,7 @@ layerinfo name = "Blasted Sands";
 layerinfo redist_uniq = "negatives/blastedsands";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 set color_page_text = "#996633";
 set color_page_background = "#dcc6b0";
@@ -311,7 +311,7 @@ layerinfo name = "Bridal Bouquet";
 layerinfo redist_uniq = "negatives/bridalbouquet";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_background = "#ffe1c0";
 set color_page_text = "#000000";
@@ -346,7 +346,7 @@ layerinfo name = "Corporate Embrace";
 layerinfo redist_uniq = "negatives/corporateembrace";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_background = "#9090c0";
 set color_page_text = "#000000";
@@ -381,7 +381,7 @@ layerinfo name = "Easy Reader";
 layerinfo redist_uniq = "negatives/easyreader";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_link_active = "#2c4402";
 set color_page_link = "#2a1867";
@@ -419,7 +419,7 @@ layerinfo name = "Evening";
 layerinfo redist_uniq = "negatives/evening";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_background = "#000000";
 set color_page_text = "#fd7d83";
@@ -449,7 +449,7 @@ layerinfo name = "Light On Dark";
 layerinfo redist_uniq = "negatives/lightondark";
 layerinfo author_name = "cesy";
 
-set layout_authors = [ { "name" => "cesy", "type" => "user" }];
+set theme_authors = [ { "name" => "cesy", "type" => "user" }];
 
 set color_page_background = "#666666";
 set color_page_text = "#ffffff";
@@ -499,7 +499,7 @@ layerinfo "name" = "Lime Cherry";
 layerinfo redist_uniq = "negatives/limecherry";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 set color_page_background = "#d9f3d3";
 set color_page_link = "#8f0000";
@@ -547,7 +547,7 @@ layerinfo "name" = "NNWM 2009";
 layerinfo redist_uniq = "negatives/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 set color_page_link_visited = "#ef4921";
 set color_page_link_active = "#a5cf39";
@@ -566,7 +566,7 @@ layerinfo "name" = "Pumpkin Juice";
 layerinfo redist_uniq = "negatives/pumpkinjuice";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 set color_page_background = "#fc7837";
 set color_entry_link_hover = "#78f5e8";
@@ -612,7 +612,7 @@ layerinfo name = "Spring";
 layerinfo redist_uniq = "negatives/spring";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_background = "#ffea8d";
 set color_page_text = "#c8434d";
@@ -647,7 +647,7 @@ layerinfo name = "Summer";
 layerinfo redist_uniq = "negatives/summer";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_background = "#ffffff";
 set color_page_text = "#000000";
@@ -682,7 +682,7 @@ layerinfo name = "Winter";
 layerinfo redist_uniq = "negatives/winter";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_background = "#606193";
 set color_page_text = "#202260";
@@ -717,7 +717,7 @@ layerinfo name = "Yo-zakura";
 layerinfo redist_uniq = "negatives/yozakura";
 layerinfo author_name = "busaikko";
 
-set layout_authors = [ { "name" => "busaikko", "type" => "user" }];
+set theme_authors = [ { "name" => "busaikko", "type" => "user" }];
 
 set color_page_background = "#c62677";
 set color_page_text = "#000000";

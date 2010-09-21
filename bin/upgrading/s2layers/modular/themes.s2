@@ -98,7 +98,7 @@ layerinfo name = "Calculated Risks";
 layerinfo redist_uniq = "modular/calculatedrisks";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -239,7 +239,7 @@ layerinfo name = "Fresh Prose";
 layerinfo redist_uniq = "modular/freshprose";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -479,7 +479,7 @@ layerinfo name = "Patchwork";
 layerinfo redist_uniq = "modular/patchwork";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -521,7 +521,7 @@ layerinfo name = "Purple Haze";
 layerinfo redist_uniq = "modular/purplehaze";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -565,7 +565,7 @@ layerinfo name = "Subtle Misses";
 layerinfo redist_uniq = "modular/subtlemisses";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

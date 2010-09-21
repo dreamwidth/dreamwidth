@@ -210,7 +210,7 @@ layerinfo name = "Coconut";
 layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "crossroads/coconut";
 
-set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+set theme_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
 #uses color palette "Tropical Summer" by Harbinger (http://www.colourlovers.com/palette/61078/Tropical_Summer)
 
@@ -378,7 +378,7 @@ layerinfo name = "NNWM 2009";
 layerinfo author_name = "zvi";
 layerinfo redist_uniq = "crossroads/nnwm2009";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 set color_footer_background = "#ffefbd";
 set color_footer_link = "#ef8229";
@@ -613,7 +613,7 @@ layerinfo name = "Sky";
 layerinfo author_name = "branchandroot";
 layerinfo redist_uniq = "crossroads/sky";
 
-set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+set theme_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
 #uses color palette "Destined For Nothing" by Morriconei (http://www.colourlovers.com/palette/155638/Destined_For_Nothing)
 

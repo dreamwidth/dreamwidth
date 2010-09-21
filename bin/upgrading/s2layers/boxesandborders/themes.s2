@@ -128,7 +128,7 @@ layerinfo name = "Light On Dark";
 layerinfo redist_uniq = "boxesandborders/lightondark";
 layerinfo author_name = "cesy";
 
-set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+set theme_authors = [ { "name" => "cesy", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -197,7 +197,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "boxesandborders/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -316,7 +316,7 @@ layerinfo name = "Poppy Fields";
 layerinfo redist_uniq = "boxesandborders/poppyfields";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -402,7 +402,7 @@ layerinfo name = "Retro Candy";
 layerinfo redist_uniq = "boxesandborders/retrocandy";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -446,7 +446,7 @@ layerinfo name = "Silver Fox";
 layerinfo redist_uniq = "boxesandborders/silverfox";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -486,7 +486,7 @@ layerinfo name = "Sunny Days";
 layerinfo redist_uniq = "boxesandborders/sunnydays";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

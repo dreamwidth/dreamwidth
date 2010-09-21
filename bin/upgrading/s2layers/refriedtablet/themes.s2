@@ -42,7 +42,7 @@ layerinfo name = "Blue Tuesday";
 layerinfo redist_uniq = "refriedtablet/bluetuesday";
 layerinfo author_name = "forthwritten";
 
-set layout_authors = [ { "name" => "forthwritten", "type" => "user" } ];
+set theme_authors = [ { "name" => "forthwritten", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -223,7 +223,7 @@ layerinfo name = "Foliage";
 layerinfo redist_uniq = "refriedtablet/foliage";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -281,7 +281,7 @@ layerinfo name = "Jewels";
 layerinfo redist_uniq = "refriedtablet/refriedjewels";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -414,7 +414,7 @@ layerinfo name = "Shallows";
 layerinfo redist_uniq = "refriedtablet/refriedshallows";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -472,7 +472,7 @@ layerinfo name = "Teals";
 layerinfo redist_uniq = "refriedtablet/teals";
 layerinfo author_name = "edgeraven";
 
-set layout_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+set theme_authors = [ { "name" => "edgeraven", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

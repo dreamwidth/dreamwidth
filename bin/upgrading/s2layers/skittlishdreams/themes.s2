@@ -4,7 +4,7 @@ layerinfo name = "Academy";
 layerinfo redist_uniq = "skittlishdreams/academy";
 layerinfo author_name = "Sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -189,7 +189,7 @@ layerinfo name = "Desert Cream";
 layerinfo redist_uniq = "skittlishdreams/desertcream";
 layerinfo author_name = "Sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -312,7 +312,7 @@ layerinfo name = "In the Bag";
 layerinfo redist_uniq = "skittlishdreams/inthebag";
 layerinfo author_name = "Sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -383,7 +383,7 @@ layerinfo name = "Like Sunshine";
 layerinfo redist_uniq = "skittlishdreams/likesunshine";
 layerinfo author_name = "Sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -620,7 +620,7 @@ layerinfo name = "Snow Cherries";
 layerinfo redist_uniq = "skittlishdreams/snowcherries";
 layerinfo author_name = "Sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

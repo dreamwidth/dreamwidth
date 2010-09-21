@@ -4,7 +4,7 @@ layerinfo name = "Dazzle";
 layerinfo redist_uniq = "core2base/dazzle";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -61,7 +61,7 @@ layerinfo name = "Kelis";
 layerinfo redist_uniq = "core2base/kelis";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -106,7 +106,7 @@ layerinfo name = "Muted";
 layerinfo redist_uniq = "core2base/muted";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -144,7 +144,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "core2base/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -177,7 +177,7 @@ layerinfo name = "Shanice";
 layerinfo redist_uniq = "core2base/shanice";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -200,7 +200,7 @@ layerinfo name = "Tabac";
 layerinfo redist_uniq = "core2base/tabac";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

@@ -50,7 +50,7 @@ layerinfo name = "Chocolate Cherry";
 layerinfo redist_uniq = "drifting/chocolatecherry";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -89,7 +89,7 @@ layerinfo name = "Comfort Zone";
 layerinfo redist_uniq = "drifting/comfortzone";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -129,7 +129,7 @@ layerinfo name = "Desert Me";
 layerinfo redist_uniq = "drifting/desertme";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -185,7 +185,7 @@ layerinfo name = "Go";
 layerinfo redist_uniq = "drifting/go";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -222,7 +222,7 @@ layerinfo name = "Idolatry";
 layerinfo redist_uniq = "drifting/idolatry";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -268,7 +268,7 @@ layerinfo name = "Light on Dark";
 layerinfo redist_uniq = "drifting/lightondark";
 layerinfo author_name = "cesy";
 
-set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+set theme_authors = [ { "name" => "cesy", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -307,7 +307,7 @@ layerinfo name = "Soft Blues";
 layerinfo redist_uniq = "drifting/softblues";
 layerinfo author_name = "ambrya";
 
-set layout_authors = [ { "name" => "ambrya", "type" => "user" } ];
+set theme_authors = [ { "name" => "ambrya", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -371,7 +371,7 @@ layerinfo name = "Sweet Possibilities";
 layerinfo redist_uniq = "drifting/sweetpossibilities";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -410,7 +410,7 @@ layerinfo name = "Winter Clarity";
 layerinfo redist_uniq = "drifting/winterclarity";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

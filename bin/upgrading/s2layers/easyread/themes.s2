@@ -4,7 +4,7 @@ layerinfo name = "Clovers!";
 layerinfo redist_uniq = "easyread/clovers";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -58,7 +58,7 @@ layerinfo name = "High Contrast Black";
 layerinfo redist_uniq = "easyread/hcblack";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -86,7 +86,7 @@ layerinfo name = "High Contrast Black and Yellow";
 layerinfo redist_uniq = "easyread/hcblackandyellow";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -114,7 +114,7 @@ layerinfo name = "High Contrast Blue and Yellow";
 layerinfo redist_uniq = "easyread/hcblueyellow";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -139,7 +139,7 @@ layerinfo name = "High Contrast White";
 layerinfo redist_uniq = "easyread/hcwhite";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -167,7 +167,7 @@ layerinfo name = "Low Contrast Orange";
 layerinfo redist_uniq = "easyread/lcorange";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -195,7 +195,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "easyread/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -239,7 +239,7 @@ layerinfo name = "Toros!";
 layerinfo redist_uniq = "easyread/toros";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

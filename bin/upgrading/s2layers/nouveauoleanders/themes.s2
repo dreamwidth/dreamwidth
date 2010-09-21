@@ -52,7 +52,7 @@ layerinfo name = "Hunter Green";
 layerinfo redist_uniq = "nouveauoleanders/huntergreen";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -103,7 +103,7 @@ layerinfo name = "Nightfall";
 layerinfo redist_uniq = "nouveauoleanders/nightfall";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -148,7 +148,7 @@ layerinfo name = "Pale Jewels";
 layerinfo redist_uniq = "nouveauoleanders/palejewels";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -200,7 +200,7 @@ layerinfo name = "Peridot";
 layerinfo redist_uniq = "nouveauoleanders/peridot";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -388,7 +388,7 @@ layerinfo name = "Tea Rose";
 layerinfo redist_uniq = "nouveauoleanders/tearose";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

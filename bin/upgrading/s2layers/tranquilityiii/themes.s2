@@ -36,7 +36,7 @@ layerinfo name = "Clear Messages";
 layerinfo redist_uniq = "tranquilityiii/clearmessages";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -86,7 +86,7 @@ layerinfo name = "Fresh Blue";
 layerinfo redist_uniq = "tranquilityiii/freshblue";
 layerinfo author_name = "forthwritten";
 
-set layout_authors = [ { "name" => "forthwritten", "type" => "user" } ];
+set theme_authors = [ { "name" => "forthwritten", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -143,7 +143,7 @@ layerinfo name = "Light On Dark";
 layerinfo redist_uniq = "tranquilityiii/lightondark";
 layerinfo author_name = "cesy";
 
-set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+set theme_authors = [ { "name" => "cesy", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -250,7 +250,7 @@ layerinfo name = "Marble III";
 layerinfo redist_uniq = "tranquilityiii/marbleiii";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -343,7 +343,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "tranquilityiii/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -376,7 +376,7 @@ layerinfo name = "Olive";
 layerinfo redist_uniq = "tranquilityiii/olive";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -434,7 +434,7 @@ layerinfo name = "Sea Deep";
 layerinfo redist_uniq = "tranquilityiii/seadeep";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -492,7 +492,7 @@ layerinfo name = "Shallows";
 layerinfo redist_uniq = "tranquilityiii/shallows";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -550,7 +550,7 @@ layerinfo name = "Stone Mask";
 layerinfo redist_uniq = "tranquilityiii/stonemask";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -614,7 +614,7 @@ layerinfo name = "Wintergreen";
 layerinfo redist_uniq = "tranquilityiii/wintergreen";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

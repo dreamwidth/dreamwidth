@@ -4,7 +4,7 @@ layerinfo name = "Forest";
 layerinfo redist_uniq = "blanket/forest";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -46,7 +46,7 @@ layerinfo name = "Green";
 layerinfo redist_uniq = "blanket/green";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -88,7 +88,7 @@ layerinfo name = "Islands & Cities";
 layerinfo redist_uniq = "blanket/islandsandcities";
 layerinfo author_name = "sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -136,7 +136,7 @@ layerinfo name = "Jewels";
 layerinfo redist_uniq = "blanket/jewels";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -178,7 +178,7 @@ layerinfo name = "Kings & Runaways";
 layerinfo redist_uniq = "blanket/kingsandrunaways";
 layerinfo author_name = "sarken";
 
-set layout_authors = [ { "name" => "sarken", "type" => "user" } ];
+set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -220,7 +220,7 @@ layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "blanket/nnwm2009";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -251,7 +251,7 @@ layerinfo name = "Ocean";
 layerinfo redist_uniq = "blanket/ocean";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -333,7 +333,7 @@ layerinfo name = "Shallows";
 layerinfo redist_uniq = "blanket/shallows";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -375,7 +375,7 @@ layerinfo name = "Sprung";
 layerinfo redist_uniq = "blanket/sprung";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -417,7 +417,7 @@ layerinfo name = "The Teal and the Grey";
 layerinfo redist_uniq = "blanket/thetealandthegrey";
 layerinfo author_name = "twtd";
 
-set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
+set theme_authors = [ { "name" => "twtd", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

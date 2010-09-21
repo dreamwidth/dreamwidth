@@ -4,7 +4,7 @@ layerinfo name = "Beach After Sunset";
 layerinfo redist_uniq = "fluidmeasure/beachaftersunset";
 layerinfo author_name = "dancing_serpent";
  
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -71,7 +71,7 @@ layerinfo name = "Marble I";
 layerinfo redist_uniq = "fluidmeasure/marblei";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -138,7 +138,7 @@ layerinfo name = "Marble II";
 layerinfo redist_uniq = "fluidmeasure/marbleii";
 layerinfo author_name = "dancing_serpent";
 
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -206,7 +206,7 @@ layerinfo name = "Muted Seashore";
 layerinfo redist_uniq = "fluidmeasure/mutedseashore";
 layerinfo author_name = "cimorene";
  
-set layout_authors = [ { "name" => "cimorene", "type" => "user" } ];
+set theme_authors = [ { "name" => "cimorene", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -354,7 +354,7 @@ layerinfo name = "Pigeon Blue";
 layerinfo redist_uniq = "fluidmeasure/pigeonblue";
 layerinfo author_name = "dancing_serpent";
  
-set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

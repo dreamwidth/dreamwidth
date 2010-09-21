@@ -4,7 +4,7 @@ layerinfo name = "Acidic";
 layerinfo redist_uniq = "basicboxes/acidic";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -174,7 +174,7 @@ layerinfo name = "Eggplant";
 layerinfo redist_uniq = "basicboxes/eggplant";
 layerinfo author_name = "kareila";
 
-set layout_authors = [ { "name" => "kareila", "type" => "user" } ];
+set theme_authors = [ { "name" => "kareila", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -215,7 +215,7 @@ layerinfo name = "Freshwater";
 layerinfo redist_uniq = "basicboxes/freshwater";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -339,7 +339,7 @@ layerinfo name = "Manila Envelope";
 layerinfo redist_uniq = "basicboxes/manilaenvelope";
 layerinfo author_name = "zvi";
 
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -382,7 +382,7 @@ layerinfo name = "Parchment & Ink";
 layerinfo redist_uniq = "basicboxes/parchmentandink";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -467,7 +467,7 @@ layerinfo name = "Pleasant Neutrality";
 layerinfo redist_uniq = "basicboxes/pleasantneutrality";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -511,7 +511,7 @@ layerinfo name = "Poppy Fields";
 layerinfo redist_uniq = "basicboxes/poppyfields";
 layerinfo author_name = "timeasmymeasure";
 
-set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
 ##Page Colors
@@ -557,7 +557,7 @@ layerinfo name = "Repose";
 layerinfo redist_uniq = "basicboxes/repose";
 layerinfo author_name = "twtd";
 
-set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
+set theme_authors = [ { "name" => "twtd", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
