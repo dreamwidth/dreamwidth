@@ -1499,7 +1499,7 @@ set module_customtext_order = 13;
 set module_customtext_section = "one";
 
 property string[] module_credit_group {
-    des = "Layout Credit";
+    des = "Style Credit";
     grouptype = "module";
 }
 set module_credit_group = ["module_credit_show", "module_credit_order", "module_credit_section"];
@@ -1511,7 +1511,7 @@ set module_credit_show = true;
 set module_credit_order = 14;
 set module_credit_section = "one";
 
-property string{}[] layout_authors { noui = 1;  des = "The layout author (or authors). Accepts 'name', 'url', 'type'"; }
+property string{}[] layout_authors { noui = 1;  des = "The style author (or authors). Accepts 'name', 'url', 'type'"; }
 property string{}[] theme_authors { noui = 1;  des = "The theme author (or authors). Accepts 'name', 'url', 'type'"; }
 property string{}[] layout_resources { noui = 1; des = "Resources used in the layout. Accepts 'name', 'url'"; }
 
@@ -2159,10 +2159,10 @@ property string text_module_customtext_url {
 }
 
 property string text_module_credit {
-    des = "Text for the 'Layout Credit' module heading";
+    des = "Text for the 'Style Credit' module heading";
     maxlength = 50;
     size = 20;
-    example = "Layout Credit";
+    example = "Style Credit";
 }
 
 set text_module_links = "Links";
@@ -2171,7 +2171,7 @@ set text_module_syndicate = "Syndicate";
 set text_module_tags = "Tags";
 set text_module_popular_tags = "Most Popular Tags";
 set text_module_active_entries = "Active Entries";
-set text_module_credit = "Layout Credit";
+set text_module_credit = "Style Credit";
 
 set text_module_customtext = "Custom text";
 set text_module_customtext_content = "";
