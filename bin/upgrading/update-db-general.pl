@@ -2821,6 +2821,7 @@ CREATE table externalaccount (
     serviceurl varchar(128),
     xpostbydefault enum('1','0') NOT NULL default '0',
     recordlink enum('1','0') NOT NULL default '0',
+    options blob,
     primary key (userid, acctid),
     index (userid)
 )
@@ -3924,6 +3925,11 @@ EOF
             }
         }
         set_dbnote( "unsplit_stats_timestamps", 1 )
+    }
+
+    unless ( column_type( 'externalaccount', 'options' ) ) {
+        do_alter( 'externalaccount',
+                  "ALTER TABLE externalaccount ADD COLUMN options blob");
     }
 });
 

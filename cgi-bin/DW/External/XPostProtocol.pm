@@ -164,4 +164,9 @@ sub supports_challenge {
     return 0;
 }
 
+# returns the options for this protocol
+sub protocol_options {
+    return ();
+}
+
 1;

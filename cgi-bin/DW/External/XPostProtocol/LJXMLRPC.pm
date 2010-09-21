@@ -292,6 +292,16 @@ sub entry_to_req {
         }
     }
 
+    # check minsecurity if set
+    if ( my $minsecurity = $extacct->options->{minsecurity} ) {
+        if ( $minsecurity eq "private" ) {
+            $req->{security} = "private";
+        } elsif ( ( $minsecurity eq "friends" ) && ( $req->{security} eq "public" ) ) {
+            $req->{security} = 'usemask';
+            $req->{allowmask} = 1;
+        }
+    }
+
     # set the date.
     my $eventtime = $entry->eventtime_mysql;
     $eventtime =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d)/;
@@ -570,6 +580,27 @@ sub challenge {
 # checks to see if this account supports challenge/response authentication
 sub supports_challenge { 
     return 1;
+}
+
+# returns the options for this protocol
+sub protocol_options {
+    my ( $self, $extacct, $POST ) = @_;
+    my $option = {
+        type => 'select',
+        description => BML::ml( '.protocol.ljxmlrpc.minsecurity.desc' ),
+        opts => {
+            id => 'minsecurity',
+            name => 'minsecurity',
+            selected => $POST ? $POST->{minsecurity} : ( $extacct && $extacct->options && $extacct->options->{minsecurity} ) ? $extacct->options->{minsecurity} : 'public',
+        },
+        options => [
+            'public', BML::ml( '.protocol.ljxmlrpc.minsecurity.public' ),
+            'friends', BML::ml( '.protocol.ljxmlrpc.minsecurity.friends' ),
+            'private', BML::ml( '.protocol.ljxmlrpc.minsecurity.private' ),
+        ],
+    };
+    my @return_value =  ( $option );
+    return @return_value;
 }
 
 1;

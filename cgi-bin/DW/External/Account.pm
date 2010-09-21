@@ -30,9 +30,9 @@ sub _memcache_key_prefix            { "acct" }
 sub _memcache_stored_props          {
     # first element of props is a VERSION
     # next - allowed object properties
-    return qw/ 2
+    return qw/ 3
                userid acctid
-               siteid username password servicename servicetype serviceurl xpostbydefault recordlink
+               siteid username password servicename servicetype serviceurl xpostbydefault recordlink options
                /;
 }
 sub _memcache_hashref_to_object {
@@ -81,7 +81,7 @@ sub get_external_accounts {
         return @accounts;
     }
 
-    my $sth = $u->prepare("SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink FROM externalaccount WHERE userid=?");
+    my $sth = $u->prepare( "SELECT userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options FROM externalaccount WHERE userid=?" );
     $sth->execute($u->userid);
     LJ::throw($u->errstr) if $u->err;
 
@@ -107,7 +107,7 @@ sub get_external_account {
         return $cached_value;
     }
 
-    my $sth = $u->prepare("SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink FROM externalaccount WHERE userid=? and acctid=?");
+    my $sth = $u->prepare( "SELECT userid, siteid, acctid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options FROM externalaccount WHERE userid=? and acctid=?" );
     $sth->execute($u->userid, $acctid);
     LJ::throw($u->err) if ($u->err);
 
@@ -164,7 +164,7 @@ sub xpost_string_to_hash {
 # instance methods
 sub absorb_row {
     my ($self, $row) = @_;
-    for my $f (qw(username siteid password servicename servicetype serviceurl xpostbydefault recordlink)) {
+    for my $f ( qw( username siteid password servicename servicetype serviceurl xpostbydefault recordlink options ) ) {
         $self->{$f} = $row->{$f};
     }
     return $self;
@@ -184,7 +184,10 @@ sub create {
     my $protocol = DW::External::XPostProtocol->get_protocol($protocol_id);
     my $encryptedpassword = $protocol->encrypt_password($opts->{password});
 
-    $u->do("INSERT INTO externalaccount (userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0' );
+    # convert the options hashref to a single field
+    my $options_blob = $class->xpost_hash_to_string( $opts->{options} );
+
+    $u->do( "INSERT INTO externalaccount ( userid, acctid, siteid, username, password, servicename, servicetype, serviceurl, xpostbydefault, recordlink, options ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", undef, $u->{userid}, $acctid, $opts->{siteid}, $opts->{username}, $encryptedpassword, $opts->{servicename}, $opts->{servicetype}, $opts->{serviceurl}, $opts->{xpostbydefault} ? '1' : '0', $opts->{recordlink} ? '1' : '0', $options_blob );
     
     LJ::throw($u->errstr) if $u->err;
 
@@ -396,6 +399,17 @@ sub recordlink {
     return $_[0]->{recordlink};
 }
 
+# returns the (protocol-specific) options as a hash ref
+sub options {
+    my $self = $_[0];
+    unless ( $self->{options_map} ) {
+        my $options_map = DW::External::Account->xpost_string_to_hash( $self->{options} );
+        $self->{options_map} = $options_map;
+    }
+
+    return $self->{options_map};
+}
+
 # if there is an external site configured, returns it; otherwise returns undef
 sub externalsite {
     return undef unless $_[0]->{siteid};
@@ -493,6 +507,28 @@ sub set_password {
         
         $self->_remove_from_memcache($self->_memcache_id);
     }
+    return 1;
+}
+
+# sets the (protocol-specific) options.  takes a hashref as the options
+# argument.
+sub set_options {
+    my ( $self, $options ) = @_;
+
+    my $u = $self->owner;
+
+    # convert the hash to a string.
+    my $newvalue = DW::External::Account->xpost_hash_to_string( $options );
+    
+    $u->do( "UPDATE externalaccount SET options=? WHERE userid=? AND acctid=?", undef, $newvalue, $u->{userid}, $self->acctid );
+    LJ::throw($u->errstr) if $u->err;
+
+    # set options to the new value and clear options_map
+    $self->{options} = $newvalue;
+    $self->{options_map} = undef;
+    
+    $self->_remove_from_memcache($self->_memcache_id);
+
     return 1;
 }
 

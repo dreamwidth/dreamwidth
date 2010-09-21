@@ -8,6 +8,16 @@
 
 .error.maxacct.singular=You are already at your limit of [[max_accts]] account.
 
+.protocol.ljxmlrpc.minsecurity.desc=Minimum Security
+
+.protocol.ljxmlrpc.minsecurity.friends=Friends
+
+.protocol.ljxmlrpc.minsecurity.private=Private
+
+.protocol.ljxmlrpc.minsecurity.public=Public
+
+.protocol.options=[[protocol]] options
+
 .settings.xpost.error.ipban=Too many log-in attempts. Please try creating the account again later.
 
 .settings.xpost.error.password.invalid=Invalid password.

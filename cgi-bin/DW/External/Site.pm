@@ -144,4 +144,10 @@ sub pre_crosspost_hook {
     return $_[1];
 }
 
+# returns the servicetype
+sub servicetype {
+    return $_[0]->{servicetype};
+}
+
+
 1;
