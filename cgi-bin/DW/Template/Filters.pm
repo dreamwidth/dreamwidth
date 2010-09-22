@@ -52,6 +52,17 @@ sub ml {
     };
 }
 
+=head2 js
+
+Escape any JS output
+
+=cut
+sub js {
+    return sub {
+        return LJ::ejs_string( $_[0] );
+    }
+}
+
 sub decide_language {
     my $r = DW::Request->get;
     return $r->note( 'ml_lang' ) if $r->note( 'ml_lang' );
