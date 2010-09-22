@@ -556,7 +556,7 @@ sub _notify_buyer_paid {
     push @payment_methods, $self->total_points . ' points'
         if $self->total_points;
 
-    my $itemlist = join( "\n", map { "  * " . $_->short_desc } @{$self->items} );
+    my $itemlist = join( "\n", map { "  * " . $_->short_desc( nohtml => 1 ) } @{$self->items} );
 
     LJ::send_mail( {
         to       => $self->email,

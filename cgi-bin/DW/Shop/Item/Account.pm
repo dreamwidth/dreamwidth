@@ -366,7 +366,7 @@ sub t_html {
 
 
 # override
-sub name_html {
+sub name_text {
     my $self = $_[0];
 
     my $name = $self->class_name;

@@ -166,7 +166,7 @@ sub can_be_added {
 
 
 # override
-sub name_html {
+sub name_text {
     my $self = $_[0];
 
     return LJ::Lang::ml( 'shop.item.points.name', { num => $self->points, sitename => $LJ::SITENAMESHORT } );

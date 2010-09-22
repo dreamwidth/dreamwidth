@@ -255,17 +255,28 @@ sub t_html {
     return "<strong>invalid/unknown target</strong>";
 }
 
+=head2 C<< $self->name_text >>
 
-=head2 C<< $self->name_html >>
-
-Render the item name as a string, for display.
+Render the item name as a string, for display, to be used in contexts which don't allow HTML.
 
 Subclasses must override to provide a more specific and user-friendly display name.
 
 =cut
 
-sub name_html {
+sub name_text {
     return ref $_[0];
+}
+
+=head2 C<< $self->name_html >>
+
+Render the item name as a string for display, to be used in contexts which accept HTML.
+
+Subclasses may override to provide a version of the name containing HTML. Uses $self->name_text by default.
+
+=cut
+
+sub name_html {
+    return $_[0]->name_text;
 }
 
 
@@ -278,10 +289,10 @@ Subclasses may override to provide further description.
 =cut
 
 sub short_desc {
-    my $self = $_[0];
+    my ( $self, %opts ) = @_;
 
     # does not contain HTML, I hope
-    my $desc = $self->name_html;
+    my $desc = $opts{nohtml} ? $self->name_text : $self->name_html;
 
     my $for = $self->t_email;
     unless ( $for ) {

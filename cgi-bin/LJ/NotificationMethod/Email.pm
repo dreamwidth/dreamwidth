@@ -86,7 +86,9 @@ sub notify {
         my $plain_body = LJ::Hooks::run_hook("esn_email_plaintext", $ev, $u);
         unless ($plain_body) {
             $plain_body = $ev->as_email_string($u) or next;
-            $plain_body .= $footer;
+
+            # only append the footer if we can see this event on the subscription interface
+            $plain_body .= $footer if $ev->is_visible;
         }
 
         # run transform hook on plain body
@@ -130,7 +132,9 @@ sub notify {
 
                  # convert newlines in HTML mail
                  $html_body =~ s/\n/\n<br\/>/g unless $html_body =~ m!<br!i;
-                 $html_body .= $html_footer;
+
+                 # only append the footer if we can see this event on the subscription interface
+                 $html_body .= $html_footer if $ev->is_visible;
 
                  # run transform hook on html body
                  LJ::Hooks::run_hook("esn_email_html_transform", event => $ev, rcpt_u => $u, bodyref => \$html_body);

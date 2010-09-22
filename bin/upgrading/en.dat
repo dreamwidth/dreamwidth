@@ -1800,7 +1800,7 @@ On [[date]] at [[time]] your username was changed from [[oldname]] to [[user]]. 
 
 If you made this change yourself, this email serves as a confirmation of your change.
 
-If you did not change your username, it means that your journal's security was compromised. Please contact Support [http://www.dreamwidth.org/support] to learn what steps you should take to resecure your journal.
+If you did not change your username, it means that your journal's security was compromised. Please contact Support [[[siteroot]]/support] to learn what steps you should take to resecure your journal.
 
 This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters.
 .
@@ -3629,11 +3629,13 @@ shop.item.points.canbeadded.outofrange=Minimum purchase is 30 points, maximum is
 
 shop.item.points.name=[[num]] [[sitename]] Points
 
-shop.item.rename.canbeadded.invalidjournaltype=You can only send a rename token to a personal journal. If you wish to rename a community journal, please <a [[aopts]]>contact site administrators</a>.
+shop.item.rename.canbeadded.invalidjournaltype=You can only send a rename token to a personal journal. To rename a community, have a community administrator use the token.
 
 shop.item.rename.name.notoken=[[points]] points for a Rename Token
 
 shop.item.rename.name.hastoken=Rename Token <a [[aopts]]>[[token]]</a>
+
+shop.item.rename.name.hastoken.text=Rename Token [[token]]
 
 sitescheme.accountlinks.account=Account
 

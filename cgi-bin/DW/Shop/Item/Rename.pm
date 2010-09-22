@@ -50,6 +50,12 @@ sub new {
     return $self;
 }
 
+#override
+sub name_text {
+    return $_[0]->token && $_[0]->from_userid == $_[0]->t_userid
+        ? LJ::Lang::ml( 'shop.item.rename.name.hastoken.text', { token => $_[0]->token } )
+        : LJ::Lang::ml( 'shop.item.rename.name.notoken', { points => $_[0]->cost_points } );
+}
 
 # override
 sub name_html {
