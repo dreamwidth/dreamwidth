@@ -1,15 +1,13 @@
-function CountryRegions (countrySelectId, regionSelectId, regionTextId, regionDesc, zipBoxId, zipDesc, cityBoxId, cityDesc, countriesWithRegions) {
+function CountryRegions (countrySelectId, regionSelectId, regionTextId, regionDesc, cityBoxId, cityDesc, countriesWithRegions) {
 
     this.countrySelect = document.getElementById(countrySelectId);
     this.regionSelect = document.getElementById(regionSelectId);
     this.regionText = document.getElementById(regionTextId);
-    this.zipBox = document.getElementById(zipBoxId);
     this.cityBox = document.getElementById(cityBoxId);
 
     this.descColor = "#999";
     this.regionDesc = regionDesc;
     this.cityDesc = cityDesc;
-    this.zipDesc = zipDesc;
 
     this.selectedCountry = '';
     this.loadedCountries = new Object;
@@ -25,10 +23,6 @@ function CountryRegions (countrySelectId, regionSelectId, regionTextId, regionDe
         if (this.cityBox && this.cityBox.value == "") {
             this.cityBox.style.color = this.descColor;
             this.cityBox.value = this.cityDesc;
-        }
-        if (this.zipBox && this.zipBox.value == "") {
-            this.zipBox.style.color = this.descColor;
-            this.zipBox.value = this.zipDesc;
         }
     } else {
         this.minimalDisplay = 0;
@@ -70,10 +64,6 @@ CountryRegions.prototype.countryChanged = function () {
     var self = this;
     this.selectedCountry = this.countrySelect.value;
 
-    if (undefined != this.zipBox) {
-        this.zipSwitch();
-    }
-
     if (this.countriesWithRegions[this.selectedCountry] && undefined == this.loadedCountries[this.selectedCountry]) {
         HTTPReq.getJSON({
             method : "POST",
@@ -114,34 +104,8 @@ CountryRegions.prototype.createStatesOptions = function() {
         if (this.minimalDisplay == 1) {
             this.regionText.style.color = this.descColor;
             this.regionText.value = this.regionDesc;
-        }
-    }
-}
-
-
-CountryRegions.prototype.zipSwitch = function() {
-    if (this.minimalDisplay == 1) {
-        if (this.selectedCountry == 'US') {
-            this.zipBox.style.display = 'inline';
-            this.cityBox.style.display = 'none';
-            this.cityBox.value = '';
-
-            this.zipBox.style.color = this.descColor;
-            this.zipBox.value = this.zipDesc;
-        } else {
-            this.cityBox.style.display = 'inline';
-            this.zipBox.style.display = 'none';
-            this.zipBox.value = '';
-
             this.cityBox.style.color = this.descColor;
             this.cityBox.value = this.cityDesc;
-        }
-    } else {
-        if (this.selectedCountry == 'US') {
-            this.zipBox.disabled = '';
-        } else {
-            this.zipBox.value = '';
-            this.zipBox.disabled = 'disabled';
         }
     }
 }

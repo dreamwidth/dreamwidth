@@ -804,28 +804,6 @@ sub load_codes {
 }
 
 # <LJFUNC>
-# name: LJ::load_state_city_for_zip
-# des: Fetches state and city for the given zip-code value
-# args: dbarg?, zip
-# des-zip: zip code
-# </LJFUNC>
-sub load_state_city_for_zip {
-    my $zip = shift;
-    my ($zipcity, $zipstate);
-
-    if ($zip =~ /^\d{5}$/) {
-        my $dbr = LJ::get_db_reader()
-            or die "Unable to get database handle";
-
-        my $sth = $dbr->prepare("SELECT city, state FROM zip WHERE zip=?");
-        $sth->execute($zip) or die "Failed to fetch state and city for zip: $DBI::errstr";
-        ($zipcity, $zipstate) = $sth->fetchrow_array;
-    }
-
-    return ($zipcity, $zipstate);
-}
-
-# <LJFUNC>
 # name: LJ::auth_okay
 # des: Validates a user's password.  The "clear" or "md5" argument
 #      must be present, and either the "actual" argument (the correct

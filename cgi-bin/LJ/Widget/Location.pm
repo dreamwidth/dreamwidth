@@ -18,7 +18,7 @@ use base qw(LJ::Widget);
 use Carp qw(croak);
 use DateTime::TimeZone;
 
-my @location_props = qw/ country state city zip sidx_loc /;
+my @location_props = qw/ country state city sidx_loc /;
 
 
 sub authas {1}
@@ -29,7 +29,6 @@ sub need_res { qw(js/countryregions.js) }
 ##      city            - initial city value
 ##      state           - initial state value
 ##      skip_timezone   - timezone input is not displayed if true, defaults to 0
-##      skip_zip        - zip input is not displayed if true, defaults to 0
 ##      skip_city       - city input is not displayed if true, defaults to 0
 sub render_body {
     my $class = shift;
@@ -61,7 +60,6 @@ sub render_body {
 
 
     my $state_inline_desc = $class->ml('widget.location.fn.state.inline');
-    my $zip_inline_desc = $class->ml('widget.location.fn.zip.inline');
     my $city_inline_desc = $class->ml('widget.location.fn.city.inline');
 
     my $ret;
@@ -80,7 +78,7 @@ sub render_body {
                                  %{ $opts{'country_input_attributes'} or {} },
                                );
     if ($minimal_display) {
-        $ret .= " ";
+        $ret .= "<br />";
     } else {
         $ret .= "</td></tr>\n";
 
@@ -130,36 +128,6 @@ sub render_body {
         $ret .= "</td></tr>\n";
     }
 
-    # zip
-    unless ($opts{'skip_zip'}) {
-        my $zip_val = "";
-        my $zip_inline_color = "";
-        if ($effective_country eq 'US') {
-            $zip_val = $zip_inline_desc if $minimal_display;
-            $zip_val = $u->{zip} if $u->{zip};
-
-            $zip_inline_color = " color: #999;" if $minimal_display && $zip_val eq $zip_inline_desc;
-        }
-
-        my %minimal_display_zip_attrs;
-        if ($minimal_display) {
-            $minimal_display_zip_attrs{onfocus} = "if (this.value == '" . $zip_inline_desc . "') { this.value = ''; this.style.color = ''; }";
-            $minimal_display_zip_attrs{onblur} = "if (this.value == '') { this.value = '" . $zip_inline_desc . "'; this.style.color = '#999'; }";
-        }
-
-        $ret .= "<tr><td class='field_class'>" . $class->ml('widget.location.fn.zip') . "</td><td>" unless $minimal_display;
-        $ret .= $class->html_text( id => 'zip',
-                                   name => 'zip',
-                                   title => $class->ml( 'widget.location.fn.zip' ),
-                                   value => $zip_val,
-                                   size => '6', maxlength => '5',
-                                   disabled => $minimal_display || $effective_country eq 'US' ? '' : 'disabled',
-                                   style => "display: " . ( $minimal_display && $effective_country ne 'US' ? "none" : "inline" ) . ";$zip_inline_color",
-                                   %minimal_display_zip_attrs,
-                                 );
-        $ret .= " <span class='helper'>(" . $class->ml('widget.location.zip.usonly') . ")</span></td></tr>\n" unless $minimal_display;
-    }
-
     # city
     unless ($opts{'skip_city'}) {
         my $city_val = "";
@@ -181,7 +149,7 @@ sub render_body {
                                    value => $city_val,
                                    size => '20',
                                    maxlength => '255',
-                                   style => "display: " . ($minimal_display && $effective_country eq 'US' ? "none" : "inline") . ";$city_inline_color",
+                                   style => "display: inline;$city_inline_color",
                                    %minimal_display_city_attrs,
                                    %{ $opts{'state_input_attributes'} or {} },
                                  );
@@ -215,7 +183,7 @@ sub render_body {
     $ret .= $class->html_hidden({ name => "minimal_display", value => $minimal_display, id => "minimal_display" });
 
     # javascript code in js/countryregions.js accepts list of countries with regions as a space-delimited list
-    $ret .= "<script> var countryregions = new CountryRegions('country_choice', 'reloadable_states', 'written_state', '" . LJ::ejs($state_inline_desc) . "', 'zip', '" . LJ::ejs($zip_inline_desc) . "', 'city', '" . LJ::ejs($city_inline_desc) . "', '" . join (" ", $class->countries_with_regions ). "'); </script>";
+    $ret .= "<script> var countryregions = new CountryRegions('country_choice', 'reloadable_states', 'written_state', '" . LJ::ejs($state_inline_desc) . "', 'city', '" . LJ::ejs($city_inline_desc) . "', '" . join (" ", $class->countries_with_regions ). "'); </script>";
 
     return $ret;
 }
@@ -231,39 +199,16 @@ sub handle_post {
     LJ::load_codes({ "country" => \%countries});
 
     my $state_inline_desc = $class->ml('widget.location.fn.state.inline');
-    my $zip_inline_desc = $class->ml('widget.location.fn.zip.inline');
     my $city_inline_desc = $class->ml('widget.location.fn.city.inline');
 
     $post->{stateother} = "" if $post->{stateother} eq $state_inline_desc;
     $post->{city} = "" if $post->{city} eq $city_inline_desc;
-    $post->{zip} = "" if $post->{zip} eq $zip_inline_desc;
-
-    # state and zip
-    my ( $zipcity, $zipstate );
-    ( $zipcity, $zipstate ) = LJ::load_state_city_for_zip( $post->{'zip'} )
-        if $post->{'country'} eq "US" && length $post->{'zip'} > 0;
-
-    # country
-    if ($post->{'country'} ne "US" && $post->{'zip'}) {
-        $class->error($class->ml('widget.location.error.locale.zip_requires_us'));
-    }
 
     my $regions_cfg = $class->country_regions_cfg($post->{'country'});
     if ($regions_cfg && $post->{'stateother'}) {
         $class->error($class->ml('widget.location.error.locale.country_ne_state'));
     } elsif (!$regions_cfg && $post->{'statedrop'}) {
         $class->error($class->ml('widget.location.error.locale.state_ne_country'));
-    }
-
-    # zip-code validation stuff
-    if ($post->{'country'} eq "US") {
-        if ($post->{'statedrop'} && $zipstate && $post->{'statedrop'} ne $zipstate) {
-            $class->error($class->ml('widget.location.error.locale.zip_ne_state'));
-        }
-        if ($zipcity) {
-            $post->{'statedrop'} = $zipstate;
-            $post->{'city'} = $zipcity;
-        }
     }
 
     if ($post->{'country'} && !defined($countries{$post->{'country'}})) {

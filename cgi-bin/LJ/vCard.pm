@@ -43,7 +43,7 @@ sub new_remote {
     $vcard->NICKNAME($u->{user});
     $vcard->URL($u->journal_base . "/");
 
-    $u->preload_props(qw(city state zip country
+    $u->preload_props(qw(city state country
                          aolim icq yahoo msn jabber google_talk skype gizmo));
 
 
@@ -94,7 +94,6 @@ sub new_remote {
 
         $node->[0]->city($u->prop('city'));
         $node->[0]->region($u->prop('state'));
-        $node->[0]->post_code($u->prop('zip'));
         $node->[0]->country($u->prop('country'));
     }
 

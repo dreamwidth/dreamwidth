@@ -55,10 +55,6 @@
 
 .error.locale.state_ne_country=You specified a non-US country but selected a US state.
 
-.error.locale.zip_ne_state=Your zip code does not match the state you specified. Either correct the information, or erase one or both of the state and zip code fields.
-
-.error.locale.zip_requires_us=You entered a zip code but you did not select United States as your country. We only collect zip code information about people in the US. Please go back and remove the zip code or select United States as your country.
-
 .error.month.outofrange=Invalid birthday month.  Enter a month from 1-12.  (Jan-Dec)
 
 .error.name.toolong=The name you have provided is too long.
@@ -144,8 +140,6 @@
 .fn.txtnum=Full phone number
 
 .fn.userpic2=Default Icon
-
-.fn.zip=ZIP Code
 
 .friendof3=Show all accounts that have given you access or subscribed to you, and not just the ones you reciprocate.
 
@@ -252,6 +246,4 @@
 .userpic.change=Change default userpic
 
 .userpic.none=no image uploaded
-
-.zip.usonly=5 digit ZIP code; US residents only
 
