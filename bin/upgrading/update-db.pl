@@ -271,6 +271,7 @@ sub populate_s2 {
         chdir "$ENV{'LJHOME'}/bin/upgrading" or die;
         my %layer;    # maps redist_uniq -> { 'type', 'parent' (uniq), 'id' (s2lid) }
 
+        my $has_new_layer = 0;
         my $compile = sub {
             my ($base, $type, $parent, $s2source) = @_;
             return unless $s2source =~ /\S/;
@@ -306,6 +307,8 @@ sub populate_s2 {
             my $md5_source = Digest::MD5::md5_hex($s2source);
             my $source_exist = LJ::S2::load_layer_source($id);
             my $md5_exist = Digest::MD5::md5_hex($source_exist);
+
+            $has_new_layer = 1 unless $source_exist;
 
             # skip compilation if source is unchanged and parent wasn't rebuilt.
             return if $md5_source eq $md5_exist && ! $layer{$parent}->{'built'} && ! $opt_forcebuild;
@@ -437,6 +440,13 @@ sub populate_s2 {
             } else {
                 print "\nOkay, I am NOT deleting the layers.\n";
             }
+        }
+
+        if ( $has_new_layer ) {
+            $LJ::CACHED_PUBLIC_LAYERS = undef;
+            LJ::MemCache::delete( "s2publayers" );
+
+            print "\nCleared styles cache.\n";
         }
     }
 
