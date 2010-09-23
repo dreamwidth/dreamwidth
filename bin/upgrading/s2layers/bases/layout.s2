@@ -28,6 +28,10 @@ propgroup presentation {
 
 set module_layout_sections = "none|(none)|one|Group One";
 
+##===============================
+## Navigation Module
+##===============================
+
 property string module_navlinks_section_override {
     values = "none|(none)|header|Header|one|Group One";
     grouped = 1;
@@ -111,6 +115,31 @@ propgroup fonts {
     property use font_module_text_size;
     property use font_module_text_units;
 }
+
+set font_base = "Arial";
+set font_fallback = "sans-serif";
+set font_base_size  = "1";
+set font_base_units = "em";
+
+set font_journal_title  = "Arial";
+set font_journal_title_size  = "2.25";
+set font_journal_title_units = "em";
+
+set font_journal_subtitle  = "Arial";
+set font_journal_subtitle_size  = "1.125";
+set font_journal_subtitle_units = "em";
+
+set font_module_text  = "Arial";
+set font_module_text_size  = "1";
+set font_module_text_units = "em";
+
+set font_module_heading  = "Arial";
+set font_module_heading_size  = "1";
+set font_module_heading_units = "em";
+
+set font_entry_title  = "Arial";
+set font_entry_title_size  = "1.25";
+set font_entry_title_units = "em";
 
 ##===============================
 ## Display settings - images
@@ -201,6 +230,22 @@ propgroup text {
     property use text_module_customtext_url;
 }
 
+function print_module_navlinks() {
+    var Page p = get_page();
+    open_module("navlinks", "", "");
+    var string[] links = [];
+    
+    println """<ul class="module-list">""";
+    foreach var string k ($p.views_order) {
+        var string css = """$k""";
+        if ($p.view == $k) { $css = """current $k"""; }
+        println """<li class="module-list-item $css"><a href="$p.view_url{$k}" class="$css">"""+lang_viewname($k)+"""</a></li>""";
+    }
+    println "</ul>";
+
+    close_module();
+}
+
 function Page::print()
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
@@ -219,6 +264,7 @@ function Page::print()
                     $this->print_global_title();
                     $this->print_global_subtitle();
                     $this->print_title();
+                    $this->print_module_section("header");
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -229,9 +275,6 @@ function Page::print()
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
-    """;
-                    if ( $*module_navlinks_show and ($*module_navlinks_section == "header") ) { print_module_navlinks(); }
-    """
                     <div id="secondary"><div class="inner">
                         """;
                         $this->print_module_section("one");
@@ -248,31 +291,6 @@ function Page::print()
     $this->print_wrapper_end();
     """</html>""";
 }
-
-set font_base = "Arial";
-set font_fallback = "sans-serif";
-set font_base_size  = "1";
-set font_base_units = "em";
-
-set font_journal_title  = "Arial";
-set font_journal_title_size  = "2.25";
-set font_journal_title_units = "em";
-
-set font_journal_subtitle  = "Arial";
-set font_journal_subtitle_size  = "1.125";
-set font_journal_subtitle_units = "em";
-
-set font_module_text  = "Arial";
-set font_module_text_size  = "1";
-set font_module_text_units = "em";
-
-set font_module_heading  = "Arial";
-set font_module_heading_size  = "1";
-set font_module_heading_units = "em";
-
-set font_entry_title  = "Arial";
-set font_entry_title_size  = "1.25";
-set font_entry_title_units = "em";
 
 function Page::print_default_stylesheet()
 {
@@ -296,11 +314,15 @@ var string module_background = generate_background_css ($*image_background_modul
     $*image_background_module_position, $*color_module_background );
 var Color element_background = $*color_page_background->lighter();
 
-if ($*image_background_header_height > 0) 
-{ $header_background = """ $header_background height: """ + $*image_background_header_height + """px;"""; }
+    var string header_background_height = "";
 
-if ($*image_background_header_url == "" ){}
-else { print """ #title, #subtitle, #pagetitle {display: none}"""; }
+    if ($*image_background_header_height > 0) {
+        $header_background_height = """padding-top: """ + $*image_background_header_height + """px;""";
+    }
+
+    if ($*image_background_header_url != "" ) {
+        print """#title, #subtitle, #pagetitle { display: none; }""";
+    }
 
     var string userpic_css = "";
     if ($*userpics_position == "left") {
@@ -315,6 +337,63 @@ else { print """ #title, #subtitle, #pagetitle {display: none}"""; }
         .has-userpic .comment .userpic { float: right; }
         """;
     }
+
+    var string navlinks_css = "";
+        if ($*module_navlinks_section == "header") {
+            $navlinks_css = """
+
+            .module-navlinks ul {
+                background: $*color_module_title_background;
+                font-size: 1em;
+                font-weight: bold;
+                line-height: 2.2em;
+                margin: .083em 0;
+                padding: 0;
+                }
+
+            .module-navlinks li {
+                display: inline;
+                height: 2.2em;
+                line-height: 2.2em;
+                list-style: none;
+                margin: 0;
+                margin-left: -.25em;
+                padding: .5em 0;
+                }
+
+            .module-navlinks li:first-child {
+                border-left: .083em solid $*color_module_background;
+                margin-left: .6em !important;
+                }
+
+            .module-navlinks li:hover {
+                background: $*color_module_link_hover;
+                }
+
+            .module-navlinks li a {
+                border-right: .083em solid $*color_module_background;
+                line-height: 2.2em;
+                padding: .5em .833em;
+                }
+
+            .module-navlinks li a:hover {
+                text-decoration: underline;
+                }
+
+            .module-navlinks li.current {
+                background: $*color_module_link_hover;
+                }
+
+            .module-navlinks li a,
+            .module-navlinks li a:hover,
+            .module-navlinks li a:visited {
+                color: $*color_module_title;
+                }
+            """;
+        }
+        else {
+            $navlinks_css = "";
+        }
 
     """
 /* DREAMWIDTH :--- Bases. --- 
@@ -394,35 +473,27 @@ ul ul {list-style: circle;}
 
 /* ====================== HEADER ======================= */
 
-#header { margin: 0 -100% 0 5%; padding: 0;
-         border-left: 0.083em solid $*color_page_border; border-top: 0.083em solid $*color_page_border; border-right: 0.083em solid $*color_page_border;}
+#header {
+    border: .083em solid $*color_page_border;
+    border-bottom: none;
+    margin: 0 -100% 0 5%;
+    padding: 0;
+    $header_background
+    $header_background_height
+    }
 
 #title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; color: $*color_page_title; margin: 0; }
 
 #subtitle { $page_subtitle_font padding-left: 1.5em; color: $*color_page_title; }
 
-#header {$header_background }
-
-
 #pagetitle { border-bottom: 0.083em solid $*color_page_border; font-size: 1em; padding: 0 0 1em 2.2em; margin: 0.5em 0 0 0; }
+
+$navlinks_css
 
 .entry-interaction-links li {display: inline; padding: 0.583em 0 0.583em 0 !important; border-left: 0.083em solid $*color_entry_background; border-right: 0.083em solid $*color_entry_background; }
 .entry-interaction-links li + li {border-left: 0; margin: 0 0 0 -0.25em;}
 .entry-interaction-links a {color: $*color_entry_interaction_links !important; padding: 0.583em 0.833em 0.583em 0.833em; font-weight: bold;}
 .entry-interaction-links a:hover{background: $*color_module_link_hover; text-decoration: underline; }
-
-#content > .inner > .module-navlinks .module-content {border-left: 0.083em solid $*color_module_border; border-right: 0; border-top: 0; border-bottom: 0;}
-
-#content > .inner > .module-navlinks .module-list {padding: 0; margin: 0.083em 0 0 5%; background: $*color_module_title_background; padding: 0.583em; position: absolute; }
-#content > .inner > .module-navlinks .module-list-item {list-style: none; display: inline; padding: 0.583em 0 0.583em 0;}
-#content > .inner > .module-navlinks .module-list-item a {color: $*color_module_title; font-size: 1em; font-weight: bold; text-decoration: none; padding: 0.583em 0.833em 0.583em 0.833em; border-left: 0.083em solid $*color_module_background; }
-#content > .inner > .module-navlinks .module-list-item:last-child { border-right: 0.083em solid $*color_module_background; }
-#content > .inner > .module-navlinks .module-list-item a:hover {background: $*color_module_link_hover; text-decoration: underline; }
-
-#content > .inner > .module-navlinks .module-list-item + .module-list-item { margin-left: -0.28em;}
-
-#content > .inner > .module-navlinks .current {
-background: $*color_module_link_hover; }
 
 /* ====================== SIDEBAR ======================= */
 
@@ -437,7 +508,7 @@ background: $*color_module_link_hover; }
 .module-header a, .module-header a:visited, .module-header a:active { text-decoration: underline; color: $*color_module_title;}
 .module-header a:hover, .module-header a:visited:hover, .module-header a:active:hover {color: $*color_comment_title_background;}
 
-.module-content {border-top: 0.083em solid $*color_module_border; $module_text_font }
+#secondary .module-content {border-top: 0.083em solid $*color_module_border; $module_text_font }
 
 #secondary .module {background: $*color_module_background; padding: 0.083em 0 0.083em 0; border-bottom: 0.083em solid $*color_module_border; }
 
@@ -545,9 +616,6 @@ li.page-separator {display: none;}
 #primary a:hover, #primary a:visited:hover, #primary a:active:hover {color: $*color_entry_link_hover; }
 
 #primary { color: $*color_entry_text; }
-
-#entries, .page-entry .entry, .page-tags .tags-container, .page-archive #archive-year, .page-month #archive-month, .page-reply .entry-title 
-{border-top: 2.417em solid $*color_module_title_background; margin-top: 0.083em;}
 
 #entries > .inner {border-top: 0.083em solid $*color_entry_background;}
 
