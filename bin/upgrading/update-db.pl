@@ -417,38 +417,38 @@ sub populate_s2 {
             close SL;
         }
 
-    if ($LJ::IS_DEV_SERVER) {
-        # now, delete any system layers that don't below (from previous imports?)
-        my @del_ids;
-        my $sth = $dbh->prepare("SELECT s2lid FROM s2layers WHERE userid=? AND NOT type='user'");
-        $sth->execute($sysid);
-        while (my $id = $sth->fetchrow_array) {
-            next if $known_id{$id};
-            push @del_ids, $id;
-        }
-
-        # if we need to delete things, prompt before blowing away system layers
-        if (@del_ids) {
-            print "\nWARNING: The following S2 layer ids are known as system layers but are no longer\n" .
-                  "present in the import files.  If this is expected and you really want to DELETE\n" .
-                  "these layers, type 'YES' (in all capitals).\n\nType YES to delete layers " .
-                  join(', ', @del_ids) . ": ";
-            my $inp = <STDIN>;
-            if ($inp =~ /^YES$/) {
-                print "\nOkay, I am PERMANENTLY DELETING the layers.\n";
-                LJ::S2::delete_layer($_) foreach @del_ids;
-            } else {
-                print "\nOkay, I am NOT deleting the layers.\n";
+        if ($LJ::IS_DEV_SERVER) {
+            # now, delete any system layers that don't below (from previous imports?)
+            my @del_ids;
+            my $sth = $dbh->prepare("SELECT s2lid FROM s2layers WHERE userid=? AND NOT type='user'");
+            $sth->execute($sysid);
+            while (my $id = $sth->fetchrow_array) {
+                next if $known_id{$id};
+                push @del_ids, $id;
+            }
+    
+            # if we need to delete things, prompt before blowing away system layers
+            if (@del_ids) {
+                print "\nWARNING: The following S2 layer ids are known as system layers but are no longer\n" .
+                      "present in the import files.  If this is expected and you really want to DELETE\n" .
+                      "these layers, type 'YES' (in all capitals).\n\nType YES to delete layers " .
+                      join(', ', @del_ids) . ": ";
+                my $inp = <STDIN>;
+                if ($inp =~ /^YES$/) {
+                    print "\nOkay, I am PERMANENTLY DELETING the layers.\n";
+                    LJ::S2::delete_layer($_) foreach @del_ids;
+                } else {
+                    print "\nOkay, I am NOT deleting the layers.\n";
+                }
+            }
+    
+            if ( $has_new_layer ) {
+                $LJ::CACHED_PUBLIC_LAYERS = undef;
+                LJ::MemCache::delete( "s2publayers" );
+    
+                print "\nCleared styles cache.\n";
             }
         }
-
-        if ( $has_new_layer ) {
-            $LJ::CACHED_PUBLIC_LAYERS = undef;
-            LJ::MemCache::delete( "s2publayers" );
-
-            print "\nCleared styles cache.\n";
-        }
-    }
 
     }
 }
