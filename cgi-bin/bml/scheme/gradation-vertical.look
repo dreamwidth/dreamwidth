@@ -14,19 +14,7 @@
 # the same terms as Perl itself.  For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
-_parent=>global.look
-
-h1=>{D}<h1>%%data%%</h1>
-h2=>{D}<h2>%%data%%</h2>
-p=>{D}<p>%%data%%</p>
-hr=><hr />
-
-de=><span style='font-size: smaller;'>%%data%%</span>
-emailex=><div style='width: 50%; font-family: courier; background-color: #efefef; border: dotted #cdcdcd 2px; padding: 5px;'>%%data%%</div>
-
-standout<=
-{DRps}<div class='standout'><table class='standout-inner'><tr><td>%%data%%</td></tr></table></div>
-<=standout
+_parent=>common.look
 
 head<=
 <head>
@@ -54,136 +42,13 @@ head<=
 </head>
 <=head
 
-logo<=
-<span id='sitename'><a href="<?siteroot?>"><?_code $LJ::SITENAMESHORT _code?></a></span>
-<=logo
-
-accountlinks<=
-<?_code
-{
-    my $remote = LJ::get_remote();
-    my $ret;
-
-    if ( $remote ) {
-        my $userpic = $remote->userpic;
-        my $inbox = $remote->notification_inbox;
-        my $unread = $inbox->unread_count;
-        my $identity = $remote->is_identity;
-
-        $ret .= "<div id='account-links-userpic'><a href='$LJ::SITEROOT/editicons'>";
-        if ( $userpic ) {
-            my $wh = $userpic->img_fixedsize( width => 80, height => 80 );
-            $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
-        } else {
-            $ret .= LJ::img( "nouserpic_sitescheme", "" );
-        }
-        $ret .= "</a></div>";
-        $ret .= "<div id='account-links-text'>";
-        $ret .= "<form action='$LJ::SITEROOT/logout?ret=1' method='post'>";
-        $ret .= $remote->ljuser_display;
-        $ret .= "<input type='hidden' name='user' value='" . $remote->user . "' />";
-        $ret .= "<input type='hidden' name='sessid' value='$remote->{_session}->{sessid}' />";
-        $ret .= " <input type='submit' value=\"$ML{'sitescheme.accountlinks.btn.logout'}\" />";
-        $ret .= "</form>";
-        $ret .= "<ul>";
-        $ret .= "<li><a href='$LJ::SITEROOT/update'>$ML{'sitescheme.accountlinks.post'}</a>  &bull; </li>" unless $identity;
-        $ret .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'sitescheme.accountlinks.readinglist'}</a> &bull; </li>";
-        $ret .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'sitescheme.accountlinks.inbox'}";
-        $ret .= " <span id='Inbox_Unread_Count'>($unread)</span>" if $unread;
-        $ret .= "</a> &bull; </li>";
-        $ret .= "<li><a href='$LJ::SITEROOT/manage/settings/'>$ML{'sitescheme.accountlinks.account'}</a></li> <br />";
-        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/invite'>$ML{'sitescheme.accountlinks.invitefriend'}</a> &bull; </li>" unless $identity;
-        $ret .= "<li><a href='$LJ::SITEROOT/support/'>$ML{'sitescheme.accountlinks.help'}</a></li>";
-        $ret .= "</ul>";
-        $ret .= "</div>";
-    } else {
-        my $chal = LJ::challenge_generate(300);
-
-        $ret .= "<form action='$LJ::SITEROOT/login?ret=1' method='post'>";
-        $ret .= LJ::html_hidden( returnto => $GET{returnto} );
-        $ret .= "<input type='hidden' name='chal' class='lj_login_chal' value='$chal' />\n";
-        $ret .= "<input type='hidden' name='response' class='lj_login_response' value='' />\n";
-        $ret .= "<table id='login-table'>";
-        $ret .= "<tr><td><label for='login_user'>$ML{'sitescheme.accountlinks.login.username'}</label></td>";
-        $ret .= "<td class='input-cell' colspan='2'>" . LJ::html_text({
-            name => "user",
-            id => "login_user",
-            size => 20,
-            maxlength => 27,
-            tabindex => 1,
-            raw => 'aria-required="true"',
-        }) . " <a href='$LJ::SITEROOT/openid/' tabindex=5>$ML{'sitescheme.accountlinks.login.openid'}</a></td></tr>";
-        $ret .= "<tr><td><label for='login_password'>$ML{'sitescheme.accountlinks.login.password'}</label></td>";
-        $ret .= "<td class='input-cell' colspan='2'>" . LJ::html_text({
-            type => "password",
-            name => "password",
-            id => "login_password",
-            size => 20,
-            tabindex => 2,
-            raw => 'aria-required="true"',
-        }) . " <a href='$LJ::SITEROOT/lostinfo' tabindex=6>$ML{'sitescheme.accountlinks.login.forgotpassword'}</a></td></tr>";
-        $ret .= "<tr><td>&nbsp;</td>";
-        $ret .= "<td class='remember-me-cell'>";
-        $ret .= LJ::html_check({
-            name => "remember_me",
-            id => "login_remember_me",
-            value => 1,
-            tabindex => 3,
-        });
-        $ret .= " <label for='login_remember_me'>$ML{'sitescheme.accountlinks.login.rememberme'}</label></td>";
-        $ret .= "<td>" . LJ::html_submit( login => $ML{'sitescheme.accountlinks.btn.login'}, { tabindex => 4 }) . "</td>";
-        $ret .= "</tr>";
-        $ret .= "</table>";
-        $ret .= "</form>";
-   }
-
-    return $ret;
-}
-_code?>
-<=accountlinks
-
-footer<=
-<ul>
-    <li><a href="<?siteroot?>/legal/privacy"><?_ml sitescheme.footer.legal.privacypolicy _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/legal/tos"><?_ml sitescheme.footer.legal.tos _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/legal/diversity"><?_ml sitescheme.footer.legal.diversitystatement _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/legal/principles"><?_ml sitescheme.footer.legal.guidingprinciples _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/site/"><?_ml sitescheme.footer.sitemap _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/site/suggest"><?_ml sitescheme.footer.suggestion _ml?></a></li>
-</ul>
-<p><?_ml sitescheme.footer.info _ml?></p>
-<=footer
-
 page<=
 {Fps}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <?head?>
     <body %%bodyopts%%>
         <div id="canvas" class="vertical-nav">
-            <div id="page">
-                <div id="masthead">
-                    <span id="logo">
-                        <?logo?>
-                    </span>
-                </div>
-
-                <div id="content" %%contentopts%%>
-                <h1>%%title%%</h1>
-                %%body%%
-                </div>
-                <div id="account-links">
-                    <?accountlinks?>
-                </div>
-                <div id="menu">
-                    <?menunav?>
-                </div>
-                <div id="header-search">
-                    <?_code return LJ::Widget::Search->render; _code?>
-                </div>
-                <div id="footer">
-                    <?footer?>
-                </div>
-            </div>
+            <?pagediv?>
         </div>
         <?_code LJ::final_body_html(); _code?>
     </body>

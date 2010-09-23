@@ -1,46 +1,50 @@
-# Celerity Site Scheme
+# Common BML for all Dreamwidth site schemes, refactored for inheritance.
 #
 # Authors:
+#     Jen Griffin <kareila@livejournal.com>
+#  Based on Blueshift Site Scheme, authored by:
 #     Emily Ravenwood <ravenwood@alltrees.org>
 #     Denise Paolucci <denise@dreamwidth.org>
-#  Based on Tropospherical Red authored by:
+#  Which was in turn based on Tropospherical Red, authored by:
 #     Janine Smith <janine@netrophic.com>
 #     Jesse Proulx <jproulx@jproulx.net>
 #     Elizabeth Lubowitz <grrliz@gmail.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
-_parent=>common.look
+_parent=>global.look
 
-head<=
-<head>
-    <title>
-    <?_code
-        my $elhash = $_[2];
-        return $elhash->{WINDOWTITLE} || $elhash->{TITLE};
-    _code?>
-    </title>
+h1=>{D}<h1>%%data%%</h1>
+h2=>{D}<h2>%%data%%</h2>
+p=>{D}<p>%%data%%</p>
+hr=><hr />
 
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+de=><span style='font-size: smaller;'>%%data%%</span>
+emailex=><div style='width: 50%; font-family: courier; background-color: #efefef; border: dotted #cdcdcd 2px; padding: 5px;'>%%data%%</div>
 
-    <?_code
-        LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY },
-            qw( stc/jquery/jquery.ui.theme.smoothness.css
-                stc/lj_base-app.css
-                stc/celerity/celerity.css
-            )
-        );
+standout<=
+{DRps}<div class='standout'><table class='standout-inner'><tr><td>%%data%%</td></tr></table></div>
+<=standout
 
-    _code?>
-    <?_code LJ::res_includes(); _code?>
+logo<=
+<span id='sitename'><a href="<?siteroot?>"><?_code $LJ::SITENAMESHORT _code?></a></span>
+<=logo
 
-    %%head%%
-</head>
-<=head
+footer<=
+<ul>
+    <li><a href="<?siteroot?>/legal/privacy"><?_ml sitescheme.footer.legal.privacypolicy _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/tos"><?_ml sitescheme.footer.legal.tos _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/diversity"><?_ml sitescheme.footer.legal.diversitystatement _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/principles"><?_ml sitescheme.footer.legal.guidingprinciples _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/site/"><?_ml sitescheme.footer.sitemap _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/site/suggest"><?_ml sitescheme.footer.suggestion _ml?></a></li>
+</ul>
+<p><?_ml sitescheme.footer.info _ml?></p>
+<=footer
 
 accountlinks<=
 <?_code
@@ -49,10 +53,20 @@ accountlinks<=
     my $ret;
 
     if ( $remote ) {
+        my $userpic = $remote->userpic;
         my $inbox = $remote->notification_inbox;
         my $unread = $inbox->unread_count;
         my $identity = $remote->is_identity;
 
+        $ret .= "<div id='account-links-userpic'><a href='$LJ::SITEROOT/editicons'>";
+
+        if ( $userpic && !$LJ::IS_SSL ) {
+            my $wh = $userpic->img_fixedsize( width => 80, height => 80 );
+            $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
+        } else {
+            $ret .= LJ::img( "nouserpic_sitescheme", "" );
+        }
+        $ret .= "</a></div>";
         $ret .= "<div id='account-links-text'>";
         $ret .= "<form action='$LJ::SITEROOT/logout?ret=1' method='post'>";
         $ret .= $remote->ljuser_display;
@@ -117,63 +131,29 @@ accountlinks<=
 _code?>
 <=accountlinks
 
-userpic<=
-<?_code
-{
-    my $remote = LJ::get_remote();
-    my $ret;
-
-    $ret .= "<div id='header-userpic'><a href='$LJ::SITEROOT/editicons'>";
-
-    if ( $remote ) {
-        my $userpic = $remote->userpic;
-        if ( $userpic && !$LJ::IS_SSL ) {
-            my $wh = $userpic->img_fixedsize( width => 80, height => 80 );
-            $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
-        } else {
-            $ret .= LJ::img( "nouserpic_sitescheme", "", { ssl => 1 } );
-        }
-    }
-
-    $ret .= "</a></div>";
-    return $ret;
-}
-_code?>
-<=userpic
-
-page<=
-{Fps}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <?head?>
-    <body %%bodyopts%%>
-        <div id="canvas">
+pagediv<=
             <div id="page">
                 <div id="masthead">
+                    <span id="logo">
                         <?logo?>
-                </div><!-- end masthead-->
+                    </span>
+                </div>
 
                 <div id="content" %%contentopts%%>
                 <h1>%%title%%</h1>
                 %%body%%
-                </div><!--end content-->
-                <div id="page-decoration"></div>
-                </div><!-- end page-->
+                </div>
                 <div id="account-links">
                     <?accountlinks?>
-                </div><!-- end account links-->
-                <div id="sidebar">
-                    <?userpic?>
+                </div>
+                <div id="menu">
                     <?menunav?>
                 </div>
-                <div id="header-divider"> <div id="header-divider-insert"></div></div>
                 <div id="header-search">
                     <?_code return LJ::Widget::Search->render; _code?>
-                </div><!-- end header-search--> 
+                </div>
                 <div id="footer">
                     <?footer?>
                 </div>
-        </div> <!-- end canvas-->
-        <?_code LJ::final_body_html(); _code?>
-    </body>
-</html>
-<=page
+            </div>
+<=pagediv
