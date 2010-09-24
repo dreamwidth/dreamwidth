@@ -637,6 +637,13 @@ border-bottom: 0.083em solid $*color_entry_border; background: $*color_comment_t
 
 .entry-content { padding: 0.833em; min-height: 8.5em; border-bottom: 0.083em solid $*color_entry_border; $entry_background}
 
+/* To prevent overlapping when icon's on the left */
+/* and list is the first thing in content */
+.entry-content li,
+.comment-content li {
+    list-style-position: inside;
+    }
+
 .entry-content a img {border-width: 0.083em; padding: 0.25em;}
 .entry-content a img:hover {opacity: .7;}
 
