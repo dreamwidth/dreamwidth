@@ -233,12 +233,12 @@ function Page::print_theme_stylesheet () {
         }
     
     .entry .contents .userpic {
-        top: 0;
-        height: 100%;
         background-position-y: 0 !important;
-        background-position: 50% 0;  /* Firefox */
-        width: 110px;
+        background-position: 50% 0; /* Firefox */
+        height: 100%;
         padding-top: 2px;
+        top: 0;
+        width: 110px;
         }
     
     .entry .contents .userpic a {

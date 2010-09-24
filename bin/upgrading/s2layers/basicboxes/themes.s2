@@ -18,8 +18,8 @@ set color_page_link_hover = "#d3e37c";
 set color_page_link_visited = "#adba65";
 set color_page_text = "#c6c6c6";
 set color_page_title = "#adba65";
-set color_footer_background = "#545454";
 set color_header_background = "#545454";
+set color_footer_background = "#545454";
 
 ##===============================
 ##Entry Colors
@@ -229,8 +229,8 @@ set color_page_link_hover = "#4ea494";
 set color_page_link_visited = "#3bc4aa";
 set color_page_text = "#5c5c5c";
 set color_page_title = "#3bc4aa";
-set color_footer_background = "#efefef";
 set color_header_background = "#efefef";
+set color_footer_background = "#efefef";
 
 ##===============================
 ##Entry Colors
@@ -395,8 +395,8 @@ set color_page_link_active = "#448099";
 set color_page_link_hover = "#45545a";
 set color_page_link_visited = "#448099";
 set color_page_title = "#448099";
-set color_footer_background = "#e9c98b";
 set color_header_background = "#e9c98b";
+set color_footer_background = "#e9c98b";
 
 ##===============================
 ##Entry Colors

@@ -167,11 +167,7 @@ set color_module_title = "#785E47";
 ##===============================
 
 set font_base = "Tahoma, Arial";
-set font_base_size = "1";
-set font_base_units = "em";
 set font_entry_title = "Georgia";
-set font_entry_title_size = "1.2";
-set font_entry_title_units = "em";
 set font_journal_title = "Georgia";
 set font_journal_title_size = "2";
 set font_module_heading = "Georgia";
