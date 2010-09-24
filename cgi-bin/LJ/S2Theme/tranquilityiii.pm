@@ -11,15 +11,15 @@ package LJ::S2Theme::tranquilityiii::brick;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw() }
 
-package LJ::S2Theme::tranquilityiii::deeppurple;
-use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw() }
-sub designer { "dancing_serpent" }
-
 package LJ::S2Theme::tranquilityiii::clearmessages;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw() }
 sub designer { "timeasmymeasure" }
+
+package LJ::S2Theme::tranquilityiii::deeppurple;
+use base qw( LJ::S2Theme::tranquilityiii );
+sub cats { qw() }
+sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::freshblue;
 use base qw( LJ::S2Theme::tranquilityiii );
