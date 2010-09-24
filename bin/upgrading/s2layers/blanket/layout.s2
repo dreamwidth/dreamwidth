@@ -346,7 +346,13 @@ h3.entry-title a { $entry_title_colors }
 .datetime a { $page_title_colors }
 
 .userpic { display: block; }
-.userpic img { width: 80px; height: 80px; padding: 5px; $userpic_colors }
+
+.userpic img {
+    height: auto;
+    max-width: 80px;
+    padding: 5px;
+    $userpic_colors
+    }
 
 span.poster { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; $page_title_colors }
 
