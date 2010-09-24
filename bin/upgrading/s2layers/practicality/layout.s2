@@ -1,0 +1,786 @@
+layerinfo type = "layout";
+layerinfo name = "Practicality";
+layerinfo redist_uniq = "practicality/layout";
+layerinfo author_name = "timeasmymeasure";
+layerinfo author_email= "timeasmymeasure@gmail.com";
+layerinfo lang = "en";
+
+##===============================
+## Layout
+##===============================
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+set layout_type = "two-columns-left";
+set userpics_position = "right";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS, Arial";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+
+set font_journal_title = "Lucida Sans";
+set font_journal_title_size = "1.8";
+set font_journal_title_units = "em";
+
+set font_journal_subtitle = "Lucida Sans";
+set font_journal_subtitle_size = "1.3";
+set font_journal_subtitle_units = "em";
+
+set font_entry_title = "Lucida Sans";
+set font_entry_title_size = "1.37";
+set font_entry_title_units = "em";
+
+set font_module_heading = "Lucida Sans";
+set font_module_heading_size = "1.37";
+set font_module_heading_units = "em";
+
+##===============================
+## Modules
+##===============================
+
+set module_time_section = "two";
+set module_poweredby_section = "two";
+
+    property string module_navlinks_section_override {
+       values = "none|(none)|header|Header|one|Group One|two|Group Two";
+       grouped = 1;
+       }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+
+set module_navlinks_section = "one";
+
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+                    $this->print_module_section("header");
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+                    <div id="secondary"><div class="inner">
+                        """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+    """;
+    
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+
+
+    var string userpic_css = "";
+        if ($*userpics_position == "left") {
+            $userpic_css = """
+            .has-userpic div.entry div.userpic,
+            .has-userpic div.comment div.userpic {
+                float: left;
+                }
+            .has-userpic div.entry .header,
+            .has-userpic div.comment .header {
+                margin-left: 135px;
+                text-align: right;
+                }
+            """;
+        }
+        elseif ($*userpics_position == "right") {
+            $userpic_css = """
+            .has-userpic div.entry div.userpic,
+            .has-userpic div.comment div.userpic {
+                float: right;
+                }
+            .has-userpic div.entry .header,
+            .has-userpic div.comment .header {
+                margin-right: 135px;
+                }
+            """;
+        }
+"""
+
+/*--------------------*/
+/*--- Practicality ---*/
+/*--------------------*/
+
+/*--- Main ---*/
+
+* {
+    margin: 0;
+    padding: 0;
+    }
+
+body {
+    margin: 0;
+    }
+
+a, a:link, a:visited {
+    text-decoration: none;
+    }
+
+input, textarea {
+    background: $*color_entry_background;
+    border: 1px solid $*color_page_text;
+    color: $*color_entry_text;
+    }
+
+blockquote {
+    background: $*color_page_background;
+    border-bottom: 3px solid $*color_entry_border;
+    margin: 1em 1em 1.5em 3em;
+    padding: 10px;
+    width: 85%;
+    }
+
+ul {
+    list-style: square;
+    list-style-position: inside;
+    margin: .2em 0 0 2.5em;
+    }
+
+ol {
+    margin: .2em 0 0 2.5em;
+    list-style: decimal;
+    list-style-position: inside;
+    }
+
+/*--- Main Containers ---*/
+
+#canvas {
+    width: 90%;
+    margin: 0 auto;
+    }
+
+#primary > .inner:first-child {
+    padding: 0;
+    }
+
+.column-left #primary > .inner:first-child {
+    padding-left: 1em;
+    }
+
+.column-right #primary > .inner:first-child {
+    padding-right: 1em;
+    }
+
+#secondary > .inner:first-child {
+    padding: 0;
+    }
+
+#tertiary > .inner:first-child {
+    padding: 0;
+    }
+
+.three-columns-left #tertiary > .inner:first-child {
+    padding-left: 1em;
+    }
+
+.three-columns-right #tertiary > .inner:first-child {
+    padding-left: 1em;
+    }
+
+/*--- Journal Header ---*/
+
+#header {
+    padding: .1em .5em;
+    }
+
+h1#title {
+    font-variant: small-caps;
+    text-align: right;
+    }
+
+h2#subtitle,
+h2#pagetitle {
+    border: none;
+    color: $*color_page_title;
+    font-variant: small-caps;
+    font-weight: bold;
+    }
+
+h2#subtitle {
+    margin: -1em 0 0;
+    text-align: right;
+    }
+
+#header .module-navlinks {
+    $page_subtitle_font
+    background: transparent;
+    border: none;
+    color: $*color_page_title;
+    font-variant: small-caps;
+    font-weight: bold;
+    letter-spacing: 0;
+    margin: -1em 0 0;
+    text-align: center;
+    }
+
+#header .module-navlinks li {
+    display: inline;
+    padding: 0 1em;
+    }
+
+#header .module-navlinks li a {
+    color: $*color_page_title;
+    }
+
+/*--- Journal Navigation ---*/
+
+.navigation {
+    background: $*color_entry_background;
+    border-bottom: 5px solid $*color_entry_border;
+    font-family: $*font_entry_title, $*font_fallback;
+    font-size: 1.2em;
+    font-variant: small-caps;
+    margin: 0 0 15px 0;
+    padding: 5px;
+    }
+
+.topnav a, .bottomnav a {
+    color: $*color_entry_title;
+    }
+
+.navigation.empty {
+    display: none;
+    }
+
+/*--- Sidebar ---*/
+
+li.page-separator {
+    display: none;
+    }
+
+.module {
+    border: none;
+    border-bottom: 5px solid $*color_module_border;
+    margin-bottom: 15px;
+    padding: 10px;
+    }
+
+h2.module-header {
+    border-bottom: 1px solid $*color_page_link;
+    color: $*color_module_title;
+    font-variant: small-caps;
+    font-weight: normal;
+    margin: 0 0 10px 0;
+    }
+
+h2.module-header a {
+    color: $*color_module_title;
+    }
+
+ul.module-list {
+    list-style: none;
+    }
+
+ul.module-list li {
+    padding: 0 0 0 5px;
+    list-style: none;
+    }
+
+ul.module-list-item {
+    list-style: none;
+    }
+
+ul.module-list-item li {
+    padding: 0 0 0 5px;
+    list-style: none;
+    }
+
+div.module-content div.userpic {
+    text-align: center;
+    }
+
+div.module-content div.userpic img {
+    background: $*color_header_background;
+    border: none;
+    padding: 10px;
+    }
+
+div.journal-name {
+    font-variant: small-caps;
+    margin-top: 5px;
+    text-align: center;
+    }
+
+div.journal-website-name {
+    font-variant: small-caps;
+    text-align: center;
+    }
+
+ul.userlite-interaction-links.icon-links {
+    margin: 5px 0 0;
+    text-align: center;
+    }
+
+ul.userlite-interaction-links.icon-links li {
+    margin: 0 auto;
+    }
+
+ul.userlite-interaction-links.text-links {
+    padding: 0 0 0 5px;
+    list-style: none;;
+    }
+
+div.module-navlinks {
+    color: $*color_module_title;
+    font-variant: small-caps;
+    font-size: 1.45em;
+    letter-spacing: -.1em;
+    list-style: none;
+    text-align: right;
+    }
+
+div.module-navlinks a {
+    color: $*color_module_title;
+    }
+
+div.manage-tags-link {
+    margin: 10px 0 0;
+    text-align: right;
+    }
+
+div.module-calendar table {
+    text-align: center;
+    }
+
+div.module-calendar th {
+    background: $*color_page_background;
+    border: 1px solid $*color_entry_border;
+    }
+
+div.module-calendar td.empty-day {
+    border: 1px solid $*color_entry_border;
+    }
+
+div.module-calendar td.entry-day { 
+    background: $*color_page_background;
+    border: 1px solid $*color_entry_border;
+    }
+
+/*--- Entries ---*/
+
+div.entry {
+    border: none;
+    border-bottom: 5px solid $*color_entry_border;
+    padding: 10px;
+    margin: 0 0 15px 0;
+    }
+
+div.entry-content {
+    margin: 10px 0 0;
+    min-height: 100px;
+    }
+
+div.entry div.header {
+    font-family: $*font_entry_title, $*font_fallback;
+    padding: 0;
+    }
+
+h3.entry-title {
+    font-weight: normal;
+    font-variant: small-caps;
+    }
+
+h3.entry-title a,
+h3.entry-title a:active,
+h3.entry-title a:hover,
+h3.entry-title a:visited {
+    color: $*color_entry_title;
+    }
+
+.datetime {
+    color: $*color_entry_text;
+    font-size: .75em;
+    font-variant: small-caps;
+    }
+
+.datetime a {
+    color: $*color_entry_text;
+    }
+
+.has-userpic div.entry div.userpic {
+    border: none;
+    margin: -20px 10px 10px 10px;
+    }
+
+.has-userpic div.entry div.userpic img {
+    background: $*color_header_background;
+    border: none;
+    padding: 10px;
+    }
+
+.entry-poster {
+    border-bottom: 1px solid $*color_entry_link;
+    color: $*color_entry_title;
+    display: block;
+    font-size: .8em;
+    font-variant: small-caps;
+    margin-bottom: 10px;
+    }
+
+.entry-poster a,
+.entry-poster a:active,
+.entry-poster a:hover,
+.entry-poster a:visited {
+    color: $*color_entry_title;
+    }
+
+.metadata {
+    font-size: .85em;
+    font-variant: small-caps;
+    margin: 1em 0 0;
+    text-align: right;
+    }
+
+div.metadata ul {
+    padding: 0;
+    margin: 0;
+    }
+
+div.metadata ul li {
+    padding: 0;
+    margin: 0;
+    }
+
+span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, div.tag ul {
+    color: $*color_entry_link;
+    text-align: right;
+    }
+
+.entry .footer {
+    clear: both;
+    }
+
+div.tag {
+    margin: 1em 0 .5em 0;
+    font-size: 0.85em;
+    font-variant: small-caps;
+    }
+
+div.tag ul li {
+    margin: .5em 0 0;
+    text-align: right;
+    }
+
+ul.entry-management-links {
+    border-top: 1px solid $*color_entry_border;
+    margin: .5em 0 0;
+    padding: .5em 0 0;
+    text-align: center;
+    }
+
+ul.entry-management-links li {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+ul.entry-interaction-links {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    }
+
+ul.entry-interaction-links li,
+ul.entry-management-links li {
+    color: $*color_entry_interaction_links;
+    font-size: 1.3em;
+    font-variant: small-caps;
+    margin: 0 .5em 0 0;
+    padding: 0;
+    }
+
+ul.entry-interaction-links a,
+ul.entry-interaction-links a:active,
+ul.entry-interaction-links a:hover,
+ul.entry-interaction-links a:visited,
+ul.entry-management-links a,
+ul.entry-management-links a:active,
+ul.entry-management-links a:hover,
+ul.entry-management-links a:visited {
+    color: $*color_entry_interaction_links;
+    }
+
+/*--- Archive Page ---*/
+
+.month {
+    background: $*color_entry_background;
+    border-bottom: 5px solid $*color_entry_border;
+    margin: 0 0 1em 0;
+    padding: 2em;
+    }
+
+table.month {
+    border-bottom: none;
+    }
+
+.month table {
+    margin: auto;
+    width: 100%;
+    }
+
+table.month td, table.month th {
+    border: 1px solid $*color_entry_border;
+    }
+
+.month caption {
+    display: none;
+    }
+
+.month h3 {
+    color: $*color_entry_title;
+    font-size: 1.2em; 
+    font-weight: normal;
+    }
+
+.month th { 
+    background: $*color_page_background;
+    border: 1px solid $*color_entry_border;
+    text-align: center;
+    }
+
+.month td.day {
+    border: 1px solid $*color_entry_border;
+    font-weight: normal; 
+    }
+
+td.day {
+    padding: 1em;
+    }
+
+.month td.day-has-entries {
+    background: $*color_page_background;
+    font-weight: normal;
+    text-align: left;
+    }
+
+.month td.day-has-entries p {
+    font-size: 1.14em;
+    font-weight: bold;
+    text-align: right;
+    }
+
+/*--- Tags Page ---*/
+
+.page-tags .tags-container {
+    background: $*color_entry_background;
+    border-bottom: 5px solid $*color_entry_border;
+    padding: .5em;
+    }
+
+.page-tags h2 {
+    border-bottom: 1px solid $*color_entry_border;
+    color: $*color_entry_title;
+    font-family: $*font_entry_title, $*font_fallback;
+    font-size: $*font_entry_title_size$*font_entry_title_units;
+    font-variant: small-caps;
+    font-weight: normal;
+    margin: 0 0 .5em 0;
+    }
+
+.page-tags .ljtaglist {
+    list-style: none;
+    }
+
+/*--- Comments ---*/
+
+hr.above-entry-interaction-links, hr.below-reply-container {
+    display: none; 
+    }
+
+.comment {
+    background: $*color_entry_background;
+    border-bottom: 5px solid $*color_entry_border;
+    padding: 1em;
+    }
+
+.comment-title, .comment-title a {
+    color: $*color_entry_title;
+    font-size: 1.2em; 
+    font-variant: small-caps;
+    }
+
+.comment-content {
+    border-bottom: 1px solid $*color_entry_border;
+    border-top: 1px solid $*color_page_link;
+    min-height: 100px;
+    padding: .5em;
+    }
+
+.comment-poster {
+    color: $*color_entry_title;
+    margin-bottom: .5em;
+    font-variant: small-caps;
+    font-size: .8em;
+    }
+
+.comment-poster a {
+    color: $*color_entry_title;
+    }
+
+.poster-ip {
+    font-variant: small-caps;
+    font-size: .7em;
+    }
+
+textarea.textbox {
+    background: $*color_entry_background;
+    width: 80% !important;
+    }
+
+.has-userpic div.comment div.userpic {
+    border: none;
+    display: block;
+    margin: -1em .5em .5em .5em;
+    }
+
+.has-userpic div.comment div.userpic img {
+    background: $*color_header_background;
+    border: none;
+    padding: 10px;
+    }
+
+.comment-management-links ul, .comment-interaction-links ul {
+    display: inline;
+    font-size: 0.8em;
+    font-variant: small-caps;
+    text-align: center;
+    }
+
+.comment-management-links li, .comment-interaction-links li {
+    font-size: 1.1em;
+    font-variant: small-caps;
+    text-align: center;
+    }
+
+.comment-interaction-links li a,
+.comment-management-links li a {
+    color: $*color_entry_interaction_links;
+    }
+
+#qrform table {
+    border: none !important;
+    }
+
+.bottomcomment { 
+    background: $*color_entry_background;
+    border-bottom: 5px solid $*color_entry_border;
+    margin: .5em 0;
+    padding: .7em;
+    }
+
+/*--- Contextual Pop-ups ---*/
+
+div.ContextualPopup {
+    color: $*color_entry_text;
+    margin: auto;
+    }
+
+div.ContextualPopup div.Inner {
+    background: $*color_entry_background;
+    border: 1px solid $*color_entry_border;
+    color: $*color_entry_text;
+    }
+
+div.ContextualPopup .Userpic {
+    border: 5px solid $*color_header_background;
+    margin: .5em;
+    padding: 0;
+    }
+
+div.ContextualPopup .Content {
+    border: 0;
+    color: $*color_entry_text;
+    }
+
+div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:link, div.ContextualPopup div.Inner a:visited, div.ContextualPopup div.Inner a:active {
+    color: $*color_entry_link;
+    text-decoration: none;
+    }
+
+div.ContextualPopup .Relation {
+    color: $*color_entry_text;
+    }
+
+/*--- Navigation Bar ---*/
+
+table#lj_controlstrip td {
+    background: $*color_entry_background;
+    border: none;
+    color: $*color_entry_text;
+    }
+
+#lj_controlstrip input {
+    background: $*color_entry_background;
+    border: 1px solid $*color_page_text;
+    color: $*color_entry_text;
+    }
+
+#lj_controlstrip a {
+    color: $*color_entry_link;
+    }
+
+#lj_controlstrip_statustext {
+    color: $*color_entry_title;
+    }
+
+#lj_controlstrip .ljuser a b {
+    color: $*color_entry_title;
+    }
+
+$userpic_css
+
+""";
+}
