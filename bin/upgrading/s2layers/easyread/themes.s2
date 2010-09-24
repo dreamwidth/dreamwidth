@@ -221,14 +221,16 @@ set color_module_background = "#ffefbd";
 set color_module_text="#000";
 set color_module_title = "#ef8229";
 
-function print_stylesheet () {
+function Page::print_theme_stylesheet() {
     """
     #tertiary {
         color: $*color_module_text;
         background-color: $*color_module_background;
         }
 
-    .module-header { color $*color_module_title; }
+    .module-header {
+        color $*color_module_title;
+        }
     """;
     }
 

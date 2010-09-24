@@ -55,7 +55,7 @@ set image_background_header_url = "skittlishdreams/academy_bg.gif";
 set image_background_module_url = "skittlishdreams/academy_box.gif";
 set image_background_navigation_url = "skittlishdreams/academy_circle.gif";
 
-function print_stylesheet () {
+function Page::print_theme_stylesheet() {
     """
     .entry-title, .entry-title a {
         color: $*color_entry_title;
@@ -239,7 +239,7 @@ set image_background_header_url = "skittlishdreams/desertcream_bg.gif";
 set image_background_module_url = "skittlishdreams/desertcream_box.gif";
 set image_background_navigation_url = "skittlishdreams/desertcream_circle.gif";
 
-function print_stylesheet () {
+function Page::print_theme_stylesheet() {
     """
     .entry-title, .entry-title a {
         color: $*color_entry_title;
@@ -363,7 +363,7 @@ set image_background_header_url = "skittlishdreams/inthebag_bg.gif";
 set image_background_module_url = "skittlishdreams/inthebag_box.gif";
 set image_background_navigation_url = "skittlishdreams/inthebag_circle.gif";
 
-function print_stylesheet () {
+function Page::print_theme_stylesheet() {
     """
     .entry-title, .entry-title a {
         color: $*color_entry_title;
@@ -434,7 +434,7 @@ set image_background_module_url = "skittlishdreams/likesunshine_box.gif";
 set image_background_navigation_url = "skittlishdreams/likesunshine_circle.gif";
 set image_background_page_url = "skittlishdreams/likesunshine_page.gif";
 
-function print_stylesheet () {
+function Page::print_theme_stylesheet() {
     """
     .entry-title, .entry-title a {
         color: $*color_entry_title;
@@ -671,7 +671,7 @@ set image_background_header_url = "skittlishdreams/snowcherries_bg.gif";
 set image_background_module_url = "skittlishdreams/snowcherries_box.gif";
 set image_background_navigation_url = "skittlishdreams/snowcherries_circle.gif";
 
-function print_stylesheet () {
+function Page::print_theme_stylesheet() {
     """
     .entry-title, .entry-title a {
         color: $*color_entry_title;
