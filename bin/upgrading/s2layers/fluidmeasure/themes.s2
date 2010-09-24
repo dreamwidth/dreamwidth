@@ -11,18 +11,13 @@ set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 ##===============================
 
 set color_page_background = "#be7303";
-set color_page_text = "#be7303";
+set color_page_border = "#be7303";
 set color_page_link = "#1f6b68";
 set color_page_link_active = "6b4d1f";
 set color_page_link_hover = "6b4d1f";
 set color_page_link_visited = "#1f6b68";
-set color_page_border = "#be7303";
+set color_page_text = "#be7303";
 set color_page_title = "#1f6b68";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#1f2727";
 set color_footer_background = "#6b4d1f";
 set color_footer_link = "#1f2727";
@@ -35,20 +30,15 @@ set color_footer_link_visited = "1f2727";
 ##===============================
 
 set color_entry_background = "#264241";
-set color_entry_text = "be7303";
+set color_entry_border = "#1f2727";
+set color_entry_interaction_links = "1f6b68";
 set color_entry_link = "1f6b68";
 set color_entry_link_active = "6b4d1f";
 set color_entry_link_hover = "6b4d1f";
 set color_entry_link_visited = "1f6b68";
-set color_entry_border = "#1f2727";
+set color_entry_text = "be7303";
 set color_entry_title = "#1f2727";
 set color_entry_title_background = "#1f6b68";
-set color_entry_interaction_links = "1f6b68";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#1f6b68";
 
 ##===============================
@@ -56,14 +46,15 @@ set color_comment_title_background = "#1f6b68";
 ##===============================
 
 set color_module_background = "#264241";
-set color_module_text = "1f6b68";
+set color_module_border = "#6b4d1f";
 set color_module_link = "#6b4d1f";
 set color_module_link_active = "6b4d1f";
 set color_module_link_hover = "6b4d1f";
 set color_module_link_visited = "#6b4d1f";
+set color_module_text = "1f6b68";
 set color_module_title = "#1f2727";
 set color_module_title_background = "#1f6b68";
-set color_module_border = "#6b4d1f";
+
 
 #NEWLAYER: fluidmeasure/marblei
 layerinfo type = "theme";
@@ -85,11 +76,6 @@ set color_page_link_hover = "#5e6460";
 set color_page_link_visited = "#818a8f";
 set color_page_text = "#d2cdc7";
 set color_page_title = "#818a8f";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#101413";
 set color_footer_background = "#5e6460";
 set color_footer_link = "#101413";
@@ -111,11 +97,6 @@ set color_entry_link_visited = "#818a8f";
 set color_entry_text = "#d2cdc7";
 set color_entry_title = "#101413";
 set color_entry_title_background = "#818a8f";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#818a8f";
 
 ##===============================
@@ -131,6 +112,7 @@ set color_module_link_visited = "#5e6460";
 set color_module_text = "#818a8f";
 set color_module_title = "#101413";
 set color_module_title_background = "#818a8f";
+
 
 #NEWLAYER: fluidmeasure/marbleii
 layerinfo type = "theme";
@@ -152,11 +134,6 @@ set color_page_link_hover = "#5e6460";
 set color_page_link_visited = "#101413";
 set color_page_text = "#233535";
 set color_page_title = "#101413";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#818a8f";
 set color_footer_background = "#5e6460";
 set color_footer_link = "#818a8f";
@@ -178,17 +155,11 @@ set color_entry_link_visited = "#101413";
 set color_entry_text = "#233535";
 set color_entry_title = "#818a8f";
 set color_entry_title_background = "#101413";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#101413";
 
 ##===============================
 ## Module Colors
 ##===============================
-
 
 set color_module_background = "#d2cdc7";
 set color_module_border = "#5e6460";
@@ -199,6 +170,7 @@ set color_module_link_visited = "#5e6460";
 set color_module_text = "#101413";
 set color_module_title = "#818a8f";
 set color_module_title_background = "#101413";
+
 
 #NEWLAYER: fluidmeasure/mutedseashore
 layerinfo type = "theme";
@@ -213,15 +185,10 @@ set theme_authors = [ { "name" => "cimorene", "type" => "user" } ];
 ##===============================
 
 set color_page_background = "#C5BEA2";
-set color_page_title = "#fff";
-set color_page_link = "#2d5853";
-set color_page_link_visited = "#444444";
 set color_page_border = "#aea27a";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
+set color_page_link = "#2d5853";
+set color_page_link_visited = "#444";
+set color_page_title = "#fff";
 set color_header_background = "#5a9181";
 set color_footer_background = "#2d5853";
 set color_footer_link = "#fff";
@@ -234,12 +201,7 @@ set color_entry_background = "#fff";
 set color_entry_border = "#eee";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#5a9181";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_module_title_background = "#5a9181";
+set color_comment_title_background = "#346348";
 
 ##===============================
 ## Module Colors
@@ -248,36 +210,45 @@ set color_module_title_background = "#5a9181";
 set color_module_background = "#C5BEA2";
 set color_module_border = "#2d5853";
 set color_module_title = "#fff";
-set color_comment_title_background = "#346348";
+set color_module_title_background = "#5a9181";
+
 
 #NEWLAYER: fluidmeasure/nnwm2009
-layerinfo "type" = "theme";
-layerinfo "name" = "NNWM 2009";
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "fluidmeasure/nnwm2009";
 layerinfo author_name = "zvi";
 
-set color_footer_background = "#ffefbd";
-set color_footer_link = "#ef8229";
+set theme_authors = [ { "name" => "zvi", "type" => "user" } ];
 
-set color_header_background = "#ffefbd";
+##===============================
+## Page Colors
+##===============================
 
-set color_module_background = "#ffefbd";
-set color_module_text="#000000";
-set color_module_title = "#ef8229";
-
-set color_page_background = "#000000";
+set color_page_background = "#000";
 set color_page_border = "#842021";
 set color_page_link = "#429ace";
 set color_page_link_active = "#A5CF39";
 set color_page_link_hover = "#842021";
 set color_page_link_visited = "#ef4921";
-set color_page_text = "#ffffff";
+set color_page_text = "#fff";
 set color_page_title = "#ef8229";
+set color_header_background = "#ffefbd";
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffefbd";
+set color_module_text="#000";
+set color_module_title = "#ef8229";
 
 
 #NEWLAYER: fluidmeasure/nutmeg
-layerinfo "type" = "theme";
-layerinfo "name" = "Nutmeg";
+layerinfo type = "theme";
+layerinfo name = "Nutmeg";
 layerinfo redist_uniq = "fluidmeasure/nutmeg";
 layerinfo author_name = "branchandroot";
 
@@ -285,68 +256,45 @@ layerinfo author_name = "branchandroot";
 ## Page Colors
 ##===============================
 
-set color_page_background = "#F8D6AA"; 
-set color_page_text = "#000000"; 
-set color_page_link = "#B84A2F"; 
-set color_page_link_active = "";
-set color_page_link_hover = "";
-set color_page_link_visited = "#F8C684"; 
-set color_page_border = "#444334"; 
-set color_page_title = "#fff"; 
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "#B84A2F"; 
-set color_footer_background = "#B84A2F"; 
-set color_footer_link = "#fff"; 
-set color_footer_link_active = "";
-set color_footer_link_hover = "";
-set color_footer_link_visited = "";
+set color_page_background = "#F8D6AA";
+set color_page_border = "#444334";
+set color_page_link = "#B84A2F";
+set color_page_link_visited = "#F8C684";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#B84A2F";
+set color_footer_background = "#B84A2F";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#fff"; 
-set color_entry_text = "";
-set color_entry_link = "";
-set color_entry_link_active = "";
-set color_entry_link_hover = "";
-set color_entry_link_visited = ""; 
-set color_entry_border = "#efece0"; 
-set color_entry_title = "#000"; 
-set color_entry_title_background = "#DBBD95"; 
-set color_entry_interaction_links = "";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title_background = "#DBBD95"; 
+set color_entry_background = "#fff";
+set color_entry_border = "#efece0";
+set color_entry_title = "#000";
+set color_entry_title_background = "#DBBD95";
+set color_comment_title_background = "#DBBD95";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_background = "#F8C684"; 
-set color_module_text = ""; 
-set color_module_link = "#000"; 
-set color_module_link_active = "";
-set color_module_link_hover = "";
-set color_module_link_visited = "#333"; 
-set color_module_title = "#000"; 
-set color_module_title_background = "#DBBD95"; 
-set color_module_border = "#333"; 
+set color_module_background = "#F8C684";
+set color_module_border = "#333";
+set color_module_link = "#000";
+set color_module_link_visited = "#333";
+set color_module_title = "#000";
+set color_module_title_background = "#DBBD95";
 
 function Page::print_theme_stylesheet() {
-
     """
-    .module-calendar .entry-day a { color: $*color_module_background !important; }
+    .module-calendar .entry-day a {
+        color: $*color_module_background !important;
+        }
     """;
-
 }
+
 
 #NEWLAYER: fluidmeasure/pigeonblue
 layerinfo type = "theme";
@@ -361,18 +309,13 @@ set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
 ##===============================
 
 set color_page_background = "#babdc4";
-set color_page_text = "#babdc4";
+set color_page_border = "#babdc4";
 set color_page_link = "#454f70";
 set color_page_link_active = "808aac";
 set color_page_link_hover = "808aac";
 set color_page_link_visited = "#454f70";
-set color_page_border = "#babdc4";
+set color_page_text = "#babdc4";
 set color_page_title = "#454f70";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
 set color_header_background = "#020920";
 set color_footer_background = "#808aac";
 set color_footer_link = "#020920";
@@ -385,20 +328,15 @@ set color_footer_link_visited = "020920";
 ##===============================
 
 set color_entry_background = "#19223f";
-set color_entry_text = "babdc4";
+set color_entry_border = "#020920";
+set color_entry_interaction_links = "454f70";
 set color_entry_link = "454f70";
 set color_entry_link_active = "808aac";
 set color_entry_link_hover = "808aac";
 set color_entry_link_visited = "454f70";
-set color_entry_border = "#020920";
+set color_entry_text = "babdc4";
 set color_entry_title = "#020920";
 set color_entry_title_background = "#454f70";
-set color_entry_interaction_links = "454f70";
-
-##===============================
-## Comment Colors
-##===============================
-
 set color_comment_title_background = "#454f70";
 
 ##===============================
@@ -406,14 +344,15 @@ set color_comment_title_background = "#454f70";
 ##===============================
 
 set color_module_background = "#19223f";
-set color_module_text = "454f70";
+set color_module_border = "#808aac";
 set color_module_link = "#808aac";
 set color_module_link_active = "808aac";
 set color_module_link_hover = "808aac";
 set color_module_link_visited = "#808aac";
+set color_module_text = "454f70";
 set color_module_title = "#020920";
 set color_module_title_background = "#454f70";
-set color_module_border = "#808aac";
+
 
 #NEWLAYER: fluidmeasure/spice
 layerinfo type = "theme";
@@ -425,65 +364,41 @@ layerinfo author_name = "branchandroot";
 ## Page Colors
 ##===============================
 
-set color_page_background = "#aaaaaa"; 
-set color_page_text = "#000000"; 
-set color_page_link = "#692"; 
-set color_page_link_active = "";
-set color_page_link_hover = "";
-set color_page_link_visited = "#9c5"; 
-set color_page_border = "#fc3"; 
-set color_page_title = "#fff"; 
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "#b01"; 
-set color_footer_background = "#b01"; 
-set color_footer_link = "#fff"; 
-set color_footer_link_active = "";
-set color_footer_link_hover = "";
-set color_footer_link_visited = "";
+set color_page_background = "#aaa";
+set color_page_border = "#fc3";
+set color_page_link = "#692";
+set color_page_link_visited = "#9c5";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#b01";
+set color_footer_background = "#b01";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#fff"; 
-set color_entry_text = "";
-set color_entry_link = "";
-set color_entry_link_active = "";
-set color_entry_link_hover = "";
-set color_entry_link_visited = ""; 
-set color_entry_border = "#eee"; 
-set color_entry_title = "#fff"; 
-set color_entry_title_background = "#9c5"; 
-set color_entry_interaction_links = "";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title_background = "#9c5"; 
+set color_entry_background = "#fff";
+set color_entry_border = "#eee";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#9c5";
+set color_comment_title_background = "#9c5";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_background = "#fea"; 
-set color_module_text = ""; 
-set color_module_link = "#333"; 
-set color_module_link_active = "";
-set color_module_link_hover = "";
-set color_module_link_visited = "#666"; 
-set color_module_title = "#fff"; 
-set color_module_title_background = "#9c5"; 
-set color_module_border = "#666"; 
+set color_module_background = "#fea";
+set color_module_border = "#666";
+set color_module_link = "#333";
+set color_module_link_visited = "#666";
+set color_module_title = "#fff";
+set color_module_title_background = "#9c5";
 
 
 #NEWLAYER: fluidmeasure/summerdark
-layerinfo "type" = "theme";
-layerinfo "name" = "Summer Dark";
+layerinfo type = "theme";
+layerinfo name = "Summer Dark";
 layerinfo redist_uniq = "fluidmeasure/summerdark";
 layerinfo author_name = "branchandroot";
 
@@ -491,65 +406,42 @@ layerinfo author_name = "branchandroot";
 ## Page Colors
 ##===============================
 
-set color_page_background = "#F4F2E5"; 
-set color_page_text = "#000000"; 
-set color_page_link = "#702840"; 
-set color_page_link_active = "";
-set color_page_link_hover = "";
-set color_page_link_visited = "#603030"; 
-set color_page_border = "#601830"; 
-set color_page_title = "#ECDEC7"; 
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "#303000"; 
-set color_footer_background = "#303000"; 
-set color_footer_link = "#fff"; 
-set color_footer_link_active = "";
-set color_footer_link_hover = "";
-set color_footer_link_visited = "";
+set color_page_background = "#F4F2E5";
+set color_page_border = "#601830";
+set color_page_link = "#702840";
+set color_page_link_visited = "#603030";
+set color_page_text = "#000";
+set color_page_title = "#ECDEC7";
+set color_header_background = "#303000";
+set color_footer_background = "#303000";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#fff"; 
-set color_entry_text = "";
-set color_entry_link = "";
-set color_entry_link_active = "";
-set color_entry_link_hover = "";
-set color_entry_link_visited = ""; 
-set color_entry_border = "#eeeee9"; 
-set color_entry_title = "#fff"; 
-set color_entry_title_background = "#604830"; 
-set color_entry_interaction_links = "";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title_background = "#604830"; 
+set color_entry_background = "#fff";
+set color_entry_border = "#eeeee9";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#604830";
+set color_comment_title_background = "#604830";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_background = "#603030"; 
-set color_module_text = "#ECDEC7"; 
-set color_module_link = "#ECDEC7"; 
-set color_module_link_active = "";
-set color_module_link_hover = "";
-set color_module_link_visited = "#000"; 
-set color_module_title = "#ECDEC7"; 
-set color_module_title_background = "#604830"; 
-set color_module_border = "#000"; 
+set color_module_background = "#603030";
+set color_module_border = "#000";
+set color_module_link = "#ECDEC7";
+set color_module_link_visited = "#000";
+set color_module_text = "#ECDEC7";
+set color_module_title = "#ECDEC7";
+set color_module_title_background = "#604830";
 
 
 #NEWLAYER: fluidmeasure/wooded
-layerinfo "type" = "theme";
-layerinfo "name" = "Wooded";
+layerinfo type = "theme";
+layerinfo name = "Wooded";
 layerinfo redist_uniq = "fluidmeasure/wooded";
 layerinfo author_name = "branchandroot";
 
@@ -557,58 +449,33 @@ layerinfo author_name = "branchandroot";
 ## Page Colors
 ##===============================
 
-set color_page_background = "#CCB395"; 
-set color_page_text = "#000000"; 
-set color_page_link = "#7A7640"; 
-set color_page_link_active = "";
-set color_page_link_hover = "";
-set color_page_link_visited = "#B59E76"; 
-set color_page_border = "#B59E76"; 
-set color_page_title = "#fff"; 
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "#7A7640"; 
-set color_footer_background = "#7A7640"; 
-set color_footer_link = "#fff"; 
-set color_footer_link_active = "";
-set color_footer_link_hover = "";
-set color_footer_link_visited = "";
+set color_page_background = "#CCB395";
+set color_page_border = "#B59E76";
+set color_page_link = "#7A7640";
+set color_page_link_visited = "#B59E76";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#7A7640";
+set color_footer_background = "#7A7640";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#fff"; 
-set color_entry_text = "";
-set color_entry_link = "";
-set color_entry_link_active = "";
-set color_entry_link_hover = "";
-set color_entry_link_visited = ""; 
-set color_entry_border = "#eee"; 
-set color_entry_title = "#fff"; 
-set color_entry_title_background = "#3F4B27"; 
-set color_entry_interaction_links = "";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title_background = "#3F4B27"; 
+set color_entry_background = "#fff";
+set color_entry_border = "#eee";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#3F4B27";
+set color_comment_title_background = "#3F4B27";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_background = "#CCB395"; 
-set color_module_text = ""; 
-set color_module_link = "#000"; 
-set color_module_link_active = "";
-set color_module_link_hover = "";
-set color_module_link_visited = "#444"; 
-set color_module_title = "#fff"; 
-set color_module_title_background = "#3F4B27"; 
-set color_module_border = "#2F2B17"; 
-
+set color_module_background = "#CCB395";
+set color_module_border = "#2F2B17";
+set color_module_link = "#000";
+set color_module_link_visited = "#444";
+set color_module_title = "#fff";
+set color_module_title_background = "#3F4B27";
