@@ -29,6 +29,6 @@ sub cats { qw() }
 
 package LJ::S2Theme::practicality::warmth;
 use base qw( LJ::S2Theme::practicality );
-sub cats { qw( base ) }
+sub cats { qw() }
 
 1;
