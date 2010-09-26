@@ -7,7 +7,7 @@ layerinfo author_name = "sarken";
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#e2f5dc";
@@ -25,7 +25,7 @@ set color_footer_link_hover = "#fff";
 set color_footer_link_visited = "#fff";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#e2f5dc";
@@ -41,7 +41,7 @@ set color_entry_title_background = "#78877a";
 set color_comment_title_background = "#e2f5dc";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#e2f5dc";
@@ -51,11 +51,11 @@ set color_module_title = "#78877a";
 set color_module_title_background = "#e2f5dc";
 
 function Page::print_theme_stylesheet() {
-"""
-.comment .header .datetime { 
-    color: $*color_entry_text;
-    }
-""";
+    """
+    .comment .header .datetime {
+        color: $*color_entry_text;
+        }
+    """;
 }
 
 
@@ -68,7 +68,7 @@ layerinfo author_name = "sarken";
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#EDEBCA";
@@ -86,7 +86,7 @@ set color_footer_link_hover = "#EDEBCA";
 set color_footer_link_visited = "#EDEBCA";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#F2F1D5";
@@ -102,7 +102,7 @@ set color_entry_title_background = "#8F5A77";
 set color_comment_title_background = "#8F5A77";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#F2F1D5";
@@ -112,20 +112,20 @@ set color_module_title = "#80695C";
 set color_module_title_background = "#D1AB94";
 
 function Page::print_theme_stylesheet() {
-"""
-div.comment div.header {
-    background-color: $*color_comment_title_background;
-    }
+    """
+    div.comment div.header {
+        background-color: $*color_comment_title_background;
+        }
 
-div.module-navlinks, div.module-time, div.module-powered {
-    background-color: $*color_page_background;
-    }
+    div.module-navlinks, div.module-time, div.module-powered {
+        background-color: $*color_page_background;
+        }
 
-ul.entry-interaction-links {
-    background-color: $*color_entry_title; 
-    border-bottom: 1px solid $*color_entry_title_background;
-    }
-""";
+    ul.entry-interaction-links {
+        background-color: $*color_entry_title; 
+        border-bottom: 1px solid $*color_entry_title_background;
+        }
+    """;
 }
 
 
@@ -207,7 +207,7 @@ layerinfo author_name = "sarken";
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#6D6D4D";
@@ -225,7 +225,7 @@ set color_footer_link_hover = "#D4D496";
 set color_footer_link_visited = "#D4D496";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#787856";
@@ -241,7 +241,7 @@ set color_entry_title_background = "#787856";
 set color_comment_title_background = "#6D6D4D";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#787856";
@@ -251,27 +251,27 @@ set color_module_title = "#D4D496";
 set color_module_title_background = "#787856";
 
 function Page::print_theme_stylesheet() {
-"""
-div.module-navlinks, div.module-time, div.module-powered {
-    background-color: $*color_page_background;
-    }
+    """
+    div.module-navlinks, div.module-time, div.module-powered {
+        background-color: $*color_page_background;
+        }
 
-.module-navlinks .module-list .module-list-item a {
-    background-color: $*color_header_background;
-    }
+    .module-navlinks .module-list .module-list-item a {
+        background-color: $*color_header_background;
+        }
 
-span.date, span.time {
-    color: $*color_page_title;
-    }
+    span.date, span.time {
+        color: $*color_page_title;
+        }
 
-ul.entry-interaction-links, ul.entry-management-links {
-    padding-top: 2px;
-    }
+    ul.entry-interaction-links, ul.entry-management-links {
+        padding-top: 2px;
+        }
 
-ul.entry-interaction-links {
-    border-top: 1px solid $*color_entry_border;
-    }
-""";
+    ul.entry-interaction-links {
+        border-top: 1px solid $*color_entry_border;
+        }
+    """;
 }
 
 
@@ -284,7 +284,7 @@ layerinfo author_name = "sarken";
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#18002C";
@@ -302,7 +302,7 @@ set color_footer_link_hover = "#eee";
 set color_footer_link_visited = "#eee";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#18002C";
@@ -318,7 +318,7 @@ set color_entry_title_background = "#32045C";
 set color_comment_title_background = "#18002C";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#18002C";
@@ -328,16 +328,16 @@ set color_module_title = "#B6ADDC";
 set color_module_title_background = "#18002C";
 
 function Page::print_theme_stylesheet() {
-"""
-.module-navlinks .module-list .module-list-item a {
-    color: $*color_module_border; 
-    text-decoration: none;
-    }
+    """
+    .module-navlinks .module-list .module-list-item a {
+        color: $*color_module_border; 
+        text-decoration: none;
+        }
 
-.module-navlinks .module-list .module-list-item:hover a {
-    color: $*color_page_text;
-    }
-""";
+    .module-navlinks .module-list .module-list-item:hover a {
+        color: $*color_page_text;
+        }
+    """;
 }
 
 
@@ -406,7 +406,7 @@ layerinfo author_name = "sarken";
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#F2F2F2";
@@ -424,7 +424,7 @@ set color_footer_link_hover = "#FFFCF7";
 set color_footer_link_visited = "#FFFCF7";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#F2F2F2";
@@ -440,7 +440,7 @@ set color_entry_title_background = "#FFFCF7";
 set color_comment_title_background = "#F2F2F2";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#F2F2F2";
@@ -459,7 +459,7 @@ layerinfo author_name = "sarken";
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#efefef";
@@ -477,7 +477,7 @@ set color_footer_link_hover = "#fff";
 set color_footer_link_visited = "#fff";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
@@ -493,7 +493,7 @@ set color_entry_title_background = "#F5AE78";
 set color_comment_title_background = "#F5AE78";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#fff";
@@ -503,36 +503,36 @@ set color_module_title = "#EBF3F6";
 set color_module_title_background = "#9FB9C2";
 
 function Page::print_theme_stylesheet() {
-"""
-div.comment div.header {
-    background-color: $*color_comment_title_background;
-    }
+    """
+    div.comment div.header {
+        background-color: $*color_comment_title_background;
+        }
 
-div.module-navlinks, div.module-time, div.module-powered {
-    background-color: $*color_page_background;
-    }
+    div.module-navlinks, div.module-time, div.module-powered {
+        background-color: $*color_page_background;
+        }
 
-div.module-navlinks ul.module-list li.module-list-item a {
-    color: $*color_footer_link_active;
-    }
+    div.module-navlinks ul.module-list li.module-list-item a {
+        color: $*color_footer_link_active;
+        }
 
-div.module-navlinks ul.module-list li.module-list-item:hover a {
-    color: $*color_module_title;
-    }
+    div.module-navlinks ul.module-list li.module-list-item:hover a {
+        color: $*color_module_title;
+        }
 
-div.topnav a, div.bottomnav a {
-    color: $*color_page_text;
-    }
+    div.topnav a, div.bottomnav a {
+        color: $*color_page_text;
+        }
 
-ul.entry-interaction-links {
-    background-color: $*color_module_title_background; 
-    border-bottom: 1px solid $*color_module_border;
-    }
+    ul.entry-interaction-links {
+        background-color: $*color_module_title_background; 
+        border-bottom: 1px solid $*color_module_border;
+        }
 
-ul.entry-interaction-links a:visited, ul.entry-interaction-links a:hover {
-    color: $*color_entry_interaction_links;
-    }
-""";
+    ul.entry-interaction-links a:visited, ul.entry-interaction-links a:hover {
+        color: $*color_entry_interaction_links;
+        }
+    """;
 }
 
 

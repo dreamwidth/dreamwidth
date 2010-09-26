@@ -7,7 +7,7 @@ layerinfo author_name = "timeasmymeasure";
 set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#343434";
@@ -22,7 +22,7 @@ set color_header_background = "#545454";
 set color_footer_background = "#545454";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#454545";
@@ -33,7 +33,7 @@ set color_entry_title_background = "#545454";
 set color_comment_title_background = "#545454";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#454545";
@@ -218,7 +218,7 @@ layerinfo author_name = "timeasmymeasure";
 set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#fdfdfd";
@@ -233,7 +233,7 @@ set color_header_background = "#efefef";
 set color_footer_background = "#efefef";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
@@ -243,7 +243,7 @@ set color_entry_title_background = "#efefef";
 set color_comment_title_background = "#efefef";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#fff";
@@ -385,7 +385,7 @@ layerinfo author_name = "timeasmymeasure";
 set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#fff8d4";
@@ -399,7 +399,7 @@ set color_header_background = "#e9c98b";
 set color_footer_background = "#e9c98b";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff6c5";
@@ -410,7 +410,7 @@ set color_entry_title_background = "#e9c98b";
 set color_comment_title_background = "#e9c98b";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#fff6c5";
@@ -470,7 +470,7 @@ layerinfo author_name = "timeasmymeasure";
 set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#f6f6f6";
@@ -485,7 +485,7 @@ set color_footer_background = "#c5c5c6";
 set color_header_background = "#c5c5c6";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#ececec";
@@ -496,7 +496,7 @@ set color_entry_title_background = "#c5c5c6";
 set color_comment_title_background = "#c5c5c6";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#ececec";
@@ -514,7 +514,7 @@ layerinfo author_name = "timeasmymeasure";
 set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
 
 ##===============================
-##Page Colors
+## Page Colors
 ##===============================
 
 set color_page_background = "#fdfbee";
@@ -530,7 +530,7 @@ set color_footer_background = "#e0dfae";
 set color_header_background = "#e0dfae";
 
 ##===============================
-##Entry Colors
+## Entry Colors
 ##===============================
 
 set color_entry_background = "#f7f7de";
@@ -541,7 +541,7 @@ set color_entry_title_background = "#e0dfae";
 set color_comment_title_background = "#e0dfae";
 
 ##===============================
-##Module Colors
+## Module Colors
 ##===============================
 
 set color_module_background = "#f7f7de";
