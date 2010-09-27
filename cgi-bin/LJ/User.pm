@@ -6063,13 +6063,12 @@ sub tags {
 ###  28. Userpic-Related Functions
 
 =head2 Userpic-Related Functions
-=cut
 
-# <LJFUNC>
-# name: LJ::User::activate_userpics
-# des: Sets/unsets userpics as inactive based on account caps.
-# returns: nothing
-# </LJFUNC>
+=head3 C<< $u->activate_userpics >>
+
+Sets/unsets userpics as inactive based on account caps.
+
+=cut
 sub activate_userpics {
     my $u = shift;
 
@@ -6177,20 +6176,29 @@ sub activate_userpics {
 }
 
 
+=head3 C<< $u->allpics_base >>
+
+Return the base URL for the icons page.
+
+=cut
 sub allpics_base {
-    my $u = shift;
-    return $u->journal_base . "/icons";
+    return $_[0]->journal_base . "/icons";
 }
 
-# clears the internally cached mapping of userpics to keywords for this
-# User
+=head3 C<< $u->clear_userpic_kw_map >>
+
+Clears the internally cached mapping of userpics to keywords for this user.
+
+=cut
 sub clear_userpic_kw_map {
-    my $self = $_[0];
-
-    $self->{picid_kw_map} = undef;
+    $_[0]->{picid_kw_map} = undef;
 }
 
-# Expunges a userpic so that the system will no longer deliver this userpic.
+=head3 C<< $u->expunge_userpic( $picid ) >>
+
+Expunges a userpic so that the system will no longer deliver this userpic.
+
+=cut
 # If your site has off-site caching or something similar, you can also define
 # a hook "expunge_userpic" which will be called with a picid and userid when
 # a pic is expunged.
@@ -6244,6 +6252,11 @@ sub get_picid_from_keyword {
     return $default;
 }
 
+=head3 C<< $u->get_userpic_count >>
+
+Return the number of userpics.
+
+=cut
 sub get_userpic_count {
     my $u = shift or return undef;
     my $count = scalar LJ::Userpic->load_user_userpics($u);
@@ -6251,8 +6264,73 @@ sub get_userpic_count {
     return $count;
 }
 
-# des: Given a user, gets their userpic information.
-# des-opts: Optional; hash of options, 'load_comments', 'load_urls', 'load_descriptions'.
+=head3 C<< $u->get_userpic_info( $opts ) >>
+
+Given a user, gets their userpic information
+
+Arguments:
+
+=over 4
+
+=item opts
+
+Hashref of options
+
+Valid options:
+
+=over 4
+
+=item load_comments
+
+=item load_urls
+
+=item load_descriptions
+
+=back
+
+Returns a hashref with the following keys:
+
+=over 4
+
+=item comment
+
+Maps a picid to a comment.
+May not be present if load_comments was not specified.
+
+=item description
+
+Maps a picid to a description.
+May not be present if load_descriptions was not specified.
+
+=item kw
+
+Maps a keyword to a pic hashref.
+
+=item kwmap
+
+Maps a keyword to a mapid.
+
+=item map_redir
+
+Maps a mapid to a diffrent mapid.
+
+=item mapid
+
+Maps a mapid to a pic hashref.
+
+=item mapkw
+
+Maps a mapid to a keyword.
+
+=item pic
+
+Maps a picid to a pic hashref.
+
+=back
+
+=back
+
+=cut
 # returns: hash of userpicture information;
 #          for efficiency, we store the userpic structures
 #          in memcache in a packed format.
@@ -6263,7 +6341,6 @@ sub get_userpic_count {
 #       "packed string", which expands to an array of {width=>..., ...}
 #       "packed string", which expands to { 'kw1' => id, 'kw2' => id, ...}
 #       ]
-
 sub get_userpic_info {
     my ( $u, $opts ) = @_;
     return undef unless LJ::isu( $u ) && $u->clusterid;
@@ -6466,7 +6543,11 @@ sub get_userpic_info {
     return $info;
 }
 
-# gets a mapping from userpic ids to keywords for this User.
+=head3 C<< $u->get_userpic_kw_map >>
+
+Gets a mapping from userpic ids to keywords for this User.
+
+=cut
 sub get_userpic_kw_map {
     my ( $u ) = @_;
 
@@ -6483,14 +6564,21 @@ sub get_userpic_kw_map {
     return $u->{picid_kw_map} = $keywords;
 }
 
-# <LJFUNC>
-# name: LJ::User::mogfs_userpic_key
-# class: mogilefs
-# des: Make a mogilefs key for the given pic for the user.
-# args: pic
-# des-pic: Either the userpic hash or the picid of the userpic.
-# returns: 1.
-# </LJFUNC>
+=head3 C<< $u->mogfs_userpic_key( $pic ) >>
+
+Make a mogilefs key for the given pic for the user.
+
+Arguments:
+
+=over 4
+
+=item pic
+
+Either the userpic hash or the picid of the userpic.
+
+=back
+
+=cut
 sub mogfs_userpic_key {
     my $self = shift or return undef;
     my $pic = shift or croak "missing required arg: userpic";
@@ -6500,6 +6588,11 @@ sub mogfs_userpic_key {
 }
 
 
+=head3 C<< $u->userpic >>
+
+Returns LJ::Userpic for default userpic, if it exists.
+
+=cut
 sub userpic {
     my $u = shift;
     return undef unless $u->{defaultpicid};
@@ -6507,6 +6600,12 @@ sub userpic {
 }
 
 
+
+=head3 C<< $u->userpic_quota >>
+
+Returns the number of userpics the user can upload
+
+=cut
 sub userpic_quota {
     my $u = shift or return undef;
     my $quota = $u->get_cap('userpics');
