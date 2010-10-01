@@ -230,7 +230,8 @@ _c?>
             if (LJ::sysban_check("talk_ip_test", $what)) {
                 $extra = "<strong>Already talk_ip_test banned</strong>";
             } else {
-                $extra = LJ::html_check({'name' => "sysban_ip", value => $what, label => "Also Sysban IP?"});
+                $extra = LJ::html_check({name => "sysban_ip", value => $what, label => "Also Sysban IP?"});
+                $extra .= "<br/><textarea name='sysban_note' rows='3' cols='60'> ~" . $remote->username . " @ " . LJ::mysql_time() . "</textarea>";
             }
         }
 
@@ -246,8 +247,8 @@ _c?>
         my $in = join("','", map { $_+0 } @srids);
         $in = "'$in'";
 
-        if ($POST{'sysban_ip'} && !LJ::sysban_validate("talk_ip_test", $POST{'sysban_ip'})) {
-            LJ::sysban_create('what' => 'talk_ip_test', 'value' => $POST{'sysban_ip'}, 'bandays' => 0, 'note' => 'anonymous spamreports');
+        if ($POST{sysban_ip} && !LJ::sysban_validate("talk_ip_test", $POST{sysban_ip})) {
+            LJ::sysban_create(what => 'talk_ip_test', value => $POST{sysban_ip}, bandays => 0, note => ( $POST{sysban_note} || 'anonymous spamreports' ) );
         }
 
         $count = $dbh->do("UPDATE spamreports SET state='closed' WHERE srid IN($in) AND state='open'");
