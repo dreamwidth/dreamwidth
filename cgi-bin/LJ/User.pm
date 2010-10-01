@@ -6082,6 +6082,7 @@ sub activate_userpics {
     return 1 if $u->is_expunged;
 
     my $userid = $u->userid;
+    my $have_mapid = $u->userpic_have_mapid;
 
     # active / inactive lists
     my @active = ();
@@ -6117,33 +6118,45 @@ sub activate_userpics {
 
         # query all pickws in logprop2 with jitemid > that value
         my %count_kw = ();
-        my $propid = LJ::get_prop("log", "picture_keyword")->{'id'};
+        my $propid;
+        if ( $have_mapid ) {
+            $propid = LJ::get_prop("log", "picture_mapid")->{id};
+        } else {
+            $propid = LJ::get_prop("log", "picture_keyword")->{id};
+        }
         my $sth = $dbcr->prepare("SELECT value, COUNT(*) FROM logprop2 " .
                                  "WHERE journalid=? AND jitemid > ? AND propid=?" .
                                  "GROUP BY value");
-        $sth->execute($userid, $jitemid, $propid);
+        $sth->execute($userid, $jitemid || 0, $propid);
         while (my ($value, $ct) = $sth->fetchrow_array) {
             # keyword => count
             $count_kw{$value} = $ct;
         }
 
-        my $keywords_in = join(",", map { $dbh->quote($_) } keys %count_kw);
+        my $values_in = join(",", map { $dbh->quote($_) } keys %count_kw);
 
         # map pickws to picids for freq hash below
         my %count_picid = ();
-        if ($keywords_in) {
-            my $sth = $dbcr->prepare( "SELECT k.keyword, m.picid FROM userkeywords k, userpicmap2 m ".
-                                      "WHERE k.keyword IN ($keywords_in) AND k.kwid=m.kwid AND k.userid=m.userid " .
-                                      "AND k.userid=?" );
-            $sth->execute($userid);
-            while (my ($keyword, $picid) = $sth->fetchrow_array) {
-                # keyword => picid
-                $count_picid{$picid} += $count_kw{$keyword};
+        if ( $values_in ) {
+            if ( $have_mapid ) {
+                foreach my $mapid ( keys %count_kw ) {
+                    my $picid = $u->get_picid_from_mapid($mapid);
+                    $count_picid{$picid} += $count_kw{$mapid} if $picid;
+                }
+            } else {
+                my $sth = $dbcr->prepare( "SELECT k.keyword, m.picid FROM userkeywords k, userpicmap2 m ".
+                                        "WHERE k.keyword IN ($values_in) AND k.kwid=m.kwid AND k.userid=m.userid " .
+                                        "AND k.userid=?" );
+                $sth->execute($userid);
+                while (my ($keyword, $picid) = $sth->fetchrow_array) {
+                    # keyword => picid
+                    $count_picid{$picid} += $count_kw{$keyword};
+                }
             }
         }
 
         # we're only going to ban the least used, excluding the user's default
-        my @ban = (grep { $_ != $u->{'defaultpicid'} }
+        my @ban = (grep { $_ != $u->{defaultpicid} }
                    sort { $count_picid{$a} <=> $count_picid{$b} } @active);
 
         @ban = splice(@ban, 0, $to_ban) if @ban > $to_ban;
@@ -6171,6 +6184,7 @@ sub activate_userpics {
 
     # delete userpic info object from memcache
     LJ::Userpic->delete_cache($u);
+    $u->clear_userpic_kw_map;
 
     return 1;
 }
@@ -6221,7 +6235,13 @@ sub expunge_userpic {
     # else now mark it
     $u->do( "UPDATE userpic2 SET state='X' WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
     return LJ::error( $dbcm ) if $dbcm->err;
+    
+    # Since we don't clean userpicmap2 when we migrate to dversion 9, clean it here on expunge no matter the dversion.
     $u->do( "DELETE FROM userpicmap2 WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
+    if ( $u->userpic_have_mapid ) {
+        $u->do( "DELETE FROM userpicmap3 WHERE userid = ? AND picid = ? AND kwid=NULL", undef, $u->userid, $picid );
+        $u->do( "UPDATE userpicmap3 SET picid = NULL WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
+    }
 
     # now clear the user's memcache picture info
     LJ::Userpic->delete_cache( $u );
@@ -6231,6 +6251,111 @@ sub expunge_userpic {
     return ( $u->userid, map {$_->[0]} grep {$_ && @$_ && $_->[0]} @rval );
 }
 
+=head3 C<< $u->get_keyword_from_mapid( $mapid, %opts ) >>
+
+Returns the keyword for the given mapid or undef if the mapid doesn't exist.
+
+Arguments:
+
+=over 4
+
+=item mapid
+
+=back
+
+Additional options:
+
+=over 4
+
+=item redir_callback
+
+Called if the mapping is redirected to another mapping with the following arguments
+
+( $u, $old_mapid, $new_mapid )
+
+=back
+
+=cut
+sub get_keyword_from_mapid {
+    my ( $u, $mapid, %opts ) = @_;
+    my $info = LJ::isu( $u ) ? $u->get_userpic_info : undef;
+    return undef unless $info;
+    return undef unless $u->userpic_have_mapid;
+
+    $mapid = $u->resolve_mapid_redirects($mapid,%opts);
+    my $kw = $info->{mapkw}->{ $mapid };
+    return $kw;
+}
+
+=head3 C<< $u->get_mapid_from_keyword( $kw, %opts ) >>
+
+Returns the mapid for a given keyword.
+
+Arguments:
+
+=over 4
+
+=item kw
+
+The keyword.
+
+=back
+
+Additional options:
+
+=over 4
+
+=item create
+
+Should a mapid be created if one does not exist.
+
+Default: 0
+
+=back
+
+=cut
+sub get_mapid_from_keyword {
+    my ( $u, $kw, %opts ) = @_;
+    return 0 unless $u->userpic_have_mapid;
+
+    my $info = LJ::isu( $u ) ? $u->get_userpic_info : undef;
+    return 0 unless $info;
+
+    my $mapid = $info->{kwmap}->{$kw};
+    return $mapid if $mapid;
+
+    # the silly "pic#2343" thing when they didn't assign a keyword, if we get here
+    # we need to create it.
+    if ( $kw =~ /^pic\#(\d+)$/ ) {
+        my $picid = $1;
+        return 0 unless $info->{pic}{$picid};           # don't create rows for invalid pics
+        return 0 unless $info->{pic}{$picid}{state} eq 'N'; # or inactive
+
+        return $u->_create_mapid( undef, $picid )
+    }
+
+    return 0 unless $opts{create};
+
+    return $u->_create_mapid( $u->get_keyword_id( $kw ), undef );
+}
+
+=head3 C<< $u->get_picid_from_keyword( $kw, $default ) >>
+
+Returns the picid for a given keyword.
+
+=over 4
+
+=item kw
+
+Keyword to look up.
+
+=item default (optional)
+
+Default: the users default userpic.
+
+=back
+
+=cut
 sub get_picid_from_keyword {
     my ( $u, $kw, $default ) = @_;
     $default ||= ref $u ? $u->{defaultpicid} : 0;
@@ -6239,15 +6364,61 @@ sub get_picid_from_keyword {
     my $info = LJ::isu( $u ) ? $u->get_userpic_info : undef;
     return $default unless $info;
 
-    my $pr = $info->{'kw'}{$kw};
+    my $pr = $info->{kw}{$kw};
     # normal keyword
     return $pr->{picid} if $pr->{picid};
 
     # the silly "pic#2343" thing when they didn't assign a keyword
     if ( $kw =~ /^pic\#(\d+)$/ ) {
         my $picid = $1;
-        return $picid if $info->{'pic'}{$picid};
+        return $picid if $info->{pic}{$picid};
     }
+
+    return $default;
+}
+
+=head3 C<< $u->get_picid_from_mapid( $mapid, %opts ) >>
+
+Returns the picid for a given mapid.
+
+Arguments:
+
+=over 4
+
+=item mapid
+
+=back
+
+Additional options:
+
+=over 4
+
+=item default
+
+Default: the users default userpic.
+
+=item redir_callback
+
+Called if the mapping is redirected to another mapping with the following arguments
+
+( $u, $old_mapid, $new_mapid )
+
+=back
+
+=cut
+sub get_picid_from_mapid {
+    my ( $u, $mapid, %opts ) = @_;
+    my $default = $opts{default} || ref $u ? $u->{defaultpicid} : 0;
+    return $default unless $mapid;
+    return $default unless $u->userpic_have_mapid;
+
+    my $info = LJ::isu( $u ) ? $u->get_userpic_info : undef;
+    return $default unless $info;
+
+    $mapid = $u->resolve_mapid_redirects($mapid,%opts);
+    my $pr = $info->{mapid}{$mapid};
+
+    return $pr->{picid} if $pr->{picid};
 
     return $default;
 }
@@ -6340,10 +6511,13 @@ Maps a picid to a pic hashref.
 #       userid,
 #       "packed string", which expands to an array of {width=>..., ...}
 #       "packed string", which expands to { 'kw1' => id, 'kw2' => id, ...}
+#       series of 3 4-byte numbers, which expands to { mapid1 => id, mapid2 => id, ...}, as well as { mapid1 => mapid2 }
+#       "packed string", which expands to { 'kw1' => mapid, 'kw2' => mapid, ...}
 #       ]
 sub get_userpic_info {
     my ( $u, $opts ) = @_;
     return undef unless LJ::isu( $u ) && $u->clusterid;
+    my $mapped_icons = $u->userpic_have_mapid;
 
     # in the cache, cool, well unless it doesn't have comments or urls or descriptions
     # and we need them
@@ -6356,7 +6530,7 @@ sub get_userpic_info {
         return $cachedata if $good;
     }
 
-    my $VERSION_PICINFO = 3;
+    my $VERSION_PICINFO = 4;
 
     my $memkey = [$u->userid,"upicinf:$u->{'userid'}"];
     my ($info, $minfo);
@@ -6370,13 +6544,13 @@ sub get_userpic_info {
             # old data in the cache.  delete.
             LJ::MemCache::delete($memkey);
         } else {
-            my (undef, $picstr, $kwstr) = @$minfo;
+            my (undef, $picstr, $kwstr, $picmapstr, $kwmapstr) = @$minfo;
             $info = {
-                'pic' => {},
-                'kw' => {},
+                pic => {},
+                kw => {}
             };
             while (length $picstr >= 7) {
-                my $pic = { userid => $u->{'userid'} };
+                my $pic = { userid => $u->userid };
                 ($pic->{picid},
                  $pic->{width}, $pic->{height},
                  $pic->{state}) = unpack "NCCA", substr($picstr, 0, 7, '');
@@ -6389,12 +6563,37 @@ sub get_userpic_info {
                 my $kw = substr($kwstr, $pos, $nulpos-$pos);
                 my $id = unpack("N", substr($kwstr, $nulpos+1, 4));
                 $pos = $nulpos + 5; # skip NUL + 4 bytes.
-                $info->{kw}->{$kw} = $info->{pic}->{$id} if $info;
+                $info->{kw}->{$kw} = $info->{pic}->{$id};
+            }
+
+            if ( $mapped_icons ) {
+                if ( defined $picmapstr && defined $kwmapstr ) {
+                    $pos =  0;
+                    while ($pos < length($picmapstr)) {
+                        my ($mapid, $id, $redir) = unpack("NNN", substr($picmapstr, $pos, 12));
+                        $pos += 12; # 3 * 4 bytes.
+                        $info->{mapid}->{$mapid} = $info->{pic}{$id} if $id;
+                        $info->{map_redir}->{$mapid} = $redir if $redir;
+                    }
+                    
+                    $pos = $nulpos = 0;
+                    while (($nulpos = index($kwmapstr, "\0", $pos)) > 0) {
+                        my $kw = substr($kwmapstr, $pos, $nulpos-$pos);
+                        my $id = unpack("N", substr($kwmapstr, $nulpos+1, 4));
+                        $pos = $nulpos + 5; # skip NUL + 4 bytes.
+                        $info->{kwmap}->{$kw} = $id;
+                        $info->{mapkw}->{$id} = $kw || "pic#" . $info->{mapid}->{$id}->{picid};
+                    }
+                } else { # This user is on dversion 9, but the data isn't in memcache
+                         # so force a db load
+                    undef $info;
+                }
             }
         }
 
+
         # Load picture comments
-        if ( $opts->{load_comments} ) {
+        if ( $opts->{load_comments} && $info ) {
             my $commemkey = [$u->userid, "upiccom:" . $u->userid];
             my $comminfo = LJ::MemCache::get( $commemkey );
 
@@ -6464,10 +6663,10 @@ sub get_userpic_info {
     my %minfodesc;
     unless ($info) {
         $info = {
-            'pic' => {},
-            'kw' => {},
+            pic => {},
+            kw => {}
         };
-        my ($picstr, $kwstr);
+        my ($picstr, $kwstr, $predirstr, $kwmapstr);
         my $sth;
         my $dbcr = LJ::get_cluster_def_reader($u);
         my $db = @LJ::MEMCACHE_SERVERS ? LJ::get_db_writer() : LJ::get_db_reader();
@@ -6480,7 +6679,7 @@ sub get_userpic_info {
         while (my $pic = $sth->fetchrow_hashref) {
             next if $pic->{state} eq 'X'; # no expunged pics in list
             push @pics, $pic;
-            $info->{'pic'}->{$pic->{'picid'}} = $pic;
+            $info->{pic}->{$pic->{picid}} = $pic;
             $minfocom{int($pic->{picid})} = $pic->{comment}
                 if $opts->{load_comments} && $pic->{comment};
             $minfourl{int($pic->{picid})} = $pic->{url}
@@ -6493,20 +6692,47 @@ sub get_userpic_info {
         $picstr = join('', map { pack("NCCA", $_->{picid},
                                  $_->{width}, $_->{height}, $_->{state}) } @pics);
 
-        $sth = $dbcr->prepare( "SELECT k.keyword, m.picid FROM userpicmap2 m, userkeywords k ".
-                               "WHERE k.userid=? AND m.kwid=k.kwid AND m.userid=k.userid" );
+        if ( $mapped_icons ) {
+            $sth = $dbcr->prepare( "SELECT k.keyword, m.picid, m.mapid, m.redirect_mapid FROM userpicmap3 m LEFT JOIN userkeywords k ON ".
+                                "( m.userid=k.userid AND m.kwid=k.kwid ) WHERE m.userid=?" );
+        } else {
+            $sth = $dbcr->prepare( "SELECT k.keyword, m.picid FROM userpicmap2 m, userkeywords k ".
+                                "WHERE k.userid=? AND m.kwid=k.kwid AND m.userid=k.userid" );
+        }
         $sth->execute($u->{'userid'});
         my %minfokw;
-        while (my ($kw, $id) = $sth->fetchrow_array) {
-            next unless $info->{'pic'}->{$id};
+        my %picmap;
+        my %kwmap;
+        while (my ($kw, $id, $mapid, $redir) = $sth->fetchrow_array) {
+            my $skip_kw = 0;
+            if ( $mapped_icons ) {
+                $picmap{$mapid} = [ int($id), int($redir) ];
+                if ( $redir ) {
+                    $info->{map_redir}->{$mapid} = $redir;
+                } else {
+                    unless ( defined $kw ) {
+                        $skip_kw = 1;
+                        $kw = "pic#$id";
+                    }
+                    $info->{kwmap}->{$kw} = $kwmap{$kw} = $mapid;
+                    $info->{mapkw}->{$mapid} = $kw;
+                }
+            }
+            next if $skip_kw;
+            next unless $info->{pic}->{$id};
             next if $kw =~ /[\n\r\0]/;  # used to be a bug that allowed these to get in.
-            $info->{'kw'}->{$kw} = $info->{'pic'}->{$id};
+            $info->{kw}->{$kw} = $info->{pic}->{$id};
+            $info->{mapid}->{$mapid} = $info->{pic}->{$id} if $mapped_icons && $id;
             $minfokw{$kw} = int($id);
         }
         $kwstr = join('', map { pack("Z*N", $_, $minfokw{$_}) } keys %minfokw);
+        if ( $mapped_icons ) {
+            $predirstr = join('', map { pack("NNN", $_, @{ $picmap{$_} } ) } keys %picmap);
+            $kwmapstr = join('', map { pack("Z*N", $_, $kwmap{$_}) } keys %kwmap);
+        }
 
         $memkey = [$u->{'userid'},"upicinf:$u->{'userid'}"];
-        $minfo = [ $VERSION_PICINFO, $picstr, $kwstr ];
+        $minfo = [ $VERSION_PICINFO, $picstr, $kwstr, $predirstr, $kwmapstr ];
         LJ::MemCache::set($memkey, $minfo);
 
         if ( $opts->{load_comments} ) {
@@ -6558,7 +6784,7 @@ sub get_userpic_kw_map {
     foreach my $keyword ( keys %{$picinfo->{kw}} ) {
         my $picid = $picinfo->{kw}->{$keyword}->{picid};
         $keywords->{$picid} = [] unless $keywords->{$picid};
-        push @{$keywords->{$picid}}, $keyword if ( $keyword && $picid );
+        push @{$keywords->{$picid}}, $keyword if ( $keyword && $picid && $keyword !~ m/^pic\#(\d+)$/ );
     }
 
     return $u->{picid_kw_map} = $keywords;
@@ -6587,6 +6813,59 @@ sub mogfs_userpic_key {
     return "up:" . $self->userid . ":$picid";
 }
 
+=head3 C<< $u->resolve_mapid_redirects( $mapid, %opts ) >>
+
+Resolve any mapid redirect, guarding against any redirect loops.
+
+Returns: new map id, or 0 if the mapping cannot be resolved.
+
+Arguments:
+
+=over 4
+
+=item mapid
+
+=back
+
+Additional options:
+
+=over 4
+
+=item redir_callback
+
+Called if the mapping is redirected to another mapping with the following arguments
+
+( $u, $old_mapid, $new_mapid )
+
+=back
+
+=cut
+sub resolve_mapid_redirects {
+    my ( $u, $mapid, %opts ) = @_;
+
+    my $info = LJ::isu( $u ) ? $u->get_userpic_info : undef;
+    return 0 unless $info;
+
+    my %seen = ( $mapid => 1 );
+    my $orig_id = $mapid;
+
+    while ( $info->{map_redir}->{ $mapid } ) {
+        $orig_id = $mapid;
+        $mapid = $info->{map_redir}->{ $mapid };
+
+        # To implement lazy updating or the like
+        $opts{redir_callback}->($u, $orig_id, $mapid) if $opts{redir_callback};
+
+        # This should never happen, but am checking it here mainly in case
+        # never *does* happen, so we don't hang the web process with an endless loop.
+        if ( $seen{$mapid}++ ) {
+            warn("userpicmap3 redirectloop for " . $u->id . " on mapid " . $mapid);
+            return 0;
+        }
+    }
+
+    return $mapid;
+}
 
 =head3 C<< $u->userpic >>
 
@@ -6599,6 +6878,15 @@ sub userpic {
     return LJ::Userpic->new($u, $u->{defaultpicid});
 }
 
+=head3 C<< $u->userpic_have_mapid >>
+
+Returns true if the userpicmap keyword mappings have a mapid column ( dversion 9 or higher )
+
+=cut
+# FIXME: This probably should be userpics_use_mapid
+sub userpic_have_mapid {
+    return $_[0]->dversion >= 9;
+}
 
 
 =head3 C<< $u->userpic_quota >>
@@ -6613,7 +6901,23 @@ sub userpic_quota {
     return $quota;
 }
 
+# Intentionally no POD here.
+# This is an internal helper method
+# takes a $kwid and $picid ( either can be undef )
+# and creates a mapid row for it
+sub _create_mapid {
+    my ( $u, $kwid, $picid ) = @_;
+    return 0 unless $u->userpic_have_mapid;
 
+    my $mapid = LJ::alloc_user_counter($u,'Y');
+    $u->do( "INSERT INTO userpicmap3 (userid, mapid, kwid, picid) VALUES (?,?,?,?)", undef, $u->id, $mapid, $kwid, $picid);
+    return 0 if $u->err;
+
+    LJ::Userpic->delete_cache($u);
+    $u->clear_userpic_kw_map;
+
+    return $mapid;
+}
 
 ########################################################################
 ###  99. Miscellaneous Legacy Items
@@ -7390,7 +7694,7 @@ sub unset_remote
 #       'Q' == Notification Inbox,
 #       'D' == 'moDule embed contents', 'I' == Import data block
 #       'Z' == import status item, 'X' == eXternal account
-#       'F' == filter id
+#       'F' == filter id, 'Y' = pic/keYword mapping id
 #
 sub alloc_user_counter
 {
@@ -7399,7 +7703,7 @@ sub alloc_user_counter
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXF]$/;            #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFY]$/;           #
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -7520,6 +7824,9 @@ sub alloc_user_counter
     } elsif ($dom eq "F") {
         $newmax = $u->selectrow_array("SELECT MAX(filterid) FROM watch_filters WHERE userid=?",
                                       undef, $uid);
+    } elsif ($dom eq "Y") {
+        $newmax = $u->selectrow_array("SELECT MAX(mapid) FROM userpicmap3 WHERE userid=?",
+                                         undef, $uid);
     } else {
         die "No user counter initializer defined for area '$dom'.\n";
     }

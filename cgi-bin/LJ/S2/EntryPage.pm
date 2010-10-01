@@ -181,7 +181,7 @@ sub EntryPage
                     $height = $height / 2;
                 }
 
-                $comment_userpic = Image_userpic( $com->{upost}, $com->{picid}, $com->{props}->{picture_keyword}, 
+                $comment_userpic = Image_userpic( $com->{upost}, $com->{picid}, $com->{pickw}, 
                                                   $width, $height );
             }
 
@@ -226,7 +226,7 @@ sub EntryPage
                 '_type' => 'Comment',
                 'journal' => $userlite_journal,
                 'metadata' => {
-                    'picture_keyword' => $com->{'props'}->{'picture_keyword'},
+                    'picture_keyword' => $com->{pickw},
                 },
                 'permalink_url' => "$permalink?thread=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid ),
                 'reply_url' => $reply_url,
@@ -496,8 +496,8 @@ sub EntryPage_entry
     
     # load the userpic; include the keyword selected by the user
     # as a backup for the alttext
-    my $pickw = LJ::Entry->userpic_kw_from_props($entry->props);
-    my $userpic = Image_userpic($pu, $entry->userpic ? $entry->userpic->picid : 0, $pickw);
+    my ( $pic, $pickw ) = $entry->userpic;
+    my $userpic = Image_userpic($pu, $pic ? $pic->picid : 0, $pickw);
 
     my $comments = CommentInfo( $entry->comment_info(
         u => $u, remote => $remote, style_args => $style_args, viewall => $viewall

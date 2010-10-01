@@ -59,8 +59,10 @@ body<=
         }
     }
 
+    my $pu = $entry->poster;
+
     $ret .= "<strong>Subject</strong>: <a href=" . $entry->url . ">" . $subject . "</a><br />";
-    $ret .= "<strong>Poster</strong>: " . $entry->poster->ljuser_display . "<br />";
+    $ret .= "<strong>Poster</strong>: " . $pu->ljuser_display . "<br />";
     $ret .= "<strong>Journal</strong>: " . $entry->journal->ljuser_display . "<br />";
     $ret .= "<strong>Security</strong>: " . $security . " ";
     $ret .= "(journal wide minsecurity: " . ($entry->journal->prop("newpost_minsecurity") || "public") . ")<br />";
@@ -82,7 +84,7 @@ body<=
             
             # render xpost prop into human readable form
             if ( $prop eq "xpost" || $prop eq "xpostdetail" ) {
-                my %external_accounts_map = map { $_->acctid => $_->servername } DW::External::Account->get_external_accounts( $entry->poster );
+                my %external_accounts_map = map { $_->acctid => $_->servername } DW::External::Account->get_external_accounts( $pu );
 
                 # FIXME: temporary; trying to figure out when this is undef
                 my $xpost_prop = $props{$prop};
@@ -100,6 +102,20 @@ body<=
                 # FIXME: temporary
                 $props{$prop} .= "raw information about $prop - <input type='text' value='$xpost_prop' />" 
                     unless $xpost_hash;
+            } elsif ( $prop eq 'picture_mapid' && $pu->userpic_have_mapid ) {
+                my $result = "$props{$prop} -> ";
+                my $kw = $pu->get_keyword_from_mapid( $props{$prop},
+                            redir_callback => sub {
+                                $result .= "$_[2] -> ";
+                            });
+                $result .= $kw;
+                my $picid = $pu->get_picid_from_keyword($kw,-1);
+                if ( $picid == -1 ) {
+                    $result .= " ( not assigned to an icon )";
+                } else {
+                    $result .= " ( assigned to an icon )";
+                }
+                $props{$prop} = $result;
             }
 
             $extra = "<br /><small>$p->{des}</small>";

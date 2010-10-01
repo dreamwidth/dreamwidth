@@ -207,7 +207,12 @@ sub try_work {
             # local picture keyword
             if ( my $jitemid = $entry_map->{$evt->{key}} ) {
                 my $entry = LJ::Entry->new( $u, jitemid => $jitemid );
-                $entry->set_prop( picture_keyword => $evt->{props}->{picture_keyword} );
+                my $kw = $evt->{props}->{picture_keyword};
+                if ( $u->userpic_have_mapid ) {
+                    $entry->set_prop( picture_mapid => $u->get_mapid_from_keyword( $kw, create => 1) );
+                } else {
+                    $entry->set_prop( picture_keyword => $kw );
+                }
             }
 
             # now try to skip it

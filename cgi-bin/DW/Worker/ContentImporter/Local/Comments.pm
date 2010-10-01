@@ -71,7 +71,12 @@ sub update_comment {
     # edits and such.  for now, I'm just trying to get the icons to update...
     my $c = LJ::Comment->instance( $u, jtalkid => $cmt->{id} )
         or return $$errref = 'Unable to instantiate LJ::Comment object.';
-    $c->set_prop( picture_keyword => $cmt->{props}->{picture_keyword} );
+    my $pu = $c->poster;
+    if ( $pu && $pu->userpic_have_mapid ) {
+        $c->set_prop( picture_mapid => $u->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 ) );
+    } else {
+        $c->set_prop( picture_keyword => $cmt->{props}->{picture_keyword} );
+    }
 }
 
 

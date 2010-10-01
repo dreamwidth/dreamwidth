@@ -1132,6 +1132,7 @@ sub postevent
         $flags->{noauth} = 1;
         $flags->{usejournal_okay} = 1;
         $flags->{no_xpost} = 1;
+        $flags->{create_unknown_picture_mapid} = 1;
     }
 
     return undef unless LJ::Hooks::run_hook('post_noauth', $req) || authenticate($req, $err, $flags);
@@ -1221,6 +1222,12 @@ sub postevent
 
     return undef
         unless common_event_validation($req, $err, $flags);
+
+    # now we can move over to picture_mapid instead of picture_keyword if appropriate
+    if ( $req->{props} && $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
+        $req->{props}->{picture_mapid} = $u->get_mapid_from_keyword( $req->{props}->{picture_keyword}, create => $flags->{create_unknown_picture_mapid} || 0 );
+        delete $req->{props}->{picture_keyword};
+    }
 
     # confirm we can add tags, at least
     return fail($err, 312)
@@ -1886,6 +1893,12 @@ sub editevent
     return undef
         unless common_event_validation($req, $err, $flags);
 
+    # now we can move over to picture_mapid instead of picture_keyword if appropriate
+    if ( $req->{props} && $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
+        $req->{props}->{picture_mapid} = $u->get_mapid_from_keyword( $req->{props}->{picture_keyword}, create => $flags->{create_unknown_picture_mapid} || 0 );
+        delete $req->{props}->{picture_keyword};
+    }
+
     ## handle meta-data (properties)
     my %props_byname = ();
     foreach my $key (keys %{$req->{'props'}}) {
@@ -2409,10 +2422,15 @@ sub getevents
 
         # if they want subjects to be events, replace event
         # with subject when requested.
-        if ($req->{'prefersubject'} && length($t->[0])) {
+        if ($req->{prefersubject} && length($t->[0])) {
             $t->[1] = $t->[0];  # event = subject
             $t->[0] = undef;    # subject = undef
         }
+
+        # re-generate the picture_keyword prop for the returned data, as a mapid will mean nothing
+        my $pu = $uowner;
+        $pu = LJ::load_user( $evt->{poster} ) if $evt->{poster};
+        $evt->{props}->{picture_keyword} = $pu->get_keyword_from_mapid( $evt->{props}->{picture_mapid} ) if $pu->userpic_have_mapid;
 
         # now that we have the subject, the event and the props,
         # auto-translate them to UTF-8 if they're not in UTF-8.
@@ -3068,17 +3086,18 @@ sub list_pickws
     my %seen;  # mashifiedptr -> 1
 
     # FIXME: should be a utf-8 sort
-    foreach my $kw (sort keys %{$pi->{'kw'}}) {
-        my $pic = $pi->{'kw'}{$kw};
+    foreach my $kw ( sort keys %{$pi->{kw}} ) {
+        my $pic = $pi->{kw}{$kw};
         $seen{$pic} = 1;
-        next if $pic->{'state'} eq "I";
-        push @res, [ $kw, $pic->{'picid'} ];
+        next if $pic->{state} eq "I";
+        push @res, [ $kw, $pic->{picid} ];
     }
 
     # now add all the pictures that don't have a keyword
-    foreach my $picid (keys %{$pi->{'pic'}}) {
-        my $pic = $pi->{'pic'}{$picid};
+    foreach my $picid ( keys %{$pi->{pic}} ) {
+        my $pic = $pi->{pic}{$picid};
         next if $seen{$pic};
+        next if $pic->{state} eq "I";
         push @res, [ "pic#$picid", $picid ];
     }
 
@@ -3852,6 +3871,7 @@ sub editevent
     $res->{'itemid'} = $rs->{'itemid'};
     $res->{'anum'} = $rs->{'anum'} if defined $rs->{'anum'};
     $res->{'url'} = $rs->{'url'} if defined $rs->{'url'};
+
     return 1;
 }
 

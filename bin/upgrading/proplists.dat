@@ -1161,6 +1161,11 @@ talkproplist.picture_keyword:
   des: A keyword that should align to a defined picture
   prettyname: Picture Keyword
 
+talkproplist.picture_mapid:
+  datatype: num
+  des: A keyword that should align to a mapid
+  prettyname: Picture Keyword MapID
+
 talkproplist.poster_ip:
   datatype: char
   des: The poster's IP address, optionally logged.
@@ -1323,6 +1328,13 @@ logproplist.picture_keyword:
   prettyname: Picture Keyword
   sortorder: 30
   ownership: user
+
+logproplist.picture_mapid:
+  datatype: num
+  des: A keyword that should align to a mapid
+  prettyname: Picture Keyword MapID
+  sortorder: 30
+  ownership: system
 
 logproplist.revnum:
   datatype: num

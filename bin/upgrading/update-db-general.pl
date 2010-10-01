@@ -557,6 +557,20 @@ CREATE TABLE userpicmap2 (
 )
 EOC
 
+register_tablecreate("userpicmap3", <<'EOC');
+CREATE TABLE userpicmap3 (
+    userid int(10) unsigned NOT NULL default '0',
+    mapid int(10) unsigned NOT NULL,
+    kwid int(10) unsigned,
+    picid int(10) unsigned,
+    redirect_mapid int(10) unsigned,
+
+    PRIMARY KEY (userid, mapid),
+    UNIQUE KEY  (userid, kwid),
+    INDEX redirect (userid, redirect_mapid)
+)
+EOC
+
 register_tablecreate("userpic2", <<'EOC');
 CREATE TABLE userpic2 (
     picid int(10) unsigned NOT NULL,

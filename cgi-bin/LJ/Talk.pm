@@ -1147,28 +1147,38 @@ sub load_comments
     }
 
     # optionally give them back user refs
-    if (ref($opts->{'userref'}) eq "HASH") {
+    if (ref($opts->{userref}) eq "HASH") {
         my %userpics = ();
         # copy into their ref the users we've already loaded above.
         while (my ($k, $v) = each %up) {
-            $opts->{'userref'}->{$k} = $v;
+            $opts->{userref}->{$k} = $v;
         }
 
         # optionally load userpics
-        if (ref($opts->{'userpicref'}) eq "HASH") {
+        if (ref($opts->{userpicref}) eq "HASH") {
             my @load_pic;
             foreach my $talkid (@posts_to_load) {
                 my $post = $posts->{$talkid};
-                my $kw;
-                if ($post->{'props'} && $post->{'props'}->{'picture_keyword'}) {
-                    $kw = $post->{'props'}->{'picture_keyword'};
+                my $pu = $opts->{userref}->{$post->{posterid}};
+                my ( $id, $kw );
+                if ( $pu && $pu->userpic_have_mapid ) {
+                    my $mapid;
+                    if ($post->{props} && $post->{props}->{picture_mapid}) {
+                        $mapid = $post->{props}->{picture_mapid};
+                    }
+                    $kw = $pu ? $pu->get_keyword_from_mapid( $mapid ) : undef;
+                    $id = $pu ? $pu->get_picid_from_mapid( $mapid ) : undef;
+                } else {
+                    if ($post->{props} && $post->{props}->{picture_keyword}) {
+                        $kw = $post->{props}->{picture_keyword};
+                    }
+                    $id = $pu ? $pu->get_picid_from_keyword( $kw ) : undef;
                 }
-                my $pu = $opts->{'userref'}->{$post->{'posterid'}};
-                my $id = $pu ? $pu->get_picid_from_keyword( $kw ) : undef;
-                $post->{'picid'} = $id;
+                $post->{picid} = $id;
+                $post->{pickw} = $kw;
                 push @load_pic, [ $pu, $id ];
             }
-            load_userpics( $opts->{'userpicref'}, \@load_pic );
+            load_userpics( $opts->{userpicref}, \@load_pic );
         }
     }
     return map { $posts->{$_} } @top_replies;
@@ -2855,7 +2865,12 @@ sub enter_comment {
     $talkprop{'unknown8bit'} = 1 if $comment->{unknown8bit};
     $talkprop{'subjecticon'} = $comment->{subjecticon};
 
-    $talkprop{'picture_keyword'} = $comment->{picture_keyword};
+    my $pu = $comment->{u};
+    if ( $pu && $pu->userpic_have_mapid ) {
+        $talkprop{picture_mapid} = $pu->get_mapid_from_keyword( $comment->{picture_keyword} );
+    } else {
+        $talkprop{picture_keyword} = $comment->{picture_keyword};
+    }
 
     $talkprop{'opt_preformatted'} = $comment->{preformat} ? 1 : 0;
     if ($journalu->opt_logcommentips eq "A" ||
@@ -3015,7 +3030,14 @@ sub enter_imported_comment {
 
     $talkprop{'unknown8bit'}      = 1 if $comment->{unknown8bit};
     $talkprop{'subjecticon'}      = $comment->{subjecticon};
-    $talkprop{'picture_keyword'}  = $comment->{picture_keyword};
+
+    my $pu = $comment->{u};
+    if ( $pu && $pu->userpic_have_mapid ) {
+        $talkprop{picture_mapid} = $pu->get_mapid_from_keyword( $comment->{picture_keyword}, create => 1 );
+    } else {
+        $talkprop{picture_keyword} = $comment->{picture_keyword};
+    }
+
     $talkprop{'opt_preformatted'} = $comment->{preformat} ? 1 : 0;
 
     # remove blank/0 values (defaults)
@@ -3140,7 +3162,7 @@ sub init {
         $form->{'userpost'} = $remote->{'user'};
         $form->{'usertype'} = "user";
     }
-    # XXXevan hack:  remove me when we fix preview.
+    # FIXME: XXXevan hack:  remove me when we fix preview.
     $init->{cookie_auth} = $cookie_auth;
 
     # test accounts may only comment on other test accounts.
@@ -3665,10 +3687,16 @@ sub edit_comment {
 
     my %props = (
         subjecticon => $comment->{subjecticon},
-        picture_keyword => $comment->{picture_keyword},
         opt_preformatted => $comment->{preformat} ? 1 : 0,
         edit_reason => $comment->{editreason},
     );
+
+    my $pu = $comment_obj->poster;
+    if ( $pu && $pu->userpic_have_mapid ) {
+        $props{picture_mapid} = $pu->get_mapid_from_keyword( $comment->{picture_keyword} );
+    } else {
+        $props{picture_keyword} = $comment->{picture_keyword};
+    }
 
     # set most of the props together
     $comment_obj->set_props(%props);
@@ -3689,7 +3717,7 @@ sub edit_comment {
     $comment->{talkid} = $comment_obj->jtalkid;
 
     # cluster tracking
-    LJ::mark_user_active($comment_obj->poster, 'comment');
+    LJ::mark_user_active($pu, 'comment');
 
     # fire events
     if ( LJ::is_enabled('esn') ) {

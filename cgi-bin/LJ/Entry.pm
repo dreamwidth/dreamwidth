@@ -22,6 +22,14 @@ use strict;
 use vars qw/ $AUTOLOAD /;
 use Carp qw/ croak confess /;
 
+=head1 NAME
+
+LJ::Entry
+
+=head1 CLASS METHODS
+
+=cut
+
 # internal fields:
 #
 #    u: object, always present
@@ -186,6 +194,10 @@ sub new_from_row {
 
     return $self;
 }
+
+=head1 INSTANCE METHODS
+
+=cut
 
 # returns true if entry currently exists.  (it's possible for a given
 # $u, to make a fake jitemid and that'd be a valid skeleton LJ::Entry
@@ -854,35 +866,54 @@ sub tag_map {
     return $tags->{$self->jitemid} || {};
 }
 
-# returns a LJ::Userpic object for this post, or undef
-# currently this is for the permalink view, not for the friends view
-# context.  TODO: add a context option for friends page, and perhaps
+=head2 C<< $entry->userpic >>
+
+Returns a LJ::Userpic object for this post, or undef.
+
+If called in a list context, returns ( LJ::Userpic object, keyword )
+
+See userpic_kw.
+
+=cut
+# FIXME: add a context option for friends page, and perhaps
 # respect $remote's userpic viewing preferences (community shows poster
 # vs community's picture)
 sub userpic {
-    my $self = shift;
+    my $up = $_[0]->poster;
+    my $kw = $_[0]->userpic_kw;
+    my $pic = LJ::Userpic->new_from_keyword( $up, $kw ) || $up->userpic;
+
+    return wantarray ? ( $pic, $kw ) : $pic;
+}
+
+=head2 C<< $entry->userpic_kw >>
+
+Returns the keyword to use for the entry.
+
+If a keyword is specified, it uses that, otherwise
+it tries the custom mood text, followed by the standard mood.
+
+=cut
+sub userpic_kw {
+    my $self = $_[0];
 
     my $up = $self->poster;
+    
+    my $key;
+    # try their entry-defined userpic keyword
+    if ( $up->userpic_have_mapid ) {
+        my $mapid = $self->prop('picture_mapid');
 
-    # try their entry-defined userpic keyword, then their custom
+        $key = $up->get_keyword_from_mapid( $mapid ) if $mapid;
+    } else {
+        $key = $self->prop('picture_keyword');
+    }
+
+    # ... but if that fails, then their custom
     # mood, then their standard mood
-    my $key = $self->prop('picture_keyword') ||
-        $self->prop('current_mood') ||
+    return $key || $self->prop('current_mood') ||
         DW::Mood->mood_name( $self->prop('current_moodid') );
-
-    # return the picture from keyword, if defined
-    # else return poster's default userpic
-    return LJ::Userpic->new_from_keyword( $up, $key ) || $up->userpic;
 }
-
-sub userpic_kw_from_props {
-    my ($class, $props) = @_;
-
-    return $props->{'picture_keyword'} ||
-        $props->{'current_mood'} ||
-        DW::Mood->mood_name( $props->{'current_moodid'} );
-}
-
 
 # returns true if the user is allowed to share an entry via Tell a Friend
 # $u is the logged-in user

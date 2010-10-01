@@ -1960,11 +1960,11 @@ sub Entry_from_entryobj
 
     # loading S2 Userpic
     my $userpic;
-    my $kw = $entry_obj->userpic_kw_from_props( $entry_obj->props );
+    my ( $pic, $kw ) = $entry_obj->userpic;
 
     # if the post was made in a community, use either the userpic it was posted with or the community pic depending on the style setting
     if ( $posterid == $journalid || !S2::get_property_value($opts->{ctx}, 'use_shared_pic') ) {
-        $userpic = Image_userpic( $poster, $entry_obj->userpic->picid, $kw ) if $entry_obj->userpic;
+        $userpic = Image_userpic( $poster, $pic->picid, $kw ) if $pic;
     } else {
         $userpic = Image_userpic( $journal, $journal->userpic->picid ) if $journal->userpic;
     }

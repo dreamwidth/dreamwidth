@@ -53,8 +53,9 @@ body<=
         $FORM{subject} = $comment->subject_orig;
         $FORM{body} = $comment->body_orig;
         $FORM{subjecticon} = $comment->prop('subjecticon');
-        $FORM{prop_picture_keyword} = $comment->prop('picture_keyword');
         $FORM{prop_opt_preformatted} = $comment->prop('opt_preformatted');
+
+        $FORM{prop_picture_keyword} = $comment->userpic_kw;
     }
 
     if ($uri =~ m!/(\d+)\.html$!) {

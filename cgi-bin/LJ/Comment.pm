@@ -27,6 +27,14 @@ use lib "$LJ::HOME/cgi-bin";
 require "htmlcontrols.pl";
 use LJ::Talk;
 
+=head1 NAME
+
+LJ::Comment
+
+=head1 CLASS METHODS
+
+=cut
+
 # internal fields:
 #
 #    journalid:     journalid where the commend was
@@ -218,6 +226,9 @@ sub create {
 
 }
 
+=head1 INSTANCE METHODS
+
+=cut
 
 sub absorb_row {
     my ($self, %row) = @_;
@@ -303,24 +314,6 @@ sub edit_url {
     my $url     = $entry->url;
 
     return "$url?edit=$dtalkid";
-}
-
-# return img tag of userpic that the comment poster used
-sub poster_userpic {
-    my $self = $_[0];
-    my $pic_kw = $self->prop('picture_keyword');
-    my $posteru = $self->poster;
-
-    # anonymous poster, no userpic
-    return "" unless $posteru;
-
-    # new from keyword falls back to the default userpic if
-    # there was no keyword, or if the keyword is no longer used
-    my $pic = LJ::Userpic->new_from_keyword($posteru, $pic_kw);
-    return $pic->imgtag_nosize if $pic;
-
-    # no userpic with comment
-    return "";
 }
 
 # return LJ::User of journal comment is in
@@ -1383,10 +1376,8 @@ sub _format_mail_both {
 
     if ($is_html) {
         my $pichtml;
-        my $pic_kw = $self->prop('picture_keyword');
-
         if ( $posteru ) {
-            my $pic = LJ::Userpic->new_from_keyword( $posteru, $pic_kw ) || $posteru->userpic;
+            my ( $pic, $pic_kw ) = $self->userpic;
 
             if ( $pic && $pic->load_row ) {
                 $pichtml = "<img src=\"$LJ::USERPIC_ROOT/$pic->{picid}/$pic->{userid}\" align='absmiddle' ".
@@ -1553,20 +1544,45 @@ sub is_text_spam($\$) {
     return 0; # normal text
 }
 
-# returns a LJ::Userpic object for the poster of the comment, or undef
-# it will unify interface between Entry and Comment: $foo->userpic will
-# work correctly for both Entry and Comment objects
+=head2 C<< $cmt->userpic >>
+
+Returns a LJ::Userpic object for the poster of the comment, or undef.
+
+If called in a list context, returns ( LJ::Userpic object, keyword )
+
+=cut
 sub userpic {
     my $self = $_[0];
 
     my $up = $self->poster;
     return unless $up;
 
-    my $key = $self->prop('picture_keyword');
-
     # return the picture from keyword, if defined
     # else return poster's default userpic
-    return LJ::Userpic->new_from_keyword( $up, $key ) || $up->userpic;
+    my $kw = $_[0]->userpic_kw;
+    my $pic = LJ::Userpic->new_from_keyword( $up, $kw ) || $up->userpic;
+
+    return wantarray ? ( $pic, $kw ) : $pic;
+}
+
+=head2 C<< $cmt->userpic_kw >>
+
+Returns the userpic keyword used on this comment, or undef.
+
+=cut
+sub userpic_kw {
+    my $self = $_[0];
+
+    my $up = $self->poster;
+    return unless $up;
+
+    if ( $up->userpic_have_mapid ) {
+        my $mapid = $self->prop('picture_mapid');
+
+        return $up->get_keyword_from_mapid( $mapid ) if $mapid;
+    } else {
+        return $self->prop('picture_keyword');
+    }
 }
 
 sub poster_ip {

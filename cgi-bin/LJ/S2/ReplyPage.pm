@@ -118,8 +118,8 @@ sub ReplyPage
         $comment_values{subject} = $comment->subject_orig;
         $comment_values{body} = $comment->body_orig;
         $comment_values{subjecticon} = $comment->prop('subjecticon');
-        $comment_values{prop_picture_keyword} = $comment->prop('picture_keyword');
         $comment_values{prop_opt_preformatted} = $comment->prop('opt_preformatted');
+        $comment_values{prop_picture_keyword} = $comment->userpic_kw;
     }
 
     if ($replytoid) {
@@ -130,6 +130,8 @@ sub ReplyPage
             return;
         }
 
+        # FIXME: Why are we loading the comment manually when we do LJ::Comment->new below
+        # and could do everything through there.
         my $sql = "SELECT jtalkid, posterid, state, datepost FROM talk2 ".
             "WHERE journalid=$u->{'userid'} AND jtalkid=$re_talkid ".
             "AND nodetype='L' AND nodeid=" . $entry->jitemid;
@@ -177,16 +179,17 @@ sub ReplyPage
         }
 
         my $datetime = DateTime_unix(LJ::mysqldate_to_time($parpost->{'datepost'}));
-
-        my ($s2poster, $pu);
+        
         my $comment_userpic;
-        if ($parpost->{'posterid'}) {
-            $pu = LJ::load_userid($parpost->{'posterid'});
+        my $s2poster;
+        
+        my $pu = $parentcomment->poster;
+        if ( $pu ) {
             return $opts->{handler_return} = 403 if $pu->is_suspended; # do not show comments by suspended users
             $s2poster = UserLite($pu);
 
-            my $pickw = LJ::Entry->userpic_kw_from_props($parpost->{'props'});
-            $comment_userpic = Image_userpic($pu, 0, $pickw);
+            my ( $pic, $pickw ) = $parentcomment->userpic;
+            $comment_userpic = Image_userpic($pu, $pic ? $pic->picid : 0, $pickw);
         }
 
         LJ::CleanHTML::clean_comment(\$parpost->{'body'},

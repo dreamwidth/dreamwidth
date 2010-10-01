@@ -239,7 +239,7 @@ body<=
     $ret .= "<p>";
     $ret .= "<table id='poster'><tr>";
 
-    my $userpic = $entry->userpic;
+    my ( $userpic, $kw ) = $entry->userpic;
     LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
     # Build the userpic image tag for the entry's userpic
@@ -249,7 +249,7 @@ body<=
         my $apost = "</a></td>";
 
         # for each image, get the html imgtag
-        $ret .= $apre . $userpic->imgtag( keyword => $props->{picture_keyword}, user => $up ) . $apost;
+        $ret .= $apre . $userpic->imgtag( keyword => $kw, user => $up ) . $apost;
     }
 
     $ret .= "<td class='attrib' valign='bottom'>";
@@ -498,7 +498,7 @@ body<=
                    # get the picture keyword from the comment properties
                    # get the comment poster as well
                    my %kwopts = (
-                      keyword => $post->{props}->{picture_keyword},
+                      keyword => $post->{pickw},
                       user => $upost,
                    );
 

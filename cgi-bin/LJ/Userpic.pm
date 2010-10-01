@@ -61,6 +61,14 @@ sub reset_singletons {
     %singletons = ();
 }
 
+=head1 NAME
+
+LJ::Userpic
+
+=head1 Class Methods
+
+=cut
+
 # LJ::Userpic constructor. Returns a LJ::Userpic object.
 # Return existing with userid and picid populated, or make new.
 sub instance {
@@ -148,8 +156,12 @@ sub new_from_row {
     return $self;
 }
 
-sub new_from_keyword
-{
+=head2 C<< $class->new_from_keyword( $u, $kw ) >>
+
+Returns the LJ::Userpic for the given keyword
+
+=cut
+sub new_from_keyword {
     my ( $class, $u, $kw ) = @_;
     return undef unless LJ::isu( $u );
 
@@ -158,7 +170,24 @@ sub new_from_keyword
     return $picid ? $class->new( $u, $picid ) : undef;
 }
 
-# instance methods
+
+=head2 C<< $class->new_from_mapid( $u, $mapid ) >>
+
+Returns the LJ::Userpic for the given mapid
+
+=cut
+sub new_from_mapid {
+    my ( $class, $u, $mapid ) = @_;
+    return undef unless LJ::isu( $u );
+
+    my $picid = $u->get_picid_from_mapid( $mapid );
+
+    return $picid ? $class->new( $u, $picid ) : undef;
+}
+
+=head1 Instance Methods
+
+=cut
 
 sub valid {
     return defined $_[0]->state;
@@ -934,11 +963,14 @@ sub delete {
 
     # userpic keywords
     eval {
-        $u->do( "DELETE FROM userpicmap2 WHERE userid=? " .
-                "AND picid=?", undef, $u->userid, $picid ) or die;
-        $u->do( "DELETE FROM userpic2 WHERE picid=? AND userid=?",
-                undef, $picid, $u->userid ) or die;
-        };
+        if ( $u->userpic_have_mapid ) {
+            $u->do( "DELETE FROM userpicmap3 WHERE userid = ? AND picid = ? AND kwid=NULL", undef, $u->userid, $picid ) or die;
+            $u->do( "UPDATE userpicmap3 SET picid=NULL WHERE userid=? AND picid=?", undef, $u->userid, $picid ) or die;
+        } else {
+            $u->do( "DELETE FROM userpicmap2 WHERE userid=? AND picid=?", undef, $u->userid, $picid ) or die;
+        }
+        $u->do( "DELETE FROM userpic2 WHERE picid=? AND userid=?", undef, $picid, $u->userid ) or die;
+    };
     $fail->() if $@;
 
     $u->log_event('delete_userpic', { picid => $picid });
@@ -1005,15 +1037,31 @@ sub set_keywords {
     @keywords = grep { !/^pic\#\d+$/ } grep { s/^\s+//; s/\s+$//; $_; } @keywords;
 
     my $u = $self->owner;
+    my $have_mapid = $u->userpic_have_mapid;
+
     my $sth;
     my $dbh;
 
-    $sth = $u->prepare( "SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?" );
+    if ( $have_mapid ) {
+        $sth = $u->prepare( "SELECT kwid FROM userpicmap3 WHERE userid=? AND picid=?" );
+    } else {
+        $sth = $u->prepare( "SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?" );
+    }
     $sth->execute( $u->userid, $self->id );
 
     my %exist_kwids;
     while (my ($kwid) = $sth->fetchrow_array) {
         $exist_kwids{$kwid} = 1;
+    }
+
+    my %kwid_to_mapid;
+    if ( $have_mapid ) {
+        $sth = $u->prepare( "SELECT mapid, kwid FROM userpicmap3 WHERE userid=?" );
+        $sth->execute( $u->userid );
+
+        while (my ($mapid, $kwid) = $sth->fetchrow_array) {
+            $kwid_to_mapid{$kwid} = $mapid;
+        }
     }
 
     my (@bind, @data, @kw_errors);
@@ -1030,23 +1078,39 @@ sub set_keywords {
         }
 
         unless (delete $exist_kwids{$kwid}) {
-            push @bind, '(?, ?, ?)';
-            push @data, $u->{'userid'}, $kwid, $picid;
+            if ( $have_mapid ) {
+                $kwid_to_mapid{$kwid} ||= LJ::alloc_user_counter( $u, 'Y' );
+
+                push @bind, '(?, ?, ?, ?)';
+                push @data, $u->userid, $kwid_to_mapid{$kwid}, $kwid, $picid;
+            } else {
+                push @bind, '(?, ?, ?)';
+                push @data, $u->userid, $kwid, $picid;
+            }
         }
     }
 
     LJ::Userpic->delete_cache($u);
 
     foreach my $kwid (keys %exist_kwids) {
-        $u->do("DELETE FROM userpicmap2 WHERE userid=? AND picid=? AND kwid=?", undef, $u->{userid}, $self->id, $kwid);
+        if ( $have_mapid ) {
+            $u->do("UPDATE userpicmap3 SET picid=NULL WHERE userid=? AND picid=? AND kwid=?", undef, $u->id, $self->id, $kwid);
+        } else {
+            $u->do("DELETE FROM userpicmap2 WHERE userid=? AND picid=? AND kwid=?", undef, $u->id, $self->id, $kwid);
+        }
     }
 
     # save data if any
     if (scalar @data) {
         my $bind = join(',', @bind);
 
-        $u->do( "REPLACE INTO userpicmap2 (userid, kwid, picid) VALUES $bind",
-                undef, @data );
+        if ( $have_mapid ) {
+            $u->do( "REPLACE INTO userpicmap3 (userid, mapid, kwid, picid) VALUES $bind",
+                    undef, @data );
+        } else {            
+            $u->do( "REPLACE INTO userpicmap2 (userid, kwid, picid) VALUES $bind",
+                    undef, @data );
+        }
     }
 
     # clear the userpic-keyword map.
