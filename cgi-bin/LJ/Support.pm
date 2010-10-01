@@ -357,6 +357,17 @@ sub can_read_screened
     return LJ::Support::support_check_priv(@_, 'supportviewscreened');
 }
 
+sub can_read_response
+{
+    my ( $sp, $u, $rtype, $posterid ) = @_;
+    return 1 if $posterid == $u->id;
+    return 0 if $rtype eq 'screened' &&
+                ! LJ::Support::can_read_screened( $sp, $u );
+    return 0 if $rtype eq 'internal' &&
+                ! LJ::Support::can_read_internal( $sp, $u );
+    return 1;
+}
+
 sub can_perform_actions
 {
     return LJ::Support::support_check_priv(@_, 'supportmovetouch');
@@ -1081,11 +1092,9 @@ sub work {
         foreach my $u (values %$userids) {
             next unless $u->is_visible;
             next unless $u->{status} eq "A";
-            next if $posterid == $u->id;
-            next if $rtype eq 'screened' &&
-                !LJ::Support::can_read_screened($sp, $u);
-            next if $rtype eq 'internal' &&
-                !LJ::Support::can_read_internal($sp, $u);
+            next unless LJ::Support::can_read_response( $sp, $u, $rtype, $posterid );
+            next if $posterid == $u->id &&
+                ! $u->prop( 'opt_getselfsupport' );
             push @emails, $u->email_raw;
         }
     }

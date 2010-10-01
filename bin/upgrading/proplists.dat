@@ -654,6 +654,14 @@ userproplist.opt_getselfemail:
   multihomed: 0
   prettyname: Get Emails for Comments You Make
 
+userproplist.opt_getselfsupport:
+  cldversion: 4
+  datatype: bool
+  des: If true, include user's own responses in support notifications.
+  indexed: 0
+  multihomed: 0
+  prettyname: Get Emails for Your Own Support Responses
+
 userproplist.opt_getting_started:
   cldversion: 4
   datatype: char

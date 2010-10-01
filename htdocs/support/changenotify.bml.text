@@ -7,6 +7,8 @@
 
 .done.title=Done?
 
+.getownresponses=Check here if you'd also like to include notifications for your own responses.
+
 .mustlogin=You must first <a href=[[login]]>login</a>.
 
 .option.all=All

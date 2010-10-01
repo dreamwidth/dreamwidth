@@ -78,6 +78,11 @@ body<=
      }
      $ret .= "</div>\n";
 
+     $ret .= "<p><label for='opt_getselfsupport'>$ML{'.getownresponses'}</label> ";
+     $ret .= LJ::html_check( { type => 'check', name => 'opt_getselfsupport',
+                               id => 'opt_getselfsupport',
+                               selected => $remote->prop( 'opt_getselfsupport' ) } );
+     $ret .= "</p>\n";
 
      ### ending submit block
      $ret .= "<?h1 $ML{'.done.title'} h1?>";
@@ -90,6 +95,8 @@ body<=
 
  if ($mode eq "save")
  {
+     $remote->set_prop( 'opt_getselfsupport' => $FORM{opt_getselfsupport} ? 1 : 0 );
+
      my $dbh = LJ::get_db_writer();
      $dbh->do("DELETE FROM supportnotify WHERE userid=$remote->{'userid'}");
      my $sql;
