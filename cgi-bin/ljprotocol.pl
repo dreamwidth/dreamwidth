@@ -1133,6 +1133,7 @@ sub postevent
         $flags->{usejournal_okay} = 1;
         $flags->{no_xpost} = 1;
         $flags->{create_unknown_picture_mapid} = 1;
+        $flags->{allow_inactive} = 1;
     }
 
     return undef unless LJ::Hooks::run_hook('post_noauth', $req) || authenticate($req, $err, $flags);
