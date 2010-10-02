@@ -3691,6 +3691,9 @@ sub edit_comment {
         edit_reason => $comment->{editreason},
     );
 
+    # remove blank/0 values (defaults)
+    foreach ( keys %props ) { delete $props{$_} unless $props{$_}; }
+
     my $pu = $comment_obj->poster;
     if ( $pu && $pu->userpic_have_mapid ) {
         $props{picture_mapid} = $pu->get_mapid_from_keyword( $comment->{picture_keyword} );
