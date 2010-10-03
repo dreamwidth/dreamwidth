@@ -295,6 +295,12 @@ function Page::print()
 function Page::print_default_stylesheet()
 {
 
+var string sidebar_position = "";
+var string sidebar_position_opposite = "";
+
+if ($*layout_type == "two-columns-left") { $sidebar_position = "left"; $sidebar_position_opposite = "right"; }
+elseif ($*layout_type == "two-columns-right") { $sidebar_position = "right"; $sidebar_position_opposite = "left"; }
+
 var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
 var string page_title_font = generate_font_css($*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
 var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
@@ -414,9 +420,29 @@ body {$page_font $page_background color: $*color_page_text; width: 100%; margin:
 .one-column #primary {border: 0.083em solid $*color_page_border; background: $*color_entry_background; width: 90%; padding: 0; border-top: 0; position: absolute; margin-left: 5%; }
 .one-column #header { width: 90%;}
 
-.two-columns-right #secondary { margin-left: 66.4%; width: 16.667em; border: 0.083em solid $*color_page_border; background: color_entry_background; border-bottom: 0; }
-.two-columns-right #primary {border: 0.083em solid $*color_page_border; background: $*color_entry_background; width: 60.4%; padding: 0; border-top: 0; position: absolute; margin-left: 5%; }
-.two-columns-right #header { width: 60.4%;}
+.two-columns #secondary {
+    background: $*color_entry_background;
+    border: .083em solid $*color_page_border;
+    border-bottom: 0;
+    margin-$sidebar_position: auto;
+    margin-$sidebar_position_opposite: 66.4%;
+    width: 16.667em;
+    }
+
+.two-columns #primary {
+    background: $*color_entry_background;
+    border: .083em solid $*color_page_border;
+    border-top: 0;
+    margin-$sidebar_position_opposite: 5%;
+    padding: 0;
+    position: absolute;
+    width: 60.4%;
+    $sidebar_position_opposite: 0;
+    }
+
+.two-columns #header {
+    width: 60.4%;
+    }
 
 /* ====================== RANDOM MARK UP AND CONDITIONALS ======================= */
 
@@ -480,6 +506,10 @@ ul ul {list-style: circle;}
     padding: 0;
     $header_background
     $header_background_height
+    }
+
+.two-columns-left #header {
+    margin: 0 5% 0 auto;
     }
 
 #title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; color: $*color_page_title; margin: 0; }
