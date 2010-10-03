@@ -15,6 +15,8 @@ package DW::User::DVersion::Migrate8To9;
 
 use strict;
 use warnings;
+
+require 'ljlib.pl';
 use LJ::User;
 use Time::HiRes qw( usleep );
 
