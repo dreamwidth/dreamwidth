@@ -678,17 +678,6 @@ CREATE TABLE backupdirty (
 )
 EOC
 
-register_tablecreate("zip", <<'EOC');
-CREATE TABLE zip (
-    zip varchar(5) NOT NULL default '',
-    state char(2) NOT NULL default '',
-    city varchar(100) NOT NULL default '',
-
-    PRIMARY KEY  (zip),
-    KEY (state)
-) PACK_KEYS=1
-EOC
-
 ################# above was a snapshot.  now, changes:
 
 register_tablecreate("log2", <<'EOC');
@@ -903,6 +892,7 @@ register_tabledrop("commenturls");
 register_tabledrop("captchas");
 register_tabledrop("captcha_session");
 register_tabledrop("qotd");
+register_tabledrop("zip");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (

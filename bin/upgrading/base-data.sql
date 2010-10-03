@@ -601,7 +601,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('bgcolor', 'The backgr
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('bytes', 'Number of bytes item takes up.', 'dudata');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('cbid', 'unique id', 'cmdbuffer');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('checknext', 'Date and time of scheduled next check to syndication feed.', 'syndicated');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('city', 'City name', 'zip');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('clickthrutime', 'The time when the user clicked for more information.', 'cprod');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('client', 'Client string, of form Platform-Name/Version.  See login mode of protocol docs.', 'clients');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('clientid', 'Clientid of client from [dbtable[clients]] table.', 'clientusage');
@@ -721,7 +720,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('showbydefault', 'Unus
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('sortorder', 'The sorting number the questions are ordered by. Used while SELECT\'ing them.', 'faq');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('spid', 'Unique ID of Support request. Used in URL.', 'supportprop');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('state', 'Comment state identifier: (A)ctive, (D)eleted, (S)creened, (F)rozen, etc.', 'talk2');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('state', 'State code (see [dbtable[codes]] for how to turn this into a full state name)', 'zip');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('subid', 'The ESN subscription ID (domain type \'E\') allocated by the LJ::alloc_user_counter function.', 'subs');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('subject', 'Journal entry subject.', 'logtext2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('summary', 'The summary text, in plaintext, for the user to browse at-a-glance.', 'faq');
@@ -763,7 +761,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('what', 'Criterion bei
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('what', 'Short name of the item being changed.', 'infohistory');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('width', 'Horizontal width of image in pixels.', 'userpic2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('year', 'The year of the eventtime. Duplicated for an index.', 'log2');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('zip', 'ZIP Code', 'zip');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('', '0', 'off', NULL, 'moods');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('', '0', 'off', NULL, 's2styles');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('', '0', 'off', NULL, 'synitem');
@@ -912,7 +909,6 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores worker(s) result storage status.', '0', 'off', NULL, 'jobstatus');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Table required by DBI::Role for procnotify - the function used to pass a message to all web processes on all clusters.', '0', 'off', NULL, 'procnotify');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Used by the move user cluster script. Both before and after updating a user\'s read-only flag we add the user to this table, which is just an index onto users who - might - be in read-only.\n\r\nA maintenance task will periodically clean those and make sure nobody is stranded in read-only, without resorting to a full tablescan of the [dbtable[user]] table, by checking if users are still locked, removing those that are not from this table, querying the job server (if up) for users that are still locked and unlocking those that can be unlocked.', '0', 'off', NULL, 'readonly_user');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. ZIP Code table used to validate and auto-complete user-entered location data. More data can be found in the (redundant) table [dbtable[zips]], which was imported later.', '0', 'off', NULL, 'zip');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global.', '0', 'off', NULL, 'eventtypelist');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores comments when the database cluster of the user making the comment is unavailable.\n\r\nA maintenance task (clean_caches) moves data from here to [dbtable[talkleft]] on clusters.', '0', 'off', NULL, 'talkleft_xfp');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Lookup table for states, countries, languages, etc...', '1', 'replace', NULL, 'codes');

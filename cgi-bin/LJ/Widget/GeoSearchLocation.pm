@@ -19,7 +19,6 @@ use base qw(LJ::Widget::Location);
 sub render_body {
     my $class = shift;
     my %opts = (
-        'skip_zip' => 1,
         'skip_timezone' => 1,
         @_
     );

@@ -1118,14 +1118,6 @@ userproplist.yahoo:
   multihomed: 1
   prettyname: Yahoo ID
 
-userproplist.zip:
-  cldversion: 4
-  datatype: char
-  des: 5 digit zip code (if in US)
-  indexed: 1
-  multihomed: 0
-  prettyname: ZIP code
-
 talkproplist.edit_reason:
   datatype: char
   des: Reason for the last edit.
