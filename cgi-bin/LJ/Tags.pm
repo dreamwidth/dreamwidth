@@ -236,7 +236,8 @@ sub _get_usertagsmulti {
             } elsif ($sec & $trust_mask) {
                 $res->{$jid}->{$kwid}->{security}->{protected} += $ct;
                 $res->{$jid}->{$kwid}->{security_level} = 'protected'
-                    unless $res->{$jid}->{$kwid}->{security_level} eq 'public';
+                    unless $res->{$jid}->{$kwid}->{security_level} &&
+                           $res->{$jid}->{$kwid}->{security_level} eq 'public';
             } elsif ($sec) {
                 # if $sec is true (>0), and not trust/public, then it's a group(s).  but it's
                 # still in the form of a number, and we want to know which group(s) it is.  so

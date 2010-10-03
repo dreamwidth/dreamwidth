@@ -32,8 +32,8 @@ sub html_datetime
     my $lang = $opts->{'lang'} || "EN";
     my ($yyyy, $mm, $dd, $hh, $nn, $ss);
     my $ret;
-    my $name = $opts->{'name'};
-    my $id = $opts->{'id'};
+    my $name = $opts->{name} || '';
+    my $id = $opts->{id} || '';
     my $disabled = $opts->{'disabled'} ? 1 : 0;
 
     my %extra_opts;
@@ -42,67 +42,67 @@ sub html_datetime
     }
 
     if ($opts->{'default'} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)(?: (\d\d):(\d\d):(\d\d))?/) {
-        ($yyyy, $mm, $dd, $hh, $nn, $ss) = ($1 > 0 ? $1 : "",
-                                            $2+0,
-                                            $3 > 0 ? $3+0 : "",
-                                            $4 > 0 ? $4 : "",
-                                            $5 > 0 ? $5 : "",
-                                            $6 > 0 ? $6 : "");
+        ( $yyyy, $mm, $dd, $hh, $nn, $ss ) = ( $1 > 0 ? $1   : "",
+                                               $2+0,
+                                               $3 > 0 ? $3+0 : "",
+                                 defined $4 && $4 > 0 ? $4   : "",
+                                 defined $5 && $5 > 0 ? $5   : "",
+                                 defined $6 && $6 > 0 ? $6   : "" );
     }
-    $ret .= html_select({ 'name' => "${name}_mm", 
-                          'id' => "${id}_mm", 
-                          'selected' => $mm, 
-                          'class' => 'select',
-                          'title' => 'month',
-                          'disabled' => $disabled, %extra_opts,
-                        },
-                        map { $_, LJ::Lang::month_long_ml($_) } (1..12));
-    $ret .= html_text({ 'name' => "${name}_dd", 
-                        'id' => "${id}_dd", 
-                        'size' => '2', 
-                        'class' => 'text',
-                        'maxlength' => '2', 
-                        'value' => $dd,
-                        'title' => 'day',
-                        'disabled' => $disabled, %extra_opts,
-                      });
-    $ret .= html_text({ 'name' => "${name}_yyyy", 
-                        'id' => "${id}_yyyy", 
-                        'size' => '4', 
-                        'class' => 'text',
-                        'maxlength' => '4', 
-                        'value' => $yyyy,
-                        'title' => 'year',
-                        'disabled' => $disabled, %extra_opts,
-                      });
-    unless ($opts->{'notime'}) {
+    $ret .= html_select( { name => "${name}_mm",
+                           id => "${id}_mm",
+                           selected => $mm,
+                           class => 'select',
+                           title => 'month',
+                           disabled => $disabled, %extra_opts,
+                         },
+                         map { $_, LJ::Lang::month_long_ml($_) } (1..12) );
+    $ret .= html_text( { name => "${name}_dd",
+                         id => "${id}_dd",
+                         size => '2',
+                         class => 'text',
+                         maxlength => '2',
+                         value => $dd,
+                         title => 'day',
+                         disabled => $disabled, %extra_opts,
+                       } );
+    $ret .= html_text( { name => "${name}_yyyy",
+                         id => "${id}_yyyy",
+                         size => '4',
+                         class => 'text',
+                         maxlength => '4',
+                         value => $yyyy,
+                         title => 'year',
+                         disabled => $disabled, %extra_opts,
+                       } );
+    unless ( $opts->{notime} ) {
         $ret .= ' ';
-        $ret .= html_text({ 'name' => "${name}_hh", 
-                            'id' => "${id}_hh", 
-                            'size' => '2',
-                            'maxlength' => '2', 
-                            'value' => $hh,
-                            'title' => 'hour',
-                            'disabled' => $disabled,
-                          }) . ':';
-        $ret .= html_text({ 'name' => "${name}_nn", 
-                            'id' => "${id}_nn", 
-                            'size' => '2',
-                            'maxlength' => '2', 
-                            'value' => $nn,
-                            'title' => 'minutes',
-                            'disabled' => $disabled,
-                          });
-        if ($opts->{'seconds'}) {
+        $ret .= html_text( { name => "${name}_hh",
+                             id => "${id}_hh",
+                             size => '2',
+                             maxlength => '2',
+                             value => $hh,
+                             title => 'hour',
+                             disabled => $disabled,
+                           } ) . ':';
+        $ret .= html_text( { name => "${name}_nn",
+                             id => "${id}_nn",
+                             size => '2',
+                             maxlength => '2',
+                             value => $nn,
+                             title => 'minutes',
+                             disabled => $disabled,
+                           } );
+        if ( $opts->{seconds} ) {
             $ret .= ':';
-            $ret .= html_text({ 'name' => "${name}_ss", 
-                                'id' => "${id}_ss", 
-                                'size' => '2',
-                                'maxlength' => '2', 
-                                'value' => $ss,
-                                'title' => 'seconds',
-                                'disabled' => $disabled,
-                              });
+            $ret .= html_text( { name => "${name}_ss",
+                                 id => "${id}_ss",
+                                 size => '2',
+                                 maxlength => '2',
+                                 value => $ss,
+                                 title => 'seconds',
+                                 disabled => $disabled,
+                               } );
         }
     }
 
@@ -323,17 +323,19 @@ sub html_text
 # </LJFUNC>
 sub html_textarea
 {
-    my $opts = shift;
+    my $opts = $_[0];
 
-    my $disabled = $opts->{'disabled'} ? " disabled='disabled'" : "";
-    my $ehtml = $opts->{'noescape'} ? 0 : 1;
-    my $ret;
-    $ret .= "<textarea";
+    my $disabled = $opts->{disabled} ? " disabled='disabled'" : "";
+    my $ehtml = $opts->{noescape} ? 0 : 1;
+    my $value = $opts->{value} || '';
+    $value = ehtml( $value ) if $ehtml;
+
+    my $ret = "<textarea";
     foreach (grep { ! /^(disabled|raw|value|noescape)$/ } keys %$opts) {
         $ret .= " $_=\"" . ($ehtml ? ehtml($opts->{$_}) : $opts->{$_}) . "\"";
     }
-    if ($opts->{'raw'}) { $ret .= " $opts->{'raw'}"; }
-    $ret .= "$disabled>" . ($ehtml ? ehtml($opts->{'value'}) : $opts->{'value'}) . "</textarea>";
+    $ret .= " $opts->{raw}" if $opts->{raw};
+    $ret .= "$disabled>$value</textarea>";
     return $ret;
 }
 

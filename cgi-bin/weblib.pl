@@ -1329,8 +1329,8 @@ RTE
                 foreach (sort { $moods->{$a}->{'name'} cmp $moods->{$b}->{'name'} } keys %$moods) {
                     push @moodlist, ($_, $moods->{$_}->{'name'});
 
-                    if ($opts->{'prop_current_mood'} eq $moods->{$_}->{'name'} ||
-                        $opts->{'prop_current_moodid'} == $_) {
+                    if ( $opts->{prop_current_mood} && $opts->{prop_current_mood} eq $moods->{$_}->{name} ||
+                         $opts->{prop_current_moodid} && $opts->{prop_current_moodid} == $_ ) {
                         $sel = $_;
                     }
                 }
@@ -1583,7 +1583,7 @@ MOODS
             }
 
             ### Other Posting Options
-            $out .= LJ::Hooks::run_hook('add_extra_entryform_fields', { opts => $opts, tabindex => $tabindex });
+            $out .= LJ::Hooks::run_hook( 'add_extra_entryform_fields', { opts => $opts, tabindex => $tabindex } ) || '';
 
             $out .= "<span class='inputgroup-right'>";
             # extra submit button so make sure it posts the form when person presses enter key
@@ -1750,7 +1750,7 @@ PREVIEW
 
                 # if custom security groups available, show them in a hideable div
                 if ( scalar @trust_groups ) {
-                    my $display = $opts->{'security'} eq "custom" ? "block" : "none";
+                    my $display = $opts->{security} && $opts->{security} eq "custom" ? "block" : "none";
                     $out .= LJ::help_icon("security", "<span id='security-help'>\n", "\n</span>\n");
                     $out .= "<div id='custom_boxes' class='pkg' style='display: $display;'>\n";
                     $out .= "<ul id='custom_boxes_list'>";
@@ -1759,7 +1759,7 @@ PREVIEW
                         $out .= "<li>";
                         $out .= LJ::html_check({ 'name' => "custom_bit_$fg",
                                                  'id' => "custom_bit_$fg",
-                                                 'selected' => $opts->{"custom_bit_$fg"} || $opts->{'security_mask'}+0 & 1 << $fg }) . " ";
+                                                 'selected' => $opts->{"custom_bit_$fg"} || ( $opts->{security_mask} ? $opts->{security_mask} + 0 : 0 ) & 1 << $fg }) . " ";
                         $out .= "<label for='custom_bit_$fg'>" . LJ::ehtml( $group->{groupname} ) . "</label>\n";
                         $out .= "</li>";
                     }
