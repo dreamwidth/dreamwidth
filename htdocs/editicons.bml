@@ -91,6 +91,8 @@ use strict;
     my $no_errors = 1;
     my $success_count = 0;
 
+    my $display_rename = LJ::is_enabled( "icon_renames" ) ? 1 : 0 ;
+
     ### save/update mode
     if (LJ::did_post()) {
 
@@ -508,7 +510,6 @@ use strict;
         $body .= "</div>";
 
         $body .= "<div id='list_userpics' style='width: 98%; float: left;'>";
-        my $display_rename = LJ::theschwartz() ? 1 : 0;
 
         if ( $keyword_sort ) {
             @userpics = LJ::Userpic->sort( \@userpics );
@@ -537,7 +538,7 @@ use strict;
             if ($display_rename) {
                 $body .= "<div id='rename_div_$pid' class='userpic_rename pkg'>\n";
                 $body .= "<script type='text/javascript'>document.getElementById('rename_div_$pid').style.display = 'none';</script>\n";
-                if ( LJ::is_enabled( "icon_renames" ) ) {
+                if ( $u->userpic_have_mapid ) {
                     $body .= LJ::html_check({ 'type' => 'checkbox', 'name' => "rename_keyword_$pid", 'class' => "checkbox",
                                               'id' => "rename_keyword_$pid", 'value' => 1,
                                               'disabled' => $LJ::DISABLE_MEDIA_UPLOADS });
@@ -625,18 +626,19 @@ sub update_userpics
     my $u = shift;
     my @userpics = @$userpicsref;
     my $err = shift;
-    
-    
+
+    my $display_rename = LJ::is_enabled( "icon_renames" ) ? 1 : 0 ;
+
     # form being posted isn't multipart, since we were able to read from %POST
     unless (LJ::check_form_auth()) {
         return $err->($ML{'error.invalidform'});
     }
-    
+
     my @delete; # userpic objects to delete
     my @inactive_picids;
     my %picid_of_kwid;
     my %used_keywords;
-    
+
     # we need to count keywords based on what the user provided, in order
     # to find duplicates. $up->keywords doesn't work, because re-using a
     # keyword will remove it from the other userpic without our knowing
@@ -668,8 +670,8 @@ sub update_userpics
         if ($POST{"kw_$picid"} ne $POST{"kw_orig_$picid"}) {
             my $kws = $POST{"kw_$picid"};
 
-            if ($POST{"rename_keyword_$picid"}) {
-                if ( LJ::is_enabled( "icon_renames" ) ) {
+            if ( $POST{"rename_keyword_$picid"} ) {
+                if ( $display_rename && $u->userpic_have_mapid ) {
                     eval {
                        $up->set_and_rename_keywords($kws, $POST{"kw_orig_$picid"});
                     } or push @errors, $@->as_html;

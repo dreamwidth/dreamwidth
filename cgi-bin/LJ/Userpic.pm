@@ -1142,19 +1142,13 @@ sub set_keywords {
 # all new keywords must not currently be in use; you can't rename a keyword
 # to a keyword currently mapped to another (or the same) userpic.  this will
 # result in an error and no changes made to these keywords.
-#
-# the setting of new keywords is done by Userpic->set_keywords; the remapping
-# of existing pics is done asynchonously via TheSchwartz using the
-# DW::Worker::UserpicRenameWorker.
 sub set_and_rename_keywords {
     my ( $self, $new_keyword_string, $orig_keyword_string ) = @_;
 
-    my $sclient = LJ::theschwartz();
-    
-    # error out if TheSchwartz isn't available.
+    my $u = $self->owner;
     LJ::errobj("Userpic::RenameKeywords",
-               origkw    => $orig_keyword_string,
-               newkw     => $new_keyword_string)->throw unless $sclient;
+                origkw    => $orig_keyword_string,
+                newkw     => $new_keyword_string)->throw unless LJ::is_enabled( "icon_renames" ) || $u->userpic_have_mapid;
 
     my @keywords = split(',', $new_keyword_string);
     my @orig_keywords = split(',', $orig_keyword_string);
@@ -1190,28 +1184,45 @@ sub set_and_rename_keywords {
     if (keys(%keywordmap)) {
 
         #make sure that none of the target keywords already exist.
-        my $u = $self->owner;
         foreach my $kw ( values %keywordmap ) {
             if ( $u && $u->get_picid_from_keyword( $kw, -1 ) != -1 ) {
                 LJ::errobj( "Userpic::RenameKeywordExisting",
                             keyword => $kw )->throw;
             }
         }
-        
-        # set the keywords for this userpic to the new set of keywords
-        $self->set_keywords(@keywords);
-        
-        # send to TheSchwartz to do the actual renaming
-        my $job = TheSchwartz::Job->new_from_array(
-            'DW::Worker::UserpicRenameWorker', { 
-                'uid' => $u->userid, 
-                'keywordmap' => Storable::nfreeze(\%keywordmap) } );
-        
-        unless ($job && $sclient->insert($job)) {
-            LJ::errobj("Userpic::RenameKeywords",
-                       origkw    => $orig_keyword_string,
-                       newkw     => $new_keyword_string)->throw;
+
+        while (my ($origkw, $newkw) = each( %keywordmap )) {
+
+            # need to check if the kwid already has a mapid
+            my $mapid = $u->get_mapid_from_keyword( $newkw );
+
+            # if it does, we have to remap it
+            if ( $mapid ) {
+                my $oldid = $u->get_mapid_from_keyword( $origkw );
+
+                # redirect the old mapid to the new mapid
+                $u->do( "UPDATE userpicmap3 SET kwid = NULL, picid = NULL, redirect_mapid = ? WHERE mapid = ? AND userid = ?",
+                        undef, $mapid, $oldid, $u->id );
+                die $u->errstr if $u->err;
+
+                # change any redirects pointing to the old mapid to the new mapid
+                $u->do( "UPDATE userpicmap3 SET redirect_mapid = ? WHERE redirect_mapid = ? AND userid = ?",
+                        undef, $mapid, $oldid, $u->id );
+                die $u->errstr if $u->err;
+
+                # and set the new mapid to point to the picture
+                $u->do( "UPDATE userpicmap3 SET picid = ? WHERE mapid = ? AND userid = ?",
+                        undef, $self->picid, $mapid, $u->id );
+                die $u->errstr if $u->err;
+
+            } else {
+                $u->do( "UPDATE userpicmap3 SET kwid = ? WHERE kwid = ? AND userid = ?",
+                        undef, $u->get_keyword_id( $newkw ), $u->get_keyword_id( $origkw ), $u->id );
+                die $u->errstr if $u->err;
+            }
         }
+        LJ::Userpic->delete_cache($u);
+        $u->clear_userpic_kw_map;
     }
 
     return 1;
