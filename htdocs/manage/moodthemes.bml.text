@@ -45,6 +45,8 @@
 
 .mood.label.width=Width:
 
+.mood.reset=[[mood]] has been reset and will inherit if it has a parent.
+
 .mood.setpic=[[mood]] is set to [[url]].
 
 .saved=Changes have been successfully saved.

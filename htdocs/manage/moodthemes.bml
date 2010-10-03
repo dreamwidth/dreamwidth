@@ -184,9 +184,8 @@ body<=
     #### Closure Definitions ####
     my $make_tree;
     $make_tree = sub {
-        my ( $num, $tid ) = @_;
+        my ( $num, $theme ) = @_;
         return unless $lists{$num};
-        my $theme = DW::Mood->new( $tid );
 
         $ret .= "<ul>\n";
 
@@ -226,15 +225,17 @@ body<=
                                                   value => $pic{h}, size => 4 });
             $ret .= "<br /><br /></td></tr>\n";
             $ret .= LJ::html_hidden({ name => "$mood->{id}parent", id => "$mood->{id}parent", value => $mood->{parent} });
+            $ret .= LJ::html_hidden({ name => "$mood->{id}oldinh", id => "$mood->{id}oldinh", value => $inherited });
             $ret .= "</table>\n";
 
-            $make_tree->( $mood->{id}, $tid );
+            $make_tree->( $mood->{id}, $theme );
         }
         $ret .= "</ul>\n";
     };
 
     my $editform = sub {
         my ( $id ) = @_;
+        my $theme = DW::Mood->new( $id );
 
         # Get a list of all possible moods
         my $moods = DW::Mood->get_moods;
@@ -244,7 +245,7 @@ body<=
             push @{ $lists{ $m->{parent} } }, $m;
         }
 
-        $make_tree->( 0, $id );
+        $make_tree->( 0, $theme );
     };
 
 
@@ -351,16 +352,31 @@ body<=
                     my $picurl = $POST{$key};
                     my $mname = DW::Mood->mood_name( $mid );
 
-                    # inherited, don't represent in db
-                    if ( $POST{$mid.'check'} eq 'checked' ) {
-                        push @picdata, [ $mid, {} ];
-                        $ret .= BML::ml( '.mood.deleted', { mood => "$mname($mid)"} ) . "<br />\n";
-                        next;
+                    # don't update if nothing changed
+                    my %picdata;
+                    $theme->get_picture( $mid, \%picdata );
+                    my $same = $picurl eq $picdata{pic} &&
+                               $width  == $picdata{w}   &&
+                               $height == $picdata{h};
+                    next if $same;
+
+                    # allow width & height to default to that of parent
+                    if ( my $pid = $POST{$mid . 'parent'} ) {
+                        $width  ||= $POST{$pid . 'w'};
+                        $height ||= $POST{$pid . 'h'};
+                        unless ( $width && $height ) {
+                            # check the database
+                            my %parent;
+                            $theme->get_picture( $pid, \%parent );
+                            $width  ||= $parent{w};
+                            $height ||= $parent{h};
+                        }
                     }
 
                     # one of these is blank, so delete the mood
                     unless ( $picurl && $width && $height ) {
                         push @picdata, [ $mid, {} ];
+                        $ret .= BML::ml( '.mood.reset', { mood => "$mname($mid)"} ) . "<br />\n";
                         next;
                     }
 
@@ -368,6 +384,22 @@ body<=
                     if ( $picurl =~ m!^https?://[^\'\"\0\s]+$! ) {
                         push @picdata, [ $mid, { picurl => $picurl, width => $width, height => $height } ];
                         $ret .= BML::ml( '.mood.setpic', { mood => "$mname($mid)", url => $picurl } ) . "<br />\n";
+                    }
+                }
+            }
+
+            # look again for inheritance
+            # (id key for url was disabled, so no match above)
+            foreach my $key ( keys %POST ) {
+                if ( $key =~ /^(\d+)inherit$/ ) {
+                    my $mid = $1;
+                    next if $POST{$mid};  # already processed above
+                    next if $POST{$mid . 'oldinh'};  # no change in status
+                    # inherited, don't represent in db
+                    my $mname = DW::Mood->mood_name( $mid );
+                    if ( $POST{$key} eq 'on' ) {
+                        push @picdata, [ $mid, {} ];
+                        $ret .= BML::ml( '.mood.deleted', { mood => "$mname($mid)"} ) . "<br />\n";
                     }
                 }
             }
