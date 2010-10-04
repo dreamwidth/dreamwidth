@@ -1043,7 +1043,7 @@ sub set_keywords {
     my $dbh;
 
     if ( $have_mapid ) {
-        $sth = $u->prepare( "SELECT kwid FROM userpicmap3 WHERE userid=? AND picid=?" );
+        $sth = $u->prepare( "SELECT kwid FROM userpicmap3 WHERE userid=? AND picid=? AND kwid NOT NULL" );
     } else {
         $sth = $u->prepare( "SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?" );
     }
@@ -1056,7 +1056,7 @@ sub set_keywords {
 
     my %kwid_to_mapid;
     if ( $have_mapid ) {
-        $sth = $u->prepare( "SELECT mapid, kwid FROM userpicmap3 WHERE userid=?" );
+        $sth = $u->prepare( "SELECT mapid, kwid FROM userpicmap3 WHERE userid=? AND kwid NOT NULL" );
         $sth->execute( $u->userid );
 
         while (my ($mapid, $kwid) = $sth->fetchrow_array) {
