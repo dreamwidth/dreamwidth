@@ -228,7 +228,7 @@
     display: block;
     width: 100%;
     border: none;
-    font-size: 105%;
+    font-size: medium;
 }
 * html #draft {
     width: 99%;
