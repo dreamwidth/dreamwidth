@@ -44,7 +44,7 @@ sub watch_items
     $u = LJ::want_user( $u ) or confess 'invalid user object';
 
     # bail very, very early for accounts that are too big for a reading page
-    return () if $LJ::FORCE_EMPTY_FRIENDS{$u->id};
+    return () if $LJ::FORCE_EMPTY_SUBSCRIPTIONS{$u->id};
 
     # not sure where best to do this, so we're doing it here: don't allow
     # content filters for community reading pages.

@@ -228,19 +228,19 @@
 
     # initial friends for new accounts.
     # leave undefined if you don't want to use it.
-    @INITIAL_FRIENDS = qw(news);
+    @INITIAL_SUBSCRIPTIONS = qw(news);
 
     # initial optional friends
-    #@LJ::INITIAL_OPTIONAL_FRIENDS = qw(news);
+    #@LJ::INITIAL_OPTIONAL_SUBSCRIPTIONS = qw(news);
 
     # initial friends checked by default on create.bml
-    #@LJ::INITIAL_OPTOUT_FRIENDS = qw(news);
+    #@LJ::INITIAL_OPTOUT_SUBSCRIPTIONS = qw(news);
 
     # some system accounts have so many friends it is harmful to display
     # them.  list these accounts here.
-    #%FORCE_EMPTY_FRIENDS = (
-    #                        '81752' => 'paidmembers'
-    #                        );
+    #%FORCE_EMPTY_SUBSCRIPTIONS = (
+     #                             '81752' => 'paidmembers'
+    #                             );
 
 
     # test accounts are special

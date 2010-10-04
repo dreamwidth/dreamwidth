@@ -581,7 +581,7 @@ sub trust_list {
 
     # special case, we can disable loading friends for a user if there is a site
     # problem or some other issue with this codebranch
-    return undef if $LJ::FORCE_EMPTY_FRIENDS{ $u->id };
+    return undef if $LJ::FORCE_EMPTY_SUBSCRIPTIONS{ $u->id };
 
     # attempt memcache if allowed
     unless ( $db_only ) {
@@ -627,7 +627,7 @@ sub trust_group_members {
 
     # special case, we can disable loading friends for a user if there is a site
     # problem or some other issue with this codebranch
-    return undef if $LJ::FORCE_EMPTY_FRIENDS{ $u->id };
+    return undef if $LJ::FORCE_EMPTY_SUBSCRIPTIONS{ $u->id };
 
     # load the user's groups
     my $grp = $u->trust_groups( id => $id, name => $name );
@@ -674,7 +674,7 @@ sub watch_list {
 
     # special case, we can disable loading friends for a user if there is a site
     # problem or some other issue with this codebranch
-    return undef if $LJ::FORCE_EMPTY_FRIENDS{ $u->id };
+    return undef if $LJ::FORCE_EMPTY_SUBSCRIPTIONS{ $u->id };
 
     # attempt memcache if allowed
     unless ( $db_only ) {

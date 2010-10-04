@@ -460,7 +460,7 @@ add_conf('$MAX_FRIENDS_VIEW_AGE',
 add_conf('%COMMON_CODE',
          type => '',
          des => "");
-add_conf('%FORCE_EMPTY_FRIENDS',
+add_conf('%FORCE_EMPTY_SUBSCRIPTIONS',
          type => '',
          des => "");
 add_conf('@CLEANUP_HANDLERS',
@@ -583,7 +583,7 @@ add_conf('@TALKSPAM',
 add_conf('%HELP_URL',
          type => '',
          des => "");
-add_conf('@INITIAL_FRIENDS',
+add_conf('@INITIAL_SUBSCRIPTIONS',
          type => '',
          des => "");
 add_conf('%DBCACHE',
@@ -631,7 +631,7 @@ add_conf('%USERPROP_DEF',
 add_conf('@RBL_LIST',
          type => '',
          des => "");
-add_conf('@INITIAL_OPTOUT_FRIENDS',
+add_conf('@INITIAL_OPTOUT_SUBSCRIPTIONS',
          type => '',
          des => "");
 add_conf('%CAP_DEF',
@@ -643,7 +643,7 @@ add_conf('%DISABLED',
 add_conf('%HELPURL',
          type => '',
          des => "");
-add_conf('@INITIAL_OPTIONAL_FRIENDS',
+add_conf('@INITIAL_OPTIONAL_SUBSCRIPTIONS',
          type => '',
          des => "");
 add_conf('%FILEEDIT_VIA_DB',

@@ -239,12 +239,11 @@ sub create_personal {
             }
         }
     }
-    # if we have initial friends for new accounts, add them.
-    # FIXME(mark): INITIAL_FRIENDS should be moved/renamed.
-    foreach my $friend ( @LJ::INITIAL_FRIENDS ) {
-        my $friendid = LJ::get_userid( $friend )
+    # if we have initial subscriptions for new accounts, add them.
+    foreach my $user ( @LJ::INITIAL_SUBSCRIPTIONS ) {
+        my $userid = LJ::get_userid( $user )
             or next;
-        $u->add_edge( $friendid, watch => {} );
+        $u->add_edge( $userid, watch => {} );
     }
 
     # apply any paid time that this account should get
