@@ -94,6 +94,28 @@
         }
     }
 
+    if ( ! LJ::theschwartz() ) {
+        # no schwartz
+    } elsif ( scalar( grep { defined $_->{role} } @LJ::THESCHWARTZ_DBS ) > 0 || scalar( @LJ::THESCHWARTZ_DBS ) > 1 ) {
+        # cannot test, leaving off
+    } else {
+        my $sid = 0;
+        foreach my $db ( @LJ::THESCHWARTZ_DBS ) {
+            my $s_db = DBI->connect( $db->{dsn}, $db->{user}, $db->{pass} );
+            if ( $s_db ) {
+                my $time = $s_db->selectrow_array( "DESCRIBE " . ( $db->{prefix} ? $db->{prefix}."_job" : "job" ) );
+                if ( ! $time || $s_db->err ) {
+                    push @fail, "schwartz $sid";
+                } else {
+                    push @pass, "schwartz $sid";
+                }
+            } else {
+                push @fail, "schwartz $sid unreachable";
+            }
+            $sid++;
+        }
+    }
+
     # print results
     BML::set_content_type( 'text/plain' );
 
