@@ -592,7 +592,7 @@ body<=
                 my ( $width, $height ) = $icon->dimensions;
                 $header .= "<td><img src='$src' width='$width' height='$height' hspace='3' alt='$alt'/></td>";
             }
-            $header .= "<td>" . LJ::ljuser( $u, { full => 1 } );
+            $header .= "<td>" . LJ::ljuser( $up, { full => 1 } );
             $header .= " - " . $up->name_html unless $up->is_suspended;
             $header .= "</td></tr></table>\n"
         }
