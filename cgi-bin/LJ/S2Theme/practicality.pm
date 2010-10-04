@@ -9,26 +9,26 @@ sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::practicality::cherryblossoms;
 use base qw( LJ::S2Theme::practicality );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::practicality::chococraze;
 use base qw( LJ::S2Theme::practicality );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::practicality::neutralgood;
 use base qw( LJ::S2Theme::practicality );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::practicality::nightlight;
 use base qw( LJ::S2Theme::practicality );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::practicality::poppyfields;
 use base qw( LJ::S2Theme::practicality );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::practicality::warmth;
 use base qw( LJ::S2Theme::practicality );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 1;

@@ -39,7 +39,7 @@ sub entry_props {
 
 package LJ::S2Theme::brittle::argyle;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "edgeraven" }
 
 package LJ::S2Theme::brittle::barnhouse;
@@ -49,17 +49,17 @@ sub designer { "edgeraven" }
 
 package LJ::S2Theme::brittle::buttercupyellow;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "edgeraven" }
 
 package LJ::S2Theme::brittle::certainfrogs;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "edgeraven" }
 
 package LJ::S2Theme::brittle::chinesepink;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "edgeraven" }
 
 package LJ::S2Theme::brittle::drab;

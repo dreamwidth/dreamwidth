@@ -17,7 +17,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::modular::calculatedrisks;
 use base qw( LJ::S2Theme::modular );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::modular::coffeeandcream;
@@ -35,7 +35,7 @@ sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::modular::greensummer;
 use base qw( LJ::S2Theme::modular );
-sub cats { qw ( featured ) }
+sub cats { qw () }
 
 package LJ::S2Theme::modular::irisatdusk;
 use base qw( LJ::S2Theme::modular );
@@ -51,7 +51,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::modular::patchwork;
 use base qw( LJ::S2Theme::modular );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::modular::purplehaze;
@@ -61,7 +61,7 @@ sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::modular::subtlemisses;
 use base qw( LJ::S2Theme::modular );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::modular::swiminthesea;

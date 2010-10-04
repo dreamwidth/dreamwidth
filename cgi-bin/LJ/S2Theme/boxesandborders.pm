@@ -21,7 +21,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::boxesandborders::lightondark;
 use base qw( LJ::S2Theme::boxesandborders );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "cesy" }
 
 package LJ::S2Theme::boxesandborders::nnwm2009;
@@ -39,7 +39,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::boxesandborders::poppyfields;
 use base qw( LJ::S2Theme::boxesandborders );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::boxesandborders::rainyday;
@@ -48,17 +48,17 @@ sub cats { qw() }
 
 package LJ::S2Theme::boxesandborders::retrocandy;
 use base qw( LJ::S2Theme::boxesandborders );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::boxesandborders::silverfox;
 use base qw( LJ::S2Theme::boxesandborders );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::boxesandborders::sunnydays;
 use base qw( LJ::S2Theme::boxesandborders );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 1;

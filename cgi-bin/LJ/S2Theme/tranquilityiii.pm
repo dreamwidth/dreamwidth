@@ -13,12 +13,12 @@ sub cats { qw() }
 
 package LJ::S2Theme::tranquilityiii::clearmessages;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::tranquilityiii::deeppurple;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::freshblue;
@@ -56,7 +56,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::seadeep;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::tranquilityiii::shallows;
@@ -66,7 +66,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::stonemask;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::tranquilityiii::wintergreen;

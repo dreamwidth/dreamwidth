@@ -9,7 +9,7 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::basicboxes::acidic;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::basicboxes::burgundy;
@@ -35,7 +35,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::freshwater;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::basicboxes::leaf;
@@ -44,12 +44,12 @@ sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::manilaenvelope;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::basicboxes::parchmentandink;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::basicboxes::peach;
@@ -58,12 +58,12 @@ sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::pleasantneutrality;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::basicboxes::poppyfields;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::basicboxes::repose;

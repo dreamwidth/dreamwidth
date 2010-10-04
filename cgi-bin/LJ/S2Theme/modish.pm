@@ -9,12 +9,12 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::modish::bluespruce;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "sarken" }
 
 package LJ::S2Theme::modish::cinnamonplumtea;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "sarken" }
 
 package LJ::S2Theme::modish::cleansheets;
@@ -29,12 +29,12 @@ sub designer { "twtd" }
 
 package LJ::S2Theme::modish::houlihan;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "sarken" }
 
 package LJ::S2Theme::modish::moonlight;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "sarken" }
 
 package LJ::S2Theme::modish::nnwm2009;
@@ -49,17 +49,17 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::modish::porcelainteacup;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "sarken" }
 
 package LJ::S2Theme::modish::trusty;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "sarken" }
 
 package LJ::S2Theme::modish::verdigris;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 1;

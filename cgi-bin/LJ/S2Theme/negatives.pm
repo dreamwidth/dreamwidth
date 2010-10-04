@@ -28,7 +28,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::negatives::bridalbouquet;
 use base qw( LJ::S2Theme::negatives );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "busaikko" }
 
 package LJ::S2Theme::negatives::corporateembrace;

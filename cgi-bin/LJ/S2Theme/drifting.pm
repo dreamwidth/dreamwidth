@@ -44,7 +44,7 @@ sub designer { "ambrya" }
 
 package LJ::S2Theme::drifting::sweetpossibilities;
 use base qw( LJ::S2Theme::drifting );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "timeasmymeasure" }
 
 package LJ::S2Theme::drifting::winterclarity;

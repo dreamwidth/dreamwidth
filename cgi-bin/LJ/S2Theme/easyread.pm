@@ -38,7 +38,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::easyread::lcorange;
 use base qw( LJ::S2Theme::easyread );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::easyread::nnwm2009;

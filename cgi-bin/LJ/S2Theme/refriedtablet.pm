@@ -49,7 +49,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::refriedtablet::teals;
 use base qw( LJ::S2Theme::refriedtablet );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "edgeraven" }
 
 1;

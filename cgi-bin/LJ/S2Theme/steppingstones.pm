@@ -22,7 +22,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::friendlycolors;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "kareila" }
 
 package LJ::S2Theme::steppingstones::gray;
@@ -40,7 +40,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::pool;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( featured ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::purple;
 use base qw( LJ::S2Theme::steppingstones );
