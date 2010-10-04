@@ -113,8 +113,8 @@ body<=
         if ( $remote->equals( $su ) ) {
             $ignore_security = 1;
 
-        # or a comm you're in ...
-        } elsif ( $su->is_community && $remote->member_of( $su ) ) {
+        # or a comm you administer...
+        } elsif ( $su->is_community && $remote->can_manage( $su ) ) {
             $ignore_security = 1;
 
         # otherwise, if they trust you, get the mask ...
