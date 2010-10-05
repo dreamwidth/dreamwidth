@@ -400,8 +400,9 @@ body<=
         if ( ( $exists && $e_int ne $interest ) || length( $e_int ) > LJ::CMAX_SITEKEYWORD ) {
 
             # if the searched-for interest is too long, we use the short version from here on
-            $interest = $exists ? $interest : substr ( $e_int, 0, LJ::CMAX_SITEKEYWORD );
-            $ret .= "<?p " . BML::ml( '.error.longinterest', { sitename => $LJ::SITENAMESHORT, old_int => $e_int, new_int => $interest, maxlen => LJ::CMAX_SITEKEYWORD } ) . " p?>";
+            my $e_int_long = $e_int;
+            $e_int = $exists ? LJ::ehtml( $exists ) : substr( $e_int, 0, LJ::CMAX_SITEKEYWORD );
+            $ret .= "<?p " . BML::ml( '.error.longinterest', { sitename => $LJ::SITENAMESHORT, old_int => $e_int_long, new_int => $e_int, maxlen => LJ::CMAX_SITEKEYWORD } ) . " p?>";
         }
 
         $ret .= "<table>";
@@ -487,14 +488,14 @@ body<=
             }
 
             if (@cl) {
-                $ret .= "<h1>" . BML::ml(".communities.header", {'interest' => $interest}) ."</h1>";
+                $ret .= "<h1>" . BML::ml( ".communities.header", { interest => $e_int } ) ."</h1>";
                 $ret .= "<p class='matches'><b>" . BML::ml('.matches2', {'num' => $count}) . "</b><ul class='contentlist'>$list</ul></p>";
             }
         }
 
         ##### users
 
-        $ret .= "<h1>" . BML::ml(".users.header", {'interest' => $interest}) . "</h1>\n<p class='interestinfo'>";
+        $ret .= "<h1>" . BML::ml( ".users.header", { interest => $e_int } ) . "</h1>\n<p class='interestinfo'>";
         if ($remote) {
             $ret .= " " . BML::ml('.addint2', {'aopts' => "href='$LJ::SITEROOT/interests?mode=add&amp;intid=$intid'"});
         }
