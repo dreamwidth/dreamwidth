@@ -63,6 +63,10 @@ sub check_html {
 
     my $r = DW::Request->get;
     my ( $iwrite, $iread ) = $r->spawn( $self->{command}, $self->{command_args} );
+
+    # bail out here if we can't spawn the process
+    return "<?errorbar Could not initialize spell checker. Please open a support request if you see this message more than once. errorbar?>"
+        unless $iwrite && $iread;
     
     my $read_data = sub {
         my ( $fh ) = @_;
