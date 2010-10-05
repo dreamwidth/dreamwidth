@@ -54,7 +54,9 @@ sub parse_feed
 
     if ( (defined $type && $type eq 'atom') || $content =~ m!\<feed!) {
         # try treating it as an atom feed
-        $parser = new XML::Parser(Style=>'Stream', Pkg=>'LJ::ParseFeed::Atom');
+        $parser = new XML::Parser( Style => 'Stream',
+                                   Namespaces => 1,
+                                   Pkg => 'LJ::ParseFeed::Atom' );
         return ("", "failed to create XML parser") unless $parser;
         eval {
             $parser->parse($content);
