@@ -421,9 +421,9 @@ body<=
         # no results
         unless ( $exists ) {
             $ret .= "<?h1 $ML{'.nocomms.header'} h1?><?p ";
-            $ret .= BML::ml( '.nocomms.text', { 'int' => $interest, 'aopts' => qq(href="$LJ::SITEROOT/community/create") } );
+            $ret .= BML::ml( '.nocomms.text', { 'int' => $e_int, 'aopts' => qq(href="$LJ::SITEROOT/community/create") } );
             $ret .= " p?><?h1 $ML{'.nousers.header'} h1?><?p ";
-            $ret .= BML::ml( '.nousers.text', { 'int' => $interest, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests'" } );
+            $ret .= BML::ml( '.nousers.text', { 'int' => $e_int, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests'" } );
             $ret .= " p?>";
             return $ret;
         } 
