@@ -52,6 +52,7 @@ sub mood_handler {
         my $metadata = DW::Mood->get_moods;
 
         foreach my $moodid ( @$moods ) {
+            next unless $metadata->{$moodid};
             $score += $metadata->{$moodid}->{weight} || 50;
             $counts{$metadata->{$moodid}->{name}}++;
         }
