@@ -3618,6 +3618,8 @@ shop.item.points.name=[[num]] [[sitename]] Points
 
 shop.item.rename.canbeadded.invalidjournaltype=You can only send a rename token to a personal journal. To rename a community, have a community administrator use the token.
 
+shop.item.rename.note=Tokens can be used at the <a [[aopts]]>rename page</a>.
+
 shop.item.rename.name.notoken=[[points]] points for a Rename Token
 
 shop.item.rename.name.hastoken=Rename Token <a [[aopts]]>[[token]]</a>

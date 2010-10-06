@@ -280,6 +280,18 @@ sub name_html {
 }
 
 
+=head2 C<< $self->note >>
+
+Render a note to the user about this item.
+
+Subclasses may override to provide a brief note about this item.
+
+=cut
+
+sub note {
+    return "";
+}
+
 =head2 C<< $self->short_desc >>
 
 Returns a short string talking about what this is.
