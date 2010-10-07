@@ -1,0 +1,85 @@
+[%# rename_edit.tt
+
+Interface to edit rename options.
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = "Detailed Rename View"; -%]
+[%- dw.need_res( 'stc/rename.css' ) -%]
+
+[% IF error_list %]
+    <p>Error</p>
+    <ul class='error-list'>
+        [% FOREACH error = error_list %]
+            <li>[% error %] </li>
+        [% END %]
+    </ul>
+[% END %]
+
+[% IF token %]
+    <form method="POST" id="renameform">
+        [%- dw.form_auth # hidden input field HTML -%]
+
+        <fieldset class="rename">
+            <legend>Account information</legend>
+            <div class="formfield">
+                <label>Rename: </label>     [% form.from %] --> [% form.to %]
+            </div>
+            <div class="formfield">
+                <label>Account: </label>    [% form.user.ljuser_display %]
+            </div>
+            <div class="formfield">
+                <label>Renamed by: </label> [% form.byuser.ljuser_display %]
+            </div>
+
+        </fieldset>
+
+        [% scope = dw.ml_scope( ); CALL dw.ml_scope( '/rename.tt' ) %]
+        <h2>Options chosen</h2>
+        <p>You will need to check the "override" to override the displayed options.</p>
+        <fieldset>
+        <legend>Username redirection options</legend>
+        <input type="checkbox" name="override_redirect" id="override_redirect" /><label for="override_redirect">Override</label>
+        <div class="formfield">
+            <input type="radio" name="redirect" value="forward" id="redirect_forward" disabled="disabled" [% 'checked="checked"' IF form.redirect == "forward" %]/><label for="redirect_forward">[%- '.form.rename.forward.label.' _ form.journaltype | ml %]</label>
+            <p class="note">Cannot reconnect the journal once disconnected.</p>
+        </div>
+        <div class="formfield">
+            <input type="radio" name="redirect" value="disconnect" id="redirect_disconnect" [% 'checked="checked"' IF form.redirect == 'disconnect' %]/><label for="redirect_disconnect">[%- '.form.rename.disconnect.label.' _ form.journaltype | ml %]</label>
+        </div>
+        </fieldset>
+
+        [% IF form.rel_types.size > 0 %]
+        <fieldset class="relationships">
+            <legend>[% '.form.relationships.header' | ml %]</legend>
+            <input type="checkbox" name="override_relationships" id="override_relationships" /><label for="override_relationships">Override</label>
+            <p class="note">be careful when leaving these unchecked! We cannot recover the list once the relationships have been broken, so make sure you don't carry over old opts. Otherwise you may delete everyone the user has added since they renamed</p>
+            [% FOREACH rel IN form.rel_types %]
+                <div class="formfield">
+                    <input type="checkbox" name="rel_options" value="[% rel %]" id="rel_[% rel %]" [%- 'checked="checked"' IF form.rel_options.$rel -%] /><label for="rel_[% rel %]">[% ".form.relationships.$rel" | ml %]</label>
+                </div>
+            [% END %]
+        </fieldset>
+        [% END %]
+
+        <fieldset class="others">        
+            <legend>[% '.form.others.header' | ml %]</legend>
+            <input type="checkbox" name="override_others" id="override_others" /><label for="override_others">Override</label>
+            <div class="formfield">
+                <input type="checkbox" name="others" value="email" id="others_email" [%- 'checked="checked"' IF form.others.email -%]/><label for="others_email">[% '.form.others.email' | ml( sitename = site.nameshort ) %] <span id="others_email_note">([% '.form.others.email.note' | ml %])</span></label>
+                <p class="note">Cannot reconnect the email once disconnected.</p>
+            </div>
+        </fieldset>
+
+        <input type="submit" value="Override rename options" />
+    </form>
+    [% CALL dw.ml_scope( scope ); %]
+[% ELSE %]
+Need to provide token. <a href="[%site.root%]/admin/rename">Back to start?</a>
+[% END %]

@@ -1,0 +1,46 @@
+[%# admin/rename.tt
+
+Admin page for renames
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% sections.title = '.title' | ml %]
+
+[% IF renames %]
+    [% IF renames.size == 0 %]
+        <p>[% '.renames.list.empty' | ml( user = user ) | html %]</p>
+    [% ELSE %]
+        <table>
+            <tr><th>From</th><th>To</th><th>Renamed by</th><th>Account renamed</th><th>Renamed on</th></tr>
+        
+            [% FOREACH rename = renames %]
+            <tr>
+                <td>[%rename.from | html %]</td>
+                <td>[%rename.to | html %]</td>
+                <td>[%rename.owner.ljuser_display %]</td>
+                <td>[%rename.target.ljuser_display %]</td>
+                <td>[%rename.date%]</td>
+                <td><a href="[%site.root%]/admin/rename/edit?token=[%rename.token%]">[% '.renames.list.item.details' | ml | html %]</a></td>
+            </tr>
+            [% END %]
+        </table>
+    [% END %]
+[% END %]
+
+[% IF user %]
+<p>
+<a href="[%site.root%]/admin/rename">Return to renames lookup</a>
+</p>
+[% ELSE %]
+<form method="GET">
+    <label for="user">Username:</label> <input type="text" name="user" id="user"/>
+    <input type="submit" value="Look up user name" />
+</form>
+[% END %]
+

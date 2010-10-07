@@ -183,6 +183,42 @@ sub by_owner_unused {
     return @tokens ? [ @tokens ] : undef;
 }
 
+=head2 C<< $class->by_username( user => username ) >>
+
+Return a list of renames involving this username (either to this username, or from this username)
+
+=cut
+
+sub by_username {
+    my ( $class, %opts ) = @_;
+
+    # this assumes that we haven't changed what makes a valid username
+    #   so that we would be querying a username that was valid but is now invalid
+    # seems safe enough to start with
+    my $user = LJ::canonical_username( $opts{user} );
+    return unless $user;
+
+    my $dbr = LJ::get_db_reader();
+    my $sth = $dbr->prepare( "SELECT renid, auth, cartid, ownerid, renuserid, fromuser, touser, rendate FROM renames " .
+                             "WHERE fromuser=? OR touser=?" )
+        or die "Unable to retrieve list of rename tokens involving a username";
+
+    $sth->execute( $user, $user )
+        or die "Unable to retrieve list of rename tokens involving a username";
+
+    my @tokens;
+
+    while (my $token = $sth->fetchrow_hashref) {
+        my $ret = fields::new( $class );
+        while (my ($k, $v) = each %$token) {
+            $ret->{$k} = $v;
+        }
+        push @tokens, $ret;
+    }
+
+    return @tokens ? [ @tokens ] : undef;
+}
+
 =head2 C<< $class->_encode( $id, $auth ) >>
 
 Internal. Given a rename token id and a 13-digit auth code, returns a 20-digit
@@ -275,6 +311,57 @@ sub apply {
     }
 
     return 1;
+}
+
+=head2 C<< $self->details >>
+
+Get the details from the log for admin use. Not cached and pretty inefficient.
+Also, does not check for privs (leave that to the caller)
+
+=cut
+
+sub details {
+    my $self = $_[0];
+
+    my $u = LJ::load_userid( $self->renuserid );
+    return unless LJ::isu( $u );
+
+    # get more than we need and filter, just in case the timestamps don't match up perfectly
+    my $results = $u->selectall_arrayref(
+        "SELECT userid, logtime, action, extra FROM userlog "
+        . "WHERE userid=? AND action='rename' AND logtime >= ? ORDER BY logtime LIMIT 3",
+        { Slice => {} } , $u->userid, $self->rendate );
+
+    foreach my $row ( @{$results || []} ) {
+        my $extra = {};
+        LJ::decode_url_string( $row->{extra}, $extra );
+
+        if ( $extra->{from} eq $self->fromuser && $extra->{to} eq $self->touser ) {
+            $row->{from} = $extra->{from};
+            $row->{to} = $extra->{to};
+
+            foreach ( split( ":", $extra->{redir} ) ) {
+                $row->{redirect}->{ {
+                        J => "username", #journal/username
+                        E => "email",
+                }->{$_} } = 1;
+            }
+
+            foreach ( split( ":", $extra->{del} ) ) {
+                $row->{del}->{ {
+                        TB => "trusted_by",
+                        WB => "watched_by",
+                        T  => "trusted",
+                        W  => "watched",
+                        C  => "communities",
+                }->{$_} } = 1;
+            }
+
+            return $row;
+        }
+    }
+
+    return {};
 }
 
 # accessors

@@ -283,33 +283,23 @@ sub _rename {
 
     $token->apply( userid => $self->userid, from => $fromusername, to => $tousername );
 
-    $self->break_redirects;
-    DW::User::Rename->create_redirect_journal( $fromusername, $tousername ) if $opts{redirect};
-
-    my $del = "";
-    if ( $self->is_personal ) {
-        $del = $self->delete_relationships(
-            del_trusted_by => $opts{del_trusted_by},
-            del_watched_by => $opts{del_watched_by},
-            del_trusted => $opts{del_trusted},
-            del_watched => $opts{del_watched},
-            del_communities => $opts{del_communities} );
-    }
-
-    # this deletes the email under the old username
-    DW::User::Rename->break_email_redirection( $fromusername, $tousername ) unless $opts{redirect} && $opts{redirect_email};
+    $self->apply_rename_opts(
+        from     => $fromusername,
+        to       => $tousername,
+        redirect => {
+            username => $opts{redirect},
+            email    => $opts{redirect_email},
+        },
+        del => {
+            map { $_ => $opts{$_} } qw( del_trusted_by del_watched_by del_trusted del_watched del_communities ),
+        }, 
+        user => $opts{user},
+    );
 
     # update current object to new username, and update the email under the new username
     $self->{user} = $tousername;
     $self->update_email_alias;
 
-    my @redir;
-    push @redir, "J" if $opts{redirect};
-    push @redir, "E" if $opts{redirect} && $opts{redirect_email};
-
-    my $remote = LJ::isu( $opts{user} ) ? $opts{user} : $self;
-    $self->log_event( 'rename', { from => $fromusername, to => $tousername, remote => $remote, del => $del, redir => join( ":", @redir ) } );
-    
     # infohistory
     LJ::infohistory_add( $self, "username", $fromusername );
 
@@ -321,6 +311,92 @@ sub _rename {
     })->fire;
 
     return 1;
+}
+
+=head2 C<< $self->apply_rename_opts >>
+
+Apply the stated rename options. Will log.
+
+
+Arguments are:
+=item from, original username (required)
+=item to, new username (required)
+=item user, user doing the work if separate from user being renamed, e.g., admin of a community (optional)
+=item redirect => hashref. (optional) If provided, will handle initial redirect information. If false, will leave as-is.
+=item del      => hashref. (optional) If provided, will delete all relationships of the provided types.
+=item break_redirect => hashref. (optional) If provided, will break existing redirects
+
+redirect/break_redirect hashref:
+=item username, bool, forward or disconnect username. Default disconnect
+=item email, bool, forward or disconnect email. Default disconnect
+
+del hashref:
+=item del_trusted_by
+=item del_watched_by
+=item del_trusted
+=item del_watched
+=item del_communities 
+
+=cut
+sub apply_rename_opts {
+    my ( $self, %opts ) = @_;
+
+    my $from = delete $opts{from};
+    my $to = delete $opts{to};
+
+    my $user = delete $opts{user};
+
+    my %extra_args;
+
+    if ( exists $opts{redirect} && $from && $to ) {
+        if ( exists $opts{redirect}->{username} ) {
+            # break outgoing redirects
+            # we don't want this journal pointing anywhere else, to avoid long chains or possible loops
+            $self->break_redirects;
+            DW::User::Rename->create_redirect_journal( $from, $to )
+                if $opts{redirect}->{username};
+        }
+
+        # this deletes the email under the old username
+        DW::User::Rename->break_email_redirection( $from, $to )
+            unless $opts{redirect}->{username} && $opts{redirect}->{email};
+
+        my @redir;
+        push @redir, "J" if $opts{redirect}->{username};
+        push @redir, "E" if $opts{redirect}->{username} && $opts{redirect}->{email};
+
+        $extra_args{redir} = join( ":", @redir );
+    }
+
+    if ( exists $opts{break_redirect} ) {
+        # break incoming redirects
+        if ( $opts{break_redirect}->{username} ) {
+            my $redirect_u = LJ::load_user( $from );
+            $redirect_u->break_redirects;
+            $redirect_u->set_statusvis( "D" );
+        }
+
+        DW::User::Rename->break_email_redirection( $from, $to )
+            if $opts{break_redirect}->{email};
+
+        my @break;
+        push @break, "J" if $opts{break_redirect}->{username};
+        push @break, "E" if $opts{break_redirect}->{email};
+
+        $extra_args{break} = join( ":", @break );
+    }
+
+    $extra_args{del} = $self->delete_relationships( %{$opts{del}} )
+        if %{$opts{del} || {}};
+
+    $extra_args{from} = $from if $from;
+    $extra_args{to} = $to if $to;
+    
+    my $remote = LJ::isu( $user ) ? $user : $self;
+    $self->log_event( 'rename', {
+        remote => $remote,
+        %extra_args,
+    } );
 }
 
 =head2 C<< $self->break_redirects >>
@@ -488,6 +564,7 @@ sub _rename_to_ex {
 *LJ::User::rename = \&rename;
 *LJ::User::swap_usernames = \&swap_usernames;
 
+*LJ::User::apply_rename_opts = \&apply_rename_opts;
 *LJ::User::break_redirects = \&break_redirects;
 *LJ::User::delete_relationships = \&delete_relationships;
 

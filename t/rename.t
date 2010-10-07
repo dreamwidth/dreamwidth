@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 96;
+plan tests => 137;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -134,6 +134,89 @@ note( "-- user-to-user, with redirect" );
     ok( $orig_u->is_redirect, "Chose to redirect this rename" );
     is( $orig_u->get_renamed_user->user, $tousername, "Confirm redirect from $fromusername to $tousername" );
 
+}
+
+note ( "-- rename opts: deleting relationships" );
+{
+    my ( $u ) = temp_user();
+    my $tousername = $u->user . "_renameto";
+
+    my $watcher = temp_user();
+    my $truster = temp_user();
+    my $watched = temp_user();
+    my $trusted = temp_user();
+    my $comm = temp_comm();
+
+    $watcher->add_edge( $u, watch => { nonotify => 1 } );
+    $truster->add_edge( $u, trust => { nonotify => 1 } );
+    $u->add_edge( $watched, watch => { nonotify => 1 } );
+    $u->add_edge( $trusted, trust => { nonotify => 1 } );
+    $u->add_edge( $comm, watch => { nonotify => 1 } );
+
+    ok( $watcher->watches( $u ), "User has a watcher." );
+    ok( $truster->trusts( $u ), "User has a truster." );
+    ok( $u->watches( $watched ), "User watches someone." );
+    ok( $u->trusts( $trusted ), "User trusts someone." );
+    ok( $u->watches( $comm ), "User watches a comm." );
+
+    # no arguments means nothing was deleted
+    $u->apply_rename_opts();
+    ok( $watcher->watches( $u ), "User has a watcher." );
+    ok( $truster->trusts( $u ), "User has a truster." );
+    ok( $u->watches( $watched ), "User watches someone." );
+    ok( $u->trusts( $trusted ), "User trusts someone." );
+    ok( $u->watches( $comm ), "User watches a comm." );
+
+    $u->apply_rename_opts( del => { del_watched_by => 1 } );
+    ok( ! $watcher->watches( $u ), "User has no watcher." );
+    ok( $truster->trusts( $u ), "User has a truster." );
+    ok( $u->watches( $watched ), "User watches someone." );
+    ok( $u->trusts( $trusted ), "User trusts someone." );
+    ok( $u->watches( $comm ), "User watches a comm." ); 
+    $watcher->add_edge( $u, watch => { nonotify => 1 } );
+
+    $u->apply_rename_opts( del => { del_trusted_by => 1 } );
+    ok( $watcher->watches( $u ), "User has a watcher." );
+    ok( ! $truster->trusts( $u ), "User has no truster." );
+    ok( $u->watches( $watched ), "User watches someone." );
+    ok( $u->trusts( $trusted ), "User trusts someone." );
+    ok( $u->watches( $comm ), "User watches a comm." );
+    $truster->add_edge( $u, trust => { nonotify => 1 } );
+
+    $u->apply_rename_opts( del => { del_watched => 1 } );
+    ok( $watcher->watches( $u ), "User has a watcher." );
+    ok( $truster->trusts( $u ), "User has a truster." );
+    ok( ! $u->watches( $watched ), "User does not watch anyone." );
+    ok( $u->trusts( $trusted ), "User trusts someone." );
+    ok( $u->watches( $comm ), "User watches a comm." );
+    $u->add_edge( $watched, watch => { nonotify => 1 } );
+
+    $u->apply_rename_opts( del => { del_trusted => 1 } );
+    ok( $watcher->watches( $u ), "User has a watcher." );
+    ok( $truster->trusts( $u ), "User has a truster." );
+    ok( $u->watches( $watched ), "User watches someone." );
+    ok( ! $u->trusts( $watched ), "User does not trust anyone." );
+    ok( $u->watches( $comm ), "User watches a comm." );
+    $u->add_edge( $trusted, trust => { nonotify => 1 } );
+
+    $u->apply_rename_opts( del => { del_communities => 1 } );
+    ok( $watcher->watches( $u ), "User has a watcher." );
+    ok( $truster->trusts( $u ), "User has a truster." );
+    ok( $u->watches( $watched ), "User watches someone." );
+    ok( $u->trusts( $trusted ), "User trusts someone." );
+    ok( ! $u->watches( $comm ), "User does not watch a comm." );
+
+    ok( $u->rename( $tousername, token => new_token( $u ), redirect => 0, del_trusted_by => 1, del_watched_by => 1 ), "Rename, break watchers and trusters" );
+    ok( ! $watcher->watches( $u ), "User has no watcher." );
+    ok( ! $truster->trusts( $u ), "User has no truster." );
+    ok( $u->watches( $watched ), "User watches someone." );
+    ok( $u->trusts( $trusted ), "User trusts someone." );
+    ok( ! $u->watches( $comm ), "User does not watch a comm." );
+}
+
+note( "-- rename opts: breaking email redirection" );
+TODO: {
+    local $TODO = "-- rename opts: breaking email redirection";
 }
 
 note( "-- personal-to-personal, authorization" );
