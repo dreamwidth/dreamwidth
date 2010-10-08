@@ -893,6 +893,7 @@ register_tabledrop("captchas");
 register_tabledrop("captcha_session");
 register_tabledrop("qotd");
 register_tabledrop("zip");
+register_tabledrop("openid_external");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -1910,15 +1911,6 @@ CREATE TABLE openid_endpoint (
     PRIMARY KEY  (endpoint_id),
     UNIQUE KEY url (url),
     KEY last_assert_time (last_assert_time)
-)
-EOC
-
-register_tablecreate("openid_external", <<'EOC');
-CREATE TABLE openid_external (
-    userid int(10) unsigned NOT NULL default '0',
-    url varchar(255) binary default NULL,
-
-    KEY userid (userid)
 )
 EOC
 
