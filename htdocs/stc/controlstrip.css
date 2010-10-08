@@ -97,6 +97,7 @@ html body
     font-size: 11px;
     line-height: 16.5px;
     background-color: Menu;
+    color: MenuText;
     padding: 0;
     margin: 0;
 }
