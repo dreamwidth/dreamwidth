@@ -390,18 +390,18 @@ body<=
             return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.ignored'} p?>";
         }
 
-        my $e_int = LJ::ehtml($GET{int});
+        my $e_int = LJ::ehtml( $check_int );
 
         my $ret = '';
 
-        # determine whether the interest is too long: if the interest already exists, a long interest will result in $e_int and the return value of LJ::get_interest not matching
-        # if it didn't already exist, we fall back on just checking the length of $e_int
-        my $exists = $interest;
-        if ( ( $exists && $e_int ne $interest ) || length( $e_int ) > LJ::CMAX_SITEKEYWORD ) {
+        # determine whether the interest is too long:
+        # 1. if the interest already exists, a long interest will result in $check_int and $interest not matching
+        # 2. if it didn't already exist, we fall back on just checking the length of $check_int
+        if ( ( $interest && $check_int ne $interest ) || length( $check_int ) > LJ::CMAX_SITEKEYWORD ) {
 
             # if the searched-for interest is too long, we use the short version from here on
             my $e_int_long = $e_int;
-            $e_int = $exists ? LJ::ehtml( $exists ) : substr( $e_int, 0, LJ::CMAX_SITEKEYWORD );
+            $e_int = LJ::ehtml( $interest ? $interest : substr( $check_int, 0, LJ::CMAX_SITEKEYWORD ) );
             $ret .= "<?p " . BML::ml( '.error.longinterest', { sitename => $LJ::SITENAMESHORT, old_int => $e_int_long, new_int => $e_int, maxlen => LJ::CMAX_SITEKEYWORD } ) . " p?>";
         }
 
@@ -420,7 +420,7 @@ body<=
         $ret .= "</table>";
 
         # no results
-        unless ( $exists ) {
+        unless ( $interest ) {
             $ret .= "<?h1 $ML{'.nocomms.header'} h1?><?p ";
             $ret .= BML::ml( '.nocomms.text', { 'int' => $e_int, 'aopts' => qq(href="$LJ::SITEROOT/community/create") } );
             $ret .= " p?><?h1 $ML{'.nousers.header'} h1?><?p ";
