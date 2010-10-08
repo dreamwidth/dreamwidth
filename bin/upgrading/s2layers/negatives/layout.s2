@@ -533,6 +533,11 @@ function Page::print_default_stylesheet()
         list-style-position: inside;
         }
 
+    .entry .footer,
+    .comment .footer {
+        clear: both;
+    }
+
     .entry-management-links, .entry-management-links a,
     .entry-interaction-links, .entry-interaction-links a,
     .comment-interaction-links, .comment-interaction-links a{
