@@ -494,8 +494,8 @@ sub set_current_uniq {
 
     return unless LJ::is_web_context();
 
-    my $r = BML::get_request();
-    $r->notes->{uniq} = $uniq if $r;
+    my $r = DW::Request->get;
+    $r->note( uniq => $uniq );
 
     return;
 }
