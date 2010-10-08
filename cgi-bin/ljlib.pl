@@ -139,6 +139,7 @@ require "ljtimeutil.pl";
 require "ljcapabilities.pl";
 use DW::Mood;
 require "ljrelation.pl";
+require "imageconf.pl";
 
 require "$LJ::HOME/cgi-bin/ljlib-local.pl"
     if -e "$LJ::HOME/cgi-bin/ljlib-local.pl";
