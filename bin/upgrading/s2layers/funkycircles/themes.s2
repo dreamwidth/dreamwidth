@@ -2,7 +2,7 @@
 layerinfo type = "theme";
 layerinfo name = "Atomic Orange";
 layerinfo redist_uniq = "funkycircles/atomicorange";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 
 set layout_resources = [ { "name" => "Stuck in Tokyo", "url" => "http://www.colourlovers.com/palette/519675/stuck_in_tokyo" } ];
 
@@ -97,7 +97,7 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Chocolate Rose";
 layerinfo redist_uniq = "funkycircles/chocolaterose";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 
 set layout_resources = [ { "name" => "Dirty Flamingo", "url" => "http://www.colourlovers.com/palette/854961/Dirty_Flamingo" } ];
 
@@ -169,7 +169,7 @@ set image_module_list_hover = "funkycircles/chocolaterose-modulebullethover.png"
 layerinfo type = "theme";
 layerinfo name = "Dark Blue";
 layerinfo redist_uniq = "funkycircles/darkblue";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 
 ##===============================
 ## Page Colors
@@ -238,7 +238,7 @@ set image_module_list_hover = "funkycircles/darkblue-modulebullethover.png";
 layerinfo type = "theme";
 layerinfo name = "Dark Purple";
 layerinfo redist_uniq = "funkycircles/darkpurple";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 
 set layout_resources = [ { "name" => "Smoke Curl", "url" => "http://www.colourlovers.com/palette/861192/Smoke_Curl" } ];
 
@@ -309,7 +309,7 @@ set image_module_list_hover = "funkycircles/darkpurple-modulebullethover.jpg";
 layerinfo type = "theme";
 layerinfo name = "Earthy Green";
 layerinfo redist_uniq = "funkycircles/earthygreen";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 
 set layout_resources = [ { "name" => "Good Mood Bug", "url" => "http://www.colourlovers.com/palette/621076/good_mood_bug" } ];
 
@@ -398,7 +398,7 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Industrial Pink";
 layerinfo redist_uniq = "funkycircles/industrialpink";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 
 ##===============================
 ## Page Colors
@@ -489,7 +489,7 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Industrial Teal";
 layerinfo redist_uniq = "funkycircles/industrialteal";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 
 set layout_resources = [ { "name" => "Top of the Pops", "url" => "http://www.colourlovers.com/palette/943055/Top_of_the_Pops" } ];
 
@@ -800,7 +800,7 @@ set color_module_title = "#ef8229";
 layerinfo type = "theme";
 layerinfo name = "Sea Blues";
 layerinfo redist_uniq = "funkycircles/seablues";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 
 ##===============================
 ## Page Colors

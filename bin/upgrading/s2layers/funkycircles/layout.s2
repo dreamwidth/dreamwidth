@@ -1,7 +1,7 @@
 layerinfo "type" = "layout";
 layerinfo "name" = "Funky Circles";
 layerinfo redist_uniq = "funkycircles/layout";
-layerinfo author_name = "900degrees";
+layerinfo author_name = "ninetydegrees";
 layerinfo lang = "en";
 
 ##===============================
@@ -61,7 +61,7 @@ set text_posting_in = " in ";
 set entry_management_links = "text";
 set comment_management_links = "text";
 set custom_colors_template = "%%new%% .entry .contents .userpic img {background-color: %%background%%;} %%new%% .entry-title a {color: %%foreground%%;}";
-set layout_authors = [ { "name" => "900degrees", "type" => "user" } ];
+set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
 
 #=================
 # Fonts
