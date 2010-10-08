@@ -1817,6 +1817,8 @@ esn.supofficialpost.subscribtion.html=[[sitename]] makes a new announcement
 
 esn.tags=The entry is tagged "[[tags]]"
 
+esn.tags.short=Tags: [[tags]]
+
 esn.unscreen_comment=[[openlink]]Unscreen the comment[[closelink]]
 
 esn.view_comments=[[openlink]]View all comments[[closelink]] to this entry

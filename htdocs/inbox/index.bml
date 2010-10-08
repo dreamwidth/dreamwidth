@@ -75,7 +75,10 @@ body<=
     $selected_folder = "entrycomment" if $selected_folder eq "singleentry";
 
     $selected_folder = qq(
-        <style>.filterlink_$view {display: none;}</style>
+        <style>
+            .filterlink_$view {display: none;}
+            .entry-tags {text-align: right; font-style: italic;}
+        </style>
         );
     $head = $selected_folder;
 

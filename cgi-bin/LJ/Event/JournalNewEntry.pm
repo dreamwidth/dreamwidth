@@ -82,10 +82,31 @@ sub content {
     return undef unless $self->_can_view_content( $entry, $target );
 
     return $entry->event_html( {
-            # double negatives, ouch!
-            ljcut_disable => ! $target->cut_inbox,
-            cuturl => $entry->url } )
-        . $self->as_html_actions;
+                # double negatives, ouch!
+                ljcut_disable => ! $target->cut_inbox,
+                cuturl => $entry->url } )
+
+            . $self->as_html_tags( $target )
+            . $self->as_html_actions;
+}
+
+sub as_html_tags {
+    my ( $self, $u ) = @_;
+    my $tags = '';
+    my $url = $self->entry->journal->journal_base;
+    my $lang = $u->prop( 'browselang' );
+
+    my @taglist = $self->entry->tags;
+
+    # add tag info for entries that have tags
+    if ( @taglist ) {
+        my @htmltags = ();
+        push @htmltags, qq{<a href="$url/tag/$_">$_</a>} foreach @taglist;
+
+        $tags = "<div class='entry-tags'>" .  LJ::Lang::get_text( $lang, 'esn.tags.short', undef, { tags => join(', ', @htmltags ) } ).  "</div>";
+    }
+    return $tags;
+
 }
 
 sub content_summary {
@@ -159,6 +180,7 @@ my @_ml_strings_en = (
     'esn.hi',                                       # 'Hi [[username]],',
     'esn.journal_new_entry.about',                  # ' titled "[[title]]"',
     'esn.tags',                                     # 'The entry is tagged "[[tags]]"',
+    'esn.tags.short',                               
     'esn.journal_new_entry.head_comm',              # 'There is a new entry by [[poster]][[about]] in [[journal]]![[tags]]',
     'esn.journal_new_entry.head_user',              # '[[poster]] has posted a new entry[[about]].[[tags]]',
     'esn.you_can',                                  # 'You can:',
