@@ -62,11 +62,15 @@
 
 .preview=This is how your comment will look when posted. Using the form below, you can edit your comment further, or you can submit it as is.
 
+.preview.context=Comment Context
+
 .preview.edit.body=<b>New message: </b>
 
 .preview.edit.editreason=<b>Reason for edit: </b>
 
 .preview.edit.subject=<b>New subject: </b>
+
+.preview.entry.journal=[[user]] posting in [[journal]]
 
 .preview.subject=<b>Subject: </b>
 

@@ -2386,6 +2386,7 @@ sub treat_as_anon {
 package LJ::Talk::Post;
 
 use Text::Wrap;
+use LJ::Entry;
 use LJ::EventLogRecord::NewComment;
 
 sub indent {
@@ -3751,12 +3752,12 @@ sub make_preview {
     my ($talkurl, $cookie_auth, $form) = @_;
     my $ret = "";
 
+    # preview form
+
+    $ret .= "<?h2 $BML::ML{'/talkpost_do.bml.preview.title'} h2?><?p $BML::ML{'/talkpost_do.bml.preview'} p?><?hr?>";
+
     my $cleansubject = $form->{'subject'};
     LJ::CleanHTML::clean_subject(\$cleansubject);
-
-    $ret .= "<?h1 $BML::ML{'/talkpost_do.bml.preview.title'} h1?><?p $BML::ML{'/talkpost_do.bml.preview'} p?><?hr?>";
-    $ret .= "<div align=\"center\"><b>(<a href=\"$talkurl\">$BML::ML{'talk.commentsread'}</a>)</b></div>";
-
     my $event = $form->{'body'};
     my $spellcheck_html;
     # clean first; if the cleaner finds it invalid, don't spellcheck, so that we
@@ -3831,6 +3832,52 @@ sub make_preview {
     $ret .= "de?> </p>";
 
     $ret .= "</form></div>";
+
+    # entry details
+    my $entry = LJ::Entry->new_from_url( $talkurl );
+    if ( $entry && $entry->visible_to( $remote ) ) {
+        $ret .= "<?hr?><?h2 $BML::ML{'/talkpost_do.bml.preview.context'} h2?>";
+
+        if ( my $ju = $entry->journal ) {
+            $ret .= "<?p ";
+
+            my $pu = $entry->poster;
+            if ( $pu && !$pu->equals( $ju ) ) {
+                $ret .= BML::ml( '/talkpost_do.bml.preview.entry.journal',
+                                 { user => $pu->ljuser_display,
+                                   journal => $ju->ljuser_display } );
+            } else {
+                $ret .= $ju->ljuser_display;
+            }
+            $ret .= " @ " . $entry->eventtime_mysql;
+
+            $ret .= " p?>\n";
+        }
+
+        $ret .= "<?p ";
+        ### security indicator
+        my $sec = $entry->security;
+        if ( $sec eq "private" ) {
+            $ret .= BML::fill_template( "securityprivate" );
+        } elsif ( $sec eq "usemask" ) {
+            $ret .= BML::fill_template( "securityprotected" );
+        }
+        $ret .= "&nbsp;<i><b>" . $entry->subject_html . "</b></i>";
+        $ret .= " p?>\n";
+
+        my $cleanopts = { preformatted => $entry->prop( 'opt_preformatted' ),
+                          cuturl => $talkurl };
+        my $truncated;
+        my $summary = $entry->event_html_summary( 1000, $cleanopts, \$truncated );
+
+        $ret .= "<?p ";
+        $ret .= $summary;
+        $ret .= "..." if $truncated;
+        $ret .= " p?>\n";
+    }
+
+    $ret .= "<div align=\"center\"><b>(<a href=\"$talkurl\">$BML::ML{'talk.commentsread'}</a>)</b></div>";
+
     return $ret;
 }
 
