@@ -40,32 +40,32 @@ sub entry_props {
 package LJ::S2Theme::brittle::argyle;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw( featured ) }
-sub designer { "edgeraven" }
+sub designer { "rising" }
 
 package LJ::S2Theme::brittle::barnhouse;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw() }
-sub designer { "edgeraven" }
+sub designer { "rising" }
 
 package LJ::S2Theme::brittle::buttercupyellow;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw( featured ) }
-sub designer { "edgeraven" }
+sub designer { "rising" }
 
 package LJ::S2Theme::brittle::certainfrogs;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw( featured ) }
-sub designer { "edgeraven" }
+sub designer { "rising" }
 
 package LJ::S2Theme::brittle::chinesepink;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw( featured ) }
-sub designer { "edgeraven" }
+sub designer { "rising" }
 
 package LJ::S2Theme::brittle::drab;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw() }
-sub designer { "edgeraven" }
+sub designer { "rising" }
 
 package LJ::S2Theme::brittle::nnwm2009;
 use base qw( LJ::S2Theme::brittle );

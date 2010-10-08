@@ -2,9 +2,9 @@
 layerinfo type = "theme";
 layerinfo name = "Argyle";
 layerinfo redist_uniq = "brittle/argyle";
-layerinfo author_name = "edgeraven";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -52,9 +52,9 @@ set image_background_page_url = "brittle/argyle.png";
 layerinfo type = "theme";
 layerinfo name = "Barnhouse";
 layerinfo redist_uniq = "brittle/barnhouse";
-layerinfo author_name = "edgeraven";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -94,9 +94,9 @@ set color_navigation_module_link_visited = "#4C1C00";
 layerinfo type = "theme";
 layerinfo name = "Buttercup Yellow";
 layerinfo redist_uniq = "brittle/buttercupyellow";
-layerinfo author_name = "edgeraven";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -144,9 +144,9 @@ set image_background_page_url = "brittle/buttercupyellow.png";
 layerinfo type = "theme";
 layerinfo name = "Certain Frogs";
 layerinfo redist_uniq = "brittle/certainfrogs";
-layerinfo author_name = "edgeraven";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -194,9 +194,9 @@ set image_background_page_url = "brittle/certainfrogs.png";
 layerinfo type = "theme";
 layerinfo name = "Chinese Pink";
 layerinfo redist_uniq = "brittle/chinesepink";
-layerinfo author_name = "edgeraven";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
@@ -244,9 +244,9 @@ set image_background_page_url = "brittle/chinesepink.png";
 layerinfo type = "theme";
 layerinfo name = "Drab";
 layerinfo redist_uniq = "brittle/drab";
-layerinfo author_name = "edgeraven";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors

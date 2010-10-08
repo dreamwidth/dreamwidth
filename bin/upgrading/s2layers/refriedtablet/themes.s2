@@ -470,9 +470,9 @@ set color_module_title_background = "#556b80";
 layerinfo type = "theme";
 layerinfo name = "Teals";
 layerinfo redist_uniq = "refriedtablet/teals";
-layerinfo author_name = "edgeraven";
+layerinfo author_name = "rising";
 
-set theme_authors = [ { "name" => "edgeraven", "type" => "user" } ];
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
