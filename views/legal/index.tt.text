@@ -1,14 +1,5 @@
 ;; -*- coding: utf-8 -*-
 
-.title=[[sitename]] Legal Documents
-
-.tos-header=Terms of Service
-
-.tos<<
-The Terms of Service explain our usage policies, including instructions
-on how to report abuse of the site.
-.
-
 .privacy-header=Privacy Policy
 
 .privacy<<
@@ -17,4 +8,12 @@ and how we use that information. It also includes our COPPA (Children's
 Online Privacy Protection Act) statement.
 .
 
+.title=[[sitename]] Legal Documents
+
+.tos-header=Terms of Service
+
+.tos<<
+The Terms of Service explain our usage policies, including instructions
+on how to report abuse of the site.
+.
 

@@ -1,42 +1,36 @@
-<?page
-body<=
-<?_code
-{
-    # Terms of Service
-    #
-    # Authors:
-    #     Janine Smith <janine@netrophic.com>
-    #
-    # Copyright (c) 2009 by Dreamwidth Studios, LLC.
-    #
-    # This program is free software; you may redistribute it and/or modify it under
-    # the same terms as Perl itself.  For a copy of the license, please reference
-    # 'perldoc perlartistic' or 'perldoc perlgpl'.
-    #
+[%# legal/tos.tt
+  #
+  # Terms of Service
+  #
+  # Authors:
+  #     Janine Smith <janine@netrophic.com>
+  #
+  # Copyright (c) 2009 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself.  For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
 
-    use strict;
-    use vars qw(%GET %POST $title $headextra @errors @warnings);
+[%- sections.title='Terms of Service' -%]
 
-    $title = "Terms of Service";
-
-    my $ret;
-
-    $ret .= <<PAGE;
 <p>We hate legalese, so we've tried to make ours readable. If you've got 
-any questions, feel free to <a href='$LJ::SITEROOT/support/submit'>ask us</a>, and we'll do our best to answer.</p>
+any questions, feel free to <a href='[% roots.site %]/support/submit'>ask us</a>,
+and we'll do our best to answer.</p>
 
 <h2>Terms of Service</h2>
 
-<p>$LJ::SITECOMPANY ("we", "us", "our", "$LJ::SITENAMESHORT") present the 
-following terms and conditions, which govern your use of the $LJ::SITENAMESHORT 
+<p>[% site.company %] ("we", "us", "our", "[% site.nameshort %]") present the
+following terms and conditions, which govern your use of the [% site.nameshort %]
 site (Website), and all content, services and products available at or 
 through the Website, including but not limited to 
-$LJ::SITEROOT. </p>
+[% roots.site %]. </p>
 
 <p>The Website is offered subject to your acceptance, without 
 modification, of all of the terms and conditions contained within, along with all 
 other operating rules, policies (including, without limitation, 
-${LJ::SITENAMESHORT}'s <a href="$LJ::SITEROOT/legal/privacy">Privacy 
+[% site.nameshort %]'s <a href="[% roots.site %]/legal/privacy">Privacy
 Policy</a>) and procedures that may be published from time to time on 
 this Website by us (collectively, the Agreement).</p>
 
@@ -44,7 +38,7 @@ this Website by us (collectively, the Agreement).</p>
 Website. By accessing or using any part of the Website, you agree that you are bound by the terms and conditions of this Agreement. If you do 
 not agree to all the terms and conditions of this Agreement, then you 
 may not access the Website or use any services. If these terms and 
-conditions are considered an offer by $LJ::SITENAME, acceptance is 
+conditions are considered an offer by [% site.name %], acceptance is
 expressly limited to these terms. The Website is available only to 
 individuals who are at least 13 years old.</p>
 
@@ -69,11 +63,11 @@ any kind incurred as a result of such acts or omissions.</p>
 
 <h2>II. Account Structure</h2>
 
-<p>$LJ::SITENAME currently has a tiered account structure.</p> 
+<p>[% site.name %] currently has a tiered account structure.</p>
 
 <ul><li><em>Free Accounts</em> are available free of charge. To create a
 free account, you will need an invitation ("invite code") from an
-existing $LJ::SITENAME user. Free accounts can access basic site
+existing [% site.name %] user. Free accounts can access basic site
 functions, but do not receive access to all extended site features.</li>
 
 <li><em>Paid Accounts</em> are available for term-based fee and receive
@@ -84,28 +78,28 @@ receive access to all extended site features, at higher limits (for those
 features that have limits) than those given to paid accounts.</li>
 
 <li><em>Seed Accounts</em> are reserved for those who have contributed
-significantly to the $LJ::SITENAME project, at our discretion. They
+significantly to the [% site.name %] project, at our discretion. They
 receive all features available to premium paid accounts, at those
-limits, for as long as $LJ::SITENAME continues to operate, without need
+limits, for as long as [% site.name %] continues to operate, without need
 for future payment.</li></ul>
 
-<p>Payments to $LJ::SITENAME, for account services or for any other
-purpose, are refundable or transferable solely at ${LJ::SITENAMESHORT}'s
+<p>Payments to [% site.name %], for account services or for any other
+purpose, are refundable or transferable solely at [% site.nameshort %]'s
 discretion.</p>
 
 <p>By using this Service, you agree to this account structure, and to
-${LJ::SITENAMESHORT}'s right to change, modify, or discontinue any type
+[% site.nameshort %]'s right to change, modify, or discontinue any type
 of account or the features available to it at any time.</p>
 
 <h2>III. Privacy Policy</h2>
 
 <p>Your use of the Website is governed by the Privacy Policy, currently 
-located at $LJ::SITEROOT/legal/privacy. </p>
+located at [% roots.site %]/legal/privacy. </p>
 
 
 <h2>IV. Indemnity</h2>
 
-<p>You agree to indemnify and hold harmless $LJ::SITECOMPANY, its 
+<p>You agree to indemnify and hold harmless [% site.company %], its
 contractors, its licensors, and their respective directors, officers, 
 employees and agents from and against any and all claims and expenses, 
 including attorneys' fees, arising out of your use of the Website, 
@@ -230,7 +224,7 @@ mislead recipients as to the source of the material (such as
 spoofing);</p>
 
 <p>3. Maliciously impersonate any real person or entity, including but not limited to a 
-$LJ::SITENAMESHORT staff member or volunteer, or to otherwise misrepresent your 
+[% site.nameshort %] staff member or volunteer, or to otherwise misrepresent your
 affiliation with any person or entity;</p>
 
 <p>4. Upload, post or otherwise transmit any Content that you do not 
@@ -291,10 +285,17 @@ categorizing, and other duties as necessary. </p>
 <p>All volunteers are expected to be of legal age, or volunteering with 
 the consent of a legal parent or guardian.</p>
 
-<p>By volunteering, you agree that any work created as a result of your volunteer service shall be licensed to $LJ::SITENAMESHORT on a perpetual, irrevocable, and world-wide basis, to the extent permitted by law. You agree that $LJ::SITENAMESHORT may determine the basis upon which your volunteer work shall be licensed to others, including under Open Source licenses that may permit the further alteration or dissemination of your work. If laws prevent such licensing, you agree never to sue $LJ::SITENAMESHORT for the use of said work.</p>
+<p>By volunteering, you agree that any work created as a result of your
+volunteer service shall be licensed to [% site.nameshort %] on a perpetual,
+irrevocable, and world-wide basis, to the extent permitted by law. You
+agree that [% site.nameshort %] may determine the basis upon which your
+volunteer work shall be licensed to others, including under Open Source
+licenses that may permit the further alteration or dissemination of
+your work. If laws prevent such licensing, you agree never to sue
+[% site.nameshort %] for the use of said work.</p>
 
 <p>By volunteering, you agree that you are providing your work with no 
-expectation of pay or future consideration by $LJ::SITENAMESHORT. You also agree 
+expectation of pay or future consideration by [% site.nameshort %]. You also agree
 that you have taken reasonable diligence to ensure that the work is 
 correct, accurate, and free of defect. You agree that you will not 
 disclose or share any proprietary or confidential information you are 
@@ -322,11 +323,11 @@ conditions of this Agreement. </p>
 
 <h2>XV. Disclaimer of Warranties</h2>
 
-<p><strong>This Website is provided "as is". $LJ::SITECOMPANY and its 
+<p><strong>This Website is provided "as is". [% site.company %] and its
 suppliers and licensors hereby disclaim all warranties of any kind, 
 express or implied, including, without limitation, the warranties of 
 merchantability, fitness for a particular purpose and non-infringement. 
-Neither $LJ::SITECOMPANY, nor its suppliers and licensors, makes 
+Neither [% site.company %], nor its suppliers and licensors, makes
 any warranty that the Website will be error free or that access to the Website 
 will be continuous or uninterrupted. You agree that any interruptions to the service will not qualify for reimbursement or compensation. You understand that you download 
 from, or otherwise obtain content or services through, the Website at 
@@ -340,7 +341,7 @@ Agreement.</strong></p>
 <h2>XVI. Limitation of Liability</h2>
 
 <p><strong>You expressly understand and agree that in no event will 
-$LJ::SITECOMPANY, or its suppliers or licensors, be liable with 
+[% site.company %], or its suppliers or licensors, be liable with
 respect to any subject matter of this agreement under any contract, 
 negligence, strict liability or other legal or equitable theory for: (i) 
 any special, incidental or consequential damages; (ii) the cost of 
@@ -361,9 +362,9 @@ applicable law.</strong></p>
 <p>This Agreement constitutes the entire agreement between us and you 
 concerning your use of the Website. This Agreement may only be modified 
 by a written amendment signed by an authorized representative of 
-$LJ::SITECOMPANY, or by the posting of a revised version to this 
+[% site.company %], or by the posting of a revised version to this
 location. Except to the extent that applicable law (if any) provides 
-otherwise, any dispute arising between you and $LJ::SITECOMPANY 
+otherwise, any dispute arising between you and [% site.company %]
 regarding these Terms of Service and/or your use or access of the 
 Website will be governed by the 
 laws of the state of Maryland and the federal laws of the United States 
@@ -398,14 +399,3 @@ Attribution-ShareAlike 2.5 License.</p>
 
 
 <p class='note'>Last revised April 23, 2009</p>
-PAGE
-
-    return $ret;
-}
-_code?>
-<=body
-title=><?_code return $title; _code?>
-head<=
-<?_code return $headextra; _code?>
-<=head
-page?>

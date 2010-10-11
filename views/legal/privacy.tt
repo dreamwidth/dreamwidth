@@ -1,30 +1,23 @@
-<?page
-body<=
-<?_code
-{
-    # Privacy Policy
-    #
-    # Authors:
-    #     Janine Smith <janine@netrophic.com>
-    #
-    # Copyright (c) 2009 by Dreamwidth Studios, LLC.
-    #
-    # This program is free software; you may redistribute it and/or modify it under
-    # the same terms as Perl itself.  For a copy of the license, please reference
-    # 'perldoc perlartistic' or 'perldoc perlgpl'.
-    #
+[%# legal/privacy.tt
+  #
+  # Privacy Policy
+  #
+  # Authors:
+  #     Janine Smith <janine@netrophic.com>
+  #
+  # Copyright (c) 2009 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself.  For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
 
-    use strict;
-    use vars qw(%GET %POST $title $headextra @errors @warnings);
+[%- sections.title='Privacy Policy' -%]
 
-    $title = "Privacy Policy";
+<p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='[% roots.site %]/support/submit'>ask us</a>, and we'll do our best to answer.</p>
 
-    my $ret;
-
-    $ret .= <<PAGE;
-<p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='$LJ::SITEROOT/support/submit'>ask us</a>, and we'll do our best to answer.</p>
-
-<p>This privacy statement ("Privacy Policy") covers all websites (such as $LJ::DOMAIN_WEB) owned and operated by $LJ::SITECOMPANY ("we", "us", "our") and all associated services.</p>
+<p>This privacy statement ("Privacy Policy") covers all websites (such as [% domain.web %]) owned and operated by [% site.company %] ("we", "us", "our") and all associated services.</p>
 
 <p>We use information you share with us for our internal business purposes. We do not sell your information. This notice tells you what information we collect, how we use it, and steps we take to protect and secure it.</p>
 
@@ -76,27 +69,27 @@ body<=
 
 <p>By choosing to make any personally-identifying information public, you recognize and accept that other people, not affiliated with us, may use this data to contact you. We can't be responsible for the use of any information you post publicly.</p>
 
-<p>From time to time, we may allow you to provide us with your login credentials for a site that is not owned and operated by us in order to allow you to integrate data from that external service to your $LJ::SITENAMESHORT account. Examples of this include the journal import feature and the entry crosspost feature. Providing us this information is completely optional. Your login credentials are only used for the purposes of these features, and are not used for any other purpose.</p>
+<p>From time to time, we may allow you to provide us with your login credentials for a site that is not owned and operated by us in order to allow you to integrate data from that external service to your [% site.nameshort %] account. Examples of this include the journal import feature and the entry crosspost feature. Providing us this information is completely optional. Your login credentials are only used for the purposes of these features, and are not used for any other purpose.</p>
 
 <h2>Account contents</h2>
 
 <p>You may optionally post content to your account with varying security levels. To the best of our ability, and limited only by the possibility of bugs or technical difficulties, we will honor the security levels you choose for your content and display that content only to those whom you have authorized to see it.</p>
 
-<p>While maintaining the site, $LJ::SITENAMESHORT staff may need to view the contents of your account, including information for which you have chosen a restrictive security level. Circumstances in which this is necessary include, but are not limited to: troubleshooting and diagnosing technical problems, investigating possible Terms of Service violations, and legal compliance issues.</p>
+<p>While maintaining the site, [% site.nameshort %] staff may need to view the contents of your account, including information for which you have chosen a restrictive security level. Circumstances in which this is necessary include, but are not limited to: troubleshooting and diagnosing technical problems, investigating possible Terms of Service violations, and legal compliance issues.</p>
 
-<p>$LJ::SITENAMESHORT staff only use the ability to override your chosen security levels during the course of these investigations. At no time is your secured content disclosed to any third party, except when required by law. Any use of this ability is logged and regularly audited.</p>
+<p>[% site.nameshort %] staff only use the ability to override your chosen security levels during the course of these investigations. At no time is your secured content disclosed to any third party, except when required by law. Any use of this ability is logged and regularly audited.</p>
 
 <h2>Financial information and transactions</h2>
 
-<p>You can engage in financial transactions with $LJ::SITENAMESHORT to purchase enhancements for your account. These transactions are optional. If you choose to purchase enhanced services, you will be asked to provide financial information to complete the transaction. There are several payment methods available, each of which requires disclosure of certain personal and financial information. The specifics of these methods of payment are as follows:</p>
+<p>You can engage in financial transactions with [% site.nameshort %] to purchase enhancements for your account. These transactions are optional. If you choose to purchase enhanced services, you will be asked to provide financial information to complete the transaction. There are several payment methods available, each of which requires disclosure of certain personal and financial information. The specifics of these methods of payment are as follows:</p>
 
-<p><b>Credit cards</b>: If you pay by credit card, we need you to provide your credit card number, your full name as it appears on the card, your address as it appears on the card statment, and the CVN or Card Verification Number. This information is required so we can authorize and charge your credit card. Your financial information is protected by industry-standard encryption methods. It is never stored on our $LJ::SITENAMESHORT's servers: we pass it immediately along to our processor for the sole purpose of completing the authorized transaction.</p>
+<p><b>Credit cards</b>: If you pay by credit card, we need you to provide your credit card number, your full name as it appears on the card, your address as it appears on the card statement, and the CVN or Card Verification Number. This information is required so we can authorize and charge your credit card. Your financial information is protected by industry-standard encryption methods. It is never stored on our servers: we pass it immediately along to our processor for the sole purpose of completing the authorized transaction.</p>
 
 <p><b>Checks</b>: If you pay by check, we need you to provide us with a check printed with your bank's routing code and your account number, your name, and your address. This information is required so our bank can transfer funds from your account to ours. We use this information only for the purpose of the single transaction represented by the check, however, our bank retains, on their servers, permanent electronic scans of all checks deposited into our account.</p>
 
 <p><b>Money orders</b>: If you pay by money order, we need you to provide us with a money order or international money order (as appropriate depending on the country in which you're currently living). We do not require the disclosure of any personal information to use a money order as payment beyond a signature on the face of the money order. However, the location that issues your money order may require you to write additional personal information on the money order. Our bank retains, on their servers, permanent electronic scans of all money orders deposited into our account.</p>
 
-<p>In all cases, $LJ::SITENAMESHORT collects this personal and financial information only as necessary or appropriate for the completion of the single requested transaction. Any additional personally-identifying but non-financial information you disclose during these transactions will be governed by the "Disclosure of personally-identifying information" provisions below.</p>
+<p>In all cases, [% site.nameshort %] collects this personal and financial information only as necessary or appropriate for the completion of the single requested transaction. Any additional personally-identifying but non-financial information you disclose during these transactions will be governed by the "Disclosure of personally-identifying information" provisions below.</p>
 
 
 <h2>Disclosure of personally-identifying information</h2>
@@ -111,7 +104,7 @@ body<=
 
 <p>The Children's Online Privacy Protection Act ('COPPA') requires that we inform parents on how we collect and disclose the personal information of children under the age of 13.</p>
 
-<p>We do not permit children under the age of 13 to use our service. To prevent this, we collect date of birth at the time of account creation. If your child under the age of 13 has mis-represented their age at account creation, please contact us at $LJ::COPPA_EMAIL. After confirming your identity, we will remove the account.</p>
+<p>We do not permit children under the age of 13 to use our service. To prevent this, we collect date of birth at the time of account creation. If your child under the age of 13 has mis-represented their age at account creation, please contact us at [% email.coppa %]. After confirming your identity, we will remove the account.</p>
 
 
 <h2>Cookies</h2>
@@ -128,7 +121,7 @@ body<=
 
 <p>Your account information is password-protected. We recommend that you choose a strong and secure password. We use industry-standard encryption to safeguard any transmission between your computer and ours.</p>
 
-<p>If we learn of a system security breach, we will notify you electronically so you can take appropriate steps to protect yourself. Depending on where you live, you may have a legal right to receive notice of a security breach in writing. To receive free written notice, you should contact us at $LJ::PRIVACY_EMAIL.</p>
+<p>If we learn of a system security breach, we will notify you electronically so you can take appropriate steps to protect yourself. Depending on where you live, you may have a legal right to receive notice of a security breach in writing. To receive free written notice, you should contact us at [% email.privacy %].</p>
 
 
 <h2>Deleting your information</h2>
@@ -137,7 +130,7 @@ body<=
 
 <p>You can also choose to delete your account entirely. If you choose to delete your account entirely, we will retain any personally-identifying information for a limited amount of time before removing it entirely. This is to allow you to undelete your account and continue using the service if you so choose. After this time, all your personally-identifying information will be removed entirely from our service, with the exception of any records we must retain to document compliance with regulatory requirements.</p>
 
-<p>As part of the day to day operation of $LJ::SITENAME, we will make regular copies of the data contained in the databases for backup purposes. These backups can potentially contain deleted data for several weeks or months. These backups will also be governed by the rules for disclosure of personally-identifying information.</p>
+<p>As part of the day to day operation of [% site.name %], we will make regular copies of the data contained in the databases for backup purposes. These backups can potentially contain deleted data for several weeks or months. These backups will also be governed by the rules for disclosure of personally-identifying information.</p>
 
 
 <h2>Outside Vendors</h2>
@@ -153,7 +146,7 @@ body<=
 
 <strong>Business Vendors</strong><br />
 
-<p>From time to time, we may contract with outside vendors to provide business services that will assist us in administering and maintaining the $LJ::SITENAMESHORT service. We will list all of our business vendors in this privacy policy, as well as providing links to their privacy policies and information on how to opt out of your information being included in those services.</p>
+<p>From time to time, we may contract with outside vendors to provide business services that will assist us in administering and maintaining the [% site.nameshort %] service. We will list all of our business vendors in this privacy policy, as well as providing links to their privacy policies and information on how to opt out of your information being included in those services.</p>
 
 <p>Our current business vendors are:</p>
 
@@ -163,12 +156,12 @@ body<=
 
 <h2>Changes</h2>
 
-<p>We may change our privacy policy from time to time. If these changes are minor, we will post them to this page. If the changes are major, we will post them to this page and notify users through our $LJ::SITENAMESHORT News journal and through messages sent to your account's $LJ::SITENAMESHORT Inbox. Your continued use of this site after any change in this Privacy Policy will constitute your acceptance of such change.</p>
+<p>We may change our privacy policy from time to time. If these changes are minor, we will post them to this page. If the changes are major, we will post them to this page and notify users through our [% site.nameshort %] News journal and through messages sent to your account's [% site.nameshort %] Inbox. Your continued use of this site after any change in this Privacy Policy will constitute your acceptance of such change.</p>
 
 
 <h2>Contacting us</h2>
 
-<p>If you have questions about this policy, you can contact us at $LJ::PRIVACY_EMAIL.</p>
+<p>If you have questions about this policy, you can contact us at [% email.privacy %].</p>
 
 
 
@@ -177,14 +170,3 @@ body<=
 <p>This privacy policy is based on one developed by Automattic (http://automattic.com/privacy/) and is licensed under a Creative Commons Attribution-ShareAlike 2.5 License.</p>
 
 <p class='note'>Last revised June 6, 2010</p>
-PAGE
-
-    return $ret;
-}
-_code?>
-<=body
-title=><?_code return $title; _code?>
-head<=
-<?_code return $headextra; _code?>
-<=head
-page?>

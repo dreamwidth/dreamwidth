@@ -46,12 +46,24 @@ my $roots_constants = Template::Namespace::Constants->new({
     ssl => $LJ::SSLROOT,
 });
 
+my $domain_constants = Template::Namespace::Constants->new({
+    site => $LJ::DOMAIN,
+    web => $LJ::DOMAIN_WEB,
+});
+
+my $email_constants = Template::Namespace::Constants->new({
+    coppa => $LJ::COPPA_EMAIL,
+    privacy => $LJ::PRIVACY_EMAIL,
+});
+
 # precreating this
 my $view_engine = Template->new({
     INCLUDE_PATH => "$LJ::HOME/views/",
     NAMESPACE => {
         site => $site_constants,
         roots => $roots_constants,
+        domain => $domain_constants,
+        email => $email_constants,
         help => Template::Namespace::Constants->new( \%LJ::HELPURL ),
     },
     CACHE_SIZE => $LJ::TEMPLATE_CACHE_SIZE, # this can be undef, and that means cache everything.
