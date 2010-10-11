@@ -115,6 +115,8 @@ function print_stylesheet () {
             """;
         }
 
+    var string tertiary_border = $*color_module_background ? "border-top: 2em solid $*color_module_background" : "";
+
 """
 /* Refried Tablet CSS */
 
@@ -471,22 +473,20 @@ div h2.module-header {
     margin-left: 0em;
 }
 
+.two-columns-left #tertiary, .two-columns-right #tertiary {
+    $tertiary_border
+    }
+
 /* don't make tertiary modules in two column into 15px boxes, the data doesn't fit!*/
-.two-columns-left #tertiary .module, .two-columns-right #tertiary .module {
-    clear: both;
-    width: auto;
-    margin: 0em auto;
-    padding: 0em;
-    border-width: 0px;
-
-}
-
-/* color match the tertiary modules in two column styles to the page, but give it a module-y top border */
-
+/* color match the tertiary modules in two column styles to the page */
 .two-columns-left #tertiary .module, .two-columns-right #tertiary .module {
     $page_background
     $page_colors
-    border-width: 0px;
+    border: none;
+    clear: both;
+    margin: 0 auto;
+    padding: 0;
+    width: auto;
 }
 
 .two-columns-left #tertiary .module a, .two-columns-right #tertiary .module a {
@@ -503,10 +503,6 @@ div h2.module-header {
 
 .two-columns-left #tertiary .module a:visited, .two-columns-right #tertiary .module a:visited {
     $page_link_visited_colors
-}
-
-.two-columns-left #tertiary, .two-columns-right #tertiary {
-    $module_background
 }
 
 /* add room to breathe on one-column implementations */
