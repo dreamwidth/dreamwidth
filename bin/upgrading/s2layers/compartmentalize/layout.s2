@@ -127,6 +127,11 @@ a {
    text-decoration: none;
    }
 
+p {
+        margin: 1em 0;
+    }
+
+
 blockquote {
     $entry_colors
     border-top: 10px solid $*color_entry_border;
