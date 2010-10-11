@@ -163,7 +163,6 @@ set color_entry_link_visited = "#ffc";
 set color_entry_text = "#fff";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#000";
-set color_comment_title_background = "#fff";
 
 ##===============================
 ## Module Colors
