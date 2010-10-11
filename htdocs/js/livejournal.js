@@ -193,22 +193,23 @@ var PollPages = {
     "hourglass": null
 };
 
-LiveJournal.initPolls = function () {
-    var pollLinks = DOM.getElementsByTagAndClassName(document, 'a', "LJ_PollAnswerLink") || [];
+LiveJournal.initPolls = function (element) {
+    var ele = element || document;
+    var pollLinks = DOM.getElementsByTagAndClassName(ele, 'a', "LJ_PollAnswerLink") || [];
 
     // attach click handlers to each answer link
     Array.prototype.forEach.call(pollLinks, function (pollLink) {
         DOM.addEventListener(pollLink, "click", LiveJournal.pollAnswerLinkClicked.bindEventListener(pollLink));
     });
 
-    var pollButtons = DOM.getElementsByTagAndClassName(document, 'input', "LJ_PollSubmit") || []; 
+    var pollButtons = DOM.getElementsByTagAndClassName(ele, 'input', "LJ_PollSubmit") || []; 
     
     // attaches a click handler to all poll submit buttons
     Array.prototype.forEach.call(pollButtons, function (pollButton) {
         DOM.addEventListener(pollButton, "click", LiveJournal.pollButtonClicked.bindEventListener(pollButton));
     });
     
-    var pollForms = DOM.getElementsByTagAndClassName(document, 'form', "LJ_PollForm") || []; 
+    var pollForms = DOM.getElementsByTagAndClassName(ele, 'form', "LJ_PollForm") || []; 
     
     // attach submit handlers to each poll form
     Array.prototype.forEach.call(pollForms, function (pollForm) {
