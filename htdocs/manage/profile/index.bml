@@ -649,7 +649,7 @@ body<=
             $update{'oldenc'} = $POST{'oldenc'};
         }
 
-        my $save_rv = LJ::Setting->save_all($remote, \%POST, \@settings);
+        my $save_rv = LJ::Setting->save_all( $u, \%POST, \@settings );
 
         $u->update_self( \%update );
 
