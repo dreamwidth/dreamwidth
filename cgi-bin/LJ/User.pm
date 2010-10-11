@@ -5568,8 +5568,8 @@ sub get_daycounts {
 
     if ( LJ::isu( $remote ) ) {
         # do they have the viewall priv?
-        my $r = eval { Apache->request; }; # web context
-        my %getargs = $r ? $r->args : undef;
+        my $r = DW::Request->get;
+        my %getargs = %{ $r->get_args };
         if ( defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' ) {
             $viewall = $remote->has_priv( 'canview', '*' );
             LJ::statushistory_add( $u->userid, $remote->userid,
