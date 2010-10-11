@@ -118,7 +118,8 @@ sub render_body {
     
     $ret .= "<ul class='theme-nav-small nostyle'>";
     $ret .= "<li class='first'><a href='$LJ::SITEROOT/customize/advanced/'>" . $class->ml('widget.themenav.developer') . "</a>";
-    $ret .= LJ::Hooks::run_hook('customize_advanced_area_upsell', $u) . "</li>"; 
+    my $upsell = LJ::Hooks::run_hook( 'customize_advanced_area_upsell', $u ) || '';
+    $ret .= "$upsell</li>";
     $ret .= "</ul>";
 
     $ret .= "</div>";

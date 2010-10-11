@@ -2226,8 +2226,7 @@ sub currents {
     if ( $props->{"${key}current_mood"} || $props->{"${key}current_moodid"} ) {
         my $moodid = $props->{"${key}current_moodid"};
         my $mood = $props->{"${key}current_mood"};
-        my $moodname;
-        my $moodpic;
+        my ( $moodname, $moodpic ) = ( '', '' );
 
         # favor custom mood over system mood
         if ( my $val = $mood ) {

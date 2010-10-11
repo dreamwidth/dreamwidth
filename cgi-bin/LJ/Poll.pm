@@ -729,7 +729,8 @@ sub journal {
 sub is_closed {
     my $self = shift;
     $self->_load;
-    return $self->{status} eq 'X' ? 1 : 0;
+    my $status = $self->{status} || '';
+    return $status eq 'X' ? 1 : 0;
 }
 
 # return true if remote is also the owner

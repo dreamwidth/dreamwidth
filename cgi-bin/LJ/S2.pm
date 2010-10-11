@@ -760,7 +760,8 @@ sub s2_context
     # if we are supposed to use modtime checking (i.e. for stylesheets) then go
     # ahead and do that logic now
     if ( $opts{use_modtime} ) {
-        if ( $r->header_in( 'If-Modified-Since' ) eq LJ::time_to_http( $modtime )) {
+        my $mod_since = $r->header_in( 'If-Modified-Since' ) || '';
+        if ( $mod_since eq LJ::time_to_http( $modtime ) ) {
             # 304 return; unload non-public layers
             LJ::S2::cleanup_layers(@layers);
             $r->status_line( '304 Not Modified' );
@@ -3504,6 +3505,7 @@ sub Date__date_format
 {
     my ($ctx, $this, $fmt, $as_link) = @_;
     $fmt ||= "short";
+    $as_link ||= "";
     # formatted as link is separate from format as not link
     my $c = \$ctx->[S2::SCRATCH]->{'_code_datefmt'}->{$fmt . $as_link};
     return $$c->($this) if ref $$c eq "CODE";

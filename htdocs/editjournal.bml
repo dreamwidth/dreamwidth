@@ -32,10 +32,6 @@ body<=
     my $mode = $GET{'mode'} || $POST{'mode'} || "init";
     if ($GET{'itemid'} || $POST{'itemid'}) { $mode = "edit"; }
 
-    my $ret;
-    my $getextra;
-    $getextra = "?authas=$GET{'authas'}" if $GET{'authas'};
-
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
     LJ::need_res( 'js/inputcomplete.js' );
     
@@ -52,7 +48,7 @@ body<=
     undef $usejournal if $usejournal eq $u->{'user'}; # ignore if it's the user
 
     # extra get arguments
-    my $getextra;
+    my $getextra = '';
     $getextra .= "authas=$authas&" if $authas ne $u->{'user'};
     $getextra .= "usejournal=$usejournal&" if $usejournal;
     chop $getextra;
@@ -434,7 +430,7 @@ body<=
             # entry object right now, this is just easier
             $entry->{prop_xpost} = $entry_obj->prop( 'xpost' );
 
-            foreach ( keys %POST ) { $entry->{$_} = %POST->{$_}; }
+            $entry->{$_} = $POST{$_} foreach keys %POST;
             $entry->{'richtext_default'} = $entry->{"prop_used_rte"} ? 1 : 0,
 
             my $onload;
@@ -530,6 +526,8 @@ body<=
         ### display results
         return $entry_chooser->(\%res, show_ad => 1);
     } elsif ($mode eq "init") {
+        my $ret = '';
+
         # no authentication needs to be done on this page, it's just a form anyway
 
         $ret .= "<table style='width: 100%;'><tr><td>";

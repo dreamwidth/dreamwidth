@@ -396,9 +396,10 @@ sub recent_items
     my $notafter = $args{notafter} ? $args{notafter} + 0 : 0;
     $notafter ||= $args{friendsview} ? $LJ::EndOfTime - 1 : $LJ::EndOfTime;
 
-    my $skip = $args{'skip'}+0;
-    my $itemshow = $args{'itemshow'}+0;
-    if ($itemshow > $max_hints) { $itemshow = $max_hints; }
+    my $skip = $args{skip} ? $args{skip} + 0 : 0;
+    my $itemshow = $args{itemshow} ? $args{itemshow} + 0 : 0;
+    $itemshow = $max_hints if $itemshow > $max_hints;
+
     my $maxskip = $max_hints - $itemshow;
     if ($skip < 0) { $skip = 0; }
     if ($skip > $maxskip) { $skip = $maxskip; }
@@ -438,7 +439,7 @@ sub recent_items
     }
 
     # if we need to get by tag, get an itemid list now
-    my $jitemidwhere;
+    my $jitemidwhere = '';
     if (ref $args{tagids} eq 'ARRAY' && @{$args{tagids}}) {
         # select jitemids uniquely
         my $in = join(',', map { $_+0 } @{$args{tagids}});
@@ -459,7 +460,7 @@ sub recent_items
     }
 
     # if we need to filter by security, build up the where clause for that too
-    my $securitywhere;
+    my $securitywhere = '';
     if ($args{'security'}) {
         my $security = $args{'security'};
         if ( ( $security eq "public" ) || ( $security eq "private" ) ) {

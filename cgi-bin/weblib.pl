@@ -950,6 +950,7 @@ Takes a list of viewing styles arguments from a list, and returns a hashref of v
 
 sub viewing_style_opts {
     my ( %args ) = @_;
+    return {} unless %args;
 
     my $valid_style_args = {
         format => { light => 1 },

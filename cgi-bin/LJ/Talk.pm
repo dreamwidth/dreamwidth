@@ -76,7 +76,7 @@ sub ecphash {
 sub talkargs {
     my $talkurl = shift;
     my $args = join("&", grep {$_} @_);
-    my $sep;
+    my $sep = '';
     $sep = ($talkurl =~ /\?/ ? "&" : "?") if $args;
     return "$talkurl$sep$args";
 }

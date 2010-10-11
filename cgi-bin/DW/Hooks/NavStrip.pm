@@ -82,7 +82,8 @@ LJ::Hooks::register_hook( 'control_strip_stylesheet_link', sub {
 
     my $color;
     my %GET = LJ::parse_args( $r->query_string );
-    $color = $GET{style} eq 'mine' && $remote
+    my $style = $GET{style} || '';
+    $color = $style eq 'mine' && $remote
         ? $remote->prop( 'control_strip_color' )
         : $journal->prop( 'control_strip_color' );
     $color = $color || 'dark';

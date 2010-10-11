@@ -109,7 +109,8 @@ sub RecentPage
     if ($skip > $maxskip) { $skip = $maxskip; }
 
     # honor ?style=mine
-    my $mine = $get->{'style'} eq "mine" ? "mine" : "";
+    my $mine = $get->{style} || '';
+    $mine = '' unless $mine eq 'mine';
 
     # do they want to view all entries, regardless of security?
     my $viewall = 0;

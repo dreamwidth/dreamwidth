@@ -38,12 +38,13 @@ sub render_body {
     $ret .= "<p class='detail'>" . $class->ml('widget.journaltitles.desc') . " " . LJ::help_icon('journal_titles') . "</p>";
 
     foreach my $id (qw( journaltitle journalsubtitle friendspagetitle )) {
+        my $eprop = LJ::ehtml( $u->prop( $id ) ) || '';
         $ret .= $class->start_form( id => "${id}_form" );
 
         $ret .= "<p>";
         $ret .= "<label>" . $class->ml("widget.journaltitles.$id") . "</label> ";
         $ret .= "<span id='${id}_view'>";
-        $ret .= "<strong>" . LJ::ehtml($u->prop($id)) . "</strong> ";
+        $ret .= "<strong>$eprop</strong> ";
         $ret .= "<a href='' class='theme-title-control' id='${id}_edit'>" . $class->ml('widget.journaltitles.edit') . "</a>";
         $ret .= "</span>";
 
