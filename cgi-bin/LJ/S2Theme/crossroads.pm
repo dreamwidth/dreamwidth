@@ -15,6 +15,11 @@ package LJ::S2Theme::crossroads::bittersweet;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw() }
 
+package LJ::S2Theme::crossroads::bluelights;
+use base qw( LJ::S2Theme::crossroads );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::crossroads::caramel;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw() }
@@ -35,9 +40,19 @@ package LJ::S2Theme::crossroads::descendingblue;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw( ) }
 
+package LJ::S2Theme::crossroads::greenlight;
+use base qw( LJ::S2Theme::crossroads );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::crossroads::lettuce;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw() }
+
+package LJ::S2Theme::crossroads::lightinthedark;
+use base qw( LJ::S2Theme::crossroads );
+sub cats { qw() }
+sub designer { "rising" }
 
 package LJ::S2Theme::crossroads::lilac;
 use base qw( LJ::S2Theme::crossroads );
@@ -56,6 +71,11 @@ package LJ::S2Theme::crossroads::orangejulius;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw( ) }
 
+package LJ::S2Theme::crossroads::orangelights;
+use base qw( LJ::S2Theme::crossroads );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::crossroads::persimmon;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw() }
@@ -63,6 +83,11 @@ sub cats { qw() }
 package LJ::S2Theme::crossroads::pineneedles;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw() }
+
+package LJ::S2Theme::crossroads::pinked;
+use base qw( LJ::S2Theme::crossroads );
+sub cats { qw() }
+sub designer { "rising" }
 
 package LJ::S2Theme::crossroads::sherbert;
 use base qw( LJ::S2Theme::crossroads );

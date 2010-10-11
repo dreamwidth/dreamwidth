@@ -83,6 +83,62 @@ set color_module_text = "#fff";
 set color_module_title = "#fff";
 
 
+#NEWLAYER: crossroads/bluelights
+layerinfo type = "theme";
+layerinfo name = "Blue Lights";
+layerinfo redist_uniq = "crossroads/bluelights";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1a1a1a";
+set color_page_link = "#4DBCE9";
+set color_page_link_hover = "#54CFFD";
+set color_page_link_visited = "#3F9BBE";
+set color_page_title = "#54CFFD";
+set color_page_text = "#fdfdfd";
+set color_header_background = "#131313";
+set color_footer_background = "#2b2b2b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2b2b2b";
+set color_entry_border = "#131313";
+set color_entry_link = "#4DBCE9";
+set color_entry_link_hover = "#54CFFD";
+set color_entry_link_visited = "#3F9BBE";
+set color_entry_title = "#54CFFD";
+set color_entry_title_background = "#131313";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2b2b2b";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_header_url = "crossroads/misc_header_background.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    a {
+        text-decoration: none;
+    }
+    """;
+}
+
+
 #NEWLAYER: crossroads/caramel
 layerinfo type = "theme";
 layerinfo name = "Caramel";
@@ -293,6 +349,69 @@ set color_module_text = "#fff";
 set color_module_title = "#fff";
 
 
+#NEWLAYER: crossroads/greenlight
+layerinfo type = "theme";
+layerinfo name = "Green Light";
+layerinfo redist_uniq = "crossroads/greenlight";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1a1a1a";
+set color_page_link = "#00da3c";
+set color_page_link_hover = "#00fa3a";
+set color_page_link_visited = "#00a226";
+set color_page_text = "#fdfdfd";
+set color_header_background = "#131313";
+set color_footer_background = "#2b2b2b";
+set color_footer_link = "#00da3c";
+set color_footer_link_hover = "#00fa3a";
+set color_footer_link_visited = "#00a226";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2b2b2b";
+set color_entry_border = "#131313";
+set color_entry_interaction_links = "#00fa3a";
+set color_entry_link = "#00da3c";
+set color_entry_link_hover = "#00fa3a";
+set color_entry_link_visited = "#00a226";
+set color_entry_text = "#fdfdfd";
+set color_comment_title_background = "#131313";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2b2b2b";
+set color_module_link = "#00da3c";
+set color_module_link_hover = "#00fa3a";
+set color_module_link_visited = "#00a226";
+set color_module_text = "#fdfdfd";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_header_url = "crossroads/misc_header_background.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    a {
+        text-decoration: none;
+    }
+    """;
+}
+
+
 #NEWLAYER: crossroads/lettuce
 layerinfo type = "theme";
 layerinfo name = "Lettuce";
@@ -333,6 +452,68 @@ set color_module_link_active = "#c00";
 set color_module_link_visited = "#921A00";
 set color_module_text = "#35372D";
 set color_module_title = "#35372D";
+
+
+#NEWLAYER: crossroads/lightinthedark
+layerinfo type = "theme";
+layerinfo name = "Light in the Dark";
+layerinfo redist_uniq = "crossroads/lightinthedark";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1a1a1a";
+set color_page_link = "#ffed90";
+set color_page_link_hover = "#bbec7c";
+set color_page_link_visited = "#fd5";
+set color_page_text = "#fdfdfd";
+set color_header_background = "#131313";
+set color_footer_background = "#2b2b2b";
+set color_footer_link = "#ffed90";
+set color_footer_link_hover = "#bbec7c";
+set color_footer_link_visited = "#fd5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2b2b2b";
+set color_entry_border = "#131313";
+set color_entry_link = "#ffed90";
+set color_entry_link_hover = "#bbec7c";
+set color_entry_link_visited = "#fd5";
+set color_entry_title = "#a8d46f";
+set color_entry_title_background = "#131313";
+set color_comment_title_background = "#131313";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2b2b2b";
+set color_module_link = "#ffed90";
+set color_module_link_hover = "#bbec7c";
+set color_module_link_visited = "#fd5";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_header_url = "crossroads/misc_header_background.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    a {
+        text-decoration: none;
+    }
+    """;
+}
 
 
 #NEWLAYER: crossroads/lilac
@@ -495,6 +676,62 @@ set color_module_text = "#fff";
 set color_module_title = "#fff";
 
 
+#NEWLAYER: crossroads/orangelights
+layerinfo type = "theme";
+layerinfo name = "Orange Lights";
+layerinfo redist_uniq = "crossroads/orangelights";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1a1a1a";
+set color_page_link = "#ffb44c";
+set color_page_link_hover = "#ff9400";
+set color_page_link_visited = "#f3a848";
+set color_page_text = "#fdfdfd";
+set color_page_title = "#ff9400";
+set color_header_background = "#131313";
+set color_footer_background = "#2b2b2b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2b2b2b";
+set color_entry_border = "#131313";
+set color_entry_link = "#ffb44c";
+set color_entry_link_hover = "#ff9400";
+set color_entry_link_visited = "#f3a848";
+set color_entry_title = "#ff8a00";
+set color_entry_title_background = "#131313";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2b2b2b";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_header_url = "crossroads/misc_header_background.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    a {
+        text-decoration: none;
+    }
+    """;
+}
+
+
 #NEWLAYER: crossroads/persimmon
 layerinfo type = "theme";
 layerinfo name = "Persimmon";
@@ -578,6 +815,70 @@ set color_module_link_active = "#F2AB69";
 set color_module_link_visited = "#cDb684";
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+
+
+#NEWLAYER: crossroads/pinked
+layerinfo type = "theme";
+layerinfo name = "Pinked";
+layerinfo redist_uniq = "crossroads/pinked";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1a1a1a";
+set color_page_link = "#fe4f85";
+set color_page_link_hover = "#fd135a";
+set color_page_link_visited = "#e71253";
+set color_page_text = "#fdfdfd";
+set color_page_title = "#fe4f85";
+set color_header_background = "#131313";
+set color_footer_background = "#2b2b2b";
+set color_footer_link = "#fe4f85";
+set color_footer_link_hover = "#fd135a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2b2b2b";
+set color_entry_border = "#131313";
+set color_entry_interaction_links = "#FD0450";
+set color_entry_link = "#fe4f85";
+set color_entry_link_hover = "#fd135a";
+set color_entry_link_visited = "#e71253";
+set color_entry_text = "#fdfdfd";
+set color_entry_title_background = "#131313";
+set color_comment_title_background = "#131313";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2b2b2b";
+set color_module_link = "#fe4f85";
+set color_module_link_hover = "#fd135a";
+set color_module_link_visited = "#e71253";
+set color_module_text = "#fdfdfd";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat";
+set image_background_header_url = "crossroads/misc_header_background.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    a {
+        text-decoration: none;
+    }
+    """;
+}
 
 
 #NEWLAYER: crossroads/sherbert
