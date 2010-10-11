@@ -84,7 +84,7 @@ sub make_feed
         return undef;
     }
 
-    my %FORM = $r->query_string;
+    my %FORM = LJ::parse_args( $r->query_string );
 
     ## load the itemids
     my (@itemids, @items);
@@ -253,7 +253,7 @@ sub make_feed
                 $event =~ s!<(lj-)?poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
             }
 
-            my %args = $r->query_string;
+            my %args = LJ::parse_args( $r->query_string );
             LJ::EmbedModule->expand_entry($u, \$event, expand_full => 1)
                 if %args && $args{'unfold_embed'};
 
