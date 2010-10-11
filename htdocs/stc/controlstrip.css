@@ -96,7 +96,8 @@ html body
     font-family: Arial, sans-serif;
     font-size: 11px;
     line-height: 16.5px;
-    background-color: Menu;
+    background-color: #f7f7f7;
+    color: #333333;
     padding: 0;
     margin: 0;
 }
