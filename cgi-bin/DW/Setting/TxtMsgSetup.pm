@@ -120,14 +120,18 @@ sub error_check {
     # only validate info if security is enforced
     my $number = $class->get_arg( $args, "txtmsg_number" );
     my $provider = $class->get_arg( $args, "txtmsg_provider" );
+
+    # only do further error checking if the user didn't delete both the number and the provider
     if ( $security && $security ne 'none' ) {
-        # check for something that looks like a phone number
-        $class->errors( txtmsg_number => $class->ml( 'setting.txtmsgsetup.error.number' ) )
-            unless $number && $number =~ /^[-+0-9]{9,}$/;
-        # check for valid provider
-        my %valid = map { $_ => 1 } LJ::TextMessage::providers();
-        $class->errors( txtmsg_provider => $class->ml( 'setting.txtmsgsetup.error.provider' ) )
-            unless $provider && $valid{$provider};
+        if ( $provider || $number ) {
+            # check for something that looks like a phone number
+            $class->errors( txtmsg_number => $class->ml( 'setting.txtmsgsetup.error.number' ) )
+                    unless ( $number && $number =~ /^[-+0-9]{9,}$/ );
+            # check for valid provider
+            my %valid = map { $_ => 1 } LJ::TextMessage::providers();
+            $class->errors( txtmsg_provider => $class->ml( 'setting.txtmsgsetup.error.provider' ) )
+                    unless ( $provider && $valid{$provider} );
+        }
     } else {  # warn them that new info won't be saved
         my $tminfo = LJ::TextMessage->tm_info( $u, remap_result => 1 );
         $class->errors( txtmsg_number => $class->ml( 'setting.txtmsgsetup.error.notsecured' ) )
