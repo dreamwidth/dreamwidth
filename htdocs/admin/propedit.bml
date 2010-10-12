@@ -50,6 +50,9 @@ body<=
             foreach my $key ( keys %POST ) {
                 next if $key eq 'username';
                 next if $key eq '_save';
+                next if $key eq 'value';
+                next if $key eq 'lj_form_auth';
+
                 next unless LJ::get_prop( "user", $key );
                 $u->set_prop( $key, $POST{$key} );
             }
@@ -87,7 +90,7 @@ body<=
         $ret .= "<ul>";
         while ( my $p = $sth->fetchrow_hashref ) {
             my $extra = "<br /><small>$p->{des}</small>";
-            my $value = $u->prop($p->{name});
+            my $value = $u->raw_prop( $p->{name} );
             $value = "<br />" . LJ::html_text({ name => $p->{name}, value => $value, maxlength => '255', size => '100' }) if $can_save;
             $ret .= "<li><strong>$p->{name}</strong>: $value$extra</li><br />";
         }
