@@ -43,7 +43,150 @@ set font_module_text = "";
 ## Images
 ##===============================
 
-set image_background_header_url = "nouveauoleanders/johnny_automatic_oleander_design-blk-sm-trans.png";
+propgroup images_child {
+
+    property string[] image_background_titles_group {
+        des = "Journal titles, module headings and footer background image";
+        grouptype = "image";
+        }
+    set image_background_titles_group = [ "image_background_titles_url", "image_background_titles_repeat" ];
+        property string image_background_titles_url {
+        grouped = 1;
+        }
+    property string image_background_titles_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+
+    property string[] image_entry_border_group {
+        des = "Entry border image";
+        grouptype = "image";
+        }
+    set image_entry_border_group = [ "image_entry_border_url", "image_entry_border_repeat", "image_entry_border_position" ];
+        property string image_entry_border_url {
+        grouped = 1;
+        }
+    property string image_entry_border_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_entry_border_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        }
+
+    property string[] image_entry_border_end_odd_group {
+        des = "Odd entry border image";
+        grouptype = "image";
+        }
+    set image_entry_border_end_odd_group = [ "image_entry_border_end_odd_url", "image_entry_border_end_odd_repeat", "image_entry_border_end_odd_position" ];
+        property string image_entry_border_end_odd_url {
+        grouped = 1;
+        }
+    property string image_entry_border_end_odd_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_entry_border_end_odd_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        }
+
+    property string[] image_entry_border_end_even_group {
+        des = "Even entry border image";
+        grouptype = "image";
+        }
+    set image_entry_border_end_even_group = [ "image_entry_border_end_even_url", "image_entry_border_end_even_repeat", "image_entry_border_end_even_position" ];
+        property string image_entry_border_end_even_url {
+        grouped = 1;
+        }
+    property string image_entry_border_end_even_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_entry_border_end_even_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        }
+
+    property string[] image_comment_border_group {
+        des = "Comment border image";
+        grouptype = "image";
+        }
+    set image_comment_border_group = [ "image_comment_border_url", "image_comment_border_repeat", "image_comment_border_position" ];
+        property string image_comment_border_url {
+        grouped = 1;
+        }
+    property string image_comment_border_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_comment_border_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        }
+
+    property string[] image_comment_border_end_odd_group {
+        des = "Odd comment border image";
+        grouptype = "image";
+        }
+    set image_comment_border_end_odd_group = [ "image_comment_border_end_odd_url", "image_comment_border_end_odd_repeat", "image_comment_border_end_odd_position" ];
+        property string image_comment_border_end_odd_url {
+        grouped = 1;
+        }
+    property string image_comment_border_end_odd_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_comment_border_end_odd_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        }
+
+    property string[] image_comment_border_end_even_group {
+        des = "Even comment border image";
+        grouptype = "image";
+        }
+    set image_comment_border_end_even_group = [ "image_comment_border_end_even_url", "image_comment_border_end_even_repeat", "image_comment_border_end_even_position" ];
+        property string image_comment_border_end_even_url {
+        grouped = 1;
+        }
+    property string image_comment_border_end_even_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_comment_border_end_even_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        }
+    }
+
+set image_background_header_url = "nouveauoleanders/journalheader_background.png";
+set image_background_header_repeat = "no-repeat";
+
+set image_background_titles_url = "nouveauoleanders/titles_background.png";
+set image_background_titles_repeat = "no-repeat";
+
+set image_entry_border_url = "nouveauoleanders/entry_border.png";
+set image_entry_border_position = "top left";
+set image_entry_border_repeat = "repeat-x";
+set image_entry_border_end_odd_url = "nouveauoleanders/entry_border_end_right.png";
+set image_entry_border_end_odd_position = "top right";
+set image_entry_border_end_odd_repeat = "no-repeat";
+set image_entry_border_end_even_url = "nouveauoleanders/entry_border_end_left.png";
+set image_entry_border_end_even_position = "top left";
+set image_entry_border_end_even_repeat = "no-repeat";
+
+set image_comment_border_url = "nouveauoleanders/comment_border.png";
+set image_comment_border_position = "top left";
+set image_comment_border_repeat = "repeat-x";
+set image_comment_border_end_odd_url = "nouveauoleanders/comment_border_end_right.png";
+set image_comment_border_end_odd_position = "top right";
+set image_comment_border_end_odd_repeat = "no-repeat";
+set image_comment_border_end_even_url = "nouveauoleanders/comment_border_end_left.png";
+set image_comment_border_end_even_position = "top left";
+set image_comment_border_end_even_repeat = "no-repeat";
+
 
 ##===============================
 ## Navigation Module
@@ -127,16 +270,21 @@ function Page::print() {
 
 function print_stylesheet () {
 
-#non universal image variables
-    var string entry_background_stretch = "$*STATDIR/nouveauoleanders/steren-extender-trans2.png";
-    var string entry_background_end_odd = "$*STATDIR/nouveauoleanders/Steren_Twisted_Tree_Banner-sm-trans.png";
-    var string entry_background_end_even = "$*STATDIR/nouveauoleanders/Steren_Twisted_Tree_Banner-sm-rev-trans.png";
+    var string header_background_image = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, "", new Color);
 
-    var string h_background = "$*STATDIR/nouveauoleanders/oleander-johnny_automatic-sm-trans.png";
+    var string titles_background_image = generate_background_css ($*image_background_titles_url, $*image_background_titles_repeat, "", new Color);
 
-    var string comment_background_stretch = "$*STATDIR/nouveauoleanders/steren-short-extender2.png";
-    var string comment_background_end_odd = "$*STATDIR/nouveauoleanders/steren-short2.png";
-    var string comment_background_end_even = "$*STATDIR/nouveauoleanders/steren-short-rev2.png";
+    var string entry_border_image = generate_background_css ($*image_entry_border_url, $*image_entry_border_repeat, $*image_entry_border_position, new Color);
+
+    var string entry_border_image_odd = generate_background_css ($*image_entry_border_end_odd_url, $*image_entry_border_end_odd_repeat, $*image_entry_border_end_odd_position, new Color);
+
+    var string entry_border_image_even = generate_background_css ($*image_entry_border_end_even_url, $*image_entry_border_end_even_repeat, $*image_entry_border_end_even_position, new Color);
+
+    var string comment_border_image = generate_background_css ($*image_comment_border_url, $*image_comment_border_repeat, $*image_comment_border_position, new Color);
+
+    var string comment_border_image_odd = generate_background_css ($*image_comment_border_end_odd_url, $*image_comment_border_end_odd_repeat, $*image_comment_border_end_odd_position, new Color);
+
+    var string comment_border_image_even = generate_background_css ($*image_comment_border_end_even_url, $*image_comment_border_end_even_repeat, $*image_comment_border_end_even_position, new Color);
 
     var string no_icon_url = "$*IMGDIR/profile_icons/user.png";
 
@@ -196,11 +344,16 @@ h1, h2, h3, h4,
 .comment-title { font-family: $*font_journal_title, serif;
     font-style: italic; }
 
-h2, h3, h4 { color: $*color_page_title;
-    background: $*color_header_background url("$h_background") center left no-repeat; 
-    padding-left: 40px;
+h2, h3, h4 {
+    $titles_background_image
+    background-color: $*color_header_background;
+    background-position: center left;
+    color: $*color_page_title;
+    line-height: 1.5em;
     min-height: 30px;
-    line-height: 1.5em; }
+    padding-left: 40px;
+    }
+
 h2 a, h3 a, h4 a { color: $*color_page_title; }
 h2 a, h3 a, h4 a:visited { color: $*color_page_title; }
 .entry .header h3,
@@ -225,14 +378,22 @@ body { margin: 0;
 
 #canvas { position: relative; }
 
-/* header */
-#header { 
+/* Header */
+
+#header {
+    $header_background_image
+    background-color: $*color_header_background;
+    background-position: top right;
     color: $*color_page_title;
-    background: $*color_header_background url("$*STATDIR/$*image_background_header_url") top right no-repeat;
-    padding: 1px;}
-#header > .inner:first-child { background: url("$*STATDIR/$*image_background_header_url") top left no-repeat;
+    padding: 1px;
+    }
+
+#header > .inner:first-child {
+    $header_background_image
+    background-position: top left;
     margin-top: -1px;
-    padding: 3em 2em 1em 2em; }
+    padding: 3em 2em 1em;
+    }
 
 #title { margin-right: 20px;
     margin-left: 200px;
@@ -251,17 +412,27 @@ body { margin: 0;
 .page-day .navigation .page-back { float: left; }
 
 
-/* entries */
-.entry-wrapper { margin-bottom: 3em; 
-    background: url("$entry_background_stretch") top left repeat-x; }
+/* Entries */
+
+.entry-wrapper {
+    $entry_border_image
+    margin-bottom: 3em;
+    }
+
 .entry-wrapper-odd { margin-right: 255px; }
 .entry-wrapper-even { margin-left: 255px; }
-.entry-wrapper-odd .entry { background: url("$entry_background_end_odd") top right no-repeat !important; 
+
+.entry-wrapper-odd .entry {
+    $entry_border_image_odd
+    margin-right: -255px;
     padding: 1px;
-    margin-right: -255px; }
-.entry-wrapper-even .entry { background: url("$entry_background_end_even") top left no-repeat !important;
+    }
+
+.entry-wrapper-even .entry {
+    $entry_border_image_even
+    margin-left: -255px;
     padding: 1px;
-    margin-left: -255px; }
+    }
 
 .entry { border: none; }
 
@@ -330,9 +501,11 @@ ul.entry-interaction-links { text-align: right;
 .comment-thread { margin-left: 1.5em; }
 .comment-depth-1 { margin-left: 0; }
 
-.comment-wrapper { margin-bottom: 1em; 
-    background: url("$comment_background_stretch") top left repeat-x;
-    padding-top: 1px;}
+.comment-wrapper {
+    $comment_border_image
+    margin-bottom: 1em;
+    padding-top: 1px;
+    }
 
 .comment-wrapper.partial {
     background: none;
@@ -340,14 +513,20 @@ ul.entry-interaction-links { text-align: right;
 
 .comment-wrapper-odd { margin-right: 48px; }
 .comment-wrapper-even { margin-left: 48px; }
-.comment-wrapper-odd .comment { background: url("$comment_background_end_odd") top right no-repeat; 
-    margin-top: -1px;
+
+.comment-wrapper-odd .comment {
+    $comment_border_image_odd
     margin-right: -48px;
-    padding-right: 2em; }
-.comment-wrapper-even .comment { background: url("$comment_background_end_even") top left no-repeat; 
     margin-top: -1px;
+    padding-right: 2em;
+    }
+
+.comment-wrapper-even .comment {
+    $comment_border_image_even
     margin-left: -48px;
-    padding-left: 2em; }
+    margin-top: -1px;
+    padding-left: 2em;
+    }
 
 .comment { padding: 30px 1em 0 1em }
 
@@ -539,8 +718,13 @@ $navlinks_css
 
 #footer { padding: 1em;
     background-color: $*color_footer_background; }
-#footer > .inner:first-child { background: url("$h_background") center right no-repeat; 
-    min-height: 31px;  }
+
+#footer > .inner:first-child {
+    $titles_background_image
+    background-position: center right;
+    min-height: 31px;
+    }
+
 #footer a { color: $*color_footer_link; }
 
     """;
