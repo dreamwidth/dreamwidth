@@ -24,10 +24,25 @@ package LJ::S2Theme::refriedtablet::cherryicing;
 use base qw( LJ::S2Theme::refriedtablet );
 sub cats { qw() }
 
+package LJ::S2Theme::refriedtablet::damage;
+use base qw( LJ::S2Theme::refriedtablet );
+sub cats { qw() }
+sub designer { "rising" }
+
+package LJ::S2Theme::refriedtablet::easier;
+use base qw( LJ::S2Theme::refriedtablet );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::refriedtablet::foliage;
 use base qw( LJ::S2Theme::refriedtablet );
 sub cats { qw() }
 sub designer { "dancing_serpent" }
+
+package LJ::S2Theme::refriedtablet::gentleearth;
+use base qw( LJ::S2Theme::refriedtablet );
+sub cats { qw() }
+sub designer { "rising" }
 
 package LJ::S2Theme::refriedtablet::refriedclassic;
 use base qw( LJ::S2Theme::refriedtablet );
@@ -37,6 +52,11 @@ package LJ::S2Theme::refriedtablet::refriedjewels;
 use base qw( LJ::S2Theme::refriedtablet );
 sub cats { qw() }
 sub designer { "dancing_serpent" }
+
+package LJ::S2Theme::refriedtablet::paisaje;
+use base qw( LJ::S2Theme::refriedtablet );
+sub cats { qw() }
+sub designer { "rising" }
 
 package LJ::S2Theme::refriedtablet::refriedshallows;
 use base qw( LJ::S2Theme::refriedtablet );
@@ -48,6 +68,11 @@ use base qw( LJ::S2Theme::refriedtablet );
 sub cats { qw() }
 
 package LJ::S2Theme::refriedtablet::teals;
+use base qw( LJ::S2Theme::refriedtablet );
+sub cats { qw() }
+sub designer { "rising" }
+
+package LJ::S2Theme::refriedtablet::vintagemodern;
 use base qw( LJ::S2Theme::refriedtablet );
 sub cats { qw() }
 sub designer { "rising" }
