@@ -406,6 +406,14 @@ userproplist.icq:
   multihomed: 1
   prettyname: ICQ
 
+userproplist.identity_posting:
+  cldversion: 4
+  datatype: bol
+  des: Whether to allow identity users to post entries to this journal
+  indexed: 0
+  multihomed: 0
+  prettyname: Entries from Identity Users
+
 userproplist.import_job:
   cldversion: 4
   datatype: char

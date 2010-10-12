@@ -3,13 +3,14 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 191;
+plan tests => 201;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'ljprotocol.pl';
 
 use LJ::Test qw( temp_user temp_comm );
+no warnings "once";
 
 my $u = temp_user();
 my $watched = temp_user();
@@ -38,9 +39,10 @@ my $do_request = sub {
     my ( $mode, %request_args ) = @_;
 
     my $err = 0;
+    my %flags = %{ delete  $request_args{flags} || {} };
     my $req = \%request_args;
 
-    my $res = LJ::Protocol::do_request( $mode, $req, \$err, { noauth => 1 } );
+    my $res = LJ::Protocol::do_request( $mode, $req, \$err, { noauth => 1, %flags } );
 
     return ( $res, $err );
 };
@@ -472,4 +474,108 @@ note( "editcircle" );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
     ok( $res->{contentfilters}->[0]->{data} eq "", "No more data in the content filter." );
+}
+
+
+note( "post to community by various journaltypes" );
+{
+    # test cases:
+    # personal journal posting to a community
+    # community posting to a community
+    # openid to a community with no openid posting cap
+    # openid to a community which has the openid posting cap
+    # openid to a community which normally does not allow openid posting, but with the importer bypass on
+
+    # open up community posting to everybody
+    my $admin = temp_user();
+    $admin->join_community( $comm, 1, 1 );
+    LJ::set_rel( $comm->userid, $admin->userid, "A" );
+    delete $LJ::REQ_CACHE_REL{$comm->userid."-".$admin->userid."-A"};  # to be safe
+
+    $comm->set_comm_settings( $admin, { membership => "open", postlevel => "members" } );
+    $comm->set_prop( nonmember_posting => 1 );
+
+
+    # validate the user, so they can post
+    LJ::update_user( $u, { status => 'A' } );
+
+    ( $res, $err ) = $do_request->( "postevent",
+        username   => $u->user,
+        usejournal => $comm->user,
+
+        event      => "new test post to community",
+        tz         => "guess",
+    );
+    $success->( $err, "Entry posted successfully to community by personal journal." );
+
+
+    my $comm2 = temp_comm();
+    ( $res, $err ) = $do_request->( "postevent",
+        username    => $comm2->user,
+        usejournal  => $comm->user,
+        event       => "new test post to community by community2"
+    );
+    $check_err->( $err, 300, "Communities cannot post entries." );
+
+    ( $res, $err ) = $do_request->( "postevent",
+        username    => $comm->user,
+        usejournal  => $comm->user,
+
+        event       => "new test post to self by a community",
+        tz          => "guess",
+    );
+    $check_err->( $err, 300, "Communities cannot post entries, not even to themselves." );
+
+
+
+    # openid casess
+    my $identity_u = temp_user( journaltype => "I" );
+    $identity_u->update_self( { status => "A" } );
+
+    ( $res, $err ) = $do_request->( "postevent",
+        username    => $identity_u->user,
+        usejournal  => $comm->user,
+
+        event       => "new test post to a community by an identity user",
+        tz          => "guess",
+    );
+    $check_err->( $err, 150, "OpenID users cannot post entries to communities with no OpenID posting prop." );
+
+
+    ( $res, $err ) = $do_request->( "postevent",
+        username    => $identity_u->user,
+        usejournal  => $comm->user,
+
+        event       => "new test post to a community by an identity user",
+        tz          => "guess",
+
+        flags       => { importer_bypass => 1 },
+    );
+    $success->( $err, "Always allow posting with the importer bypass." );
+
+
+    # allow all users to add and control tags (for convenience)
+    $comm->set_prop( opt_tagpermissions => "public,public" );
+
+
+    ok( ! LJ::Tags::can_control_tags( $comm, $identity_u ), "Identity user cannot control tags on communities that don't allow identity posting." );
+    ok( ! LJ::Tags::can_add_tags( $comm, $identity_u ), "Identity user cannot control tags on communities that don't allow identity posting." );
+
+
+    # allow identity users to post entries and add / control tags as appropriate
+    $comm->set_prop( identity_posting => 1 );
+
+    ok( LJ::Tags::can_control_tags( $comm, $identity_u ), "Identity user can control tags on communities if they allow identity posting." );
+    ok( LJ::Tags::can_add_tags( $comm, $identity_u ), "Identity user can control tags on communities if they allow identity posting." );
+
+
+    ( $res, $err ) = $do_request->( "postevent",
+        username    => $identity_u->user,
+        usejournal  => $comm->user,
+
+        event       => "new test post to a community by an identity user",
+        props       => { taglist => "testing" },
+        tz          => "guess",
+    );
+    $success->( $err, "OpenID users can post entries to communities with the appropriate prop." );
 }

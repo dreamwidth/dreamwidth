@@ -1157,7 +1157,7 @@ sub postevent
 
     ### make sure community or identity journals don't post
     return fail($err,150) if $u->is_community;
-    return fail($err,150) if ! $importer_bypass && $u->is_identity;
+    return fail($err,150) if ! $importer_bypass && ! $uowner->prop( "identity_posting" ) && $u->is_identity;
 
     # suspended users can't post
     return fail($err,305) if ! $importer_bypass && $u->is_suspended;
