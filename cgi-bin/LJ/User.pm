@@ -5226,6 +5226,11 @@ sub load_identity_user {
     return $u;
 }
 
+# journal_base replacement for OpenID accounts. since they don't have
+# a journal, redirect to /read.
+sub openid_journal_base {
+    return $_[0]->journal_base . "/read";
+}
 
 # returns a URL if account is an OpenID identity.  undef otherwise.
 sub openid_identity {

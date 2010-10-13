@@ -38,7 +38,12 @@ body<=
     my $styleid = $theme->get_preview_styleid($u);
 
     return $ML{'.error.preview'} unless $styleid;
-    return BML::redirect($u->journal_base . "/?s2id=$styleid");
+
+    if ( $u->is_identity ) {
+        return BML::redirect( $u->openid_journal_base .  "/?s2id=$styleid" );
+    } else {
+        return BML::redirect( $u->journal_base . "/?s2id=$styleid" );
+    }
 }
 _code?>
 <=body
