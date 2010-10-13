@@ -2054,7 +2054,7 @@ sub js_quote_button {
     my ( $element, $hidebutton ) = @_;
     return '' unless $element;
     my $button = LJ::ejs( '<input type="button" value="Quote"'
-                        . ' onmousedown="quote();" onclick="quote();" />' );
+                        . 'onclick="quote();" />' );
     $button = '' if $hidebutton;
     my $buttontext = "document.write('&nbsp;&nbsp;$button')";
     if ( $element eq 'body' ) {
