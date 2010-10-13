@@ -572,6 +572,7 @@ class Page
     function print_wrapper_start() "Start the body wrapper for this page; includes default classes";
     function print_wrapper_start(string{} opts) "Start the body wrapper for this page; includes default classes and takes a hash using the key 'class'";
     function print_wrapper_end() "End the body wrapper for this entry or comment.";
+    function print_entry_footer(Entry e) "Close up the entry";
 
     function print_time
     "Print the time when the page was created.";
@@ -837,6 +838,13 @@ class EntryPage extends Page
     function builtin print_multiform_start "Prints start of form tag and hidden elements to do a multi-comment action (multiple delete, screen, unscreen, etc...)";
     function builtin print_multiform_end "Prints end of form tag to do a multi-comment action.";
     function builtin print_multiform_actionline "Prints the line of the multiform giving instructions, options, and the submit button, using the text of the different \$*text_multiform_ properties.";
+}
+
+class EntryPreviewPage extends EntryPage
+"We disable funtionality for previews, and print messages about that"
+{
+    var string preview_warn_text "Text to display instead of management controls for previews";
+    function print_standout_box(string message) "Prints a standout box containing a message";
 }
 
 class ReplyForm
@@ -3175,6 +3183,11 @@ function Page::print_stylesheets()
         println """</style>""";
     }
 }
+function EntryPreviewPage::print_standout_box(string message)
+"Prints a standout box for warnings, etc "
+{
+    println "<div class='standout'><div class='standout-inner'><p> $message </p></div></div>";
+}
 
 function FriendsPage::print_stylesheets() {
 #This creates entry-specific CSS to allow custom colors on reading page. Rather than override this, layouts should change custom_foreground_element, custom_background_element (and custom_colors_template for advanced options) instead
@@ -4315,24 +4328,35 @@ function Page::print_entry(Entry e)
     """</div>\n""";
     """</div>\n""";
     """</div>\n""";
+
     """<div class="footer">\n""";
     """<div class="inner">\n""";
     $e->print_tags();
-    $e->print_management_links();
-    if ($this isa EntryPage) {
-        """<hr class="above-entry-interaction-links" />""";
-        $e->print_interaction_links("topcomment");
-        $this->print_reply_container({ "target" => "topcomment" });
-        """<hr class="below-reply-container" />""";
-    }
-    else {
-        $e->print_interaction_links();
-    }
+    $this->print_entry_footer($e);
     "</div>\n</div>\n";
+
     $e->print_wrapper_end();
 
 }
+function EntryPreviewPage::print_entry_footer(Entry e)
+"Disable links to avoid people trying to edit from a preview"
+{
+    $this->print_standout_box($this.preview_warn_text);
+}
 
+function EntryPage::print_entry_footer(Entry e) {
+    $e->print_management_links();
+    """<hr class="above-entry-interaction-links" />""";
+    $e->print_interaction_links("topcomment");
+    $this->print_reply_container({ "target" => "topcomment" });
+    """<hr class="below-reply-container" />""";
+}
+
+function Page::print_entry_footer(Entry e) {
+    $e->print_management_links();
+        $e->print_interaction_links();
+
+}
 function RecentPage::print_sticky_entry(StickyEntry s)
 "function to print the sticky entry. can be overrised by styles to print it differently than other entries."
 {

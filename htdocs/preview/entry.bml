@@ -57,6 +57,9 @@ _c?>
     my $r = BML::get_request();
     my $ctx;
 
+    # Get the preview message to hand to S2 or use in $ret. 
+    my $preview_warn_text = $ML{".entry.preview_warn_text"}; 
+    
     if ($u && $up) {
         $r->notes->{_journal} = $u->{user};
         $r->notes->{journalid} = $u->{userid};
@@ -193,6 +196,10 @@ _c?>
 
         $ret .= $event;
         $ret .= "</div>";
+        $ret .= "<hr/><?standout <div><p>\n";
+        $ret .= $preview_warn_text . "\n";
+        $ret .= "</p></div> standout?>";
+
 
         $ret .= "<br clear='all' /><hr width='100%' size='2' align='center' />";
         
@@ -210,11 +217,12 @@ _c?>
         $LJ::S2::CURR_CTX = $ctx;
 
         my $p = LJ::S2::Page($u, $opts);
-        $p->{'_type'} = "EntryPage";
+        $p->{'_type'} = "EntryPreviewPage";
         $p->{'view'} = "entry";
         $p->{'comment_pages'} = undef;
         $p->{'comments'} = [];
         $p->{'comment_pages'} = undef;
+        $p->{'preview_warn_text'} = $preview_warn_text;
 
         my $userlite_journal = LJ::S2::UserLite($u);
         my $userlite_poster  = LJ::S2::UserLite($up);
@@ -289,6 +297,15 @@ _c?>
                 position: absolute;
                 left: -10000px;
                 top: auto;
+            }
+            .standout .standout-inner, .standout-colors {
+                background-color: #ffafb6;
+                color: #111;
+                border: 1px solid #c1272d;
+            }
+
+            .standout-inner a:hover, .standout-inner a:active {
+                color: #000;
             }
             </style>
         };
