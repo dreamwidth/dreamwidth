@@ -42,7 +42,7 @@ set color_module_link = "#000";
 set color_module_link_active = "#9e2d00";
 set color_module_link_hover = "#6ac49e";
 set color_module_link_visited = "#fff";
-set color_module_text = "#9e900";
+set color_module_text = "#9e9000";
 set color_module_title = "#9e9000";
 
 
