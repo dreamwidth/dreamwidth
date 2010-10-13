@@ -520,7 +520,7 @@ body<=
     if ($items{'pages'} > 1) {
         $ret .= "<div style='margin-left: 30px;'>$ML{'.jump'}: ";
         $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
-                                'class' => 'text', 'size' => '10', 'maxlength' => '25' }) . " ";
+                                'class' => 'text', 'size' => '10', 'maxlength' => '75' }) . " ";
         $ret .= LJ::html_submit(undef, 'Go') . "</div>";
 
         $ret .= $navbar;
@@ -555,7 +555,7 @@ body<=
         foreach(1..5) {
             my $rstyle = ($rc++ & 1) ? "altrow2" : "altrow1";
             $ret .= "<tr class='$rstyle'><td>";
-            $ret .= LJ::html_text({ 'name' => "add_$_", 'size' => '10', 'class' => 'text', 'maxlength' => '25' }) . "</td>";
+            $ret .= LJ::html_text({ 'name' => "add_$_", 'size' => '10', 'class' => 'text', 'maxlength' => '75' }) . "</td>";
             foreach my $key (@attribs) {
                 $ret .= "<td style='text-align: center;'>";
                 if ($key eq 'member' || $key eq 'post') {
