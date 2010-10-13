@@ -93,7 +93,7 @@
 
 .postresponse=Post a comment in response:
 
-.title=Post Comment
+.title=(Reply)
 
 .usermismatch<<
 You have entered a username, but you have deselected the 'LiveJournal user' option.

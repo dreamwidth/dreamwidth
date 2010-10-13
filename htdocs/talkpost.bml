@@ -17,7 +17,7 @@ body<=
 <?_code
 {
     use strict;
-    use vars qw($head %FORM %ML %GET);
+    use vars qw($head %FORM %ML %GET $title_user $title_subject);
 
     $head = "";  # not local, used to build <link> tags
 
@@ -69,6 +69,8 @@ body<=
 
     my $u = $init->{'journalu'};
     return $ML{'talk.error.nojournal'} unless $u;
+
+    $title_user = $u->user;
 
     $r->notes->{journalid} = $u->{'userid'};
     return $LJ::MSG_READONLY_USER if $u->is_readonly;
@@ -318,6 +320,7 @@ body<=
             BML::ebml(\$cleansubject);
           }
         $ret .= "<div id='entrysubj'>$cleansubject</div><br />\n";
+        $title_subject = LJ::strip_html($cleansubject);
     }
 
     $ret .= $event;
@@ -396,5 +399,5 @@ head<=
 <?_code return $head _code?>
 <?_code return (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : ""; _code?>
 <=head
-windowtitle=><?_ml /talkpost.bml.title _ml?>
+windowtitle=> <?_code "$title_user : $title_subject $ML{'.title'}" _code?>
 page?>
