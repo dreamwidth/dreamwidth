@@ -28,6 +28,16 @@
 
 .field.count.label=Count:
 
+.field.paid_class.label=Paid Account:
+
+.field.paid_class.none=(No Paid Time)
+
+.field.paid_class.paid=Paid
+
+.field.paid_class.premium=Premium Paid
+
+.field.paid_months.label=Months:
+
 .field.suggest_journal.label=Suggest Journal:
 
 .heading.active=Active
@@ -36,9 +46,15 @@
 
 .heading.count=Count
 
+.heading.paid=Paid Time
+
 .heading.suggest=Suggest Journal
 
 .nomatch=No promo codes match your criteria
+
+.paid=[[type]] for [[months]] [[?months|month|months]]
+
+.paid.no=(none)
 
 .return=Return to list
 

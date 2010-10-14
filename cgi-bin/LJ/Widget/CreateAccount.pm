@@ -251,16 +251,24 @@ sub render_body {
     $ret .= "</label>";
     $ret .= "</td></tr>\n";
 
-    if ( $LJ::USE_ACCT_CODES && !DW::InviteCodes->is_promo_code( code => $code ) ) {
-        my $item = DW::InviteCodes->paid_status( code => $code );
-        if ( $item ) {
-            $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
-            if ( $item->permanent ) {
-                $ret .= $class->ml( 'widget.createaccount.field.paidaccount.permanent', { type => "<strong>" . $item->class_name . "</strong>" } );
-            } else {
-                $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $item->class_name . "</strong>", nummonths => $item->months } );
+    if ( $LJ::USE_ACCT_CODES ) {
+        if ( my $pc = DW::InviteCodes::Promo->load( code => $code ) ) {
+            if ( $pc->paid_class ) {
+                $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+                $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $pc->paid_class_name . "</strong>", nummonths => $pc->paid_months } );
+                $ret .= "</td></tr>";
+            } 
+        } else {
+            my $item = DW::InviteCodes->paid_status( code => $code );
+            if ( $item ) {
+                $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+                if ( $item->permanent ) {
+                    $ret .= $class->ml( 'widget.createaccount.field.paidaccount.permanent', { type => "<strong>" . $item->class_name . "</strong>" } );
+                } else {
+                    $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $item->class_name . "</strong>", nummonths => $item->months } );
+                }
+                $ret .= "</td></tr>";
             }
-            $ret .= "</td></tr>";
         }
     }
 
@@ -319,11 +327,9 @@ sub handle_post {
             $from_post{code_valid} = 1;
 
             # and if this is a community promo code, set the inviter
-            if ( my $pc = DW::InviteCodes->get_promo_code_info( code => $code ) ) {
-                if ( $pc->{suggest_journalid} ) {
-                    my $invu = LJ::load_userid( $pc->{suggest_journalid} );
-                    $post->{from} = $invu->user if $invu;
-                }
+            if ( my $pc = DW::InviteCodes::Promo->load( code => $code ) ) {
+                my $invu = $pc->suggest_journal;
+                $post->{from} = $invu->user if $invu;
             }
 
         } else {
@@ -453,8 +459,8 @@ sub handle_post {
 
         # we're all done; mark the invite code as used
         if ( $LJ::USE_ACCT_CODES && $code ) {
-            if ( DW::InviteCodes->is_promo_code( code => $code ) ) {
-                DW::InviteCodes->use_promo_code( code => $code );
+            if ( my $pc = DW::InviteCodes::Promo->load( code => $code ) ) {
+                $pc->use_code;
             } else {
                 my $invitecode = DW::InviteCodes->new( code => $code );
                 $invitecode->use_code( user => $nu );

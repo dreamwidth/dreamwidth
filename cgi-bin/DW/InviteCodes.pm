@@ -67,6 +67,8 @@ use constant { AUTH_LEN => 13, ACID_LEN => 7 };
 use constant DIGITS => qw(A B C D E F G H J K L M N P Q R S T U V W X Y Z 2 3 4 5 6 7 8 9);
 use constant { CODE_LEN => AUTH_LEN + ACID_LEN, DIGITS_LEN => scalar(DIGITS) };
 
+use DW::InviteCodes::Promo;
+
 =head1 API
 
 =head2 C<< $class->generate( [ count => $howmany, ] owner => $forwho, reason => $why >>
@@ -129,75 +131,6 @@ sub could_be_code {
     return 1;
 }
 
-=head2 C<< $class->is_promo_code( code => $code ) >>
-
-Returns if the given code is a promo code or not.
-
-=cut
-
-sub is_promo_code {
-    my ( $class, %opts ) = @_;
-
-    my $promo_code_info = $class->get_promo_code_info( code => $opts{code} );
-
-    return ref $promo_code_info ? 1 : 0;
-}
-
-=head2 C<< $class->get_promo_code_info( code => $code ) >>
-
-Return the info for this promo code in a hashref.
-
-=cut
-
-sub get_promo_code_info {
-    my ( $class, %opts ) = @_;
-    my $dbh = LJ::get_db_writer();
-    my $code = $opts{code};
-
-    return undef unless $code && $code =~ /^[a-z0-9]+$/i; # make sure the code is valid first
-    return $dbh->selectrow_hashref( "SELECT * FROM acctcode_promo WHERE code = ?", undef, $code );
-}
-
-=head2 C<< $class->get_promo_codes( state => $state ) >>
-
-Return the list of promo codes, optionally filtering by state.
-State can be:
-  * active ( active promo codes )
-  * inactive ( inactive promo codes )
-  * unused ( unused promo codes )
-  * noneleft ( no uses left )
-  * all ( all promo codes )
-
-=cut
-
-sub get_promo_codes {
-    my ( $class, %opts ) = @_;
-    my $dbh = LJ::get_db_writer();
-    my $state = $opts{state} || 'active';
-
-    my $sql = "SELECT * FROM acctcode_promo";
-    if ( $state eq 'all' ) {
-        # do nothing
-    } elsif ( $state eq 'active' ) {
-        $sql .= " WHERE active = '1' AND current_count < max_count";
-    } elsif ( $state eq 'inactive' ) {
-        $sql .= " WHERE active = '0' OR current_count >= max_count";
-    } elsif ( $state eq 'unused' ) {
-        $sql .= " WHERE current_count = 0"
-    } elsif ( $state eq 'noneleft' ) {
-        $sql .= " WHERE current_count >= max_count";
-    }
-
-    my $sth = $dbh->prepare( $sql ) or die $dbh->errstr;
-    $sth->execute() or die $dbh->errstr;
-
-    my @out;
-    while ( my $row = $sth->fetchrow_hashref ) {
-        push @out, $row;
-    }
-    return \@out;
-}
-
 =head2 C<< $class->check_code( code => $invite [, userid => $recipient] ) >>
 
 Checks whether code $invite is valid before trying to create an account. Takes
@@ -213,7 +146,7 @@ sub check_code {
 
     # check if this code is a promo code first
     # if it is, make sure it's active and we're not over the creation limit for the code
-    my $promo_code_info = $class->get_promo_code_info( code => $code );
+    my $promo_code_info = DW::InviteCodes::Promo->load( code => $code );
     if ( ref $promo_code_info ) {
         return 0 unless $promo_code_info->{active} && ( $promo_code_info->{current_count} < $promo_code_info->{max_count} );
         return 1;
@@ -277,24 +210,6 @@ sub use_code {
         undef, $opts{user}->{userid}, $self->{acid} );
 
     return 1; # 1 means success? Needs error return in that case.
-}
-
-=head2 C<< $class->use_promo_code >>
-
-Increments the current_count on the given promo code.
-
-=cut
-
-sub use_promo_code {
-    my ( $class, %opts ) = @_;
-    my $dbh = LJ::get_db_writer();
-    my $code = $opts{code};
-
-    return 0 unless $class->is_promo_code( code => $code );
-
-    $dbh->do( "UPDATE acctcode_promo SET current_count = current_count + 1 WHERE code = ?", undef, $code );
-
-    return 1;
 }
 
 =head2 C<< $object->send_code ( [ email => $email ] ) >>

@@ -2908,6 +2908,8 @@ CREATE TABLE acctcode_promo (
     current_count int(10) unsigned not null default 0,
     active enum('1','0') not null default 1,
     suggest_journalid int unsigned,
+    paid_class varchar(100),
+    paid_months tinyint unsigned,
 
     PRIMARY KEY ( code )
 )
@@ -3853,6 +3855,14 @@ EOF
     unless ( column_type( 'externalaccount', 'options' ) ) {
         do_alter( 'externalaccount',
                   "ALTER TABLE externalaccount ADD COLUMN options blob");
+    }
+
+    unless ( column_type( 'acctcode_promo', 'paid_class' ) ) {
+        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_class varchar(10000)" );
+    }
+
+    unless ( column_type( 'acctcode_promo', 'paid_months' ) ) {
+        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_months tinyint unsigned" );
     }
 });
 

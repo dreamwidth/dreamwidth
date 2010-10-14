@@ -42,6 +42,7 @@ use DW::Logic::ProfilePage;
 use DW::Pay;
 use DW::User::ContentFilters;
 use DW::User::Edges;
+use DW::InviteCodes::Promo;
 
 use LJ::Community;
 use LJ::Subscription;
@@ -250,8 +251,9 @@ sub create_personal {
     if ( $LJ::USE_ACCT_CODES && $opts{code} ) {
         my $code = $opts{code};
         my $itemidref;
-        if ( DW::InviteCodes->is_promo_code( code => $code ) ) {
-            LJ::statushistory_add( $u, undef, 'create_from_promo', "Created new account from promo code '$code'." );
+        my $promo_code = DW::InviteCodes::Promo->load( code => $code );
+        if ( $promo_code ) {
+            $promo_code->apply_for_user( $u );
         } elsif ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
             my $item = $cart->get_item( $itemidref );
             if ( $item && $item->isa( 'DW::Shop::Item::Account' ) ) {

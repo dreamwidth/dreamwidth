@@ -15,7 +15,7 @@ body<=
 {
     use strict;
     use vars qw( %GET %POST $title );
-    use DW::InviteCodes;
+    use DW::InviteCodes::Promo;
 
     $title = $ML{'.title'};
 
@@ -68,6 +68,24 @@ body<=
         $ret .= LJ::html_text( { id => 'suggest_journal', name => 'suggest_journal', value => ( $suggest_u ? $suggest_u->username : ( $data->{suggest_journal} || "" ) ), size => 28, maxlength => 25  } );
         $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{suggest_journal}}) . "]</strong>" if $errors->{suggest_journal};
         $ret .= '<br />';
+        
+        $ret .= LJ::labelfy( 'paid_class', "$ML{'.field.paid_class.label'} "  );
+        $ret .= LJ::html_select( {
+                id => 'paid_class',
+                name => 'paid_class',
+                selected => ( $data->{paid_class} || '' ),
+            },
+            { value => '', text => $ML{'.field.paid_class.none'} },
+            { value => 'paid', text => $ML{'.field.paid_class.paid'} },
+            { value => 'premium', text => $ML{'.field.paid_class.premium'} },
+        );
+        $ret .= '<br />';
+        
+        $ret .= LJ::labelfy( 'paid_months', "$ML{'.field.paid_months.label'} "  );
+        $ret .= LJ::html_text( { id => 'paid_months', name => 'paid_months', value => ( $data->{paid_months} || "" ), size => 10, maxlength => 2 } );
+        $ret .= '<br />';
+
+        
         $ret .= LJ::html_submit( value => $ML{ ( $data ? '.btn.save' : '.btn.create' ) } );
         $ret .= "</form>";
     };
@@ -84,6 +102,8 @@ body<=
                 current_count => 0,
                 max_count => $POST{max_count} || 0,
                 suggest_journal => $POST{suggest_journal},
+                paid_class => $POST{paid_class} || '',
+                paid_months => $POST{paid_months} || undef,
             };
             my $valid = 1;
             my $errors = {};
@@ -93,7 +113,7 @@ body<=
             } elsif ( ! ( $code =~ /^[a-z0-9]+$/i ) ) {
                 push @{$errors->{code}}, $ML{'.error.code.invalid_character'};
                 $valid = 0;
-            } elsif ( DW::InviteCodes->is_promo_code( code => $code ) ) {
+            } elsif ( DW::InviteCodes::Promo->is_promo_code( code => $code ) ) {
                 push @{$errors->{code}}, $ML{'.error.code.exists'};
                 $valid = 0;
             }
@@ -111,10 +131,14 @@ body<=
             } else {
                 $data->{suggest_journal} = undef;
             }
+            if ( $data->{paid_class} !~ /^(paid|premium)$/ ) {
+                $data->{paid_class} = undef;
+                $data->{paid_months} = undef;
+            }
             if ( $valid ) {
                 my $dbh = LJ::get_db_writer();
-                $dbh->do( "INSERT INTO acctcode_promo (code, max_count, active, suggest_journalid) VALUES (?, ?, ?, ?)", undef,
-                            $data->{code}, $data->{max_count}, $data->{active}, $data->{suggest_journalid} ) or die $dbh->errstr;
+                $dbh->do( "INSERT INTO acctcode_promo (code, max_count, active, suggest_journalid, paid_class, paid_months) VALUES (?, ?, ?, ?, ?, ?)", undef,
+                            $data->{code}, $data->{max_count}, $data->{active}, $data->{suggest_journalid}, $data->{paid_class}, $data->{paid_months} ) or die $dbh->errstr;
             } else {
                 $create_form->( $data, $errors );
                 return $ret;
@@ -128,6 +152,8 @@ body<=
                 current_count => 0,
                 max_count => $POST{max_count} || 0,
                 suggest_journal => $POST{suggest_journal},
+                paid_class => $POST{paid_class} || '',
+                paid_months => $POST{paid_months} || undef,
             };
             my $valid = 1;
             my $errors = {};
@@ -135,7 +161,7 @@ body<=
             if ( ! $code ) {
                 push @{$errors->{code}}, $ML{'.error.code.missing'};
                 $valid = 0;
-            } elsif ( ! ref ( $info = DW::InviteCodes->get_promo_code_info( code => $code ) ) ) {
+            } elsif ( ! ref ( $info = DW::InviteCodes::Promo->load( code => $code ) ) ) {
                 push @{$errors->{code}}, $ML{'.error.code.invalid'};
                 $valid = 0;
             } else {
@@ -155,10 +181,14 @@ body<=
             } else {
                 $data->{suggest_journal} = undef;
             }
+            if ( $data->{paid_class} !~ /^(paid|premium)$/ ) {
+                $data->{paid_class} = undef;
+                $data->{paid_months} = undef;
+            }
             if ( $valid ) {
                 my $dbh = LJ::get_db_writer();
-                $dbh->do( "UPDATE acctcode_promo SET max_count = ?, active = ?, suggest_journalid = ? WHERE code = ?", undef,
-                            $data->{max_count}, $data->{active}, $data->{suggest_journalid}, $data->{code} ) or die $dbh->errstr;
+                $dbh->do( "UPDATE acctcode_promo SET max_count = ?, active = ?, suggest_journalid = ?, paid_class = ?, paid_months = ? WHERE code = ?", undef,
+                            $data->{max_count}, $data->{active}, $data->{suggest_journalid}, $data->{paid_class}, $data->{paid_months}, $data->{code} ) or die $dbh->errstr;
             } else {
                 $create_form->( $data, $errors );
                 return $ret;
@@ -169,10 +199,11 @@ body<=
 
     if ( $state eq 'create' ) {
         $create_form->( );
-    } elsif ( DW::InviteCodes->is_promo_code( code => $code ) ) {
-        $create_form->( DW::InviteCodes->get_promo_code_info( code => $code ) );
+    } elsif ( DW::InviteCodes::Promo->is_promo_code( code => $code ) ) {
+        $create_form->( DW::InviteCodes::Promo->load( code => $code ) );
     } else {
-        my $codes = DW::InviteCodes->get_promo_codes( state => $state );
+        # FIXME: Do not do hash accesses on this.
+        my $codes = DW::InviteCodes::Promo->load_bulk( state => $state );
 
         $ret .= '<a href="/admin/invites/promo?state=create">' . $ML{'.state.new'} . '</a> | ';
         $ret .= '<a href="/admin/invites/promo?state=all">' . $ML{'.state.unfiltered'} . '</a> | ';
@@ -182,7 +213,7 @@ body<=
         $ret .= '<a href="/admin/invites/promo?state=noneleft">' . $ML{'.state.noneleft'} . '</a>';
 
         $ret .= "<table>";
-        $ret .= "<tr><th>$ML{'.heading.code'}</th><th>$ML{'.heading.active'}</th><th>$ML{'.heading.count'}</th><th>$ML{'.heading.suggest'}</th></tr>";
+        $ret .= "<tr><th>$ML{'.heading.code'}</th><th>$ML{'.heading.active'}</th><th>$ML{'.heading.count'}</th><th>$ML{'.heading.suggest'}</th><th>$ML{'.heading.paid'}</tr>";
         
         if ( scalar( @$codes ) ) {
             foreach my $code (@$codes) {
@@ -192,6 +223,15 @@ body<=
                 $ret .= "<td>" . ( $code->{active} ? $ML{'.active.active'} : $ML{'.active.inactive'} ) . "</td>";
                 $ret .= "<td>" . $code->{current_count} . $ML{'.count.outof'} . $code->{max_count} . "</td>";
                 $ret .= "<td>" . ( $suggest_u ? $suggest_u->ljuser_display : $ML{'.suggest.none'} ) . "</td>";
+                if ( defined $code->{paid_class} ) {
+                    $ret .= "<td>" .
+                            BML::ml('.paid', {
+                                type => $code->{paid_class},
+                                months => $code->{paid_months}
+                            } ) . "</td>";
+                } else {
+                    $ret .= "<td>$ML{'.paid.no'}</td>";
+                }
                 $ret .= "</tr>";
             }
         } else {
