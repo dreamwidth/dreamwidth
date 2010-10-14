@@ -406,6 +406,8 @@
 
 .service.delicious=Delicious
 
+.service.ravelry=Ravelry
+
 .service.twitter=Twitter
 
 .syn.header=Feeds

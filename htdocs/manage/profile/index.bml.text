@@ -201,6 +201,8 @@
 
 .services.last_fm=Last.fm Username
 
+.services.ravelry=Ravelry Username
+
 .services.twitter=Twitter Username
 
 .show.birthday.day2=Show only month and day

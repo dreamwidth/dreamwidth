@@ -934,6 +934,14 @@ userproplist.public_key:
   multihomed: 0
   prettyname: PGP or GPG public key
 
+userproplist.ravelry:
+  cldversion: 4
+  datatype: char
+  des: Ravelry user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Ravelry user account name
+
 userproplist.renamedto:
   cldversion: 4
   datatype: char

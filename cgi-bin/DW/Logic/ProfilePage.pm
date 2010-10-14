@@ -856,6 +856,17 @@ sub external_services {
         };
     }
 
+    if ( my $ravelry = $u->prop( 'ravelry' ) ) {
+        my $ravelry = LJ::eurl( $ravelry );
+        push @ret, {
+            type => 'ravelry',
+            text => LJ::ehtml( $ravelry ),
+            url => "http://www.ravelry.com/people/$ravelry",
+            image => 'ravelry.png',
+            title_ml => '.service.ravelry',
+        };
+    }
+
     return @ret;
 }
 
