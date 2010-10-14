@@ -51,7 +51,7 @@ _c?>
     my $u = $poll->journal;
 
     my $mode = "";
-    $mode = $FORM{'mode'} if ($FORM{'mode'} =~ /(enter|results|ans)/);
+    $mode = $FORM{'mode'} if ($FORM{'mode'} =~ /(enter|results|ans|clear)/);
 
     # Handle opening and closing of polls
     # We do this first because a closed poll will alter how a poll is displayed

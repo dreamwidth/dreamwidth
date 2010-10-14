@@ -202,6 +202,13 @@ LiveJournal.initPolls = function (element) {
         DOM.addEventListener(pollLink, "click", LiveJournal.pollAnswerLinkClicked.bindEventListener(pollLink));
     });
 
+    var pollClears = DOM.getElementsByTagAndClassName(ele, 'a', "LJ_PollClearLink") || [];
+
+    // attach click handlers to each clear link
+    Array.prototype.forEach.call(pollClears, function (pollClear) {
+        DOM.addEventListener(pollClear, "click", LiveJournal.pollClearLinkClicked.bindEventListener(pollClear));
+    });
+
     var pollButtons = DOM.getElementsByTagAndClassName(ele, 'input', "LJ_PollSubmit") || []; 
     
     // attaches a click handler to all poll submit buttons
@@ -303,6 +310,32 @@ LiveJournal.getFormObject = function (form) {
     return formObject;
 
 };
+
+LiveJournal.pollClearLinkClicked = function (e) {
+    Event.stop(e);
+
+    var pollid = this.getAttribute("lj_pollid");
+    var inputelements = DOM.getElementsByTagAndClassName(document, 'input', "poll-"+pollid ) || [];
+    var inputelement;
+
+    // clear all options of this poll
+    for (var i = 0; i < inputelements.length; i++) {
+        inputelement = inputelements[i];
+        // text fields
+        if (inputelement.type == 'text') {
+            inputelement.value = "";
+        } else {
+        // checboxes and radio buttons
+            inputelements[i].checked = false;
+        }
+    }
+
+    var selectelements = DOM.getElementsByTagAndClassName(document, 'select', "poll-"+pollid ) || [];
+    // drop-down selects
+    for (var i = 0; i < selectelements.length; i++) {
+        selectelements[i].selectedIndex = 0;
+    }
+}
 
 // invocant is the pollLink from above
 LiveJournal.pollAnswerLinkClicked = function (e) {

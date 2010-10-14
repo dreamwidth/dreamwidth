@@ -843,7 +843,7 @@ sub render_ans {
 # opts:
 #   mode => enter|results|ans
 #   qid  => show a specific question
-#   page => page #
+#   page => page 
 sub render {
     my ($self, %opts) = @_;
 
@@ -855,6 +855,13 @@ sub render {
     my $qid      = delete $opts{qid};
     my $page     = delete $opts{page};
     my $pagesize = delete $opts{pagesize};
+
+    # clearning the answers renders just like 'enter' mode, we just need to clear all selections
+    my $clearanswers;
+    if ( $mode eq "clear" ) {
+        $clearanswers = 1;
+        $mode = "enter";
+    }
 
     # Default pagesize.
     $pagesize = 2000 unless $pagesize;
@@ -944,6 +951,8 @@ sub render {
     if ( $mode eq 'enter' && $self->can_view( $remote ) ) {
         $ret .= "<br />\n";
         $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . LJ::Lang::ml( 'poll.seeresults' ) . "</a> ]  ";
+        $ret .= "&nbsp&nbsp;[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=clear' 
+            class='LJ_PollClearLink' id='LJ_PollClearLink_${pollid}' lj_pollid='$pollid'>  " . BML::ml('poll.clear') ."</a> ]";
     } elsif ( $mode eq 'results' ) {
         #include number of participants
         my $sth = $self->journal->prepare( "SELECT count(DISTINCT userid) FROM pollresult2 WHERE pollid=? AND journalid=?" );
@@ -1054,12 +1063,15 @@ sub render {
             }
         }
 
+        my $prevanswer;
+
         #### text questions are the easy case
         if ($q->type eq "text" && $do_form) {
             my ($size, $max) = split(m!/!, $q->opts);
+            $prevanswer = $clearanswers ? "" : $preval{$qid};
 
-            $results_table .= LJ::html_text({ 'size' => $size, 'maxlength' => $max,
-                                    'name' => "pollq-$qid", 'value' => $preval{$qid} });
+            $results_table .= LJ::html_text({ 'size' => $size, 'maxlength' => $max, 'class'=>"poll-$pollid",
+                                    'name' => "pollq-$qid", 'value' => $prevanswer });
         } elsif ($q->type eq 'drop' && $do_form) {
             #### drop-down list
             my @optlist = ('', '');
@@ -1069,8 +1081,9 @@ sub render {
                 LJ::Poll->clean_poll(\$item);
                 push @optlist, ($itid, $item);
             }
-            $results_table .= LJ::html_select({ 'name' => "pollq-$qid",
-                                      'selected' => $preval{$qid} }, @optlist);
+            $prevanswer = $clearanswers ? 0 : $preval{$qid}; 
+            $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
+                                      'selected' => $prevanswer }, @optlist);
         } elsif ($q->type eq "scale" && $do_form) {
             #### scales (from 1-10) questions
             my ($from, $to, $by) = split(m!/!, $q->opts);
@@ -1084,10 +1097,12 @@ sub render {
                 $results_table .= "<table><tr valign='top' align='center'>";
 
                 for (my $at=$from; $at<=$to; $at+=$by) {
+
+                    my $selectedanswer = !$clearanswers && ( defined $preval{$qid} && $at == $preval{$qid});
                     $results_table .= "<td style='text-align: center;'>";
-                    $results_table .= LJ::html_check({ 'type' => 'radio', 'name' => "pollq-$qid",
+                    $results_table .= LJ::html_check( { 'type' => 'radio', 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
                                              'value' => $at, 'id' => "pollq-$pollid-$qid-$at",
-                                             'selected' => (defined $preval{$qid} && $at == $preval{$qid}) });
+                                             'selected' => $selectedanswer } );
                     $results_table .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
                 }
 
@@ -1096,12 +1111,13 @@ sub render {
             # many opts, display select
             # but only if displaying form
             } else {
+                $prevanswer = $clearanswers ? "" : $preval{$qid};
 
                 my @optlist = ('', '');
                 for (my $at=$from; $at<=$to; $at+=$by) {
                     push @optlist, ($at, $at);
                 }
-                $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'selected' => $preval{$qid} }, @optlist);
+                $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid", 'selected' => $prevanswer }, @optlist);
             }
 
         } else {
@@ -1137,9 +1153,10 @@ sub render {
 
                 # displaying a radio or checkbox
                 if ($do_form) {
-                    $results_table .= LJ::html_check({ 'type' => $q->type, 'name' => "pollq-$qid",
+                    $prevanswer = $clearanswers ? 0 : $preval{$qid} =~ /\b$itid\b/;
+                    $results_table .= LJ::html_check({ 'type' => $q->type, 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
                                               'value' => $itid, 'id' => "pollq-$pollid-$qid-$itid",
-                                              'selected' => ($preval{$qid} =~ /\b$itid\b/) });
+                                              'selected' => $prevanswer });
                     $results_table .= " <label for='pollq-$pollid-$qid-$itid'>$item</label><br />";
                     next;
                 }

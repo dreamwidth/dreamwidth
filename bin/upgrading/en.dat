@@ -2319,6 +2319,8 @@ password=Password
 
 poll.changevote=Change Your Vote
 
+poll.clear=Clear Answers
+
 poll.dberror=Database error: [[errmsg]]
 
 poll.dberror.items=Database error inserting items: [[errmsg]]
