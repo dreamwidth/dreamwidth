@@ -49,8 +49,32 @@ propgroup colors_child {
     property Color color_entry_footer_link_hover { des = "Entry footer hover link color"; }
     property Color color_entry_footer_link_visited { des = "Entry footer visited link color"; }
     property Color color_entry_footer_border { des = "Entry footer border color"; }
+    property Color color_specificmodule_background {
+        des ="Calendar and Search modules background color";
+        note= "Used when day has no entries and for the search button.";
+        }
+    property Color color_specificmodule_text { des ="Calendar and Search modules text color"; }
+    property Color color_specificmodule_background_alt {
+        des ="Calendar and Search modules alternative background color";
+        note= "Used when day has entries and for the search text field.";
+        }
+    property Color color_specificmodule_text_alt { des ="Calendar and Search modules alternative text color"; }
+    property Color color_specificmodule_background_hover { des ="Calendar and Search modules hover background color"; }
+    property Color color_specificmodule_text_hover { des ="Calendar and Search modules hover text color"; }
+    property Color color_specificmodule_background_visited { des ="Calendar and Search modules visited background color"; }
+    property Color color_specificmodule_text_visited { des ="Calendar and Search modules visited text color"; }
+    property Color color_shadow {
+        des ="Shadow color";
+        noui = 1;
+        }
+    property Color color_shadow_alt {
+        des ="Shadow alternative color";
+        noui = 1;
+        }
 }
 
+set color_shadow = "#111";
+set color_shadow_alt = "#8c8c8c";
 
 ##===============================
 ## Misc
@@ -221,10 +245,10 @@ q { font-style: italic;
     background-position: 100% 0%;
     padding: 0;
     padding-bottom: 1.65em;
-    box-shadow: -.667em .067em .667em #111;
-    -moz-box-shadow: -.667em .067em .667em #111;
-    -webkit-box-shadow: -.667em .067em .667em #111;
-    -khtml-box-shadow: -.667em .067em .667em #111;
+    box-shadow: -.667em .067em .667em $*color_shadow;
+    -moz-box-shadow: -.667em .067em .667em $*color_shadow;
+    -webkit-box-shadow: -.667em .067em .667em $*color_shadow;
+    -khtml-box-shadow: -.667em .067em .667em $*color_shadow;
     }
 
 #header .inner {
@@ -244,10 +268,10 @@ h1#title {
     padding: 1.1em .5em;
     text-transform: uppercase;
     word-spacing: .167em;
-    box-shadow: inset -.667em .067em .667em #111;
-    -moz-box-shadow: inset -.667em .067em .667em #111;
-    -webkit-box-shadow: -.667em .067em .667em #111;
-    -khtml-box-shadow: -.667em .067em .667em #111;
+    box-shadow: inset -.667em .067em .667em $*color_shadow;
+    -moz-box-shadow: inset -.667em .067em .667em $*color_shadow;
+    -webkit-box-shadow: -.667em .067em .667em $*color_shadow;
+    -khtml-box-shadow: -.667em .067em .667em $*color_shadow;
     }
 
 h2#subtitle,
@@ -442,10 +466,10 @@ h2#pagetitle {
     border-left: none;
     border-right: none;
     margin-bottom: 1em;
-    box-shadow: .067em .067em .667em #111;
-    -moz-box-shadow: .067em .067em .667em #111;
-    -webkit-box-shadow: .667em .067em .667em #111;
-    -khtml-box-shadow: .667em .067em .667em #111;
+    box-shadow: .067em .067em .667em $*color_shadow;
+    -moz-box-shadow: .067em .067em .667em $*color_shadow;
+    -webkit-box-shadow: .667em .067em .667em $*color_shadow;
+    -khtml-box-shadow: .667em .067em .667em $*color_shadow;
     }
 
     .comment-wrapper.partial {
@@ -595,10 +619,10 @@ h2#pagetitle {
     .comment .contents .userpic {
         background-color: $*color_entry_userpic_border;
         padding: .7em;
-        box-shadow: .067em .067em .2em #111;
-        -moz-box-shadow: .067em .067em .2em #111;
-        -webkit-box-shadow: .067em .067em .2em #111;
-        -khtml-box-shadow: .067em .067em .2em #111;
+        box-shadow: .067em .067em .2em $*color_shadow;
+        -moz-box-shadow: .067em .067em .2em $*color_shadow;
+        -webkit-box-shadow: .067em .067em .2em $*color_shadow;
+        -khtml-box-shadow: .067em .067em .2em $*color_shadow;
         }
 
 
@@ -726,10 +750,10 @@ h2#pagetitle {
     $entry_footer_colors
     padding: 0 .5em;
     text-align: right;
-    box-shadow: .067em .067em .667em #111;
-    -moz-box-shadow: .067em .067em .667em #111;
-    -webkit-box-shadow: .067em .067em .667em #111;
-    -khtml-box-shadow: .067em .067em .667em #111;
+    box-shadow: .067em .067em .667em $*color_shadow;
+    -moz-box-shadow: .067em .067em .667em $*color_shadow;
+    -webkit-box-shadow: .067em .067em .667em $*color_shadow;
+    -khtml-box-shadow: .067em .067em .667em $*color_shadow;
     }
 
     .page-tags .tags-container .manage-tags-link {
@@ -887,10 +911,10 @@ h2#pagetitle {
 .page-reply #postform {
     $entry_footer_colors
     padding: .5em;
-    box-shadow: .067em .067em .667em #111;
-    -moz-box-shadow: .067em .067em .667em #111;
-    -webkit-box-shadow: .067em .067em .667em #111;
-    -khtml-box-shadow: .067em .067em .667em #111;
+    box-shadow: .067em .067em .667em $*color_shadow;
+    -moz-box-shadow: .067em .067em .667em $*color_shadow;
+    -webkit-box-shadow: .067em .067em .667em $*color_shadow;
+    -khtml-box-shadow: .067em .067em .667em $*color_shadow;
     }
 
     .page-reply #postform a {
@@ -977,10 +1001,10 @@ h2#pagetitle {
         .module-userprofile .userpic img {
             background-color: $*color_header_background;
             padding: .7em;
-            box-shadow: .067em .067em .2em #111;
-            -moz-box-shadow: .067em .067em .2em #111;
-            -webkit-box-shadow: .067em .067em .2em #111;
-            -khtml-box-shadow: .067em .067em .2em #111;
+            box-shadow: .067em .067em .2em $*color_shadow;
+            -moz-box-shadow: .067em .067em .2em $*color_shadow;
+            -webkit-box-shadow: .067em .067em .2em $*color_shadow;
+            -khtml-box-shadow: .067em .067em .2em $*color_shadow;
             }
 
     .module-userprofile .userlite-interaction-links li {
@@ -1002,39 +1026,44 @@ h2#pagetitle {
         }
 
         .module-calendar td.empty-day {
-            background-color: $*color_page_title_background;
-            color: $*color_entry_footer_link !important;
-            box-shadow: .067em .067em .134em #111;
-            -moz-box-shadow: .067em .067em .134em #111;
-            -webkit-box-shadow: .067em .067em .134em #111;
-            -khtml-box-shadow: .067em .067em .134em #111;
+            background-color: $*color_specificmodule_background;
+            color: $*color_specificmodule_text !important;
+            box-shadow: .067em .067em .134em $*color_shadow;
+            -moz-box-shadow: .067em .067em .134em $*color_shadow;
+            -webkit-box-shadow: .067em .067em .134em $*color_shadow;
+            -khtml-box-shadow: .067em .067em .134em $*color_shadow;
             }
 
         .module-calendar td.entry-day {
-            background-color: $*color_entry_border;
-            box-shadow: .067em .067em .134em #8c8c8c;
-            -moz-box-shadow: .067em .067em .134em #8c8c8c;
-            -webkit-box-shadow: .067em .067em .134em #8c8c8c;
-            -khtml-box-shadow: .067em .067em .134em #8c8c8c;
+            background-color: $*color_specificmodule_background_alt;
+            box-shadow: .067em .067em .134em $*color_shadow_alt;
+            -moz-box-shadow: .067em .067em .134em $*color_shadow_alt;
+            -webkit-box-shadow: .067em .067em .134em $*color_shadow_alt;
+            -khtml-box-shadow: .067em .067em .134em $*color_shadow_alt;
             }
 
             .module-calendar td.entry-day a {
-                color: $*color_entry_background !important;
+                color: $*color_specificmodule_text_alt !important;
                 padding: 0;
                 }
 
-            .module-calendar td.entry-day:hover {
-                background-color: $*color_entry_background;
+            .module-calendar td.entry-day:visited {
+                background-color: $*color_specificmodule_background_visited;
                 }
 
+            .module-calendar td.entry-day:hover {
+                background-color: $*color_specificmodule_background_hover;
+                }
+
+                .module-calendar td.entry-day:visited > a,
                 .module-calendar td.entry-day a:visited {
-                    color: $*color_entry_footer_link !important;
+                    color: $*color_specificmodule_text_visited !important;
                     text-decoration: none !important;
                     }
 
                 .module-calendar td.entry-day:hover > a,
                 .module-calendar td.entry-day a:hover {
-                    color: $*color_entry_text !important;
+                    color: $*color_specificmodule_text_hover !important;
                     text-decoration: none !important;
                     }
 
@@ -1061,23 +1090,28 @@ h2#pagetitle {
     }
 
 .module-search .search-box {
-    background-color: $*color_entry_border;
-    color: $*color_entry_background;
+    background-color: $*color_specificmodule_background_alt;
+    color: $*color_specificmodule_text_alt;
     width: 90%;
-    box-shadow: .067em .067em .134em #8c8c8c;
-    -moz-box-shadow: .067em .067em .134em #8c8c8c;
-    -webkit-box-shadow: .067em .067em .134em #8c8c8c;
-    -khtml-box-shadow: .067em .067em .134em #8c8c8c;
+    box-shadow: .067em .067em .134em $*color_shadow_alt;
+    -moz-box-shadow: .067em .067em .134em $*color_shadow_alt;
+    -webkit-box-shadow: .067em .067em .134em $*color_shadow_alt;
+    -khtml-box-shadow: .067em .067em .134em $*color_shadow_alt;
     }
 
 .module-search .search-button {
-    background-color: $*color_page_title_background;
-    color: $*color_entry_footer_link;
+    background-color: $*color_specificmodule_background;
+    color: $*color_specificmodule_text;
     margin-top: .3em;
-    box-shadow: .067em .067em .134em #111;
-    -moz-box-shadow: .067em .067em .134em #111;
-    -webkit-box-shadow: .067em .067em .134em #111;
-    -khtml-box-shadow: .067em .067em .134em #111;
+    box-shadow: .067em .067em .134em $*color_shadow;
+    -moz-box-shadow: .067em .067em .134em $*color_shadow;
+    -webkit-box-shadow: .067em .067em .134em $*color_shadow;
+    -khtml-box-shadow: .067em .067em .134em $*color_shadow;
+    }
+
+.module-search .search-button:hover {
+    background-color: $*color_specificmodule_background_hover;
+    color: $*color_specificmodule_text_hover;
     }
 
 /* Footer

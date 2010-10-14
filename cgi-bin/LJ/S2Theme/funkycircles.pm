@@ -15,7 +15,19 @@ sub page_props {
 
 sub module_props {
     my $self = shift;
-    my @props = qw( image_module_list image_module_list_hover image_module_list_active );
+    my @props = qw(
+        image_module_list
+        image_module_list_active
+        image_module_list_hover
+        color_specificmodule_background
+        color_specificmodule_background_alt
+        color_specificmodule_background_hover
+        color_specificmodule_background_visited
+        color_specificmodule_text
+        color_specificmodule_text_alt
+        color_specificmodule_text_hover
+        color_specificmodule_text_visited
+    );
     return $self->_append_props( "module_props", @props );
 }
 

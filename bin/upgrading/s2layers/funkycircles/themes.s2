@@ -52,6 +52,14 @@ set color_entry_userpic_border = "#080E13";
 
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+set color_specificmodule_background = "#080E13";
+set color_specificmodule_background_alt = "#ff863b";
+set color_specificmodule_background_hover = "#fff";
+set color_specificmodule_background_visited = "#ff863b";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#000";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#21232b";
 
 ##===============================
 ## Images
@@ -67,30 +75,6 @@ set image_entry_list_background_url = "funkycircles/atomicorange-entrybullet.png
 set image_module_list = "funkycircles/atomicorange-modulebullet.png";
 set image_module_list_active = "funkycircles/atomicorange-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/atomicorange-modulebullethover.png";
-
-function Page::print_theme_stylesheet() {
-    """
-    .module-calendar td.empty-day,
-    .module-search .search-button {
-        background-color: $*color_header_background;
-        }
-
-    .module-calendar td.entry-day a,
-    .module-search .search-box {
-        color: $*color_page_subtitle !important;
-        }
-
-    .module-calendar td.entry-day a:visited {
-        color: $*color_page_background !important;
-        text-decoration: none !important;
-        }
-
-    .module-calendar td.entry-day:hover > a,
-    .module-calendar td.entry-day a:hover {
-        color: $*color_entry_text !important;
-        }
-    """;
-}
 
 
 #NEWLAYER: funkycircles/chocolaterose
@@ -147,6 +131,14 @@ set color_entry_userpic_border = "#16130f";
 
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+set color_specificmodule_background = "#362C2A";
+set color_specificmodule_background_alt = "#B35B6B";
+set color_specificmodule_background_hover = "#fff";
+set color_specificmodule_background_visited = "#B35B6B";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#fff";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#DAD1CF";
 
 ##===============================
 ## Images
@@ -217,6 +209,14 @@ set color_entry_userpic_border = "#101423";
 
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+set color_specificmodule_background = "#19243c";
+set color_specificmodule_background_alt = "#6c778e";
+set color_specificmodule_background_hover = "#fff";
+set color_specificmodule_background_visited = "#6c778e";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#fff";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#C8C8C8";
 
 ##===============================
 ## Images
@@ -288,6 +288,14 @@ set color_entry_userpic_border = "#211F2C";
 
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+set color_specificmodule_background = "#24203D";
+set color_specificmodule_background_alt = "#696580";
+set color_specificmodule_background_hover = "#fff";
+set color_specificmodule_background_visited = "#696580";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#fff";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#B8B8B8";
 
 ##===============================
 ## Images
@@ -359,6 +367,14 @@ set color_entry_userpic_border = "#1b1f15";
 
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+set color_specificmodule_background = "#283723";
+set color_specificmodule_background_alt = "#F3CE97";
+set color_specificmodule_background_hover = "#fff";
+set color_specificmodule_background_visited = "#F3CE97";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#000";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#283723";
 
 ##===============================
 ## Images
@@ -374,24 +390,6 @@ set image_entry_list_background_url = "funkycircles/earthygreen-entrybullet.png"
 set image_module_list = "funkycircles/earthygreen-modulebullet.png";
 set image_module_list_active = "funkycircles/earthygreen-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/earthygreen-modulebullethover.png";
-
-function Page::print_theme_stylesheet() {
-    """
-    .module-calendar td.entry-day a,
-    .module-search .search-box {
-        color: $*color_entry_text !important;
-        }
-
-    .module-calendar td.entry-day a:visited {
-        color: $*color_page_title_background !important;
-        }
-
-    .module-calendar td.entry-day:hover > a,
-    .module-calendar td.entry-day a:hover {
-        color: $*color_entry_text !important;
-        }
-    """;
-}
 
 
 #NEWLAYER: funkycircles/industrialpink
@@ -418,6 +416,8 @@ set color_header_background = "#111";
 set color_footer_link = "#E4E9E8";
 set color_footer_link_hover = "#ff0";
 set color_footer_link_visited = "#FFC3FF";
+
+set color_shadow_alt = "#444";
 
 ##===============================
 ## Entry Colors
@@ -446,6 +446,14 @@ set color_entry_userpic_border = "#222";
 
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+set color_specificmodule_background = "#4B4C4F";
+set color_specificmodule_background_alt = "#FFFF00";
+set color_specificmodule_background_hover = "#111";
+set color_specificmodule_background_visited = "#FFFF00";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#111";
+set color_specificmodule_text_hover = "#fff";
+set color_specificmodule_text_visited = "#626666";
 
 ##===============================
 ## Images
@@ -461,28 +469,6 @@ set image_entry_list_background_url = "funkycircles/industrial-entrybullet.png";
 set image_module_list = "funkycircles/industrialpink-modulebullet.png";
 set image_module_list_active = "funkycircles/industrial-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/industrial-modulebullethover.png";
-
-function Page::print_theme_stylesheet() {
-    """
-    .module-calendar td.entry-day,
-    .module-search .search-box {
-        background-color: $*color_page_link_hover;
-        box-shadow: .067em .067em .134em #444;
-        -moz-box-shadow: .067em .067em .134em #444;
-        -webkit-box-shadow: .067em .067em .134em #444;
-        -khtml-box-shadow: .067em .067em .134em #444;
-        }
-
-    .module-calendar td.entry-day a:visited {
-        color: $*color_page_background !important;
-        }
-
-    .module-calendar td.entry-day:hover > a,
-    .module-calendar td.entry-day a:hover {
-        color: $*color_entry_text !important;
-        }
-    """;
-}
 
 
 #NEWLAYER: funkycircles/industrialteal
@@ -512,6 +498,8 @@ set color_footer_link = "#DDE1E0";
 set color_footer_link_hover = "#ff0";
 set color_footer_link_visited = "#88F2FF";
 
+set color_shadow_alt = "#444";
+
 ##===============================
 ## Entry Colors
 ##===============================
@@ -539,6 +527,14 @@ set color_entry_userpic_border = "#222";
 
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+set color_specificmodule_background = "#3D3D3D";
+set color_specificmodule_background_alt = "#FFFF00";
+set color_specificmodule_background_hover = "#111";
+set color_specificmodule_background_visited = "#FFFF00";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#111";
+set color_specificmodule_text_hover = "#fff";
+set color_specificmodule_text_visited = "#5A5A5A";
 
 ##===============================
 ## Images
@@ -554,28 +550,6 @@ set image_entry_list_background_url = "funkycircles/industrial-entrybullet.png";
 set image_module_list = "funkycircles/industrialteal-modulebullet.png";
 set image_module_list_active = "funkycircles/industrial-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/industrial-modulebullethover.png";
-
-function Page::print_theme_stylesheet() {
-    """
-    .module-calendar td.entry-day,
-    .module-search .search-box {
-        background-color: $*color_page_link_hover;
-        box-shadow: .067em .067em .134em #444;
-        -moz-box-shadow: .067em .067em .134em #444;
-        -webkit-box-shadow: .067em .067em .134em #444;
-        -khtml-box-shadow: .067em .067em .134em #444;
-        }
-
-    .module-calendar td.entry-day a:visited {
-        color: $*color_page_background !important;
-        }
-
-    .module-calendar td.entry-day:hover > a,
-    .module-calendar td.entry-day a:hover {
-        color: $*color_entry_text !important;
-        }
-    """;
-}
 
 
 #NEWLAYER: funkycircles/lightondark
@@ -647,6 +621,14 @@ set color_module_link_visited = "#ffc";
 set color_module_text = "#fff";
 set color_module_title = "#fff";
 set color_module_title_background = "#666";
+set color_specificmodule_background = "#473a61";
+set color_specificmodule_background_alt = "#90f";
+set color_specificmodule_background_hover = "#000";
+set color_specificmodule_background_visited = "#90f";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#000";
+set color_specificmodule_text_hover = "#fff";
+set color_specificmodule_text_visited = "#ddf";
 
 ##===============================
 ## Images
@@ -731,6 +713,14 @@ set color_module_link_visited = "#eee";
 set color_module_text = "#666";
 set color_module_title = "#700";
 set color_module_title_background = "#000";
+set color_specificmodule_background = "#000";
+set color_specificmodule_background_alt = "#333";
+set color_specificmodule_background_hover = "#000";
+set color_specificmodule_background_visited = "#333";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#666";
+set color_specificmodule_text_hover = "#666";
+set color_specificmodule_text_visited = "#eee";
 
 ##===============================
 ## Fonts
@@ -848,6 +838,14 @@ set color_entry_userpic_border = "#0a142b";
 
 set color_module_text = "#000";
 set color_module_title = "#000";
+set color_specificmodule_background = "#03525C";
+set color_specificmodule_background_alt = "#368F88";
+set color_specificmodule_background_hover = "#fff";
+set color_specificmodule_background_visited = "#368F88";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#fff";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#DFDFDF";
 
 ##===============================
 ## Images
