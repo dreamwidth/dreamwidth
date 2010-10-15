@@ -112,11 +112,15 @@ body<=
         # if it's you, all posts, all bits
         if ( $remote->equals( $su ) ) {
             $ignore_security = 1;
+        } elsif ( $su->is_community ) {
+            # if it's a community you administer, also all bits
+            if ( $remote->can_manage( $su ) ) {
+                $ignore_security = 1;
 
-        # or a comm you administer...
-        } elsif ( $su->is_community && $remote->can_manage( $su ) ) {
-            $ignore_security = 1;
-
+            # for communities, member_of is the same as allow mask (no custom groups)
+            } else {
+                $allowmask = $remote->member_of( $su );
+            }
         # otherwise, if they trust you, get the mask ...
         } elsif ( $su->trusts( $remote ) ) {
             $allowmask = $su->trustmask( $remote );
