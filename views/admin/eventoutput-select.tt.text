@@ -1,0 +1,13 @@
+.form.label.arg1=First Argument
+
+.form.label.arg2=Second Argument
+
+.form.label.eventtype=Event Type
+
+.form.label.eventuser=Event Journal
+
+.form.label.subscr_user=Subscriber
+
+.form.optional=(optional)
+
+.title=Select Event to Preview

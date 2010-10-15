@@ -1,0 +1,49 @@
+[%# eventpreview-select.tt
+
+Page where you can select a particular event to see the format of
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+[%- sections.head  = BLOCK %]
+    <style type="text/css">
+    #event label { float: left; width: 10em; clear: left;}
+    #event input, #event select, #event p { float: left; }
+    #event input.submit { clear: left; width: 30em; }
+    #event { overflow: auto;}
+    </style>
+[% END %]
+<form method="POST" id="event">
+    [%- dw.form_auth -%]
+    <div class="formfield">
+        <label for="eventtype">[% ".form.label.eventtype" | ml %]:</label> <select id="eventtype" name="eventtype">
+            [% FOREACH eventtype = eventtypes %]
+                <option value="[% eventtype.id %]">[%eventtype.name %]</option>
+            [% END %]
+        </select>
+    </div>
+
+    <div class="formfield">
+        <label for="eventuser">[% ".form.label.eventuser" | ml %]:</label> <input type="text" name="eventuser" id="eventuser" />
+    </div>
+
+    <div class="formfield">
+        <label for="subscr_user">[% ".form.label.subscr_user" | ml %]:</label> <input type="text" name="subscr_user" id="subscr_user" />
+    </div>
+
+    <div class="formfield">
+        <label for="arg1">[% ".form.label.arg1" | ml %]:</label> <input type="text" name="arg1" id="arg1" /> <p class='note'>[% ".form.optional" | ml %]</p>
+    </div>
+
+    <div class="formfield">
+        <label for="arg2">[% ".form.label.arg2" | ml %]:</label> <input type="text" name="arg2" id="arg2" /> <p class='note'>[% ".form.optional" | ml %]</p>
+    </div>
+
+    <input type="submit" class='submit' />
+</form>

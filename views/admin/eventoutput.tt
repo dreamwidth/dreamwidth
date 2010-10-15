@@ -1,0 +1,36 @@
+[%# eventpreview.tt
+
+Page where you can select a particular event to see the format of
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = "Event Preview Output" -%]
+[%- sections.head = BLOCK %]
+    <style type="text/css">
+        #content div.field {
+            padding: 0.2em 0.5em 0.2em 1em;
+            margin-bottom: 1em;
+        }
+        #content label { font-weight: bold; }
+    </style>
+[% END %]
+
+<h2>Inbox</h2>
+<label>Subject:</label><div class='field'>[% event.inbox.subject %]</div>
+<label>Body:</label><div class='field'>[% event.inbox.body %]</div>
+<label>Summary:</label><div class='field'>[% event.inbox.summary %]</div>
+
+<h2>Email</h2>
+<label>From:</label><div class='field'>[% event.email.from | html %]</div>
+<label>To:</label><div class='field'>[% event.email.to | html %]</div>
+<label>Headers:</label><div class='field'>[% event.email.headers | html %]</div>
+<label>Subject:</label><div class='field'>[% event.email.subject | html %]</div>
+<label>Body (HTML):</label><div class='field'>[% event.email.body_html %]</div>
+<label>Body (Plain text):</label><div class='field'><textarea rows="20" cols="50">[% event.email.body_text %]</textarea></div>
+
