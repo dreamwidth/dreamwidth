@@ -1829,8 +1829,10 @@ set color_entry_interaction_links_visited = "";
 ## Journal style - element colors
 ##===============================
 
+property Color color_comment_title { des = "Comment title color"; }
 property Color color_comment_title_background { des = "Comment title background color"; }
 
+set color_comment_title = "";
 set color_comment_title_background = "";
 
 ##===============================

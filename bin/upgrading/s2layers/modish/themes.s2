@@ -38,7 +38,6 @@ set color_entry_link_visited = "#78877a";
 set color_entry_text = "#222";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#78877a";
-set color_comment_title_background = "#e2f5dc";
 
 ##===============================
 ## Module Colors
@@ -49,14 +48,6 @@ set color_module_border = "#97928c";
 set color_module_text = "#222";
 set color_module_title = "#78877a";
 set color_module_title_background = "#e2f5dc";
-
-function Page::print_theme_stylesheet() {
-    """
-    .comment .header .datetime {
-        color: $*color_entry_text;
-        }
-    """;
-}
 
 
 #NEWLAYER: modish/cinnamonplumtea
@@ -99,6 +90,7 @@ set color_entry_link_visited = "#756054";
 set color_entry_text = "#4D4D4D";
 set color_entry_title = "#DBBFCE";
 set color_entry_title_background = "#8F5A77";
+set color_comment_title = "#DBBFCE";
 set color_comment_title_background = "#8F5A77";
 
 ##===============================
@@ -113,10 +105,6 @@ set color_module_title_background = "#D1AB94";
 
 function Page::print_theme_stylesheet() {
     """
-    div.comment div.header {
-        background-color: $*color_comment_title_background;
-        }
-
     div.module-navlinks, div.module-time, div.module-powered {
         background-color: $*color_page_background;
         }
@@ -149,6 +137,12 @@ set color_page_link_hover = "#7373d9";
 set color_page_link_visited = "#1BB31B";
 set color_page_text = "#1b1bb3";
 set color_page_title = "#1b1bb3";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#1b1bb3";
 
 ##===============================
 ## Module Colors
@@ -238,7 +232,7 @@ set color_entry_link_visited = "#D4D496";
 set color_entry_text = "#D6D6BF";
 set color_entry_title = "#FF7E75";
 set color_entry_title_background = "#787856";
-set color_comment_title_background = "#6D6D4D";
+set color_comment_title = "#FF7E75";
 
 ##===============================
 ## Module Colors
@@ -315,7 +309,7 @@ set color_entry_link_visited = "#bbb";
 set color_entry_text = "#ddd";
 set color_entry_title = "#B6ADDC";
 set color_entry_title_background = "#32045C";
-set color_comment_title_background = "#18002C";
+set color_comment_title = "#B6ADDC";
 
 ##===============================
 ## Module Colors
@@ -366,6 +360,12 @@ set color_footer_background = "#ffefbd";
 set color_footer_link = "#ef8229";
 
 ##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#fff";
+
+##===============================
 ## Module Colors
 ##===============================
 
@@ -395,6 +395,12 @@ set color_page_link_visited = "#83608d";
 set color_page_text = "#000";
 set color_page_title = "#9A7EA2";
 set color_header_background = "#c2d7a6";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#000";
 
 
 #NEWLAYER: modish/porcelainteacup
@@ -490,6 +496,7 @@ set color_entry_link_visited = "#E49B62";
 set color_entry_text = "#616161";
 set color_entry_title = "#FFEBC9";
 set color_entry_title_background = "#F5AE78";
+set color_comment_title = "#FFEBC9";
 set color_comment_title_background = "#F5AE78";
 
 ##===============================
@@ -504,10 +511,6 @@ set color_module_title_background = "#9FB9C2";
 
 function Page::print_theme_stylesheet() {
     """
-    div.comment div.header {
-        background-color: $*color_comment_title_background;
-        }
-
     div.module-navlinks, div.module-time, div.module-powered {
         background-color: $*color_page_background;
         }
@@ -565,12 +568,14 @@ set color_footer_link_visited = "#132245";
 ##===============================
 
 set color_entry_background = "#aceded";
+set color_entry_border = "#a66229";
 set color_entry_link = "#a66229";
 set color_entry_link_hover = "#248e8e";
 set color_entry_link_visited = "#000";
 set color_entry_text = "#132245";
 set color_entry_title = "#a66229";
 set color_entry_title_background = "#ffe8b9";
+set color_comment_title = "#a66229";
 set color_comment_title_background = "#ffe8b9";
 
 ##===============================

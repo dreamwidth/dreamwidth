@@ -11,8 +11,8 @@ set userpics_position = "right";
 function print_stylesheet() {
 
     var string header_colors = generate_color_css( new Color, $*color_header_background, new Color );
-    var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
-    var string comment_header_link_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+    var string entry_title_colors = generate_color_css( $*color_entry_title, $*color_entry_title_background, $*color_entry_border );
+    var string comment_title_colors = generate_color_css( $*color_comment_title, $*color_comment_title_background, $*color_entry_border );
     var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
     var string module_navlinks_colors = generate_color_css( $*color_page_title, $*color_page_link, new Color );
     var string module_navlinks_active_colors = generate_color_css( new Color, $*color_page_link_active, new Color );
@@ -80,12 +80,18 @@ font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif; }
 .entry { margin-bottom: 3em;
 border: none; }
 
-.entry .entry-title { border-bottom: 2px solid $*color_entry_border;
+.entry .entry-title {
+    $entry_title_colors
+    border-width: 0 0 2px;
     padding: .25em 5px;
-    margin-bottom: .5em;}
-.entry .entry-title a, 
-.entry .entry-title a:visited { $entry_title_colors
-text-decoration: none }
+    margin-bottom: .5em;
+    }
+
+.entry .entry-title a,
+.entry .entry-title a:visited {
+    text-decoration: none;
+    }
+
 .entry .entry-title a:hover { text-decoration: underline; }
 
 .entry .datetime { font-size: small;
@@ -124,11 +130,19 @@ ul.entry-interaction-links { text-align: right;
 
 .partial .comment { margin-bottom: 0;} 
 
-.comment .header { border-bottom: 1px solid $*color_entry_border;
+.comment .header {
+    $comment_title_colors
+    border-width: 0 0 1px;
     padding: 2px 5px;
-    margin-bottom: .5em;}
-.comment .header a, 
-.comment .header a:visited { $comment_header_link_colors }
+    margin-bottom: .5em;
+    }
+
+.comment .header a,
+.comment .header a:visited {
+    $comment_title_colors
+    border: none;
+    }
+
 .comment-title { margin: 0;
     padding: 0 0 .25em 0;
     font-weight: bold; }
@@ -146,13 +160,14 @@ ul.entry-interaction-links { text-align: right;
    content: "- ";
    }
 
-.comment .poster-ip { font-size: small;
-    color: #999999; }
+.comment .poster-ip {
+    color: $*color_page_text;
+    font-size: small;
+    }
 
 .comment-content { margin-top: 1em; }
 
 .comment .edittime { margin-top: 1em; }
-.comment .header .datetime { color: $*color_entry_title; }
 
 .comment .multiform-checkbox { display: block;
     text-align: right;

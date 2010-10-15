@@ -73,7 +73,8 @@ propgroup colors {
     property use color_entry_title;
     property use color_entry_title_background;
     property use color_entry_interaction_links;
-    
+
+    property use color_comment_title;
     property use color_comment_title_background;
 
 }
@@ -122,6 +123,7 @@ set color_entry_interaction_links = "";
 ## Comment Colors
 ##===============================
 
+set color_comment_title = "";
 set color_comment_title_background = "";
 
 ##===============================
@@ -285,7 +287,7 @@ function Page::print_default_stylesheet() {
 
     var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
-    var string comment_title_colors = generate_color_css(new Color, $*color_comment_title_background, new Color);
+    var string comment_title_colors = generate_color_css($*color_comment_title, $*color_comment_title_background, new Color);
     var string module_title_colors = generate_color_css($*color_module_title, $*color_module_title_background, new Color);
 
     var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
