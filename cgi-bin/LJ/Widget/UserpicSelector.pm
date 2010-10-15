@@ -28,7 +28,9 @@ sub handle_post {
 }
 
 sub render_body {
-    my ( $class, $u, $head, $pic, $picform, $opts ) = @_;
+    my ( $class, %opts ) = @_;
+    my ( $u, $head, $pic, $picform ) = @{ $opts{picargs} };
+    my $opts = \%opts;  # to avoid rewriting below
 
     return "" unless LJ::isu( $u );
     return "" unless LJ::is_enabled('userpicselect') || $u->can_use_userpic_select;

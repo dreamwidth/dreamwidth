@@ -1079,10 +1079,11 @@ sub entry_form {
     my $pic = '';      # displays chosen/default pic                                 
     my $picform = '';  # displays form drop-down                                 
 
-    LJ::Widget::UserpicSelector->render( $remote, \$$head, \$pic, \$picform,
-                { prop_picture_keyword => $opts->{prop_picture_keyword},
-                  no_auth => ! $opts->{auth_as_remote}, onload => $onload,
-                  altlogin => $altlogin, entry_js => 1 } );    
+    LJ::Widget::UserpicSelector->render(
+                picargs => [ $remote, \$$head, \$pic, \$picform ],
+                prop_picture_keyword => $opts->{prop_picture_keyword},
+                no_auth => ! $opts->{auth_as_remote}, onload => $onload,
+                altlogin => $altlogin, entry_js => 1 );
 
     # libs for userpicselect
     LJ::need_res( LJ::Talk::init_iconbrowser_js() )

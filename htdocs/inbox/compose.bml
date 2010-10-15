@@ -224,8 +224,9 @@ body<=
     $body .= LJ::form_auth();
     my $pic = ''; # displays chosen/default pic
     my $picform = ''; # displays form drop-down
-    LJ::Widget::UserpicSelector->render($remote, \$$head, \$pic, \$picform,
-                { prop_picture_keyword => $POST{'prop_picture_keyword'} } );
+    LJ::Widget::UserpicSelector->render(
+                picargs => [ $remote, \$$head, \$pic, \$picform ],
+                prop_picture_keyword => $POST{prop_picture_keyword} );
     $body .= $pic;
 
     $body .= "<div id='metainfo'>";

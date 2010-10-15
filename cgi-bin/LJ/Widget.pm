@@ -105,6 +105,10 @@ sub render {
 
     my $subclass = $class->subclass;
     my $css_subclass = lc($subclass);
+    # figure out where "Odd number of elements in hash assignment" warning is coming from
+    if ( scalar( @opts ) % 2 == 1 ) {
+        carp "Odd number of \@opts passed from $subclass";
+    }
     my %opt_hash = @opts;
 
     my $widget_ele_id = $class->widget_ele_id;
