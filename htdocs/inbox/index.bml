@@ -18,10 +18,8 @@ body<=
 {
     use strict;
     use vars qw($title $body $head %GET %POST);
-    use Class::Autouse qw (
-                           LJ::NotificationInbox
-                           LJ::Event
-                           );
+    use LJ::NotificationInbox;
+    use LJ::Event;
 
     $title = $ML{'.title'};
     $body = "";

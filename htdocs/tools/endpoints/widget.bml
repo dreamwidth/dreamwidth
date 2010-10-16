@@ -17,11 +17,9 @@ _c?>
     use strict;
     use vars qw(%GET %POST @errors);
 
-    use Class::Autouse(qw(
-                          LJ::Auth
-                          JSON
-                          LJ::Widget::IPPU
-                          ));
+    use LJ::Auth;
+    use JSON;
+    use LJ::Widget::IPPU;
 
     my $err = sub {
         my $msg = shift;

@@ -20,16 +20,13 @@ body<=
     use vars qw (%POST %GET $body $title $headextra @errors);
     use Carp qw(croak);
     use LJ::Subscription;
+    use LJ::NotificationMethod;
+    use LJ::Event;
+    use LJ::Comment;
 
     $title = 'Manage Message Settings';
 
     return "Not ready" unless LJ::is_enabled('esn');
-
-    use Class::Autouse qw(
-                          LJ::NotificationMethod
-                          LJ::Event
-                          LJ::Comment
-                          );
 
     BML::decl_params(
                      lj_form_auth => qr/./,

@@ -19,10 +19,10 @@ body<=
 
 {
     use strict;
+    use LJ::Poll;
     use vars qw(%GET %POST);
     LJ::set_active_crumb('moderate');
     return LJ::server_down_html() if ($LJ::SERVER_DOWN);
-    use Class::Autouse qw (LJ::Poll);
 
     my $ret;
     my $remote = LJ::get_remote();

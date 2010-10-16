@@ -18,7 +18,7 @@ body<=
 {
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
-    use Class::Autouse qw( LJ::SiteMessages );
+    use LJ::SiteMessages;
 
     my $remote = LJ::get_remote();
 

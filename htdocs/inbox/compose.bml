@@ -20,10 +20,8 @@ body<=
     use vars qw(%GET %POST);
 
     use warnings;
-    use Class::Autouse qw(
-                          LJ::Message
-                          LJ::JSUtil
-                          );
+    use LJ::Message;
+    use LJ::JSUtil;
 
     return $ML{'.messaging.disabled'} unless LJ::is_enabled( 'user_messaging' );
 

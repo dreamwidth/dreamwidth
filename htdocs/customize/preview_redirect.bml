@@ -18,7 +18,7 @@ body<=
 {
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
-    use Class::Autouse qw( LJ::S2Theme );
+    use LJ::S2Theme;
 
     my $u = LJ::get_effective_remote();
     return $ML{'.error.user'} unless LJ::isu($u);

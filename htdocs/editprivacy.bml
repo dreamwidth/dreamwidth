@@ -19,7 +19,7 @@ body<=
 {
     use strict;
     use vars qw(%POST %GET);
-    use Class::Autouse qw(LJ::MassPrivacy);
+    use LJ::MassPrivacy;
     BML::decl_params(_default => qr/./);
 
     my $remote = LJ::get_remote();
