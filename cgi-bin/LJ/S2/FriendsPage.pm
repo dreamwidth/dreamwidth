@@ -87,7 +87,7 @@ sub FriendsPage
     # load options for image links
     my ($maximgwidth, $maximgheight) = (undef, undef);
     ($maximgwidth, $maximgheight) = ($1, $2)
-        if ( $remote && $remote->equals( $u ) &&
+        if ( $remote && $remote->equals( $u ) && $remote->{opt_imagelinks} &&
              $remote->{opt_imagelinks} =~ m/^(\d+)\|(\d+)$/ );
 
     ## never have spiders index friends pages (change too much, and some
@@ -98,13 +98,14 @@ sub FriendsPage
     if ($itemshow < 1) { $itemshow = 20; }
     elsif ($itemshow > 50) { $itemshow = 50; }
 
-    my $skip = $get->{'skip'}+0;
+    my $skip = $get->{skip} ? $get->{skip} + 0 : 0;
     my $maxskip = ($LJ::MAX_SCROLLBACK_FRIENDS || 1000) - $itemshow;
     if ($skip > $maxskip) { $skip = $maxskip; }
     if ($skip < 0) { $skip = 0; }
     my $itemload = $itemshow+$skip;
+    my $get_date = $get->{date} || '';
 
-    my $events_date   = ($get->{date} =~ m!^(\d{4})-(\d\d)-(\d\d)$!)
+    my $events_date   = ( $get_date =~ m!^(\d{4})-(\d\d)-(\d\d)$! )
                         ? LJ::mysqldate_to_time("$1-$2-$3")
                         : 0;
 
@@ -131,7 +132,7 @@ sub FriendsPage
             $p->{filter_name} = $opts->{securityfilter};
     } else {
     # but we can't just use a filter, we have to make sure the person is allowed to
-        if ( ( $get->{filter} ne "0" ) && $cf && ( $u->equals( $remote ) || $cf->public ) ) {
+        if ( $get->{filter} && $get->{filter} ne "0" && $cf && ( $u->equals( $remote ) || $cf->public ) ) {
             $filter = $cf;
 
         # if we couldn't use the group, then we can throw an error, but ONLY IF they specified

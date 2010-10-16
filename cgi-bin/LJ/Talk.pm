@@ -364,13 +364,13 @@ sub screening_level {
     LJ::load_log_props2($journalu->{userid}, [ $jitemid ], \%props);
 
     # determine if userprop was overriden
-    my $val = $props{$jitemid}{opt_screening};
+    my $val = $props{$jitemid}{opt_screening} || '';
     return if $val eq 'N'; # N means None, so return undef
     return $val if $val;
 
     # now return userprop, as it's our last chance
     my $userprop = $journalu->prop( 'opt_whoscreened' );
-    return $userprop eq 'N' ? undef : $userprop;
+    return $userprop && $userprop eq 'N' ? undef : $userprop;
 }
 
 sub update_commentalter {
@@ -1392,14 +1392,17 @@ sub talkform {
                             $form->{'userpost'} eq $form->{'cookieuser'});
 
         # Possible remote, using ljuser field
-        if ($type eq 'ljuser') {
-        return $default if
+        if ( $type eq 'ljuser' ) {
+            my $cookieuser = $form->{cookieuser} || '';
             # Remote user posting as someone else.
-            ($form->{'userpost'} && $form->{'userpost'} ne $form->{'cookieuser'} && $form->{'usertype'} ne 'anonymous') ||
-            ($form->{'usertype'} eq 'user' && ! $form->{'userpost'});
+            return $default if $form->{userpost} &&
+                               $form->{userpost} ne $cookieuser &&
+                               $form->{usertype} ne 'anonymous';
+            return $default if ! $form->{userpost} && $form->{usertype} &&
+                               $form->{usertype} eq 'user';
         }
 
-        return;
+        return '';
     };
 
     my $bantext = sub {
@@ -1420,7 +1423,7 @@ sub talkform {
     # special link to create an account
     my $create_link;
     if (!$remote || defined $oid_identity) {
-        $create_link = LJ::Hooks::run_hook("override_create_link_on_talkpost_form", $journalu);
+        $create_link = LJ::Hooks::run_hook( "override_create_link_on_talkpost_form", $journalu ) || '';
         $ret .= $create_link;
     }
 
@@ -1429,7 +1432,7 @@ sub talkform {
     $ret .= "<tr><td align='right' valign='top'>$BML::ML{'.opt.from'}</td>";
     $ret .= "<td>";
     $ret .= "<table>"; # Internal for "From" options
-    my $screening = LJ::Talk::screening_level($journalu, $opts->{ditemid} >> 8);
+    my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
 
     if ($editid) {
 
@@ -1893,11 +1896,11 @@ sub talkform {
     # textarea for their message body
     $ret .= "<tr valign='top'><td align='right'>$BML::ML{'.opt.message'}";
     $ret .= "</td><td style='width: 90%'>";
-    $ret .= "<textarea class='textbox' rows='10' cols='75' wrap='soft' name='body' id='commenttext'>" . LJ::ehtml($form->{body}) . "</textarea><br />";
+    $ret .= "<textarea class='textbox' rows='10' cols='75' wrap='soft' name='body' id='commenttext'>" . LJ::ehtml( $form->{body} || '' ) . "</textarea><br />";
 
     # if parent comment is screened, and user can unscreen, give option to unscreen it
     # default is not to unscreen
-    if ( $parpost->{state} eq "S" && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ) {
+    if ( $parpost->is_screened && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ) {
         $ret .= "<label for='unscreen_parent'>$BML::ML{'.opt.unscreenparent'}</label>";
         $ret .= LJ::html_check(
                 {

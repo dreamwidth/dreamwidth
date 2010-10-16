@@ -62,7 +62,7 @@ sub render_body {
 
             my $pending_members_count;
             $pending_members_count = $cu->get_pending_members_count
-                if $membership eq "moderated" && $admin{$cu->userid};
+                if $membership && $membership eq "moderated" && $admin{$cu->userid};
             if ( $pending_members_count || $pending_entries_count ) {
                 $list .= "<dt>" . $cu->ljuser_display;
                 $list .= "<dd>" . $class->ml( 'widget.communitymanagement.pending' );

@@ -363,7 +363,7 @@ sub output_prop_element {
     my $existing = $prop_values{existing};
     my $override = $prop_values{override};
 
-    my %values = split(/\|/, $prop->{values});
+    my %values = split( /\|/, $prop->{values} || '' );
     my $existing_display = defined $values{$existing} ? $values{$existing} : $existing;
 
     $existing_display = LJ::eall($existing_display);
@@ -453,9 +453,9 @@ sub output_prop_element {
 
         $ret .= "</td>" unless $is_group;
     } elsif ($type eq "string") {
-        my ($rows, $cols, $full) = ($prop->{rows}+0,
-                                    $prop->{cols}+0,
-                                    $prop->{full}+0);
+        my $rows = $prop->{rows} ? $prop->{rows} + 0 : 0;
+        my $cols = $prop->{cols} ? $prop->{cols} + 0 : 0;
+        my $full = $prop->{full} ? $prop->{full} + 0 : 0;
 
         $ret .= "<td class='prop-input'>" unless $is_group;
         if ($full > 0) {

@@ -53,7 +53,7 @@ sub img
     my $type = shift;  # either "" or "input"
     my $attr = shift;
 
-    my ( $attrs, $alt, $ssl );
+    my ( $attrs, $alt, $ssl ) = ( '', '' );
     if ( $attr ) {
         if ( ref $attr eq "HASH" ) {
             if ( exists $attr->{alt} ) {
@@ -191,8 +191,8 @@ sub make_authas_select {
     my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
     my $label  = $opts->{label};
 
-    $label ||= $opts->{type} eq "C" ? $BML::ML{'web.authas.label.comm'}
-                                    : $BML::ML{'web.authas.label'};
+    my $comm = $opts->{type} && $opts->{type} eq "C" ? ".comm" : "";
+    $label ||= $BML::ML{"web.authas.label$comm"};
 
     my @list = $u->get_authas_list( $opts );
 
@@ -1949,7 +1949,7 @@ sub entry_form_usericon_widget {
     my $remote = shift;
     return undef unless LJ::isu( $remote );
 
-    my $ret;
+    my $ret = '';
 
     my %res;
     LJ::do_request({ mode => "login",
@@ -1980,7 +1980,7 @@ sub entry_form_xpost_widget {
     my ( $remote ) = @_;
     return unless $remote;
 
-    my $ret;
+    my $ret = '';
     my @accounts = DW::External::Account->get_external_accounts( $remote );
     @accounts = grep { $_->xpostbydefault } @accounts;
 
@@ -2616,17 +2616,14 @@ sub control_strip
                 }
 
                 my $selected = "all";
-                if ($r->uri eq "/read" && $r->query_string ne "") {
+                if ( ( $r->uri eq "/read" || $r->uri eq "/network" ) &&
+                     $r->query_string && $r->query_string ne "" ) {
                     $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
                     $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
                     $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
                 } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
                     my $filter = $1 || "default view";
                     $selected = "filter:" . LJ::durl( lc( $filter ) );
-                } elsif ($r->uri eq "/network" && $r->query_string ne "") {
-                    $selected = "showpeople"      if $r->query_string =~ /\bshow=P\b/;
-                    $selected = "showcommunities" if $r->query_string =~ /\bshow=C\b/;
-                    $selected = "showsyndicated"  if $r->query_string =~ /\bshow=F\b/;
                 }
 
                 $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";
@@ -2827,7 +2824,7 @@ LOGIN_BAR
         $ret .= "<br />";
         $ret .= "$links{'login'}&nbsp;&nbsp; " unless $show_login_form;
         $ret .= "$links{'create_account'}&nbsp;&nbsp; $links{'learn_more'}";
-        $ret .= LJ::Hooks::run_hook('control_strip_logo', $remote, $journal);
+        $ret .= LJ::Hooks::run_hook( 'control_strip_logo', $remote, $journal ) || '';
         $ret .= "</td>";
     }
 

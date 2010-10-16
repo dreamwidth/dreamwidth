@@ -553,7 +553,7 @@ head<=
         # name.
         $draft = LJ::ejs_string($remote->prop('entry_draft'));
         %draft_properties = $remote->prop( 'draft_properties' ) ? 
-            %{Storable::thaw( $remote->prop( 'draft_properties' ) )} : ' ';
+            %{ Storable::thaw( $remote->prop( 'draft_properties' ) ) } : ();
 
         # store raw for later use; will be escaped later
         $draft_subject_raw = $draft_properties{subject};

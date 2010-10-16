@@ -119,7 +119,6 @@ body<=
             unless grep { $count == $_ } @values;
         push @values, $max
             unless grep { $max == $_ } @values;
-        my $getextra = $u->equals( $remote ) ? "" : "&authas=" . $u->user;
 
         @values = sort { $a <=> $b } @values;
 
@@ -203,25 +202,25 @@ body<=
 
             unless ($r->{state} eq "D") {
                 $ret .= "<a href='/delcomment?${jargent}id=$talkid'>";
-                $ret .= LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                $ret .= LJ::img( "btn_del", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
                 if ($r->{'state'} ne 'F') {
                     $ret .= "<a href='/talkscreen?mode=freeze&amp;${jargent}talkid=$talkid'>";
-                    $ret .= LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                    $ret .= LJ::img( "btn_freeze", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
                 }
 
                 if ($r->{'state'} eq 'F') {
                     $ret .= "<a href='/talkscreen?mode=unfreeze&amp;${jargent}talkid=$talkid'>";
-                    $ret .= LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                    $ret .= LJ::img( "btn_unfreeze", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
                 }
 
                 if ($r->{'state'} ne 'S') {
                    $ret .= "<a href='/talkscreen?mode=screen&amp;${jargent}talkid=$talkid'>";
-                    $ret .= LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                    $ret .= LJ::img( "btn_scr", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
                 }
 
                 if ($r->{'state'} eq 'S') {
                      $ret .= "<a href='/talkscreen?mode=unscreen&amp;${jargent}talkid=$talkid'>";
-                     $ret .= LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                     $ret .= LJ::img( "btn_unscr", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
                  }
             }
 
@@ -232,16 +231,16 @@ body<=
             $ret .= "</td><td id='" . LJ::Talk::comment_htmlid( $talkid );
             $ret .= "' style='text-align: left; border-top: 1px solid #999; border-left: 1px solid #999'>";
 
-            my $subject = $log_text->{"$u->{userid}:$r->{nodeid}"}[0];
-            LJ::CleanHTML::clean_subject(\$subject) if $subject ne "";
+            my $esubject = $log_text->{"$u->{userid}:$r->{nodeid}"}[0];
+            LJ::CleanHTML::clean_subject(\$esubject) if $esubject ne "";
 
-            $ret .= "<strong style='float: left; text-decoration: underline'>$subject</strong> " if $subject ne "";
+            $ret .= "<strong style='float: left; text-decoration: underline'>$esubject</strong> " if $esubject ne "";
             $ret .= "<strong style='float: right'>(<a href='$ditemid'>$ML{ '.entry.link' }</a>)</strong>" unless $lrow->{ditemid} == undef;
             $ret .= "<br /><br />";
-            my $subject = LJ::ehtml($comment_text->{$r->{jtalkid}}[0]);
+            my $csubject = LJ::ehtml($comment_text->{$r->{jtalkid}}[0]);
 
-            if ($subject && $subject !~ /^Re:\s*$/) {
-                $ret .= "<cite>$subject</cite><br />";
+            if ($csubject && $csubject !~ /^Re:\s*$/) {
+                $ret .= "<cite>$csubject</cite><br />";
             }
 
             my $comment = $comment_text->{$r->{jtalkid}}[1];

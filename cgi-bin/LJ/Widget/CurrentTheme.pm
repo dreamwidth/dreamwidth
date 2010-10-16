@@ -25,6 +25,7 @@ sub need_res { qw( stc/widgets/currenttheme.css ) }
 sub render_body {
     my $class = shift;
     my %opts = @_;
+    $opts{show} ||= 0;
 
     my $u = $class->get_effective_remote();
     die "Invalid user." unless LJ::isu($u);

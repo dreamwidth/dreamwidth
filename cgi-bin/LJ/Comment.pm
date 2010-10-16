@@ -880,7 +880,7 @@ sub subject_text {
 sub state {
     my $self = $_[0];
     __PACKAGE__->preload_rows([ $self->unloaded_singletons] );
-    return $self->{state};
+    return $self->{state} || '';
 }
 
 
