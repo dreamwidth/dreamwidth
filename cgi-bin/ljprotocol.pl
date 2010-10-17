@@ -1029,6 +1029,8 @@ sub common_event_validation
 
     ## handle meta-data (properties)
     LJ::load_props("log");
+
+    my $allow_system = $flags->{allow_system} || {};
     foreach my $pname (keys %{$req->{'props'}})
     {
         my $p = LJ::get_prop("log", $pname);
@@ -1041,7 +1043,7 @@ sub common_event_validation
 
         # This is a system logprop
         # fail with unknown metadata here?
-        if ( $p->{ownership} eq 'system' ) {
+        if ( $p->{ownership} eq 'system' && !( $allow_system == 1 || $allow_system->{$pname} ) ) {
             $pname =~ s/[^\w]//g;
             return fail($err,205,$pname);
         }

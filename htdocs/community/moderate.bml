@@ -90,7 +90,13 @@ body<=
         $req->{user} = $poster->user;
         $req->{username} = $poster->user;
         if ($mode eq 'approve_do') {
-            my $res = LJ::Protocol::do_request('postevent', $req, \$prot_err, {'nomod'=>1, 'noauth'=>1});
+            # allow all system logprops
+            # we've already made sure that the original user didn't provide any system ones
+            my $res = LJ::Protocol::do_request('postevent', $req, \$prot_err, {
+                    nomod => 1,
+                    noauth => 1,
+                    allow_system => 1,
+                });
             if ($res) { # succeeded
                 $success = 1;
                 $ret .= "<?h1 $ML{'.posted.header'} h1?><?p $ML{'.posted.text'} p?>";
