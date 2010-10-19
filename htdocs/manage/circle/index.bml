@@ -18,11 +18,14 @@ title=><?_ml .title _ml?>
 head<=
 <style type="text/css">
 .name {
-	width: 10em;
-	text-align: right;
-	font-weight: bold;
-	vertical-align: top;
-	}
+    width: 13em;
+    text-align: right;
+    font-weight: bold;
+    vertical-align: top;
+    }
+table td {
+    padding: .2em .5em;
+    }
 </style>
 <=head
 
@@ -32,7 +35,7 @@ body<=
 _code?>
 
 <?p <?_ml .about _ml?> p?>
-<table cellspacing='2' cellpadding='5' border='0'>
+<table>
 <tr>
   <td class='name'><a href="<?siteroot?>/manage/circle/invite"><?_ml .invite.title _ml?></a></td>
   <td><?_code BML::ml('.invite.about2', { sitename => $LJ::SITENAMESHORT }); _code?></td>
@@ -46,7 +49,7 @@ _code?>
   <td><?_ml .editgroups.about _ml?> <?_ml .filter _ml?></td>
 </tr>
 <tr>
-  <td class='name'><a href="<?siteroot?>/manage/circle/filter"><?_ml /manage/circle/filter.bml.title2 _ml?></a></td>
+  <td class='name'><a href="<?siteroot?>/manage/circle/filter"><?_ml /manage/circle/filter.bml.title3 _ml?></a></td>
   <td><?_ml .filter.about _ml?></td>
 </tr>
 </table>
