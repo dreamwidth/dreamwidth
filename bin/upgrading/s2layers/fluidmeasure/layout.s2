@@ -348,10 +348,11 @@ padding-top: 2em; } /*die in a fire, IE7*/
     background-color: $*color_comment_title_background;
     border: 1px solid $*color_comment_title_background;
     border-radius: 1em;
+    color: $*color_comment_title;
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
     -khtml-border-radius: 1em; }
-.comment-title a { color: $*color_entry_title; }
+.comment-title a { color: $*color_comment_title; }
 .partial .comment-title { display: inline; margin: -.5em 0 0 0; }
 
 .partial .comment-title h4 {

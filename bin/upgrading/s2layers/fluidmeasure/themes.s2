@@ -39,6 +39,7 @@ set color_entry_link_visited = "1f6b68";
 set color_entry_text = "be7303";
 set color_entry_title = "#1f2727";
 set color_entry_title_background = "#1f6b68";
+set color_comment_title = "#1f2727";
 set color_comment_title_background = "#1f6b68";
 
 ##===============================
@@ -97,6 +98,7 @@ set color_entry_link_visited = "#818a8f";
 set color_entry_text = "#d2cdc7";
 set color_entry_title = "#101413";
 set color_entry_title_background = "#818a8f";
+set color_comment_title = "#101413";
 set color_comment_title_background = "#818a8f";
 
 ##===============================
@@ -155,6 +157,7 @@ set color_entry_link_visited = "#101413";
 set color_entry_text = "#233535";
 set color_entry_title = "#818a8f";
 set color_entry_title_background = "#101413";
+set color_comment_title = "#818a8f";
 set color_comment_title_background = "#101413";
 
 ##===============================
@@ -201,6 +204,7 @@ set color_entry_background = "#fff";
 set color_entry_border = "#eee";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#5a9181";
+set color_comment_title = "#fff";
 set color_comment_title_background = "#346348";
 
 ##===============================
@@ -274,6 +278,7 @@ set color_entry_background = "#fff";
 set color_entry_border = "#efece0";
 set color_entry_title = "#000";
 set color_entry_title_background = "#DBBD95";
+set color_comment_title = "#000";
 set color_comment_title_background = "#DBBD95";
 
 ##===============================
@@ -337,6 +342,7 @@ set color_entry_link_visited = "454f70";
 set color_entry_text = "babdc4";
 set color_entry_title = "#020920";
 set color_entry_title_background = "#454f70";
+set color_comment_title = "#020920";
 set color_comment_title_background = "#454f70";
 
 ##===============================
@@ -382,6 +388,7 @@ set color_entry_background = "#fff";
 set color_entry_border = "#eee";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#9c5";
+set color_comment_title = "#fff";
 set color_comment_title_background = "#9c5";
 
 ##===============================
@@ -424,6 +431,7 @@ set color_entry_background = "#fff";
 set color_entry_border = "#eeeee9";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#604830";
+set color_comment_title = "#fff";
 set color_comment_title_background = "#604830";
 
 ##===============================
@@ -467,6 +475,7 @@ set color_entry_background = "#fff";
 set color_entry_border = "#eee";
 set color_entry_title = "#fff";
 set color_entry_title_background = "#3F4B27";
+set color_comment_title = "#fff";
 set color_comment_title_background = "#3F4B27";
 
 ##===============================
