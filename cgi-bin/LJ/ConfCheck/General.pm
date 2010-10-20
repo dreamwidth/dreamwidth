@@ -24,10 +24,11 @@ add_singletons(qw(
                   @USER_TABLES $PROTOCOL_VER $MAX_DVERSION
                   $CLEAR_CACHES $BIN $HTDOCS $SSLDOCS
                   $ACTIVE_CRUMB $IMGPREFIX_BAK $IS_SSL
-                  $IP_BANNED_LOADED $_XFER_REMOTE_IP
+                  $_XFER_REMOTE_IP $STATPREFIX_BAK
                   %LIB_MOD_TIME %MEMCACHE_ARRAYFMT
-                  $STATPREFIX_BAK $UNIQ_BANNED_LOADED
-                  @LJ::CLEANUP_HANDLERS
+                  @MEMCACHE_SERVERS %MEMCACHE_PREF_IP
+                  %DEBUG %COMMON_CODE %CLUSTER_PAIR_ACTIVE
+                  %MOGILEFS_PREF_IP
                   ));
 
 add_conf('$ADMIN_EMAIL',
@@ -359,324 +360,413 @@ add_conf('$WSTATPREFIX',
 
 add_conf('$SPELLER',
          type => 'program+args',
-         des => "If set, spell checking is enabled.  Value is the full path plus arguments to an ispell-compatible spell checker.  aspell is recommended, using:  '/usr/bin/aspell pipe --sug-mode=fast --ignore-case'.");
-
+         des => "If set, spell checking is enabled.  Value is the full path plus arguments to an ispell-compatible spell checker.  aspell is recommended, using:  '/usr/bin/aspell pipe --sug-mode=fast --ignore-case'."
+         );
 
 add_conf('$STATS_BLOCK_SIZE',
-         des => "");
+         des => "Used in statslib.pl for scaling stat totals."
+         );
+
 add_conf('$SUICIDE_UNDER',
-         des => "");
+         des => "used in Apache/DebateSuicide.pm.")
+         ;
+
 add_conf('%SUICIDE_UNDER',
-         des => "");
+         des => "used in Apache/DebateSuicide.pm."
+         );
 
 add_conf('$SYNSUCK_MAX_THREADS',
-         des => "");
+         des => "Limit number of threads available to synsuck worker."
+         );
 
 add_conf('$SYND_CLUSTER',
          type => 'integer',
-         des => "If defined, all syndication (RSS/Atom) 'users' are put on this cluster number.  If undefined, syndication users are assigned to user clusters (partitions) in the normal way.");
+         des => "If defined, all syndication (RSS/Atom) 'users' are put on this cluster number.  If undefined, syndication users are assigned to user clusters (partitions) in the normal way."
+         );
 
 add_conf('$SUPPORT_EMAIL',
          type => 'email',
-         des => "The customer support email address.");
+         des => "The customer support email address."
+         );
 
 add_conf('@SUPPORT_SLOW_ROLES',
          type => 'array',
-         des => "Array of database roles to be used for slow support queries, in order of precedence.");
+         des => "Array of database roles to be used for slow support queries, in order of precedence."
+         );
     
 add_conf('$TALK_ABORT_REGEXP',
          type => 'regexp',
-         des => "Regular expression which, when matched on incoming comment bodies, kills the comment.");
+         des => "Regular expression which, when matched on incoming comment bodies, kills the comment."
+         );
 
 add_conf('$TOOLS_RECENT_COMMENTS_MAX',
          type => 'int',
-         des => "Number of recent comments to show on /tools/recent_comments.bml");
+         des => "Number of recent comments to show on /tools/recent_comments.bml"
+         );
 
 add_conf('$USERPIC_ROOT',
          type => 'url',
          no_trailing_slash => 1,
-         des => "URL prefix for userpics.  Defaults to \$SITEROOT/userpic.  See \%SUBDOMAIN_FUNCTION to use something else.");
+         des => "URL prefix for userpics.  Defaults to \$SITEROOT/userpic.  See \%SUBDOMAIN_FUNCTION to use something else."
+         );
 
 add_conf('$USER_DOMAIN',
          type => 'domain',
-         des => "Domain for user email aliases and user virtual host domains.  See \$USER_EMAIL and \$USER_VHOSTS.\n");
+         des => "Domain for user email aliases and user virtual host domains.  See \$USER_EMAIL and \$USER_VHOSTS.\n"
+         );
 
 add_conf('%ALIAS_TO_SUPPORTCAT',
-         des => "This provides a way to declare more than one email address which is routed to a support category.  The primary incoming email address for a support category is in the 'supportcat' table.  If you need more than one, this hash maps from the email address you want to accept mail, to the primary email address of that support category.  For instance:  %ALIAS_TO_SUPPORTCAT = ('dmca\@example.com' => 'webmaster\@example.com') would mean that dmca\@ would go to the same support category that webmaster\@ would otherwise go to.");
+         des => "This provides a way to declare more than one email address which is routed to a support category.  The primary incoming email address for a support category is in the 'supportcat' table.  If you need more than one, this hash maps from the email address you want to accept mail, to the primary email address of that support category.  For instance:  %ALIAS_TO_SUPPORTCAT = ('dmca\@example.com' => 'webmaster\@example.com') would mean that dmca\@ would go to the same support category that webmaster\@ would otherwise go to."
+         );
 
 add_conf('@SCHEMES',
-         des => "An array of hashrefs describing the available site BML schemes (skins).  Each hashref must contain the keys 'scheme' (the BML scheme to use), 'title', and optionally 'thumb', which should be an arrayref of [ partial URL, width, height ].  where partial URL is relative to \$IMGPREFIX.");
-
-add_conf('$BIN_SOX',
-         type => "program",
-         des => "Path to sox.  Needed for audio captcas.");
+         des => "An array of hashrefs describing the available site BML schemes (skins).  Each hashref must contain the keys 'scheme' (the BML scheme to use), 'title', and optionally 'thumb', which should be an arrayref of [ partial URL, width, height ].  where partial URL is relative to \$IMGPREFIX."
+         );
 
 add_conf('$LOCKDIR',
          type => "directory",
-         des => "A directory to use for lock files if you're not using ddlockd for locking.");
+         des => "A directory to use for lock files if you're not using ddlockd for locking."
+         );
 
 add_conf('$MAX_BANS',
          type => "int",
-         des => "Maximum number of people that users are allowed to ban.  Defaults to 5000.");
+         des => "Maximum number of people that users are allowed to ban.  Defaults to 5000."
+         );
 
 add_conf('$AUTOSAVE_DRAFT_INTERVAL',
          type => 'int',
          default => 10,
-         des => "Number of seconds to use as interval to saving drafts back to the server.  Defaults to 10.");
+         des => "Number of seconds to use as interval to saving drafts back to the server.  Defaults to 10."
+         );
 
 add_conf('$MEMCACHE_CB_CONNECT_FAIL',
          type => "subref",
-         des => "Callback when a connection to a memcached instance fails.  Subref gets the IP address that was being connected to, but without the port number.");
+         des => "Callback when a connection to a memcached instance fails.  Subref gets the IP address that was being connected to, but without the port number."
+         );
 
 add_conf('%REPROXY_DISABLE',
-         des => "Set of file classes that shouldn't be internally redirected to mogstored nodes.  Values are true, keys are one of 'userpics', or site-local file types like 'phoneposts' for ljcom.  Seee also \%USERPIC_REPROXY_DISABLE");
+         des => "Set of file classes that shouldn't be internally redirected to mogstored nodes.  Values are true, keys are one of 'userpics', or site-local file types like 'phoneposts' for ljcom.  Seee also \%USERPIC_REPROXY_DISABLE"
+         );
 
-add_conf('%DEBUG',
-         type => '',
-         des => "");
-add_conf('@MEMCACHE_SERVERS',
-         type => '',
-         des => "");
 add_conf('$SQUAT_URL',
-         type => '',
-         des => "");
+         des => "For anti-squatter checking in Apache/LiveJournal.pm."
+         );
+
 add_conf('$FRONTPAGE_JOURNAL',
-         type => '',
-         des => "");
+         des => "Username of journal to show on the front page (usually news)."
+         );
+
 add_conf('@DINSERTD_HOSTS',
-         type => '',
-         des => "");
+         des => "See LJ/AccessLogSink/DInsertd.pm."
+         );
+
 add_conf('%DB_REPORT_HANDLES',
-         type => '',
-         des => "");
+         des => "See cgi-bin/LJ/AccessLogSink/DBIProfile.pm."
+         );
+
 add_conf('$FREECHILDREN_BCAST',
-         type => '',
-         des => "");
+         des => "See Apache/SendStats.pm."
+         );
+
 add_conf('$SENDSTATS_BCAST',
-         type => '',
-         des => "");
+         des => "See Apache/SendStats.pm."
+         );
+
 add_conf('$MAX_FRIENDS_VIEW_AGE',
-         type => '',
-         des => "");
-add_conf('%COMMON_CODE',
-         type => '',
-         des => "");
+         type => "int",
+         des => "Time range for reading page in seconds (default two weeks)."
+         );
+
 add_conf('%FORCE_EMPTY_SUBSCRIPTIONS',
-         type => '',
-         des => "");
+         des => "Userids for which we don't show subscriptions on profile."
+         );
+
 add_conf('@CLEANUP_HANDLERS',
-         type => '',
-         des => "");
+         des => "List of subroutines to be run by Apache's cleanup handler."
+         );
+
 add_conf('%EXTERNAL_NAMESPACE',
-         type => '',
-         des => "");
-add_conf('%MEMCACHE_PREF_IP',
-         type => '',
-         des => "");
+         des => "Used by extuser methods in LJ::User."
+         );
+
 add_conf('$MEMCACHE_COMPRESS_THRESHOLD',
-         type => '',
-         des => "");
+         type => 'int',
+         des => "Number of bytes beyond which we compress data in memcache."
+         );
+
 add_conf('$MEMCACHE_CONNECT_TIMEOUT',
-         type => '',
-         des => "");
+         type => 'int',
+         des => "Timeout threshold in seconds."
+         );
+
 add_conf('%CRUMBS',
-         type => '',
-         des => "");
+         des => "Breadcrumbs for site navigation - see LJ::get_crumb."
+         );
+
 add_conf('%READONLY_CLUSTER',
-         type => '',
-         des => "");
+         des => "Hash of database clusters that should be read-only."
+         );
+
 add_conf('%READONLY_CLUSTER_ADVISORY',
-         type => '',
-         des => "");
+         des => "Hash of information about which clusters can be read-only."
+         );
+
 add_conf('%LOCKY_CACHE',
-         type => '',
-         des => "");
+         des => "Used by LJ::get_cap."
+         );
+
 add_conf('$WHEN_NEEDED_THRES',
-         type => '',
-         des => "");
-add_conf('%CLUSTER_PAIR_ACTIVE',
-         type => '',
-         des => "");
+         des => "Used by LJ::get_cap."
+         );
+
 add_conf('%DEF_READER_ACTUALLY_SLAVE',
-         type => '',
-         des => "");
+         des => "Used by LJ::get_cluster_def_reader."
+         );
+
 add_conf('%LOCK_OUT',
-         type => '',
-         des => "");
-add_conf('$LANG_CACHE_BYTES',
-         type => '',
-         des => "");
+         des => "Tracks locking of database tables."
+         );
+
 add_conf('%DISABLE_PROTOCOL',
-         type => '',
-         des => "");
+         des => "Hash of protocol requests to temporarily disable."
+         );
+
 add_conf('@TESTACCTS',
-         type => '',
-         des => "");
-add_conf('%POST_WITHOUT_AUTH',
-         type => '',
-         des => "");
+         type => 'array',
+         des => "Array of usernames that are test accounts."
+         );
+
 add_conf('$ALLOW_PICS_OVER_QUOTA',
-         type => '',
-         des => "");
+         des => "See LJ::User->activate_userpics."
+         );
+
 add_conf('$SYSBAN_IP_REFRESH',
-         type => '',
-         des => "");
+         des => "How long we memcache IP bans, if they expire."
+         );
+
 add_conf('%IP_BANNED',
-         type => '',
-         des => "");
+         des => "Hash in memory for caching banned IPs."
+         );
+
 add_conf('%UNIQ_BANNED',
-         type => '',
-         des => "");
+         des => "Hash in memory for caching banned uniqs."
+         );
+
+add_conf('IP_BANNED_LOADED',
+         type => 'int',
+         des => "Time the IP bans were last loaded."
+         );
+
+add_conf('UNIQ_BANNED_LOADED',
+         type => 'int',
+         des => "Time the uniq bans were last loaded."
+         );
+
 add_conf('%NEEDED_RES',
-         type => '',
-         des => "");
+         des => "Hash map for needed page resources such as css or js."
+         );
+
 add_conf('$TALK_PAGE_SIZE',
-         type => '',
-         des => "");
+         type => 'int',
+         des => "See LJ::Talk::load_comments."
+         );
+
 add_conf('$TALK_MAX_SUBJECTS',
-         type => '',
-         des => "");
+         type => 'int',
+         des => "See LJ::Talk::load_comments."
+         );
+
 add_conf('$TALK_THREAD_POINT',
-         type => '',
-         des => "");
+         type => 'int',
+         des => "See LJ::Talk::load_comments."
+         );
+
 add_conf('$ANTI_TALKSPAM',
-         type => '',
-         des => "");
+         type => 'bool',
+         des => "See LJ::Talk::check_rate."
+         );
+
 add_conf('%FORM_DOMAIN_BANNED',
-         type => '',
-         des => "");
+         des => "Domains blocked by HTML cleaner."
+         );
+
 add_conf('$LOCKER_OBJ',
-         type => '',
-         des => "");
+         des => "Used by LJ::locker."
+         );
+
 add_conf('@LOCK_SERVERS',
-         type => '',
-         des => "");
-add_conf('%MOGILEFS_PREF_IP',
-         type => '',
-         des => "");
+         des => "Used by LJ::locker."
+         );
+
 add_conf('$SLOPPY_FRIENDS_THRESHOLD',
-         type => '',
-         des => "");
+         type => 'int',
+         des => "Number of watched users for memcache-only reading page."
+         );
+
 add_conf('$WORK_REPORT_HOST',
-         type => '',
-         des => "");
+         des => "Used by LJ::work_report."
+         );
+
 add_conf('$FILEEDIT_VIA_DB',
-         type => '',
-         des => "");
-add_conf('$BML_INC_DIR_ADMIN',
-         type => '',
-         des => "");
-add_conf('$BML_INC_DIR',
-         type => '',
-         des => "");
-add_conf('%USERPROP_INIT',
-         type => '',
-         des => "");
-add_conf('$SYND_CAPS',
-         type => '',
-         des => "");
-add_conf('%CLUSTER_DOWN',
-         type => '',
-         des => "");
-add_conf('@TALKSPAM',
-         type => '',
-         des => "");
-add_conf('%HELP_URL',
-         type => '',
-         des => "");
-add_conf('@INITIAL_SUBSCRIPTIONS',
-         type => '',
-         des => "");
-add_conf('%DBCACHE',
-         type => '',
-         des => "");
-add_conf('$LJMAINT_VERBOSE',
-         type => '',
-         des => "");
-add_conf('$MAILSPOOL',
-         type => '',
-         des => "");
-add_conf('$DENY_REQUEST_FROM_EMAIL',
-         type => '',
-         des => "");
-add_conf('%DENY_REQUEST_FROM_EMAIL',
-         type => '',
-         des => "");
-add_conf('@PRIVATE_STATS',
-         type => '',
-         des => "");
-add_conf('$QBUFFERD_PIDFILE',
-         type => '',
-         des => "");
-add_conf('%SUPPORT_DIAGNOSTICS',
-         type => '',
-         des => "");
-add_conf('%CAP',
-         type => '',
-         des => "");
-add_conf('@MAIL_TRANSPORTS',
-         type => '',
-         des => "");
-add_conf('%MOGILEFS_CONFIG',
-         type => '',
-         des => "");
-add_conf('%SUPPORT_ABSTRACTS',
-         type => '',
-         des => "");
-add_conf('%MINIMAL_STYLE',
-         type => '',
-         des => "");
-add_conf('%USERPROP_DEF',
-         type => '',
-         des => "");
-add_conf('@RBL_LIST',
-         type => '',
-         des => "");
-add_conf('@INITIAL_OPTOUT_SUBSCRIPTIONS',
-         type => '',
-         des => "");
-add_conf('%CAP_DEF',
-         type => '',
-         des => "");
-add_conf('%DISABLED',
-         type => '',
-         des => "");
-add_conf('%HELPURL',
-         type => '',
-         des => "");
-add_conf('@INITIAL_OPTIONAL_SUBSCRIPTIONS',
-         type => '',
-         des => "");
+         type => 'bool',
+         des => "Allow all htdocs/inc files to be edited via database."
+         );
+
 add_conf('%FILEEDIT_VIA_DB',
-         type => '',
-         des => "");
+         des => "Hash of htdocs/inc files to allow for database edits."
+         );
+
+add_conf('$BML_INC_DIR_ADMIN',
+         type => 'directory',
+         no_trailing_slash => 1,
+         des => "Used by htdocs/admin/fileedit."
+         );
+
+add_conf('$BML_INC_DIR',
+         type => 'directory',
+         no_trailing_slash => 1,
+         des => "Used by htdocs/admin/fileedit."
+         );
+
+add_conf('%USERPROP_INIT',
+         des => "Initial userprop settings for new users."
+         );
+
+add_conf('$SYND_CAPS',
+         type => 'int',
+         des => "Bitmask of capability classes for syndicated users. If not set, use \$NEWUSER_CAPS."
+         );
+
+add_conf('%CLUSTER_DOWN',
+         des => "Has of database clusters that are currently unavailable."
+         );
+
+add_conf('@TALKSPAM',
+         type => 'array',
+         des => "Array of regular expressions to use for detecting comment spam."
+         );
+
+add_conf('@INITIAL_SUBSCRIPTIONS',
+         type => 'array',
+         des => "Array of users for all new users to watch (e.g. news)."
+         );
+
+add_conf('$LJMAINT_VERBOSE',
+         type => 'int',
+         des => "Indicate whether maintenance scripts should run in verbose mode."
+         );
+
+add_conf('$MAILSPOOL',
+         type => 'directory',
+         no_trailing_slash => 1,
+         des => "Directory for server incoming mail spool."
+         );
+
+add_conf('$DENY_REQUEST_FROM_EMAIL',
+         des => "Used by bin/worker/incoming-email to determine whether to bounce a support-related email."
+         );
+
+add_conf('%DENY_REQUEST_FROM_EMAIL',
+         des => "Specify bounce messages for each email address."
+         );
+
+add_conf('@PRIVATE_STATS',
+         des => "Used by bin/maint/stats.pl."
+         );
+
+add_conf('$QBUFFERD_PIDFILE',
+         des => "Process ID file used by bin/qbufferd.pl."
+         );
+
+add_conf('%SUPPORT_DIAGNOSTICS',
+         des => "Diagnostics to turn on.  Only supported key is 'track_useragent'."
+         );
+
+add_conf('%CAP',
+         des => "Capability class limits as specified in etc/config.pl."
+         );
+
+add_conf('@MAIL_TRANSPORTS',
+         type => 'array',
+         des => "Define available MTAs such as sendmail."
+         );
+
+add_conf('%MOGILEFS_CONFIG',
+         des => "Configuration data for MogileFS::Admin."
+         );
+
+add_conf('%SUPPORT_ABSTRACTS',
+         des => "See htdocs/support/help.bml."
+         );
+
+add_conf('%MINIMAL_STYLE',
+         des => "Layers to use when viewing content on mobile devices."
+         );
+
+add_conf('%USERPROP_DEF',
+         des => "Hash of userprop defaults.  See also %USERPROP_INIT."
+         );
+
+add_conf('@RBL_LIST',
+         des => "Used by LJ::is_open_proxy."
+         );
+
+add_conf('@INITIAL_OPTOUT_SUBSCRIPTIONS',
+         des => "Array of users checked by default on create.bml."
+         );
+
+add_conf('%CAP_DEF',
+         des => "Default limits for caps not specified in %CAP."
+         );
+
+add_conf('%DISABLED',
+         des => "Selectively enable or disable site features."
+         );
+
+add_conf('%HELPURL',
+         des => "Help topic -> url mapping."
+         );
+
+add_conf('@INITIAL_OPTIONAL_SUBSCRIPTIONS',
+         des => "Array of users presented but not checked on create.bml."
+         );
+
 add_conf('%SETTER',
-         type => '',
-         des => "");
+         des => "Used by 'set' console command."
+         );
+
 add_conf('%SUBDOMAIN_FUNCTION',
-         type => '',
-         des => "");
+         des => "Map for determining subdomains."
+         );
+
 add_conf('%REDIRECT_ALLOWED',
-         type => '',
-         des => "");
+         des => "IPs that are allowed to do site redirects."
+         );
+
 add_conf('%HOOKS',
-         type => '',
-         des => "");
+         des => "Used by LJ/Hooks.pm."
+         );
+
 add_conf('%GZIP_OKAY',
-         type => '',
-         des => "");
+         des => "The list of content types that can use gzip compression."
+         );
+
 add_conf('%CAPTCHA_FOR',
          type => 'hash',
-         des => '$captcha_type => 1 if we should display a captcha on this page; $captcha_type => 0, or leave out of the hash, if we shouldn\'t display a captcha on this page.');
+         des => '$captcha_type => 1 if we should display a captcha on this page; $captcha_type => 0, or leave out of the hash, if we shouldn\'t display a captcha on this page.'
+         );
+
 add_conf('%DBINFO',
-         type => '',
-         des => "");
+         des => "Database connection information, including passwords."
+         );
+
 add_conf('@QBUFFERD_ISOLATE',
-         type => '',
-         des => "");
+         des => "List of job types that need to fork a separate process."
+         );
+
 add_conf('%BLOBINFO',
-         type => '',
-         des => "");
+         des => "Tell a blobserver where on the filesystem to store data. Probably obsolete!"
+         );
 
 add_conf('$CSSPROXY',
          type => 'url',

@@ -152,9 +152,13 @@ body<=
     sub add_footer
     {
         my $ret = shift;
+        my $help_url = $LJ::HELPURL{textmessaging_about};
+        my $howwork = "";
 
-        my $howwork = $LJ::HELP_URL{'textmessaging_about'} ? 
-            BML::ml('.footer.howwork.text', { aopts => "href='$LJ::HELP_URL{'textmessaging_about'}'" }) ."<br />" : "";
+        $howwork = BML::ml( '.footer.howwork.text',
+                            { aopts => "href='$help_url'" } ) . "<br />"
+            if $help_url;
+
         $ret .= "<p><hr /><font size='-1'>$howwork".$ML{'.footer.disclaimer.text'}."</font></p>";
 
         return $ret;
