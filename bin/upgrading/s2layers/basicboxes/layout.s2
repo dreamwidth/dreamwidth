@@ -40,9 +40,11 @@ function Page::print() {
                 <div class="inner">
                     """;
                     $this->print_module_section("header");
+                    """<div id="journaltitles-container">""";
                     $this->print_global_title();
                     $this->print_global_subtitle();
                     $this->print_title();
+                    """</div>""";
     """
                 </div><!-- end header>inner -->
             </div><!-- end header -->
@@ -129,11 +131,8 @@ function print_stylesheet () {
             .module-navlinks {
                 background: none;
                 border: none;
-                left: .25em;
                 margin: 0;
-                padding: 0;
-                position: absolute;
-                top: .5em;
+                padding: .5em 0 0 .25em;
                 }
 
             .module-navlinks ul {
@@ -178,14 +177,20 @@ font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif;  }
 
 
 /* header */
-#header { background-color: transparent; }
-#header > .inner:first-child { 
+#header {
+    background-color: transparent;
+    padding: 0;
+    }
+
+#header #journaltitles-container {
     $header_colors
-    margin: 3em 3em 2em 3em;
+    margin: 2em 3.5em 2.5em;
     padding: 0 .5em;
-    text-align: center; }
-#header > .inner:first-child h1,
-#header > .inner:first-child h2 {
+    text-align: center;
+    }
+
+#header h1,
+#header h2 {
     font-family: "Book Antiqua", Palatino, "Times New Roman", serif;
     font-family: $*font_journal_title;
     }

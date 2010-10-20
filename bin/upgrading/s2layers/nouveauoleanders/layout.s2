@@ -295,16 +295,23 @@ function print_stylesheet () {
     var string navlinks_css = "";
         if ($*module_navlinks_section == "header") {
             $navlinks_css = """
+
+            #header .module-wrapper {
+                margin-left: 220px;
+                margin-right: 220px;
+                padding-top: 1em;
+                }
+
+            #header .module-wrapper .separator {
+                display: none;
+                }
+
             .module-navlinks {
                 background-color: transparent;
                 color: $*color_page_title;
                 font-family: $*font_journal_title;
                 font-size: small;
-                left: 220px;
-                position: absolute;
-                right: 220px;
                 text-align: center;
-                top: 1em;
                 }
 
             .module-navlinks ul {
@@ -421,23 +428,30 @@ body {
 /* Header */
 
 #header {
-    $header_background_image
     background-color: $*color_header_background;
     background-position: top right;
     color: $*color_page_title;
     padding: 1px;
     }
 
-#header > .inner:first-child {
+#header .inner:first-child {
     $header_background_image
     background-position: top left;
     margin-top: -1px;
-    padding: 3em 2em 1em;
+    }
+
+#header .inner .inner {
+    background: none;
     }
 
 #title {
     margin-left: 200px;
     margin-right: 200px;
+    }
+
+#subtitle, #pagetitle {
+    margin-left: 2em;
+    margin-right: 2em;
     }
 
 #content {

@@ -161,12 +161,10 @@ function print_stylesheet() {
             .module-navlinks {
                 background: $*color_navigation_module_background;
                 border: none;
-                left: 0;
                 margin: 0;
+                margin-top: 1em;
                 padding: 0;
-                position: absolute;
                 text-align: left;
-                top: 1em;
                 width: 100%;
                 }
 
@@ -224,22 +222,40 @@ body { margin: 0;
 
 /* header */
 
-#header { margin-top: 3em;
+#header {
+    padding: 0;
+    margin-bottom: 1em;
     text-align: right;
-    padding: .5em 1em; }
-   
-#title { font-size: x-large;
-   font-weight: normal; }
-#subtitle { font-size: large;
-   font-weight: normal; }
-#pagetitle { font-size:  medium;
-   font-style: italic;
-   font-weight: normal; }
+    }
 
-#header-decoration { float: left;
+#title {
+    font-size: x-large;
+    font-weight: normal;
+    padding-right: 20px;
+    padding-top: 1em;
+    }
+
+#subtitle {
+    font-size: large;
+    font-weight: normal;
+    padding-right: 20px;
+    }
+
+#pagetitle {
+    font-size:  medium;
+    font-style: italic;
+    font-weight: normal;
+    padding-right: 20px;
+    }
+
+#header-decoration {
     $header_decoration_colors
     border-width: .65em;
-    margin-left: 6em; }
+    float: left;
+    margin-left: 7em;
+    margin-top: 1.5em;
+}
+
 #header-decoration-inner { margin: .5em;
     $header_decoration_inner_colors
     border-width: 0.5em;

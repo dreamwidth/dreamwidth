@@ -168,37 +168,15 @@ else {
             .module-navlinks {
                 background-color: transparent;
                 color: $*color_page_title;
-                position: absolute;
-                top: 2.5em;
-                }
-
-            .column-left .module-navlinks {
-                padding-left: 2%;
+                padding-bottom: .5em;
                 }
 
             .column-right .module-navlinks {
-                padding-right: 2%;
+                text-align: right;
                 }
 
-            .two-columns-left .module-navlinks,
-            .three-columns-sides .module-navlinks {
-                left: $*sidebar_width;
-                }
-
-            .two-columns-right .module-navlinks {
-                right: $*sidebar_width;
-                }
-
-            .three-columns-left .module-navlinks {
-                left: $*sidebar_width_doubled;
-                }
-
-            .three-columns-right .module-navlinks {
-                right: $*sidebar_width_doubled;
-                }
-
-            .three-columns-sides .module-navlinks {
-                padding-right: 15em;
+            .column-left .module-navlinks {
+                text-align: left;
                 }
 
             .module-navlinks ul {
@@ -256,13 +234,17 @@ body { margin: 0; }
 
 /* header */
 #header { margin: 2em 0;
-    padding: 3em 2% 0 2%; }
+    padding: .5em 2% 0 2%; }
 
 .two-columns-left #header .inner {padding-left: $*sidebar_width;}
 .three-columns-left #header .inner { padding-left: $*sidebar_width_doubled; }
 .two-columns-right #header .inner { padding-right: $*sidebar_width; }
 .three-columns-right #header .inner { padding-right: $*sidebar_width_doubled; }
 .three-columns-sides #header .inner { padding: 0 $*sidebar_width; }
+
+#header .inner .inner {
+    padding: 0;
+    }
 
 .two-columns-left #header,
 .three-columns-left #header,
