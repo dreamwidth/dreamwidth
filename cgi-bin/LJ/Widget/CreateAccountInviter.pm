@@ -139,14 +139,14 @@ sub handle_post {
         if ( $key =~ /^inviter_trust_(\d+)$/ ) {
             my $trustu = LJ::load_userid( $1 );
             $u->add_edge( $trustu, trust => {} )
-                if LJ::isu( $trustu );
+                if LJ::isu( $trustu ) && ! $u->trusts( $trustu );
         } elsif ( $key =~ /inviter_watch_(\d+)$/ ) {
             my $watchu = LJ::load_userid( $1 );
             $u->add_edge( $watchu, watch => {} )
-                if LJ::isu( $watchu );
+                if LJ::isu( $watchu ) && ! $u->watches( $watchu );
         } elsif ( $key =~ /inviter_join_(\d+)$/ ) {
             my $joinu = LJ::load_userid( $1 );
-            if ( LJ::isu( $joinu ) ) {
+            if ( LJ::isu( $joinu ) && ! $u->member_of( $joinu ) ) {
                 # try to join the community
                 # if it fails and the community's moderated, send a join request and watch it
                 unless ( $u->join_community( $joinu, 1 ) ) {
