@@ -4980,7 +4980,9 @@ widget.themechooser.theme.apply=Apply Theme
 
 widget.themechooser.theme.customize=Customize
 
-widget.themechooser.theme.desc=[[layout]] by [[designer]]
+widget.themechooser.theme.desc2=for [[style]]
+
+widget.themechooser.theme.designer=by [[designer]]
 
 widget.themechooser.theme.editlayoutlayer=Edit Layout Layer
 
@@ -4988,7 +4990,7 @@ widget.themechooser.theme.editthemelayer=Edit Theme Layer
 
 widget.themechooser.theme.preview=Preview
 
-widget.themechooser.theme.specialdesc=<a [[aopts]]><em>Special</em></a> by [[designer]]
+widget.themechooser.theme.specialdesc2=for <a [[aopts]]><em>Special</em></a>
 
 widget.themenav.btn.filteravailable=Submit
 

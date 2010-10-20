@@ -189,7 +189,13 @@ sub render_body {
 
         $ret .= "<div class='theme-item$theme_class'>";
         $ret .= "<img src='" . $theme->preview_imgurl . "' class='theme-preview' />";
-        $ret .= "<h4>" . $theme->name . "</h4>";
+
+        $ret .= "<h4>" . $theme->name . "</h4><div class='theme-action'><span class='theme-desc'>";
+
+        if ($theme_designer) {
+            my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($theme_designer) . "$showarg' class='theme-designer'>$theme_designer</a> ";
+            $ret .= $class->ml('widget.themechooser.theme.designer', {'designer' => $designer_link});
+        }
 
         my $preview_redirect_url;
         if ($theme->themeid) {
@@ -204,18 +210,12 @@ sub render_body {
 
         my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$showarg' class='theme-layout'><em>$theme_layout_name</em></a>";
         my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-cat'";
-        $ret .= "<div class='theme-action'><p class='theme-desc'>";
-        if ($theme_designer) {
-            my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($theme_designer) . "$showarg' class='theme-designer'>$theme_designer</a>";
-            if ($theme_types{special}) {
-                $ret .= $class->ml('widget.themechooser.theme.specialdesc', {'aopts' => $special_link_opts, 'designer' => $designer_link});
-            } else {
-                $ret .= $class->ml('widget.themechooser.theme.desc', {'layout' => $layout_link, 'designer' => $designer_link});
-            }
-        } elsif ($theme_layout_name) {
-            $ret .= $layout_link;
+        if ($theme_types{special}) {
+            $ret .= $class->ml('widget.themechooser.theme.specialdesc2', {'aopts' => $special_link_opts});
+        } else {
+            $ret .= $class->ml('widget.themechooser.theme.desc2', {'style' => $layout_link});
         }
-        $ret .= "</p>";
+        $ret .= "</span>";
 
         if ($theme_options) {
             $ret .= $theme_options;

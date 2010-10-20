@@ -7,12 +7,12 @@
     font-size: 22px;
 }
 .theme-item {
+    font-size: 1em;
     position: relative;
     float: left;
     width: 156px;
     text-align: center;
     padding: 8px;
-    font-size: 11px;
 }
 .theme-item img.theme-preview {
     padding: 1px;
@@ -35,18 +35,24 @@
     border: none;
 }
 .theme-item h4 {
-    font-size: 11px;
-    padding: 4px 0 0 0;
+    font-size: 1em;
+    height: 2.6em;
+    line-height: 1.3em;
+    min-height: 2.6em;
     margin: 0;
-    height: 2.5em;
+    padding: .2em 0;
 }
 .theme-item .theme-desc {
-    font-size: 10px;
+    display: block;
+    font-size: 1em;
+    height: 5.2em;
+    line-height: 1.3em;
+    min-height: 5.2em;
     margin: 0;
 }
 .theme-item .theme-action {
-    height: 6em;
-    padding: 4px 0 6px 0;
+    height: 8em;
+    min-height: 8em;
 }
 .theme-item.special h4,
 .theme-item.special .theme-desc {
@@ -61,7 +67,12 @@
     padding-bottom: 4px;
 }
 .theme-item .theme-button {
-    font-size: 11px;
+    font-size: 1em;
+    height: 1.9em;
+    line-height: 1.3em;
+    margin-top: .2em;
+    min-height: 1.9em;
+    padding: .3em;
 }
 .theme-item .theme-icons {
     position: absolute;
