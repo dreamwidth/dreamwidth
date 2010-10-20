@@ -18,6 +18,7 @@
 package LJ::ConfCheck;
 
 use strict;
+use LJ::ConfCheck;
 
 add_singletons(qw(
                   @USER_TABLES $PROTOCOL_VER $MAX_DVERSION

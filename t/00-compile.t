@@ -13,8 +13,6 @@ my $dir = File::Temp::tempdir( CLEANUP => 1 );
 # instead of waiting them to be fixed we are skipping them for now
 # They should be fixed or marked why they cannot run.
 my %SKIP = (
-    'LJ/ConfCheck/General.pm' => 'needs to be integrated into LJ::ConfCheck',
-
     'Test/FakeApache.pm'      => 'needs Apache::Constants',
     'Apache/CompressClientFixup.pm' => 'needs Apache::Constants',
 
