@@ -1847,6 +1847,7 @@ property Color color_page_link_hover { des = "Page hover link color"; }
 property Color color_page_link_visited { des = "Page visited link color"; }
 property Color color_page_border { des = "Page border color"; }
 property Color color_page_title { des = "Page title color"; }
+property Color color_page_details_text { des = "Color for miscellaneous page details text"; }
 
 set color_page_background = "";
 set color_page_text = "";
@@ -1856,6 +1857,7 @@ set color_page_link_hover = "";
 set color_page_link_visited = "";
 set color_page_border = "";
 set color_page_title = "";
+set color_page_details_text = "";
 
 property Color color_header_background { des = "Page header background color";}
 property Color color_header_link { des = "Page header link color"; }

@@ -868,6 +868,7 @@ sub comment_props {
         text_comment_posted
         text_comment_reply
         text_comment_thread
+        color_comment_title
         color_comment_title_background
     )
 }
@@ -890,6 +891,7 @@ sub page_props {
         color_page_link_visited
         color_page_title
         color_page_border
+        color_page_details_text
         font_base
         font_fallback
         font_base_size

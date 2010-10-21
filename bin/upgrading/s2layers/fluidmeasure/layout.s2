@@ -10,6 +10,13 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set userpics_position = "right";
 set all_commentsubjects = true;
 
+propgroup colors_child {
+
+    property use color_page_details_text;
+}
+
+set color_page_details_text = "#999";
+
 function print_module_navlinks() {
     var Page p = get_page();
     var string title = "Navigation";
@@ -374,17 +381,17 @@ padding-top: 2em; } /*die in a fire, IE7*/
 .comment .contents {  }
 
 .comment .poster-ip { font-size: small;
-    color: #999999; }
+    color: $*color_page_details_text; }
 
 .comment-content { margin-top: 1em; }
 
 .comment .edittime { margin-top: 1em; }
-.comment-content .datetime { color: #666; }
+.comment .header .datetime { color: $*color_entry_title; }
 
 .comment .multiform-checkbox { display: block;
     text-align: right;
     font-size: small;
-    color: #666;
+    color: $*color_entry_text;
 }
 
 .comment .footer { margin: .5em 0;
@@ -434,7 +441,7 @@ div.month { margin: 1em 0 2em 0;
     -khtml-border-radius: 1em; }
 
 table.month td,
-table.month th { border-color: #999999;
+table.month th { border-color: $*color_page_details_text;
     vertical-align: top; }
 
 .month caption { display: none; }

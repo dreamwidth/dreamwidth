@@ -8,6 +8,13 @@ set layout_type = "three-columns-sides";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set userpics_position = "right";
 
+propgroup colors_child {
+
+    property use color_page_details_text;
+}
+
+set color_page_details_text = "#999";
+
 ##===============================
 ## Navigation Module
 ##===============================
@@ -239,7 +246,7 @@ border: none; }
 
 .entry .datetime { font-size: small;
     padding: 0 5px;
-    color: #999; }
+    color: $*color_page_details_text; }
 
 .entry .poster { display: block;
 margin: .5em 0; }
@@ -300,7 +307,7 @@ ul.entry-interaction-links { text-align: right;
 #primary .partial .comment .comment-title a:visited { color: $*color_entry_link; }
 
 .comment .poster-ip { font-size: small;
-    color: #999999; }
+    color: $*color_page_details_text; }
 
 .comment-content { margin-top: 1em; }
 
@@ -340,7 +347,7 @@ ul.entry-interaction-links { text-align: right;
 div.month { margin: 0 0 2em 0; }
 
 table.month td,
-table.month th { border-color: #999999;
+table.month th { border-color: $*color_page_details_text;
     vertical-align: top; }
 
 .month caption { display: none; }

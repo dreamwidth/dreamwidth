@@ -54,7 +54,7 @@ propgroup colors {
     property use color_page_link_visited;
     property Color color_page_border { des = "Main border color for the page, and various elements"; }
     property use color_page_title;
-    property Color color_page_details_text { des = "Color for miscellaneous page details text"; }
+    property use color_page_details_text;
 
 
     property use color_header_background;

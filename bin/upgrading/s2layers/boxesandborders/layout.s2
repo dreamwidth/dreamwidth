@@ -28,11 +28,14 @@ propgroup colors_child {
     property Color color_calendar_module_hasday_background {
         des = "Calendar module background color on days with entries";
     }
+
+    property use color_page_details_text;
 }
 
 set color_navigation_module_background = "";
 set color_calendar_module_emptyday_background = "";
 set color_calendar_module_hasday_background = "";
+set color_page_details_text = "#999";
 
 ##===============================
 ## Navigation Module
@@ -292,7 +295,7 @@ text-decoration: none }
 
 .entry .datetime { font-size: small;
    padding: 0 5px;
-   color: #999; }
+   color: $*color_page_details_text; }
 
 .entry .poster { display: block;
 margin: .5em 0; }
@@ -349,7 +352,7 @@ ul.entry-interaction-links { text-align: right;
    }
 
 .comment .poster-ip { font-size: small;
-   color: #999999; }
+   color: $*color_page_details_text; }
 
 .comment-content { margin-top: 1em; }
 

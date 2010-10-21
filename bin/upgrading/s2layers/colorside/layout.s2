@@ -8,6 +8,13 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set layout_type = "two-columns-right";
 set userpics_position = "right";
 
+propgroup colors_child {
+
+    property use color_page_details_text;
+}
+
+set color_page_details_text = "#999";
+
 function print_stylesheet() {
     var string canvas_colors = generate_color_css( new Color, $*color_page_background, new Color );
 
@@ -207,7 +214,7 @@ ul.entry-interaction-links { text-align: right;
 .comment .poster { display: block; }
 .partial .poster { display: inline; }
 .comment .poster-ip { font-size: small;
-    color: #999999; }
+    color: $*color_page_details_text; }
 
 .comment .contents .userpic { position: absolute;
 top: 0; }
@@ -252,7 +259,7 @@ top: 0; }
 div.month { margin: 0 0 2em 0; }
 
 table.month td,
-table.month th { border-color: #999999;
+table.month th { border-color: $*color_page_details_text;
     vertical-align: top; }
 
 #archive-year .month H3 { font-family: $*font_entry_title; }
