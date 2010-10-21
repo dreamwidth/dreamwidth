@@ -240,7 +240,9 @@ sub s2_run
             $cleaner->parse("<!-- -->");
             $need_flush = 0;
         }
-        $$LJ::S2::ret_ref .= $_[0];
+        my $output = $_[0];
+        $output = '' unless defined $output;
+        $$LJ::S2::ret_ref .= $output;
         S2::check_depth() if ++$print_ctr % 8 == 0;
     };
     my $out_clean = sub {
@@ -2568,7 +2570,7 @@ sub rand
     } else {
         ($low, $high) = ($aa, $bb);
     }
-    return int(rand($high - $low + 1)) + $low;
+    return int( CORE::rand( $high - $low + 1 ) ) + $low;
 }
 
 sub pageview_unique_string {
@@ -3280,10 +3282,10 @@ sub _print_quickreply_link
     # clean up input:
     my $linktext = LJ::ehtml($opts->{'linktext'}) || "";
 
-    my $target = $opts->{'target'};
+    my $target = $opts->{target} || '';
     return unless $target =~ /^\w+$/; # if no target specified bail the fuck out
 
-    my $opt_class = $opts->{'class'};
+    my $opt_class = $opts->{class}|| '';
     undef $opt_class unless $opt_class =~ /^[\w\s-]+$/;
 
     my $opt_img = LJ::CleanHTML::canonical_url($opts->{'img_url'});
@@ -3311,17 +3313,16 @@ sub _print_quickreply_link
         $linktext = "<img src=\"$opt_img\" $width $height $align $title $alt $border />$linktext";
     }
 
-    my $basesubject = $opts->{'basesubject'}; #cleaned later
+    my $basesubject = $opts->{basesubject} || ''; #cleaned later
 
-    if ($opt_class) {
-        $opt_class = "class=\"$opt_class\"";
-    }
+    $opt_class = $opt_class ? "class=\"$opt_class\"" : "";
 
     my $page = get_page();
     my $remote = LJ::get_remote();
     my $onclick = "";
     unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
-        my $pid = (int($target)&&$page->{'_type'} eq 'EntryPage') ? int($target /256) : 0;
+        my $pid = ( $target =~ /^\d+$/ && $page->{_type} eq 'EntryPage')
+                  ? int( $target /256 ) : 0;
 
         $basesubject =~ s/^(Re:\s*)*//i;
         $basesubject = "Re: $basesubject" if $basesubject;
@@ -3351,10 +3352,10 @@ sub _print_reply_container
     my $page = get_page();
     return unless $page->{'_type'} eq 'EntryPage';
 
-    my $target = $opts->{'target'};
+    my $target = $opts->{target} || '';
     undef $target unless $target =~ /^\w+$/;
 
-    my $class = $opts->{'class'} || undef;
+    my $class = $opts->{class} || '';
 
     # set target to the dtalkid if no target specified (link will be same)
     my $dtalkid = $this->{'talkid'} || undef;
@@ -3363,9 +3364,7 @@ sub _print_reply_container
 
     undef $class unless $class =~ /^([\w\s]+)$/;
 
-    if ($class) {
-        $class = "class=\"$class\"";
-    }
+    $class = $class ? "class=\"$class\"" : "";
 
     $S2::pout->("<div $class id=\"ljqrt$target\" style=\"display: none;\"></div>");
 
@@ -4073,6 +4072,7 @@ sub YearMonth__month_format
 {
     my ($ctx, $this, $fmt, $as_link) = @_;
     $fmt ||= "long";
+    $as_link ||= "";
     my $c = \$ctx->[S2::SCRATCH]->{'_code_monthfmt'}->{$fmt . $as_link};
     return $$c->($this) if ref $$c eq "CODE";
     if (++$ctx->[S2::SCRATCH]->{'_code_timefmt_count'} > 15) { return "[too_many_fmts]"; }

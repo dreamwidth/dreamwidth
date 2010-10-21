@@ -559,7 +559,7 @@ sub get_propgroups {
     my @propnames;
     
     my @grouped_properties = S2::get_properties( $lyr_core->{s2lid} );
-    @grouped_properties = grep { $_->{grouped} == 1 } @grouped_properties;
+    @grouped_properties = grep { $_->{grouped} && $_->{grouped} == 1 } @grouped_properties;
 
     foreach my $prop ( S2::get_properties( $lyr_layout->{s2lid} ), @grouped_properties ) {
         unless (ref $prop) {

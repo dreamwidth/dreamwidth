@@ -44,7 +44,8 @@ body<=
     my $dtalkid = $POST{'talkid'} || $GET{'talkid'} || $POST{'dtalkid'} || $POST{'dtalkid'};
     my $journal = $POST{'journal'} || $GET{'journal'};
 
-    my $journal = LJ::load_user($journal) or return LJ::error_list("Invalid journal '$journal'");
+    return LJ::error_list( "No journal specified" ) unless $journal;
+    $journal = LJ::load_user($journal) or return LJ::error_list("Invalid journal '$journal'");
 
     return LJ::error_list("No talkid specified") unless $dtalkid;
 

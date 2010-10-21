@@ -153,7 +153,7 @@ sub MonthPage
     $p->{'months'} = [];
 
     my $days = $u->get_daycounts( $remote ) || [];
-    my $lastmo;
+    my $lastmo = '';
     foreach my $day (@$days) {
         my ($oy, $om) = ($day->[0], $day->[1]);
         my $mo = "$oy-$om";

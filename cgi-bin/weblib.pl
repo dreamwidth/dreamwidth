@@ -64,7 +64,7 @@ sub img
                 $ssl = $attr->{ssl} && $LJ::IS_SSL;
                 delete $attr->{ssl};
             }
-            $attrs .= " $_=\"" . LJ::ehtml( $attr->{$_} ) . "\""
+            $attrs .= " $_=\"" . LJ::ehtml( $attr->{$_} || '' ) . "\""
                 foreach keys %$attr;
         } else {
             $attrs = " name=\"$attr\"";
@@ -654,7 +654,7 @@ sub create_qr_div {
     $qrhtml .= "<div id='qrformdiv'><form id='qrform' name='qrform' method='POST' action='$LJ::SITEROOT/talkpost_do'>";
     $qrhtml .= LJ::form_auth();
 
-    my $stylemineuri = $style_opts ? LJ::viewing_style_args( $style_opts ) : "";
+    my $stylemineuri = %$style_opts ? LJ::viewing_style_args( %$style_opts ) : "";
     my $basepath =  $u->journal_base . "/$ditemid.html?${stylemineuri}";
     my $usertype = ($remote->openid_identity && $remote->is_validated) ? 'openid_cookie' : 'cookieuser';
     $qrhtml .= LJ::html_hidden({'name' => 'replyto', 'id' => 'replyto', 'value' => ''},
@@ -962,10 +962,9 @@ sub viewing_style_opts {
     # only accept purely numerical s2ids
     $ret{s2id} = $args{s2id} if $args{s2id} && $args{s2id} =~ /^\d+$/;
 
-    for my $key( qw ( format style ) ) {
+    foreach my $key ( keys %{ $valid_style_args } ) {
         $ret{$key} = $args{$key}
-            if $valid_style_args->{$key} &&
-               $valid_style_args->{$key}->{$args{$key}};
+            if $args{$key} && $valid_style_args->{$key}->{$args{$key}};
     }
 
     return \%ret;

@@ -162,7 +162,8 @@ sub html_select
     $ret .= " disabled='disabled'" if $opts->{'disabled'};
     $ret .= " multiple='multiple'" if $opts->{'multiple'};
     foreach (grep { ! /^(raw|disabled|selected|noescape|multiple)$/ } keys %$opts) {
-        $ret .= " $_=\"" . ($ehtml ? ehtml($opts->{$_}) : $opts->{$_}) . "\"";
+        my $opt = $opts->{$_} || '';
+        $ret .= " $_=\"" . ( $ehtml ? ehtml( $opt ) : $opt ) . "\"";
     }
     $ret .= ">\n";
 

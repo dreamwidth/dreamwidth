@@ -1046,26 +1046,26 @@ sub manage_buttons {
     my $poster = $self->poster ? $self->poster->user : "";
 
     if ($self->remote_can_edit) {
-        $managebtns .= "<a href='" . $self->edit_url . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+        $managebtns .= "<a href='" . $self->edit_url . "'>" . LJ::img( "editcomment", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
     }
 
     if (LJ::Talk::can_delete($remote, $self->journal, $self->entry->poster, $poster)) {
-        $managebtns .= "<a href='$LJ::SITEROOT/delcomment?${jargent}id=$dtalkid'>" . LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+        $managebtns .= "<a href='$LJ::SITEROOT/delcomment?${jargent}id=$dtalkid'>" . LJ::img( "btn_del", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
     }
 
     if (LJ::Talk::can_freeze($remote, $self->journal, $self->entry->poster, $poster)) {
         unless ($self->is_frozen) {
-            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=freeze&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=freeze&amp;${jargent}talkid=$dtalkid'>" . LJ::img( "btn_freeze", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
         } else {
-            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;${jargent}talkid=$dtalkid'>" . LJ::img( "btn_unfreeze", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
         }
     }
 
     if (LJ::Talk::can_screen($remote, $self->journal, $self->entry->poster, $poster)) {
         unless ($self->is_screened) {
-            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=screen&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=screen&amp;${jargent}talkid=$dtalkid'>" . LJ::img( "btn_scr", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
         } else {
-            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=unscreen&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=unscreen&amp;${jargent}talkid=$dtalkid'>" . LJ::img( "btn_unscr", "", { align => 'absmiddle', hspace => 2 } ) . "</a>";
         }
     }
 

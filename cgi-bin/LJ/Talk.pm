@@ -958,7 +958,7 @@ sub load_comments
 
             # see if we should ideally show it or not.  even if it's
             # zero, we'll still show it if it has any children (but we won't show content)
-            my $should_show = $post->{'state'} eq 'D' ? 0 : 1;
+            my $should_show = $post->{state} && $post->{state} eq 'D' ? 0 : 1;
             my $parenttalkid = $post->{parenttalkid};
             unless ( $viewall ) {
                 my $poster = LJ::load_userid( $post->{posterid} );
@@ -996,7 +996,7 @@ sub load_comments
             # which were already computed, since we're working new to old
             # and children are always newer.
             # then, if we or our children are showable, add us to the child list
-            my $sum = $should_show + $showable_children{$post->{'talkid'}};
+            my $sum = $should_show + ( $showable_children{$post->{talkid}} || 0 );
             if ($sum) {
                 $showable_children{$post->{'parenttalkid'}} += $sum;
                 unshift @{$children{$post->{'parenttalkid'}}}, $post->{'talkid'};
@@ -1041,7 +1041,7 @@ sub load_comments
             }
         }
     }
-    my $page = int($opts->{'page'}) || $page_from_view || 1;
+    my $page = int( $opts->{page} || 0 ) || $page_from_view || 1;
     $page = $page < 1 ? 1 : $page > $pages ? $pages : $page;
 
     my $itemfirst = $page_size * ($page-1) + 1;

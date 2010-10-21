@@ -139,7 +139,7 @@ sub watch_items
         # now push a properly formatted @friends_buffer row
         foreach my $fid (keys %$timeupdate) {
             my $fu = $friends_u{$fid};
-            my $rupdate = $LJ::EndOfTime - $timeupdate->{$fid};
+            my $rupdate = $LJ::EndOfTime - ( $timeupdate->{$fid} || 0 );
             my $clusterid = $fu->{'clusterid'};
             push @friends_buffer, [ $fid, $rupdate, $clusterid, $friends->{$fid}, $fu ];
         }
@@ -147,7 +147,7 @@ sub watch_items
         @friends_buffer =
             sort { $a->[1] <=> $b->[1] }
             grep {
-                $timeupdate->{$_->[0]} >= $lastmax and # reverse index
+                ( $timeupdate->{$_->[0]} || 0 ) >= $lastmax and # reverse index
                 ($events_date
                     ? $times->{created}->{$_->[0]} < $events_date
                     : 1

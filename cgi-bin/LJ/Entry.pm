@@ -1010,7 +1010,7 @@ sub should_block_robots {
 
     my $adult_content = $self->adult_content_calculated;
 
-    return 1 if $LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{block_robots};
+    return 1 if $adult_content && $LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{block_robots};
     return 0;
 }
 

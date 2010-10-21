@@ -99,7 +99,7 @@ sub EntryPage
     my %user;
     my $copts = {
         'flat' => $flat_mode,
-        'thread' => ($get->{'thread'} >> 8),
+        'thread' => $get->{thread} ? ( $get->{thread} >> 8 ) : 0,
         'page' => $get->{'page'},
         'view' => $view_num,
         'userpicref' => \%userpic,
@@ -218,9 +218,10 @@ sub EntryPage
 
             # Comment Posted Notice
             my ($last_talkid, $last_jid) = LJ::get_lastcomment();
+            my $same_talkid = ( $last_talkid || 0 ) == ( $dtalkid || 0 );
+            my $same_jid = ( $last_jid || 0 ) == ( $remote ? $remote->userid : 0 );
             my $commentposted = "";
-            $commentposted = 1
-                 if ($last_talkid == $dtalkid && $last_jid == $remote->{'userid'});
+            $commentposted = 1 if $same_talkid && $same_jid;
 
             my $s2com = {
                 '_type' => 'Comment',
@@ -388,11 +389,12 @@ sub EntryPage
     $p->{'_picture_keyword'} = $get->{'prop_picture_keyword'};
 
     $p->{'viewing_thread'} = $get->{'thread'} ? 1 : 0;
-    $p->{_viewing_thread_id} = $get->{thread} + 0;
+    $p->{_viewing_thread_id} = $get->{thread} ? $get->{thread} + 0 : 0;
 
     # default values if there were no comments, because
     # LJ::Talk::load_comments() doesn't provide them.
-    if ($copts->{'out_error'} eq 'noposts' || scalar @comments < 1) {
+    my $out_error = $copts->{out_error} || '';
+    if ( $out_error eq 'noposts' || scalar @comments < 1 ) {
         $copts->{'out_pages'} = $copts->{'out_page'} = 1;
         $copts->{'out_items'} = 0;
         $copts->{'out_itemfirst'} = $copts->{'out_itemlast'} = undef;
@@ -502,8 +504,9 @@ sub EntryPage_entry
     my $comments = CommentInfo( $entry->comment_info(
         u => $u, remote => $remote, style_args => $style_args, viewall => $viewall
     ) );
-    $comments->{show_postlink} &&= $get->{mode} ne 'reply';
-    $comments->{show_readlink} &&= $get->{mode} eq 'reply';
+    my $get_mode = $get->{mode} || '';
+    $comments->{show_postlink} &&= $get_mode ne 'reply';
+    $comments->{show_readlink} &&= $get_mode eq 'reply';
 
     my $subject = LJ::CleanHTML::quote_html( $entry->subject_html, $get->{nohtml} );
     my $event = LJ::CleanHTML::quote_html( $entry->event_html, $get->{nohtml} );

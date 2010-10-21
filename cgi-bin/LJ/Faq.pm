@@ -129,7 +129,7 @@ sub load_all {
         $wherecat = "WHERE faqcat = " . $dbr->quote($faqcat) if defined $faqcat;
     } else {
         $wherecat = "WHERE faqcat "
-            . (length $faqcat ? "= " . $dbr->quote($faqcat) : "!= ''");
+            . (defined $faqcat && length $faqcat ? "= " . $dbr->quote($faqcat) : "!= ''");
     }
 
     croak("unknown parameters: " . join(", ", keys %opts))

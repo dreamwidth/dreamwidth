@@ -1467,8 +1467,8 @@ sub clean_userbio {
 }
 
 sub canonical_url {
-    my $url = shift;
-    my $allow_all = shift;
+    my ( $url, $allow_all ) = @_;
+    $url ||= '';
 
     # strip leading and trailing spaces
     $url =~ s/^\s*//;

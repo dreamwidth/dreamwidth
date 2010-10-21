@@ -856,9 +856,9 @@ sub render {
     my $page     = delete $opts{page};
     my $pagesize = delete $opts{pagesize};
 
-    # clearning the answers renders just like 'enter' mode, we just need to clear all selections
+    # clearing the answers renders just like 'enter' mode, we just need to clear all selections
     my $clearanswers;
-    if ( $mode eq "clear" ) {
+    if ( $mode && $mode eq "clear" ) {
         $clearanswers = 1;
         $mode = "enter";
     }

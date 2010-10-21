@@ -48,7 +48,7 @@ sub render_body {
         my $unread = shift || "";
         my $img = shift || 0;
 
-        $class .= " active" if $opts{view} eq $link_view;
+        $class .= " active" if $opts{view} && $opts{view} eq $link_view;
 
         my $link = qq{<a href=".?view=$link_view" class="$class" id="esn_folder_$link_view">};
         $link .= BML::ml( $link_label );

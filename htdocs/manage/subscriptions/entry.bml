@@ -40,7 +40,8 @@ body<=
     my $journal = $POST{'journal'} || $GET{'journal'};
     my $ntypeid = int($POST{'ntypeid'});
 
-    my $journal = LJ::load_user($journal) or return LJ::error_list("Invalid journal '$journal'");
+    return LJ::error_list( "No journal specified" ) unless $journal;
+    $journal = LJ::load_user($journal) or return LJ::error_list("Invalid journal '$journal'");
 
     return LJ::error_list("No entry specified") unless $ditemid;
 

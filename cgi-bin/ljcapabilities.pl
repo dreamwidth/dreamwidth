@@ -165,7 +165,8 @@ sub get_cap
         $caps = $u->{'caps'};
     # If it is not all digits assume it is a key
     } elsif ($caps && $caps !~ /^\d+$/) {
-        $caps = 1 << LJ::class_bit($caps);
+        my $bit = LJ::class_bit( $caps ) || 0;
+        $caps = 1 << $bit;
     }
     # The caps is the cap mask already or undef, force it to be a number
     $caps += 0;

@@ -29,8 +29,8 @@ sub render_body {
     my $ret = "";
 
     # default values for year/month
-    my $year  = $get->{year}+0;
-    my $month = $get->{month}+0;
+    my $year  = $get->{year} ? $get->{year} + 0 : 0;
+    my $month = $get->{month} ? $get->{month} + 0 : 0;
 
     # if year and month aren't defined, use the current month
     unless ($year && $month) {
