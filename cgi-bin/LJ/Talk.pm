@@ -1900,7 +1900,7 @@ sub talkform {
 
     # if parent comment is screened, and user can unscreen, give option to unscreen it
     # default is not to unscreen
-    if ( $parpost->is_screened && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ) {
+    if ( $parpost->{state} eq "S" && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) ) {
         $ret .= "<label for='unscreen_parent'>$BML::ML{'.opt.unscreenparent'}</label>";
         $ret .= LJ::html_check(
                 {
