@@ -3864,6 +3864,16 @@ EOF
     unless ( column_type( 'acctcode_promo', 'paid_months' ) ) {
         do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_months tinyint unsigned" );
     }
+
+    if ( $LJ::IS_DEV_SERVER ) {
+        # strip constant definitions from user layers
+        if ( table_relevant( "s2compiled2" ) && ! check_dbnote( "no_layer_constants" ) ) {
+            my $uses = q{ 'use constant VTABLE => 0;\nuse constant STATIC => 1;\nuse constant PROPS => 2;\n' };
+            do_sql( "UPDATE s2compiled2 SET compdata = REPLACE(compdata,$uses,'')" );
+            set_dbnote( "no_layer_constants", 1 );
+        }
+    }
+
 });
 
 
