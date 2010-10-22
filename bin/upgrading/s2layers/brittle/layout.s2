@@ -293,14 +293,14 @@ function Page::print_default_stylesheet() {
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
 
-    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
-    var string entry_font = generate_font_css($*font_entry_text, $*font_fallback, $*font_entry_text_size, $*font_entry_text_units);
-    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
-    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
-    var string navigation_module_font = generate_font_css($*font_navigation_module_text, $*font_fallback, $*font_navigation_module_text_size, $*font_navigation_module_text_units);
-    var string other_module_font = generate_font_css($*font_other_module_text, $*font_fallback, $*font_other_module_text_size, $*font_other_module_text_units);
-    var string date_time_font = generate_font_css($*font_date_time, $*font_fallback, $*font_date_time_size, $*font_date_time_units);
-    var string input_textarea_font = generate_font_css($*font_date_time, $*font_fallback, "", "");
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string entry_font = generate_font_css($*font_entry_text, $*font_base, $*font_fallback, $*font_entry_text_size, $*font_entry_text_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+    var string navigation_module_font = generate_font_css($*font_navigation_module_text, $*font_base, $*font_fallback, $*font_navigation_module_text_size, $*font_navigation_module_text_units);
+    var string other_module_font = generate_font_css($*font_other_module_text, $*font_base, $*font_fallback, $*font_other_module_text_size, $*font_other_module_text_units);
+    var string date_time_font = generate_font_css($*font_date_time, $*font_base, $*font_fallback, $*font_date_time_size, $*font_date_time_units);
+    var string input_textarea_font = generate_font_css($*font_date_time, $*font_base, $*font_fallback, "", "");
 
     var Color bottom_border = $*color_entry_text -> lighter(90);
     var Color solid_border = $*color_entry_background -> darker(25);

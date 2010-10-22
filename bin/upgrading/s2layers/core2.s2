@@ -3299,21 +3299,40 @@ function generate_color_css (Color text_color, Color background_color, Color bor
     return $color_css;
 }
 
-function generate_font_css(string font_base, string font_fallback, string font_size, string font_unit) : string
+function generate_font_css(string font_specific, string font_base, string font_fallback, string font_size, string font_unit) : string
 {
     var string font_css = "";
-    if ($font_base != "" or $font_fallback != "") {
+
+
+    if ($font_specific != "" or $font_base != "" or $font_fallback != "") {
         $font_css = "font-family: ";
-        if ($font_base != "") {
-            $font_css = $font_css + "$font_base";
+
+        if ($font_specific != "") {
+            $font_css = $font_css + "$font_specific";
+            if ($font_base != "") {
+                $font_css = $font_css + ", $font_base";
+            }
+
             if ($font_fallback != "") {
                 $font_css = $font_css + ", $font_fallback";
             }
-        } else {
-            $font_css = $font_css + "$font_fallback";
+
+        } elseif ($font_specific == "" and ($font_base != "" or $font_fallback != "")) {
+            if ($font_base != "") {
+                $font_css = $font_css + "$font_base";
+
+                if ($font_fallback != "") {
+                    $font_css = $font_css + ", $font_fallback";
+                }
+            } else {
+                $font_css = $font_css + "$font_fallback";
+            }
         }
+
         $font_css = $font_css + "; ";
     }
+
+
     if ($font_size != "" and $font_unit != "") {
         $font_css = $font_css + "font-size: $font_size$font_unit;";
     }

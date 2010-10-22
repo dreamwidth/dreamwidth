@@ -384,11 +384,11 @@ function Page::print_default_stylesheet () {
     var string image_base = $path_components[size($path_components)-1];
     var string theme_base_color =  $image_base->substr(0, $image_base->index("_"));
 
-    var string page_font = generate_font_css( $*font_base, $*font_fallback, $*font_base_size, $*font_base_units );
-    var string journal_title_font = generate_font_css("", "", $*font_journal_title_size, $*font_journal_title_units);
-    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
-    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
-    var string module_title_font = generate_font_css("", "", $*font_module_heading_size, $*font_module_heading_units);
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units );
+    var string journal_title_font = generate_font_css("", "", "", $*font_journal_title_size, $*font_journal_title_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css("", "", "", $*font_module_heading_size, $*font_module_heading_units);
     
 
     var string page_background = generate_background_css( $*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background );

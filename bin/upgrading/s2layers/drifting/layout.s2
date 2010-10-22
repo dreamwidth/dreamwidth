@@ -273,12 +273,12 @@ function Page::print_default_stylesheet()
     var string title_font_string  = "";
 
     # Determine the font strings to use in the CSS
-    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
-    var string page_title_font = generate_font_css($*font_journal_title, $*font_title_fallback, $*font_journal_title_size, $*font_journal_title_units);
-    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_title_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
-    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
-    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
-    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_title_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_title_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
     var string userpic_css = "";
     if ($*userpics_position == "left") {

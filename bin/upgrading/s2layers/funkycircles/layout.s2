@@ -120,7 +120,7 @@ function print_stylesheet () {
     var string image_module_list_hover_url = generate_image_url($*image_module_list_hover);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
-    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
     var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
     var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, $*color_entry_link_hover_background, new Color);
     var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);

@@ -72,9 +72,9 @@ set font_module_text_units = "em";
 
 function print_stylesheet () {
 
-    var string view_text_font = generate_font_css($*font_view_text, $*font_fallback, $*font_view_text_size, $*font_view_text_units);
+    var string view_text_font = generate_font_css($*font_view_text, $*font_base, $*font_fallback, $*font_view_text_size, $*font_view_text_units);
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
-    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
