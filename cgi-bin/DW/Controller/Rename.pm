@@ -33,6 +33,8 @@ DW::Routing->register_regex( qr!^/rename(?:/([A-Z0-9]*))?$!i, \&rename_handler, 
 DW::Routing->register_string( "/admin/rename", \&rename_admin_handler, app => 1 );
 DW::Routing->register_string( "/admin/rename/edit", \&rename_admin_edit_handler, app => 1 );
 
+DW::Routing->register_string( "/admin/rename/new", \&siteadmin_rename_handler, app => 1 );
+
 sub rename_handler {
     my $r = DW::Request->get;
 
@@ -309,4 +311,51 @@ sub handle_admin_post {
     return ( 0, $errref );
 }
 
+
+sub siteadmin_rename_handler {
+    my ( $ok, $rv ) = controller( privcheck => [ "siteadmin:rename" ] );
+    return $rv unless $ok;
+
+    my $r = DW::Request->get;
+    my $post_args = DW::Request->get->post_args || {};
+
+    my $vars = {};
+
+    if ( $r->method eq "POST" ) {
+        my ( $post_ok, $rv ) = handle_siteadmin_rename_post( $post_args );
+        return $rv if $post_ok;
+    
+        $vars->{error_list} = $rv;
+    }
+
+    return DW::Template->render_template( "admin/rename_new.tt", $vars );
+}
+
+
+sub handle_siteadmin_rename_post {
+    my ( $post_args ) = @_;
+
+    return ( 0, [ LJ::Lang::ml( '/rename.tt.error.invalidform' ) ] )
+        unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+
+    my $errref = [];
+
+    my $from_user = LJ::load_user( $post_args->{user} );
+    my $to_user = $post_args->{touser};
+
+    push @$errref, LJ::Lang::ml( '/rename.tt.error.nojournal' ) unless $from_user;
+
+    $from_user->rename( $to_user,
+        token => DW::RenameToken->create_token( systemtoken => 1 ),
+        user => LJ::get_remote(),
+        force => 1,
+        errref => $errref,
+    );
+
+    return ( 1, DW::Template->render_template(
+        'success.tt', { message => "Successfully changed settings." }
+    ) ) unless @$errref;
+
+    return ( 0, $errref );
+}
 1;

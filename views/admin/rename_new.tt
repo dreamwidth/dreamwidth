@@ -1,0 +1,34 @@
+[%# admin/rename/do.tt
+
+Admin page to do renames.
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% sections.title = 'System Renames' %]
+
+[% IF error_list %]
+    <p>Error</p>
+    <ul class='error-list'>
+        [% FOREACH error = error_list %]
+            <li>[% error %] </li>
+        [% END %]
+    </ul>
+[% END %]
+
+<p>This allows a system user to perform a rename. The rules are slightly relaxed compared to normal renames: we check for validity of the username, but we don't care about other things like the journal's status or ownership.</p>
+<p>All existing relationships are kept; email and journal redirects are broken.</p>
+<form method="POST">
+    [% dw.form_auth %]
+    <div class='formfield'>
+        <label for="user">User:</label> <input type="text" name="user" id="user"/></div>
+    <div class='formfield'>
+        <label for="touser">To:</label> <input type="text" name="touser" id="touser" />
+    </div>
+    <input type="submit" value="Perform rename" />
+</form>

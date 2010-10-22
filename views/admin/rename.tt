@@ -23,7 +23,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <tr>
                 <td>[%rename.from | html %]</td>
                 <td>[%rename.to | html %]</td>
-                <td>[%rename.owner.ljuser_display %]</td>
+                <td>[% rename.owner ? rename.owner.ljuser_display : "(system)" %]</td>
                 <td>[%rename.target.ljuser_display %]</td>
                 <td>[%rename.date%]</td>
                 <td><a href="[%site.root%]/admin/rename/edit?token=[%rename.token%]">[% '.renames.list.item.details' | ml | html %]</a></td>
