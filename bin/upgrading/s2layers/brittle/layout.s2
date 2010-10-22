@@ -379,15 +379,15 @@ q { font-style: italic; }
     margin: 1px 0 0 0;
     padding: 0 1em;
     font-size: 1em;
-    color: $*color_navigation_module_background;
 }
 
 #tertiary {
+    background-color: $*color_entry_background;
     clear: both;
+    color: $*color_entry_text;
+    line-height: 125%;
     margin-$sidebar_position: auto;
     width: 45%;
-    background-color: $*color_entry_background;
-    line-height: 125%;
     }
 
 #tertiary > .inner:first-child { }
@@ -441,6 +441,18 @@ div.navigation ul {
     padding: 10px;
     margin: 0 0 10px 0;
     $entry_font
+    }
+
+.entry a, #tertiary a {
+    color: $*color_entry_link;
+    }
+
+.entry a:visited, #tertiary a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+.entry a:hover, #tertiary a:hover {
+    color: $*color_entry_link_hover;
     }
 
 .entry-content { margin: 10px 0 0 0; }
@@ -786,10 +798,7 @@ table.talkform {
     text-align: center;
     }
 
-#secondary .module-customtext { color: $*color_navigation_module_background; }
-
 .module-header {
-    color: $*color_entry_title;
     $module_title_font
     font-weight: normal;
     letter-spacing: 1px;
@@ -801,12 +810,6 @@ table.talkform {
     }
 
 .module-customtext .module-header { text-align: center; }
-
-#secondary .module-header a,
-#secondary .module-header a:link,
-#secondary .module-header a:visited,
-#secondary .module-header a:hover
-    { color: $*color_navigation_module_background; }
 
 #tertiary .module-header a,
 #tertiary .module-header a:link,
