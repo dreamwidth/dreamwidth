@@ -2,7 +2,7 @@
 layerinfo type = "theme";
 layerinfo name = "Academy";
 layerinfo redist_uniq = "skittlishdreams/academy";
-layerinfo author_name = "Sarken";
+layerinfo author_name = "sarken";
 
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
@@ -187,7 +187,7 @@ set image_background_page_url = "skittlishdreams/bg.gif";
 layerinfo type = "theme";
 layerinfo name = "Desert Cream";
 layerinfo redist_uniq = "skittlishdreams/desertcream";
-layerinfo author_name = "Sarken";
+layerinfo author_name = "sarken";
 
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
@@ -310,7 +310,7 @@ set image_background_page_url = "skittlishdreams/bg.gif";
 layerinfo type = "theme";
 layerinfo name = "In the Bag";
 layerinfo redist_uniq = "skittlishdreams/inthebag";
-layerinfo author_name = "Sarken";
+layerinfo author_name = "sarken";
 
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
@@ -381,7 +381,7 @@ function Page::print_theme_stylesheet() {
 layerinfo type = "theme";
 layerinfo name = "Like Sunshine";
 layerinfo redist_uniq = "skittlishdreams/likesunshine";
-layerinfo author_name = "Sarken";
+layerinfo author_name = "sarken";
 
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
@@ -618,7 +618,7 @@ set image_background_page_url = "skittlishdreams/bg.gif";
 layerinfo type = "theme";
 layerinfo name = "Snow Cherries";
 layerinfo redist_uniq = "skittlishdreams/snowcherries";
-layerinfo author_name = "Sarken";
+layerinfo author_name = "sarken";
 
 set theme_authors = [ { "name" => "sarken", "type" => "user" } ];
 
