@@ -3339,6 +3339,10 @@ function generate_font_css(string font_specific, string font_base, string font_f
     return $font_css;
 }
 
+function generate_font_css(string font_base, string font_fallback, string font_size, string font_unit) : string {
+    return generate_font_css("", $font_base, $font_fallback, $font_size, $font_unit);
+}
+
 function Page::print_title() 
 "Using standard CSS, print the page title. If you want to change the way this looks, modify the CSS."
 {
