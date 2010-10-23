@@ -74,7 +74,7 @@ sub render_body {
     $ret .= "</td></tr>\n";
 
     $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.location') . "</td>\n<td>";
-    $ret .= LJ::Widget::Location->render( minimal_display => 1, skip_timezone => 1, $loc_post );
+    $ret .= LJ::Widget::Location->render( minimal_display => 1, skip_timezone => 1, %$loc_post );
     $ret .= "</td></tr>\n";
 
     $ret .= "</table><br />\n";
