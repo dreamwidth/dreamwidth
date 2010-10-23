@@ -766,6 +766,11 @@ class EntryPage extends Page
     function builtin print_multiform_actionline "Prints the line of the multiform giving instructions, options, and the submit button, using the text of the different \$*text_multiform_ properties.";
 }
 
+class EntryPreviewPage extends EntryPage
+"Placeholder, to allow entry preview to continue to work."
+{
+}
+
 class ReplyForm
 "This class will be used more in the future to set options on the reply form before
 it's printed out by the system.  The system has to print it since it contains
