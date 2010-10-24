@@ -258,6 +258,14 @@ function Page::print_theme_stylesheet() {
         color: $*color_page_title;
         }
 
+    .entry .entry-title a:visited {
+        color: $*color_entry_link_visited;
+    }
+
+    .entry .entry-title a:hover {
+        color: $*color_entry_link_hover;
+    }
+
     ul.entry-interaction-links, ul.entry-management-links {
         padding-top: 2px;
         }

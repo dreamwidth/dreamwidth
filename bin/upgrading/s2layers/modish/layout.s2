@@ -96,10 +96,14 @@ border: none; }
 
 .entry .entry-title a,
 .entry .entry-title a:visited {
+    color: $*color_entry_title;
     text-decoration: none;
     }
 
-.entry .entry-title a:hover { text-decoration: underline; }
+.entry .entry-title a:hover {
+    color: $*color_entry_title;
+    text-decoration: underline;
+    }
 
 .entry .datetime { font-size: small;
     padding: 0 5px;
