@@ -26,7 +26,7 @@ body<=
     my $r = DW::Request->get;
     my $code = $r->pnote( 'render_sitescheme_code' );
     my $extras = $r->pnote( 'render_sitescheme_extra' );
-    return BML::redirect($LJ::SITEROOT) unless $code;
+    return BML::redirect( $LJ::SITEROOT ) unless defined $code;
 
     $head = $extras->{head} || "";
     $title = $extras->{title} || "";
