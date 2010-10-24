@@ -103,7 +103,7 @@ border: none; }
 
 .entry .datetime { font-size: small;
     padding: 0 5px;
-    color: $*color_page_text; }
+    color: $*color_entry_text; }
 
 .entry .poster { display: block;
 margin: .5em 0; }
