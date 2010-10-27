@@ -19,6 +19,7 @@ propgroup presentation {
     property use tags_page_type;
     property use userpics_position;
     property use entry_metadata_position;
+    property use use_custom_friend_colors;
     property use use_shared_pic;
     property use userlite_interaction_links;
     property use entry_management_links;
@@ -26,6 +27,9 @@ propgroup presentation {
 }
 
 set layout_type = "one-column";
+set use_custom_friend_colors = false;
+set custom_foreground_element = "subject";
+set custom_background_element = "subject";
 
 ##===============================
 ## Journal style - colors
@@ -317,6 +321,8 @@ function Page::print_default_stylesheet {
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
+var string entrytitle_padding = $*use_custom_friend_colors ? "padding: .2em;" : "";
+
     var string userpic_css = "";
     if ($*userpics_position == "left") {
         $userpic_css = """
@@ -548,6 +554,7 @@ h2.module-header a {
 
 .entry .entry-title {
     $entry_title_font
+    $entrytitle_padding
 }
 
 .entry .metadata-label {
