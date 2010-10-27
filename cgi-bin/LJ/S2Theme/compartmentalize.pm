@@ -7,6 +7,16 @@ sub layout_prop { "layout_type" }
 
 sub designer { "timeasmymeasure" }
 
+package LJ::S2Theme::compartmentalize::agingcopper;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "rising" }
+
+package LJ::S2Theme::compartmentalize::almostroyal;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::compartmentalize::contemplation;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
@@ -19,6 +29,11 @@ package LJ::S2Theme::compartmentalize::goodsense;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
 
+package LJ::S2Theme::compartmentalize::iridescentwings;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::compartmentalize::poppyfields;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
@@ -27,9 +42,24 @@ package LJ::S2Theme::compartmentalize::simplicity;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
 
+package LJ::S2Theme::compartmentalize::solyluna;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "rising" }
+
+package LJ::S2Theme::compartmentalize::somethingteal;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::compartmentalize::sweetberrygolds;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
+
+package LJ::S2Theme::compartmentalize::thought;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "rising" }
 
 package LJ::S2Theme::compartmentalize::tripout;
 use base qw( LJ::S2Theme::compartmentalize );
