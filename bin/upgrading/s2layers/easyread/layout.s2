@@ -327,10 +327,10 @@ var string entrytitle_padding = $*use_custom_friend_colors ? "padding: .2em;" : 
     if ($*userpics_position == "left") {
         $userpic_css = """
         #primary .header {
-            left: 110px;
+            margin-left: 110px;
             }
         .has-userpic .entry .poster {
-            left: 110px;
+            margin-left: 110px;
             }
         #comments .userpic a img, .comment-wrapper .userpic a img  {
             float: left;
@@ -540,9 +540,6 @@ h2.module-header a {
 }
 
 /* Entry header */
-#primary .header {
-    position: relative;
-}
 
 .has-userpic .entry .header {
     margin-bottom: 1em;
