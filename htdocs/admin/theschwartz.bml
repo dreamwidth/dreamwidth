@@ -73,8 +73,8 @@ body<=
         foreach my $job ( @$jobs ) {
             my ( $jid, $fn, $it, $r_it, $ra, $r_ra, $gu, $r_gu, $pr ) = @$job;
 
-            my $ago_it = LJ::ago_text( time() - $r_it );
-            my $ago_ra = LJ::ago_text( time() - $r_ra );
+            my $ago_it = LJ::diff_ago_text( $r_it );
+            my $ago_ra = LJ::diff_ago_text( $r_ra );
 
             my $state;
             warn "[$r_ra, $r_gu]\n";

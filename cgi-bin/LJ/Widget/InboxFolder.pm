@@ -172,7 +172,7 @@ sub render_body {
                   . LJ::img( $bookmark, "", { class => 'InboxItem_Bookmark' } )
                   . "</a>";
 
-        my $when = LJ::ago_text(time() - $inbox_item->when_unixtime);
+        my $when = LJ::diff_ago_text( $inbox_item->when_unixtime );
         my $contents = $inbox_item->as_html || '';
 
         my $row_class = ($rownum++ % 2 == 0) ? "InboxItem_Meta" : "InboxItem_Meta alt";

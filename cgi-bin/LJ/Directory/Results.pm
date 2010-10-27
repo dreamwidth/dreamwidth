@@ -95,7 +95,8 @@ sub render_simple {
     foreach my $u (@users) {
         $ret .= "<tr><td class='SearchResult'>";
         $ret .= $u->ljuser_display . " - " . $u->name_html;
-        $ret .= " <small>(Last updated: ". LJ::ago_text(time() - $updated->{$u->id}) . ")</small>";
+        # FIXME: consider replacing this with $u->last_updated
+        $ret .= " <small>(Last updated: ". LJ::diff_ago_text( $updated->{$u->id} ) . ")</small>";
         $ret .= "</td></tr>";
     }
     $ret .= "</table>";
@@ -123,13 +124,15 @@ sub render_pics {
             };
         $ret .= '<div class="Username">' . $u->ljuser_display . '</div>';
 
-        if ($updated->{$u->id}) {
-            $ret .= "<small>Updated ". LJ::ago_text(time() - $updated->{$u->id}) . "</small>";
+        $ret .= "<small>";
+
+        if ( $updated->{$u->id} ) {
+            $ret .= LJ::Lang::ml( 'search.user.update.last', { time => LJ::diff_ago_text( $updated->{$u->id} ) } );
         } else {
-            $ret .= "<small>Never updated</small>";
+            $ret .= LJ::Lang::ml( 'search.user.update.never' );
         }
 
-        $ret .= "</td>";
+        $ret .= "</small></td>";
     }
     $ret .= "</tr></table>";
 

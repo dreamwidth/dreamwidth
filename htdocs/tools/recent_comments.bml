@@ -197,7 +197,7 @@ body<=
             $ret .= "<tr valign='top' id='cmtbar$talkid'><td style='width: 150px; line-height: 1.5em; border-top: 1px solid #999; background-color: $bgcolor' id='cmtbar$talkid'>";
             $ret .= (LJ::isu($pu) ? LJ::ljuser($pu) : $ML{ '.anonymous' }) . "<br />";
 
-            $ret .= LJ::ago_text($now - $r->{datepostunix}) . "<br />";
+            $ret .= LJ::diff_ago_text( $r->{datepostunix}, $now ) . "<br />";
             $ret .= "<div id='state$talkid'>$state</div>" if $r->{state} ne "D";
 
             unless ($r->{state} eq "D") {
@@ -302,7 +302,7 @@ body<=
             my $commentanchor = LJ::Talk::comment_anchor( $talkid );
             my $talkurl = "$logurl?thread=$talkid$commentanchor";
 
-            my $hr_ago = LJ::ago_text($now - $r->{'posttime'});
+            my $hr_ago = LJ::diff_ago_text( $r->{posttime}, $now );
             my $subject;
             my $delete;
             my $editlink;

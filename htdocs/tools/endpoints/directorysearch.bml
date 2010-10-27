@@ -61,8 +61,7 @@ _c?>
                     my @users;
                     foreach my $u ($results->users) {
                         my $updatetime = $updated->{$u->userid};
-                        my $updatetimestring = $updatetime ? LJ::ago_text(time() - $updatetime) :
-                            'Never';
+                        my $updatetimestring = LJ::diff_ago_text( $updatetime );
 
                         push @users, {
                             lastupdated => $updatetime,

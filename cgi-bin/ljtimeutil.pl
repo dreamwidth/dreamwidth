@@ -246,6 +246,18 @@ sub ago_text
     }
 }
 
+# args: time in seconds of last activity; "current" time in seconds.
+# returns: result of LJ::ago_text for the difference.
+
+sub diff_ago_text {
+    my ( $last, $time ) = @_;
+    return ago_text( 0 ) unless $last;
+    $time = time() unless defined $time;
+
+    my $diff = ( $time - $last ) || 1;
+    return ago_text( $diff );
+}
+
 # Given a year, month, and day; calculate the age in years compared to now. May return a negative number or
 # zero if called in such a way as would cause those.
 

@@ -720,8 +720,7 @@ sub last_updated {
     return undef unless $u -> is_person || $u->is_community;
 
     my $lastupdated = substr( LJ::mysql_time( $u->timeupdate ), 0, 10 );
-    my $secondsold = time() - $u->timeupdate;
-    my $ago_text = LJ::ago_text( $secondsold );
+    my $ago_text = LJ::diff_ago_text( $u->timeupdate );
 
     if ( $u->timeupdate ) {
         return LJ::Lang::ml( 'lastupdated.ago',
@@ -8369,9 +8368,9 @@ sub user_search_display {
         $ret .= "<tr><td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>";
 
         if ( $updated->{$u->userid} > 0 ) {
-            $ret .= BML::ml( 'search.user.update.last', { time => LJ::ago_text( time() - $updated->{$u->userid} ) } );
+            $ret .= LJ::Lang::ml( 'search.user.update.last', { time => LJ::diff_ago_text( $updated->{$u->id} ) } );
         } else {
-            $ret .= BML::ml( 'search.user.update.never' );
+            $ret .= LJ::Lang::ml( 'search.user.update.never' );
         }
 
         $ret .= "</td></tr>";

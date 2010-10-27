@@ -473,8 +473,8 @@ body<=
         $ret .= "<tr><td align='right'><b>$ML{'.tier'}</b></td><td>$tier_map{$latest_timelogged_tier}</td></tr>\n";
     }
 
-    my $timecreate = LJ::time_to_http($sp->{'timecreate'});
-    my $age = LJ::ago_text(time() - $sp->{'timecreate'});
+    my $timecreate = LJ::time_to_http( $sp->{timecreate} );
+    my $age = LJ::diff_ago_text( $sp->{timecreate} );
     $ret .= "<tr><td align='right'><b>$ML{'.timeposted'}:</b></td><td>$timecreate ($age)</td></tr>\n";
     my $state = $sp->{'state'};
     if ($state eq "open") {

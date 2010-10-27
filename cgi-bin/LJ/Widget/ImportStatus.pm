@@ -46,7 +46,7 @@ sub render_body {
             foreach my $item ( sort keys %{$import_item->{items}} ) {
                 my $i = $import_item->{items}->{$item};
                 my $color = { init => '#333333', ready => '#3333aa', queued => '#33aa33', failed => '#aa3333', succeeded => '#00ff00' }->{$i->{status}};
-                my $ago_text = $i->{last_touch} ? LJ::ago_text( time() - $i->{last_touch} ) : "";
+                my $ago_text = $i->{last_touch} ? LJ::diff_ago_text( $i->{last_touch} ) : "";
                 my $status = "<span style='color: $color;'>";
                 if ( $i->{status} eq 'init' ) {
                     $status .= $class->ml( "widget.importstatus.status.$i->{status}.$item" );
@@ -60,7 +60,7 @@ sub render_body {
                 $ret .= "<td>";
                 $ret .= $ago_text ? $class->ml( 'widget.importstatus.statusasof', { status => $status, timeago => $ago_text } ) : $status;
                 $ret .= "</td>";
-                $ret .= "<td>" . $class->ml( 'widget.importstatus.createtime', { timeago => LJ::ago_text( time() - $i->{created} ) } ) . "</td>";
+                $ret .= "<td>" . $class->ml( 'widget.importstatus.createtime', { timeago => LJ::diff_ago_text( $i->{created} ) } ) . "</td>";
                 $ret .= "</tr>";
 
                 $import_in_progress = 1 if $i->{status} =~ /^(?:init|ready|queued)$/;

@@ -159,7 +159,7 @@ EOC
             if ( ! $obj->poster->equals( $obj->journal ) ) {
                 $user .= ' in ' . $obj->journal->ljuser_display;
             }
-            my $time = LJ::ago_text( $now - $obj->logtime_unix );
+            my $time = LJ::diff_ago_text( $obj->logtime_unix, $now );
             my $url = $obj->url;
             my $truncated;
             my $evt = $obj->event_html_summary( 2000, { cuturl => $url, preformatted => $obj->prop( 'opt_preformatted' ) }, \$truncated );
