@@ -7,6 +7,11 @@ sub layout_prop { "layout_type" }
 
 sub designer { "timeasmymeasure" }
 
+package LJ::S2Theme::practicality::agingcopper;
+use base qw( LJ::S2Theme::practicality );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::practicality::cherryblossoms;
 use base qw( LJ::S2Theme::practicality );
 sub cats { qw( featured ) }

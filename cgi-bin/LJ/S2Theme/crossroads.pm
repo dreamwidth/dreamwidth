@@ -32,6 +32,11 @@ package LJ::S2Theme::crossroads::cinnamoncream;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw() }
 
+package LJ::S2Theme::crossroads::cloudsounds;
+use base qw( LJ::S2Theme::crossroads );
+sub cats { qw() }
+sub designer { "rising" }
+
 package LJ::S2Theme::crossroads::coconut;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw() }

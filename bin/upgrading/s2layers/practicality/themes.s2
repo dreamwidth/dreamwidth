@@ -1,3 +1,57 @@
+#NEWLAYER: practicality/agingcopper
+layerinfo type = "theme";
+layerinfo name = "Aging Copper";
+layerinfo redist_uniq = "practicality/agingcopper";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#cc8f60";
+set color_page_link = "#447a66";
+set color_page_link_active = "#5aa286";
+set color_page_link_hover = "#5aa286";
+set color_page_link_visited = "#335c4b";
+set color_page_text = "#0e0e0e";
+set color_page_title = "#181818";
+set color_header_background = "#b87d56";
+set color_footer_background = "#f4a672";
+set color_footer_link = "#447a66";
+set color_footer_link_active = "#5aa286";
+set color_footer_link_hover = "#5aa286";
+set color_footer_link_visited = "#335c4b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f4a672";
+set color_entry_border = "#e09b69";
+set color_entry_interaction_links = "#587a64";
+set color_entry_link = "#447a66";
+set color_entry_link_active = "#5aa286";
+set color_entry_link_hover = "#5aa286";
+set color_entry_link_visited = "#335c4b";
+set color_entry_text = "#0e0e0e";
+set color_entry_title = "#181818";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f4a672";
+set color_module_border = "#e09b69";
+set color_module_link = "#447a66";
+set color_module_link_active = "#5aa286";
+set color_module_link_hover = "#5aa286";
+set color_module_link_visited = "#335c4b";
+set color_module_text = "#0e0e0e";
+set color_module_title = "#181818";
+
+
 #NEWLAYER: practicality/cherryblossoms
 layerinfo type = "theme";
 layerinfo name = "Cherry Blossoms";

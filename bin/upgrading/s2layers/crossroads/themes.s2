@@ -264,6 +264,55 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: crossroads/cloudsounds
+layerinfo type = "theme";
+layerinfo name = "Cloud Sounds";
+layerinfo redist_uniq = "crossroads/cloudsounds";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#7c9a87";
+set color_page_link = "#0b539e";
+set color_page_link_hover = "#0C5AAB";
+set color_page_link_visited = "#076d51";
+set color_page_text = "#303129";
+set color_page_title = "#494b3d";
+set color_header_background = "#e1e0b0";
+set color_footer_background = "#e1e0b0";
+set color_footer_link = "#0b9e79";
+set color_footer_link_hover = "#0b539e";
+set color_footer_link_visited = "#076d51";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#bdcfa9";
+set color_entry_border = "#9cc2ab";
+set color_entry_interaction_links = "#0e6ed0";
+set color_entry_link = "#0b9e79";
+set color_entry_link_hover = "#0b539e";
+set color_entry_link_visited = "#076d51";
+set color_entry_text = "#303129";
+set color_entry_title = "#0e6ed0";
+set color_entry_title_background = "#9cc2ab";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#9cc2ab";
+set color_module_link = "#0b9e79";
+set color_module_link_hover = "#0b539e";
+set color_module_link_visited = "#076d51";
+set color_module_text = "#303129";
+
+
 #NEWLAYER: crossroads/coconut
 layerinfo type = "theme";
 layerinfo name = "Coconut";
