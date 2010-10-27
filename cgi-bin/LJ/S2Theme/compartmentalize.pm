@@ -17,6 +17,11 @@ use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw() }
 sub designer { "rising" }
 
+package LJ::S2Theme::compartmentalize::bluediamonds;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "Musyc" }
+
 package LJ::S2Theme::compartmentalize::contemplation;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
@@ -29,14 +34,34 @@ package LJ::S2Theme::compartmentalize::goodsense;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
 
+package LJ::S2Theme::compartmentalize::greenclovers;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "Musyc" }
+
 package LJ::S2Theme::compartmentalize::iridescentwings;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw() }
 sub designer { "rising" }
 
+package LJ::S2Theme::compartmentalize::orangestars;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "Musyc" }
+
+package LJ::S2Theme::compartmentalize::pinkhearts;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "Musyc" }
+
 package LJ::S2Theme::compartmentalize::poppyfields;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
+
+package LJ::S2Theme::compartmentalize::purplehorseshoes;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "Musyc" }
 
 package LJ::S2Theme::compartmentalize::simplicity;
 use base qw( LJ::S2Theme::compartmentalize );
@@ -64,5 +89,10 @@ sub designer { "rising" }
 package LJ::S2Theme::compartmentalize::tripout;
 use base qw( LJ::S2Theme::compartmentalize );
 sub cats { qw( featured ) }
+
+package LJ::S2Theme::compartmentalize::yellowmoons;
+use base qw( LJ::S2Theme::compartmentalize );
+sub cats { qw() }
+sub designer { "Musyc" }
 
 1;
