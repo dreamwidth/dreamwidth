@@ -250,6 +250,142 @@ function Page::print_theme_stylesheet () {
 }
 
 
+#NEWLAYER: colorside/nnwm2010fresh
+layerinfo type = "theme";
+layerinfo name = "NNWM 2010 Fresh";
+layerinfo redist_uniq = "colorside/nnwm2010fresh";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#dcf1f9";
+set color_page_border = "#617f7a";
+set color_page_link = "#94ac33";
+set color_page_link_hover = "#e4502e";
+set color_page_text = "#7f6c63";
+set color_page_title = "#69aec4";
+set color_header_background = "#fff";
+set color_footer_link = "#69aec4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#69aec4";
+set color_entry_link = "#94ac33";
+set color_entry_link_hover = "#e4502e";
+set color_entry_title = "#69aec4";
+set color_entry_title_background = "#f0fbc6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_link = "#94ac33";
+set color_module_link_hover = "#e4502e";
+set color_module_title = "#69aec4";
+set color_module_title_background = "#f0fbc6";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Georgia";
+set font_entry_title = "Georgia";
+set font_fallback = "serif";
+set font_journal_subtitle = "Georgia";
+set font_journal_title = "Georgia";
+set font_module_heading = "Georgia";
+set font_module_text = "Georgia";
+
+function Page::print_theme_stylesheet () {
+    """
+    #header {
+        padding: 5px;
+        }
+
+    .entry {
+        padding: 5px;
+        }
+    """;
+}
+
+
+#NEWLAYER: colorside/nnwm2010warmth
+layerinfo type = "theme";
+layerinfo name = "NNWM 2010 Warmth";
+layerinfo redist_uniq = "colorside/nnwm2010warmth";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f4e7d9";
+set color_page_border = "#7f6c63";
+set color_page_link = "#e4a511";
+set color_page_link_hover = "#69aec4";
+set color_page_text = "#7f6c63";
+set color_page_title = "#e4502e";
+set color_header_background = "#fff";
+set color_footer_background = "#fff";
+set color_footer_link = "#e4502e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_interaction_links = "#e4502e";
+set color_entry_link = "#e4a511";
+set color_entry_link_hover = "#69aec4";
+set color_entry_title = "#e4502e";
+set color_entry_title_background = "f9d895";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_link = "#e4a511";
+set color_module_link_hover = "#69aec4";
+set color_module_text = "#88746a";
+set color_module_title = "#e4502e";
+set color_module_title_background = "f9d895";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Georgia";
+set font_entry_title = "Georgia";
+set font_fallback = "serif";
+set font_journal_subtitle = "Georgia";
+set font_journal_title = "Georgia";
+set font_module_heading = "Georgia";
+set font_module_text = "Georgia";
+
+function Page::print_theme_stylesheet () {
+    """
+    #header {
+        padding: 5px;
+        }
+
+    .entry {
+        padding: 5px;
+        }
+    """;
+}
+
+
 #NEWLAYER: colorside/scatteredfields
 layerinfo type = "theme";
 layerinfo name = "Scattered Fields";

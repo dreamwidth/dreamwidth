@@ -27,6 +27,16 @@ use base qw( LJ::S2Theme::colorside );
 sub cats { qw() }
 sub designer { "zvi" }
 
+package LJ::S2Theme::colorside::nnwm2010fresh;
+use base qw( LJ::S2Theme::colorside );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
+package LJ::S2Theme::colorside::nnwm2010warmth;
+use base qw( LJ::S2Theme::colorside );
+sub cats { qw() }
+sub designer { "timeasmymeasure" }
+
 package LJ::S2Theme::colorside::scatteredfields;
 use base qw( LJ::S2Theme::colorside );
 sub cats { qw( featured ) }
