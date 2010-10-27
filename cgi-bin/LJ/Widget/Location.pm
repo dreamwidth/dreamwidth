@@ -217,7 +217,8 @@ sub handle_post {
 
     return if $class->error_list;
 
-    $post->{'timezone'} = "" unless grep { $post->{'timezone'} eq $_ } DateTime::TimeZone::all_names();
+    $post->{timezone} = "" unless $post->{timezone} &&
+        grep { $post->{timezone} eq $_ } DateTime::TimeZone::all_names();
 
     # check if specified country has states
     if ($regions_cfg) {

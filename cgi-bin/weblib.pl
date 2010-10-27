@@ -129,7 +129,9 @@ sub auto_linkify
             return "<a href='$str'>$str</a>";
         }
     };
-    $str =~ s!https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-]! $match->($&); !ge;
+    $str =~ s!https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-]! $match->($&); !ge
+        if defined $str;
+
     return $str;
 }
 
@@ -1384,8 +1386,8 @@ MOODS
             };
 
             my $comment_settings_journaldefault = sub {
-                return "Disabled" if $opts->{'prop_opt_default_nocomments'} eq 'N';
-                return "No Email" if $opts->{'prop_opt_default_noemail'} eq 'N';
+                return "Disabled" if $opts->{prop_opt_default_nocomments} && $opts->{prop_opt_default_nocomments} eq 'N';
+                return "No Email" if $opts->{prop_opt_default_noemail} && $opts->{prop_opt_default_noemail} eq 'N';
                 return "Enabled";
             };
 
@@ -1418,10 +1420,12 @@ MOODS
             # Comment Screening settings
             $out .= "<span class='inputgroup-right'>\n";
             $out .= "<label for='prop_opt_screening' class='left options'>" . BML::ml('entryform.comment.screening2') . "</label>\n";
-            my $screening_levels_default = $opts->{'prop_opt_default_screening'} eq 'N' ? BML::ml('label.screening.none2') :
-                    $opts->{'prop_opt_default_screening'} eq 'R' ? BML::ml('label.screening.anonymous2') :
-                    $opts->{'prop_opt_default_screening'} eq 'F' ? BML::ml('label.screening.nonfriends2') :
-                    $opts->{'prop_opt_default_screening'} eq 'A' ? BML::ml('label.screening.all2') : BML::ml('label.screening.none2');
+            my $opt_default_screen = $opts->{prop_opt_default_screening} || '';
+            my $screening_levels_default =
+                    $opt_default_screen eq 'N' ? BML::ml('label.screening.none2') :
+                    $opt_default_screen eq 'R' ? BML::ml('label.screening.anonymous2') :
+                    $opt_default_screen eq 'F' ? BML::ml('label.screening.nonfriends2') :
+                    $opt_default_screen eq 'A' ? BML::ml('label.screening.all2') : BML::ml('label.screening.none2');
             my @levels = ('', BML::ml('label.screening.default4', {'aopts'=>$screening_levels_default}), 'N', BML::ml('label.screening.none2'),
                       'R', BML::ml('label.screening.anonymous2'), 'F', BML::ml('label.screening.nonfriends2'),
                       'A', BML::ml('label.screening.all2'));
@@ -2075,13 +2079,13 @@ sub entry_form_decode
     }
 
     $req->{"prop_opt_preformatted"} ||= $POST->{'switched_rte_on'} ? 1 :
-        $POST->{'event_format'} eq "preformatted" ? 1 : 0;
-    $req->{"prop_opt_nocomments"}   ||= $POST->{'comment_settings'} eq "nocomments" ? 1 : 0;
-    $req->{"prop_opt_noemail"}      ||= $POST->{'comment_settings'} eq "noemail" ? 1 : 0;
+        $POST->{event_format} && $POST->{event_format} eq "preformatted" ? 1 : 0;
+    $req->{"prop_opt_nocomments"}   ||= $POST->{comment_settings} && $POST->{comment_settings} eq "nocomments" ? 1 : 0;
+    $req->{"prop_opt_noemail"}      ||= $POST->{comment_settings} && $POST->{comment_settings} eq "noemail" ? 1 : 0;
     $req->{'prop_opt_backdated'}      = $POST->{'prop_opt_backdated'} ? 1 : 0;
 
     if ( LJ::is_enabled( 'adult_content' ) ) {
-        $req->{prop_adult_content} = $POST->{prop_adult_content};
+        $req->{prop_adult_content} = $POST->{prop_adult_content} || '';
         $req->{prop_adult_content} = ""
             unless $req->{prop_adult_content} eq "none" || $req->{prop_adult_content} eq "concepts" || $req->{prop_adult_content} eq "explicit";
 

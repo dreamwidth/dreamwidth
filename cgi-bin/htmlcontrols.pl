@@ -122,14 +122,14 @@ sub html_datetime_decode
 {
     my $opts = shift;
     my $hash = shift;
-    my $name = $opts->{'name'};
+    my $name = $opts->{name} || '';
     return sprintf("%04d-%02d-%02d %02d:%02d:%02d",
-                   $hash->{"${name}_yyyy"},
-                   $hash->{"${name}_mm"},
-                   $hash->{"${name}_dd"},
-                   $hash->{"${name}_hh"},
-                   $hash->{"${name}_nn"},
-                   $hash->{"${name}_ss"});
+                   $hash->{"${name}_yyyy"} || 0,
+                   $hash->{"${name}_mm"}   || 0,
+                   $hash->{"${name}_dd"}   || 0,
+                   $hash->{"${name}_hh"}   || 0,
+                   $hash->{"${name}_nn"}   || 0,
+                   $hash->{"${name}_ss"}   || 0 );
 }
 
 # <LJFUNC>

@@ -331,6 +331,7 @@ sub is_disabled {
     my $class = shift;
 
     my $subclass = $class->subclass;
+    return 0 unless $subclass;
     return $LJ::WIDGET_DISABLED{$subclass} ? 1 : 0;
 }
 
