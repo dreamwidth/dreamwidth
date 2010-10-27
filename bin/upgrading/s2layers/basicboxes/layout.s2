@@ -16,6 +16,13 @@ propgroup colors_child {
 set color_page_details_text = "#999";
 
 ##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "'Book Antiqua', Palatino, 'Times New Roman', serif";
+set font_journal_subtitle = "'Book Antiqua', Palatino, 'Times New Roman', serif";
+
+##===============================
 ## Navigation Module
 ##===============================
 
@@ -176,9 +183,10 @@ a { text-decoration: none; }
 
 a:hover { text-decoration: underline; }
 
-body { margin: 0;
-font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif;  }
-    
+body {
+    margin: 0;
+    }
+
 #canvas { position: relative; 
  float: left; width: 100%; /*asinine IE7 hack to keep left sidebar from sliding under #primary when #canvas is relative*/  }
 
@@ -195,13 +203,6 @@ font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif;  }
     padding: 0 .5em;
     text-align: center;
     }
-
-#header h1,
-#header h2 {
-    font-family: "Book Antiqua", Palatino, "Times New Roman", serif;
-    font-family: $*font_journal_title;
-    }
-
 
 /* main column */
 
