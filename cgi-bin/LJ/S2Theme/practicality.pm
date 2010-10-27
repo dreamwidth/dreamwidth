@@ -23,6 +23,14 @@ package LJ::S2Theme::practicality::nightlight;
 use base qw( LJ::S2Theme::practicality );
 sub cats { qw( featured ) }
 
+package LJ::S2Theme::practicality::nnwm2010fresh;
+use base qw( LJ::S2Theme::practicality );
+sub cats { qw() }
+
+package LJ::S2Theme::practicality::nnwm2010warmth;
+use base qw( LJ::S2Theme::practicality );
+sub cats { qw() }
+
 package LJ::S2Theme::practicality::poppyfields;
 use base qw( LJ::S2Theme::practicality );
 sub cats { qw( featured ) }
