@@ -41,7 +41,7 @@ propgroup presentation {
 }
 
 set layout_type = "two-columns-right";
-set sidebar_width = "230px";
+set sidebar_width = "300px";
 set tags_page_type = "";
 set entryicons_position = "same";
 set custom_colors_template = "%%new%% .userpic a {background-color: %%background%%; border: solid 1px %%foreground%%;}";
@@ -520,8 +520,8 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 #header h2 {padding: 0 2em; $page_title_colors }
 
 #wrap { $page_text_colors }
-.two-columns-right #wrap {padding-right: 300px; padding-top: 20px; padding-left:  20px;}
-.two-columns-left #wrap  {padding-left:  300px; padding-top: 20px; padding-right: 20px;}
+.two-columns-right #wrap {padding-right: $*sidebar_width; padding-top: 20px; padding-left:  20px;}
+.two-columns-left #wrap  {padding-left: $*sidebar_width; padding-top: 20px; padding-right: 20px;}
 #content {position: relative; width: 100%; padding-bottom: 20px; $content_colors}
 .two-columns-right #content {margin: 0 -5px 0 0; float: left;}
 .two-columns-left #content {margin: 0 0 0 -5px; float: right;}
@@ -536,9 +536,9 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .two-columns-right .module-section-one {margin-right:5px;}
 .two-columns-left .module-section-one {margin-left:5px;}
 
-.module-section-two { $module_colors position: relative; width: 300px;}
-.two-columns-right .module-section-two {float: left; margin-right: -300px; /* <--- IMPORTANT */}
-.two-columns-left .module-section-two {float: right; margin-left: -300px; /* <--- IMPORTANT */}
+.module-section-two { $module_colors position: relative; width: $*sidebar_width;}
+.two-columns-right .module-section-two {float: left; margin-right: -$*sidebar_width; /* <--- IMPORTANT */}
+.two-columns-left .module-section-two {float: right; margin-left: -$*sidebar_width; /* <--- IMPORTANT */}
 .module-section-two .module { $module_box_background $module_box_colors margin: 20px; padding: 10px; }
 .two-columns-right .module-section-two .module {margin-left: 10px;}
 .two-columns-left .module-section-two .module {margin-right: 10px;}
