@@ -435,6 +435,24 @@ $maint{'genstats_weekly'} = sub
 {
     LJ::Stats::register_stat
         ({ 'type' => "global",
+           'jobname' => "supportrank_prev",
+           'statname' => "supportrank_prev",
+           'handler' =>
+               sub {
+                   my $db_getter = shift;
+                   return undef unless ref $db_getter eq 'CODE';
+                   my $db = $db_getter->();
+                   return undef unless $db;
+
+                   my $rows = $db->selectall_arrayref( "SELECT statkey, statval FROM stats WHERE statcat = 'supportrank'" );
+                   return {} unless $rows;
+
+                   return { ( map { $_->[0] => $_->[1] } @$rows ) };
+               }
+        });
+ 
+    LJ::Stats::register_stat
+        ({ 'type' => "global",
            'jobname' => "supportrank",
            'statname' => "supportrank",
            'handler' =>
@@ -467,20 +485,12 @@ $maint{'genstats_weekly'} = sub
                        $supportrank{$_->{'userid'}} = $rank;
                    }
 
-                   # move old 'supportrank' stat to supportrank_prev
-                   # no API for this :-/
-                   {
-                       my $dbh = LJ::Stats::get_db("dbh");
-                       $dbh->do("DELETE FROM stats WHERE statcat='supportrank_prev'");
-                       $dbh->do("UPDATE stats SET statcat='supportrank_prev' WHERE statcat='supportrank'");
-                   }
-
                    return \%supportrank;
                }
         });
 
     print "-I- Generating weekly stats.\n";
-    LJ::Stats::run_stats('supportrank');
+    LJ::Stats::run_stats('supportrank_prev', 'supportrank');
     print "-I- Done.\n";
 };
 

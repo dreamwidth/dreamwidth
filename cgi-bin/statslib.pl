@@ -82,12 +82,14 @@ sub LJ::Stats::run_stats {
             {
                 if (ref $stat->{'statname'} eq 'ARRAY') {
                     foreach my $statname (@{$stat->{'statname'}}) {
+                        LJ::Stats::clear_stat( $statname );
                         foreach my $key (keys %{$res->{$statname}}) {
                             LJ::Stats::save_stat($statname, $key, $res->{$statname}->{$key});
                         }
                     }
                 } else {
                     my $statname = $stat->{'statname'};
+                    LJ::Stats::clear_stat( $statname );
                     foreach my $key (keys %$res) {
                         LJ::Stats::save_stat($statname, $key, $res->{$key});
                     }
@@ -127,12 +129,14 @@ sub LJ::Stats::run_stats {
                 {
                     if (ref $stat->{'statname'} eq 'ARRAY') {
                         foreach my $statname (@{$stat->{'statname'}}) {
+                            LJ::Stats::clear_part( $statname, $cid );
                             foreach my $key (keys %{$res->{$statname}}) {
                                 LJ::Stats::save_part($statname, $cid, $key, $res->{$statname}->{$key});
                             }
                         }
                     } else {
                         my $statname = $stat->{'statname'};
+                        LJ::Stats::clear_part( $statname, $cid );
                         foreach my $key (keys %$res) {
                             LJ::Stats::save_part($statname, $cid, $key, $res->{$key});
                           }
@@ -193,6 +197,18 @@ sub LJ::Stats::get_db {
     return undef;
 }
 
+# clear out previous stats from the 'stats' table
+sub LJ::Stats::clear_stat {
+    my ($cat) = @_;
+    return undef unless $cat;
+
+    my $dbh = LJ::Stats::get_db( "dbh" );
+    $dbh->do( "DELETE FROM stats WHERE statcat = ?", undef, $cat );
+    die $dbh->errstr if $dbh->err;
+
+    return 1;
+}
+
 # save a given stat to the 'stats' table in the db
 sub LJ::Stats::save_stat {
     my ($cat, $statkey, $val) = @_;
@@ -215,6 +231,19 @@ sub LJ::Stats::save_calc {
     my $dbh = LJ::Stats::get_db("dbh");
     $dbh->do("REPLACE INTO partialstats (jobname, clusterid, calctime) " .
              "VALUES (?,?,UNIX_TIMESTAMP())", undef, $jobname, $cid || 1);
+    die $dbh->errstr if $dbh->err;
+
+    return 1;
+}
+
+# clear out previous partial stats
+sub LJ::Stats::clear_part {
+    my ($statname, $cid) = @_;
+    return undef unless $statname && $cid > 0;
+
+    my $dbh = LJ::Stats::get_db( "dbh" );
+    $dbh->do( "DELETE FROM partialstatsdata WHERE statname = ? AND clusterid = ?",
+              undef, $statname, $cid );
     die $dbh->errstr if $dbh->err;
 
     return 1;
