@@ -17,6 +17,13 @@ propgroup colors_child {
 
 set color_page_details_text = "#999";
 
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Verdana, Helvetica";
+set font_fallback = "sans-serif";
+
 function print_module_navlinks() {
     var Page p = get_page();
     var string title = "Navigation";
@@ -138,7 +145,7 @@ a:visited { color: $*color_page_link_visited; }
 a:hover {text-decoration: none; }
 
 body { margin: 0;
-    font-family: Verdana, Helvetica, sans-serif; border: none; }
+    border: none; }
 
 H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
 
