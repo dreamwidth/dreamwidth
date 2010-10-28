@@ -566,6 +566,8 @@ INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES 
 UPDATE priv_list SET des='Allows a user to modify bans with the sysban mechanism.  arg=A specific ban type the user can modify, or \"*\" for all ban type.',is_public='0',privname='Modify System Bans',scope='general' WHERE privcode='sysban';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to edit site text in a given language. arg=Unique language code, optionally appended by |domainid.domaincode', '1', 'translate', 'Translate/Update Text', 'general');
 UPDATE priv_list SET des='Allows a user to edit site text in a given language. arg=Unique language code, optionally appended by |domainid.domaincode',is_public='1',privname='Translate/Update Text',scope='general' WHERE privcode='translate';
+INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to add/edit vgifts. arg=Tag in case restricting priv to a particular category is needed, or "*" for all tags.', '1', 'vgifts', 'Virtual Gifts', 'general');
+UPDATE priv_list SET des='Allows a user to add/edit vgifts. arg=Tag in case restricting priv to a particular category is needed, or "*" for all tags.',is_public='1',privname='Virtual Gifts',scope='general' WHERE privcode='vgifts';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user adds someone to their Friends list', 'addfriend');
 UPDATE ratelist SET des='Logged when a user adds someone to their Friends list' WHERE name='addfriend';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user creates a community.', 'commcreate');

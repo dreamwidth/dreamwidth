@@ -1,0 +1,308 @@
+<?_code
+{
+    use strict;
+    use vars qw($title $body $page $action %GET %POST);
+
+    use DW::VirtualGift;
+
+    $title = $ML{'.title'};
+    $body = "";
+    $page = "$LJ::SITEROOT/admin/vgifts/tags";
+    $action = 'tags';  # for $postform
+
+    # helper routines
+
+    my $error = sub { 
+        $title = $ML{'.error'};
+        $body = join '', @_;
+        return undef;
+    };
+    my $errmsg;
+
+    my $loose_refer = sub {
+        return 1 unless my $refer = BML::get_client_header('Referer');
+        my ( $getargs ) = ( $refer =~ m/\?(.*)$/ );
+        return LJ::check_referer( $page ) unless $getargs;
+        return LJ::check_referer( "$page?$getargs" );
+    };
+
+    my $strict_refer = sub {
+        # make sure we have a referer header. check_referer doesn't care.
+        return BML::get_client_header('Referer') && $loose_refer->();
+    };
+
+    my $textform = sub {
+        my ( $name, $ml, $optref ) = @_;
+        my %opts = $optref ? %$optref : ();
+        my $text = "\n<label for='$name'>$ML{$ml}</label>";
+        $text .= '<br />' and delete $opts{br} if $opts{br}; 
+        $text .= LJ::html_text( { name => $name, id => $name, %opts } );
+        return $text;
+    };
+
+    my $checkid = sub {
+        my $id = shift;
+        return $error->( $ML{'error.invalidform'} ) unless $id;
+
+        my $vgift = DW::VirtualGift->new( $id );
+        return $error->( $ML{'.error.badid'} )
+            unless $vgift && $vgift->name;
+
+        return $vgift;
+    };
+
+    my $postform = sub {
+        my ( $mode, $id ) = @_;
+        my $text = "<form action='$action' method='post'>";
+        $text .= LJ::html_hidden( mode => $mode ) if $mode;
+        $text .= LJ::html_hidden( id => $id ) if $id && $id =~ /^\d+$/;
+        return $text;
+    };
+
+    my $endform = sub {
+        my ( $submit ) = @_;
+        my $text = '<p>';
+        $text .= LJ::html_submit( submit => $submit ) ;
+        $text .= '</p></form>';
+        return $text;
+    };
+
+    # end helper routines
+
+    # login check
+    my $remote = LJ::get_remote();
+    return $error->( "<?needlogin?>" ) unless $remote;
+
+    # priv check
+    my @displayprivs = ( "siteadmin:vgifts" );
+    my $siteadmin = $remote->has_priv( 'siteadmin', 'vgifts' ) || $LJ::IS_DEV_SERVER;
+
+    return $error->( BML::ml( "admin.noprivserror",
+                     { numprivs => scalar @displayprivs,
+                       needprivs => "<b>" . join(", ", @displayprivs) . "</b>"
+                     } ) )
+        unless $siteadmin;
+
+    # mode check
+    my $mode = lc( $GET{mode} || $POST{mode} );
+    my $linkback = "<p style='clear: both'><a href='$page'>"
+                 . BML::ml( '.linktext.back', { title => $ML{'.title'} } )
+                 . "</a></p>\n";
+    my $linkhome = "<p style='clear: both'><a href='/admin/vgifts/'>"
+                 . "$ML{'.linktext.home'}</a></p>\n";
+
+    if ( LJ::did_post() && $mode ) {
+        return $error->( $ML{'error.invalidform'} )
+            unless LJ::check_form_auth();
+        $mode = '' unless $loose_refer->();
+
+        if ( $mode eq 'edit' ) {
+            my $tagid = $POST{id}
+                or return $error->( $ML{'.error.badid'} );
+            my $tag = DW::VirtualGift->get_tagname( $tagid )
+                or return $error->( $ML{'.error.badid'} );
+
+            return $error->( $ML{'.error.needpriv'} )
+                if $POST{"${tagid}_privarg"} && ! $POST{"${tagid}_addpriv"};
+
+            # make sure the new priv is valid
+            my $priv = $POST{"${tagid}_addpriv"};
+            my $addpriv_id;
+            if ( $priv ) {
+                $addpriv_id = DW::VirtualGift->validate_priv( $priv );
+                return $error->( LJ::Lang::ml( '.error.badpriv',
+                    { priv => LJ::ehtml( $priv ) } ) )
+                        unless $addpriv_id;
+            }
+
+            # also validate arg if given
+            my $arg = $POST{"${tagid}_privarg"};
+            if ( $arg && $arg ne '*' ) {
+                my $valid_args = LJ::list_valid_args( $priv );
+                return $error->( LJ::Lang::ml( '.error.badarg',
+                    { priv => LJ::ehtml( $priv ),
+                      arg  => LJ::ehtml( $arg ) } ) )
+                        unless $valid_args && $valid_args->{$arg};
+            }
+
+            # process rename first
+            if ( my $newtag = $POST{"${tagid}_rename"} ) {
+                DW::VirtualGift->alter_tag( $tag, $newtag )
+                    or return $error->( LJ::Lang::ml( '.error.badtagname',
+                        { tag => LJ::ehtml( $newtag ) } ) );
+                $tag = $newtag;  # subsequent changes target $newtag
+            }
+
+            # process new privilege
+            if ( $addpriv_id ) {
+                DW::VirtualGift->add_priv_to_tag( $tag, $priv, $arg )
+                    or return $error->( LJ::Lang::ml( '.error.privarg',
+                        { privarg => LJ::ehtml( "$priv:$arg" ) } ) );
+            }
+
+            # process old privileges
+            if ( $POST{"${tagid}_maxprivnum"} ) {
+                # only remove existing privs if not renamed (can resubmit)
+                unless ( $POST{"${tagid}_rename"} ) {
+                    DW::VirtualGift->remove_priv_from_tag( $tag, $_->[0], $_->[1] )
+                        foreach DW::VirtualGift->list_tagprivs( $tag );
+                }
+                # add back selected privs
+                foreach my $i ( 0..$POST{"${tagid}_maxprivnum"} ) {
+                    if ( $POST{"${tagid}_priv$i"} ) {
+                        my ( $priv, $arg ) =
+                            ( $POST{"${tagid}_priv$i"} =~ /^([^:]+):(.*)$/ );
+                        next unless $priv;
+                        DW::VirtualGift->add_priv_to_tag( $tag, $priv, $arg )
+                            or return $error->( BML::ml( '.error.privarg',
+                                { privarg => LJ::ehtml( "$priv:$arg" ) } ) );
+                    }
+                }
+            }
+
+            $tagid = DW::VirtualGift->get_tagid( $tag )
+                if $POST{"${tagid}_rename"};
+            $body = BML::redirect( "$page?mode=view&title=edited&id=$tagid" );
+
+        } elsif ( $mode eq 'confirm' ) {
+            my $tag = DW::VirtualGift->get_tagname( $POST{id} )
+                or return $error->( $ML{'.error.badid'} );
+            DW::VirtualGift->alter_tag( $tag );
+            $body = BML::redirect( $page );
+
+        } else {
+            # if we get here, check_referer failed or something weird happened
+            $body = BML::redirect( $page );
+        }
+
+        return;
+    }
+
+    # non post processing stuff (check for gets)
+    my $auth = LJ::form_auth();
+    my $tag = LJ::durl( $GET{tag} || '' );
+    my $id;
+
+    if ( $mode ) {
+        $body = BML::redirect( $page ) and return unless $tag;
+        $id = DW::VirtualGift->get_tagid( $tag )
+            or return $error->( $ML{'.error.badid'} );
+    }
+
+    if ( $mode eq 'view' ) {
+        my $etag = LJ::ehtml( $tag );
+        my $urltag = LJ::eurl( $tag );
+        $title = ( $GET{title} && $strict_refer->() )
+                 ? $ML{".title.$GET{title}"}
+                 : "$title: $etag";
+        $body .= "<h2>$ML{'.label.edit.tagname'}: <b>$etag</b> &nbsp; ";
+        $body .= "<a href='?mode=delete&tag=$urltag'>";
+        $body .= "$ML{'.linktext.deletetag'}</a></h2>\n";
+        $body .= $postform->( 'edit', $id ) . $auth;
+        $body .= '<p>';
+        $body .= $textform->( "${id}_rename", '.label.edit.name',
+                              { size => 25, maxlength => 40 } );
+        $body .= "</p><p><i>$ML{'.note.tagmerge'}</i></p><p>";
+        $body .= $textform->( "${id}_addpriv", '.label.edit.priv',
+                              { size => 15, maxlength => 25 } );
+        $body .= ' : ';
+        $body .= LJ::html_text( { name => "${id}_privarg",
+                                  id => "${id}_privarg",
+                                  size => 15, maxlength => 25 } );
+        $body .= '</p>';
+
+        $body .= "<h3>$ML{'.header.privlist'}</h3>\n";
+        my @privarg = DW::VirtualGift->list_tagprivs( $tag );
+        my $list = "";
+        foreach my $i ( 0..$#privarg ) {
+            my ( $priv, $arg ) = @{ $privarg[$i] };
+            $list .= '<li>';
+            $list .= LJ::html_check( { value => "$priv:$arg",
+                                       selected => 1,
+                                       name => "${id}_priv$i",
+                                       id => "${id}_priv$i" } );
+            $list .= $arg? " $priv:$arg" : " $priv";
+            $list .= '</li>';
+        }
+        if ( $list ) {
+            $body .= "<ul>$list</ul><i>$ML{'.note.removeprivs'}</i>";
+            $body .= LJ::html_hidden( "${id}_maxprivnum" => $#privarg );
+        } else {
+            $body .= $ML{'.queue.empty'};
+        }
+        $body .= $endform->( $ML{'.submit.edit'} );
+
+        $body .= "<h3>$ML{'.header.giftlist'}</h3>\n";
+        my @vgifts = DW::VirtualGift->list_tagged_with( $tag );
+        $list = "";
+        foreach my $vg ( @vgifts ) {
+            $list .= '<li>' . $vg->name_ehtml . ' (#' . $vg->id . ') ';
+            $list .= $vg->is_approved ? '' 
+                                      : "<b>$ML{'.note.notapproved'}</b> ";
+            $list .= $vg->is_inactive ? '' 
+                                      : "<b>$ML{'.note.active'}</b> ";
+            $list .= $vg->display_vieweditlinks( $vg->is_queued );
+            $list .= " | <a href='?mode=remove&tag=$urltag&vg=";
+            $list .= $vg->id . "'>$ML{'.linktext.removetag'}</a></li>";
+        }
+        $body .= $list ? "<ul>$list</ul>" : $ML{'.review.empty'};
+        $body .= $linkback;
+
+    } elsif ( $mode eq 'delete' ) {
+        $title .= ": $ML{'.title.delete'}";
+        my $etag = LJ::ehtml( $tag );
+        $body .= '<h2>' . BML::ml( '.header.delete', { tag => $etag } ) . '</h2>';
+        $body .= $postform->( 'confirm', $id ) . $auth;
+        $body .= $endform->( $ML{'.submit.delete'} );
+        $body .= $linkback;
+
+    } elsif ( $mode eq 'remove' ) {
+        my $vg = $checkid->( $GET{vg} ) or return;
+        # quickly process and return
+        $vg->remove_tag_by_id( $id );
+        $body = BML::redirect( "$page?mode=view&tag=" . LJ::eurl( $tag ) );
+    } else {
+        # DEFAULT PAGE DISPLAY
+        my $counts = DW::VirtualGift->fetch_tagcounts_approved;
+        my %nonpriv = map { $_ => $counts->{$_} }
+            DW::VirtualGift->list_nonpriv_tags;
+        delete @$counts{ keys %nonpriv };  # leaving only privileged data
+
+        my $printtags = sub {
+            my $hr = shift;
+            my $queue = "";
+            foreach my $tag ( sort keys %$hr ) {
+                my $urltag = LJ::eurl( $tag );
+                my $etag = LJ::ehtml( $tag );
+                $queue .= "<h3>$etag (" . $hr->{$tag} . ") &nbsp; ";
+                $queue .= "<a href='?mode=view&tag=$urltag'>";
+                $queue .= "$ML{'vgift.display.linktext.viewedit'}</a> | ";
+                $queue .= "<a href='?mode=delete&tag=$urltag'>";
+                $queue .= "$ML{'.linktext.deletetag'}</a></h3>\n";
+            }
+            return $queue ? $queue : "<h3>$ML{'.queue.empty'}</h3>";
+        };
+
+        $body .= "<h2>$ML{'.header.priv'}</h2>\n";
+        $body .= $printtags->( $counts );
+        $body .= "<h2>$ML{'.header.nonpriv'}</h2>\n";
+        $body .= $printtags->( \%nonpriv );
+        $body .= $linkhome;
+    }
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+head<=
+<style type="text/css">
+label       { margin-right: 1em; }
+#content p  { margin-top: 1em; }
+#content h2 { margin-top: 1em; }
+#content h3 { margin: 0.5em 0; }
+#content li { margin: 0.25em 0; }
+#content ol { list-style: decimal inside; }
+</style>
+<=head
+page?>

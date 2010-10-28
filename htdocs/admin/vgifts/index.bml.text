@@ -1,0 +1,133 @@
+.error=Error
+
+.error.badid=An error occurred while trying to load this vgift.
+
+.error.changed=The information for this virtual gift has changed. Please reload and try again.
+
+.error.create.badusername=The username you specified ([[name]]) does not appear to be a valid personal or identity account.
+
+.error.create.nodesc=Please give your new gift a description.
+
+.error.create.noname=Please give your new gift a name.
+
+.error.delete=This gift cannot be deleted, either because you don't have the required permissions or because it has already been made available for sale.
+
+.error.denied=You do not have permission to [[action]] this gift.
+
+.error.upload.badtype=Files of type [[filetype]] are not supported.  You can only upload GIF, PNG or JPG files.
+
+.error.upload.badurl=The address for the picture to be uploaded does not look correct. It should start with <b>http://</b>
+
+.error.upload.dimstoolarge=The dimensions of your image ([[imagesize]]) exceed maximum size.  Your picture can't be larger than [[maxsize]] pixels.
+
+.error.upload.filetoolarge=Image uploaded is too large.  File size cannot exceed [[maxsize]] KB.
+
+.error.upload.nofile=You must choose a file to upload
+
+.error.upload.noheader=No content-length header: can't upload
+
+.error.upload.nomogilefs=Couldn't load MogileFS: can't upload
+
+.error.upload.nourl=You must enter the URL of an image
+
+.error.upload.urlerror=An error ocurred while trying to fetch your image.
+
+.error.yn=Please select Yes or No.
+
+.header.artists=Leaderboard
+
+.header.create=Create a new virtual gift
+
+.header.delete=Are you sure?
+
+.header.imglarge=Large image
+
+.header.imgsmall=Small (main) image
+
+.header.review=Review:
+
+.header.siteadmin=Site Admins:
+
+.header.userqueue=Your other pending submissions:
+
+.label.create.creator=Username to credit as creator <u>(admin only)</u>:
+
+.label.create.desc=Description (for image alt text):
+
+.label.create.name=Name (must be unique):
+
+.label.edit.desc=New description?
+
+.label.edit.imglarge=Choose different large image:
+
+.label.edit.imgsmall=Choose different small image:
+
+.label.edit.name=New name?
+
+.label.fromfile=From <u>F</u>ile:
+
+.label.fromfile.key|notes=Enter here a <b>lower-case</b> version of the letter you underlined in ".fromfile". This is the shortcut key for the fromfile option.
+.label.fromfile.key=f
+
+.label.fromurl=From U<u>R</u>L:
+
+.label.fromurl.key|notes=Enter here a <b>lower-case</b> version of the letter you underlined in ".fromurl". This is the shortcut key for the fromurl option.
+.label.fromurl.key=r
+
+.label.review.answer.n=No
+
+.label.review.answer.y=Yes
+
+.label.review.approval=Approve?
+
+.label.review.approved=<span style="color: green">Approved by:</span>
+
+.label.review.comment=Comment:
+
+.label.review.optional=Optional: suggestions for shop qualifiers
+
+.label.review.rejected=<span style="color: red">Rejected by:</span>
+
+.label.review.why=<b>Comment: </b>
+
+.linktext.home=Back to Virtual Gifts main page
+
+.linktext.inactive=Manage Inactive Gifts
+
+.linktext.review.all=View All Pending Submissions
+
+.linktext.review.recent=View Recent Submissions
+
+.linktext.tags=Manage Tags
+
+.linktext.viewall=View All
+
+.note.svg=<i><b>Note:</b> If you have a scalable vector graphic, you will need to submit it via another method.</i>
+
+.queue.empty=(none available)
+
+.review.approved=Approval changes submitted:
+
+.review.deleted=The gift was deleted.
+
+.review.empty=There are no relevant gifts available to display.
+
+.submit.create=Create
+
+.submit.edit=Submit Changes
+
+.submit.delete=Yes, I want to delete this gift.
+
+.submit.review=Submit Review
+
+.title=Virtual Gifts
+
+.title.artists=Artists
+
+.title.created=Creation Successful!
+
+.title.delete=Delete A Gift
+
+.title.edited=Edit Successful!
+
+.title.review=Review Queue

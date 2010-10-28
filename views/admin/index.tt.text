@@ -83,6 +83,9 @@
 .admin.userlog.link=Userlog Viewer
 .admin.userlog.text=Shows you a user's logged actions.
 
+.admin.vgifts.link=Virtual Gifts
+.admin.vgifts.text=Maintain the virtual gift shop and submit new gift ideas.
+
 .anysupportpriv=any support priv
 .devserver=dev server
 

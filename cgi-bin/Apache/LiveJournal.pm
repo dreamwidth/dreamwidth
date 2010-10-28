@@ -39,6 +39,7 @@ use XMLRPC::Transport::HTTP;
 use LJ::URI;
 use DW::Routing;
 use DW::Template;
+use DW::VirtualGift;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -920,6 +921,8 @@ sub trans
     # userpic
     return userpic_trans($r) if $uri =~ m!^/userpic/!;
 
+    return vgift_trans($r) if $uri =~ m!^/vgift/!;
+
     # front page journal
     if ($LJ::FRONTPAGE_JOURNAL) {
         my $view = $determine_view->($LJ::FRONTPAGE_JOURNAL, "front", $uri);
@@ -1127,8 +1130,10 @@ sub userpic_content
     my $size;
 
     my $send_headers = sub {
-        $r->content_type($mime);
-        $r->headers_out->{"Content-length"} = $size+0;
+        $size = $_[0] if @_;
+        $size ||= 0;
+        $r->content_type( $mime );
+        $r->headers_out->{"Content-length"} = $size + 0;
         $r->headers_out->{"Cache-Control"} = "no-transform";
         $r->headers_out->{"Last-Modified"} = LJ::time_to_http($lastmod);
     };
@@ -1146,47 +1151,8 @@ sub userpic_content
     # For dversion 7+ and mogilefs userpics, follow this path
     if ( $pic->in_mogile ) {
         my $key = $u->mogfs_userpic_key( $picid );
-
-        if ( !$LJ::REPROXY_DISABLE{userpics} &&
-             $r->headers_in->{'X-Proxy-Capabilities'} &&
-             $r->headers_in->{'X-Proxy-Capabilities'} =~ m{\breproxy-file\b}i )
-        {
-            my $memkey = [$picid, "mogp.up.$picid"];
-
-            my $zone = $r->headers_in->{'X-MogileFS-Explicit-Zone'} || undef;
-            $memkey->[1] .= ".$zone" if $zone;
-
-            my $cache_for = $LJ::MOGILE_PATH_CACHE_TIMEOUT || 3600;
-
-            my $paths = LJ::MemCache::get($memkey);
-            unless ($paths) {
-                my @paths = LJ::mogclient()->get_paths( $key, { noverify => 1, zone => $zone });
-                $paths = \@paths;
-                LJ::MemCache::add($memkey, $paths, $cache_for) if @paths;
-            }
-
-            # reproxy url
-            if ($paths->[0] =~ m/^http:/) {
-                $r->headers_out->{'X-REPROXY-CACHE-FOR'} = "$cache_for; Last-Modified Content-Type";
-                $r->headers_out->{'X-REPROXY-URL'} = join(' ', @$paths);
-            }
-
-            # reproxy file
-            else {
-                $r->headers_out->{'X-REPROXY-FILE'} = $paths->[0];
-            }
-
-            $send_headers->();
-        }
-
-        else {
-            my $data = LJ::mogclient()->get_file_data( $key );
-            return NOT_FOUND unless $data;
-            $size = length $$data;
-            $send_headers->();
-            $r->print( $$data ) unless $r->header_only;
-        }
-
+        my $memkey = [$picid, "mogp.up.$picid"];
+        mogile_fetch( $r, $key, $memkey, 'userpics', $send_headers );
         return OK;
     }
 
@@ -1262,6 +1228,54 @@ sub files_trans
         return OK;
     }
     return 404;
+}
+
+sub vgift_trans
+{
+    my $r = shift;
+    return 404 unless $r->uri =~ m!^/vgift/(\d+)/(\w+)$!;
+    my ( $picid, $picsize ) = ( $1, $2 );
+    return 404 unless $picsize =~ /^(?:small|large)$/;
+
+    $r->notes->{codepath} = "img.vgift";
+
+    # we can safely do this without checking
+    # unless we're using the admin interface
+    return HTTP_NOT_MODIFIED if $r->headers_in->{'If-Modified-Since'}
+        && $r->headers_in->{'Referer'} !~ m!^\Q$LJ::SITEROOT\E$/admin/!;
+
+    $RQ{picid} = $picid;
+    $RQ{picsize} = $picsize;
+
+    $r->handler( "perl-script" );
+    $r->push_handlers( PerlResponseHandler => \&vgift_content );
+    return OK;
+}
+
+sub vgift_content
+{
+    my $r = shift;
+    my $picid = $RQ{picid};
+    my $picsize = $RQ{picsize};
+
+    my $vg = DW::VirtualGift->new( $picid );
+    my $mime = $vg->mime_type( $picsize );
+    return NOT_FOUND unless $mime;
+
+    my $size;
+
+    my $send_headers = sub {
+        $size = $_[0] if @_;
+        $size ||= 0;
+        $r->content_type( $mime );
+        $r->headers_out->{"Content-length"} = $size + 0;
+        $r->headers_out->{"Cache-Control"} = "no-transform";
+    };
+
+    my $key = $vg->img_mogkey( $picsize );
+    my $memkey = $vg->img_memkey( $picsize ); #[$picid, "mogp.vg.$picsize.$picid"];
+    mogile_fetch( $r, $key, $memkey, 'vgifts', $send_headers );
+    return OK;
 }
 
 sub journal_content
@@ -1779,6 +1793,45 @@ sub anti_squatter
         return OK;
     });
 
+}
+
+sub mogile_fetch {
+    my ( $r, $key, $memkey, $class, $send_headers ) = @_;
+
+    if ( !$LJ::REPROXY_DISABLE{$class} &&
+         $r->headers_in->{'X-Proxy-Capabilities'} &&
+         $r->headers_in->{'X-Proxy-Capabilities'} =~ m{\breproxy-file\b}i ) {
+
+        my $zone = $r->headers_in->{'X-MogileFS-Explicit-Zone'} || undef;
+        $memkey->[1] .= ".$zone" if $zone;
+
+        my $cache_for = $LJ::MOGILE_PATH_CACHE_TIMEOUT || 3600;
+
+        my $paths = LJ::MemCache::get( $memkey );
+        unless ( $paths ) {
+            # load and add to memcache
+            my @paths = LJ::mogclient()->get_paths( $key, { noverify => 1, zone => $zone } );
+            $paths = \@paths;
+            LJ::MemCache::add( $memkey, $paths, $cache_for ) if @paths;
+        }
+
+        if ( defined $paths->[0] && $paths->[0] =~ m/^http:/ ) {
+            # reproxy url
+            $r->headers_out->{'X-REPROXY-CACHE-FOR'} = "$cache_for; Last-Modified Content-Type";
+            $r->headers_out->{'X-REPROXY-URL'} = join( ' ', @$paths );
+        } else {
+            # reproxy file
+            $r->headers_out->{'X-REPROXY-FILE'} = $paths->[0];
+        }
+
+        $send_headers->();
+
+    } else {  # no reproxy
+        my $data = LJ::mogclient()->get_file_data( $key );
+        return NOT_FOUND unless $data;
+        $send_headers->( length $$data );
+        $r->print( $$data ) unless $r->header_only;
+    }
 }
 
 package LJ::Protocol;

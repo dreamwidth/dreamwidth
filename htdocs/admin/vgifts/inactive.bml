@@ -1,0 +1,302 @@
+<?_code
+{
+    use strict;
+    use vars qw($title $body $page $action %GET %POST);
+
+    use DW::VirtualGift;
+
+    $title = $ML{'.title'};
+    $body = "";
+    $page = "$LJ::SITEROOT/admin/vgifts/inactive";
+    $action = 'inactive';  # for $postform
+
+    # helper routines
+
+    my $error = sub { 
+        $title = $ML{'.error'};
+        $body = join '', @_;
+        return undef;
+    };
+    my $errmsg;
+
+    my $loose_refer = sub {
+        return 1 unless my $refer = BML::get_client_header('Referer');
+        my ( $getargs ) = ( $refer =~ m/\?(.*)$/ );
+        return LJ::check_referer( $page ) unless $getargs;
+        return LJ::check_referer( "$page?$getargs" );
+    };
+
+    my $strict_refer = sub {
+        # make sure we have a referer header. check_referer doesn't care.
+        return BML::get_client_header('Referer') && $loose_refer->();
+    };
+
+    my $textform = sub {
+        my ( $name, $ml, $optref ) = @_;
+        my %opts = $optref ? %$optref : ();
+        my $text = "\n<label for='$name'>$ML{$ml}</label>";
+        $text .= '<br />' and delete $opts{br} if $opts{br}; 
+        $text .= LJ::html_text( { name => $name, id => $name, %opts } );
+        return $text;
+    };
+
+    my $checkid = sub {
+        my $id = shift;
+        return $error->( $ML{'error.invalidform'} ) unless $id;
+
+        my $vgift = DW::VirtualGift->new( $id );
+        return $error->( $ML{'.error.badid'} )
+            unless $vgift && $vgift->name;
+
+        return $vgift;
+    };
+
+    my $postform = sub {
+        my ( $mode, $id ) = @_;
+        my $text = "<form action='$action' method='post'>";
+        $text .= LJ::html_hidden( mode => $mode ) if $mode;
+        $text .= LJ::html_hidden( id => $id ) if $id && $id =~ /^\d+$/;
+        return $text;
+    };
+
+    my $endform = sub {
+        my ( $submit ) = @_;
+        my $text = '<p>';
+        $text .= LJ::html_submit( submit => $submit ) ;
+        $text .= '</p></form>';
+        return $text;
+    };
+
+    my $select_tabs = sub {
+        my ( $mode ) = @_;
+        my @modes = ( '', 'tags' );  # ordered
+        my %tabs = (
+                '' => $ML{'.tab.default'},
+            'tags' => $ML{'.tab.tags'},
+        );
+        return '' unless $tabs{$mode};
+
+        my $text = "<li><b>$ML{'.header.tabs'}</b></li>";
+
+        foreach ( @modes ) {
+            next if $_ eq $mode;
+            my $href = $_ ? "?mode=$_" : $page;
+            $text .= "<li><a href='$href'>$tabs{$_}</a></li>";
+        }
+        return "<ul class='tabs'>$text</ul><div style='clear: both'></div>";
+    };
+
+    my %nonpriv = map { $_ => 1 } DW::VirtualGift->list_nonpriv_tags;
+    my $display_privtags = sub {
+        my $vg = shift;
+        my @print_tags;
+        my $privtext = '';
+        foreach ( sort { $a cmp $b } $vg->tags ) {
+            # linkify
+            my $tagname = LJ::eurl( $_ );
+            my $txt = LJ::ehtml( $_ );
+            $txt = "<a href='tags?mode=view&tag=$tagname'>$txt</a>";
+            unless ( $nonpriv{$_} ) {
+                # asterisk tags with privileges
+                $txt .= ' [*]';
+                $privtext = $ML{'.note.privstar'};
+            }
+            push @print_tags, $txt;
+        }
+        return '' unless @print_tags;
+        return "$ML{'vgift.display.label.tags'} " .
+            join( ', ', @print_tags ) . " &nbsp; $privtext";
+    };
+
+    my $display_gift = sub {
+        my $vg = shift;
+        my $id = $vg->id;
+        my $text = "<div style='margin: 1em 0 2em 0'>";
+        my $check = "${id}_activate";
+        $text .= LJ::html_check( { name => $check, id => $check,
+                                   value => 1 } );
+        $text .= " <label for='$check'>$ML{'.label.activate'}</label>\n";
+        $text .= LJ::html_hidden( "${id}_chksum" => $vg->checksum );
+        $text .= $vg->display_summary . $display_privtags->( $vg );
+        $text .= "<p><a href='/admin/vgifts/?mode=review&title=inactive&id=$id'>";
+        $text .= BML::ml( '.linktext.edit', { name => $vg->name_ehtml } );
+        $text .= "</a></p></div>";
+        return $text;
+    };
+
+    # end helper routines
+
+    # login check
+    my $remote = LJ::get_remote();
+    return $error->( "<?needlogin?>" ) unless $remote;
+
+    # priv check
+    my @displayprivs = ( "siteadmin:vgifts" );
+    my $siteadmin = $remote->has_priv( 'siteadmin', 'vgifts' ) || $LJ::IS_DEV_SERVER;
+
+    return $error->( BML::ml( "admin.noprivserror",
+                     { numprivs => scalar @displayprivs,
+                       needprivs => "<b>" . join(", ", @displayprivs) . "</b>"
+                     } ) )
+        unless $siteadmin;
+
+    # mode check
+    my $mode = lc( $GET{mode} || $POST{mode} );
+    my $auth = LJ::form_auth();
+    my $linkhome = "<p style='clear: both'><a href='/admin/vgifts/'>"
+                 . "$ML{'.linktext.home'}</a></p>\n";
+
+    if ( LJ::did_post() && $mode ) {
+        return $error->( $ML{'error.invalidform'} )
+            unless LJ::check_form_auth();
+        $mode = '' unless $loose_refer->();
+
+        if ( $mode eq 'activate' ) {
+            my @vgs;
+            foreach ( keys %POST ) {
+                my ( $id ) = ( $_ =~ /^(\d+)_activate$/ );
+                next unless $id;
+                my $vg = $checkid->( $id ) or return;
+                next if $vg->is_active;  # already active
+
+                return $error->( BML::ml( '.error.notags',
+                                          { name => $vg->name_ehtml } ) )
+                    if $vg->is_untagged;
+                return $error->( BML::ml( '.error.changed',
+                                          { name => $vg->name_ehtml } ) )
+                    if $POST{"${id}_chksum"} ne $vg->checksum;
+
+                push @vgs, $vg;
+            }
+            # now that we're clear of possible errors, do the activation
+            $_->mark_active foreach @vgs;
+            my $ids = join ', ', map { $_->id } @vgs;
+            LJ::statushistory_add( 0, $remote, 'vgifts', "Activated: $ids" )
+                if $ids;
+
+            # go back to where we were
+            $body = BML::redirect( BML::get_client_header('Referer') );
+
+        } else {
+            # if we get here, check_referer failed or something weird happened
+            $body = BML::redirect( $page );
+        }
+
+        return;
+    }
+
+    # non post processing stuff (check for gets)
+
+    # selection tabs go here: List All, Filter By Tag, etc.
+    $body .= $select_tabs->( $mode );
+
+    my @vgs;
+
+    if ( $mode eq 'tags' ) {
+        my $tag = $GET{tag} || '';
+
+        if ( $tag ) {
+            my $id = DW::VirtualGift->get_tagid( $tag )
+                or return $error->( $ML{'.error.badid'} );
+            @vgs = DW::VirtualGift->list_tagged_with( $tag );
+            # list_tagged_with includes active gifts
+            @vgs = grep { $_->is_inactive } @vgs;
+        } else {
+            @vgs = DW::VirtualGift->list_untagged;
+        }
+
+        $body .= "<div class='vgdiv' id='right'>";
+        $body .= "<h2>$ML{'.header.tagfilter'} ";
+        $body .= $tag ? LJ::ehtml( $tag ) : $ML{'.label.untagged'};
+        $body .= "</h2>";
+
+        my $app = DW::VirtualGift->fetch_tagcounts_approved;
+        my $act = DW::VirtualGift->fetch_tagcounts_active;
+        my %approved_inactive;
+        $approved_inactive{$_} = $app->{$_} - $act->{$_}
+            foreach keys %$app;
+
+        if ( %approved_inactive ) {
+            $body .= "<ul style='padding-left: 2em'>";
+            if ( $tag ) {
+                # show entry for untagged filter
+                my $count = scalar grep { $_->is_approved }
+                            DW::VirtualGift->list_untagged;
+                if ( $count ) {
+                    $body .= "<li><a href='?mode=tags'>";
+                    $body .= $ML{'.label.untagged'};
+                    $body .= "</a> ($count)</li>";
+                }
+            }
+            foreach ( keys %approved_inactive ) {
+                next if $_ eq $tag;
+                my $count = $approved_inactive{$_} or next;
+                my $tagname = LJ::eurl( $_ );
+                $body .= "<li><a href='?mode=tags&tag=$tagname'>";
+                $body .= LJ::ehtml( $_ );
+                $body .= "</a> ($count)</li>";
+            }
+            $body .= "</ul>";
+        }
+
+        $body .= "</div>";
+
+    } else {
+        # DEFAULT PAGE DISPLAY
+        @vgs = DW::VirtualGift->list_inactive;
+    }
+
+    # don't include queued or rejected gifts
+    @vgs = grep { $_->is_approved } @vgs;
+
+    my @feat = grep { $_->is_featured } @vgs;
+
+    $body .= $postform->( 'activate' ) . $auth;
+
+    $body .= "<h2>$ML{'.header.featured'}</h2>\n";
+    my $text = '';
+    foreach my $vg ( @feat ) {
+        $text .= $display_gift->( $vg );
+    }
+    $body .= $text ? "<ul>$text</ul>" : $ML{'.queue.empty'};
+    $body .= "<div style='clear: left'></div>\n";
+
+    $body .= "<h2>$ML{'.header.nonfeatured'}</h2>\n";
+    $text = '';
+    foreach my $vg ( @vgs ) {
+        next if $vg->is_featured;
+        $text .= $display_gift->( $vg );
+    }
+    $body .= $text ? "<ul>$text</ul>" : $ML{'.queue.empty'};
+    $body .= $endform->( $ML{'.submit.activate'} );
+    $body .= "<div style='margin-bottom: 15px'></div>\n";
+
+    $body .= $linkhome;
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+head<=
+<style type="text/css">
+label       { margin-right: 1em; }
+.vgdiv      { margin-bottom: 15px; width: 45%; }
+#content p  { margin-top: 1em; }
+#content h2 { margin-top: 1em; }
+#content h3 { margin: 0.5em 0; }
+#content li { margin: 0.25em 0; }
+#content ol { list-style: decimal inside; }
+#left       { float: left; }
+#right      { float: right; }
+ul.tabs { width: 100%; padding-bottom: 3.5em; }
+ul.tabs li {
+    float: left;
+    display: block;
+    padding-right: 1em;
+    font-size: large;
+}
+ul.tabs li:first-child { padding-right: 0.5em; }
+</style>
+<=head
+page?>

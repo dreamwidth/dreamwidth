@@ -1983,6 +1983,20 @@ event.xpost.success.content=Crosspost to [[accountname]] successful.
 
 event.xpost.success.title=Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> to [[accountname]] action successful.
 
+event.vgift.approved.actions=<a [[aopts]]>View Gift</a>
+
+event.vgift.approved.content.N=[[admin]] has rejected your virtual gift submission "[[vgift]]".
+
+event.vgift.approved.content.Y=[[admin]] has approved your virtual gift submission "[[vgift]]".
+
+event.vgift.approved.msg.N=Sorry, your proposed virtual gift named "[[vgift]]" was not approved.
+
+event.vgift.approved.msg.Y=Congratulations, your proposed virtual gift named "[[vgift]]" was approved.
+
+event.vgift.approved.reason=The reviewer, [[admin]], included the following comments:
+
+event.vgift.notfound=The specified virtual gift could not be found.
+
 fckland.ljimage=Insert/Edit Image
 
 fcklang.cutcontents=Type your cut contents here.
@@ -3985,6 +3999,54 @@ userpic.inactive=Inactive
 userpic.link=userpic
 
 userpic.text=[[user]], this is what you currently look like to your friends: [[empty]]<br />Boooring. Be classy and upload a [[link]].
+
+vgift.display.cost.free=Free
+
+vgift.display.cost.points=[[cost]] [[?cost|point|points]]
+
+vgift.display.createdby=Created by [[user]] [[ago]]
+
+vgift.display.creatorlist.counts=[[user]] ([[approved]] approved, [[active]] active)
+
+vgift.display.label.cost=Cost:
+
+vgift.display.label.featured=Featured:
+
+vgift.display.label.tags=Tags:
+
+vgift.display.linktext.delete=[Delete]
+
+vgift.display.linktext.review=[Review]
+
+vgift.display.linktext.viewedit=[View/Edit]
+
+vgift.display.linktext.viewgifts=[View Gifts]
+
+vgift.error.create.noname=Name must be specified
+
+vgift.error.create.samename=Name already in use
+
+vgift.error.init.alloc=Could not allocate new vgiftid
+
+vgift.error.init.reuse=Cannot reuse vgift objects
+
+vgift.error.loadpic=<b>No [[size]] image found.</b>
+
+vgift.error.savepics=Unable to save [[size]] image
+
+vgift.error.tags.create=Cannot create new tag: [[tag]]
+
+vgift.error.tags.invalid=Attempt to use invalid tags: [[taglist]]
+
+vgift.error.tags.novalidtags=No valid tags!
+
+vgift.error.validate.value=Invalid value for [[prop]]
+
+vgift.error.validate.property=Invalid property '[[key]]'
+
+vgift.error.validate.text=Invalid text encoding for [[prop]]
+
+vgift.error.validate.value=Invalid value for [[prop]]
 
 web.ads.advertisement=<a [[aopts]]>Advertisement</a>
 

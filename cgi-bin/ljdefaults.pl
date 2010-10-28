@@ -186,6 +186,7 @@ no strict "vars";
     $MOGILEFS_CONFIG{classes}                ||= {};
     $MOGILEFS_CONFIG{classes}->{temp}        ||= 2;
     $MOGILEFS_CONFIG{classes}->{userpics}    ||= 3;
+    $MOGILEFS_CONFIG{classes}->{vgifts}      ||= 3;
 
     # Default to allow all reproxying.
     %REPROXY_DISABLE = () unless %REPROXY_DISABLE;
@@ -220,6 +221,7 @@ no strict "vars";
                                NewUserpic
                                PollVote
                                UserExpunged
+                               VgiftApproved
                                );
         foreach my $evt (@LJ::EVENT_TYPES) {
             $evt = "LJ::Event::$evt";

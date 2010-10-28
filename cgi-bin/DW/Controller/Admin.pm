@@ -109,6 +109,10 @@ DW::Controller::Admin->_register_admin_pages_legacy( '/',
         '.admin.translate.link', '.admin.translate.text' ],
     [ 'userlog',
         '.admin.userlog.link', '.admin.userlog.text', [ 'canview:userlog', 'canview:*' ] ],
+    [ 'vgifts/',
+        '.admin.vgifts.link', '.admin.vgifts.text', [ 'siteadmin:vgifts', 'vgifts', sub {
+            return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
+        } ] ],
 );
 
 

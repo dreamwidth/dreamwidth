@@ -1,0 +1,61 @@
+.error=Error
+
+.error.badarg=The argument [[arg]] is not valid for the privilege [[priv]].
+
+.error.badid=The specified tag was not found.
+
+.error.badpriv=There is no defined privilege named [[priv]].
+
+.error.badtagname=Could not rename to [[tag]].
+
+.error.needpriv=You specified an arg but failed to specify an associated privilege.
+
+.error.privarg=There was a problem adding [[privarg]] permissions to the specified tag.
+
+.error.upload.noheader=No content-length header: can't upload
+
+.header.delete=Are you sure you want to delete the tag '[[tag]]' from all gifts?
+
+.header.giftlist=Current gifts with this tag:
+
+.header.nonpriv=Nonprivileged (Public) Tags
+
+.header.priv=Privileged (Restricted) Tags
+
+.header.privlist=Current restrictions:
+
+.label.edit.name=New name:
+
+.label.edit.priv=Restrict to users with the following privilege:
+
+.label.edit.tagname=Tag Name
+
+.linktext.back=Back to [[title]]
+
+.linktext.deletetag=[Delete This Tag]
+
+.linktext.home=Back to Virtual Gifts main page
+
+.linktext.removetag=[Remove This Tag]
+
+.note.active=(Active)
+
+.note.notapproved=(Not Approved)
+
+.note.removeprivs=Uncheck boxes next to any restrictions you want removed.
+
+.note.tagmerge=Existing tag names are allowed; privileges will be merged.
+
+.queue.empty=(none available)
+
+.review.empty=There are no relevant gifts available to display.
+
+.submit.edit=Submit Changes
+
+.submit.delete=Yes, I want to delete this tag.
+
+.title=Virtual Gifts: Tag Management
+
+.title.delete=Delete A Tag
+
+.title.edited=Edit Successful!

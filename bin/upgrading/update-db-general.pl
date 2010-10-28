@@ -18,6 +18,49 @@ use strict;
 
 mark_clustered(@LJ::USER_TABLES);
 
+register_tablecreate("vgift_ids", <<'EOC');
+CREATE TABLE vgift_ids (
+    vgiftid      INT UNSIGNED NOT NULL PRIMARY KEY,
+    name         VARCHAR(255) NOT NULL,
+    created_t    INT UNSIGNED NOT NULL,   #unixtime
+    creatorid    INT UNSIGNED NOT NULL DEFAULT 0,
+    active       ENUM('Y','N') NOT NULL DEFAULT 'N',
+    featured     ENUM('Y','N') NOT NULL DEFAULT 'N',
+    custom       ENUM('Y','N') NOT NULL DEFAULT 'N',
+    approved     ENUM('Y','N'),
+    approved_by  INT UNSIGNED,
+    approved_why MEDIUMTEXT,
+    description  MEDIUMTEXT,
+    cost         INT UNSIGNED NOT NULL DEFAULT 0,
+    mime_small   VARCHAR(255),
+    mime_large   VARCHAR(255),
+
+    UNIQUE KEY (name)
+)
+EOC
+
+register_tablecreate("vgift_tags", <<'EOC');
+CREATE TABLE vgift_tags (
+    tagid      INT UNSIGNED NOT NULL,
+    vgiftid    INT UNSIGNED NOT NULL,
+
+    PRIMARY KEY (tagid, vgiftid),
+    INDEX (vgiftid),
+    INDEX (tagid)
+)
+EOC
+
+register_tablecreate("vgift_tagpriv", <<'EOC');
+CREATE TABLE vgift_tagpriv (
+    tagid      INT UNSIGNED NOT NULL,
+    prlid      SMALLINT UNSIGNED NOT NULL,
+    arg        VARCHAR(40),
+
+    PRIMARY KEY (tagid, prlid, arg),
+    INDEX (tagid)
+)
+EOC
+
 register_tablecreate("authactions", <<'EOC');
 CREATE TABLE authactions (
     aaid int(10) unsigned NOT NULL auto_increment,

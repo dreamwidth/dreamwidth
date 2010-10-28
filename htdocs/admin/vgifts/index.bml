@@ -1,0 +1,673 @@
+<?_code
+{
+    use strict;
+    use vars qw($title $body $page $action %GET %POST);
+
+    use DW::VirtualGift;
+
+    $title = $ML{'.title'};
+    $body = "";
+    $page = "$LJ::SITEROOT/admin/vgifts/";
+    $action = 'index';  # for $postform
+
+    # helper routines
+
+    my $error = sub { 
+        $title = $ML{'.error'};
+        $body = join '', @_;
+        return undef;
+    };
+    my $errmsg;
+
+    my $loose_refer = sub {
+        return 1 unless my $refer = BML::get_client_header('Referer');
+        my ( $getargs ) = ( $refer =~ m/\?(.*)$/ );
+        # annoyingly, we get different results for /index vs /
+        return LJ::check_referer( $page ) ||
+            LJ::check_referer( "${page}index" ) unless $getargs;
+
+        return LJ::check_referer( "$page?$getargs" ) ||
+            LJ::check_referer( "${page}index?$getargs" );
+    };
+
+    my $strict_refer = sub {
+        # make sure we have a referer header. check_referer doesn't care.
+        return BML::get_client_header('Referer') && $loose_refer->();
+    };
+
+    my $imgposted = sub {
+        my $id = shift;
+        return length ( $POST{"data_$id"} ) || length ( $POST{"url_$id"} );
+    };
+
+    my $imgform = sub {
+        my $id = shift;
+        my $checkfile = LJ::html_check( { type => 'radio', value => 'file',
+                                          name => $id, id => "${id}_file",
+                                          selected => '1',
+                                          accesskey => $ML{'.label.fromfile.key'}
+                                        } );
+        my $checkurl =  LJ::html_check( { type => 'radio', value => 'url',
+                                          name => $id, id => "${id}_url",
+                                          accesskey => $ML{'.label.fromurl.key'}
+                                        } );
+        my $text = qq:
+            $checkfile
+            <label for='${id}_file'>$ML{'.label.fromfile'}</label>
+            <input type='file' name='data_$id' size='25' /><br />
+            $checkurl
+            <label for='${id}_url'>$ML{'.label.fromurl'}</label>
+            :;
+        $text .= LJ::html_text( { name => "url_$id", size => 25 } ) . "\n";
+        return $text;
+    };
+
+    my $loadpic = sub {
+        my ( $id, $loaderr ) = @_;
+        my $data;
+
+        unless ( LJ::mogclient() ) {
+            $$loaderr = $ML{'.error.upload.nomogilefs'};
+            return undef;
+        }
+
+        if ( $POST{$id} eq 'url' ) {
+            $data = $POST{"url_$id"};
+
+            if ( length( $data ) == 0 ) {
+                $$loaderr = $ML{'.error.upload.nourl'};
+            } elsif ( $data !~ m!^http://! ) {
+                $$loaderr = $ML{'.error.upload.badurl'};
+            } else {
+                my $ua = LJ::get_useragent( role => 'vgift' );
+                my $res = $ua->get( $data );
+                if ( $res && $res->is_success ) {
+                    $data = $res->content;
+                } else {
+                    $$loaderr = $ML{'.error.upload.urlerror'};
+                }
+            }
+        } elsif ( $POST{$id} eq 'file' ) {
+            $data = $POST{"data_$id"};
+            $$loaderr = $ML{'.error.upload.nofile'} unless length( $data );
+        } else {
+            $$loaderr = $ML{'error.invalidform'};
+        }
+
+        return undef if $$loaderr;
+
+        # further processing
+        my ( $width, $height, $filetype ) = Image::Size::imgsize( \$data );
+        unless ( $width && $height ) {
+            $$loaderr = BML::ml( '.error.upload.badtype',
+                                { filetype => $filetype } );
+        } elsif ( ( $width > 100 || $height > 100 ) && $id eq 'img_small' ) {
+            $$loaderr = BML::ml( '.error.upload.dimstoolarge',
+                                { imagesize => "${width}x$height",
+                                  maxsize => "100x100" } );
+        } elsif ( ( $width > 300 || $height > 300 ) && $id eq 'img_large' ) {
+            $$loaderr = BML::ml( '.error.upload.dimstoolarge',
+                                { imagesize => "${width}x$height",
+                                  maxsize => "300x300" } );
+        } elsif ( length( $data ) > 250 * 1024 ) {  # 250KB (arbitrary)
+            $$loaderr = BML::ml( '.error.upload.filetoolarge',
+                                { maxsize => "250" } );
+        } else {
+            # data should be good, return a reference to it
+            return \$data;
+        }
+        return undef;  # check loaderr to see what went wrong
+    };
+
+    my $textform = sub {
+        my ( $name, $ml, $optref ) = @_;
+        my %opts = $optref ? %$optref : ();
+        my $text = "\n<label for='$name'>$ML{$ml}</label>";
+        $text .= '<br />' and delete $opts{br} if $opts{br};
+
+        my $use_area = $opts{textarea} ? 1 : 0;
+        delete $opts{textarea};
+        my $htargs = { name => $name, id => $name, %opts };
+        $text .= $use_area ? LJ::html_textarea( $htargs )
+                           : LJ::html_text( $htargs );
+        return $text;
+    };
+
+    my $checkid = sub {
+        my $id = shift;
+        return $error->( $ML{'error.invalidform'} ) unless $id;
+
+        my $vgift = DW::VirtualGift->new( $id );
+        return $error->( $ML{'.error.badid'} )
+            unless $vgift && $vgift->name;
+
+        return $vgift;
+    };
+
+    my $postform = sub {
+        my ( $mode, $id ) = @_;
+        my $text = "<form enctype='multipart/form-data' action='$action' method='post'>";
+        $text .= LJ::html_hidden( mode => $mode ) if $mode;
+        $text .= LJ::html_hidden( id => $id ) if $id && $id =~ /^\d+$/;
+        return $text;
+    };
+
+    my $endform = sub {
+        my ( $submit ) = @_;
+        my $text = '<p>';
+        $text .= LJ::html_submit( submit => $submit ) ;
+        $text .= '</p></form>';
+        return $text;
+    };
+
+    my $shopform = sub {
+        my ( $vg ) = @_;
+        my $id = $vg->id;
+        my $feat = $vg->featured;
+        my $cost = $vg->cost ? $vg->cost : '';
+        my $tags = $vg->display_taglist;
+        my $text = "";
+
+        $text .= "<label for='${id}_featured'>";
+        $text .= $ML{'vgift.display.label.featured'} . '</label>';
+        $text .= LJ::html_select( { name => "${id}_featured",
+                                    selected => $feat },
+                                  'N' => $ML{'.label.review.answer.n'},
+                                  'Y' => $ML{'.label.review.answer.y'},
+                                );
+        $text .= '<br />';
+        $text .= $textform->( "${id}_cost", 'vgift.display.label.cost',
+                              { size => 5, value => $cost } );
+        $text .= BML::ml( 'vgift.display.cost.points',
+                          { cost => '' } ) . '<br />';
+        $text .= $textform->( "${id}_tags", 'vgift.display.label.tags',
+                              { size => 50, value => $tags } );
+        return $text;
+    };
+    
+    my $begin_reviewdiv_left = sub {
+        return "<div style='clear: both'><div class='vgdiv' id='left'>";
+    };
+
+    my $begin_reviewdiv_right = sub {
+        return "</div><div class='vgdiv' id='right'>";
+    };
+
+    my $end_reviewdiv = sub {
+        return "</div></div>\n";
+    };
+
+    my $review_status = sub {
+        my $vg = shift;
+        my $text = "";
+        return $text unless $vg->id && ! $vg->is_queued;
+
+        $text .= "<h3>";
+        $text .= $vg->is_approved
+                   ? $ML{'.label.review.approved'}
+                   : $ML{'.label.review.rejected'};
+        $text .= $vg->approver->ljuser_display;
+        $text .= "</h3><p><b>$ML{'.label.review.why'}</b> ";
+        $text .= LJ::ehtml( $vg->approved_why );
+        $text .= "</p>\n";
+
+        return $text;
+    };
+
+    my $shop_status = sub {
+        my $vg = shift;
+        my $text = "";
+        return $text unless $vg->id && $vg->is_approved;
+
+        $text .= "<p><b>$ML{'vgift.display.label.featured'}</b> ";
+        $text .= $vg->is_featured
+                   ? $ML{'.label.review.answer.y'}
+                   : $ML{'.label.review.answer.n'};
+        $text .= "</p><p><b>$ML{'vgift.display.label.cost'}</b> ";
+        $text .= $vg->display_cost . "</p>";
+        # tags are included in display_basic
+
+        return $text;
+    };
+
+    my $review_display = sub {
+        my $vgift = shift;
+        my $status = "";
+        $status .= $review_status->( $vgift );
+        $status .= $shop_status->( $vgift );
+        $status = "<h2>$ML{'.header.review'}</h2>$status" if $status;
+        return $status;
+    };
+
+    my $userview = sub {
+        my ( $u, $review ) = @_;
+        LJ::isu( $u ) or return;
+        $title .= ": " . $u->display_name;
+        my $text = "";
+        foreach my $vg ( DW::VirtualGift->list_created_by( $u ) ) {
+            next unless $vg;
+            my $r = $review && $vg->is_queued;
+            $text .= $begin_reviewdiv_left->();
+            $text .= $vg->display_basic;
+            $text .= "<p>" . $vg->display_vieweditlinks( $r ) . "</p>\n";
+            $text .= $begin_reviewdiv_right->();
+            $text .= $review_display->( $vg );
+            $text .= $end_reviewdiv->();
+        }
+        $body .= $text ? $text : "<p>$ML{'.review.empty'}</p>\n";
+    };
+
+    # end helper routines
+
+    # login check
+    my $remote = LJ::get_remote();
+    return $error->( "<?needlogin?>" ) unless $remote;
+
+    # priv check
+    my @displayprivs = ( "vgifts", "siteadmin:vgifts" );
+    my $siteadmin = $remote->has_priv( 'siteadmin', 'vgifts' ) || $LJ::IS_DEV_SERVER;
+
+    return $error->( BML::ml( "admin.noprivserror",
+                     { numprivs => scalar @displayprivs,
+                       needprivs => "<b>" . join(", ", @displayprivs) . "</b>"
+                     } ) )
+        unless $remote->has_priv( 'vgifts' ) || $siteadmin;
+
+    # process multipart form
+    if ( LJ::did_post() && ! %POST ) {
+        my $r = DW::Request->get;
+        my $size = $r->header_in( "Content-Length" );
+        return $error->( $ML{'.error.upload.noheader'} ) unless $size;
+
+        my $errparse;
+        BML::parse_multipart( \%POST, \$errparse );
+        return $error->( $errparse ) if $errparse;
+
+        # now %POST is set, we can continue
+    }
+
+    # mode check
+    my $mode = lc( $GET{mode} || $POST{mode} );
+    my $linkback = "<p style='clear: both'><a href='$page'>"
+                 . "$ML{'.linktext.home'}</a></p>\n";
+
+    if ( LJ::did_post() && $mode ) {
+        return $error->( $ML{'error.invalidform'} )
+            unless LJ::check_form_auth();
+        $mode = '' unless $loose_refer->();
+
+        if ( $mode eq 'create' ) {
+            return $error->( $ML{'.error.create.noname'} )
+                unless $POST{name};
+            return $error->( $ML{'.error.create.nodesc'} )
+                unless $POST{desc};
+
+            if ( $POST{creator} && $siteadmin ) {
+                my $u = LJ::load_user_or_identity( $POST{creator} );
+                return $error->( BML::ml( '.error.create.badusername',
+                                          { name => $POST{creator} } ) )
+                    unless $u && $u->is_individual;
+                $POST{creator} = $u->id;
+            } else {
+                delete $POST{creator};  # siteadmin only
+            }
+            
+            return $error->( BML::ml( '.error.denied',
+                                      { action => $mode } ) )
+                unless $remote->has_priv( 'vgifts' ) || $siteadmin;
+
+            my ( $img_small, $img_large );
+
+            $img_small = $loadpic->( 'img_small', \$errmsg )
+                or return $error->( $errmsg )
+                    if $imgposted->( 'img_small' );
+
+            $img_large = $loadpic->( 'img_large', \$errmsg )
+                or return $error->( $errmsg )
+                    if $imgposted->( 'img_large' );
+
+            my $vgift = DW::VirtualGift->create( error => \$errmsg,
+                name => $POST{name}, description => $POST{desc},
+                img_small => $img_small, img_large => $img_large,
+                creatorid => $POST{creator} );
+            return $error->( $errmsg ) unless $vgift;
+
+            # hallelujah, the vgift was created.
+            $body = BML::redirect( "$page?mode=view&title=created&id=" . $vgift->id );
+
+        } elsif ( $mode eq 'edit' ) {
+            my $vgift = $checkid->( $POST{id} ) or return;
+
+            return $error->( BML::ml( '.error.denied',
+                                      { action => $mode } ) )
+                unless $vgift->can_be_edited_by( $remote );
+
+            my ( $img_small, $img_large );
+
+            $img_small = $loadpic->( 'img_small', \$errmsg )
+                or return $error->( $errmsg )
+                    if $imgposted->( 'img_small' );
+
+            $img_large = $loadpic->( 'img_large', \$errmsg )
+                or return $error->( $errmsg )
+                    if $imgposted->( 'img_large' );
+
+            # Don't honor null attributes.
+            delete $POST{name} unless length $POST{name};
+            delete $POST{desc} unless length $POST{desc};
+
+            # Note: this resets any existing approval status.
+            my $ok = $vgift->edit( error => \$errmsg, approved => '',
+                name => $POST{name}, description => $POST{desc},
+                img_small => $img_small, img_large => $img_large );
+            return $error->( $errmsg ) unless $ok;
+
+            $body = BML::redirect( "$page?mode=view&title=edited&id=" . $vgift->id );
+
+        } elsif ( $mode eq 'approve' ) {
+            my $vgift = $checkid->( $POST{id} ) or return;
+            my $id = $vgift->id;
+
+            return $error->( BML::ml( '.error.denied',
+                                      { action => $mode } ) )
+                unless $vgift->can_be_approved_by( $remote );
+
+            return $error->( $ML{'.error.yn'} )
+                if exists $POST{"${id}_approve"} && ! $POST{"${id}_approve"};
+
+            return $error->( $ML{'.error.changed'} )
+                if $POST{"${id}_chksum"} ne $vgift->checksum;
+
+            if ( $POST{"${id}_approve"} ) {
+                my $ok = $vgift->edit( error => \$errmsg,
+                    approved => $POST{"${id}_approve"},
+                    approved_why => $POST{"${id}_comment"},
+                    approved_by => $remote->userid );
+                return $error->( $errmsg ) unless $ok;
+
+                $vgift->notify_approved;
+            }
+
+            if ( $POST{"${id}_featured"} || $POST{"${id}_cost"} ) {
+                my %opts;
+                $opts{featured} = $POST{"${id}_featured"} if $POST{"${id}_featured"};
+                $opts{cost} = $POST{"${id}_cost"} if $POST{"${id}_cost"};
+                my $ok = $vgift->edit( error => \$errmsg, %opts );
+                return $error->( $errmsg ) unless $ok;
+            }
+
+            if ( $POST{"${id}_tags"} ) {
+                my $ok = $vgift->tags( $POST{"${id}_tags"},
+                    error => \$errmsg, autovivify => $siteadmin );
+                return $error->( $errmsg ) unless $ok;
+            }
+
+            return $body = BML::redirect( "${page}inactive" )
+                if $POST{activation};
+
+            # return to review page for item
+            my $link = "$page?mode=review&id=$id&title=approved";
+            my $days = $POST{days} ? $POST{days} + 0 : 0;
+            $body = $days ? BML::redirect( "$link&days=$days" )
+                          : BML::redirect( $link );
+
+        } elsif ( $mode eq 'confirm' ) {
+            my $vgift = $checkid->( $POST{id} ) or return;
+            my $mode = $remote->userid == $vgift->creatorid ? 'view' : 'review';
+
+            my $ok = $vgift->delete( $remote );
+            return $error->( $ML{'.error.delete'} ) unless $ok;
+
+            $body = BML::redirect( "$page?mode=$mode&title=deleted" );
+
+        } else {
+            # if we get here, check_referer failed or something weird happened
+            $body = BML::redirect( $page );
+        }
+
+        return;
+    }
+
+    # non post processing stuff (check for gets)
+    my $auth = LJ::form_auth();
+
+    if ( $mode eq 'view' ) {
+        if ( $GET{id} ) {
+            # view / edit form (priv check)
+            my $vgift = DW::VirtualGift->new( $GET{id} )
+                or return $error->( $ML{'.error.badid'} );
+            my $name = $vgift->name_ehtml
+                or return $error->( $ML{'.error.badid'} );
+            $title = ( $GET{title} && $strict_refer->() )
+                     ? $ML{".title.$GET{title}"}
+                     : "$title: $name";
+            if ( $vgift->can_be_edited_by( $remote ) ) {
+                # form for editing
+                $body .= "<h2>$name (#" . $vgift->id . ")</h2>\n<h3>";
+                $body .= BML::ml( 'vgift.display.createdby',
+                    { user => $vgift->creator->ljuser_display,
+                      ago => $vgift->created_ago_text } ) . "</h3>\n";
+                $body .= $postform->( 'edit', $vgift->id ) . $auth;
+                $body .= $textform->( 'name', '.label.edit.name',
+                                      { size => 40, maxlength => 80 } );
+                $body .= "<p><b>$ML{'.label.create.desc'}</b> ";
+                $body .= $vgift->description_ehtml . "</p>";
+                $body .= $textform->( 'desc', '.label.edit.desc',
+                                      { size => 40, maxlength => 255 } );
+                $body .= "<h3>$ML{'.header.imgsmall'}</h3>\n";
+                $body .= $vgift->img_small_html;
+                $body .= "<br /><label for='img_small'>$ML{'.label.edit.imgsmall'}</label>";
+                $body .= "<br />" . $imgform->( 'img_small' );
+                $body .= "<h3>$ML{'.header.imglarge'}</h3>\n";
+                $body .= $vgift->img_large_html;
+                $body .= "<br /><label for='img_large'>$ML{'.label.edit.imglarge'}</label>";
+                $body .= "<br />" . $imgform->( 'img_large' );
+                $body .= $endform->( $ML{'.submit.edit'} );
+            } else {
+                # view only
+                $body .= $begin_reviewdiv_left->();
+                $body .= $vgift->display_basic;
+                $body .= $vgift->img_large_html;
+                $body .= $begin_reviewdiv_right->();
+                $body .= $review_display->( $vgift );
+                $body .= $end_reviewdiv->();
+            }
+        } elsif ( $GET{user} ) {
+            $userview->( LJ::load_user( $GET{user} ), $siteadmin );
+            $body = BML::redirect( $page ) and return unless $body;
+        } else {  # view summary for logged in user
+            if ( $GET{title} eq 'deleted' && $strict_refer->() ) {
+                $body .= "<?warningbar " . $ML{'.review.deleted'};
+                $body .= " warningbar?>\n";
+            }
+            $userview->( $remote );
+        }
+        $body .= $linkback;
+
+    } elsif ( $mode eq 'review' ) {
+    # review queue for siteadmins
+        $title .= ": " . $ML{'.title.review'};
+        $body = BML::redirect( $page ) and return unless $siteadmin;
+
+        my $feedback = "";
+        if ( $GET{title} eq 'deleted' && $strict_refer->() ) {
+            $feedback .= "<?warningbar " . $ML{'.review.deleted'};
+            $feedback .= " warningbar?>\n";
+        }
+        if ( $GET{id} && $GET{title} eq 'approved' && $strict_refer->() ) {
+            my $vg = DW::VirtualGift->new( $GET{id} )
+                or return $error->( $ML{'.error.badid'} );
+            my $name = $vg->name_ehtml
+                or return $error->( $ML{'.error.badid'} );
+            $feedback .= "<?warningbar " . $ML{'.review.approved'};
+            $feedback .= " $name (#$GET{id}) warningbar?>\n";
+        }
+
+        my $inactive = $GET{title} && $GET{title} eq 'inactive' ? 1 : 0;
+        my $days = $GET{days} ? $GET{days} + 0 : 0;
+        my @vgifts;
+
+        if ( $GET{id} ) {
+            @vgifts = ( DW::VirtualGift->new( $GET{id} ) );
+
+            if ( $inactive ) {
+                $linkback = "<p style='clear: both'>"
+                          . "<a href='inactive'>"
+                          . "$ML{'.linktext.inactive'}</a></p>\n";
+            } else {
+            # link back to queue instead of main page
+                $linkback = $days
+                          ? "<p style='clear: both'>"
+                          . "<a href='?mode=review&days=$days'>"
+                          . "$ML{'.linktext.review.recent'}</a></p>\n"
+                          : "<p style='clear: both'>"
+                          . "<a href='?mode=review'>"
+                          . "$ML{'.linktext.review.all'}</a></p>\n";
+            }
+        } else {
+            @vgifts = $days
+                ? DW::VirtualGift->list_recent( $days )
+                : DW::VirtualGift->list_queued();
+        }
+        foreach my $vg ( @vgifts ) {
+            next unless $vg && $vg->can_be_approved_by( $remote );
+            $body .= $begin_reviewdiv_left->();
+            $body .= $vg->display_basic;
+            $body .= "<p>" . $vg->display_vieweditlinks . "</p>\n";
+            $body .= $begin_reviewdiv_right->();
+            $body .= "<h2>$ML{'.header.review'}</h2>";
+            # status display for approved and rejected gifts
+            $body .= $review_status->( $vg ) unless $vg->is_queued;
+
+            # display approval form
+            unless ( $vg->is_rejected ) {
+                my $id = $vg->id;
+                $body .= $postform->( 'approve', $id ) . $auth;
+                $body .= LJ::html_hidden( days => $days ) if $days;
+                $body .= LJ::html_hidden( "${id}_chksum" => $vg->checksum );
+
+                if ( $vg->is_queued ) {
+                    $body .= "<label for='${id}_approve'>";
+                    $body .= $ML{'.label.review.approval'} . '</label>';
+                    $body .= LJ::html_select( { name => "${id}_approve", selected => '' },
+                                              '' => '',
+                                              'Y' => $ML{'.label.review.answer.y'},
+                                              'N' => $ML{'.label.review.answer.n'},
+                                            );
+                    $body .= '<br />';
+                    $body .= $textform->( "${id}_comment", '.label.review.comment',
+                                          { textarea => 1, cols => 40, rows => 10, br => 1 } );
+                } elsif ( $vg->is_approved ) {
+                    # prompt for suggestions
+                    $body .= "<h3>" . $ML{'.label.review.optional'} . "</h3>";
+                    $body .= LJ::html_hidden( activation => $inactive );
+                    $body .= $shopform->( $vg );
+                }
+                $body .= $endform->( $ML{'.submit.review'} );
+            }
+            $body .= $end_reviewdiv->();
+        }
+        $body ||= $ML{'.review.empty'};
+        $body = $feedback . $body . $linkback;
+
+    } elsif ( $mode eq 'delete' ) {
+        $title = $ML{'.title.delete'};
+        $body = BML::redirect( $page ) and return unless $GET{id};
+        my $vgift = $checkid->( $GET{id} ) or return;
+        if ( $vgift->can_be_deleted_by( $remote ) ) {
+            $body .= '<h3>' . $ML{'.header.delete'} . '</h3>';
+            $body .= $vgift->display_basic;
+            $body .= $postform->( 'confirm', $vgift->id ) . $auth;
+            $body .= $endform->( $ML{'.submit.delete'} );
+        } else {  # can't be deleted
+            $body .= "<p>$ML{'.error.delete'}</p>";
+        }
+        $body .= $linkback;
+
+    } elsif ( $mode eq 'artists' ) {
+        $title .= ": $ML{'.title.artists'}";
+        $body .= '<ol>';
+        $body .= DW::VirtualGift->display_creatorlist;
+        $body .= "</ol>$linkback";
+
+    } else {
+        # DEFAULT PAGE DISPLAY
+        $body .= "<div class='vgdiv' id='right' style='text-align: center'>";
+        $body .= "<h2>$ML{'.header.userqueue'}</h2>";
+        my @vgifts = DW::VirtualGift->list_created_by( $remote );
+        my $queue = "";
+        foreach my $vg ( @vgifts ) {
+            next unless $vg && $vg->can_be_edited_by( $remote );
+            $queue .= '<li>"' . $vg->name_ehtml . '"';
+            $queue .= ' (' . $vg->created_ago_text . ') ';
+            $queue .= $vg->display_vieweditlinks . "</li>\n";
+        }
+        $queue .= "<li style='padding-top: 0.5em'><a href='?mode=view'>$ML{'.linktext.viewall'}</a></li>\n"
+            if $queue;
+
+        $body .= $queue ? "\n<ul>$queue</ul>" : "<i>$ML{'.queue.empty'}</i>";
+
+        $body .= "<h2>$ML{'.header.artists'}</h2>";
+        # reuse $queue for building string
+        $queue = DW::VirtualGift->display_creatorlist( 5 );
+        $queue .= "<li style='padding-top: 0.5em'><a href='?mode=artists'>$ML{'.linktext.viewall'}</a></li>\n"
+            if $queue;
+
+        $body .= $queue ? "\n<ul>$queue</ul>" : "<i>$ML{'.queue.empty'}</i>";
+
+        if ( $siteadmin ) {
+            $body .= qq|
+                <h2>$ML{'.header.siteadmin'}</h2>
+                <ul>
+                <li><a href='?mode=review&days=14'>
+                $ML{'.linktext.review.recent'}</a></li>
+                <li><a href='?mode=review'>
+                $ML{'.linktext.review.all'}</a></li>
+                <li><a href='tags'>$ML{'.linktext.tags'}</a></li>
+                <li><a href='inactive'>$ML{'.linktext.inactive'}</a></li>
+                </ul>
+                |;
+        }
+
+        $body .= "</div><div class='vgdiv' id='left'>";
+        $body .= "<h2>$ML{'.header.create'}</h2>";
+        $body .= $postform->( 'create' ) . $auth;
+        $body .= $textform->( 'name', '.label.create.name',
+                              { size => 40, maxlength => 80, br => 1 } );
+        $body .= '<br />';
+        $body .= $textform->( 'desc', '.label.create.desc',
+                              { size => 40, maxlength => 255, br => 1 } );
+        if ( $siteadmin ) {
+            $body .= '<br />';
+            $body .= $textform->( 'creator', '.label.create.creator',
+                                  { size => 40, maxlength => 80, br => 1 } );
+        }
+
+        $body .= "<h3>$ML{'.header.imgsmall'}</h3>\n";
+        $body .= $imgform->( 'img_small' );
+        $body .= "<h3>$ML{'.header.imglarge'}</h3>\n";
+        $body .= $imgform->( 'img_large' );
+        $body .= "<p>$ML{'.note.svg'}</p>";
+        $body .= $endform->( $ML{'.submit.create'} );
+        $body .= "</div>\n";
+    }
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+head<=
+<style type="text/css">
+label       { margin-right: 1em; }
+.vgdiv      { margin-bottom: 15px; width: 45%; }
+#content p  { margin-top: 1em; }
+#content h2 { margin-top: 1em; }
+#content h3 { margin: 0.5em 0; }
+#content li { margin: 0.25em 0; }
+#content ol { list-style: decimal inside; }
+#left       { float: left; }
+#right      { float: right; }
+</style>
+<=head
+page?>

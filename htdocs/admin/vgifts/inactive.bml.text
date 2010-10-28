@@ -1,0 +1,37 @@
+.error=Error
+
+.error.badid=The specified tag was not found.
+
+.error.changed=The information for "[[name]]" has changed. Please reload and try again.
+
+.error.notags=The gift "[[name]]" cannot be activated because it has no tags.
+
+.error.upload.noheader=No content-length header: can't upload
+
+.header.featured=Featured Gifts:
+
+.header.nonfeatured=Other Available Gifts:
+
+.header.tabs=Other Views:
+
+.header.tagfilter=Currently viewing:
+
+.label.activate=Activate the following gift:
+
+.label.untagged=Untagged
+
+.linktext.edit=Edit [[name]]'s featured status, cost, or tags.
+
+.linktext.home=Back to Virtual Gifts main page
+
+.note.privstar=(Note: [*] indicates a privileged tag)
+
+.queue.empty=(none available)
+
+.submit.activate=Activate Selected Gifts
+
+.tab.default=List All
+
+.tab.tags=Filter By Tag
+
+.title=Virtual Gifts: Activation Management
