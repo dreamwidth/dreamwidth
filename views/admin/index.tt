@@ -1,0 +1,37 @@
+[%# admin/index.tt
+
+Admin action list index pages
+
+Authors:
+      Andrea Nall <anall@andreanall.com>
+      Denise Paolucci <denise@dreamwidth.org>
+      Sophie Hamilton <dw-bugzilla@theblob.org>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%][%- sections.title = title_ml | ml -%]
+[%- sections.head = BLOCK %]
+<style type="text/css">
+.item {margin-bottom: 15px;}
+.item.needspriv div, .item.needspriv a {color: #A0A0A0;}
+.itemhead {font-size: bigger; font-weight: bold;}
+.itemdef {margin-left: 2em;}
+.itemprivs {font-size: smaller; font-weight: normal; color: #707070;}
+</style>
+[%- END -%]
+
+[%- IF ml_scope -%][%- CALL dw.ml_scope( ml_scope ) -%][%- END -%]
+[%- IF description_ml -%]<p>[%- description_ml | ml -%][%- END -%]
+
+[%- FOREACH p IN pages -%][%- p.link = p.link_ml | ml -%][%- END -%]
+<ul>[% FOREACH p IN pages.sort_by_key( 'link' ) %]
+<li class='item[%- p.haspriv ? "" : " needspriv" -%]'><div class='itemhead'><a href='[%- p.path -%]'>[%- p.link -%]</a> [%- IF p.gotprivs.size OR p.needsprivs.size -%]<span class='itemprivs'>
+([%- IF p.haspriv -%]
+<b>[%- p.gotprivs.join("</b>, <b>") -%]</b>
+[%- ELSE -%]
+<b>[%- ( p.needsprivs.size > 1 ? '.needs_one_of' : '.needspriv' ) | ml -%]: [%- p.needsprivs.join("</b>, <b>") -%]</b>
+[%- END -%])
+</span>[%- END -%]</div><div class='itemdef'>[%- p.description_ml | ml -%]</div></li>
+[% END %]</ul>

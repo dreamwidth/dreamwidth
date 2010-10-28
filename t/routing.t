@@ -1,6 +1,6 @@
 # -*-perl-*-
 use strict;
-use Test::More tests => 186;
+use Test::More tests => 194;
 use lib "$ENV{LJHOME}/cgi-bin";
 
 # don't let DW::Routing load DW::Controller subclasses
@@ -217,7 +217,37 @@ $expected_format = 'json';
 handle_request( "/test app implied_format (app)" , "/test/app/all_format.json", 1, "it_worked_app_af" ); # 3 test
 # 186
 
-use Data::Dumper;
+DW::Routing->register_string( "/xx3/index", \&handler, app => 1, args => "it_worked_redir" );
+
+$expected_format = 'html';
+handle_request( "/xx3" , "/xx3/", 1, "it_worked_redir" ); # 3 tests
+# 189
+
+handle_request( "/xx3" , "/xx3/index", 1, "it_worked_redir" ); # 3 tests
+# 192
+
+handle_redirect( '/xx3', '/xx3/' );
+# 194
+
+sub handle_redirect {
+    my ( $uri, $expected ) = @_;
+
+    $DW::Request::determined = 0;
+    $DW::Request::cur_req = undef;
+
+    my $req = HTTP::Request->new(GET=>"$uri");
+
+    my $opts = DW::Routing->get_call_opts( uri => $uri );
+
+    return fail( "Opts is undef" ) unless $opts;
+
+    my $hash = $opts->call_opts;
+    return fail( "No call opts" ) unless $hash && $hash->{sub};
+
+    is( $hash->{sub}, \&DW::Routing::_redirect_helper );
+    is( $hash->{args}, $expected );
+}
+
 sub handle_request {
     my ( $name, $uri, $valid, $expected, %opts ) = @_;
 

@@ -21,6 +21,7 @@ use warnings;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::Controller::Admin;
 
 use DW::RenameToken;
 use DW::Shop;
@@ -30,10 +31,16 @@ use DW::Shop;
 # ideally, should be: /rename, or /rename/(20 character token)
 DW::Routing->register_regex( qr!^/rename(?:/([A-Z0-9]*))?$!i, \&rename_handler, app => 1 );
 
-DW::Routing->register_string( "/admin/rename", \&rename_admin_handler, app => 1 );
+DW::Routing->register_string( "/admin/rename/index", \&rename_admin_handler, app => 1 );
 DW::Routing->register_string( "/admin/rename/edit", \&rename_admin_edit_handler, app => 1 );
 
 DW::Routing->register_string( "/admin/rename/new", \&siteadmin_rename_handler, app => 1 );
+
+DW::Controller::Admin->register_admin_page( '/',
+    path => '/admin/rename/',
+    ml_scope => '/admin/rename.tt',
+    privs => [ 'siteadmin:rename' ]
+);
 
 sub rename_handler {
     my $r = DW::Request->get;

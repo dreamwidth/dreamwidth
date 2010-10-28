@@ -34,6 +34,7 @@ use DW::Routing;
 use DW::Template;
 use DW::StatStore;
 use DW::StatData;
+use DW::Controller::Admin;
 
 LJ::ModuleLoader::autouse_subclasses( 'DW::StatData' );
 
@@ -43,7 +44,11 @@ DW::Routing->register_string( '/stats/site', \&stats_page, app => 1,
 DW::Routing->register_string( '/admin/stats', \&stats_page, app => 1,
                               args => [ 'admin/stats.tt', \&admin_data, 0,
                                         'payments' ] );
-
+DW::Controller::Admin->register_admin_page( '/',
+    path => '/admin/stats',
+    ml_scope => '/admin/stats.tt',
+    privs => [ 'payments' ]
+);
 =head1 Internals
 
 =head2 C<< DW::Controller::SiteStats::stats_page( $opts ) >>

@@ -107,13 +107,16 @@ sub get_call_opts {
     # us accessors.
     my $call_opts = DW::Routing::CallInfo->new( \%opts );
 
+    my $hash;
+    my $role = $call_opts->role;
+
     # try the string options first as they're fast
-    my $hash = $string_choices{$call_opts->role . $uri};
+    $hash = $string_choices{$role . $uri};
     if ( defined $hash ) {
         $call_opts->init_call_opts( $hash );
         return $call_opts;
     }
-    
+
     # try the regex choices next
     # FIXME: this should be a dynamically sorting array so the most used items float to the top
     # for now it doesn't matter so much but eventually when everything is in the routing table
@@ -135,7 +138,6 @@ sub get_call_opts {
 Calls the raw hash.
 
 =cut
-
 sub call_hash {
     my ( $class, $opts ) = @_;
     my $r = DW::Request->get;
@@ -147,12 +149,8 @@ sub call_hash {
     return $r->call_response_handler( \&_call_hash );
 }
 
-=head2 C<< $class->_call_hash() >>
-
-Perl Response Handler for call_hash
-
-=cut
-
+# INTERNAL METHOD: no POD
+# Perl Response Handler for call_hash
 sub _call_hash {
     my $r = DW::Request->get;
     my $opts = $r->pnote('routing_opts');
@@ -190,7 +188,6 @@ sub _call_hash {
         $r->status( 500 );
         $r->print(objToJson( { error => $text } ));
         return $r->OK;
-
     # default error rendering
     } else {
         $msg = $err->as_html;
@@ -207,14 +204,23 @@ sub _call_hash {
     }
 }
 
+# INTERNAL METHOD: no POD
+# controller sub for register_static
 sub _static_helper {
     my $r = DW::Request->get;
-    return  DW::Template->render_template( $_[0]->args );
+    return DW::Template->render_template( $_[0]->arg );
+}
+
+# INTERNAL METHOD: no POD
+# controller sub for register_redirect
+sub _redirect_helper {
+    my $r = DW::Request->get;
+    return $r->redirect( $_[0]->args );
 }
 
 =head1 Registration API
 
-=head2 C<< $class->register_static($string, $filename, $opts) >>
+=head2 C<< $class->register_static( $string, $filename, %opts ) >>
 
 Static page helper.
 
@@ -237,7 +243,7 @@ sub register_static {
     $class->register_string( $string, \&_static_helper, %opts );
 }
 
-=head2 C<< $class->register_string($string, $sub, $opts) >>
+=head2 C<< $class->register_string( $string, $sub, %opts ) >>
 
 =over
 
@@ -276,9 +282,47 @@ sub register_string {
     $string_choices{'app'  . $string} = $hash if $hash->{app};
     $string_choices{'ssl'  . $string} = $hash if $hash->{ssl};
     $string_choices{'user' . $string} = $hash if $hash->{user};
+
+    if ( $string =~ m!(^(.+)/)index$! && ! exists $opts{no_redirects} ) {
+        my %opts = (
+            app => $hash->{app},
+            ssl => $hash->{ssl},
+            user => $hash->{user},
+            formats => $hash->{formats},
+            format => $hash->{format},
+            no_redirects => 1,
+        );
+        $class->register_redirect( $2, $1, %opts );
+        $string_choices{'app'  . $1} = $hash if $hash->{app};
+        $string_choices{'ssl'  . $1} = $hash if $hash->{ssl};
+        $string_choices{'user' . $1} = $hash if $hash->{user};
+    }
 }
 
-=head2 C<< $class->register_regex($regex, $sub, $opts) >>
+=head2 C<< $class->register_redirect( $string, $dest, %opts ) >>
+
+Redirect helper.
+
+=over
+
+=item string - path
+
+=item dest - destination
+
+=item Opts ( see register_string )
+
+=back
+
+=cut
+
+sub register_redirect {
+    my ( $class, $string, $dest, %opts ) = @_;
+
+    $opts{args} = $dest;
+    $class->register_string( $string, \&_redirect_helper, %opts );
+}
+
+=head2 C<< $class->register_regex( $regex, $sub, %opts ) >>
 
 =over
 
@@ -306,7 +350,6 @@ sub register_regex {
 
 # internal method, intentionally no POD
 # applies default for opts and hash
-
 sub _apply_defaults {
     my ( $opts, $hash ) = @_;
 

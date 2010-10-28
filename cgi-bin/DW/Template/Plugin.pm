@@ -18,6 +18,7 @@ use base 'Template::Plugin';
 use strict;
 
 use DW::Template::Filters;
+use DW::Template::VMethods;
 
 =head1 NAME
 
@@ -102,6 +103,26 @@ prevent XSS and other exploits.
 
 sub form_auth {
     return LJ::form_auth();
+}
+
+=head2 sort_by_key
+
+Sorts an array of hashrefs by given key
+
+=cut
+
+sub sort_by_key {
+    my $k = $_[2];
+    my $md = $_[3] || 'alpha';
+
+    my @r;
+    if ( $md eq 'alpha' ) {
+        @r = sort { $a->{$k} cmp $b->{$k} } @{$_[1]};
+    } else {
+        @r = sort { $a->{$k} <=> $b->{$k} } @{$_[1]};
+    }
+
+    return \@r;
 }
 
 =head1 AUTHOR

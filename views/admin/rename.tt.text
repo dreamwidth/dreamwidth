@@ -1,5 +1,10 @@
 ;; -*- coding: utf-8 -*-
 
+.admin.link=Renames
+.admin.text=Manage renames
+
+.new.link=Create Rename
+
 .renames.list.empty=No renames involving "[[user]]".
 
 .renames.list.item.details=More / edit

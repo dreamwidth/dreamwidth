@@ -65,9 +65,6 @@
 .admin.spamreports.link=Spam Reports
 .admin.spamreports.text=View and handle reports of spam.
 
-.admin.stats.link=Business Statistics
-.admin.stats.text=Detailed breakdown of business statistics
-
 .admin.statushistory.link=Statushistory
 .admin.statushistory.text=Shows you a user's statushistory.
 
