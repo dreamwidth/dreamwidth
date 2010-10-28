@@ -21,6 +21,7 @@ use warnings;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use DW::Controller::Admin;
 
 use LJ::Event;
 
