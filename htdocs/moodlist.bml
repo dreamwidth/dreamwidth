@@ -54,7 +54,7 @@ body<=
     # Get a list of all possible moods
     my $moods = DW::Mood->get_moods;
     my @mlist = ();
-    my %lists = {};
+    my %lists = ();
     foreach (sort { $moods->{$a}->{'name'} cmp $moods->{$b}->{'name'} } keys %$moods) {
         my $m = $moods->{$_};
         push @mlist, $m;
@@ -192,7 +192,7 @@ body<=
 
             if ($GET{'ownerid'}) {
                 $ret .= "<div style='margin-bottom:15px; font-weight:bold'>";
-                $ret .= LJ::ehtml(@user_themes[0]->{name}) . ' - ';
+                $ret .= LJ::ehtml($user_themes[0]->{name}) . ' - ';
                 $ret .= LJ::ljuser(LJ::get_username($GET{'ownerid'}));
                 $ret .= "</div></td></tr>";
             } else {
@@ -266,7 +266,7 @@ body<=
 
             if ($GET{'ownerid'}) {
                 $ret .= "<div style='margin-bottom:15px; font-weight:bold' align='center'>";
-                $ret .= LJ::ehtml(@user_themes[0]->{name}) . ' - ';
+                $ret .= LJ::ehtml($user_themes[0]->{name}) . ' - ';
                 $ret .= LJ::ljuser(LJ::get_username($GET{'ownerid'}));
                 $ret .= "</div></td></tr>";
             } else {

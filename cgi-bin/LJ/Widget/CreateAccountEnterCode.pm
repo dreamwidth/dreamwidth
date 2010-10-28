@@ -34,7 +34,7 @@ sub render_body {
     my $error_msg = sub {
         my ( $key, $pre, $post ) = @_;
         my $msg = $errors->{$key};
-        return unless $msg;
+        return '' unless $msg;
         return "$pre $msg $post";
     };
 

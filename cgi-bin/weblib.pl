@@ -3433,7 +3433,7 @@ sub subscribe_interface {
     $ret .= LJ::html_hidden({name => 'post_to_settings_page', value => $post_to_settings_page});
 
     # print buttons
-    my $referer = BML::get_client_header('Referer');
+    my $referer = BML::get_client_header('Referer') || '';
     my $uri = $LJ::SITEROOT . DW::Request->get->uri;
 
     # normalize the URLs -- ../index.bml doesn't make it a different page.

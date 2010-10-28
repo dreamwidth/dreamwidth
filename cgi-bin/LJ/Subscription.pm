@@ -585,7 +585,7 @@ sub unique {
 sub equals {
     my ($self, $other) = @_;
 
-    return 1 if $self->id == $other->id;
+    return 1 if defined $other->id && $self->id == $other->id;
 
     my $match = $self->ntypeid == $other->ntypeid &&
         $self->etypeid == $other->etypeid && $self->flags == $other->flags;

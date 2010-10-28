@@ -3625,8 +3625,9 @@ sub EntryLite__formatted_subject {
     # always be at a minimum a hidden visibility subject line for screenreaders.
     my $set_subject = sub {
         my ( $all_subs, $always ) = @_;
-        return unless $subject eq "";  # no subject
+        return if defined $subject and $subject ne "";
 
+        # no subject
         my $text_nosubject = $ctx->[S2::PROPS]->{text_nosubject};
         if ( $text_nosubject ne "" ) {
             # if text_nosubject is set, use it as the subject if

@@ -1349,6 +1349,7 @@ my @userbio_close = @comment_close;
 sub clean_event
 {
     my ($ref, $opts) = @_;
+    return unless $$ref;  # nothing to do
 
     # old prototype was passing in the ref and preformatted flag.
     # now the second argument is a hashref of options, so convert it to support the old way.

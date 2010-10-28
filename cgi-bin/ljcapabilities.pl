@@ -68,9 +68,10 @@ sub mask_from_bits {
 
 sub caps_in_group {
     my ($caps, $class) = @_;
+    $caps = $caps ? $caps + 0 : 0;
     my $bit = LJ::class_bit($class);
     die "unknown class '$class'" unless defined $bit;
-    return ($caps+0 & (1 << $bit)) ? 1 : 0;
+    return ( $caps & ( 1 << $bit ) ) ? 1 : 0;
 }
 
 # <LJFUNC>

@@ -79,7 +79,8 @@ sub transform_rte_post {
 sub expand_entry {
     my ($class, $journal, $entryref, %opts) = @_;
 
-    $$entryref =~ s/(<(?:lj|site)\-embed[^>]+\/>)/$class->_expand_tag($journal, $1, $opts{edit}, %opts)/ge;
+    $$entryref =~ s/(<(?:lj|site)\-embed[^>]+\/>)/$class->_expand_tag($journal, $1, $opts{edit}, %opts)/ge
+        if $$entryref;
 }
 
 sub _expand_tag {

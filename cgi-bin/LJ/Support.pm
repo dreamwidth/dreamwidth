@@ -173,6 +173,7 @@ sub has_any_support_priv {
 sub get_cat_by_key
 {
     my ($cats, $cat) = @_;
+    $cat ||= '';
     foreach (keys %$cats) {
         if ($cats->{$_}->{'catkey'} eq $cat) {
             return $cats->{$_};

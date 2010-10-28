@@ -1153,7 +1153,8 @@ sub render {
 
                 # displaying a radio or checkbox
                 if ($do_form) {
-                    $prevanswer = $clearanswers ? 0 : $preval{$qid} =~ /\b$itid\b/;
+                    my $preval_qid = $preval{$qid} || '';
+                    $prevanswer = $clearanswers ? 0 : $preval_qid =~ /\b$itid\b/;
                     $results_table .= LJ::html_check({ 'type' => $q->type, 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
                                               'value' => $itid, 'id' => "pollq-$pollid-$qid-$itid",
                                               'selected' => $prevanswer });
@@ -1162,7 +1163,7 @@ sub render {
                 }
 
                 # displaying results
-                my $count = $itvotes{$itid}+0;
+                my $count = $itid ? $itvotes{$itid} || 0 : 0;
                 my $percent = sprintf("%.1f", (100 * $count / ($usersvoted||1)));
                 my $width = 20+int(($count/$maxitvotes)*380);
 
@@ -1354,7 +1355,7 @@ sub expand_entry {
         return $poll->render;
     };
 
-    $$entryref =~ s/<(?:lj-)?poll-(\d+)>/$expand->($1)/eg;
+    $$entryref =~ s/<(?:lj-)?poll-(\d+)>/$expand->($1)/eg if $$entryref;
 }
 
 sub process_submission {

@@ -455,7 +455,8 @@ sub preload_rows {
     my @rows = eval "${class}::_get_${table}_rows(\$self, \@msglist)";
 
     # make a mapping of journalid-msgid=> $row
-    my %row_map = map { join("-", $_->{journalid}, $_->{msgid}) => $_ } @rows;
+    my %row_map = map { join("-", $_->{journalid}, $_->{msgid}) => $_ }
+                  grep { $_ } @rows;
 
     foreach my $msg (@objlist) {
         my $row = $row_map{join("-", $msg->journalid, $msg->msgid)};
