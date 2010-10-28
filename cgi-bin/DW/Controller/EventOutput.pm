@@ -25,6 +25,13 @@ use DW::Template;
 use LJ::Event;
 
 DW::Routing->register_string( '/admin/eventoutput', \&event_output, app => 1 );
+DW::Controller::Admin->register_admin_page( '/',
+    path => '/admin/eventoutput',
+    ml_scope => '/admin/eventoutput-select.tt',
+    privs => [ sub {
+        return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
+    } ]
+);
 
 sub event_output {
     my $r = DW::Request->get;

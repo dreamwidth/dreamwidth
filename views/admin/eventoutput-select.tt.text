@@ -1,3 +1,6 @@
+.admin.link=Event / Notification Output
+.admin.text=Quick overview of an event in various output formats.
+
 .form.label.arg1=First Argument
 
 .form.label.arg2=Second Argument
