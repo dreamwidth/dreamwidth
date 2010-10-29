@@ -236,15 +236,6 @@ no strict "vars";
             $evt = "LJ::NotificationMethod::$evt";
         }
     }
-    unless (%LJ::BLOBINFO) {
-        %LJ::BLOBINFO = (
-                         clusters => {
-                             1 => "$LJ::HOME/var/blobs/",
-                         },
-                         );
-    }
-
-    $USERPROP_DEF{'blob_clusterid'} ||= 1;
 
     # random user defaults to a week
     $RANDOM_USER_PERIOD = 7;

@@ -38,14 +38,6 @@ userproplist.betafeatures_list:
   multihomed: 0
   prettyname: Beta Features List
 
-userproplist.blob_clusterid:
-  cldversion: 0
-  datatype: num
-  des: The ID of the blob cluster user's media resides on.
-  indexed: 1
-  multihomed: 0
-  prettyname: Blob Cluster ID
-
 userproplist.browselang:
   cldversion: 4
   datatype: char

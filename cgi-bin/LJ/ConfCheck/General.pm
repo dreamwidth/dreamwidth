@@ -764,10 +764,6 @@ add_conf('@QBUFFERD_ISOLATE',
          des => "List of job types that need to fork a separate process."
          );
 
-add_conf('%BLOBINFO',
-         des => "Tell a blobserver where on the filesystem to store data. Probably obsolete!"
-         );
-
 add_conf('$CSSPROXY',
          type => 'url',
          des => "If set, external CSS should be proxied through this URL (URL is given a ?u= argument with the escaped URL of CSS to clean.  If unset, remote CSS is blocked.",

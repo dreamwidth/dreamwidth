@@ -420,15 +420,6 @@ my %ljconfig =
 
         'filesystem_related' => {
             'name' => "Filesystem Related",
-            'blobinfo' => {
-                    'desc' => "Hash that contains the details for a number of blob servers. The format of the parameter is 'cluster' => 'directory'. You also need to add a [ljconfig[userprop_def]] key: 'blob_clusterid' => 1,. The webserver user also needs to be able to access the given directory. If you wish to use &captcha;s image / audio generation for human checks, then this is a necessary parameter. <emphasis role='strong'>This is old. &mogfs; is the future</emphasis>. You might want to use this option, though, for development, as blobserver in local-filesystem-mode is easy to set up.",
-                    'type' => "hash",
-                    'example' => '%BLOBINFO = (
-    "clusters" => {
-        "1" => "\$HOME/var/blobs/",
-        },
-    );'
-            },
             'disable_media_uploads' => {
                 'desc' => "Boolean to disable all media uploads/modifications that would go to &mogfs;. This puts code that interacts with &mogfs; into read-only mode: editicons.bml - users can&apos;t delete/upload userpics while in this mode, and &captcha;s - can&apos;t generate new ones or delete old ones while flag on. You might set this if you needed to turn off your &mogfs; install, for example.",
             },
