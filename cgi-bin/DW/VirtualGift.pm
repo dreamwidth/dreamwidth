@@ -290,7 +290,7 @@ sub tags {
         foreach my $tag ( @valid_tags ) {
             next if $dbtags{$tag};
             # try to create the tag if it didn't already exist
-            my $tagid = LJ::get_sitekeyword_id( $tag, $autovivify );
+            my $tagid = LJ::get_sitekeyword_id( $tag, $autovivify, allowmixedcase => 1 );
             return $error->( LJ::Lang::ml( 'vgift.error.tags.create',
                 { tag => LJ::ehtml( $tag ) } ) ) unless $tagid;
             $dbtags{$tag} = $tagid;
@@ -387,7 +387,7 @@ sub alter_tag {
 
 sub create_tag {
     my ( $self, $tagname ) = @_;
-    return LJ::get_sitekeyword_id( $tagname, 1 );
+    return LJ::get_sitekeyword_id( $tagname, 1, allowmixedcase => 1 );
 }
 
 sub _addremove_tagpriv {
@@ -559,7 +559,7 @@ sub img_mogkey {
 # tagnames and interests are both in sitekeywords
 sub get_tagname { return LJ::get_interest( $_[1] ) }
 
-sub get_tagid { return LJ::get_sitekeyword_id( $_[1], 0 ) }
+sub get_tagid { return LJ::get_sitekeyword_id( $_[1], 0, allowmixedcase => 1 ) }
 
 sub can_be_approved_by {
     my ( $self, $u ) = @_;

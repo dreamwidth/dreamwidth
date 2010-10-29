@@ -2997,7 +2997,7 @@ EOC
 register_tablecreate('sitekeywords', <<'EOC');
 CREATE TABLE sitekeywords (
     kwid INT(10) UNSIGNED NOT NULL,
-    keyword VARCHAR(255) NOT NULL,
+    keyword VARCHAR(255) BINARY NOT NULL,
 
     PRIMARY KEY (kwid),
     UNIQUE KEY (keyword)
@@ -3915,6 +3915,11 @@ EOF
             do_sql( "UPDATE s2compiled2 SET compdata = REPLACE(compdata,$uses,'')" );
             set_dbnote( "no_layer_constants", 1 );
         }
+    }
+
+    unless ( column_type( 'sitekeywords', 'keyword' ) =~ /BINARY/ ) {
+        do_alter( 'sitekeywords',
+                  q{ALTER TABLE sitekeywords MODIFY keyword VARCHAR(255) BINARY NOT NULL} );
     }
 
 });

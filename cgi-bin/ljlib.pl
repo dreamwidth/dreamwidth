@@ -1524,13 +1524,13 @@ sub get_interest {
 #                 style -- yes, do automatically create the keyword.
 # </LJFUNC>
 sub get_sitekeyword_id {
-    my ( $kw, $autovivify ) = @_;
+    my ( $kw, $autovivify, %opts ) = @_;
     $autovivify = 1 unless defined $autovivify;
 
     # setup the keyword for use
     return 0 unless $kw =~ /\S/;
     $kw = LJ::trim( LJ::text_trim( LJ::trim( $kw ), LJ::BMAX_SITEKEYWORD, LJ::CMAX_SITEKEYWORD ) );
-    $kw = LJ::utf8_lc( $kw );
+    $kw = LJ::utf8_lc( $kw ) unless $opts{allowmixedcase};
 
     # get the keyword and insert it if necessary
     my $dbr = LJ::get_db_reader();
