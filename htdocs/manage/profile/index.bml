@@ -327,7 +327,7 @@ body<=
 
         $ret .= "</td></tr>\n";
 
-        if ( $LJ::USER_EMAIL && $u->can_have_email_alias && ! $u->prop( "no_mail_alias" ) ) {
+        if ( $u->can_have_email_alias && ! $u->prop( "no_mail_alias" ) ) {
             $ret .= "<tr class='field_block'><td class='field_name'>";
             $ret .= BML::ml( '.fn.email.site', { siteabbrev => $LJ::SITENAMEABBREV } );
             $ret .= "</td><td class='" . $zebra_row1->() . "' style='vertical-align: middle'>\n";

@@ -1977,6 +1977,7 @@ sub can_get_self_email {
 }
 
 sub can_have_email_alias {
+    return 0 unless $LJ::USER_EMAIL;
     return $_[0]->get_cap( 'useremail' ) ? 1 : 0;
 }
 
@@ -2662,11 +2663,10 @@ sub opt_showonlinestatus {
 
 sub opt_whatemailshow {
     my $u = $_[0];
-    my $user_email = $LJ::USER_EMAIL && $u->can_have_email_alias;
 
     # return prop value if it exists and is valid
     my $prop_val = $u->prop( 'opt_whatemailshow' );
-    $prop_val =~ tr/BVL/ADN/ unless $user_email;
+    $prop_val =~ tr/BVL/ADN/ unless $u->can_have_email_alias;
     return $prop_val if $prop_val =~ /^[ALBNDV]$/;
 
     # otherwise, return the default: no email shown
@@ -4433,7 +4433,7 @@ sub set_email {
 sub update_email_alias {
     my $u = shift;
 
-    return unless $u && $u->get_cap("useremail");
+    return unless $u && $u->can_have_email_alias;
     return if exists $LJ::FIXED_ALIAS{$u->user};
     return if $u->prop("no_mail_alias");
     return unless $u->is_validated;

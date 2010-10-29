@@ -159,7 +159,7 @@ sub handle_post {
             $other_opts{email} = 0;
         } 
 
-        unless ( $LJ::USER_EMAIL && $journal->can_have_email_alias ) {
+        unless ( $journal->can_have_email_alias ) {
             push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnoalias' );
             $other_opts{email} = 0;
         }
@@ -299,7 +299,7 @@ sub handle_admin_post {
                 $other_opts{email} = 0;
             }
 
-            unless ( $LJ::USER_EMAIL && $opts{journal}->can_have_email_alias ) {
+            unless ( $opts{journal}->can_have_email_alias ) {
                 push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnoalias' );
                 $other_opts{email} = 0;
             }
