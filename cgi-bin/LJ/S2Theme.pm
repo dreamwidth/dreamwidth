@@ -1012,6 +1012,9 @@ sub comment_props {
         text_comment_thread
         color_comment_title
         color_comment_title_background
+        font_comment_title
+        font_comment_title_size
+        font_comment_title_units
     )
 }
 

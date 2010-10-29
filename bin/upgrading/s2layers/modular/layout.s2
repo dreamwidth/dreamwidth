@@ -28,7 +28,10 @@ set module_navlinks_section = "header";
 set font_base = "Verdana, Helvetica";
 set font_fallback = "sans-serif";
 set font_journal_title = "Century Gothic, Verdana, sans-serif";
-
+set font_journal_subtitle = "Century Gothic, Verdana, sans-serif";
+set font_entry_title = "Century Gothic, Verdana, sans-serif";
+set font_comment_title = "Century Gothic, Verdana, sans-serif";
+set font_module_heading = "Century Gothic, Verdana, sans-serif";
 
 # Give a title to the navlinks module
 function print_module_navlinks() {
@@ -156,7 +159,7 @@ blockquote > p:first-child { margin-top: 0; }
 dl dt { font-weight: bold; }
 
 h1, h2, h3, h4,
-.comment-title { font-family: $*font_journal_title;
+.comment-title {
     font-weight: normal;
     padding-left: .25em;
     padding-right: .25em;

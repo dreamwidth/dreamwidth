@@ -1620,6 +1620,23 @@ property string font_entry_title_units {
     values = "em|em|ex|ex|%|%|pt|pt|px|px";
 }
 
+property string font_comment_title {
+    des = "Preferred font for comment titles";
+    maxlength = 25;
+    size = 15;
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+}
+
+property string font_comment_title_size {
+    des = "Size of comment title font";
+    size = 3;
+}
+
+property string font_comment_title_units {
+    des = "Units for comment title size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
+}
+
 property string font_module_heading {
     des = "Preferred font for module headings";
     maxlength = 25;
