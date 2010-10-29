@@ -2887,16 +2887,6 @@ sub control_strip_js_inject
 
     my $ret;
 
-    $ret .= "<script src='$LJ::JSPREFIX/core.js' type='text/javascript'></script>\n";
-    $ret .= "<script src='$LJ::JSPREFIX/dom.js' type='text/javascript'></script>\n";
-    $ret .= "<script src='$LJ::JSPREFIX/httpreq.js' type='text/javascript'></script>\n";
-
-    LJ::need_res(qw(
-                    js/livejournal.js
-                    js/md5.js
-                    js/login.js
-                    ));
-
     my $r = DW::Request->get;
     my $baseuri = $r->header_in( 'Host' ) . $r->uri;
     my $args = LJ::eurl( $r->query_string ) || '';

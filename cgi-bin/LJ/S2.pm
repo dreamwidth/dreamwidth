@@ -160,10 +160,29 @@ sub make_journal
     # like print_stylesheet() won't run, which don't have an method invocant
     return $page if $page && ref $page ne 'HASH';
 
+    # Control strip
+    my $show_control_strip = LJ::Hooks::run_hook( 'show_control_strip' );
+    if ($show_control_strip) {
+        LJ::Hooks::run_hook( 'control_strip_stylesheet_link' );
+
+        LJ::need_res(qw(
+                    js/core.js
+                    js/dom.js
+                    js/httpreq.js
+                    js/livejournal.js
+                    js/md5.js
+                    js/login.js
+                    ));
+    }
+
     # Include any head stc or js head content
     LJ::Hooks::run_hooks("need_res_for_journals", $u);
     my $extra_js = LJ::statusvis_message_js($u);
     $page->{head_content} .= LJ::res_includes() . $extra_js;
+
+    # inject the control strip JS, but only after any libraries have been injected
+    $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user )
+        if( $show_control_strip );
 
     s2_run($r, $ctx, $opts, $entry, $page);
 
@@ -2119,13 +2138,6 @@ sub Page
 
     # other useful link rels
     $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
-
-    # Control strip
-    my $show_control_strip = LJ::Hooks::run_hook( 'show_control_strip' );
-    if ($show_control_strip) {
-        LJ::Hooks::run_hook( 'control_strip_stylesheet_link' );
-        $p->{'head_content'} .= LJ::control_strip_js_inject( user => $u->{user} );
-    }
 
     # FOAF autodiscovery
     my $foafurl = $u->{external_foaf_url} ? LJ::eurl($u->{external_foaf_url}) : "$p->{base_url}/data/foaf";
