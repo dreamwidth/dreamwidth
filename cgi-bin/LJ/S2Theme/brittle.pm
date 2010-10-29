@@ -5,8 +5,6 @@ use strict;
 sub layouts { ( "2l" => "two-columns-left", "2r" => "two-columns-right" ) }
 sub layout_prop { "layout_type" }
 
-sub designer { "renoir" }
-
 sub module_props {
     my $self = shift;
     my @props = qw(
@@ -36,79 +34,5 @@ sub entry_props {
     );
     return $self->_append_props( "entry_props", @props );
 }
-
-package LJ::S2Theme::brittle::argyle;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw( featured ) }
-sub designer { "rising" }
-
-package LJ::S2Theme::brittle::badfairy;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "Musyc" }
-
-package LJ::S2Theme::brittle::barnhouse;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "rising" }
-
-package LJ::S2Theme::brittle::buttercupyellow;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw( featured ) }
-sub designer { "rising" }
-
-package LJ::S2Theme::brittle::certainfrogs;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw( featured ) }
-sub designer { "rising" }
-
-package LJ::S2Theme::brittle::chinesepink;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw( featured ) }
-sub designer { "rising" }
-
-package LJ::S2Theme::brittle::drab;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "rising" }
-
-package LJ::S2Theme::brittle::furcoat;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "Musyc" }
-
-package LJ::S2Theme::brittle::mountaindevil;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "Musyc" }
-
-package LJ::S2Theme::brittle::nnwm2009;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "zvi" }
-
-package LJ::S2Theme::brittle::oldroses;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "dancing_serpent" }
-
-package LJ::S2Theme::brittle::powerfulgenie;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "Musyc" }
-
-package LJ::S2Theme::brittle::rust;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-
-package LJ::S2Theme::brittle::softblue;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "dancing_serpent" }
-
-package LJ::S2Theme::brittle::softgreen;
-use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
-sub designer { "dancing_serpent" }
 
 1;

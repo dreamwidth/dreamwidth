@@ -1,0 +1,26 @@
+[%- sections.title = '.admin.link' | ml -%]
+[%- dw.need_res( { group => 'jquery' }, 'js/admin/themes/index.js' ) -%]
+[%- CALL dw.active_resource_group( 'jquery' ) -%]
+
+<form action="/admin/themes/theme" method="get"><strong>[% '.edit_theme.label' | ml %]</strong>
+<select name="theme" id="edit_theme">
+[%- FOREACH lay IN layers.keys.sort -%]
+<optgroup label="[% lay %]">
+[%- FOREACH theme IN layers.$lay.sort -%]
+<option value="[% lay %]/[% theme %]">[% theme %]</option>
+[%- END -%]
+</optgroup>
+[%- END -%]
+</select> <input type="submit" value="[% '.edit_theme.btn' | ml %]" /></form>
+
+<form action="/admin/themes/category" method="get"><strong>[% '.edit_category.label' | ml %]</strong>
+<select name="category" id="cat_sel">[% FOREACH cat IN categories %]
+<option value="[% cat %]" [% IF cat == "featured" %]selected='selected'[% END %]>[% cat %]</option>
+[% END %]</select>
+<input type="submit" value="[% '.edit_category.btn' | ml %]" />
+</form>
+
+<form action="/admin/themes/category" method="get"><strong>[% '.add_category.label' | ml %]</strong>
+<input name="category" id="cat_text" />
+<input type="submit" value="[% '.add_category.btn' | ml %]" />
+</form>

@@ -1228,6 +1228,7 @@ sub handle_caches
     %LJ::CACHE_CODES = ();
     %LJ::CACHE_USERPROP = ();  # {$prop}->{ 'upropid' => ... , 'indexed' => 0|1 };
     %LJ::CACHE_ENCODINGS = ();
+
     return 1;
 }
 
@@ -1249,6 +1250,7 @@ sub start_request
     $LJ::ACTIVE_CRUMB = '';           # clear active crumb
     %LJ::CACHE_USERPIC = ();          # picid -> hashref
     %LJ::CACHE_USERPIC_INFO = ();     # uid -> { ... }
+    %LJ::CACHE_S2THEME = ();
     %LJ::REQ_CACHE_USER_NAME = ();    # users by name
     %LJ::REQ_CACHE_USER_ID = ();      # users by id
     %LJ::REQ_CACHE_REL = ();          # relations from LJ::check_rel()

@@ -282,7 +282,7 @@ sub js {
                 for (var arg in getArgs) {
                     if (!getArgs.hasOwnProperty(arg)) continue;
                     if (arg == "authas" || arg == "show") continue;
-                    DOM.addEventListener(filter_link, "click", function (evt) { self.filterThemes(evt, arg, getArgs[arg]) });
+                    DOM.addEventListener(filter_link, "click", function (evt) { self.filterThemes(evt, arg, unescape( getArgs[arg] ) ) });
                     evt_listener_added = 1;
                     break;
                 }

@@ -23,11 +23,11 @@ sub init {
     1;
 }
 
-
 ##################################################
 # Class Methods
 ##################################################
 
+# FIXME: This should be configurable
 sub default_themes {
     my $class = $_[0];
 
@@ -400,6 +400,8 @@ sub new {
     my $themeid = $opts{themeid}+0;
     die "No theme id given." unless $themeid;
 
+    return $LJ::CACHE_S2THEME{$themeid} if exists $LJ::CACHE_S2THEME{$themeid};
+
     my $layers = LJ::S2::get_public_layers();
     my $is_custom = 0;
     my %outhash = ();
@@ -475,6 +477,8 @@ sub new {
     } else {
         bless $self, $class;
     }
+    
+    $LJ::CACHE_S2THEME{$themeid} = $self;
 
     return $self;
 }
@@ -485,54 +489,38 @@ sub new {
 ##################################################
 
 sub s2lid {
-    my $self = shift;
-
-    return $self->{s2lid};
+    return $_[0]->{s2lid};
 }
 *themeid = \&s2lid;
 
 sub b2lid {
-    my $self = shift;
-
-    return $self->{b2lid};
+    return $_[0]->{b2lid};
 }
 *layoutid = \&b2lid;
 
 sub coreid {
-    my $self = shift;
-
-    return $self->{coreid};
+    return $_[0]->{coreid};
 }
 
 sub name {
-    my $self = shift;
-
-    return $self->{name};
+    return $_[0]->{name};
 }
 
 sub layout_name {
-    my $self = shift;
-
-    return $self->{layout_name};
+    return $_[0]->{layout_name};
 }
 
 sub uniq {
-    my $self = shift;
-
-    return $self->{uniq};
+    return $_[0]->{uniq};
 }
 
 sub layout_uniq {
-    my $self = shift;
-
-    return $self->{layout_uniq};
+    return $_[0]->{layout_uniq};
 }
 *is_system_layout = \&layout_uniq; # if the theme's layout has a uniq, then it's a system layout
 
 sub is_custom {
-    my $self = shift;
-
-    return $self->{is_custom};
+    return $_[0]->{is_custom};
 }
 
 sub preview_imgurl {
@@ -682,16 +670,170 @@ sub get_preview_styleid {
     return $styleid;
 }
 
+sub all_categories {
+    my ( undef, %args ) = @_;
 
+    my $all = 1;
+    $all = $args{all} if exists $args{all};
+
+    my $post_filter = sub {
+        my %data = map { $_ => 1 } @_;
+        $data{featured} = 1 if $args{special};
+        delete $data{featured} unless $args{special};
+        my %order = (
+            featured => -1
+        );
+        return sort {
+            ( $order{$a} || 0 ) <=> ( $order{$b} || 0 ) ||
+            $a cmp $b 
+        } keys %data;
+    };
+
+    my $memkey = "s2categories" . ( $all ? ":all" : "" );
+    my $minfo = LJ::MemCache::get( $memkey );
+    return $post_filter->( @$minfo ) if $minfo;
+
+    my $dbr = LJ::get_db_reader();
+    my $cats = $dbr->selectall_arrayref( "SELECT k.keyword AS keyword " . 
+                                            "FROM s2categories AS c, sitekeywords AS k WHERE " .
+                                            "c.kwid = k.kwid " . ( $all ? "" : "AND c.active = 1 " ) .
+                                            "GROUP BY keyword", undef );
+
+    my @rv = map { $_->[0] } @$cats;
+    
+    LJ::MemCache::set( $memkey, \@rv );
+    return $post_filter->( @rv );
+}
+
+sub clear_global_cache {
+    LJ::MemCache::delete( "s2categories" );
+    LJ::MemCache::delete( "s2categories:all" );
+}
+
+sub metadata {
+    my $self = $_[0];
+
+    return $self->{metadata} if exists $self->{metadata};
+	
+    my $VERSION_DATA = 1;
+
+    my $memkey = [ $self->s2lid, "s2meta:".$self->s2lid ];
+    my ( $info, $minfo );
+
+    my $load_info_from_cats = sub {
+        my $cats = $_[0];
+        
+        $cats->{featured}->{order} = -1;
+        $cats->{featured}->{special} = 1;
+
+        $info->{cats} = $cats;
+        $info->{active_cats} = [ grep { $cats->{$_}->{active} } keys %$cats ];        
+    };
+
+    if ( $minfo = LJ::MemCache::get( $memkey ) ) {
+        if ( ref $minfo eq 'HASH' ||
+            $minfo->[0] != $VERSION_DATA ) {
+            # old data in the cache.  delete.
+            LJ::MemCache::delete( $memkey );
+        } else {
+            my ( undef, $catstr, $cat_active ) = @$minfo;
+
+            my %id_map;
+            my $cats = {};  
+            my ( $pos, $nulpos );
+            $pos = $nulpos = 0;
+            while ( ( $nulpos = index( $catstr, "\0", $pos ) ) > 0 ) {
+                my $kw = substr( $catstr, $pos, $nulpos-$pos );
+                my $id = unpack("N", substr( $catstr, $nulpos+1, 4 ) );
+                $pos = $nulpos + 5; # skip NUL + 4 bytes.
+                $cats->{$kw} = {
+                    kwid => $id,
+                    keyword => $kw,
+                };
+                $id_map{$id} = $cats->{$kw};
+            }
+            
+            while ( length $cat_active >= 4 ) {
+                my ( $id ) = unpack "N", substr( $cat_active, 0, 4, '' );
+                $id_map{$id}->{active} = 1;
+            }
+
+            $load_info_from_cats->( $cats );
+        }
+    }
+
+    unless ( $info ) {
+        my $dbr = LJ::get_db_reader();
+
+        my $cats = $dbr->selectall_hashref( "SELECT c.kwid AS kwid, k.keyword AS keyword, c.active AS active " .
+                                            "FROM s2categories AS c, sitekeywords AS k WHERE " .
+                                            "s2lid = ? AND c.kwid = k.kwid",
+                                        'keyword', undef, $self->s2lid );
+
+        $cats->{featured} ||= {
+            keyword => 'featured',
+            kwid => LJ::get_sitekeyword_id( 'featured', 1 ),
+            active => 0,
+        };
+
+        $load_info_from_cats->( $cats );
+
+        $minfo = [
+            $VERSION_DATA,
+            join( '', map { pack( "Z*N", $_, $cats->{$_}->{kwid} ) } keys %$cats ) || "",
+            join( '', map { pack( "N", $cats->{$_}->{kwid} ) } grep { $cats->{$_}->{active} } keys %$cats ) || "",
+        ];
+ 
+       LJ::MemCache::set( $memkey, $minfo );
+    }
+
+    return $self->{metadata} = $info;
+}
+
+##################################################
+# Methods for admin pages
+##################################################
+
+sub clear_cache {
+    my $self = $_[0];
+    delete $self->{metadata};
+    LJ::MemCache::delete( [ $self->s2lid, "s2meta:".$self->s2lid ] );
+}
+
+##################################################
+# Methods that return data from DB, *DO NOT OVERIDE*
+##################################################
+
+sub cats { # categories that the theme is in
+    return @{ $_[0]->metadata->{active_cats} };
+}
+
+##################################################
+# Can be overriden if required
+##################################################
+
+sub designer { # designer of the theme
+    return $_[0]->{designer} if exists $_[0]->{designer};
+
+    my $id = $_[0]->s2lid;
+    my $bid = $_[0]->b2lid;
+    my $li = {}; 
+    LJ::S2::load_layer_info( $li, [ $id, $bid ] );
+
+    my $rv = $li->{$id}->{author_name} ||
+        $li->{$bid}->{author_name} ||
+        "";
+    
+    $_[0]->{designer} = $rv;
+    return $rv;
+}
 ##################################################
 # Methods that get overridden by child packages
 ##################################################
 
-sub cats { () } # categories that the theme is in
 sub layouts { ( "1" => 1 ) } # theme layout/sidebar placement options ( layout type => property value or 1 if no property )
 sub layout_prop { "" } # property that controls the layout/sidebar placement
 sub show_sidebar_prop { "" } # property that controls whether a sidebar shows or not
-sub designer { "" } # designer of the theme
 sub linklist_support_tab { "" } # themes that don't use the linklist_support prop will have copy pointing them to the correct tab
 
 # for appending layout-specific props to global props

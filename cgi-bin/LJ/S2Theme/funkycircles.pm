@@ -5,8 +5,6 @@ use strict;
 sub layouts { ( "1" => "one-column", "2l" => "two-columns-left", "2r" => "two-columns-right", "3" => "three-columns-sides", "3r" => "three-columns-right", "3l" => "three-columns-left" ) }
 sub layout_prop { "layout_type" }
 
-sub designer { "ninetydegrees" }
-
 sub page_props {
     my $self = shift;
     my @props = qw( color_page_title_background color_page_subtitle_background color_page_subtitle );
@@ -51,52 +49,5 @@ sub entry_props {
     );
     return $self->_append_props( "entry_props", @props );
 }
-
-package LJ::S2Theme::funkycircles::atomicorange;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-
-package LJ::S2Theme::funkycircles::chocolaterose;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-
-package LJ::S2Theme::funkycircles::darkblue;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-
-package LJ::S2Theme::funkycircles::darkpurple;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-
-package LJ::S2Theme::funkycircles::earthygreen;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-
-package LJ::S2Theme::funkycircles::industrialpink;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-
-package LJ::S2Theme::funkycircles::industrialteal;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-
-package LJ::S2Theme::funkycircles::lightondark;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-sub designer { "cesy" }
-
-package LJ::S2Theme::funkycircles::nevermore;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-sub designer { "wizard101" }
-
-package LJ::S2Theme::funkycircles::nnwm2009;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
-sub designer { "zvi" }
-
-package LJ::S2Theme::funkycircles::seablues;
-use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw() }
 
 1;

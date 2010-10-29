@@ -678,7 +678,11 @@ sub get_cats {
             main => 1,
             order => 3,
         },
-
+        map { $_ => {
+            text => $_,
+            main => 1,
+            order => 3,
+        } } LJ::S2Theme->all_categories( special => 0, all => 0 ),
     );
 
     LJ::Hooks::run_hooks("modify_cat_list", \@categories, user => $u,);

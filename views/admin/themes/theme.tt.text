@@ -1,0 +1,29 @@
+;; -*- coding: utf-8 -*-
+
+.add.hint=( comma seperated )
+
+.add.label=Add Categories:
+
+.back.link=&lt;&lt; Back
+
+.categories=Categories:
+
+.commit=Commit
+
+.designer=Designer: 
+
+.header.active=Active
+
+.header.category=Category
+
+.header.remove=Remove
+
+.preview.link=Preview
+
+.remove.na=N/A
+
+.source=Source
+.source.layer=Layer
+.source.theme=Theme
+
+.title=Edit Metadata: [[layout]]/[[theme]]

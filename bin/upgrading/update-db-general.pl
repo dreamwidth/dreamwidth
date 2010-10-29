@@ -1154,6 +1154,16 @@ CREATE TABLE s2stylelayers2 (
 )
 EOC
 
+register_tablecreate("s2categories", <<'EOC'); # global
+CREATE TABLE s2categories (
+    s2lid INT UNSIGNED NOT NULL,
+    kwid INT(10) UNSIGNED NOT NULL,
+    active TINYINT(1) UNSIGNED NOT NULL DEFAULT 1, 
+
+    PRIMARY KEY (s2lid, kwid)    
+)
+EOC
+
 register_tablecreate("ml_domains", <<'EOC');
 CREATE TABLE ml_domains (
     dmid TINYINT UNSIGNED NOT NULL,

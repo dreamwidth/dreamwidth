@@ -1,0 +1,50 @@
+[%- sections.title = '.title' | ml ( layout = theme.layout_name, theme = theme.name ) -%]
+[%- sections.head = BLOCK -%]
+<style type="text/css">
+td, th { padding: 4px; }
+.action_links { font-size: 1em; }
+</style>
+[%- END -%]
+
+<form method="post" action="[% roots.site %]/admin/themes/theme">
+[% dw.form_auth %]
+<input type="hidden" name="theme" value="[% theme_arg %]" />
+<p class="action_links">
+<a href="[% roots.site %]/admin/themes/">[% '.back.link' | ml %]</a> ||  
+<a href="[% roots.site %]/customize/preview_redirect?themeid=[% theme.s2lid %]" target="_blank">[% '.preview.link' | ml %]</a> || [% '.source' | ml %] (
+<a href="[% roots.site %]/customize/advanced/layersource?id=[% theme.b2lid %]&fmt=html" target="_blank">[% '.source.theme' | ml %]</a> ||
+<a href="[% roots.site %]/customize/advanced/layersource?id=[% theme.s2lid %]&fmt=html" target="_blank">[% '.source.layer' | ml %]</a> )
+</p>
+<p><strong>[% '.designer' | ml %]</strong> [% theme.designer %]</p>
+
+<img src="[% theme.preview_imgurl %]" alt="" />
+<br/>
+
+<input type="submit" value="[% '.commit' | ml %]" />
+
+<p>[% '.categories' | ml %]</p>
+<table>
+<thead>
+<tr>
+    <th>[% '.header.active' | ml %]</th>
+    <th>[% '.header.category' | ml %]</th>
+    <th>[% '.header.remove' | ml %]</th>
+</tr>
+</thead>
+<tbody>
+[% FOREACH key IN cat_keys %][%- cat = cats.$key -%]
+<tr>
+    <td><input type="checkbox" id="cat_act_[% cat.kwid %]" value="[% cat.keyword %]" name="cat_act_[% cat.kwid %]" [% cat.active ? "checked='checked'" : "" %] /></td>
+    [% IF cat.special %]
+        <td><strong>[% cat.keyword %]</strong></td>
+        <td>[% '.remove.na' | ml %]</td>
+    [% ELSE %]
+        <td><label for="cat_act_[% cat.kwid %]">[% cat.keyword %]</label></td>
+        <td><input type="checkbox" id="cat_remove_[% cat.kwid %]" value="[% cat.keyword %]" name="cat_remove_[% cat.kwid %]" /></td>
+    [% END %]
+</tr>
+</tbody>
+[% END %]</table>
+<p><label for="cat_add">[% '.add.label' | ml %]</label>[% '.add.hint' | ml %]<br/><input name="cat_add" id="cat_add" /></p>
+<input type="submit" value="[% '.commit' | ml %]" />
+</form>

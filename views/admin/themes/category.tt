@@ -1,0 +1,47 @@
+[%- sections.title = '.title' | ml ( category = category ) -%]
+[%- dw.need_res( { group => 'jquery' }, 'js/admin/themes/category.js' ) -%]
+[%- CALL dw.active_resource_group( 'jquery' ) -%]
+[%- sections.head = BLOCK -%]
+<style type="text/css">
+td, th { padding: 4px; }
+</style>
+[%- END -%]
+
+</tr>
+<p><a href="[% roots.site %]/admin/themes/">[% '.back.link' | ml %]</a></p>
+<strong>[% '.filter.label' | ml %]</strong>
+<select id="filter_act">
+    <option value="all">[% '.filter.act.all' | ml %]</option>
+    <option value="active">[% '.filter.act.on' | ml %]</option>
+    <option value="inactive">[% '.filter.act.off' | ml %]</option>
+</select>
+<input id="filter_redist" />
+<input type="button" value="[% '.filter.apply' | ml %]" id="filter_apply" />
+<form method="post" action="/admin/themes/category">
+[% dw.form_auth %]
+<input type="hidden" name="category" value="[% category %]" />
+<input type="submit" value="[% '.commit_all' | ml %]" />
+<input type="button" value="[% '.visible.clear' | ml %]" id="clear_visible" />
+<input type="button" value="[% '.visible.check' | ml %]" id="check_visible" />
+[%- UNLESS is_system -%][%- IF can_delete %]
+<input type="submit" value="[% '.delete' | ml %]"  name="delete" />
+[%- ELSE -%]
+[% '.delete.note' | ml %]
+[%- END -%][%- END -%]<br/>
+<table>
+<tbody id="table_data">
+[%- FOREACH lay IN layers.keys.sort -%]
+<tr data-header="1">
+    <td colspan="2"><strong>[% lay %]</strong></td></td>
+</tr>
+[%- FOREACH theme IN layers.$lay.keys.sort -%]
+[%- s2lid = layers.$lay.$theme.s2lid -%]
+<tr data-redist='[% lay %]/[% theme %]'>
+    <td><input type="checkbox" id="s2lid_act_[% s2lid %]" value="1" name="s2lid_act_[% s2lid %]" [% active.$s2lid ? "checked='checked'" : "" %] /></td>
+    <td><label for="s2lid_act_[% s2lid %]">[% theme %]</label></td>
+</tr>
+[%- END -%][%- END -%]
+</tbody>
+</table>
+<input type="submit" value="[% '.commit_all' | ml %]" />
+</form>

@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+
+.back.link=&lt;&lt; Back
+
+.commit_all=Commit All
+
+.delete.note=( Clear all and commit to be able to delete )
+
+.delete=Delete
+
+.filter.act.all=All
+
+.filter.act.off=Inactive Only
+
+.filter.act.on=Active Only
+
+.filter.apply=Apply
+
+.filter.label=Filtering:
+
+.title=Edit Category: [[category]]
+
+.visible.check=Check Visible
+
+.visible.clear=Clear Visible
