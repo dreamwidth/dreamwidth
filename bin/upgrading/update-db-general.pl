@@ -3917,9 +3917,10 @@ EOF
         }
     }
 
-    unless ( column_type( 'sitekeywords', 'keyword' ) =~ /BINARY/ ) {
+    unless ( check_dbnote( 'sitekeywords_binary' ) ) {
         do_alter( 'sitekeywords',
                   q{ALTER TABLE sitekeywords MODIFY keyword VARCHAR(255) BINARY NOT NULL} );
+        set_dbnote( "sitekeywords_binary", 1 )
     }
 
 });
