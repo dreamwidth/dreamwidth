@@ -54,10 +54,9 @@ dl dt { font-weight: bold; }
 
 a:hover { text-decoration: underline; }
 
-body { margin: 0;
-font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif; }
-    
-#canvas { }
+body {
+    margin: 0;
+    }
 
 /* header */
 

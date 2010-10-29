@@ -83,8 +83,9 @@ a { color: $*color_page_link; }
 a:visited { color: $*color_page_link_visited; }
 a:hover {text-decoration: none; }
 
-body { margin: 0;
-    font-family: $*font_base, Verdana, Helvetica, sans-serif; }
+body {
+    margin: 0;
+    }
 
 #canvas { background-color: $*color_page_background;
     padding: 1em 8%; }

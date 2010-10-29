@@ -215,10 +215,11 @@ ul { list-style: square; }
 a { text-decoration: underline; }
 a:hover { text-decoration: none; }
 
-body { margin: 0;
+body {
     border: none;
-    font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif; }
-   
+    margin: 0;
+    }
+
 #canvas { position: relative; 
     padding-top: 1px; /*margin collapse prevention*/
     float: left; width: 100%; /*asinine IE7 hack to keep left sidebar from sliding under #primary when #canvas is relative*/ }

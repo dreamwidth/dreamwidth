@@ -52,12 +52,12 @@ blockquote { border-left: 3px solid $*color_entry_border;
     padding-left: .5em; } 
 dl dt { font-weight: bold; }
 
-a {  }
 a:hover { text-decoration: none; }
 
-body { margin: 0;
+body {
     border: none;
-    font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif; }
+    margin: 0;
+    }
 
 H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
 
