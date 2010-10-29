@@ -38,7 +38,7 @@ my $default_content_types = {
     'png' => "image/png",
 };
 
-LJ::ModuleLoader->require_subclasses( "DW::Controller" )
+LJ::ModuleLoader->autouse_subclasses( "DW::Controller" )
     unless $DW::Routing::DONT_LOAD;  # for testing
 
 =head1 NAME
