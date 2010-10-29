@@ -47,7 +47,7 @@ body<=
     }
 
     my $u = LJ::load_user($user);
-    my $tminfo;
+    my $tminfo = {};
 
     if (!$u) {
         $ret .= "<?h1 $ML{'.error.unavailable.head'} h1?><?p ".
@@ -64,7 +64,7 @@ body<=
         return add_footer( $ret );
     }
 
-    unless ($tminfo) {
+    unless ( $tminfo->{provider} && $tminfo->{number} ) {
         $ret .= "<?h1 $ML{'.error.unavailable.head'} h1?><?p ".
             BML::ml('.error.unavailable.notsetup', { user => $user, sitenameshort => $LJ::SITENAMESHORT }) . " p?>";
         return add_footer( $ret );

@@ -1915,6 +1915,10 @@ sub can_be_text_messaged_by {
 
     return 0 unless $u->get_cap("textmessaging");
 
+    # check for valid configuration
+    my $tminfo = LJ::TextMessage->tm_info( $u );
+    return 0 unless $tminfo->{provider} && $tminfo->{number};
+
     my $security = LJ::TextMessage->tm_security($u);
 
     return 0 if $security eq "none";
@@ -2657,17 +2661,13 @@ sub opt_showonlinestatus {
 
 
 sub opt_whatemailshow {
-    my $u = shift;
-
-    my $user_email = $LJ::USER_EMAIL && $u->get_cap( 'useremail' ) ? 1 : 0;
+    my $u = $_[0];
+    my $user_email = $LJ::USER_EMAIL && $u->can_have_email_alias;
 
     # return prop value if it exists and is valid
     my $prop_val = $u->prop( 'opt_whatemailshow' );
-    if ( $user_email ) {
-        return $prop_val if $prop_val =~ /^[ALBNDV]$/;
-    } else {
-        return $prop_val if $prop_val =~ /^[AND]$/;
-    }
+    $prop_val =~ tr/BVL/ADN/ unless $user_email;
+    return $prop_val if $prop_val =~ /^[ALBNDV]$/;
 
     # otherwise, return the default: no email shown
     return 'N';
@@ -4320,34 +4320,32 @@ sub emails_visible {
     return () unless $u->share_contactinfo($remote);
 
     my $whatemail = $u->opt_whatemailshow;
-    my $useremail_cap = LJ::get_cap($u, 'useremail');
 
     # some classes of users we want to have their contact info hidden
     # after so much time of activity, to prevent people from bugging
     # them for their account or trying to brute force it.
     my $hide_contactinfo = sub {
-        my $hide_after = LJ::get_cap($u, "hide_email_after");
+        return 0 if $LJ::IS_DEV_SERVER;
+        my $hide_after = $u->get_cap( "hide_email_after" );
         return 0 unless $hide_after;
         my $active = $u->get_timeactive;
         return $active && (time() - $active) > $hide_after * 86400;
     };
 
-    return () if $whatemail eq "N" ||
-        $whatemail eq "L" && ($u->prop("no_mail_alias") || ! $useremail_cap || ! $LJ::USER_EMAIL) ||
-        $hide_contactinfo->();
+    return () if $whatemail eq "N" || $hide_contactinfo->();
 
     my @emails = ();
 
-    if ( $u->prop( 'opt_whatemailshow' ) eq "A" || $u->prop( 'opt_whatemailshow' ) eq "B" ) {
-        push @emails, $u->email_raw;
-    } elsif ( $u->prop( 'opt_whatemailshow' ) eq "D" || $u->prop( 'opt_whatemailshow' ) eq "V" ) {
-        push @emails, $u->prop( 'opt_profileemail' );
+    if ( $whatemail eq "A" || $whatemail eq "B" ) {
+        push @emails, $u->email_raw if $u->email_raw;
+    } elsif ( $whatemail eq "D" || $whatemail eq "V" ) {
+        my $profile_email = $u->prop( 'opt_profileemail' );
+        push @emails, $profile_email if $profile_email;
     }
 
-    if ($LJ::USER_EMAIL && $useremail_cap) {
-        if ($whatemail eq "B" || $whatemail eq "V" || $whatemail eq "L") {
-            push @emails, $u->user . "\@$LJ::USER_DOMAIN" unless $u->prop('no_mail_alias');
-        }
+    if ( $whatemail eq "B" || $whatemail eq "V" || $whatemail eq "L" ) {
+        push @emails, $u->user . "\@$LJ::USER_DOMAIN"
+            unless $u->prop( 'no_mail_alias' );
     }
     return wantarray ? @emails : $emails[0];
 }
