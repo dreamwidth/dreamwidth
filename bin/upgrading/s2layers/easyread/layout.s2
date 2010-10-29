@@ -396,6 +396,7 @@ q { font-style: italic;
 
 /* General page background */
 body {
+    margin: 0;
     font-family: $page_font;
     $page_colors
 }
@@ -707,10 +708,13 @@ ul.entry-interaction-links li, ul.entry-management-links li,  ul.comment-interac
        margin-left: 0;
 }
 
-.module-section-two, .module-section-one {
+.module-section-one {
+    padding-top: 1em;
+}
+
+.module-section-two {
     border-top: solid $*color_page_border 2px;
     padding-top: 1em;
-      
 }
 
 ul.module-list {
