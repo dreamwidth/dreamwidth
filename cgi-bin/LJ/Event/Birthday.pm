@@ -133,6 +133,7 @@ sub _as_email {
         $self->format_options($is_html, $lang, undef,
             {
                 'esn.post_happy_bday'   => [ 1, "$LJ::SITEROOT/update" ],
+                'esn.shop_for_gift'     => [ LJ::is_enabled( 'payments' ) ? 2 : 0, $self->bdayuser->gift_url ],
             },
             LJ::Hooks::run_hook('birthday_notif_extra_' . ($is_html ? 'html' : 'plaintext'), $u)
         );

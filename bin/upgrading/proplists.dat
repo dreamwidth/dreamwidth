@@ -566,6 +566,22 @@ userproplist.opt_allowsearchby:
   multihomed: 0
   prettyname: Allow Search By
 
+userproplist.opt_allowvgiftsfrom:
+  cldversion: 4
+  datatype: char
+  des: all/registered/circle/access/(trustmask)/none
+  indexed: 0
+  multihomed: 0
+  prettyname: Allow Virtual Gifts From
+
+userproplist.opt_anonvgift_optout:
+  cldversion: 4
+  datatype: bool
+  des: If true, user does not want to receive "anonymous" vgifts.
+  indexed: 0
+  multihomed: 0
+  prettyname: Opt Out Of Anonymous Virtual Gifts
+
 userproplist.opt_bdaymail:
   cldversion: 0
   datatype: bool

@@ -2006,6 +2006,48 @@ sub can_post_disabled {
     return $_[0]->get_cap( 'disable_can_post' ) ? 1 : 0;
 }
 
+sub can_receive_vgifts_from {
+    my ( $u, $remote, $is_anon ) = @_;
+    $remote ||= LJ::get_remote();
+    my $valid_remote = LJ::isu( $remote ) ? 1 : 0;
+
+    # check for shop status
+    return 0 unless exists $LJ::SHOP{vgifts};
+
+    # check for anonymous
+    return 0 if $is_anon && $u->prop( 'opt_anonvgift_optout' );
+
+    # if the prop isn't set, default to true
+    my $prop = $u->prop( 'opt_allowvgiftsfrom' );
+    return 1 unless $prop;
+
+    # all: always true; none: always false
+    return 1 if $prop eq 'all';
+    return 0 if $prop eq 'none';
+
+    # registered: must have $remote
+    return $valid_remote if $prop eq 'registered';
+    return 0 unless $valid_remote;  # shortcut: skip remaining tests
+
+    # access: anyone on trust/membership list
+    return $u->trusts_or_has_member( $remote ) if $prop eq 'access';
+
+    # remaining options not allowed for communities
+    return 0 if $u->is_community;
+
+    # circle: also includes watch list
+    return $u->watches( $remote ) || $u->trusts( $remote )
+        if $prop eq 'circle';
+
+    # only remaining valid option: trust group, which must be numeric.
+    # if it's not a valid value, assume false
+    return 0 unless $prop =~ /^\d+$/;
+
+    # check the trustmask
+    my $mask = 1 << $prop;
+    return ( $u->trustmask( $remote ) & $mask );
+}
+
 sub can_show_location {
     my $u = shift;
     croak "invalid user object passed" unless LJ::isu($u);
@@ -2302,6 +2344,12 @@ sub get_cap {
     my ( $u, $cname ) = @_;
     return 1 if $LJ::T_HAS_ALL_CAPS;
     return LJ::get_cap( $u, $cname );
+}
+
+# returns the gift shop URL to buy a gift for that user
+sub gift_url {
+    my ( $u ) = @_;
+    return "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user;
 }
 
 
@@ -6962,13 +7010,6 @@ sub show_mutualfriends {
     return $u->opt_showmutualfriends ? 1 : 0;
 }
 
-
-# FIXME: Needs updating for our gift shop
-# after that, it goes in section 7
-# returns the gift shop URL to buy a gift for that user
-sub gift_url {
-    return "$LJ::SITEROOT/shop/account?for=gift";
-}
 
 
 

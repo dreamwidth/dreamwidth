@@ -1805,6 +1805,8 @@ If you did not change your username, it means that your journal's security was c
 This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters.
 .
 
+esn.shop_for_gift=Buy a gift from our shop:
+
 esn.supofficialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
 
 esn.supofficialpost.nosubject=[[sitenameshort]] Announcement: New [[username]] announcement
@@ -2532,6 +2534,26 @@ setting.allowsearchby.sel.a=Allow everybody to search my journal
 setting.allowsearchby.sel.f=Allow people on my access list to search my journal (default)
 
 setting.allowsearchby.sel.n=Allow nobody else (only me) to search my journal
+
+setting.allowvgiftsfrom.anon=Allow sender to remain anonymous
+
+setting.allowvgiftsfrom.error=Invalid selection.
+
+setting.allowvgiftsfrom.label=Allow Virtual Gifts From
+
+setting.allowvgiftsfrom.sel.a=Anyone
+
+setting.allowvgiftsfrom.sel.c=Users in my circle
+
+setting.allowvgiftsfrom.sel.g=Users in the access group:
+
+setting.allowvgiftsfrom.sel.m=Community members
+
+setting.allowvgiftsfrom.sel.n=Nobody
+
+setting.allowvgiftsfrom.sel.r=Registered users
+
+setting.allowvgiftsfrom.sel.t=Trusted users
 
 setting.bio.desc|notes=There shouldn't be a description unless the page specifies one
 setting.bio.desc=_none
@@ -4507,8 +4529,6 @@ widget.feeds.viewall=view all
 widget.friendbirthdays.friends_link=View birthdays for everyone in your circle
 
 widget.friendbirthdays.gift=Gift
-
-widget.friendbirthdays.paidtime_link=Find out which friends need paid time
 
 widget.friendbirthdays.title=Birthdays
 

@@ -56,7 +56,7 @@ sub render_body {
         $ret .= "<tr>";
         $ret .= "<td>" . $u->ljuser_display . "</td>";
         $ret .= "<td>" . $class->ml('widget.friendbirthdays.userbirthday', {'month' => LJ::Lang::month_short($month), 'day' => $day}) . "</td>";
-        $ret .= "<td><a href='$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user . "' class='gift-link'>";
+        $ret .= "<td><a href='" . $u->gift_url . "' class='gift-link'>";
         $ret .= $class->ml('widget.friendbirthdays.gift') . "</a></td>";
         $ret .= "</tr>";
     }
@@ -66,9 +66,6 @@ sub render_body {
     $ret .= "<p class='indent_sm'>&raquo; <a href='$LJ::SITEROOT/birthdays'>" .
             $class->ml('widget.friendbirthdays.friends_link') .
             "</a></p>" if $opts{friends_link};
-    $ret .= "<p class='indent_sm'>&raquo; <a href='$LJ::SITEROOT/paidaccounts/friends.bml'>" .
-            $class->ml('widget.friendbirthdays.paidtime_link') .
-            "</a></p>" if $opts{paidtime_link};
 
     return $ret;
 }
