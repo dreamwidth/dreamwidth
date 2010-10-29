@@ -203,33 +203,8 @@ sub new_from_html {
 
     my $p = HTML::TokeParser->new($postref);
 
-    # if we're being called from mailgated, then we're not in web context and therefore
-    # do not have any BML::ml functionality.  detect this now and report errors in a
-    # plaintext, non-translated form to be bounced via email.
-
-    # FIXME: the above comment is obsolete, we now have LJ::Lang::ml
-    # which will do the right thing
-    my $have_bml = eval { LJ::Lang::ml() } || ! $@;
-
     my $err = sub {
-        # more than one element, either make a call to LJ::Lang::ml
-        # or build up a semi-useful error string from it
-        if (@_ > 1) {
-            if ($have_bml) {
-                $$error = LJ::Lang::ml(@_);
-                return 0;
-            }
-
-            $$error = shift() . ": ";
-            while (my ($k, $v) = each %{$_[0]}) {
-                $$error .= "$k=$v,";
-            }
-            chop $$error;
-            return 0;
-        }
-
-        # single element, either look up in %BML::ML or return verbatim
-        $$error = $have_bml ? LJ::Lang::ml($_[0]) : $_[0];
+        $$error = LJ::Lang::ml( @_ );
         return 0;
     };
 
@@ -544,8 +519,7 @@ sub save_to_db {
 
     # OBSOLETE METHOD?
 
-    my $self = shift;
-    my %opts = @_;
+    my ( $self, %opts ) = @_;
 
     my %createopts;
 
@@ -563,7 +537,7 @@ sub save_to_db {
 
 # loads poll from db
 sub _load {
-    my $self = shift;
+    my $self = $_[0];
 
     return $self if $self->{_loaded};
 
@@ -621,7 +595,7 @@ sub absorb_row {
 
 # Mark poll as closed
 sub close_poll {
-    my $self = shift;
+    my $self = $_[0];
 
     # Nothing to do if poll is already closed
     return if ($self->{status} eq 'X');
@@ -644,7 +618,7 @@ sub close_poll {
 
 # Mark poll as open
 sub open_poll {
-    my $self = shift;
+    my $self = $_[0];
 
     # Nothing to do if poll is already open
     return if ($self->{status} eq '');
@@ -668,42 +642,42 @@ sub open_poll {
 # ditemid
 *ditemid = \&itemid;
 sub itemid {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load;
     return $self->{ditemid};
 }
 sub name {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load;
     return $self->{name};
 }
 sub isanon {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load;
     return $self->{isanon};
 }
 sub whovote {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load;
     return $self->{whovote};
 }
 sub whoview {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load;
     return $self->{whoview};
 }
 sub journalid {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load;
     return $self->{journalid};
 }
 sub posterid {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load;
     return $self->{posterid};
 }
 sub poster {
-    my $self = shift;
+    my $self = $_[0];
     return LJ::load_userid($self->posterid);
 }
 
@@ -711,23 +685,23 @@ sub poster {
 sub pollid { $_[0]->{pollid} }
 
 sub url {
-    my $self = shift;
+    my $self = $_[0];
     return "$LJ::SITEROOT/poll/?id=" . $self->id;
 }
 
 sub entry {
-    my $self = shift;
+    my $self = $_[0];
     return LJ::Entry->new($self->journal, ditemid => $self->ditemid);
 }
 
 sub journal {
-    my $self = shift;
+    my $self = $_[0];
     return LJ::load_userid($self->journalid);
 }
 
 # return true if poll is closed
 sub is_closed {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load;
     my $status = $self->{status} || '';
     return $status eq 'X' ? 1 : 0;
@@ -744,21 +718,21 @@ sub is_owner {
 
 # poll requires unique answers (by email address)
 sub is_unique {
-    my $self = shift;
+    my $self = $_[0];
 
     return LJ::Hooks::run_hook("poll_unique_prop_is_enabled", $self->poster) && $self->prop("unique") ? 1 : 0;
 }
 
 # poll requires voters to be created on or before a certain date
 sub is_createdate_restricted {
-    my $self = shift;
+    my $self = $_[0];
 
     return LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $self->poster) && $self->prop("createdate") ? 1 : 0;
 }
 
 # do we have a valid poll?
 sub valid {
-    my $self = shift;
+    my $self = $_[0];
     return 0 unless $self->pollid;
     my $res = eval { $self->_load };
     warn "Error loading poll id: " . $self->pollid . ": $@\n"
@@ -789,7 +763,7 @@ sub get_time_user_submitted {
 # expects a fake poll object (doesn't have to have pollid) and
 # an arrayref of questions in the poll object
 sub preview {
-    my $self = shift;
+    my $self = $_[0];
 
     my $ret = '';
 
@@ -822,20 +796,17 @@ sub preview {
 }
 
 sub render_results {
-    my $self = shift;
-    my %opts = @_;
+    my ( $self, %opts ) = @_;
     return $self->render(mode => 'results', %opts);
 }
 
 sub render_enter {
-    my $self = shift;
-    my %opts = @_;
+    my ( $self, %opts ) = @_;
     return $self->render(mode => 'enter', %opts);
 }
 
 sub render_ans {
-    my $self = shift;
-    my %opts = @_;
+    my ( $self, %opts ) = @_;
     return $self->render(mode => 'ans', %opts);
 }
 
@@ -1258,7 +1229,7 @@ sub can_view {
 ########## Questions
 # returns list of LJ::Poll::Question objects associated with this poll
 sub questions {
-    my $self = shift;
+    my $self = $_[0];
 
     return @{$self->{questions}} if $self->{questions};
 
@@ -1291,8 +1262,6 @@ sub questions {
 ########## Props
 # get the typemap for pollprop2
 sub typemap {
-    my $self = shift;
-
     return LJ::Typemap->new(
         table       => 'pollproplist2',
         classfield  => 'name',
@@ -1345,7 +1314,7 @@ sub expand_entry {
     my ($class, $entryref) = @_;
 
     my $expand = sub {
-        my $pollid = (shift) + 0;
+        my $pollid = $_[0] + 0;
 
         return "[Error: no poll ID]" unless $pollid;
 
@@ -1359,9 +1328,7 @@ sub expand_entry {
 }
 
 sub process_submission {
-    my $class = shift;
-    my $form = shift;
-    my $error = shift;
+    my ( $class, $form, $error ) = @_;
     my $sth;
 
     my $error_code = 1;
@@ -1483,8 +1450,8 @@ sub process_submission {
 }
 
 sub dump_poll {
-    my $self = shift;
-    my $fh = shift || \*STDOUT;
+    my ( $self, $fh ) = @_;
+    $fh ||= \*STDOUT;
 
     my @tables = qw(poll2 pollquestion2 pollitem2 pollsubmission2 pollresult2);
     my $db = $self->journal;
