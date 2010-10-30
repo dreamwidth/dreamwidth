@@ -23,7 +23,7 @@ use DW::Routing;
 use DW::Template;
 use DW::Controller::Admin;
 
-DW::Routing->register_string( "/admin/themes/", \&index_controller );
+DW::Routing->register_string( "/admin/themes/index", \&index_controller );
 DW::Controller::Admin->register_admin_page( '/',
     path => 'themes/',
     ml_scope => '/admin/themes/index.tt',
