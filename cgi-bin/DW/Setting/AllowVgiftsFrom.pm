@@ -38,7 +38,7 @@ sub option {
     my $allowed = $class->get_arg( $args, "allowvgiftsfrom" )
                || $u->prop( 'opt_allowvgiftsfrom' ) || 'all';
     my $anonopt = $class->get_arg( $args, "anonvgift_optout" )
-               || $u->prop( 'opt_anonvgift_optout' ) || 0;
+               || ! $u->prop( 'opt_anonvgift_optout' );
 
     my %menu_items = (
         all         => [ qw( all a ) ],
@@ -79,7 +79,6 @@ sub option {
 
     $ret .= "<br />\n";
     # anonymous optout
-    $ret .= '&nbsp;';
     $ret .= LJ::html_check( { name => "${key}anonvgift_optout",
                               id   => "${key}anonvgift_optout",
                               label => $class->ml( 'setting.allowvgiftsfrom.anon' ),
@@ -105,7 +104,7 @@ sub save {
     my $anonopt = $class->get_arg( $args, "anonvgift_optout" );
 
     $u->set_prop( 'opt_allowvgiftsfrom' => $allowed ) if $allowed;
-    $u->set_prop( 'opt_anonvgift_optout' => $anonopt ? 1 : 0 );
+    $u->set_prop( 'opt_anonvgift_optout' => $anonopt ? 0 : 1 );
 
     return 1;
 }
