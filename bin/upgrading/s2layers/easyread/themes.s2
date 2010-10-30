@@ -29,7 +29,7 @@ set color_entry_background = "#fff";
 layerinfo type = "theme";
 layerinfo name = "Green";
 layerinfo redist_uniq = "easyread/green";
-layerinfo author_name = "Ricky Buchanan";
+layerinfo author_name = "rb";
 layerinfo author_email = "ricky@notdoneliving.net";
 
 ##===============================

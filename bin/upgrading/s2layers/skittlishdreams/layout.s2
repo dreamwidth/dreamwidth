@@ -5,7 +5,7 @@ layerinfo "redist_uniq" = "skittlishdreams/layout";
 layerinfo "author_name" = "Kaigou";
 layerinfo "lang" = "en";
 
-set layout_authors = [ { "name" => "kaigou", "type" => "user" } ];
+set layout_authors = [ { "name" => "Kaigou" } ];
 set layout_resources = [ { "name" => "Circular Icons", "url" => "http://prothemedesign.com/circular-icons/" } ];
 
 set entry_management_links = "text";
