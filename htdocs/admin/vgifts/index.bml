@@ -530,7 +530,9 @@
                 : DW::VirtualGift->list_queued();
         }
         foreach my $vg ( @vgifts ) {
-            next unless $vg && $vg->can_be_approved_by( $remote );
+            next unless $vg;
+            next unless $vg->is_approved && $siteadmin ||
+                        $vg->can_be_approved_by( $remote );
             $body .= $begin_reviewdiv_left->();
             $body .= $vg->display_basic;
             $body .= "<p>" . $vg->display_vieweditlinks . "</p>\n";
