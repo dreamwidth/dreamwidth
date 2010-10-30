@@ -208,7 +208,7 @@ sub _call_hash {
 # controller sub for register_static
 sub _static_helper {
     my $r = DW::Request->get;
-    return DW::Template->render_template( $_[0]->arg );
+    return DW::Template->render_template( $_[0]->args );
 }
 
 # INTERNAL METHOD: no POD
