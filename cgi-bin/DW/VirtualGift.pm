@@ -32,6 +32,7 @@ sub _memcache_stored_props { return ( '1', PROPLIST ) }  #
 # end MemCacheable methods ###############################
 
 use Digest::MD5 qw/ md5_hex /;
+use LJ::Constants;
 use LJ::Event::VgiftApproved;
 
 
@@ -262,8 +263,18 @@ sub tags {
             $self->_tagwipe;
             return wantarray ? () : [];
         }
-        my @valid_tags = LJ::validate_interest_list( @newtags );
-        my %invalid_tags = map { lc( $_ ) => 1 } @newtags;
+
+        # make sure the tags we've specified are valid
+        my @valid_tags;
+        foreach my $tag ( @newtags ) {
+            my ( $bytes, $chars ) = LJ::text_length( $tag );
+            next if $bytes > LJ::BMAX_SITEKEYWORD;
+            next if $chars > LJ::CMAX_SITEKEYWORD;
+            next if $tag =~ /[\<\>]/;
+            push @valid_tags, $tag;
+        }
+
+        my %invalid_tags = map { $_ => 1 } @newtags;
         delete @invalid_tags{@valid_tags};
 
         if ( %invalid_tags ) {
