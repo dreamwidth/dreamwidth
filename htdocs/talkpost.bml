@@ -232,7 +232,7 @@ body<=
 
     my $userpic;
     if ( $init->{replyto} ) {
-        $userpic = LJ::Userpic->new_from_keyword( $ur, $pickw );
+        $userpic = $parentcomment->userpic;
     } else {
         $userpic = $entry->userpic;
     }
