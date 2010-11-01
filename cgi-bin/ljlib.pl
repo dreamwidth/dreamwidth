@@ -232,7 +232,7 @@ my $GTop;     # GTop object (created if $LJ::LOG_GTOP is true)
 if ($SIG{'HUP'}) {
     my $oldsig = $SIG{'HUP'};
     $SIG{'HUP'} = sub {
-        &{$oldsig};
+        &{$oldsig} if ref $oldsig eq "CODE";
         LJ::clear_caches();
     };
 } else {
