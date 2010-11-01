@@ -1225,6 +1225,8 @@ error.malformeduser=Malformed username.
 
 error.mediauploadsdisabled=Media modifications are temporarily disabled at this time.  Some or all of the features on this page are currently down.
 
+error.memorial.text=This journal is a memorial account. You cannot log in, post new entries, or edit existing ones.
+
 error.message.canreceive=This message cannot be sent to [[ljuser]] because the recipient has enabled the privacy options for their messages.
 
 error.message.deleted=This message cannot be sent to [[ljuser]] because the journal has been marked for deletion.

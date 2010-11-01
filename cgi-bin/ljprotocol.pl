@@ -3191,6 +3191,7 @@ sub authenticate
 
     return fail( $err, 100 ) unless $u;
     return fail( $err, 100 ) if $u->is_expunged;
+    return fail( $err, 309 ) if $u->is_memorial;    # memorial users can't do anything
     return fail( $err, 505 ) unless $u->{clusterid};
 
     my $r = DW::Request->get;

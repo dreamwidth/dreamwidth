@@ -281,6 +281,7 @@ _c?>
                     unless $u;
             } else {
                 push @errors, [ purged_user => "$ML{'error.purged.text'}" ] if $u->is_expunged;
+                push @errors, [ memorial_user => $ML{'error.memorial.text'} ] if $u->is_memorial;
                 push @errors, [ community_disabled_login => "$ML{'error.nocommlogin'}" ]
                     if $u->is_community && ! LJ::is_enabled('community-logins');
             }
