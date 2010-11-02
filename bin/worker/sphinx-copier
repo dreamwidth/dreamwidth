@@ -112,6 +112,9 @@ sub work {
         );
         die $dbfrom->errstr if $dbfrom->err;
 
+        # just make sure, in case we don't have a corresponding logtext2 row
+        next unless $row;
+
         # we need extra security bits for some metadata.  we have to do this this way because
         # it makes it easier to later do searches on various combinations of things at the same
         # time...  also, even though these are bits, we're not going to ever use them as actual bits.
