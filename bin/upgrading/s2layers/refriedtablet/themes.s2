@@ -35,6 +35,63 @@ set color_comment_title_background = "#e97021";
 
 set color_module_border = "#c4c9cf";
 
+#NEWLAYER: refriedtablet/blackeyeii
+layerinfo type = "theme";
+layerinfo name = "Black Eye II";
+layerinfo redist_uniq = "refriedtablet/blackeyeii";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#6e368b";
+set color_page_link = "#6e368b";
+set color_page_link_active = "#8a5598";
+set color_page_link_hover = "#8a5598";
+set color_page_link_visited = "#6e368b";
+set color_page_text = "#b8aae5";
+set color_page_title = "#8a5598";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#6e368b";
+set color_footer_link_active = "#8a5598";
+set color_footer_link_hover = "#8a5598";
+set color_footer_link_visited = "#6e368b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_entry_border = "#6e368b";
+set color_entry_interaction_links = "#6e368b";
+set color_entry_link = "#6e368b";
+set color_entry_link_active = "#8a5598";
+set color_entry_link_hover = "#8a5598";
+set color_entry_link_visited = "#6e368b";
+set color_entry_text = "#b8aae5";
+set color_entry_title = "#b8aae5";
+set color_entry_title_background = "#000";
+set color_comment_title_background = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#000";
+set color_module_border = "#6e368b";
+set color_module_link = "#6e368b";
+set color_module_link_active = "#8a5598";
+set color_module_link_hover = "#8a5598";
+set color_module_link_visited = "#6e368b";
+set color_module_text = "#b8aae5";
+set color_module_title = "#b8aae5";
+set color_module_title_background = "#000";
+
 
 #NEWLAYER: refriedtablet/bluetuesday
 layerinfo type = "theme";
