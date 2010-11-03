@@ -19,7 +19,7 @@ use Carp qw(croak);
 use TheSchwartz;
 
 use LJ::ModuleLoader;
-LJ::ModuleLoader->autouse_subclasses('LJ::EventLogRecord');
+LJ::ModuleLoader->require_subclasses( 'LJ::EventLogRecord' );
 
 sub schwartz_capabilities {
     return (

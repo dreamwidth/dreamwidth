@@ -17,7 +17,7 @@ use Carp qw(croak);
 use LJ::Customize;
 use LJ::ModuleLoader;
 
-LJ::ModuleLoader->autouse_subclasses("LJ::S2Theme");
+LJ::ModuleLoader->require_subclasses( "LJ::S2Theme" );
 
 sub init {
     1;

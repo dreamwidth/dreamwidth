@@ -22,7 +22,7 @@ DW::StatData - Abstract superclass for statistics modules
     use DW::StatStore;  # to retrieve stored statistics from the database
     use DW::StatData;   # to serve as an API for gathering the data
     # load all the available DW::StatData::* submodules
-    LJ::ModuleLoader::autouse_subclasses( 'DW::StatData' );
+    LJ::ModuleLoader::require_subclasses( 'DW::StatData' );
 
     # get the latest set of pony statistics
     my $ponies = DW::StatData::Ponies->load_latest( DW::StatStore->get( "ponies" ) );

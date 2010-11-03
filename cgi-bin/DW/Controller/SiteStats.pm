@@ -36,7 +36,7 @@ use DW::StatStore;
 use DW::StatData;
 use DW::Controller::Admin;
 
-LJ::ModuleLoader::autouse_subclasses( 'DW::StatData' );
+LJ::ModuleLoader::require_subclasses( 'DW::StatData' );
 
 DW::Routing->register_string( '/stats/site', \&stats_page, app => 1,
                               args => [ 'stats/site.tt', \&public_data, 1 ] );

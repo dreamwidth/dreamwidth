@@ -17,9 +17,9 @@ use warnings;
 use Carp qw(croak);
 use LJ::ModuleLoader;
 
-# Autouse all settings
-LJ::ModuleLoader->autouse_subclasses( "LJ::Setting" );
-LJ::ModuleLoader->autouse_subclasses( "DW::Setting" );
+# require all settings
+LJ::ModuleLoader->require_subclasses( "LJ::Setting" );
+LJ::ModuleLoader->require_subclasses( "DW::Setting" );
 
 # ----------------------------------------------------------------------------
 

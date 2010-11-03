@@ -19,7 +19,7 @@ use Carp qw(croak);
 use DW::Captcha;
 
 use LJ::ModuleLoader;
-LJ::ModuleLoader->autouse_subclasses('LJ::Widget::SubmitRequest');
+LJ::ModuleLoader->require_subclasses( 'LJ::Widget::SubmitRequest' );
 
 sub need_res { }
 

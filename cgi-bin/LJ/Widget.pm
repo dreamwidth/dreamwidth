@@ -19,8 +19,8 @@ use LJ::ModuleLoader;
 use LJ::Auth;
 
 # FIXME: don't really need all widgets now
-LJ::ModuleLoader->autouse_subclasses("LJ::Widget");
-LJ::ModuleLoader->autouse_subclasses("DW::Widget");
+LJ::ModuleLoader->require_subclasses( "LJ::Widget" );
+LJ::ModuleLoader->require_subclasses( "DW::Widget" );
 
 our $currentId = 1;
 

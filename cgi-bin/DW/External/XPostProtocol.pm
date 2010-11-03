@@ -17,7 +17,7 @@ package DW::External::XPostProtocol;
 use strict;
 use warnings;
 use LJ::ModuleLoader;
-LJ::ModuleLoader->autouse_subclasses("DW::External::XPostProtocol");
+LJ::ModuleLoader->require_subclasses( "DW::External::XPostProtocol" );
 
 my %protocols;
 eval { $protocols{"lj"} = DW::External::XPostProtocol::LJXMLRPC->new; };
