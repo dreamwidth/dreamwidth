@@ -25,9 +25,11 @@ set comment_management_links = "text";
 ## Fonts
 ##===============================
 
-set font_journal_title = "Palatino";
-set font_entry_title = "Palatino";
-set font_module_heading = "Palatino";
+set font_journal_title = "Palatino, serif";
+set font_journal_subtitle = "Palatino, serif";
+set font_entry_title = "Palatino, serif";
+set font_comment_title = "Palatino, serif";
+set font_module_heading = "Palatino, serif";
 
 ##===============================
 ## Images
@@ -368,8 +370,13 @@ ul ul ul ul, .module-content ul ul ul ul {
     }
 
 h1, h2, h3, h4, .comment-title {
-    font-family: $*font_journal_title, serif;
     font-style: italic;
+    }
+
+.tags-container h2,
+.page-archive h3,
+.page-day h3.day-date {
+    font-family: $*font_journal_title;
     }
 
 h2, h3, h4 {
@@ -417,7 +424,6 @@ a:hover {
     }
 
 body {
-    font-family: $*font_base, Verdana, Helvetica, sans-serif;
     margin: 0;
     }
 
