@@ -87,7 +87,6 @@ use LJ::Support;
 use LJ::CleanHTML;
 use LJ::Talk;
 require "ljfeed.pl";
-require "emailcheck.pl";
 require "ljmemories.pl";
 require "ljmail.pl";
 require "sysban.pl";

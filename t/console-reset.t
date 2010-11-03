@@ -3,7 +3,6 @@ use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require "emailcheck.pl";
 use LJ::Console;
 use LJ::Test qw (temp_user);
 local $LJ::T_NO_COMMAND_PRINT = 1;
@@ -57,24 +56,25 @@ $u->revoke_priv("reset_password");
 
 # ------ EMAIL ALIASES ----------
 my $user = $u2->user;
+my $alias = $u2->site_email_alias;
 
 is($run->("email_alias show $user"),
    "error: You are not authorized to run this command.");
 $u->grant_priv("reset_email");
 
 is($run->("email_alias show $user"),
-   "error: $user\@$LJ::USER_DOMAIN is not currently defined.");
+   "error: $alias is not currently defined.");
 
 is($run->("email_alias set $user testing\@example.com"),
-   "success: Successfully set $user\@$LJ::USER_DOMAIN => testing\@example.com");
+   "success: Successfully set $alias => testing\@example.com");
 
 is($run->("email_alias show $user"),
-   "success: $user\@$LJ::USER_DOMAIN aliases to testing\@example.com");
+   "success: $alias aliases to testing\@example.com");
 
 is($run->("email_alias delete $user"),
-   "success: Successfully deleted $user\@$LJ::USER_DOMAIN alias.");
+   "success: Successfully deleted $alias alias.");
 
 is($run->("email_alias show $user"),
-   "error: $user\@$LJ::USER_DOMAIN is not currently defined.");
+   "error: $alias is not currently defined.");
 
 $u->revoke_priv("reset_email");

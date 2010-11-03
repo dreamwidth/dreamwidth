@@ -523,7 +523,7 @@ sub moveUser {
 
             $dbh->do("DELETE FROM domains WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM email_aliases WHERE alias = ?",
-                     undef, "$u->{user}\@$LJ::USER_DOMAIN");
+                     undef, $u->site_email_alias );
             $dbh->do("DELETE FROM userinterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM comminterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM syndicated WHERE userid = ?", undef, $u->id);

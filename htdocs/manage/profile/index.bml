@@ -331,7 +331,7 @@ body<=
             $ret .= "<tr class='field_block'><td class='field_name'>";
             $ret .= BML::ml( '.fn.email.site', { siteabbrev => $LJ::SITENAMEABBREV } );
             $ret .= "</td><td class='" . $zebra_row1->() . "' style='vertical-align: middle'>\n";
-            $ret .= $u->username . "\@$LJ::USER_DOMAIN";
+            $ret .= $u->site_email_alias;
             $ret .= "</td><td class='selectvis" . $zebra_row2->() . "'>";
             # this is where we get BVL back
             my $checked = ( $u->opt_whatemailshow =~ /[BVL]/ ) ? 'Y' : 'N';
