@@ -93,7 +93,7 @@ body<=
     my $logtagstr = join ', ', map { LJ::ejs($_) } sort values %$logtags;
 
     $ret .= "<?p $ML{'.intro'} p?>";
-    if ( $ent->prop( 'xpost' ) ) {
+    if ( $ent->prop( 'xpost' ) && $remote->can_post_to( $u ) ) {
         $ret .= "<?p " . BML::ml( 'xpost.notrespected', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=othersites'" } );
         $ret .= " " . BML::ml( '.xpost.notrespected.editentry', { aopts => "href='$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$ditemid'" } );
         $ret .= " p?><br />";
