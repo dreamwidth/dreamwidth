@@ -459,9 +459,11 @@ sub new {
 
     # package name for the theme
     my $theme_class = $self->{uniq};
-    $theme_class =~ s/-/_/g;
-    $theme_class =~ s/\//::/;
-    $theme_class = "LJ::S2Theme::$theme_class";
+    if ( $theme_class ) {
+        $theme_class =~ s/-/_/g;
+        $theme_class =~ s/\//::/;
+        $theme_class = "LJ::S2Theme::$theme_class";
+    }
 
     # package name for the layout
     my $layout_class = $self->{uniq} || $self->{layout_uniq};
@@ -470,7 +472,7 @@ sub new {
     $layout_class = "LJ::S2Theme::$layout_class";
 
     # make this theme an object of the lowest level class that's defined
-    if (eval { $theme_class->init }) {
+    if ( $theme_class && eval { $theme_class->init } ) {
         bless $self, $theme_class;
     } elsif (eval { $layout_class->init }) {
         bless $self, $layout_class;
@@ -511,7 +513,7 @@ sub layout_name {
 }
 
 sub uniq {
-    return $_[0]->{uniq};
+    return $_[0]->{uniq} || "";
 }
 
 sub layout_uniq {
