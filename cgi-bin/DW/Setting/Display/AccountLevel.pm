@@ -34,13 +34,14 @@ sub actionlink {
 
     my $paidstatus = DW::Pay::get_paid_status( $u );
 
+    my $gifturl = $u->gift_url;
     if ( $paidstatus && $paidstatus->{permanent} ) {
         return "";
     } elsif ( $paidstatus && DW::Pay::get_account_type( $u->userid ) eq "premium" ) {
          # tell premium paid users to just add more time, not upgrade
-         return "<a href='$LJ::SITEROOT/shop/?for=gift&user=" . $u->user . "'>" . $class->ml( 'setting.display.accounttype.addmore' ) . "</a>";
+         return "<a href='$gifturl'>" . $class->ml( 'setting.display.accounttype.addmore' ) . "</a>";
     } else {
-        return "<a href='$LJ::SITEROOT/shop/?for=gift&user=" . $u->user . "'>" . $class->ml( 'setting.display.accounttype.upgrade' ) . "</a>";
+        return "<a href='$gifturl'>" . $class->ml( 'setting.display.accounttype.upgrade' ) . "</a>";
     }
 }
 
