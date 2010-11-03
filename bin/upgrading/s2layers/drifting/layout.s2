@@ -304,6 +304,9 @@ function Page::print_default_stylesheet()
         .comment-userpic {
             margin-right: 0px;
             }
+        .datetime-container {
+            margin-top: -10px;
+            }
         """;
     }
 
@@ -660,7 +663,6 @@ function Page::print_default_stylesheet()
     }
 
     .datetime-container {
-        margin-top: -10px;
         margin-bottom: 10px;
     }
 
