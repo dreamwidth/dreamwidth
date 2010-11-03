@@ -402,10 +402,14 @@ content: "";
 
 /* SIDEBARS AND MODULES */
 
+.module {
+    border-width: 2px;
+    border-top: none;
+    }
+
 /* make headers pretty */
 div h2.module-header {
-    border-top: 1px $*color_module_border solid;
-    border-bottom: 2px $*color_module_border solid;
+    border-bottom: 2px solid $*color_module_border;
     padding: 0em 1em 0.25em 1em;
     margin-bottom: 1em;
     margin: 0em;
@@ -414,10 +418,13 @@ div h2.module-header {
     text-transform: lowercase;
 }
 
-/* get rid of padding so that the header borders go all the way to the sides, add border around the columns */
+.one-column .module:first-child h2.module-header {
+    border-top: 2px solid $*color_module_border;
+    }
+
+/* get rid of padding so that the header borders go all the way to the sides */
 #secondary {
     padding: 0em;
-    border: thin $*color_module_border solid;
 }
 
 /* make sidebars hit the bottom of the header */
@@ -431,19 +438,9 @@ div h2.module-header {
     padding-top: 0em;
 }
 
-/* avoid triple borders on the top of the top module */
-#secondary .module:first-child h2.module-header {
-    border-top: 0px $*color_module_border solid;
-}
-
-/* but keep the line on the top of a one column implementation */
-.one-column #secondary .module:first-child h2 {
-    border-top: 1px $*color_module_border solid;
-}
-
 /* add padding to module content because whitespace is good! But we don't need so much on ul and table. */
 .module-content {
-    margin: 1em;
+    padding: 1em;
 }
 
 .module-content ul, .module-content table {
@@ -457,10 +454,13 @@ div h2.module-header {
     list-style-position: inside;
 }
 
-/* special case for the navlinks module, add line because it has no h2 */
-.module-navlinks {
-    border-top: 1px $*color_module_border solid;
-}
+/* Special case for modules without headers */
+
+.one-column .module-navlinks.module:first-child,
+.one-column .module-time.module:first-child,
+.one-column .module-powered.module:first-child {
+    border-top: 2px solid $*color_module_border;
+    }
 
 /* special case for the syndicate tags, too close to top */
 .module-syndicate .module-content {
@@ -511,6 +511,19 @@ div h2.module-header {
     width:90%;
 }
 
+#tertiary > .inner:first-child {
+    padding: 0;
+    }
+
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child {
+    margin-right: .5em;
+    }
+
+.three-columns-right #tertiary > .inner:first-child,
+.three-columns-left #tertiary > .inner:first-child {
+    margin-left: .5em;
+    }
 
 /* COMMENTS */
 
