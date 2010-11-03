@@ -38,8 +38,7 @@ sub option {
 sub save {
     my ( $class, $u, $args ) = @_;
  
-    my $txt = $class->get_arg( $args, "reason" );
-    $txt = LJ::trim( $txt || "" );
+    my $txt = $class->get_arg( $args, "reason" ) || '';
     $txt = LJ::text_trim( $txt, 0, 255 );
     $u->set_prop( "adult_content_reason", $txt );
     return 1;

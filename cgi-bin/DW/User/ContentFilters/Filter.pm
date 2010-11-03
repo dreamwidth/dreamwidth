@@ -358,7 +358,7 @@ sub _getset {
     # FIXME: we should probably have generic vetters somewhere... or something, I don't know,
     # I just know that I don't really like doing this here
     if ( $which eq 'name' ) {
-        $val = LJ::trim( LJ::text_trim( $val, 255, 100 ) ) || '';
+        $val = LJ::text_trim( $val, 255, 100 ) || '';
     } elsif ( $which eq 'public' ) {
         $val = $val ? 1 : 0;
     } elsif ( $which eq 'sortorder' ) {

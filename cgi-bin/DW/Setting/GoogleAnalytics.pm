@@ -53,8 +53,7 @@ sub option {
 sub save {
     my ( $class, $u, $args ) = @_;
 
-    my $txt = $class->get_arg( $args, "code" );
-    $txt = LJ::trim( $txt || "" );
+    my $txt = $class->get_arg( $args, "code" ) || '';
     $txt = LJ::text_trim( $txt, 0, 100 );
     # Check that the ID matches the format UA-number-number
     # or is blank before proceeding.

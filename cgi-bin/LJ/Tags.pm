@@ -643,11 +643,9 @@ sub is_valid_tagstring {
     };
     my $canonical_tag = sub {
         my $tag = shift;
-        $tag = LJ::trim($tag);
         $tag =~ s/\s+/ /g; # condense multiple spaces to a single space
         $tag = LJ::text_trim($tag, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD);
         $tag = LJ::utf8_lc( $tag );
-        $tag = LJ::trim( $tag ); # after trucating, there may be a trailing space
         return $tag;
     };
 

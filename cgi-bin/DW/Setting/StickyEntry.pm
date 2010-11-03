@@ -48,8 +48,7 @@ sub option {
 sub save {
     my ( $class, $u, $args ) = @_;
 
-    my $sticky = $class->get_arg( $args, "stickyid" );
-    $sticky = LJ::trim( $sticky || "" );
+    my $sticky = $class->get_arg( $args, "stickyid" ) || '';
     $sticky = LJ::text_trim( $sticky, 0, 100 );
     unless ( $u->sticky_entry ( $sticky ) ) {
         $class->errors( "stickyid" => $class->ml( 'setting.stickyentry.error.invalid' ) ) ;

@@ -431,11 +431,12 @@ sub text_length
 sub text_trim
 {
     my ($text, $byte_max, $char_max) = @_;
+    $text = defined $text ? LJ::trim( $text ) : '';
     return $text unless $byte_max or $char_max;
     if (!$LJ::UNICODE) {
         $byte_max = $char_max if $char_max and $char_max < $byte_max;
         $byte_max = $char_max unless $byte_max;
-        return substr($text, 0, $byte_max);
+        return LJ::trim( substr( $text, 0, $byte_max ) );
     }
     my $cur = 0;
     my $utf_char = "([\x00-\x7f]|[\xc0-\xdf].|[\xe0-\xef]..|[\xf0-\xf7]...)";
@@ -451,7 +452,7 @@ sub text_trim
         $cur += length($1);
         $char_max--;
     }
-    return substr($text,0,$cur);
+    return LJ::trim( substr( $text, 0, $cur ) );
 }
 
 # <LJFUNC>

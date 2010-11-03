@@ -240,10 +240,10 @@ sub _del_wt_edge {
 
 # returns the valid version of a group name
 sub valid_group_name {
-    my $name = shift;
+    my $name = $_[0];
 
     # strip off trailing slash(es)
-    $name =~ s!/+$!!;
+    $name =~ s!/+\s*$!!;
 
     # conform to maxes
     $name = LJ::text_trim( $name, LJ::BMAX_GRPNAME2, LJ::CMAX_GRPNAME2 );

@@ -109,7 +109,7 @@ sub create_content_filter {
     # filters you can create...
 
     # check if a filter with this name already exists, if so return its id, so the user can edit or remove it
-    my $name = LJ::trim( LJ::text_trim( delete $args{name}, 255, 100 ) ) || '';
+    my $name = LJ::text_trim( delete $args{name}, 255, 100 ) || '';
     return $u->content_filters( name => $name )->id
         if $u->content_filters( name => $name );
 
