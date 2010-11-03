@@ -202,7 +202,7 @@ sub type {
 sub opts {
     my $self = shift;
     $self->_load;
-    return $self->{opts};
+    return $self->{opts} || '';
 }
 *text = \&qtext;
 sub qtext {

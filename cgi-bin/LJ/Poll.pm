@@ -1402,8 +1402,10 @@ sub process_submission {
             if (length($val) > 0) { # if the user answered to this question
                 my @num_opts = split( /,/, $val );
                 my $num_opts = scalar @num_opts;  # returns the number of options they answered
-                
+
                 my ($checkmin, $checkmax) = split(m!/!, $q->opts);
+                $checkmin ||= 0;
+                $checkmax ||= 255;
             
                 if($num_opts < $checkmin) {
                     $$error = LJ::Lang::ml('poll.error.checkfewoptions', {'question' => $qid, 'options' => $checkmin});
