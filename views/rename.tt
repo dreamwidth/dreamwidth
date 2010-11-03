@@ -104,6 +104,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <label for="username_for_rename">[% '.checkusername.label' | ml %]: <input id="username_for_rename" name="checkuser" value="[% checkusername.user | html %]" />
             <input type="submit" value="[% '.checkusername.submit' | ml %]" />
         </form>
+
+        <hr />
+
+        <a href="[%dw.site|url%]/rename/swap">Swap usernames with a journal under your control</a>
+        <p class='note'>You will require two tokens</p>
     [% END %]
 
     <hr />

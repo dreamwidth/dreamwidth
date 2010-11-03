@@ -2485,11 +2485,15 @@ rename.error.reserved="[[to]]" is a reserved username.
 
 rename.error.unauthorized=[[to]] is not under your control.
 
+rename.error.unauthorized.forcomm=The community [[comm]] must have no members, and must be under your control.
+
 rename.error.unknown=Cannot rename to "[[to]]".
 
 rename.error.tokenapplied=This token has already been used.
 
 rename.error.tokeninvalid=The provided token is not a valid token.
+
+rename.error.tokentoofew=Too few tokens; you need two to perform a swap.
 
 rename.ex.toomanytries=We had some trouble trying to move aside the account you are trying to rename to ([[tousername]]). Please try again.
 

@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 137;
+plan tests => 152;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -385,6 +385,7 @@ note( "-- community-to-unregistered" );
 {
     my $admin = temp_user();
     my $fromu = temp_comm();
+    my $oldusername = $fromu->username;
     my $tousername = $fromu->username . "_renameto";
 
     ok( ! $admin->can_manage( $fromu ), "User cannot manage community fromu." );
@@ -405,36 +406,13 @@ note( "-- community-to-unregistered" );
     ok( ! $admin->is_validated && ! $fromu->can_rename_to( $tousername . "_rename", user => $admin ), "Admin no longer validated; can no longer rename" );
 
     ok( ! $fromu->can_rename_to( $tousername ), "Cannot rename community without providing a user doing the renaming" );
-}
 
-note( "-- community-to-community" );
-TODO: {
-    local $TODO = "community to community";
-    my $admin = temp_user();
-    my $fromu = temp_comm();
-    my $tou = temp_comm();
-    my $tousername = $tou->user;
+    my $member = temp_user();
+    $member->join_community( $fromu );
+    ok( ! $fromu->can_rename_to( $oldusername, user => $admin ), "Cannot rename a community with members" );
 
-    ok( ! $admin->can_manage( $fromu ), "User cannot manage community fromu" );
-    ok( ! $admin->can_manage( $tou ), "User cannot manage community tou" );
-    ok( ! $fromu->can_rename_to( $tousername, user => $admin ), $admin->user . " cannot rename community fromu to existing community $tousername (because: not admin)" );
-
-    # make admin of fromu
-    LJ::set_rel( $fromu, $admin, "A" );
-    delete $LJ::REQ_CACHE_REL{$fromu->userid."-".$admin->userid."-A"};
-    ok( $admin->can_manage( $fromu ), "User can manage community fromu" );
-    ok( ! $admin->can_manage( $tou ), "User cannot manage community tou" );
-
-    ok( ! $fromu->can_rename_to( $tousername, user => $admin ), $admin->user . " cannot rename community fromu to existing community $tousername (because: not admin of tou)" );
-
-    # make admin of tou
-    LJ::set_rel( $tou, $admin, "A" );
-    delete $LJ::REQ_CACHE_REL{$tou->userid."-".$admin->userid."-A"};
-    ok( $admin->can_manage( $fromu ), "User can manage community fromu" );
-    ok( $admin->can_manage( $tou ), "User can manage community tou" );
-
-    ok( $fromu->can_rename_to( $tousername, user => $admin ), $admin->user . " can rename community fromu to existing community $tousername (is admin of both)" );
-    ok( $fromu->rename( $tousername, token => new_token( $admin ), user => $admin ), $admin->user . " renamed community fromu to existing community $tousername" );
+    $member->leave_community( $fromu );
+    ok( $fromu->can_rename_to( $oldusername, user => $admin ), "Can rename community again, no members." );
 }
 
 note( "-- community-to-personal" );
@@ -460,9 +438,10 @@ note( "-- community-to-personal" );
 }
 
 note( "-- personal-to-community" );
-TODO: {
-    local $TODO = "personal to community";
+{
     my $fromu = temp_user();
+    LJ::update_user( $fromu, { status => 'A' } );
+
     my $tou = temp_comm();
     my $tousername = $tou->user;
 
@@ -470,23 +449,15 @@ TODO: {
     LJ::set_rel( $tou, $fromu, "A" );
     delete $LJ::REQ_CACHE_REL{$tou->userid."-".$fromu->userid."-A"};
 
-    ok( $fromu->can_rename_to( $tousername ), "Can rename to a community under your own control." );
-    ok( $fromu->rename( $tousername, token => new_token( $fromu ) ), "Renamed personal journal fromu to existing community $tousername" );
-}
+    my $member = temp_user();
+    $member->join_community( $tou );
+    ok( ! $fromu->can_rename_to( $tousername, user => $fromu, verbose => 1 ), "Cannot rename a community with members" );
 
-TODO: {
-    local $TODO = "community with multiple admins";
-    my $admin1 = temp_user();
-    my $admin2 = temp_user();
-    my $tou = temp_comm();
-    my $tousername = $tou->user;
-
-    # make admins of tou
-    LJ::set_rel_multi( [ $tou, $admin1, "A" ], [ $tou, $admin2, "A"] );
-    delete $LJ::REQ_CACHE_REL{$tou->userid."-".$admin1->userid."-A"};
-    delete $LJ::REQ_CACHE_REL{$tou->userid."-".$admin2->userid."-A"};
-
-    ok( ! $admin1->can_rename_to( $tousername ), "Cannot rename to a community under your own control if there are multiple admins." );
+    $member->leave_community( $tou );
+    ok( $fromu->can_rename_to( $tousername ),
+        "Can rename to a community under your own control if it has no members.");
+    ok( $fromu->rename( $tousername, token => new_token( $fromu ) ),
+        "Renamed personal journal fromu to existing community." );
 }
 
 note( "-- openid and feeds" );
@@ -500,7 +471,165 @@ note( "-- openid and feeds" );
     ok( ! $u->can_rename_to( $u->user . "_rename" ), "Cannot rename feed accounts" );
 }
 
-TODO: {
-    local $TODO = "two username swap";
+note( "-- two username swap (personal to personal)" );
+{
+    my ( $u1, $u2 ) = $create_users->( match => 1, validated => 1 );
+
+    my $u1id = $u1->userid;
+    my $u2id = $u2->userid;
+    my $u1sername = $u1->user;
+    my $u2sername = $u2->user;
+
+    ok( $u1sername ne $u2sername, "Not the same username" );
+
+    my $token = new_token( $u1 );
+    ok( ! $u1->swap_usernames(
+        $u2,
+        tokens => [ $token, $token ]
+     ), "Can't swap, token is the same" );
+
+
+    ok( $u1->swap_usernames(
+        $u2,
+        tokens => [ new_token( $u1 ), new_token( $u1 ) ]
+     ), "Swap usernames" );
+
+    $u1 = LJ::load_userid( $u1->userid );
+    $u2 = LJ::load_userid( $u2->userid );
+
+    is( $u1->user, $u2sername, "Swap usernames of u1 and u2" );
+    is( $u2->user, $u1sername, "Swap usernames of u2 and u1" );
+
+    is( $u1->userid, $u1id, "Id of u1 remains the same after rename." );
+    is( $u2->userid, $u2id, "Id of u2 remains the same after rename." );    
 }
 
+note( "-- two username swap (one user is suspended)" );
+{
+    my ( $u1, $u2 ) = $create_users->( match => 1, validated => 1 );
+    $u2->set_statusvis( "S" );
+
+    my $u1id = $u1->userid;
+    my $u2id = $u2->userid;
+    my $u1sername = $u1->user;
+    my $u2sername = $u2->user;
+
+    ok( $u1sername ne $u2sername, "Not the same username" );
+
+    ok( ! $u1->swap_usernames(
+        $u2,
+        tokens => [ new_token( $u1 ), new_token( $u1 ) ]
+     ), "Cannot swap usernames." );
+
+    $u1 = LJ::load_userid( $u1->userid );
+    $u2 = LJ::load_userid( $u2->userid );
+
+    is( $u1->user, $u1sername, "No swap" );
+    is( $u2->user, $u2sername, "No swap" );
+}
+
+note( "-- two username swap personal <=> community " );
+{
+    my $u = temp_user();
+    LJ::update_user( $u, { status => 'A' } );
+
+    my $comm = temp_comm();
+    my $uname = $u->user;
+    my $commname = $comm->user;
+
+    ok( ! $u->swap_usernames(
+        $comm,
+        tokens => [ new_token( $u ), new_token( $u ) ]
+     ), "Cannot swap personal and community usernames (not an admin)" );
+
+    # make admin of u
+    LJ::set_rel( $comm, $u, "A" );
+    delete $LJ::REQ_CACHE_REL{$comm->userid."-".$u->userid."-A"};
+
+    ok( $u->swap_usernames(
+        $comm,
+        tokens => [ new_token( $u ), new_token( $u ) ],
+     ), "Swap personal and community usernames" );
+
+    is( $u->user, $commname, "Swap usernames u => comm" );
+    is( $comm->user, $uname, "Swap usernames comm => u" );
+}
+
+note( "-- two username swap personal <=> community (with malice)" );
+{
+    my ( $u, $u2 ) = $create_users->( validate => 1 );
+
+    my $comm = temp_comm();
+    my $uname = $u->user;
+    my $commname = $comm->user;
+
+    # make admin of u
+    LJ::set_rel( $comm, $u, "A" );
+    delete $LJ::REQ_CACHE_REL{$comm->userid."-".$u->userid."-A"};
+
+    LJ::set_rel( $comm, $u2, "A" );
+    delete $LJ::REQ_CACHE_REL{$comm->userid."-".$u2->userid."-A"};
+
+    ok( ! $u->swap_usernames(
+        $u2,
+        tokens => [ new_token( $u ), new_token( $u ) ],
+     ), "Swap usernames with someone not under your control" );
+
+    ok ( ! $comm->swap_usernames(
+        $u2,
+        user => $u,
+        tokens => [ new_token( $u ), new_token( $u )],
+    ), "Swapping the username of a co-admin");
+}
+
+note( "-- two username swap community <=> personal" );
+{
+    my $u = temp_user();
+    LJ::update_user( $u, { status => 'A' } );
+
+    my $comm = temp_comm();
+    my $uname = $u->user;
+    my $commname = $comm->user;
+
+    ok( ! $comm->swap_usernames(
+        $u,
+        tokens => [ new_token( $u ), new_token( $u ) ]
+     ), "Cannot swap personal and community usernames (not an admin)" );
+
+    # make admin of u
+    LJ::set_rel( $comm, $u, "A" );
+    delete $LJ::REQ_CACHE_REL{$comm->userid."-".$u->userid."-A"};
+
+    ok( ! $comm->swap_usernames(
+        $u,
+        tokens => [ new_token( $u ), new_token( $u ) ]
+     ), "Cannot swap community and personal when acting on the community" );
+}
+
+note( "-- two username swap (community and community)" );
+{
+    my $admin = temp_user();
+    LJ::update_user( $admin, { status => 'A' } );
+
+    my $c1 = temp_comm();
+    my $c2 = temp_comm();
+
+    LJ::set_rel( $c1, $admin, "A" );
+    delete $LJ::REQ_CACHE_REL{$c1->userid."-".$admin->userid."-A"};
+    LJ::set_rel( $c2, $admin, "A" );
+    delete $LJ::REQ_CACHE_REL{$c2->userid."-".$admin->userid."-A"};
+
+    my $c1sername = $c1->user;
+    my $c2sername = $c2->user;
+
+    ok( $c1sername ne $c2sername, "Not the same username" );
+
+    ok( $c1->swap_usernames(
+        $c2,
+        user => $admin,
+        tokens => [ new_token( $admin ), new_token( $admin ) ],
+     ), "Swap community usernames" );
+
+    is( $c1->user, $c2sername, "Swap usernames of c1 and c2" );
+    is( $c2->user, $c1sername, "Swap usernames of c2 and c1" );
+}

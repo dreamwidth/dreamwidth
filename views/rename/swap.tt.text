@@ -1,0 +1,17 @@
+.error.header=Unable to perform username swap. Please correct the following and try again:
+
+.error.invalidswapjournal=Invalid username was provided to swap with.
+
+.error.nojournal=No journal selected to swap usernames.
+
+.form.journal=Select Journal
+
+.form.swapjournal=Swap With
+
+.intro=You may swap the usernames of two personal journals, or of your journal and a community under your control. None of your settings will change. This will use two of your rename tokens.
+
+.numtokens.toofew=You do not have enough tokens to do a swap. You can <a [[aopts]]>purchase rename tokens</a> in the shop.
+
+.success=Successfully swapped [[journal]] and [[swapjournal]].
+
+.title=Swap Journal Usernames

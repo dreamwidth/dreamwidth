@@ -114,8 +114,8 @@ sub can_rename_to {
         # expunged users can always be renamed to
         return { ret => 1 } if $tou->is_expunged;
 
-        # communities cannot be renamed to
-        if ( ! $tou->is_personal ) {
+        # only personal journals and communities can be renamed
+        if ( ! ( $tou->is_personal || $tou->is_community ) ) {
             push @$errref, LJ::Lang::ml( 'rename.error.invalidjournaltypeto' );
             return { ret => 0 };
         }
@@ -135,13 +135,20 @@ sub can_rename_to {
         # person-to-person
         return 1 if DW::User::Rename::_are_same_person( $self, $tou );
 
+        # person-to-community (only under restricted circumstances for the community)
+        return 1 if DW::User::Rename::_is_authorized_for_comm( $self, $tou );
+
         push @$errref, LJ::Lang::ml( 'rename.error.unauthorized', { to => $tou->ljuser_display } );
         return 0;
     } elsif ( $self->is_community && LJ::isu( $opts{user} ) ) {
         my $admin = $opts{user};
 
-        # user must be able to control (be an admin of) community
-        return 0 unless $admin->can_manage_other( $self );
+        # make sure that the community journal is under the admin's control
+        # and satisfies all other conditions that ensure we don't leave members hanging
+        unless ( DW::User::Rename::_is_authorized_for_comm( $admin, $self ) ) {
+            push @$errref, LJ::Lang::ml( 'rename.error.unauthorized.forcomm', { comm => $self->ljuser_display } );
+            return 0;
+        }
 
         my $tou = LJ::load_user( $tousername );
 
@@ -151,7 +158,12 @@ sub can_rename_to {
 
         # community-to-person
         # able to rename to another personal journal under admin's control
-        return 1 if DW::User::Rename::_are_same_person( $admin, $tou );
+        return 1 if $tou->is_person && DW::User::Rename::_are_same_person( $admin, $tou );
+
+        # community-to-community
+        # we checked early on that the admin is authorized to rename this community
+        # so we don't need to check again here
+        return 1 if $tou->is_community;
     }
 
     # be strict in what we accept
@@ -198,12 +210,55 @@ sub rename {
 
 =head2 C<< $self->swap_usernames( $touser [, %opts ] ) >>
 
-Swap the usernames of these two users. Currently unimplemented.
+Swap the usernames of these two users.
 
 =cut
 
 sub swap_usernames {
-    my ( $self, $touser, %opts ) = @_;
+    my ( $u1, $u2, %opts ) = @_;
+
+    my $errref = $opts{errref} || [];
+
+    my $admin = LJ::isu( $opts{user} ) ? $opts{user} : $u1;
+    my @tokens = @{ $opts{tokens} || [] };
+
+    foreach my $token ( @tokens ) {
+        push @$errref, LJ::Lang::ml( 'rename.error.tokeninvalid' )
+            unless $token && $token->isa( "DW::RenameToken" )
+                && $token->ownerid == $admin->userid;
+
+        push @$errref, LJ::Lang::ml( 'rename.error.tokenapplied' )
+            if $token->applied;
+    }
+
+    if ( scalar @tokens >= 2 ) {
+        push @$errref, LJ::Lang::ml( 'rename.error.tokeninvalid' )
+            if ( $tokens[0]->token eq $tokens[1]->token );
+    } else {
+        push @$errref, LJ::Lang::ml( 'rename.error.tokentoofew' );
+    }
+
+    my %admin_opts = $u2->is_community ? ( user => $admin ) : ();
+
+    my $can_rename = $u1->can_rename_to( $u2->username, %opts, %admin_opts )
+        && $u2->can_rename_to( $u1->username, %opts, %admin_opts );
+    return 0 if @$errref || ! $can_rename;
+
+    my $u1name = $u1->user;
+    my $u2name = $u2->user;
+
+    my $did_rename = 1;
+    $did_rename &&= DW::User::Rename::_rename_to_ex( $u2, errref => $opts{errref} );
+    return 0 unless $did_rename;
+
+    # ugh, but need it to avoid duplicate timestamps in infohistory
+    sleep( 1 );
+
+    $did_rename &&= DW::User::Rename::_rename( $u1, $u2name, %opts, %admin_opts, token => $tokens[0] );
+    return 0 unless $did_rename;
+
+    $did_rename &&= DW::User::Rename::_rename( $u2, $u1name, %opts, %admin_opts, token => $tokens[1] );
+    return $did_rename;
 }
 
 =head2 C<< $self->_clear_from_cache >>
@@ -242,6 +297,26 @@ sub _are_same_person {
     return 0 unless lc( $p1->email_raw ) eq lc( $p2->email_raw );
     return 0 unless $p1->password eq $p2->password;
     return 0 unless $p1->is_validated || $p2->is_validated;
+
+    return 1;
+}
+
+=head2 C<< $self->_is_authorized_for_comm >>
+
+Internal function to determine whether an account can control / manage another account
+
+=cut
+
+sub _is_authorized_for_comm {
+    my ( $admin, $journal ) = @_;
+
+    return 0 unless $admin->is_person && $journal->is_community;
+    return 0 unless $admin->can_manage_other( $journal );
+
+    # community must have no users, to avoid confusion
+    my @member_userids = $journal->member_userids;
+    return 0 if scalar @member_userids > 1;
+    return 0 if scalar @member_userids == 1 && $member_userids[0] != $admin->userid;
 
     return 1;
 }

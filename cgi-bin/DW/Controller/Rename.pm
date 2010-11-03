@@ -26,6 +26,8 @@ use DW::Controller::Admin;
 use DW::RenameToken;
 use DW::Shop;
 
+DW::Routing->register_string( "/rename/swap", \&swap_handler, app => 1 );
+
 # be lax in accepting what goes in the URL in case of typos or mis-copy/paste
 # we validate the token inside and return an appropriate message (instead of 404)
 # ideally, should be: /rename, or /rename/(20 character token)
@@ -169,6 +171,74 @@ sub handle_post {
     $journal->rename( $tousername, user => LJ::get_remote(), token => $token, redirect => $redirect_journal, redirect_email => $other_opts{email}, %del_rel, errref => $errref );
 
     return ( 1, success_ml( "/rename.tt.success", { from => $fromusername, to => $journal->user } ) ) unless @$errref;
+
+    # return the list of errors, because we want to print out other things as well...
+    return ( 0, $errref );
+}
+
+
+sub swap_handler {
+    my $r = DW::Request->get;
+
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
+
+    my $remote = $rv->{remote};
+    return error_ml( 'rename.error.invalidaccounttype' ) unless $remote->is_personal;
+
+    my $vars = {};
+
+    my $post_args = DW::Request->get->post_args || {};
+
+    my @unused_tokens = @{DW::RenameToken->by_owner_unused( userid => $remote->userid ) || []};
+    $vars->{numtokens} = scalar @unused_tokens;
+
+    if ( $r->method eq "POST" ) {
+        # this is kind of ugly. Basically, it's a rendered template if it's a success, and a list of errors if it failed
+        my ( $post_ok, $rv ) = handle_swap_post( $post_args, tokens => \@unused_tokens, user => $remote );
+        return $rv if $post_ok;
+
+        $vars->{error_list} = $rv;
+    }
+
+    my $authas =  LJ::make_authas_select( $remote,
+        {   selectonly => 1,
+            authas => $post_args->{authas},
+        } );
+
+    $vars->{form} = {
+        authas => $authas,
+    };
+
+    return DW::Template->render_template( 'rename/swap.tt', $vars );
+}
+
+sub handle_swap_post {
+    my ( $post_args, %opts ) = @_;
+
+    my @errors = ();
+    push @errors, LJ::Lang::ml( '/rename.tt.error.invalidform' ) unless LJ::check_form_auth( $post_args->{lj_form_auth} );
+
+    my $journal = LJ::get_authas_user( $post_args->{authas} );
+    push @errors, LJ::Lang::ml( '/rename/swap.tt.error.nojournal' ) unless $journal;
+
+    my $swapjournal = LJ::load_user( $post_args->{swapjournal} );
+    push @errors, LJ::Lang::ml( '/rename/swap.tt.error.invalidswapjournal' ) unless $swapjournal;
+
+    return ( 0, \@errors ) if @errors;
+
+
+    ( $journal, $swapjournal ) = ( $swapjournal, $journal )
+        if $journal->is_community && $swapjournal->is_personal;
+
+    # let's do this
+    my $errref = [];
+    $journal->swap_usernames( $swapjournal, user => $opts{user}, tokens => $opts{tokens}, errref => $errref );
+
+    return ( 1, success_ml( "/rename/swap.tt.success", {
+            journal => $journal->ljuser_display,
+            swapjournal => $swapjournal->ljuser_display,
+    } ) ) unless @$errref;
 
     # return the list of errors, because we want to print out other things as well...
     return ( 0, $errref );
