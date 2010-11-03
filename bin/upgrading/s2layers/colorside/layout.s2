@@ -19,11 +19,11 @@ set color_page_details_text = "#999";
 ## Fonts
 ##===============================
 
-set font_journal_title = "'Century Gothic', Verdana, sans-serif;";
-set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif;";
-set font_entry_title = "'Century Gothic', Verdana, sans-serif;";
-set font_comment_title = "'Century Gothic', Verdana, sans-serif;";
-set font_module_heading = "'Century Gothic', Verdana, sans-serif;";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
 
 ##===============================
 ## Stylesheet
