@@ -15,6 +15,20 @@ propgroup colors_child {
 
 set color_page_details_text = "#999";
 
+##===============================
+## Fonts
+##===============================
+
+set font_journal_title = "'Century Gothic', Verdana, sans-serif;";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif;";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif;";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif;";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif;";
+
+##===============================
+## Stylesheet
+##===============================
+
 function print_stylesheet() {
     var string canvas_colors = generate_color_css( new Color, $*color_page_background, new Color );
 
@@ -65,8 +79,9 @@ function print_stylesheet() {
 blockquote { font-style: italic; }
 dl dt { font-weight: bold; }
 
-h1, h2, h3 {font-family: "Century Gothic", Verdana, sans-serif;
-    font-weight: normal;}
+h1, h2, h3 {
+    font-weight: normal;
+    }
 
 a { text-decoration: none; }
 
@@ -74,7 +89,7 @@ a:hover { text-decoration: underline; }
 
 body { border: none;
     background-color: $*color_page_border;
-    font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif; }
+    }
 
 #canvas { 
     margin-left: 4%; 
@@ -92,9 +107,6 @@ width: 96% !important; }
 
 #header { padding: 1px 250px 1em 0;
     margin-bottom: 1em; }
-
-#header h1,
-#header h2 { font-family: $*font_journal_title; }
 
 #title { font-size: x-large; }
 #subtitle { font-size: large; }
@@ -136,7 +148,6 @@ width: 96% !important; }
 .entry .entry-title a, 
 .entry .entry-title a:visited { $entry_title_link_colors }
 .entry .entry-title { margin: 5px; padding: .15em 0; }
-.entry .entry-title h3 { font-family: $*font_entry_title; }
 
 .entry .restrictions  { display: block; 
     font-size: small;
@@ -208,8 +219,6 @@ ul.entry-interaction-links { text-align: right;
 .partial .comment-poster:before {
    content: "- ";
    }
-
-.comment-title h4 { font-family: $*font_entry_title; }
 
 .comment .poster { display: block; }
 .partial .poster { display: inline; }
@@ -342,8 +351,6 @@ text-align: center; }
     .three-columns-right #tertiary .module-header a:visited,
     .three-columns-sides #tertiary .module-header a,
     .three-columns-sides #tertiary .module-header a:visited { $module_header_link_colors }
-
-.module-header h2 { font-family: $*font_module_heading; }
 
 .module-userprofile { text-align: center; }
 
