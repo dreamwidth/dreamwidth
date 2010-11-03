@@ -791,21 +791,21 @@ sub plural_form {
 
 # English, Danish, German, Norwegian, Swedish, Estonian, Finnish, Greek, Hebrew, Italian, Portugese, Spanish, Esperanto
 sub plural_form_en {
-    my ($count) = shift;
+    my $count = $_[0] || 0;
     return 0 if $count == 1;
     return 1;
 }
 
 # French, Brazilian Portuguese
 sub plural_form_fr {
-    my ($count) = shift;
+    my $count = $_[0] || 0;
     return 1 if $count > 1;
     return 0;
 }
 
 # Croatian, Czech, Russian, Slovak, Ukrainian, Belarusian
 sub plural_form_ru {
-    my ($count) = shift;
+    my $count = $_[0] || 0;
     return 0 if ($count%10 == 1 and $count%100 != 11);
     return 1 if ($count%10 >= 2 and $count%10 <= 4 and ($count%100 < 10 or $count%100>=20));
     return 2;
@@ -813,7 +813,7 @@ sub plural_form_ru {
 
 # Polish
 sub plural_form_pl {
-    my ($count) = shift;
+    my $count = $_[0] || 0;
     return 0 if($count == 1);
     return 1 if($count%10 >= 2 && $count%10 <= 4 && ($count%100 < 10 || $count%100 >= 20));
     return 2;
@@ -821,7 +821,7 @@ sub plural_form_pl {
 
 # Lithuanian
 sub plural_form_lt {
-    my ($count) = shift;
+    my $count = $_[0] || 0;
     return 0 if($count%10 == 1 && $count%100 != 11);
     return 1 if ($count%10 >= 2 && ($count%100 < 10 || $count%100 >= 20));
     return 2;
@@ -834,7 +834,7 @@ sub plural_form_singular {
 
 # Latvian
 sub plural_form_lv {
-    my ($count) = shift;
+    my $count = $_[0] || 0;
     return 0 if($count%10 == 1 && $count%100 != 11);
     return 1 if($count != 0);
     return 2;
@@ -842,7 +842,7 @@ sub plural_form_lv {
 
 # Icelandic
 sub plural_form_is {
-    my ($count) = shift;
+    my $count = $_[0] || 0;
     return 0 if ($count%10 == 1 and $count%100 != 11);
     return 1;
 }
