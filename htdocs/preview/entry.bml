@@ -26,7 +26,7 @@ _c?>
     if ($POST{'usejournal'}) {
         $u = LJ::load_user($POST{'usejournal'});
         $up = $POST{'user'} ? LJ::load_user($POST{'user'}) : $remote;
-    } elsif ($POST{'user'}) {
+    } elsif ($POST{'user'} && $GET{altlogin}) {
         $u = LJ::load_user($POST{'user'});
     } else {
         $u = $remote;
