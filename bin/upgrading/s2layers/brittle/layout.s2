@@ -93,6 +93,9 @@ propgroup fonts {
     property use font_entry_title;
     property use font_entry_title_size;
     property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
 
     property string font_navigation_module_text {
         des = "Preferred font for navigation module text";
@@ -296,6 +299,7 @@ function Page::print_default_stylesheet() {
     var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
     var string entry_font = generate_font_css($*font_entry_text, $*font_base, $*font_fallback, $*font_entry_text_size, $*font_entry_text_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
     var string navigation_module_font = generate_font_css($*font_navigation_module_text, $*font_base, $*font_fallback, $*font_navigation_module_text_size, $*font_navigation_module_text_units);
     var string other_module_font = generate_font_css($*font_other_module_text, $*font_base, $*font_fallback, $*font_other_module_text_size, $*font_other_module_text_units);
@@ -671,14 +675,20 @@ td.day {
 
 /*--- comments ---*/
 
+#comments {
+    $entry_font
+    }
+
+.comment-title {
+    $comment_title_font
+    }
+
 .comment-title h4 {
     font-size: inherit;
     font-weight: inherit;
     margin: 0;
     padding: 0;
 }
-
-#comments { $entry_font }
 
 hr.above-entry-interaction-links, hr.below-reply-container { display: none; }
 

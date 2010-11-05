@@ -29,11 +29,12 @@ set text_post_comment_friends = "Reply";
 
 set font_base = "Verdana, Helvetica";
 set font_fallback = "sans-serif";
-set font_module_text = "Verdana, Helvetica, sans-serif";
-set font_module_heading = "Century Gothic, Verdana, sans-serif";
 set font_journal_title = "Century Gothic, Verdana, sans-serif";
 set font_journal_subtitle = "Century Gothic, Verdana, sans-serif";
 set font_entry_title = "Century Gothic, Verdana, sans-serif";
+set font_comment_title = "Century Gothic, Verdana, sans-serif";
+set font_module_heading = "Century Gothic, Verdana, sans-serif";
+set font_module_text = "Verdana, Helvetica, sans-serif";
 
 ##===============================
 ## Navigation Module
@@ -216,11 +217,17 @@ blockquote { padding: 1em 1em .5em 2em;
 blockquote > p:first-child { margin-top: 0; }
 dl dt { font-weight: bold; }
 
-h1, h2, h3, h4,
-.comment-title { font-family: $*font_journal_title;
+h1, h2, h3, h4, .comment-title {
     font-weight: normal;
     padding-left: .25em;
-    padding-right: .25em; }
+    padding-right: .25em;
+    }
+
+.tags-container h2,
+.page-archive h3,
+.page-day h3.day-date {
+    font-family: $*font_journal_title;
+    }
 
 .entry-title a,
 .comment-title a { text-decoration: none; }

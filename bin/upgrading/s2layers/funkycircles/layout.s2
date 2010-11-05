@@ -102,6 +102,8 @@ set font_journal_subtitle_size = "1.5";
 set font_journal_subtitle_units = "em";
 set font_entry_title_size = "1.2";
 set font_entry_title_units ="em";
+set font_comment_title_size = "1.2";
+set font_comment_title_units ="em";
 set font_module_heading_size = "1.2";
 set font_module_heading_units = "em";
 
@@ -425,8 +427,12 @@ h2#pagetitle {
     .header a:hover { $page_link_hover_colors }
 
     .entry-title,
-    .comment-title,
-    .page-tags h2 {
+    .comment-title {
+        text-transform: uppercase;
+        }
+
+    .page-tags h2,
+    .page-archive h3 {
         $entry_title_font
         text-transform: uppercase;
         }

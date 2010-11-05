@@ -36,6 +36,9 @@ set font_entry_title = "Franklin Gothic Book, Arial Narrow, Arial";
 set font_entry_title_size = "1.1";
 set font_entry_title_units = "em";
 
+set font_comment_title_size = "1.1";
+set font_comment_title_units = "em";
+
 set font_module_heading = "Franklin Gothic Book, Arial Narrow, Arial";
 set font_module_heading_size = "1.1";
 set font_module_heading_units = "em";
@@ -392,7 +395,6 @@ hr.above-entry-interaction-links, hr.below-reply-container {
 
 .comment-title, .comment-title a {
     color: $*color_entry_title;
-    font-size: $*font_entry_title_size;
     font-weight: bold;
     text-transform: uppercase;
     }

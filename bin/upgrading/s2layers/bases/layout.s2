@@ -108,6 +108,9 @@ propgroup fonts {
     property use font_entry_title;
     property use font_entry_title_size;
     property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
     property use font_module_heading;
     property use font_module_heading_size;
     property use font_module_heading_units;
@@ -140,6 +143,9 @@ set font_module_heading_units = "em";
 set font_entry_title  = "Arial";
 set font_entry_title_size  = "1.25";
 set font_entry_title_units = "em";
+
+set font_comment_title_size  = "1.5";
+set font_comment_title_units = "em";
 
 ##===============================
 ## Display settings - images
@@ -304,12 +310,10 @@ elseif ($*layout_type == "two-columns-right") { $sidebar_position = "right"; $si
 var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
 var string page_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
 var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
-
+var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
 var string module_text_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
 var string module_heading_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
-
-var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
-
 var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, 
     $*image_background_page_position, $*color_page_background);
 var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, 
@@ -762,7 +766,13 @@ li.first-item {margin-left: 0;}
 #comments { border-top: 0.083em solid $*color_entry_border; padding-top: 0.5em;}
 
 .comment { border: 0.083em solid $*color_entry_border; margin: 0 1em 0 1em; }
-.comment-title {font-size: normal 1.5em; padding: 0.5em; }
+
+.comment-title {
+    $comment_title_font
+    font-weight: normal;
+    padding: 0.5em;
+    }
+
 .comment-title a {display: block; }
 
 .comment-title h4 {

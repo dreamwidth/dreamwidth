@@ -136,6 +136,9 @@ propgroup fonts {
     property use font_entry_title;
     property use font_entry_title_size;
     property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
     property use font_module_heading;
     property use font_module_heading_units;
     property use font_module_heading_size;
@@ -148,10 +151,8 @@ set font_base = "Georgia";
 set font_fallback = "serif";
 set font_base_size = "1";
 set font_base_units = "em";
-set font_module_heading = "";
 set font_module_heading_size = "1.1";
 set font_module_heading_units = "em";
-set font_entry_title = "";
 set font_entry_title_size = "1.1";
 set font_entry_title_units = "em";
 
@@ -299,6 +300,7 @@ function Page::print_default_stylesheet()
     }
     var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
@@ -464,6 +466,10 @@ function Page::print_default_stylesheet()
     .comment-wrapper.partial , .partial .comment { 
         min-height: 0;
     }
+
+    .comment-title {
+        $comment_title_font
+        }
 
     .comment-title h4 {
         font-size: inherit;

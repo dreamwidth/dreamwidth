@@ -143,6 +143,9 @@ propgroup fonts
     property use font_entry_title;
     property use font_entry_title_size;
     property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
     property use font_module_heading;
     property use font_module_heading_size;
     property use font_module_heading_units;
@@ -277,6 +280,7 @@ function Page::print_default_stylesheet()
     var string page_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_title_fallback, $*font_journal_title_size, $*font_journal_title_units);
     var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_title_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
@@ -744,6 +748,10 @@ function Page::print_default_stylesheet()
     .comment-thread .separator-after {
         border-bottom: 1px solid $*color_entry_border;
     }
+
+    .comment-title {
+        $comment_title_font
+        }
 
     .comment-title h4 {
         font-size: inherit;

@@ -169,6 +169,9 @@ propgroup fonts {
     property use font_entry_title;
     property use font_entry_title_size;
     property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
     property use font_module_heading_size;
     property use font_module_heading;
     property use font_module_heading_units;
@@ -389,9 +392,9 @@ function Page::print_default_stylesheet () {
     var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units );
     var string journal_title_font = generate_font_css($*font_journal_title, $*font_base, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
-    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
-    
+    var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
 
     var string page_background = generate_background_css( $*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background );
 
@@ -593,6 +596,10 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 
 .page-entry .entry, .page-entry .comment, .page-entry .text_noentries_day {border:0px;}
 .page-entry #comments {padding-top:20px;}
+
+.comment-title {
+    $comment_title_font
+    }
 
 .comment-title h4 {
     font-size: inherit;

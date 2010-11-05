@@ -583,6 +583,9 @@ ul.entry-interaction-links li {
 
 .comment .comment-title, .comment .comment-title a {
     $comment_title_colors
+}
+
+.comment .comment-title {
     $comment_title_font
 }
 

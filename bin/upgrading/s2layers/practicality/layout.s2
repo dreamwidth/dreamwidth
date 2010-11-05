@@ -34,6 +34,9 @@ set font_entry_title = "Lucida Sans";
 set font_entry_title_size = "1.37";
 set font_entry_title_units = "em";
 
+set font_comment_title_size = "1.2";
+set font_comment_title_units = "em";
+
 set font_module_heading = "Lucida Sans";
 set font_module_heading_size = "1.37";
 set font_module_heading_units = "em";
@@ -121,7 +124,7 @@ function Page::print() {
 function print_stylesheet () {
 
     var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
-
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
     var string userpic_css = "";
         if ($*userpics_position == "left") {
@@ -283,9 +286,9 @@ h2#subtitle {
 /*--- Journal Navigation ---*/
 
 .navigation {
+    $entry_title_font
     background: $*color_entry_background;
     border-bottom: 5px solid $*color_entry_border;
-    font-family: $*font_entry_title, $*font_fallback;
     font-size: 1.2em;
     font-variant: small-caps;
     margin: 0 0 15px 0;
@@ -429,7 +432,8 @@ div.entry-content {
     }
 
 div.entry div.header {
-    font-family: $*font_entry_title, $*font_fallback;
+    $entry_title_font
+    font-size: 1em;
     padding: 0;
     }
 
@@ -625,10 +629,9 @@ td.day {
     }
 
 .page-tags h2 {
+    $entry_title_font
     border-bottom: 1px solid $*color_entry_border;
     color: $*color_entry_title;
-    font-family: $*font_entry_title, $*font_fallback;
-    font-size: $*font_entry_title_size$*font_entry_title_units;
     font-variant: small-caps;
     font-weight: normal;
     margin: 0 0 .5em 0;
@@ -652,7 +655,6 @@ hr.above-entry-interaction-links, hr.below-reply-container {
 
 .comment-title, .comment-title a {
     color: $*color_entry_title;
-    font-size: 1.2em; 
     font-variant: small-caps;
     }
 
