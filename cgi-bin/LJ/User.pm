@@ -54,6 +54,7 @@ use IO::Socket::INET;
 use Time::Local;
 use LJ::BetaFeatures;
 use LJ::S2Theme;
+use LJ::Customize;
 
 ########################################################################
 ### Please keep these categorized and alphabetized for ease of use.
@@ -203,6 +204,7 @@ sub create_community {
     $u->set_prop("nonmember_posting", $opts{nonmember_posting}+0);
     $u->set_prop("moderated", $opts{moderated}+0);
     $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled( 'adult_content' );
+    $u->set_default_style;
 
     if ( my $remote = LJ::get_remote() ) {
         LJ::set_rel($u, $remote, "A");  # maintainer
@@ -227,7 +229,7 @@ sub create_personal {
     $u->set_next_birthday;
 
     # Set the default style
-    LJ::Hooks::run_hook('set_default_style', $u);
+    $u->set_default_style;
 
     if ( $opts{inviter} ) {
         # store inviter, if there was one
@@ -5271,6 +5273,9 @@ sub load_identity_user {
 
     $u = LJ::load_userid($uid);
 
+    # set default style
+    $u->set_default_style;
+
     # record create information
     my $remote = LJ::get_remote();
     $u->log_event('account_create', { remote => $remote });
@@ -5718,6 +5723,12 @@ sub opt_embedplaceholders {
     }
 }
 
+sub set_default_style {
+    my $style = eval { LJ::Customize->verify_and_load_style( $_[0] ); };
+    warn $@ if $@;
+
+    return $style;
+}
 
 sub show_control_strip {
     my $u = shift;
