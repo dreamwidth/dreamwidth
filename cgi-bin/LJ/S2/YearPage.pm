@@ -38,16 +38,22 @@ sub YearPage
 
     my $count = LJ::S2::get_journal_day_counts($p);
     my @years = sort { $a <=> $b } keys %$count;
-    my $maxyear = @years ? $years[-1] : undef;
     my $year = $get->{'year'};  # old form was /users/<user>/calendar?year=1999
 
     # but the new form is purtier:  */archive/2001
     if (! $year && $opts->{'pathextra'} =~ m!^/(\d\d\d\d)/?\b!) {
         $year = $1;
-    }
+    } else {
+        my $curyear = $u->time_now->year;
+        foreach (@years) {
+            $year = $_
+                if $_ <= $curyear;
+        }
 
-    # else... default to the year they last posted.
-    $year ||= $maxyear;  
+        # all entries are in the future, so fall back to the earliest year
+        $year = $years[0]
+            unless $year;
+    }
 
     $p->{'year'} = $year;
     $p->{'years'} = [];

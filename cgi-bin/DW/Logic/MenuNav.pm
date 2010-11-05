@@ -178,7 +178,7 @@ sub get_menu_navigation {
                     display => $loggedin_hasnetwork,
                 },
                 {
-                    url => $u ? $u->archive_current_month : "",
+                    url => $u ? $u->journal_base . "/archive" : "",
                     text => "menunav.read.archive",
                     display => $loggedin_hasjournal,
                 },
