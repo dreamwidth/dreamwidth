@@ -18,7 +18,7 @@ use warnings;
 
 use constant PROPLIST => qw/ vgiftid name created_t creatorid active
                              approved approved_by approved_why
-                             custom featured description cost num_sold
+                             custom featured description cost
                              mime_small mime_large /;
 # NOTE: remember to update &validate if you add new props
 
@@ -88,9 +88,8 @@ sub create {
         # translate Perl nulls into MySQL nulls
         $vg{$_} = undef if exists $vg{$_} && $vg{$_} eq '';
     }
-    # don't allow created_t or num_sold to be overridden
+    # don't allow created_t to be overridden
     $vg{created_t} = time;
-    $vg{num_sold} = 0;
 
     # enforce active/approved defaults for new gifts
     if ( $vg{custom} && $vg{custom} eq 'Y' ) {
@@ -201,8 +200,8 @@ sub edit {
         # translate Perl nulls into MySQL nulls
         $vg{$_} = undef if exists $vg{$_} && $vg{$_} eq '';
     }
-    # don't allow created_t, vgiftid or num_sold to be overridden
-    delete @vg{qw( created_t vgiftid num_sold )};
+    # don't allow created_t or vgiftid to be overridden
+    delete @vg{qw( created_t vgiftid )};
 
     $vg{creatorid} = LJ::want_userid( $vg{creatorid} )
         if defined $vg{creatorid};
@@ -237,25 +236,6 @@ sub edit {
 
 sub mark_active   { $_[0]->edit( active => 'Y' ) }
 sub mark_inactive { $_[0]->edit( active => 'N' ) }
-
-sub mark_sold {
-    # this blindly increments, so not using the edit method
-    my ( $self ) = @_;
-    return undef unless $self->id;
-    my $key = 'num_sold';
-
-    my $dbh = LJ::get_db_writer();
-    $dbh->do( "UPDATE vgift_ids SET $key=$key+1 WHERE vgiftid=?",
-              undef, $self->id );
-    die $dbh->errstr if $dbh->err;
-
-    # update objects in memory
-    $self->{$key}++;
-    $self->_remove_from_memcache;  # LJ::MemCacheable
-    $self->_expire_relevant_keys( $key );
-
-    return $self;
-}
 
 sub tags {
     # taglist is a comma separated string of tagnames.
@@ -484,7 +464,6 @@ sub cost { return $_[0]->_access( 'cost' )           ||  0  }
 sub active { return $_[0]->_access( 'active' )       || 'N' }
 sub custom { return $_[0]->_access( 'custom' )       || 'N' }
 sub featured { return $_[0]->_access( 'featured' )   || 'N' }
-sub num_sold { return $_[0]->_access( 'num_sold' )   ||  0  }
 sub creatorid { return $_[0]->_access( 'creatorid' ) ||  0  }
 sub created_t { return $_[0]->_access( 'created_t' ) }
 
@@ -622,8 +601,7 @@ sub can_be_edited_by {
 sub can_be_deleted_by {
     my $self = shift;
 
-    # if the vgift has been purchased, don't allow
-    return 0 if $self->num_sold;
+    # FIXME: if the vgift has been purchased, don't allow
 
     # otherwise, same privileges as for edits
     return $self->can_be_edited_by( @_ );
@@ -796,7 +774,6 @@ sub validate {
     return $self->_valid_int( $val, $err, $key )  if $key eq 'vgiftid';
     return $self->_valid_int( $val, $err, $key )  if $key eq 'created_t';
     return $self->_valid_int( $val, $err, $key )  if $key eq 'cost';
-    return $self->_valid_int( $val, $err, $key )  if $key eq 'num_sold';
 
     # default case if no test defined for $key: assume invalid
     $$err = LJ::Lang::ml( 'vgift.error.validate.property', { key => $key } );

@@ -32,7 +32,6 @@ CREATE TABLE vgift_ids (
     approved_why MEDIUMTEXT,
     description  MEDIUMTEXT,
     cost         INT UNSIGNED NOT NULL DEFAULT 0,
-    num_sold     INT UNSIGNED NOT NULL DEFAULT 0,
     mime_small   VARCHAR(255),
     mime_large   VARCHAR(255),
 
@@ -3917,10 +3916,6 @@ EOF
 
     unless ( column_type( 'acctcode_promo', 'paid_months' ) ) {
         do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_months tinyint unsigned" );
-    }
-
-    unless ( column_type( 'vgift_ids', 'num_sold' ) ) {
-        do_alter( 'vgift_ids', "ALTER TABLE vgift_ids ADD COLUMN num_sold INT UNSIGNED NOT NULL DEFAULT 0" );
     }
 
     if ( $LJ::IS_DEV_SERVER ) {
