@@ -165,6 +165,12 @@ h1, h2, h3, h4,
     padding-right: .25em;
     }
 
+.tags-container h2,
+.page-archive h3,
+.page-day h3.day-date {
+    font-family: $*font_journal_title;
+    }
+
 .entry-title a,
 .comment-title a { text-decoration: none; }
 
