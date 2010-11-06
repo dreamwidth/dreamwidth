@@ -1897,8 +1897,10 @@ sub editevent
         unless common_event_validation($req, $err, $flags);
 
     # now we can move over to picture_mapid instead of picture_keyword if appropriate
-    if ( $req->{props} && $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
-        $req->{props}->{picture_mapid} = $u->get_mapid_from_keyword( $req->{props}->{picture_keyword}, create => $flags->{create_unknown_picture_mapid} || 0 );
+    if ( $req->{props} && exists $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
+        $req->{props}->{picture_mapid} = '';
+        $req->{props}->{picture_mapid} = $u->get_mapid_from_keyword( $req->{props}->{picture_keyword}, create => $flags->{create_unknown_picture_mapid} || 0 )
+            if $req->{props}->{picture_keyword};
         delete $req->{props}->{picture_keyword};
     }
 
