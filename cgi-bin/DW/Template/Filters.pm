@@ -78,7 +78,7 @@ sub _decide_language {
     my $args = $r->get_args;
 
     # GET param 'uselang' takes priority
-    my $uselang = $args->{uselang};
+    my $uselang = $args->{uselang} || "";
     return $uselang
         if $uselang eq 'debug' || LJ::Lang::get_lang( $uselang );
 
