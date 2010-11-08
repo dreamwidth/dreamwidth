@@ -485,7 +485,7 @@ body<=
                     $editreason = "($editreason)" if $editreason;
                 }
 
-                $ret .= "<a name='$htmlid'></a><span id='$htmlid'><table width='100%' class='talk-comment'><tbody><tr>";
+                $ret .= "<div id='$htmlid'><table width='100%' class='talk-comment'><tbody><tr>";
                 $ret .= "<td rowspan='2'><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td id='cmtbar$dtid' class='cmtbar-$level' style='background-color: $bgcolor' width='100%'>";
 
@@ -661,12 +661,12 @@ body<=
 
                 $ret .= LJ::make_qr_target($dtid) if $remote;
 
-                $ret .= "</td></tr></tbody></table></span>\n";  # close colored table
+                $ret .= "</td></tr></tbody></table></div>\n";  # close colored table
             } else {
                 # link to message
 
                 my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
-                $ret .= "<a name='$htmlid'></a><span id='$htmlid'><table ><tbody><tr>";
+                $ret .= "<div id='$htmlid'><table ><tbody><tr>";
                 $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td>";
                 if ($post->{'state'} eq 'F') {
@@ -678,7 +678,7 @@ body<=
                 # Comment Posted Notice
                 $ret .= " - <b>$ML{'.posted'}</b>"
                     if $last_talkid == $dtid && $last_jid == $u->userid;
-                $ret .= "</td></tr></tbody></table></span>\n";
+                $ret .= "</td></tr></tbody></table></div>\n";
             }
         }
 
