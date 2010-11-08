@@ -169,7 +169,7 @@ _c?>
 
      if ($key =~ /^upicinf:(\d+)$/) {
          my $userid = $1;
-         my ($ver, $picstr, $kwstr) = @$val;
+         my ( $ver, $picstr, $kwstr, $picmapstr, $kwmapstr ) = @$val;
          my $info = {
              'version' => $ver,
              'pic' => {},
@@ -193,6 +193,31 @@ _c?>
              $info->{kw}{$kw} = $info->{pic}{$id} if $info;
          }
          $val = $info;
+
+         my $u = LJ::load_userid( $userid );
+         if ( $u->userpic_have_mapid ) {
+             if ( defined $picmapstr && defined $kwmapstr ) {
+                 $pos =  0;
+                 while ($pos < length($picmapstr)) {
+                     my ($mapid, $id, $redir) = unpack("NNN", substr($picmapstr, $pos, 12));
+                     $pos += 12; # 3 * 4 bytes.
+                     $info->{mapid}->{$mapid} = $info->{pic}{$id} if $id;
+                     $info->{map_redir}->{$mapid} = $redir if $redir;
+                 }
+
+                 $pos = $nulpos = 0;
+                 while (($nulpos = index($kwmapstr, "\0", $pos)) > 0) {
+                     my $kw = substr($kwmapstr, $pos, $nulpos-$pos);
+                     my $id = unpack("N", substr($kwmapstr, $nulpos+1, 4));
+                     $pos = $nulpos + 5; # skip NUL + 4 bytes.
+                     $info->{kwmap}->{$kw} = $id;
+                     $info->{mapkw}->{$id} = $kw || "pic#" . $info->{mapid}->{$id}->{picid};
+                 }
+             } else { # This user is on dversion 9, but the data isn't in memcache
+                      # so force a db load
+                 undef $info;
+             }
+         }
      }
 
      if ($key =~ /^friends:/) {
