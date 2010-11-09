@@ -656,7 +656,7 @@ sub create_qr_div {
     $qrhtml .= "<div id='qrformdiv'><form id='qrform' name='qrform' method='POST' action='$LJ::SITEROOT/talkpost_do'>";
     $qrhtml .= LJ::form_auth();
 
-    my $stylemineuri = %$style_opts ? LJ::viewing_style_args( %$style_opts ) : "";
+    my $stylemineuri = %$style_opts ? LJ::viewing_style_args( %$style_opts ) . "&" : "";
     my $basepath =  $u->journal_base . "/$ditemid.html?${stylemineuri}";
     my $usertype = ($remote->openid_identity && $remote->is_validated) ? 'openid_cookie' : 'cookieuser';
     $qrhtml .= LJ::html_hidden({'name' => 'replyto', 'id' => 'replyto', 'value' => ''},
