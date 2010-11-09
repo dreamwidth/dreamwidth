@@ -1134,7 +1134,7 @@ sub render {
                 }
 
                 # displaying results
-                my $count = $itid ? $itvotes{$itid} || 0 : 0;
+                my $count = ( defined $itid ) ? $itvotes{$itid} || 0 : 0;
                 my $percent = sprintf("%.1f", (100 * $count / ($usersvoted||1)));
                 my $width = 20+int(($count/$maxitvotes)*380);
 
