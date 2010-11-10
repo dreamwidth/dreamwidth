@@ -209,8 +209,9 @@ ul.entry-interaction-links li.entry-readlink { font-weight: bold; }
 .comment-content { margin-top: 1em; }
 
 .comment .edittime { margin-top: 1em; }
-.comment .header .datetime { font-size: small;
-    color: $*color_entry_title; }
+.comment .header .datetime {
+    font-size: small;
+    }
 
 .comment .multiform-checkbox { display: block;
     text-align: right;
