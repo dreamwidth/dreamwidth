@@ -213,9 +213,6 @@ _c?>
                      $info->{kwmap}->{$kw} = $id;
                      $info->{mapkw}->{$id} = $kw || "pic#" . $info->{mapid}->{$id}->{picid};
                  }
-             } else { # This user is on dversion 9, but the data isn't in memcache
-                      # so force a db load
-                 undef $info;
              }
          }
      }
