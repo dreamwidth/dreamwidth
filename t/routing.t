@@ -1,10 +1,26 @@
-# -*-perl-*-
+#!/usr/bin/perl
+#
+# t/routing.t
+#
+# Test to make sure routing works as expected.
+#
+# Authors:
+#      Andrea Nall <anall@andreanall.com>
+#
+# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
-use Test::More tests => 194;
+use Test::More tests => 195;
 use lib "$ENV{LJHOME}/cgi-bin";
 
 # don't let DW::Routing load DW::Controller subclasses
-$DW::Routing::DONT_LOAD = 1;
+BEGIN {
+    $DW::Routing::DONT_LOAD = 1;
+}
 
 require 'ljlib.pl';
 use DW::Request::Standard;
@@ -14,6 +30,12 @@ use DW::Routing;
 my $result;
 my $expected_format = 'html';
 my $__name;
+
+my $ct = scalar keys %DW::Routing::string_choices;
+
+$ct += scalar @$_ foreach values %DW::Routing::regex_choices;
+
+is( $ct, 0, "routing table empty" );
 
 handle_request( "foo", "/foo", 0, 0 ); # 1 test
 handle_request( "foo", "/foo.format", 0, 0 ); # 1 test
