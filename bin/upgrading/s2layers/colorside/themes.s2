@@ -386,6 +386,75 @@ function Page::print_theme_stylesheet () {
 }
 
 
+#NEWLAYER: colorside/retrocircus
+layerinfo type = "theme";
+layerinfo name = "Retro Circus";
+layerinfo redist_uniq = "colorside/retrocircus";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a14016";
+set color_page_link = "#322938";
+set color_page_link_visited = "#29382f";
+set color_page_text = "#240C03";
+set color_header_background = "#ab4117";
+set color_footer_background = "#ab4117";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ab4117";
+set color_entry_border = "#b54418";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ab4117";
+set color_module_border = "#b54418";
+
+
+#NEWLAYER: colorside/retrocircusii
+layerinfo type = "theme";
+layerinfo name = "Retro Circus II";
+layerinfo redist_uniq = "colorside/retrocircusii";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#322938";
+set color_page_link_hover = "#CC883A";
+set color_page_link_visited = "#B87834";
+set color_page_link = "#cfc89a";
+set color_page_text = "#89a194";
+set color_header_background = "#2d2533";
+set color_footer_background = "#2d2533";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2d2533";
+set color_entry_border = "#322938";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2d2533";
+set color_module_border = "#322938";
+
+
 #NEWLAYER: colorside/scatteredfields
 layerinfo type = "theme";
 layerinfo name = "Scattered Fields";
@@ -461,3 +530,37 @@ function Page::print_theme_stylesheet () {
         }
     """;
 }
+
+
+#NEWLAYER: colorside/seafoam
+layerinfo type = "theme";
+layerinfo name = "Sea Foam";
+layerinfo redist_uniq = "colorside/seafoam";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#7efcce";
+set color_page_link = "#57376f";
+set color_page_link_hover = "#8353a8";
+set color_page_link_visited = "#6F3753";
+set color_page_text = "#050b08";
+set color_header_background = "#73e6b9";
+set color_footer_background = "#73e6b9";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#73e6b9";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#73e6b9";
+set color_module_border = "#7efcce";
