@@ -137,7 +137,7 @@ sub execute {
     # update the password
     $extra->{password} = $type eq "community" ? '' : $ou->password;
 
-    LJ::infohistory_add($u, 'password', Digest::MD5::md5_hex($u->password . 'change'))
+    $u->infohistory_add( 'password', Digest::MD5::md5_hex( $u->password . 'change' ) )
         if $extra->{password} ne $u->password;
 
     # reset the email address

@@ -378,7 +378,7 @@ sub _rename {
     $self->update_email_alias;
 
     # infohistory
-    LJ::infohistory_add( $self, "username", $fromusername );
+    $self->infohistory_add( "username", $fromusername );
 
     # notification
     LJ::Event::SecurityAttributeChanged->new( $self, { 

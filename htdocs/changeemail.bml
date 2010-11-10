@@ -140,7 +140,7 @@ body<=
 
         LJ::statushistory_add( $u, $remote, 'email_changed', $loginfo );
 
-        LJ::infohistory_add($u, 'email', $old_email, $u->{status});
+        $u->infohistory_add( 'email', $old_email, $u->{status} );
 
         $u->log_event('email_change', { remote => $remote, new => $POST{'email'} });
 

@@ -159,7 +159,7 @@ _c?>
     my $code_sent;
     if (LJ::did_post() && $validate_form->()) {
 
-        if (LJ::rate_log($u, 'invitefriend', 1)) {
+        if ( $u->rate_log( 'invitefriend', 1 ) ) {
 
             my $given_msg_custom = $POST{msg} ? "$POST{msg}\n\n" : "";
             LJ::send_mail({

@@ -125,7 +125,7 @@ body<=
             return $err->( $ML{'.error.renamed'} );
         }
 
-        return LJ::bad_input($ML{'.error.toofrequent'}) unless LJ::rate_log($u, "lostinfo", 1);
+        return LJ::bad_input($ML{'.error.toofrequent'}) unless $u->rate_log( "lostinfo", 1 );
 
         # Check to see if they are banned from sending a password
         if (LJ::sysban_check('lostpassword', $u->{'user'})) {
@@ -201,7 +201,7 @@ body<=
 
             # As the idea is to limit spam to one e-mail address, if any of their username's are
             # over the limit, then don't send them any more e-mail.
-            return LJ::bad_input($ML{'.error.toofrequent'}) unless LJ::rate_log($u, "lostinfo", 1);
+            return LJ::bad_input($ML{'.error.toofrequent'}) unless $u->rate_log( "lostinfo", 1 );
             push @users, $u->{user};
         }
 

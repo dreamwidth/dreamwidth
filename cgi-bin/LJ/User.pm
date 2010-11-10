@@ -1226,11 +1226,6 @@ sub note_activity {
 }
 
 
-sub rate_check { LJ::rate_check( @_ ); }
-
-sub rate_log { LJ::rate_log( @_ ); }
-
-
 sub record_login {
     my ($u, $sessid) = @_;
 
@@ -3406,6 +3401,30 @@ sub dudata_set {
 }
 
 
+# <LJFUNC>
+# name: LJ::User::infohistory_add
+# des: Add a line of text to the [[dbtable[infohistory]] table for an account.
+# args: uuid, what, value, other?
+# des-uuid: User id or user object to insert infohistory for.
+# des-what: What type of history is being inserted (15 chars max).
+# des-value: Value for the item (255 chars max).
+# des-other: Optional. Extra information / notes (30 chars max).
+# returns: 1 on success, 0 on error.
+# </LJFUNC>
+sub infohistory_add {
+    my ( $u, $what, $value, $other ) = @_;
+    my $uuid = LJ::want_userid( $u );
+    return unless $uuid && $what && $value;
+
+    # get writer and insert
+    my $dbh = LJ::get_db_writer();
+    my $gmt_now = LJ::mysql_time(time(), 1);
+    $dbh->do("INSERT INTO infohistory (userid, what, timechange, oldvalue, other) VALUES (?, ?, ?, ?, ?)",
+             undef, $uuid, $what, $gmt_now, $value, $other);
+    return $dbh->err ? 0 : 1;
+}
+
+
 # log a line to our userlog
 sub log_event {
     my ( $u, $type, $info ) = @_;
@@ -3430,6 +3449,118 @@ sub log_event {
            "VALUES (?, UNIX_TIMESTAMP(), ?, ?, ?, ?, ?, ?)", undef, $u->userid, $type,
            $targetid, $remote ? $remote->userid : undef, $ip, $uniq, $extra);
     return undef if $u->err;
+    return 1;
+}
+
+
+# returns 1 if action is permitted.  0 if above rate or fail.
+sub rate_check {
+    my ($u, $ratename, $count, $opts) = @_;
+
+    my $rateperiod = $u->get_cap( "rateperiod-$ratename" );
+    return 1 unless $rateperiod;
+
+    my $rp = defined $opts->{'rp'} ? $opts->{'rp'}
+             : LJ::get_prop("rate", $ratename);
+    return 0 unless $rp;
+
+    my $now = defined $opts->{'now'} ? $opts->{'now'} : time();
+    my $beforeperiod = $now - $rateperiod;
+
+    # check rate.  (okay per period)
+    my $opp = $u->get_cap( "rateallowed-$ratename" );
+    return 1 unless $opp;
+
+    # check memcache, except in the case of rate limiting by ip
+    my $memkey = $u->rate_memkey($rp);
+    unless ($opts->{limit_by_ip}) {
+        my $attempts = LJ::MemCache::get($memkey);
+        if ($attempts) {
+            my $num_attempts = 0;
+            foreach my $attempt (@$attempts) {
+                next if $attempt->{evttime} < $beforeperiod;
+                $num_attempts += $attempt->{quantity};
+            }
+
+            return $num_attempts + $count > $opp ? 0 : 1;
+        }
+    }
+
+    return 0 unless $u->writer;
+
+    # delete inapplicable stuff (or some of it)
+    my $userid = $u->userid;
+    $u->do("DELETE FROM ratelog WHERE userid=$userid AND rlid=$rp->{'id'} ".
+           "AND evttime < $beforeperiod LIMIT 1000");
+
+    my $udbr = LJ::get_cluster_reader($u);
+    my $ip = defined $opts->{'ip'}
+             ? $opts->{'ip'}
+             : $udbr->quote($opts->{'limit_by_ip'} || "0.0.0.0");
+    my $sth = $udbr->prepare("SELECT evttime, quantity FROM ratelog WHERE ".
+                             "userid=$userid AND rlid=$rp->{'id'} ".
+                             "AND ip=INET_ATON($ip) ".
+                             "AND evttime > $beforeperiod");
+    $sth->execute;
+
+    my @memdata;
+    my $sum = 0;
+    while (my $data = $sth->fetchrow_hashref) {
+        push @memdata, $data;
+        $sum += $data->{quantity};
+    }
+
+    # set memcache, except in the case of rate limiting by ip
+    unless ($opts->{limit_by_ip}) {
+        LJ::MemCache::set( $memkey => \@memdata || [] );
+    }
+
+    # would this transaction go over the limit?
+    if ($sum + $count > $opp) {
+        # FIXME: optionally log to rateabuse, unless caller is doing it
+        # themselves somehow, like with the "loginstall" table.
+        return 0;
+    }
+
+    return 1;
+}
+
+
+# returns 1 if action is permitted.  0 if above rate or fail.
+# action isn't logged on fail.
+#
+# opts keys:
+#   -- "limit_by_ip" => "1.2.3.4"  (when used for checking rate)
+#   --
+sub rate_log {
+    my ($u, $ratename, $count, $opts) = @_;
+    my $rateperiod = $u->get_cap( "rateperiod-$ratename" );
+    return 1 unless $rateperiod;
+
+    return 0 unless $u->writer;
+
+    my $rp = LJ::get_prop("rate", $ratename);
+    return 0 unless $rp;
+    $opts->{'rp'} = $rp;
+
+    my $now = time();
+    $opts->{'now'} = $now;
+    my $udbr = LJ::get_cluster_reader($u);
+    my $ip = $udbr->quote($opts->{'limit_by_ip'} || "0.0.0.0");
+    $opts->{'ip'} = $ip;
+    return 0 unless $u->rate_check( $ratename, $count, $opts );
+
+    # log current
+    $count = $count + 0;
+    my $userid = $u->userid;
+    $u->do("INSERT INTO ratelog (userid, rlid, evttime, ip, quantity) VALUES ".
+           "($userid, $rp->{'id'}, $now, INET_ATON($ip), $count)");
+
+    # delete memcache, except in the case of rate limiting by ip
+    unless ($opts->{limit_by_ip}) {
+        LJ::MemCache::delete($u->rate_memkey($rp));
+    }
+
     return 1;
 }
 
@@ -4436,7 +4567,7 @@ sub reset_email {
               " WHERE userid=? AND what='email'", undef, $u->id ) or
         return $errsub->( LJ::Lang::ml( "error.dberror" ) . $dbh->errstr );
 
-    LJ::infohistory_add( $u, 'emailreset', $u->email_raw, $u->email_status )
+    $u->infohistory_add( 'emailreset', $u->email_raw, $u->email_status )
         if $u->email_raw ne $newemail; # record only if it changed
 
     $update_opts ||= { status => 'T' };
@@ -5355,7 +5486,7 @@ sub rename_identity {
 
     LJ::memcache_kill($u, "userid");
 
-    LJ::infohistory_add($u, 'identity', $from);
+    $u->infohistory_add( 'identity', $from );
 
     return 1;
 }
@@ -7042,7 +7173,6 @@ use Carp;
 ###  5. Database and Memcache Functions
 ###  6. What the App Shows to Users
 ###  8. Formatting Content Shown to Users
-###  9. Logging and Recording Actions
 ###  15. Email-Related Functions
 ###  16. Entry-Related Functions
 ###  17. Interest-Related Functions
@@ -7673,7 +7803,7 @@ sub handle_bad_login
     # an IP address is permitted such a rate of failures
     # until it's banned for a period of time.
     my $udbh;
-    if (! LJ::rate_log($u, "failed_login", 1, { 'limit_by_ip' => $ip }) &&
+    if (! $u->rate_log( "failed_login", 1, { limit_by_ip => $ip } ) &&
         ($udbh = LJ::get_cluster_master($u)))
     {
         $udbh->do("REPLACE INTO loginstall (userid, ip, time) VALUES ".
@@ -8426,149 +8556,6 @@ sub user_search_display {
     }
 
     return $ret;
-}
-
-
-########################################################################
-###  9. Logging and Recording Actions
-
-=head2 Logging and Recording Actions (LJ)
-=cut
-
-# <LJFUNC>
-# name: LJ::infohistory_add
-# des: Add a line of text to the [[dbtable[infohistory]] table for an account.
-# args: uuid, what, value, other?
-# des-uuid: User id or user object to insert infohistory for.
-# des-what: What type of history is being inserted (15 chars max).
-# des-value: Value for the item (255 chars max).
-# des-other: Optional. Extra information / notes (30 chars max).
-# returns: 1 on success, 0 on error.
-# </LJFUNC>
-sub infohistory_add {
-    my ($uuid, $what, $value, $other) = @_;
-    $uuid = LJ::want_userid($uuid);
-    return unless $uuid && $what && $value;
-
-    # get writer and insert
-    my $dbh = LJ::get_db_writer();
-    my $gmt_now = LJ::mysql_time(time(), 1);
-    $dbh->do("INSERT INTO infohistory (userid, what, timechange, oldvalue, other) VALUES (?, ?, ?, ?, ?)",
-             undef, $uuid, $what, $gmt_now, $value, $other);
-    return $dbh->err ? 0 : 1;
-}
-
-
-# returns 1 if action is permitted.  0 if above rate or fail.
-sub rate_check {
-    my ($u, $ratename, $count, $opts) = @_;
-
-    my $rateperiod = LJ::get_cap($u, "rateperiod-$ratename");
-    return 1 unless $rateperiod;
-
-    my $rp = defined $opts->{'rp'} ? $opts->{'rp'}
-             : LJ::get_prop("rate", $ratename);
-    return 0 unless $rp;
-
-    my $now = defined $opts->{'now'} ? $opts->{'now'} : time();
-    my $beforeperiod = $now - $rateperiod;
-
-    # check rate.  (okay per period)
-    my $opp = LJ::get_cap($u, "rateallowed-$ratename");
-    return 1 unless $opp;
-
-    # check memcache, except in the case of rate limiting by ip
-    my $memkey = $u->rate_memkey($rp);
-    unless ($opts->{limit_by_ip}) {
-        my $attempts = LJ::MemCache::get($memkey);
-        if ($attempts) {
-            my $num_attempts = 0;
-            foreach my $attempt (@$attempts) {
-                next if $attempt->{evttime} < $beforeperiod;
-                $num_attempts += $attempt->{quantity};
-            }
-
-            return $num_attempts + $count > $opp ? 0 : 1;
-        }
-    }
-
-    return 0 unless $u->writer;
-
-    # delete inapplicable stuff (or some of it)
-    my $userid = $u->userid;
-    $u->do("DELETE FROM ratelog WHERE userid=$userid AND rlid=$rp->{'id'} ".
-           "AND evttime < $beforeperiod LIMIT 1000");
-
-    my $udbr = LJ::get_cluster_reader($u);
-    my $ip = defined $opts->{'ip'}
-             ? $opts->{'ip'}
-             : $udbr->quote($opts->{'limit_by_ip'} || "0.0.0.0");
-    my $sth = $udbr->prepare("SELECT evttime, quantity FROM ratelog WHERE ".
-                             "userid=$userid AND rlid=$rp->{'id'} ".
-                             "AND ip=INET_ATON($ip) ".
-                             "AND evttime > $beforeperiod");
-    $sth->execute;
-
-    my @memdata;
-    my $sum = 0;
-    while (my $data = $sth->fetchrow_hashref) {
-        push @memdata, $data;
-        $sum += $data->{quantity};
-    }
-
-    # set memcache, except in the case of rate limiting by ip
-    unless ($opts->{limit_by_ip}) {
-        LJ::MemCache::set( $memkey => \@memdata || [] );
-    }
-
-    # would this transaction go over the limit?
-    if ($sum + $count > $opp) {
-        # FIXME: optionally log to rateabuse, unless caller is doing it
-        # themselves somehow, like with the "loginstall" table.
-        return 0;
-    }
-
-    return 1;
-}
-
-
-# returns 1 if action is permitted.  0 if above rate or fail.
-# action isn't logged on fail.
-#
-# opts keys:
-#   -- "limit_by_ip" => "1.2.3.4"  (when used for checking rate)
-#   --
-sub rate_log
-{
-    my ($u, $ratename, $count, $opts) = @_;
-    my $rateperiod = LJ::get_cap($u, "rateperiod-$ratename");
-    return 1 unless $rateperiod;
-
-    return 0 unless $u->writer;
-
-    my $rp = LJ::get_prop("rate", $ratename);
-    return 0 unless $rp;
-    $opts->{'rp'} = $rp;
-
-    my $now = time();
-    $opts->{'now'} = $now;
-    my $udbr = LJ::get_cluster_reader($u);
-    my $ip = $udbr->quote($opts->{'limit_by_ip'} || "0.0.0.0");
-    $opts->{'ip'} = $ip;
-    return 0 unless LJ::rate_check($u, $ratename, $count, $opts);
-
-    # log current
-    $count = $count + 0;
-    my $userid = $u->userid;
-    $u->do("INSERT INTO ratelog (userid, rlid, evttime, ip, quantity) VALUES ".
-           "($userid, $rp->{'id'}, $now, INET_ATON($ip), $count)");
-
-    # delete memcache, except in the case of rate limiting by ip
-    unless ($opts->{limit_by_ip}) {
-        LJ::MemCache::delete($u->rate_memkey($rp));
-    }
-
-    return 1;
 }
 
 

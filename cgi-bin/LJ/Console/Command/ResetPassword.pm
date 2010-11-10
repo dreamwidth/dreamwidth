@@ -45,7 +45,7 @@ sub execute {
 
     my $newpass = LJ::rand_chars(8);
     my $oldpass = Digest::MD5::md5_hex($u->password . "change");
-    my $rval = LJ::infohistory_add($u, 'passwordreset', $oldpass);
+    my $rval = $u->infohistory_add( 'passwordreset', $oldpass );
     return $self->error("Failed to insert old password into infohistory.")
         unless $rval;
 

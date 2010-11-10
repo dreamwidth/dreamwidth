@@ -26,7 +26,7 @@ is($run->("infohistory " . $u2->user),
    "error: No matches.");
 
 # put something in there.
-LJ::infohistory_add($u2, 'email', $u2->email_raw, 'T');
+$u2->infohistory_add( 'email', $u2->email_raw, 'T' );
 
 my $response = $run->("infohistory " . $u2->user);
 like($response, qr/Changed email at \d{4}-\d{2}-\d{2}/, "Date recorded correctly.");

@@ -1497,7 +1497,7 @@ sub postevent
     $getlock->(); return $res if $res_done;
 
     # do rate-checking
-    if ( ! $u->is_syndicated && ! LJ::rate_log($u, "post", 1) && ! $importer_bypass ) {
+    if ( ! $u->is_syndicated && ! $u->rate_log( "post", 1 ) && ! $importer_bypass ) {
         return $fail->($err,405);
     }
 
