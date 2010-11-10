@@ -31,8 +31,10 @@ This is for pages like /admin/index which list other pages, displaying only what
 use strict;
 use warnings;
 use DW::Controller;
-use DW::Routing;
 use DW::Template;
+
+# this needs to be included at run time to avoid circular requirements
+require DW::Routing;
 
 my $admin_pages = {};
 
@@ -179,7 +181,7 @@ sub admin_handler {
     return DW::Template->render_template( 'admin/index.tt', $vars );
 }
 
-=head2 C<< $class->register_regex( $scope, %opts ) >>
+=head2 C<< $class->register_admin_scope( $scope, %opts ) >>
 
 Register an admin scope.
 
@@ -225,7 +227,7 @@ sub register_admin_scope {
 
 =head2 C<< $class->register_admin_page( $scope, %opts ) >>
 
-Register an admin scope.
+Register an admin page.
 
 Arguments:
 

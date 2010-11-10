@@ -19,7 +19,6 @@ package DW::Controller;
 use strict;
 use warnings;
 use Exporter;
-use DW::Routing;
 use DW::Template;
 use URI;
 
