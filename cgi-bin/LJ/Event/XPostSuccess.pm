@@ -19,9 +19,9 @@ use base 'LJ::Event';
 use Carp qw(croak);
 
 sub new {
-    my ($class, $u, $ditemid, $acctid) = @_;
+    my ( $class, $u, $acctid, $ditemid ) = @_;
     croak 'Not an LJ::User' unless LJ::isu($u);
-    return $class->SUPER::new($u, $ditemid, $acctid);
+    return $class->SUPER::new( $u, $acctid, $ditemid );
 }
 
 # for this to be on for all users
