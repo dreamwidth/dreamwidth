@@ -139,6 +139,11 @@ sub create {
     $dbh->do( "INSERT INTO vgift_ids ($props) VALUES ($qs)", undef, values %vg );
     die $dbh->errstr if $dbh->err;
 
+    # initialize this gift in the vgift_counts table
+    $dbh->do( "INSERT INTO vgift_counts (vgiftid,count) VALUES (?,0)",
+              undef, $self->id );
+    die $dbh->errstr if $dbh->err;
+
     $self->_expire_aggregate_keys;
     return $self->absorb_row( \%vg );
 }
@@ -236,6 +241,19 @@ sub edit {
 
 sub mark_active   { $_[0]->edit( active => 'Y' ) }
 sub mark_inactive { $_[0]->edit( active => 'N' ) }
+
+sub mark_sold {
+    my ( $self ) = @_;
+    return undef unless $self->id;
+
+    my $dbh = LJ::get_db_writer();
+    $dbh->do( "UPDATE vgift_counts SET count=count+1 WHERE vgiftid=?",
+              undef, $self->id );
+    die $dbh->errstr if $dbh->err;
+
+    LJ::MemCache::delete( $self->num_sold_memkey );
+    return $self;
+}
 
 sub tags {
     # taglist is a comma separated string of tagnames.
@@ -439,14 +457,19 @@ sub delete {
         LJ::mogclient()->delete( $self->img_mogkey( 'small' ) );
     }
 
-    # wipe the relevant rows and memkeys
+    # wipe the relevant rows from the database
     $self->_tagwipe;
-    $self->_expire_relevant_keys;
-    $self->_remove_from_memcache;  # LJ::MemCacheable
-
     my $dbh = LJ::get_db_writer();
     $dbh->do( "DELETE FROM vgift_ids WHERE vgiftid=$id" );
     die $dbh->errstr if $dbh->err;
+    $dbh->do( "DELETE FROM vgift_counts WHERE vgiftid=$id" );
+    die $dbh->errstr if $dbh->err;
+
+    # wipe the relevant keys from memcache
+    LJ::MemCache::delete( $self->num_sold_memkey );
+    $self->_expire_relevant_keys;
+    $self->_remove_from_memcache;  # LJ::MemCacheable
+
     return 1;
 }
 
@@ -601,7 +624,8 @@ sub can_be_edited_by {
 sub can_be_deleted_by {
     my $self = shift;
 
-    # FIXME: if the vgift has been purchased, don't allow
+    # if the vgift has been purchased, don't allow
+    return 0 if $self->num_sold;
 
     # otherwise, same privileges as for edits
     return $self->can_be_edited_by( @_ );
@@ -640,6 +664,22 @@ sub is_untagged {
         return 1 if $id == $_->id;
     }
     return 0;  # not in the untagged list
+}
+
+sub num_sold {
+    my ( $self ) = @_;
+    my $id = $self->id or return undef;
+    my $count = LJ::MemCache::get( $self->num_sold_memkey );
+    return $count if defined $count;
+
+    # check db if not in cache
+    my $dbr = LJ::get_db_reader();
+    $count = $dbr->selectrow_array(
+             "SELECT count FROM vgift_counts WHERE vgiftid=$id" ) || 0;
+    die $dbr->errstr if $dbr->err;
+
+    LJ::MemCache::set( $self->num_sold_memkey, $count, 3600*24 );
+    return $count;
 }
 
 
@@ -733,6 +773,12 @@ sub tagged_with_memkey {
     my ( $self, $tagid )  = @_;
     return undef unless defined $tagid;
     return [$tagid, "vgift.tagid.$tagid"];  # list of gifts for this tagid
+}
+
+sub num_sold_memkey {
+    my ( $self )  = @_;
+    return undef unless my $id = $self->id;
+    return [$id, "vgift.count.$id"];
 }
 
 sub untagged_memkey { return 'vgift_untagged'; }

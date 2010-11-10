@@ -39,6 +39,15 @@ CREATE TABLE vgift_ids (
 )
 EOC
 
+register_tablecreate("vgift_counts", <<'EOC');
+CREATE TABLE vgift_counts (
+    vgiftid    INT UNSIGNED NOT NULL,
+    count      INT UNSIGNED NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (vgiftid)
+)
+EOC
+
 register_tablecreate("vgift_tags", <<'EOC');
 CREATE TABLE vgift_tags (
     tagid      INT UNSIGNED NOT NULL,
@@ -3931,6 +3940,11 @@ EOF
         do_alter( 'sitekeywords',
                   q{ALTER TABLE sitekeywords MODIFY keyword VARCHAR(255) BINARY NOT NULL} );
         set_dbnote( "sitekeywords_binary", 1 )
+    }
+
+    if ( table_relevant( "vgift_counts" ) && ! check_dbnote("init_vgift_counts") ) {
+        do_sql( "INSERT IGNORE INTO vgift_counts (vgiftid) SELECT vgiftid FROM vgift_ids" );
+        set_dbnote( "init_vgift_counts", 1 );
     }
 
 });
