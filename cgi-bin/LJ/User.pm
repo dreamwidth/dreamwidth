@@ -8127,7 +8127,6 @@ sub update_user
 # </LJFUNC>
 sub wipe_major_memcache
 {
-    # FIXME: this function is unused as of Aug 2009 - kareila
     my $u = shift;
     my $userid = LJ::want_userid($u);
     foreach my $key ("userid","bio","talk2ct","talkleftct","log2ct",

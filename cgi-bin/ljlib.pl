@@ -2432,6 +2432,7 @@ sub list_valid_args {
         entry_redirect => "Access to /misc/entry_redirect",
         invites        => "Access to some invites functionality under /admin/invites",
         largefeedsize  => "Overrides synsuck_max_size for a feed",
+        memcacheclear  => "Access to /admin/memcache_clear",
         memcacheview   => "Access to /admin/memcache",
         mysqlstatus    => "Access to /admin/mysql_status",
         navtag         => "Access to /admin/navtag",
