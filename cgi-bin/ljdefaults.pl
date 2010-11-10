@@ -206,35 +206,38 @@ no strict "vars";
     $DEFAULT_EDITOR ||= 'rich';
 
     unless (@LJ::EVENT_TYPES) {
-        @LJ::EVENT_TYPES = qw (
+        @LJ::EVENT_TYPES = map { "LJ::Event::$_" }
+                           qw (
                                AddedToCircle
                                Birthday
-                               JournalNewComment
-                               JournalNewEntry
-                               UserNewComment
-                               JournalNewComment::TopLevel
-                               UserNewEntry
                                CommunityInvite
+                               CommunityJoinApprove
+                               CommunityJoinReject
                                CommunityJoinRequest
-                               OfficialPost
+                               ImportStatus
                                InvitedFriendJoins
+                               JournalNewComment
+                               JournalNewComment::TopLevel
+                               JournalNewEntry
                                NewUserpic
+                               OfficialPost
                                PollVote
+                               RemovedFromCircle
+                               SecurityAttributeChanged
                                UserExpunged
+                               UserMessageRecvd
+                               UserMessageSent
+                               UserNewComment
+                               UserNewEntry
                                VgiftApproved
+                               XPostFailure
+                               XPostSuccess
                                );
-        foreach my $evt (@LJ::EVENT_TYPES) {
-            $evt = "LJ::Event::$evt";
-        }
     }
 
     unless (@LJ::NOTIFY_TYPES) {
-        @LJ::NOTIFY_TYPES = (
-                            'Email',
-                            );
-        foreach my $evt (@LJ::NOTIFY_TYPES) {
-            $evt = "LJ::NotificationMethod::$evt";
-        }
+        @LJ::NOTIFY_TYPES = map { "LJ::NotificationMethod::$_" }
+                            qw ( Email );
     }
 
     # random user defaults to a week
