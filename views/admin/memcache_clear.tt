@@ -1,0 +1,15 @@
+[%- sections.title = '.admin.link' | ml -%]
+
+[%- IF cleared -%]<p>[% '.cleared' | ml %]</p>[%- END -%]
+[%- IF error -%]<p><strong>[% error %]</strong></p>[%- END -%]
+<form action="/admin/memcache_clear" method="POST">
+    [% dw.form_auth %]
+    <div><label for="username">[% '.username.label' | ml %]</label><input id="username" name="username" /></div>
+    <div><label for="what">[% '.what.label' | ml %]</label><select id="what" name="what">
+        [%- FOREACH opt IN clear_options -%][%- opt.name = opt.name_ml | ml -%][%- END -%]
+        [%- FOREACH opt IN clear_options.sort_by_key( 'name', 'order', 'alpha' ) -%]
+            <option value="[% opt.key %]">[% opt.name %]</option>
+        [%- END -%]
+    </select></div>
+    <div><input type="submit" value="[% '.purge.btn' | ml %]" /></div>
+</form>
