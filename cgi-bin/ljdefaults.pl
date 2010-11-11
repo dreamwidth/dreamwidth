@@ -227,8 +227,6 @@ no strict "vars";
                                UserExpunged
                                UserMessageRecvd
                                UserMessageSent
-                               UserNewComment
-                               UserNewEntry
                                VgiftApproved
                                XPostFailure
                                XPostSuccess

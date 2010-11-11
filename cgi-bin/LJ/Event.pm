@@ -30,14 +30,10 @@ foreach my $event (@EVENTS) {
 # Guide to subclasses:
 #    LJ::Event::JournalNewEntry    -- a journal (user/community) has a new entry in it
 #                                   ($ju,$ditemid,undef)
-#    LJ::Event::UserNewEntry       -- a user posted a new entry in some journal
-#                                   ($u,$journalid,$ditemid)
 #    LJ::Event::JournalNewComment  -- a journal has a new comment in it
 #                                   ($ju,$jtalkid)   # TODO: should probably be ($ju,$jitemid,$jtalkid)
 #    LJ::Event::JournalNewComment::TopLevel -- a journal has a new top-level comment in it
 #                                   ($ju,$jitemid)
-#    LJ::Event::UserNewComment     -- a user left a new comment somewhere
-#                                   ($u,$journalid,$jtalkid)
 #    LJ::Event::AddedToCircle      -- user $fromuserid added $u to their circle; $actionid is 1 (trust) or 2 (watch)
 #                                   ($u,$fromuserid,$actionid)
 #    LJ::Event::RemovedFromCircle  -- user $fromuserid removed $u to their circle; $actionid is 1 (trust) or 2 (watch)

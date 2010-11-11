@@ -16,7 +16,6 @@ use strict;
 
 use LJ::Constants;
 use LJ::Event::JournalNewComment;
-use LJ::Event::UserNewComment;
 use LJ::Comment;
 use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
@@ -2932,8 +2931,6 @@ sub enter_comment {
         my @jobs;
 
         push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
-        push @jobs, LJ::Event::UserNewComment->new($cmtobj)->fire_job
-            if $cmtobj->poster && LJ::is_enabled('esn-userevents');
         push @jobs, LJ::EventLogRecord::NewComment->new($cmtobj)->fire_job;
 
         my $sclient = LJ::theschwartz();
@@ -3731,8 +3728,6 @@ sub edit_comment {
         my @jobs;
 
         push @jobs, LJ::Event::JournalNewComment->new($comment_obj)->fire_job;
-        push @jobs, LJ::Event::UserNewComment->new($comment_obj)->fire_job
-            if $comment_obj->poster && LJ::is_enabled('esn-userevents');
         push @jobs, LJ::EventLogRecord::NewComment->new($comment_obj)->fire_job;
 
         my $sclient = LJ::theschwartz();

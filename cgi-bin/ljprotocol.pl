@@ -20,7 +20,6 @@ no warnings 'uninitialized';
 use LJ::Constants;
 use LJ::Console;
 use LJ::Event::JournalNewEntry;
-use LJ::Event::UserNewEntry;
 use LJ::Event::AddedToCircle;
 use LJ::Entry;
 use LJ::Poll;
@@ -352,8 +351,6 @@ sub getinbox
         UserExpunged         => 17,
         UserMessageRecvd     => 18,
         UserMessageSent      => 19,
-        UserNewComment       => 20,
-        UserNewEntry         => 21,
     );
     my %number_type = reverse %type_number;
     
@@ -1691,8 +1688,7 @@ sub postevent
     # but still fire the logging events
     unless ( $flags->{nonotify} ) {
         push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
-        push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if LJ::is_enabled('esn-userevents') || $LJ::_T_FIRE_USERNEWENTRY;
-        push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;        
+        push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;
 
         # PubSubHubbub Support
         LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
