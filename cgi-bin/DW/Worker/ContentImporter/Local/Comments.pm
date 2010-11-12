@@ -71,6 +71,14 @@ sub update_comment {
     # edits and such.  for now, I'm just trying to get the icons to update...
     my $c = LJ::Comment->instance( $u, jtalkid => $cmt->{id} )
         or return $$errref = 'Unable to instantiate LJ::Comment object.';
+
+    # so we don't load the bodies of every comment ever
+    # (most of the time, we don't need to)
+    # empty body of a nondeleted comment indicates something went wrong with the import process
+    if ( $LJ::FIX_COMMENT_IMPORT{$u->user} && ! $c->is_deleted && $c->body_raw == "" ) {
+        $c->set_subject_and_body( $cmt->{subject}, $cmt->{body} );
+    }
+
     my $pu = $c->poster;
     if ( $pu && $pu->userpic_have_mapid ) {
         $c->set_prop( picture_mapid => $u->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 ) );
