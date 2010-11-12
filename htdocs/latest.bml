@@ -121,7 +121,7 @@ body<=
         my $taghr = {
             map {
                 $tfmap->{$_}->{tag} => {
-                    url   => "$LJ::SITEROOT/latest?tag=$tfmap->{$_}->{tag}",
+                    url   => "$LJ::SITEROOT/latest?tag=" . LJ::eurl( $tfmap->{$_}->{tag} ),
                     value => $tfmap->{$_}->{count}
                 }
             } keys %$tfmap
