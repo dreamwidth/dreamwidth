@@ -2854,6 +2854,15 @@ sub set_prop {
     my %multihomed;  # { $propid => $value }
     my %propnames;   # { $propid => $propname }
 
+    # enforce limits on data in the code
+    # to make sure that memcache and db data are consistent after a save
+    my %table_values_lengths = (
+        userprop => 60,
+        userproplite => 255,
+        userproplite2 => 255,
+        # userpropblob => ...,
+    );
+
     # Accumulate prepared actions.
     foreach my $propname ( keys %$hash ) {
         $value = $hash->{$propname};
@@ -2890,6 +2899,8 @@ sub set_prop {
 
         # determine if this is a replacement or a deletion
         if ( defined $value && $value ) {
+            $value = LJ::text_trim( $value, undef, $table_values_lengths{$table} )
+                        if defined $table_values_lengths{$table};
             push @{ $action{$table}->{replace} }, [ $p->{id}, $value ];
         } else {
             push @{ $action{$table}->{delete} }, $p->{id};
@@ -2931,9 +2942,11 @@ sub set_prop {
 
         while ( my ( $propid, $pvalue ) = each %multihomed ) {
             if ( defined $pvalue && $pvalue ) {
+                my $uprop_pvalue = LJ::text_trim( $pvalue, undef, $table_values_lengths{userprop} );
+
                 # replace data into master
                 $dbh->do( "REPLACE INTO userprop VALUES (?, ?, ?)",
-                          undef, $userid, $propid, $pvalue );
+                          undef, $userid, $propid, $uprop_pvalue );
             } else {
                 # delete data from master, but keep in cluster
                 $dbh->do( "DELETE FROM userprop WHERE userid = ? AND upropid = ?",
@@ -2944,7 +2957,7 @@ sub set_prop {
             return 0 if $dbh->err;
 
             # put data in cluster
-            $pvalue ||= '';
+            $pvalue = $pvalue ? LJ::text_trim( $pvalue, undef, $table_values_lengths{userproplite2} ) : '';
             $u->do( "REPLACE INTO userproplite2 VALUES (?, ?, ?)",
                     undef, $userid, $propid, $pvalue );
             return 0 if $u->err;
