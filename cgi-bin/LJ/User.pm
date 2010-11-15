@@ -6906,6 +6906,10 @@ sub get_userpic_info {
         my %picmap;
         my %kwmap;
         while (my ($kw, $id, $mapid, $redir) = $sth->fetchrow_array) {
+
+            # used to be a bug that allowed these to get in.
+            next if $kw =~ /[\n\r\0]/ || ( defined $kw && length($kw) == 0 );
+
             my $skip_kw = 0;
             if ( $mapped_icons ) {
                 $picmap{$mapid} = [ int($id), int($redir) ];
@@ -6921,8 +6925,8 @@ sub get_userpic_info {
                 }
             }
             next if $skip_kw;
+
             next unless $info->{pic}->{$id};
-            next if $kw =~ /[\n\r\0]/;  # used to be a bug that allowed these to get in.
             $info->{kw}->{$kw} = $info->{pic}->{$id};
             $info->{mapid}->{$mapid} = $info->{pic}->{$id} if $mapped_icons && $id;
             $minfokw{$kw} = int($id);
