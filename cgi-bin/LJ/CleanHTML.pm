@@ -686,6 +686,26 @@ sub clean
                             if ($remove_positioning) {
                                 $hash->{style} =~ s/margin.*?(?:;|$)//gi;
                                 $hash->{style} =~ s/height\s*?:.*?(?:;|$)//gi;
+                                $hash->{style} =~ s/display\s*?:\s*?none\s*?(?:;|$)//gi;
+
+                                my $too_large = 0;
+                                PADDING: while ( $hash->{style} =~ /padding.*?:\s*?(.*?)(?:;|$)/gi ) {
+                                    my $padding_value = $1;
+
+                                    foreach ( split /\s+/, $padding_value ) {
+                                        next unless $_;
+                                        if ( ( int( $_ )  || 0 ) > 500 ) {
+                                            $too_large = 1;
+                                            last PADDING;
+                                        }
+                                    }
+                                }
+
+                                $hash->{style} =~ s/padding.*?(?:;|$)//gi
+                                    if $too_large;
+                            }
+                            if ($extractlinks) {
+                                $hash->{style} =~ s/url\(.*?\)//gi;
                             }
                         }
 
