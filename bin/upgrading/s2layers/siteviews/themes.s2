@@ -2,3 +2,8 @@
 layerinfo type = "theme";
 layerinfo name = "Default Theme";
 layerinfo redist_uniq = "siteviews/default";
+
+function Page::print_theme_stylesheet() {
+    # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
+}
+

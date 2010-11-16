@@ -21,7 +21,8 @@ function Page::print() {
     if ( $*SITEVIEWS ) {
         $*SITEVIEWS->start_capture();
         $this->print_head();
-        $this->print_stylesheets();
+        $this->print_default_stylesheet();
+        $this->print_theme_stylesheet();
         $*SITEVIEWS->set_content("head",$*SITEVIEWS->end_capture());
         $*SITEVIEWS->set_content("windowtitle",$this->view_title());
 
@@ -31,6 +32,8 @@ function Page::print() {
     }
 }
 
-function Page::print_stylesheets() {
+function Page::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
 }
+
+function Page::print_theme_stylesheet() {}

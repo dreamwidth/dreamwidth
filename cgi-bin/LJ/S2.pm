@@ -37,6 +37,8 @@ use Storable;
 use Apache2::Const qw/ :common /;
 use POSIX ();
 
+use DW::SiteScheme;
+
 # TEMP HACK
 sub get_s2_reader {
     return LJ::get_dbh("s2slave", "slave", "master");
@@ -894,10 +896,17 @@ sub siteviews_style {
     my %style;
 
     my $public = get_public_layers();
+    my $theme = "siteviews/default";
+    foreach my $candidate ( DW::SiteScheme->get_sitescheme_inheritance ) {
+        if ( $public->{"siteviews/$candidate"} ) {
+            $theme = "siteviews/$candidate";
+            last;
+        }
+    }
     %style = (
               core => "core2",
               layout => "siteviews/layout",
-              theme => "siteviews/default",
+              theme => $theme,
     );
 
     # convert the value names to s2layerid
