@@ -393,7 +393,6 @@ padding-top: 2em; } /*die in a fire, IE7*/
 .comment-content { margin-top: 1em; }
 
 .comment .edittime { margin-top: 1em; }
-.comment .header .datetime { color: $*color_entry_title; }
 
 .comment .multiform-checkbox { display: block;
     text-align: right;
