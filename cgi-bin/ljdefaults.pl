@@ -308,6 +308,9 @@ no strict "vars";
     # to avoid S2 error "Excessive recursion detected and stopped."
     $S2::MAX_RECURSION ||= 500;
 
+    # limit number of tags to search in intersection mode
+    $LJ::TAG_INTERSECTION ||= 20;
+
     # not expected to need to be changed
     # default priority for libraries and resources in a sitescheme,
     # so that they come before any stylesheets declared by the page itself
