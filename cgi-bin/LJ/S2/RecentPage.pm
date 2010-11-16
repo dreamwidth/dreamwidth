@@ -120,6 +120,11 @@ sub RecentPage
             $remote->view_priv_check( $u, $get->{viewall}, 'lastn' );
     }
 
+    my $posteru_filter;
+    if ( defined( $get->{poster} ) ) {
+        $posteru_filter = LJ::load_user( $get->{poster} );
+    }
+
     ## load the itemids
     my @itemids;
     my $err;
@@ -136,6 +141,7 @@ sub RecentPage
         dateformat    => 'S2',
         order         => ( $u->is_community || $u->is_syndicated ) ? 'logtime' : '',
         err           => \$err,
+        posterid      => $posteru_filter ? $posteru_filter->id : undef,
     );
 
     my $is_prev_exist = scalar @items - $itemshow > 0 ? 1 : 0;
@@ -230,7 +236,8 @@ sub RecentPage
                                   style    => $mine                           || "",
                                   s2id     => LJ::eurl( $get->{s2id} )        || "",
                                   tag      => LJ::eurl( $get->{tag} )         || "",
-                                  security => LJ::eurl( $get->{security} )    || "" } );
+                                  security => LJ::eurl( $get->{security} )    || "",
+                                  poster   => $posteru_filter ? $posteru_filter->user : "" } );
         $nav->{'forward_count'} = $itemshow;
         $p->{head_content} .= qq{<link rel="next" href="$nav->{forward_url}" />\n}
     }
@@ -251,7 +258,8 @@ sub RecentPage
                                        style    => $mine                           || "",
                                        s2id     => LJ::eurl( $get->{s2id} )        || "",
                                        tag      => LJ::eurl( $get->{tag} )         || "",
-                                       security => LJ::eurl( $get->{security} )    || "" } );
+                                       security => LJ::eurl( $get->{security} )    || "",
+                                       poster   => $posteru_filter ? $posteru_filter->user : "" } );
             $nav->{'backward_skip'} = $newskip;
         }
         $p->{head_content} .= qq{<link rel="prev" href="$nav->{backward_url}" />\n};
