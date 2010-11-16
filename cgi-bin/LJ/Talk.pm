@@ -1462,7 +1462,7 @@ sub talkform {
             $ret .= "<td align='center' width='20'>";
             $ret .= LJ::img( 'id_anonymous', '' ) . "</td>";
             $ret .= "<td align='center'>(  )</td>";
-            $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font> $BML::ML{'.opt.noanonpost.nonpublic'}</td>";
+            $ret .= "<td align='left'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font> $BML::ML{'.opt.noanonpost.nonpublic'}</td>";
             $ret .= "</tr>\n";
         } else {
             $ret .= "<tr valign='center'><td align='center'>";
@@ -1530,7 +1530,7 @@ sub talkform {
         $ret .= "<tr valign='middle'><td align='center' width='20'>";
         $ret .= LJ::img( 'id_anonymous', '' ) . "</td>";
         $ret .= "<td align='center'>(  )</td>";
-        $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font>$BML::ML{'.opt.noanonpost'}</td>";
+        $ret .= "<td align='left'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font> $BML::ML{'.opt.noanonpost'}</td>";
         $ret .= "</tr>\n";
 
         if (LJ::OpenID->consumer_enabled) {
@@ -1559,7 +1559,7 @@ sub talkform {
                 $ret .= "<tr valign='middle'><td align='center'>";
                 $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
                 $ret .= "<td align='center'>(  )</td>";
-                $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>OpenID</b></font>" . BML::ml('.opt.openidsignin', { 'aopts' => "href='$LJ::SITEROOT/openid'" });
+                $ret .= "<td align='left'><font color='#c0c0c0'><b>OpenID</b></font>" . " " . BML::ml('.opt.openidsignin', { 'aopts' => "href='$LJ::SITEROOT/openid'" });
                 $ret .= BML::ml('.opt.noopenidpost', { aopts1 => "href='$LJ::SITEROOT/changeemail'", aopts2 => "href='$LJ::SITEROOT/register'" })
                     if defined $oid_identity;
 
