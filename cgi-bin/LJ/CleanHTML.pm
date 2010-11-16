@@ -634,7 +634,7 @@ sub clean
 
                     # ignore attributes that do not fit this strict scheme
                     unless ($attr =~ /^[\w_:-]+$/) {
-                        $total_fail->($cut, "$tag " . (%$hash > 1 ? "[...] " : "") . "$attr");
+                        $total_fail->($cut, "$tag " . (scalar keys %$hash > 1 ? "[...] " : "") . "$attr");
                         last TOKEN;
                     }
 
