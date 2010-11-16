@@ -9303,6 +9303,11 @@ sub make_journal {
                 unless $kwref{$_};
             push @{$opts->{tagids}}, $kwref{$_};
         }
+
+        my $tagmode = $opts->{getargs}->{mode} || '';
+        $opts->{tagmode} = $tagmode eq 'and' ? 'and' : 'or';
+        # also allow mode=all (equivalent to 'and')
+        $opts->{tagmode} = 'and' if $tagmode eq 'all';
     }
 
     # validate the security filter

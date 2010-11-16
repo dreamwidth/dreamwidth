@@ -441,13 +441,43 @@ sub recent_items
 
     # if we need to get by tag, get an itemid list now
     my $jitemidwhere = '';
-    if (ref $args{tagids} eq 'ARRAY' && @{$args{tagids}}) {
-        # select jitemids uniquely
-        my $in = join(',', map { $_+0 } @{$args{tagids}});
-        my $jitemids = $logdb->selectcol_arrayref(qq{
-                SELECT DISTINCT jitemid FROM logtagsrecent WHERE journalid = ? AND kwid IN ($in)
-            }, undef, $userid);
-        die $logdb->errstr if $logdb->err;
+    if ( ref $args{tagids} eq 'ARRAY' && @{ $args{tagids} } ) {
+
+        my $jitemids;
+
+        # $args{tagmode} = $args{getargs}->{mode} eq 'and' ? 'and' : 'or';
+
+        if ( $args{tagmode} eq 'and' ) {
+
+            my $limit = $LJ::TAG_INTERSECTION;
+            my $need = scalar @{ $args{tagids} };
+            $#{ $args{tagids} } = $limit - 1 if $need > $limit;
+
+            my $in = join( ',', map { $_+0 } @{ $args{tagids} } );
+            my $sth = $logdb->prepare( "SELECT jitemid, kwid FROM logtagsrecent WHERE journalid = ? AND kwid IN ($in)" );
+            $sth->execute( $userid );
+            die $logdb->errstr if $logdb->err;
+
+            my %mix;
+            while ( my $row = $sth->fetchrow_arrayref ) {
+                my ( $jitemid ) = @$row;
+                $mix{$jitemid}++;
+            }
+
+            foreach my $jitemid ( keys %mix ) {
+                delete $mix{$jitemid} if $mix{$jitemid} < $need;
+            }
+
+            $jitemids = [ keys %mix ];
+
+        } else { # mode: 'or'
+            # select jitemids uniquely
+            my $in = join( ',', map { $_+0 } @{ $args{tagids} } );
+            $jitemids = $logdb->selectcol_arrayref( qq{
+                    SELECT DISTINCT jitemid FROM logtagsrecent WHERE journalid = ? AND kwid IN ($in)
+                }, undef, $userid );
+            die $logdb->errstr if $logdb->err;
+        }
 
         # set $jitemidwhere iff we have jitemids
         if (@$jitemids) {

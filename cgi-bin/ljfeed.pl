@@ -117,6 +117,7 @@ sub make_feed
             itemshow => 25,
             order => 'logtime',
             tagids => $opts->{tagids},
+            tagmode => $opts->{tagmode},
             itemids => \@itemids,
             friendsview => 1,           # this returns rlogtimes
             dateformat => 'S2',         # S2 format time format is easier
