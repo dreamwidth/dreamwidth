@@ -1178,7 +1178,7 @@ sub userpic_content
 
     # else, get it from db.
     unless ($data) {
-        $lastmod = $pic->picdate;
+        $lastmod = $pic->pictime;
 
         my $dbb = LJ::get_cluster_reader( $u );
         return SERVER_ERROR unless $dbb;
