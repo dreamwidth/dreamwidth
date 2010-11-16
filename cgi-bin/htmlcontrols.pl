@@ -363,7 +363,7 @@ sub html_color
     ## they don't appear when JavaScript is unavailable.
     $ret .= "<script language=\"JavaScript\"><!--\n".
             "document.write('<span style=\"border: 1px solid #000000; ".
-            "padding-left: 2em; background-color: " . ehtml($opts->{'default'}) . ";\" ".
+            "padding-left: 2em; background-color: " . ehtml($opts->{'default'} || "") . ";\" ".
             "id=\"${htmlname}_disp\"";
             if ($opts->{no_btn}) {
                 $ret .= " onclick=\"spawnPicker(findel(\\'${htmlname}\\')," .

@@ -224,7 +224,7 @@ sub render_body {
                 # need to print the header inside the foreach because we don't want it printed if
                 # there's no props in this group that are also in this subheader
                 unless ($header_printed) {
-                    my $prop_list_class;
+                    my $prop_list_class = "";
                     $prop_list_class = " first" if $subheader_counter == 1;
 
                     $ret .= "<div class='subheader subheader-$propgroup on' id='subheader__${propgroup}__${subheader}'>$subheaders{$subheader}</div>";
@@ -364,7 +364,7 @@ sub output_prop_element {
     my $override = $prop_values{override};
 
     my %values = split( /\|/, $prop->{values} || '' );
-    my $existing_display = defined $values{$existing} ? $values{$existing} : $existing;
+    my $existing_display = defined $existing && defined $values{$existing} ? $values{$existing} : $existing;
 
     $existing_display = LJ::eall($existing_display);
 
