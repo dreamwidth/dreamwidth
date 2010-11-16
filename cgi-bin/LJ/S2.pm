@@ -65,7 +65,7 @@ sub make_journal
         }
     }
 
-    $u->{'_s2styleid'} = $styleid + 0;
+    $u->{'_s2styleid'} = ( $styleid && $styleid =~ /^\d+$/ ) ? $styleid + 0 : 0;
 
     # try to get an S2 context
     my $ctx = s2_context( $styleid, use_modtime => $use_modtime, u => $u, style_u => $opts->{style_u} );
@@ -651,7 +651,7 @@ sub get_style
         $u = $arg;
         $styleid = $u->prop('s2_style');
     } else {
-        $styleid = $arg + 0;
+        $styleid = ( $arg || 0 ) + 0;
     }
 
     my %style;
@@ -2065,8 +2065,10 @@ sub Page
 
     # get MAX(modtime of style layers)
     my $stylemodtime = S2::get_style_modtime($opts->{'ctx'});
-    my $style = load_style($styleid);
-    $stylemodtime = $style->{'modtime'} if $style->{'modtime'} > $stylemodtime;
+    if ( $styleid ) {
+        my $style = load_style($styleid);
+        $stylemodtime = $style->{'modtime'} if $style->{'modtime'} > $stylemodtime;
+    }
 
     my $linkobj = LJ::Links::load_linkobj($u);
     my $linklist = [ map { UserLink($_) } @$linkobj ];
