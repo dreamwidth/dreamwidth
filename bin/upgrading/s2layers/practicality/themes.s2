@@ -1,3 +1,44 @@
+#NEWLAYER: practicality/ableconstructs
+layerinfo type = "theme";
+layerinfo name = "Able Constructs";
+layerinfo redist_uniq = "practicality/ableconstructs";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f5eed5";
+set color_page_link = "#ce5c10";
+set color_page_link_hover = "#f2b155";
+set color_page_text = "#332924";
+set color_page_title = "#584f32";
+set color_header_background = "#e9d386";
+set color_footer_background = "#e9d386";
+set color_footer_link_hover = "#c28844";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#e3cba4";
+set color_entry_link = "#ce5c10";
+set color_entry_link_hover = "#f2b155";
+set color_entry_link_visited = "#ce5c10";
+set color_entry_text = "#000";
+set color_entry_title = "#9da286";
+set color_comment_title = "#9da286";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#e3cba4";
+set color_module_title = "#9da286";
+
+
 #NEWLAYER: practicality/agingcopper
 layerinfo type = "theme";
 layerinfo name = "Aging Copper";
@@ -50,6 +91,90 @@ set color_module_link_hover = "#5aa286";
 set color_module_link_visited = "#335c4b";
 set color_module_text = "#0e0e0e";
 set color_module_title = "#181818";
+
+
+#NEWLAYER: practicality/broadhorizons
+layerinfo type = "theme";
+layerinfo name = "Broad Horizons";
+layerinfo redist_uniq = "practicality/broadhorizons";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d6edf7";
+set color_page_link = "#444f72";
+set color_page_link_hover = "#798bb0";
+set color_page_text = "#4e3830";
+set color_page_title = "#e7f0f4";
+set color_header_background = "#de4a22";
+set color_footer_background = "#de4a22";
+set color_footer_link = "#e7f0f4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#a2bdca";
+set color_entry_interaction_links = "#de4a22";
+set color_entry_link = "#444f72";
+set color_entry_link_hover = "#798bb0";
+set color_entry_link_visited = "#444f72";
+set color_entry_text = "#000";
+set color_entry_title = "#de4a22";
+set color_comment_title = "#de4a22";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#a2bdca";
+set color_module_title = "#de4a22";
+
+
+#NEWLAYER: practicality/calculatedrisks
+layerinfo type = "theme";
+layerinfo name = "Calculated Risks";
+layerinfo redist_uniq = "practicality/calculatedrisks";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fbd59f";
+set color_page_link = "#5f937e";
+set color_page_link_hover = "#8ab1a3";
+set color_page_text = "#4F2D12";
+set color_page_title = "#fbd59f";
+set color_header_background = "#603048";
+set color_footer_background = "#603048";
+set color_footer_link = "#fcf2c5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fcf2c5";
+set color_entry_border = "#806b77";
+set color_entry_interaction_links = "#603048";
+set color_entry_link = "#5f937e";
+set color_entry_link_hover = "#8ab1a3";
+set color_entry_link_visited = "#5f937e";
+set color_entry_text = "#000";
+set color_entry_title = "#603048";
+set color_comment_title = "#603048";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fcf2c5";
+set color_module_border = "#806b77";
+set color_module_title = "#603048";
 
 
 #NEWLAYER: practicality/cherryblossoms
@@ -135,6 +260,90 @@ set color_entry_title = "#fcffb5";
 set color_module_background = "#623527";
 set color_module_border = "#562e22";
 set color_module_title = "fcffb5";
+
+
+#NEWLAYER: practicality/duskjewels
+layerinfo type = "theme";
+layerinfo name = "Dusk Jewels";
+layerinfo redist_uniq = "practicality/duskjewels";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fcfade";
+set color_page_link = "#8b3d6e";
+set color_page_link_hover = "#d55d63";
+set color_page_text = "#696252";
+set color_page_title = "#fcfade";
+set color_header_background = "#d55d63";
+set color_footer_background = "#d55d63";
+set color_footer_link = "#fcfade";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#d1ce95";
+set color_entry_interaction_links = "#d55d63";
+set color_entry_link = "#8b3d6e";
+set color_entry_link_hover = "#d55d63";
+set color_entry_link_visited = "#8b3d6e";
+set color_entry_text = "#000";
+set color_entry_title = "#d55d63";
+set color_comment_title = "#d55d63";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#d1ce95";
+set color_module_title = "#d55d63";
+
+
+#NEWLAYER: practicality/ecstaticrose
+layerinfo type = "theme";
+layerinfo name = "Ecstatic Rose";
+layerinfo redist_uniq = "practicality/ecstaticrose";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffceb5";
+set color_page_link = "#F06C62";
+set color_page_link_hover = "#823331";
+set color_page_text = "#594641";
+set color_page_title = "#fff9de";
+set color_header_background = "#ff7569";
+set color_footer_background = "#ff7569";
+set color_footer_link = "#fff9de";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#e4a18f";
+set color_entry_interaction_links = "#c94947";
+set color_entry_link = "#F06C62";
+set color_entry_link_hover = "#823331";
+set color_entry_link_visited = "#F06C62";
+set color_entry_text = "#000";
+set color_entry_title = "#c94947";
+set color_comment_title = "#c94947";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#e4a18f";
+set color_module_title = "#c94947";
 
 
 #NEWLAYER: practicality/neutralgood
@@ -395,3 +604,52 @@ set color_entry_title = "#e07160";
 set color_module_background = "#fff";
 set color_module_border = "#cfcfcf";
 set color_module_title = "#e07160";
+
+#NEWLAYER: practicality/wildwest
+layerinfo type = "theme";
+layerinfo name = "Wild West";
+layerinfo redist_uniq = "practicality/wildwest";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#fea736";
+set color_page_link_active = "#fea736";
+set color_page_link_hover = "#fed094";
+set color_page_link_visited = "#feb658";
+set color_page_text = "#190604";
+set color_page_title = "#fed094";
+set color_header_background = "#752118";
+set color_footer_background = "#ba583d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ba583d";
+set color_entry_border = "#f06d4f";
+set color_entry_link = "#fea736";
+set color_entry_link_active = "#fea736";
+set color_entry_link_hover = "#fed094";
+set color_entry_link_visited = "#feb658";
+set color_entry_text = "#190604";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ba583d";
+set color_module_border = "#f06d4f";
+set color_module_text = "#190604";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "practicality/wildwest.png";
