@@ -429,6 +429,41 @@ $userpic_css
 }
 
 
+#NEWLAYER: refriedtablet/faerie
+layerinfo type = "theme";
+layerinfo name = "Faerie";
+layerinfo redist_uniq = "refriedtablet/faerie";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#38221f";
+set color_page_link = "#b0a925";
+set color_page_link_hover = "#E1D988";
+set color_page_link_visited = "#7b9133";
+set color_page_text = "#f9e7e5";
+set color_page_title = "#EEB7B2";
+set color_header_background = "#403230";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#403230";
+set color_entry_interaction_links = "#e1d62f";
+set color_entry_interaction_links_hover = "#E1D988";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#403230";
+
+
 #NEWLAYER: refriedtablet/foliage
 layerinfo type = "theme";
 layerinfo name = "Foliage";
