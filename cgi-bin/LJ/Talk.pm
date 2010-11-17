@@ -1306,8 +1306,6 @@ sub talkform {
     my $pics = LJ::Talk::get_subjecticons();
     my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
 
-    $form->{$_} ||= "" foreach qw( usertype userpost cookieuser );
-
     # once we clean out talkpost.bml, this will need to be changed.
     BML::set_language_scope('/talkpost.bml');
 
@@ -1370,26 +1368,26 @@ sub talkform {
 
         # Initial page load (no remote)
         return $default if $type eq 'anonymous' &&
-            ! $form->{'usertype'} && ! $remote && ! $oid_identity;
+            ! $form->{usertype} && ! $remote && ! $oid_identity;
 
         # Anonymous
         return $default if $type eq 'anonymous' &&
-            $form->{'usertype'} eq 'anonymous';
+            $form->{usertype} && $form->{usertype} eq 'anonymous';
 
         if (LJ::OpenID->consumer_enabled) {
             # OpenID
             return $default if $type eq 'openid' &&
-                $form->{'usertype'} eq 'openid';
+                $form->{usertype} && $form->{usertype} eq 'openid';
 
             return $default if $type eq 'openid_cookie' &&
-                ($form->{'usertype'} eq 'openid_cookie' ||
-                (defined $oid_identity));
+                ( $form->{usertype} && $form->{usertype} eq 'openid_cookie' ||
+                ( defined $oid_identity ) );
         }
 
         # Remote user, remote equals userpost
         return $default if $type eq 'remote' &&
-                           ($form->{'usertype'} eq 'cookieuser' ||
-                            $form->{'userpost'} eq $form->{'cookieuser'});
+                           ( ( $form->{usertype} || "" ) eq 'cookieuser' ||
+                             ( $form->{userpost} || "" ) eq ( $form->{cookieuser} || "" ) );
 
         # Possible remote, using ljuser field
         if ( $type eq 'ljuser' ) {
