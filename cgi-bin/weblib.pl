@@ -844,7 +844,7 @@ sub make_qr_link
 
     my $remote = LJ::get_remote();
     unless ( $remote && $remote->prop( "opt_no_quickreply" ) ) {
-        my $pid = int($dtid / 256);
+        my $pid = ( $dtid =~ /^\d+$/) ? int( $dtid / 256 ) : 0;
 
         $basesubject =~ s/^(Re:\s*)*//i;
         $basesubject = "Re: $basesubject" if $basesubject;

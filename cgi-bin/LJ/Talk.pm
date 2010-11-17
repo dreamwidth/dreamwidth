@@ -84,7 +84,7 @@ sub talkargs {
 sub show_image
 {
     my ( $pics, $id, $extra ) = @_;
-    return unless defined $pics->{pic}->{$id};
+    return unless defined $id && defined $pics->{pic}->{$id};
 
     my $p = $pics->{pic}->{$id};
     return "<img src='$LJ::IMGPREFIX/talk/$p->{img}' border='0' ".
@@ -185,6 +185,8 @@ sub init
     my $journal = $form->{'journal'};
     my $ju = undef;
     my $item = undef;        # hashref; journal item conversation is in
+
+    $form->{$_} ||= 0 foreach qw( itemid thread replyto );
 
     # defaults, to be changed later:
     $init->{'itemid'} = $form->{'itemid'}+0;
@@ -1292,7 +1294,6 @@ sub talkform {
     # errors:      optional error arrayref
     my $opts = shift;
     return "Invalid talkform values." unless ref $opts eq 'HASH';
-
     my $ret;
     my ($remote, $journalu, $parpost, $form) =
         map { $opts->{$_} } qw(remote journalu parpost form);
@@ -1306,6 +1307,8 @@ sub talkform {
 
     my $pics = LJ::Talk::get_subjecticons();
     my $entry = LJ::Entry->new( $journalu, ditemid => $opts->{ditemid} );
+
+    $form->{$_} ||= "" foreach qw( usertype userpost cookieuser );
 
     # once we clean out talkpost.bml, this will need to be changed.
     BML::set_language_scope('/talkpost.bml');
@@ -3555,7 +3558,7 @@ sub require_captcha_test {
     ## 2. Don't show captcha to the owner of the journal, no more checks
     ##
     if ( !$anon_commenter && $commenter->equals( $journal ) ) {
-        return;
+        return 0;
     }
 
     ##
@@ -3951,7 +3954,7 @@ sub check_rate {
         my ($key, $rates) = ($watch->[0], $watch->[1]);
         my $max_period = $rates->[0]->[1];
 
-        my $log = LJ::MemCache::get($key);
+        my $log = LJ::MemCache::get($key) || "";
 
         # parse the old log
         my @times;

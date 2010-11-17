@@ -453,13 +453,13 @@ body<=
             $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             $ret .= "<td>$ML{'.replysuspended'}";
             if (LJ::Talk::can_delete($remote, $u, $up, $userpost)) {
-                $ret .= " <a href='$LJ::SITEROOT/delcomment?${jargent}id=$dtid'>" . LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                $ret .= " <a href='$LJ::SITEROOT/delcomment?${jargent}id=$dtid'>" . LJ::img("btn_del", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
             }
             if ($post->{state} ne 'F' && LJ::Talk::can_freeze($remote, $u, $up, $userpost)) {
-                $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=freeze&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=freeze&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
             }
             if ($post->{state} eq 'F' && LJ::Talk::can_unfreeze($remote, $u, $up, $userpost)) {
-                $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
             }
             $ret .= "</td></tr></table>\n";
         } else {
@@ -527,31 +527,31 @@ body<=
                 $ret .= LJ::Talk::comment_anchor( $dtid ) . "'>$T{'link'}</a>)</span>";
 
                 if ($comment->remote_can_edit) {
-                    $ret .= "<a href='" . LJ::Talk::talkargs( $comment->edit_url, $style_args ) . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                    $ret .= "<a href='" . LJ::Talk::talkargs( $comment->edit_url, $style_args ) . "'>" . LJ::img("editcomment", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
                 }
 
                 if (LJ::Talk::can_delete($remote, $u, $up, $userpost)) {
-                    $ret .= "<a href='$LJ::SITEROOT/delcomment?${jargent}id=$dtid'>" . LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                    $ret .= "<a href='$LJ::SITEROOT/delcomment?${jargent}id=$dtid'>" . LJ::img("btn_del", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
                 }
 
                 if ($post->{'state'} ne 'F' &&
                     LJ::Talk::can_freeze($remote, $u, $up, $userpost)) {
-                    $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=freeze&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                    $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=freeze&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
                 }
 
                 if ($post->{'state'} eq 'F' &&
                     LJ::Talk::can_unfreeze($remote, $u, $up, $userpost)) {
-                    $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                    $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
                 }
 
                 if ($post->{'state'} ne 'S' &&
                     LJ::Talk::can_screen($remote, $u, $up, $userpost)) {
-                    $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=screen&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                    $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=screen&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_scr", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
                 }
 
                 if ($post->{'state'} eq 'S' &&
                     LJ::Talk::can_unscreen($remote, $u, $up, $userpost)) {
-                    $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=unscreen&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                    $ret .= "<a href='$LJ::SITEROOT/talkscreen?mode=unscreen&amp;${jargent}talkid=$dtid'>" . LJ::img("btn_unscr", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
                 }
 
                 if ($remote && $remote->can_use_esn) {
