@@ -213,7 +213,7 @@ body<=
     $body .= LJ::Widget::InboxFolderNav->render();
     $body .= qq{
         </td>
-        <td width="1" height="100%" style="border-left: 1px solid #ccc"><img src="$LJ::IMGPREFIX/spacer.gif"></td>
+        <td width="1" height="100%" style="border-left: 1px solid #ccc"><img src="$LJ::IMGPREFIX/spacer.gif" alt="" /></td>
         <td valign="top" style="padding-left: 10px; width: 100%;">
     };
 

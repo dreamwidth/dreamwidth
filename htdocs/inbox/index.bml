@@ -146,7 +146,7 @@ body<=
 
     $body .= qq{
         </td>
-        <td width="1" height="100%" style="border-left: 1px solid #ccc"><img src="$LJ::IMGPREFIX/spacer.gif"></td>
+        <td width="1" height="100%" style="border-left: 1px solid #ccc"><img src="$LJ::IMGPREFIX/spacer.gif" alt="" /></td>
         <td id="table_inbox_messages" valign="top" style="padding-left: 10px; width: 100%;">
             <div class="inbox_newitems pkg">
                 <span class="esnlinks" style="float: left"><a href="$LJ::SITEROOT/inbox/?page=$page$viewarg$itemidarg" id="RefreshLink"><?_ml inbox.refresh _ml?></a> |
