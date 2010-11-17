@@ -231,7 +231,8 @@ function subjectIconChange(icon) {
 
 function showRandomIcon() {
     var randomicon = document.getElementById("randomicon");
-    randomicon.setAttribute("class", "randomicon");
+    if (randomicon)
+        randomicon.setAttribute("class", "randomicon");
 }
 
 function randomicon() {
