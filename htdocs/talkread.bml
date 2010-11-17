@@ -441,16 +441,16 @@ body<=
 
         if ($post->{'state'} eq "D") {
             $ret .= "<p><a name='$htmlid'></a><table class='delcomment'><tr>";
-            $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
+            $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             $ret .= "<td>$ML{'.deletedpost'}</td></tr></table>\n";
         } elsif ($post->{'state'} eq "S" && !$post->{'_loaded'} && !$post->{'_show'}) {
             $ret .= "<p><a name='$htmlid'></a><table class='screenedcomment'><tr>";
-            $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
+            $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             my $screenedtext = $ML{'.screenedpost'};
             $ret .= "<td>$screenedtext</td></tr></table>\n";
         } elsif ($pu && $pu->is_suspended && !$viewsome) {
             $ret .= "<p><a name='$htmlid'></a><table class='suspendedcomment'><tr>";
-            $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
+            $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             $ret .= "<td>$ML{'.replysuspended'}";
             if (LJ::Talk::can_delete($remote, $u, $up, $userpost)) {
                 $ret .= " <a href='$LJ::SITEROOT/delcomment?${jargent}id=$dtid'>" . LJ::img("btn_del", "", { align => 'absmiddle', hspace => 2 }) . "</a>";
@@ -486,7 +486,7 @@ body<=
                 }
 
                 $ret .= "<div id='$htmlid'><table width='100%' class='talk-comment'><tbody><tr>";
-                $ret .= "<td rowspan='2'><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
+                $ret .= "<td rowspan='2'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td id='cmtbar$dtid' class='cmtbar-$level' style='background-color: $bgcolor' width='100%'>";
 
                 # Build the image tag for the comment's userpic, if there is one
@@ -667,7 +667,7 @@ body<=
 
                 my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
                 $ret .= "<div id='$htmlid'><table ><tbody><tr>";
-                $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
+                $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td>";
                 if ($post->{'state'} eq 'F') {
                     $ret .= "($T{'frozen'}) ";
