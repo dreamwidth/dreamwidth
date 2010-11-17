@@ -29,6 +29,12 @@ attacker's email address.
 
 .desc.title=Description
 
+.header.check=Select
+
+.header.date=Date Added
+
+.header.email=Email Address
+
 .in_use_since=is in use since [[time]] 
 
 .log.deleted=Deleted: [[email]] @ [[time]]

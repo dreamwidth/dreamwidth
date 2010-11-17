@@ -21,7 +21,7 @@ _c?>
 
     $body = "<?standout $ML{'.info'} standout?><br />";
     $body .= "<form method='GET'>";
-    $body .= "<table><tr><td>$ML{'.label.term'}: </td>";
+    $body .= "<table summary=''><tr><td>$ML{'.label.term'}: </td>";
     $body .= "<td>" . LJ::html_text({ size => 30, value => $GET{'q'}, name => 'q' });
     $body .= "&nbsp;" . LJ::html_submit($ML{'.button.search'});
     $body .= "</td></tr>";

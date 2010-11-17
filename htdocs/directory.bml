@@ -151,7 +151,7 @@ body<=
             <div id="CountryBrowse">
             <?h1 $ML{'.browse.country.title'} h1?>
             <?p $ML{'.browse.country.desc'} p?>
-            <table style='margin-left: 20px' cellpadding='5'>
+            <table summary='' style='margin-left: 20px' cellpadding='5'>
             <tr valign='top'>
             <td align='left'>
             <ul>

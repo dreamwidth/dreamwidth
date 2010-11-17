@@ -205,7 +205,7 @@ _c?>
             $body .= "No reports found.";
             return undef;
         }
-        $body .= '<table>';
+        $body .= '<table summary="">';
         my @srids;
         foreach (@$res) {
             my $u2 = LJ::load_userid($_->[1]);

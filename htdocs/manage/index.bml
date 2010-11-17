@@ -98,7 +98,7 @@ body<=
     my $is_identity_no_email = $u->is_identity && !$u->email_raw;
 
     $ret .= "<?h1 $ML{'.youraccount.header'} h1?><div style='margin-left: 2em;'>";
-    $ret .= "<table width='50%'>";
+    $ret .= "<table summary='' width='50%'>";
     $ret .= "<tr><th align='left'>$ML{'.youraccount.user'}</th><td>" . LJ::ljuser($u) . "</td></tr>";
     $ret .= "<tr><th align='left'>$ML{'.youraccount.name'}</th><td>" . LJ::ehtml($u->{'name'}) . "</td></tr>";
     if ($is_identity_no_email) {
@@ -113,7 +113,7 @@ body<=
 }
 _code?>
 
-<table style="width: 100%; clear: both">
+<table summary='' style="width: 100%; clear: both">
 <tr valign="top"><td style="width: 50%">
 <?block
 header=><?_ml .settings_pref _ml?>

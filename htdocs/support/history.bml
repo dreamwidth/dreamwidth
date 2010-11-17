@@ -115,7 +115,7 @@ body<=
         }
     }
 
-    $ret .= "<table><tr><th colspan='2'>Search for Requests</th></tr>";
+    $ret .= "<table summary=''><tr><th colspan='2'>Search for Requests</th></tr>";
     $ret .= "<form method='get' action='history'>";
     $ret .= "<tr><td>By Email:</td><td><input type='text' name='email'></td></tr>";
     $ret .= "<tr><td>By Username:</td><td><input type='text' name='user'></td></tr>";

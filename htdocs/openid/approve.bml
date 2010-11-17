@@ -89,7 +89,7 @@ _c?>
 
     $body .= "<div style='overflow: auto; background: #DDD; word-wrap: break-word; color: black; border: 2px solid black; padding: 0.5em; font-size: 13pt'><tt>$dis_site</tt></div>";
     $body .= "<?p " . $ML{'.form.passid'} . " p?>";
-    $body .= "<table align='center'><tr><td><input type='submit' name='yes:once' value='".$ML{'.form.button.yes_this_time'}."' /> ";
+    $body .= "<table summary='' align='center'><tr><td><input type='submit' name='yes:once' value='".$ML{'.form.button.yes_this_time'}."' /> ";
     $body .= "<input type='submit' name='yes:always' value='".$ML{'.form.button.yes_always'}."' /> ";
     $body .= "<input type='submit' name='no' value='".$ML{'.form.button.no'}."' /></td></tr></table>";
     $body .= "</form>";

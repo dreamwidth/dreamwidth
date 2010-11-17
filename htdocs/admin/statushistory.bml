@@ -95,7 +95,7 @@ _c?>
     foreach (qw(user admin shtype shdate notes)) {
         my $link = "statushistory?user=$FORM{'user'}&admin=$FORM{'admin'}&type=$FORM{'type'}&orderby=$_";
         $link .= $FORM{'orderby'} eq $_ && $FORM{'flow'} eq 'asc' ? "&flow=desc" : "&flow=asc";
-        $ret .= "<td><b><a href='$link'>$_</a></b></td>";
+        $ret .= "<th><a href='$link'>$_</a></th>";
     }
     $ret .= "</tr>\n";
 

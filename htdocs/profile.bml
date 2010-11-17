@@ -445,7 +445,7 @@ body<=
             push @row_texts, $row_text;
         }
 
-        $bibody .= q{ <div class="profile"><table><tr><th> };
+        $bibody .= q{ <div class="profile"><table summary=''><tr><th> };
         $bibody .= join( '</td></tr><tr><th>', @row_texts );
         $bibody .= q{ </td></tr></table></div> };
     }
@@ -492,7 +492,7 @@ body<=
                 push @row_texts, LJ::Lang::ml( '.label.syn.hubbub.' . $ml ) . '</th><td>' . $txt;
             }
 
-            $fredbody .= q{ <div class="profile"><table><tr><th> };
+            $fredbody .= q{ <div class="profile"><table summary=''><tr><th> };
             $fredbody .= join( '</td></tr><tr><th>', @row_texts );
             $fredbody .= q{ </td></tr></table></div> };
         }
@@ -595,7 +595,7 @@ body<=
             section_name_ml => '.im.header2',
             section_link    => 'services',
             extra_attrs     => $new_im_margin,
-            body            => "<table>$imlist</table>",
+            body            => "<table summary=''>$imlist</table>",
             links           => $links,
             collapsible     => 0,
         );

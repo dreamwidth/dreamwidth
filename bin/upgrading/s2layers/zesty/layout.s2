@@ -1659,7 +1659,7 @@ function Page::lay_print_week(YearWeek w) : void {
 #
 function Page::lay_print_month(YearMonth m) {
     """
-    <table class="month">
+    <table summary="Monthly calendar with links to each day's entries" class="month">
     <tr>
     """;
     foreach var int d (weekdays()) {

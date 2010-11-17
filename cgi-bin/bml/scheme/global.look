@@ -226,7 +226,7 @@ screenedbarcolor=>{S}#707070
 CHOICE=>{P}<dt><a href="%%data2%%"><font size="+1"><tt><b>%%data1%%</b></tt></font></a><dd><font size="2">%%data3%%</font>
 
 CHOICES<=
-{F}<table width="100%" cellpadding="2" cellspacing="5">
+{F}<table summary="" width="100%" cellpadding="2" cellspacing="5">
 <tr>
 <td valign='top' width="50%">
 <dl>

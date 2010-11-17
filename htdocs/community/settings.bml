@@ -260,7 +260,7 @@ body<=
         LJ::set_active_crumb('createcommunity');
           $ret .= "<?h2 $ML{'.label.commheader'} h2?>" .
               ($mode eq 'modify' ? "<?p $ML{'.label.commchange'} p?>" : "<?p " . BML::ml('.label.commcreate2', {'aopts' => "href='$LJ::SITEROOT/create'"}) . " p?>");
-          $ret .= "<?standout <table width='350' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer'}</b></td>";
+          $ret .= "<?standout <table summary='' width='350' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer'}</b></td>";
           $ret .= "<td><?ljuser $remote->{'user'} ljuser?><br />" . BML::ml('.label.maintainer.login2', {'aopts' => "href='$LJ::SITEROOT/login?ret=1'"}) . "</td></tr>";
           $ret .= "<tr valign='top'><td><b>$ML{'.label.community'}</b></td>";
           $ret .= "<td>$ML{'.label.username'}<br /><input name='cuser' maxlength='25' value='$cname' /><br />";

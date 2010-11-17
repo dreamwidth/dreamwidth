@@ -3,9 +3,16 @@
 
 .down.text=total supporting users, <b>[[count]]</b> displayed.
 
-.title.text=The following people have helped other users in the support area:
+.header.delta=Delta
 
-.warn.support=Support high score data is not available.
+.header.points=Points
+
+.header.rank=Rank
+
+.header.user=User
 
 .title=High Scores
 
+.title.text=The following people have helped other users in the support area:
+
+.warn.support=Support high score data is not available.

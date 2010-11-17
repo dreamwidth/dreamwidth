@@ -1065,7 +1065,7 @@ sub render {
             # few opts, display radios
             if ($do_radios) {
 
-                $results_table .= "<table><tr valign='top' align='center'>";
+                $results_table .= "<table summary=''><tr valign='top' align='center'>";
 
                 for (my $at=$from; $at<=$to; $at+=$by) {
 
@@ -1101,7 +1101,7 @@ sub render {
                 $results_table .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
                 $results_table .= "<br />\n";
                 $do_table = 1;
-                $results_table .= "<table>";
+                $results_table .= "<table summary=''>";
             }
 
             my @items = $self->question($qid)->items;

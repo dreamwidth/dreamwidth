@@ -123,7 +123,7 @@ _c?>
         $ret .= "<p>";
 
         if ($u) {
-            $ret .= "<table><tr valign='middle'>";
+            $ret .= "<table summary=''><tr valign='middle'>";
 
             my $pic = LJ::Userpic->new_from_keyword( $up, $req{prop_picture_keyword} );
             my $imgtag = $pic ? $pic->imgtag : undef;

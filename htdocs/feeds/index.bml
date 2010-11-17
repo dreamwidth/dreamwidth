@@ -228,8 +228,8 @@ body<=
     if (@pop) {
         $ret .= "<?h1 $ML{'.add.pop.title'} h1?><?p $ML{'.add.pop.text'} p?>";
         $ret .= "<p><table cellpadding='3' style='margin-bottom: 10px; width: 80%;'>";
-        $ret .= "<tr><td><b>$ML{'.table.account'}</b></td><td><b>$ML{'.table.feed'}</b></td><td></td>";
-        $ret .= "<td align='right'><b>$ML{'.table.watchers'}</b></td></tr>";
+        $ret .= "<tr><th>$ML{'.table.account'}</th><th>$ML{'.table.feed'}</th><td></td>";
+        $ret .= "<th align='right'>$ML{'.table.watchers'}</th></tr>";
         foreach (@pop) {
             my ($user, $url, $count) = @$_;
             $ret .= "<tr>";

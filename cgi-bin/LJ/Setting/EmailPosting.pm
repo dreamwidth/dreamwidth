@@ -51,7 +51,7 @@ sub option {
                                     aopts => "href='$LJ::SITEROOT/manage/emailpost?mode=help'" } );
     $ret .= " $upgrade_link</p>";
 
-    $ret .= "<table class='setting_table' cellspacing='5' cellpadding='0'>";
+    $ret .= "<table summary='' class='setting_table' cellspacing='5' cellpadding='0'>";
 
     if ( $can_emailpost ) {
         foreach my $i (0..2) {

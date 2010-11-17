@@ -225,7 +225,7 @@ body<=
     LJ::expand_embedded($u, $ditemid, $remote, \$event);
     BML::ebml(\$event);
 
-    $ret .= "<table id='poster'><tr>";
+    $ret .= "<table summary='' id='poster'><tr>";
 
     my $pickw = $init->{'replyto'} ? $parpost->{'picture_keyword'} : $props->{'picture_keyword'};
     LJ::Hooks::run_hook('notify_event_displayed', $entry);

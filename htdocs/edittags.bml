@@ -101,7 +101,7 @@ body<=
 
     $ret .= "<script type='text/javascript'> var cur_taglist = '$logtagstr'; </script>";
 
-    $ret .= '<table class="edittbl" cellpadding="0" cellspacing="0" width="50%">';
+    $ret .= '<table summary="" class="edittbl" cellpadding="0" cellspacing="0" width="50%">';
     $ret .= "<tr><td class='l'>$ML{'.subject'}</td><td>$subj</td></tr>" if $subj;
 
     $ret .= '<form method="POST" action="/edittags" id="edit_tagform">';

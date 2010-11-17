@@ -65,7 +65,7 @@ sub render_body {
     my $ret;
 
     unless ($minimal_display) {
-        $ret .= "<table class='field_block'>\n";
+        $ret .= "<table summary='' class='field_block'>\n";
 
         $ret .= "<tr><td class='field_class'>" . $class->ml('widget.location.fn.country') . "</td><td>";
     }

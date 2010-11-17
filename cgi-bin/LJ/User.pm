@@ -8522,7 +8522,7 @@ sub user_search_display {
         next unless LJ::isu($u);
 
         $ret .= "<div class='user-search-display'>";
-        $ret .= "<table style='height: 105px'><tr>";
+        $ret .= "<table summary='' style='height: 105px'><tr>";
 
         $ret .= "<td style='width: 100px; text-align: center;'>";
         $ret .= "<a href='" . $u->allpics_base . "'>";
@@ -8535,7 +8535,7 @@ sub user_search_display {
         }
         $ret .= "</a>";
 
-        $ret .= "</td><td style='padding-left: 5px;' valign='top'><table>";
+        $ret .= "</td><td style='padding-left: 5px;' valign='top'><table summary=''>";
 
         $ret .= "<tr><td class='searchusername' colspan='2' style='text-align: left;'>";
         $ret .= $u->ljuser_display({ head_size => $args{head_size} });

@@ -70,7 +70,7 @@ use strict;
       <div id='settings_page'>
         <form action="/manage/externalaccount" method="post" id="createacct">
           <div id='xpost_add'>
-            <table class='setting_table'>
+            <table summary='' class='setting_table'>
     };
 
     if ($editpage) {
@@ -113,7 +113,7 @@ use strict;
             onchange => "updateSiteSelection()",
             selected => $POST{site} || '2'
                                           }, @sitevalues);
-        $body .= "<table id='customsite'>";
+        $body .= "<table summary='' id='customsite'>";
     
         $body .= "<tr><td class='setting_label'><label for='servicetype'>" . $ML{'.setting.xpost.option.servicetype'} . "</label></td>";
         $body .= "<td>" . LJ::html_select({

@@ -208,7 +208,7 @@ body<=
         $ret .= "<input type='hidden' name='user' value='$user' />\n";
         $sth = $dbh->prepare("SELECT pm.prmid, pm.prlid, pm.arg FROM priv_map pm, priv_list pl WHERE pm.prlid=pl.prlid AND pm.userid=$userid ORDER BY pl.privcode,pm.arg");
         $sth->execute;
-        $ret .= "<table cellpadding='5' cellspacing='1' border='1'><tr><td><b>Revoke</b></td><td><b>Privilege</b></td><td><b>Arg</b></td></tr>\n";
+        $ret .= "<table cellpadding='5' cellspacing='1' border='1'><tr><th>Revoke</th><th>Privilege</th><th>Arg</th></tr>\n";
         while (my ($prmid, $prlid, $arg) = $sth->fetchrow_array)
         {
             my $prec = $priv{$prlid};
@@ -294,7 +294,7 @@ body<=
                           "FROM priv_map pm, useridmap u WHERE pm.prlid=$priv AND pm.userid=u.userid$viewarg ".
                           "ORDER BY u.user,pm.arg LIMIT $skip,$limit");
         $sth->execute;
-        $ret .= "<table cellpadding='5' cellspacing='1' border='1'><tr><td><b>Revoke</b></td><td><b>User</b></td><td><b>Arg</b></td></tr>\n";
+        $ret .= "<table cellpadding='5' cellspacing='1' border='1'><tr><th>Revoke</th><th>User</th><th>Arg</th></tr>\n";
 
         my $showgrant = remote_can_grant($remote, $pcode, $FORM{'viewarg'});
         my $foundcount = 0;

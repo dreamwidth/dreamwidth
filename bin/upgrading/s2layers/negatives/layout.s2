@@ -782,7 +782,7 @@ function YearPage::print_body()
 
 function YearPage::print_month(YearMonth m) {
     if (not $m.has_entries) { return; }
-    """<br /><div class="entry"><table style="width: 100%; border-collapse: collapse;">\n
+    """<br /><div class="entry"><table summary="Monthly calendar with links to each day's entries" style="width: 100%; border-collapse: collapse;">\n
        <tr><th class="comments" colspan="7" style="text-align: center;">""";
     print $m->month_format();
     """</th></tr>\n""";

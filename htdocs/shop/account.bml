@@ -93,7 +93,7 @@ body<=
     $ret .= "<div style='clear: both;'></div>";
     $ret .= "<form method='post'>";
     $ret .= LJ::form_auth();
-    $ret .= "<table class='shop-table'><tr>";
+    $ret .= "<table summary='' class='shop-table'><tr>";
     $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'prem' ) . "</td>";
     $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'paid' ) . "</td>"
         if $for ne 'self' || DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
@@ -108,7 +108,7 @@ body<=
     $ret .= "</table>";
 
     if ( $for =~ /^(?:gift|new|random)$/ ) {
-        $ret .= "<table class='shop-table-gift'>";
+        $ret .= "<table summary='' class='shop-table-gift'>";
 
         if ( $for eq 'gift' ) {
             $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username', value => LJ::ehtml( $GET{user} ) } ) . "</td></tr>";

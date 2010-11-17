@@ -27,7 +27,7 @@ function writeRTE(rte, postvar, html, width, height, buttons) {
         document.writeln('<style type="text/css">');
         document.writeln('.btnImage {cursor: pointer; cursor: hand;}');
         document.writeln('</style>');
-        document.writeln('<table cellpadding="1" cellspacing="0" border="0">');
+        document.writeln('<table summary="" cellpadding="1" cellspacing="0" border="0">');
         document.writeln('      <tr>');
         document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_bold.gif" width="25" height="24" alt="Bold" title="Bold" onClick="FormatText(\'' + rte + '\', \'bold\', \'\')"></td>');
         document.writeln('              <td><img class="btnImage" src="/img/rte/post_button_italic.gif" width="25" height="24" alt="Italic" title="Italic" onClick="FormatText(\'' + rte + '\', \'italic\')"></td>');

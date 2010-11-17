@@ -139,7 +139,7 @@ sub check_html {
     $iwrite->close;
 
 
-    return ( ( $mscnt || $other_bad ) ? "$output<p><b>Suggestions:</b><table cellpadding=3 border=0>$footnotes</table>" : "" );
+    return ( ( $mscnt || $other_bad ) ? "$output<table cellpadding=3 border=0><tr><th>Text</th><th>Suggestions</th></tr>$footnotes</table>" : "" );
 }
 
 1;

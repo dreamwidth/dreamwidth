@@ -266,9 +266,9 @@ body<=
  my @headers = ( id => "ID#", summary => $ML{'.th.summary'}, area => $ML{'.th.problemarea'}, date => $ML{'.th.posted'} );
  while (my ($sorttype, $desc) = splice(@headers, 0, 2)) {
      if ($sort eq $sorttype) {
-         $ret .= "<td><b>$desc</b></td>\n";
+         $ret .= "<th>$desc</th>\n";
      } else {
-         $ret .= "<td><b><a href='$uri&sort=$sorttype'>$desc</a></b></td>\n";
+         $ret .= "<th><a href='$uri&sort=$sorttype'>$desc</a></th>\n";
      }
  }
  $ret .= "<td><b>$ML{'.th.status'}</b></td>\n";

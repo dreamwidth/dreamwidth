@@ -96,7 +96,7 @@ body<=
 
         $ret .= "<form method='post' action='./editprivacy'>";
         $ret .= "<?h1 $ML{'.timeframe'} h1?>";
-        $ret .= "<table><tr><td>\n";
+        $ret .= "<table summary=''><tr><td>\n";
         $ret .= LJ::html_check({ 'type' => 'radio', 'name' => 'time',
                                  'value' => 'all', 'id' => 'time_all',
                                  'checked' => ($POST{time} eq 'time_all') })

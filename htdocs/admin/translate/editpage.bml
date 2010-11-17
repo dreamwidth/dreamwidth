@@ -114,7 +114,7 @@
                                  );
 
          # top bar
-         $ret .= "<table bgcolor='#c0c0c0' width='100%'><tr><td><b>Code:</b> ";
+         $ret .= "<table summary='' bgcolor='#c0c0c0' width='100%'><tr><td><b>Code:</b> ";
          if ($dmid != 1) {
              my $d = LJ::Lang::get_dom_id($dmid);
              $ret .= "[$d->{'uniq'}] ";
@@ -208,7 +208,7 @@
      if ($ict) {
          $ret .= LJ::html_hidden("ict", $ict);
          my $disabled = $can_edit ? "" : "disabled='disabled'";
-         $ret .= "<table width='100%' bgcolor='#e0e0e0'><tr><td align='center'><input type='submit' $disabled value='Save' /></td></tr></table>";
+         $ret .= "<table summary='' width='100%' bgcolor='#e0e0e0'><tr><td align='center'><input type='submit' $disabled value='Save' /></td></tr></table>";
      } else {
          $ret .= "No items to show.  (since been deleted, perhaps?)";
      }

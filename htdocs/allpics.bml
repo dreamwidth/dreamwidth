@@ -190,7 +190,7 @@ _c?>
             $body .= $keyword_sort ? "$ML{'.sort.keyword'}" : '<a href = "' . $u->allpics_base . '?keywordSort=1">' . "$ML{'.sort.keyword'}</a>";
             $body .= "</p>\n";
             
-            $body .= " p?><table class='allpics'>";
+            $body .= " p?><table summary='' class='allpics'>";
         }
         
         ### Keywords

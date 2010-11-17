@@ -33,7 +33,7 @@ sub render_body {
 
     my $ret;
 
-    $ret .= "<table cellspacing='0' cellpadding='0'><tr>";
+    $ret .= "<table summary='' cellspacing='0' cellpadding='0'><tr>";
 
     my $count = 1;
     foreach my $step (@steps_to_show) {

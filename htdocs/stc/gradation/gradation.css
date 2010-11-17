@@ -368,12 +368,14 @@ table#table_yourlayers { border-collapse: collapse; }
 table.table_layerbrowse,
 table.table_layerbrowse td,
 table#table_yourlayers,
+table#table_yourlayers th,
 table#table_yourlayers td { border: 1px solid #888888; }
 
 table#table_layerbrowse_classes,
 table#table_layerbrowse_classes td {border: none; }
 
 table.table_layerbrowse td,
+table#table_yourlayers th,
 table#table_yourlayers td { padding: .15em .25em; }
 
 /**

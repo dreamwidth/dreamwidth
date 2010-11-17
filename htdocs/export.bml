@@ -47,7 +47,7 @@ body<=
     $ret .= <<'HTMLBLOCK';
 
 <?standout
-<table>
+<table summary="">
 <tr valign='top'><td><?_ml .label.what _ml?></td>
 <td>
     <select name="what" id="what">

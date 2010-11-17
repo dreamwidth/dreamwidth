@@ -131,7 +131,7 @@ sub render_body {
 
     $messagetable .= qq {
         <div id="${name}_Table" class="NotificationTable">
-        <table id="${name}" class="inbox" cellspacing="0" border="0" cellpadding="0">
+        <table summary='' id="${name}" class="inbox" cellspacing="0" border="0" cellpadding="0">
     };
     $messagetable .= $actionsrow->(1);
     $messagetable .= "<tbody id='${name}_Body'>";

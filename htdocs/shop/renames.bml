@@ -77,7 +77,7 @@ body<=
     $ret .= LJ::form_auth();
 
     if ( $for eq "gift" ) {
-        $ret .= "<table class='shop-table-gift'>";
+        $ret .= "<table summary='' class='shop-table-gift'>";
 
         if ( $for eq 'gift' ) {
             $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username', value => LJ::ehtml( $GET{user} ) } ) . "</td></tr>";

@@ -143,7 +143,7 @@ ins {
     $then = LJ::eall($then);
     $then =~ s/\n( *)/"<br \/>" . "&nbsp;"x length($1)/eg;
     
-    $ret .= "<p><table width='100%' border='1'><tr valign='top'><td width='50%'><b>Before:</b><br>$was</td>";
+    $ret .= "<p><table summary='' width='100%' border='1'><tr valign='top'><td width='50%'><b>Before:</b><br>$was</td>";
     $ret .= "<td width='50%'><b>After:</b><br>$then</td></tr></table>";
 
     unlink($was_file, $then_file);

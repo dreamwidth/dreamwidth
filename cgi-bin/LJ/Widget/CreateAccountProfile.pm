@@ -41,7 +41,7 @@ sub render_body {
     $ret .= "<h2>" . $class->ml('widget.createaccountprofile.title') . "</h2>";
     $ret .= "<p>" . $class->ml('widget.createaccountprofile.info') . "</p>";
 
-    $ret .= "<table cellspacing='3' cellpadding='0'>\n";
+    $ret .= "<table summary='' cellspacing='3' cellpadding='0'>\n";
 
     ### name
     $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.name') . "</td>\n<td>";
@@ -82,7 +82,7 @@ sub render_body {
     $ret .= "<p class='header'>" . $class->ml('widget.createaccountprofile.field.interests') . " ";
     $ret .= "<span class='header-note'>" . $class->ml('widget.createaccountprofile.field.interests.note') . "</p>\n";
 
-    $ret .= "<table cellspacing='3' cellpadding='0'>\n";
+    $ret .= "<table summary='' cellspacing='3' cellpadding='0'>\n";
 
     my @eintsl;
     my $interests = $u->interests;

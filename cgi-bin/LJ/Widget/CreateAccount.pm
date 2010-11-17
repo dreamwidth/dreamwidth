@@ -89,7 +89,7 @@ sub render_body {
     $ret .= "<div class='relative-container'>\n";
     $ret .= "<div id='tips_box_arrow'></div>";
     $ret .= "<div id='tips_box'></div>";
-    $ret .= "<table class='create-form' cellspacing='0' cellpadding='3'>\n";
+    $ret .= "<table summary='' class='create-form' cellspacing='0' cellpadding='3'>\n";
 
     ### username
 

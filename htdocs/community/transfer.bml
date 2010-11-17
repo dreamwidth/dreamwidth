@@ -66,7 +66,7 @@ _c?>
     $body .= "<?p $ML{'.body'} p?>";
     $body .= "<form method='post' action='/community/transfer'>";
     $body .= LJ::form_auth();
-    $body .= "<table><tr><td>$ML{'.account'}</td>";
+    $body .= "<table summary=''><tr><td>$ML{'.account'}</td>";
     $body .= "<td>" . LJ::html_text({ name => 'comm', id => 'comm', value => $POST{comm} }) . "</td></tr>\n";
     $body .= "<tr><td></td><td><?inerr $errors{invalidform} inerr?></td></tr>" if $errors{invalidform};
     $body .= "<tr><td></td><td><?inerr $errors{username} inerr?></td></tr>" if $errors{username};

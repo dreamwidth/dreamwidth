@@ -202,7 +202,7 @@ body<=
             # Figure out if this picture is really just inherited from a parent
             my $inherited = ( $pic{moodid} != $mood->{id} ) ? 1 : 0;
 
-            $ret .= "<table>";
+            $ret .= "<table summary=''>";
             if ( $mood->{parent} ) {
                 $ret .= "<tr><td colspan='2'><label for='$mood->{id}inherit'>";
                 $ret .= BML::ml( '.mood.label.inherit',

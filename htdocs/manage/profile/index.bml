@@ -118,7 +118,7 @@ body<=
         $ret .= "<form method='post' action='./$getextra'>\n";
         $ret .= LJ::form_auth();
 
-        $ret .= "<table width='100%' style='margin: 1em 0;'>\n";
+        $ret .= "<table summary='' width='100%' style='margin: 1em 0;'>\n";
 
         # personal information
         $ret .= qq {
@@ -430,7 +430,7 @@ body<=
 
             $u->{'gizmo'} = $u->gizmo_account();
 
-            $ret .= "<tr><td colspan=3><table>";
+            $ret .= "<tr><td colspan=3><table summary=''>";
             my $oddeven = 0;
 
             foreach my $p (
@@ -508,7 +508,7 @@ body<=
                                      style => "width: 90%" } );
 
         ## CIRCLE
-        $ret .= "<table width='100%' style='margin: 1em 0;'>";
+        $ret .= "<table summary='' width='100%' style='margin: 1em 0;'>";
         $ret .= "<tr class='section_head'><td width='75%' colspan=3>";
         $ret .= "<a name='display'></a>";
         $ret .= $u->is_community ? $ML{'.section.display.members'} : $ML{'.section.display.circle'};

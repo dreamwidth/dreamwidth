@@ -110,7 +110,7 @@ sub option {
 
     $ret .= "<h2>" . $class->ml('setting.xpost.settings') . "</h2>";
     # disable comments on crosspost
-    $ret .= "<table><tr>";
+    $ret .= "<table summary=''><tr>";
     $ret .= "<td><b>" . $class->ml('setting.xpost.comments') . "</b></td><td><label for='${key}xpostdisablecomments'>" . $class->ml('setting.xpost.option.disablecomments') . "</label></td><td>";
     $ret .= LJ::html_check({
         name     => "${key}xpostdisablecomments",

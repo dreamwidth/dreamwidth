@@ -226,7 +226,7 @@ $body .= qq {
 
       <?standout <div style='float: right;'>
       <form action="$LJ::SITEROOT/editicons$sfx?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
-      <table cellpadding="4"><tr>
+      <table summary="" cellpadding="4"><tr>
       <td style='whitespace: nowrap'>
         <nobr><input type="checkbox" id="constrain" onchange="setConstrain();" />
         <label for="constrain">Keep square</nobr></label><br /><small>(or hold Shift)</small>

@@ -308,7 +308,7 @@ body<=
     ### request info table
 
     my $ret = "";
-    $ret .= "<table class='support-requesttable'>\n";
+    $ret .= "<table summary='' class='support-requesttable'>\n";
     $ret .= "<tr><td valign='bottom' align='right'><b>$ML{'.from'}</b></td><td>";
     
     if ( $u->{'defaultpicid'} && !$u->is_suspended ) {
@@ -585,7 +585,7 @@ body<=
         if ($up && LJ::Support::can_see_helper($sp, $remote)) {
             my $picid = $up->get_picid_from_keyword( '_support' ) || $up->{defaultpicid};
             my $icon = $picid ? LJ::Userpic->new( $up, $picid ) : undef;
-            $header = "<table style='margin-top: 15px;'><tr valign='bottom'>";
+            $header = "<table summary='' style='margin-top: 15px;'><tr valign='bottom'>";
             if ( $icon && !$up->is_suspended ) {
                 my $alt = $up->display_name;
                 my $src = $icon->url;
@@ -623,7 +623,7 @@ body<=
 
         # reply
         $ret .= "$header<br />\n";
-        $ret .= "<table class='support-requesttable-$bordercolor'>\n";
+        $ret .= "<table summary='' class='support-requesttable-$bordercolor'>\n";
         $ret .= "<tr><td align='center'>\n";
         if ($le->{faqid}) {
             # faq question
@@ -681,7 +681,7 @@ body<=
     $ret .= LJ::html_hidden('spid', $spid, 'auth', $auth) . "\n";
 
     # form
-    $ret .= "<table class='support-requesttable'>\n";
+    $ret .= "<table summary='' class='support-requesttable'>\n";
     $ret .= "<tr valign='middle'><td align='right'>$ML{'.from'}</td><td>";
     
     if ($remote && $remote->{'userid'}) {
@@ -778,7 +778,7 @@ body<=
     {
         $ret .= "<tr><td align='right'></td><td>\n";
 
-        $ret .= "<table cellpadding='5'>";
+        $ret .= "<table summary='' cellpadding='5'>";
 
         $ret .= "<tr><td>$ML{'.change.cat'}:<br />";
         $ret .= LJ::html_select({ 'name' => 'changecat',
@@ -847,7 +847,7 @@ body<=
 
     if ($lang_ret || $tier_ret) {
         $ret .= "<tr><td align='right'></td><td>\n";
-        $ret .= "<table cellpadding='5'><tr>";
+        $ret .= "<table summary='' cellpadding='5'><tr>";
         $ret .= "$lang_ret$tier_ret";
         $ret .= "</tr></table>";
         $ret .= "</td></tr>\n";

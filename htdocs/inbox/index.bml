@@ -141,7 +141,7 @@ body<=
 
     # Inbox Nav
     $body .= qq{
-        <table id="table_inbox" style="width: 100%"><tr><td id="table_inbox_folders" valign="top" style="padding-right: 12px">};
+        <table summary='' id="table_inbox" style="width: 100%"><tr><td id="table_inbox_folders" valign="top" style="padding-right: 12px">};
     $body .= LJ::Widget::InboxFolderNav->render( 'page' => 1, 'view' => $view );
 
     $body .= qq{

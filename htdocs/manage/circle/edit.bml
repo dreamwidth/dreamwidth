@@ -534,7 +534,7 @@ d = winPreview.document;
 d.open();
 d.write("<html><head><title>$ejs{'mrcolor'}</title></head><body bgcolor='#ffffff' text='#000000'>");
 d.write("<b><font face='Trebuchet MS, Arial, Helvetica' size='4' color='#000066'><i>$ejs{'viewer'}</i></font></b><hr />");
-d.write("<br /><table width='350' align='center' cellpadding='5'><tr valign='middle'>");
+d.write("<br /><table summary='' width='350' align='center' cellpadding='5'><tr valign='middle'>");
 d.write("<td width='80%'><b><font face='Arial, Helvetica' size='2'>");
 d.write("$ejs{'textcolor'}&nbsp; <font color='#000066'>" + fg_color_text);
 d.write("</font></b><br /></td><td width='20%' bgcolor=" + fg_color + ">&nbsp;</td>");

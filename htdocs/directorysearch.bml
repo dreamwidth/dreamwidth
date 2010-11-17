@@ -63,7 +63,7 @@ _code?>
 
 <form style='margin-top: 1.5em' action='/directory' method='get'>
 
-<table cellpadding='4' cellspacing='0' border='0'>
+<table summary='' cellpadding='4' cellspacing='0' border='0'>
 
 <!--- location --->
 <?crit
@@ -169,7 +169,7 @@ _c?>
 name=><?_ml .display_results _ml?>
 form<=
 
-<table>
+<table summary=''>
 <tr>
 <td align='right'>
 <?_ml .display_by _ml?>

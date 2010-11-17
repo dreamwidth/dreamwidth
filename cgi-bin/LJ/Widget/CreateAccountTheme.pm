@@ -32,7 +32,7 @@ sub render_body {
     $ret .= "<p>" . $class->ml('widget.createaccounttheme.info') . "</p>";
 
     my $count = 0;
-    $ret .= "<table cellspacing='3' cellpadding='0' align='center'>\n";
+    $ret .= "<table summary='' cellspacing='3' cellpadding='0' align='center'>\n";
     foreach my $uniq (@LJ::CREATE_ACCOUNT_THEMES) {
         my $theme = LJ::S2Theme->load_by_uniq($uniq);
         my $image_class = $theme->uniq;

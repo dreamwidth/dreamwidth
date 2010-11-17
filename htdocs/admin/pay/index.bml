@@ -108,7 +108,7 @@ EOF
 <br /><br />
     <form method="post"><input type="hidden" name="givetime" value="1">
     <input type="hidden" name="user" value="$u->{user}">$auth
-<table border='0' cellpadding='4'>
+<table summary='' border='0' cellpadding='4'>
 <tr><td>Give Paid Time:
     <select name="type">
         <option value="paid">Paid Account</option>

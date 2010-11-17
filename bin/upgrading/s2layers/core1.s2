@@ -2522,7 +2522,7 @@ function YearPage::print_year_links() {
 }
 function YearPage::print_month(YearMonth m) {
     if (not $m.has_entries) { return; }
-    """<table style="margin-left: 25%; margin-right: 25%; margin-top: 1em; margin-bottom: 1em;
+    """<table summary="Monthly calendar with links to each day's entries" style="margin-left: 25%; margin-right: 25%; margin-top: 1em; margin-bottom: 1em;
        border-collapse: collapse; border: 1px solid;" border="1">\n
        <tr><th colspan="7" style="text-align: center; border: 1px solid;">""";
     print $m->month_format();
@@ -2736,7 +2736,7 @@ function EntryPage::print_comment (Comment c) {
     var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
 
     "<a name='$c.anchor'></a><div style='background-color: $barc; margin-top: 10px; width: 100%'>";
-    "<table cellpadding='2' cellspacing='0' summary='0' style='width: 100%'><tr valign='top'>";
+    "<table summary='' cellpadding='2' cellspacing='0' style='width: 100%'><tr valign='top'>";
     if (defined $c.userpic and $*comment_userpic_style != "off") {
         var int w = $c.userpic.width;
         var int h = $c.userpic.height;
@@ -2749,10 +2749,10 @@ function EntryPage::print_comment (Comment c) {
         }
         print "<td style='width: 102px'><img src='$c.userpic.url' width='$w' height='$h' alt='' /></td>";
     }
-    "<td><table style='width: 100%'><tr>";
+    "<td><table summary='' style='width: 100%'><tr>";
 
     "<td align='left' style='width: 50%'>";
-      print "<table>";
+      print "<table summary=''>";
       print safe "<tr><th align='right'>$*text_comment_from</th><td>$poster</td></tr>\n";
       print safe "<tr><th align='right'>$*text_comment_date</th><td style='white-space: nowrap'>";
         print $c->time_display() + "</td></tr>";
@@ -2805,7 +2805,7 @@ function EntryPage::print_comment_partial (Comment c) {
 
 function ItemRange::print() {
     if ($.all_subitems_displayed) { return; }
-    print "<table align='center' border='0' cellpadding='3'>";
+    print "<table summary='' align='center' border='0' cellpadding='3'>";
     print "<tr><td align='center' colspan='3'><b>" +
         lang_page_of_pages($.current, $.total) + "</b>";
     print "</td></tr>";
@@ -2838,7 +2838,7 @@ function EntryPage::print_body
     var Entry e = $.entry;
     """<div class="entry" id="$e.dom_id">\n""";
 
-    "<table><tr valign='middle'>";
+    "<table summary=''><tr valign='middle'>";
     if (defined $e.userpic) {
         print "<td>$e.userpic</td>";
     }
@@ -2894,7 +2894,7 @@ function ReplyPage::print_body
         $security = $en.security_icon;
     }
 
-    "<table><tr valign='middle'>";
+    "<table summary=''><tr valign='middle'>";
         if (defined $.replyto.userpic) {
             print "<td>$.replyto.userpic</td>";
         }

@@ -397,10 +397,10 @@ body<=
     $ret .= "<form method='post' action='emailpost'>\n";
     $ret .= LJ::form_auth();
     $ret .= "<div style='margin-left:40px;'>";
-    $ret .= "<table border=\"0\"><tr><td>$ML{'.addresses.table.address'}</td>";
-    $ret .= "<td>$ML{'setting.emailposting.option.senderrors'}</td>";
+    $ret .= "<table border=\"0\"><th>$ML{'.addresses.table.address'}</th>";
+    $ret .= "<th>$ML{'setting.emailposting.option.senderrors'}</th>";
     $ret .= "<td>&nbsp;</td>";
-    $ret .= "<td>$ML{'setting.emailposting.option.helpmessage'}</td></tr>";
+    $ret .= "<th>$ML{'setting.emailposting.option.helpmessage'}</th></tr>";
     for(0..2) { # Limited to 3 addresses.
         $ret .= '<tr><td>';
         my $selected = 0;
@@ -428,7 +428,7 @@ body<=
     $ret .= "<?h1 $ML{'.settings.header'} h1?>";
     $ret .= "<?p " . BML::ml('.settings.text', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";
     $ret .= "<div style='margin-left:40px;'>";
-    $ret .= "<table cellspacing='0' class='settings'>";
+    $ret .= "<table summary='' cellspacing='0' class='settings'>";
 
     $ret .= "<tr><td colspan='2'><?h2 $ML{'.settings.entry.header'} h2?></td></tr>";
     $ret .= "<tr><td>$ML{'.settings.entry.userpic'}</td><td>";

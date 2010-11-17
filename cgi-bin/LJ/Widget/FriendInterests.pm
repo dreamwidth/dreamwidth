@@ -111,7 +111,7 @@ sub render_body {
     $ret .= "<div id='friend_interests' class='pkg' style='display: none;'>";
     $ret .= $class->ml('widget.friendinterests.intro', {user => $fromu->ljuser_display});
 
-    $ret .= "<table>";
+    $ret .= "<table summary=''>";
     my @fromintsorted = sort keys %$fromints;
     my $cols = 4;
     my $rows = int((scalar(@fromintsorted) + $cols - 1) / $cols);

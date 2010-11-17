@@ -108,7 +108,7 @@ body<=
         );
 
         my $out = "<?p $ML{'.about'} p?><?p <strong>" . LJ::Lang::ml( '.about.security', { sitename => $LJ::SITENAME } ) . "</strong> p?>";
-        $out .= "<form method='post'>" . LJ::form_auth() . "<table>";
+        $out .= "<form method='post'>" . LJ::form_auth() . "<table summary=''>";
         while ( my ( $name, $edit ) = splice( @form, 0, 2 ) ) {
             if ( $name eq '--' ) {
                 $out .= "<tr><td colspan='2'>&nbsp;</td></tr>";

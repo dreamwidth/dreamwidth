@@ -41,7 +41,7 @@ sub render_body {
 
     $ret .= "<p class='detail'>" . $class->ml('widget.linkslist.about') . "</p>";
 
-    $ret .= "<table cellspacing='2' cellpadding='0'><tr valign='top'><td>";
+    $ret .= "<table summary='' cellspacing='2' cellpadding='0'><tr valign='top'><td>";
 
     # how many link inputs to show?
     my $showlinks = $post->{numlinks} || @$linkobj;

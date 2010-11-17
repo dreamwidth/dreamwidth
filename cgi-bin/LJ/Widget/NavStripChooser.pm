@@ -64,7 +64,7 @@ sub render_body {
         }
     }
 
-    $ret .= "<table>";
+    $ret .= "<table summary=''>";
     $ret .= "<tr><td valign='top'>" . $class->html_check(
         type => "radio",
         name => "control_strip_color",
@@ -122,7 +122,7 @@ sub render_body {
         $ret .= " <label for='control_strip_gradient_custom'>" . $class->ml('widget.navstripchooser.option.color.no_gradient') . "</label><br />";
 
         my $count = 0;
-        $ret .= "<table class='color-picker'>";
+        $ret .= "<table summary='' class='color-picker'>";
         foreach my $prop (@props) {
             $prop = S2::get_property($theme->coreid, $prop)
                 unless ref $prop;

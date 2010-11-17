@@ -31,7 +31,7 @@
 
         <form method='post'>
             [% dw.form_auth %]
-            <table class='shop-table-gift'>
+            <table summary='' class='shop-table-gift'>
             [% IF foru %]
                 <tr><td>[% '.buying.for' | ml %]</td><td>[% foru.ljuser_display %]
                     <input type='hidden' name='foruser' value='[% foru.user %]' />

@@ -145,7 +145,7 @@ _c?>
 
         $body .= "<?standout \n";
         $body .= "<form method='post' action='$LJ::SITEROOT/view/' style='display:inline'><input type='hidden' name='type' value='month' /><input type='hidden' name='user' value='$u->{'user'}' />";
-        $body .= "<table><tr valign='middle'>";
+        $body .= "<table summary=''><tr valign='middle'>";
         $body .= "<td><b>$prev</b></td>";
         $body .= "<td><select name='m'>";
         for (my $i=1;$i<=12;$i++) {
@@ -210,7 +210,7 @@ _c?>
             my $dayview_url = sprintf("$base/%04d/%02d/%02d/",
                                       $year, $month, $day);
             $body .= "<dt><b><a href=\"$dayview_url\">$day$ord</a></b></dt>";
-            $body .= "<dd><table cellpadding=2>";
+            $body .= "<dd><table summary='' cellpadding=2>";
         }
 
         # we need to convert the subject to UTF-8 if it's a pre-Unicode entry

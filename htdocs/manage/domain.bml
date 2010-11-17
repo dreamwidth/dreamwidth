@@ -129,7 +129,7 @@ body<=
         $ret .= "<?h2 $ML{'.domainalias.head'} h2?><?p $ML{'.domainalias.about'} p?>\n";
 
         $ret .= "<div style='margin: 20px 0 20px 30px'>";
-        $ret .= "<table><tr><td align='left'><b>$ML{'.domainalias.domainname'}</b></td><td>";
+        $ret .= "<table summary=''><tr><td align='left'><b>$ML{'.domainalias.domainname'}</b></td><td>";
         $ret .= LJ::html_text({ 'name' => 'journaldomain', 'size' => '30',
                                 'maxlength' => '80', 'value' => $u->{'journaldomain'},
                                 'disabled' => ! $has_cap });

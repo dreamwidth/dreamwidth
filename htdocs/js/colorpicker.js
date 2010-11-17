@@ -376,13 +376,13 @@ function _createInterface(p) {
             'button { width: 5em; margin: 5px;}\n'+
             'img { border: 1px solid #000000; padding: 0; margin: 0; }\n'+
             '</style>');
-    d.write('<table cellspacing="5" cellpadding="0" border="0">\n');
+    d.write('<table summary="" cellspacing="5" cellpadding="0" border="0">\n');
     d.write('<tr><td><img src="' + colpic_imgprefix + '/colorpicker/spectrum.png" '+
             'ismap width="512" height="256" id="spectrum"></td>\n');
     d.write('<td><img src="/palimg/colorpicker/longgrad.gif" '+
             'ismap width="25" height="256" id="brightness"></td></tr></table>\n');
     d.write('<form action="about:blank" method="GET" onsubmit="return false;">\n');
-    d.write('<center><table cellspacing="5" cellpadding="0" border="0" width="95%">\n');
+    d.write('<center><table summary="" cellspacing="5" cellpadding="0" border="0" width="95%">\n');
     d.write('<tr><td rowspan="3"><div id="preview" style="background-color: '+curclr+'; '+
             'border: 1px solid #000000; width: 50px; height: 50px; margin-left: 25%;">&nbsp;</div></td>\n');
     _writeControlRow(d,'Hue','fh');

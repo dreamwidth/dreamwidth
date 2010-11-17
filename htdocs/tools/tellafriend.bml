@@ -132,7 +132,7 @@ _c?>
  # Display form with info filled in
  $body .= "<form method='post' action='tellafriend'>";
  $body .= LJ::html_hidden({ name => 'mode', value => 'mail' });
- $body .= "<table cellpadding=3 border=0>";
+ $body .= "<table summary='' cellpadding=3 border=0>";
 
  $body .= "<tr><td align=right nowrap>" . BML::ml( ".email.fromfield" ) . "</td><td>" .
           LJ::ehtml($u->{'name'} || $u->{'user'}) .

@@ -1167,7 +1167,7 @@ function YearPage::print_month(YearMonth m)
     println "</a></h2>";
 
     println "<div class='month'>";
-    println "<table class=\"month-table\"><thead>";
+    println "<table summary=\"Monthly calendar with links to each day's entries\" class=\"month-table\"><thead>";
     foreach var int d (weekdays())
     {
         "<th>" + $*lang_dayname_short[$d] + "</th>";

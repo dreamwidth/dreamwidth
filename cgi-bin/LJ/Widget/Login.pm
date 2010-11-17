@@ -139,7 +139,7 @@ sub render_body {
         $ret .= LJ::help_icon('securelogin', '&nbsp;');
 
         if (LJ::Hooks::are_hooks("login_formopts")) {
-            $ret .= "<table>";
+            $ret .= "<table summary=''>";
             $ret .= "<tr><td>" . LJ::Lang::ml('/login.bml.login.otheropts') . "</td><td style='white-space: nowrap'>\n";
             LJ::Hooks::run_hooks("login_formopts", { 'ret' => \$ret });
             $ret .= "</td></tr></table>";

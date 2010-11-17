@@ -112,7 +112,7 @@ sub preview_as_html {
 
         # few opts, display radios
         if ($do_radios) {
-            $ret .= "<table><tr valign='top' align='center'>\n";
+            $ret .= "<table summary=''><tr valign='top' align='center'>\n";
             for (my $at = $from; $at <= $to; $at += $by) {
                 $ret .= "<td>" . LJ::html_check({ 'type' => 'radio' }) . "<br />$at</td>\n";
             }

@@ -133,6 +133,11 @@ body<=
         $ret .= "<form method='post' action='emailmanage$getextra'>";
         $ret .= LJ::form_auth();
         $ret .= "<table border='1' cellpadding='2' style='margin-bottom: 3px;'>\n";
+        $ret .= qq{<tr>
+                    <th>$ML{'.header.check'}</th>
+                    <th>$ML{'.header.email'}</th>
+                    <th>$ML{'.header.date'}</th>
+                </tr>};
         $ret .= $rows;
         $ret .= "</table>\n";
         $ret .= LJ::html_submit(undef, $ML{'.delete_selected'});

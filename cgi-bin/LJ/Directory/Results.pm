@@ -91,7 +91,7 @@ sub render_simple {
 
     my $updated = LJ::get_timeupdate_multi($self->userids);
 
-    my $ret = "<table id='SearchResults' cellspacing='1'>";
+    my $ret = "<table summary='' id='SearchResults' cellspacing='1'>";
     foreach my $u (@users) {
         $ret .= "<tr><td class='SearchResult'>";
         $ret .= $u->ljuser_display . " - " . $u->name_html;
@@ -112,7 +112,7 @@ sub render_pics {
 
     my $updated = LJ::get_timeupdate_multi($self->userids);
 
-    my $ret = "<table id='SearchResults' cellspacing='1'>";
+    my $ret = "<table summary='' id='SearchResults' cellspacing='1'>";
     foreach my $u (@users) {
         $ret .= "</tr>\n<tr>\n" if ($col++ % $tablecols == 0);
 

@@ -42,7 +42,7 @@ sub render_body {
     my $ret;
     $ret .= "<h2><span>" . $class->ml('widget.friendbirthdays.title') . "</span></h2>";
     $ret .= "<a href='$LJ::SITEROOT/birthdays' class='more-link'>" . $class->ml('widget.friendbirthdays.viewall') . "</a></p>";
-    $ret .= "<div class='indent_sm'><table>";
+    $ret .= "<div class='indent_sm'><table summary=''>";
 
     foreach my $bday (@bdays) {
         my $u = LJ::load_user($bday->[2]);

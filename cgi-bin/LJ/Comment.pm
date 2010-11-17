@@ -1386,9 +1386,9 @@ sub _format_mail_both {
         }
 
         if ($pichtml) {
-            $body .= "<table><tr valign='top'><td>$pichtml</td><td width='100%'>$intro</td></tr></table>\n";
+            $body .= "<table summary=''><tr valign='top'><td>$pichtml</td><td width='100%'>$intro</td></tr></table>\n";
         } else {
-            $body .= "<table><tr valign='top'><td width='100%'>$intro</td></tr></table>\n";
+            $body .= "<table summary=''><tr valign='top'><td width='100%'>$intro</td></tr></table>\n";
         }
 
         $body .= blockquote($parent ? $parent->body_html : $entry->event_html);

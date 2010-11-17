@@ -175,7 +175,7 @@ body<=
 
         $ret .= "<form method='post' action='join?comm=$commuser'>";
         $ret .= LJ::form_auth();
-        $ret .= "<table cellpadding='0' cellspacing='1' border='0'><tr>";
+        $ret .= "<table summary='' cellpadding='0' cellspacing='1' border='0'><tr>";
         $ret .= "<td><input type='checkbox' name='addfriend' checked='checked'></td><td>";
         $ret .= $remote->watches( $cu ) ?
                 BML::ml( '.label.addtofriends2.modify', { comm => $cu->ljuser_display } ) :

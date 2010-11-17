@@ -1,6 +1,7 @@
 <h1>Description of severity levels:</h1>
 
 <table cellpadding='3'>
+<tr valign='top'><th>Severity</th><th>Description</th></tr>
 <tr valign='top'><td><b>0</b></td><td>Translate is up-to-date</td></tr>
 <tr valign='top'><td><b>1</b></td><td>Parent language has changed a little.  Your translation might need updating.</td></tr>
 <tr valign='top'><td><b>2</b></td><td>Parent language has changed.  Your translation probably needs updating.</td></tr>

@@ -27,7 +27,7 @@ sub render_body {
     $ret .= "<h2>" . $class->ml('widget.createaccountnextsteps.title') . "</h2>";
     $ret .= "<p class='intro'>" . $class->ml('widget.createaccountnextsteps.steps', { sitename => $LJ::SITENAMESHORT }) . "</p>";
 
-    $ret .= "<table cellspacing='0' cellpadding='0'>";
+    $ret .= "<table summary='' cellspacing='0' cellpadding='0'>";
     $ret .= "<tr valign='top'><td><ul>";
     $ret .= "<li><a href='$LJ::SITEROOT/update'>" . $class->ml('widget.createaccountnextsteps.steps.post') . "</a></li>";
     $ret .= "<li><a href='$LJ::SITEROOT/editicons'>" . $class->ml('widget.createaccountnextsteps.steps.userpics') . "</a></li>";

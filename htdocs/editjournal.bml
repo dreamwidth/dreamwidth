@@ -61,7 +61,7 @@ body<=
 
         my %res = %$ref;
 
-        $ret .= "<table style='width: 100%;'><tr><td>";
+        $ret .= "<table summary='' style='width: 100%;'><tr><td>";
         my %props = ();
         for (my $i=1; $i<=$res{'prop_count'}; $i++) {
             $props{$res{"prop_${i}_itemid"}}->{$res{"prop_${i}_name"}} = $res{"prop_${i}_value"};
@@ -72,7 +72,7 @@ body<=
             my $itemid = $res{"events_${i}_itemid"};
             my $ditemid = $itemid * 256 + $res{"events_${i}_anum"};
 
-            $ret .= "<?hr?><table><tr valign='top'><td align='middle'>";
+            $ret .= "<?hr?><table summary=''><tr valign='top'><td align='middle'>";
             $ret .= "<form method='post' action='editjournal$getextra'>\n";
             $ret .= LJ::html_hidden('itemid',$ditemid,'mode',"edit");
             $ret .= LJ::html_submit( "itemid-$ditemid", $ML{'.edit.this.entry'} );
@@ -298,7 +298,7 @@ body<=
                 }
 
                 my $result = "<?h1 $ML{'.success.head'} h1?>";
-                $result .= "<table border='0' width='100%'><tr valign='top'><td>";
+                $result .= "<table summary='' border='0' width='100%'><tr valign='top'><td>";
 
                 my $message;
 
@@ -386,7 +386,7 @@ body<=
 
             # start edit form
             my $ret; my $js;
-            $ret .= "<table><tr><td>";
+            $ret .= "<table summary=''><tr><td>";
             $ret .= "<div style='width: 100%; float: left;'><form method='post' action='editjournal$getextra' id='updateForm' name='updateForm'>";
             $ret .= LJ::form_auth();
             $ret .= LJ::html_hidden('itemid', $ditemid,'mode','edit','edited',1) . "\n";
@@ -530,7 +530,7 @@ body<=
 
         # no authentication needs to be done on this page, it's just a form anyway
 
-        $ret .= "<table style='width: 100%;'><tr><td>";
+        $ret .= "<table summary='' style='width: 100%;'><tr><td>";
 
         # user switcher
         $ret .= "<form action='editjournal' method='get'>\n";
@@ -545,7 +545,7 @@ body<=
         # edit form
         $ret .= "<form action='editjournal$getextra' method='post'>\n";
         $ret .= LJ::html_hidden("mode","edit");
-        $ret .= "<?standout <table>\n";
+        $ret .= "<?standout <table summary=''>\n";
 
         # view type
         $ret .= "<tr valign=\"top\"><td>$ML{'.viewwhat'}</td>\n<td>\n";

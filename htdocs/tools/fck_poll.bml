@@ -317,7 +317,7 @@ _c?>
         div.style.display = 'none';
 
         var html = '';
-        html += '<p><table><tr><td>Question #'+(q_num+1)+' </td><td><input name="question_'+q_num+'" type="text" size="50" value=""></td></tr>\n';
+        html += '<p><table summary=""><tr><td>Question #'+(q_num+1)+' </td><td><input name="question_'+q_num+'" type="text" size="50" value=""></td></tr>\n';
         html += '<tr>\n';
         html += '<td>Answer Type </td><td><select name="type_'+q_num+'">\n';
         html += '<option value="--"></option>\n';
@@ -372,7 +372,7 @@ _c?>
     <div id="QArray" style="height: 220px; border: 0px;">
         <div id="qa_0">
             <p>
-            <table>
+            <table summary="">
             <tr><td>Question #1 </td><td><input name="question_0" type="text" size="50" value=""></td></tr>
             <tr><td>Answer Type </td><td><select name="type_0">
             <option value="--"></option>

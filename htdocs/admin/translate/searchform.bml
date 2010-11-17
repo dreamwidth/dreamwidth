@@ -63,7 +63,7 @@ _code?>
 <form target='res' action='search' method='get'>
 <input type='hidden' name='lang' value='$l->{lncode}'>
 <input type='hidden' name='search' value='flg'>
-<p><table><tr><td>Prf:</td>
+<p><table summary=""><tr><td>Prf:</td>
 <td><input type='radio' name='searchflagproofed' value='whatev'>Both</td>
 <td><input type='radio' name='searchflagproofed' value='yes'>Yes</td>
 <td><input type='radio' name='searchflagproofed' value='no'>No</td></tr>

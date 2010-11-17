@@ -427,7 +427,7 @@ UserpicSelect.dynamic = "\
 
 UserpicSelect.userpics = "\
 [# if(pics && pics.ids) { #] \
-     <table class='ups_table' cellpadding='0' cellspacing='0' id='ups_userpics_t'> [# \
+     <table summary='' class='ups_table' cellpadding='0' cellspacing='0' id='ups_userpics_t'> [# \
        var rownum = 0; \
        for (var i=0; i<pics.ids.length; i++) { \
           var picid = pics.ids[i]; \

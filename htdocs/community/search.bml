@@ -55,7 +55,7 @@ _code?>
 
 <form action="/directory">
 
-<table cellpadding='4' cellspacing='0' border='0'>
+<table summary='' cellpadding='4' cellspacing='0' border='0'>
 
 <!--- location --->
 <?crit
@@ -118,7 +118,7 @@ crit?>
 name=><?_ml .label.displayoptions _ml?>
 form<=
 
-<table>
+<table summary=''>
 <tr>
 <td align='right'>
 <?_ml .label.outputformat _ml?>

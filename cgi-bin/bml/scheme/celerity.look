@@ -78,7 +78,7 @@ accountlinks<=
         $ret .= LJ::html_hidden( returnto => $GET{returnto} );
         $ret .= "<input type='hidden' name='chal' class='lj_login_chal' value='$chal' />\n";
         $ret .= "<input type='hidden' name='response' class='lj_login_response' value='' />\n";
-        $ret .= "<table id='login-table'>";
+        $ret .= "<table summary='' id='login-table'>";
         $ret .= "<tr><td><label for='login_user'>$ML{'sitescheme.accountlinks.login.username'}</label></td>";
         $ret .= "<td class='input-cell' colspan='2'>" . LJ::html_text({
             name => "user",

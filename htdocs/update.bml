@@ -408,7 +408,7 @@ _c?>
                          $remote->set_prop('entry_editor', 'plain');
                  }
 
-                $$body .= "<table width='100%'><tr valign='top'><td>\n\n";
+                $$body .= "<table summary='' width='100%'><tr valign='top'><td>\n\n";
 
                 my ($ju, $itemlink);
                 # short bail if this was posted moderated or some other special case (no itemid but a message)
@@ -506,7 +506,7 @@ _c?>
         }
     }
 
-    $$body .= "<table width='100%'><tr valign='top'><td>";
+    $$body .= "<table summary='' width='100%'><tr valign='top'><td>";
     $print_entry_form->();
     $$body .= "</td>";
     $$body .= "<td>";

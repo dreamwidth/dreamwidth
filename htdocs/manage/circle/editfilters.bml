@@ -472,7 +472,7 @@ _c?>
 // --></SCRIPT>
 END_JS
 
-    $body .= "<table class='editfilters'><tr style='vertical-align: bottom;'>";
+    $body .= "<table summary='' class='editfilters'><tr style='vertical-align: bottom;'>";
     $body .= "<td nowrap='1' colspan='2'><strong>$ML{'.yourgroups'}</strong></td>";
     $body .= "<td nowrap='1' colspan='2'><strong>$ML{'.ingroup.not'}</strong></td>";
     $body .= "<td nowrap='1'><strong>$ML{'.ingroup'}</strong></td></tr>";

@@ -322,9 +322,14 @@ body<=
         unless (@entries) {
             $ret .= "<i>$ML{'.browse.empty'}</i>";
         } else {
-            $ret .= "<table cellpadding='5'><tr><td><b>$ML{'.brlist.time'}</b></td>" .
-                "<td><b>$ML{'.brlist.poster'}</b></td><td><b>$ML{'.brlist.subject'}</b></td>" .
-                "<td><b>$ML{'.brlist.actions'}</b></td></tr>";
+            $ret .= qq{
+            <table cellpadding='5'>
+                <tr>
+                    <th>$ML{'.brlist.time'}</th>                <th>$ML{'.brlist.poster'}</th>
+                    <th>$ML{'.brlist.subject'}</th>
+                    <th>$ML{'.brlist.actions'}</th>
+                </tr>
+            };
 
             my %users;
             LJ::load_userids_multiple([ map { $_->{'posterid'}, \$users{$_->{'posterid'}} } @entries ]);
@@ -415,7 +420,7 @@ body<=
         $ret .= "</p>";
 
         $ret .= "<p>";
-        $ret .= "<table><tr valign='middle'>";
+        $ret .= "<table summary=''><tr valign='middle'>";
 
         my $kw = $props->{picture_keyword};
         my $icon = LJ::Userpic->new_from_keyword( $up, $kw );

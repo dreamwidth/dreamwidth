@@ -2313,7 +2313,7 @@ sub currents_table {
     my $ret = '';
     return $ret unless %current;
 
-    $ret .= "<table class='currents' border=0>\n";
+    $ret .= "<table summary='' class='currents' border=0>\n";
     foreach ( sort keys %current ) {
         next unless $current{$_};
 

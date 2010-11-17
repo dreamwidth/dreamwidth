@@ -55,7 +55,7 @@ sub render_body {
         $ret .= "<p class='detail'>" . $class->ml('widget.s2propgroup.presentation.note') . "</p>";
 
         $ret .= "<div class='subheader subheader-presentation on' id='subheader__presentation__basic'>" . $class->ml('widget.s2propgroup.presentation.basic') . "</div>";
-        $ret .= "<table cellspacing='0' class='prop-list first' id='proplist__presentation__basic'>";
+        $ret .= "<table summary='' cellspacing='0' class='prop-list first' id='proplist__presentation__basic'>";
         $ret .= $class->language_chooser($u) if $opts{show_lang_chooser};
         foreach my $prop_name (@basic_props) {
             next if $class->skip_prop($props->{$prop_name}, $prop_name, theme => $theme);
@@ -80,7 +80,7 @@ sub render_body {
             # there's no props in this group that are also in this subheader
             unless ($header_printed) {
                 $ret .= "<div class='subheader subheader-presentation on' id='subheader__presentation__additional'>" . $class->ml('widget.s2propgroup.presentation.additional') . "</div>";
-                $ret .= "<table cellspacing='0' class='prop-list' id='proplist__presentation__additional'>";
+                $ret .= "<table summary='' cellspacing='0' class='prop-list' id='proplist__presentation__additional'>";
             }
             $header_printed = 1;
             $row_class = $count % 2 == 0 ? " graybg" : "";
@@ -177,7 +177,7 @@ sub render_body {
                     $prop_list_class = " first" if $subheader_counter == 1;
 
                     $ret .= "<div class='subheader subheader-modules on' id='subheader__modules__${subheader}'>$subheaders{$subheader}</div>";
-                    $ret .= "<table cellspacing='0' class='prop-list$prop_list_class' id='proplist__modules__${subheader}'>";
+                    $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__modules__${subheader}'>";
                     $header_printed = 1;
                     $subheader_counter++;
                     $count = 1; # reset counter
@@ -228,7 +228,7 @@ sub render_body {
                     $prop_list_class = " first" if $subheader_counter == 1;
 
                     $ret .= "<div class='subheader subheader-$propgroup on' id='subheader__${propgroup}__${subheader}'>$subheaders{$subheader}</div>";
-                    $ret .= "<table cellspacing='0' class='prop-list$prop_list_class' id='proplist__${propgroup}__${subheader}'>";
+                    $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__${propgroup}__${subheader}'>";
                     $header_printed = 1;
                     $subheader_counter++;
                     $count = 1; # reset counter

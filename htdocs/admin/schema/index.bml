@@ -48,7 +48,7 @@ body<=
          $table{$name} = { 'public' => $public, 'des' => $des };
      }
 
-     $body .= "<?h1 Tables h1?><?p Click a table for more information. p?><p><table cellpadding=4><tr bgcolor=<?emcolor?>><td><b>Table</b></td><td><b>Description</b></td></tr>\n";
+     $body .= "<?h1 Tables h1?><?p Click a table for more information. p?><p><table cellpadding=4><tr bgcolor=<?emcolor?>><th>Table</th><th>Description</th></tr>\n";
      $sth = $dbh->prepare("SHOW TABLES");
      $sth->execute;
      while (my ($table) = $sth->fetchrow_array) {
@@ -100,12 +100,12 @@ body<=
      $sth = $dbh->prepare("DESCRIBE $table");
      $sth->execute;
      $body .= "<table cellpadding=3><tr bgcolor=<?emcolor?>>";
-     $body .= "<td><b>Key?</b></td>";
-     $body .= "<td><b>Column</b></td>";
-     $body .= "<td><b>Type</b></td>";
-     $body .= "<td><b>Null</b></td>";
-     $body .= "<td><b>Default</b></td>";
-     $body .= "<td><b>Description</b></td>";
+     $body .= "<th>Key?</th>";
+     $body .= "<th>Column</th>";
+     $body .= "<th>Type</th>";
+     $body .= "<th>Null</th>";
+     $body .= "<th>Default</th>";
+     $body .= "<th>Description</th>";
      $body .= "</tr>\n";
      while (my $row = $sth->fetchrow_hashref)
      {
@@ -150,7 +150,7 @@ body<=
      $sth->execute;
      $body .= "<table cellpadding=3><tr bgcolor=<?emcolor?>>";
      foreach my $col (@{$sth->{'NAME'}}) {
-         $body .= "<td><b>$col</b></td>\n";
+         $body .= "<th>$col</th>\n";
      }
      $body .= "</tr>\n";
 
@@ -195,9 +195,9 @@ body<=
      $sth = $dbh->prepare("DESCRIBE $table");
      $sth->execute;
      $body .= "<p><table cellpadding=3><tr bgcolor=<?emcolor?>>";
-     $body .= "<td><b>Column</b></td>";
-     $body .= "<td><b>Type</b></td>";
-     $body .= "<td><b>Description</b></td>";
+     $body .= "<th>Column</th>";
+     $body .= "<th>Type</th>";
+     $body .= "<th>Description</th>";
      $body .= "</tr>\n";
      while (my $row = $sth->fetchrow_hashref)
      {

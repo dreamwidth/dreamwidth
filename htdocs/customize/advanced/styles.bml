@@ -302,7 +302,7 @@ _c?>
         $body .= "<div><?h1 $ML{'.yourstyles.header'} h1?></div>\n";
 
         # show style listing
-        $body .= "<table style='margin-left: 40px'>\n";
+        $body .= "<table summary='' style='margin-left: 40px'>\n";
         if (%$ustyle) {
             my $journalbase = $u->journal_base;
             foreach my $styleid (sort { $ustyle->{$a} cmp $ustyle->{$b} || $a <=> $b} keys %$ustyle) {
@@ -340,7 +340,7 @@ _c?>
     # note: this little bit of code appears whether there is an id passed or not.
     #       the textbox just has a different purpose depending on the context.
     $body .= "<?h1 " . ($id ? $ML{'.styleoptions.header'} : $ML{'.createstyle.header'}) . " h1?>\n";
-    $body .= "<table style='margin-bottom: 10px'>\n";
+    $body .= "<table summary='' style='margin-bottom: 10px'>\n";
     $body .= "<tr><td>$ML{'.createstyle.label.name'} </td><td>";
     $body .= LJ::html_text({ 'name' => 'stylename', 'size' => '30', 'maxlength' => '255', 
                              'value' => defined $POST{'stylename'} ? $POST{'stylename'} : $style->{'name'} });
@@ -434,7 +434,7 @@ _c?>
     ### core version
 
     $body .= "<?h1 $ML{'.stylelayers.header'} h1?>\n";
-    $body .= "<table>\n";
+    $body .= "<table summary=''>\n";
     $body .= "<tr><td>$ML{'.stylelayers.label.coreversion'} </td><td>";
     my $coresel = $layerselect->('core', 0);
     $body .= $coresel->[0];
@@ -445,7 +445,7 @@ _c?>
 
     ### i18nc / layout
 
-    $body .= "<table style='margin: 10px 0 0 40px'>\n";
+    $body .= "<table summary='' style='margin: 10px 0 0 40px'>\n";
 
     # i18nc
     $body .= "<tr><td>$ML{'.stylelayers.label.corelanguage'} </td><td>";
@@ -468,7 +468,7 @@ _c?>
     ### theme / i18n / user
 
     # theme
-    $body .= "<table style='margin: 10px 0 0 80px'>\n";
+    $body .= "<table summary='' style='margin: 10px 0 0 80px'>\n";
     $body .= "<tr><td>$ML{'.stylelayers.label.language'} </td><td>";
     $body .= $layerselect->('i18n', $layout)->[0];
     $body .= $layerother->('i18n') . "</td></tr>\n";

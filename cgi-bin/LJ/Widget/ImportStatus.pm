@@ -35,7 +35,7 @@ sub render_body {
 
     if ( scalar keys %$items ) {
         $ret .= "<h2 class='gradient'>" . $class->ml( 'widget.importstatus.header' ) . "</h2>";
-        $ret .= "<table width='100%' class='importer-status'>";
+        $ret .= "<table summary='' width='100%' class='importer-status'>";
 
         my $import_in_progress = 0;
         foreach my $importid ( sort { $b <=> $a } keys %$items ) {

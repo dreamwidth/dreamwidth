@@ -79,7 +79,7 @@ body<=
         LJ::CleanHTML::clean_event( \$s, { ljcut_disable => 1 } );
         LJ::CleanHTML::clean_event( \$a, { ljcut_disable => 1 } );
 
-        $ret .= "<p><table bgcolor='#c0c0c0'><tr><td><b>$q</b></td></tr></table></p><div>$s</div><br /><div>$a</div>";
+        $ret .= "<p><table summary='' bgcolor='#c0c0c0'><tr><td><b>$q</b></td></tr></table></p><div>$s</div><br /><div>$a</div>";
     }
     $ret .= "</ul>\n";
 

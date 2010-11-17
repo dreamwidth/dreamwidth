@@ -66,7 +66,7 @@ sub render_body {
 
     $ret .= $class->start_form;
 
-    $ret .= "<table><tr><td>Start Date:</td><td>";
+    $ret .= "<table summary=''><tr><td>Start Date:</td><td>";
     $ret .= $class->html_select
         ( name => 'month_start',
           selected => $start_month,

@@ -70,7 +70,7 @@ _c?>
     my $dumpsec = sub {
         my ($head, $para, $content) = @_;
         return unless $$content;
-        $body .= "<?h1 $head h1?><?p $para p?><table cellpadding='4'>$$content</table>\n";
+        $body .= "<?h1 $head h1?><?p $para p?><table summary='' cellpadding='4'>$$content</table>\n";
     };
 
     $dumpsec->("$ML{'.available.title'}", "$ML{'.available.subtitle'}", \$ap_list);

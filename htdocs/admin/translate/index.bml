@@ -52,9 +52,9 @@ body<=
     $ret .= "<p><table border='1' cellspacing='1' cellpadding='3'><tr>";
     foreach (@cols) {
         if ($sortcol eq $_->[0]) {
-            $ret .= "<td><b>$_->[1]</b></td>";
+            $ret .= "<th>$_->[1]</th>";
         } else {
-            $ret .= "<td><b><a href=\"./?s=$_->[0]\">$_->[1]</a></b></td>";
+            $ret .= "<th><a href=\"./?s=$_->[0]\">$_->[1]</a></th>";
         }
         if ($_->[0] eq $sortcol && $_->[3]) { $sorter = $_->[3]; }
     }

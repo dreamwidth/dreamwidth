@@ -130,7 +130,7 @@ body<=
 
         $ret .= "<form action='moodlist' method='get'>\n";
         $ret .= LJ::html_hidden("page", $items{page});
-        $ret .= "<table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td></td>";
+        $ret .= "<table summary='' width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td></td>";
 
         # Create the table columns for each mood
         my $mname;
@@ -188,7 +188,7 @@ body<=
             my ( $themeid ) = @_;
             my $tobj = DW::Mood->new( $themeid );
 
-            $ret .= "<br /><table width='100%'><tr><td colspan='5' align='center'>";
+            $ret .= "<br /><table summary='' width='100%'><tr><td colspan='5' align='center'>";
 
             if ($GET{'ownerid'}) {
                 $ret .= "<div style='margin-bottom:15px; font-weight:bold'>";

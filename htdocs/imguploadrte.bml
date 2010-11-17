@@ -69,10 +69,10 @@ _c?>
     #insert HTML for an image tag, given an image URL and assorted metadata (alt text, dimensions, etc)
     $ret .= qq{
                 <div id="divInfo">
-                        <table cellspacing="1" cellpadding="1" border="0" width="99%" height="99%">
+                        <table summary='' cellspacing="1" cellpadding="1" border="0" width="99%" height="99%">
                         <tr>
                         <td>
-                            <table cellspacing="0" cellpadding="0" width="99%" border="0">
+                            <table summary='' cellspacing="0" cellpadding="0" width="99%" border="0">
                             <tr>
                             <td width="100%"><span fckLang="DlgImgURL">URL</span></td>
                             <td id="tdBrowse" style="DISPLAY: none" nowrap rowspan="2">&nbsp; <input id="btnBrowse" onclick="BrowseServer();" type="button" value="Browse Server" fckLang="DlgBtnBrowseServer"></td></tr>
@@ -86,11 +86,11 @@ _c?>
                        </td></tr>
                        <tr height="100%">
                        <td valign="top">
-                       <table cellspacing="0" cellpadding="0" width="99%" border="0" height="99%">
+                       <table summary='' cellspacing="0" cellpadding="0" width="99%" border="0" height="99%">
                        <tr>
                        <td valign="top">
                        <br />
-                       <table cellspacing="0" cellpadding="0" border="0">
+                       <table summary='' cellspacing="0" cellpadding="0" border="0">
                        <tr>
                        <td nowrap><span fckLang="DlgImgWidth">Width</span>&nbsp;</td>
                        <td>
@@ -104,7 +104,7 @@ _c?>
                        <td><input type="text" size="3" id="txtHeight" onkeyup="OnSizeChanged('Height',this.value);"></td></tr>
                        </table>
                        <br />
-                       <table cellspacing="0" cellpadding="0" border="0">
+                       <table summary='' cellspacing="0" cellpadding="0" border="0">
                        <tr>
                        <td nowrap><span fckLang="DlgImgBorder">Border</span>&nbsp;</td>
                        <td><input type="text" size="2" value="" id="txtBorder" onkeyup="UpdatePreview();"></td></tr>
@@ -132,7 +132,7 @@ _c?>
                        </table></td>
                        <td>&nbsp;&nbsp;&nbsp;</td>
                        <td width="100%" valign="top">
-                       <table cellpadding="0" cellspacing="0" width="100%" style="TABLE-LAYOUT: fixed">
+                       <table summary='' cellpadding="0" cellspacing="0" width="100%" style="TABLE-LAYOUT: fixed">
                        <tr>
                        <td><span fckLang="DlgImgPreview">Preview</span></td></tr>
                        <tr>
@@ -150,7 +150,7 @@ _c?>
         $ret .= qq{
                 <script>InObFCK.setupIframeHandlers();</script>
                 <div id="divLink" style="DISPLAY: none">
-                <table cellspacing="1" cellpadding="1" border="0" width="100%">
+                <table summary='' cellspacing="1" cellpadding="1" border="0" width="100%">
                 <tr>
                 <td>
                 <div>
@@ -165,7 +165,7 @@ _c?>
                 </table>
                 </div>
                 <div id="divAdvanced" style="DISPLAY: none">
-                <table cellspacing="0" cellpadding="0" width="100%" align="center" border="0">
+                <table summary='' cellspacing="0" cellpadding="0" width="100%" align="center" border="0">
                 <tr>
                 <td valign="top" width="50%">
                 <span fckLang="DlgGenId">Id</span><br />
@@ -173,7 +173,7 @@ _c?>
                 </td>
                 <td width="1">&nbsp;&nbsp;</td>
                 <td valign="top">
-                <table cellspacing="0" cellpadding="0" width="100%" align="center" border="0">
+                <table summary='' cellspacing="0" cellpadding="0" width="100%" align="center" border="0">
                 <tr>
                 <td width="60%">
                 <span fckLang="DlgGenLangDir">Language Direction</span><br />

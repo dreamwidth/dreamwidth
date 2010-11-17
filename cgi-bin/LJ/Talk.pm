@@ -179,7 +179,7 @@ sub link_bar
     my $ret;
     if ( @linkele ) {
         $ret = BML::fill_template("standout", {
-            'DATA' => "<table><tr><td valign='middle'>" .
+            'DATA' => "<table summary=''><tr><td valign='middle'>" .
                 join("&nbsp;&nbsp;", @linkele) .
                 "</td></tr></table>",
             });
@@ -1436,10 +1436,10 @@ sub talkform {
     }
 
     # from registered user or anonymous?
-    $ret .= "<table class='talkform'>\n";
+    $ret .= "<table summary='' class='talkform'>\n";
     $ret .= "<tr><td align='right' valign='top'>$BML::ML{'.opt.from'}</td>";
     $ret .= "<td>";
-    $ret .= "<table>"; # Internal for "From" options
+    $ret .= "<table summary=''>"; # Internal for "From" options
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) || '';
 
     if ($editid) {
@@ -1732,7 +1732,7 @@ sub talkform {
     }
     $ljuser_def = "" unless $remote_can_comment;
 
-    $ret .= "<table><tr><td>";
+    $ret .= "<table summary=''><tr><td>";
     $ret .= "$BML::ML{'Username'}:</td><td>";
     $ret .= "<input class='textbox' name='userpost' size='13' maxlength='25' id='username' value='$ljuser_def' onclick='this.value=\"\"' ";
     $ret .= "style='background: url($LJ::IMGPREFIX/silk/identity/user.png) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;'/>";
@@ -1805,7 +1805,7 @@ sub talkform {
         # spit out a pretty table of all the possible subjecticons
         $ret .= "document.write(\"";
         $ret .= "<blockquote style='display:none;' id='subjectIconList'>";
-        $ret .= "<table border='0' cellspacing='5' cellpadding='0' style='border: 1px solid #AAAAAA'>\");\n";
+        $ret .= "<table summary='' border='0' cellspacing='5' cellpadding='0' style='border: 1px solid #AAAAAA'>\");\n";
 
         foreach my $type (@{$pics->{'types'}}) {
 

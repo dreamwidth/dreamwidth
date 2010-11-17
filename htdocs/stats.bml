@@ -168,7 +168,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  if (@ages) {
      $ret .= "<h1>$ML{'.age.header'}</h1>";
      $ret .= "<p>$ML{'.age.desc'}</p>";
-     $ret .= "<table>\n";
+     $ret .= "<table summary=''>\n";
      my $lastage = 0;
      foreach my $age (@ages) {
          my $width = int(400 * $age{$age}/$maxage);
@@ -208,7 +208,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
      if ($out) {
          $ret .= "<h1>$ML{'.client.header'}</h1>";
          $ret .= "<p>$ML{'.client.desc'}</p>";
-         $ret .= "<table cellpadding='3'>\n";
+         $ret .= "<table summary='' cellpadding='3'>\n";
          $ret .= $out;
          $ret .= "</table>\n";
      }

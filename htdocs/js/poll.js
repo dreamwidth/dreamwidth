@@ -44,7 +44,7 @@ Poll.prototype.outputHTML = function () {
             html += '<input maxlength="' + this.qa[i].maxlength + '" ';
             html += 'size="' + this.qa[i].size + '" type="text">';
         } else if (this.qa[i].atype == "scale") {
-            html += '<table><tbody><tr align="center" valign="top">'
+            html += '<table summary=""><tbody><tr align="center" valign="top">'
             var from = Number(this.qa[i].from);
             var to = Number(this.qa[i].to);
             var by = Number(this.qa[i].by);

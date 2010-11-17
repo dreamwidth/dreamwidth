@@ -22,7 +22,7 @@ body<=
 
     $ret .= "<form method='GET'>";
     $ret .= "View invite details: ";
-    $ret .= "<table>";
+    $ret .= "<table summary=''>";
     $ret .= "<tr><td><label>By code: </label></td>";
     $ret .= "<td>" . LJ::html_text( { name => 'code', maxlength => DW::InviteCodes::CODE_LEN, size => DW::InviteCodes::CODE_LEN } ) . "</td></tr>";
     $ret .= "<tr><td><label>By account: </label></td>";

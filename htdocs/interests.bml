@@ -70,7 +70,7 @@ body<=
         unless ($GET{'mode'} eq 'text') {
             $ret .= LJ::tag_cloud(\%interests);
         } else {
-            $ret .= "<p><table><tr><td><b>$ML{'.interest'}</b></td><td><b>$ML{'.count'}</b></td></tr>";
+            $ret .= "<p><table><tr><th>$ML{'.interest'}</th><th>$ML{'.count'}</th></tr>";
             foreach my $i (sort { $b->{value} <=> $a->{value} } values %interests) {
                 $ret .= "<tr><td><a href='$i->{url}'>$i->{eint}</a></td><td>$i->{value}</td></tr>";
             }
@@ -197,7 +197,7 @@ body<=
 
         $ret .= "<?h1 $ML{'.findsim_do.similar.head'} h1?><?p " .BML::ml(".findsim_do.similar.text", {'user' => LJ::ljuser($u)}) ." p?>";
 
-        $ret .= "<p><table cellpadding='3'><tr valign='bottom'><td><b>#</b></td><td width='250'><b>$ML{'User'}</b></td><td><b>$ML{'.findsim_do.magic'}</b></td></tr>";
+        $ret .= "<p><table cellpadding='3'><tr valign='bottom'><th>#</th><th width='250'>$ML{'.findsim_do.user'}</th><td><b>$ML{'.findsim_do.magic'}</b></td></tr>";
         my $count;
         foreach my $uid (@matches)
         {
@@ -265,7 +265,7 @@ body<=
         }
 
         $ret .= " p?><div style='margin-left: 40px; margin-top: 20px;'>";
-        $ret .= "<table cellpadding='0' cellspacing='0' border='0' width='100%'>";
+        $ret .= "<table summary='' cellpadding='0' cellspacing='0' border='0' width='100%'>";
         my @fromintsorted = sort keys %fromint;
         my $cols = 3;
         my $rows = int((scalar(@fromintsorted) + $cols - 1) / $cols);
@@ -405,7 +405,7 @@ body<=
             $ret .= "<?p " . BML::ml( '.error.longinterest', { sitename => $LJ::SITENAMESHORT, old_int => $e_int_long, new_int => $e_int, maxlen => LJ::CMAX_SITEKEYWORD } ) . " p?>";
         }
 
-        $ret .= "<table>";
+        $ret .= "<table summary=''>";
         $ret .= "<tr valign='middle'><td class='findandmodify'>$ML{'.interested.in'}</td>";
         $ret .= "<td class='findandmodify'><form method='get' action='interests'>";
         $ret .= LJ::html_text({name => 'int', size => 20, value => $interest || $e_int}) . "&nbsp;";
@@ -529,7 +529,7 @@ body<=
 
     my $ret = "";
     $ret .= "<?p $ML{'.interests.text'} p?>";
-    $ret .= "<table cellspacing='5' style='margin-top: 10px; margin-left: 30px; margin-bottom: 10px;'>";
+    $ret .= "<table summary='' cellspacing='5' style='margin-top: 10px; margin-left: 30px; margin-bottom: 10px;'>";
 
     if ( LJ::is_enabled('interests-popular') ) {
         $ret .= "<tr valign='top'><td colspan='2'>";

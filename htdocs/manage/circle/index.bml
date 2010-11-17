@@ -35,7 +35,7 @@ body<=
 _code?>
 
 <?p <?_ml .about _ml?> p?>
-<table>
+<table summary=''>
 <tr>
   <td class='name'><a href="<?siteroot?>/manage/circle/invite"><?_ml .invite.title _ml?></a></td>
   <td><?_code BML::ml('.invite.about2', { sitename => $LJ::SITENAMESHORT }); _code?></td>

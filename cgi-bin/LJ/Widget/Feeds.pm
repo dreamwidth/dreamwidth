@@ -38,7 +38,7 @@ sub render_body {
     my $feednum = 10;
     my $max = ((scalar @rand) < $feednum) ? (scalar @rand) : $feednum;
     $body .= "<div class='feeds-content'>";
-    $body .= "<table class='feeds-table' cellpadding='0' cellspacing='0'>";
+    $body .= "<table summary='' class='feeds-table' cellpadding='0' cellspacing='0'>";
     my $odd = 1;
     foreach my $userid (@rand[0..$max-1]) {
         my $u = LJ::load_userid($userid);

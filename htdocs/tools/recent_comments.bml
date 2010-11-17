@@ -163,7 +163,7 @@ body<=
         $ret .= $standoutbox->( "received" );
         $ret .= "<?h1 $ML{ '.latest.received' } h1?>";
         $ret .= "<?p " . (%talkids ? BML::ml('.last.num.posted.in', {num => $count}) : "$ML{ '.no.comments.posted' }") . " " . LJ::ljuser($u) . " p?>";
-        $ret .= "<table style='width: 100%' cellpadding='5' cellspacing='0'>";
+        $ret .= "<table summary='' style='width: 100%' cellpadding='5' cellspacing='0'>";
         foreach my $r (@recv) {
             next unless $r->{nodetype} eq "L";
             next if $r->{state} eq "D";
