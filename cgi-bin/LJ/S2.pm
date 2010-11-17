@@ -3763,12 +3763,20 @@ sub _Entry__get_link
                             LJ::S2::Image_std( 'memadd' ) );
     }
     if ($key eq "nav_prev") {
-        return LJ::S2::Link("$LJ::SITEROOT/go?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=prev",
+        return LJ::S2::Link( LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {
+                                    journal => $journal,
+                                    itemid => $this->{itemid},
+                                    dir => "prev",
+                                } ),
                             $ctx->[S2::PROPS]->{"text_entry_prev"},
                             LJ::S2::Image_std( 'prev_entry' ) );
     }
     if ($key eq "nav_next") {
-        return LJ::S2::Link("$LJ::SITEROOT/go?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=next",
+        return LJ::S2::Link( LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {
+                                    journal => $journal,
+                                    itemid => $this->{itemid},
+                                    dir => "next",
+                                } ),
                             $ctx->[S2::PROPS]->{"text_entry_next"},
                             LJ::S2::Image_std( 'next_entry' ) );
     }

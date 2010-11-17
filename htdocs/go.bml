@@ -78,7 +78,10 @@ _c?>
     $body .= "<p>" . BML::ml( '.link.to.journal', { journal => $u->ljuser_display } ) . "</p>";
 
      if ( $jumpid ) {
-         return BML::redirect( $u->journal_base . "/$jumpid.html" );
+         my $host = $u->journal_base;
+         $host =~ s#^(?:https?://)##;
+
+         return BML::redirect( LJ::create_url( "/$jumpid.html", host => $host, viewing_style => 1 ) );
      }
  }
 

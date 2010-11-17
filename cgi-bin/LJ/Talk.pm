@@ -126,8 +126,13 @@ sub link_bar
 
     # << Previous
     my @linkele;
-    push @linkele, $mlink->("$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=prev", "prev_entry");
-    $$headref .= "<link href='$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=prev' rel='Previous' />\n";
+    my $prevlink =  LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {
+                                    journal => $u->user,
+                                    itemid => $itemid,
+                                    dir => "prev",
+                                } );
+    push @linkele, $mlink->( $prevlink, "prev_entry" );
+    $$headref .= "<link href='$prevlink' rel='Previous' />\n";
 
     # memories
     if ( LJ::is_enabled('memories') ) {
@@ -163,8 +168,13 @@ sub link_bar
 
 
     ## >>> Next
-    push @linkele, $mlink->("$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=next", "next_entry");
-    $$headref .= "<link href='$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=next' rel='Next' />\n";
+    my $nextlink =  LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {
+                                    journal => $u->user,
+                                    itemid => $itemid,
+                                    dir => "next",
+                                } );
+    push @linkele, $mlink->("$nextlink", "next_entry");
+    $$headref .= "<link href='$nextlink' rel='Next' />\n";
 
     my $ret;
     if ( @linkele ) {
