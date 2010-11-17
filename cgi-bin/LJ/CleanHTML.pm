@@ -949,7 +949,7 @@ sub clean
             }
             elsif ($tag eq "lj-cut") {
                 if ($opts->{'cutpreview'}) {
-                    $newdata .= "<b>&lt;/lj-cut&gt;</b>";
+                    $newdata .= "<b>&lt;/cut&gt;</b>";
                 }
             } else {
                 if ($mode eq "allow") {
