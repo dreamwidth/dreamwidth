@@ -450,6 +450,8 @@ sub recent_items
         if ( $args{tagmode} eq 'and' ) {
 
             my $limit = $LJ::TAG_INTERSECTION;
+            die "\$LJ::TAG_INTERSECTION not set!"
+                unless $limit && $limit > 0;
             my $need = scalar @{ $args{tagids} };
             $#{ $args{tagids} } = $limit - 1 if $need > $limit;
 

@@ -227,18 +227,26 @@ sub RecentPage
         'count' => $itemnum,
     };
 
+    my %valid_modes = ( all => 'all', and => 'all' );
+    my $tagmode = $valid_modes{$get->{mode} || ''};
+
+    # these are the same for both previous and next links
+    my %linkattrs = ( style    => $mine                        || "",
+                      mode     => $tagmode                     || "",
+                      s2id     => LJ::eurl( $get->{s2id} )     || "",
+                      tag      => LJ::eurl( $get->{tag} )      || "",
+                      security => LJ::eurl( $get->{security} ) || "",
+                      poster   => $posteru_filter ?
+                                  $posteru_filter->user         : "",
+                    );
+
     # if we've skipped down, then we can skip back up
     if ($skip) {
         my $newskip = $skip - $itemshow;
         $newskip = 0 if $newskip <= 0;
         $nav->{'forward_skip'} = $newskip;
         $nav->{'forward_url'} = LJ::make_link( "$p->{'base_url'}/",
-                                { skip     => $newskip                        || "",
-                                  style    => $mine                           || "",
-                                  s2id     => LJ::eurl( $get->{s2id} )        || "",
-                                  tag      => LJ::eurl( $get->{tag} )         || "",
-                                  security => LJ::eurl( $get->{security} )    || "",
-                                  poster   => $posteru_filter ? $posteru_filter->user : "" } );
+                                { skip => $newskip || "", %linkattrs } );
         $nav->{'forward_count'} = $itemshow;
         $p->{head_content} .= qq{<link rel="next" href="$nav->{forward_url}" />\n}
     }
@@ -255,12 +263,7 @@ sub RecentPage
         } elsif ($is_prev_exist) {
             my $newskip = $skip + $itemshow;
             $nav->{'backward_url'} = LJ::make_link( "$p->{'base_url'}/",
-                                     { skip     => $newskip                        || "",
-                                       style    => $mine                           || "",
-                                       s2id     => LJ::eurl( $get->{s2id} )        || "",
-                                       tag      => LJ::eurl( $get->{tag} )         || "",
-                                       security => LJ::eurl( $get->{security} )    || "",
-                                       poster   => $posteru_filter ? $posteru_filter->user : "" } );
+                                { skip => $newskip || "", %linkattrs } );
             $nav->{'backward_skip'} = $newskip;
         }
         $p->{head_content} .= qq{<link rel="prev" href="$nav->{backward_url}" />\n};
