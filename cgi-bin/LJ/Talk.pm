@@ -186,17 +186,15 @@ sub init
     my $ju = undef;
     my $item = undef;        # hashref; journal item conversation is in
 
-    $form->{$_} ||= 0 foreach qw( itemid thread replyto );
-
     # defaults, to be changed later:
-    $init->{'itemid'} = $form->{'itemid'}+0;
+    $init->{'itemid'} = ( $form->{'itemid'} || 0 )+0;
     $init->{'ditemid'} = $init->{'itemid'};
-    $init->{'thread'} = $form->{'thread'}+0;
+    $init->{'thread'} = ( $form->{'thread'} || 0 )+0;
     $init->{'dthread'} = $init->{'thread'};
     $init->{'clustered'} = 0;
-    $init->{'replyto'} = $form->{'replyto'}+0;
+    $init->{'replyto'} = ( $form->{'replyto'} || 0 )+0;
     $init->{'style'} = $form->{'style'}
-        if $form->{'style'} =~ /^(?:mine|light)$/;
+        if $form->{style} && $form->{style} =~ /^(?:mine|light)$/;
 
     if ($journal) {
         # they specified a journal argument, which indicates new style.

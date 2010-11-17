@@ -170,13 +170,14 @@ body<=
     }
 
 
-    my $talkurl = $init->{talkurl};
+    my ( $talkurl, $entryu, $parent, $comment, $item );
 
-    my $entryu   = $init->{entryu};
-    my $journalu = $init->{journalu};
-    my $parent   = $init->{parent};
-    my $comment  = $init->{comment};
-    my $item     = $init->{item};
+    $talkurl = $init->{talkurl};
+    $entryu   = $init->{entryu};
+    $journalu = $init->{journalu};
+    $parent   = $init->{parent};
+    $comment  = $init->{comment};
+    $item     = $init->{item};
 
     my $unscreen_parent = $POST{unscreen_parent} ? 1 : 0;
 
