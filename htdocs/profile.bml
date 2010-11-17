@@ -62,7 +62,7 @@ body<=
 
         # redirect to standard identity url
         if ( $u && $u->is_identity ) {
-            return BML::redirect("$LJ::SITEROOT/profile?userid=$u->{'userid'}&t=I");
+            return BML::redirect( $u->profile_url( full => $is_full ) );
         }
     } elsif ( $remote ) {
         $u = $remote;
@@ -90,8 +90,7 @@ body<=
     # redirect non-identity profiles to their subdomain urls
     my $domain = BML::get_client_header( "Host" );
     if ( $LJ::ONLY_USER_VHOSTS && !$u->is_identity ) {
-        my $url = $u->journal_base . "/profile";
-        $url .= '?mode=full' if $is_full;
+        my $url = $u->profile_url( full => $is_full );
 
         my $good_domain = $url;
         $good_domain =~ s!^http://!!;
@@ -427,7 +426,7 @@ body<=
     if ( $is_full ) {
         $ret .= BML::ml( '.details.profile.default', { aopts => "href='" . $u->profile_url . "'" } );
     } else {
-        $ret .= BML::ml( '.details.profile.full', { aopts => "href='" . $u->profile_url . "?mode=full'" } );
+        $ret .= BML::ml( '.details.profile.full', { aopts => "href='" . $u->profile_url( full => 1 ) . "'" } );
     }
     $ret .= q{ </p></div></div></div></div> };
 
