@@ -30,10 +30,8 @@ head<=
     * html fieldset div { height: 190px; }
     *:first-child+html fieldset div { min-height: 190px; }
     #left-column, #right-column { float: left; }
-    legend { color: #c1272c; font-size: 1.2em; font-weight: bold; }
+    legend { font-size: 1.2em; font-weight: bold; }
     p.input-wrapper { margin-left: 27px; text-indent: -27px; }
-    label { color: #444; }
-    label b { color: #000; }
     .standout { clear: left; max-width: 695px; }
     .standout table { margin: 0 auto; }
 </style>
@@ -273,7 +271,7 @@ body<=
           $ret .= $c->maintainer_linkbar( "settings" );
     }
 
-    $ret .= "<div id='left-column'>";
+    $ret .= "<div id='left-column' class='community-settings'>";
 
     # membership levels
     $ret .= "<fieldset id='membership'>";
@@ -321,7 +319,7 @@ body<=
         $ret .= "</div></fieldset>";
     }
 
-    $ret .= "</div><div id='right-column'>";
+    $ret .= "</div><div id='right-column' class='community-settings'>";
 
     my $posting_access = "members";
     if ($info{postlevel} eq "select") {
