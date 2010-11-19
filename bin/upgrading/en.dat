@@ -1807,7 +1807,7 @@ If you did not change your username, it means that your journal's security was c
 This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters.
 .
 
-esn.shop_for_gift=Buy a gift from our shop:
+esn.shop_for_gift=[[openlink]]Buy a gift from our shop[[closelink]]
 
 esn.supofficialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
 
