@@ -507,7 +507,7 @@ function Page::print_default_stylesheet()
         padding: 5px;
         margin-top: 5px;
         background-color: $*color_entry_background;
-        color: #000000;
+        color: $*color_entry_text;
     }
     .entry-wrapper .footer {
         background-color: $*color_entry_interaction_links_background;
