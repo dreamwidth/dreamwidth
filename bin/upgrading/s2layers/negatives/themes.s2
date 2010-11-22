@@ -1,3 +1,52 @@
+#NEWLAYER: negatives/antiquesilk
+layerinfo type = "theme";
+layerinfo name = "Antique Silk";
+layerinfo redist_uniq = "negatives/antiquesilk";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff6d0";
+set color_page_link = "#e43d4f";
+set color_page_link_hover = "#fc8354";
+set color_page_link_visited = "#c71f2c";
+set color_page_text = "#423f35";
+set color_header_background = "#fff4c8";
+set color_header_link = "#e43d4f";
+set color_header_link_hover = "#fc8354";
+set color_header_link_visited = "#c71f2c";
+set color_footer_background = "#fff4c8";
+set color_footer_link = "#e43d4f";
+set color_footer_link_hover = "#fc8354";
+set color_footer_link_visited = "#c71f2c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff6d0";
+set color_entry_border = "#fff4c8";
+set color_entry_link = "#e43d4f";
+set color_entry_link_hover = "#fc8354";
+set color_entry_link_visited = "#c71f2c";
+set color_entry_text = "#423f35";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff6d0";
+set color_module_border = "#fff4c8";
+set color_module_link = "#e43d4f";
+set color_module_link_hover = "#fc8354";
+set color_module_link_visited = "#c71f2c";
+set color_module_text = "#423f35";
+
+
 #NEWLAYER: negatives/autumn
 layerinfo type = "theme";
 layerinfo name = "Autumn";
@@ -489,6 +538,41 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: negatives/ethereal
+layerinfo type = "theme";
+layerinfo name = "Ethereal";
+layerinfo redist_uniq = "negatives/ethereal";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#faf6d2";
+set color_page_link = "#63766b";
+set color_page_link_hover = "#7b9484";
+set color_page_link_visited = "#756376";
+set color_page_text = "#333333";
+set color_header_background = "#f5f0ce";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#f5f0ce";
+set color_entry_interaction_links = "#927c94";
+set color_entry_interaction_links_hover = "#a58ca8";
+set color_entry_interaction_links_visited = "#756376";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#f5f0ce";
+
+
 #NEWLAYER: negatives/evening
 layerinfo type = "theme";
 layerinfo name = "Evening";
@@ -530,6 +614,40 @@ set color_module_link_active = "#750006";
 set color_module_link_hover = "#380003";
 set color_module_link_visited = "#fd7d83";
 set color_module_text = "#fff";
+
+
+#NEWLAYER: negatives/faerie
+layerinfo type = "theme";
+layerinfo name = "Faerie";
+layerinfo redist_uniq = "negatives/faerie";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#38221f";
+set color_page_link = "#b0a925";
+set color_page_link_hover = "#E1D988";
+set color_page_link_visited = "#7b9133";
+set color_page_text = "#f9e7e5";
+set color_header_background = "#403230";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#403230";
+set color_entry_interaction_links = "#e1d62f";
+set color_entry_interaction_links_hover = "#E1D988";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#403230";
 
 
 #NEWLAYER: negatives/lightondark
@@ -652,6 +770,42 @@ set color_module_link_hover = "#919e89";
 set color_module_link_visited = "#00008F";
 set color_module_text = "#103f0a";
 set color_module_title = "#103f0a";
+
+
+#NEWLAYER: negatives/maninthemoon
+layerinfo type = "theme";
+layerinfo name = "Man in the Moon";
+layerinfo redist_uniq = "negatives/maninthemoon";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fefbd0";
+set color_page_link = "#75aa98";
+set color_page_link_active = "#dc6d4b";
+set color_page_link_hover = "#dc6d4b";
+set color_page_link_visited = "#405e54";
+set color_page_text = "#223033";
+set color_header_background = "#fffdd1";
+set color_footer_background = "#fffdd1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#fffdd1";
+set color_entry_title = "#B2553C";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#fffdd1";
+set color_module_title = "#B2553C";
 
 
 #NEWLAYER: negatives/nnwm2009
@@ -838,6 +992,41 @@ set color_module_link_hover = "#c7c700";
 set color_module_link_visited = "#008383";
 set color_module_text = "#000";
 set color_module_title = "#000";
+
+
+#NEWLAYER: negatives/want
+layerinfo type = "theme";
+layerinfo name = "Want";
+layerinfo redist_uniq = "negatives/want";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#38221f";
+set color_page_text = "#f9e7e5";
+set color_page_link = "#f2ccb3";
+set color_page_link_hover = "#b3dff2";
+set color_page_link_visited = "#caa995";
+set color_header_background = "#403230";
+set color_header_link = "#b3dff2";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#403230";
+set color_entry_interaction_links = "#b3dff2";
+set color_entry_interaction_links_hover = "#96d7f2";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#403230";
 
 
 #NEWLAYER: negatives/winter
