@@ -414,11 +414,17 @@ sub output_prop_element {
         }
     } elsif ( $prop->{values} ) {
         $ret .= "<td class='prop-input'>" unless $is_group;
+
+        # take the list of allowed values
+        # and prepend custom values (set through the layer editor) if allowed
+        my %vals = split( /\|/, $prop->{values} );
+        $vals{$override} = "Custom: " . $override unless $vals{$override};
+
         $ret .= $class->html_select(
             { name => $name,
               disabled => ! $can_use,
               selected => $override, },
-            split(/\|/, $prop->{values})
+              %vals,
         );
         $ret .= " <label>" . LJ::eall( $prop->{des} ) . "</label>" if $is_group && $prop->{des};
         $ret .= "</td>" unless $is_group;
