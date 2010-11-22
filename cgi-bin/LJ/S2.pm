@@ -2927,6 +2927,7 @@ sub Color__Color
     my ($s) = @_;
     $s =~ s/^\#//;
     $s =~ s/^(\w)(\w)(\w)$/$1$1$2$2$3$3/s;  #  'c30' => 'cc3300'
+    return { '_type' => 'Color', as_string => "" } if $s eq "";
     return if $s =~ /[^a-fA-F0-9]/ || length($s) != 6;
 
     my $this = { '_type' => 'Color' };
