@@ -432,8 +432,7 @@ table#table_yourlayers td { padding: .15em .25em; }
     border: 1px solid #999966;
 }
 
-/* widgets/customizetheme.css, themechooser.css, themenav.css,
-currenttheme.css */
+/* widgets/customizetheme.css, themechooser.css, themenav.css, currenttheme.css, layoutchooser.css */
 
 .theme-current h2.widget-header, .layout-item.current {
     background-color: #EEEECC;
@@ -453,14 +452,11 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     overflow-y: visible;
 }
 
-.customize-button, .theme-item .theme-button, .layout-item
-.layout-button {
+.customize-button, .theme-item .theme-button, .layout-item .layout-button {
+    color: #222;
     background: #DDDDAA;
-    border: 2px solid #000;
-    border-top: 2px solid #DDDDAA;
-    border-left: 2px solid #DDDDAA;
+    border: 2px solid #999966;
 }
-
 
 .theme-nav-content, .customize-content {
     border: 1px solid #999966;
