@@ -29,7 +29,7 @@ $Template::Stash::LIST_OPS->{ sort_by_key } = sub {
     my @r = ();
     my $sb = $sort_subs->{ $type || 'alpha' };
 
-    if ( $type eq 'order' ) {
+    if ( $type && $type eq 'order' ) {
         my ( $v_type, $o_ky ) = @rest;
         $o_ky ||= 'order';
 
