@@ -2,7 +2,7 @@ UserpicSelect = new Class (LJ_IPPU, {
   init: function () {
     UserpicSelect.superClass.init.apply(this, ["Choose Icon"]);
 
-    this.setDimensions("550px", "441px");
+    this.setDimensions("560px", "441px");
 
     this.selectedPicid = null;
     this.displayPics = null;
