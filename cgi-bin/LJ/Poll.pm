@@ -1389,10 +1389,20 @@ sub process_submission {
         }
     }
 
+    ### load any previous answers
+    my $qvals = $poll->journal->selectall_arrayref(
+                "SELECT pollqid, value FROM pollresult2 " .
+                "WHERE journalid=? AND pollid=? AND userid=?",
+                undef, $poll->journalid, $pollid, $remote->userid );
+    die $poll->journal->errstr if $poll->journal->err;
+    my %qvals = $qvals ? map { $_->[0], $_->[1] } @$qvals : ();
+
     ### load all the questions
     my @qs = $poll->questions;
 
     my $ct = 0; # how many questions did they answer?
+    my ( %vote_delete, %vote_replace );
+
     foreach my $q (@qs) {
         my $qid = $q->pollqid;
         my $val = $form->{"pollq-$qid"};
@@ -1426,15 +1436,41 @@ sub process_submission {
                 $val = "";
             }
         }
-        if ($val ne "") {
+
+        # see if the vote changed values
+        my $changed = 1;
+
+        if ( $val ne "" ) {
+            my $oldval = $qvals{$qid};
+            if ( defined $oldval && $oldval eq $val ) {
+                $changed = 0;
+            }
+        }
+
+        if ( $val eq "" ) {
+            $vote_delete{$qid} = 1;
+        } elsif ( $changed ) {
             $ct++;
-            $poll->journal->do( "REPLACE INTO pollresult2 (journalid, pollid, pollqid, userid, value) VALUES (?, ?, ?, ?, ?)",
-                                undef, $poll->journalid, $pollid, $qid, $remote->userid, $val );
-        } else {
-            $poll->journal->do( "DELETE FROM pollresult2 WHERE journalid=? AND pollid=? AND pollqid=? AND userid=?",
-                                undef, $poll->journalid, $pollid, $qid, $remote->userid );
+            $vote_replace{$qid} = $val;
         }
     }
+    ## do one transaction for all deletions
+    my $delete_qs = join ',', map { '?' } keys %vote_delete;
+    $poll->journal->do( "DELETE FROM pollresult2 WHERE journalid=? AND pollid=? " .
+                        "AND userid=? AND pollqid IN ($delete_qs)",
+                        undef, $poll->journalid, $pollid, $remote->userid,
+                               keys %vote_delete );
+
+    ## do one transaction for all replacements
+    my ( @replace_qs, @replace_args );
+    foreach my $qid ( keys %vote_replace ) {
+        push @replace_qs, '(?, ?, ?, ?, ?)';
+        push @replace_args, $poll->journalid, $pollid, $qid, $remote->userid, $vote_replace{$qid};
+    }
+    my $replace_qs = join ', ', @replace_qs;
+    $poll->journal->do( "REPLACE INTO pollresult2 " .
+                        "(journalid, pollid, pollqid, userid, value) " .
+                        "VALUES $replace_qs", undef, @replace_args );
 
     ## finally, register the vote happened
     $poll->journal->do( "REPLACE INTO pollsubmission2 (journalid, pollid, userid, datesubmit) VALUES (?, ?, ?, NOW())",
