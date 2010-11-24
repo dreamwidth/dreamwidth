@@ -148,6 +148,24 @@ sub default_typeid {
 }
 
 ################################################################################
+# DW::Pay::is_default_type
+#
+# ARGUMENTS: hashref returned from get_paid_status
+#
+# RETURN: 1 if default_typeid should be used, 0 otherwise
+#
+sub is_default_type {
+    my $stat = $_[0];
+
+    # free accounts: no row, or expired (but not permanent)
+    return 1 unless defined $stat;
+    return 1 unless $stat->{permanent} || $stat->{expiresin} > 0;
+
+    # use typeid defined in row
+    return 0;
+}
+
+################################################################################
 # DW::Pay::get_current_account_status
 #
 # ARGUMENTS: uuserid
@@ -160,9 +178,8 @@ sub get_current_account_status {
     # try to get current paid status
     my $stat = DW::Pay::get_paid_status( @_ );
 
-    # free accounts: no row, or expired
-    return DW::Pay::default_typeid() unless defined $stat;
-    return DW::Pay::default_typeid() unless $stat->{permanent} || $stat->{expiresin} > 0;
+    # default check
+    return DW::Pay::default_typeid() if DW::Pay::is_default_type( $stat );
 
     # valid row, return whatever type it is
     return $stat->{typeid};
@@ -707,7 +724,7 @@ sub sync_caps {
     my $default = DW::Pay::default_typeid();
 
     # either they're free, or they expired (not permanent)
-    if ( ! $ps || ( ! $ps->{permanent} && $ps->{expiresin} < 0 ) ) {
+    if ( DW::Pay::is_default_type( $ps ) ) {
         # reset back to the default, and turn off all other bits; then set the
         # email count to defined-but-0
         $u->modify_caps( [ $default ], [ grep { $_ != $default } @bits ] );

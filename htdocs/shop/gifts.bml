@@ -44,7 +44,7 @@ body<=
             # wouldn't show, since get_paid_status only returns undef if
             # the account has never been paid, not if it's not currently
             # paid...):
-            push @free, $target unless $paidstatus &&  $paidstatus->{expiresin} > 0 || $paidstatus->{permanent};
+            push @free, $target if DW::Pay::is_default_type( $paidstatus );
 
             # account is expiring soon if the expiration time is
             # within the next month:

@@ -32,8 +32,11 @@ LJ::Hooks::register_hook( 'finduser_extrainfo', sub {
     my $paidstatus = DW::Pay::get_paid_status( $u );
     my $numinvites = DW::InviteCodes->unused_count( userid => $u->id );
 
-    if ( $paidstatus ) {
-        $ret .= "  " . DW::Pay::type_name( $paidstatus->{typeid} ) . ", expiring " . LJ::mysql_time( $paidstatus->{expiretime} ) . "\n";
+    unless ( DW::Pay::is_default_type( $paidstatus ) ) {
+        $ret .= "  " . DW::Pay::type_name( $paidstatus->{typeid} );
+        $ret .= $paidstatus->{permanent} ? ", never expires" :
+            ", expiring " . LJ::mysql_time( $paidstatus->{expiretime} );
+        $ret .= "\n";
     }
 
     if ( $numinvites ) {
