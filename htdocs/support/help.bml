@@ -89,7 +89,7 @@ body<=
  my $append;
  if ($state eq "closed") {
      $ret .= "<?h1 $ML{'.state.closed.title'} h1?>";
-     $ret .= "<?p ". BML::ml(".state.closed.text", {"clickurl"=>"$LJ::SITEROOT/support/help?cat=$filtercat"} ) ." p?>";
+     $ret .= "<?p ". BML::ml( ".state.closed.text", { clickurl => "href=\"$LJ::SITEROOT/support/help?cat=$filtercat\"" } ) ." p?>";
  } elsif ($state eq "youreplied") {
      return "<?h1 $ML{'.state.youreplied.rem.title'} h1?>  <?p $ML{'.state.youreplied.rem.text'} p?>"
         unless $remote;
