@@ -1,6 +1,6 @@
 # -*-perl-*-
 use strict;
-use Test::More tests => 5 * 14; # replace last number with the number of check_req calls
+use Test::More tests => 5 * 15; # replace last number with the number of check_req calls
 use lib "$ENV{LJHOME}/cgi-bin";
 
 require 'ljlib.pl';
@@ -27,6 +27,22 @@ check_req(
         keep_args => [ 'bar' ],
     },
     { ssl => 0, host => "www.example.com", uri=>"/", },
+    {
+        foo => "bar",
+        bar => "baz",
+    },
+);
+
+check_req(
+    "http://www.example.com/?bar=baz",
+    undef, {
+        args => {
+            foo => 'bar',
+        },
+        keep_args => [ 'bar' ],
+        fragment => 'yay',
+    },
+    { ssl => 0, host => "www.example.com", uri=>"/", fragment=>"yay" },
     {
         foo => "bar",
         bar => "baz",
@@ -186,7 +202,7 @@ sub check_req {
 sub validate_req {
     my ( $url, $eopts, $expected ) = @_;
 
-    my ( $https, $host, $blah, $fragment, $blah2 ) = $url =~ m!^(http(?:s)?)://(.+?)/(.*?)((?:#.+?)?)((?:\?.+?)?)$!;
+    my ( $https, $host, $blah, $blah2, $fragment ) = $url =~ m!^(http(?:s)?)://(.+?)/(.*?)((?:\?.+?)?)((?:#.+?)?)$!;
     my $ssl = ( $https eq 'https' ) ? 1 : 0;
     my $rq = HTTP::Request->new(GET => $url);
 

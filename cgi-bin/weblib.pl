@@ -999,7 +999,6 @@ sub create_url {
     $opts{ssl} = $LJ::IS_SSL unless $opts{host} || exists $opts{ssl};
 
     my $url = ( $opts{ssl} ? "https" : "http" ) . "://$host$path";
-    $url .= "#" . $opts{fragment} if $opts{fragment};
 
     my $orig_args = $opts{cur_args} || DW::Request->get->get_args;
 
@@ -1023,6 +1022,7 @@ sub create_url {
     my $args = encode_url_string( \%out_args );
 
     $url .= "?$args" if $args;
+    $url .= "#" . $opts{fragment} if $opts{fragment};
 
     return $url;
 }
