@@ -73,6 +73,7 @@ LJ::Userpic
 # Return existing with userid and picid populated, or make new.
 sub instance {
     my ($class, $u, $picid) = @_;
+    $picid = 0 unless defined $picid;
     my $up;
 
     # return existing one, if loaded
@@ -117,6 +118,7 @@ sub get {
 
 sub _skeleton {
     my ($class, $u, $picid) = @_;
+    $picid = 0 unless defined $picid;
     # starts out as a skeleton and gets loaded in over time, as needed:
     return bless {
         userid => $u->{userid},

@@ -137,7 +137,7 @@ sub userpic {
    
 
     #  Set the wrapper materials to surrounded the  userpic image
-    my ( $apre, $apost );
+    my ( $apre, $apost ) = ( '', '' );
     if ( $ret->{userpic_url} ) {
         $apre = "<a href='" . LJ::ehtml($ret->{userpic_url}) . "'>";
         $apost = "</a>";
