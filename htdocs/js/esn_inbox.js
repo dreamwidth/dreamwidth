@@ -261,7 +261,7 @@ ESN_Inbox.updateItems = function (action, evt, folder, qid, cur_folder, itemid) 
         "qids": qids,
         "folder": folder,
         "cur_folder": cur_folder,
-        "itemid" : itemid
+        "itemid" : itemid || 0
     };
 
     var opts = {
