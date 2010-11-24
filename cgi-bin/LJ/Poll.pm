@@ -1437,6 +1437,9 @@ sub process_submission {
             }
         }
 
+        # if $val is still undef here, set it to empty string
+        $val = "" unless defined $val;
+
         # see if the vote changed values
         my $changed = 1;
 
