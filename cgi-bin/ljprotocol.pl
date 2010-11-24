@@ -1384,11 +1384,11 @@ sub postevent
 
     # if posting to a moderated community, store and bail out here
     if ($uowner->is_community && $uowner->{'moderated'} && !$flags->{'nomod'}) {
-        # don't moderate admins, moderators & pre-approved users
+        # Don't moderate pre-approved users
         my $dbh = LJ::get_db_writer();
         my $relcount = $dbh->selectrow_array("SELECT COUNT(*) FROM reluser ".
                                              "WHERE userid=$ownerid AND targetid=$posterid ".
-                                             "AND type IN ('A','M','N')");
+                                             "AND type IN ('N')");
         unless ($relcount) {
             # moderation queue full?
             my $modcount = $dbcm->selectrow_array("SELECT COUNT(*) FROM modlog WHERE journalid=$ownerid");
