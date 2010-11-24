@@ -211,9 +211,12 @@ input.bright {
 .usercontent ul,
 .usercontent ol,
 .usercontent dl,
-.usercontent menu,
-.usercontent blockquote {
+.usercontent menu {
     margin: 1em;
+}
+.usercontent blockquote {
+  display: block;
+  margin: 1em 40px;
 }
 .usercontent ul,
 .usercontent ol,
