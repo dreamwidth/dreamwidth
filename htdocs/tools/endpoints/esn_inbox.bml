@@ -63,7 +63,7 @@ _c?>
     $ret{items} = [];
     my $inbox = $u->notification_inbox;
     my $cur_folder = $POST{'cur_folder'} || 'all';
-    my $itemid = $POST{itemid} ? $POST{itemid} + 0 : 0;
+    my $itemid = $POST{itemid} && $POST{itemid} =~ /^\d+$/ ? $POST{itemid} + 0 : 0;
 
     # do actions
     if ($action eq 'mark_read') {
