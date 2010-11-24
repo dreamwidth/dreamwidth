@@ -221,8 +221,11 @@ body<=
     # Allow style=mine, etc for QR redirects
     my $style_args = LJ::viewing_style_args( %POST );
 
+    # FIXME: potentially can be replaced with some form of additional logic when we have multiple account linkage
+    my $posted = $comment->{state} eq 'A' ? "posted=1" : "";
+
     my $cthread = $POST{'viewing_thread'} ? "thread=$POST{viewing_thread}" : "view=$dtalkid";
-    my $commentlink = LJ::Talk::talkargs( $talkurl, $cthread, $style_args ) . LJ::Talk::comment_anchor( $dtalkid );
+    my $commentlink = LJ::Talk::talkargs( $talkurl, $cthread, $style_args, $posted ) . LJ::Talk::comment_anchor( $dtalkid );
 
     my $ret = "";
     $ret .= "<?h1 $ML{'.success.title'} h1?>";

@@ -46,6 +46,7 @@ sub protected_handler {
 
     my $vars = {
         returnto => $returnto,
+        message => $r->get_args->{posted} ? '.message.comment.posted' : '',
     };
 
     my $remote = $rv->{remote};
@@ -65,7 +66,7 @@ sub protected_handler {
         # include SSL if it's an option
         $vars->{'usessl'} = $LJ::USE_SSL;
     }
-    
+
     return DW::Template->render_template( 'protected.tt', $vars );
 
 }

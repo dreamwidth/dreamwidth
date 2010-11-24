@@ -13,6 +13,10 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 [% sections.title = '.title' | ml %]
 [% dw.need_res('stc/widgets/protected.css') %]
 
+[% IF message %]
+    <p>[% message | ml %]</p>
+[% END %]
+
 <div class="errorbar" style="background-image: URL('[%- roots.img -%]/message-error.gif');">
 <strong>
 [% IF remote %]
