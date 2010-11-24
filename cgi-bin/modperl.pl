@@ -57,6 +57,7 @@ delete $INC{"$LJ::HOME/cgi-bin/modperl.pl"};
 # remember modtime of all loaded libraries
 %LJ::LIB_MOD_TIME = ();
 while (my ($k, $file) = each %INC) {
+    next unless defined $file; # Happens if require caused a runtime error
     next if $LJ::LIB_MOD_TIME{$file};
     next unless $file =~ m!^\Q$LJ::HOME\E!;
     my $mod = (stat($file))[9];
