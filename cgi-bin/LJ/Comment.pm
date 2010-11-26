@@ -1358,7 +1358,7 @@ sub _format_mail_both {
         $vars->{closelink} = "</a>";
     } else {
         $vars->{openlink}  = '';
-        $vars->{closelink} = " ($talkurl)";
+        $vars->{closelink} = " ( $talkurl )";
     }
 
     my $subject = $is_html ? $entry->subject_html : $entry->subject_text;
