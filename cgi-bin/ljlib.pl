@@ -88,6 +88,7 @@ use DW::Logic::LogItems;
 use LJ::CleanHTML;
 use DW::LatestFeed;
 use LJ::Support;
+use LJ::Keywords;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
@@ -1481,79 +1482,6 @@ sub cmd_buffer_add
     }
 
     return $rv;
-}
-
-
-sub get_interest {
-    my $intid = shift;
-    return undef unless $intid && $intid =~ /^\d+$/;
-    my ( $int, $intcount );
-
-    my $memkey = [$intid, "introw:$intid"];
-    my $cached = LJ::MemCache::get( $memkey );
-    # memcache row is of form [$intid, $int, $intcount];
-
-    if ( $cached && ref $cached eq 'ARRAY' ) {
-        ( $intid, $int, $intcount ) = @$cached;
-    } else {
-        my $dbr = LJ::get_db_reader();
-        ( $int ) =
-            $dbr->selectrow_array( "SELECT keyword FROM sitekeywords WHERE kwid=?",
-                                          undef, $intid );
-        die $dbr->errstr if $dbr->err;
-        ( $intcount ) =
-            $dbr->selectrow_array( "SELECT intcount FROM interests WHERE intid=?",
-                                   undef, $intid );
-        die $dbr->errstr if $dbr->err;
-        LJ::MemCache::set( $memkey, [$intid, $int, $intcount], 3600*12 );
-    }
-
-    return wantarray() ? ($int, $intcount) : $int;
-}
-
-
-# <LJFUNC>
-# name: LJ::get_sitekeyword_id
-# class:
-# des: Get the id for a global keyword.
-# args: keyword, autovivify?
-# des-keyword: A string keyword to get the id of.
-# returns: Returns a kwid into [dbtable[sitekeywords]].
-#          If the keyword doesn't exist, it is automatically created for you.
-# des-autovivify: If present and 1, automatically create keyword.
-#                 If present and 0, do not automatically create the keyword.
-#                 If not present, default behavior is the old
-#                 style -- yes, do automatically create the keyword.
-# </LJFUNC>
-sub get_sitekeyword_id {
-    my ( $kw, $autovivify, %opts ) = @_;
-    $autovivify = 1 unless defined $autovivify;
-
-    # setup the keyword for use
-    return 0 unless $kw =~ /\S/;
-    $kw = LJ::text_trim( $kw, LJ::BMAX_SITEKEYWORD, LJ::CMAX_SITEKEYWORD );
-    $kw = LJ::utf8_lc( $kw ) unless $opts{allowmixedcase};
-
-    # get the keyword and insert it if necessary
-    my $dbr = LJ::get_db_reader();
-    my $kwid = $dbr->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw ) + 0;
-    if ( $autovivify && ! $kwid ) {
-        # create a new keyword
-        $kwid = LJ::alloc_global_counter( 'K' );
-        return undef unless $kwid;
-
-        # attempt to insert the keyword
-        my $dbh = LJ::get_db_writer();
-        my $rv = $dbh->do( "INSERT IGNORE INTO sitekeywords (kwid, keyword) VALUES (?, ?)", undef, $kwid, $kw );
-        return undef if $dbh->err;
-
-        # at this point, if $rv is 0, the keyword is already there so try again
-        unless ( $rv ) {
-            $kwid = $dbh->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw ) + 0;
-            return undef if $dbh->err;
-        }
-    }
-    return $kwid;
 }
 
 
