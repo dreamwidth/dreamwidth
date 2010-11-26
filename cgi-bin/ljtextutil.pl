@@ -288,11 +288,13 @@ sub is_utf8 {
 # returns: 1 if text is a valid UTF-8 stream, a reference, or null; 0 otherwise.
 # </LJFUNC>
 sub is_utf8_wrapper {
-    my $text = shift;
+    my $text = $_[0];
 
-    if ( defined $text && ! ref $text )  {
-        return Unicode::CheckUTF8::is_utf8( $text );
+    if ( defined $text && ! ref $text && $text )  {
+        # we need to make sure $text values are treated as strings
+        return Unicode::CheckUTF8::is_utf8( '' . $text );
     } else {
+        # all possible "false" values for $text are valid unicode
         return 1;
     }
 }
