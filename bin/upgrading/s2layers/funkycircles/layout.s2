@@ -225,8 +225,8 @@ body {
 
 #canvas {
     $header_background
+    background-color: transparent;
     background-position: 100% 0%;
-    background-color: transparent !important;
     }
 
 a,
@@ -325,7 +325,7 @@ h2#pagetitle {
     }
 
     .page-month .navigation .inner {
-        padding: 0 !important;
+        padding: 0;
         }
 
     .navigation li {
@@ -347,7 +347,7 @@ h2#pagetitle {
             .navigation li a:hover {
                 border-bottom: 1px solid $*color_page_link_hover;
                 border-top: 1px solid $*color_page_link_hover;
-                text-decoration: none !important;
+                text-decoration: none;
                 }
 
     .page-month .navigation {
@@ -356,7 +356,7 @@ h2#pagetitle {
 
         .page-month .navigation li a {
             border: none;
-            padding-right: 0 !important;
+            padding-right: 0;
             }
 
             .page-month .navigation li a:hover,
@@ -396,7 +396,7 @@ h2#pagetitle {
 
     .comment-thread .partial {
         margin-left: -2em;
-        margin-bottom: 2em !important;
+        margin-bottom: 2em !important; /* Needed */
         }
 
 .entry,
@@ -440,7 +440,6 @@ h2#pagetitle {
     .entry-title a,
     .comment-title a {
         $entry_title_colors
-        font-size: 1em !important;
         }
 
     .page-month dd h3 {
@@ -560,8 +559,8 @@ h2#pagetitle {
 
     .entry .contents a:visited,
     .comment .contents a:visited {
-         $entry_link_visited_colors
-        text-decoration: none !important;
+        $entry_link_visited_colors
+        text-decoration: none;
         }
 
     .entry .contents a:hover,
@@ -571,19 +570,19 @@ h2#pagetitle {
     .page-month .month a:hover,
     .page-tags .tags-container a:hover {
         $entry_link_hover_colors
-        text-decoration: none !important;
+        text-decoration: none;
         }
 
     .entry .contents .entry-content a,
     .comment .contents .comment-content a {
-        text-decoration: underline !important;
+        text-decoration: underline;
         }
 
     .entry .contents .entry-content a:hover,
     .comment .contents .comment-content a:hover,
     .entry .contents .entry-content a:visited,
     .comment .contents .comment-content a:visited {
-        text-decoration: none !important;
+        text-decoration: none;
         }
 
     .comment-wrapper.partial .comment .comment-title {
@@ -598,9 +597,9 @@ h2#pagetitle {
 
             .comment-wrapper.partial .comment .comment-title a:hover {
                 $entry_colors
-                    background-color: transparent;
+                background-color: transparent;
                 border: none;
-                text-decoration: underline !important;
+                text-decoration: underline;
                 }
 
 .entry .contents .userpic,
@@ -640,7 +639,7 @@ h2#pagetitle {
 .page-reply .entry .contents .poster,
 .page-reply .comment .contents .poster,
 .page-day .journal-type-C .entry .contents .poster {
-    border-bottom: 1px dashed $*color_entry_poster_border !important;
+    border-bottom: 1px dashed $*color_entry_poster_border;
     display: block;
     font-weight: bold;
     padding-bottom: .5em;
@@ -721,14 +720,13 @@ h2#pagetitle {
                 }
 
                 #archive-year table td.day-has-entries a:visited {
-                    color: $*color_entry_text !important;
+                    color: $*color_entry_text;
                     }
 
                 #archive-year table td.day-has-entries p:hover,
                 #archive-year table td.day-has-entries p:hover > a,
                 #archive-year table td.day-has-entries a:hover {
                     $page_title_colors
-                    color: $*color_page_title !important;
                     }
 
 .entry .contents .entry-content {
@@ -792,7 +790,7 @@ h2#pagetitle {
     .bottomcomment a:hover {
         $entry_footer_link_hover_colors
         background-color: transparent;
-            text-decoration: underline !important;
+        text-decoration: underline;
         }
 
     .page-entry .comment .footer,
@@ -847,7 +845,7 @@ h2#pagetitle {
 
 .comment ul.comment-interaction-links,
 .bottomcomment label {
-    border-top: 1px dashed $*color_entry_footer_border !important;
+    border-top: 1px dashed $*color_entry_footer_border;
     display: block;
     text-align: right;
     }
@@ -891,14 +889,14 @@ h2#pagetitle {
     }
 
     #qrformdiv label {
-        border-top: none !important;
+        border-top: none;
         display: inline;
         padding-top: 0;
         text-align: left;
     }
 
     #qrformdiv table {
-        border: none !important;
+        border: none !important; /* Needed */
         margin: 0 auto;
         }
 
@@ -969,7 +967,7 @@ h2#pagetitle {
 
     .module-navlinks li a.current {
         $page_link_hover_colors
-        text-decoration: underline !important;
+        text-decoration: underline;
         }
 
     .module-navlinks li:hover {
@@ -1033,7 +1031,7 @@ h2#pagetitle {
 
         .module-calendar td.empty-day {
             background-color: $*color_specificmodule_background;
-            color: $*color_specificmodule_text !important;
+            color: $*color_specificmodule_text;
             box-shadow: .067em .067em .134em $*color_shadow;
             -moz-box-shadow: .067em .067em .134em $*color_shadow;
             -webkit-box-shadow: .067em .067em .134em $*color_shadow;
@@ -1049,7 +1047,7 @@ h2#pagetitle {
             }
 
             .module-calendar td.entry-day a {
-                color: $*color_specificmodule_text_alt !important;
+                color: $*color_specificmodule_text_alt;
                 padding: 0;
                 }
 
@@ -1063,14 +1061,14 @@ h2#pagetitle {
 
                 .module-calendar td.entry-day:visited > a,
                 .module-calendar td.entry-day a:visited {
-                    color: $*color_specificmodule_text_visited !important;
-                    text-decoration: none !important;
+                    color: $*color_specificmodule_text_visited;
+                    text-decoration: none;
                     }
 
                 .module-calendar td.entry-day:hover > a,
                 .module-calendar td.entry-day a:hover {
-                    color: $*color_specificmodule_text_hover !important;
-                    text-decoration: none !important;
+                    color: $*color_specificmodule_text_hover;
+                    text-decoration: none;
                     }
 
 .module h2,
