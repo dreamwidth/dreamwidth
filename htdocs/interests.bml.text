@@ -1,6 +1,14 @@
 ;; -*- coding: utf-8 -*-
 .add.added.head=Added!
 
+.add.added.editinterests=Edit your interests
+
+.add.added.editprofile=Edit your profile
+
+.add.added.interestspage=Return to the Interests page
+
+.add.added.viewprofile=View your profile
+
 .add.added.text=The interest has been added to your list.
 
 .add.btn.text=Add [[interest]]

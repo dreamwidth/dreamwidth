@@ -134,7 +134,12 @@ body<=
             $dbh->do( "DELETE FROM userinterests WHERE userid=?", undef, $remote->userid );
         }
 
-        $ret .= "<?h1 $ML{'.add.added.head'} h1?><?p $ML{'.add.added.text'} p?>";
+        my $profile_url = $remote->profile_url;
+        $ret .= "<?h1 $ML{'.add.added.head'} h1?><?p $ML{'.add.added.text'} p?>" .
+            "<ul><li><a href='$LJ::SITEROOT/interests'>$ML{'.add.added.interestspage'}</a></li>" .
+            "<li><a href='$LJ::SITEROOT/manage/profile/#interests'>$ML{'.add.added.editinterests'}</a></li>" .
+            "<li><a href='$profile_url'>$ML{'.add.added.viewprofile'}</a></li>" .
+            "<li><a href='$LJ::SITEROOT/manage/profile'>$ML{'.add.added.editprofile'}</a></li></ul>";
         return $ret;
     }
 
