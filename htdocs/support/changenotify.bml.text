@@ -19,6 +19,12 @@
 
 .submit.button=Save Changes
 
+.success.fromhere=From here you can:
+
+.success.fromhere.board=Return to the Support Board
+
+.success.fromhere.support=Go to the Support Area
+
 .success.text=Your notification settings have been updated. 
 
 .success.title=Success

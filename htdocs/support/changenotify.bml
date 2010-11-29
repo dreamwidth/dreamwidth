@@ -115,7 +115,11 @@ body<=
      }     
      if ($sql) { $dbh->do($sql); }
      
-     return "<?h1 $ML{'.success.title'} h1?><?p $ML{'.success.text'} p?>";
+    return "<?h1 $ML{'.success.title'} h1?>\n" .
+                "<?p $ML{'.success.text'} p?>" .
+                    "<?p $ML{'.success.fromhere'} p?>" .
+                    "<ul><li><a href='$LJ::SITEROOT/support/help'>$ML{'.success.fromhere.board'}</a></li>" .
+                    "<li><a href='$LJ::SITEROOT/support'>$ML{'.success.fromhere.support'}</a></li></ul>";
  }
 
  return $ML{'.unknow.mode'};
