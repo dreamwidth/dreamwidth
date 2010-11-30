@@ -21,11 +21,12 @@ use strict;
 use warnings;
 
 sub should_render {
-    $_[1] ? 1 : 0;
+    my ( $class, $u ) = @_;
+    return $u && $u->is_individual;
 }
 
 sub label {
-    $_[0]->ml( 'setting.timeformat.label' );
+    return $_[0]->ml( 'setting.timeformat.label' );
 }
 
 sub option {
