@@ -1260,6 +1260,20 @@ sub alias_overriding_props {
     }
 }
 
+sub convert_prop_val {
+    my ( $prop, $val ) = @_;
+    $prop ||= {};
+    my $type = $prop->{type} || '';
+
+    return int( $val ) if $type eq "int";
+    return $val ? "true" : "false" if $type eq "bool";
+
+    # if not int or bool, treat property as text - use quotes,
+    # use zero-width lookahead to insert a backslash where needed
+    $val =~ s/(?=[\\\$\"])/\\/g;
+    return qq{"$val"};
+}
+
 sub layer_compile_user
 {
     my ($layer, $overrides) = @_;
@@ -1274,16 +1288,7 @@ sub layer_compile_user
 
     foreach my $name (sort keys %$overrides) {
         next if $name =~ /\W/;
-        my $prop = $overrides->{$name}->[0];
-        my $val = $overrides->{$name}->[1];
-        if ($prop->{'type'} eq "int") {
-            $val = int($val);
-        } elsif ($prop->{'type'} eq "bool") {
-            $val = $val ? "true" : "false";
-        } else {
-            $val =~ s/[\\\$\"]/\\$&/g;
-            $val = "\"$val\"";
-        }
+        my $val = convert_prop_val( @{ $overrides->{$name} } );
         $s2 .= "set $name = $val;\n";
     }
 

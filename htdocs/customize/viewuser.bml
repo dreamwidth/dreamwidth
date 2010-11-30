@@ -146,14 +146,7 @@ _c?>
         next if $GET{'as'} eq "" && ! $had_override;
         next if $GET{'as'} eq "theme" && $type ne "Color";
 
-        if ($prop->{'type'} eq "int") {
-            $val = int($val);
-        } elsif ($prop->{'type'} eq "bool") {
-            $val = $val ? "true" : "false";
-        } else {
-            $val =~ s/[\\\$\"]/\\$&/g;
-            $val = "\"$val\"";
-        }
+        $val = LJ::S2::convert_prop_val( $prop, $val );
         $body .= "set $name = $val;\n";
     }
     $body .= "</textarea>";
