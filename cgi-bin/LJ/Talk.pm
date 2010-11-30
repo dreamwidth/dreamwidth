@@ -2394,6 +2394,13 @@ sub treat_as_anon {
     return LJ::isu( $u ) ? ! $u->trusts_or_has_member( $pu ) : 1;
 }
 
+sub format_eventtime {
+    my ( $etime, $u ) = @_;
+    $etime ||= '';
+    $etime =~ s!(\d{4}-\d{2}-\d{2})!LJ::date_to_view_links( $u, $1 )!e;
+    return "<br /><span class='time'>@ $etime</span>";
+}
+
 package LJ::Talk::Post;
 
 use Text::Wrap;

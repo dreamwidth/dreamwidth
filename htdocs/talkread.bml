@@ -274,8 +274,7 @@ body<=
     $etime = LJ::S2::DateTime_unix( $etime );
     $etime = S2::Builtin::LJ::Date__date_format( $s2_ctx, $etime, "iso" ) .
             " " . S2::Builtin::LJ::DateTime__time_format( $s2_ctx, $etime, $fmt_time_short );
-    $etime =~ s!(\d\d\d\d)-(\d\d)-(\d\d)!LJ::date_to_view_links($u, $&)!e;
-    $ret .= "<br /><span class='time'>@ $etime</span>";
+    $ret .= LJ::Talk::format_eventtime( $etime, $u );
     $ret .= "</td></tr></table>";
 
     ## standout bar

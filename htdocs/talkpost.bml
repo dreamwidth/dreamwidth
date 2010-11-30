@@ -263,9 +263,7 @@ body<=
     }
 
     unless ($init->{'replyto'}) {
-        my $etime = $item->{'eventtime'};
-        $etime =~ s!(\d\d\d\d)-(\d\d)-(\d\d)!LJ::date_to_view_links($u, $&)!e;
-        $ret .= "<br /><span class='time'>@ $etime</span>";
+        $ret .= LJ::Talk::format_eventtime( $item->{eventtime}, $u );
     }
 
     $ret .= "</td></tr></table>";
