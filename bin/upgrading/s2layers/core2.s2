@@ -1168,38 +1168,40 @@ set use_custom_friend_colors = false;
 property string[] entry_datetime_format_group {
     des = "Entry date/time format";
     grouptype = "datetime";
-}
+    }
 set entry_datetime_format_group = ["entry_date_format", "entry_time_format"];
-property string entry_date_format { 
-    des = "Entry date format";
-    values = "short|2/5/80|med|Feb. 5th, 1980|med_day|Tue, Feb. 5th, 1980|long|February 5th, 1980|long_day|Tuesday, February 5th, 1980";
+property string entry_date_format {
+    des = "Date";
+    values = "iso|2010-04-30|short|4/30/10|short_dayfirst|30/4/10|short_dayfirst_full|30/04/2010|med|Apr. 30th, 2010|med_dayfirst|30 Apr 2010|med_day_iso|2010-Apr-30, Friday|med_day|Fri, Apr. 30th, 2010|long|April 30th, 2010|long_dayfirst|30 April 2010|long_day|Friday, April 30th, 2010|long_day_dayfirst|Friday, 30 April 2010";
     grouped = 1;
-}
+    }
 property string entry_time_format {
-    des = "Entry time format.";
-    values = "short|12:34am";
+    des = "Time";
+    values = "short|9:00pm|short_24|21:00";
+    note = "This format will be displayed to you (personal journal only) and logged-out users. Other logged-in users will keep on seeing time in their preferred format.";
     grouped = 1;
-}
-
+    }
 
 property string[] comment_datetime_format_group {
     des = "Comment date/time format";
     grouptype = "datetime";
-}
+    }
 set comment_datetime_format_group = ["comment_date_format", "comment_time_format"];
-property string comment_date_format { 
-    des = "Comment date format";
-    values = "short|2/5/80|med|Feb. 5th, 1980|med_day|Tue, Feb. 5th, 1980|long|February 5th, 1980|long_day|Tuesday, February 5th, 1980";
+property string comment_date_format {
+    des = "Date";
+    values = "iso|2010-04-30|short|4/30/10|short_dayfirst|30/4/10|short_dayfirst_full|30/04/2010|med|Apr. 30th, 2010|med_dayfirst|30 Apr 2010|med_day_iso|2010-Apr-30, Friday|med_day|Fri, Apr. 30th, 2010|long|April 30th, 2010|long_dayfirst|30 April 2010|long_day|Friday, April 30th, 2010|long_day_dayfirst|Friday, 30 April 2010";
     grouped = 1;
-}
+    }
 property string comment_time_format {
-    des = "Comment time format.";
-    values = "short|12:34am";
+    des = "Time";
+    values = "short|9:00pm|short_24|21:00";
+    note = "This format will be displayed to you (personal journal only) and logged-out users. Other logged-in users will keep on seeing time in their preferred format.";
     grouped = 1;
-}
-set entry_date_format = "short";
+    }
+
+set entry_date_format = "med";
 set entry_time_format = "short";
-set comment_date_format = "short";
+set comment_date_format = "iso";
 set comment_time_format = "short";
 
 # FIXME: this is not currently implemented, so not showing it in the UI yet
@@ -2734,19 +2736,33 @@ set text_multiform_opt_deletespam = "Delete as Spam";
 property string lang_current { noui = 1; des = "Current language code.  So layouts can change date/time formats more safely if they want."; }
 set lang_current = "en";  # core is English.
 
-property string lang_fmt_date_short { noui = 1; des = "Short date format.  All numeric."; }
+property string lang_fmt_date_iso { noui = 1; des = "ISO date format."; }
 
-property string lang_fmt_date_med { noui = 1; des = "Medium date format.  Abbreviated month name, no day of the week."; }
+property string lang_fmt_date_short { noui = 1; des = "Short date format. All numeric; no leading zeroes; month before day."; }
 
-property string lang_fmt_date_med_day { noui = 1; des = "Medium date format with day of week.  Abbreviated month name and abbreviated day of the week."; }
+property string lang_fmt_date_short_dayfirst { noui = 1; des = "Short date format. All numeric; no leading zeroes; day before month."; }
 
-property string lang_fmt_date_long { noui = 1; des = "Long date format.  With full month name, but no day of the week."; }
+property string lang_fmt_date_short_dayfirst_full { noui = 1; des = "Short date format. All numeric; with leading zeroes; day before month."; }
 
-property string lang_fmt_date_long_day { noui = 1; des = "Long date format.  With full month name and full day of the week."; }
+property string lang_fmt_date_med { noui = 1; des = "Medium date format. Abbreviated month name; ordinal number; no day of the week; month before day."; }
 
-property string lang_fmt_time_short { noui = 1; des = "Time format."; }
+property string lang_fmt_date_med_dayfirst { noui = 1; des = "Medium date format. Abbreviated month name; no day of the week; day before month."; }
 
-property string lang_fmt_time_short_24 { noui = 1; des = "Time format (24 hours)."; }
+property string lang_fmt_date_med_day_iso { noui = 1; des = "ISO date format and full day of the week."; }
+
+property string lang_fmt_date_med_day { noui = 1; des = "Medium date format with day of the week. Abbreviated month name; abbreviated day of the week; ordinal number; month before day."; }
+
+property string lang_fmt_date_long { noui = 1; des = "Long date format. Full month name; ordinal number; no day of the week; month before day."; }
+
+property string lang_fmt_date_long_dayfirst { noui = 1; des = "Long date format. Full month name; no day of the week; day before month."; }
+
+property string lang_fmt_date_long_day { noui = 1; des = "Long date format. Full month name; ordinal number; full day of the week; month before day."; }
+
+property string lang_fmt_date_long_day_dayfirst { noui = 1; des = "Long date format. Full month name; full day of the week; day before month."; }
+
+property string lang_fmt_time_short { noui = 1; des = "12 hours time format."; }
+
+property string lang_fmt_time_short_24 { noui = 1; des = "24 hours time format."; }
 
 property string lang_fmt_month_short { noui = 1; des = "Short month format."; }
 
@@ -2754,13 +2770,22 @@ property string lang_fmt_month_med { noui = 1; des = "Medium month format."; }
 
 property string lang_fmt_month_long { noui = 1; des = "Long month format."; }
 
+set lang_fmt_date_iso = "%%yyyy%%-%%mm%%-%%dd%%";
 set lang_fmt_date_short = "%%m%%/%%d%%/%%yy%%";
+set lang_fmt_date_short_dayfirst = "%%d%%/%%m%%/%%yy%%";
+set lang_fmt_date_short_dayfirst_full = "%%dd%%/%%mm%%/%%yyyy%%";
 set lang_fmt_date_med = "%%mon%%. %%dayord%%, %%yyyy%%";
+set lang_fmt_date_med_dayfirst = "%%d%% %%mon%% %%yyyy%%";
+set lang_fmt_date_med_day_iso = "%%yyyy%%-%%mon%%-%%dd%%, %%day%%";
 set lang_fmt_date_med_day = "%%da%%, %%mon%%. %%dayord%%, %%yyyy%%";
 set lang_fmt_date_long = "%%month%% %%dayord%%, %%yyyy%%";
+set lang_fmt_date_long_dayfirst = "%%d%% %%month%% %%yyyy%%";
 set lang_fmt_date_long_day = "%%day%%, %%month%% %%dayord%%, %%yyyy%%";
+set lang_fmt_date_long_day_dayfirst = "%%day%%, %%d%% %%month%% %%yyyy%%";
+
 set lang_fmt_time_short = "%%hh%%:%%min%% %%a%%m";
 set lang_fmt_time_short_24 = "%%HH%%:%%min%%";
+
 set lang_fmt_month_short = "%%m%%/%%yy%%";
 set lang_fmt_month_med = "%%mon%% %%yyyy%%";
 set lang_fmt_month_long = "%%month%% %%yyyy%%";
@@ -3443,7 +3468,7 @@ function FriendsPage::view_title() : string {
     }
 }
 function DayPage::view_title : string {
-    return $.date->date_format("long");
+    return $.date->date_format($*entry_date_format);
 }
 function YearPage::view_title() : string {
     return string($.year);
@@ -4269,15 +4294,27 @@ function Page::print_time() {
 }
 
 function Page::print_time(string datefmt, string timefmt) {
-    if ($datefmt == "") {
-        $datefmt = "med";
-    }
+
+    if ($datefmt == "") { $datefmt = $*entry_date_format; }
+
     if ($timefmt == "") {
-        if ($this.timeformat24) {
-            $timefmt = "short_24";
+
+        if (viewer_logged_in()) {
+            if (viewer_is_owner()) {
+                $timefmt = $*entry_time_format;
+            } else {
+                if ($this.timeformat24) {
+                    $timefmt = "short_24";
+                } else {
+                    $timefmt = "short";
+                }
+            }
         } else {
-            $timefmt = "short";
+            $timefmt = $*entry_time_format;
         }
+
+    } else {
+        $timefmt = "short";
     }
 
     var string ret;
@@ -4851,15 +4888,27 @@ function EntryLite::print_time(string datefmt, string timefmt) {
 }
 
 function EntryLite::time_display(string datefmt, string timefmt) : string {
-    if ($datefmt == "") {
-        $datefmt = "med";
-    }
+
+    if ($datefmt == "") { $datefmt = $*entry_date_format; }
+
     if ($timefmt == "") {
-        if ($this.timeformat24) {
-            $timefmt = "short_24";
+
+        if (viewer_logged_in()) {
+            if (viewer_is_owner()) {
+                $timefmt = $*entry_time_format;
+            } else {
+                if ($this.timeformat24) {
+                    $timefmt = "short_24";
+                } else {
+                    $timefmt = "short";
+                }
+            }
         } else {
-            $timefmt = "short";
+            $timefmt = $*entry_time_format;
         }
+
+    } else {
+        $timefmt = "short";
     }
 
     var string ret;
@@ -4875,15 +4924,26 @@ function Entry::time_display(string datefmt, string timefmt) : string {
     
     var bool linkify = ( $p.view == "recent" or $p.view == "entry" or $p.view == "reply" or $p.view == "day" );
 
-    if ($datefmt == "") {
-        $datefmt = "med";
-    }
+    if ($datefmt == "") { $datefmt = $*entry_date_format; }
+
     if ($timefmt == "") {
-        if ($this.timeformat24) {
-            $timefmt = "short_24";
+
+        if (viewer_logged_in()) {
+            if (viewer_is_owner()) {
+                $timefmt = $*entry_time_format;
+            } else {
+                if ($this.timeformat24) {
+                    $timefmt = "short_24";
+                } else {
+                    $timefmt = "short";
+                }
+            }
         } else {
-            $timefmt = "short";
+            $timefmt = $*entry_time_format;
         }
+
+    } else {
+        $timefmt = "short";
     }
 
     var string ret;
@@ -4905,15 +4965,26 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
     var DateTime time_remote = ($edittime ? $this.edittime_remote : $this.time_remote);
     var DateTime time_poster = ($edittime ? $this.edittime_poster : $this.time_poster);
 
-    if ($datefmt == "") {
-        $datefmt = "iso";
-    }
+    if ($datefmt == "") { $datefmt = $*comment_date_format; }
+
     if ($timefmt == "") {
-        if ($this.timeformat24) {
-            $timefmt = "short_24";
+
+        if (viewer_logged_in()) {
+            if (viewer_is_owner()) {
+                $timefmt = $*comment_time_format;
+            } else {
+                if ($this.timeformat24) {
+                    $timefmt = "short_24";
+                } else {
+                    $timefmt = "short";
+                }
+            }
         } else {
-            $timefmt = "short";
+            $timefmt = $*comment_time_format;
         }
+
+    } else {
+        $timefmt = "short";
     }
 
     var string tooltip = "";
@@ -5141,7 +5212,11 @@ function MonthPage::print_body {
     foreach var MonthDay d ($.days) {
         if ($d.has_entries) {
             """<dt><a href="$d.url">""";
-            print lang_ordinal($d.day);
+                if ($*entry_date_format == "med" or $*entry_date_format == "med_day" or $*entry_date_format == "long" or $*entry_date_format == "long_day") {
+                    print lang_ordinal($d.day);
+                } else {
+                    print "$d.day";
+                }
             "</a></dt>";
 
             "\n<dd>";
@@ -5202,12 +5277,9 @@ function MonthPage::print_navigation( string{} opts ) [fixed] {
 function MonthDay::print_subjectlist() {
     # Too many tables...
     var Page p = get_page();
+
     foreach var Entry e ($.entries) {
-        if ($p.timeformat24) {
-            $e->print_time("none", "short_24");
-        } else {
-            $e->print_time("none", "short");
-        }
+        $e->print_time("none", "");
         $e->print_poster();
         $e->print_metatypes();
         $e->print_subject();
@@ -5237,7 +5309,7 @@ function DayPage::print_body() {
                     <div class="day">
                         <div class="inner">
                     """;
-                    print "<h3 class='day-date'>" + $.date->date_format( "long" ) + "</h3>";
+                    print "<h3 class='day-date'>" + $.date->date_format($*entry_date_format) + "</h3>";
                     if ($.has_entries) {
                         foreach var Entry e ($.entries) {
                             $this->print_entry($e);
