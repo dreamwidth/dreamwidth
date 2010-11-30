@@ -434,6 +434,11 @@ body<=
             $entry->{'richtext_default'} = $entry->{"prop_used_rte"} ? 1 : 0,
 
             my $onload;
+
+            if ( $res{events_1_converted_with_loss} ) {
+                $ret .= "<?standout $ML{'.invalid_encoding'} standout?><br/>";
+            }
+
             $ret .= LJ::entry_form($entry, \$$head, \$onload);
             $ret .= "</form></div>";
             $ret .= "</td>";

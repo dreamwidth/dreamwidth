@@ -963,26 +963,6 @@ sub common_event_validation
         return fail($err,203,"Invalid minute value.");
     }
 
-    # column width
-    # we only trim Unicode data
-
-    if ($req->{'ver'} >=1 ) {
-        $req->{'subject'} = LJ::text_trim($req->{'subject'}, LJ::BMAX_SUBJECT, LJ::CMAX_SUBJECT);
-        $req->{'event'} = LJ::text_trim($req->{'event'}, LJ::BMAX_EVENT, LJ::CMAX_EVENT);
-        foreach (keys %{$req->{'props'}}) {
-            # do not trim this property, as it's magical and handled later
-            next if $_ eq 'taglist';
-
-            # Allow syn_links and syn_ids the full width of the prop, to avoid truncating long URLS
-            if ($_ eq 'syn_link' || $_ eq 'syn_id') {
-                $req->{'props'}->{$_} = LJ::text_trim($req->{'props'}->{$_}, LJ::BMAX_PROP);
-            } else {
-                $req->{'props'}->{$_} = LJ::text_trim($req->{'props'}->{$_}, LJ::BMAX_PROP, LJ::CMAX_PROP);
-            }
-
-        }
-    }
-
     # setup non-user meta-data.  it's important we define this here to
     # 0.  if it's not defined at all, then an editevent where a user
     # removes random 8bit data won't remove the metadata.  not that
@@ -1004,25 +984,41 @@ sub common_event_validation
         LJ::is_ascii(join(' ', values %{$req->{'props'}})) ))
     {
 
-        if ($req->{'ver'} < 1) { # client doesn't support Unicode
+        if ($req->{ver} < 1) { # client doesn't support Unicode
             # only people should have unknown8bit entries.
             my $uowner = $flags->{u_owner} || $flags->{u};
             return fail($err,207,'Posting in a community with international or special characters require a Unicode-capable LiveJournal client.  Download one at http://www.livejournal.com/download/.')
                 if ! $uowner->is_person;
-
-            # so rest of site can change chars to ? marks until
-            # default user's encoding is set.  (legacy support)
-            $req->{'props'}->{'unknown8bit'} = 1;
         } else {
             return fail($err,207, "This installation does not support Unicode clients") unless $LJ::UNICODE;
-            # validate that the text is valid UTF-8
-            if (!LJ::text_in($req->{'subject'}) ||
-                !LJ::text_in($req->{'event'}) ||
-                grep { !LJ::text_in($_) } values %{$req->{'props'}}) {
+        }
+
+        # validate that the text is valid UTF-8
+        if (!LJ::text_in($req->{subject}) ||
+            !LJ::text_in($req->{event}) ||
+            grep { !LJ::text_in($_) } values %{$req->{props}}) {
                 return fail($err, 208, "The text entered is not a valid UTF-8 stream");
-            }
         }
     }
+    
+
+    # column width
+
+    $req->{'subject'} = LJ::text_trim($req->{'subject'}, LJ::BMAX_SUBJECT, LJ::CMAX_SUBJECT);
+    $req->{'event'} = LJ::text_trim($req->{'event'}, LJ::BMAX_EVENT, LJ::CMAX_EVENT);
+    foreach (keys %{$req->{'props'}}) {
+        # do not trim this property, as it's magical and handled later
+        next if $_ eq 'taglist';
+
+        # Allow syn_links and syn_ids the full width of the prop, to avoid truncating long URLS
+        if ($_ eq 'syn_link' || $_ eq 'syn_id') {
+            $req->{'props'}->{$_} = LJ::text_trim($req->{'props'}->{$_}, LJ::BMAX_PROP);
+        } else {
+            $req->{'props'}->{$_} = LJ::text_trim($req->{'props'}->{$_}, LJ::BMAX_PROP, LJ::CMAX_PROP);
+        }
+
+    }
+
 
     ## handle meta-data (properties)
     LJ::load_props("log");
@@ -2435,16 +2431,9 @@ sub getevents
 
         # now that we have the subject, the event and the props,
         # auto-translate them to UTF-8 if they're not in UTF-8.
-        if ($LJ::UNICODE && $req->{'ver'} >= 1 &&
-                $evt->{'props'}->{'unknown8bit'}) {
-            my $error = 0;
-            $t->[0] = LJ::text_convert($t->[0], $uowner, \$error);
-            $t->[1] = LJ::text_convert($t->[1], $uowner, \$error);
-            foreach (keys %{$evt->{'props'}}) {
-                $evt->{'props'}->{$_} = LJ::text_convert($evt->{'props'}->{$_}, $uowner, \$error);
-            }
-            return fail($err,208,"Cannot display this post.")
-                if $error;
+        if ($LJ::UNICODE && $req->{ver} >= 1 && $evt->{props}->{unknown8bit}) {
+            LJ::item_toutf8($uowner, \$t->[0], \$t->[1], $evt->{props});
+            $evt->{converted_with_loss} = 1;
         }
 
         if ($LJ::UNICODE && $req->{'ver'} < 1 && !$evt->{'props'}->{'unknown8bit'}) {
@@ -3937,7 +3926,7 @@ sub getevents
     my $pct = 0;
     foreach my $evt (@{$rs->{events}}) {
         $ect++;
-        foreach my $f (qw(itemid eventtime logtime security allowmask subject anum url poster)) {
+        foreach my $f (qw(itemid eventtime logtime security allowmask subject anum url poster converted_with_loss)) {
             if (defined $evt->{$f}) {
                 $res->{"events_${ect}_$f"} = $evt->{$f};
             }

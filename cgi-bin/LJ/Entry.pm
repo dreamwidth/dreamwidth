@@ -2196,6 +2196,8 @@ sub item_toutf8
     my $convert = sub {
         my $rtext = shift;
         my $error = 0;
+        return unless defined $$rtext;
+
         my $res = LJ::text_convert($$rtext, $u, \$error);
         if ($error) {
             LJ::text_out($rtext);
@@ -2208,8 +2210,9 @@ sub item_toutf8
     $convert->($subject);
     $convert->($text);
 
-    # FIXME: really convert all the props?  what if we binary-pack some in the future?
+    # FIXME: Have some logprop flag for what props are binary
     foreach(keys %$props) {
+        next if $_ eq 'xpost' || $_ eq 'xpostdetail';
         $convert->(\$props->{$_});
     }
     return;

@@ -53,3 +53,4 @@
 
 .viewwhat=View What Entries:
 
+.invalid_encoding=This entry may contain unknown characters, which have been replaced with a "?". Please ensure the entry is exactly as intended before posting.
