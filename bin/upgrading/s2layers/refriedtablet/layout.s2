@@ -39,12 +39,22 @@ propgroup colors_child {
 ##===============================
 
 propgroup fonts_child {
-    property string font_view_text { des = "Preferred font for page view title";
-}
-    property string font_view_text_units { des = "Units for page view text size";
-}
-    property string font_view_text_size { des = "Size of page view text font";
-}
+    property string font_view_text {
+        des = "Preferred font for page view titles";
+        maxlength = 25;
+        size = 15;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+
+    property string font_view_text_size {
+        des = "Size of page view titles font";
+        size = 3;
+        }
+
+    property string font_view_text_units {
+        des = "Units for page view titles size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
 }
 
 set font_base = "\"NimbusRoman No9 L\", Rekha, Georgia";
