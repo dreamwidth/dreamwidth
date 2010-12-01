@@ -207,7 +207,8 @@ sub etags
 sub ejs
 {
     my $a = $_[0];
-    $a =~ s/[\"\'\\]/\\$&/g;
+    # use zero-width lookahead to insert a backslash where needed
+    $a =~ s/(?=[\"\'\\])/\\/g;
     $a =~ s/&quot;/\\&quot;/g;
     $a =~ s/\r?\n/\\n/gs;
     $a =~ s/\r//gs;

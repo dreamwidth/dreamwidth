@@ -377,10 +377,6 @@ body<=
         } else {
             $event =~ s/\r//g;
         }
-        my $etime = sprintf("%04d-%02d-%02d %02d:%02d",
-                            $req->{'year'}, $req->{'mon'},
-                            $req->{'day'}, $req->{'hour'},
-                            $req->{'min'});
         my $subject = $req->{'subject'};
         my $props = $req->{'props'};
         my $up = LJ::load_user($req->{'username'});
@@ -439,7 +435,10 @@ body<=
                                                      'userlink' => LJ::ljuser($up->{'user'}),
                                                      'commlink' => "<?ljcomm $c->{'user'} ljcomm?>" });
 
-        $etime =~ s!(\d\d\d\d)-(\d\d)-(\d\d)!LJ::date_to_view_links($c, $&)!e;
+        my $datestr = sprintf( "%04d-%02d-%02d", $req->{year}, $req->{mon}, $req->{day} );
+        my $etime = sprintf( "%s %02d:%02d",
+                             LJ::date_to_view_links( $c, $datestr ),
+                             $req->{hour}, $req->{min} );
         $ret .= "<br /><font size='-1'>@ $etime</font>";
         $ret .= "</td></tr></table>";
 
