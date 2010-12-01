@@ -103,7 +103,7 @@ _c?>
     $body .= "<ul class='spaced'>";
     foreach my $f (@results) {
 	my $dq = $f->question_html;
-	$dq =~ s/\Q$q\E/$term->($&)/ige;
+	$dq =~ s/(\Q$q\E)/$term->( $1 )/ige;
 	my $ueq = LJ::eurl($q);
         my $ul = $GET{'lang'} ne $curr ? "&amp;lang=".$GET{'lang'} : '';
 

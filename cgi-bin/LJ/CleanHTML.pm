@@ -1046,7 +1046,7 @@ sub clean
                         return "&url$urlcount;$str&urlend;";
                     }
                 };
-                $token->[1] =~ s!https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-]! $match->($&); !ge;
+                $token->[1] =~ s!(https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-])! $match->( $1 ); !ge;
             }
 
             # escape tags in text tokens.  shouldn't belong here!
@@ -1057,7 +1057,7 @@ sub clean
 
             # put <wbr> tags into long words, except inside <pre> and <textarea>.
             if ($wordlength && !$opencount{'pre'} && !$opencount{'textarea'}) {
-                $token->[1] =~ s/\S{$wordlength,}/break_word($&,$wordlength)/eg;
+                $token->[1] =~ s/(\S{$wordlength,})/break_word( $1, $wordlength )/eg;
             }
 
             # auto-format things, unless we're in a textarea, when it doesn't make sense
@@ -1381,7 +1381,7 @@ sub clean_event
 
     # fast path:  no markup or URLs to linkify, and no suspend message needed
     if ($$ref !~ /\<|\>|http/ && ! $opts->{preformatted} && !$opts->{suspend_msg}) {
-        $$ref =~ s/\S{$wordlength,}/break_word($&,$wordlength)/eg if $wordlength;
+        $$ref =~ s/(\S{$wordlength,})/break_word( $1, $wordlength )/eg if $wordlength;
         $$ref =~ s/\r?\n/<br \/>/g;
         return;
     }
@@ -1443,7 +1443,7 @@ sub clean_comment
 
     # fast path:  no markup or URLs to linkify
     if ($$ref !~ /\<|\>|http/ && ! $opts->{preformatted}) {
-        $$ref =~ s/\S{40,}/break_word($&,40)/eg;
+        $$ref =~ s/(\S{40,})/break_word( $1, 40 )/eg;
         $$ref =~ s/\r?\n/<br \/>/g;
         return 0;
     }

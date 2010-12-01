@@ -142,7 +142,7 @@ sub process_content {
     # XML::Parser doesn't include Windows-1252, but we put it in cgi-bin/XML/* for it
     # to find.
     my $encoding;
-    if ($content =~ /<\?xml.+?>/ && $& =~ /encoding=([\"\'])(.+?)\1/) {
+    if ( $content =~ /(<\?xml.+?>)/ && $1 =~ /encoding=([\"\'])(.+?)\1/ ) {
         $encoding = lc($2);
     }
     if (! $encoding && ! LJ::is_utf8($content)) {

@@ -3199,9 +3199,9 @@ sub init {
         if ($form->{'userpost'}) {
 
             # parse inline login opts
-            if ($form->{'userpost'} =~ s/[!<]{1,2}$//) {
-                $exptype = 'long' if index($&, "!") >= 0;
-                $ipfixed = LJ::get_remote_ip() if index($&, "<") >= 0;
+            if ( $form->{userpost} =~ s/([!<]{1,2})$// ) {
+                $exptype = 'long' if index( $1, "!" ) >= 0;
+                $ipfixed = LJ::get_remote_ip() if index( $1, "<" ) >= 0;
             }
 
             $up = LJ::load_user($form->{'userpost'});
@@ -3285,12 +3285,12 @@ sub init {
 
             # parse inline login opts
             return $err->("No OpenID identity URL entered") unless $form->{'oidurl'};
-            if ($form->{'oidurl'} =~ s/[!<]{1,2}$//) {
-                if (index($&, "!") >= 0) {
+            if ( $form->{oidurl} =~ s/([!<]{1,2})$// ) {
+                if ( index( $1, "!" ) >= 0 ) {
                     $exptype = 'long';
                     $etime = time()+60*60*24*60;
                 }
-                $ipfixed = LJ::get_remote_ip() if index($&, "<") >= 0;
+                $ipfixed = LJ::get_remote_ip() if index( $1, "<" ) >= 0;
             }
 
             my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);

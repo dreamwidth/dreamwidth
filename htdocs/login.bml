@@ -26,9 +26,9 @@ _c?>
 
     # ! after username overrides expire to never
     # < after username overrides ipfixed to yes
-    if ($POST{'user'} =~ s/[!<]{1,2}$//) {
-        $POST{'expire'} = 'never' if index($&, "!") >= 0;
-        $POST{'bindip'} = 'yes' if index($&, "<") >= 0;
+    if ( $POST{user} =~ s/([!<]{1,2})$// ) {
+        $POST{expire} = 'never' if index( $1, "!" ) >= 0;
+        $POST{bindip} = 'yes' if index( $1, "<" ) >= 0;
     }
 
     my $user = LJ::canonical_username($POST{'user'});

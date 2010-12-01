@@ -129,7 +129,7 @@ sub auto_linkify
             return "<a href='$str'>$str</a>";
         }
     };
-    $str =~ s!https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-]! $match->($&); !ge
+    $str =~ s!(https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-])! $match->( $1 ); !ge
         if defined $str;
 
     return $str;
