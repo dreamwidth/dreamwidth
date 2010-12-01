@@ -26,7 +26,6 @@ use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
 use LJ::S2;
 use Apache::LiveJournal::Interface::Blogger;
 use Apache::LiveJournal::Interface::AtomAPI;
-use Apache::LiveJournal::Interface::ElsewhereInfo;
 use Apache::LiveJournal::PalImg;
 use LJ::ModuleCheck;
 use LJ::AccessLogSink;
@@ -1685,13 +1684,6 @@ sub interface_content
         # the interface package will set up all headers and
         # print everything
         Apache::LiveJournal::Interface::AtomAPI::handle($r);
-        return OK;
-    }
-
-    if ($RQ{'interface'} =~ /elsewhere_info/) {
-        # the interface package will set up all headers and
-        # print everything
-        Apache::LiveJournal::Interface::ElsewhereInfo->handle($r);
         return OK;
     }
 
