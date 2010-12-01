@@ -1788,25 +1788,21 @@ property Color control_strip_bgcolor {
     des = "Background color of navigation strip";
     note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
 }
-set control_strip_bgcolor = "";
 
 property Color control_strip_fgcolor {
     des = "Text color of navigation strip";
     note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
 }
-set control_strip_fgcolor = "";
 
 property Color control_strip_bordercolor {
     des = "Border color of navigation strip";
     note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
 }
-set control_strip_bordercolor = "";
 
 property Color control_strip_linkcolor {
     des = "Link color of navigation strip";
     note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
 }
-set control_strip_linkcolor = "";
 
 
 ##===============================
@@ -1829,30 +1825,12 @@ property Color color_entry_interaction_links_active { des = "Color of interactio
 property Color color_entry_interaction_links_visited { des = "Color of interaction links and text - visited"; }
 
 
-set color_entry_background = "";
-set color_entry_text = "";
-set color_entry_link = "";
-set color_entry_link_active = "";
-set color_entry_link_hover = "";
-set color_entry_link_visited = "";
-set color_entry_border = "";
-set color_entry_title = "";
-set color_entry_title_background = "";
-set color_entry_interaction_links = "";
-set color_entry_interaction_links_background = "";
-set color_entry_interaction_links_hover = "";
-set color_entry_interaction_links_active = "";
-set color_entry_interaction_links_visited = "";
-
 ##===============================
 ## Journal style - element colors
 ##===============================
 
 property Color color_comment_title { des = "Comment title color"; }
 property Color color_comment_title_background { des = "Comment title background color"; }
-
-set color_comment_title = "";
-set color_comment_title_background = "";
 
 ##===============================
 ## Journal style - element colors
@@ -1868,16 +1846,6 @@ property Color color_page_border { des = "Page border color"; }
 property Color color_page_title { des = "Page title color"; }
 property Color color_page_details_text { des = "Color for miscellaneous page details text"; }
 
-set color_page_background = "";
-set color_page_text = "";
-set color_page_link = "";
-set color_page_link_active = "";
-set color_page_link_hover = "";
-set color_page_link_visited = "";
-set color_page_border = "";
-set color_page_title = "";
-set color_page_details_text = "";
-
 property Color color_header_background { des = "Page header background color";}
 property Color color_header_link { des = "Page header link color"; }
 property Color color_header_link_active { des = "Page header active link color"; }
@@ -1889,17 +1857,6 @@ property Color color_footer_link_active { des = "Page footer active link color";
 property Color color_footer_link_hover { des = "Page footer hover link color"; }
 property Color color_footer_link_visited { des = "Page footer visited link color"; }
 
-set color_header_background = "";
-set color_header_link = "";
-set color_header_link_active = "";
-set color_header_link_hover = "";
-set color_header_link_visited = "";
-set color_footer_background = "";
-set color_footer_link = "";
-set color_footer_link_active = "";
-set color_footer_link_hover = "";
-set color_footer_link_visited = "";
-
 property Color color_module_background { des = "Module background color"; }
 property Color color_module_text { des = "Module text color"; }
 property Color color_module_link { des = "Module link color"; }
@@ -1909,16 +1866,6 @@ property Color color_module_link_visited { des = "Module visited link color"; }
 property Color color_module_border { des = "Module border color"; }
 property Color color_module_title { des = "Module title color"; }
 property Color color_module_title_background { des = "Module title background color"; }
-
-set color_module_background = "";
-set color_module_text = "";
-set color_module_link = "";
-set color_module_link_active = "";
-set color_module_link_hover = "";
-set color_module_link_visited = "";
-set color_module_title = "";
-set color_module_title_background = "";
-set color_module_border = "";
 
 # Initialize custom colors, these properties can be selected or overwritten by layout layers, but should not normally be exposed in the wizard.
 

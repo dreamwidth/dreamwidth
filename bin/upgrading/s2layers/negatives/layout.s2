@@ -81,48 +81,6 @@ propgroup colors {
 
 }
 
-set color_page_background = "";
-set color_page_text = "";
-set color_page_link = "";
-set color_page_link_hover = "";
-set color_page_link_active = "";
-set color_page_link_visited = "";
-
-set color_header_background = "";
-set color_header_link = "";
-set color_header_link_hover = "";
-set color_header_link_active = "";
-set color_header_link_visited = "";
-
-set color_footer_background = "";
-set color_footer_link = "";
-set color_footer_link_hover = "";
-set color_footer_link_active = "";
-set color_footer_link_visited = "";
-
-set color_entry_link = "";
-set color_entry_link_hover = "";
-set color_entry_link_active = "";
-set color_entry_link_visited = "";
-set color_entry_border = "";
-set color_entry_background = "";
-set color_entry_text = "";
-set color_entry_title = "";
-
-set color_module_background = "";
-set color_module_text = "";
-set color_module_border = "";
-set color_module_title = "";
-set color_module_link = "";
-set color_module_link_active = "";
-set color_module_link_hover = "";
-set color_module_link_visited = "";
-
-set color_entry_interaction_links_background = "";
-set color_entry_interaction_links = "";
-set color_entry_interaction_links_hover = "";
-set color_entry_interaction_links_active = "";
-set color_entry_interaction_links_visited = "";
 
 ##===============================
 ## Journal style - images
