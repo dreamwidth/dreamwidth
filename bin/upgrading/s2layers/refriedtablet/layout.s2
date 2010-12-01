@@ -55,6 +55,23 @@ propgroup fonts_child {
         des = "Units for page view titles size";
         values = "em|em|ex|ex|%|%|pt|pt|px|px";
         }
+
+    property string font_comment_special {
+        des = "Preferred font for frozen and screened comments";
+        maxlength = 25;
+        size = 15;
+        note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
+        }
+
+    property string font_comment_special_size {
+        des = "Size of frozen/screened comments font";
+        size = 3;
+        }
+
+    property string font_comment_special_units {
+        des = "Units for frozen/screened comments size";
+        values = "em|em|ex|ex|%|%|pt|pt|px|px";
+        }
 }
 
 set font_base = "\"NimbusRoman No9 L\", Rekha, Georgia";
@@ -79,12 +96,16 @@ set font_module_heading_units = "em";
 set font_module_text = "Loma, Verdana, Geneva, sans-serif";
 set font_module_text_size = "0.83";
 set font_module_text_units = "em";
+set font_comment_special = "'Nimbus Mono L', 'Courier New', monospace";
+set font_comment_special_size = ".9";
+set font_comment_special_units = "em";
 
 function print_stylesheet () {
 
     var string view_text_font = generate_font_css($*font_view_text, $*font_base, $*font_fallback, $*font_view_text_size, $*font_view_text_units);
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string comment_special_font = generate_font_css($*font_comment_special, $*font_base, $*font_fallback, $*font_comment_special_size, $*font_comment_special_units);
 
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
@@ -551,17 +572,18 @@ div h2.module-header {
 }
 
 /* visually distinguish screened/frozen comments */
-.screened {
-    font-family: "Nimbus Mono L", "Courier New", monospace;
-    font-size: .9em;
+
+.screened, .frozen {
+    $comment_special_font
     font-weight: 300;
+    }
+
+.screened {
     background-color: $*color_comment_background_screened;
     color: $*color_comment_text_screened
-}
+    }
+
 .frozen {
-    font-family: "Nimbus Mono L", "Courier New", monospace;
-    font-size: .9em;
-    font-weight: 300;
     background-color: $*color_comment_background_frozen;
     color: $*color_comment_text_frozen
     }

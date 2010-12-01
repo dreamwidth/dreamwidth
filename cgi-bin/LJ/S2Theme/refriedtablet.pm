@@ -15,4 +15,14 @@ sub header_props {
     return $self->_append_props( "header_props", @props );
 }
 
+sub comment_props {
+    my $self = shift;
+    my @props = qw(
+        font_comment_special
+        font_comment_special_size
+        font_comment_special_units
+    );
+    return $self->_append_props( "comment_props", @props );
+}
+
 1;
