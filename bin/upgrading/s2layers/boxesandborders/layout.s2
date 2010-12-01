@@ -32,9 +32,6 @@ propgroup colors_child {
     property use color_page_details_text;
 }
 
-set color_navigation_module_background = "";
-set color_calendar_module_emptyday_background = "";
-set color_calendar_module_hasday_background = "";
 set color_page_details_text = "#999";
 
 ##===============================

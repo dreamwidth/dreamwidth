@@ -81,67 +81,6 @@ propgroup colors {
 
 }
 
-
-##===============================
-## Page Colors
-##===============================
-
-set color_page_background = "";
-set color_page_text = "";
-set color_page_link = "";
-set color_page_link_active = "";
-set color_page_link_hover = "";
-set color_page_link_visited = "";
-set color_page_border = "";
-set color_page_title = "";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "";
-set color_footer_background = "";
-set color_footer_link = "";
-set color_footer_link_active = "";
-set color_footer_link_hover = "";
-set color_footer_link_visited = "";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_entry_background = "";
-set color_entry_text = "";
-set color_entry_link = "";
-set color_entry_link_active = "";
-set color_entry_link_hover = "";
-set color_entry_link_visited = "";
-set color_entry_border = "";
-set color_entry_title = "";
-set color_entry_title_background = "";
-set color_entry_interaction_links = "";
-
-##===============================
-## Comment Colors
-##===============================
-
-set color_comment_title = "";
-set color_comment_title_background = "";
-
-##===============================
-## Module Colors
-##===============================
-
-set color_module_background = "";
-set color_module_text = "";
-set color_module_link = "";
-set color_module_link_active = "";
-set color_module_link_hover = "";
-set color_module_link_visited = "";
-set color_module_title = "";
-set color_module_title_background = "";
-set color_module_border = "";
-
 ##===============================
 ## Display settings - fonts
 ##===============================

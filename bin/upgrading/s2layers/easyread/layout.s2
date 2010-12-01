@@ -52,31 +52,6 @@ propgroup colors {
 }
 
 ##===============================
-## Page Colors
-##===============================
-
-set color_page_background = "";
-set color_page_text = "";
-set color_page_link = "";
-set color_page_link_active = "";
-set color_page_link_visited = "";
-set color_page_title = "";
-set color_page_border = "";
-
-##===============================
-## Header and Footer Colors
-##===============================
-
-set color_header_background = "";
-
-##===============================
-## Entry Colors
-##===============================
-
-set color_entry_background = "";
-set color_entry_text = "";
-
-##===============================
 ## Display settings - fonts
 ##===============================
 
