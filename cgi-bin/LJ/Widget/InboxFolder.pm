@@ -196,7 +196,7 @@ sub render_body {
             my $display = $expanded ? "block" : "none";
 
             $content_div = qq {
-                <div class="InboxItem_Content" style="display: $display;">$contents</div>
+                <div class="InboxItem_Content usercontent" style="display: $display;">$contents</div>
                 };
         }
 
