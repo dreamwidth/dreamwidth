@@ -481,26 +481,6 @@ sub trans
         LJ::set_remote($ru); # might be undef, to allow for "view as logged out"
     }
 
-    # anti-squatter checking
-    if ($LJ::DEBUG{'anti_squatter'} && $r->method eq "GET") {
-        my $ref = $r->headers_in->{"Referer"};
-        if ($ref && index($ref, $LJ::SITEROOT) != 0) {
-            # FIXME: this doesn't anti-squat user domains yet
-            if ($uri !~ m!^/404!) {
-                # So hacky!  (see note below)
-                $LJ::SQUAT_URL = "http://$host$hostport$uri$args_wq";
-            } else {
-                # then Apache's 404 handler takes over and we get here
-                # FIXME: why??  why doesn't it just work to return OK
-                # the first time with the handlers pushed?  nothing
-                # else requires this chicanery!
-                $r->handler("perl-script");
-                $r->push_handlers(PerlResponseHandler => \&anti_squatter);
-            }
-            return OK;
-        }
-    }
-
     # is this the embed module host
     if ($LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/) {
         return $bml_handler->("$LJ::HOME/htdocs/tools/embedcontent.bml");
@@ -1764,27 +1744,6 @@ sub db_logger
     foreach my $sink (@sinks) {
         $sink->log($rec);
     }
-}
-
-sub anti_squatter
-{
-    my $r = shift;
-    $r->push_handlers(PerlResponseHandler => sub {
-        my $r = shift;
-        $r->content_type("text/html");
-        $r->print("<html><head><title>Dev Server Warning</title>",
-                  "<style> body { border: 20px solid red; padding: 30px; margin: 0; font-family: sans-serif; } ",
-                  "h1 { color: #500000; }",
-                  "</style></head>",
-                  "<body><h1>Warning</h1><p>This server is for development and testing only.  ",
-                  "Accounts are subject to frequent deletion.  Don't use this machine for anything important.</p>",
-                  "<form method='post' action='/misc/ack-devserver.bml' style='margin-top: 1em'>",
-                  LJ::html_hidden("dest", "$LJ::SQUAT_URL"),
-                  LJ::html_submit(undef, "Acknowledged"),
-                  "</form></body></html>");
-        return OK;
-    });
-
 }
 
 sub mogile_fetch {
