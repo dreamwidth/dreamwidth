@@ -11,7 +11,7 @@ use XML::Atom::Client;
 use XML::Atom::Entry;
 
 use LWP::Simple;
-if (get("$LJ::SITEROOT/dev/t_00.bml") =~ /BML file/) {
+if ( get( "$LJ::SITEROOT/admin/healthy" ) =~ /^status=/ ) {
     plan tests => 5;
 } else {
     plan skip_all => "Webserver not running.";

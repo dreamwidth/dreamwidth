@@ -18,7 +18,7 @@ ok($LJ::DOMAIN_WEB, "got a web domain");
 diag($LJ::DOMAIN_WEB);
 
 my $req = $fa->new_request(
-                           uri => "/dev/t_00.bml",
+                           uri => "/admin/healthy",
                            headers => {
                                host => $LJ::DOMAIN_WEB,
                            },
