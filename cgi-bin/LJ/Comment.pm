@@ -1445,12 +1445,14 @@ sub _format_mail_both {
         $body .= "\n";
     }
 
+    my $commentsurl = $talkurl . "#comments";
+
     $body .= LJ::Lang::get_text($lang, 'esn.here_you_can', undef, $vars);
     $body .= LJ::Event::format_options(undef, $is_html, $lang, $vars,
         {
             'esn.view_thread'       => [ 1, $self->thread_url ],
             'esn.view_threadroot'   => [ $self->parenttalkid != 0 ? 2 : 0, $self->threadroot_url ],
-            'esn.view_comments'     => [ 3, $talkurl ],
+            'esn.view_comments'     => [ 3, $commentsurl ],
             'esn.reply_at_webpage'  => [ 4, $self->reply_url ],
             'esn.unscreen_comment'  => [ $can_unscreen ? 5 : 0, $self->unscreen_url ],
             'esn.delete_comment'    => [ $self->user_can_delete($targetu) ? 6 : 0, $self->delete_url ],
