@@ -128,7 +128,7 @@ When you're done, click "Save Changes".
 
 .nousers.header=Interested users
 
-.nousers.text=There are no users interested in <b>[[int]]</b>. If you are interested in this and would like to be added to this list, <a [[aopts_manage]]>click here</a>. More fun stuff can be found on the <a [[aopts_int]]>interests page</a>.
+.nousers.text2=There are no users interested in "<b>[[int]]</b>". If you are interested in this, <a [[aopts_add]]>click here to add the interest to your profile</a>. More fun stuff can be found on the <a [[aopts_int]]>interests page</a>.
 
 .popular.disabled=Sorry, the popular interests feature is unavailable.
 

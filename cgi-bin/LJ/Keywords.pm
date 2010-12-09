@@ -103,6 +103,23 @@ sub interest_string_to_list {
 }
 
 
+# insert new interest into interest table, return new interest id
+# input: keyword of interest
+sub new_interest_from_kw {
+    my ( $keyword ) = @_;
+    my $intid = LJ::get_sitekeyword_id( $keyword );
+    return undef unless $intid;
+
+    # add zero intcount if this is a new interest
+    my $dbh = LJ::get_db_writer();
+    $dbh->do( "INSERT IGNORE INTO interests (intid, intcount) VALUES (?,?)",
+            undef, $intid, 0 );
+    die $dbh->errstr if $dbh->err;
+
+    return $intid;
+}
+
+
 sub validate_interest_list {
     my $interrors = ref $_[0] eq "ARRAY" ? shift : [];
     my @ints = @_;
@@ -322,22 +339,15 @@ sub set_interests {
     ### do we have new interests to add?
     my @new_intids = ();  ## existing IDs we'll add for this user
     if ( %int_new ) {
-        $did_mod = 1;
-
-        my $int_in = join(", ", map { $dbh->quote($_); } keys %int_new);
-
-        ## find existing IDs
-        my $sth = $dbh->prepare( "SELECT keyword, kwid FROM sitekeywords " .
-                                 "WHERE keyword IN ($int_in)" );
-        $sth->execute;
-        while (my ($intr, $intid) = $sth->fetchrow_array) {
-            push @new_intids, $intid;       # - we'll add this later.
-            delete $int_new{$intr};         # - so we don't have to make a new intid for
-                                            #   this next pass.
+        foreach my $int ( keys %int_new ) {
+            my $intid = LJ::new_interest_from_kw( $int ) ;
+            push @new_intids, $intid if $intid;
         }
 
-        ## do updating en masse for interests that already exist
+        ## do updating en masse for interests
         if ( @new_intids ) {
+            $did_mod = 1;
+
             my $sql = "REPLACE INTO $uitable (userid, intid) VALUES ";
             $sql .= join( ", ", map { "($userid, $_)" } @new_intids );
             $dbh->do( $sql );
@@ -347,26 +357,6 @@ sub set_interests {
         }
     }
 
-    ### do we STILL have interests to add?  (must make new intids)
-    if ( %int_new ) {
-        foreach my $int ( keys %int_new ) {
-            my $intid = LJ::get_sitekeyword_id( $int );
-            next unless $intid;
-
-            my $rows = $dbh->do( "UPDATE interests SET intcount=intcount+1 WHERE intid=?",
-                                 undef, $intid );
-            if ( $rows eq "0E0") {
-                # newly created
-                $dbh->do( "INSERT INTO interests (intid, intcount) VALUES (?,?)",
-                          undef, $intid, 1 );
-            }
-            next if $dbh->err;
-            ## now we can actually insert it into the userinterests table:
-            $dbh->do( "INSERT INTO $uitable (userid, intid) VALUES (?,?)",
-                      undef, $userid, $intid );
-            push @new_intids, $intid;
-        }
-    }
     LJ::Hooks::run_hooks("set_interests", $u, \%int_del, \@new_intids); # interest => intid
 
     # do migrations to clean up userinterests vs comminterests conflicts

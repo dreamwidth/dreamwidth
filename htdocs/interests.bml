@@ -80,16 +80,39 @@ body<=
         return $ret;
     }
 
-    if ((!$did_post && $GET{'mode'} eq "add" && $GET{'intid'}) ||
-        ($did_post && $POST{'mode'} eq "add" && $POST{'intid'})) {
-
-        my $intid = $did_post ? $POST{'intid'}+0 : $GET{'intid'}+0;
+    my $formargs = $did_post ? \%POST : \%GET;
+    if ( $formargs->{mode} &&
+         ( $formargs->{mode} eq "add" && $formargs->{intid} ||
+           $formargs->{mode} eq "addnew" && $formargs->{keyword} ) ) {
 
         my $ret = '';
-        unless ($remote) {
+        unless ( $remote ) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.add.mustlogin'} p?>";
             return $ret;
         }
+
+        # account for the case where we bypass the POST due to the referer
+        return $ML{'error.invalidform'} unless !$did_post || LJ::check_form_auth();
+
+        my $rints = $remote->get_interests();
+        my $count = scalar( @$rints );
+
+        if ($count >= $maxinterests) {
+            $ret .= "<?h1 $ML{'.add.toomany.head'} h1?><?p " .BML::ml( ".add.toomany.text", { maxinterests => $maxinterests } ) ." p?>";
+            return $ret;
+        }
+
+        my $intid;
+        if ( $formargs->{mode} eq "add" ) {
+            # adding an existing interest, so we have an intid to work with
+            $intid = $formargs->{intid} + 0;
+        } else {
+            # adding a new interest
+            my @validate = LJ::validate_interest_list( $formargs->{keyword} );
+            $intid = LJ::new_interest_from_kw( $validate[0] ) if @validate;
+        }
+
+        return $ML{'error.invalidform'} unless $intid;
 
         # force them to either come from the interests page, or have posted the request.
         # if both fail, ask them to confirm with a post form.
@@ -106,17 +129,6 @@ body<=
             $ret .= LJ::html_submit(undef, BML::ml(".add.btn.text", {'interest' => $int}));
             $ret .= LJ::form_auth();
             $ret .= "</div></form> p?>";
-            return $ret;
-        }
-
-        my $rints = $remote->get_interests();
-        my $count = scalar(@$rints);
-
-        # account for the case where we bypass the POST due to the referer
-        return $ML{'error.invalidform'} unless !$did_post || LJ::check_form_auth();
-
-        if ($count >= $maxinterests) {
-            $ret .= "<?h1 $ML{'.add.toomany.head'} h1?><?p " .BML::ml(".add.toomany.text", {'maxinterests' => $maxinterests}) ." p?>";
             return $ret;
         }
 
@@ -429,7 +441,7 @@ body<=
             $ret .= "<?h1 $ML{'.nocomms.header'} h1?><?p ";
             $ret .= BML::ml( '.nocomms.text', { 'int' => $e_int, 'aopts' => qq(href="$LJ::SITEROOT/community/create") } );
             $ret .= " p?><?h1 $ML{'.nousers.header'} h1?><?p ";
-            $ret .= BML::ml( '.nousers.text', { 'int' => $e_int, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests'" } );
+            $ret .= BML::ml( '.nousers.text2', { int => $e_int, aopts_add => "href='$LJ::SITEROOT/interests?mode=addnew&amp;keyword=$e_int'", aopts_int => "href='$LJ::SITEROOT/interests'" } );
             $ret .= " p?>";
             return $ret;
         } 
