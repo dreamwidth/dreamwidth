@@ -137,9 +137,8 @@ sub new
 # in those cases call as ($u, $item) and the $u will
 # be used
 sub new_from_item_hash {
-    my $class = shift;
-    my $arg1 = shift;
-    my $item = shift;
+    my ( $class, $arg1, $item ) = @_;
+
     if (LJ::isu($arg1)) {
         $item->{journalid} ||= $arg1->id;
     } else {
@@ -185,8 +184,7 @@ sub new_from_url {
 }
 
 sub new_from_row {
-    my $class = shift;
-    my %row   = @_;
+    my ( $class, %row ) = @_;
 
     my $journalu = LJ::load_userid($row{journalid});
     my $self = $class->new($journalu, jitemid => $row{jitemid});
@@ -204,30 +202,29 @@ sub new_from_row {
 # object, even though that jitemid hasn't been created yet, or was
 # previously deleted)
 sub valid {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
     return $self->{_loaded_row};
 }
 
 sub jitemid {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{jitemid};
 }
 
 sub ditemid {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{ditemid} ||= (($self->{jitemid} << 8) + $self->anum);
 }
 
 sub reply_url {
-    my $self = shift;
+    my $self = $_[0];
     return $self->url(mode => 'reply');
 }
 
 # returns permalink url
 sub url {
-    my $self = shift;
-    my %opts = @_;
+    my ( $self, %opts ) = @_;
     my %args = %opts; # used later
     my $u = $self->{u};
     my $view = delete $opts{view};
@@ -253,7 +250,7 @@ sub url {
 # returns a url that will display the number of comments on the entry
 # as an image
 sub comment_image_url {
-    my $self = shift;
+    my $self = $_[0];
     my $u = $self->{u};
 
     return "$LJ::SITEROOT/tools/commentcount?user=" . $self->journal->user . "&ditemid=" .  $self->ditemid;
@@ -261,7 +258,7 @@ sub comment_image_url {
 
 # returns a pre-generated comment img tag using the comment_image_url
 sub comment_imgtag {
-    my $self = shift;
+    my $self = $_[0];
 
     my $alttext = LJ::Lang::ml('setting.xpost.option.footer.vars.comment_image.alttext');
     
@@ -269,7 +266,7 @@ sub comment_imgtag {
 }
 
 sub anum {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{anum} if defined $self->{anum};
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
     return $self->{anum} if defined $self->{anum};
@@ -281,8 +278,8 @@ sub anum {
 #   $entry->correct_anum($given_anum)
 # if no given anum, gets it from the provided ditemid to constructor
 sub correct_anum {
-    my $self = shift;
-    my $given = defined $_[0] ? int(shift) : $self->{anum};
+    my ( $self, $given ) = @_;
+    $given = defined $given ? int( $given ) : $self->{anum};
     return 0 unless $self->valid;
     return 0 unless defined $self->{anum} && defined $given;
     return $self->{anum} == $given;
@@ -290,46 +287,46 @@ sub correct_anum {
 
 # returns LJ::User object for the poster of this entry
 sub poster {
-    my $self = shift;
+    my $self = $_[0];
     return LJ::load_userid($self->posterid);
 }
 
 sub posterid {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
     return $self->{posterid};
 }
 
 sub journalid {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{u}{userid};
 }
 
 sub journal {
-    my $self = shift;
+    my $self = $_[0];
     return $self->{u};
 }
 
 sub eventtime_mysql {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
     return $self->{eventtime};
 }
 
 sub logtime_mysql {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
     return $self->{logtime};
 }
 
 sub logtime_unix {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
     return LJ::mysqldate_to_time($self->{logtime}, 1);
 }
 
 sub modtime_unix {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows ([ $self ]) unless $self->{_loaded_row};
     __PACKAGE__->preload_props([ $self ]) unless $self->{_loaded_props};
 
@@ -337,13 +334,13 @@ sub modtime_unix {
 }
 
 sub security {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
     return $self->{security};
 }
 
 sub allowmask {
-    my $self = shift;
+    my $self = $_[0];
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
     return $self->{allowmask};
 }
@@ -387,7 +384,7 @@ sub preload_props {
 
 # returns array of tags for this post
 sub tags {
-    my $self = shift;
+    my $self = $_[0];
 
     my $taginfo = LJ::Tags::get_logtags($self->journal, $self->jitemid);
     return () unless $taginfo;
@@ -401,7 +398,7 @@ sub tags {
 # returns true if loaded, zero if not.
 # also sets _loaded_text and subject and event.
 sub _load_text {
-    my $self = shift;
+    my $self = $_[0];
     return 1 if $self->{_loaded_text};
 
     my $ret = LJ::get_logtext2($self->{'u'}, $self->{'jitemid'});
@@ -437,7 +434,7 @@ sub props {
 }
 
 sub _load_props {
-    my $self = shift;
+    my $self = $_[0];
     return 1 if $self->{_loaded_props};
 
     my $props = {};
@@ -449,9 +446,7 @@ sub _load_props {
 }
 
 sub set_prop {
-    my $self = shift;
-    my $prop = shift;
-    my $val = shift;
+    my ( $self, $prop, $val ) = @_;
 
     LJ::set_logprop($self->journal, $self->jitemid, { $prop => $val });
     $self->{props}{$prop} = $val;
@@ -462,9 +457,8 @@ sub set_prop {
 # called automatically on $event->comments
 # returns the same data as LJ::get_talk_data, with the addition
 # of 'subject' and 'event' keys.
-sub _load_comments
-{
-    my $self = shift;
+sub _load_comments {
+    my $self = $_[0];
     return 1 if $self->{_loaded_comments};
 
     # need to load using talklib API
@@ -484,22 +478,22 @@ sub _load_comments
 }
 
 sub comment_list {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_comments unless $self->{_loaded_comments};
     return @{$self->{comments} || []};
 }
 
 sub set_comment_list {
-    my $self = shift;
+    my ( $self, @args ) = @_;
 
-    $self->{comments} = \@_;
+    $self->{comments} = \@args;
     $self->{_loaded_comments} = 1;
 
     return 1;
 }
 
 sub reply_count {
-    my $self = shift;
+    my $self = $_[0];
     my $rc = $self->prop('replycount');
     return $rc if defined $rc;
     return LJ::Talk::get_replycount($self->journal, $self->jitemid);
@@ -507,8 +501,7 @@ sub reply_count {
 
 # returns "Leave a comment", "1 comment", "2 comments" etc
 sub comment_text {
-    my $self = shift;
-
+    my $self = $_[0];
     my $comments;
 
     my $comment_count = $self->reply_count;
@@ -563,12 +556,12 @@ sub comment_info {
 
 # used in comment notification email headers
 sub email_messageid {
-    my $self = shift;
+    my $self = $_[0];
     return "<" . join("-", "entry", $self->journal->id, $self->ditemid) . "\@$LJ::DOMAIN>";
 }
 
 sub atom_id {
-    my $self = shift;
+    my $self = $_[0];
 
     my $u       = $self->{u};
     my $ditemid = $self->ditemid;
@@ -578,8 +571,8 @@ sub atom_id {
 
 # returns an XML::Atom::Entry object for a feed
 sub atom_entry {
-    my $self = shift;
-    my $opts = shift || {};  # synlevel ("full"), apilinks (bool)
+    my ( $self, $opts ) = @_;
+    $opts ||= {};  # synlevel ("full"), apilinks (bool)
 
     my $entry     = XML::Atom::Entry->new();
     my $entry_xml = $entry->{doc};
@@ -663,9 +656,8 @@ sub atom_entry {
 }
 
 # returns the entry as an XML Atom string, without the XML prologue
-sub as_atom
-{
-    my $self  = shift;
+sub as_atom {
+    my $self  = $_[0];
     my $entry = $self->atom_entry;
     my $xml   = $entry->as_xml;
     $xml =~ s!^<\?xml.+?>\s*!!s;
@@ -674,44 +666,42 @@ sub as_atom
 
 # raw utf8 text, with no HTML cleaning
 sub subject_raw {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text  unless $self->{_loaded_text};
     return $self->{subject};
 }
 
 # raw text as user sent us, without transcoding while correcting for unknown8bit
 sub subject_orig {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text  unless $self->{_loaded_text};
     return $self->{subject_orig} || $self->{subject};
 }
 
 # raw utf8 text, with no HTML cleaning
 sub event_raw {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text unless $self->{_loaded_text};
     return $self->{event};
 }
 
 # raw text as user sent us, without transcoding while correcting for unknown8bit
 sub event_orig {
-    my $self = shift;
+    my $self = $_[0];
     $self->_load_text unless $self->{_loaded_text};
     return $self->{event_orig} || $self->{event};
 }
 
-sub subject_html
-{
-    my $self = shift;
+sub subject_html {
+    my $self = $_[0];
     $self->_load_text unless $self->{_loaded_text};
     my $subject = $self->{subject};
     LJ::CleanHTML::clean_subject( \$subject ) if $subject;
     return $subject;
 }
 
-sub subject_text
-{
-    my $self = shift;
+sub subject_text {
+    my $self = $_[0];
     $self->_load_text unless $self->{_loaded_text};
     my $subject = $self->{subject};
     LJ::CleanHTML::clean_subject_all( \$subject ) if $subject;
@@ -754,9 +744,8 @@ sub event_html_summary {
     return LJ::html_trim($self->event_html($opts), $char_max, $trunc_ref);
 }
 
-sub event_text
-{
-    my $self = shift;
+sub event_text {
+    my $self = $_[0];
     my $event = $self->event_raw;
     LJ::CleanHTML::clean_event( \$event, { textonly => 1} ) if $event;
     return $event;
@@ -764,7 +753,7 @@ sub event_text
 
 # like event_html, but truncated for summary mode in rss/atom
 sub event_summary {
-    my $self = shift;
+    my $self = $_[0];
 
     my $url = $self->url;
     my $readmore = "<b>(<a href=\"$url\">Read more ...</a>)</b>";
@@ -866,7 +855,7 @@ sub visible_to
 
 # returns hashref of (kwid => tag) for tags on the entry
 sub tag_map {
-    my $self = shift;
+    my $self = $_[0];
     my $tags = LJ::Tags::get_logtags($self->{u}, $self->jitemid);
     return {} unless $tags;
     return $tags->{$self->jitemid} || {};
@@ -938,14 +927,14 @@ sub can_tellafriend {
 
 # defined by the entry poster
 sub adult_content {
-    my $self = shift;
+    my $self = $_[0];
 
     return $self->prop('adult_content');
 }
 
 # defined by a community maintainer
 sub adult_content_maintainer {
-    my $self = shift;
+    my $self = $_[0];
 
     my $userLevel = $self->adult_content;
     my $maintLevel = $self->prop( 'adult_content_maintainer' );
@@ -959,21 +948,21 @@ sub adult_content_maintainer {
 
 # defined by a community maintainer
 sub adult_content_maintainer_reason {
-    my $self = shift;
+    my $self = $_[0];
 
     return $self->prop('adult_content_maintainer_reason');
 }
 
 # defined by the entry poster
 sub adult_content_reason {
-    my $self = shift;
+    my $self = $_[0];
 
     return $self->prop('adult_content_reason');
 }
 
 # uses both poster- and maintainer-defined props to figure out the adult content level
 sub adult_content_calculated {
-    my $self = shift;
+    my $self = $_[0];
 
     return $self->adult_content_maintainer if $self->adult_content_maintainer;
     return $self->adult_content;
@@ -981,7 +970,7 @@ sub adult_content_calculated {
 
 # returns who marked the entry as the 'adult_content_calculated' adult content level
 sub adult_content_marker {
-    my $self = shift;
+    my $self = $_[0];
 
     return "community" if $self->adult_content_maintainer;
     return "poster" if $self->adult_content;
@@ -1008,7 +997,7 @@ sub comments_disabled_maintainer {
 }
 
 sub should_block_robots {
-    my $self = shift;
+    my $self = $_[0];
 
     return 1 if $self->journal->prop('opt_blockrobots');
 
@@ -1021,7 +1010,7 @@ sub should_block_robots {
 }
 
 sub syn_link {
-    my $self = shift;
+    my $self = $_[0];
 
     return $self->prop('syn_link');
 }
@@ -1031,7 +1020,7 @@ sub syn_link {
 # returns names as links to the /security/ URLs if the user can use those URLs
 # returns names as plaintext otherwise
 sub group_names {
-    my $self = shift;
+    my $self = $_[0];
 
     my $remote = LJ::get_remote();
     my $poster = $self->poster;
@@ -1047,31 +1036,32 @@ sub statusvis {
 }
 
 sub is_visible {
-    my $self = shift;
+    my $self = $_[0];
 
     return $self->statusvis eq "V" ? 1 : 0;
 }
 
 sub is_suspended {
-    my $self = shift;
+    my $self = $_[0];
 
     return $self->statusvis eq "S" ? 1 : 0;
 }
 
 # same as is_suspended, except that it returns 0 if the given user can see the suspended entry
 sub is_suspended_for {
-    my $self = shift;
-    my $u = shift;
+    my ( $self, $u ) = @_;
 
     return 0 unless $self->is_suspended;
-    return 0 if LJ::isu($u) && $u->has_priv( 'canview', 'suspended' );
-    return 0 if LJ::isu($u) && $u->equals($self->poster);
+    return 1 unless LJ::isu( $u );
+
+    # see if $u has access
+    return 0 if $u->has_priv( 'canview', 'suspended' );
+    return 0 if $u->equals( $self->poster );
     return 1;
 }
 
 sub should_show_suspend_msg_to {
-    my $self = shift;
-    my $u = shift;
+    my ( $self, $u ) = @_;
 
     return $self->is_suspended && !$self->is_suspended_for($u) ? 1 : 0;
 }
@@ -1214,7 +1204,7 @@ sub get_posts_raw
 
         # now load from each cluster.
         my $fetchtext = sub {
-            my $db = shift;
+            my $db = $_[0];
             return unless %$cneedtext;
             my $in = $make_in->(keys %$cneedtext);
             $sth = $db->prepare("SELECT journalid, jitemid, subject, event ".
@@ -1231,7 +1221,7 @@ sub get_posts_raw
         };
 
         my $fetchprop = sub {
-            my $db = shift;
+            my $db = $_[0];
             return unless %$cneedprop;
             my $in = $make_in->(keys %$cneedprop);
             $sth = $db->prepare("SELECT journalid, jitemid, propid, value ".
@@ -1252,7 +1242,7 @@ sub get_posts_raw
         };
 
         my $fetchrc = sub {
-            my $db = shift;
+            my $db = $_[0];
             return unless %$cneedrc;
             my $in = $make_in->(keys %$cneedrc);
             $sth = $db->prepare("SELECT journalid, jitemid, replycount FROM log2 WHERE $in");
@@ -1567,9 +1557,8 @@ sub get_log2_recent_log
 }
 
 # get recent entries for a user
-sub get_log2_recent_user
-{
-    my $opts = shift;
+sub get_log2_recent_user {
+    my $opts = $_[0];
     my $ret = [];
 
     my $log = LJ::get_log2_recent_log($opts->{'userid'}, $opts->{'clusterid'},
@@ -1643,11 +1632,8 @@ sub get_log2_recent_user
 ##
 ## see subs 'get_itemid_after2' and 'get_itemid_before2'
 ##
-sub get_itemid_near2
-{
-    my $u = shift;
-    my $jitemid = shift;
-    my $after_before = shift;
+sub get_itemid_near2 {
+    my ( $u, $jitemid, $after_before ) = @_;
 
     $jitemid += 0;
 
@@ -2194,7 +2180,7 @@ sub item_toutf8
     $props ||= {};
 
     my $convert = sub {
-        my $rtext = shift;
+        my $rtext = $_[0];
         my $error = 0;
         return unless defined $$rtext;
 
