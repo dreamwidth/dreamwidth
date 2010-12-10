@@ -711,9 +711,9 @@ body<=
     @$_ = sort { $us->{$a}->display_name cmp $us->{$b}->display_name } @$_
         foreach ( \@trusted_userids, \@watched_userids, \@trusted_by_userids, \@watched_by_userids,
                   \@mutually_trusted_userids, \@mutually_watched_userids, \@mutually_watched_userids,
-                  \@not_mutually_watched_userids, \@not_mutually_trusted_by_userids,
-                  \@not_mutually_watched_by_userids, \@members_userids, \@member_of_userids,
-                  \@posting_access_to_userids, \@posting_access_from_userids );
+                  \@not_mutually_trusted_userids, \@not_mutually_watched_userids, 
+                  \@not_mutually_trusted_by_userids, \@not_mutually_watched_by_userids, \@members_userids, 
+                  \@member_of_userids, \@posting_access_to_userids, \@posting_access_from_userids );
 
 ################################################################################
 ##### PEOPLE LISTS
