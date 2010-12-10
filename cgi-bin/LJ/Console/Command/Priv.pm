@@ -78,6 +78,7 @@ sub execute {
     my $remote = LJ::get_remote();
     foreach my $pair (@privs) {
         my ($priv, $arg) = @$pair;
+        my $parg = defined $arg ? $arg : '';  # for printing undefs
 
         if ( $action eq "list" ) {
             my $args = LJ::list_valid_args( $priv );
@@ -91,8 +92,8 @@ sub execute {
             next;
         }
 
-        unless ( $remote && ( $remote->has_priv( "admin", "$priv" ) || $remote->has_priv( "admin", "$priv/$arg" ) ) ) {
-            $self->error("You are not permitted to $action $priv:$arg");
+        unless ( $remote && ( $remote->has_priv( "admin", "$priv" ) || $remote->has_priv( "admin", "$priv/$parg" ) ) ) {
+            $self->error("You are not permitted to $action $priv:$parg");
             next;
         }
 
@@ -120,19 +121,19 @@ sub execute {
             my $rv;
             if ($action eq "grant") {
                 if ( $u && $u->has_priv( $priv, $arg ) ) {
-                    $self->error("$user already has $priv:$arg");
+                    $self->error("$user already has $priv:$parg");
                     next;
                 }
                 $rv = $u->grant_priv($priv, $arg);
-                $shmsg = "Granting: '$priv' with arg '$arg'";
+                $shmsg = "Granting: '$priv' with arg '$parg'";
             } elsif ($action eq "revoke") {
                 unless ( $u && $u->has_priv( $priv, $arg ) ) {
-                    $self->error("$user does not have $priv:$arg");
+                    $self->error("$user does not have $priv:$parg");
                     next;
                 }
                 $rv = $u->revoke_priv($priv, $arg);
-                $shmsg = "Denying: '$priv' with arg '$arg'";
-            } else {
+                $shmsg = "Denying: '$priv' with arg '$parg'";
+            } else {  # revoke_all
                 unless ( $u && $u->has_priv( $priv ) ) {
                     $self->error("$user does not have any $priv privs");
                     next;
@@ -141,7 +142,7 @@ sub execute {
                 $shmsg = "Denying: '$priv' with all args";
             }
 
-            return $self->error("Unable to $action $priv:$arg")
+            return $self->error("Unable to $action $priv:$parg")
                 unless $rv;
 
             my $shtype = ($action eq "grant") ? "privadd" : "privdel";
