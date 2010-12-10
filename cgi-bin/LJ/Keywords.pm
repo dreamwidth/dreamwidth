@@ -68,7 +68,8 @@ sub get_sitekeyword_id {
 
     # get the keyword and insert it if necessary
     my $dbr = LJ::get_db_reader();
-    my $kwid = $dbr->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw ) + 0;
+    my $kwid = $dbr->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw );
+    $kwid = defined $kwid ? $kwid + 0 : 0;
     if ( $autovivify && ! $kwid ) {
         # create a new keyword
         $kwid = LJ::alloc_global_counter( 'K' );
@@ -81,7 +82,8 @@ sub get_sitekeyword_id {
 
         # at this point, if $rv is 0, the keyword is already there so try again
         unless ( $rv ) {
-            $kwid = $dbh->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw ) + 0;
+            $kwid = $dbh->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw );
+            $kwid = defined $kwid ? $kwid + 0 : 0;
             return undef if $dbh->err;
         }
     }
