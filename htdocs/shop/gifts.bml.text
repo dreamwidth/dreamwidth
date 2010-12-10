@@ -18,9 +18,13 @@
 
 .none.text=None of the people in your Circle have free accounts or have paid accounts that are expiring within the next month! You can still buy someone a gift in the <a [[aopts]]>[[sitename]] Shop</a>.
 
+.paid.header.lapsed=Expired accounts
+
 .paid.header.other=Expiring in the far future
 
 .paid.header.soon=Expiring Soon
+
+.paid.lapsed.about=These are the people in your Circle whose paid accounts have already expired, and haven't renewed yet:
 
 .paid.other.about=These are the people in your Circle whose paid accounts won't expire for a while, but who might appreciate a gift anyway:
 

@@ -23,13 +23,13 @@ body<=
 
 
     # translated/custom page title can go here
-    $title = BML::ml( '.title', { 'sitename' => $LJ::SITENAMESHORT } );
+    $title = LJ::Lang::ml( '.title', { sitename => $LJ::SITENAMESHORT } );
 
     # for pages that require authentication
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    my ( $ret, @free, @expiring, @paid );
+    my ( $ret, @free, @expired, @expiring, @paid );
 
     my $circle = LJ::load_userids( $remote->circle_userids );
 
@@ -38,41 +38,58 @@ body<=
         if ( ( $target->is_person || $target->is_community ) && $target->is_visible ) {
             my $paidstatus = DW::Pay::get_paid_status( $target );
 
-            # account is free if it has no paidstatus, if it's not permanent,
-            # and if the expiration date is greater than 0 (this prevents
-            # the problem where previously paid but expired accounts
-            # wouldn't show, since get_paid_status only returns undef if
-            # the account has never been paid, not if it's not currently
-            # paid...):
-            push @free, $target if DW::Pay::is_default_type( $paidstatus );
+            # account was never paid if it has no paidstatus row:
+            push @free, $target unless defined $paidstatus;
 
-            # account is expiring soon if the expiration time is
-            # within the next month:
-            push @expiring, $target if $paidstatus &&  $paidstatus->{expiresin} < 2592000  && $paidstatus->{expiresin} > 0;
+            if ( defined $paidstatus ) {
+                # account is expired if it's not permanent,
+                # and if the expiration date has passed:
+                push @expired, $target unless $paidstatus->{permanent} ||
+                                              $paidstatus->{expiresin} > 0;
 
-            # account is expiring in more than one month
-            push @paid, $target if $paidstatus &&  $paidstatus->{expiresin} >= 2592000;
+                # account is expiring soon if the expiration time is
+                # within the next month:
+                push @expiring, $target if $paidstatus->{expiresin} < 2592000
+                                        && $paidstatus->{expiresin} > 0;
+
+                # account is expiring in more than one month:
+                push @paid, $target if $paidstatus->{expiresin} >= 2592000;
+            }
         }
     }
 
 
-    # now that we have the lists, sort them alphabetically by display name: 
-    @free = sort { $a->display_name cmp $b->display_name } @free;
-    @expiring = sort { $a->display_name cmp $b->display_name } @expiring;
-    @paid = sort { $a->display_name cmp $b->display_name } @paid;
+    # now that we have the lists, sort them alphabetically by display name:
+    my $display_sort = sub { $a->display_name cmp $b->display_name };
+    @free     = sort $display_sort @free;
+    @expired  = sort $display_sort @expired;
+    @expiring = sort $display_sort @expiring;
+    @paid     = sort $display_sort @paid;
 
     # and we've got our lists. the only thing left is to format them
     # for human display, so we:
 
+    # define a subroutine for formatting each list item:
+    my $list_item = sub {
+        my ( $person, %opts ) = @_;
+        my $ret = '';
+
+        $ret .= "<li>" . $person->ljuser_display . ": " . $person->name_html;
+        $ret .= ", " . $person->last_updated if $opts{last_updated};
+        $ret .= " [<a href='" . $person->gift_url . "'>";
+        $ret .= LJ::Lang::ml( '.buy.gift' ) . "</a>]";
+        $ret .= " [<a href='" . $person->gift_points_url . "'>";
+        $ret .= LJ::Lang::ml( '.buy.points' ) . "</a>]</li>\n";
+
+        return $ret;
+    };
+
     # build a list of free users in the circle, formatted with
     # the display username and a buy-a-gift link:
     # sort into two lists depending on whether it's a personal or community account
-    my $freeusers;
-    my $freecommunities;
+    my ( $freeusers, $freecommunities ) = ( '', '' );
     foreach my $person ( @free ) {
-        my $linked = "<li>" . $person->ljuser_display . ": " . $person->name_html . ", " . $person->last_updated . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" 
-            . $person->user . "'>" . BML::ml( '.buy.gift' ) . "</a>]" . " [<a href='$LJ::SITEROOT/shop/points?for="
-            . $person->user . "'>" . BML::ml( '.buy.points' ) . "</a>]</li>\n";
+        my $linked = $list_item->( $person, last_updated => 1 );
         if ( $person->is_personal ) {
             $freeusers .= $linked;
         } else {
@@ -82,54 +99,63 @@ body<=
 
     # build a list of expiring-soon users in the circle, formatted with
     # the display username and a buy-a-gift link:
-    my $expusers;
-    foreach my $person ( @expiring ) {
-        $expusers .= "<li>" . $person->ljuser_display . ": " . $person->name_html . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" . $person->user . "'>" . BML::ml( '.buy.gift' ) . "</a>]" . " [<a href='$LJ::SITEROOT/shop/points?for=" . $person->user . "'>" . BML::ml( '.buy.points' ) . "</a>]</li>\n";
-    }
+    my $expusers = join '', map { $list_item->( $_ ) } @expiring;
+
+    # do the same with the expired users
+    my $lapsedusers = join '', map { $list_item->( $_ ) } @expired;
 
     # do the same with the paid users
-    my $paidusers;
-    foreach my $person ( @paid ) {
-        $paidusers .= "<li>" . $person->ljuser_display . ": " . $person->name_html . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" . $person->user . "'>" . BML::ml( '.buy.gift' ) . "</a>]" . " [<a href='$LJ::SITEROOT/shop/points?for=" . $person->user . "'>" . BML::ml( '.buy.points' ) . "</a>]</li>\n";
-    }
+    my $paidusers = join '', map { $list_item->( $_ ) } @paid;
 
     # and, now we build the page.
-    $ret .= "<p>" . BML::ml( '.about', { 'sitename' => $LJ::SITENAMESHORT } ) . "</p>";
+    $ret .= "<p>";
+    $ret .= LJ::Lang::ml( '.about', { sitename => $LJ::SITENAMESHORT } );
+    $ret .= "</p>";
 
-    unless ( $freeusers || $freecommunities || $expusers ) {
-        if ( $paidusers ) {
-            $ret .= "<p>" . BML::ml( '.none.free.text', { 'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/shop/'" } ) . "</p>";
-        } else {
-            $ret .= "<p>" . BML::ml( '.none.text', { 'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/shop/'" } ) . "</p>";
-        }
+    unless ( $freeusers || $freecommunities || $expusers || $lapsedusers ) {
+        my $none = $paidusers ? '.none.free.text' : '.none.text';
+        $ret .= "<p>";
+        $ret .= LJ::Lang::ml( $none, { sitename => $LJ::SITENAMESHORT,
+                                       aopts => "href='$LJ::SITEROOT/shop/'" } );
+        $ret .= "</p>";
     }
 
     if ( $freeusers || $freecommunities ) {
-        $ret .= "<h2>" . BML::ml( '.free.header' ) . "</h2>\n";
-        $ret .= "<p>" . BML::ml( '.free.about', { 'aopts' => "href='$LJ::SITEROOT/support/faqbrowse?faqid=153'" } ) . "</p>";
+        $ret .= "<h2>" . LJ::Lang::ml( '.free.header' ) . "</h2>\n";
+        $ret .= "<p>";
+        $ret .= LJ::Lang::ml( '.free.about',
+                { aopts => "href='$LJ::SITEROOT/support/faqbrowse?faqid=153'" } );
+        $ret .= "</p>";
 
         #build different lists for personal and community accounts
         if ( $freeusers ) {
-            $ret .= "<h3>" . BML::ml( '.free.header.personal' ) . "</h3>\n";
+            $ret .= "<h3>" . LJ::Lang::ml( '.free.header.personal' ) . "</h3>\n";
             $ret .= "<ul> " . $freeusers . "</ul><br />";
         }
         if ( $freecommunities ){
-            $ret .= "<h3>" . BML::ml( '.free.header.communities' ) . "</h3>\n";
+            $ret .= "<h3>" . LJ::Lang::ml( '.free.header.communities' ) . "</h3>\n";
             $ret .= "<ul> " . $freecommunities . "</ul>";
         }
         $ret .= "<br />";
     }
 
+    if ( $lapsedusers ) {
+        $ret .= "<h2>" . LJ::Lang::ml( '.paid.header.lapsed' ) . "</h2>\n";
+        $ret .= "<p>" . LJ::Lang::ml( '.paid.lapsed.about' ) . "</p>";
+        $ret .= "<ul> " . $lapsedusers . "</ul>";
+        $ret .= "<br />";
+    }
+
     if ( $expusers ) {
-        $ret .= "<h2>" . BML::ml( '.paid.header.soon' ) . "</h2>\n";
-        $ret .= "<p>" . BML::ml( '.paid.soon.about' ) . "</p>";
+        $ret .= "<h2>" . LJ::Lang::ml( '.paid.header.soon' ) . "</h2>\n";
+        $ret .= "<p>" . LJ::Lang::ml( '.paid.soon.about' ) . "</p>";
         $ret .= "<ul> " . $expusers . "</ul>";
         $ret .= "<br />";
     }
 
     if ( $paidusers ) {
-        $ret .= "<h2>" . BML::ml( '.paid.header.other' ) . "</h2>\n";
-        $ret .= "<p>" . BML::ml( '.paid.other.about' ) . "</p>";
+        $ret .= "<h2>" . LJ::Lang::ml( '.paid.header.other' ) . "</h2>\n";
+        $ret .= "<p>" . LJ::Lang::ml( '.paid.other.about' ) . "</p>";
         $ret .= "<ul> " . $paidusers . "</ul>";
     }
     return $ret;

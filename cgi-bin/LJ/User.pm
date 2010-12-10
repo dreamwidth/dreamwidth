@@ -2341,6 +2341,13 @@ sub gift_url {
 }
 
 
+# returns the gift shop URL to buy points for that user
+sub gift_points_url {
+    my ( $u ) = @_;
+    return "$LJ::SITEROOT/shop/points?for=" . $u->user;
+}
+
+
 =head3 C<< $self->give_shop_points( %options ) >>
 
 The options hash MUST contain the following keys:
