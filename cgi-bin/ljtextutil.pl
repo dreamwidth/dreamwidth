@@ -451,7 +451,7 @@ sub text_trim
 
     while ($text =~ m/$utf_char/gco) {
     last unless $char_max;
-        last if $cur + length($1) > $byte_max and $byte_max;
+        last if $byte_max and $cur + length($1) > $byte_max;
         $cur += length($1);
         $char_max--;
     }
