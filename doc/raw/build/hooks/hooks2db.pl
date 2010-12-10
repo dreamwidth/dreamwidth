@@ -9,7 +9,7 @@ unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
-use vars qw(%hooks);
+our %hooks;
 
 my $LJHOME = $LJ::HOME;
 

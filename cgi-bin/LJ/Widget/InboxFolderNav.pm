@@ -14,7 +14,6 @@
 package LJ::Widget::InboxFolderNav;
 
 use strict;
-use vars qw(%GET %POST);
 use base qw(LJ::Widget);
 use Carp qw(croak);
 

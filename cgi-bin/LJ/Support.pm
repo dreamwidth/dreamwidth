@@ -14,8 +14,6 @@
 package LJ::Support;
 use strict;
 
-use vars qw(@SUPPORT_PRIVS);
-
 use Digest::MD5 qw(md5_hex);
 
 use lib "$LJ::HOME/cgi-bin";
@@ -23,17 +21,17 @@ require "sysban.pl";
 use LJ::Faq;
 
 # Constants
-my $SECONDS_IN_DAY  = 3600 * 24;
-@SUPPORT_PRIVS = (qw/supportclose
-                     supporthelp
-                     supportdelete
-                     supportread
-                     supportviewinternal
-                     supportmakeinternal
-                     supportmovetouch
-                     supportviewscreened
-                     supportviewstocks
-                     supportchangesummary/);
+my $SECONDS_IN_DAY = 3600 * 24;
+our @SUPPORT_PRIVS = ( qw/supportclose
+                          supporthelp
+                          supportdelete
+                          supportread
+                          supportviewinternal
+                          supportmakeinternal
+                          supportmovetouch
+                          supportviewscreened
+                          supportviewstocks
+                          supportchangesummary/ );
 
 # <LJFUNC>
 # name: LJ::Support::slow_query_dbh

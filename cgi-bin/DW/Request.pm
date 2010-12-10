@@ -30,7 +30,7 @@ use strict;
 use DW::Request::Apache2;
 use DW::Request::Standard;
 
-use vars qw( $cur_req $determined );
+our ( $cur_req, $determined );
 
 =head1 Class Methods
 

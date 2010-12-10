@@ -15,7 +15,7 @@
 
 
 use strict;
-use vars qw(%maint %maintinfo $VERBOSE);
+our ( %maint, %maintinfo, $VERBOSE );
 
 unless (-d $ENV{'LJHOME'}) {
     die "\$LJHOME not set.\n";

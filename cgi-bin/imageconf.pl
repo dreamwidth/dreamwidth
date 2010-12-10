@@ -15,7 +15,7 @@
 
 use strict;
 package LJ::Img;
-use vars qw(%img);
+our %img;
 
 $img{ins_obj} = {
     src => '/ins-object.gif',

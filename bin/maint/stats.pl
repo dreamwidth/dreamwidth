@@ -15,7 +15,7 @@
 
 
 use strict;
-use vars qw(%maint);
+our %maint;
 
 require "$ENV{'LJHOME'}/cgi-bin/statslib.pl";
 

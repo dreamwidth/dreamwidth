@@ -14,7 +14,7 @@
 package LJ::XMLRPC;
 use strict;
 
-use vars qw/ $AUTOLOAD /;
+our $AUTOLOAD;
 
 sub AUTOLOAD {
     my $method = $AUTOLOAD;

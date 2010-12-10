@@ -19,9 +19,7 @@ use strict;
 use Apache2::Const qw/ :common /;
 use LJ::ModuleCheck;
 
-use vars qw($gtop);
-our %known_parent;
-our $ppid;
+our ( $gtop, %known_parent, $ppid );
 
 # oh btw, this is totally linux-specific.  gtop didn't work, so so much for portability.
 sub handler

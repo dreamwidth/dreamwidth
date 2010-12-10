@@ -20,8 +20,7 @@ use strict;
 
 package LJ::MemCache;
 
-use vars qw($GET_DISABLED);
-$GET_DISABLED = 0;
+our $GET_DISABLED = 0;
 
 # NOTE:  if you update the list of values stored in the cache here, you will
 # need to increment the version number, too.

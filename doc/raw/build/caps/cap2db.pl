@@ -9,7 +9,7 @@ unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
-use vars qw(%caps_general %caps_local);
+our ( %caps_general, %caps_local );
 
 # Local caps are placed in file: cap-local.pl.
 # Use format in cap2db.pl, substituting 'caps_local' with 'caps_general'

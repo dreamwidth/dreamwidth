@@ -2242,7 +2242,7 @@ sub is_from_test {
     return $0 && $0 =~ m!(^|/)t/!;
 }
 
-use vars qw($AUTOLOAD);
+our $AUTOLOAD;
 sub AUTOLOAD {
     if ($AUTOLOAD eq "LJ::send_mail") {
         require "ljmail.pl";

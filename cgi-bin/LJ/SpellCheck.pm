@@ -25,8 +25,7 @@ use warnings;
 use Config;
 use constant PERLIO_IS_ENABLED => $Config{useperlio};
 
-use vars qw( $VERSION );
-$VERSION = '2.0';
+our $VERSION = '2.0';
 
 # Good spellcommand values:
 #    /usr/bin/ispell -a -h

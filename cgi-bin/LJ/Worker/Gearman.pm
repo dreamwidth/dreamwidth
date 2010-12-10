@@ -19,7 +19,6 @@ use base "LJ::Worker", "Exporter";
 use LJ::WorkerResultStorage;
 
 require "ljlib.pl";
-use vars qw(@EXPORT @EXPORT_OK);
 use Getopt::Long;
 use IO::Socket::INET ();
 use Carp qw(croak);
@@ -33,7 +32,7 @@ my $opt_verbose;
 die "Unknown options" unless
     GetOptions("verbose|v" => \$opt_verbose);
 
-@EXPORT = qw(gearman_decl gearman_work gearman_set_idle_handler gearman_set_requester_id);
+our @EXPORT = qw(gearman_decl gearman_work gearman_set_idle_handler gearman_set_requester_id);
 
 my $worker = Gearman::Worker->new;
 my $idle_handler;

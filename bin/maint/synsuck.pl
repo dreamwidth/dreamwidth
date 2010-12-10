@@ -14,7 +14,7 @@
 # part of this distribution.
 
 use strict;
-use vars qw(%maint %maintinfo);
+our ( %maint, %maintinfo );
 use lib "$ENV{'LJHOME'}/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
 use LJ::SynSuck;
 

@@ -93,7 +93,7 @@ sub as_xml {
 
 sub DESTROY { }
 
-use vars qw( $AUTOLOAD );
+our $AUTOLOAD;
 sub AUTOLOAD {
     (my $var = $AUTOLOAD) =~ s!.+::!!;
     no strict 'refs';

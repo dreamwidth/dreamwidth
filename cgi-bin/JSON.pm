@@ -20,20 +20,17 @@ use JSON::Converter;
 
 @JSON::EXPORT = qw(objToJson jsonToObj);
 
-use vars qw($AUTOCONVERT $VERSION $UnMapping $BareKey $QuotApos
-            $ExecCoderef $SkipInvalid $Pretty $Indent $Delimiter);
+our $VERSION     = '1.00';
 
-$VERSION     = '1.00';
-
-$AUTOCONVERT = 1;
-$SkipInvalid = 0;
-$ExecCoderef = 0;
-$Pretty      = 0; # pretty-print mode switch
-$Indent      = 2; # (for pretty-print)
-$Delimiter   = 2; # (for pretty-print)  0 => ':', 1 => ': ', 2 => ' : '
-$UnMapping   = 0; # 
-$BareKey     = 0; # 
-$QuotApos    = 0; # 
+our $AUTOCONVERT = 1;
+our $SkipInvalid = 0;
+our $ExecCoderef = 0;
+our $Pretty      = 0; # pretty-print mode switch
+our $Indent      = 2; # (for pretty-print)
+our $Delimiter   = 2; # (for pretty-print)  0 => ':', 1 => ': ', 2 => ' : '
+our $UnMapping   = 0; # 
+our $BareKey     = 0; # 
+our $QuotApos    = 0; # 
 
 my $parser; # JSON => Perl
 my $conv;   # Perl => JSON

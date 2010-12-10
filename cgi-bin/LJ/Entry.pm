@@ -19,7 +19,7 @@
 
 package LJ::Entry;
 use strict;
-use vars qw/ $AUTOLOAD /;
+our $AUTOLOAD;
 use Carp qw/ croak confess /;
 
 =head1 NAME

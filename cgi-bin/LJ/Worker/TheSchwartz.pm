@@ -17,7 +17,6 @@ use lib "$LJ::HOME/cgi-bin";
 use base "LJ::Worker", "Exporter";
 
 require "ljlib.pl";
-use vars qw(@EXPORT @EXPORT_OK);
 use Getopt::Long;
 
 my $interval = 5;
@@ -31,7 +30,7 @@ $SIG{TERM} = sub {
     $quit_flag = 1;
 };
 
-@EXPORT = qw(schwartz_decl schwartz_work schwartz_on_idle schwartz_on_afterwork schwartz_on_prework schwartz_prioritize);
+our @EXPORT = qw(schwartz_decl schwartz_work schwartz_on_idle schwartz_on_afterwork schwartz_on_prework schwartz_prioritize);
 
 my $sclient;
 my $prioritize = 0;

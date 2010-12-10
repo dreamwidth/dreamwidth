@@ -18,10 +18,9 @@ package LJ::ModuleLoader;
 use strict;
 use IO::Dir;
 require Exporter;
-use vars qw(@ISA @EXPORT);
 
-@ISA    = qw(Exporter);
-@EXPORT = qw(module_subclasses);
+our @ISA    = qw(Exporter);
+our @EXPORT = qw(module_subclasses);
 
 use DW;
 

@@ -15,7 +15,6 @@ package LJ::Test;
 require Exporter;
 use strict;
 use Carp qw(croak);
-use vars qw(@ISA @EXPORT);
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #              WARNING! PELIGROSO! ACHTUNG! VNIMANIYE!
@@ -26,8 +25,8 @@ use vars qw(@ISA @EXPORT);
 
 use DBI;
 use LJ::ModuleCheck;
-@ISA = qw(Exporter);
-@EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed fake_apache);
+our @ISA = qw(Exporter);
+our @EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed fake_apache);
 
 my @temp_userids;  # to be destroyed later
 END {

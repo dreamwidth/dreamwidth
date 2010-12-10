@@ -17,11 +17,11 @@ package XML::Atom::Util;
 use strict;
 
 use XML::Atom;
-use vars qw( @EXPORT_OK @ISA );
 use Encode;
 use Exporter;
-@EXPORT_OK = qw( set_ns hack_unicode_entity first nodelist textValue iso2dt encode_xml remove_default_ns );
-@ISA = qw( Exporter );
+
+our @EXPORT_OK = qw( set_ns hack_unicode_entity first nodelist textValue iso2dt encode_xml remove_default_ns );
+our @ISA = qw( Exporter );
 
 our %NS_MAP = (
     '0.3' => 'http://purl.org/atom/ns#',

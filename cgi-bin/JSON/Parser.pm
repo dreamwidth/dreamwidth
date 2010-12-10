@@ -18,10 +18,9 @@ package JSON::Parser;
 #  http://www.crockford.com/JSON/json.js
 #
 
-use vars qw($VERSION);
 use strict;
 
-$VERSION     = 1.00;
+our $VERSION = 1.00;
 
 my %escapes = ( #  by Jeremy Muhlich <jmuhlich [at] bitflood.org>
   b    => "\x8",

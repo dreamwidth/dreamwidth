@@ -16,7 +16,7 @@
 package XML::Atom::ErrorHandler;
 use strict;
 
-use vars qw( $ERROR );
+our $ERROR;
 
 sub new    { bless {}, shift }
 sub error  {

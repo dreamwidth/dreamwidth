@@ -25,11 +25,10 @@ use  LWP::UserAgent;
 use  MIME::Lite;
 
 use strict;
-use vars qw($VERSION %providers);
 
-$VERSION = '1.5.6';
+our $VERSION = '1.5.6';
 
-%providers = (
+our %providers = (
 
     'email' => {
         'name'       => 'Other',
