@@ -364,7 +364,9 @@ sub add_paid_time {
         or return error( ERR_FATAL, "Invalid/not a user object." );
 
     my $type = shift();
-    my ($typeid) = grep { $LJ::CAP{$_}->{_account_type} eq $type } keys %LJ::CAP;
+    my ( $typeid ) = grep { $LJ::CAP{$_}->{_account_type} &&
+                            $LJ::CAP{$_}->{_account_type} eq $type }
+                          keys %LJ::CAP;
     return error( ERR_FATAL, 'Invalid type, no typeid found.' )
         unless $typeid;
 
