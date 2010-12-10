@@ -142,8 +142,6 @@ body<=
                 return "<?h1 $ML{'.invalid.inuse.title'} h1?><?p $ML{'.invalid.inuse.text'} p?>"
                     unless $synfeed;
 
-                $u->add_edge( $synfeed, watch => 1 );
-
                 $su = $dbh->selectrow_hashref("SELECT u.user, s.* FROM syndicated s, useridmap u ".
                                               "WHERE s.userid=? AND s.userid=u.userid",
                                               undef, $synfeed->id);
