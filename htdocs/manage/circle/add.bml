@@ -383,9 +383,15 @@ _c?>
    // -->
    </script>
    ~;
-        if ($col==23) { $ret .= "</tr>\n"; $col==0; }
+        if ( $col == 23 ) {
+            $ret .= "</tr>\n";
+            $col = 0;
+        }
     }
-    if ($col) { $ret .= "</tr>\n"; $col==0; }
+    if ( $col ) {
+        $ret .= "</tr>\n";
+        $col = 0;
+    }
     my $col2 = 0;
 
     # without javascript
@@ -404,9 +410,15 @@ _c?>
    <td $colspan bgcolor='$_->{code}'><img src='/img/dot.gif' width='$wh' height='16' title='$ecolor - $_->{code}' alt='$ecolor - $_->{code}'
    border='0'></td>
    ~;
-        if ($col2==23) { $ret2 .= "</tr>\n"; $col2==0; }
+        if ( $col2 == 23 ) {
+            $ret2 .= "</tr>\n";
+            $col2 = 0;
+        }
     }
-    if ($col2) { $ret2 .= "</tr>\n"; $col2==0; }
+    if ( $col2 ) {
+        $ret2 .= "</tr>\n";
+        $col2 = 0;
+    }
 
     $ret2 .= "</noscript>";
 
@@ -445,7 +457,7 @@ _c?>
     $ret .= "id=\"editfriend_add_1_bg\" /></td>";
 
     ### color swatch
-    my $col = 0;
+    $col = 0;
     $ret .= "<td><table summary='' border='0' cellspacing='0' cellpadding='0'>";
     # with javascript
     foreach (@color) {
@@ -470,14 +482,20 @@ _c?>
    // -->
    </script>
    ~;
-        if ($col==23) { $ret .= "</tr>\n"; $col==0; }
+        if ( $col == 23 ) {
+            $ret .= "</tr>\n";
+            $col = 0;
+        }
     }
-    if ($col) { $ret .= "</tr>\n"; $col==0; }
+    if ( $col ) {
+        $ret .= "</tr>\n";
+        $col = 0;
+    }
 
-    my $col2 = 0;
+    $col2 = 0;
 
     # without javascript
-    my $ret2 = "<noscript>\n";
+    $ret2 = "<noscript>\n";
     foreach (@color) {
         if ($col2==0) { $ret2 .= "<tr>\n"; }
         $col2++;
@@ -491,9 +509,15 @@ _c?>
         $ret2 .= qq~
    <td $colspan bgcolor='$_->{code}'><img src='/img/dot.gif' width='$wh' height='16' title='$ecolor - $_->{code}' alt='$ecolor - $_->{code}' border='0'></td>
    ~;
-        if ($col2==23) { $ret2 .= "</tr>\n"; $col2==0; }
+        if ( $col2 == 23 ) {
+            $ret2 .= "</tr>\n";
+            $col2 = 0;
+        }
     }
-    if ($col2) { $ret2 .= "</tr>\n"; $col2==0; }
+    if ( $col2 ) {
+        $ret2 .= "</tr>\n";
+        $col2 = 0;
+    }
 
 
     $ret2 .= "</noscript>";
