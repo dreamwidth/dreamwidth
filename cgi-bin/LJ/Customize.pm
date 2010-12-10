@@ -475,8 +475,8 @@ sub save_s2_props {
     $lyr_layout->{'uniq'} = $dbh->selectrow_array("SELECT value FROM s2info WHERE s2lid=? AND infokey=?",
                                               undef, $lyr_layout->{'s2lid'}, "redist_uniq");
 
-    my @grouped_properties = S2::get_properties( $lyr_core->{s2lid} );
-    @grouped_properties = grep { $_->{grouped} == 1 } @grouped_properties;
+    my @grouped_properties = grep { $_->{grouped} && $_->{grouped} == 1 }
+                             S2::get_properties( $lyr_core->{s2lid} );
 
     my %override;
     foreach my $prop ( S2::get_properties( $lyr_layout->{s2lid} ), @grouped_properties )
@@ -496,7 +496,10 @@ sub save_s2_props {
         } else {
             $prop_value = defined $post->{$name} ? $post->{$name} : $prop_values{override};
         }
-        next if $prop_value eq $prop_values{existing};
+        # new and existing match if both defined and same, or both undefined.
+        next if ! defined $prop_value and ! defined $prop_values{existing};
+        next if defined $prop_value and defined $prop_values{existing}
+                and $prop_value eq $prop_values{existing};
         $override{$name} = [ $prop, $prop_value ];
     }
 
