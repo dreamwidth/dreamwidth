@@ -110,30 +110,30 @@ sub set_error
     return 0;
 }
 
-sub get_lang
-{
-    my $code = shift;
+sub get_lang {
+    my $code = $_[0];
+    return unless defined $code;
     load_lang_struct() unless $LS_CACHED;
     return $LN_CODE{$code};
 }
 
-sub get_lang_id
-{
-    my $id = shift;
+sub get_lang_id {
+    my $id = $_[0];
+    return unless defined $id;
     load_lang_struct() unless $LS_CACHED;
     return $LN_ID{$id};
 }
 
-sub get_dom
-{
-    my $dmcode = shift;
+sub get_dom {
+    my $dmcode = $_[0];
+    return unless defined $dmcode;
     load_lang_struct() unless $LS_CACHED;
     return $DM_UNIQ{$dmcode};
 }
 
-sub get_dom_id
-{
-    my $dmid = shift;
+sub get_dom_id {
+    my $dmid = $_[0];
+    return unless defined $dmid;
     load_lang_struct() unless $LS_CACHED;
     return $DM_ID{$dmid};
 }
@@ -533,7 +533,8 @@ sub string_exists {
 # -- this function will tell you if the value is one of
 #    those values.  gross.
 sub is_missing_string {
-    my $string = shift;
+    my $string = $_[0];
+    return 1 unless defined $string;
 
     return ( $string eq "" ||
              $string =~ /^\[missing string/ ||
