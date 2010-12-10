@@ -3079,6 +3079,8 @@ setting.xpost.option.footer.when.never=Never
 
 setting.xpost.option.password=Password
 
+setting.xpost.option.recordlink=Display Crosspost Link
+
 setting.xpost.option.server=Server
 
 setting.xpost.option.username=Username

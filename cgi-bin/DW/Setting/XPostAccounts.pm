@@ -69,6 +69,7 @@ sub option {
         $ret .= "<th>" . $class->ml('setting.xpost.option.username') . "</th>\n";
         $ret .= "<th>" . $class->ml('setting.xpost.option.server') . "</th>\n";
         $ret .= "<th>" . $class->ml('setting.xpost.option.xpostbydefault') . "</th>\n";
+        $ret .= "<th>" . $class->ml('setting.xpost.option.recordlink') . "</th>\n";
         $ret .= "<th>" . $class->ml('setting.xpost.option.change') . "</th>\n";
         $ret .= "<th>" . $class->ml('setting.xpost.option.delete') . "</th>\n";
         $ret .= "</tr>\n";
@@ -84,6 +85,12 @@ sub option {
                 value    => 1,
                 id       => "${key}xpostbydefault[${acctid}]",
                 selected => $externalacct->xpostbydefault
+            }) . "</td>";
+            $ret .= "<td class='checkbox'>" . LJ::html_check({
+                name     => "${key}recordlink[${acctid}]",
+                value    => 1,
+                id       => "${key}recordlink[${acctid}]",
+                selected => $externalacct->recordlink
             }) . "</td>";
             $ret .= "<td style='text-align: center;'><a href='$LJ::SITEROOT/manage/externalaccount?acctid=${acctid}'>" . $class->ml('setting.xpost.option.change') . "</a></td>\n";
             $ret .= "<td class='checkbox'>" . LJ::html_check({
@@ -280,6 +287,10 @@ sub save {
                 # check to see if we need to reset the xpostbydefault
                 if ($class->get_arg($args, "xpostbydefault[$acctid]") ne $account->{'xpostbydefault'}) {
                     $account->set_xpostbydefault($class->get_arg($args, "xpostbydefault[$acctid]"));
+                }
+                # check to see if we need to reset the recordlink
+                if ($class->get_arg($args, "recordlink[$acctid]") ne $account->{'recordlink'}) {
+                    $account->set_recordlink($class->get_arg($args, "recordlink[$acctid]"));
                 }
             }
         }
