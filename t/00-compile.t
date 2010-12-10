@@ -14,7 +14,6 @@ my $dir = File::Temp::tempdir( CLEANUP => 1 );
 # They should be fixed or marked why they cannot run.
 my %SKIP = (
     'Test/FakeApache.pm'      => 'needs Apache::Constants',
-    'Apache/CompressClientFixup.pm' => 'needs Apache::Constants',
 
     'Data/ObjectDriver/Driver/DBD/SQLite.pm' => 'Bareword "DBI::SQL_BLOB"',
     'Data/ObjectDriver/Driver/DBD/Oracle.pm' => 'no Oracle',
