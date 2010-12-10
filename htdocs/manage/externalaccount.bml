@@ -113,6 +113,10 @@ use strict;
             onchange => "updateSiteSelection()",
             selected => $POST{site} || '2'
                                           }, @sitevalues);
+
+        my $servicetype_errdiv = errdiv( \%errs, "servicetype" );
+        $body .= "<br />$servicetype_errdiv\n" if $servicetype_errdiv;
+
         $body .= "<table summary='' id='customsite'>";
     
         $body .= "<tr><td class='setting_label'><label for='servicetype'>" . $ML{'.setting.xpost.option.servicetype'} . "</label></td>";
@@ -120,11 +124,8 @@ use strict;
             name => "servicetype",
             id => "servicetype",
             onchange => "updateProtocolSelection()" }, %protocolselectmap);
-        
-        my $servicetype_errdiv = errdiv(\%errs, "servicetype");
-        $body .= "<br />$servicetype_errdiv" if $servicetype_errdiv;
         $body .= "</td></tr>\n";
-    
+
         # hide if we have javascript, and if we haven't already selected
         # a custom site.
         if ($POST{"site"} ne -1) {
@@ -289,7 +290,8 @@ sub create_external_account {
     my @accounts = DW::External::Account->get_external_accounts($u);
     my $acct_count = scalar @accounts;
     if ($acct_count >= $max_accts) {
-        $errs->{servicetype} = $max_accts eq 1 ? BML::ml('.error.maxacct.singular', { max_accts => $max_accts }) : BML::ml('.error.maxacct.plural', { max_accts => $max_accts });
+        my $errmsg = ( $max_accts == 1 ) ? '.error.maxacct.singular' : '.error.maxacct.plural';
+        $errs->{servicetype} = LJ::Lang::ml( $errmsg, { max_accts => $max_accts } );
         return 0;
     }
 
