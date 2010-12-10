@@ -13,7 +13,6 @@
 
 package LJ;
 use strict;
-no warnings 'uninitialized';
 
 use LJ::ConvUTF8;
 use HTML::TokeParser;
@@ -26,9 +25,10 @@ use HTML::TokeParser;
 # des-string: string to be trimmed
 # returns: trimmed string
 # </LJFUNC>
-sub trim
-{
+sub trim {
     my $a = $_[0];
+    return '' unless defined $a;
+
     $a =~ s/^\s+//;
     $a =~ s/\s+$//;
     return $a;
@@ -38,13 +38,18 @@ sub trim
 # a hash of items parsed from the string passed in as the only argument.
 sub parse_args {
     my $args = $_[0];
+    return unless defined $args;
 
     my %GET;
     foreach my $pair ( split /&/, $args ) {
         my ($name, $value) = split /=/, $pair;
 
-        $value =~ tr/+/ /;
-        $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+        if ( defined $value ) {
+            $value =~ tr/+/ /;
+            $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+        } else {
+            $value = '';
+        }
 
         $name =~ tr/+/ /;
         $name =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
@@ -104,9 +109,10 @@ sub encode_url_string {
 # des-string: string to be escaped
 # returns: string escaped
 # </LJFUNC>
-sub eurl
-{
+sub eurl {
     my $a = $_[0];
+    return '' unless defined $a;
+
     $a =~ s/([^a-zA-Z0-9_\,\-.\/\\\: ])/uc sprintf("%%%02x",ord($1))/eg;
     $a =~ tr/ /+/;
     return $a;
@@ -120,9 +126,10 @@ sub eurl
 # des-string: string to be decoded
 # returns: string decoded
 # </LJFUNC>
-sub durl
-{
-    my ($a) = @_;
+sub durl {
+    my $a = $_[0];
+    return '' unless defined $a;
+
     $a =~ tr/+/ /;
     $a =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
     return $a;
@@ -136,14 +143,15 @@ sub durl
 # des-string: string to be escaped
 # returns: string escaped.
 # </LJFUNC>
-sub exml
-{
+sub exml {
+    my $a = $_[0];
+    return '' unless defined $a;
+
     # fast path for the commmon case:
-    return $_[0] unless $_[0] =~ /[&\"\'<>\x00-\x08\x0B\x0C\x0E-\x1F]/;
+    return $a unless $a =~ /[&\"\'<>\x00-\x08\x0B\x0C\x0E-\x1F]/;
     # what are those character ranges? XML 1.0 allows:
     # #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
 
-    my $a = shift;
     $a =~ s/\&/&amp;/g;
     $a =~ s/\"/&quot;/g;
     $a =~ s/\'/&apos;/g;
@@ -161,13 +169,14 @@ sub exml
 # des-string: string to be escaped
 # returns: string escaped.
 # </LJFUNC>
-sub ehtml
-{
+sub ehtml {
+    my $a = $_[0];
+    return '' unless defined $a;
+
     # fast path for the commmon case:
-    return $_[0] unless $_[0] =~ /[&\"\'<>]/;
+    return $a unless $a =~ /[&\"\'<>]/;
 
     # this is faster than doing one substitution with a map:
-    my $a = $_[0];
     $a =~ s/\&/&amp;/g;
     $a =~ s/\"/&quot;/g;
     $a =~ s/\'/&\#39;/g;
@@ -185,12 +194,13 @@ sub ehtml
 # des-string: string to be escaped
 # returns: string escaped.
 # </LJFUNC>
-sub etags
-{
-    # fast path for the commmon case:
-    return $_[0] unless $_[0] =~ /[<>]/;
-
+sub etags {
     my $a = $_[0];
+    return '' unless defined $a;
+
+    # fast path for the commmon case:
+    return $a unless $a =~ /[<>]/;
+
     $a =~ s/</&lt;/g;
     $a =~ s/>/&gt;/g;
     return $a;
@@ -204,9 +214,10 @@ sub etags
 # des-string: string to be escaped
 # returns: string escaped.
 # </LJFUNC>
-sub ejs
-{
+sub ejs {
     my $a = $_[0];
+    return '' unless defined $a;
+
     # use zero-width lookahead to insert a backslash where needed
     $a =~ s/(?=[\"\'\\])/\\/g;
     $a =~ s/&quot;/\\&quot;/g;
@@ -228,9 +239,10 @@ sub ejs_string {
 # changes every char in a string to %XX where XX is the hex value
 # this is useful for passing strings to javascript through HTML, because
 # javascript's "unescape" function expects strings in this format
-sub ejs_all
-{
+sub ejs_all {
     my $a = $_[0];
+    return '' unless defined $a;
+
     $a =~ s/(.)/uc sprintf("%%%02x",ord($1))/eg;
     return $a;
 }
@@ -238,7 +250,9 @@ sub ejs_all
 
 # strip all HTML tags from a string
 sub strip_html {
-    my $str = shift;
+    my $str = $_[0];
+    return '' unless defined $str;
+
     $str =~ s/\<(lj user|user name)\=['"]?([\w-]+)['"]?\>/$2/g;   # "
     $str =~ s/\<([^\<])+\>//g;
     return $str;
@@ -252,7 +266,8 @@ sub strip_html {
 # returns: 1 if text is indeed pure 7-bit, 0 otherwise.
 # </LJFUNC>
 sub is_ascii {
-    my $text = shift;
+    my $text = $_[0];
+    return 1 unless defined $text;
     return ($text !~ m/[^\x01-\x7f]/);
 }
 
@@ -590,7 +605,8 @@ sub html_trim {
 
 # takes a number, inserts commas where needed
 sub commafy {
-    my $number = shift;
+    my $number = $_[0];
+    return '' unless defined $number;
     return $number unless $number =~ /^\d+$/;
 
     my $punc = LJ::Lang::ml('number.punctuation') || ",";
@@ -604,13 +620,13 @@ sub commafy {
 # args: text
 # returns: text, possibly including HTML break tags.
 # </LJFUNC>
-sub html_newlines
-{
-    my $text = shift;
-    $text =~ s/\n/<br \/>/gm;
+sub html_newlines {
+    my $text = $_[0];
+    return '' unless defined $text;
 
+    $text =~ s/\n/<br \/>/gm;
     return $text;
 }
 
-1;
 
+1;
