@@ -2124,7 +2124,7 @@ sub Page
         'head_content' => '',
         'data_link' => {},
         'data_links_order' => [],
-        '_styleopts' => \%{ LJ::viewing_style_opts( %$get ) },
+        _styleopts => LJ::viewing_style_opts( %$get ),
         timeformat24 => $remote && $remote->use_24hour_time
     };
 
