@@ -833,7 +833,11 @@ sub update_logtags {
     my $max = $opts->{ignore_max} ? 0 : $u->count_tags_max;
     if (@to_create && $max && $max > 0) {
         my $total = scalar(keys %$utags) + scalar(@to_create);
-        return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max })) if $total > $max;
+        if ( $total > $max ) {
+            return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max, 
+                                                                 tags => join(", ", @to_create), 
+                                                                 excess => $total - $max }));
+        }
     }
 
     # now we can create the new tags, since we know we're safe
@@ -1102,8 +1106,12 @@ sub create_usertag {
     my $max = $opts->{ignore_max} ? 0 : $u->count_tags_max;
     if ($max && $max > 0) {
         my $cur = scalar(keys %{ LJ::Tags::get_usertags($u) || {} });
-        return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max }))
-            if $cur + scalar(@$tags) > $max;
+        my $tagtotal = $cur + scalar(@$tags);
+        if ($tagtotal > $max) {
+            return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max, 
+                                                                 tags => join(", ", @$tags) , 
+                                                                 excess => $tagtotal - $max }));
+        }
     }
 
     my $display = $opts->{display} ? 1 : 0;
