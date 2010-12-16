@@ -105,23 +105,6 @@ sub interest_string_to_list {
 }
 
 
-# insert new interest into interest table, return new interest id
-# input: keyword of interest
-sub new_interest_from_kw {
-    my ( $keyword ) = @_;
-    my $intid = LJ::get_sitekeyword_id( $keyword );
-    return undef unless $intid;
-
-    # add zero intcount if this is a new interest
-    my $dbh = LJ::get_db_writer();
-    $dbh->do( "INSERT IGNORE INTO interests (intid, intcount) VALUES (?,?)",
-            undef, $intid, 0 );
-    die $dbh->errstr if $dbh->err;
-
-    return $intid;
-}
-
-
 sub validate_interest_list {
     my $interrors = ref $_[0] eq "ARRAY" ? shift : [];
     my @ints = @_;
@@ -264,6 +247,55 @@ sub interest_list {
 }
 
 
+sub interest_update {
+    my ( $u, %opts ) = @_;
+    return undef unless LJ::isu( $u );
+    my ( $add, $del ) = ( $opts{add}, $opts{del} );
+    return 1 unless $add || $del;  # nothing to do
+
+    # track if we made changes to refresh memcache later.
+    my $did_mod = 0;
+
+    # community interests go in a different table than user interests,
+    # though the schemas are the same so we can run the same queries on them
+    my $uitable = $u->is_community ? 'comminterests' : 'userinterests';
+    my $uid = $u->userid;
+    my $dbh = LJ::get_db_writer() or die LJ::Lang::ml( "error.nodb" );
+
+    if ( $del && @$del ) {
+        $did_mod = 1;
+        my $intid_in = join ',', map { $dbh->quote( $_ ) } @$del;
+        $dbh->do( "DELETE FROM $uitable WHERE userid=$uid AND intid IN ($intid_in)" );
+        die $dbh->errstr if $dbh->err;
+        $dbh->do( "UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)" );
+        die $dbh->errstr if $dbh->err;
+    }
+
+    if ( $add && @$add ) {
+        # assume we've already checked maxinterests
+        $did_mod = 1;
+        my $intid_in = join ',', map { $dbh->quote( $_ ) } @$add;
+        my $sqlp = join ',', map { "(?,?)" } @$add;
+        $dbh->do( "REPLACE INTO $uitable (userid, intid) VALUES $sqlp",
+                  undef, map { ( $uid, $_ ) } @$add );
+        die $dbh->errstr if $dbh->err;
+        # set a zero intcount for any new ints
+        $dbh->do( "INSERT IGNORE INTO interests (intid, intcount) VALUES $sqlp",
+                  undef, map { ( $_, 0 ) } @$add );
+        die $dbh->errstr if $dbh->err;
+        # now do the increment for all ints
+        $dbh->do( "UPDATE interests SET intcount=intcount+1 WHERE intid IN ($intid_in)" );
+        die $dbh->errstr if $dbh->err;
+    }
+
+    # do migrations to clean up userinterests vs comminterests conflicts
+    # also clears memcache and object cache for intids if needed
+    $u->lazy_interests_cleanup( $did_mod );
+
+    return 1;
+}
+
+
 # return hashref with intname => intid
 sub interests {
     my ( $u, $opts ) = @_;
@@ -281,7 +313,7 @@ sub interests {
 
 
 sub lazy_interests_cleanup {
-    my $u = shift;
+    my ( $u, $expire ) = @_;
 
     my $dbh = LJ::get_db_writer();
 
@@ -293,7 +325,12 @@ sub lazy_interests_cleanup {
         $dbh->do("DELETE FROM comminterests WHERE userid=?", undef, $u->id);
     }
 
-    LJ::memcache_kill($u, "intids");
+    # don't expire memcache unless requested
+    return 1 unless $expire;
+
+    LJ::memcache_kill( $u, "intids" );
+    $u->{_cache_interests} = undef;
+
     return 1;
 }
 
@@ -305,69 +342,72 @@ sub lazy_interests_cleanup {
 sub set_interests {
     my ($u, $old, $new) = @_;
 
-    $u = LJ::want_user($u);
-    my $userid = $u->userid;
-    return undef unless $userid;
+    $u = LJ::want_user( $u ) or return undef;
 
     return undef unless ref $old eq 'HASH';
     return undef unless ref $new eq 'ARRAY';
 
-    my $dbh = LJ::get_db_writer();
-    my %int_new = ();
+    my %int_add = ();
     my %int_del = %$old;  # assume deleting everything, unless in @$new
 
-    # community interests go in a different table than user interests,
-    # though the schemas are the same so we can run the same queries on them
-    my $uitable = $u->is_community ? 'comminterests' : 'userinterests';
-
-    # track if we made changes to refresh memcache later.
-    my $did_mod = 0;
-
-    my @valid_ints = LJ::validate_interest_list(@$new);
+    my @valid_ints = LJ::validate_interest_list( @$new );
     foreach my $int ( @valid_ints ) {
-        $int_new{$int} = 1 unless $old->{$int};
+        $int_add{$int} = 1 unless $old->{$int};
         delete $int_del{$int};
-    }
-
-    ### were interests removed?
-    if ( %int_del ) {
-        ## easy, we know their IDs, so delete them en masse
-        my $intid_in = join(", ", values %int_del);
-        $dbh->do("DELETE FROM $uitable WHERE userid=$userid AND intid IN ($intid_in)");
-        $dbh->do("UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)");
-        $did_mod = 1;
     }
 
     ### do we have new interests to add?
     my @new_intids = ();  ## existing IDs we'll add for this user
-    if ( %int_new ) {
-        foreach my $int ( keys %int_new ) {
-            my $intid = LJ::new_interest_from_kw( $int ) ;
-            push @new_intids, $intid if $intid;
-        }
-
-        ## do updating en masse for interests
-        if ( @new_intids ) {
-            $did_mod = 1;
-
-            my $sql = "REPLACE INTO $uitable (userid, intid) VALUES ";
-            $sql .= join( ", ", map { "($userid, $_)" } @new_intids );
-            $dbh->do( $sql );
-
-            my $intid_in = join(", ", @new_intids);
-            $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid IN ($intid_in)");
-        }
+    foreach my $int ( keys %int_add ) {
+        my $intid = LJ::get_sitekeyword_id( $int );
+        push @new_intids, $intid if $intid;
     }
+
+    # Note this does NOT check against maxinterests, do that in the caller.
+    $u->interest_update( add => \@new_intids, del => [ values %int_del ] );
 
     LJ::Hooks::run_hooks("set_interests", $u, \%int_del, \@new_intids); # interest => intid
 
-    # do migrations to clean up userinterests vs comminterests conflicts
-    $u->lazy_interests_cleanup;
-
-    LJ::memcache_kill($u, "intids") if $did_mod;
-    $u->{_cache_interests} = undef if $did_mod;
-
     return 1;
+}
+
+
+# arguments: hashref of submitted form and list of user's previous intids
+# returns: hashref with number of ints added (or toomany) and deleted
+sub sync_interests {
+    my ( $u, $args, @intids ) = @_;
+    warn "sync_interests: invalid arguments" and return undef
+        unless LJ::isu( $u ) and ref $args eq "HASH";
+    @intids = grep /^\d+$/, @intids;  # numeric
+
+    my %uint = reverse %{ $u->interests };  # intid => interest
+    my $rv = {};
+    my ( @todel, @toadd );
+
+    foreach my $intid ( @intids ) {
+        next unless $intid > 0;    # prevent adding zero or negative intid
+        push @todel, $intid if $uint{$intid} && ! $args->{"int_$intid"};
+        push @toadd, $intid if ! $uint{$intid} && $args->{"int_$intid"};
+    }
+
+    my $addcount = scalar( @toadd );
+    my $delcount = scalar( @todel );
+
+    if ( $addcount ) {
+        my $intcount = scalar( keys %uint ) + $addcount - $delcount;
+        my $maxinterests = $u->count_max_interests;
+        if ( $intcount > $maxinterests ) {
+            # let the user know they're over the limit
+            $rv->{toomany} = $maxinterests;
+            @toadd = ();  # deletion still OK
+        }
+    }
+
+    $u->interest_update( add => \@toadd, del => \@todel );
+    $rv->{added} = $addcount;
+    $rv->{deleted} = $delcount;
+
+    return $rv;
 }
 
 

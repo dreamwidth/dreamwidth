@@ -109,7 +109,7 @@ body<=
         } else {
             # adding a new interest
             my @validate = LJ::validate_interest_list( $formargs->{keyword} );
-            $intid = LJ::new_interest_from_kw( $validate[0] ) if @validate;
+            $intid = LJ::get_sitekeyword_id( $validate[0] ) if @validate;
         }
 
         return $ML{'error.invalidform'} unless $intid;
@@ -132,19 +132,7 @@ body<=
             return $ret;
         }
 
-        my $dbh = LJ::get_db_writer();
-        my $uitable = $table->($remote);
-        $dbh->do("INSERT INTO $uitable (userid, intid) VALUES (?, ?)",
-                 undef, $remote->userid, $intid);
-        LJ::memcache_kill($remote, "intids");
-        unless ($dbh->err) {
-            $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid=?", undef, $intid);
-        }
-
-        # if a community, remove any old rows from userinterests
-        if ( $remote->is_community ) {
-            $dbh->do( "DELETE FROM userinterests WHERE userid=?", undef, $remote->userid );
-        }
+        $remote->interest_update( add => [$intid] );
 
         my $profile_url = $remote->profile_url;
         $ret .= "<?h1 $ML{'.add.added.head'} h1?><?p $ML{'.add.added.text'} p?>" .
@@ -326,62 +314,17 @@ body<=
         my $u = LJ::get_authas_user($authas);
         return LJ::bad_input($ML{'.error.noauth'}) unless $u;
 
-        my $uitable = $table->($u);
-        my %uint;
-        my $intcount = 0;
-
-        my $uints = $u->get_interests();
-        foreach (@$uints) {
-            $uint{$_->[0]} = $_->[1];  # uint{intid} = interest
-            $intcount++;
-        }
-
         my @fromints = map { $_+0 } split (/\s*,\s*/, $POST{'allintids'});
-        my @todel;
-        my @toadd;
-        foreach my $fromint (@fromints) {
-            next unless $fromint > 0;    # prevent adding zero or negative intid
-            push (@todel, $fromint) if  $uint{$fromint} && !$POST{'int_'.$fromint};
-            push (@toadd, $fromint) if !$uint{$fromint} &&  $POST{'int_'.$fromint};
-        }
-        my ($deleted, $added, $toomany) = (0, 0, 0);
-        if (@todel) {
-            my $intid_in = join(",", @todel);
-            my $dbh = LJ::get_db_writer();
-            $dbh->do("DELETE FROM $uitable WHERE userid=? AND intid IN ($intid_in)",
-                     undef, $u->userid);
-            $dbh->do("UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)");
-            $deleted = 1;
-        }
-        if (@toadd) {
-            if ($intcount + scalar @toadd > $maxinterests) {
-                $toomany = 1;
-            } else {
-                my $dbh = LJ::get_db_writer();
-                my $sqlp = "(?,?)" . (",(?,?)" x (scalar(@toadd) - 1));
-                my @bindvars = map { ( $u->userid, $_ ) } @toadd;
-                $dbh->do("REPLACE INTO $uitable (userid, intid) VALUES $sqlp", undef, @bindvars);
-
-                my $intid_in = join(",", @toadd);
-                $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid IN ($intid_in)");
-                $added = 1;
-            }
-        }
-
-        # if a community, remove any old rows from userinterests
-        if ( $u->is_community ) {
-            my $dbh = LJ::get_db_writer();
-            $dbh->do( "DELETE FROM userinterests WHERE userid=?", undef, $u->userid );
-        }
+        my $sync = $u->sync_interests( \%POST, @fromints );
 
         my $ret = "<?h1 $ML{'.results.header'} h1?><?p ";
-        if ($deleted) {
-            $ret .= $added   ? $ML{'.results.both'}
-                  : $toomany ? BML::ml('.results.del_and_toomany', {'intcount' => $maxinterests})
+        if ($sync->{deleted}) {
+            $ret .= $sync->{added}   ? $ML{'.results.both'}
+                  : $sync->{toomany} ? BML::ml('.results.del_and_toomany', {'intcount' => $maxinterests})
                   : $ML{'.results.deleted'};
         } else {
-            $ret .= $added   ? $ML{'.results.added'}
-                  : $toomany ? BML::ml('.results.toomany', {'intcount' => $maxinterests})
+            $ret .= $sync->{added}   ? $ML{'.results.added'}
+                  : $sync->{toomany} ? BML::ml('.results.toomany', {'intcount' => $maxinterests})
                   : $ML{'.results.nothing'};
         }
 
@@ -393,7 +336,6 @@ body<=
         $ret .= " " . BML::ml('.results.goback2', {'user' => LJ::ljuser($POST{'fromuser'}), 'aopts' => "href='$profile_url_other'"})
             if ($POST{'fromuser'} ne "" && $POST{'fromuser'} ne $u->{'user'});
         $ret .= " p?>";
-        LJ::memcache_kill($u, "intids");
         return $ret;
     }
 

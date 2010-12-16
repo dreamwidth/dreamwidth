@@ -22,8 +22,7 @@ sub need_res {
 }
 
 sub handle_post {
-    my $class = shift;
-    my $fields = shift;
+    my ( $class, $fields ) = @_;
 
     return unless $fields->{user};
     return unless $fields->{from};
@@ -33,65 +32,21 @@ sub handle_post {
     my $fromu = LJ::isu($fields->{from}) ? $fields->{from} : LJ::load_user($fields->{from});
     return unless $fromu;
 
-    my $uints = $u->interests;
     my $fromints = $fromu->interests;
     return unless keys %$fromints;
+    my $sync = $u->sync_interests( $fields, values %$fromints );
 
-    my @fromintids = values %$fromints;
-    my $uitable = $u->is_comm ? 'comminterests' : 'userinterests';
-
-    my @todel;
-    my @toadd;
-    foreach my $fromint (@fromintids) {
-        next unless $fromint > 0;    # prevent adding zero or negative intid
-        push @todel, $fromint if  $uints->{$fromint} && !$fields->{'int_'.$fromint};
-        push @toadd, $fromint if !$uints->{$fromint} &&  $fields->{'int_'.$fromint};
+    if ( $sync->{toomany} ) {
+        my $toomany = $sync->{deleted} ? 'del_and_toomany' : 'toomany';
+        die LJ::Lang::ml( "interests.results.$toomany",
+                          { intcount => $sync->{toomany} } );
     }
-
-    my $intcount = scalar %$uints;
-    my $deleted = 0;
-    if (@todel) {
-        my $intid_in = join(",", @todel);
-        my $dbh = LJ::get_db_writer();
-        $dbh->do("DELETE FROM $uitable WHERE userid=? AND intid IN ($intid_in)",
-                 undef, $u->id);
-        $dbh->do("UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)");
-        $deleted = 1;
-    }
-    if (@toadd) {
-        my $maxinterests = $u->count_max_interests;
-
-        if ($intcount + scalar @toadd > $maxinterests) {
-            if ($deleted) {
-                die BML::ml('/interests.bml.results.del_and_toomany', {'intcount' => $maxinterests});
-            } else {
-                die BML::ml('/interests.bml.results.toomany', {'intcount' => $maxinterests});
-            }
-        } else {
-            my $dbh = LJ::get_db_writer();
-            my $sqlp = "(?,?)" . (",(?,?)" x (scalar(@toadd) - 1));
-            my @bindvars = map { ($u->id, $_) } @toadd;
-            $dbh->do("REPLACE INTO $uitable (userid, intid) VALUES $sqlp", undef, @bindvars);
-
-            my $intid_in = join(",", @toadd);
-            $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid IN ($intid_in)");
-        }
-    }
-
-    # if a community, remove any old rows from userinterests
-    if ($u->is_comm) {
-        my $dbh = LJ::get_db_writer();
-        $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $u->id);
-    }
-
-    LJ::memcache_kill($u, "intids");
 
     return;
 }
 
 sub render_body {
-    my $class = shift;
-    my %opts = @_;
+    my ( $class, %opts ) = @_;
     my $ret;
 
     return "" unless $opts{user};
