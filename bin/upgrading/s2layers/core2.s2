@@ -4310,7 +4310,8 @@ function Page::print_linklist() {
 # Prints the name of the account which posted the entry
 function Entry::print_poster {
     var Page p = get_page();
-    print safe "<span class=\"poster entry-poster\">";
+    var string emptyclass = ((($p isa RecentPage and not $p isa FriendsPage) or $p isa MonthPage or $p isa DayPage) and $p.journal.journal_type != "C") ? "empty" : "";
+    print safe "<span class=\"poster entry-poster $emptyclass\">";
     if ($p isa FriendsPage or $p isa EntryPage or $p isa ReplyPage) {
         $this.poster->print();
         if (not $this.poster->equals($this.journal)) {
