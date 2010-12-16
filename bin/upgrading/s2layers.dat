@@ -61,6 +61,9 @@ negatives/themes         theme+                      negatives/layout
 nouveauoleanders/layout  layout(core2base/layout)    core2
 nouveauoleanders/themes  theme+                      nouveauoleanders/layout
 
+paletteable/layout       layout(core2base/layout)    core2
+paletteable/themes       theme+                      paletteable/layout
+
 practicality/layout      layout(core2base/layout)    core2
 practicality/themes      theme+                      practicality/layout
 

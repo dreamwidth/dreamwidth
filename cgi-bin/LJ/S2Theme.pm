@@ -49,6 +49,7 @@ sub default_themes {
         modular => 'modular/mediterraneanpeach',
         negatives => 'negatives/black',
         nouveauoleanders => 'nouveauoleanders/sienna',
+        paletteable => 'paletteable/descending',
         practicality => 'practicality/warmth',
         refriedtablet => 'refriedtablet/refriedclassic',
         skittlishdreams => 'skittlishdreams/orange',

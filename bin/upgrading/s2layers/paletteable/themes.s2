@@ -1,0 +1,246 @@
+#NEWLAYER: paletteable/clarity
+layerinfo type = "theme";
+layerinfo name = "Clarity";
+layerinfo redist_uniq = "paletteable/clarity";
+layerinfo author_name = "branchandroot";
+
+# Uses the "Holiday" palette by artsykerly (http://www.colourlovers.com/palette/100957/Holiday).
+set layout_resources = [ { "name" => "Holiday", "url" => "http://www.colourlovers.com/palette/100957/Holiday" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#FFE1D0";
+set color_page_link = "#64A3A2";
+set color_page_link_active = "#090";
+set color_page_link_visited = "#245655";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#A37B64";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#64A3A2";
+set color_comment_title_even = "#fff";
+set color_comment_title_background_even = "#245655";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#FDF5EE";
+set color_module_text = "#000";
+set color_module_title = "#000";
+
+
+#NEWLAYER: paletteable/coffeeandink
+layerinfo type = "theme";
+layerinfo name = "Coffee and Ink";
+layerinfo redist_uniq = "paletteable/coffeeandink";
+layerinfo author_name = "branchandroot";
+
+# Uses the "one time to cry..." palette by dccanim (http://www.colourlovers.com/palette/1272313/one_time_to_cry...).
+set layout_resources = [ { "name" => "one time to cry...", "url" => "http://www.colourlovers.com/palette/1272313/one_time_to_cry..." } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#45484D";
+set color_page_link = "#8B776D";
+set color_page_link_active = "#900";
+set color_page_link_visited = "#594D4D";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#BFBBA8";
+set color_footer_link = "#D9D4BA";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#8B776D";
+set color_comment_title_even = "#fff";
+set color_comment_title_background_even = "#594D4D";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#D9D4BA";
+set color_module_link = "#594D4D";
+set color_module_link_active = "#900";
+set color_module_link_visited = "#8B776D";
+set color_module_text = "#000";
+set color_module_title = "#000";
+
+
+#NEWLAYER: paletteable/deepsea
+layerinfo type = "theme";
+layerinfo name = "Deep Sea";
+layerinfo redist_uniq = "paletteable/deepsea";
+layerinfo author_name = "branchandroot";
+
+# Uses the "migraine vision" palette by Illara (http://www.colourlovers.com/palette/1272365/migraine_vision).
+set layout_resources = [ { "name" => "migraine vision", "url" => "http://www.colourlovers.com/palette/1272365/migraine_vision" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#2A2B2B";
+set color_page_link = "#DFF1F2";
+set color_page_link_active = "#9f9";
+set color_page_link_visited = "#a3bCbE";
+set color_page_text = "#fff";
+set color_header_background = "#5D7D80";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000";
+set color_comment_title = "#000";
+set color_comment_title_background = "#DFF1F2";
+set color_comment_title_even = "#000";
+set color_comment_title_background_even = "#a3bCbE";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#40494A";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+
+
+#NEWLAYER: paletteable/descending
+layerinfo type = "theme";
+layerinfo name = "Descending";
+layerinfo redist_uniq = "paletteable/descending";
+layerinfo author_name = "branchandroot";
+
+# Uses the "Blue Jupiter" palette by memomo (http://www.colourlovers.com/palette/965705/Blue_Jupiter).
+set layout_resources = [ { "name" => "Blue Jupiter", "url" => "http://www.colourlovers.com/palette/965705/Blue_Jupiter" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#406389";
+set color_page_link = "#1F305C";
+set color_page_link_active = "#900";
+set color_page_link_visited = "#406389";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#89B3CB";
+set color_footer_link = "#C7E7F4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#1F305C";
+set color_comment_title_even = "#fff";
+set color_comment_title_background_even = "#406389";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#C7E7F4";
+set color_module_text = "#000";
+set color_module_title = "#000";
+
+
+#NEWLAYER: paletteable/greenrain
+layerinfo type = "theme";
+layerinfo name = "Green Rain";
+layerinfo redist_uniq = "paletteable/greenrain";
+layerinfo author_name = "branchandroot";
+
+# Uses the "Mermaid Ashore" palette by dccanim (http://www.colourlovers.com/palette/1272262/mermaid_ashore).
+set layout_resources = [ { "name" => "Mermaid Ashore", "url" => "http://www.colourlovers.com/palette/1272262/mermaid_ashore" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#667368";
+set color_page_link = "#594A3E";
+set color_page_link_active = "#00b";
+set color_page_link_visited = "#40312C";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#9EA692";
+set color_footer_link = "#D6D9BF";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#594A3E";
+set color_comment_title_even = "#fff";
+set color_comment_title_background_even = "#40312C";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#D6D9BF";
+set color_module_text = "#000";
+set color_module_title = "#000";
+
+
+#NEWLAYER: paletteable/redspruce
+layerinfo type = "theme";
+layerinfo name = "Red Spruce";
+layerinfo redist_uniq = "paletteable/redspruce";
+layerinfo author_name = "branchandroot";
+
+# Uses the "Getting so stressed" palette by Sruoloc (http://www.colourlovers.com/palette/1272420/Getting_so_stressed).
+set layout_resources = [ { "name" => "Getting so stressed", "url" => "http://www.colourlovers.com/palette/1272420/Getting_so_stressed" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#542119";
+set color_page_link = "#6E6558";
+set color_page_link_active = "#00b";
+set color_page_link_visited = "#9E9588";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#75372E";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#6E6558";
+set color_comment_title_even = "#fff";
+set color_comment_title_background_even = "#9E9588";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#C4AB87";
+set color_module_link = "#3E3528";
+set color_module_link_active = "#00b";
+set color_module_link_visited = "#6E6558";
+set color_module_text = "#000";
+set color_module_title = "#000";
