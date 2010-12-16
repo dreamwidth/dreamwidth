@@ -1,3 +1,117 @@
+#NEWLAYER: nouveauoleanders/artdeco
+layerinfo type = "theme";
+layerinfo name = "Art Deco";
+layerinfo redist_uniq = "nouveauoleanders/artdeco";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#fff";
+set color_page_link = "#4d0c70";
+set color_page_link_active = "#557c03";
+set color_page_link_hover = "#557c03";
+set color_page_link_visited = "#4d0c70";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#4d0c70";
+set color_footer_background = "#4d0c70";
+set color_footer_link = "#fdffe2";
+set color_footer_link_active = "#faa502";
+set color_footer_link_hover = "#faa502";
+set color_footer_link_visited = "#fdffe2";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#fff";
+set color_entry_interaction_links = "#4d0c70";
+set color_entry_link = "#4d0c70";
+set color_entry_link_active = "#557c03";
+set color_entry_link_hover = "#557c03";
+set color_entry_link_visited = "#4d0c70";
+set color_entry_text = "#000";
+set color_entry_title = "#4d0c70";
+set color_entry_title_background = "#fff";
+set color_comment_title = "#4d0c70";
+set color_comment_title_background = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#557c03";
+set color_module_link = "#fdffe2";
+set color_module_link_active = "#faa502";
+set color_module_link_hover = "#faa502";
+set color_module_link_visited = "#fdffe2";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/driedflowers
+layerinfo type = "theme";
+layerinfo name = "Dried Flowers";
+layerinfo redist_uniq = "nouveauoleanders/driedflowers";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#90926a";
+set color_page_link = "#482d36";
+set color_page_link_active = "#c9a599";
+set color_page_link_hover = "#c9a599";
+set color_page_link_visited = "#482d36";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#482d36";
+set color_footer_background = "#482d36";
+set color_footer_link = "#b4ba8e";
+set color_footer_link_active = "#c9a599";
+set color_footer_link_hover = "#c9a599";
+set color_footer_link_visited = "#b4ba8e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#90926a";
+set color_entry_interaction_links = "#482d36";
+set color_entry_link = "#482d36";
+set color_entry_link_active = "#c9a599";
+set color_entry_link_hover = "#c9a599";
+set color_entry_link_visited = "#482d36";
+set color_entry_text = "#fff";
+set color_entry_title = "#482d36";
+set color_entry_title_background = "#90926a";
+set color_comment_title = "#482d36";
+set color_comment_title_background = "#90926a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#776267";
+set color_module_link = "#b4ba8e";
+set color_module_link_active = "#c9a599";
+set color_module_link_hover = "#c9a599";
+set color_module_link_visited = "#b4ba8e";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+
 #NEWLAYER: nouveauoleanders/dustyantique
 layerinfo type = "theme";
 layerinfo name = "Dusty Antique";
@@ -97,6 +211,174 @@ set color_module_link_visited = "#fff";
 set color_module_title = "#fff";
 
 
+#NEWLAYER: nouveauoleanders/memoryi
+layerinfo type = "theme";
+layerinfo name = "Memory I";
+layerinfo redist_uniq = "nouveauoleanders/memoryi";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#FBF6F3";
+set color_page_link = "#174950";
+set color_page_link_active = "#501717";
+set color_page_link_hover = "#501717";
+set color_page_link_visited = "#174950";
+set color_page_text = "#000";
+set color_page_title = "#FBF6F3";
+set color_header_background = "#174950";
+set color_footer_background = "#174950";
+set color_footer_link = "#4E9BA8";
+set color_footer_link_active = "#A22424";
+set color_footer_link_hover = "#A22424";
+set color_footer_link_visited = "#4E9BA8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FBF6F3";
+set color_entry_interaction_links = "#174950";
+set color_entry_link = "#174950";
+set color_entry_link_active = "#501717";
+set color_entry_link_hover = "#501717";
+set color_entry_link_visited = "#174950";
+set color_entry_text = "#000";
+set color_entry_title = "#174950";
+set color_entry_title_background = "#FBF6F3";
+set color_comment_title = "#174950";
+set color_comment_title_background = "#FBF6F3";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#501717";
+set color_module_link = "#4E9BA8";
+set color_module_link_active = "#A22424";
+set color_module_link_hover = "#A22424";
+set color_module_link_visited = "#4E9BA8";
+set color_module_text = "#FBF6F3";
+set color_module_title = "#FBF6F3";
+set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/memoryii
+layerinfo type = "theme";
+layerinfo name = "Memory II";
+layerinfo redist_uniq = "nouveauoleanders/memoryii";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#174950";
+set color_page_link = "#4E9BA8";
+set color_page_link_active = "#A22424";
+set color_page_link_hover = "#A22424";
+set color_page_link_visited = "#4E9BA8";
+set color_page_text = "#FBF6F3";
+set color_page_title = "#FBF6F3";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "v4E9BA8";
+set color_footer_link_active = "#A22424";
+set color_footer_link_hover = "#A22424";
+set color_footer_link_visited = "#4E9BA8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#174950";
+set color_entry_interaction_links = "#4E9BA8";
+set color_entry_link = "#4E9BA8";
+set color_entry_link_active = "#A22424";
+set color_entry_link_hover = "#A22424";
+set color_entry_link_visited = "#4E9BA8";
+set color_entry_text = "#FBF6F3";
+set color_entry_title = "#4E9BA8";
+set color_entry_title_background = "#174950";
+set color_comment_title = "#4E9BA8";
+set color_comment_title_background = "#174950";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#501717";
+set color_module_link = "#4E9BA8";
+set color_module_link_active = "#A22424";
+set color_module_link_hover = "#A22424";
+set color_module_link_visited = "#4E9BA8";
+set color_module_text = "#FBF6F3";
+set color_module_title = "#FBF6F3";
+set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/mossandmoonlight
+layerinfo type = "theme";
+layerinfo name = "Moss and Moonlight";
+layerinfo redist_uniq = "nouveauoleanders/mossandmoonlight";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#27330d";
+set color_page_link = "#01b8fa";
+set color_page_link_active = "#95cb1e";
+set color_page_link_hover = "#95cb1e";
+set color_page_link_visited = "#01b8fa";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#00001c";
+set color_footer_background = "#00001c";
+set color_footer_link = "#95cb1e";
+set color_footer_link_active = "#01b8fa";
+set color_footer_link_hover = "#01b8fa";
+set color_footer_link_visited = "#95cb1e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#27330d";
+set color_entry_interaction_links = "#01b8fa";
+set color_entry_link = "#01b8fa";
+set color_entry_link_active = "#95cb1e";
+set color_entry_link_hover = "#95cb1e";
+set color_entry_link_visited = "#01b8fa";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#27330d";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#27330d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#00364b";
+set color_module_link = "#95cb1e";
+set color_module_link_active = "#01b8fa";
+set color_module_link_hover = "#01b8fa";
+set color_module_link_visited = "#95cb1e";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#00001c";
+
+
 #NEWLAYER: nouveauoleanders/nightfall
 layerinfo type = "theme";
 layerinfo name = "Nightfall";
@@ -192,6 +474,62 @@ set color_module_link_visited = "#ad5176";
 set color_module_text = "#363636";
 set color_module_title = "#e9faee";
 set color_module_title_background = "#363636";
+
+
+#NEWLAYER: nouveauoleanders/peacefuldreams
+layerinfo type = "theme";
+layerinfo name = "Peaceful Dreams";
+layerinfo redist_uniq = "nouveauoleanders/peacefuldreams";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ddd8bb";
+set color_page_link = "#3a2838";
+set color_page_link_active = "#996b58";
+set color_page_link_hover = "#996b58";
+set color_page_link_visited = "#3a2838";
+set color_page_text = "#000";
+set color_page_title = "#ddd8bb";
+set color_header_background = "#3a2838";
+set color_footer_background = "#3a2838";
+set color_footer_link = "#cbba88";
+set color_footer_link_active = "#655a66";
+set color_footer_link_hover = "#655a66";
+set color_footer_link_visited = "#cbba88";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ddd8bb";
+set color_entry_interaction_links = "#3a2838";
+set color_entry_link = "#3a2838";
+set color_entry_link_active = "#996b58";
+set color_entry_link_hover = "#996b58";
+set color_entry_link_visited = "#3a2838";
+set color_entry_text = "#000";
+set color_entry_title = "#3a2838";
+set color_entry_title_background = "#ddd8bb";
+set color_comment_title = "#3a2838";
+set color_comment_title_background = "#ddd8bb";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#996b58";
+set color_module_link = "#cbba88";
+set color_module_link_active = "#655a66";
+set color_module_link_hover = "#655a66";
+set color_module_link_visited = "#cbba88";
+set color_module_text = "#ddd8bb";
+set color_module_title = "#ddd8bb";
+set color_module_title_background = "#3a2838";
 
 
 #NEWLAYER: nouveauoleanders/peridot
@@ -293,6 +631,64 @@ set color_module_title = "#fff";
 set color_module_title_background = "#000";
 
 
+#NEWLAYER: nouveauoleanders/rustandpatina
+layerinfo type = "theme";
+layerinfo name = "Rust and Patina";
+layerinfo redist_uniq = "nouveauoleanders/rustandpatina";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#fff";
+set color_page_link = "#014839";
+set color_page_link_active = "#c7511e";
+set color_page_link_hover = "#c7511e";
+set color_page_link_visited = "#014839";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#014839";
+set color_footer_background = "#014839";
+set color_footer_link = "#d9feff";
+set color_footer_link_active = "#47faf3";
+set color_footer_link_hover = "#47faf3";
+set color_footer_link_visited = "#d9feff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#fff";
+set color_entry_interaction_links = "#014839";
+set color_entry_link = "#014a28";
+set color_entry_link_active = "#c7511e";
+set color_entry_link_hover = "#c7511e";
+set color_entry_link_visited = "#014839";
+set color_entry_text = "#000";
+set color_entry_title = "#014839";
+set color_entry_title_background = "#fff";
+set color_comment_title = "#014839";
+set color_comment_title_background = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#c7511e";
+set color_module_link = "#d9feff";
+set color_module_link_active = "#47faf3";
+set color_module_link_hover = "#47faf3";
+set color_module_link_visited = "#d9feff";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+
 #NEWLAYER: nouveauoleanders/seaandsalt
 layerinfo type = "theme";
 layerinfo name = "Sea and Salt";
@@ -338,6 +734,62 @@ set color_module_link_active = "#ffd";
 set color_module_link_visited = "#ddd";
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/seaserpent
+layerinfo type = "theme";
+layerinfo name = "Sea Serpent";
+layerinfo redist_uniq = "nouveauoleanders/seaserpent";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3a715c";
+set color_page_link = "#98dfd2";
+set color_page_link_active = "#84825b";
+set color_page_link_hover = "#84825b";
+set color_page_link_visited = "#98dfd2";
+set color_page_text = "#cfd8ad";
+set color_page_title = "#cfd8ad";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#84825b";
+set color_footer_link_active = "#98DFD2";
+set color_footer_link_hover = "#98DFD2";
+set color_footer_link_visited = "#84825b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3a715c";
+set color_entry_interaction_links = "#98dfd2";
+set color_entry_link = "#98dfd2";
+set color_entry_link_active = "#84825b";
+set color_entry_link_hover = "#84825b";
+set color_entry_link_visited = "#98dfd2";
+set color_entry_text = "#cfd8ad";
+set color_entry_title = "#98dfd2";
+set color_entry_title_background = "#3a715c";
+set color_comment_title = "#98dfd2";
+set color_comment_title_background = "#3a715c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#0a342a";
+set color_module_link = "#84825b";
+set color_module_link_active = "#98DFD2";
+set color_module_link_hover = "#98DFD2";
+set color_module_link_visited = "#84825b";
+set color_module_text = "#cfd8ad";
+set color_module_title = "#cfd8ad";
 set color_module_title_background = "#000";
 
 
@@ -432,6 +884,60 @@ set color_module_link_visited = "#e3d7db";
 set color_module_text = "#000";
 set color_module_title = "#e3d7db";
 set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/vintagechristmas
+layerinfo type = "theme";
+layerinfo name = "Vintage Christmas";
+layerinfo redist_uniq = "nouveauoleanders/vintagechristmas";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#91854d";
+set color_page_link = "#61231d";
+set color_page_link_active = "#2b1717";
+set color_page_link_hover = "#2b1717";
+set color_page_link_visited = "#61231d";
+set color_page_title = "#91854d";
+set color_header_background = "#2b1717";
+set color_footer_background = "#2b1717";
+set color_footer_link = "#89a847";
+set color_footer_link_active = "#516624";
+set color_footer_link_hover = "#516624";
+set color_footer_link_visited = "#89a847";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#91854d";
+set color_entry_border = "#91854d";
+set color_entry_interaction_links = "#61231d";
+set color_entry_link = "#61231d";
+set color_entry_link_active = "#2b1717";
+set color_entry_link_hover = "#2b1717";
+set color_entry_link_visited = "#61231d";
+set color_entry_title = "#61231d";
+set color_entry_title_background = "#91854d";
+set color_comment_title = "#61231d";
+set color_comment_title_background = "#91854d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#61231d";
+set color_module_link = "#89a847";
+set color_module_link_active = "#516624";
+set color_module_link_hover = "#516624";
+set color_module_link_visited = "#89a847";
+set color_module_text = "#91854d";
+set color_module_title = "#91854d";
 
 
 #NEWLAYER: nouveauoleanders/wisteria
