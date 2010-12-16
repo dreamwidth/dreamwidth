@@ -1,5 +1,6 @@
 /* support */
 
+.supporttable th,
 .supporttable td {
     padding: 1em;
     border: 1px solid #000;
@@ -17,7 +18,7 @@
 }
 
 .support-requesttable-internal td {
-	border: 3px solid #ff0000;
+    border: 3px solid #ff0000;
     padding: 1em;
 }
 

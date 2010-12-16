@@ -261,7 +261,7 @@ body<=
  $ret .= "<p><table class='supporttable'><tr bgcolor='#d0d0d0'>\n";
  if ( $can_close ) {
     my $link = "$uri&sort=$sort&closeall=" . ( $GET{closeall} ? 0 : 1 );
-    $ret .= "<td>&nbsp;<b><a href='$link'>X</a></b></td>\n";
+    $ret .= "<th>&nbsp;<a href='$link'>X</a></th>\n";
  }
  my @headers = ( id => "ID#", summary => $ML{'.th.summary'}, area => $ML{'.th.problemarea'}, date => $ML{'.th.posted'} );
  while (my ($sorttype, $desc) = splice(@headers, 0, 2)) {
@@ -271,7 +271,7 @@ body<=
          $ret .= "<th><a href='$uri&sort=$sorttype'>$desc</a></th>\n";
      }
  }
- $ret .= "<td><b>$ML{'.th.status'}</b></td>\n";
+ $ret .= "<th>$ML{'.th.status'}</th>\n";
  $ret .= "</tr>";
 
  foreach my $sp (@support_log)
