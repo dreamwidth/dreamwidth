@@ -559,6 +559,105 @@ set color_module_title = "#fff";
 set color_module_title_background = "#b6a2b8";
 
 
+#NEWLAYER: modular/starrynight
+layerinfo type = "theme";
+layerinfo name = "Starry Night";
+layerinfo redist_uniq = "modular/starrynight";
+layerinfo author_name = "cesy";
+
+set theme_authors = [ { "name" => "cesy", "type" => "user" } ];
+set layout_resources = [ { "name" => "skylark_photos", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1e1e1e";
+set color_page_border = "#1e1e1e";
+set color_page_link = "#a3c7e0";
+set color_page_link_active = "#b3b6ce";
+set color_page_link_hover = "#b3b6ce";
+set color_page_link_visited = "#a3a4af";
+set color_page_text = "#1e1e1e";
+set color_page_title = "#1e1e1e";
+set color_header_background = "#a3a4af";
+set color_footer_background = "#1e1e1e";
+set color_footer_link = "#a3c7e0";
+set color_footer_link_active = "#b3b6ce";
+set color_footer_link_hover = "#b3b6ce";
+set color_footer_link_visited = "#a3a4af";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#666770";
+set color_entry_border = "#666770";
+set color_entry_interaction_links = "#a3c7e0";
+set color_entry_link = "#a3c7e0";
+set color_entry_link_active = "#1e1e1e";
+set color_entry_link_hover = "#b3b6ce";
+set color_entry_link_visited = "#a3a4af";
+set color_entry_text = "#ddd";
+set color_entry_title = "#a3c7e0";
+set color_entry_title_background = "#666770";
+set color_comment_title_background = "#666770";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#666770";
+set color_module_border = "#666770";
+set color_module_link = "#a3c7e0";
+set color_module_link_active = "#1e1e1e";
+set color_module_link_hover = "#b3b6ce";
+set color_module_link_visited = "#a3a4af";
+set color_module_text = "#ddd";
+set color_module_title = "#a3c7e0";
+set color_module_title_background = "#666770";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "\"Times New Roman\"";
+set font_fallback = "serif";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_height = 280;
+set image_background_header_position = "top left";
+set image_background_header_repeat = "repeat-x";
+set image_background_header_url = "modular/starrynight.jpg";
+
+function Page::print_theme_stylesheet() {
+    """
+    #canvas {
+        margin: 1em 12% 1em 8%;
+        }
+
+    .navigation ul, .day h3 {
+        border: none !important;
+        }
+
+    .module-wrapper, #entries, #archive-year, #archive-month, #archive-day, .tags-container {
+        background-color: $*color_entry_background;
+        border-radius: .5em;
+        -moz-border-radius: .5em;
+        -webkit-border-radius: .5em;
+        -khtml-border-radius: .5em;
+        }
+
+    .module-navlinks a:visited {
+        color: $*color_module_background;
+        }
+    """;
+}
+
+
 #NEWLAYER: modular/subtlemisses
 layerinfo type = "theme";
 layerinfo name = "Subtle Misses";
