@@ -426,6 +426,53 @@ sub paging_bar
     return $navcrap;
 }
 
+# drop-in replacement for BML::paging in non-BML context
+sub paging {
+    my ( $listref, $page, $pagesize ) = @_;
+    $page = 1 unless $page && $page == int $page;
+    return unless $pagesize;  # let's not divide by zero
+    my @items = @{ $listref };
+    my %self;
+
+    my $newurl = sub {
+        # replaces BML::page_newurl
+        my $page = $_[0];
+        my $r = DW::Request->get;
+        my $args = $r->get_args;
+        my ( $url ) = split /\?/, $r->uri;
+        my @pair = ();
+
+        foreach ( sort grep { $_ ne "page" } keys %$args ) {
+            push @pair, ( LJ::eurl( $_ ) . "=" . LJ::eurl( $args->{$_} ) );
+        }
+        push @pair, "page=$page";
+        return $url . "?" . join( "&", @pair );
+    };
+
+    $self{itemcount} = scalar @items;
+
+    $self{pages} = $self{itemcount} / $pagesize;
+    $self{pages} = int( $self{pages} ) + 1
+        if $self{pages} != int( $self{pages} );  # round up any fraction
+
+    $page = 1 if $page < 1;
+    $page = $self{pages} if $page > $self{pages};
+    $self{page} = $page;
+
+    $self{itemfirst} = $pagesize * ( $page - 1 ) + 1;
+    $self{itemlast} = $pagesize * $page;
+    $self{itemlast} = $self{itemcount} if $self{pages} == $page;
+
+    my @range = ( $self{itemfirst} - 1 ) .. ( $self{itemlast} - 1 );
+    $self{items} = [ @items[@range] ];
+
+    my ( $prev, $next ) = ( $newurl->( $page - 1 ), $newurl->( $page + 1 ) );
+    $self{backlink} = "<a href=\"$prev\">&lt;&lt;&lt;</a>" unless $page == 1;
+    $self{nextlink} = "<a href=\"$next\">&gt;&gt;&gt;</a>" unless $page == $self{pages};
+
+    return %self;
+}
+
 # <LJFUNC>
 # class: web
 # name: LJ::make_cookie

@@ -8259,7 +8259,7 @@ sub user_search_display {
     }
 
     if (defined $args{perpage}) {
-        my %items = BML::paging(\@display, $args{curpage}, $args{perpage});
+        my %items = LJ::paging( \@display, $args{curpage}, $args{perpage} );
 
         # Fancy paging bar
         my $opts;
