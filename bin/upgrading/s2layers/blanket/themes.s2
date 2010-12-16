@@ -1,3 +1,45 @@
+#NEWLAYER: blanket/autumnclouds
+layerinfo type = "theme";
+layerinfo name = "Autumn Clouds";
+layerinfo redist_uniq = "blanket/autumnclouds";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a7b8b5";
+set color_page_border = "#9b9181";
+set color_page_link = "#05a6a0";
+set color_page_link_active = "#582f82";
+set color_page_link_hover = "#c806c5";
+set color_page_link_visited = "#582f82";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#e0ddd7";
+set color_header_footer_border = "#9b9181";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e0ddd7";
+set color_entry_border = "#9b9181";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#c1c7c6";
+set color_module_border = "#000";
+set color_module_text = "#000";
+set color_module_title = "#000";
+
+
 #NEWLAYER: blanket/forest
 layerinfo type = "theme";
 layerinfo name = "Forest";
@@ -38,6 +80,48 @@ set color_module_background = "#64834c";
 set color_module_border = "#0f6832";
 set color_module_text = "#000";
 set color_module_title = "#000";
+
+
+#NEWLAYER: blanket/frozensky
+layerinfo type = "theme";
+layerinfo name = "Frozen Sky";
+layerinfo redist_uniq = "blanket/frozensky";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#212f31";
+set color_page_border = "#4b696b";
+set color_page_link = "#067f7a";
+set color_page_link_active = "#034359";
+set color_page_link_hover = "#4b696b";
+set color_page_link_visited = "#034359";
+set color_page_text = "#212f31";
+set color_page_title = "#212f31";
+set color_header_background = "#afcbcd";
+set color_header_footer_border = "#4b696b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e6e6e6";
+set color_entry_border = "#4b696b";
+set color_entry_text = "#212f31";
+set color_entry_title = "#212f31";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#afcbcd";
+set color_module_border = "#4b696b";
+set color_module_text = "#212f31";
+set color_module_title = "#212f31";
 
 
 #NEWLAYER: blanket/green
@@ -325,6 +409,90 @@ set color_module_background = "#f2ebd7";
 set color_module_border = "#c7bfa6";
 set color_module_text = "#888";
 set color_module_title = "#099aaf";
+
+
+#NEWLAYER: blanket/rosegardeni
+layerinfo type = "theme";
+layerinfo name = "Rose Garden I";
+layerinfo redist_uniq = "blanket/rosegardeni";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b18698";
+set color_page_border = "#64434b";
+set color_page_link = "#154c3f";
+set color_page_link_active = "#64434b";
+set color_page_link_hover = "#64434b";
+set color_page_link_visited = "#154c3f";
+set color_page_text = "#09211b";
+set color_page_title = "#09211b";
+set color_header_background = "#e3d7db";
+set color_header_footer_border = "#64434b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#64434b";
+set color_entry_text = "#09211b";
+set color_entry_title = "#09211b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e3d7db";
+set color_module_border = "#64434b";
+set color_module_text = "#09211b";
+set color_module_title = "#09211b";
+
+
+#NEWLAYER: blanket/rosegardenii
+layerinfo type = "theme";
+layerinfo name = "Rose Garden II";
+layerinfo redist_uniq = "blanket/rosegardenii";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#724035";
+set color_page_border = "#4d1b14";
+set color_page_link = "#71b004";
+set color_page_link_active = "#71b004";
+set color_page_link_hover = "#3a5b02";
+set color_page_link_visited = "#4c7603";
+set color_page_text = "#3a1201";
+set color_page_title = "#3a1201";
+set color_header_background = "#dabd9f";
+set color_header_footer_border = "#4d1b14";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f2e2c9";
+set color_entry_border = "#4d1b14";
+set color_entry_text = "#3a1201";
+set color_entry_title = "#3a1201";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#dabd9f";
+set color_module_border = "#4d1b14";
+set color_module_text = "#3a1201";
+set color_module_title = "#3a1201";
 
 
 #NEWLAYER: blanket/shallows
