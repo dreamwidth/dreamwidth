@@ -1,0 +1,46 @@
+[%# Interest search, based on code from LiveJournal.
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2010 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.head = BLOCK %]
+<style type='text/css'>
+    div.tagcloud a { text-decoration: none; }
+    ul.contentlist li { padding-bottom: 3px; }
+</style>
+[% END -%]
+
+[%- dw.need_res( 'stc/interests.css' ) -%]
+
+[%- sections.title='.title' | ml -%]
+
+<h1>[% '.popular.head' | ml %]</h1><p>[% '.popular.text' | ml %]
+[%- IF no_text_mode -%]
+    [% '.popular.textmode'
+     | ml(aopts = "href='$roots.site/interests?view=popular&mode=text'") %]
+[%- END -%]
+</p>
+[%- IF pop_ints -%]
+    [%- IF no_text_mode; pop_cloud; ELSE -%]
+        <p><table><tr>
+            <th width='150' style="text-align: left">
+            [% '.interest' | ml %]</th>
+            <th>[% '.count' | ml %]</th>
+        </tr>
+        [%- FOREACH i = pop_ints -%]
+        <tr>
+            <td><a href='[% i.url | url %]'>[% i.eint %]</a></td>
+            <td>[% i.value %]</td>
+        </tr>
+        [%- END -%]
+        </table></p>
+    [%- END -%]
+[%- ELSE; '.error.nodata' | ml; END -%]

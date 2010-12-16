@@ -1,0 +1,27 @@
+;; -*- coding: utf-8 -*-
+.enmasse.body.other<<
+Here are [[user]]'s interests. Select the interests you want
+to add to your own and deselect the interests you want to remove.
+When you're done, save your changes.
+.
+
+.enmasse.body.other_authas<<
+Here are [[user]]'s interests. Select the interests you want
+to add to those of [[target]] and deselect the interests you want to remove.
+When you're done, save your changes.
+.
+
+.enmasse.body.you<<
+Deselect the interests you want to remove.
+When you're done, save your changes.
+.
+
+.enmasse.header=Add/Remove interests
+
+.finished.about=When you're done, save your changes.
+
+.finished.header=Done?
+
+.finished.save_button=Save Changes
+
+.title=Interests

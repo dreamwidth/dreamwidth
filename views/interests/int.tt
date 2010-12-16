@@ -1,0 +1,80 @@
+[%# Interest search, based on code from LiveJournal.
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2010 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.head = BLOCK %]
+<style type='text/css'>
+    div.tagcloud a { text-decoration: none; }
+    ul.contentlist li { padding-bottom: 3px; }
+</style>
+[% END -%]
+
+[%- dw.need_res( 'stc/interests.css' ) -%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- IF warn_toolong %]<p>[% warn_toolong %]</p>[% END -%]
+<table summary=''><tr valign='middle'><td class='findandmodify'>
+[% 'interests.interested.in' | ml %]</td><td class='findandmodify'>
+<form method='get' action='interests'>
+<input type="text" name="int" size="20" value="
+[%- interest ? interest : e_int %]" />&nbsp;
+<input type='submit' value='[% "interests.interested.btn" | ml %]' />
+</form></td></tr>
+<tr valign='middle'><td class='findandmodify'>
+[% 'interests.enmasse.intro' | ml %]</td><td class='findandmodify'>
+<form method='get' action='interests'>
+<input type='hidden' name='mode' value='enmasse' />
+<input type="text" name="fromuser" size="20" />&nbsp;
+<input type='submit' value='[% "interests.enmasse.btn" | ml %]' />
+</form></td></tr></table>
+[%- IF intcount -%]
+    [%- IF int_comms.count -%]
+        <h1>[% ".communities.header" | ml(interest = e_int) %]</h1>
+        <p class='matches'><b>[% '.matches2' | ml(num = int_comms.count) %]</b>
+        <ul class='contentlist'>
+        [%- FOREACH int_comms.data -%]
+            <li class='commname'>[% u.ljuser_display %] - [% u.name_html %]
+            <small class='lastupdated'>(
+                [%- IF updated; '.lastupdated.true' | ml(time = updated) -%]
+                [%- ELSE; '.lastupdated.false' | ml; END -%]
+            )</small>
+            [%- IF theme -%]
+                <br />&nbsp;&nbsp;&nbsp;<em>[% theme %]</em>
+            [%- END -%]
+            </li>
+        [%- END -%]
+        </ul></p>
+    [%- ELSE -%]
+        <h1>[% '.nocomms.header' | ml %]</h1><p>
+        [%- '.nocomms.text' | ml(aopts = "href='$roots.site/community/create'",
+                                int = interest) %]</p>
+    [%- END -%]
+    <h1>[% ".users.header" | ml(interest = e_int) %]</h1>
+    <p class='interestinfo'>
+    [%- IF remote -%]
+        [%- '.addint2' | ml(aopts = "href='$roots.site/interests?mode=add&amp;intid=$intid'") -%]
+    [%- END -%]
+    [% '.morestuff2' | ml(aopts = "href='$roots.site/interests'") %]</p>
+    <p class='matches'><b>[% '.matches2' | ml(num = int_users.count) %]</b></p>
+    <div style='text-align: center'>[% int_users.navbar %]</div><br />
+    [% int_users.results %]
+    <div style='text-align: center; clear: both'>[% int_users.navbar %]</div><br />
+[%- ELSE -%]
+    <h1>[% '.nocomms.header' | ml %]</h1><p>
+    [%- '.nocomms.text' | ml(aopts = "href='$roots.site/community/create'",
+                            int = e_int) %]</p>
+    <h1>[% '.nousers.header' | ml %]</h1><p>
+    [%- '.nousers.text2' | ml(int = e_int,
+        aopts_add = "href='$roots.site/interests?mode=addnew&amp;keyword=$e_int'",
+        aopts_int = "href='$roots.site/interests'") %]</p>
+[%- END -%]

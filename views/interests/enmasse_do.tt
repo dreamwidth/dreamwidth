@@ -1,0 +1,32 @@
+[%# Interest search, based on code from LiveJournal.
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2010 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.head = BLOCK %]
+<style type='text/css'>
+    div.tagcloud a { text-decoration: none; }
+    ul.contentlist li { padding-bottom: 3px; }
+</style>
+[% END -%]
+
+[%- dw.need_res( 'stc/interests.css' ) -%]
+
+[%- sections.title='.title' | ml -%]
+
+<h1>[% '.results.header' | ml %]</h1>
+<p>[% enmasse_do_result | ml(intcount = $toomany) %]</p>
+<p>[% '.results.message2' | ml(aopts = "href='$u.profile_url'") %]
+[%- IF fromu -%]
+    [% '.results.goback2' | ml(user = fromu.ljuser_display,
+                               aopts = "href='$fromu.profile_url'") %]
+[%- END -%]
+</p>

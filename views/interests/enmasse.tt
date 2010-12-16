@@ -1,0 +1,62 @@
+[%# Interest search, based on code from LiveJournal.
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2010 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.head = BLOCK %]
+<style type='text/css'>
+    div.tagcloud a { text-decoration: none; }
+    ul.contentlist li { padding-bottom: 3px; }
+</style>
+[% END -%]
+
+[%- dw.need_res( 'stc/interests.css' ) -%]
+
+[%- sections.title='.title' | ml -%]
+
+<form method='get' action='interests'>
+<input type='hidden' name='mode' value='enmasse' />
+<input type='hidden' name='fromuser' value='[% fromu.user %]' />
+[% authas_html %]</form>
+<form method='post' action='interests[% getextra %]'>
+[%- dw.form_auth %]
+<h1>[% '.enmasse.header' | ml %]</h1>
+<p>[% enmasse_body | ml(user = fromu.ljuser_display,
+                        target = u.ljuser_display) %]</p>
+<div style='margin-left: 40px; margin-top: 20px;'>
+<table summary='' cellpadding='0' cellspacing='0' border='0' width='100%'>
+[%- USE table(enmasse_data, cols=3) -%]
+[%- FOREACH rows = table.rows %]
+<tr valign='middle'>
+    [%- FOREACH cell = rows -%]
+        [%- IF cell.int -%]
+            <td align='left' nowrap='nowrap'>
+            <input type='checkbox' [% IF cell.is_checked %] checked='checked' [% END %]
+                name='[% cell.checkid %]' id='[% cell.checkid %]' value='1' />
+            <label for='[% cell.checkid %]'>
+            [%- IF cell.is_checked %] <strong> [% END -%]
+            [%- cell.int -%]
+            [%- IF cell.is_checked %] </strong> [% END -%]
+            </label></td>
+        [%- ELSE -%]
+            <td></td>
+        [%- END -%]
+    [%- END -%]
+</tr>
+[%- END -%]
+</table></div>
+<input type='hidden' name='mode' value='enmasse_do' />
+<input type='hidden' name='fromuser' value='[% fromu.user %]' />
+<input type='hidden' name='allintids' value='[% allintids %]' />
+<h1>[% '.finished.header' | ml %]</h1><p>[% '.finished.about' | ml %]</p>
+<div class='standout'><table summary='' class='standout-inner'><tr><td>
+<input type='submit' value='[% ".finished.save_button" | ml %]' />
+</td></tr></table></div></form>

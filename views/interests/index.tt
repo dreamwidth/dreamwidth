@@ -1,0 +1,57 @@
+[%# Interest search, based on code from LiveJournal.
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2010 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.head = BLOCK %]
+<style type='text/css'>
+    div.tagcloud a { text-decoration: none; }
+    ul.contentlist li { padding-bottom: 3px; }
+</style>
+[% END -%]
+
+[%- dw.need_res( 'stc/interests.css' ) -%]
+
+[%- sections.title='.title' | ml -%]
+
+<p>[% '.interests.text' | ml %]</p>
+<table summary='' cellspacing='5' style='margin-top: 10px; margin-left: 30px; margin-bottom: 10px;'>
+
+[%- IF can_use_popular -%]
+<tr valign='top'><td colspan='2'>
+<a href="interests?view=popular">[% '.interests.viewpop' | ml %]</a>
+</td></tr>
+[%- END -%]
+
+<tr valign='top'><td align='left'>[% 'interests.interested.in' | ml %]</td>
+<td><form method='get' action='interests'>
+<input type="text" name="int" size="20" />&nbsp;
+<input type='submit' value='[% "interests.interested.btn" | ml %]' />
+</form></td></tr>
+
+[%- IF can_use_findsim -%]
+<tr valign='top'><td>[% '.interests.findsim' | ml %]</td><td>
+<form method='get' action='interests'>
+<input type='hidden' name='mode' value='findsim_do' />
+<input type="text" name="user" size="20" value="[% remote.user %]" />&nbsp;
+<input type='submit' value='[% "interests.interested.btn" | ml %]' />
+</form></td></tr>
+[%- END -%]
+
+<tr valign='top'><td>[% 'interests.enmasse.intro' | ml %]</td><td>
+<form method='get' action='interests'>
+<input type='hidden' name='mode' value='enmasse' />
+<input type="text" name="fromuser" size="20" />&nbsp;
+<input type='submit' value='[% "interests.enmasse.btn" | ml %]' />
+</form></td></tr>
+
+</table>
+[% '.nointerests.text2' | ml(aopts = "href='$roots.site/manage/profile/'") %]

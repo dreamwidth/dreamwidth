@@ -1,0 +1,24 @@
+;; -*- coding: utf-8 -*-
+.addint2=If you're also interested in this, would you like to be <a [[aopts]]>added to this list</a>?
+
+.communities.header=Results for communities listing an interest in "[[interest]]"
+
+.lastupdated.false=Never updated
+
+.lastupdated.true=Updated [[time]]
+
+.matches2=[[num]] [[?num|match|matches]]:
+
+.morestuff2=You can find more fun stuff on the <a [[aopts]]>interests page</a>.
+
+.nocomms.header=Relevant communities
+
+.nocomms.text=There are no communities interested in "<b>[[int]]</b>." You can <a [[aopts]]>create one</a>!
+
+.nousers.header=Interested users
+
+.nousers.text2=There are no users interested in "<b>[[int]]</b>". If you are interested in this, <a [[aopts_add]]>click here to add the interest to your profile</a>. More fun stuff can be found on the <a [[aopts_int]]>interests page</a>.
+
+.title=Interests
+
+.users.header=Results for people interested in "[[interest]]"

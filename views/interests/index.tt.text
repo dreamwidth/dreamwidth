@@ -1,0 +1,10 @@
+;; -*- coding: utf-8 -*-
+.interests.findsim=Find people or communities with interests similar to those of:
+
+.interests.text=Here are some fun things you can do with interests:
+
+.interests.viewpop=View popular interests
+
+.nointerests.text2=If you don't have any interests listed, you can add some by going to the <a [[aopts]]>Edit Personal Information</a> page.
+
+.title=Interests

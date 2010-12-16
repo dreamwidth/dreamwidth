@@ -1,0 +1,14 @@
+;; -*- coding: utf-8 -*-
+.count=Count
+
+.error.nodata=Sorry, interest data currently unavailable.
+
+.interest=Interest
+
+.popular.head=Popular Interests
+
+.popular.text=Here are the most popular interests.
+
+.popular.textmode=<a [[aopts]]>View as a table</a>.
+
+.title=Interests
