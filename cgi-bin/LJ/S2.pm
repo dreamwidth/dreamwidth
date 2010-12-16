@@ -88,7 +88,7 @@ sub make_journal
     # let layouts disable EntryPage / ReplyPage, using the BML version
     # instead.  Unless we are using siteviews, because that is what
     # will be handling the "BML" views.
-    if ($styleid eq "siteviews") {
+    if ( $styleid && $styleid eq "siteviews" ) {
         $r->notes->{ 'no_control_strip' } = 1;
 
         # kill the flag
@@ -735,9 +735,9 @@ sub s2_context
         }
     };
 
-    if ( $styleid eq "siteviews" ) {
+    if ( $styleid && $styleid eq "siteviews" ) {
         %style = siteviews_style( $u, $remote, $opts{mode} );
-    } elsif ( $styleid eq "sitefeeds" ) {
+    } elsif ( $styleid && $styleid eq "sitefeeds" ) {
         %style = sitefeeds_style();
     }
 
