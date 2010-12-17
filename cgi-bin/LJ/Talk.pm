@@ -1726,10 +1726,14 @@ sub talkform {
 
     my $ljuser_def = "";
     if ($remote && !defined $oid_identity) {
-        if ($form->{userpost} ne $form->{cookieuser} && $form->{usertype} ne 'anonymous') {
-            $ljuser_def = BML::eall($form->{userpost});
+        my $usertype   = defined $form->{usertype}   ? $form->{usertype}   : '';
+        my $userpost   = defined $form->{userpost}   ? $form->{userpost}   : '';
+        my $cookieuser = defined $form->{cookieuser} ? $form->{cookieuser} : '';
+
+        if ( $userpost ne $cookieuser && $usertype ne 'anonymous' ) {
+            $ljuser_def = BML::eall( $form->{userpost} );
         } else {
-            $ljuser_def = $remote->{user};
+            $ljuser_def = $remote->user;
         }
     }
     $ljuser_def = "" unless $remote_can_comment;
