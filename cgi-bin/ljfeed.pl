@@ -829,7 +829,7 @@ sub create_view_yadis {
         $view = "read";
     }
     else {
-        $view = undef;
+        $view = '';
     }
 
     if ($view eq 'recent') {
@@ -840,14 +840,6 @@ sub create_view_yadis {
             $println->('        <URI>'.LJ::ehtml($LJ::OPENID_SERVER).'</URI>');
             $println->('    </Service>');
         }
-    }
-    elsif ($view eq 'read') {
-        $println->('    <Service xmlns:gm="http://openid.net/xmlns/groupmembership/xrds">');
-        $println->('        <Type>http://openid.net/xmlns/groupmembership</Type>');
-        $println->('        <URI>'.LJ::exml($LJ::SITEROOT).'/openid/groupmembership.bml</URI>');
-        $println->('        <LocalID>'.LJ::exml($u->journal_base.'/read').'</LocalID>');
-        $println->('        <gm:CanEnumerate /><gm:CanQuery />');
-        $println->('    </Service>');
     }
 
     # Local site-specific content
