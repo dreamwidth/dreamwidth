@@ -149,7 +149,6 @@ set image_background_header_url = "funkycircles/chocolaterose-header.png";
 set image_background_page_position = "bottom left";
 set image_background_page_repeat = "no-repeat";
 set image_background_page_url = "funkycircles/chocolaterose-page.png";
-set image_entry_list_background_position = "center";
 set image_entry_list_background_repeat = "no-repeat";
 set image_entry_list_background_url = "funkycircles/chocolaterose-entrybullet.png";
 set image_module_list = "funkycircles/chocolaterose-modulebullet.png";
