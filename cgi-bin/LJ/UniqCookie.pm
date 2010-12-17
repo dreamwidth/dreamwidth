@@ -399,8 +399,8 @@ sub ensure_cookie_value {
 
     # set this uniq as our current
     # -- will be overridden later if we generate a new value
-    $class->set_current_uniq($uniq);
-    
+    $class->set_current_uniq( $uniq ) if $uniq;
+
     # if no cookie, create one.  if older than a day, revalidate
     my $now = time();
     return if $uniq && $now - $uniq_time < 86400;
