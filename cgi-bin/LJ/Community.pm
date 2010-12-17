@@ -115,9 +115,21 @@ sub accept_comm_invite {
     LJ::decode_url_string($argstr, $args);
 
     # valid invite.  let's accept it as far as the community listing us goes.
-    # 1, 0 means add comm to user's friends list, but don't auto-add P edge.
-    $u->join_community( $cu, 1, 0, moderated_add => 1 ) or return undef
+    # 1, 0 means add comm to user's read list, but don't auto-add P edge.
+    my $joined = 0;
+    $joined = $u->join_community( $cu, 1, 0, moderated_add => 1 ) or return undef
         if $args->{member};
+
+    # we watch the community; now automatically add to default view, as most useful behavior
+    if ( $joined ) {
+        my @content_filters = $u->content_filters;
+        foreach my $filter ( @content_filters ) {
+            next unless $filter->is_default();
+            next if $filter->contains_userid( $cu->userid );
+
+            $filter->add_row( userid => $cu->userid );
+        }
+    }
 
     # now grant necessary abilities
     my %edgelist = (
