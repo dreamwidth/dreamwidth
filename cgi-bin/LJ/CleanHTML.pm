@@ -238,6 +238,8 @@ sub clean
     my $capturing_during_eat;  # if we save all tokens that happen inside the eating.
     my @capture = ();  # if so, they go here
 
+    my @tagstack = (); # so we can make sure that tags are closed properly/in order
+
     my $form_tag = {
         input => 1,
         select => 1,
@@ -886,6 +888,12 @@ sub clean
                                 }
                             }
 
+                            # we have all this previous logic which makes us
+                            # not automatically close tags inside tables
+                            # so rather than mess with it, let's just ignore those
+                            # and only deal with non-self-closing tags
+                            # which are not in a table
+                            push @tagstack, $tag unless $slashclose || @tablescope;
                         }
                         else { $newdata .= "&gt;"; }
                     }
@@ -970,7 +978,6 @@ sub clean
 
                 if ($allow && ! $remove{$tag})
                 {
-
                     if ($opts->{'tablecheck'}) {
 
                         $allow = 0 if
@@ -983,6 +990,14 @@ sub clean
                     }
 
                     if ($allow && ! ($opts->{'noearlyclose'} && ! $opencount{$tag})) {
+
+                        unless ( @tablescope ) {
+                            my $close;
+                            while ( ( $close = pop @tagstack ) && $close ne $tag ) {
+                                $opencount{$close}--;
+                                $newdata .= "</$close>";
+                            }
+                        }
 
                         # maintain current table scope
                         if ($opts->{'tablecheck'}) {
@@ -997,8 +1012,10 @@ sub clean
                             }
                         }
 
-                        $newdata .= "</$tag>";
-                        $opencount{$tag}--;
+                        if ( $opencount{$tag} ) {
+                            $newdata .= "</$tag>";
+                            $opencount{$tag}--;
+                        }
                     } else {
                         $newdata .= "&lt;/$tag&gt;";
                     }

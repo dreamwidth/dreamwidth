@@ -16,6 +16,49 @@ my $clean = sub {
     LJ::CleanHTML::clean_event(\$orig_post, $opts);
 };
 
+note("malformed html");
+$orig_post  = qq{<div><span>abc</div>};
+$clean_post = qq{<div><span>abc</span></div>};
+$clean->();
+is( $orig_post, $clean_post, "Inner tag isn't closed" );
+
+$orig_post  = qq{<div><table><tr><td></td></tr></table><span></div>};
+$clean_post = qq{<div><table><tr><td></td></tr></table><span></span></div>};
+$clean->();
+is( $orig_post, $clean_post, "Tag outside a table isn't closed" );
+
+# this is a bit weird; we don't want to mess with tags in tables
+# so we just close it after, leading to this HTML
+$orig_post  = qq{<div><table><tr><td><span></td></tr></table></div>};
+$clean_post = qq{<div><table><tr><td><span></td></tr></table></div></span>};
+$clean->();
+is( $orig_post, $clean_post, "Non-table-related tag inside a table is open" );
+
+$orig_post  = qq{<div><table><tr><td></tr></table></div>};
+$clean_post = qq{<div><table><tr><td></tr></table></div>};
+$clean->();
+is( $orig_post, $clean_post, "Table-related-tag inside a table is open" );
+
+$orig_post  = qq{<div><img /></div>};
+$clean_post = qq{<div><img /></div>};
+$clean->();
+is( $orig_post, $clean_post, "Slash-closed tag" );
+
+$orig_post  = qq{<div><span>};
+$clean_post = qq{<div><span></span></div>};
+$clean->();
+is( $orig_post, $clean_post, "No closing tags" );
+
+# in this case, we consider the <span> within the div as unclosed
+# and the closing </span> as extra/unrelated.
+# Therefore, we close the opening tag (which needs to be closed)
+# and escape the closing tag (which has no opening tag)
+$orig_post  = qq{<div><span></div></span>};
+$clean_post = qq{<div><span></span></div>&lt;/span&gt;};
+$clean->();
+is( $orig_post, $clean_post, "Wrong closing tag order" );
+
+note("unwanted tags and attributes");
 # remove header tags
 $orig_post = qq{<h1>test</h1>testing this<h2>testing again</h2>};
 $clean_post = qq{testtesting thistesting again};
@@ -64,6 +107,7 @@ $clean_post = qq{<div align="center" style="\\s*\\s*" class="foo">test<\\/div>};
 $clean->({ remove_fonts => 1, remove_sizes => 1 });
 ok($orig_post =~ /^$clean_post$/, "CSS fonts and sizes removed");
 
+note("cut tags");
 # get cut text
 my $cut_text;
 my $entry_text = qq{<cut text="first">111</cut><cut text="second">2222</cut>};
