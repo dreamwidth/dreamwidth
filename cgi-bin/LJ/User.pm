@@ -8322,60 +8322,6 @@ sub set_email {
 =head2 OpenID and Identity Functions (LJ)
 =cut
 
-# create externally mapped user.
-# return uid of LJ user on success, undef on error.
-# opts = {
-#     extuser or extuserid (or both, but one is required.),
-#     caps
-# }
-# opts also can contain any additional options that create_account takes. (caps?)
-sub create_extuser
-{
-    my ($type, $opts) = @_;
-    return undef unless $type && $LJ::EXTERNAL_NAMESPACE{$type}->{id};
-    return undef unless ref $opts &&
-        ($opts->{extuser} || defined $opts->{extuserid});
-
-    my $uid;
-    my $dbh = LJ::get_db_writer();
-    return undef unless $dbh;
-
-    # make sure a mapping for this user doesn't already exist.
-    $uid = LJ::get_extuser_uid( $type, $opts, 'force' );
-    return $uid if $uid;
-
-    # increment ext_ counter until we successfully create an LJ account.
-    # hard cap it at 10 tries. (arbitrary, but we really shouldn't have *any*
-    # failures here, let alone 10 in a row.)
-    for (1..10) {
-        my $extuser = 'ext_' . LJ::alloc_global_counter( 'E' );
-        $uid =
-          LJ::create_account(
-            { caps => $opts->{caps}, user => $extuser, name => $extuser } );
-        last if $uid;
-        select undef, undef, undef, .10;  # lets not thrash over this.
-    }
-    return undef unless $uid;
-
-    # add extuser mapping.
-    my $sql = "INSERT INTO extuser SET userid=?, siteid=?";
-    my @bind = ($uid, $LJ::EXTERNAL_NAMESPACE{$type}->{id});
-
-    if ($opts->{extuser}) {
-        $sql .= ", extuser=?";
-        push @bind, $opts->{extuser};
-    }
-
-    if ($opts->{extuserid}) {
-        $sql .= ", extuserid=? ";
-        push @bind, $opts->{extuserid}+0;
-    }
-
-    $dbh->do($sql, undef, @bind) or return undef;
-    return $uid;
-}
-
-
 # given a LJ userid/u, return a hashref of:
 # type, extuser, extuserid
 # returns undef if user isn't an externally mapped account.
