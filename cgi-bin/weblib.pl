@@ -473,6 +473,139 @@ sub paging {
     return %self;
 }
 
+# Returns HTML to display user search results
+# Args: %args
+# des-args:
+#           users    => hash ref of userid => u object like LJ::load userids
+#                       returns or array ref of user objects
+#           userids  => array ref of userids to include in results, ignored
+#                       if users is defined
+#           timesort => set to 1 to sort by last updated instead
+#                       of username
+#           perpage  => Enable pagination and how many users to display on
+#                       each page
+#           curpage  => What page of results to display
+#           navbar   => Scalar reference for paging bar
+#           pickwd   => userpic keyword to display instead of default if it
+#                       exists for the user
+#           self_link => Sub ref to generate link to use for pagination
+sub user_search_display {
+    my %args = @_;
+
+    my $loaded_users;
+    unless (defined $args{users}) {
+        $loaded_users = LJ::load_userids(@{$args{userids}});
+    } else {
+        if (ref $args{users} eq 'HASH') { # Assume this is direct from LJ::load_userids
+            $loaded_users = $args{users};
+        } elsif (ref $args{users} eq 'ARRAY') { # They did a grep on it or something
+            foreach (@{$args{users}}) {
+                $loaded_users->{$_->userid} = $_;
+            }
+        } else {
+            return undef;
+        }
+    }
+
+    # If we're sorting by last updated, we need to load that
+    # info for all users before the sort.  If sorting by
+    # username we can load it for a subset of users later,
+    # if paginating.
+    my $updated;
+    my @display;
+
+    if ($args{timesort}) {
+        $updated = LJ::get_timeupdate_multi(keys %$loaded_users);
+        @display = sort { $updated->{$b->{userid}} <=> $updated->{$a->{userid}} } values %$loaded_users;
+    } else {
+        @display = sort { $a->{user} cmp $b->{user} } values %$loaded_users;
+    }
+
+    if (defined $args{perpage}) {
+        my %items = LJ::paging( \@display, $args{curpage}, $args{perpage} );
+
+        # Fancy paging bar
+        my $opts;
+        $opts->{self_link} = $args{self_link} if $args{self_link};
+        ${$args{navbar}} = LJ::paging_bar($items{'page'}, $items{'pages'}, $opts);
+
+        # Now pull out the set of users to display
+        @display = @{$items{'items'}};
+    }
+
+    # If we aren't sorting by time updated, load last updated time for the
+    # set of users we are displaying.
+    $updated = LJ::get_timeupdate_multi( map { $_->userid } @display )
+        unless $args{timesort};
+
+    # Allow caller to specify a custom userpic to use instead
+    # of the user's default all userpics
+    my $get_picid = sub {
+        my $u = shift;
+        return $u->{'defaultpicid'} unless $args{'pickwd'};
+        return $u->get_picid_from_keyword( $args{pickwd} );
+    };
+
+    my $ret;
+    foreach my $u (@display) {
+        # We should always have loaded user objects, but it seems
+        # when the site is overloaded we don't always load the users
+        # we request.
+        next unless LJ::isu($u);
+
+        $ret .= "<div class='user-search-display'>";
+        $ret .= "<table summary='' style='height: 105px'><tr>";
+
+        $ret .= "<td style='width: 100px; text-align: center;'>";
+        $ret .= "<a href='" . $u->allpics_base . "'>";
+        if (my $picid = $get_picid->($u)) {
+            $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/" . $u->userid . "' alt='";
+            $ret .= $u->user . " userpic' style='border: 1px solid #000;' />";
+        } else {
+            $ret .= LJ::img( "nouserpic", "",
+                             { style => 'border: 1px solid #000;' } );
+        }
+        $ret .= "</a>";
+
+        $ret .= "</td><td style='padding-left: 5px;' valign='top'><table summary=''>";
+
+        $ret .= "<tr><td class='searchusername' colspan='2' style='text-align: left;'>";
+        $ret .= $u->ljuser_display({ head_size => $args{head_size} });
+        $ret .= "</td></tr><tr>";
+
+        if ($u->{name}) {
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>" . BML::ml( 'search.user.name' );
+            $ret .= "</td><td style='font-size: smaller'><a href='" . $u->profile_url . "'>";
+            $ret .= LJ::ehtml($u->{name});
+            $ret .= "</a>";
+            $ret .= "</td></tr><tr>";
+        }
+
+        if (my $jtitle = $u->prop('journaltitle')) {
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>" . BML::ml( 'search.user.journal' );
+            $ret .= "</td><td style='font-size: smaller'><a href='" . $u->journal_base . "'>";
+            $ret .= LJ::ehtml($jtitle) . "</a>";
+            $ret .= "</td></tr>";
+        }
+
+        $ret .= "<tr><td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>";
+
+        if ( $updated->{$u->userid} > 0 ) {
+            $ret .= LJ::Lang::ml( 'search.user.update.last', { time => LJ::diff_ago_text( $updated->{$u->id} ) } );
+        } else {
+            $ret .= LJ::Lang::ml( 'search.user.update.never' );
+        }
+
+        $ret .= "</td></tr>";
+
+        $ret .= "</table>";
+        $ret .= "</td></tr>";
+        $ret .= "</table></div>";
+    }
+
+    return $ret;
+}
+
 # <LJFUNC>
 # class: web
 # name: LJ::make_cookie
