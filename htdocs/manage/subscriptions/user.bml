@@ -67,8 +67,6 @@ body<=
             flags   => LJ::Subscription::TRACKING,
         ) unless LJ::User->is_protected_username( $journal->user );
 
-    # only administrators of a community and members of a paid community 
-    # should be given the option to track all comments on another journal
     push @{ @$categories[0]->{$cat_title} },
         LJ::Subscription::Pending->new( $remote,
             event   => "JournalNewComment",

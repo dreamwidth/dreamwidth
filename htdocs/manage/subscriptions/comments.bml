@@ -83,8 +83,6 @@ body<=
                                                   flags   => LJ::Subscription::TRACKING,
                                                   );
 
-    # only administrators of a community and members of a paid community 
-    # should be given the option to track all comments on another journal
     push @pending,
         LJ::Subscription::Pending->new(
                                        $remote,
