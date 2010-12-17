@@ -263,7 +263,9 @@ body<=
     }
 
     unless ($init->{'replyto'}) {
-        $ret .= LJ::Talk::format_eventtime( $item->{eventtime}, $u );
+        my $etime = LJ::mysqldate_to_time( $item->{eventtime} );
+        $etime = LJ::S2::sitescheme_secs_to_iso( $etime );
+        $ret .= LJ::Talk::format_eventtime( $etime, $u );
     }
 
     $ret .= "</td></tr></table>";

@@ -2421,6 +2421,33 @@ sub nth_entry_seen {
     return $LJ::REQ_GLOBAL{'nth_entry_keys'}->{$key} = ++$LJ::REQ_GLOBAL{'nth_entry_ct'};
 }
 
+sub sitescheme_secs_to_iso {
+    my ( $secs, %opts ) = @_;
+    my $remote = LJ::get_remote();
+    my @ret;
+
+    # time format (12/24 hr)
+    my $fmt_time = "%%hh%%:%%min%% %%a%%m";  # 12-hr default
+    $fmt_time = "%%HH%%:%%min%%" if $remote && $remote->use_24hour_time;
+
+    # convert date to S2 object
+    my $s2_ctx = [];  # fake S2 context object
+    # if opts has a true tz key, get the remote user's timezone if possible
+    my $s2_datetime = $opts{tz} ? DateTime_tz( $secs, $remote ) : undef;
+    my $has_tz = defined $s2_datetime ? "(local)" : "UTC";
+    # if timezone execution failed, use GMT
+    $s2_datetime = DateTime_unix( $secs ) unless defined $s2_datetime;
+
+    my @s2_args = ( $s2_ctx, $s2_datetime );
+
+    # reformat date and time display for user
+    push @ret, S2::Builtin::LJ::Date__date_format( @s2_args, "iso" );
+    push @ret, S2::Builtin::LJ::DateTime__time_format( @s2_args, $fmt_time );
+    push @ret, $has_tz;
+
+    return join ' ', @ret;
+}
+
 # adectomy
 sub current_box_type {}
 sub curr_page_supports_ebox { 0 }

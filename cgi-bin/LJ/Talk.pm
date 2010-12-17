@@ -14,14 +14,16 @@
 package LJ::Talk;
 use strict;
 
+use MIME::Words;
+use Carp qw(croak);
+
 use LJ::Constants;
 use LJ::Event::JournalNewComment;
 use LJ::Comment;
 use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
-use MIME::Words;
+use LJ::S2;
 use DW::Captcha;
-use Carp qw(croak);
 
 # dataversion for rate limit logging
 our $RATE_DATAVER = "1";
@@ -3863,7 +3865,8 @@ sub make_preview {
             } else {
                 $ret .= $ju->ljuser_display;
             }
-            $ret .= " @ " . $entry->eventtime_mysql;
+            my $etime = LJ::mysqldate_to_time( $entry->eventtime_mysql );
+            $ret .= " @ " . LJ::S2::sitescheme_secs_to_iso( $etime );
 
             $ret .= " p?>\n";
         }

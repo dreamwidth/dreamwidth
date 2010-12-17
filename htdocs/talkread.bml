@@ -152,13 +152,6 @@ body<=
     # get currently logged in user
     my $remote = LJ::get_remote();
 
-    my $tz_remote;
-    my $s2_ctx = [];  # fake S2 context object
-    if ($remote) {
-        my $tz = $remote->prop("timezone");
-        $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
-    }
-
     #
     # Lots of logic to determine permissions for what can be viewed
     #
@@ -262,18 +255,8 @@ body<=
                                                 'userlink' => LJ::ljuser($up) });
     }
 
-    my $fmt_time_short;
-    if ( $remote && $remote->use_24hour_time ) {
-        $fmt_time_short = "%%HH%%:%%min%%";
-    } else {
-        $fmt_time_short = "%%hh%%:%%min%% %%a%%m";
-    }
-
-    my $etime = $item->{eventtime};
-    $etime = LJ::mysqldate_to_time( $etime );
-    $etime = LJ::S2::DateTime_unix( $etime );
-    $etime = S2::Builtin::LJ::Date__date_format( $s2_ctx, $etime, "iso" ) .
-            " " . S2::Builtin::LJ::DateTime__time_format( $s2_ctx, $etime, $fmt_time_short );
+    my $etime = LJ::mysqldate_to_time( $item->{eventtime} );
+    $etime = LJ::S2::sitescheme_secs_to_iso( $etime );
     $ret .= LJ::Talk::format_eventtime( $etime, $u );
     $ret .= "</td></tr></table>";
 
@@ -404,13 +387,7 @@ body<=
         my $dtid = $tid * 256 + $init->{'anum'};
         my $LJci = $LJ_cmtinfo{$dtid} = { rc => [], u => '', full => $post->{_loaded} };
 
-        my $s2_datetime = $tz_remote ?
-            LJ::S2::DateTime_tz($post->{'datepost_unix'}, $tz_remote) :
-            LJ::S2::DateTime_unix($post->{'datepost_unix'});
-
-        my $datepost = S2::Builtin::LJ::Date__date_format($s2_ctx, $s2_datetime, "iso") .
-            " " . S2::Builtin::LJ::DateTime__time_format($s2_ctx, $s2_datetime, $fmt_time_short) .
-            ($tz_remote ? " (local)" : " UTC");
+        my $datepost = LJ::S2::sitescheme_secs_to_iso( $post->{datepost_unix}, tz => 1 );
 
         my $level = ($opts->{'depth'} % 2) ? "even" : "odd";
         my $bgcolor = ($opts->{'depth'} % 2) ? "emcolorlite" : "emcolor";
@@ -472,14 +449,7 @@ body<=
                 my $edittime;
                 my $editreason = "";
                 if ($comment->is_edited) {
-                    my $s2_datetime_edittime = $tz_remote ?
-                        LJ::S2::DateTime_tz($comment->edit_time, $tz_remote) :
-                        LJ::S2::DateTime_unix($comment->edit_time);
-
-                    $edittime = S2::Builtin::LJ::Date__date_format($s2_ctx, $s2_datetime_edittime, "iso") .
-                        " " . S2::Builtin::LJ::DateTime__time_format($s2_ctx, $s2_datetime_edittime, $fmt_time_short) .
-                        ($tz_remote ? " (local)" : " UTC");
-
+                    $edittime = LJ::S2::sitescheme_secs_to_iso( $comment->edit_time, tz => 1 );
                     $editreason = LJ::ehtml( $comment->edit_reason );
                     $editreason = "($editreason)" if $editreason;
                 }
