@@ -418,7 +418,9 @@ sub output_prop_element {
         # take the list of allowed values
         # and prepend custom values (set through the layer editor) if allowed
         my %vals = split( /\|/, $prop->{values} );
-        $vals{$override} = "Custom: " . $override if $prop->{allow_other} && ! $vals{$override};
+        $vals{$override} = "Custom: " . $override if $prop->{allow_other}
+                    && defined $override
+                    && ! $vals{$override};
 
         $ret .= $class->html_select(
             { name => $name,
