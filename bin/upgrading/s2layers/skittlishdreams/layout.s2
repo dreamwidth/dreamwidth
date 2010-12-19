@@ -106,6 +106,7 @@ propgroup images {
     property string image_background_container_position {
         values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
     }
     
     
@@ -124,6 +125,7 @@ propgroup images {
     property string image_background_footer_position {
         values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
     }
     
     property string[] image_background_navigation_group {
@@ -141,6 +143,7 @@ propgroup images {
     property string image_background_navigation_position {
         values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
     }
 }
 

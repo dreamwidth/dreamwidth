@@ -65,6 +65,7 @@ propgroup images_child {
     property string image_entry_border_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
         }
 
     property string[] image_entry_border_end_odd_group {
@@ -82,6 +83,7 @@ propgroup images_child {
     property string image_entry_border_end_odd_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
         }
 
     property string[] image_entry_border_end_even_group {
@@ -99,6 +101,7 @@ propgroup images_child {
     property string image_entry_border_end_even_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
         }
 
     property string[] image_comment_border_group {
@@ -116,6 +119,7 @@ propgroup images_child {
     property string image_comment_border_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
         }
 
     property string[] image_comment_border_end_odd_group {
@@ -133,6 +137,7 @@ propgroup images_child {
     property string image_comment_border_end_odd_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
         }
 
     property string[] image_comment_border_end_even_group {
@@ -150,6 +155,7 @@ propgroup images_child {
     property string image_comment_border_end_even_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
         grouped = 1;
+        allow_other = 1;
         }
     }
 

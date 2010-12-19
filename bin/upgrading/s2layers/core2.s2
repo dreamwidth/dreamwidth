@@ -1692,6 +1692,7 @@ property string image_background_page_repeat {
 property string image_background_page_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
+    allow_other = 1;
 }
 
 property string[] image_background_header_group {
@@ -1709,6 +1710,7 @@ property string image_background_header_repeat {
 property string image_background_header_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
+    allow_other = 1;
 }
 # FIXME: This should be grouped, but then it doesn't get a label.
 property int image_background_header_height {
@@ -1731,6 +1733,7 @@ property string image_background_entry_repeat {
 property string image_background_entry_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
+    allow_other = 1;
 }
 
 property string[] image_background_module_group {
@@ -1748,6 +1751,7 @@ property string image_background_module_repeat {
 property string image_background_module_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
+    allow_other = 1;
 }
 
 property string[] separator_image_group {
@@ -1765,6 +1769,7 @@ property string separator_image_repeat {
 property string separator_image_position {
     values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
+    allow_other = 1;
 }
 
 ##===============================
