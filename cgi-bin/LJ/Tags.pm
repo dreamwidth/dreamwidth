@@ -834,8 +834,8 @@ sub update_logtags {
     if (@to_create && $max && $max > 0) {
         my $total = scalar(keys %$utags) + scalar(@to_create);
         if ( $total > $max ) {
-            return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max, 
-                                                                 tags => join(", ", @to_create), 
+            return $err->(LJ::Lang::ml('taglib.error.toomany2', { max => $max,
+                                                                 tags => LJ::ehtml( join( ", ", @to_create ) ),
                                                                  excess => $total - $max }));
         }
     }
@@ -1108,8 +1108,8 @@ sub create_usertag {
         my $cur = scalar(keys %{ LJ::Tags::get_usertags($u) || {} });
         my $tagtotal = $cur + scalar(@$tags);
         if ($tagtotal > $max) {
-            return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max, 
-                                                                 tags => join(", ", @$tags) , 
+            return $err->(LJ::Lang::ml('taglib.error.toomany2', { max => $max,
+                                                                 tags => LJ::ehtml( join( ", ", @$tags ) ) ,
                                                                  excess => $tagtotal - $max }));
         }
     }
