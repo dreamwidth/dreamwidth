@@ -330,6 +330,11 @@ sub interest_handler {
 
         $rv->{int_users} = { count => scalar( @ul ), navbar => $navbar,
                              results => $results };
+
+        # check to see if the remote user already has the interest
+        $rv->{not_interested} = ! $remote->interests->{$interest}
+            if $remote;
+
         return DW::Template->render_template( 'interests/int.tt', $rv );
     }
 

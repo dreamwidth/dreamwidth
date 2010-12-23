@@ -61,7 +61,7 @@
     [%- END -%]
     <h1>[% ".users.header" | ml(interest = e_int) %]</h1>
     <p class='interestinfo'>
-    [%- IF remote -%]
+    [%- IF not_interested -%]
         [%- '.addint2' | ml(aopts = "href='$roots.site/interests?mode=add&amp;intid=$intid'") -%]
     [%- END -%]
     [% '.morestuff2' | ml(aopts = "href='$roots.site/interests'") %]</p>
