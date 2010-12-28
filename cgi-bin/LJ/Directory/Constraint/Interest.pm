@@ -29,8 +29,15 @@ sub new {
 sub new_from_formargs {
     my ($pkg, $args) = @_;
     return undef unless ($args->{int_like} xor $args->{intid});
-    return $pkg->new(intid    => $args->{intid},
-                     interest => $args->{int_like});
+
+    # handle possibility of multiple specified interests
+    my @ints = LJ::interest_string_to_list( $args->{int_like} );
+
+    if ( $args->{int_like} ) {
+        return [ map { $pkg->new( interest => $_ ) } @ints ];
+    } else {
+        return $pkg->new( intid => $args->{intid} );
+    }
 }
 
 sub cache_for { 5 * 60 }

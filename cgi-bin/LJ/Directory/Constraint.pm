@@ -38,7 +38,9 @@ sub constraints_from_formargs {
     foreach my $type (qw(Age Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType)) {
        my $class = "LJ::Directory::Constraint::$type";
        my $con = eval { $class->new_from_formargs($postargs) };
-       if ($con) {
+       if ( ref $con eq 'ARRAY' ) {
+           push @ret, @$con;
+       } elsif ( $con ) {
            push @ret, $con;
        } elsif ($@) {
            warn "Error loading constraint $type: $@";
