@@ -20,12 +20,20 @@ div.UsersContainer {
 #SearchResults {
     margin-left: auto;
     margin-right: auto;
-    width: 80%;
+    width: 90%;
+}
+
+td.SearchResult {
+    text-align: center;
+    vertical-align: bottom;
+    padding: .5em;
 }
 
 div.ResultUserpic {
     width: 100px;
     height: 100px;
+    display: inline;
+    padding: .5em;
 }
 
 div.NewSearch {
