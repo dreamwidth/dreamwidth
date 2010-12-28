@@ -152,10 +152,12 @@ sub DayPage
     }
 
     # create Date objects for ($prev, $next) pair
-    my ($pdate, $ndate) = map { /^(\d\d\d\d)(\d\d)(\d\d)\b/ ? Date($1, $2, $3) : Null('Date') } ($prev, $next);
+    my ( $pdate, $ndate ) = map { defined $_ && /^(\d\d\d\d)(\d\d)(\d\d)\b/
+                                ? Date( $1, $2, $3 ) : Null( 'Date' ) }
+                            ( $prev, $next );
 
     # insert slashes into $prev and $next
-    ($prev, $next)      = map { s!^(\d\d\d\d)(\d\d)(\d\d)\b!$1/$2/$3!; $_ } ($prev, $next);
+    map { defined $_ && s!^(\d\d\d\d)(\d\d)(\d\d)\b!$1/$2/$3! } ( $prev, $next );
 
     $p->{'prev_url'} = defined $prev ? ("$u->{'_journalbase'}/$prev") : '';
     $p->{'prev_date'} = $pdate;
