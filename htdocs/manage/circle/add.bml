@@ -287,7 +287,7 @@ _c?>
     my $color_switch_checked = $custom_colors ?  "checked=\"checked\"" : "";
 
     ## let them pick the colors
-    my $color_text = "<?p <table summary=''><tr><td valign=\"top\"><i>$ML{'.optional'}:</i> ".
+    my $color_text = "<?p <table summary=\\'\\'><tr><td valign=\"top\"><i>$ML{'.optional'}:</i> ".
              "<input type=\"checkbox\" id=\"color_switch\" name=\"color_switch\" onClick=\"color_display(this);\" $color_switch_checked> </td><td><label for=\"color_switch\">" .
              BML::ml( '.colors.text', { user => $username } ) .
              "</label><br /><span style=\"font-size: 7pt;\">($ML{'.colors.disclaimer'})</span></td></tr></table> p?>";
