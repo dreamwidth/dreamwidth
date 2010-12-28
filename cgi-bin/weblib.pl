@@ -511,14 +511,18 @@ sub user_search_display {
     # username we can load it for a subset of users later,
     # if paginating.
     my $updated;
-    my @display;
+    my $disp_sort;
 
     if ($args{timesort}) {
         $updated = LJ::get_timeupdate_multi(keys %$loaded_users);
-        @display = sort { $updated->{$b->{userid}} <=> $updated->{$a->{userid}} } values %$loaded_users;
+        my $def_upd = sub { $updated->{$_[0]->userid} || 0 };
+        # let undefined values be zero for sorting purposes
+        $disp_sort = sub { $def_upd->($b) <=> $def_upd->($a) };
     } else {
-        @display = sort { $a->{user} cmp $b->{user} } values %$loaded_users;
+        $disp_sort = sub { $a->{user} cmp $b->{user} };
     }
+
+    my @display = sort $disp_sort values %$loaded_users;
 
     if (defined $args{perpage}) {
         my %items = LJ::paging( \@display, $args{curpage}, $args{perpage} );
@@ -589,8 +593,9 @@ sub user_search_display {
 
         $ret .= "<tr><td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>";
 
-        if ( $updated->{$u->userid} > 0 ) {
-            $ret .= LJ::Lang::ml( 'search.user.update.last', { time => LJ::diff_ago_text( $updated->{$u->id} ) } );
+        my $upd = $updated->{$u->userid};
+        if ( defined $upd && $upd > 0 ) {
+            $ret .= LJ::Lang::ml( 'search.user.update.last', { time => LJ::diff_ago_text( $upd ) } );
         } else {
             $ret .= LJ::Lang::ml( 'search.user.update.never' );
         }
