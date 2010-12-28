@@ -165,7 +165,7 @@ sub handle_post {
     my $security_opts = { security => 'public' };
 
     # TODO Add code for handling this with XML::Atom::ext
-    if ($XML::Atom::Version <= .13) {
+    if ( ! $XML::Atom::Version || ( $XML::Atom::Version <= .13 ) ) {
         eval {
             foreach my $allow_element (map { XML::Atom::Util::nodelist($_, 'http://www.sixapart.com/ns/atom/privacy', 'allow') }
                                              XML::Atom::Util::nodelist($entry->{doc}, 'http://www.sixapart.com/ns/atom/privacy', 'privacy')) {
@@ -197,8 +197,8 @@ sub handle_post {
         }
     }
 
-    my $preformatted = $entry->get
-        ("http://sixapart.com/atom/post#", "convertLineBreaks") eq 'false' ? 1 : 0;
+    my $clb = $entry->get( "http://sixapart.com/atom/post#", "convertLineBreaks" );
+    my $preformatted = ( $clb && $clb eq 'false' ) ? 1 : 0;
 
     # build a post event request.
     my $req = {
