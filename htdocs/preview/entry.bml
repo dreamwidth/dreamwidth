@@ -308,8 +308,6 @@ _c?>
 
         $p->{'entry'} = $s2entry;
 
-        my $userlite_journal = LJ::S2::UserLite($u);
-
         $p->{'comments'} = [];
 
         $p->{'viewing_thread'} = 0;

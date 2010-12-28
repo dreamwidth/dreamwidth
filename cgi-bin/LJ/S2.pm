@@ -1773,14 +1773,17 @@ sub DateTime_tz
 
 sub DateTime_parts
 {
-    my @parts = split(/\s+/, shift);
+    my $datestr = defined $_[0] ? $_[0] : '';
+    my @parts = split /\s+/, $datestr;
+
     my $dt = { '_type' => 'DateTime' };
-    $dt->{'year'} = $parts[0]+0;
-    $dt->{'month'} = $parts[1]+0;
-    $dt->{'day'} = $parts[2]+0;
-    $dt->{'hour'} = $parts[3]+0;
-    $dt->{'min'} = $parts[4]+0;
-    $dt->{'sec'} = $parts[5]+0;
+    $dt->{year}  = defined $parts[0] ? $parts[0] + 0 : 0;
+    $dt->{month} = defined $parts[1] ? $parts[1] + 0 : 0;
+    $dt->{day}   = defined $parts[2] ? $parts[2] + 0 : 0;
+    $dt->{hour}  = defined $parts[3] ? $parts[3] + 0 : 0;
+    $dt->{min}   = defined $parts[4] ? $parts[4] + 0 : 0;
+    $dt->{sec}   = defined $parts[5] ? $parts[5] + 0 : 0;
+
     # the parts string comes from MySQL which has range 0-6,
     # but internally and to S2 we use 1-7.
     $dt->{'_dayofweek'} = $parts[6] + 1 if defined $parts[6];
