@@ -284,8 +284,6 @@ body<=
     }
 
     my %current = LJ::currents( $props, $up, { entry => $entry } );
-    # for some reason we don't display tags here
-    delete $current{Tags};
 
     $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
 
