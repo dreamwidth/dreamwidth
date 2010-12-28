@@ -21,8 +21,7 @@ body<=
 
     BML::set_language_scope('/manage/settings/index.bml');
 
-    LJ::need_res("stc/settings.css", "js/settings.js");
-    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/settings-colors.css" );
+    LJ::need_res("stc/tabs.css", "stc/settings.css", "js/settings.js");
     LJ::set_active_crumb('manage');
 
     my $remote = LJ::get_remote();
@@ -394,27 +393,27 @@ body<=
 
     $ret .= "<div id='settings_left'>";
 
-    $ret .= "<ul id='settings_nav'>";
+    $ret .= "<ul class='tablist' id='settings_nav'>";
     foreach my $cat (@cats_order) {
         next unless $cats_with_settings{$cat}->{visible};
 
         if ($cats_with_settings{$cat}->{disabled}) {
-            $ret .= "<li class='disabled'>$cats_with_settings{$cat}->{name}</li>";
+            $ret .= "<li class='tab disabled'>$cats_with_settings{$cat}->{name}</li>";
         } else {
             my $active_class = $cat eq $given_cat ? " class='active'" : "";
-            $ret .= "<li><a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$cat'$active_class>$cats_with_settings{$cat}->{name}</a></li>";
+            $ret .= "<li class='tab'><a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$cat'$active_class>$cats_with_settings{$cat}->{name}</a></li>";
         }
     }
     $ret .= "</ul>";
 
-    $ret .= "<div id='settings_nav_title'><p>";
+    $ret .= "<div id='settings_nav_title' class='tab-header'><p>";
     $ret .= $cats_with_settings{$given_cat}->{desc};
     $ret .= "</p></div>";
 
     if ($cats_with_settings{$given_cat}->{form}) {
         my $confirm_msg = LJ::ejs($ML{'.form.confirm'});
         $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
-        $ret .= "<form id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
+        $ret .= "<form class='table-form' id='settings_form' action='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat' method='post'>";
         $ret .= LJ::form_auth();
     }
     $ret .= "<div class='settings_content'>";
@@ -425,7 +424,7 @@ body<=
     LJ::set_active_resource_group( 'jquery' );
     LJ::need_res( { group => 'jquery' }, 'js/notifications.js' );
 
-    $ret .= "<div id='settings_save'>";
+    $ret .= "<div id='settings_save' class='action-bar'>";
     $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
     $ret .= "&nbsp;";
     my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive'} );
@@ -523,7 +522,7 @@ body<=
 
     } else {
         my $setting_ct = 1;
-        $ret .= "<table summary='' cellpadding='0' cellspacing='0'>";
+        $ret .= "<table summary=''>";
         foreach my $setting (@settings) {
             my $errors = $setting->errors_from_save($save_rv);
             my $args = $setting->args_from_save($save_rv);
@@ -534,8 +533,9 @@ body<=
             my $helpicon = LJ::help_icon($setting->helpurl($u));
             my $last_class = $setting_ct == scalar @settings ? " last" : "";
 
-            $ret .= "<tr>";
-            $ret .= "<td class='${given_cat}_label$last_class'>$label</td>" if $label;
+            my $row_class = $setting_ct % 2 == 0 ? "even" : "odd";
+            $ret .= "<tr class='$row_class'>";
+            $ret .= "<th class='${given_cat}_label$last_class'>$label</th>" if $label;
             $ret .= "<td class='${given_cat}_option$last_class'>" . ($option ? $option : "&nbsp;") . "</td>";
             $ret .= "<td class='${given_cat}_actionlink$last_class'>" . ($actionlink ? $actionlink : "&nbsp;") . "</td>";
             $ret .= "<td class='help$last_class'>" . ($helpicon ? $helpicon : "&nbsp;") . "</td>";
@@ -558,7 +558,7 @@ body<=
     $ret .= "</div>";
     $ret .= "</div>";
 
-    $ret .= "<div id='settings_save'>";
+    $ret .= "<div id='settings_save' class='action-bar'>";
     $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
     if ( $given_cat eq "notifications" ) {
         $ret .= "&nbsp;";

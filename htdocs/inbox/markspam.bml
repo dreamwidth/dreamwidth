@@ -81,9 +81,8 @@ body<=
 
     $body .= "<form method='post'>";
     $body .= LJ::form_auth();
-    $body .= "<?standout ";
 
-    $body .= "<div>" . LJ::html_check({name => 'spam', id => 'spam', checked => "checked"});
+    $body .= "<div class='highlight-box'>" . LJ::html_check({name => 'spam', id => 'spam', checked => "checked"});
     $body .= "<label for='spam'>Mark this message as spam</label></div>";
 
     $body .= "<div>" . LJ::html_check({ 'type' => 'check', 'name' => 'ban', 'id' => 'ban' });
@@ -95,7 +94,6 @@ body<=
     $body .= LJ::html_hidden({name => 'msgid', value => $msg->msgid});
     $body .= LJ::html_submit('confirm', 'Confirm') . "</div>\n";
 
-    $body .= " standout?>";
 
     $body .= "<p><strong>Note:</strong> From the <a href='/manage/profile/'>Edit Profile</a> page, you can change your $LJ::SITENAMEABBREV User Messaging settings.</p>";
 

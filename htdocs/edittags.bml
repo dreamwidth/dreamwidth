@@ -135,7 +135,7 @@ body<=
     $ret .= "<tr><td class='l'>" . BML::ml('.users', { user => $u->user }) . "</td><td class='curtags'>";
 
     if ( scalar keys %$usertags ) {
-        $ret .= "<select name='tags' multiple='multiple' class='tagbox_nohist' " .
+        $ret .= "<select name='tags' multiple='multiple' class='multiple-select tagbox_nohist' " .
                 "onChange='edit_tagselect(this)'>";
         foreach (sort { $a->{name} cmp $b->{name} } values %$usertags) {
             $ret .= "<option value='" . LJ::ehtml($_->{name}) . "'>" . LJ::ehtml($_->{name}) . "</option>";

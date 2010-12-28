@@ -1,0 +1,19 @@
+.select-list {
+    overflow: auto;
+    list-style: none;
+}
+
+.select-list li {
+    float: left;
+    margin: 0.25em;
+    overflow: hidden;
+    width: 120px;
+    border-style: solid;
+    border-width: 1px;
+    padding: 0.5em;
+}
+
+.select-list li img {
+    border-width: 1px;
+    border-style: solid;
+}

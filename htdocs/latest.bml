@@ -130,7 +130,7 @@ body<=
     }
 
     # put filtering options in a standout box
-    $tagfeeds = "<?standout $tagfeeds standout?><br />" if $tagfeeds;
+    $tagfeeds = "<div class='highlight-box' id='tagfeeds'>$tagfeeds</div>" if $tagfeeds;
 
     # FIXME: don't english-strip this just yet. Needs some extra work
     # The entire page is cached for efficiency, so if anyone does ?uselang=x

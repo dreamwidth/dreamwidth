@@ -35,6 +35,7 @@ page<=
     LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY },
         qw( stc/jquery/jquery.ui.theme.smoothness.css
             stc/lj_base-app.css
+            stc/lynx/lynx.css
         )
     );
 

@@ -3184,7 +3184,7 @@ function Page::print_stylesheets()
 function EntryPreviewPage::print_standout_box(string message)
 "Prints a standout box for warnings, etc "
 {
-    println "<div class='standout'><div class='standout-inner'><p> $message </p></div></div>";
+    println "<div class='highlight-box'><p> $message </p></div>";
 }
 
 function FriendsPage::print_stylesheets() {

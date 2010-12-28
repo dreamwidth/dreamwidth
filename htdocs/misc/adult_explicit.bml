@@ -62,8 +62,8 @@ body<=
 
     my $extra_for_no_age = $remote && !$remote->best_guess_age ? BML::ml( '.setage', { aopts => "href='$LJ::SITEROOT/manage/profile/'" } ) : "";
 
-    $ret .= "<div class='adult_warning adult_explicit'>";
-    $ret .= "<h1 style='text-align: center;'>$ML{'.title.18'}</h1>";
+    $ret .= "<div class='adult_warning adult_explicit warning-box message-box'>";
+    $ret .= "<h1 class='title'>$ML{'.title.18'}</h1>";
     if ( $remote && $remote->best_guess_age ) {
         $ret .= "<p>" . BML::ml( '.message.explicit.18plus.by' . $markedby, { journal => $journal->ljuser_display, poster => $poster->ljuser_display } ) . "</p>";
     } else {

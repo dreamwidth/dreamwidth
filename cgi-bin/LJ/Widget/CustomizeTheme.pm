@@ -40,8 +40,8 @@ sub render_body {
 
     $ret .= $class->start_form( id => "customize-form" );
 
-    $ret .= "<div class='customize-inner-wrapper'>";
-    $ret .= "<div class='customize-nav'>";
+    $ret .= "<div class='customize-inner-wrapper section-nav-inner-wrapper'>";
+    $ret .= "<div class='customize-nav section-nav'>";
 
     my $style = LJ::S2::load_style($u->prop('s2_style'));
     die "Style not found." unless $style && $style->{userid} == $u->id;
@@ -131,12 +131,7 @@ sub render_body {
 
     ### Content ###
 
-    $ret .= "<div class='customize-content'>";
-
-    $ret .= "<div class='customize-buttons'>";
-    $ret .= $class->html_submit( save => $class->ml('widget.customizetheme.btn.save'), { raw => "class='customize-button'" } ) . " ";
-    $ret .= $class->html_submit( reset => $class->ml('widget.customizetheme.btn.reset'), { raw => "class='customize-button' id='reset_btn_top'" } );
-    $ret .= "</div>";
+    $ret .= "<div class='customize-content section-nav-content'>";
 
     # Display Group
     if ($group eq "display") {
@@ -226,7 +221,7 @@ sub render_body {
         $ret .= "</div>";
     }
 
-    $ret .= "<div class='customize-buttons'>";
+    $ret .= "<div class='customize-buttons action-bar'>";
     $ret .= $class->html_submit( save => $class->ml('widget.customizetheme.btn.save'), { raw => "class='customize-button'" } ) . " ";
     $ret .= $class->html_submit( reset => $class->ml('widget.customizetheme.btn.reset'), { raw => "class='customize-button' id='reset_btn_bottom'" } );
     $ret .= "</div>";

@@ -128,11 +128,6 @@ div.argOptsContainer {
     margin: 0 0 .4em 0;
 }
 
-#NotificationSidebar .ljad {
-    float: left;
-    margin-right: 1em;
-}
-
 .esnlinks {
     float: right;
     display: block;
@@ -145,13 +140,17 @@ div.argOptsContainer {
     margin: 0em 0 0em 0;
 }
 
+.NotificationTable td {
+    border-top-width: 1px;
+    border-top-style: solid;
+}
+
 .inbox .header {
     width: 100%;
     margin: 0;
     vertical-align: middle;
     border: 0;
     padding: 3px;
-	background: #eee;
 }
 
 .actions {
@@ -172,6 +171,7 @@ span.Pages input {
 .inbox_newitems {
     font-weight: bold;
     overflow: hidden;
+    padding-bottom: .5em;
 }
 
 .InboxItem_Controls {
@@ -253,11 +253,8 @@ span.Pages input {
     margin: 0px;
     padding: 0px 3px 1px 2px; 
 }
-.folders a:hover {
-    background-color: #eee;
-}
-.folders a.active {
-    background-color: #eee;
+.folders a.selected {
+    font-weight: bold;
 }
 .folders a.subs {
     padding-left: 1em;
@@ -299,3 +296,10 @@ span.Pages input {
 td#table_inbox_folders { vertical-align: top; }
 
 .folders { margin-top: 1em; }
+
+.inbox-compose {
+    width: 100%;
+}
+.inbox-compose td {
+    vertical-align: top;
+}

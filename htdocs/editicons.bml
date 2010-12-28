@@ -345,13 +345,12 @@ use strict;
 
     # print out upload pic box
     my $emit_upload_box = sub {
-        $body .= '<a name="uploadBox"></a>';
         if (scalar @userpics < $max) {
 
             # upload form (with perlbal upload-tracking)
             $body .= qq {
                 <iframe name='upiframe' width='1' height='1' style='border: none'></iframe>
-                <div id='uploadBox' class='box pkg'><div id='uploadBox-inner'>
+                <div id='uploadBox' class='highlight-box box pkg'><div id='uploadBox-inner'>
                     <form enctype="multipart/form-data" action="editicons$suffix$getextra" method='post' id='uploadPic'>
                     <input type="hidden" id="go_to" name="go_to" value="editicons$suffix$getextra" />
             };
@@ -602,7 +601,7 @@ use strict;
                                   'selected' => $u->{'defaultpicid'} == 0,
                                   'raw' => "id='nodefpic'" });
         $body .= "<label for='nodefpic'>$ML{'.nodefault'}</label></p>";
-        $body .= "<?standout" . LJ::html_submit('action:save', $ML{'.btn.save'}) . "standout?>";
+        $body .= "<div class='action-box'>" . LJ::html_submit('action:save', $ML{'.btn.save'}) . "</div>";
         $body .= "</form>";
         $body .= "</div><!-- end #current_userpics -->";
         $body .= "<script type='text/javascript'>\n";

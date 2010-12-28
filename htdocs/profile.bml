@@ -387,7 +387,7 @@ body<=
 ################################################################################
 ##### JOURNAL STATISTICS
 
-    $ret .= q{ <div class='details_stats'> };
+    $ret .= q{ <div class='details_stats detail'> };
 
     # journal warnings
     $ret .= "<span class='$_->{class}'>$_->{text}</span>" foreach $profile->warnings;

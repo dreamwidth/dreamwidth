@@ -37,12 +37,11 @@
 .user_pic_caption {
     font-size: 0.7em;
 }
-.username {
+.section_head {
     margin: 2px 0 0 0;
     font-size: 1.1em;
     padding: 0;
     padding: 2px;
-    background: #eee;
 }
 
 .actions {
@@ -138,6 +137,11 @@
         font-size: 0.75em;
         font-weight: normal;
     }
+
+    .section img, .username img {
+        padding-left: 3px;
+    }
+
 .section_body {
     padding: 0 20px 10px 20px;
 }
@@ -216,10 +220,3 @@ span.expandcollapse {
         .external_services table td.im_status img {
             border: 0;
         }
-
-.profile_right_ad {
-    width: 300px;
-    float: right;
-    margin: 0 0 10px 10px;
-    padding: 0 0 0 10px;
-}

@@ -23,8 +23,7 @@ use Carp qw/ croak /;
 
 use DW::Shop;
 
-sub need_res { qw( stc/shop.css stc/shop-colors.css ) }
-sub need_res_opts { priority => $LJ::OLD_RES_PRIORITY }
+sub need_res { qw( stc/shop.css ) }
 
 sub render_body {
     my ( $class, %opts ) = @_;
@@ -40,7 +39,7 @@ sub render_body {
     # render out information about this cart
     my $ret;
     if ( $cart->has_items ) {
-        $ret .= "<div class='shop-cart-status'>";
+        $ret .= "<div class='shop-cart-status highlight-box'>";
         $ret .= "<strong>" . $class->ml( 'widget.shopcartstatusbar.header' ) . "</strong><br />";
         $ret .= $class->ml( 'widget.shopcartstatusbar.itemcount', { num => $cart->num_items, price => $cart->display_total } );
         $ret .= "<br />";

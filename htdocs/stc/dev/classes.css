@@ -1,0 +1,19 @@
+.cmtbar {
+    min-width: 0 !important;
+}
+
+
+h3 {
+    margin-top: 5em;
+    padding-top: 1em;
+    border-top: 0.5em dashed gray;
+}
+
+h2 + h3 {
+    margin-top: 1em;
+    border-top-style: none;
+}
+
+h3.subheader {
+    border-top: none;
+}

@@ -18,38 +18,6 @@
     padding: 5px 7px;
 }
 
-/* Tabs */
-#settings_nav {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-#settings_nav li {
-    float: left;
-}
-#settings_nav li a {
-    text-decoration: none;
-    display: block;
-    margin-right: 5px;
-    padding: 2px 7px;
-    font-weight: bold;
-	border-bottom: none;
-}
-#settings_nav li.disabled {
-    display: block;
-    margin-right: 5px;
-    padding: 2px 7px;
-    font-weight: bold;
-	border-bottom: none;
-}
-#settings_nav_title p {
-    clear: left;
-    padding: 4px 10px;
-    display: block;
-    margin: 0;
-    font-size: 11px;
-}
-
 /* Shared Content */
 .account table, .display table, .mobile table, .privacy table, .history table, .othersites table {
     width: 100%;

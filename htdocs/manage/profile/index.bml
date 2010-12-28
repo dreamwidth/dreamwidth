@@ -130,13 +130,12 @@ body<=
         };
 
         my $stripe = 0;  # two columns
-        my $zebra_row1 = sub { return $stripe % 2 ? ' zebra_row' : '' };
-        my $zebra_row2 = sub { return $stripe++ % 2 ? ' zebra_row' : '' };
+        my $zebra_row = sub { return $stripe++ % 2 ? ' even' : ' odd' };
 
 
         ### Picture Settings
-        $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.userpic2'}</td>\n";
-        $ret .= "<td class='" . $zebra_row1->() . "'>";
+        $ret .= "<tr class='field_block" . $zebra_row->() . "' ><td class='field_name'>$ML{'.fn.userpic2'}</td>\n";
+        $ret .= "<td>";
         $ret .= "<div style='width: 100px; height: 100px; float: left; text-align: center; border: 1px solid #ddd'>";
         if ( $u->{'defaultpicid'} ) {
             my $icon = $u->userpic;
@@ -150,13 +149,13 @@ body<=
         $ret .= "<?p <a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";
 
-        $ret .= "<td class='selectvis" . $zebra_row2->() . "'>";
+        $ret .= "<td>";
         $ret .= "<?p <i> $ML{'.security.visibility.everybody2'} </i> p?>";
         $ret .= "</td></tr>\n";
 
         # name
-        $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.name2'}</td>\n";
-        $ret .= "<td class='" . $zebra_row1->() . "'>";
+        $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.fn.name2'}</td>\n";
+        $ret .= "<td>";
         if (LJ::text_in($saved{'name'})) {
             $ret .= "<div style='float: left'>";
             $ret .= LJ::html_text( { name => 'name', value => $u->name_orig,
@@ -168,28 +167,28 @@ body<=
             $ret .= "<?inerr " . BML::ml( '.error.invalidname2', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"} ) . " inerr?>";
         }
 
-        $ret .= "</td>\n<td class='selectvis" . $zebra_row2->() . "'>";
+        $ret .= "</td>\n<td class='selectvis'>";
         $ret .= "<?p <i> $ML{'.security.visibility.everybody2'} </i> p?>";
         $ret .= "</td></tr>\n";
 
         if ( $u->is_individual ) {
             # gender
-            $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.gender'}</td>\n";
-            $ret .= "<td class='" . $zebra_row1->() . "'>";
+            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.fn.gender'}</td>\n";
+            $ret .= "<td>";
             $ret .= LJ::html_select( { name => 'gender', title => $ML{'.fn.gender'},
                                        selected => $u->prop( 'gender' ) || 'U' },
                                      F => $ML{'.gender.female'},
                                      M => $ML{'.gender.male'},
                                      O => $ML{'.gender.other'},
                                      U => $ML{'.gender.unspecified'}, );
-            $ret .= "</td>\n<td class='selectvis" . $zebra_row2->() . "'>";
+            $ret .= "</td>\n<td class='selectvis'>";
             $ret .= "<?p <i> $ML{'.security.visibility.nobody'} </i> p?>";
             $ret .= "</td></tr>\n";
         }
 
         # birthday
-        $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.birthday'}</td>\n";
-        $ret .= "<td class='" . $zebra_row1->() . "'>";
+        $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.fn.birthday'}</td>\n";
+        $ret .= "<td>";
         my %bdpart;
         if ($u->{'bdate'} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/) {
             ($bdpart{'year'}, $bdpart{'month'}, $bdpart{'day'}) = ($1, $2, $3);
@@ -221,7 +220,7 @@ body<=
                                  F => $ML{'.show.birthday.full2'} );
         $ret .= "</div>\n";
 
-        $ret .= "</td>\n<td class='selectvis" . $zebra_row2->() . "'>";
+        $ret .= "</td>\n<td class='selectvis'>";
         my $opt_sharebday = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
         $ret .= LJ::html_select( { name => 'opt_sharebday',
                                    title => BML::ml( '.privacy.title',
@@ -234,11 +233,11 @@ body<=
         $ret .= "</td></tr>\n";
 
         #location
-        $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.fn.location'}</td>\n";
-        $ret .= "<td class='" . $zebra_row1->() . "'>";
+        $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.fn.location'}</td>\n";
+        $ret .= "<td>";
         $ret .= LJ::Widget::Location->render( skip_timezone => 1, minimal_display => 1 );
 
-        $ret .= "</td><td class='selectvis" . $zebra_row2->() . "'>";
+        $ret .= "</td><td class='selectvis'>";
         $ret .= LJ::html_select( { name => 'opt_showlocation',
                                    title => BML::ml( '.privacy.title',
                                             { name => $ML{'.fn.location'} } ),
@@ -296,13 +295,10 @@ body<=
         $stripe = 0;  # reset for next block
 
         $ret .= qq {
-    <tr class='field_block'><td class='field_name'>
-    $ML{'.fn.email.system'}</td><td };
-        $ret .= $zebra_row1->();
-        $ret .= qq {style='vertical-align: middle'>
+    <tr class='field_block} . $zebra_row->() . qq{'><td class='field_name'>
+    $ML{'.fn.email.system'}</td><td style='vertical-align: middle'>
     <b>$u_email_raw</b> &nbsp; <a href='$LJ::SITEROOT/changeemail$getextra'>
-    $ML{'.email.change.system'}</a></td><td class='selectvis};
-        $ret .= $zebra_row2->() . "'>\n";
+    $ML{'.email.change.system'}</a></td><td>\n};
 
         # opt_whatemailshow
         my $cur = $u->opt_whatemailshow;
@@ -316,23 +312,23 @@ body<=
                                  N => $ML{'.security.visibility.noshow'} );
         $ret .= "</td></tr>\n";
 
-        $ret .= "<tr class='field_block'><td class='field_name'> $ML{'.fn.email.display'}</td>\n";
-        $ret .= "<td class='" . $zebra_row1->() . "'>";
+        $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'> $ML{'.fn.email.display'}</td>\n";
+        $ret .= "<td>";
 
         $ret .= DW::Setting::ProfileEmail->option( $u );
         $ret .= "<br /><span class='helper'>$ML{'.email.profile'}</span>";
 
-        $ret .= "</td><td class='selectvis" . $zebra_row2->() . "'>";
+        $ret .= "</td><td>";
 #        $ret .= "<?p <i> $ML{'.security.visibility.same'} </i> p?>";
 
         $ret .= "</td></tr>\n";
 
         if ( $u->can_have_email_alias && ! $u->prop( "no_mail_alias" ) ) {
-            $ret .= "<tr class='field_block'><td class='field_name'>";
+            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
             $ret .= BML::ml( '.fn.email.site', { siteabbrev => $LJ::SITENAMEABBREV } );
-            $ret .= "</td><td class='" . $zebra_row1->() . "' style='vertical-align: middle'>\n";
+            $ret .= "</td><td style='vertical-align: middle'>\n";
             $ret .= $u->site_email_alias;
-            $ret .= "</td><td class='selectvis" . $zebra_row2->() . "'>";
+            $ret .= "</td><td class='selectvis'>";
             # this is where we get BVL back
             my $checked = ( $u->opt_whatemailshow =~ /[BVL]/ ) ? 'Y' : 'N';
             $ret .= LJ::html_select( { name => 'opt_usesite',
@@ -347,11 +343,11 @@ body<=
         if ( $u->is_person ) {
 
             if ( LJ::is_enabled( 'ljtalk' ) ) {
-                $ret .= "<tr class='field_block'><td class='field_name'>";
+                $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
                 $ret .= BML::ml( '.fn.ljtalk.address', { siteabbrev => $LJ::SITENAMEABBREV } );
-                $ret .= "</td><td class='" . $zebra_row1->() . "' style='vertical-align: middle'>" . $u->ljtalk_id;
+                $ret .= "</td><td style='vertical-align: middle'>" . $u->ljtalk_id;
                 # Don't show LJ Talk field? (opt_showljtalk)
-                $ret .= "</td><td class='selectvis" . $zebra_row2->() . "'>";
+                $ret .= "</td><td class='selectvis'>";
                 $ret .= LJ::html_select( { name => 'opt_showljtalk',
                                            id => 'opt_showljtalk',
                                            title => BML::ml( '.display.title',
@@ -362,12 +358,12 @@ body<=
                 $ret .= "</td></tr>\n";
 
                 my $jabber_title = LJ::Hooks::run_hook("jabber_title") || $ML{'/manage/settings/index.bml.jabber.title'};
-                $ret .= "<tr class='field_block'><td class='field_name'>";
+                $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
                 $ret .= BML::ml( '.fn.ljtalk.status', { siteabbrev => $LJ::SITENAMEABBREV } );
-                $ret .= "</td><td class='" . $zebra_row1->() . "'>$ML{'.fn.showljtalk'}<br />";
+                $ret .= "</td><td>$ML{'.fn.showljtalk'}<br />";
                 $ret .= "<span class='helper'>" . BML::ml('/manage/settings/index.bml.jabber.text', {'jabbertitle' => $jabber_title}) . "</span>";
                 # Jabber Online Status
-                $ret .= "</td><td class='selectvis" . $zebra_row2->() . "'>";
+                $ret .= "</td><td class='selectvis'>";
                 $ret .= LJ::html_select( { name => 'opt_showonlinestatus',
                                            id => 'opt_showonlinestatus',
                                            title => BML::ml( '.privacy.title',
@@ -381,24 +377,24 @@ body<=
 
             # opt_findbyemail
             if ( LJ::is_enabled( 'opt_findbyemail' ) ) {
-                $ret .= "<tr class='field_block'><td class='field_name'>";
+                $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
                 $ret .= LJ::Setting::FindByEmail->label . "</td>";
-                $ret .= "<td class='" . $zebra_row1->() . "'><span class='helper'>";
+                $ret .= "<td><span class='helper'>";
                 $ret .= BML::ml( 'settings.findbyemail.helper', {
                     sitename => $LJ::SITENAMESHORT,
                     siteabbrev => $LJ::SITENAMEABBREV } );
-                $ret .= "</span></td>\n<td class='selectvis" . $zebra_row2->() . "'>";
+                $ret .= "</span></td>\n<td class='selectvis'>";
                 $ret .= LJ::Setting::FindByEmail->as_html( $u, undef, { minimal_display => 1, helper => 0 } );
                 $ret .= "</td></tr>\n";
             }
 
             # opt_usermsg
             if ( LJ::is_enabled( 'user_messaging' ) ) {
-                $ret .= "<tr class='field_block'><td class='field_name'>";
+                $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
                 $ret .= LJ::Setting::UserMessaging->label;
-                $ret .= "</td><td class='" . $zebra_row1->() . "'><span class='helper'>";
+                $ret .= "</td><td><span class='helper'>";
                 $ret .= BML::ml( 'settings.usermessaging.helper', { sitename => $LJ::SITENAMESHORT } );
-                $ret .= "</span></td>\n<td class='selectvis" . $zebra_row2->() . "'>";
+                $ret .= "</span></td>\n<td class='selectvis'>";
                 $ret .= LJ::Setting::UserMessaging->option( $u, undef, { minimal_display => 1, helper => 0 } );
                 $ret .= "</td></tr>\n";
             }
@@ -407,11 +403,11 @@ body<=
 
         if ( $u->can_use_textmessaging ) {
 
-            $ret .= "<tr class='field_block'><td class='field_name'>$ML{'.section.textmsg'}</td>\n";
-            $ret .= "<td class='" . $zebra_row1->() . "'>";
+            $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>$ML{'.section.textmsg'}</td>\n";
+            $ret .= "<td>";
 
             $ret .= DW::Setting::TxtMsgSetup->option( $u, undef, { info_only => 1 } );
-            $ret .= "</td>\n<td class='selectvis" . $zebra_row2->() . "'>";
+            $ret .= "</td>\n<td class='selectvis'>";
             $ret .= DW::Setting::TxtMsgSetup->option( $u, undef, { vis_only => 1 } );
 
             $ret .= "</td></tr>\n";

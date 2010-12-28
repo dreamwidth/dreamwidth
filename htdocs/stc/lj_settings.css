@@ -22,7 +22,6 @@
     font-weight: bold;
     text-align: right;
     width: 145px;
-	background: #eee;
 }
 .field_block .field_name {
     padding-top: .6em;
@@ -50,7 +49,6 @@
     font-weight: bold;
     margin-top: 10px;
     padding: 5px;
-	background: #ccc;
 }
 
 .section_head td {
@@ -61,7 +59,6 @@
     font-size: 1.1em;
     font-weight: bold;
     margin-top: 5px;
-    background: #eee;
     border-bottom: 3px ridge #fff;
 }
 

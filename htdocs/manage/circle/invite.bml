@@ -180,15 +180,15 @@ _c?>
                 my $invite_obj = DW::InviteCodes->new( code => $code );
                 $invite_obj->send_code( email => $email );
 
-                $body .= "<?standout " . BML::ml( '.success.code', { email  => $email, invitecode => $code } );
+                $body .= "<div class='highlight-box'>" . BML::ml( '.success.code', { email  => $email, invitecode => $code } );
                 $body .= BML::ml( '.success.invitemore' )
                     if DW::InviteCodes->unused_count( userid => $u->id ) > 1;
-                $body .= " standout?>";
+                $body .= "</div>";
 
                 $code_sent = 1;
 
             } else {
-                $body .= "<?standout " . BML::ml('.success', { email => $email }) . " standout?>";
+                $body .= "<div class='highlight-box'>" . BML::ml('.success', { email => $email }) . "</div>";
             }
 
             # Blank email so the form is redisplayed for a new
@@ -258,7 +258,7 @@ _c?>
     $body .= $inerr->('form_auth');
 
     $body .= "<p>$ML{'.form.input.message'}</p>" . $inerr->("msg", "<br />");
-    $body .= "<div style='color: #000; background-color: #eee; border: 1px solid #000; margin-bottom: 15px; padding: 15px; width: 95%'>";
+    $body .= "<div class='highlight-box'>";
     $body .= "<p style='margin-top: 0;'><strong>$ML{'.msg_subject.header'}</strong> $msg_subject_display</p>";
     $body .= "<p><strong>$ML{'.msg.header'}</strong></p>";
     $body .= "<div style='margin-left: 15px;'>";

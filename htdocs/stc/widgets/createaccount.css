@@ -4,14 +4,6 @@
    position: relative;
 }
 
-.error-list {
-    background-color: #fcf6db;
-    border: 1px solid #ffdfc0;
-    padding: 1em;
-    padding-left: 3em;
-    margin-top: 3em;
-}
-
 div.error-list ol, div.error-list li {
     list-style-type: decimal;
 }
@@ -49,6 +41,7 @@ div.error-list ol, div.error-list li {
 .appwidget-createaccount #tips_box {
     display: none;
     position: absolute;
+    color: #000;
     background-color: #fcf6db;
     border: 1px solid #ffdfc0;
     padding: 5px;
@@ -75,9 +68,4 @@ span.appwidget-createaccount #username_error {
 
 .appwidget-createaccount #username_error_inner {
     font-weight: bold;
-}
-
-li.formitemFlag {
-    font-weight: bold;
-    color: #f00;
 }

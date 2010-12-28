@@ -85,8 +85,8 @@ sub render_body {
     $ret .= "</p>";
     $ret .= $class->end_form;
 
-    $ret .= "<div class='theme-nav-inner-wrapper'>";
-    $ret .= "<div class='theme-selector-nav'>";
+    $ret .= "<div class='theme-nav-inner-wrapper section-nav-inner-wrapper'>";
+    $ret .= "<div class='theme-selector-nav section-nav'>";
 
     $ret .= "<ul class='theme-nav nostyle'>";
     $ret .= $class->print_cat_list(
@@ -100,9 +100,9 @@ sub render_body {
     $ret .= "</ul>";
 
     if (scalar @cats_sorted) {
-        $ret .= "<div class='theme-nav-separator'><hr /></div>";
+        $ret .= "<div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>";
     
-        $ret .= "<ul class='theme-nav nostyle'>";
+        $ret .= "<ul class='theme-nav nostyle section-nav'>";
         $ret .= $class->print_cat_list(
             user => $u,
             selected_cat => $cat,
@@ -113,10 +113,10 @@ sub render_body {
         );
         $ret .= "</ul>";
     
-        $ret .= "<div class='theme-nav-separator'><hr /></div>";
+        $ret .= "<div class='theme-nav-separator section-nav-separator'><hr class='hr' /></div>";
     }
     
-    $ret .= "<ul class='theme-nav-small nostyle'>";
+    $ret .= "<ul class='theme-nav-small nostyle section-nav'>";
     $ret .= "<li class='first'><a href='$LJ::SITEROOT/customize/advanced/'>" . $class->ml('widget.themenav.developer') . "</a>";
     my $upsell = LJ::Hooks::run_hook( 'customize_advanced_area_upsell', $u ) || '';
     $ret .= "$upsell</li>";
@@ -124,7 +124,7 @@ sub render_body {
 
     $ret .= "</div>";
 
-    $ret .= "<div class='theme-nav-content'>";
+    $ret .= "<div class='theme-nav-content section-nav-content'>";
     $ret .= $class->html_hidden({ name => "theme_chooser_id", value => $theme_chooser_id, id => "theme_chooser_id" });
     $ret .= $theme_chooser->render(
         cat => $cat,

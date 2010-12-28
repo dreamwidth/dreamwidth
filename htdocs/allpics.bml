@@ -20,6 +20,7 @@ _c?>
     use vars qw(%GET $title $body $head);
 
     BML::set_language_scope( '/allpics.bml' );
+    LJ::need_res( 'stc/allpics.css' );
 
     $title = "$ML{'.title'}";
     $body = "";

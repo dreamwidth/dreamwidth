@@ -100,7 +100,7 @@ body<=
 
             if ($special) {
                 my $author = LJ::Hooks::run_hook("mood_theme_author", $theme->{moodthemeid});
-                $ret .= "<tr class='standout-border standout-background'><td style='padding-left: 5px;'>$theme->{'name'}";
+                $ret .= "<tr class='highlight-box'><td style='padding-left: 5px;'>$theme->{'name'}";
                 $ret .= "<br /><span style='font-size: smaller;'>" . BML::ml('.moodtheme.byauthor', {'author' => $author}) . "</span>" if $author;
                 $ret .= "</td>\n";
             } else {
@@ -146,7 +146,7 @@ body<=
         $ret .= "<td align='center'><input type='submit' value=\"$ML{'.btn.switch'}\" /></td></tr>\n";
 
         if (@special_themes && $items{page} == 1) {
-            $ret .= "<tr class='standout-border standout-background'>";
+            $ret .= "<tr class='highlight-box'>";
             $ret .= "<td style='padding-left: 5px;' colspan='8'><h2>$ML{'.specialthemes.header'}</h2></td>";
             $ret .= "</tr>";
             foreach my $theme (@special_themes) {

@@ -1,0 +1,29 @@
+.table-form td, .table-form thead th {
+  text-align:left;
+  padding:.3em;
+}
+
+.table-form table {
+  border-left:1px solid #999;
+  border-right:1px solid #999;
+}
+
+.table-form tr {
+  border-bottom:1px solid #999;
+}
+
+.table-form thead tr {
+  border-top:1px solid #999;
+}
+
+.table-form caption {
+  text-align:left;
+  font-size:120%;
+  padding:1em 0 .3em 0;
+}
+
+.table-form ul {
+  list-style-type:none;
+  margin:0;
+  padding:0;
+}

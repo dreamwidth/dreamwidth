@@ -22,13 +22,10 @@
 .moodtheme-form {
     float: left;
 }
-.moodtheme-preview {
+div.moodtheme-preview {
     float: left;
     padding: 5px;
     margin-left: 20px;
-    background-color: #ecf6ff;
-    border: 1px solid #ffd8d8;
-    width: 175px;
 }
 .moodtheme-preview-nospecial {
     width: 360px;
@@ -63,8 +60,6 @@
     font-weight: bold;
     font-style: italic;
     font-size: 11px;
-    color: #000;
-    background-color: #FFFFDD;
     margin: 0 !important;
     padding: 2px 4px;
 }

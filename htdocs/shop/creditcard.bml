@@ -28,7 +28,6 @@ body<=
 
     # this page uses new style JS
     LJ::need_res( 'stc/shop.css' );
-    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/shop-colors.css' );
     LJ::set_active_resource_group( 'jquery' );
 
     my $err = DW::Shop->remote_sysban_check;

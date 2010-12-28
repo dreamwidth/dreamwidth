@@ -113,7 +113,7 @@ _c?>
     my $trusted_us = LJ::load_userids( keys %$trust_list );
 
     # redirect to managing subscription filters
-    $body .= "<?standout " . BML::ml( '.subfilters', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/filters'" } ) . " standout?>\n\n";
+    $body .= "<div class='highlight-box'>" . BML::ml( '.subfilters', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/filters'" } ) . "</div>\n\n";
 
     # authas switcher form
     $body .= "<?p <form method='get' action='editfilters'>\n";

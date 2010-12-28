@@ -180,11 +180,9 @@ sub link_bar
 
     my $ret;
     if ( @linkele ) {
-        $ret = BML::fill_template("standout", {
-            'DATA' => "<table summary=''><tr><td valign='middle'>" .
+        $ret = qq{<div class="action-box">} .
                 join("&nbsp;&nbsp;", @linkele) .
-                "</td></tr></table>",
-            });
+                "</div>";
     }
     return $ret;
 }

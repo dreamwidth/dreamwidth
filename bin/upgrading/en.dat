@@ -42,6 +42,10 @@ cleanhtml.suspend_msg=This is a suspended entry.
 
 cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened, and your entry will be reviewed soon.
 
+collapsible.expanded=Collapse
+
+collapsible.collapsed=Expand
+
 contentflag.viewingconcepts.bycommunity=You are about to view content that a community administrator has advised should be viewed with discretion.
 
 contentflag.viewingconcepts.byjournal=You are about to view content that the journal owner has advised should be viewed with discretion.

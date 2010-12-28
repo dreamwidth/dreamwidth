@@ -32,8 +32,7 @@ head<=
     #left-column, #right-column { float: left; }
     legend { font-size: 1.2em; font-weight: bold; }
     p.input-wrapper { margin-left: 27px; text-indent: -27px; }
-    .standout { clear: left; max-width: 695px; }
-    .standout table { margin: 0 auto; }
+    .action-box { clear: both; }
 </style>
 <=head
 body<=
@@ -258,13 +257,13 @@ body<=
         LJ::set_active_crumb('createcommunity');
           $ret .= "<?h2 $ML{'.label.commheader'} h2?>" .
               ($mode eq 'modify' ? "<?p $ML{'.label.commchange'} p?>" : "<?p " . BML::ml('.label.commcreate2', {'aopts' => "href='$LJ::SITEROOT/create'"}) . " p?>");
-          $ret .= "<?standout <table summary='' width='350' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer'}</b></td>";
+          $ret .= "<div class='highlight-box'><table summary='' width='350' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer'}</b></td>";
           $ret .= "<td><?ljuser $remote->{'user'} ljuser?><br />" . BML::ml('.label.maintainer.login2', {'aopts' => "href='$LJ::SITEROOT/login?ret=1'"}) . "</td></tr>";
           $ret .= "<tr valign='top'><td><b>$ML{'.label.community'}</b></td>";
           $ret .= "<td>$ML{'.label.username'}<br /><input name='cuser' maxlength='25' value='$cname' /><br />";
           $ret .= "<?inerr $errors{'username'} inerr?><br />";
           $ret .= "$ML{'.label.password'}<br /><input name='cpassword' type='password' /><br />";
-          $ret .= "<?inerr $errors{'password'} inerr?></td></tr></table> standout?>";
+          $ret .= "<?inerr $errors{'password'} inerr?></td></tr></table> </div>";
     } else {
         LJ::set_active_crumb('commsettings');
           $ret .= LJ::html_hidden('cuser', $cname);
@@ -380,9 +379,9 @@ body<=
 
     $ret .= "</div>";
 
-    $ret .= "<div style='clear: left; max-width: 695px;'><?standout <input type='submit' value='" .
+    $ret .= "<div class='action-box'><input type='submit' value='" .
         ($mode eq 'create' ? "$ML{'.button.createcommunity'}" : "$ML{'.button.changecommunity2'}") .
-        "' /> standout?></div></form>";
+        "' /></div></form>";
 
     return $ret;
 }

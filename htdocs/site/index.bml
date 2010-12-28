@@ -20,10 +20,10 @@
 head<=
 <style type='text/css'>
 <!--
-dd ul li {list-style: disc; margin-left: 2em; }
+dd ul li { margin-left: 2em; }
 dt {font-weight: bold; margin-top: 10px;}
-#maplinks-left {margin-right: 1em; width: 48%; float: left;}
-#maplinks-right {margin-left: 1em; width: 48%; float: right;}
+#maplinks-left {margin-right: 2%; width: 48%; float: left;}
+#maplinks-right {margin-left: 2%; width: 48%; float: right;}
 -->
 </style>
 <=head

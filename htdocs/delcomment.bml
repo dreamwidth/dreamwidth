@@ -156,7 +156,7 @@ _info?><?_code
     $body .= "<form method='post' action='delcomment?";
     $body .= "journal=$u->{'user'}&id=$GET{'id'}'>\n";
     $body .= LJ::form_auth();
-    $body .= "<?standout ";
+    $body .= "<div class='highlight-box'>";
 
     $body .= "<div align='center' style='margin: 8px'>" . LJ::html_submit('confirm', $ML{'.confirm.submit'}) . "</div>\n";
 
@@ -177,7 +177,7 @@ _info?><?_code
         $body .= "<label for='delthread'>$ML{'.confirm.delthread'}</label></div>";
     }
 
-    $body .= " standout?>";
+    $body .= "</div>";
 
     if ($can_manage) {
         my $msg = BML::ml('.changeoptions', { 'link' =>

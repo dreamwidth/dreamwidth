@@ -225,7 +225,7 @@ HEAD
     };
 
     if ($tagcount) {
-        $ret .= "<select name='tags' id='tags' multiple='multiple' class='tagbox' " .
+        $ret .= "<select name='tags' id='tags' multiple='multiple' class='multiple-select tagbox' " .
                 "onChange='tagselect(this)'>";
         foreach (sort { $tagsort->() } keys %$tags) {
             my $tag = $tags->{$_};

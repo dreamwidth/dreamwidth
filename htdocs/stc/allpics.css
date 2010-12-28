@@ -1,0 +1,18 @@
+/* allpics styling */
+
+table.allpics {
+    margin-left: 50px;
+}
+
+.allpics td {
+    vertical-align: bottom;
+}
+
+.allpics .userpic-img {
+    margin-right: 1em;
+    margin-top: 15px;
+}
+
+.allpics blank {
+    width: 50px;
+}

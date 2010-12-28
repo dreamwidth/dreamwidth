@@ -70,22 +70,6 @@ ul.nostyle {
     padding: 0;
 }
 
-/* tables where rows alternate colors */
-table.alternating-rows th {
-    text-align: left;
-    padding: 6px 4px;
-}
-table.alternating-rows td {
-    padding: 6px 4px;
-    text-align: left;
-}
-table.alternating-rows tr.altrow1 {
-    background-color: #fff;
-}
-table.alternating-rows tr.altrow2 {
-    background-color: #eee;
-}
-
 /* columns for content layouts */
 
 div.columns-2 .columns-2-left {
@@ -141,48 +125,6 @@ div.columns-2-r300 .columns-2-right {
 .message blockquote {
     margin: 0;
     padding: 15px;
-}
-
-.standout-border {
-    padding: 6px;
-}
-
-
-/* Sidebars floated to the right */
-div.right-sidebar {
-    float: right;
-    width: 300px;
-    margin: 10px;
-    padding: 10px;
-}
-div.ad-sidebar {
-    width: 300px;
-    float: right;
-}
-
-.textbutton { 
-    cursor: pointer;
-}
-
-/* Solid background headings */
-h2.solid-neutral {
-    font-size: 14px;
-    font-family: Arial;
-    font-weight: bold;
-    margin: 0 0 8px 0;
-    padding: 5px 8px;
-}
-h2.solid-blue {
-    position: relative;
-    font-size: 14px;
-    font-family: Arial;
-    font-weight: bold;
-    margin: 0 0 8px 0;
-    padding: 5px 8px;
-}
-
-input.bright {
-    font-weight: bold;
 }
 
 .helper {

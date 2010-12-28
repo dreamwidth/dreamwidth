@@ -637,19 +637,6 @@ sub propgroup_name {
     return $gname;
 }
 
-sub s2_upsell {
-    my $class = shift;
-    my $getextra = shift;
-
-    my $ret .= "<?standout ";
-    $ret .= "<p>This style system is no longer supported.</p>";
-    $ret .= "<p><a href='$LJ::SITEROOT/customize/switch_system$getextra'><strong>Switch to S2</strong></a> for the latest features and themes.</p>";
-    $ret .= " standout?>";
-
-    return $ret;
-}
-
-
 
 sub get_cats {
     my $class = shift;
@@ -683,7 +670,6 @@ sub get_cats {
         },
         map { $_ => {
             text => $_,
-            main => 1,
             order => 3,
         } } LJ::S2Theme->all_categories( special => 0, all => 0 ),
     );

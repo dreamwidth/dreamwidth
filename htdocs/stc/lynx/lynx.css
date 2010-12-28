@@ -1,0 +1,121 @@
+.disabled {
+    color: #999 !important;
+    background: #efefef !important;
+    border-color: #ccc !important;
+}
+
+.tablist .tab a {
+    color: #000;
+    background: #ddd;
+	border-color: #ccc;
+}
+.tablist .tab a:hover, .tablist .tab a.active {
+    background: #eee;
+}
+.tab-header {
+    background: #eee;
+    border-top-color: #eee;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+.tab-container {
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.action-bar {
+    text-align: center;
+    background-color: #eeeeee;
+}
+.action-box {
+    display: table;
+    text-align: center;
+    margin: 0.5em auto 0 auto;
+    padding: 0.5em;
+}
+
+.select-list li, .NotificationInbox td {
+    border-color: #ccc;
+}
+.selected, .select-list li.selected, tr.selected td {
+    background-color: #eee;
+    border-color: #666666;
+}
+
+.message-box .title {
+    font-weight: bold;
+}
+.message-box h1.title {
+    text-align: center;
+}
+.highlight-box {
+    border: 1px solid #000000;
+    background: #EEEEEE;
+    color: #000;
+    padding: 0.5em;
+}
+.highlight-box, .message-box, .error-box {
+    margin: 1em auto;
+    padding: 0.5em;
+}
+
+.highlight, .highlight-box {
+}
+.warning-box {
+}
+.error-box {
+}
+
+.odd, tr.odd th, tr.odd td {
+    background-color: #fff;
+}
+.even, tr.even th, tr.even td,
+thead th, tfoot td {
+    background-color: #e2e2e2;
+}
+
+table.grid {
+    border-collapse: collapse;
+}
+table.grid, table.grid td {
+    border: 1px solid #999;    
+}
+
+.collapsible .collapse-button {
+    text-indent: 0 !important;
+    float: right !important;
+}
+
+.subheader {
+    border-bottom: 1px solid #ccc;
+}
+
+.simple-form .error input {
+    border: 3px solid #ff0000;
+}
+.simple-form .error .error-msg {
+    color: #ff0000;
+    display: block;
+}
+
+.hint-input {
+    color: #777;
+    border: 1px solid #CCC;
+}
+.hint-input:focus
+{
+    color: #000;
+    border: 1px solid #999;
+}
+
+
+/* Temporary page-specific */
+/* profile.css */
+.field_name, .section_subhead { background: #eee; }
+.section_head { background: #ccc; }
+
+/* talkpage */
+td.odd { background-color: #c0c0c0; }
+td.even { background-color: #e2e2e2; }
+td.screened { background-color: #707070; }
+td.highlight { background-color: #eeeeee; }

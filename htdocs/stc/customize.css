@@ -3,9 +3,8 @@ h2.widget-header {
     clear: left;
     font-family: Arial;
     font-weight: bold;
-    margin: 0 0 8px 0 !important;
-    padding: 5px 8px !important;
-    border: none !important;
+    margin: 0 0 8px 0
+    padding: 5px 8px;
 }
 
 .theme-current {
@@ -47,21 +46,12 @@ form.theme-switcher {
     position: relative;
 }
 
-.beta-feedback {
-    text-align: right;
-    margin-bottom: 10px;
-}
-
-.beta-feedback a {
-    padding-left: 35px;
-    background: url(/img/beta.gif) no-repeat 0 50%;
-}
-
 .theme-titles P {
     overflow: hidden;
     zoom: 1;
 }
 
-.theme-item {
-    border: 1px solid #666;
+.layout-item.highlight {
+    border-width: 1px;
+    border-style: solid;
 }

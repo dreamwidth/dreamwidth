@@ -19,7 +19,7 @@ body<=
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, "stc/customize.css" );
-    LJ::need_res( "js/customize.js" );
+    LJ::need_res( "js/customize.js", "stc/select-list.css" );
 
     $title = $ML{'.title2'};
 
@@ -65,11 +65,6 @@ body<=
         $ret .= LJ::bad_input(@errors) if @errors;
     }
 
-    my $handler = LJ::BetaFeatures->get_handler('customize2007');
-    if ($LJ::CUSTOMIZE_FEEDBACK_LINK && $handler->is_active) {
-        $ret .= "<div class='beta-feedback'><a href='$LJ::CUSTOMIZE_FEEDBACK_LINK'>$ML{'.customize_area_feedback'}</a></div>";
-    }
-
     $ret .= "<form action='$LJ::SITEROOT/customize/' method='get' class='theme-switcher'>";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, label => $ML{'.switcher.label'}, button => $ML{'.switcher.btn'} });
     $ret .= "</form>";
@@ -110,7 +105,7 @@ body<=
 
     $ret .= "<form method='POST'><div class='theme-customize'>";
     $ret .= LJ::form_auth();
-    $ret .= LJ::html_submit('nextpage', $ML{'.btn.nextpage'});
+    $ret .= LJ::html_submit( 'nextpage', $ML{'.btn.nextpage'}, { raw => qq{ class="submit" } } );
     $ret .= "</div>";
     $ret .= "</form>";
 

@@ -100,7 +100,7 @@ body<=
         # Turning results into a function, since it's going to be used elsewhere.
         my $anchorname = $_[0];
         my $anchor = $anchorname ? "#$anchorname" : "";
-        my $standoutbox = "<?standout <div style='text-align: center'>";
+        my $standoutbox = "<div class='action-box' style='text-align: center'>";
         $standoutbox .= "<a name='$anchorname'></a>";
 
         my $latest_received = $anchorname eq "received" ? $ML{'.latest.received'} : "<a href='#received'>$ML{'.latest.received'}</a>";
@@ -130,7 +130,7 @@ body<=
                 $standoutbox .= " <a href='?show=$val$getextra$anchor'>$val</a> ";
             }
         }
-        $standoutbox .= "] $ML{ '.comments' } </div> standout?>";
+        $standoutbox .= "] $ML{ '.comments' } </div>";
         # end anchor/standout box.
     };
  

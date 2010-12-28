@@ -456,9 +456,9 @@ body<=
     $ret .= '</div><br />';
 
 
-    $ret .= "<?standout ";
+    $ret .= qq{<div class='action-box'>};
     $ret .= LJ::html_submit( $ML{'.save'} );
-    $ret .= " standout?>";
+    $ret .= "</div>";
     $ret .= "</form>";
     $ret .= LJ::Hooks::run_hook('sms_footer');
     return $ret;

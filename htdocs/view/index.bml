@@ -143,9 +143,8 @@ _c?>
         my $prev = "<a href='" . $base . "/$prev[0]/" . sprintf("%02d", $prev[1]) . "/'>";
         $prev .= LJ::img( "btn_prev", "", { border => 0 } ) . "</a>";
 
-        $body .= "<?standout \n";
         $body .= "<form method='post' action='$LJ::SITEROOT/view/' style='display:inline'><input type='hidden' name='type' value='month' /><input type='hidden' name='user' value='$u->{'user'}' />";
-        $body .= "<table summary=''><tr valign='middle'>";
+        $body .= "<table summary='' class='highlight-box'><tr valign='middle'>";
         $body .= "<td><b>$prev</b></td>";
         $body .= "<td><select name='m'>";
         for (my $i=1;$i<=12;$i++) {
@@ -155,7 +154,7 @@ _c?>
         $body .= "</select> <input type=text name=y maxlength=4 size=4 value=$year> <input type=submit value=\"View\"></td>";
         $body .= "<td><b>$next</b></td>";
         $body .= "</tr></table>";
-        $body .= " standout?></form>\n";
+        $body .= "</form>\n";
     }
 
     $body .= "<dl>\n";

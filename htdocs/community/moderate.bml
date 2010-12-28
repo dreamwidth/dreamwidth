@@ -451,7 +451,7 @@ body<=
         $actions .= "&nbsp;&nbsp;<input type='submit' name='action:mark_as_spam' value='$ML{'.choice.mark_as_spam'}' style='font-size: 15pt; background: #e08291; color: #000000' />" if $can_spam;
 
         $ret .= "<form method='post' action='/community/moderate'>";
-        $ret .= BML::fill_template("standout", {'DATA'=> $actions});
+        $ret .= "<div class='action-bar'>$actions</div>";
         $ret .= "</form>";
 
         my %current = LJ::currents( $props, $up );

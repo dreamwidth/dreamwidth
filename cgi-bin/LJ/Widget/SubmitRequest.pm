@@ -123,7 +123,7 @@ sub render_body {
         $ret .= "</div>";
     }
 
-    $ret .= "<br /><?standout <input type='submit' value='" . $class->text_submit(%opts) . "' /> standout?>";
+    $ret .= "<br /><div class='action-box'><input type='submit' value='" . $class->text_submit(%opts) . "' /> </div>";
     $ret .= $class->end_form;
 
     return $ret;

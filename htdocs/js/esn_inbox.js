@@ -19,7 +19,7 @@ ESN_Inbox.initTableSelection = function (folder) {
     var selectedRows = new SelectableTable;
     selectedRows.init({
         "table": $(folder),
-            "selectedClass": "Selected",
+            "selectedClass": "selected",
             "multiple": true,
             "checkboxClass": "InboxItem_Check",
             "selectableClass": "InboxItem_Row"

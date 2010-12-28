@@ -334,35 +334,35 @@ body<=
     my $page = $opts->{'out_page'};
     my $pages = $opts->{'out_pages'};
 
-    ########## make the navcrap
-    my $navcrap = '';
+    ########## make the nav
+    my $nav = '';
     if ($pages > 1) {
-        $navcrap .= "<table summary='' id='journalnav'>";
-        $navcrap .= "<tr><td align='center' colspan='3'>";
-        $navcrap .= BML::ml('ljlib.pageofpages',{'page'=>$page, 'total'=>$pages});
-        $navcrap .= "</td></tr>";
+        $nav .= "<table summary='' id='journalnav'>";
+        $nav .= "<tr><td align='center' colspan='3'>";
+        $nav .= BML::ml('ljlib.pageofpages',{'page'=>$page, 'total'=>$pages});
+        $nav .= "</td></tr>";
         my $left = "&lt;&lt;";
         if ($page > 1) { $left = "<a href='" . BML::self_link({ 'page' => $page-1 }) . "#comments'>$left</a>"; }
 
         my $right = "&gt;&gt;";
         if ($page < $pages) { $right = "<a href='" . BML::self_link({ 'page' => $page+1 }) . "#comments'>$right</a>"; }
 
-        $navcrap .= "<tr><td style='font-size: 85%' align='center'>$left</td><td style='font-size: 85%' align='center'>";
+        $nav .= "<tr><td style='font-size: 85%' align='center'>$left</td><td style='font-size: 85%' align='center'>";
 
         for (my $i=1; $i<=$pages; $i++) {
             my $link = "[$i]";
             if ($i != $page) { $link = "<a href='" . BML::self_link({ 'page' => $i }) . "#comments'>$link</a>"; }
             else { $link = "<span style='font-size: 130%; font-weight: bolder'>$link</span>"; }
-            $navcrap .= "$link ";
-            if ($i == 11)  { $navcrap .= "<br />"; }
-            elsif ($i > 10 && $i % 10 == 0) { $navcrap .= "<br />"; }
+            $nav .= "$link ";
+            if ($i == 11)  { $nav .= "<br />"; }
+            elsif ($i > 10 && $i % 10 == 0) { $nav .= "<br />"; }
         }
 
-        $navcrap .= "</td><td style='font-size: 85%' align='center'>$right</td></tr>";
-        $navcrap .= "</table>\n";
-        $navcrap = BML::fill_template("standout", { 'DATA' => $navcrap });
+        $nav .= "</td><td style='font-size: 85%' align='center'>$right</td></tr>";
+        $nav .= "</table>\n";
+        $nav = qq{<div class="action-box">$nav</div>};
     }
-    ####### end navcrap
+    ####### end nav
 
     # Quick reply variables.  Not always set.
     my ($last_talkid, $last_jid) = LJ::get_lastcomment();
@@ -390,13 +390,10 @@ body<=
         my $datepost = LJ::S2::sitescheme_secs_to_iso( $post->{datepost_unix}, tz => 1 );
 
         my $level = ($opts->{'depth'} % 2) ? "even" : "odd";
-        my $bgcolor = ($opts->{'depth'} % 2) ? "emcolorlite" : "emcolor";
-        $bgcolor = BML::get_template_def($bgcolor);
-        if ($post->{'state'} eq "S") {
-            $bgcolor = BML::get_template_def("screenedbarcolor") || $bgcolor;
-        } elsif ( $last_talkid == $dtid && $last_jid == $u->userid ) {
-            $bgcolor = BML::get_template_def("altcolor1");
-        }
+
+        my $additional_classes = "";
+        $additional_classes .= "screened" if $post->{state} eq "S";
+        $additional_classes .= "highlight" if $last_talkid == $dtid && $last_jid == $u->userid;
 
         # Gather information about the comment poster
         my $pu = $post->{'posterid'} ? $user{$post->{'posterid'}} : undef;
@@ -456,7 +453,7 @@ body<=
 
                 $ret .= "<div id='$htmlid'><table summary='' width='100%' class='talk-comment'><tbody><tr>";
                 $ret .= "<td rowspan='2'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
-                $ret .= "<td id='cmtbar$dtid' class='cmtbar-$level' style='background-color: $bgcolor' width='100%'>";
+                $ret .= "<td id='cmtbar$dtid' class='cmtbar $level $additional_classes' width='100%'>";
 
                 # Build the image tag for the comment's userpic, if there is one
                 if ($post->{picid}) {
@@ -667,7 +664,7 @@ body<=
     } else {
         $ret .= "<div id='Comments'>";
         $ret .= "<a name='comments'></a>";
-        $ret .= "<p>$navcrap</p>" if $navcrap;
+        $ret .= "<p>$nav</p>" if $nav;
 
         my $readlink;
         my $replycount = $entry->prop("replycount");
@@ -773,8 +770,8 @@ body<=
 
         $ret .= "</form>";
 
-        if ($navcrap) {
-            $ret .= "<p>$navcrap</p>";
+        if ($nav) {
+            $ret .= "<p>$nav</p>";
         }
 
         $ret .= "</div>";

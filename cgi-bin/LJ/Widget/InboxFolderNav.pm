@@ -47,7 +47,7 @@ sub render_body {
         my $unread = shift || "";
         my $img = shift || 0;
 
-        $class .= " active" if $opts{view} && $opts{view} eq $link_view;
+        $class .= " selected" if $opts{view} && $opts{view} eq $link_view;
 
         my $link = qq{<a href=".?view=$link_view" class="$class" id="esn_folder_$link_view">};
         $link .= BML::ml( $link_label );
@@ -81,7 +81,7 @@ sub render_body {
 
     my $unread_all_html = $unread_html->( $unread_count );
     $body .= '<a href="." id="esn_folder_all"';
-    $body .= ' class="active"' unless $opts{view};
+    $body .= ' class="selected"' unless $opts{view};
     $body .= "><?_ml inbox.menu.all _ml?>$unread_all_html</a>";
     $body .= $subfolder_link->( "usermsg_recvd", "inbox.menu.messages", "subs", 
         $unread_html->( $inbox->usermsg_recvd_event_count ) ) if LJ::is_enabled( 'user_messaging' );

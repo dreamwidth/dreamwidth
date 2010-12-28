@@ -1,4 +1,4 @@
-<div id='shop-status-bar' class='standout-colors'>
+<div id='shop-status-bar' class='highlight-box'>
     <div class='shop-status-left'>
         [% IF remote %]
             [% IF remote.is_person %]

@@ -666,11 +666,12 @@ body<=
 
     if ($ans_type{'answer'} || $ans_type{'screened'})
     {
-        $ret .= BML::ml('.important.notes.text', {
+        $ret .= "<div class='highlight-box'>";
+        $ret .= BML::ml('.important.notes.text2', {
                 sitenameshort=>$LJ::SITENAMESHORT,
                 supportlink=>"href='$LJ::SITEROOT/doc/guide/support'",
             });
-        $ret .= "\n";
+        $ret .= "</div>\n";
     }
 
     # append_request form

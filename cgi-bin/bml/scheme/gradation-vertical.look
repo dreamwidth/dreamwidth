@@ -29,7 +29,8 @@ head<=
 
     <?_code
         LJ::need_res( { priority => $LJ::SCHEME_RES_PRIORITY },
-            qw( stc/jquery/jquery.ui.theme.dark-hive.css
+            qw( stc/reset.css
+                stc/jquery/jquery.ui.theme.dark-hive.css
                 stc/lj_base-app.css
                 stc/gradation/gradation.css
             )

@@ -53,7 +53,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
   <div class="login-create-account"> 
     <hr class="hr" /> 
     <h4>[% '.createaccount.header' | ml( sitename = site.name ) %]</h4> 
-    <form action="[% roots.site %]/create" method="get"><input type="submit" value="[% '.createaccount.button' | ml %]" class="create-account" tabindex="18" /></form> 
+    <form action="[% roots.site %]/create" method="get"><input type="submit" value="[% '.createaccount.button' | ml %]" class="submit" tabindex="18" /></form> 
       <ul> 
         <li>[% '.createaccount.whylogin.benefit1' | ml %]</li>
         <li>[% '.createaccount.whylogin.benefit2' | ml %]</li>

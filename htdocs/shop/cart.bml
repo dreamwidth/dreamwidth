@@ -26,7 +26,6 @@ body<=
 
     # this page uses new style JS
     LJ::need_res( 'stc/shop.css' );
-    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/shop-colors.css' );
     LJ::set_active_resource_group( 'jquery' );
 
     $title = $ML{'.title'};
@@ -37,12 +36,16 @@ body<=
     my $ret;
     $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a> &bull; <a href='$LJ::SITEROOT/shop/gifts'>$ML{'.gift'}</a></p>";
 
-    $ret .= "<?standout <strong>$ML{'.payment.failed.title'}</strong><br /><br />$ML{'.payment.failed'} standout?>\n"
+    $ret .= qq{
+        <div class='warning-box message-box'>
+            <div class='title'>$ML{'.payment.failed.title'}</div>
+            <p>$ML{'.payment.failed'}</p>
+        </div>\n}
         if $GET{failed};
 
     if ( LJ::did_post() ) {
         my %from_post = LJ::Widget->handle_post( \%POST, ( 'ShopCart' ) );
-        $ret .= "<div class='shop-error'>$from_post{error}</div>"
+        $ret .= "<div class='shop-error error-box'>$from_post{error}</div>"
             if $from_post{error};
     }
 

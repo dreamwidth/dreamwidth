@@ -44,9 +44,9 @@ sub render_body {
     my $designer = $theme->designer;
 
     my $ret;
-    $ret .= "<h2 class='widget-header'><span>" . $class->ml('widget.currenttheme.title', {'user' => $u->ljuser_display}) . "</span></h2>";
+    $ret .= "<div class='highlight-box'><h2 class='widget-header'><span>" . $class->ml('widget.currenttheme.title', {'user' => $u->ljuser_display}) . "</span></h2>";
     $ret .= "<div class='theme-current-content pkg'>";
-    $ret .= "<img src='" . $theme->preview_imgurl . "' class='theme-current-image' />";
+    $ret .= "<img src='" . $theme->preview_imgurl . "' class='theme-current-image preview-image' />";
     $ret .= "<h3>" . $theme->name . "</h3>";
 
     my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$showarg' class='theme-current-layout'><em>$layout_name</em></a>";
@@ -64,7 +64,7 @@ sub render_body {
     }
     $ret .= "</p>";
 
-    $ret .= "<div class='theme-current-links'>";
+    $ret .= "<div class='theme-current-links inset-box'>";
     $ret .= $class->ml('widget.currenttheme.options');
     $ret .= "<ul class='nostyle'>";
     if ($no_theme_chooser) {
@@ -90,6 +90,7 @@ sub render_body {
     $ret .= "</ul>";
     $ret .= "</div><!-- end .theme-current-links -->";
     $ret .= "</div><!-- end .theme-current-content -->";
+    $ret .= "</div>";
 
     return $ret;
 }

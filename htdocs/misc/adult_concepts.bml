@@ -60,8 +60,8 @@ body<=
         $markedby = $journal->adult_content_marker;
     }
 
-    $ret .= "<div class='adult_warning adult_concepts'>";
-    $ret .= "<h1 style='text-align: center;'>$ML{'.title.NSFW'}</h1>";
+    $ret .= "<div class='adult_warning adult_concepts warning-box message-box'>";
+    $ret .= "<h1 class='title'>$ML{'.title.NSFW'}</h1>";
     $ret .= "<p>" . BML::ml( '.message.concepts.by' . $markedby, { journal => $journal->ljuser_display, poster => $poster->ljuser_display } ) . "</p>";
     $ret .= DW::Logic::AdultContent->interstitial_reason( $journal, $entry );
     $ret .= "</div>";

@@ -20,6 +20,8 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 
+sub need_res { qw( stc/widgets/createaccountentercode.css ) }
+
 sub render_body {
     my $class = shift;
     my %opts = @_;
@@ -55,7 +57,7 @@ sub render_body {
     $ret .= "<p>" . $class->ml( 'widget.createaccountentercode.info' ) . "</p>";
 
     $ret .= "<form method='get' action='$LJ::SITEROOT/create'>";
-    $ret .= "<?standout " . $class->ml( 'widget.createaccountentercode.code' ) . " ";
+    $ret .= "<div class='highlight-box' id='code_box'>" . $class->ml( 'widget.createaccountentercode.code' ) . " ";
     $ret .= LJ::html_text( {
         name => 'code',
         value => LJ::ehtml( $code ),
@@ -64,7 +66,7 @@ sub render_body {
     } );
     $ret .= " " . LJ::html_submit( $class->ml( 'widget.createaccountentercode.btn.proceed' ) );
     $ret .= $error_msg->( 'code', '<br /><span class="formitemFlag">', '</span>' );
-    $ret .= " standout?>";
+    $ret .= "</div>";
     $ret .= LJ::html_hidden( ssl => $get->{ssl} ) if $get->{ssl};
     $ret .= "</form>";
 

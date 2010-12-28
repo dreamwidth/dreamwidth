@@ -219,7 +219,7 @@ body<=
 </table>
 <br />
 END
-    $ret .= "<table class='alternating-rows' cellpadding='0' cellspacing='0'>\n<tr>" .
+    $ret .= "<table cellpadding='0' cellspacing='0'>\n<tr>" .
             "<th><a href='${sortlink}name'>$ML{'/community/members.bml.key.user'}</a></th>";
     $ret .= "<th><a href='${sortlink}$_'>$_</a></th>" foreach @titleattribs;
     $ret .= "<th><a href='${sortlink}maint'>$ML{'.key.sentby'}</a></th>";
@@ -238,7 +238,7 @@ END
     # rows for existing users
     my $rc = 0;
     foreach(@users) {
-        my $rstyle = ($rc++ & 1) ? "altrow2" : "altrow1";
+        my $rstyle = ($rc++ & 1) ? "odd" : "even";
         $ret .= "<tr class='$rstyle'><td>" . LJ::ljuser($_->{user}) . "</td>";
         foreach my $key (@attribs) {
             $ret .= "<td align='center'>";

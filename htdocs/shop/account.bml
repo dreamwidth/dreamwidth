@@ -27,7 +27,6 @@ body<=
 
     # this page uses new style JS
     LJ::need_res( 'stc/shop.css' );
-    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/shop-colors.css' );
     LJ::set_active_resource_group( 'jquery' );
 
     # let's see what they're trying to do
@@ -84,7 +83,7 @@ body<=
         }
 
         if ( $error ) {
-            $ret .= qq{<div class="shop-error">$error</div>};
+            $ret .= qq{<div class="error-box">$error</div>};
         } else {
             return BML::redirect( "$LJ::SITEROOT/shop" );
         }

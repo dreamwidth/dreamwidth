@@ -71,7 +71,7 @@ body<=
 
         my $old_email = $is_identity_no_email ? "<em>$ML{'.noemail'}</em>" : $u->email_raw;
 
-        $ret .= "<?standout\n";
+        $ret .= "<div class='highlight-box'>\n";
 
         $ret .= LJ::make_authas_select($remote, { 'authas' => $FORM{'authas'} });
 
@@ -86,11 +86,11 @@ body<=
             $ret .= "<input type='password' name='password' size='50' maxlength='50' tabindex='2' /></div>\n";
         }
 
-        $ret .= "standout?>\n";
+        $ret .= "</div>\n";
         $ret .= "<br />\n";
-        $ret .= "<?standout\n";
+        $ret .= "<div class='action-box'>\n";
         $ret .= "<input type='submit' tabindex='3' value=\"$ML{'.btn.change'}\" />\n";
-        $ret .= "standout?>\n";
+        $ret .= "</div>\n";
         $ret .= "</form>\n";
         return $ret;
     };

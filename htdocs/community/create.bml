@@ -126,7 +126,7 @@ SUBMIT:
         $ret = "<?h1 $ML{'.success.head'} h1?><?p $ML{'.success.text1'} p?>";
         my $uri = $u->journal_base;
         $ret .= "<?p $ML{'.success.text2'} p?>\n";
-        $ret .= "<?standout <font size='+1' face='arial'><b><a href='$uri'>$uri/</a></b></font> standout?>\n";
+        $ret .= "<div class='highlight-box'><b><a href='$uri'>$uri/</a></b></div>\n";
         $ret .= "<?p $ML{'.success.text3'} p?>\n";
 
         $ret .= "<form method='get' action='$LJ::SITEROOT/manage/profile/'>";
@@ -244,7 +244,7 @@ SUBMIT:
 
         $ret .= "</ol>";
 
-        $ret .= "<?standout <input type='submit' value=\"$ML{'.btn.create'}\"> standout?>";
+        $ret .= "<div class='action-box'><input type='submit' value=\"$ML{'.btn.create'}\"></div>";
         $ret .= "</form>";
 
         return $ret;

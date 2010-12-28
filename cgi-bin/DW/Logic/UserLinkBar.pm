@@ -162,7 +162,7 @@ sub manage_membership {
                                         'userlinkbar.joincomm.title.closed' :
                                         'userlinkbar.joincomm.title.loggedout';
                 $link->{image}    = 'community_join_disabled.png';
-                $link->{class}    = "join_disabled";
+                $link->{class}    = "join_disabled disabled";
 
             # allowed to join
             } else {
@@ -207,7 +207,7 @@ sub trust {
             }
         } else {
             $link->{title_ml} = 'userlinkbar.addtrust.title.loggedout';
-            $link->{class} = "addtrust_disabled";
+            $link->{class} = "addtrust_disabled disabled";
             $link->{image} = 'access_grant_disabled.png';
         }
 
@@ -266,13 +266,13 @@ sub watch {
     } else {
         $link->{title_ml} = 'userlinkbar.addsub.title.loggedout';
         if ( $u->is_community ) {
-            $link->{class} = "addsub_comm_disabled";
+            $link->{class} = "addsub_comm_disabled disabled";
             $link->{image} = 'subscription_add_disabled.png';
         } elsif ( $u->is_syndicated ) {
-            $link->{class} = "addsub_feed_disabled";
+            $link->{class} = "addsub_feed_disabled disabled";
             $link->{image} = 'subscription_add_disabled.png';
         } else {
-            $link->{class} = "addsub_person_disabled";
+            $link->{class} = "addsub_person_disabled disabled";
             $link->{image} = 'subscription_add_disabled.png';
         }
     }
@@ -314,7 +314,7 @@ sub post {
         return $self->fix_link ( {
             text_ml => 'userlinkbar.post',
             title_ml => $remote ? 'userlinkbar.post.title.cantpost' : 'userlinkbar.post.title.loggedout',
-            class => "postentry_disabled",
+            class => "postentry_disabled disabled",
             image => 'post_disabled.png',
         } );
     }
@@ -356,7 +356,7 @@ sub track {
             $link->{image} = 'track.png';
         } else {
             $link->{title_ml} = $remote ? 'userlinkbar.trackuser.title.cantuseesn' : 'userlinkbar.trackuser.title.loggedout';
-            $link->{class} = "trackuser_disabled";
+            $link->{class} = "trackuser_disabled disabled";
             $link->{image} = 'track_disabled.png';
         }
 
@@ -391,7 +391,7 @@ sub message {
             $link->{image} = 'message.png';
         } else {
             $link->{title_ml} = $remote ? 'userlinkbar.sendmessage.title.cantsendmessage' : 'userlinkbar.sendmessage.title.loggedout';
-            $link->{class} = "sendmessage_disabled";
+            $link->{class} = "sendmessage_disabled disabled";
             $link->{image} = 'message_disabled.png';
         }
 

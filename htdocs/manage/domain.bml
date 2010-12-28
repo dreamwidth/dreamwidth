@@ -140,7 +140,7 @@ body<=
     }
 
     ### ending submit block
-    $ret .= "<?standout " . LJ::html_submit(undef, $ML{'.done.btn.savechanges'}) . " standout?>\n";
+    $ret .= "<div class='action-box'>" . LJ::html_submit(undef, $ML{'.done.btn.savechanges'}) . "</div>\n";
     $ret .= "</form>\n";
 
     return $ret;

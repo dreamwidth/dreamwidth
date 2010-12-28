@@ -138,7 +138,7 @@ sub render_body {
 
     unless (@$nitems) {
         $messagetable .= qq {
-            <tr><td class="NoItems" colspan="3" id="NoMessageTD"><?_ml inbox.nomessages _ml?></td></tr>
+            <tr><td class="NoItems status-hint" colspan="3" id="NoMessageTD"><?_ml inbox.nomessages _ml?></td></tr>
             };
     }
 
@@ -154,7 +154,7 @@ sub render_body {
 
         my $qid  = $inbox_item->qid;
 
-        my $read_class = $inbox_item->read ? "InboxItem_Read" : "InboxItem_Unread";
+        my $read_class = $inbox_item->read ? "InboxItem_Read read" : "InboxItem_Unread";
 
         my $title  = $inbox_item->title(mode => $opts{mode});
 
@@ -175,7 +175,7 @@ sub render_body {
         my $when = LJ::diff_ago_text( $inbox_item->when_unixtime );
         my $contents = $inbox_item->as_html || '';
 
-        my $row_class = ($rownum++ % 2 == 0) ? "InboxItem_Meta" : "InboxItem_Meta alt";
+        my $row_class = ($rownum++ % 2 == 0) ? "InboxItem_Meta odd" : "InboxItem_Meta even";
 
         my $expandbtn = '';
         my $content_div = '';
@@ -208,7 +208,7 @@ sub render_body {
                     <span class="$read_class" id="${name}_Title_$qid">$title</span>
                     $content_div
                     </td>
-                    <td class="time">$when</td>
+                    <td class="time detail">$when</td>
                 </tr>
         };
     }

@@ -32,7 +32,7 @@ body<=
     if ( LJ::did_post() ) {
         return "<?h1 $ML{'Error'} ?h1> $ML{'error.invalidform'}" unless LJ::check_form_auth();
         if ( DW::InviteCodeRequests->create( userid => $remote->id, reason => $POST{reason} ) ) {
-            $ret .= "<?standout $ML{'.msg.request.success'} standout?>";
+            $ret .= "<div class='highlight-box'>$ML{'.msg.request.success'}</div>";
         } else {
             $ret .= "<?errorbar $ML{'.msg.request.error'} errorbar?>";
         }

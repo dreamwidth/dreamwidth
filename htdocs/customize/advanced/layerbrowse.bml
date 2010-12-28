@@ -177,7 +177,7 @@ _c?>
     # layerinfo
     if (my $info = $s2info->{'info'}) {
         $body .= "<?h1 $ML{'.layerinfo.header'} h1?>";
-        $body .= "<table summary='' id='table_layerbrowse_layerinfo' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2'>";
+        $body .= "<table summary='' id='table_layerbrowse_layerinfo' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2'>";
         foreach my $k (sort keys %$info) {
             my ($ek, $ev) = map { LJ::ehtml($_) } ($k, $info->{$k});
             $title = $ev if $k eq "name";
@@ -224,7 +224,7 @@ _c?>
     # sets
     if (my $set = $s2info->{'set'}) {
         $body .= "<?h1 $ML{'.propertiesset.header'} h1?>";
-        $body .= "<table summary='' id='table_layerbrowse_properties' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
+        $body .= "<table summary='' id='table_layerbrowse_properties' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
         foreach my $k (sort keys %$set) {
             my $v = $set->{$k};
 
@@ -239,7 +239,7 @@ _c?>
     my $gb = $s2info->{'global'};
     if (ref $gb eq "HASH" && %$gb) {
         $body .= "<?h1 $ML{'.globalfunctions.header'} h1?>";
-        $body .= "<table summary='' id='table_layerbrowse_global' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
+        $body .= "<table summary='' id='table_layerbrowse_global' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
         foreach my $fname (sort keys %$gb) {
             my $rt = $gb->{$fname}->{'returntype'};
             if (defined $class->{$rt}) {
@@ -317,7 +317,7 @@ _c?>
             };
             $add->($add, $cname);
 
-            $body .= "<table summary='' id='table_layerbrowse_members' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.members.header'} h2?>" if %var;
+            $body .= "<table summary='' id='table_layerbrowse_members' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.members.header'} h2?>" if %var;
             foreach (sort keys %var) {
                 my $type = $var{$_}->{'type'};
                 $type =~ s/(\w+)/defined $class->{$1} ? "[class[$1]]" : $1/eg;
@@ -334,7 +334,7 @@ _c?>
             }
             $body .= "</table>" if %var;
             
-            $body .= "<table summary='' id='table_layerbrowse_methods' class='table_layerbrowse' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.methods.header'} h2?>" if %func;
+            $body .= "<table summary='' id='table_layerbrowse_methods' class='table_layerbrowse grid' style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.methods.header'} h2?>" if %func;
             foreach (sort keys %func) {
                 my $rt = $func{$_}->{'returntype'};
                 if (defined $class->{$rt}) {
@@ -363,15 +363,6 @@ head<=
 table.table_layerbrowse td.func, table.table_layerbrowse td.method {
     padding-left: 1.7em;
     text-indent: -1.5em;
-}
-
-table.table_layerbrowse td {
-    padding: 3px;
-}
-
-table#table_layerbrowse_classes ul {
-    list-style: circle outside none;
-    margin-left: 1em;
 }
 </style>
 <=head

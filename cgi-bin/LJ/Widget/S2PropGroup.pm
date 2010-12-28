@@ -19,7 +19,7 @@ use Carp qw(croak);
 use LJ::Customize;
 
 sub authas { 1 }
-sub need_res { qw( stc/widgets/s2propgroup.css js/colorpicker.js ) }
+sub need_res { qw( stc/widgets/s2propgroup.css js/colorpicker.js stc/collapsible.css ) }
 sub need_res_opts { ( priority => $LJ::OLD_RES_PRIORITY ) }
 
 sub render_body {
@@ -54,7 +54,10 @@ sub render_body {
 
         $ret .= "<p class='detail'>" . $class->ml('widget.s2propgroup.presentation.note') . "</p>";
 
-        $ret .= "<div class='subheader subheader-presentation on' id='subheader__presentation__basic'>" . $class->ml('widget.s2propgroup.presentation.basic') . "</div>";
+        $ret .= "<div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__basic'><div class='collapse-button'>" 
+         . $class->ml('collapsible.expanded')
+         . "</div> "
+         . $class->ml('widget.s2propgroup.presentation.basic') . "</div>";
         $ret .= "<table summary='' cellspacing='0' class='prop-list first' id='proplist__presentation__basic'>";
         $ret .= $class->language_chooser($u) if $opts{show_lang_chooser};
         foreach my $prop_name (@basic_props) {
@@ -62,9 +65,9 @@ sub render_body {
 
             if ($opts{show_lang_chooser}) {
                 # start on gray, since the language chooser will be white
-                $row_class = $count % 2 != 0 ? " graybg" : "";
+                $row_class = $count % 2 != 0 ? " odd" : " even";
             } else {
-                $row_class = $count % 2 == 0 ? " graybg" : "";
+                $row_class = $count % 2 == 0 ? " even" : " odd";
             }
             $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
             $count++;
@@ -79,11 +82,14 @@ sub render_body {
             # need to print the header inside the foreach because we don't want it printed if
             # there's no props in this group that are also in this subheader
             unless ($header_printed) {
-                $ret .= "<div class='subheader subheader-presentation on' id='subheader__presentation__additional'>" . $class->ml('widget.s2propgroup.presentation.additional') . "</div>";
+                $ret .= "<div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__additional'><div class='collapse-button'>" 
+                    . $class->ml('collapsible.expanded')
+                    . "</div> "
+                    .  $class->ml('widget.s2propgroup.presentation.additional') . "</div>";
                 $ret .= "<table summary='' cellspacing='0' class='prop-list' id='proplist__presentation__additional'>";
             }
             $header_printed = 1;
-            $row_class = $count % 2 == 0 ? " graybg" : "";
+            $row_class = $count % 2 == 0 ? " even" : " odd";
             $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
             $count++;
         }
@@ -176,14 +182,16 @@ sub render_body {
                     my $prop_list_class;
                     $prop_list_class = " first" if $subheader_counter == 1;
 
-                    $ret .= "<div class='subheader subheader-modules on' id='subheader__modules__${subheader}'>$subheaders{$subheader}</div>";
+                    $ret .= "<div class='subheader subheader-modules collapsible expanded' id='subheader__modules__${subheader}'><div class='collapse-button'>" 
+                     . $class->ml('collapsible.expanded')
+                     . "</div> $subheaders{$subheader}</div>";
                     $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__modules__${subheader}'>";
                     $header_printed = 1;
                     $subheader_counter++;
                     $count = 1; # reset counter
                 }
 
-                $row_class = $count % 2 == 0 ? " graybg" : "";
+                $row_class = $count % 2 == 0 ? " even" : " odd";
 
                 $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props, \%grouped_prop_override );
                 $count++;
@@ -227,14 +235,16 @@ sub render_body {
                     my $prop_list_class = "";
                     $prop_list_class = " first" if $subheader_counter == 1;
 
-                    $ret .= "<div class='subheader subheader-$propgroup on' id='subheader__${propgroup}__${subheader}'>$subheaders{$subheader}</div>";
+                    $ret .= "<div class='subheader subheader-$propgroup collapsible expanded' id='subheader__${propgroup}__${subheader}'><div class='collapse-button'>" 
+                     . $class->ml('collapsible.expanded')
+                     . "</div>$subheaders{$subheader}</div>";
                     $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__${propgroup}__${subheader}'>";
                     $header_printed = 1;
                     $subheader_counter++;
                     $count = 1; # reset counter
                 }
 
-                $row_class = $count % 2 == 0 ? " graybg" : "";
+                $row_class = $count % 2 == 0 ? " even" : " odd";
                 $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
                 $count++;
             }
@@ -577,6 +587,16 @@ sub group_exists_with_props {
 }
 
 sub js {
+    my $collapsed = LJ::ejs_string( LJ::Lang::ml( 'collapsible.collapsed' ) );
+    my $expanded = LJ::ejs_string( LJ::Lang::ml( 'collapsible.expanded' ) );
+
+    qq [
+        ml: {
+            collapsed: $collapsed,
+            expanded: $expanded
+        },
+    ]
+    . 
     q [
         initWidget: function () {
             var self = this;
@@ -619,7 +639,7 @@ sub js {
             var proplistid = subheaderid.replace(/subheader/, 'proplist');
 
             // figure out whether to expand or collapse
-            var expand = !DOM.hasClassName($(subheaderid), 'on');
+            var expand = !DOM.hasClassName($(subheaderid), 'expanded');
             if (override) {
                 if (override == "expand") {
                     expand = 1;
@@ -630,11 +650,25 @@ sub js {
 
             if (expand) {
                 // expand
-                DOM.addClassName($(subheaderid), 'on');
+                DOM.removeClassName($(subheaderid), 'collapsed');
+                DOM.addClassName($(subheaderid), 'expanded');
+
+                DOM.getElementsByClassName($(subheaderid), 'collapse-button')
+                    .forEach( function(button) {
+                        button.innerText = self.ml.expanded;
+                    } );
+
                 $(proplistid).style.display = "block";
             } else {
                 // collapse
-                DOM.removeClassName($(subheaderid), 'on');
+                DOM.removeClassName($(subheaderid), 'expanded');
+                DOM.addClassName($(subheaderid), 'collapsed');
+
+                DOM.getElementsByClassName($(subheaderid), 'collapse-button')
+                    .forEach( function(button) {
+                        button.innerText = self.ml.collapsed;
+                    } );
+
                 $(proplistid).style.display = "none";
             }
         },

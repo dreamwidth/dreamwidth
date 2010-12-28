@@ -18,8 +18,6 @@ use base qw(LJ::Widget);
 use Carp qw(croak);
 
 sub authas { 1 }
-sub need_res { qw( stc/widgets/linkslist.css ) }
-sub need_res_opts { priority => $LJ::OLD_RES_PRIORITY }
 
 sub render_body {
     my $class = shift;
@@ -109,8 +107,8 @@ sub render_body {
     $ret .= $class->html_hidden( numlinks => $showlinks );
     $ret .= "</table></td>";
 
-    $ret .= "<td><div class='tips-box'><p class='tips-header'><strong>" . $class->ml('widget.linkslist.tips') . "</strong></p>";
-    $ret .= "<ul class='detail'><li>" . $class->ml('widget.linkslist.about.reorder') . "</li>";
+    $ret .= "<td><div class='highlight-box'><p class='tips-header'><strong>" . $class->ml('widget.linkslist.tips') . "</strong></p>";
+    $ret .= "<ul><li>" . $class->ml('widget.linkslist.about.reorder') . "</li>";
     $ret .= "<li>" . $class->ml('widget.linkslist.about.blank') . "</li>";
     $ret .= "<li>" . $class->ml('widget.linkslist.about.heading') . "</li></ul></div>";
     $ret .= "</td></tr></table>";

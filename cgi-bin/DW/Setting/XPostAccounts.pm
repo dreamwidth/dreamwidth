@@ -159,7 +159,7 @@ sub option {
 
     $ret .= "<div id='preview_section' style='display: none;'>" . $class->ml('setting.xpost.preview') . "\n";
 
-    $ret .= "<div id='footer_preview' class='xpost_footer_preview'></div></div>\n";
+    $ret .= "<div id='footer_preview' class='xpost_footer_preview highlight-box'></div></div>\n";
 
     # define custom footer
     $ret .= "<tr><td>&nbsp</td><td colspan='2'><label for='${key}crosspost_footer_nocomments'>" . $class->ml( 'setting.xpost.option.footer.nocomments' ) . "</label><br/>";
@@ -177,7 +177,7 @@ sub option {
     }) . "<br/><br/>";
 
     $ret .= "<div id='preview_nocomments' style='display: none;'>" . $class->ml('setting.xpost.preview') . "\n";
-    $ret .= "<div id='footer_nocomments_preview' class='xpost_footer_preview'></div></div>\n";
+    $ret .= "<div id='footer_nocomments_preview' class='xpost_footer_preview highlight-box'></div></div>\n";
 
     my $baseurl = $LJ::SITEROOT;
     my $alttext = $class->ml('setting.xpost.option.footer.vars.comment_image.alt');

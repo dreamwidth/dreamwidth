@@ -211,11 +211,11 @@ if (! @paths) {
 
 if (0) {
     $body .= qq {
-        <?standout
+        <div class='highlight-box'>
             <?p You can edit your currently uploaded picture or you can upload a new one: p?>
 
             $upload_form
-            standout?>
+            </div>
         };
 }
 
@@ -224,7 +224,7 @@ $body .= qq {
 
       <div id="picContainer" style="float: left; margin-bottom: 15px; width: ${scaledSizeMax}px; height: ${scaledSizeMax}px; border: 2px solid #EEEEEE; padding: 2px;"> <img src="$picpath" id="userpic" style="display: none;" /></div>
 
-      <?standout <div style='float: right;'>
+      <div class='highlight-box' style='float: right;'>
       <form action="$LJ::SITEROOT/editicons$sfx?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
       <table summary="" cellpadding="4"><tr>
       <td style='whitespace: nowrap'>
@@ -260,7 +260,7 @@ $body .= qq {
                           'descriptions', $GET{'descriptions'},
                           'make_default', $GET{'make_default'},
                           index => $GET{index}) . qq {
-      </form></div> standout?>
+      </form></div>
     };
 }
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-

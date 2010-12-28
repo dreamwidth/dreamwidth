@@ -227,7 +227,7 @@ function setup (e) {
         var name = folders[i];
         tableview = new View();
 
-        tableview.init({ "view": $(name + "_Table") });
+        tableview.init({ "view": $(name + "_Table"), "selectedClass": "selected" });
 
         // 2 instances of action buttons
         for (var i=1; i<=2; i++) {

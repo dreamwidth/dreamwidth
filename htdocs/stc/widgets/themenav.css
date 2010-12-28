@@ -35,7 +35,10 @@
 .theme-nav-small li a:hover {
     text-decoration: underline;
 }
+
 .theme-nav li.on a {
+    border-width: 1px;
+    border-style: solid;
     border-right: none;
     font-weight: bold;
 }
@@ -47,6 +50,8 @@
 }
 .theme-nav-separator {
     padding: 5px 0;
+    border-right-width: 1px;
+    border-right-style: solid;
 }
 * html .theme-nav-separator {
     width: 135px;
@@ -61,8 +66,20 @@
 }
 .theme-nav-small li a {
     text-decoration: none;
+    font-weight: normal;
     font-size: 11px;
 }
 .theme-nav-search-box {
     text-align: right;
+}
+
+.theme-nav li a, .theme-nav-small li {
+    border-right-width: 1px;
+    border-right-style: solid;
+}
+
+.theme-nav-content {
+    border-width: 1px;
+    border-style: solid;
+    border-left: none;
 }

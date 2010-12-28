@@ -527,7 +527,7 @@ body<=
     }
 
     my $sortlink = BML::get_uri() . "?authas=$cname&sort=";
-    $ret .= "<br /><div align='center'><table class='alternating-rows' cellpadding='0' cellspacing='0'>\n<tr>" .
+    $ret .= "<br /><div align='center'><table cellpadding='0' cellspacing='0'>\n<tr>" .
             "<th><a href='${sortlink}name'>$ML{'.key.user'}</a></th>";
     $ret .= "<th><a href='${sortlink}$_'>".$ML{".key.$_"}."</a></th>" for (@attribs);
     $ret .= "</tr>\n";
@@ -536,7 +536,7 @@ body<=
     my $rc = 0;
     my @wstrs;
     foreach(@users) {
-        my $rstyle = ($rc++ & 1) ? "altrow2" : "altrow1";
+        my $rstyle = ($rc++ & 1) ? "odd" : "even";
         $ret .= "<tr class='$rstyle'><td>" . LJ::ljuser($_->{'name'}) . "</td>";
         my $wstr;
         foreach my $key (@attribs) {

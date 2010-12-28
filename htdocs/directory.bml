@@ -275,7 +275,7 @@ body<=
     my @users     = $res->users;
 
     unless (@users) {
-        $ret .= "<?standout $ML{'.no_results'} standout?>";
+        $ret .= "<div class='warning-box'>$ML{'.no_results'}</div>";
         return $ret;
     }
 

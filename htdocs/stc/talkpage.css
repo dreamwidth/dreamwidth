@@ -53,6 +53,10 @@
     padding-right: 10px;
 }
 
+.cmtbar {
+    min-width: 50em;
+}
+
 .cmtbar-odd img, .cmtbar-even img {
     padding-right: 10px;
 }

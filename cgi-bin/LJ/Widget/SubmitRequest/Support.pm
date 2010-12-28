@@ -22,7 +22,7 @@ sub text_done {
 
     my $ret;
 
-    $ret .= "<div class='right-sidebar'>";
+    $ret .= "<div class='highlight-box' style='float: right; width: 300px;'>";
     $ret .= "<?h2 " . $class->ml('/support/submit.bml.help.header') . " h2?>";
     $ret .= "<?p " . $class->ml('/support/submit.bml.help.text', { aopts => "href='$LJ::SITEROOT/support/help'" }) . " p?>";
     $ret .= "</div>";

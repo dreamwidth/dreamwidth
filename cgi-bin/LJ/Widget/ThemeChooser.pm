@@ -140,7 +140,7 @@ sub render_body {
         location => "top",
     );
 
-    $ret .= "<div class='themes-area'>";
+    $ret .= "<div class='themes-area'><ul class='select-list'>";
     foreach my $theme (@themes_this_page) {
         next unless defined $theme;
 
@@ -161,7 +161,7 @@ sub render_body {
         if ($theme_types{current}) {
             my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
 
-            $theme_class .= " current";
+            $theme_class .= " selected";
             $theme_options .= "<strong><a href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.themechooser.theme.customize') . "</a></strong>";
             if (! $no_layer_edit && $theme->is_custom && !$theme_types{upgrade}) {
                 if ($theme->layoutid && !$theme->layout_uniq) {
@@ -187,7 +187,7 @@ sub render_body {
         my $theme_layout_name = $theme->layout_name;
         my $theme_designer = $theme->designer;
 
-        $ret .= "<div class='theme-item$theme_class'>";
+        $ret .= "<li class='theme-item$theme_class'>";
         $ret .= "<img src='" . $theme->preview_imgurl . "' class='theme-preview' />";
 
         $ret .= "<h4>" . $theme->name . "</h4><div class='theme-action'><span class='theme-desc'>";
@@ -231,9 +231,9 @@ sub render_body {
             );
             $ret .= $class->end_form;
         }
-        $ret .= "</div><!-- end .theme-action --></div><!-- end .theme-item -->";
+        $ret .= "</div><!-- end .theme-action --></li><!-- end .theme-item -->";
     }
-    $ret .= "</div><!-- end .themes-area --->";
+    $ret .= "</ul></div><!-- end .themes-area --->";
 
     $ret .= $class->print_paging(
         themes => \@themes,
@@ -406,7 +406,7 @@ sub js {
             var given_themeid = form["Widget[ThemeChooser]_apply_themeid"].value + "";
             var given_layoutid = form["Widget[ThemeChooser]_apply_layoutid"].value + "";
             $("theme_btn_" + given_layoutid + given_themeid).disabled = true;
-            DOM.addClassName($("theme_btn_" + given_layoutid + given_themeid), "theme-button-disabled");
+            DOM.addClassName($("theme_btn_" + given_layoutid + given_themeid), "theme-button-disabled disabled");
 
             this.doPost({
                 apply_themeid: given_themeid,

@@ -1,0 +1,94 @@
+/**
+ * Erik Meyer's CSS Reset Reloaded
+ *
+ * @link            http://meyerweb.com/eric/thoughts/2007/05/01/reset-reloaded/
+ * @version            1.0
+ * @revision        $Revision$
+ * @lastmodified    $Date$
+ */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    margin:          0;
+    padding:         0;
+    border:          0;
+    outline:         0;
+    font-size:       100%;
+    vertical-align:  baseline;
+    background:      transparent;
+}
+body {
+    line-height:     1;
+}
+ol, ul {
+    list-style:      none;
+}
+a:hover, a:active { outline: none; }
+blockquote, q {
+    quotes:          none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content:         '';
+    content:         none;
+}
+ins {
+    text-decoration: none;
+}
+del {
+    text-decoration: line-through;
+}
+/* @note    tables still need 'cellspacing="0"' in the markup */
+table {
+    border-collapse: collapse;
+    border-spacing:  0;
+}
+/* @note    remove default border of linked images */
+a img, :link img, :visited img {
+    border: none;
+}
+/* @note    turn on bicubic sampling for image resizing in IE */
+img {
+    -ms-interpolation-mode: bicubic;
+}
+
+
+/* tweak the reset settings */
+th {
+    padding: 0.2em 0.8em;
+}
+td {
+    padding: 0.2em 0.5em;
+}
+
+tbody th {
+    text-align: left;
+}
+
+/* CSS-style some things that users like to use */
+q {
+    margin-left: 1em;
+    font-style: italic;
+}
+small {
+    font-size: smaller;
+}
+big {
+    font-size: larger;
+}
+
+ol {
+    list-style-type: decimal;
+    margin-left: 1em;
+}
+
+ul {
+    list-style-type: disc;
+    margin-left: 1em;
+}

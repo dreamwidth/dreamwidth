@@ -19,7 +19,7 @@ _c?>
 
     $title = $ML{'.title'};
 
-    $body = "<?standout $ML{'.info'} standout?><br />";
+    $body = "<p>$ML{'.info'}</p>";
     $body .= "<form method='GET'>";
     $body .= "<table summary=''><tr><td>$ML{'.label.term'}: </td>";
     $body .= "<td>" . LJ::html_text({ size => 30, value => $GET{'q'}, name => 'q' });

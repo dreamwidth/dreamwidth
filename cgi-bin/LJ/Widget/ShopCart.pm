@@ -54,7 +54,8 @@ sub render_body {
     $ret .= $class->start_form
         unless $opts{receipt};
 
-    $ret .= "<table class='shop-cart'>";
+    $ret .= "<table class='shop-cart grid'>";
+    $ret .= "<thead>";
     $ret .= "<tr><th></th>"
         unless $opts{receipt};
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.item' ) . "</th>";
@@ -65,7 +66,20 @@ sub render_body {
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.price' ) . "</th>";
     $ret .= "<th>ADMIN</th>" if $opts{admin};
     $ret .= "</tr>";
+    $ret .= "</thead>";
 
+    $ret .= "<tfoot>";
+    my $buttons = '&nbsp;';
+    unless ( $opts{receipt} ) {
+        $buttons = $class->html_submit( removeselected => $class->ml( 'widget.shopcart.btn.removeselected' ) ) . " " .
+                   $class->html_submit( discard => $class->ml( 'widget.shopcart.btn.discard' ) ) . "</p>";
+    }
+    $ret .= "<tr><td class='total' style='border-right: none; text-align: left;' colspan='3'>$buttons</td>";
+    $ret .= "<td style='border-left: none;' colspan='" . ($colspan-3) .
+            "' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " " . $cart->display_total . "</td></tr>";
+    $ret .= "</tfoot>";
+
+    $ret .= "<tbody>";
     foreach my $item ( @{$cart->items} ) {
         $ret .= "<tr>";
         if ( $opts{receipt} ) {
@@ -110,16 +124,8 @@ sub render_body {
         }
         $ret .= "</tr>";
     }
+    $ret .= "</tbody>";
 
-    my $buttons = '&nbsp;';
-    unless ( $opts{receipt} ) {
-        $buttons = $class->html_submit( removeselected => $class->ml( 'widget.shopcart.btn.removeselected' ) ) . " " .
-                   $class->html_submit( discard => $class->ml( 'widget.shopcart.btn.discard' ) ) . "</p>";
-    }
-
-    $ret .= "<tr><td class='total' style='border-right: none; text-align: left;' colspan='3'>$buttons</td>";
-    $ret .= "<td style='border-left: none;' colspan='" . ($colspan-3) .
-            "' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " " . $cart->display_total . "</td></tr>";
     $ret .= "</table>";
 
     unless ( $opts{receipt} ) {

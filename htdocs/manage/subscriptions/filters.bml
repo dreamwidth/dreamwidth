@@ -37,7 +37,7 @@ body<=
               "</script>\n";
 
     # redirect to managing access filters
-    $ret .= "<?standout " . BML::ml( '.accessfilters', { aopts => "href='$LJ::SITEROOT/manage/circle/editfilters'" } ) . " standout?>\n\n"; 
+    $ret .= "<div class='highlight-box'>" . BML::ml( '.accessfilters', { aopts => "href='$LJ::SITEROOT/manage/circle/editfilters'" } ) . "</div>\n\n"; 
 
     # and now the main page HTML
     my $img = LJ::img( 'hourglass', '', { id => 'cf-hourglass' } );

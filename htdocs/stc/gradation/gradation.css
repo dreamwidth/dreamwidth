@@ -12,45 +12,12 @@
 
  /*  Colors:
      vrylt=#888888 (borders)
-    dk=#333333 (standout, hover ul)
+    dk=#333333 (hover ul)
     vrydk=#222222 (hover a)
     med=#444444 (inactive tabs, evencomment)
     lt=#666666 (active tabs)
     altlt=#555555 (oddcomment, footer border)
 */
-
-
-/**
- * pieces from Erik Meyer's CSS Reset Reloaded
- * @link            http://meyerweb.com/eric/thoughts/2007/05/01/reset-reloaded/
- */
-
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, font, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td {
-    margin:          0;
-    padding:         0;
-    border:          0;
-    outline:         0;
-    font-size:       100%;
-    vertical-align:  baseline;
-    background:      transparent;
-}
-
-/* @note    remove default border of linked images */
-a img, :link img, :visited img {
-    border: none;
-}
-
-ol, ul {
-    list-style:      none;
-}
 
 /**
  * Global
@@ -66,18 +33,17 @@ body {
     color: #e9e9e0;
 }
 
-H1, H2, H3, H4 {
+H1, H2, H3, H4, table.caption {
     padding: 1em 0;
     line-height: 1em;
     }
 H1 { font-size: 175%; }
 H2 { font-size: 150%; }
-#content H2 { font-size: 125%; }
+#content H2, table caption { font-size: 125%; }
 H3 { font-size: 125%; }
 H4 { font-size: 100%; }
 
-ul { list-style: circle;
-    margin-left: 1em; }
+ul { list-style: circle; }
 
 a:link,
 .link {
@@ -334,49 +300,6 @@ body {
     margin-bottom: 1em;
 }
 
-/* TALKPAGE.CSS AND HARDCODE OVERRIDES*/
-.cmtbar-odd {
-    border-bottom: none !important;
-    border-right: none !important;
-    background-color: #444444 !important;
-    background-image: url("/img/gradation/blackfade.png");
-    background-position: top;
-    background-repeat: repeat-x;
-}
-.cmtbar-even {
-    border-bottom: none !important;
-    border-right: none !important;
-    background-color: #555555 !important;
-    background-image: url("/img/gradation/blackfade.png");
-    background-position: top;
-    background-repeat: repeat-x;
-}
-
-/*insert class of screened comments here*/ {
-    background-color: #333333; }
-
-/* PROFILE.CSS OVERRIDES */
-#profile_top {
-    min-width: 0;
-}
-
-
-/* layer tables */
-table.table_layerbrowse,
-table#table_yourlayers { border-collapse: collapse; }
-
-table.table_layerbrowse,
-table.table_layerbrowse td,
-table#table_yourlayers,
-table#table_yourlayers th,
-table#table_yourlayers td { border: 1px solid #888888; }
-
-table#table_layerbrowse_classes,
-table#table_layerbrowse_classes td {border: none; }
-
-table.table_layerbrowse td,
-table#table_yourlayers th,
-table#table_yourlayers td { padding: .15em .25em; }
 
 /**
  * Content Layouts
@@ -391,8 +314,7 @@ table#table_yourlayers td { padding: .15em .25em; }
  * content is placed inside based on order of importance.
  */
 
- /* ER Note:  Unsure of actual use of these, taking a stab at them anyway, mostly re-measuring width */
-
+ /* Mostly re-measuring width */
 /* full page (default) */
 #primary,
 #secondary {
@@ -474,496 +396,318 @@ table#table_yourlayers td { padding: .15em .25em; }
     border-top: 0 !important;
 }
 
+textarea, input {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #888;
+}
 
-/**
- * Form field styles
- */
-.dw-field-default {
+/* generic classes */
+.disabled {
+    color: #999 !important;
+    background-color: #333 !important;
+    border-color: #ccc !important;
+}
+.read, .inactive {
+    color: #888;
+}
+.read:hover {
     color: #eee;
-    font-style: italic;
 }
-.standout {
+.read a, .inactive a {
+    color: #999 !important;
+}
+.read:hover a {
+    color: inherit !important;
+}
+
+.detail {
+    color: #ccc;
+}
+.status-hint {
+    color: #ddd;
+}
+
+.tablist .tab a {
+    background: #444444;
+    border-color: #888888;
+    color: #eeeeee;
+}
+.tablist .tab a:hover, .tablist .tab a.active {
+    background: #666666;
+}
+.tab-header {
+    background: #666666;
+    border-top-color: #666666;
+    border-left: 1px solid #888888;
+    border-right: 1px solid #888888;
+}
+.tab-container {
+  background-color:#222;
+  border: 1px solid #888;
+  border-top: none;
+}
+
+.action-bar {
     text-align: center;
+    background-color: #666666;
 }
-.standout .standout-inner {
+.action-box {
+    display: table;
+    text-align: center;
+    margin: 0.5em auto 0 auto;
+    padding: 0.5em;
     background-color: #333333;
     color: #eee;
     border: 1px solid #555555;
-    margin-top: 0.5em;
-    margin-left: auto;
-    margin-right: auto;
-}
-.standout .standout-inner td {
-    padding: 0.5em;
 }
 
-.standout-inner a:hover, .standout-inner a:active, .standout-inner a:hover {
-
-}
-
-/**
- * Start overriding some classes set in dw-free/htdocs/stc/
- * Other site scheme designers: use your own colors here
- * /
-
-/* editicons.css */
-#uploadBox {
-    background-color: #333333;
-    border: 1px solid #888888;
-    margin: 0 20px 0 0;
-}
-
-/* profile.css */
-
-.section, .username, .actions li {
-    background-color: #666666;
-    border-bottom: 1px solid #888888;
-    border-top: 1px solid #888888;
-    color: #eee;
-}
-
-.section img, .username img {
-    padding-left: 3px;
-}
-
-.section_body p,
-.section_body th,
-.section_body .inner_section_header { color: #eee; }
-
-/* customize.css */
-
-.theme-current {
-    background-color: #444444;
-    border: 1px solid #888888;
-}
-
-/* widgets/customizetheme.css, themechooser.css, themenav.css,
-currenttheme.css */
-
-.layout-item.current {
-    background-color: #666666;
-    border: 1px solid #888888;
-}
-
-h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-item .theme-icons {
-    border: 1px solid #888888;
-}
-
-.theme-item .theme-button-disabled, .layout-item .layout-button-disabled {
+.select-list input, input.submit {
     background: #444444;
+    color: #fff;
+    border: 2px solid #444;
+    border-top: 2px solid #888;
+    border-left: 2px solid #888;
 }
-
-.theme-item {
-    overflow-x: visible;
-    overflow-y: visible;
-}
-
-.customize-button, .theme-item .theme-button, .layout-item
-.layout-button {
-    background: #444444;
-    border: 2px solid #888888;
-    border-top: 2px solid #444444;
-    border-left: 2px solid #444444;
-}
-
-
-.theme-nav-content, .customize-content {
-    border: 1px solid #888888;
-    border-left: none;
-}
-
-.theme-selector-nav {
-    background-color: #666666;
-}
-
-.theme-nav li a, .theme-nav-small li {
-    border-right: 1px solid #888888;
-}
-
-.theme-nav-small a { color: #ccc; }
-
-.theme-nav li.on a {
-    border: 1px solid #888888;
-    border-right: none;
-}
-
-.theme-nav-separator {
-    border-right: 1px solid #888888;
-}
-
-.theme-nav-separator hr {
-    border-top: 1px solid #888888;
-}
-
-.customize-content .subheader {
-    background-color: #666666;
-    border-bottom: 1px solid #888888;
-}
-
-.customize-content .subheader.on {
-    background-color: #666666;
-}
-
-.customize-nav {
-    background-color: #444444;
-}
-
-.customize-nav li a, .customize-nav li li  {
-    border-right: 1px solid #888888;
-}
-
-.customize-nav li.on a, .customize-nav li.on ul {
-    border: 1px solid #888888;
-    border-right: none;
-    border-top: none;
-}
-
-.customize-nav li.on {
-    border-top: 1px solid #888888;
-}
-
-.moodtheme-preview, .appwidget-linkslist .tips-box {
-    background-color: #666666;
-    border: 1px solid #888888;
-}
-
-.theme-current-links {
-    border-bottom: 1px solid #888888;
-    border-right: 1px solid #888888;
-}
-
-.theme-nav li a:visited, .customize-nav li a:visited {
+.select-list input:active, input.submit:active {
+    background: #666666;
     color: #eee;
+    border: 2px solid #888;
+    border-top: 2px solid #444;
+    border-left: 2px solid #444;
+}
+
+.message-box .title {
     font-weight: bold;
 }
-
-
-/* more, detailed by page*/
-/*customizetheme.css*/
-.customize-button {
+.message-box h1.title {
+    text-align: center;
+}
+.highlight-box {
+    border: 1px solid;
+}
+.highlight, .highlight-box {
+    border-color: #888888;
+    background: #333333;
     color: #fff;
-    background: #444444;
-    border: 2px solid #888888;
 }
-.customize-inner-wrapper {
-    background: url("/img/gradation/gradgray-borderpixel.gif") repeat-y scroll 134px 50%;
-}
-.customize-content .subheader {
-    background-image: url("/img/gradation/gradgray-arrow-right.gif");
-    background-position: left center;
-    background-repeat: no-repeat;
-    border-bottom: 1px solid #666666;
-}
-.customize-content .subheader.on {
-    background-image: url("/img/gradation/gradgray-arrow-down.gif");
-    background-position: left center ;
-    background-repeat: no-repeat;
-}
-.customize-nav li.on a,
-.customize-nav li.on ul {
-    background: #111111;
-}
-.customize-nav li.on a {
-    border-right: 1px solid #111111;
-}
-.customize-nav li.on li a {
-    background: #111111;
-    border-right: 1px solid #111111;
-}
-.customize-nav li.on li {
-    border-right: 1px solid #111111;
-}
-.customize-nav li a:visited {
-
-}
-
-
-/*themenav.css*/
-.theme-nav-inner-wrapper {
-    background: url("/img/gradation/gradgray-borderpixel.gif") repeat-y scroll 134px 50%;
-}
-.theme-selector-nav {
-    background-color: #444444;
-}
-.theme-nav li.on a {
-    background-color: #111111 ;
-}
-.theme-nav li a:visited {
-
-}
-.theme-nav-separator {
-    border-right: 1px solid #666666;
-}
-.theme-nav-separator hr {
-    border-top: 1px solid #666666;
-}
-
-/*currentheme.css*/
-.theme-current-content h3 {
-    color: #eee;
-}
-.theme-current-image {
-     border: 1px solid #111111;
-}
-.theme-current-links {
-    background-color: #111111;
-    border: 1px solid #888888;
+.inset-box {
+    background: #111;
+    border: 1px solid #888;
     padding: 3px 5px;
 }
-.theme-current ul li {
-    background: url("/img/customize/arrow.gif") no-repeat 0 5px;
+.highlight-box, .message-box, .error-box {
+    margin: 1em auto;
+    padding: 0.5em;
 }
-
-/*themechooser*/
-.theme-item {
-    border: 1px solid #111111;
-}
-.theme-item.current {
-    border: 1px solid #444444;
-    background-color: #666666;
-}
-.theme-item img.theme-preview {
-    border: 1px solid #666666;
-}
-.theme-item.special h4,
-.theme-item.special .theme-desc {
-    background-color: #666666;
-}
-.theme-item .theme-button {
-    color: #fff;
-    background: #444444;
-    border: 2px solid #888888;
-}
-.theme-item .theme-button-disabled {
-    background: #999;
-}
-.theme-item .theme-icons {
-    border: 1px solid #666666;
-    background-color: #111111;
-}
-.theme-time,
-.theme-upgrade-icon {
-    color: #eee !important;
-}
-.theme-upgrade-icon:hover .theme-upgrade-level,
-.theme-time:hover span.theme-availability {
-    background-color: #111111;
-}
-.theme-paging a:visited {
-
-}
-
-/*s2propgroup.css */
-
-.graybg {
+.warning-box {
+    border: 1px solid #fff;
     background-color: #333;
+    color: #fff;
+}
+.error-box {
+    color: #fff;
+    background-color: #916E10;
+    border: 1px solid #ffdfc0;
 }
 
-/* inbox */
-
-.folders a.active {
-    font-weight: bold;
-    background-color: #333333;
-    border: 1px solid #999999;
+.odd, tr.odd th, tr.odd td {
+    background-color: #111;
 }
-
-/* lj_settings.css */
-
-.section_head, table.alternating-rows th, div.username {
-    background-color: #666666;
-    color: #CCC;
-}
-
-.section_subhead {
-    background-color: #888888;
-}
-
-.field_name { background: #333333; }
-
-.zebra_row {
+.even, tr.even th, tr.even td,
+thead th, tfoot td {
     background-color: #1a1a1a;
 }
-
-/* comm_promo.css */
-
-div.CommunityPromoBox {
-    border: 1px solid #333333;
+.column-table tbody th {
+    background-color: #333;
+    border-right: 1px solid #888888;
 }
 
-/* settings.css */
-
-#settings_save {
-    background: #666666;
+table.grid {
+    border-collapse: collapse;
+}
+table.grid, table.grid td {
+    border: 1px solid #888;    
 }
 
-#settings_nav li a {
-    background: #444444;
-    border: 1px solid #888888;
-    border-bottom: none;
-    color: #eeeeee;
+.select-list li, .NotificationTable td {
+    border-color: #888;
+}
+.select-list li img {
+    border-color: #666666;
+}
+.selected, .select-list li.selected, tr.selected td {
+    background-color: #666666;
+    border-color: #888888;
 }
 
-#settings_nav li a:hover, #settings_nav li a.active {
-    background: #666666;
+form, fieldset, legend, legend span {
+    border-color: #888888;
 }
-
-#settings_nav_title p {
-    background: #666666;
-    border-left: 1px solid #888888;
-}
-
-.color-light {
-    color: #666;
-}
-
-/* cprod.css */
-
-.cprod.h3 {
-    background: #444444;
-
-}
-
-.cprod content {
+.hint-input {
+    color: #999;
     border: 1px solid #888888;
 }
-
-
-/* allpics styling */
-
-table.allpics {
-    margin-left: 50px;
-}
-
-.allpics td {
-    vertical-align: bottom;
-}
-
-.allpics .userpic-img {
-    margin-right: 1em;
-    margin-top: 15px;
-}
-
-.allpics blank {
-    width: 50px;
-}
-
-
-/* editfilters styling */
-
-table.editfilters td {
-    padding: 5px;
-}
-
-
-/* FAQ */
-
-.faqlist {
-    list-style: square outside;
-    margin-bottom: 2em;
-}
-
-/* Inbox - Compose */
-
-.inbox-compose {
-    width: 100%;
-}
-
-.inbox-compose td {
-    vertical-align: top;
-}
-
-
-/* manage/invitecodes.bml */
-
-.invitecodes td {
-    padding: 5px;
-}
-
-
-/* shop pages */
-
-/* this is so the main shop page does not look like toasted ass */
-.shopbox, .appwidget-shopitemgroupdisplay {
-    min-width: 20em;
-    min-height: 10em;
-    float: none;
-}
-
-.shopbox, .appwidget-shopitemgroupdisplay,
-.shop-account-status, .shop-error, .shop-cart-status,
-.shop-cart td, .shop-cart th, .shop-item-highlight {
+.hint-input:focus {
+    color: #fff;
     border: 1px solid #888888;
 }
-
-.shop-cart th, .shop-cart td.total, .shop-cart-status {
-    background-color: #222;
-}
-
-.shop-account-status {
-    background-color: #815E00; 
-}
-
-/* create flow */
-
-.create-form td {
-    padding: 5px;
-}
-
-.appwidget-createaccount .create-button {
-    color: #eee;
+.multiple-select {
     background-color: #444444;
 }
 
-.appwidget-createaccountprogressmeter .step-block-active {
-    color: #111111;
-    background-color: #888888;
+.table-form table {
+  background-color:#111;
 }
 
-.appwidget-createaccountprogressmeter .step-block-inactive {
-    color: #111111;
+.simple-form .error input {
+    border: 3px solid #ff0000;
+}
+.simple-form .error .error-msg {
+    color: #ff0000;
+    display: block;
+}
+
+.section-nav {
     background-color: #444444;
 }
-
-.appwidget-createaccountprogressmeter .step-selected {
+.section-nav li a, .section-nav ul, .section-nav li, .section-nav-separator {
+    border-color: #888888;
+}
+.section-nav-content {
+    border-color: #888888;
+}
+.section-nav li.on {
+    background-color: #111;
+}
+.section-nav li a:visited {
     color: #888888;
 }
+.section-nav-inner-wrapper {
+    background: url("/img/gradation/gradgray-borderpixel.gif") repeat-y scroll 134px 50%;
+}
 
-.appwidget-createaccountprogressmeter .step-previous {
+.collapsible .collapse-button {
+    width: 20px;
+}
+.collapsible.collapsed .collapse-button {
+    background-image: url("/img/gradation/gradgray-arrow-right.gif");
+}
+.collapsible.expanded .collapse-button {
+    background-image: url("/img/gradation/gradgray-arrow-down.gif");
+}
+
+.header {
+    background: #666666;
+}
+.subheader {
+    background-color: #666666;
+    border-bottom: 1px solid #888888;
+    margin: 1em 0 0;
+    padding: 0.2em;
+    font-size: 110%;
+}
+
+.preview-image {
+     border: 1px solid #111111;
+}
+
+
+/* contextualhover.css */
+div.ContextualPopup div.Inner {
+    background-color: #444444 !important;
+    color: #fff !important;
+    border: 1px solid #888888;
+    }
+div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
+        color: #ccc !important;
+        }
+
+.ippu {
+    color: #eee
+}
+.ippu .track_title {
     color: #444444;
 }
 
-.appwidget-createaccountprogressmeter .step-next {
-    color: #666666;
+/**
+ * Temporary page-specific styling
+ * /
+/* talkpage */
+.cmtbar {
+    border-bottom: none;
+    border-right: none;
+    background-image: url("/img/gradation/blackfade.png");
+    background-position: top;
+    background-repeat: repeat-x;
+}
+td.odd { background-color: #444444; }
+td.even { background-color: #555555; }
+td.screened { background-color: #333333; }
+
+
+/* lj_settings.css */
+.section_head, div.username {
+    background-color: #666666;
+    color: #CCC;
+}
+.field_block .field_name { background: #333333; }
+
+/* esn.css */
+.CategoryRow td {
+    border-bottom: 1px solid #444444;
 }
 
-.appwidget-createaccountprofile .header {
-    color: #888888;
+/* For the community/settings page */
+.community-settings legend {
+    color: #CCCC99;
+    }
+
+/* shop pages */
+.shop-item-highlight {
+    border: 1px solid #888888;
 }
 
-.appwidget-createaccountprofile .field-name {
-    background-color: #e0e0e0;
+/* inbox */
+.folders a {
+    color: #fff;
+    border: 1px solid #111;
 }
-
-.error-list {
-    background-color: #916E10;
+.folders a.selected {
+    background: #333;
+    border-color: #999;
 }
-
-.errors-present, li.formitemFlag {
-    color: #731815;
+.folders a:hover {
+    border-color: #666;
+    background: #666;
 }
+/* entry.css */
+a#lj_userpicselect {color: #888888;}
+#lj_userpicselect_img {border: 1px solid #111111;}
+#lj_userpicselect_img:hover {border: 1px solid #888888;}
+#lj_userpicselect_img_txt {color: #888888 !important;}
+#userpic_preview_image.userpic_loggedout {border: 1px solid #888888;}
+.userpic_preview_border {border: 1px solid #ccc;}
+#infobox {border-left: 1px solid #eee;}
+#entry {border-bottom: 1px solid #bbb;}
+#entry ul li a {background-color: #222;border: 1px solid #bbb;border-bottom: none;}
+#entry ul li.on a {background-color: #222;border-bottom: 1px solid #222;}
+#draft-container {border: 1px solid #bbb;border-top: none;}
+#draftstatus {background-color: #222;}
+#spellcheck-results {border: 1px solid #444444;background-color: #222;}
+#htmltools {border-right: 1px solid #bbb;border-left: 1px solid #bbb;background: #222;}
+#htmltools ul {border-bottom: 1px solid #8D8D8D;}
+#options, #public, #submitbar {border: 1px solid #888888;background-color: #444444;}
+#compose-entry ul li.on a {background-color: #222;} /* # Makes sure the tab doesn't end up white */
 
-
-/* Site Map, override page-level style */
-dd ul li {list-style: circle !important;
-    margin-left: 2em !important; }
-dt {font-weight: bold !important;
-    margin-top: 10px !important;}
-#maplinks-left {margin-right: 2% !important;
-    width: 48% !important;
-    float: left !important;}
-#maplinks-right {margin-left: 2% !important;
-    width: 48% !important;
-    float: right !important;}
+/* create flow */
+.appwidget-createaccount .create-button { color: #eee; background-color: #444444; }
+.appwidget-createaccountprogressmeter .step-block-active { color: #111111; background-color: #888888; }
+.appwidget-createaccountprogressmeter .step-block-inactive { color: #111111; background-color: #444444; }
+.appwidget-createaccountprogressmeter .step-selected, .appwidget-createaccountprofile .header { color: #888888; }
+.appwidget-createaccountprogressmeter .step-previous { color: #444444; }
+.appwidget-createaccountprogressmeter .step-next { color: #666666; }
+.appwidget-createaccountprofile .field-name { background-color: #e0e0e0; }
 
 /* lj_base-app.css */
 hr.hr {
@@ -971,11 +715,6 @@ hr.hr {
     background-color: #888888;
 }
 
-input.create-account {
-    color: #fff;
-    background: #444444;
-    border: 2px solid #888888;
-}
 input.text,
 textarea.text,
 select {
@@ -986,32 +725,6 @@ select {
     border-left: 1px solid #888888;
     color: #ccc;
 }
-textarea,
-input { background-color: #222 !important;
-color: #fff !important;
-border: 1px solid #888 !important; }
-.detail {
-
-}
-h2.widget-header {
-
-}
-
-table.alternating-rows th {
-    border-top: 1px solid #888888;
-    border-bottom: 1px solid #888888;
-    background-color: #333;
-}
-table.alternating-rows tr.altrow1 {
-    background-color: #222;
-}
-table.alternating-rows tr.altrow2 {
-    background-color: #333;
-}
-table.alternating-rows td {
-    border-bottom: 1px solid #888888;
-}
-
 .appwidget .more-link {
     color: #888888 !important;
     background: url('/img/arrow-double-black.gif') no-repeat 0 60%;
@@ -1029,344 +742,23 @@ table.alternating-rows td {
     border: 1px solid #aaa;
 }
 
-.standout-border {
-    border: 1px solid #888888;
-}
-.standout-background {
-    background-color: #444444;
-}
-
-div.right-sidebar {
-    color: #fff;
-    background-color: #444444;
-    border: 1px solid #888888;
-}
-.textbutton {
-    color: #888888;
-}
-/*NOTE: corner.gif is white*/
-h2.solid-neutral {
-    background-color: #444444;
-    color: #fff;
-}
-h2.solid-blue { /*which is now solid not-blue*/
-    background-color: #444444;
-    color: #fff;
-}
-.solid-neutral {
-    background: #444444;
-}
-input.bright {
-    background-color: #444444;
-    border: 1px solid #888888;
-    color: #fff;
-}
-.helper {
-    /*color: #666;*/
-}
-.rounded-box {
-    background: no-repeat;
-    zoom: 1;
-}
-.rounded-box .rounded-box-tr {
-    background: 100% 0 no-repeat;
-}
-.rounded-box .rounded-box-bl {
-    background: 0 100% no-repeat;
-}
-.rounded-box .rounded-box-br {
-    background: 100% 100% no-repeat;
-    padding: 2px; /* border width */
-}
-
-
-/* esn.css */
-.Subscribe tr.Inactive {
-    color: #aaa;
-}
-
-.Subscribe tr.Disabled {
-    background-color: #111;
-    color: #777;
-}
-
-.Subscribe tr.altrow {
-    background-color: #333;
-}
-
-.Subscribe tr.Inactive a {
-    color: #aaa;
-}
-.Subscribe td p {
-    color: #999;
-    background: #111111;
-}
-
-.CategoryRow td {
-    border-bottom: 1px solid #444444;
-}
-
-#Subscriptions tr.lighter {
-    background-color: #666666;
-}
-#Subscriptions tr.darker {
-    background-color: #444444;
-}
-#SubscribeSaveButtons {
-    border: 1px solid #888888;
-    }
-
-.NotificationTable tr.Selected {
-    background-color: #444444;
-}
-
-.NotificationTable tr.Selected td {
-    border-top: 1px solid #888888;
-}
-.NotificationTable #all_Body > .Selected:first-child td {
-    border-top: none;
-}
-
-.NotificationTable td {
-    padding: 2px;
-}
-.NotificationTable .inbox {
-
-}
-
-/*.NotificationTable .inbox .header .checkbox {
-    border-top: 1px solid #888888;
-    border-bottom: 1px solid #888888;
-    border-left: 1px solid #888888;
-}
-
-.NotificationTable .inbox .header .actions {
-    border-top: 1px solid #888888;
-    border-bottom: 1px solid #888888;
-    border-right: 1px solid #888888;
-}*/
-
-.inbox .header {
-    background: #666666;
-}
-
-.InboxItem_Read {
-    color: #888;
-}
-span.InboxItem_Read:hover {
-    color: #eee;
-}
-span.InboxItem_Read a {
-    color: #999 !important;
-}
-span.InboxItem_Read:hover a {
-    color: inherit !important;
-}
-
-.inbox .alt {
-    background: #333;
-}
-.inbox td.NoItems {
-    color: #ddd;
-}
-.inbox td.time {
-    color: #ccc;
-}
-
-.folders a {
-    color: #fff;
-    border: 1px solid #111111;
-}
-.folders a:visited, .folders a:link {
-    color: #fff;
-}
-.folders a:hover {
-    border: 1px solid #666666;
-    background-color: #666666;
-}
-
-.ippu {
-    color: #eee
-}
-.ippu .track_title {
-    color: #444444;
-}
-
-/* entry.css */
-a#lj_userpicselect {
-    color: #888888;
-}
-#lj_userpicselect_img {
-    border: 1px solid #111111;
-}
-#lj_userpicselect_img:hover {
-    border: 1px solid #888888;
-}
-#lj_userpicselect_img_txt {
-    color: #888888 !important;
-}
-#userpic_preview_image.userpic_loggedout {
-    border: 1px solid #888888;
-}
-.userpic_preview_border {
-    border: 1px solid #ccc;
-}
-#infobox {
-    border-left: 1px solid #eee;
-}
-#entry {
-    border-bottom: 1px solid #bbb;
-}
-#entry ul li a {
-    background-color: #222;
-    border: 1px solid #bbb;
-    border-bottom: none;
-}
-#entry ul li.on a {
-    background-color: #222;
-    border-bottom: 1px solid #222;
-}
-#draft-container {
-    border: 1px solid #bbb;
-    border-top: none;
-}
-#draftstatus {
-    background-color: #222;
-}
-#spellcheck-results {
-    border: 1px solid #444444;
-    background-color: #222;
-}
-#htmltools {
-    border-right: 1px solid #bbb;
-    border-left: 1px solid #bbb;
-    background: #222;
-}
-#htmltools ul {
-    border-bottom: 1px solid #8D8D8D;
-}
-#options, #public, #submitbar {
-    border: 1px solid #888888;
-    background-color: #444444;
-}
-#public {
-    /*color:#666;*/
-}
-
-
-/* contextualhover.css */
-div.ContextualPopup div.Inner {
-    background-color: #444444 !important;
-    color: #fff !important;
-    border: 1px solid #888888;
-    }
-div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
-        color: #ccc !important;
-        }
-
 /* profile.css */
-
 .section, .username, .actions li {
     background-color: #444444 !important;
     border: none;
     color: #fff;
 }
-
 .actions li { border-top: 1px solid #888888; }
-
-.section img, .username img {
-    padding-left: 3px;
-}
-
-.tooltip {
-    border-bottom: 1px dotted #fff;
-}
-li.profile_join_disabled, li.profile_addtrust_disabled,
-li.profile_addsub_comm_disabled, li.profile_addsub_feed_disabled,
-li.profile_addsub_person_disabled, li.profile_postentry_disabled,
-li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
-    color: #999;
-}
-.details_stats p {
-        color: #aaa;
-    }
-.details_stats .account_level {
-        color: #fff;
-    }
 .section span.section_link {
         color: #ccc;
     }
-.section_body .inner_section_header {
-
-    }
-.section_body_title {
-
-}
-.profile th {
-
-}
 
 /* tags.css */
-#selected_tags {
-    color: #999;
-}
-
 .taginfo {
     background-image: none;
     background-color: #222;
     border-color: #888;
     color: #CCC;
-}
-
-.tagbox {
-    background-color: #222;
-    color: #CCC;
-}
-
-.tagfield {
-    color: #999;
-    border: 1px solid #888888;
-}
-
-.tagfield:focus {
-    color: #fff;
-    border: 1px solid #888888;
-}
-
-.tagfield_error {
-    border: 1px solid red;
-    background-color: #ecd7d7;
-}
-
-.proptbl .h {
-    background-image: none;
-    background-color: #222;
-}
-
-.proptbl .t {
-    background-color: #333;
-    border-right: 1px solid #888888;
-}
-
-.proptbl .r {
-    background-color: #333;
-    border-right: 1px solid #888888;
-}
-
-.proptbl .rv {
-    background-color: #444444;
-}
-
-.edittbl .l, .lsep {
-    border-right: 1px solid;
-}
-
-.edittbl .sep {
-    border-top: 1px solid;
-}
-
-.tagbox_nohist {
-    background-color: #444444;
 }
 
 /* manage/settings */
@@ -1379,21 +771,10 @@ li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
     color: #fff;
 }
 
-.xpost_footer_preview {
-    border: 1px solid #fff;
-    background: #333;
-}
-
 /* Support */
 
 div.box {
     color: #fff !important;
-}
-
-div.adult_warning {
-    background-color: #333;
-    border: 1px solid #fff;
-    padding: 0 10px;
 }
 
 /* This makes the FAQ header not overlap with itself */
@@ -1442,16 +823,6 @@ div.green {
     color: #CCC;
 }
 
-/* For the manage/banusers page */
-
-.userslist-table tr.odd {
-    background-color: #222;
-}
-
-.userslist-table tr.even {
-    background-color: #111;
-}
-
 /* Import */
 
 h1.gradient, h2.gradient, h3.gradient, h4.gradient, h5.gradient {
@@ -1477,13 +848,6 @@ h1.gradient, h2.gradient, h3.gradient, h4.gradient, h5.gradient {
     border-color: #444;
 }
 
-/* Update */
-
-/* # Makes sure the tab doesn't end up white */
-#compose-entry ul li.on a {
-    background-color: #222;
-}
-
 /* manage/subscriptions/filters */
 
 #cf-select, #cf-edit, #cf-filtopts, #cf-intro {
@@ -1497,8 +861,8 @@ div#cf-edit select {
     color: #888;
 }
 
-/* For the community/settings page */
 
-.community-settings legend {
-    color: #CCCC99;
-    }
+.proptbl .h {
+    background-image: none;
+    background-color: #222;
+}

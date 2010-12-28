@@ -1,6 +1,12 @@
 .themes-area {
     margin-top: 10px;
 }
+
+.themes-area .select-list li {
+    width: 156px;
+    overflow: visible;
+}
+
 .theme-selector-content h3 {
     font-style: normal;
     font-weight: normal;
@@ -9,10 +15,7 @@
 .theme-item {
     font-size: 1em;
     position: relative;
-    float: left;
-    width: 156px;
     text-align: center;
-    padding: 8px;
 }
 .theme-item img.theme-preview {
     padding: 1px;

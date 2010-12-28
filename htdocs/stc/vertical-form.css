@@ -1,0 +1,73 @@
+.vertical-form fieldset {
+    position: relative;
+    margin: 0 auto;
+    padding: 0 0 1.5em 0;
+    border-style: none;
+}
+
+.vertical-form fieldset legend {
+    padding: 0;
+    font-weight: bold;
+}
+
+.vertical-form fieldset legend span {
+    top: 0;
+    left: 0;
+    position: absolute;
+    margin: 0.5em 0 0 0;
+    font-size: 1.25em;
+    display: block;
+    width: 100%;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+
+.vertical-form fieldset ul {
+    list-style: none;
+    margin: 0;
+    zoom: 1;
+}
+
+.vertical-form label {
+    display: block;
+    margin-right: 0.2em;
+    padding: 0.2em 0.8em 0.2em 0.2em;
+}
+.vertical-form li {
+    margin-bottom: 0.2em;
+}
+
+/* Submit/action buttons */
+.vertical-form fieldset.submit {
+    float: none;     
+    width: auto;
+    text-align: center;
+    padding: 1em 0;
+    margin:0;
+}
+
+/* Nested Fieldsets */
+.vertical-form fieldset fieldset {
+    background-color: transparent;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+.vertical-form fieldset fieldset ul {
+    padding: 0;
+}
+.vertical-form fieldset fieldset legend {
+    font-weight: normal;
+}
+.vertical-form fieldset fieldset legend span {
+    position: static;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0.2em 0.8em 0.2em 0.2em;
+    border-style: none;
+}
+.vertical-form fieldset fieldset label {
+    display: inline;
+    background-color: transparent;
+}
+

@@ -73,7 +73,7 @@ sub render_body {
     if ( $mobj) {
         my $count = 0;
 
-        $ret .= "<div class='moodtheme-preview moodtheme-preview-$show_special'>";
+        $ret .= "<div class='moodtheme-preview moodtheme-preview-$show_special highlight-box'>";
         $ret .= "<table summary=''>";
         $ret .= "<tr>" unless $moodtheme_extra;
         foreach my $mood (@show_moods) {

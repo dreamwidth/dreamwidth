@@ -207,7 +207,7 @@ _c?>
             $body .= "<div class='login-create-account'>\n";
             $body .= "<hr class='hr' />\n";
             $body .= "<h4>$ML{'.createaccount.header'}</h4>\n";
-            $body .= "<form action='<?siteroot?>/create' method='get'><input type='submit' value='$ML{'.createaccount.button'}' class='create-account' /></form>\n";
+            $body .= "<form action='<?siteroot?>/create' method='get'><input type='submit' value='$ML{'.createaccount.button'}' class='submit' /></form>\n";
             $body .= "<ul>\n";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit1'}</li>";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit2'}</li>";

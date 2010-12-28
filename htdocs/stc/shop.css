@@ -30,7 +30,12 @@
     margin: 10px;
 }
 
+.shop-item-highlight {
+    font-weight: bold;
+}
+
 .shop-account-status {
+    font-weight: normal;
     float: right;
     width: 30em;
     padding: 5px;
@@ -56,10 +61,8 @@
     padding: 0.2em;
 }
 
-.shop-error {
+.error-box {
     clear: both;
-    padding: 5px;
-    margin: 10px;
 }
 
 .shop-cart-status {
@@ -95,10 +98,6 @@
     margin-left: 1em;
 }
 
-.shop-item-highlight {
-    font-weight: bold;
-}
-
 .shop-footnote {
     font-size: smaller;
 }
@@ -108,7 +107,7 @@
 }
 
 .shop-points-status {
-    margin: 20px;
+    margin: 20px 0;
     padding: 0.5em;
     font-size: larger;
 }
@@ -140,7 +139,7 @@
 }
 
 #shop-status-bar {
-    margin: 20px;
+    margin: 20px 0;
     padding: 0.5em;
     font-size: larger;
 }

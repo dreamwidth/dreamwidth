@@ -39,7 +39,6 @@ legend
 .tagbox
 {
     width: 300px;
-    background-color: #eee;
     padding: 4px;
     height: 250px;
 }
@@ -130,20 +129,21 @@ legend
 }
 
 /* count type */
-.proptbl .t
+.proptbl th
 {
     text-align: right;
+    font-weight: normal;
 }
 
 /* results */
-.proptbl .r
+.proptbl .summary th
 {
     text-align: right;
     font-weight: bold;
 }
 
 /* result value */
-.proptbl .rv
+.proptbl .summary td
 {
     text-align: center;
     font-weight: bold;
@@ -162,12 +162,14 @@ legend
     text-align: right;
     vertical-align: top;
     white-space: nowrap;
+    border-right: 1px solid;
 }
 
 /* separator line */
 .edittbl .sep
 {
     white-space: nowrap;
+    border-top: 1px solid;
 }
 
 

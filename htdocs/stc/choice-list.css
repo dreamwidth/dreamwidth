@@ -1,0 +1,11 @@
+.choice-list ul {
+    list-style: none;
+}
+
+.choice-list fieldset.submit {
+    float: none;     
+    width: auto;
+    text-align: center;
+    padding: 1em 0;
+    margin:0;
+}

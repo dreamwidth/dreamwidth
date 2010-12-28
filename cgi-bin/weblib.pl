@@ -404,26 +404,25 @@ sub paging_bar
 
     my $href_opts = $opts->{'href_opts'} || sub { '' };
 
-    my $navcrap;
+    my $nav;
     if ($pages > 1) {
-        $navcrap .= "<center><font face='Arial,Helvetica' size='-1'><b>";
-        $navcrap .= BML::ml('ljlib.pageofpages',{'page'=>$page, 'total'=>$pages}) . "<br />";
+        $nav .= "<b>";
+        $nav .= BML::ml('ljlib.pageofpages',{'page'=>$page, 'total'=>$pages}) . "<br />";
         my $left = "<b>&lt;&lt;</b>";
         if ($page > 1) { $left = "<a href='" . $self_link->($page-1) . "'" . $href_opts->($page-1) . ">$left</a>"; }
         my $right = "<b>&gt;&gt;</b>";
         if ($page < $pages) { $right = "<a href='" . $self_link->($page+1) . "'" . $href_opts->($page+1) . ">$right</a>"; }
-        $navcrap .= $left . " ";
+        $nav .= $left . " ";
         for (my $i=1; $i<=$pages; $i++) {
             my $link = "[$i]";
             if ($i != $page) { $link = "<a href='" . $self_link->($i) . "'" .  $href_opts->($i) . ">$link</a>"; }
-            else { $link = "<font size='+1'><b>$link</b></font>"; }
-            $navcrap .= "$link ";
+            else { $link = "<b>$link</b>"; }
+            $nav .= "$link ";
         }
-        $navcrap .= "$right";
-        $navcrap .= "</font></center>\n";
-        $navcrap = BML::fill_template("standout", { 'DATA' => $navcrap });
+        $nav .= "$right";
+        $nav = "<div class='action-box'>$nav</div>";
     }
-    return $navcrap;
+    return $nav;
 }
 
 # drop-in replacement for BML::paging in non-BML context
@@ -2740,7 +2739,7 @@ sub control_strip
         my $userpic = $remote->userpic;
         if ( $userpic ) {
             my $wh = $userpic->img_fixedsize( width => 43, height => 43 );
-            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editicons'>";
+            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/editicons'>";
             $ret .= "<img src='" . $userpic->url . "' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" $wh /></a></td>";
         } else {
             my $tinted_nouserpic_img = "";
@@ -2757,7 +2756,7 @@ sub control_strip
                     }
                 }
             }
-            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editicons'>";
+            $ret .= "<td id='lj_controlstrip_userpic'><a href='$LJ::SITEROOT/editicons'>";
             if ($tinted_nouserpic_img eq "") {
                 $ret .= "<img src='$LJ::IMGPREFIX/controlstrip/nouserpic.gif' ";
             } else {
@@ -3325,8 +3324,8 @@ sub subscribe_interface {
             if (!ref $pending_sub) {
                 next if $u->is_identity && $pending_sub->disabled($u);
 
-                my $disabled_class = $pending_sub->disabled($u) ? "Disabled" : "";
-                my $altrow_class = $sub_count % 2 == 1 ? "altrow" : "";
+                my $disabled_class = $pending_sub->disabled($u) ? "inactive" : "";
+                my $altrow_class = $sub_count % 2 == 1 ? "odd" : "even";
                 my $hidden = $pending_sub->selected($u) ? "" : " style='visibility: hidden;'";
                 my $sub_title = " " . $pending_sub->htmlcontrol_label($u);
                 $sub_title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $sub_title if $pending_sub->disabled($u);
@@ -3400,9 +3399,9 @@ sub subscribe_interface {
 
             my $selected = $special_selected || $pending_sub->default_selected;
 
-            my $inactiveclass = $pending_sub->active ? '' : 'Inactive';
-            my $disabledclass = $pending_sub->enabled ? '' : 'Disabled';
-            my $altrowclass = $sub_count % 2 == 1 ? "altrow" : "";
+            my $inactiveclass = $pending_sub->active ? '' : 'inactive';
+            my $disabledclass = $pending_sub->enabled ? '' : 'disabled';
+            my $altrowclass = $sub_count % 2 == 1 ? "odd" : "even";
 
             $cat_html  .= "<tr class='$inactiveclass $disabledclass $altrowclass'><td>";
 
@@ -3611,11 +3610,11 @@ sub subscribe_interface {
     $referer =~ s/index\.bml//;
 
     unless ($settings_page) {
-        $ret .= '<?standout ' .
+        $ret .= '<div class="action-box">' .
             LJ::html_submit(BML::ml('subscribe_interface.save')) . ' ' .
             ($referer && $referer ne $uri ? "<input type='button' value='".BML::ml('subscribe_interface.cancel')."' onclick='window.location=\"$referer\"' />" : '')
             . '';
-        $ret .= "standout?>";
+        $ret .= "</div>";
     }
 
     $ret .= "</div>";

@@ -38,7 +38,7 @@ sub render_body {
     $ret .= "<h2 class='widget-header'>";
     $ret .= $no_theme_chooser ? $class->ml('widget.layoutchooser.title_nonum') : $class->ml('widget.layoutchooser.title');
     $ret .= "</h2>";
-    $ret .= "<div class='layout-content'>";
+    $ret .= "<ul class='layout-content select-list'>";
 
     # Column option
     my $current_theme = LJ::Customize->get_current_theme($u);
@@ -68,9 +68,9 @@ sub render_body {
     unless (!$current_theme->is_system_layout) {
         foreach my $layout (sort keys %layouts) {
             my $current = (!$layout_prop) || ($layout_prop && $layouts{$layout} eq $prop_value) ? 1 : 0;
-            my $current_class = $current ? " current" : "";
+            my $current_class = $current ? " selected" : "";
 
-            $ret .= "<div class='layout-item$current_class'>";
+            $ret .= "<li class='layout-item$current_class'>";
             $ret .= "<img src='$LJ::IMGPREFIX/customize/layouts/$layout.png' class='layout-preview' />";
             $ret .= "<p class='layout-desc'>$layout_names{$layout}</p>";
             unless ($current) {
@@ -86,7 +86,7 @@ sub render_body {
                 );
                 $ret .= $class->end_form;
             }
-            $ret .= "</div><!-- end .theme-item -->";
+            $ret .= "</li><!-- end .theme-item -->";
         }
     }
 
@@ -142,7 +142,7 @@ sub js {
         applyLayout: function (evt, form) {
             var given_layout_choice = form["Widget[LayoutChooser]_layout_choice"].value + "";
             $("layout_btn_" + given_layout_choice).disabled = true;
-            DOM.addClassName($("layout_btn_" + given_layout_choice), "layout-button-disabled");
+            DOM.addClassName($("layout_btn_" + given_layout_choice), "layout-button-disabled disabled");
 
             this.doPostAndUpdateContent({
                 layout_choice: given_layout_choice,

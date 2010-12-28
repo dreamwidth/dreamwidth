@@ -162,8 +162,8 @@ body<=
             $ret .= BML::ml('.request.body', { comm => LJ::ljuser($cu) }) . "<br /> p?>";
             $ret .= "<form method='post' action='join?comm=$commuser'>";
             $ret .= LJ::form_auth();
-            $ret .= "<?standout <input type='submit' value=\"$ML{'.button.join2'}\" /> ";
-            $ret .= "$cancel_btn standout?></form>";
+            $ret .= "<div class='action-box'> <input type='submit' value=\"$ML{'.button.join2'}\" /> ";
+            $ret .= "$cancel_btn </div></form>";
             return $ret;
         }
 
@@ -183,8 +183,8 @@ body<=
         $ret .= "</td></tr><tr>";
         $ret .= "<td>&nbsp;</td><td><span style='font-size: smaller;'>$ML{'.label.addtofriends.note2'}</span></td>";
         $ret .= "</tr></table>";
-        $ret .= "<?standout <input type='submit' value=\"$ML{'.button.join2'}\" /> ";
-        $ret .= "$cancel_btn standout?></form>";
+        $ret .= "<div class='action-box'><input type='submit' value=\"$ML{'.button.join2'}\" /> ";
+        $ret .= "$cancel_btn</div></form>";
     }
 
     return $ret;

@@ -55,15 +55,14 @@
 
 .help.link=Back to the <a href="help.bml">list of open requests</a>.<br />
 
-.important.notes.text<<
-<?standout <b>Important Notes:</b>
-<?p [[sitenameshort]] Support is an open-source project run by a community of volunteers. 
-If you think you know the answer to this question, you are welcome to help out by 
-submitting an answer in the box below. Your answer will be screened and 
-evaluated by senior support volunteers for content. If your answer is first 
-and correct, it will be sent to the user. p?>
-<?p If you have questions about Support, please see the <a [[supportlink]]>support guide</a> for more information. p?>
-<?p Thanks! p?> standout?>
+.important.notes.text2<<
+<strong>Important Notes:</strong>
+
+<?p [[sitenameshort]] Support is an open-source project run by a community of volunteers. If you think you know the answer to this question, you're welcome to submit an answer in the box below. Your answer will be screened and evaluated by senior support volunteers for content. If your answer is first and correct, it will be sent to the person who submitted the question. p?>
+
+<?p If you have questions about Support, please read the <a href="http://wiki.dwscoalition.org/notes/Category:Support">Support Wiki category</a> for more information. p?>
+
+<?p Thank you! p?>
 .
 
 .incat=in the same category

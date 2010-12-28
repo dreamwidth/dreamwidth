@@ -436,7 +436,7 @@ body<=
             my $onload;
 
             if ( $res{events_1_converted_with_loss} ) {
-                $ret .= "<?standout $ML{'.invalid_encoding'} standout?><br/>";
+                $ret .= "<div class='warning-box'>$ML{'.invalid_encoding'} </div><br/>";
             }
 
             $ret .= LJ::entry_form($entry, \$$head, \$onload);
@@ -550,7 +550,7 @@ body<=
         # edit form
         $ret .= "<form action='editjournal$getextra' method='post'>\n";
         $ret .= LJ::html_hidden("mode","edit");
-        $ret .= "<?standout <table summary=''>\n";
+        $ret .= "<table summary='' class='highlight-box'>\n";
 
         # view type
         $ret .= "<tr valign=\"top\"><td>$ML{'.viewwhat'}</td>\n<td>\n";
@@ -590,7 +590,7 @@ body<=
         # submit button
         $ret .= "<tr><td>&nbsp;</td><td>" . LJ::html_submit(undef, $ML{'.btn.proceed'}) . "</td></tr>\n";
 
-        $ret .= "</table> standout?>\n";
+        $ret .= "</table>\n";
         $ret .= "</form>\n";
 
         my %res;

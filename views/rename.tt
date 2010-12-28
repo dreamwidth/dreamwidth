@@ -15,12 +15,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- sections.title = '.title' | ml -%]
 
 [% IF error_list %]
+    <div class='error-box'>
     <p>[% '.error.header' | ml %]</p>
     <ul class='error-list'>
         [% FOREACH error = error_list %]
             <li>[% error %] </li>
         [% END %]
     </ul>
+    </div>
 [% END %]
 
 [% IF token %]

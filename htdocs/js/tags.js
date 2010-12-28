@@ -104,7 +104,7 @@ function validate_input(btn, field_name, badtext)
 
     var re = /\S/;
     if (! field.value.match(re) || field.value.indexOf(badtext) != -1) {
-        field.className = 'tagfield_error';
+        field.className = 'error';
         return false;
     }
 
@@ -151,15 +151,15 @@ function show_props(div, id)
     secimg = secimg + '" />';
     if (tag[1] == "n/a") secimg = "";
 
-    out = "<table class='proptbl' cellspacing='0'>";
+    out = "<table class='proptbl column-table' cellspacing='0'><tbody>";
     out = out + "<tr><td class='h' colspan='2'>" + ml.counts_label + "</td></tr>";
-    out = out + "<tr><td class='t'>" + ml.public_label + "</td><td class='c'>" + tag[2] + "</td></tr>";
-    out = out + "<tr><td class='t'>" + ml.private_label + "</td><td class='c'>" + tag[3] + "</td></tr>";
-    out = out + "<tr><td class='t'>" + ml.trusted_label + "</td><td class='c'>" + tag[4] + "</td></tr>";
-    out = out + "<tr><td class='t'>" + ml.filters_label + "</td><td class='c'>" + tag[5] + "</td></tr>";
-    out = out + "<tr><td class='r'>" + ml.total_label + "</td><td class='rv'>" + tag[6] + "</td></tr>";
-    out = out + "<tr><td class='r' style='height: 16px'>" + ml.security_label + "</td><td class='rv' align='middle'>" + seclabel + secimg + "</td></tr>";
-    out = out + "</table>";
+    out = out + "<tr><th>" + ml.public_label + "</th><td class='c'>" + tag[2] + "</td></tr>";
+    out = out + "<tr><th>" + ml.private_label + "</th><td class='c'>" + tag[3] + "</td></tr>";
+    out = out + "<tr><th>" + ml.trusted_label + "</th><td class='c'>" + tag[4] + "</td></tr>";
+    out = out + "<tr><th>" + ml.filters_label + "</th><td class='c'>" + tag[5] + "</td></tr>";
+    out = out + "<tr class='summary'><th>" + ml.total_label + "</th><td class='highlight'>" + tag[6] + "</td></tr>";
+    out = out + "<tr class='summary'><th style='height: 16px'>" + ml.security_label + "</th><td class='highlight' align='middle'>" + seclabel + secimg + "</td></tr>";
+    out = out + "</tbody></table>";
 
     div.innerHTML = out;
     return;

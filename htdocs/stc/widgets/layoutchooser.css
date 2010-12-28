@@ -1,37 +1,10 @@
-.layout-item .layout-button {
-    font-size: 11px;
-    color: #fff;
-    background: #f4717a;
-    border: 2px solid #f6828b;
-    border-bottom: 2px solid #c1272d;
-    border-right: 2px solid #c1272d;
-}
-.layout-item .layout-button-disabled {
-    background: #88CD73;
-}
-.layout-item {
-    position: relative;
-    float: left;
-    width: 156px;
+.layout-content .layout-item {
     text-align: center;
-    padding: 8px;
-    border: 1px solid #fff;
-    font-size: 11px;
-}
-.layout-item.current {
-    border: 1px solid #ffd8d8;
-    background-color: #ECF6FF;
-}
-.layout-item .layout-desc {
-    font-size: 12px;
-    padding: 4px 0 6px 0;
-    margin: 0 !important;
+    position: relative;
+    width: 156px;
 }
 .layout-item img.layout-preview {
     border: 1px solid #fff;
     width: 150px;
     height: 114px;
-}
-.layout-content {
-    padding-left: 10px;
 }

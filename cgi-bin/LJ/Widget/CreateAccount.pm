@@ -62,11 +62,11 @@ sub render_body {
     # screen readers to announce it correctly after form submission. If you want to
     # move it, use CSS.
     if ( keys %$errors ) {
-        $ret .= "<div tabindex=1 id='error-list' class='error-list' role='alert'>";
+        $ret .= "<div tabindex=1 id='error-list' class='error-box' role='alert'>";
         $ret .= "<h2 class='nav' id='errorlist_label'>"
                 .  LJ::ejs($class->ml('widget.createaccount.error.list'))
                 .  "</h2>";
-        $ret .= "<ol role='alert' labelledby='errorlist_label'>";
+        $ret .= "<ol role='alert' labelledby='errorlist_label' class='error-list'>";
 
         # Print out all of the error messages that exist.
         # Do this manually as opposed to in a for loop in order to guarantee the order

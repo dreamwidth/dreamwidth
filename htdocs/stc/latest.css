@@ -40,3 +40,8 @@
 .latest-entry .comments {
     margin-top: 1em;
 }
+
+#tagfeeds {
+    width: 20em;
+    text-align: center;
+}

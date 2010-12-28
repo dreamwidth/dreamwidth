@@ -18,7 +18,7 @@ body<=
 {
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
-    LJ::need_res(qw( stc/customize.css js/customize.js ));
+    LJ::need_res(qw( stc/customize.css js/customize.js stc/select-list.css));
 
     $title = $ML{'.title'};
 

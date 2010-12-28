@@ -196,9 +196,9 @@ _c?>
 
         $ret .= $event;
         $ret .= "</div>";
-        $ret .= "<hr/><?standout <div><p>\n";
+        $ret .= "<hr/><div class='highlight-box'><p>\n";
         $ret .= $preview_warn_text . "\n";
-        $ret .= "</p></div> standout?>";
+        $ret .= "</p></div>";
 
 
         $ret .= "<br clear='all' /><hr width='100%' size='2' align='center' />";
@@ -298,13 +298,9 @@ _c?>
                 left: -10000px;
                 top: auto;
             }
-            .standout .standout-inner, .standout-colors {
-                background-color: #ffafb6;
-                color: #111;
-                border: 1px solid #c1272d;
-            }
-
-            .standout-inner a:hover, .standout-inner a:active {
+            .highlight-box {
+                border: 1px solid #c1272c;
+                background-color: #ffd8d8;
                 color: #000;
             }
             </style>

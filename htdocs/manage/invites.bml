@@ -111,7 +111,7 @@ body<=
     }
     
     # prepare table
-    $ret .= "<form method='post'>\n<div align='center'><table id='invites-list' class='alternating-rows' cellspacing='0' cellpadding='0'>";
+    $ret .= "<form method='post'>\n<div align='center'><table id='invites-list' cellspacing='0' cellpadding='0'>";
     $ret .= LJ::form_auth();
     $ret .= "<tr><th>$ML{'.community.title'}</th><th>$ML{'.abilities.title'}</th>";
     $ret .= "<th colspan='2'>$ML{'.actions.title'}</th>";
@@ -120,8 +120,8 @@ body<=
     # now list memberships
     my $rc = 0;
     foreach my $invite (@$pending) {
-        # get variables we'll need for HTML generatrion
-        my $rstyle = ($rc++ & 1) ? "altrow2" : "altrow1";
+        # get variables we'll need for HTML generation
+        my $rstyle = ($rc++ & 1) ? "odd" : "even";
         my $cu = $us->{$invite->[0]};
         my $key = "pending_$invite->[0]";
         my @tags = ();
@@ -147,7 +147,7 @@ body<=
 
     # all done
     $ret .= "</table><br />";
-    $ret .= "<?standout" . LJ::html_submit('submit', $ML{'.submit'}) . "standout?>";
+    $ret .= "<div class='action-box'>" . LJ::html_submit('submit', $ML{'.submit'}) . "</div>";
     $ret .= "</div></form>";
         
     return $ret;

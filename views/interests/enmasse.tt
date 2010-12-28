@@ -57,6 +57,4 @@
 <input type='hidden' name='fromuser' value='[% fromu.user %]' />
 <input type='hidden' name='allintids' value='[% allintids %]' />
 <h1>[% '.finished.header' | ml %]</h1><p>[% '.finished.about' | ml %]</p>
-<div class='standout'><table summary='' class='standout-inner'><tr><td>
-<input type='submit' value='[% ".finished.save_button" | ml %]' />
-</td></tr></table></div></form>
+<div class='action-box'><input type='submit' value='[% ".finished.save_button" | ml %]' /></div></form>
