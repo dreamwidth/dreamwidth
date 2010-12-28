@@ -44,7 +44,7 @@ foreach my $file (@modules) {
         next;
     }
 
-    system qq($^X -I$lib -e "require $module; print 'ok';" > $out 2>$err);
+    system qq($^X -I$lib -e "require( $module ); print 'ok';" > $out 2>$err);
     my $err_data = slurp($err);
     is($err_data, '', "STDERR of $file");
 
