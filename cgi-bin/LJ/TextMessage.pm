@@ -905,7 +905,9 @@ sub provider_info
 }
 
 sub remap {
-    my $provider = shift;
+    my ( $provider ) = @_;
+    return unless defined $provider;
+
     return "o2mmail" if $provider eq "btcellnet";
     return "voicestream" if $provider eq "voicestream2";
     return "tmobileusa" if $provider eq "tmomail";

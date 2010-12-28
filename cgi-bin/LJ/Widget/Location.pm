@@ -248,8 +248,8 @@ sub handle_post {
 }
 
 sub country_regions_cfg {
-    my $class = shift;
-    my $country = shift;
+    my ( $class, $country ) = @_;
+    return unless defined $country;
     return $LJ::COUNTRIES_WITH_REGIONS{$country};
 }
 
