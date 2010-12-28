@@ -91,15 +91,15 @@ sub render_simple {
 
     my $updated = LJ::get_timeupdate_multi($self->userids);
 
-    my $ret = "<table summary='' id='SearchResults' cellspacing='1'>";
+    my $ret = "<ul>";
     foreach my $u (@users) {
-        $ret .= "<tr><td class='SearchResult'>";
+        $ret .= "<li>";
         $ret .= $u->ljuser_display . " - " . $u->name_html;
         # FIXME: consider replacing this with $u->last_updated
         $ret .= " <small>(Last updated: ". LJ::diff_ago_text( $updated->{$u->id} ) . ")</small>";
-        $ret .= "</td></tr>";
+        $ret .= "</li>";
     }
-    $ret .= "</table>";
+    $ret .= "</ul>";
     return $ret;
 }
 
