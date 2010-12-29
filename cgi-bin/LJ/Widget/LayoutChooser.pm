@@ -90,7 +90,7 @@ sub render_body {
         }
     }
 
-    $ret .= "</div>";
+    $ret .= "</ul>";
 
     return $ret;
 }
