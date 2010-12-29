@@ -210,7 +210,7 @@ body<=
             $ret .= "<form action='faqcat.bml' method='post'>\n";
             $ret .= LJ::form_auth();
             $ret .= LJ::html_hidden( 'faqcats' => join ( ",", map { $faqcat{$_}->{faqcat} } keys %faqcat ) );
-            $ret .= "<table><tr><th style='padding: 5px'><?_ml .label.catname _ml?></th><th style='padding: 5px'><?_ml .label.catkey _ml?></th><th style='padding: 5px'><?_ml .label.catorder _ml?></th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp</th></tr>";
+            $ret .= "<table><thead><tr><th style='padding: 5px'><?_ml .label.catname _ml?></th><th style='padding: 5px'><?_ml .label.catkey _ml?></th><th style='padding: 5px'><?_ml .label.catorder _ml?></th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp</th></tr></thead>";
 
             foreach my $faqcat ( sort { $faqcat{$a}->{catorder} <=> $faqcat{$b}->{catorder} } keys %faqcat ) {
 

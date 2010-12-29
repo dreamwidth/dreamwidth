@@ -527,16 +527,16 @@ body<=
     }
 
     my $sortlink = BML::get_uri() . "?authas=$cname&sort=";
-    $ret .= "<br /><div align='center'><table cellpadding='0' cellspacing='0'>\n<tr>" .
+    $ret .= "<br /><div align='center'><table cellpadding='0' cellspacing='0'>\n<thead><tr>" .
             "<th><a href='${sortlink}name'>$ML{'.key.user'}</a></th>";
     $ret .= "<th><a href='${sortlink}$_'>".$ML{".key.$_"}."</a></th>" for (@attribs);
-    $ret .= "</tr>\n";
+    $ret .= "</tr></thead>\n";
 
     # rows for existing users
     my $rc = 0;
     my @wstrs;
     foreach(@users) {
-        my $rstyle = ($rc++ & 1) ? "odd" : "even";
+        my $rstyle = ($rc++ & 1) ? "even" : "odd";
         $ret .= "<tr class='$rstyle'><td>" . LJ::ljuser($_->{'name'}) . "</td>";
         my $wstr;
         foreach my $key (@attribs) {
@@ -553,7 +553,7 @@ body<=
     # if on the last page, let users add to the list
     if ($items{'page'} == $items{'pages'}) {
         foreach(1..5) {
-            my $rstyle = ($rc++ & 1) ? "altrow2" : "altrow1";
+            my $rstyle = ($rc++ & 1) ? "even" : "odd";
             $ret .= "<tr class='$rstyle'><td>";
             $ret .= LJ::html_text({ 'name' => "add_$_", 'size' => '10', 'class' => 'text', 'maxlength' => '75' }) . "</td>";
             foreach my $key (@attribs) {

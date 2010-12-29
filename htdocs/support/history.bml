@@ -86,8 +86,8 @@ body<=
             # get categories
             my $cats = LJ::Support::load_cats();
 
-            $ret .= '<table><tr><th>Summary</th><th>State</th><th>Answered By</th>' .
-                    '<th>Category</th><th>Opened By</th><th>Time Opened</th></tr>';
+            $ret .= '<table><thead><tr><th>Summary</th><th>State</th><th>Answered By</th>' .
+                    '<th>Category</th><th>Opened By</th><th>Time Opened</th></tr></thead>';
             foreach my $id (sort { $a <=> $b } keys %reqs) {
                 # verify user can see this category (public_read or has supportread in it)
                 next unless $cats->{$reqs{$id}->{spcatid}}{public_read} ||

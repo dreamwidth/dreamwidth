@@ -284,9 +284,9 @@ body<=
         $ret .= "<?h1 $ML{ '.latest.posted' } h1?><?p " . BML::ml('.last.num.posted.by', {num => $count, user => LJ::ljuser($u) }) . " p?>";
         my %jcount;  # jid -> ct
         $ret .= "<table style='text-align: left'>";
-        $ret .= "<tr><th>$ML{ '.time' }</th><th>&nbsp;$ML{ '.location' }</th><th>&nbsp;$ML{ '.delete' }</th>";
+        $ret .= "<thead><tr><th>$ML{ '.time' }</th><th>&nbsp;$ML{ '.location' }</th><th>&nbsp;$ML{ '.delete' }</th>";
         $ret .= "<th>&nbsp;$ML{ '.edit' }</th>" if $remote->can_edit_comments;
-        $ret .= "</tr>";
+        $ret .= "</tr></thead>";
 
         foreach my $r (@posted) {
             $jcount{$r->{'journalid'}}++;

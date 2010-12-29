@@ -65,6 +65,7 @@ sub option {
     $ret .= "<h2>" . $class->ml('setting.xpost.accounts') ."</h2><br/>"; 
     $ret .= "<table class='setting_table'>\n";
     if (scalar @accounts) {
+        $ret .= "<thead>";
         $ret .= "<tr>\n";
         $ret .= "<th>" . $class->ml('setting.xpost.option.username') . "</th>\n";
         $ret .= "<th>" . $class->ml('setting.xpost.option.server') . "</th>\n";
@@ -73,6 +74,7 @@ sub option {
         $ret .= "<th>" . $class->ml('setting.xpost.option.change') . "</th>\n";
         $ret .= "<th>" . $class->ml('setting.xpost.option.delete') . "</th>\n";
         $ret .= "</tr>\n";
+        $ret .= "</thead>";
 
         # display each account
         foreach my $externalacct (@accounts) {

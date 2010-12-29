@@ -133,8 +133,8 @@ EOF
 
         if ( @carts ) {
             $body .= "<table border='1'>";
-            $body .= "<tr><th>Cart Number</th><th>Date</th><th>Total</th>";
-            $body .= "<th>Payment Method</th><th>Status</th><th>Details</th>";
+            $body .= "<thead><tr><th>Cart Number</th><th>Date</th><th>Total</th>";
+            $body .= "<th>Payment Method</th><th>Status</th><th>Details</th></tr></thead>";
             foreach my $cart ( @carts ) {
                 my $state = $cart->state;
                 my $paymentmethod = $cart->paymentmethod;

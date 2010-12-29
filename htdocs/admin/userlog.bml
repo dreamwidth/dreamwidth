@@ -77,9 +77,9 @@ FORM
 
     $ret .= "<?p Latest log entries for " . LJ::ljuser($u) . ". p?>";
     $ret .= "<table style='border: solid 1px black; width: 95%;'>\n";
-    $ret .= "<tr>";
+    $ret .= "<thead><tr>";
     $ret .= join('', map { "<th class='logrow'>$_</th>" } ("Date and Time", "Action", "Initiator", "IP Address", "Uniq Cookie"));
-    $ret .= "</tr>\n";
+    $ret .= "</tr></thead>\n";
 
     while (my $row = $sth->fetchrow_hashref) {
         my $extra = {};

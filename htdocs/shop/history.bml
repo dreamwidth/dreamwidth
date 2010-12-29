@@ -39,8 +39,8 @@ body<=
 
     my $ret;
     $ret .= "<table class='shop-cart'>";
-    $ret .= "<tr><th>$ML{'.cart.header.ordernumber'}</th><th>$ML{'.cart.header.date'}</th><th>$ML{'.cart.header.total'}</th>";
-    $ret .= "<th>$ML{'.cart.header.paymentmethod'}</th><th>$ML{'.cart.header.status'}</th><th>$ML{'.cart.header.details'}</th></tr>";
+    $ret .= "<thead><tr><th>$ML{'.cart.header.ordernumber'}</th><th>$ML{'.cart.header.date'}</th><th>$ML{'.cart.header.total'}</th>";
+    $ret .= "<th>$ML{'.cart.header.paymentmethod'}</th><th>$ML{'.cart.header.status'}</th><th>$ML{'.cart.header.details'}</th></tr></thead>";
     foreach my $cart ( @carts ) {
         my $state = $cart->state;
         my $paymentmethod = $cart->paymentmethod;

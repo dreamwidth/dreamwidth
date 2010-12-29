@@ -258,7 +258,7 @@ body<=
 
  my %marked = map { $_ => 1 } split( ',', $GET{mark} );
  my $uri = "$LJ::SITEROOT/support/help?cat=$filtercat&state=$state";
- $ret .= "<p><table class='supporttable'><tr bgcolor='#d0d0d0'>\n";
+ $ret .= "<p><table class='supporttable'><thead><tr bgcolor='#d0d0d0'>\n";
  if ( $can_close ) {
     my $link = "$uri&sort=$sort&closeall=" . ( $GET{closeall} ? 0 : 1 );
     $ret .= "<th>&nbsp;<a href='$link'>X</a></th>\n";
@@ -272,7 +272,7 @@ body<=
      }
  }
  $ret .= "<th>$ML{'.th.status'}</th>\n";
- $ret .= "</tr>";
+ $ret .= "</tr></thead>";
 
  foreach my $sp (@support_log)
  {

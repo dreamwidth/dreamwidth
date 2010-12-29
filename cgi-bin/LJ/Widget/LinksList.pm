@@ -49,8 +49,8 @@ sub render_body {
     $showlinks = $caplinks if $showlinks > $caplinks;
 
     $ret .= "<table border='0' cellspacing='5' cellpadding='0'>";
-    $ret .= "<tr><th>" . $class->ml('widget.linkslist.table.order') . "</th>";
-    $ret .= "<th>" . $class->ml('widget.linkslist.table.title') . "</th><td>&nbsp;</td></tr>";
+    $ret .= "<thead><tr><th>" . $class->ml('widget.linkslist.table.order') . "</th>";
+    $ret .= "<th>" . $class->ml('widget.linkslist.table.title') . "</th><td>&nbsp;</td></tr></thead>";
 
     foreach my $ct (1..$showlinks) {
         my $it = $linkobj->[$ct-1] || {};

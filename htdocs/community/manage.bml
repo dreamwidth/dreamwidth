@@ -80,7 +80,7 @@ body<=
 
        # Make up the first table row, linking to the other sort methods
        my @snames;
-       $ret .= "<table cellpadding='0' cellspacing='0' style='width: 100%;'><tr>";
+       $ret .= "<table cellpadding='0' cellspacing='0' style='width: 100%;'><thead><tr>";
 
        if (!defined $GET{'sortby'} || $GET{'sortby'} eq 'username') {
            $ret .= "<th>$ML{'.commlist.username'}</th>";
@@ -107,11 +107,13 @@ body<=
            $ret .= "<th>&nbsp;</th>";
        }
 
+       $ret .= "</tr></thead>";
+
        my $rc = 0;
        foreach my $id (@snames) {
            my $user = $names{$id}->[0];
            my $name = $names{$id}->[1];
-           my $rstyle = ($rc++ & 1) ? "odd" : "even";
+           my $rstyle = ($rc++ & 1) ? "even" : "odd";
            $ret .= "<tr class='$rstyle'><td><?ljcomm $user ljcomm?></td><td>" . LJ::eall($name) . "</td><td nowrap='nowrap'>";
            if ($admin{$id}) {
                $ret .= BML::ml('Actionlink', {

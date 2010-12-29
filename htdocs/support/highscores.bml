@@ -80,12 +80,12 @@ body<=
  $ret .= $navbar;
  $ret .= "<table id='support-highscores'>";
  $ret .= qq{
-    <tr>
+    <thead><tr>
         <th>$ML{'.header.rank'}</th>
         <th>$ML{'.header.delta'}</th>
         <th>$ML{'.header.user'}</th>
         <th>$ML{'.header.points'}</th>
-    </tr>};
+    </tr></thead>};
  my $count = 0;
  foreach (@rows)
  {

@@ -91,13 +91,13 @@ _c?>
         $ret .= "&nbsp;&nbsp;$_=" . LJ::eall($FORM{$_}) if $FORM{$_}
     }
     $ret .= "</b></p>\n";
-    $ret .= "<table border='1' cellpadding='5' width='100%'>\n<tr>";
+    $ret .= "<table border='1' cellpadding='5' width='100%'>\n<thead><tr>";
     foreach (qw(user admin shtype shdate notes)) {
         my $link = "statushistory?user=$FORM{'user'}&admin=$FORM{'admin'}&type=$FORM{'type'}&orderby=$_";
         $link .= $FORM{'orderby'} eq $_ && $FORM{'flow'} eq 'asc' ? "&flow=desc" : "&flow=asc";
         $ret .= "<th><a href='$link'>$_</a></th>";
     }
-    $ret .= "</tr>\n";
+    $ret .= "</tr></thead>\n";
 
     # query built above
     my $ct = 0;

@@ -24,11 +24,11 @@
 
 <h1>[% '.findsim_do.similar.head' | ml %]</h1>
 <p>[% ".findsim_do.similar.text" | ml(user = findsim_u.ljuser_display) %]</p>
-<p><table cellpadding='3'><tr valign='bottom'>
+<p><table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>
     <th>[% '.findsim_do.magic' | ml %]</th>
-</tr>
+</tr></thead>
 [%- FOREACH findsim_data -%]
     <tr>
         <td>[% count %]</td>

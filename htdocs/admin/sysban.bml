@@ -108,7 +108,7 @@ FORM
 
         $ret = <<QUERYFORM;
 <table>
-<tr><th>Value</th><th>Expiration</th><th>Change expiry</th><th>Note</th><th>Action</th></tr>
+<thead><tr><th>Value</th><th>Expiration</th><th>Change expiry</th><th>Note</th><th>Action</th></tr></thead>
 QUERYFORM
 
         foreach my $value ( keys %$existing_bans ) {
@@ -178,7 +178,7 @@ QUERYFORM
         my $sysbans = LJ::sysban_populate_full_by_value( $banquery, @sysban_privs ) || {};
         if ( %$sysbans ) {
             $ret .= "Sysbans for " . LJ::ehtml( $banquery );
-            $ret .= "<table><tr><th>Type</th><th>Expiration</th><th>Note</th></tr>";
+            $ret .= "<table><thead><tr><th>Type</th><th>Expiration</th><th>Note</th></tr></thead>";
             while ( my ( $what, $details ) = each %$sysbans  ) {
                 $ret .= "<tr>";
                 $ret .= "<td>$what</td>";

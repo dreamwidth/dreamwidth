@@ -46,7 +46,7 @@ _c?>
 </div>
 <h1>Memory Cache Overview</h1>
 <table border='1' cellpadding='5'>
-<tr><th>Host</th><th>Hit Rate</th><th>Curr/Max Size</th><th><span title='Utilization'>Utlz %</span></th><th>Uptime</th><th>Version</th></tr>
+<thead><tr><th>Host</th><th>Hit Rate</th><th>Curr/Max Size</th><th><span title='Utilization'>Utlz %</span></th><th>Uptime</th><th>Version</th></tr></thead>
 END_TOP
     }
 
@@ -153,7 +153,7 @@ END_TOP
 
 	    $ret .= "<h2>Slab classes</h2>";
 	    $ret .= "<table border='1' cellpadding='2'>";
-	    $ret .= "<tr><th>class</th><th>size</th><th>used</th><th>total</th><th colspan='2'>free</th><th>pages</th><th>max age</th></tr>\n";
+	    $ret .= "<thead><tr><th>class</th><th>size</th><th>used</th><th>total</th><th colspan='2'>free</th><th>pages</th><th>max age</th></tr></thead>\n";
 	    foreach my $cls (0..31) {
 		my $size = $stat{'slabs'}{"$cls:chunk_size"};
 		next unless $size;

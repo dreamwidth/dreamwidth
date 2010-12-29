@@ -49,7 +49,7 @@ body<=
 
     $ret .= BML::ml('.text', {'aopts' => "href='$LJ::SITEROOT/admin/translate/teams'"});
 
-    $ret .= "<p><table border='1' cellspacing='1' cellpadding='3'><tr>";
+    $ret .= "<p><table border='1' cellspacing='1' cellpadding='3'><thead><tr>";
     foreach (@cols) {
         if ($sortcol eq $_->[0]) {
             $ret .= "<th>$_->[1]</th>";
@@ -58,7 +58,7 @@ body<=
         }
         if ($_->[0] eq $sortcol && $_->[3]) { $sorter = $_->[3]; }
     }
-    $ret .= "</tr>\n";
+    $ret .= "</tr></thead>\n";
 
     foreach my $r (sort $sorter values %lang) {
         $ret .= "<tr>";

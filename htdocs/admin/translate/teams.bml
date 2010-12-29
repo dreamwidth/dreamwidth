@@ -40,7 +40,7 @@ body<=
     }
 
     $ret .= "<p><table cellpadding='5' border='1'>";
-    $ret .= "<tr><th>$ML{'.table.language'}</th><th>$ML{'.table.community'}</th><th>$ML{'.table.users'}</th></tr>";
+    $ret .= "<thead><tr><th>$ML{'.table.language'}</th><th>$ML{'.table.community'}</th><th>$ML{'.table.users'}</th></tr></thead>";
 
     foreach my $l (sort { $a->{'lnname'} cmp $b->{'lnname'} } values %lang) {
         $ret .= "<tr valign='top' align='left'><td><b>$l->{'lnname'}</b></td>";

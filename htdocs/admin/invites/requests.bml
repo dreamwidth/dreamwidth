@@ -59,7 +59,7 @@ body<=
     $ret .= "<form method='post'>";
     $ret .= LJ::form_auth();
     $ret .= "<table>";
-    $ret .= "<tr><th>User</th><th>Time Generated</th><th>P/C</th><th>Ct</th><th>Give</th><th>Reason</th></tr>";
+    $ret .= "<thead><tr><th>User</th><th>Time Generated</th><th>P/C</th><th>Ct</th><th>Give</th><th>Reason</th></tr></thead>";
     foreach my $outstanding ( @outstanding ) {
         my $u = $users->{$outstanding->userid};
         

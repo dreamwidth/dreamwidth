@@ -86,7 +86,7 @@ body<=
         } @invitecodes;
 
 
-        $ret .= "<table class='invitecodes' id='invitecodes'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th width='200'>$ML{'.header.used'}</th><th width='200'>$ML{'.header.sent'}</th><th>$ML{'.header.email'}</th></tr>";
+        $ret .= "<table class='invitecodes' id='invitecodes'><thead><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th width='200'>$ML{'.header.used'}</th><th width='200'>$ML{'.header.sent'}</th><th>$ML{'.header.email'}</th></tr></thead>";
     
         foreach my $code ( @invitecodes ) {
             $ret .= "<tr>";

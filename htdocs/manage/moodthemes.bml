@@ -451,7 +451,7 @@ body<=
                 $ret .= LJ::html_hidden('edit' => 1,
                                         'themeids' => join(",", map { $_->{moodthemeid} } @user_themes));
                 $ret .= "<table>";
-                $ret .= "<tr><th></th><th>$ML{'.yourthemes.example.happy'}</th><th>$ML{'.yourthemes.example.sad'}</th><th>$ML{'.yourthemes.example.angry'}</th><th></th></tr>";
+                $ret .= "<thead><tr><th></th><th>$ML{'.yourthemes.example.happy'}</th><th>$ML{'.yourthemes.example.sad'}</th><th>$ML{'.yourthemes.example.angry'}</th><th></th></tr></thead>";
                 foreach my $theme ( @user_themes ) {
                     my $ename = LJ::ehtml( $theme->{name} );
                     my $tid = $theme->{moodthemeid};

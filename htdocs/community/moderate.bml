@@ -324,11 +324,12 @@ body<=
         } else {
             $ret .= qq{
             <table cellpadding='5'>
-                <tr>
-                    <th>$ML{'.brlist.time'}</th>                <th>$ML{'.brlist.poster'}</th>
+                <thead><tr>
+                    <th>$ML{'.brlist.time'}</th>
+                    <th>$ML{'.brlist.poster'}</th>
                     <th>$ML{'.brlist.subject'}</th>
                     <th>$ML{'.brlist.actions'}</th>
-                </tr>
+                </tr></thead>
             };
 
             my %users;

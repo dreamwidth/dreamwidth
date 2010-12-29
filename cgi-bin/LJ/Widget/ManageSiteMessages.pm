@@ -58,7 +58,7 @@ sub render_body {
     return $ret . "<?p No messages started during the selected month. p?>" unless @this_months_messages;
 
     $ret .= "<table border='1' cellpadding='3'>";
-    $ret .= "<tr><th>Message</th><th>Start Date</th><th>End Date</th><th colspan='2'>Active Status</th><th>Edit</th></tr>";
+    $ret .= "<thead><tr><th>Message</th><th>Start Date</th><th>End Date</th><th colspan='2'>Active Status</th><th>Edit</th></tr></thead>";
     foreach my $row (@this_months_messages) {
         my $start_date = DateTime->from_epoch( epoch => $row->{time_start}, time_zone => 'America/Los_Angeles' );
         my $end_date = DateTime->from_epoch( epoch => $row->{time_end}, time_zone => 'America/Los_Angeles' );

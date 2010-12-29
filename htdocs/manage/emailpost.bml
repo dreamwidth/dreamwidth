@@ -397,10 +397,9 @@ body<=
     $ret .= "<form method='post' action='emailpost'>\n";
     $ret .= LJ::form_auth();
     $ret .= "<div style='margin-left:40px;'>";
-    $ret .= "<table border=\"0\"><th>$ML{'.addresses.table.address'}</th>";
+    $ret .= "<table border=\"0\"><thead><tr><th>$ML{'.addresses.table.address'}</th>";
     $ret .= "<th>$ML{'setting.emailposting.option.senderrors'}</th>";
-    $ret .= "<td>&nbsp;</td>";
-    $ret .= "<th>$ML{'setting.emailposting.option.helpmessage'}</th></tr>";
+    $ret .= "<th>$ML{'setting.emailposting.option.helpmessage'}</th></tr></thead>";
     for(0..2) { # Limited to 3 addresses.
         $ret .= '<tr><td>';
         my $selected = 0;
@@ -411,7 +410,7 @@ body<=
         $ret .= '<center>' . 
             LJ::html_check({name => "check_$_", selected => $selected})
             . '</center>';
-        $ret .= '</td><td width="20"></td><td>';
+        $ret .= '</td><td>';
         $ret .= '<center>' . 
             LJ::html_check( { name => "help_$_", selected => 0 } )
             . '</center>';

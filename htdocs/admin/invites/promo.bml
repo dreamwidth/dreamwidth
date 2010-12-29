@@ -213,7 +213,7 @@ body<=
         $ret .= '<a href="/admin/invites/promo?state=noneleft">' . $ML{'.state.noneleft'} . '</a>';
 
         $ret .= "<table>";
-        $ret .= "<tr><th>$ML{'.heading.code'}</th><th>$ML{'.heading.active'}</th><th>$ML{'.heading.count'}</th><th>$ML{'.heading.suggest'}</th><th>$ML{'.heading.paid'}</tr>";
+        $ret .= "<thead><tr><th>$ML{'.heading.code'}</th><th>$ML{'.heading.active'}</th><th>$ML{'.heading.count'}</th><th>$ML{'.heading.suggest'}</th><th>$ML{'.heading.paid'}</tr></thead>";
         
         if ( scalar( @$codes ) ) {
             foreach my $code (@$codes) {

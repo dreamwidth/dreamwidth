@@ -30,11 +30,11 @@
 </p>
 [%- IF pop_ints -%]
     [%- IF no_text_mode; pop_cloud; ELSE -%]
-        <p><table><tr>
+        <p><table><thead><tr>
             <th width='150' style="text-align: left">
             [% '.interest' | ml %]</th>
             <th>[% '.count' | ml %]</th>
-        </tr>
+        </tr></thead>
         [%- FOREACH i = pop_ints -%]
         <tr>
             <td><a href='[% i.url | url %]'>[% i.eint %]</a></td>

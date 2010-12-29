@@ -113,15 +113,15 @@ body<=
     # prepare table
     $ret .= "<form method='post'>\n<div align='center'><table id='invites-list' cellspacing='0' cellpadding='0'>";
     $ret .= LJ::form_auth();
-    $ret .= "<tr><th>$ML{'.community.title'}</th><th>$ML{'.abilities.title'}</th>";
+    $ret .= "<thead><tr><th>$ML{'.community.title'}</th><th>$ML{'.abilities.title'}</th>";
     $ret .= "<th colspan='2'>$ML{'.actions.title'}</th>";
-    $ret .= "</tr>";
+    $ret .= "</tr></thead>";
 
     # now list memberships
     my $rc = 0;
     foreach my $invite (@$pending) {
         # get variables we'll need for HTML generation
-        my $rstyle = ($rc++ & 1) ? "odd" : "even";
+        my $rstyle = ($rc++ & 1) ? "even" : "odd";
         my $cu = $us->{$invite->[0]};
         my $key = "pending_$invite->[0]";
         my @tags = ();

@@ -74,9 +74,10 @@ body<=
     } else {
         $body .= "<?h1 $ML{'.loggedin.header'} h1?>";
     }
-    $body .= "<table width='100%'><tr><th>$ML{'.loggedin.table.time'}</th><th>$ML{'.loggedin.table.ip'}</th><th width='45%'>$ML{'.loggedin.table.useragent'}</th>";
+    $body .= "<table width='100%'><thead><tr><th>$ML{'.loggedin.table.time'}</th><th>$ML{'.loggedin.table.ip'}</th><th width='45%'>$ML{'.loggedin.table.useragent'}</th>";
     $body .= "<th>$ML{'.loggedin.table.exptype'}</th><th>$ML{'.loggedin.table.bound'}</th><th>$ML{'.loggedin.table.create'}</th><th>$ML{'.loggedin.table.expire'}</th>" if $adminmode;
-    $body .= "<th>$ML{'.loggedin.table.logout'}</th></tr>\n" unless $user;
+    $body .= "<th>$ML{'.loggedin.table.logout'}</th>\n" unless $user;
+    $body .= "</tr></thead>";
 
     foreach my $login (sort { $a->[1] <=> $b->[1] } @$logins) {
         unless (defined $sessions->{$login->[1]}) {
@@ -117,7 +118,7 @@ body<=
     } else {
         $body .= "<?h1 $ML{'.prior.header'} h1?>\n";
     }
-    $body .= "<table width='100%'><tr><th>$ML{'.prior.table.time'}</th><th>$ML{'.prior.table.ip'}</th><th width='57%'>$ML{'.prior.table.useragent'}</th></tr>";
+    $body .= "<table width='100%'><thead><tr><th>$ML{'.prior.table.time'}</th><th>$ML{'.prior.table.ip'}</th><th width='57%'>$ML{'.prior.table.useragent'}</th></tr></thead>";
     foreach my $login (sort { $b->[1] <=> $a->[1] } @prior) {
         $body .= "<tr>\n";
         $body .= "<td>" . LJ::ehtml(LJ::time_to_http($login->[0])) . "</td>\n";

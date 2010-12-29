@@ -288,9 +288,9 @@ _c?>
     # now spit out the requested table
     return unless @headers;
     $body .= "<?p [ <a href=\"spamreports\">&lt;&lt; Front Page</a> ] p?>";
-    $body .= "<table width=\"50%\">\n<tr>";
+    $body .= "<table width=\"50%\">\n<thead><tr>";
     $body .= "<th align=\"center\">$_</th>" foreach @headers;
-    $body .= "</tr>\n";
+    $body .= "</tr></thead>\n";
     foreach (@rows) {
         $body .= "<tr>";
         $body .= "<td align=\"center\">$_</td>" foreach @$_;

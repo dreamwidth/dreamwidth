@@ -57,7 +57,7 @@ body<=
 sub display_codes {
     my ($account, @codes) = @_;
 
-    my $ret = "<table border='1' cellpadding='5'><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date sent</th><th>Date used</th><th>Email</th></tr>";
+    my $ret = "<table border='1' cellpadding='5'><thead><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date sent</th><th>Date used</th><th>Email</th></tr></thead>";
 
     foreach my $code ( @codes ) {
         my $owner = $code->owner == $account->id ? $account : LJ::load_userid( $code->owner );

@@ -112,7 +112,7 @@ _c?>
 	    $ret .= LJ::html_text({ name => 'add_tags', size => 30 });
 	    $ret .= LJ::html_hidden('add_tags_url', $dest);
 	} else {
-	    $ret .= "<table><tr><th>Add Tags</th><th>URL</th></tr>";
+	    $ret .= "<table><thead><tr><th>Add Tags</th><th>URL</th></tr></thead>";
 	    $ret .= "<tr><td>";
 	    $ret .= LJ::html_text({ name => 'add_tags', size => 30 });
 	    $ret .= "</td><td>";
@@ -153,7 +153,7 @@ _c?>
         $ret .= LJ::form_auth();
         $ret .= "<?h1 Tags Pointing At " . LJ::ehtml($url) . " h1?>";
 
-        $ret .= "<table><tr><th>Tag</th><th>Remove</th></tr>";
+        $ret .= "<table><thead><tr><th>Tag</th><th>Remove</th></tr></thead>";
 
         my $dest = LJ::NavTag::Dest->new_from_url($url);
 
@@ -181,7 +181,7 @@ _c?>
 	my $ret;
 
 	$ret .= "<?h1 Destinations Of Tag " . LJ::ehtml($tag) . " h1?>";
-	$ret .= "<table><tr><th>Title</th><th>Destination</th></tr>";
+	$ret .= "<table><thead><tr><th>Title</th><th>Destination</th></tr></thead>";
 
 	my @dests = LJ::NavTag->dests_of_tag($tag);
 

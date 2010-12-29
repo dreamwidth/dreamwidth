@@ -29,14 +29,14 @@ body<=
  my $navbar = LJ::paging_bar($items{'page'}, $items{'pages'});
  @data = @{$items{'items'}};
 
- $ret .= $navbar . "<table id='synlist'><tr valign='bottom'>";
+ $ret .= $navbar . "<table id='synlist'><thead><tr valign='bottom'>";
  $ret .= $GET{'sort'} eq "username" ? "<th>" . $ML{'.username'} . "</th>":
                                       "<th><a href='" . BML::self_link({ 'sort' => "username"}) . "'>" . $ML{'.username'} . "</a>";
  $ret .= $GET{'sort'} eq "feeddesc" ? "<th>" . $ML{'.feeddesc'} . "</th>":
                                       "<th><a href='" . BML::self_link({ 'sort' => "feeddesc"}) . "'>" . $ML{'.feeddesc'} . "</a>";
  $ret .= $GET{'sort'} eq "numreaders" ? "<th>" . $ML{'.numreaders'} . "</th>":
                                         "<th><a href='" . BML::self_link({ 'sort' => "numreaders"}) . "'>" . $ML{'.numreaders'} . "</a>";
- $ret .= "</th><th>&nbsp;</th></tr>";
+ $ret .= "</th><th>&nbsp;</th></tr></thead>";
  foreach (@data) {
      $ret .= "<tr>";
      $ret .= "<td>" . LJ::ljuser($_->{'user'}, { 'type' => 'Y' }) . "</td>";

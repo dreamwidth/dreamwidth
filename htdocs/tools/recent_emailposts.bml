@@ -14,41 +14,6 @@
 _c?>
 <?page
 title=>Email gateway log
-head<=
-    <style type="text/css">
-
-    .disp
-    {
-        width: 700px;
-        border-left: 1px solid #c2c2c2;
-        border-top: 1px solid #c2c2c2;
-    }
-
-    .disp td
-    {
-        font-size: 0.85em;
-        border-right: 1px solid #c2c2c2;
-        padding: 6px;
-        border-bottom: 1px solid #c2c2c2;
-        vertical-align: top;
-    }
-
-    .err
-    {
-        background-color: #efefef;
-    }
-
-    .disp th
-    {
-        padding: 6px;
-        border-bottom: 1px solid #999;
-        border-right: 1px solid #999;
-        background-color: #dedede;
-        text-align: left;
-    }
-    
-    </style>
-<=head
 body<=
 <?_code
 {
@@ -110,19 +75,19 @@ body<=
     }
 
     $ret .= q{
-        <table class="disp" cellspacing="0">
-            <tr>
+        <table class="grid" cellspacing="0">
+            <thead><tr>
                 <th>When</th>
                 <th>Subject</th>
                 <th>Error?</th>
                 <th>Server Message</th>
-            </tr>
+            </tr></thead>
     };
 
     foreach ( reverse sort keys %$data ) {
         my $row = {};
         LJ::decode_url_string( $data->{$_}->{extra}, $row );
-        $ret .= $row->{e} ? "<tr class='err'>" : "<tr class='ok'>";
+        $ret .= $row->{e} ? "<tr class='error-box'>" : "<tr class='ok'>";
         $ret .= qq{
             <td nowrap="1">$data->{$_}->{ftime}</td>
             <td nowrap="1"><em>$row->{s}</em></td>

@@ -168,7 +168,7 @@ body<=
     }
 
     # table headers
-    $ret .= "<br /><div align='center'><table class='userslist-table' cellspacing='0' cellpadding='2'>\n<tr><th>";
+    $ret .= "<br /><div align='center'><table class='userslist-table' cellspacing='0' cellpadding='2'>\n<thead><tr><th>";
     $ret .= LJ::html_check({ id => 'all', name => 'all', checked => 'checked', 
 	onchange =>
 		"var inputs = document.pending_member_form.getElementsByTagName('input');
@@ -185,13 +185,13 @@ body<=
 			}
 		}", 
   	 selected => 0 });
-    $ret .= "</th><th>$ML{'/community/members.bml.key.user'}</th></tr>\n";
+    $ret .= "</th><th>$ML{'/community/members.bml.key.user'}</th></tr></thead>\n";
 
     # rows for existing users
     my $rc = 0;
     foreach (@users) {
-        my $rstyle = ($rc++ & 1) ? '#efefef' : '#fff';
-        $ret .= "<tr style='background-color: $rstyle;'><td>";
+        my $rstyle = ($rc++ & 1) ? 'even' : 'odd';
+        $ret .= "<tr class='$rstyle'><td>";
         $ret .= LJ::html_check({ id => 'pending_' . $_->userid, name => 'pending_' . $_->userid, 
                                  selected => $jumpto ? ($_->user eq $jumpto ? 1 : 0) : 1 });
         $ret .= "</td><td>" . LJ::ljuser($_->{user}) . "</td></tr>\n";

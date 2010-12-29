@@ -219,13 +219,13 @@ body<=
 </table>
 <br />
 END
-    $ret .= "<table cellpadding='0' cellspacing='0'>\n<tr>" .
+    $ret .= "<table cellpadding='0' cellspacing='0'>\n<thead><tr>" .
             "<th><a href='${sortlink}name'>$ML{'/community/members.bml.key.user'}</a></th>";
     $ret .= "<th><a href='${sortlink}$_'>$_</a></th>" foreach @titleattribs;
     $ret .= "<th><a href='${sortlink}maint'>$ML{'.key.sentby'}</a></th>";
     $ret .= "<th><a href='${sortlink}date'>$ML{'.key.date'}</a></th>";
     $ret .= "<th><a href='${sortlink}status'>$ML{'.key.status'}</a></th>";
-    $ret .= "</tr>\n";
+    $ret .= "</tr></thead>\n";
 
     $ret .= "<form method='post'>";
     $ret .= LJ::form_auth();
@@ -238,7 +238,7 @@ END
     # rows for existing users
     my $rc = 0;
     foreach(@users) {
-        my $rstyle = ($rc++ & 1) ? "odd" : "even";
+        my $rstyle = ($rc++ & 1) ? "even" : "odd";
         $ret .= "<tr class='$rstyle'><td>" . LJ::ljuser($_->{user}) . "</td>";
         foreach my $key (@attribs) {
             $ret .= "<td align='center'>";

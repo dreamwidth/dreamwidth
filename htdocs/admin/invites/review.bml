@@ -53,7 +53,7 @@ body<=
 
     my @codes = DW::InviteCodes->by_owner( userid => $u->id );
     $ret .= "<table>";
-    $ret .= "<tr><th>Recipient</th><th>Last Active</th><th>Paid?</th></tr>";
+    $ret .= "<thead><tr><th>Recipient</th><th>Last Active</th><th>Paid?</th></tr></thead>";
 
     foreach my $code ( @codes ) {
         my $recipient = LJ::load_userid( $code->recipient );
@@ -73,7 +73,7 @@ body<=
     $ret .= "<?h2 Requests for Invite Codes h2?>";    
     my @requests = DW::InviteCodeRequests->by_user( userid => $u->id );
     $ret .= "<table>";
-    $ret .= "<tr><th>Requested on</th><th>Processed on</th><th>Status</th><th>Request reason</th></tr>";
+    $ret .= "<thead><tr><th>Requested on</th><th>Processed on</th><th>Status</th><th>Request reason</th></tr></thead>";
 
     foreach my $request ( @requests ) {
         $ret .= "<tr>";

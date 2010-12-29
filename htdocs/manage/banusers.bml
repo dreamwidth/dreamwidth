@@ -108,7 +108,7 @@ body<=
         my $us = LJ::load_userids(@$banned);
 
         $ret .= $u->is_community ? "<p>$ML{'.intro.unban.comm'}</p>" : "<p>$ML{'.intro.unban.self'}</p>";
-        $ret .= "<table class='userslist-table' cellspacing=0 cellpadding=0><tr><th>";
+        $ret .= "<table class='userslist-table' cellspacing=0 cellpadding=0><thead><tr><th>";
         $ret .= LJ::html_check({ id => 'all', name => 'all', onchange =>
                 "var inputs=document.ban_users_form.getElementsByTagName('input');
                 for (var i = 0; i < inputs.length; i++) {
@@ -123,7 +123,7 @@ body<=
                         inputs[i].checked = this.checked;                  
                     } 
                }", selected => 0 });
-        $ret .= "</th><th>$ML{'/community/members.bml.key.user'}</th></tr>\n";
+        $ret .= "</th><th>$ML{'/community/members.bml.key.user'}</th></tr></thead>\n";
 		
 		my $rc = 0;
 		
