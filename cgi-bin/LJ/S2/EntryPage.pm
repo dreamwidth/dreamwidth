@@ -171,7 +171,7 @@ sub EntryPage
 
             my $comment_userpic;
             my $comment_userpic_style = $opts->{ctx}->[S2::PROPS]->{comment_userpic_style};
-            if ( ( my $pic = $userpic{$com->{picid}} ) && ( $comment_userpic_style ne 'off' ) )  {
+            if ( defined $com->{picid} && ( my $pic = $userpic{$com->{picid}} ) && ( $comment_userpic_style ne 'off' ) )  {
                 my $width = $pic->{width};
                 my $height = $pic->{height};
                 

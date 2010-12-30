@@ -1454,9 +1454,8 @@ sub clean_comment
 {
     my ($ref, $opts) = @_;
 
-    unless (ref $opts) {
-        $opts = { 'preformatted' => $opts };
-    }
+    $opts = { preformatted => $opts } unless ref $opts;
+    return 0 unless defined $$ref;
 
     # fast path:  no markup or URLs to linkify
     if ($$ref !~ /\<|\>|http/ && ! $opts->{preformatted}) {
