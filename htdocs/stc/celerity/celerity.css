@@ -342,6 +342,7 @@ a:active,
 
 .tablist .tab a {
     background: #DDDDAA;
+    color: #000;
     border-color: #999966;
 }
 .tablist .tab a:hover, .tablist .tab a.active {
