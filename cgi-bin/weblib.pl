@@ -395,34 +395,45 @@ sub robot_meta_tags
            "<meta name=\"googlebot\" content=\"noindex, nofollow, noarchive, nosnippet\" />\n";
 }
 
-sub paging_bar
-{
-    my ($page, $pages, $opts) = @_;
+sub paging_bar {
+    my ( $page, $pages, $opts ) = @_;
 
-    my $self_link = $opts->{'self_link'} ||
-                    sub { BML::self_link({ 'page' => $_[0] }) };
+    my $self_link = $opts->{self_link} ||
+                    sub { BML::self_link( { page => $_[0] } ) };
 
-    my $href_opts = $opts->{'href_opts'} || sub { '' };
+    my $href_opts = $opts->{href_opts} || sub { '' };
 
-    my $nav;
-    if ($pages > 1) {
-        $nav .= "<b>";
-        $nav .= BML::ml('ljlib.pageofpages',{'page'=>$page, 'total'=>$pages}) . "<br />";
-        my $left = "<b>&lt;&lt;</b>";
-        if ($page > 1) { $left = "<a href='" . $self_link->($page-1) . "'" . $href_opts->($page-1) . ">$left</a>"; }
-        my $right = "<b>&gt;&gt;</b>";
-        if ($page < $pages) { $right = "<a href='" . $self_link->($page+1) . "'" . $href_opts->($page+1) . ">$right</a>"; }
-        $nav .= $left . " ";
-        for (my $i=1; $i<=$pages; $i++) {
-            my $link = "[$i]";
-            if ($i != $page) { $link = "<a href='" . $self_link->($i) . "'" .  $href_opts->($i) . ">$link</a>"; }
-            else { $link = "<b>$link</b>"; }
-            $nav .= "$link ";
-        }
-        $nav .= "$right";
-        $nav = "<div class='action-box'>$nav</div>";
+    my $nav = '';
+    return $nav unless $pages && $pages > 1;
+
+    $nav .= "<p style='font-weight: bolder; margin: 0 0 .5em 0'>";
+    $nav .= LJ::Lang::ml( 'ljlib.pageofpages',
+                          { page => $page, total => $pages } );
+    $nav .= "</p>\n";
+
+    my $linkify = sub { "<a href='" . $self_link->( $_[0] ) . "'" .
+                        $href_opts->( $_[0] ) . ">$_[1]</a>\n" };
+
+    my ( $left, $right ) = ( "<b>&lt;&lt;</b>", "<b>&gt;&gt;</b>" );
+    $left  = $linkify->( $page - 1, $left ) if $page > 1;
+    $right = $linkify->( $page + 1, $right ) if $page < $pages;
+
+    my @pagelinks;
+
+    for ( my $i = 1; $i <= $pages; $i++ ) {
+        my $link = "[$i]";
+        $link = ( $i != $page ) ? $linkify->( $i, $link ) : "<b>$link</b>";
+        push @pagelinks, "<br />" if $i > 10 && ( $i == 11 || $i % 10 == 0 );
+        push @pagelinks, $link;
     }
-    return $nav;
+
+    $nav .= "$left &nbsp; ";
+    $nav .= "<div style='display: inline; text-align: center'>";
+    $nav .= join ' ', @pagelinks;
+    $nav .= "</div>";
+    $nav .= " &nbsp; $right";
+
+    return "<div class='action-box'>$nav</div>\n";
 }
 
 # drop-in replacement for BML::paging in non-BML context

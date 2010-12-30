@@ -331,38 +331,12 @@ body<=
     my @comments = LJ::Talk::load_comments($u, $remote, "L", $itemid, $opts);
     return $ML{'error.nodbmaintenance'} if $opts->{'out_error'} eq "nodb";
 
-    my $page = $opts->{'out_page'};
-    my $pages = $opts->{'out_pages'};
+    my $page  = $opts->{out_page};
+    my $pages = $opts->{out_pages};
 
-    ########## make the nav
-    my $nav = '';
-    if ($pages > 1) {
-        $nav .= "<table summary='' id='journalnav'>";
-        $nav .= "<tr><td align='center' colspan='3'>";
-        $nav .= BML::ml('ljlib.pageofpages',{'page'=>$page, 'total'=>$pages});
-        $nav .= "</td></tr>";
-        my $left = "&lt;&lt;";
-        if ($page > 1) { $left = "<a href='" . BML::self_link({ 'page' => $page-1 }) . "#comments'>$left</a>"; }
-
-        my $right = "&gt;&gt;";
-        if ($page < $pages) { $right = "<a href='" . BML::self_link({ 'page' => $page+1 }) . "#comments'>$right</a>"; }
-
-        $nav .= "<tr><td style='font-size: 85%' align='center'>$left</td><td style='font-size: 85%' align='center'>";
-
-        for (my $i=1; $i<=$pages; $i++) {
-            my $link = "[$i]";
-            if ($i != $page) { $link = "<a href='" . BML::self_link({ 'page' => $i }) . "#comments'>$link</a>"; }
-            else { $link = "<span style='font-size: 130%; font-weight: bolder'>$link</span>"; }
-            $nav .= "$link ";
-            if ($i == 11)  { $nav .= "<br />"; }
-            elsif ($i > 10 && $i % 10 == 0) { $nav .= "<br />"; }
-        }
-
-        $nav .= "</td><td style='font-size: 85%' align='center'>$right</td></tr>";
-        $nav .= "</table>\n";
-        $nav = qq{<div class="action-box">$nav</div>};
-    }
-    ####### end nav
+    # this overrides the default self_link to add the #comments anchor
+    my $self_link = sub { BML::self_link( { page => $_[0] } ) . "#comments" };
+    my $nav = LJ::paging_bar( $page, $pages, { self_link => $self_link } );
 
     # Quick reply variables.  Not always set.
     my ($last_talkid, $last_jid) = LJ::get_lastcomment();
