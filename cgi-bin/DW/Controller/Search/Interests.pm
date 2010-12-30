@@ -296,7 +296,7 @@ sub interest_handler {
             my $us = $int_query->( "comminterests" );
             my $updated = LJ::get_timeupdate_multi( keys %$us );
             my @cl = sort { $updated->{$b->id} <=> $updated->{$a->id} || $a->user cmp $b->user }
-                     grep { $_ && $_->is_visible && $should_show->( $_ ) } values %$us;
+                     grep { $_ && $should_show->( $_ ) } values %$us;
             $rv->{int_comms} = { count => scalar @cl, data => [] };
             foreach ( @cl ) {
                 my $updated = $updated->{$_->id}
@@ -314,9 +314,7 @@ sub interest_handler {
         # user results
         my $us = $int_query->( "userinterests" );
         my @ul = grep { $_
-                        && $_->is_visible                # visible users
                         && ! $_->is_community            # not communities
-                        && ( ! $_->age || $_->age > 13 ) # are over 13
                         && $should_show->( $_ )          # and should show to the remote user
                       } values %$us;
         my $navbar;

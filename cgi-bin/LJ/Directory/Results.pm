@@ -54,22 +54,14 @@ sub format {
 sub users {
     my $self = shift;
     my $us = LJ::load_userids($self->userids);
+    my $remote = LJ::get_remote();
 
     # gotta do this to preserve the ordering we got
     # (userids sorted in order of last update time)
-    my @users = map { $us->{$_} } $self->userids;
+    my @users = grep { $_ } map { $us->{$_} } $self->userids;
 
-    # only visible users
-    @users = grep { $_ && $_->is_visible } @users;
-
-    # only users over the age of 13
-    @users = grep { !$_->is_person || !$_->age || $_->age > 13 } @users;
-
-    # and only users who the remote user should see
-    my $remote = LJ::get_remote();
-    @users = grep { $_->should_show_in_search_results( for => $remote ) } @users;
-
-    return @users;
+    # show only users who the remote user should see
+    return grep { $_->should_show_in_search_results( for => $remote ) } @users;
 }
 
 sub as_string {

@@ -4407,25 +4407,34 @@ sub safe_search {
 
 # determine if the user in "for_u" should see $u in a search result
 sub should_show_in_search_results {
-    my $u = shift;
-    my %opts = @_;
+    my ( $u, %opts ) = @_;
 
+    # check basic user attributes first
+    return 0 unless $u->is_visible;
+    return 0 if $u->is_person && $u->age && $u->age < 14;
+
+    # now check adult content / safe search
     return 1 unless LJ::is_enabled( 'adult_content' ) && LJ::is_enabled( 'safe_search' );
 
     my $adult_content = $u->adult_content_calculated;
-
     my $for_u = $opts{for};
-    unless (LJ::isu($for_u)) {
-        return $adult_content eq "none" ? 1 : 0;
-    }
+
+    # only show accounts with no adult content to logged out users
+    return $adult_content eq "none" ? 1 : 0
+        unless LJ::isu( $for_u );
 
     my $safe_search = $for_u->safe_search;
-    return 1 if $safe_search == 0;
+    return 1 if $safe_search == 0;  # user wants to see everyone
 
-    my $adult_content_flag_level = $LJ::CONTENT_FLAGS{$adult_content} ? $LJ::CONTENT_FLAGS{$adult_content}->{safe_search_level} : 0;
+    # calculate the safe_search level for this account
+    my $adult_content_flag = $LJ::CONTENT_FLAGS{$adult_content};
+    my $adult_content_flag_level = $adult_content_flag
+                                 ? $adult_content_flag->{safe_search_level}
+                                 : 0;
 
-    return 0 if $adult_content_flag_level && ($safe_search >= $adult_content_flag_level);
-    return 1;
+    # if the level is set, see if it exceeds the desired safe_search level
+    return 1 unless $adult_content_flag_level;
+    return ( $safe_search < $adult_content_flag_level ) ? 1 : 0;
 }
 
 
