@@ -315,6 +315,122 @@ set image_module_list_active = "funkycircles/darkpurple-modulebulletactive.jpg";
 set image_module_list_hover = "funkycircles/darkpurple-modulebullethover.jpg";
 
 
+#NEWLAYER: funkycircles/dejeunersurlherbe
+layerinfo type = "theme";
+layerinfo name = "Déjeuner sur l'herbe";
+layerinfo redist_uniq = "funkycircles/dejeunersurlherbe";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "Away", "url" => "http://www.colourlovers.com/palette/1193468/away" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d6e1c8";
+set color_page_link = "#1B3D1B";
+set color_page_link_hover = "#000";
+set color_page_link_visited = "#404340";
+set color_page_subtitle = "#1C1716";
+set color_page_subtitle_background = "#F9F9F2";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_page_title_background = "#8fb38f";
+set color_header_background = "#c591c5";
+set color_footer_link = "#1B3D1B";
+set color_footer_link_hover = "#000";
+set color_footer_link_visited = "#404340";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#F9F9F2";
+set color_entry_border = "#8fb38f";
+set color_entry_footer_background = "#F9F9F2";
+set color_entry_footer_border = "#8fb38f";
+set color_entry_footer_link = "#1B3D1B";
+set color_entry_footer_link_hover = "#000";
+set color_entry_footer_link_visited = "#404340";
+set color_entry_footer_text = "#000";
+set color_entry_link = "#1e441e";
+set color_entry_link_hover = "#000";
+set color_entry_link_hover_background = "#e5cbe5";
+set color_entry_link_visited = "#404340";
+set color_entry_poster_border = "#F9F9F2";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_userpic_border = "#c591c5";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_text = "#000";
+set color_module_title = "#000";
+set color_specificmodule_background = "#8fb38f";
+set color_specificmodule_background_alt = "#c591c5";
+set color_specificmodule_background_hover = "#F9F9F2";
+set color_specificmodule_background_visited = "#c591c5";
+set color_specificmodule_text = "#000";
+set color_specificmodule_text_alt = "#000";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#411141";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "funkycircles/dejeunersurlherbe-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_background_page_url = "funkycircles/dejeunersurlherbe-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_entry_list_background_url = "funkycircles/dejeunersurlherbe-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/dejeunersurlherbe-modulebullet.png";
+set image_module_list_active = "funkycircles/dejeunersurlherbe-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/dejeunersurlherbe-modulebullethover.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    .navigation li a,
+    .navigation li a:visited,
+    .navigation li a:hover,
+    #footer a,
+    #footer a:visited,
+    #footer a:hover {
+        border-bottom-style: double;
+        border-bottom-width: 3px;
+        }
+
+    .navigation li a:hover,
+    #footer a:hover,
+    .comment ul.comment-interaction-links,
+    .bottomcomment label {
+        border-top-style: double;
+        border-top-width: 3px;
+        }
+
+    .entry .tag {
+        border-bottom-style: double;
+        border-bottom-width: 3px;
+        }
+
+    .module a:hover,
+    .module-navlinks li a.current {
+        border-bottom: 3px double;
+        text-decoration: none;
+        }
+
+    .userpic a:hover,
+    .module-calendar table a:hover {
+        border: none;
+        }
+    """;
+}
+
+
 #NEWLAYER: funkycircles/earthygreen
 layerinfo type = "theme";
 layerinfo name = "Earthy Green";
@@ -392,6 +508,84 @@ set image_entry_list_background_url = "funkycircles/earthygreen-entrybullet.png"
 set image_module_list = "funkycircles/earthygreen-modulebullet.png";
 set image_module_list_active = "funkycircles/earthygreen-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/earthygreen-modulebullethover.png";
+
+
+#NEWLAYER: funkycircles/energydrink
+layerinfo type = "theme";
+layerinfo name = "Energy Drink";
+layerinfo redist_uniq = "funkycircles/energydrink";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "Techno Beat", "url" => "http://www.colourlovers.com/palette/93366/Techno_Beat" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#7c7e89";
+set color_page_link = "#0b1030";
+set color_page_link_hover = "#b9e330";
+set color_page_link_visited = "#b9e330";
+set color_page_subtitle = "#0f0b40";
+set color_page_subtitle_background = "#b9e330";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_page_title_background = "#384384";
+set color_header_background = "#0f0b40";
+set color_footer_link = "#0b1030";
+set color_footer_link_hover = "#b9e330";
+set color_footer_link_visited = "#b9e330";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#b9e330";
+set color_entry_footer_background = "#0f0b40";
+set color_entry_footer_border = "#8e8e8e";
+set color_entry_footer_link = "#fff";
+set color_entry_footer_link_hover = "#D4FF45";
+set color_entry_footer_link_visited = "#D4FF45";
+set color_entry_link = "#0f0b40";
+set color_entry_link_hover = "#fff";
+set color_entry_link_hover_background  = "#0f0b40";
+set color_entry_link_visited = "#5C7800";
+set color_entry_poster_border = "#3f3f3f";
+set color_entry_text = "#000";
+set color_entry_userpic_border = "#0f0b40";
+set color_entry_title = "#0f0b40";
+set color_entry_footer_text = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_text = "#0f0b40";
+set color_module_title = "#0f0b40";
+set color_specificmodule_background = "#0f0b40";
+set color_specificmodule_background_alt = "#b9e330";
+set color_specificmodule_background_hover = "#fff";
+set color_specificmodule_background_visited = "#b9e330";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#000";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#42520d";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "funkycircles/energydrink-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_background_page_url = "funkycircles/energydrink-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_entry_list_background_url = "funkycircles/energydrink-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/energydrink-modulebullet.png";
+set image_module_list_active = "funkycircles/energydrink-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/energydrink-modulebullethover.png";
 
 
 #NEWLAYER: funkycircles/industrialpink
@@ -788,6 +982,149 @@ set color_module_text="#000";
 set color_module_title = "#ef8229";
 
 
+#NEWLAYER: funkycircles/pinstripesuitbluetie
+layerinfo type = "theme";
+layerinfo name = "Pinstripe Suit, Blue Tie";
+layerinfo redist_uniq = "funkycircles/pinstripesuitbluetie";
+layerinfo author_name = "ninetydegrees";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#2e2321";
+set color_page_link = "#CAB9B6";
+set color_page_link_hover = "#82B8DC";
+set color_page_link_visited = "#fff";
+set color_page_subtitle = "#130e0e";
+set color_page_subtitle_background = "#d6dacb";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_page_title_background = "#5993b9";
+set color_header_background = "#130e0e";
+set color_footer_link = "#CAB9B6";
+set color_footer_link_hover = "#82B8DC";
+set color_footer_link_visited = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#5993b9";
+set color_entry_footer_background = "#130e0e";
+set color_entry_footer_border = "#2e2321";
+set color_entry_footer_link = "#CAB9B6";
+set color_entry_footer_link_hover = "#82B8DC";
+set color_entry_footer_link_visited = "#fff";
+set color_entry_footer_text = "#fff";
+set color_entry_link = "#393a36";
+set color_entry_link_hover = "#000";
+set color_entry_link_hover_background = "#B2D0E4";
+set color_entry_link_visited = "#2B7DB3";
+set color_entry_poster_border = "#30312f";
+set color_entry_text = "#000";
+set color_entry_title = "#fff";
+set color_entry_userpic_border = "#130e0e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_specificmodule_background = "#130e0e";
+set color_specificmodule_background_alt = "#5993b9";
+set color_specificmodule_background_hover = "#fff";
+set color_specificmodule_background_visited = "#5993b9";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#fff";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#113851";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "funkycircles/pinstripe-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_background_page_url = "funkycircles/pinstripe-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_entry_list_background_url = "funkycircles/pinstripe-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/pinstripe-modulebullet.png";
+set image_module_list_active = "funkycircles/pinstripe-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/pinstripe-modulebullethover.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    a:hover,
+    .footer a:hover,
+    .bottomcomment a:hover,
+    .partial .comment-title a:hover,
+    .tags-container .manage-tags-link a:hover {
+        border-bottom: 1px dotted;
+        text-decoration: none;
+        }
+
+    .navigation li a,
+    .navigation li a:visited,
+    .navigation li a:hover,
+    #footer a,
+    #footer a:visited,
+    #footer a:hover {
+        border-bottom-style: dotted;
+        border-top-style: dotted;
+        }
+
+    .entry .poster,
+    .comment .poster {
+        border-bottom-style: dotted;
+        }
+
+    .entry-content a,
+    .comment-content a {
+        border-bottom: 1px dotted;
+        text-decoration: none;
+        }
+
+    .entry-content a:visited,
+    .comment-content a:visited {
+        border-bottom: none;
+        }
+
+    .module-navlinks li a.current {
+        border-bottom: 1px dotted;
+        text-decoration: none;
+        }
+
+    .entry .tag {
+        border-bottom-style: dotted;
+        }
+
+    .comment ul.comment-interaction-links,
+    .bottomcomment label {
+        border-top-style: dotted;
+        }
+
+    .userpic a,
+    .entry-content .ljuser a:first-child,
+    .comment-content .ljuser a:first-child,
+    .partial .poster,
+    .module-calendar table a,
+    .ContextualPopup a {
+        border: none;
+        }
+
+    .entry-content .ljuser a:first-child:hover,
+    .comment-content .ljuser a:first-child:hover {
+        border-bottom: 1px dotted;
+        }
+    """;
+}
+
+
 #NEWLAYER: funkycircles/seablues
 layerinfo type = "theme";
 layerinfo name = "Sea Blues";
@@ -863,3 +1200,294 @@ set image_entry_list_background_url = "funkycircles/seablues-entrybullet.png";
 set image_module_list = "funkycircles/seablues-modulebullet.png";
 set image_module_list_active = "funkycircles/seablues-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/seablues-modulebullethover.png";
+
+
+#NEWLAYER: funkycircles/tutu
+layerinfo type = "theme";
+layerinfo name = "Tutu";
+layerinfo redist_uniq = "funkycircles/tutu";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "Melting Sigh", "url" => "http://www.colourlovers.com/palette/111516/melting_sigh" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#E2D9D8";
+set color_page_link = "#3e3e3e";
+set color_page_link_hover = "#000";
+set color_page_link_visited = "#000";
+set color_page_subtitle = "#242424";
+set color_page_subtitle_background = "#d8d8d8";
+set color_page_text = "#242424";
+set color_page_title = "#242424";
+set color_page_title_background = "#FFDCD8";
+set color_header_background = "#242424";
+set color_footer_link = "#3e3e3e";
+set color_footer_link_hover = "#000";
+set color_footer_link_visited = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FCFAF8";
+set color_entry_border = "#d8d8d8";
+set color_entry_footer_background = "#242424";
+set color_entry_footer_border = "#d8d8d8";
+set color_entry_footer_link = "#DAD1CF";
+set color_entry_footer_link_hover = "#fff";
+set color_entry_footer_link_visited = "#fff";
+set color_entry_footer_text = "#fff";
+set color_entry_link = "#3e3e3e";
+set color_entry_link_hover = "#1a1a1a";
+set color_entry_link_hover_background = "#f6c4be";
+set color_entry_link_visited = "#000";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_text = "#000";
+set color_entry_title = "#242424";
+set color_entry_userpic_border = "#242424";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_text = "#242424";
+set color_module_title = "#242424";
+set color_specificmodule_background = "#242424";
+set color_specificmodule_background_alt = "#D8D8D8";
+set color_specificmodule_background_hover = "#FCFAF8";
+set color_specificmodule_background_visited = "#D8D8D8";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#000";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#585858";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Georgia";
+set font_fallback = "serif";
+set font_journal_title = "Georgia";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "funkycircles/tutu-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_background_page_url = "funkycircles/tutu-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_entry_list_background_url = "funkycircles/tutu-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/tutu-modulebullet.png";
+set image_module_list_active = "funkycircles/tutu-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/tutu-modulebullethover.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    a:hover,
+    .footer a:hover,
+    .bottomcomment a:hover,
+    .partial .comment-title a:hover,
+    .tags-container .manage-tags-link a:hover {
+        border-bottom: 1px dotted;
+        text-decoration: none;
+        }
+
+    .navigation,
+    .entry-title,
+    .comment-title,
+    .page-tags h2,
+    .page-archive h3,
+    .page-month dd h3,
+    .module h2,
+    .module h2 a,
+    #footer {
+        font-style: italic;
+        text-transform: lowercase;
+        }
+
+    h2#subtitle,
+    h2#pagetitle {
+        font-style: italic;
+        font-variant: normal;
+        text-transform: lowercase;
+        }
+
+    h1#title {
+        font-style: italic;
+        text-transform: capitalize;
+        }
+
+    .navigation li a,
+    .navigation li a:visited,
+    #footer a,
+    #footer a:visited {
+        border-bottom: 1px dotted;
+        border-top: 1px solid;
+        }
+
+    .navigation li a:hover,
+    #footer a:hover {
+        border-bottom: 1px solid;
+        }
+
+    .entry .poster,
+    .comment .poster {
+        border-bottom-style: dotted;
+        }
+
+    .entry-content a,
+    .comment-content a {
+        border-bottom: 1px dotted;
+        text-decoration: none;
+        }
+
+    .entry .tag {
+        border-bottom: 1px solid;
+        }
+
+    .comment ul.comment-interaction-links,
+    .bottomcomment label {
+        border-top: 1px solid;
+        }
+
+    .module a:hover {
+        text-decoration: underline;
+        }
+
+    .userpic a,
+    .entry-content .ljuser a:first-child,
+    .comment-content .ljuser a:first-child,
+    .partial .poster,
+    .module-calendar table a,
+    .ContextualPopup a {
+        border: none;
+        }
+
+    .entry-content .ljuser a:first-child:hover,
+    .comment-content .ljuser a:first-child:hover {
+        border-bottom: 1px dotted;
+        }
+    """;
+}
+
+
+#NEWLAYER: funkycircles/voyageenorient
+layerinfo type = "theme";
+layerinfo name = "Voyage en Orient";
+layerinfo redist_uniq = "funkycircles/voyageenorient";
+layerinfo author_name = "ninetydegrees";
+
+set layout_resources = [ { "name" => "Wagom", "url" => "http://www.colourlovers.com/palette/1135636/wagom" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#dde7e7";
+set color_page_link = "#024D61";
+set color_page_link_hover = "#000";
+set color_page_link_visited = "#3D3D3D";
+set color_page_subtitle = "#000";
+set color_page_subtitle_background = "#FDFFF7";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_page_title_background = "#afc9d0";
+set color_header_background = "#FFAA00";
+set color_footer_link = "#024D61";
+set color_footer_link_hover = "#000";
+set color_footer_link_visited = "#3D3D3D";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FDFFF7";
+set color_entry_border = "#FFAA00";
+set color_entry_footer_background = "#FDFFF7";
+set color_entry_footer_border = "#FFAA00";
+set color_entry_footer_link = "#024D61";
+set color_entry_footer_link_hover = "#000";
+set color_entry_footer_link_visited = "#3D3D3D";
+set color_entry_footer_text = "#000";
+set color_entry_link = "#024D61";
+set color_entry_link_hover = "#000";
+set color_entry_link_hover_background = "#dde7e7";
+set color_entry_link_visited = "#3D3D3D";
+set color_entry_poster_border = "#FDFFF7";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_userpic_border = "#afc9d0";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_text = "#242424";
+set color_module_title = "#242424";
+set color_specificmodule_background = "#afc9d0";
+set color_specificmodule_background_alt = "#FFAA00";
+set color_specificmodule_background_hover = "#FDFFF7";
+set color_specificmodule_background_visited = "#FDFFF7";
+set color_specificmodule_text = "#000";
+set color_specificmodule_text_alt = "#000";
+set color_specificmodule_text_hover = "#000";
+set color_specificmodule_text_visited = "#7b5813";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_url = "funkycircles/voyageenorient-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_background_page_url = "funkycircles/voyageenorient-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_entry_list_background_url = "funkycircles/voyageenorient-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/voyageenorient-modulebullet.png";
+set image_module_list_active = "funkycircles/voyageenorient-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/voyageenorient-modulebullethover.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    .navigation li a,
+    .navigation li a:visited,
+    .navigation li a:hover,
+    #footer a,
+    #footer a:visited,
+    #footer a:hover {
+        border-bottom-style: double;
+        border-bottom-width: 3px;
+        }
+
+    .navigation li a:hover,
+    #footer a:hover,
+    .comment ul.comment-interaction-links,
+    .bottomcomment label {
+        border-top-style: double;
+        border-top-width: 3px;
+        }
+
+    .entry .tag {
+        border-bottom-style: double;
+        border-bottom-width: 3px;
+        }
+
+    .module a:hover,
+    .module-navlinks li a.current {
+        border-bottom: 3px double;
+        text-decoration: none;
+        }
+
+    .userpic a:hover,
+    .module-calendar table a:hover {
+        border: none;
+        }
+    """;
+}
