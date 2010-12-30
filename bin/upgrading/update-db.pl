@@ -406,8 +406,10 @@ sub populate_s2 {
                             $s2source = "";
                         } elsif (/^\#NEWLAYER/) {
                             die "Badly formatted \#NEWLAYER line";
-                        } else {
+                        } elsif ( $curname ) {
                             $s2source .= $_;
+                        } else {
+                            # skip any lines before the first #NEWLAYER section
                         }
                     }
                     $compile->($curname, $type, $parent, $s2source);
