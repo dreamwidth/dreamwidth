@@ -1124,6 +1124,29 @@ sub deemp {
     "<span class='de'>$_[0]</span>";
 }
 
+=head2 C<< LJ::determine_viewing_style( $args, $view, $u ) >>
+Takes a hashref of get args, and the current view, and an optional user.
+Returns "original", "mine", "site", or "light" as the style.
+=cut
+sub determine_viewing_style {
+    my ( $args, $view, $u ) = @_;
+
+    my $style = 'original';
+
+    # incorporate any user preferences
+    $style = $u->viewing_style( $view ) if $u;
+
+    # incorporate any style arguments
+    my %style_getargs = %{ LJ::viewing_style_opts( %$args ) };
+    $style = $style_getargs{'style'} if $style_getargs{'style'};
+
+    # keep format=light for backwards compatibility -- override and
+    # assume that somebody using it really wants the light version
+    $style = $style_getargs{'format'} if $style_getargs{'format'};
+
+    return $style;
+}
+
 =head2 C<< LJ::viewing_style_args( %arguments ) >>
 Takes a list of viewing styles arguments from a list, makes sure they are valid values,
 and returns them as a string that can be appended to the URL. Looks for "s2id", "format", "style"
@@ -1150,8 +1173,8 @@ sub viewing_style_opts {
     return {} unless %args;
 
     my $valid_style_args = {
+        style  => { light => 1, site => 1, mine => 1, original => 1 },
         format => { light => 1 },
-        style  => { light => 1, site => 1, mine => 1 },
     };
 
     my %ret;
@@ -1206,6 +1229,9 @@ sub create_url {
     }
 
     $opts{keep_args} = [ keys %$orig_args ] if defined $opts{keep_args} and $opts{keep_args} == 1;
+    $opts{keep_args} = [] if ref $opts{keep_args} ne 'ARRAY';
+
+    $opts{keep_args} = [ keys %$orig_args ] if $opts{keep_args} == 1;
     $opts{keep_args} = [] if ref $opts{keep_args} ne 'ARRAY';
 
     # Move over arguments that we need to keep
@@ -3029,48 +3055,45 @@ LOGIN_BAR
         $ret .= "</td>";
     }
 
-    # search box and ?style=mine/?style=light options
+    # search box and ?style=mine/?style=light/?style=original/?style=site options
     my @view_options;
-    #determine whether style is "mine", and define new uri variable to manipulate
-    #note: all expressions case-insensitive
-    my $currentstylemine = ($uri =~ m/style=mine/i);
-    my $newuri = LJ::ehtml( $uri );
-    #manipulate destination URI for the style links
-    if ($currentstylemine) {
-        #if last character before style=mine is a &, it can be deleted together with style=mine,
-        #since a ? will still be in front of the other arguments in the string
-        if ($newuri =~ m/\&style=mine/i) {
-            $newuri =~ s/\&style=mine//i;
-        } else {
-            #else the last character before style=mine was a "?" and should not be deleted.
-            #also, delete "&" after style=mine if there is one
-            $newuri =~ s/style=mine\&?//i;
+    # determine whether style is "mine", and define new uri variable to manipulate
+    # note: all expressions case-insensitive
+    my $current_style = determine_viewing_style( $r->get_args, $view, $remote );
+
+    # a quick little routine to use when cycling through the options
+    # to create the style links for the nav bar
+    sub make_style_link {
+        return create_url( undef,
+            # change the style arg
+            'args' => { 'style' => $_[0] },
+            # keep any other existing arguments
+            'keep_args' => 1,
+        );
+    }
+
+    # cycle through all possibilities, add the valid ones
+    foreach my $view_type qw( mine site light original ) {
+        # only want to offer this option if user is logged in and it's not their own journal, since
+        # original will take care of that
+        if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {
+            push @view_options, "<a href='" . make_style_link( $view_type ) . "'>" .
+                LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle2' ) . "</a>";
+        } elsif ( $view_type eq "site" and $current_style ne $view_type and $view eq "entry" ) {
+            push @view_options, "<a href='" . make_style_link( $view_type ) . "'>" .
+                LJ::Lang::ml( 'web.controlstrip.reloadpage.sitestyle' ) . "</a>";
+        } elsif ( $view_type eq "light" and $current_style ne $view_type ) {
+            push @view_options, "<a href='" . make_style_link( $view_type ) . "'>" .
+                LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle2' ) . "</a>";
+        } elsif ( $view_type eq "original" and $current_style ne $view_type ) {
+            push @view_options, "<a href='" . make_style_link( $view_type ) . "'>" .
+                LJ::Lang::ml( 'web.controlstrip.reloadpage.origstyle2' ) . "</a>";
         }
-        #delete any trailing character - for example
-        #trailing "?" if only "?style=mine" was present in the first place
-        $newuri =~ s/\W$//;
     }
-    my $querysep2;
-    #check whether newuri still has arguments to determine whether "?" or "&" needs to be used for next argument added
-    if ($newuri =~ m/\?/) {
-        $querysep2 = "&";
-    } else {
-        $querysep2 = "?";
-    }
-    #appropriate links depending on whether style is "mine"
-    if ($remote) {
-        if ($currentstylemine) {
-            push @view_options, "<a href='$newuri'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.origstyle' ) . "</a>"
-        } else {
-            push @view_options, "<a href='$newuri${querysep2}style=mine'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle' ) . "</a>"
-        }
-    }
-    #style=light available on every page that supports showing the navstrip
-    push @view_options, "<a href='$newuri${querysep2}style=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>";
 
     $ret .= "<td id='lj_controlstrip_search'>";
     $ret .= LJ::Widget::Search->render;
-    $ret .= LJ::Lang::ml( 'web.controlstrip.reloadpage' ) . "&nbsp;&nbsp; "
+    $ret .= LJ::Lang::ml( 'web.controlstrip.reloadpage2' ) . "&nbsp;&nbsp; "
         if @view_options;
     $ret .= join( "&nbsp;&nbsp; ", @view_options );
     $ret .= "</td>";

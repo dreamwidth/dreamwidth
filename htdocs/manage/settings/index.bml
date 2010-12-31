@@ -69,18 +69,20 @@ body<=
             desc => $ML{'.cat.display.desc'},
             settings => [qw(
                 LJ::Setting::TimeZone
+                DW::Setting::TimeFormat
                 LJ::Setting::ImagePlaceholders
                 LJ::Setting::EmbedPlaceholders
                 DW::Setting::CutDisable
                 DW::Setting::CutInbox
                 LJ::Setting::EmailFormat
                 LJ::Setting::EntryEditor
-                DW::Setting::TimeFormat
+                LJ::Setting::SiteScheme
+                DW::Setting::ViewEntryStyle
+                DW::Setting::ViewJournalStyle
+                LJ::Setting::NavStrip
                 LJ::Setting::NCTalkLinks
                 LJ::Setting::StyleMine
-                LJ::Setting::NavStrip
                 LJ::Setting::CtxPopup
-                LJ::Setting::SiteScheme
                 LJ::Setting::AdultContent
                 DW::Setting::AdultContentReason
                 LJ::Setting::ViewingAdultContent

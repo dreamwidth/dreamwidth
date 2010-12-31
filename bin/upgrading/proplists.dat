@@ -886,6 +886,22 @@ userproplist.opt_usesharedpic:
   multihomed: 0
   prettyname: Use Shared Journal Pic
 
+userproplist.opt_viewentrystyle:
+  cldversion: 4
+  datatype: char
+  des: Preference for the default style for viewing entries. O for original, S for site, M for mine, L for light.
+  indexed: 0
+  multihomed: 0
+  prettyname: View Entry Style
+
+userproplist.opt_viewjournalstyle:
+  cldversion: 4
+  datatype: char
+  des: Preference for the default style for viewing journals. O for original, S for site, M for mine, L for light.
+  indexed: 0
+  multihomed: 0
+  prettyname: View Journal Style
+
 userproplist.opt_whatemailshow:
   cldversion: 4
   datatype: char
@@ -1125,7 +1141,7 @@ userproplist.urlname:
   indexed: 0
   multihomed: 0
   prettyname: Website Name
-  
+
 userproplist.who_invited:
   cldversion: 4
   datatype: char

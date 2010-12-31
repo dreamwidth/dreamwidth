@@ -2788,6 +2788,24 @@ setting.display.username.option.list=See what else is available.
 
 setting.display.username.option.openidusername=(internal username: [[user]])
 
+setting.display.viewentrystyle.label=Entry View Style
+
+setting.display.viewentrystyle.option=When viewing entry pages (including yours), use this style:
+
+setting.display.viewjournalstyle.label=Journal View Style
+
+setting.display.viewjournalstyle.option=When viewing journals (including yours), use this style:
+
+setting.display.viewstyle.invalid=Invalid style view setting option
+
+setting.display.viewstyle.original=Original style
+
+setting.display.viewstyle.site=Site skin
+
+setting.display.viewstyle.mine=My own style
+
+setting.display.viewstyle.light=Light format
+
 setting.emailalias.label=Email Alias
 
 setting.emailalias.option=Receive email sent to [[user]]@[[domain]]
@@ -4237,13 +4255,17 @@ web.controlstrip.nouserpic.alt=Upload Userpic
 
 web.controlstrip.nouserpic.title=Edit Userpics
 
-web.controlstrip.reloadpage=Reload page in:
+web.controlstrip.reloadpage2=Reload page in style:
 
-web.controlstrip.reloadpage.lightstyle=light style
+web.controlstrip.reloadpage.originalstyle=original
 
-web.controlstrip.reloadpage.mystyle=my style
+web.controlstrip.reloadpage.lightstyle2=light
 
-web.controlstrip.reloadpage.origstyle=original style
+web.controlstrip.reloadpage.mystyle2=mine
+
+web.controlstrip.reloadpage.sitestyle=site
+
+web.controlstrip.reloadpage.origstyle2=original
 
 web.controlstrip.select.friends.all=All Subscriptions
 

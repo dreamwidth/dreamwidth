@@ -5526,6 +5526,13 @@ sub revoke_priv_all {
     return 1;
 }
 
+sub opt_viewentrystyle {
+    return ( $_[0]->prop( 'opt_viewentrystyle' ) || "O" );
+}
+
+sub opt_viewjournalstyle {
+    return ( $_[0]->prop( 'opt_viewjournalstyle' ) || "O" );
+}
 
 ########################################################################
 ###  24. Styles and S2-Related Functions
@@ -5712,6 +5719,27 @@ sub view_priv_check {
     return wantarray ? ( $viewall, $viewsome ) : $viewsome;
 }
 
+=head2 C<< $u->viewing_style( $view ) >>
+Takes a user and a view argument and returns what that user's preferred
+style is for a given view.
+=cut
+sub viewing_style {
+    my ( $u, $view ) = @_;
+
+    $view ||= 'entry';
+
+    my %style_types = ( O => "original", M => "mine", S => "site", L => "light" );
+
+    my $style;
+    if ( $view eq "entry" ) {
+        $style = $style_types{ $u->opt_viewentrystyle };
+    } else {
+        $style = $style_types{ $u->opt_viewjournalstyle };
+    }
+    $style ||= 'original';
+
+    return $style;
+}
 
 ########################################################################
 ###  25. Subscription, Notifiction, and Messaging Functions
@@ -8541,10 +8569,6 @@ sub make_journal {
     }
     LJ::set_active_journal($u);
 
-    # S1 style hashref.  won't be loaded now necessarily,
-    # only if via customview.
-    my $style;
-
     my ($styleid);
     if ($opts->{'styleid'}) {  # s1 styleid
         confess 'S1 was removed, sorry.';
@@ -8568,7 +8592,7 @@ sub make_journal {
     my @needed_props = ("stylesys", "s2_style", "url", "urlname", "opt_nctalklinks",
                         "renamedto",  "opt_blockrobots", "opt_usesharedpic", "icbm",
                         "journaltitle", "journalsubtitle", "external_foaf_url",
-                        "adult_content");
+                        "adult_content", "opt_viewjournalstyle", "opt_viewentrystyle");
 
     # preload props the view creation code will need later (combine two selects)
     if (ref $LJ::viewinfo{$eff_view}->{'owner_props'} eq "ARRAY") {
@@ -8584,7 +8608,10 @@ sub make_journal {
     $remote->{opt_nctalklinks} = $u->{opt_nctalklinks}
         if $remote && $remote->equals( $u );
 
+    # What style are we shooting for, based on user preferences and get arguments?
+    my $stylearg = LJ::determine_viewing_style( $geta, $view, $remote );
     my $stylesys = 1;
+
     if ($styleid == -1) {
 
         my $get_styleinfo = sub {
@@ -8623,9 +8650,8 @@ sub make_journal {
                 return ( 2, $geta->{s2id} ) if LJ::S2::style_is_public( $style );
             }
 
-            # style=mine passed in GET?
-            if ( $remote && ( lc( $geta->{'style'} ) eq 'mine' ) ) {
-
+            # style=mine passed in GET or userprop to use mine?
+            if ( $remote && $stylearg eq 'mine' ) {
                 # get remote props and decide what style remote uses
                 $remote->preload_props("stylesys", "s2_style");
 
@@ -8761,20 +8787,20 @@ sub make_journal {
     # signal to LiveJournal.pm that we can't handle this
     # FIXME: Make this properly invoke siteviews all the time -- once all the views are ready.
     # Most of this if and tons of messy conditionals can go away once all views are done.
-    if ( $stylesys == 1 || $geta->{'style'} eq 'site' || $geta->{'format'} eq 'light' || $geta->{'style'} eq 'light' )  {
+    if ( $stylesys == 1 || $stylearg eq 'site' || $stylearg eq 'light' ) {
         my $fallback = "bml"; # FIXME: Should be S2 once everything's done
 
         # if we are in this path, and they have style=mine set, it means
         # they either think they can get a S2 styled page but their account
         # type won't let them, or they really want this to fallback to bml
-        if ( $remote && ( $geta->{'style'} eq 'mine' ) ) {
+        if ( $remote && ( $stylearg eq 'mine' ) ) {
             $fallback = 'bml';
         }
 
         # If they specified ?format=light, it means they want a page easy
         # to deal with text-only or on a mobile device.  For now that means
         # render it in the lynx site scheme.
-        if ( $geta->{'format'} eq 'light' || $geta->{'style'} eq 'light' ) {
+        if ( $stylearg eq 'light' ) {
             $fallback = 'bml';
             $r->note(bml_use_scheme => 'lynx');
         }

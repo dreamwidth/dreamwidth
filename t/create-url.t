@@ -1,6 +1,6 @@
 # -*-perl-*-
 use strict;
-use Test::More tests => 5 * 15; # replace last number with the number of check_req calls
+use Test::More tests => 5 * 19; # replace last number with the number of check_req calls
 use lib "$ENV{LJHOME}/cgi-bin";
 
 require 'ljlib.pl';
@@ -63,8 +63,8 @@ check_req(
         foo => "bar",
         bar => "baz",
         s2id => 5,
-        format => "light",
         style => "site",
+        format => "light",
     },
 );
 
@@ -83,8 +83,8 @@ check_req(
     {
         foo => "bar",
         bar => "kitten",
-        format => "light",
         style => "site",
+        format => "light",
     },
 );
 
@@ -181,6 +181,73 @@ check_req(
     },
     { ssl => 0, host => "www.example.com", uri=>"/meow", fragment => "kitten" },
     {},
+);
+
+check_req(
+    "http://www.example.com/?bar=baz&s2id=5&format=light&style=site&ping=pong&no=1",
+    undef, {
+        args => {
+            foo => 'bar',
+            no => undef,
+        },
+        keep_args => 1,
+    },
+    { ssl => 0, host => "www.example.com", uri=>"/", },
+    {
+        foo => "bar",
+        bar => "baz",
+        s2id => 5,
+        format => "light",
+        style => "site",
+        ping => "pong",
+    },
+);
+
+check_req(
+    "http://www.example.com/?bar=baz&s2id=5&format=light&style=site&ping=pong&no=1",
+    undef, {
+        args => {
+            foo => 'bar',
+            no => undef,
+        },
+        keep_args => 1,
+        viewing_style => 1,
+    },
+    { ssl => 0, host => "www.example.com", uri=>"/", },
+    {
+        foo => "bar",
+        bar => "baz",
+        s2id => 5,
+        format => "light",
+        style => "site",
+        ping => "pong",
+    },
+);
+
+check_req(
+    "http://www.example.com/?bar=baz&s2id=5&format=light&style=site&ping=pong&no=1",
+    undef, {
+        args => {
+            foo => 'bar',
+            no => undef,
+        },
+        keep_args => 0,
+    },
+    { ssl => 0, host => "www.example.com", uri => "/", },
+    {
+        foo => "bar",
+    },
+);
+
+check_req(
+    "http://www.example.com/?format=light",
+    undef, {
+        keep_args => 1,
+    },
+    { ssl => 0, host => "www.example.com", uri => "/", },
+    {
+        format => "light",
+    },
 );
 
 sub check_req {
