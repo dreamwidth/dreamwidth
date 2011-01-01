@@ -1658,7 +1658,7 @@ sub get_itemid_near2 {
     my $remote = LJ::get_remote();
 
     if ($remote) {
-        if ( $remote->equals( $u ) ) {
+        if ( $remote->equals( $u ) || ( $u->is_community && $remote->can_manage( $u ) ) ) {
             $secwhere = "";   # see everything
         } elsif ( $remote->is_individual ) {
             my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );
