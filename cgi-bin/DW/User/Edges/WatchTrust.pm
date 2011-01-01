@@ -246,7 +246,7 @@ sub valid_group_name {
     $name =~ s!/+\s*$!!;
 
     # conform to maxes
-    $name = LJ::text_trim( $name, LJ::BMAX_GRPNAME2, LJ::CMAX_GRPNAME2 );
+    $name = LJ::text_trim( $name, LJ::BMAX_GRPNAME, LJ::CMAX_GRPNAME );
 
     return $name;
 }
