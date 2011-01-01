@@ -194,11 +194,18 @@ _c?>
     # show list of layers
     $body .= "<?h1 $ML{'.yourlayers.header'} h1?>\n";
     if (%$ulay) {
+        my %active_style = LJ::S2::get_style( $u );
+
         $body .= "<table id='table_yourlayers' class='grid' cellpadding='3' border='1'>\n";
         $body .= "<thead><tr><th>$ML{'.yourlayers.table.layerid'}</th><th>$ML{'.yourlayers.table.type'}</th><th>$ML{'.yourlayers.table.name'}</th><th>$ML{'.yourlayers.table.actions'}</th></tr></thead>\n";
         my $lastbase = 0;
-        foreach my $lid (sort { $ulay->{$a}->{'b2lid'} <=> $ulay->{$b}->{'b2lid'} || $a <=> $b } 
-                         keys %$ulay) 
+        foreach my $lid (sort {
+                my $parent_a = $ulay->{ $ulay->{$a}->{b2lid} } || $pub->{ $ulay->{$a}->{b2lid} };
+                my $parent_b = $ulay->{ $ulay->{$b}->{b2lid} } || $pub->{ $ulay->{$b}->{b2lid} };
+
+                $parent_a->{name} cmp $parent_b->{name} || $a <=> $b
+
+            } keys %$ulay)
         {
             my $bid = $ulay->{$lid}->{'b2lid'};
             if ($bid != $lastbase) {
@@ -212,7 +219,8 @@ _c?>
             # this ensures that 'user' layers are called 'wizard' layers in the user interface
             my $laytype = ( $lay->{'type'} eq 'user' ) ? 'wizard' : $lay->{'type'};
             my $name = LJ::ehtml($lay->{'name'}) || "<i>$ML{'.yourlayers.noname'}</i>";
-            $body .= "<tr><td><a href='layerbrowse?id=$lid'>$lid</a></td><td>$laytype</td><td>$name</td><td>";
+            my $class = $active_style{$lay->{type}} == $lid ? "class='selected'" : "";
+            $body .= "<tr $class><td><a href='layerbrowse?id=$lid'>$lid</a></td><td>$laytype</td><td>$name</td><td>";
             $body .= "<form method='post' style='display:inline' action='layeredit?id=$lid'>";
             $body .= LJ::html_submit('action:edit', $ML{'.btn.edit'}, { disabled => $noactions });
             $body .= "</form>";
