@@ -5526,14 +5526,6 @@ sub revoke_priv_all {
     return 1;
 }
 
-sub opt_viewentrystyle {
-    return ( $_[0]->prop( 'opt_viewentrystyle' ) || "O" );
-}
-
-sub opt_viewjournalstyle {
-    return ( $_[0]->prop( 'opt_viewjournalstyle' ) || "O" );
-}
-
 ########################################################################
 ###  24. Styles and S2-Related Functions
 
@@ -5647,6 +5639,14 @@ sub opt_embedplaceholders {
         my $imagelinks = $u->prop('opt_imagelinks');
         return $imagelinks;
     }
+}
+
+sub opt_viewentrystyle {
+    return ( $_[0]->prop( 'opt_viewentrystyle' ) || "O" );
+}
+
+sub opt_viewjournalstyle {
+    return ( $_[0]->prop( 'opt_viewjournalstyle' ) || "O" );
 }
 
 sub set_default_style {

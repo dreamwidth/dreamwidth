@@ -1231,9 +1231,6 @@ sub create_url {
     $opts{keep_args} = [ keys %$orig_args ] if defined $opts{keep_args} and $opts{keep_args} == 1;
     $opts{keep_args} = [] if ref $opts{keep_args} ne 'ARRAY';
 
-    $opts{keep_args} = [ keys %$orig_args ] if $opts{keep_args} == 1;
-    $opts{keep_args} = [] if ref $opts{keep_args} ne 'ARRAY';
-
     # Move over arguments that we need to keep
     foreach my $k ( @{$opts{keep_args}} ) {
         $out_args{$k} = $orig_args->{$k} if exists $orig_args->{$k} && ! exists $out_args{$k};
