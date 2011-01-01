@@ -734,7 +734,7 @@ sub event_html
     my $event = $self->{event};
     LJ::CleanHTML::clean_event(\$event, $opts);
 
-    LJ::expand_embedded($self->{u}, $self->ditemid, LJ::User->remote, \$event);
+    LJ::expand_embedded($self->{u}, $self->ditemid, LJ::User->remote, \$event, sandbox => $opts->{sandbox} );
     return $event;
 }
 
@@ -2156,7 +2156,7 @@ sub item_link
 
 sub expand_embedded {
     my ($u, $ditemid, $remote, $eventref, %opts) = @_;
-    LJ::Poll->expand_entry($eventref) unless $opts{preview};
+    LJ::Poll->expand_entry( $eventref, %opts ) unless $opts{preview};
     LJ::EmbedModule->expand_entry($u, $eventref, %opts);
     LJ::Hooks::run_hooks("expand_embedded", $u, $ditemid, $remote, $eventref, %opts);
 }

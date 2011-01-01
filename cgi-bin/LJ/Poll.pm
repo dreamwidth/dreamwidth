@@ -1311,7 +1311,7 @@ use Carp qw (croak);
 
 # takes a scalarref to entry text and expands (lj-)poll tags into the polls
 sub expand_entry {
-    my ($class, $entryref) = @_;
+    my ( $class, $entryref, %opts ) = @_;
 
     my $expand = sub {
         my $pollid = $_[0] + 0;
@@ -1321,7 +1321,14 @@ sub expand_entry {
         my $poll = LJ::Poll->new($pollid);
         return "[Error: Invalid poll ID $pollid]" unless $poll && $poll->valid;
 
-        return $poll->render;
+        if ( $opts{sandbox} ) {
+            # hacky. Basically, when we render an entry with a poll in a form element
+            # the nested form from the poll wreaks havoc, breaking the first poll form and (maybe) the outer form
+            # This deliberately adds a new form element, to make sure that our poll form always works.
+            return "<form style='display: none'></form>" . $poll->render;
+        } else {
+            return $poll->render;
+        }
     };
 
     $$entryref =~ s/<(?:lj-)?poll-(\d+)>/$expand->($1)/eg if $$entryref;

@@ -84,7 +84,9 @@ sub content {
     return $entry->event_html( {
                 # double negatives, ouch!
                 ljcut_disable => ! $target->cut_inbox,
-                cuturl => $entry->url } )
+                cuturl => $entry->url,
+                sandbox => 1,
+             } )
 
             . $self->as_html_tags( $target )
             . $self->as_html_actions;
