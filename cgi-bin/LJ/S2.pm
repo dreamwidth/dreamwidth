@@ -180,7 +180,13 @@ sub make_journal
     # Include any head stc or js head content
     LJ::Hooks::run_hooks("need_res_for_journals", $u);
     my $extra_js = LJ::statusvis_message_js($u);
-    $page->{head_content} .= LJ::res_includes() . $extra_js;
+
+    # this will cause double-JS and likely cause issues if called during siteviews
+    # as this is done once the page is out of S2's control.
+    $page->{head_content} .= LJ::res_includes()
+        unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+
+    $page->{head_content} .= $extra_js;
 
     # inject the control strip JS, but only after any libraries have been injected
     $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user )
