@@ -1188,8 +1188,7 @@ sub can_vote {
 
     return 0 if $self->whovote eq "trusted" && !$trusted;
 
-    return 0 if $self->journal->has_banned( $remote )
-             or $self->poster->has_banned( $remote );
+    return 0 if $self->journal->has_banned( $remote );
 
     if ($self->is_createdate_restricted) {
         my $propval = $self->prop("createdate");
