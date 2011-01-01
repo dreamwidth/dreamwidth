@@ -86,6 +86,7 @@ sub content {
                 ljcut_disable => ! $target->cut_inbox,
                 cuturl => $entry->url,
                 sandbox => 1,
+                preformatted => $entry->prop( "opt_preformatted" ),
              } )
 
             . $self->as_html_tags( $target )
