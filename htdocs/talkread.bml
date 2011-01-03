@@ -366,8 +366,9 @@ body<=
         my $level = ($opts->{'depth'} % 2) ? "even" : "odd";
 
         my $additional_classes = "";
-        $additional_classes .= "screened" if $post->{state} eq "S";
-        $additional_classes .= "highlight" if $last_talkid == $dtid && $last_jid == $u->userid;
+        $additional_classes .= "screened " if $post->{state} eq "S";
+        $additional_classes .= "highlight " if $last_talkid == $dtid && $last_jid == $u->userid;
+        $additional_classes .= "noicon " unless $post->{picid};
 
         # Gather information about the comment poster
         my $pu = $post->{'posterid'} ? $user{$post->{'posterid'}} : undef;
@@ -443,7 +444,7 @@ body<=
                    );
 
                    # build the imgtag for the userpic associated with the keyword
-                   $ret .= "<div style=\"float:left\"><a href='" . $upost->allpics_base . "'>" . $postpic->imgtag( %kwopts ) . "</a></div>";
+                   $ret .= "<div class='icon'><a href='" . $upost->allpics_base . "'>" . $postpic->imgtag( %kwopts ) . "</a></div>";
 
                 }
 

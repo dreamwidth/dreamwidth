@@ -55,10 +55,19 @@
 
 .cmtbar {
     min-width: 50em;
+    padding: 0;
 }
 
-.cmtbar-odd img, .cmtbar-even img {
+.cmtbar .icon {
+    float: left;
+}
+
+.cmtbar .icon img {
+    display: block;
     padding-right: 10px;
+}
+.cmtbar.noicon {
+    padding-left: 10px;
 }
 
 td .commentbody {
