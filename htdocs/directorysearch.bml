@@ -135,6 +135,7 @@ name=><?_ml .by_interest _ml?>
 code=>s_int
 form<=
 <?_ml .user_likes _ml?> <input name="int_like" size='30' />
+<br /><?_ml .int_multiple _ml?>
 <=form
 crit?>
 

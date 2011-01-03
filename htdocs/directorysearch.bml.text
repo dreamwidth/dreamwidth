@@ -32,6 +32,8 @@
 
 .h1=Search Directory
 
+.int_multiple=<i>Note: you may specify multiple interests separated by commas.</i>
+
 .male=Male
 
 .month=month
