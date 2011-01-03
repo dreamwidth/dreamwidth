@@ -436,7 +436,22 @@ sub paging_bar {
     return "<div class='action-box'>$nav</div>\n";
 }
 
-# drop-in replacement for BML::paging in non-BML context
+=head2 C<< LJ::page_change_getargs( %args ) >>
+Returns the current URL with a modified list of GET arguments.
+=cut
+
+sub page_change_getargs {
+    my %args = @_;
+    my %cu_opts = ( keep_args => 1, no_blank => 1 );
+
+    # specified args will override keep_args
+    return LJ::create_url( undef, args => \%args, %cu_opts );
+}
+
+=head2 C<< LJ::paging( $listref, $page, $pagesize ) >>
+Drop-in replacement for BML::paging in non-BML context.
+=cut
+
 sub paging {
     my ( $listref, $page, $pagesize ) = @_;
     $page = 1 unless $page && $page == int $page;
@@ -446,17 +461,7 @@ sub paging {
 
     my $newurl = sub {
         # replaces BML::page_newurl
-        my $page = $_[0];
-        my $r = DW::Request->get;
-        my $args = $r->get_args;
-        my ( $url ) = split /\?/, $r->uri;
-        my @pair = ();
-
-        foreach ( sort grep { $_ ne "page" } keys %$args ) {
-            push @pair, ( LJ::eurl( $_ ) . "=" . LJ::eurl( $args->{$_} ) );
-        }
-        push @pair, "page=$page";
-        return $url . "?" . join( "&", @pair );
+        return LJ::page_change_getargs( page => $_[0] );
     };
 
     $self{itemcount} = scalar @items;
@@ -1201,6 +1206,7 @@ ssl -- use ssl
 fragment -- add fragment identifier
 cur_args -- hashref of current GET arguments to the page
 keep_args -- arguments to keep
+no_blank -- remove keys with null values from GET args
 viewing_style -- include viewing style args
 =cut
 
@@ -1237,10 +1243,14 @@ sub create_url {
     }
 
     foreach my $k ( keys %out_args ) {
-        delete $out_args{$k} unless defined $out_args{$k};
+        if ( ! defined $out_args{$k} ) {
+            delete $out_args{$k};
+        } elsif ( ! length $out_args{$k} ) {
+            delete $out_args{$k} if $opts{no_blank};
+        }
     }
 
-    my $args = encode_url_string( \%out_args );
+    my $args = LJ::encode_url_string( \%out_args, [ sort keys %out_args ] );
 
     $url .= "?$args" if $args;
     $url .= "#" . $opts{fragment} if $opts{fragment};

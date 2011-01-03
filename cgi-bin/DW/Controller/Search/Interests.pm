@@ -318,12 +318,14 @@ sub interest_handler {
                         && $should_show->( $_ )          # and should show to the remote user
                       } values %$us;
         my $navbar;
+        my $self_link = sub { LJ::page_change_getargs( page => $_[0] ) };
         my $results =
             LJ::user_search_display( users      => \@ul,
                                      timesort   => 1,
                                      perpage    => 50,
                                      curpage    => exists $args->{page} ?
                                                    $args->{page} : 1,
+                                     self_link  => $self_link,
                                      navbar     => \$navbar );
 
         $rv->{int_users} = { count => scalar( @ul ), navbar => $navbar,

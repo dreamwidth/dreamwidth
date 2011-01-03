@@ -179,10 +179,8 @@ body<=
         # do a refresh to the page with the finished results.
         # this will display some nice text to the user while they wait
         # for their results.
-        my ($uri, $args) = (BML::get_uri(), BML::get_query_string());
-        $uri .= '?' . $args if $args;
-        my $refurl = LJ::ehtml($LJ::SITEROOT . $uri);
-        $refurl .= ($args ? "&" : "?") . 'start_search=1';
+
+        my $refurl = LJ::ehtml( LJ::page_change_getargs( start_search => 1 ) );
         $headextra = "<meta http-equiv='Refresh' content='1;URL=$refurl' id='refresher' />";
 
         my $dots = LJ::img( 'searchdots', '' );
@@ -211,16 +209,9 @@ body<=
         <?h1 $ML{'.search_results'} h1?>
     };
 
-
-    my ( $uri, $args ) = ( BML::get_uri(), BML::get_query_string() );
-
-    $args =~ s/(\?|\&)page=\d*//gi;
-    $args =~ s/(\?|\&)journaltype=[CPI]?//gi;
-    $args =~ s/(\?|\&)start_search=\d*//gi;
-    $uri .= '?' . $args if $args;
-
-    my $filter_url = LJ::ehtml( $LJ::SITEROOT . $uri );
-    $filter_url .= ($args ? "&" : "?") . 'start_search=1';
+    my $filter_url = LJ::ehtml( LJ::page_change_getargs( start_search => 1,
+                                                         journaltype => '',
+                                                         page => '' ) );
 
     my $all_search = "$ML{'.new_all_search'}";
     $all_search = "<a href='$filter_url'>$all_search</a>"
