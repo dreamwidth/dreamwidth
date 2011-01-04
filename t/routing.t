@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 use strict;
-use Test::More tests => 195;
+use Test::More tests => 203;
 use lib "$ENV{LJHOME}/cgi-bin";
 
 # don't let DW::Routing load DW::Controller subclasses
@@ -251,6 +251,16 @@ handle_request( "/xx3" , "/xx3/index", 1, "it_worked_redir" ); # 3 tests
 handle_redirect( '/xx3', '/xx3/' );
 # 194
 
+
+# test dying
+DW::Routing->register_string( "/test/die/all_format", \&died_handler, app => 1, formats => 1 );
+
+handle_server_error( "/test die implied_format (app)", "/test/die/all_format", "html" ); # 2 tests
+handle_server_error( "/test die .json format (app)", "/test/die/all_format.json", "json" ); # 2 tests
+handle_server_error( "/test die .html format (app)", "/test/die/all_format.html", "html" ); # 2 tests
+handle_server_error( "/test die .blah format (app)", "/test/die/all_format.blah", "blah" ); # 2 tests
+
+
 sub handle_redirect {
     my ( $uri, $expected ) = @_;
 
@@ -296,6 +306,26 @@ sub handle_request {
     is ( $result, $expected, "$name: handler set wrong value.");
 }
 
+sub handle_server_error {
+    my ( $name, $uri, $format, %opts ) = @_;
+
+    $DW::Request::determined = 0;
+    $DW::Request::cur_req = undef;
+
+    my $req = HTTP::Request->new( GET => "$uri" );
+    my $r = DW::Request::Standard->new( $req );
+
+    $result = undef;
+    $__name = $name;
+    eval { DW::Routing->call( %opts ) };
+
+    is( $r->status, $r->HTTP_SERVER_ERROR, "$name: wrong return" );
+    is( $r->content_type, {
+        html => "text/html",
+        json => "application/json",
+    }->{$format} || "text/plain", "$name: wrong returned content type for $format" );
+}
+
 sub handler {
     my $r = DW::Request->get;
     $result = $_[0]->args;
@@ -309,4 +339,8 @@ sub regex_handler {
     is ( $_[0]->format, $expected_format, "$__name: format wrong!" );
     is( $_[0]->subpatterns->[0], $_[0]->args->[0], "$__name: capture wrong!" );
     return $r->OK;
+}
+
+sub died_handler {
+    die "deliberate die()";
 }

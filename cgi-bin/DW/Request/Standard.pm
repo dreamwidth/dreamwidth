@@ -282,6 +282,7 @@ sub call_bml {
 sub OK        { return 200; }
 sub REDIRECT  { return 302; }
 sub NOT_FOUND { return 404; }
+sub HTTP_SERVER_ERROR { return 500; }
 
 # spawn a process for an external program
 sub spawn {
