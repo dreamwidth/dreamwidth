@@ -23,6 +23,7 @@ use warnings;
 sub should_render {
     my ( $class, $u ) = @_;
 
+    return 0 unless $u;
     return $u->is_community ? 0 : 1;
 }
 
