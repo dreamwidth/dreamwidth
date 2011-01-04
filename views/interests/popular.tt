@@ -25,7 +25,7 @@
 <h1>[% '.popular.head' | ml %]</h1><p>[% '.popular.text' | ml %]
 [%- IF no_text_mode -%]
     [% '.popular.textmode'
-     | ml(aopts = "href='$roots.site/interests?view=popular&mode=text'") %]
+     | ml(aopts = "href='$site.root/interests?view=popular&mode=text'") %]
 [%- END -%]
 </p>
 [%- IF pop_ints -%]

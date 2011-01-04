@@ -15,5 +15,5 @@
 <p>[% '.info.desc' | ml(aoptspgp = "href='http://www.pgp.com/'", aoptsgpg = "href='http://www.gnupg.org/'") %]</p>
 
 [% IF remote %]
-    <p>[% '.info.upload' | ml(aopts = "href='$roots.site/manage/pubkey'") %]</p>
+    <p>[% '.info.upload' | ml(aopts = "href='$site.root/manage/pubkey'") %]</p>
 [% END %]

@@ -8,7 +8,7 @@ td, th { padding: 4px; }
 [%- END -%]
 
 </tr>
-<p><a href="[% roots.site %]/admin/themes/">[% '.back.link' | ml %]</a></p>
+<p><a href="[% site.root %]/admin/themes/">[% '.back.link' | ml %]</a></p>
 <strong>[% '.filter.label' | ml %]</strong>
 <select id="filter_act">
     <option value="all">[% '.filter.act.all' | ml %]</option>

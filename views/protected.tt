@@ -17,10 +17,10 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
     <p>[% message | ml %]</p>
 [% END %]
 
-<div class="errorbar" style="background-image: URL('[%- roots.img -%]/message-error.gif');">
+<div class="errorbar" style="background-image: URL('[%- site.imgroot -%]/message-error.gif');">
 <strong>
 [% IF remote %]
-  [% error_key | ml( user = remote.ljuser_display, siteroot = roots.site, journalname= journalname ) %]
+  [% error_key | ml( user = remote.ljuser_display, siteroot = site.root, journalname= journalname ) %]
 [% ELSE %]  
   [% '.protected.message.nouser' | ml ( sitename = site.name ) %]
 [% END %]

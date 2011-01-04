@@ -3,8 +3,8 @@
         [% IF remote %]
             [% IF remote.is_person %]
                 You have <strong>[% remote.shop_points %] points</strong>.<br />
-                [% IF help.shoppoints %]<a href="[% help.shoppoints %]">What is this?</a> |[% END %]
-                <a href="[% roots.site %]/shop/points">Buy More</a>
+                [% IF site.help.shoppoints %]<a href="[% site.help.shoppoints %]">What is this?</a> |[% END %]
+                <a href="[% site.root %]/shop/points">Buy More</a>
             [% ELSE %]
                 Only personal accounts can carry a point balance.
             [% END %]
@@ -14,17 +14,17 @@
     </div>
     <div class='shop-status-middle'>
         [% IF cart AND cart.has_items %]
-            <img src="[% roots.img %]/silk/site/cart.png" /> Order Cost: <strong>[% cart.display_total %]</strong><br />
-            <a href='[% roots.site %]/shop/cart'>View/Check Out Order</a> | 
-            <a href='[% roots.site %]/shop?newcart=1'>Cancel Order</a>
+            <img src="[% site.imgroot %]/silk/site/cart.png" /> Order Cost: <strong>[% cart.display_total %]</strong><br />
+            <a href='[% site.root %]/shop/cart'>View/Check Out Order</a> | 
+            <a href='[% site.root %]/shop?newcart=1'>Cancel Order</a>
         [% ELSE %]
-            <img src="[% roots.img %]/silk/site/cart.png" /> Your shopping cart is empty.
+            <img src="[% site.imgroot %]/silk/site/cart.png" /> Your shopping cart is empty.
         [% END %]
     </div>
     <div class='shop-status-right'>
         [%# Also use this section for sales links and stuff. %]
-        [% IF help.paidaccountinfo %]<a href="[% help.paidaccountinfo %]">About the Shop</a><br />[% END %]
-        <a href="[% roots.site %]/shop/history">Order History</a>
+        [% IF site.help.paidaccountinfo %]<a href="[% site.help.paidaccountinfo %]">About the Shop</a><br />[% END %]
+        <a href="[% site.root %]/shop/history">Order History</a>
     </div>
     <div style='clear: both;'></div>
 </div>

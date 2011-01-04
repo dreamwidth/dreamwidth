@@ -11,7 +11,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 <div class="login-container">
   <div class="appwidget appwidget-login" id="protected_login"> 
-    <form action="[% IF usessl %][% roots.ssl %][% ELSE %][% roots.site %][% END %]/login" method="post" class="lj_login_form pkg"> 
+    <form action="[% IF usessl %][% site.sslroot %][% ELSE %][% site.root %][% END %]/login" method="post" class="lj_login_form pkg"> 
     <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4> 
       [% dw.form_auth() %]
       <input type="hidden" name="chal" class="lj_login_chal" value="[% chal %]" /> 
@@ -30,17 +30,17 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
       </fieldset> 
       <p><input name="action:login" type="submit" value="[% '.login.btn.login' | ml %]" tabindex="14" />
       [% IF usessl %]
-      <img src="[% roots.img %]/padlocked.gif" width="20" height="16" class="secure-image" alt="[% '.login.secure' | ml %]" />
+      <img src="[% site.imgroot %]/padlocked.gif" width="20" height="16" class="secure-image" alt="[% '.login.secure' | ml %]" />
       [% ELSE %]
-      <img src="[% roots.img %]/unpadlocked.gif" width="20" height="16" class="secure-image" alt="[% '.login.standard' | ml %]" />
+      <img src="[% site.imgroot %]/unpadlocked.gif" width="20" height="16" class="secure-image" alt="[% '.login.standard' | ml %]" />
       [% END %]
-      <p><a href="[% roots.site %]/lostinfo" class="small-link" tabindex="15">[% '.login.forget' | ml %]</a> </p>
+      <p><a href="[% site.root %]/lostinfo" class="small-link" tabindex="15">[% '.login.forget' | ml %]</a> </p>
     </form> 
   </div><!-- end .appwidget-login --> 
 
    <div class="appwidget-login-openid">
    <h4>[% '.login.openid.header' | ml %]</h4> 
-     <form method='post' action='[% roots.site %]/openid/login' style='display:inline; width:auto'>
+     <form method='post' action='[% site.root %]/openid/login' style='display:inline; width:auto'>
        <b>[% '.login.openid.url' | ml %]</b><br/>
        <input class="sexy" id="openid_url" name="openid_url" size="30" aria-required="true" tabindex="16" /><br/>
        <input type="hidden" name="continue_to" value="[% returnto %]"/>
@@ -53,7 +53,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
   <div class="login-create-account"> 
     <hr class="hr" /> 
     <h4>[% '.createaccount.header' | ml( sitename = site.name ) %]</h4> 
-    <form action="[% roots.site %]/create" method="get"><input type="submit" value="[% '.createaccount.button' | ml %]" class="submit" tabindex="18" /></form> 
+    <form action="[% site.root %]/create" method="get"><input type="submit" value="[% '.createaccount.button' | ml %]" class="submit" tabindex="18" /></form> 
       <ul> 
         <li>[% '.createaccount.whylogin.benefit1' | ml %]</li>
         <li>[% '.createaccount.whylogin.benefit2' | ml %]</li>

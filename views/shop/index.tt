@@ -8,16 +8,16 @@
     <div class='shop-category-title'>[% '.title.paidacc' | ml %]</div>
     <div class='shop-category-items'>
 [% IF remote AND remote.is_personal AND NOT remote.is_perm %]
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/account?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/account?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
 [% END %]
 [% IF remote AND remote.is_personal %]
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/gifts?type=account">[% '.for.circle' | ml %]</a></span>
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/account?for=gift">[% '.for.different' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/gifts?type=account">[% '.for.circle' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/account?for=gift">[% '.for.different' | ml %]</a></span>
 [% ELSE %]
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/account?for=gift">[% '.for.existing' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/account?for=gift">[% '.for.existing' | ml %]</a></span>
 [% END %]
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/account?for=new">[% '.for.new' | ml %]</a></span>
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/randomgift">[% '.for.random' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/account?for=new">[% '.for.new' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/randomgift">[% '.for.random' | ml %]</a></span>
     </div>
 </div>
 
@@ -25,8 +25,8 @@
     <div class='shop-category-title'>[% '.title.points' | ml(site=site.nameshort) %]</div>
     <div class='shop-category-items'>
 [% IF remote AND remote.is_personal %]
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/points?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/points?for=gift">[% '.for.different' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/points?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/points?for=gift">[% '.for.different' | ml %]</a></span>
 [% ELSE %]
         <span class='shop-category-item'>[% '.points.login' | ml %]</span>
 [% END %]
@@ -37,8 +37,8 @@
     <div class='shop-category-title'>[% '.title.renames' | ml %]</div>
     <div class='shop-category-items'>
 [% IF remote AND remote.is_personal %]
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/renames?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
-        <span class='shop-category-item'><a href="[% roots.site %]/shop/renames?for=gift">[% '.for.different' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/renames?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
+        <span class='shop-category-item'><a href="[% site.root %]/shop/renames?for=gift">[% '.for.different' | ml %]</a></span>
 [% ELSE %]
         <span class='shop-category-item'>[% '.renames.login' | ml %]</span>
 [% END %]

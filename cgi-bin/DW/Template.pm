@@ -34,26 +34,25 @@ DW::Template - Template Toolkit helpers for Apache2.
 $Template::Plugins::PLUGIN_BASE = '';
 
 my $site_constants = Template::Namespace::Constants->new({
-    name => $LJ::SITENAME,
-    nameshort => $LJ::SITENAMESHORT,
-    nameabbrev => $LJ::SITENAMEABBREV,
+    name        => $LJ::SITENAME,
+    nameshort   => $LJ::SITENAMESHORT,
+    nameabbrev  => $LJ::SITENAMEABBREV,
+
     company => $LJ::SITECOMPANY,
-});
 
-my $roots_constants = Template::Namespace::Constants->new({
-    site => $LJ::SITEROOT,
-    img => $LJ::IMGPREFIX,
-    ssl => $LJ::SSLROOT,
-});
+    domain      => $LJ::DOMAIN,
+    domainweb   => $LJ::DOMAIN_WEB,
 
-my $domain_constants = Template::Namespace::Constants->new({
-    site => $LJ::DOMAIN,
-    web => $LJ::DOMAIN_WEB,
-});
+    root    => $LJ::SITEROOT,
+    imgroot => $LJ::IMGPREFIX,
+    sslroot => $LJ::SSLROOT,
 
-my $email_constants = Template::Namespace::Constants->new({
-    coppa => $LJ::COPPA_EMAIL,
-    privacy => $LJ::PRIVACY_EMAIL,
+    help => \%LJ::HELPURL,
+
+    email => {
+        coppa => $LJ::COPPA_EMAIL,
+        privacy => $LJ::PRIVACY_EMAIL,
+    },
 });
 
 # precreating this
@@ -61,9 +60,6 @@ my $view_engine = Template->new({
     INCLUDE_PATH => "$LJ::HOME/views/",
     NAMESPACE => {
         site => $site_constants,
-        roots => $roots_constants,
-        domain => $domain_constants,
-        email => $email_constants,
         help => Template::Namespace::Constants->new( \%LJ::HELPURL ),
     },
     CACHE_SIZE => $LJ::TEMPLATE_CACHE_SIZE, # this can be undef, and that means cache everything.

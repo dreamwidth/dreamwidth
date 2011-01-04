@@ -35,13 +35,13 @@
     <h1>[% '.add.added.head' | ml %]</h1>
     <p>[% '.add.added.text' | ml %]</p>
     <ul>
-      <li><a href='[% roots.site %]/interests'>
+      <li><a href='[% site.root %]/interests'>
           [%- '.add.added.interestspage' | ml %]</a></li>
-      <li><a href='[% roots.site %]/manage/profile/#interests'>
+      <li><a href='[% site.root %]/manage/profile/#interests'>
           [%- '.add.added.editinterests' | ml %]</a></li>
       <li><a href='[% remote.profile_url %]'>
           [%- '.add.added.viewprofile' | ml %]</a></li>
-      <li><a href='[% roots.site %]/manage/profile'>
+      <li><a href='[% site.root %]/manage/profile'>
           [%- '.add.added.editprofile' | ml %]</a></li>
     </ul>
 [%- END -%]

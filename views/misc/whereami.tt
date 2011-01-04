@@ -1,7 +1,7 @@
 [%- sections.title = '.title' | ml -%]
 <p>[% '.intro' | ml %]</p>
 
-<form action='[% roots.site %]/misc/whereami'>
+<form action='[% site.root %]/misc/whereami'>
     [% authas_html %]
 </form><br />
 

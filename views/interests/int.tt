@@ -56,25 +56,25 @@
         </ul></p>
     [%- ELSE -%]
         <h1>[% '.nocomms.header' | ml %]</h1><p>
-        [%- '.nocomms.text' | ml(aopts = "href='$roots.site/community/create'",
+        [%- '.nocomms.text' | ml(aopts = "href='$site.root/community/create'",
                                 int = interest) %]</p>
     [%- END -%]
     <h1>[% ".users.header" | ml(interest = e_int) %]</h1>
     <p class='interestinfo'>
     [%- IF not_interested -%]
-        [%- '.addint2' | ml(aopts = "href='$roots.site/interests?mode=add&amp;intid=$intid'") -%]
+        [%- '.addint2' | ml(aopts = "href='$site.root/interests?mode=add&amp;intid=$intid'") -%]
     [%- END -%]
-    [% '.morestuff2' | ml(aopts = "href='$roots.site/interests'") %]</p>
+    [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
     <p class='matches'><b>[% '.matches2' | ml(num = int_users.count) %]</b></p>
     <div style='text-align: center'>[% int_users.navbar %]</div><br />
     [% int_users.results %]
     <div style='text-align: center; clear: both'>[% int_users.navbar %]</div><br />
 [%- ELSE -%]
     <h1>[% '.nocomms.header' | ml %]</h1><p>
-    [%- '.nocomms.text' | ml(aopts = "href='$roots.site/community/create'",
+    [%- '.nocomms.text' | ml(aopts = "href='$site.root/community/create'",
                             int = e_int) %]</p>
     <h1>[% '.nousers.header' | ml %]</h1><p>
     [%- '.nousers.text2' | ml(int = e_int,
-        aopts_add = "href='$roots.site/interests?mode=addnew&amp;keyword=$e_int'",
-        aopts_int = "href='$roots.site/interests'") %]</p>
+        aopts_add = "href='$site.root/interests?mode=addnew&amp;keyword=$e_int'",
+        aopts_int = "href='$site.root/interests'") %]</p>
 [%- END -%]

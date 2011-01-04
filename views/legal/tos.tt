@@ -16,7 +16,7 @@
 [%- sections.title='Terms of Service' -%]
 
 <p>We hate legalese, so we've tried to make ours readable. If you've got 
-any questions, feel free to <a href='[% roots.site %]/support/submit'>ask us</a>,
+any questions, feel free to <a href='[% site.root %]/support/submit'>ask us</a>,
 and we'll do our best to answer.</p>
 
 <h2>Terms of Service</h2>
@@ -25,12 +25,12 @@ and we'll do our best to answer.</p>
 following terms and conditions, which govern your use of the [% site.nameshort %]
 site (Website), and all content, services and products available at or 
 through the Website, including but not limited to 
-[% roots.site %]. </p>
+[% site.root %]. </p>
 
 <p>The Website is offered subject to your acceptance, without 
 modification, of all of the terms and conditions contained within, along with all 
 other operating rules, policies (including, without limitation, 
-[% site.nameshort %]'s <a href="[% roots.site %]/legal/privacy">Privacy
+[% site.nameshort %]'s <a href="[% site.root %]/legal/privacy">Privacy
 Policy</a>) and procedures that may be published from time to time on 
 this Website by us (collectively, the Agreement).</p>
 
@@ -94,7 +94,7 @@ of account or the features available to it at any time.</p>
 <h2>III. Privacy Policy</h2>
 
 <p>Your use of the Website is governed by the Privacy Policy, currently 
-located at [% roots.site %]/legal/privacy. </p>
+located at [% site.root %]/legal/privacy. </p>
 
 
 <h2>IV. Indemnity</h2>

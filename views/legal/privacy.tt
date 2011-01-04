@@ -15,9 +15,9 @@
 
 [%- sections.title='Privacy Policy' -%]
 
-<p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='[% roots.site %]/support/submit'>ask us</a>, and we'll do our best to answer.</p>
+<p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='[% site.root %]/support/submit'>ask us</a>, and we'll do our best to answer.</p>
 
-<p>This privacy statement ("Privacy Policy") covers all websites (such as [% domain.web %]) owned and operated by [% site.company %] ("we", "us", "our") and all associated services.</p>
+<p>This privacy statement ("Privacy Policy") covers all websites (such as [% site.domainweb %]) owned and operated by [% site.company %] ("we", "us", "our") and all associated services.</p>
 
 <p>We use information you share with us for our internal business purposes. We do not sell your information. This notice tells you what information we collect, how we use it, and steps we take to protect and secure it.</p>
 
@@ -104,7 +104,7 @@
 
 <p>The Children's Online Privacy Protection Act ('COPPA') requires that we inform parents on how we collect and disclose the personal information of children under the age of 13.</p>
 
-<p>We do not permit children under the age of 13 to use our service. To prevent this, we collect date of birth at the time of account creation. If your child under the age of 13 has mis-represented their age at account creation, please contact us at [% email.coppa %]. After confirming your identity, we will remove the account.</p>
+<p>We do not permit children under the age of 13 to use our service. To prevent this, we collect date of birth at the time of account creation. If your child under the age of 13 has mis-represented their age at account creation, please contact us at [% site.email.coppa %]. After confirming your identity, we will remove the account.</p>
 
 
 <h2>Cookies</h2>
@@ -121,7 +121,7 @@
 
 <p>Your account information is password-protected. We recommend that you choose a strong and secure password. We use industry-standard encryption to safeguard any transmission between your computer and ours.</p>
 
-<p>If we learn of a system security breach, we will notify you electronically so you can take appropriate steps to protect yourself. Depending on where you live, you may have a legal right to receive notice of a security breach in writing. To receive free written notice, you should contact us at [% email.privacy %].</p>
+<p>If we learn of a system security breach, we will notify you electronically so you can take appropriate steps to protect yourself. Depending on where you live, you may have a legal right to receive notice of a security breach in writing. To receive free written notice, you should contact us at [% site.email.privacy %].</p>
 
 
 <h2>Deleting your information</h2>
@@ -161,7 +161,7 @@
 
 <h2>Contacting us</h2>
 
-<p>If you have questions about this policy, you can contact us at [% email.privacy %].</p>
+<p>If you have questions about this policy, you can contact us at [% site.email.privacy %].</p>
 
 
 

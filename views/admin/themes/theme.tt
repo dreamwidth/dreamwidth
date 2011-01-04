@@ -6,14 +6,14 @@ td, th { padding: 4px; }
 </style>
 [%- END -%]
 
-<form method="post" action="[% roots.site %]/admin/themes/theme">
+<form method="post" action="[% site.root %]/admin/themes/theme">
 [% dw.form_auth %]
 <input type="hidden" name="theme" value="[% theme_arg %]" />
 <p class="action_links">
-<a href="[% roots.site %]/admin/themes/">[% '.back.link' | ml %]</a> ||  
-<a href="[% roots.site %]/customize/preview_redirect?themeid=[% theme.s2lid %]" target="_blank">[% '.preview.link' | ml %]</a> || [% '.source' | ml %] (
-<a href="[% roots.site %]/customize/advanced/layersource?id=[% theme.b2lid %]&fmt=html" target="_blank">[% '.source.theme' | ml %]</a> ||
-<a href="[% roots.site %]/customize/advanced/layersource?id=[% theme.s2lid %]&fmt=html" target="_blank">[% '.source.layer' | ml %]</a> )
+<a href="[% site.root %]/admin/themes/">[% '.back.link' | ml %]</a> ||  
+<a href="[% site.root %]/customize/preview_redirect?themeid=[% theme.s2lid %]" target="_blank">[% '.preview.link' | ml %]</a> || [% '.source' | ml %] (
+<a href="[% site.root %]/customize/advanced/layersource?id=[% theme.b2lid %]&fmt=html" target="_blank">[% '.source.theme' | ml %]</a> ||
+<a href="[% site.root %]/customize/advanced/layersource?id=[% theme.s2lid %]&fmt=html" target="_blank">[% '.source.layer' | ml %]</a> )
 </p>
 <p><strong>[% '.designer' | ml %]</strong> [% theme.designer %]</p>
 

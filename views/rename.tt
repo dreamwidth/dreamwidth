@@ -119,7 +119,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <p>[% '.token.list.header' | ml %]</p>
         <ul>
         [% FOREACH token = unused_tokens %]
-            <li>[% token.token | html %] - <a href="[%- dw.site | url %]/rename/[% token.token | url %]
+            <li>[% token.token | html %] - <a href="[%- site.root | url %]/rename/[% token.token | url %]
             [%~ IF checkusername.user AND checkusername.status == 'available' ~%]
                 ?to=[%~ checkusername.user | url ~%]
                 ">[%~ '.token.list.item.withname' | ml( username = checkusername.user ) ~%]
@@ -127,7 +127,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 ">[%~ '.token.list.item' | ml ~%]
             [%~ END ~%]
             </a>
-            <a href="[%- dw.site | url %]/rename/[% token.token | url %]?type=C
+            <a href="[%- site.root | url %]/rename/[% token.token | url %]?type=C
             [%~ IF checkusername.user AND checkusername.status == 'available' ~%]
                 &to=[%~ checkusername.user | url ~%]
                 ">[%~ '.token.list.item.comm.withname' | ml( username = checkusername.user ) ~%]

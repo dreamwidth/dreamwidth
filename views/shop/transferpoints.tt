@@ -24,7 +24,7 @@
     <p>[% '.about' | ml(sitename = site.nameshort) %]</p>
 
     [% IF ! has_points %]
-        [% '.about.nopoints' | ml(sitename = site.nameshort, aopts = "href='$roots.site/shop/points'") %]
+        [% '.about.nopoints' | ml(sitename = site.nameshort, aopts = "href='$site.root/shop/points'") %]
     [% ELSE %]
 
         <p>[% '.about.points' | ml(points = has_points) %]</p>

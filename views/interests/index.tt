@@ -54,4 +54,4 @@
 </form></td></tr>
 
 </table>
-[% '.nointerests.text2' | ml(aopts = "href='$roots.site/manage/profile/'") %]
+[% '.nointerests.text2' | ml(aopts = "href='$site.root/manage/profile/'") %]
