@@ -33,6 +33,7 @@
 
     # email addresses
     $ADMIN_EMAIL = "webmaster\@$DOMAIN";
+    $ABUSE_EMAIL = "abuse\@$DOMAIN";
     $SUPPORT_EMAIL = "support\@$DOMAIN";
     $COMMUNITY_EMAIL = "community_invitation\@$DOMAIN";
     $BOGUS_EMAIL = "dw_null\@$DOMAIN";

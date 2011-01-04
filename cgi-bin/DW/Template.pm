@@ -38,7 +38,9 @@ my $site_constants = Template::Namespace::Constants->new({
     nameshort   => $LJ::SITENAMESHORT,
     nameabbrev  => $LJ::SITENAMEABBREV,
 
-    company => $LJ::SITECOMPANY,
+    company          => $LJ::SITECOMPANY,
+    address          => $LJ::SITEADDRESS,
+    addressline      => $LJ::SITEADDRESSLINE,
 
     domain      => $LJ::DOMAIN,
     domainweb   => $LJ::DOMAIN_WEB,
@@ -50,6 +52,7 @@ my $site_constants = Template::Namespace::Constants->new({
     help => \%LJ::HELPURL,
 
     email => {
+        abuse => $LJ::ABUSE_EMAIL,
         coppa => $LJ::COPPA_EMAIL,
         privacy => $LJ::PRIVACY_EMAIL,
     },
