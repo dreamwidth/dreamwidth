@@ -184,6 +184,7 @@ sub do_request
     if ($method eq "editcircle")       { return editcircle(@args);       }
     if ($method eq "friendof")         { return friendof(@args);         }
     if ($method eq "checkfriends")     { return checkfriends(@args);     }
+    if ($method eq "checkforupdates")  { return checkforupdates(@args);  }
     if ($method eq "getdaycounts")     { return getdaycounts(@args);     }
     if ($method eq "postevent")        { return postevent(@args);        }
     if ($method eq "editevent")        { return editevent(@args);        }
@@ -814,20 +815,20 @@ sub friendof
     return $res;
 }
 
-sub checkfriends
+sub checkfriends {
+    return fail( $_[1], 504, "Use 'checkforupdates' instead." );
+}
+sub checkforupdates
 {
     my ($req, $err, $flags) = @_;
     return undef unless authenticate($req, $err, $flags);
     my $u = $flags->{'u'};
     my $res = {};
 
-    # FIXME: not updated for WTF yet
-    return fail( $err, 507 );
-
     # return immediately if they can't use this mode
-    unless ( $u->can_use_checkfriends ) {
+    unless ( $u->can_use_checkforupdates ) {
         $res->{'new'} = 0;
-        $res->{'interval'} = 36000;  # tell client to bugger off
+        $res->{'interval'} = 36000;
         return $res;
     }
 
@@ -843,23 +844,36 @@ sub checkfriends
     my $interval = LJ::get_cap_min($u, "checkfriends_interval");
     $res->{'interval'} = $interval;
 
-    my $mask;
-    if ($req->{'mask'} and $req->{'mask'} !~ /\D/) {
-        $mask = $req->{'mask'};
+    my $filter;
+    if ( $req->{filter} ) {
+        $filter = $u->content_filters( name => $req->{filter} );
+        return fail( $err, 203, "Invalid filter name. Trying to check updates for a filter that does not exist." )
+            unless $filter;
     }
 
-    my $memkey = [$u->{'userid'},"checkfriends:$u->{userid}:$mask"];
+    my $memkey = [ $u->id, "checkforupdates:$u->{userid}:" . ( $filter ? $filter->id : "" ) ];
     my $update = LJ::MemCache::get($memkey);
     unless ($update) {
-        # TAG:FR:protocol:checkfriends (wants reading list of mask, not "friends")
-        my $fr = LJ::get_friends($u, $mask);
-        unless ($fr && %$fr) {
+        my @fr = $u->watched_userids;
+
+        # FIXME: see whether we can just get the list of users who are in the filter
+        if ( $filter ) {
+            my @filter_users;
+
+            foreach my $fid ( @fr ) {
+                push @filter_users, $fid
+                    if $filter->contains_userid( $fid );
+            }
+            @fr = @filter_users;
+        }
+
+        unless ( @fr ) {
             $res->{'new'} = 0;
             $res->{'lastupdate'} = $lastupdate;
             return $res;
         }
         if (@LJ::MEMCACHE_SERVERS) {
-            my $tu = LJ::get_timeupdate_multi({ memcache_only => 1 }, keys %$fr);
+            my $tu = LJ::get_timeupdate_multi({ memcache_only => 1 }, @fr);
             my $max = 0;
             while ($_ = each %$tu) {
                 $max = $tu->{$_} if $tu->{$_} > $max;
@@ -874,7 +888,7 @@ sub checkfriends
                 $res->{'lastupdate'} = $lastupdate;
                 return $res;
             }
-            my $list = join(", ", map { int($_) } keys %$fr);
+            my $list = join(", ", map { int($_) } @fr );
             if ($list) {
               my $sql = "SELECT MAX(timeupdate) FROM userusage ".
                   "WHERE userid IN ($list)";
@@ -3309,6 +3323,9 @@ sub do_request
     if ($req->{'mode'} eq "checkfriends") {
         return checkfriends($req, $res, $flags);
     }
+    if ($req->{'mode'} eq "checkforupdates") {
+        return checkforupdates($req, $res, $flags);
+    }
     if ($req->{'mode'} eq "getdaycounts") {
         return getdaycounts($req, $res, $flags);
     }
@@ -3607,6 +3624,28 @@ sub checkfriends
     $res->{'new'} = $rs->{'new'};
     $res->{'lastupdate'} = $rs->{'lastupdate'};
     $res->{'interval'} = $rs->{'interval'};
+    return 1;
+}
+
+## flat wrapper
+sub checkforupdates
+{
+    my ( $req, $res, $flags ) = @_;
+
+    my $err = 0;
+    my $rq = upgrade_request( $req );
+
+    my $rs = LJ::Protocol::do_request( "checkforupdates", $rq, \$err, $flags );
+    unless ( $rs ) {
+        $res->{success} = "FAIL";
+        $res->{errmsg} = LJ::Protocol::error_message( $err );
+        return 0;
+    }
+
+    $res->{success} = "OK";
+    $res->{new} = $rs->{new};
+    $res->{lastupdate} = $rs->{lastupdate};
+    $res->{interval} = $rs->{interval};
     return 1;
 }
 
