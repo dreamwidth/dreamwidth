@@ -111,6 +111,9 @@ sub confirm_order {
         } ),
     } );
 
+    # and run any additional actions desired (because this is such a manual process)
+    LJ::Hooks::run_hooks( 'check_money_order_pending', $cart, $u );
+
     return 2;
 }
 
