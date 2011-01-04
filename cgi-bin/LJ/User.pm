@@ -2098,7 +2098,7 @@ sub can_track_thread {
     return $_[0]->get_cap( 'track_thread' ) ? 1 : 0;
 }
 
-sub can_use_checkforupdates {
+sub can_use_checkfriends {
     return $_[0]->get_cap( 'checkfriends' ) ? 1 : 0;
 }
 

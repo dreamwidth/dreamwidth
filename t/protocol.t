@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 222;
+plan tests => 201;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -49,28 +49,27 @@ my $do_request = sub {
 
 
 my $check_err = sub {
-    my ( $expectedcode, $testmsg ) = @_;
+    my ( $responsecode, $expectedcode, $testmsg ) = @_;
 
-    # code is either in the form of ###, or ###:description
-    like( $err, qr/^$expectedcode(?:$|[:])/,
+    is( $responsecode, $expectedcode,
         "$testmsg Protocol error ($err) = " . LJ::Protocol::error_message( $err ) );
 };
 
 my $success = sub {
-    my ( $testmsg ) = @_;
+    my ( $responsecode, $testmsg ) = @_;
 
-    is( $err, 0, "$testmsg (success)" );
+    is( $responsecode, 0, "$testmsg (success)" );
 };
 
 note( "getfriendgroups" );
 {
     ( $res, $err ) = $do_request->( "getfriendgroups" );
-    $check_err->( 504, "'getfriendgroups' is deprecated." );
+    $check_err->( $err, 504, "'getfriendgroups' is deprecated." );
     is( $res, undef, "No response expected." );
 
 
     ( $res, $err ) = $do_request->( "getfriendgroups", username => $u->user );
-    $check_err->( 504, "'getfriendgroups' is deprecated." );
+    $check_err->( $err, 504, "'getfriendgroups' is deprecated." );
     is( $res, undef, "No response expected." );
 }
 
@@ -80,12 +79,12 @@ note( "gettrustgroups" );
     #   username
 
     ( $res, $err ) = $do_request->( "gettrustgroups" );
-    $check_err->( 200, "'gettrustgroups' needs a user." );
+    $check_err->( $err, 200, "'gettrustgroups' needs a user." );
     is( $res, undef, "No response expected." );
 
 
     ( $res, $err ) = $do_request->( "gettrustgroups", username => $u->user );
-    $success->( "'gettrustgroups' for user." );
+    $success->( $err, "'gettrustgroups' for user." );
     ok( ref $res->{trustgroups} eq "ARRAY" && scalar @{$res->{trustgroups}} == 0, 
         "Empty trust groups list." );
 };
@@ -102,11 +101,11 @@ note( "getcircle" );
     #   includetrustedusers
 
     ( $res, $err ) = $do_request->( "getcircle" );
-     $check_err->( 200, "'getcircle' needs a user." );
+     $check_err->( $err, 200, "'getcircle' needs a user." );
     is( $res, undef, "No response expected." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user );
-    $success->( "'getcircle' for user." );
+    $success->( $err, "'getcircle' for user." );
     is( scalar keys %$res, 0, "Empty circle; no arguments provided to select the subset of the circle." );
 
     my %circle_args = (
@@ -118,7 +117,7 @@ note( "getcircle" );
     );
     while( my ( $include, $val ) = each %circle_args ) {
         ( $res, $err ) = $do_request->( "getcircle", username => $u->user, $include => 1 );
-        $success->( "'getcircle' => $include" );
+        $success->( $err, "'getcircle' => $include" );
         is( scalar keys %$res, 1, "One key: " . (keys %$res)[0] );
         is( ref $res->{$val->[0]}, "ARRAY", "Returned an arrayref of this user's $include." );
 
@@ -145,7 +144,7 @@ note( "getcircle" );
 
         ( $res, $err ) = $do_request->( "getcircle", username => $u->user, $include => 1,
             limit => $LJ::MAX_WT_EDGES_LOAD + 1 );
-        $success->( "'getcircle' => $include" );
+        $success->( $err, "'getcircle' => $include" );
 
         # check that the users we got back are from the users we added
         # don't check the other way, since we are over limit
@@ -158,14 +157,14 @@ note( "getcircle" );
     }
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includetrustgroups => 1 );
-    $success->( "'getcircle' => includetrustgroups" );
+    $success->( $err, "'getcircle' => includetrustgroups" );
     is( scalar keys %$res, 1, "One key: " . (keys %$res)[0] );
     ok( ref $res->{trustgroups} eq "ARRAY" && scalar @{$res->{trustgroups}} == 0, 
         "Empty trust groups list." );
 
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
-    $success->( "'getcircle' => includecontentfilters" );
+    $success->( $err, "'getcircle' => includecontentfilters" );
     is( scalar keys %$res, 1, "One key: " . (keys %$res)[0] );
     ok( ref $res->{contentfilters} eq "ARRAY" && scalar @{$res->{contentfilters}} == 0, "Empty list of content filters for this user." );
 
@@ -184,12 +183,12 @@ note( "editcircle" );
     #     deletefromcontentfilters
 
     ( $res, $err ) = $do_request->( "editcircle", settrustgroups => 1 );
-    $check_err->( 200, "'editcircle' needs a user." );
+    $check_err->( $err, 200, "'editcircle' needs a user." );
     is( $res, undef, "No response expected." );
 
 
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, settrustgroups => 1 );
-    $success->( "No valid action provided for editcircle; ignore." );
+    $success->( $err, "No valid action provided for editcircle; ignore." );
     is( scalar keys %$res, 0, "No action taken." );
 
 
@@ -207,7 +206,7 @@ note( "editcircle" );
         }
     );
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, settrustgroups => \%trustgroups );
-    $success->( "Set trust groups." );
+    $success->( $err, "Set trust groups." );
     is( scalar keys %$res, 0, "No response expected." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includetrustgroups => 1 );
@@ -236,7 +235,7 @@ note( "editcircle" );
     $trustgroups{20} = $new;
 
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, settrustgroups => { 10 => $edited, 20 => $new } );
-    $success->( "Edited trust groups; those not mentioned should not be affected." );
+    $success->( $err, "Edited trust groups; those not mentioned should not be affected." );
     is( scalar keys %$res, 0, "No response expected." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includetrustgroups => 1 );
@@ -255,7 +254,7 @@ note( "editcircle" );
     delete $trustgroups{5};
     delete $trustgroups{10};
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, deletetrustgroups => [ 10, 5 ] );
-    $success->( "Deleted a trust group." );
+    $success->( $err, "Deleted a trust group." );
     is( scalar keys %$res, 0, "No response expected." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includetrustgroups => 1 );
@@ -272,7 +271,7 @@ note( "editcircle" );
 
     # now add / edit some users' status in your circle
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, add => [ { username => "invalidusername" } ] );
-    $check_err->( 203, "Tried to edit invalid user." );
+    $check_err->( $err, 203, "Tried to edit invalid user." );
     is( scalar keys %$res, 0, "No response expected." );
 
     # let's make our watch/trust mutual
@@ -356,7 +355,7 @@ note( "editcircle" );
     );
 
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, setcontentfilters => \%contentfilters );
-    $success->( "Set content filters." );
+    $success->( $err, "Set content filters." );
     is( scalar keys %$res, 1, "Response contains only the newly added content filters." );
     is( scalar @{$res->{addedcontentfilters}}, scalar keys %contentfilters, "Got back the newly-added content filters." );
 
@@ -385,7 +384,7 @@ note( "editcircle" );
     $contentfilters{3} = $new;
 
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, setcontentfilters => { 2 => $edited, 3 => $new } );
-    $success->( "Edited content filters; those not mentioned should not be affected." );
+    $success->( $err, "Edited content filters; those not mentioned should not be affected." );
     is( scalar keys %$res, 1, "Response contains only the newly added content filters." );
     is( scalar @{$res->{addedcontentfilters}}, 1, "Got back the newly-added content filter." );
 
@@ -405,7 +404,7 @@ note( "editcircle" );
     delete $contentfilters{1};
     delete $contentfilters{3};
     ( $res, $err ) = $do_request->( "editcircle", username => $u->user, deletecontentfilters => [ 1, 3 ] );
-    $success->( "Deleted content filters." );
+    $success->( $err, "Deleted content filters." );
     is( scalar keys %$res, 0, "No response expected." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
@@ -429,7 +428,7 @@ note( "editcircle" );
         username => "invalid_user",
         id => 2
     } ] );
-    $check_err->( 203, "Tried to add an invalid user to a content filter." );
+    $check_err->( $err, 203, "Tried to add an invalid user to a content filter." );
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
     ok( $res->{contentfilters}->[0]->{data} eq "", "No data for the content filter." );
 
@@ -439,7 +438,7 @@ note( "editcircle" );
         username => $watched->user,
         id => 2
     } ] );
-    $success->( "Added a user to a content filter." );
+    $success->( $err, "Added a user to a content filter." );
     is( scalar keys %$res, 0, "No response expected." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
@@ -451,7 +450,7 @@ note( "editcircle" );
         username => "invalid_user",
         id => 2
     } ] );
-    $check_err->( 203, "Tried to remove an invalid user from a content filter." );
+    $check_err->( $err, 203, "Tried to remove an invalid user from a content filter." );
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
     ok( $res->{contentfilters}->[0]->{data} ne "", "Some data in the content filter." );
 
@@ -461,7 +460,7 @@ note( "editcircle" );
         username => $watchedtrusted->user,
         id => 2
     } ] );
-    $success->( "Tried to remove a user who was not in the content filter." );
+    $success->( $err, "Tried to remove a user who was not in the content filter." );
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
     ok( $res->{contentfilters}->[0]->{data} ne "", "Some data in the content filter." );
 
@@ -470,7 +469,7 @@ note( "editcircle" );
         username => $watched->user,
         id => 2
     } ] );
-    $success->( "Removed a user from a content filter." );
+    $success->( $err, "Removed a user from a content filter." );
     is( scalar keys %$res, 0, "No response expected." );
 
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includecontentfilters => 1 );
@@ -507,7 +506,7 @@ note( "post to community by various journaltypes" );
         event      => "new test post to community",
         tz         => "guess",
     );
-    $success->( "Entry posted successfully to community by personal journal." );
+    $success->( $err, "Entry posted successfully to community by personal journal." );
 
 
     my $comm2 = temp_comm();
@@ -516,7 +515,7 @@ note( "post to community by various journaltypes" );
         usejournal  => $comm->user,
         event       => "new test post to community by community2"
     );
-    $check_err->( 300, "Communities cannot post entries." );
+    $check_err->( $err, 300, "Communities cannot post entries." );
 
     ( $res, $err ) = $do_request->( "postevent",
         username    => $comm->user,
@@ -525,7 +524,7 @@ note( "post to community by various journaltypes" );
         event       => "new test post to self by a community",
         tz          => "guess",
     );
-    $check_err->( 300, "Communities cannot post entries, not even to themselves." );
+    $check_err->( $err, 300, "Communities cannot post entries, not even to themselves." );
 
 
 
@@ -540,7 +539,7 @@ note( "post to community by various journaltypes" );
         event       => "new test post to a community by an identity user",
         tz          => "guess",
     );
-    $check_err->( 150, "OpenID users cannot post entries to communities with no OpenID posting prop." );
+    $check_err->( $err, 150, "OpenID users cannot post entries to communities with no OpenID posting prop." );
 
 
     ( $res, $err ) = $do_request->( "postevent",
@@ -552,7 +551,7 @@ note( "post to community by various journaltypes" );
 
         flags       => { importer_bypass => 1 },
     );
-    $success->( "Always allow posting with the importer bypass." );
+    $success->( $err, "Always allow posting with the importer bypass." );
 
 
     # allow all users to add and control tags (for convenience)
@@ -578,151 +577,5 @@ note( "post to community by various journaltypes" );
         props       => { taglist => "testing" },
         tz          => "guess",
     );
-    $success->( "OpenID users can post entries to communities with the appropriate prop." );
-}
-
-
-note( "checkforupdates" );
-{
-    
-    my $u = temp_user();
-
-    my $start = 0;
-    my $end = 15;
-
-    # make sure no one can use the protocol...
-    $LJ::CAP{$_}->{checkfriends} = 0
-        foreach( 0.. 15 );
-
-    ( $res, $err ) = $do_request->( "checkfriends" );
-    $check_err->( 504, "Use 'checkforupdates' instead" );
-
-
-    ( $res, $err ) = $do_request->( "checkforupdates" );
-    $check_err->( 200, "Needs arguments" );
-
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username => $u->user,
-        flags    => { noauth => 0 },
-    );
-    $check_err->( 101, "Have all arguments, but needs authorization" );
-
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username => $u->user,
-    );
-    $success->( "Not authorized to use checkforupdates" );
-    is_deeply( $res, {
-            interval => 36000,
-            new => 0
-    }, "Not authorized to use checkforupdates; no new entries, check back in an hour" );
-
-
-    # make sure everyone can use the protocol, and set interval to a known variable we can check against
-    # (not using $LJ::T_HAS_ALL_CAPS = 1, because that makes everyone readonly)
-    $LJ::CAP{$_}->{checkfriends} = 1
-        foreach( 0.. 15 );
-    $LJ::CAP{$_}->{checkfriends_interval} = 7
-        foreach( 0.. 15 );
-
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username => $u->user,
-    );
-    $success->( "Checkforupdates. We don't watch anyone, but that's okay" );
-    is( scalar %{ $u->watch_list }, 0, "Not watching anyone" );
-    is_deeply( $res, {
-            interval => 7,
-            new => 0,
-            lastupdate => "0000-00-00 00:00:00",
-    }, "Watching no one." );
-
-
-    # now we watch some people (who have no updates yet)
-    my $userinfilter = temp_user();
-    $u->add_edge( $userinfilter, watch => { nonotify => 1 } );
-    $u->create_content_filter( name => "filter" );
-    my $filter = $u->content_filters( name => "filter" );
-    $filter->add_row( userid => $userinfilter->userid );
-
-    my $usernotinfilter = temp_user();
-    $u->add_edge( $usernotinfilter, watch => { nonotify => 1 } );
-
-
-    # and go through the protocol again
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username => $u->user,
-    );
-    $success->( "Checkforupdates. No one has updated." );
-    is( scalar $u->watched_userids,2 );
-    is_deeply( $res, {
-            interval => 7,
-            new => 0,
-            lastupdate => "0000-00-00 00:00:00",
-    }, "No new entries." );
-
-
-    # and then let's see what happens when they get updates
-    $do_request->( "postevent", username => $userinfilter->user, event => "update", tz => "guess" );
-    sleep( 1 ); # pause so we have different time stamps (for checking against)
-    $do_request->( "postevent", username => $usernotinfilter->user, event => "update", tz => "guess" );
-
-    # use variables to make it easier to determine what I'm trying to check for
-    # In some tests, I will deliberately *not* use the variables
-    my $earlierupdate = $userinfilter->timeupdate;
-    my $laterupdate = $usernotinfilter->timeupdate;
-    ok( $earlierupdate < $laterupdate, "Timestamps need to be unequal for when we're testing stuff." );
-
-    # and go through the protocol again
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username => $u->user,
-    );
-    $success->( "Checkforupdates. Users have updated." );
-    is_deeply( $res, {
-            interval => 7,
-            new => 0,
-            lastupdate => LJ::mysql_time( $usernotinfilter->timeupdate ),
-    }, "No new entries." );
-
-
-    # and we also check a subset (filter)
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username => $u->user,
-        filter   => $filter->name,
-    );
-    $success->( "Checkforupdates of a subset of watched users." );
-    is_deeply( $res, {
-            interval => 7,
-            new => 0,
-            lastupdate => LJ::mysql_time( $userinfilter->timeupdate ),
-    }, "No new entries." );
-
-
-    # optional argument lastupdate
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username   => $u->user,
-        lastupdate => $earlierupdate
-    );
-    $check_err->( 203, "lastupdate argument needs to be in mysql_time format." );
-
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username   => $u->user,
-        lastupdate => LJ::mysql_time( $earlierupdate ),
-    );
-    $success->( "Checkforupdates since lastupdate. Have new updates" );
-    is_deeply( $res, {
-            interval => 7,
-            new => 1,
-            lastupdate => LJ::mysql_time( $laterupdate ),
-    }, "Have new entries." );
-
-    ( $res, $err ) = $do_request->( "checkforupdates",
-        username   => $u->user,
-        lastupdate => LJ::mysql_time( $laterupdate ),
-    );
-    $success->( "Checkforupdates since lastupdate. No new updates" );
-    is_deeply( $res, {
-            interval => 7,
-            new => 0,
-            lastupdate => LJ::mysql_time( $laterupdate ),
-    }, "No new entries." );
-
+    $success->( $err, "OpenID users can post entries to communities with the appropriate prop." );
 }
