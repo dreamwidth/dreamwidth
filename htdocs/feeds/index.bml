@@ -32,10 +32,14 @@ body<=
         $url =~ s/^feed://;           # eg, feed:http://www.example.com/
 
         if ($acct ne "") {
+            $acct = LJ::canonical_username( $acct );
+
             return $error->($ML{'.invalid.accountname'})
-                if $acct && $acct !~ /^\w{3,20}$/; # This needs to be 5 less then the username limt.
+                if ! $acct || $acct !~ /^\w{3,20}$/; # This needs to be 5 less then the username limt.
+
             return $error->( $ML{'.invalid.reserved'} )
                 if LJ::User->is_protected_username( $acct );
+
             # Postpend _feed here, username should be valid by this point.
             $acct .= "_feed";
         }
