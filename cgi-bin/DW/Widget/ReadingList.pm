@@ -25,16 +25,16 @@ sub render_body {
     my $remote = LJ::get_remote()
         or return;
 
-    my %count;
+    my %count = ( personal => 0, community => 0, syndicated => 0 );
     my @watched = $remote->watched_users;
     $count{$_->journaltype_readable}++ foreach @watched;
 
     my $ret = "<h2>" . $class->ml( 'widget.readinglist.title' ) . "</h2>";
     $ret .= "<p>" . $class->ml( 'widget.readinglist.readpage', { aopts => "href='" . $remote->journal_base. "/read'" } ) . "</p>";
     $ret .= "<p>" . $class->ml( 'widget.readinglist.breakdown.header' ) . "</p>";
-    $ret .= "<ul><li>" . $class->ml( 'widget.readinglist.breakdown.personal', { num => $count{personal} + 0 } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.communities', { num => $count{community} + 0 } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.feeds', { num => $count{syndicated} + 0 } ) . "</li></ul><br />";
+    $ret .= "<ul><li>" . $class->ml( 'widget.readinglist.breakdown.personal', { num => $count{personal} } ) . "</li>";
+    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.communities', { num => $count{community} } ) . "</li>";
+    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.feeds', { num => $count{syndicated} } ) . "</li></ul><br />";
 
     my @filters = $remote->content_filters;
 
