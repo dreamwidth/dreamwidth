@@ -136,6 +136,15 @@ $cut_text = qq{<a href="#second">2222</a>};
 $clean->( { cut_retrieve => 2 } );
 is( $orig_post, $cut_text, "Text under second cut, with HTML tags" );
 
+$orig_post  = qq{<strong><textarea></strong>};
+$clean_post = qq{<strong><textarea>&lt;/strong&gt;</textarea></strong>};
+$clean->();
+is( $orig_post, $clean_post, "Open textarea tag" );
+
+$orig_post  = qq{<textarea><textarea></textarea>};
+$clean_post = qq{<textarea>&lt;textarea&gt;</textarea>};
+$clean->();
+is( $orig_post, $clean_post, "Double textarea tag" );
 
 # nested cut tags
 $entry_text = qq{<cut text="outer">out <cut text="inner">in</cut></cut>};

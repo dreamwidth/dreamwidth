@@ -1124,6 +1124,12 @@ sub clean
         }
     }
 
+    # if we have a textarea open, we *MUST* close it first
+    if ( $opencount{textarea} ) {
+         $newdata .= "</textarea>";
+    }
+    $opencount{textarea} = 0;
+
     # close any tags that were opened and not closed
     # don't close tags that don't need a closing tag -- otherwise,
     # we output the closing tags in the wrong place (eg, a </td>
