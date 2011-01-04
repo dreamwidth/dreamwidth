@@ -36,6 +36,7 @@
     $SITENAMEABBREV = "YS";
     $SITECOMPANY = "YourSite's Company";
     $SITEADDRESS = "123 Main St.<br />Somewhere, XX 12345";
+    $SITEADDRESSLINE = "123 Main St. Somewhere, XX 12345";
 
     # MemCache information, if you have MemCache servers running
     #@MEMCACHE_SERVERS = ('hostname:port');
