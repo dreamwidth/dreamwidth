@@ -2025,7 +2025,7 @@ PREVIEW
 
             $out .= LJ::html_submit('action:update', BML::ml('entryform.update4'),
                     { 'onclick' => $onclick, 
-                      'class' => 'submit xpost_submit', 
+                      'class' => 'update_submit xpost_submit', 
                       'id' => 'formsubmit',
                       'tabindex' => $tabindex->() }) . "&nbsp;\n";
         }
