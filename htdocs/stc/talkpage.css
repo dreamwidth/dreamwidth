@@ -53,6 +53,9 @@
     padding-right: 10px;
 }
 
+.spacer {
+    padding: 0;
+}
 .cmtbar {
     min-width: 50em;
     padding: 0;
@@ -73,8 +76,9 @@
 .cmtbar a img { /*comment action buttons*/
     padding: 0 5px;
 }
-td .commentbody {
+.commentbody {
     margin-bottom: 15px;
+    padding: 0;
 }
 
 a .userpic-img {
