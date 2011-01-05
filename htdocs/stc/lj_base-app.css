@@ -45,7 +45,7 @@ input.create-account {
 }
 
 .detail {
-    font-size: 90%;
+    font-size: smaller;
 }
 p.detail {
     margin: 0 0 10px 0;
