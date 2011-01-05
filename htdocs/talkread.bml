@@ -609,7 +609,7 @@ body<=
                 my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
                 $ret .= "<div id='$htmlid'><table summary=''><tbody><tr>";
                 $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
-                $ret .= "<td>";
+                $ret .= "<td  class='cmtpartial'>";
                 if ($post->{'state'} eq 'F') {
                     $ret .= "($T{'frozen'}) ";
                 }

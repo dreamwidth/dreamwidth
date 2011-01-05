@@ -57,14 +57,16 @@
     padding: 0;
 }
 .cmtbar {
-    min-width: 50em;
     padding: 0;
+    min-width: 10em;
+}
+.cmtpartial {
+    min-width: 10em;
 }
 
 .cmtbar .icon {
     float: left;
 }
-
 .cmtbar .icon img {
     display: block;
     padding: 0 10px 0 0;
@@ -76,6 +78,7 @@
 .cmtbar a img { /*comment action buttons*/
     padding: 0 5px;
 }
+
 .commentbody {
     margin-bottom: 15px;
     padding: 0;
