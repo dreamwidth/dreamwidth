@@ -379,9 +379,9 @@ body<=
 
     $ret .= "</div>";
 
-    $ret .= "<div class='action-box'><input type='submit' value='" .
+    $ret .= "<div class='action-box'><div class='inner'><input type='submit' value='" .
         ($mode eq 'create' ? "$ML{'.button.createcommunity'}" : "$ML{'.button.changecommunity2'}") .
-        "' /></div></form>";
+        "' /></div></div><div class='clear-floats'></div></form>";
 
     return $ret;
 }

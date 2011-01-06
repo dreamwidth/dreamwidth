@@ -100,9 +100,9 @@ body<=
     $ret .= LJ::html_hidden(userid => $u->{userid});
     my $val = LJ::did_post() ? $POST{'key'} : $u->prop( 'public_key' );
     $ret .= LJ::html_textarea({name=>'key', value=>$val, rows=>20, cols=>70 });
-    $ret .= "<br /><br /><div class='action-box'>";
+    $ret .= "<br /><br /><div class='action-box'><div class='inner'>";
     $ret .= LJ::html_submit($ML{'.save'});
-    $ret .= "</div>";
+    $ret .= "</div></div><div class='clear-floats'></div>";
     $ret .= "</form>";
     return $ret;
 

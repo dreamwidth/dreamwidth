@@ -455,9 +455,9 @@ body<=
     $ret .= '</div><br />';
 
 
-    $ret .= qq{<div class='action-box'>};
-    $ret .= LJ::html_submit( $ML{'.save'} );
-    $ret .= "</div>";
+    $ret .= qq{<div class='action-box'><ul class='inner nostyle'>};
+    $ret .= "<li>" . LJ::html_submit( $ML{'.save'} ) . "</li>";
+    $ret .= "</div><div class='clear-floats'></div>";
     $ret .= "</form>";
     $ret .= LJ::Hooks::run_hook('sms_footer');
     return $ret;

@@ -87,7 +87,7 @@ body<=
      ### ending submit block
      $ret .= "<?h1 $ML{'.done.title'} h1?>";
      $ret .= "<?p  $ML{'.done.text'} p?>\n";
-     $ret .= "<div class='action-box'><input type='submit' value='$ML{'.submit.button'}' /></div>";
+     $ret .= "<div class='action-box'><ul class='inner nostyle'><li><input type='submit' value='$ML{'.submit.button'}' /></li></ul></div><div class='clear-floats'></div>";
      $ret .= "</form>\n";
 
      return $ret;

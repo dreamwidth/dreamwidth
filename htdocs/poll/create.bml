@@ -479,7 +479,7 @@ _c?>
 
             my $ret;
 
-            $ret .= "<div class='action-box'>";
+            $ret .= "<div class='action-box'><div class='inner'>";
             if ($after >= $RULES{"elements"}->{"max"}) {
                 $ret .= "<?de [$ML{'.elements.limitreached'}] de?>\n";
             } else {
@@ -490,7 +490,7 @@ _c?>
                 $ret .= "</select>\n";
                 $ret .= LJ::html_submit("insert:$after:do", $ML{'.button.insert'}) . "\n";
             }
-            $ret .= "</div>\n";
+            $ret .= "</div></div><div class='clear-floats'></div>\n";
 
             return $ret;
         };

@@ -244,7 +244,7 @@ SUBMIT:
 
         $ret .= "</ol>";
 
-        $ret .= "<div class='action-box'><input type='submit' value=\"$ML{'.btn.create'}\"></div>";
+        $ret .= "<div class='action-box'><div class='inner'><input type='submit' value=\"$ML{'.btn.create'}\"></div></div><div class='clear-floats'></div>";
         $ret .= "</form>";
 
         return $ret;

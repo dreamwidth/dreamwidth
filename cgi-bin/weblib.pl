@@ -433,7 +433,7 @@ sub paging_bar {
     $nav .= "</div>";
     $nav .= " &nbsp; $right";
 
-    return "<div class='action-box'>$nav</div>\n";
+    return "<div class='action-box'><div class='inner'>$nav</div></div><div class='clear-floats'></div>\n";
 }
 
 =head2 C<< LJ::page_change_getargs( %args ) >>
@@ -3659,11 +3659,11 @@ sub subscribe_interface {
     $referer =~ s/index\.bml//;
 
     unless ($settings_page) {
-        $ret .= '<div class="action-box">' .
-            LJ::html_submit(BML::ml('subscribe_interface.save')) . ' ' .
-            ($referer && $referer ne $uri ? "<input type='button' value='".BML::ml('subscribe_interface.cancel')."' onclick='window.location=\"$referer\"' />" : '')
-            . '';
-        $ret .= "</div>";
+        $ret .= '<div class="action-box"><ul class="inner nostyle">'
+            . "<li>" . LJ::html_submit(BML::ml('subscribe_interface.save')) . '</li>' 
+            .
+            ($referer && $referer ne $uri ? "<li><input type='button' value='".BML::ml('subscribe_interface.cancel')."' onclick='window.location=\"$referer\"' /></li>" : '');
+        $ret .= "</div><div class='clear-floats'></div>";
     }
 
     $ret .= "</div>";

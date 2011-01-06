@@ -87,3 +87,7 @@
 a .userpic-img {
     border: none;
 }
+
+.action-box img {
+    display: block;
+}

@@ -88,9 +88,9 @@ body<=
 
         $ret .= "</div>\n";
         $ret .= "<br />\n";
-        $ret .= "<div class='action-box'>\n";
+        $ret .= "<div class='action-box'><div class='inner'>\n";
         $ret .= "<input type='submit' tabindex='3' value=\"$ML{'.btn.change'}\" />\n";
-        $ret .= "</div>\n";
+        $ret .= "</div></div><div class='clear-floats'></div>\n";
         $ret .= "</form>\n";
         return $ret;
     };

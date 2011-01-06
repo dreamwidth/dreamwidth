@@ -180,9 +180,9 @@ sub link_bar
 
     my $ret;
     if ( @linkele ) {
-        $ret = qq{<div class="action-box">} .
-                join("&nbsp;&nbsp;", @linkele) .
-                "</div>";
+        $ret = qq{<div class="action-box"><ul class="nostyle inner"><li>} .
+                join("</li><li>", @linkele) .
+                "</li></ul></div><div class='clear-floats'></div>";
     }
     return $ret;
 }

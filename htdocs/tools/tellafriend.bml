@@ -221,8 +221,8 @@ _c?>
           "<br /><textarea name=body rows=6 cols=55 wrap=soft></textarea>" .
           "$display_msg_footer</blockquote></div></td></tr>\n";
 
- $body .= "<tr><td colspan='2' align='center'><div class='action-box'>" .
-          LJ::html_submit(BML::ml( ".sendbutton" )) . "</div></td></tr>\n";
+ $body .= "<tr><td colspan='2' align='center'><div class='action-box'><div class='inner'>" .
+          LJ::html_submit(BML::ml( ".sendbutton" )) . "</div></div><div class='clear-floats'></div></td></tr>\n";
  $body .= "</table>";
  $body .= "</form>";
 

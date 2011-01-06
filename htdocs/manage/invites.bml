@@ -147,7 +147,7 @@ body<=
 
     # all done
     $ret .= "</table><br />";
-    $ret .= "<div class='action-box'>" . LJ::html_submit('submit', $ML{'.submit'}) . "</div>";
+    $ret .= "<div class='action-box'><ul class='nostyle inner'><li>" . LJ::html_submit('submit', $ML{'.submit'}) . "</li></ul></div><div class='clear-floats'></div>";
     $ret .= "</div></form>";
         
     return $ret;

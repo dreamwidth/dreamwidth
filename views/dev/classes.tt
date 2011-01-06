@@ -228,11 +228,15 @@
     <input type="submit" value="Submit" />
 </div>
 
-<p>action-box displays a box surrounding the element it contains:</p>
+<p>action-box displays a box surrounding the list (ul) of elements it contains:</p>
 <p>Note: probably will be removed in favor of a consistently styled fieldset containing the submit button once we have all the markup fixed</p>
 <div class='action-box'>
-    <input type="submit" value="Submit" />
+    <ul class='nostyle inner'>
+        <li><input type="submit" value="Submit" />
+        <li><input type="submit" value="Delete" />
+    </ul>
 </div>
+<div class='clear-floats'></div>
 
 <input type="submit" class="submit" />
 

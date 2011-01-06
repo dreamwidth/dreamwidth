@@ -190,7 +190,7 @@ body<=
                              value => '0', selected => !$mod_emails });
     $ret .= "<label for='modemail_no'>$ML{'.modemail.no'}</label><br />";
     $ret .= "</fieldset> ";
-    $ret .= "<div class='action-box'>" . LJ::html_submit($ML{'.joinmail.save'}) . "</div>";
+    $ret .= "<div class='action-box'><div class='inner'>" . LJ::html_submit($ML{'.joinmail.save'}) . "</div></div><div class='clear-floats'></div>";
     $ret .= "</form>";
     $ret .= "</div><!-- end .columns-2-left -->";
     $ret .= "<div class='columns-2-right'>";

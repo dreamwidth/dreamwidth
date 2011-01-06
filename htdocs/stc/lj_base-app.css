@@ -93,6 +93,25 @@ div.columns-2-r300 .columns-2-right {
     width: 300px;
 }
 
+.action-box {
+    margin: 0.5em auto 0 auto;
+    /* centering */
+    position: relative;
+    float: right;
+    left: -50%;
+}
+.action-box .inner {
+    padding: 0.5em;
+    position: relative;
+    float: left;
+    left: 50%;
+}
+.action-box li {
+    float: left;
+    position: relative;
+    margin: 0 0.2em;
+}
+
 /* default margin for widgets */
 
 .appwidget {

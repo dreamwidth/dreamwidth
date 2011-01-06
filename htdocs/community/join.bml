@@ -154,7 +154,7 @@ body<=
         my $cancel_text = $ML{'.btn.cancel'};
 
         my $cancel_btn = "<script type='text/javascript' language='Javascript'> \n <!-- \n
-          document.write(\"<input type='button' value='$cancel_text' onclick='history.go(-1); return false;'>\");
+          document.write(\"<li><input type='button' value='$cancel_text' onclick='history.go(-1); return false;'></li>\");
                \n // -->\n </script>";
 
         if ($ci->{membership} ne 'open') {
@@ -162,8 +162,9 @@ body<=
             $ret .= BML::ml('.request.body', { comm => LJ::ljuser($cu) }) . "<br /> p?>";
             $ret .= "<form method='post' action='join?comm=$commuser'>";
             $ret .= LJ::form_auth();
-            $ret .= "<div class='action-box'> <input type='submit' value=\"$ML{'.button.join2'}\" /> ";
-            $ret .= "$cancel_btn </div></form>";
+            $ret .= "<div class='action-box'><ul class='inner nostyle'>"
+                . "<li><input type='submit' value=\"$ML{'.button.join2'}\" /></li>";
+            $ret .= "$cancel_btn</ul></div><div class='clear-floats'></div></form>";
             return $ret;
         }
 
@@ -183,8 +184,9 @@ body<=
         $ret .= "</td></tr><tr>";
         $ret .= "<td>&nbsp;</td><td><span style='font-size: smaller;'>$ML{'.label.addtofriends.note2'}</span></td>";
         $ret .= "</tr></table>";
-        $ret .= "<div class='action-box'><input type='submit' value=\"$ML{'.button.join2'}\" /> ";
-        $ret .= "$cancel_btn</div></form>";
+        $ret .= "<div class='action-box'><ul class='inner nostyle'>"
+            . "<li><input type='submit' value=\"$ML{'.button.join2'}\" /></li>";
+        $ret .= "$cancel_btn</ul></div><div class='clear-floats'></div></form>";
     }
 
     return $ret;

@@ -452,14 +452,10 @@ textarea, input {
     text-align: center;
     background-color: #666666;
 }
-.action-box {
-    display: table;
-    text-align: center;
-    margin: 0.5em auto 0 auto;
-    padding: 0.5em;
-    background-color: #333333;
+.action-box .inner {
     color: #eee;
     border: 1px solid #555555;
+    background-color: #333333;
 }
 
 .select-list input, input.submit {
