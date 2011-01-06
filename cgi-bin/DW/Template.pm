@@ -63,7 +63,6 @@ my $view_engine = Template->new({
     INCLUDE_PATH => "$LJ::HOME/views/",
     NAMESPACE => {
         site => $site_constants,
-        help => Template::Namespace::Constants->new( \%LJ::HELPURL ),
     },
     CACHE_SIZE => $LJ::TEMPLATE_CACHE_SIZE, # this can be undef, and that means cache everything.
     STAT_TTL => $LJ::IS_DEV_SERVER ? 1 : 3600,
