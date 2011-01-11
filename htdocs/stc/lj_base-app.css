@@ -95,6 +95,7 @@ div.columns-2-r300 .columns-2-right {
 
 .action-box {
     margin: 0.5em auto 0 auto;
+    text-align: center;
     /* centering */
     position: relative;
     float: right;
