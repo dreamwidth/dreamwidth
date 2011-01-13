@@ -2685,7 +2685,6 @@ sub control_strip
 {
     my %opts = @_;
     my $user = delete $opts{user};
-    my $baseuri = delete $opts{baseuri};
 
     my $journal = LJ::load_user($user);
     my $show_strip = 1;
@@ -2696,12 +2695,27 @@ sub control_strip
     my $remote = LJ::get_remote();
 
     my $r = DW::Request->get;
-    my $args = $baseuri ? delete $opts{args} : $r->query_string; # use passed in args if we have a passed in location
+    my $passed_in_location = $opts{host} && $opts{uri} ? 1 : 0;
+    my $host = delete $opts{host} || $r->header_in('Host');
+    my $uri = delete $opts{uri} || $r->uri;
+
+    my $args;
+    my $argshash = {};
+    # we need to pass in location explicitly when creating a control strip using JS
+    if ( $passed_in_location ) {
+        $args = delete $opts{args};
+        LJ::decode_url_string( $args, $argshash );
+    } else {
+        $args = $r->query_string;
+        $argshash = $r->get_args;
+    }
+
     my $view = delete $opts{view} || $r->note( 'view' );
 
-    my $uri = $baseuri ? "http://$baseuri" : "http://" . $r->header_in('Host') . $r->uri;
-    $uri .= $args ? "?$args" : "";
-    my $euri = LJ::eurl($uri);
+    my $baseuri = "http://$host$uri";
+
+    $baseuri .= $args ? "?$args" : "";
+    my $euri = LJ::eurl( $baseuri );
     my $create_link = LJ::Hooks::run_hook("override_create_link_on_navstrip", $journal) || "<a href='$LJ::SITEROOT/create'>" . BML::ml('web.controlstrip.links.create', {'sitename' => $LJ::SITENAMESHORT}) . "</a>";
 
     # Build up some common links
@@ -3070,30 +3084,32 @@ LOGIN_BAR
 
     # a quick little routine to use when cycling through the options
     # to create the style links for the nav bar
-    sub make_style_link {
-        return create_url( undef,
+    my $make_style_link = sub {
+        return create_url( $uri,
+            host => $host,
+            cur_args => $argshash,
             # change the style arg
             'args' => { 'style' => $_[0] },
             # keep any other existing arguments
             'keep_args' => 1,
         );
-    }
+    };
 
     # cycle through all possibilities, add the valid ones
     foreach my $view_type qw( mine site light original ) {
         # only want to offer this option if user is logged in and it's not their own journal, since
         # original will take care of that
         if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {
-            push @view_options, "<a href='" . make_style_link( $view_type ) . "'>" .
+            push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle2' ) . "</a>";
         } elsif ( $view_type eq "site" and $current_style ne $view_type and $view eq "entry" ) {
-            push @view_options, "<a href='" . make_style_link( $view_type ) . "'>" .
+            push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.sitestyle' ) . "</a>";
         } elsif ( $view_type eq "light" and $current_style ne $view_type ) {
-            push @view_options, "<a href='" . make_style_link( $view_type ) . "'>" .
+            push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle2' ) . "</a>";
         } elsif ( $view_type eq "original" and $current_style ne $view_type ) {
-            push @view_options, "<a href='" . make_style_link( $view_type ) . "'>" .
+            push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.origstyle2' ) . "</a>";
         }
     }
@@ -3116,7 +3132,8 @@ sub control_strip_js_inject
     my $ret;
 
     my $r = DW::Request->get;
-    my $baseuri = $r->header_in( 'Host' ) . $r->uri;
+    my $host = $r->header_in( 'Host' );
+    my $uri = $r->uri;
     my $args = LJ::eurl( $r->query_string ) || '';
     my $view = $r->note( 'view' ) || '';
 
@@ -3125,7 +3142,7 @@ sub control_strip_js_inject
     function controlstrip_init() {
         if (! \$('lj_controlstrip') ){
             HTTPReq.getJSON({
-              url: "/$user/__rpc_controlstrip?user=$user&baseuri=$baseuri&args=$args&view=$view",
+              url: "/$user/__rpc_controlstrip?user=$user&host=$host&uri=$uri&args=$args&view=$view",
               onData: function (data) {
                   var body = document.getElementsByTagName("body")[0];
                   var div = document.createElement("div");
