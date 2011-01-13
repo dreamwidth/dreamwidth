@@ -1279,7 +1279,7 @@ sub rename_usertag {
     # if so, error and suggest merging the tags
     # FIXME: ask user to merge and then merge
     my $tags = LJ::Tags::get_usertags( $u );
-    return $err->( LJ::Lang::ml( 'taglib.error.exists', { tagname => LJ::ehtml( $oldkw ) } ) )
+    return $err->( LJ::Lang::ml( 'taglib.error.exists', { tagname => LJ::ehtml( $newname ) } ) )
         if $tags->{$newkwid};
 
     # escape sub
