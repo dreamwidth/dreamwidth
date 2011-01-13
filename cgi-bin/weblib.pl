@@ -3102,7 +3102,7 @@ LOGIN_BAR
         if ( $view_type eq "mine" and $current_style ne $view_type and $remote and not $remote->equals( $journal ) ) {
             push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle2' ) . "</a>";
-        } elsif ( $view_type eq "site" and $current_style ne $view_type and $view eq "entry" ) {
+        } elsif ( $view_type eq "site" and $current_style ne $view_type and ( $view eq "entry" or $view eq "reply" ) ) {
             push @view_options, "<a href='" . $make_style_link->( $view_type ) . "'>" .
                 LJ::Lang::ml( 'web.controlstrip.reloadpage.sitestyle' ) . "</a>";
         } elsif ( $view_type eq "light" and $current_style ne $view_type ) {

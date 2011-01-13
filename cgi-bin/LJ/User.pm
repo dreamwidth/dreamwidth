@@ -5733,7 +5733,7 @@ sub viewing_style {
     my %style_types = ( O => "original", M => "mine", S => "site", L => "light" );
 
     my $style;
-    if ( $view eq "entry" ) {
+    if ( $view eq "entry" || $view eq "reply" ) {
         $style = $style_types{ $u->opt_viewentrystyle };
     } else {
         $style = $style_types{ $u->opt_viewjournalstyle };
