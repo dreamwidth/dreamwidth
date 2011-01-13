@@ -399,7 +399,7 @@ sub paging_bar {
     my ( $page, $pages, $opts ) = @_;
 
     my $self_link = $opts->{self_link} ||
-                    sub { BML::self_link( { page => $_[0] } ) };
+                    sub { LJ::page_change_getargs( page => $_[0] ) };
 
     my $href_opts = $opts->{href_opts} || sub { '' };
 
@@ -428,9 +428,9 @@ sub paging_bar {
     }
 
     $nav .= "$left &nbsp; ";
-    $nav .= "<div style='display: inline; text-align: center'>";
+    $nav .= "<span style='text-align: center'>";
     $nav .= join ' ', @pagelinks;
-    $nav .= "</div>";
+    $nav .= "</span>";
     $nav .= " &nbsp; $right";
 
     return "<div class='action-box'><div class='inner'>$nav</div></div><div class='clear-floats'></div>\n";
