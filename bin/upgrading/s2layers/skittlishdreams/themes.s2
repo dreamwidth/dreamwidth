@@ -47,6 +47,8 @@ set color_module_title = "#444";
 ## Images
 ##===============================
 
+set use_action_links_images = false;
+
 set image_background_container_url = "skittlishdreams/academy_shaddow.gif";
 set image_background_entry_url = "skittlishdreams/academy_edge.gif";
 set image_background_footer_url = "skittlishdreams/academy_bgb.gif";
@@ -231,6 +233,8 @@ set color_module_title = "#fff";
 ## Images
 ##===============================
 
+set use_action_links_images = false;
+
 set image_background_container_url = "skittlishdreams/desertcream_shaddow.gif";
 set image_background_entry_url = "skittlishdreams/desertcream_edge.gif";
 set image_background_footer_url = "skittlishdreams/desertcream_bgb.gif";
@@ -355,6 +359,8 @@ set color_module_title = "#fff";
 ## Images
 ##===============================
 
+set use_action_links_images = false;
+
 set image_background_container_url = "skittlishdreams/inthebag_shaddow.gif";
 set image_background_entry_url = "skittlishdreams/inthebag_edge.gif";
 set image_background_footer_url = "skittlishdreams/inthebag_bgb.gif";
@@ -424,6 +430,8 @@ set color_module_title = "#fff";
 ##===============================
 ## Images
 ##===============================
+
+set use_action_links_images = false;
 
 set image_background_container_url = "skittlishdreams/likesunshine_shaddow.gif";
 set image_background_entry_url = "skittlishdreams/likesunshine_edge.gif";
@@ -662,6 +670,8 @@ set color_module_title = "#fff";
 ##===============================
 ## Images
 ##===============================
+
+set use_action_links_images = false;
 
 set image_background_container_url = "skittlishdreams/snowcherries_shaddow.gif";
 set image_background_entry_url = "skittlishdreams/snowcherries_edge.gif";

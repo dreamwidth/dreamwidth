@@ -40,6 +40,10 @@ propgroup presentation {
     property use comment_management_links;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property bool use_action_links_images {
+        des = "Theme has images for the entry/comment links";
+        noui = 1;
+    }
 }
 
 set layout_type = "two-columns-right";
@@ -47,6 +51,7 @@ set sidebar_width = "300px";
 set tags_page_type = "";
 set entryicons_position = "same";
 set custom_colors_template = "%%new%% .userpic a {background-color: %%background%%; border: solid 1px %%foreground%%;}";
+set use_action_links_images = true;
 
 propgroup colors {
     property use color_page_background;
@@ -648,8 +653,11 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 
 .entry-management-links, .entry-interaction-links, .comment-management-links, .comment-interaction-links {text-align: right; margin: 0; padding: 0; display: inline; }
 .entry-management-links li, .entry-interaction-links li,  .comment-management-links li, .comment-interaction-links li {display: inline; list-style: none; margin: 0; padding: 5px; }
-.entry-management-links li a, .comment-management-links li a, .comment-interaction-links .thread a {background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px; }
-.comment-management-links li.unscreen_comment a, .comment-management-links li.screen_comment a, .comment-management-links li.freeze_thread a { padding-left: 0; }
+.comment-management-links li.unscreen_comment a, .comment-management-links li.screen_comment a, .comment-management-links li.freeze_thread a { padding-left: 0; }""";
+
+if ( $*use_action_links_images ) {
+""".entry-management-links li a, .comment-management-links li a, .comment-interaction-links .thread a {background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px; }
+
 .entry-management-links .edit_entry a, .comment-management-links .delete_comment a, .comment-management-links .edit_comment a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_edit.png); }
 .entry-management-links .edit_tags a, .comment-interaction-links .parent a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_tag.png); }
 .entry-management-links .mem_add a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_add.png); }
@@ -658,8 +666,10 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 .entry-management-links .link_next a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_arrow_right.png); }
 .entry-management-links .tell_friend a {background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_tell.png);}
 .entry-interaction-links .entry-readlink a, .entry-interaction-links .entry-permalink a { background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_comments.png); }
-.entry-interaction-links li a, .comment-interaction-links li a { background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_comment.png); background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px;  display: inline; }
+.entry-interaction-links li a, .comment-interaction-links li a { background-image: url($*STATDIR/skittlishdreams/${theme_base_color}_comment.png); background-repeat: no-repeat; background-position: 0% 50%; padding-left: 18px;  display: inline; }""";
+}
 
+"""
 .entry .footer hr {display: none; }
 .entry .metadata-label {font-weight: bold; }
 .full .comment-poster {display: inline-block; min-width: 40%; }
