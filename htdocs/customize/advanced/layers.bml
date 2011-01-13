@@ -199,13 +199,44 @@ _c?>
         $body .= "<table id='table_yourlayers' class='grid' cellpadding='3' border='1'>\n";
         $body .= "<thead><tr><th>$ML{'.yourlayers.table.layerid'}</th><th>$ML{'.yourlayers.table.type'}</th><th>$ML{'.yourlayers.table.name'}</th><th>$ML{'.yourlayers.table.actions'}</th></tr></thead>\n";
         my $lastbase = 0;
-        foreach my $lid (sort {
-                my $parent_a = $ulay->{ $ulay->{$a}->{b2lid} } || $pub->{ $ulay->{$a}->{b2lid} };
-                my $parent_b = $ulay->{ $ulay->{$b}->{b2lid} } || $pub->{ $ulay->{$b}->{b2lid} };
 
-                $parent_a->{name} cmp $parent_b->{name} || $a <=> $b
+        # set up indices for the sort, because it's easier than the convoluted logic
+        # of doing all this within the sort itself
+        my @parentlayernames;
+        my @layernames;
+        my @weight;
+        my %specialnamelayers;
+        my @layerids = keys %$ulay;
+        foreach my $layerid ( @layerids ) {
+            my $parent = $ulay->{ $ulay->{$layerid}->{b2lid} } || $pub->{ $ulay->{$layerid}->{b2lid} };
+            push @parentlayernames, $parent->{name};
 
-            } keys %$ulay)
+            my $layername = $ulay->{$layerid}->{name};
+            push @layernames, $layername;
+
+            my $weight = {
+                    "Auto-generated Customizations" => 1,   # auto-generated
+                    "" => 2                                 # empty
+                }->{$layername};
+            push @weight, $weight;
+
+            $specialnamelayers{$layerid} = 1 if $weight;
+        }
+
+        foreach my $lid ( @layerids[ sort {
+                # alphabetically by parent layer's name
+                $parentlayernames[$a] cmp $parentlayernames[$b]
+
+                # special case empty names and auto-generated customizations (push them to the bottom)
+                || $weight[$a] cmp $weight[$b]
+
+                # alphabetically by layer name (for regular layer names)
+                || $layernames[$a] cmp $layernames[$b]
+
+                # Auto-generated customizations then layers with no name sorted by layer id
+                || $layerids[$a] <=> $layerids[$b]
+
+            } 0..$#layerids ] )
         {
             my $bid = $ulay->{$lid}->{'b2lid'};
             if ($bid != $lastbase) {
@@ -218,9 +249,12 @@ _c?>
 
             # this ensures that 'user' layers are called 'wizard' layers in the user interface
             my $laytype = ( $lay->{'type'} eq 'user' ) ? 'wizard' : $lay->{'type'};
-            my $name = LJ::ehtml($lay->{'name'}) || "<i>$ML{'.yourlayers.noname'}</i>";
+            my $name = LJ::ehtml($lay->{'name'}) || $ML{'.yourlayers.noname'};
+
             my $class = $active_style{$lay->{type}} == $lid ? "class='selected'" : "";
-            $body .= "<tr $class><td><a href='layerbrowse?id=$lid'>$lid</a></td><td>$laytype</td><td>$name</td><td>";
+            my $nameclass = $specialnamelayers{$lid} ? qq{class="detail specialname"} : "";
+
+            $body .= "<tr $class><td><a href='layerbrowse?id=$lid'>$lid</a></td><td>$laytype</td><td $nameclass>$name</td><td>";
             $body .= "<form method='post' style='display:inline' action='layeredit?id=$lid'>";
             $body .= LJ::html_submit('action:edit', $ML{'.btn.edit'}, { disabled => $noactions });
             $body .= "</form>";
@@ -305,5 +339,10 @@ _c?>
 _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
+head<=
+<style type="text/css">
+    .specialname { font-style: italic; }
+</style>
+<=head
 page?>
     
