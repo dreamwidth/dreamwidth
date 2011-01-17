@@ -8927,7 +8927,8 @@ sub make_journal {
 
         my $entry = $opts->{ljentry};
         if ( $entry && $entry->is_suspended_for( $remote ) ) {
-            my $warning = BML::ml( 'error.suspended.entry', { aopts => "href='$u->journal_base/'" } );
+            my $journal_base = $u->journal_base;
+            my $warning = BML::ml( 'error.suspended.entry', { aopts => "href='$journal_base/'" } );
             return $error->( $warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );
         }
     }
