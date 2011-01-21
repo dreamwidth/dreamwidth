@@ -523,7 +523,7 @@ sub session_from_domain_cookie {
 
     my $no_session = sub {
         my $reason = shift;
-        warn "No session found: $reason\n" if $LJ::IS_DEV_SERVER;
+        warn "No session found for domain cookie: $reason\n" if $LJ::IS_DEV_SERVER;
 
         my $rr = $opts->{redirect_ref};
         $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(_current_url()) if $rr;
