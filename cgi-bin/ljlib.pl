@@ -883,7 +883,7 @@ sub auth_digest {
         my $stale = shift;
 
         my $nonce = LJ::challenge_generate(180); # 3 mins timeout
-        my $authline = "Digest realm=\"lj\", nonce=\"$nonce\", algorithm=MD5, qop=\"auth\"";
+        my $authline = "Digest realm=\"$LJ::SITENAMESHORT\", nonce=\"$nonce\", algorithm=MD5, qop=\"auth\"";
         $authline .= ", stale=\"true\"" if $stale;
         $r->header_out("WWW-Authenticate", $authline);
         $r->status_line("401 Authentication required");
