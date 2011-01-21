@@ -915,7 +915,8 @@ sub auth_digest {
 
     # sanity checks
     unless ($authname eq 'Digest' && ( !defined $attrs{'qop'} || $attrs{'qop'} eq 'auth' ) &&
-            $attrs{'realm'} eq 'lj' && (!defined $attrs{'algorithm'} || $attrs{'algorithm'} eq 'MD5')) {
+            $attrs{'realm'} eq $LJ::SITENAMESHORT && (!defined $attrs{'algorithm'} || $attrs{'algorithm'} eq 'MD5')) {
+warn "did not pass sanity checks";
         return $decline->(0);
     }
 
@@ -953,7 +954,7 @@ sub auth_digest {
     # recalculate the hash and compare to response
 
     my $qop = $attrs{qop};
-    my $a1src = $u->user . ':lj:' . $u->password;
+    my $a1src = $u->user . ":$LJ::SITENAMESHORT:" . $u->password;
     my $a1 = Digest::MD5::md5_hex($a1src);
     my $a2src = $r->method . ":$attrs{'uri'}";
     my $a2 = Digest::MD5::md5_hex($a2src);
