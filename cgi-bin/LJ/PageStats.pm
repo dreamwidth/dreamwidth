@@ -13,6 +13,7 @@
 
 package LJ::PageStats;
 use strict;
+use DW::SiteScheme;
 
 my $all_modules;
 
@@ -218,12 +219,7 @@ sub groups {
 }
 
 sub scheme {
-    my ($self) = @_;
-
-    my $scheme = BML::get_scheme();
-    $scheme = (LJ::site_schemes())[0]->{'scheme'} unless $scheme;
-
-    return $scheme;
+    return DW::SiteScheme->current;
 }
 
 sub language {

@@ -7,7 +7,7 @@
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -25,38 +25,65 @@ DW::SiteScheme - SiteScheme related functions
 package DW::SiteScheme;
 use strict;
 
-my %sitescheme_inheritance = (
-    blueshift => 'common',
-    celerity => 'common',
-    common => 'global',
-    'gradation-horizontal' => 'common',
-    'gradation-vertical' => 'common',
-    lynx => 'common',
+our %sitescheme_data = (
+    blueshift => { parent => 'common', title => "Blueshift" },
+    celerity => { parent => 'common', title => "Celerity" },
+    common => { parent => 'global', internal => 1 },
+    'gradation-horizontal' => { parent => 'common', title => "Gradation Horizontal" },
+    'gradation-vertical' => { parent => 'common', title => "Gradation Vertical" },
+    lynx => { parent => 'common', title => "Lynx (light mode)" },
 );
 
-my $default_sitescheme = "blueshift";
+my $data_loaded = 0;
 
-eval "use DW::SiteScheme::Local;";
+our @sitescheme_order = ();
 
-# no POD, should only be called from Local module
-# DW::SiteScheme->register_siteschemes( foo => 'bar' );
-sub register_siteschemes {
-    my ( $self, %data ) = @_;
-    %sitescheme_inheritance = (
-        %sitescheme_inheritance,
-        %data
-    );
+sub __load_data {
+    return if $data_loaded;
+    $data_loaded = 1;
+
+    # function to merge additional site schemes into our base site scheme data
+    # new site scheme row overwrites original site schemes, if there is a conflict
+    my $merge_data = sub {
+        my ( %data ) = @_;
+
+        foreach my $k ( keys %data ) {
+            $sitescheme_data{$k} = { %{ $sitescheme_data{$k} || {} }, %{ $data{$k} } };
+        }
+    };
+
+    my @schemes = @LJ::SCHEMES;
+
+    LJ::Hooks::run_hooks( 'modify_scheme_list', \@schemes, $merge_data );
+
+    # take the final site scheme list (after all modificatios)
+    foreach my $row ( @schemes ) {
+        my $scheme = $row->{scheme};
+
+        # copy over any information from the modified scheme list
+        # into the site scheme data
+        my $targ = ( $sitescheme_data{$scheme} ||= {} );
+        foreach my $k ( keys %$row ) {
+            $targ->{$k} = $row->{$k};
+        }
+        next if $targ->{disabled};
+
+        # and then add it to the list of site schemes
+        push @sitescheme_order, $scheme;
+    }
 }
 
-# no POD, should only be called from Local module
-# DW::SiteScheme->register_siteschemes( 'foo' );
-sub register_default_sitescheme {
-    $default_sitescheme = $_[1];
+=head2 C<< DW::SiteScheme->available >>
+
+=cut
+sub available {
+    $_[0]->__load_data;
+    return map { $sitescheme_data{$_} } @sitescheme_order;
 }
 
-=head2 C<< DW::SiteScheme->determine_current_sitescheme >>
+=head2 C<< DW::SiteScheme->current >>
 
-Determine the siteschehe, using the following in order:
+Get the user's current sitescheme, using the following in order:
 
 =over
 
@@ -66,7 +93,7 @@ Determine the siteschehe, using the following in order:
 
 =item BMLschemepref cookie
 
-=item Default sitescheme
+=item Default sitescheme ( first sitescheme in sitescheme_order )
 
 =item 'global'
 
@@ -74,8 +101,9 @@ Determine the siteschehe, using the following in order:
 
 =cut
 
-sub determine_current_sitescheme {
+sub current {
     my $r = DW::Request->get;
+    $_[0]->__load_data;
 
     my $rv;
 
@@ -84,12 +112,13 @@ sub determine_current_sitescheme {
             $r->get_args->{usescheme} ||
             $r->cookie( 'BMLschemepref' );
     }
+
     return $rv ||
-        $default_sitescheme ||
+        $sitescheme_order[0] ||
         'global';
 }
 
-=head2 C<< DW::SiteScheme->get_sitescheme_inheritance( $scheme ) >>
+=head2 C<< DW::SiteScheme->inheritance( $scheme ) >>
 
 Scheme defaults to the current sitescheme.
 
@@ -97,12 +126,15 @@ Returns the inheritance array, with the provided scheme being at the start of th
 
 =cut
 
-sub get_sitescheme_inheritance {
+sub inheritance {
     my ( $self, $scheme ) = @_;
-    $scheme ||= $self->determine_current_sitescheme;
+    $self->__load_data;
+
+    $scheme ||= $self->current;
+
     my @scheme;
     push @scheme, $scheme;
-    push @scheme, $scheme while ( $scheme = $sitescheme_inheritance{$scheme} );
+    push @scheme, $scheme while ( $scheme = $sitescheme_data{$scheme}->{parent} );
     return @scheme;
 }
 

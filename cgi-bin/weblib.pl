@@ -3805,20 +3805,6 @@ sub pageview_unique_string {
     return $uniq;
 }
 
-# <LJFUNC>
-# name: LJ::site_schemes
-# class: web
-# des: Returns a list of available BML schemes.
-# args: none
-# return: array
-# </LJFUNC>
-sub site_schemes {
-    my @schemes = @LJ::SCHEMES;
-    LJ::Hooks::run_hooks('modify_scheme_list', \@schemes);
-    @schemes = grep { !$_->{disabled} } @schemes;
-    return @schemes;
-}
-
 # sets up appropriate js for journals that need a special statusvis message at the top
 # returns some js that must be added onto the journal page's head
 sub statusvis_message_js {

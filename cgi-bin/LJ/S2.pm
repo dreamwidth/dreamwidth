@@ -903,7 +903,7 @@ sub siteviews_style {
 
     my $public = get_public_layers();
     my $theme = "siteviews/default";
-    foreach my $candidate ( DW::SiteScheme->get_sitescheme_inheritance ) {
+    foreach my $candidate ( DW::SiteScheme->inheritance ) {
         if ( $public->{"siteviews/$candidate"} ) {
             $theme = "siteviews/$candidate";
             last;

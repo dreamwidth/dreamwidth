@@ -15,6 +15,7 @@ package LJ::Setting::SiteScheme;
 use base 'LJ::Setting';
 use strict;
 use warnings;
+use DW::SiteScheme;
 
 sub should_render {
     my ($class, $u) = @_;
@@ -40,7 +41,7 @@ sub option {
 
     my $r = DW::Request->get;
 
-    my @bml_schemes = LJ::site_schemes();
+    my @bml_schemes = DW::SiteScheme->available;
     return "" unless @bml_schemes;
 
     my $show_hidden = $opts{getargs}->{view} && $opts{getargs}->{view} eq "schemes";
@@ -80,7 +81,7 @@ sub error_check {
     return 1 unless $val;
 
     my @scheme_names;
-    foreach my $scheme (LJ::site_schemes()) {
+    foreach my $scheme (DW::SiteScheme->available) {
         push @scheme_names, $scheme->{scheme};
     }
 
@@ -98,7 +99,7 @@ sub save {
 
     my $val = my $cval = $class->get_arg($args, "sitescheme");
     return 1 unless $val;
-    my @bml_schemes = LJ::site_schemes();
+    my @bml_schemes = DW::SiteScheme->available;
 
     # don't set cookie for default scheme
     if ($val eq $bml_schemes[0]->{scheme} && !$LJ::SAVE_SCHEME_EXPLICITLY) {
