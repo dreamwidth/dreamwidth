@@ -1729,7 +1729,7 @@ sub talkform {
         my $cookieuser = defined $form->{cookieuser} ? $form->{cookieuser} : '';
 
         if ( $userpost ne $cookieuser && $usertype ne 'anonymous' ) {
-            $ljuser_def = BML::eall( $form->{userpost} );
+            $ljuser_def = BML::eall( $userpost );
         } else {
             $ljuser_def = $remote->user;
         }
