@@ -261,12 +261,14 @@ sub FriendsPage
     $base .= "/" . LJ::eurl( $group_name )
         if $group_name;
 
+    # these are the same for both previous and next links
+    my %linkvars;
+    $linkvars{show} = $get->{show} if defined $get->{show} && $get->{show} =~ /^\w+$/;
+    $linkvars{date} = $get->{date} if $get->{date};
+    $linkvars{filter} = $get->{filter} + 0 if defined $get->{filter};
+
     # if we've skipped down, then we can skip back up
     if ($skip) {
-        my %linkvars;
-        $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
-        $linkvars{'date'} = $get->{date} if $get->{date};
-        $linkvars{filter} = $get->{filter}+0 if defined $get->{filter};
         my $newskip = $skip - $itemshow;
         if ($newskip > 0) { $linkvars{'skip'} = $newskip; }
         else { $newskip = 0; }
@@ -281,10 +283,6 @@ sub FriendsPage
     ## on the page, but who cares about that ... well, we do now...)
     # Must remember to count $hiddenentries or we'll have no skiplinks when > 1
     unless (($eventnum + $hiddenentries) != $itemshow || $skip == $maxskip || !$is_prev_exist) {
-        my %linkvars;
-        $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
-        $linkvars{'date'} = $get->{'date'} if $get->{'date'};
-        $linkvars{filter} = $get->{filter}+0 if defined $get->{filter};
         my $newskip = $skip + $itemshow;
         $linkvars{'skip'} = $newskip;
         $nav->{'backward_url'} = LJ::make_link($base, \%linkvars);

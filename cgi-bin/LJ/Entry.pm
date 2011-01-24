@@ -1392,7 +1392,7 @@ sub get_log2_recent_log
     my $use_cache = 1;
 
     # timestamp
-    $events_date = int $events_date;
+    $events_date = ( ! defined $events_date || $events_date eq "" ) ? 0 : int $events_date;
     $use_cache = 0 if $events_date; # do not use memcache for dayly friends log
 
     my $memkey  = [$jid, "log2lt:$jid"];

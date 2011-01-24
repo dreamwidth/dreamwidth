@@ -430,7 +430,8 @@ sub clean
             next if !$@ && !$clean_res;
 
             # this is so the rte converts its source to the standard ljuser html
-            my $ljuser_div = $tag eq "div" && $attr->{class} eq "ljuser";
+            my $ljuser_div = defined $tag && $tag eq "div" &&
+                             defined $attr->{class} && $attr->{class} eq "ljuser";
             if ($ljuser_div) {
                 my $ljuser_text = $p->get_text("/b");
                 $p->get_tag("/div");
