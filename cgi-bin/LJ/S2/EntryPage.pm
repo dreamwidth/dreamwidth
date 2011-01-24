@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-#!/usr/bin/perl
 #
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
@@ -342,17 +341,8 @@ sub EntryPage
 
     # print comment info
     {
-        my $canAdmin = $remote && $remote->can_manage( $u ) ? 1 : 0;
-        my $canSpam = LJ::sysban_check( 'spamreport', $u->user ) ? 0 : 1;
-        my $formauth = LJ::ejs(LJ::eurl(LJ::form_auth(1)));
-
-        my $cmtinfo = {
-            form_auth => $formauth,
-            journal   => $u->user,
-            canAdmin  => $canAdmin,
-            canSpam   => $canSpam,
-            remote    => $remote ? $remote->user : undef,
-        };
+        my $cmtinfo = LJ::Comment->info( $u );
+        $cmtinfo->{form_auth} = LJ::ejs( LJ::eurl( LJ::form_auth( 1 ) ) );
 
         my $recurse = sub {
             my ($self, $array) = @_;

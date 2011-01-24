@@ -340,12 +340,11 @@ body<=
 
     # Quick reply variables.  Not always set.
     my ($last_talkid, $last_jid) = LJ::get_lastcomment();
-    my %LJ_cmtinfo;  # data structure to give to javascript for commentmanage
-    $LJ_cmtinfo{form_auth} = LJ::form_auth(1);
-    $LJ_cmtinfo{journal} = $u->user;
-    $LJ_cmtinfo{canAdmin} = $remote && $remote->can_manage( $u ) ? 1 : 0;
-    $LJ_cmtinfo{canSpam} = LJ::sysban_check( 'spamreport', $u->user ) ? 0 : 1;
-    $LJ_cmtinfo{remote} = $remote ? $remote->user : "";
+
+    # data structure to give to javascript for commentmanage
+    my %LJ_cmtinfo = %{ LJ::Comment->info( $u ) };
+    $LJ_cmtinfo{form_auth} = LJ::form_auth( 1 );
+
     my $show_thread_expander = $u->show_thread_expander( $remote );
 
     #

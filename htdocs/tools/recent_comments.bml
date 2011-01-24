@@ -20,7 +20,6 @@ body<=
     use strict;
     use vars qw(%GET %POST);
     my $ret;
-    my %LJ_cmtinfo;
 
     LJ::need_res('js/commentmanage.js');
     LJ::set_active_crumb('managecomments');
@@ -28,19 +27,13 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    $LJ_cmtinfo{'form_auth'} = LJ::form_auth(1);
-    $LJ_cmtinfo{'canAdmin'} = 1;
-    $LJ_cmtinfo{'remote'} = $remote->{user};
-    $LJ_cmtinfo{'journal'} = $remote->{user};
-
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
 
-    my $user = $u->{'user'};
-
-    $LJ_cmtinfo{canSpam} = LJ::sysban_check( 'spamreport', $user ) ? 0 : 1;
+    my %LJ_cmtinfo = %{ LJ::Comment->info( $u ) };
+    $LJ_cmtinfo{form_auth} = LJ::form_auth( 1 );
 
     my $dbcr = LJ::get_cluster_reader($u);
     return "Error: can't get DB for user" unless $dbcr;

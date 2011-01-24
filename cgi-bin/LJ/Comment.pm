@@ -1071,18 +1071,19 @@ sub manage_buttons {
     return $managebtns;
 }
 
-# returns info for javscript comment management
+# returns info for javascript comment management
+# can be used as a class method if $journal is passed explicitly
 sub info {
-    my $self = $_[0];
-    my $remote = LJ::get_remote() or return;
+    my ( $self, $journal ) = @_;
+    my $remote = LJ::get_remote();
+    $journal ||= $self->journal or return {};
 
-    my %LJ_cmtinfo;
-    $LJ_cmtinfo{canAdmin} = $remote->can_manage( $self->journal );
-    $LJ_cmtinfo{canSpam} = ! LJ::sysban_check( 'spamreport', $self->journal->user );
-    $LJ_cmtinfo{journal} = $self->journal->user;
-    $LJ_cmtinfo{remote} = $remote->user;
-
-    return \%LJ_cmtinfo;
+    return {
+        canAdmin => $remote && $remote->can_manage( $journal ),
+        canSpam  => ! LJ::sysban_check( 'spamreport', $journal->user ),
+        journal  => $journal->user,
+        remote   => $remote ? $remote->user : '',
+    };
 }
 
 sub indent {
