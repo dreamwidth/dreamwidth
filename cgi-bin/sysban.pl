@@ -445,20 +445,7 @@ sub sysban_create {
 
     my $exptime = $opts{bandays} ? time() + 86400*$opts{bandays} : 0;
     # special case: creating ip/uniq/spamreport ban
-    if ($opts{'what'} eq 'ip') {
-        LJ::procnotify_add("ban_ip", { 'ip' => $opts{'value'}, exptime => $exptime });
-        LJ::MemCache::delete("sysban:ip");
-    }
-
-    if ($opts{'what'} eq 'uniq') {
-        LJ::procnotify_add("ban_uniq", { 'uniq' => $opts{'value'}, exptime => $exptime});
-        LJ::MemCache::delete("sysban:uniq");
-    }
-
-    if ( $opts{what} eq 'spamreport' ) {
-        LJ::procnotify_add( 'ban_spamreport', { spamreport => $opts{value}, exptime => $exptime } );
-        LJ::MemCache::delete( 'sysban:spamreport' );
-    }
+    LJ::sysban_do( $opts{what}, $opts{value}, $exptime );
 
     # log in statushistory
     my $remote = LJ::get_remote();
@@ -632,6 +619,31 @@ sub sysban_modify {
 
 }
 
+sub sysban_do {
+    my ( $what, $value, $until ) = @_;
+    my %types = ( ip => 1, uniq => 1, spamreport => 1 );
+    return unless $types{$what};
+
+    my $procopts = { $what => $value, exptime => $until };
+
+    LJ::procnotify_add( "ban_$what", $procopts );
+    LJ::MemCache::delete( "sysban:$what" );
+
+    return 1;
+}
+
+sub sysban_undo {
+    my ( $what, $value ) = @_;
+    my %types = ( ip => 1, uniq => 1, spamreport => 1 );
+    return unless $types{$what};
+
+    my $procopts = { $what => $value };
+
+    LJ::procnotify_add( "unban_$what", $procopts );
+    LJ::MemCache::delete( "sysban:$what" );
+
+    return 1;
+}
 
 
 1;

@@ -1752,47 +1752,22 @@ sub procnotify_callback
         return;
     }
 
-    # ip bans
-    if ($cmd eq "ban_ip") {
-        $LJ::IP_BANNED{$arg->{'ip'}} = $arg->{'exptime'};
+    # ip/uniq/spamreport bans
+    my %ban_types = (
+                     ip         => \%LJ::IP_BANNED,
+                     uniq       => \%LJ::UNIQ_BANNED,
+                     spamreport => \%LJ::SPAMREPORT_BANNED,
+                    );
+
+    if ( $cmd =~ /^ban_(\w+)$/ && exists $ban_types{$1} ) {
+        my $banarg = $arg->{$1};
+        $ban_types{$1}->{$banarg} = $arg->{exptime};
         return;
     }
 
-    if ($cmd eq "unban_ip") {
-        delete $LJ::IP_BANNED{$arg->{'ip'}};
-        return;
-    }
-
-    # uniq key bans
-    if ($cmd eq "ban_uniq") {
-        $LJ::UNIQ_BANNED{$arg->{'uniq'}} = $arg->{'exptime'};
-        return;
-    }
-
-    if ($cmd eq "unban_uniq") {
-        delete $LJ::UNIQ_BANNED{$arg->{'uniq'}};
-        return;
-    }
-
-    # spamreport bans
-    if ( $cmd eq "ban_spamreport" ) {
-        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
-        return;
-    }
-
-    if ( $cmd eq "unban_spamreport" ) {
-        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
-        return;
-    }
-
-    # spamreport bans
-    if ( $cmd eq "ban_spamreport" ) {
-        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
-        return;
-    }
-
-    if ( $cmd eq "unban_spamreport" ) {
-        delete $LJ::SPAMREPORT_BANNED{$arg->{spamreport}};
+    if ( $cmd =~ /^unban_(\w+)$/ && exists $ban_types{$1} ) {
+        my $banarg = $arg->{$1};
+        delete $ban_types{$1}->{$banarg};
         return;
     }
 

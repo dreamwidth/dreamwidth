@@ -32,7 +32,7 @@ exit 1 unless GetOptions('list' => \$list,
                          );
 
 # did they give valid input?
-my $an_opt = ($what || $value || $status || $bandate || $banuntil || $note);
+my $an_opt = ($what || $value || $status || $bandate || $banuntil || $banlength || $note);
 unless (($list   && (($banid && ! $an_opt) || (! $banid && $an_opt)) ||
          ($add    && $what && $value) ||
          ($modify && $banid && $an_opt))) {
@@ -56,6 +56,7 @@ unless (($list   && (($banid && ! $an_opt) || (! $banid && $an_opt)) ||
 
 # now load in the beast
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+require 'sysban.pl';
 my $dbh = LJ::get_db_writer();
 
 # list bans
@@ -115,21 +116,7 @@ if ($add) {
     die $dbh->errstr if $dbh->err;
     my $insertid = $dbh->{'mysql_insertid'};
 
-    if ($what eq 'ip') {
-        LJ::procnotify_add("ban_ip", { 'ip' => $value,
-                                       'exptime' => LJ::mysqldate_to_time($banuntil) });
-        LJ::MemCache::delete("sysban:ip");
-    }
-    if ($what eq 'uniq') {
-        LJ::procnotify_add("ban_uniq", { 'uniq' => $value,
-                                         'exptime' => LJ::mysqldate_to_time($banuntil) });
-        LJ::MemCache::delete("sysban:uniq");
-    }
-    if ( $what eq 'spamreport' ) {
-        LJ::procnotify_add( 'ban_spamreport', { spamreport => $value,
-                                                exptime => LJ::mysqldate_to_time( $banuntil ) } );
-        LJ::MemCache::delete( 'sysban:spamreport' );
-    }
+    LJ::sysban_do( $what, $value, LJ::mysqldate_to_time( $banuntil ) );
 
     # log in statushistory
     LJ::statushistory_add(0, 0, 'sysban_add',
@@ -157,22 +144,9 @@ if ($modify) {
         $banuntil && $banuntil ne $ban->{'banuntil'} || 
         ($status && $status ne $ban->{'status'} && $status eq 'expired')) {
 
-        if ($ban->{'what'} eq 'ip') {
-            LJ::procnotify_add("unban_ip", { 'ip' => $value || $ban->{'value'}});
-            LJ::MemCache::delete("sysban:ip");
-        }
-        
-        if ($ban->{'what'} eq 'uniq') {
-            LJ::procnotify_add("unban_uniq", { 'uniq' => $value || $ban->{'value'} });
-            LJ::MemCache::delete("sysban:uniq");
-        }
-
-        if ( $ban->{what} eq 'spamreport' ) {
-            LJ::procnotify_add( 'unban_spamreport', { spamreport => $value || $ban->{value} } );
-            LJ::MemCache::delete( 'sysban:spamreport' );
-        }
+        LJ::sysban_undo( $ban->{what}, $value || $ban->{value} );
     }
-        
+
     # what - must have a value
     if ($what && $what ne $ban->{'what'}) {
         $ban->{'what'} = $what;
@@ -184,25 +158,10 @@ if ($modify) {
         $banuntil && $banuntil ne $ban->{'banuntil'} || 
         ($status && $status ne $ban->{'status'} && $status eq 'active')) {
 
-        my $new_banuntil = $banuntil || $ban->{'banuntil'};
+        my $new_value    = $value || $ban->{value};
+        my $new_banuntil = LJ::mysqldate_to_time( $banuntil || $ban->{banuntil} );
 
-        if ($ban->{'what'} eq 'ip') {
-            LJ::procnotify_add("ban_ip", { 'ip' => $value || $ban->{'value'},
-                                           'exptime' => LJ::mysqldate_to_time($new_banuntil) });
-            LJ::MemCache::delete("sysban:ip");
-        }
-
-        if ($ban->{'what'} eq 'uniq') {
-            LJ::procnotify_add("ban_uniq", { 'uniq' => $value || $ban->{'value'},
-                                             'exptime' => LJ::mysqldate_to_time($new_banuntil) });
-            LJ::MemCache::delete("sysban:uniq");
-       }
-
-        if ( $ban->{what} eq 'spamreport' ) {
-            LJ::procnotify_add( 'ban_spamreport', { spamreport => $value || $ban->{value},
-                                                    exptime => LJ::mysqldate_to_time( $new_banuntil ) } );
-            LJ::MemCache::delete( 'sysban:spamreport' );
-        }
+        LJ::sysban_do( $ban->{what}, $new_value, $new_banuntil );
     }
 
     # value - must have a value
