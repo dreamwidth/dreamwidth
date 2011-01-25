@@ -2483,15 +2483,24 @@ property bool all_commentsubjects {
 }
 
 property string text_noentries_recent {
-    des = "Text to display when there are no entries on the recent or friends views";
+    des = "Text to display when there are no entries on the recent page";
     maxlength = 255;
     size = 50;
+    noui = 1;
+}
+
+property string text_noentries_read {
+    des = "Text to display when there are no entries on the reading page";
+    maxlength = 255;
+    size = 50;
+    noui = 1;
 }
 
 property string text_noentries_day {
     des = "Text to display when there are no entries on the day view";
     maxlength = 255;
     size = 50;
+    noui = 1;
 }
 
 property string text_month_screened_comments { des = "Text to indicate there are screened comments"; }
@@ -2505,6 +2514,7 @@ property string text_comment_posted { des = "Text to display when a comment has 
 set all_entrysubjects = true;
 set all_commentsubjects = false;
 set text_noentries_recent = "There are no entries to display.";
+set text_noentries_read = "There are no earlier entries to display. This page displays only the most recent 1000 entries posted within the last 14 days.";
 set text_noentries_day = "There were no entries on this day.";
 set text_month_screened_comments = "w/ Screened";
 set text_month_form_btn = "View";
@@ -4817,6 +4827,11 @@ function RecentPage::print_navigation( string{} opts ) [fixed] {
         print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
     }
     if ( not $empty ) { "</ul>"; }
+
+    if ( $this isa FriendsPage and $.nav.backward_url == "" and $opts{"class"} == "bottomnav" ) {
+        print safe """<p class="noentries">$*text_noentries_read</p>""";
+    }
+
     """
         </div><!-- navigation>inner -->
     </div><!-- navigation -->

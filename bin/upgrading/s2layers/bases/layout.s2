@@ -643,6 +643,7 @@ $navlinks_css
 .navigation li {display: inline; padding: 0 1em 0 1em; border-right: 0.083em solid $*color_page_border; }
 li.page-separator {display: none;}
 .navigation li + li {margin-left: -0.25em;}
+.noentries { padding: 0 1em; }
 
 /* ====================== ENTRIES ======================= */
 

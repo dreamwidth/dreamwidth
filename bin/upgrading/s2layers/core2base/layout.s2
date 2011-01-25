@@ -437,6 +437,9 @@ h2#pagetitle {
     display: inline;
     padding: 0 .5em;
 }
+.noentries {
+    padding: 0 .5em;
+}
 
 /* entries */
 

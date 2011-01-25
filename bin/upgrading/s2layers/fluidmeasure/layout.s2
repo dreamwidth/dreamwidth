@@ -241,9 +241,9 @@ position: relative; z-index: 130; }
 .navigation { text-align:  right; clear: both; }
 .navigation ul { margin: 0;
     padding: .25em;
-    display: inline;
-    color: $*color_entry_title; }
-.navigation li { background-color: $*color_entry_title_background;
+    display: inline; }
+.navigation li, .noentries { background-color: $*color_entry_title_background;
+    color: $*color_entry_title;
     padding: .5em;
     border-radius: 1em;
     -moz-border-radius: 1em;
@@ -252,6 +252,14 @@ position: relative; z-index: 130; }
 .navigation .page-forward { margin-left: 1em; }
 .navigation a { color: $*color_entry_title; }
 .navigation .page-separator { display: none; }
+
+.page-read .navigation.empty ul {
+    display: block;
+    }
+
+.page-read .navigation.empty ul li {
+    display: block;
+    }
 
 /* entries */
 .entry-wrapper { margin-top: 2em;

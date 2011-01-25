@@ -195,6 +195,25 @@ h2#subtitle {
     display: none;
     }
 
+.page-read .navigation.empty {
+    display: block;
+    padding: 1em;
+    }
+
+.page-read .navigation.empty ul {
+    margin: 0;
+    padding: 0;
+    }
+
+.page-read .navigation.empty ul li {
+    margin: 0;
+    padding: 0;
+    }
+
+.page-read .noentries {
+    font-weight: normal;
+}
+
 li.page-separator {
     display: none;
     }
