@@ -48,7 +48,8 @@ sub interest_handler {
 
     # check whether authentication is needed or authas is allowed
     # default is to allow anonymous users, except for certain modes
-    my ( $anon, $authas ) = ( $mode eq "add" ? 0 : 1, 0 );
+    my $anon = ( $mode eq "add" || $mode eq "addnew" ) ? 0 : 1;
+    my $authas = 0;
     ( $anon, $authas ) = ( 0, 1 )
         if $mode eq ( $did_post ? "enmasse_do" : "enmasse" );
 
@@ -295,7 +296,9 @@ sub interest_handler {
         if ( LJ::is_enabled( 'interests-community' ) ) {
             my $us = $int_query->( "comminterests" );
             my $updated = LJ::get_timeupdate_multi( keys %$us );
-            my @cl = sort { $updated->{$b->id} <=> $updated->{$a->id} || $a->user cmp $b->user }
+            my $def_upd = sub { $updated->{$_[0]->userid} || 0 };
+            # let undefined values be zero for sorting purposes
+            my @cl = sort { $def_upd->($b) <=> $def_upd->($a) || $a->user cmp $b->user }
                      grep { $_ && $should_show->( $_ ) } values %$us;
             $rv->{int_comms} = { count => scalar @cl, data => [] };
             foreach ( @cl ) {
@@ -331,7 +334,7 @@ sub interest_handler {
 
         # check to see if the remote user already has the interest
         $rv->{not_interested} = ! $remote->interests->{$interest}
-            if $remote;
+            if $remote && defined $interest;
 
         return DW::Template->render_template( 'interests/int.tt', $rv );
     }
