@@ -522,8 +522,8 @@ sub create_view_atom
 
         # author isn't required if it is in the main <feed>
         # only add author if we are in a single entry view, or
-        # the journal entry isn't owned by the journal owner. (communities)
-        if ( $opts->{'single_entry'} || $journalu->email_raw ne $poster->email_raw ) {
+        # the journal entry isn't owned by the journal. (communities)
+        if ( $opts->{single_entry} || ! $journalu->equals( $poster ) ) {
             my $author = XML::Atom::Person->new( Version => 1 );
             $author->email( $poster->email_visible ) if $poster->email_visible;
             $author->name(  $poster->{name} );
@@ -576,10 +576,19 @@ sub create_view_atom
             $entry_xml->getDocumentElement->appendChild( $category );
         }
 
-        if ($it->{'music'}) {
-            my $music = $entry_xml->createElement( 'lj:music' );
-            $music->appendTextNode( $it->{'music'} );
-            $entry_xml->getDocumentElement->appendChild( $music );
+        my @currents = ( [ 'music'       => $it->{music}      ],
+                         [ 'mood'        => $it->{mood}       ],
+                         [ 'security'    => $it->{security}   ],
+                         [ 'reply-count' => $it->{replycount} ],
+                       );
+
+        foreach ( @currents ) {
+            my ( $key, $val ) = @$_;
+            if ( defined $val ) {
+                my $elem = $entry_xml->createElement( "lj:$key" );
+                $elem->appendTextNode( $val );
+                $entry_xml->getDocumentElement->appendChild( $elem );
+            }
         }
 
         # if syndicating the complete entry
