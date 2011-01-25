@@ -52,11 +52,11 @@ function IconsPage::print_title() {
     $*SITEVIEWS->set_content("title",$this->view_title());
 }
 
-function IconsPage::print_body() {
-    if ( $*SITEVIEWS ) {
-        $*SITEVIEWS->need_res( "stc/allpics.css" );
-    }
+function IconsPage::print_default_stylesheet() {
+    $*SITEVIEWS->need_res( "stc/allpics.css" );
+}
 
+function IconsPage::print_body() {
     var int piccount = 0;
     if ( size($.icons) == 0 ) {
         """<h1>$*text_icons_page_empty_header</h1><p>""";
