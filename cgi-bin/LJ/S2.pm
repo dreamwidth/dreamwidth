@@ -33,6 +33,7 @@ use LJ::S2::MonthPage;
 use LJ::S2::EntryPage;
 use LJ::S2::ReplyPage;
 use LJ::S2::TagsPage;
+use LJ::S2::IconsPage;
 use Storable;
 use Apache2::Const qw/ :common /;
 use POSIX ();
@@ -110,6 +111,11 @@ sub make_journal
             return;
         }
 
+        if ( ! $ctx->[S2::PROPS]->{use_journalstyle_icons_page} && ( $view eq "icons" ) ) {
+            ${$opts->{'handle_with_bml_ref'}} = 1;
+            return;
+        }
+
         # make sure capability supports it
         if (($view eq "entry" || $view eq "reply") &&
             ! LJ::get_cap(($opts->{'checkremote'} ? $remote : $u), "s2view$view")) {
@@ -140,6 +146,7 @@ sub make_journal
         entry    => "EntryPage",
         tag      => "TagsPage",
         network  => "FriendsPage",
+        icons   => "IconsPage",
     };
 
     if (my $class = $view2class->{$view}) {
@@ -1249,8 +1256,11 @@ sub alias_renamed_props
     $ctx->[S2::PROPS]->{reverse_sortorder_year} = $ctx->[S2::PROPS]->{page_year_sortorder} eq 'reverse' ? 1 : 0
         if exists $ctx->[S2::PROPS]->{page_year_sortorder};
 
-    $ctx->[S2::PROPS]->{use_journalstyle_entry_page} = ! $ctx->[S2::PROPS]->{view_entry_disabled}
-        if exists $ctx->[S2::PROPS]->{view_entry_disabled};
+    # Not adding the new views to core1, force non-entry use_journalstyle_ to 0 for core1
+    if ( exists $ctx->[S2::PROPS]->{view_entry_disabled} ) {
+        $ctx->[S2::PROPS]->{use_journalstyle_entry_page} = ! $ctx->[S2::PROPS]->{view_entry_disabled};
+        $ctx->[S2::PROPS]->{use_journalstyle_icons_page} = 0;
+    }
 }
 
 # use the "grouped_property_override" property to determine whether a custom property should override a default property.

@@ -8966,7 +8966,7 @@ sub make_journal {
 
         # intercept flag to handle_with_bml_ref and instead use siteviews
         # FIXME: Temporary, till everything is converted.
-        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && $geta->{fallback} eq "s2" ) {
+        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && ( $geta->{fallback} eq "s2" || { icons => 1, tag => 1 }->{$view} ) ) {
             $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
         }
 

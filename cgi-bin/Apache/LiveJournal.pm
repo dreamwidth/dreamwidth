@@ -614,11 +614,6 @@ sub trans
 
             return redir($r, "$LJ::SITEROOT/update.bml?usejournal=".$u->{'user'});
         }
-        
-        if ( $opts->{mode} eq "icons" ) {
-            $r->notes->{_journal} = $opts->{user};
-            return $bml_handler->( "$LJ::HOME/htdocs/allpics.bml" );
-        }
 
         %RQ = %$opts;
 

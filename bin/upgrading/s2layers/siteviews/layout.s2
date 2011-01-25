@@ -24,7 +24,7 @@ function Page::print() {
         $this->print_default_stylesheet();
         $this->print_theme_stylesheet();
         $*SITEVIEWS->set_content("head",$*SITEVIEWS->end_capture());
-        $*SITEVIEWS->set_content("windowtitle",$this->view_title());
+        $this->print_title();
 
         $this->print_body();
     } else {
@@ -32,8 +32,122 @@ function Page::print() {
     }
 }
 
+function Page::print_title() {
+    # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate.
+    $*SITEVIEWS->set_content("windowtitle",$this->view_title());
+}
+
 function Page::print_default_stylesheet() {
     # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
 }
 
 function Page::print_theme_stylesheet() {}
+
+# IconsPage
+
+set text_icons_keyword_sep = ", ";
+set text_icons_inactive = "[Inactive]";
+
+function IconsPage::print_title() {
+    $*SITEVIEWS->set_content("title",$this->view_title());
+}
+
+function IconsPage::print_body() {
+    if ( $*SITEVIEWS ) {
+        $*SITEVIEWS->need_res( "stc/allpics.css" );
+    }
+
+    var int piccount = 0;
+    if ( size($.icons) == 0 ) {
+        """<h1>$*text_icons_page_empty_header</h1><p>""";
+        if ( $.can_manage ) {
+            """You don't have any icons uploaded. <a href="$*SITEROOT/editpics">Upload an icon here</a>.""";
+        } else {
+            """$.journal hasn't uploaded any icons. You can <a href="$*SITEROOT/manage/subscriptions/user?journal=$.journal.username">be notified</a> when $.journal uploads an icon, if you want.""";
+        }
+    } else {    
+        """<h1>$*text_icons_page_header</h1><p>""";
+        print "These are the icons for ";
+        print $.journal;
+        print ". ";
+        if ( $.can_manage ) {
+            """Would you like to <a href="$*SITEROOT/editpics">upload a new icon or edit your icon keywords, comments, and descriptions</a>?""";
+        } else {
+            """We can <a href="$*SITEROOT/manage/subscriptions/user?journal=$.journal.username">notify</a> you when this account uploads a new one.""";
+        }
+        """</p><p>""";
+        var int sort_ct = 0;
+        foreach var string k ($.sort_keyseq) {
+            var string text = lang_icon_sortorder_title($k);
+            if ( $k == $.sortorder ) {
+                print safe """$text""";
+            } else {
+                print safe """<a href='$.sort_urls{$k}'>$text</a>""";
+            }
+            if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
+        }
+        """</p><table class='allpics'>""";
+        foreach var Icon i ($.icons) {
+            $piccount++;
+
+            if ($piccount % 2 == 1) {
+                """<tr>""";
+            }
+
+            $i->print();
+
+            if ($piccount % 2 == 1) {
+                """<td class='blank'></td>""";
+            } else {
+                """</tr>\n""";
+            }
+        }
+        if ($piccount) {
+            if ($piccount % 2 == 1) {
+            }
+            """</table>""";
+        } else {
+        }
+
+        $.pages->print({ "anchor" => "" });
+    }
+}
+
+function Icon::print() {
+    """<td class='pic'>""";
+    
+    """<a href="$.link_url">"""; $.image->print(); """</a>""";
+
+    """</td><td class='desc'>""";
+
+    if ( $.default ) {
+        print safe """<u>$*text_icons_default</u><br/>""";
+    }
+
+    if ( not $.active ) {
+        print safe """<em>$*text_icons_inactive</em><br/>""";
+    }
+
+    if ( size $.keywords ) {
+        var int count = 0;
+        print safe """<strong>$*text_icons_keywords</strong> """;
+        foreach var string kw ( $.keywords ) {
+            $count++;
+            print safe $kw;
+            if ( $count < size $.keywords ) {
+                print safe $*text_icons_keyword_sep;
+            }
+        }
+        """<br/>""";
+    }
+
+    if ( $.comment ) {
+        print safe """<strong>$*text_icons_comment</strong> $.comment<br/>""";
+    }
+
+    if ( $.description ) {
+        print safe """<strong>$*text_icons_description</strong> $.description<br/>""";
+    }
+
+    """</td>""";
+}

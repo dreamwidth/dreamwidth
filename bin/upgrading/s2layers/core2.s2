@@ -458,6 +458,22 @@ class Comment extends EntryLite
 
 }
 
+class Icon
+"Represents a single icon"
+{
+    var readonly Image image "Information about the icon";
+    var readonly string[] keywords "All keywords";
+    var readonly string comment "Comment text";
+    var readonly string description "Description text";
+    var readonly string link_url "URL this image links to when clicked";
+
+    var readonly bool default "If this icon is the default";
+    var readonly bool active "If this icon is active";
+
+    function print() "Prints the icon";
+}
+
+
 ### Userinfo
 
 class Friend extends UserLite
@@ -635,6 +651,18 @@ class Page
 
     function builtin print_trusted(string key)
     "Prints a trusted string by key.";
+}
+
+class IconsPage extends Page
+"A detail page listing a user's icons."
+{
+    var readonly bool can_manage "Can the current user manage these icons.";
+    var readonly Icon[] icons "List of the icons on the current page.";
+    var readonly ItemRange pages "All pages";
+    var readonly string sortorder "Current sort order. Can be 'upload' or 'keyword'.";
+
+    var readonly string{} sort_urls "An associative array of link for various sort orders.";
+    var readonly string[] sort_keyseq "A list of sort orders, indicated by key.";
 }
 
 class TagsPage extends Page
@@ -1098,11 +1126,23 @@ property int num_items_reading {
 set num_items_recent = 20;
 set num_items_reading = 20;
 
+property int num_items_icons {
+    des = "Number of icons to show on the icons page, or 0 for no pagination";
+    doc_flags = "[construct]";
+}
+set num_items_icons = 0;
+
 property string tags_page_type { 
-    des = "Type of tags display on tags page"; 
-    values="list|List|cloud|Cloud|multi|Multilevel"; 
+    des = "Type of tags display on tags page";
+    values="list|List|cloud|Cloud|multi|Multilevel";
 }
 set tags_page_type = "multi";
+
+property string icons_page_sort {
+    des = "Default sort order for icons page";
+    values="upload|Upload Order|keyword|Keyword Order";
+}
+set icons_page_sort = "upload";
 
 property string[] reverse_sortorder_group {
     des = "Display entries in reverse-chronological order on my:";
@@ -1159,6 +1199,9 @@ set show_userpics_comments = true;
 # was !view_entry_disabled
 property bool use_journalstyle_entry_page  { des = "Show entry pages in my journal style rather than the site layout"; }
 set use_journalstyle_entry_page = true;
+
+property bool use_journalstyle_icons_page  { des = "Show icons page in my journal style rather than the site layout"; }
+set use_journalstyle_icons_page = false;
 
 # Defaults to false, but layouts can set it to true to switch on custom colors for different posters on reading list.
 property bool use_custom_friend_colors  { des = "Use my custom reading list colors"; }
@@ -1997,6 +2040,13 @@ property string text_view_memories {
     example = "My Memories";
 }
 
+property string text_view_icons {
+    des = "Text used to link to the Icons page";
+    maxlength = 40;
+    "size" = 15;
+    example = "Icons";
+}
+
 property string text_view_tags {
     des = "Text used to link to the 'Tags' page";
     maxlength = 40;
@@ -2015,6 +2065,7 @@ set text_view_archive = "Archive";
 set text_view_userinfo = "Profile";
 set text_view_memories = "Memories";
 set text_view_tags = "Tags";
+set text_view_icons = "Icons";
 
 property string text_skiplinks_back {
     des = "Text to show in a link to skip back through entries";
@@ -2357,6 +2408,71 @@ set text_comment_link = "Link";
 set text_comment_thread = "Thread";
 set text_comment_threadroot = "Thread from start";
 set text_comment_expand = "Expand";
+
+##===============================
+## Text - icons 
+##===============================
+
+property string text_icons_page_header {
+    des = "Text for the header of the Icons page";
+    example = "Current Icons";
+}
+
+property string text_icons_page_empty_header {
+    des = "Text for the header of the Icons page when it is empty";
+    example = "No Icons";
+}
+
+property string text_icons_keywords {
+    des = "Text for the list of keywords";
+    example = "Keywords:";
+}
+
+property string text_icons_comment {
+    des = "Text for the icon comment";
+    example = "Comment:";
+}
+
+property string text_icons_description {
+    des = "Text for the icon description";
+    example = "Description:";
+}
+
+property string text_icons_default {
+    des = "Text for the default icon";
+    example = "Default";
+}
+
+property string text_icons_inactive {
+    des = "Text for inactive icons";
+    example = "Inactive";
+}
+
+property string text_icons_keyword_sep {
+    des = "Text to separate items in a list of keywords";
+    example = ",";
+}
+
+property string text_icons_sort_upload {
+    des = "Text for sort by upload order link";
+    example = "Upload Order";
+}
+
+property string text_icons_sort_keyword {
+    des = "Text for sort by keyword link";
+    example = "Keyword Order";
+}
+
+set text_icons_page_header = "Current Icons";
+set text_icons_page_empty_header = "No Icons";
+set text_icons_keywords = "Keywords:";
+set text_icons_comment = "Comment:";
+set text_icons_description = "Description:";
+set text_icons_keyword_sep = ",";
+set text_icons_default = "Default";
+set text_icons_inactive = "Inactive";
+set text_icons_sort_upload = "Upload Order";
+set text_icons_sort_keyword = "Keyword Order";
 
 ##===============================
 ## Text - tags 
@@ -2963,6 +3079,7 @@ function lang_viewname(string viewid) [notags] : string
             return $*text_view_friends;
         }
     }
+    if ($viewid == "icons") { return $*text_view_icons; }
     if ($viewid == "network") { return $*text_view_network; }
     if ($viewid == "day") { return "Day"; }
     if ($viewid == "month") { return "Month"; }
@@ -2996,6 +3113,20 @@ function lang_metadata_title(string which) [fixed] : string
         return $which;
     }
 }
+
+function lang_icon_sortorder_title(string which) [fixed] : string
+    "Get a human-readable caption for an icons sort order key. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout. Sets strings according to layer or wizard supplied string properties."
+    {
+        if ($which == "upload") {
+            return $*text_icons_sort_upload;
+        }
+        elseif ($which == "keyword") {
+            return $*text_icons_sort_keyword;
+        }
+        else {
+            return $which;
+        }
+    }
 
 ### Navigation
 
@@ -5579,6 +5710,66 @@ function ReplyPage::print_body
         $this->print_comment($c);
     }
     $.form->print();
+}
+
+### IconsPage functions
+
+function IconsPage::print_body {
+    print safe "<div class='icons-container'><h2>$*text_icons_page_header</h2><div class='inner'>";
+    """<div><ul>""";
+    var int sort_ct = 0;
+    foreach var string k ($.sort_keyseq) {
+        var string text = lang_icon_sortorder_title($k);
+        if ( $k == $.sortorder ) {
+            print safe """<li class='$k active'>$text""";
+        } else {
+            print safe """<li class='$k'><a href='$.sort_urls{$k}'>$text</a>""";
+        }
+        if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
+        """</li>""";
+    }
+    """</ul></div>""";
+    $.pages->print();
+    foreach var Icon i ($.icons) {
+        $i->print();
+    }
+    $.pages->print();
+    print safe "</div></div>";
+}
+
+function Icon::print {
+    var string default_class = $.default ? "icon-default" : "";
+    var string inactive_class = $.active ? "" : "icon-inactive";
+
+    """<div class="icon $default_class $inactive_class">""";
+    """<a href="$.link_url">"""; $.image->print(); """</a>""";
+    if ($.default) {
+        print safe "<div class='default label'>$*text_icons_default</div>";
+    }
+    if (not $.active) {
+        print safe "<div class='inactive label'>$*text_icons_inactive</div>";
+    }
+    if ($.keywords) {
+        """<div class="keywords">""";
+        var int keyword_count = 0;
+        print safe "<span class='label'>$*text_icons_keywords</span> ";
+        """<ul>""";
+        foreach var string kw ($.keywords) {
+            $keyword_count++;
+            """<li>""";
+            print safe $kw;
+            if ($keyword_count < size $.keywords) { print $*text_icons_keyword_sep; }
+            """</li>""";
+        }
+        """</ul></div>""";
+    }
+    if ($.comment) {
+        print safe "<div class='comment'><span class='comment-text'>$*text_icons_comment</span> $.comment</div>";
+    }
+    if ($.description) {
+        print safe "<div class='description'><span class='description-text'>$*text_icons_description</span> $.description</div>";
+    }
+    """</div>""";
 }
 
 ### TagsPage functions
