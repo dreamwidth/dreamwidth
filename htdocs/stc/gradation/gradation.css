@@ -487,6 +487,12 @@ textarea, input {
     background: #333333;
     color: #fff;
 }
+.searchhighlight {
+    background: #333;
+    color: #fff;
+    padding: 0.2em;
+    font-weight: bold;
+}
 .inset-box {
     background: #111;
     border: 1px solid #888;

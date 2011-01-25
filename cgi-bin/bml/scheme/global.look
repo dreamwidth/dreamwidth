@@ -164,12 +164,6 @@ _code?>
 AL=>{P}<i><a href="%%data1%%">%%data2%%</a></i> <img src="/img/external_link.gif" width='16' height='11' align='absmiddle' />
 AWAYLINK=>{P}<i><a href="%%data1%%">%%data2%%</a></i> <img src="/img/external_link.gif" width='16' height='11' align='absmiddle' />
 
-SEARCHCSS<=
-{S}<style>
-span.searchhighlight { background-color: #ff0; }
-</style>
-<=SEARCHCSS
-
 H1=>{D}<h1>%%data%%</h1>
 H2=>{D}<h2>%%data%%</h2>
 

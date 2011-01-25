@@ -118,7 +118,6 @@ _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code  return $body; _code?>
 head<=
-<?searchcss?>
 <style type="text/css">
 ul.spaced li { margin-top: 0.7em; }
 </style>

@@ -278,6 +278,9 @@ highlight-box: small boxes of content important enough to give focus to, but not
     <li class="selected">item 3</li>
 </ul>
 
+<p>.searchhighlight</p>
+<p>Some search results with <span class='searchhighlight'>highlighted</span> text. <a href="#">A <span class='searchhighlight'>highlight</span>ed link</a> </p>
+
 <h3>Other Basic HTML Elements</h3>
 
 <h1>h1: automatically inserted as a page title on every page</h1>
