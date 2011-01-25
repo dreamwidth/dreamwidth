@@ -8934,10 +8934,15 @@ sub make_journal {
     }
     return $error->( BML::ml( 'error.purged.text' ), "410 Gone", BML::ml( 'error.purged.name' ) ) if $u->is_expunged;
 
+    my %valid_identity_views = (
+        read => 1,
+        res  => 1,
+        icons => 1,
+    );
     # FIXME: pretty this up at some point, to maybe auto-redirect to
     # the external URL or something, but let's just do this for now
     # res is a resource, such as an external stylesheet
-    if ( $u->is_identity && ! ( $view eq "read" || $view eq "res" ) ) {
+    if ( $u->is_identity && !$valid_identity_views{$view} ) {
         my $location = $u->openid_identity;
         my $warning = BML::ml( 'error.nojournal.openid', { aopts => "href='$location'", id => $location } );
         return $error->( $warning, "404 Not here" );
