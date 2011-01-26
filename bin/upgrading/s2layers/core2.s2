@@ -3851,11 +3851,25 @@ function close_module() {
     close_module(false);
 }
 
-function print_module_list(string[] list) {
+function print_module_list(string[] list)
+"Takes a straight list of strings, prints them out as a list for a module"
+{
     if (size $list) {
         println """<ul class="module-list">""";
         foreach var string s ($list) {
             print safe """<li class="module-list-item">$s</li>\n""";
+        }
+        println """</ul>""";
+    }
+}
+
+function print_module_list(string{}[] list)
+"Takes a list of hashes in the form of [ { class => list_of_classes, item => list_item_contents }], prints them out as a list for a module"
+{
+    if (size $list) {
+        println """<ul class="module-list">""";
+        foreach var string{} s ($list) {
+            print safe """<li class="module-list-item $s{"class"}">$s{"item"}</li>\n""";
         }
         println """</ul>""";
     }
@@ -3899,17 +3913,39 @@ function print_module_userprofile() {
     close_module(); 
 }
 
-function print_module_navlinks() {
+function print_module_navlinks( bool apply_class_to_link ) {
     var Page p = get_page();
     open_module("navlinks", "", "");
-    var string[] links = [];
-    foreach var string k ($p.views_order) {
-        var string css = """ class="$k" """;
-        if ($p.view == $k) { $css = """ class="current $k" """; }
-        $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+
+    if ( $apply_class_to_link ) {
+        var string[] links = [];
+        foreach var string k ($p.views_order) {
+            var string css = """ class="$k" """;
+            if ($p.view == $k) { $css = """ class="current $k" """; }
+            $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+
+        }
+        print_module_list($links);
+    } else {
+        var string{}[] links = [];
+
+        foreach var string k ($p.views_order) {
+            var string class = $k;
+            if ($p.view == $k) { $class = "current $k"; }
+            $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
+        }
+        print_module_list($links);
     }
-    print_module_list($links);
+
     close_module();
+
+}
+
+function print_module_navlinks() {
+    # prints as   <li><a class="current view...">
+    # styles may override and change to print_module_navlinks( false )
+    # to print as <li class="current view...">
+    print_module_navlinks( true );
 }
 
 function print_module_time() {
