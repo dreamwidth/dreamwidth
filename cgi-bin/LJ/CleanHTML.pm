@@ -130,6 +130,7 @@ sub clean
     my $noexpand_embedded = $opts->{'noexpandembedded'} || $opts->{'textonly'} || 0;
     my $transform_embed_nocheck = $opts->{'transform_embed_nocheck'} || 0;
     my $transform_embed_wmode = $opts->{'transform_embed_wmode'};
+    my $rewrite_embed_param = $opts->{rewrite_embed_param} || 0;
     my $remove_colors = $opts->{'remove_colors'} || 0;
     my $remove_sizes = $opts->{'remove_sizes'} || 0;
     my $remove_fonts = $opts->{'remove_fonts'} || 0;
@@ -360,6 +361,14 @@ sub clean
                     });
                     next TOKEN;
                 }
+            }
+
+            if ( $tag eq "embed" && $rewrite_embed_param ) {
+                $attr->{allowscriptaccess} = "sameDomain" if exists $attr->{allowscriptaccess} && $attr->{allowscriptaccess} ne 'never';
+            }
+
+            if ( $tag eq "param" && $rewrite_embed_param && $opencount{object} && lc( $attr->{name} ) eq 'allowscriptaccess' ) {
+                $attr->{value} = "sameDomain" if $attr->{value} ne 'never';
             }
 
             if ($tag eq "span" && lc $attr->{class} eq "ljuser" && ! $noexpand_embedded) {
@@ -1466,6 +1475,7 @@ sub clean_event
         'remove_fonts' => $opts->{'remove_fonts'} ? 1 : 0,
         'transform_embed_nocheck' => $opts->{'transform_embed_nocheck'} ? 1 : 0,
         'transform_embed_wmode' => $opts->{'transform_embed_wmode'},
+        rewrite_embed_param => $opts->{rewrite_embed_param} ? 1 : 0,
         'suspend_msg' => $opts->{'suspend_msg'} ? 1 : 0,
         'unsuspend_supportid' => $opts->{'unsuspend_supportid'},
         to_external_site => $opts->{to_external_site} ? 1 : 0,
@@ -1497,6 +1507,7 @@ sub clean_embed {
         extractimages => 0,
         noexpandembedded => 1,
         transform_embed_nocheck => 1,
+        rewrite_embed_param => 1,
     });
 }
 

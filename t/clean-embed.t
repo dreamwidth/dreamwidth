@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 23;
+use Test::More tests => 25;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
@@ -27,10 +27,21 @@ $clean_post = qq{<object></object>};
 $clean->();
 is( $orig_post, $clean_post, "basic <object>" );
 
+note("<object> and <embed> tags, params different case");
+$orig_post  = qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowScrIpTaccess" value="always"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowScrIptAccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
+$clean_post = qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowScrIpTaccess" value="sameDomain"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowscriptaccess="sameDomain" allowfullscreen="true" width="640" height="385"></embed></object>};
+$clean->();
+is( $orig_post, $clean_post, "<object> and <embed> tags" );
 
 note("<object> and <embed> tags");
 $orig_post  = qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
-$clean_post = qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
+$clean_post = qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="sameDomain"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowscriptaccess="sameDomain" allowfullscreen="true" width="640" height="385"></embed></object>};
+$clean->();
+is( $orig_post, $clean_post, "<object> and <embed> tags" );
+
+note("<object> and <embed> tags, keep never");
+$orig_post  = qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="never"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowscriptaccess="never" allowfullscreen="true" width="640" height="385"></embed></object>};
+$clean_post = qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="never"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowscriptaccess="never" allowfullscreen="true" width="640" height="385"></embed></object>};
 $clean->();
 is( $orig_post, $clean_post, "<object> and <embed> tags" );
 
@@ -52,7 +63,7 @@ is( $orig_post, $clean_post, "<iframe> tag" );
 my $id = "ABC123abc-_";
 note("trusted site: youtube");
 $orig_post = qq{<object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
-$clean_post = qq{<object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
+$clean_post = qq{<object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="sameDomain"></param><embed src="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="sameDomain" allowfullscreen="true" width="640" height="385"></embed></object>};
 $clean->();
 is( $orig_post, $clean_post, "old-style embeds" );
 

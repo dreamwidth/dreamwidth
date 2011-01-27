@@ -171,4 +171,12 @@ $cut_text = qq{<em>in</em>};
 $clean->( { cut_retrieve => 2 } );
 is( $orig_post, $cut_text, "Text under inner cut, HTML" );
 
+# embed tags
+
+note("<object> and <embed> tags");
+$orig_post  = qq{<object width="640" height="385"><param name="movie" value="http://www.example.com/video"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.example.com/video" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
+$clean_post = qq{};
+$clean->();
+is( $orig_post, $clean_post, "<object> and <embed> tags" );
+
 1;
