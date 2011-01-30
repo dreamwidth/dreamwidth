@@ -282,12 +282,13 @@ sub watch_items
 
             # sort all the total items by rlogtime (recent at beginning).
             # if there's an in-second tie, the "newer" post is determined by
+            # the later eventtime (if known/different from rlogtime), then by
             # the higher jitemid, which means nothing if the posts aren't in
             # the same journal, but means everything if they are (which happens
-            # almost never for a human, but all the time for RSS feeds, once we
-            # remove the synsucker's 1-second delay between postevents)
-            @items = sort { $a->{'rlogtime'} <=> $b->{'rlogtime'} ||
-                            $b->{'jitemid'}  <=> $a->{'jitemid'}     } @items;
+            # almost never for a human, but all the time for RSS feeds)
+            @items = sort { $a->{rlogtime}  <=> $b->{rlogtime}  ||
+                            $b->{eventtime} <=> $a->{eventtime} ||
+                            $b->{jitemid}   <=> $a->{jitemid}     } @items;
 
             # cut the list down to what we need.
             @items = splice(@items, 0, $getitems) if (@items > $getitems);
@@ -553,7 +554,7 @@ sub recent_items
                allowmask, eventtime, logtime
         FROM log2 USE INDEX ($sort_key)
         WHERE journalid=$userid $sql_select $secwhere $jitemidwhere $securitywhere $posterwhere
-        ORDER BY journalid, $sort_key
+        ORDER BY journalid, $sort_key, jitemid DESC
         $sql_limit
     };
 

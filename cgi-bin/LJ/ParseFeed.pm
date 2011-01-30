@@ -104,7 +104,6 @@ sub parse_feed
         $item->{'text'} = $_->{'description'};
         $item->{'link'} = $_->{'link'} if $_->{'link'};
         $item->{'id'} = $_->{'guid'} if $_->{'guid'};
-        $item->{author} = $_->{dc}->{creator} if $_->{dc} && $_->{dc}->{creator};
 
         my $nsdc = 'http://purl.org/dc/elements/1.1/';
         my $nsenc = 'http://purl.org/rss/1.0/modules/content/';
@@ -114,17 +113,22 @@ sub parse_feed
                 if defined $_->{$nsenc}->{'encoded'};
         }
 
-        if ($_->{'pubDate'}) {
-            my $time = time822_to_time($_->{'pubDate'});
-            $item->{'time'} = $time if $time;
+        my ( $time, $dc_ref );
+        $time = time822_to_time( $_->{pubDate} ) if $_->{pubDate};
+
+        if ( $_->{$nsdc} && ref $_->{$nsdc} eq "HASH" ) {
+            $dc_ref = $_->{$nsdc};
+        } elsif ( $_->{dc} && ref $_->{dc} eq "HASH" ) {
+            $dc_ref = $_->{dc};
         }
-        if ($_->{$nsdc} && ref($_->{$nsdc}) eq "HASH") {
-            if ($_->{$nsdc}->{date}) {
-                my $time = w3cdtf_to_time($_->{$nsdc}->{date});
-                $item->{'time'} = $time if $time;
-            }
+
+        if ( defined $dc_ref ) {
+            $item->{author} = $dc_ref->{creator} if $dc_ref->{creator};
+            $time = w3cdtf_to_time( $dc_ref->{date} ) if $dc_ref->{date};
         }
-        push @{$feed->{'items'}}, $item;
+
+        $item->{time} = $time if $time;
+        push @{ $feed->{items} }, $item;
     }
 
     return ($feed, undef, $feed->{'items'});

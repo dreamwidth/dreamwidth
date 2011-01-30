@@ -170,7 +170,14 @@ sub parse_items_from_feed {
     # another sanity check
     return ( 0, { type => "noitems" } ) unless ref $feed->{items} eq "ARRAY";
 
-    my @items = reverse @{$feed->{'items'}};
+    my @items = reverse @{ $feed->{items} } or
+        return ( 0, { type => "noitems" } );
+
+    # If the feed appears to be datestamped, resort chronologically,
+    # from earliest to latest - oldest entries are posted first, below.
+    my $timesort = sub { LJ::mysqldate_to_time( $_[0]->{time} ) };
+    @items = sort { $timesort->($a) <=> $timesort->($b) } @items
+        if $items[0]->{time};
 
     # take most recent 20
     splice( @items, 0, @items - $num ) if @items > $num;
