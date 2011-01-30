@@ -122,14 +122,13 @@ sub get_content {
     return [$res, $content];
 }
 
-sub process_content {
-    my ($urow, $resp, $verbose) = @_;
-
-    my ($res, $content) = @$resp;
-    my ($user, $userid, $synurl, $lastmod, $etag, $readers) =
-        map { $urow->{$_} } qw(user userid synurl lastmod etag numreaders);
-
-    my $dbh = LJ::get_db_writer();
+# helper function which takes feed XML
+# and returns a list of $num items from the feed
+# in proper order
+sub parse_items_from_feed {
+    my ( $content, $num, $verbose ) = @_;
+    $num ||= 20;
+    return ( 0, { type => "noitems" } ) unless defined $content;
 
     # WARNING: blatant XML spec violation ahead...
     #
@@ -165,18 +164,52 @@ sub process_content {
     }
 
     # parsing time...
-    my ($feed, $error) = LJ::ParseFeed::parse_feed($content);
-    if ($error) {
-        # parse error!
-        print "Parse error! $error\n" if $verbose;
-        delay($userid, 3*60, "parseerror");
-        $error =~ s! at /.*!!;
-        $error =~ s/^\n//; # cleanup of newline at the beginning of the line
-        my $syn_u = LJ::load_user( $user );
-        $syn_u->set_prop( "rssparseerror", $error ) if $syn_u;
-        return;
+    my ( $feed, $error ) = LJ::ParseFeed::parse_feed( $content );
+    return ( 0, { type => "parseerror", message => $error } ) if $error;
+
+    # another sanity check
+    return ( 0, { type => "noitems" } ) unless ref $feed->{items} eq "ARRAY";
+
+    my @items = reverse @{$feed->{'items'}};
+
+    # take most recent 20
+    splice( @items, 0, @items - $num ) if @items > $num;
+
+    return ( 1, { items => \@items, feed => $feed } );
+}
+
+
+sub process_content {
+    my ($urow, $resp, $verbose) = @_;
+
+    my ($res, $content) = @$resp;
+    my ($user, $userid, $synurl, $lastmod, $etag, $readers) =
+        map { $urow->{$_} } qw(user userid synurl lastmod etag numreaders);
+
+    my $dbh = LJ::get_db_writer();
+
+    my ( $ok, $rv ) = parse_items_from_feed( $content, 20, $verbose );
+    unless ( $ok ) {
+        if ( $rv->{type} eq "parseerror" ) {
+            # parse error!
+            delay( $userid, 3*60, "parseerror" );
+            if ( my $error = $rv->{message} ) {
+                print "Parse error! $error\n" if $verbose;
+                $error =~ s! at /.*!!;
+                $error =~ s/^\n//; # cleanup of newline at the beginning of the line
+                my $syn_u = LJ::load_user( $user );
+                $syn_u->set_prop( "rssparseerror", $error ) if $syn_u;
+            }
+            return;
+        } elsif ( $rv->{type} eq "noitems" ) {
+            return delay( $userid, 3*60, "noitems" );
+        } else {
+            print "Unknown error type!\n" if $verbose;
+            return delay( $userid, 3*60, "unknown" );
+        }
     }
 
+    my $feed = $rv->{feed};
     # register feeds that can support hubbub.
     if ( LJ::is_enabled( 'hubbub' ) && $feed->{self} && $feed->{hub} ) {
         # this is a square operation.  register every "self" and the feed url along
@@ -191,15 +224,7 @@ sub process_content {
         }
     }
 
-    # another sanity check
-    unless (ref $feed->{'items'} eq "ARRAY") {
-        return delay($userid, 3*60, "noitems");
-    }
-
-    my @items = reverse @{$feed->{'items'}};
-
-    # take most recent 20
-    splice(@items, 0, @items-20) if @items > 20;
+    my @items = @{$rv->{items}};
 
     # delete existing items older than the age which can show on a
     # friends view.
