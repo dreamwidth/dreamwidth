@@ -916,7 +916,6 @@ sub auth_digest {
     # sanity checks
     unless ($authname eq 'Digest' && ( !defined $attrs{'qop'} || $attrs{'qop'} eq 'auth' ) &&
             $attrs{'realm'} eq $LJ::SITENAMESHORT && (!defined $attrs{'algorithm'} || $attrs{'algorithm'} eq 'MD5')) {
-warn "did not pass sanity checks";
         return $decline->(0);
     }
 

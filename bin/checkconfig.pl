@@ -184,7 +184,16 @@ my %modules = (
                    'opt' => "Required for country lookup with IP address.",
                },
                "GTop" => {},
+               "Apache2::RequestRec"   => {
+                   'deb' => "libapache2-mod-perl2",
+                   'opt' => "Required for modperl2",
+               },
+               "Apache2::Request"      => {
+                   'deb' => "libapache2-request-perl",
+                   'opt' => "Required for Apache2",
+               },
                );
+
 
 sub check_modules {
     print "[Checking for Perl Modules....]\n"
