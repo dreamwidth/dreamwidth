@@ -7,7 +7,7 @@
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -117,6 +117,11 @@ sub create_url {
     return LJ::create_url( $_[1], %{ $_[2] || {} } );
 }
 
+
+sub img {
+    my $self = shift;
+    return LJ::img(@_);
+}
 =head1 AUTHOR
 
 =over

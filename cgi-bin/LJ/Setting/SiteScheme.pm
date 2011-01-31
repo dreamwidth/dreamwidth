@@ -45,7 +45,7 @@ sub option {
     return "" unless @bml_schemes;
 
     my $show_hidden = $opts{getargs}->{view} && $opts{getargs}->{view} eq "schemes";
-    my $sitescheme = $class->get_arg( $args, "sitescheme" ) || BML::get_scheme() || $r->cookie( 'BMLschemepref' ) || $bml_schemes[0]->{scheme};
+    my $sitescheme = $class->get_arg( $args, "sitescheme" ) || DW::SiteScheme->current;
 
     my $ret;
     foreach my $scheme (@bml_schemes) {

@@ -1,0 +1,19 @@
+_parent=>global.look
+page<=
+{Fps}<?_code
+use DW::Template;
+use DW::Request;
+
+my $r = DW::Request->get;
+my $scheme = $r->pnote('actual_scheme');
+die "Somehow we went down the TT path for a BML scheme" unless $scheme && $scheme->engine eq 'tt';
+
+return BML::ebml( DW::Template->render_scheme( $scheme, $_[2]->{BODY}, {
+    windowtitle => $_[2]->{WINDOWTITLE},
+    title => $_[2]->{TITLE},
+    head => $_[2]->{HEAD},
+    bodyopts => $_[2]->{BODYOPTS},
+    contentopts => $_[2]->{CONTENTOPTS}
+} ) );
+_code?>
+<=page

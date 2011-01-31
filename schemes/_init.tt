@@ -1,0 +1,4 @@
+[%- USE dw -%]
+[%- USE dw_scheme -%]
+[%- FOREACH current_scheme IN inheritance -%][%- PROCESS $current_scheme -%][%- END -%]
+[%- PROCESS block.page -%]

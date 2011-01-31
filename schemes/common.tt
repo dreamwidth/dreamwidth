@@ -1,0 +1,152 @@
+[%#
+Common code for all Dreamwidth site schemes, refactored for inheritance.
+
+ Authors:
+    Jen Griffin <kareila@livejournal.com>
+    Andrea Nall <anall@andreanall.com>
+ Based on Blueshift Site Scheme, authored by:
+    Emily Ravenwood <ravenwood@alltrees.org>
+    Denise Paolucci <denise@dreamwidth.org>
+ Which was in turn based on Tropospherical Red, authored by:
+    Janine Smith <janine@netrophic.com>
+    Jesse Proulx <jproulx@jproulx.net>
+    Elizabeth Lubowitz <grrliz@gmail.com>
+
+Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+%][%- BLOCK block.need_res -%]
+[%- END -%]
+
+[%- BLOCK block.head -%]
+<head>
+    <title>[% sections.windowtitle || sections.title %]</title>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    [%- PROCESS block.need_res -%]
+    [% dw_scheme.res_includes %]
+    [% sections.head %]
+</head>
+[%- END -%]
+
+[%- BLOCK block.logo -%]
+<span id='sitename'><a href="[% site.root %]/">[% site.nameshort %]</a></span>
+[%- END -%]
+
+[%- BLOCK block.footer -%]
+<ul>
+    <li><a href="[% site.root %]/legal/privacy">[% 'sitescheme.footer.legal.privacypolicy' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/legal/tos">[% 'sitescheme.footer.legal.tos' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/legal/diversity">[% 'sitescheme.footer.legal.diversitystatement' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/legal/principles">[% 'sitescheme.footer.legal.guidingprinciples' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/site/">[% 'sitescheme.footer.sitemap' | ml %]</a> &bull; </li>
+    <li><a href="[% site.root %]/site/suggest">[% 'sitescheme.footer.suggestion' | ml %]</a></li>
+</ul>
+<p>[% 'sitescheme.footer.info' | ml %]</p>
+[%- END -%]
+
+[%- userpic_class = 'account-links-userpic' -%]
+[%- BLOCK block.userpic -%]
+<div id='[% userpic_class %]'><a href='[% site.root %]/editicons'>
+    [%- IF remote -%][%- userpic = remote.userpic -%]
+        [%- IF userpic && ! is_ssl -%]
+            <img src='[% userpic.url %]' [% userpic.img_fixedsize( 'width', 80, 'height', 80 ) %] alt=[% 'sitescheme.accountlinks.userpic.alt' | ml %] />
+        [%- ELSE -%]
+            [%- dw.img( "nouserpic_sitescheme", "", { ssl => 1} ) -%]
+        [%- END -%]
+    [%- END -%]
+</a></div>
+[%- END -%]
+
+[%- account_link_options = {} -%]
+[%- BLOCK block.accountlinks -%]
+[%- IF remote -%]
+    [%- IF ! account_link_options.no_userpic -%]
+        [%- PROCESS block.userpic -%]
+    [%- END -%]
+    [%- inbox = remote.notification_inbox -%]
+    [%- unread = inbox.unread_count -%]
+    [%- identity = remote.is_identity -%]
+    [%- -%]<div id='account-links-text'>
+    [%- -%]<form action='[% site.root %]/logout?ret=1' method='post'>
+    [%- remote.ljuser_display -%]
+    [%- -%]<input type='hidden' name='user' value='[% remote.user %]' />
+    [%- -%]<input type='hidden' name='sessid' value='[% remote._session.sessid %]' />
+    [%- -%]<input type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
+    [%- -%]</form>
+    [%- -%]<ul>
+    [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a>  &bull; </li>[%- END -%]
+    [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a> &bull; </li>
+    [%- -%]<li><a href='[% site.root %]/inbox/'>[% 'sitescheme.accountlinks.inbox' | ml %]
+    [%- IF unread -%] <span id='Inbox_Unread_Count'>([% unread %])</span>[%- END -%]
+    [%- -%]</a> &bull; </li>
+    [%- -%]<li><a href='[% site.root %]/manage/settings/'>[% 'sitescheme.accountlinks.account' | ml %]</a></li> <br />
+    [%- IF ! identity -%]<li><a href='[% site.root %]/manage/circle/invite'>[% 'sitescheme.accountlinks.invitefriend' | ml %]</a> &bull; </li>[%- END -%]
+    [%- -%]<li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
+    [%- -%]</div>
+[%- ELSE -%]
+    [%- chal = dw_scheme.challenge_generate(300) -%]
+    [%- -%]<form action='[% site.root %]/login?ret=1' method='post'>
+    [%- -%]<input type="hidden" name="returnto" value="[% get.returnto %]" />
+    [%- -%]<input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
+    <input type='hidden' name='response' class='lj_login_response' value='' />
+    <table summary='' id='login-table'>
+    [%- -%]<tr><td><label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label></td>
+    [%- -%]<td class='input-cell' colspan='2'><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" />
+    [%- %] <a href='[% site.root %]/openid/' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></td></tr>
+    [%- -%]<tr><td><label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label></td>
+    [%- -%]<td class='input-cell' colspan='2'><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true">
+    [%- %] <a href='[% site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></td></tr>
+    [%- -%]<tr><td>&nbsp;</td>
+    [%- -%]<td class='remember-me-cell'>
+    [%- -%]<input type="checkbox" name="remember_me" id="login_remember_me" value="1" tabindex="3" />
+    [%- %] <label for='login_remember_me'>[% 'sitescheme.accountlinks.login.rememberme' | ml %]</label></td>
+    [%- -%]<td><input type="submit" name="login" value="[% 'sitescheme.accountlinks.btn.login' | ml %]" tabindex="4"/></td>
+    [%- -%]</tr></table></form>
+[%- END -%]
+[%- END -%]
+
+[%- BLOCK block.pagediv -%]
+<div id="page">
+    <div id="masthead">
+        <span id="logo">
+            [% PROCESS block.logo %]
+        </span>
+    </div>
+
+    <div id="content" [% sections.contentopts %]>
+    <h1>[% sections.title %]</h1>
+    [% content %]
+    </div>
+    <div id="account-links">
+        [% PROCESS block.accountlinks %]
+    </div>
+    <div id="menu">
+        [% PROCESS block.menunav %]
+    </div>
+    <div id="header-search">
+        [% dw_scheme.search_render %]
+    </div>
+    <div id="footer">
+        [% PROCESS block.footer %]
+    </div>
+</div>
+[%- END -%]
+
+[%- canvas_opts = "" -%]
+[%- BLOCK block.page -%]
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    [% PROCESS block.head %]
+    <body [% sections.bodyopts %]>
+        <div id="canvas" [% canvas_opts %]>
+            [% PROCESS block.pagediv %]
+        </div>
+        [% dw_scheme.final_body_html %]
+    </body>
+</html>
+[%- END -%]

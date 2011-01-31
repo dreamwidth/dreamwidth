@@ -11,7 +11,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 <div class="login-container">
   <div class="appwidget appwidget-login" id="protected_login"> 
-    <form action="[% IF usessl %][% site.sslroot %][% ELSE %][% site.root %][% END %]/login" method="post" class="lj_login_form pkg"> 
+    <form action="[% IF usessl %][% site.ssl.root %][% ELSE %][% site.root %][% END %]/login" method="post" class="lj_login_form pkg">
     <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4> 
       [% dw.form_auth() %]
       <input type="hidden" name="chal" class="lj_login_chal" value="[% chal %]" /> 

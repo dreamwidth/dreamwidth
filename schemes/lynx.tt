@@ -1,0 +1,38 @@
+[%- BLOCK block.page -%]
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="home" title="[% 'lynx.nav.home' | ml %]" href="[% site.root %]/" />
+<link rel="contents" title="[% 'lynx.nav.sitemap' | ml %]" href="[% site.root %]/site/" />
+<link rel="help" title="[% 'lynx.nav.help' | ml %]" href="[% site.root %]/support/" />
+[% dw_scheme.need_res(
+    'stc/jquery/jquery.ui.theme.smoothness.css',
+    'stc/lj_base-app.css',
+    'stc/lynx/lynx.css' ) %]
+<style>
+    #Comments q { padding-left: 2.5em; font-style: italic; }
+</style>
+<title>[% sections.windowtitle || sections.title %]</title>
+[% dw_scheme.res_includes %]
+[% sections.head %]
+</head>
+
+<body [% sections.bodyopts %]>
+
+[% content %]
+
+<hr />
+<p>[ <a href='[% site.root %]/'>[% 'lynx.nav.home' | ml %]</a> | <a href='[% site.root %]/update'>[% 'lynx.nav.update' | ml %]</a> |
+[%- IF remote %][% baseurl = remote.journal_base %]
+<a href='[% baseurl %]/'>[% 'lynx.nav.recent' | ml %]</a> | <a href='[% baseurl %]/read'>[% 'lynx.nav.friends' | ml %]</a> |
+<a href='[% site.root %]/logout'>[% 'lynx.nav.logout' | ml %]</a> | [% remote.ljuser_display %] |
+[%- ELSE %]
+<a href='[% site.root %]/login'>[% 'lynx.nav.login' | ml %]</a> | 
+[%- END %]
+<a href='[% site.root %]/tools/search'>[% 'lynx.nav.search' | ml %]</a> | 
+<a href='[% site.root %]/manage/settings/'>[% 'lynx.nav.siteopts' | ml %]</a> | 
+<a href='[% site.root %]/site/'>[% 'lynx.nav.sitemap' | ml %]</a> ]</p>
+[% dw_scheme.final_body_html %]
+</body>
+</html>
+[%- END -%]

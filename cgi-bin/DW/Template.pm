@@ -7,7 +7,7 @@
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -47,7 +47,10 @@ my $site_constants = Template::Namespace::Constants->new({
 
     root    => $LJ::SITEROOT,
     imgroot => $LJ::IMGPREFIX,
-    sslroot => $LJ::SSLROOT,
+    ssl => {
+        root => $LJ::SSLROOT,
+        imgroot => $LJ::SSLIMGPREFIX,
+    },
 
     help => \%LJ::HELPURL,
 
@@ -73,6 +76,19 @@ my $view_engine = Template->new({
         dw => 'DW::Template::Plugin',
     },
     PRE_PROCESS => '_init.tt',
+});
+
+my $scheme_engine = Template->new({
+    INCLUDE_PATH => "$LJ::HOME/schemes/",
+    NAMESPACE => {
+        site => $site_constants,
+    },
+    CACHE_SIZE => $LJ::TEMPLATE_CACHE_SIZE, # this can be undef, and that means cache everything.
+    STAT_TTL => $LJ::IS_DEV_SERVER ? 1 : 3600,
+    PLUGINS => {
+        dw => 'DW::Template::Plugin',
+        dw_scheme => 'DW::Template::Plugin::SiteScheme'
+    },
 });
 
 =head1 API
@@ -228,8 +244,15 @@ sub render_string {
     $r->status( $extra->{status} ) if $extra->{status};
     $r->content_type( $extra->{content_type} ) if $extra->{content_type};
 
+    my $scheme = DW::SiteScheme->get;
+
     if ( $extra->{no_sitescheme} ) {
         $r->print( $out );
+
+        return $r->OK;
+    } elsif ( $scheme->engine eq 'tt' ) {
+        $r->content_type("text/html; charset=utf-8");
+        $r->print( $class->render_scheme( $scheme, $out, $extra ) );
 
         return $r->OK;
     } else {
@@ -238,6 +261,39 @@ sub render_string {
 
         return $r->call_bml("$LJ::HOME/htdocs/misc/render_sitescheme.bml");
     }
+}
+
+=head2 C<< $class->render_scheme( $sitescheme, $body, $sections ) >>
+
+Render the body and sections in a TT sitescheme
+
+=over
+
+=item B< sitescheme >
+
+A DW::SiteScheme object
+
+=back
+
+=cut
+
+sub render_scheme {
+    my ( $class, $scheme, $body, $sections ) = @_;
+    my $r = DW::Request->get;
+
+    my $out;
+
+    my $opts = $scheme->get_vars;
+    $opts->{sections} = $sections;
+    $opts->{inheritance} = [ map { "$_.tt" } reverse $scheme->inheritance ];
+    $opts->{content} = $body;
+    $opts->{is_ssl} = $LJ::IS_SSL;
+    $opts->{get} = $r->get_args;
+
+    $scheme_engine->process( "_init.tt", $opts, \$out )
+        or die Template->error();
+
+    return $out;
 }
 
 =head1 AUTHOR
@@ -250,7 +306,7 @@ sub render_string {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

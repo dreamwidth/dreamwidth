@@ -32,11 +32,66 @@ our %sitescheme_data = (
     'gradation-horizontal' => { parent => 'common', title => "Gradation Horizontal" },
     'gradation-vertical' => { parent => 'common', title => "Gradation Vertical" },
     lynx => { parent => 'common', title => "Lynx (light mode)" },
+    global => { engine => 'bml' },
+    tt_runner => { engine => 'bml', internal => 1 },
 );
 
 my $data_loaded = 0;
 
 our @sitescheme_order = ();
+
+sub get {
+    my ( $class, $scheme ) = @_;
+    $scheme ||= $class->current;
+
+    $scheme = $sitescheme_order[0] unless exists $sitescheme_data{$scheme};
+
+    return $class->new($scheme);
+}
+
+# should not be called directly
+sub new {
+    my ( $class, $scheme ) = @_;
+
+    return bless { scheme => $scheme }, $class;
+}
+
+sub tt_file {
+    return $_[0]->{scheme} . '.tt';
+}
+
+sub engine {
+    return $sitescheme_data{$_[0]->{scheme}}->{engine} || 'tt';
+}
+
+=head2 C<< DW::SiteScheme->inheritance( $scheme ) >>
+
+Scheme defaults to the current sitescheme.
+
+Returns the inheritance array, with the provided scheme being at the start of the list.
+
+Also works on a DW::SiteScheme object
+
+=cut
+
+sub inheritance {
+    my ( $self, $scheme ) = @_;
+    DW::SiteScheme->__load_data;
+
+    $scheme = $self->{scheme} if ref $self;
+
+    $scheme ||= $self->current;
+    my @scheme;
+    push @scheme, $scheme;
+    push @scheme, $scheme while ( $scheme = $sitescheme_data{$scheme}->{parent} );
+    return @scheme;
+}
+
+sub get_vars {
+    return {
+        remote => LJ::get_remote()
+    };
+}
 
 sub __load_data {
     return if $data_loaded;
@@ -116,26 +171,6 @@ sub current {
     return $rv ||
         $sitescheme_order[0] ||
         'global';
-}
-
-=head2 C<< DW::SiteScheme->inheritance( $scheme ) >>
-
-Scheme defaults to the current sitescheme.
-
-Returns the inheritance array, with the provided scheme being at the start of the list.
-
-=cut
-
-sub inheritance {
-    my ( $self, $scheme ) = @_;
-    $self->__load_data;
-
-    $scheme ||= $self->current;
-
-    my @scheme;
-    push @scheme, $scheme;
-    push @scheme, $scheme while ( $scheme = $sitescheme_data{$scheme}->{parent} );
-    return @scheme;
 }
 
 1;

@@ -1,0 +1,22 @@
+[%- BLOCK block.menunav -%]
+<ul>[%- nav_links = dw_scheme.menu_nav -%]
+[% FOREACH cathash IN nav_links -%]
+    [%- cat = cathash.name -%][%- submenu = cathash.items -%]
+    [%- displayed = [] -%]
+    [%- FOREACH item IN submenu -%]
+        [%- IF item.display -%]
+            [%- v = BLOCK -%]
+                <li class='subnav'><a href='[% item.url %]'>[% item.text | ml(item.text_opts) %]</a></li>
+            [%- END; displayed.push(v) -%]
+        [%- END -%]
+    [%- END -%]
+    [%- IF displayed.size -%]
+<li id='[% cat %]_topnav' class='topnav'><a href='[% site.root %]/nav/[% cat %]'>[% "menunav.$cat" | ml %]</a>
+<ul id='[% cat %]_subnav' class='subnav_container'>
+[% displayed.join("\n") %]
+</ul>
+</li>
+    [%- END -%]
+[%- END %]
+</ul>
+[%- END -%]
