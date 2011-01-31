@@ -875,11 +875,12 @@ sub checkforupdates
         if (@LJ::MEMCACHE_SERVERS) {
             my $tu = LJ::get_timeupdate_multi({ memcache_only => 1 }, @fr);
             my $max = 0;
-            while ($_ = each %$tu) {
-                $max = $tu->{$_} if $tu->{$_} > $max;
+            foreach ( values %$tu ) {
+                $max = $_ if $_ > $max;
             }
             $update = LJ::mysql_time($max) if $max;
-        } else {
+        }
+        unless ( $update ) {
             my $dbr = LJ::get_db_reader();
             unless ($dbr) {
                 # rather than return a 502 no-db error, just say no updates,
