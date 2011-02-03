@@ -386,7 +386,7 @@ sub process_content {
             'username' => $user,
             'ver' => 1,
             'subject' => $it->{'subject'},
-            'event' => "$author$htmllink$it->{'text'}",
+            'event' => "$author$htmllink$it->{'text'}$htmllink",
             'year' => $year,
             'mon' => $mon,
             'day' => $day,
