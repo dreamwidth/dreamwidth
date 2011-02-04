@@ -554,7 +554,7 @@ sub recent_items
                allowmask, eventtime, logtime
         FROM log2 USE INDEX ($sort_key)
         WHERE journalid=$userid $sql_select $secwhere $jitemidwhere $securitywhere $posterwhere
-        ORDER BY journalid, $sort_key, jitemid DESC
+        ORDER BY journalid, $sort_key
         $sql_limit
     };
 
@@ -579,10 +579,13 @@ sub recent_items
     while (my $li = $sth->fetchrow_hashref) {
         push @{$args{'itemids'}}, $li->{'itemid'};
 
+        my $sortdate = { rlogtime => 'system_alldatepart',
+                         revttime => 'alldatepart' }->{$sort_key};
+
         $flush->() unless defined $last_time &&
-                          $li->{alldatepart} eq $last_time;
+                          $li->{$sortdate} eq $last_time;
         push @buf, $li;
-        $last_time = $li->{alldatepart};
+        $last_time = $li->{$sortdate};
 
         # construct an LJ::Entry singleton
         my $entry = LJ::Entry->new($userid, jitemid => $li->{itemid});
