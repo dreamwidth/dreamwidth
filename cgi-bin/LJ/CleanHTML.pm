@@ -162,6 +162,10 @@ sub clean
     if (ref $opts->{'remove'} eq "ARRAY") {
         foreach (@{$opts->{'remove'}}) { $action{$_} = "deny"; $remove{$_} = 1; }
     }
+    if (ref $opts->{'conditional'} eq "ARRAY") {
+        foreach (@{$opts->{'conditional'}}) { $action{$_} = "conditional"; }
+    }
+
 
     $action{'script'} = "eat";
 
@@ -413,6 +417,23 @@ sub clean
                 $p->unget_token($token);
                 $p->get_tag("/$tag");
                 next;
+            }
+
+            # force this specific instance of the tag to be allowed (for conditional)
+            my $force_allow = 0;
+            if (defined $action{$tag} and $action{$tag} eq "conditional") {
+                if ( $tag eq "iframe" ) {
+                    $force_allow = LJ::Hooks::run_hook( 'allow_iframe_embeds', $attr->{src} );
+                    unless ( $force_allow ) {
+                        ## eat this tag
+                        if (!$attr->{'/'}) {
+                            ## if not autoclosed tag (<iframe />),
+                            ## then skip everything till the closing tag
+                            $p->get_tag("/iframe");
+                        }
+                        next TOKEN;
+                    }
+                }
             }
 
             # try to call HTMLCleaner's element-specific cleaner on this open tag
@@ -823,7 +844,10 @@ sub clean
                     my $allow;
                     if ($mode eq "allow") {
                         $allow = 1;
-                        if (defined $action{$tag} and $action{$tag} eq "deny") { $allow = 0; }
+                        if ( defined $action{$tag} and $action{$tag} eq "deny" ) { $allow = 0; }
+                        if ( defined $action{$tag} and $action{$tag} eq "conditional" ) {
+                            $allow = $force_allow;
+                        }
                     } else {
                         $allow = 0;
                         if (defined $action{$tag} and $action{$tag} eq "allow") { $allow = 1; }
@@ -963,7 +987,7 @@ sub clean
             } else {
                 if ($mode eq "allow") {
                     $allow = 1;
-                    if (defined $action{$tag} and $action{$tag} eq "deny") { $allow = 0; }
+                    if (defined $action{$tag} and ( $action{$tag} eq "deny" || $action{$tag} eq "conditional" ) ) { $allow = 0; }
                 } else {
                     $allow = 0;
                     if (defined $action{$tag} and $action{$tag} eq "allow") { $allow = 1; }
@@ -1020,6 +1044,12 @@ sub clean
                     } else {
                         $newdata .= "&lt;/$tag&gt;";
                     }
+                }
+
+                if ( defined $action{$tag} and $action{$tag} eq "conditional" && $tagstack[-1] eq $tag ) {
+                    $newdata .= "</$tag>";
+                    pop @tagstack;
+                    $opencount{$tag}--;
                 }
             }
         }
@@ -1443,6 +1473,30 @@ sub clean_event
         journal => $opts->{journal},
         ditemid => $opts->{ditemid},
         errref => $opts->{errref},
+    });
+}
+
+# clean JS out of embed module
+sub clean_embed {
+    my ( $ref ) = @_;
+    return unless $$ref;
+    return unless LJ::is_enabled( 'embedmodule-cleancontent' );
+
+    clean( $ref, {
+        addbreaks => 0,
+        tablecheck => 0,
+        mode => 'allow',
+        allow => [ qw( object embed ) ],
+        deny => [ qw( script ) ],
+        remove => [ qw( script ) ],
+        conditional => [ qw( iframe ) ],
+        ljcut_disable => 1,
+        cleancss => 1,
+        extractlinks => 0,
+        noautolinks => 1,
+        extractimages => 0,
+        noexpandembedded => 1,
+        transform_embed_nocheck => 1,
     });
 }
 
