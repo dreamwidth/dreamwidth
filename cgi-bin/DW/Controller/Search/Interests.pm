@@ -143,13 +143,16 @@ sub interest_handler {
         # perfect results?  no.  but who cares if somebody that lists "music"
         # or "reading" doesn't get an extra point towards matching you.
         # we care about more unique interests.
-        $sth = $dbr->prepare( "SELECT userid FROM userinterests WHERE intid=? LIMIT 500" );
-        foreach my $int ( @ints ) {
-            $sth->execute( $int );
-            while ( my $uid = $sth->fetchrow_array ) {
-                next if $uid == $u->userid;
-                $pt_weight{$uid} += ( 1 / log( $intcount{$int} + 1 ) );
-                $pt_count{$uid}++;
+
+        foreach ( qw( userinterests comminterests ) ) {
+            $sth = $dbr->prepare( "SELECT userid FROM $_ WHERE intid=? LIMIT 300" );
+            foreach my $int ( @ints ) {
+                $sth->execute( $int );
+                while ( my $uid = $sth->fetchrow_array ) {
+                    next if $uid == $u->userid;
+                    $pt_weight{$uid} += ( 1 / log( $intcount{$int} + 1 ) );
+                    $pt_count{$uid}++;
+                }
             }
         }
 
