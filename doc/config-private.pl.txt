@@ -51,8 +51,8 @@
             },
         );
 
-    # 32 vs 64 bit arch. By default everything goes to a 64 bit arch.  Uncomment
-    # to enable 32 bit arch support.  
+    # 32 vs 64 bit arch. By default everything goes to a 64 bit arch.
+    # Automatically detected. Uncomment to force 32 bit arch support.
     #
     # WARNING: This must be set prior to setting up your site.  If you change it
     # later on a running site, things may go badly for you.
