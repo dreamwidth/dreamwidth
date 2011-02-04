@@ -63,7 +63,7 @@ body<=
     foreach my $faq ( sort { $a->sortorder <=> $b->sortorder } @faqs ) {
         my $q = $faq->question_html;
         next unless $q;
-        BML::note_mod_time( $faq->lastmodtime ); 
+        BML::note_mod_time( $faq->unixmodtime );
         $q =~ s/^\s+//; $q =~ s/\s+$//;
         $q =~ s!\n!<br />!g;
         my $s = ( LJ::is_enabled( 'faq_summaries') && $faq->has_summary )
