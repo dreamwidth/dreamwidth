@@ -122,10 +122,11 @@ sub interest_handler {
             unless $rv->{can_use_findsim};
         my $u = LJ::load_user( $args->{user} )
             or return error_ml( 'error.username_notfound' );
+        my $uitable = $u->is_comm ? 'comminterests' : 'userinterests';
 
         my $dbr = LJ::get_db_reader();
         my $sth = $dbr->prepare( "SELECT i.intid, i.intcount " .
-                                 "FROM userinterests ui, interests i " .
+                                 "FROM $uitable ui, interests i " .
                                  "WHERE ui.userid=? AND ui.intid=i.intid" );
         $sth->execute( $u->userid );
 
