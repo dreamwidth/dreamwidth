@@ -764,9 +764,16 @@ sub clean
                     }
 
                     # remove specific attributes
-                    if (($remove_colors && ($attr eq "color" || $attr eq "bgcolor" || $attr eq "fgcolor" || $attr eq "text")) ||
-                        ($remove_sizes && $attr eq "size") ||
-                        ($remove_fonts && $attr eq "face")) {
+                    my %remove_attrs =
+                        ( color   => $remove_colors,
+                          bgcolor => $remove_colors,
+                          fgcolor => $remove_colors,
+                          text    => $remove_colors,
+                          size    => $remove_sizes,
+                          face    => $remove_fonts,
+                        );
+
+                    if ( $remove_attrs{$attr} ) {
                         delete $hash->{$attr};
                         next ATTR;
                     }
