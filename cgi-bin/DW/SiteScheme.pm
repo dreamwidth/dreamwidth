@@ -42,6 +42,8 @@ our @sitescheme_order = ();
 
 sub get {
     my ( $class, $scheme ) = @_;
+    $class->__load_data;
+
     $scheme ||= $class->current;
 
     $scheme = $sitescheme_order[0] unless exists $sitescheme_data{$scheme};
@@ -61,6 +63,8 @@ sub tt_file {
 }
 
 sub engine {
+    $_[0]->__load_data;
+
     return $sitescheme_data{$_[0]->{scheme}}->{engine} || 'tt';
 }
 
@@ -76,7 +80,7 @@ Also works on a DW::SiteScheme object
 
 sub inheritance {
     my ( $self, $scheme ) = @_;
-    DW::SiteScheme->__load_data;
+    $self->__load_data;
 
     $scheme = $self->{scheme} if ref $self;
 
@@ -133,6 +137,7 @@ sub __load_data {
 =cut
 sub available {
     $_[0]->__load_data;
+
     return map { $sitescheme_data{$_} } @sitescheme_order;
 }
 
