@@ -398,16 +398,6 @@ sub create_view_rss {
 # single_entry - only output an <entry>..</entry> block. off by default
 # apilinks - output AtomAPI links for posting a new entry or
 #            getting/editing/deleting an existing one. off by default
-# TODO: define and use an 'lj:' namespace
-#
-# TODO: Remove lines marked with 'COMPAT' - they are only present
-# to allow backwards compatibility with atom parsers that are pre 0.6-draft.
-# We create tags valid for 1.1-draft, but we want to be nice during
-# atom's (and atom users) continuing transition.  1.0 parsers, according
-# to spec, should NOT barf on unknown tags.
-# * Where we can't be compatible, we use Atom 1.0. *
-# http://www.ietf.org/internet-drafts/draft-ietf-atompub-format-11.txt
-#
 sub create_view_atom
 {
     my ( $j, $u, $opts, $cleanitems, $entrylist ) = @_;
@@ -416,8 +406,7 @@ sub create_view_atom
     $ns = "http://www.w3.org/2005/Atom";
 
     # Strip namespace from child tags. Set default namespace, let
-    # child tags inherit from it.  So ghetto that we even have to do this
-    # and LibXML can't on its own.
+    # child tags inherit from it. Do it manually; LibXML can't on its own.
     my $normalize_ns = sub {
         my $str = shift;
         $str =~ s/(<\w+)\s+xmlns="\Q$ns\E"/$1/og;
@@ -427,7 +416,7 @@ sub create_view_atom
     };
 
     # AtomAPI interface path
-    my $api = $opts->{'apilinks'} ? "$LJ::SITEROOT/interface/atom" :
+    my $api = $opts->{'apilinks'} ? $u->atom_service_document :
                                     $u->journal_base . "/data/atom";
 
     my $make_link = sub {
@@ -448,7 +437,7 @@ sub create_view_atom
     # feed information
     unless ($opts->{'single_entry'}) {
         $feed = XML::Atom::Feed->new( Version => 1 );
-        $xml  = $feed->{doc};
+        $xml  = $feed->elem->ownerDocument;
 
         if ($u->should_block_robots) {
             $xml->getDocumentElement->setAttribute( "xmlns:idx", "urn:atom-extension:indexing" );
@@ -470,7 +459,7 @@ sub create_view_atom
             $make_link->(
                 'self',
                 $opts->{'apilinks'}
-                ? ( 'application/x.atom+xml', "$api/feed" )
+                ? ( 'application/atom+xml', "$api/entries" )
                 : ( 'text/xml', $api )
             )
         );
@@ -481,25 +470,6 @@ sub create_view_atom
         $ljinfo->setAttribute( 'type', LJ::exml($u->journaltype_readable) );
         $xml->getDocumentElement->appendChild( $ljinfo );
 
-        # link to the AtomAPI version of this feed
-        $feed->add_link(
-            $make_link->(
-                'service.feed',
-                'application/x.atom+xml',
-                ( $opts->{'apilinks'} ? "$api/feed" : $api ),
-                $j->{'title'}
-            )
-        );
-
-        $feed->add_link(
-            $make_link->(
-                'service.post',
-                'application/x.atom+xml',
-                "$api/post",
-                'Create a new entry'
-            )
-        ) if $opts->{'apilinks'};
-
         if ( LJ::is_enabled( 'hubbub' ) ) {
             foreach my $hub (@LJ::HUBBUB_HUBS) {
                 $feed->add_link($make_link->('hub', undef, $hub));
@@ -509,6 +479,7 @@ sub create_view_atom
 
     my $posteru = LJ::load_userids( map { $_->{posterid} } @$cleanitems);
     # output individual item blocks
+    # FIXME: use LJ::Entry->atom_entry?
     foreach my $it (@$cleanitems)
     {
         my $itemid = $it->{itemid};
@@ -516,7 +487,7 @@ sub create_view_atom
         my $poster = $posteru->{$it->{posterid}};
 
         my $entry = XML::Atom::Entry->new( Version => 1 );
-        my $entry_xml = $entry->{doc};
+        my $entry_xml = $entry->elem->ownerDocument;
 
         $entry->id( $u->atomid . ":$ditemid" );
 
@@ -544,14 +515,10 @@ sub create_view_atom
 
         $entry->add_link(
             $make_link->(
-                'service.edit',      'application/x.atom+xml',
-                "$api/edit/$itemid", 'Edit this post'
+                'edit',      'application/atom+xml',
+                "$api/entries/$itemid", 'Edit this post'
             )
           ) if $opts->{'apilinks'};
-
-        # NOTE: Atom 0.3 allowed for "issued", where we put the time the
-        # user says it was. There's no equivalent in later versions of
-        # Atom, though. And Atom 0.3 is deprecated. Oh well.
 
         my ($year, $mon, $mday, $hour, $min, $sec) = split(/ /, $it->{eventtime});
         my $event_date = sprintf("%04d-%02d-%02dT%02d:%02d:%02d",
@@ -567,13 +534,10 @@ sub create_view_atom
         $entry->published( LJ::time_to_w3c($it->{createtime}, "Z") );
         $entry->updated(   LJ::time_to_w3c($it->{modtime},    "Z") );
 
-        # XML::Atom 0.13 doesn't support categories.   Maybe later?
         foreach my $tag ( @{$it->{tags} || []} ) {
-            $tag = LJ::exml( $tag );
-            my $category = $entry_xml->createElement( 'category' );
-            $category->setAttribute( 'term', $tag );
-            $category->setNamespace( $ns );
-            $entry_xml->getDocumentElement->appendChild( $category );
+            my $category = XML::Atom::Category->new;
+            $category->term( $tag );
+            $entry->add_category( $category );
         }
 
         my @currents = ( [ 'music'       => $it->{music}      ],

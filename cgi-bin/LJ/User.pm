@@ -5976,6 +5976,15 @@ sub atomid {
     return "tag:$LJ::DOMAIN,$journalcreated:$u->{userid}";
 }
 
+sub atom_service_document {
+    return "$LJ::SITEROOT/interface/atom";
+}
+
+sub atom_base {
+    my ( $u ) = @_;
+    return $u->journal_base . "/interface/atom";
+}
+
 # retrieve hash of basic syndicated info
 sub get_syndicated {
     my $u = shift;

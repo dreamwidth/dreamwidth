@@ -86,7 +86,7 @@ sub interface_handler {
         LJ::S2::layer_compile( $lay, \$error, { s2ref => \$s2code } );
 
         if ( $error ) {
-            error( $r, $r->HTTP_INTERNAL_SERVER_ERROR, "Layer Compile Error", "An error was encountered while compiling the layer." );
+            error( $r, $r->HTTP_SERVER_ERROR, "Layer Compile Error", "An error was encountered while compiling the layer." );
 
             ## Strip any absolute paths
             $error =~ s/LJ::.+//s;

@@ -274,6 +274,10 @@ sub OK {
     return Apache2::Const::OK;
 }
 
+sub HTTP_CREATED {
+    return Apache2::Const::HTTP_CREATED;
+}
+
 sub REDIRECT {
     my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::REDIRECT;
@@ -300,7 +304,7 @@ sub HTTP_UNSUPPORTED_MEDIA_TYPE {
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
 }
 
-sub HTTP_INTERNAL_SERVER_ERROR {
+sub HTTP_SERVER_ERROR {
     return Apache2::Const::HTTP_INTERNAL_SERVER_ERROR;
 }
 

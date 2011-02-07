@@ -333,6 +333,11 @@ sub modtime_unix {
     return LJ::mysqldate_to_time($self->{logtime}, 1);
 }
 
+sub revtime_unix {
+    my $self = $_[0];
+    return $self->prop( "revtime" );
+}
+
 sub security {
     my $self = $_[0];
     __PACKAGE__->preload_rows([ $self ]) unless $self->{_loaded_row};
@@ -570,63 +575,45 @@ sub atom_id {
 }
 
 # returns an XML::Atom::Entry object for a feed
+# opts: synlevel ("full"), apilinks (bool)
 sub atom_entry {
-    my ( $self, $opts ) = @_;
-    $opts ||= {};  # synlevel ("full"), apilinks (bool)
+    my ( $self, %opts ) = @_;
 
-    my $entry     = XML::Atom::Entry->new();
-    my $entry_xml = $entry->{doc};
+    my $atom_entry = XML::Atom::Entry->new( Version => 1 );
 
     my $u       = $self->{u};
-    my $ditemid = $self->ditemid;
-    my $jitemid = $self->{jitemid};
-
-    # AtomAPI interface path
-    my $api = $opts->{'apilinks'} ? "$LJ::SITEROOT/interface/atom" :
-                                    "$LJ::SITEROOT/users/$u->{user}/data/atom";
-
-    $entry->title($self->subject_text);
-    $entry->id($self->atom_id);
-
-    my $author = XML::Atom::Person->new();
-    $author->name($self->poster->{name});
-    $entry->author($author);
 
     my $make_link = sub {
-        my ( $rel, $type, $href, $title ) = @_;
-        my $link = XML::Atom::Link->new;
-        $link->rel($rel);
-        $link->type($type);
-        $link->href($href);
-        $link->title($title) if $title;
+        my ( $rel, $href, $type, $title ) = @_;
+        my $link = XML::Atom::Link->new( Version => 1 );
+        $link->rel( $rel );
+        $link->href( $href );
+        $link->title( $title ) if $title;
+        $link->type( $type ) if $type;
         return $link;
     };
 
-    $entry->add_link($make_link->( 'alternate', 'text/html', $self->url));
-    $entry->add_link($make_link->(
-                                  'service.edit',      'application/x.atom+xml',
-                                  "$api/edit/$jitemid", 'Edit this post'
-                                  )
-                     ) if $opts->{'apilinks'};
+    $atom_entry->id( $self->atom_id );
+    $atom_entry->title( $self->subject_text );
 
-    my $event_date = LJ::time_to_w3c($self->logtime_unix, "");
-    my $modtime    = LJ::time_to_w3c($self->modtime_unix, 'Z');
+    $atom_entry->published( LJ::time_to_w3c( $self->logtime_unix, "Z" ) );
+    $atom_entry->updated( LJ::time_to_w3c( $self->revtime_unix || $self->logtime_unix, 'Z' ) );
 
-    $entry->published($event_date);
-    $entry->issued   ($event_date);   # COMPAT
+    my $author = XML::Atom::Person->new( Version => 1 );
+    $author->name( $self->poster->name_orig );
+    $atom_entry->author($author);
 
-    $entry->updated ($modtime);
-    $entry->modified($modtime);
+    $atom_entry->add_link( $make_link->( "alternate", $self->url, "text/html" ) );
+    $atom_entry->add_link( $make_link->( "edit", $self->atom_url, "application/atom+xml", "Edit this post" ) )
+        if $opts{apilinks};
 
-    # XML::Atom 0.9 doesn't support categories.   Maybe later?
-    foreach my $tag ($self->tags) {
-        $tag = LJ::exml($tag);
-        my $category = $entry_xml->createElement( 'category' );
-        $category->setAttribute( 'term', $tag );
-        $entry_xml->getDocumentElement->appendChild( $category );
+    foreach my $tag ( $self->tags ) {
+        my $category = XML::Atom::Category->new( Version => 1 );
+        $category->term( $tag );
+        $atom_entry->add_category( $category );
     }
 
-    my $syn_level = $opts->{synlevel} || $u->prop("opt_synlevel") || "full";
+    my $syn_level = $opts{synlevel} || $u->prop( "opt_synlevel" ) || "full";
 
     # if syndicating the complete entry
     #   -print a content tag
@@ -638,21 +625,21 @@ sub atom_entry {
     #
     # a lack of a content element is allowed,  as long
     # as we maintain a proper 'alternate' link (above)
-    if ($syn_level eq 'full') {
-        # Do this manually for now, until XML::Atom supports new
-        # content type classifications.
-        my $content = $entry_xml->createElement( 'content' );
-        $content->setAttribute( 'type', 'html' );
-        $content->appendTextNode( $self->event_html );
-        $entry_xml->getDocumentElement->appendChild( $content );
-    } elsif ($syn_level eq 'summary') {
-        my $summary = $entry_xml->createElement( 'summary' );
-        $summary->setAttribute( 'type', 'html' );
-        $summary->appendTextNode( $self->event_summary );
-        $entry_xml->getDocumentElement->appendChild( $summary );
+    if ( $syn_level eq 'full' || $syn_level eq 'cut' ) {
+        $atom_entry->content( $self->event_html );
+        $atom_entry->content->type( "html" );
+    } elsif ( $syn_level eq 'summary' ) {
+        $atom_entry->summary( $self->event_summary );
+        $atom_entry->summary->type( "html" );
     }
 
-    return $entry;
+    return $atom_entry;
+}
+
+sub atom_url {
+    my $self = $_[0];
+    return "" unless $self->journal;
+    return $self->journal->atom_base . "/entries/" . $self->jitemid;
 }
 
 # returns the entry as an XML Atom string, without the XML prologue

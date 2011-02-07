@@ -25,7 +25,6 @@ use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
 # needed to call S2::set_domain() so early:
 use LJ::S2;
 use Apache::LiveJournal::Interface::Blogger;
-use Apache::LiveJournal::Interface::AtomAPI;
 use Apache::LiveJournal::PalImg;
 use LJ::ModuleCheck;
 use LJ::AccessLogSink;
@@ -959,7 +958,7 @@ sub trans
     if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
         my $int = $1 || "flat";
         $r->handler("perl-script");
-        if ($int =~ /^flat|xmlrpc|blogger|elsewhere_info|atom(?:api)?$/) {
+        if ($int =~ /^flat|xmlrpc|blogger|elsewhere_info$/) {
             $RQ{'interface'} = $int;
             $RQ{'is_ssl'} = $is_ssl;
             $r->push_handlers(PerlResponseHandler => \&interface_content);
@@ -1651,14 +1650,6 @@ sub interface_content
             -> dispatch_with({ 'blogger' => $pkg })
             -> dispatch_to($pkg)
             -> handle($r);
-        return OK;
-    }
-
-    if ($RQ{'interface'} =~ /atom(?:api)?/) {
-        Apache::LiveJournal::Interface::AtomAPI->load;
-        # the interface package will set up all headers and
-        # print everything
-        Apache::LiveJournal::Interface::AtomAPI::handle($r);
         return OK;
     }
 

@@ -31,7 +31,8 @@ sub have_xmlatom {
         use XML::Atom::Feed;
         use XML::Atom::Entry;
         use XML::Atom::Link;
-        XML::Atom->VERSION < 0.09 ? 0 : 1;
+        use XML::Atom::Category;
+        XML::Atom->VERSION < 0.21 ? 0 : 1;
     };
 }
 

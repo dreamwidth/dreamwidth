@@ -240,8 +240,17 @@ sub status_line {
 }
 
 # meets conditions
+# conditional GET triggered on:
+#   If-Modified-Since
+#   If-Unmodified-Since     FIXME: implement
+#   If-Match                FIXME: implement
+#   If-None-Match           FIXME: implement
+#   If-Range                FIXME: implement
 sub meets_conditions {
     my DW::Request::Standard $self = $_[0];
+
+    return $self->OK
+        if LJ::http_to_time( $self->header_in("If-Modified-Since") ) <= LJ::http_to_time( $self->header_out("Last-Modified") );
 
     # FIXME: this should be pretty easy ... check the If headers (only time ones?)
     # and see if they're good or not.  return proper status code here (OK, NOT_MODIFIED)
@@ -280,13 +289,23 @@ sub call_bml {
 
 # constants sometimes used
 sub OK        { return 200; }
+sub HTTP_CREATED { return 201; }
 sub REDIRECT  { return 302; }
+sub HTTP_BAD_REQUEST { return 400; }
+sub HTTP_UNAUTHORIZED { return 403; }
 sub NOT_FOUND { return 404; }
 sub HTTP_SERVER_ERROR { return 500; }
 
 # spawn a process for an external program
 sub spawn {
     confess "Sorry, spawning not implemented.\n";
+}
+
+# simply sets the location header and returns REDIRECT
+sub redirect {
+    my $self = $_[0];
+    $self->header_out( Location => $_[1] );
+    return $self->REDIRECT;
 }
 
 1;

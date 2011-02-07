@@ -36,6 +36,7 @@ my $default_content_types = {
     'json' => "application/json; charset=utf-8",
     'plain' => "text/plain; charset=utf-8",
     'png' => "image/png",
+    'atom' => "application/atom+xml; charset=utf-8",
 };
 
 LJ::ModuleLoader->require_subclasses( "DW::Controller" )

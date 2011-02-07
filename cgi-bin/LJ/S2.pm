@@ -2164,8 +2164,7 @@ sub Page
         }
         $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: all entries" href="$p->{'base_url'}/data/rss" />\n};
         $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: all entries" href="$p->{'base_url'}/data/atom" />\n};
-        $p->{'head_content'} .= qq{<link rel="service.feed" type="application/atom+xml" title="AtomAPI-enabled feed" href="$LJ::SITEROOT/interface/atomapi/$u->{'user'}/feed" />\n};
-        $p->{'head_content'} .= qq{<link rel="service.post" type="application/atom+xml" title="Create a new post" href="$LJ::SITEROOT/interface/atomapi/$u->{'user'}/post" />\n};
+        $p->{'head_content'} .= qq{<link rel="service" type="application/atomsvc+xml" title="AtomAPI service document" href="} . $u->atom_service_document . qq{" />\n};
     }
 
     # OpenID information if the caller asked us to include it here.
