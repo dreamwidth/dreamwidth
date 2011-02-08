@@ -14,6 +14,7 @@
 [%- sections.head = BLOCK %]
 <style type='text/css'>
     .accountlist { padding-bottom: 3em; }
+    .anchorlinks { text-align: center; margin: 2em 0; }
 </style>
 [% END -%]
 
@@ -33,9 +34,23 @@
 [%- END -%]
 <p>[% '.text' | ml(user = findsim_u.ljuser_display) %]</p>
 
+<div class="anchorlinks">
+[%- IF findsim_count.P -%]
+    <a href="#personal">[% '.accounts.person' | ml %]</a>
+    [%- IF findsim_count.C || findsim_count.I; '&nbsp;|&nbsp;'; END -%]
+[%- END -%]
+[%- IF findsim_count.C -%]
+    <a href="#community">[% '.accounts.comm' | ml %]</a>
+    [%- IF findsim_count.I; '&nbsp;|&nbsp;'; END -%]
+[%- END -%]
+[%- IF findsim_count.I -%]
+    <a href="#identity">[% '.accounts.id' | ml %]</a>
+[%- END -%]
+</div>
+
 [%- IF findsim_count.P -%]
 <div class="accountlist">
-<h2>[% '.accounts.person' | ml %]</h2>
+<a name="personal"><h2>[% '.accounts.person' | ml %]</h2></a>
 <table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>
@@ -53,7 +68,7 @@
 
 [%- IF findsim_count.C -%]
 <div class="accountlist">
-<h2>[% '.accounts.comm' | ml %]</h2>
+<a name="community"><h2>[% '.accounts.comm' | ml %]</h2></a>
 <table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>
@@ -71,7 +86,7 @@
 
 [%- IF findsim_count.I -%]
 <div class="accountlist">
-<h2>[% '.accounts.id' | ml %]</h2>
+<a name="identity"><h2>[% '.accounts.id' | ml %]</h2></a>
 <table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>
