@@ -13,8 +13,7 @@
 
 [%- sections.head = BLOCK %]
 <style type='text/css'>
-    div.tagcloud a { text-decoration: none; }
-    ul.contentlist li { padding-bottom: 3px; }
+    .accountlist { padding-bottom: 3em; }
 </style>
 [% END -%]
 
@@ -33,18 +32,60 @@
     </p>
 [%- END -%]
 <p>[% '.text' | ml(user = findsim_u.ljuser_display) %]</p>
-<p><table cellpadding='3'><thead><tr valign='bottom'>
+
+[%- IF findsim_count.P -%]
+<div class="accountlist">
+<h2>[% '.accounts.person' | ml %]</h2>
+<table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>
     <th>[% '.findsim_do.magic' | ml %]</th>
 </tr></thead>
-[%- FOREACH findsim_data -%]
+[%- FOREACH findsim_data.P -%]
     <tr>
         <td>[% count %]</td>
         <td>[% user %]</td>
         <td>[% magic %]</td>
     </tr>
 [%- END -%]
-</table></p>
+</table></div>
+[%- END -%]
+
+[%- IF findsim_count.C -%]
+<div class="accountlist">
+<h2>[% '.accounts.comm' | ml %]</h2>
+<table cellpadding='3'><thead><tr valign='bottom'>
+    <th>#</th>
+    <th width='250'>[% 'username' | ml %]</th>
+    <th>[% '.findsim_do.magic' | ml %]</th>
+</tr></thead>
+[%- FOREACH findsim_data.C -%]
+    <tr>
+        <td>[% count %]</td>
+        <td>[% user %]</td>
+        <td>[% magic %]</td>
+    </tr>
+[%- END -%]
+</table></div>
+[%- END -%]
+
+[%- IF findsim_count.I -%]
+<div class="accountlist">
+<h2>[% '.accounts.id' | ml %]</h2>
+<table cellpadding='3'><thead><tr valign='bottom'>
+    <th>#</th>
+    <th width='250'>[% 'username' | ml %]</th>
+    <th>[% '.findsim_do.magic' | ml %]</th>
+</tr></thead>
+[%- FOREACH findsim_data.I -%]
+    <tr>
+        <td>[% count %]</td>
+        <td>[% user %]</td>
+        <td>[% magic %]</td>
+    </tr>
+[%- END -%]
+</table></div>
+[%- END -%]
+
 <h1>[% '.findsim_do.magic.head' | ml %]</h1>
 <p> [% '.findsim_do.magic.text' | ml %]</p>

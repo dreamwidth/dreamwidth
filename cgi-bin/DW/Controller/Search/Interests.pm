@@ -167,25 +167,29 @@ sub interest_handler {
         my $users = LJ::load_userids( @matches );
 
         my $nocircle = $remote && $args->{nocircle};
-        my $count = 1;
-        my $data = [];
+        my $count = { P => 0, C => 0, I => 0 };
+        my $data = { P => [], C => [], I => [] };
         foreach my $uid ( @matches ) {
             my $match_u = $users->{$uid};
             next unless $match_u && $match_u->is_visible;
             if ( $nocircle ) {
                 next if $remote->watches( $match_u );
-                next if $remote->trusts( $match_u );
+                next if $match_u->is_person && $remote->trusts( $match_u );
+                next if $match_u->is_comm && $remote->member_of( $match_u );
             }
-            push @$data, { count => $count++,
-                           user  => $match_u->ljuser_display,
-                           magic => sprintf( "%.3f", $magic{$uid} ) };
+            my $j = $match_u->journaltype;
+            push @{ $data->{$j} },
+                    { count => ++$count->{$j},
+                      user  => $match_u->ljuser_display,
+                      magic => sprintf( "%.3f", $magic{$uid} ) };
         }
 
         return error_ml( 'interests.findsim_do.nomatch',
                          { user => $u->ljuser_display } )
-            unless @$data;
+            unless grep { $_ } values %$count;
 
         $rv->{findsim_u} = $u;
+        $rv->{findsim_count} = $count;
         $rv->{findsim_data} = $data;
         $rv->{nocircle} = $nocircle;
         $rv->{circle_link} =
