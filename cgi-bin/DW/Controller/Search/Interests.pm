@@ -166,20 +166,16 @@ sub interest_handler {
                          { user => $u->ljuser_display } )
             unless @matches;
 
-        # prepare userid => username hash
-        $sth = $dbr->prepare( "SELECT userid, user FROM useridmap WHERE userid IN (" .
-                              join( ",", @matches ) . ")" );
-        $sth->execute;
-        my %username;
-        while ( my ( $id, $name ) = $sth->fetchrow_array ) {
-            $username{$id} = $name;
-        }
+        # load user objects
+        my $users = LJ::load_userids( @matches );
 
         my $count = 1;
         my $data = [];
         foreach my $uid ( @matches ) {
+            my $match_u = $users->{$uid};
+            next unless $match_u && $match_u->is_visible;
             push @$data, { count => $count++,
-                           user  => LJ::ljuser( $username{$uid} ),
+                           user  => $match_u->ljuser_display,
                            magic => sprintf( "%.3f", $magic{$uid} ) };
         }
         $rv->{findsim_u} = $u;
