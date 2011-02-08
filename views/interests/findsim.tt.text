@@ -1,12 +1,16 @@
 ;; -*- coding: utf-8 -*-
+.circle.exclude=This listing includes accounts you already subscribe to. <a href="[[aopts]]">Exclude users in your circle?</a>
+
+.circle.include=This listing does not include accounts in your circle. <a href="[[aopts]]">Include them?</a>
+
 .findsim_do.magic=Magic<br />Index
 
 .findsim_do.magic.head=What's this Magic Index all about?
 
 .findsim_do.magic.text=We compute a magic index for each matching account. A magic index is a weighting of two factors: the raw number of shared interests and extra points for shared uncommon interests.
 
-.findsim_do.similar.head=Similar People
+.head=Similar Accounts
 
-.findsim_do.similar.text=The following people are the most related to [[user]]
+.text=The following accounts have interests closely related to those of [[user]]:
 
 .title=Interests

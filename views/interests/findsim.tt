@@ -22,8 +22,17 @@
 
 [%- sections.title='.title' | ml -%]
 
-<h1>[% '.findsim_do.similar.head' | ml %]</h1>
-<p>[% ".findsim_do.similar.text" | ml(user = findsim_u.ljuser_display) %]</p>
+<h1>[% '.head' | ml %]</h1>
+[%- IF remote -%]
+    <p>
+    [%- IF nocircle -%]
+        [%- '.circle.include' | ml(aopts = circle_link) -%]
+    [%- ELSE -%]
+        [%- '.circle.exclude' | ml(aopts = circle_link) -%]
+    [%- END -%]
+    </p>
+[%- END -%]
+<p>[% '.text' | ml(user = findsim_u.ljuser_display) %]</p>
 <p><table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>

@@ -162,24 +162,35 @@ sub interest_handler {
         my @matches = sort { $magic{$b} <=> $magic{$a} } keys %magic;
         @matches = @matches[ 0 .. ( $maxinterests - 1 ) ]
             if scalar( @matches ) > $maxinterests;
-        return error_ml( 'interests.findsim_do.nomatch',
-                         { user => $u->ljuser_display } )
-            unless @matches;
 
         # load user objects
         my $users = LJ::load_userids( @matches );
 
+        my $nocircle = $remote && $args->{nocircle};
         my $count = 1;
         my $data = [];
         foreach my $uid ( @matches ) {
             my $match_u = $users->{$uid};
             next unless $match_u && $match_u->is_visible;
+            if ( $nocircle ) {
+                next if $remote->watches( $match_u );
+                next if $remote->trusts( $match_u );
+            }
             push @$data, { count => $count++,
                            user  => $match_u->ljuser_display,
                            magic => sprintf( "%.3f", $magic{$uid} ) };
         }
+
+        return error_ml( 'interests.findsim_do.nomatch',
+                         { user => $u->ljuser_display } )
+            unless @$data;
+
         $rv->{findsim_u} = $u;
         $rv->{findsim_data} = $data;
+        $rv->{nocircle} = $nocircle;
+        $rv->{circle_link} =
+            LJ::page_change_getargs( nocircle => $nocircle ? '' : 1 );
+
         return DW::Template->render_template( 'interests/findsim.tt', $rv );
     }
 
