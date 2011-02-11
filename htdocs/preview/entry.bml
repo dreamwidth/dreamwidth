@@ -81,7 +81,7 @@ _c?>
                 $ctx = LJ::S2::s2_context( $u->{s2_style} );
                 my $view_entry_disabled;
                 $view_entry_disabled = ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} if $ctx;
-            
+
                 return (2, $u->{'s2_style'}) unless $forceflag || $view_entry_disabled;
             }
             # no special case and not s2, fall through to s1
@@ -182,19 +182,13 @@ _c?>
         $sec .= "<br />\n" unless $sec eq "" or $req{'subject'};
         $ret .= $sec;
 
-        # prevent BML tags interpretation inside post body
-        $subject =~ s/<\?/<?/g;
-        $subject =~ s/\?>/?>/g;
-        $event =~ s/<\?/<?/g;
-        $event =~ s/\?>/?>/g;
-
         ###
         if ($subject) {
-            BML::ebml(\$subject);
+            BML::ebml( \$subject );
             $ret .= "<div id='entrysubj'>$subject</div><br />\n";
         }
 
-        $ret .= $event;
+        $ret .= BML::ebml( $event );
         $ret .= "</div>";
         $ret .= "<hr/><div class='highlight-box'><p>\n";
         $ret .= $preview_warn_text . "\n";
@@ -330,6 +324,7 @@ _c?>
         });
 
         LJ::S2::s2_run($r, $ctx, $opts, "EntryPage::print()", $p);
+        BML::ebml(\$ret);
     }
     return $ret;
 }
