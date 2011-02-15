@@ -133,6 +133,7 @@ sub clean
     my $rewrite_embed_param = $opts->{rewrite_embed_param} || 0;
     my $remove_colors = $opts->{'remove_colors'} || 0;
     my $remove_sizes = $opts->{'remove_sizes'} || 0;
+    my $remove_abs_sizes = $opts->{remove_abs_sizes} || 0;
     my $remove_fonts = $opts->{'remove_fonts'} || 0;
     my $blocked_links = (exists $opts->{'blocked_links'}) ? $opts->{'blocked_links'} : \@LJ::BLOCKED_LINKS;
     my $blocked_link_substitute = 
@@ -713,12 +714,17 @@ sub clean
                             if ($remove_colors) {
                                 $hash->{style} =~ s/(?:background-)?color:.*?(?:;|$)//gi;
                             }
+
                             if ($remove_sizes) {
                                 $hash->{style} =~ s/font-size:.*?(?:;|$)//gi;
+                            } elsif ( $remove_abs_sizes ) {
+                                $hash->{style} =~ s/font-size:\s*?\d+.*?(?:;|$)//gi;
                             }
+
                             if ($remove_fonts) {
                                 $hash->{style} =~ s/font-family:.*?(?:;|$)//gi;
                             }
+
                             if ($remove_positioning) {
                                 $hash->{style} =~ s/margin.*?(?:;|$)//gi;
                                 $hash->{style} =~ s/height\s*?:.*?(?:;|$)//gi;
@@ -1564,6 +1570,7 @@ sub clean_comment
         'nocss' => $opts->{'nocss'},
         'textonly' => $opts->{'textonly'} ? 1 : 0,
         'remove_positioning' => 1,
+        'remove_abs_sizes' => 1,
     });
 }
 
