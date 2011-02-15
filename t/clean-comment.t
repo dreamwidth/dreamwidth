@@ -2,7 +2,7 @@
 
 use strict;
 use Test::More;
-plan tests => 10;
+plan tests => 13;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -59,6 +59,25 @@ $clean_comment = qq{<span style="\\s*padding-top: 200px;\\s*padding-left: 200px;
 $clean->({ remove_positioning => 1 });
 ok($orig_comment =~ /^$clean_comment$/, "Padding not removed; of reasonable size.");
 
+note( "Clean absolute sizes" );
+{
+    $orig_comment  = qq{<span style="font-size: larger">foo</span>};
+    $clean_comment = qq{<span style="font-size: larger">foo</span>};
+    $clean->();
+    is( $orig_comment, $clean_comment, "Retain relative font sizes" );
+
+    $orig_comment  = qq{<span style="font-size:   10px  ">foo</span>};
+    $clean_comment = qq{<span style="">foo</span>};
+    $clean->();
+    is( $orig_comment, $clean_comment, "Strip absolute font sizes" );
+
+    $orig_comment  = qq{<span style="font-size:0.2em; font-weight: bold">foo</span>};
+    $clean_comment = qq{<span style=" font-weight: bold">foo</span>};
+    $clean->();
+    is( $orig_comment, $clean_comment, "Strip absolute font sizes" );
+
+
+}
 
 # remove background urls from logged out users
 $orig_comment = qq{<span style="background: url('http://www.example.com/example.gif');"></span>};
