@@ -2,7 +2,7 @@
 
 use strict;
 use Test::More;
-plan tests => 13;
+plan tests => 16;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -89,5 +89,25 @@ $orig_comment = qq{<span style="background: url('http://www.example.com/example.
 $clean_comment = qq{<span style="background:\\s*;\\s*"><\\/span>};
 $clean->({ anon_comment => 1 });
 ok($orig_comment =~ /^$clean_comment$/, "Background URL removed: anonymous comment");
+
+
+note( "various allowed/disallowed tags" );
+{
+    $orig_comment  = qq{<em>abc</em>};
+    $clean_comment = qq{<em>abc</em>};
+    $clean->();
+    is( $orig_comment, $clean_comment, "em tag allowed" );
+
+    $orig_comment  = qq{<marquee>abc</marquee>};
+    $clean_comment = qq{abc};
+    $clean->();
+    is( $orig_comment, $clean_comment, "marquee tag not allowed" );
+
+    $orig_comment  = qq{<blink>abc</blink>};
+    $clean_comment = qq{abc};
+    $clean->();
+    is( $orig_comment, $clean_comment, "blink tag not allowed" );
+
+}
 
 1;

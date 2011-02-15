@@ -179,4 +179,23 @@ $clean_post = qq{};
 $clean->();
 is( $orig_post, $clean_post, "<object> and <embed> tags" );
 
+
+note( "various allowed/disallowed tags" );
+{
+    $orig_post  = qq{<em>abc</em>};
+    $clean_post = qq{<em>abc</em>};
+    $clean->();
+    is( $orig_post, $clean_post, "em tag allowed" );
+
+    $orig_post  = qq{<marquee>abc</marquee>};
+    $clean_post = qq{<marquee>abc</marquee>};
+    $clean->();
+    is( $orig_post, $clean_post, "marquee tag allowed" );
+
+    $orig_post  = qq{<blink>abc</blink>};
+    $clean_post = qq{<blink>abc</blink>};
+    $clean->();
+    is( $orig_post, $clean_post, "blink tag allowed" );
+
+}
 1;
