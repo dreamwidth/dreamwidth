@@ -5752,7 +5752,7 @@ function ReplyPage::print_body
 
 function IconsPage::print_body {
     print safe "<div class='icons-container'><h2>$*text_icons_page_header</h2><div class='inner'>";
-    """<div><ul>""";
+    """<div class="sorting-options"><ul>""";
     var int sort_ct = 0;
     foreach var string k ($.sort_keyseq) {
         var string text = lang_icon_sortorder_title($k);
@@ -5778,7 +5778,8 @@ function Icon::print {
     var string inactive_class = $.active ? "" : "icon-inactive";
 
     """<div class="icon $default_class $inactive_class">""";
-    """<a href="$.link_url">"""; $.image->print(); """</a>""";
+    """<div class="icon-image"><a href="$.link_url">"""; $.image->print(); """</a></div>""";
+    """<div class="icon-info">""";
     if ($.default) {
         print safe "<div class='default label'>$*text_icons_default</div>";
     }
@@ -5805,7 +5806,7 @@ function Icon::print {
     if ($.description) {
         print safe "<div class='description'><span class='description-text'>$*text_icons_description</span> $.description</div>";
     }
-    """</div>""";
+    """</div></div>""";
 }
 
 ### TagsPage functions

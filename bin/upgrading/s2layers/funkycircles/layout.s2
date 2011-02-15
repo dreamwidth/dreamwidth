@@ -124,19 +124,10 @@ set text_comment_from = "Posted by";
 ##===============================
 
 function print_module_navlinks() {
-    var Page p = get_page();
-    open_module("navlinks", "", "");
-    var string[] links = [];
-    
-    println """<ul class="module-list">""";
-    foreach var string k ($p.views_order) {
-        var string css = """$k""";
-        if ($p.view == $k) { $css = """current $k"""; }
-        println """<li class="module-list-item $css"><a href="$p.view_url{$k}" class="$css">"""+lang_viewname($k)+"""</a></li>""";
-    }
-    println "</ul>";
-
-    close_module();
+    # prints as   <li><a class="current view...">
+    # styles may override and change to print_module_navlinks( false )
+    # to print as <li class="current view...">
+    print_module_navlinks( false );
 }
 
 ##===============================
@@ -325,7 +316,8 @@ h2#pagetitle {
     margin-top: 2em;
     }
 
-    .page-tags #primary {
+    .page-tags #primary,
+    .page-icons #primary {
         margin-top: 6.6em;
         }
 
@@ -449,7 +441,8 @@ h2#pagetitle {
     .comment-title,
     .page-tags h2,
     .page-archive h3,
-    .page-month dd h3 {
+    .page-month dd h3,
+    .page-icons h2 {
         text-transform: uppercase;
         }
 
@@ -459,7 +452,8 @@ h2#pagetitle {
         }
 
     .page-tags h2,
-    .page-archive h3 {
+    .page-archive h3,
+    .page-icons h2 {
         $entry_title_font
         }
 
@@ -479,7 +473,8 @@ h2#pagetitle {
 .comment-wrapper.partial,
 .page-month .month .inner,
 .tags-container ul,
-.tags-container .tags_cloud {
+.tags-container .tags_cloud,
+.icons-container .inner {
     $entry_colors
     border-width: 20px;
     border-left: none;
@@ -546,14 +541,83 @@ h2#pagetitle {
                         color: $*color_entry_text;
                         }
 
+.icons-container .inner {
+    margin: 0;
+    padding: 2em;
+    }
+
+.icons-container ul {
+    margin: 0;
+    padding: 0;
+    }
+
+    .icons-container ul li {
+        display: inline;
+        }
+
+.icons-container .sorting-options {
+    text-align: center;
+    }
+
+.icons-container .pages {
+    text-align: right;
+    }
+
+    .icons-container .pages b {
+        font-weight: normal;
+        }
+
+.icons-container .icon {
+    border-bottom: 1px dashed $*color_entry_poster_border;
+    margin: 2em 0;
+    padding-bottom: 2em;
+    }
+
+    .icons-container .icon:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        }
+
+.icons-container .icon-image {
+    display: inline-block;
+    width: 100px;
+    }
+
+.icons-container .icon-info {
+    display: inline-block;
+    margin-left: .5em;
+    vertical-align: top;
+    width: 75%;
+    }
+
+.icons-container .default {
+    font-weight: bold;
+    }
+
+.icons-container .keywords ul {
+    display: inline;
+    }
+
+.icons-container .comment-text,
+.icons-container .description-text,
+.icons-container .keywords .label {
+    font-style: italic;
+    }
+
 .contents a,
 .partial .comment a,
 .page-month .month a,
-.tags-container a {
+.tags-container a,
+.icons-container a {
     $entry_link_colors
     }
 
-    .contents a:visited {
+    .contents a:visited,
+    .partial .comment a:visited,
+    .page-month .month a:visited,
+    .tags-container a:visited,
+    .icons-container a:visited {
         $entry_link_visited_colors
         text-decoration: none;
         }
@@ -561,7 +625,8 @@ h2#pagetitle {
     .contents a:hover,
     .partial .comment a:hover,
     .page-month .month a:hover,
-    .tags-container a:hover {
+    .tags-container a:hover,
+    .icons-container a:hover {
         $entry_link_hover_colors
         text-decoration: none;
         }
@@ -948,7 +1013,7 @@ $userpic_css
         list-style: url($image_module_list_active_url) disc;
         }
 
-    .module-navlinks li a.current {
+    .module-navlinks li.current a {
         $page_link_hover_colors
         text-decoration: underline;
         }
