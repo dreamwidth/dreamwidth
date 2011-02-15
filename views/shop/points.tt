@@ -5,6 +5,7 @@
 <p>[% '.about' | ml(sitename = site.nameshort) %]</p>
 
 <form method='post'>
+[% dw.form_auth %]
 <table summary='' class='shop-table-gift'>
 [% IF foru %]
     <tr><td>[% '.buying.for' | ml %]</td><td>[% foru.ljuser_display %]

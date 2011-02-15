@@ -16,8 +16,6 @@
 
 package DW::Controller::Shop;
 
-# FIXME: lots of english stripping needs to be done
-
 use strict;
 use warnings;
 use DW::Controller;
@@ -41,7 +39,7 @@ sub _shop_controller {
     # if payments are disabled, do nothing
     unless ( LJ::is_enabled( 'payments' ) ) {
         $r->redirect( "$LJ::SITEROOT/" );
-        return ( 0, 'The shop is currently disabled.' );
+        return ( 0, LJ::Lang::ml( 'shop.unavailable' ) );
     }
 
     # if they're banned ...
@@ -82,35 +80,45 @@ sub shop_transfer_points_handler {
     my ( $ok, $rv ) = _shop_controller();
     return $rv unless $ok;
 
+    my $remote = $rv->{remote};
     my %errs;
     $rv->{errs} = \%errs;
-    $rv->{has_points} = $rv->{remote}->shop_points;
+    $rv->{has_points} = $remote->shop_points;
 
     my $r = DW::Request->get;
     if ( LJ::did_post() ) {
         my $args = $r->post_args;
         die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
 
-        # error check the user
-        my $u = LJ::load_user( $args->{foruser} )
-            or $errs{foruser} = 'Invalid account.';
-        if ( $u ) {
-            if ( $u->is_visible && $u->is_person ) {
+        my $u = LJ::load_user( $args->{foruser} );
+        my $points = int( $args->{points} + 0 );
+
+        if ( !$u ) {
+            $errs{foruser} = LJ::Lang::ml( 'shop.item.points.canbeadded.notauser' );
+
+        } elsif ( my $item = DW::Shop::Item::Points->new( target_userid => $u->id, from_userid => $remote->id, points => $points, transfer => 1 ) ) {
+            # provisionally create the item to access object methods
+
+            # error check the user
+            if ( $item->can_be_added_user( errref => \$errs{foruser} ) ) {
                 $rv->{foru} = $u;
-            } else {
-                $errs{foruser} = 'Account must be active and a personal account.';
+                delete $errs{foruser};  # undefined
             }
+
+            # error check the points
+            if ( $item->can_be_added_points( errref => \$errs{points} ) ) {
+                # remote must have enough points to transfer
+                if ( $remote->shop_points < $points ) {
+                    $errs{points} = LJ::Lang::ml( 'shop.item.points.canbeadded.insufficient' );
+                } else {
+                    $rv->{points} = $points;
+                    delete $errs{points};  # undefined
+                }
+            }
+
+        } else {
+            $errs{foruser} = LJ::Lang::ml( 'shop.item.points.canbeadded.itemerror' );
         }
-
-        # error check the points
-        my $points = $args->{points} + 0;
-        $errs{points} = 'Points must be in range 1 to 5,000.'
-            unless $points >= 1 && $points <= 5000;
-        $rv->{points} = $points;
-
-        # remove must have enough points
-        $errs{points} = 'You do not have enough points to do that.'
-            unless $rv->{remote}->shop_points >= $points;
 
         # copy down anon value
         $rv->{anon} = $args->{anon} ? 1 : 0;
@@ -118,15 +126,15 @@ sub shop_transfer_points_handler {
         # if this is a confirmation page, then confirm if there are no errors
         if ( $args->{confirm} && ! scalar keys %errs ) {
             # first add the points to the other person... wish we had transactions here!
-            $u->give_shop_points( amount => $points, reason => sprintf( 'transfer from %s(%d)', $rv->{remote}->user, $rv->{remote}->id ) );
-            $rv->{remote}->give_shop_points( amount => -$points, reason => sprintf( 'transfer to %s(%d)', $u->user, $u->id ) );
+            $u->give_shop_points( amount => $points, reason => sprintf( 'transfer from %s(%d)', $remote->user, $remote->id ) );
+            $remote->give_shop_points( amount => -$points, reason => sprintf( 'transfer to %s(%d)', $u->user, $u->id ) );
 
             # send notification ...
             my $e = $rv->{anon} ? 'anon' : 'user';
             my $body = LJ::Lang::get_text( $u->prop( 'browselang' ), "esn.receivedpoints.$e.body", undef, {
                     user => $u->display_username,
                     points => $points,
-                    from => $rv->{remote}->display_username,
+                    from => $remote->display_username,
                     sitename => $LJ::SITENAMESHORT,
                     store => "$LJ::SITEROOT/shop/",
                 } );
@@ -150,8 +158,7 @@ sub shop_transfer_points_handler {
         
     } else {
         if ( my $for = $r->get_args->{for} ) {
-            my $fu = LJ::load_user( $for );
-            $rv->{foru} = $fu if $fu;
+            $rv->{foru} = LJ::load_user( $for );
         }
 
         if ( my $points = $r->get_args->{points} ) {
@@ -168,36 +175,42 @@ sub shop_points_handler {
     my ( $ok, $rv ) = _shop_controller();
     return $rv unless $ok;
 
+    my $remote = $rv->{remote};
     my %errs;
     $rv->{errs} = \%errs;
 
     my $r = DW::Request->get;
     if ( LJ::did_post() ) {
         my $args = $r->post_args;
+        die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
 
-        # error check the user
-        my $u = LJ::load_user( $args->{foruser} )
-            or $errs{foruser} = 'Invalid account.';
-        if ( $u ) {
-            if ( $u->is_visible && $u->is_person ) {
+        my $u = LJ::load_user( $args->{foruser} );
+        my $points = int( $args->{points} + 0 );
+        my $item;  # provisionally create the item to access object methods
+
+        if ( !$u ) {
+            $errs{foruser} = LJ::Lang::ml( 'shop.item.points.canbeadded.notauser' );
+
+        } elsif ( $item = DW::Shop::Item::Points->new( target_userid => $u->id, from_userid => $remote->id, points => $points ) ) {
+            # error check the user
+            if ( $item->can_be_added_user( errref => \$errs{foruser} ) ) {
                 $rv->{foru} = $u;
-            } else {
-                $errs{foruser} = 'Account must be active and a personal account.';
+                delete $errs{foruser};  # undefined
             }
-        }
 
-        # error check the points
-        my $points = $args->{points} + 0;
-        $errs{points} = 'Points must be in range 30 to 5,000.'
-            unless $points >= 30 && $points <= 5000;
-        $rv->{points} = $points;
+            # error check the points
+            if ( $item->can_be_added_points( errref => \$errs{points} ) ) {
+                $rv->{points} = $points;
+                delete $errs{points};  # undefined
+            }
+
+        } else {
+            $errs{foruser} = LJ::Lang::ml( 'shop.item.points.canbeadded.itemerror' );
+        }
 
         # looks good, add it!
         unless ( keys %errs ) {
-            $rv->{cart}->add_item(
-                DW::Shop::Item::Points->new( target_userid => $u->id, from_userid => $rv->{remote}->id, points => $points )
-            );
-        
+            $rv->{cart}->add_item( $item );
             return $r->redirect( "$LJ::SITEROOT/shop" );
         }
         
@@ -205,10 +218,9 @@ sub shop_points_handler {
         my $for = $r->get_args->{for};
 
         if ( ! $for || $for eq 'self' ) {
-            $rv->{foru} = $rv->{remote};
-        } elsif ( $for ) {
-            my $fu = LJ::load_user( $for );
-            $rv->{foru} = $fu if $fu;
+            $rv->{foru} = $remote;
+        } else {
+            $rv->{foru} = LJ::load_user( $for );
         }
     }
 

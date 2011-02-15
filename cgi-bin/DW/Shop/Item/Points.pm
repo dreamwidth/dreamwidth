@@ -47,7 +47,10 @@ sub new {
     my $self = $class->SUPER::new( %args, type => 'points' );
     return unless $self;
 
-    if ( $self ) {
+    if ( $args{transfer} ) {
+        $self->{cost_cash} = 0;
+        $self->{cost_points} = $self->{points};
+    } else {
         $self->{cost_cash} = $self->{points} / 10;
         $self->{cost_points} = 0;
     }
@@ -139,6 +142,15 @@ sub unapply {
 sub can_be_added {
     my ( $self, %opts ) = @_;
 
+    return 0 unless $self->can_be_added_user( %opts );
+    return 0 unless $self->can_be_added_points( %opts );
+
+    return 1;
+}
+
+sub can_be_added_user {
+    my ( $self, %opts ) = @_;
+
     my $errref = $opts{errref};
 
     # if not a valid account, error
@@ -154,9 +166,30 @@ sub can_be_added {
         return 0;
     }
 
-    # sanity check that the points are in-range and less than 5000, but only if they're being
-    # purchased.  otherwise, we allow anything if it's a 0.00 cost item.
-    if ( $self->cost_cash > 0.00 && ( $self->points < 30 || $self->points > 5000 ) ) {
+    # make sure no sysban is in effect here
+    my $fromu = LJ::load_userid( $self->from_userid );
+    if ( $fromu && $target_u->has_banned( $fromu ) ) {
+        $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.banned' );
+        return 0;
+    }
+
+    return 1;
+}
+
+sub can_be_added_points {
+    my ( $self, %opts ) = @_;
+
+    my $errref = $opts{errref};
+
+    # sanity check that the points are positive and not more than 5000
+    unless ( $self->points > 0 && $self->points <= 5000 ) {
+        $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.outofrange' );
+        return 0;
+    }
+
+    # sanity check that the points are above the purchase minimum, but only
+    # if they're being purchased.  we allow small point transfers at no cost.
+    if ( $self->cost_cash > 0.00 && $self->points < 30 ) {
         $$errref = LJ::Lang::ml( 'shop.item.points.canbeadded.outofrange' );
         return 0;
     }

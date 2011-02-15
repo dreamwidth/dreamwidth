@@ -96,10 +96,15 @@ sub new {
     }
 
     # looks good
+    my $confargs = $LJ::SHOP{$args{type}};  # arrayref
+
+    # points and vgifts have empty args, which will cause undef warnings
+    $confargs = [0,0,0,0] unless scalar @$confargs;
+
     return bless {
         # user supplied arguments (close enough)
-        cost_cash   => $LJ::SHOP{$args{type}}->[0] + 0.00,
-        cost_points => $LJ::SHOP{$args{type}}->[3] + 0,
+        cost_cash   => $confargs->[0] + 0.00,
+        cost_points => $confargs->[3] + 0,
         %args,
 
         # internal things we use to track the state of this item,

@@ -3723,7 +3723,13 @@ shop.item.account.name.perm=[[points]] points for a [[name]]
 
 shop.item.account.randomuser=Random active free user
 
+shop.item.points.canbeadded.banned=You are restricted from making purchases for this journal.
+
+shop.item.points.canbeadded.insufficient=You do not have enough points to do that.
+
 shop.item.points.canbeadded.invalidjournaltype=You can only buy points for a personal journal.
+
+shop.item.points.canbeadded.itemerror=Could not add item to cart.
 
 shop.item.points.canbeadded.notauser=You can only buy points for an active account.
 
@@ -3740,6 +3746,8 @@ shop.item.rename.name.notoken=[[points]] points for a Rename Token
 shop.item.rename.name.hastoken=Rename Token <a [[aopts]]>[[token]]</a>
 
 shop.item.rename.name.hastoken.text=Rename Token [[token]]
+
+shop.unavailable=The shop is currently disabled.
 
 sitescheme.accountlinks.account=Account
 
