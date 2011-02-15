@@ -2,7 +2,7 @@
 
 use strict;
 use Test::More;
-plan tests => 16;
+plan tests => 19;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -59,22 +59,42 @@ $clean_comment = qq{<span style="\\s*padding-top: 200px;\\s*padding-left: 200px;
 $clean->({ remove_positioning => 1 });
 ok($orig_comment =~ /^$clean_comment$/, "Padding not removed; of reasonable size.");
 
-note( "Clean absolute sizes" );
+note( "Remove absolute sizes when logged out" );
 {
     $orig_comment  = qq{<span style="font-size: larger">foo</span>};
     $clean_comment = qq{<span style="font-size: larger">foo</span>};
-    $clean->();
+    $clean->( { anon_comment => 1 } );
     is( $orig_comment, $clean_comment, "Retain relative font sizes" );
 
     $orig_comment  = qq{<span style="font-size:   10px  ">foo</span>};
     $clean_comment = qq{<span style="">foo</span>};
-    $clean->();
+    $clean->( { anon_comment => 1 } );
     is( $orig_comment, $clean_comment, "Strip absolute font sizes" );
 
     $orig_comment  = qq{<span style="font-size:0.2em; font-weight: bold">foo</span>};
     $clean_comment = qq{<span style=" font-weight: bold">foo</span>};
-    $clean->();
+    $clean->( { anon_comment => 1 } );
     is( $orig_comment, $clean_comment, "Strip absolute font sizes" );
+
+
+}
+
+note( "Don't remove absolute sizes when logged in" );
+{
+    $orig_comment  = qq{<span style="font-size: larger">foo</span>};
+    $clean_comment = $orig_comment;
+    $clean->();
+    is( $orig_comment, $clean_comment, "Retain relative font sizes" );
+
+    $orig_comment  = qq{<span style="font-size:   10px  ">foo</span>};
+    $clean_comment = $orig_comment;
+    $clean->();
+    is( $orig_comment, $clean_comment, "Retain absolute font sizes" );
+
+    $orig_comment  = qq{<span style="font-size:0.2em; font-weight: bold">foo</span>};
+    $clean_comment = $orig_comment;
+    $clean->();
+    is( $orig_comment, $clean_comment, "Retain absolute font sizes" );
 
 
 }

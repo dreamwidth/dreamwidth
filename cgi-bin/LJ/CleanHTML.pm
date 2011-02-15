@@ -1571,7 +1571,7 @@ sub clean_comment
         'nocss' => $opts->{'nocss'},
         'textonly' => $opts->{'textonly'} ? 1 : 0,
         'remove_positioning' => 1,
-        'remove_abs_sizes' => 1,
+        'remove_abs_sizes' => $opts->{anon_comment},
     });
 }
 
