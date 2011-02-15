@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 132;
+use Test::More tests => 142;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
@@ -150,6 +150,11 @@ note( "Testing clean_embed (we provide the contents to be cleaned directly)" );
     $clean_post = qq{<iframe src="http://www.youtube.com/embed/$id" height="100" width="200"></iframe>};
     $clean->();
     is( $orig_post, $clean_post, "<iframe> tag: trusted with malicious parameters" );
+
+    $orig_post = qq{<iframe src="http://www.youtube.com/embed/$id" name="thisname"></iframe>};
+    $clean_post = qq{<iframe src="http://www.youtube.com/embed/$id"></iframe>};
+    $clean->();
+    is( $orig_post, $clean_post, "<iframe> tag: with name parameter" );
 
 
     # not sure if we need to do anything about this
@@ -420,8 +425,10 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
         # check embed attributes (assumes we only have the one embedded item)
         # make sure that the only top-level iframes we have are the ones we generated
         if ( $viewed_entry =~ "<iframe" ) {
-            my %attrs = $viewed_entry =~ /(name|class|src)="?([^"]+)"?/g;
-            is( $attrs{name}, "embed_" . $u->userid . "_1", "iframe name: $title" );
+            my $userid = $u->userid;
+            my %attrs = $viewed_entry =~ /(id|name|class|src)="?([^"]+)"?/g;
+            is( $attrs{id}, "embed_${userid}_1", "iframe id: $title" );
+            like( $attrs{name}, qr!embed_${userid}_1_[\w]{5}!, "iframe name: $title" );
             is( $attrs{class}, "lj_embedcontent", "iframe class: $title" );
             like( $attrs{src}, qr!^http://$LJ::EMBED_MODULE_DOMAIN/\?journalid=!, "iframe src: $title" );
         }

@@ -442,6 +442,9 @@ sub clean
                         }
                         next TOKEN;
                     }
+
+                    # remove the name, because it can be targetted by links
+                    delete $attr->{name};
                 }
             }
 

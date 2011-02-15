@@ -334,12 +334,14 @@ sub module_iframe_tag {
     $height = MAX_HEIGHT if $height > MAX_HEIGHT;
 
     # safari caches state of sub-resources aggressively, so give
-    # each iframe a unique 'name' attribute
-    my $id = qq(name="embed_${journalid}_$moduleid");
+    # each iframe a unique 'name' and 'id' attribute
+    # append a random string to the name so it can't be targetted by links
+    my $id = "embed_${journalid}_$moduleid";
+    my $name = "${id}_" . LJ::make_auth_code( 5 );
 
     my $auth_token = LJ::eurl(LJ::Auth->sessionless_auth_token('embedcontent', moduleid => $moduleid, journalid => $journalid, preview => $preview,));
     my $iframe_tag = qq {<iframe src="http://$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token" } .
-        qq{width="$width" height="$height" allowtransparency="true" frameborder="0" class="lj_embedcontent" $id></iframe>};
+        qq{width="$width" height="$height" allowtransparency="true" frameborder="0" class="lj_embedcontent" id="$id" name="$name"></iframe>};
 
     my $remote = LJ::get_remote();
     return $iframe_tag unless $remote;
