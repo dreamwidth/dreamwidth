@@ -535,6 +535,7 @@
             'userpics' => 150,
             'userpicselect' => 1,
             'viewmailqueue' => 1,
+            'xpost_accounts' => 5,
             'paid' => 1,
             'fastserver' => 1,
         },
