@@ -1427,9 +1427,6 @@ sub clean_and_trim_subject {
     $$ref = LJ::text_trim($$ref, 0, $length);
 }
 
-my $event_eat = [qw[head title style layer iframe applet object xml param]];
-my $event_remove = [qw[bgsound embed object link body meta noscript plaintext noframes]];
-
 my @comment_close = qw(
     a sub sup xmp bdo q span
     b i u tt s strike big small font
@@ -1437,13 +1434,17 @@ my @comment_close = qw(
     h1 h2 h3 h4 h5 h6 div blockquote address pre center
     ul ol li dl dt dd
     table tr td th tbody tfoot thead colgroup caption
-    marquee area map form textarea blink
+    area map form textarea
 );
-my @comment_all = (@comment_close, "img", "br", "hr", "p", "col");
+my @comment_all = ( @comment_close, qw( img br hr p col ) );
+
+my $event_eat = [ qw[ head title style layer iframe applet object xml param ] ];
+my $event_remove = [ qw[ bgsound embed object link body meta noscript plaintext noframes ] ];
+my @event_close = ( @comment_close, qw( marquee blink ) );
 
 my $userbio_eat = $event_eat;
 my $userbio_remove = $event_remove;
-my @userbio_close = @comment_close;
+my @userbio_close = @event_close;
 
 sub clean_event
 {
@@ -1475,7 +1476,7 @@ sub clean_event
         'eat' => $event_eat,
         'mode' => 'allow',
         'remove' => $event_remove,
-        'autoclose' => \@comment_close,
+        'autoclose' => \@event_close,
         'cleancss' => 1,
         'maximgwidth' => $opts->{'maximgwidth'},
         'maximgheight' => $opts->{'maximgheight'},
