@@ -42,9 +42,25 @@ sub save_module {
         or croak "No journal passed to LJ::EmbedModule::save_module";
     my $preview = $opts{preview};
 
+    my $need_new_id = !defined $id;
+
+    if (defined $id) {
+        my $old_content = $class->module_content( moduleid => $id,
+            journalid => LJ::want_userid($journal) ) || '';
+        my $new_content = $contents;
+
+        # old content is cleaned by module_content(); new is not
+        LJ::CleanHTML::clean_embed( \$new_content );
+
+        $old_content =~ s/\s//sg;
+        $new_content =~ s/\s//sg;
+
+        $need_new_id = 1 unless $old_content eq $new_content;
+    }
+
     # are we creating a new entry?
-    unless (defined $id) {
-        $id = LJ::alloc_user_counter($journal, 'D')
+    if ( $need_new_id ) {
+        $id = LJ::alloc_user_counter( $journal, 'D' )
             or die "Could not allocate embed module ID";
     }
 
@@ -384,23 +400,7 @@ sub module_content {
     LJ::text_uncompress(\$content) if $content =~ s/^C-//;
 
     # clean js out of content
-    if ( LJ::is_enabled('embedmodule-cleancontent') ) {
-        LJ::CleanHTML::clean(\$content, {
-            addbreaks => 0,
-            tablecheck => 0,
-            mode => 'allow',
-            allow => [qw(object embed)],
-            deny => [qw(script iframe)],
-            remove => [qw(script iframe)],
-            ljcut_disable => 1,
-            cleancss => 0,
-            extractlinks => 0,
-            noautolinks => 1,
-            extractimages => 0,
-            noexpandembedded => 1,
-            transform_embed_nocheck => 1,
-        });
-    }
+    LJ::CleanHTML::clean_embed( \$content );
 
     # if we got stuff out of database
     if ($dbload) {
