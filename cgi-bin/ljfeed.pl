@@ -291,6 +291,13 @@ sub make_feed
     return $viewfunc->{handler}->($journalinfo, $u, $opts, \@cleanitems, \@entries);
 }
 
+# helper method to add a namespace to the root of a feed
+sub _add_feed_namespace {
+    my ( $feed, $ns_prefix, $namespace ) = @_;
+    my $doc = $feed->elem->ownerDocument->getDocumentElement;
+    $doc->setAttribute( "xmlns:$ns_prefix", $namespace );
+}
+
 # helper method for create_view_rss and create_view_comments
 sub _init_talkview {
     my ( $journalinfo, $u, $opts, $talkview ) = @_;
@@ -402,19 +409,10 @@ sub create_view_rss {
 sub create_view_atom
 {
     my ( $j, $u, $opts, $cleanitems, $entrylist ) = @_;
-    my ( $feed, $xml, $ns );
+    my ( $feed, $xml, $ns, $site_ns_prefix );
 
+    $site_ns_prefix = lc $LJ::SITENAMEABBREV;
     $ns = "http://www.w3.org/2005/Atom";
-
-    # Strip namespace from child tags. Set default namespace, let
-    # child tags inherit from it. Do it manually; LibXML can't on its own.
-    my $normalize_ns = sub {
-        my $str = shift;
-        $str =~ s/(<\w+)\s+xmlns="\Q$ns\E"/$1/og;
-        $str =~ s/<feed\b/<feed xmlns="$ns" xmlns:lj="$LJ::SITEROOT"/;
-        $str =~ s/<entry>/<entry xmlns="$ns" xmlns:lj="$LJ::SITEROOT">/ if $opts->{'single_entry'};
-        return $str;
-    };
 
     # AtomAPI interface path
     my $api = $opts->{'apilinks'} ? $u->atom_service_document :
@@ -441,7 +439,7 @@ sub create_view_atom
         $xml  = $feed->elem->ownerDocument;
 
         if ($u->should_block_robots) {
-            $xml->getDocumentElement->setAttribute( "xmlns:idx", "urn:atom-extension:indexing" );
+            _add_feed_namespace( $feed, "idx", "urn:atom-extension:indexing" );
             $xml->getDocumentElement->setAttribute( "idx:index", "no" );
         }
 
@@ -466,7 +464,7 @@ sub create_view_atom
         );
         $feed->updated( LJ::time_to_w3c($j->{'modtime'}, 'Z') );
 
-        my $ljinfo = $xml->createElement( 'lj:journal' );
+        my $ljinfo = $xml->createElement( "$site_ns_prefix:journal" );
         $ljinfo->setAttribute( 'username', LJ::exml($u->user) );
         $ljinfo->setAttribute( 'type', LJ::exml($u->journaltype_readable) );
         $xml->getDocumentElement->appendChild( $ljinfo );
@@ -502,7 +500,7 @@ sub create_view_atom
             $entry->author( $author );
 
             # and the lj-specific stuff
-            my $postauthor = $entry_xml->createElement( 'lj:poster' );
+            my $postauthor = $entry_xml->createElement( "$site_ns_prefix:poster" );
             $postauthor->setAttribute( 'user', LJ::exml($poster->user));
             $entry_xml->getDocumentElement->appendChild( $postauthor );
         }
@@ -536,7 +534,7 @@ sub create_view_atom
         $entry->updated(   LJ::time_to_w3c($it->{modtime},    "Z") );
 
         foreach my $tag ( @{$it->{tags} || []} ) {
-            my $category = XML::Atom::Category->new;
+            my $category = XML::Atom::Category->new( Version => 1 );
             $category->term( $tag );
             $entry->add_category( $category );
         }
@@ -550,7 +548,7 @@ sub create_view_atom
         foreach ( @currents ) {
             my ( $key, $val ) = @$_;
             if ( defined $val ) {
-                my $elem = $entry_xml->createElement( "lj:$key" );
+                my $elem = $entry_xml->createElement( "$site_ns_prefix:$key" );
                 $elem->appendTextNode( $val );
                 $entry_xml->getDocumentElement->appendChild( $elem );
             }
@@ -582,14 +580,16 @@ sub create_view_atom
         }
 
         if ( $opts->{'single_entry'} ) {
-            return $normalize_ns->( $entry->as_xml() );
+            _add_feed_namespace( $entry, $site_ns_prefix, $LJ::SITEROOT );
+            return $entry->as_xml;
         }
         else {
             $feed->add_entry( $entry );
         }
     }
 
-    return $normalize_ns->( $feed->as_xml() );
+    _add_feed_namespace( $feed, $site_ns_prefix, $LJ::SITEROOT );
+    return $feed->as_xml;
 }
 
 # create a FOAF page for a user
