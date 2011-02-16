@@ -282,6 +282,7 @@ body<=
                                                             auth_response => $POST{"prop_xpost_resp_$acctid"}
                                                                              || $GET{"prop_xpost_resp_$acctid"}})
                                                       });
+                    $xpost_result .= "<ul>\n";
                     $xpost_result .= join("\n",
                                           map {"<li>"
                                                . BML::ml('xpost.request.success',
@@ -295,6 +296,8 @@ body<=
                                                           'editurl' => $edititemlink})
                                                . " </strong></div></li>"}
                                               @{$xpost_failures});
+                    $xpost_result .= "</ul>\n";
+                    $xpost_result .= "<br/>";
                 }
 
                 my $result = "<?h1 $ML{'.success.head'} h1?>";
