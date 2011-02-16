@@ -831,13 +831,6 @@ sub create_view_userpics {
 
     $ns = "http://www.w3.org/2005/Atom";
 
-    my $normalize_ns = sub {
-        my $str = shift;
-        $str =~ s/(<\w+)\s+xmlns="\Q$ns\E"/$1/og;
-        $str =~ s/<feed\b/<feed xmlns="$ns"/;
-        return $str;
-    };
-
     my $make_link = sub {
         my ( $rel, $type, $href, $title ) = @_;
         my $link = XML::Atom::Link->new( Version => 1 );
@@ -852,10 +845,10 @@ sub create_view_userpics {
     $author->name(  $u->{name} );
 
     $feed = XML::Atom::Feed->new( Version => 1 );
-    $xml  = $feed->{doc};
+    $xml  = $feed->elem->ownerDocument;
 
     if ($u->should_block_robots) {
-        $xml->getDocumentElement->setAttribute( "xmlns:idx", "urn:atom-extension:indexing" );
+        _add_feed_namespace( $feed, "idx", "urn:atom-extension:indexing" );
         $xml->getDocumentElement->setAttribute( "idx:index", "no" );
     }
 
@@ -913,7 +906,7 @@ sub create_view_userpics {
 
     foreach my $pic (@pics) {
         my $entry = XML::Atom::Entry->new( Version => 1 );
-        my $entry_xml = $entry->{doc};
+        my $entry_xml = $entry->elem->ownerDocument;
 
         $entry->id( $u->atomid . ":userpics:$pic->{picid}" );
 
@@ -952,7 +945,7 @@ sub create_view_userpics {
         $feed->add_entry( $entry );
     }
 
-    return $normalize_ns->( $feed->as_xml() );
+    return $feed->as_xml;
 }
 
 
