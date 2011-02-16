@@ -418,7 +418,7 @@ function Page::print_theme_stylesheet() {
         }
 
     .module a:hover,
-    .module-navlinks li a.current {
+    .module-navlinks li.current a {
         border-bottom: 3px double;
         text-decoration: none;
         }
@@ -1094,7 +1094,7 @@ function Page::print_theme_stylesheet() {
         border-bottom: none;
         }
 
-    .module-navlinks li a.current {
+    .module-navlinks li.current a {
         border-bottom: 1px dotted;
         text-decoration: none;
         }
@@ -1480,7 +1480,7 @@ function Page::print_theme_stylesheet() {
         }
 
     .module a:hover,
-    .module-navlinks li a.current {
+    .module-navlinks li.current a {
         border-bottom: 3px double;
         text-decoration: none;
         }
