@@ -108,6 +108,7 @@ sub make_feed
             posterid => $entry->poster->id,
             security => $entry->security,
             alldatepart => LJ::alldatepart_s2($entry->eventtime_mysql),
+            rlogtime => $LJ::EndOfTime - LJ::mysqldate_to_time( $entry->logtime_mysql, 0 ),
         };
     } else {
         @items = $u->recent_items(
