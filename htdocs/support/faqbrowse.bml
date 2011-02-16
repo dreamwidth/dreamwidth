@@ -14,8 +14,6 @@
 _c?>
 <?page
 head<=
-<?searchcss?>
-
 <script language='JavaScript'>
 <!--
     function showAnswer() {
