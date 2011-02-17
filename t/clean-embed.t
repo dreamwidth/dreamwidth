@@ -218,9 +218,9 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qq{foo <site-embed id="1"> </site-embed> bar},
 
             qq{foo <site-embed id="1"/> bar},
-            qq{foo <site-embed id="1"></site-embed> bar},
+            qr{foo <site-embed id="1">\s*</site-embed> bar},
             qr{foo $iframe bar},
-            qq{},
+            qr{\s*},
         ],
 
 
@@ -407,7 +407,11 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
         # edit the post
         my $expanded_entry = $got_post_saved;
         LJ::EmbedModule->expand_entry( $u, \$expanded_entry, edit => 1 );
-        is( $expanded_entry, $expected_edit, "expand_entry: $title" );
+        if ( ref $expected_edit && ref $expected_edit eq "Regexp" ) {
+            like( $expanded_entry, $expected_edit, "expand entry: $title" );
+        } else {
+            is( $expanded_entry, $expected_edit, "expand_entry: $title" );
+        }
 
         # view the post in your journal (get iframe if applicable)
         my $viewed_entry = $got_post_saved;
@@ -436,6 +440,10 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
         # check the iframe contents
         # LJ::EmbedModule takes the content and cleans it
         my $got_embed = LJ::EmbedModule->module_content( journalid => $u->userid, moduleid => 1 );
-        is( $got_embed, $expected_iframe, "clean_embed: $title" );
+        if( ref $expected_iframe && ref $expected_iframe eq "Regexp" ) {
+            like( $got_embed, $expected_iframe, "clean_embed: $title" );
+        } else {
+            is( $got_embed, $expected_iframe, "clean_embed: $title" );
+        }
     }
 }
