@@ -756,7 +756,7 @@ function Page::print_default_stylesheet()
         text-decoration: none;
     }
 
-    h3.comment-subjecticon { margin: 0; }
+    .comment-subjecticon { margin: 0; }
 
     .comment-content {
         padding-left: 10px;

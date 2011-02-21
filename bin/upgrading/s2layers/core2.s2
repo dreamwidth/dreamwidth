@@ -4754,7 +4754,7 @@ function Entry::print_metatypes() {
 
 function Comment::print_metatypes() {
     if (defined $this.subject_icon) {
-        """<h3 class="comment-subjecticon">$this.subject_icon</h3>""";
+        """<div class="comment-subjecticon">$this.subject_icon</div>""";
     }
 }
 
