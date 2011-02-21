@@ -345,8 +345,10 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
             if (read) {
                 DOM.removeClassName(titleElement, "InboxItem_Unread");
                 DOM.addClassName(titleElement, "InboxItem_Read");
+                DOM.addClassName(titleElement, "read");
             } else {
                 DOM.removeClassName(titleElement, "InboxItem_Read");
+                DOM.removeClassName(titleElement, "read");
                 DOM.addClassName(titleElement, "InboxItem_Unread");
             }
         }
