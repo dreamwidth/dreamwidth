@@ -55,6 +55,7 @@
             cssproxy => 'cssproxy',
             shop => 'shop',
             mobile => 'mobile', 
+            support => 'support',
         );
 
 
