@@ -83,6 +83,24 @@ propgroup text
     property use text_read_comments;
     property use text_post_comment_friends;
     property use text_read_comments_friends;
+
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+    property use text_meta_music;
+    property use text_meta_mood;
+    property use text_meta_location;
+    property use text_meta_xpost;
+    property use text_tags;
+
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_tell_friend;
+    property use text_mem_add;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+    property use text_permalink;
     property use text_stickyentry_subject;
 
     property string text_navigation_header
