@@ -973,6 +973,7 @@ sub entry_props {
         text_meta_music
         text_meta_groups
         text_meta_location
+        text_meta_xpost
         text_nosubject
         text_watch_comments
         text_unwatch_comments

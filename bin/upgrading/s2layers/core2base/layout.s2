@@ -189,6 +189,7 @@ propgroup text {
     property use text_meta_music;
     property use text_meta_mood;
     property use text_meta_location;
+    property use text_meta_xpost;
     property use text_tags;
 
     property use text_entry_prev;
