@@ -327,15 +327,7 @@ sub logtime_unix {
 
 sub modtime_unix {
     my $self = $_[0];
-    __PACKAGE__->preload_rows ([ $self ]) unless $self->{_loaded_row};
-    __PACKAGE__->preload_props([ $self ]) unless $self->{_loaded_props};
-
-    return LJ::mysqldate_to_time($self->{logtime}, 1);
-}
-
-sub revtime_unix {
-    my $self = $_[0];
-    return $self->prop( "revtime" );
+    return $self->prop( "revtime" ) || $self->logtime_unix;
 }
 
 sub security {
@@ -597,7 +589,7 @@ sub atom_entry {
     $atom_entry->title( $self->subject_text );
 
     $atom_entry->published( LJ::time_to_w3c( $self->logtime_unix, "Z" ) );
-    $atom_entry->updated( LJ::time_to_w3c( $self->revtime_unix || $self->logtime_unix, 'Z' ) );
+    $atom_entry->updated( LJ::time_to_w3c( $self->modtime_unix, 'Z' ) );
 
     my $author = XML::Atom::Person->new( Version => 1 );
     $author->name( $self->poster->name_orig );
