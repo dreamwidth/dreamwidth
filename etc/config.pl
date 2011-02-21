@@ -54,7 +54,8 @@
             syndicated => 'journal',
             cssproxy => 'cssproxy',
             shop => 'shop',
-            mobile => 'mobile', 
+            mobile => 'mobile',
+            m => 'mobile',
             support => 'support',
         );
 
