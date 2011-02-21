@@ -1,6 +1,6 @@
 _parent=>global.look
 page<=
-{Fps}<?_code
+{Ftps}<?_code
 use DW::Template;
 use DW::Request;
 
