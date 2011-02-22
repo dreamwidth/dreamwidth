@@ -249,9 +249,11 @@ sub _process_queue {
     my $show_entry = sub {
         my $entry = $_[0];
 
-        return unless $entry->security eq 'public';
-        return unless $entry->poster->include_in_latest_feed &&
+        return 0 unless $entry->security eq 'public';
+        return 0 unless $entry->poster->include_in_latest_feed &&
                       $entry->journal->include_in_latest_feed;
+
+        return 1;
     };
 
     my @gq;
