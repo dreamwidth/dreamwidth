@@ -923,6 +923,14 @@ function Page::print_default_stylesheet()
         padding-left: 10px;
     }
 
+    /* Page Footer
+    ***************************************************************************/
+    .page-top {
+        font-size: .8em;
+        padding-top: 10px;
+        text-align: center;
+    }
+
 $userpic_css
 
 """;
@@ -977,6 +985,11 @@ function Page::print()
                     $this->print_module_section("two");
                 println "</div>";
             println "</div>";
+
+            println "<div id=\"canvas-footer\">";
+                    print safe """<div class="page-top"><a href="#">$*text_page_top</a></div>""";
+            println "</div>";
+
         println "</div>";
 
     $this->print_wrapper_end();
