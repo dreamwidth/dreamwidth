@@ -186,8 +186,7 @@ ESN_Inbox.markLinkedItemRead = function (evt, folder) {
     Event.stop(evt);
     var row = DOM.getFirstAncestorByClassName(evt.target, "InboxItem_Row");
     var qid = row.getAttribute("lj_qid");
-    ESN_Inbox.updateItems('mark_read', evt, folder, qid);
-    window.open(evt.target.href);
+    ESN_Inbox.updateItems('mark_read', evt, folder, qid, '', '', function() { window.location=evt.target.href });
     return false;
 };
 
@@ -245,7 +244,7 @@ ESN_Inbox.bookmark = function (evt, folder, qid) {
 }
 
 // do an ajax action on the currently selected items
-ESN_Inbox.updateItems = function (action, evt, folder, qid, cur_folder, itemid) {
+ESN_Inbox.updateItems = function (action, evt, folder, qid, cur_folder, itemid, successfunction) {
     if (!ESN_Inbox.hourglass) {
         var coords = DOM.getAbsoluteCursorPosition(evt);
         ESN_Inbox.hourglass = new Hourglass();
@@ -268,7 +267,7 @@ ESN_Inbox.updateItems = function (action, evt, folder, qid, cur_folder, itemid) 
         "data": HTTPReq.formEncoded(postData),
         "method": "POST",
         "onError": ESN_Inbox.reqError,
-        "onData": function(info) { ESN_Inbox.finishedUpdate(info, folder) }
+        "onData": function(info) { ESN_Inbox.finishedUpdate(info, folder, successfunction) }
     };
 
     opts.url = Site.currentJournal ? "/" + Site.currentJournal + "/__rpc_esn_inbox" : "/__rpc_esn_inbox";
@@ -286,7 +285,7 @@ ESN_Inbox.reqError = function (error) {
 };
 
 // successfully completed request
-ESN_Inbox.finishedUpdate = function (info, folder) {
+ESN_Inbox.finishedUpdate = function (info, folder, successfunction) {
     if (ESN_Inbox.hourglass) {
         ESN_Inbox.hourglass.hide();
         ESN_Inbox.hourglass = null;
@@ -300,6 +299,10 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
     }
 
     if (! info || ! info.success || ! defined(info.items)) return;
+
+    if ( successfunction ) {
+        successfunction();
+    }
 
     var unread_count = 0;
     var usermsg_recvd_count = 0;
