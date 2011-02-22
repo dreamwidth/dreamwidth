@@ -396,9 +396,11 @@ function Page::print_default_stylesheet()
     #secondary .module-header a {
         color: $*color_module_title;
     }
-    #secondary .manage-tags-link {
+
+    .manage-link {
         text-align: center;
     }
+
     .module {
         letter-spacing:.3em;
         padding: 0.5em 0;
@@ -562,10 +564,6 @@ function Page::print_default_stylesheet()
     }
     .tags-container a:active {
         color: $*color_entry_link_active !important;
-    }
-
-    .page-tags .manage-tags-link {
-        text-align: center;
     }
 
     .module-section-two .module,

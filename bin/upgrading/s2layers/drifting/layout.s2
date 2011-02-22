@@ -488,7 +488,7 @@ function Page::print_default_stylesheet()
         display: inline;
         }
 
-    #secondary .manage-tags-link {
+    #secondary .manage-link {
         margin-bottom: 1em;
         text-align: center;
     }

@@ -287,6 +287,7 @@ class UserLite
     function builtin ljuser(Color link_color) : string "Returns an LJ user tag for the user.  The color of the link will be link_color.";
     function builtin get_link(string key) : Link "Returns a link based on the given key, or null if the link is unavailable";
     function base_url () : string "Returns URL of user's journal.";
+    function linklist_manage_url () : string "Returns URL to user's tag management page.";
     function tag_manage_url () : string "Returns URL to user's tag management page.";
     function print_interaction_links() "Print the interaction links for this user/journal.";
     function as_string() : string;
@@ -2514,6 +2515,11 @@ set text_tags_item_sep = ",";
 ## Text - misc strings, not popular enough to expose in wizard
 ##================================================================
 
+property string text_linklist_manage {
+    des = "Text to use to link to this journal's links list management page.";
+    example = "Manage Links";
+}
+
 property string text_default_separator {
     des = "Text used to separate items";
     maxlength = 5;
@@ -2573,6 +2579,7 @@ property string text_calendar_num_entries {
     example = "1 entry // # entries";
 }
 
+set text_linklist_manage = "Manage Links";
 set text_default_separator = " | ";
 set text_view_month = "View Subjects";
 set text_generated_on = "Page generated";
@@ -3213,6 +3220,12 @@ function UserLite::base_url() [fixed] : string
     return userlite_base_url($this);
 }
 
+function UserLite::linklist_manage_url() [fixed] : string
+"Returns a link to the user's links list management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
+    return "$*SITEROOT/customize/options?group=linkslist&authas=$.username";
+}
+
 function UserLite::tag_manage_url() [fixed] : string
 "Returns a link to the user's tag management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
@@ -3625,10 +3638,16 @@ function server_sig()
     """<span id="site-branding">$*text_powered_by <a href="$*SITEROOT/">$*SITENAME</a></span>""";
 }
 
+function print_linklist_manage_link() "Prints out a link to the links list management page, if the viewer can manage the list."
+{
+    var Page p = get_page();
+    print (viewer_is_owner() or viewer_is_admin()) ? "<div class=\"manage-link\"><a href=\"" + $p.journal->linklist_manage_url() + "\">$*text_linklist_manage</a></div>" : "";
+}
+
 function print_tag_manage_link() "Prints out a link to the tag management page, if the viewer can manage tags."
 {
     var Page p = get_page();
-    print viewer_can_manage_tags() ? "<div class=\"manage-tags-link\"><a href=\"" + $p.journal->tag_manage_url() + "\">$*text_tags_manage</a></div>" : "";
+    print viewer_can_manage_tags() ? "<div class=\"manage-link manage-tags-link\"><a href=\"" + $p.journal->tag_manage_url() + "\">$*text_tags_manage</a></div>" : "";
 }
 
 function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to full text"
@@ -4217,6 +4236,7 @@ function print_module_links() {
     }
     if ($box_open) {
         print_module_list($items);
+        print_linklist_manage_link();
         close_module();
     }
 }

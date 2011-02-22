@@ -855,9 +855,9 @@ ul.userlite-interaction-links.icon-links li {
 .tags_cloud li, .module-tags_cloud li { display: inline;
     list-style-type: none; }
 
-.manage-tags-link {
-    text-align: right;
+.manage-link {
     font-size: smaller;
+    text-align: right;
     text-transform: uppercase;
     }
 

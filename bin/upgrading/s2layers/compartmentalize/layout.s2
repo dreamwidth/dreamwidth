@@ -294,8 +294,8 @@ div.module-navlinks ul.module-list {
     text-transform: uppercase;
     }
 
-div.manage-tags-link {
-    margin: .5em 0 0 0;
+div.manage-link {
+    margin: .5em 0 0;
     text-align: right;
     text-transform: uppercase;
     }

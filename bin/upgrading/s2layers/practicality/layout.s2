@@ -409,7 +409,7 @@ div.module-navlinks a {
     color: $*color_module_title;
     }
 
-div.manage-tags-link {
+div.manage-link {
     margin: 10px 0 0;
     text-align: right;
     }

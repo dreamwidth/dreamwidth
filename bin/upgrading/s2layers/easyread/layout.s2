@@ -499,11 +499,15 @@ h2.module-header a {
     display: inline;
 }
 
-.module-tags_list .manage-tags-link:before {
+.module-typelist .manage-link:before,
+.module-tags_list .manage-link:before,
+.module-tags_multilevel .manage-link:before {
     content: "(";
 }
 
-.module-tags_list .manage-tags-link:after {
+.module-typelist .manage-link:after,
+.module-tags_list .manage-link:after,
+.module-tags_multilevel .manage-link:after {
     content: ")";
 }
 
