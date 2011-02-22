@@ -22,4 +22,25 @@ use DW::Routing;
 
 DW::Routing->register_static( '/dev/classes', 'dev/classes.tt', app => 1 );
 
+
+DW::Routing->register_regex( '/dev/tests/([^/]+)(?:/(.*))?', \&tests_handler, app => 1 );
+
+sub tests_handler {
+    my ( $opts ) = @_;
+    my $test = $opts->subpatterns->[0];
+    my $lib = $opts->subpatterns->[1] || "";
+
+    my $r = DW::Request->get;
+    return $r->NOT_FOUND unless $LJ::IS_DEV_SERVER;
+
+    # force a site scheme which only shows the bare content
+    # but still prints out resources included using need_res
+    $r->note( bml_use_scheme => "global" );
+
+    # we don't validate the test name, so be careful!
+    return DW::Template->render_template( "dev/tests.tt", {
+            testname => $test,
+            testlib  => $lib,
+         } );
+}
 1;

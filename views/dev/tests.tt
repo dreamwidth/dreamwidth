@@ -1,0 +1,89 @@
+[%# tests.tt
+
+Run JS unit tests
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% testname = testname | html %]
+[% label = testname %]
+[%- includes = [ "js/tests/qunit.js", "stc/tests/qunit.css" ] -%]
+
+[%- TRY;
+        tests = BLOCK;
+            INSERT "dev/tests/${testname}.js";
+        END;
+
+        has_tests = 1;
+    CATCH file;
+        label = "No tests defined for $testname";
+    END
+-%]
+
+[%- IF has_tests AND ( matches = tests.match('(?s)/\* INCLUDE:\n(.*?)\*/') );
+        includes = includes.merge( matches.first.split("\\s+").grep("\\w+") );
+    END
+-%]
+
+[%- IF testlib == "jquery";
+        dw.need_res( { group => "jquery" }, includes );
+        CALL dw.active_resource_group( "jquery" );
+    ELSIF testlib == "old";
+        dw.need_res( includes );
+    ELSE;
+        dw.need_res( { group => "nolib" }, includes );
+        CALL dw.active_resource_group( "nolib" );
+    END
+-%]
+
+
+[%- sections.head = BLOCK %]
+<!-- run all the tests -->
+<!-- include extra JS / CSS files by adding this comment to your testname.js:
+
+/* INCLUDE:
+js/blah.js
+stc/blah.css
+*/
+
+-->
+<script type="text/javascript">
+[% IF testlib == "jquery" %]
+    $(document).ready(function(){
+        [% tests %]
+    });
+[% ELSIF testlib == "old" %]
+    LiveJournal.register_hook("page_load", function(){
+        [% tests %]
+    });
+[% ELSE %]
+    window.onload = function() {
+        [% tests %]
+    }
+[% END %]
+</script>
+[% END %]
+
+
+<h1 id="qunit-header">[% label %]</h1>
+
+[%- IF has_tests -%]
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+
+    <!-- for any html required by the test -->
+    <div id="qunit-fixture">
+    [%- TRY -%]
+        [% INSERT "dev/tests/${testname}.html" %]
+    [% CATCH file %]
+            <!-- no html template -->
+    [% END %]
+    </div>
+[%- END -%]

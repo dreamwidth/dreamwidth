@@ -57,7 +57,9 @@ Render a template to a string.
 
 sub need_res {
     my $self = shift;
-    return LJ::need_res( @_ );
+    my $opts = ref $_[0] eq 'HASH' ? shift : {};
+    my @res = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
+    return LJ::need_res( $opts, @res );
 }
 
 =head2 active_resource_group
