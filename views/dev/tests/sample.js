@@ -1,6 +1,8 @@
 /* INCLUDE:
 js/sample.js
 stc/sample.css
+jquery: stc/jquery-only-file.js
+old: stc/old-only-file.js
 */
 
 /*==============================================================================

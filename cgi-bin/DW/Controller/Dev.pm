@@ -33,6 +33,29 @@ sub tests_handler {
 
     my $r = DW::Request->get;
 
+    my @includes;
+    my $testcontent = eval{ DW::Template->template_string( "dev/tests/${test}.js" ) } || "";
+    if ( $testcontent ) {
+        $testcontent =~ m#/\*\s*INCLUDE:\s*(.*?)\*/#s;
+        my $match = $1;
+        for my $res ( split( /\n+/, $match ) ) {
+
+            # skip things that don't look like names (could just be an empty line)
+            next unless $res =~ /\w+/;
+
+            # remove the library label
+            $res =~ s/(\w+)://;
+
+            # skip if we specify a library that's different from our current library
+            next if $1 && $1 ne $lib;
+
+            push @includes, LJ::trim( $res );
+        }
+    }
+
+    my $testhtml = eval{ DW::Template->template_string( "dev/tests/${test}.html" ) }
+            || "<!-- no html template -->";
+
     # force a site scheme which only shows the bare content
     # but still prints out resources included using need_res
     $r->note( bml_use_scheme => "global" );
@@ -41,6 +64,9 @@ sub tests_handler {
     return DW::Template->render_template( "dev/tests.tt", {
             testname => $test,
             testlib  => $lib,
+            testhtml => $testhtml,
+            tests    => $testcontent,
+            includes => \@includes,
          } );
 }
 1;
