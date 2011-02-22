@@ -28,6 +28,11 @@ stc/sample.css
     specific modules by appending ?modulename1&modulename2 to the path. You can
     also filter to specific matching test names in the same way.
 
+
+    If you don't filter to a specific module, then the tests will automatically
+    run the module matching your current desired library (if provided), and all
+    modules whose name begins with a "*".
+
  =============================================================================*/
 module( "jquery" );
 test( "checking included html (sample.html). To see only this module, call as '/dev/tests/sample/jquery?jquery'", function() {
@@ -46,14 +51,14 @@ test( "checking included html (sample.html). Call as '/dev/tests/sample/old?old'
 });
 
 
-module( "foo" );
+module( "*foo" );
 test( "example test foo", function() {
     expect(1);
 
     ok( true, "passed" );
 });
 
-test( "example test again", function() {
+test( "*example test again", function() {
     expect(1);
 
     ok( true, "passed again" );

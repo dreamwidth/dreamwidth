@@ -53,6 +53,15 @@ stc/blah.css
 
 -->
 <script type="text/javascript">
+if ( ! location.search ) {
+    var lib = "[% testlib %]";
+
+    QUnit.config.filters = [ "*" ];
+    if ( lib ) {
+        QUnit.config.filters.push( lib );
+    }
+}
+
 [% IF testlib == "jquery" %]
     $(document).ready(function(){
         [% tests %]
