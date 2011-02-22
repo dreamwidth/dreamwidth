@@ -949,7 +949,7 @@ $userpic_css
         }
 
     #qrformdiv span.de {
-        $page_link_visited_colors
+        $entry_footer_link_visited_colors
         }
 
 #postform {
