@@ -125,3 +125,9 @@ td.odd { background-color: #c0c0c0; }
 td.even { background-color: #e2e2e2; }
 td.screened { background-color: #707070; }
 td.highlight { background-color: #eeeeee; }
+
+/* Quick Reply table */
+
+#qrformdiv table {
+    border: 1px solid #999;
+}

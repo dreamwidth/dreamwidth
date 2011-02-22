@@ -654,3 +654,9 @@ select.select {
 .message blockquote {
     border: 1px solid #aaa;
 }
+
+/* Quick Reply table */
+
+#qrformdiv table {
+    border: 1px solid #999;
+}

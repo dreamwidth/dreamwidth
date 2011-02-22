@@ -884,7 +884,7 @@ sub create_qr_div {
     }
 
     # Start making the div itself
-    $qrhtml .= "<table style='border: 1px solid black'>";
+    $qrhtml .= "<table>";
     $qrhtml .= "<tr valign='center'>";
     $qrhtml .= "<td align='right'><b>".BML::ml('/talkpost.bml.opt.from')."</b></td><td align='left'>";
     $qrhtml .= LJ::ljuser($remote->{'user'});

@@ -868,3 +868,10 @@ div#cf-edit select {
     background-image: none;
     background-color: #222;
 }
+
+/* Quick Reply table */
+
+#qrformdiv table {
+    border: 1px solid #888;
+}
+
