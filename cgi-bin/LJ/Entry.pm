@@ -1014,6 +1014,12 @@ sub statusvis {
     return $vis eq "S" ? "S" : "V";
 }
 
+sub is_backdated {
+    my $self = $_[0];
+
+    return $self->prop( 'opt_backdated' ) ? 1 : 0;
+}
+
 sub is_visible {
     my $self = $_[0];
 

@@ -252,6 +252,7 @@ sub _process_queue {
         return 0 unless $entry->security eq 'public';
         return 0 unless $entry->poster->include_in_latest_feed &&
                       $entry->journal->include_in_latest_feed;
+        return 0 if $entry->is_backdated;
 
         return 1;
     };
