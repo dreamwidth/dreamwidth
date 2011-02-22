@@ -673,6 +673,12 @@ function Page::print_default_stylesheet()
     
     .entry h3 { display: inline; }
 
+    .page-top {
+        font-size: .8em;
+        padding: 5px 1em 5px 5px;
+        text-align: right;
+    }
+
     .one-column #primary {float: none;}
     .one-column #secondary {float: none;}
     .two-columns-left #primary {float: right;}
@@ -900,6 +906,10 @@ function Page::print()
         println "<div id=\"footer\">";
         $this->print_module_section("three");
         println "<div>";
+
+        println "<div id=\"body-footer\">";
+            print safe """<div class="page-top"><a href="#">$*text_page_top</a></div>""";
+        println "</div>";
 
     $this->print_wrapper_end();
     println "</html>";
