@@ -1,4 +1,8 @@
-<?page
+<?_info
+localblocks<=
+sitenameshort=><?_code $LJ::SITENAMESHORT _code?>
+<=localblocks
+_info?><?page
 TITLE=><?sitename?>
 HEAD<=
 <meta name="description" content="<?sitename?> ... words words.">
@@ -26,27 +30,26 @@ p?>
 <?h1 Getting Started h1?>
 <?choices
 ITEMS<=
-<?choice Create A Journal|create.bml|Come and create your very own LiveJournal! choice?>
-<?choice Update Journal|update.bml|Update your LiveJournal from the web. choice?>
+<?choice Create A Journal|/create/|Come and create your very own <?sitenameshort?>! choice?>
+<?choice Update Journal|/update|Update your <?sitenameshort?> from the web. choice?>
 <=ITEMS
 ITEMSB<=
-<?choice Download|/download/|Download the LiveJournal update tool for your computer. choice?>
-<?choice Modify Journal|modify.bml|Customize your LiveJournal's appearance and options. choice?>
+<?choice Select Style|/customize/|Customize your <?sitenameshort?>'s appearance and options. choice?>
 <=ITEMSB
 choices?>
 
 <?h1 Other Options h1?>
 <?choices
 ITEMS<=
-<?choice Edit Personal Information|editinfo.bml|Edit your personal information and preferences.  choice?>
-<?choice Edit Journal Entries|editjournal.bml|Edit or delete journal entries you've made in the past.  choice?>
+<?choice Edit Profile|/manage/profile/|Edit your personal information and preferences.  choice?>
+<?choice Edit Journal Entries|/editjournal|Edit or delete journal entries you've made in the past.  choice?>
 <=ITEMS
 ITEMSB<=
-<?choice Edit Friends|/manage/circle/edit.bml|Edit your list of online LiveJournal friends to track from your LiveJournal friends page.  choice?>
+<?choice Edit Circle|/manage/circle/edit|Edit your list of people to track from your <?sitenameshort?> reading page. choice?>
 <=ITEMSB
 choices?>
 
-<?h1 Tech Support & Documentation h1?>
+<?h1 Tech Support &amp; Documentation h1?>
 <?choices
 ITEMS<=
 <?choice Support|/support/|Mail the support team and get a quick answer to your question.  choice?>
