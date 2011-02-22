@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -23,7 +23,8 @@ use DW::Routing;
 DW::Routing->register_static( '/dev/classes', 'dev/classes.tt', app => 1 );
 
 
-DW::Routing->register_regex( '/dev/tests/([^/]+)(?:/(.*))?', \&tests_handler, app => 1 );
+DW::Routing->register_regex( '/dev/tests/([^/]+)(?:/(.*))?', \&tests_handler, app => 1 )
+    if $LJ::IS_DEV_SERVER;
 
 sub tests_handler {
     my ( $opts ) = @_;
@@ -31,7 +32,6 @@ sub tests_handler {
     my $lib = $opts->subpatterns->[1] || "";
 
     my $r = DW::Request->get;
-    return $r->NOT_FOUND unless $LJ::IS_DEV_SERVER;
 
     # force a site scheme which only shows the bare content
     # but still prints out resources included using need_res
