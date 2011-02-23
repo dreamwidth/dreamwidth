@@ -360,13 +360,13 @@
 
 .people.mutually_watched.some=Mutual Subscriptions ([[num]]):
 
-.people.not_mutually_trusted.none=Also Access To (0)
+.people.not_mutually_trusted.none=Also Gives Access To (0)
 
-.people.not_mutually_trusted.some=Also Access To ([[num]]):
+.people.not_mutually_trusted.some=Also Gives Access To ([[num]]):
 
-.people.not_mutually_trusted_by.none=Also Access From (0)
+.people.not_mutually_trusted_by.none=Also Has Access From (0)
 
-.people.not_mutually_trusted_by.some=Also Access From ([[num]]):
+.people.not_mutually_trusted_by.some=Also Has Access From ([[num]]):
 
 .people.not_mutually_watched.none=Also Subscribed To (0)
 
