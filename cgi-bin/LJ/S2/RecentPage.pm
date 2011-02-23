@@ -140,7 +140,7 @@ sub RecentPage
         security      => $opts->{securityfilter},
         itemids       => \@itemids,
         dateformat    => 'S2',
-        order         => ( $u->is_community || $u->is_syndicated ) ? 'logtime' : '',
+        order         => $u->is_community ? 'logtime' : '',
         err           => \$err,
         posterid      => $posteru_filter ? $posteru_filter->id : undef,
     );

@@ -1318,7 +1318,7 @@ sub postevent
     # don't allow backdated posts in communities
     return fail($err,152) if
         ( $req->{props}->{opt_backdated} &&
-         ! ( $importer_bypass || $uowner->is_person ) );
+         ! $importer_bypass && $uowner->is_community );
 
     # do processing of embedded polls (doesn't add to database, just
     # does validity checking)
@@ -1885,8 +1885,7 @@ sub editevent
 
     # don't allow backdated posts in communities
     return fail($err,152) if
-        ($req->{'props'}->{"opt_backdated"} &&
-         ! $uowner->is_person);
+        $req->{props}->{opt_backdated} && $uowner->is_community;
 
     # make year/mon/day/hour/min optional in an edit event,
     # and just inherit their old values

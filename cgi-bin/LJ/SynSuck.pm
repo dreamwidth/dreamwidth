@@ -291,7 +291,9 @@ sub process_content {
     }
 
     # post these items
-    my $newcount = 0;
+    my $itemcount = scalar @items;
+    my $newfeed   = ! $su->timeupdate;  # true if never updated before
+    my $newcount  = 0;
     my $errorflag = 0;
     my $mindate;  # "yyyy-mm-dd hh:mm:ss";
     my $notedate = sub {
@@ -310,12 +312,14 @@ sub process_content {
             $it->{$attr} = LJ::no_utf8_flag ( $it->{$attr} );
         }
 
+        # duplicate entry detection
         my $dig = LJ::md5_struct($it)->b64digest;
         my $prevadd = $dbh->selectrow_array("SELECT MAX(dateadd) FROM synitem WHERE ".
                                             "userid=? AND item=?", undef,
                                             $userid, $dig);
         if ($prevadd) {
             $notedate->($prevadd);
+            $itemcount--;
             next;
         }
 
@@ -326,7 +330,6 @@ sub process_content {
                  undef, $userid, $dig, $now_dateadd);
         $notedate->($now_dateadd);
 
-        $newcount++;
         print "[$$] $dig - $it->{'subject'}\n" if $verbose;
         $it->{'text'} =~ s/^\s+//;
         $it->{'text'} =~ s/\s+$//;
@@ -378,8 +381,13 @@ sub process_content {
         # just bail on entries older than two weeks instead of reposting them
         if ($own_time) {
             my $age = time() - LJ::mysqldate_to_time($it->{'time'});
-            next if $age > $secs; # $secs is defined waaaaaaaay above
+            if ( $age > $secs ) {  # $secs is defined waaaaaaaay above
+                $itemcount--;
+                next;
+            }
         }
+
+        $newcount++;  # we're committed to posting this item now
 
         my $command = "postevent";
         my $req = {
@@ -407,6 +415,13 @@ sub process_content {
         if ($it->{'text'} =~ /<(?:p|br)\b/i) {
             $req->{'props'}->{'opt_preformatted'} = 1;
         }
+
+        # If this is a new feed, backdate all but last three items.
+        # Note this is a best effort; might not print all three entries
+        # if duplicate entries are detected later in the feed.
+
+        $req->{props}->{opt_backdated} = 1
+            if $newfeed && ( $itemcount - $newcount ) >= 3;
 
         # do an editevent if we've seen this item before
         my $id = $have_ids ? $it->{'id'} : $it->{'link'};
