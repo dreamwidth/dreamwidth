@@ -69,6 +69,9 @@ body<=
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, label => $ML{'.switcher.label'}, button => $ML{'.switcher.btn'} });
     $ret .= "</form>";
 
+    # would you like to set the site skin instead?
+    $ret .= "<p>" . BML::ml( '.setsiteskin.desc', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=display#skin'" } ) . "</p>";
+
     my $current_theme = LJ::Widget::CurrentTheme->new;
     $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );
     $ret .= "<div class='theme-current pkg'>";

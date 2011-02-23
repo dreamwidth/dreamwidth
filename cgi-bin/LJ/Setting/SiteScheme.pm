@@ -32,7 +32,9 @@ sub helpurl {
 sub label {
     my $class = shift;
 
-    return $class->ml('setting.sitescheme.label');
+    my $ret = "<a name='skin'></a>" . $class->ml('setting.sitescheme.label');
+
+    return $ret;
 }
 
 sub option {
