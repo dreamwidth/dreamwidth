@@ -28,9 +28,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- sections.head = BLOCK %]
 <!-- test definition -->
 <script type="text/javascript">
-if ( ! location.search ) {
-    var lib = "[% testlib %]";
-
+var lib = "[% testlib %]";
+if ( lib && ! location.search ) {
     QUnit.config.filters = [ "*" ];
     if ( lib ) {
         QUnit.config.filters.push( lib );

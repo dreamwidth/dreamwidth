@@ -31,9 +31,9 @@ old: stc/old-only-file.js
     also filter to specific matching test names in the same way.
 
 
-    If you don't filter to a specific module, then the tests will automatically
-    run the module matching your current desired library (if provided), and all
-    modules whose name begins with a "*".
+    If you specify a library but don't filter to a module (using URL arguments),
+    the tests will automatically run the module matching the library as well as
+    all modules whose name begins with a "*".
 
  =============================================================================*/
 module( "jquery" );
