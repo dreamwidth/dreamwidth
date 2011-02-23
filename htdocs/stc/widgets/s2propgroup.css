@@ -29,6 +29,14 @@
     font-size: smaller;
 }
 
+.prop-header {
+    vertical-align: top;
+}
+
+.prop-input {
+    clear: left;
+}
+
 .s2propgroup-outer-expandcollapse {
     display: none;
 }

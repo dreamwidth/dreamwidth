@@ -337,7 +337,7 @@ sub output_prop {
     }
     
     my $ret;
-    $ret .= "<tr class='prop-row$row_class' width='100%'>";
+    $ret .= "<tr class='prop-row$row_class' width='100%' valign='top'>";
 
     if ($linklist_tab) {
         $ret .= "<td colspan='100%'>" . $class->ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} ) . "</td>";
@@ -345,7 +345,7 @@ sub output_prop {
         return $ret;
     }
 
-    $ret .= "<td class='prop-header'>" . LJ::eall( $prop->{des} ) . " " . LJ::help_icon( "s2opt_$prop->{name}" ) . "</td>"
+    $ret .= "<td class='prop-header' valign='top'>" . LJ::eall( $prop->{des} ) . " " . LJ::help_icon( "s2opt_$prop->{name}" ) . "</td>"
         unless $prop->{type} eq "Color" || $prop->{type} eq "string[]";
 
    $ret .= $class->output_prop_element( $prop, $prop_name, $u, $style, $theme, $props, 0, $grouped_prop_override );

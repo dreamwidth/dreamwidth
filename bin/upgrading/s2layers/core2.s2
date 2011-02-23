@@ -1965,8 +1965,8 @@ property string linked_stylesheet {
 property string custom_css {
     des = "Use embedded CSS";
     note = "If you'd like to add custom CSS to this style, enter it here.";
-    cols = 50;
-    rows = 20;
+    cols = 60;
+    rows = 40;
     string_mode = "css";
 }
 
