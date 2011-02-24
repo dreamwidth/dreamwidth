@@ -65,4 +65,5 @@ if ( lib && ! location.search ) {
     </div>
 [% ELSE %]
     <h1 id="qunit-header">No tests for [% testname %]</h1>
+    <ol id="notests"></ol>
 [%- END -%]

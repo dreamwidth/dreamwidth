@@ -1,0 +1,25 @@
+[%-
+    # it's all right to require jquery here because the other tests load up in a sandbox
+    # and the different js library versions can't interfere with one another
+    dw.need_res( { group => "jquery" }, "stc/tests/qunit.css", "stc/tests/qunit-all.css", "js/tests/qunit-all.js" );
+    CALL dw.active_resource_group( "jquery" );
+    sections.head = BLOCK -%]
+<script type="text/javascript">
+[%- IF all_tests -%]
+register_all_tests([ [% FOREACH test IN all_tests; UNLESS loop.first %],[% END %]"[% test %]"[% END %] ]);
+[%- ELSE -%]
+register_all_tests([ "[% test %]" ]);
+[%- END -%]
+</script>
+[%- END -%]
+
+<h1 id="qunit-header">[%- IF all_tests -%]
+All Tests
+[%- ELSE -%]
+All Libraries for [% test | html %]
+[%- END -%]</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"><input type="checkbox" id="qunit-filter-pass"/><label for="qunit-filter-pass">Hide passed tests</label></div>
+<h2 id="qunit-userAgent"></h2>
+<p id="qunit-testresult" class="result"><span class="line1"></span><br/><span class="line2"><span class="passed">0</span> test(s) of <span class="total">0</span> passed, <span class="failed">0</span> failed.</span></p>
+<ol id="qunit-tests"></ol>

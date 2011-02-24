@@ -22,16 +22,37 @@ use DW::Routing;
 
 DW::Routing->register_static( '/dev/classes', 'dev/classes.tt', app => 1 );
 
+if ( $LJ::IS_DEV_SERVER ) {
+    DW::Routing->register_string( '/dev/tests/index', \&tests_index_handler, app => 1 );
+    DW::Routing->register_regex( '/dev/tests/([^/]+)(?:/(.*))?', \&tests_handler, app => 1 )
+}
 
-DW::Routing->register_regex( '/dev/tests/([^/]+)(?:/(.*))?', \&tests_handler, app => 1 )
-    if $LJ::IS_DEV_SERVER;
+sub tests_index_handler {
+    my ( $opts ) = @_;
 
+    my $r = DW::Request->get;
+
+    $r->note( bml_use_scheme => "global" );
+    return DW::Template->render_template( "dev/tests-all.tt", {
+        all_tests => [ map { $_ =~ m!tests/([^/]+)\.js!; } glob("$LJ::HOME/views/dev/tests/*.js") ]
+    } );
+}
+    
 sub tests_handler {
     my ( $opts ) = @_;
     my $test = $opts->subpatterns->[0];
-    my $lib = $opts->subpatterns->[1] || "";
+    my $lib = $opts->subpatterns->[1];
 
     my $r = DW::Request->get;
+
+    if ( ! defined $lib ) {
+        return $r->redirect("$LJ::SITEROOT/dev/tests/$test/");
+    } elsif ( ! $lib ) {
+        $r->note( bml_use_scheme => "global" );
+        return DW::Template->render_template( "dev/tests-all.tt", {
+            test => $test,
+        } );
+    }
 
     my @includes;
     my $testcontent = eval{ DW::Template->template_string( "dev/tests/${test}.js" ) } || "";
