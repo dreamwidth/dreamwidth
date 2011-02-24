@@ -3920,7 +3920,7 @@ EOF
     }
 
     unless ( column_type( 'acctcode_promo', 'paid_class' ) ) {
-        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_class varchar(10000)" );
+        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_class varchar(100)" );
     }
 
     unless ( column_type( 'acctcode_promo', 'paid_months' ) ) {
@@ -3947,6 +3947,9 @@ EOF
         set_dbnote( "init_vgift_counts", 1 );
     }
 
+    unless ( column_type( 'acctcode_promo', 'paid_class' ) =~ /^\Qvarchar(100)\E/ ) {
+        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo MODIFY COLUMN paid_class varchar(100)" );
+    }
 });
 
 
