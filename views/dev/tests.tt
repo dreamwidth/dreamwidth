@@ -11,7 +11,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [% testname = testname | html %]
-[%- includes = includes.merge( [ "js/tests/qunit.js", "stc/tests/qunit.css" ] ) -%]
+[%- includes = includes.merge( [
+        "js/tests/qunit.js",
+        "stc/tests/qunit.css",
+        "js/tests/sinon.js",
+        "js/tests/sinon-ie.js",
+        "js/tests/sinon-qunit.js" ] ) -%]
 
 [%- IF testlib == "jquery";
         dw.need_res( { group => "jquery" }, includes );
