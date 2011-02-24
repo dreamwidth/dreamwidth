@@ -58,7 +58,7 @@ sub tests_handler {
     my $testcontent = eval{ DW::Template->template_string( "dev/tests/${test}.js" ) } || "";
     if ( $testcontent ) {
         $testcontent =~ m#/\*\s*INCLUDE:\s*(.*?)\*/#s;
-        my $match = $1;
+        my $match = $1 || "";
         for my $res ( split( /\n+/, $match ) ) {
 
             # skip things that don't look like names (could just be an empty line)
