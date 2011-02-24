@@ -76,11 +76,10 @@ var _r = {
         strong.append(counts);
 
         var iframe = $("<iframe>");
-        li.append(iframe);
-        _r.current_iframe = iframe;
-
-        iframe.hide();
         iframe.attr("src",url);
+
+        $("#qunit-fixture").append(iframe);
+        _r.current_iframe = iframe;
 
 
         iframe.load(function () {
@@ -149,6 +148,7 @@ var _r = {
             lib.text(" (" +_r.cur_test + "/" + _r.cur_lib + ")");
             element.append(lib);
         });
+        _r.current_iframe.remove();
         _r.current_li.remove();
         _r.run_next();
     },

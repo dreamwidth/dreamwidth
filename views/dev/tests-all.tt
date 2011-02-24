@@ -23,3 +23,4 @@ All Libraries for [% test | html %]
 <h2 id="qunit-userAgent"></h2>
 <p id="qunit-testresult" class="result"><span class="line1"></span><br/><span class="line2"><span class="passed">0</span> test(s) of <span class="total">0</span> passed, <span class="failed">0</span> failed.</span></p>
 <ol id="qunit-tests"></ol>
+<div id="qunit-fixture"></div>
