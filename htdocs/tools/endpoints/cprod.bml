@@ -16,6 +16,7 @@ _c?>
 {
     use strict;
     use vars qw(%GET);
+    use JSON;
 
     my $err = sub {
         my $msg = shift;
@@ -52,6 +53,6 @@ _c?>
     BML::set_content_type('text/javascript; charset=utf-8');
     BML::finish();
 
-    return LJ::js_dumper(\%ret);
+    return JSON::objToJson(\%ret);
 }
 _code?>

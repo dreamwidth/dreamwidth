@@ -64,6 +64,6 @@ _c?>
 
     $ret{success} = 1;
 
-    return LJ::js_dumper(\%ret);
+    return JSON::objToJson( \%ret );
 }
 _code?>

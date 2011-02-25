@@ -143,6 +143,6 @@ _c?>
     $ret{is_banned} = $remote->has_banned( $u ) ? 1 : 0 if $remote;
 
     $ret{success} = 1;
-    return LJ::js_dumper(\%ret);
+    return JSON::objToJson( \%ret );
 }
 _code?>

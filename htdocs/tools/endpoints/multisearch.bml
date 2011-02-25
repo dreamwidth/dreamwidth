@@ -28,7 +28,7 @@ _c?>
     BML::finish();
     BML::noparse();
 
-    return JSON::objToJson({error => "There is no any query provided.",}) unless $q;
+    return JSON::objToJson({error => "There is no query provided.",}) unless $q;
 
     if ($type eq "user" || $type eq "ljtalk") {
         my $user = lc($q);
@@ -60,7 +60,7 @@ _c?>
             my %ret;
             $ret{status} = 'success';
             $ret{result} = '<a href="' . $url . '">' . $user . '</a>';
-            return LJ::js_dumper(\%ret);
+            return JSON::objToJson( \%ret );
         } else {
             return JSON::objToJson({error => "There is no such user.",});
         }
@@ -101,7 +101,7 @@ _c?>
                 $ret{result} .= '&nbsp';
             }
         }
-        return LJ::js_dumper(\%ret) if $ret{result};
+        return JSON::objToJson( \%ret ) if $ret{result};
 
         return JSON::objToJson({error => "No user found",});
     }
@@ -123,7 +123,7 @@ _c?>
             } else {
                 $ret{result} = '<a href="' . $u->profile_url . '">' . $u->{user}. '</a>';
             }
-            return LJ::js_dumper(\%ret);
+            return JSON::objToJson( \%ret );
         } elsif (@uids > 1) {
             my $us = LJ::load_userids(@uids);
 
@@ -134,7 +134,7 @@ _c?>
                                                     timesort   => 1,
                                                     perpage    => 50,
                                                   );
-            return LJ::js_dumper(\%ret);
+            return JSON::objToJson( \%ret );
         }
 
         # If we haven't returned already then the search turned up nothing.

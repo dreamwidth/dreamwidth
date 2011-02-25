@@ -2384,6 +2384,9 @@ sub no_access_error {
 }
 
 # Data::Dumper for JavaScript
+# use this only when printing out on a page as a JS variable
+# do not use for JSON requests -- it is not guaranteed to return
+# valid JSON
 sub js_dumper {
     my $obj = shift;
     if (ref $obj eq "HASH") {

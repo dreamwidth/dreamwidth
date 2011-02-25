@@ -48,6 +48,6 @@ _c?>
     return $err->(BML::ml('/tools/endpoints/extacct_auth.bml.error.authfailed', { account => $account->displayname } )) unless $challenge;
 
     # return the challenge
-    return LJ::js_dumper( { challenge => $challenge, success => 1 } );
+    return JSON::objToJson( { challenge => $challenge, success => 1 } );
 }
 _code?>

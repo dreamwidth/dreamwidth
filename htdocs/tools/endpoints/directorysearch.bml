@@ -117,6 +117,6 @@ _c?>
 
     sleep(1) if $LJ::IS_DEV_SERVER;
 
-    return LJ::js_dumper(\%ret);
+    return JSON::objToJson( \%ret );
 }
 _code?>

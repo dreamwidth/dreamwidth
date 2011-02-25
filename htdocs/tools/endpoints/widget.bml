@@ -24,7 +24,7 @@ _c?>
     my $err = sub {
         my $msg = shift;
         my %extra = @_;
-        return LJ::js_dumper({
+        return JSON::objToJson({
             error => "$msg",
         });
     };
@@ -111,6 +111,6 @@ _c?>
 
 #    sleep(2) if $LJ::IS_DEV_SERVER;
 
-    return LJ::js_dumper(\%ret);
+    return JSON::objToJson( \%ret );
 }
 _code?>
