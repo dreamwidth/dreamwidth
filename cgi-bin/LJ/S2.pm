@@ -174,6 +174,7 @@ sub make_journal
     if ($show_control_strip) {
         LJ::Hooks::run_hook( 'control_strip_stylesheet_link' );
 
+        # used if we're using our old library
         LJ::need_res(qw(
                     js/core.js
                     js/dom.js
@@ -182,6 +183,12 @@ sub make_journal
                     js/md5.js
                     js/login.js
                     ));
+
+        # used if we're using our jquery library
+        LJ::need_res( { group => "jquery" }, qw(
+                        js/md5.js
+                        js/login-jquery.js
+                    ) );
     }
 
     # Include any head stc or js head content

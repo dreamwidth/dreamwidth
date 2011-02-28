@@ -1,0 +1,15 @@
+<form id="login" class="lj_login_form" action="http://www.dreamwidth.org/login?ret=1" method="post">
+    <div>
+        <input type="hidden" name="mode" value="login" />
+        <input type="hidden" name="chal" id="login_chal" class="lj_login_chal" value="challenge" />
+        <input type="hidden" name="response" id="login_response" class="lj_login_response" value="" />
+
+        <label for="xc_user">Username:</label>
+        <input type="text" name="user" size="7" maxlength="27" tabindex="1" id="xc_user" value="" />
+
+        <label for="xc_password">Password:</label>
+        <input type="password" name="password" size="7" tabindex="2" id="xc_password" class="lj_login_password" value="password" />
+
+        <input type="submit" value="Log in" />
+    </div>
+</form>
