@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -30,6 +30,8 @@ our %regex_choices = (
     ssl  => [],
     user => []
 );
+
+our $T_TESTING_ERRORS;
 
 my $default_content_types = {
     'html' => "text/html; charset=utf-8",
@@ -182,7 +184,10 @@ sub _call_hash {
 
     my $err = LJ::errobj( $msg )
         or die "LJ::errobj didn't return anything.";
-    $err->log;
+    unless ( $T_TESTING_ERRORS ) {
+        $err->log;
+        warn "$msg";
+    }
 
     # JSON error rendering
     if ( $format eq 'json' ) {
@@ -199,19 +204,22 @@ sub _call_hash {
 
         chomp $msg;
         $msg .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
-        warn "$msg\n";
 
         $r->status( 500 );
         my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";
         my $remote = LJ::get_remote();
         $text = "<b>[Error: $msg]</b>" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
-        return DW::Template->render_string( $text, { status=>500, content_type=>'text/html' } );
+
+        my $opts = { status=>500, content_type=>'text/html' };
+
+        $opts->{no_sitescheme} = 1 if $T_TESTING_ERRORS;
+
+        return DW::Template->render_string( $text, $opts );
     } else {
         $msg = $err->as_string;
 
         chomp $msg;
         $msg .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
-        warn "$msg\n";
 
         my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";
         my $remote = LJ::get_remote();
