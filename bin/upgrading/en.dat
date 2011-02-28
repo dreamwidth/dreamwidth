@@ -2432,7 +2432,7 @@ poll.error.notext=Need text inside an lj-pq tag to say what the question is abou
 
 poll.error.notvalidated2=Your email address <a [[aopts]]>must be confirmed</a> in order to vote in this poll.
 
-poll.error.pitoolong=Text inside an lj-pi tag must be between 1 and 255 characters.  Yours is [[len]].
+poll.error.pitoolong=A poll answer must be between 1 and 255 characters.  Yours is [[len]].
 
 poll.error.pollnotfound=Error: poll #[[num]] not found
 
