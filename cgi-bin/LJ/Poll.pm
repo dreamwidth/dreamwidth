@@ -343,8 +343,9 @@ sub new_from_html {
                     if ($from >= $to) {
                         return $err->('poll.error.scalelessto');
                     }
-                    if ((($to-$from)/$by) > 20) {
-                        return $err->('poll.error.scaletoobig');
+                    my $scaleoptions = ( ( $to - $from ) / $by ) + 1;
+                    if ( $scaleoptions > 21 ) {
+                        return $err->( 'poll.error.scaletoobig1', { 'maxselections' => 21, 'selections' => $scaleoptions - 21 } );
                     }
                     $qopts{'opts'} = "$from/$to/$by";
                 }

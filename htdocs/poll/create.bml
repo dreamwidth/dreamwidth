@@ -55,7 +55,7 @@ _c?>
                   "from" => 1,             # default from value for a scale
                   "to" => 10,             # default to value for a scale
                   "by" => 1,             # default by value for a scale
-                  "maxitems" => 20,         # maximum number of items allowed in a scale
+                  "maxitems" => 21,         # maximum number of items allowed in a scale
               },
               "checkbox" => {
                   "checkmin" => 0,      # number of checkboxes a user must tick in that question (default 0: no limit)  
@@ -247,8 +247,10 @@ _c?>
                         $err->{$q}->{'from'} = $ML{'.error.scalemaxlessmin'};
                     }
 
-                    if ((($qrec->{'to'}-$qrec->{'from'})/$qrec->{'by'}) > $RULES{'scale'}->{'maxitems'}) {
-                        $err->{$q}->{'to'} = BML::ml('.error.scaletoobig', { 'max' => $RULES{'scale'}->{'maxitems'} });
+                    my $scaleoptions = ( ( $qrec->{to} - $qrec->{from} ) / $qrec->{by} ) + 1;
+                    if ( $scaleoptions > $RULES{scale}->{maxitems} ) {
+                        $err->{$q}->{to} = BML::ml( '.error.scaletoobig1', { 'maxselections' => $RULES{scale}->{maxitems},
+                            'selections' => $scaleoptions - $RULES{scale}->{maxitems} } );
                     }
 
                     next;

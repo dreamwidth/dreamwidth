@@ -39,7 +39,7 @@
 
 .error.scalemininvalid=Scale increment must be at least [[min]].
 
-.error.scaletoobig=Limit of [[max]] selections (to-from)/by > 20
+.error.scaletoobig1=Your scale exceeds the limit of [[maxselections]] selections by [[selections]].
 
 .error.texttoolong=The text of your option is too long and has been truncated.
 

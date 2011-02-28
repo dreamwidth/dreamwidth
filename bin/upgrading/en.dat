@@ -2442,7 +2442,7 @@ poll.error.scalefromlessto=Scale 'from' value must be less than 'to' value.
 
 poll.error.scaleincrement=Scale increment must be at least 1.
 
-poll.error.scaletoobig=Your scale exceeds the limit of 20 selections (to-from)/by > 20.
+poll.error.scaletoobig1=Your scale exceeds the limit of [[maxselections]] selections by [[selections]].
 
 poll.error.tagnotopen=You cannot close an [[tag]] tag that's not open.
 
