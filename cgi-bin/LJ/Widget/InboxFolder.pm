@@ -28,7 +28,6 @@ sub need_res {
             js/core.js
             js/dom.js
             js/view.js
-            js/controller.js
             js/datasource.js
             js/checkallbutton.js
             js/selectable_table.js
