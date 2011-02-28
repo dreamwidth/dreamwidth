@@ -312,7 +312,7 @@ sub register_string {
     $string_choices{'ssl'  . $string} = $hash if $hash->{ssl};
     $string_choices{'user' . $string} = $hash if $hash->{user};
 
-    if ( $string =~ m!(^(.+)/)index$! && ! exists $opts{no_redirects} ) {
+    if ( $string =~ m!(^(.*)/)index$! && ! exists $opts{no_redirects} ) {
         my %opts = (
             app => $hash->{app},
             ssl => $hash->{ssl},
@@ -321,7 +321,7 @@ sub register_string {
             format => $hash->{format},
             no_redirects => 1,
         );
-        $class->register_redirect( $2, $1, %opts );
+        $class->register_redirect( $2, $1, %opts ) if $2;
         $string_choices{'app'  . $1} = $hash if $hash->{app};
         $string_choices{'ssl'  . $1} = $hash if $hash->{ssl};
         $string_choices{'user' . $1} = $hash if $hash->{user};

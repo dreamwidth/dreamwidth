@@ -33,10 +33,6 @@ handle_redirect( '/xx3', '/xx3/' );
 
 DW::Routing->register_string( "/index", \&handler, app => 1, args => "it_worked_redir" );
 
-TODO: {
-      local $TODO = "This doesn't acutally work yet";
-
-      handle_request( "/" , "/", 1, "it_worked_redir" );
-};
+handle_request( "/" , "/", 1, "it_worked_redir" );
 handle_request( "/index" , "/index", 1, "it_worked_redir" );
 # 5
