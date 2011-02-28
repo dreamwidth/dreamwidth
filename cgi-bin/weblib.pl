@@ -2305,7 +2305,7 @@ sub entry_form_decode
         $req->{$_} = $POST->{$_};
     }
 
-    if ($POST->{"subject"} eq BML::ml('entryform.subject.hint2')) {
+    if ( $POST->{"subject"} && ( $POST->{"subject"} eq BML::ml( 'entryform.subject.hint2' ) ) ) {
         $req->{"subject"} = "";
     }
 
