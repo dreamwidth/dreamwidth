@@ -19,12 +19,15 @@ my $dbh = LJ::get_db_writer();
 
 # reset, delete, etc
 sub rst {
+    # global tables
     $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?', undef, $_, $_ )
-        foreach ( $u1->id, $u2->id, $uc->id );
-    $dbh->do( 'DELETE FROM trust_groups WHERE userid = ?', undef, $_ )
         foreach ( $u1->id, $u2->id, $uc->id );
     $dbh->do( 'DELETE FROM reluser WHERE userid = ? OR targetid = ?', undef, $_, $_ )
         foreach ( $u1->id, $u2->id, $uc->id );
+
+    # clustered tables
+    $_->writer->do( 'DELETE FROM trust_groups WHERE userid = ?', undef, $_->id )
+        foreach ( $u1, $u2, $uc );
 
     foreach my $u ( $u1, $u2, $uc ) {
         foreach my $mc ( qw/ trust_group wt_list / ) {
@@ -207,7 +210,7 @@ is( $hr->{$u2->id}->{bgcolor}, '#0000ff', 'bgcolor still ok' );
 ################################################################################
 rst();
 $u1->create_trust_group( groupname => 'foo group', sortorder => 10, is_public => 1 );
-$row = $dbh->selectrow_array(
+$row = $u1->writer->selectrow_array(
      'SELECT COUNT(*) FROM trust_groups WHERE userid = ? AND groupname = ? AND sortorder = ? AND is_public = ?',
      undef, $u1->id, 'foo group', 10, 1 );
 dberr();
@@ -218,7 +221,7 @@ ok( scalar( keys %$hr ) > 0, 'get trust group' );
 
 ################################################################################
 $u1->edit_trust_group( id => 1, groupname => 'bar group' );
-$row = $dbh->selectrow_array(
+$row = $u1->writer->selectrow_array(
      'SELECT COUNT(*) FROM trust_groups WHERE userid = ? AND groupname = ? AND sortorder = ? AND is_public = ?',
      undef, $u1->id, 'bar group', 10, 1 );
 dberr();
