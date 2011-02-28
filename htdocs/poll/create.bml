@@ -137,6 +137,9 @@ _c?>
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
 
 
+    # variable to store what question the last action took place in
+    my $focuson = "";
+
     #######################################################
     #
     # Function definitions
@@ -328,6 +331,9 @@ _c?>
                 ($err->{$adj}, $err->{$item}) =
                     $swap->($err->{$adj}, $err->{$item});
 
+                # focus on the new position
+                $focuson = $adj;
+
                 return;
             }
 
@@ -339,6 +345,9 @@ _c?>
                 $poll->{'count'}--;
                 delete $err->{$item};
 
+                # focus on the previous item, unless this one was the top one, in which case we will focus on the new first
+                $focuson = $item > 0 ? $item - 1 : 0;
+
                 return;
             }
 
@@ -349,6 +358,9 @@ _c?>
                 $poll->{"pq"}->[$item]->{'opts'} += $RULES{'items'}->{'more'};
                 $poll->{'pq'}->[$item]->{'opts'} = $RULES{'items'}->{'max'}
                     if @{$poll->{'pq'}}[$item]->{'opts'} > $RULES{'items'}->{'max'};
+
+                # focus on the item we just added more options for
+                $focuson = $item;
 
                 return;
             }
@@ -371,6 +383,9 @@ _c?>
                             "opt" => [],
                         }
                         );
+
+                # focus on the new item
+                $focuson = $item;
 
                 return;
             }
@@ -422,7 +437,7 @@ _c?>
 
         ### Form Header
 
-        $ret .= "<form method='post' action='create$getextra'>\n";
+        $ret .= "<form method='post' action='create$getextra#new'>\n";
         $ret .= LJ::html_hidden('count', $poll->{'count'});
 
         $ret .= "<div style='margin: 10px 0 20px 40px'><b>$ML{'.haserrors'}</b></div>\n"
@@ -502,7 +517,13 @@ _c?>
         foreach my $q (0..$poll->{'count'}-1) {
             my $elem = $poll->{'pq'}->[$q];
 
-            $ret .= "<?h2 " . BML::ml('.questionnum', { 'num' => ($q + 1) }) . " - $TYPENAME{$elem->{'type'}} h2?>\n";
+            my $qnr = $q + 1;
+
+            if ( $focuson eq $q ) {
+                $ret .= "<a name='question_$qnr'><h2 id='new'>" . BML::ml('.questionnum', { 'num' => $qnr }) . " - $TYPENAME{$elem->{'type'}} </h2></a>\n";
+            } else {
+                $ret .= "<a name='question_$qnr'><h2>" . BML::ml('.questionnum', { 'num' => $qnr }) . " - $TYPENAME{$elem->{'type'}} </h2></a>\n";
+            }
 
             $ret .= "<table summary='' border='0' cellspacing='0' cellpadding='0' width='90%'>\n";
             $ret .= "<tr><td align='left' width='15%'>\n";
