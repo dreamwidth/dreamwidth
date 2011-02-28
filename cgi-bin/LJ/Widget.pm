@@ -394,7 +394,7 @@ sub wrapped_js {
         <script>
             $widgetvar = new LJWidget("$widgetid", "$widgetclass", "$authtoken");
             $widget_js_obj
-            $widgetvar.extend({$js});
+            OBJ.extend($widgetvar, {$js});
             LiveJournal.register_hook("page_load", function () { $widgetvar.initWidget() });
         </script>
     };

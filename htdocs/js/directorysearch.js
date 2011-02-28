@@ -11,7 +11,8 @@ DirectorySearchView = new Class(View, {
     */
     init: function (viewElement, opts) {
         // create a view with the constraints
-        DirectorySearchView.superClass.init.apply(this, [{view: viewElement}]);
+        if( DirectorySearchView.superClass.init )
+            DirectorySearchView.superClass.init.apply(this, [{view: viewElement}]);
         var searchConstraints = document.createElement("div");
         this.searchConstraintsView = new DirectorySearchConstraintsView({view: searchConstraints});
 

@@ -1,6 +1,7 @@
 LJProgressBar = new Class(ProgressBar, {
   init: function () {
-    LJProgressBar.superClass.init.apply(this, arguments);
+    if ( LJProgressBar.superClass.init )
+        LJProgressBar.superClass.init.apply(this, arguments);
 
     this.containerClassName = "lj_progresscontainer";
     this.indefiniteClassName = "lj_progressindefinite";

@@ -3,7 +3,8 @@ LJ_IPPU = new Class ( IPPU, {
     if (!title)
       title = "";
 
-    LJ_IPPU.superClass.init.apply(this, []);
+    if ( LJ_IPPU.superClass.init )
+        LJ_IPPU.superClass.init.apply(this, []);
 
     this.uniqId = this.generateUniqId();
     this.cancelThisFunc = this.cancel.bind(this);

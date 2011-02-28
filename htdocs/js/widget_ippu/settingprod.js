@@ -6,7 +6,8 @@ LJWidgetIPPU_SettingProd = new Class(LJWidgetIPPU, {
     this.setting = params.setting;
     this.field = params.field;
     opts.overlay = true;
-    LJWidgetIPPU_SettingProd.superClass.init.apply(this, arguments);
+    if ( LJWidgetIPPU_SettingProd.superClass.init )
+        LJWidgetIPPU_SettingProd.superClass.init.apply(this, arguments);
   },
 
   updatesettings: function (evt, form) {

@@ -46,7 +46,8 @@ LJWidgetIPPU = new Class(LJWidget, {
 
         // id, widgetClass, authToken
         var widgetArgs = [c.id, widgetClass, authToken]
-        LJWidgetIPPU.superClass.init.apply(this, widgetArgs);
+        if ( LJWidgetIPPU.superClass.init )
+            LJWidgetIPPU.superClass.init.apply(this, widgetArgs);
 
         if (!widgetClass)
             return null;

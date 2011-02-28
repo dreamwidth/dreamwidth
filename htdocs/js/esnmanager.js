@@ -3,7 +3,8 @@
 
 ESNManager = new Class(Object, {
   init: function (etypeids) {
-    ESNManager.superClass.init.apply(this, arguments);
+    if ( ESNManager.superClass.init )
+        ESNManager.superClass.init.apply(this, arguments);
 
     if (!etypeids)
       etypeids = [];

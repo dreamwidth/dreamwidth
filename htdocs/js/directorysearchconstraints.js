@@ -2,7 +2,8 @@
 var DirectorySearchConstraintsView = new Class(View, {
 
   init: function (opts) {
-    DirectorySearchConstraintsView.superClass.init.apply(this, arguments);
+    if ( DirectorySearchConstraintsView.superClass.init )
+        DirectorySearchConstraintsView.superClass.init.apply(this, arguments);
     this.constraints = [];
     this.typeMenus = [];
 
@@ -258,10 +259,10 @@ var DirectorySearchConstraint = new Class(Object, {
     this.fields = {};
 
     // reset this prototype to the base class
-    this.override(DirectorySearchConstraint.prototype);
+    OBJ.override(this,DirectorySearchConstraint.prototype);
 
     // override this with the subclass prototype
-    this.override(DirectorySearchConstraintPrototypes[this.type]);
+    OBJ.override(this,DirectorySearchConstraintPrototypes[this.type]);
 
     this.extraFields.innerHTML = "";
 

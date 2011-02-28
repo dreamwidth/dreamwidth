@@ -71,7 +71,8 @@ LJWidget = new Class(Object, {
     ///////////////// PRIVATE METHODS ////////////////////
 
     init: function (id, widgetClass, authToken) {
-        LJWidget.superClass.init.apply(this, arguments);
+        if ( LJWidget.superClass.init )
+            LJWidget.superClass.init.apply(this, arguments);
         this.widgetId = id;
         this.widgetClass = widgetClass;
         this.authToken = authToken;

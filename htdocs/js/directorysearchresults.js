@@ -1,6 +1,7 @@
 DirectorySearchResults = new Class(Object, {
     init: function (results, opts) {
-        DirectorySearchResults.superClass.init.apply(this, []);
+        if ( DirectorySearchResults.superClass.init )
+            DirectorySearchResults.superClass.init.apply(this, []);
 
         if (! opts || ! opts.resultsView) {
             var ippu = new LJ_IPPU('Search Results');
