@@ -21,7 +21,7 @@ use warnings;
 use DW::Routing;
 
 # handle, even with no id, so that we can present an informative error message
-DW::Routing->register_regex( '^/interface/s2(?:/(\d+)?)?$', \&interface_handler, app => 1, format => 'plain' );
+DW::Routing->register_regex( '^/interface/s2(?:/(\d+)?)?$', \&interface_handler, app => 1, format => 'plain', methods => { GET => 1, PUT => 1 } );
 
 # handles menu nav pages
 sub interface_handler {
@@ -101,10 +101,6 @@ sub interface_handler {
 
             return $r->OK;
         }
-    } else {
-        # Return 'method not allowed' so that we can add methods in future
-        # and clients will get a sensible error from old servers.
-        return error( $r, $r->HTTP_METHOD_NOT_ALLOWED, 'Method Not Allowed', 'Only GET and PUT are supported for this resource' );
     }
 }
 

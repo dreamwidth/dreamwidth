@@ -291,10 +291,14 @@ sub call_bml {
 sub OK        { return 200; }
 sub HTTP_CREATED { return 201; }
 sub REDIRECT  { return 302; }
-sub HTTP_BAD_REQUEST { return 400; }
-sub HTTP_UNAUTHORIZED { return 403; }
 sub NOT_FOUND { return 404; }
+sub SERVER_ERROR { return 500; }
+sub HTTP_UNAUTHORIZED { return 401; }
+sub HTTP_BAD_REQUEST { return 400; }
+sub HTTP_UNSUPPORTED_MEDIA_TYPE { return 415; }
 sub HTTP_SERVER_ERROR { return 500; }
+sub HTTP_METHOD_NOT_ALLOWED { return 405; }
+sub FORBIDDEN { return 403; }
 
 # spawn a process for an external program
 sub spawn {

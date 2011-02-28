@@ -114,6 +114,18 @@ sub format_valid {
     return $formats->{$_[0]->format} || 0;
 }
 
+=head2 C<< $self->method_valid( $method ) >>
+
+Returns if the method is valid for the callinfo
+
+=cut
+
+sub method_valid {
+    my $methods = $_[0]->{__hash}->{methods};
+    return 1 if $methods == 1;
+    return $methods->{$_[1]} || 0;
+}
+
 =head2 C<< $self->role >>
 
 Current mode: 'app' or 'user' or 'ssl'

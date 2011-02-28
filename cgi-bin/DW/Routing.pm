@@ -158,6 +158,10 @@ sub _call_hash {
 
     $opts->prepare_for_call;
 
+    # check method
+    my $method = uc( $r->method );
+    return $r->HTTP_METHOD_NOT_ALLOWED unless $opts->method_valid( $method );
+
     my $format = $opts->format;
     # check for format validity
     return $r->NOT_FOUND unless $opts->format_valid;
@@ -370,7 +374,7 @@ sub register_regex {
 sub _apply_defaults {
     my ( $opts, $hash ) = @_;
 
-    $hash ||= 0;
+    $hash ||= {};
     $opts->{app} = 1 if ! defined $opts->{app} && !$opts->{user};
     $hash->{args} = $opts->{args};
     $hash->{ssl} = $opts->{ssl} || 0;
@@ -382,6 +386,7 @@ sub _apply_defaults {
     $formats = { map { ( $_, 1 ) } @$formats } if ( ref($formats) eq 'ARRAY' );
 
     $hash->{formats} = $formats;
+    $hash->{methods} = $opts->{methods} || { GET => 1, POST => 1, HEAD => 1 };
 
     return $hash;
 }

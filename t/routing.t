@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 use strict;
-use Test::More tests => 203;
+use Test::More tests => 238;
 use lib "$ENV{LJHOME}/cgi-bin";
 
 # don't let DW::Routing load DW::Controller subclasses
@@ -251,7 +251,6 @@ handle_request( "/xx3" , "/xx3/index", 1, "it_worked_redir" ); # 3 tests
 handle_redirect( '/xx3', '/xx3/' );
 # 194
 
-
 # test dying
 DW::Routing->register_string( "/test/die/all_format", \&died_handler, app => 1, formats => 1 );
 
@@ -259,6 +258,32 @@ handle_server_error( "/test die implied_format (app)", "/test/die/all_format", "
 handle_server_error( "/test die .json format (app)", "/test/die/all_format.json", "json" ); # 2 tests
 handle_server_error( "/test die .html format (app)", "/test/die/all_format.html", "html" ); # 2 tests
 handle_server_error( "/test die .blah format (app)", "/test/die/all_format.blah", "blah" ); # 2 tests
+# 203 ( I know this doesn't add up. )
+
+DW::Routing->register_string( "/test/method/normal", \&handler, app => 1 );
+
+handle_request( "Method GET  - okay", "/test/method/normal", 1, undef, method => 'GET' );  # 3 tests
+handle_request( "Method POST - okay", "/test/method/normal", 1, undef, method => 'POST' );
+handle_request( "Method HEAD - okay", "/test/method/normal", 1, undef, method => 'HEAD' );
+handle_request( "Method PUT  - !ok",  "/test/method/normal", 1, undef, method => 'PUT', expected_error => 405 ); # 1 test
+# 213
+
+DW::Routing->register_string( "/test/method/all", \&handler, app => 1, methods => 1 );
+
+handle_request( "Method GET  - okay", "/test/method/all", 1, undef, method => 'GET' );  # 3 tests
+handle_request( "Method POST - okay", "/test/method/all", 1, undef, method => 'POST' );
+handle_request( "Method HEAD - okay", "/test/method/all", 1, undef, method => 'HEAD' );
+handle_request( "Method PUT  - okay", "/test/method/all", 1, undef, method => 'PUT' );
+handle_request( "Method FOO  - okay", "/test/method/all", 1, undef, method => 'FOO' );
+# 228
+
+DW::Routing->register_string( "/test/method/no_post", \&handler, app => 1, methods => { GET => 1, HEAD => 1, PUT => 1 } );
+
+handle_request( "Method GET  - okay", "/test/method/no_post", 1, undef, method => 'GET' );  # 3 tests
+handle_request( "Method POST - !ok",  "/test/method/no_post", 1, undef, method => 'POST', expected_error => 405 ); # 1 test
+handle_request( "Method HEAD - okay", "/test/method/no_post", 1, undef, method => 'HEAD' ); # 3 tests
+handle_request( "Method PUT  - okay", "/test/method/no_post", 1, undef, method => 'PUT' ); # 3 test
+# 238
 
 
 sub handle_redirect {
@@ -286,7 +311,9 @@ sub handle_request {
     $DW::Request::determined = 0;
     $DW::Request::cur_req = undef;
 
-    my $req = HTTP::Request->new(GET=>"$uri");
+    my $method = $opts{method} || 'GET';
+
+    my $req = HTTP::Request->new($method=>"$uri");
     my $r = DW::Request::Standard->new($req);
 
     $result = undef;
