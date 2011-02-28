@@ -159,7 +159,6 @@ test( "Check all", function() {
     ok( o, "CheckallButton" );
 });
 
-module( "*libfunctions" );
 test( "array tests", function () {
     expect(4);
 
@@ -175,6 +174,23 @@ test( "array tests", function () {
     });
 });
 
+module( "jquery" );
+test( "array tests", function () {
+    expect(4);
+
+    var array = new Array();
+    array.push( "a" );
+    array.push( "b" );
+    array.push( "c" );
+
+    equals( 3, array.length, "Check array size" );
+
+    $.each( array, function(index, element) {
+        equals( element, array[index] );
+    });
+});
+
+module( "*libfunctions" );
 test("object tests", function() {
     // expect(1);
 
