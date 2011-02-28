@@ -288,7 +288,12 @@ sub call_bml {
 }
 
 # constants sometimes used
-sub OK        { return 200; }
+
+# indicates that this request has been handled
+sub OK        { return 0; }
+
+# HTTP status codes
+sub HTTP_OK { return 200; }
 sub HTTP_CREATED { return 201; }
 sub REDIRECT  { return 302; }
 sub NOT_FOUND { return 404; }

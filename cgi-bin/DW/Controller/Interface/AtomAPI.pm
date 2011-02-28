@@ -28,13 +28,17 @@ use MIME::Base64;
 require 'ljprotocol.pl';
 
 # service document URL is the same for all users
-DW::Routing->register_string( "/interface/atom",   \&service_document, app => 1, format => "atom" );
+DW::Routing->register_string( "/interface/atom",   \&service_document, app => 1,
+        format => "atom", methods => { GET => 1 } );
 
 # note: safe to put these pages in the user subdomain even if they modify data
 # because we don't use cookies (so even if a user's cookies are stolen...)
-DW::Routing->register_string( "/interface/atom/entries", \&entries_handler, user => 1, format => "atom" );
-DW::Routing->register_string( "/interface/atom/entries/tags", \&categories_document, user => 1, format => "atom" );
-DW::Routing->register_regex( qr#/interface/atom/entries/(\d+)#, \&entry_handler, user => 1, format => "atom" );
+DW::Routing->register_string( "/interface/atom/entries", \&entries_handler, user => 1,
+        format => "atom", methods => { POST => 1, GET => 1 } );
+DW::Routing->register_string( "/interface/atom/entries/tags", \&categories_document, user => 1,
+        format => "atom", methods => { GET => 1 } );
+DW::Routing->register_regex( qr#/interface/atom/entries/(\d+)#, \&entry_handler, user => 1,
+        format => "atom", methods => { GET => 1, PUT => 1, DELETE => 1 } );
 
 sub ok {
     my ( $message, $status, $content_type ) = @_;
@@ -190,10 +194,6 @@ sub service_document {
 
     my $r = DW::Request->get;
 
-    my $method = $r->method;
-    return err( "URI scheme /interface/atom/ is incompatible with $method" )
-        unless $method eq "GET";
-
     # FIXME: use XML::Atom::Service?
     my $ret = qq{<?xml version="1.0"?>};
     $ret .= qq{<service xmlns="http://www.w3.org/2007/app" xmlns:atom="http://www.w3.org/2005/Atom">};
@@ -222,8 +222,6 @@ sub categories_document {
 
     my $r = DW::Request->get;
 
-    return err( "URI scheme /interface/atom/entries/tags is incompatible with " . $r->method ) unless $r->method eq "GET";
-
     my $ret = qq{<?xml version="1.0"?>};
     $ret .= qq{<categories xmlns="http://www.w3.org/2007/app" xmlns:atom="http://www.w3.org/2005/Atom">};
 
@@ -251,8 +249,6 @@ sub entries_handler {
     my $r = DW::Request->get;
     return _create_entry( %$rv ) if $r->method eq "POST";
     return _list_entries( %$rv ) if $r->method eq "GET";
-
-    return err( "URI scheme /interface/atom/entries is incompatible with " . $r->method );
 }
 
 sub _create_entry {
@@ -400,8 +396,6 @@ sub entry_handler {
     return _retrieve_entry( %$rv, item => $olditem->{events}->[0], entry_obj => $entry_obj ) if $r->method eq "GET";
     return _edit_entry( %$rv, item => $olditem->{events}->[0], entry_obj => $entry_obj ) if $r->method eq "PUT";
     return _delete_entry( %$rv, item => $olditem->{events}->[0], entry_obj => $entry_obj ) if $r->method eq "DELETE";
-
-    return err( "URI scheme /interface/atom/entries/$jitemid is incompatible with " . $r->method );
 }
 
 sub _retrieve_entry {

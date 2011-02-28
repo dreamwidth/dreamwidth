@@ -65,7 +65,8 @@ sub do_request {
     my %routing_data = ();
     $routing_data{username} = $user_subdomain if $user_subdomain;
 
-    DW::Routing->call( %routing_data );
+    my $returned = DW::Routing->call( %routing_data );
+    $r->status( $returned ) unless $returned eq $r->OK;
 }
 
 # check subject, etc
@@ -121,19 +122,18 @@ do_request( GET => $u->atom_service_document, authenticate => 1, password => $u-
 is( $r->status, $r->HTTP_UNAUTHORIZED, "Passed wrong authorization information." );
 
 do_request( GET => $u->atom_service_document, authenticate => 1 );
-is( $r->status, $r->OK, "Successful authentication." );
+is( $r->status, $r->HTTP_OK, "Successful authentication." );
 
 
 note( "Service document introspection." );
 do_request( POST => $u->atom_service_document ); 
-is( $r->status, $r->HTTP_UNAUTHORIZED, "Service document protected by authorization." );
+is( $r->status, $r->HTTP_METHOD_NOT_ALLOWED, "Service document needs GET (even unauthorized)" );
 
 do_request( POST => $u->atom_service_document, authenticate => 1 );
-is( $r->status, $r->NOT_FOUND, "Service document needs GET." );
-is( $r->header_in( "Content-Type" ), "text/plain", "Error content type" );
+is( $r->status, $r->HTTP_METHOD_NOT_ALLOWED, "Service document needs GET." );
 
 do_request( GET => $u->atom_service_document, authenticate => 1 );
-is( $r->status, $r->OK, "Got service document." );
+is( $r->status, $r->HTTP_OK, "Got service document." );
 like( $r->header_in( "Content-Type" ), qr#^\Qapplication/atomsvc+xml\E#, "Service content type" );
 my $service_document_xml = $r->response_content;
 
@@ -146,11 +146,10 @@ do_request( GET => $u->atom_base . "/entries/tags" );
 is( $r->status, $r->HTTP_UNAUTHORIZED, "Categories document protected by authorization." );
 
 do_request( POST => $u->atom_base . "/entries/tags", authenticate => 1 );
-is( $r->status, $r->NOT_FOUND, "Categories document needs GET." );
-is( $r->header_in( "Content-Type" ), "text/plain", "Error content type" );
+is( $r->status, $r->HTTP_METHOD_NOT_ALLOWED, "Categories document needs GET." );
 
 do_request( GET => $u->atom_base . "/entries/tags", authenticate => 1 );
-is( $r->status, $r->OK, "Got categories document." );
+is( $r->status, $r->HTTP_OK, "Got categories document." );
 like( $r->header_in( "Content-Type" ), qr#^\Qapplication/atomcat+xml\E#, "Categories document type" );
 my $categories_document_xml = $r->response_content;
 
@@ -231,7 +230,7 @@ do_request( GET => $u->atom_base . "/entries" );
 is( $r->status, $r->HTTP_UNAUTHORIZED, "Entries feed needs authorization." );
 
 do_request( GET => $u->atom_base . "/entries", authenticate => 1 );
-is( $r->status, $r->OK, "Retrieved entry list" );
+is( $r->status, $r->HTTP_OK, "Retrieved entry list" );
 is( $r->header_in( "Content-Type" ), "application/atom+xml", "AtomAPI entry content type" );
 
 my $feed = XML::Atom::Feed->new( \ $r->response_content );
@@ -247,10 +246,10 @@ is( $r->status, $r->NOT_FOUND, "No such entry" );
 is( $r->content_type, "text/plain", "AtomAPI entry content type" );
 
 do_request( POST => $u->atom_base . "/entries/1", authenticate => 1 );
-is( $r->status, $r->NOT_FOUND, $u->atom_base . "/entries/1 does not support POST." );
+is( $r->status, $r->HTTP_METHOD_NOT_ALLOWED, $u->atom_base . "/entries/1 does not support POST." );
 
 do_request( GET => $u->atom_base . "/entries/1", authenticate => 1 );
-is( $r->status, $r->OK, "Retrieved entry" );
+is( $r->status, $r->HTTP_OK, "Retrieved entry" );
 is( $r->content_type, "application/atom+xml", "AtomAPI entry content type" );
 
 $atom_entry_server = XML::Atom::Entry->new( \ $r->response_content );
@@ -293,7 +292,7 @@ foreach my $tag ( @tags ) {
 # put a little bit of time between publish and update
 sleep( 1 );
 do_request( PUT => $u->atom_base . "/entries/1", authenticate => 1, data => { input => $atom_entry->as_xml } );
-is( $r->status, $r->OK, "Edited entry" );
+is( $r->status, $r->HTTP_OK, "Edited entry" );
 is( $r->content_type, "application/atom+xml", "AtomAPI entry content type" );
 
 do_request( GET => $u->atom_base . "/entries/1", authenticate => 1 );
@@ -317,7 +316,7 @@ is( $r->status, $r->HTTP_BAD_REQUEST, "Mismatched ids" );
 
 
 do_request( DELETE => $u->atom_base . "/entries/1", authenticate => 1 );
-is( $r->status, $r->OK, "Deleted entry" );
+is( $r->status, $r->HTTP_OK, "Deleted entry" );
 $entry_obj = LJ::Entry->new( $u, jitemid => 1 );
 isnt( $entry_obj->valid, "Entry confirmed deleted" );
 
@@ -349,7 +348,7 @@ note( "Checking community functionality." );
 
     # community you aren't a member of
     do_request( GET => $nonmemberof_cu->atom_service_document, authenticate => 1 );
-    is( $r->status, $r->OK, "Not a member of the community, but we still get the service document for the user (which doesn't contain the community)." );
+    is( $r->status, $r->HTTP_OK, "Not a member of the community, but we still get the service document for the user (which doesn't contain the community)." );
 
     SKIP: {
         skip "No XML::Atom::Service/XML::Atom::Categories module installed.", 3
@@ -368,7 +367,7 @@ note( "Checking community functionality." );
 
     # community you are a member of
     do_request( GET => $memberof_cu->atom_service_document, authenticate => 1 );
-    is( $r->status, $r->OK, "Got service document." );
+    is( $r->status, $r->HTTP_OK, "Got service document." );
     like( $r->header_in( "Content-Type" ), qr#^\Qapplication/atomsvc+xml\E#, "Service content type" );
 
     SKIP: {
@@ -447,7 +446,7 @@ note( "Checking community functionality." );
 
     # community you have posting access to
     do_request( GET => $memberof_cu->atom_base . "/entries", authenticate => 1 );
-    is( $r->status, $r->OK, "Retrieved entry list" );
+    is( $r->status, $r->HTTP_OK, "Retrieved entry list" );
     is( $r->header_in( "Content-Type" ), "application/atom+xml", "AtomAPI entry content type" );
 
     my $feed = XML::Atom::Feed->new( \ $r->response_content );
@@ -470,7 +469,7 @@ note( "Checking community functionality." );
     # edit (should succeed)
     # delete (should succeed)
     do_request( GET => $memberof_cu->atom_base . "/entries/1", authenticate => 1 );
-    is( $r->status, $r->OK, "Retrieved entry" );
+    is( $r->status, $r->HTTP_OK, "Retrieved entry" );
     is( $r->content_type, "application/atom+xml", "AtomAPI entry content type" );
 
     $atom_entry_server = XML::Atom::Entry->new( \ $r->response_content );
@@ -493,7 +492,7 @@ note( "Checking community functionality." );
 
     do_request( PUT => $memberof_cu->atom_base . "/entries/1", authenticate => 1, data => { input => $atom_entry->as_xml } );
 
-    is( $r->status, $r->OK, "Edited entry" );
+    is( $r->status, $r->HTTP_OK, "Edited entry" );
     is( $r->content_type, "application/atom+xml", "AtomAPI entry content type" );
 
     do_request( GET => $memberof_cu->atom_base . "/entries/1", authenticate => 1 );
@@ -510,7 +509,7 @@ note( "Checking community functionality." );
 
 
     do_request( DELETE => $memberof_cu->atom_base . "/entries/1", authenticate => 1 );
-    is( $r->status, $r->OK, "Deleted entry" );
+    is( $r->status, $r->HTTP_OK, "Deleted entry" );
     $entry_obj = LJ::Entry->new( $memberof_cu, jitemid => 1 );
     isnt( $entry_obj->valid, "Entry confirmed deleted" );
 
@@ -545,14 +544,14 @@ note( "Checking community functionality." );
     # edit (should fail)
     # delete (should succeed)
     do_request( GET => $memberof_cu->atom_base . "/entries/2", authenticate => 1, remote => $admin_u );
-    is( $r->status, $r->OK, "Retrieved entry" );
+    is( $r->status, $r->HTTP_OK, "Retrieved entry" );
     is( $r->content_type, "application/atom+xml", "AtomAPI entry content type" );
 
     do_request( PUT => $memberof_cu->atom_base . "/entries/2", authenticate => 1, remote => $admin_u, data => { input => $atom_entry->as_xml } );
     is( $r->status, $r->HTTP_UNAUTHORIZED, "You don't own this entry (admin_u, edit)" );
 
     do_request( DELETE => $memberof_cu->atom_base . "/entries/2", authenticate => 1, remote => $admin_u );
-    is( $r->status, $r->OK, "Deleted entry (admin_u, delete)" );
+    is( $r->status, $r->HTTP_OK, "Deleted entry (admin_u, delete)" );
     $entry_obj = LJ::Entry->new( $memberof_cu, jitemid => 2 );
     isnt( $entry_obj->valid, "Entry confirmed deleted" );
 }

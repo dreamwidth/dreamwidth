@@ -274,6 +274,11 @@ sub OK {
     return Apache2::Const::OK;
 }
 
+sub HTTP_OK {
+    my DW::Request::Apache2 $self = $_[0];
+    return Apache2::Const::HTTP_OK;
+}
+
 sub HTTP_CREATED {
     return Apache2::Const::HTTP_CREATED;
 }
