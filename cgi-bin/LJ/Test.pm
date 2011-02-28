@@ -16,6 +16,10 @@ require Exporter;
 use strict;
 use Carp qw(croak);
 
+use DW::Routing;
+use DW::Request::Standard;
+use HTTP::Request;
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #              WARNING! PELIGROSO! ACHTUNG! VNIMANIYE!
 # some fools (aka mischa) try to use this library from web context,
@@ -26,7 +30,7 @@ use Carp qw(croak);
 use DBI;
 use LJ::ModuleCheck;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed fake_apache);
+our @EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed fake_apache routing_request);
 
 my @temp_userids;  # to be destroyed later
 END {
@@ -191,6 +195,30 @@ sub memcache_stress (&) {
     LJ::MemCache::set_memcache($pre_mem);
 }
 
+sub routing_request {
+    my ( $uri, %opts ) = @_;
+
+    my $method = $opts{method} || 'GET';
+    my %routing_data = %{ $opts{routing_data} || {} };
+
+    LJ::start_request();
+
+    my $req = HTTP::Request->new( $method => $uri );
+
+    $opts{setup_http_request}->($req) if $opts{setup_http_request};
+
+    # Just in case, but this shouldn't get set in a non-web context
+    DW::Request->reset;
+    my $r = DW::Request::Standard->new( $req );
+
+    $opts{setup_dw_request}->($r) if $opts{setup_dw_request};
+
+    my $rv = DW::Routing->call( %routing_data );
+    $r->status( $rv ) unless $rv eq $r->OK;
+
+    return $r;
+}
+
 package LJ::Test::FakeMemCache;
 # duck-typing at its finest!
 # this is a fake Cache::Memcached object which implements the
@@ -282,7 +310,6 @@ sub doesnt_want_configuration {
 
 sub disconnect_all {}
 sub forget_dead_hosts {}
-
 
 package LJ::User;
 

@@ -30,43 +30,33 @@ my $api = XML::Atom::Client->new( Version => 1 );
 
 my $r;
 sub do_request {
-    my ( %opts ) = @_;
+    my ( $method, $uri, %opts ) = @_;
 
     my $authenticate = delete $opts{authenticate};
     my $data = delete $opts{data} || {};
     my $remote = delete $opts{remote} || $u;
     my $password = delete $opts{password} || $remote->password;
 
-    my $req = HTTP::Request->new( %opts );
-
-    $req->uri =~ m!http://([^.]+)!;
+    $uri =~ m!http://([^.]+)!;
     my $user_subdomain = $1 eq "www" ? "" : $1;
-
-    # caution: may be fragile
-    # relies upon knowing details of the client's implementation
-    # which are not in the client's public documented API
-    if ( $authenticate ) {
-        $api->username( $remote->username );
-        $api->password( $password );
-        $api->munge_request( $req );
-    }
-
-    # clear request caches
-    DW::Request->reset;
-    $r = $DW::Request::cur_req = DW::Request::Standard->new( $req );
-    $DW::Request::determined = 1;
-
-    LJ::Entry->reset_singletons;
-    %LJ::REQ_CACHE_REL = ();
-
-    # set any additional information
-    $r->pnote( $_ => $data->{$_} ) foreach %$data;
 
     my %routing_data = ();
     $routing_data{username} = $user_subdomain if $user_subdomain;
 
-    my $returned = DW::Routing->call( %routing_data );
-    $r->status( $returned ) unless $returned eq $r->OK;
+    $r = routing_request( $uri,
+        method => $method,
+        setup_http_request => sub {
+            if ( $authenticate ) {
+                $api->username( $remote->username );
+                $api->password( $password );
+                $api->munge_request( $_[0] );
+            }
+        },
+        setup_dw_request => sub {
+            $_[0]->pnote( $_ => $data->{$_} ) foreach %$data;
+        },
+        routing_data => \%routing_data,
+    );
 }
 
 # check subject, etc
