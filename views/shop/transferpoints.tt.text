@@ -16,9 +16,11 @@
 
 .buying.points.range=(1 to 5,000 points)
 
-.confirm=You have requested to transfer [[points]] [[?points|point|points]] to [[user]].  If you are sure you wish to do this, please click the button below.
+.confirm2=If you are sure you wish to do this, please click the button below.
 
-.confirm.anon=You have requested to anonymously transfer [[points]] [[?points|point|points]] to [[user]].  They will not know the points came from you.  If you are sure you wish to do this, please click the button below.
+.request.anon=You have requested to anonymously transfer [[points]] [[?points|point|points]] to [[name]] ([[user]]).  They will not know the points came from you.
+
+.request.user=You have requested to transfer [[points]] [[?points|point|points]] to [[name]] ([[user]]).
 
 .title=[[sitename]] Points Transfers
 

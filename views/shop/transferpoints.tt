@@ -7,8 +7,16 @@
 
 [% ELSIF confirm %]
 
-    <p>[% IF anon; '.confirm.anon' | ml(points = points, user = foru.ljuser_display);
-          ELSE; '.confirm' | ml(points = points, user = foru.ljuser_display); END %]</p>
+    <p>[% IF foru.userpic;
+            foru.userpic.imgtag_lite;
+          END;
+
+          IF anon;
+            '.request.anon' | ml(points = points, user = foru.ljuser_display, name=foru.name_html);
+          ELSE;
+            '.request.user' | ml(points = points, user = foru.ljuser_display, name=foru.name_html);
+          END %]</p>
+    <p>[% '.confirm2' | ml %]</p>
 
     <form method='post'>
         [% dw.form_auth %]
