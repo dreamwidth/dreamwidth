@@ -2558,7 +2558,11 @@ s2theme.themename.default=(Unnamed - [[themeid]])
 
 s2theme.themename.notheme=(Layout Default)
 
+search.user.commdesc=Community Description:
+
 search.user.journal=Journal:
+
+search.user.journaltitle=Journal Title:
 
 search.user.name=Name:
 

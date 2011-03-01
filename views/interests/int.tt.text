@@ -1,7 +1,19 @@
 ;; -*- coding: utf-8 -*-
 .addint2=If you're also interested in this, would you like to be <a [[aopts]]>added to this list</a>?
 
-.communities.header=Results for communities listing an interest in "[[interest]]"
+.filtered=[[num]] [[?num|match|matches]], showing [[count]] [[?count|result|results]]:
+
+.filterlink.C=Communities Only
+
+.filterlink.I=OpenIDs Only
+
+.filterlink.label=Show:
+
+.filterlink.none=All Account Types
+
+.filterlink.P=Users Only
+
+.header=Search results for "[[interest]]"
 
 .lastupdated.false=Never updated
 
@@ -11,14 +23,10 @@
 
 .morestuff2=You can find more fun stuff on the <a [[aopts]]>interests page</a>.
 
-.nocomms.header=Relevant communities
+.nocomms=There are no communities interested in "<b>[[int]]</b>." You can <a [[aopts]]>create one</a>!
 
-.nocomms.text=There are no communities interested in "<b>[[int]]</b>." You can <a [[aopts]]>create one</a>!
+.nomatch=No matching users for the specified account type. <a href="[[link]]">View all accounts with this interest.</a>
 
-.nousers.header=Interested users
-
-.nousers.text2=There are no users interested in "<b>[[int]]</b>". If you are interested in this, <a [[aopts_add]]>click here to add the interest to your profile</a>. More fun stuff can be found on the <a [[aopts_int]]>interests page</a>.
+.nousers=There are no users interested in "<b>[[int]]</b>". If you are interested in this, <a [[aopts_add]]>click here to add the interest to your profile</a>. More fun stuff can be found on the <a [[aopts_int]]>interests page</a>.
 
 .title=Interests
-
-.users.header=Results for people interested in "[[interest]]"

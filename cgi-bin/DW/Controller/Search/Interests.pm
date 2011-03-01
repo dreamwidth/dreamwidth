@@ -303,49 +303,81 @@ sub interest_handler {
             # can't trust LJ::load_userids to maintain sort order
         };
 
+        # filtering by account type
+        $rv->{type_list} = [ 'none', 'P', 'C', 'I' ];
+
+        my $type = $args->{type};
+        $type = 'none' unless $type && $type =~ /^[PCI]$/;
+        my $typefilter = sub { return $type eq 'none' ? 1 :
+                               $_[0]->journaltype eq $type };
+
+        # get top 500 user and/or community results
+        my $us = {};
+
+        unless ( $type eq 'C' ) {  # unless no users needed
+            $us = $int_query->( "userinterests" );
+            $rv->{comm_count} = 1;  # reset later if comms loaded
+        }
+
+        unless ( $type =~ /^[PI]$/ ) {  # unless no comms needed
+            my $cus = $int_query->( "comminterests" );
+            $rv->{comm_count} = scalar values %$cus;
+
+            # combine the two sets of results
+            @{ $us }{ keys %$cus } = values %$cus;
+        }
+
         my $should_show = sub {
             return $_[0]->should_show_in_search_results( for => $remote );
         };
 
-        # community results
-        if ( LJ::is_enabled( 'interests-community' ) ) {
-            my $us = $int_query->( "comminterests" );
-            my $updated = LJ::get_timeupdate_multi( keys %$us );
-            my $def_upd = sub { $updated->{$_[0]->userid} || 0 };
-            # let undefined values be zero for sorting purposes
-            my @cl = sort { $def_upd->($b) <=> $def_upd->($a) || $a->user cmp $b->user }
-                     grep { $_ && $should_show->( $_ ) } values %$us;
-            $rv->{int_comms} = { count => scalar @cl, data => [] };
-            foreach ( @cl ) {
-                my $updated = $updated->{$_->id}
-                            ? LJ::diff_ago_text( $updated->{$_->id} )
+        my $updated = LJ::get_timeupdate_multi( keys %$us );
+        my $def_upd = sub { $updated->{$_[0]->userid} || 0 };
+        # let undefined values be zero for sorting purposes
+
+        my @ul = sort { $def_upd->($b) <=> $def_upd->($a) || $a->user cmp $b->user }
+                 grep { $_ && $typefilter->( $_ ) && $should_show->( $_ ) }
+                 values %$us;
+        $rv->{type_count} = scalar @ul if $intcount != scalar @ul;
+
+        # construct filter links
+        $rv->{type_link} = sub {
+            return '' if $type eq $_[0];  # no link for active selection
+            my $typearg = $_[0] eq 'none' ? '' : $_[0];
+            return LJ::page_change_getargs( type => $typearg );
+        };
+
+        if ( @ul ) {
+            # pagination
+            my $curpage = $args->{page} || 1;
+            my %items = LJ::paging( \@ul, $curpage, 30 );
+            my @data;
+
+            # subset of users to display on this page
+            foreach my $u ( @{ $items{items} } ) {
+                my $desc = LJ::ehtml( $u->prop( 'journaltitle' ) );
+                my $label = LJ::Lang::ml( 'search.user.journaltitle' );
+
+                # community promo desc overrides journal title
+                if ( $u->is_comm && LJ::is_enabled( 'community_themes' ) &&
+                        ( my $prop_theme = $u->prop( "comm_theme" ) ) ) {
+                    $label = LJ::Lang::ml( 'search.user.commdesc' );
+                    $desc = LJ::ehtml( $prop_theme );
+                }
+
+                my $userpic = $u->userpic;
+                $userpic = $userpic ? $userpic->imgtag_lite : '';
+
+                my $updated = $updated->{$u->id}
+                            ? LJ::diff_ago_text( $updated->{$u->id} )
                             : undef;
-                my $prop_theme = $_->prop("comm_theme");
-                my $theme = LJ::is_enabled('community_themes') && $prop_theme
-                          ? LJ::ehtml( $prop_theme )
-                          : undef;
-                push @{ $rv->{int_comms}->{data} },
-                      { u => $_, updated => $updated, theme => $theme };
+                push @data, { u => $u, updated => $updated, icon => $userpic,
+                              desc => $desc, desclabel => $label };
             }
+
+            $rv->{navbar} = LJ::paging_bar( $items{page}, $items{pages} );
+            $rv->{data} = \@data;
         }
-
-        # user results
-        my $us = $int_query->( "userinterests" );
-        my @ul = grep { $_
-                        && ! $_->is_community            # not communities
-                        && $should_show->( $_ )          # and should show to the remote user
-                      } values %$us;
-        my $navbar;
-        my $results =
-            LJ::user_search_display( users      => \@ul,
-                                     timesort   => 1,
-                                     perpage    => 50,
-                                     curpage    => exists $args->{page} ?
-                                                   $args->{page} : 1,
-                                     navbar     => \$navbar );
-
-        $rv->{int_users} = { count => scalar( @ul ), navbar => $navbar,
-                             results => $results };
 
         # check to see if the remote user already has the interest
         $rv->{not_interested} = ! $remote->interests->{$interest}

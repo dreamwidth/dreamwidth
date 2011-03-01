@@ -14,7 +14,13 @@
 [%- sections.head = BLOCK %]
 <style type='text/css'>
     div.tagcloud a { text-decoration: none; }
-    ul.contentlist li { padding-bottom: 3px; }
+    ul.contentlist { list-style-type: none; }
+    ul.contentlist li { padding-bottom: 1em; font-size: 125%; clear: both; }
+    ul.contentlist .userpic-img { border: 1px solid #000; }
+    .imgpos { float: left; width: 100px; min-height: 4em; text-align: right;
+              margin: 0 .5em .5em 0; }
+    .navbar { text-align: center; clear: both; }
+    .typefilter { font-weight: bold; font-size: 125%; margin: 1em 0; }
 </style>
 [% END -%]
 
@@ -37,44 +43,62 @@
 <input type="text" name="fromuser" size="20" />&nbsp;
 <input type='submit' value='[% "interests.enmasse.btn" | ml %]' />
 </form></td></tr></table>
+<h1>[% ".header" | ml(interest = e_int) %]</h1>
+<div class='typefilter'>[% '.filterlink.label' | ml %]&nbsp;
+[%- FOREACH type = type_list -%]
+    [%- link = type_link(type) -%]
+    [%- IF type != 'none' ; '&nbsp;|&nbsp;' ; END -%]
+    [%- IF link %]<a href="[% link | html %]">[% END -%]
+    [%- ".filterlink.$type" | ml -%]
+    [%- IF link ; '</a>' ; END -%]
+[%- END -%]
+</div>
 [%- IF intcount -%]
-    [%- IF int_comms.count -%]
-        <h1>[% ".communities.header" | ml(interest = e_int) %]</h1>
-        <p class='matches'><b>[% '.matches2' | ml(num = int_comms.count) %]</b>
-        <ul class='contentlist'>
-        [%- FOREACH int_comms.data -%]
-            <li class='commname'>[% u.ljuser_display %] - [% u.name_html %]
-            <small class='lastupdated'>(
-                [%- IF updated; '.lastupdated.true' | ml(time = updated) -%]
-                [%- ELSE; '.lastupdated.false' | ml; END -%]
-            )</small>
-            [%- IF theme -%]
-                <br />&nbsp;&nbsp;&nbsp;<em>[% theme %]</em>
-            [%- END -%]
-            </li>
-        [%- END -%]
-        </ul></p>
-    [%- ELSE -%]
-        <h1>[% '.nocomms.header' | ml %]</h1><p>
-        [%- '.nocomms.text' | ml(aopts = "href='$site.root/community/create'",
-                                int = interest) %]</p>
-    [%- END -%]
-    <h1>[% ".users.header" | ml(interest = e_int) %]</h1>
     <p class='interestinfo'>
     [%- IF not_interested -%]
         [%- '.addint2' | ml(aopts = "href='$site.root/interests?mode=add&amp;intid=$intid'") -%]
     [%- END -%]
     [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
-    <p class='matches'><b>[% '.matches2' | ml(num = int_users.count) %]</b></p>
-    <div style='text-align: center'>[% int_users.navbar %]</div><br />
-    [% int_users.results %]
-    <div style='text-align: center; clear: both'>[% int_users.navbar %]</div><br />
-[%- ELSE -%]
-    <h1>[% '.nocomms.header' | ml %]</h1><p>
-    [%- '.nocomms.text' | ml(aopts = "href='$site.root/community/create'",
+    [%- UNLESS comm_count -%]
+        <p class='interestinfo'>
+        [%- '.nocomms' | ml(aopts = "href='$site.root/community/create'",
                             int = e_int) %]</p>
-    <h1>[% '.nousers.header' | ml %]</h1><p>
-    [%- '.nousers.text2' | ml(int = e_int,
+    [%- END -%]
+    <p class='matches'><b>
+    [%- IF type_count -%]
+        [% '.filtered' | ml(num = intcount, count = type_count) %]</p>
+    [%- ELSE -%]
+        [% '.matches2' | ml(num = intcount) %]
+    [%- END -%]
+    </b></p>
+    [%- IF data -%]
+        <div class='navbar'>[% navbar %]</div><br />
+
+        <ul class='contentlist'>
+        [%- FOREACH data -%]
+            <li><span class="imgpos">
+            <a href='[% u.allpics_base %]'>[% icon %]</a></span>
+            [% u.ljuser_display %] - [% u.name_html %]
+            [%- IF desc -%]
+                <br />&nbsp;&nbsp;&nbsp;<i>[% desclabel %]</i> [% desc %]
+            [%- END -%]
+            <br />&nbsp;&nbsp;&nbsp;<small class='lastupdated'>(
+                [%- IF updated; '.lastupdated.true' | ml(time = updated) -%]
+                [%- ELSE; '.lastupdated.false' | ml; END -%]
+            )</small></li>
+        [%- END -%]
+        </ul>
+
+        <div class='navbar'>[% navbar %]</div>
+    [%- ELSE -%]
+        <p>[% '.nomatch' | ml(link = type_link('none')) %]</p>
+    [%- END -%]
+[%- ELSE -%]
+    <p class='interestinfo'>
+    [%- '.nocomms' | ml(aopts = "href='$site.root/community/create'",
+                        int = e_int) %]</p>
+    <p class='interestinfo'>
+    [%- '.nousers' | ml(int = e_int,
         aopts_add = "href='$site.root/interests?mode=addnew&amp;keyword=$e_int'",
         aopts_int = "href='$site.root/interests'") %]</p>
 [%- END -%]
