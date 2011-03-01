@@ -16,6 +16,7 @@ my %SKIP = (
     'Test/FakeApache.pm'      => 'needs Apache::Constants',
 
     'Data/ObjectDriver/Driver/DBD/SQLite.pm' => 'Bareword "DBI::SQL_BLOB"',
+    'Data/ObjectDriver/Driver/DBD/Oracle.pm' => 'no Oracle',
 
     'cgi-bin/lj-bml-init.pl' => 'BML::register_isocode called from non-conffile context',
     'cgi-bin/lj-bml-blocks.pl' => 'BML::register_block called from non-lookfile context',
