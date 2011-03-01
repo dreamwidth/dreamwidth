@@ -6,24 +6,31 @@ use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
 
-plan tests => 228;
+plan tests => 156;
 
 use LJ::Test qw(temp_user memcache_stress);
 
 $LJ::DISABLED{infoshow_migrate} = 0;
 
 sub new_temp_user {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my $u = temp_user();
-    ok(LJ::isu($u), 'temp user created');
 
-    # force it to Y, since we're testing migration here
-    $u->update_self( { allow_infoshow => 'Y' } );
-    $u->clear_prop("opt_showlocation");
-    $u->clear_prop("opt_showbday");
+    subtest "created new temp user" => sub {
+        plan tests => 4;
 
-    is($u->{'allow_infoshow'}, 'Y', 'allow_infoshow set to Y');
-    ok(! defined $u->{'opt_showbday'}, 'opt_showbday not set');
-    ok(! defined $u->{'opt_showlocation'}, 'opt_showlocation not set');
+        ok(LJ::isu($u), 'temp user created');
+
+        # force it to Y, since we're testing migration here
+        $u->update_self( { allow_infoshow => 'Y' } );
+        $u->clear_prop("opt_showlocation");
+        $u->clear_prop("opt_showbday");
+
+        is($u->{'allow_infoshow'}, 'Y', 'allow_infoshow set to Y');
+        ok(! defined $u->{'opt_showbday'}, 'opt_showbday not set');
+        ok(! defined $u->{'opt_showlocation'}, 'opt_showlocation not set');
+    };
 
     return $u;
 }

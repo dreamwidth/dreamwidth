@@ -70,70 +70,96 @@ delobj_all( $one );
 } );
 
 sub add {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $args = shift;
     my $obj = LJ::Jabber::Presence->create( %$args );
 
-    $presence{$args->{resource}} = 1;
-
-    ok( $obj, "Object create" );
-    checkattrs( $obj, $args );
-    checkres( $args->{u}, scalar( keys %presence ) );
+    subtest "add $args->{resource} - $args->{client}" => sub {
+        $presence{$args->{resource}} = 1;
+    
+        ok( $obj, "Object create" );
+        checkattrs( $obj, $args );
+        checkres( $args->{u}, scalar( keys %presence ) );
+    };
 
     return $obj;
 }
 
 sub load {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my $args = shift;
     my $obj = LJ::Jabber::Presence->new( $args->{u}, $args->{resource} );
 
-    ok( $obj, "Object load" );
-    checkattrs( $obj, $args );
-    checkres( $args->{u}, scalar( keys %presence ) );
+    subtest "load $args->{resource} - $args->{client}" => sub {
+        ok( $obj, "Object load" );
+        checkattrs( $obj, $args );
+        checkres( $args->{u}, scalar( keys %presence ) );
+    };
 
     return $obj;
 }
 
 sub del {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my $args = shift;
-    LJ::Jabber::Presence->delete( $args->{u}->id, $args->{resource} );
 
-    delete $presence{$args->{resource}};
-
-    checkres( $args->{u}, scalar( keys %presence ) );
+    subtest "del $args->{resource} - $args->{client}" => sub {
+        LJ::Jabber::Presence->delete( $args->{u}->id, $args->{resource} );
+    
+        delete $presence{$args->{resource}};
+    
+        checkres( $args->{u}, scalar( keys %presence ) );
+    };
 }
 
 sub delobj {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my $args = shift;
     my $obj = load( $args );
 
-    delete $presence{$args->{resource}};
-    $obj->delete;
-
-    checkres( $args->{u}, scalar( keys %presence ) );
+    subtest "delobj $args->{resource} - $args->{client}" => sub {
+        delete $presence{$args->{resource}};
+        $obj->delete;
+    
+        checkres( $args->{u}, scalar( keys %presence ) );
+    };
 }
 
 sub del_all {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my $u = shift;
-    LJ::Jabber::Presence->delete_all( $u->id );
 
-    %presence = ();
-
-    checkres( $u, 0 );
+    subtest "delall" => sub {
+        LJ::Jabber::Presence->delete_all( $u->id );
+    
+        %presence = ();
+    
+        checkres( $u, 0 );
+    };
 }
 
 sub delobj_all {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my $args = shift;
     my $obj = load( $args );
 
-    %presence = ();
-    $obj->delete_all;
-
-    checkres( $args->{u}, 0 );
+    subtest "delobj_all $args->{resource} - $args->{client}" => sub {
+        %presence = ();
+        $obj->delete_all;
+    
+        checkres( $args->{u}, 0 );
+    };
 }
 
 sub checkattrs {
     my $obj = shift;
     my $check = shift;
+
     is( $obj->u, $check->{u}, "User matches" );
     is( $obj->resource, $check->{resource}, "Resource matches" );
     is( $obj->cluster, $check->{cluster}, "cluster matches" );

@@ -49,6 +49,8 @@ my $do_request = sub {
 
 
 my $check_err = sub {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my ( $expectedcode, $testmsg ) = @_;
 
     # code is either in the form of ###, or ###:description
@@ -57,6 +59,8 @@ my $check_err = sub {
 };
 
 my $success = sub {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my ( $testmsg ) = @_;
 
     is( $err, 0, "$testmsg (success)" );

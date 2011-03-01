@@ -64,41 +64,45 @@ sub do_request {
 sub check_entry {
     my ( $atom_entry, $entry_info, $journal ) = @_;
 
-    ok( $atom_entry, "Got an atom entry back from the server" );
-    is( $atom_entry->title, $entry_info->{title}, "atom entry has right title" )
-        if defined $entry_info->{title};
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    # having the content body be of type HTML
-    # causes newlines to appear for some reason when we try to extract the content as a string
-    # so let's just work around it; it should be harmless (as_xml doesn't contain the extra newlines)
-    my $event_raw = $entry_info->{content};
-    like( $atom_entry->content->body, qr/\s*$event_raw\s*/, "atom entry has right content" )
-        if defined $entry_info->{content};
+    subtest "check_entry $entry_info->{id} - $entry_info->{title}"  => sub {
+        ok( $atom_entry, "Got an atom entry back from the server" );
+        is( $atom_entry->title, $entry_info->{title}, "atom entry has right title" )
+            if defined $entry_info->{title};
 
-    is( $atom_entry->id, $entry_info->{atom_id}, "atom id" )
-        if defined $entry_info->{atom_id};
+        # having the content body be of type HTML
+        # causes newlines to appear for some reason when we try to extract the content as a string
+        # so let's just work around it; it should be harmless (as_xml doesn't contain the extra newlines)
+        my $event_raw = $entry_info->{content};
+        like( $atom_entry->content->body, qr/\s*$event_raw\s*/, "atom entry has right content" )
+            if defined $entry_info->{content};
 
-    is( $atom_entry->author->name, $entry_info->{author}, "atom entry author" )
-        if defined $entry_info->{author};
+        is( $atom_entry->id, $entry_info->{atom_id}, "atom id" )
+            if defined $entry_info->{atom_id};
 
-    if ( defined $entry_info->{url} ) {
-        my @links = $atom_entry->link;
-        is( scalar @links, 2, "got back two links" );
-        foreach my $link( @links ) {
-            if ( $link->rel eq "edit" ) {
-                is( $link->href, $journal->atom_base . "/entries/$entry_info->{id}", "edit link" );
-            } else { # alternate
-                is( $link->href, $entry_info->{url}, "entry link" );
+        is( $atom_entry->author->name, $entry_info->{author}, "atom entry author" )
+            if defined $entry_info->{author};
+
+        if ( defined $entry_info->{url} ) {
+            my @links = $atom_entry->link;
+            is( scalar @links, 2, "got back two links" );
+            foreach my $link( @links ) {
+                if ( $link->rel eq "edit" ) {
+                    is( $link->href, $journal->atom_base . "/entries/$entry_info->{id}", "edit link" );
+                } else { # alternate
+                    is( $link->href, $entry_info->{url}, "entry link" );
+                }
             }
         }
-    }
 
-    if ( defined $entry_info->{categories} ) {
-        my %tags = map { $_ => 1 } @{ $entry_info->{categories} || [] };
-        my %categories = map { $_->term => 1 } $atom_entry->category;
-        is( scalar keys %categories, 2, "got back multiple categories" );
-        is_deeply( { %categories }, { %tags }, "got back the categories we sent in" );
-    }
+        if ( defined $entry_info->{categories} ) {
+            my %tags = map { $_ => 1 } @{ $entry_info->{categories} || [] };
+            my %categories = map { $_->term => 1 } $atom_entry->category;
+            is( scalar keys %categories, 2, "got back multiple categories" );
+            is_deeply( { %categories }, { %tags }, "got back the categories we sent in" );
+        }
+    };
 }
 
 

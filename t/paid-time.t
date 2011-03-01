@@ -7,7 +7,7 @@ require 'ljlib.pl';
 use DW::Pay;
 use LJ::Test qw (temp_user);
 
-plan tests => 29;
+plan tests => 8;
 
 my $u1 = temp_user();
 my $paidmos = 0;
@@ -26,15 +26,23 @@ sub rst {
 }
 
 sub assert {
-    my ( $u, $type ) = @_;
-    my ($typeid) = grep { $LJ::CAP{$_}->{_account_type} eq $type } keys %LJ::CAP;
-    ok( $typeid, 'valid class' );
+    my ( $u, $type, $testname ) = @_;
 
-    my $ps = DW::Pay::get_paid_status( $u );
-    my $secs = 86400 * $paidmos;
-    ok( $ps, 'got paid status' );
-    ok( $ps->{typeid} == $typeid, 'typeids match' );
-    ok( abs( $ps->{expiresin} - $secs) < 60, 'secs match within a minute' );
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    subtest $testname => sub {
+        plan tests => 4;
+
+        my ($typeid) = grep { $LJ::CAP{$_}->{_account_type} eq $type } keys %LJ::CAP;
+        ok( $typeid, 'valid class' );
+
+        my $ps = DW::Pay::get_paid_status( $u );
+        my $secs = 86400 * $paidmos;
+        ok( $ps, 'got paid status' );
+        ok( $ps->{typeid} == $typeid, 'typeids match' );
+        ok( abs( $ps->{expiresin} - $secs) < 60, 'secs match within a minute' );
+
+    }
 }
 
 ################################################################################
@@ -45,14 +53,14 @@ DW::Pay::add_paid_time( $u1, 'paid', 1 )
     or die DW::Pay::error_text();
 $paidmos += $mdays;  # 30
 
-assert( $u1, 'paid' );
+assert( $u1, 'paid', "free->paid 1 month" );
 
 # paid +1 month
 DW::Pay::add_paid_time( $u1, 'paid', 1 )
     or die DW::Pay::error_text();
 $paidmos += $mdays;  # 60
 
-assert( $u1, 'paid' );
+assert( $u1, 'paid', "paid +1 month" );
 
 # premium +1 month
 DW::Pay::add_paid_time( $u1, 'premium', 1 )
@@ -62,21 +70,21 @@ $paidmos = $paidmos * 0.7 + $mdays;
 # should be 72 days... they bought 1 month of premium time (30 days)
 # and they had 60 days of paid.  60 days of paid converts to 42 days
 # of premium, 42+30 = 72 days premium.
-assert( $u1, 'premium' );
+assert( $u1, 'premium', "premium +1 month" );
 
 # premium +1 month
 DW::Pay::add_paid_time( $u1, 'premium', 1 )
     or die DW::Pay::error_text();
 $paidmos += $mdays;  # 102
 
-assert( $u1, 'premium' );
+assert( $u1, 'premium', "premium +1 month" );
 
 # paid +1 month == premium +21 days
 DW::Pay::add_paid_time( $u1, 'paid', 1 )
     or die DW::Pay::error_text();
 $paidmos += int( $mdays * 0.7 );  # 123
 
-assert( $u1, 'premium' );
+assert( $u1, 'premium', "paid +1 month == premium +21 days" );
 
 ################################################################################
 
@@ -85,10 +93,10 @@ DW::Pay::add_paid_time( $u1, 'seed', 99 )
     or die DW::Pay::error_text();
 $paidmos = 0;  # never expires
 
-assert( $u1, 'seed' );
+assert( $u1, 'seed', "seed account" );
 
 ok( ! DW::Pay::add_paid_time( $u1, 'paid', 1 ), 'adding paid time fails' );
 
-assert( $u1, 'seed' );
+assert( $u1, 'seed', "seed account after trying to add paid time" );
 
 ################################################################################

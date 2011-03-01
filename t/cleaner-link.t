@@ -20,6 +20,8 @@ sub clean {
 }
 
 sub is_cleaned {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my $input = shift;
     my $type = shift;
     my $output = clean($input);
@@ -27,6 +29,8 @@ sub is_cleaned {
 }
 
 sub not_cleaned {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my $input = shift;
     my $type = shift;
     my $output = clean($input);

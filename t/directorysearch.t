@@ -22,6 +22,8 @@ local @LJ::GEARMAN_SERVERS = ();  # don't dispatch set requests.  all in-process
 my @args;
 
 my $is = sub {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my ($name, $str, @good_cons) = @_;
     my %args = map { LJ::durl($_) } split(/[=&]/, $str);
     my @cons = sort { ref($a) cmp ref($b) } LJ::Directory::Constraint->constraints_from_formargs(\%args);

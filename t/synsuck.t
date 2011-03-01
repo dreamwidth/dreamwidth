@@ -1,6 +1,6 @@
 # -*-perl-*-
 use strict;
-use Test::More tests => 26;
+use Test::More tests => 24;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -9,19 +9,33 @@ use LJ::SynSuck;
 
 
 sub err {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my ( $content, $type, $test ) = @_;
 
-    my ( $ok, $rv ) = LJ::SynSuck::parse_items_from_feed( $content );
-    ok( ! $ok, $test );
-    is( $rv->{type}, $type, $rv->{message} ? " $test - $rv->{message}" : $test );
+    subtest "$test (expect err)" => sub {
+        plan tests => 2;
+
+        my ( $ok, $rv ) = LJ::SynSuck::parse_items_from_feed( $content );
+        ok( ! $ok, "returned status is an error" );
+        is( $rv->{type}, $type, $rv->{message} ? "$rv->{message}" : "(no response message)" );
+    };
 }
 
 sub success {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     my ( $content, $test, %opts ) = @_;
 
-    my ( $ok, $rv ) = LJ::SynSuck::parse_items_from_feed( $content, $opts{num_items} );
-    ok( $ok, $test );
-    die $rv->{message} unless $ok;
+    my ( $ok, $rv );
+
+    subtest "$test (expect ok)" => sub {
+        plan tests => 1;
+
+        ( $ok, $rv ) = LJ::SynSuck::parse_items_from_feed( $content, $opts{num_items} );
+        ok( $ok, "returned status is ok" );
+        die $rv->{message} unless $ok;
+    };
 
     return @{$rv->{items}};
 };
