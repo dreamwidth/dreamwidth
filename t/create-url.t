@@ -1,6 +1,6 @@
 # -*-perl-*-
 use strict;
-use Test::More tests => 5 * 19; # replace last number with the number of check_req calls
+use Test::More tests => 19; # replace this number with the number of check_req calls
 use lib "$ENV{LJHOME}/cgi-bin";
 
 require 'ljlib.pl';
@@ -253,17 +253,25 @@ check_req(
 sub check_req {
     my ( $url, $path, $opts, $eopts, $expected ) = @_;
 
-    my $rq = HTTP::Request->new(GET => $url);
-    my ( $https, $host ) = $url =~ m!^(http(?:s)?)://(.+?)/!;
-    $LJ::IS_SSL = ( $https eq 'https' ) ? 1 : 0;
-    $rq->header("Host", $host);
+    # Telling Test::Builder ( which Test::More uses ) to
+    # look one level further up the call stack.
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    DW::Request->reset;
-    my $r = DW::Request::Standard->new($rq);
+    subtest $url, sub {
+        plan tests => 5;
 
-    my $nurl = LJ::create_url( $path, %$opts );
+        my $rq = HTTP::Request->new(GET => $url);
+        my ( $https, $host ) = $url =~ m!^(http(?:s)?)://(.+?)/!;
+        $LJ::IS_SSL = ( $https eq 'https' ) ? 1 : 0;
+        $rq->header("Host", $host);
 
-    validate_req($nurl,$eopts,$expected);
+        DW::Request->reset;
+        my $r = DW::Request::Standard->new($rq);
+
+        my $nurl = LJ::create_url( $path, %$opts );
+
+        validate_req($nurl,$eopts,$expected);
+    };
 }
 
 sub validate_req {
@@ -288,17 +296,19 @@ sub validate_req {
 
     is( $fragment, $eopts->{fragment}, "invalid fragment" );
 
-    my $fail = '';
     my $args = $r->get_args;
 
-    foreach my $k ( keys %$args ) {
-        if ( $args->{$k} ne $expected->{$k} ) {
-            $fail .= "$k ( $args->{$k} != $expected->{$k} ), ";
+    subtest "args", sub {
+        my $tests_run = 0;
+        foreach my $k ( keys %$args ) {
+            is( $args->{$k}, $expected->{$k}, "argument '$k'");
+            delete $expected->{$k};
+            $tests_run++;
         }
-        delete $expected->{$k};
-    }
-
-    $fail .= " -- missing: " . join(",", keys %$expected) if ( %$expected );
-
-    ok( ! $fail, "args mismatch: $fail");
+        foreach my $k ( keys %$expected ) {
+            is( $args->{$k}, $expected->{$k}, "argument '$k'");
+            $tests_run++;
+        }
+        ok("no argument tests") if $tests_run == 0;
+    };
 }
