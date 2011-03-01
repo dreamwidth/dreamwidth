@@ -20,6 +20,8 @@ use strict;
 use warnings;
 use DW::Routing;
 
+use JSON;
+
 DW::Routing->register_static( '/dev/classes', 'dev/classes.tt', app => 1 );
 
 if ( $LJ::IS_DEV_SERVER ) {
@@ -90,4 +92,52 @@ sub tests_handler {
             includes => \@includes,
          } );
 }
+
+
+# test helpers
+if ( $LJ::IS_DEV_SERVER ) {
+    DW::Routing->register_string( '/dev/testhelper/jsondump', \&testhelper_json_handler, app => 1, format => "json" )
+}
+
+sub testhelper_json_handler {
+    my $r = DW::Request->get;
+
+    my $undef;
+
+    my $hash = {
+        string => "string",
+        num    => 42,
+        array  => [ "a", "b", 2 ],
+        hash   => { a => "apple", b => "bazooka" },
+        nil    => undef,
+        nilvar => $undef,
+        blank  => "",
+        zero   => 0,
+        symbols => qq{"',;:},
+        html    => qq{<a href="#">blah</a>}
+    };
+
+    my $array = [ 7, "string", "123", { "foo" => "bar" }, undef, $undef, "", 0, qq{"',;:}, qq{<a href="#">blah</a>} ];
+
+    if ( $r->method eq "GET" ) {
+        my $args = $r->get_args;
+
+        my $ret;
+        if ( $args->{output} eq "hash" ) {
+            $ret = $hash;
+        } elsif ( $args->{output} eq "array" ) {
+            $ret = $array;
+        }
+
+        if ( $args->{function} eq "js_dumper" ) {
+            $r->print( LJ::js_dumper( $ret ) );
+        } elsif ( $args->{function} eq "json" ) {
+            $r->print( JSON::objToJson( $ret ) );
+        }
+
+        return $r->OK;
+    }
+    # FIXME: handle post as well
+}
 1;
+
