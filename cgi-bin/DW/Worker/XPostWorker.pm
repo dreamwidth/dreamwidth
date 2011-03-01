@@ -66,7 +66,7 @@ sub work {
     return $job->failed("Unable to load account $acctid for uid $uid") unless defined $acct;
 
     my $entry = LJ::Entry->new($u, ditemid => $ditemid);
-    return $job->failed("Unable to load entry $ditemid for uid $uid") unless defined $entry && $entry->valid;
+    return $job->failed("Unable to load entry $ditemid for uid $uid") unless defined $entry && ( $delete || $entry->valid );
 
     my %auth;
     if ($auth_response) {
