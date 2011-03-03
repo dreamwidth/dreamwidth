@@ -14,6 +14,7 @@ my $u = temp_user();
 my $remote = $u;
 my $r = DW::Request::Standard->new(
             HTTP::Request->new( GET => $u->journal_base . "/data/atom" ) );
+my $site_ns = lc $LJ::SITENAMEABBREV;
 
 
 note( "Empty feed" );
@@ -38,8 +39,8 @@ my $e2 = $u->t_post_fake_entry;
     delete $parsed->{Kids};
     is_deeply( $parsed,
         {
-            'xmlns'     => "http://www.w3.org/2005/Atom",
-            'xmlns:dw'  => $LJ::SITEROOT
+            'xmlns'          => "http://www.w3.org/2005/Atom",
+            "xmlns:$site_ns" => $LJ::SITEROOT,
         }, "Check namespaces for feed" );
 
     my ( $feed, $error ) = LJ::ParseFeed::parse_feed( $feed_xml, "atom" );
@@ -121,10 +122,10 @@ note( "No bot crawling" );
     delete $parsed->{Kids};
     is_deeply( $parsed,
         {
-            'xmlns'     => "http://www.w3.org/2005/Atom",
-            'xmlns:dw'  => $LJ::SITEROOT,
-            'xmlns:idx' => 'urn:atom-extension:indexing',
-            'idx:index' => 'no',
+            'xmlns'          => "http://www.w3.org/2005/Atom",
+            "xmlns:$site_ns" => $LJ::SITEROOT,
+            'xmlns:idx'      => 'urn:atom-extension:indexing',
+            'idx:index'      => 'no',
         }, "Atom indexing extension" );
 
     my ( $feed, $error ) = LJ::ParseFeed::parse_feed( $feed_xml, "atom" );
