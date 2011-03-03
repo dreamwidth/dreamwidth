@@ -192,7 +192,17 @@ my %modules = (
                    'deb' => "libapache2-request-perl",
                    'opt' => "Required for Apache2",
                },
-               );
+               "Test::More" => {
+                   'deb' => "libtest-simple-perl",
+                   'opt' => "Required for subtest support.",
+                   'ver' => '0.96',
+               },
+               "HTML::TokeParser" => {
+                   'deb' => "libhtml-parser-perl",
+                   'opt' => "Required for clean-embed.t.",
+                   'ver' => '3.56',
+               },
+              );
 
 
 sub check_modules {
