@@ -883,10 +883,7 @@ sub userpic_kw {
         $key = $self->prop('picture_keyword');
     }
 
-    # ... but if that fails, then their custom
-    # mood, then their standard mood
-    return $key || $self->prop('current_mood') ||
-        DW::Mood->mood_name( $self->prop('current_moodid') );
+    return $key;
 }
 
 # returns true if the user is allowed to share an entry via Tell a Friend
