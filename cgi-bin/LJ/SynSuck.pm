@@ -304,7 +304,7 @@ sub process_content {
     foreach my $it (@items) {
 
         # remove the SvUTF8 flag.  it's still UTF-8, but
-        # we don't want perl knowing that and fucking stuff up
+        # we don't want perl knowing that and messing stuff up
         # for us behind our back in random places all over
         # http://zilla.livejournal.org/show_bug.cgi?id=1037
         foreach my $attr (qw(id subject text link author)) {

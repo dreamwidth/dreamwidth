@@ -79,6 +79,11 @@ sub parse_feed
     # try parsing it as RSS
     $parser = new XML::RSS;
     return ("", "failed to create RSS parser") unless $parser;
+
+    # custom LJ/DW namespaces
+    $parser->add_module( prefix => 'nslj',
+                         uri => 'http://www.livejournal.org/rss/lj/1.0/' );
+
     eval {
         $parser->parse($content);
     };
@@ -105,7 +110,6 @@ sub parse_feed
         $item->{'link'} = $_->{'link'} if $_->{'link'};
         $item->{'id'} = $_->{'guid'} if $_->{'guid'};
 
-        my $nsdc = 'http://purl.org/dc/elements/1.1/';
         my $nsenc = 'http://purl.org/rss/1.0/modules/content/';
         if ($_->{$nsenc} && ref($_->{$nsenc}) eq "HASH") {
             # prefer content:encoded if present
@@ -113,21 +117,19 @@ sub parse_feed
                 if defined $_->{$nsenc}->{'encoded'};
         }
 
-        my ( $time, $dc_ref );
+        my ( $time, $author );
         $time = time822_to_time( $_->{pubDate} ) if $_->{pubDate};
+        $author = $_->{nslj}->{poster}
+            if $_->{nslj} && ref $_->{nslj} eq "HASH";
 
-        if ( $_->{$nsdc} && ref $_->{$nsdc} eq "HASH" ) {
-            $dc_ref = $_->{$nsdc};
-        } elsif ( $_->{dc} && ref $_->{dc} eq "HASH" ) {
-            $dc_ref = $_->{dc};
-        }
-
-        if ( defined $dc_ref ) {
-            $item->{author} = $dc_ref->{creator} if $dc_ref->{creator};
-            $time = w3cdtf_to_time( $dc_ref->{date} ) if $dc_ref->{date};
+        # Dublin Core
+        if ( $_->{dc} && ref $_->{dc} eq "HASH" ) {
+            $author = $_->{dc}->{creator} if $_->{dc}->{creator};
+            $time = w3cdtf_to_time( $_->{dc}->{date} ) if $_->{dc}->{date};
         }
 
         $item->{time} = $time if $time;
+        $item->{author} = $author if $author;
         push @{ $feed->{items} }, $item;
     }
 
@@ -340,6 +342,31 @@ sub StartTag {
             last TAGS;
         }
 
+        # we want to store the value of the nested <name> element
+        # in the author slot, not accumulate the raw value -
+        # use temp key "inauth" to detect the nesting
+
+        if ( $tag eq 'author' ) {
+            $holder->{inauth} = 1;
+            last TAGS;
+        }
+
+        if ( $tag eq 'name' ) {
+            if ( $holder->{inauth} ) {
+                startaccum( 'author' );
+            } else {
+                swallow();
+            }
+            last TAGS;
+        }
+
+        if ( $tag eq 'poster' ) {
+            $holder->{ljposter} = $_{user};
+            return err( "No user attribute in <$tag>" )
+                unless $holder->{ljposter};
+            last TAGS;
+        }
+
         # store tags which should require no further
         # processing as they are, and others under _atom_*, to be processed
         # in EndTag under </entry>
@@ -465,12 +492,14 @@ sub EndTag {
                     $time = "$1-$2-$3 $4:$5";
                 }
             }
-            if ($time) {
-                $item->{'time'} = $time;
-            }
-            
+            $item->{time} = $time if $time;
+
+            # if we found ljposter, use that as preferred author
+            $item->{author} = $item->{ljposter} if defined $item->{ljposter};
+            delete $item->{ljposter};
+
             # get rid of all other tags we don't need anymore
-            foreach (keys  %$item) {
+            foreach ( keys %$item ) {
                 delete $item->{$_} if substr($_, 0, 6) eq '_atom_';
             }
             
@@ -478,10 +507,23 @@ sub EndTag {
             undef $item;
             last TAGS;
         }
+
+        if ( $tag eq 'author' ) {
+            my $holder = $item ? $item : $feed;
+            delete $holder->{inauth};
+            last TAGS;
+        }
+
         if ($tag eq 'feed') {
             # finalize feed
+
+            # if feed author exists, all items should default to it
+            if ( defined $feed->{author} ) {
+                $_->{author} ||= $feed->{author} foreach @items;
+            }
+
             # get rid of all other tags we don't need anymore
-            foreach (keys  %$feed) {
+            foreach ( keys %$feed ) {
                 delete $feed->{$_} if substr($_, 0, 6) eq '_atom_';
             }
             
