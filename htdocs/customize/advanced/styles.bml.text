@@ -35,7 +35,7 @@
 
 .error.layernotpublic=Layer not public: [[layer]]
 
-.error.maxstyles=You have reached your maximum number of styles.
+.error.maxstyles2=You have reached your maximum number of styles. You have [[numstyles]] current styles of [[maxstyles]] maximum styles.
 
 .error.notloggedin=You must be logged in to view your styles.
 
