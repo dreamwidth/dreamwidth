@@ -42,7 +42,7 @@ body<=
     $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; " . BML::ml( '.backlink', { sitename => $LJ::SITENAMESHORT } ) . "</a></p>";
 
     if ( $randomu ) {
-        $ret .= "<p>" . BML::ml( '.intro.'.$type, { aopts => "href='$LJ::SITEROOT/shop/randomgift?type=$type'" } ) . "</p>";
+        $ret .= "<p>" . BML::ml( '.intro.'.$type, { aopts => "href='$LJ::SITEROOT/shop/randomgift?type=$type'", aopts2 => "href='$LJ::SITEROOT/shop/account?for=random'" } ) . "</p>";
         $ret .= "<p><strong>$ML{'.label.username'}</strong> " . $randomu->ljuser_display . "<br />";
         $ret .= "<strong>$ML{'.label.createdate'}</strong> " . LJ::mysql_time( $randomu->timecreate ) . "<br />";
         $ret .= "<strong>$ML{'.label.lastupdated'}</strong> " . substr( LJ::mysql_time( $randomu->timeupdate ), 0, 10 ) . "<br />";

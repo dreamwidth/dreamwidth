@@ -12,7 +12,7 @@
 
 .form.submit=Purchase a Paid Account for [[username]]
 
-.intro.P=Here is a random active free user who may appreciate a paid account.  If you'd like to find a different random user, just <a [[aopts]]>refresh</a>.
+.intro.P=Here is a random active free user who may appreciate a paid account.  If you'd like to find a different random user, just <a [[aopts]]>refresh</a>.  You can also <a [[aopts2]]>purchase a paid account for an unknown random user</a>.
 
 .intro.C=Here is a random active free community who may appreciate a paid account.  If you'd like to find a different random community, just <a [[aopts]]>refresh</a>.
 
