@@ -13,9 +13,6 @@ use XML::Atom::Category;
 use XML::Atom::Feed;
 use DW::Routing;
 
-use LWP::Simple;
-my $webserver_running = get( "$LJ::SITEROOT/admin/healthy" ) =~ /^status=/;
-
 # workaround for non-implented read() sub in DW::Request::Standard
 $LJ::T_PASS_INPUT_THROUGH_REQUEST = 1;
 
@@ -550,94 +547,5 @@ note( "Checking community functionality." );
     isnt( $entry_obj->valid, "Entry confirmed deleted" );
 }
 
-
-# a few quick tests just to double-check using XML::Atom::Client, to make sure we're up to standard
-my $EditURI = "";
-note( "Use the API interface from an external client, rather than testing the methods directly." );
-SKIP: {
-    skip "Webserver not running.", 21 unless $webserver_running;
-
-    $api->username( $u->username );
-    $api->password( $u->password );
-
-    my $atombaseurl = $u->atom_base;
-    my $feed = $api->getFeed( "$atombaseurl/entries" );
-    is( scalar $feed->entries, undef, "No entries right now." );
-
-    note( "Create an entry" );
-    my $title = "New Post";
-    my $content = "Content of my post at " . rand();
-    my @tags = qw( fooz ball );
-
-    $atom_entry = XML::Atom::Entry->new( Version => 1 );
-    $atom_entry->title( $title );
-    $atom_entry->content( $content );
-    foreach my $tag ( @tags ) {
-        my $category = XML::Atom::Category->new( Version => 1 );
-        $category->term( $tag );
-        $atom_entry->add_category( $category );
-    }
-
-    $EditURI = $api->createEntry( "$atombaseurl/entries", $atom_entry );
-    ok( $EditURI, "got an edit URI back, presumably posted" );
-    like( $EditURI, qr!^$atombaseurl/entries/2$!, "got the right URI back" );
-
-    $entry_obj = LJ::Entry->new( $u, jitemid => 2 );
-    ok( $entry_obj, "got entry" );
-    ok( $entry_obj->valid, "entry is valid" );
-    is( $entry_obj->subject_raw, $title, "item has right title" );
-    is( $entry_obj->event_raw, $content, "item has right content" );
-
-    my $feed = $api->getFeed( "$atombaseurl/entries" );
-    is( scalar $feed->entries, 1, "One entry in the feed." );
-
-
-    note( "Retrieve entry" );
-    $atom_entry_server = $api->getEntry( $EditURI );
-    check_entry( $atom_entry_server, {
-                id      => $entry_obj->jitemid,
-                title   => $title,
-                content => $content,
-                url     => $entry_obj->url,
-                author  => $u->name_orig,
-                categories => \@tags,
-             },
-            $u );
-    ok( $atom_entry_server->published eq $atom_entry_server->updated, "same publish and edit date" );
-    ok( ! $atom_entry_server->summary, "no summary; we have the content." );
-
-    $atom_entry->id( $atom_entry_server->id );
-
-
-    note( "Edit entry" );
-    my $edited;
-    $content = "New content of my post at " . rand();
-    $atom_entry->content( $content );
-    $edited = $api->updateEntry( $EditURI, $atom_entry );
-    ok( $edited, "Edit content successful" );
-    $atom_entry_server = $api->getEntry( $EditURI );
-    check_entry( $atom_entry_server, {
-            id      => $entry_obj->jitemid,
-            title   => $title,
-            content => $content,
-    }, $u );
-
-    $title = "Edited Post";
-    $atom_entry->title( $title );
-    my $edited = $api->updateEntry( $EditURI, $atom_entry );
-    ok( $edited, "Edit title successful" );
-    $atom_entry_server = $api->getEntry( $EditURI );
-    check_entry( $atom_entry_server, {
-            id      => $entry_obj->jitemid,
-            title   => $title,
-            content => $content,
-    }, $u );
-
-    note( "All done. Delete!" );
-    $api->deleteEntry( $EditURI );
-
-    $feed = $api->getFeed( "$atombaseurl/entries" );
-    is( scalar $feed->entries, undef, "Feed is empty of entries." );
-}
 
 done_testing();
