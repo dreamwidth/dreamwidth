@@ -115,6 +115,7 @@ body<=
                         $val =~ m!type=.application/(?:rss|atom)\+xml.!i &&
                         $val =~ m!href=[\"\'](http://[^\"\']+)[\"\']!i) {
                         $syn_url = $1;
+                        last;
                     }
                 }
 
