@@ -38,7 +38,7 @@
 
 .cat.notifications=Notifications
 
-.cat.notifications.desc=Notification and subscription tracking options
+.cat.notifications.desc=Notification and subscription tracking options. You can also <a [[aopts]]>edit your reading page subscriptions to specific users, communities, and feeds</a>.
 
 .cat.othersites=Other Sites
 

@@ -97,7 +97,7 @@ body<=
             visible => 1,
             disabled => !$u || $u->is_community ? 1 : 0,
             form => 1,
-            desc => $ML{'.cat.notifications.desc'},
+            desc => BML::ml( '.cat.notifications.desc', { aopts => "href='$LJ::SITEROOT/manage/circle/edit'" } ),
             settings => [qw(
                 LJ::Setting::CommentEmailNotify
                 LJ::Setting::SelfCommentEmail
