@@ -52,7 +52,7 @@ sub render_body {
 
         if ($g eq $group) {
             $classes .= " class='on";
-            $classes .= " heading" if $g eq "display" || $g eq "style";
+            $classes .= " heading" if $g eq "display";
             $classes .= "'";
         }
 
@@ -63,10 +63,6 @@ sub render_body {
     my $group_names = $groups{groups};
     my %has_group = map { $_ => 1 } @$group_names;
 
-    my %style_groups = ( colors => 1, fonts => 1, images => 1 );
-    my @style_groups_order = qw( colors fonts images );
-
-
     ### Navigation ###
 
     $ret .= "<ul class='customize-nav nostyle' id='customize_theme_nav_links'>";
@@ -75,43 +71,10 @@ sub render_body {
     $ret .= "<li>" . $class->ml('widget.customizetheme.nav.display.moodthemes') . "</li>";
     $ret .= "<li>" . $class->ml('widget.customizetheme.nav.display.navstrip') . "</li>";
 
-    if ($has_group{presentation}) {
-        my $name = LJ::Customize->propgroup_name("presentation", $u, $style);
-        $ret .= "<li>$name</li>";
-    }
-
     $ret .= "</ul>";
     $ret .= "</li>";
 
-    # check if any of the %style_groups exist for this layout and if they have any props to display
-    my $print_style_header = 0;
-    foreach my $g (keys %style_groups) {
-        if ($has_group{$g} &&
-            LJ::Widget::S2PropGroup->group_exists_with_props( user => $u, props => $groups{props}, groupprops => $groups{groupprops}->{$g} )) {
-
-            $print_style_header = 1;
-            last;
-        }
-    }
-
-    if ($print_style_header) {
-        $ret .= "<li" . $nav_class->("style") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=style'>" . $class->ml('widget.customizetheme.nav.style') . "</a>";
-        $ret .= "<ul>";
-
-        foreach my $g (@style_groups_order) {
-            next unless $has_group{$g};
-
-            my $name = LJ::Customize->propgroup_name($g, $u, $style);
-            $ret .= "<li>$name</li>";
-        }
-
-        $ret .= "</ul>";
-        $ret .= "</li>";
-    }
-
     foreach my $g (@$group_names) {
-        next if $style_groups{$g};
-        next if $g eq "presentation";
         next if $g eq "customcss";
 
         my $name = LJ::Customize->propgroup_name($g, $u, $style);
@@ -151,6 +114,13 @@ sub render_body {
         $ret .= $nav_strip_chooser->render;
         $ret .= "</div>";
 
+        $ret .= "</div>";
+    }
+
+    # Presentation Group
+    elsif ($group eq "presentation") {
+        $ret .= "<div id='presentation-group' class='customize-group'>";
+
         my $s2_propgroup = LJ::Widget::S2PropGroup->new;
         $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
 
@@ -166,22 +136,50 @@ sub render_body {
         $ret .= "</div>";
     }
 
-    # Style Group
-    elsif ($group eq "style") {
-        $ret .= "<div id='style-group' class='customize-group'>";
+    # Colors Group
+    elsif ($group eq "colors") {
+        $ret .= "<div id='colors-group' class='customize-group'>";
 
-        foreach my $propgroup (@style_groups_order) {
-            my $s2_propgroup = LJ::Widget::S2PropGroup->new;
-            $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
+        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
+        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
 
-            $ret .= "<div class='pkg'>";
-            $ret .= $s2_propgroup->render(
-                props => $groups{props},
-                propgroup => $propgroup,
-                groupprops => $groups{groupprops}->{$propgroup},
-            );
-            $ret .= "</div>";
-        }
+        $ret .= $s2_propgroup->render(
+            props => $groups{props},
+            propgroup => "colors",
+            groupprops => $groups{groupprops}->{colors},
+        );
+
+        $ret .= "</div>";
+    }
+
+    # Fonts Group
+    elsif ($group eq "fonts") {
+        $ret .= "<div id='fonts-group' class='customize-group'>";
+
+        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
+        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
+
+        $ret .= $s2_propgroup->render(
+            props => $groups{props},
+            propgroup => "fonts",
+            groupprops => $groups{groupprops}->{fonts},
+        );
+
+        $ret .= "</div>";
+    }
+
+    # Images Group
+    elsif ($group eq "images") {
+        $ret .= "<div id='images-group' class='customize-group'>";
+
+        my $s2_propgroup = LJ::Widget::S2PropGroup->new;
+        $$headextra .= $s2_propgroup->wrapped_js( page_js_obj => "Customize" );
+
+        $ret .= $s2_propgroup->render(
+            props => $groups{props},
+            propgroup => "images",
+            groupprops => $groups{groupprops}->{images},
+        );
 
         $ret .= "</div>";
     }
