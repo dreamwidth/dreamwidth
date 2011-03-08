@@ -105,6 +105,47 @@ sub interest_string_to_list {
 }
 
 
+# This function takes a list of intids and returns the list of uids
+# for accounts interested in ALL of the given interests.
+#
+# Args: arrayref of intids, hashref of opts
+# Returns: array of uids
+#
+# Valid opts: nousers => 1, nocomms => 1
+#
+sub users_with_all_ints {
+    my ( $ints, $opts ) = @_;
+    $opts ||= {};
+    return unless defined $ints && ref $ints eq 'ARRAY';
+
+    my @intids = grep /^\d+$/, @$ints;  # numeric only
+    return unless @intids;
+
+    my @tables;
+    push @tables, 'userinterests' unless $opts->{nousers};
+    push @tables, 'comminterests' unless $opts->{nocomms};
+    return unless @tables;
+
+    my $dbr = LJ::get_db_reader();
+    my $qs = join ',', map { '?' } @intids;
+    my @uids;
+
+    foreach ( @tables ) {
+        my $q = "SELECT userid FROM $_ WHERE intid IN ($qs)";
+        my $uref = $dbr->selectall_arrayref( $q, undef, @intids );
+        die $dbr->errstr if $dbr->err;
+
+        # Count the number of times the uid appears.
+        # If it's the same as the number of interests, it has all of them.
+        my %ucount;
+        $ucount{$_}++ foreach map { $_->[0] } @$uref;
+        push @uids, grep { $ucount{$_} == scalar @intids } keys %ucount;
+    }
+
+    return @uids;
+}
+
+
 sub validate_interest_list {
     my $interrors = ref $_[0] eq "ARRAY" ? shift : [];
     my @ints = @_;

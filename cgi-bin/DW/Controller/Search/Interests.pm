@@ -291,41 +291,45 @@ sub interest_handler {
         $rv->{intid} = $intid;
         $rv->{intcount} = $intcount;
 
-        my $dbr = LJ::get_db_reader();
-        my $int_query = sub {
-            my $i = shift;  # comminterests or userinterests
-            my $LIMIT = 500;
-            my $q = "SELECT $i.userid FROM $i, userusage
-                     WHERE $i.intid = ? AND $i.userid = userusage.userid
-                     ORDER BY userusage.timeupdate DESC LIMIT $LIMIT";
-            my $uref = $dbr->selectall_arrayref( $q, undef, $intid );
-            return LJ::load_userids( map { $_->[0] } @$uref );
-            # can't trust LJ::load_userids to maintain sort order
-        };
-
         # filtering by account type
         $rv->{type_list} = [ 'none', 'P', 'C', 'I' ];
 
         my $type = $args->{type};
         $type = 'none' unless $type && $type =~ /^[PCI]$/;
-        my $typefilter = sub { return $type eq 'none' ? 1 :
-                               $_[0]->journaltype eq $type };
 
-        # get top 500 user and/or community results
-        my $us = {};
+        # constructor for filter links
+        $rv->{type_link} = sub {
+            return '' if $type eq $_[0];  # no link for active selection
+            my $typearg = $_[0] eq 'none' ? '' : $_[0];
+            return LJ::page_change_getargs( type => $typearg );
+        };
 
-        unless ( $type eq 'C' ) {  # unless no users needed
-            $us = $int_query->( "userinterests" );
-            $rv->{comm_count} = 1;  # reset later if comms loaded
+        # determine which account types we need to search for
+        my $type_opts = {};
+        my %opt_map = ( C => 'nousers', P => 'nocomms', I => 'nocomms' );
+        $type_opts = { $opt_map{$type} => 1 } if defined $opt_map{$type};
+
+        my @uids = LJ::users_with_all_ints( [$intid], $type_opts );
+
+        # limit results to 500 most recently updated journals
+        if ( scalar @uids > 500 ) {
+            my $dbr = LJ::get_db_reader();
+            my $qs = join ',', map { '?' } @uids;
+            my $uref = $dbr->selectall_arrayref(
+                "SELECT userid FROM userusage WHERE userid IN ($qs)
+                 ORDER BY timeupdate DESC LIMIT 500", undef, @uids );
+            die $dbr->errstr if $dbr->err;
+            @uids = map { $_->[0] } @$uref;
         }
 
-        unless ( $type =~ /^[PI]$/ ) {  # unless no comms needed
-            my $cus = $int_query->( "comminterests" );
-            $rv->{comm_count} = scalar values %$cus;
+        my $us = LJ::load_userids( @uids );
 
-            # combine the two sets of results
-            @{ $us }{ keys %$cus } = values %$cus;
-        }
+        # prepare to filter and sort the results into @ul
+
+        my $typefilter = sub {
+            $rv->{comm_count}++ if $_[0]->is_community;
+            return $type eq 'none' ? 1 : $_[0]->journaltype eq $type;
+        };
 
         my $should_show = sub {
             return $_[0]->should_show_in_search_results( for => $remote );
@@ -339,13 +343,7 @@ sub interest_handler {
                  grep { $_ && $typefilter->( $_ ) && $should_show->( $_ ) }
                  values %$us;
         $rv->{type_count} = scalar @ul if $intcount != scalar @ul;
-
-        # construct filter links
-        $rv->{type_link} = sub {
-            return '' if $type eq $_[0];  # no link for active selection
-            my $typearg = $_[0] eq 'none' ? '' : $_[0];
-            return LJ::page_change_getargs( type => $typearg );
-        };
+        $rv->{comm_count} = 1 if $type_opts->{nocomms};  # doesn't count
 
         if ( @ul ) {
             # pagination
