@@ -166,6 +166,8 @@ body<=
         @all_items = $inbox->all_items;
     }
 
+    my $itemcount = scalar @all_items;
+
     $body .= LJ::error_list( $@ ) if $@;
 
     # Pagination
@@ -180,8 +182,17 @@ body<=
                      view      => $view,
                      mode      => $GET{mode},
                      items     => \@all_items,
+                     itemcount => \$itemcount,
                      itemid    => $itemid,
               );
+
+    # Repeat refresh/manage links if more than 10 items on page (15 max per page)
+    $body .= qq{
+            <div class="inbox_newitems pkg">
+                <span class="esnlinks" style="float: left"><a href="$LJ::SITEROOT/inbox/?page=$page$viewarg$itemidarg"><?_ml inbox.refresh _ml?></a> |
+                    <a href="$LJ::SITEROOT/manage/subscriptions/"><?_ml inbox.manage_settings _ml?></a></span>
+            </div>
+    } if $itemcount > 10;
 
     $body .= qq{
         </td></tr></table>
