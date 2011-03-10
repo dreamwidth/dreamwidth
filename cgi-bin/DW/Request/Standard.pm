@@ -40,6 +40,8 @@ use fields (
             # we have to parse these out ourselves
             'uri',
             'querystring',
+
+            'read_offset'
         );
 
 # creates a new DW::Request object, based on what type of server environment we
@@ -57,6 +59,7 @@ sub new {
     $self->{uri}         = $self->{req}->uri;
     $self->{notes}       = {};
     $self->{pnotes}      = {};
+    $self->{read_offset} = 0;
 
     # now stick ourselves as the primary request ...
     unless ( $DW::Request::cur_req ) {
@@ -264,9 +267,29 @@ sub print {
     return;
 }
 
+# FIXME(dre): this may not be the most efficient way but is
+# totally fine when we are just using this for tests.
+# We *may* need to revisit this if we use this for serving pages
+# IMPORTANT: Do not pull out $_[1] to a variable in this sub
 sub read {
-    my DW::Request::Standard $self = shift;
-    confess "Reading not implemented.\n";
+    my DW::Request::Standard $self = $_[0];
+    die "missing required arguments" if scalar( @_ ) < 3;
+
+    my $prefix = '';
+    if ( exists $_[3] ) {
+        die "Negative offsets not allowed" if $_[3] < 0;
+        $prefix = substr( $_[1],0,$_[3] );
+    }
+
+    die "Length cannot be negative" if $_[2] < 0;
+    my $ov = substr( $self->content, $self->{read_offset}, $_[2] );
+
+    # Given $_[1] and whatever was passed in as the first argument are the
+    # same exact scalar this will set *that* variable too.
+    $_[1] = $prefix . $ov;
+
+    $self->{read_offset} += length( $ov );
+    return length( $ov );
 }
 
 # return the internal Standard request object... in this case, we are

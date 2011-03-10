@@ -13,9 +13,6 @@ use XML::Atom::Category;
 use XML::Atom::Feed;
 use DW::Routing;
 
-# workaround for non-implented read() sub in DW::Request::Standard
-$LJ::T_PASS_INPUT_THROUGH_REQUEST = 1;
-
 # so that entries can be posted to community journals
 $LJ::EVERYONE_VALID = 1;
 
@@ -40,8 +37,11 @@ sub do_request {
     my %routing_data = ();
     $routing_data{username} = $user_subdomain if $user_subdomain;
 
+    my $input = delete $data->{input};
+
     $r = routing_request( $uri,
         method => $method,
+        content => $input,
         setup_http_request => sub {
             if ( $authenticate ) {
                 $api->username( $remote->username );

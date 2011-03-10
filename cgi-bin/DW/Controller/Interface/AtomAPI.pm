@@ -44,7 +44,7 @@ sub ok {
     my ( $message, $status, $content_type ) = @_;
     return DW::Template->render_string(
         $message,
-        { status => $status || DW::Request->get->OK,
+        { status => $status || DW::Request->get->HTTP_OK,
           content_type => $content_type || "application/atom+xml",
           no_sitescheme => 1,
         }
@@ -259,14 +259,13 @@ sub _create_entry {
     my $r = DW::Request->get;
 
     my ( $buff, $len, $entry );
-    $buff = $r->pnote( "input" ) if $LJ::T_PASS_INPUT_THROUGH_REQUEST;
 
     unless ( $buff ) {
         # check length
         $len = $r->header_in( "Content-length" );
         return err( "Content is too long", $r->HTTP_BAD_REQUEST )
             if $len > $LJ::MAX_ATOM_UPLOAD;
-    
+
         # read the content
         $r->read( $buff, $len );
     }
@@ -436,7 +435,6 @@ sub _edit_entry {
 
 
     my ( $buff, $len, $atom_entry );
-    $buff = $r->pnote( "input" ) if $LJ::T_PASS_INPUT_THROUGH_REQUEST;
 
     unless ( $buff ) {
         # check length

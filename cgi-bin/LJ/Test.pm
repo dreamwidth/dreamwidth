@@ -205,6 +205,11 @@ sub routing_request {
 
     my $req = HTTP::Request->new( $method => $uri );
 
+    if ( $opts{content} ) {
+        $req->content( $opts{content} );
+        $req->header( 'Content-Length', length( $opts{content} ) );
+    }
+
     $opts{setup_http_request}->($req) if $opts{setup_http_request};
 
     # Just in case, but this shouldn't get set in a non-web context
