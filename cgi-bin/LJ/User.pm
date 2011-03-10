@@ -43,6 +43,7 @@ use DW::Pay;
 use DW::User::ContentFilters;
 use DW::User::Edges;
 use DW::InviteCodes::Promo;
+use DW::SiteScheme;
 
 use LJ::Community;
 use LJ::Subscription;
@@ -8813,7 +8814,7 @@ sub make_journal {
         # render it in the lynx site scheme.
         if ( $stylearg eq 'light' ) {
             $fallback = 'bml';
-            $r->note(bml_use_scheme => 'lynx');
+            DW::SiteScheme->set_for_request( 'lynx' );
         }
 
         # but if the user specifies which they want, override the fallback we picked

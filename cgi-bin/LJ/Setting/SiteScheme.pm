@@ -99,33 +99,13 @@ sub save {
 
     my $r = DW::Request->get;
 
-    my $val = my $cval = $class->get_arg($args, "sitescheme");
+    my $val = $class->get_arg($args, "sitescheme");
     return 1 unless $val;
-    my @bml_schemes = DW::SiteScheme->available;
 
-    # don't set cookie for default scheme
-    if ($val eq $bml_schemes[0]->{scheme} && !$LJ::SAVE_SCHEME_EXPLICITLY) {
-        $cval = "";
-        $r->delete_cookie( domain  => ".$LJ::DOMAIN", name => 'BMLschemepref' );
+    unless ( DW::SiteScheme->set_for_user( $val, $u ) ) {
+        return 0;
     }
-
-    my $expires = undef;
-    if ($u) {
-        # set a userprop to remember their schemepref
-        $u->set_prop( schemepref => $val );
-
-        # cookie expires when session expires
-        $expires = $u->{_session}->{timeexpire}
-            if $u->{_session}->{exptype} eq "long";
-    }
-
-    $r->add_cookie(
-        name    => 'BMLschemepref',
-        value   => $cval,
-        expires => $expires,
-        domain  => ".$LJ::DOMAIN",
-    ) if $cval;
-    BML::set_scheme($val);
+    BML::set_scheme( $val );
 
     return 1;
 }

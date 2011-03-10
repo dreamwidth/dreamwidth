@@ -25,7 +25,7 @@ DW::SiteScheme - SiteScheme related functions
 package DW::SiteScheme;
 use strict;
 
-our %sitescheme_data = (
+my %sitescheme_data = (
     blueshift => { parent => 'common', title => "Blueshift" },
     celerity => { parent => 'common', title => "Celerity" },
     common => { parent => 'global', internal => 1 },
@@ -38,8 +38,15 @@ our %sitescheme_data = (
 
 my $data_loaded = 0;
 
-our @sitescheme_order = ();
+my @sitescheme_order = ();
 
+=head2 C<< DW::SiteScheme->get( $scheme ) >>
+
+$scheme defaults to the current sitescheme.
+
+Returns a DW::SiteScheme object.
+
+=cut
 sub get {
     my ( $class, $scheme ) = @_;
     $class->__load_data;
@@ -176,6 +183,67 @@ sub current {
     return $rv ||
         $sitescheme_order[0] ||
         'global';
+}
+
+=head2 C<< DW::SiteScheme->set_for_request( $scheme ) >>
+
+Set the sitescheme for the request.
+
+Note: this must be called early enough in a request
+before calling into bml_handler for BML, or before render_template for TT
+otherwise has no action.
+
+=cut
+sub set_for_request {
+    my $r = DW::Request->get;
+
+    return 0 unless exists $sitescheme_data{$_[1]};
+    $r->note( 'bml_use_scheme', $_[1] );
+
+    return 1;
+}
+
+=head2 C<< DW::SiteScheme->set_for_user( $scheme, $u ) >>
+
+Set the sitescheme for the user.
+
+If $u does not exist, this will default to remote
+if $u ( or remote ) is undef, this will only set the cookie.
+
+Note: If done early enough in the process this will affect the current request.
+See the note on set_for_request
+
+=cut
+sub set_for_user {
+    my $r = DW::Request->get;
+
+    my $scheme = $_[1];
+    my $u = exists $_[2] ? $_[2] : LJ::get_remote();
+
+    return 0 unless exists $sitescheme_data{$scheme};
+    my $cval = $scheme;
+    if ( $scheme eq $sitescheme_order[0] && !$LJ::SAVE_SCHEME_EXPLICITLY ) {
+        $cval = undef;
+        $r->delete_cookie( domain  => ".$LJ::DOMAIN", name => 'BMLschemepref' );
+    }
+
+    my $expires = undef;
+    if ($u) {
+        # set a userprop to remember their schemepref
+        $u->set_prop( schemepref => $scheme );
+
+        # cookie expires when session expires
+        $expires = $u->{_session}->{timeexpire} if $u->{_session}->{exptype} eq "long";
+    }
+
+    $r->add_cookie(
+        name    => 'BMLschemepref',
+        value   => $cval,
+        expires => $expires,
+        domain  => ".$LJ::DOMAIN",
+    ) if $cval;
+
+    return 1;
 }
 
 1;

@@ -19,6 +19,7 @@ package DW::Controller::Dev;
 use strict;
 use warnings;
 use DW::Routing;
+use DW::SiteScheme;
 
 use JSON;
 
@@ -26,7 +27,9 @@ DW::Routing->register_static( '/dev/classes', 'dev/classes.tt', app => 1 );
 
 if ( $LJ::IS_DEV_SERVER ) {
     DW::Routing->register_string( '/dev/tests/index', \&tests_index_handler, app => 1 );
-    DW::Routing->register_regex( '/dev/tests/([^/]+)(?:/(.*))?', \&tests_handler, app => 1 )
+    DW::Routing->register_regex( '/dev/tests/([^/]+)(?:/(.*))?', \&tests_handler, app => 1 );
+
+    DW::Routing->register_string( '/dev/testhelper/jsondump', \&testhelper_json_handler, app => 1, format => "json" );
 }
 
 sub tests_index_handler {
@@ -34,7 +37,7 @@ sub tests_index_handler {
 
     my $r = DW::Request->get;
 
-    $r->note( bml_use_scheme => "global" );
+    DW::SiteScheme->set_for_request( 'global' );
     return DW::Template->render_template( "dev/tests-all.tt", {
         all_tests => [ map { $_ =~ m!tests/([^/]+)\.js!; } glob("$LJ::HOME/views/dev/tests/*.js") ]
     } );
@@ -50,7 +53,7 @@ sub tests_handler {
     if ( ! defined $lib ) {
         return $r->redirect("$LJ::SITEROOT/dev/tests/$test/");
     } elsif ( ! $lib ) {
-        $r->note( bml_use_scheme => "global" );
+        DW::SiteScheme->set_for_request( 'global' );
         return DW::Template->render_template( "dev/tests-all.tt", {
             test => $test,
         } );
@@ -81,7 +84,7 @@ sub tests_handler {
 
     # force a site scheme which only shows the bare content
     # but still prints out resources included using need_res
-    $r->note( bml_use_scheme => "global" );
+    DW::SiteScheme->set_for_request( 'global' );
 
     # we don't validate the test name, so be careful!
     return DW::Template->render_template( "dev/tests.tt", {
@@ -91,12 +94,6 @@ sub tests_handler {
             tests    => $testcontent,
             includes => \@includes,
          } );
-}
-
-
-# test helpers
-if ( $LJ::IS_DEV_SERVER ) {
-    DW::Routing->register_string( '/dev/testhelper/jsondump', \&testhelper_json_handler, app => 1, format => "json" )
 }
 
 sub testhelper_json_handler {
