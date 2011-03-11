@@ -1248,6 +1248,27 @@ set entry_time_format = "short";
 set comment_date_format = "iso";
 set comment_time_format = "short";
 
+property string time_ago_seconds {
+    des = "# seconds";
+    noui = 1;
+}
+property string time_ago_minutes {
+    des = "# minutes";
+    noui = 1;
+}
+property string time_ago_hours {
+    des = "# hours";
+    noui = 1;
+}
+property string time_ago_days {
+    des = "# seconds";
+    noui = 1;
+}
+set time_ago_seconds = "1 second // # seconds";
+set time_ago_minutes = "1 minute // # minutes";
+set time_ago_hours = "1 hour // # hours";
+set time_ago_days = "1 day // # days";
+
 # FIXME: this is not currently implemented, so not showing it in the UI yet
 property string reg_firstdayofweek {
     noui = 1;
@@ -5025,18 +5046,23 @@ function RecentPage::print_navigation( string{} opts ) [fixed] {
     """;
 }
 
-function secs_to_string (int sec) : string {
-   if ($sec < 60) {
-        return string($sec) + " seconds";
+function secs_to_string( int sec ) : string {
+    var int retnum = $sec;
+    var string rettype;
+    if ( $sec < 60 ) {
+        $rettype = "seconds";
+    } elseif ( $sec < 3600 ) {
+        $retnum = $retnum / 60;
+        $rettype = "minutes";
+    } elseif ( $sec < 86400 ) {
+        $retnum =  $retnum / 3600;
+        $rettype = "hours";
+    } else {
+        $retnum = $retnum / 86400;
+        $rettype = "days";
     }
-   if ($sec < 3600) {
-        return string($sec / 60) + " minutes";
-    }
-   if ($sec < 86400) {
-        return string($sec / 3600) + " hours";
-    }
-   return string($sec / 86400) + " days";
- }
+    return get_plural_phrase( $retnum, "time_ago_" + $rettype  );
+}
 
 function EntryLite::print_time(string datefmt, string timefmt) {
     print $this->time_display($datefmt, $timefmt);
