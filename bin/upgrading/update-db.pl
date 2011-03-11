@@ -491,23 +491,45 @@ sub populate_proplist_file {
     open (my $fh, $file) or die "Failed to open $file: $!";
 
     my %pk = (
-              'userproplist' => 'name',
-              'logproplist'  => 'name',
-              'talkproplist' => 'name',
-              'usermsgproplist' => 'name',
-              'pollproplist2'   => 'name',
-              );
+        'userproplist' => 'name',
+        'logproplist'  => 'name',
+        'talkproplist' => 'name',
+        'usermsgproplist' => 'name',
+        'pollproplist2'   => 'name',
+        );
+    my %id = (
+        'userproplist' => 'upropid',
+        'logproplist'  => 'propid',
+        'talkproplist' => 'tpropid',
+        'usermsgproplist' => 'propid',
+        'pollproplist2'   => 'propid',
+    );
 
     my $table;  # table
     my $pk;     # table's primary key name
     my $pkv;    # primary key value
     my %vals;   # hash of column -> value, including primary key
+
+    my %current_props;
+
+    foreach $table ( keys %pk ) {
+        $pk = $pk{$table};
+        my $id = $id{$table};
+
+        $current_props{$table} = $dbh->selectall_hashref("SELECT `$id`,`$pk` FROM `$table`",$pk);
+    }
+
     my $insert = sub {
         return unless %vals;
         my $sets = join(", ", map { "$_=" . $dbh->quote($vals{$_}) } keys %vals);
+        my $idk = $id{$table};
 
-        my $rv = $dbh->do("INSERT IGNORE INTO $table SET $sets");
-        die $dbh->errstr if $dbh->err;
+        my $rv = 0;
+        unless ( $current_props{$table}{$pkv} ) {
+            $rv = $dbh->do("INSERT INTO $table SET $sets");
+            die $dbh->errstr if $dbh->err;
+            $current_props{$table}{$pkv} = { name => $pkv, $idk => $dbh->last_insert_id( undef, undef, $table, $idk ) };
+        }
 
         # zero-but-true:  see if row didn't exist before, so above did nothing.
         # in that case, update it.
