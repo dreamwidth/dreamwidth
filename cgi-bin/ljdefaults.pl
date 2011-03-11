@@ -229,6 +229,7 @@ no strict "vars";
                                InvitedFriendJoins
                                JournalNewComment
                                JournalNewComment::TopLevel
+                               JournalNewComment::Edited
                                JournalNewEntry
                                NewUserpic
                                OfficialPost

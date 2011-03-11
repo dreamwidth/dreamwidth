@@ -19,6 +19,7 @@ use Carp qw(croak);
 
 use LJ::Constants;
 use LJ::Event::JournalNewComment;
+use LJ::Event::JournalNewComment::Edited;
 use LJ::Comment;
 use LJ::EventLogRecord::NewComment;
 use LJ::OpenID;
@@ -3747,7 +3748,7 @@ sub edit_comment {
     if ( LJ::is_enabled('esn') ) {
         my @jobs;
 
-        push @jobs, LJ::Event::JournalNewComment->new($comment_obj)->fire_job;
+        push @jobs, LJ::Event::JournalNewComment::Edited->new($comment_obj)->fire_job;
         push @jobs, LJ::EventLogRecord::NewComment->new($comment_obj)->fire_job;
 
         my $sclient = LJ::theschwartz();

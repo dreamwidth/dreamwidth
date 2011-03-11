@@ -29,7 +29,7 @@ sub new {
 }
 
 sub related_events {
-    return map { $_->etypeid } ( $_[0], "LJ::Event::JournalNewComment::TopLevel" );
+    return map { $_->etypeid } ( $_[0], "LJ::Event::JournalNewComment::TopLevel", "LJ::Event::JournalNewComment::Edited" );
 }
 
 sub is_common { 1 }
