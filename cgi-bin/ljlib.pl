@@ -246,7 +246,6 @@ sub get_blob_domainid
     my $name = shift;
     my $id = {
         "userpic" => 1,
-        "phonepost" => 2,
     }->{$name};
     # FIXME: add hook support, so sites can't define their own
     # general code gets priority on numbers, say, 1-200, so verify

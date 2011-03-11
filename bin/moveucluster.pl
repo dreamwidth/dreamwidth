@@ -662,7 +662,6 @@ sub moveUser {
                "logsec2" => "log2",
                "talkprop2" => "talk2",
                "talktext2" => "talk2",
-               "phoneposttrans" => "phonepostentry", # FIXME: ljcom
                "modblob" => "modlog",
                "sessions_data" => "sessions",
                "memkeyword2" => "memorable2",

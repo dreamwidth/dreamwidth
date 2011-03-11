@@ -7709,7 +7709,7 @@ sub unset_remote
 
 # $dom: 'L' == log, 'T' == talk, 'M' == modlog, 'S' == session,
 #       'R' == memory (remembrance), 'K' == keyword id,
-#       'P' == phone post, 'C' == pending comment
+#       'C' == pending comment
 #       'V' == 'vgift', 'E' == ESN subscription id
 #       'Q' == Notification Inbox,
 #       'D' == 'moDule embed contents', 'I' == Import data block
@@ -7811,12 +7811,6 @@ sub alloc_user_counter
     } elsif ($dom eq "K") {
         $newmax = $u->selectrow_array("SELECT MAX(kwid) FROM userkeywords WHERE userid=?",
                                       undef, $uid);
-    } elsif ($dom eq "P") {
-        my $userblobmax = $u->selectrow_array("SELECT MAX(blobid) FROM userblob WHERE journalid=? AND domain=?",
-                                              undef, $uid, LJ::get_blob_domainid("phonepost"));
-        my $ppemax = $u->selectrow_array("SELECT MAX(blobid) FROM phonepostentry WHERE userid=?",
-                                         undef, $uid);
-        $newmax = ($ppemax > $userblobmax) ? $ppemax : $userblobmax;
     } elsif ($dom eq "C") {
         $newmax = $u->selectrow_array("SELECT MAX(pendid) FROM pendcomments WHERE jid=?",
                                       undef, $uid);
