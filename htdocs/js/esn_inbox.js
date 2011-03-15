@@ -159,15 +159,20 @@ ESN_Inbox.saveDefaultExpanded = function (expanded) {
 ESN_Inbox.initInboxBtns = function (folder, cur_folder, itemid) {
     // 2 instances of action buttons
     for (var i=1; i<=2; i++) {
-        DOM.addEventListener($(folder + "_MarkRead_" + i), "click", function(e) { ESN_Inbox.markRead(e, folder) });
-        DOM.addEventListener($(folder + "_MarkUnread_" + i), "click", function(e) { ESN_Inbox.markUnread(e, folder) });
-        DOM.addEventListener($(folder + "_Delete_" + i), "click", function(e) { ESN_Inbox.deleteItems(e, folder) });
+        if( $(folder + "_MarkRead_" + i) )
+            DOM.addEventListener($(folder + "_MarkRead_" + i), "click", function(e) { ESN_Inbox.markRead(e, folder) });
+        if( $(folder + "_MarkUnread_" + i) )
+            DOM.addEventListener($(folder + "_MarkUnread_" + i), "click", function(e) { ESN_Inbox.markUnread(e, folder) });
+        if( $(folder + "_Delete_" + i) )
+            DOM.addEventListener($(folder + "_Delete_" + i), "click", function(e) { ESN_Inbox.deleteItems(e, folder) });
     }
 
     // 2 instances of mark all and delete all buttons
     for (var i=1; i<=2; i++) {
-        DOM.addEventListener($(folder + "_MarkAllRead_" + i), "click", function(e) { ESN_Inbox.markAllRead(e, folder, cur_folder, itemid) });
-        DOM.addEventListener($(folder + "_DeleteAll_" + i), "click", function(e) { ESN_Inbox.deleteAll(e, folder, cur_folder, itemid) });
+        if( $(folder + "_MarkAllRead_" + i) )
+            DOM.addEventListener($(folder + "_MarkAllRead_" + i), "click", function(e) { ESN_Inbox.markAllRead(e, folder, cur_folder, itemid) });
+        if( $(folder + "_DeleteAll_" + i) )
+            DOM.addEventListener($(folder + "_DeleteAll_" + i), "click", function(e) { ESN_Inbox.deleteAll(e, folder, cur_folder, itemid) });
     }
 };
 
@@ -216,7 +221,8 @@ ESN_Inbox.deleteItems = function (evt, folder) {
 
     // uncheck the checkbox after deleting anything
     for (var i=1; i<=2; i++) {
-        $(folder + "_CheckAll_" + i).checked = false;
+        if( $(folder + "_CheckAll_" + i) )
+            $(folder + "_CheckAll_" + i).checked = false;
     }
 
     return false;
@@ -394,8 +400,10 @@ ESN_Inbox.finishedUpdate = function (info, folder, successfunction) {
 
     // 2 instances of action buttons with suffix 1 and 2
     for (var i=1; i<=2; i++) {
-        $(folder + "_MarkRead_" + i).disabled    = unread_count ? false : true;
-        $(folder + "_MarkAllRead_" + i).disabled = unread_count ? false : true;
+        if( $(folder + "_MarkRead_" + i) )
+            $(folder + "_MarkRead_" + i).disabled    = unread_count ? false : true;
+        if( $(folder + "_MarkAllRead_" + i) )
+            $(folder + "_MarkAllRead_" + i).disabled = unread_count ? false : true;
     }
 };
 

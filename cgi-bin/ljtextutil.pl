@@ -315,6 +315,28 @@ sub is_utf8_wrapper {
     }
 }
 
+# <LJFUNC>
+# name: LJ::has_too_many
+# des: checks if text is too long
+# args: text, maxbreaks, maxchars
+# des-text: text to check if too long
+# des-maxbreaks: maximum number of linebreak
+# des-maxchars: maximum number of characters
+# returns: true if text has more than maxbreaks linebreaks or more than maxchars characters
+# </LJFUNC>
+sub has_too_many {
+    my ( $text, %opts ) = @_;
+
+    return 1 if exists $opts{chars} && length( $text ) > $opts{chars};
+
+    if ( exists $opts{linebreaks} ) {
+        my @breaks = $text =~ m/(<br \/>|\n)/g;
+        return 1 if scalar @breaks > $opts{linebreaks};
+    }
+
+    return 0;
+}
+
 
 # alternate version of "lc" that handles UTF-8
 # args: text string for lowercasing

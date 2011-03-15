@@ -162,6 +162,8 @@ sub content {
 
     my $body = $msg->body;
     $body = LJ::html_newlines($body);
+    $body = "<div class='actions_top'>" . $self->as_html_actions . "</div>" . $body
+        if LJ::has_too_many( $body, linebreaks => 10, characters => 2000 );
 
     return $body . $self->as_html_actions;
 }

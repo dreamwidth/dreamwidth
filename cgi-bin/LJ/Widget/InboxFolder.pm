@@ -84,6 +84,9 @@ sub render_body {
     my $last_page = POSIX::ceil((scalar @$nitems) / $page_limit);
     $last_page ||= 1;
     $page = $last_page if $page > $last_page;
+    my $starting_index = ($page - 1) * $page_limit;
+    ${$opts{itemcount}} = scalar( @$nitems ) - $starting_index;
+    my $duplicate_menus = ${$opts{itemcount}} >= 10;
 
     my $prev_disabled = ($page <= 1) ? 'disabled' : '';
     my $next_disabled = ($page >= $last_page) ? 'disabled' : '';
@@ -132,7 +135,8 @@ sub render_body {
         <div id="${name}_Table" class="NotificationTable">
         <table summary='' id="${name}" class="inbox" cellspacing="0" border="0" cellpadding="0">
     };
-    $messagetable .= $actionsrow->(1);
+    $messagetable .= $actionsrow->(1)
+        if $duplicate_menus;
     $messagetable .= "<tbody id='${name}_Body'>";
 
     unless (@$nitems) {
@@ -146,7 +150,6 @@ sub render_body {
     # print out messages
     my $rownum = 0;
 
-    my $starting_index = ($page - 1) * $page_limit;
     for (my $i = $starting_index; $i < $starting_index + $page_limit; $i++) {
         my $inbox_item = $nitems->[$i];
         last unless $inbox_item;
@@ -212,11 +215,13 @@ sub render_body {
         };
     }
 
-    $messagetable .= $actionsrow->(2);
+    my $actionnumber = $duplicate_menus ? 2 : 1;
+    $messagetable .= $actionsrow->($actionnumber);
 
     $messagetable .= '</tbody></table></div>';
 
-    $messagetable .= $markdeleteall->(2);
+    $messagetable .= $markdeleteall->(2)
+        if $duplicate_menus;
 
     $msgs_body .= $messagetable;
 

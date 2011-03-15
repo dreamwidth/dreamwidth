@@ -247,14 +247,17 @@ function setup (e) {
                   "button": $(name + "_CheckAll_" + i),
                   "parent": tableview.getView()
             });
-            checkallButton.button.checked = false;
+            if( checkallButton.button )
+                checkallButton.button.checked = false;
         }
     }
 
 // 2 instances of action buttons
 for (var i=1; i<=2; i++) {
-    DOM.addEventListener($("Page_Prev_"+i), "click", Page_Prev);
-    DOM.addEventListener($("Page_Next_"+i), "click", Page_Next);
+    if( $("Page_Prev_"+i) )
+        DOM.addEventListener($("Page_Prev_"+i), "click", Page_Prev);
+    if( $("Page_Next_"+i) )
+        DOM.addEventListener($("Page_Next_"+i), "click", Page_Next);
 }
 
 if ($("pageNum")) pageNum = parseInt($("pageNum").value);

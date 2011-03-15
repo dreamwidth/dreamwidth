@@ -180,7 +180,7 @@ sub content {
     my $dtalkid = $comment->dtalkid;
     my $htmlid  = LJ::Talk::comment_htmlid( $dtalkid );
 
-    $comment_body =~ s/\n/<br \/>/g;
+    $comment_body = LJ::html_newlines( $comment_body );
 
     if ( $comment->is_edited ) {
         my $reason = LJ::ehtml( $comment->edit_reason );
@@ -217,6 +217,10 @@ sub content {
     $ret .= qq {
         </script>
         };
+
+    $ret = "<div class='actions_top'>" . $self->as_html_actions . "</div>" . $ret
+        if LJ::has_too_many( $ret, linebreaks => 10, chars => 2000 );
+
     $ret .= $self->as_html_actions;
 
     return $ret;

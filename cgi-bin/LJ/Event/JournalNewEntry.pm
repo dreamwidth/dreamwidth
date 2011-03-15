@@ -81,16 +81,20 @@ sub content {
     my $entry = $self->entry;
     return undef unless $self->_can_view_content( $entry, $target );
 
-    return $entry->event_html( {
-                # double negatives, ouch!
-                ljcut_disable => ! $target->cut_inbox,
-                cuturl => $entry->url,
-                sandbox => 1,
-                preformatted => $entry->prop( "opt_preformatted" ),
-             } )
+    my $entry_body = $entry->event_html( {
+                        # double negatives, ouch!
+                        ljcut_disable => ! $target->cut_inbox,
+                        cuturl => $entry->url,
+                        sandbox => 1,
+                        preformatted => $entry->prop( "opt_preformatted" ),
+                    } )
+                    . $self->as_html_tags( $target );
 
-            . $self->as_html_tags( $target )
-            . $self->as_html_actions;
+    $entry_body = "<div class='actions_top'>" . $self->as_html_actions . "</div>" . $entry_body
+        if LJ::has_too_many( $entry_body, linebreaks => 10, chars => 2000 );
+    $entry_body .= $self->as_html_actions;
+
+    return $entry_body;
 }
 
 sub as_html_tags {
