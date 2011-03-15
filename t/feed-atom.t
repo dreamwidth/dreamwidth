@@ -57,11 +57,13 @@ my $e2 = $u->t_post_fake_entry;
         subject => $e2->subject_raw,
         text    => $e2->event_raw,
         time    => substr( $e2->eventtime_mysql, 0, -3 ),
+        author  => $u->name_raw,
     }, {
         link    => $e1->url,
         subject => $e1->subject_raw,
         text    => $e1->event_raw,
         time    => substr( $e1->eventtime_mysql, 0, -3 ),
+        author  => $u->name_raw,
     }], "Check entries from feed" );
 
 
@@ -78,6 +80,7 @@ my $e2 = $u->t_post_fake_entry;
         subject => $e2->subject_raw,
         text    => $e2->event_raw,
         time    => substr( $e2->eventtime_mysql, 0, -3 ),
+        author  => $u->name_raw,
     }, "Check individual entry from feed" );
 }
 
@@ -135,11 +138,13 @@ note( "No bot crawling" );
         subject => $e2->subject_raw,
         text    => $e2->event_raw,
         time    => substr( $e2->eventtime_mysql, 0, -3 ),
+        author  => $u->name_raw,
     }, {
         link    => $e1->url,
         subject => $e1->subject_raw,
         text    => $e1->event_raw,
         time    => substr( $e1->eventtime_mysql, 0, -3 ),
+        author  => $u->name_raw,
     }], "Check entries from feed" );
 }
 

@@ -495,7 +495,7 @@ sub create_view_atom
         # the journal entry isn't owned by the journal. (communities)
         if ( $opts->{single_entry} || ! $journalu->equals( $poster ) ) {
             my $author = XML::Atom::Person->new( Version => 1 );
-            $author->email( $poster->email_visible ) if $poster->email_visible;
+            $author->email( $poster->email_visible ) if $poster && $poster->email_visible;
             $author->name(  $poster->{name} );
             $entry->author( $author );
 
