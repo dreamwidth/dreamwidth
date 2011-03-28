@@ -456,7 +456,19 @@ sub EntryPage_entry
     }
 
     # check using normal rules
-    unless ($entry->visible_to($remote, $canview)) {
+    unless ( $entry->visible_to( $remote, $canview ) ) {
+
+            # check whether the entry is suspended
+            if ( $pu && $pu->is_suspended && ! $viewsome ) {
+                $opts->{suspendeduser} = 1;
+                return;
+            }
+
+            if ( $entry && $entry->is_suspended_for( $remote ) ) {
+                $opts->{suspendedentry} = 1;
+            return;
+            }
+
         # this checks to see why the logged-in user is not allowed to see
         # the given content.
         if (defined $remote) {
@@ -478,16 +490,6 @@ sub EntryPage_entry
         $opts->{internal_redir} = "/protected";
         $r->notes->{journalid} = $entry->journalid;
         $r->notes->{returnto} = $redir;
-        return;
-    }
-
-    if ( $pu && $pu->is_suspended && ! $viewsome ) {
-        $opts->{'suspendeduser'} = 1;
-        return;
-    }
-
-    if ($entry && $entry->is_suspended_for($remote)) {
-        $opts->{'suspendedentry'} = 1;
         return;
     }
 
