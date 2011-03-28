@@ -19,11 +19,11 @@ use base "LJ::BetaFeatures::default";
 sub args_list {
     my @implemented = (
         "Logging in",
+        "Screen/freeze/delete",
     );
 
     my @notimplemented = (
         "Contextual hover",
-        "Screen/freeze/delete",
         "Quick reply",
         "Cut expand and collapse",
         "Media embed placeholder expansion",
