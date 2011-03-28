@@ -39,10 +39,10 @@ sub render_body {
     if ($handler->is_active && $handler->user_can_add($u)) {
         $ret .= $class->start_form;
         if ($u->is_in_beta($feature)) {
-            $ret .= "<?p " . $class->ml("widget.betafeature.$feature.on") . " p?>";
+            $ret .= "<?p " . $class->ml("widget.betafeature.$feature.on", { $handler->args_list } ) . " p?>";
             $ret .= $class->html_submit("off", $class->ml('widget.betafeature.btn.off'));
         } else {
-            $ret .= "<?p " . $class->ml("widget.betafeature.$feature.off") . " p?>";
+            $ret .= "<?p " . $class->ml("widget.betafeature.$feature.off", { $handler->args_list } ) . " p?>";
             $ret .= $class->html_submit("on", $class->ml('widget.betafeature.btn.on'));
         }
         $ret .= $class->html_hidden( feature => $feature, user => $u->user );

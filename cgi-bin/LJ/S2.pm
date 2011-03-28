@@ -169,6 +169,10 @@ sub make_journal
     # like print_stylesheet() won't run, which don't have an method invocant
     return $page if $page && ref $page ne 'HASH';
 
+    my $beta_jquery = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+    LJ::set_active_resource_group( 'jquery' )
+        if $beta_jquery;
+
     # Control strip
     my $show_control_strip = LJ::Hooks::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
@@ -204,7 +208,7 @@ sub make_journal
 
     # inject the control strip JS, but only after any libraries have been injected
     $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user )
-        if( $show_control_strip );
+        if $show_control_strip && ! $beta_jquery;
 
     s2_run($r, $ctx, $opts, $entry, $page);
 

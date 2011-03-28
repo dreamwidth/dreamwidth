@@ -20,7 +20,9 @@ use LJ::ModuleLoader;
 
 my %HANDLER_OF_KEY = (); # key -> handler object
 my @HANDLER_LIST   = LJ::ModuleLoader->module_subclasses(__PACKAGE__);
-foreach my $handler (@HANDLER_LIST) {
+my @DW_HANDLER_LIST = LJ::ModuleLoader->module_subclasses( "DW::BetaFeatures" );
+
+foreach my $handler (@HANDLER_LIST, @DW_HANDLER_LIST) {
     eval "use $handler";
     die "Error loading handler '$handler': $@" if $@;
 }
@@ -33,7 +35,7 @@ sub get_handler {
     return $handler if $handler;
 
     my $use_key = 'default';
-    foreach my $cl (@HANDLER_LIST) {
+    foreach my $cl (@HANDLER_LIST, @DW_HANDLER_LIST) {
         my $subcl = (split("::", $cl))[-1];
         next if $subcl eq 'default';
         next unless $subcl eq $key;

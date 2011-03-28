@@ -4373,6 +4373,24 @@ widget.betafeature.btn.off=Turn OFF beta testing
 
 widget.betafeature.btn.on=Turn ON beta testing
 
+widget.betafeature.journaljquery.on<<
+Currently beta-testing the new JS behavior on journals.
+<h3>Implemented</h3>
+[[implemented]]
+
+<h3>Todo</h3>
+[[notimplemented]]
+.
+
+widget.betafeature.journaljquery.off<<
+Switch to the new JS behavior on journals.
+<h3>Implemented</h3>
+[[implemented]]
+
+<h3>Todo</h3>
+[[notimplemented]]
+.
+
 widget.communitymanagement.nopending=No communities require action.
 
 widget.communitymanagement.pending=Pending:
