@@ -20,6 +20,7 @@ sub args_list {
     my @implemented = (
         "Logging in",
         "Screen/freeze/delete",
+        "Control strip injection for non-supporting journals",
     );
 
     my @notimplemented = (
@@ -27,7 +28,6 @@ sub args_list {
         "Quick reply",
         "Cut expand and collapse",
         "Media embed placeholder expansion",
-        "Control strip injection for non-supporting journals",
         "Same-page poll submission",
         "Thread expander",
         "Icon browser",

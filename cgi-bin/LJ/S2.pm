@@ -207,8 +207,8 @@ sub make_journal
     $page->{head_content} .= $extra_js;
 
     # inject the control strip JS, but only after any libraries have been injected
-    $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user )
-        if $show_control_strip && ! $beta_jquery;
+    $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user, jquery => $beta_jquery )
+        if $show_control_strip;
 
     s2_run($r, $ctx, $opts, $entry, $page);
 

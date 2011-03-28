@@ -3131,6 +3131,7 @@ sub control_strip_js_inject
 {
     my %opts = @_;
     my $user = delete $opts{user} || '';
+    my $jquery = delete $opts{jquery};
 
     my $ret;
 
@@ -3140,25 +3141,44 @@ sub control_strip_js_inject
     my $args = LJ::eurl( $r->query_string ) || '';
     my $view = $r->note( 'view' ) || '';
 
-    $ret .= qq{
-<script type='text/javascript'>
-    function controlstrip_init() {
-        if (! \$('lj_controlstrip') ){
-            HTTPReq.getJSON({
-              url: "/$user/__rpc_controlstrip?user=$user&host=$host&uri=$uri&args=$args&view=$view",
-              onData: function (data) {
-                  var body = document.getElementsByTagName("body")[0];
-                  var div = document.createElement("div");
-                  div.innerHTML = data;
-                      body.appendChild(div);
-              },
-              onError: function (msg) { }
-            });
+    # FIXME: remove argument
+    if ( $jquery ) {
+        $ret .= qq{
+    <script type='text/javascript'>
+    jQuery(function(jQ){
+        if (jQ("#lj_controlstrip").length == 0) {
+            jQ.getJSON("/$user/__rpc_controlstrip?user=$user&host=$host&uri=$uri&args=$args&view=$view", {},
+                function(data) {
+                    jQ("<div></div>").html(data.control_strip).appendTo("body");
+                }
+            );
         }
+    })
+    </script>
+        };
+
+    } else {
+        $ret .= qq{
+    <script type='text/javascript'>
+        function controlstrip_init() {
+            if (! \$('lj_controlstrip') ){
+                HTTPReq.getJSON({
+                  url: "/$user/__rpc_controlstrip?user=$user&host=$host&uri=$uri&args=$args&view=$view",
+                  onData: function (data) {
+                      var body = document.getElementsByTagName("body")[0];
+                      var div = document.createElement("div");
+                      div.innerHTML = data.control_strip;
+                          body.appendChild(div);
+                  },
+                  onError: function (msg) { }
+                });
+            }
+        }
+        DOM.addEventListener(window, "load", controlstrip_init);
+    </script>
+        };
     }
-    DOM.addEventListener(window, "load", controlstrip_init);
-</script>
-    };
+
     return $ret;
 }
 
