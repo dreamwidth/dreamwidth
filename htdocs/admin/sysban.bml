@@ -80,7 +80,7 @@ body<=
     my $ret = "<form method='post' action='sysban'>";
     $ret   .= LJ::form_auth();
     $ret   .= "<select name='bantype'>";
-    foreach my $type ( @sysban_privs ) {
+    foreach my $type ( sort @sysban_privs ) {
         $ret .=  "<option value='$type'>$type</option>\n";
     }
     $ret .= <<FORM;
@@ -179,7 +179,8 @@ QUERYFORM
         if ( %$sysbans ) {
             $ret .= "Sysbans for " . LJ::ehtml( $banquery );
             $ret .= "<table><thead><tr><th>Type</th><th>Expiration</th><th>Note</th></tr></thead>";
-            while ( my ( $what, $details ) = each %$sysbans  ) {
+            foreach my $what ( sort keys %$sysbans  ) {
+                my $details = $sysbans->{$what};
                 $ret .= "<tr>";
                 $ret .= "<td>$what</td>";
                 $ret .= "<td>" . localtime( $details->{expire} ) . "</td> ";
@@ -232,7 +233,7 @@ RETURN
 
         $ret = "<form method='post' action='sysban'> " . LJ::form_auth() . 
                 "<select name='bantype'>";
-        foreach my $type ( @sysban_privs ) {
+        foreach my $type ( sort @sysban_privs ) {
             if ( $type eq $bantype ) {
                 $ret .=  "<option selected value='$type'>$type</option>\n";
             } else {
