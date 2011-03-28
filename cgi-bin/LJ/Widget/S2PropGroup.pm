@@ -601,21 +601,6 @@ sub js {
         initWidget: function () {
             var self = this;
 
-            var maxPropsToShow = 15;
-            var numPropsOnPage = DOM.getElementsByClassName(document, "prop-row").length;
-
-            // hide all prop lists except the first one if there are too many props
-            if (numPropsOnPage > maxPropsToShow) {
-                var lists = DOM.getElementsByClassName(document, "prop-list");
-                lists.forEach(function (list) {
-                    var listid = list.id;
-                    var subheaderid = listid.replace(/proplist/, 'subheader');
-                    if (!DOM.hasClassName(list, 'first')) {
-                        self.alterSubheader(subheaderid);
-                    }
-                });
-            }
-
             // add event listeners to all of the subheaders
             var subheaders = DOM.getElementsByClassName(document, "subheader");
             subheaders.forEach(function (subheader) {
