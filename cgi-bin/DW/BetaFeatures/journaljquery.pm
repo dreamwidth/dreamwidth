@@ -31,6 +31,7 @@ sub args_list {
         "Same-page poll submission",
         "Thread expander",
         "Icon browser",
+        "Same-page comment tracking",
     );
 
     return (
