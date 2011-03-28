@@ -372,9 +372,16 @@ sub EntryPage
         $p->{'head_content'} .= $js;
     }
 
-    LJ::need_res(qw(
-                    js/commentmanage.js
-                    ));
+    LJ::need_res( "js/commentmanage.js" );
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.widget.js
+            js/jquery.ajaxtip.js
+            js/jquery.commentmanage.js
+            js/tooltip.min.js
+            js/tooltip.dynamic.min.js
+            stc/ajaxtip.css
+            stc/popup-form.css
+        ) );
 
     $p->{'_picture_keyword'} = $get->{'prop_picture_keyword'};
 

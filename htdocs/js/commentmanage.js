@@ -575,7 +575,7 @@ function createModerationFunction (ae, dItemid) {
             var rpcRes;
 
             if (xtr.status == 200) {
-                var resObj = eval(xtr.responseText);
+                var resObj = eval("resObj = " + xtr.responseText + ";");
                 if (resObj) {
                     poofAt(clickPos);
                     updateLink(ae, resObj, imgTarget);

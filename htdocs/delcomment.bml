@@ -20,13 +20,21 @@ _info?><?_code
     use vars qw(%GET %POST);
     use vars qw($body);
 
+    BML::set_language_scope("/delcomment.bml");
+
     my $jsmode = $GET{mode} eq "js";
     $body = "";
 
     my $error = sub {
         if ($jsmode) {
             BML::finish();
-            return "alert('" . LJ::ejs($_[0]) . "'); 0;";
+            # FIXME: remove once we've switched over completely to jquery
+            if ( !!$GET{json} ) {
+                sleep 1 if $LJ::IS_DEV_SERVER;
+                return JSON::objToJson( { error => $_[0] } );
+            } else {
+                return "alert('" . LJ::ejs($_[0]) . "'); 0;";
+            }
         }
         $body = "<?h1 $ML{'Error'} h1?><?p $_[0] p?>";
         return;
@@ -116,7 +124,6 @@ _info?><?_code
     ### perform actions
     if (LJ::did_post() && $POST{'confirm'}) {
         return $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
-
         # mark this as spam?
         LJ::Talk::mark_comment_as_spam($u, $tp->{talkid})
             if $POST{spam} && $can_spam;
@@ -129,7 +136,6 @@ _info?><?_code
             # delete single comment...
             LJ::Talk::delete_comment($u, $tp->{'itemid'}, $tpid, $tp->{'state'});
         }
-
         # ban the user, if selected
         my $msg;
         if ($POST{'ban'} && $can_ban) {
@@ -138,11 +144,16 @@ _info?><?_code
             $msg = BML::ml('.success.andban', { 'user' => LJ::ljuser($tp->{'userpost'}) });
         }
         $msg ||= $ML{'.success.noban'};
-        $msg .= "<?p $ML{'.success.spam'} p?>" if $POST{spam} && $can_spam;
+        $msg .= " <p>$ML{'.success.spam'}</p>" if $POST{spam} && $can_spam;
 
         if ($jsmode) {
             BML::finish();
-            return "1;";
+            if ( !!$GET{json} ) {
+                sleep 1 if $LJ::IS_DEV_SERVER;
+                return JSON::objToJson( { msg => LJ::strip_html( $msg ) } );
+            } else {
+                return "1;";
+            }
         } else {
             $body = "<?h1 $ML{'.success.head'} h1?><?p $msg p?>";
             return;

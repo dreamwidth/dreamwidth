@@ -1,0 +1,13 @@
+.ajaxtooltip {
+    padding: .2em .5em;
+    z-index: 99;
+    text-align: left;
+    color: #000;
+    background: #fff;
+    border: 2px solid #555;
+}
+.ajaxresult {
+    color: #000;
+    background: #fbf9ee;
+    border: 2px solid #fcefa1;
+}

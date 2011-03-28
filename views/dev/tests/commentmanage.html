@@ -1,0 +1,57 @@
+<a id="url_with_params_noescape" href="http://blah.com/?noequals&novalue=&key=value&key2=value%202">not escaped</a>
+<a id="url_with_params_escaped" href="http://blah.com/?noequals&amp;novalue=&amp;key=value&amp;key2=value%202">not escaped</a>
+
+
+<!-- old JS implementation really really needs the delete link to be the first in this-->
+<!-- text -->
+<div id="cmt123">comment 123
+
+
+<a id="delete_link" href="http://localhost/delcomment?journal=test&amp;id=123">Delete</a>
+
+<a id="freeze_link" href="http://localhost/talkscreen?mode=freeze&amp;journal=test&amp;talkid=123">Freeze</a>
+<a id="unfreeze_link" href="http://localhost/talkscreen?mode=unfreeze&amp;journal=test&amp;talkid=123">Unfreeze</a>
+
+<a id="screen_link" href="http://localhost/talkscreen?mode=screen&amp;journal=test&amp;talkid=123">Screen</a>
+<a id="unscreen_link" href="http://localhost/talkscreen?mode=unscreen&amp;journal=test&amp;talkid=123">Unscreen</a>
+
+
+<!-- images -->
+<a id="delete_img" href="http://localhost/delcomment?journal=test&amp;id=123"><img border="0" width="16" height="16" alt="Delete" title="Delete" src="http://localhost/img/silk/comments/delete.png" /></a>
+
+<a id="freeze_img" href="http://localhost/talkscreen?mode=freeze&amp;journal=test&amp;talkid=123"><img border="0" width="16" height="16" alt="Freeze" title="Freeze" src="http://localhost/img/silk/comments/freeze.png" /></a>
+<a id="unfreeze_img" href="http://localhost/talkscreen?mode=unfreeze&amp;journal=test&amp;talkid=123"><img border="0" width="16" height="16" alt="Unfreeze" title="Unfreeze" src="http://localhost/img/silk/comments/unfreeze.png" /></a>
+
+<a id="screen_img" href="http://localhost/talkscreen?mode=screen&amp;journal=test&amp;talkid=123"><img border="0" width="16" height="16" alt="Screen" title="Screen" src="http://localhost/img/silk/comments/screen.png" /></a>
+<a id="unscreen_img" href="http://localhost/talkscreen?mode=unscreen&amp;journal=test&amp;talkid=123"><img border="0" width="16" height="16" alt="Unscreen" title="Unscreen" src="http://localhost/img/silk/comments/unscreen.png" /></a>
+</div>
+
+<div id="cmt456">comment 456; child comment
+<a id="child_delete_link" href="http://localhost/delcomment?journal=test&amp;id=456">Delete</a>
+
+<a id="child_freeze_link" href="http://localhost/talkscreen?mode=freeze&amp;journal=test&amp;talkid=456">Freeze</a>
+<a id="child_unfreeze_link" href="http://localhost/talkscreen?mode=unfreeze&amp;journal=test&amp;talkid=456">Unfreeze</a>
+
+<a id="child_screen_link" href="http://localhost/talkscreen?mode=screen&amp;journal=test&amp;talkid=456">Screen</a>
+<a id="child_unscreen_link" href="http://localhost/talkscreen?mode=unscreen&amp;journal=test&amp;talkid=456">Unscreen</a>
+
+<!-- images -->
+<a id="child_delete_img" href="http://localhost/delcomment?journal=test&amp;id=456"><img border="0" width="16" height="16" alt="Delete" title="Delete" src="http://localhost/img/silk/comments/delete.png" /></a>
+
+<a id="child_freeze_img" href="http://localhost/talkscreen?mode=freeze&amp;journal=test&amp;talkid=456"><img border="0" width="16" height="16" alt="Freeze" title="Freeze" src="http://localhost/img/silk/comments/freeze.png" /></a>
+<a id="child_unfreeze_img" href="http://localhost/talkscreen?mode=unfreeze&amp;journal=test&amp;talkid=456"><img border="0" width="16" height="16" alt="Unfreeze" title="Unfreeze" src="http://localhost/img/silk/comments/unfreeze.png" /></a>
+
+<a id="child_screen_img" href="http://localhost/talkscreen?mode=screen&amp;journal=test&amp;talkid=456"><img border="0" width="16" height="16" alt="Screen" title="Screen" src="http://localhost/img/silk/comments/screen.png" /></a>
+<a id="child_unscreen_img" href="http://localhost/talkscreen?mode=unscreen&amp;journal=test&amp;talkid=456"><img border="0" width="16" height="16" alt="Unscreen" title="Unscreen" src="http://localhost/img/silk/comments/unscreen.png" /></a>
+</div>
+
+<div id="invalidlink">invalid links here
+<a id="invalid_delete_link" href="http://localhost/delcomment">Delete</a>
+<a id="invalid_moderate_link" href="http://localhost/talkscreen">Moderate</a>
+</div>
+
+<a id="mismatched_delete_link" href="http://localhost/delcomment?journal=test&amp;id=999">Delete</a>
+<a id="mismatched_moderate_link" href="http://localhost/talkscreen?mode=freeze&amp;journal=test&amp;talkid=999">Freeze</a>
+
+<a id="mismatched_journal_delete_link" href="http://localhost/delcomment?journal=untest&amp;id=123">Delete</a>
+<a id="mismatched_journal_moderate_link" href="http://localhost/talkscreen?mode=freeze&amp;journal=untest&amp;talkid=123">Freeze</a>
