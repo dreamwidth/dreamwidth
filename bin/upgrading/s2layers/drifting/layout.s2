@@ -19,6 +19,37 @@ layerinfo "lang"        = "en";
 set layout_authors             = [ { "name" => "Jennie Griner"} ];
 set layout_resources           = [ { "name" => "OSWD design", "url" => "http://www.oswd.org/design/information/id/1955" } ];
 
+# PRESENTATION
+################################################################################
+propgroup presentation
+{
+    property use show_userpics_recent;
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+    property use userpics_position;
+    property use entry_metadata_position;
+    property use use_custom_friend_colors;
+    property use use_shared_pic;
+    property use userlite_interaction_links;
+    property use entry_management_links;
+    property use comment_management_links;
+    property use entry_datetime_format_group;
+    property use comment_datetime_format_group;
+}
+
+set layout_type            = "two-columns-left";
+set show_userpics_recent   = true;
+set userpics_position = "right";
+set num_items_recent       = 20;
+set num_items_reading      = 20;
+set linklist_support       = true;
+set entry_management_links = "text";
+set comment_management_links = "text";
+set userlite_interaction_links = "text";
+set custom_colors_template = "%%new%% .friends-color-wrapper {background-color: %%background%%} %%new%% .friends-color-wrapper a {color: %%foreground%%}";
+
+
 # COLOURS
 ################################################################################
 propgroup colors
@@ -64,6 +95,91 @@ propgroup images
         des = "Module/Entry header image URL";
     }
 }
+
+# FONTS
+################################################################################
+propgroup fonts
+{
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property string font_title_fallback
+    {
+        des    = "Alternative font for journal title and subtitle";
+        values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+    }
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_comment_title;
+    property use font_comment_title_size;
+    property use font_comment_title_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
+}
+
+set font_base         = "Arial";
+set font_fallback     = "sans-serif";
+set font_base_size  = "1";
+set font_base_units = "em";
+set font_journal_title  = "Times New Roman";
+set font_journal_title_size  = "2.8";
+set font_journal_title_units = "em";
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+set font_module_heading_size = "1.1";
+set font_module_heading_units = "em";
+set font_module_text_size = ".9";
+set font_module_text_units = "em";
+set font_title_fallback = "serif";
+
+# MODULES
+################################################################################
+propgroup modules
+{
+    property use module_navlinks_group;
+    property use module_customtext_group;
+    property use module_pagesummary_group;
+    property use module_links_group;
+    property use module_calendar_group;
+    property use module_active_group;
+    property use module_poweredby_group;
+    property use module_tags_group;
+    property use module_syndicate_group;
+    property use module_userprofile_group;
+    property use module_time_group;
+    property use module_credit_group;
+    property use module_search_group;
+}
+
+set module_layout_sections     = "none|(none)|one|Sidebar|two|Footer";
+
+set module_navlinks_section    = "one";
+set module_customtext_section  = "one";
+set module_pagesummary_section = "one";
+set module_links_section       = "one";
+set module_calendar_section    = "one";
+set module_poweredby_section   = "two";
+set module_tags_section        = "none";
+set module_syndicate_section   = "none";
+set module_userprofile_section = "none";
+set module_time_section        = "none";
+set module_credit_section      = "one";
+
+set module_calendar_order      = 1;
+set module_navlinks_order      = 2;
+set module_links_order         = 3;
 
 # TEXT
 ################################################################################
@@ -118,83 +234,6 @@ set text_comment_from      = "";
 set text_comment_date      = "";
 set text_posting_in        = "";
 
-# FONTS
-################################################################################
-propgroup fonts
-{
-    property use font_base;
-    property use font_fallback;
-    property use font_base_size;
-    property use font_base_units;
-    property use font_journal_title;
-    property use font_journal_title_size;
-    property use font_journal_title_units;
-    property use font_journal_subtitle;
-    property use font_journal_subtitle_size;
-    property use font_journal_subtitle_units;
-    property string font_title_fallback
-    {
-        des    = "Alternative font for journal title and subtitle";
-        values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
-    }
-    property use font_entry_title;
-    property use font_entry_title_size;
-    property use font_entry_title_units;
-    property use font_comment_title;
-    property use font_comment_title_size;
-    property use font_comment_title_units;
-    property use font_module_heading;
-    property use font_module_heading_size;
-    property use font_module_heading_units;
-    property use font_module_text;
-    property use font_module_text_size;
-    property use font_module_text_units;
-}
-
-set font_base         = "Arial";
-set font_fallback     = "sans-serif";
-set font_base_size  = "1";
-set font_base_units = "em";
-set font_journal_title  = "Times New Roman";
-set font_journal_title_size  = "2.8";
-set font_journal_title_units = "em";
-set font_entry_title_size = "1.2";
-set font_entry_title_units = "em";
-set font_module_heading_size = "1.1";
-set font_module_heading_units = "em";
-set font_module_text_size = ".9";
-set font_module_text_units = "em";
-set font_title_fallback = "serif";
-
-# PRESENTATION
-################################################################################
-propgroup presentation
-{
-    property use show_userpics_recent;
-    property use num_items_recent;
-    property use num_items_reading;
-    property use use_journalstyle_entry_page;
-    property use userpics_position;
-    property use entry_metadata_position;
-    property use use_custom_friend_colors;
-    property use use_shared_pic;
-    property use userlite_interaction_links;
-    property use entry_management_links;
-    property use comment_management_links;
-    property use entry_datetime_format_group;
-    property use comment_datetime_format_group;
-}
-
-set layout_type            = "two-columns-left";
-set show_userpics_recent   = true;
-set userpics_position = "right";
-set num_items_recent       = 20;
-set num_items_reading      = 20;
-set linklist_support       = true;
-set entry_management_links = "text";
-set comment_management_links = "text";
-set userlite_interaction_links = "text";
-set custom_colors_template = "%%new%% .friends-color-wrapper {background-color: %%background%%} %%new%% .friends-color-wrapper a {color: %%foreground%%}";
 
 # CUSTOM CSS
 ################################################################################
@@ -205,43 +244,6 @@ propgroup customcss
     property use linked_stylesheet;
     property use custom_css;
 }
-
-# MODULES
-################################################################################
-propgroup modules
-{
-    property use module_navlinks_group;
-    property use module_customtext_group;
-    property use module_pagesummary_group;
-    property use module_links_group;
-    property use module_calendar_group;
-    property use module_active_group;
-    property use module_poweredby_group;
-    property use module_tags_group;
-    property use module_syndicate_group;
-    property use module_userprofile_group;
-    property use module_time_group;
-    property use module_credit_group;
-    property use module_search_group;
-}
-
-set module_layout_sections     = "none|(none)|one|Sidebar|two|Footer";
-
-set module_navlinks_section    = "one";
-set module_customtext_section  = "one";
-set module_pagesummary_section = "one";
-set module_links_section       = "one";
-set module_calendar_section    = "one";
-set module_poweredby_section   = "two";
-set module_tags_section        = "none";
-set module_syndicate_section   = "none";
-set module_userprofile_section = "none";
-set module_time_section        = "none";
-set module_credit_section      = "one";
-
-set module_calendar_order      = 1;
-set module_navlinks_order      = 2;
-set module_links_order         = 3;
 
 ################################################################################
 # Functions
