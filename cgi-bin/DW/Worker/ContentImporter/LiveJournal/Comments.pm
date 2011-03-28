@@ -26,7 +26,7 @@ use DW::Worker::ContentImporter::Local::Comments;
 
 # these come from LJ
 our $COMMENTS_FETCH_META = 10000;
-our $COMMENTS_FETCH_BODY = 1000;
+our $COMMENTS_FETCH_BODY = 500;
 
 sub work {
 
