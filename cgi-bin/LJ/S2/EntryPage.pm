@@ -374,7 +374,7 @@ sub EntryPage
 
     LJ::need_res( "js/commentmanage.js" );
     LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.widget.js
+            js/jquery/jquery.ui.widget.min.js
             js/jquery.ajaxtip.js
             js/jquery.commentmanage.js
             js/tooltip.min.js
