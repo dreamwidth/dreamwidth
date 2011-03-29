@@ -655,8 +655,8 @@ sub clean
                         next;
                     }
 
-                    if ($attr eq "data") {
-                        delete $hash->{$attr} unless $tag eq "object";
+                    if ( $attr eq "data" ) {
+                        delete $hash->{$attr};
                         next;
                     }
 

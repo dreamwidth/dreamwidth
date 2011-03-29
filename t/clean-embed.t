@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 142;
+use Test::More tests => 143;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
@@ -48,6 +48,11 @@ note( "Testing clean_embed (we provide the contents to be cleaned directly)" );
     $clean->();
     is( $orig_post, $clean_post, "<object> and <embed> tags" );
 
+    note( "object tag with data attribute" );
+    $orig_post = qq{<object width="123" data="abc" height="456"></object>};
+    $clean_post = qq{<object width="123" height="456"></object>};
+    $clean->();
+    is( $orig_post, $clean_post, "Drop the data attribute" );
 
     note("script tag");
     $orig_post = qq{<object><script>bar</script></object>};
