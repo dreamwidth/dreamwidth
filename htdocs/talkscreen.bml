@@ -145,7 +145,7 @@ _info?><?_code
         my $can_screen = LJ::Talk::can_screen($remote, $u, $up, $post->{'userpost'});
         return $error->($ML{'.error.privs.screen'}) unless $can_screen;
         if ($POST{'confirm'} eq 'Y') {
-            $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+            return $error->( $ML{'error.invalidform'} ) unless LJ::check_form_auth();
         } else {
             $body .= "<?h1 $ML{'.screen.sure.title'} h1?><?p $ML{'.screen.sure.body'} p?>";
             $body .= "<p><form method='POST' action='talkscreen'><center>\n";
@@ -170,7 +170,7 @@ _info?><?_code
         my $can_unscreen = LJ::Talk::can_unscreen($remote, $u, $up, $post->{'userpost'});
         return $error->($ML{'.error.privs.unscreen'}) unless $can_unscreen;
         if ($POST{'confirm'} eq 'Y') {
-            $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+            return $error->( $ML{'error.invalidform'} ) unless LJ::check_form_auth();
         } else {
             $body .= "<?h1 $ML{'.unscreen.sure.title'} h1?><?p $ML{'.unscreen.sure.body'} p?>";
             $body .= "<p><form method='POST' action='talkscreen'><center>\n";
@@ -199,7 +199,7 @@ _info?><?_code
         }
 
         if ($POST{confirm} eq 'Y') {
-            $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+            return $error->( $ML{'error.invalidform'} ) unless LJ::check_form_auth();
         } else {
             $body .= "<?h1 $ML{'.freeze.sure.title'} h1?><?p $ML{'.freeze.sure.body'} p?>";
             $body .= "<p><form method='post' action='talkscreen'><center>\n";
@@ -226,7 +226,7 @@ _info?><?_code
             return;
         }
         if ($POST{confirm} eq 'Y') {
-            $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+            return $error->( $ML{'error.invalidform'} ) unless LJ::check_form_auth();
         } else {
             $body .= "<?h1 $ML{'.unfreeze.sure.title'} h1?><?p $ML{'.unfreeze.sure.body'} p?>";
             $body .= "<p><form method='post' action='talkscreen'><center>\n";
