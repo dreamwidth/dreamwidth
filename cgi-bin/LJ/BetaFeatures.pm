@@ -111,6 +111,8 @@ sub user_in_beta {
     my $class = shift;
     my ($u, $key) = @_;
 
+    return 0 unless $u;
+
     # is the cap set?
     return 0 unless $u->in_class($class->cap_name);
 
