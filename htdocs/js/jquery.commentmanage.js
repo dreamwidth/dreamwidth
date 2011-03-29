@@ -247,7 +247,7 @@ $.widget("dw.delcomment", {
                             var id = "popdel"+self.linkdata.id+"ban";
                             ul.append($("<li>").append(
                                 $("<input>", { type: "checkbox", value: "ban", id: id}),
-                                $("<label>", { for: id }).html("Ban <strong>"+cmtdata.u+"</strong> from commenting")
+                                $("<label>", { "for": id }).html("Ban <strong>"+cmtdata.u+"</strong> from commenting")
                             ));
                         }
 
@@ -255,7 +255,7 @@ $.widget("dw.delcomment", {
                             var id = "popdel"+self.linkdata.id+"spam";
                             ul.append($("<li>").append(
                                 $("<input>", { type: "checkbox", value: "spam", id: id}),
-                                $("<label>", { for: id }).text("Mark this comment as spam")
+                                $("<label>", { "for": id }).text("Mark this comment as spam")
                             ));
                         }
 
@@ -263,11 +263,11 @@ $.widget("dw.delcomment", {
                             var id = "popdel"+self.linkdata.id+"thread";
                             ul.append($("<li>").append(
                                 $("<input>", { type: "checkbox", value: "thread", id: id}),
-                                $("<label>", { for: id }).text("Delete thread (all subcomments)")
+                                $("<label>", { "for": id }).text("Delete thread (all subcomments)")
                             ));
                         }
 
-                        ul.append($("<li>", { class: "submit" }).append(
+                        ul.append($("<li>", { "class": "submit" }).append(
                             $("<input>", { type: "button", value: "Delete"})
                                 .click(deletecomment),
 
