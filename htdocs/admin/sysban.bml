@@ -115,6 +115,7 @@ QUERYFORM
 
             my $expire = $existing_bans->{ $value }->{expire};
             my $note   = $existing_bans->{ $value }->{note};
+            my $enote  = LJ::ehtml($note);
             my $banid  = $existing_bans->{ $value }->{banid};
             $note =~ s/^'(.*)'$/\1/;
 
@@ -133,7 +134,7 @@ QUERYFORM
 </select>
 </td>
 <td>
-<textarea name='note' rows='3' cols='60'>$note</textarea> 
+<textarea name='note' rows='3' cols='60'>$enote</textarea>
 </td>
 <td><input type='submit' name='modify' value='modify'>
 </td>

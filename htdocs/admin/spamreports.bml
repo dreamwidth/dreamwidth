@@ -231,11 +231,11 @@ _c?>
             if ( $reason && $reason->{talk_ip_test} ) {
                 $extra = "<strong>Already talk_ip_test banned</strong>";
                 if ( $remote->has_priv( 'sysban' ) ) {
-                    $extra .= "<br/><textarea name='sysban_note' rows='3' cols='60' readonly='1'>" . ( $reason->{talk_ip_test}->{note} || "(no note)" ) . "</textarea>";
+                    $extra .= "<br/><textarea name='sysban_note' rows='3' cols='60' readonly='1'>" . LJ::ehtml( $reason->{talk_ip_test}->{note} || "(no note)" ) . "</textarea>";
                 }
             } else {
                 $extra = LJ::html_check({name => "sysban_ip", value => $what, label => "Also Sysban IP?"});
-                $extra .= "<br/><textarea name='sysban_note' rows='3' cols='60'> ~" . $remote->username . " @ " . LJ::mysql_time() . "</textarea>";
+                $extra .= "<br/><textarea name='sysban_note' rows='3' cols='60'> ~" . LJ::ehtml( $remote->username . " @ " . LJ::mysql_time() ) . "</textarea>";
             }
         }
 
