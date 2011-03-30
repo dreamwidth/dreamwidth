@@ -86,7 +86,7 @@ sub render_body {
     $page = $last_page if $page > $last_page;
     my $starting_index = ($page - 1) * $page_limit;
     ${$opts{itemcount}} = scalar( @$nitems ) - $starting_index;
-    my $duplicate_menus = ${$opts{itemcount}} >= 10;
+    my $duplicate_menus = ${$opts{itemcount}} >= 3;
 
     my $prev_disabled = ($page <= 1) ? 'disabled' : '';
     my $next_disabled = ($page >= $last_page) ? 'disabled' : '';

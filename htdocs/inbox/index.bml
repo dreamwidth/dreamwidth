@@ -186,7 +186,7 @@ body<=
                      itemid    => $itemid,
               );
 
-    # Repeat refresh/manage links if more than 10 items on page (15 max per page)
+    # Repeat refresh/manage links if we have more than a few items (15 max per page)
     $body .= qq{
             <div class="inbox_newitems pkg">
                 <span class="esnlinks" style="float: left"><a href="$LJ::SITEROOT/inbox/?page=$page$viewarg$itemidarg"><?_ml inbox.refresh _ml?></a> |
