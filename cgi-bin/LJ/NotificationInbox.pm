@@ -178,8 +178,9 @@ sub subset_items {
 
 sub singleentry_items {
     my ( $self, $itemid ) = @_;
+    my %related_events = map { $_ => 1 } LJ::Event::JournalNewComment->related_events;
     return grep {
-        ( $_->event->class eq "LJ::Event::JournalNewComment" || $_->event->class eq "LJ::Event::JournalNewComment::TopLevel" )
+        $related_events{$_->event->etypeid}
         && $_->event->comment
         && $_->event->comment->entry    # may have been deleted, which breaks all filter to entry comments
         && $_->event->comment->entry->ditemid == $itemid
