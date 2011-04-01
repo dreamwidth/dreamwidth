@@ -21,11 +21,11 @@ sub args_list {
         "Logging in",
         "Screen/freeze/delete",
         "Control strip injection for non-supporting journals",
+        "Quick reply",
     );
 
     my @notimplemented = (
         "Contextual hover",
-        "Quick reply",
         "Cut expand and collapse",
         "Media embed placeholder expansion",
         "Same-page poll submission",

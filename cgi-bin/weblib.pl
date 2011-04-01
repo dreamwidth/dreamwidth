@@ -890,6 +890,7 @@ sub create_qr_div {
     $qrhtml .= LJ::ljuser($remote->{'user'});
     $qrhtml .= "</td><td align='center'>";
 
+    my $beta_jquery = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
     # Userpic selector
     {
         my %res;
@@ -918,7 +919,8 @@ sub create_qr_div {
                 <input type="button" id="lj_userpicselect" value="Browse" />
                 } if $remote->can_use_userpic_select;
 
-            $qrhtml .= "<a href='javascript:void(0)' onclick='randomicon();' id='randomicon'>" . BML::ml('/talkpost.bml.userpic.random') . "</a>";
+            my $onclick = $beta_jquery ? "" : "onclick='randomicon();'";
+            $qrhtml .= "<a href='javascript:void(0)' $onclick id='randomicon'>" . BML::ml('/talkpost.bml.userpic.random') . "</a>";
 
             $qrhtml .= LJ::help_icon_html("userpics", " ");
         }
@@ -944,19 +946,19 @@ sub create_qr_div {
 
     $qrhtml .= LJ::html_submit('submitpost', BML::ml('/talkread.bml.button.post'),
                                { 'id' => 'submitpost',
-                                 'raw' => 'onclick="if (checkLength()) {submitform();}"'
+                                 'raw' => $beta_jquery ? "" : 'onclick="if (checkLength()) {submitform();}"'
                                  });
 
     $qrhtml .="&nbsp;" . LJ::html_submit('submitpview', BML::ml('talk.btn.preview'),
                                { 'id' => 'submitpview',
-                                 'raw' => 'onclick="preview()"'
+                                 'raw' => $beta_jquery ? "" : 'onclick="preview()"'
                                  });
 
     $qrhtml .= LJ::html_hidden('submitpreview', '0');
 
     $qrhtml .= "&nbsp;" . LJ::html_submit('submitmoreopts', BML::ml('/talkread.bml.button.more'),
                                           { 'id' => 'submitmoreopts',
-                                            'raw' => 'onclick="if (moreopts()) {submitform();}"'
+                                            'raw' => $beta_jquery ? "" : 'onclick="if (moreopts()) {submitform();}"'
                                             });
     if ($LJ::SPELLER) {
         $qrhtml .= "&nbsp;<input type='checkbox' name='do_spellcheck' value='1' id='do_spellcheck' /> <label for='do_spellcheck'>";
@@ -976,16 +978,15 @@ sub create_qr_div {
 
     $qrhtml .= "</td></tr></table>";
     $qrhtml .= "</form></div>";
+    $qrhtml = LJ::ejs( $qrhtml );
 
     my $ret;
     $ret = "<script language='JavaScript'>\n";
 
-    $qrhtml = LJ::ejs($qrhtml);
 
     # here we create some separate fields for saving the quickreply entry
     # because the browser will not save to a dynamically-created form.
-
-    my $qrsaveform .= LJ::ejs(LJ::html_hidden(
+    my $qrsaveform = LJ::ejs(LJ::html_hidden(
                                       {'name' => 'saved_subject', 'id' => 'saved_subject'},
                                       {'name' => 'saved_body', 'id' => 'saved_body'},
                                       {'name' => 'saved_spell', 'id' => 'saved_spell'},
@@ -994,7 +995,14 @@ sub create_qr_div {
                                       {'name' => 'saved_ptid', 'id' => 'saved_ptid'},
                                       ));
 
-    $ret .= qq{
+    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+        # FIXME: figure out how to fix the saving of the qr entry stuff
+        $ret .= qq{jQuery(function(jQ){
+                jQ("body").append(jQ("<div id='qrdiv'></div>").html("$qrhtml").hide());
+            });
+        };
+    } else {
+        $ret .= qq{
                var de;
                if (document.createElement && document.body.insertBefore && !(xMac && xIE4Up)) {
                    document.write("$qrsaveform");
@@ -1010,6 +1018,7 @@ sub create_qr_div {
                    }
                }
            };
+    }
 
     # quick quote button
     $ret .= LJ::Talk::js_quote_button( 'body' );

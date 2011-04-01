@@ -3368,7 +3368,7 @@ sub _print_quickreply_link
     my $linktext = LJ::ehtml($opts->{'linktext'}) || "";
 
     my $target = $opts->{target} || '';
-    return unless $target =~ /^\w+$/; # if no target specified bail the fuck out
+    return unless $target =~ /^\w+$/; # if no target specified bail out
 
     my $opt_class = $opts->{class}|| '';
     undef $opt_class unless $opt_class =~ /^[\w\s-]+$/;
@@ -3412,7 +3412,7 @@ sub _print_quickreply_link
         $basesubject =~ s/^(Re:\s*)*//i;
         $basesubject = "Re: $basesubject" if $basesubject;
         $basesubject = LJ::ejs($basesubject);
-        $onclick = "return quickreply(\"$target\", $pid, \"$basesubject\")";
+        $onclick = "return function(that) {return quickreply(\"$target\", $pid, \"$basesubject\",that)}(this)";
         $onclick = "onclick='$onclick'";
     }
 

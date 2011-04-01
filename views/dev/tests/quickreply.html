@@ -1,0 +1,74 @@
+<input type="hidden" name="saved_subject" id="saved_subject">
+<input type="hidden" name="saved_body" id="saved_body">
+<input type="hidden" name="saved_spell" id="saved_spell">
+<input type="hidden" name="saved_upic" id="saved_upic">
+<input type="hidden" name="saved_dtid" id="saved_dtid">
+<input type="hidden" name="saved_ptid" id="saved_ptid">
+
+<div id="qrdiv"><div id="qrformdiv">
+<form id="qrform" name="qrform" method="POST" action="/talkpost_do">
+    <input type="hidden" name="lj_form_auth" value="authauthauth">
+    <input type="hidden" name="replyto" value="0" id="replyto">
+    <input type="hidden" name="parenttalkid" value="0" id="parenttalkid">
+    <input type="hidden" name="journal" value="test" id="journal">
+    <input type="hidden" name="itemid" value="123" id="itemid">
+    <input type="hidden" name="usertype" value="cookieuser" id="usertype">
+    <input type="hidden" name="qr" value="1" id="qr">
+    <input type="hidden" name="cookieuser" value="test" id="cookieuser">
+    <input type="hidden" name="dtid" value="" id="dtid">
+    <input type="hidden" name="basepath" value="http://test.dreamwidth.org/123.html?" id="basepath">
+    <input type="hidden" name="viewing_thread" value="" id="viewing_thread">
+    <input type="hidden" name="chrp1" value="chrpchrpchrp">
+    <table>
+        <tbody>
+            <tr valign="center">
+                <td align="right"><b>From:</b></td>
+                <td align="left"><span class="ljuser" lj:user="test" style="white-space: nowrap;"><a href="http://test.dream.fu/profile"><img src="http://www.dream.fu/img/silk/identity/user.png" alt="[personal profile] " width="17" height="17" style="vertical-align: text-bottom; border: 0; padding-right: 1px;"></a><a href="http://test.dream.fu/"><b>test</b></a></span></td>
+                <td align="center"><span id="quotebuttonspan"></span></td>
+            </tr>
+            <tr>
+                <td align="right"><b>Subject:</b></td>
+                <td colspan="2" align="left"><input class="textbox" type="text" size="50" maxlength="100" name="subject" id="subject" value=""></td>
+            </tr>
+            <tr valign="top">
+                <td align="right"><b>Message:</b></td>
+                <td colspan="3" style="width: 90%">
+                    <textarea class="textbox" rows="10" cols="50" wrap="soft" name="body" id="body" style="width: 99%"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="3" align="left">
+                    <input type="submit" name="submitpost" value="Post Comment" id="submitpost" onclick="/*if (checkLength()) {submitform();}*/"> <!-- TODO: -->
+                    &nbsp;
+                    <input type="submit" name="submitpview" value="Preview" id="submitpview" onclick="/*preview()*/"> <!-- TODO -->
+                    <input type="hidden" name="submitpreview" value="0">
+                    &nbsp;
+                    <input type="submit" name="submitmoreopts" value="More Options..." id="submitmoreopts" onclick="/*if (moreopts()) {submitform();}*/"> <!-- TODO -->
+                    <br><span class="de"><b>Notice!</b> This user has turned on the option that logs your IP address when posting.</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+</div></div>
+
+
+<a id="replyto_entry_top" onclick="return function(that) {return quickreply(&quot;topcomment&quot;, 0, &quot;&quot;,that)}(this)" href="http://test.dreamwidth.org/123.html?mode=reply">Reply</a>
+<div id="ljqrttopcomment" style="display: none"></div>
+
+
+<a id="existing_comment" onclick="return function(that) {return quickreply(&quot;1&quot;, 1, &quot;&quot;, that)}(this)" href="http://test.dreamwidth.org/123.html?replyto=1">Reply</a>
+<div id="ljqrt1" style="display: none"></div>
+
+<a id="child_of_existing_comment" onclick="return function(that) {return quickreply(&quot;2&quot;, 2, &quot;&quot;,that)}(this)" href="http://test.dreamwidth.org/123.html?replyto=2">Reply</a>
+<div id="ljqrt2" style="display: none"></div>
+
+<a id="hassubject" onclick="return function(that) {return quickreply(&quot;3&quot;, 3, &quot;Re: has subject&quot;,that)}(this)" href="http://test.dreamwidth.org/123.html?replyto=3">Reply</a>
+<div id="ljqrt3" style="display: none"></div>
+
+<a id="hasclass" onclick="return function(that) {return quickreply(&quot;4&quot;, 4, &quot;&quot;,that)}(this)" href="http://test.dreamwidth.org/123.html?replyto=4">Reply</a>
+<div id="ljqrt4" class='container_class' style="display: none"></div>
+
+<a id="replyto_entry_bottom" onclick="return function(that) {return quickreply(&quot;bottomcomment&quot;, 0, &quot;&quot;,that)}(this)" href="http://test.dreamwidth.org/123.html?mode=reply">Reply</a>
+<div id="ljqrtbottomcomment" style="display: none"></div>

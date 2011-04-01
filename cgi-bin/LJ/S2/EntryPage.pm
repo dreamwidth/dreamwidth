@@ -86,6 +86,11 @@ sub EntryPage
                     js/thread_expander.js
                     ));
 
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.widget.min.js
+            js/jquery.quickreply.js
+        ) );
+
     $p->{'entry'} = $s2entry;
     LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
