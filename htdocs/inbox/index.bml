@@ -182,7 +182,6 @@ body<=
                      view      => $view,
                      mode      => $GET{mode},
                      items     => \@all_items,
-                     itemcount => \$itemcount,
                      itemid    => $itemid,
               );
 
