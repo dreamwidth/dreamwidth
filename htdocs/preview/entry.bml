@@ -118,6 +118,7 @@ _c?>
         LJ::need_res( qw( stc/talkpage.css ) );
 
         $ret .= "<?page\n";
+        $ret .= "windowtitle=>" . BML::ml( ".title", { sitenameshort => $LJ::SITENAMESHORT } ) . "\n";
         $ret .= "body<=\n";
 
         $ret .= "<p>";
