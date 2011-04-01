@@ -41,7 +41,7 @@ sub edges_handler {
     my $error_out = sub {
        my ( $code, $message ) = @_;
        $r->status( $code );
-       $format->[1]->( $r, { error => $message } );
+       $format->( $r, { error => $message } );
 
        return $r->OK;
     };
@@ -59,9 +59,10 @@ sub edges_handler {
     # deal with renamed accounts
     my $renamed_u = $u->get_renamed_user;
     unless ( $renamed_u && $u->equals( $renamed_u ) ) {
-        $r->header_out("Location", $renamed_u->journalbase . "/data/edges");
-        $r->print( objToJson( { error => 'moved', moved_to => $renamed_u->journalbase . "/data/edges" } ) );
-        return $r->REDIRECT;
+        $r->header_out("Location", $renamed_u->journal_base . "/data/edges");
+        $r->status( $r->REDIRECT );
+        $r->print( objToJson( { error => 'moved', moved_to => $renamed_u->journal_base . "/data/edges" } ) );
+        return $r->OK;
     }
 
     # Load appropriate usernames for different accounts
