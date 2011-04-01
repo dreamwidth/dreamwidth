@@ -1898,9 +1898,12 @@ sub talkform {
     if ( $remote ) {
         # only show quick quote button on initial composition
         my $hidebutton = ( $opts->{errors} && @{ $opts->{errors} } );
-        $ret .= "<script type='text/javascript' language='JavaScript'>\n<!--\n";
-        $ret .= LJ::Talk::js_quote_button( 'commenttext', $hidebutton );
-        $ret .= "-->\n</script>\n";
+        unless ( $hidebutton ) {
+            $ret .= "<span id='quotebuttonspan'></span>";
+            $ret .= "<script type='text/javascript' language='JavaScript'>\n<!--\n";
+            $ret .= LJ::Talk::js_quote_button( 'commenttext' );
+            $ret .= "-->\n</script>\n";
+        }
     }
 
     $ret .= "</div>";
@@ -2067,21 +2070,13 @@ sub js_iconbrowser_button {
 # arg1: element corresponds to textarea of caller (body or commenttext)
 # arg2: boolean to hide the button HTML (optional)
 sub js_quote_button {
-    my ( $element, $hidebutton ) = @_;
+    my ( $element ) = @_;
     return '' unless $element;
-    my $button = LJ::ejs( '<input type="button" value="Quote"'
-                        . 'onclick="quote();" />' );
-    $button = '' if $hidebutton;
-    my $buttontext = "document.write('&nbsp;&nbsp;$button')";
-    if ( $element eq 'body' ) {
-        my $span = "document.getElementById('quotebuttonspan').innerHTML";
-        $buttontext = "$span = $span + '$button'";
-    }
-    my $alerttext = LJ::Lang::ml( 'talk.error.quickquote' );
-    return <<"QQ"
 
+    my $alerttext = LJ::Lang::ml( 'talk.error.quickquote' );
+    my $quote_func = <<"QUOTE";
     var helped = 0; var pasted = 0;
-    function quote () {
+    function quote(e) {
         var text = '';
 
         if (document.getSelection) {
@@ -2092,14 +2087,13 @@ sub js_quote_button {
             text = window.getSelection();
         }
 
-        text = text.replace(/^\\s+/, '').replace(/\\s+\$/, '');
+        text = text.toString().replace(/^\\s+/, '').replace(/\\s+\$/, '');
 
         if (text == '') {
             if (helped != 1 && pasted != 1) {
                 helped = 1;
                 alert("$alerttext");
             }
-            return false;
         } else {
             pasted = 1;
         }
@@ -2110,8 +2104,32 @@ sub js_quote_button {
         textarea.value = textarea.value + "<" + element + ">" + text + "</" + element + ">";
         textarea.caretPos = textarea.value;
         textarea.focus();
-        return false;
     }
+QUOTE
+
+    if ( LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" ) ) {
+        return <<"QQ";
+jQuery(function(jQ){
+    $quote_func
+
+    jQ("<input type='button' value='Quote' />")
+        .appendTo("#quotebuttonspan")
+        .click(quote);
+    });
+QQ
+    }
+    # else
+
+    my $button = LJ::ejs( '<input type="button" value="Quote"'
+                        . 'onclick="quote();" />' );
+
+    my $buttontext = "document.write('&nbsp;&nbsp;$button')";
+    if ( $element eq 'body' ) {
+        my $span = "document.getElementById('quotebuttonspan').innerHTML";
+        $buttontext = "$span = $span + '$button'";
+    }
+    return <<"QQ";
+    $quote_func
     if (document.getElementById && (document.getSelection || document.selection || window.getSelection)) {
         $buttontext;
     }
