@@ -123,16 +123,7 @@ if ($*color_entry_background) {
     $tagcolor = $*color_entry_background;
 }
 else {
-    $tagcolor = $*color_page_background; 
-}
-
-#ditto #comment body background
-var string commentcolor = "";
-if ($*color_entry_background) {
-    $commentcolor = $*color_entry_background;
-}
-else {
-    $commentcolor = $*color_page_background; 
+    $tagcolor = $*color_page_background;
 }
 
     var string userpic_css = "";
@@ -341,7 +332,26 @@ ul.entry-interaction-links { text-align: right;
    padding-top: 1px;
     margin-bottom: 1em; }
 
-.comment { background-color: $commentcolor; }
+.comment {
+    background-color: $*color_entry_background;
+    color: $*color_entry_text;
+    }
+
+.comment a {
+    color: $*color_entry_link;
+    }
+
+.comment a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+.comment a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+.comment a:active {
+    color: $*color_entry_link_active;
+    }
 
 .partial .comment {
     line-height: 1.75em;
@@ -387,11 +397,13 @@ ul.entry-interaction-links { text-align: right;
     font-style: italic; }
 
 .comment .multiform-checkbox { display: block;
-    text-align: right;
+    background-color: $*color_page_background;
+    color: $*color_page_text;
     font-size: small;
     font-style: italic;
-    background-color: $*color_page_background;
-    margin: -1px;}
+    margin: -1px;
+    text-align: right;
+    }
 
 .comment .footer { margin: 0 0 .5em 0;
     font-size: small;
