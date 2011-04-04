@@ -195,7 +195,17 @@ body<=
 
     # See if we should inject QuickReply javascript
     LJ::Hooks::run_hooks("need_res_for_journals", $u);
-    LJ::need_res( qw( js/thread_expander.js stc/talkpage.css ) );
+    LJ::need_res( qw(
+                    js/thread_expander.js
+                    stc/talkpage.css
+                ) );
+    LJ::need_res( { group => "jquery" }, qw(
+                    js/jquery.threadexpander.js
+                    stc/talkpage.css
+                ) );
+
+    LJ::set_active_resource_group( "jquery" )
+        if LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
 
     if ( ( $remote && ! $remote->prop( "opt_no_quickreply" ) ) && ! $nocomments ) {
        # quickreply js libs
@@ -203,6 +213,12 @@ body<=
                          js/x_core.js
                          js/quickreply.js
                         ) );
+
+        LJ::need_res( { group => "jquery" }, qw(
+                        js/jquery/jquery.ui.widget.min.js
+                        js/jquery.quickreply.js
+                    ) );
+
         LJ::need_res( LJ::Talk::init_iconbrowser_js( 'stc/lj_base.css' ) )
             if $remote->can_use_userpic_select;
     }
@@ -702,7 +718,16 @@ body<=
             my $do_commentmanage_js = LJ::is_enabled('commentmanage', $remote);
 
             if ($do_commentmanage_js) {
-               LJ::need_res('js/commentmanage.js');
+                LJ::need_res('js/commentmanage.js');
+                LJ::need_res( { group => "jquery" }, qw(
+                            js/jquery/jquery.ui.widget.min.js
+                            js/jquery.ajaxtip.js
+                            js/jquery.commentmanage.js
+                            js/tooltip.min.js
+                            js/tooltip.dynamic.min.js
+                            stc/ajaxtip.css
+                            stc/popup-form.css
+                ) );
                 my $js_screen_color = "\"" . LJ::ejs(BML::get_template_def("screenedbarcolor") || BML::get_template_def("emcolor")) . "\"";
                 my $js_normal_color = "\"" . LJ::ejs(BML::get_template_def("emcolor")) . "\"";
                 $$head .= "<script>var LJ_cmtinfo = " . LJ::js_dumper(\%LJ_cmtinfo) . ";\n" .

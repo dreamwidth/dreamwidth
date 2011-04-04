@@ -90,7 +90,6 @@ sub EntryPage
             js/jquery/jquery.ui.widget.min.js
             js/jquery.quickreply.js
             js/jquery.threadexpander.js
-            js/jquery/jquery.busy.min.js
         ) );
 
     $p->{'entry'} = $s2entry;
