@@ -438,6 +438,12 @@ body<=
                 if $view_userlog;
         }
 
+        if ( $u->in_class( LJ::BetaFeatures->cap_name )
+            && LJ::Support::has_any_support_priv( $remote ) ) {
+            $ret .= "<br />$ML{'.betatesting'}: ";
+            $ret .= join ", ", $u->prop( LJ::BetaFeatures->prop_name );
+        }
+
         $ret .= "</td></tr>\n";
     }
 
