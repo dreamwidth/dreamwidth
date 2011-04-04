@@ -360,6 +360,40 @@ function Page::print_theme_stylesheet() {
     """;
 }
 
+#NEWLAYER: drifting/springmornings
+layerinfo type = "theme";
+layerinfo name = "Spring Mornings";
+layerinfo redist_uniq = "drifting/springmornings";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fffdcf";
+set color_page_border = "#888";
+set color_page_link = "#2f9f27";
+set color_page_text = "#616161";
+set color_page_title = "#2f9f27";
+set color_header_background = "#fffdcf";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FFFEEC";
+set color_entry_border = "#888";
+set color_entry_title = "#4f4f4f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#888";
+set color_module_title = "#4f4f4f";
+
 
 #NEWLAYER: drifting/sweetpossibilities
 layerinfo type = "theme";
@@ -448,3 +482,38 @@ set font_journal_title = "Verdana";
 set font_journal_title_size = "2.5";
 set font_module_heading = "Trebuchet MS, Arial";
 set font_title_fallback = "sans-serif";
+
+
+#NEWLAYER: drifting/wintermornings
+layerinfo type = "theme";
+layerinfo name = "Winter Mornings";
+layerinfo redist_uniq = "drifting/wintermornings";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fafafa";
+set color_page_border = "#888";
+set color_page_link = "#246c9f";
+set color_page_text = "#616161";
+set color_page_title = "#246c9f";
+set color_header_background = "#fafafa";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f4f4f4";
+set color_entry_border = "#888";
+set color_entry_title = "#4f4f4f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#888";
+set color_module_title = "#4f4f4f";
