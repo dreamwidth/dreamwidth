@@ -398,6 +398,65 @@ set color_module_text = "#fff";
 set color_module_title = "#fff";
 
 
+#NEWLAYER: crossroads/driedflowers
+layerinfo type = "theme";
+layerinfo name = "Dried Flowers";
+layerinfo redist_uniq = "crossroads/driedflowers";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b4ba8e";
+set color_page_border = "#b4ba8e";
+set color_page_link = "#482d36";
+set color_page_link_active = "#90926a";
+set color_page_link_hover = "#fff";
+set color_page_link_visited = "#482d36";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#482d36";
+set color_footer_background = "#482d36";
+set color_footer_link = "#c9a599";
+set color_footer_link_active = "#b4ba8e";
+set color_footer_link_hover = "#b4ba8e";
+set color_footer_link_visited = "#c9a599";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#90926a";
+set color_entry_border = "#776267";
+set color_entry_interaction_links = "#482d36";
+set color_entry_link = "#482d36";
+set color_entry_link_active = "#c9a599";
+set color_entry_link_hover = "#c9a599";
+set color_entry_link_visited = "#482d36";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#776267";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#776267";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#776267";
+set color_module_border = "#776267";
+set color_module_link = "#b4ba8e";
+set color_module_link_active = "#c9a599";
+set color_module_link_hover = "#c9a599";
+set color_module_link_visited = "#b4ba8e";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#776267";
+
+
 #NEWLAYER: crossroads/greenlight
 layerinfo type = "theme";
 layerinfo name = "Green Light";
@@ -781,6 +840,65 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: crossroads/peacefuldreams
+layerinfo type = "theme";
+layerinfo name = "Peaceful Dreams";
+layerinfo redist_uniq = "crossroads/peacefuldreams";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ddd8bb";
+set color_page_border = "#ddd8bb";
+set color_page_link = "#996b58";
+set color_page_link_active = "#655a66";
+set color_page_link_hover = "#655a66";
+set color_page_link_visited = "#996b58";
+set color_page_text = "#3a2838";
+set color_page_title = "#3a2838";
+set color_header_background = "#996b58";
+set color_footer_background = "#996b58";
+set color_footer_link = "#ddd8bb";
+set color_footer_link_active = "#cbba88";
+set color_footer_link_hover = "#cbba88";
+set color_footer_link_visited = "#ddd8bb";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#cbba88";
+set color_entry_border = "#655a66";
+set color_entry_interaction_links = "#fff";
+set color_entry_link = "#fff";
+set color_entry_link_active = "#996b58";
+set color_entry_link_hover = "#996b58";
+set color_entry_link_visited = "#fff";
+set color_entry_text = "#3a2838";
+set color_entry_title = "#ddd8bb";
+set color_entry_title_background = "#3a2838";
+set color_comment_title = "#cbba88";
+set color_comment_title_background = "#3a2838";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#655a66";
+set color_module_border = "#655a66";
+set color_module_link = "#cbba88";
+set color_module_link_active = "#996b58";
+set color_module_link_hover = "#996b58";
+set color_module_link_visited = "#cbba88";
+set color_module_text = "#ddd8bb";
+set color_module_title = "#ddd8bb";
+set color_module_title_background = "#655a66";
+
+
 #NEWLAYER: crossroads/persimmon
 layerinfo type = "theme";
 layerinfo name = "Persimmon";
@@ -930,6 +1048,65 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: crossroads/quiethours
+layerinfo type = "theme";
+layerinfo name = "Quiet Hours";
+layerinfo redist_uniq = "crossroads/quiethours";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e4e6cf";
+set color_page_border = "#e4e6cf";
+set color_page_link = "#273c01";
+set color_page_link_active = "#47473F";
+set color_page_link_hover = "#47473F";
+set color_page_link_visited = "#273c01";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#c4a484";
+set color_footer_background = "#c4a484";
+set color_footer_link = "#273c01";
+set color_footer_link_active = "#47473F";
+set color_footer_link_hover = "#47473F";
+set color_footer_link_visited = "#273c01";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#b5ad8a";
+set color_entry_border = "#c4a484";
+set color_entry_interaction_links = "#273c01";
+set color_entry_link = "#273c01";
+set color_entry_link_active = "#47473F";
+set color_entry_link_hover = "#47473F";
+set color_entry_link_visited = "#273c01";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_title_background = "#d8dba4";
+set color_comment_title = "#000";
+set color_comment_title_background = "#d8dba4";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d8dba4";
+set color_module_border = "#d8dba4";
+set color_module_link = "#273c01";
+set color_module_link_active = "#47473F";
+set color_module_link_hover = "#47473F";
+set color_module_link_visited = "#273c01";
+set color_module_text = "#000";
+set color_module_title = "#000";
+set color_module_title_background = "#d8dba4";
+
+
 #NEWLAYER: crossroads/sherbert
 layerinfo type = "theme";
 layerinfo name = "Sherbert";
@@ -1058,3 +1235,121 @@ set color_module_link_active = "#000";
 set color_module_link_visited = "#EFF3F1";
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+
+
+#NEWLAYER: crossroads/ultraviolet
+layerinfo type = "theme";
+layerinfo name = "Ultraviolet";
+layerinfo redist_uniq = "crossroads/ultraviolet";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#2c1633";
+set color_page_border = "#2c1633";
+set color_page_link = "#9bb094";
+set color_page_link_active = "#85a694";
+set color_page_link_hover = "#85a694";
+set color_page_link_visited = "#9bb094";
+set color_page_text = "#c5dfd2";
+set color_page_title = "#c5dfd2";
+set color_header_background = "#572f51";
+set color_footer_background = "#572f51";
+set color_footer_link = "#9bb094";
+set color_footer_link_active = "#85a694";
+set color_footer_link_hover = "#85a694";
+set color_footer_link_visited = "#9bb094";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#201026";
+set color_entry_border = "#572f51";
+set color_entry_interaction_links = "#9bb094";
+set color_entry_link = "#9bb094";
+set color_entry_link_active = "#85a694";
+set color_entry_link_hover = "#85a694";
+set color_entry_link_visited = "#9bb094";
+set color_entry_text = "#c5dfd2";
+set color_entry_title = "#c5dfd2";
+set color_entry_title_background = "#3b102f";
+set color_comment_title = "#c5dfd2";
+set color_comment_title_background = "#3b102f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#3b102f";
+set color_module_border = "#3b102f";
+set color_module_link = "#9bb094";
+set color_module_link_active = "#85a694";
+set color_module_link_hover = "#85a694";
+set color_module_link_visited = "#9bb094";
+set color_module_text = "#c5dfd2";
+set color_module_title = "#c5dfd2";
+set color_module_title_background = "#3b102f";
+
+
+#NEWLAYER: crossroads/vintagechristmas
+layerinfo type = "theme";
+layerinfo name = "Vintage Christmas";
+layerinfo redist_uniq = "crossroads/vintagechristmas";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#91854d";
+set color_page_border = "#91854d";
+set color_page_link = "#61231d";
+set color_page_link_active = "#2b1717";
+set color_page_link_hover = "#2b1717";
+set color_page_link_visited = "#61231d";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#2b1717";
+set color_footer_background = "#2b1717";
+set color_footer_link = "#89a847";
+set color_footer_link_active = "#516624";
+set color_footer_link_hover = "#516624";
+set color_footer_link_visited = "#89a847";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#91854d";
+set color_entry_border = "#516624";
+set color_entry_interaction_links = "#61231d";
+set color_entry_link = "#61231d";
+set color_entry_link_active = "#2b1717";
+set color_entry_link_hover = "#2b1717";
+set color_entry_link_visited = "#61231d";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#516624";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#516624";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#61231d";
+set color_module_border = "#61231d";
+set color_module_link = "#89a847";
+set color_module_link_active = "#516624";
+set color_module_link_hover = "#516624";
+set color_module_link_visited = "#89a847";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#61231d";
