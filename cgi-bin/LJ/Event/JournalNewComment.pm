@@ -219,7 +219,7 @@ sub content {
         };
 
     $ret = "<div class='actions_top'>" . $self->as_html_actions . "</div>" . $ret
-        if LJ::has_too_many( $ret, linebreaks => 10, chars => 2000 );
+        if LJ::has_too_many( $comment_body, linebreaks => 10, chars => 2000 );
 
     $ret .= $self->as_html_actions;
 
