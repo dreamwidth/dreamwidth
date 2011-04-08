@@ -657,6 +657,11 @@ sub clean
 
                     if ( $attr eq "data" ) {
                         delete $hash->{$attr};
+
+                        # type specifies the content type for the data specified by "data"
+                        # without the data, this has no useful effect
+                        # but may cause the object tag not to use the fallback values in Firefox
+                        delete $hash->{"type"};
                         next;
                     }
 
