@@ -36,16 +36,20 @@ CutTagHandler = new Class(Object, {
       DOM.removeClassName($("div-" + this.identifier), "cuttag-open");
       $('img-' + this.identifier).alt=collapsed;
       $('img-' + this.identifier).title=collapsed;
+
+      // update the expandAll/collapseAll links
+      CutTagHandler.writeExpandAllControls();
     },
 
     // opens the cut tag inline
-    open: function() {
+    // openNested if we want to open nested cuttags, too
+    open: function( openNested ) {
       var opts = {
         "async": true,
         "method": "GET",
         "url": this.ajaxUrl,
-        "onData": this.replaceCutTag.bindEventListener(this),
-        "onError": this.handleError.bindEventListener(this)
+        "onData": openNested ? this.replaceCutTagAndOpen.bindEventListener( this ) : this.replaceCutTag.bindEventListener( this ),
+        "onError": this.handleError.bindEventListener( this )
       };
 
       // ajax call.
@@ -60,7 +64,17 @@ CutTagHandler = new Class(Object, {
     // callback for the getJSON call.  if the response is an error, calls
     // handlerObj.handleError(responseObject.error).  otherwise replaces the
     // cut tag with the contents of the cut.
-    replaceCutTag: function(resObj) {
+
+    // wrapper for openNested=true
+    replaceCutTagAndOpen: function( resObj ) {
+      this.doReplaceCutTag( resObj, true );
+    },
+    // wrapper for openNested=false
+    replaceCutTag: function( resObj ) {
+      this.doReplaceCutTag( resObj, false );
+    },
+    // the actual callback
+    doReplaceCutTag: function( resObj, openNested ) {
       if (resObj.error) {
         this.handleError(resObj.error);
       } else {
@@ -80,6 +94,13 @@ CutTagHandler = new Class(Object, {
         CutTagHandler.initLinks(replaceDiv);
         LiveJournal.initPlaceholders(replaceDiv);
         LiveJournal.initPolls(replaceDiv);
+
+        // update the expandAll/collapseAll links
+        CutTagHandler.writeExpandAllControls();
+
+        if ( openNested ) {
+          CutTagHandler.openAll( replaceDiv );
+        }
       }
     }
   });
@@ -124,7 +145,97 @@ CutTagHandler.initLinks = function(parentTag) {
 // called at page load to initialize all <span> tags with the 'cuttag' class.
 CutTagHandler.initAllLinks = function() {
   CutTagHandler.initLinks(document);
+  CutTagHandler.writeExpandAllControls();
 }
 
 // calls CutTagHandler.initAllLinks on page load.
 LiveJournal.register_hook("page_load", CutTagHandler.initAllLinks);
+
+// creates a CutTagHandler for the provided span.cuttag tag
+CutTagHandler.getCutTagHandler = function( spanCutTag ) {
+  var spanid = spanCutTag.id;
+  var journal = spanid.replace( /^span-cuttag_(.*)_[0-9]+_[0-9]+/, "$1" );
+  var ditemid = spanid.replace( /^.*_([0-9]+)_[0-9]+/, "$1" );
+  var cutid = spanid.replace( /^.*_([0-9]+)/, "$1" );
+  return new CutTagHandler( journal, ditemid, cutid );
+}
+
+// returns a CutTagHandler for each cuttag span in the parent tag/document
+CutTagHandler.getAllHandlers = function( parentTag ) {
+  var returnValue = [];
+
+  var domObjects = parentTag.getElementsByTagName( "span" );
+  var items = DOM.filterElementsByClassName( domObjects, "cuttag" ) || [];
+
+  for ( var i = 0; i < items.length; i++ ) {
+    returnValue[i] = CutTagHandler.getCutTagHandler( items[i] );
+  }
+  return returnValue;
+}
+
+// Opens all cuttags in the given tag (call with document for the entire page)
+CutTagHandler.openAll = function( parentTag ) {
+  var cutTags = CutTagHandler.getAllHandlers( parentTag );
+
+  for ( var i = 0; i < cutTags.length; i++ ) {
+    if ( ! cutTags[i].isOpen() ) {
+      cutTags[i].open( true );
+    }
+  }
+}
+
+// Closes all cuttags in the given tag (call with document for the entire page)
+CutTagHandler.closeAll = function( parentTag ) {
+  var cutTags = CutTagHandler.getAllHandlers( parentTag );
+
+  for ( var i = 0; i < cutTags.length; i++ ) {
+    if ( cutTags[i].isOpen() ) {
+      cutTags[i].close();
+    }
+  }
+}
+
+// writes the expand all/close all controls
+CutTagHandler.writeExpandAllControls = function() {
+  // writes to each span.cutTagControls
+  var domObjects = document.getElementsByTagName( "span" );
+  var items = DOM.filterElementsByClassName( domObjects, "cutTagControls" ) || [];
+  if ( items != null && items.length > 0 ) {
+    var cutTags = CutTagHandler.getAllHandlers( document );
+    if ( cutTags.length > 0 ) {
+      var writeOpen = false;
+      var writeClosed = false;
+      var ariaOpen = "";
+      var ariaClose = "";
+      // see which links we should write
+      for ( var i = 0; i < cutTags.length; i++ ) {
+        if ( cutTags[i].isOpen() ) {
+          writeClosed = true;
+          ariaClose += " div-cuttag_" + cutTags[i].data.journal + "_" + cutTags[i].data.ditemid + "_" + cutTags[i].data.cutid;
+        } else {
+          writeOpen = true;
+          ariaOpen += " div-cuttag_" + cutTags[i].data.journal + "_" + cutTags[i].data.ditemid + "_" + cutTags[i].data.cutid;
+        }
+      }
+
+      var htmlString = "";
+      if ( writeOpen ) {
+        htmlString = '<a href = "javascript:CutTagHandler.openAll(document)"><img style="border: 0;" src="' + Site.imgprefix + '/collapseAll.gif" aria-controls="' + ariaOpen + '" alt="' + expandAll + '" title="' + expandAll + '"/></a> ';
+      } else {
+        htmlString = '<img style="border: 0; opacity: 0.4; filter: alpha(opacity=40); zoom: 1;" src="' + Site.imgprefix + '/collapseAll.gif" alt="' + expandAll + '" title="' + expandAll + '"/> ';
+      }
+      if ( writeClosed ) {
+        htmlString = htmlString + '<a href = "javascript:CutTagHandler.closeAll(document)"><img style="border: 0;" src="' + Site.imgprefix + '/expandAll.gif" aria-controls="' + ariaClose + '" alt="' + collapseAll + '" title="' + collapseAll + '"/></a>';
+      } else {
+        htmlString = htmlString + '<img style="border: 0; opacity: 0.4; filter: alpha(opacity=40); zoom: 1;" src="' + Site.imgprefix + '/expandAll.gif" alt="' + collapseAll + '" title="' + collapseAll + '"/>';
+      }
+      for ( itemCount = 0; itemCount < items.length; itemCount++ ) {
+        var controlsTag = items[itemCount];
+        if ( controlsTag != null ) {
+          controlsTag.innerHTML=htmlString;
+        }
+      }
+    }
+  }
+}
+

@@ -1607,6 +1607,20 @@ set module_search_show = true;
 set module_search_order = 15;
 set module_search_section = "one";
 
+property string[] module_cuttagcontrols_group {
+    des = "Cut Tag Controls";
+    grouptype = "module";
+}
+set module_cuttagcontrols_group = ["module_cuttagcontrols_show", "module_cuttagcontrols_order", "module_cuttagcontrols_section"];
+property bool module_cuttagcontrols_show    { grouped = 1; }
+property int  module_cuttagcontrols_order   { grouped = 1; }
+property string module_cuttagcontrols_section { grouped = 1; }
+
+set module_cuttagcontrols_show = true;
+set module_cuttagcontrols_order = 16;
+set module_cuttagcontrols_section = "one";
+
+
 ##===============================
 ## Journal style - fonts
 ##===============================
@@ -2151,6 +2165,13 @@ set text_tags = "Tags:";
 ## Text - module headings
 ##===============================
 
+property string text_module_cuttagcontrols {
+    des = "Text used for the heading for the Cut Tag Controls section";
+    maxlength = 50;
+    size = 20;
+    example = "Expand Cut Tags";
+}
+
 property string text_module_links {
     des = "Text used  for the heading of the links list";
     maxlength = 50;
@@ -2221,6 +2242,7 @@ property string text_module_credit {
     example = "Style Credit";
 }
 
+set text_module_cuttagcontrols = "Expand Cut Tags";
 set text_module_links = "Links";
 set text_module_pagesummary = "Page Summary";
 set text_module_syndicate = "Syndicate";
@@ -2600,6 +2622,11 @@ property string text_calendar_num_entries {
     example = "1 entry // # entries";
 }
 
+property string text_cuttagcontrols_nocuttags {
+    des = "Text to show when there are no cuts on the page";
+    example = "No cut tags";
+}
+
 set text_linklist_manage = "Manage Links";
 set text_default_separator = " | ";
 set text_view_month = "View Subjects";
@@ -2613,6 +2640,7 @@ set text_posting_in = " posting in ";
 set text_nosubject = "(no subject)";
 set text_nosubject_screenreader = "no subject";
 set text_calendar_num_entries = "1 entry // # entries";
+set text_cuttagcontrols_nocuttags = "No cut tags";
 
 property bool all_entrysubjects {
     des = "For all entries, display the replacement text when no subject is specified";
@@ -2944,6 +2972,7 @@ function modules_init()
     if ( $*module_customtext_show ) { $*module_sections{$*module_customtext_section}[$*module_customtext_order]=["customtext"]; }
     if ( $*module_credit_show ) { $*module_sections{$*module_credit_section}[$*module_credit_order]=["credit"]; }
     if ( $*module_search_show ) { $*module_sections{$*module_search_section}[$*module_search_order]=["search"]; }
+    if ( $*module_cuttagcontrols_show ) { $*module_sections{$*module_cuttagcontrols_section}[$*module_cuttagcontrols_order]=["cuttagcontrols"]; }
 
     #if ( $*module_%%mod%%_show ) { $*module_sections{$*module_%%mod%%_section }[$*module_%%mod%%_order]=["%%mod%%"]; }
 }
@@ -4341,6 +4370,17 @@ function print_module_credit() {
     }
 }
 
+function print_module_cuttagcontrols() {
+    var Page p = get_page();
+
+    open_module("cuttagcontrols", $*text_module_cuttagcontrols, "");
+
+    print safe """<span class=\"cutTagControls\"><span style=\"font-size: smaller;\">$*text_cuttagcontrols_nocuttags</span></span>""";
+
+    close_module();
+
+}
+
 function handle_module_group_array(string[][] list) {
     foreach var string[] item ($list) {
         var string module = $item[0];
@@ -4387,6 +4427,9 @@ function handle_module_group_array(string[][] list) {
         }
         elseif ($module == "search") {
             print_module_search();
+        }
+        elseif ($module == "cuttagcontrols") {
+            print_module_cuttagcontrols();
         }
     }
 }

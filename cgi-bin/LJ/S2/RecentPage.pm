@@ -92,10 +92,14 @@ sub RecentPage
     LJ::need_res( 'js/cuttag-ajax.js' );
     my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
     my $expanded = BML::ml( 'widget.cuttag.expanded' );
+    my $collapseAll = BML::ml( 'widget.cuttag.collapseAll' );
+    my $expandAll = BML::ml( 'widget.cuttag.expandAll' );
     $p->{'head_content'} .= qq[
   <script type='text/javascript'>
   expanded = '$expanded';
   collapsed = '$collapsed';
+  collapseAll = '$collapseAll';
+  expandAll = '$expandAll';
   </script>
     ];
 

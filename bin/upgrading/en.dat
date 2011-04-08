@@ -4489,7 +4489,11 @@ widget.customizetheme.nav.style=Style
 
 widget.customizetheme.title=Customize Your Theme
 
+widget.cuttag.expandAll=Expand All Cut Tags
+
 widget.cuttag.expanded=Collapse
+
+widget.cuttag.collapseAll=Collapse All Cut Tags
 
 widget.cuttag.collapsed=Expand
 

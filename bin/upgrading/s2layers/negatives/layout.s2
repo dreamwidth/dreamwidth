@@ -146,6 +146,7 @@ propgroup modules {
     property use module_poweredby_group;
     property use module_credit_group;
     property use module_search_group;
+    property use module_cuttagcontrols_group;
 }
 
 
