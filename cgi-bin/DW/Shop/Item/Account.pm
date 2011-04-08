@@ -108,6 +108,7 @@ sub _apply_userid {
     my $accounttype_string = $self->permanent ?
         LJ::Lang::ml( 'shop.email.accounttype.permanent', { type => $self->class_name } ) :
         LJ::Lang::ml( 'shop.email.accounttype', { type => $self->class_name, nummonths => $self->months } );
+    $subj = LJ::Lang::ml( "shop.email.acct.subject", { sitename => $LJ::SITENAME } );
 
     if ( $u->is_community ) {
         my $maintus = LJ::load_userids( $u->maintainer_userids );
@@ -116,17 +117,23 @@ sub _apply_userid {
             $emailtype = 'anon' if $self->anonymous;
             $emailtype = 'explicit' if $self->from_name;
 
-            $subj = LJ::Lang::ml( "shop.email.comm.$emailtype.subject", { sitename => $LJ::SITENAME } );
-            $body = LJ::Lang::ml( "shop.email.comm.$emailtype.body",
+            $body  = LJ::Lang::ml( "shop.email.acct.body.start", { touser => $maintu->display_name } );
+            $body .= "\n";
+            $body .= LJ::Lang::ml( "shop.email.comm.$emailtype",
                 {
-                    touser      => $maintu->display_name,
                     fromuser    => $fu ? $fu->display_name : '',
                     commname    => $u->display_name,
-                    accounttype => $accounttype_string,
                     sitename    => $LJ::SITENAME,
                     fromname    => $self->from_name,
                 }
             );
+
+            $body .= LJ::Lang::ml( "shop.email.acct.body.type", { accounttype => $accounttype_string } );
+            $body .= LJ::Lang::ml( "shop.email.acct.body.note", { reason => $self->reason } )
+                if $self->reason;
+
+            $body .= LJ::Lang::ml( "shop.email.comm.close" );
+            $body .= LJ::Lang::ml( "shop.email.acct.body.end", { sitename => $LJ::SITENAME } );
 
             # send the email to the maintainer
             LJ::send_mail( {
@@ -147,16 +154,22 @@ sub _apply_userid {
             $emailtype = 'explicit' if $self->from_name;
         }
 
-        $subj = LJ::Lang::ml( "shop.email.user.$emailtype.subject", { sitename => $LJ::SITENAME } );
-        $body = LJ::Lang::ml( "shop.email.user.$emailtype.body",
+        $body  = LJ::Lang::ml( "shop.email.acct.body.start", { touser => $u->display_name } );
+        $body .= "\n";
+        $body .= LJ::Lang::ml( "shop.email.user.$emailtype",
             {
-                touser      => $u->display_name,
                 fromuser    => $fu ? $fu->display_name : '',
-                accounttype => $accounttype_string,
                 sitename    => $LJ::SITENAME,
                 fromname    => $self->from_name,
             }
         );
+
+        $body .= LJ::Lang::ml( "shop.email.acct.body.type", { accounttype => $accounttype_string } );
+        $body .= LJ::Lang::ml( "shop.email.acct.body.note", { reason => $self->reason } )
+            if $self->reason;
+
+        $body .= LJ::Lang::ml( "shop.email.user.close" );
+        $body .= LJ::Lang::ml( "shop.email.acct.body.end", { sitename => $LJ::SITENAME } );
 
         # send the email to the user
         LJ::send_mail( {
@@ -205,16 +218,24 @@ sub _apply_email {
 
     my $emailtype = $self->anonymous ? 'anon' : 'other';
 
-    $subj = LJ::Lang::ml( "shop.email.email.$emailtype.subject", { sitename => $LJ::SITENAME } );
-    $body = LJ::Lang::ml( "shop.email.email.$emailtype.body",
+    $subj = LJ::Lang::ml( "shop.email.acct.subject", { sitename => $LJ::SITENAME } );
+
+    $body  = LJ::Lang::ml( "shop.email.acct.body.start", { touser => $self->t_email } );
+    $body .= "\n";
+    $body .= LJ::Lang::ml( "shop.email.email.$emailtype",
         {
-            email       => $self->t_email,
             fromuser    => $fu ? $fu->display_name : '',
-            accounttype => $accounttype_string,
-            createurl   => "$LJ::SITEROOT/create?code=$code",
             sitename    => $LJ::SITENAME,
         }
     );
+
+    $body .= LJ::Lang::ml( "shop.email.acct.body.type", { accounttype => $accounttype_string } );
+    $body .= LJ::Lang::ml( "shop.email.acct.body.create", { createurl => "$LJ::SITEROOT/create?code=$code" } );
+    $body .= LJ::Lang::ml( "shop.email.acct.body.note", { reason => $self->reason } )
+        if $self->reason;
+
+    $body .= LJ::Lang::ml( "shop.email.email.close" );
+    $body .= LJ::Lang::ml( "shop.email.acct.body.end", { sitename => $LJ::SITENAME } );
 
     # send the email to the user
     my $rv = LJ::send_mail( {

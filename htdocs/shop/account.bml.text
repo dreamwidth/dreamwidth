@@ -16,6 +16,8 @@
 
 .giftfor.email=Email address to receive the account creation code for this account:
 
+.giftfor.reason=Optional note for recipient (plain text):
+
 .giftfor.username=Username to receive this account:
 
 .giftfor.username.random=Random active free user

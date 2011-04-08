@@ -75,7 +75,9 @@ body<=
         my $post_fields = LJ::Widget::ShopItemOptions->post_fields( \%POST );
         if ( keys %$post_fields ) { # make sure the user selected an account type
             # need to do this because all of these form fields are in the BML page instead of in the widget
-            LJ::Widget->use_specific_form_fields( post => \%POST, widget => "ShopItemOptions", fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous ) ] );
+            LJ::Widget->use_specific_form_fields( post => \%POST,
+                                                  widget => "ShopItemOptions",
+                                                  fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous reason ) ] );
             my %from_post = LJ::Widget->handle_post( \%POST, ( 'ShopItemOptions' ) );
             $error = $from_post{error} if $from_post{error};
         } else {
@@ -141,6 +143,17 @@ body<=
             selected => $remote ? 0 : 1,
             disabled => $remote ? 0 : 1,
         } ) . "</td></tr>";
+
+        if ( DW::Shop::Item::Account->can_have_reason ) {
+            $ret .= "<tr><td>$ML{'.giftfor.reason'}</td><td>";
+            $ret .= LJ::html_textarea( {
+                                        name => 'reason',
+                                        rows => 6,
+                                        cols => 60,
+                                        wrap => 'soft'
+                                       } );
+            $ret .= "</td></tr>";
+        }
 
         $ret .= "</table>";
     }

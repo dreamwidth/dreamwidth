@@ -3254,73 +3254,58 @@ shop.email.accounttype=[[type]] for [[nummonths]] [[?nummonths|month|months]]
 
 shop.email.accounttype.permanent=[[type]]
 
-shop.email.comm.anon.body<<
-Dear [[touser]],
+shop.email.acct.body.create<<
 
-Someone has chosen to upgrade your [[sitename]] community [[commname]].  The
-account that was purchased is:
 
-    [[accounttype]]
+You can use the following link to create your account:
 
-Congratulations on your community's paid time!
+    [[createurl]]
+
+.
+
+shop.email.acct.body.end<<
 
 
 Regards,
 The [[sitename]] Team
 .
 
-shop.email.comm.anon.subject=[[sitename]] Account Purchase
+shop.email.acct.body.note<<
 
-shop.email.comm.explicit.body<<
+
+The following note was authored by the sender:
+
+    [[reason]]
+
+--
+
+.
+
+shop.email.acct.body.start<<
 Dear [[touser]],
 
-Your [[sitename]] community [[commname]] has been upgraded by [[fromname]].
-The account that was given is:
+.
+
+shop.email.acct.body.type<<
+
+
+The account type that was purchased is:
 
     [[accounttype]]
 
-Congratulations on your community's paid time!
-
-
-Regards,
-The [[sitename]] Team
 .
 
-shop.email.comm.explicit.subject=[[sitename]] Account Purchase
+shop.email.acct.subject=[[sitename]] Account Purchase
 
-shop.email.comm.other.body<<
-Dear [[touser]],
+shop.email.comm.anon=Someone has chosen to upgrade your [[sitename]] community [[commname]].
 
-[[fromuser]] has chosen to upgrade your [[sitename]] community [[commname]].
-The account that was purchased is:
+shop.email.comm.close=Congratulations on your community's paid time!
 
-    [[accounttype]]
+shop.email.comm.explicit=Your [[sitename]] community [[commname]] has been upgraded by [[fromname]].
 
-Congratulations on your community's paid time!
+shop.email.comm.other=[[fromuser]] has chosen to upgrade your [[sitename]] community [[commname]].
 
-
-Regards,
-The [[sitename]] Team
-.
-
-shop.email.comm.other.subject=[[sitename]] Account Purchase
-
-shop.email.comm.self.body<<
-Dear [[touser]],
-
-Your [[sitename]] community [[commname]] has been upgraded.  The account that
-was purchased is:
-
-    [[accounttype]]
-
-Congratulations on your community's paid time!
-
-
-Regards,
-The [[sitename]] Team
-.
-
-shop.email.comm.self.subject=[[sitename]] Account Purchase
+shop.email.comm.self=Your [[sitename]] community [[commname]] has been upgraded.
 
 shop.email.confirm.checkmoneyorder.body<<
 Dear [[touser]],
@@ -3374,47 +3359,11 @@ shop.email.confirm.paypal.body.status.processing=We will process your order as s
 
 shop.email.confirm.paypal.subject=[[sitename]] Purchase Confirmation
 
-shop.email.email.anon.body<<
-Dear [[email]],
+shop.email.email.anon=Someone has chosen to purchase a [[sitename]] account for you.
 
-Someone has chosen to purchase a [[sitename]] account for you.  The account type
-that was purchased is:
+shop.email.email.close=We look forward to having you on the site!
 
-    [[accounttype]]
-
-You can use the following link to create your account:
-
-    [[createurl]]
-
-We look forward to having you on the site!
-
-
-Regards,
-The [[sitename]] Team
-.
-
-shop.email.email.anon.subject=[[sitename]] Account Purchase
-
-shop.email.email.other.body<<
-Dear [[email]],
-
-[[fromuser]] has chosen to purchase a [[sitename]] account for you.  The account
-that was purchased is:
-
-    [[accounttype]]
-
-You can use the following link to create your account:
-
-    [[createurl]]
-
-We look forward to having you on the site!
-
-
-Regards,
-The [[sitename]] Team
-.
-
-shop.email.email.other.subject=[[sitename]] Account Purchase
+shop.email.email.other=[[fromuser]] has chosen to purchase a [[sitename]] account for you.
 
 shop.email.gift.other.body<<
 Dear [[touser]],
@@ -3499,107 +3448,25 @@ Regards,
 The [[sitename]] Team
 .
 
-shop.email.user.anon.body<<
-Dear [[touser]],
+shop.email.user.anon=Someone has chosen to upgrade your [[sitename]] account.
 
-Someone has chosen to upgrade your [[sitename]] account.  The account that was
-purchased is:
+shop.email.user.close=Congratulations on your paid time!
 
-    [[accounttype]]
+shop.email.user.explicit=Your [[sitename]] account has been upgraded by [[fromname]].
 
-Congratulations on your paid time!
+shop.email.user.other=[[fromuser]] has chosen to upgrade your [[sitename]] account.
 
-
-Regards,
-The [[sitename]] Team
-.
-
-shop.email.user.anon.subject=[[sitename]] Account Purchase
-
-shop.email.user.explicit.body<<
-Dear [[touser]],
-
-Your [[sitename]] account has been upgraded by [[fromname]].  The account that
-was given is:
-
-    [[accounttype]]
-
-Congratulations on your paid time!
-
-
-Regards,
-The [[sitename]] Team
-.
-
-shop.email.user.explicit.subject=[[sitename]] Account Purchase
-
-shop.email.user.other.body<<
-Dear [[touser]],
-
-[[fromuser]] has chosen to upgrade your [[sitename]] account.  The account that
-was purchased is:
-
-    [[accounttype]]
-
-Congratulations on your paid time!
-
-
-Regards,
-The [[sitename]] Team
-.
-
-shop.email.user.other.subject=[[sitename]] Account Purchase
-
-shop.email.user.random.body<<
-Dear [[touser]],
-
+shop.email.user.random<<
 Your account has been randomly selected to receive [[fromuser]]'s payment
-through our sponsor-a-free-user program.  The account that was purchased is:
-
-    [[accounttype]]
-
-Congratulations on your paid time!
-
-
-Regards,
-The [[sitename]] Team
+through our sponsor-a-free-user program.
 .
 
-shop.email.user.random.subject=[[sitename]] Account Purchase
-
-shop.email.user.random_anon.body<<
-Dear [[touser]],
-
+shop.email.user.random_anon<<
 Your account has been randomly selected to receive someone's payment through our
-sponsor-a-free-user program.  The account that was purchased is:
-
-    [[accounttype]]
-
-Congratulations on your paid time!
-
-
-Regards,
-The [[sitename]] Team
+sponsor-a-free-user program.
 .
 
-shop.email.user.random_anon.subject=[[sitename]] Account Purchase
-
-shop.email.user.self.body<<
-Dear [[touser]],
-
-Your [[sitename]] account has been upgraded.  The account that was purchased
-is:
-
-    [[accounttype]]
-
-Congratulations on your paid time!
-
-
-Regards,
-The [[sitename]] Team
-.
-
-shop.email.user.self.subject=[[sitename]] Account Purchase
+shop.email.user.self=Your [[sitename]] account has been upgraded.
 
 shop.expiration.comm.0.body<<
 Dear [[touser]],
@@ -5087,6 +4954,8 @@ widget.shopitemoptions.error.banned=You are restricted from making purchases for
 widget.shopitemoptions.error.invalidusername=The username you entered is invalid or the user does not exist.
 
 widget.shopitemoptions.error.nocart=Unable to get a shopping cart for you.  Please try again later.
+
+widget.shopitemoptions.error.notforsale=This purchase type is currently not for sale.
 
 widget.shopitemoptions.error.notloggedin=You must be logged in as a personal account in order to purchase paid time for yourself.
 

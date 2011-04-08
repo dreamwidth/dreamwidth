@@ -54,6 +54,9 @@ sub render_body {
 
     $ret .= "<br />";
 
+    $ret .= $class->ml( "widget.shopitemoptions.error.notforsale" )
+        unless @month_values;  # no matching keys in SHOP hash
+
     foreach my $month_value ( sort { $b <=> $a } @month_values ) {
         my $full_item = $given_item . $month_value;
         if ( ref $LJ::SHOP{$full_item} eq 'ARRAY' ) {
@@ -144,6 +147,8 @@ sub handle_post {
 
     $item_data{anonymous} = 1
         if $post->{anonymous} || !$remote;
+
+    $item_data{reason} = LJ::strip_html( $post->{reason} );  # plain text
 
     # build a new item and try to toss it in the cart.  this fails if there's a
     # conflict or something

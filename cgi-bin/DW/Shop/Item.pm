@@ -47,6 +47,7 @@ Arguments:
 =item cannot_conflict => 1,
 =item noremove => 1,
 =item from_name => sender name,
+=item reason => personal note from sender to target
 
 The type is required. Also, one target_* argument is required; it may be either
 a target_userid or a target_email. All other arguments are optional. 
@@ -209,6 +210,21 @@ sub can_be_added {
     return 1;
 }
 
+
+=head2 C<< $self->can_have_reason( [ %opts ] ) >>
+
+Returns 1 if this item is allowed to have a personal note from the
+sender explaining the reason for the gift.
+
+Subclasses must override this in order to disallow.
+
+=cut
+
+sub can_have_reason {
+    my ( $self, %opts ) = @_;
+
+    return 1;
+}
 
 =head2 C<< $self->conflicts( $item ) >>
 
@@ -479,6 +495,10 @@ promo item from being removed
 Name of the sender in special cases. For example, can be the site name for
 promotions. Not exposed/settable via the shop.
 
+=head2 C<< $self->reason >>
+
+Optional note from the sender explaining the reason for the gift.
+
 =cut
 
 sub display_paid_cash { sprintf( '$%0.2f USD', $_[0]->paid_cash ) }
@@ -491,6 +511,7 @@ sub deliverydate { return $_[0]->{deliverydate};    }
 sub anonymous    { return $_[0]->{anonymous};       }
 sub noremove     { return $_[0]->{noremove};        }
 sub from_name    { return $_[0]->{from_name};       }
+sub reason       { return $_[0]->{reason};          }
 
 # this has to work with old items (pre-points) too
 sub cost_cash {
