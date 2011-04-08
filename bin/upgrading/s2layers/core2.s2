@@ -1367,9 +1367,21 @@ property string sidebar_width_doubled {
     example = "30em";
 }
 
+property string margins_size {
+    des = "Size of left and right margins";
+    size = 5;
+}
+
+property string margins_unit {
+    des = "Unit for margins size";
+    values = "em|em|%|%|px|px";
+}
+
 set layout_type = "";
 set sidebar_width = "";
-set sidebar_width = "";
+set sidebar_width_doubled = "";
+set margins_size = "0";
+set margins_unit = "em";
 
 property string module_layout_sections {
     des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
