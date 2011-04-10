@@ -36,6 +36,8 @@ sub work {
     my $opts = $job->arg;
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
 
+    return $class->decline( $job ) unless $class->enabled( $data );
+
     eval { try_work( $class, $job, $opts, $data ); };
     if ( my $msg = $@ ) {
         $msg =~ s/\r?\n/ /gs;

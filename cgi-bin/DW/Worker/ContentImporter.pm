@@ -194,6 +194,35 @@ sub ok {
     return;
 }
 
+=head2 C<< $class->decline( $job, %opts ) >>
+
+Decline to process the job for now. Will retry again later. (Does not count against the maximum number of retries)
+
+=cut
+
+sub decline {
+    my ( $class, $job, %opts ) = @_;
+
+    $opts{delay} ||= 3600 * 24;
+    $job->run_after( time() + $opts{delay} );
+    $job->declined( 1 );
+    $job->save();
+
+    return;
+}
+
+=head2 C<< $class->enabled( $data ) >>
+
+Check whether this import source is enabled.
+
+=cut
+
+sub enabled {
+    my ( $class, $data ) = @_;
+    return LJ::is_enabled( "importing", $data->{hostname} );
+}
+
+
 =head2 C<< $class->status( $import_data, $item, $args ) >>
 
 This creates an LJ::Event::ImportStatus item for the user to look at.  Note that $args
