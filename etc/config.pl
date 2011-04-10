@@ -142,12 +142,14 @@
                  blockwatch => 1,
                  'community-logins' => 0,
                  directory => 0,
+                 esn_archive => 1,
                  eventlogrecord => 1,
                  feedster_search => 0,
                  free_create => 1,
                  googlecheckout => 1,
-                 'interests-findsim' => 0,
                  icon_renames => 0,
+                 importing => 0,
+                 'interests-findsim' => 0,
                  memories => 0,
                  opt_findbyemail => 1,
                  payments => 0,
@@ -155,7 +157,6 @@
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
                  tellafriend => 0,
-                 esn_archive => 1,
                  );
 
     # turn $SERVER_DOWN on while you do any maintenance

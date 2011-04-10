@@ -30,6 +30,9 @@ sub render_body {
     my $u = LJ::get_effective_remote();
     return "" unless LJ::isu( $u );
 
+    return $class->ml( 'widget.importchoosesource.disabled' )
+        unless LJ::is_enabled('importing');
+
     my @services = (
         {
             name => 'livejournal',

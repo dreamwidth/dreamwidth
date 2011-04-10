@@ -4551,6 +4551,8 @@ widget.importchoosedata.item.lj_userpics.desc=Imports your icons (userpics). If 
 
 widget.importchoosesource.btn.continue=Continue &rarr;
 
+widget.importchoosesource.disabled=Starting a new import is temporarily disabled due to high volume. Existing imports will still be processed in the order they were submitted. New imports will be available again once the import queue clears out a little more.
+
 widget.importchoosesource.error.nocredentials=Please provide a username and password for the service that you selected.
 
 widget.importchoosesource.error.nohostname=Please select a service to import data from.
