@@ -17,6 +17,7 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 use LJ::Customize;
+use List::Util qw( first );
 
 sub authas { 1 }
 sub need_res { qw( stc/widgets/s2propgroup.css js/colorpicker.js stc/collapsible.css ) }
@@ -425,18 +426,18 @@ sub output_prop_element {
     } elsif ( $prop->{values} ) {
         $ret .= "<td class='prop-input'>" unless $is_group;
 
-        # take the list of allowed values
-        # and prepend custom values (set through the layer editor) if allowed
-        my %vals = split( /\|/, $prop->{values} );
-        $vals{$override} = "Custom: " . $override if $prop->{allow_other}
-                    && defined $override
-                    && ! $vals{$override};
+        # take the list of allowed values, determine whether we allow custom values
+        # and whether we have a value not in the list (possibly set through the layer editor)
+        # if so, prepend custom values
+        my @values = split( /\|/, $prop->{values} );
+        unshift @values, $override, "Custom: $override"
+            if $prop->{allow_other} && defined $override && ! first { $_ eq $override } @values;
 
         $ret .= $class->html_select(
             { name => $name,
               disabled => ! $can_use,
               selected => $override, },
-              %vals,
+              @values,
         );
         $ret .= " <label>" . LJ::eall( $prop->{des} ) . "</label>" if $is_group && $prop->{des};
         $ret .= "</td>" unless $is_group;
