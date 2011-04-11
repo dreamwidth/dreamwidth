@@ -39,6 +39,7 @@
 
 .latest-entry .comments {
     margin-top: 1em;
+    clear: both;
 }
 
 #tagfeeds {
