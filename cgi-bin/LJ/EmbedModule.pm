@@ -31,6 +31,8 @@ use constant {
     MAX_HEIGHT => 800,
 };
 
+my %embeddable_tags = map { $_ => 1 } qw( object embed iframe );
+
 # can optionally pass in an id of a module to change its contents
 # returns module id
 sub save_module {
@@ -134,7 +136,7 @@ sub parse_module_embed {
     return unless LJ::is_enabled('embed_module');
 
     # fast track out if we don't have to expand anything
-    return unless $$postref =~ /(lj|site)\-embed|embed|object/i;
+    return unless $$postref =~ /(lj|site)\-embed|embed|object|iframe/i;
 
     # do we want to replace with the lj-embed tags or iframes?
     my $expand = $opts{expand};
@@ -175,8 +177,8 @@ sub parse_module_embed {
                 $embed_attrs{id} = $attr->{id} if $attr->{id};
                 $embed_attrs{width} = ($attr->{width} > MAX_WIDTH ? MAX_WIDTH : $attr->{width}) if $attr->{width};
                 $embed_attrs{height} = ($attr->{height} > MAX_HEIGHT ? MAX_HEIGHT : $attr->{height}) if $attr->{height};
-            } elsif (($tag eq 'object' || $tag eq 'embed') && $type eq 'S') {
-                # <object> or <embed>
+            } elsif ( $embeddable_tags{$tag} && $type eq 'S' ) {
+                # <object> or <embed> or <iframe>
                 # switch to IMPLICIT state unless it is a self-closed tag
                 unless ($attr->{'/'}) {
                     $newstate = IMPLICIT;
@@ -190,15 +192,15 @@ sub parse_module_embed {
                 $newtxt .= $reconstructed;
             }
         } elsif ($state == IMPLICIT) {
-            if ($tag eq 'object' || $tag eq 'embed') {
+            if ( $embeddable_tags{$tag} ) {
                 if ($type eq 'E') {
-                    # </object> or </embed>
+                    # </object> or </embed> or </iframe>
                     # update tag balance, but only if we have a valid balance up to this moment
                     pop @stack if $stack[-1] eq $tag;
                     # switch to REGULAR if tags are balanced (stack is empty), stay in IMPLICIT otherwise
                     $newstate = REGULAR unless @stack;
                 } elsif ($type eq 'S') {
-                    # <object> or <embed>
+                    # <object> or <embed> or <iframe>
                     # mind the tag balance, do not update it in case of a self-closed tag
                     push @stack, $tag unless $attr->{'/'};
                 }
@@ -287,7 +289,7 @@ sub module_iframe_tag {
 
                 my $flashvars = $attr->{flashvars};
 
-                if ($tag eq 'object' || $tag eq 'embed') {
+                if ( $embeddable_tags{$tag} ) {
                     my $src;
                     next unless $src = $attr->{src};
 

@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 143;
+use Test::More tests => 151;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
@@ -270,10 +270,12 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
         [   "iframe tag; no site-embed (untrusted)",
             qq{foo <iframe>bar</iframe>baz},
 
-            qq{foo <iframe>bar</iframe>baz},    # we save the iframe as-is
-            qq{foo <iframe>bar</iframe>baz},
-            qq{foo baz},                        # but strip it out on display
-            $invalid_embed
+            # wrap the iframe in a site-embed tag
+            qq{foo <site-embed id="1"/>baz},
+            # but nested site-embed won't display the untrusted content
+            qq{foo <site-embed id="1"></site-embed>baz},
+            qr{foo ${iframe}baz},
+            qq{},
         ],
 
         [   "iframe tag with site-embed (untrusted)",
@@ -289,12 +291,13 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
         [   "iframe tag; no site-embed (trusted)",
             qq{foo <iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>baz},
 
-            # save the iframe as-is
-            qq{foo <iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>baz},
-            qq{foo <iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>baz},
-            # but still strip it out on display
-            qr{foo baz},
-            $invalid_embed
+            # wrap the iframe in a site-embed
+            qq{foo <site-embed id="1"/>baz},
+            qq{foo <site-embed id="1"><iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe></site-embed>baz},
+            # site-embed iframe
+            qr{foo ${iframe}baz},
+            # ...which contains the nested iframe with a URL from a trusted source
+            qq{<iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>},
         ],
 
         [   "iframe tag with site-embed (trusted)",
@@ -349,11 +352,12 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
         ],
 
 
+        # TODO: DANGER: EATS EVERYTHING PAST THE OPEN TAG
         [   "iframe tag left open; no site-embed (untrusted)",
-            qq{foo <iframe>bar baz},
+            qq{foo },
 
-            qq{foo <iframe>bar baz},
-            qq{foo <iframe>bar baz},
+            qq{foo },
+            qq{foo },
             qq{foo },
             $invalid_embed
         ],
@@ -368,11 +372,12 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             $invalid_embed
         ],
 
-
+        # TODO: DANGER: EATS EVERYTHING PAST THE OPEN TAG
         [   "iframe tag left open; no site-embed (trusted)",
-            qq{foo <iframe src="http://www.youtube.com/embed/ABC123abc_-">baz},
+            qq{foo },
 
-            qq{foo <iframe src="http://www.youtube.com/embed/ABC123abc_-">baz},                        qq{foo <iframe src="http://www.youtube.com/embed/ABC123abc_-">baz},
+            qq{foo },
+            qq{foo },
             qr{foo },
             $invalid_embed
         ],
