@@ -40,11 +40,6 @@ sub render_body {
             display_name => 'LiveJournal',
         },
         {
-            name => 'inksome',
-            url => 'inksome.com',
-            display_name => 'Inksome',
-        },
-        {
             name => 'insanejournal',
             url => 'insanejournal.com',
             display_name => 'InsaneJournal',
