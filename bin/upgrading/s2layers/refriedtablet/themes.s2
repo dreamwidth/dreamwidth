@@ -323,20 +323,26 @@ set color_module_title = "#c470a7";
 set color_module_title_background = "#fdfdfd";
 
 function Page::print_theme_stylesheet() {
+
+    var string entry_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_margin = "120px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "100px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "70px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
             .has-userpic .entry .header, .has-userpic .entry .poster {
-                left: 120px;
-                margin-right: 120px;
+                left: $entry_margin;
+                margin-right: $entry_margin;
                 }
             """;
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
             .has-userpic .entry .header, .has-userpic .entry .poster {
-                right: 120px;
-                margin-left: 120px;
+                right: $entry_margin;
+                margin-left: $entry_margin;
                 }
             """;
         }
@@ -400,20 +406,25 @@ set color_module_text = "#0d0d0d";
 set color_module_title = "#e23a1f";
 
 function Page::print_theme_stylesheet() {
+    var string entry_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_margin = "120px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "100px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "70px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
             .has-userpic .entry .header, .has-userpic .entry .poster {
-                left: 120px;
-                margin-right: 120px;
+                left: $entry_margin;
+                margin-right: $entry_margin;
                 }
             """;
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
             .has-userpic .entry .header, .has-userpic .entry .poster {
-                right: 120px;
-                margin-left: 120px;
+                right: $entry_margin;
+                margin-left: $entry_margin;
                 }
             """;
         }
@@ -671,20 +682,25 @@ set color_module_link_hover = "#29644d";
 set color_module_title = "#0a99aa";
 
 function Page::print_theme_stylesheet() {
+    var string entry_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_margin = "120px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "100px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "70px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
             .has-userpic .entry .header, .has-userpic .entry .poster {
-                left: 120px;
-                margin-right: 120px;
+                left: $entry_margin;
+                margin-right: $entry_margin;
                 }
             """;
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
             .has-userpic .entry .header, .has-userpic .entry .poster {
-                right: 120px;
-                margin-left: 120px;
+                right: $entry_margin;
+                margin-left: $entry_margin;
                 }
             """;
         }

@@ -48,26 +48,53 @@ function print_stylesheet() {
 
     var string footer_colors = generate_color_css( new Color, $*color_page_background, new Color );
 
+    var string entry_padding = "";
+    if ( $*entry_userpic_style == "" ) { $entry_padding = "110px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_padding = "85px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_padding = "60px"; }
+
+    var string comment_padding = "";
+    if ( $*comment_userpic_style == "" ) { $comment_padding = "110px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_padding = "85px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_padding = "60px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
             .has-userpic .entry .entry-title,
-            .has-userpic .comment .comment-title,
-            .has-userpic .comment .comment-subjecticon,
-            .has-userpic .comment .datetime { margin: 0 0 0 110px; }
             .has-userpic .entry .access-filter,
             .has-userpic .entry .restrictions,
             .has-userpic .entry .datetime,
-            .has-userpic .entry .poster,
+            .has-userpic .entry .poster {
+                padding-left: $entry_padding;
+                }
+
+            .has-userpic .comment .header,
             .has-userpic .comment .poster,
-            .has-userpic .comment .poster-ip { padding-left: 110px; }
+            .has-userpic .comment .poster-ip {
+                padding-left: $comment_padding;
+                }
+
             .has-userpic .entry .contents .userpic,
             .has-userpic .comment .contents .userpic { left: 5px; }
             """;
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
-            .has-userpic .entry .entry-title { margin: 5px 110px 5px 5px; }
+            .has-userpic .entry .entry-title,
+            .has-userpic .entry .access-filter,
+            .has-userpic .entry .restrictions,
+            .has-userpic .entry .datetime,
+            .has-userpic .entry .poster {
+                padding-right: $entry_padding;
+                }
+
+            .has-userpic .comment .header,
+            .has-userpic .comment .poster,
+            .has-userpic .comment .poster-ip {
+                padding-right: $comment_padding;
+                }
+
             .has-userpic .entry .contents .userpic,
             .has-userpic .comment .contents .userpic { right: 5px; }
             """;
@@ -199,7 +226,7 @@ ul.entry-interaction-links { text-align: right;
     padding: 1px 0 0 0;} 
 
 .comment .header { $entry_header_colors
-    padding: 5px 110px 5px 5px;
+    padding: 5px;
     margin: 0 0 1em 0;}
 .comment .header a, 
 .comment .header a:visited { $entry_title_link_colors }

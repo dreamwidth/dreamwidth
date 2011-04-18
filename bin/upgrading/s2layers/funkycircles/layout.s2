@@ -159,20 +159,40 @@ function print_stylesheet () {
     var string entry_footer_link_visited_colors = generate_color_css($*color_entry_footer_link_visited, new Color, new Color);
     var string entry_list_background = generate_background_css ($*image_entry_list_background_url, $*image_entry_list_background_repeat, $*image_entry_list_background_position, new Color);
 
+    var string entry_spacing = "";
+    if ( $*entry_userpic_style == "" ) { $entry_spacing = "65px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_spacing = "40px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_spacing = "15px"; }
+
+    var string comment_spacing = "";
+    if ( $*comment_userpic_style == "" ) { $comment_spacing = "65px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_spacing = "40px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_spacing = "15px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
             .contents .userpic {
-                left: -2.5em;
+                left: -40px;
                 }
 
             .entry .header,
             .comment .header {
-                padding-left: 95px;
+                margin-left: 2em;
                 }
 
-            .has-userpic .poster {
-                margin-left: 80px;
+            .entry .header {
+                padding-left: $entry_spacing;
+                }
+            .comment .header {
+                padding-left: $comment_spacing;
+                }
+
+            .has-userpic .entry .poster {
+                margin-left: $entry_spacing;
+                }
+            .has-userpic .comment .poster {
+                margin-left: $comment_spacing;
                 }
 
             .two-columns-left #primary > .inner:first-child,
@@ -192,21 +212,27 @@ function print_stylesheet () {
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
-            .entry .contents .userpic {
-                right: -1.1em;
-                }
-
-            .comment .contents .userpic {
-                right: -2.5em;
+            .contents .userpic {
+                right: -40px;
                 }
 
             .entry .header,
             .comment .header {
-                padding-right: 95px;
+                margin-right: 2em;
                 }
 
-            .has-userpic .poster {
-                margin-right: 80px;
+            .entry .header {
+                padding-right: $entry_spacing;
+                }
+            .comment .header {
+                padding-right: $comment_spacing;
+                }
+
+            .has-userpic .entry .poster {
+                margin-right: $entry_spacing;
+                }
+            .has-userpic .comment .poster {
+                margin-right: $comment_spacing;
                 }
 
             .two-columns-left #primary > .inner:first-child,
@@ -660,25 +686,18 @@ h2#pagetitle {
                 }
 
 .contents .userpic {
-    height: 100px;
     position: absolute;
     text-align: center;
-    top: -.7em;
-    width: 100px;
+    top: -10px;
     }
 
     .no-userpic .userpic {
         display: none;
         }
 
-    .comment .contents .userpic {
-        top: -1.5em;
-        }
-
-    .entry .contents .userpic img,
-    .comment .contents .userpic {
+    .contents .userpic img {
         background-color: $*color_entry_userpic_border;
-        padding: .7em;
+        padding: 10px;
         box-shadow: .067em .067em .2em $*color_shadow;
         -moz-box-shadow: .067em .067em .2em $*color_shadow;
         -webkit-box-shadow: .067em .067em .2em $*color_shadow;
@@ -698,7 +717,7 @@ h2#pagetitle {
         }
 
     .has-userpic .comment .poster {
-        margin-bottom: 32px;
+        margin-bottom: 40px;
         }
 
     .entry .poster:before {
@@ -722,7 +741,10 @@ $userpic_css
 /* Must be after userpic_css */
 
 .no-userpic .header {
+    margin-left: 0;
+    margin-right: 0;
     padding-left: 0;
+    padding-right: 0;
     }
 
 .poster.empty {

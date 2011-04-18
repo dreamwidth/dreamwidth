@@ -162,19 +162,25 @@ set color_module_text = "#fff";
 set color_module_title = "#fff";
 
 function Page::print_theme_stylesheet () {
+
+    var string entry_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_margin = "110px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "85px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "60px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
             .entry .header { padding-left: 0; }
             .entry .contents .userpic { left: -1em; }
-            .entry-poster, .entry-content, .entry .metadata { margin-left: 110px; }
+            .entry-poster, .entry-content, .entry .metadata { margin-left: $entry_margin; }
             """;
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
             .entry .header { padding-right: 0; }
             .entry .contents .userpic { right: -1em; }
-            .entry-poster, .entry-content, .entry .metadata { margin-right: 110px; }
+            .entry-poster, .entry-content, .entry .metadata { margin-right: $entry_margin; }
             """;
         }
     """
@@ -238,7 +244,6 @@ function Page::print_theme_stylesheet () {
         height: 100%;
         padding-top: 2px;
         top: 0;
-        width: 110px;
         }
     
     .entry .contents .userpic a {

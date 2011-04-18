@@ -126,6 +126,16 @@ function print_stylesheet () {
     var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
+    var string entry_header_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_header_margin = "135px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_header_margin = "110px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_header_margin = "85px"; }
+
+    var string comment_header_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_header_margin = "135px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_header_margin = "110px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_header_margin = "85px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
@@ -135,8 +145,13 @@ function print_stylesheet () {
                 }
             .has-userpic div.entry .header,
             .has-userpic div.comment .header {
-                margin-left: 135px;
                 text-align: right;
+                }
+            .has-userpic div.entry .header {
+                margin-left: $entry_header_margin;
+                }
+            .has-userpic div.comment .header {
+                margin-left: $comment_header_margin;
                 }
             """;
         }
@@ -146,9 +161,11 @@ function print_stylesheet () {
             .has-userpic div.comment div.userpic {
                 float: right;
                 }
-            .has-userpic div.entry .header,
+            .has-userpic div.entry .header {
+                margin-right: $entry_header_margin;
+                }
             .has-userpic div.comment .header {
-                margin-right: 135px;
+                margin-right: $comment_header_margin;
                 }
             """;
         }

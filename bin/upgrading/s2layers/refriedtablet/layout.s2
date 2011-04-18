@@ -115,12 +115,17 @@ function print_stylesheet () {
     var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
     var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
 
+    var string entry_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_margin = "105px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "80px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "55px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
             .has-userpic .entry .header, .has-userpic .entry .poster {
-                left: 105px;
-                margin-right: 105px;
+                left: $entry_margin;
+                margin-right: $entry_margin;
                 }
             .entry .inner .userpic {
                 float: left;
@@ -133,8 +138,8 @@ function print_stylesheet () {
         elseif ($*userpics_position == "right") {
             $userpic_css = """
             .has-userpic .entry .header, .has-userpic .entry .poster {
-                right: 105px;
-                margin-left: 105px;
+                right: $entry_margin;
+                margin-left: $entry_margin;
                 }
             .entry .inner .userpic {
                 float: right;

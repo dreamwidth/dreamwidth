@@ -48,6 +48,16 @@ function print_stylesheet () {
     var string header_colors = generate_color_css($*color_page_title, $*color_header_background, $*color_entry_border);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
 
+    var string entry_header_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_header_margin = "118px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_header_margin = "93px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_header_margin = "68px"; }
+
+    var string comment_header_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_header_margin = "118px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_header_margin = "93px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_header_margin = "68px"; }
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
@@ -57,8 +67,13 @@ function print_stylesheet () {
                 }
             .has-userpic div.entry div.header,
             .has-userpic div.comment div.header {
-                margin-left: 118px;
                 text-align: right;
+                }
+            .has-userpic div.entry div.header {
+                margin-left: $entry_header_margin;
+                }
+            .has-userpic div.comment div.header {
+                margin-left: $comment_header_margin;
                 }
             .has-userpic div.comment div.userpic {
                 float: left;
@@ -72,9 +87,11 @@ function print_stylesheet () {
                 float: right;
                 margin: -4em 0 1em 1em;
                 }
-            .has-userpic div.entry div.header,
+            .has-userpic div.entry div.header {
+                margin-right: $entry_header_margin;
+                }
             .has-userpic div.comment div.header {
-                margin-right: 118px;
+                margin-right: $comment_header_margin;
                 }
             .has-userpic div.comment div.userpic {
                 float: right;
