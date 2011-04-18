@@ -97,7 +97,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <table summary='' id='login-table'>
     [%- -%]<tr><td><label for='login_user'>[% 'sitescheme.accountlinks.login.username' | ml %]</label></td>
     [%- -%]<td class='input-cell' colspan='2'><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" />
-    [%- %] <a href='[% site.root %]/openid/' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></td></tr>
+    [%- %] <a href='[% site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></td></tr>
     [%- -%]<tr><td><label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label></td>
     [%- -%]<td class='input-cell' colspan='2'><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true">
     [%- %] <a href='[% site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></td></tr>

@@ -54,8 +54,9 @@ sub render_body {
     $ret .= "<input type='hidden' name='response' class='lj_login_response' value='' />\n";
 
     my $referer = BML::get_client_header('Referer');
+    my $eh_ref;
     if ($isloginpage && $opts{get_ret} == 1 && $referer) {
-        my $eh_ref = LJ::ehtml($referer);
+        $eh_ref = LJ::ehtml($referer);
         $ret .= "<input type='hidden' name='ref' value='$eh_ref' />\n";
     }
 
@@ -96,10 +97,14 @@ sub render_body {
         my $secure = "<p>";
         $secure .= LJ::img( 'ssl_locked', '', { class => 'secure-image' } );
         $secure .= LJ::Lang::ml('/login.bml.login.secure') . " | <a href='$LJ::SITEROOT/login?nojs=1'>" . LJ::Lang::ml('/login.bml.login.standard') . "</a></p>";
-
+        
+        # make sure the returnto value gets passed to openid
+        my $openid_args = $opts{returnto} ? "?returnto=" . LJ::ehtml($opts{returnto}) : $eh_ref ? "?returnto=" .  LJ::eurl($referer) : "";
         $ret .= "<p><input name='action:login' type='submit' value='"
                 . LJ::Lang::ml('/login.bml.login.btn.login') 
-                . "' tabindex='14' /> <a href='$LJ::SITEROOT/openid/' class='small-link' tabindex='15'>" 
+                . "' tabindex='14' /> <a href='$LJ::SITEROOT/openid/"
+                . $openid_args 
+                . "' class='small-link' tabindex='15'>" 
                 . LJ::Lang::ml('/login.bml.login.openid') 
                 . "</a></p>";
 

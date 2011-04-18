@@ -65,6 +65,23 @@ p?>
 
    <div style='padding: 0.4em; margin-left: 25px; margin-right: 25px; width: auto; text-align: center; background: #ccc; border: #000'>
 <form method='post' action='login' style='display:inline; width:auto'><nobr><b><?_ml .login.openid_url _ml?></b> <input class='sexy' id='openid_url' name="openid_url" size='30' />
+<?_code {
+    
+    use vars qw(%GET);
+
+    my $continue_to = $GET{returnto} || BML::get_client_header('Referer');
+
+    if ( $continue_to ) {
+        return LJ::html_hidden( { 
+            name => 'continue_to',
+            value => LJ::ehtml($continue_to),
+        } );
+    } else {
+        return "";
+    }
+}
+
+_code?>
 <input style='background: #ff6200; color: #fff;' type='submit' value='<?_ml .login.submit _ml?>' /></nobr><br /><?_ml .login.example _ml?></form></div>
 
 <?h1 <?_ml .main.openid_other_sites _ml?> h1?>

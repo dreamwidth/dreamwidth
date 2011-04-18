@@ -82,12 +82,18 @@ _c?>
         my $redirect = "$LJ::SITEROOT/login";
         # handle the continue_to url, if it's a valid URL to redirect to.
         my $continue_to = $GET{'continue_to'};
-        if ( $continue_to && DW::Controller::validate_redirect_url( $continue_to ) ) {
-            # if the account is validated, then go ahead and redirct
-            if ( $u->is_validated ) {
-                $redirect = $continue_to;
-            } else {
-                $redirect .= "?continue_to=" . LJ::eurl( $continue_to );
+        if ( $continue_to ) {
+            # some pages return a relative url
+            if ($continue_to =~ /^\//) {
+                $continue_to = $LJ::SITEROOT . $continue_to;
+            }
+            if ( DW::Controller::validate_redirect_url( $continue_to ) ) {
+                # if the account is validated, then go ahead and redirct
+                if ( $u->is_validated ) {
+                    $redirect = $continue_to;
+                } else {
+                    $redirect .= "?continue_to=" . LJ::eurl( $continue_to );
+                }
             }
         }
         return BML::redirect( $redirect );
