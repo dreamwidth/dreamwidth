@@ -175,19 +175,15 @@ sub EntryPage
             }
 
             my $comment_userpic;
-            my $comment_userpic_style = $opts->{ctx}->[S2::PROPS]->{comment_userpic_style};
-            if ( defined $com->{picid} && ( my $pic = $userpic{$com->{picid}} ) && ( $comment_userpic_style ne 'off' ) )  {
+            my $comment_userpic_style = S2::get_property_value( $opts->{ctx}, 'comment_userpic_style' ) || "";
+            if ( defined $com->{picid} && ( my $pic = $userpic{$com->{picid}} ) )  {
                 my $width = $pic->{width};
                 my $height = $pic->{height};
                 
-                if ( $comment_userpic_style eq 'small' )
-                {
+                if ( $comment_userpic_style eq 'small' ) {
                     $width = $width * 3 / 4;
                     $height = $height * 3 / 4;
-                }
-
-                if ( $comment_userpic_style eq 'smaller' )
-                {
+                } elsif ( $comment_userpic_style eq 'smaller' ) {
                     $width = $width / 2;
                     $height = $height / 2;
                 }
@@ -551,6 +547,7 @@ sub EntryPage_entry
         new_day => 0,
         end_day => 0,
         userpic => $userpic,
+        userpic_style => S2::get_property_value( $opts->{ctx}, 'entry_userpic_style' ),
         permalink_url => $entry->url,
         timeformat24 => $remote && $remote->use_24hour_time,
     } );

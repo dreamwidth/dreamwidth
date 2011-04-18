@@ -1885,6 +1885,19 @@ sub Entry
         $e->{$_} = $arg->{$_};
     }
 
+    my $pic = $e->{userpic};
+    if ( $pic->{url} )  {
+        my $userpic_style = $arg->{userpic_style} || "";
+
+        if ( $userpic_style eq 'small' ) {
+            $pic->{width} = $pic->{width} * 3 / 4;
+            $pic->{height} = $pic->{height} * 3 / 4;
+        } elsif ( $userpic_style eq "smaller" ) {
+            $pic->{width} = $pic->{width} / 2;
+            $pic->{height} = $pic->{height} / 2;
+        }
+    }
+
     my $remote = LJ::get_remote();
     my $poster = $e->{poster}->{_u};
 
@@ -2035,6 +2048,8 @@ sub Entry_from_entryobj
         $userpic = Image_userpic( $journal, $journal->userpic->picid ) if $journal->userpic;
     }
 
+    my $userpic_style = S2::get_property_value( $opts->{ctx}, 'entry_userpic_style' );
+
     # override used moodtheme if necessary
     my $moodthemeid = $u->prop( 'opt_forcemoodtheme' ) eq 'Y' ?
         $u->moodtheme : $poster->moodtheme;
@@ -2065,6 +2080,7 @@ sub Entry_from_entryobj
         new_day => 0,   #if true, set later
         end_day => 0,   #if true, set later
         userpic => $userpic,
+        userpic_style => $userpic_style,
         tags => $taglist,
         permalink_url => $entry_obj->url,
         moodthemeid => $moodthemeid,
