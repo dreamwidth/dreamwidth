@@ -1696,11 +1696,13 @@ property Color color_comment_bar {
 }
 set color_comment_bar = "#d0d0ff";
 
+# Updated to match Core2 option
+# Off value was removed
 property string comment_userpic_style {
-   des = "Userpic display style for comments";
-   doc = "Userpic display style for comments.  Either '' for full, 'small' for small, or 'off' for none.";
-   doc_flags = "[construct]";
-   values = "|Full|small|Small|off|Off";
+    des = "Select the size of icons in comments";
+    doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
+    doc_flags = "[construct]";
+    values = "|Full|small|Small|smaller|Smaller";
 }
 set comment_userpic_style = "";
 
