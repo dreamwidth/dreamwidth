@@ -182,6 +182,12 @@ sub EntryPage
                 
                 if ( $comment_userpic_style eq 'small' )
                 {
+                    $width = $width * 3 / 4;
+                    $height = $height * 3 / 4;
+                }
+
+                if ( $comment_userpic_style eq 'smaller' )
+                {
                     $width = $width / 2;
                     $height = $height / 2;
                 }

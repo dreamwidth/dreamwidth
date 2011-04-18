@@ -1293,10 +1293,10 @@ property bool tags_aware {
 }
 
 property string comment_userpic_style {
-   des = "User icon display style for comments";
-   doc = "User icon display style for comments.  Either '' for full, 'small' for small, or 'off' for none.";
+   des = "Select the size of icons in comments";
+   doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
    doc_flags = "[construct]";
-   values = "|Full|small|Small|off|Off";
+   values = "|Full|small|Small|smaller|Smaller";
 }
 
 property string userpics_position {

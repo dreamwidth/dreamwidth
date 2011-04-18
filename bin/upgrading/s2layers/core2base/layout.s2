@@ -14,6 +14,7 @@ propgroup presentation {
     property use tags_page_type;
     property use sidebar_width;
     property use sidebar_width_doubled;
+    property use comment_userpic_style;
     property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
