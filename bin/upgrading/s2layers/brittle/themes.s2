@@ -333,6 +333,97 @@ set image_background_page_repeat = "repeat";
 set image_background_page_url = "brittle/drab.png";
 
 
+#NEWLAYER: brittle/elegantbrown
+layerinfo type = "theme";
+layerinfo name = "Elegant Brown";
+layerinfo redist_uniq = "brittle/elegantbrown";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#796650";
+set color_page_link = "#e6ac27";
+set color_page_link_hover = "#96dcbd";
+set color_page_link_visited = "#80bca3";
+set color_page_text = "#f6f7e8";
+set color_footer_background = "#655643";
+set color_footer_link = "#e6ac27";
+set color_footer_link_hover = "#96dcbd";
+set color_footer_link_visited = "#80bca3";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#655643";
+set color_entry_link = "#e6ac27";
+set color_entry_link_hover = "#96dcbd";
+set color_entry_link_visited = "#80bca3";
+set color_entry_text = "#f6f7e8";
+set color_entry_title = "#f6f7e8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#655643";
+set color_navigation_module_link = "#e6ac27";
+set color_navigation_module_link_hover = "#96dcbd";
+set color_navigation_module_link_visited = "#80bca3";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "brittle/elegantbrown.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    blockquote {
+        color: inherit;
+        border: none;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .9em;
+        margin-bottom: .9em;
+        padding: 1em;
+        }
+
+    a:hover {
+        text-decoration: underline;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    div.entry, div.entry .inner,
+    div.comment, div.comment .inner { 
+        line-height: 1.05em;
+        }
+
+    span.tag-text,
+    div.tag ul li,
+    div.metadata ul li {
+        font-family: $*font_entry_title;
+        font-size: .9em;
+        }
+
+    div.tag ul {
+        padding: 0;
+        }
+    """;
+}
+
+
 #NEWLAYER: brittle/furcoat
 layerinfo type = "theme";
 layerinfo name = "Fur Coat";
