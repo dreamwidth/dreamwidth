@@ -2460,8 +2460,9 @@ sub need_res {
     foreach my $reskey (@_) {
         die "Bogus reskey $reskey" unless $reskey =~ m!^(js|stc)/!;
 
-        $reskey =~ s/\.(js|css)$/.min.$1/
-            if $opts{optimize} && ! $LJ::IS_DEV_SERVER;
+        my $resinclude;
+        $resinclude = $LJ::MINIFY{$reskey} unless $LJ::IS_DEV_SERVER;
+        $resinclude ||= $reskey;
 
         # we put javascript in the 'default' group and CSS in the 'all' group
         # since we need CSS everywhere and we are switching JS groups
@@ -2469,7 +2470,7 @@ sub need_res {
         unless ($LJ::NEEDED_RES{$lgroup}->{$reskey}++) {
             $LJ::NEEDED_RES[$priority] ||= [];
 
-            push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $reskey ];
+            push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $resinclude ];
         }
     }
 }

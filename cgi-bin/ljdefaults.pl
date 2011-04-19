@@ -336,6 +336,27 @@ no strict "vars";
     # (as they should be) some pages look weird.
     # So let us temporarily force old behavior on existing files
     $LJ::OLD_RES_PRIORITY = 5;
+
+    # we only support the minifaction of a subset of pre-generated files
+    # so for now, let's just configure which files to use a minified version of
+    # TODO: minify as part of the build process, and remove this hardcoding
+    %LJ::MINIFY = (
+        "js/jquery/jquery-1.5.js"       => "js/jquery/jquery-1.5.min.js",
+        "js/jquery/jquery.ui.core.js"   => "js/jquery/jquery.ui.core.min.js",
+        "js/jquery/jquery.ui.autocomplete.js" =>  "js/jquery/jquery.ui.autocomplete.min.js",
+        "js/jquery/jquery.ui.datepicker.js" => "js/jquery/jquery.ui.datepicker.min.js",
+        "js/jquery/jquery.ui.dialog.js"     => "js/jquery/jquery.ui.dialog.min.js",
+        "js/jquery/jquery.ui.draggable.js"  => "js/jquery/jquery.ui.draggable.min.js",
+        "js/jquery/jquery.ui.droppable.js"  => "js/jquery/jquery.ui.droppable.min.js",
+        "js/jquery/jquery.ui.mouse.js"      => "js/jquery/jquery.ui.mouse.min.js",
+        "js/jquery/jquery.ui.position.js"   => "js/jquery/jquery.ui.position.min.js",
+        "js/jquery/jquery.ui.selectable.js" => "js/jquery/jquery.ui.selectable.min.js",
+        "js/jquery/jquery.ui.sortable.js"   => "js/jquery/jquery.ui.sortable.min.js",
+        "js/jquery/jquery.ui.widget.js"     => "js/jquery/jquery.ui.widget.min.js",
+
+        "js/tooltip.js"                 => "js/tooltip.min.js",
+        "js/tooltip.dynamic.js"         => "js/tooltip.dynamic.min.js",
+    ) unless defined %LJ::MINIFY;
 }
 
 

@@ -87,7 +87,7 @@ sub EntryPage
                     ));
 
     LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.widget.min.js
+            js/jquery/jquery.ui.widget.js
             js/jquery.quickreply.js
             js/jquery.threadexpander.js
         ) );
@@ -382,11 +382,11 @@ sub EntryPage
 
     LJ::need_res( "js/commentmanage.js" );
     LJ::need_res( { group => "jquery" }, qw(
-            js/jquery/jquery.ui.widget.min.js
+            js/jquery/jquery.ui.widget.js
             js/jquery.ajaxtip.js
             js/jquery.commentmanage.js
-            js/tooltip.min.js
-            js/tooltip.dynamic.min.js
+            js/tooltip.js
+            js/tooltip.dynamic.js
             stc/ajaxtip.css
             stc/popup-form.css
         ) );
