@@ -371,14 +371,14 @@ $img{'adult-nsfw'} = {
     src => '/icon_nsfw.png',
     width => 16,
     height => 16,
-    alt => '',  # S2::PROPS
+    alt => 'talk.agerestriction.nsfw',  # overridden by S2::PROPS
 };
 
 $img{'adult-18'} = {
     src => '/icon_18.png',
     width => 16,
     height => 16,
-    alt => '',  # S2::PROPS
+    alt => 'talk.agerestriction.18plus',  # overridden by S2::PROPS
 };
 
 $img{'sticky-entry'} = {

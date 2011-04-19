@@ -3734,6 +3734,10 @@ taglib.error.mergetoexisting=The tag name '[[tagname]]' is already in use, but y
 
 taglib.error.toomany2=This would make you exceed your maximum of [[max]] tags.  Please remove at least [[excess]] of the following new tags: [[tags]].
 
+talk.agerestriction.18plus=18+
+
+talk.agerestriction.nsfw=NSFW
+
 talk.anonwrote=Someone wrote,
 
 talk.anonwrote_comm=Someone wrote in [[commlink]],

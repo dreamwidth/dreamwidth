@@ -309,8 +309,17 @@ body<=
         }
     }
 
-    $sec .= "<br />\n" unless $sec eq "" or $item->{'subject'};
-    $ret .= $sec;
+    # age restriction settings
+    my $age_restriction = "";
+    my $entry_age_prop = $item->{props}->{adult_content} || "";
+    if ( $entry_age_prop eq "explicit" ) {
+        $age_restriction = LJ::img( "adult-18" );
+    } elsif ( $entry_age_prop eq "concepts" ) {
+        $age_restriction = LJ::img( "adult-nsfw" );
+    }
+
+    $ret .= $sec . $age_restriction;
+    $ret .= "<br />\n" unless ( $sec eq "" && $age_restriction eq "" ) or $item->{subject};
 
     ###
     if ($item->{'subject'}) {
