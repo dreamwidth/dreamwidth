@@ -1849,38 +1849,7 @@ sub talkform {
     $ret .= "<div id='ljnohtmlsubj' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>$BML::ML{'.nosubjecthtml'}</span></div>\n";
 
     $ret .= "<div id='userpics'>";
-    my %res;
-    if ($remote) {
-        LJ::do_request({ "mode" => "login",
-                         "ver" => ($LJ::UNICODE ? "1" : "0"),
-                         "user" => $remote->{'user'},
-                         "getpickws" => 1,
-                       }, \%res, { "noauth" => 1, "userid" => $remote->{'userid'} });
-    }
-    if ($res{'pickw_count'}) {
-        $ret .= BML::ml('.label.picturetouse2',
-                        {
-                            'aopts'=>"href='" . $remote->allpics_base. "'"}) . " ";
-        my @pics;
-        for (my $i=1; $i<=$res{'pickw_count'}; $i++) {
-            push @pics, $res{"pickw_$i"};
-        }
-        @pics = sort { lc($a) cmp lc($b) } @pics;
-        $ret .= LJ::html_select({'name' => 'prop_picture_keyword',
-                                 'selected' => $form->{'prop_picture_keyword'}, 'id' => 'prop_picture_keyword'},
-                                ("", $BML::ML{'.opt.defpic'}, map { ($_, $_) } @pics));
-
-        # userpic browse button
-        if ( $remote && $remote->can_use_userpic_select ) {
-            $ret .= '<input type="button" id="lj_userpicselect" value="Browse" />';
-            $ret .= LJ::Talk::js_iconbrowser_button();
-        }
-
-        # random icon button - hidden for non-JS
-        $ret .= "<a href='javascript:void(0)' onclick='randomicon();' class='ljhidden' id='randomicon'>" . BML::ml('.userpic.random') ."</a>";
-
-        $ret .= LJ::help_icon_html("userpics", " ");
-    }
+    $ret .= icon_dropdown( $remote, $form->{prop_picture_keyword} );
 
     $ret .= "<br />";
     $ret .= "<label for='prop_opt_preformatted'>$BML::ML{'.opt.noautoformat'}</label>";
@@ -1992,6 +1961,54 @@ LOGIN
     $ret .= "var usermismatchtext = \"" . LJ::ejs($BML::ML{'.usermismatch'}) . "\";\n";
     $ret .= "</script><script type='text/javascript' language='JavaScript' src='$LJ::JSPREFIX/talkpost.js'></script>";
     $ret .= "</form>\n";
+
+    return $ret;
+}
+
+sub icon_dropdown {
+    my ( $remote, $selected ) = @_;
+    $selected ||= "";
+
+    my %res;
+    if ( $remote ) {
+        LJ::do_request({ mode => "login",
+                         ver  => ($LJ::UNICODE ? "1" : "0"),
+                         user => $remote->{'user'},
+                         getpickws => 1,
+                       }, \%res, { "noauth" => 1, "userid" => $remote->{'userid'} });
+    }
+
+    my $ret = "";
+    if ($res{pickw_count}) {
+        $ret .= BML::ml( '/talkpost.bml.label.picturetouse2', {
+            aopts => "href='" . $remote->allpics_base. "'"
+        } ) . " ";
+
+        my @pics;
+        foreach my $i ( 1 ... $res{pickw_count} ) {
+            push @pics, $res{"pickw_$i"};
+        }
+        @pics = sort { lc( $a ) cmp lc( $b ) } @pics;
+        $ret .= LJ::html_select( {
+                name => 'prop_picture_keyword',
+                selected => $selected,
+                id => 'prop_picture_keyword'
+            }, (
+                "", $BML::ML{'/talkpost.bml.opt.defpic'},
+                map { ( $_, $_ ) } @pics
+            ) );
+
+        # userpic browse button
+        if ( $remote && $remote->can_use_userpic_select ) {
+            $ret .= '<input type="button" id="lj_userpicselect" value="Browse" />';
+            $ret .= LJ::Talk::js_iconbrowser_button();
+        }
+
+        # random icon button - hidden for non-JS
+        $ret .= "<a href='javascript:void(0)' onclick='randomicon();' class='ljhidden' id='randomicon'>" . BML::ml('/talkpost.bml.userpic.random') ."</a>";
+
+        $ret .= LJ::help_icon_html("userpics", " ");
+    }
 
     return $ret;
 }
@@ -3812,6 +3829,14 @@ sub make_preview {
     }
 
     $ret .= "$BML::ML{'/talkpost_do.bml.preview.subject'} " . LJ::ehtml($cleansubject) . "<hr />\n";
+
+    my $icon_kw = "";
+    if ( $cookie_auth ) {
+        $icon_kw = delete $form->{prop_picture_keyword};
+        my $icon = LJ::Userpic->new_from_keyword( $remote, $icon_kw );
+        $ret .= "<div class='userpic'>" . $icon->imgtag( keyword => $icon_kw ) . "</div>" if $icon;
+    }
+
     if ($spellcheck_html) {
         $ret .= $spellcheck_html;
         $ret .= "<p>";
@@ -3827,6 +3852,8 @@ sub make_preview {
     $ret .= "<div style='width: 90%'><form method='post'><p>\n";
     $ret .= "<label for='subject'>$BML::ML{'/talkpost_do.bml.preview.edit.subject'}</label>";
     $ret .= "<input name='subject' size='50' maxlength='100' value='" . LJ::ehtml($form->{'subject'}) . "' /><br />";
+    $ret .= "<div class='userpics'>" . LJ::Talk::icon_dropdown( $remote, $icon_kw ) . "</div>"
+        if $cookie_auth;    # we're commenting as currently logged-in user
     $ret .= "<label for='body'>$BML::ML{'/talkpost_do.bml.preview.edit.body'}</label>";
     $ret .= "<textarea class='textbox' rows='10' cols='50' wrap='soft' name='body' style='width: 100%'>";
     $ret .= LJ::ehtml($form->{'body'});

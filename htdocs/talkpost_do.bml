@@ -282,6 +282,17 @@ _code?>
 <=body
 title=><?_code return $title _code?>
 head<=
-<?_code return (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : ""; _code?>
+<?_code
+    my $ret = "";
+    $ret .= qq{
+        <style type="text/css">
+            .userpic { float: left; margin: 0 15px 5px 0; }
+            .userpics { float: right; }
+        </style>
+    };
+
+    $ret .= (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : "";
+    return $ret;
+_code?>
 <=head
 page?>
