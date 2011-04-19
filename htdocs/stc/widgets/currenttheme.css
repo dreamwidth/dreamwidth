@@ -21,7 +21,7 @@
 }
 .theme-current-links {
     font-size: 11px;
-    margin-left: 130px;
+    float: left;
 }
 .theme-current ul {
     margin-top: 3px;
