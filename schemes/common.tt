@@ -72,12 +72,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- unread = inbox.unread_count -%]
     [%- identity = remote.is_identity -%]
     [%- -%]<div id='account-links-text'>
+    [%- IF dw_scheme.show_logout_button -%]
     [%- -%]<form action='[% site.root %]/logout?ret=1' method='post'>
     [%- remote.ljuser_display -%]
     [%- -%]<input type='hidden' name='user' value='[% remote.user %]' />
     [%- -%]<input type='hidden' name='sessid' value='[% remote._session.sessid %]' />
     [%- -%]<input type='submit' value="[% 'sitescheme.accountlinks.btn.logout' | ml %]" />
     [%- -%]</form>
+    [%- END -%]
     [%- -%]<ul>
     [%- IF ! identity -%]<li><a href='[% site.root %]/update'>[% 'sitescheme.accountlinks.post' | ml %]</a>  &bull; </li>[%- END -%]
     [%- -%]<li><a href='[% remote.journal_base %]/read'>[% 'sitescheme.accountlinks.readinglist' | ml %]</a> &bull; </li>

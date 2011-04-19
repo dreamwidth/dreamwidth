@@ -19,7 +19,6 @@ _c?>
 
     LJ::set_active_crumb('logout');
 
-    $title = $ML{'.title'};
     $body = "";
 
     my $u = LJ::get_remote();
@@ -121,6 +120,7 @@ _c?>
 
 _code?><?page
 title=><?_code return $title; _code?>
+windowtitle=><?_code return $ML{'.title'}; _code?>
 head<=
 <?_code LJ::need_res('stc/logout.css'); _code?>
 <style type='text/css'>
