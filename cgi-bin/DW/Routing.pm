@@ -191,8 +191,12 @@ sub _call_hash {
 
     # JSON error rendering
     if ( $format eq 'json' ) {
+        $msg = $err->as_string;
+        chomp $msg;
+
         my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";
         my $remote = LJ::get_remote();
+
         $text = "$msg" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
 
         $r->status( 500 );
@@ -201,8 +205,8 @@ sub _call_hash {
     # default error rendering
     } elsif ( $format eq "html" ) {
         $msg = $err->as_html;
-
         chomp $msg;
+
         $msg .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
 
         $r->status( 500 );
@@ -217,8 +221,8 @@ sub _call_hash {
         return DW::Template->render_string( $text, $opts );
     } else {
         $msg = $err->as_string;
-
         chomp $msg;
+
         $msg .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
 
         my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";

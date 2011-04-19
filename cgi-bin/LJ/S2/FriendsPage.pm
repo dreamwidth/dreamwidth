@@ -38,6 +38,10 @@ sub FriendsPage
 
     # load for ajax cuttag
     LJ::need_res( 'js/cuttag-ajax.js' );
+    LJ::need_res( { group => "jquery" }, qw(
+            js/jquery/jquery.ui.widget.js
+            js/jquery.cuttag-ajax.js
+        ) );
     my $collapsed = BML::ml( 'widget.cuttag.collapsed' );
     my $expanded = BML::ml( 'widget.cuttag.expanded' );
     my $collapseAll = BML::ml( 'widget.cuttag.collapseAll' );

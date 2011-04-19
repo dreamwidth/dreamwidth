@@ -18,6 +18,7 @@ use base "LJ::BetaFeatures::default";
 
 sub args_list {
     my @implemented = (
+        "Cut expand and collapse",
         "Logging in",
         "Screen/freeze/delete",
         "Control strip injection for non-supporting journals",
@@ -27,7 +28,6 @@ sub args_list {
 
     my @notimplemented = (
         "Contextual hover",
-        "Cut expand and collapse",
         "Media embed placeholder expansion",
         "Same-page poll submission",
         "Icon browser",

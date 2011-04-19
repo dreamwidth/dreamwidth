@@ -34,6 +34,7 @@ sub cutexpander_handler {
     my $r = DW::Request->get;
     my $args = $r->get_args;
 
+
     my $remote = LJ::get_remote();
 
     my $format = $formats->{json};
@@ -53,6 +54,7 @@ sub cutexpander_handler {
         my $uid = LJ::get_userid( $args->{journal} );
         my $entry = LJ::Entry->new( $uid, ditemid => $ditemid ) if $uid;
 
+        # FIXME: This returns 200 due to old library, Make return proper when we are jQuery only.
         return $error_out->( 200, BML::ml( "error.nopermission" ) ) unless $entry;
         
         # make sure the user can read the entry
@@ -67,8 +69,7 @@ sub cutexpander_handler {
         }
     }
 
-    # we have to return as 200 rather than, say, 403 because the httpreq
-    # library won't let us do custom error messages without returning OK.
+    # FIXME: This returns 200 due to old library, Make return proper when we are jQuery only.
     return $error_out->( 200, BML::ml( "error.nopermission" ) );
 }
 
