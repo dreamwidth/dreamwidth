@@ -20,17 +20,10 @@ use DW::Routing;
 use DW::Request::Standard;
 use HTTP::Request;
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#              WARNING! PELIGROSO! ACHTUNG! VNIMANIYE!
-# some fools (aka mischa) try to use this library from web context,
-# so make sure it's psuedo-safe to do so.  like don't class-autouse
-# Test::FakeApache because that really fucks with things.
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 use DBI;
 use LJ::ModuleCheck;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed fake_apache routing_request);
+our @EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed routing_request);
 
 my @temp_userids;  # to be destroyed later
 END {
@@ -136,24 +129,6 @@ sub temp_feed {
 }
 
 
-
-my $fake_apache;
-sub fake_apache {
-    return $fake_apache if $fake_apache;
-    # TODO: load all the right libraries, if they haven't already been loaded before.
-    # currently a fakeapache-using test has to start with:
-    #   use strict;
-    #   use Test::More 'no_plan';
-    #   use lib "$LJ::HOME/cgi-bin";
-    #   require 'modperl.pl';
-    #   use LJ::Test;
-    # but that modperl.pl require is kinda ugly.
-    die "You don't have Test::FakeApache!" unless LJ::ModuleCheck->have("Test::FakeApache");
-    return $fake_apache = Test::FakeApache->new(
-                                                PerlInitHandler => \&Apache::LiveJournal::handler,
-                                                DocumentRoot => "$LJ::HOME/htdocs/",
-                                                );
-}
 
 sub with_fake_memcache (&) {
     my $cb = shift;

@@ -1008,16 +1008,6 @@ sub trans
 
     return FORBIDDEN if $uri =~ m!^/userpics!;
 
-    # avoid the fakeapache library having to deal with the <Files ~ *.bml> stuff
-    # in the modperl_startup.pl http_conf
-    if (ref($r) eq "Test::FakeApache::Request" && $host eq $LJ::DOMAIN_WEB) {
-        my $file = "$LJ::HTDOCS$uri";
-        $file .= "/index.bml" unless $uri =~ /\.bml$/;
-        $file =~ s!/{2,}!/!;
-        $r->notes->{bml_filename} = $file;
-        return Apache::BML::handler($r);
-    }
-
     return DECLINED;
 }
 
