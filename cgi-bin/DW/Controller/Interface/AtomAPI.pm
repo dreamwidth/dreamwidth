@@ -353,7 +353,7 @@ sub _list_entries {
 
 
 sub entry_handler {
-    my ( $call_info ) = @_;
+    my ( $call_info, $jitemid ) = @_;
 
     my ( $ok, $rv ) = check_enabled();
     return $rv unless $ok;
@@ -366,7 +366,7 @@ sub entry_handler {
     my $u = $rv->{u};
     my $remote = $rv->{remote};
 
-    my $jitemid = int( $call_info->subpatterns->[0] || 0 );
+    $jitemid = int( $jitemid || 0 );
 
     my $req = {
         ver         => 1,

@@ -45,6 +45,8 @@ DW::Controller::Admin->register_admin_page( '/',
 );
 
 sub rename_handler {
+    my ( $opts, $given_token ) = @_;
+
     my $r = DW::Request->get;
 
     my ( $ok, $rv ) = controller();
@@ -56,7 +58,6 @@ sub rename_handler {
 
     my $vars = {};
 
-    my $given_token = $_[0]->subpatterns->[0];
     my $token = DW::RenameToken->new( token => $given_token );
     my $post_args = DW::Request->get->post_args || {};
     my $get_args = DW::Request->get->get_args || {};

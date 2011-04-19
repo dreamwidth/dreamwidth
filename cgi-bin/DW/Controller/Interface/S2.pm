@@ -25,10 +25,11 @@ DW::Routing->register_regex( '^/interface/s2(?:/(\d+)?)?$', \&interface_handler,
 
 # handles menu nav pages
 sub interface_handler {
+    my ( $call_info, $layerid ) = @_;
     my $r = DW::Request->get;
     my $method = $r->method;
 
-    my $layerid = int( $_[0]->subpatterns->[0] || 0 ) || '';
+    $layerid = int( $layerid || 0 ) || '';
     return error( $r, $r->NOT_FOUND, 'No layerid', 'Must provide the layerid, e.g., /interface/s2/1234' )
         unless $layerid;
 

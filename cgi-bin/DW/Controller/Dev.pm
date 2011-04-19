@@ -44,9 +44,7 @@ sub tests_index_handler {
 }
     
 sub tests_handler {
-    my ( $opts ) = @_;
-    my $test = $opts->subpatterns->[0];
-    my $lib = $opts->subpatterns->[1];
+    my ( $opts, $test, $lib ) = @_;
 
     my $r = DW::Request->get;
 

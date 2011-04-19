@@ -30,11 +30,11 @@ DW::Routing->register_regex( qr!^/nav(?:/([a-z]*))?$!, \&nav_handler, app => 1, 
 
 # handles menu nav pages
 sub nav_handler {
-    my $opts = shift @_;
+    my ( $opts, $cat ) = @_;
     my $r = DW::Request->get;
 
     # Check for a category like nav/read, then for a ?cat=read argument, else no category
-    my $cat = $opts->subpatterns->[0] || $r->get_args->{cat} || '';
+    $cat ||= $r->get_args->{cat} || '';
 
     # this function returns an array reference of menu hashes
     my $menu_nav = DW::Logic::MenuNav->get_menu_display( $cat )
