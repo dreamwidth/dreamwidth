@@ -1977,15 +1977,16 @@ sub editevent
     {
         # are they changing their most recent post?
         if ( $u->equals( $uowner ) &&
-             $u->prop( "newesteventtime" ) eq $oldevent->{eventtime} ) {
-            # did they change the time?
-            if ($eventtime ne $oldevent->{eventtime}) {
+            $u->prop( "newesteventtime" ) eq $oldevent->{eventtime} ) {
+
+            if ( ! $curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated} ) {
+                # if they set the backdated flag, then we no longer know
+                # the newesteventtime.
+                $u->set_prop( "newesteventtime", undef );
+            } elsif ( $eventtime ne $oldevent->{eventtime} ) {
+                # otherwise, if they changed time on this event,
                 # the newesteventtime is this event's new time.
                 $u->set_prop( "newesteventtime", $eventtime );
-            } elsif (!$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated}) {
-                # otherwise, if they set the backdated flag,
-                # then we no longer know the newesteventtime.
-                $u->set_prop( "newesteventtime", undef );
             }
         }
 
