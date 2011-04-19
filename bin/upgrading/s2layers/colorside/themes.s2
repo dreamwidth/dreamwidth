@@ -564,3 +564,39 @@ set color_entry_background = "#73e6b9";
 
 set color_module_background = "#73e6b9";
 set color_module_border = "#7efcce";
+
+
+#NEWLAYER: colorside/sunnyside
+layerinfo type = "theme";
+layerinfo name = "Sunnyside";
+layerinfo redist_uniq = "colorside/sunnyside";
+layerinfo author_name = "aedifica";
+
+set theme_authors = [ { "name" => "aedifica", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f6f5a5";
+set color_page_border = "#fcd560";
+set color_page_link = "#68584e";
+set color_page_text = "#3E342E";
+set color_page_title = "#79665b";
+set color_header_background = "#eae1da";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f5f0ed";
+set color_entry_title = "#79665b";
+set color_entry_title_background = "#eae1da";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f5f0ed";
+set color_module_title = "#79665b";
+set color_module_title_background = "#eae1da";
