@@ -16,6 +16,7 @@ propgroup presentation {
     property use layout_type;
     property use tags_page_type;
     property use sidebar_width;
+    property use userpics_style_group;
     property string entryicons_position {
        des = "Place icons on the same side or opposite the sidebar";
        values = "same|Same side as sidebar|opposite|Opposite the sidebar";
@@ -32,6 +33,8 @@ propgroup presentation {
 
 set sidebar_width = "15em";
 set layout_type = "two-columns-right";
+set entry_userpic_style= "small";
+set comment_userpic_style= "small";
 set entryicons_position = "opposite";
 set use_custom_friend_colors = false;
 set custom_foreground_element = "userpic_border";
@@ -315,17 +318,29 @@ function Page::print_default_stylesheet() {
     var Color blockquote_text = $*color_entry_text -> lighter(10);
     var Color blockquote_background = $*color_entry_background -> darker(10);
 
+    var string entry_userpic_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_userpic_margin = "130px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_userpic_margin = "105px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_userpic_margin = "80px"; }
+
+    var string comment_userpic_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_userpic_margin = "140px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_userpic_margin = "115px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_userpic_margin = "90px"; }
+
     var string entryicon_css = "";
     if ($*entryicons_position == "opposite") {
         $entryicon_css = """
         div.entry div.userpic,
         div.comment div.userpic {
             float: $sidebar_position_opposite;
-            margin-$sidebar_position_opposite: -100px;
             text-align: $sidebar_position;
             }
+        div.entry div.userpic {
+            margin-$sidebar_position_opposite: -$entry_userpic_margin;
+            }
         div.comment div.userpic {
-            margin-$sidebar_position_opposite: -110px;
+            margin-$sidebar_position_opposite: -$comment_userpic_margin;
             }
         """;
     }
@@ -334,15 +349,17 @@ function Page::print_default_stylesheet() {
         div.entry div.userpic,
         div.comment div.userpic {
             float: $sidebar_position;
-            margin-$sidebar_position: -100px;
             text-align: $sidebar_position;
             }
+        div.entry div.userpic{
+            margin-$sidebar_position: -$entry_userpic_margin;
+            }
         div.comment div.userpic {
-            margin-$sidebar_position: -110px;
+            margin-$sidebar_position: -$comment_userpic_margin;
             }
         #secondary {
-            margin-$sidebar_position_opposite: 100px;
-        }
+            margin-$sidebar_position_opposite: $entry_userpic_margin;
+            }
         """;
     }
 
@@ -492,14 +509,10 @@ h3.entry-title a { color: $*color_entry_title; }
 
 div.entry div.userpic {
     display: block;
-    height: auto;
     margin: 0;
-    width: 80px;
     }
 
 div.entry div.userpic img {
-    max-width: 70px;
-    height: auto;
     border: 5px solid $*color_navigation_module_background;
     }
 
@@ -717,14 +730,10 @@ textarea.textbox  { width: 90%!important; }
 
 div.comment div.userpic {
     display: block;
-    height: auto;
     margin: 0;
-    width: 80px;
     }
 
 div.comment div.userpic img {
-    max-width: 70px;
-    height: auto;
     border: 5px solid $*color_navigation_module_background;
     }
 

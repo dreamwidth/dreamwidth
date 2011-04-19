@@ -1292,24 +1292,23 @@ property bool tags_aware {
     noui = 1;
 }
 
-property string[] userpic_style_group {
+property string[] userpics_style_group {
     des = "Select the size of icons";
     grouptype = "datetime";
     }
-set userpic_style_group = ["entry_userpic_style", "comment_userpic_style"];
+set userpics_style_group = ["entry_userpic_style", "comment_userpic_style"];
 property string entry_userpic_style {
-   des = "In entries";
-   doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
-   doc_flags = "[construct]";
-   values = "|Full|small|Small|smaller|Smaller";
+    des = "In entries";
+    doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
+    doc_flags = "[construct]";
+    values = "|Full|small|Small|smaller|Smaller";
     grouped = 1;
 }
-
 property string comment_userpic_style {
-   des = "In comments";
-   doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
-   doc_flags = "[construct]";
-   values = "|Full|small|Small|smaller|Smaller";
+    des = "In comments";
+    doc = "Either '' for 100%, 'small' for 75% and 'smaller' for 50%";
+    doc_flags = "[construct]";
+    values = "|Full|small|Small|smaller|Smaller";
     grouped = 1;
 }
 

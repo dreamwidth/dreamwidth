@@ -28,6 +28,7 @@ propgroup presentation {
     property use layout_type;
     property use sidebar_width;
     property use tags_page_type;
+    property use userpics_style_group;
     property string entryicons_position {
        des = "Place icons on the same side or opposite the sidebar";
        values = "same|Same side as sidebar|opposite|Opposite the sidebar";
@@ -464,13 +465,37 @@ function Page::print_default_stylesheet () {
 
     var string navigation_colors = generate_color_css($*color_page_details_text, $*color_entry_background, new Color);
 
+
+    var string entry_userpic_shift = "";
+    if ( $*entry_userpic_style == "" ) { $entry_userpic_shift = "-66px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_userpic_shift = "-50px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_userpic_shift = "-33px"; }
+
+    var string comment_userpic_shift = "";
+    if ( $*comment_userpic_style == "" ) { $comment_userpic_shift = "-66px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_userpic_shift = "-50px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_userpic_shift = "-33px"; }
+
+
+    var string entry_title_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_title_margin = "120px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_title_margin = "95px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_title_margin = "70px"; }
+
+    var string comment_title_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_title_margin = "120px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_title_margin = "95px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_title_margin = "70px"; }
+
     var string entryicon_css = "";
         if ($*entryicons_position == "same") {
             $entryicon_css = """
-            .two-columns-right .has-userpic .entry-title,
-            .two-columns-right .has-userpic .comment-title { margin: 0 120px .5em 0; }
-            .two-columns-left .has-userpic .entry-title,
-            .two-columns-left .has-userpic .comment-title { margin: 0 0 .5em 120px; }
+            .two-columns-right .has-userpic .entry-title { margin: 0 $entry_title_margin .5em 0; }
+            .two-columns-right .has-userpic .comment-title { margin: 0 $comment_title_margin .5em 0; }
+
+            .two-columns-left .has-userpic .entry-title { margin: 0 0 .5em $entry_title_margin; }
+            .two-columns-left .has-userpic .comment-title { margin: 0 0 .5em $comment_title_margin; }
+
             .two-columns-right .entry .userpic a, 
             .two-columns-right .comment .userpic a { right: 10px; left: auto; }
             .two-columns-left .entry .userpic a, 
@@ -479,10 +504,12 @@ function Page::print_default_stylesheet () {
         }
         elseif ($*entryicons_position == "opposite") {
             $entryicon_css = """
-            .two-columns-right .has-userpic .entry-title,
-            .two-columns-right .has-userpic .comment-title { margin: 0 0 .5em 120px; }
-            .two-columns-left .has-userpic .entry-title,
-            .two-columns-left .has-userpic .comment-title { margin: 0 120px .5em 0; }
+            .two-columns-right .has-userpic .entry-title { margin: 0 0 .5em $entry_title_margin; }
+            .two-columns-right .has-userpic .comment-title { margin: 0 0 .5em $comment_title_margin; }
+
+            .two-columns-left .has-userpic .entry-title { margin: 0 $entry_title_margin .5em 0; }
+            .two-columns-left .has-userpic .comment-title { margin: 0 $comment_title_margin .5em 0; }
+
             .two-columns-right .entry .userpic a, 
             .two-columns-right .comment .userpic a { left: 10px; right: auto; }
             .two-columns-left .entry .userpic a, 
@@ -629,7 +656,15 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .entry-wrapper-even .entry-title, .comment-wrapper-even .comment-title {border: solid 1px $*color_entry_title_border_alt; $entry_title_colors }
 
 .userpic a {background-color: $*color_page_border; border: 0px; }
-.entry .userpic a, .comment .userpic a {background-color: $*color_entry_background; border: solid 2px $*color_page_border; display: block; position: absolute; top: -66px; padding: 5px; }
+.entry .userpic a, .comment .userpic a {background-color: $*color_entry_background; border: solid 2px $*color_page_border; display: block; position: absolute; padding: 5px; }
+
+.entry .userpic a {
+    top: $entry_userpic_shift;
+    }
+
+.comment .userpic a {
+    top: $comment_userpic_shift;
+    }
 
 .entry .userpic img, .comment .userpic img {border: none; }
 .no-userpic .comment {margin-top: 20px; }

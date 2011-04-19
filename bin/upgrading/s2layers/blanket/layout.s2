@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use userpics_style_group;
     property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
@@ -29,6 +30,8 @@ propgroup presentation {
 }
 
 set layout_type = "one-column";
+set entry_userpic_style= "small";
+set comment_userpic_style= "small";
 set use_custom_friend_colors = false;
 set custom_foreground_element = "userpic_border";
 set custom_background_element = "userpic_background";
@@ -356,8 +359,6 @@ h3.entry-title a { $entry_title_colors }
 .userpic { display: block; }
 
 .userpic img {
-    height: auto;
-    max-width: 80px;
     padding: 5px;
     $userpic_colors
     }

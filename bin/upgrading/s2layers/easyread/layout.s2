@@ -17,6 +17,7 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use userpics_style_group;
     property use userpics_position;
     property use entry_metadata_position;
     property use use_custom_friend_colors;
@@ -304,17 +305,37 @@ function Page::print_default_stylesheet {
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
-var string entrytitle_padding = $*use_custom_friend_colors ? "padding: .2em;" : "";
+    var string entry_contentsfooter_shift = "";
+    if ( $*entry_userpic_style == "" ) { $entry_contentsfooter_shift = "84px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_contentsfooter_shift = "59px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_contentsfooter_shift = "34px"; }
+
+    var string entry_header_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_header_margin = "110px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_header_margin = "85px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_header_margin = "60px"; }
+
+    var string comment_header_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_header_margin = "110px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_header_margin = "85px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_header_margin = "60px"; }
+
+    var string entrytitle_padding = $*use_custom_friend_colors ? "padding: .2em;" : "";
 
     var string userpic_css = "";
     if ($*userpics_position == "left") {
         $userpic_css = """
-        #primary .header {
-            margin-left: 110px;
+        .has-userpic .entry .header {
+            margin-left: $entry_header_margin;
             }
+        .has-userpic .comment .header {
+            margin-left: $comment_header_margin;
+            }
+
         .has-userpic .entry .poster {
-            margin-left: 110px;
+            margin-left: $entry_header_margin;
             }
+
         #comments .userpic a img, .comment-wrapper .userpic a img  {
             float: left;
             margin-right: 10px;
@@ -326,15 +347,21 @@ var string entrytitle_padding = $*use_custom_friend_colors ? "padding: .2em;" : 
     }
     elseif ($*userpics_position == "right") {
         $userpic_css = """
-        #primary .header {
-            margin-right: 110px;
+        .has-userpic .entry .header {
+            margin-right: $entry_header_margin;
             }
+        .has-userpic .comment .header {
+            margin-right: $comment_header_margin;
+            }
+
         .has-userpic .entry .poster {
-            margin-right: 110px;
+            margin-right: $entry_header_margin;
             }
+
         .has-userpic .entry .contents .userpic {
-            margin-left: auto;
+            text-align: right;
             }
+
         #comments .userpic a img, .comment-wrapper .userpic a img  {
             float: right;
             margin-left: 10px;
@@ -578,13 +605,7 @@ h2.module-header a {
 
 .entry .contents .userpic a img {
     border: 0;
-    margin-right: 10px;
     margin-bottom: 10px;
-}
-
-.has-userpic .entry .contents .userpic {
-    height: 100px;
-    width: 100px;
 }
 
 .has-userpic .entry .poster {
@@ -596,13 +617,13 @@ h2.module-header a {
 /* Pushed down in order to accomodate the header being next to the icon. */
 .entry .contents {
     position: relative;
-    bottom: 84px;
+    bottom: $entry_contentsfooter_shift;
 }
 
 /* Single post metadata links location/etc. */
 .entry .footer {
     position: relative;
-    bottom: 84px;  
+    bottom: $entry_contentsfooter_shift;
 }
 
 /* Entry/Comment links */
