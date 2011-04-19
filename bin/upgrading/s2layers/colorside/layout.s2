@@ -48,6 +48,11 @@ function print_stylesheet() {
 
     var string footer_colors = generate_color_css( new Color, $*color_page_background, new Color );
 
+    var string entry_content_padding = "";
+    if ( $*color_entry_background.as_string != $*color_page_background.as_string ) {
+        $entry_content_padding = "padding: 5px;";
+    }
+
     var string entry_padding = "";
     if ( $*entry_userpic_style == "" ) { $entry_padding = "110px"; }
     elseif ( $*entry_userpic_style == "small" ) { $entry_padding = "85px"; }
@@ -196,7 +201,7 @@ margin: .75em 0; }
 .entry .contents .userpic { position: absolute;
 top: -1em; }
 
-.entry-content { margin-top: 2em; }
+.entry-content { margin-top: 2em; $entry_content_padding }
 
 .metadata { margin: 1em 0 0 0; }
 .metadata.top-metadata { margin-top: 1.25em; margin-bottom: 2em; }

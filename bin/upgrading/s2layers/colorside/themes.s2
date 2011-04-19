@@ -37,7 +37,6 @@ function Page::print_theme_stylesheet () {
     """
     #header,
     #title, #subtitle, #pagetitle,
-    .entry-content,
     .module-header {
         padding: 5px;
         }
@@ -126,7 +125,6 @@ function Page::print_theme_stylesheet () {
     """
     #header,
     #title, #subtitle, #pagetitle,
-    .entry-content,
     .module-header {
         padding: 5px;
         }
@@ -208,6 +206,9 @@ set color_module_text = "#fff";
 set color_module_title = "#fff";
 set color_module_title_background = "#666";
 
+function Page::print_theme_stylesheet () {
+    """ .entry-content { padding: 5px; } """;
+}
 
 #NEWLAYER: colorside/nnwm2009
 layerinfo type = "theme";
@@ -507,7 +508,6 @@ function Page::print_theme_stylesheet () {
     """
     #header,
     #title, #subtitle, #pagetitle,
-    .entry-content,
     .module-header {
         padding: 5px;
         }
