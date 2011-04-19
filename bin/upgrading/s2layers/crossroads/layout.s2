@@ -115,8 +115,6 @@ function Page::print() {
 
 function print_stylesheet () {
 
-var string no_icon = "$*IMGDIR/profile_icons/user.png";
-
 #function to make #tag background same as #entry background
 var string tagcolor = "";
 if ($*color_entry_background) {
@@ -126,31 +124,69 @@ else {
     $tagcolor = $*color_page_background;
 }
 
-    var string userpic_css = "";
+    var string{}{} scaling = {
+        "" => {
+            "margin"        => "110px",
+            "noicon_img"    => "$*IMGDIR/profile_icons/user.png",
+            "noicon_size"   => "106px"
+        },
+        "small" => {
+            "margin"        => "85px",
+            "noicon_img"    => "$*IMGDIR/profile_icons/user-small.png",
+            "noicon_size"   => "77px"
+        },
+        "smaller" => {
+            "margin"        => "60px",
+            "noicon_img"    => "$*IMGDIR/profile_icons/user-smaller.png",
+            "noicon_size"   => "51px"
+        }
+    };
+
+    var string entry_margin = $scaling{$*entry_userpic_style}{"margin"};
+    var string entry_noicon = $scaling{$*entry_userpic_style}{"noicon_img"};
+    var string entry_noicon_size = $scaling{$*entry_userpic_style}{"noicon_size"};
+
+    var string comment_margin = $scaling{$*comment_userpic_style}{"margin"};
+    var string comment_noicon = $scaling{$*comment_userpic_style}{"noicon_img"};
+    var string comment_noicon_size = $scaling{$*comment_userpic_style}{"noicon_size"};
+
+    var string userpic_css = """
+        .entry .contents .userpic { background: url("$entry_noicon") center no-repeat; }
+        .entry .contents .userpic, .entry .contents .userpic a {
+            width: $entry_noicon_size;
+            height: $entry_noicon_size;
+        }
+
+        .comment .contents .userpic { background: url("$comment_noicon") center no-repeat; }
+        .comment .contents .userpic, .comment .contents .userpic a {
+            width: $comment_noicon_size;
+            height: $comment_noicon_size;
+        }
+    """;
         if ($*userpics_position == "left") {
-            $userpic_css = """
+            $userpic_css = $userpic_css + """
             .entry .contents .userpic,
             .comment .contents .userpic { left: 0; }
-            .entry .header,
-            .comment-wrapper .header { margin-left: 110px; }
+            .entry .header { margin-left: $entry_margin; }
+            .comment-wrapper .header { margin-left: $comment_margin; }
             .entry .header .entry-title,
             .full .comment-title { margin-left: -4px; }
-            .entry-wrapper .contents .entry-poster { margin: 0 0 25px 110px; }
+            .entry-wrapper .contents .entry-poster { margin: 0 0 25px $entry_margin; }
             .full .comment-poster,
-            .comment .poster-ip { margin-left: 110px; }
+            .comment .poster-ip { margin-left: $comment_margin; }
             """;
         }
         elseif ($*userpics_position == "right") {
-            $userpic_css = """
+            $userpic_css = $userpic_css + """
             .entry .contents .userpic,
             .comment .contents .userpic { right: 0; }
-            .entry .header,
-            .comment-wrapper .header { margin-right: 110px; }
+            .entry .header { margin-right: $entry_margin; }
+            .comment-wrapper .header { margin-right: $comment_margin; }
             .entry .header .entry-title,
             .full .comment-title { margin-right: -4px; }
-            .entry-wrapper .contents .entry-poster { margin: 0 110px 25px 0; }
+            .entry-wrapper .contents .entry-poster { margin: 0 $entry_margin 25px 0; }
             .full .comment-poster,
-            .comment .poster-ip { margin-right: 110px; }
+            .comment .poster-ip { margin-right: $comment_margin; }
             """;
         }
 
@@ -269,16 +305,16 @@ body { margin: 0; }
 .comment-wrapper .header { min-height: 60px; }
 
 .entry .contents .userpic,
-.comment .contents .userpic {width: 106px;
-    height: 106px;
+.comment .contents .userpic {
     position: absolute;
     top: 0;
-    background: url("$no_icon") center no-repeat; }
+    }
+
 .entry .contents .userpic a,
-.comment .contents .userpic a { display: block;
-    height: 106px;
-    width: 106px;
-    background-color: $*color_page_background;}
+.comment .contents .userpic a {
+    display: block;
+    background-color: $*color_page_background;
+    }
 
 .entry-wrapper .contents .entry-poster { display: block; }
 .page-recent .entry-wrapper .entry-poster,

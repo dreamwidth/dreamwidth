@@ -298,8 +298,6 @@ function print_stylesheet () {
 
     var string comment_border_image_even = generate_background_css ($*image_comment_border_end_even_url, $*image_comment_border_end_even_repeat, $*image_comment_border_end_even_position, new Color);
 
-    var string no_icon = generate_background_css ("$*IMGDIR/profile_icons/user.png", "no-repeat", "center", new Color);
-
     var string navlinks_css = "";
         if ($*module_navlinks_section == "header") {
             $navlinks_css = """
@@ -341,6 +339,31 @@ function print_stylesheet () {
         else {
             $navlinks_css = "";
         }
+
+    var string{}{} scaling = {
+        "" => {
+            "padding"       => "110px",
+            "noicon_img"    => "$*IMGDIR/profile_icons/user.png",
+            "icon_wrap_size" => "102px",
+            "icon_link_size" => "100px"
+        },
+        "small" => {
+            "padding"       => "85px",
+            "noicon_img"    => "$*IMGDIR/profile_icons/user-small.png",
+            "icon_wrap_size" => "77px",
+            "icon_link_size" => "75px"
+        },
+        "smaller" => {
+            "padding"       => "60px",
+            "noicon_img"    => "$*IMGDIR/profile_icons/user-smaller.png",
+            "icon_wrap_size" => "52px",
+            "icon_link_size" => "50px"
+        }
+    };
+    var string comment_datetime_padding = $scaling{$*comment_userpic_style}{"padding"};
+    var string entry_icon_background = generate_background_css ($scaling{$*entry_userpic_style}{"noicon_img"}, "no-repeat", "center", new Color);
+    var string comment_icon_background = generate_background_css ($scaling{$*comment_userpic_style}{"noicon_img"}, "no-repeat", "center", new Color);
+
 
     """
 
@@ -537,16 +560,16 @@ body {
     }
 
 .entry .contents .userpic {
-    $no_icon
-    height: 102px;
-    width: 102px;
-    }
+    $entry_icon_background
+    height: $scaling{$*entry_userpic_style}{"icon_wrap_size"};
+    width: $scaling{$*entry_userpic_style}{"icon_wrap_size"};
+}
 
 .entry .contents .userpic a {
     background-color: $*color_page_background;
     display: block;
-    height: 100px;
-    width: 100px;
+    height: $scaling{$*entry_userpic_style}{"icon_link_size"};
+    width: $scaling{$*entry_userpic_style}{"icon_link_size"};
     }
 
 .entry-wrapper-odd .contents .userpic {
@@ -748,11 +771,11 @@ ul.entry-interaction-links {
     }
 
 .comment-wrapper-odd.full .datetime {
-    padding-left: 110px;
+    padding-left: $comment_datetime_padding;
     }
 
 .comment-wrapper-even.full .datetime {
-    padding-right: 110px;
+    padding-right: $comment_datetime_padding;
     }
 
 .comment-wrapper-even .contents {
@@ -769,16 +792,16 @@ ul.entry-interaction-links {
     }
 
 .comment .contents .userpic {
-    $no_icon
-    height: 102px;
-    width: 102px;
-    }
+    $comment_icon_background
+    height: $scaling{$*comment_userpic_style}{"icon_wrap_size"};
+    width: $scaling{$*comment_userpic_style}{"icon_wrap_size"};
+}
 
 .comment .contents .userpic a {
     background-color: $*color_page_background;
     display: block;
-    height: 100px;
-    width: 100px;
+    height: $scaling{$*comment_userpic_style}{"icon_link_size"};
+    width: $scaling{$*comment_userpic_style}{"icon_link_size"};
     }
 
 .comment-wrapper-odd .contents .userpic {
