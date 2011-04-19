@@ -38,6 +38,20 @@ sub as_html {
     return $self->event_journal->ljuser_display . " has uploaded a new <a href='" . $up->url . "'>icon</a>.";
 }
 
+sub _clean_field {
+    my ( $field, %opts ) = @_;
+
+    LJ::CleanHTML::clean( \$field, {
+        wordlength => 40,
+        addbreaks => 0,
+        tablecheck => 1,
+        mode => "deny",
+        textonly => $opts{textonly},
+    } );
+
+    return $field;
+}
+
 sub as_email_string {
     my ($self, $u) = @_;
     return unless $self->userpic && $self->userpic->valid;
@@ -45,8 +59,8 @@ sub as_email_string {
     my $username = $u->user;
     my $poster = $self->userpic->owner->user;
     my $userpic = $self->userpic->url;
-    my $comment = LJ::strip_html( $self->userpic->comment ) || '(none)';
-    my $description = LJ::strip_html( $self->userpic->description ) || '(none)';
+    my $comment = _clean_field( $self->userpic->comment, textonly => 1 ) || '(none)';
+    my $description = _clean_field( $self->userpic->description, textonly => 1 ) || '(none)';
     my $journal_url = $self->userpic->owner->journal_base;
     my $icons_url = $self->userpic->owner->allpics_base;
     my $profile = $self->userpic->owner->profile_url;
@@ -92,8 +106,9 @@ sub as_email_html {
     my $poster = $self->userpic->owner->ljuser_display;
     my $postername = $self->userpic->owner->user;
     my $userpic = $self->userpic->imgtag;
-    my $comment = LJ::ehtml( $self->userpic->comment ) || '(none)';
-    my $description = LJ::ehtml( $self->userpic->description ) || '(none)';
+
+    my $comment = _clean_field( $self->userpic->comment, textonly => 0 ) || '(none)';
+    my $description = _clean_field( $self->userpic->description, textonly => 0 ) || '(none)';
     my $journal_url = $self->userpic->owner->journal_base;
     my $icons_url = $self->userpic->owner->allpics_base;
     my $profile = $self->userpic->owner->profile_url;
