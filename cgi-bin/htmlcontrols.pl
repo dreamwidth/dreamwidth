@@ -305,7 +305,7 @@ sub html_text
     my $ret = '';
     $ret .= "<input type=\"$type\"";
     foreach (grep { ! /^(type|disabled|raw|noescape)$/ } keys %$opts) {
-        my $val = $opts->{$_} || '';
+        my $val = defined $opts->{$_} ? $opts->{$_} : '';
         $ret .= " $_=\"" . ( $ehtml ? LJ::ehtml( $val ) : $val ) . "\"";
     }
     if ($opts->{'raw'}) { $ret .= " $opts->{'raw'}"; }
