@@ -38,7 +38,7 @@ body<=
         $u->set_prop( stylesys => 2 );
     }
 
-    my $group = $GET{group} ? $GET{group} : "display";
+    my $group = $GET{group} ? $GET{group} : "presentation";
 
     # make sure there's a style set and load it
     my $style = LJ::Customize->verify_and_load_style($u);
