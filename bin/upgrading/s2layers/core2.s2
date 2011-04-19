@@ -1202,7 +1202,7 @@ property bool use_journalstyle_entry_page  { des = "Show entry pages in my journ
 set use_journalstyle_entry_page = true;
 
 property bool use_journalstyle_icons_page  { des = "Show icons page in my journal style rather than the site layout"; }
-set use_journalstyle_icons_page = true;
+set use_journalstyle_icons_page = false;
 
 # Defaults to false, but layouts can set it to true to switch on custom colors for different posters on reading list.
 property bool use_custom_friend_colors  { des = "Use my custom reading list colors"; }
