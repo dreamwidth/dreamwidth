@@ -15,7 +15,7 @@ _c?>
 <?_code
 {
     use strict;
-    use vars qw(%FORM $title $body);
+    use vars qw(%FORM $title $body %GET);
     use LJ::Poll;
 
     $title = $ML{'.title'};
@@ -122,7 +122,7 @@ _c?>
             $body .= $error;
             return;
         }
-        return BML::redirect($entry->url);
+        return BML::redirect( $entry->url( style_args => LJ::viewing_style_opts( %GET ) ) );
     }
 
     $body .= $poll->render(mode => $mode, qid => $FORM{qid},

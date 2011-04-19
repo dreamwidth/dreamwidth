@@ -893,7 +893,8 @@ sub render {
             $preval{$qid} = $value;
         }
 
-        $ret .= "<div id='poll-$pollid-container'><form class='LJ_PollForm' action='$LJ::SITEROOT/poll/?id=$pollid' method='post'>";
+        my $url = LJ::create_url( "/poll/", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => { id => $pollid } );
+        $ret .= "<div id='poll-$pollid-container'><form class='LJ_PollForm' action='$url' method='post'>";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden('pollid', $pollid);
         $ret .= LJ::html_hidden('id', $pollid);    #for the ajax request
