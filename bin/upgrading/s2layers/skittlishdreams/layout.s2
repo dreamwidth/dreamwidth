@@ -244,6 +244,7 @@ set module_calendar_section = "two";
 set module_customtext_section = "two";
 set module_credit_section = "two";
 set module_search_section = "two";
+set module_cuttagcontrols_section = "two";
 
 set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override",
                                 "module_poweredby_section" => "module_poweredby_section_override",
