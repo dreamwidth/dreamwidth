@@ -266,6 +266,14 @@ sub relative_langdat_file_of_lang_itcode
         return $langdat_file;
     }
 
+    if ( $itcode =~ m!^(/.+\.tt)! ) {
+        my $file = $1;
+
+        my $langdat_file = "views$file\.text";
+        $langdat_file .= $is_local ? ".local" : "";
+        return $langdat_file;
+    }
+
     # not a bml file, goes into base .dat file
     return $base_file;
 }
@@ -274,12 +282,12 @@ sub itcode_for_langdat_file {
     my ($langdat_file, $itcode) = @_;
 
     # non-bml itcode, return full itcode path
-    unless ($langdat_file =~ m!^/.+\.bml\.text(?:\.local)?$!) {
+    unless ($langdat_file =~ m!^/.+\.(?:bml|tt)\.text(?:\.local)?$!) {
         return $itcode;
     }
 
     # bml itcode, strip filename and return
-    if ($itcode =~ m!^/.+\.bml(\..+)!) {
+    if ($itcode =~ m!^/.+\.(?:bml|tt)(\..+)!) {
         return $1;
     }
 
