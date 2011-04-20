@@ -66,7 +66,7 @@ sub render_body {
     }
 
     if ($opts{returnto}) {
-        $ret .= LJ::html_hidden('returnto', $opts{returnto});
+        $ret .= LJ::html_hidden('returnto', LJ::ehtml($opts{returnto}));
     }
 
     my $hook_rv = LJ::Hooks::run_hook("login_form_$opts{mode}", create_link => $opts{create_link});
@@ -153,7 +153,7 @@ sub render_body {
 
     # Save offsite redirect uri between POSTs
     my $redir = $opts{get_ret} || $opts{post_ret};
-    $ret .= LJ::html_hidden('ret', $redir) if $redir && $redir != 1;
+    $ret .= LJ::html_hidden('ret', LJ::ehtml($redir)) if $redir && $redir != 1;
 
     $ret .= "</form>\n";
 
