@@ -107,4 +107,4 @@ Expander = {
   make: function(element, url, dtid, isS1) {
     $(element).expandComments(LJ_cmtinfo, url, dtid, isS1);
   }
-}
+};
