@@ -247,9 +247,10 @@ sub remap_username_friend {
 
         if ( $data =~ m!<ownerName>(.+?)</ownerName>! ) {
             my $url = $1;
+            return undef unless $url;
+
             $url = "http://$url/"
                 unless $url =~ m/^https?:/;
-            return undef unless $url;
 
             if ( $url =~ m!http://(.+)\.$LJ::DOMAIN\/$! ) {
                 # this appears to be a local user!
