@@ -49,10 +49,6 @@ Sincerely,
 
 .new.101.community.question=What is a community?
 
-.new.101.reading.answer=It lets you read the latest from journals and web feeds you've subscribed to, all in one place.
-
-.new.101.reading.question=What is a Reading Page?
-
 .new.101.journal.answer=Your journal is for writing and sharing stories, photos, videos, and more with others.
 
 .new.101.journal.question=What is a journal?
@@ -60,6 +56,10 @@ Sincerely,
 .new.101.profile.answer=A collection of goodies about yourself. Express yourself with userpics, interests, a bio, and more!
 
 .new.101.profile.question=What is a profile?
+
+.new.101.reading.answer=It lets you read the latest from journals and web feeds you've subscribed to, all in one place.
+
+.new.101.reading.question=What is a Reading Page?
 
 .new.101.title=[[sitename]] 101
 
@@ -76,3 +76,4 @@ Sincerely,
 .trans.body=Your new email address has been validated.
 
 .trans.header=Success
+

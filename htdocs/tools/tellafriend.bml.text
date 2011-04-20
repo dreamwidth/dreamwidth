@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .email.body<<
 Hi,
 
@@ -70,11 +71,11 @@ Check out my journal that I'm keeping online:
 
 .error.noemail=No email addresses found.
 
+.error.unknownjournal=Unknown journal
+
 .errorpage.body=[[errormessage]]
 
 .errorpage.title=Error
-
-.error.unknownjournal=Unknown journal
 
 .invalidemailpage.body=Your current email address [[emailaddress]] isn't validated, so we can't let you use the "Tell a Friend" feature.  To validate your email address, <a href="[[siteroot]]/register.bml">have the confirmation email resent</a>, and then follow the instructions in it when you get it.
 
@@ -91,3 +92,4 @@ Check out my journal that I'm keeping online:
 .title=Tell a Friend!
 
 .via= via
+

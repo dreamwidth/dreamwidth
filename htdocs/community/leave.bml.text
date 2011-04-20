@@ -13,11 +13,7 @@
 
 .label.logoutfirst2=To leave a community you must first <a [[aopts]]>log in</a>.
 
-.label.removed.stopwatch=You are no longer watching the <a [[aopts]]>[[commname]] Community</a>.
-
 .label.removed.stopwatch4=You are no longer watching the [[commname]] Community.
-
-.label.removed2=You are now removed from the <a [[aopts]]>[[commname]] Community</a>.
 
 .label.removed5=You are now removed from the [[commname]] Community.
 

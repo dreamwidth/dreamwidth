@@ -121,9 +121,9 @@
 
 .timeformat=24 hour time
 
-.title2=Post an Entry
-
 .title.readonly=Read-only mode
+
+.title2=Post an Entry
 
 .update.head=Update your Journal...
 

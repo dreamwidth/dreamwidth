@@ -5,9 +5,9 @@
 
 .button.post=Post Comment
 
-.confirm.action=Are you sure you wish to delete the selected comments?
-
 .comment.screened.subject=(screened) 
+
+.confirm.action=Are you sure you wish to delete the selected comments?
 
 .deletedpost=<b>(Deleted post)</b>
 
@@ -15,9 +15,9 @@
 
 .edittime=Edited [[editreason]] [[edittime]]
 
-.from_external=(from [[site]])
-
 .fromip=(from [[ip]])
+
+.from_external=(from [[site]])
 
 .noreplies=No replies
 

@@ -1,10 +1,9 @@
 ;; -*- coding: utf-8 -*-
-
-actionlink=[[[link]]]
+Actionlink=[[[link]]]
 
 admin.noprivserror=Sorry, your account does not have the necessary [[?numprivs|privilege|privileges]] ([[?numprivs||one of ]][[needprivs]]) to use this tool.
 
-backlink=[<a href="[[link]]">&lt;&lt;</a> [[text]]]
+Backlink=[<a href="[[link]]">&lt;&lt;</a> [[text]]]
 
 bml.badcontent.body=One or more errors occurred processing your request.  Please go back, correct the necessary information, and submit your data again.
 
@@ -12,17 +11,15 @@ bml.badinput.body=Your browser sent some text which is not recognised as valid t
 
 bml.badinput.head=Bad Unicode Input
 
-bml.needlogin.body4=In order to view this page, you must <a [[aopts]]>log in</a>. If you do not have an account, you may <a [[aopts]]>create one now</a>.
-
 bml.needlogin.body5=In order to view this page, you must <a [[aopts1]]>log in</a>. If you do not have an account, you may <a [[aopts2]]>create one now</a>.
 
 bml.needlogin.head=Login Required
 
-bml.parse_multipart.parse=Error parsing upload
+BML.parse_multipart.parse=Error parsing upload
 
-bml.parse_multipart.toolarge=Upload too large
+BML.parse_multipart.toolarge=Upload too large
 
-bml.parse_multipart.unknowntype=Unknown content type
+BML.parse_multipart.unknowntype=Unknown content type
 
 bml.requirepost=As a security precaution, the page you're viewing requires a POST request, not a GET. If you're trying to submit this form legitimately, please contact us.
 
@@ -42,9 +39,9 @@ cleanhtml.suspend_msg=This is a suspended entry.
 
 cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened, and your entry will be reviewed soon.
 
-collapsible.expanded=Collapse
-
 collapsible.collapsed=Expand
+
+collapsible.expanded=Collapse
 
 contentflag.viewingconcepts.bycommunity=You are about to view content that a community administrator has advised should be viewed with discretion.
 
@@ -60,381 +57,47 @@ contentflag.viewingexplicit.byposter=You are about to view content that the post
 
 cprod.birthday.link.v1=birthdays
 
-cprod.birthday.link.v2=
-
-cprod.birthday.link.v3=
-
-cprod.birthday.link.v4=
-
-cprod.birthday.link.v5=
-
 cprod.birthday.text.v1=Hey, [[user]], see which of your friends' [[link]] are coming up! LiveJournal keeps a list of their birthdays for you.
-
-cprod.birthday.text.v2=
-
-cprod.birthday.text.v3=
-
-cprod.birthday.text.v4=
-
-cprod.birthday.text.v5=
 
 cprod.controlstrip.link.v1=Navigation Strip
 
-cprod.controlstrip.link.v2=
-
-cprod.controlstrip.link.v3=
-
-cprod.controlstrip.link.v4=
-
-cprod.controlstrip.link.v5=
-
 cprod.controlstrip.text.v1=9 out of 10 LJ users prefer the [[link]].  (OK we made that up, but you should check it out anyway.)
-
-cprod.controlstrip.text.v2=
-
-cprod.controlstrip.text.v3=
-
-cprod.controlstrip.text.v4=
-
-cprod.controlstrip.text.v5=
-
-cprod.createstyles.link.v1=
-
-cprod.createstyles.link.v2=
-
-cprod.createstyles.link.v3=
-
-cprod.createstyles.link.v4=
-
-cprod.createstyles.link.v5=
 
 cprod.createstyles.text.v1=Your account type does not support creating styles.
 
-cprod.createstyles.text.v2=
-
-cprod.createstyles.text.v3=
-
-cprod.createstyles.text.v4=
-
-cprod.createstyles.text.v5=
-
-cprod.directory.link3.v1=
-
-cprod.directory.link3.v2=
-
-cprod.directory.link3.v3=
-
-cprod.directory.link3.v4=
-
-cprod.directory.link3.v5=
-
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
-
-cprod.directory.text3.v2=
-
-cprod.directory.text3.v3=
-
-cprod.directory.text3.v4=
-
-cprod.directory.text3.v5=
-
-cprod.editpics.link.v1=
-
-cprod.editpics.link.v2=
-
-cprod.editpics.link.v3=
-
-cprod.editpics.link.v4=
-
-cprod.editpics.link.v5=
-
-cprod.editpics.link2-2.v1=
-
-cprod.editpics.link2-2.v2=
-
-cprod.editpics.link2-2.v3=
-
-cprod.editpics.link2-2.v4=
-
-cprod.editpics.link2-2.v5=
-
-cprod.editpics.link3-2.v1=
-
-cprod.editpics.link3-2.v4=
-
-cprod.editpics.link3-2.v5=
-
-cprod.editpics.link3-3.v3=
-
-cprod.editpics.text5.v4=
-
-cprod.editpics.text5.v5=
 
 cprod.editpics.text6.v1=You've reached your limit of [[num]] userpics.
 
-cprod.editpics.text6.v2=
-
-cprod.editpics.text6.v3=
-
 cprod.editpics.text7.v1=You've reached your limit of [[num]] userpics.
-
-cprod.editpicsmax.link.v1=
-
-cprod.editpicsmax.link.v2=
-
-cprod.editpicsmax.link.v3=
-
-cprod.editpicsmax.link.v4=
-
-cprod.editpicsmax.link.v5=
-
-cprod.editpicsmax.link2-3.v1=
-
-cprod.editpicsmax.link2.v2=
-
-cprod.editpicsmax.link2.v3=
-
-cprod.editpicsmax.link2.v4=
-
-cprod.editpicsmax.link2.v5=
-
-cprod.editpicsmax.link3.v1=
-
-cprod.editpicsmax.link3.v3=
-
-cprod.editpicsmax.link3.v4=
-
-cprod.editpicsmax.link3.v5=
 
 cprod.editpicsmax.text5.v1=You've reached your limit of [[num]] userpics.
 
-cprod.editpicsmax.text5.v2=
-
-cprod.editpicsmax.text5.v3=
-
-cprod.editpicsmax.text5.v4=
-
-cprod.editpicsmax.text5.v5=
-
-cprod.editstyles.link.v1=
-
-cprod.editstyles.link.v2=
-
-cprod.editstyles.link.v3=
-
-cprod.editstyles.link.v4=
-
-cprod.editstyles.link.v5=
-
 cprod.editstyles.text.v1=Your account type does not permit you to edit styles.
-
-cprod.editstyles.text.v2=
-
-cprod.editstyles.text.v3=
-
-cprod.editstyles.text.v4=
-
-cprod.editstyles.text.v5=
 
 cprod.feeds.link.v1=syndicated feeds
 
-cprod.feeds.link.v2=
-
-cprod.feeds.link.v3=
-
-cprod.feeds.link.v4=
-
-cprod.feeds.link.v5=
-
 cprod.feeds.text.v1=Find good content outside of LJ? Add [[link]] to your Friends page so you never have to leave.
-
-cprod.feeds.text.v2=
-
-cprod.feeds.text.v3=
-
-cprod.feeds.text.v4=
-
-cprod.feeds.text.v5=
 
 cprod.friendsfriends.link2.v1=Friends of Friends
 
-cprod.friendsfriends.link2.v2=
-
-cprod.friendsfriends.link2.v3=
-
-cprod.friendsfriends.link2.v4=
-
-cprod.friendsfriends.link2.v5=
-
 cprod.friendsfriends.text2.v1=[[link]] page shows all your friends' Friends pages in one Friends page.  Say that three times fast!
-
-cprod.friendsfriends.text2.v2=
-
-cprod.friendsfriends.text2.v3=
-
-cprod.friendsfriends.text2.v4=
-
-cprod.friendsfriends.text2.v5=
-
-cprod.friendsfriendsinline.link2.v1=Paid accounts
-
-cprod.friendsfriendsinline.link2.v2=
-
-cprod.friendsfriendsinline.link2.v3=
-
-cprod.friendsfriendsinline.link2.v4=
-
-cprod.friendsfriendsinline.link2.v5=
-
-cprod.friendsfriendsinline.link3.v1=
-
-cprod.friendsfriendsinline.link3.v2=
-
-cprod.friendsfriendsinline.link3.v3=
-
-cprod.friendsfriendsinline.link3.v4=
-
-cprod.friendsfriendsinline.link3.v5=
-
-cprod.friendsfriendsinline.text2.v1=Sorry, only [[link]] permit showing friends of friends.
-
-cprod.friendsfriendsinline.text2.v2=
-
-cprod.friendsfriendsinline.text2.v3=
-
-cprod.friendsfriendsinline.text2.v4=
-
-cprod.friendsfriendsinline.text2.v5=
 
 cprod.friendsfriendsinline.text3.v1=Sorry, this account type does not permit showing your network.
 
-cprod.friendsfriendsinline.text3.v2=
-
-cprod.friendsfriendsinline.text3.v3=
-
-cprod.friendsfriendsinline.text3.v4=
-
-cprod.friendsfriendsinline.text3.v5=
-
-cprod.links.link.v1=
-
-cprod.links.link.v2=
-
-cprod.links.link.v3=
-
-cprod.links.link.v4=
-
-cprod.links.link.v5=
-
-cprod.links.link2-2.v1=
-
-cprod.links.link2.v2=
-
-cprod.links.link2.v3=
-
-cprod.links.link2.v4=
-
-cprod.links.link2.v5=
-
 cprod.links.text3.v1=Your account type does not permit you to use any more links.
-
-cprod.links.text3.v2=
-
-cprod.links.text3.v3=
-
-cprod.links.text3.v4=
-
-cprod.links.text3.v5=
 
 cprod.polls.link.v1=poll creation wizard
 
-cprod.polls.link.v2=
-
-cprod.polls.link.v3=
-
-cprod.polls.link.v4=
-
-cprod.polls.link.v5=
-
 cprod.polls.text.v1=[[user]], you can post a poll in your journal using our [[link]]?  [[poll]]
 
-cprod.polls.text.v2=
-
-cprod.polls.text.v3=
-
-cprod.polls.text.v4=
-
-cprod.polls.text.v5=
-
-cprod.syn.link.v1=
-
-cprod.syn.link.v2=
-
-cprod.syn.link.v3=
-
-cprod.syn.link.v4=
-
-cprod.syn.link.v5=
-
 cprod.syn.text.v1=Note: This feature is not available to your account type.
-
-cprod.syn.text.v2=
-
-cprod.syn.text.v3=
-
-cprod.syn.text.v4=
-
-cprod.syn.text.v5=
-
-cprod.textmessaging.link.v1=
-
-cprod.textmessaging.link.v2=
-
-cprod.textmessaging.link.v3=
-
-cprod.textmessaging.link.v4=
-
-cprod.textmessaging.link.v5=
-
-cprod.textmessaging.link2-2.v1=
-
-cprod.textmessaging.link2.v2=
-
-cprod.textmessaging.link2.v3=
-
-cprod.textmessaging.link2.v4=
-
-cprod.textmessaging.link2.v5=
-
-cprod.textmessaging.text.v2=
-
-cprod.textmessaging.text.v3=
-
-cprod.textmessaging.text.v4=
-
-cprod.textmessaging.text.v5=
 
 cprod.textmessaging.text3.v1=Your account type does not permit usage of this feature.
 
 cprod.userpic.link.v1=default userpic
 
-cprod.userpic.link.v2=
-
-cprod.userpic.link.v3=
-
-cprod.userpic.link.v4=
-
-cprod.userpic.link.v5=
-
 cprod.userpic.text.v1=[[user]], did you know you could pick a [[link]] to go along with your posts and comments?
-
-cprod.userpic.text.v2=
-
-cprod.userpic.text.v3=
-
-cprod.userpic.text.v4=
-
-cprod.userpic.text.v5=
 
 crumb.acctstatus=Account Status
 
@@ -466,8 +129,6 @@ crumb.community=Community Center
 
 crumb.createcommunity=Create Community
 
-crumb.createjournal=Create Journal
-
 crumb.createjournal_1=Create Your Account
 
 crumb.createstyle=Create Style
@@ -483,8 +144,6 @@ crumb.domain=Domain Aliasing
 crumb.editcomments=Comment Settings
 
 crumb.editentries=Edit Entries
-
-crumb.editentries_do=Edit Entry
 
 crumb.editfriendgrps=Edit Friends Groups
 
@@ -550,8 +209,6 @@ crumb.mobilepost=Mobile Post Settings
 
 crumb.moderate=Community Moderation
 
-crumb.modify=Journal Settings
-
 crumb.moodeditor=Custom Mood Theme Editor
 
 crumb.moodlist=Mood Viewer
@@ -560,7 +217,7 @@ crumb.phonepostsettings=Phone Post
 
 crumb.popfaq=Popular FAQs
 
-crumb.register=Validate Email
+]crumb.register=Validate Email
 
 crumb.searchinterests=Search By Interest
 
@@ -569,8 +226,6 @@ crumb.searchregion=Search By Region
 crumb.seeoverrides=View User Overrides
 
 crumb.setpgpkey=Public Key
-
-crumb.siteopts=Browse Preferences
 
 crumb.sitestats=Site Statistics
 
@@ -618,8 +273,6 @@ customize.cats.custom=Your Custom Layers
 
 customize.cats.featured=Featured
 
-customize.cats.special=Special
-
 customize.layoutname.default=(Unnamed - [[layoutid]])
 
 customize.layouts.1=1 Column (no sidebar)
@@ -632,11 +285,11 @@ customize.layouts.2r=2 Column (sidebar on right)
 
 customize.layouts.2rnh=2 Column (sidebar on right; no header)
 
+customize.layouts.3=3 Column (sidebars on either side)
+
 customize.layouts.3l=3 Column (sidebars on the left)
 
 customize.layouts.3r=3 Column (sidebars on the right)
-
-customize.layouts.3=3 Column (sidebars on either side)
 
 customize.layouts_for_dropdown.choose=(Choose a Layout)
 
@@ -742,9 +395,9 @@ edges.join.error.targetnotopen=The community is closed to new members.
 
 edges.join.error.targetnotvisible=The community must be visible.
 
-edges.join.error.usernotpersonal=Your account must be a personal account.
-
 edges.join.error.usernotindividual=Your account must be a personal or identity account.
+
+edges.join.error.usernotpersonal=Your account must be a personal account.
 
 edges.join.error.usernotvisible=Your account must be visible.
 
@@ -770,7 +423,7 @@ edges.watch.error.usernotindividual=Your account must be a personal or identity 
 
 edges.watch.error.usernotvisible=Your account must be visible.
 
-email=Email
+Email=Email
 
 email.emailreset.body<<
 The email address for your [[sitename]] account '[[user]]' has
@@ -1169,11 +822,12 @@ entryform.userpic.upload=Upload a userpic
 
 entryform.userpics=User Picture Icon:
 
-error=Error
-
 entryform.xpost=Crosspost this entry
 
 entryform.xpost.manage=Manage accounts
+
+Error|notes=typically used inside an H1 tag to announce an error.
+Error=Error
 
 error.badpassword2=You typed the wrong password. If you make too many wrong login attempts in a row, your account access will be temporarily blocked, so you may want to <a [[aopts]]>reset your password</a> if you aren't sure what it is.
 
@@ -1263,11 +917,11 @@ error.noschwartz=TheSchwartz not installed or not configured properly.
 
 error.notloggedin=You have to <a [[aopts]]>log in</a> in order to use this page.
 
+error.pay.cmo.engbadstate=Payment engine is in a bad state.  Please try your order again.
+
 error.pay.dberr=Database error: [[errstr]].  Please try again later.
 
 error.pay.nodb=Failed to connect to database.  Please try again later.
-
-error.pay.cmo.engbadstate=Payment engine is in a bad state.  Please try your order again.
 
 error.pay.paypal.connection=Temporary failure connecting to PayPal.  Please try again later.
 
@@ -1329,11 +983,11 @@ error.tempdisabled=This is disabled temporarily.
 
 error.unknownmode=Unknown mode.
 
-error.username_notfound=Username not found.
-
 error.usernameinvalid=Username contains invalid characters.
 
 error.usernamelong=Username is too long; cannot exceed 15 characters.
+
+error.username_notfound=Username not found.
 
 error.vhost.noalias=This user's account type doesn't permit domain aliasing.
 
@@ -1342,12 +996,6 @@ error.vhost.nocomm=This account isn't a community journal.
 error.vhost.nodomain=URLs like <nobr><b>http://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
 
 error.vhost.nostyle=This user's account type is not permitted to create and embed styles.
-
-esn.add_friend_community=[[openlink]]Add community "[[community]]" to your reading page[[closelink]]
-
-esn.add_trust=[[openlink]]Grant access to [[journal]][[closelink]]
-
-esn.add_watch=[[openlink]]Subscribe to [[journal]][[closelink]]
 
 esn.addedtocircle.trusted.email_text<<
 Hi [[user]],
@@ -1369,6 +1017,12 @@ You can:
 
 esn.addedtocircle.watched.subject=[[who]] subscribed to your journal!
 
+esn.add_friend_community=[[openlink]]Add community "[[community]]" to your reading page[[closelink]]
+
+esn.add_trust=[[openlink]]Grant access to [[journal]][[closelink]]
+
+esn.add_watch=[[openlink]]Subscribe to [[journal]][[closelink]]
+
 esn.bday.email<<
 Hi [[user]],
 
@@ -1378,6 +1032,18 @@ You can:
 .
 
 esn.bday.subject=[[bdayuser]]'s birthday is coming up!
+
+esn.befriended.subject=[[who]] added you as a friend!
+
+esn.community_join_requst.email_text<<
+Hi [[maintainer]],
+
+[[username]] has requested to join your community, [[communityname]].
+
+You can:
+.
+
+esn.community_join_requst.subject=[[comm]] membership request by [[who]]
 
 esn.comm_invite.email<<
 Hi [[user]],
@@ -1420,16 +1086,6 @@ Regards,
 
 .
 
-esn.community_join_requst.email_text<<
-Hi [[maintainer]],
-
-[[username]] has requested to join your community, [[communityname]].
-
-You can:
-.
-
-esn.community_join_requst.subject=[[comm]] membership request by [[who]]
-
 esn.delete_comment=[[openlink]]Delete the comment[[closelink]]
 
 esn.discuss_poll=[[openlink]]Discuss the poll[[closelink]]
@@ -1470,8 +1126,6 @@ esn.hi=Hi [[username]],
 
 esn.if_suport_form=If your mail client supports it, you can also reply here:
 
-esn.invite_another_friend=[[openlink]]Invite another friend[[closelink]]
-
 esn.invited_friend_joins.email<<
 Hi [[user]],
 
@@ -1481,6 +1135,8 @@ You can:
 .
 
 esn.invited_friend_joins.subject=[[who]] created a journal!
+
+esn.invite_another_friend=[[openlink]]Invite another friend[[closelink]]
 
 esn.join_community=[[openlink]]Join [[journal]] to read Members-only entries[[closelink]]
 
@@ -1603,17 +1259,17 @@ esn.mail_comments.subject.comment_you_edited=Comment you edited...
 
 esn.mail_comments.subject.comment_you_posted=Comment you posted...
 
-esn.mail_comments.subject.edit_reply_to_a_comment=Edited reply to a comment...
-
 esn.mail_comments.subject.edit_reply_to_an_entry=Edited reply to an entry...
+
+esn.mail_comments.subject.edit_reply_to_a_comment=Edited reply to a comment...
 
 esn.mail_comments.subject.edit_reply_to_your_comment=Edited reply to your comment...
 
 esn.mail_comments.subject.edit_reply_to_your_entry=Edited reply to your entry...
 
-esn.mail_comments.subject.reply_to_a_comment=Reply to a comment...
-
 esn.mail_comments.subject.reply_to_an_entry=Reply to an entry...
+
+esn.mail_comments.subject.reply_to_a_comment=Reply to a comment...
 
 esn.mail_comments.subject.reply_to_your_comment=Reply to your comment...
 
@@ -1741,10 +1397,6 @@ Regards,
   The [[sitename]] Team
 .
 
-esn.remove_trust=[[openlink]]Remove access from [[postername]][[closelink]]
-
-esn.remove_watch=[[openlink]]Unsubscribe from [[postername]][[closelink]]
-
 esn.removedfromcircle.trusted.email_text<<
 Hi [[user]],
 
@@ -1764,6 +1416,10 @@ You can:
 .
 
 esn.removedfromcircle.watched.subject=[[who]] has unsubscribed from your journal
+
+esn.remove_trust=[[openlink]]Remove access from [[postername]][[closelink]]
+
+esn.remove_watch=[[openlink]]Unsubscribe from [[postername]][[closelink]]
 
 esn.reply_at_webpage=[[openlink]]Reply[[closelink]] at the webpage
 
@@ -1841,11 +1497,11 @@ esn.view_thread=[[openlink]]View the thread[[closelink]] starting from this comm
 
 esn.view_threadroot=[[openlink]]Go to the top of the thread[[closelink]] this comment is part of
 
+esn.your_inbox=your Inbox
+
 esn.you_can=You can:
 
 esn.you_must_unscreen=You must respond to it or unscreen it before others can see it.
-
-esn.your_inbox=your Inbox
 
 event.addedtocircle.me=Someone adds me to their circle
 
@@ -1855,9 +1511,9 @@ event.birthday.me=One of the people on my access or subscription lists has an up
 
 event.birthday.user=[[user]]'s birthday is coming up
 
-event.comm_invite=I receive an invitation to join a community
-
 event.community_join_requst=Someone requests membership in a community I maintain
+
+event.comm_invite=I receive an invitation to join a community
 
 event.invited_friend_joins=Someone I invited creates a new journal
 
@@ -1965,6 +1621,10 @@ event.removedfromcircle.me=Someone removes me from their circle
 
 event.removedfromcircle.user=Someone removes [[user]] from their circle
 
+event.userpic_upload.me=One of the accounts I subscribe to uploads a new userpic
+
+event.userpic_upload.user=[[user]] uploads a new userpic
+
 event.user_expunged=[[user]] has been purged
 
 event.user_message_recvd.me=Someone sends me a message
@@ -1975,9 +1635,19 @@ event.user_new_entry.any=Any of my friends posts a new entry anywhere.
 
 event.user_new_entry.user=[[user]] posts a new entry anywhere.
 
-event.userpic_upload.me=One of the accounts I subscribe to uploads a new userpic
+event.vgift.approved.actions=<a [[aopts]]>View Gift</a>
 
-event.userpic_upload.user=[[user]] uploads a new userpic
+event.vgift.approved.content.n=[[admin]] has rejected your virtual gift submission "[[vgift]]".
+
+event.vgift.approved.content.y=[[admin]] has approved your virtual gift submission "[[vgift]]".
+
+event.vgift.approved.msg.n=Sorry, your proposed virtual gift named "[[vgift]]" was not approved.
+
+event.vgift.approved.msg.y=Congratulations, your proposed virtual gift named "[[vgift]]" was approved.
+
+event.vgift.approved.reason=The reviewer, [[admin]], included the following comments:
+
+event.vgift.notfound=The specified virtual gift could not be found.
 
 event.xpost.failure.content=Crosspost to [[accountname]] failed.<br /><br />[[errmsg]]
 
@@ -1990,20 +1660,6 @@ event.xpost.nosubject=an entry
 event.xpost.success.content=Crosspost to [[accountname]] successful.
 
 event.xpost.success.title=Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> to [[accountname]] action successful.
-
-event.vgift.approved.actions=<a [[aopts]]>View Gift</a>
-
-event.vgift.approved.content.N=[[admin]] has rejected your virtual gift submission "[[vgift]]".
-
-event.vgift.approved.content.Y=[[admin]] has approved your virtual gift submission "[[vgift]]".
-
-event.vgift.approved.msg.N=Sorry, your proposed virtual gift named "[[vgift]]" was not approved.
-
-event.vgift.approved.msg.Y=Congratulations, your proposed virtual gift named "[[vgift]]" was approved.
-
-event.vgift.approved.reason=The reviewer, [[admin]], included the following comments:
-
-event.vgift.notfound=The specified virtual gift could not be found.
 
 fckland.ljimage=Insert/Edit Image
 
@@ -2029,7 +1685,7 @@ fcklang.userprompt.user=Username
 
 fcklang.videoprompt=Please enter the YouTube, PhotoBucket, or Google Video URL:
 
-help=Help
+Help=Help
 
 img.arrow-down=Open
 
@@ -2127,13 +1783,13 @@ inbox.menu.birthdays=Birthdays
 
 inbox.menu.bookmarks=Bookmarks
 
-inbox.menu.entries_and_comments=Entries &amp; Comments
-
 inbox.menu.circle_updates=Circle Updates
 
-inbox.menu.messages=Messages
-
 inbox.menu.encircled=New People
+
+inbox.menu.entries_and_comments=Entries &amp; Comments
+
+inbox.menu.messages=Messages
 
 inbox.menu.new_message.btn=New Message
 
@@ -2300,21 +1956,21 @@ menunav.create.uploaduserpics=Upload Icons ([[num]] of [[max]])
 
 menunav.explore=Explore
 
-menunav.explore.interests=Interests
-
 menunav.explore.directorysearch=Directory Search
+
+menunav.explore.faq=FAQ
+
+menunav.explore.interests=Interests
 
 menunav.explore.latestthings=Latest Things
 
 menunav.explore.popsubscriptions=Popular Subscriptions
 
-menunav.explore.randomjournal=Random Journal
-
 menunav.explore.randomcommunity=Random Community
 
-menunav.explore.sitesearch=Site and Journal Search
+menunav.explore.randomjournal=Random Journal
 
-menunav.explore.faq=FAQ
+menunav.explore.sitesearch=Site and Journal Search
 
 menunav.organize=Organize
 
@@ -2358,11 +2014,11 @@ menunav.shop=Shop
 
 menunav.shop.gifts=Circle Gifts
 
-menunav.shop.paidtime=Buy a Paid Account
-
 menunav.shop.history=Payment History
 
 menunav.shop.merchandise=[[siteabbrev]] Merchandise
+
+menunav.shop.paidtime=Buy a Paid Account
 
 menunav.shop.sponsor=Sponsor a User
 
@@ -2382,7 +2038,7 @@ number.thousand=[[number]] thousand
 
 optional=(optional)
 
-password=Password
+Password=Password
 
 poll.changevote=Change Your Vote
 
@@ -2494,13 +2150,109 @@ poll.submit=Submit Poll
 
 poll.viewanswers=View Answers
 
-polls.link=poll creation wizard
+portal.bdays.count.des=By default, the 5 friends with the soonest birthdays are shown.
 
-polls.text=[[user]], did you know you can post a poll in your journal using our [[link]]?  Find out what your friends <em>really</em> think about that shirt you bought last week. [[poll]]
+portal.bdays.count.name=Birthdays to Display
+
+portal.bdays.portalname=Birthdays
+
+portal.bdays.portaltitle=Birthdays
+
+portal.login.portalname=Login Box
+
+portal.memories.entriesnoun=entries
+
+portal.memories.entrynoun=entry
+
+portal.memories.portalname=Memorable Posts
+
+portal.memories.portaltitle=Memorable Posts
+
+portal.ministats.active=Active:
+
+portal.ministats.title=User Stats
+
+portal.ministats.total=Total:
+
+portal.popfaq.portalname=10 Most Viewed FAQs
+
+portal.popfaq.portaltitle=10 Most Viewed FAQs
+
+portal.popwithfriends.accttype=Your account type does not permit use of this feature.
+
+portal.randuser.count.des=By default, 1 random user is shown, but you can have up to 10 vertically in the narrow columns, or 5 horizontally in a wide column
+
+portal.randuser.count.name=Number of random users to show
+
+portal.randuser.error.tableempty=There are no random users. Contact admin.
+
+portal.randuser.hidename.des=By default, the random user name is shown.  Check this to remove it.
+
+portal.randuser.hidename.name=Hide Name
+
+portal.randuser.hidepic.des=By default, the random user picture is shown, if available.  Check this to remove it.
+
+portal.randuser.hidepic.name=Hide User Picture
+
+portal.randuser.portalname=Random User
+
+portal.randuser.portaltitle=Random User
+
+portal.randuser.portaltitleplural=Random Users
+
+portal.recent.error.noentries=Sorry. No entries.
+
+portal.recent.error.notsetup=You have to configure this box.  Click the plus symbol to setup the journal you'd like to watch here.
+
+portal.recent.error.userstatus=User has deleted or suspended their account.
+
+portal.recent.items.description=By default, only the most recent entry is shown.
+
+portal.recent.items.name=Items to display
+
+portal.recent.journal.description=What journal do you want to see the recent items from?
+
+portal.recent.journal.name=Journal
+
+portal.recent.nosubject=(No Subject)
+
+portal.recent.permlink=Link
+
+portal.recent.portalname=Recent Entry View
+
+portal.recent.portaltitle=Recent Entry Box
+
+portal.recent.showtext.description=By default only subjects will be shown.
+
+portal.recent.showtext.name=Include Text
+
+portal.stats.journalentyest=Journal entries yesterday
+
+portal.stats.portalname=Site Statistics
+
+portal.stats.portaltitle=Statistics
+
+portal.stats.totalusers=Total users
+
+portal.update.entry=Entry:
+
+portal.update.mode.des=Full mode gives you a ton of extra posting options ... including posting in communities and setting your current mood, music, and picture.  Simple mode is nicer if you hardly use those features and would prefer not to see it all.
+
+portal.update.mode.full=Full
+
+portal.update.mode.name=Mode
+
+portal.update.mode.simple=Simple
+
+portal.update.moreopts=More Options
+
+portal.update.portalname=Journal Update
+
+portal.update.portaltitle=Update Your Journal
+
+portal.update.subject=Subject:
 
 protocol.bad_password=Your password is too easy to guess.  It's recommended that you change it, otherwise you risk having your journal hijacked.  Visit [[siteroot]]/changepassword.bml to change your password.
-
-protocol.hello_test=
 
 protocol.mail_bouncing=You are currently using a bad email address.  All mail we try to send you is bouncing.  We require a valid email address for continued use.  Visit the support area for more information.
 
@@ -2516,9 +2268,9 @@ protocol.readonly=Your account is temporarily in read-only mode.  Some operation
 
 rename.error.invalidaccounttype=Only personal journals can own rename tokens.
 
-rename.error.invalidjournaltypeto=This username is in use and is not a personal journal; only personal journals may be renamed to.
-
 rename.error.invalidfrom=Tried to rename an invalid journal.
+
+rename.error.invalidjournaltypeto=This username is in use and is not a personal journal; only personal journals may be renamed to.
 
 rename.error.invalidstatusfrom=Cannot rename [[from]]: must be an active journal, not deleted or suspended.
 
@@ -2532,17 +2284,17 @@ rename.error.noto=No username provided to rename to.
 
 rename.error.reserved="[[to]]" is a reserved username.
 
-rename.error.unauthorized=[[to]] is not under your control.
-
-rename.error.unauthorized.forcomm=The community [[comm]] must have no members, and must be under your control.
-
-rename.error.unknown=Cannot rename to "[[to]]".
-
 rename.error.tokenapplied=This token has already been used.
 
 rename.error.tokeninvalid=The provided token is not a valid token.
 
 rename.error.tokentoofew=Too few tokens; you need two to perform a swap.
+
+rename.error.unauthorized=[[to]] is not under your control.
+
+rename.error.unauthorized.forcomm=The community [[comm]] must have no members, and must be under your control.
+
+rename.error.unknown=Cannot rename to "[[to]]".
 
 rename.ex.toomanytries=We had some trouble trying to move aside the account you are trying to rename to ([[tousername]]). Please try again.
 
@@ -2688,8 +2440,6 @@ setting.ctxpopup.label=Hover Menu
 
 setting.ctxpopup.option=Show menu when I hover over userhead images or userpics
 
-setting.ctxpopup.option2=Show the contextual menu when you hover over:
-
 setting.ctxpopup.option.both=Both
 
 setting.ctxpopup.option.icons=Icons
@@ -2697,6 +2447,8 @@ setting.ctxpopup.option.icons=Icons
 setting.ctxpopup.option.none=Never
 
 setting.ctxpopup.option.userhead=Userhead graphic
+
+setting.ctxpopup.option2=Show the contextual menu when you hover over:
 
 setting.cutdisable.label=Cut Tag Behavior
 
@@ -2734,13 +2486,13 @@ setting.display.accountstatus.option.readonly=Read-Only
 
 setting.display.accountstatus.option.suspended=Suspended
 
-setting.display.accounttype.label=Account Type
-
 setting.display.accounttype.addmore=Extend Account
 
-setting.display.accounttype.upgrade=Upgrade
+setting.display.accounttype.label=Account Type
 
 setting.display.accounttype.status=[[status]], expiring [[exptime]]
+
+setting.display.accounttype.upgrade=Upgrade
 
 setting.display.banusers.label=Ban and Unban Users
 
@@ -2802,13 +2554,13 @@ setting.display.viewjournalstyle.option=When viewing journals (including yours),
 
 setting.display.viewstyle.invalid=Invalid style view setting option
 
-setting.display.viewstyle.original=Original style
-
-setting.display.viewstyle.site=Site skin
+setting.display.viewstyle.light=Light format
 
 setting.display.viewstyle.mine=My own style
 
-setting.display.viewstyle.light=Light format
+setting.display.viewstyle.original=Original style
+
+setting.display.viewstyle.site=Site skin
 
 setting.emailalias.label=Email Alias
 
@@ -2919,15 +2671,15 @@ setting.globalsearch.sel.no=No, do not allow my content to be displayed
 
 setting.globalsearch.sel.yes=Yes, display my public content in search results (default)
 
+setting.googleanalytics.error.invalid=Invalid Google Analytics ID entered, must be of the format: UA-NNNNNNN-NN (where N represents numbers).
+
+setting.googleanalytics.label=Google Analytics ID
+
 setting.graphicpreviews.label=Graphic Previews
 
 setting.graphicpreviews.option.comm=Allow viewers to preview external links within my community
 
 setting.graphicpreviews.option.self=Display a preview of external links when hovering over them
-
-setting.googleanalytics.error.invalid=Invalid Google Analytics ID entered, must be of the format: UA-NNNNNNN-NN (where N represents numbers).
-
-setting.googleanalytics.label=Google Analytics ID
 
 setting.imageplaceholders.error.invalid=Invalid image size.
 
@@ -2983,17 +2735,19 @@ setting.navstrip.label=Navigation Strip
 
 setting.navstrip.option=Display for
 
+setting.navstrip.option.journal.norelationship=journals not in your circle
+
 setting.navstrip.option.journal.this=yourself and logged-out users on your journal
 
 setting.navstrip.option.journal.withrelationship=journals in your circle
 
-setting.navstrip.option.journal.norelationship=journals not in your circle
+setting.nctalklinks.header=New Comment Link Indicator
 
 setting.nctalklinks.option=Adds the comment count to entry links. Your browser should display links in a different color if there are new comments since your last visit.
 
-setting.nctalklinks.header=New Comment Link Indicator
-
 setting.prod.display.title=New Setting!
+
+setting.profileemail.error.email.invalid=Invalid email address entered.
 
 setting.profileemail.label=Email to display on your profile
 
@@ -3001,11 +2755,9 @@ setting.randompaidgifts.label=Random Paid Gifts
 
 setting.randompaidgifts.option=Include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
-setting.randompaidgifts.option.paid=If your paid account expires, include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
-
 setting.randompaidgifts.option.note=You may receive a paid account from someone you do not know.
 
-setting.profileemail.error.email.invalid=Invalid email address entered.
+setting.randompaidgifts.option.paid=If your paid account expires, include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
 
 setting.safesearch.error.invalid=Invalid safe search setting.
 
@@ -3057,13 +2809,19 @@ setting.synlevel.option.select.summary=Brief Summary
 
 setting.synlevel.option.select.title=Title Only
 
+setting.timeformat.error.invalid=Invalid time format
+
 setting.timeformat.label=Time display format
 
 setting.timeformat.option.12hour=12 Hour (am/pm)
 
 setting.timeformat.option.24hour=24 Hour
 
-setting.timeformat.error.invalid=Invalid time format
+setting.timezone.error.invalid=Invalid time zone.
+
+setting.timezone.label=Time Zone
+
+setting.timezone.option.select=(Select Your Time Zone)
 
 setting.txtmsgsetup.details=(<a [[aopts]]>details</a>)
 
@@ -3082,12 +2840,6 @@ setting.txtmsgsetup.phone=Phone Number:
 setting.txtmsgsetup.select.provider=-- Select Carrier --
 
 setting.txtmsgsetup.vis=Who can send you text messages?
-
-setting.timezone.error.invalid=Invalid time zone.
-
-setting.timezone.label=Time Zone
-
-setting.timezone.option.select=(Select Your Time Zone)
 
 setting.viewingadultcontent.error.invalid=Invalid viewing adult content setting.
 
@@ -3115,11 +2867,13 @@ setting.xpost.footer.default.label=System default footer:
 
 setting.xpost.label=Crossposting
 
-setting.xpost.message.usage=Current accounts configured:  <b>[[current]] of [[max]]</b>
-
 setting.xpost.message.create=Successfully created account [[username]]@[[servername]].
 
 setting.xpost.message.update=Successfully updated account [[username]]@[[servername]].
+
+setting.xpost.message.usage=Current accounts configured:  <b>[[current]] of [[max]]</b>
+
+setting.xpost.noaccounts=No accounts configured
 
 setting.xpost.option=Configure accounts for crossposting.
 
@@ -3134,11 +2888,16 @@ setting.xpost.option.footer=Text of the footer to add on other sites. If you lea
 setting.xpost.option.footer.nocomments=Text of the footer when local comments are disabled.  Uses the main custom footer if blank, or the system default if both are blank.
 
 setting.xpost.option.footer.vars=The following variables may be used:
-setting.xpost.option.footer.vars.url=link to the original post
-setting.xpost.option.footer.vars.reply_url=link to the reply form on the original post
-setting.xpost.option.footer.vars.comment_url=link to view the comments on the original post
+
 setting.xpost.option.footer.vars.comment_image=image tag that dynamically displays the comment count on the original post
+
 setting.xpost.option.footer.vars.comment_image.alt=comment count unavailable
+
+setting.xpost.option.footer.vars.comment_url=link to view the comments on the original post
+
+setting.xpost.option.footer.vars.reply_url=link to the reply form on the original post
+
+setting.xpost.option.footer.vars.url=link to the original post
 
 setting.xpost.option.footer.when=Add the footer to the post on the other site:
 
@@ -3157,8 +2916,6 @@ setting.xpost.option.server=Server
 setting.xpost.option.username=Username
 
 setting.xpost.option.xpostbydefault=Crosspost by Default
-
-setting.xpost.noaccounts=No accounts configured
 
 setting.xpost.preview=Preview
 
@@ -3238,13 +2995,13 @@ settings.usermessaging.label=[[siteabbrev]] Private Messages
 
 settings.usermessaging.opt.a=Everyone
 
-settings.usermessaging.opt.f=Access Only
+settings.usermessaging.opt.F=Access Only
 
-settings.usermessaging.opt.m=Only Mutual Access
+settings.usermessaging.opt.M=Only Mutual Access
 
-settings.usermessaging.opt.n=Nobody
+settings.usermessaging.opt.N=Nobody
 
-settings.usermessaging.opt.y=Registered Users
+settings.usermessaging.opt.Y=Registered Users
 
 settings.usermessaging.question=Receive messages from:
 
@@ -3361,9 +3118,30 @@ shop.email.confirm.paypal.subject=[[sitename]] Purchase Confirmation
 
 shop.email.email.anon=Someone has chosen to purchase a [[sitename]] account for you.
 
+shop.email.email.body<<
+Dear [[email]],
+
+[[fromuser]] has chosen to purchase a [[sitename]] account for you.  The account
+that was purchased is:
+
+    [[accounttype]]
+
+You can use the following link to create your account:
+
+    [[createurl]]
+
+We look forward to having you on the site!
+
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.email.email.close=We look forward to having you on the site!
 
 shop.email.email.other=[[fromuser]] has chosen to purchase a [[sitename]] account for you.
+
+shop.email.email.subject=[[sitename]] Account Purchase
 
 shop.email.gift.other.body<<
 Dear [[touser]],
@@ -3413,8 +3191,6 @@ The [[sitename]] Team
 
 shop.email.processed.subject=[[sitename]] Order Processed
 
-shop.email.renametoken.subject=[[sitename]] Rename Token
-
 shop.email.renametoken.anon.body<<
 Dear [[touser]],
 
@@ -3448,7 +3224,21 @@ Regards,
 The [[sitename]] Team
 .
 
+shop.email.renametoken.subject=[[sitename]] Rename Token
+
 shop.email.user.anon=Someone has chosen to upgrade your [[sitename]] account.
+
+shop.email.user.body<<
+Dear [[touser]],
+
+[[fromuser]] has chosen to upgrade your [[sitename]] account.
+
+Congratulations on your paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
 
 shop.email.user.close=Congratulations on your paid time!
 
@@ -3467,6 +3257,61 @@ sponsor-a-free-user program.
 .
 
 shop.email.user.self=Your [[sitename]] account has been upgraded.
+
+shop.email.user.subject=[[sitename]] Account Purchase
+
+shop.expiration.0.body<<
+Dear [[account]],
+
+Your paid account has expired.
+
+If you wish, you can purchase more paid time here:
+
+    [[shopurl]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.0.subject=[[sitename]] Account Expired
+
+shop.expiration.14.body<<
+Dear [[account]],
+
+This is a friendly notice letting you know that your paid account is set to
+expire in approximately two weeks.
+
+If you wish, you can add more paid time to your account here:
+
+    [[shopurl]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.14.subject=[[sitename]] Account Expiration
+
+shop.expiration.3.body<<
+Dear [[account]],
+
+This is a friendly notice letting you know that your account is set to expire in
+approximately three days.
+
+This is the last notice you will get.  Your account will automatically revert to
+free status three days from now.
+
+If you wish, you can add more paid time to your account here:
+
+    [[shopurl]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.3.subject=[[sitename]] Account Expiration
 
 shop.expiration.comm.0.body<<
 Dear [[touser]],
@@ -3610,13 +3455,13 @@ shop.item.points.name=[[num]] [[sitename]] Points
 
 shop.item.rename.canbeadded.invalidjournaltype=You can only send a rename token to a personal journal. To rename a community, have a community administrator use the token.
 
-shop.item.rename.note=Tokens can be used at the <a [[aopts]]>rename page</a>.
-
-shop.item.rename.name.notoken=[[points]] points for a Rename Token
-
 shop.item.rename.name.hastoken=Rename Token <a [[aopts]]>[[token]]</a>
 
 shop.item.rename.name.hastoken.text=Rename Token [[token]]
+
+shop.item.rename.name.notoken=[[points]] points for a Rename Token
+
+shop.item.rename.note=Tokens can be used at the <a [[aopts]]>rename page</a>.
 
 shop.unavailable=The shop is currently disabled.
 
@@ -3664,7 +3509,8 @@ sitescheme.footer.sitemap=Site Map
 
 sitescheme.footer.suggestion=Make a Suggestion
 
-sorry=Sorry
+Sorry|notes=typically used to announce that the requested action can't be done.
+Sorry=Sorry
 
 states.head.defined=(states/regions/territories)
 
@@ -3716,8 +3562,6 @@ subscribe_interface.subs.total=You are using [[active]] out of [[max_active]] ac
 
 subscribe_interface.unavailable_subs.note=These notification options are only available to certain account types.
 
-success=Success
-
 taglib.error.access=You are not allowed to tag entries in this journal.
 
 taglib.error.add=You are not allowed to create new tags for this journal; the entry was not tagged with [[tags]].
@@ -3748,25 +3592,25 @@ talk.commentpermlink=link
 
 talk.commentpost=Post a new comment
 
-talk.commentsread=Read comments
-
-talk.commentsread.counted=Read [[replycount]] [[?replycount|comment|comments]]
-
 talk.comments.counted=[[replycount]] [[?replycount|comment|comments]]
 
 talk.comments.disabled_maintainer=Comments disabled by a maintainer of this community
 
+talk.commentsread=Read comments
+
+talk.commentsread.counted=Read [[replycount]] [[?replycount|comment|comments]]
+
 talk.commentsread.nocomments=No comments
 
-talk.curname_groups=<b>Custom friends groups:</b>
+talk.curname_Groups=<b>Custom friends groups:</b>
 
-talk.curname_location=<b>Current location:</b>
+talk.curname_Location=<b>Current location:</b>
 
-talk.curname_mood=<b>Current mood:</b>
+talk.curname_Mood=<b>Current mood:</b>
 
-talk.curname_music=<b>Current music:</b>
+talk.curname_Music=<b>Current music:</b>
 
-talk.curname_tags=<b>Entry tags:</b>
+talk.curname_Tags=<b>Entry tags:</b>
 
 talk.curname_xpost=<b>Crossposts:</b>
 
@@ -3810,9 +3654,9 @@ talk.error.nosuchjournal=No such journal
 
 talk.error.notauthorised=You are not authorized to view this protected entry.
 
-talk.error.notauthorised.comm.open=This protected entry is viewable by community members only. Would you like to <a [[aopts]]>join the community</a>?
-
 talk.error.notauthorised.comm.closed=This protected entry is viewable by community members only. Membership to this community is closed.
+
+talk.error.notauthorised.comm.open=This protected entry is viewable by community members only. Would you like to <a [[aopts]]>join the community</a>?
 
 talk.error.purged=This journal has been deleted and purged.
 
@@ -3878,9 +3722,9 @@ userlinkbar.addsub.title.self=Subscribe to your account
 
 userlinkbar.addtrust=Grant Access
 
-userlinkbar.addtrust.title.other=Grant access to this user
-
 userlinkbar.addtrust.title.loggedout=You must be logged in to grant access to this user
+
+userlinkbar.addtrust.title.other=Grant access to this user
 
 userlinkbar.buyaccount.comm=Gift Paid Account
 
@@ -3924,12 +3768,6 @@ userlinkbar.modifytrust=Modify Access
 
 userlinkbar.modifytrust.title.other=Modify/remove access from this user
 
-userlinkbar.tellafriend=Tell a Friend
-
-userlinkbar.tellafriend.title.other=Tell a friend about this journal
-
-userlinkbar.tellafriend.title.self=Tell a friend about your journal
-
 userlinkbar.post=Post
 
 userlinkbar.post.title=Post to this community
@@ -3950,11 +3788,17 @@ userlinkbar.sendmessage=Send Message
 
 userlinkbar.sendmessage.title=Send a private message to this user
 
-userlinkbar.sendmessage.title.self=Send a private message to yourself
-
 userlinkbar.sendmessage.title.cantsendmessage=You cannot send a private message to this user
 
 userlinkbar.sendmessage.title.loggedout=You must be logged in to send a private message to this user
+
+userlinkbar.sendmessage.title.self=Send a private message to yourself
+
+userlinkbar.tellafriend=Tell a Friend
+
+userlinkbar.tellafriend.title.other=Tell a friend about this journal
+
+userlinkbar.tellafriend.title.self=Tell a friend about your journal
 
 userlinkbar.track=Track
 
@@ -3972,7 +3816,7 @@ userlinkbar.trackuser.title.cantuseesn=You cannot manage notifications
 
 userlinkbar.trackuser.title.loggedout=You must be logged in to manage notifications
 
-username=Username
+Username=Username
 
 userpic.inactive=Inactive
 
@@ -4020,8 +3864,6 @@ vgift.error.tags.invalid=Attempt to use invalid tags: [[taglist]]
 
 vgift.error.tags.novalidtags=No valid tags!
 
-vgift.error.validate.value=Invalid value for [[prop]]
-
 vgift.error.validate.property=Invalid property '[[key]]'
 
 vgift.error.validate.text=Invalid text encoding for [[prop]]
@@ -4046,19 +3888,17 @@ web.authas.label.comm=Work as community:
 
 web.controlstrip.btn.go=Go
 
+web.controlstrip.btn.inbox=Inbox
+
 web.controlstrip.btn.login=Log in
 
 web.controlstrip.btn.logout=Log out
 
 web.controlstrip.btn.view=View
 
-web.controlstrip.btn.inbox=Inbox
-
 web.controlstrip.links.addfeed=Add it to your reading page
 
 web.controlstrip.links.addtocircle=Add to your circle
-
-web.controlstrip.links.changecommsettings=Change Settings
 
 web.controlstrip.links.confirm=Confirm email address
 
@@ -4138,17 +3978,17 @@ web.controlstrip.nouserpic.alt=Upload Userpic
 
 web.controlstrip.nouserpic.title=Edit Userpics
 
-web.controlstrip.reloadpage2=Reload page in style:
-
-web.controlstrip.reloadpage.originalstyle=original
-
 web.controlstrip.reloadpage.lightstyle2=light
 
 web.controlstrip.reloadpage.mystyle2=mine
 
-web.controlstrip.reloadpage.sitestyle=site
+web.controlstrip.reloadpage.originalstyle=original
 
 web.controlstrip.reloadpage.origstyle2=original
+
+web.controlstrip.reloadpage.sitestyle=site
+
+web.controlstrip.reloadpage2=Reload page in style:
 
 web.controlstrip.select.friends.all=All Subscriptions
 
@@ -4188,12 +4028,6 @@ web.controlstrip.status.personalreadingpage=You are viewing [[user]]'s reading p
 
 web.controlstrip.status.syn=You are viewing the feed [[user]]
 
-web.controlstrip.status.trust_mutualwatch=You have granted access to [[user]] and you and they have mutual subscriptions
-
-web.controlstrip.status.trust_watch=You have granted access and subscribe to [[user]]
-
-web.controlstrip.status.trust_watchedby=You have granted access to [[user]] and they have subscribed to you
-
 web.controlstrip.status.trusted=You have granted [[user]] access to your journal
 
 web.controlstrip.status.trustedby=You have been granted access to [[user]]'s journal
@@ -4204,11 +4038,17 @@ web.controlstrip.status.trustedby_watch=[[user]] has granted access to you and y
 
 web.controlstrip.status.trustedby_watchedby=[[user]] has granted access and subscribes to you
 
-web.controlstrip.status.watcher=You are watching [[user]]
+web.controlstrip.status.trust_mutualwatch=You have granted access to [[user]] and you and they have mutual subscriptions
+
+web.controlstrip.status.trust_watch=You have granted access and subscribe to [[user]]
+
+web.controlstrip.status.trust_watchedby=You have granted access to [[user]] and they have subscribed to you
 
 web.controlstrip.status.watched=You have subscribed to [[user]]'s journal
 
 web.controlstrip.status.watchedby=[[user]] has subscribed to your journal
+
+web.controlstrip.status.watcher=You are watching [[user]]
 
 web.controlstrip.status.yourjournal=You are viewing your journal
 
@@ -4224,11 +4064,11 @@ web.postto.btn=Switch
 
 web.postto.label=Post to:
 
-widget.accountstatistics.expires_on=[[type]], expiring [[date]]
-
 widget.accountstatistics.comments2=[[num_received_comma]] [[?num_received_raw|comment|comments]] received; [[num_posted_comma]] [[?num_posted_raw|comment|comments]] posted
 
 widget.accountstatistics.entries2=[[num_comma]] [[?num_raw|entry|entries]]
+
+widget.accountstatistics.expires_on=[[type]], expiring [[date]]
 
 widget.accountstatistics.last_updated=Last updated [[date]]
 
@@ -4244,7 +4084,15 @@ widget.betafeature.btn.off=Turn OFF beta testing
 
 widget.betafeature.btn.on=Turn ON beta testing
 
-widget.betafeature.journaljquery.title=New JS on Journals
+widget.betafeature.journaljquery.off<<
+Switch to the new JS behavior on journals.
+<h3>Implemented</h3>
+[[implemented]]
+
+<h3>Todo</h3>
+[[notimplemented]]
+.
+
 widget.betafeature.journaljquery.on<<
 Currently beta-testing the new JS behavior on journals.
 <h3>Implemented</h3>
@@ -4254,14 +4102,7 @@ Currently beta-testing the new JS behavior on journals.
 [[notimplemented]]
 .
 
-widget.betafeature.journaljquery.off<<
-Switch to the new JS behavior on journals.
-<h3>Implemented</h3>
-[[implemented]]
-
-<h3>Todo</h3>
-[[notimplemented]]
-.
+widget.betafeature.journaljquery.title=New JS on Journals
 
 widget.communitymanagement.nopending=No communities require action.
 
@@ -4325,13 +4166,13 @@ widget.createaccount.error.username.purged=The username you entered is that of a
 
 widget.createaccount.field.birthdate=Birthdate:
 
-widget.createaccount.field.captcha2=Anti-spam measure:
-
 widget.createaccount.field.captcha.hear=Type the numbers you hear:
 
 widget.createaccount.field.captcha.play=Play the sound
 
 widget.createaccount.field.captcha.visual=Type the letters and numbers seen above:
+
+widget.createaccount.field.captcha2=Anti-spam measure:
 
 widget.createaccount.field.confirmpassword=Confirm Password:
 
@@ -4367,13 +4208,13 @@ widget.createaccountentercode.btn.proceed=Proceed...
 
 widget.createaccountentercode.code=Code:
 
-widget.createaccountentercode.error.invalidcode=Invalid code.
-
-widget.createaccountentercode.error.toofast=You are entering codes too quickly; please try again later.
-
 widget.createaccountentercode.comm=If you'd like to <a [[aopts]]>create a community</a> instead, you don't need an account creation code.
 
 widget.createaccountentercode.comm.loggedout=You should create or log into a personal account to be the maintainer. If you don't have a personal account yet, you will need a code to create that account, but you don't need one for the community itself.
+
+widget.createaccountentercode.error.invalidcode=Invalid code.
+
+widget.createaccountentercode.error.toofast=You are entering codes too quickly; please try again later.
 
 widget.createaccountentercode.getcode= If you do not have an account creation code, you can obtain one this way.
 
@@ -4461,13 +4302,13 @@ widget.currenttheme.desc=[[layout]] by [[designer]]
 
 widget.currenttheme.options=More options:
 
+widget.currenttheme.options.advancedcust=Advanced Customization
+
 widget.currenttheme.options.change=Customize your theme
 
 widget.currenttheme.options.editlayoutlayer=Edit your layout layer
 
 widget.currenttheme.options.editthemelayer=Edit your theme layer
-
-widget.currenttheme.options.advancedcust=Advanced Customization
 
 widget.currenttheme.options.layout=Change page setup
 
@@ -4493,17 +4334,17 @@ widget.customizetheme.nav.style=Style
 
 widget.customizetheme.title=Customize Your Theme
 
-widget.cuttag.expandAll=Expand All Cut Tags
-
-widget.cuttag.expanded=Collapse
-
-widget.cuttag.collapseAll=Collapse All Cut Tags
+widget.cuttag.collapseall=Collapse All Cut Tags
 
 widget.cuttag.collapsed=Expand
 
+widget.cuttag.expandall=Expand All Cut Tags
+
+widget.cuttag.expanded=Collapse
+
 widget.feeds.btn.add=Add
 
-widget.feeds.enterrss=enter RSS url
+widget.feeds.enterRSS=enter RSS url
 
 widget.feeds.find=Find or create feed:
 
@@ -4663,11 +4504,11 @@ widget.inbox.menu.next_page.btn=Next Page
 
 widget.inbox.menu.previous_page.btn=Previous Page
 
-widget.inbox.notification.expanded=Collapse
+widget.inbox.notification.add_bookmark=Bookmark This
 
 widget.inbox.notification.collapsed=Expand
 
-widget.inbox.notification.add_bookmark=Bookmark This
+widget.inbox.notification.expanded=Collapse
 
 widget.inbox.notification.rem_bookmark=Remove Bookmark
 
@@ -4983,8 +4824,6 @@ widget.shopitemoptions.price=[[num]] [[?num|month|months]] for [[points]] points
 
 widget.shopitemoptions.price.seed=Forever for [[points]] points ([[price]])
 
-widget.sitemessages.title=[[sitename]] Plugs In
-
 widget.sitesearch.desc=Search for entries containing:
 
 widget.sitesearch.title=Search [[sitename]]
@@ -5093,13 +4932,13 @@ xpost.error.connection=Failed to connect to [[url]].
 
 xpost.error.invalidprotocol=Missing or invalid posting protocol.
 
-xpost.notrespected=This will not respect your default <a [[aopts]]>crosspost settings</a>. Your crossposted entries will not be updated.
-
 xpost.nopw.cancel=Cancel
 
 xpost.nopw.checking=Getting authentication...
 
 xpost.nopw.required=Password required.
+
+xpost.notrespected=This will not respect your default <a [[aopts]]>crosspost settings</a>. Your crossposted entries will not be updated.
 
 xpost.password=Password:
 
@@ -5109,12 +4948,11 @@ xpost.redirect=<span style="font-size: smaller;">This entry was originally poste
 
 xpost.redirect.comment=<span style="font-size: smaller;">This entry was originally posted at <a href = "[[postlink]]">[[postlink]]</a>. Please comment there using OpenID.</span>
 
-xpost.request.success=Crosspost requested to [[account]].  You will be notified when this attempt has completed.
-
 xpost.request.failed=Failed to crosspost to [[account]].  You may go <a href = "[[editurl]]">here</a> to attempt to crosspost this entry again.
+
+xpost.request.success=Crosspost requested to [[account]].  You will be notified when this attempt has completed.
 
 xpost.respected=This will respect your default <a [[aopts]]>crosspost settings</a>, so make sure you have them set properly before you do this.
 
 xpost.success=Crosspost to [[username]]@[[server]] successful.  You can view this entry <a href = "[[xpostlink]]">here</a>.
-
 

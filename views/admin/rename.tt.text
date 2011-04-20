@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
-
 .admin.link=Renames
+
 .admin.text=Manage renames
 
 .new.link=Create Rename
@@ -10,3 +10,4 @@
 .renames.list.item.details=More / edit
 
 .title=Renames Admin Page
+

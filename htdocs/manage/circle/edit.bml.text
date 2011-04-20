@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .addrelationships.head=Add Relationships
 
 .addrelationships.text=To add people to your circle, or to modify the colors associated with a user that you subscribe to, enter their [[sitename]] usernames or their OpenID URLs in the boxes below.  You can also <a [[aopts]]>invite a friend</a> to join [[sitename]].
@@ -16,11 +15,13 @@
 
 .btn.toggle=Preview
 
+.circle.access=Give access
+
 .circle.access.n=Does not give you access
 
 .circle.access.y=Gives you access
 
-.circle.access=Give access
+.circle.header=Current Relationships
 
 .circle.header.comms=Communities ([[num]])
 
@@ -28,23 +29,11 @@
 
 .circle.header.people=People ([[num]])
 
-.circle.header=Current Relationships
-
 .circle.intro=Here are the <a [[aopts1]]>people</a>, <a [[aopts2]]>communities</a>, and <a [[aopts3]]>feeds</a> that are in your circle.  You can change who appears on your Reading Page and who you give access to by using the check boxes.  You can also <a [[aopts4]]>edit your notification tracking options</a>.
-
-.circle.intro.people=Here are the people in your circle:
 
 .circle.intro.nonpeople=Here are the communities and feeds in your circle:
 
-.circle.member.n=You are not a member
-
-.circle.member.y=You are a member
-
 .circle.member=Member
-
-.circle.member.n=You are not a member
-
-.circle.member.y=You are a member
 
 .circle.na=N/A
 
@@ -58,11 +47,11 @@
 
 .circle.status=Circle status
 
+.circle.subscribe=Subscribe
+
 .circle.subscribe.n=Does not subscribe to you
 
 .circle.subscribe.y=Subscribes to you
-
-.circle.subscribe=Subscribe
 
 .circle.trust=Give access?
 
@@ -141,3 +130,4 @@
 .user=User
 
 .viewer=Color Viewer
+

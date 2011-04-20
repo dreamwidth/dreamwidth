@@ -79,8 +79,6 @@
 
 .information.comments.about=Change your comment settings
 
-.information.editinfo.about=Edit your account information and various options
-
 .information.header=Account Information
 
 .information.mobilepost=Mobile Post Settings
@@ -95,15 +93,13 @@
 
 .information.settings.about=Change your viewing options and other account settings
 
-.information.siteopts.about=Select your preferred site layout &amp; language
-
 .information.status=Account Status
 
 .information.status.about=Set your account's activation status
 
-.invites.manage.about=Manage your invite codes
-
 .invites.manage=Manage Your Invite Codes
+
+.invites.manage.about=Manage your invite codes
 
 .login2=The following links will navigate you to pages where your login information is required. To save yourself some time, you can <a [[aopts]]>log in</a> beforehand.
 

@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .basic.header=Insecure basic login
 
 .basic.text=This sends your password unprotected, probably over the air. Not a good idea on Wifi. Probably okay over a mobile carrier's data network.
@@ -23,3 +24,4 @@
 .ssl.header=SSL secure login
 
 .ssl.text=Secure using SSL, but may not work on all mobile devices:
+

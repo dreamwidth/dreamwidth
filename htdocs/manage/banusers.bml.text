@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .btn.banunban=Ban and Unban Users
 
 .error.toomanybans=Banning the user(s) that you specified will bring you over the maximum number of allowed bans. Please adjust your lists and try again. Any users that you chose to unban have been unbanned successfully.
@@ -23,3 +22,4 @@
 .success=You have successfully banned and unbanned the specified users.
 
 .title=Ban and Unban Users
+

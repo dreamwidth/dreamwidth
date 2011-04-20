@@ -1,10 +1,11 @@
+;; -*- coding: utf-8 -*-
 .btn.distribute=Distribute
 
 .error.cantinsertjob=Unable to start TheSchwartz job for invite codes distribution.
 
-.error.nosuchclass=The selection class "[[class]]" does not exist.
-
 .error.noinvites=Cannot distribute 0 invites!
+
+.error.nosuchclass=The selection class "[[class]]" does not exist.
 
 .field.distribute.label=Distribute to:
 
@@ -15,3 +16,4 @@
 .success.jobstarted=Invite code distribution successfully initiated. You will receive a report by email to your registered address when it is complete.
 
 .title=Distribute Invite Codes
+

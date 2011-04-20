@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .error.emptyreason=A reason is required.
 
 .error.failedlogin=Attempt to impersonate failed.
@@ -13,3 +14,4 @@
 .form.username=Usename:
 
 .title=Impersonate
+

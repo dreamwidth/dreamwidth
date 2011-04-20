@@ -19,8 +19,6 @@
 
 .display.title=Display Settings for [[name]]
 
-.email=Email
-
 .email.change.system=Change email used by system
 
 .email.opt.both.actual=Show actual email + [[sitenameshort]] email
@@ -105,8 +103,6 @@
 
 .fn.gender=Gender
 
-.fn.interests=List all your interests, separated by commas, to allow other users to find you using the Interest Search.
-
 .fn.link2=Link URL
 
 .fn.ljtalk.address=[[siteabbrev]] Chat Address
@@ -151,7 +147,7 @@
 
 .gender.unspecified=(Unspecified)
 
-.intro=This is where you fill in the information to be displayed on your Profile. You don't have to display all of this information to everyone; you can set options below. You may also want to edit your <a [[aopts1]]>privacy settings</a> or your <a [[aopts2]]>viewing options</a>.
+.intro1=Here's where you fill out your Profile page. You don't have to display all of your info to everyone - check out the options below. You may also want to edit your <a [[aopts1]]>comment settings</a> or your <a [[aopts2]]>viewing options</a>.
 
 .jumpto=Jump to:
 

@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-
 .error.notperson=You must be logged in to a personal account (not OpenID) in order to import content into it.
 
 .intro=This wizard will allow you to import content from LiveJournal or another LiveJournal-based site into your [[sitename]] account [[user]]. This process is not immediate; you will be entered into a queue once you schedule your import. Imports will be processed in the order that they are scheduled.
 
 .title=Import Content Into Your Journal
+

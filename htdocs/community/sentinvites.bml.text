@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .cancel=Cancel Invitations
 
 .date=Date Sent
@@ -22,30 +21,33 @@
 
 .key.date=Date
 
-.key.maintainer.abbrev=A
-
 .key.maintainer=Maintainer
 
-.key.moderator.abbrev=M
+.key.maintainer.abbrev=A
 
 .key.moderator=Moderator
 
-.key.posting.abbrev=P
+.key.moderator.abbrev=M
 
 .key.posting=Posting
+
+.key.posting.abbrev=P
 
 .key.sentby=Sent By
 
 .key.status=Status
 
-.key.unmoderated.abbrev=U
-
 .key.unmoderated=Unmoderated
 
-.none.body=No invites have been sent in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
+.key.unmoderated.abbrev=U
+
 .none.accepted.body=No invites have been accepted in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
-.none.rejected.body=No invites have been rejected in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
+
+.none.body=No invites have been sent in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
+
 .none.outstanding.body=No outstanding invites have been found from the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
+
+.none.rejected.body=No invites have been rejected in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
 
 .none.title=No Invites Found
 

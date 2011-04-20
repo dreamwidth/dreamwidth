@@ -31,15 +31,15 @@
 
 .invalid.noanswer=Invalid screened response to approve.
 
+.invalid.noid=This action requires a support request ID.
+
+.invalid.nosummary=You must enter a request summary.
+
 .invalid.notcat=That category doesn't seem to exist.
 
 .invalid.notier=You must select a tier with your answer.
 
 .invalid.notlang=That language doesn't seem to exist.
-
-.invalid.noid=This action requires a support request ID.
-
-.invalid.nosummary=You must enter a request summary.
 
 .invalid.type=Invalid Reply Type.
 

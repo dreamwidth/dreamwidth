@@ -1,6 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.title=Style Documentation
-
 .css.header=CSS Documentation
 
 .css.overview=Overview
@@ -28,3 +26,6 @@
 .s2.props=Properties
 
 .s2.troubleshoot=Troubleshooting
+
+.title=Style Documentation
+

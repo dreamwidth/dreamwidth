@@ -27,9 +27,9 @@
 
 .choice.approve=Approve
 
-.choice.reject=Reject
-
 .choice.mark_as_spam=Reject and mark as spam
+
+.choice.reject=Reject
 
 .error.noaccess=You do not moderate the community [[comm]].
 

@@ -1,14 +1,17 @@
 ;; -*- coding: utf-8 -*-
-
 .admin.link=Memcache Clear
+
 .admin.text=Clear memcache data for a user.
 
 .cleared=Memcache data cleared.
 
-.username.label=Username:
-.what.label=Purge:
-
 .purge.all=All (Major Memcache)
-.purge.userpic=Userpic
 
 .purge.btn=Clear for User
+
+.purge.userpic=Userpic
+
+.username.label=Username:
+
+.what.label=Purge:
+

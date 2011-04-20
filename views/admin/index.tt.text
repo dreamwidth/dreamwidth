@@ -1,100 +1,123 @@
 ;; -*- coding: utf-8 -*-
-
-.admin.title=Admin Tools
-
 .admin.capability.link=Capability Edit
+
 .admin.capability.text=For editing user capabilities.
 
 .admin.cluster.link=Cluster Status
+
 .admin.cluster.text=Get information on cluster availability.
 
 .admin.console.link=Console
+
 .admin.console.text=For general input; usable by all users to an extent.
 
 .admin.dbschema.link=Database Schema
+
 .admin.dbschema.text=Shows the database schema.
 
 .admin.dupkiller.link=Duplicate Entry Killer
+
 .admin.dupkiller.text=Checks for (and kills) duplicate entries.
 
 .admin.entryprops.link=Entry Properties
+
 .admin.entryprops.text=View the properties set on a particular entry.
 
 .admin.faq.link=FAQ Tools
+
 .admin.faq.text=Allows you to manipulate the FAQ.
 
 .admin.file_edit.link=File Edit
+
 .admin.file_edit.text=Allows you to edit various include files.
 
 .admin.invites.link=Invite Code Management
+
 .admin.invites.text=View and manage invite codes.
 
 .admin.logout_user.link=Logout User
+
 .admin.logout_user.text=Logs a user out of the site.
 
 .admin.memcache.link=Memcache Overview
+
 .admin.memcache.text=Shows current memcache conditions.
 
 .admin.memcache_view.link=Memcache View
+
 .admin.memcache_view.text=Shows current memcache details.
 
 .admin.mysql.link=MySQL Status
+
 .admin.mysql.text=Shows current MySQL status.
 
 .admin.navtag.link=Navtag Edit
+
 .admin.navtag.text=Allows you to tag pages for navigation.
 
 .admin.pay.link=Payment Managements
+
 .admin.pay.text=Review payment details.
 
 .admin.priv.link=Privilege Management
+
 .admin.priv.text=View privs by priv or by user. Some priv lists are private.
 
 .admin.propedit.link=User Property Edit
+
 .admin.propedit.text=Allows you to view and edit userprops.
 
 .admin.recent_comments.link=Recent Comments
+
 .admin.recent_comments.text=Allows you to view a user's recent comments.
 
 .admin.sitemessages_add.link=Site Messages - Add
+
 .admin.sitemessages_add.text=Add new site-wide messages.
 
 .admin.sitemessages_manage.link=Site Messages - Manage
+
 .admin.sitemessages_manage.text=View and manipulate site-wide messages.
 
 .admin.spamreports.link=Spam Reports
+
 .admin.spamreports.text=View and handle reports of spam.
 
 .admin.statushistory.link=Statushistory
+
 .admin.statushistory.text=Shows you a user's statushistory.
 
 .admin.styleinfo.link=Style Info
+
 .admin.styleinfo.text=Shows you a user's style information.
 
 .admin.sysban.link=Sysban Management
+
 .admin.sysban.text=Set and manage sysbans.
 
 .admin.theschwartz.link=TheSchwartz Queue/Error Viewer
+
 .admin.theschwartz.text=View the status of jobs in the TheSchwartz queue.
 
+.admin.title=Admin Tools
+
 .admin.translate.link=Translation & Site Copy
+
 .admin.translate.text=View and edit the site copy and translations.
 
 .admin.userlog.link=Userlog Viewer
+
 .admin.userlog.text=Shows you a user's logged actions.
 
 .admin.vgifts.link=Virtual Gifts
+
 .admin.vgifts.text=Maintain the virtual gift shop and submit new gift ideas.
 
 .anysupportpriv=any support priv
+
 .devserver=dev server
 
 .needspriv=needs
+
 .needs_one_of=needs one of
-
-
-
-
-
-
 

@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .btn.nextpage=Customize Selected Theme ->
 
 .customize_area_feedback=Customize Area Feedback
@@ -13,3 +12,4 @@
 .title=Choose Journal Style
 
 .title2=Select Journal Style
+

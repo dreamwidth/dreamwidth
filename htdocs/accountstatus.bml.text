@@ -31,13 +31,13 @@
 
 .message.nochange=Your journal status has been left as <b>[[statusvis]]</b>.
 
-.message.success=Your journal status has been successfully changed to <b>[[statusvis]]</b>.
-
 .message.noothermaintainer=You are about to leave the following without an active maintainer: [[commlist]] If you want to appoint an additional maintainer now, visit the <a [[aopts]]>[[pagetitle]]</a> page.
 
-.reason.head=Reason:
+.message.success=Your journal status has been successfully changed to <b>[[statusvis]]</b>.
 
 .reason.about=The reason you're deleting your journal, to display on your deleted journal (optional)
+
+.reason.head=Reason:
 
 .title=Account Status
 

@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .error.header=Unable to perform username swap. Please correct the following and try again:
 
 .error.invalidswapjournal=Invalid username was provided to swap with.
@@ -15,3 +16,4 @@
 .success=Successfully swapped [[journal]] and [[swapjournal]].
 
 .title=Swap Journal Usernames
+

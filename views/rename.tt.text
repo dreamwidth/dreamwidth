@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .checkusername.intro=Input your desired username, to check whether it is available for renaming to.
 
 .checkusername.label=Desired username
@@ -10,6 +9,10 @@
 
 .checkusername.submit=Check Username Availability
 
+.error.emailnoalias=The email alias feature is not available to your current account level.
+
+.error.emailnotforward=You cannot forward emails sent to your [[emaildomain]] address to your new username, because you have not chosen to redirect your old username to your new one.
+
 .error.header=Unable to perform rename. Please correct the following and try again:
 
 .error.invalidform=There was a problem with processing the form: the page may have been left open too long. Please try submitting the form again.
@@ -18,13 +21,15 @@
 
 .error.noredirectopt=You need to choose whether to forward your old username to your new username, or else to drop the connection.
 
-.error.emailnoalias=The email alias feature is not available to your current account level.
+.form.others.email=Redirect emails sent to your old [[sitename]] email address
 
-.error.emailnotforward=You cannot forward emails sent to your [[emaildomain]] address to your new username, because you have not chosen to redirect your old username to your new one.
+.form.others.email.note=your old username must also redirect to your desired username
 
-.form.relationships.header=Relationships
+.form.others.header=Others
 
 .form.relationships.communities=Keep community memberships and administration roles
+
+.form.relationships.header=Relationships
 
 .form.relationships.trusted=Keep outgoing access (people you have granted access to)
 
@@ -34,37 +39,29 @@
 
 .form.relationships.watched_by=Keep incoming subscriptions (people who are subscribed to you)
 
+.form.rename.disconnect.label.c=Disconnect the old username from the new username, leaving the old username free to use
 
-.form.others.header=Others
+.form.rename.disconnect.label.p=Disconnect your old username from your new username, leaving the old username free to use
 
-.form.others.email=Redirect emails sent to your old [[sitename]] email address
+.form.rename.disconnect.note.c=[[journalurl]] will not point to the new username.
 
-.form.others.email.note=your old username must also redirect to your desired username
+.form.rename.disconnect.note.p=[[journalurl]] will not point to your new username; comments and community entries that you posted will still show your new username.
 
+.form.rename.forward.label.c=Forward your community's old username to the new username
 
-.form.rename.header=Rename
+.form.rename.forward.label.p=Forward your old username to your new username
 
-.form.rename.disconnect.label.C=Disconnect the old username from the new username, leaving the old username free to use
+.form.rename.forward.note.c=[[journalurl]] will automatically redirect to your community's new username.
 
-.form.rename.disconnect.label.P=Disconnect your old username from your new username, leaving the old username free to use
-
-.form.rename.disconnect.note.C=[[journalurl]] will not point to the new username.
-
-.form.rename.disconnect.note.P=[[journalurl]] will not point to your new username; comments and community entries that you posted will still show your new username.
-
-.form.rename.forward.label.C=Forward your community's old username to the new username
-
-.form.rename.forward.label.P=Forward your old username to your new username
-
-.form.rename.forward.note.C=[[journalurl]] will automatically redirect to your community's new username.
-
-.form.rename.forward.note.P=[[journalurl]] will automatically redirect to your new username.
+.form.rename.forward.note.p=[[journalurl]] will automatically redirect to your new username.
 
 .form.rename.fromuser.label=Rename from
 
-.form.rename.oldusername.header.C=What do you want to do with your community's old username?
+.form.rename.header=Rename
 
-.form.rename.oldusername.header.P=What do you want to do with your old username?
+.form.rename.oldusername.header.c=What do you want to do with your community's old username?
+
+.form.rename.oldusername.header.p=What do you want to do with your old username?
 
 .form.rename.token.label=Rename token
 
@@ -73,7 +70,6 @@
 .form.switchtype.comm=rename a community you own
 
 .form.switchtype.journal=rename your journal
-
 
 .success=Successfully renamed journal from [[from]] to [[to]].
 
@@ -85,12 +81,13 @@
 
 .token.list.item=Use token to rename journal
 
-.token.list.item.withname=Use token to rename journal to [[username]]
-
 .token.list.item.comm= Use token to rename a community
 
 .token.list.item.comm.withname=Use token to rename a community to [[username]]
 
+.token.list.item.withname=Use token to rename journal to [[username]]
+
 .token.notoken=<a [[aopts]]>Purchase a rename token</a> to perform a rename.
 
 .token.used=Token has been used: [[token]]
+

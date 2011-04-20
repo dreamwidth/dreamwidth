@@ -1,9 +1,9 @@
 ;; -*- coding: utf-8 -*-
+.archive=Your <a [[aopts]]>journal archive</a> provides an easy way to browse through your posts by month.
+
 .button.update=Update Entries
 
 .button.ya.rly=Yes, Update these Posts
-
-.archive=Your <a [[aopts]]>journal archive</a> provides an easy way to browse through your posts by month.
 
 .intro=Change the privacy level of all posts in a certain timeframe by choosing the start and end dates. You can also specify that only posts of a certain privacy level should be changed.
 

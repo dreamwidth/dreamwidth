@@ -6,8 +6,6 @@
 
 .body.added.header=Success
 
-.body.added.text=Your list of memorable entries has been updated.
-
 .body.added.next.entry=Go back to the entry
 
 .body.added.next.friends=Read your Friends page
@@ -15,6 +13,8 @@
 .body.added.next.journal=Continue reading [[user]]
 
 .body.added.next.view=View all your memories
+
+.body.added.text=Your list of memorable entries has been updated.
 
 .description=Description:
 

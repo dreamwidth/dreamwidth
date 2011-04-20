@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .error.cantcancel=Sorry, we could not cancel your order at this time.
 
 .error.invalidcart=Your cart is invalid.
@@ -9,3 +8,4 @@
 .error.invalidtoken=Your token is invalid.
 
 .error.needtoken=You did not provide an order number or token.
+

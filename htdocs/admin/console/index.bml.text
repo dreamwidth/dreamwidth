@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .description=The Admin Console is where you can submit batch commands to be run. Most commands require special privileges, but some can be used by anybody. 
 
 .description.reference=See the <a [[aopts]]>command reference</a> for a list of commands.
@@ -11,3 +10,4 @@
 .execute=Execute
 
 .title=Admin Console
+

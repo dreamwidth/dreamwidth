@@ -5,9 +5,9 @@
 
 .faq.search.text=If you aren't sure where to start looking, use this box to search our documentation.
 
-.faq.title.text=Below are some frequently asked questions, and answers, too!  Oh boy.  Try to read this before you ask a new question.  If you know something we should add to this, let us know.
-
 .faq.title=Frequently Asked Questions
+
+.faq.title.text=Below are some frequently asked questions, and answers, too!  Oh boy.  Try to read this before you ask a new question.  If you know something we should add to this, let us know.
 
 .toc.title=Available Categories
 

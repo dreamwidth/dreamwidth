@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .about=This page allows you to buy [[sitename]] Points, the on-site currency accepted in our store and elsewhere on the site.
 
 .about2=Points cost 10 cents ($0.10 USD) each and can be used in place of cash in the site store.  For example, you can purchase paid time for yourself or someone else using points without needing to mail in a check or use a credit card.
@@ -11,3 +12,4 @@
 .buying.points.range=(30 to 5,000)
 
 .title=[[sitename]] Points Shop
+

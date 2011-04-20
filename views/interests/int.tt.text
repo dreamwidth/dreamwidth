@@ -3,15 +3,15 @@
 
 .filtered=[[num]] [[?num|match|matches]], showing [[count]] [[?count|result|results]]:
 
-.filterlink.C=Communities Only
+.filterlink.c=Communities Only
 
-.filterlink.I=OpenIDs Only
+.filterlink.i=OpenIDs Only
 
 .filterlink.label=Show:
 
 .filterlink.none=All Account Types
 
-.filterlink.P=Users Only
+.filterlink.p=Users Only
 
 .header=Search results for "[[interest]]"
 

@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .message.comment.posted=Comment was posted successfully.
 
 .protected.error.notauthorised.comm.closed=This protected entry is viewable by community members only. Membership to this community is closed.

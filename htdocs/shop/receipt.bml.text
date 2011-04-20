@@ -1,6 +1,19 @@
 ;; -*- coding: utf-8 -*-
-
 .cart.date=<strong>Order Date:</strong> [[date]]
+
+.cart.paymentmethod=<strong>Payment Method:</strong> [[paymentmethod]]
+
+.cart.paymentmethod.checkmoneyorder=Check/Money Order
+
+.cart.paymentmethod.checkmoneyorder.extra=Please make your check or money order out to: [[sitecompany]]</p><p>Mail it to: [[address]]
+
+.cart.paymentmethod.creditcard=Credit Card
+
+.cart.paymentmethod.creditcardpp=Credit Card
+
+.cart.paymentmethod.gco=Google Checkout Account
+
+.cart.paymentmethod.paypal=PayPal Account
 
 .cart.status=<strong>Current Order Status:</strong> [[status]]
 
@@ -25,20 +38,7 @@
 
 .cart.status.9=Charge declined
 
-.cart.paymentmethod=<strong>Payment Method:</strong> [[paymentmethod]]
-
-.cart.paymentmethod.checkmoneyorder=Check/Money Order
-
-.cart.paymentmethod.checkmoneyorder.extra=Please make your check or money order out to: [[sitecompany]]</p><p>Mail it to: [[address]]
-
-.cart.paymentmethod.creditcard=Credit Card
-
-.cart.paymentmethod.creditcardpp=Credit Card
-
-.cart.paymentmethod.gco=Google Checkout Account
-
-.cart.paymentmethod.paypal=PayPal Account
-
 .error.invalidordernum=Your order number is invalid.
 
 .title=Order #[[num]]
+

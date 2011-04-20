@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .error.badcartstate=Your shopping cart has already been checked out.  If your payment failed, you will need to build a new shopping cart to try again.  We're sorry for the inconvenience.
 
 .error.emptycart=Your cart is empty.
@@ -13,3 +12,4 @@
 .info=If you'd like to use a credit card to purchase your account, use the button below. This will take you to PayPal, our merchant processor. You won't need a PayPal account to use this payment option.
 
 .title=Purchase by Credit Card
+

@@ -98,7 +98,7 @@ body<=
         $ret .= "</form>\n\n";
 
         $ret .= "<div style='margin: 1em 0;'> ";
-        $ret .= BML::ml( ".intro", { aopts1 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'",
+        $ret .= BML::ml( ".intro1", { aopts1 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=privacy'",
                                      aopts2 => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=display'" } );
         $ret .= "</div>";
 

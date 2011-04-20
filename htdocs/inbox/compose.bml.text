@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .error.cannot.reply=You cannot reply to this message
 
 .error.invalid.username="[[to]]" is not a valid username
@@ -33,3 +32,4 @@
 .suspended.cannot.send=Suspended accounts are not allowed to send private messages
 
 .warning.empty.message=Warning: You are trying to send a message with no text. Please resubmit if this is correct.
+

@@ -3,9 +3,9 @@
 
 .core.layer=Core layer for layout not found.
 
-.customize=customize
-
 .core.layer.for.layout=Core layer for layout not found.
+
+.customize=customize
 
 .layer.belongs=Layer belongs to another user.
 
@@ -13,9 +13,9 @@
 
 .layout.layer=Layout layer for this [[layertype]] layer not found.
 
-.login.required=Login Required
-
 .login.first=You must first <a [[url]]>login</a>. 
+
+.login.required=Login Required
 
 .no.user.layer2=No wizard layer
 

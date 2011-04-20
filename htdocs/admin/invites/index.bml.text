@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .codetrace.desc=Look up invite codes, by code or by user
 
 .codetrace.head=Codetrace
@@ -21,3 +20,4 @@
 .review.head=Review Invite History
 
 .title=Invite Codes Administration
+

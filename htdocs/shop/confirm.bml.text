@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .btn.back=Back to Shop
 
 .btn.cancel=Cancel Payment
@@ -37,3 +36,4 @@
 .success.paypal.processing=Your order has been successfully placed, but PayPal says it will take some time for your payment to finish processing. As soon as it does, PayPal will email you and we will process your order. Thank you for your purchase!
 
 .title=Confirm Your Payment
+

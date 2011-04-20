@@ -3,9 +3,9 @@
 
 .answer=Answer
 
-.answered.need.help=<b><span style='color: #ff0000;'>answered</span></b> (<b>still needs help</b>)
-
 .answered=<b><span style='color: #ff0000;'>answered</span></b> (awaiting close)
+
+.answered.need.help=<b><span style='color: #ff0000;'>answered</span></b> (<b>still needs help</b>)
 
 .approve.screened=Approve Screened Response
 
@@ -37,15 +37,15 @@
 
 .diagnostics=Diagnostics
 
+.email.user=Email/User:
+
 .email.validated=email validated?
 
-.email.user=Email/User:
+.error=Error
 
 .error.text1=You do not appear to have permission to read any support categories.
 
 .error.text2=<?p No [[what]] open request [[cat]] found. p?>
-
-.error=Error
 
 .faq=FAQ
 
@@ -83,16 +83,15 @@
 
 .next=next
 
+.no=no
+
 .no.html.allowed=No HTML allowed, so don't worry about about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
 
-.no=no
+.none=none
 
 .not.have.access=Sorry, you do not have access to answer people's support requests in this category.
 
 .nothaveprivilege=You don't have the necessary privilege to view this request. 
-
-.none=none
-
 
 .open=open
 
@@ -136,15 +135,17 @@
 
 .status=Status
 
-.statushistory=statushistory
-
 .status.deleted.and.purged=Status: <b>deleted and purged</b>
+
+.statushistory=statushistory
 
 .style=style
 
 .summary=Summary
 
 .supportcategory=Support category
+
+.take.out.of.queue=Take out of Queue:
 
 .tier=Tier:
 
@@ -166,13 +167,13 @@
 
 .transitioning=<b>transitioning</b> (used to be validated, but changed email addresses and hasn't reconfirmed)
 
-.take.out.of.queue=Take out of Queue:
-
 .unable.connect=(unable to connect to cluster, some data temporarily unavailable)
 
-.uniquecookie=unique cookie 
+.underage=underage
 
 .uniq=Uniq:
+
+.uniquecookie=unique cookie 
 
 .unknown=Unknown
 

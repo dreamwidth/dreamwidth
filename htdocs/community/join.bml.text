@@ -1,8 +1,6 @@
 ;; -*- coding: utf-8 -*-
 .btn.cancel=Cancel
 
-.button.join=Join Community
-
 .button.join2=Join Community
 
 .error.already.member=You are already a member of this community.
@@ -17,23 +15,13 @@
 
 .error.statusvis.title=Unable to Join Communities
 
-.label.addtofriends=Add "[[maintainer]]" to friends list.<br>
-
-.label.addtofriends.note=Subscribing to this community will allow you to read entries posted in it on your Friends page.
-
 .label.addtofriends.note2=Adding a community allows you to read entries posted in it on your Friends page.
-
-.label.addtofriends2=Subscribe to [[comm]] in addition to joining it.
 
 .label.addtofriends2.modify=Modify subscription to [[comm]] in addition to joining it.
 
 .label.addtofriends3=Yes, I want to watch [[comm]] in addition to joining it.  Take me to <strong>Step 2: Add to Friends</strong>.
 
-.label.allowposting=This community allows posting by all members, so you now have access to post in it.  If you already have a LiveJournal client open on your computer, you'll have to log out and log back in for this journal to show up in your list of journals you can post to.
-
 .label.allowposting2=Additionally, this community allows posting by all members. If you already have a [[sitename]] client open, log out and log back in for this community to show in your posting permissions.
-
-.label.auth=Although you are now listed as a member, this community only allows posting by authorized users.  Contact one of the maintainers if you desire posting access. Below is the list of maintainers for this community: [[admins]]
 
 .label.auth2=Please note that this community only allows posting by authorized users, so joining it will not allow you to post in it. Contact one of the maintainers if you desire posting access. Below is the list of maintainers for this community: [[admins]]
 
@@ -45,15 +33,9 @@
 
 .label.errorcomminfo=The specified community information is not valid.
 
-.label.expls=Press the button below to join the "[[maintainer]]" community. Uncheck the box below if you want to join the community without seeing community entries on your friends page.
-
 .label.expls2=Joining this community will allow you to read any members-only entries posted in it. It will not allow community members or maintainers to read protected entries in your own journal.
 
 .label.locked=This community is not accepting new members, and so you cannot join it.
-
-.label.membernow2=You are now a member of the <a [[aopts]]>[[commname]] Community</a>.
-
-.label.membernow3=You are now a member of <a [[aopts]]>[[commname]] Community</a>.
 
 .label.membernow6=You are now a member of [[commname]] Community.
 
@@ -64,8 +46,6 @@
 .label.read_recent_entries=Read the recent entries in [[user]]
 
 .label.search_other=Search for other communities
-
-.label.sure=You sure?
 
 .label.sure2=Join [[comm]]?
 

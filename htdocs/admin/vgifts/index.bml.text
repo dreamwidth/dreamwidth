@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .error=Error
 
 .error.badid=An error occurred while trying to load this vgift.
@@ -114,9 +115,9 @@
 
 .submit.create=Create
 
-.submit.edit=Submit Changes
-
 .submit.delete=Yes, I want to delete this gift.
+
+.submit.edit=Submit Changes
 
 .submit.review=Submit Review
 
@@ -131,3 +132,4 @@
 .title.edited=Edit Successful!
 
 .title.review=Review Queue
+

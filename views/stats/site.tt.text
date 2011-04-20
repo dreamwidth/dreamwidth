@@ -1,11 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
-.active.bytime.active_1d=Last 24 hours:
-
-.active.bytime.active_7d=Last 7 days:
-
-.active.bytime.active_30d=Last 30 days:
-
 .accounts.bytype.community=Community:
 
 .accounts.bytype.identity=External identity (OpenID, etc.):
@@ -26,31 +19,37 @@
 
 .accounts.title=Number of accounts
 
+.active.bytime.active_1d=Last 24 hours:
+
+.active.bytime.active_30d=Last 30 days:
+
+.active.bytime.active_7d=Last 7 days:
+
 .active.desc=These are accounts who logged in, posted an entry, commented, or edited a comment during the period indicated. For entries posted to communities, both the poster and the community are counted.
 
 .active.free1=free accounts active in the past 1 day:
 
-.active.paid1=paid accounts active in the past 1 day:
+.active.free30=free accounts active in the past 30 days:
 
 .active.free7=free accounts active in the past 7 days:
 
-.active.paid7=paid accounts active in the past 7 days:
-
-.active.free30=free accounts active in the past 30 days:
+.active.paid1=paid accounts active in the past 1 day:
 
 .active.paid30=paid accounts active in the past 30 days:
+
+.active.paid7=paid accounts active in the past 7 days:
 
 .active.title=Active accounts
 
 .error.notavailable=(Sorry, those statistics aren't available right now.)
+
+.graphtitle.accounts=Pie chart: Dreamwidth accounts,<br /> divided by account type:
 
 .graphtitle.active.community=Bar graph: Community accounts which have<br /> been active in the past 1 day, 7 days, and 30 days
 
 .graphtitle.active.identity=Bar graph: Identity accounts which have<br /> been active in the past 1 day, 7 days, and 30 days
 
 .graphtitle.active.personal=Bar graph: Personal accounts which have been active<br /> in the past 1 day, 7 days, and 30 days
-
-.graphtitle.accounts=Pie chart: Dreamwidth accounts,<br /> divided by account type:
 
 .graphtitle.paid=Pie chart: Active accounts: paid,<br />paid-premium, paid-seed, and free:
 
@@ -64,9 +63,9 @@
 
 .label.bar.1d=1 day
 
-.label.bar.7d=7 days
-
 .label.bar.30d=30 days
+
+.label.bar.7d=7 days
 
 .label.bar.free=free
 
@@ -92,9 +91,9 @@
 
 .paid.colhdr.number=Number
 
-.paid.colhdr.pct_total=% of total accounts
-
 .paid.colhdr.pct_active=% of active accounts
+
+.paid.colhdr.pct_total=% of total accounts
 
 .paid.explanation=There are two levels of paid accounts, 'paid' and 'premium paid', which offer extra services compared to free accounts. 'Seed' accounts offer the level of services as 'premium paid', but are permanent. <a href="http://www.dreamwidth.org/support/faqbrowse?faqid=4">Information on paid accounts</a>.
 
@@ -111,3 +110,4 @@
 .paid.title=Paid accounts
 
 .title=[[sitenameshort]] Site Statistics
+

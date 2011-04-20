@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .addcat.intro=Complete the below form to add a new category to the FAQ.
 
 .addcat.success=Category successfully added.
@@ -14,9 +13,9 @@
 
 .btn.editcat=Edit Category
 
-.btn.sortup=Sort Up
-
 .btn.sortdown=Sort Down
+
+.btn.sortup=Sort Up
 
 .catsort.success=Category successfully sorted [[direction]].
 
@@ -43,3 +42,4 @@
 .label.catorder=Category Order
 
 .link.faqmain=Back to FAQ Administration Area
+

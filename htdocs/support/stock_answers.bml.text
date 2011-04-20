@@ -11,6 +11,8 @@
 
 .changes.saved=Changes saved!
 
+.confirm.answer=Are you sure you want to delete this stock answer?
+
 .delete.answer=Delete Answer
 
 .error=Error
@@ -23,17 +25,17 @@
 
 .last.modified.by=Last modified by
 
-.no.answer.id=No answer id provided.
-
 .no.answer=No answer was found to delete?
+
+.no.answer.id=No answer id provided.
 
 .no.database.available=No database available.
 
 .not.have.access.to.actions=You do not have access to perform actions here.
 
-.not.have.access.to.view.answers.in.cat=You do not have access to view stock answers in that category.
-
 .not.have.access.to.view.answers=You do not have access to view any stock answers.
+
+.not.have.access.to.view.answers.in.cat=You do not have access to view stock answers in that category.
 
 .save_changes=Save Changes
 
@@ -48,6 +50,4 @@
 .unable.get.database.handle=Unable to get database handle.  Please try again.
 
 .view.all=View All
-
-.confirm.answer=Are you sure you want to delete this stock answer?
 

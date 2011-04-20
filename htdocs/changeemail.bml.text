@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .btn.change=Change email address
 
 .error.invalidemail=Invalid email address.
@@ -26,6 +25,16 @@
 
 .label.username=Username:
 
+.newemail.body.openid<<
+You have just entered an email address for your OpenID account "[[username]]" at [[sitename]]. To validate this address, please go to:
+
+[[conflink]]
+
+Regards,
+[[sitename]] Team
+[[sitelink]]
+.
+
 .newemail.body3<<
 You have changed the address for your [[sitename]] account "[[username]]" to this address: [[email]].
 
@@ -40,16 +49,9 @@ Sincerely,
 [[siteroot]]
 .
 
-.newemail.body.openid<<
-You have just entered an email address for your OpenID account "[[username]]" at [[sitename]]. To validate this address, please go to:
+.newemail.subject=Email Address Changed
 
-[[conflink]]
-
-Regards,
-[[sitename]] Team
-[[sitelink]]
-.
-
+.newemail.subject.openid=Email Address Added
 
 .newemail_old.body2<<
 Someone just changed the e-mail address for your [[sitename]] account "[[username]]".
@@ -66,10 +68,6 @@ Regards,
 .
 
 .newemail_old.subject=E-mail Address Changed
-
-.newemail.subject.openid=Email Address Added
-
-.newemail.subject=Email Address Changed
 
 .noemail=(None)
 

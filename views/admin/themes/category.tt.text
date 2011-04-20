@@ -1,12 +1,11 @@
 ;; -*- coding: utf-8 -*-
-
 .back.link=&lt;&lt; Back
 
 .commit_all=Commit All
 
-.delete.note=( Clear all and commit to be able to delete )
-
 .delete=Delete
+
+.delete.note=( Clear all and commit to be able to delete )
 
 .filter.act.all=All
 
@@ -23,3 +22,4 @@
 .visible.check=Check Visible
 
 .visible.clear=Clear Visible
+

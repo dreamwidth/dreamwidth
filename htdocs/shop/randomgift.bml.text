@@ -1,20 +1,19 @@
 ;; -*- coding: utf-8 -*-
-
 .backlink=Back to [[sitename]] Shop
 
-.form.getanother.P=Find a different random active free user
+.form.getanother.c=Find a different random active free community
 
-.form.getanother.C=Find a different random active free community
-
-.form.switchtype.C=Find a random active free user
-
-.form.switchtype.P=Find a random active free community
+.form.getanother.p=Find a different random active free user
 
 .form.submit=Purchase a Paid Account for [[username]]
 
-.intro.P=Here is a random active free user who may appreciate a paid account.  If you'd like to find a different random user, just <a [[aopts]]>refresh</a>.  You can also <a [[aopts2]]>purchase a paid account for an unknown random user</a>.
+.form.switchtype.c=Find a random active free user
 
-.intro.C=Here is a random active free community who may appreciate a paid account.  If you'd like to find a different random community, just <a [[aopts]]>refresh</a>.
+.form.switchtype.p=Find a random active free community
+
+.intro.c=Here is a random active free community who may appreciate a paid account.  If you'd like to find a different random community, just <a [[aopts]]>refresh</a>.
+
+.intro.p=Here is a random active free user who may appreciate a paid account.  If you'd like to find a different random user, just <a [[aopts]]>refresh</a>.  You can also <a [[aopts2]]>purchase a paid account for an unknown random user</a>.
 
 .label.createdate=Created on:
 
@@ -30,10 +29,11 @@
 
 .label.username=Username:
 
-.nousers.P=There are currently no active free users.
+.nousers.c=There are currently no active free communities.
 
-.nousers.C=There are currently no active free communities.
+.nousers.p=There are currently no active free users.
 
-.title.P=Find a Random Active Free User
+.title.c=Find a Random Active Free Community
 
-.title.C=Find a Random Active Free Community
+.title.p=Find a Random Active Free User
+

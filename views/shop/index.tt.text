@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .about=This is the shop where we sell things to help pay for our expenses to keep the site running, develop new features, and fix bugs.
 
 .for.circle=someone in your circle
@@ -23,3 +24,4 @@
 .title.points=Buy [[site]] Points for...
 
 .title.renames=Buy a Rename Token for...
+

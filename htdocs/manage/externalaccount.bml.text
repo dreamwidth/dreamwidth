@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .btn.create=Create
 
 .btn.update=Update
@@ -17,6 +16,32 @@
 .protocol.ljxmlrpc.minsecurity.public=Public
 
 .protocol.options=[[protocol]] options
+
+.setting.xpost.option.password=Password
+
+.setting.xpost.option.password.info=(Please make sure you have caps-lock disabled and enter the correct password.)
+
+.setting.xpost.option.recordlink=Display Cross Post Links
+
+.setting.xpost.option.savepassword=Save Password
+
+.setting.xpost.option.service.ljxmlrpc.url=LJ XML-RPC URL
+
+.setting.xpost.option.servicename=Custom Service Name
+
+.setting.xpost.option.servicetype=Custom Service Type
+
+.setting.xpost.option.serviceurl=Custom Service URL
+
+.setting.xpost.option.site=Site
+
+.setting.xpost.option.site.custom=Other Site
+
+.setting.xpost.option.username=Username
+
+.setting.xpost.option.username.info=(Please enter a valid username on the selected service. Crossposting to community accounts is not possible.)
+
+.setting.xpost.option.xpostbydefault=Cross Post by Default
 
 .settings.xpost.error.ipban=Too many log-in attempts. Please try creating the account again later.
 
@@ -38,32 +63,7 @@
 
 .settings.xpost.error.username.required=Username is required.
 
-.setting.xpost.option.password=Password
-
-.setting.xpost.option.password.info=(Please make sure you have caps-lock disabled and enter the correct password.)
-
-.setting.xpost.option.recordlink=Display Cross Post Links
-
-.setting.xpost.option.savepassword=Save Password
-
-.setting.xpost.option.servicename=Custom Service Name
-
-.setting.xpost.option.servicetype=Custom Service Type
-
-.setting.xpost.option.serviceurl=Custom Service URL
-
-.setting.xpost.option.service.ljxmlrpc.url=LJ XML-RPC URL
-
-.setting.xpost.option.site=Site
-
-.setting.xpost.option.site.custom=Other Site
-
-.setting.xpost.option.username=Username
-
-.setting.xpost.option.username.info=(Please enter a valid username on the selected service. Crossposting to community accounts is not possible.)
-
-.setting.xpost.option.xpostbydefault=Cross Post by Default
-
 .title.edit=Edit External Account
 
 .title.new=New External Account
+

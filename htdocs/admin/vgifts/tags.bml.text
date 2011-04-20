@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .error=Error
 
 .error.badarg=The argument [[arg]] is not valid for the privilege [[priv]].
@@ -50,12 +51,13 @@
 
 .review.empty=There are no relevant gifts available to display.
 
-.submit.edit=Submit Changes
-
 .submit.delete=Yes, I want to delete this tag.
+
+.submit.edit=Submit Changes
 
 .title=Virtual Gifts: Tag Management
 
 .title.delete=Delete A Tag
 
 .title.edited=Edit Successful!
+

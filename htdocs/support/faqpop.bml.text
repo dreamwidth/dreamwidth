@@ -1,9 +1,9 @@
 ;; -*- coding: utf-8 -*-
-
 .faqpop.back.link=Back to <a [[backlink]]>the support area</a>.
-
-.faqpop.title.text=The following is a list of what questions people have been interested in during the past week, followed by the number of people that have read the answers:
 
 .faqpop.title=Popular FAQs
 
+.faqpop.title.text=The following is a list of what questions people have been interested in during the past week, followed by the number of people that have read the answers:
+
 .head.title=Popular Frequently Asked Questions
+

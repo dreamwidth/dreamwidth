@@ -1,9 +1,9 @@
 ;; -*- coding: utf-8 -*-
-.add.added.head=Added.
-
 .add.added.editinterests=Edit your interests
 
 .add.added.editprofile=Edit your profile
+
+.add.added.head=Added.
 
 .add.added.interestspage=Return to the Interests page
 
@@ -18,3 +18,4 @@
 .add.confirm.text=To add <strong>[[interest]]</strong> as an interest, click the button below.
 
 .title=Interests
+

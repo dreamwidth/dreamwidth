@@ -11,11 +11,11 @@
 
 .showonlyhelp=Show only 
 
+.state.closed=Closed
+
 .state.closed.text=Below are all support requests that have been recently closed.  To return to the open requests, <a [[clickurl]]>click here</a>
 
 .state.closed.title=Recently Closed Support Requests
-
-.state.closed=Closed
 
 .state.else.text=<?p Below are all support requests that are open (they just came in and haven't been touched yet) or answered (either awaiting to be closed by the person needing help, or the person requested they still need help).  The <a [[statelink]]>closed reports</a> are also available.  If you help somebody out and they confirm you helped them, you get the number of points indicated in the status column.  These points will show up on your userinfo page p?>
 

@@ -7,9 +7,9 @@
 
 .no.request=No request ids were provided to act on.
 
-.not.have.access.move.request=You don't have access to move requests out of this category.
-
 .not.have.access=You don't have access to close requests in that category.
+
+.not.have.access.move.request=You don't have access to move requests out of this category.
 
 .request.moved=The requests have been moved.
 

@@ -1,12 +1,11 @@
 ;; -*- coding: utf-8 -*-
-
 .anonymous=Anonymous
+
+.comment=Comment
 
 .comment.deleted=Comment Deleted
 
 .comment.link=Comment Link
-
-.comment=Comment
 
 .comments=Comments
 
@@ -18,9 +17,9 @@
 
 .edit.link=edit
 
-.entry.link=Entry Link
-
 .entry=Entry
+
+.entry.link=Entry Link
 
 .last.num.posted.by=Last [[num]] comments [[user]] has posted
 
@@ -47,5 +46,4 @@
 .title=Manage Comments
 
 .view.latest=View Latest
-
 

@@ -35,9 +35,9 @@
 
 .maplinks.create-poll=Create poll
 
-.maplinks.customizestyle=Customize style
-
 .maplinks.customize-title=...customize the look of your journal:
+
+.maplinks.customizestyle=Customize style
 
 .maplinks.directory=Search directory
 
@@ -105,9 +105,9 @@
 
 .maplinks.massprivacy=Edit journal privacy
 
-.maplinks.official-journals.list=Complete list
-
 .maplinks.official-journals-title=...read the [[sitename]] official journals:
+
+.maplinks.official-journals.list=Complete list
 
 .maplinks.payment-history=View your payment history
 
@@ -150,3 +150,4 @@
 .maplinks.upgrade=Upgrade your account
 
 .title=Site Map
+

@@ -21,15 +21,15 @@ directory usage, be sure that you are logged in and then try again.
 
 .navcrap.xofy=Page [[curpage]] of [[totpages]] shown (records [[reca]]-[[recb]])
 
-.new_search=New search
-
-.new_search_show=Show:
-
 .new_all_search=All
 
 .new_community_search=Communities Only
 
 .new_identity_search=OpenIDs Only
+
+.new_search=New search
+
+.new_search_show=Show:
 
 .new_user_search=Users Only
 
@@ -45,9 +45,9 @@ directory usage, be sure that you are logged in and then try again.
 
 .search.overflow=<b>Search results limited to [[count]] results.  Please refine your query.</b>
 
-.search_results=Search Results
-
 .search.title=Searching
+
+.search_results=Search Results
 
 .title=Directory Search
 
@@ -56,4 +56,3 @@ directory usage, be sure that you are logged in and then try again.
 .update=Update:
 
 .user=User
-

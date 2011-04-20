@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .active.active=active
 
 .active.inactive=inactive
@@ -8,8 +9,6 @@
 
 .count.outof= out of 
 
-.error.label=Error:
-
 .error.code.exists=Promo code already exists
 
 .error.code.invalid=Code invalid
@@ -19,6 +18,8 @@
 .error.code.missing=Code must be specified
 
 .error.count.negative=Count must be positive
+
+.error.label=Error:
 
 .error.suggest_journal.invalid=Cannot find that user
 
@@ -58,9 +59,9 @@
 
 .return=Return to list
 
-.suggest.none=<em>(none)</em>
-
 .state.active=Active
+
+.state.inactive=Inactive
 
 .state.new=Create new
 
@@ -70,10 +71,11 @@
 
 .state.unused=Unused
 
-.state.inactive=Inactive
+.suggest.none=<em>(none)</em>
 
 .title=Manage Promo Codes
 
 .title.create=Create Promo Code
 
 .title.edit=Edit Promo Code: [[code]]
+

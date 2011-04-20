@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .about=Are you looking for a gift for a birthday or a holiday? Is one of the people in your Circle such a compelling writer that you want to find a way to say a quick "thank you for being so awesome"? Give the gift of a paid [[sitename]] account!
 
 .buy.gift=Buy gift
@@ -10,9 +9,9 @@
 
 .free.header=Free Accounts
 
-.free.header.personal=Journals
-
 .free.header.communities=Communities
+
+.free.header.personal=Journals
 
 .none.free.text=All of the people in your Circle have paid accounts that aren't set to expire soon. You can still buy a gift for them, or buy a gift for others in the <a [[aopts]]>[[sitename]] Shop</a>.
 
@@ -31,3 +30,4 @@
 .paid.soon.about=These are the people in your Circle who have paid accounts that are expiring within the next month:
 
 .title=Give the Gift of [[sitename]]
+

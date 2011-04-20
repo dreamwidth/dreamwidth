@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .about.icons=About Icons
 
 .btn.addfile=Add File
@@ -22,9 +21,9 @@
 
 .error.generatinguserpic=There was an error in generating the userpic: 
 
-.error.giffiletoolarge=The GIF image you uploaded is too large.  GIF file size cannot exceed [[maxsize]].
-
 .error.giffiledimensions=Sorry, you cannot upload a userpic larger than 100x100 pixels if it is in GIF format.
+
+.error.giffiletoolarge=The GIF image you uploaded is too large.  GIF file size cannot exceed [[maxsize]].
 
 .error.imagetoolarge=The dimensions of your image ([[imagesize]]) exceed maximum size.  Your picture can only be 100x100 pixels large.  Use a image/photo editing program to reduce the image to thumbnail-size.
 
@@ -36,9 +35,9 @@
 
 .error.nofile=You must choose a file to upload
 
-.error.nourl=You must enter the URL of an image
-
 .error.nomediauploads.delete=Unable to delete userpics at this time.  Media modification is currently disabled for the site.
+
+.error.nourl=You must enter the URL of an image
 
 .error.rename.blankkw=Error renaming '[[origkw]]' to '[[newkw]]':  renaming of blank (pic#) keywords not allowed.
 

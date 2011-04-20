@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .alt.happy=happy
 
 .alt.indicator=[[score]] out of [[top]]
@@ -17,3 +16,4 @@
 .no_data=There is currently no current mood to display. Please check later.
 
 .title=Mood of Service
+

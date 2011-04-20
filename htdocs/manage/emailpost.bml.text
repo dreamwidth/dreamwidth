@@ -51,11 +51,11 @@
 
 .help.header=How does this feature work?
 
-.help.headers.header2=Post headers and security
-
 .help.headers.compat.header=Compatibility with other sites
 
 .help.headers.compat.text=[[sitename]] also accepts old-style headers of the form "lj-headername" for backwards compatibility.  That means you can post to multiple LJ-based sites in the same email, using the same headers in the message, and have them interpreted correctly.
+
+.help.headers.header2=Post headers and security
 
 .help.headers.options.comments.example=("[[off]]" or "[[noemail]]")
 

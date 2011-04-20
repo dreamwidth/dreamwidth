@@ -9,8 +9,6 @@
 
 .commlist.actmembers2=Members
 
-.commlist.tags=Tags
-
 .commlist.actpending|notes=This is appended to /community/manage.bml.commlist.actmembers2 when there are pending people.
 .commlist.actpending=, <a [[aopts]]>[[num]] pending</a>
 
@@ -31,6 +29,8 @@
 .commlist.post=Post
 
 .commlist.queue=Queue
+
+.commlist.tags=Tags
 
 .commlist.text=Here are the communities that you manage or co-manage:
 

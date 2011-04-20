@@ -1,5 +1,4 @@
-.title=[[sitename]] Mobile
-
+;; -*- coding: utf-8 -*-
 .intro.header=[[sitename]] Mobile
 
 .intro.hello=Hello, [[user]]!
@@ -8,10 +7,13 @@
 
 .options.header=Options
 
-.options.login_prompt=<a [[aopts]]>Log in</a> -- required
-
 .options.logged_in=<a [[aopts]]>Log in</a> -- you're currently logged in as 
+
+.options.login_prompt=<a [[aopts]]>Log in</a> -- required
 
 .options.post=<a [[aopts]]>Post to [[sitename]]</a>
 
 .options.readingpage=<a [[aopts]]>Your reading page</a>
+
+.title=[[sitename]] Mobile
+

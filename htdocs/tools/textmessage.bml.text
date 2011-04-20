@@ -5,19 +5,17 @@
 
 .enter.user.submit=Proceed...
 
-.enter.user.text=The following text messaging service providers are supported.
-
 .enter.user.text2=Enter the LiveJournal username of the person you'd like to send a text message to:
+
+.error.banned.head=Banned
+
+.error.banned.text=[[user]] has banned you from sending them text messages.
 
 .error.notloggedin.head=Not logged in
 
 .error.notloggedin.notfriend=and be listed as their friend
 
 .error.notloggedin.text=To send a text message to this user, you must be <a [[aopts]]>logged in</a>[[andbefriend]].
-
-.error.banned.head=Banned
-
-.error.banned.text=[[user]] has banned you from sending them text messages.
 
 .error.unauthorized.head=Unauthorized
 

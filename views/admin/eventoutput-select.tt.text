@@ -1,4 +1,6 @@
+;; -*- coding: utf-8 -*-
 .admin.link=Event / Notification Output
+
 .admin.text=Quick overview of an event in various output formats.
 
 .form.label.arg1=First Argument
@@ -14,3 +16,4 @@
 .form.optional=(optional)
 
 .title=Select Event to Preview
+

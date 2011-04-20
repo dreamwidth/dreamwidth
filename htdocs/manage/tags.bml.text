@@ -61,15 +61,15 @@
 
 .setting.desc.control=Who can create new tags and add/remove tags from entries?
 
-.setting.public=Any user
-
-.setting.trusted=Access only
-
 .setting.maintainers=Only maintainers
 
 .setting.members=Members only
 
 .setting.private=Only you
+
+.setting.public=Any user
+
+.setting.trusted=Access only
 
 .sort.a=<strong>sort</strong>: <a [[aopts]]>alphabetically</a> or by usage
 

@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .about.comm=About:
 
 .about.header=About
@@ -96,13 +95,13 @@
 
 .details.lastupdated=Last updated [[timestamp]]
 
-.details.lastupdated2=last updated [[timestamp]]
-
-.details.lastupdated3=last updated [[timestamp]] ([[agotext]])
-
 .details.lastupdated.never=Never updated
 
 .details.lastupdated.never2=never updated
+
+.details.lastupdated2=last updated [[timestamp]]
+
+.details.lastupdated3=last updated [[timestamp]] ([[agotext]])
 
 .details.membersince=Member Since: [[createdate]]
 
@@ -222,9 +221,9 @@
 
 .label.hidden=(hidden)
 
-.label.icq_send_message=Send Message
-
 .label.icquin=ICQ UIN:
+
+.label.icq_send_message=Send Message
 
 .label.interests=Interests ([[num]]):
 
@@ -282,12 +281,6 @@
 
 .label.supportpoints=Support points
 
-.label.syndicatedfrom=Syndicated from:
-
-.label.syndicatedstatus=Syndication Status:
-
-.label.syndreadcount=Number of Readers:
-
 .label.syn.hubbub.goodfor=Expiration time:
 
 .label.syn.hubbub.huburl=Hub URL:
@@ -299,6 +292,12 @@
 .label.syn.hubbub.pings=Pings received:
 
 .label.syn.hubbub.topicurl=Topic URL:
+
+.label.syndicatedfrom=Syndicated from:
+
+.label.syndicatedstatus=Syndication Status:
+
+.label.syndreadcount=Number of Readers:
 
 .label.textmessage=<nobr>Text<br>Message</nobr>:
 
@@ -318,9 +317,9 @@
 
 .linking.about=To link to this user, copy this code:
 
-.linking.local=On [[sitename]]:
-
 .linking.anywhere=Elsewhere:
+
+.linking.local=On [[sitename]]:
 
 .members.header=Members
 
@@ -485,3 +484,4 @@
 .userpic.viewall=View All Userpics
 
 .userpic.viewall.edit=<a [[aopts1]]>View All</a> / <a [[aopts2]]>Edit</a>
+

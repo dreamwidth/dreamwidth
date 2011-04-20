@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.createaccount.header=Not a <?sitename?> member?
-
 .createaccount.button=Create an Account
+
+.createaccount.header=Not a <?sitename?> member?
 
 .createaccount.whylogin.benefit1=Read friends-only posts that are addressed to you.
 

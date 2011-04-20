@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .about=This page allows you to complete your payment using an accepted major credit card.
 
 .about.security=[[sitename]] does not store your credit card information.  Your payment details are passed to our payment processor using industry standard encryption and will never be stored on our servers.
@@ -61,3 +60,4 @@
 .form.zip=Zip/Postal Code:
 
 .title=Purchase by Credit Card
+

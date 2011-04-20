@@ -45,11 +45,11 @@
 
 .error.unknown=Error inviting [[user]].  Please make sure they're not already a member and try again.
 
-.jump=Jump to user
-
 .intro=You can define the roles of each of your members here.
 
 .intro.invite=To invite a user to your community, enter their username in one of the empty boxes below and select the checkboxes that correspond to the roles you which the user to have.
+
+.jump=Jump to user
 
 .key.admin=<b>Maintainer</b>
 

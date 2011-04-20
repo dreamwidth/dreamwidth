@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .about=This page allows you to transfer [[sitename]] Points to another user.
 
 .about.nopoints=<strong>You have no points to transfer.</strong>  You can buy some for yourself or someone else in the <a [[aopts]]>[[sitename]] Store</a>.
@@ -29,3 +30,4 @@
 .transferred.anon=An anonymous notification has been sent to advise of this transfer.
 
 .transferred.notify=A notification has been sent to advise of this transfer.
+

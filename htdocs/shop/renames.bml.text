@@ -1,4 +1,5 @@
 ;; -*- coding: utf-8 -*-
+.action=Once your payment has gone through, the token will be listed on <a [[aopts]]>the rename page</a>.
 
 .backlink=Back to [[sitename]] Shop
 
@@ -16,6 +17,5 @@
 
 .intro.self=Buy a rename token for your journal to change your username, or the username of a community you manage.
 
-.action=Once your payment has gone through, the token will be listed on <a [[aopts]]>the rename page</a>.
-
 .title=Buy a Rename Token
+

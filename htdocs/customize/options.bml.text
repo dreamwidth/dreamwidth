@@ -1,4 +1,5 @@
 ;; -*- coding: utf-8 -*-
+.advanced=Advanced Customization
 
 .customize.feedback=Customize Area Feedback
 
@@ -7,6 +8,4 @@
 .switcher.label=Switch to:
 
 .title=Customize Journal Style
-
-.advanced=Advanced Customization
 

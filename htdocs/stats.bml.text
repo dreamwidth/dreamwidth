@@ -1,26 +1,25 @@
 ;; -*- coding: utf-8 -*-
+.age.desc=The age distribution of our users:
 
 .age.header=Age Distribution
 
-.age.desc=The age distribution of our users:
-
-.client.header=Client Use
-
 .client.desc=How people have updated their journals over the last 30 days:
 
-.demographics.header=Demographics
+.client.header=Client Use
 
 .demographics.desc.countries=The 15 top countries our users have listed as their homes:
 
 .demographics.desc.states=The 15 top states our users have listed as their homes:
 
-.description=The following statistics may be interesting. For speed, most of this page is only updated every 24 hours. You can also see the <a [[aopts]]>raw data</a>.
+.demographics.header=Demographics
 
-.gender.header=Gender
+.description=The following statistics may be interesting. For speed, most of this page is only updated every 24 hours. You can also see the <a [[aopts]]>raw data</a>.
 
 .gender.desc=The gender balance of our users:
 
 .gender.female=Female
+
+.gender.header=Gender
 
 .gender.male=Male
 
@@ -28,19 +27,21 @@
 
 .gender.unspecified=Unspecified
 
-.new.header=New Journals
-
 .new.desc=The following are the 10 most recently created journals. (It's very likely these users haven't written much in them yet...)
+
+.new.header=New Journals
 
 .notavailable=stat not available
 
-.recent.header=Recently Updated
-
 .recent.desc=The 10 most recently updated journals:
 
-.users.header=Users
+.recent.header=Recently Updated
+
+.title=[[sitenameshort]] Statistics
 
 .users.desc=How many users, and how many of those are active?
+
+.users.header=Users
 
 .users.total=Total accounts:
 
@@ -48,12 +49,9 @@
 
 .users.total.everupdate=... that have ever updated:
 
+.users.total.last24=... updating in the last 24 hours:
+
 .users.total.last30=... updating in last 30 days:
 
 .users.total.last7=... updating in the last 7 days:
-
-.users.total.last24=... updating in the last 24 hours:
-
-.title=[[sitenameshort]] Statistics
-
 

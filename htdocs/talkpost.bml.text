@@ -25,6 +25,8 @@
 
 .label.picturetouse2=<a [[aopts]]>Picture</a> to use:
 
+.linkstripped=Links will be displayed as unclickable URLs to help prevent spam.
+
 .loganonip=<b>Notice!</b> This user has turned on the option that logs IP addresses of anonymous posters.
 
 .loginq=Login?
@@ -36,8 +38,6 @@
 .noedithtml=No HTML allowed in reason for edit
 
 .nosubjecthtml=No HTML allowed in subject
-
-.linkstripped=Links will be displayed as unclickable URLs to help prevent spam.
 
 .opt.anonymous=Anonymous
 
@@ -55,8 +55,6 @@
 
 .opt.loggedin=<b>Logged in user:</b> [[username]]
 
-.opt.openidsignin=- OpenID commenting on this post is limited. Please sign in <a [[aopts]]>here</a>.
-
 .opt.membersonly=- this community only allows commenting by members. You may comment here if you are a member of [[username]].
 
 .opt.message=Message:
@@ -70,6 +68,8 @@
 .opt.noimage=No Image
 
 .opt.noopenidpost=- you must <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> your email address in order to comment.
+
+.opt.openidsignin=- OpenID commenting on this post is limited. Please sign in <a [[aopts]]>here</a>.
 
 .opt.preview=Preview
 

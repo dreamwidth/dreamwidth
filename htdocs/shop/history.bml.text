@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .cart.details=View
 
 .cart.header.date=Date
@@ -19,3 +18,4 @@
 .nocarts.extra=You have not placed any orders.  <a [[aopts]]>Want to purchase something?</a>
 
 .title=Order History
+

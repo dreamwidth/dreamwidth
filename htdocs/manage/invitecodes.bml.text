@@ -9,18 +9,6 @@
 
 .form.request.submit=Request invites
 
-.label.viewing.full=Here is a full list of your invite codes. See only those which are <a [[aopts]]>unused, or used but recently sent</a>.
-
-.label.viewing.partial=Here are your unused and recently sent invite codes. See the <a [[aopts]]>full list of your invite codes</a>.
-
-.msg.request.success=Your request for new invite codes has been forwarded to site administrators for review.
-
-.msg.request.error=Your request could not go through.
-
-.noinvitecodes=You have no invite codes.
-
-.noinvitecodes.partial=You have no unused or recently sent invite codes.
-
 .header.code=Code:
 
 .header.email=Sent to email:
@@ -30,4 +18,16 @@
 .header.sent=Sent on:
 
 .header.used=Used on:
+
+.label.viewing.full=Here is a full list of your invite codes. See only those which are <a [[aopts]]>unused, or used but recently sent</a>.
+
+.label.viewing.partial=Here are your unused and recently sent invite codes. See the <a [[aopts]]>full list of your invite codes</a>.
+
+.msg.request.error=Your request could not go through.
+
+.msg.request.success=Your request for new invite codes has been forwarded to site administrators for review.
+
+.noinvitecodes=You have no invite codes.
+
+.noinvitecodes.partial=You have no unused or recently sent invite codes.
 

@@ -1,13 +1,17 @@
 ;; -*- coding: utf-8 -*-
-
 .add_category.btn=Add / Edit
+
 .add_category.label=Add Category:
 
 .admin.link=Theme Metadata
+
 .admin.text=Manage theme metadata ( categories )
 
 .edit_category.btn=Edit
+
 .edit_category.label=Edit Category:
 
 .edit_theme.btn=Edit
+
 .edit_theme.label=Edit Theme:
+

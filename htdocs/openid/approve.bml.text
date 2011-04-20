@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .error.cannot_provide_identity=The site you just came from seems to want to verify <a href='[[url]]'>an identity</a> that you, as [[user]], cannot provide.
 
 .error.failed_sign_url=Failed to make signed return URL.
@@ -29,3 +28,4 @@
 .form.request2=The site you just came from has asked [[sitename]] to prove that you own this [[sitename]] account. If you allow this, we will <b>not</b> give them access to your [[sitename]] account or password, or any information that isn't already public in your account. All we'll do is tell [[refurl]] that you control the account [[url]].
 
 .form.title2=Pass identity along?
+

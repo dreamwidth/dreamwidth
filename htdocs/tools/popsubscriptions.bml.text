@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .communities.intro=These are the most popular community accounts in your circle:
 
 .disabled=This feature is not available on this service.
@@ -37,3 +38,4 @@
 .results.personal=These are the most popular personal accounts in your circle:
 
 .title=Popular With Circle
+

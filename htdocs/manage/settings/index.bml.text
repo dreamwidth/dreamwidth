@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .adultcontentflag=Limit age:
 
 .adultcontentflag.select.concepts=Age 14 and over
@@ -14,11 +13,9 @@
 
 .bdayreminder=Receive email reminders for your friends' birthdays
 
-.bdayreminder.note=Note: This feature is currently disabled, but may be re-enabled in the future.
+.btn.deleteinactive=Delete all inactive subscriptions
 
 .btn.save=Save
-
-.btn.deleteinactive=Delete all inactive subscriptions
 
 .cat.account=Account
 
@@ -62,8 +59,6 @@
 
 .finished.save_button=Save Changes
 
-.form.confirm=Save your changes?
-
 .fn.adultcontentflag=Adult Content
 
 .fn.adultcontentreason=Age Limit Reason
@@ -82,15 +77,17 @@
 
 .fn.minsecurity=Entry Security
 
+.fn.public=Publicity
+
 .fn.safesearch=Safe Search Filtering
 
 .fn.scheme=Scheme
 
 .fn.searchincl=Search inclusion
 
-.fn.public=Publicity
-
 .fn.viewingadult=Viewing Age Limited Content
+
+.form.confirm=Save your changes?
 
 .imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
 
@@ -122,8 +119,6 @@
 
 .minsecurity=Default privacy of new entries:
 
-.minsecurity.text=This setting will override the security for all future entries, unless you choose a more restrictive privacy. In that case, the more restrictive privacy setting will be used.
-
 .minsecurity.friends=Friends Only
 
 .minsecurity.members=Members Only
@@ -132,6 +127,8 @@
 
 .minsecurity.public=Everyone (Public)
 
+.minsecurity.text=This setting will override the security for all future entries, unless you choose a more restrictive privacy. In that case, the more restrictive privacy setting will be used.
+
 .public<<
 I hereby give my authorization to reproduce and/or 
 distribute any part or all of my Content by third parties, with the
@@ -139,7 +136,8 @@ identification of the name and source, but without any modification.
 This authorization is remuneration free. Except as stated herein, none 
 of the Content may be transferred, copied, republished and distributed 
 in any form or by any means for commercial use.
-.
+
+.safesearch.select.none=Do not filter my results
 
 .safesearch2=You can choose to filter mature or offensive content out of search results.
 
@@ -147,13 +145,11 @@ in any form or by any means for commercial use.
 
 .safesearch2.select.explicit=Use moderate filtering (Excludes content the poster has marked 18+)
 
-.safesearch.select.none=Do not filter my results
-
 .searchincl=Minimize your journal's inclusion in search engine results
 
-.searchincl2=Minimize your journal's inclusion in search engine results. Selecting this option also means that your entries will not be publicized at external sites that have content partnership with [[sitename]].
-
 .searchincl.text=We can instruct search engines not to include your journal entries in their search results. Not all search engines recognize this request; if you do not want a journal entry to show up in search results, then make sure it is posted private or Friends-only.
+
+.searchincl2=Minimize your journal's inclusion in search engine results. Selecting this option also means that your entries will not be publicized at external sites that have content partnership with [[sitename]].
 
 .section.adult_content=Adult content options
 
@@ -175,8 +171,6 @@ in any form or by any means for commercial use.
 
 .success.header=Success!
 
-.success.text=Your viewing options have been updated.
-
 .success.next=What would you like to do next?
 
 .success.next.customize=Customize your journal
@@ -186,6 +180,8 @@ in any form or by any means for commercial use.
 .success.next.home=Return to the home page
 
 .success.next.viewing=Change your viewing options
+
+.success.text=Your viewing options have been updated.
 
 .title=Viewing Options
 
@@ -201,6 +197,7 @@ in any form or by any means for commercial use.
 
 .viewingadult.select.none=Do not collapse
 
+.you.can.change=You can change other viewing options by <a [[login]]>logging in</a>. If you don't have an account, you can <a [[create.bml]]>create one now</a>.
+
 .you.could.not.auth=You could not be authenticated as the specified user.
 
-.you.can.change=You can change other viewing options by <a [[login]]>logging in</a>. If you don't have an account, you can <a [[create.bml]]>create one now</a>.

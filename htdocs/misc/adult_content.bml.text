@@ -1,16 +1,15 @@
 ;; -*- coding: utf-8 -*-
-
 .btn.ageconfirm=Yes, I am at least [[age]] years old.
 
 .btn.viewconfirm=Yes, I wish to view this content.
 
-.message.concepts.byposter=You are about to view content that [[poster]] has advised <strong>should be viewed with discretion</strong>. To continue, you must confirm that you want to view this content.
-
-.message.concepts.byposter.reason=The following reason has been provided by [[poster]] for this entry: <strong>[[reason]]</strong>.
-
 .message.concepts.byjournal=You are about to view content that [[journal]] has advised <strong>should be viewed with discretion</strong>. To continue, you must confirm that you want to view this content.
 
 .message.concepts.byjournal.reason=The following reason has been provided by [[journal]] for this entry: <strong>[[reason]]</strong>.
+
+.message.concepts.byposter=You are about to view content that [[poster]] has advised <strong>should be viewed with discretion</strong>. To continue, you must confirm that you want to view this content.
+
+.message.concepts.byposter.reason=The following reason has been provided by [[poster]] for this entry: <strong>[[reason]]</strong>.
 
 .message.concepts.communityreason=The following reason has been provided by [[journal]] for this community: <strong>[[reason]]</strong>.
 
@@ -44,8 +43,9 @@
 
 .title=Adult Content Notice
 
-.title.NSFW=Discretion Advised
-
 .title.18=Discretion Advised: 18+ Content
 
 .title.18.blocked=Adult Content: Restricted to 18+
+
+.title.nsfw=Discretion Advised
+

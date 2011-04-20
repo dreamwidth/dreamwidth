@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 .error=Error
 
 .error.badid=The specified tag was not found.
@@ -35,3 +36,4 @@
 .tab.tags=Filter By Tag
 
 .title=Virtual Gifts: Activation Management
+

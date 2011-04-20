@@ -1,7 +1,6 @@
 ;; -*- coding: utf-8 -*-
-
 .items.next= | <a [[aopts]]>Next [[items]] &gt;&gt;</a>
- 
+
 .items.previous=<a [[aopts]]>&lt;&lt; Previous [[items]]</a>
 
 .page.title=Reading Page
@@ -13,3 +12,4 @@
 .read.login=You must <a [[aopts]]>log in</a> to access your reading page.
 
 .read.noentries=<i>No further entries to display in group: [[groupname]]</i>
+

@@ -1,5 +1,4 @@
 ;; -*- coding: utf-8 -*-
-
 .error.authfailed=Failed to connect to [[account]]
 
 .error.nochallenge=[[account]] does not support challenge/response authentication.
