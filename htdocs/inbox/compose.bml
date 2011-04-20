@@ -45,6 +45,7 @@ body<=
     my $msg_body = ''; # reply body
     my $msg_parent = ''; # Hidden msg field containing id of parent message
     my $msg_limit = $remote->count_usermessage_length;
+    my $subject_limit = 255;
     my $force = 0; # flag for if user wants to force an empty PM
 
     my @errors;
@@ -63,6 +64,13 @@ body<=
             my $msg_subject_text = $POST{'msg_subject'};
             push @errors, $ML{'.error.text.encoding.subject'}
                 unless LJ::text_in($msg_subject_text);
+            my ( $subject_length_b, $subject_length_c ) = LJ::text_length( $msg_subject_text );
+            push @errors, BML::ml( ".error.subject.length",
+                {
+                    subject_length => LJ::commafy( $subject_length_c ),
+                    subject_limit  => LJ::commafy( $subject_limit ),
+                } )
+                unless $subject_length_c <= $subject_limit;
 
             # test encoding and length
             my $msg_body_text = $POST{'msg_body'};
@@ -275,6 +283,7 @@ body<=
     $body .= LJ::html_text({
                 name    => 'msg_subject',
                 size    => '50',
+                maxlength => $subject_limit,
                 value   => $POST{'msg_subject'} || $msg_subject,
                 class   => 'subj-t'
              });

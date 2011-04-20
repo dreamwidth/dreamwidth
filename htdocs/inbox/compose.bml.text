@@ -10,6 +10,8 @@
 
 .error.rate.limit=This message will exceed your limit and cannot be sent.[[up]]
 
+.error.subject.length=Subject is too long ([[subject_length]] characters). It should not exceed [[subject_limit]] characters.
+
 .error.text.encoding.subject=Invalid text encoding for message subject
 
 .error.text.encoding.text=Invalid text encoding for message text
