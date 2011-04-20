@@ -248,6 +248,22 @@ sub answers_as_html {
 
     my $LIMIT = $pagesize * ($page - 1) . "," . $pagesize;
 
+    my $uid_map = {};
+    if ( $isanon eq "yes" ) {
+        if ( $self->{_uids} ) {
+            $uid_map = $self->{_uids};
+        } else {
+            # get user list
+            my $uids = $self->poll->journal->selectcol_arrayref(
+                "SELECT userid from pollsubmission2 WHERE pollid=? AND journalid=?",
+                undef, $self->pollid, $jid
+            );
+            my $i = 0;
+            $uid_map = { map { $_ => ++$i } @{$uids || [] } };
+            $self->{_uids} = $uid_map;
+        }
+    }
+
     # Get data
     my $sth = $self->poll->journal->prepare(
             "SELECT pr.value, ps.datesubmit, pr.userid " .
@@ -266,7 +282,6 @@ sub answers_as_html {
     push @res, $_ while $_ = $sth->fetchrow_hashref;
     @res = sort { $a->{datesubmit} cmp $b->{datesubmit} } @res;
     
-    my $user_i = 0;    #incrementer for user anonymous ids
     foreach my $res (@res) {
         my ($userid, $value) = ($res->{userid}, $res->{value}, $res->{pollqid});
         my @items = $self->items;
@@ -284,7 +299,7 @@ sub answers_as_html {
         }
 
         LJ::Poll->clean_poll(\$value);
-        my $user_display = $isanon eq "yes" ? "User <b>#" . ++$user_i . "</b>" : $u->ljuser_display;
+        my $user_display = $isanon eq "yes" ? "User <b>#" . $uid_map->{$userid} . "</b>" : $u->ljuser_display;
 
         $ret .= "<div>" . $user_display . " -- $value</div>\n";
     }
