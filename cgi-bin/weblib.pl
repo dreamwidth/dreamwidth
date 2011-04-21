@@ -1058,7 +1058,7 @@ sub make_qr_link
         $basesubject =~ s/^(Re:\s*)*//i;
         $basesubject = "Re: $basesubject" if $basesubject;
         $basesubject = LJ::ehtml(LJ::ejs($basesubject));
-        my $onclick = "return quickreply(\"$dtid\", $pid, \"$basesubject\")";
+        my $onclick = "return function(that) { return quickreply(\"$dtid\", $pid, \"$basesubject\", that)}(this)";
 
         my $r = DW::Request->get;
         my $ju;
