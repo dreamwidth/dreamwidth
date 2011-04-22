@@ -31,6 +31,9 @@ body<=
     # libs for userpicselect
     LJ::need_res( LJ::Talk::init_iconbrowser_js() )
         if $remote && $remote->can_use_userpic_select;
+    LJ::set_active_resource_group( "jquery" )
+        if LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+
 
     my $pics = LJ::Talk::get_subjecticons();
 
