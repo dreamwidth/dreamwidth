@@ -192,7 +192,7 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
     }
 
 .entry .contents .userpic img {
-    margin: 5px;
+    margin-top: 5px;
     $entry_userpic_colors
     }
 
