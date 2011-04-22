@@ -1,9 +1,9 @@
 ;; -*- coding: utf-8 -*-
-.error.couldnt_retrieve_inbox=Could not retrieve inbox for user [[user]]
+.error.couldnt_retrieve_inbox=Couldn't retrieve inbox for [[user]]
 
-.error.max_bookmarks=Max number of bookmarks reached
+.error.max_bookmarks=Maximum number of flagged items reached
 
-.error.not_ready=Not ready
+.error.not_ready=Not Ready
 
 .manage_settings=Manage Settings
 
@@ -15,15 +15,15 @@
 
 .menu.delete_all.btn=Delete All
 
-.menu.entries_and_comments=Entries &amp; Comments
+.menu.entries_and_comments=Entries and Comments
 
-.menu.friend_updates=Friend Updates
+.menu.friend_updates=Relationship Updates
 
 .menu.mark_all_read.btn=Mark All Read
 
 .menu.messages=Messages
 
-.menu.new_friends=New Friends
+.menu.new_friends=New Subscriptions
 
 .menu.new_message.btn=New Message
 

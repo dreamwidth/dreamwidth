@@ -1,17 +1,17 @@
 ;; -*- coding: utf-8 -*-
-.approve.button=Yes, approve it
+.approve.button=Yes, approve it.
 
 .approve.header=Approve this entry?
 
 .approve.note=You can attach a note to the poster and it will be emailed to the user.
 
-.approve.preapprove=Also, add user [[user]] to the list of pre-approved users for this community.
+.approve.preapprove=Add [[user]] to the list of pre-approved members of this community.
 
 .approve.text=Are you sure you want to approve this entry?
 
 .brlist.actions=Actions
 
-.brlist.poster=Poster
+.brlist.poster=Posted by
 
 .brlist.subject=Subject begins
 
@@ -23,7 +23,7 @@
 
 .browse.header=Moderate Community
 
-.browse.text=Here is the moderation queue for the community [[link]]
+.browse.text=Here's the moderation queue for [[link]].
 
 .choice.approve=Approve
 
@@ -31,11 +31,11 @@
 
 .choice.reject=Reject
 
-.error.noaccess=You do not moderate the community [[comm]].
+.error.noaccess=You're not an moderator for [[comm]].
 
-.error.noentry=Entry not found (perhaps already handled by another moderator).
+.error.noentry=This entry wasn't found.  It may have already been handled by another administrator.
 
-.error.nolist=You do not moderate any communities.
+.error.nolist=You do not administer any communities.
 
 .error.notfound=Community account not found.
 
@@ -61,17 +61,17 @@
 
 .posted.appheader=Preapproved
 
-.posted.apptext=Additionally, the user [[user]] has been added to the list of pre-approved users for this community.
+.posted.apptext=[[user]] has also been added to the pre-approval list for this community.
 
 .posted.header=Success
 
-.posted.proterror=The entry has not been posted due to this protocol error: [[err]]
+.posted.proterror=The entry hasn't been posted due to this protocol error: [[err]]
 
 .posted.text=The entry has been successfully posted.
 
-.reject.button=Yes, reject it
+.reject.button=Yes, reject it.
 
-.reject.header=Reject this entry?
+.reject.reason=You can tell the community member your reasons for rejecting this entry and they'll be emailed to the member.
 
 .reject.reason=You can also explain to the poster your reasons for rejecting their entry. They will be sent to the poster by email.
 

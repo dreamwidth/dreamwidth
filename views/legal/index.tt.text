@@ -1,18 +1,11 @@
 ;; -*- coding: utf-8 -*-
-.privacy<<
-The Privacy Policy explains what information we collect from our users
-and how we use that information. It also includes our COPPA (Children's
-Online Privacy Protection Act) statement.
-.
+.privacy=The Privacy Policy explains what information we collect from the people using our service and how we use that information. It also includes our COPPA (Children's Online Privacy Protection Act) statement.
 
 .privacy-header=Privacy Policy
 
 .title=[[sitename]] Legal Documents
 
-.tos<<
-The Terms of Service explain our usage policies, including instructions
-on how to report abuse of the site.
-.
+.tos=The Terms of Service explain our usage policies, including instructions on how to report abuse of the site.
 
 .tos-header=Terms of Service
 

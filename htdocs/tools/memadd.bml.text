@@ -1,49 +1,46 @@
 ;; -*- coding: utf-8 -*-
 .add_previous<<
-<?h1 Add to memories... h1?>
-<?p To add the journal entry you were just viewing to your "memories", fill out the form below. p?>
+<?h1 Add to Memories... h1?>
+<?p To add the journal entry you were just viewing to your memorable entries, fill out the form below. p?>
 .
 
 .body.added.header=Success
 
 .body.added.next.entry=Go back to the entry
 
-.body.added.next.friends=Read your Friends page
+.body.added.next.friends=Go to your Reading Page
 
 .body.added.next.journal=Continue reading [[user]]
 
-.body.added.next.view=View all your memories
+.body.added.next.view=View all your memorable entries
 
-.body.added.text=Your list of memorable entries has been updated.
+.body.added.text=Your list of memorable entries has been revised.
 
 .description=Description:
 
 .description.text<<
-  Give this journal entry a description that you can remember it by.  
-  To delete this entry from your list of memorable posts, enter a blank description.
+  Give this journal entry a description.  
+  To delete this entry from your list of memorable entries, enter a blank description.
 .
 
 .edit_previous<<
-<?h1 Edit memorable entry... h1?>
+<?h1 Edit Memorable Entry... h1?>
 <?p To edit the settings for this memorable entry, fill out the form below. p?>
 .
 
-.error.deleted.body=The journal entry previously described as "[[desc]]" has been removed from your list of memorable posts.
+.error.deleted.body=The journal entry "[[desc]]" has been removed from your list of memorable entries.
 
 .error.deleted.title=Memory deleted
 
-.error.entry_deleted=Journal entry no longer exists.  Memory deleted.
+.error.entry_deleted=Journal entry no longer exists. Memory deleted.
 
-.error.fivekeywords=Only 5 keywords/categories are allowed per memorable post.
+.error.fivekeywords=Only 5 keywords or categories are allowed per memorable entry.
 
 .error.invalid_security=Invalid or missing security option.
 
-.error.maxsize=This keyword exceeds the maximum allowed size: "[[keyword]]"
+.error.maxsize=This keyword exceeds the maximum size allowed: "[[keyword]]"
 
-.error.nodescription.body<<
-To add a journal entry to your list of memories, you need to provide a description.  
-To delete a memory, you can edit it and remove the description, but you didn't already have this entry in your memories.
-.
+.error.nodescription.body=To add a journal entry to your list of memories, you must provide a description.  To delete a memorable entry you can remove the description; however, this entry wasn't in your memorable entries.
 
 .error.nodescription.title=No description
 
@@ -53,18 +50,18 @@ To delete a memory, you can edit it and remove the description, but you didn't a
 
 .keywords=Keywords:
 
-.keywords.example=Example:  <B>Funny, Geeky, Romantic</B>
+.keywords.example=Example:  <strong>Funny, Geeky, Romantic</strong>
 
-.keywords.select=Or, you can also select keywords you've used in the past:
+.keywords.select=You can also select keywords you've used in the past:
 
 .keywords.text<<
-  Why is this post memorable?
-  Enter up to five comma separated keywords or categories so you can find it later. You can also select keywords you've used in the past.
+  Why is this entry memorable?
+  Enter up to five comma-separated keywords or categories so you can find this entry later.
 .
 
 .login.enterinfo=Enter username and password of the account you wish to save the memory into.
 
-.multiple_selections=Hold down 'Control' while clicking keywords to select multiple ones.
+.multiple_selections=To select multiple keywords hold down the 'Control' key while clicking them.
 
 .security=Security:
 
@@ -84,13 +81,7 @@ To delete a memory, you can edit it and remove the description, but you didn't a
 
 .title.edit_memory=Edit Memorable Entry
 
-.whocansee<<
-  Who can see that you've marked this post as memorable?
-  Everybody, only people you list as a friend, or just you?
-.
+.whocansee=You have the same control over your memoried entries as you do over your journal entries. Set an access level for this memory now.
 
-.whocansee.comm<<
-  Who can see that you've marked this post as memorable?
-  Everybody, only members of the community, or only maintainers of the community?
-.
+.whocansee.comm=You have the same control over your memoried entries as you do over your community entries. Set an access level for this memory now.
 

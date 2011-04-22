@@ -5,15 +5,15 @@
 
 .error.invalidpassword=Invalid password.
 
-.error.lj_domain2=You cannot enter an @[[domain]] email address.  Enter your real address in that field.  If you're a paid user, your [[user]]@[[domain]] address will forward to your real address.  To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option on the <a [[aopts]]>Manage Profile</a> page.
+.error.lj_domain2=You can't enter an @[[domain]] email address.  Enter your real email address in that field.  If you have a paid account, your [[user]]@[[domain]] address will forward to your real address.  To choose which email address (or both) will be displayed publicly, go to the Contact Information section on the <a [[aopts]]>Manage Profile</a> page.
 
-.error.nospace=No spaces are allowed in an e-mail address.
+.error.nospace=No spaces are allowed in an email address.
 
-.error.notvalidated=Your account is not validated.
+.error.notvalidated=You haven't confirmed your email address.
 
-.error.suspended=You cannot change your email address while your account is suspended.
+.error.suspended=You can't change your email address while your account is suspended.
 
-.instructions=To better protect your account we require you enter your current password when changing your email address.  As your email address is used to prove ownership of your account and request a new password, please make sure you also protect your email account.  Using the same password for [[sitename]] and your email account is a bad idea.
+.instructions=To better protect your account, you must enter your current password when changing your email address. Because your email address is used to prove ownership of your account and to request a new password, please make sure you also protect your email account.  Using the same password for [[sitename]] and your email account is a bad idea.
 
 .instructions.identity=To set an email address for your OpenID account, fill out the form below.
 
@@ -23,7 +23,7 @@
 
 .label.password2=[[remote]]'s current password:
 
-.label.username=Username:
+.label.username=Account name:
 
 .newemail.body.openid<<
 You have just entered an email address for your OpenID account "[[username]]" at [[sitename]]. To validate this address, please go to:
@@ -36,9 +36,9 @@ Regards,
 .
 
 .newemail.body3<<
-You have changed the address for your [[sitename]] account "[[username]]" to this address: [[email]].
+You've just changed the email address for your [[sitename]] account "[[username]]" to this address: [[email]].
 
-To finish confirming your email address, please visit this URL:
+To confirm the change, please go to this address:
 
     [[conflink]]
 
@@ -67,7 +67,7 @@ Regards,
 [[sitelink]]
 .
 
-.newemail_old.subject=E-mail Address Changed
+.newemail_old.subject=Email Address Changed
 
 .noemail=(None)
 

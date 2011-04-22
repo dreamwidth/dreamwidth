@@ -3,11 +3,11 @@
 
 .form.request.header=Request More Invite Codes
 
-.form.request.intro=Out of invite codes but still have friends you'd like to invite to our site? Enter a short message below to ask for an invite and a site administrator will review your request.
+.form.request.intro=Are you out of invite codes but still know people you'd like to invite to our site? Enter a short message below to ask for an invite, and a site administrator will review your request.
 
 .form.request.reason=Reason:
 
-.form.request.submit=Request invites
+.form.request.submit=Request invites:
 
 .header.code=Code:
 
@@ -23,11 +23,11 @@
 
 .label.viewing.partial=Here are your unused and recently sent invite codes. See the <a [[aopts]]>full list of your invite codes</a>.
 
-.msg.request.error=Your request could not go through.
+.msg.request.error=Your request didn't go through.
 
 .msg.request.success=Your request for new invite codes has been forwarded to site administrators for review.
 
-.noinvitecodes=You have no invite codes.
+.noinvitecodes=You don't have any invite codes.
 
 .noinvitecodes.partial=You have no unused or recently sent invite codes.
 

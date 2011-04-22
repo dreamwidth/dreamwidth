@@ -285,8 +285,8 @@ body<=
                     $xpost_result .= "<ul>\n";
                     $xpost_result .= join("\n",
                                           map {"<li>"
-                                               . BML::ml('xpost.request.success',
-                                                         {account => $_->displayname})
+                                               . BML::ml('xpost.request.success2',
+                                                         { account => $_->displayname, sitenameshort => $LJ::SITENAMESHORT } )
                                                . "</li>"}
                                               @{$xpost_successes});
                     $xpost_result .= join("\n",

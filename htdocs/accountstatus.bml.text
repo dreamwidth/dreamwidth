@@ -4,22 +4,27 @@
 
 .delete.openid=If you wish to delete your OpenID account, please note that deleting it will mean you can no longer delete comments that were imported by other users and are associated with your OpenID account. Deleting your OpenID account will not prevent other users from importing comments you have left on journals under their control. Comments that you already deleted on this site might be reimported. More information on OpenID accounts can be found <a href=http://www.dreamwidth.org/support/faqbrowse?faqid=62>here</a>.
 
-.error.db=There has been a database error processing your request.
+.error.db=There was a database error while your request was being processed.
 
 .error.invalid=Invalid status type
 
-.error.nochange.expunged=This account has been purged from the system.
+.error.nochange.expunged=You can't undelete this account because it's been permanently removed from the service.
 
 .error.nochange.suspend|notes=You can't change a journal to be unsuspended. This message is for users who attempt to do so.
-.error.nochange.suspend=Cannot change journal status from suspended.
+.error.nochange.suspend=You can't change the status of a journal that's been suspended.  Please email the site owners if your would like more information.
 
 .header.success=Success
 
-.journalstatus.about=If you want to delete or undelete your journal, this is where you do it.  Once you delete your journal you have 30 days to undelete it, just in case you change your mind.  After 30 days, the journal will be permanently deleted and there will be no way to recover it.
+.journalstatus.about2<<
+You can delete or restore your [[sitenameshort]] account on this page.
 
-.journalstatus.head=Journal Activation Status
+You can restore your deleted [[sitenameshort]] account at any point within 30 days of the deletion date.  After 30 days your account will be entirely removed from the service and you won't be able to restore it.
 
-.journalstatus.select.activated=Activated
+.
+
+.journalstatus.head=Account Status
+
+.journalstatus.select.activated=Active
 
 .journalstatus.select.deleted=Deleted
 
@@ -27,13 +32,13 @@
 
 .journalstatus.select.suspended=Suspended
 
-.message.deleted=If you wish to undelete this journal, you can return to this page at any time in the next 30 days to undelete it.
+.message.deleted2=You can return to this page at any point within the next 30 days to restore your deleted [[sitenameshort]] account.
 
 .message.nochange=Your journal status has been left as <b>[[statusvis]]</b>.
 
-.message.noothermaintainer=You are about to leave the following without an active maintainer: [[commlist]] If you want to appoint an additional maintainer now, visit the <a [[aopts]]>[[pagetitle]]</a> page.
+.message.noothermaintainer=If you delete your journal,  [[commlist]] won't have an active administrator.  If you'd like to appoint an additional administrator now, please visit the <a [[aopts]]>[[pagetitle]]</a> page.
 
-.message.success=Your journal status has been successfully changed to <b>[[statusvis]]</b>.
+.message.success=You've successfully changed your journal status to <b>[[statusvis]]</b>.
 
 .reason.about=The reason you're deleting your journal, to display on your deleted journal (optional)
 

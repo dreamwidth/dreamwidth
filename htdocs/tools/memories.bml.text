@@ -3,31 +3,31 @@
 
 .body.keyword<<
 <?h1 [[keyword]] h1?>
-<?p The following is a list of "[[keyword]]" journal entries that user <B>[[user]]</B> found memorable. p?>
+<?p The following is a list of "[[keyword]]" journal entries that <strong>[[user]]</strong> found memorable. p?>
 .
 
 .body.list_categories<<
-<?h1 Memorable Posts h1?>
-<?p The following is a list of categories that user <b>[[user]]</b> has placed memorable journal entries in. p?>
+<?h1 Memorable Entries h1?>
+<?p The following is a list of categories that <strong>[[user]]</strong> has used for memorable journal entries. p?>
 .
 
-.body.memorable=The following is a list of uncategorized journal entries that user <B>[[user]]</B> found memorable.
+.body.memorable=The following is a list of uncategorized journal entries that <strong>[[user]]</strong> found memorable.
 
 .delete=Delete Selected
 
-.delete.confirm=You are about to delete one or more memories.  Are you sure you want to do this?
+.delete.confirm=You're about to delete one or more of your saved memories.  Are you sure you want to do that?
 
 .delete.deleted.head=Success
 
-.delete.deleted.text=The selected memories have been deleted.  You may return to your <a [[aopts]]>list of memorable posts</a>.
+.delete.deleted.text=You've deleted the selected memories.  Return to your <a [[aopts]]>memorable entries</a>.
 
 .delete.deleted.title=Memories Deleted
 
 .delete.error.dberror=There was a database error while deleting your memories.  The error is [[error]].  Please try again.
 
-.delete.error.noneselected=You did not select any memories to delete.
+.delete.error.noneselected=You didn't select any memories to delete.
 
-.edit=edit
+.edit=Edit
 
 .error.noentries.body<<
 This could be because: <ol>
@@ -42,7 +42,7 @@ This could be because: <ol>
 
 .filter.other=Only other entries
 
-.filter.own=Only '[[user]]' entries
+.filter.own=Only [[user]] entries
 
 .form.filter=Filter entries by:
 
@@ -50,7 +50,7 @@ This could be because: <ol>
 
 .form.switch=Switch
 
-.login=In order to view your own memories, please <a [[aopts]]>log in</a>.
+.login=To view your memories, please <a [[aopts]]>log in</a>.
 
 .plur_entry=[[num]] [[?num|entry|entries]]
 
@@ -60,9 +60,9 @@ This could be because: <ol>
 
 .sort.orderadded=Order Added
 
-.title.keyword=Memorable [[keyword]] Posts
+.title.keyword=Memorable [[keyword]] Entries
 
-.title.memorable=Memorable Posts
+.title.memorable=Memorable Entries
 
 .uncategorized=Uncategorized
 

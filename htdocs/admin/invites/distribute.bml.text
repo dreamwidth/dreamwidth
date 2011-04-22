@@ -13,7 +13,7 @@
 
 .field.reason.label=Reason for invites:
 
-.success.jobstarted=Invite code distribution successfully initiated. You will receive a report by email to your registered address when it is complete.
+.success.jobstarted=Invite code distribution successfully begun. A report will be sent to your confirmed email address when it has been completed.
 
 .title=Distribute Invite Codes
 

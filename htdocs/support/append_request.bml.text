@@ -1,33 +1,33 @@
 ;; -*- coding: utf-8 -*-
-.back.support2=Back to the <a [[aopts]]>support area</a>.
+.back.support2=Back to the <a [[aopts]]>Support Area</a>.
 
 .bounce.noemail=No email address specified for bounce.
 
-.bounce.notauth=You are not authorized to bounce this request.
+.bounce.notauth=You aren't authorized to bounce this request.
 
-.bounce.toomany=You can only send to up to 5 email addresses.  You have specified more than 5.
+.bounce.toomany=You can only send to up to 5 email addresses.  You've specified more than 5.
 
 .bounced.success=<?h1 Bounced h1?><?p The selected support request has been bounced to [[addresslist]] and closed. p?>
 
-.closed.text=This support request has since been closed.
+.closed.text=This support request has been closed.
 
 .closed.title=Closed
 
-.internal.approve=To approve an answer, you must select "Internal Comment / Action" and optionally explain why you're approving it.
+.internal.approve=To approve an answer, you must select "Internal Comment / Action"; you may optionally explain why you're approving it.
 
-.internal.changecat=To change a request's category, you must select "Internal Comment / Action" and optionally explain why you're changing it.
+.internal.changecat=To change a request's category, you must select "Internal Comment / Action"; you may optionally explain why you're changing it.
 
-.internal.changelanguage=To change a request's language, you must select "Internal Comment / Action" and optionally explain why you're changing it.
+.internal.changelanguage=To change a request's language, you must select "Internal Comment / Action"; you may optionally explain why you're changing it.
 
-.internal.changesum=To change the summary of a request, you must select "Internal Comment / Action" and enter in the new summary.
+.internal.changesum=To change the summary of a request, you must select "Internal Comment / Action" and enter a new summary.
 
-.internal.settier=To set a response's tier, you must select "Internal Comment / Action" or a screened response to approve as an answer, or you must select and write an "Answer".
+.internal.settier=To set a response's tier, you must select "Internal Comment / Action" or a screened response to approve as an answer, or you must select and write an answer.
 
 .internal.touch=To change a request's status, you must select "Internal Comment / Action" and explain why you're changing it.
 
-.invalid.badtier=The tier that you selected is not valid. You must select Tier 1, Tier 2, or Tier 3.
+.invalid.badtier=The tier that you selected is invalid. You must select Tier 1, Tier 2, or Tier 3.
 
-.invalid.blank=Your message was blank.  Please type at least something in the message field.
+.invalid.blank=Your message was blank.  Please enter something in the message field.
 
 .invalid.noanswer=Invalid screened response to approve.
 
@@ -35,24 +35,24 @@
 
 .invalid.nosummary=You must enter a request summary.
 
-.invalid.notcat=That category doesn't seem to exist.
+.invalid.notcat=No such category.
 
 .invalid.notier=You must select a tier with your answer.
 
-.invalid.notlang=That language doesn't seem to exist.
+.invalid.notlang=No such language.
 
-.invalid.type=Invalid Reply Type.
+.invalid.type=Invalid reply type.
 
-.logged.text=Your action/comment/response has been recorded.  Thanks.
+.logged.text=Your action/comment/response has been recorded.  Thank you.
 
 .logged.title=Success
 
 .successlinks2<<
 <ul>
    <li>Go back to <a [[aopts1]]>Request #[[number]]</a></li>
-   <li>Go back to the <a [[aopts2]]>open support requests</a></li>
-   <li>Go back to the <a [[aopts3]]>open support requests in the same category</a></li>
-   <li>Go back to the <a [[aopts8]]>unanswered requests in the same category</a></li>
+   <li>Go back to <a [[aopts2]]>open support requests</a></li>
+   <li>Go back to <a [[aopts3]]>open support requests in the same category</a></li>
+   <li>Go back to <a [[aopts8]]>unanswered requests in the same category</a></li>
    <li>Go to <a [[aopts4]]>previous</a> /
              <a [[aopts5]]>next</a> open request</li>
    <li>Go to <a [[aopts6]]>previous</a> /

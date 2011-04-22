@@ -1,15 +1,15 @@
 ;; -*- coding: utf-8 -*-
 .button.search=Search
 
-.error.noresults=no results found
+.error.noresults=no results were found
 
-.error.noterm=no search term entered
+.error.noterm=no search term was entered
 
-.error.tooshort=search term too short
+.error.tooshort=the search term was too short
 
-.example=<i>Examples:</i> <b>css, style, mood, music, download, mac</b>
+.example=<em>Examples:</em> <STRONG>css, style, mood, music, download, mac</STRONG>
 
-.info=FAQs containing this term in either the title or body will be listed below. All FAQs may not be fully translated in every language.
+.info=FAQs containing this term in either the title or body will be listed below.
 
 .label.lang=Language
 

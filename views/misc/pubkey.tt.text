@@ -1,17 +1,17 @@
 ;; -*- coding: utf-8 -*-
-.error.notconfigured=This site is not configured with PGP support.
+.error.notconfigured=This site isn't configured with PGP support.
 
-.error.nousername=No username specified.
+.error.nousername=No account name specified.
 
-.info.desc=Don't know what a public key is?  Read more about <a [[aoptspgp]]>PGP</a> and <a [[aoptsgpg]]>GPG</a>.
+.info.desc=If you don't know what a public key is, you can read about <a [[aoptspgp]]>PGP</a> and <a [[aoptsgpg]]>GPG</a>.
 
 .info.head=Information
 
-.info.upload=Want to upload your key?  Click <a [[aopts]]>here</a>.
+.info.upload=<a [[aopts]]>Upload your key</a>.
 
 .label=Public key for [[user]]:
 
-.nokey=[[user]] has not uploaded a public key yet.
+.nokey=[[user]] hasn't uploaded a public key.
 
 .title=View Public Key
 

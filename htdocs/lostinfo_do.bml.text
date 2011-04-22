@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.error.no_usernames_for_email=No username(s) for this email address: [[address]] .
+.error.no_usernames_for_email=No account name(s) found for email address [[address]].
 
-.error1.text=You never used that email address with this account or it was never validated.
+.error1.text=You've never used that email address with this account, or it was never confirmed.
 
 .lostpasswordmail.part1<<
 *** This is an automated email.  You do not need to respond to it. ***
@@ -20,17 +20,13 @@ registered under.
 .lostpasswordmail.part3<<
 This information was requested on the website from [[remoteip]].
 
-If you didn't request to have this password emailed to you, don't panic.
-After all, you're the one who's seeing this email, and not the other person.
-It's possible that the user who made the request is mistaken and
-believes that he or she controls this username. It's also possible that
-someone made a typo in a username or email address.
+If you didn't ask to have your password emailed to you, don't be alarmed - after all, you're the one reading this email, not the person who made the request on the website.  It's possible that the person who made the request simply made a typo in an account name or email address.
 .
 
 .lostpasswordmail.part5<<
 Useful links:
 
-  Your LiveJournal:
+  Your Dreamwidth Studio:
     [[journalurl]]
 
   Update your journal online:
@@ -43,22 +39,14 @@ The site team
 .
 
 .lostpasswordmail.reset<<
-A request has been made at [[lostinfolink]] to reset
-the password to the [[sitename]] account associated with this email address.
+A request has been made at [[lostinfolink]] to reset the password to the [[sitename]] account associated with this email address.
 
 The account information is:
 
-          Username: [[username]]
-     Email Address: [[emailadr]]
+Account name: [[username]]
+Email Address: [[emailadr]]
 
-Follow this link to confirm the request to reset your password:
-
-    [[resetlink]]
-
-If you did not make this request, please ignore this email and your password
-will not be reset.
-
-Important: if you have set secret question/answer, please, log in to your account in the next 5 days in order to void the use of the secret question password reset feature.
+Go to [[resetlink]] to confirm the request to reset your password. If you didn't make this request, ignore this email and your password won't be reset.
 
 Regards,
 [[sitename]] Team
@@ -66,13 +54,13 @@ Regards,
 
 .lostpasswordmail.subject=Lost Password
 
-.password_mailed.text=Success.  Your password has been mailed.
+.password_mailed.text=A token to reset your password has been emailed to you.
 
-.password_mailed.title=Password mailed!
+.password_mailed.title=Password reset.
 
 .title=Lost Information
 
-.username_mailed.text=Success.  Your username has been mailed.
+.username_mailed.text=Success.  Your account name has been emailed.
 
-.username_mailed.title=Username mailed!
+.username_mailed.title=Account name emailed.
 

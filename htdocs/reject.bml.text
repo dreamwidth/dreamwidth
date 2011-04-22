@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
 .comm.success=Success
 
-.commreject.text=You have rejected the membership request of [[user]] in [[comm]].
+.commreject.text=You've rejected the membership request of [[user]] in [[comm]].
 
 .error.actionperformed=This action has already been performed
 

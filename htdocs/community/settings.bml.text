@@ -7,11 +7,11 @@
 
 .error.badpassword=Invalid community password
 
-.error.hasentries=This account already has entries and cannot be converted.
+.error.hasentries=This account already has entries and can't be converted.
 
-.error.maintainertype=Maintainer account must be a person, not another shared account.
+.error.maintainertype=Administrator account must be a person, not another shared account.
 
-.error.noaccess=Only community maintainers are able to edit community settings. You are not a maintainer of community [[comm]].
+.error.noaccess=Only community administrators can edit community settings. You aren't an adminstrator of [[comm]].
 
 .error.notcomm=Not a community account.
 
@@ -19,75 +19,75 @@
 
 .error.postingguidelinesentryinvalid=Invalid Dreamwidth entry ID or URL entered.
 
-.error.samenames=Maintainer account and community account cannot be the same.
+.error.samenames=The administrator account and the community account can't be the same account.
 
 .label.adultcontentconcepts=Users should be warned that the content in this community should be viewed with discretion.
 
-.label.adultcontentconcepts2=<b>Viewing Discretion Advised</b><br />Users will be warned that the content in this community should be viewed with discretion.
+.label.adultcontentconcepts2=<strong>Viewing Discretion Advised</strong><br />Site visitors will be warned that the content in this community should be viewed with discretion.
 
 .label.adultcontentexplicit=Users under the age of 18 should not be able to join this community or view its entries.
 
-.label.adultcontentexplicit2=<b>Explicit Adult Content</b><br />Users under the age of [[age]] will be not be able to join this community or view its entries.
+.label.adultcontentexplicit2=<b>Explicit Adult Content</b><br />People under the age of [[age]] will be not be able to join this community or view its entries.
 
 .label.adultcontentheader=Age Limits
 
 .label.adultcontentheader2=Adult Content Setting
 
-.label.adultcontentnone=No adult content.
+.label.adultcontentnone=No Age-Restricted Content
 
-.label.adultcontentnone2=<b>No Adult Content</b>
+.label.adultcontentnone2=<b>No Age-Restricted Content</b>
 
-.label.adultcontenttext2=Does your community have adult content?
+.label.adultcontenttext2=Does this community contain age-restricted content?
 
-.label.closedmemb2=<b>Closed Membership</b><br />Nobody can join the community.
+.label.closedmemb2=<b>Closed Membership</b><br />This community is closed to new members.
 
-.label.commchanged=Your community settings have been changed.
+.label.commchanged=You've changed your community settings.
 
-.label.commcreate2=This is the account that you want to turn into a community. It must <a [[aopts]]>already be created</a>, but should not already be in use by an individual, because after this, many different people will potentially be able to post in it.
+.label.commcreate2=This is the account that you want to turn into a community. It must <a [[aopts]]>already be created</a>, but shouldn't already be in use by an individual, because after this many different people might be able to post in it.
 
-.label.commcreated=Your community is now set up.
+.label.commcreated=You've successfully invited these people to this community and given them the listed privileges:
 
 .label.commheader=Community Account
 
-.label.comminfo=Community info
+.label.comminfo=Community Information
 
 .label.commopts=Community Options
 
-.label.commsite=Community website
+.label.commsite=Community Website
 
 .label.community=Community:
 
 .label.guidelines=<a [[aopts]]>Community guidelines</a> - consistent link to your community guidelines entry
 
-.label.howoperates=Choose how your community operates.  You can change these later.
+.label.howoperates=Choose the settings for your community journal.  You can make changes to these settings at any time you want.
 
-.label.maintainer=Maintainer:
+.label.maintainer=Administrator:
 
-.label.maintainer.login2=If this is not the maintainer account, <a [[aopts]]>log in</a> as somebody else.
+.label.maintainer.login2=If this isn't the adminstrator account, please <a [[aopts]]>log in</a> as somebody else.
 
-.label.managepage=<a [[aopts]]>Community Management</a> - to add members, grant posting access, appoint moderators, etc.
+.label.managepage=<a [[aopts]]>Community Administration</a>: you can add members, grant posting access, appoint administrators, and perform other functions of community administration here.
 
-.label.membership=Membership
+.label.membership=Community Membership
 
-.label.moderatedmemb=<b>Moderated Membership</b><br />Requests to join are emailed to you for approval.
+.label.moderatedmemb=<b>Moderated Membership</b><br />Requests to join your community will be emailed to you for approval.
 
 .label.moderation=Moderate entries to your community?
 
-.label.moderationyes=New entries must be approved by a moderator before they appear in the community.
+.label.moderationyes=All entries must be approved by a moderator before they will post to the community.
 
-.label.nmtext=Can users post to this community without having to join it?
+.label.nmtext=Can people post entries to this community without joining it?
 
-.label.openmemb=<b>Open Membership</b><br />Anybody can join without getting approved.
+.label.openmemb=<STRONG>Open Membership</STRONG><br />Anyone can join this community.
 
 .label.password=Password:
 
 .label.postingaccess=Posting Access
 
-.label.postingaccessanybody=<b>Anybody</b><br />Any user can post to this community without having to join it.
+.label.postingaccessanybody=<STRONG>Anybody</STRONG><br />Anyone can post entries to this community. 
 
-.label.postingaccessmembers=<b>All Members</b><br />Any user can post to this community once they've joined it.
+.label.postingaccessmembers=<STRONG>All Members</STRONG><br />Only members of this community can post entries to it.
 
-.label.postingaccessselect=<b>Select Members</b><br />Members can post only if a maintainer gives them access.
+.label.postingaccessselect=<STRONG>Select Members</STRONG><br />Members' entries will only appear in the community if they're approved by the administrator or moderator.
 
 .label.postingguidelinesentry=URL or ID of your community's posting guidelines entry (leave blank if you don't want to link to an entry):
 
@@ -99,15 +99,15 @@
 
 .label.successpagedisplay=Join Links
 
-.label.username=Username:
+.label.username=Account name:
 
 .label.whocanjoin=Who can join your community?
 
-.label.whocanpost2=Who can post entries to your community?
+.label.whocanpost2=Who can post to your community?
 
-.name=<b>Community name:</b> [[name]]
+.name=<strong>Community name:</strong> [[name]]
 
-.success=Success
+.success=Success.
 
 .title.create=Create Community
 

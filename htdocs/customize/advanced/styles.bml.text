@@ -23,29 +23,29 @@
 
 .editstyle.title=Edit Style
 
-.error.cantbeauthenticated=You could not be authenticated as the specified user.
+.error.cantbeauthenticated=You couldn't be authenticated as the specified account.
 
-.error.cantcreatestyle=Style not created: Database error
+.error.cantcreatestyle=Style wasn't created: Database error
 
-.error.invalidlayertype=Invalid layer type: [[name]] is not a [[type]] layer
+.error.invalidlayertype=Invalid layer type: [[name]] isn't a [[type]] layer
 
-.error.layerhierarchymismatch=Layer hierarchy mismatch: [[layername]] is not a child [[type]] layer of [[parentname]]
+.error.layerhierarchymismatch=Layer hierarchy mismatch: [[layername]] isn't a child [[type]] layer of [[parentname]]
 
 .error.layernotfound=Layer not found: [[layer]]
 
 .error.layernotpublic=Layer not public: [[layer]]
 
-.error.maxstyles2=You have reached your maximum number of styles. You have [[numstyles]] current styles of [[maxstyles]] maximum styles.
+.error.maxstyles2=You've reached your maximum number of styles. You have [[numstyles]] current styles of [[maxstyles]] maximum styles.
 
 .error.notloggedin=You must be logged in to view your styles.
 
-.error.notyourstyle=You do not own this style.
+.error.notyourstyle=You don't own this style.
 
 .error.stylenotfound=Style not found.
 
-.error.usercantuseadvanced=The selected user's account type does not allow advanced customization.
+.error.usercantuseadvanced=The selected journal's account type doesn't allow advanced customization.
 
-.error.youcantuseadvanced=Your account type does not allow advanced customization.
+.error.youcantuseadvanced=Your account type doesn't allow advanced customization.
 
 .layerid=#[[id]]
 
@@ -67,7 +67,7 @@
 
 .stylelayers.label.user2=Wizard:
 
-.stylelayers.select.layout.other=Other ...
+.stylelayers.select.layout.other=Other
 
 .stylelayers.select.layout.user=[[layername]] (#[[id]])
 

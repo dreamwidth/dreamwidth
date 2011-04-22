@@ -3,7 +3,7 @@
 
 .attrib.header=Attribution for Content
 
-.attrib.silk=&bull; In certain places, [[sitenameshort]] uses the <a href="http://www.famfamfam.com/lab/icons/silk/">Silk</a> icon set made by Mark James, which are licensed under a <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a>. We are grateful to Mark for creating and sharing these.
+.attrib.silk=&bull; In certain places, [[sitenameshort]] uses the <a href="http://www.famfamfam.com/lab/icons/silk/">Silk</a> icon set made by Mark James, which is licensed under a <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a>. We are grateful to Mark for creating and sharing these.
 
 .development.directions=If you'd like to report a bug that you've found in the Dreamwidth code, please do so by opening a <a href="http://www.dreamwidth.org/support/submit.bml">support request</a> on Dreamwidth.org, or email support@dreamwidth.org. That will allow us to verify the bug and the steps to reproduce it before entering it into our Bugzilla. If the bug is security-related and you think it shouldn't be posted in public, you can email webmaster@dreamwidth.org instead.
 
@@ -11,17 +11,17 @@
 
 .development.main=Information about installing and maintaining a Dreamwidth-powered site can be found at <a href="http://wiki.dwscoalition.org">the Dreamwidth Wiki</a>. If you'd like to submit a patch to us, or see a list of the bugs available for someone to work on, check out our <a href="http://bugs.dwscoalition.org">Bugzilla installation</a>.
 
-.licensing.header=Licensing Information
+.licensing.header=Licensing Information:
 
-.licensing.main=Where indicated, our FAQs and Guides are released under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution Share-Alike 3.0 license</a>. If you are using our documentation, please credit us as <strong>Dreamwidth Studios, LLC</strong> and provide a link to this <a href="http://www.dreamwidth.org/site/opensource.bml">Open Source</a> page.
+.licensing.main=Our FAQs and Guides are released under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution Share-Alike 3.0 license</a> where indicated. If you're using our documentation, please credit us as <strong>Dreamwidth Studios, LLC</strong> and provide a link to this <a href="http://www.dreamwidth.org/site/opensource.bml">Open Source</a> page.
 
 .os.dw=[[sitenameshort]] uses the Dreamwidth Studios codebase provided by Dreamwidth Studios, LLC. The source repository is located at <a href="http://hg.dwscoalition.org">Dreamwidth Mercurial Repositories</a>.
 
 .os.header=Open Source
 
-.os.intro=We believe strongly in Open Source and the creative commons. By freely releasing all of our code and documentation, we hope to create a vibrant and thriving community that will constantly improve the product we offer.
+.os.intro=We strongly believe in Open Source and the Creative Commons. By freely releasing all of our code and documentation, we hope to create a vibrant and thriving community that will constantly improve the product we offer.
 
-.os.lj=The Dreamwidth Studios codebase is built on the Open Source codebase provided by <a href="http://www.livejournal.com">LiveJournal.com</a>. We've extended and expanded upon the codebase, but we remain incredibly thankful to Danga Interactive, Six Apart Ltd, and LiveJournal Inc for their effort over the years.
+.os.lj=The Dreamwidth Studios codebase is built on the Open Source codebase provided by <a href="http://www.livejournal.com">LiveJournal.com</a>. We've extended and expanded upon the codebase, but we remain grateful to Danga Interactive, Six Apart Ltd, and LiveJournal Inc. for their efforts over the years.
 
 .title=Open Source
 

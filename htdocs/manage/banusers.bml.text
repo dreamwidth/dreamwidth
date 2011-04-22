@@ -1,25 +1,25 @@
 ;; -*- coding: utf-8 -*-
-.btn.banunban=Ban and Unban Users
+.btn.banunban=Ban and Unban Accounts
 
-.error.toomanybans=Banning the user(s) that you specified will bring you over the maximum number of allowed bans. Please adjust your lists and try again. Any users that you chose to unban have been unbanned successfully.
+.error.toomanybans=Banning the people you specified will take you over the maximum number of allowed bans. Please adjust your lists and try again. Anyone you've unbanned has been unbanned successfully.
 
-.header.ban=Ban Users
+.header.ban=Ban People
 
-.header.unban=Unban Users
+.header.unban=Unban People
 
-.intro.ban.comm=To ban users from commenting in your community, type in their usernames below. Separate multiple usernames with commas.
+.intro.ban.comm=Enter the account names of the people you want to ban from commenting in your community. If you want to ban multiple accounts, separate the names with commas.
 
-.intro.ban.self=To ban users from commenting in your journal, type in their usernames below. Separate multiple usernames with commas.
+.intro.ban.self=Enter the account names of people you want to ban from commenting in your journal. If you want to ban multiple accounts, separate the names with commas.
 
-.intro.unban.comm=You have the following users banned from commenting in your community. Select which ones you'd like to unban.
+.intro.unban.comm=You've banned the following people from commenting in your community. Select the ones you want to unban.
 
-.intro.unban.comm.none=You do not currently have any users banned from commenting in your community.
+.intro.unban.comm.none=You don't have anyone banned from commenting in your community.
 
-.intro.unban.self=You have the following users banned from commenting in your journal. Select which ones you'd like to unban.
+.intro.unban.self=You've banned the following people from your journal. Select the ones you want to unban.
 
-.intro.unban.self.none=You do not currently have any users banned from commenting in your journal.
+.intro.unban.self.none=You don't have anyone banned from commenting in your journal.
 
-.success=You have successfully banned and unbanned the specified users.
+.success=You've successfully banned and unbanned the specified people.
 
-.title=Ban and Unban Users
+.title=Ban and Unban Accounts
 

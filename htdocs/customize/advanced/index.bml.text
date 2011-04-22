@@ -3,13 +3,13 @@
 
 .disclaimer.header=Disclaimer
 
-.disclaimer.text=Unless you're a programmer or web designer, most users should stay away from this area and use the <a [[aopts]]>main customization area</a>, which is designed for anybody to use.
+.disclaimer.text=Unless you're a programmer or web designer, you should probably stay away from this area and use the <a [[aopts]]>main customization area</a>, which is designed for anybody to use.
 
 .documentation.header=Documentation
 
-.documentation.text=Before you jump into tweaking/programming S2, you should understand how it works.
+.documentation.text=Before you jump into tweaking or programming S2, you should understand how it works.
 
-.error.advanced.editing.denied=You are not allowed to use the advanced customization area.
+.error.advanced.editing.denied=You're not allowed to use the advanced customization area.
 
 .publiclayers.desc=system layers (good reference &amp; place to learn)
 

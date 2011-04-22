@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.error.cannot_provide_identity=The site you just came from seems to want to verify <a href='[[url]]'>an identity</a> that you, as [[user]], cannot provide.
+.error.cannot_provide_identity=The site you just came from wants to verify <a href='[[url]]'>an identity</a> that you can't provide as [[user]].
 
 .error.failed_sign_url=Failed to make signed return URL.
 
@@ -9,7 +9,7 @@
 
 .error.login_needed=You need to be logged in to grant another site permission to know your identity.
 
-.error.need_to_login=You Need to Login
+.error.need_to_login=You Need to Log In
 
 .error.openid_support_disabled=OpenID consumer support is disabled
 

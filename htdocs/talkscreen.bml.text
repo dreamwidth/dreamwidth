@@ -1,13 +1,13 @@
 ;; -*- coding: utf-8 -*-
 .error.login=You must be logged in to work with screened comments.
 
-.error.privs.freeze=You do not have permission to freeze this thread.
+.error.privs.freeze=You don't have permission to freeze this thread.
 
-.error.privs.screen=You do not have permission to screen this comment.
+.error.privs.screen=You don't have permission to screen this comment.
 
 .error.privs.unfreeze=You do not have permission to unfreeze this thread.
 
-.error.privs.unscreen=You do not have permission to unscreen this comment.
+.error.privs.unscreen=You don't have permission to unscreen this comment.
 
 .freeze.doit=Yes, freeze this thread
 
@@ -19,7 +19,7 @@
 
 .frozen.title=Success
 
-.link=Go back to <a [[aopts]]>the post</a>.
+.link=<a [[aopts]]>Go back to the entry</a>.
 
 .screen.doit=Yes, screen this comment
 

@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.deleted.body2=The comments have been deleted. You can view the rest of the thread <a [[aopts]]>here</a>.
+.deleted.body2=You've deleted the selected comments. <a [[aopts]]>View the rest of the thread</a>.
 
 .deleted.title=Comments deleted
 
@@ -10,21 +10,21 @@
 .error.invalid=Invalid parameters specified.
 
 .error.invalid_mode<<
-You have not selected one of the actions. Please go back and choose
-if you would like to screen, unscreen, or delete the comments.
+You haven't selected an action. Please go back and choose
+whether you'd like to screen, unscreen, or delete the comments.
 .
 
-.error.login=You are not logged in.
+.error.login=You aren't logged in.
 
-.error.none_selected=You have not selected any comments.
+.error.none_selected=You haven't selected any comments.
 
-.error.privs.delete=You do not have permission to delete these comments.
+.error.privs.delete=You don't have permission to delete these comments.
 
-.error.privs.screen=You do not have permission to screen these comments.
+.error.privs.screen=You don't have permission to screen these comments.
 
-.error.privs.unscreen=You do not have permission to unscreen these comments.
+.error.privs.unscreen=You don't have permission to unscreen these comments.
 
-.screened.body2=The comments have been screened. You can view them <a [[aopts]]>here</a>.
+.screened.body2=You've screened the selected comments. <a [[aopts]]>View them</a>.
 
 .screened.title=Comments screened
 
@@ -34,7 +34,7 @@ if you would like to screen, unscreen, or delete the comments.
 
 .title.unscreen=Unscreen Multiple Comments
 
-.unscreened.body2=The comments have been unscreened. You can view them <a [[aopts]]>here</a>.
+.unscreened.body2=You've unscreened the selected comments. <a [[aopts]]>View them</a>.
 
 .unscreened.title=Comments unscreened
 

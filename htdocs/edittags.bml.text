@@ -3,35 +3,35 @@
 
 .current=Current tags:
 
-.disabled=Sorry, the tags system is currently disabled.
+.disabled=The tags system is currently disabled.
 
 .entry=Entry:
 
-.error.db=Sorry, we encountered a database error.  Please try again.
+.error.db=We've experienced a database error.  Please try again.
 
 .intro=Use the form below to edit the tags on this entry.
 
-.invalid.entry=Specified entry is invalid.
+.invalid.entry=The entry you specified is invalid.
 
-.invalid.journal=Specified journal is invalid.
+.invalid.journal=The journal you specified isn't a valid journal.
 
-.invalid.link=You have reached this page in an invalid way.  Please follow a link from an entry to edit tags.
+.invalid.link=You've gotten to this page in a way that won't let you do what you want to do.  To edit tags, please follow a link from an entry.
 
-.invalid.notauthorized=You do not have access to view that entry.
+.invalid.notauthorized=You don't have permission to view that entry.
 
-.permissions.add.yes=You may add tags from the list above.
+.permissions.add.yes=You can add tags from the list above.
 
-.permissions.control.yes=You may remove tags or create new ones.
+.permissions.control.yes=You can remove tags or create new ones.
 
-.permissions.none=(You do not have permission to edit tags on this entry.)
+.permissions.none=(You don't have permission to edit tags on this entry.)
 
-.readonly.journal=This journal is read-only.  Its entry tags cannot be edited.
+.readonly.journal=This journal is read-only.  Its entry tags can't be edited.
 
-.readonly.poster=This poster is read-only.  The tags for their entry cannot be edited.
+.readonly.poster=This poster is read-only; the tags for this entry can't be edited.
 
 .subject=Subject:
 
-.title=Edit Tags on Entry
+.title=Edit Tags on an Entry
 
 .users=[[user]]'s tags:
 

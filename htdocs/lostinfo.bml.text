@@ -5,29 +5,29 @@
 
 .enter_email_optional=Email address:  (optional)
 
-.enter_username=Enter your username:
+.enter_username=Enter your account name:
 
-.error.commnopassword=The account you are trying to retrieve the password for is a community. This kind of account does not have a password to retrieve. All community management can be accomplished by logging in as a maintainer of the community.
+.error.commnopassword=That account is a community; community accounts don't have passwords.  All community administration can be done by logging in as an administrator of the community.
 
-.error.no_email=You must enter an email address in order to recover your username.
+.error.no_email=You must enter an email address to recover your account name.
 
-.error.purged=Cannot retrieve password for a deleted account once it has been purged.
+.error.purged=You can't retrieve a password for a deleted account after it has been purged.
 
-.error.renamed=Cannot retrieve password for a renamed account.
+.error.renamed=You can't retrieve a password for a renamed account.
 
-.error.syndicated=The account you are trying to retrieve the password for is a syndicated account. This kind of account does not have a password to retrieve.
+.error.syndicated=The account you're trying to retrieve the password for is a feed account. This type of account doesn't have a password to retrieve.
 
-.error.sysbanned=Your account is not allowed to e-mail passwords.
+.error.sysbanned=Your account isn't allowed to email passwords.
 
-.error.toofrequent=You are trying to send too many e-mails at once. You may only request five lost information e-mails within twenty-four hours.
+.error.toofrequent=You're trying to send too many emails at once.  You may only request five lost information emails within 24 hours.
 
-.lostpassword.text=If you've lost your password, enter your username and optionally, the email address you'd like the password sent to.  Note that the email address must be one you've used at [[sitename]] before and had confirmed at one point.  If you leave the email field blank, it'll be mailed to your current address.
+.lostpassword.text=If you've lost your password, enter your account name and, optionally, the email address to which you'd like the password sent.  The email address must be one you've already confirmed and used previously at [[sitename]].  If you leave the email field blank, the email will be sent to your current email address.
 
-.lostpassword.title=Lost your password?
+.lostpassword.title=Have you lost your password?
 
-.lostusername.text=If you've lost your username, enter your email address and we'll send you your username.
+.lostusername.text=If you've lost your account name, enter your email address and we'll send it to you.
 
-.lostusername.title=Lost your username?
+.lostusername.title=Have you lost your account name?
 
 .title=Lost Information
 

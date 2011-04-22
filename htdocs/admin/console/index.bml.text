@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.description=The Admin Console is where you can submit batch commands to be run. Most commands require special privileges, but some can be used by anybody. 
+.description=You can use the Command Console to enter single commands that will affect your entire journal or community.  Several of the features of the Command Console are only available to site supervisors, but many can be used by everyone.
 
-.description.reference=See the <a [[aopts]]>command reference</a> for a list of commands.
+.description.reference=The <a [[aopts]]>command reference</a> has a list of commands.
 
 .entercommands=Enter Commands:
 
@@ -9,5 +9,5 @@
 
 .execute=Execute
 
-.title=Admin Console
+.title=Administration Console
 

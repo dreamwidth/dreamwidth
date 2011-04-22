@@ -3,7 +3,7 @@
 
 .table.language=Language
 
-.table.users=Users With Privs
+.table.users=Users With Privileges
 
 .teams.header=Teams
 

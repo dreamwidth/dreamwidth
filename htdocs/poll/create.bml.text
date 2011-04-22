@@ -1,13 +1,13 @@
 ;; -*- coding: utf-8 -*-
 .button.editpoll=Edit Poll
 
-.button.insert=Insert
+.button.insert=Insert Question
 
 .button.postpoll=Post Poll
 
 .button.preview=Preview Poll
 
-.button.seecode=See Code
+.button.seecode=Display Code
 
 .button.startover=Start Over
 
@@ -15,37 +15,37 @@
 
 .checkmin=Minimum options required: 
 
-.elements.limitreached=Element limit reached
+.elements.limitreached=Question limit reached
 
-.error.accttype2=Your account type does not permit you to use the poll creation feature.
+.error.accttype2=Your account type doesn't allow you to create polls.
 
-.error.allitemsblank=All items cannot be blank.
+.error.allitemsblank=All items can't be blank.
 
 .error.checkmaxtoolow=Maximum value for checkbox options is too low
 
 .error.checkmintoohigh=Minimum value for checkbox options is too high
 
-.error.notext=You need text explaining your question
+.error.notext=You must include a question
 
 .error.parsing=Error parsing poll:
 
-.error.pqmaxlengthinvalid=Maxlength attribute on lj-pq text tags must be an integer from [[min]] to [[max]].
+.error.pqmaxlengthinvalid=Max length must be between [[min]] and[[max]].
 
-.error.pqsizeinvalid=Size attribute on lj-pq text tags must be an integer from [[min]] to [[max]].
+.error.pqsizeinvalid=Size must be between [[min]] and[[max]].
 
 .error.scalemaxlessmin=Scale 'from' value must be less than 'to' value.
 
 .error.scalemininvalid=Scale increment must be at least [[min]].
 
-.error.scaletoobig=Limit of [[max]] selections (to-from)/by > 20
+.error.scaletoobig=Increment too small for the range. Limit is [[max]] selections.
 
 .error.scaletoobig1=Your scale exceeds the limit of [[maxselections]] selections by [[selections]].
 
 .error.texttoolong=The text of your option is too long and has been truncated.
 
-.haserrors=You have one or more errors with your poll.  Please scroll down for more details.
+.haserrors=You have one or more errors in your poll.  Please scroll down for more details.
 
-.insertquestion=Insert question here:
+.insertquestion=Question type
 
 .isanon=Anonymize poll results. No one can see who voted, not even you.
 
@@ -53,13 +53,13 @@
 
 .options.limitreached=Option limit reached
 
-.pollname=Poll Name: <i>(opt.)</i>
+.pollname=Poll Name: <em>(optional)</em>
 
-.preview.desc=Below is a preview of your poll.  This is exactly how it will look once it is placed on your journal.  Use the buttons below to go back and make changes or post this poll to your journal.
+.preview.desc=Below is a preview of how your poll will look once it is placed on your journal.  Use the buttons below to go back and make changes, or to post the poll.
 
 .preview.options=Options
 
-.properties=Poll Properties
+.properties=Poll Options
 
 .question=Question:
 
@@ -67,7 +67,7 @@
 
 .questions=Poll Questions
 
-.seecode.desc=Below is the code for your poll. Use the  buttons below to go back and make changes or post this poll to your journal.
+.seecode.desc=This is the code for your poll. Use the buttons below to go back and make changes, or to post it to your journal.
 
 .title=Poll Creator
 
@@ -79,11 +79,11 @@
 
 .type.scale=Scale
 
-.type.text=Text entry
+.type.text=Text box
 
 .whoview=Who can view this poll?
 
-.whoview2=Who can view the text entry responses and voters in this poll?
+.whoview2=Who can view individual responses in this poll?
 
 .whovote=Who can vote in this poll?
 

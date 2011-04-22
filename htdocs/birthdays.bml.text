@@ -1,15 +1,15 @@
 ;; -*- coding: utf-8 -*-
-.description=Below are the birthdays for everyone that is in your circle.
+.description=Here are the birthdays of people in your Circle visible to you.
 
-.description.others=Below are the birthdays for everyone that is in [[user]]'s circle.
+.description.others=These are the birthdays of people in [[user]]'s Circle visible to you.
 
-.error.badstatus=[[user]] is not a currently active account.
+.error.badstatus=[[user]] isn't an active account.
 
-.error.invaliduser=Invalid user: <b>[[user]]</b>.  The specified account does not exist.
+.error.invaliduser=Invalid account name: the specified account doesn't exist.
 
-.findothers=If you would like to see the birthdays of the friends of another user, or of the members of a community, enter a username below:
+.findothers=To display the birthdays of people in someone else's Circle, enter the account name below:
 
-.nobirthdays=<b>There are no birthdays to display.</b> This happens when a user doesn't have anyone added to their access or subscription lists, or if no one in the user's circle has made their birthday public.
+.nobirthdays=There aren't any birthdays to display. This happens when you don't have anyone added to your Circle or if none of your Circle's birthdays are visible to you.
 
 .title=Birthdays
 

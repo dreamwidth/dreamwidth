@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
 .button.clear=Clear Form
 
-.button.search=Search!
+.button.search=Search
 
 .checkbox.onlywithpics=Only communities with pictures
 
@@ -23,11 +23,11 @@
 
 .label.outputformat=Output Format:
 
-.label.records=Records per page:
+.label.records=Results per page:
 
 .label.searchcomm=Search Communities
 
-.label.selecriteria=Select the criteria below that you'd like to find communities by.  The results returned are the intersection of all search criteria.  In other words, each checkbox you click means "AND", not "OR".
+.label.selecriteria=You can use this page to search for communities on Dreamwidth. If you fill in more than one search box, the search will return only results that contain all your search words: for example, if you put in "Boston" and "beer", the only communities your search will show are those which have both words somewhere in their Profile.
 
 .label.sortmethod=Sorting Method:
 

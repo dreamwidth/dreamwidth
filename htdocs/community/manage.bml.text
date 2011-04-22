@@ -1,11 +1,11 @@
 ;; -*- coding: utf-8 -*-
-.commlist.actinfo=Info
+.commlist.actinfo=Information
 
 .commlist.actinfo2=Profile
 
 .commlist.actinvites=Invitations
 
-.commlist.actions=<b>Actions</b>
+.commlist.actions=<strong>Actions</strong>
 
 .commlist.actmembers2=Members
 
@@ -16,7 +16,7 @@
 
 .commlist.customize=Customize
 
-.commlist.customize2=Journal Style
+.commlist.customize2=Style
 
 .commlist.header=Your communities
 
@@ -24,7 +24,7 @@
 
 .commlist.moderation.num2=[<a [[aopts]]>[[num]] in queue</a>]
 
-.commlist.none=<i>You are not managing any communities.</i>
+.commlist.none=<em>You're not the administrator of any communities.</em>
 
 .commlist.post=Post
 
@@ -32,39 +32,39 @@
 
 .commlist.tags=Tags
 
-.commlist.text=Here are the communities that you manage or co-manage:
+.commlist.text=Here are the communities you administer or co-administer:
 
-.commlist.title=<b>Title</b>
+.commlist.title=<strong>Title</strong>
 
 .commlist.tracking=Tracking
 
-.commlist.username=<b>Username</b>
+.commlist.username=<strong>Account name</strong>
 
-.create.header=Create a community
+.create.header=Create a community.
 
-.create.text2=You can also <a [[aopts]]><b>create a new community</b></a>.
+.create.text2=You can also <a [[aopts]]><strong>create a new community</strong></a>.
 
-.error.badaccounttype=You must be logged in as a regular user account in order to access this page.
+.error.badaccounttype=You must be logged in to a personal account to access this page.
 
-.joinmail.body2=For communities with moderated membership, you can <a [[aopts]]>get notified</a> whenever anyone requests membership.
+.joinmail.body2=For communities with moderated membership, you can <a [[aopts]]>be notified</a> when anyone requests membership.
 
-.joinmail.email.all=E-mail every time someone requests to join
+.joinmail.email.all=Email me every time someone requests to join.
 
-.joinmail.email.digest=One e-mail each day with a list of all pending requests
+.joinmail.email.digest=One email each day with a list of all pending requests
 
-.joinmail.email.none=No e-mail, I will use this page to look for new requests
+.joinmail.email.none=No email; I will use this page to look for new requests
 
 .joinmail.save=Save Settings
 
-.joinmail.title=Administrative options
+.joinmail.title=Administrative Options
 
 .managelinks=Manage [[user]]'s:
 
-.modemail.body=For moderated communities, you can choose whether to send emails or not:
+.modemail.body=For moderated communities, you can choose whether or not to send emails:
 
-.modemail.no=No email, I will manage the moderation queue manually
+.modemail.no=Don't email me. I'll manage the moderation queue manually
 
-.modemail.yes=Email me every time someone submits a post to the queue
+.modemail.yes=Email me each time someone submits an entry to the queue
 
 .title2=Manage Communities
 

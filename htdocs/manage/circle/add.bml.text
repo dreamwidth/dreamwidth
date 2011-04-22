@@ -1,23 +1,23 @@
 ;; -*- coding: utf-8 -*-
-.add.header=Success
+.add.header=Success.
 
-.add.next.friends=View your reading page
+.add.next.friends=View your Reading Page
 
 .add.next.message=Send this user a message
 
-.add.next.modify=Modify your circle
+.add.next.modify=Modify your Circle
 
 .add.next.postingguidelines=Read this community's posting guidelines
 
 .add.next.posttocommunity=Post to this community
 
-.add.text2=[[ljuser]]'s status in your circle has been updated.
+.add.text2=You've successfully changed [[ljuser]]'s status in your Circle.
 
-.add.title=Circle Updated!
+.add.title=Circle Changes Successful
 
-.add.trust=Grant access: they can read your journal entries that you restrict to your access list
+.add.trust=Grant access: allow those you choose to view your protected entries and other protected content. You'll have the option to further restrict access to your entries with filters.
 
-.add.watch=Subscribe: you can read their journal entries on your reading page
+.add.watch=Subscribe: display the entries to which you have access on your Reading Page
 
 .btn.add=Add [[user]]
 
@@ -35,23 +35,21 @@
 
 .colors.header=Colors
 
-.colors.help.text1=Click the colored boxes to the right for a pre-set color.  Choose a custom color by entering in the hex value or by clicking on the box to the left.
+.colors.help.text1=Click the colored boxes to the right to select a pre-set color.  Select a custom color by entering in the hex value or by clicking on the box to the left.
 
-.colors.help.text2=Hover your mouse over a color to see its name and hex value.
+.colors.help.text2=Hover your mouse over a color to display its name and hex value.
 
 .colors.hover=(Hover your mouse over a color to see its name)
 
-.colors.text=Select the colors that will represent [[user]] on your reading page (only applicable if you subscribe to them).
+.colors.text=Select the colors that will represent [[user]] on your Reading Page (only applicable if you subscribe to them).
 
 .confirm.text=To add <b>[[user]]</b> to your friends list, click the button below.
 
-.confirm.text1.community2=Adding a community allows you to read the community's public posts on your reading page. If you would like to post to the community and be listed as a member, you'll need to <a [[aopts]]>join the community</a>.
+.confirm.text1.community2=When you add a community its public entries will be included on your Reading Page. If you want to post to the community and become a member, you'll have to <a [[aopts]]>join the community</a>.
 
-.confirm.text1.community2.openid=Adding a community allows you to read the community's public posts on your reading page.
+.confirm.text1.community2.openid=Adding a community lets you read the community's public entries on your Reading Page.
 
-.confirm.text1.feed=Adding a feed allows you to read new content from the feed on your reading page.
-
-.confirm.text1.notvisible=This account is deleted, purged, or suspended.  You can only remove it from your circle.  Clicking the button below will remove both its access and subscription.
+.confirm.text1.feed=Adding a feed account lets you read new content from that feed on your Reading Page.
 
 .confirm.text1.person=Choose one or both of the following:
 
@@ -67,15 +65,15 @@
 
 .confirm.title.syn2.add=Subscribe to [[user]]?
 
-.disclaimer=This will not allow maintainers or members of the community to view your friends-only posts.
+.disclaimer=This won't let administrators or members of the community view your protected entries.
 
-.error.notvisible=The account [[user]] cannot be added to your circle because it is deleted, purged, or suspended.
+.error.notvisible=[[user]] can't be added to your Circle because that account is deleted, purged, or suspended.
 
 .error.sessionchanged=Session info changed. Try again.
 
-.error1.title=Add Friend
+.error1.title=Subscribe
 
-.error2.text2=Invalid or missing username given. To add a friend, go to the <a [[aopts]]>edit friends</a> page.
+.error2.text2=Invalid or missing account name given. To add a new relationship, go to the <a [[aopts]]>"Manage Circle"</a> page.
 
 .error3.text1=[[user]] is on your Friends list. You can modify the custom friends groups you've chosen for him/her.
 
@@ -89,7 +87,7 @@
 
 .groups.reading=<i>Optional:</i> Include in one or more subscription filters.  <strong>You must subscribe to the user by selecting the second box above in order to add them to any subscription filters.</strong>
 
-.groups.text1=<i>Optional:</i> Include in one or more access filters.  <strong>You must grant access to the user by selecting the first box above in order to add them to any access filters.</strong>
+.groups.text1=<em>Optional:</em> Include in one or more access filters.  <strong>You must grant access to this account by selecting the first box above in order to add them to any access filters.</strong>
 
 .optional=Optional
 

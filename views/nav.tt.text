@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.error.invalidcat=The navigation category that you specified is invalid.
+.error.invalidcat=The navigation category you specified is invalid.
 
-.error.nocat=You did not specify a navigation category.
+.error.nocat=You didn't specify a navigation category.
 
 .title=Navigation
 

@@ -3,37 +3,37 @@
 
 .createaccount.header=Not a <?sitename?> member?
 
-.createaccount.whylogin.benefit1=Read friends-only posts that are addressed to you.
+.createaccount.whylogin.benefit1=Read filtered entries that you have access to.
 
 .createaccount.whylogin.benefit2=Leave comments in any journal or community.
 
 .createaccount.whylogin.benefit3=Post entries in your own journal.
 
-.createaccount.whylogin.benefit4=Add any journal or community to your Friends page.
+.createaccount.whylogin.benefit4=Add any journal or community to your Reading Page.
 
-.createaccount.whylogin.benefit5=Access features that are only visible when you're logged in.
+.createaccount.whylogin.benefit5=Use features that are only visible when you're logged in.
 
-.error.notuser=Username not found.  Would you like to <a [[aopts]]>create an account</a> using this username?
+.error.notuser=This account name was not found.  Would you like to <a [[aopts]]>create an account</a> using this account name?
 
 .loggedin.continueto=Continue to [[continue_url]]
 
 .loggedin.head2=Welcome back to [[sitename]]!
 
-.loggedin.openidemail=Please <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> your email address to get started.
+.loggedin.openidemail=Please <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address to begin.
 
-.loggedin.suggest1=Did you know you can now easily add a photo?
+.loggedin.suggest1=You can easily add a photo.
 
-.loggedin.suggest2=See the latest updates to your friends' journals.
+.loggedin.suggest2=Read the latest additions to the journals, communities, and feeds you're subscribed to.
 
 .loggedin.suggest4=Customize your [[siteabbrev]] experience.
 
-.loggedin.suggesthead1=Update your Journal
+.loggedin.suggesthead1=Post to your Journal
 
-.loggedin.suggesthead2=Read your friends page
+.loggedin.suggesthead2=View your Reading Page
 
 .loggedin.suggesthead3=My [[siteabbrev]]
 
-.loggedin.text2=You're logged in as [[username]]. Go have fun. Here are some suggestions...
+.loggedin.text2=You're logged in as [[username]]. From here you can:
 
 .login.autologin=Log in automatically on this computer
 
@@ -45,15 +45,15 @@
 
 .login.btn.save=Save
 
-.login.changelog=Change log-in options
+.login.changelog=Change login options
 
 .login.expiration=Expiration:
 
-.login.forget2=Forgot password?
+.login.forget2=Forgot your password?
 
 .login.head=Log in
 
-.login.openid=Login with Open ID
+.login.openid=Log in with OpenID
 
 .login.optionssaved=Login options saved.
 
@@ -69,7 +69,7 @@
 
 .login.title=Log in
 
-.login.username=Username:
+.login.username=Account name:
 
 .login.welcome=Welcome to [[sitename]]!
 

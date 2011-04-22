@@ -1,43 +1,43 @@
 ;; -*- coding: utf-8 -*-
 .about.icons=About Icons
 
-.btn.addfile=Add File
+.btn.addfile=Add another from file
 
-.btn.addurl=Add URL
+.btn.addurl=Add another from URL
 
 .btn.proceed=Proceed
 
 .btn.remove=Remove
 
-.btn.save=Save Settings
+.btn.save=Save
 
-.curpics=Current Pictures
+.curpics=Current Icons
 
-.curpics.desc2=Here are the pictures you've uploaded in the past. You can assign keywords to them so you can use them by keyword later, select which one to use as your default, or delete old ones. To upload a new one, use the form at the top of the page.
+.curpics.desc2=These are your current icons. You can choose which icon to use as your default, add new icons, and delete icons you no longer want. If you assign keywords to your icons, you can select them by keyword for entries and comments. You can also assign a description to each icon. To upload a new icon, use the form at the left.
 
-.error.badurl=The address for the picture to be uploaded does not look correct.  It should start with <b>http://</b>
+.error.badurl=Please double-check the address for the icon to be uploaded; it should start with <strong>http://</strong>
 
-.error.filetoolarge=Image uploaded is too large.  File size cannot exceed [[maxsize]] KB.
+.error.filetoolarge=The icon you tried to upload is too large.  File size can't exceed [[maxsize]] KB.
 
-.error.generatinguserpic=There was an error in generating the userpic: 
+.error.generatinguserpic=There was an error in generating the icon: 
 
-.error.giffiledimensions=Sorry, you cannot upload a userpic larger than 100x100 pixels if it is in GIF format.
+.error.giffiledimensions=You can't upload an icon larger than 100x100 pixels if it's in GIF format.
 
-.error.giffiletoolarge=The GIF image you uploaded is too large.  GIF file size cannot exceed [[maxsize]].
+.error.giffiletoolarge=The GIF icon you uploaded is too large.  GIF file size cannot exceed [[maxsize]].
 
-.error.imagetoolarge=The dimensions of your image ([[imagesize]]) exceed maximum size.  Your picture can only be 100x100 pixels large.  Use a image/photo editing program to reduce the image to thumbnail-size.
+.error.imagetoolarge=Your image is too large at [[imagesize]]; the maximum size for icons is 100x100 pixels. Please resize your image to 100x100 pixels or less and then try uploading it again.
 
-.error.invalidimage=Invalid image file.
+.error.invalidimage=Invalid filetype.
 
-.error.keywords=You used the keyword "[[ekw]]" for multiple pictures.  One was randomly chosen, but likely not the one you wanted.  You may want to go back and fix that.
+.error.keywords=You used the keyword "[[ekw]]" for multiple pictures.  One was randomly chosen, but it may not have been the one you wanted.  You might want to go back and fix that.
 
-.error.multipleresize=Error:  only one image requiring resizing may be sent.
+.error.multipleresize=Error: only one image requiring resizing may be sent.
 
 .error.nofile=You must choose a file to upload
 
-.error.nomediauploads.delete=Unable to delete userpics at this time.  Media modification is currently disabled for the site.
+.error.nomediauploads.delete=Unable to delete icons at this time.
 
-.error.nourl=You must enter the URL of an image
+.error.nourl=You must enter the URL of the icon you want to add.
 
 .error.rename.blankkw=Error renaming '[[origkw]]' to '[[newkw]]':  renaming of blank (pic#) keywords not allowed.
 
@@ -49,19 +49,19 @@
 
 .error.toolarge.separately=Image is too large; please submit it separately to resize.
 
-.error.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]] not been saved as [[?numwords|its|their]] user picture icon already has [[max]] keywords.
+.error.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]]'nt been saved as [[?numwords|its|their]] icon already has [[max]] keywords.
 
-.error.toomanypics4=You are already at your limit of [[num]] [[?num|userpic|userpics]]. You cannot upload this userpic until you delete <a [[aopts]]>one of your existing ones</a>.
+.error.toomanypics4=You're already at your limit of [[num]] [[?num|icon|icons]]. You can't upload this icon until you delete <a [[aopts]]>one of your existing ones</a>.
 
-.error.toomanypics_standout=You are at your limit of [[num]] [[?num|userpic|userpics]]. You cannot upload any more userpics until you delete one of your existing ones.
+.error.toomanypics_standout=You're at your limit of [[num]] [[?num|icon|icons]]. You can't upload any more icons until you delete one of your existing ones.
 
 .error.unknowntype=You can only upload GIF, PNG, or JPG files.
 
-.error.unsupportedtype=Files of type [[filetype]] are not supported.  You can only upload GIF, PNG or JPG files.  Nearly all image/photo programs can do this conversion for you.
+.error.unsupportedtype=Files of type [[filetype]] aren't supported.  You can only upload GIF, PNG or JPG files.  Most image/photo programs can do this conversion for you.
 
 .error.urlerror=An error ocurred while trying to fetch your image.
 
-.error.urlfiletoolarge=You cannot upload large images from URLs.
+.error.urlfiletoolarge=You can't upload large images from URLs.
 
 .fromfile=From <u>F</u>ile:
 
@@ -78,7 +78,7 @@
 
 .label.comment=Comment:
 
-.label.comment.desc=Optional comments about the picture. Credit can go here. Example: "I made this!"
+.label.comment.desc=Optional comments about the icon. Credit can go here. For example: "I made this!"
 
 .label.default=Default
 
@@ -86,67 +86,67 @@
 
 .label.description=Description:
 
-.label.description.desc=Optional description of what is in the picture. Shown to people who cannot view the image, e.g. blind people using screen readers. Example: "Photo of me in the mirror, holding up camera"
+.label.description.desc=This is an optional description of the picture that will be displayed for people who can't view it, e.g. visually-impaired people using screen readers. Example: "Photo of me in the mirror, holding up camera."
 
-.label.formats.desc=Acceptable formats are GIF, JPG and PNG.
+.label.formats.desc=Acceptable formats are GIF, JPG, and PNG.
 
-.label.keepdefault=Keep existing default pic.
+.label.keepdefault=Keep existing default icon.
 
 .label.keywords=Keywords:
 
-.label.keywords.desc=Comma-separated list of terms you'll use to select this picture.
+.label.keywords.desc=Comma-separated list of terms you'll use to select this icon. 
 
 .label.rename=Rename Keywords
 
-.label.rename.disabled=Renaming keywords is temporarily disabled
+.label.rename.disabled=Retroactively renaming keywords is temporarily disabled. You can change this keyword, but it won't update old posts.
 
-.makedefault=Make this your <u>d</u>efault picture
+.makedefault=Make this your <u>d</u>efault icon
 
 .makedefault.key|notes=Enter here a <b>lower-case</b> version of the letter you underlined in ".makedefault". This is the shortcut key for the makedefault option.
 .makedefault.key=d
 
-.nodefault=No Default Picture
+.nodefault=No default icon
 
 .noneupload=You have no pictures uploaded.  Please upload one using the form below.
 
-.noneupload2=You have no pictures uploaded.  Please upload one using the form above.
+.noneupload2=You don't have any icons uploaded.  You can upload icons using the form above.
 
-.nopics=No Pictures
+.nopics=No Icons
 
 .piclimitstatus=Currently uploaded: [[current]] out of [[max]]. 
 
-.restriction.fileformat=File format must be either PNG, GIF or JPG
+.restriction.fileformat=File format must be either PNG, GIF, or JPG
 
 .restriction.filesize=File size must be less than 40k
 
-.restriction.imagesize2=If dimensions are larger than 100x100 pixels, you will be taken to the Create Userpic page
+.restriction.imagesize2=If dimensions are larger than 100x100 pixels, you will be taken to the Create Icon page
 
-.restriction.keywords=Picture will be unusable if keywords are not supplied
+.restriction.keywords=Icon will not be usable if keywords are not supplied
 
-.restriction.keywords.faq=Picture will be unusable if <a [[aopts]]>keywords</a> are not supplied
+.restriction.keywords.faq=Icon will not be usable if <a [[aopts]]>keywords</a> are not supplied
 
 .sort.default=Upload Order
 
 .sort.keyword=Keyword Order
 
-.title=Edit Userpics
+.title=Edit User Icons
 
 .title3|notes=This is the new page title.  .title is used by multisearch.bml.
-.title3=Manage Userpics
+.title3=Manage Icons
 
-.uploaddesc=Use the form below to upload a new picture.
+.uploaddesc=Use the form below to upload a new icon.
 
 .uploaddesc.userpicfactory=Upload a JPG image of any size and we'll send you to the Userpic Factory where you can easily crop and resize it.
 
-.uploadheader=Upload a New Picture
+.uploadheader=Upload a new icon
 
 .uploadsuccessful=Image has been successfully uploaded
 
-.userpic=Userpic [[num]]: 
+.userpic=Icon [[num]]: 
 
 .view.allicons=[<a [[aopts]]>View all uploaded icons</a>]
 
-.warning.keywords=One or more of your pictures do not have keywords defined and thus cannot currently be used
+.warning.keywords=One or more of your icons does not have keywords defined and cannot currently be used
 
-.warning.keywords.faq=One or more of your pictures do not have <a [[aopts]]>keywords</a> defined and thus cannot currently be used
+.warning.keywords.faq=One or more of your icons do not have <a [[aopts]]>keywords</a> defined and cannot currently be used
 

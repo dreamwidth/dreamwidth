@@ -2,19 +2,16 @@
 .email.body<<
 Hi,
 
-[[user]] wants to share this [[sitenameshort]] entry with you:
+[[user]] would like to share this [[sitenameshort]] entry with you:
 
 
 .
 
-.email.body.boxtitle=Your message to them:
+.email.body.boxtitle=This is your message to them:
 
-.email.body.custom=Custom message from [[user]]:
+.email.body.custom=This is a custom message from [[user]]:
 
 .email.body.footer<<
-
-
-Enjoy!
 -[[user]]
 
 --[[sitename]] Team
@@ -29,9 +26,9 @@ Check out my friend's journal online:
 .
 
 .email.body.yourjournal<<
-Hey,
+Dear
 
-Check out my journal that I'm keeping online:
+Here's a link to the journal that I'm keeping online:
 
 .
 
@@ -45,19 +42,19 @@ Check out my journal that I'm keeping online:
 
 .email.sharedentry.url=URL:
 
-.email.subject.entry=Check out this [[sitenameshort]] entry
+.email.subject.entry=Take a look at this [[sitenameshort]] entry
 
-.email.subject.journal=Check out this journal
+.email.subject.journal=Take a look at this journal
 
-.email.subject.noentry=Check this out...
+.email.subject.noentry=Take a look at this:
 
-.email.usemask.footer=You will need to be logged-in and on [[user]]'s access list to read this entry. Don't have an account yet? Just <a href='[[siteroot]]/create.bml?from=[[user]]'>create one</a>, it's free.
+.email.usemask.footer=You'll need to be logged-in and on [[user]]'s Access List to read this entry. If you don't have an account yet, you can <a href='[[siteroot]]/create.bml?from=[[user]]'>create one</a> for free.
 
 .email.warning.otherpublic=You can only tell your friends about public posts on other people's journals.
 
 .email.warning.private=You can not tell your friends about posts you marked as private.
 
-.email.warning.usemask=<b>Friends-only!</b> Only people who are on your friends list can see this entry.
+.email.warning.usemask=This is a <strong>Protected Entry.</strong> Only people who are on your Access List can read this entry.
 
 .error.characterlimit=Email list greater than 150 characters
 
@@ -77,17 +74,17 @@ Check out my journal that I'm keeping online:
 
 .errorpage.title=Error
 
-.invalidemailpage.body=Your current email address [[emailaddress]] isn't validated, so we can't let you use the "Tell a Friend" feature.  To validate your email address, <a href="[[siteroot]]/register.bml">have the confirmation email resent</a>, and then follow the instructions in it when you get it.
+.invalidemailpage.body=Your current email address [[emailaddress]] hasn't been confirmed, and you can't use the "Tell a Friend" feature until it is.  To confirm your email address, <a href="[[siteroot]]/register.bml">have the confirmation email sent again</a>, then follow the instructions in it when you get it.
 
-.invalidemailpage.title=Sorry...
+.invalidemailpage.title=Sorry.
 
 .sendbutton=Send
 
-.sentpage.body.mailedlist=The following people have been mailed:
+.sentpage.body.mailedlist=You've mailed the following people:
 
 .sentpage.body.tellanother=Tell another friend.
 
-.sentpage.title=Sent!
+.sentpage.title=Sent.
 
 .title=Tell a Friend!
 

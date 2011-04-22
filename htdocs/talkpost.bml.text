@@ -3,41 +3,41 @@
 
 .editresponse=Edit your response:
 
-.error.cannotreplynopost=You cannot reply to a non-existent post 
+.error.cannotreplynopost=You can't reply to an entry that isn't there.
 
-.error.nocommentsjournal=User has disabled comments in their journal.
+.error.nocommentsjournal=Comments are disabled in this journal.
 
-.error.nocommentspost=User has disabled comments for this particular post.
+.error.nocommentspost=Comments are disabled for this entry.
 
-.error.noreplypost=Replyto post not found (deleted?)
+.error.noreplypost=Reply-to entry not found.  It may have been deleted.
 
-.error.noreply_deleted=This comment had been deleted. You cannot reply to it.
+.error.noreply_deleted=You can't reply to this comment because it has been deleted.
 
-.error.noreply_frozen=This comment is frozen and cannot be replied to.
+.error.noreply_frozen=This comment is frozen; you can't reply to it.
 
-.error.noreply_readonly_journal=This journal is read-only.  You cannot reply to any entries in it.
+.error.noreply_readonly_journal=This journal is read-only.  You can't reply to any entries in it.
 
-.error.noreply_readonly_remote=You are read-only.  You cannot post comments.
+.error.noreply_readonly_remote=You're read-only.  You can't post comments.
 
-.error.noreply_screened=This comment is screened and you have no permissions to see it or reply to it.
+.error.noreply_screened=This comment is screened. You don't have permission to read it or reply to it.
 
-.error.noreply_suspended=This entry is suspended.  You cannot reply to it.
+.error.noreply_suspended=This entry is suspended.  You can't reply to it.
 
-.label.picturetouse2=<a [[aopts]]>Picture</a> to use:
+.label.picturetouse2=<a [[aopts]]>Icon</a> to use:
 
 .linkstripped=Links will be displayed as unclickable URLs to help prevent spam.
 
-.loganonip=<b>Notice!</b> This user has turned on the option that logs IP addresses of anonymous posters.
+.loganonip=<strong>Notice:</strong> This account is set to log the IP addresses of people who comment anonymously.
 
-.loginq=Login?
+.loginq=Log in?
 
-.logyourip=<b>Notice!</b> This user has turned on the option that logs your IP address when posting.
+.logyourip=<strong>Notice:</strong> This account is set to log the IP addresses of everyone who comments.
 
-.noaccount=Don't have an account? <a [[aopts]]>Create one now</a>.
+.noaccount=If you don't have an account you can <a [[aopts]]>create one now</a>.
 
 .noedithtml=No HTML allowed in reason for edit
 
-.nosubjecthtml=No HTML allowed in subject
+.nosubjecthtml=HTML doesn't work in the subject.
 
 .opt.anonymous=Anonymous
 
@@ -45,35 +45,35 @@
 
 .opt.defpic=(default)
 
-.opt.edit=Edit Comment
+.opt.edit=Update Reply
 
 .opt.editreason=Reason:
 
-.opt.friendsonly=- you may post here only if [[username]] has given you access; posting by non-Access List accounts has been disabled.
+.opt.friendsonly=You may post here only if [[username]] has given you access; posting by non-Access List accounts has been disabled.
 
 .opt.from=From:
 
-.opt.loggedin=<b>Logged in user:</b> [[username]]
+.opt.loggedin=<strong>Logged in account:</strong> [[username]]
 
-.opt.membersonly=- this community only allows commenting by members. You may comment here if you are a member of [[username]].
+.opt.membersonly=This community only allows commenting by members. You may comment here if you're a member of [[username]].
 
 .opt.message=Message:
 
-.opt.noanonpost=- this user has disabled anonymous posting.
+.opt.noanonpost=This account has disabled anonymous posting.
 
-.opt.noanonpost.nonpublic=- you cannot comment anonymously on a protected entry.
+.opt.noanonpost.nonpublic=You can't comment anonymously on a protected entry.
 
 .opt.noautoformat=Don't auto-format: 
 
 .opt.noimage=No Image
 
-.opt.noopenidpost=- you must <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> your email address in order to comment.
+.opt.noopenidpost=You must <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address before you can comment.
 
 .opt.openidsignin=- OpenID commenting on this post is limited. Please sign in <a [[aopts]]>here</a>.
 
 .opt.preview=Preview
 
-.opt.siteuser=[[sitename]] user
+.opt.siteuser=[[sitename]] account
 
 .opt.spellcheck=Spell check entry before posting
 
@@ -85,7 +85,7 @@
 
 .opt.willscreen=(will be screened)
 
-.opt.willscreenfriend=(will be screened if not given access)
+.opt.willscreenfriend=(will be screened if not on Access List)
 
 .opt.willscreenopenid=(will be screened if not validated)
 
@@ -96,9 +96,9 @@
 .title=(Reply)
 
 .usermismatch<<
-You have entered a username, but you have deselected the 'LiveJournal user' option.
+You've entered an account name but have deselected the 'Dreamwidth account' option.
 
-Please either clear the user textbox or select the relevant posting mode and try again.
+Please clear the textbox or select the correct posting mode and try again.
 .
 
 .userpic.random=Choose random icon

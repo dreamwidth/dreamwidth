@@ -1,13 +1,13 @@
 ;; -*- coding: utf-8 -*-
-.basic.header=Insecure basic login
+.basic.header=Your basic log-in isn't secure.
 
-.basic.text=This sends your password unprotected, probably over the air. Not a good idea on Wifi. Probably okay over a mobile carrier's data network.
+.basic.text=Choosing this option will send your account password out unencrypted.  That's risky if you're connecting using Wifi, but you'll probably be okay if you're using a mobile carrier's data network.
 
 .form.button=Login
 
 .form.password=Password
 
-.form.username=Username
+.form.username=Account Name
 
 .login.back=<a [[aopts]]>&lt;&lt; Back</a> to [[sitename]] Mobile.
 
@@ -23,5 +23,5 @@
 
 .ssl.header=SSL secure login
 
-.ssl.text=Secure using SSL, but may not work on all mobile devices:
+.ssl.text=Secure using SSL, but SSL may not work on all mobile devices:
 

@@ -5,15 +5,15 @@
 
 .core.layer.for.layout=Core layer for layout not found.
 
-.customize=customize
+.customize=Customize
 
-.layer.belongs=Layer belongs to another user.
+.layer.belongs=Layer belongs to another account.
 
 .layer.isnt.type2=Layer isn't of type wizard or theme.
 
 .layout.layer=Layout layer for this [[layertype]] layer not found.
 
-.login.first=You must first <a [[url]]>login</a>. 
+.login.first=You must first <a [[url]]>log in</a>. 
 
 .login.required=Login Required
 

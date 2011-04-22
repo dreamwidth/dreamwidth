@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.backlink=Back to the <a [[backurl]]>support area</a>.
+.backlink=Return to the <a [[backurl]]>Support Area</a>.
 
 .button.filter=Filter
 
@@ -13,11 +13,11 @@
 
 .state.closed=Closed
 
-.state.closed.text=Below are all support requests that have been recently closed.  To return to the open requests, <a [[clickurl]]>click here</a>
+.state.closed.text=All support requests that have been recently closed are below.   <a [[clickurl]]>Return to open requests</a>
 
 .state.closed.title=Recently Closed Support Requests
 
-.state.else.text=<?p Below are all support requests that are open (they just came in and haven't been touched yet) or answered (either awaiting to be closed by the person needing help, or the person requested they still need help).  The <a [[statelink]]>closed reports</a> are also available.  If you help somebody out and they confirm you helped them, you get the number of points indicated in the status column.  These points will show up on your userinfo page p?>
+.state.else.text=<?p All support requests that are open (they just came in and haven't been touched yet) or answered (they're waiting to be closed by the person needing help or the person still needs help) are below.  The <a [[statelink]]>closed reports</a> are also available.  If you help someone who confirms your help, you receive the number of points indicated in the status column.  These points will show up on your profile page p?>
 
 .state.else.title=Open Support Requests
 
@@ -35,13 +35,13 @@
 
 .statr.youreplied=You Replied
 
-.status.awaitingclose=answered awaiting close
+.status.awaitingclose=Answered awaiting close
 
-.status.needhelp=still need help
+.status.needhelp=Still need help
 
-.status.totalopen=total open
+.status.totalopen=Total open
 
-.status.unanswered=unanswered
+.status.unanswered=Unanswered
 
 .th.posted=Posted
 

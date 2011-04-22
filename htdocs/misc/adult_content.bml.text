@@ -1,39 +1,39 @@
 ;; -*- coding: utf-8 -*-
 .btn.ageconfirm=Yes, I am at least [[age]] years old.
 
-.btn.viewconfirm=Yes, I wish to view this content.
+.btn.viewconfirm=Yes, I want to view this content.
 
-.message.concepts.byjournal=You are about to view content that [[journal]] has advised <strong>should be viewed with discretion</strong>. To continue, you must confirm that you want to view this content.
+.message.concepts.byjournal=You're about to view content that [[journal]] has advised <strong>should be viewed with discretion</strong>. To continue, you must confirm you want to view this content.
 
-.message.concepts.byjournal.reason=The following reason has been provided by [[journal]] for this entry: <strong>[[reason]]</strong>.
+.message.concepts.byjournal.reason=[[journal]] provided the following reason why this entry should be viewed with discretion: <strong>[[reason]]</strong>.
 
-.message.concepts.byposter=You are about to view content that [[poster]] has advised <strong>should be viewed with discretion</strong>. To continue, you must confirm that you want to view this content.
+.message.concepts.byposter=You're about to view content that [[poster]] has advised <strong>should be viewed with discretion</strong>. To continue, you must confirm you want to view this content.
 
-.message.concepts.byposter.reason=The following reason has been provided by [[poster]] for this entry: <strong>[[reason]]</strong>.
+.message.concepts.byposter.reason=[[poster]] provided the following reason why this entry should be viewed with discretion: <strong>[[reason]]</strong>.
 
-.message.concepts.communityreason=The following reason has been provided by [[journal]] for this community: <strong>[[reason]]</strong>.
+.message.concepts.communityreason=[[journal]] has provided the following reason why this community should be viewed with discretion: <strong>[[reason]]</strong>.
 
-.message.concepts.journalreason=The following reason has been provided by [[journal]] for this journal: <strong>[[reason]]</strong>.
+.message.concepts.journalreason=[[journal]] provided the following reason why this journal should be viewed with discretion: <strong>[[reason]]</strong>.
 
-.message.explicit.18plus.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you want to view this content.
+.message.explicit.18plus.byjournal=You're about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you want to view this content.
 
-.message.explicit.18plus.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you want to view this content.
+.message.explicit.18plus.byposter=You're about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you want to view this content.
 
-.message.explicit.blocked.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
+.message.explicit.blocked.byjournal=You're about to view content that [[journal]] marked as <strong>inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
 
 .message.explicit.blocked.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
 
-.message.explicit.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you are at least 18 years of age.
+.message.explicit.byjournal=You're about to view content that [[journal]] marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 
-.message.explicit.byjournal.reason=The following reason has been provided by [[journal]] for this entry being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>
+.message.explicit.byjournal.reason=[[journal]] provided the following reason for this entry being marked "suitable for 18+" : <strong>[[reason]]</strong>. 
 
-.message.explicit.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you are at least 18 years of age.
+.message.explicit.byposter=You're about to view content that [[poster]] marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 
-.message.explicit.byposter.reason=The following reason has been provided by [[poster]] for this entry being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>
+.message.explicit.byposter.reason=[[poster]] provided the following reason for this entry being marked "suitable for 18+": <strong>[[reason]]</strong>.
 
-.message.explicit.communityreason=The following reason has been provided by [[journal]] for this community being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>
+.message.explicit.communityreason=[[journal]] provided the following reason for this community being marked"suitable for 18+": <strong>[[reason]]</strong>.
 
-.message.explicit.journalreason=The following reason has been provided by [[journal]] for this journal being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>
+.message.explicit.journalreason=[[journal]] provided the following reason for this journal being marked "suitable for 18+": <strong>[[reason]]</strong>.
 
 .notconfirmed=No, return me to [[sitename]].
 
@@ -41,7 +41,7 @@
 
 .setage=<a [[aopts]]>Edit your profile</a> to register your age.
 
-.title=Adult Content Notice
+.title=Age Filtered Notice
 
 .title.18=Discretion Advised: 18+ Content
 

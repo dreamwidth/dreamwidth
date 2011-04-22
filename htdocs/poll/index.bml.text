@@ -3,9 +3,9 @@
 
 .discuss=Discuss Results
 
-.error.cantview=Sorry, you're not permitted to see this poll.
+.error.cantview=You're not permitted to view this poll.
 
-.error.postdeleted=Owning post deleted, so poll no longer accessible.
+.error.postdeleted=The entry containing the poll has been deleted. The poll is no longer available.
 
 .filloutpoll=Fill out Poll
 

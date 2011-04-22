@@ -1,11 +1,11 @@
 ;; -*- coding: utf-8 -*-
 .cat.not.exist=That category doesn't exist.
 
-.category.invalid=Category invalid.
+.category.invalid=Invalid category.
 
 .error=Error
 
-.no.request=No request ids were provided to act on.
+.no.request=No request IDs were provided.
 
 .not.have.access=You don't have access to close requests in that category.
 
@@ -13,7 +13,7 @@
 
 .request.moved=The requests have been moved.
 
-.request.specified=The requests you have specified have been closed.
+.request.specified=You've successfully closed the requests you specified.
 
-.success=Success
+.success=Success.
 

@@ -1,19 +1,19 @@
 ;; -*- coding: utf-8 -*-
 .anonuser=<i>(Anonymous)</i>
 
-.button.more=More Options...
+.button.more=More Options
 
 .button.post=Post Comment
 
 .comment.screened.subject=(screened) 
 
-.confirm.action=Are you sure you wish to delete the selected comments?
+.confirm.action=Are you sure you want to delete the selected comments?
 
 .deletedpost=<b>(Deleted post)</b>
 
-.deleteduser=<i>(Deleted user: [[username]])</i>
+.deleteduser=<em>(Deleted account: [[username]])</em>
 
-.edittime=Edited [[editreason]] [[edittime]]
+.edittime=Last edited [[edittime]] [[editreason]]
 
 .fromip=(from [[ip]])
 
@@ -27,9 +27,9 @@
 
 .qr.spellcheck=Check spelling
 
-.replysuspended=<b>(Reply from suspended user)</b>
+.replysuspended=<strong>(Reply from suspended account)</strong>
 
-.screenedpost=<b>(Screened Post)</b>
+.screenedpost=<b>(Screened Comment)</b>
 
 .select=Select
 
@@ -39,7 +39,7 @@
 
 .talkmulti.deletespam=Delete as Spam
 
-.talkmulti.des=<b>Mass action</b> on selected comments:
+.talkmulti.des=<strong>Mass action</strong> on selected comments:
 
 .talkmulti.screen=Screen
 

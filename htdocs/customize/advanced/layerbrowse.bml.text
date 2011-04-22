@@ -11,9 +11,9 @@
 
 .classname.header=[[name]] Class
 
-.error.cantviewlayer=You are not authorized to view this layer.
+.error.cantviewlayer=You're not authorized to view this layer.
 
-.error.layerdoesntexist=The specified layer does not exist.
+.error.layerdoesntexist=The specified layer doesn't exist.
 
 .globalfunctions.header=Global Functions
 
@@ -33,7 +33,7 @@
 
 .nav.publiclayers=Public Layers
 
-.nav.viewsource=View source:
+.nav.viewsource=View Source:
 
 .nav.viewsource.highlighted=Syntax Highlighted
 

@@ -1,15 +1,15 @@
 ;; -*- coding: utf-8 -*-
 .formaterror=Format Error
 
-.noaddress.text=You did not enter an email address.
+.noaddress.text=You didn't enter an email address.
 
 .noaddress.title=No Address
 
-.nofaqsearch.text=You did not enter a term to search for in the FAQ.
+.nofaqsearch.text=You didn't enter a term to search for in the FAQ.
 
 .nofaqsearch.title=No FAQ Search Term
 
-.nointerest.text=You did not enter an interest.
+.nointerest.text=You didn't enter an interest.
 
 .nointerest.title=No Interest
 

@@ -7,7 +7,7 @@
 
 .communities.header=Communities
 
-.communities.invites.about=View any pending invitations you have received to join communities.
+.communities.invites.about=View any pending invitations you've received to join communities.
 
 .communities.manage.about=Manage your communities' settings and members
 
@@ -19,7 +19,7 @@
 
 .customization.customize=Customize Journal
 
-.customization.customize.about=Change the appearance of your journal and switch between S1 and S2 style systems
+.customization.customize.about=Change the appearance of your journal 
 
 .customization.header=Customization
 
@@ -35,7 +35,7 @@
 
 .customization.moodtheme.header=Mood Themes
 
-.customization.moodtheme.set=Select which mood theme set your journal will use
+.customization.moodtheme.set=Select the mood theme set your journal will use
 
 .customization.moodtheme.set.header=Set Your Mood Theme
 
@@ -47,33 +47,33 @@
 
 .deleteaccount=Delete Account
 
-.entries=Work with entries you have made in your account's journal:
+.entries=Work with entries you've made in your journal:
 
-.entries.edit.about=Edit and delete entries in your journal
+.entries.edit.about=Edit or delete entries in your journal
 
 .entries.header=Journal Entries
 
-.entries.memories.about=View and work with your memorable posts
+.entries.memories.about=View and work with your memorable entries.
 
 .entries.tags.about=View and work with your journal's tags
 
-.friends=Manage your friends and friend groups, or filter your friends page according to your saved friend groups:
+.friends=Manage your Relationships or filter your Reading Page according to your saved Reading filters.
 
-.friends.edit.about=Add, edit, or remove users from your friends list
+.friends.edit.about=Add, edit, or remove accounts from your Reading Page
 
-.friends.filter=Filter Friends Page
+.friends.filter=Filter Reading Page
 
-.friends.filter.about=Filter your friends list to display a specific friend group
+.friends.filter.about=Filter your Reading Page with a specific Reading Filter.
 
-.friends.groups.about=Create, edit, or delete subgroups of your friends list
+.friends.groups.about=Create, edit, or delete subgroups of your Circle
 
-.friends.header=Friends
+.friends.header=Access Page
 
 .information=Choose what information is displayed on your account:
 
 .information.changepass=Change Account Password
 
-.information.changepass.about=Change your account's password
+.information.changepass.about=Change your password
 
 .information.comments=Manage Comment Settings
 
@@ -101,7 +101,7 @@
 
 .invites.manage.about=Manage your invite codes
 
-.login2=The following links will navigate you to pages where your login information is required. To save yourself some time, you can <a [[aopts]]>log in</a> beforehand.
+.login2=The following links will take you to pages where your login information is required. To save time you can <a [[aopts]]>log in</a> now.
 
 .manage.logins=Manage Logins
 
@@ -111,31 +111,31 @@
 
 .mobile.settings=Mobile Settings
 
-.settings_pref=Settings & Preferences
+.settings_pref=Settings and Preferences
 
 .title=Manage Accounts
 
 .undeleteaccount=Undelete Account
 
-.userpics=Upload and manage userpics for your account:
+.userpics=Upload and manage icons for your account:
 
-.userpics.edit.about=Upload and Manage Your Userpics
+.userpics.edit.about=Upload and Manage Your Icons
 
-.userpics.header=Userpics
+.userpics.header=Icons
 
 .youraccount.email=Email Address:
 
-.youraccount.header=Your Account
+.youraccount.header=Your Account:
 
 .youraccount.name=Name:
 
 .youraccount.setemail=Set
 
-.youraccount.user=User:
+.youraccount.user=Account:
 
 .youraccount.validated=([[status]])
 
-.youraccount.validated.no=Not Validated
+.youraccount.validated.no=Not Confirmed
 
-.youraccount.validated.yes=Validated
+.youraccount.validated.yes=Confirmed
 

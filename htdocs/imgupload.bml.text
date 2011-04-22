@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
 .gallery.label=Image from gallery
 
-.login.message2=Login is required to upload an image from file or insert image from Scrapbook.
+.login.message2=You must be logged in to upload an image from a file or insert an image from Scrapbook.
 
-.size=When uploading from file or from a gallery, the image will display as 320 x 240 (medium) and will link to the image in the gallery.
+.size=When uploading from a file or from a gallery, the image will display as 320 x 240 (medium) and will link to the image in the gallery.
 

@@ -1,19 +1,19 @@
 ;; -*- coding: utf-8 -*-
 .archive=Your <a [[aopts]]>journal archive</a> provides an easy way to browse through your posts by month.
 
-.button.update=Update Entries
+.button.update=Modify Entries
 
-.button.ya.rly=Yes, Update these Posts
+.button.ya.rly=Yes, Modify these Entries
 
-.intro=Change the privacy level of all posts in a certain timeframe by choosing the start and end dates. You can also specify that only posts of a certain privacy level should be changed.
+.intro=Change the privacy level of all entries during a specific period by choosing the start and end dates. You can also specify that only entries of a certain privacy level should be changed. <br><br><b>IMPORTANT NOTE</b>: This process can take time, up to a full day during times of heavy load -- it is <em>not</em> immediate. Do <em>not</em> rely on this tool in an emergency. If you urgently need to make your journal unavailable quickly, you should temporarily set it to <a href="http://www.dreamwidth.org/accountstatus">deleted</a>. Even then, offsite search engines may still retain cached copies.
 
-.matching=<b>[[posts]] matching [[?posts|post has|posts have]]</b> been found.
+.matching=<b>[[posts]] matching [[?posts|entry has|entries have]]</b> been found.
 
-.notified=The security of your entries will be updated shortly. You will be notified by email when the update is complete.
+.notified=The security level of your entries will be revised shortly. You'll be notified by email when the revision is complete.
 
 .privacy=Privacy
 
-.rusure=Are you sure you want to update these entries?
+.rusure=Are you sure you want to revise these entries?
 
 .timeframe=Timeframe
 
@@ -21,11 +21,11 @@
 
 .timeframe.range=Between
 
-.timeframe.range.end=End date
+.timeframe.range.end=End Date
 
-.timeframe.range.start=Start date
+.timeframe.range.start=Start Date
 
 .title=Edit Journal Privacy
 
-.unable=Your account does not have the ability to use this feature.
+.unable=Your account can't use this feature.
 

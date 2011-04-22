@@ -459,8 +459,8 @@ _c?>
                         $$body .= "<ul>\n";
                         $$body .= join("\n",
                                        map { "<li>"
-                                             . BML::ml('xpost.request.success',
-                                                       {account => $_->displayname})
+                                             . BML::ml('xpost.request.success2',
+                                                       { account => $_->displayname, sitenameshort => $LJ::SITENAMESHORT })
                                              . "</li>" }
                                            @{$xpost_successes});
                         $$body .= join("\n",

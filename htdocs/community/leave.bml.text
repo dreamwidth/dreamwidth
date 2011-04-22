@@ -1,29 +1,29 @@
 ;; -*- coding: utf-8 -*-
 .button.leave=Leave Community
 
-.button.stopwatch=Stop Watching Community
+.button.stopwatch=Unsubscribe from Community
 
-.label.buttontoleave=Press the button below to leave the "[[commname]]" community.
+.label.buttontoleave=Press the button below to leave [[commname]].
 
-.label.buttontostopwatch=Press the button below to stop watching the "[[commname]]" community.
+.label.buttontostopwatch=Press the button below to stop subscribing to [[commname]].
 
-.label.infoerror=The specified community information is not valid.
+.label.infoerror=The specified community information isn't valid.
 
 .label.lastmaintainer.deletedcomm=You are the last maintainer for this deleted community. If you leave now, it will not be possible to restore the community, should you change your mind in the future.
 
 .label.logoutfirst2=To leave a community you must first <a [[aopts]]>log in</a>.
 
-.label.removed.stopwatch4=You are no longer watching the [[commname]] Community.
+.label.removed.stopwatch4=You're no longer subscribed to [[commname]].
 
-.label.removed5=You are now removed from the [[commname]] Community.
+.label.removed5=You're now removed from [[commname]].
 
-.label.removefromfriends=Also remove "[[user]]" from subscriptions.
+.label.removefromfriends=Also unsubscribe from [[user]].
 
 .success=Success
 
-.sure=You sure?
+.sure=Are you sure?
 
 .title=Leave Community
 
-.title.stopwatch=Stop Watching Community
+.title.stopwatch=Unsubscribe from Community
 

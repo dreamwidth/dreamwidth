@@ -1,13 +1,13 @@
 ;; -*- coding: utf-8 -*-
 Actionlink=[[[link]]]
 
-admin.noprivserror=Sorry, your account does not have the necessary [[?numprivs|privilege|privileges]] ([[?numprivs||one of ]][[needprivs]]) to use this tool.
+admin.noprivserror=Your account doesn't have the necessary [[?numprivs|privilege|privileges]] ([[?numprivs||one of ]][[needprivs]]) to use this tool.
 
 Backlink=[<a href="[[link]]">&lt;&lt;</a> [[text]]]
 
 bml.badcontent.body=One or more errors occurred processing your request.  Please go back, correct the necessary information, and submit your data again.
 
-bml.badinput.body=Your browser sent some text which is not recognised as valid text in the UTF-8 encoding, as it should be. This might happen if you forced your browser to view the previous page in some other encoding rather than UTF-8. It may also indicate a bug in the browser. If you cannot get around this error, contact us.
+bml.badinput.body=Your browser sent some text which isn't recognised as valid text in the UTF-8 encoding. This might happen if you forced your browser to view the previous page in some encoding other than UTF-8. It may also indicate a bug in the browser. If you can't get around this error, contact us.
 
 bml.badinput.head=Bad Unicode Input
 
@@ -37,7 +37,7 @@ captcha.title=Please fill out the CAPTCHA as an anti-spam measure
 
 cleanhtml.suspend_msg=This is a suspended entry.
 
-cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened, and your entry will be reviewed soon.
+cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened and this entry will be reviewed soon.
 
 collapsible.collapsed=Expand
 
@@ -45,19 +45,19 @@ collapsible.expanded=Collapse
 
 contentflag.viewingconcepts.bycommunity=You are about to view content that a community administrator has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byjournal=You are about to view content that the journal owner has advised should be viewed with discretion.
+contentflag.viewingconcepts.byjournal=You're about to view content which the journal owner has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byposter=You are about to view content that the poster has advised should be viewed with discretion.
+contentflag.viewingconcepts.byposter=You're about to view content which the poster has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.bycommunity=You are about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.bycommunity=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
 
-contentflag.viewingexplicit.byjournal=You are about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.byjournal=You're about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
 
-contentflag.viewingexplicit.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.byposter=You're about to view content that the poster has marked as potentially inappropriate for anyone under the age of 18.
 
 cprod.birthday.link.v1=birthdays
 
-cprod.birthday.text.v1=Hey, [[user]], see which of your friends' [[link]] are coming up! LiveJournal keeps a list of their birthdays for you.
+cprod.birthday.text.v1=Hey, [[user]], see which of your friends' [[link]] are coming up! Dreamwidth keeps a list of their birthdays for you.
 
 cprod.controlstrip.link.v1=Navigation Strip
 
@@ -69,7 +69,7 @@ cprod.directory.text3.v1=Your account level doesn't give you access to the direc
 
 cprod.editpics.text6.v1=You've reached your limit of [[num]] userpics.
 
-cprod.editpics.text7.v1=You've reached your limit of [[num]] userpics.
+cprod.editpics.text7.v1=You've reached your limit of [[num]] icons.
 
 cprod.editpicsmax.text5.v1=You've reached your limit of [[num]] userpics.
 
@@ -85,15 +85,15 @@ cprod.friendsfriends.text2.v1=[[link]] page shows all your friends' Friends page
 
 cprod.friendsfriendsinline.text3.v1=Sorry, this account type does not permit showing your network.
 
-cprod.links.text3.v1=Your account type does not permit you to use any more links.
+cprod.links.text3.v1=Your account type doesn't permit you to have more links.
 
 cprod.polls.link.v1=poll creation wizard
 
 cprod.polls.text.v1=[[user]], you can post a poll in your journal using our [[link]]?  [[poll]]
 
-cprod.syn.text.v1=Note: This feature is not available to your account type.
+cprod.syn.text.v1=Note: This feature isn't available to your account type.
 
-cprod.textmessaging.text3.v1=Your account type does not permit usage of this feature.
+cprod.textmessaging.text3.v1=Your account type doesn't permit you to use this feature.
 
 cprod.userpic.link.v1=default userpic
 
@@ -101,7 +101,7 @@ cprod.userpic.text.v1=[[user]], did you know you could pick a [[link]] to go alo
 
 crumb.acctstatus=Account Status
 
-crumb.addfriend=Add Friend
+crumb.addfriend=Add to Circle
 
 crumb.advcustomize=Customize Advanced S2 Settings
 
@@ -173,13 +173,13 @@ crumb.faq=Frequently Asked Questions
 
 crumb.feedstersearch=Search a Journal
 
-crumb.friends=Friends Tools
+crumb.friends=Relationship Tools
 
 crumb.friendsfilter=Friends Filter
 
 crumb.home=Home
 
-crumb.invitefriend=Invite a Friend
+crumb.invitefriend=Invite Someone
 
 crumb.joincomm=Join Community
 
@@ -187,15 +187,15 @@ crumb.latestposts=Latest Posts
 
 crumb.layerbrowse=Public Layer Browser
 
-crumb.leavecomm=Leave Community
+crumb.leavecomm=Leave This Community
 
 crumb.linkslist=Your Links
 
-crumb.login=Login
+crumb.login=Log in
 
 crumb.logout=Logout
 
-crumb.lostinfo=Lost Info
+crumb.lostinfo=Lost Information
 
 crumb.manage=Manage Accounts
 
@@ -203,7 +203,7 @@ crumb.managecommunity=Community Management
 
 crumb.managelogins=Manage Your Login Sessions
 
-crumb.memories=Memorable Posts
+crumb.memories=Memorable Entries
 
 crumb.mobilepost=Mobile Post Settings
 
@@ -217,7 +217,7 @@ crumb.phonepostsettings=Phone Post
 
 crumb.popfaq=Popular FAQs
 
-]crumb.register=Validate Email
+crumb.register=Confirm Email
 
 crumb.searchinterests=Search By Interest
 
@@ -403,17 +403,17 @@ edges.join.error.usernotvisible=Your account must be visible.
 
 edges.join.error.userunderage=You must be 18 or older to join this community.
 
-edges.leave.error.lastmaintainer=You are not allowed to leave this community because you are the sole maintainer. If you wish to leave the community, please appoint another maintainer and then try leaving again.
+edges.leave.error.lastmaintainer=You can't leave this community because you're the only administrator.  If you want to leave the community, please appoint another adminstrator and then try leaving again.
 
 edges.trust.error.targetinvalidstatusvis=The person who you are granting access to must not be purged, suspended, or locked.
 
-edges.trust.error.targetnotindividual=The account that you are granting access to must be a personal or identity account.
+edges.trust.error.targetnotindividual=The account you're granting access to must be a personal or Open ID account.
 
-edges.trust.error.userbannedtarget=The person who you are granting access to has been banned by you.
+edges.trust.error.userbannedtarget=You're granting access to someone you've banned.
 
-edges.trust.error.userequalstarget=You cannot grant yourself access.
+edges.trust.error.userequalstarget=You can't grant yourself access.
 
-edges.trust.error.usernotindividual=Your account must be a personal or identity account.
+edges.watch.error.usernotindividual=Your account must be a personal or Open ID account.
 
 edges.trust.error.usernotvisible=Your account must be visible.
 
@@ -459,27 +459,24 @@ The [[sitename]] Team,
 
 email.invitecoderequest.accept.subject=Your invite code request has been granted
 
-email.invitecoderequest.reject.body=Your request for invites has been denied at this time.
+email.invitecoderequest.reject.body=Your request for invite codes has been denied at this time. This may be because your account already had an unused code or two at the time your request was reviewed, or it may be that there aren't any codes available for distribution at the moment. Please feel free to make another request in the future.
 
-email.invitecoderequest.reject.subject=Your invite code request has been denied
+email.invitecoderequest.reject.subject=Your request for invite codes has been denied at this time.
 
 email.invitedist.inv.body.html<<
 <html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=[[charset]]">
 </head><body><p>Dear [[username]],</p>
 
-<p>You received [[number]] invite [[?number|code|codes]] as part of a
-distribution to selected users for the following reason:</p>
+<p>We've just given you [[number]] invite [[?number|code|codes]]. We've distributed invite codes to selected account holders for the following reason:</p>
 
 <blockquote><p>[[reason]]</p></blockquote>
 
-<p>You may use [[?number|that code|those codes]] as you see fit: to create
-secondary accounts for yourself, to invite friends or family, etc. The codes
-are listed below, one per line:</p>
+<p>You can use [[?number|that code|those codes]] any way you want: to create secondary accounts for yourself, to invite friends or family, or to pass on to others. Here are the codes, one per line:</p>
 
 <p>[[codes]]</p>
 
-<p>If you have any question, you can reply to this email.</p>
+<p>If you have any questions, you can reply to this email.</p>
 
 <p>Sincerely,<br />
 The [[sitename]] Team,<br />
@@ -489,18 +486,16 @@ The [[sitename]] Team,<br />
 email.invitedist.inv.body.plain<<
 Dear [[username]],
 
-You received [[number]] invite [[?number|code|codes]] as part of a distribution
-to selected users for the following reason:
+We've just given you [[number]] invite [[?number|code|codes]]. We've
+distributed invite codes to selected account holders for the following reason:
 
   [[reason]]
 
-You may use [[?number|that code|those codes]] as you see fit: to create
-secondary accounts for yourself, to invite friends or family, etc. The codes
-are listed below, one per line:
+You may use [[?number|that code|those codes]] in any way you want: to create secondary accounts for yourself, to invite friends or family, or to pass on to others. Here are the codes, one per line:
 
 [[codes]]
 
-If you have any question, you can reply to this email.
+If you have any questions, you can reply to this email.
 
 Sincerely,
 The [[sitename]] Team,
@@ -517,10 +512,8 @@ to fit the actual number of eligible users, [[numusers]]. [[remainder]]
 .
 
 email.invitedist.req.body.adjustdown.plain<<
-The number of invites distributed has been adjusted down to [[actinvites]]
-to fit the actual number of eligible users, [[numusers]]. [[remainder]]
-[[?remainder|invite remains|invites remain]] undistributed, and [[peruser]]
-[[?peruser|invite has|invites have]] been issued to each qualifying user.
+The number of invite codes distributed has been adjusted down to [[actinvites]] to fit the actual number of eligible accounts, [[numusers]]. [[remainder]] [[?remainder|invite remains|invites remain]] undistributed, and [[peruser]]
+[[?peruser|invite has|invites have]] been issued to each qualifying account holder.
 
 .
 
@@ -607,7 +600,7 @@ email.invitedist.req.header.html<<
 
 email.invitedist.req.header.plain<<
 You asked to distribute [[numinvites]] invite [[?numinvite|code|codes]]
-among users in class "[[class]]".
+among accounts in class "[[class]]".
 
 .
 
@@ -644,29 +637,29 @@ Enjoy!
 [[siteroot]]/
 .
 
-entryform.adultcontent=Adult Content:
+entryform.adultcontent=Age Restriction
 
-entryform.adultcontent.concepts=Advise Viewing Discretion
+entryform.adultcontent.concepts=Viewer Discretion Advised
 
 entryform.adultcontent.default=Journal Default
 
-entryform.adultcontent.explicit=Restrict to People 18 or Older
+entryform.adultcontent.explicit=Age 18+
 
-entryform.adultcontent.maintainer=Adult Content:
+entryform.adultcontent.maintainer=Age Restriction:
 
-entryform.adultcontent.none=Suitable for Everyone
+entryform.adultcontent.none=No Age Restriction
 
 entryform.adultcontent.poster=Poster's Setting ([[setting]])
 
-entryform.adultcontentreason=Reason for Adult Content:
+entryform.adultcontentreason=Reason for Age Restriction:
 
-entryform.adultcontentreason.maintainer=Reason for Adult Content:
+entryform.adultcontentreason.maintainer=Reason for Age Restriction:
 
 entryform.backdated=Entry is Backdated:
 
 entryform.backdated2=Backdate &amp; exclude from all Friends Pages
 
-entryform.backdated3=Date Out of Order
+entryform.backdated3=Don't show on Reading Pages (allows dating out of order)
 
 entryform.comment.disable=Disable comments?
 
@@ -690,15 +683,15 @@ entryform.comment.settings.nocomments=Disabled
 
 entryform.comment.settings.nocomments.maintainer=Disabled by maintainer
 
-entryform.comment.settings.noemail=Don't E-mail
+entryform.comment.settings.noemail=Don't Email
 
-entryform.comment.settings2=Allow Comments?
+entryform.comment.settings2=Comments
 
 entryform.date=Date:
 
 entryform.date.24hournote=(24 hour time)
 
-entryform.date.edit=Edit
+entryform.date.edit=Edit Date
 
 entryform.dateupdated=Date updated to:
 
@@ -728,13 +721,13 @@ entryform.format3=Disable Auto-Formatting
 
 entryform.htmlokay.norich=(HTML okay; by default, newlines will be auto-formatted to <tt>&lt;br&gt;</tt>)
 
-entryform.htmlokay.norich2=(HTML okay; by default, new lines will be auto-formatted to <tt>&lt;br&gt;</tt>)
+entryform.htmlokay.norich2=(The use of HTML is okay: by default, new lines will be auto-formatted to <tt>&lt;br&gt;</tt>)
 
 entryform.htmlokay.rich=(HTML okay; by default, newlines will be auto-formatted to <tt>&lt;br&gt;</tt> - or, use the <a [[opts]]>rich text</a> mode.)
 
-entryform.htmlokay.rich2=(HTML okay; by default, new lines will be auto-formatted to <tt>&lt;br&gt;</tt> - or, use the <a [[opts]]>rich text</a> mode.)
+entryform.htmlokay.rich2=(The use of HTML is okay: by default, new lines will be auto-formatted to <tt>&lt;br&gt;</tt>.  Or you can use the <a [[opts]]>rich text</a> mode.)
 
-entryform.htmlokay.rich4=<a [[opts]]>Rich text</a>
+entryform.htmlokay.rich4=<a [[opts]]>Rich Text</a>
 
 entryform.htmlokay.rte_nosupport=rte_nosupport=(Sorry, your browser does not currently support the rich text environment.)
 
@@ -748,21 +741,21 @@ entryform.insert.poll=Poll
 
 entryform.location=Location:
 
-entryform.maintainer=Maintainer Override
+entryform.maintainer=Administrator Override
 
 entryform.mood=Mood:
 
-entryform.mood.noneother=None, or other:
+entryform.mood.noneother=None or Other:
 
 entryform.music=Music:
 
-entryform.nojstime.note=<b>Note:</b> The time/date above is from our server.  Correct them for your timezone before posting.
+entryform.nojstime.note=<strong>Note:</strong> The time and date above is from our server.  Correct them for your local timezone before posting.
 
 entryform.opt.defpic=(default)
 
 entryform.options=Options:
 
-entryform.plainswitch=(Use the 'Source' button to edit HTML.  You also can <a [[aopts]]>switch</a> back to the plain text mode.)
+entryform.plainswitch=(Use the 'Source' button to edit HTML.  You can also <a [[aopts]]>switch back to the plain text mode</a>.)
 
 entryform.plainswitch2=<a [[aopts]]>HTML</a>
 
@@ -772,13 +765,13 @@ entryform.postto=Post to:
 
 entryform.preview=Preview
 
-entryform.save=Save Entry
+entryform.save=Save
 
-entryform.save.maintainer=Save Maintainer Override Settings
+entryform.save.maintainer=Save Administrator Override Settings
 
 entryform.saveandrequestunsuspend=Save Entry & Request Unsuspension
 
-entryform.saveandrequestunsuspend2=Save & Request Unsuspension
+entryform.saveandrequestunsuspend2=Save and Request Unsuspension
 
 entryform.security=Security:
 
@@ -788,7 +781,7 @@ entryform.spellcheck=Spell check
 
 entryform.spellcheck.noerrors=No spelling errors found
 
-entryform.spellchecked=Spell checked entry:
+entryform.spellchecked=Spell-checked entry:
 
 entryform.subject=Subject:
 
@@ -796,7 +789,7 @@ entryform.subject.hint=Post title
 
 entryform.subject.hint2=Enter a subject
 
-entryform.switchuser=Switch
+entryform.switchuser=Switch account
 
 entryform.tags=Tags:
 
@@ -804,15 +797,15 @@ entryform.update=Update Journal
 
 entryform.update2=Save to
 
-entryform.update3=Post to
+entryform.update3=Post to:
 
-entryform.update4=Post Entry
+entryform.update4=Post Entry:
 
 entryform.updatedate=Update Date
 
-entryform.userpic=Userpic:
+entryform.userpic=Icon:
 
-entryform.userpic.choose=Choose userpic
+entryform.userpic.choose=Choose icon:
 
 entryform.userpic.default=Choose default userpic
 
@@ -822,9 +815,9 @@ entryform.userpic.upload=Upload a userpic
 
 entryform.userpics=User Picture Icon:
 
-entryform.xpost=Crosspost this entry
+entryform.xpost=Crosspost this Entry
 
-entryform.xpost.manage=Manage accounts
+entryform.xpost.manage=Crossposting Settings
 
 Error|notes=typically used inside an H1 tag to announce an error.
 Error=Error
@@ -847,57 +840,57 @@ error.deleted.leavecomm=If you want, you can <a [[aopts]]>leave the community</a
 
 error.deleted.name=Deleted
 
-error.deleted.text=This journal has been deleted.  If you are [[user]], you have a period of 30 days from the deletion time to undelete the journal.  After 30 days we will delete all content permanently from our servers.
+error.deleted.text=Deleted journal.  If you're [[user]], you have 30 days from the date of deletion to restore the journal.  After 30 days we'll delete all content permanently from our servers.
 
 error.deleted.text.withreason=This journal has been deleted by [[user]], with a reason of: "[[reason]]".  If you are [[user]], you have a period of 30 days from the deletion time to undelete the journal.  After 30 days we will delete all content permanently from our servers.
 
 error.deleted.title=Deleted Account
 
-error.expiredchal=Login window expired.  Please try again.
+error.expiredchal=Your login window has expired.  Please try again.
 
 error.guidelines.none=[[user]] has not defined an entry for their community guidelines. See <a [[aopts]]>their profile</a> for further information about the community.
 
 error.guidelines.notcomm=Community guidelines are only available for communities.
 
-error.interest.bytes=Sorry, you have listed an interest with [[bytes]] bytes.  Each interest has a limit of [[bytes_max]] bytes.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
+error.interest.bytes=You couldn't make any changes to your interests because you listed an interest with [[bytes]] bytes.  Each interest has a limit of [[bytes_max]] bytes.  Go back and remove or modify "[[int]]".
 
-error.interest.bytes.chars=Sorry, you have listed an interest with [[bytes]] bytes, and [[chars]] characters.  Each interest has a limit of [[bytes_max]] bytes, and [[chars_max]] characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
+error.interest.bytes.chars=You couldn't make any changes to your interests because you listed an interest with [[bytes]] bytes and [[chars]] characters.  Each interest has a limit of [[bytes_max]] bytes and [[chars_max]] characters.  Go back and remove or modify "[[int]]".
 
-error.interest.chars=Sorry, you have listed an interest with [[chars]] characters.  Each interest has a limit of [[chars_max]] characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
+error.interest.chars=You couldn't make any changes to your interests because you listed an interest with [[chars]] characters.  Each interest has a limit of [[chars_max]] characters.  Go back and remove or modify "[[int]]"
 
-error.interest.excessive2=Sorry, you have listed too many interests.  The limit for your account type is [[maxinterests]], but you have listed [[intcount]].  Any changes you made to your interests were not saved.  Go back and remove some interests.
+error.interest.excessive2=You couldn't make any changes to your interests because you listed too many interests. The limit for your account type is [[maxinterests]], but you listed [[intcount]].  You'll have to remove some interests in order to save your changes.
 
-error.interest.invalid=Sorry, you have listed an interest with invalid characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
+error.interest.invalid= You couldn't make any changes to your interests because you listed an interest with invalid characters.  Go back and remove or modify "[[int]]".
 
 error.invalid.support.category=Invalid support category
 
-error.invalidauth=You could not be authenticated as the specified user.
+error.invalidauth=You couldn't be authenticated as the specified account.
 
-error.invalidform=Invalid form submission.  Please refresh and try again.
+error.invalidform=Invalid form submission.  Please go back and try again.
 
 error.invaliduser=Unable to load specified user.
 
-error.ipbanned=Your IP address is temporarily banned for exceeding the login failure rate.
+error.ipbanned=Your IP address is temporarily banned for exceeding the log in failure rate.
 
-error.malformeduser=Malformed username.
+error.malformeduser=Malformed account name.
 
 error.mediauploadsdisabled=Media modifications are temporarily disabled at this time.  Some or all of the features on this page are currently down.
 
 error.memorial.text=This journal is a memorial account. You cannot log in, post new entries, or edit existing ones.
 
-error.message.canreceive=This message cannot be sent to [[ljuser]] because the recipient has enabled the privacy options for their messages.
+error.message.canreceive=This message can't be sent to [[ljuser]] because the recipient has chosen not to receive messages.
 
-error.message.deleted=This message cannot be sent to [[ljuser]] because the journal has been marked for deletion.
+error.message.deleted=Your message can't be sent to [[ljuser]] because that account has been marked for deletion.
 
-error.message.expunged=This message cannot be sent to [[ljuser]] because the journal has been deleted.
+error.message.expunged=This message can't be sent to [[ljuser]] because that account has been deleted.
 
-error.message.individual=Message can only be sent to individual users, not [[ljuser]].
+error.message.individual=Messages can be sent only to individual accounts, not [[ljuser]].
 
-error.message.unvalidated=This message cannot be sent to [[ljuser]] because the recipient's email address has not been validated.
+error.message.unvalidated=This message can't be sent to [[ljuser]] because the recipient's email address hasn't been confirmed.
 
 error.nobutton=No button pressed?
 
-error.nocomm=The community you selected does not exist.
+error.nocomm=The community you selected doesn't exist.
 
 error.nocommlogin=Logging in as a community has been disabled.
 
@@ -905,7 +898,7 @@ error.nodb=Database temporarily unavailable.
 
 error.nodbmaintenance=This part of the database is temporarily down for maintenance.  Try again in a few minutes.
 
-error.noentry=No such journal entry.
+error.noentry=No such entry.
 
 error.nojournal=Unknown Journal
 
@@ -959,7 +952,7 @@ error.security.nocap=This feature is not available for your account level.
 
 error.security.s1=Sorry, security filtering is not supported within S1 styles.
 
-error.suspended.entry=This entry has been suspended. You can visit the journal <a [[aopts]]>here</a>.
+error.suspended.text=This journal has been either temporarily or permanently suspended by [[sitename]] for policy violation.  If you're [[user]], contact us for more information.
 
 error.suspended.name=Suspended
 
@@ -979,15 +972,15 @@ error.tag.s1=Sorry, tag filtering is not supported within S1 styles.
 
 error.tag.undef=Sorry, one or more specified tags do not exist.
 
-error.tempdisabled=This is disabled temporarily.
+error.tempdisabled=This is temporarily disabled.
 
 error.unknownmode=Unknown mode.
 
-error.usernameinvalid=Username contains invalid characters.
+error.usernameinvalid=This account name contains invalid characters.
 
-error.usernamelong=Username is too long; cannot exceed 15 characters.
+error.usernamelong=This account name is too long.  Account names can't be longer than 25 characters.
 
-error.username_notfound=Username not found.
+error.username_notfound=This account name wasn't found.
 
 error.vhost.noalias=This user's account type doesn't permit domain aliasing.
 
@@ -1000,24 +993,24 @@ error.vhost.nostyle=This user's account type is not permitted to create and embe
 esn.addedtocircle.trusted.email_text<<
 Hi [[user]],
 
-[[poster]] has granted you access to their journal. You will now be able to read their locked entries.
+[[poster]] has granted you access; you'll now be able to read [[poster]]'s protected entries.
 
 You can:
 .
 
-esn.addedtocircle.trusted.subject=[[who]] granted you access to their journal!
+esn.addedtocircle.trusted.subject=[[who]] granted you access.
 
 esn.addedtocircle.watched.email_text<<
 Hi [[user]],
 
-[[poster]] has subscribed to your journal. They will now be able to read your[[entries]] entries on their reading list.
+[[poster]] has subscribed to your journal; your[[entries]] entries will be displayed on [[poster]]'s Reading Page.
 
 You can:
 .
 
-esn.addedtocircle.watched.subject=[[who]] subscribed to your journal!
+esn.addedtocircle.watched.subject=[[who]] subscribed to your journal.
 
-esn.add_friend_community=[[openlink]]Add community "[[community]]" to your reading page[[closelink]]
+esn.add_friend_community=[[openlink]]Add community "[[community]]" to your Reading Page[[closelink]]
 
 esn.add_trust=[[openlink]]Grant access to [[journal]][[closelink]]
 
@@ -1031,14 +1024,14 @@ Hi [[user]],
 You can:
 .
 
-esn.bday.subject=[[bdayuser]]'s birthday is coming up!
+esn.bday.subject=[[bdayuser]]'s birthday is coming up.
 
 esn.befriended.subject=[[who]] added you as a friend!
 
 esn.community_join_requst.email_text<<
 Hi [[maintainer]],
 
-[[username]] has requested to join your community, [[communityname]].
+[[username]] has requested to join your community [[communityname]].
 
 You can:
 .
@@ -1048,24 +1041,23 @@ esn.community_join_requst.subject=[[comm]] membership request by [[who]]
 esn.comm_invite.email<<
 Hi [[user]],
 
-[[maintainer]] has invited you to join the community [[community]]!
+[[maintainer]] has invited you to join the community [[community]].
 
 You can:
 .
 
 esn.comm_invite.subject=You've been invited to join [[user]]
 
-esn.comm_join_approve.email_subject=Your Request to Join [[community]] community
+esn.comm_join_approve.email_subject=Your request to join [[community]] community
 
 esn.comm_join_approve.email_text<<
 Dear [[user]],
 
-Your request to join the "[[community]]" community has been approved.
-If you wish to add this community to your reading page, click the link below.
+The administrator of "[[community]]" community has approved your request to join.  If you wish to add this community to your Reading Page, click the link below.
 
 [[options]]
-Please note that replies to this email are not sent to the community's maintainer(s). If you 
-have any questions, you will need to contact them directly.
+
+If you have any questions, you'll need to contact the community administrator directly; replies to this email are not forwarded to the community administrator.
 
 Regards,
 [[sitename]] Team
@@ -1075,11 +1067,9 @@ Regards,
 esn.comm_join_reject.email_text<<
 Dear [[user]],
 
-Your request to join the "[[community]]" community has been declined.
+The administrator of "[[community]]" community has rejected your request to join.
 
-Replies to this email are not sent to the community's maintainer(s). If you would 
-like to discuss the reasons for your request's rejection, you will need to contact 
-a maintainer directly.
+If you'd like to discuss the reason(s) your request was rejected, you'll need to contact the community administrator directly; replies to this email are not forwarded to the community administrator.
 
 Regards,
 [[sitename]] Team
@@ -1117,46 +1107,46 @@ esn.footer.text<<
 [[sitename]]
 [[hook]]
 
-If you prefer not to get these updates, you can change your preferences at [[siteroot]]/manage/subscriptions/
+If you'd rather not get these updates, you can change your preferences at [[siteroot]]/manage/subscriptions/
 .
 
-esn.here_you_can=From here, you can:
+esn.here_you_can=From here you can:
 
 esn.hi=Hi [[username]],
 
-esn.if_suport_form=If your mail client supports it, you can also reply here:
+esn.if_suport_form=If your email client supports it, you can reply here:
 
 esn.invited_friend_joins.email<<
 Hi [[user]],
 
-Your friend [[newuser]] has created a journal on [[sitenameshort]]!
+The person you invited, [[newuser]], has created a journal on [[sitenameshort]].
 
 You can:
 .
 
-esn.invited_friend_joins.subject=[[who]] created a journal!
+esn.invited_friend_joins.subject=[[who]] created a journal.
 
-esn.invite_another_friend=[[openlink]]Invite another friend[[closelink]]
+esn.invite_another_friend=[[openlink]]Invite someone else[[closelink]]
 
 esn.join_community=[[openlink]]Join [[journal]] to read Members-only entries[[closelink]]
 
-esn.journal_new_comment.anonymous.comment=Their reply was:
+esn.journal_new_comment.anonymous.comment=The reply was:
 
-esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post2=Somebody replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_post2=Somebody replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post2=Somebody replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.anonymous_comment.to_your_post2=Somebody replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.post2=Somebody replied to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.anonymous.reply_to.post2=Somebody replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
 
-esn.journal_new_comment.anonymous.reply_to.user_comment.to_post2=Somebody replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.user_comment.to_post2=Somebody replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post2=Somebody replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.user_comment.to_your_post2=Somebody replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_comment.to_post2=Somebody replied to a comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.your_comment.to_post2=Somebody replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2=Somebody replied to a comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2=Somebody replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.anonymous.reply_to.your_post2=Somebody replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.anonymous.reply_to.your_post2=Somebody replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
 
 esn.journal_new_comment.edit_reason<<
 Reason for edit:
@@ -1169,73 +1159,73 @@ esn.journal_new_comment.post_reply=Post Reply
 
 esn.journal_new_comment.subject=Subject:
 
-esn.journal_new_comment.user.comment=Their reply was:
+esn.journal_new_comment.user.comment=The reply was:
 
-esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post2=[[who]] edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_post2=[[who]] edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post2=[[who]] edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post2=[[who]] edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.post2=[[who]] edited a reply to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.user.edit_reply_to.post2=[[who]] edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
 
-esn.journal_new_comment.user.edit_reply_to.user_comment.to_post2=[[who]] edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.user_comment.to_post2=[[who]] edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post2=[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post2=[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_comment.to_post2=[[who]] edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.your_comment.to_post2=[[who]] edited a reply to another comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post2=[[who]] edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.edit_reply_to.your_comment.to_your_post2=[[who]] edited a reply to another comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.edit_reply_to.your_post2=[[who]] edited a reply to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.user.edit_reply_to.your_post2=[[who]] edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
 
-esn.journal_new_comment.user.new_comment=Their new reply is:
+esn.journal_new_comment.user.new_comment=The new reply is:
 
-esn.journal_new_comment.user.reply_to.anonymous_comment.to_post2=[[who]] replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.anonymous_comment.to_post2=[[who]] replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post2=[[who]] replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.anonymous_comment.to_your_post2=[[who]] replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.post2=[[who]] replied to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.user.reply_to.post2=[[who]] replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
 
-esn.journal_new_comment.user.reply_to.user_comment.to_post2=[[who]] replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.user_comment.to_post2=[[who]] replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.user_comment.to_your_post2=[[who]] replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.user_comment.to_your_post2=[[who]] replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_comment.to_post2=[[who]] replied to a comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.your_comment.to_post2=[[who]] replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_comment.to_your_post2=[[who]] replied to a comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:
+esn.journal_new_comment.user.reply_to.your_comment.to_your_post2=[[who]] replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment they replied to was:
 
-esn.journal_new_comment.user.reply_to.your_post2=[[who]] replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.user.reply_to.your_post2=[[who]] replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
 
-esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post2=You edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_post2=You edited a reply to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post2=You edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.anonymous_comment.to_your_post2=You edited a reply to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.post2=You edited a reply to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.you.edit_reply_to.post2=You edited a reply to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
 
-esn.journal_new_comment.you.edit_reply_to.user_comment.to_post2=You edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.user_comment.to_post2=You edited a reply to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post2=You edited a reply to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.user_comment.to_your_post2=You edited a reply to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_comment.to_post2=You edited a reply to a comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.your_comment.to_post2=You edited a reply to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post2=You edited a reply to a comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.edit_reply_to.your_comment.to_your_post2=You edited a reply to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.edit_reply_to.your_post2=You edited a reply to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.you.edit_reply_to.your_post2=You edited a reply to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
 
-esn.journal_new_comment.you.reply_to.anonymous_comment.to_post2=You replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.anonymous_comment.to_post2=You replied to an anonymous comment left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post2=You replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.anonymous_comment.to_your_post2=You replied to an anonymous comment left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.post2=You replied to [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]] in which [[pwho]] said:
+esn.journal_new_comment.you.reply_to.post2=You replied to [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]] in which [[pwho]] said:
 
-esn.journal_new_comment.you.reply_to.user_comment.to_post2=You replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.user_comment.to_post2=You replied to a comment left by [[pwho]] in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.user_comment.to_your_post2=You replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.user_comment.to_your_post2=You replied to a comment left by [[pwho]] in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_comment.to_post2=You replied to a comment you left in [[openlink]]a [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.your_comment.to_post2=You replied to a comment you left in [[openlink]]a [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_comment.to_your_post2=You replied to a comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment you replied to was:
+esn.journal_new_comment.you.reply_to.your_comment.to_your_post2=You replied to a comment you left in [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]]. The comment you replied to was:
 
-esn.journal_new_comment.you.reply_to.your_post2=You replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:
+esn.journal_new_comment.you.reply_to.your_post2=You replied to [[openlink]]your [[sitenameshort]] entry[[postsubject]][[closelink]] in which you said:
 
 esn.journal_new_comment.your.comment=Your reply was:
 
@@ -1243,37 +1233,37 @@ esn.journal_new_comment.your.new_comment=Your new reply is:
 
 esn.journal_new_entry.about= titled "[[title]]"
 
-esn.journal_new_entry.head_comm=There is a new entry by [[poster]][[about]] in [[journal]]![[tags]]
+esn.journal_new_entry.head_comm=There is a new entry by [[poster]][[about]] in [[journal]].[[tags]]
 
 esn.journal_new_entry.head_user=[[poster]] has posted a new entry[[about]].[[tags]]
 
-esn.journal_new_entry.posted_new_entry=[[who]] posted a new entry in [[journal]]!
+esn.journal_new_entry.posted_new_entry=[[who]] posted a new entry in [[journal]].
 
-esn.journal_new_entry.updated_their_journal=[[who]] updated their journal!
+esn.journal_new_entry.updated_their_journal=[[who]] posted a new entry.
 
 esn.mail_comments.fromname.anonymous=[[sitenameshort]] Comment
 
 esn.mail_comments.fromname.user=[[user]] - [[sitenameabbrev]] Comment
 
-esn.mail_comments.subject.comment_you_edited=Comment you edited...
+esn.mail_comments.subject.comment_you_edited=Comment you edited.
 
-esn.mail_comments.subject.comment_you_posted=Comment you posted...
+esn.mail_comments.subject.comment_you_posted=Comment you posted.
 
-esn.mail_comments.subject.edit_reply_to_an_entry=Edited reply to an entry...
+esn.mail_comments.subject.edit_reply_to_an_entry=Edited reply to an entry.
 
-esn.mail_comments.subject.edit_reply_to_a_comment=Edited reply to a comment...
+esn.mail_comments.subject.edit_reply_to_a_comment=Edited reply to a comment.
 
-esn.mail_comments.subject.edit_reply_to_your_comment=Edited reply to your comment...
+esn.mail_comments.subject.edit_reply_to_your_comment=Edited reply to your comment.
 
-esn.mail_comments.subject.edit_reply_to_your_entry=Edited reply to your entry...
+esn.mail_comments.subject.edit_reply_to_your_entry=Edited reply to your entry.
 
-esn.mail_comments.subject.reply_to_an_entry=Reply to an entry...
+esn.mail_comments.subject.reply_to_an_entry=Reply to an entry.
 
-esn.mail_comments.subject.reply_to_a_comment=Reply to a comment...
+esn.mail_comments.subject.reply_to_a_comment=Reply to a comment.
 
-esn.mail_comments.subject.reply_to_your_comment=Reply to your comment...
+esn.mail_comments.subject.reply_to_your_comment=Reply to your comment.
 
-esn.mail_comments.subject.reply_to_your_entry=Reply to your entry...
+esn.mail_comments.subject.reply_to_your_entry=Reply to your entry.
 
 esn.manage_community=[[openlink]]Manage your communities[[closelink]]
 
@@ -1286,10 +1276,10 @@ esn.manage_request_approve=[[openlink]]Approve[[closelink]] [[username]]'s reque
 esn.manage_request_reject=[[openlink]]Reject[[closelink]] [[username]]'s request to join
 
 esn.moderated_submission.body<<
-There has been a new submission into the community '[[community]]'
+There has been a new submission for the community '[[community]]',
 which you moderate.
 
-      User: [[user]]
+   Account: [[user]]
    Subject: [[subject]]
 
 
@@ -1349,7 +1339,7 @@ Hi [[user]],
 You can:
 .
 
-esn.poll_vote.subject=[[user]] voted in a poll!
+esn.poll_vote.subject=[[user]] voted in a poll.
 
 esn.poll_vote.subject2=Someone replied to poll #[[number]]: [[topic]].
 
@@ -1400,17 +1390,17 @@ Regards,
 esn.removedfromcircle.trusted.email_text<<
 Hi [[user]],
 
-[[poster]] has removed your access to their journal.  You will no longer be able to read their locked entries.
+[[poster]] has removed your access.  You'll no longer be able to read [[poster]]'s protected entries.
 
 You can:
 .
 
-esn.removedfromcircle.trusted.subject=[[who]] removed your access to their journal
+esn.removedfromcircle.trusted.subject=[[who]] removed your access
 
 esn.removedfromcircle.watched.email_text<<
 Hi [[user]],
 
-[[poster]] has unsubscribed from your journal.  They will no longer be able to read your entries on their reading list.
+[[poster]] has unsubscribed from your journal; your entries will no longer be displayed on [[poster]]'s Reading Page.
 
 You can:
 .
@@ -1432,25 +1422,28 @@ esn.security_attribute_changed.account_activated.email_subject=Your account has 
 esn.security_attribute_changed.account_activated.email_text<<
 Dear [[username]],
  
- On [[date]] at [[time]] your journal was undeleted. The journal activation took place from the following IP-address: [[ip]].
+On [[date]] at [[time]] your journal was undeleted. The journal activation took place from the following IP address: [[ip]].
   
-  If you made this change yourself, this email serves as a confirmation of your change.
+If you made this change yourself, this email serves as a confirmation of your change.
    
-   If you did not delete your journal, it means that your journal's security was compromised. Please immediately see FAQ 117 [[http://www.livejournal.com/support/faqbrowse.bml?faqid=117]] for steps to resecure your journal.
-   This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters. 
+If you didn't undelete your journal, your journal's security was compromised. Please contact Support to learn what steps you should take to resecure your journal.
+
+This letter was sent out automatically to help you keep your account secure. You can't opt-out of receiving these letters. 
 .
+
 
 esn.security_attribute_changed.account_deleted.email_subject=Your account has been deleted
 
 esn.security_attribute_changed.account_deleted.email_text<<
 Dear [[username]],
  
- On [[date]] at [[time]] your journal was deleted. The journal deletion took place from the following IP-address: [[ip]].
+On [[date]] at [[time]] your journal was deleted. The journal deletion took place from the following IP address: [[ip]].
   
-  If you made this change yourself, this email serves as a confirmation of your change.
+If you made this change yourself, this email serves as a confirmation of your change.
    
-   If you did not delete your journal, it means that your journal's security was compromised. Please immediately see FAQ 117 [[http://www.livejournal.com/support/faqbrowse.bml?faqid=117]] for steps to resecure your journal.
-   This letter was sent out automatically to help you keep your account secure. You cannot opt-out of receiving these letters. 
+If you didn't delete your journal, your journal's security has been compromised. Please contact Support to learn what steps you should take to resecure your journal.
+
+This letter was sent out automatically to help you keep your account secure. You can't opt-out of receiving these letters. 
 .
 
 esn.security_attribute_changed.account_renamed.email_subject=Your account has been renamed
@@ -1493,25 +1486,25 @@ esn.view_poll_status=[[openlink]]View the poll's status[[closelink]]
 
 esn.view_profile=[[openlink]]View [[postername]]'s profile[[closelink]]
 
-esn.view_thread=[[openlink]]View the thread[[closelink]] starting from this comment
+esn.view_thread=[[openlink]]View the thread[[closelink]] beginning with this comment
 
 esn.view_threadroot=[[openlink]]Go to the top of the thread[[closelink]] this comment is part of
 
-esn.your_inbox=your Inbox
+esn.your_inbox=Your Inbox
 
 esn.you_can=You can:
 
-esn.you_must_unscreen=You must respond to it or unscreen it before others can see it.
+esn.you_must_unscreen= You must unscreen it before others can read it.
 
-event.addedtocircle.me=Someone adds me to their circle
+event.addedtocircle.me=People add me to their Circle
 
-event.addedtocircle.user=Someone adds [[user]] to their circle
+event.addedtocircle.user=People add [[user]] to their Circle
 
 event.birthday.me=One of the people on my access or subscription lists has an upcoming birthday
 
 event.birthday.user=[[user]]'s birthday is coming up
 
-event.community_join_requst=Someone requests membership in a community I maintain
+event.community_join_requst=Someone requests membership in a community I administer
 
 event.comm_invite=I receive an invitation to join a community
 
@@ -1519,7 +1512,7 @@ event.invited_friend_joins=Someone I invited creates a new journal
 
 event.journal_new_comment.friend=Someone comments in any journal on my friends page
 
-event.journal_new_comment.my_journal=Someone comments in my journal, on any entry
+event.journal_new_comment.my_journal=Someone comments on any entry in my journal
 
 event.journal_new_comment.my_journal.deleted=Someone comments on a deleted entry in my journal
 
@@ -1549,7 +1542,7 @@ event.journal_new_comment.my_journal.untitled_entry.untitled_thread.anonymous=So
 
 event.journal_new_comment.my_journal.untitled_entry.untitled_thread.me=Someone comments under <a href='[[threadurl]]'>the thread</a> by me in <a href='[[entryurl]]'>an entry</a> on my journal
 
-event.journal_new_comment.my_journal.untitled_entry.untitled_thread.user=Someone comments under <a href='[[threadurl]]'>the thread</a> by [[posteruser]] in <a href='[[entryurl]]'>an entry</a> on my journal
+event.journal_new_comment.my_journal.untitled_entry.untitled_thread.user=Someone comments under <a href='[[threadurl]]'>the thread</a> by [[posteruser]] in <a href='[[entryurl]]'>an entry</a> in my journal
 
 event.journal_new_comment.user_journal=Someone comments in [[user]], on any entry
 
@@ -1585,7 +1578,7 @@ event.journal_new_comment.user_journal.untitled_entry.untitled_thread.user=Someo
 
 event.journal_new_entry.community=Someone posts a new entry to [[user]]
 
-event.journal_new_entry.friendlist=Someone on my Friends list posts a new entry
+event.journal_new_entry.friendlist=Someone I subscribe to posts a new entry
 
 event.journal_new_entry.tag.community=Someone posts an entry tagged [[tags]] to [[user]]
 
@@ -1617,23 +1610,19 @@ event.poll_vote.me=Someone votes in a poll I posted
 
 event.receivedpoints.me=Someone sends me [[sitename]] Points
 
-event.removedfromcircle.me=Someone removes me from their circle
+event.removedfromcircle.me=People remove me from their Circle
 
-event.removedfromcircle.user=Someone removes [[user]] from their circle
+event.removedfromcircle.user=People remove [[user]] from their Circle
 
-event.userpic_upload.me=One of the accounts I subscribe to uploads a new userpic
+event.userpic_upload.me=One of the accounts I subscribe to uploads a new icon.
 
-event.userpic_upload.user=[[user]] uploads a new userpic
+event.userpic_upload.user=[[user]] uploads a new icon.
 
 event.user_expunged=[[user]] has been purged
 
 event.user_message_recvd.me=Someone sends me a message
 
 event.user_message_recvd.user=Someone sends [[user]] a message
-
-event.user_new_entry.any=Any of my friends posts a new entry anywhere.
-
-event.user_new_entry.user=[[user]] posts a new entry anywhere.
 
 event.vgift.approved.actions=<a [[aopts]]>View Gift</a>
 
@@ -1663,21 +1652,21 @@ event.xpost.success.title=Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> 
 
 fckland.ljimage=Insert/Edit Image
 
-fcklang.cutcontents=Type your cut contents here.
+fcklang.cutcontents=Enter your cut contents here.
 
 fcklang.cutprompt=Cut link text?
 
-fcklang.invalidchars=Invalid characters in username
+fcklang.invalidchars=Invalid characters in account name
 
-fcklang.ljcut=LiveJournal Cut
+fcklang.ljcut=Cut
 
-fcklang.ljuser=LiveJournal User
+fcklang.ljuser=Account
 
 fcklang.ljvideo2=Embed Media
 
 fcklang.readmore=Read more...
 
-fcklang.userprompt=Enter their username
+fcklang.userprompt=Enter an account name
 
 fcklang.userprompt.site=External Site (optional)
 
@@ -1741,7 +1730,7 @@ img.ins_obj=Insert Image/Object
 
 img.key=View public key
 
-img.memadd=Add to memories!
+img.memadd=Add to Memories
 
 img.next_entry=Next Entry
 
@@ -1757,7 +1746,7 @@ img.searchdots=...
 
 img.ssl=Secure Login
 
-img.tellfriend=Tell a Friend!
+img.tellfriend=Tell someone about this!
 
 img.track=Track This
 
@@ -1771,7 +1760,7 @@ img.us_map=US Map
 
 img.xml=XML Source
 
-inbox.error.couldnt_retrieve_inbox=Could not retrieve inbox for user [[user]]
+inbox.error.couldnt_retrieve_inbox=Couldn't retrieve inbox for account [[user]]
 
 inbox.manage_settings=Manage Settings
 
@@ -1781,13 +1770,13 @@ inbox.menu.archive=Archive
 
 inbox.menu.birthdays=Birthdays
 
-inbox.menu.bookmarks=Bookmarks
+inbox.menu.bookmarks=Flagged items
 
 inbox.menu.circle_updates=Circle Updates
 
 inbox.menu.encircled=New People
 
-inbox.menu.entries_and_comments=Entries &amp; Comments
+inbox.menu.entries_and_comments=Entries and Comments
 
 inbox.menu.messages=Messages
 
@@ -1878,15 +1867,15 @@ label.screening.none2=Disabled
 
 label.screening.nonfriends=By non-friends
 
-label.screening.nonfriends2=Non-friends
+label.screening.nonfriends2=Non-access list
 
 label.security.accesslist=Access List
 
-label.security.custom=Custom...
+label.security.custom=Custom
 
 label.security.head=Security Level:
 
-label.security.maintainers=Maintainers
+label.security.maintainers=Administrators
 
 label.security.members=Members
 
@@ -1914,19 +1903,19 @@ lastupdated.never=never updated
 
 ljlib.pageofpages=Page [[page]] of [[total]]
 
-lostinfo.head=Forget something?
+lostinfo.head=Retrieve Lost Information
 
-lostinfo.text2=If you forgot your username or password, <a [[aopts]]>recover it here</a>.
+lostinfo.text2=If you've forgotten your account name or password,  you can <a [[aopts]]>recover it here</a>.
 
-lynx.nav.friends=Friends
+lynx.nav.friends=Reading Page
 
 lynx.nav.help=Technical Support
 
 lynx.nav.home=Home
 
-lynx.nav.login=Login
+lynx.nav.login=Log in
 
-lynx.nav.logout=Logout
+lynx.nav.logout=Log out
 
 lynx.nav.recent=Recent Entries
 
@@ -1936,7 +1925,7 @@ lynx.nav.sitemap=Site Map
 
 lynx.nav.siteopts=Browse Options
 
-lynx.nav.update=Update Journal
+lynx.nav.update=Post Entry
 
 menunav.create=Create
 
@@ -1950,7 +1939,7 @@ menunav.create.editjournal=Edit Entries
 
 menunav.create.editprofile=Edit Profile
 
-menunav.create.updatejournal=Update Journal
+menunav.create.updatejournal=Post Entry
 
 menunav.create.uploaduserpics=Upload Icons ([[num]] of [[max]])
 
@@ -2006,7 +1995,7 @@ menunav.read.readinglist=Reading Page
 
 menunav.read.recentcomments=Recent Comments
 
-menunav.read.syndicatedfeeds=Syndicated Feeds
+menunav.read.syndicatedfeeds=Feeds
 
 menunav.read.tags=Tags
 
@@ -2018,9 +2007,9 @@ menunav.shop.history=Payment History
 
 menunav.shop.merchandise=[[siteabbrev]] Merchandise
 
-menunav.shop.paidtime=Buy a Paid Account
+menunav.shop.paidtime2=Buy [[sitenameshort]] Services
 
-menunav.shop.sponsor=Sponsor a User
+menunav.shop.sponsor=Gift a Random User
 
 menunav.shop.transferpoints=Transfer Shop Points
 
@@ -2050,13 +2039,13 @@ poll.dberror.items=Database error inserting items: [[errmsg]]
 
 poll.dberror.questions=Database error inserting questions: [[errmsg]]
 
-poll.error.alreadyvoted=Sorry, you have already voted in this poll under the account [[user]].
+poll.error.alreadyvoted=You've already voted in this poll as [[user]].
 
 poll.error.badmaxlength=Maxlength attribute on lj-pq text tags must be an integer from 1-255.
 
 poll.error.badsize=Size attribute on lj-pq text tags must be an integer from 1-100.
 
-poll.error.cantview=Error: you don't have access to view these poll results.
+poll.error.cantview=Error: you don't have access to these poll results.
 
 poll.error.cantvote=Sorry, you don't have permission to vote in this particular poll.
 
@@ -2068,15 +2057,15 @@ poll.error.checkmintoolow=Checkmin attribute must be positive.
 
 poll.error.checktoomuchoptions=You can only select up to <b>[[options]]</b> in question <b>#[[question]]</b>.
 
-poll.error.missingljpoll=All lj-pq tags must be nested inside an enclosing lj-poll tag.
+poll.error.missingljpoll=All  poll-question (or lj-pq) tags must be nested inside an enclosing poll (or lj-poll) tag.
 
-poll.error.missingljpq=All lj-pi tags must be nested inside an enclosing lj-pq tag.
+poll.error.missingljpq=All poll-item (or lj-pi) tags must be nested inside an enclosing poll-question (or  lj-pq) tag.
 
-poll.error.nested=You cannot nest [[tag]] tags.  Did you forget to close one?
+poll.error.nested=You can't nest [[tag]] tags.  Make sure you've closed all your tags.
 
-poll.error.noentry=Error: this poll is not attached to this journal entry
+poll.error.noentry=Error: this poll isn't attached to this journal entry
 
-poll.error.noitems=You must have at least one item in a non-text poll question.
+poll.error.noitems=You must include at least one item in a non-text poll question.
 
 poll.error.noitemstext=lj-pq tags of type 'text' cannot have poll items in them.
 
@@ -2084,9 +2073,9 @@ poll.error.nopollid=pollid parameter is missing.
 
 poll.error.noquestions=You must have at least one question in a poll.
 
-poll.error.notext=Need text inside an lj-pq tag to say what the question is about.
+poll.error.notext=You need to have text inside an lj-pq tag to say what the question is about.
 
-poll.error.notvalidated2=Your email address <a [[aopts]]>must be confirmed</a> in order to vote in this poll.
+poll.error.notvalidated2=You must <a [[aopts]]>confirm your email address</a> before you can vote in this poll.
 
 poll.error.pitoolong=A poll answer must be between 1 and 255 characters.  Yours is [[len]].
 
@@ -2124,9 +2113,9 @@ poll.participants=, participants: [[total]]
 
 poll.pollnum=Poll #[[num]]
 
-poll.scaleanswers=<b>Mean:</b> [[mean]] <b>Median:</b> [[median]] <b>Std. Dev</b> [[stddev]]
+poll.scaleanswers=<strong>Mean:</strong> [[mean]] <strong>Median:</strong> [[median]] <strong>Std. Dev</strong> [[stddev]]
 
-poll.security=Open to: <b>[[whovote]]</b>, results viewable to: <b>[[whoview]]</b>
+poll.security=Open to <strong>[[whovote]]</strong>. Results viewable to <strong>[[whoview]]</strong>
 
 poll.security.all=All
 
@@ -2142,11 +2131,11 @@ poll.security.none_remote=Just Me
 
 poll.security.trusted=Access List
 
-poll.security2=Open to: <b>[[whovote]]</b>, detailed results viewable to: <b>[[whoview]]</b>
+poll.security2=Open to: <strong>[[whovote]]</strong>, detailed results viewable to: <strong>[[whoview]]</strong>
 
-poll.seeresults=See Results
+poll.seeresults=Display Results
 
-poll.submit=Submit Poll
+poll.submit=Answer
 
 poll.viewanswers=View Answers
 
@@ -2178,7 +2167,7 @@ portal.popfaq.portalname=10 Most Viewed FAQs
 
 portal.popfaq.portaltitle=10 Most Viewed FAQs
 
-portal.popwithfriends.accttype=Your account type does not permit use of this feature.
+portal.popwithfriends.accttype=Your account type doesn't permit you to use this feature.
 
 portal.randuser.count.des=By default, 1 random user is shown, but you can have up to 10 vertically in the narrow columns, or 5 horizontally in a wide column
 
@@ -2252,19 +2241,19 @@ portal.update.portaltitle=Update Your Journal
 
 portal.update.subject=Subject:
 
-protocol.bad_password=Your password is too easy to guess.  It's recommended that you change it, otherwise you risk having your journal hijacked.  Visit [[siteroot]]/changepassword.bml to change your password.
+protocol.bad_password=Your password is too easy to guess.  We strongly recommend you change it, otherwise you risk having your journal hijacked.  Visit [[siteroot]]/changepassword to change your password.
 
 protocol.mail_bouncing=You are currently using a bad email address.  All mail we try to send you is bouncing.  We require a valid email address for continued use.  Visit the support area for more information.
 
-protocol.modpost=Your entry has been put into the moderation queue.  It will be accepted or rejected by one of the community moderators.
+protocol.modpost=Your entry is in the moderation queue.  The community administrators will accept or reject it.
 
-protocol.must_revalidate=You need to validate your new email address.  Your old one was good, but since you've changed it, you need to re-validate the new one.  Visit [[siteroot]]/support for more information.
+protocol.must_revalidate=You need to confirm your new email address.  Visit [[siteroot]]/register for instructions on how to do that.
 
-protocol.not_validated=You are currently not validated.  You may continue to use [[sitename]], but please validate your email address for continued use.  See the instructions that were mailed to you when you created your journal, or see [[siteroot]]/support/ for more information.
+protocol.not_validated=You haven't confirmed your email address.  You may continue to use [[sitename]], but please confirm your email address for continued use and better journal security.  Read the instructions that were mailed to you when you created your journal, or go to [[siteroot]]/register for more information.
 
 protocol.parseerror=Your entry has invalid HTML and cannot be displayed properly. It will be hidden behind a cut on your journal and on other people's read pages until you edit your entry and fix it.
 
-protocol.readonly=Your account is temporarily in read-only mode.  Some operations will fail for a few minutes.
+protocol.readonly=Your account is temporarily in read-only mode.  Some actions won't work for a few minutes.
 
 rename.error.invalidaccounttype=Only personal journals can own rename tokens.
 
@@ -2299,7 +2288,7 @@ rename.error.unknown=Cannot rename to "[[to]]".
 rename.ex.toomanytries=We had some trouble trying to move aside the account you are trying to rename to ([[tousername]]). Please try again.
 
 s2theme.autogenerated.warning<<
-## Important note: Hand-edited changes to this layer stand a high risk of 
+## Important note: Hand-edited changes to this layer have a high risk of 
 ## being erased the next time you use the wizard. Setting properties is 
 ## usually safe, but if you put entire functions, they *will* be overwritten.
 
@@ -2328,19 +2317,19 @@ setting.adultcontent.label=Adult Content
 
 setting.adultcontent.option.comm=This community contains content that
 
-setting.adultcontent.option.select.concepts=should be viewed with discretion
-
-setting.adultcontent.option.select.explicit=should be restricted to people 18 or older
+setting.adultcontent.option.select.explicit=is suitable for ages 18+
 
 setting.adultcontent.option.select.none=is suitable for everyone
 
 setting.adultcontent.option.self=This journal contains content that
 
+setting.adultcontent.option.self=This journal contains content that
+
 setting.adultcontentreason.label=Adult Content Reason
 
-setting.allowsearchby.label=Allow Search By
+setting.allowsearchby.label=Searching Your Journal
 
-setting.allowsearchby.sel.a=Allow everybody to search my journal
+setting.allowsearchby.sel.a=Allow any logged-in user to search my journal
 
 setting.allowsearchby.sel.f=Allow people on my access list to search my journal (default)
 
@@ -2392,7 +2381,7 @@ setting.commentcaptcha.option.select.anon=anonymous commenters
 
 setting.commentcaptcha.option.select.none=nobody
 
-setting.commentcaptcha.option.select.nonfriends=non-friends
+setting.commentcaptcha.option.select.nonfriends=people not on your Access List
 
 setting.commentcaptcha.option.select.nonmembers=non-members
 
@@ -2420,7 +2409,7 @@ setting.commentscreening.option.select.anon=anonymous comments
 
 setting.commentscreening.option.select.none=no comments (don't screen)
 
-setting.commentscreening.option.select.nonfriends=comments from non-friends
+setting.commentscreening.option.select.nonfriends=comments from people not on your Access List
 
 setting.commentscreening.option.select.nonmembers=comments from non-members
 
@@ -2438,13 +2427,13 @@ setting.contactinfo.option.note=This setting controls who can view your contact 
 
 setting.ctxpopup.label=Hover Menu
 
-setting.ctxpopup.option=Show menu when I hover over userhead images or userpics
+setting.ctxpopup.option=Show menu when you hover over userhead images or icons
 
 setting.ctxpopup.option.both=Both
 
 setting.ctxpopup.option.icons=Icons
 
-setting.ctxpopup.option.none=Never
+setting.ctxpopup.option.none=Nothing
 
 setting.ctxpopup.option.userhead=Userhead graphic
 
@@ -2494,11 +2483,11 @@ setting.display.accounttype.status=[[status]], expiring [[exptime]]
 
 setting.display.accounttype.upgrade=Upgrade
 
-setting.display.banusers.label=Ban and Unban Users
+setting.display.banusers.label=Ban and Unban Accounts
 
-setting.display.banusers.option.comm=Ban and unban users from commenting in my community
+setting.display.banusers.option.comm=Ban and unban accounts from commenting in my community
 
-setting.display.banusers.option.self=Ban and unban users from commenting in my journal
+setting.display.banusers.option.self=Ban and unban accounts from commenting in my journal
 
 setting.display.domainmapping.actionlink=Set up
 
@@ -2512,13 +2501,13 @@ setting.display.email.actionlink.set=Set
 
 setting.display.email.label=Email
 
-setting.display.email.option.notvalidated=(<a [[aopts]]>not validated</a>)
+setting.display.email.option.notvalidated=(<a [[aopts]]>not confirmed</a>)
 
-setting.display.email.option.validated=(validated)
+setting.display.email.option.validated=(confirmed)
 
-setting.display.emailposts.label=Email Posts
+setting.display.emailposts.label=Email Entries
 
-setting.display.emailposts.option=View email post history
+setting.display.emailposts.option=View post by email history
 
 setting.display.emails.label=Email Addresses
 
@@ -2574,11 +2563,11 @@ setting.emailformat.option.html=HTML
 
 setting.emailformat.option.plaintext=Plain Text
 
-setting.emailposting.error.email.invalid=Invalid email address.
+setting.emailposting.error.email.invalid=This email address is not valid.
 
-setting.emailposting.error.pin.invalid=Your PIN must contain only alphabet characters and numbers, and it needs to be at least [[num]] [[?num|character|characters]] long.
+setting.emailposting.error.pin.invalid=Your PIN can only contain alphanumeric characters (a-z and 0-9); for improved security it must be at least [[num]] [[?num|character|characters]] long.
 
-setting.emailposting.error.pin.invalidaccount=This PIN is invalid. You should change it to something that does not have anything to do with your [[sitename]] account.
+setting.emailposting.error.pin.invalidaccount=This PIN is invalid. You should change it to something that doesn't have anything to do with your [[sitename]] account.
 
 setting.emailposting.helpmessage.body<<
 PIN is required, embedded in one of: to address, subject or body.
@@ -2609,11 +2598,11 @@ setting.emailposting.notavailable=Your account level does not permit you to use 
 
 setting.emailposting.notavailable.upgrade=Would you like to <a [[aopts]]>upgrade your account?</a>
 
-setting.emailposting.option=Post to your journal by sending an email from one of your defined email addresses to username+pin@[[domain]]. View more <a [[aopts]]>posting instructions</a>.
+setting.emailposting.option=Make entries in your journal by sending an email from one of your confirmed email addresses to account name+pin@[[domain]].  <a [[aopts]]>View more posting instructions</a>.
 
 setting.emailposting.option.addr=Email Address:
 
-setting.emailposting.option.advanced=advanced setup options
+setting.emailposting.option.advanced=Advanced Setup Options
 
 setting.emailposting.option.helpmessage=Email summary of posting instructions?
 
@@ -2637,13 +2626,13 @@ setting.enablecomments.option.note.self=Note: If you disable comments, all past 
 
 setting.enablecomments.option.select.all=everybody
 
-setting.enablecomments.option.select.friends=friends
+setting.enablecomments.option.select.friends=Access List
 
 setting.enablecomments.option.select.members=members
 
 setting.enablecomments.option.select.none=nobody
 
-setting.enablecomments.option.select.regusers=registered users
+setting.enablecomments.option.select.regusers=registered accounts
 
 setting.entryeditor.error.invalid=Invalid entry editor default.
 
@@ -2663,13 +2652,13 @@ setting.gender.error.invalid=Invalid option
 
 setting.gender.error.wrongtype=Only personal or identity journals can have a gender.
 
-setting.gender.question=What's your gender?
+setting.gender.question=For statistical purposes, please provide your gender. (It will not be publicly displayed.)
 
-setting.globalsearch.label=Global Search Inclusion
+setting.globalsearch.label=Site-Wide Search Inclusion
 
-setting.globalsearch.sel.no=No, do not allow my content to be displayed
+setting.globalsearch.sel.no=No, do not allow my content to be included in site searches
 
-setting.globalsearch.sel.yes=Yes, display my public content in search results (default)
+setting.globalsearch.sel.yes=Yes, include my public content in site search results (default)
 
 setting.googleanalytics.error.invalid=Invalid Google Analytics ID entered, must be of the format: UA-NNNNNNN-NN (where N represents numbers).
 
@@ -2685,7 +2674,7 @@ setting.imageplaceholders.error.invalid=Invalid image size.
 
 setting.imageplaceholders.label=Image Placeholders
 
-setting.imageplaceholders.option=Replace inline images on your Friends page with a placeholder for
+setting.imageplaceholders.option=Replace images on your Reading Page with a placeholder for
 
 setting.imageplaceholders.option.select.all=all images
 
@@ -2735,17 +2724,17 @@ setting.navstrip.label=Navigation Strip
 
 setting.navstrip.option=Display for
 
-setting.navstrip.option.journal.norelationship=journals not in your circle
+setting.navstrip.option.journal.norelationship=journals not in your Circle
 
-setting.navstrip.option.journal.this=yourself and logged-out users on your journal
+setting.navstrip.option.journal.this=you and logged-out accounts on your journal
 
-setting.navstrip.option.journal.withrelationship=journals in your circle
+setting.navstrip.option.journal.withrelationship=journals in your Circle
 
 setting.nctalklinks.header=New Comment Link Indicator
 
 setting.nctalklinks.option=Adds the comment count to entry links. Your browser should display links in a different color if there are new comments since your last visit.
 
-setting.prod.display.title=New Setting!
+setting.prod.display.title=New Setting.
 
 setting.profileemail.error.email.invalid=Invalid email address entered.
 
@@ -2765,33 +2754,33 @@ setting.safesearch.label=Safe Search Filter
 
 setting.safesearch.option.select.concepts=Exclude content that should be viewed with discretion
 
-setting.safesearch.option.select.explicit=Exclude content that is restricted to people 18 or older
+setting.safesearch.option.select.explicit=Exclude content restricted to people age 18 or older
 
 setting.safesearch.option.select.none=Exclude nothing
 
-setting.searchinclusion.label=Search Inclusion
+setting.searchinclusion.label=Off-Site Search Engines
 
-setting.searchinclusion.option.comm=Minimize my community's inclusion in search engine results
+setting.searchinclusion.option.comm=Attempt to block outside search engines from indexing my community
 
-setting.searchinclusion.option.self=Minimize my journal's inclusion in search engine results
+setting.searchinclusion.option.self=Attempt to block outside search engines from indexing my journal
 
 setting.selfcommentemail.label=Self Comment Email Notification
 
-setting.selfcommentemail.option=I comment in someone's journal, on any entry
+setting.selfcommentemail.option=I comment on any entry in someone else's journal
 
-setting.sitescheme.error.invalid=Invalid site scheme.
+setting.sitescheme.error.invalid=Invalid site skin.
 
-setting.sitescheme.journal.style=Would you like to select your journal style?
+setting.sitescheme.label=Site Skin
 
 setting.sitescheme.label=Site Scheme
 
 setting.stickyentry.error.invalid=Invalid Dreamwidth entry ID or URL entered. 
 
-setting.stickyentry.label=ID or URL of post to make sticky
+setting.stickyentry.label=ID or URL of entry to make sticky
 
 setting.stylemine.label=Comment Pages
 
-setting.stylemine.option=View comment pages from my Friends page in my own style
+setting.stylemine.option=View comment pages from your Reading Page in your own style
 
 setting.synlevel.error.invalid=Invalid syndication level.
 
@@ -2845,13 +2834,13 @@ setting.viewingadultcontent.error.invalid=Invalid viewing adult content setting.
 
 setting.viewingadultcontent.label=Viewing Adult Content
 
-setting.viewingadultcontent.option=Collapse and show interstitial warnings for
+setting.viewingadultcontent.option=Require confirmation
 
-setting.viewingadultcontent.option.select.concepts=content that should be viewed with discretion
+setting.viewingadultcontent.option.select.concepts=before displaying content that should be viewed with discretion
 
-setting.viewingadultcontent.option.select.explicit=content that is restricted to people 18 or older
+setting.viewingadultcontent.option.select.explicit=before displaying content suitable for ages 18+
 
-setting.viewingadultcontent.option.select.none=nothing (display all content)
+setting.viewingadultcontent.option.select.none=never
 
 setting.viewingadultcontent.reason=(To change this option, you must <a [[aopts]]>set your birthdate</a> first.)
 
@@ -2871,13 +2860,13 @@ setting.xpost.message.create=Successfully created account [[username]]@[[servern
 
 setting.xpost.message.update=Successfully updated account [[username]]@[[servername]].
 
-setting.xpost.message.usage=Current accounts configured:  <b>[[current]] of [[max]]</b>
+setting.xpost.message.usage=Current accounts configured:  <strong>[[current]] of [[max]]</strong>
 
-setting.xpost.noaccounts=No accounts configured
+setting.xpost.noaccounts=You don't have any accounts configured.
 
 setting.xpost.option=Configure accounts for crossposting.
 
-setting.xpost.option.change=Change
+setting.xpost.option.change=Details
 
 setting.xpost.option.delete=Delete
 
@@ -2913,7 +2902,7 @@ setting.xpost.option.recordlink=Display Crosspost Link
 
 setting.xpost.option.server=Server
 
-setting.xpost.option.username=Username
+setting.xpost.option.username=Account Name
 
 setting.xpost.option.xpostbydefault=Crosspost by Default
 
@@ -2955,7 +2944,7 @@ settings.findbyemail.helper=This setting will allow you to have your email addre
 
 settings.findbyemail.label=Find by email
 
-settings.findbyemail.opt.h=Yes, but don't show my username
+settings.findbyemail.opt.h=Yes, but don't show my account name
 
 settings.findbyemail.opt.n=No
 
@@ -2989,19 +2978,19 @@ settings.state.us=US States
 
 settings.usermessaging.error.invalid=Invalid Option
 
-settings.usermessaging.helper=Only registered [[sitename]] users can send you messages. You also have options to receive messages only from users on your access list.
+settings.usermessaging.helper=Only registered [[sitename]] users can send you messages. You also have options to receive messages only from users on your Access List.
 
 settings.usermessaging.label=[[siteabbrev]] Private Messages
 
 settings.usermessaging.opt.a=Everyone
 
-settings.usermessaging.opt.F=Access Only
+settings.usermessaging.opt.F=Access List Only
 
-settings.usermessaging.opt.M=Only Mutual Access
+settings.usermessaging.opt.M=Only Mutually Trusted
 
 settings.usermessaging.opt.N=Nobody
 
-settings.usermessaging.opt.Y=Registered Users
+settings.usermessaging.opt.Y=Registered Accounts
 
 settings.usermessaging.question=Receive messages from:
 
@@ -3316,12 +3305,19 @@ shop.expiration.3.subject=[[sitename]] Account Expiration
 shop.expiration.comm.0.body<<
 Dear [[touser]],
 
-Your community [[commname]]'s paid account has expired.
+We wanted to let you know that your [[sitename]] community 
+[[commname]]'s paid time has now expired.
 
-If you wish, you can purchase more paid time here:
+You can add more paid time to the community in the [[sitename]] shop:
 
-    [[shopurl]]
+  [[shopurl]]
 
+If you don't renew your community's paid time, don't worry -- the 
+community will still be there for you and your members to post in.
+You just won't have access to the paid account features anymore. 
+
+Even if you decide not to renew your paid [[sitename]] account,
+we're still really glad to have you here. Thanks for your support.
 
 Regards,
 The [[sitename]] Team
@@ -3332,13 +3328,18 @@ shop.expiration.comm.0.subject=[[sitename]] Account Expired
 shop.expiration.comm.14.body<<
 Dear [[touser]],
 
-This is a friendly notice letting you know that your community [[commname]]'s
-paid account is set to expire in approximately two weeks.
+We wanted to let you know that your paid [[sitename]] community,
+[[commname]], will be expiring in two weeks. 
 
-If you wish, you can add more paid time to your community here:
+If you'd like, you can add more paid time to your community account
+here:
 
-    [[shopurl]]
+  [[shopurl]]
 
+If you don't want to renew your community's paid account, don't worry -- it'll still be there for you to use. You and your community members just
+won't have access to all of the paid account features.
+
+Thank you for supporting [[sitename]].
 
 Regards,
 The [[sitename]] Team
@@ -3349,16 +3350,20 @@ shop.expiration.comm.14.subject=[[sitename]] Account Expiration
 shop.expiration.comm.3.body<<
 Dear [[touser]],
 
-This is a friendly notice letting you know that your community [[commname]]'s
-paid account is set to expire in approximately three days.
+We just wanted to remind you that your paid [[sitename]] community,
+[[commname]], will be expiring in approximately three days.
 
-This is the last notice you will get.  Your community will automatically revert
-to free status three days from now.
+You can renew your paid account in our Shop:
 
-If you wish, you can add more paid time to your community here:
+  [[shopurl]]
 
-    [[shopurl]]
+This is the last reminder we'll send you -- we don't want to nag! 
+Your community will automatically revert to a free account in 
+another three days if you don't renew. If that happens, you'll still
+be able to use it; you just won't have access to our paid features
+anymore.
 
+Thank you for supporting [[sitename]].
 
 Regards,
 The [[sitename]] Team
@@ -3369,12 +3374,19 @@ shop.expiration.comm.3.subject=[[sitename]] Account Expiration
 shop.expiration.user.0.body<<
 Dear [[touser]],
 
-Your paid account has expired.
+We wanted to let you know that your [[sitename]] account, [[touser]],
+has now expired.
 
-If you wish, you can purchase more paid time here:
+You can add more paid time to your account in the [[sitename]] shop:
 
-    [[shopurl]]
+  [[shopurl]]
 
+If you don't renew your paid time, don't worry -- your account is 
+still there, and you can keep using all of the basic features.
+You just won't have access to the paid account features anymore. 
+
+Even if you decide not to renew your paid [[sitename]] account,
+we're still really glad to have you here. Thanks for your support.
 
 Regards,
 The [[sitename]] Team
@@ -3385,13 +3397,18 @@ shop.expiration.user.0.subject=[[sitename]] Account Expired
 shop.expiration.user.14.body<<
 Dear [[touser]],
 
-This is a friendly notice letting you know that your paid account is set to
-expire in approximately two weeks.
+We wanted to let you know that your paid [[sitename]] account will be 
+expiring in two weeks. 
 
-If you wish, you can add more paid time to your account here:
+If you'd like, you can add more paid time to your account here:
 
-    [[shopurl]]
+  [[shopurl]]
 
+If you don't want to renew your paid account, don't worry -- you can
+still keep using the site. You just won't have access to all of the 
+paid account features.
+
+Thank you so much for supporting [[sitename]].
 
 Regards,
 The [[sitename]] Team
@@ -3402,16 +3419,20 @@ shop.expiration.user.14.subject=[[sitename]] Account Expiration
 shop.expiration.user.3.body<<
 Dear [[touser]],
 
-This is a friendly notice letting you know that your paid account is set to
-expire in approximately three days.
+We just wanted to remind you that your paid [[sitename]] account,
+[[touser]], will be expiring in approximately three days.
 
-This is the last notice you will get.  Your account will automatically revert to
-free status three days from now.
+You can renew your paid account in our Shop:
 
-If you wish, you can add more paid time to your account here:
+  [[shopurl]]
 
-    [[shopurl]]
+This is the last reminder we'll send you -- we don't want to nag! 
+Your account will automatically revert to a free account in 
+another three days if you don't renew. If that happens, you'll still
+be able to use it; you just won't have access to our paid features
+anymore.
 
+Thank you for supporting [[sitename]].
 
 Regards,
 The [[sitename]] Team
@@ -3465,7 +3486,7 @@ shop.item.rename.note=Tokens can be used at the <a [[aopts]]>rename page</a>.
 
 shop.unavailable=The shop is currently disabled.
 
-sitescheme.accountlinks.account=Account
+sitescheme.accountlinks.account=Account Settings
 
 sitescheme.accountlinks.btn.login=Log in
 
@@ -3475,9 +3496,9 @@ sitescheme.accountlinks.help=Help
 
 sitescheme.accountlinks.inbox=Inbox
 
-sitescheme.accountlinks.invitefriend=Invite a Friend
+sitescheme.accountlinks.invitefriend=Invite Someone
 
-sitescheme.accountlinks.login.forgotpassword=Forgot password?
+sitescheme.accountlinks.login.forgotpassword=Forget your password?
 
 sitescheme.accountlinks.login.openid=Log in with OpenID?
 
@@ -3485,15 +3506,15 @@ sitescheme.accountlinks.login.password=Password:
 
 sitescheme.accountlinks.login.rememberme=Remember me
 
-sitescheme.accountlinks.login.username=Username:
+sitescheme.accountlinks.login.username=Account name:
 
 sitescheme.accountlinks.post=Post
 
 sitescheme.accountlinks.readinglist=Reading Page
 
-sitescheme.accountlinks.userpic.alt=Upload Userpics
+sitescheme.accountlinks.userpic.alt=Upload Icons
 
-sitescheme.footer.info=Copyright &copy; 2009 Dreamwidth Studios, LLC. All rights reserved.
+sitescheme.footer.info=Copyright &copy; 2009-2011 Dreamwidth Studios, LLC. All rights reserved.
 
 sitescheme.footer.legal.abusepolicy=Abuse Policy
 
@@ -3514,11 +3535,11 @@ Sorry=Sorry
 
 states.head.defined=(states/regions/territories)
 
-statusvis_message.locked=This journal is locked. New entries and comments cannot be posted to it.
+statusvis_message.locked=This journal is locked. New entries and comments can't be posted to it.
 
-statusvis_message.memorial=This journal is a memorial. New entries cannot be posted to it.
+statusvis_message.memorial=This is a memorial journal. New entries can't be posted to it.
 
-statusvis_message.readonly=This journal is read-only. New entries and comments cannot be posted to it.
+statusvis_message.readonly=This journal is read-only. New entries and comments can't be posted to it.
 
 subscribe_interface.by=By
 
@@ -3526,13 +3547,13 @@ subscribe_interface.by2=Also notify me by
 
 subscribe_interface.cancel=Cancel
 
-subscribe_interface.category.friends-and-communities=Friends and Communities
+subscribe_interface.category.friends-and-communities=People and Communities
 
 subscribe_interface.category.my-account=My Account
 
 subscribe_interface.category.notices=Notices
 
-subscribe_interface.category.subscription-tracking=Subscription Tracking
+subscribe_interface.category.subscription-tracking=Notification Tracking
 
 subscribe_interface.category.track-comments=Track These Comments
 
@@ -3544,19 +3565,19 @@ subscribe_interface.inbox=Inbox
 
 subscribe_interface.manage=Manage settings
 
-subscribe_interface.manage_settings=Manage settings
+subscribe_interface.manage_settings=Manage Settings
 
-subscribe_interface.nosubs.text=Track posts, comments, and user updates by clicking the [[img]] icon or the "Track This" link that appears on entries, comments, and the Profile page.
+subscribe_interface.nosubs.text=Track entries, comments, and account updates by clicking the [[img]] icon or the "Track This" link that appears on entries, comments, and the Profile page.
 
-subscribe_interface.nosubs.title=You have no subscriptions
+subscribe_interface.nosubs.title=You don't have any subscriptions
 
 subscribe_interface.notify_me=Notify me when...
 
-subscribe_interface.notify_me2=Notify me in my [[sitenameabbrev]] Inbox when...
+subscribe_interface.notify_me2=Notify me in my [[sitenameabbrev]] Inbox when: 
 
 subscribe_interface.save=Save
 
-subscribe_interface.special_subs.note=These notification options are only available by email and will not show in your [[sitenameabbrev]] Inbox.
+subscribe_interface.special_subs.note=These notification options are only available by email and won't show in your [[sitenameabbrev]] Inbox.
 
 subscribe_interface.subs.total=You are using [[active]] out of [[max_active]] active subscriptions.
 
@@ -3576,7 +3597,7 @@ taglib.error.mergenoname=You did not provide a tag name you want to merge to.
 
 taglib.error.mergetoexisting=The tag name '[[tagname]]' is already in use, but you did not select it. Please select the tag or merge to a different tag name.
 
-taglib.error.toomany2=This would make you exceed your maximum of [[max]] tags.  Please remove at least [[excess]] of the following new tags: [[tags]].
+taglib.error.toomany2=Adding this tag would exceed your maximum of [[max]] tags.  Please remove at least [[excess]] of the following new tags: [[tags]].
 
 talk.agerestriction.18plus=18+
 
@@ -3602,7 +3623,7 @@ talk.commentsread.counted=Read [[replycount]] [[?replycount|comment|comments]]
 
 talk.commentsread.nocomments=No comments
 
-talk.curname_Groups=<b>Custom friends groups:</b>
+talk.curname_Groups=<strong>Filters:</strong>
 
 talk.curname_Location=<b>Current location:</b>
 
@@ -3616,35 +3637,35 @@ talk.curname_xpost=<b>Crossposts:</b>
 
 talk.error.bogusargs=Bogus arguments
 
-talk.error.cantedit=You cannot edit comments.
+talk.error.cantedit=You can't edit comments.
 
-talk.error.cantedit.banned=You cannot edit this comment because you have been banned from commenting in this journal.
+talk.error.cantedit.banned=You can't edit this comment because you've been banned from commenting in this journal.
 
-talk.error.cantedit.commentingdisabled=You cannot edit this comment because commenting has been disabled in this journal.
+talk.error.cantedit.commentingdisabled=You can't edit this comment because commenting has been disabled in this journal.
 
-talk.error.cantedit.haschildren=You cannot edit this comment because someone has replied to it.
+talk.error.cantedit.haschildren=You can't edit this comment because someone's replied to it.
 
 talk.error.cantedit.invalid=This comment is invalid.
 
-talk.error.cantedit.isdeleted=You cannot edit this comment because it has been deleted.
+talk.error.cantedit.isdeleted=You can't edit this comment because it's been deleted.
 
-talk.error.cantedit.isfrozen=You cannot edit this comment because it has been frozen.
+talk.error.cantedit.isfrozen=You can't edit this comment because it 's been frozen.
 
-talk.error.cantedit.notfriend=You cannot edit this comment because the journal owner set the "friends only" option for who can reply to their journal and you are not listed as their friend.
+talk.error.cantedit.notfriend=You can't edit this comment because the journal owner set the "Access List only" option for who can reply; you're not on the journal owner's Access List.
 
-talk.error.cantedit.notvisible=You cannot edit this comment because it is not visible to you.
+talk.error.cantedit.notvisible=You can't edit this comment because  it isn't visible to you.
 
-talk.error.cantedit.notyours=You cannot edit this comment because you did not post it.
+talk.error.cantedit.notyours=You can't edit this comment because you didn't post it.
 
 talk.error.comm_deleted=This comment has been deleted.
 
-talk.error.deleted=This journal is deleted.
+talk.error.deleted=This journal has been deleted.
 
 talk.error.deleted.title=Deleted
 
 talk.error.mustlogin=You must be logged in to view this protected entry.
 
-talk.error.nocomment=The comment does not exist.
+talk.error.nocomment=This comment doesn't exist.
 
 talk.error.noentry=No such entry.
 
@@ -3652,7 +3673,7 @@ talk.error.nojournal=Error: couldn't determine journal from arguments.
 
 talk.error.nosuchjournal=No such journal
 
-talk.error.notauthorised=You are not authorized to view this protected entry.
+talk.error.notauthorised=You're not authorized to view this protected entry.
 
 talk.error.notauthorised.comm.closed=This protected entry is viewable by community members only. Membership to this community is closed.
 
@@ -3662,21 +3683,21 @@ talk.error.purged=This journal has been deleted and purged.
 
 talk.error.quickquote=If you'd like to quote a portion of the original message, highlight it then press 'Quote'.
 
-talk.error.readonly_journal=This journal is read-only. You cannot comment in it.
+talk.error.readonly_journal=This journal is read-only. You can't comment in it.
 
 talk.error.readonly_journal.title=Read-Only
 
-talk.error.readonly_remote=You are read-only. You cannot post comments.
+talk.error.readonly_remote=You're read-only. You can't post comments.
 
 talk.error.readonly_remote.title=Read-Only
 
-talk.error.suspended=This journal/poster is suspended.
+talk.error.suspended=This account has been suspended.
 
 talk.error.suspended.title=Suspended
 
-talk.error.suspendedentry=This entry is suspended. You can visit the journal <a [[aopts]]>here</a>.
+talk.error.suspendedentry=This entry has been suspended. <a [[aopts]]>Visit the journal</a>.
 
-talk.error.suspendedentryreply=This entry is suspended. You cannot reply to it. You can visit the journal <a [[aopts]]>here</a>.
+talk.error.suspendedentryreply=This entry has been suspended. You can't reply to it. <a [[aopts]]>Visit the journal</a>.
 
 talk.expandlink=Expand
 
@@ -3706,7 +3727,7 @@ time.ago.hour=[[num]] [[?num|hour|hours]] ago
 
 time.ago.minute=[[num]] [[?num|minute|minutes]] ago
 
-time.ago.never=Never.
+time.ago.never=Never
 
 time.ago.second=[[num]] [[?num|second|seconds]] ago
 
@@ -3722,9 +3743,9 @@ userlinkbar.addsub.title.self=Subscribe to your account
 
 userlinkbar.addtrust=Grant Access
 
-userlinkbar.addtrust.title.loggedout=You must be logged in to grant access to this user
+userlinkbar.addtrust.title.loggedout=You must be logged in to grant access to this account
 
-userlinkbar.addtrust.title.other=Grant access to this user
+userlinkbar.addtrust.title.other=Grant access to this account
 
 userlinkbar.buyaccount.comm=Gift Paid Account
 
@@ -3738,9 +3759,9 @@ userlinkbar.buyaccount.title.other=Purchase paid time as a gift for this user
 
 userlinkbar.buyaccount.title.self=Purchase paid time for yourself
 
-userlinkbar.joincomm=Join
+userlinkbar.joincomm=Join Community
 
-userlinkbar.joincomm.title.cantjoin=You cannot join this community
+userlinkbar.joincomm.title.cantjoin=You can't join this community
 
 userlinkbar.joincomm.title.closed=Membership for this community is closed
 
@@ -3754,29 +3775,29 @@ userlinkbar.leavecomm.title=Leave this community
 
 userlinkbar.memories=Memories
 
-userlinkbar.memories.title.other=View this user's memories
+userlinkbar.memories.title.other=View this account's memories
 
 userlinkbar.memories.title.self=View your memories
 
 userlinkbar.modifysub=Modify Subscription
 
-userlinkbar.modifysub.title.other=Modify/remove subscription for this account
+userlinkbar.modifysub.title.other=Modify Subscription
 
-userlinkbar.modifysub.title.self=Modify/remove subscription for your account
+userlinkbar.modifysub.title.self=Modify Subscription
 
 userlinkbar.modifytrust=Modify Access
 
-userlinkbar.modifytrust.title.other=Modify/remove access from this user
+userlinkbar.modifytrust.title.other=Modify Access
 
-userlinkbar.post=Post
+userlinkbar.post=Post to Community
 
 userlinkbar.post.title=Post to this community
 
-userlinkbar.post.title.cantpost=You cannot post to this community
+userlinkbar.post.title.cantpost=You can't post to this community
 
 userlinkbar.post.title.loggedout=You must be logged in to post to this community
 
-userlinkbar.postentry=Post an Entry
+userlinkbar.postentry=Post Entry
 
 userlinkbar.postentry.title=Post to your journal
 
@@ -3784,39 +3805,39 @@ userlinkbar.search=Search for Entries
 
 userlinkbar.search.title=Search for entries in this account
 
-userlinkbar.sendmessage=Send Message
+userlinkbar.sendmessage=Private Message
 
-userlinkbar.sendmessage.title=Send a private message to this user
+userlinkbar.sendmessage.title=Send a private message to this account
 
-userlinkbar.sendmessage.title.cantsendmessage=You cannot send a private message to this user
+userlinkbar.sendmessage.title.cantsendmessage=You can't send a private message to this account
 
-userlinkbar.sendmessage.title.loggedout=You must be logged in to send a private message to this user
+userlinkbar.sendmessage.title.loggedout=You must be logged in to send a private message to this account
 
 userlinkbar.sendmessage.title.self=Send a private message to yourself
 
-userlinkbar.tellafriend=Tell a Friend
+userlinkbar.tellafriend=Tell someone about this
 
-userlinkbar.tellafriend.title.other=Tell a friend about this journal
+userlinkbar.tellafriend.title.other=Tell someone about this journal
 
-userlinkbar.tellafriend.title.self=Tell a friend about your journal
+userlinkbar.tellafriend.title.self=Tell someone about your journal
 
 userlinkbar.track=Track
 
-userlinkbar.track.title=Receive notifications of updates to this community
+userlinkbar.track.title=Receive notification of updates to this community
 
-userlinkbar.tracksyn=Track Feed
+userlinkbar.tracksyn=Track
 
-userlinkbar.tracksyn.title=Receive notifications of updates to this feed
+userlinkbar.tracksyn.title=Receive notification of updates to this feed
 
-userlinkbar.trackuser=Track User
+userlinkbar.trackuser=Track Account
 
-userlinkbar.trackuser.title=Receive notifications of updates from this user
+userlinkbar.trackuser.title=Receive notification of new entries from this account
 
 userlinkbar.trackuser.title.cantuseesn=You cannot manage notifications
 
 userlinkbar.trackuser.title.loggedout=You must be logged in to manage notifications
 
-Username=Username
+Username=Account name
 
 userpic.inactive=Inactive
 
@@ -3882,7 +3903,7 @@ web.ads.search=Sponsored Search Links
 
 web.authas.btn=Switch
 
-web.authas.label=Work as user:
+web.authas.label=Work as account:
 
 web.authas.label.comm=Work as community:
 
@@ -3896,17 +3917,17 @@ web.controlstrip.btn.logout=Log out
 
 web.controlstrip.btn.view=View
 
-web.controlstrip.links.addfeed=Add it to your reading page
+web.controlstrip.links.addfeed=Subscribe
 
-web.controlstrip.links.addtocircle=Add to your circle
+web.controlstrip.links.addtocircle=Add to Your Circle
 
-web.controlstrip.links.confirm=Confirm email address
+web.controlstrip.links.confirm=Confirm Email Address
 
 web.controlstrip.links.create=Create a [[sitename]] Account
 
 web.controlstrip.links.editcommmembers=Edit Members
 
-web.controlstrip.links.editcommprofile=Edit the Profile
+web.controlstrip.links.editcommprofile=Edit Profile
 
 web.controlstrip.links.explore=Explore [[sitenameabbrev]]
 
@@ -3914,11 +3935,11 @@ web.controlstrip.links.home=Home
 
 web.controlstrip.links.inbox=Inbox
 
-web.controlstrip.links.invitefriends=Invite Friends
+web.controlstrip.links.invitefriends=Invite People
 
 web.controlstrip.links.joincomm=Join
 
-web.controlstrip.links.learnmore=Learn more
+web.controlstrip.links.learnmore=Learn More
 
 web.controlstrip.links.leavecomm=Leave
 
@@ -3952,7 +3973,7 @@ web.controlstrip.links.recentcomments=View Recent Comments
 
 web.controlstrip.links.removecomm=Unsubscribe
 
-web.controlstrip.links.removefeed=Remove from your reading page
+web.controlstrip.links.removefeed=Unsubscribe
 
 web.controlstrip.links.settings=Settings
 
@@ -3964,7 +3985,7 @@ web.controlstrip.links.trackcomm=Track
 
 web.controlstrip.links.trackuser=Track
 
-web.controlstrip.links.viewreadingpage=Reading Page
+web.controlstrip.links.viewreadingpage=Reading
 
 web.controlstrip.links.watchcomm=Subscribe
 
@@ -3974,9 +3995,9 @@ web.controlstrip.login.openid=(OpenID?)
 
 web.controlstrip.login.remember=Remember Me
 
-web.controlstrip.nouserpic.alt=Upload Userpic
+web.controlstrip.nouserpic.alt=Upload Icon
 
-web.controlstrip.nouserpic.title=Edit Userpics
+web.controlstrip.nouserpic.title=Edit Icons
 
 web.controlstrip.reloadpage.lightstyle2=light
 
@@ -3994,71 +4015,71 @@ web.controlstrip.select.friends.all=All Subscriptions
 
 web.controlstrip.select.friends.communities=Communities Only
 
-web.controlstrip.select.friends.feeds=Syndicated Feeds
+web.controlstrip.select.friends.feeds=Feeds
 
 web.controlstrip.select.friends.journals=Journals Only
 
 web.controlstrip.select.friends.label=Filter:
 
-web.controlstrip.status.community=You are viewing the community [[user]]
+web.controlstrip.status.community=You're viewing [[user]]
 
-web.controlstrip.status.maintainer=You are a maintainer of [[user]]
+web.controlstrip.status.maintainer=You're an administrator of [[user]]
 
-web.controlstrip.status.member=You are a member of [[user]]
+web.controlstrip.status.member=You're a member of [[user]]
 
-web.controlstrip.status.memberwatcher=You are a member of and are watching [[user]]
+web.controlstrip.status.memberwatcher=You're a member of and subscribed to [[user]]
 
 web.controlstrip.status.mutualtrust=[[user]] and you have mutual access
 
 web.controlstrip.status.mutualtrust_mutualwatch=[[user]] and you have mutual access and mutual subscriptions
 
-web.controlstrip.status.mutualtrust_watch=[[user]] and you have mutual access and you subscribe to them
+web.controlstrip.status.mutualtrust_watch=[[user]] and you have mutual access and you subscribe to [[user]] 
 
-web.controlstrip.status.mutualtrust_watchedby=[[user]] and you have mutual access and they subscribe to you
+web.controlstrip.status.mutualtrust_watchedby=[[user]] and you have mutual access and [[user]] subscribes to you
 
 web.controlstrip.status.mutualwatch=[[user]] and you have mutual subscriptions
 
-web.controlstrip.status.other=You are viewing [[user]]
+web.controlstrip.status.other=You're viewing [[user]]
 
-web.controlstrip.status.personal=You are viewing [[user]]'s journal
+web.controlstrip.status.personal=You're viewing [[user]]'s journal
 
 web.controlstrip.status.personalnetworkpage=You are viewing [[user]]'s network page
 
-web.controlstrip.status.personalreadingpage=You are viewing [[user]]'s reading page
+web.controlstrip.status.personalreadingpage=You're viewing [[user]]'s Reading Page
 
-web.controlstrip.status.syn=You are viewing the feed [[user]]
+web.controlstrip.status.syn=You're viewing the feed [[user]]
 
-web.controlstrip.status.trusted=You have granted [[user]] access to your journal
+web.controlstrip.status.trusted=You've granted [[user]] access to your journal
 
-web.controlstrip.status.trustedby=You have been granted access to [[user]]'s journal
+web.controlstrip.status.trustedby=You've been granted access to [[user]]'s journal
 
-web.controlstrip.status.trustedby_mutualwatch=[[user]] has granted access to you and you and they have mutual subscriptions
+web.controlstrip.status.trustedby_mutualwatch=[[user]] and you have mutual subscriptions and [[user]] has granted access to you.
 
 web.controlstrip.status.trustedby_watch=[[user]] has granted access to you and you subscribe to them
 
-web.controlstrip.status.trustedby_watchedby=[[user]] has granted access and subscribes to you
+web.controlstrip.status.trustedby_watchedby=[[user]] has granted access to you and subscribes to you.
 
-web.controlstrip.status.trust_mutualwatch=You have granted access to [[user]] and you and they have mutual subscriptions
+web.controlstrip.status.trust_mutualwatch=[[user]] and you have mutual subscriptions and you've granted access to [[user]]
 
-web.controlstrip.status.trust_watch=You have granted access and subscribe to [[user]]
+web.controlstrip.status.trust_watch=You've granted access to and subscribed to [[user]].
 
-web.controlstrip.status.trust_watchedby=You have granted access to [[user]] and they have subscribed to you
+web.controlstrip.status.trust_watchedby=You've granted access to [[user]] and [[user]] subscribes to you.
 
-web.controlstrip.status.watched=You have subscribed to [[user]]'s journal
+web.controlstrip.status.watched=You've subscribed to [[user]].
 
-web.controlstrip.status.watchedby=[[user]] has subscribed to your journal
+web.controlstrip.status.watchedby=[[user]] has subscribed to your journal.
 
-web.controlstrip.status.watcher=You are watching [[user]]
+web.controlstrip.status.watcher=You're subscribed to [[user]].
 
-web.controlstrip.status.yourjournal=You are viewing your journal
+web.controlstrip.status.yourjournal=You're viewing your journal
 
-web.controlstrip.status.yournetworkpage=You are viewing your network page
+web.controlstrip.status.yournetworkpage=You're viewing your Network Page.
 
-web.controlstrip.status.yourreadingpage=You are viewing your reading page
+web.controlstrip.status.yourreadingpage=You're viewing your Reading Page.
 
-web.controlstrip.userpic.alt=Userpic
+web.controlstrip.userpic.alt=Icon
 
-web.controlstrip.userpic.title=Edit Userpics
+web.controlstrip.userpic.title=Edit Icons
 
 web.postto.btn=Switch
 
@@ -4126,7 +4147,7 @@ widget.createaccount.error.cannotcreate=There was an error creating your account
 
 widget.createaccount.error.captcha.invalid=Invalid answer to previous challenge.  Try another.
 
-widget.createaccount.error.email.lj_domain=You cannot use a [[domain]] alias when creating an account.  Please enter a different email address.
+widget.createaccount.error.email.lj_domain=You can't use a [[domain]] alias when creating an account.  Please enter a different email address.
 
 widget.createaccount.error.list=Errors in form:
 
@@ -4136,7 +4157,7 @@ widget.createaccount.error.password.bad=Bad password:
 
 widget.createaccount.error.password.blank=You must enter a password.
 
-widget.createaccount.error.password.common=Password must not be based on a common word.
+widget.createaccount.error.password.common=Your password must not be based on a common word.
 
 widget.createaccount.error.password.likeemail=Password must not be similar to your email address.
 
@@ -4144,27 +4165,27 @@ widget.createaccount.error.password.likename=Password must not be similar to you
 
 widget.createaccount.error.password.likeusername=Password must not be similar to your username.
 
-widget.createaccount.error.password.needsmoreuniquechars=Password must contain at least 4 unique characters.
+widget.createaccount.error.password.needsmoreuniquechars=Your password must contain at least 4 unique characters.
 
-widget.createaccount.error.password.needsnonletter=Password must contain at least one non-letter character (digit or symbol).
+widget.createaccount.error.password.needsnonletter=Your password must contain at least one non-letter character (a digit or symbol).
 
-widget.createaccount.error.password.nomatch=Passwords do not match.
+widget.createaccount.error.password.nomatch=Your passwords don't match.
 
 widget.createaccount.error.password.toolong=Password must not be longer than 30 characters.
 
-widget.createaccount.error.password.tooshort=Password must be at least 6 characters.
+widget.createaccount.error.password.tooshort=Your password must be at least 6 characters for security reasons.
 
 widget.createaccount.error.tos=You must agree to the Terms of Service.
 
-widget.createaccount.error.username.inuse=Sorry, this username is already in use.
+widget.createaccount.error.username.inuse=That account name is already in use.
 
 widget.createaccount.error.username.invalid=Sorry, you can't use that username. Either it's been reserved for future use by site administrators, or it contains characters that are invalid. Usernames must only contain characters a-z, 0-9, and underscores. Usernames can't start or end with underscores, and can't have more than one underscore in a row.
 
-widget.createaccount.error.username.mustenter=You must enter a username.
+widget.createaccount.error.username.mustenter=You must enter an account name.
 
-widget.createaccount.error.username.purged=The username you entered is that of an account which has been deleted and purged. If you wish to use this username, you must first purchase a <a [[aopts]]>rename token</a> for an existing account.
+widget.createaccount.error.username.purged=That account name has been deleted and purged. At the moment, you can't register it. (We'll be changing that soon.)
 
-widget.createaccount.field.birthdate=Birthdate:
+widget.createaccount.field.birthdate=Birthdate (month-dd-yyyy):
 
 widget.createaccount.field.captcha.hear=Type the numbers you hear:
 
@@ -4186,25 +4207,25 @@ widget.createaccount.field.paidaccount.permanent=<strong>Note:</strong> This acc
 
 widget.createaccount.field.password=Password:
 
-widget.createaccount.field.tos=I have read and agree to [[sitename]]'s <a [[aopts1]]>Terms of Service</a> and <a [[aopts2]]>Privacy Policy</a>.
+widget.createaccount.field.tos=I've read and agree to [[sitename]]'s <a [[aopts1]]>Terms of Service</a> and <a [[aopts2]]>Privacy Policy</a>.
 
-widget.createaccount.field.username=Username:
+widget.createaccount.field.username=Account name:
 
-widget.createaccount.field.username.available=Username available
+widget.createaccount.field.username.available=This account name is available
 
 widget.createaccount.tip.birthdate=Required by law. No worries, you can set privacy on this after you're done creating an account.
 
-widget.createaccount.tip.birthdate2=Required by law. You must put your real birthdate (you can change it after account creation if you want to).  By default, we only display the month and day.
+widget.createaccount.tip.birthdate2=This information is required by law. You must enter your real birthdate. You can change it after you've created your account. We display only the month and day by default.
 
 widget.createaccount.tip.captcha=If you can't read the text, type "audio" to take a sound test instead.
 
-widget.createaccount.tip.email=We need your email address to send important information. We will never share or sell your email address.
+widget.createaccount.tip.email=We need your email address to send you important information. We'll never give your email address to anyone else.
 
-widget.createaccount.tip.password=Choose a secure password that is at least 6 characters long. Passwords cannot be based on your username, name, or email address.
+widget.createaccount.tip.password=Choose a secure password that's at least 6 characters long. Passwords can't be based on your account name, your real name, or your email address for security reasons.
 
-widget.createaccount.tip.username=Your username is used in your journal URL. Use lower-case letters (a-z), digits (0-9), and underscores (_).
+widget.createaccount.tip.username=Your account name is used in your journal URL. Use lower-case letters (a-z), digits (0-9), and underscores (_), and choose a name between 2 and 25 characters long. You can't start or end your account name with an underscore, nor have two consecutive underscores.
 
-widget.createaccountentercode.btn.proceed=Proceed...
+widget.createaccountentercode.btn.proceed=Proceed.
 
 widget.createaccountentercode.code=Code:
 
@@ -4212,25 +4233,23 @@ widget.createaccountentercode.comm=If you'd like to <a [[aopts]]>create a commun
 
 widget.createaccountentercode.comm.loggedout=You should create or log into a personal account to be the maintainer. If you don't have a personal account yet, you will need a code to create that account, but you don't need one for the community itself.
 
-widget.createaccountentercode.error.invalidcode=Invalid code.
+widget.createaccountentercode.error.invalidcode=Invite code is not valid or has already been used.
 
-widget.createaccountentercode.error.toofast=You are entering codes too quickly; please try again later.
+widget.createaccountentercode.error.toofast=You're entering codes too quickly. Please try again later.
 
 widget.createaccountentercode.getcode= If you do not have an account creation code, you can obtain one this way.
 
-widget.createaccountentercode.info=To create a new account, enter an account creation code:
-
-widget.createaccountentercode.pay=
+widget.createaccountentercode.info=Enter an account creation code to create a new account:
 
 widget.createaccountentercode.pay2=Alternatively, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
 
-widget.createaccountinviter.addcomms=Join and watch [[user]] ([[name]]).
+widget.createaccountinviter.addcomms=Join and subscribe to [[user]] ([[name]]).
 
-widget.createaccountinviter.addcomms.note.mm=[[user]] is a maintainer or moderator of this community.
+widget.createaccountinviter.addcomms.note.mm=[[user]] is an administrator of this community.
 
-widget.createaccountinviter.addcomms.note.moderated=This community has moderated membership; you will have to wait for a maintainer to approve your membership.
+widget.createaccountinviter.addcomms.note.moderated=This community has moderated membership; you'll have to wait for an administrator to approve your membership.
 
-widget.createaccountinviter.addinviter.trust=Add [[user]] to your access list.
+widget.createaccountinviter.addinviter.trust=Add [[user]] to your Access List.
 
 widget.createaccountinviter.addinviter.watch=Add [[user]] to your subscriptions.
 
@@ -4246,15 +4265,15 @@ widget.createaccountnextsteps.steps.post=Post your first entry
 
 widget.createaccountnextsteps.steps.profile=Finish editing your profile
 
-widget.createaccountnextsteps.steps.userpics=Upload userpics
+widget.createaccountnextsteps.steps.userpics=Upload icons
 
 widget.createaccountnextsteps.title=What's Next?
 
 widget.createaccountprofile.field.bio=Tell us a little (or a lot) about yourself:
 
-widget.createaccountprofile.field.gender=Gender
+widget.createaccountprofile.field.gender=For statistical purposes, please provide your gender. (It will not be publicly displayed.)
 
-widget.createaccountprofile.field.interests=What are you interested in?
+widget.createaccountprofile.field.interests=What are your interests?
 
 widget.createaccountprofile.field.interests.books=Books
 
@@ -4264,7 +4283,7 @@ widget.createaccountprofile.field.interests.moviestv=Movies/TV
 
 widget.createaccountprofile.field.interests.music=Music
 
-widget.createaccountprofile.field.interests.note=(separate multiple with commas)
+widget.createaccountprofile.field.interests.note=(separate multiple items with commas)
 
 widget.createaccountprofile.field.interests.other=Other
 
@@ -4272,9 +4291,9 @@ widget.createaccountprofile.field.location=Location
 
 widget.createaccountprofile.field.name=Name
 
-widget.createaccountprofile.info=Let others know who you are.  All fields are completely optional, but the more, the merrier.
+widget.createaccountprofile.info=You can tell other people about yourself here.  All fields are optional.
 
-widget.createaccountprofile.title=Jump Start Your Profile
+widget.createaccountprofile.title=Start Creating Your Profile
 
 widget.createaccountprogressmeter.step1=Create Account
 
@@ -4294,7 +4313,7 @@ widget.createaccountupgrade.btn.purchase=Purchase a Paid Account
 
 widget.createaccountupgrade.nextstep=No thanks, I'm not interested at this time.
 
-widget.createaccountupgrade.text=Purchasing a paid account will give you more account features.  It will also help to support [[sitename]], which does not use advertisements to get revenue.  Please read <a [[aopts]]>this FAQ</a> to learn more about our different paid account packages.
+widget.createaccountupgrade.text=Purchasing a paid account will give you more account features. It will also help to support [[sitename]], which does not use advertisements to get revenue. Please read <a [[aopts]]>this FAQ</a> to learn more about our different paid account packages.
 
 widget.createaccountupgrade.title=Upgrade Your Account
 
@@ -4310,7 +4329,7 @@ widget.currenttheme.options.editlayoutlayer=Edit your layout layer
 
 widget.currenttheme.options.editthemelayer=Edit your theme layer
 
-widget.currenttheme.options.layout=Change page setup
+widget.currenttheme.options.layout=Change your page setup
 
 widget.currenttheme.options.newtheme=Select a different theme
 
@@ -4422,7 +4441,7 @@ widget.importconfirm.destination=<strong>Importing to:</strong><br />[[user]] at
 
 widget.importconfirm.header=Confirm Import
 
-widget.importconfirm.intro=By clicking the button below, your import task will be started. Make sure you are happy with the choices you have made.
+widget.importconfirm.intro=By clicking the button below, your import task will be started. <strong>This process cannot be undone</strong>. Make sure you are happy with the choices you have made.
 
 widget.importconfirm.items=<strong>Data that you are importing:</strong><br />[[items]]
 
@@ -4490,7 +4509,7 @@ widget.importstatus.statusasof=[[status]] as of [[timeago]]
 
 widget.importstatus.whichaccount=Import from [[user]] at [[host]]
 
-widget.inbox.menu.delete.btn=Delete
+widget.inbox.menu.delete.btn=Delete Selected
 
 widget.inbox.menu.delete_all.btn=Delete All
 
@@ -4516,13 +4535,13 @@ widget.inboxfolder.confirm.delete=Are you sure you want to delete one or more bo
 
 widget.journaltitles.btn=Save
 
-widget.journaltitles.cancel=cancel
+widget.journaltitles.cancel=Cancel
 
-widget.journaltitles.desc=These titles appear in your journal and in your profile.
+widget.journaltitles.desc=These titles appear in your journal and on your profile.
 
-widget.journaltitles.edit=edit
+widget.journaltitles.edit=Edit
 
-widget.journaltitles.friendspagetitle=Friends Page Title:
+widget.journaltitles.friendspagetitle=Reading Page Title:
 
 widget.journaltitles.journalsubtitle=Journal Subtitle:
 
@@ -4556,13 +4575,13 @@ widget.layoutchooser.title=3. Choose a Page Setup
 
 widget.layoutchooser.title_nonum=Choose a Page Setup
 
-widget.linkslist.about=Use the form below to create a list of links that will appear on your journal.
+widget.linkslist.about=Use this form to create a list of links to appear on your journal.
 
 widget.linkslist.about.blank=Enter a "-" for the title to create a blank line (not in all themes).
 
 widget.linkslist.about.heading=Enter a title with no URL to create a heading.
 
-widget.linkslist.about.reorder=Modify the order number on the left to reorder links.
+widget.linkslist.about.reorder=Modify the order number to reorder your links.
 
 widget.linkslist.table.more=More
 
@@ -4604,7 +4623,7 @@ widget.location.section.location=Location
 
 widget.location.security.visibility.everybody=Everybody
 
-widget.location.security.visibility.friends=Friends only
+widget.location.security.visibility.friends=Access list only
 
 widget.location.security.visibility.nobody=Nobody
 
@@ -4614,9 +4633,9 @@ widget.location.state.loading=Loading states...
 
 widget.location.timezone.select=(Select your timezone)
 
-widget.moodthemechooser.desc=Mood themes are small icons that describe your mood or the mood of a post. Select from a variety of faces and characters.
+widget.moodthemechooser.desc=Mood themes are small icons used to describe your mood or the mood of an entry. You can select from a variety of faces and characters.
 
-widget.moodthemechooser.forcetheme=use this mood theme on my friends page
+widget.moodthemechooser.forcetheme=use this mood theme on my Reading Page
 
 widget.moodthemechooser.links.allthemes=preview all mood themes
 
@@ -4626,17 +4645,17 @@ widget.moodthemechooser.title=Mood Themes
 
 widget.moodthemechooser.viewtheme=view all
 
-widget.navstripchooser.colors=In addition, you can customize the color of the navigation strip on your journal.
+widget.navstripchooser.colors=You can customize the color of the navigation strip on your journal.
 
-widget.navstripchooser.desc=This small toolbar is at the top of journal pages and provides access to quick links, filtering options, and management settings. You can change which journals it will display on, from <a [[aopts]]>your settings page</a>.
+widget.navstripchooser.desc=The navigation strip is a small toolbar at the top of journal pages. It provides access to quick links, filtering options, and journal management settings. You can change which journals it appears on at <a [[aopts]]>your settings page</a>.
 
-widget.navstripchooser.option.color.control_strip_bgcolor=background color:
+widget.navstripchooser.option.color.control_strip_bgcolor=Background color:
 
-widget.navstripchooser.option.color.control_strip_bordercolor=border color:
+widget.navstripchooser.option.color.control_strip_bordercolor=Border color:
 
-widget.navstripchooser.option.color.control_strip_fgcolor=text color:
+widget.navstripchooser.option.color.control_strip_fgcolor=Text color:
 
-widget.navstripchooser.option.color.control_strip_linkcolor=link color:
+widget.navstripchooser.option.color.control_strip_linkcolor=Link color:
 
 widget.navstripchooser.option.color.custom=Custom colors
 
@@ -4646,7 +4665,7 @@ widget.navstripchooser.option.color.layout_default=Default layout colors
 
 widget.navstripchooser.option.color.light=Light gray gradient
 
-widget.navstripchooser.option.color.no_gradient=without background gradient
+widget.navstripchooser.option.color.no_gradient=No background gradient
 
 widget.navstripchooser.title=Navigation Strip
 
@@ -4710,7 +4729,7 @@ widget.s2propgroup.language.default=(Default)
 
 widget.s2propgroup.language.label=Language
 
-widget.s2propgroup.language.note=This only affects theme-provided text. Your entries will not automatically be translated.
+widget.s2propgroup.language.note=This only affects theme-provided text. Your entries won't automatically be translated.
 
 widget.s2propgroup.linkslisttab=See the "[[name]]" page for links list options.
 
@@ -4746,11 +4765,11 @@ widget.search.msn=MSN
 
 widget.search.region=Region
 
-widget.search.siteuser=Site & User
+widget.search.siteuser=Site and Account
 
 widget.search.submit=Search existing users
 
-widget.search.title=Search...
+widget.search.title=Search
 
 widget.search.username=Username
 
@@ -4837,9 +4856,9 @@ widget.support.submit.captcha.note=If you can't pass the human test, email your 
 widget.support.submit.category=Category
 
 widget.support.submit.complete.text<<
-Your request has been filed. You can track the progress of your request at:
+Your request has been filed. You can track its progress at:
 <blockquote><a href='[[url]]'>[[url]]</a></blockquote>
-If you have any other questions or comments, you can add them to that request at any time.
+If you have any additional questions or comments, you can add them to your request at any time.
 .
 
 widget.support.submit.language=Language
@@ -4854,7 +4873,7 @@ widget.support.submit.notshow=(not shown to the public)
 
 widget.support.submit.question=Question or Problem
 
-widget.support.submit.question.note=Do not include any sensitive information, such as your password or phone number. No HTML allowed.
+widget.support.submit.question.note=Don't include confidential information like your password or phone number. Don't use HTML in your submission.
 
 widget.support.submit.summary=Summary
 
@@ -4908,7 +4927,7 @@ widget.themenav.btn.search=Search
 
 widget.themenav.developer=Developer Area
 
-widget.themenav.filteravailable=Only show themes available to me
+widget.themenav.filteravailable=Only display the themes I can use
 
 widget.themenav.switchtos1=Switch to old style system (S1)
 
@@ -4924,7 +4943,7 @@ xpost.edit.error=Failed to update crossposted entry at [[username]]@[[server]]: 
 
 xpost.edit.error.deleted=Failed to update crossposted entry at [[username]]@[[server]]:  the entry has been deleted on [[server]]. Select the cross-post checkbox for this account again if you want to recreate it.
 
-xpost.edit.success=Update of crosspost at [[username]]@[[server]] successful.  You can view this edited entry <a href="[[xpostlink]]">here</a>.
+xpost.edit.success=Update of crosspost at [[username]]@[[server]] successful.  You can view your edited entry <a href="[[xpostlink]]">here</a>.
 
 xpost.error=Failed to crosspost entry to [[username]]@[[server]]:  [[error]]
 
@@ -4950,7 +4969,7 @@ xpost.redirect.comment=<span style="font-size: smaller;">This entry was original
 
 xpost.request.failed=Failed to crosspost to [[account]].  You may go <a href = "[[editurl]]">here</a> to attempt to crosspost this entry again.
 
-xpost.request.success=Crosspost requested to [[account]].  You will be notified when this attempt has completed.
+xpost.request.success2=Crosspost requested to [[account]].  You will be notified in your [[sitenameshort]] Inbox when this attempt has completed.
 
 xpost.respected=This will respect your default <a [[aopts]]>crosspost settings</a>, so make sure you have them set properly before you do this.
 

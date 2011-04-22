@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.intro=This page shows you all of your currently logged in sessions on [[sitename]] as well as some of your prior login sessions. You can individually log out any logged in session if, for example, you forgot to log out when leaving a friend's computer.
+.intro=This page shows all your currently logged in sessions on [[sitename]] as well as some of your prior login sessions. You can individually log out any logged in session.
 
 .loggedin.header=Currently Logged In Sessions
 
@@ -35,5 +35,5 @@
 
 .title=Manage Your Login Sessions
 
-.user=Username:
+.user=Account:
 

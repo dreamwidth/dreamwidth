@@ -1,11 +1,11 @@
 ;; -*- coding: utf-8 -*-
 .auth.poster=Poster:
 
-.btn.proceed=Proceed...
+.btn.proceed=Proceed
 
 .certainday=Certain Day:
 
-.desc=Please use the form below to find the entry you would like to edit.
+.desc=Use the form below to search for the entry you'd like to edit.
 
 .edit.this.entry=Edit this Entry
 
@@ -25,7 +25,7 @@
 
 .no.entries.match=No entries match the criteria you specified. Please go back and adjust your search.
 
-.recententries=most recent entries
+.recententries=Most recent entries
 
 .recententry=Most recent entry
 
@@ -45,13 +45,13 @@
 
 .success.fromhere.manageentries=Manage your journal entries
 
-.success.fromhere.viewentries=View journal entries
+.success.fromhere.viewentries=View your journal entries
 
 .success.fromhere.viewentry=View this entry
 
-.success.head=Success
+.success.head=Success.
 
-.title=Edit Journal Entries
+.title=Edit Entries
 
-.viewwhat=View What Entries:
+.viewwhat=View Which Entries:
 

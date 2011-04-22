@@ -1,21 +1,17 @@
 ;; -*- coding: utf-8 -*-
 .comm.success=Success
 
-.commjoin.text<<
-You have approved the membership request of [[user]] in [[comm]].
-Click <a [[aopts]]>here</a> to visit the member list for this community to set
-other options for this user.
-.
+.commjoin.text=You've approved the membership of [[user]] in [[comm]].  Would you like to <a [[aopts]]>set further options for this person</a>?
 
-.error.actionperformed=This action has already been performed
+.error.actionperformed=This action has already been performed.
 
-.error.approving=There was an error approving this request to join.
+.error.approving=There was an error approving the request to join.
 
 .error.internerr.invalidaction=Internal error: invalid action
 
 .error.invalidargument=Invalid argument given
 
-.error.unknownactiontype=Unknown action type
+.error.unknownactiontype=Unknown action
 
 .title=Action Approval
 

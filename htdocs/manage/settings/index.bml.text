@@ -1,17 +1,17 @@
 ;; -*- coding: utf-8 -*-
-.adultcontentflag=Limit age:
+.adultcontentflag=The content of this journal is suitable for users:
 
-.adultcontentflag.select.concepts=Age 14 and over
+.adultcontentflag.select.concepts=Age 14 or over.
 
-.adultcontentflag.select.explicit=Age 18 and over
+.adultcontentflag.select.explicit=Age 18 or over.
 
-.adultcontentflag.select.none=No age limits
+.adultcontentflag.select.none=Of all ages.
 
 .adultcontentflag.text=This is a global setting for the journal.
 
-.adultcontentreason.text=Optional reason to be displayed as to why your journal is set as having adult content
+.adultcontentreason.text=Optionally displayed reason why your journal is set with this age restriction
 
-.bdayreminder=Receive email reminders for your friends' birthdays
+.bdayreminder=Receive email reminders for the birthdays of people in your Circle.
 
 .btn.deleteinactive=Delete all inactive subscriptions
 
@@ -35,7 +35,7 @@
 
 .cat.notifications=Notifications
 
-.cat.notifications.desc=Notification and subscription tracking options. You can also <a [[aopts]]>edit your reading page subscriptions to specific users, communities, and feeds</a>.
+.cat.notifications.desc=Notification tracking options. You can also <a [[aopts]]>edit your reading page subscriptions to specific users, communities, and feeds</a>.
 
 .cat.othersites=Other Sites
 
@@ -47,15 +47,15 @@
 
 .commentpage=View comment pages in your own journal style
 
-.commentpage.text=When you follow a comment link from your Friends page, you can view that comment page in your own journal style.
+.commentpage.text=When you follow a comment link from your Reading page, you can view that comment page in your own journal style.
 
 .confirm.deleteinactive=Are you sure you want to delete all inactive subscriptions?
 
 .contextualhover=Show contextual hover menu
 
-.contextualhover.text=Contextual hover menus appear when you hover over userhead images or userpics.
+.contextualhover.text=Contextual hover menus appear when you hover over userhead images or icons.
 
-.errors=There were errors with your submission.  Please look below to fix them.
+.errors=There were errors with your submission.  Please fix the errors below.
 
 .finished.save_button=Save Changes
 
@@ -75,7 +75,7 @@
 
 .fn.language=Language
 
-.fn.minsecurity=Entry Security
+.fn.minsecurity=Minimum Entry Security
 
 .fn.public=Publicity
 
@@ -95,19 +95,19 @@
 
 .imageplace.all=all images
 
-.imageplace.large=large images (over 640x480)
+.imageplace.large=large images (over 640x480 pixels)
 
-.imageplace.medium=medium images (over 320x240)
+.imageplace.medium=medium images (over 320x240 pixels)
 
 .imageplace.none=nothing (display all images)
 
-.imageplace.text=Placeholders replace inline images with links, and are useful if you are browsing at work or over a slow connection.
+.imageplace.text=Placeholders replace inline images with links and are useful if you are browsing at work or over a slow connection.
 
-.intro=Customize your viewing, notification and additional privacy options.
+.intro=Customize your viewing, notification, and additional privacy options.
 
-.intro2=Customize your viewing, notification and additional privacy options. You may also want to edit your <a [[aopts1]]>profile settings</a> or your <a [[aopts2]]>comment settings</a>.
+.intro2=Customize your viewing, notification, and additional privacy options. You may also edit your <a [[aopts1]]>profile settings</a> or your <a [[aopts2]]>comment settings</a>.
 
-.intro3=You can edit your account settings below. You may also want to edit your <a [[aopts1]]>profile</a> or your <a [[aopts2]]>journal style</a>.
+.intro3=You can edit your account settings here. You can also edit your <a [[aopts1]]>profile</a> or your <a [[aopts2]]>journal style</a>.
 
 .jabber=Show [[jabbertitle]] online status to:
 
@@ -119,7 +119,7 @@
 
 .minsecurity=Default privacy of new entries:
 
-.minsecurity.friends=Friends Only
+.minsecurity.friends=Access List
 
 .minsecurity.members=Members Only
 
@@ -127,33 +127,27 @@
 
 .minsecurity.public=Everyone (Public)
 
-.minsecurity.text=This setting will override the security for all future entries, unless you choose a more restrictive privacy. In that case, the more restrictive privacy setting will be used.
+.minsecurity.text=This setting will override the security for all future entries, except those with a more restrictive privacy setting. In that case, the more restrictive privacy setting will be used.
 
-.public<<
-I hereby give my authorization to reproduce and/or 
-distribute any part or all of my Content by third parties, with the
-identification of the name and source, but without any modification.
-This authorization is remuneration free. Except as stated herein, none 
-of the Content may be transferred, copied, republished and distributed 
-in any form or by any means for commercial use.
+.public=I hereby give my authorization to reproduce and/or distribute any part or all of my Content by third parties, with the identification of the name and source, but without any modification.  This authorization is remuneration free. Except as stated herein, none of the Content may be transferred, copied, republished, or distributed in any form or by any means for commercial use.
 
 .safesearch.select.none=Do not filter my results
 
-.safesearch2=You can choose to filter mature or offensive content out of search results.
+.safesearch2=You can choose to filter 14+ or 18+ content out of search results.
 
-.safesearch2.select.concepts=Use strict filtering (Excludes content the poster has marked 14+)
+.safesearch2.select.concepts=Use strict filtering (excludes content the poster has marked 14+)
 
-.safesearch2.select.explicit=Use moderate filtering (Excludes content the poster has marked 18+)
+.safesearch2.select.explicit=Use moderate filtering (excludes content the poster has marked 18+)
 
 .searchincl=Minimize your journal's inclusion in search engine results
 
-.searchincl.text=We can instruct search engines not to include your journal entries in their search results. Not all search engines recognize this request; if you do not want a journal entry to show up in search results, then make sure it is posted private or Friends-only.
+.searchincl.text=We can instruct search engines not to include your journal entries in their search results. Not all search engines recognize this request; if you do not want a journal entry to show up in search results, then make sure it is posted private or Trusted only.
 
 .searchincl2=Minimize your journal's inclusion in search engine results. Selecting this option also means that your entries will not be publicized at external sites that have content partnership with [[sitename]].
 
-.section.adult_content=Adult content options
+.section.adult_content=Age limit options
 
-.section.adult_content.note=Not all content on [[sitename]] is appropriate for everyone. These settings let you rate your journal as well as determine the level of content you are comfortable with viewing.
+.section.adult_content.note=Not all content on [[sitename]] is appropriate for everyone.  These settings let you rate your journal as well as determine the level of content you are comfortable viewing.
 
 .section.privacy=Additional privacy options
 
@@ -161,11 +155,11 @@ in any form or by any means for commercial use.
 
 .security.visibility.everybody=Everybody
 
-.security.visibility.friends=Friends only
+.security.visibility.friends=Access List only
 
 .security.visibility.nobody=Nobody
 
-.success=You have successfully saved your account settings.
+.success=You've successfully saved your account settings.
 
 .success.deleteinactive=You have successfully deleted all inactive subscriptions.
 
@@ -175,7 +169,7 @@ in any form or by any means for commercial use.
 
 .success.next.customize=Customize your journal
 
-.success.next.friends=Read your Friends page
+.success.next.friends=Go to your Reading page
 
 .success.next.home=Return to the home page
 
@@ -189,7 +183,7 @@ in any form or by any means for commercial use.
 
 .title.self=My Account Settings
 
-.viewingadult=Collapse content marked as inappropriate for anyone under:
+.viewingadult=Collapse content marked as inappropriate for:
 
 .viewingadult.select.concepts=Anyone under the age of 14
 

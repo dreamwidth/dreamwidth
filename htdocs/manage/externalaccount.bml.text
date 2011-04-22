@@ -5,7 +5,7 @@
 
 .error.maxacct.plural=You are already at your limit of [[max_accts]] accounts.
 
-.error.maxacct.singular=You are already at your limit of [[max_accts]] account.
+.error.maxacct.singular=You're already at your limit of [[max_accts]] account.
 
 .protocol.ljxmlrpc.minsecurity.desc=Minimum Security
 
@@ -37,11 +37,11 @@
 
 .setting.xpost.option.site.custom=Other Site
 
-.setting.xpost.option.username=Username
+.setting.xpost.option.username=Account Name
 
 .setting.xpost.option.username.info=(Please enter a valid username on the selected service. Crossposting to community accounts is not possible.)
 
-.setting.xpost.option.xpostbydefault=Cross Post by Default
+.setting.xpost.option.xpostbydefault=Crosspost by Default
 
 .settings.xpost.error.ipban=Too many log-in attempts. Please try creating the account again later.
 

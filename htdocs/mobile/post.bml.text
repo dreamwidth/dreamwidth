@@ -5,13 +5,13 @@
 
 .form.post=Post
 
-.form.post_to=to
+.form.post_to=To:
 
 .form.security=Security
 
-.form.subject=Subject
+.form.subject=Subject:
 
-.page.title=Post to journal
+.page.title=Post to Journal:
 
 .post.back=<a [[aopts]]>&lt;&lt; Back</a> to [[sitename]] Mobile.
 
@@ -21,7 +21,7 @@
 
 .post.login=You must <a [[aopts]]>log in</a> before posting.
 
-.post.success.header=Success!
+.post.success.header=Success
 
-.post.success.text=Posted. Available <a [[aopts]]>here</a>.
+.post.success.text=Your post is available <a [[aopts]]>here</a>.
 

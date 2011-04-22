@@ -11,7 +11,7 @@
 
 .error.redirkey=Bogus redir_key.
 
-.error.usernotfound=User not found.
+.error.usernotfound=Journal not found.
 
 .link.to.journal=Go back to [[journal]].
 

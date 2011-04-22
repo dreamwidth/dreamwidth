@@ -19,7 +19,7 @@
 
 .colortheme.head=Color Theme
 
-.domainalias.about=If you have a domain name already registered (or which you're planning on registering) and would like it to automatically load your LiveJournal, enter it here:
+.domainalias.about=If you have a domain name already registered (or which you're planning on registering) and would like it to automatically load your <?sitename?>, enter it here:
 
 .domainalias.domainname=Domain name:
 

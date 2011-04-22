@@ -19,59 +19,59 @@
 
 .error.adding=[[user]] has banned this community from sending them invitations.
 
-.error.alreadyadded=[[user]] was not added because they already have access to this community.
+.error.alreadyadded=[[user]] already has access to this community.
 
 .error.alreadysent=[[user]] could not be added because they were already sent a confirmation email on <i>[[datetime]]</i>.  Please wait for them to respond.
 
-.error.invaliduser2=Cannot add [[type]] account: [[user]]
+.error.invaliduser2=Can't add [[type]] account: [[user]]
 
-.error.isminor=Sorry, but [[user]] cannot be invited to this community because they do not have a registered birthday that is at least 18 years old.
+.error.isminor=[[user]] isn't at least 18 years old and therefore can't be invited to this community.
 
-.error.limit=Unable to invite [[user]], the outstanding invitation limit for this community has been exceeded.
+.error.limit=Can't invite [[user]]; the outstanding invitation limit for this community has been exceeded.
 
-.error.noaccess=Only community maintainers are able to edit membership lists. You are not a maintainer of community [[comm]].
+.error.noaccess=You're not an administrator of [[comm]], so you can't edit membership lists.
 
-.error.noattr=No attributes selected for user: [[user]]
+.error.noattr=No attributes selected for [[user]]
 
 .error.nocomm=Community not found.
 
 .error.nomaint=Your community, [[comm]], must have at least one maintainer. Please <a [[aopts]]>go back</a> and add a maintainer.
 
-.error.notactive=Account is not active: <b>[[user]]</b>
+.error.notactive=<strong>[[user]]</strong> isn't an active account.
 
-.error.notcomm=[[user]] is not a community.
+.error.notcomm=[[user]] isn't a community.
 
-.error.nouser=User does not exist: <b>[[user]]</b>
+.error.nouser=<strong>[[user]]</strong> doesn't exist.  Are you sure you entered the account name correctly?
 
-.error.unknown=Error inviting [[user]].  Please make sure they're not already a member and try again.
+.error.unknown=Error inviting [[user]].  Please make sure [[user]] isn't already a member and try again.
 
 .intro=You can define the roles of each of your members here.
 
-.intro.invite=To invite a user to your community, enter their username in one of the empty boxes below and select the checkboxes that correspond to the roles you which the user to have.
+.intro.invite=Enter an account name to invite someone to join your community, and select the community privileges you want that account to have.
 
-.jump=Jump to user
+.jump=Jump to account
 
-.key.admin=<b>Maintainer</b>
+.key.admin=<strong>Administrator</strong>
 
-.key.member=<b>Member</b>
+.key.member=<strong>Member</strong>
 
-.key.moderate=<b>Moderator</b>
+.key.moderate=<strong>Moderator</strong>
 
-.key.post=<b>Posting Access</b>
+.key.post=<strong>Posting Access</strong>
 
 .key.preapprove=Unmoderated
 
-.key.user=<b>User</b>
+.key.user=<strong>Account</strong>
 
-.manage2=Manage communities
+.manage2=Manage Communities
 
-.name=<b>Community name:</b> [[name]]
+.name=<strong>Community name:</strong> [[name]]
 
-.nextlink=<i>(Next page...)</i>
+.nextlink=<em>(Next page...)</em>
 
-.prevlink=<i>(Previous page...)</i>
+.prevlink=<em>(Previous page...)</em>
 
-.reinvited2=[[user]] has been reinvited to join this community.  They will need to accept the invite from the <a [[aopts]]>Community Invitation Page</a>.
+.reinvited2=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a [[aopts]]>Community Invitation Page</a> to rejoin.
 
 .settings2=Settings
 
@@ -79,19 +79,19 @@
 
 .success.deleted=removed: [[list]]
 
-.success.header=Success
+.success.header=Success.
 
-.success.invited=The following users have been successfully invited to this community with the listed privileges:
+.success.invited=You have successfully invited these people to join this community and given them the listed privileges:
 
-.success.invited2=The following users have been successfully invited to this community with the listed privileges.  They will need to accept the invite from the <a [[aopts]]>Community Invitation Page</a> before they can become a member of the community.
+.success.invited2=You've successfully invited the following people to join this community and given them the listed privileges.  People must accept the invitation from the <a [[aopts]]>Community Invitation Page</a> before joining the community.
 
-.success.message2=The following changes have been made:
+.success.message2=You have made the following changes:
 
-.success.nochanges=No changes have been made.
+.success.nochanges=You haven't made any changes.
 
 .success.return2=<a [[aopts]]>Return to the list</a>
 
 .title=Community Members
 
-.update=Update settings
+.update=Revise settings
 

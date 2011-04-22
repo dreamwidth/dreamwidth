@@ -3,15 +3,15 @@
 
 .failed.to.load=Failed to load
 
-.no.options.match=No options match
+.no.options.match=No matching options
 
 .options.tagged=Options tagged
 
 .save=Save
 
-.sorry=Sorry
+.sorry=Sorry.
 
 .the.setting=The '[[selminiclass]]' setting:
 
-.which.setting=Which <a [[link]]>setting</a> do you want to change today?  Enter tag:
+.which.setting=Enter the tag for the <a [[link]]>setting</a> you want to change.
 

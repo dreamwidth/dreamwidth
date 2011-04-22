@@ -1,13 +1,13 @@
 ;; -*- coding: utf-8 -*-
-.backfaq2=Back to the <a [[aopts]]>FAQ listing</a>.
+.backfaq2=Back to the <a [[aopts]]>full FAQ list</a>.
 
-.backfaqcat2=Back to the <a [[aopts]]>parent FAQ category</a>.
+.backfaqcat2=Back to the <a [[aopts]]>FAQ category</a>.
 
 .backfaqcat3=Back to the <a [[aopts]]>[[categoryname]] FAQ category</a>.
 
-.backsearch=Back to the <a [[aopts]]>search page</a>.
+.backsearch=Return to the <a [[aopts]]>Search Page</a>.
 
-.backsupport2=Back to the <a [[aopts]]>support area</a>.
+.backsupport2=Need more help? Go to the <a [[aopts]]>Support Area</a>.
 
 .cc.imgalt=Creative Commons License
 
@@ -15,11 +15,11 @@
 
 .edit.faq=Edit this FAQ
 
-.error.nofaq=The specified FAQ does not exist.
+.error.nofaq=The  FAQ you specified doesn't exist.
 
 .error.title_nofaq=Error retrieving FAQ [[faqid]]
 
-.lastupdated=Last Updated:
+.lastupdated=Last Activity:
 
 .more=Read More
 

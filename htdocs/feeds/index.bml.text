@@ -3,75 +3,75 @@
 
 .add=Add Feed
 
-.add.byurl.text=Add a feed to your friends list by entering the feed URL below.
+.add.byurl.text=Subscribe to a feed by entering its URL here.
 
-.add.byurl.title=Add Feed by URL
+.add.byurl.title=Add Feed
 
-.add.pop.text=The following are some popular feeds you're not currently watching:
+.add.pop.text=Popular feeds that you're not subscribed to:
 
-.add.pop.title=Add Popular Feed
+.add.pop.title=Add Popular Feeds
 
 .add.selected=Add Selected
 
 .back=Back
 
-.create=Create Feed
+.create=Create Feed Account
 
 .create.name2=A feed account for that URL ([[feedurl]]) isn't set up yet on this site. Please enter an account name to use with the feed. "_feed" will automatically be added to the end of the account name, so don't include that. After you create the feed account, it may take up to a day to start updating.
 
-.error.nocreate=The URL you have entered is not currently being syndicated on this site.  Your account type does not have the ability to create new syndicated feeds.
+.error.nocreate=A feed account for that URL isn't currently set up on this site.   Your account type can't create new feed accounts.
 
 .error.unknown=Unknown Error
 
 .feed.url=Feed URL:
 
-.invalid.accountname=Invalid account name.
+.invalid.accountname=Invalid account name. The account name can contain letters, numbers, and the underscore character (_), and may not start or end in an underscore. Don't include "_feed" at the end of your account name, as this will be added automatically.
 
-.invalid.cantadd=You can't add RSS feeds from this site.
+.invalid.cantadd=You can't add feeds from this site.
 
-.invalid.http.text=There was an error retrieving this URL.  The server may be down or the content unavailable at this time.  Please verify the URL you have provided and try again.
+.invalid.http.text=There was an error retrieving this URL. Please check the URL and try again.  If the problem persists, the server may be down or the content unavailable.
 
 .invalid.http.title=Error retrieving content
 
 .invalid.inuse.text=That account name is already in use.
 
-.invalid.inuse.title=Username in use
+.invalid.inuse.title=That account name is already in use.
 
-.invalid.needname.text=To add a syndicated account that doesn't exist, go back and give it an account name.
+.invalid.needname.text=To create a new feed account, go back and enter an account name.
 
 .invalid.needname.title=Need an account name 
 
-.invalid.needurl=You must enter either a syndicated account's username or URL to add a new feed.
+.invalid.needurl=You must enter either an URL or a feed's account name to add a new feed.
 
-.invalid.notexist=No syndicated account exists with that username.
+.invalid.notexist=No feed account exists with that account name.
 
-.invalid.notrss.text=The URL provided does not appear to contain XML formatted data.
+.invalid.notrss.text=You've entered a URL that isn't a valid feed.
 
-.invalid.notrss.title=Data not XML formatted
+.invalid.notrss.title=Not a valid feed
 
 .invalid.port=Non-standard port number not allowed
 
-.invalid.reserved=This account name is reserved. Please choose a different account name.
+.invalid.reserved=This account name is reserved. Please choose a different one.
 
 .invalid.submission=Invalid form submission
 
-.invalid.url=The URL you have typed is invalid. Please make sure you have typed the URL correctly and try again.
+.invalid.url=The URL you've entered is invalid. Please make sure you've entered it correctly and try again.
 
 .remove=Remove Selected
 
-.table.account=Account
+.table.account=Account name
 
 .table.feed=Feed
 
-.table.watchers=Watchers
+.table.watchers=Subscribers
 
-.title=Syndication
+.title=Feeds
 
-.top1000.text=Browse a list of our <a [[aopts]]>top 1000 syndicated feeds</a>.
+.top1000.text=Browse a list of our <a [[aopts]]>1000 most popular feeds</a>.
 
-.user.nomatch=User posting doesn't match user that filled out the form.
+.user.nomatch=Account posting doesn't match account that filled out the form.
 
-.using.text=Here you can add syndicated feeds (RSS) from other sites to your friends list, removing the need to check a dozen sites every day.
+.using.text=You can subscribe to feeds (RSS or Atom) from other sites here. That way you can read their updates on your Reading Page rather than having to check each site individually.
 
-.using.title=Using [[sitename]] for syndication
+.using.title=Adding feeds on [[sitename]].
 

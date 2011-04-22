@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.ask.body=Validating your email address will confirm your account and allow you to use all its features. Click the button below to have a validation email sent to <b>[[email]]</b>.
+.ask.body=Validating your email address will allow you to use all the features of your account. Click the button below to have a validation email sent to <b>[[email]]</b>.
 
 .ask.button=Send Validation Email
 
@@ -7,7 +7,7 @@
 
 .ask.switch=Switch
 
-.asterisk.comment=(Accounts marked with an * have not yet been validated)
+.asterisk.comment=(Accounts marked with an * haven't been confirmed yet)
 
 .asterisk.name=* [[journal]]
 
@@ -19,6 +19,10 @@ To finish confirming your email address, please visit this URL:
     [[conflink]]
 
 You may have to copy and paste this link into your browser's window.
+
+If you didn't request this email, don't panic. It's possible that the user who made the request mistyped the intended email address.
+
+If you don't use this confirmation link, it will expire in 7 days, and this email account won't be associated with the account.
 
 Sincerely,
 [[sitename]] Team

@@ -1,11 +1,11 @@
 ;; -*- coding: utf-8 -*-
-.enter.user.head=Enter user
+.enter.user.head=Enter account name:
 
-.enter.user.input=Username:
+.enter.user.input=Account name:
 
 .enter.user.submit=Proceed...
 
-.enter.user.text2=Enter the LiveJournal username of the person you'd like to send a text message to:
+.enter.user.text2=Enter the Dreamwidth account name of the person you'd like to send a text message to:
 
 .error.banned.head=Banned
 
@@ -13,25 +13,25 @@
 
 .error.notloggedin.head=Not logged in
 
-.error.notloggedin.notfriend=and be listed as their friend
+.error.notloggedin.notfriend=and be on their Access List
 
-.error.notloggedin.text=To send a text message to this user, you must be <a [[aopts]]>logged in</a>[[andbefriend]].
+.error.notloggedin.text=To send a text message to this account, you must be <a [[aopts]]>logged in</a>[[andbefriend]].
 
 .error.unauthorized.head=Unauthorized
 
-.error.unauthorized.text=User <B>[[user]]</B> has selected "friends only" as the security level required to send text messages to them.
+.error.unauthorized.text=<strong>[[user]]</strong> only allows text messages from people on their Access List.
 
 .error.unavailable.head=Unavailable
 
-.error.unavailable.notfound=Could not find [[user]].
+.error.unavailable.notfound=Couldn't find [[user]].
 
-.error.unavailable.notpermitted=This user's account type does not permit text messaging.
+.error.unavailable.notpermitted=This account type doesn't have text messaging enabled.
 
-.error.unavailable.notsetup=[[user]] has not setup their text messaging information at [[sitenameshort]], or they've turned it off.
+.error.unavailable.notsetup=This account hasn't set up text messaging information at [[sitenameshort]] or has turned it off.
 
-.footer.disclaimer.text=<B>Disclaimer:</B> The reliability of text messaging should not be trusted in dealing with emergencies.
+.footer.disclaimer.text=<strong>Disclaimer:</strong> The reliability of text messaging shouldn't be trusted in emergencies.
 
-.footer.howwork.text=How does this feature work?  <a [[aopts]]>Read this</a>.
+.footer.howwork.text=<a [[aopts]]>How does this feature work?</a>.
 
 .form.head=Send a message
 
@@ -39,19 +39,19 @@
 
 .form.message.input=Message:
 
-.form.message.note=(max <TT>[[maxlen]]</TT> characters ... type until it stops you)
+.form.message.note=(max <TT>[[maxlen]]</TT> characters. Enter characters until the field won't accept any more.)
 
-.form.message.submit=Send Message!
+.form.message.submit=Send Message.
 
-.form.text=Fill out this form to send a text message to <B>[[user]]</B>.
+.form.text=Fill out this form to send a text message to <strong>[[user]]</strong>.
 
-.providers.from=from:
+.providers.from=From:
 
 .providers.head=Service Providers
 
-.providers.msg=msg:
+.providers.msg=Message:
 
-.providers.text=The following text messaging service providers are supported.
+.providers.text=The following text messaging service providers are supported:
 
 .providers.total=total:
 

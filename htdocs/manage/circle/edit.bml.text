@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
 .addrelationships.head=Add Relationships
 
-.addrelationships.text=To add people to your circle, or to modify the colors associated with a user that you subscribe to, enter their [[sitename]] usernames or their OpenID URLs in the boxes below.  You can also <a [[aopts]]>invite a friend</a> to join [[sitename]].
+.addrelationships.text=Enter the [[sitename]] account names or OpenID URLs of people you want to add to your Circle. You can also use this form to change the colors associated with an account you subscribe to.  To return to the default colors, select a Black foreground on a White background.
 
 .background=Background
 
@@ -31,7 +31,7 @@
 
 .circle.intro=Here are the <a [[aopts1]]>people</a>, <a [[aopts2]]>communities</a>, and <a [[aopts3]]>feeds</a> that are in your circle.  You can change who appears on your Reading Page and who you give access to by using the check boxes.  You can also <a [[aopts4]]>edit your notification tracking options</a>.
 
-.circle.intro.nonpeople=Here are the communities and feeds in your circle:
+.circle.intro.nonpeople=These are the communities and feeds in your Circle. You can use the checkboxes to unsubscribe from these accounts.
 
 .circle.member=Member
 
@@ -57,7 +57,7 @@
 
 .circle.trusted_by=Gives you access?
 
-.circle.username=Username/OpenID URL
+.circle.username=Account name or OpenID URL
 
 .circle.watch=Subscribe?
 
@@ -81,25 +81,25 @@
 
 .error.adding.text=User <strong>[[username]]</strong> does not exist.
 
-.error.badjournaltype=Cannot modify friends of this journal type.
+.error.badjournaltype=You can't modify the Circle of this journal type.
 
-.error.updating=There was an error updating your friends list:
+.error.updating=There was an error updating your circle.
 
 .foreground=Foreground
 
 .friend=Friend
 
-.hover=Hover your mouse over a color to see its name.
+.hover=Hover your mouse pointer over a color to display its name and hex value.
 
 .mrcolor=Mr. Color Viewer
 
 .name=Name
 
-.success.editfriends=Manage your circle
+.success.editfriends=Manage your Circle
 
-.success.editgroups=Edit custom friends groups
+.success.editgroups=Edit posting and reading filters
 
-.success.friendspage=View your reading page
+.success.friendspage=View your Reading Page
 
 .success.fromhere=From here, you can:
 
@@ -123,7 +123,7 @@
 
 .title=Manage Circle
 
-.title2=Manage Friends
+.title2=Manage Circle
 
 .title3=Manage Circle
 

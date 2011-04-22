@@ -3,7 +3,7 @@
 
 .cluster.unknown=Unnamed Cluster
 
-.intro=This site is made up of clusters of servers that store user data.  Each of these clusters can contain many tens or hundreds of thousands of different users and communities.
+.intro=This site is made up of clusters of servers that store account data.  Each of these clusters can contain many tens or hundreds of thousands of different accounts and communities.
 
 .title=Cluster Locator
 

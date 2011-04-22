@@ -5,9 +5,9 @@
 
 .directory=<a [[aopts]]>Directory Search</a>
 
-.directory.desc=Search for users.
+.directory.desc=Search for Account Names
 
-.intro=Search [[sitename]] using the box below, or use one of our advanced search options.
+.intro=Search [[sitename]] using this box, or use one of our advanced search options.
 
 .journal=<a [[aopts]]>Journal Search</a>
 

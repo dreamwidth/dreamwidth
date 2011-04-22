@@ -17,7 +17,7 @@
 
 .country=Country:
 
-.date=date
+.date=Date
 
 .day=day
 
@@ -25,7 +25,7 @@
 
 .display_results=Display Results
 
-.error.notloggedin=You must <a [[aopts]]>login</a> to use the directory.
+.error.notloggedin=You must <a [[aopts]]>log in</a> to use the directory.
 
 .female=Female
 
@@ -39,33 +39,33 @@
 
 .other_criteria=Other Criteria
 
-.picture=Picture
+.picture=picture
 
-.recently_updated=Recently Updated
+.recently_updated=Last Update
 
-.records_per_page=Records per page:
+.records_per_page=Results per page:
 
 .search=Search!
 
 .state_province=State/Province:
 
-.text_only=Text only
+.text_only=text only
 
 .title=Directory Search
 
 .updated_in_last=Updated in last
 
-.user_likes=User likes:
+.user_likes=People interested in:
 
-.user_trusted_by=User is granted access by: [[input]]
+.user_trusted_by=People granted access by: [[input]]
 
-.user_trusts=User grants access to: [[input]]
+.user_trusts=People who grant access to: [[input]]
 
-.user_watched_by=User is subscribed to by: [[input]]
+.user_watched_by=People subscribed to by: [[input]]
 
-.user_watches=User is subscribed to: [[input]]
+.user_watches=People subscribed to: [[input]]
 
-.use_this_dir2=Use this directory to search for [[sitename]] users. If you fill in more than one blank, the directory will display results that match all your criteria. (e.g. user lives in "San Francisco" AND lists "music" as an interest.) Check out our <a [[aopts]]>community search</a> page to find new and interesting communities.
+.use_this_dir2=You can use this directory to search for people on [[sitename]]. If you fill in more than one search box, the search will return only results that contain all your search words; for example, if you put in "Baltimore City" and "cars", the journals your search will show are those which have both words somewhere in their Profile.  If you're looking for a community instead of a person, you can use our <a [[aopts]]>community search page</a> to find them.
 
 .week=week
 

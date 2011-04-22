@@ -9,7 +9,7 @@
 
 .error.noselection=You must select an item to add to your cart.
 
-.giftfor.anonymous=Anonymous gift?
+.giftfor.anonymous=Do you want to make this an anonymous gift?
 
 .giftfor.deliverydate=Delivery date:
 
@@ -21,13 +21,13 @@
 
 .giftfor.username.random=Random active free user
 
-.intro.gift=Please choose the type of paid account that you'd like to purchase for an existing account.
+.intro.gift=Please choose the type of <a [[aopts]]>Paid Account</a> that you'd like to purchase for an existing account.
 
-.intro.new=Please choose the type of paid account that you'd like to purchase for a new account.
+.intro.new=Please choose the type of <a [[aopts]]>Paid Account</a> that you'd like to purchase.
 
 .intro.random=Please choose the type of paid account that you'd like to purchase for a random active free account.
 
-.intro.self=Please choose the type of paid account that you'd like to purchase for your account [[user]].
+.intro.self=Please choose the type of <a [[aopts]]>Paid Account</a> that you'd like to purchase for your account [[user]].
 
 .title=Buy a Paid Account
 

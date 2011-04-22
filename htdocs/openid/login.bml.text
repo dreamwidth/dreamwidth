@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.error.cantuseownsite=You can't use a [[sitename]] OpenID account on [[sitename]] &mdash; just <a href='/login.bml'>go login</a> with your actual [[sitename]] account.
+.error.cantuseownsite=You can't use a [[sitename]] OpenID account on [[sitename]]:  <a href='/login.bml'>go log in</a> with your actual [[sitename]] account.
 
 .error.invalidchars=Invalid characters in identity URL.
 
@@ -9,7 +9,7 @@
 
 .error.logout.heading=Already logged in
 
-.error.notvivified=Couldn't vivify your account (but we verified that you're [[url]])
+.error.notvivified=We couldn't load your account, but we verified your identity as [[url]]. Please try logging in again later, and contact us if this error keeps happening.
 
 .error.no_support=OpenID consumer support is disabled
 

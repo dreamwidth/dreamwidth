@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.back2=Mood Themes
+.back2=Mood themes:
 
 .btn.switch=Switch
 
@@ -17,13 +17,13 @@
 
 .moods.howtochange=To change the icons in your journal, go to the <a [[aopts]]>modify journal page</a> and select your preferred icon set.
 
-.moods.intro=The following are server-supported moods on [[sitename]]. You can always enter your own, but these are the ones that can have pictures associated with them and can be searched on, etc. You're encouraged to use these if possible.
+.moods.intro=The following are server-supported moods on [[sitename]]. You can always enter your own, but these are the ones that have pictures associated with them and can be searched on.
 
 .moodtheme.byauthor=by [[author]]
 
 .nav.viewall=View All
 
-.specialthemes.header=Special Mood Themes
+.specialthemes.header=Special mood themes
 
 .title=[[sitename]] Moods
 

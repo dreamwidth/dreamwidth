@@ -1,23 +1,23 @@
 ;; -*- coding: utf-8 -*-
 .about.comm=About:
 
-.about.header=About
+.about.header=Mini Bio
 
 .about.user=Bio:
 
 .admins.header=Administrators
 
-.allpics=View all userpics
+.allpics=View all Icons
 
-.basicinfo.header=Basic Info
+.basicinfo.header=About
 
-.bio.header=Bio
+.bio.header=Mini Bio
 
-.body.leave2=You may <a [[aopts]]>leave the community</a> at any time.
+.body.leave2=<a [[aopts]]>Leave this community?</a>
 
-.commdesc.header=Description:
+.commdesc.header=Community description:
 
-.comminfo.body=Below is information about the "[[commname]]" community on LiveJournal.
+.comminfo.body=Information about "[[commname]]":
 
 .comminfo.name=Community Information
 
@@ -31,7 +31,7 @@
 
 .comms.posting_access_to.some=Posting Access ([[num]]):
 
-.comms.viewentries=View Entries
+.comms.viewentries=View entries
 
 .comms.watched.none=Subscriptions (0)
 
@@ -55,13 +55,13 @@
 
 .commsettings.postlevel.select=Select Members
 
-.contact.header=Contact:
+.contact.header=Contact Details:
 
-.contact.pm=Private Message
+.contact.pm=Send Message
 
-.contact.txtmsg=Text Message
+.contact.txtmsg=Send Text Message
 
-.date.never=<i>Never.</i>
+.date.never=<em>Never.</em>
 
 .details.accounttype.expireson=[[type]], expires on [[date]]
 
@@ -97,11 +97,11 @@
 
 .details.lastupdated.never=Never updated
 
-.details.lastupdated.never2=never updated
+.details.lastupdated.never2=never posted to
 
 .details.lastupdated2=last updated [[timestamp]]
 
-.details.lastupdated3=last updated [[timestamp]] ([[agotext]])
+.details.lastupdated3=last posted [[timestamp]] ([[agotext]])
 
 .details.membersince=Member Since: [[createdate]]
 
@@ -125,15 +125,15 @@
 
 .details.title=[[user]]'s Journal
 
-.details.userpics=[[num_comma]] <a [[aopts]]>[[?num_raw|Userpic|Userpics]]</a>
+.details.userpics=[[num_comma]] <a [[aopts]]>[[?num_raw|Icon|Icons]]</a>
 
 .details.viewlinkssep=, 
 
 .details.warning.concepts=This journal should be viewed with discretion.
 
-.details.warning.explicit=This journal is restricted to people 18 or older.
+.details.warning.explicit=This journal contains content only suitable for those over the age of 18.
 
-.error.deleted.purgenotification=If you're interested in renaming your account to this username, <a [[aopts]]>set up your notifications</a> to be notified when the account is purged.
+.error.deleted.purgenotification=If you'd like to rename your account with this account name, <a [[aopts]]>you can be notified</a> when the account is purged.
 
 .error.malfname=Malformed username.
 
@@ -159,7 +159,7 @@
 
 .im.header=Instant Message:
 
-.im.header2=External Services:
+.im.header2=Other Services:
 
 .im.icq=ICQ
 
@@ -247,7 +247,7 @@
 
 .label.location=Location:
 
-.label.maintainers=Maintainers ([[num]]):
+.label.maintainers=Administrators ([[num]]):
 
 .label.memberof=Member of
 
@@ -263,13 +263,13 @@
 
 .label.name=Name:
 
-.label.nofriends=<i>None listed.</i>
+.label.nofriends=<em>None listed.</em>
 
 .label.post=Post to "[[journal]]"
 
 .label.postalt=Update your journal
 
-.label.reqfinduser=You cannot look up users by userid.
+.label.reqfinduser=You can't look up accounts by userid.
 
 .label.searchjournal=Search This Journal
 
@@ -293,11 +293,11 @@
 
 .label.syn.hubbub.topicurl=Topic URL:
 
-.label.syndicatedfrom=Syndicated from:
+.label.syndicatedfrom=Source:
 
-.label.syndicatedstatus=Syndication Status:
+.label.syndicatedstatus=Status:
 
-.label.syndreadcount=Number of Readers:
+.label.syndreadcount=Subscribers:
 
 .label.textmessage=<nobr>Text<br>Message</nobr>:
 
@@ -341,7 +341,7 @@
 
 .monitor.user=Add this user to your friends list
 
-.nonexist.body=The username <b>[[user]]</b> is not currently registered.
+.nonexist.body=The account name <strong>[[user]]</strong> isn't currently registered.
 
 .nonexist.name=Unknown user
 
@@ -367,25 +367,25 @@
 
 .people.not_mutually_trusted_by.some=Also Has Access From ([[num]]):
 
-.people.not_mutually_watched.none=Also Subscribed To (0)
+.people.not_mutually_watched.none=Other Subscriptions (0)
 
-.people.not_mutually_watched.some=Also Subscribed To ([[num]]):
+.people.not_mutually_watched.some=Other Subscriptions ([[num]]):
 
-.people.not_mutually_watched_by.none=Also Subscribed From (0)
+.people.not_mutually_watched_by.none=Other Subscribers (0)
 
-.people.not_mutually_watched_by.some=Also Subscribed From ([[num]]):
+.people.not_mutually_watched_by.some=Other Subscribers ([[num]]):
 
 .people.posting_access_from.none=Posting Access (0)
 
 .people.posting_access_from.some=Posting Access ([[num]]):
 
-.people.trusted.none=Access To (0)
+.people.trusted.none=Gives Access To (0)
 
-.people.trusted.some=Access To ([[num]]):
+.people.trusted.some=Gives Access To ([[num]]):
 
-.people.trusted_by.none=Access From (0)
+.people.trusted_by.none=Has Access To (0)
 
-.people.trusted_by.some=Access From ([[num]]):
+.people.trusted_by.some=Has Access To  ([[num]]):
 
 .people.viewentries=View Entries
 
@@ -415,7 +415,7 @@
 
 .syn.lastcheck=Last checked:
 
-.syn.nextcheck=Next check:
+.syn.nextcheck=Next check (approximate) :
 
 .syn.parseerror=Error Message:
 
@@ -455,9 +455,9 @@
 
 .title.syndicated=Syndicated Account
 
-.title.syndicatedprofile=Syndicated Feed Profile
+.title.syndicatedprofile=Feed Account Profile
 
-.title.userprofile=User Profile
+.title.userprofile=Profile
 
 .title1=Profile
 
@@ -465,23 +465,23 @@
 
 .userinfo.name=User Information
 
-.userpic.choose=Choose userpic
+.userpic.choose=Choose Icon
 
-.userpic.comm.alt=Community Userpic
+.userpic.comm.alt=Community Icon
 
-.userpic.none=no default userpic
+.userpic.none=no default icon
 
-.userpic.none2=(no userpics)
+.userpic.none2=(no icons)
 
-.userpic.none3=No Userpics
+.userpic.none3=No Icons
 
-.userpic.openid.alt=OpenID Userpic
+.userpic.openid.alt=OpenID Icon
 
-.userpic.upload=Upload Userpic
+.userpic.upload=Upload Icon
 
-.userpic.user.alt=Generic Userpic
+.userpic.user.alt=Generic Icon
 
-.userpic.viewall=View All Userpics
+.userpic.viewall=View All Icons
 
 .userpic.viewall.edit=<a [[aopts1]]>View All</a> / <a [[aopts2]]>Edit</a>
 

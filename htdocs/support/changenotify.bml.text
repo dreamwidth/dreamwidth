@@ -1,19 +1,19 @@
 ;; -*- coding: utf-8 -*-
-.chagenotify.text=Here you may select what categories of support requests you'd like to be notified about.  Choices are <b>off</b> (the default), <b>new</b> (you'll get notifications when a new support request in that category is posted) or <b>all</b> (you'll get notifications and then a copy of each comment/solution posted).
+.chagenotify.text=Select which categories of support requests you'd like to be notified for.  Choices are <b>off</b> (the default), <b>new</b> (you'll get a notification when a new support request in that category is posted), or <b>all</b> (you'll get a notification and then a copy of each comment/solution posted).
 
 .chagenotify.title=Change Notification Settings
 
-.done.text=When done, press the "Save Changes" button below...
+.done.text=When you're finished, press the "Save Changes" button.
 
 .done.title=Done?
 
 .getownresponses=Check here if you'd also like to include notifications for your own responses.
 
-.mustlogin=You must first <a href=[[login]]>login</a>.
+.mustlogin=You must <a href=[[login]]>log in</a> first.
 
 .option.all=All
 
-.option.new=New only.
+.option.new=New Only.
 
 .option.off=Off.
 
@@ -25,11 +25,11 @@
 
 .success.fromhere.support=Go to the Support Area
 
-.success.text=Your notification settings have been updated. 
+.success.text=You've successfully changed your notification settings.
 
-.success.title=Success
+.success.title=Success.
 
 .title=Change Notifications
 
-.unknow.mode=Unknown mode.
+.unknow.mode=Unknown Mode.
 

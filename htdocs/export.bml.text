@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.btn.proceed=Proceed...
+.btn.proceed=Proceed.
 
-.description=This feature lets you download your entire journal to a custom format for backup purposes.
+.description=This feature lets you back up your entire journal by downloading to a custom format .
 
 .fields=Fields:
 
@@ -15,9 +15,9 @@
 
 .label.field.currents=Current Mood &amp; Music
 
-.label.field.event=<b>Event</b>
+.label.field.event=<strong>Event</strong>
 
-.label.field.eventtime=Event Time (from user's clock)
+.label.field.eventtime=Event Time (from your clock)
 
 .label.field.itemid=ID Number
 
@@ -29,7 +29,7 @@
 
 .label.format=Format:
 
-.label.header=Header
+.label.header=Header:
 
 .label.month=Select month:
 
@@ -37,7 +37,7 @@
 
 .label.month.year=yyyy:
 
-.label.notranslation=Do not translate between encodings
+.label.notranslation=Don't translate between encodings
 
 .label.what=Export what:
 

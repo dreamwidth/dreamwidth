@@ -1,63 +1,63 @@
 ;; -*- coding: utf-8 -*-
 .btn.cancel=Cancel
 
-.button.join2=Join Community
+.button.join2=Join Community.
 
-.error.already.member=You are already a member of this community.
+.error.already.member=You're already a member of this community.
 
-.error.closed=This community is closed to new members.  If you wish to join, please contact one of the following maintainers: [[admins]]
+.error.closed=This community is closed to new members.  If you wish to join, please contact one of the administrators: [[admins]]
 
 .error.isminor=The maintainers of [[comm]] require that all members be over the age of 18.
 
-.error.setage=<a [[aopts]]>Edit your profile</a> to register your age.
+.error.setage=Please <a [[aopts]]>edit your profile</a> to register your age.
 
-.error.statusvis.body=The account you are logged in as is not an active account.
+.error.statusvis.body=The account you're logged in to isn't an active account.
 
-.error.statusvis.title=Unable to Join Communities
+.error.statusvis.title=Unable to Join Communities.
 
-.label.addtofriends.note2=Adding a community allows you to read entries posted in it on your Friends page.
+.label.addtofriends.note2=Subscribing to a community allows you to read the entries posted to it on your Reading Page.
 
 .label.addtofriends2.modify=Modify subscription to [[comm]] in addition to joining it.
 
-.label.addtofriends3=Yes, I want to watch [[comm]] in addition to joining it.  Take me to <strong>Step 2: Add to Friends</strong>.
+.label.addtofriends3=Yes, I want to subscribe to [[comm]] in addition to joining it.  Take me to <strong>Step 2: Subscribe</strong>.
 
-.label.allowposting2=Additionally, this community allows posting by all members. If you already have a [[sitename]] client open, log out and log back in for this community to show in your posting permissions.
+.label.allowposting2=This community allows posting by all members.  If you already have a [[sitename]] client open, log out and then log back in for this community to show in your posting permissions.
 
-.label.auth2=Please note that this community only allows posting by authorized users, so joining it will not allow you to post in it. Contact one of the maintainers if you desire posting access. Below is the list of maintainers for this community: [[admins]]
+.label.auth2=This community only allows authorized people to post; joining it won't allow you to post in it.  Contact one of the administrators if you'd like posting access: [[admins]]
 
-.label.banned=The maintainer(s) of this community have banned you from joining.
+.label.banned=You've been banned from joining this community.
 
-.label.closed=This community is closed.  If you're interested in joining it, please contact one of its maintainers. Below is the list of maintainers for this community: [[admins]]
+.label.closed=This community is closed.  If you're interested in joining it, please contact one of its administrators: [[admins]]
 
 .label.commlogged=You're logged in as a community account, not your personal account.
 
-.label.errorcomminfo=The specified community information is not valid.
+.label.errorcomminfo=The specified community information isn't valid.
 
-.label.expls2=Joining this community will allow you to read any members-only entries posted in it. It will not allow community members or maintainers to read protected entries in your own journal.
+.label.expls2=Joining this community will allow you to read any members-only entries posted in it.  It won't allow community members or administrators to read protected entries in your own journal.
 
-.label.locked=This community is not accepting new members, and so you cannot join it.
+.label.locked=This community isn't accepting new members; you can't join it.
 
-.label.membernow6=You are now a member of [[commname]] Community.
+.label.membernow6=You're now a member of [[commname]].
 
-.label.notcomm=The specified journal is not a community.
+.label.notcomm=The specified journal isn't a community.
 
 .label.read_comm_info=Read [[user]]'s community info
 
-.label.read_recent_entries=Read the recent entries in [[user]]
+.label.read_recent_entries=Read the recent entries in [[user]].
 
-.label.search_other=Search for other communities
+.label.search_other=Search for other communities.
 
 .label.sure2=Join [[comm]]?
 
 .label.you_can=From here, you can:
 
-.reqsubmitted.body=Your request to join has been submitted to the maintainers. If approved, you will be added to the community automatically.
+.reqsubmitted.body=Your request to join this community has been submitted to the administrators. If it is approved, you'll be automatically added to the community.
 
-.reqsubmitted.title=Join Request Submitted
+.reqsubmitted.title=Join Request Submitted.
 
-.request.body=The [[comm]] community does not have open membership. Clicking below will submit a membership request to the maintainers.
+.request.body=[[comm]] doesn't have open membership. Clicking below will submit your membership request to the administrators.
 
-.request.reason=<i>Optionally</i>, enter a reason you would like to join this community:
+.request.reason=<em>(Optional)</em> Enter a reason you would like to join this community:
 
 .request.title=Request to Join
 
@@ -69,5 +69,5 @@
 
 .title=Join Community
 
-.toomanyfriends=Adding [[community]] as a friend would exceed the maximum number of friends your account is allowed. You have however now joined this community.
+.toomanyfriends=Watching [[community]] would exceed the maximum number of accounts you are permitted to watch.  You have joined this community, but you may not watch it without first removing another account from your watch list.
 

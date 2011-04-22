@@ -5,7 +5,7 @@
 
 .btn.preview=Preview
 
-.btn.update=Update Journal
+.btn.update=Post to Journal
 
 .currmusic=Current Music:
 
@@ -23,11 +23,11 @@
 
 .draft.restored=Restored last saved draft
 
-.error.cantpost=Sorry, you cannot post at this time.
+.error.cantpost=Sorry: you can't post at this time.
 
 .error.cantpost.title=Can't Post
 
-.error.disabled=Your account type does not permit posting.
+.error.disabled=You can't post because of the type of account you have.
 
 .error.disabled.title=Posting access disabled
 
@@ -37,7 +37,7 @@
 
 .error.noentry=Must provide entry text.
 
-.error.nonusercantpost=Non-[[sitename]] users can't post, as they don't actually have journals here. You can leave comments in other journals, though.
+.error.nonusercantpost=Non-[[sitename]] users can't post entries because they don't have journals here, but can leave comments in other journals.
 
 .error.nopass=Enter Password
 
@@ -89,7 +89,7 @@
 
 .preview.text=This is how the entry will look when posted. Using the form below, you can edit the entry further, or you can submit it as is.
 
-.rowarn=<b>Warning:</b> Your account is currently in [[a_open]]read-only mode[[a_close]]. Due to this maintenance you may be unable to post to your journal at this time.
+.rowarn=<strong>Warning:</strong> Your account is currently in [[a_open]]read-only mode[[a_close]]. Because of this you may be unable to post to your journal right now.
 
 .security.custom=Custom...
 
@@ -101,7 +101,7 @@
 
 .security.public=Public
 
-.servermsg=Also, the server has a message for you:
+.servermsg=The server has a message for you:
 
 .spellchecked=Your spell-checked post:
 
@@ -131,9 +131,9 @@
 
 .update.status.succeeded=Your entry has been posted.
 
-.update.success2=Update successful. You can view your updated journal <a [[aopts]]>here</a>.
+.update.success2=Your update was successful. <a [[aopts]]>View your updated journal</a>.
 
-.update.success2.community=Update successful. You can view the updated community <a [[aopts]]>here</a>. 
+.update.success2.community=Your update was successful. <a [[aopts]]>View your updated community</a>.
 
-.username=Username:
+.username=Account name:
 

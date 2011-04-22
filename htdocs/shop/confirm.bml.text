@@ -15,7 +15,7 @@
 
 .confirm.email.label=Email Address:
 
-.confirm.onlypoints=Please confirm your order from [[sitename]].  This order will be charged to your account's points balance, you do not need to send us money for this order.
+.confirm.onlypoints=Please confirm your order from [[sitename]].  This order will be charged to your account's points balance; you do not need to send us money for this order.
 
 .confirm.paypal=Once confirmed, we will process your purchase as soon as PayPal notifies us of a successful transaction.
 
@@ -29,7 +29,7 @@
 
 .success.checkmoneyorder.immediate=Your order has been successfully placed. We will process your order shortly. Thank you for your purchase!
 
-.success.checkmoneyorder.processing=Your order has been successfully placed. It will be processed once we receive your check or money order. p?><?p Please make it out to [[sitecompany]] and mail it to: [[address]] p?><?p <strong>Be sure to include the apartment and order numbers!</strong> p?><?p Thank you for your purchase!
+.success.checkmoneyorder.processing=Your order has been successfully placed. It will be processed once we receive your check or money order. p?><?p Please make it out to [[sitecompany]] and mail it to: [[address]] p?><?p <strong>Be sure to include both the order number and the PO box number!</strong>
 
 .success.paypal.immediate=Your order has been successfully placed. We will process your order shortly. Thank you for your purchase!
 

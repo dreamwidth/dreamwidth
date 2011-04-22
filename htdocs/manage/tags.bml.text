@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.addnew=Add new tags here!
+.addnew=Add new tags
 
 .button.delete=Remove selected tag(s)
 
@@ -11,7 +11,7 @@
 
 .button.show=Show journal entries
 
-.confirm.delete=Are you sure you want to remove the selected tags? This operation is not reversible.
+.confirm.delete=Are you sure you want to remove the selected tags? This operation isn't reversible.
 
 .confirm.merge=Are you sure you want to merge the selected tags? This operation is not reversible.
 
@@ -29,7 +29,7 @@
 
 .hint.rename=Change a tag name.
 
-.intro=Use this page to review and edit tags you have defined.
+.intro=Use this page to review and edit tags you've defined.
 
 .label.counts=counts and security
 
@@ -59,15 +59,15 @@
 
 .setting.desc.add=Who can add existing tags to entries?
 
-.setting.desc.control=Who can create new tags and add/remove tags from entries?
+.setting.desc.control=Who can create new tags and add or remove tags from entries?
 
-.setting.maintainers=Only maintainers
+.setting.maintainers=Administrators only
 
 .setting.members=Members only
 
 .setting.private=Only you
 
-.setting.public=Any user
+.setting.public=Anyone
 
 .setting.trusted=Access only
 

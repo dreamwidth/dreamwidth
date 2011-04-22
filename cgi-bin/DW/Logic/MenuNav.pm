@@ -244,7 +244,8 @@ sub get_menu_navigation {
             items => [
                 {
                     url => "$LJ::SITEROOT/shop",
-                    text => "menunav.shop.paidtime",
+                    text => "menunav.shop.paidtime2",
+                    text_opts => { sitenameshort => $LJ::SITENAMESHORT },
                     display => LJ::is_enabled( 'payments' ) ? 1 : 0,
                 },
                 {

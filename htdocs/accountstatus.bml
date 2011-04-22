@@ -126,7 +126,9 @@ body<=
         $ret .= $ok->(BML::ml('.message.success', {'statusvis' => $statusvis{$statusvis} }));
 
         if ( $statusvis eq 'D' ) {
-            $ret .= "<?p $ML{'.message.deleted'} p?>";
+            $ret .= "<p>" . BML::ml( '.message.deleted2', {
+                                sitenameshort => $LJ::SITENAMESHORT
+                            } ) . "</p>";
 
             if ( $u->is_person ) {
                 # are they leaving any community maintainerless?
@@ -179,7 +181,7 @@ body<=
     $ret .= "<form method='post' action='accountstatus$getextra'>\n";
     $ret .= LJ::form_auth();
 
-    $ret .= "<?p $ML{'.journalstatus.about'} p?>\n";
+    $ret .= "<p>" . BML::ml( '.journalstatus.about2', { sitenameshort => $LJ::SITENAMESHORT } ) . "</p>\n";
 
     # only show this text to not-deleted OpenID accounts
     $ret .= "<?p $ML{'.delete.openid'} 'p?>"

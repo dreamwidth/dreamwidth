@@ -33,11 +33,11 @@
 
 .managesettings=Manage Comment Settings
 
-.maxnotshown=Your account is only permitted to see the latest [[current]] entries, not the full limit of [[max]].
+.maxnotshown=Your account is only permitted to view the latest [[current]] entries, not the full limit of [[max]].
 
-.no.comments.posted= No comments have been posted in
+.no.comments.posted= No comments have been posted in:
 
-.post.deleted=Post Deleted
+.post.deleted=Entry Deleted
 
 .reply=*: This comment has been replied to.
 

@@ -1,15 +1,15 @@
 ;; -*- coding: utf-8 -*-
-.accounttype=Account type
+.accounttype=Account Type
 
 .answer=Answer
 
-.answered=<b><span style='color: #ff0000;'>answered</span></b> (awaiting close)
+.answered=<strong><span style='color: #ff0000;'>answered</span></strong> (awaiting close)
 
-.answered.need.help=<b><span style='color: #ff0000;'>answered</span></b> (<b>still needs help</b>)
+.answered.need.help=<strong><span style='color: #ff0000;'>answered</span></strong> (<strong>still needs help</strong>)
 
 .approve.screened=Approve Screened Response
 
-.back.link=Back to <a [[backlink]]>the support area</a>.
+.back.link=Back to the <a [[backlink]]>Support Area</a>.
 
 .betatesting=Beta testing
 
@@ -21,11 +21,11 @@
 
 .change.language.nolang=(no language set)
 
-.change.summary=Change summary
+.change.summary=Change Summary
 
 .clear=Clear
 
-.close.without.credit=close without credit
+.close.without.credit=Close Without Credit
 
 .cluster=cluster
 
@@ -35,15 +35,15 @@
 
 .dataversion=data version 
 
-.diagnostics=Diagnostics
+.diagnostics=Diagnostics:
 
-.email.user=Email/User:
+.email.user=Email/Account Owner:
 
-.email.validated=email validated?
+.email.validated=Email confirmed?
 
 .error=Error
 
-.error.text1=You do not appear to have permission to read any support categories.
+.error.text1=You don't have permission to read any support categories.
 
 .error.text2=<?p No [[what]] open request [[cat]] found. p?>
 
@@ -53,9 +53,9 @@
 
 .from=From:
 
-.goback.text=<?p Go back to <a [[request_link]]>Request #[[spid]]</a> p?>
+.goback.text=<?p Return to <a [[request_link]]>Request #[[spid]]</a> p?>
 
-.help.link=Back to the <a href="help.bml">list of open requests</a>.<br />
+.help.link=Return to the <a href="help.bml">list of open requests</a>.<br />
 
 .important.notes.text2<<
 <strong>Important Notes:</strong>
@@ -67,33 +67,33 @@
 <?p Thank you! p?>
 .
 
-.incat=in the same category
+.incat=This request is in the same category
 
 .internal.comment=Internal Comment
 
-.language=language
+.language=Language
 
-.lock.request=lock request
+.lock.request=Lock Request
 
 .manualset=manual set 
 
-.mast.login=You must <a [[loginlink]]>login</a> to help people out.
+.mast.login=You must <a [[loginlink]]>log in</a> to answer Support requests.
 
 .message=Message
 
-.next=next
+.next=Next
 
-.no=no
+.no=No
 
-.no.html.allowed=No HTML allowed, so don't worry about about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
+.no.html.allowed=There's no HTML allowed, so don't worry about about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
 
-.none=none
+.none=None
 
-.not.have.access=Sorry, you do not have access to answer people's support requests in this category.
+.not.have.access=You don't have authorization to answer people's support requests in this category.
 
-.nothaveprivilege=You don't have the necessary privilege to view this request. 
+.nothaveprivilege=You don't have the necessary privileges to view this request. 
 
-.open=open
+.open=Open
 
 .original.request=Original Request
 
@@ -109,19 +109,19 @@
 
 .posted=Posted
 
-.previous=previous
+.previous=Previous
 
-.private.request=<b>This is a private request.</b> It is not publicly visible.
+.private.request=<strong>This is a private request.</strong> It isn't publicly visible.
 
 .put.in.queue=Put in Queue
 
 .reference=Reference
 
-.reopen.this.request=reopen this request
+.reopen.this.request=Reopen this Request
 
-.reply.type=Reply Type
+.reply.type=Reply Type:
 
-.resend.validation.email=resend validation email
+.resend.validation.email=resend confirmation email
 
 .scheme=scheme
 
@@ -131,15 +131,15 @@
 
 .see.preview=Go to: <a [[preview_link]]>previous open request</a>,
 
-.select.canned.to.insert=select canned to insert
+.select.canned.to.insert=Select canned to insert
 
 .status=Status
 
-.status.deleted.and.purged=Status: <b>deleted and purged</b>
+.status.deleted.and.purged=Status: <strong>deleted and purged</strong>
 
-.statushistory=statushistory
+.statushistory=Statushistory
 
-.style=style
+.style=Style
 
 .summary=Summary
 
@@ -151,11 +151,11 @@
 
 .tier.0=Tier 0
 
-.tier.1=Tier 1
+.tier.1=Tier 1:
 
-.tier.2=Tier 2
+.tier.2=Tier 2:
 
-.tier.3=Tier 3
+.tier.3=Tier 3:
 
 .tier.selectone=(select one)
 
@@ -165,7 +165,7 @@
 
 .title=Request #[[reqid]]
 
-.transitioning=<b>transitioning</b> (used to be validated, but changed email addresses and hasn't reconfirmed)
+.transitioning=<strong>transitioning</strong> (used to have a confirmed email address, but changed addresses and hasn't reconfirmed)
 
 .unable.connect=(unable to connect to cluster, some data temporarily unavailable)
 
@@ -179,7 +179,7 @@
 
 .unknownumber=Unknown support number.
 
-.unlock.request=unlock request
+.unlock.request=Unlock Request
 
 .use.this.to.change.awaiting=(Use this to change status to &quot;awaiting close&quot;.)
 
@@ -187,15 +187,15 @@
 
 .use.this.to.summary=(Use this to change the request summary.)
 
-.username=username
+.username=Account Name
 
-.userreadonly=(this user is currently in read-only mode)
+.userreadonly=(this account is currently in read-only mode)
 
-.view=view
+.view=View
 
 .wasby=was by
 
-.yes=yes
+.yes=Yes
 
 .yesbirthday=yes because of birthday
 

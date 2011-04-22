@@ -13,7 +13,7 @@
 # part of this distribution.
 _c?>
 <?page
-title=><?_ml .title _ml?>
+title=><?_code BML::ml( '.title2', { sitenameshort => $LJ::SITENAMESHORT }  ) _code?>
 body<=
 <?_code
     LJ::set_active_crumb('support');
