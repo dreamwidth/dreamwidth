@@ -530,7 +530,8 @@ function cfRenameFilter() {
 
     // FIXME: don't think dialogs are accessible at all
     var renamed = prompt( 'Rename filter to:', filt.name );
-    filt.name = renamed;
+    if ( renamed != null )
+        filt.name = renamed;
 
     // and now update the select dialog
     cfUpdateFilterSelect();
