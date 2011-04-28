@@ -407,6 +407,11 @@ and keep subject lines from poking into sidebars  */
     top: 5em;
     margin-bottom: 5em;
 }
+
+.has-userpic .entry .entry-poster.empty {
+    padding-bottom: 1em;
+}
+
 .no-userpic .entry-content {
     position: static;
     margin-bottom: auto;
