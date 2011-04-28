@@ -16,7 +16,7 @@ package DW::Graphs;
 use strict;
 use warnings;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljlib.pl'; 
+require 'ljlib.pl';
 use GD::Graph;
 use GD::Graph::bars;
 use GD::Graph::hbars;
@@ -24,14 +24,30 @@ use GD::Graph::pie;
 use GD::Graph::lines;
 use GD::Text;
 use GD::Graph::colour;
-GD::Graph::colour::read_rgb("$LJ::HOME/etc/clrs.txt")
-    or die "cannot read colours";
+use YAML ();
 
+# Define colours - the arrays can be over-ridden by config file
+my $background = '#f7f7f7';
+my $nearly_white = '#f8f8f8';
+my $textclr = '#c1272d';
+my $clrs = [ '#7eafd2', '#f3973e', '#77cba2', '#edd344', '#a5c640' , '#d87ba9' ];
+my $dark_clrs = [ '#11061b', '#920d00', '#0d3d1b', '#490045', '#4e1b05' ];
+
+# Default font and font sizes
+my %fonts = (
+    font => "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf",
+    title_size => 14,
+    value_size => 10,
+    label_size_pie => 10,
+    label_size => 12,
+    axis_size => 10,
+    legend_size => 12,
+);
 # Generates a pie chart. The argument is a hashref of labels and values.
 # Returns graph object $gd which can be printed with the command: print $gd->png;
 # See ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
 sub pie {
-    my ( $pie_ref ) = @_;
+    my ( $pie_ref, $config_filename ) = @_;
 
     # Sort the key-value pairs of %$pie_ref by value:
     # @pie_labels is the keys and @pie_values is the values
@@ -41,133 +57,213 @@ sub pie {
     # Package the data in a way that makes GD::Graph happy
     my $pie = [ [@pie_labels], [@pie_values] ];
 
-    # Create graph object
-    my $graph = GD::Graph::pie->new( 300, 300 );
-    $graph->set(
+    # Default settings (can be over-ridden by config file)
+    my %settings = (
         transparent    => 0,      # Set this to 1 for transparent background
-        accentclr      => 'nearly_white', 
+        accentclr      => $nearly_white,
         start_angle    => 90,     # Angle of first slice of pie, 0 = 6 o'clock
         suppress_angle => 5,      # Smaller slices than this have no labels
-        bgclr          => 'background',
-        dclrs          => [ qw( pie_blue pie_orange pie_bluegreen pie_green
-                           pie_yellow pie_pink ) ], 
+        bgclr          => $background,
+        dclrs          => $clrs,
         labelclr       => '#000000',
         valuesclr      => '#000000',
-        textclr        => 'dw_red',
+        textclr        => $textclr,
         '3d'           => 0,
-    ) or die $graph->error;
+    );
+    my $image_width = 300;    # Image width in pixels - can be over-ridden
+    my $image_height = 300;
 
-    # FIXME: make the pathnames and font sizes configurable
-    $graph->set_title_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 14);
-    $graph->set_value_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-    $graph->set_label_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
+    # If there is a config file, get any settings from it
+    if ( defined $config_filename ) {
+        my $config = YAML::LoadFile( "$LJ::HOME/etc/$config_filename" );
+
+        # Image size
+        $image_width = $config->{image_width}
+            if defined $config->{image_width};
+        $image_height = $config->{image_height}
+            if defined $config->{image_height};
+
+        # Over-ride %settings with settings in config file, if they exist
+        foreach my $k ( keys %settings ) {
+            $settings{$k} = $config->{$k}
+                if defined $config->{$k};
+        }
+
+        # Over-ride %fonts with font settings in config file, if they exist
+        my $config_fonts = $config->{fonts};
+        if ( defined $config_fonts ) {
+            $fonts{$_} = $config_fonts->{$_}
+                foreach keys %$config_fonts;
+        }
+    }
+
+    # Create graph object
+    my $graph = GD::Graph::pie->new( $image_width, $image_height );
+    $graph->set( %settings ) or die $graph->error;
+
+    # Fonts defined at top in %fonts, and can be over-ridden by config file
+    $graph->set_title_font( $fonts{font}, $fonts{title_size} );
+    $graph->set_value_font( $fonts{font}, $fonts{value_size} );
+    $graph->set_label_font( $fonts{font}, $fonts{label_size_pie} );
 
     my $gd = $graph->plot( $pie ) or die $graph->error;
     return $gd;
-} 
+}
 
 # Generates a bar chart. Arguments: a ref to an array of values, a ref to an
 # array of labels, title, x-axis label, y-axis label. # Returns graph object
-# $gd which can be printed with the command: print $gd->png; see 
+# $gd which can be printed with the command: print $gd->png; see
 # graphs_usage.pl for more detailed usage information.
 sub bar {
-    my ( $values_ref, $labels_ref, $xlabel, $ylabel ) = @_;
+    my ( $values_ref, $labels_ref, $xlabel, $ylabel, $config_filename ) = @_;
 
     # Package the input as required by GD Graph
     my $input_ref = [ $labels_ref, $values_ref ];
 
+    # Default settings (can be over-ridden by config file)
+    my %settings = (
+        x_label      => "\n$xlabel",
+        y_label      => $ylabel,
+        show_values  => 1,
+        values_space => 1,   # Pixels between top of bar and value above
+        b_margin     => 20,  # Bottom margin (makes space for labels)
+        t_margin     => 50,  # Top margin - makes space for value above highest bar
+        y_min_value  => 0.0, # Stop scale going below zero
+
+        bgclr        => $background,
+        fgclr        => 'white',
+        boxclr       => '#f4eedc',      # Shaded-in background
+        long_ticks   => 1,              # Background grid lines
+        accentclr    => $background,    # Colour of grid lines
+
+        labelclr     => '#000000',
+        axislabelclr => '#000000',
+        legendclr    => '#000000',
+        valuesclr    => '#000000',
+        textclr      => $textclr,
+        transparent  => 0,              # 1 for transparent background
+        dclrs        => $clrs,
+    );
+    my $image_width = 500;    # Image width in pixels - can be over-ridden
+    my $image_height = 350;
+
+    # If there is a config file, get any settings from it
+    if ( defined $config_filename ) {
+        my $config = YAML::LoadFile( "$LJ::HOME/etc/$config_filename" );
+
+        # Image size
+        $image_width = $config->{image_width}
+            if defined $config->{image_width};
+        $image_height = $config->{image_height}
+            if defined $config->{image_height};
+
+        # Over-ride %settings with settings in config file, if they exist
+        foreach my $k ( keys %settings ) {
+            $settings{$k} = $config->{$k}
+                if defined $config->{$k};
+        }
+
+        # Over-ride %fonts with font settings in config file, if they exist
+        my $config_fonts = $config->{fonts};
+        if ( defined $config_fonts ) {
+            $fonts{$_} = $config_fonts->{$_}
+                foreach keys %$config_fonts;
+        }
+    }
+
     # Create graph object
-    my $graph = GD::Graph::bars->new(500, 350);
+    my $graph = GD::Graph::bars->new( $image_width, $image_height );
+    $graph->set( %settings ) or die $graph->error;
 
-    # Graph settings
-      $graph->set( 
-            x_label         => "\n$xlabel",
-            y_label         => $ylabel,
-            show_values    => 1,
-            values_space   => 1, # Pixels between top of bar and value above
-            b_margin       => 20, # Bottom margin (makes space for labels)
-            bar_spacing    => 50, # Higher value = thinner bars
-
-            bgclr          => 'background',
-            fgclr          => 'white',
-            boxclr         => '#f4eedc', # Shaded-in background
-            long_ticks     => 1,         # Background grid lines
-            accentclr      => 'lgray',   # Colour of grid lines
-            accent_treshold => 500,      # Get rid of outline around bars
-
-            labelclr       => '#000000',
-            axislabelclr   => '#000000',
-            legendclr      => '#000000',
-            valuesclr      => '#000000',
-            textclr        => 'dw_red',
-
-            transparent    => 0,         # 1 for transparent background
-            dclrs          => [ qw( pie_blue pie_orange pie_bluegreen pie_green
-                               pie_yellow pie_pink ) ],
-      ) or die $graph->error;
-
-    # FIXME: make the pathnames and font sizes configurable
-    $graph->set_title_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 14);
-    $graph->set_x_label_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 12);
-    $graph->set_y_label_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 12);
-    $graph->set_x_axis_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-    $graph->set_y_axis_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-    $graph->set_values_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
+    # Fonts defined at top in %fonts, and can be over-ridden by config file
+    $graph->set_title_font( $fonts{font}, $fonts{title_size} );
+    $graph->set_x_label_font( $fonts{font}, $fonts{label_size} );
+    $graph->set_y_label_font( $fonts{font}, $fonts{label_size} );
+    $graph->set_x_axis_font( $fonts{font}, $fonts{axis_size} );
+    $graph->set_y_axis_font( $fonts{font}, $fonts{axis_size} );
+    $graph->set_values_font( $fonts{font}, $fonts{value_size} );
 
     # Make the graph
      my $gd = $graph->plot( $input_ref ) or die $graph->error;
     return $gd;
-} 
+}
 
 # Generates a bar chart with two or more sets of data represented by each bar.
 # Arguments: a reference containing labels and datasets, x-axis label,
-# y-axis label, ref to array of names for datasets. Returns graph object 
-# $gd which can be printed with the command: print $gd->png; see 
+# y-axis label, ref to array of names for datasets. Returns graph object
+# $gd which can be printed with the command: print $gd->png; see
 # ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
 sub bar2 {
-    my ( $ref, $xlabel, $ylabel, $names_ref ) = @_;
+    my ( $ref, $xlabel, $ylabel, $names_ref, $config_filename ) = @_;
 
-    # Create graph object
-    my $graph = GD::Graph::bars->new(500, 350);
-
-    # Graph settings
-    $graph->set( 
+    #Default settings (can be over-ridden by config file)
+    my %settings = (
         x_label         => "\n$xlabel",
         y_label         => $ylabel,
         show_values    => 1,
-        values_space   => 1, # Pixels between top of bar and value above
+        values_space   => 1,  # Pixels between top of bar and value above
         b_margin       => 20, # Bottom margin (makes space for labels)
-        bar_spacing    => 50, # Higher value = thinner bars
-        legend_placement => 'RC',      # Right centre
-        cumulate => 'true',  # Put the two datasets in one bar
+        t_margin       => 50, # Top margin - makes space for value above highest bar
+        y_min_value => 0.0,   # Stop scale going below zero
 
-        shadowclr      => 'background',
-        bgclr          => 'background',
+        legend_placement => 'RC',      # Right centre
+        cumulate => 'true',            # Put the two datasets in one bar
+        bar_spacing => undef,
+
+        shadowclr      => $background,
+        bgclr          => $background,
         fgclr          => 'white',
-        boxclr         => '#f4eedc', # Shaded-in background 
+        boxclr         => '#f4eedc', # Shaded-in background
         long_ticks     => 1,         # Background grid lines
         accentclr      => 'white',   # Colour of grid lines
         transparent    => 0,         # 1 for transparent background
-        #accent_treshold => 500,      # Get rid of outline around bars
 
         labelclr       => '#000000',
         axislabelclr   => '#000000',
         legendclr      => '#000000',
         valuesclr      => '#000000',
-        textclr        => 'dw_red',
+        textclr        => $textclr,
+        dclrs          => $clrs,
+    );
+    my $image_width = 500;    # Image width in pixels - can be over-ridden
+    my $image_height = 350;
 
-        dclrs          => [ qw( pie_blue pie_orange pie_bluegreen pie_green
-                           pie_yellow pie_pink ) ],
-    ) or die $graph->error;
+    # If there is a config file, get any settings from it
+    if ( defined $config_filename ) {
+        my $config = YAML::LoadFile( "$LJ::HOME/etc/$config_filename" );
 
-    # FIXME: make the pathnames and font sizes configurable
-    $graph->set_title_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 14);
-    $graph->set_x_label_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 12);
-    $graph->set_y_label_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 12);
-    $graph->set_x_axis_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-    $graph->set_y_axis_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-    $graph->set_values_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-    $graph->set_legend_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
+        # Image size
+        $image_width = $config->{image_width}
+            if defined $config->{image_width};
+        $image_height = $config->{image_height}
+            if defined $config->{image_height};
+
+        # Over-ride %settings with settings in config file, if they exist
+        foreach my $k ( keys %settings ) {
+            $settings{$k} = $config->{$k}
+                if defined $config->{$k};
+        }
+
+        # Over-ride %fonts with font settings in config file, if they exist
+        my $config_fonts = $config->{fonts};
+        if ( defined $config_fonts ) {
+            $fonts{$_} = $config_fonts->{$_}
+                foreach keys %$config_fonts;
+        }
+    }
+
+    # Create graph object
+    my $graph = GD::Graph::bars->new( $image_width, $image_height );
+    $graph->set( %settings ) or die $graph->error;
+
+    # Fonts defined at top in %fonts, and can be over-ridden by config file
+    $graph->set_title_font( $fonts{font}, $fonts{title_size} );
+    $graph->set_x_label_font( $fonts{font}, $fonts{label_size} );
+    $graph->set_y_label_font( $fonts{font}, $fonts{label_size} );
+    $graph->set_x_axis_font( $fonts{font}, $fonts{axis_size} );
+    $graph->set_y_axis_font( $fonts{font}, $fonts{axis_size} );
+    $graph->set_values_font( $fonts{font}, $fonts{value_size} );
+    $graph->set_legend_font( $fonts{font}, $fonts{legend_size} );
 
     # Set legend
     $graph->set_legend( @$names_ref );
@@ -182,13 +278,10 @@ sub bar2 {
 # graph object $gd which can be printed with the command: print $gd->png; see
 # ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
 sub lines {
-    my ( $data_ref, $xlabel, $ylabel, $data_names ) = @_;
+    my ( $data_ref, $xlabel, $ylabel, $data_names, $config_filename ) = @_;
 
-    # Create new Graph object $graph 750px by 320 px
-    my $graph = GD::Graph::lines->new(750, 320);
-
-    # Graph settings:
-    $graph->set( 
+    #Default settings (can be over-ridden by config file)
+    my %settings = (
         x_label       => $xlabel,
         y_label       => $ylabel,
         show_values   => 0,
@@ -198,35 +291,63 @@ sub lines {
         line_width    => 4,            # Line width in pixels
         legend_placement => 'RC',      # Right centre
 
-        bgclr         => 'background',
+        bgclr         => $background,
         fgclr         => 'white',
         boxclr        => '#f4eedc',    # Shaded-in background colour
         accentclr     => 'lgray',
 
-        labelclr       => '#000000',
-        axislabelclr   => '#000000',
-        legendclr      => '#000000',
-        valuesclr      => '#000000',
-        textclr        => 'dw_red',
-        dclrs                 => [ qw( solid0 solid1 solid2 solid3 solid4 ) ],
-        ) or die $graph->error;
+        labelclr      => '#000000',
+        axislabelclr  => '#000000',
+        legendclr     => '#000000',
+        valuesclr     => '#000000',
+        textclr       => $textclr,
+        dclrs         => $dark_clrs,
+    );
+    my $image_width = 750;    # Image width in pixels - can be over-ridden
+    my $image_height = 320;
 
+    # If there is a config file, get any settings from it
+    if ( defined $config_filename ) {
+        my $config = YAML::LoadFile( "$LJ::HOME/etc/$config_filename" );
+
+        # Image size
+        $image_width = $config->{image_width}
+            if defined $config->{image_width};
+        $image_height = $config->{image_height}
+            if defined $config->{image_height};
+
+        # Over-ride %settings with settings in config file, if they exist
+        foreach my $k ( keys %settings ) {
+            $settings{$k} = $config->{$k}
+                if defined $config->{$k};
+        }
+
+        # Over-ride %fonts with font settings in config file, if they exist
+        my $config_fonts = $config->{fonts};
+        if ( defined $config_fonts ) {
+            $fonts{$_} = $config_fonts->{$_}
+                foreach keys %$config_fonts;
+        }
+    }
+
+    # Create Graph
+    my $graph = GD::Graph::lines->new( $image_width, $image_height );
+    $graph->set( %settings ) or die $graph->error;
     $graph->set( line_types => [1, 2, 3, 4] ); # 1:solid 2:dash 3:dot 4:dot-dash
-
-    # FIXME: make the pathnames and font sizes configurable
-    $graph->set_title_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 14);
-    $graph->set_legend_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 12);
-    $graph->set_x_label_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 12);
-    $graph->set_y_label_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 12);
-    $graph->set_x_axis_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-    $graph->set_y_axis_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-    $graph->set_values_font("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-
-    # Set legend
     $graph->set_legend( @$data_names );
+
+    # Fonts defined at top in %fonts, and can be over-ridden by config file
+    $graph->set_title_font( $fonts{font}, $fonts{title_size} );
+    $graph->set_x_label_font( $fonts{font}, $fonts{label_size} );
+    $graph->set_y_label_font( $fonts{font}, $fonts{label_size} );
+    $graph->set_x_axis_font( $fonts{font}, $fonts{axis_size} );
+    $graph->set_y_axis_font( $fonts{font}, $fonts{axis_size} );
+    $graph->set_values_font( $fonts{font}, $fonts{value_size} );
+    $graph->set_legend_font( $fonts{font}, $fonts{legend_size} );
 
     # Make the plot
     my $gd = $graph->plot( $data_ref ) or die $graph->error;
     return $gd;
 }
+
 1;

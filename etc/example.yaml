@@ -1,0 +1,32 @@
+# etc/example.yaml
+#
+# Example configuration file for DW::Graphs
+#
+# Authors:
+#      Anarres <anarres@dreamwidth.org>
+#
+# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+---
+bgclr: #f7f7f7
+# Colors to use in order, one per dataset. See GD::Graph->set for details.
+dclrs:
+  - #7eafd2
+  - #f3973e
+  - #77cba2
+  - #edd344
+  - #a5c640
+  - #d87ba9
+fonts:
+  font: /usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf
+  title_size: 14
+  value_size: 10
+  label_size_pie: 10
+  label_size: 12
+  axis_size: 10
+  legend_size: 12
+image_height: 600
+image_width: 600
