@@ -87,7 +87,6 @@ function print_stylesheet() {
         elseif ($*userpics_position == "right") {
             $userpic_css = """
             .has-userpic .entry .entry-title,
-            .has-userpic .entry .access-filter,
             .has-userpic .entry .restrictions,
             .has-userpic .entry .datetime,
             .has-userpic .entry .poster {
