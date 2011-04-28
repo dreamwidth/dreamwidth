@@ -54,6 +54,10 @@ function Page::print_theme_stylesheet () {
         color: $*color_entry_title;
         }
 
+    .page-month .entry-title a {
+        color: $*color_page_link;
+        }
+
     .module-header a {
         color: $*color_module_title;
         }
@@ -140,6 +144,10 @@ function Page::print_theme_stylesheet () {
 
     .entry-title a {
         color: $*color_entry_title;
+        }
+
+    .page-month .entry-title a {
+        color: $*color_page_link;
         }
 
     .module-header a {
@@ -523,6 +531,10 @@ function Page::print_theme_stylesheet () {
 
     .entry-title a {
         color: $*color_entry_title;
+        }
+
+    .page-month .entry-title a {
+        color: $*color_page_link;
         }
 
     .module-header a {
