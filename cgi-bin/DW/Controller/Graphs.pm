@@ -33,6 +33,8 @@ DW::Controller::Graphs - Controller module for graphs to be displayed on /stats/
 
 package DW::Controller::Graphs;
 
+package DW::Controller::Graphs;
+
 use strict;
 use warnings;
 use DW::Routing;
@@ -129,7 +131,7 @@ sub active_community_accounts {
     my $input = [ [@labels], [@free_dataset], [@paid_dataset] ];
 
     # create an image (x and y labels not wanted so pass empty strings)
-    my $gd = DW::Graphs::bar2($input, '', '', $names);
+    my $gd = DW::Graphs::bar2( $input, '', '', $names, "sitestats_graphs.yaml" );
 
     # return the image
     $r->content_type("image/png");
@@ -175,7 +177,7 @@ sub active_identity_accounts {
     my $input = [ [@labels], [@free_dataset], [@paid_dataset] ];
 
     # create an image (x and y labels not wanted so pass empty strings)
-    my $gd = DW::Graphs::bar2($input, '', '', $names);
+    my $gd = DW::Graphs::bar2( $input, '', '', $names, "sitestats_graphs.yaml" );
 
     # return the image
     $r->content_type("image/png");
@@ -221,7 +223,7 @@ sub active_personal_accounts {
     my $input = [ [@labels], [@free_dataset], [@paid_dataset] ];
 
     # create an image (x and y labels not wanted so pass empty strings)
-    my $gd = DW::Graphs::bar2($input, '', '', $names);
+    my $gd = DW::Graphs::bar2( $input, '', '', $names, "sitestats_graphs.yaml" );
 
     # return the image
     $r->content_type("image/png");
