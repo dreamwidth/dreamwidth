@@ -1134,7 +1134,7 @@ property int num_items_icons {
 set num_items_icons = 0;
 
 property string tags_page_type { 
-    des = "Type of tags display on tags page";
+    des = "Type of tags display on the tags page. For the tag module, see the Modules section.";
     values="list|List|cloud|Cloud|multi|Multilevel";
 }
 set tags_page_type = "multi";
@@ -1377,7 +1377,7 @@ property string sidebar_width {
 }
 
 property string sidebar_width_doubled {
-    des = "Enter in a value twice that of any sidebars.  Also ensure that the value is given in em or px.";
+    des = "For a setup of two sidebars on the side, set the width to twice the value of a single sidebar (also in em or px).";
     example = "30em";
 }
 
@@ -1432,7 +1432,7 @@ property string[] module_userprofile_opts_group {
     grouped = 1;
 }
 set module_userprofile_opts_group = ["module_userprofile_opts_userpic", "module_userprofile_opts_name", "module_userprofile_opts_website"];
-property bool module_userprofile_opts_userpic   { grouped = 1; label = "Default Userpic"; }
+property bool module_userprofile_opts_userpic   { grouped = 1; label = "Default Icon"; }
 property bool module_userprofile_opts_name      { grouped = 1; label = "Display Name"; }
 property bool module_userprofile_opts_website   { grouped = 1; label = "Website"; }
 
@@ -2041,69 +2041,69 @@ set custom_css = "";
 ##===============================
 
 property string text_view_recent {
-    des = "Text used to link to the 'Recent Entries' view";
+    des = "Text used to link to the 'Recent Entries' page";
     maxlength = 40;
     "size" = 15;
     example = "Recent Entries";
 }
 property string text_view_recent_tagged {
-    des = "Text used to link to a tag-filtered version of the 'Recent Entries' view";
+    des = "Text used to link to a tag-filtered version of the 'Recent Entries' page";
     maxlength = 40;
     "size" = 15;
     example = "Entries tagged with ";
 }
 property string text_view_friends {
-    des = "Text used to link to the 'Reading' view";
+    des = "Text used to link to the 'Reading' page";
     maxlength = 40;
     "size" = 15;
-    example = "My Reading Page";
+    example = "Reading";
 }
 property string text_view_friends_comm {
-    des = "Text used to link to the 'Reading' view for a community";
+    des = "Text used to link to the 'Reading' page for a community";
     maxlength = 40;
     "size" = 15;
-    example = "Members' Journals";
+    example = "Member Posts";
 }
 property string text_view_network {
-    des = "Title of the 'Network' view";
+    des = "Text used to link to the 'Network' page";
     maxlength = 40;
     "size" = 15;
     example = "Network";
 }
 property string text_view_friends_filter {
-    des = "Title of a Friends page with an unnamed filter in effect";
+    des = "Text used to link to the 'Reading' page with an unnamed filter in effect";
     maxlength = 40;
     "size" = 15;
-    example = "Subscriptions (Custom filter)";
+    example = "Reading (Custom filter)";
 }
 property string text_view_network_filter {
-    des = "Title of a Network page with an unnamed filter in effect";
+    des = "Text used to link to the 'Network' page with an unnamed filter in effect";
     maxlength = 40;
     "size" = 15;
     example = "Network (Custom filter)";
 }
 property string text_view_archive {
-    des = "Text used to link to the 'Archive' view";
+    des = "Text used to link to the 'Archive' page";
     maxlength = 40;
     "size" = 15;
-    example = "Journal Archive";
+    example = "Archive";
 }
 property string text_view_userinfo {
-    des = "Text used to link to the 'User Information' view";
+    des = "Text used to link to the 'Profile' page";
     maxlength = 40;
     "size" = 15;
-    example = "My Profile";
+    example = "Profile";
 }
 
 property string text_view_memories {
-    des = "Text used to link to the 'Memories' view";
+    des = "Text used to link to the 'Memories' page";
     maxlength = 40;
     "size" = 15;
-    example = "My Memories";
+    example = "Memories";
 }
 
 property string text_view_icons {
-    des = "Text used to link to the Icons page";
+    des = "Text used to link to the 'Icons' page";
     maxlength = 40;
     "size" = 15;
     example = "Icons";
@@ -2113,7 +2113,7 @@ property string text_view_tags {
     des = "Text used to link to the 'Tags' page";
     maxlength = 40;
     "size" = 15;
-    example = "My Tags";
+    example = "Tags";
 }
 
 set text_view_recent = "Recent Entries";
@@ -2126,8 +2126,8 @@ set text_view_network_filter = "Network (Custom filter)";
 set text_view_archive = "Archive";
 set text_view_userinfo = "Profile";
 set text_view_memories = "Memories";
-set text_view_tags = "Tags";
 set text_view_icons = "Icons";
+set text_view_tags = "Tags";
 
 property string text_skiplinks_back {
     des = "Text to show in a link to skip back through entries";
