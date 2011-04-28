@@ -33,8 +33,6 @@ DW::Controller::Graphs - Controller module for graphs to be displayed on /stats/
 
 package DW::Controller::Graphs;
 
-package DW::Controller::Graphs;
-
 use strict;
 use warnings;
 use DW::Routing;
