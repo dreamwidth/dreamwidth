@@ -7,6 +7,9 @@ use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Test;
 
+plan skip_all => "Memcache configured but not active."
+    unless LJ::Test::check_memcache;
+
 use XML::Atom::Client;
 use XML::Atom::Entry;
 use XML::Atom::Category;

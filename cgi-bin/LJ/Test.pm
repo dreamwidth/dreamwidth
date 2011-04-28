@@ -170,6 +170,15 @@ sub memcache_stress (&) {
     LJ::MemCache::set_memcache($pre_mem);
 }
 
+# this is a quick check for whether memcache is functioning correctly
+# using a bogus wsse_auth key - add fails when not working as configured
+sub check_memcache {
+    return 1 unless @LJ::MEMCACHE_SERVERS;  # OK if not set
+
+    my $secs = time;
+    return LJ::MemCache::add( "wsse_auth:xxx:$secs", 1, 1 );
+}
+
 sub routing_request {
     my ( $uri, %opts ) = @_;
 
