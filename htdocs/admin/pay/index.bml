@@ -82,6 +82,10 @@
             if ( $ps->{permanent} ) {
                 $body .= '; <strong>Permanent Status</strong> will never expire.';
 
+                # but they may have transferrable paid time
+                $body .= " Has paid time up until " . LJ::mysql_time( $ps->{expiretime} )
+                    if $ps->{expiresin} > 0;
+
             } else {
                 if ( $ps->{expiresin} > 0 ) {
                     my $expt = LJ::mysql_time( $ps->{expiretime} );

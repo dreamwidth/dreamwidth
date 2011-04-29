@@ -381,8 +381,10 @@ sub add_paid_time {
         unless $months > 0 || $days > 0 ;
 
     # okay, let's see what the user is right now to decide what to do
-    my ( $newtypeid, $amonths, $adays, $asecs ) = ( $typeid, $months, $days, 0 );
     my $permanent = $months == 99 ? 1 : 0;
+
+    my ( $newtypeid, $amonths, $adays, $asecs ) = ( $typeid, $months, $days, 0 );
+    $amonths = 0 if $permanent;
 
     # if they have a $ps hashref, they have or had paid time at some point
     if ( my $ps = DW::Pay::get_paid_status( $u ) ) {
@@ -400,7 +402,7 @@ sub add_paid_time {
 
             # but if they're going permanent...
             } elsif ( $permanent ) {
-                $amonths = 0;
+                $asecs = $ps->{expiresin};
 
             # but the types are different...
             } else {

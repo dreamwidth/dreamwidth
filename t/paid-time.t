@@ -91,7 +91,7 @@ assert( $u1, 'premium', "paid +1 month == premium +21 days" );
 # seed account
 DW::Pay::add_paid_time( $u1, 'seed', 99 )
     or die DW::Pay::error_text();
-$paidmos = 0;  # never expires
+# no additional paid time, but store old value for reference
 
 assert( $u1, 'seed', "seed account" );
 
