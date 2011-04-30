@@ -43,6 +43,7 @@ LJ::Hooks::register_hook( 'finduser_extrainfo', sub {
         $ret .= "  Unused invites: " . $numinvites . "\n";
     }
 
+    return $ret;
 });
 
 1;
