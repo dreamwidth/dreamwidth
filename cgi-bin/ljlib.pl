@@ -171,7 +171,7 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                  },
                  "read" => {
                      "des" => "Reading Page",
-                     "owner_props" => ["opt_usesharedpic", "friendspagetitle"],
+                     "owner_props" => ["opt_usesharedpic", "friendspagetitle", "friendspagesubtitle"],
                  },
                  "network" => {
                      "des" => "Network View",

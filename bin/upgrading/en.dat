@@ -4537,6 +4537,8 @@ widget.journaltitles.desc=These titles appear in your journal and on your profil
 
 widget.journaltitles.edit=Edit
 
+widget.journaltitles.friendspagesubtitle=Reading Page Subtitle:
+
 widget.journaltitles.friendspagetitle=Reading Page Title:
 
 widget.journaltitles.journalsubtitle=Journal Subtitle:

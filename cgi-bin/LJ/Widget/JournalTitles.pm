@@ -37,7 +37,7 @@ sub render_body {
     $ret .= "<div class='theme-titles-content'>";
     $ret .= "<p class='detail'>" . $class->ml('widget.journaltitles.desc') . " " . LJ::help_icon('journal_titles') . "</p>";
 
-    foreach my $id (qw( journaltitle journalsubtitle friendspagetitle )) {
+    foreach my $id (qw( journaltitle journalsubtitle friendspagetitle friendspagesubtitle )) {
         my $eprop = LJ::ehtml( $u->prop( $id ) ) || '';
         $ret .= $class->start_form( id => "${id}_form" );
 
@@ -97,32 +97,40 @@ sub js {
             self.journaltitle_value = $("journaltitle").value;
             self.journalsubtitle_value = $("journalsubtitle").value;
             self.friendspagetitle_value = $("friendspagetitle").value;
+            self.friendspagesubtitle_value = $("friendspagesubtitle").value;
 
             // show view mode
             $("journaltitle_view").style.display = "inline";
             $("journalsubtitle_view").style.display = "inline";
             $("friendspagetitle_view").style.display = "inline";
+            $("friendspagesubtitle_view").style.display = "inline";
             $("journaltitle_cancel").style.display = "inline";
             $("journalsubtitle_cancel").style.display = "inline";
             $("friendspagetitle_cancel").style.display = "inline";
+            $("friendspagesubtitle_cancel").style.display = "inline";
             $("journaltitle_modify").style.display = "none";
             $("journalsubtitle_modify").style.display = "none";
             $("friendspagetitle_modify").style.display = "none";
+            $("friendspagesubtitle_modify").style.display = "none";
 
             // set up edit links
             DOM.addEventListener($("journaltitle_edit"), "click", function (evt) { self.editTitle(evt, "journaltitle") });
             DOM.addEventListener($("journalsubtitle_edit"), "click", function (evt) { self.editTitle(evt, "journalsubtitle") });
             DOM.addEventListener($("friendspagetitle_edit"), "click", function (evt) { self.editTitle(evt, "friendspagetitle") });
+            DOM.addEventListener($("friendspagesubtitle_edit"), "click", function (evt) { self.editTitle(evt, "friendspagesubtitle") });
 
             // set up cancel links
             DOM.addEventListener($("journaltitle_cancel"), "click", function (evt) { self.cancelTitle(evt, "journaltitle") });
             DOM.addEventListener($("journalsubtitle_cancel"), "click", function (evt) { self.cancelTitle(evt, "journalsubtitle") });
             DOM.addEventListener($("friendspagetitle_cancel"), "click", function (evt) { self.cancelTitle(evt, "friendspagetitle") });
+            DOM.addEventListener($("friendspagesubtitle_cancel"), "click", function (evt) { self.cancelTitle(evt, "friendspagesubtitle") });
 
             // set up save forms
             DOM.addEventListener($("journaltitle_form"), "submit", function (evt) { self.saveTitle(evt, "journaltitle") });
             DOM.addEventListener($("journalsubtitle_form"), "submit", function (evt) { self.saveTitle(evt, "journalsubtitle") });
             DOM.addEventListener($("friendspagetitle_form"), "submit", function (evt) { self.saveTitle(evt, "friendspagetitle") });
+            DOM.addEventListener($("friendspagesubtitle_form"), "submit", function (evt) { self.saveTitle(evt, "friendspagesubtitle") });
+
         },
         editTitle: function (evt, id) {
             $(id + "_modify").style.display = "inline";
@@ -133,13 +141,21 @@ sub js {
             if (id == "journaltitle") {
                 this.cancelTitle(evt, "journalsubtitle");
                 this.cancelTitle(evt, "friendspagetitle");
+                this.cancelTitle(evt, "friendspagesubtitle");
             } else if (id == "journalsubtitle") {
                 this.cancelTitle(evt, "journaltitle");
                 this.cancelTitle(evt, "friendspagetitle");
+                this.cancelTitle(evt, "friendspagesubtitle");
             } else if (id == "friendspagetitle") {
                 this.cancelTitle(evt, "journaltitle");
                 this.cancelTitle(evt, "journalsubtitle");
+                this.cancelTitle(evt, "friendspagesubtitle");
+            } else if (id == "friendspagesubtitle") {
+                this.cancelTitle(evt, "journaltitle");
+                this.cancelTitle(evt, "journalsubtitle");
+                this.cancelTitle(evt, "friendspagetitle");
             }
+
 
             Event.stop(evt);
         },
@@ -154,7 +170,9 @@ sub js {
                 $("journalsubtitle").value = this.journalsubtitle_value;
             } else if (id == "friendspagetitle") {
                 $("friendspagetitle").value = this.friendspagetitle_value;
-            }
+            } else if (id == "friendspagesubtitle") {
+                $("friendspagesubtitle").value = this.friendspagesubtitle_value;
+            } 
 
             Event.stop(evt);
         },

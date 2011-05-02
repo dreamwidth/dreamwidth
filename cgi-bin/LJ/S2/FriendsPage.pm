@@ -32,6 +32,7 @@ sub FriendsPage
     $p->{'entries'} = [];
     $p->{'friends'} = {};
     $p->{'friends_title'} = LJ::ehtml($u->{'friendspagetitle'});
+    $p->{'friends_subtitle'} = LJ::ehtml($u->{'friendspagesubtitle'});
 
     # Add a friends-specific XRDS reference
     $p->{'head_content'} .= qq{<meta http-equiv="X-XRDS-Location" content="}.LJ::ehtml($u->journal_base).qq{/data/yadis/friends" />\n};

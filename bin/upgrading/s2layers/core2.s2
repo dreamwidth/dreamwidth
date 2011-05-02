@@ -734,6 +734,9 @@ class FriendsPage extends RecentPage
     var readonly string friends_title
     "A user-selected title for their friends page.";
 
+    var readonly string friends_subtitle
+    "A user-selected subtitle for their friends page.";
+
     var string friends_mode
     "The 'mode' of this view. An empty string indicates a normal friends view, while 'network' indicates the network view.";
 }
@@ -3598,6 +3601,14 @@ function FriendsPage::print_global_title() {
 }
 function Page::print_global_subtitle() {
     if ($.global_subtitle) {
+        """<h2 id="subtitle"><span>""" + $.global_subtitle + """</span></h2>""";
+    }
+}
+function FriendsPage::print_global_subtitle(){
+    if ($.friends_subtitle){
+        """<h2 id="subtitle"><span>""" + $.friends_subtitle + """</span></h2>""";
+    } elseif ($.friends_title) {
+    } else {
         """<h2 id="subtitle"><span>""" + $.global_subtitle + """</span></h2>""";
     }
 }

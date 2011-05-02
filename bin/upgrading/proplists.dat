@@ -334,6 +334,14 @@ userproplist.friendspagetitle:
   multihomed: 0
   prettyname: Friends Page Title
 
+userproplist.friendspagesubtitle:
+  cldversion: 4
+  datatype: char
+  des: Subtitle of Friends Page
+  indexed: 0
+  multihomed: 0
+  prettyname: Friends Page Subtitle
+
 userproplist.gender:
   cldversion: 4
   datatype: char
