@@ -3629,7 +3629,7 @@ sub subscribe_interface {
 
         # show blurb if not tracking anything
         if ($cat_empty && $is_tracking_category) {
-            my $blurb = "<?p <strong>" . LJ::Lang::ml('subscribe_interface.nosubs.title') . "</strong><br />";
+            my $blurb = "<?p <strong>" . LJ::Lang::ml('subscribe_interface.nosubs.title2') . "</strong><br />";
             $blurb .= LJ::Lang::ml( 'subscribe_interface.nosubs.text',
                 { img => LJ::img( 'track', '', { align => 'absmiddle',
                                   alt => $ui_notify } ) } ) . " p?>";
@@ -3685,7 +3685,7 @@ sub subscribe_interface {
         # max for total number of subscriptions (generally it is $paid_max)
         my $system_max  = $u_max > $paid_max ? $u_max : $paid_max;
 
-        $subscription_stats .= "<div class='subscription_stats'>" . LJ::Lang::ml( 'subscribe_interface.subs.total',  {
+        $subscription_stats .= "<div class='subscription_stats'>" . LJ::Lang::ml( 'subscribe_interface.subs.total2',  {
                             active =>  $max_active_method,
                             max_active => $u_max,
                             total => $max_total_method,

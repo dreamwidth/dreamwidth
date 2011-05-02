@@ -205,7 +205,7 @@ body<=
 
         if ( $given_cat eq "notifications" && $POST{deleteinactive} ) {
             $u->delete_all_inactive_subscriptions;
-            $submit_msg .= "<?errorbar $ML{'.success.deleteinactive'} errorbar?><br />";
+            $submit_msg .= "<?errorbar $ML{'.success.deleteinactive2'} errorbar?><br />";
         } elsif ( $given_cat eq "notifications" ) {
             my @notif_errors;
 
@@ -429,10 +429,10 @@ body<=
     $ret .= "<div id='settings_save' class='action-bar'>";
     $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
     $ret .= "&nbsp;";
-    my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive'} );
-    $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive'}, {
+    my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
+    $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'}, {
         class => 'btn',
-        title => $ML{'.btn.deleteinactive'},
+        title => $ML{'.btn.deleteinactive2'},
         onClick => "return confirm( '$del_conf' )"
         } );
     $ret .= "</div>";
@@ -564,10 +564,10 @@ body<=
     $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
     if ( $given_cat eq "notifications" ) {
         $ret .= "&nbsp;";
-        my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive'} );
-        $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive'}, {
+        my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
+        $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'}, {
             class => 'btn',
-            title => $ML{'.btn.deleteinactive'},
+            title => $ML{'.btn.deleteinactive2'},
             onClick => "return confirm( '$del_conf' )"
             } );
     }

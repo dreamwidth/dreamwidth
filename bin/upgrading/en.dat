@@ -3565,7 +3565,7 @@ subscribe_interface.manage_settings=Manage Settings
 
 subscribe_interface.nosubs.text=Track entries, comments, and account updates by clicking the [[img]] icon or the "Track This" link that appears on entries, comments, and the Profile page.
 
-subscribe_interface.nosubs.title=You don't have any subscriptions
+subscribe_interface.nosubs.title2=You aren't tracking any items
 
 subscribe_interface.notify_me=Notify me when...
 
@@ -3575,7 +3575,7 @@ subscribe_interface.save=Save
 
 subscribe_interface.special_subs.note=These notification options are only available by email and won't show in your [[sitenameabbrev]] Inbox.
 
-subscribe_interface.subs.total=You are using [[active]] out of [[max_active]] active subscriptions.
+subscribe_interface.subs.total2=You are using [[active]] out of [[max_active]] active notifications.
 
 subscribe_interface.unavailable_subs.note=These notification options are only available to certain account types.
 

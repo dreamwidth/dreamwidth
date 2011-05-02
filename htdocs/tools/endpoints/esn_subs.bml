@@ -59,7 +59,7 @@ _c?>
 
         $subscr->delete;
         $success = 1;
-        $ret{msg} = "Subscription deleted";
+        $ret{msg} = "Notification Tracking Removed";
         $ret{subscribed} = 0;
 
 
@@ -75,12 +75,12 @@ _c?>
         }
     } elsif ($action eq 'addsub') {
 
-        return $err->("Reached limit of " . $remote->count_max_subscriptions . " active subscriptions")
+        return $err->("Reached limit of " . $remote->count_max_subscriptions . " active notifications")
             unless $remote->can_add_inbox_subscription;
 
         my %subparams = ();
 
-        return $err->("Invalid subscription parameters") unless (defined $POST{journalid}) && $POST{etypeid}+0;
+        return $err->("Invalid notification tracking parameters") unless (defined $POST{journalid}) && $POST{etypeid}+0;
 
         foreach my $param (qw(journalid etypeid arg1 arg2)) {
             $subparams{$param} = $POST{$param}+0;
@@ -97,7 +97,7 @@ _c?>
         if ($subscr) {
             $subscr->activate;
             $success = 1;
-            $ret{msg} = "Subscribed";
+            $ret{msg} = "Notification Tracking Added";
             $ret{subscribed} = 1;
             $ret{event_class} = $subscr->event_class;
             my %sub_info = $subscr->sub_info;

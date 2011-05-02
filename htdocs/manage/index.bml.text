@@ -105,9 +105,9 @@
 
 .manage.logins=Manage Logins
 
-.manage.subscriptions=Manage Message Settings
+.manage.notifications=Manage Notification Options
 
-.manage.subscriptions.about=Manage notifications and subscriptions
+.manage.notifications.about=Manage your notification tracking options
 
 .mobile.settings=Mobile Settings
 

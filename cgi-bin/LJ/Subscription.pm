@@ -613,8 +613,8 @@ sub as_html { $_[0]->as_string }
 sub as_string {
     my $self = shift;
     my $max = $self->field('u')->count_max_subscriptions;
-    return 'The subscription "' . $self->field('subscr')->as_html . '" was not saved because you have' .
-        " reached your limit of $max active subscriptions. Subscriptions need to be deactivated before more can be added.";
+    return 'The notification tracking "' . $self->field('subscr')->as_html . '" was not saved because you have' .
+        " reached your limit of $max active notifications. Notifications need to be deactivated before more can be added.";
 }
 
 # Too many subscriptions exist, not necessarily active
@@ -625,8 +625,8 @@ sub as_html { $_[0]->as_string }
 sub as_string {
     my $self = shift;
     my $max = $self->field('max');
-    return 'The subscription "' . $self->field('subscr')->as_html . '" was not saved because you have' .
-        " more than $max existing subscriptions. Subscriptions need to be completely removed before more can be added.";
+    return 'The notification tracking "' . $self->field('subscr')->as_html . '" was not saved because you have' .
+        " more than $max existing notifications. Notifications need to be completely removed before more can be added.";
 }
 
 1;

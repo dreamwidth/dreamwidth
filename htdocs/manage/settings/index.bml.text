@@ -13,7 +13,7 @@
 
 .bdayreminder=Receive email reminders for the birthdays of people in your Circle.
 
-.btn.deleteinactive=Delete all inactive subscriptions
+.btn.deleteinactive2=Delete all inactive tracked items
 
 .btn.save=Save
 
@@ -49,7 +49,7 @@
 
 .commentpage.text=When you follow a comment link from your Reading page, you can view that comment page in your own journal style.
 
-.confirm.deleteinactive=Are you sure you want to delete all inactive subscriptions?
+.confirm.deleteinactive2=Are you sure you want to delete all inactive tracked items?
 
 .contextualhover=Show contextual hover menu
 
@@ -161,7 +161,7 @@
 
 .success=You've successfully saved your account settings.
 
-.success.deleteinactive=You have successfully deleted all inactive subscriptions.
+.success.deleteinactive2=You have successfully deleted all inactive tracked items.
 
 .success.header=Success!
 

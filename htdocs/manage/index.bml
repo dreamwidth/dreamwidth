@@ -147,7 +147,7 @@ _code?>
     my $remote = LJ::get_remote();
 
     if ($remote && $remote->can_use_esn) {
-        return '<li><a href="/manage/subscriptions/" title="<?_ml .manage.subscriptions.about _ml?>"><?_ml .manage.subscriptions _ml?></a></li>';
+        return '<li><a href="/manage/subscriptions/" title="<?_ml .manage.notifications.about _ml?>"><?_ml .manage.notifications _ml?></a></li>';
     } else {
         return '';
     }
