@@ -6,7 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
-#      Pau Amma <pauamma@cpan.org>
+#      Pau Amma <pauamma@dreamwidth.org>
 #      Afuna <coder.dw@afunamatata.com>
 #
 # Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
@@ -153,7 +153,7 @@ sub typemap {
 
 Mark Smith <mark@dreamwidth.org>
 
-Pau Amma <pauamma@cpan.org>
+Pau Amma <pauamma@dreamwidth.org>
 
 Afuna <coder.dw@afunamatata.com>
 

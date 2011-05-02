@@ -4,7 +4,7 @@
 # and account level
 #
 # Authors:
-#      Pau Amma <pauamma@cpan.org>
+#      Pau Amma <pauamma@dreamwidth.org>
 #      Some code based off bin/maint/stats.pl
 #
 # Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
@@ -149,7 +149,7 @@ a bug in the design.
 
 =head1 AUTHORS
 
-Pau Amma <pauamma@cpan.org>, with some code based off bin/maint/stats.pl
+Pau Amma <pauamma@dreamwidth.org>, with some code based off bin/maint/stats.pl
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -8,7 +8,7 @@
 #       invites => 42, reason => 'Because I wanna' } );
 #
 # Authors:
-#      Pau Amma <pauamma@cpan.org>
+#      Pau Amma <pauamma@dreamwidth.org>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #

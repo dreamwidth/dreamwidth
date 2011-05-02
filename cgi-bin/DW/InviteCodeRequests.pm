@@ -4,7 +4,7 @@
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
-#      Pau Amma <pauamma@cpan.org>
+#      Pau Amma <pauamma@dreamwidth.org>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -354,7 +354,7 @@ sub timeprocessed {
 =head1 AUTHORS
 
 Afuna <coder.dw@afunamatata.com>
-Pau Amma <pauamma@cpan.org>
+Pau Amma <pauamma@dreamwidth.org>
 
 =head1 COPYRIGHT AND LICENSE
 
