@@ -23,11 +23,16 @@ body<=
 
     $title = $ML{'.title'};
 
+    # redirect to directorysearch if we haven't submitted the form
+    return BML::redirect( "/directorysearch" )
+        unless $GET{opt_pagesize} || $GET{s_loc} || $GET{s_fro};
+
     LJ::need_res(qw(
                     stc/directory.css
                     ));
 
-    LJ::set_active_crumb('searchregion');
+    LJ::set_active_crumb('advsearch');
+
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
@@ -35,145 +40,6 @@ body<=
         unless $remote->can_use_directory;
 
     my $ret = '';
-
-    # doing a search?
-    unless ($GET{opt_pagesize} || $GET{s_loc} || $GET{s_fro}) {
-        # not searching
-        my (%count, %country, %state);
-        LJ::load_codes({ state => \%state, country => \%country  });
-        my $dbr = LJ::get_db_reader()
-            or return LJ::error_list("Could not get database reader handle");
-        my $sth = $dbr->prepare("SELECT statcat, statkey, statval FROM stats WHERE statcat IN ('country', 'stateus')");
-        $sth->execute;
-        while ($_ = $sth->fetchrow_hashref) {
-            $count{$_->{'statcat'}}->{$_->{'statkey'}} = $_->{'statval'};
-        }
-
-        my $mapimg = LJ::img( 'us_map', '', { id => "USMap", border => 0,
-                                              usemap => "#state_test",
-                                              ismap => 'ismap' } );
-        $ret .= qq {
-            <div id="States">
-                <?h1 $ML{'.browse.usa.title'} h1?>
-                <?p $ML{'.browse.usa.desc'} p?>
-                <form action='get' name="stateForm">
-                <div>
-                $mapimg
-                <div id="StateInfo"></div>
-                </div>
-                </form>
-                <map name='state_test' id='state_test'>
-            };
-
-        my @shapes = (
-                      "1,235,1,309,108,309,108,235,18,235,1,235", "AK",
-                      "328,196,328,236,355,235,345,195,328,196,328,196", "AL",
-                      "267,182,272,215,294,216,293,206,300,182,267,182,267,182", "AR",
-                      "86,162,72,205,113,225,124,167,86,162,86,162", "AZ",
-                      "14,86,6,110,22,166,54,198,69,189,29,123,38,90,14,86,14,86", "CA",
-                      "137,122,133,160,191,169,191,128,137,122,137,122", "CO",
-                      "444,91,443,99,456,92,456,88,444,91,444,91", "CT",
-                      "445,158,460,158,460,168,445,158", "DC",
-                      "428,122,433,134,436,132,430,121,428,122", "DE",
-                      "450,126,464,135", "DE",
-                      "335,240,335,244,371,242,391,259,410,293,414,279,390,238,335,240,335,240", "FL",
-                      "352,194,366,234,388,233,389,216,364,192,352,194,352,194", "GA",
-                      "119,269,185,312", "HI",
-                      "248,101,254,126,289,126,286,97,248,101,248,101", "IA",
-                      "86,24,73,90,114,99,118,76,100,72,86,24,86,24", "ID",
-                      "302,111,293,135,313,162,321,147,316,111,302,111,302,111", "IL",
-                      "326,119,328,154,344,143,343,114,326,119,326,119", "IN",
-                      "199,140,196,167,257,170,254,141,199,140,199,140", "KS",
-                      "325,172,324,161,341,160,348,148,366,149,367,164,325,172,325,172", "KY",
-                      "274,224,277,255,307,254,307,244,290,244,291,221,274,224,274,224", "LA",
-                      "471,79,488,88", "MA",
-                      "442,82,442,89,458,84,464,89,466,87,457,79,442,82,442,82", "MA",
-                      "465,142,483,153", "MD",
-                      "397,128,426,122,432,135,437,136,431,142,419,138,420,128,411,128,409,126,397,129,397,128", "MD",
-                      "462,27,457,52,461,64,476,38,469,25,462,27,462,27", "ME",
-                      "309,56,361,61,359,107,331,110,309,56,309,56", "MI",
-                      "243,36,250,92,277,92,268,65,283,46,243,36,243,36", "MN",
-                      "260,134,267,173,308,173,283,133,260,134,260,134", "MO",
-                      "322,196,321,240,299,237,301,204,322,196,322,196", "MS",
-                      "96,22,111,64,176,73,180,33,96,22,96,22", "MT",
-                      "388,171,374,181,415,186,423,166,388,171,388,171", "NC",
-                      "189,33,186,59,240,63,236,36,189,33,189,33", "ND",
-                      "184,104,182,119,200,121,200,134,248,135,237,108,184,104,184,104", "NE",
-                      "453,51,459,74,449,79,450,61,452,60,452,51,453,51,453,51", "NH",
-                      "435,27,452,36", "NH",
-                      "432,102,431,109,436,114,431,121,437,125,441,111,437,111,438,103,432,102,432,102", "NJ",
-                      "132,170,125,221,176,227,180,174,132,170,132,170", "NM",
-                      "45,93,37,122,72,173,82,102,45,93,45,93", "NV",
-                      "433,59,439,77,440,99,430,98,429,91,391,100,401,87,417,78,419,63,433,59", "NY",
-                      "450,99,440,106,445,109,455,100,450,99", "NY",
-                      "379,112,350,116,352,139,368,143,381,127,379,112,379,112", "OH",
-                      "186,172,186,175,212,177,214,201,259,207,259,174,186,172,186,172", "OK",
-                      "27,42,13,75,64,91,72,51,27,42,27,42", "OR",
-                      "386,106,388,125,428,117,425,99,386,106,386,106", "PA",
-                      "421,229,485,260", "PR",
-                      "472,100,482,110", "RI",
-                      "458,86,457,94,461,89,458,86", "RI",
-                      "375,191,395,210,410,193,375,191,375,191", "SC",
-                      "187,69,183,97,240,101,241,71,187,69,187,69", "SD",
-                      "315,180,311,190,355,188,372,172,315,180,315,180", "TN",
-                      "188,180,183,235,151,230,174,258,184,250,202,254,223,292,242,263,266,252,266,216,204,205,207,181,188,180,188,180", "TX",
-                      "97,103,86,153,126,160,131,120,112,119,114,106,97,103,97,103", "UT",
-                      "411,135,383,163,425,158,411,135,411,135", "VA",
-                      "454,272,481,307", "VI",
-                      "416,34,430,43", "VT",
-                      "437,58,442,80,446,79,447,54,437,58,437,58", "VT",
-                      "41,6,82,17,75,45,34,37,41,6,41,6", "WA",
-                      "282,62,283,81,293,87,297,103,313,102,308,66,282,62,282,62", "WI",
-                      "385,133,374,148,383,156,401,133,385,133,385,133", "WV",
-                      "126,73,122,111,174,120,178,80,126,73,126,73", "WY",
-                      );
-
-        while (my ($coords, $state) = splice(@shapes, 0, 2))
-        {
-            next unless ($count{'stateus'}->{$state});
-            my $shape = "poly";
-            if ($coords =~ /^[^,]+,[^,]+,[^,]+,[^,]+$/) { $shape = "RECTANGLE"; }
-            $ret .= "<area shape='$shape' alt='$state' coords=\"$coords\" href=\"/directory?s_loc=1&amp;loc_cn=US&amp;loc_st=$state&amp;opt_sort=ut\" onmouseover=\"Directory.updateStatus('";
-            $ret .= BML::eall($state{$state});
-            $ret .= " - ";
-            $ret .= ($count{'stateus'}->{$state}+0);
-            my $s = $count{'stateus'}->{$state} != 1 ? "s" : "";
-            $ret .= " Journal$s'); return true;\" onmouseout=\"Directory.updateStatus(''); return true;\" />\n";
-        }
-
-        $ret .= qq {
-            </map>
-         </div>
-         <div class="ljclear"></div>
-     };
-
-        $ret .= qq {
-            <div id="CountryBrowse">
-            <?h1 $ML{'.browse.country.title'} h1?>
-            <?p $ML{'.browse.country.desc'} p?>
-            <table summary='' style='margin-left: 20px' cellpadding='5'>
-            <tr valign='top'>
-            <td align='left'>
-            <ul>
-        };
-
-        my $total = scalar(keys %{$count{'country'}});
-        my $count = 0;
-        my $col = 0;
-        foreach (sort { $country{$a} cmp $country{$b} } keys %{$count{'country'}})
-        {
-            $count++;
-            $ret .= "<li><a href=\"/directory?s_loc=1&amp;loc_cn=$_&amp;opt_sort=ut\">$country{$_}</a> <i>($count{'country'}->{$_})</i></li>\n";
-            if ($col==0 && $count > ($total/2)) { $ret .= "</ul></td><td align='left'><ul>"; $col = 1; }
-        }
-        $ret .= "</ul></td></tr></table></div>";
-
-        return $ret;
-    }
-
-
-    # from here on down, we're actually doing a search
-    LJ::set_active_crumb('advsearch');
 
     if (! $GET{start_search}) {
         # do a refresh to the page with the finished results.
@@ -288,14 +154,6 @@ _code?>
 <=body
 title=><?_code return $title; _code?>
 head<=
-<script>
-    var Directory = new Object();
-
-    Directory.updateStatus = function (status) {
-        $("StateInfo").innerHTML = status;
-    }
-</script>
-
 <?_code return $headextra; _code?>
 <=head
 <=body

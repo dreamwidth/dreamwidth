@@ -234,13 +234,6 @@ $img{searchdots} = {
     alt => 'img.searchdots',
 };
 
-$img{us_map} = {
-    src => '/us_map.gif',
-    width => 489,
-    height => 315,
-    alt => 'img.us_map',
-};
-
 $img{nouserpic} = {
     src => '/nouserpic.png',
     width => 100,

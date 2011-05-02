@@ -1,12 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.browse.country.desc=Select a country to read journals from that country...
-
-.browse.country.title=Browse Journals by Country
-
-.browse.usa.desc=Click a US state below to read journals from that state, or click a country name below the map to read journals from that country.
-
-.browse.usa.title=Browse Journals by US State
-
 .error.accounttype2<<
 Sorry, your account type doesn't permit usage of the
 directory, or you aren't currently <a [[aopts]]>logged in</a>.  If your account type permits

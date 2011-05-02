@@ -221,8 +221,6 @@ crumb.register=Confirm Email
 
 crumb.searchinterests=Search By Interest
 
-crumb.searchregion=Search By Region
-
 crumb.seeoverrides=View User Overrides
 
 crumb.setpgpkey=Public Key
@@ -1755,8 +1753,6 @@ img.track_active=Track This
 img.track_thread_active=Track This
 
 img.untrack=Untrack This
-
-img.us_map=US Map
 
 img.xml=XML Source
 

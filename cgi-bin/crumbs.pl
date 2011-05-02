@@ -78,7 +78,6 @@ use Errno qw(ENOENT);
     'postentry' => ['Post an Entry', '/update', 'home'],
     'register' => ['Validate Email', '/register', 'home'],
     'searchinterests' => ['Search By Interest', '/interests', 'search'],
-    'searchregion' => ['Search By Region', '/directory', 'search'],
     'seeoverrides' => ['View User Overrides', '', 'support'],
     'setpgpkey' => ['Public Key', '/manage/pubkey', 'manage'],
     'sitestats' => ['Site Statistics', '/stats/site', 'about'],

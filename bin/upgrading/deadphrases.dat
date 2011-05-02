@@ -5,6 +5,7 @@ general crumb.createjournal
 general crumb.editentries_do
 general crumb.modify
 general crumb.preview
+general crumb.searchregion
 general crumb.siteopts
 general crumb.themes
 
@@ -733,6 +734,10 @@ general /customize/advanced/styles.bml.stylelayers.label.user
 general /customize/viewuser.bml.layer.isnt.type
 general /customize/viewuser.bml.no.user.layer
 general /customize/viewuser.bml.user.layer
+general /directory.bml.browse.country.desc
+general /directory.bml.browse.country.title
+general /directory.bml.browse.usa.desc
+general /directory.bml.browse.usa.title
 general /directory.bml.us_map
 general /directorysearch.bml.by_friends
 general /directorysearch.bml.lists_user_as_a_friend
@@ -1059,6 +1064,7 @@ general event.defriended.me
 general event.defriended.user
 general fcklang.ljvideo
 general img.flag_btn
+general img.us_map
 general inbox.menu.friend_updates
 general inbox.menu.new_friends
 general label.security.friends

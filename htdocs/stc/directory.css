@@ -40,26 +40,6 @@ div.NewSearch {
     font-size: 14px;
 }
 
-#States div {
-    margin: 0 auto;
-    text-align: center;
-}
-
-#StateInfo {
-    height: 1em;
-    padding: 1em 0 0 0;
-    font-size: 1.1em;
-}
-
-#USMap {
-    margin: 0 auto;
-    width: 489px;
-}
-
-#CountryBrowse {
-    margin-top: 2em;
-}
-
 #FilterSearch {
     padding: 5px 0 15px 0;
 }
