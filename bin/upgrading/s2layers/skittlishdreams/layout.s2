@@ -491,11 +491,14 @@ function Page::print_default_stylesheet () {
     var string entryicon_css = "";
         if ($*entryicons_position == "same") {
             $entryicon_css = """
-            .two-columns-right .has-userpic .entry-title { margin: 0 $entry_title_margin .5em 0; }
-            .two-columns-right .has-userpic .comment-title { margin: 0 $comment_title_margin .5em 0; }
+            .two-columns-right .has-userpic .entry .header { margin-right: $entry_title_margin; }
+            .two-columns-right .has-userpic .comment .header { margin-right: $comment_title_margin; }
 
-            .two-columns-left .has-userpic .entry-title { margin: 0 0 .5em $entry_title_margin; }
-            .two-columns-left .has-userpic .comment-title { margin: 0 0 .5em $comment_title_margin; }
+            .two-columns-left .has-userpic .entry .header { margin-left: $entry_title_margin; }
+            .two-columns-left .has-userpic .comment .header,
+            .two-columns-left .has-userpic .comment .poster {
+                margin-left: $comment_title_margin;
+                }
 
             .two-columns-right .entry .userpic a, 
             .two-columns-right .comment .userpic a { right: 10px; left: auto; }
@@ -505,11 +508,14 @@ function Page::print_default_stylesheet () {
         }
         elseif ($*entryicons_position == "opposite") {
             $entryicon_css = """
-            .two-columns-right .has-userpic .entry-title { margin: 0 0 .5em $entry_title_margin; }
-            .two-columns-right .has-userpic .comment-title { margin: 0 0 .5em $comment_title_margin; }
+            .two-columns-right .has-userpic .entry .header { margin-left: $entry_title_margin; }
+            .two-columns-right .has-userpic .comment .header,
+            .two-columns-right .has-userpic .comment .poster {
+                margin-left: $comment_title_margin;
+                }
 
-            .two-columns-left .has-userpic .entry-title { margin: 0 $entry_title_margin .5em 0; }
-            .two-columns-left .has-userpic .comment-title { margin: 0 $comment_title_margin .5em 0; }
+            .two-columns-left .has-userpic .entry .header { margin-right: $entry_title_margin; }
+            .two-columns-left .has-userpic .comment .header { margin-right: $comment_title_margin; }
 
             .two-columns-right .entry .userpic a, 
             .two-columns-right .comment .userpic a { left: 10px; right: auto; }
@@ -648,7 +654,12 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
     padding: 0;
 }
 
-.entry-title, .comment-title {margin:0 120px .5em 0; padding: 0.2em;border: solid 1px $*color_entry_title_border; $entry_title_colors }
+.entry-title, .comment-title {
+    border: solid 1px $*color_entry_title_border;
+    margin: 0 0 .5em;
+    padding: .2em;
+    $entry_title_colors
+    }
 
 .entry .entry-title {
     $entry_title_font
