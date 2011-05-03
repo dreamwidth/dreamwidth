@@ -557,7 +557,7 @@ body<=
                         }
                     }
 
-                    my $track_url = "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtid";
+                    my $track_url = "$LJ::SITEROOT/manage/tracking/comments?journal=$u->{'user'}&amp;talkid=$dtid";
                     $ret .= "<a href='$track_url'>" . LJ::img($track_img, '', {'align' => 'absmiddle'}) . "</a>";
                 }
 

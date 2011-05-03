@@ -135,7 +135,7 @@ body<=
                $ret .= BML::ml('Actionlink', {
                    'link'=>"<a href='/manage/tags?authas=$user'>$ML{'.commlist.tags'}</a>"}) . "&nbsp;&nbsp;";
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/manage/subscriptions/user?journal=$user'>$ML{'.commlist.tracking'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/manage/tracking/user?journal=$user'>$ML{'.commlist.tracking'}</a>"}) . "&nbsp;&nbsp;";
            }
            $ret .= "</td><td align='center'>";
            if ($mods{$id}) {
@@ -175,7 +175,7 @@ body<=
     $ret .= "<div class='columns-2-left'>\n";
     # form for setting email option
     $ret .= "<?h1 $ML{'.joinmail.title'} h1?>\n";
-    $ret .= "<?p " . BML::ml('.joinmail.body2', { aopts=>"href='$LJ::SITEROOT/manage/subscriptions/'" }). " p?>\n";
+    $ret .= "<?p " . BML::ml('.joinmail.body2', { aopts=>"href='$LJ::SITEROOT/manage/settings/?cat=notifications'" }). " p?>\n";
     $ret .= "<form method='post' action='manage'>\n";
     $ret .= LJ::form_auth();
     # options for getting moderation emails

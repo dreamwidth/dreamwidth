@@ -2757,7 +2757,7 @@ sub control_strip
         $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         $links{'edit_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
-        $links{'track_user'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackuser'}</a>";
+        $links{'track_user'} = "<a href='$LJ::SITEROOT/manage/tracking/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackuser'}</a>";
         if ($journal->is_syndicated ) {
             $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
             $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}&action=remove'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
@@ -2772,7 +2772,7 @@ sub control_strip
             $links{'edit_community_profile'} = "<a href='$LJ::SITEROOT/manage/profile/?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommprofile'}</a>";
             $links{'edit_community_invites'} = "<a href='$LJ::SITEROOT/community/sentinvites?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
             $links{'edit_community_members'} = "<a href='$LJ::SITEROOT/community/members?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
-            $links{'track_community'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackcomm'}</a>";
+            $links{'track_community'} = "<a href='$LJ::SITEROOT/manage/tracking/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackcomm'}</a>";
             $links{'queue'} = "<a href='$LJ::SITEROOT/community/moderate?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.queue'}</a>";
         }
     }
@@ -3276,7 +3276,7 @@ sub subscribe_interface {
     if ($post_to_settings_page) {
         $ret .= "<form method='POST' action='$LJ::SITEROOT/manage/settings/?cat=notifications'>$formauth";
     } elsif (!$settings_page) {
-        $ret .= "<form method='POST' action='$LJ::SITEROOT/manage/subscriptions/$getextra'>$formauth";
+        $ret .= "<form method='POST' action='$LJ::SITEROOT/manage/tracking/$getextra'>$formauth";
     }
 
     my $events_table = $settings_page ? '<table class="Subscribe" style="clear: none;" cellpadding="0" cellspacing="0">' : '<table class="Subscribe" cellpadding="0" cellspacing="0">';

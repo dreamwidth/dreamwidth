@@ -73,7 +73,7 @@ function IconsPage::print_body() {
         if ( $.can_manage ) {
             """Would you like to <a href="$*SITEROOT/editpics">upload a new icon or edit your icon keywords, comments, and descriptions</a>?""";
         } else {
-            """We can <a href="$*SITEROOT/manage/subscriptions/user?journal=$.journal.username">notify</a> you when this account uploads a new one.""";
+            """We can <a href="$*SITEROOT/manage/tracking/user?journal=$.journal.username">notify</a> you when this account uploads a new one.""";
         }
         """</p><p>""";
         var int sort_ct = 0;

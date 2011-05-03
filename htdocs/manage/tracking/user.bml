@@ -37,7 +37,7 @@ body<=
 
     my $journal = LJ::load_user($GET{journal}) or return LJ::bad_input("No journal specified");
 
-    return BML::redirect("$LJ::SITEROOT/manage/subscriptions/") if $remote->equals( $journal );
+    return BML::redirect("$LJ::SITEROOT/manage/settings/?cat=notifications") if $remote->equals( $journal );
 
     # what classes to display on this page
     my $cat_title = 'Track User';

@@ -47,7 +47,7 @@ sub render_body {
 
     unless (@notifications) {
         $ret .= $class->ml('widget.friendupdates.noupdates');
-        $ret .= "<p class='detail'>" . $class->ml('widget.friendupdates.noupdates.setup', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/'"}) . "</p>";
+        $ret .= "<p class='detail'>" . $class->ml('widget.friendupdates.noupdates.setup', {'aopts' => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'"}) . "</p>";
         return $ret;
     }
 

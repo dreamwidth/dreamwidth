@@ -351,7 +351,7 @@ sub track {
         }
 
         if ( $remote && $remote->can_use_esn ) {
-            $link->{url} = "manage/subscriptions/user?journal=$user";
+            $link->{url} = "manage/tracking/user?journal=$user";
             $link->{class} = "trackuser";
             $link->{image} = 'track.png';
         } else {

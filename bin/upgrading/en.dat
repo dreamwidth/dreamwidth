@@ -1099,13 +1099,13 @@ Go to [[inbox]] to view your new messages.
 Or you can:
 .
 
-esn.footer.text<<
+esn.footer.text2<<
 --
 [[sitenameshort]] Team
 [[sitename]]
 [[hook]]
 
-If you'd rather not get these updates, you can change your preferences at [[siteroot]]/manage/subscriptions/
+If you'd rather not get these updates, you can change your preferences at [[siteroot]]/manage/settings/?cat=notifications
 .
 
 esn.here_you_can=From here you can:

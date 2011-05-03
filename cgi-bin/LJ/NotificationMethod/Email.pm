@@ -81,7 +81,7 @@ sub notify {
         croak "invalid event passed" unless ref $ev;
 
         $vars->{'hook'} = LJ::Hooks::run_hook("esn_email_footer", $ev, $u);
-        my $footer = LJ::Lang::get_text($lang, 'esn.footer.text', undef, $vars);
+        my $footer = LJ::Lang::get_text($lang, 'esn.footer.text2', undef, $vars);
 
         my $plain_body = LJ::Hooks::run_hook("esn_email_plaintext", $ev, $u);
         unless ($plain_body) {

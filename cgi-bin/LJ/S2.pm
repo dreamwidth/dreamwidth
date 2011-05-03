@@ -3251,7 +3251,7 @@ sub _Comment__get_link
 
             my $etypeid = 'LJ::Event::JournalNewComment'->etypeid;
 
-            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=" . $comment->dtalkid,
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/tracking/comments?journal=$u->{'user'}&amp;talkid=" . $comment->dtalkid,
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_untrack"},
                                 LJ::S2::Image_std( 'untrack' ),
                                 'lj_etypeid'    => $etypeid,
@@ -3308,12 +3308,12 @@ sub _Comment__get_link
         $btn_params{'js_swapname'}   = $ctx->[S2::PROPS]->{text_multiform_opt_untrack};
 
         if ($key eq "watch_thread" && !$watching_parent) {
-            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/tracking/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
                                 LJ::S2::Image_std( 'track' ), %btn_params );
         }
         if ($key eq "watching_parent" && $watching_parent) {
-            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/tracking/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
                                 LJ::S2::Image_std( 'untrack' ), %btn_params );
         }
@@ -3901,7 +3901,7 @@ sub _Entry__get_link
                                                    arg1      => $this->{itemid},
                                                    );
 
-        return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link( "$LJ::SITEROOT/manage/tracking/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_watch_comments"},
                             LJ::S2::Image_std( 'track' ),
                             'lj_journalid'        => $journalu->id,
@@ -3933,7 +3933,7 @@ sub _Entry__get_link
                                                    subid  => $subscr->id,
                                                    action => 'delsub' );
 
-        return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link( "$LJ::SITEROOT/manage/tracking/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_unwatch_comments"},
                             LJ::S2::Image_std( 'untrack' ),
                             'lj_journalid'        => $journalu->id,
