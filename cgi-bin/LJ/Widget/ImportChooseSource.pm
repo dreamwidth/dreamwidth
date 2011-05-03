@@ -33,7 +33,9 @@ sub render_body {
     return $class->ml( 'widget.importchoosesource.disabled' )
         unless LJ::is_enabled('importing');
 
-    my @services = (
+    my @services;
+
+    for my $service ( (
         {
             name => 'livejournal',
             url => 'livejournal.com',
@@ -49,7 +51,10 @@ sub render_body {
             url => 'journalfen.net',
             display_name => 'JournalFen',
         },
-    );
+    ) ){
+        push @services, $service
+            if LJ::is_enabled( "external_sites", { sitename => $service->{display_name}, domain => $service->{url} } );
+    }
 
     my $ret;
 

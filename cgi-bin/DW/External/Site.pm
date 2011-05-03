@@ -86,7 +86,7 @@ sub get_sites { return values %domaintosite; }
 # returns a list of all supported sites for crossposting
 sub get_xpost_sites {
     my %protocols = DW::External::XPostProtocol->get_all_protocols;
-    return grep { exists $protocols{ $_->{servicetype} } }
+    return grep { exists $protocols{ $_->{servicetype} } && LJ::is_enabled( "external_sites", $_ ) }
            values %domaintosite;
 }
 
