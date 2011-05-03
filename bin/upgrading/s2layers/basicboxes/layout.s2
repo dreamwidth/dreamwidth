@@ -261,7 +261,7 @@ margin: .5em 0; }
 .metadata-label { font-weight: bold; }
 .metadata ul li { margin-left: 0; padding-left: 0; }
 
-.entry .footer { margin: .5em 0; }
+.entry .footer { margin: .5em 0; clear: both; }
 .entry .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
 
 .entry .tag { margin-left: .25em; }
