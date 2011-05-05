@@ -29,7 +29,7 @@ function update(data,widget) {
     if ( ! customsubject || cur_subject == "" )
         subject.val(data.subject);
 
-    $("#qrdiv").show().appendTo(widget);
+    $("#qrdiv").show().css("display", "inline").appendTo(widget);
     widget.show();
     $("#body").focus();
     
