@@ -2467,7 +2467,7 @@ sub need_res {
         # we put javascript in the 'default' group and CSS in the 'all' group
         # since we need CSS everywhere and we are switching JS groups
         my $lgroup = $group || ( $reskey =~ /^js/ ? 'default' : 'all' );
-        unless ($LJ::NEEDED_RES{$lgroup}->{$reskey}++) {
+        unless ($LJ::NEEDED_RES{$reskey}++) {
             $LJ::NEEDED_RES[$priority] ||= [];
 
             push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $resinclude ];
