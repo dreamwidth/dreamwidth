@@ -27,7 +27,7 @@ function shop_cc_ShowHideBoxes() {
     }
 }
 
-DW.whenPageLoaded( function() {
+jQuery( function($) {
     shop_cc_ShowHideBoxes();
 
     $('#country').change( shop_cc_ShowHideBoxes );

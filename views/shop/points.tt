@@ -28,7 +28,7 @@
 
 [%# FIXME: move this to shop.js or something %]
 <script type='text/javascript'>
-    DW.whenPageLoaded( function() {
+    jQuery( function($) {
         setInterval(
             function() {
                 $('#points-cost').html( 'Cost: <strong>$' + ($('#points').val() / 10).toFixed(2) + ' USD</strong>' );

@@ -13,7 +13,7 @@
     'perldoc perlartistic' or 'perldoc perlgpl'.
 */
 
-DW.whenPageLoaded( function() {
+jQuery( function($) {
 
     // used below
     var hideNavs = function() {

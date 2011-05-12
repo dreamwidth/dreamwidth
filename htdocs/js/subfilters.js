@@ -591,7 +591,7 @@ function cfDeleteFilter() {
 }
 
 
-DW.whenPageLoaded( function() {
+jQuery( function($) {
 
     // load the current filters into the box
     cfRefreshFilterList();
