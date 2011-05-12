@@ -1,20 +1,20 @@
 #!/usr/bin/perl
 #
-# DW::Controller::CutExpander
+# DW::Controller::RPC::CutExpander
 #
 # AJAX endpoint that returns the expanded text for a cut tag.
 #
 # Author:
 #      Allen Petersen
 #
-# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Controller::CutExpander;
+package DW::Controller::RPC::CutExpander;
 
 use strict;
 use warnings;
@@ -23,10 +23,6 @@ use JSON;
 
 DW::Routing->register_string( "/__rpc_cuttag", \&cutexpander_handler, app => 1, user => 1, format => 'json' );
 
-my $formats = {
-    'json' => [ "application/json; charset=utf-8", sub { $_[0]->print( objToJson( $_[1] ) ); } ],
-};
-
 sub cutexpander_handler {
     my $opts = shift;
 
@@ -34,16 +30,13 @@ sub cutexpander_handler {
     my $r = DW::Request->get;
     my $args = $r->get_args;
 
-
     my $remote = LJ::get_remote();
-
-    my $format = $formats->{json};
 
     # error handler
     my $error_out = sub {
        my ( $code, $message ) = @_;
        $r->status( $code );
-       $format->[1]->( $r, { error => $message } );
+       $r->print( objToJson( { error => $message } ) );
 
        return $r->OK;
     };
