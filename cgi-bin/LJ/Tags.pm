@@ -171,18 +171,17 @@ sub _get_usertagsmulti {
         my $dbcr = ($dbcrs{$cid} ||= LJ::get_cluster_def_reader($cid))
             or next;
 
+        my @all_jids = map { $_ + 0 } keys %{$need{$cid}};
+
         # get the tags from the database
-        my $in = join(',', map { $_ + 0 } keys %{$need{$cid}});
+        my $in = join(',', @all_jids);
         my $tagrows = $dbcr->selectall_arrayref("SELECT journalid, kwid, parentkwid, display FROM usertags WHERE journalid IN ($in)");
-        next if $dbcr->err || ! $tagrows;
+        next if $dbcr->err;
 
         # break down into data structures
         my %tags; # ( jid => { kwid => display } )
         $tags{$_->[0]}->{$_->[1]} = $_->[3]
             foreach @$tagrows;
-
-        # if they have no tags...
-        next unless %tags;
 
         # now turn this into a tentative results hash: { userid => { tagid => { name => tagname, ... }, ... } }
         # this is done by combining the information we got from the tags lookup along with
@@ -209,11 +208,14 @@ sub _get_usertagsmulti {
         # get security counts
         my @resjids = keys %$res;
         my $ids = join(',', map { $_+0 } @resjids);
-        next unless $ids;
+
+        my $counts = [];
 
         # populate security counts
-        my $counts = $dbcr->selectall_arrayref("SELECT journalid, kwid, security, entryct FROM logkwsum WHERE journalid IN ($ids)");
-        next if $dbcr->err || ! $counts;
+        if ( @resjids ) {
+            $counts = $dbcr->selectall_arrayref("SELECT journalid, kwid, security, entryct FROM logkwsum WHERE journalid IN ($ids)");
+            next if $dbcr->err;
+        }
 
         # setup some helper values
         my $public_mask = 1 << 63;
@@ -253,7 +255,8 @@ sub _get_usertagsmulti {
         }
 
         # default securities to private and store to memcache
-        foreach my $jid (@resjids) {
+        foreach my $jid (@all_jids) {
+            $res->{$jid} ||= {};
             $res->{$jid}->{$_}->{security_level} ||= 'private'
                 foreach keys %{$res->{$jid}};
 
