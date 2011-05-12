@@ -16,6 +16,8 @@ propgroup presentation {
     property use layout_type;
     property use tags_page_type;
     property use sidebar_width;
+    property use margins_size;
+    property use margins_unit;
     property use userpics_style_group;
     property string entryicons_position {
        des = "Place icons on the same side or opposite the sidebar";
@@ -372,6 +374,11 @@ body {
     line-height: 1.6em;
     text-align: center;
     }
+
+    html body {
+        margin-left: $*margins_size$*margins_unit;
+        margin-right: $*margins_size$*margins_unit;
+        }
 
 img { border: none; }
 

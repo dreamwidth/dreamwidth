@@ -26,8 +26,10 @@ propgroup presentation {
     property use num_items_reading;
     property use use_journalstyle_entry_page;
     property use layout_type;
-    property use sidebar_width;
     property use tags_page_type;
+    property use sidebar_width;
+    property use margins_size;
+    property use margins_unit;
     property use userpics_style_group;
     property string entryicons_position {
        des = "Place icons on the same side or opposite the sidebar";
@@ -554,6 +556,12 @@ a:hover {  $page_link_hover_colors text-decoration: underline; }
 q { font-style: italic; }
 
 body { $page_background $page_font margin: 0; padding: 0; }
+
+html body {
+    margin-left: $*margins_size$*margins_unit;
+    margin-right: $*margins_size$*margins_unit;
+    }
+
 .two-columns-right #container { $container_background }
 .two-columns-left #container { $container_background_redux }
 .two-columns-right #container, .two-columns-left #container { $container_colors margin: 0 4%; }

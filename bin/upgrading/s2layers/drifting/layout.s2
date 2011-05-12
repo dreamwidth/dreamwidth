@@ -27,6 +27,8 @@ propgroup presentation
     property use num_items_recent;
     property use num_items_reading;
     property use use_journalstyle_entry_page;
+    property use margins_size;
+    property use margins_unit;
     property use userpics_style_group;
     property use userpics_position;
     property use entry_metadata_position;
@@ -324,6 +326,11 @@ function Page::print_default_stylesheet()
         $page_font
         color: $*color_page_text;
         $page_background
+    }
+
+    html body {
+        margin-left: $*margins_size$*margins_unit;
+        margin-right: $*margins_size$*margins_unit;
     }
 
     #canvas {
