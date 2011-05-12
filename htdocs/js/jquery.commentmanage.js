@@ -1,36 +1,4 @@
 (function($) {
-$.extractParams = function(url) {
-    if ( ! $.extractParams.cache )
-        $.extractParams.cache = {};
-
-    if ( url in $.extractParams.cache )
-        return $.extractParams.cache[url];
-
-    var search = url.indexOf( "?" );
-    if ( search == -1 ) {
-        $.extractParams.cache[url] = {};
-        return $.extractParams.cache[url];
-    }
-
-    var params = decodeURI( url.substring( search + 1 ) );
-    if ( ! params ) {
-        $.extractParams.cache[url] = {};
-        return $.extractParams.cache[url];
-    }
-
-    var paramsArray = params.split("&");
-    var params = {};
-    for( var i = 0; i < paramsArray.length; i++ ) {
-        var p = paramsArray[i].split("=");
-        var key = p[0];
-        var value = p.length < 2 ? undefined : p[1];
-        params[key] = value;
-    }
-
-    $.extractParams.cache[url] = params;
-    return params;
-};
-
 $.widget("dw.moderate", {
     options: {
         journal: undefined,
