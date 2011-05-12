@@ -76,7 +76,8 @@
             var oldWidth = getS1SpacerObject(cmtElement).width();
             getS1SpacerObject(newComment).width(oldWidth);
           }
-            cmtElement.html($(newComment).html());
+            cmtElement.html($(newComment).html())
+                .trigger( "updatedcontent.comment" );
             LJ[cmtId].full = true;
             if (! isS1) {
               setFull(cmtElement, true);

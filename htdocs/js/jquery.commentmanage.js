@@ -1,4 +1,23 @@
 (function($) {
+$.fn.commentmanagesetup = function() {
+    if ( $.isEmptyObject(window.LJ_cmtinfo) ) return;
+    this.each(function() {
+        $('a', this)
+            .filter("[href^='"+Site.siteroot+"/talkscreen']")
+                .moderate({
+                    journal: LJ_cmtinfo.journal,
+                    form_auth: LJ_cmtinfo.form_auth
+                })
+                .end()
+            .filter("[href^='"+Site.siteroot+"/delcomment']")
+                .delcomment({
+                    journal: LJ_cmtinfo.journal,
+                    form_auth: LJ_cmtinfo.form_auth,
+                    cmtinfo: LJ_cmtinfo
+                })
+    });
+};
+
 $.widget("dw.moderate", {
     options: {
         journal: undefined,
@@ -255,19 +274,10 @@ $.widget("dw.delcomment", {
 })(jQuery);
 
 jQuery(function($) {
-    if ( ! $.isEmptyObject( window.LJ_cmtinfo ) ) {
-        $('a')
-            .filter("[href^='"+Site.siteroot+"/talkscreen']")
-                .moderate({
-                    journal: LJ_cmtinfo.journal,
-                    form_auth: LJ_cmtinfo.form_auth
-                })
-                .end()
-            .filter("[href^='"+Site.siteroot+"/delcomment']")
-                .delcomment({
-                    journal: LJ_cmtinfo.journal,
-                    form_auth: LJ_cmtinfo.form_auth,
-                    cmtinfo: LJ_cmtinfo
-                })
-    }
+    $(document).commentmanagesetup();
+    $(document.body).delegate("*","updatedcontent.comment", function(e) {
+        e.stopPropagation();
+        $(this).commentmanagesetup();
+    });
+
 });
