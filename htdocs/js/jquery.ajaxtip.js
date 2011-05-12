@@ -25,6 +25,7 @@ $.widget("dw.ajaxtip", {
                 delay: 1500,
                 events: {
                     def: "ajaxstart"+ns+",ajaxresult"+ns,
+                    widget: "ajaxstart"+ns+",ajaxresult"+ns,
                     tooltip: "mouseover,mouseleave"
                 },
                 position: "bottom center",
@@ -49,6 +50,13 @@ $.widget("dw.ajaxtip", {
         if(this.options.content)
             this.element.data("tooltip").show()
     },
+    _endpointurl : function( action ) {
+        // if we are on a journal subdomain then our url will be
+        // /journalname/__rpc_action instead of /__rpc_action
+        return Site.currentJournal
+            ? "/" + Site.currentJournal + "/__rpc_" + action
+            : "/__rpc_" + action;
+    },
     widget: function() {
         return this.element.data("tooltip").getTip();
     },
@@ -70,12 +78,13 @@ $.widget("dw.ajaxtip", {
 
         $.ajax({
             type: "POST",
-            url : opts.url,
+            url : opts.endpoint ? self._endpointurl( opts.endpoint) : opts.url,
             data: opts.data,
 
             dataType: "json",
             complete: function() {
-                self.element.data("tooltip").inprogress = false;
+                var tip = self.element.data("tooltip");
+                if ( tip ) tip.inprogress = false;
             },
             success: opts.success,
             error: opts.error

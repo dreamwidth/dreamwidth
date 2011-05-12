@@ -24,12 +24,12 @@ sub args_list {
         "Control strip injection for non-supporting journals",
         "Quick reply",
         "Thread expander",
+        "Same-page poll submission",
     );
 
     my @notimplemented = (
         "Contextual hover",
         "Media embed placeholder expansion",
-        "Same-page poll submission",
         "Icon browser",
         "Same-page comment tracking",
     );

@@ -314,11 +314,13 @@ sub paging_bar_as_html {
     my $pages =  shift      || 1;
     my $pagesize = shift    || 2000;
 
-    my ($jid, $pollid, $pollqid) = @_;
+    my ($jid, $pollid, $pollqid, %opts) = @_;
 
     my $href_opts = sub {
         my $page = shift;
-        return  " class='LJ_PollAnswerLink'".
+        # FIXME: this is a quick hack to disable the paging JS on /poll/index since it doesn't work
+        # better fix will await another look at that whole area
+        return  ( $opts{no_class} ? "" : " class='LJ_PollAnswerLink'" ) .
                 " lj_pollid='$pollid'".
                 " lj_qid='$pollqid'".
                 " lj_posterid='$jid'".

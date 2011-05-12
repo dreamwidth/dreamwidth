@@ -870,6 +870,9 @@ sub render {
         LJ::Poll->clean_poll(\$text);
         $ret .= $text;
         $ret .= '<div>' . $q->answers_as_html($self->journalid, $self->isanon, $page, $pagesize) . '</div>';
+
+        my $pages    = $q->answers_pages($self->journalid, $pagesize);
+        $ret .= '<div>' . $q->paging_bar_as_html($page, $pages, $pagesize, $self->journalid, $pollid, $qid, no_class => 1) . '</div>';
         return $ret;
     }
 
@@ -885,6 +888,7 @@ sub render {
 
     my %preval;
 
+    $ret .= qq{<div id='poll-$pollid-container' class='poll-container'>};
     if ( $do_form ) {
         $sth = $self->journal->prepare( "SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=? AND journalid=?" );
         $sth->execute( $pollid, $remote->userid, $self->journalid );
@@ -894,7 +898,7 @@ sub render {
         }
 
         my $url = LJ::create_url( "/poll/", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => { id => $pollid } );
-        $ret .= "<div id='poll-$pollid-container'><form class='LJ_PollForm' action='$url' method='post'>";
+        $ret .= "<form class='LJ_PollForm' action='$url' method='post'>";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden('pollid', $pollid);
         $ret .= LJ::html_hidden('id', $pollid);    #for the ajax request
@@ -1170,8 +1174,9 @@ sub render {
         $ret .= LJ::html_submit(
                                 'poll-submit',
                                 LJ::Lang::ml('poll.submit'),
-                                {class => 'LJ_PollSubmit'}) . "</form></div>\n";;
+                                {class => 'LJ_PollSubmit'}) . "</form>";
     }
+    $ret .= "</div>";
 
     return $ret;
 }

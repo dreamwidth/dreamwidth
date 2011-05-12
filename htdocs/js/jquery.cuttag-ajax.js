@@ -131,6 +131,7 @@ $.widget("dw.cuttag", {
             self.element.addClass("cuttag-open");
             self._setArrow("/expand.gif", self.config.text.collapse);
 
+            replaceDiv.trigger( "updatedcontent.entry" );
             $.dw.cuttag.initLinks(replaceDiv);
         }
     }
