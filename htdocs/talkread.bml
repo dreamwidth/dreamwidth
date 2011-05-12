@@ -201,6 +201,7 @@ body<=
                 ) );
     LJ::need_res( { group => "jquery" }, qw(
                     js/jquery.threadexpander.js
+                    js/jquery.mediaplaceholder.js
                     stc/talkpage.css
                 ) );
 
