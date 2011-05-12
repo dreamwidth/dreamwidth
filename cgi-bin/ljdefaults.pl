@@ -354,6 +354,7 @@ no strict "vars";
         "js/jquery/jquery.ui.sortable.js"   => "js/jquery/jquery.ui.sortable.min.js",
         "js/jquery/jquery.ui.widget.js"     => "js/jquery/jquery.ui.widget.min.js",
 
+        "js/hoverIntent.js"             => "js/hoverIntent.minified.js",
         "js/tooltip.js"                 => "js/tooltip.min.js",
         "js/tooltip.dynamic.js"         => "js/tooltip.dynamic.min.js",
     ) unless defined %LJ::MINIFY;

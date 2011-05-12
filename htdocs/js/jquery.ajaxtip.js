@@ -1,7 +1,8 @@
 (function($) {
 $.widget("dw.ajaxtip", {
     options: {
-        content: undefined
+        content: undefined,
+        tooltip: { dynamic: true }
     },
     _namespace: function() {
         return this.options.namespace ? "."+this.options.namespace : "";
@@ -10,31 +11,31 @@ $.widget("dw.ajaxtip", {
         var self = this;
         var ns = self._namespace();
 
-        var tipcontainer = $("<div class='ajaxtooltip' style='display: none'></div>")
+        var tipcontainer = $("<div class='ajaxtooltip ajaxtip' style='display: none'></div>")
                         .click(function(e) {e.stopPropagation()})
 
         self.element
             .after(tipcontainer)
             .bind("ajaxresult"+ns, function(e) {
-                self.element.data("tooltip").getTip()
-                     .addClass("ajaxresult-" + e.ajaxresult.status)
-                     .text(e.ajaxresult.message)
+                var tip = self.element.data("tooltip").getTip()
+                     .addClass("ajaxresult-" + e.ajaxresult.status);
+                if ( e.ajaxresult.message ) tip.text(e.ajaxresult.message);
             })
-            .tooltip({
+            .tooltip($.extend({
                 predelay: 0,
                 delay: 1500,
                 events: {
-                    def: "ajaxstart"+ns+",ajaxresult"+ns,
+                    def: "ajaxstart"+ns+", tooltipout"+ns+" ajaxresult"+ns,
                     widget: "ajaxstart"+ns+",ajaxresult"+ns,
                     tooltip: "mouseover,mouseleave"
                 },
                 position: "bottom center",
                 relative: true,
                 effect: "fade",
-
                 onBeforeShow: function(e) {
                     var tip = this.getTip();
-                    tip.removeClass("ajaxresult ajaxresult-success ajaxresult-error");
+                    tip.removeClass("ajaxresult ajaxresult-success ajaxresult-error")
+                        .appendTo("body");
 
                     if ( self.options.content && ! this.inprogress ){
                         tip.html(self.options.content)
@@ -43,8 +44,10 @@ $.widget("dw.ajaxtip", {
                             .addClass("ajaxresult")
                     }
                 }
-            })
-            .dynamic({ classNames: "tip-top tip-right tip-bottom tip-left" });
+            },  self.options.tooltip));
+            if ( self.options.tooltip.dynamic )
+                self.element.dynamic({ classNames: "tip-top tip-right tip-bottom tip-left" });
+
     },
     _init: function() {
         if(this.options.content)
@@ -64,6 +67,11 @@ $.widget("dw.ajaxtip", {
         var tip = this.element.data("tooltip");
         if( tip && tip.isShown() ) tip.hide();
      },
+    show: function() {
+        var tip = this.element.data("tooltip");
+        tip.show();
+        this.success(/*no msg*/);
+    },
     load: function(opts) {
         var self = this;
 
@@ -77,7 +85,7 @@ $.widget("dw.ajaxtip", {
         self.element.trigger("ajaxstart" + self._namespace());
 
         $.ajax({
-            type: "POST",
+            type: opts.formmethod || "POST",
             url : opts.endpoint ? self._endpointurl( opts.endpoint) : opts.url,
             data: opts.data,
 
@@ -107,7 +115,7 @@ $.widget("dw.ajaxtip", {
 
 $.extend( $.dw.ajaxtip, {
     closeall: function() {
-        $(".ajaxtooltip:visible").each(
+        $(".ajaxtip:visible").each(
             function(){
                 var tip = $(this).prev().data("tooltip");
                 if ( !tip.inprogress ) tip.hide()

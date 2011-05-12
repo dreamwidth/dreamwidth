@@ -1337,14 +1337,29 @@ sub start_request
             if LJ::is_enabled('esn_ajax');
 
         # contextual popup JS
-        LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
-                        js/ippu.js
-                        js/lj_ippu.js
-                        js/hourglass.js
-                        js/contextualhover.js
-                        stc/contextualhover.css
-                        ))
-            if $LJ::CTX_POPUP;
+        if ( $LJ::CTX_POPUP ) {
+            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(
+                            js/ippu.js
+                            js/lj_ippu.js
+                            js/hourglass.js
+                            js/contextualhover.js
+                            stc/contextualhover.css
+                            ));
+
+            LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY, group=> 'jquery' },
+                qw(
+                    js/jquery/jquery.ui.widget.js
+
+                    js/jquery.ajaxtip.js
+                    js/tooltip.js
+                    js/tooltip.dynamic.js
+                    stc/ajaxtip.css
+
+                    js/jquery.hoverIntent.js
+                    js/jquery.contextualhover.js
+                    stc/contextualhover.css
+                ));
+        }
 
         # development JS
         LJ::need_res( { priority => $LJ::LIB_RES_PRIORITY }, qw(

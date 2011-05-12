@@ -2567,8 +2567,15 @@ sub res_includes {
     my $now = time();
     my %list;   # type -> [];
     my %oldest; # type -> $oldest
+    my %included = ();
     my $add = sub {
         my ($type, $what, $modtime) = @_;
+
+        # the same file may have been included twice
+        # if it was in two different groups and not JS
+        # so add another check here
+        next if $included{$what};
+        $included{$what} = 1;
 
         # in the concat-res case, we don't directly append the URL w/
         # the modtime, but rather do one global max modtime at the

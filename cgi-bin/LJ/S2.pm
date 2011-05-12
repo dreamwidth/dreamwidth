@@ -191,13 +191,8 @@ sub make_journal
         # used if we're using our jquery library
         LJ::need_res( { group => "jquery" }, qw(
                         js/md5.js
-
-                        js/jquery.ajaxtip.js
-                        js/tooltip.js
-                        js/tooltip.dynamic.js
-                        stc/ajaxtip.css
-
                         js/login-jquery.js
+
                         js/jquery.poll.js
                         js/jquery.mediaplaceholder.js
                     ) );

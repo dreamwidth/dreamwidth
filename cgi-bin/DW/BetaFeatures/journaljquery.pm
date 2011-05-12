@@ -26,10 +26,10 @@ sub args_list {
         "Thread expander",
         "Same-page poll submission",
         "Media embed placeholder expansion",
+        "Contextual hover",
     );
 
     my @notimplemented = (
-        "Contextual hover",
         "Icon browser",
         "Same-page comment tracking",
     );
