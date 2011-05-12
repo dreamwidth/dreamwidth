@@ -199,6 +199,7 @@ sub make_journal
 
                         js/login-jquery.js
                         js/jquery.poll.js
+                        js/jquery.mediaplaceholder.js
                     ) );
     }
 

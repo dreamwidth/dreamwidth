@@ -3740,7 +3740,7 @@ sub placeholder_link {
             <div class="LJ_Placeholder_Container" style="width: ${width}px; height: ${height}px;">
                 <div class="LJ_Placeholder_HTML" style="display: none;">$placeholder_html</div>
                 <div class="LJ_Container"></div>
-                <a href="$link" onclick="return false;">
+                <a href="$link">
                     <img src="$img" class="LJ_Placeholder" title="Click to show embedded content" />
                 </a>
             </div>

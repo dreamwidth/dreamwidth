@@ -342,7 +342,8 @@ sub module_iframe_tag {
     my $name = "${id}_" . LJ::make_auth_code( 5 );
 
     my $auth_token = LJ::eurl(LJ::Auth->sessionless_auth_token('embedcontent', moduleid => $moduleid, journalid => $journalid, preview => $preview,));
-    my $iframe_tag = qq {<iframe src="http://$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token" } .
+    my $iframe_link = qq{http://$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token};
+    my $iframe_tag = qq {<iframe src="$iframe_link" } .
         qq{width="$width" height="$height" allowtransparency="true" frameborder="0" class="lj_embedcontent" id="$id" name="$name"></iframe>};
 
     my $remote = LJ::get_remote();
@@ -368,6 +369,7 @@ sub module_iframe_tag {
     # placeholder
     return LJ::placeholder_link(
                                 placeholder_html => $iframe_tag,
+                                link             => $iframe_link,
                                 width            => $width,
                                 height           => $height,
                                 img              => "$LJ::IMGPREFIX/videoplaceholder.png",
