@@ -297,6 +297,117 @@ set color_module_border = "#fff";
 set color_module_title = "#999";
 
 
+#NEWLAYER: drifting/misses
+layerinfo type = "theme";
+layerinfo name = "Misses";
+layerinfo redist_uniq = "drifting/misses";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d9cea5";
+set color_page_border = "#412e28";
+set color_page_link = "#b31d4a";
+set color_page_subtitle = "#b31d4a";
+set color_page_text = "#412e28";
+set color_page_title = "#412e28";
+set color_header_background = "#d9cea5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#D7C693";
+set color_entry_border = "#412e28";
+set color_entry_text = "#412e28";
+set color_entry_title = "#b31d4a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#412e28";
+set color_module_title = "#b31d4a";
+
+
+#NEWLAYER: drifting/neutralgood
+layerinfo type = "theme";
+layerinfo name = "Neutral Good";
+layerinfo redist_uniq = "drifting/neutralgood";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f0f0f0";
+set color_page_border = "#4b4e4f";
+set color_page_link = "#609090";
+set color_page_subtitle = "#4b4e4f";
+set color_page_text = "#4b4e4f";
+set color_page_title = "#609090";
+set color_header_background = "#f0f0f0";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fafafa";
+set color_entry_border = "#4b4e4f";
+set color_entry_text = "#4b4e4f";
+set color_entry_title = "#4b4e4f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#4b4e4f";
+set color_module_title = "#4b4e4f";
+
+
+#NEWLAYER: drifting/prose
+layerinfo type = "theme";
+layerinfo name = "Prose";
+layerinfo redist_uniq = "drifting/prose";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ebe9dc";
+set color_page_border = "#836f5e";
+set color_page_link = "#A5757A";
+set color_page_subtitle = "#A5757A";
+set color_page_text = "#836f5e";
+set color_page_title = "#836f5e";
+set color_header_background = "#ebe9dc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f6f7f2";
+set color_entry_border = "#836f5e";
+set color_entry_text = "#836f5e";
+set color_entry_title = "#A5757A";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#836f5e";
+set color_module_title = "#A5757A";
+
+
 #NEWLAYER: drifting/softblues
 layerinfo type = "theme";
 layerinfo name = "Soft Blues";
@@ -432,6 +543,45 @@ set color_entry_title = "#f0d8a8";
 
 set color_module_border = "#a81830";
 set color_module_title = "#c01848";
+
+
+#NEWLAYER: drifting/tomatotulipsalad
+layerinfo type = "theme";
+layerinfo name = "Tomato Tulip Salad";
+layerinfo redist_uniq = "drifting/tomatotulipsalad";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#faf8c8";
+set color_page_border = "#d8d8a8";
+set color_page_link = "#f04830";
+set color_page_link_active = "#a8c048";
+set color_page_link_visited = "";
+set color_page_subtitle = "#f04830";
+set color_page_text = "#414032";
+set color_page_title = "#a8c048";
+set color_header_background = "#faf8c8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f5f4bf";
+set color_entry_border = "#d8d8a8";
+set color_entry_text = "#414032";
+set color_entry_title = "#a8c048";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#d8d8a8";
+set color_module_title = "#a8c048";
 
 
 #NEWLAYER: drifting/winterclarity
