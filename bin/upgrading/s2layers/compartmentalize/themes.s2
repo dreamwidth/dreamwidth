@@ -201,6 +201,51 @@ set color_module_border = "#4a4a4a";
 set color_module_text = "#D7D7D7";
 
 
+#NEWLAYER: compartmentalize/cosmos
+layerinfo type = "theme";
+layerinfo name = "Cosmos";
+layerinfo redist_uniq = "compartmentalize/cosmos";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#17013f";
+set color_page_link = "#ffcaae";
+set color_page_link_visited = "#b2889c";
+set color_page_text = "#deccd5";
+set color_page_title = "#ffcaae";
+set color_header_background = "#400f68";
+set color_footer_background = "#400f68";
+set color_footer_link = "#ffcaae";
+set color_footer_link_visited = "#b2889c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#400f68";
+set color_entry_border = "#b2889c";
+set color_entry_link = "#ffcaae";
+set color_entry_link_visited = "#b2889c";
+set color_entry_text = "#deccd5";
+set color_entry_title = "#ffcaae";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#663974";
+set color_module_border = "#b2889c";
+set color_module_link = "#ffcaae";
+set color_module_link_visited = "#b2889c";
+set color_module_text = "#deccd5";
+set color_module_title = "#ffcaae";
+
+
 #NEWLAYER: compartmentalize/dawnflush
 layerinfo type = "theme";
 layerinfo name = "Dawn Flush";
