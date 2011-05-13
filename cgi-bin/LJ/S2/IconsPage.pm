@@ -10,6 +10,10 @@ sub IconsPage {
     $p->{'_type'} = "IconsPage";
     $p->{'view'} = "icons";
 
+    if ($u->should_block_robots) {
+        $p->{'head_content'} .= LJ::robot_meta_tags();
+    }
+
     $p->{can_manage} = $can_manage;
 
     my @allpics = LJ::Userpic->load_user_userpics($u);
