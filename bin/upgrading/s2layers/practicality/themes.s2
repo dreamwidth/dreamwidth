@@ -93,6 +93,50 @@ set color_module_text = "#0e0e0e";
 set color_module_title = "#181818";
 
 
+#NEWLAYER: practicality/badkitty
+layerinfo type = "theme";
+layerinfo name = "Bad Kitty";
+layerinfo redist_uniq = "practicality/badkitty";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#c9c9cb";
+set color_page_link = "#f463a6";
+set color_page_link_visited = "#DC2B7E";
+set color_page_text = "#1e1e1e";
+set color_page_title = "#f463a6";
+set color_header_background = "#1e1e1e";
+set color_footer_background = "#1e1e1e";
+set color_footer_link = "#f463a6";
+set color_footer_link_visited = "#DC2B7E";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f8f8f8";
+set color_entry_border = "#f463a6";
+set color_entry_link = "#f463a6";
+set color_entry_link_visited = "#DC2B7E";
+set color_entry_text = "#1e1e1e";
+set color_entry_title = "#f463a6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f8f8f8";
+set color_module_border = "#f463a6";
+set color_module_link = "#f463a6";
+set color_module_link_visited = "#DC2B7E";
+set color_module_text = "#1e1e1e";
+
+
 #NEWLAYER: practicality/broadhorizons
 layerinfo type = "theme";
 layerinfo name = "Broad Horizons";
@@ -260,6 +304,51 @@ set color_entry_title = "#fcffb5";
 set color_module_background = "#623527";
 set color_module_border = "#562e22";
 set color_module_title = "fcffb5";
+
+
+#NEWLAYER: practicality/cosmos
+layerinfo type = "theme";
+layerinfo name = "Cosmos";
+layerinfo redist_uniq = "practicality/cosmos";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#17013f";
+set color_page_link = "#ffcaae";
+set color_page_link_visited = "#b2889c";
+set color_page_text = "#deccd5";
+set color_page_title = "#b2889c";
+set color_header_background = "#12041f";
+set color_footer_background = "#400f68";
+set color_footer_link = "#ffcaae";
+set color_footer_link_visited = "#b2889c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#400f68";
+set color_entry_border = "#400f68";
+set color_entry_link = "#ffcaae";
+set color_entry_link_visited = "#b2889c";
+set color_entry_text = "#deccd5";
+set color_entry_title = "#ffcaae";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#663974";
+set color_module_border = "#400f68";
+set color_module_link = "#ffcaae";
+set color_module_link_visited = "#b2889c";
+set color_module_text = "#deccd5";
+set color_module_title = "#ffcaae";
 
 
 #NEWLAYER: practicality/duskjewels
