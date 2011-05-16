@@ -356,6 +356,9 @@ body<=
                     push @not_user, $POST{"editfriend_add_${num}_user"};
                     next;
                 }
+                if ( $other_u->is_redirect && $other_u->prop( 'renamedto' ) ) {
+                    $other_u = $other_u->get_renamed_user;
+                }
 
                 my $trusted_nonotify = $u->trusts( $other_u ) ? 1 : 0;
                 my $watched_nonotify = $u->watches( $other_u ) ? 1 : 0;
