@@ -2355,6 +2355,11 @@ sub gift_points_url {
     return "$LJ::SITEROOT/shop/points?for=" . $u->user;
 }
 
+# returns the gift shop URL to transfer your own points to that user
+sub transfer_points_url {
+    my ( $u ) = @_;
+    return "$LJ::SITEROOT/shop/transferpoints?for=" . $u->user;
+}
 
 =head3 C<< $self->give_shop_points( %options ) >>
 

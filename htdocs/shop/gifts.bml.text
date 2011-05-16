@@ -5,6 +5,8 @@
 
 .buy.points=Buy points
 
+.buy.points.transfer=Transfer points
+
 .free.about=These are the people in your Circle who have free accounts and might appreciate the chance to try out some of our <a [[aopts]]>paid features</a>: 
 
 .free.header=Free Accounts
