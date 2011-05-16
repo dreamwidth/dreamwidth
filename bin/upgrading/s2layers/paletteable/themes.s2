@@ -82,6 +82,49 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: paletteable/danceforme
+layerinfo type = "theme";
+layerinfo name = "Dance For Me";
+layerinfo redist_uniq = "paletteable/danceforme";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffb0c3";
+set color_page_link = "#d01877";
+set color_page_text = "#503a0a";
+set color_page_title = "#fcfcfc";
+set color_header_background = "#d01877";
+set color_footer_background = "#d01877";
+set color_footer_link = "#fcfcfc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fcfcfc";
+set color_entry_interaction_links = "#6a4c0d";
+set color_entry_link = "#d01877";
+set color_entry_link_hover = "#b7214b";
+set color_entry_text = "#503a0a";
+set color_entry_title = "#6a4c0d";
+set color_comment_title = "#d18b06";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f8ab18";
+set color_module_link = "#b92052";
+set color_module_link_hover = "#d01877";
+set color_module_text = "#503a0a";
+set color_module_title = "#503a0a";
+
+
 #NEWLAYER: paletteable/deepsea
 layerinfo type = "theme";
 layerinfo name = "Deep Sea";
@@ -160,6 +203,48 @@ set color_comment_title_background_even = "#406389";
 set color_module_background = "#C7E7F4";
 set color_module_text = "#000";
 set color_module_title = "#000";
+
+
+#NEWLAYER: paletteable/express
+layerinfo type = "theme";
+layerinfo name = "Express";
+layerinfo redist_uniq = "paletteable/express";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e4e4e4";
+set color_page_link = "#d12364";
+set color_page_link_hover = "#b72f56";
+set color_page_text = "#313131";
+set color_page_title = "#f9f9f9";
+set color_header_background = "#757575";
+set color_footer_background = "#757575";
+set color_footer_link = "#e4e4e4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f9f9f9";
+set color_entry_link = "#d12364";
+set color_entry_link_hover = "#b72f56";
+set color_entry_text = "#313131";
+set color_comment_title = "#d12364";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b72f56";
+set color_module_link = "#e4e4e4";
+set color_module_link_hover = "fafafa";
+set color_module_text = "#191919";
+set color_module_title = "#e4e4e4";
 
 
 #NEWLAYER: paletteable/greenrain
@@ -244,3 +329,90 @@ set color_module_link_active = "#00b";
 set color_module_link_visited = "#6E6558";
 set color_module_text = "#000";
 set color_module_title = "#000";
+
+
+#NEWLAYER: paletteable/sophisticatedlady
+layerinfo type = "theme";
+layerinfo name = "Sophisticated Lady";
+layerinfo redist_uniq = "paletteable/sophisticatedlady";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#90a38e";
+set color_page_link = "#dd1a3b";
+set color_page_link_hover = "#bfccb3";
+set color_page_text = "#523e4f";
+set color_page_title = "#dd1a3b";
+set color_header_background = "#e1e6cd";
+set color_footer_background = "#e1e6cd";
+set color_footer_link = "#dd1a3b";
+
+##===============================
+## Entry Colors
+##===============================
+
+
+set color_entry_background = "#fdfced";
+set color_entry_link = "#dd1a3b";
+set color_entry_link_hover = "#bfccb3";
+set color_entry_text = "#523e4f";
+set color_entry_title = "#849582";
+set color_comment_title = "#849582";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#dd1a3b";
+set color_module_link = "#fdfced";
+set color_module_text = "#e7ecd3";
+set color_module_title = "#fdfced";
+
+
+#NEWLAYER: paletteable/wearegolden
+layerinfo type = "theme";
+layerinfo name = "We Are Golden";
+layerinfo redist_uniq = "paletteable/wearegolden";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#37114c";
+set color_page_link = "#853b93";
+set color_page_text = "#232221";
+set color_page_title = "#60266b";
+set color_header_background = "#ffe34f";
+set color_footer_background = "#ffe34f";
+set color_footer_link = "#853b93";
+set color_footer_link_hover = "#60266b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#37114c";
+set color_entry_background = "#fffbef";
+set color_entry_interaction_links = "#37114c";
+set color_entry_link = "#853b93";
+set color_entry_link_hover = "#60266b";
+set color_entry_text = "#232221";
+set color_entry_title = "#37114c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#60266b";
+set color_module_link = "#ffe34f";
+set color_module_link_hover = "#ffcf35";
+set color_module_text = "#fffbef";
+set color_module_title = "#ffe34f";
