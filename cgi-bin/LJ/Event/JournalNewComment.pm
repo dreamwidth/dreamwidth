@@ -253,12 +253,18 @@ sub as_html {
     my $comment = $self->comment;
     my $journal = $self->u;
 
-    return sprintf("(Deleted comment in %s)", $journal->ljuser_display)
-        unless $comment && $comment->valid && !$comment->is_deleted;
-
     my $entry = $comment->entry;
     return sprintf("(Comment on a deleted entry in %s)", $journal->ljuser_display)
         unless $entry && $entry->valid;
+
+    my $entry_subject = $entry->subject_text || "an entry";
+    return sprintf(qq{(Deleted comment to post from %s in %s: comment by %s in "%s")},
+        LJ::diff_ago_text( $entry->logtime_unix ),
+        $journal->ljuser_display,
+        $comment->poster->ljuser_display,
+        $entry_subject
+    )
+        unless $comment && $comment->valid && !$comment->is_deleted;
 
     return "(You are not authorized to view this comment)" unless $comment->visible_to($target);
 
@@ -266,7 +272,6 @@ sub as_html {
     my $pu = LJ::ljuser($comment->poster);
     my $url = $comment->url;
 
-    my $entry_subject = $entry->subject_text || "an entry";
     my $in_text = '<a href="' . $entry->url . "\">$entry_subject</a>";
     my $subject = $comment->subject_text ? ' "' . $comment->subject_text . '"' : '';
 
