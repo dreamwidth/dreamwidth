@@ -1071,8 +1071,12 @@ sub clean
                             $newdata .= "</$tag>";
                             $opencount{$tag}--;
                         }
-                    } else {
+                    } elsif ( ! $allow || $form_tag->{$tag} && ! $opencount{form}) {
+                        # tag wasn't allowed, or we have an out of scope form tag? display it then
                         $newdata .= "&lt;/$tag&gt;";
+                    } else {
+                        # mismatched or not nested properly, just keep quiet and let it go
+                        # we'll have corrected elsewhere if possible
                     }
                 }
 

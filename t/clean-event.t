@@ -52,9 +52,9 @@ is( $orig_post, $clean_post, "No closing tags" );
 # in this case, we consider the <span> within the div as unclosed
 # and the closing </span> as extra/unrelated.
 # Therefore, we close the opening tag (which needs to be closed)
-# and escape the closing tag (which has no opening tag)
+# and ignore the remaining closing </span> tag (which has no opening tag)
 $orig_post  = qq{<div><span></div></span>};
-$clean_post = qq{<div><span></span></div>&lt;/span&gt;};
+$clean_post = qq{<div><span></span></div>};
 $clean->();
 is( $orig_post, $clean_post, "Wrong closing tag order" );
 
@@ -197,5 +197,48 @@ note( "various allowed/disallowed tags" );
     $clean->();
     is( $orig_post, $clean_post, "blink tag allowed" );
 
+}
+
+note( "mismatched and misnested tags" );
+{
+    # form tags not in a form should be displayed
+    my $form_inner = qq{<select><option>hello</option><option>bye</option></select>};
+    $orig_post = qq{<form>$form_inner</form>};
+    $clean_post = qq{<form>$form_inner</form>};
+    $clean->();
+    is( $orig_post, $clean_post, "form tags within a form are allowed" );
+
+    $orig_post = $form_inner;
+    $clean_post = qq{&lt;select ... &gt;&lt;option ... &gt;hello&lt;/option&gt;&lt;option ... &gt;bye&lt;/option&gt;&lt;/select&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "form tags outside a form are escaped and displayed" );
+
+    my $table_inner = qq{<tr><td>hello</td><td>bye</td></tr>};
+    $orig_post  = qq{<table>$table_inner</table>};
+    $clean_post = qq{<table>$table_inner</table>};
+    $clean->();
+    is( $orig_post, $clean_post, "table tags within a table are allowed" );
+
+    $orig_post = $table_inner;
+    $clean_post = qq{&lt;tr&gt;&lt;td&gt;hello&lt;/td&gt;&lt;td&gt;bye&lt;/td&gt;&lt;/tr&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "table tags outside a table are escaped and displayed" );
+
+    $orig_post = qq{strong</strong> not <em><b>strong</em></b>};
+    $clean_post = qq{strong not <em><b>strong</b></em>};
+    $clean->();
+    is( $orig_post, $clean_post, "mismatched closing tags or misnested closing tags shouldn't be displayed" );
+
+    $entry_text = qq{before <strong><cut text="cut">in strong</strong>out strong</cut>after};
+
+    $orig_post = $entry_text;
+    $cut_text = qq{in strongout strong};
+    $clean->( { cut_retrieve => 1 } );
+    is( $orig_post, $cut_text, "Text under cut with mismatched HTML tags within and with-out the cut (ignored)" );
+
+    $orig_post = $entry_text;
+    $clean_post = qq{before <strong><a name="cutid1"></a>in strong</strong>out strongafter};
+    $clean->();
+    is ( $orig_post, $clean_post, "Full text of entry, with mismatched HTML tags within and with-out the cut" );
 }
 1;
