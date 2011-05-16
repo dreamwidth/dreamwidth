@@ -2143,9 +2143,6 @@ sub Page
         $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
     }
 
-    my $style_args = LJ::viewing_style_args( %$get );
-    $style_args = $style_args ? "?$style_args" : "";
-
     my $p = {
         '_type' => 'Page',
         '_u' => $u,
@@ -2158,12 +2155,12 @@ sub Page
         'base_url' => $base_url,
         'stylesheet_url' => "$base_url/res/$styleid/stylesheet?$stylemodtime",
         'view_url' => {
-            recent   => "$base_url/$style_args",
+            recent   => LJ::create_url( "/", viewing_style => 1 ),
             userinfo => $u->profile_url,
-            archive  => "$base_url/archive$style_args",
-            read     => "$base_url/read$style_args",
-            network  => "$base_url/network$style_args",
-            tags     => "$base_url/tag/$style_args",
+            archive  => LJ::create_url( "/archive", viewing_style => 1 ),
+            read     => LJ::create_url( "/read", viewing_style => 1 ),
+            network  => LJ::create_url( "/network", viewing_style => 1 ),
+            tags     => LJ::create_url( "/tag/", viewing_style => 1 ),
             memories => "$LJ::SITEROOT/tools/memories?user=$u->{user}",
         },
         'linklist' => $linklist,
