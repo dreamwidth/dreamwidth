@@ -186,7 +186,7 @@ sub totally_down_content
     my $r = shift;
     my $uri = $r->uri;
 
-    if ($uri =~ m!^/interface/flat! || $uri =~ m!^/cgi-bin/log\.cg!) {
+    if ($uri =~ m!^/cgi-bin/log\.cg!) {
         $r->content_type("text/plain");
         $r->print("success\nFAIL\nerrmsg\n$LJ::SERVER_DOWN_MESSAGE");
         return OK;
@@ -956,9 +956,9 @@ sub trans
 
     # protocol support
     if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
-        my $int = $1 || "flat";
+        my $int = $1;
         $r->handler("perl-script");
-        if ($int =~ /^flat|xmlrpc|blogger|elsewhere_info$/) {
+        if ($int =~ /^xmlrpc|blogger|elsewhere_info$/) {
             $RQ{'interface'} = $int;
             $RQ{'is_ssl'} = $is_ssl;
             $r->push_handlers(PerlResponseHandler => \&interface_content);
@@ -1643,45 +1643,8 @@ sub interface_content
         return OK;
     }
 
-    if ($RQ{'interface'} ne "flat") {
-        $r->content_type("text/plain");
-        $r->print("Unknown interface.");
-        return OK;
-    }
-
     $r->content_type("text/plain");
-
-    my ( %out, %FORM, $content );
-    $r->read($content, $r->headers_in->{"Content-Length"})
-        if $r->headers_in->{'Content-Length'};
-    LJ::decode_url_string($content, \%FORM);
-
-    # the protocol needs the remote IP in just one place, where tracking is done.
-    $ENV{'_REMOTE_IP'} = $r->connection()->remote_ip();
-    LJ::do_request(\%FORM, \%out);
-
-    if ($FORM{'responseenc'} eq "urlenc") {
-        foreach (sort keys %out) {
-            $r->print(LJ::eurl($_) . "=" . LJ::eurl($out{$_}) . "&");
-        }
-        return OK;
-    }
-
-    my $length = 0;
-    foreach (sort keys %out) {
-        $length += length($_)+1;
-        $length += length($out{$_})+1;
-    }
-
-    $r->headers_out->{"Content-length"} = $length;
-    foreach (sort keys %out) {
-        my $key = $_;
-        my $val = $out{$_};
-        $key =~ y/\r\n//d;
-        $val =~ y/\r\n//d;
-        $r->print($key, "\n", $val, "\n");
-    }
-
+    $r->print("Unknown interface.");
     return OK;
 }
 
