@@ -138,6 +138,11 @@ sub js {
             apply_forms.forEach(function (form) {
                 DOM.addEventListener(form, "submit", function (evt) { self.applyLayout(evt, form) });
             });
+
+            if ( ! self._init ) {
+                LiveJournal.register_hook( "update_other_widgets", function( updated ) { self.refreshLayoutChoices.apply( self, [ updated ] ) } )
+                self._init = true;
+            }
         },
         applyLayout: function (evt, form) {
             var given_layout_choice = form["Widget[LayoutChooser]_layout_choice"].value + "";
@@ -157,6 +162,11 @@ sub js {
         },
         onRefresh: function (data) {
             this.initWidget();
+        },
+        refreshLayoutChoices: function( updatedWidget ) {
+            if ( updatedWidget == "ThemeChooser" ) {
+                this.updateContent();
+            }
         }
     ];
 }

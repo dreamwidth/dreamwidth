@@ -427,6 +427,7 @@ sub js {
                 theme_chooser_id: $('theme_chooser_id').value
             });
             alert(Customize.ThemeChooser.confirmation);
+            LiveJournal.run_hook("update_other_widgets", "ThemeChooser");
         },
         previewTheme: function (evt, href) {
             window.open(href, 'theme_preview', 'resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');
