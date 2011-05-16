@@ -222,7 +222,7 @@ function Page::print_theme_stylesheet() {
         }
 
     div.entry, div.entry .inner,
-    div.comment, div.comment .inner { 
+    div.comment, div.comment .inner {
         line-height: 1.05em;
         }
 
@@ -555,7 +555,7 @@ function Page::print_theme_stylesheet() {
         }
 
     div.entry, div.entry .inner,
-    div.comment, div.comment .inner { 
+    div.comment, div.comment .inner {
         line-height: 1.05em;
         }
 
