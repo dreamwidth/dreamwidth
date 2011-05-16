@@ -52,7 +52,6 @@ sub render_body {
 
         if ($g eq $group) {
             $classes .= " class='on";
-            $classes .= " heading" if $g eq "display";
             $classes .= "'";
         }
 
@@ -67,11 +66,6 @@ sub render_body {
 
     $ret .= "<ul class='customize-nav nostyle' id='customize_theme_nav_links'>";
     $ret .= "<li" . $nav_class->("display") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=display'>" . $class->ml('widget.customizetheme.nav.display') . "</a>";
-    $ret .= "<ul>";
-    $ret .= "<li>" . $class->ml('widget.customizetheme.nav.display.moodthemes') . "</li>";
-    $ret .= "<li>" . $class->ml('widget.customizetheme.nav.display.navstrip') . "</li>";
-
-    $ret .= "</ul>";
     $ret .= "</li>";
 
     foreach my $g (@$group_names) {
