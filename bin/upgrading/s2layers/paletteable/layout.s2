@@ -393,9 +393,35 @@ h3.day-date {
 
 /*--- Sidebars ---*/
 
-
-.two-columns-left #tertiary .module, .two-columns-right #tertiary .module {
+.two-columns-left #tertiary .module,
+.two-columns-right #tertiary .module {
     background-color: transparent;
+    color: $*color_entry_text;
+    }
+
+.two-columns-left #tertiary .module a,
+.two-columns-right #tertiary .module a {
+    color: $*color_entry_link;
+    }
+
+.two-columns-left #tertiary .module a:visited,
+.two-columns-right #tertiary .module a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+.two-columns-left #tertiary .module a:hover,
+.two-columns-right #tertiary .module a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+.two-columns-left #tertiary .module a:active,
+.two-columns-right #tertiary .module a:active {
+    color: $*color_entry_link_active;
+    }
+
+.two-columns-left #tertiary .module h2,
+.two-columns-right #tertiary .module h2 {
+    color: $*color_entry_title;
     }
 
 .two-columns-left #tertiary .separator-after, .two-columns-right #tertiary .separator-after {
