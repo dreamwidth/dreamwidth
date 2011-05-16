@@ -7524,27 +7524,6 @@ sub want_userid
 =head2 Login, Session, and Rename Functions (LJ)
 =cut
 
-# returns the country that the remote IP address comes from
-# undef is returned if the country cannot be determined from the IP
-sub country_of_remote_ip {
-    if (eval "use IP::Country::Fast; 1;") {
-        my $ip = LJ::get_remote_ip();
-        return undef unless $ip;
-
-        my $reg = IP::Country::Fast->new();
-        my $country = $reg->inet_atocc($ip);
-
-        # "**" is returned if the IP is private
-        return undef if $country eq "**";
-        return $country;
-    }
-
-    return undef;
-}
-
-1;
-
-
 sub get_active_journal
 {
     return $LJ::ACTIVE_JOURNAL;
