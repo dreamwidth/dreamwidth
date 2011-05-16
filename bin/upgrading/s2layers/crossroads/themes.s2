@@ -355,6 +355,49 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: crossroads/cosmos
+layerinfo type = "theme";
+layerinfo name = "Cosmos";
+layerinfo redist_uniq = "crossroads/cosmos";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#17013F";
+set color_page_link = "#FFCAAE";
+set color_page_link_visited = "#B2889C";
+set color_page_text = "#DECCD5";
+set color_page_title = "#FFCAAE";
+set color_header_background = "#400F68";
+set color_footer_background = "#400F68";
+set color_footer_link = "#FFCAAE";
+set color_footer_link_visited = "#B2889C";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#400F68";
+set color_entry_link = "#FFCAAE";
+set color_entry_link_visited = "#B2889C";
+set color_entry_text = "#DECCD5";
+set color_entry_title = "#FFCAAE";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#663974";
+set color_module_link = "#FFCAAE";
+set color_module_link_visited = "#B2889C";
+set color_module_text = "#DECCD5";
+set color_module_title = "#FFCAAE";
+
+
 #NEWLAYER: crossroads/descendingblue
 layerinfo type = "theme";
 layerinfo name = "Descending Blue";
@@ -518,6 +561,45 @@ function Page::print_theme_stylesheet() {
     }
     """;
 }
+
+
+#NEWLAYER: crossroads/iceprincess
+layerinfo type = "theme";
+layerinfo name = "Ice Princess";
+layerinfo redist_uniq = "crossroads/iceprincess";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a2aaaf";
+set color_page_link = "#bc707c";
+set color_page_link_visited = "#f3f3f3";
+set color_header_background = "#C3B6BA";
+set color_footer_background = "#C3B6BA";
+set color_footer_link = "#fff";
+set color_footer_link_visited = "#f3f3f3";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#bbc4ca";
+set color_entry_link = "#fff";
+set color_entry_link_visited = "#bc707c";
+set color_entry_text = "#1e1e1e";
+set color_entry_title = "#bc707c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#bc707c";
+set color_module_link = "#fff";
+set color_module_link_visited = "#f3f3f3";
 
 
 #NEWLAYER: crossroads/lettuce

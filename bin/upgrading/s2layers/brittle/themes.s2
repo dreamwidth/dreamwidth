@@ -133,6 +133,112 @@ set color_navigation_module_link_hover = "#672700";
 set color_navigation_module_link_visited = "#4C1C00";
 
 
+#NEWLAYER: brittle/bluedays
+layerinfo type = "theme";
+layerinfo name = "Blue Days";
+layerinfo redist_uniq = "brittle/bluedays";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_link = "#eff60c";
+set color_page_link_hover = "#34EBD3";
+set color_page_link_visited = "#81EB97";
+set color_page_text = "#f2f6f9";
+set color_footer_background = "#44507d";
+set color_footer_link = "#eff60c";
+set color_footer_link_hover = "#34EBD3";
+set color_footer_link_visited = "#81eb97";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#44507d";
+set color_entry_link = "#eff60c";
+set color_entry_link_hover = "#34EBD3";
+set color_entry_link_visited = "#81eb97";
+set color_entry_text = "#f2f6f9";
+set color_entry_title = "#f2f6f9";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#44507d";
+set color_navigation_module_link = "#eff60c";
+set color_navigation_module_link_hover = "#34EBD3";
+set color_navigation_module_link_visited = "#81eb97";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_date_time = "News Gothic MT";
+set font_date_time_size = ".9";
+set font_entry_text = "News Gothic MT";
+set font_entry_text_size = "1";
+set font_entry_title = "News Gothic MT";
+set font_entry_title_size = ".9";
+set font_module_heading = "News Gothic MT";
+set font_navigation_module_text = "News Gothic MT";
+set font_navigation_module_text_size = ".9";
+set font_other_module_text = "News Gothic MT";
+set font_other_module_text_size = ".9";
+
+##===============================
+## Images
+##===============================
+
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "brittle/bluedays.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    blockquote {
+        color: inherit;
+        border: none;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .9em;
+        margin-bottom: .9em;
+        padding: 1em;
+        }
+
+    a:hover {
+        text-decoration: underline;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    div.entry, div.entry .inner,
+    div.comment, div.comment .inner { 
+        line-height: 1.05em;
+        }
+
+    span.tag-text,
+    div.tag ul li,
+    div.metadata ul li {
+        font-size: .9em;
+        }
+
+    div.tag ul {
+        padding: 0;
+        }
+    """;
+}
+
+
 #NEWLAYER: brittle/buttercupyellow
 layerinfo type = "theme";
 layerinfo name = "Buttercup Yellow";
@@ -331,6 +437,49 @@ set color_navigation_module_link_visited = "#6e6d45";
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
 set image_background_page_url = "brittle/drab.png";
+
+
+#NEWLAYER: brittle/driedflowers
+layerinfo type = "theme";
+layerinfo name = "Dried Flowers";
+layerinfo redist_uniq = "brittle/driedflowers";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#776267";
+set color_page_link = "#482d36";
+set color_page_link_hover = "#c9a599";
+set color_page_link_visited = "#482d36";
+set color_page_text = "#fff";
+set color_footer_background = "#90926a";
+set color_footer_link = "#c9a599";
+set color_footer_link_hover = "#b4ba8e";
+set color_footer_link_visited = "#c9a599";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#90926a";
+set color_entry_link = "#482d36";
+set color_entry_link_hover = "#c9a599";
+set color_entry_link_visited = "#482d36";
+set color_entry_text = "#fff";
+set color_entry_title = "#482d36";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#482d36";
+set color_navigation_module_link = "#b4ba8e";
+set color_navigation_module_link_hover = "#c9a599";
+set color_navigation_module_link_visited = "#b4ba8e";
 
 
 #NEWLAYER: brittle/elegantbrown
