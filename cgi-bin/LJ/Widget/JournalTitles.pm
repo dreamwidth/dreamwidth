@@ -135,6 +135,7 @@ sub js {
         editTitle: function (evt, id) {
             $(id + "_modify").style.display = "inline";
             $(id + "_view").style.display = "none";
+            $(id).focus();
 
             // cancel any other titles that are being edited since
             // we only want one title in edit mode at a time
