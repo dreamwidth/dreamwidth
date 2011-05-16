@@ -26,7 +26,14 @@ body<=
     # known issues box
     $ret .= "<div class='blue box'>";
     $ret .= "<?h1 $ML{'.knownissues.head'} h1?>";
-    $ret .= LJ::load_include(BML::get_language() eq 'ru' ? "support-currentproblems-russian" : "support-currentproblems");
+
+    my $currentproblems = LJ::load_include( "support-currentproblems" );
+    LJ::CleanHTML::clean( \$currentproblems, {
+                'wordlength' => 40,
+                'mode' => 'deny',
+    });
+    $ret .= $currentproblems;
+
     $ret .= "</div>";
 
     # ask a question box
