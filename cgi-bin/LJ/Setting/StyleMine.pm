@@ -46,7 +46,7 @@ sub option {
         value => 1,
         selected => $stylemine ? 1 : 0,
     });
-    $ret .= " <label for='${key}stylemine'>" . $class->ml('setting.stylemine.option') . "</label>";
+    $ret .= " <label for='${key}stylemine'>" . $class->ml('setting.stylemine.option2') . "</label>";
 
     return $ret;
 }

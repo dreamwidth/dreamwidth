@@ -2776,7 +2776,7 @@ setting.stickyentry.label=ID or URL of entry to make sticky
 
 setting.stylemine.label=Comment Pages
 
-setting.stylemine.option=View comment pages from your Reading Page in your own style
+setting.stylemine.option2=View comment pages in your own journal style
 
 setting.synlevel.error.invalid=Invalid syndication level.
 
