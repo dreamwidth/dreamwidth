@@ -41,8 +41,15 @@ _c?>
     my $u = LJ::load_user( $journal );
     return unless $u;
 
-    my $comment = LJ::Comment->new( $u, dtalkid => $talkid );
-    return unless $comment;
+    my $comment = eval { LJ::Comment->new( $u, dtalkid => $talkid ) };
+    if ( $@ ) {
+        $body = "<p>$ML{'.error.nocomment'}</p>";
+        return;
+    }
+    unless ( $comment->entry && $comment->entry->valid ) {
+        $body = "<p>$ML{'.error.noentry'}</p>";
+        return;
+    }
 
     my $threadroot = LJ::Comment->new( $u, jtalkid => $comment->threadrootid );
     return BML::redirect(  $threadroot->url( LJ::viewing_style_args( %GET ) ) );

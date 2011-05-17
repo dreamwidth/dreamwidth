@@ -3,6 +3,10 @@
 
 .defaulttitle=Error
 
+.error.nocomment=No such comment exists.
+
+.error.noentry=No such entry exists.
+
 .error.noentry.next=There is no entry following this one.
 
 .error.noentry.prev=There is no entry preceding this one.
