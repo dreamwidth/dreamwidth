@@ -239,8 +239,6 @@ sub url {
 
     my $dtalkid = $self->dtalkid;
     my $entry   = $self->entry;
-    use Carp qw(cluck);
-    cluck( "no entry for " . $self->journal->user . ", " . $self->nodeid . ", " . $self->jtalkid ) unless $entry;
     my $url     = $entry->url;
 
     return "$url?thread=$dtalkid" . ( $url_args ? "&$url_args" : "" ) . LJ::Talk::comment_anchor( $dtalkid );
