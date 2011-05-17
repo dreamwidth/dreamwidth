@@ -28,10 +28,7 @@ body<=
     $ret .= "<?h1 $ML{'.knownissues.head'} h1?>";
 
     my $currentproblems = LJ::load_include( "support-currentproblems" );
-    LJ::CleanHTML::clean( \$currentproblems, {
-                'wordlength' => 40,
-                'mode' => 'deny',
-    });
+    LJ::CleanHTML::clean_event( \$currentproblems, {} );
     $ret .= $currentproblems;
 
     $ret .= "</div>";
