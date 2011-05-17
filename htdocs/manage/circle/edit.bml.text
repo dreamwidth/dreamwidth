@@ -35,6 +35,10 @@
 
 .circle.member=Member
 
+.circle.member.n=Not a member
+
+.circle.member.y=Member
+
 .circle.na=N/A
 
 .circle.name=Name
