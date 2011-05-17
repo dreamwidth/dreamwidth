@@ -52,7 +52,10 @@ _c?>
     }
 
     my $threadroot = LJ::Comment->new( $u, jtalkid => $comment->threadrootid );
-    return BML::redirect(  $threadroot->url( LJ::viewing_style_args( %GET ) ) );
+    my $url = eval { $threadroot->url( LJ::viewing_style_args( %GET ) ) };
+    return if $@;
+
+    return BML::redirect( $url );
  }
   
  # prev/next talkread links
