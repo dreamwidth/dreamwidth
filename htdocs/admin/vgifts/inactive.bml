@@ -1,13 +1,14 @@
 <?_code
 {
     use strict;
-    use vars qw($title $body $page $action %GET %POST);
+    use vars qw($title $body $page $baseuri $action %GET %POST);
 
     use DW::VirtualGift;
 
     $title = $ML{'.title'};
     $body = "";
-    $page = "$LJ::SITEROOT/admin/vgifts/inactive";
+    $baseuri = "/admin/vgifts/inactive";
+    $page = "$LJ::SITEROOT$baseuri";
     $action = 'inactive';  # for $postform
 
     # helper routines
@@ -21,9 +22,7 @@
 
     my $loose_refer = sub {
         return 1 unless my $refer = BML::get_client_header('Referer');
-        my ( $getargs ) = ( $refer =~ m/\?(.*)$/ );
-        return LJ::check_referer( $page ) unless $getargs;
-        return LJ::check_referer( "$page?$getargs" );
+        return LJ::check_referer( $baseuri );
     };
 
     my $strict_refer = sub {

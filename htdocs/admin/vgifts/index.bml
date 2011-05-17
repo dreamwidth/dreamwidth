@@ -1,13 +1,14 @@
 <?_code
 {
     use strict;
-    use vars qw($title $body $page $action %GET %POST);
+    use vars qw($title $body $page $baseuri $action %GET %POST);
 
     use DW::VirtualGift;
 
     $title = $ML{'.title'};
     $body = "";
-    $page = "$LJ::SITEROOT/admin/vgifts/";
+    $baseuri = "/admin/vgifts/";
+    $page = "$LJ::SITEROOT$baseuri";
     $action = 'index';  # for $postform
 
     # helper routines
@@ -21,18 +22,15 @@
 
     my $loose_refer = sub {
         return 1 unless my $refer = BML::get_client_header('Referer');
-        my ( $getargs ) = ( $refer =~ m/\?(.*)$/ );
         # annoyingly, we get different results for /index vs /
-        return LJ::check_referer( $page ) ||
-            LJ::check_referer( "${page}index" ) unless $getargs;
-
-        return LJ::check_referer( "$page?$getargs" ) ||
-            LJ::check_referer( "${page}index?$getargs" );
+        return LJ::check_referer( $baseuri ) ||
+            LJ::check_referer( "${$baseuri}index" );
     };
 
     my $strict_refer = sub {
         # make sure we have a referer header. check_referer doesn't care.
-        return BML::get_client_header('Referer') && $loose_refer->();
+        my $ret = BML::get_client_header('Referer') && $loose_refer->();
+        return $ret;
     };
 
     my $imgposted = sub {

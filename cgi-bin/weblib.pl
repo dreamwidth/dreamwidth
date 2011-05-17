@@ -757,11 +757,19 @@ sub check_referer {
     # escape any regex characters, like the '.' in '.bml'
     $uri = quotemeta( $uri );
 
+    # check that the end of the uri matches exactly (no extra characters or dir levels)
+    # or else that the uri is followed immediately by additional parameters
+    my $checkend = '(?:$|\\?)';
+
     # allow us to properly check URIs without .bml extensions
     if ( $origuri =~ /\.bml($|\?)/ ) {
-      my $checkend = ( $1 eq '?' ? '' : '(?:$|\\?)' );
-      $uri     =~ s/\\.bml($|\\\?)/$1$checkend/;
-      $referer =~ s/\.bml($|\?)/$1/;
+        $checkend = '' if $1 eq '?';
+        $uri     =~ s/\\.bml($|\\\?)/$1$checkend/;
+        $referer =~ s/\.bml($|\?)/$1/;
+    } elsif ( $uri ) {
+        $uri .= $checkend;
+    } else {
+        $uri = '(/|$)';
     }
 
     return 1 if $LJ::SITEROOT   && $referer =~ m!^\Q$LJ::SITEROOT\E$uri!;
