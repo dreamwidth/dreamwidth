@@ -535,28 +535,7 @@ body<=
                         $track_img = 'track_active';
                     } else {
                         # see if any parents are being watched
-                        while ($comment && $comment->valid && $comment->parenttalkid) {
-                            # check cache
-                            $comment->{_watchedby} ||= {};
-                            my $thread_watched = $comment->{_watchedby}->{$u->{userid}};
-
-                            # not cached
-                            if (! defined $thread_watched) {
-                                $thread_watched = $remote->has_subscription(
-                                                                            event   => "JournalNewComment",
-                                                                            journal => $u,
-                                                                            arg2    => $comment->parenttalkid,
-                                                                            require_active => 1,
-                                                                            );
-                            }
-
-                            $track_img = 'track_thread_active' if ($thread_watched);
-
-                            # cache in this comment object if it's being watched by this user
-                            $comment->{_watchedby}->{$u->{userid}} = $thread_watched;
-
-                            $comment = $comment->parent;
-                        }
+                        $track_img = 'track_thread_active' if $comment->thread_has_subscription( $remote, $u );
                     }
 
                     my $track_url = "$LJ::SITEROOT/manage/tracking/comments?journal=$u->{'user'}&amp;talkid=$dtid";

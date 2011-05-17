@@ -3271,24 +3271,7 @@ sub _Comment__get_link
         # in other words, the user is not subscribed to this particular comment
 
         # see if any parents are being watched
-        my $watching_parent = 0;
-        while ($comment && $comment->valid && $comment->parenttalkid) {
-            # check cache
-            $comment->{_watchedby} ||= {};
-            my $thread_watched = $comment->{_watchedby}->{$u->{userid}};
-
-            # not cached
-            if (! defined $thread_watched) {
-                $thread_watched = $remote->has_subscription(journal => $u, event => "JournalNewComment", arg2 => $comment->parenttalkid);
-            }
-
-            $watching_parent = 1 if ($thread_watched);
-
-            # cache in this comment object if it's being watched by this user
-            $comment->{_watchedby}->{$u->{userid}} = $thread_watched;
-
-            $comment = $comment->parent;
-        }
+        my $watching_parent = $comment->thread_has_subscription( $remote, $u );
 
         my $etypeid = 'LJ::Event::JournalNewComment'->etypeid;
         my %subparams = (

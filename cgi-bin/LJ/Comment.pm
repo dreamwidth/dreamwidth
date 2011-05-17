@@ -1086,6 +1086,54 @@ sub info {
     };
 }
 
+sub thread_has_subscription {
+    my ( $comment, $remote, $u ) = @_;
+
+    my @unknown_tracking_status;
+    my $watched = 0;
+
+    while ( $comment && $comment->valid && $comment->parenttalkid ) {
+        # check cache
+        $comment->{_watchedby} ||= {};
+        my $thread_watched = $comment->{_watchedby}->{$u->{userid}};
+
+        my $had_cached = defined $thread_watched;
+
+        unless ( $had_cached ) {
+            $thread_watched = $remote->has_subscription(
+                                event   => "JournalNewComment",
+                                journal => $u,
+                                arg2    => $comment->parenttalkid,
+                                require_active => 1,
+                                );
+        }
+
+        if ( $thread_watched ) {
+            $watched = 1;
+
+            # we had to go up a couple of levels before we could figure out
+            # whether we were watching or not
+            # so fix the status of intervening levels
+            foreach ( @unknown_tracking_status ) {
+                my $c = LJ::Comment->new( $u, dtalkid => $_ );
+                $c->{_watchedby}->{$u->{userid}} = $thread_watched;
+            }
+            @unknown_tracking_status = ();
+        }
+
+        # cache in this comment object if it's being watched by this user
+        $comment->{_watchedby}->{$u->{userid}} = $thread_watched;
+
+        # shortcircuit and stop going up the tree because:
+        last if $thread_watched;    # current comment is watched
+        last if $had_cached;        # we've been to this section of the ancestor tree already
+
+        push @unknown_tracking_status, $comment->dtalkid;
+        $comment = $comment->parent;
+    }
+
+    return $watched;
+}
 sub indent {
     return LJ::Talk::Post::indent(@_);
 }
