@@ -15,6 +15,8 @@
    
 */
 
+var DW = new Object();
+
 $.extractParams = function(url) {
     if ( ! $.extractParams.cache )
         $.extractParams.cache = {};
