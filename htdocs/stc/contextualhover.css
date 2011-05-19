@@ -3,7 +3,7 @@ div.ContextualPopup {
     margin: 5px 0 0 20px;
     font: normal 11px "Arial", "Verdana", sans-serif !important;
     text-align: left;
-    z-index: 99;
+    z-index: 999;
     }
 
 * html div.ContextualPopup {

@@ -385,7 +385,7 @@ sub EntryPage
             js/jquery.ajaxtip.js
             js/jquery.commentmanage.js
             js/tooltip.js
-            js/tooltip.dynamic.js
+            js/jquery/jquery.ui.position.js
             stc/ajaxtip.css
             stc/popup-form.css
         ) );

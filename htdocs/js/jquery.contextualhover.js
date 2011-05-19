@@ -79,7 +79,7 @@ _create: function() {
             return;
         }
 
-        trigger.ajaxtip({ namespace: "contextualpopup", tooltip: {position: "bottom left",dynamic:false} })
+        trigger.ajaxtip({ namespace: "contextualpopup"})
             .ajaxtip( "load", {
                 endpoint: "ctxpopup",
                 formmethod: "GET",

@@ -29,7 +29,6 @@ $.widget("dw.ajaxtip", {
                     widget: "ajaxstart"+ns+",ajaxresult"+ns,
                     tooltip: "mouseover,mouseleave"
                 },
-                position: "bottom center",
                 relative: true,
                 effect: "fade",
                 onBeforeShow: function(e) {
@@ -43,11 +42,11 @@ $.widget("dw.ajaxtip", {
                         tip.empty().append($("<img />", { src: Site.imgprefix + "/ajax-loader.gif" }))
                             .addClass("ajaxresult")
                     }
+
+                    tip.css({position: "absolute", top: "", left: ""})
+                        .position({ my: "left top", at: "left bottom", of: self.element, collision: "fit"})
                 }
             },  self.options.tooltip));
-            if ( self.options.tooltip.dynamic )
-                self.element.dynamic({ classNames: "tip-top tip-right tip-bottom tip-left" });
-
     },
     _init: function() {
         if(this.options.content)

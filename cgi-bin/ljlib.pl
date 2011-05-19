@@ -1352,7 +1352,7 @@ sub start_request
 
                     js/jquery.ajaxtip.js
                     js/tooltip.js
-                    js/tooltip.dynamic.js
+                    js/jquery/jquery.ui.position.js
                     stc/ajaxtip.css
 
                     js/jquery.hoverIntent.js

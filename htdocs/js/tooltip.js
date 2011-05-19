@@ -79,7 +79,7 @@
 		
 	/* calculate tip position relative to the trigger */  	
 	function getPosition(trigger, tip, conf) {	
-
+        return {};
 		
 		// get origin top/left position 
 		var top = conf.relative ? trigger.position().top : trigger.offset().top, 

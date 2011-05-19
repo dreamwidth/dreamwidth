@@ -1,6 +1,6 @@
 .ajaxtooltip {
     padding: .2em .5em;
-    z-index: 99;
+    z-index: 999;
     text-align: left;
     color: #000;
     background: #fff;
