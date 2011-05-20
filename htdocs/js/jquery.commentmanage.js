@@ -107,10 +107,6 @@ $.widget("dw.moderate", {
                             self._updateLink(data);
                         }
                         self._trigger( "complete" );
-                    },
-                    error: function( jqxhr, status, error ) {
-                        self.element.ajaxtip( "error", "Error contacting server. " + error);
-                        self._trigger( "complete" );
                     }
                 });
         });
@@ -172,10 +168,6 @@ $.widget("dw.delcomment", {
                             self.element.ajaxtip("success",data.msg);
                             removecomment(self.linkdata.id, postdata["delthread"]);
                         }
-                        self._trigger( "complete" );
-                    },
-                    error: function( jqxhr, status, error ) {
-                        self.element.ajaxtip( "error", "Error contacting server. " + error);
                         self._trigger( "complete" );
                     }
                 })

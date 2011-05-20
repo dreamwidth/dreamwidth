@@ -98,10 +98,6 @@ $.widget("dw.dynamicpoll", {
                             resultsEle.trigger( "updatedcontent.poll" );
                         }
                         self._trigger( "complete" );
-                    },
-                    error: function( jqxhr, status, error ) {
-                        $submit.ajaxtip( "error", "Error contacting server. " + error);
-                        self._trigger( "complete" );
                     }
                 });
         });

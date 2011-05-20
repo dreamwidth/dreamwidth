@@ -94,7 +94,10 @@ $.widget("dw.ajaxtip", {
                 if ( tip ) tip.inprogress = false;
             },
             success: opts.success,
-            error: opts.error
+            error: opts.error ? opts.error : function( jqxhr, status, error ) {
+                self.element.ajaxtip( "error", "Error contacting server. " + error);
+                self._trigger( "complete" );
+            }
         });
     },
     success: function(msg) {

@@ -105,10 +105,6 @@ _create: function() {
                         }, 60 * 5 * 1000);
                     }
                     self._trigger("complete");
-                },
-                error: function( jqxhr, status, error ) {
-                    trigger.ajaxtip( "error", "Error contacting server. " + error);
-                    self._trigger( "complete" );
                 }
             });
     },
@@ -357,10 +353,6 @@ _changeRelation: function(info, action, link, e) {
                 self._renderPopup();
             }
             self._trigger("complete");
-        },
-        error: function( jqxhr, status, error ) {
-            $link.ajaxtip( "error", "Error contacting server. " + error);
-            self._trigger( "complete" );
         }
     });
 }
