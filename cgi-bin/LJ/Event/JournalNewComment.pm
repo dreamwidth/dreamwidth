@@ -261,7 +261,7 @@ sub as_html {
     return sprintf(qq{(Deleted comment to post from %s in %s: comment by %s in "%s")},
         LJ::diff_ago_text( $entry->logtime_unix ),
         $journal->ljuser_display,
-        $comment->poster->ljuser_display,
+        $comment->poster ? $comment->poster->ljuser_display : "(Anonymous)",
         $entry_subject
     )
         unless $comment && $comment->valid && !$comment->is_deleted;
