@@ -8,7 +8,7 @@
 #      Afuna <coder.dw@afunamatata.com>
 #      Pau Amma <pauamma@dreamwidth.org>
 #
-# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -119,105 +119,79 @@ sub public_data {
 
     # Accounts by type
     my $accounts_by_type = DW::StatData::AccountsByType->load_latest( DW::StatStore->get( "accounts" ) );
-    $vars->{accounts_by_type}
-        = { map { _dashes_to_underlines( $_ )
-                  => _make_a_number( $accounts_by_type->value( $_ ) ) }
-                @{$accounts_by_type->keylist} }
-        if defined $accounts_by_type;
+    if ( defined $accounts_by_type ) {
+        $vars->{accounts_by_type}
+            = { map { _dashes_to_underlines( $_ )
+                      => _make_a_number( $accounts_by_type->value( $_ ) ) }
+                    @{$accounts_by_type->keylist} };
+
+        # Computed: total personal and community accounts
+        $vars->{accounts_by_type}->{total_PC} =
+            $vars->{accounts_by_type}->{personal} +
+            $vars->{accounts_by_type}->{community};
+    }
 
     # Active accounts by time since last active, level, and type
     my $active_accounts = DW::StatData::ActiveAccounts->load_latest( DW::StatStore->get( "active" ) );
-    $vars->{active_accounts}
-        = { map { _dashes_to_underlines( $_ )
-                  => _make_a_number( $active_accounts->value( $_ ) ) }
-                @{$active_accounts->keylist} }
-        if defined $active_accounts;
+    if ( defined $active_accounts ) {
+        $vars->{active_accounts}
+            = { map { _dashes_to_underlines( $_ )
+                      => _make_a_number( $active_accounts->value( $_ ) ) }
+                    @{$active_accounts->keylist} };
+
+        # Computed: total active personal and community accounts
+        $vars->{active_accounts}->{active_PC} =
+            $vars->{active_accounts}->{active_30d_free_P} +
+            $vars->{active_accounts}->{active_30d_paid_P} +
+            $vars->{active_accounts}->{active_30d_premium_P} +
+            $vars->{active_accounts}->{active_30d_seed_P} +
+            $vars->{active_accounts}->{active_30d_free_C} +
+            $vars->{active_accounts}->{active_30d_paid_C} +
+            $vars->{active_accounts}->{active_30d_premium_C} +
+            $vars->{active_accounts}->{active_30d_seed_C};
+
+        # Computed: total active allpaid (paid, premium, and seed) accounts
+        $vars->{active_accounts}->{active_allpaid} =
+            $vars->{active_accounts}->{active_30d_paid} +
+            $vars->{active_accounts}->{active_30d_premium} +
+            $vars->{active_accounts}->{active_30d_seed};
+
+        # Computed: total allpaid (paid, premium, and seed) personal accounts
+        # active in the last 1/7/30 days
+        $vars->{active_accounts}->{"active_${_}d_allpaid_P"} =
+            $vars->{active_accounts}->{"active_${_}d_paid_P"} +
+            $vars->{active_accounts}->{"active_${_}d_premium_P"} +
+            $vars->{active_accounts}->{"active_${_}d_seed_P"}
+            foreach qw( 1 7 30 );
+
+        # Computed: total allpaid community accounts
+        # active in the last 1/7/30 days
+        $vars->{active_accounts}->{"active_${_}d_allpaid_C"} =
+            $vars->{active_accounts}->{"active_${_}d_paid_C"} +
+            $vars->{active_accounts}->{"active_${_}d_premium_C"} +
+            $vars->{active_accounts}->{"active_${_}d_seed_C"}
+            foreach qw( 1 7 30 );
+
+        # Computed: total allpaid identity accounts
+        # active in the last 1/7/30 days
+        $vars->{active_accounts}->{"active_${_}d_allpaid_I"} =
+            $vars->{active_accounts}->{"active_${_}d_paid_I"} +
+            $vars->{active_accounts}->{"active_${_}d_premium_I"} +
+            $vars->{active_accounts}->{"active_${_}d_seed_I"}
+            foreach qw( 1 7 30 );
+    }
 
     # Paid accounts by level
     my $paid = DW::StatData::PaidAccounts->load_latest( DW::StatStore->get( "paid" ) );
-    $vars->{paid}
-        = { map { _dashes_to_underlines( $_ )
-                  => _make_a_number( $paid->value( $_ ) ) }
-                @{$paid->keylist} }
-        if defined $paid;
-
-    # Now we have all the raw data we need, but need to calculate some quantities:
-
-    # Total personal and community accounts
-    $vars->{accounts_by_type}->{total_PC} =
-        $vars->{accounts_by_type}->{personal} +
-        $vars->{accounts_by_type}->{community};
-
-    # Total active personal and community accounts
-    $vars->{active_accounts}->{active_PC} =
-        $vars->{active_accounts}->{active_30d_free_P} +
-        $vars->{active_accounts}->{active_30d_paid_P} +
-        $vars->{active_accounts}->{active_30d_premium_P} +
-        $vars->{active_accounts}->{active_30d_seed_P} +
-        $vars->{active_accounts}->{active_30d_free_C} +
-        $vars->{active_accounts}->{active_30d_paid_C} +
-        $vars->{active_accounts}->{active_30d_premium_C} +
-        $vars->{active_accounts}->{active_30d_seed_C};
-
-    # Total active allpaid (paid, premium, and seed) accounts
-    $vars->{active_accounts}->{active_allpaid} =
-        $vars->{active_accounts}->{active_30d_paid} +
-        $vars->{active_accounts}->{active_30d_premium} +
-        $vars->{active_accounts}->{active_30d_seed};
-
-    # Total active allpaid (paid, premium, and seed) personal accounts
-    $vars->{active_accounts}->{active_allpaid_P} =
-        $vars->{active_accounts}->{active_30d_paid_P} +
-        $vars->{active_accounts}->{active_30d_premium_P} +
-        $vars->{active_accounts}->{active_30d_seed_P};
-
-    # Total allpaid personal accounts active in the past 7 days
-    $vars->{active_accounts}->{active_7d_allpaid_P} =
-        $vars->{active_accounts}->{active_7d_paid_P} +
-        $vars->{active_accounts}->{active_7d_premium_P} +
-        $vars->{active_accounts}->{active_7d_seed_P};
-
-    # Total allpaid personal accounts active in the past 1 day
-    $vars->{active_accounts}->{active_1d_allpaid_P} =
-        $vars->{active_accounts}->{active_1d_paid_P} +
-        $vars->{active_accounts}->{active_1d_premium_P} +
-        $vars->{active_accounts}->{active_1d_seed_P};
-
-    # Total active allpaid community accounts
-    $vars->{active_accounts}->{active_allpaid_C} =
-        $vars->{active_accounts}->{active_30d_paid_C} +
-        $vars->{active_accounts}->{active_30d_premium_C} +
-        $vars->{active_accounts}->{active_30d_seed_C};
-
-    # Total allpaid community accounts active in the past 7 days
-    $vars->{active_accounts}->{active_7d_allpaid_C} =
-        $vars->{active_accounts}->{active_7d_paid_C} +
-        $vars->{active_accounts}->{active_7d_premium_C} +
-        $vars->{active_accounts}->{active_7d_seed_C};
-
-    # Total allpaid community accounts active in the past 1 day
-    $vars->{active_accounts}->{active_1d_allpaid_C} =
-        $vars->{active_accounts}->{active_1d_paid_C} +
-        $vars->{active_accounts}->{active_1d_premium_C} +
-        $vars->{active_accounts}->{active_1d_seed_C};
-
-    # Total active allpaid identity accounts
-    $vars->{active_accounts}->{active_allpaid_I} =
-        $vars->{active_accounts}->{active_30d_paid_I} +
-        $vars->{active_accounts}->{active_30d_premium_I} +
-        $vars->{active_accounts}->{active_30d_seed_I};
-
-    # Total allpaid identity accounts active in the past 7 days
-    $vars->{active_accounts}->{active_7d_allpaid_I} =
-        $vars->{active_accounts}->{active_7d_paid_I} +
-        $vars->{active_accounts}->{active_7d_premium_I} +
-        $vars->{active_accounts}->{active_7d_seed_I};
-
-    # Total allpaid identity accounts active in the past 1 day
-    $vars->{active_accounts}->{active_1d_allpaid_I} =
-        $vars->{active_accounts}->{active_1d_paid_I} +
-        $vars->{active_accounts}->{active_1d_premium_I} +
-        $vars->{active_accounts}->{active_1d_seed_I};
+    if ( defined $paid ) {
+        $vars->{paid}
+            = { map { _dashes_to_underlines( $_ )
+                      => _make_a_number( $paid->value( $_ ) ) }
+                    @{$paid->keylist} };
+        $vars->{paid}->{allpaid} = 0;
+        $vars->{paid}->{allpaid} += $vars->{paid}->{$_}
+            foreach @{$paid->keylist};
+    }
 
     return $vars;
 }

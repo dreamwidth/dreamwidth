@@ -7,7 +7,7 @@ Authors:
      Afuna <coder.dw@afunamatata.com>
      Pau Amma <pauamma@dreamwidth.org>
 
-Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference
@@ -29,7 +29,6 @@ the same terms as Perl itself. For a copy of the license, please reference
         <li>[% ".accounts.bytype.$t" | ml %] [% accounts_by_type.$t %]</li>
     [% END %]
     </ul>
-    [% total_pc = accounts_by_type.personal + accounts_by_type.community %]
 
 [%# Accounts by type pie chart %]
 <h3 class="graphtitle">[% '.graphtitle.accounts' | ml %]</h3>
@@ -61,17 +60,6 @@ class="piechart" alt="" />
         <li>[% ".active.bytime.$t" | ml %] [% active_accounts.$t %]</li>
     [% END %]
     </ul>
-    [% active_pc = active_accounts.active_30d_free_P
-                   + active_accounts.active_30d_paid_P
-                   + active_accounts.active_30d_premium_P
-                   + active_accounts.active_30d_seed_P
-                   + active_accounts.active_30d_free_C
-                   + active_accounts.active_30d_paid_C
-                   + active_accounts.active_30d_premium_C
-                   + active_accounts.active_30d_seed_C %]
-    [% active_allpaid = active_accounts.active_30d_paid
-                        + active_accounts.active_30d_premium
-                        + active_accounts.active_30d_seed %]
 [% ELSE %]
     [% '.error.notavailable' | ml %]
 [% END %]
@@ -79,7 +67,7 @@ class="piechart" alt="" />
 [%# Active personal accounts bar chart %]
 <h3 class="graphtitle">[% '.graphtitle.active.personal' | ml %]</h3>
 <img src="active_personal_accounts?active_free_p=[% active_accounts.active_30d_free_P ~%]
-    &active_allpaid_p=[% active_accounts.active_allpaid_P ~%]
+    &active_allpaid_p=[% active_accounts.active_30d_allpaid_P ~%]
     &active_7d_free_p=[% active_accounts.active_7d_free_P ~%]
     &active_7d_allpaid_p=[% active_accounts.active_7d_allpaid_P ~%]
     &active_1d_free_p=[% active_accounts.active_1d_free_P ~%]
@@ -90,7 +78,7 @@ class="piechart" alt="" />
     &bar_7d_label=[% '.label.bar.7d' | ml ~%]
     &bar_1d_label=[% '.label.bar.1d' | ml %]"
 alt="[% '.active.free30' | ml %] [% active_accounts.active_30d_free_P %];
-    [%= '.active.paid30' | ml %] [% active_accounts.active_allpaid_P %];
+    [%= '.active.paid30' | ml %] [% active_accounts.active_30d_allpaid_P %];
     [%= '.active.free7' | ml %] [% active_accounts.active_7d_free_P %];
     [%= '.active.paid7' | ml %] [% active_accounts.active_7d_allpaid_P %];
     [%= '.active.free1' | ml %] [% active_accounts.active_1d_free_P %];
@@ -100,7 +88,7 @@ class="bargraph" />
 [%# Active community accounts bar chart %]
 <h3 class="graphtitle">[% '.graphtitle.active.community' | ml %]</h3>
 <img src="active_community_accounts?active_free_c=[% active_accounts.active_30d_free_C ~%]
-    &active_allpaid_c=[% active_accounts.active_allpaid_C ~%]
+    &active_allpaid_c=[% active_accounts.active_30d_allpaid_C ~%]
     &active_7d_free_c=[% active_accounts.active_7d_free_C ~%]
     &active_7d_allpaid_c=[% active_accounts.active_7d_allpaid_C ~%]
     &active_1d_free_c=[% active_accounts.active_1d_free_C ~%]
@@ -111,7 +99,7 @@ class="bargraph" />
     &bar_7d_label=[% '.label.bar.7d' | ml ~%]
     &bar_1d_label=[% '.label.bar.1d' | ml %]"
 alt="[% '.active.free30' | ml %] [% active_accounts.active_30d_free_C %];
-    [%= '.active.paid30' | ml %] [% active_accounts.active_allpaid_C %];
+    [%= '.active.paid30' | ml %] [% active_accounts.active_30d_allpaid_C %];
     [%= '.active.free7' | ml %] [% active_accounts.active_7d_free_C %];
     [%= '.active.paid7' | ml %] [% active_accounts.active_7d_allpaid_C %];
     [%= '.active.free1' | ml %] [% active_accounts.active_1d_free_C %];
@@ -121,7 +109,7 @@ class="bargraph" />
 [%# Active identity accounts bar graph %]
 <h3 class="graphtitle">[% '.graphtitle.active.identity' | ml %]</h3>
 <img src="active_identity_accounts?active_free_i=[% active_accounts.active_30d_free_I ~%]
-    &active_allpaid_i=[% active_accounts.active_allpaid_I ~%]
+    &active_allpaid_i=[% active_accounts.active_30d_allpaid_I ~%]
     &active_7d_free_i=[% active_accounts.active_7d_free_I ~%]
     &active_7d_allpaid_i=[% active_accounts.active_7d_allpaid_I ~%]
     &active_1d_free_i=[% active_accounts.active_1d_free_I ~%]
@@ -132,7 +120,7 @@ class="bargraph" />
     &bar_7d_label=[% '.label.bar.7d' | ml ~%]
     &bar_1d_label=[% '.label.bar.1d' | ml %]"
 alt="[% '.active.free30' | ml %] [% active_accounts.active_30d_free_I %];
-    [%= '.active.paid30' | ml %] [% active_accounts.active_allpaid_I %];
+    [%= '.active.paid30' | ml %] [% active_accounts.active_30d_allpaid_I %];
     [%= '.active.free7' | ml %] [% active_accounts.active_7d_free_I %];
     [%= '.active.paid7' | ml %] [% active_accounts.active_7d_allpaid_I %];
     [%= '.active.free1' | ml %] [% active_accounts.active_1d_free_I %];
@@ -148,23 +136,26 @@ class="bargraph" />
         <th>[% ".paid.colhdr.$h" | ml %]</th>
     [% END %]
     </tr></thead>
-    [% allpaid = 0 %]
     [% FOREACH level = [ 'paid' 'premium' 'seed' ] %]
         <tr><th>[% ".paid.rowhdr.$level" | ml %]</th>
         [% n = paid.$level.defined ? paid.$level : 0 %]
-        [% allpaid = allpaid + n %]
         <td class='stats'>[% n %]</td>
         <td class='stats'>
-        [%- 100 * n / total_pc | format "%.1f" IF total_pc != 0 %]</td>
+        [%- 100 * n / accounts_by_type.total_PC | format "%.1f"
+            IF accounts_by_type.total_PC != 0 -%]
+        </td>
         <td class='stats'>
-        [%- 100 * n / active_pc | format "%.1f" IF active_pc != 0 %]</td>
-        </tr>
+        [%- 100 * n / active_accounts.active_PC | format "%.1f"
+            IF active_accounts.active_PC != 0 -%]
+        </td></tr>
     [% END %]
     <tr><th>[% '.paid.rowhdr.activepaid' | ml %]</th><td class='stats'>
-    [% active_allpaid IF active_allpaid.defined %]
+    [%- active_accounts.active_allpaid
+        IF active_accounts.active_allpaid.defined -%]
     </td></tr><tr><th>[% '.paid.rowhdr.inactivepaid' | ml %]</th>
     <td class='stats'>
-    [% allpaid - active_allpaid IF active_allpaid.defined %]
+    [%- paid.allpaid - active_accounts.active_allpaid
+        IF active_accounts.active_allpaid.defined -%]
     </td></tr></table>
 [% ELSE %]
     [% '.error.notavailable' | ml %]
