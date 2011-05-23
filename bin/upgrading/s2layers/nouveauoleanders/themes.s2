@@ -903,6 +903,7 @@ set color_page_link = "#61231d";
 set color_page_link_active = "#2b1717";
 set color_page_link_hover = "#2b1717";
 set color_page_link_visited = "#61231d";
+set color_page_text = "#000";
 set color_page_title = "#91854d";
 set color_header_background = "#2b1717";
 set color_footer_background = "#2b1717";
