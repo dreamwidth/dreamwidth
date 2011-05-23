@@ -20,10 +20,10 @@ function _initUserhead(context) {
             // if the parent (a tag with link to userinfo) has userid in its URL, then
             // this is an openid user icon and we should use the userid
             var $head = $(this);
-            var $parent = $head.parent("a[href]");
+            var href = $head.parent("a").attr("href");
             var data = {};
             var userid;
-            if (userid = $parent.attr("href").match(/\?userid=(\d+)/i))
+            if (href && (userid = href.match(/\?userid=(\d+)/i)))
                 data.userid = userid[1];
             else
                 data.username = $usertag.attr("lj:user");
