@@ -801,6 +801,110 @@ set color_module_link_visited = "#1d7a7e";
 set color_module_text = "#0a0a0a";
 
 
+#NEWLAYER: compartmentalize/spectrum
+layerinfo type = "theme";
+layerinfo name = "Spectrum";
+layerinfo redist_uniq = "compartmentalize/spectrum";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ff4746";
+set color_page_link = "#665D70";
+set color_page_link_hover = "#487D76";
+set color_page_link_visited = "4B4452";
+set color_page_text = "#1b181e";
+set color_header_background = "#ff6e6e";
+set color_footer_background = "#ff6e6e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ff6e6e";
+set color_entry_border = "#ff5050";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ff6e6e";
+set color_module_border = "#ff5050";
+
+
+#NEWLAYER: compartmentalize/spectrumii
+layerinfo type = "theme";
+layerinfo name = "Spectrum II";
+layerinfo redist_uniq = "compartmentalize/spectrumii";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#364b46";
+set color_page_link = "#92b55f";
+set color_page_link_hover = "#a3c869";
+set color_page_link_visited = "E8DA5E";
+set color_page_text = "#070707";
+set color_header_background = "#5b7d77";
+set color_footer_background = "#5b7d77";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#5b7d77";
+set color_entry_border = "#48645f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#5b7d77";
+set color_module_border = "#48645f";
+
+
+#NEWLAYER: compartmentalize/spectrumiii
+layerinfo type = "theme";
+layerinfo name = "Spectrum III";
+layerinfo redist_uniq = "compartmentalize/spectrumiii";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#92b55f";
+set color_page_link = "#2f7d71";
+set color_page_link_hover = "#785B96";
+set color_page_link_visited = "#4b4452";
+set color_header_background = "#b4dd74";
+set color_footer_background = "#b4dd74";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#b4dd74";
+set color_entry_border = "#a3c969";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b4dd74";
+set color_module_border = "#a3c969";
+
+
 #NEWLAYER: compartmentalize/summersea
 layerinfo type = "theme";
 layerinfo name = "Summer Sea";
