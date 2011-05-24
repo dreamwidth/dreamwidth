@@ -1,0 +1,20 @@
+[% IF header %]<h1>[% header | ml %]</h1>[% END %]
+[% IF message %]<p>[% message | ml %]</p> [% END %]
+
+[% IF levels.size > 0 %]
+<p>[% ".filter.levels" | ml %]</p>
+<ul>
+    [% FOREACH level IN levels %]
+        <li><a href="[%level.link%]">[%level.name%]</a></li>
+    [% END %]
+</ul>
+[% END %]
+
+[% IF groups.size > 0 %]
+<p>[% ".filter.custom" | ml %]</p>
+<ul>
+    [% FOREACH group IN groups %]
+    <li><a href="[%group.link%]">[%group.name%]</a></li>
+    [% END %]
+</ul>
+[% END %]

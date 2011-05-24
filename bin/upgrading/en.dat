@@ -942,7 +942,7 @@ error.security.disabled=Sorry, the security-filtering system is currently disabl
 
 error.security.invalid=You have specified an invalid security setting, the access group you specified does not exist, or you are not a member of that group.
 
-error.security.name=Security Error
+error.security.name2=Security Filter Error
 
 error.security.noarg=You must provide a security level to filter by.
 

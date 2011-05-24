@@ -735,16 +735,12 @@ sub trans
             } elsif ($mode eq 'security') {
                 # tailing slash on here to prevent a second redirect after this one
                 return redir($r, LJ::journal_base($user) . "$uri/") unless $pe;
-                if ($pe eq '/') {
-                    # do a 404 for now
-                    return 404;
-                } else {
-                    # filtered lastn page
-                    $mode = 'lastn';
+                # filtered lastn page
+                $mode = 'lastn';
 
-                    # prepend /security so that lastn knows to do security filtering
-                    $pe = "/security$pe";
-                }
+                # prepend /security so that lastn knows to do security filtering
+                $pe = "/security$pe";
+
             }
         } elsif (($vhost eq "users" || $vhost =~ /^other:/) &&
                  $uuri eq "/robots.txt") {

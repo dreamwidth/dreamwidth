@@ -44,6 +44,7 @@ use DW::User::ContentFilters;
 use DW::User::Edges;
 use DW::InviteCodes::Promo;
 use DW::SiteScheme;
+use DW::Template;
 
 use LJ::Community;
 use LJ::Subscription;
@@ -8693,7 +8694,7 @@ sub make_journal {
     }
 
     # do the same for security filtering
-    elsif ( ( $view eq 'lastn' || $view eq 'read' ) && $opts->{pathextra} && $opts->{pathextra} =~ /^\/security\/(.+)$/ ) {
+    elsif ( ( $view eq 'lastn' || $view eq 'read' ) && $opts->{pathextra} && $opts->{pathextra} =~ /^\/security\/(.*)$/ ) {
         $opts->{getargs}->{security} = LJ::durl($1);
         $opts->{pathextra} = undef;
     }
@@ -8858,18 +8859,71 @@ sub make_journal {
     # validate the security filter
     if (exists $opts->{getargs}->{security}) {
         my $securityfilter = $opts->{getargs}->{security};
-        return $error->( BML::ml( 'error.security.noarg' ), "404 Not Found", BML::ml( 'error.security.name' ) )
+
+        my $r = DW::Request->get;
+        my $security_err = sub {
+            my ( $args, %opts ) = @_;
+            $args->{header} ||= "error.security.name2";
+
+            my $status = $opts{status} || $r->NOT_FOUND;
+
+            my @levels;
+            my @groups;
+            # error message is an appropriate type to show the list
+            if ( $opts{show_list}
+                # viewing recent entries
+                && ( $view eq "lastn"
+                    # or your own read page (can't see locked entries on others' read page anyway)
+                    || ( $view eq "read" && $u->equals( $remote ) ) ) ) {
+
+                my $path = $view eq "read" ? "/read/security" : "/security";
+                @levels  = ( { link => LJ::create_url( "$path/public", viewing_style => 1 ),
+                                    name => LJ::Lang::ml( "label.security.public" ) } );
+
+                if ( $u->is_comm ) {
+                    push @levels, { link => LJ::create_url( "$path/access", viewing_style => 1 ),
+                                    name => LJ::Lang::ml( "label.security.members" ) }
+                                if $remote && $remote->member_of( $u );
+
+                    push @levels, { link => LJ::create_url( "$path/private", viewing_style => 1 ),
+                                    name => LJ::Lang::ml( "label.security.maintainers" ) }
+                                if $remote && $remote->can_manage_other( $u );
+                } else {
+                    push @levels, { link => LJ::create_url( "$path/access", viewing_style => 1 ),
+                                    name => LJ::Lang::ml( "label.security.accesslist" ) }
+                                if $u->trusts( $remote );
+
+                    push @levels, { link => LJ::create_url( "$path/private", viewing_style => 1 ),
+                                    name => LJ::Lang::ml( "label.security.accesslist" ) }
+                                if $u->equals( $remote );
+                }
+
+                $args->{levels} = \@levels;
+
+                @groups = map { { link => LJ::create_url( "$path/group:" . $_->{groupname} ), name => $_->{groupname} } } $remote->trust_groups if $u->equals( $remote );
+                $args->{groups} = \@groups;
+            }
+
+            ${$opts->{handle_with_siteviews_ref}} = 1;
+            return DW::Template->template_string( "journal/security.tt",
+                $args,
+                {
+                    status => $status,
+                }
+            );
+        };
+
+        return $security_err->( { message => undef, header => "/journal/security.tt.header" }, show_list => 1 )
             unless $securityfilter;
 
-        return $error->( BML::ml( 'error.security.nocap' ), "403 Forbidden", BML::ml( 'error.security.name' ) )
-            unless LJ::get_cap($remote, "security_filter") || LJ::get_cap($u, "security_filter");
+        return $security_err->( { message => "error.security.nocap" }, status => $r->FORBIDDEN )
+            unless LJ::get_cap( $remote, "security_filter" ) || LJ::get_cap( $u, "security_filter" );
 
-        # error if disabled
-        return $error->( BML::ml( 'error.security.disabled' ), "404 Not Found", BML::ml( 'error.security.name' ) )
-            unless LJ::is_enabled("security_filter");
+        return $security_err->( { message => "error.security.disabled" } )
+            unless LJ::is_enabled( "security_filter" );
 
         # throw an error if we're rendering in S1, but not for renamed accounts
-        return $error->( BML::ml( 'error.security.s1' ), "404 Not Found", BML::ml( 'error.security.name' ) )
+        return $security_err->( { message => "error.security.s1" } )
             if $stylesys == 1 && $view ne 'data' && ! $u->is_redirect;
 
         # check the filter itself
@@ -8888,9 +8942,8 @@ sub make_journal {
             }
         }
 
-        return $error->( BML::ml( 'error.security.invalid' ), "404 Not Found", BML::ml( 'error.security.name' ) )
+        return $security_err->( { message => "error.security.invalid" }, show_list => 1 )
             unless defined $opts->{securityfilter};
-
     }
 
     unless ( $geta->{'viewall'} && $remote && $remote->has_priv( "canview", "suspended" ) ||
