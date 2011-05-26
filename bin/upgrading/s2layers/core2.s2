@@ -3608,7 +3608,7 @@ function FriendsPage::print_global_subtitle(){
     if ($.friends_subtitle){
         """<h2 id="subtitle"><span>""" + $.friends_subtitle + """</span></h2>""";
     } elseif ($.friends_title) {
-    } else {
+    } elseif ($.global_subtitle) {
         """<h2 id="subtitle"><span>""" + $.global_subtitle + """</span></h2>""";
     }
 }
