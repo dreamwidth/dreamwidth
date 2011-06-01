@@ -30,6 +30,7 @@ CreateAccount.init = function () {
     if (!$('username_error')) return;
 
     DOM.addEventListener($('create_user'), "blur", CreateAccount.checkUsername);
+    //$("terms-news").style.width = ($("create_email").offsetWidth + 25) + "px";
 }
 
 CreateAccount.eventShowTip = function () {
@@ -47,37 +48,36 @@ CreateAccount.eventHideTip = function () {
 CreateAccount.showTip = function (id) {
     if (!id) return;
 
-    var drop, arrowdrop, text;
-
+    var drop, tipleft, arrowdrop, text, relCont;
+    drop = 0;
+    tipleft = $("create_email").offsetWidth + 25;
+    relCont = $("relative-container");
     // Create the location for the tooltip
     if (id == "create_bday_mm") {
         text = CreateAccount.birthdate;
-        drop = 40;
-        arrowdrop = 53;
+        drop = CreateAccount.findHeight($("create_bday_mm")) - CreateAccount.findHeight(relCont);
     } else if (id == "create_email") {
         text = CreateAccount.email;
-        drop = 10;
-        arrowdrop = 13;
+        drop = CreateAccount.findHeight($("create_email")) - CreateAccount.findHeight(relCont);
     } else if (id == "create_password1") {
         text = CreateAccount.password;
-        drop = 20;
-        arrowdrop = 24;
+        drop = CreateAccount.findHeight($("create_password1")) - CreateAccount.findHeight(relCont);
     } else if (id == "create_user") {
         text = CreateAccount.username;
-        drop = 0;
-        arrowdrop = 3;
+        drop = CreateAccount.findHeight($("create_user")) - CreateAccount.findHeight(relCont);
     }
+    //drop = CreateAccount.findHeight($( id ));
 
-    var box = $('tips_box'), box_arr = $('tips_box_arrow');
+    var out_box=$('tips-box-container'),box = $('tips_box'), box_arr = $('tips_box_arrow');
     if (box && box_arr) {
         box.innerHTML = text;
-
-        box.style.top = drop + "%";
         box.style.display = "block";
-        box.style.visibility = "visible";
-
-        box_arr.style.top = arrowdrop + "%";
         box_arr.style.display = "block";
+        box.style.visibility = "visible";
+        box_arr.style.visibility = "visible";
+        out_box.style.left = tipleft + "px";
+        box_arr.style.top = "3px";
+        out_box.style.top = drop + "px";
     }
 }
 
@@ -88,6 +88,19 @@ CreateAccount.hideTip = function (id) {
     // on CSS to maximize accessibility
     $('tips_box').style.visibility = "hidden";
     $('tips_box').innerHTML = "";
+    $('tips_box_arrow').style.visibility= "hidden";
+}
+
+CreateAccount.findHeight = function (obj){
+    //adapted from QuirksMode "Find Position": http://www.quirksmode.org/js/findpos.html
+    var curTop;
+    curTop = 0;
+    if ( obj.offsetParent ) {
+        do {
+            curTop += obj.offsetTop;
+        } while (obj = obj.offsetParent);
+    }
+    return curTop;
 }
 
 CreateAccount.checkUsername = function () {

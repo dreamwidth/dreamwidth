@@ -1,11 +1,23 @@
 /* Relative container allows a parent container to something which
    needs absolute positioning around it */
-.relative-container {
+#relative-container {
    position: relative;
+   width: 100%;
+}
+
+#tips-box-container {
+   position: absolute;
+   left: 34em;
+   right: 0px;
+   top: 0px;
 }
 
 div.error-list ol, div.error-list li {
     list-style-type: decimal;
+}
+
+ol.error-list{
+    margin-left: 2em;
 }
 
 .errors-present {
@@ -35,7 +47,8 @@ div.error-list ol, div.error-list li {
     width: 12px;
     height: 19px;
     z-index: 100;
-    left: 489px;
+    left: 14px;
+    top: 1ex;
 }
 
 .appwidget-createaccount #tips_box {
@@ -45,14 +58,16 @@ div.error-list ol, div.error-list li {
     background-color: #fcf6db;
     border: 1px solid #ffdfc0;
     padding: 5px;
-    width: 300px;
-    left: 500px;
+    margin-right: 1px;
+    left: 25px;
+    right: 0px;
 }
 
 .appwidget-createaccount .create-button {
     font-size: 14px;
     font-weight: bold;
     padding: 5px;
+    margin-top: 2ex;
 }
 
 .appwidget-createaccount #username_check,
@@ -66,6 +81,38 @@ span.appwidget-createaccount #username_error {
     width: 330px;
 }
 
+#username_check {
+    margin-right: -12px;
+}
+
 .appwidget-createaccount #username_error_inner {
     font-weight: bold;
 }
+
+div#create-form {
+    max-width: 50%;
+}
+
+#create-form dt{
+    padding-top: 1.25ex;
+}
+
+#create-form dd{
+    padding-bottom: 1.25ex;
+}
+
+#create-form dl{
+    padding-bottom: 10ex;
+}
+
+.field-container, .news-container{
+    padding-top: 1ex;
+    padding-bottom: 1ex;
+}
+
+.news-container{
+    padding-top: 3ex;
+    padding-bottom: 3ex;
+}
+
+

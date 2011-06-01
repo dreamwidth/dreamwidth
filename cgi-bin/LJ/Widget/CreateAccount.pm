@@ -83,22 +83,19 @@ sub render_body {
         $ret .= "</div> <!-- error-list -->\n";
     }
 
-    # FIXME: this table should be converted to fieldsets and css layout
-    # instead of tables for maximum accessibility. Eventually.
-
-    $ret .= "<div class='relative-container'>\n";
-    $ret .= "<div id='tips_box_arrow'></div>";
-    $ret .= "<div id='tips_box'></div>";
-    $ret .= "<table summary='' class='create-form' cellspacing='0' cellpadding='3'>\n";
+    $ret .= "<div class='relative-container' id='relative-container'>\n";
+    $ret .= "<div id='tips-box-container'><div id='tips_box_arrow'></div>";
+    $ret .= "<div id='tips_box'></div></div>";
+    $ret .= "<div id='create-form'>\n<dl>";
 
     ### username
 
     # Highlight the field if the user needs to fix errors
     my $label_username = $errors->{'username'} ? "errors-present" : "errors-absent"; 
       
-    $ret .= "<tr><td class='$label_username'>"
+    $ret .= "<dt class='$label_username'>"
             .  $class->ml('widget.createaccount.field.username')
-            .  "</td>\n<td>";
+            .  "</dt>\n<dd class='input-container'>";
     
     # maxlength 26, so if people don't notice that they hit the limit,
     # we give them a warning. (some people don't notice/proofread)
@@ -118,16 +115,16 @@ sub render_body {
                                            'aria-live' => 'polite' } );
     $ret .= "<span id='username_error'><br /><span id='username_error_inner' class='formitemFlag' role='alert'></span></span>";
 
-    $ret .= "</td></tr>\n";
+    $ret .= "</dd>\n";
 
     ### email
 
     # Highlight the field if the user needs to fix errors
     my $label_email = $errors->{'email'} ? "errors-present" : "errors-absent"; 
       
-    $ret .= "<tr><td class='$label_email'>"
+    $ret .= "<dt class='$label_email'>"
             .  $class->ml('widget.createaccount.field.email')
-            .  "</td>\n<td>";
+            .  "</dt>\n<dd class='input-container'>";
     $ret .= $class->html_text(
         name => 'email',
         id => 'create_email',
@@ -136,7 +133,7 @@ sub render_body {
         raw => 'tabindex=1 aria-required="true"',
         value => $post->{email},
     );
-    $ret .= "</td></tr>\n";
+    $ret .= "</dd>\n";
 
     ### password
 
@@ -145,9 +142,9 @@ sub render_body {
       
     my $pass_value = $errors->{password} ? "" : $post->{password1};
 
-    $ret .= "<tr><td class='$label_password'>"
+    $ret .= "<dt class='$label_password'>"
             .  $class->ml('widget.createaccount.field.password')
-            .  "</td>\n<td>";
+            .  "</dt>\n<dd class='input-container'>";
     $ret .= $class->html_text(
         name => 'password1',
         id => 'create_password1',
@@ -157,16 +154,16 @@ sub render_body {
         raw => 'tabindex=1 aria-required="true"',
         value => $pass_value,
     );
-    $ret .= "</td></tr>\n";
+    $ret .= "</dd>\n";
 
     ### confirm password
 
     # Highlight the field if the user needs to fix errors
     my $label_confirmpass = $errors->{'confirmpass'} ? "errors-present" : "errors-absent"; 
       
-    $ret .= "<tr><td class='$label_confirmpass'>"
+    $ret .= "<dt class='$label_confirmpass'>"
             . $class->ml('widget.createaccount.field.confirmpassword')
-            . "</td>\n<td>";
+            . "</dt>\n<dd class='input-container'>";
     $ret .= $class->html_text(
         name => 'password2',
         id => 'create_password2',
@@ -176,7 +173,7 @@ sub render_body {
         raw => 'tabindex=1 aria-required="true"',
         value => $pass_value,
     );
-    $ret .= "</td></tr>\n";
+    $ret .= "</dd>\n";
 
     ### birthdate
 
@@ -184,10 +181,9 @@ sub render_body {
     my $label_bday = $errors->{'bday'} ? "errors-present" : "errors-absent"; 
       
 
-    $ret .= "<tr>"
-            .  "<td class='$label_bday'><label for='create_bday_mm'>"
+    $ret .= "<dt class='$label_bday'><label for='create_bday_mm'>"
             .  $class->ml('widget.createaccount.field.birthdate')
-            .  "</label></td>\n<td>";
+            .  "</label></dt>\n<dd class='input-container'>";
     $ret .= $class->html_datetime(
         name => 'bday',
         id => 'create_bday',
@@ -196,7 +192,7 @@ sub render_body {
         default => sprintf("%04d-%02d-%02d", $post->{bday_yyyy}, $post->{bday_mm}, $post->{bday_dd}),
     );
       
-    $ret .= "</td></tr>\n";
+    $ret .= "</dd></dl>\n<div id='terms-news'>";
 
     ### captcha
 
@@ -209,11 +205,11 @@ sub render_body {
 
     my $captcha = DW::Captcha->new( 'create', %{$post || {}} );
     if ( $captcha->enabled ) {
-        $ret .= "<tr valign='top'><td class='$label_captcha'>"
+        $ret .= "<div class='field-container'><span class='$label_captcha'>"
                 .  $class->ml('widget.createaccount.field.captcha2')
-                .  "</td>\n<td>";
+                .  "</span>\n<span class='input-container'>";
         $ret .= $captcha->print;
-        $ret .= "</td></tr>\n";
+        $ret .= "</span></div>\n";
     }
 
     ### TOS
@@ -222,7 +218,7 @@ sub render_body {
     my $label_tos = $errors->{'tos'} ? "errors-present" : "errors-absent"; 
       
     # site news
-    $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+    $ret .= "<div class='field-container'>\n<span class='ticky-container'>";
     $ret .= $class->html_check(
         name => 'news',
         id => 'create_news',
@@ -231,10 +227,10 @@ sub render_body {
         selected => LJ::did_post() ? $post->{news} : 1,
         label => $class->ml('widget.createaccount.field.news', { sitename => $LJ::SITENAMESHORT }),
     );
-    $ret .= "</td></tr>\n";
+    $ret .= "</span></div>\n";
 
     # TOS
-    $ret .= "<tr valign='top'><td class='$label_tos'>&nbsp;</td>\n<td>";
+    $ret .= "<div class='field-container' id='relative-container'>\n<span class='ticky-container'>";
     $ret .= $class->html_check(
         name => 'tos',
         id => 'create_tos',
@@ -249,39 +245,39 @@ sub render_body {
         aopts2 => "href='$LJ::SITEROOT/legal/privacy' target='_new'",
     } );
     $ret .= "</label>";
-    $ret .= "</td></tr>\n";
+    $ret .= "</span></div>\n";
 
     if ( $LJ::USE_ACCT_CODES ) {
         if ( my $pc = DW::InviteCodes::Promo->load( code => $code ) ) {
             if ( $pc->paid_class ) {
-                $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+                $ret .= "<div class='news-container'>\n";
                 $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $pc->paid_class_name . "</strong>", nummonths => $pc->paid_months } );
-                $ret .= "</td></tr>";
+                $ret .= "</span></div>";
             } 
         } else {
             my $item = DW::InviteCodes->paid_status( code => $code );
             if ( $item ) {
-                $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+                $ret .= "<div class='field-container'>\n<span class=news-container>";
                 if ( $item->permanent ) {
                     $ret .= $class->ml( 'widget.createaccount.field.paidaccount.permanent', { type => "<strong>" . $item->class_name . "</strong>" } );
                 } else {
                     $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $item->class_name . "</strong>", nummonths => $item->months } );
                 }
-                $ret .= "</td></tr>";
+                $ret .= "</div>";
             }
         }
     }
 
     ### submit button
-    $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+    $ret .= "<div class='field-container'><span class='errors-absent'>&nbsp;</span>\n<span>";
     $ret .= $class->html_submit( 
         submit => $class->ml('widget.createaccount.btn'), 
         { class => "create-button",
           raw => 'tabindex=1', 
         },
     ) . "\n";
-    $ret .= "</td></tr>\n";
-    $ret .= "</table>\n";
+    $ret .= "</span></div>\n";
+    $ret .= "</div> <!-- create-form -->\n";
     $ret .= "</div> <!-- relative-container -->\n";
 
     $ret .= $class->html_hidden( from => $from ) if $from;
