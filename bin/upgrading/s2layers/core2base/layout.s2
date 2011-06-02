@@ -14,6 +14,8 @@ propgroup presentation {
     property use tags_page_type;
     property use sidebar_width;
     property use sidebar_width_doubled;
+    property use margins_size;
+    property use margins_unit;
     property use userpics_style_group;
     property use userpics_position;
     property use entry_metadata_position;
@@ -295,6 +297,11 @@ body {
     padding: 0;
     $page_background
     $page_colors
+}
+
+html body {
+    margin-left: $*margins_size$*margins_unit;
+    margin-right: $*margins_size$*margins_unit;
 }
 
 a { $page_link_colors }
