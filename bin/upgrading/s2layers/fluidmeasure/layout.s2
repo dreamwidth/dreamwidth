@@ -10,6 +10,20 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set userpics_position = "right";
 set all_commentsubjects = true;
 
+propgroup presentation_child {
+    property string margins_size {
+        des = "Size of left and right margins";
+        size = 5;
+        noui = 1;
+    }
+
+property string margins_unit {
+        des = "Unit for margins size";
+        values = "em|em|%|%|px|px";
+        noui = 1;
+    }
+}
+
 propgroup colors_child {
 
     property use color_page_details_text;
