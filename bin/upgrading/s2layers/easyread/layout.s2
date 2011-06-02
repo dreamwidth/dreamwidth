@@ -494,13 +494,6 @@ ul.userlite-interaction-links.icon-links li {
     display: inline;
 }
 
-.module-photo.module img {
-    border: 0;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    float: left;
-}
-
 .module-section-one {
     clear: left;
 }

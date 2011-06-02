@@ -334,8 +334,7 @@ div.module-navlinks ul.module-list li { display: inline; margin: 0 1em 0 0; list
 #secondary .module-content { text-align: left; $module_font }
 #secondary .module-content ul {  list-style: outside; margin-left: 1em;  padding-left: 0; }
 #secondary .module-content li { margin: .5em 0; }
-.module-photo .module-content { text-align: center; }
-.module-user-links .module-content { text-align: center; }
+
 ul.userlite-interaction-links.icon-links { list-style: none; margin-left: 0; padding-left: 0; }
 ul.userlite-interaction-links.icon-links li { display: inline; padding: 0 .20em; }
 .module-calendar td a { display: block; padding: 2px; }

@@ -634,14 +634,6 @@ table.month td p {
     margin: .5em 0;
 }
 
-.module-photo .module-content {
-    text-align: center;
-}
-
-.module-user-links .module-content {
-    text-align: center;
-}
-
 ul.userlite-interaction-links.icon-links {
     list-style: none;
     margin-left: 0;

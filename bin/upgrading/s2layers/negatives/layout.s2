@@ -602,9 +602,7 @@ function Page::print_default_stylesheet()
     .module-section-one .module-navlinks {
         clear: both;
     }
-    .module-photo {
-        text-align: center;
-    }
+
     .module ul {
         list-style-position: inside;
     }
