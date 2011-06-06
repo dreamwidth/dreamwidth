@@ -157,6 +157,66 @@ function Page::print_theme_stylesheet () {
 }
 
 
+#NEWLAYER: colorside/icedcucumber
+layerinfo type = "theme";
+layerinfo name = "Iced Cucumber";
+layerinfo redist_uniq = "colorside/icedcucumber";
+layerinfo author_name = "bindingthreads";
+
+set theme_authors = [ { "name" => "bindingthreads", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e7f3cb";
+set color_page_border = "#e7f3cb";
+set color_page_details_text = "#525748";
+set color_page_link = "#699482";
+set color_page_link_active = "#699482";
+set color_page_link_hover = "#676767";
+set color_page_link_visited = "#699482";
+set color_page_text = "#525748";
+set color_page_title = "#525748";
+set color_header_background = "#e7f3cb";
+set color_footer_background = "#e7f3cb";
+set color_footer_link = "#699482";
+set color_footer_link_active = "#699482";
+set color_footer_link_hover = "#676767";
+set color_footer_link_visited = "#699482";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e7f3cb";
+set color_entry_border = "#e7f3cb";
+set color_entry_interaction_links = "#699482";
+set color_entry_link = "#699482";
+set color_entry_link_active = "#699482";
+set color_entry_link_hover = "#676767";
+set color_entry_link_visited = "#699482";
+set color_entry_text = "#0e0e0e";
+set color_entry_title = "#525748";
+set color_entry_title_background = "#d8ebae";
+set color_comment_title = "#525748";
+set color_comment_title_background = "#d8ebae";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e7f3cb";
+set color_module_border = "#e7f3cb";
+set color_module_link = "#699482";
+set color_module_link_active = "#699482";
+set color_module_link_hover = "#676767";
+set color_module_link_visited = "#699482";
+set color_module_text = "#525748";
+set color_module_title = "#525748";
+set color_module_title_background = "#e7f3cb";
+
+
 #NEWLAYER: colorside/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light on Dark";
