@@ -175,21 +175,25 @@ sub EntryPage
             }
 
             my $comment_userpic;
-            my $comment_userpic_style = S2::get_property_value( $opts->{ctx}, 'comment_userpic_style' ) || "";
-            if ( defined $com->{picid} && ( my $pic = $userpic{$com->{picid}} ) )  {
-                my $width = $pic->{width};
-                my $height = $pic->{height};
-                
-                if ( $comment_userpic_style eq 'small' ) {
-                    $width = $width * 3 / 4;
-                    $height = $height * 3 / 4;
-                } elsif ( $comment_userpic_style eq 'smaller' ) {
-                    $width = $width / 2;
-                    $height = $height / 2;
-                }
 
-                $comment_userpic = Image_userpic( $com->{upost}, $com->{picid}, $com->{pickw}, 
-                                                  $width, $height );
+            my $userpic_position = S2::get_property_value( $opts->{ctx}, 'userpics_position' );
+            my $comment_userpic_style = S2::get_property_value( $opts->{ctx}, 'comment_userpic_style' ) || "";
+            unless ( $userpic_position eq "none" ) {
+                if ( defined $com->{picid} && ( my $pic = $userpic{$com->{picid}} ) )  {
+                    my $width = $pic->{width};
+                    my $height = $pic->{height};
+                
+                    if ( $comment_userpic_style eq 'small' ) {
+                        $width = $width * 3 / 4;
+                        $height = $height * 3 / 4;
+                    } elsif ( $comment_userpic_style eq 'smaller' ) {
+                        $width = $width / 2;
+                        $height = $height / 2;
+                    }
+
+                    $comment_userpic = Image_userpic( $com->{upost}, $com->{picid}, $com->{pickw},
+                                                    $width, $height );
+                }
             }
 
             my $reply_url = LJ::Talk::talkargs($permalink, "replyto=$dtalkid", $style_arg);
@@ -501,11 +505,16 @@ sub EntryPage_entry
     }
 
     my $style_args = LJ::viewing_style_args( %$get );
+
+    my $userpic_position = S2::get_property_value( $opts->{ctx}, 'userpics_position' );
     
     # load the userpic; include the keyword selected by the user
     # as a backup for the alttext
-    my ( $pic, $pickw ) = $entry->userpic;
-    my $userpic = Image_userpic($pu, $pic ? $pic->picid : 0, $pickw);
+    my $userpic;
+    unless ( $userpic_position eq "none" ) {
+        my ( $pic, $pickw ) = $entry->userpic;
+        $userpic = Image_userpic( $pu, $pic ? $pic->picid : 0, $pickw );
+    }
 
     my $comments = CommentInfo( $entry->comment_info(
         u => $u, remote => $remote, style_args => $style_args, viewall => $viewall

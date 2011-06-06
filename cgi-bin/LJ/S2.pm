@@ -2042,16 +2042,21 @@ sub Entry_from_entryobj
 
     # loading S2 Userpic
     my $userpic;
-    my ( $pic, $kw ) = $entry_obj->userpic;
+    my $userpic_position = S2::get_property_value( $opts->{ctx}, 'userpics_position' );
+    my $userpic_style;
 
-    # if the post was made in a community, use either the userpic it was posted with or the community pic depending on the style setting
-    if ( $posterid == $journalid || !S2::get_property_value($opts->{ctx}, 'use_shared_pic') ) {
-        $userpic = Image_userpic( $poster, $pic->picid, $kw ) if $pic;
-    } else {
-        $userpic = Image_userpic( $journal, $journal->userpic->picid ) if $journal->userpic;
+    unless ( $userpic_position eq "none" ) {
+        # if the post was made in a community, use either the userpic it was posted with or the community pic depending on the style setting
+        if ( $posterid == $journalid || !S2::get_property_value($opts->{ctx}, 'use_shared_pic') ) {
+            my ( $pic, $kw ) = $entry_obj->userpic;
+            $userpic = Image_userpic( $poster, $pic->picid, $kw ) if $pic;
+        } else {
+            $userpic = Image_userpic( $journal, $journal->userpic->picid ) if $journal->userpic;
+        }
+
+        $userpic_style = S2::get_property_value( $opts->{ctx}, 'entry_userpic_style' );
     }
 
-    my $userpic_style = S2::get_property_value( $opts->{ctx}, 'entry_userpic_style' );
 
     # override used moodtheme if necessary
     my $moodthemeid = $u->prop( 'opt_forcemoodtheme' ) eq 'Y' ?

@@ -1316,8 +1316,8 @@ property string comment_userpic_style {
 }
 
 property string userpics_position {
-   des = "Place icons on left or right of entry";
-   values = "left|Left|right|Right";
+   des = "Place of icons in entries and comments";
+   values = "none|None (don't show)|left|Left|right|Right";
    }
 
 property string entry_metadata_position {
