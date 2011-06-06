@@ -1,28 +1,25 @@
-layerinfo "type" = "layout";
-layerinfo "name" = "Fluid Measure";
-layerinfo "des" = "Inspired by the WordPress theme Ahimsa, by Ravi Sarma";
-layerinfo "redist_uniq" = "fluidmeasure/layout";
-layerinfo "author_name" = "branchandroot";
-layerinfo "lang" = "en";
+layerinfo type = "layout";
+layerinfo name = "Fluid Measure";
+layerinfo des = "Inspired by the WordPress theme Ahimsa, by Ravi Sarma";
+layerinfo redist_uniq = "fluidmeasure/layout";
+layerinfo author_name = "branchandroot";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
 
 set layout_type = "two-columns-right";
-set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+property string margins_size { noui = 1; }
+property string margins_unit { noui = 1; }
 set userpics_position = "right";
 set all_commentsubjects = true;
 
-propgroup presentation_child {
-    property string margins_size {
-        des = "Size of left and right margins";
-        size = 5;
-        noui = 1;
-    }
-
-property string margins_unit {
-        des = "Unit for margins size";
-        values = "em|em|%|%|px|px";
-        noui = 1;
-    }
-}
+##===============================
+## Colors
+##===============================
 
 propgroup colors_child {
 
