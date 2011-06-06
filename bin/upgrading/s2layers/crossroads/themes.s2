@@ -922,6 +922,51 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: crossroads/owlish
+layerinfo type = "theme";
+layerinfo name = "Owlish";
+layerinfo redist_uniq = "crossroads/owlish";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#5e460e";
+set color_page_link = "#ecd0dc";
+set color_page_link_hover = "#a9d4a3";
+set color_page_link_visited = "#e7c07d";
+set color_page_text = "#fbfae8";
+set color_page_title = "#fbfae8";
+set color_header_background = "#7a5c14";
+set color_footer_background = "#7a5c14";
+set color_footer_link = "#fbfae8";
+set color_footer_link_hover = "#a9d4a3";
+set color_footer_link_visited = "#e7c07d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#7a5c14";
+set color_entry_link = "#ecd0dc";
+set color_entry_link_hover = "#a9d4a3";
+set color_entry_link_visited = "#e7c07d";
+set color_entry_text = "#fbfae8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#73490e";
+set color_module_link = "#ecd0dc";
+set color_module_link_hover = "#a9d4a3";
+set color_module_link_visited = "#e7c07d";
+set color_module_text = "#fbfae8";
+
+
 #NEWLAYER: crossroads/peacefuldreams
 layerinfo type = "theme";
 layerinfo name = "Peaceful Dreams";
@@ -1317,6 +1362,48 @@ set color_module_link_active = "#000";
 set color_module_link_visited = "#EFF3F1";
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+
+
+#NEWLAYER: crossroads/tweedreams
+layerinfo type = "theme";
+layerinfo name = "Twee Dreams";
+layerinfo redist_uniq = "crossroads/tweedreams";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#83af9b";
+set color_page_link = "#c8c8a9";
+set color_page_link_visited = "#fff";
+set color_page_text = "#55443d";
+set color_page_title = "#55443d";
+set color_header_background = "#fc9d9a";
+set color_footer_background = "#fc9d9a";
+set color_footer_link = "#fe4365";
+set color_footer_link_visited = "#fedbe4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f9cdad";
+set color_entry_link = "#cb3655";
+set color_entry_link_visited = "#5c7c6d";
+set color_entry_text = "#55443d";
+set color_entry_title = "#5c7c6d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#c8c8a9";
+set color_module_link = "#cb3655";
+set color_module_link_visited = "#5c7c6d";
+set color_module_text = "#55443d";
 
 
 #NEWLAYER: crossroads/ultraviolet

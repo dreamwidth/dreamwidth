@@ -881,6 +881,58 @@ set color_module_text = "#d3aab1";
 set color_module_title = "#edb818";
 
 
+#NEWLAYER: practicality/tealdeer
+layerinfo type = "theme";
+layerinfo name = "Teal Deer";
+layerinfo redist_uniq = "practicality/tealdeer";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1693a5";
+set color_page_border = "#003f4c";
+set color_page_link = "#003f4c";
+set color_page_link_hover = "#53ebff";
+set color_page_link_visited = "#003f4c";
+set color_page_text = "#003f4c";
+set color_page_title = "#68b3ac";
+set color_header_background = "#003f4c";
+set color_footer_background = "#003f4c";
+set color_footer_link = "#53ebff";
+set color_footer_link_hover = "#5a9b93";
+set color_footer_link_visited = "#53ebff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#376970";
+set color_entry_border = "#003f4c";
+set color_entry_link = "#003f4c";
+set color_entry_link_hover = "#53ebff";
+set color_entry_link_visited = "#003f4c";
+set color_entry_text = "#68b3ac";
+set color_entry_title = "#5a9b93";
+set color_entry_title_background = "#003f4c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#376970";
+set color_module_border = "#003f4c";
+set color_module_link = "#003f4c";
+set color_module_link_hover = "#53ebff";
+set color_module_link_visited = "#53ebff";
+set color_module_text = "#68b3ac";
+set color_module_title = "#68b3ac";
+set color_module_title_background = "#003f4c";
+
+
 #NEWLAYER: practicality/thickandsweet
 layerinfo type = "theme";
 layerinfo name = "Thick & Sweet";

@@ -437,6 +437,42 @@ set color_module_title = "#093";
 set color_module_title_background = "#f3f3f3";
 
 
+#NEWLAYER: compartmentalize/heartofdarkness
+layerinfo type = "theme";
+layerinfo name = "Heart of Darkness";
+layerinfo redist_uniq = "compartmentalize/heartofdarkness";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#021301";
+set color_page_link = "#18a418";
+set color_page_link_visited = "#18a418";
+set color_page_text = "#44cc44";
+set color_page_title = "#44cc44";
+set color_header_background = "#111";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#111";
+set color_entry_border = "#333";
+set color_entry_text = "#44cc44";
+set color_entry_title = "#44cc44";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#333";
+set color_module_title = "#44cc44";
+
+
 #NEWLAYER: compartmentalize/iridescentwings
 layerinfo type = "theme";
 layerinfo name = "Iridescent Wings";
