@@ -160,13 +160,13 @@ blockquote {
     }
 
 ul {
-    list-style: square;
+    list-style-type: square;
     list-style-position: inside;
     margin: .5em 1em;
     }
 
-ol li {
-    list-style: decimal;
+ol {
+    list-style-type: decimal;
     list-style-position: inside;
     margin: .5em 1.5em;
     }
