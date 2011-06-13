@@ -327,7 +327,7 @@ h2#pagetitle {
     text-transform: lowercase;
     }
 
-/* Posts & Sidebar Containers
+/* Page Containers
 ***************************************************************************/
 #content {
     margin: 0 4em;
@@ -347,12 +347,33 @@ h2#pagetitle {
         margin-top: 6.6em;
         }
 
-#secondary > .inner:first-child {
+#secondary,
+.three-columns #tertiary {
+    margin-top: 7em;
+    }
+
+    .one-column #secondary {
+        margin-top: 0;
+        }
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
     padding: 0;
     }
 
-    .one-column #secondary > .inner:first-child {
+    .one-column #secondary > .inner:first-child,
+    .two-columns #tertiary > .inner:first-child {
         padding-top: 1em;
+        }
+
+    .three-columns-left #secondary > .inner:first-child,
+    .three-columns-right #secondary > .inner:first-child {
+        padding-right: .5em;
+        }
+
+    .three-columns-left #tertiary > .inner:first-child,
+    .three-columns-right #tertiary > .inner:first-child {
+        padding-left: .5em;
         }
 
 /* Navigation
@@ -995,34 +1016,16 @@ $userpic_css
             $entry_footer_link_hover_colors
             }
 
-/* Sidebars
-***************************************************************************/
-
-#secondary,
-.three-columns-sides #tertiary,
-.three-columns-left #tertiary,
-.three-columns-right #tertiary {
-    margin-top: 7em;
-    }
-
-    .one-column #secondary {
-        margin-top: 0;
-        }
-
-#secondary .module,
-#tertiary .module {
-    margin-bottom: 4em;
-    }
-
-    .one-column #tertiary .module{
-        margin-bottom: .5em;
-        }
-
 /* Modules
 ***************************************************************************/
 
 .module {
     padding: 0 .5em;
+    }
+
+#secondary .module,
+#tertiary .module {
+    margin-bottom: 4em;
     }
 
 .module li {
