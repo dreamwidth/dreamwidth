@@ -446,9 +446,9 @@ q { font-style: italic; }
     margin-$sidebar_position: auto;
 }
 
-#footer a, #footer a:link, #footer a:active { $*color_footer_link; }
-#footer a:visited { $*color_footer_link_visited; }
-#footer a:hover { $*color_footer_link_hover; }
+#footer a, #footer a:link, #footer a:active { color: $*color_footer_link; }
+#footer a:visited { color: $*color_footer_link_visited; }
+#footer a:hover { color: $*color_footer_link_hover; }
 
 #footer .inner { padding: 10px; }
 
@@ -620,6 +620,7 @@ li.active {
 
 .month {
     background-color: $*color_entry_background;
+    color: $*color_entry_text;
     padding: 20px;
     margin: 0;
     }
@@ -632,6 +633,18 @@ li.active {
     padding: 0;
     margin: 0;
     text-align: right;
+    }
+
+.month a {
+    color: $*color_entry_link;
+    }
+
+.month a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+.month a:hover {
+    color: $*color_entry_link_hover;
     }
 
 .navigation ul { display: inline; }
@@ -675,6 +688,7 @@ td.day {
 
 .page-tags .tags-container {
     background-color: $*color_entry_background;
+    color: $*color_entry_text;
     $entry_font
     padding: 10px;
     margin: 0 0 10px 0;
@@ -701,6 +715,19 @@ td.day {
     letter-spacing: 0;
     list-style: none;
     }
+
+.page-tags .tags-container a {
+    color: $*color_entry_link;
+    }
+
+.page-tags .tags-container a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+.page-tags .tags-container a:hover {
+    color: $*color_entry_link_hover;
+    }
+
 .page-tags .tags_cloud { text-align: center; }
 
 /*--- comments ---*/
@@ -752,16 +779,34 @@ div.comment div.userpic img {
 
 .comment {
     background: $*color_entry_background;
+    color: $*color_entry_text;
     padding: 20px;
     margin: 0;
     }
+
 .comment-wrapper { margin: 20px 0; padding: 0; }
 .comment-content { margin: 10px 0; }
 
 .bottomcomment, .comments-message {
     background: $*color_entry_background;
+    color: $*color_entry_text;
     padding: 20px;
     margin: 0;
+    }
+
+.comment a,
+.bottomcomment a {
+    color: $*color_entry_link;
+    }
+
+.comment a:visited,
+.bottomcomment a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+.comment a:hover,
+.bottomcomment a:hover {
+    color: $*color_entry_link_hover;
     }
 
 .comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
@@ -780,9 +825,26 @@ div.comment div.userpic img {
 
 table.talkform {
     background: $*color_entry_background;
+    color: $*color_entry_text;
     $entry_font
     padding: 10px;
     margin: 0 0 10px 0;
+    }
+
+table.talkform b {
+    color: $*color_entry_text;
+    }
+
+table.talkform a {
+    color: $*color_entry_link;
+    }
+
+table.talkform a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+table.talkform a:hover {
+    color: $*color_entry_link_hover;
     }
 
 /*-- modules --*/

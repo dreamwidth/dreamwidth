@@ -389,6 +389,45 @@ set image_background_page_repeat = "repeat";
 set image_background_page_url = "brittle/chinesepink.png";
 
 
+#NEWLAYER: brittle/cosmos
+layerinfo type = "theme";
+layerinfo name = "Cosmos";
+layerinfo redist_uniq = "brittle/cosmos";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#17013f";
+set color_page_link = "#ffcaae";
+set color_page_link_visited = "#b2889c";
+set color_page_text = "#deccd5";
+set color_footer_background = "#663974";
+set color_footer_link = "#ffcaae";
+set color_footer_link_visited = "#b2889c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#400f68";
+set color_entry_link = "#ffcaae";
+set color_entry_link_visited = "#b2889c";
+set color_entry_text = "#deccd5";
+set color_entry_title = "#ffcaae";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#663974";
+set color_navigation_module_link = "#ffcaae";
+set color_navigation_module_link_visited = "#b2889c";
+
+
 #NEWLAYER: brittle/drab
 layerinfo type = "theme";
 layerinfo name = "Drab";
@@ -614,6 +653,137 @@ set color_navigation_module_background = "#e1e1e1";
 set color_navigation_module_link = "#ac000c";
 set color_navigation_module_link_hover = "#1f1f1f";
 set color_navigation_module_link_visited = "#d67279";
+
+
+#NEWLAYER: brittle/iceprincess
+layerinfo type = "theme";
+layerinfo name = "Ice Princess";
+layerinfo redist_uniq = "brittle/iceprincess";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a2aaaf";
+set color_page_link = "#bc707c";
+set color_page_link_visited = "#f3f3f3";
+set color_page_text = "#1e1e1e";
+set color_footer_background = "#bc707c";
+set color_footer_link = "#fff";
+set color_footer_link_visited = "#f3f3f3";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#c3b6ba";
+set color_entry_link = "#fff";
+set color_entry_link_visited = "#bc707c";
+set color_entry_text = "#1e1e1e";
+set color_entry_title = "#bc707c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#bc707c";
+set color_navigation_module_link = "#fff";
+set color_navigation_module_link_visited = "#f3f3f3";
+
+
+#NEWLAYER: brittle/infebruary
+layerinfo type = "theme";
+layerinfo name = "In February";
+layerinfo redist_uniq = "brittle/infebruary";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#9babb7";
+set color_page_link = "#567A1F";
+set color_page_link_hover = "#266096";
+set color_page_link_visited = "#D94A37";
+set color_page_text = "#2f2513";
+set color_footer_background = "#bcd0df";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#bcd0df";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#bcd0df";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_date_time = "News Gothic MT";
+set font_date_time_size = ".9";
+set font_entry_text = "News Gothic MT";
+set font_entry_text_size = "1";
+set font_entry_title = "News Gothic MT";
+set font_entry_title_size = ".9";
+set font_module_heading = "News Gothic MT";
+set font_navigation_module_text = "News Gothic MT";
+set font_navigation_module_text_size = ".9";
+set font_other_module_text = "News Gothic MT";
+set font_other_module_text_size = ".9";
+
+##===============================
+## Images
+##===============================
+
+function Page::print_theme_stylesheet() {
+    """
+    blockquote {
+        color: inherit;
+        border: none;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .9em;
+        margin-bottom: .9em;
+        padding: 1em;
+        }
+
+    a:hover {
+        text-decoration: underline;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    div.entry, div.entry .inner,
+    div.comment, div.comment .inner {
+        line-height: 1.05em;
+        }
+
+    span.tag-text,
+    div.tag ul li,
+    div.metadata ul li {
+        font-size: .9em;
+        }
+
+    div.tag ul {
+        padding: 0;
+        }
+    """;
+}
 
 
 #NEWLAYER: brittle/mountaindevil
@@ -1001,3 +1171,134 @@ set color_navigation_module_background = "#557254";
 set color_navigation_module_link = "#B0C9AF";
 set color_navigation_module_link_hover = "#83AA81";
 set color_navigation_module_link_visited = "#B0C9AF";
+
+
+#NEWLAYER: brittle/sundaydrive
+layerinfo type = "theme";
+layerinfo name = "Sunday Drive";
+layerinfo redist_uniq = "brittle/sundaydrive";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#5f2334";
+set color_page_link = "#b3bb8d";
+set color_page_link_hover = "#668350";
+set color_page_link_visited = "A1799F";
+set color_page_text = "#f5ece5";
+set color_footer_background = "#4b1b2a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#4b1b2a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#4b1b2a";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_date_time = "News Gothic MT";
+set font_date_time_size = ".9";
+set font_entry_text = "News Gothic MT";
+set font_entry_text_size = "1";
+set font_entry_title = "News Gothic MT";
+set font_entry_title_size = ".9";
+set font_module_heading = "News Gothic MT";
+set font_navigation_module_text = "News Gothic MT";
+set font_navigation_module_text_size = ".9";
+set font_other_module_text = "News Gothic MT";
+set font_other_module_text_size = ".9";
+
+##===============================
+## Images
+##===============================
+
+function Page::print_theme_stylesheet() {
+    """
+    blockquote {
+        color: inherit;
+        border: none;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .9em;
+        margin-bottom: .9em;
+        padding: 1em;
+        }
+
+    a:hover {
+        text-decoration: underline;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    div.entry, div.entry .inner,
+    div.comment, div.comment .inner {
+        line-height: 1.05em;
+        }
+
+    span.tag-text,
+    div.tag ul li,
+    div.metadata ul li {
+        font-size: .9em;
+        }
+
+    div.tag ul {
+        padding: 0;
+        }
+    """;
+}
+
+
+#NEWLAYER: brittle/tweedreams
+layerinfo type = "theme";
+layerinfo name = "Twee Dreams";
+layerinfo redist_uniq = "brittle/tweedreams";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#83af9b";
+set color_page_link = "#c8c8a9";
+set color_page_link_visited = "#fff";
+set color_page_text = "#55443d";
+set color_footer_background = "#f9cdad";
+set color_footer_link = "#cb3655";
+set color_footer_link_visited = "#5c7c6d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f9cdad";
+set color_entry_link = "#cb3655";
+set color_entry_link_visited = "#5c7c6d";
+set color_entry_text = "#55443d";
+set color_entry_title = "#5c7c6d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#fc9d9a";
+set color_navigation_module_link = "#fe4365";
+set color_navigation_module_link_visited = "#fedbe4";
