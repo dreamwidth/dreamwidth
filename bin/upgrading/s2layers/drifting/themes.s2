@@ -227,8 +227,8 @@ set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 set color_page_background = "#021301";
 set color_page_link = "#18a418";
 set color_page_link_visited = "#18a418";
-set color_page_text = "#44cc44";
-set color_page_title = "#44cc44";
+set color_page_text = "#4c4";
+set color_page_title = "#4c4";
 set color_header_background = "#111";
 
 ##===============================
@@ -237,15 +237,15 @@ set color_header_background = "#111";
 
 set color_entry_background = "#111";
 set color_entry_border = "#333";
-set color_entry_text = "#44cc44";
-set color_entry_title = "#44cc44";
+set color_entry_text = "#4c4";
+set color_entry_title = "#4c4";
 
 ##===============================
 ## Module Colors
 ##===============================
 
 set color_module_border = "#333";
-set color_module_title = "#44cc44";
+set color_module_title = "#4c4";
 
 
 #NEWLAYER: drifting/idolatry

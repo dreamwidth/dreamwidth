@@ -184,8 +184,8 @@ set color_page_link = "#18a418";
 set color_page_link_active = "";
 set color_page_link_hover = "#1888a4";
 set color_page_link_visited = "#18a418";
-set color_page_text = "#44cc44";
-set color_page_title = "#44cc44";
+set color_page_text = "#4c4";
+set color_page_title = "#4c4";
 set color_header_background = "#111";
 set color_header_footer_border = "#18a418";
 
@@ -195,8 +195,8 @@ set color_header_footer_border = "#18a418";
 
 set color_entry_background = "#111";
 set color_entry_border = "#18a418";
-set color_entry_text = "#44cc44";
-set color_entry_title = "#44cc44";
+set color_entry_text = "#4c4";
+set color_entry_title = "#4c4";
 
 ##===============================
 ## Module Colors
@@ -204,8 +204,8 @@ set color_entry_title = "#44cc44";
 
 set color_module_background = "#111";
 set color_module_border = "#333";
-set color_module_text = "#44cc44";
-set color_module_title = "#44cc44";
+set color_module_text = "#4c4";
+set color_module_title = "#4c4";
 
 
 #NEWLAYER: blanket/islandsandcities
