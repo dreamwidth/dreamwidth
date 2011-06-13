@@ -435,6 +435,57 @@ set color_module_border = "#e4a18f";
 set color_module_title = "#c94947";
 
 
+#NEWLAYER: practicality/fivehundredwishes
+layerinfo type = "theme";
+layerinfo name = "Five Hundred Wishes";
+layerinfo redist_uniq = "practicality/fivehundredwishes";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fcedca";
+set color_page_link = "#13877e";
+set color_page_link_hover = "#3eb269";
+set color_page_link_visited = "#814456";
+set color_page_text = "#1e1e1e";
+set color_page_title = "#1e1e1e";
+set color_header_background = "#FD99A5";
+set color_footer_background = "#fcf6e8";
+set color_footer_link = "#13877e";
+set color_footer_link_hover = "#3eb269";
+set color_footer_link_visited = "#814456";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fcf6e8";
+set color_entry_border = "#fd4e5b";
+set color_entry_link = "#13877e";
+set color_entry_link_active = "";
+set color_entry_link_hover = "#3eb269";
+set color_entry_link_visited = "#814456";
+set color_entry_text = "#1e1e1e";
+set color_entry_title = "#1e1e1e";
+set color_comment_title = "#1e1e1e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fcf6e8";
+set color_module_border = "#FD808C";
+set color_module_link = "#13877e";
+set color_module_link_hover = "#3eb269";
+set color_module_link_visited = "#814456";
+set color_module_text = "#1e1e1e";
+set color_module_title = "#1e1e1e";
+
+
 #NEWLAYER: practicality/forestation
 layerinfo type = "theme";
 layerinfo name = "Forestation";
@@ -1391,3 +1442,57 @@ set color_module_text = "#190604";
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
 set image_background_page_url = "practicality/wildwest.png";
+
+
+#NEWLAYER: practicality/wintermagic
+layerinfo type = "theme";
+layerinfo name = "Winter Magic";
+layerinfo redist_uniq = "practicality/wintermagic";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b0b7a5";
+set color_page_link = "#7a4d35";
+set color_page_link_active = "#7a4d35";
+set color_page_link_hover = "#84684b";
+set color_page_link_visited = "#46312C";
+set color_page_text = "#0c0c0c";
+set color_page_title = "#0c0c0c";
+set color_header_background = "#bac1ae";
+set color_footer_background = "#cdd5c0";
+set color_footer_link = "#7a4d35";
+set color_footer_link_active = "#7a4d35";
+set color_footer_link_hover = "#84684b";
+set color_footer_link_visited = "#46312C";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#cdd5c0";
+set color_entry_border = "#aab3ab";
+set color_entry_link = "#7a4d35";
+set color_entry_link_active = "#7a4d35";
+set color_entry_link_hover = "#84684b";
+set color_entry_link_visited = "#46312C";
+set color_entry_text = "#0c0c0c";
+set color_entry_title = "#0c0c0c";
+set color_comment_title = "#0c0c0c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#cdd5c0";
+set color_module_border = "#aab3ab";
+set color_module_link = "#7a4d35";
+set color_module_link_active = "#7a4d35";
+set color_module_link_hover = "#84684b";
+set color_module_link_visited = "#46312C";
+set color_module_text = "#0c0c0c";
+set color_module_title = "#0c0c0c";
