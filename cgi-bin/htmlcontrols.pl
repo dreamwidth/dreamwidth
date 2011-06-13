@@ -268,14 +268,17 @@ sub html_check
 # given a string and an id, return the string
 # in a label, respecting HTML
 sub labelfy {
-    my ($id, $text) = @_;
+    my ($id, $text, $class) = @_;
     $id = '' unless defined $id;
     $text = '' unless defined $text;
+
+    $class = LJ::ehtml( $class || "" );
+    $class = qq{class="$class"} if $class;
 
     $text =~ s!
         ^([^<]+)
         !
-        <label for="$id">
+        <label for="$id" $class>
             $1
         </label>
         !x;

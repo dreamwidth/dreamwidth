@@ -74,6 +74,7 @@ my $view_engine = Template->new({
         date => 'Template::Plugin::Date',
         url => 'Template::Plugin::URL',
         dw => 'DW::Template::Plugin',
+        form => 'DW::Template::Plugin::FormHTML',
     },
     PRE_PROCESS => '_init.tt',
 });
@@ -87,7 +88,7 @@ my $scheme_engine = Template->new({
     STAT_TTL => $LJ::IS_DEV_SERVER ? 1 : 3600,
     PLUGINS => {
         dw => 'DW::Template::Plugin',
-        dw_scheme => 'DW::Template::Plugin::SiteScheme'
+        dw_scheme => 'DW::Template::Plugin::SiteScheme',
     },
 });
 

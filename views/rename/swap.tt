@@ -22,7 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <li>[% error %] </li>
         [% END %]
     </ul>
-    </div>>
+    </div>
 [% END %]
 
 <p>[% '.intro' | ml %]</p>
@@ -31,11 +31,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [% dw.form_auth %]
         <div class='formfield'>
             <label for='authas'>[% '.form.journal' | ml %]</label>
-            [% form.authas %]
+            [% authas %]
         </div>
         <div class='formfield'>
-            <label for='swapjournal'>[% '.form.swapjournal' | ml %]</label>
-            <input type='text' name='swapjournal' id='swapjournal' />
+            [%- swapjournal_label = '.form.swapjournal' | ml;
+            form.textbox( label = swapjournal_label
+                name = "swapjournal"
+                id = "swapjournal"
+            ) -%]
         </div>
 
         <input type='submit' value='Swap' />

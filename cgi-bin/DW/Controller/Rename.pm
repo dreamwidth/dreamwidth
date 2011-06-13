@@ -106,13 +106,13 @@ sub rename_handler {
                 : ();
 
             # initialize the form based on previous posts (in case of error) or with some default values
-            $vars->{form} = {
+            $vars->{formdata} = {
                 authas      => $authas,
                 journaltype => $get_args->{type},
                 journalurl  => $get_args->{type} eq "P" ? $remote->journal_base : LJ::journal_base( "communityname", "community" ),
                 pageurl     => "/rename/" . $token->token,
                 token       => $token->token,
-                to          => $post_args->{touser} || $get_args->{to} || "",
+                touser      => $post_args->{touser} || $get_args->{to} || "",
                 redirect    => $post_args->{redirect} || "disconnect",
                 rel_types   => \@rel_types,
                 rel_options => %$post_args ? { map { $_ => 1 } $post_args->get( "rel_options" ) }
@@ -207,9 +207,8 @@ sub swap_handler {
             authas => $post_args->{authas},
         } );
 
-    $vars->{form} = {
-        authas => $authas,
-    };
+    $vars->{authas} = $authas;
+    $vars->{formdata} = $post_args;
 
     return DW::Template->render_template( 'rename/swap.tt', $vars );
 }
@@ -314,7 +313,7 @@ sub rename_admin_edit_handler {
 
     my $vars = {
         %$rv,
-        form => $form,
+        formdata => $form,
         token => $token,
     };
 
