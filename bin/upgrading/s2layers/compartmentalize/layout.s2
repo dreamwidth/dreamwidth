@@ -127,20 +127,19 @@ body {
     padding-right: 1em;
     }
 
-#secondary > .inner:first-child {
-    padding: 0;
-    }
-
+#secondary > .inner:first-child,
 #tertiary > .inner:first-child {
     padding: 0;
     }
 
-.three-columns-left #tertiary > .inner:first-child {
-    padding-left: 1em;
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child {
+    padding-right: .5em;
     }
 
+.three-columns-left #tertiary > .inner:first-child,
 .three-columns-right #tertiary > .inner:first-child {
-    padding-left: 1em;
+    padding-left: .5em;
     }
 
 a {
