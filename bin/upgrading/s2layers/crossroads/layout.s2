@@ -150,19 +150,22 @@ else {
     var string comment_noicon = $scaling{$*comment_userpic_style}{"noicon_img"};
     var string comment_noicon_size = $scaling{$*comment_userpic_style}{"noicon_size"};
 
-    var string userpic_css = """
-        .entry .contents .userpic { background: url("$entry_noicon") center no-repeat; }
-        .entry .contents .userpic, .entry .contents .userpic a {
-            width: $entry_noicon_size;
-            height: $entry_noicon_size;
-        }
+    var string userpic_css = "";
 
-        .comment .contents .userpic { background: url("$comment_noicon") center no-repeat; }
-        .comment .contents .userpic, .comment .contents .userpic a {
-            width: $comment_noicon_size;
-            height: $comment_noicon_size;
-        }
-    """;
+    if ($*userpics_position != "none") {
+        $userpic_css = """
+            .entry .contents .userpic { background: url("$entry_noicon") center no-repeat; }
+            .entry .contents .userpic, .entry .contents .userpic a {
+                width: $entry_noicon_size;
+                height: $entry_noicon_size;
+            }
+
+            .comment .contents .userpic { background: url("$comment_noicon") center no-repeat; }
+            .comment .contents .userpic, .comment .contents .userpic a {
+                width: $comment_noicon_size;
+                height: $comment_noicon_size;
+            }
+        """;
         if ($*userpics_position == "left") {
             $userpic_css = $userpic_css + """
             .entry .contents .userpic,
@@ -189,6 +192,7 @@ else {
             .comment .poster-ip { margin-right: $comment_margin; }
             """;
         }
+    }
 
     var string navlinks_css = "";
         if ($*module_navlinks_section == "header") {

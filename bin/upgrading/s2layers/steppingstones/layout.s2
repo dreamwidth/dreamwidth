@@ -58,25 +58,29 @@ function print_stylesheet() {
     var string comment_icon_link_size = $scaling{$*comment_userpic_style}{"icon_link_size"};
 
 
-    var string userpic_css = """
-        .entry .contents .userpic { $entry_icon_background
-            width: $entry_icon_wrap_size;
-            height: $entry_icon_wrap_size;
-        }
-        .entry .contents .userpic a {
-            width: $entry_icon_link_size;
-            height: $entry_icon_link_size;
-        }
+    var string userpic_css = "";
 
-        .comment .contents .userpic { $comment_icon_background
-            width: $comment_icon_wrap_size;
-            height: $comment_icon_wrap_size;
-        }
-        .comment .contents .userpic a {
-            width: $comment_icon_link_size;
-            height: $comment_icon_link_size;
-        }
-    """;
+    if ($*userpics_position != "none") {
+
+        $userpic_css = """
+            .entry .contents .userpic { $entry_icon_background
+                width: $entry_icon_wrap_size;
+                height: $entry_icon_wrap_size;
+            }
+            .entry .contents .userpic a {
+                width: $entry_icon_link_size;
+                height: $entry_icon_link_size;
+            }
+
+            .comment .contents .userpic { $comment_icon_background
+                width: $comment_icon_wrap_size;
+                height: $comment_icon_wrap_size;
+            }
+            .comment .contents .userpic a {
+                width: $comment_icon_link_size;
+                height: $comment_icon_link_size;
+            }
+        """;
 
         if ($*userpics_position == "left") {
             $userpic_css = $userpic_css + """
@@ -96,6 +100,8 @@ function print_stylesheet() {
            .entry .header { padding-right: $entry_header_padding; }
             """;
         }
+
+    }
     """
 /* Stepping Stones */
 

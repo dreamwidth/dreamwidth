@@ -33,7 +33,7 @@ propgroup presentation {
     property use userpics_style_group;
     property string entryicons_position {
        des = "Place icons on the same side or opposite the sidebar";
-       values = "same|Same side as sidebar|opposite|Opposite the sidebar";
+       values = "none|None (don't show)|same|Same side as sidebar|opposite|Opposite the sidebar";
     }
     property use entry_metadata_position;
     property use use_custom_friend_colors;
@@ -303,6 +303,12 @@ propgroup customcss {
     property use include_default_stylesheet;
     property use linked_stylesheet;
     property use custom_css;
+}
+
+function prop_init() {
+    if ( $*entryicons_position == "none" ) {
+        $*userpics_position = "none";
+    }
 }
 
 function Page::print()

@@ -17,7 +17,11 @@ set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.opencli
 ##===============================
 
 set layout_type = "two-columns-left";
-property string userpics_position { noui = 1; }
+property string userpics_position {
+    des = "Place of icons in entries and comments";
+    values = "none|None (don't show)|default|Default";
+    }
+set userpics_position = "default";
 set entry_management_links = "text";
 set comment_management_links = "text";
 
@@ -360,10 +364,62 @@ function print_stylesheet () {
             "icon_link_size" => "50px"
         }
     };
+
     var string comment_datetime_padding = $scaling{$*comment_userpic_style}{"padding"};
     var string entry_icon_background = generate_background_css ($scaling{$*entry_userpic_style}{"noicon_img"}, "no-repeat", "center", new Color);
     var string comment_icon_background = generate_background_css ($scaling{$*comment_userpic_style}{"noicon_img"}, "no-repeat", "center", new Color);
 
+    var string userpic_css = "";
+
+    if ($*userpics_position != "none") {
+        $userpic_css = """
+        .entry .contents .userpic {
+            $entry_icon_background
+            height: $scaling{$*entry_userpic_style}{"icon_wrap_size"};
+            width: $scaling{$*entry_userpic_style}{"icon_wrap_size"};
+            }
+
+        .entry .contents .userpic a {
+            background-color: $*color_page_background;
+            display: block;
+            height: $scaling{$*entry_userpic_style}{"icon_link_size"};
+            width: $scaling{$*entry_userpic_style}{"icon_link_size"};
+            }
+
+        .entry-wrapper-odd .contents .userpic {
+            float: left;
+            margin: 0 1.5em .5em 0;
+            }
+
+        .entry-wrapper-even .contents .userpic {
+            float: right;
+            margin: 0 0 .5em 1.5em;
+            }
+
+        .comment .contents .userpic {
+            $comment_icon_background
+            height: $scaling{$*comment_userpic_style}{"icon_wrap_size"};
+            width: $scaling{$*comment_userpic_style}{"icon_wrap_size"};
+            }
+
+        .comment .contents .userpic a {
+            background-color: $*color_page_background;
+            display: block;
+            height: $scaling{$*comment_userpic_style}{"icon_link_size"};
+            width: $scaling{$*comment_userpic_style}{"icon_link_size"};
+            }
+
+        .comment-wrapper-odd .contents .userpic {
+            float: left;
+            margin: -1em .5em .5em 0;
+            }
+
+        .comment-wrapper-even .contents .userpic {
+            float: right;
+            margin: -1em 0 .5em .5em;
+            }
+        """;
+    }
 
     """
 
@@ -557,29 +613,6 @@ body {
 .entry-wrapper-even .header {
     margin-left: 210px;
     text-align: right;
-    }
-
-.entry .contents .userpic {
-    $entry_icon_background
-    height: $scaling{$*entry_userpic_style}{"icon_wrap_size"};
-    width: $scaling{$*entry_userpic_style}{"icon_wrap_size"};
-}
-
-.entry .contents .userpic a {
-    background-color: $*color_page_background;
-    display: block;
-    height: $scaling{$*entry_userpic_style}{"icon_link_size"};
-    width: $scaling{$*entry_userpic_style}{"icon_link_size"};
-    }
-
-.entry-wrapper-odd .contents .userpic {
-    float: left;
-    margin: 0 1.5em .5em 0;
-    }
-
-.entry-wrapper-even .contents .userpic {
-    float: right;
-    margin: 0 0 .5em 1.5em;
     }
 
 .entry-wrapper-odd .contents .entry-poster {
@@ -789,29 +822,6 @@ ul.entry-interaction-links {
 .comment .poster-ip {
     display: block;
     font-size: x-small;
-    }
-
-.comment .contents .userpic {
-    $comment_icon_background
-    height: $scaling{$*comment_userpic_style}{"icon_wrap_size"};
-    width: $scaling{$*comment_userpic_style}{"icon_wrap_size"};
-}
-
-.comment .contents .userpic a {
-    background-color: $*color_page_background;
-    display: block;
-    height: $scaling{$*comment_userpic_style}{"icon_link_size"};
-    width: $scaling{$*comment_userpic_style}{"icon_link_size"};
-    }
-
-.comment-wrapper-odd .contents .userpic {
-    float: left;
-    margin: -1em .5em .5em 0;
-    }
-
-.comment-wrapper-even .contents .userpic {
-    float: right;
-    margin: -1em 0 .5em .5em;
     }
 
 .comment-content {
@@ -1028,5 +1038,8 @@ $navlinks_css
 #footer a {
     color: $*color_footer_link;
     }
+
+    $userpic_css
+
     """;
 }
