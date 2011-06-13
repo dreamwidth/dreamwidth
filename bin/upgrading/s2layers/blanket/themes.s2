@@ -40,6 +40,46 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: blanket/cosmos
+layerinfo type = "theme";
+layerinfo name = "Cosmos";
+layerinfo redist_uniq = "blanket/cosmos";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#17013f";
+set color_page_border = "#663974";
+set color_page_link = "#ffcaae";
+set color_page_link_visited = "#b2889c";
+set color_page_text = "#deccd5";
+set color_page_title = "#ffcaae";
+set color_header_background = "#400f68";
+set color_header_footer_border = "#663974";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#400f68";
+set color_entry_border = "#663974";
+set color_entry_text = "#deccd5";
+set color_entry_title = "#ffcaae";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#400f68";
+set color_module_border = "#663974";
+set color_module_text = "#deccd5";
+set color_module_title = "#ffcaae";
+
+
 #NEWLAYER: blanket/forest
 layerinfo type = "theme";
 layerinfo name = "Forest";
@@ -206,6 +246,45 @@ set color_module_background = "#111";
 set color_module_border = "#333";
 set color_module_text = "#4c4";
 set color_module_title = "#4c4";
+
+
+#NEWLAYER: blanket/iceprincess
+layerinfo type = "theme";
+layerinfo name = "Ice Princess";
+layerinfo redist_uniq = "blanket/iceprincess";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a2aaaf";
+set color_page_border = "#bc707c";
+set color_page_link = "#bc707c";
+set color_page_link_visited = "#f3f3f3";
+set color_page_text = "#000";
+set color_page_title = "#bc707c";
+set color_header_background = "#c3b6ba";
+set color_header_footer_border = "#bc707c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#c3b6ba";
+set color_entry_border = "#bc707c";
+set color_entry_text = "#1e1e1e";
+set color_entry_title = "#bc707c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#c3b6ba";
+set color_module_border = "#bc707c";
+set color_module_text = "#1e1e1e";
 
 
 #NEWLAYER: blanket/islandsandcities
@@ -661,3 +740,43 @@ set color_module_background = "#C3C3C3";
 set color_module_text = "#036472";
 set color_module_border = "#099aaf";
 set color_module_title = "#036472";
+
+
+#NEWLAYER: blanket/tweedreams
+layerinfo type = "theme";
+layerinfo name = "Twee Dreams";
+layerinfo redist_uniq = "blanket/tweedreams";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#83af9b";
+set color_page_border = "#fe4365";
+set color_page_link = "#5c7c6d";
+set color_page_link_visited = "#fff";
+set color_page_text = "#55443d";
+set color_page_title = "#5c7c6d";
+set color_header_background = "#f9cdad";
+set color_header_footer_border = "#fe4365";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#c8c8a9";
+set color_entry_border = "#fe4365";
+set color_entry_text = "#55443d";
+set color_entry_title = "#5c7c6d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f9cdad";
+set color_module_border = "#fe4365";
+set color_module_text = "#55443d";
+set color_module_title = "#5c7c6d";
