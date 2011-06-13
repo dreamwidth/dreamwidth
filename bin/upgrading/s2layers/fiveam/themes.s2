@@ -1,0 +1,78 @@
+#NEWLAYER: fiveam/earlyedition
+layerinfo type = "theme";
+layerinfo name = "Early Edition";
+layerinfo redist_uniq = "fiveam/earlyedition";
+layerinfo author_name = "winterfish";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_text = "#444";
+set color_page_background = "#fff";
+set color_page_link = "#c33";
+set color_page_link_hover = "#93c9d2";
+set color_page_title = "#404040";
+set color_page_usernames = "#004767";
+set color_header_accent = "#c33";
+set color_header_border = "#252525";
+set color_footer_border = "#252525";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#252525";
+set color_entry_interaction_links = "#404040";
+set color_entry_interaction_links_background = "#e9e9e9";
+set color_entry_interaction_links_hover = "#929292";
+set color_entry_interaction_links_visited = "#63a0b7";
+set color_entry_link = "#c33";
+set color_entry_link_hover = "#93c9d2";
+set color_entry_link_visited = "#63a0b7";
+set color_entry_text = "#444";
+set color_entry_title = "#252525";
+set color_comment_interaction_links = "#252525";
+set color_comment_interaction_links_border = "#ccc";
+set color_comment_title = "#004767";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_accent = "#c33";
+set color_module_border = "#252525";
+set color_module_link = "#252525";
+set color_module_link_hover = "#93c9d2";
+set color_module_title = "#252525";
+set color_calendar_background = "#e9e9e9";
+set color_calendar_background_hover = "#fff";
+set color_calendar_border = "#ccc";
+set color_calendar_link = "#c33";
+set color_calendar_link_hover = "#93c9d2";
+
+##===============================
+## Images
+##===============================
+
+set image_blockquote_background_position = "top left";
+set image_blockquote_background_repeat = "no-repeat";
+set image_blockquote_background_url = "fiveam/earlyedition-blockquote.png";
+
+function Page::print_theme_stylesheet() {
+    """
+    #lj_controlstrip {
+       background: #000;
+       border-bottom: 1px solid #878080;
+    }
+
+    #lj_controlstrip a {
+       color: #f1f1f1;
+    }
+
+    #lj_controlstrip_statustext, #lj_controlstrip .ljuser a {
+       color: #c33;
+    }
+
+    """;
+}

@@ -44,6 +44,7 @@ sub default_themes {
         crossroads => 'crossroads/lettuce',
         drifting => 'drifting/blue',
         easyread => 'easyread/green',
+        fiveam => 'fiveam/earlyedition',
         fluidmeasure => 'fluidmeasure/spice',
         funkycircles => 'funkycircles/darkpurple',
         modular => 'modular/mediterraneanpeach',

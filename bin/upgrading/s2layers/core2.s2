@@ -1931,11 +1931,11 @@ property Color color_entry_link_visited { des = "Entry visited link color"; }
 property Color color_entry_border       { des = "Entry border color"; }
 property Color color_entry_title        { des = "Entry title color"; }
 property Color color_entry_title_background { des = "Entry title background color"; }
-property Color color_entry_interaction_links { des = "Color of interaction links and text"; }
+property Color color_entry_interaction_links { des = "Entry interaction links color"; }
 property Color color_entry_interaction_links_background { des = "Entry interaction links background color"; }
-property Color color_entry_interaction_links_hover { des = "Color of interaction links and text - hover"; }
-property Color color_entry_interaction_links_active { des = "Color of interaction links and text - active"; }
-property Color color_entry_interaction_links_visited { des = "Color of interaction links and text - visited"; }
+property Color color_entry_interaction_links_hover { des = "Entry hover interaction links color"; }
+property Color color_entry_interaction_links_active { des = "Entry active interaction links color"; }
+property Color color_entry_interaction_links_visited { des = "Entry visited interaction links color"; }
 
 
 ##===============================
@@ -5697,7 +5697,7 @@ function Redirector::end_form ()
 
 function EntryPage::print_comment_section(Entry e) {
    "<div id='comments'><div class='inner'>";
-   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages" });
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages" });
    if ( $e.comments.comments_disabled_maintainer ) {
        """<div class='comments-message'>$*text_comments_disabled_maintainer</div>""";
    } 
@@ -5714,7 +5714,7 @@ function EntryPage::print_comment_section(Entry e) {
         $this->print_multiform_end();
         "</div>";
    }
-   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages" });
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages bottompages" });
     "</div></div>";
 }
 

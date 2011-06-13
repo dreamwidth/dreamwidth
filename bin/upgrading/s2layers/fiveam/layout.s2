@@ -1,0 +1,1088 @@
+layerinfo type = "layout";
+layerinfo name = "Five AM";
+layerinfo redist_uniq = "fiveam/layout";
+layerinfo author_name = "winterfish";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "winterfish", "type" => "user" } ];
+
+
+##===============================
+## Presentation
+##===============================
+
+propgroup presentation_child {
+    property string userpics_position {
+       des = "Place of icons in entries";
+       note = "If displayed, icons will be on the opposite side in comments";
+       values = "none|None (don't show)|left|Left|right|Right";
+       }
+}
+
+set layout_type = "two-columns-left";
+set sidebar_width = "17em";
+set sidebar_width_doubled = "34em";
+set userpics_position = "right";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_page_usernames { des = "Page usernames color"; }
+    property Color color_header_border { des = "Page header border color"; }
+    property Color color_header_accent { des = "Page header accent color"; }
+    property Color color_footer_border { des = "Page footer border color"; }
+    property use color_entry_interaction_links_background;
+    property use color_entry_interaction_links_hover;
+    property use color_entry_interaction_links_active;
+    property use color_entry_interaction_links_visited;
+    property Color color_comment_interaction_links { des = "Comment interaction links color"; }
+    property Color color_comment_interaction_links_border { des = "Comment interaction links border color"; }
+    property Color color_module_accent { des = "Module accent color"; }
+    property Color color_calendar_background { des = "Calendar background color"; }
+    property Color color_calendar_background_hover { des = "Calendar hover background color"; }
+    property Color color_calendar_border { des = "Calendar border color"; }
+    property Color color_calendar_link { des = "Calendar link color"; }
+    property Color color_calendar_link_active { des = "Calendar active link color"; }
+    property Color color_calendar_link_hover { des = "Calendar hover link color"; }
+    property Color color_calendar_link_visited { des = "Calendar visited link color"; }
+}
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Arial, Verdana, Helvetica";
+set font_fallback = "sans-serif";
+set font_journal_title = "Calibri";
+set font_journal_title_size = "2";
+set font_journal_title_units = "em";
+set font_journal_subtitle = "Calibri";
+set font_journal_subtitle_size = "1.2";
+set font_journal_subtitle_units = "em";
+set font_entry_title = "Calibri";
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+set font_comment_title = "Calibri";
+set font_comment_title_size = "1.2";
+set font_comment_title_units = "em";
+set font_module_heading = "Calibri";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+
+##===============================
+## Images
+##===============================
+
+propgroup images_child {
+    property string[] image_blockquote_background_group {
+        des = "Blockquote background image";
+        grouptype = "image";
+        }
+    set image_blockquote_background_group = [ "image_blockquote_background_url", "image_blockquote_background_repeat", "image_blockquote_background_position" ];
+        property string image_blockquote_background_url {
+        grouped = 1;
+        }
+    property string image_blockquote_background_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+    }
+    property string image_blockquote_background_position {
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+    }
+}
+
+##===============================
+## Modules
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Group One|two|Group Two";
+    grouped = 1;
+    }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+set module_navlinks_section = "header";
+
+##===============================
+## Layout
+##===============================
+
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_module_section("header");
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """;
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+                    <div id="secondary"><div class="inner">
+                        """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner -->
+    """;
+
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+
+    var string blockquote_background = generate_background_css ($*image_blockquote_background_url, $*image_blockquote_background_repeat, $*image_blockquote_background_position, new Color);
+
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+    var string entry_contents_margin = "";
+    var string entry_userpic_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_contents_margin = "120px"; $entry_userpic_margin = "140px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_contents_margin = "95px"; $entry_userpic_margin = "125px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_contents_margin = "70px"; $entry_userpic_margin = "90px"; }
+
+    var string userpic_css = "";
+    if($*userpics_position == "left") {
+        $userpic_css = """
+        .has-userpic .entry .contents {
+            margin-left: $entry_contents_margin;
+            min-height: $entry_userpic_margin;
+            padding-left: 2em;
+            }
+
+        .has-userpic .entry .userpic {
+            float: left;
+            clear: left;
+            margin-left: -$entry_userpic_margin;
+            }
+
+        .has-userpic .comment .userpic {
+            float: right;
+            clear: right;
+            margin-left: 1em;
+            padding-left: .5em;
+            }
+        """;
+    }
+    elseif ($*userpics_position == "right") {
+        $userpic_css = """
+        .has-userpic .entry .contents {
+            margin-right: $entry_contents_margin;
+            min-height: $entry_userpic_margin;
+            padding-right: 2em;
+            }
+
+        .has-userpic .entry .userpic {
+            float: right;
+            clear: right;
+            margin-right: -$entry_userpic_margin;
+            }
+
+        .has-userpic .comment .userpic {
+            float: left;
+            clear: left;
+            margin-right: 1em;
+            padding-right: .5em;
+            }
+        """;
+    }
+"""
+
+/* Five AM */
+/* by w i n t e r f i s h */
+
+/* Main
+***************************************************************************/
+
+* {
+    margin: 0;
+    padding: 0;
+    }
+
+body {
+    margin: 0;
+    }
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    margin: 0;
+    }
+
+p {
+    margin: 1em 0;
+    }
+
+blockquote {
+    $blockquote_background
+    border-bottom: 4px solid $*color_entry_border !important;
+    border-top: 4px solid $*color_entry_border !important;
+    line-height: 1.4em;
+    margin: 1em 0;
+    padding: 2em 1em 2em 6.5em;
+    }
+
+input, textarea, select {
+    background: $*color_page_background;
+    border: 1px solid $*color_calendar_border;
+    color: $*color_page_text;
+    }
+
+.separator {
+    display: none;
+    }
+
+a, a:link, a:active, a:visited {
+    text-decoration: none;
+    }
+
+.ljuser a {
+    color: $*color_page_usernames;
+    }
+
+/* Page Containers
+***************************************************************************/
+
+#canvas {
+    margin: 0 6% auto;
+    }
+
+.page-entry #primary,
+.page-reply #primary {
+    margin-top: 2.15em; /* entry-wrapper has padding already */
+    }
+
+.page-icons #primary,
+.page-tags #primary {
+    margin-top: 3.15em;
+    }
+
+#primary > .inner:first-child {
+    padding: 0;
+    }
+
+.column-left #primary > .inner:first-child {
+    padding-left: 4em;
+    }
+
+.column-right #primary > .inner:first-child {
+    padding-right: 4em;
+    }
+
+/* to make sure the sidebars always have the same size */
+.three-columns-sides #primary > .inner:first-child {
+    padding-left: 2em;
+    padding-right: 2em;
+    }
+
+#secondary {
+    margin-top: 3.15em;
+    }
+
+#secondary > .inner:first-child {
+    padding: 0;
+    }
+
+.three-columns #secondary > .inner:first-child {
+    padding-right: 2em;
+    }
+
+#tertiary {
+    padding-top: 3.15em;
+    }
+
+.one-column #tertiary {
+    padding-top: 0;
+    }
+
+.one-column #secondary,
+.one-column #tertiary {
+    clear: left;
+    width: 100%;
+    }
+
+#tertiary > .inner:first-child {
+    padding: 0;
+    }
+
+.three-columns #tertiary > .inner:first-child {
+    padding-left: 2em;
+    }
+
+/* Header
+***************************************************************************/
+
+#header {
+    border-bottom: 2px solid $*color_header_border;
+    margin-top: 2em;
+    padding: 0;
+    text-transform: lowercase;
+    }
+
+h1#title {
+    border-top: 2px solid $*color_header_border;
+    color: $*color_page_title;
+    padding-top: 1.3em;
+    }
+
+h2#subtitle {
+    color: $*color_page_title;
+    margin-top: -.8em;
+    }
+
+h2#pagetitle {
+    color: $*color_page_title;
+    font-size: 1.5em; /* restore to default size */
+    padding-bottom: 1.2em;
+    padding-top: .3em;
+    }
+
+h1#title:first-letter,
+h2#pagetitle:first-letter {
+    color: $*color_header_accent;
+    }
+
+/* Navigation
+***************************************************************************/
+
+.navigation {
+    font-family: $*font_entry_title;
+    text-align: right;
+    text-transform: lowercase;
+    }
+
+.topnav {
+    margin-top: 1em;
+    min-height: 1.2em;
+    }
+
+.page-recent .bottomnav,
+.page-read .bottomnav,
+.page-network .bottomnav,
+.page-day .bottomnav {
+    margin-top: -2.5em;
+    }
+
+.page-day .navigation .page-forward:before {
+    content: "|";
+    }
+
+.page-day .navigation .page-forward a {
+    padding-left: 1.1em;
+    }
+
+/* Entries
+***************************************************************************/
+
+.entry-wrapper {
+    margin: 1em 0 4em;
+    }
+
+.entry {
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    }
+
+.entry .header {
+    padding: 1em 0 0;
+    }
+
+.entry .entry-title {
+    display: inline;
+    padding: 0;
+    }
+
+.entry .access-filter img,
+.entry .restrictions img {
+    display: inline;
+    padding-left: .5em;
+    }
+
+.entry .datetime {
+    float: right;
+    display: inline-block;
+    font-size: 1.1em;
+    font-family: $*font_entry_title;
+    text-transform: none;
+    }
+
+.datetime a {
+    color: $*color_entry_title;
+    }
+
+.datetime a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+.entry .time:before {
+    content: "| ";
+    }
+
+.entry .contents {
+    margin-top: .5em;
+    padding: 0;
+    line-height: 1.45em;
+    }
+
+.has-userpic .entry .userpic {
+    margin-top: 1em;
+    text-align: center;
+    }
+
+.has-userpic .contents .userpic img {
+    background: $*color_entry_text;
+    border: 1px solid $*color_entry_text;
+    padding: 5px;
+    }
+
+.entry .poster {
+    color: $*color_page_usernames;
+    display: block;
+    padding-bottom: 2em;
+    }
+
+.entry-content {
+    margin-top: -1em;
+    padding: 0 0 2em;
+    }
+
+.entry-content ul,
+.entry-content ol {
+    margin: 1em 1em 1em 3em;
+    }
+
+.metadata {
+    line-height: 1.2em;
+    padding: 0 0 1em;
+    }
+
+.metadata-label {
+    font-weight: normal;
+    text-transform: uppercase;
+    }
+
+.metadata ul li {
+    margin: 0;
+    padding: 0;
+    }
+
+.metadata-item-xpost a {
+    padding-right: .5em;
+    }
+
+.entry .footer {
+    clear: left;
+    }
+
+.tag {
+    font-family: $*font_entry_title;
+    line-height: 1.2em;
+    padding: 0 0 .7em;
+    text-transform: lowercase;
+    }
+
+.tag-text {
+    text-transform: uppercase;
+    }
+
+.entry-management-links {
+    float: left;
+    padding: 1em 0 1em .5em;
+    }
+
+.entry-interaction-links {
+    background: $*color_entry_interaction_links_background;
+    padding: 1em .5em 1em 0;
+    text-align: right;
+    }
+
+.entry-interaction-links li,
+.entry-management-links li {
+    font-family: $*font_entry_title;
+    text-transform: lowercase;
+    padding: .5em !important;
+    }
+
+.entry-management-links li a {
+    color: $*color_entry_interaction_links;
+    }
+
+.entry-interaction-links li a:visited,
+.entry-management-links li a:visited {
+    color: $*color_entry_interaction_links_visited;
+    }
+
+.entry-interaction-links li a:hover,
+.entry-management-links li a:hover {
+    color: $*color_entry_interaction_links_hover;
+    }
+
+.entry-interaction-links li a:active,
+.entry-management-links li a:active {
+    color: $*color_entry_interaction_links_active;
+    }
+
+/* Comments
+***************************************************************************/
+
+#qrform {
+    margin-top: 1em !important;
+    }
+
+.comment-pages {
+    padding-bottom: 1em;
+    text-align: center;
+    }
+
+.comment-pages.bottompages,
+.comment-pages.bottompages {
+    padding-top: 1em;
+    }
+
+#comments {
+    margin-top: -1em;
+    }
+
+.comment-content ul,
+.comment-content ol {
+    margin: 1em 1em 1em 3em;
+    }
+
+.comment-wrapper {
+    border-top: 1px solid $*color_entry_border;
+    margin: .5em 0 0;
+    }
+
+.partial {
+    padding: .3em 0 !important;
+    }
+
+.partial .comment {
+    display: inline !important;
+    padding: 1em 0;
+    }
+
+.partial .comment-title {
+    display: inline !important;
+    }
+
+.comment-title h4 {
+    display: inline !important;
+    padding-right: .5em;
+    }
+
+.comment .comment-title a:hover {
+    color: $*color_page_link_hover;
+    }
+
+.comment .header .datetime {
+    padding: 0 0 .5em;
+    text-transform: uppercase;
+    }
+
+.has-userpic .comment .userpic {
+    text-align: center;
+    }
+
+.comment .contents {
+    clear: both;
+    line-height: 1.45em;
+    padding: .5em 0;
+    }
+
+.comment .poster {
+    margin: 0;
+    }
+
+.comment-poster .anonymous {
+    color: $*color_page_link !important;
+    font-weight: bold;
+    }
+
+.comment .poster-ip {
+    color: $*color_page_link;
+    }
+
+.comment-content {
+    padding: .8em 0 .5em;
+    }
+
+.comment .footer {
+    clear: both;
+    padding: 1em .5em 0;
+    }
+
+.comment .multiform-checkbox {
+    font-family: $*font_comment_title;
+    float: right;
+    margin-top: -1px; /* line up the checkbox */
+    padding-left: .5em;
+    text-transform: lowercase;
+    }
+
+.comment-interaction-links {
+    padding-bottom: 1em;
+    text-align: right;
+    }
+
+.comment-management-links {
+    float: right;
+    }
+
+.comment-interaction-links li,
+.comment-management-links li {
+    border-right: 1px solid $*color_comment_interaction_links_border;
+    font-family: $*font_comment_title;
+    padding: 0 .5em;
+    text-transform: lowercase;
+    }
+
+.comment-interaction-links a,
+.comment-management-links a {
+    color: $*color_comment_interaction_links;
+    }
+
+.comment-interaction-links a:hover,
+.comment-management-links a:hover {
+    color: $*color_page_link_hover;
+    }
+
+.edittime {
+     color: $*color_page_link;
+     padding-top: 1em;
+    }
+
+.bottomcomment {
+    padding: 2.2em 0 .5em;
+    text-align: center;
+    }
+
+.bottomcomment .entry-interaction-links{
+    margin-bottom: 1.5em;
+    }
+
+/* Archive Pages
+***************************************************************************/
+
+.page-archive .navigation {
+    text-align: center;
+    }
+
+.page-archive .bottomnav {
+    padding-top: 1em;
+    }
+
+#archive-year {
+    padding: 2.2em 4em 0;
+    }
+
+.month-wrapper {
+    margin: 1.5em 0;
+    }
+
+.month-wrapper .header {
+    padding: 0 0 .5em 2em;
+    }
+
+.month-wrapper .contents caption {
+    display: none;
+    }
+
+table.month {
+    text-align: center;
+    width: 90%;
+    }
+
+table.month th {
+    border: 1px solid $*color_calendar_border;
+    border-left: none;
+    font-weight: normal;
+    height: 4em;
+    padding: .5em;
+    }
+
+table.month td {
+    border-bottom: 1px solid $*color_calendar_border;
+    border-right: 1px solid $*color_calendar_border;
+    height: 4em;
+    width: 4em;
+    }
+
+table.month td:first-child,
+table.month th:first-child {
+    border-left: 1px solid $*color_calendar_border;
+    }
+
+.month-wrapper .day-has-entries {
+    background: $*color_calendar_background;
+    }
+
+.month-wrapper .day-has-entries a {
+    color: $*color_calendar_link;
+    }
+
+.month-wrapper .day-has-entries:hover {
+    background: $*color_calendar_background_hover;
+    }
+
+.month-wrapper .day-has-entries a:visited {
+    color: $*color_calendar_link_visited;
+    }
+
+.month-wrapper .day-has-entries a:hover {
+    color: $*color_calendar_link_hover;
+    }
+
+.month-wrapper .day-has-entries a:active {
+    color: $*color_calendar_link_active;
+    }
+
+.month-wrapper .footer {
+    padding-right: 2.5em;
+    padding-top: 1em;
+    text-align: right;
+    }
+
+#archive-month {
+    padding-top: 2.2em;
+    }
+
+#archive-month .navigation {
+    text-align: center;
+    }
+
+#archive-month .topnav {
+    padding-top: .8em;
+    }
+
+#archive-month .bottomnav {
+    margin-top: .5em;
+    }
+
+#archive-month .topnav {
+    border-top: 1px solid $*color_entry_border;
+    }
+
+.navigation .month-back,
+.navigation .month-forward {
+    text-align: center;
+    }
+
+#archive-month .month {
+    margin-top: .7em;
+    padding: 1em 2em 0;
+    }
+
+.month h3.entry-title {
+    $entry_title_font
+    }
+
+dd.month {
+    display: inline;
+    }
+
+.month .datetime,
+.month .access-filter,
+.month .entry-title {
+    padding-right: 5px;
+    }
+
+#archive-day .day {
+    border-top: 1px solid $*color_entry_border;
+    margin-top: 1em;
+    }
+
+h3.day-date {
+    font-family: $*font_entry_title;
+    padding-top: 1em;
+    }
+
+/* Tags Page
+***************************************************************************/
+
+.tags-container {
+    border-top: 1px solid $*color_entry_title;
+    padding: 0 1em;
+    }
+
+.tags-container h2 {
+    font-family: $*font_entry_title;
+    padding: .5em 0 1em;
+    }
+
+.tags-container .ljtaglist {
+    line-height: 1.8em;
+    margin-left: 3em;
+    }
+
+.tags-container ul.ljtaglist {
+    list-style-type: none;
+    }
+
+.tags-container .manage-tags-link {
+    margin-bottom: 1em;
+    }
+
+/* Icons Page
+***************************************************************************/
+
+.icons-container {
+    border-top: 1px solid $*color_entry_title;
+    padding: 0 1em;
+    }
+
+.icons-container h2 {
+    font-family: $*font_entry_title;
+    padding: .5em 0 1em;
+    }
+
+.icons-container ul {
+    list-style: none;
+    }
+
+.icons-container li,
+.icons-container .keywords ul {
+    display: inline;
+    }
+
+.icons-container .icon {
+    margin: 1.5em 0;
+    }
+
+.icons-container .icon-image {
+    float: left;
+    clear: left;
+    padding-right: 1em;
+    }
+
+.icons-container .icon-info {
+    min-height: 100px;
+    }
+
+/* Modules
+***************************************************************************/
+
+.module {
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    line-height: 1.1em;
+    margin-bottom: 2.5em;
+    }
+
+.one-column #secondary .module,
+.one-column #tertiary .module,
+.two-columns #tertiary .module {
+    float: left;
+    margin-right: 2em;
+    }
+
+.module h2 {
+    padding-top: .8em;
+    text-transform: lowercase;
+    }
+
+.module h2 a {
+    color: $*color_module_title;
+    }
+
+.module-content {
+    padding-top: .8em
+    }
+
+.module-content ul {
+    list-style-type: none;
+    padding-left: 0;
+    }
+
+.module-content li {
+    padding: .3em 0;
+    }
+
+#header .module {
+    border: none;
+    }
+
+#header .module-navlinks ul {
+    margin: -.8em 0 1.8em;
+    }
+
+#header .module-navlinks {
+    margin-bottom: 0;
+    }
+
+#header .module-navlinks li {
+    $module_title_font
+    display: inline;
+    padding: 0 1em 0 0 !important;
+    }
+
+.module-userprofile .userpic img {
+    background: $*color_module_title;
+    border: 1px solid $*color_module_title;
+    padding: 5px;
+    }
+
+.module-userprofile .journal-website-name {
+    padding-top: .8em;
+    }
+
+ul.userlite-interaction-links {
+    list-style: none;
+    padding-top: 1em;
+    }
+
+ul.userlite-interaction-links li {
+    display: block;
+    }
+
+.module-calendar .module-content {
+    padding-top: 1em;
+    }
+
+.module-calendar table {
+    text-align: center;
+    width: 100%;
+    }
+
+.module-calendar th,
+.module-calendar td {
+    border: 1px solid $*color_calendar_background;
+    height: 2em;
+    line-height: 2em;
+    }
+
+.module-calendar td a {
+    background: $*color_calendar_background;
+    color: $*color_calendar_link;
+    display: block;
+    text-align: center;
+    }
+
+.module-calendar td a:visited {
+    color: $*color_calendar_link_visited;
+    }
+
+.module-calendar td a:hover {
+    background: $*color_calendar_background_hover;
+    color: $*color_calendar_link_hover;
+    }
+
+.module-calendar td a:active {
+    color: $*color_calendar_link_active;
+    }
+
+.module-calendar td a:hover,
+.module-powered a:hover,
+.manage-tags-link a:hover {
+    color: $*color_module_link_hover;
+    }
+
+.module-tags_multilevel li {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+    }
+
+.module-tags_multilevel li ul li {
+    margin-left: -.5em;
+    padding-left: 2em;
+    }
+
+.module-tags_cloud .module-list {
+    line-height: 1.8em;
+    }
+
+.module-tags_cloud .module-list a {
+    text-decoration: underline;
+    }
+
+.manage-tags-link, .manage-link {
+    font-family: $*font_module_heading;
+    padding-top: .8em;
+    text-transform: lowercase;
+    }
+
+.module-powered, .module-time {
+    padding-top: .8em;
+    border-top: 1px solid $*color_module_title;
+    }
+
+.module-powered a,
+.manage-tags-link a, .manage-link a {
+    color: $*color_module_accent;
+    }
+
+.module-search .search-button {
+    margin-left: .2em;
+    }
+
+.module-search .search-box {
+    padding: .1em;
+    }
+
+/* Footer
+***************************************************************************/
+
+#footer {
+    border-top: 2px solid $*color_footer_border;
+    margin-top: 3em;
+    padding: 0;
+    text-transform: lowercase;
+    }
+
+#footer .inner {
+    padding: 2em 0;
+    }
+
+$userpic_css
+
+""";
+}
