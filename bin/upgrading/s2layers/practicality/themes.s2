@@ -479,6 +479,57 @@ set color_module_text = "#99e66b";
 set color_module_title = "#99e66b";
 
 
+#NEWLAYER: practicality/heartofdarkness
+layerinfo type = "theme";
+layerinfo name = "Heart of Darkness";
+layerinfo redist_uniq = "practicality/heartofdarkness";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#021301";
+set color_page_border = "#444";
+set color_page_link = "#18a418";
+set color_page_link_hover = "#5a9b93";
+set color_page_link_visited = "#18a418";
+set color_page_text = "#4c4";
+set color_page_title = "#4c4";
+set color_header_background = "#222";
+set color_footer_background = "#111";
+set color_footer_link = "#18a418";
+set color_footer_link_hover = "#5a9b93";
+set color_footer_link_visited = "#18a418";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#111";
+set color_entry_border = "#333";
+set color_entry_link = "#18a418";
+set color_entry_link_hover = "#5a9b93";
+set color_entry_link_visited = "#18a418";
+set color_entry_text = "#4c4";
+set color_entry_title = "#4c4";
+set color_comment_title = "#4c4";
+set color_comment_title_background = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#111";
+set color_module_link = "#18a418";
+set color_module_link_hover = "#5a9b93";
+set color_module_link_visited = "#18a418";
+set color_module_text = "#4c4";
+set color_module_title = "#4c4";
+
+
 #NEWLAYER: practicality/naturalprogression
 layerinfo type = "theme";
 layerinfo name = "Natural Progression";
@@ -750,6 +801,50 @@ set color_module_text = "#88746a";
 set color_module_title = "#e4502e";
 
 
+#NEWLAYER: practicality/orangesherbert
+layerinfo type = "theme";
+layerinfo name = "Orange Sherbert";
+layerinfo redist_uniq = "practicality/orangesherbert";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffb473";
+set color_page_border = "#ffc59b";
+set color_page_link = "#088eba";
+set color_page_link_hover = "#09a7dc";
+set color_page_link_visited = "#055e7e";
+set color_page_text = "#000";
+set color_header_background = "#ffc59b";
+set color_footer_background = "#ffd2af";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffd2af";
+set color_entry_border = "#ffc59b";
+set color_entry_link = "#088eba";
+set color_entry_link_hover = "#09a7dc";
+set color_entry_link_visited = "#055e7e";
+set color_entry_title = "#001C47";
+set color_entry_title_background = "#ffd2af";
+set color_comment_title = "001C47";
+set color_comment_title_background = "#ffd2af";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffd2af";
+set color_module_border = "#ffc59b";
+set color_module_title = "#001C47";
+
+
 #NEWLAYER: practicality/poppyfields
 layerinfo type = "theme";
 layerinfo name = "Poppy Fields";
@@ -973,6 +1068,51 @@ set color_module_link = "#649e62";
 set color_module_link_hover = "#de9b6f";
 set color_module_text = "#8C3E3E";
 set color_module_title = "#649e62";
+
+
+#NEWLAYER: practicality/turtle
+layerinfo type = "theme";
+layerinfo name = "Turtle";
+layerinfo redist_uniq = "practicality/turtle";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#233030";
+set color_page_border = "#7d966c";
+set color_page_link = "#a7ba86";
+set color_page_link_visited = "#7d966c";
+set color_page_text = "#d6e5cc";
+set color_page_title = "#a7ba86";
+set color_header_background = "#212f26";
+set color_footer_background = "#3b5244";
+set color_footer_link = "#a7ba86";
+set color_footer_link_visited = "#7d966c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3b5244";
+set color_entry_border = "#3b5244";
+set color_entry_link = "#a7ba86";
+set color_entry_link_visited = "#7d966c";
+set color_entry_text = "#d6e5cc";
+set color_entry_title = "#a7ba86";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#597554";
+set color_module_border = "#7d966c";
+set color_module_link = "#a7ba86";
+set color_module_link_visited = "#c7eeab";
+set color_module_text = "#d6e5cc";
 
 
 #NEWLAYER: practicality/trueneutral
