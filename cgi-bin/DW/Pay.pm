@@ -109,12 +109,16 @@ sub all_shortnames {
 sub get_paid_status {
     DW::Pay::clear_error();
 
-    my $uuid = shift;
+    my ( $uuid, %opts ) = @_;
     my $uid;
+
+    my $use_cache = ! $opts{no_cache};
 
     $uid = LJ::want_userid( $uuid ) if defined $uuid;
     return error( ERR_FATAL, "Invalid user object/userid passed in." )
         unless defined $uid && $uid > 0;
+
+    return $LJ::PAID_STATUS{$uid} if $use_cache && $LJ::PAID_STATUS{$uid};
 
     my $dbr = DW::Pay::get_db_reader()
         or return error( ERR_TEMP, "Failed acquiring database reader handle." );
@@ -126,6 +130,7 @@ sub get_paid_status {
     return error( ERR_FATAL, "Database error: " . $dbr->errstr )
         if $dbr->err;
 
+    $LJ::PAID_STATUS{$uid} = $row;
     return $row;
 }
 
@@ -387,7 +392,7 @@ sub add_paid_time {
     $amonths = 0 if $permanent;
 
     # if they have a $ps hashref, they have or had paid time at some point
-    if ( my $ps = DW::Pay::get_paid_status( $u ) ) {
+    if ( my $ps = DW::Pay::get_paid_status( $u, no_cache => 1 ) ) {
         # easy bail if they're permanent
         return error( ERR_FATAL, 'User is already permanent, cannot apply more time.' )
             if $ps->{permanent};
@@ -483,13 +488,14 @@ sub update_paid_status {
         or return error( ERR_FATAL, "Invalid/not a user object." );
     my %cols = ( @_ )
         or return error( ERR_FATAL, "Nothing to change!" );
+    delete $LJ::PAID_STATUS{$u->id};
 
     my $dbh = DW::Pay::get_db_writer()
         or return error( ERR_TEMP, "Unable to get db writer." );
 
     # don't let them add months if the user expired, convert it to set months
     if ( $cols{_add_months} ) {
-        my $row = DW::Pay::get_paid_status( $u );
+        my $row = DW::Pay::get_paid_status( $u, no_cache => 1 );
         if ( $row && $row->{expiresin} > 0 ) {
             my $time = $dbh->selectrow_array( "SELECT UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME($row->{expiretime}), " .
                                               "INTERVAL $cols{_add_months} MONTH))" );
@@ -580,7 +586,7 @@ sub edit_expiration_datetime {
         or return error( ERR_FATAL, "Invalid/not a user object." );
     my $datetime = shift();
 
-    my $ps = DW::Pay::get_paid_status( $u );
+    my $ps = DW::Pay::get_paid_status( $u, no_cache => 1 );
     return error( ERR_FATAL, "Can't set expiration date for this type of account" )
         if $ps->{expiresin} <= 0 || $ps->{permanent};
 
@@ -596,6 +602,7 @@ sub edit_expiration_datetime {
     $dbh->do( q{UPDATE dw_paidstatus SET expiretime=? WHERE userid=?}, undef, $row->{datetime}, $u->id );
     return error( ERR_FATAL, "Database error: " . $dbh->errstr )
         if $dbh->err;
+    delete $LJ::PAID_STATUS{$u->id};
     return 1;
 }
 

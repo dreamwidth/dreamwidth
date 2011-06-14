@@ -1270,6 +1270,9 @@ sub start_request
     $LJ::ADV_PER_PAGE = 0;            # Counts ads displayed on a page
     $LJ::ACTIVE_RES_GROUP = undef;    # use whatever is current site default
 
+
+    %LJ::PAID_STATUS = ();            # per-request paid status
+
     $LJ::CACHE_REMOTE_BOUNCE_URL = undef;
     LJ::Userpic->reset_singletons;
     LJ::Comment->reset_singletons;
