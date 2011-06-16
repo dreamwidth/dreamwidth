@@ -53,7 +53,6 @@ sub user {
     return $_[0]->{user};
 }
 
-
 # return our external site
 sub site {
     return $_[0]->{site};
