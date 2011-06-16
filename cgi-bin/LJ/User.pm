@@ -8878,23 +8878,23 @@ sub make_journal {
 
                 my $path = $view eq "read" ? "/read/security" : "/security";
                 @levels  = ( { link => LJ::create_url( "$path/public", viewing_style => 1 ),
-                                    name => LJ::Lang::ml( "label.security.public" ) } );
+                                name_ml => "label.security.public" } );
 
                 if ( $u->is_comm ) {
                     push @levels, { link => LJ::create_url( "$path/access", viewing_style => 1 ),
-                                    name => LJ::Lang::ml( "label.security.members" ) }
+                                    name_ml => "label.security.members" }
                                 if $remote && $remote->member_of( $u );
 
                     push @levels, { link => LJ::create_url( "$path/private", viewing_style => 1 ),
-                                    name => LJ::Lang::ml( "label.security.maintainers" ) }
+                                    name_ml => "label.security.maintainers" }
                                 if $remote && $remote->can_manage_other( $u );
                 } else {
                     push @levels, { link => LJ::create_url( "$path/access", viewing_style => 1 ),
-                                    name => LJ::Lang::ml( "label.security.accesslist" ) }
+                                    name_ml => "label.security.accesslist" }
                                 if $u->trusts( $remote );
 
                     push @levels, { link => LJ::create_url( "$path/private", viewing_style => 1 ),
-                                    name => LJ::Lang::ml( "label.security.accesslist" ) }
+                                    name_ml => "label.security.private" }
                                 if $u->equals( $remote );
                 }
 

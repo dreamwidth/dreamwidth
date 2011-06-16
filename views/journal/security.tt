@@ -5,7 +5,7 @@
 <p>[% ".filter.levels" | ml %]</p>
 <ul>
     [% FOREACH level IN levels %]
-        <li><a href="[%level.link%]">[%level.name%]</a></li>
+        <li><a href="[%level.link%]">[% level.name_ml | ml %]</a></li>
     [% END %]
 </ul>
 [% END %]
