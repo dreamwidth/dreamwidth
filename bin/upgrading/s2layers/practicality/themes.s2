@@ -93,6 +93,60 @@ set color_module_text = "#0e0e0e";
 set color_module_title = "#181818";
 
 
+#NEWLAYER: practicality/airplane
+layerinfo type = "theme";
+layerinfo name = "Airplane";
+layerinfo redist_uniq = "practicality/airplane";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#697060";
+set color_page_link = "#f2d680";
+set color_page_link_active = "#f2d680";
+set color_page_link_visited = "#eb9c4d";
+set color_page_text = "#faffeb";
+set color_page_title = "#FDFFFA";
+set color_header_background = "#4c5246";
+set color_footer_background = "#555c4e";
+set color_footer_link = "#f2d680";
+set color_footer_link_active = "#f2d680";
+set color_footer_link_hover = "#EB7F17";
+set color_footer_link_visited = "#eb9c4d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#555c4e";
+set color_entry_border = "#727a68";
+set color_entry_interaction_links = "#FDFFFA";
+set color_entry_link = "#f2d680";
+set color_entry_link_active = "#f2d680";
+set color_entry_link_hover = "#EB7F17";
+set color_entry_link_visited = "#eb9c4d";
+set color_entry_text = "#faffeb";
+set color_entry_title = "#FDFFFA";
+set color_comment_title = "#FDFFFA";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#555c4e";
+set color_module_border = "#727a68";
+set color_module_link = "#f2d680";
+set color_module_link_active = "#f2d680";
+set color_module_link_hover = "#EB7F17";
+set color_module_link_visited = "#eb9c4d";
+set color_module_text = "#faffeb";
+set color_module_title = "#FDFFFA";
+
+
 #NEWLAYER: practicality/badkitty
 layerinfo type = "theme";
 layerinfo name = "Bad Kitty";
@@ -135,6 +189,116 @@ set color_module_border = "#f463a6";
 set color_module_link = "#f463a6";
 set color_module_link_visited = "#DC2B7E";
 set color_module_text = "#1e1e1e";
+
+
+#NEWLAYER: practicality/bluebird
+layerinfo type = "theme";
+layerinfo name = "Bluebird";
+layerinfo redist_uniq = "practicality/bluebird";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#303d57";
+set color_page_link = "#7fda89";
+set color_page_link_active = "#7fda89";
+set color_page_link_hover = "#90F89A";
+set color_page_link_visited = "#FBCD55";
+set color_page_text = "#eed1a8";
+set color_page_title = "#F8DCB8";
+set color_header_background = "#3b4b6b";
+set color_footer_background = "#415275";
+set color_footer_link = "#7fda89";
+set color_footer_link_active = "#7fda89";
+set color_footer_link_hover = "#90F89A";
+set color_footer_link_visited = "#FBCD55";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#415275";
+set color_entry_border = "#46597f";
+set color_entry_interaction_links = "#90F89A";
+set color_entry_link = "#7fda89";
+set color_entry_link_active = "#7fda89";
+set color_entry_link_hover = "#90F89A";
+set color_entry_link_visited = "#FBCD55";
+set color_entry_text = "#eed1a8";
+set color_entry_title = "#F8DCB8";
+set color_comment_title = "#F8DCB8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#415275";
+set color_module_border = "#46597f";
+set color_module_link = "#7fda89";
+set color_module_link_active = "#7fda89";
+set color_module_link_hover = "#90F89A";
+set color_module_link_visited = "#FBCD55";
+set color_module_text = "#eed1a8";
+set color_module_title = "#F8DCB8";
+
+
+#NEWLAYER: practicality/blushed
+layerinfo type = "theme";
+layerinfo name = "Blushed";
+layerinfo redist_uniq = "practicality/blushed";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffdbd7";
+set color_page_link = "#ce4f82";
+set color_page_link_active = "#ce4f82";
+set color_page_link_hover = "#CE1C67";
+set color_page_link_visited = "#855e6e";
+set color_page_text = "#1a1a1a";
+set color_page_title = "#1a1a1a";
+set color_header_background = "#ffb2c1";
+set color_footer_background = "#f7f1e1";
+set color_footer_link = "#ce4f82";
+set color_footer_link_active = "#ce4f82";
+set color_footer_link_hover = "#CE1C67";
+set color_footer_link_visited = "#855e6e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f7f2e6";
+set color_entry_border = "#f5abba";
+set color_entry_interaction_links = "#CE1C67";
+set color_entry_link = "#ce4f82";
+set color_entry_link_active = "#ce4f82";
+set color_entry_link_hover = "#CE1C67";
+set color_entry_link_visited = "#855e6e";
+set color_entry_text = "#1a1a1a";
+set color_entry_title = "#1a1a1a";
+set color_comment_title = "#1a1a1a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7f1e1";
+set color_module_border = "#f5abba";
+set color_module_link = "#ce4f82";
+set color_module_link_active = "#ce4f82";
+set color_module_link_hover = "#CE1C67";
+set color_module_link_visited = "#855e6e";
+set color_module_text = "#1a1a1a";
+set color_module_title = "#1a1a1a";
 
 
 #NEWLAYER: practicality/broadhorizons
@@ -306,6 +470,61 @@ set color_module_border = "#562e22";
 set color_module_title = "fcffb5";
 
 
+#NEWLAYER: practicality/citrusy
+layerinfo type = "theme";
+layerinfo name = "Citrusy";
+layerinfo redist_uniq = "practicality/citrusy";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#c6dbdc";
+set color_page_link = "#2f9762";
+set color_page_link_active = "#2f9762";
+set color_page_link_hover = "#cf8902";
+set color_page_link_visited = "#78426d";
+set color_page_text = "#0e0e0e";
+set color_page_title = "#0e0e0e";
+set color_header_background = "#59adaf";
+set color_footer_background = "#fff5e9";
+set color_footer_link = "#2f9762";
+set color_footer_link_active = "#2f9762";
+set color_footer_link_hover = "#cf8902";
+set color_footer_link_visited = "#78426d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FFF6EC";
+set color_entry_border = "#ACD968";
+set color_entry_interaction_links = "#655e8f";
+set color_entry_link = "#2f9762";
+set color_entry_link_active = "#2f9762";
+set color_entry_link_hover = "#cf8902";
+set color_entry_link_visited = "#78426d";
+set color_entry_text = "#0e0e0e";
+set color_entry_title = "#0e0e0e";
+set color_comment_title = "#0e0e0e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff5e9";
+set color_module_border = "#ACD968";
+set color_module_link = "#2f9762";
+set color_module_link_active = "#2f9762";
+set color_module_link_hover = "#cf8902";
+set color_module_link_visited = "#78426d";
+set color_module_text = "#0e0e0e";
+set color_module_title = "#0e0e0e";
+
+
 #NEWLAYER: practicality/cosmos
 layerinfo type = "theme";
 layerinfo name = "Cosmos";
@@ -433,6 +652,116 @@ set color_comment_title = "#c94947";
 set color_module_background = "#fff";
 set color_module_border = "#e4a18f";
 set color_module_title = "#c94947";
+
+
+#NEWLAYER: practicality/enchantment
+layerinfo type = "theme";
+layerinfo name = "Enchantment";
+layerinfo redist_uniq = "practicality/enchantment";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#bbcf92";
+set color_page_link = "#895d8b";
+set color_page_link_active = "#895d8b";
+set color_page_link_hover = "#e63e04";
+set color_page_link_visited = "#8c2f13";
+set color_page_text = "#333532";
+set color_page_title = "#333532";
+set color_header_background = "#acbe86";
+set color_footer_background = "#fef2e0";
+set color_footer_link = "#895d8b";
+set color_footer_link_active = "#895d8b";
+set color_footer_link_hover = "#e63e04";
+set color_footer_link_visited = "#8c2f13";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fef3e5";
+set color_entry_border = "#FEE2B8";
+set color_entry_interaction_links = "#e63e04";
+set color_entry_link = "#895d8b";
+set color_entry_link_active = "#895d8b";
+set color_entry_link_hover = "#e63e04";
+set color_entry_link_visited = "#8c2f13";
+set color_entry_text = "#333532";
+set color_entry_title = "#333532";
+set color_comment_title = "#333532";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fef3e5";
+set color_module_border = "#FEE2B8";
+set color_module_link = "#895d8b";
+set color_module_link_active = "#895d8b";
+set color_module_link_hover = "#e63e04";
+set color_module_link_visited = "#8c2f13";
+set color_module_text = "#333532";
+set color_module_title = "#333532";
+
+
+#NEWLAYER: practicality/exponential
+layerinfo type = "theme";
+layerinfo name = "Exponential";
+layerinfo redist_uniq = "practicality/exponential";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a3dfe7";
+set color_page_link = "#df151a";
+set color_page_link_active = "#df151a";
+set color_page_link_hover = "#fd8603";
+set color_page_link_visited = "#AB1018";
+set color_page_text = "#161616";
+set color_page_title = "#161616";
+set color_header_background = "#68d9e7";
+set color_footer_background = "#f0f4f5";
+set color_footer_link = "#df151a";
+set color_footer_link_active = "#df151a";
+set color_footer_link_hover = "#fd8603";
+set color_footer_link_visited = "#AB1018";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f0f4f5";
+set color_entry_border = "#56d7e7";
+set color_entry_interaction_links = "#E98316";
+set color_entry_link = "#df151a";
+set color_entry_link_active = "#df151a";
+set color_entry_link_hover = "#fd8603";
+set color_entry_link_visited = "#AB1018";
+set color_entry_text = "#161616";
+set color_entry_title = "#161616";
+set color_comment_title = "#161616";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f0f4f5";
+set color_module_border = "#56d7e7";
+set color_module_link = "#df151a";
+set color_module_link_active = "#df151a";
+set color_module_link_hover = "#fd8603";
+set color_module_link_visited = "#AB1018";
+set color_module_text = "#161616";
+set color_module_title = "#161616";
 
 
 #NEWLAYER: practicality/fivehundredwishes
@@ -896,6 +1225,61 @@ set color_module_border = "#ffc59b";
 set color_module_title = "#001C47";
 
 
+#NEWLAYER: practicality/outerrings
+layerinfo type = "theme";
+layerinfo name = "Outer Rings";
+layerinfo redist_uniq = "practicality/outerrings";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#eff3cd";
+set color_page_link = "#218581";
+set color_page_link_active = "#218581";
+set color_page_link_hover = "#12beb7";
+set color_page_link_visited = "#605063";
+set color_page_text = "#161616";
+set color_page_title = "#161616";
+set color_header_background = "#b2d5ba";
+set color_footer_background = "#fafce9";
+set color_footer_link = "#218581";
+set color_footer_link_active = "#218581";
+set color_footer_link_hover = "#12beb7";
+set color_footer_link_visited = "#605063";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fafce9";
+set color_entry_border = "#bbdfc2";
+set color_entry_interaction_links = "#218581";
+set color_entry_link = "#218581";
+set color_entry_link_active = "#218581";
+set color_entry_link_hover = "#12beb7";
+set color_entry_link_visited = "#605063";
+set color_entry_text = "#161616";
+set color_entry_title = "#161616";
+set color_comment_title = "#161616";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fafce9";
+set color_module_border = "#bbdfc2";
+set color_module_link = "#218581";
+set color_module_link_active = "#218581";
+set color_module_link_hover = "#12beb7";
+set color_module_link_visited = "#605063";
+set color_module_text = "#161616";
+set color_module_title = "#161616";
+
+
 #NEWLAYER: practicality/poppyfields
 layerinfo type = "theme";
 layerinfo name = "Poppy Fields";
@@ -982,6 +1366,61 @@ set color_module_link = "#4ebe97";
 set color_module_link_hover = "#5fe8bc";
 set color_module_text = "#54513b";
 set color_module_title = "#fca542";
+
+
+#NEWLAYER: practicality/sunshine
+layerinfo type = "theme";
+layerinfo name = "Sunshine";
+layerinfo redist_uniq = "practicality/sunshine";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fffedb";
+set color_page_link = "#149c68";
+set color_page_link_active = "#149c68";
+set color_page_link_hover = "#14309c";
+set color_page_link_visited = "#0c6442";
+set color_page_text = "#383939";
+set color_page_title = "#383939";
+set color_header_background = "#c2e676";
+set color_footer_background = "#FFFCE9";
+set color_footer_link = "#149c68";
+set color_footer_link_active = "#149c68";
+set color_footer_link_hover = "#14309c";
+set color_footer_link_visited = "#0c6442";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FFFCE9";
+set color_entry_border = "#d0e6a2";
+set color_entry_interaction_links = "#14309c";
+set color_entry_link = "#149c68";
+set color_entry_link_active = "#149c68";
+set color_entry_link_hover = "#14309c";
+set color_entry_link_visited = "#0c6442";
+set color_entry_text = "#383939";
+set color_entry_title = "#383939";
+set color_comment_title = "#383939";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#FFFCE9";
+set color_module_border = "#d0e6a2";
+set color_module_link = "#149c68";
+set color_module_link_active = "#149c68";
+set color_module_link_hover = "#14309c";
+set color_module_link_visited = "#0c6442";
+set color_module_text = "#383939";
+set color_module_title = "#383939";
 
 
 #NEWLAYER: practicality/sweetberrygolds
@@ -1119,6 +1558,61 @@ set color_module_link = "#649e62";
 set color_module_link_hover = "#de9b6f";
 set color_module_text = "#8C3E3E";
 set color_module_title = "#649e62";
+
+
+#NEWLAYER: practicality/turningtoash
+layerinfo type = "theme";
+layerinfo name = "Turning to Ash";
+layerinfo redist_uniq = "practicality/turningtoash";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e7e8b1";
+set color_page_link = "#8d765e";
+set color_page_link_active = "#8d765e";
+set color_page_link_hover = "#6b9e88";
+set color_page_link_visited = "#655643";
+set color_page_text = "#090706";
+set color_page_title = "#090706";
+set color_header_background = "#D36A4E";
+set color_footer_background = "#f8f9ea";
+set color_footer_link = "#8d765e";
+set color_footer_link_active = "#8d765e";
+set color_footer_link_hover = "#6b9e88";
+set color_footer_link_visited = "#655643";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f8f9ea";
+set color_entry_border = "#d3532c";
+set color_entry_interaction_links = "#6b9e88";
+set color_entry_link = "#8d765e";
+set color_entry_link_active = "#8d765e";
+set color_entry_link_hover = "#6b9e88";
+set color_entry_link_visited = "#655643";
+set color_entry_text = "#090706";
+set color_entry_title = "#090706";
+set color_comment_title = "#090706";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f8f9ea";
+set color_module_border = "#d3532c";
+set color_module_link = "#8d765e";
+set color_module_link_active = "#8d765e";
+set color_module_link_hover = "#6b9e88";
+set color_module_link_visited = "#655643";
+set color_module_text = "#090706";
+set color_module_title = "#090706";
 
 
 #NEWLAYER: practicality/turtle
@@ -1496,3 +1990,58 @@ set color_module_link_hover = "#84684b";
 set color_module_link_visited = "#46312C";
 set color_module_text = "#0c0c0c";
 set color_module_title = "#0c0c0c";
+
+
+#NEWLAYER: practicality/zoned
+layerinfo type = "theme";
+layerinfo name = "Zoned";
+layerinfo redist_uniq = "practicality/zoned";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff500";
+set color_page_link = "#3f9dca";
+set color_page_link_active = "#3f9dca";
+set color_page_link_hover = "#3cc058";
+set color_page_link_visited = "#226888";
+set color_page_text = "#1b1b1b";
+set color_page_title = "#1b1b1b";
+set color_header_background = "#ffab18";
+set color_footer_background = "#fffde1";
+set color_footer_link = "#3f9dca";
+set color_footer_link_active = "#3f9dca";
+set color_footer_link_hover = "#3cc058";
+set color_footer_link_visited = "#226888";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fffde1";
+set color_entry_border = "#ffd600";
+set color_entry_interaction_links = "#1390ca";
+set color_entry_link = "#3f9dca";
+set color_entry_link_active = "#3f9dca";
+set color_entry_link_hover = "#3cc058";
+set color_entry_link_visited = "#226888";
+set color_entry_text = "#1b1b1b";
+set color_entry_title = "#1b1b1b";
+set color_comment_title = "#1b1b1b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fffde1";
+set color_module_border = "#ffd600";
+set color_module_link = "#3f9dca";
+set color_module_link_active = "#3f9dca";
+set color_module_link_hover = "#3cc058";
+set color_module_link_visited = "#226888";
+set color_module_text = "#1b1b1b";
+set color_module_title = "#1b1b1b";
