@@ -78,8 +78,12 @@ body<=
         $ret .= ", " . $person->last_updated if $opts{last_updated};
         $ret .= " [<a href='" . $person->gift_url . "'>";
         $ret .= LJ::Lang::ml( '.buy.gift' ) . "</a>]";
-        $ret .= " [<a href='" . $person->gift_points_url . "'>";
-        $ret .= LJ::Lang::ml( '.buy.points' ) . "</a>]";
+
+        if ( $person->is_personal ) {
+            $ret .= " [<a href='" . $person->gift_points_url . "'>";
+            $ret .= LJ::Lang::ml( '.buy.points' ) . "</a>]";
+        }
+
         if ( $person->is_personal && ! $person->equals( $remote ) ) {
             $ret .= " [<a href='" . $person->transfer_points_url . "'>";
             $ret .= LJ::Lang::ml( '.buy.points.transfer' ) . "</a>]";
