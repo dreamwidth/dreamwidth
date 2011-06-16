@@ -31,5 +31,9 @@
 
 .paid.soon.about=These are the people in your Circle who have paid accounts that are expiring within the next month:
 
+.seed.header=Never Expiring
+
+.seed.about=These are the people in your circle who have seed accounts, but who might appreciate some points:
+
 .title=Give the Gift of [[sitename]]
 

@@ -29,31 +29,33 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    my ( $ret, @free, @expired, @expiring, @paid );
+    my ( $ret, @free, @expired, @expiring, @paid, @seed );
 
     my $circle = LJ::load_userids( $remote->circle_userids );
 
     foreach my $target ( values %$circle ) {
 
         if ( ( $target->is_person || $target->is_community ) && $target->is_visible ) {
-            my $paidstatus = DW::Pay::get_paid_status( $target );
+            my $paidstatus = DW::Pay::get_paid_status( $target );   
 
             # account was never paid if it has no paidstatus row:
             push @free, $target unless defined $paidstatus;
 
             if ( defined $paidstatus ) {
-                # account is expired if it's not permanent,
-                # and if the expiration date has passed:
-                push @expired, $target unless $paidstatus->{permanent} ||
-                                              $paidstatus->{expiresin} > 0;
+                if ( $paidstatus->{permanent} ) {
+                    push @seed, $target;
+                } else {
+                    # account is expired if the expiration date has passed:
+                    push @expired, $target unless $paidstatus->{expiresin} > 0;
 
-                # account is expiring soon if the expiration time is
-                # within the next month:
-                push @expiring, $target if $paidstatus->{expiresin} < 2592000
-                                        && $paidstatus->{expiresin} > 0;
+                    # account is expiring soon if the expiration time is
+                    # within the next month:
+                    push @expiring, $target if $paidstatus->{expiresin} < 2592000
+                                            && $paidstatus->{expiresin} > 0;
 
-                # account is expiring in more than one month:
-                push @paid, $target if $paidstatus->{expiresin} >= 2592000;
+                    # account is expiring in more than one month:
+                    push @paid, $target if $paidstatus->{expiresin} >= 2592000;
+                }
             }
         }
     }
@@ -76,8 +78,11 @@ body<=
 
         $ret .= "<li>" . $person->ljuser_display . ": " . $person->name_html;
         $ret .= ", " . $person->last_updated if $opts{last_updated};
-        $ret .= " [<a href='" . $person->gift_url . "'>";
-        $ret .= LJ::Lang::ml( '.buy.gift' ) . "</a>]";
+
+        unless ( $opts{no_paid_time} ) {
+            $ret .= " [<a href='" . $person->gift_url . "'>";
+            $ret .= LJ::Lang::ml( '.buy.gift' ) . "</a>]";
+        }
 
         if ( $person->is_personal ) {
             $ret .= " [<a href='" . $person->gift_points_url . "'>";
@@ -115,6 +120,9 @@ body<=
 
     # do the same with the paid users
     my $paidusers = join '', map { $list_item->( $_ ) } @paid;
+
+    # do the same with seed users
+    my $seedusers = join '', map { $list_item->( $_, no_paid_time => 1 ) } @seed;
 
     # and, now we build the page.
     $ret .= "<p>";
@@ -167,6 +175,13 @@ body<=
         $ret .= "<p>" . LJ::Lang::ml( '.paid.other.about' ) . "</p>";
         $ret .= "<ul> " . $paidusers . "</ul>";
     }
+
+    if ( $seedusers ) {
+        $ret .= "<h2>" . LJ::Lang::ml( '.seed.header' ) . "</h2>\n";
+        $ret .= "<p>" . LJ::Lang::ml( '.seed.about' ) . "</p>";
+        $ret .= "<ul> " . $seedusers . "</ul>";
+    }
+
     return $ret;
 }
 _code?>
