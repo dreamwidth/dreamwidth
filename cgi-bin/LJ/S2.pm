@@ -2042,7 +2042,7 @@ sub Entry_from_entryobj
 
     # loading S2 Userpic
     my $userpic;
-    my $userpic_position = S2::get_property_value( $opts->{ctx}, 'userpics_position' );
+    my $userpic_position = S2::get_property_value( $opts->{ctx}, 'userpics_position' ) || "";
     my $userpic_style;
 
     unless ( $userpic_position eq "none" ) {
