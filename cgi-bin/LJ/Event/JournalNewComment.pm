@@ -196,6 +196,7 @@ sub content {
     };
 
     my $cmt_info = $comment->info;
+    $cmt_info->{form_auth} = LJ::form_auth( 1 );
     my $cmt_info_js = LJ::js_dumper($cmt_info) || '{}';
 
     my $posterusername = $self->comment->poster ? $self->comment->poster->{user} : "";
