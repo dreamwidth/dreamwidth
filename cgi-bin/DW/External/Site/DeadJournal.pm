@@ -86,4 +86,8 @@ sub pre_crosspost_hook {
     return $req;
 }
 
+sub canonical_username {
+    return LJ::canonical_username( $_[1] );
+}
+
 1;

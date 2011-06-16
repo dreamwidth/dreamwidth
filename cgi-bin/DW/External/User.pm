@@ -36,7 +36,7 @@ sub new {
     my $ext = DW::External::Site->get_site( site => $site )
         or return undef;
 
-    my $vuser = LJ::canonical_username($user)
+    my $vuser = $ext->canonical_username( $user )
         or return undef;
 
     my $self = {

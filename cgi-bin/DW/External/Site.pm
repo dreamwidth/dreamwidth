@@ -151,5 +151,15 @@ sub servicetype {
     return $_[0]->{servicetype};
 }
 
+# returns a cleaned version of the username
+sub canonical_username {
+    my $input = $_[1];
+    my $user = "";
+
+    if ( $input =~ /^\s*([a-zA-Z0-9_\-]+)\s*$/ ) {  # good username
+        $user = $1;
+    }
+    return $user;
+}
 
 1;

@@ -73,5 +73,8 @@ sub badge_image_url {
     return 'http://www.journalfen.net/img/userinfo.gif';
 }
 
+sub canonical_username {
+    return LJ::canonical_username( $_[1] );
+}
 
 1;

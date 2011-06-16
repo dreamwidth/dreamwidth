@@ -73,5 +73,8 @@ sub badge_image_url {
     return "$LJ::IMGPREFIX/silk/identity/user.png";
 }
 
+sub canonical_username {
+    return LJ::canonical_username( $_[1] );
+}
 
 1;
