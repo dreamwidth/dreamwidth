@@ -34,7 +34,7 @@ body<=
 
     # now, redirect them to the SSL page just in case they got here without SSL
     # actually being on...
-    return "$LJ::SSLROOT/shop/entercc"
+    return BML::redirect( "$LJ::SSLROOT/shop/entercc" )
         unless $LJ::IS_DEV_SERVER || $LJ::IS_SSL;
 
     $title = $ML{'.title'};
