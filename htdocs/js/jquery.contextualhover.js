@@ -122,8 +122,6 @@ _renderPopup: function() {
         this.element.ajaxtip("cancel");
     }
 
-    this.element.ajaxtip("show")
-
     var $inner = $("<div class='Inner'></div>");
     var $content = $("<div class='Content'></div>");
 
@@ -319,10 +317,11 @@ _renderPopup: function() {
 
     $content.append($("<div class='ljclear'>&nbsp;</div>"));
 
+    this.element.ajaxtip("show")
     this.element
         .ajaxtip("widget")
             .removeClass("ajaxresult ajaxtooltip").addClass("ContextualPopup")
-            .empty().append($inner)
+            .empty().append($inner);
 },
 
 _changeRelation: function(info, action, link, e) {

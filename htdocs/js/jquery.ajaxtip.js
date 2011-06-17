@@ -44,13 +44,19 @@ $.widget("dw.ajaxtip", {
                     }
 
                     tip.css({position: "absolute", top: "", left: ""})
-                        .position({ my: "left top", at: "left bottom", of: self.element, collision: "fit"})
+                    self._reposition( tip );
+                },
+                onShow: function(e) {
+                    self._reposition( this.getTip() );
                 }
             },  self.options.tooltip));
     },
     _init: function() {
         if(this.options.content)
             this.element.data("tooltip").show()
+    },
+    _reposition: function( tip ) {
+        tip.position({ my: "left top", at: "left bottom", of: this.element, collision: "fit"})
     },
     _endpointurl : function( action ) {
         // if we are on a journal subdomain then our url will be
@@ -91,7 +97,10 @@ $.widget("dw.ajaxtip", {
             dataType: "json",
             complete: function() {
                 var tip = self.element.data("tooltip");
-                if ( tip ) tip.inprogress = false;
+                if ( tip ) {
+                    tip.inprogress = false;
+                    self._reposition( tip.getTip() );
+                }
             },
             success: opts.success,
             error: opts.error ? opts.error : function( jqxhr, status, error ) {
