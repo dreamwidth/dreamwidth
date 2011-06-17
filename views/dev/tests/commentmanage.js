@@ -285,7 +285,7 @@ test( "delete all children (has children)", 4, function() {
                 .attr("checked", "checked")
                 .end()
             .find("input[value='Delete']")
-                .click();
+                .click()
 
     this.server.respond();
 } );

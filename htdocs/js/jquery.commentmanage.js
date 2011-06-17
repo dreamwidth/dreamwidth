@@ -92,6 +92,7 @@ $.widget("dw.moderate", {
                 })
                 .ajaxtip("load", {
                     url: posturl,
+                    context: self,
                     data: {
                         talkid  : self.linkdata.id,
                         journal : self.options.journal,
@@ -161,6 +162,7 @@ $.widget("dw.delcomment", {
                 .ajaxtip("load", {
                     url: posturl,
                     data: postdata,
+                    context: self,
                     success: function( data, status, jqxhr ) {
                         if ( data.error ) {
                             self.element.ajaxtip( "error", "Error while trying to delete comment: " + data.error )

@@ -106,6 +106,7 @@ $.widget("dw.ajaxtip", {
             type: opts.formmethod || "POST",
             url : opts.endpoint ? self._endpointurl( opts.endpoint) : opts.url,
             data: opts.data,
+            context: opts.context,
 
             dataType: "json",
             complete: function() {
@@ -120,10 +121,11 @@ $.widget("dw.ajaxtip", {
             success: opts.success,
             error: opts.error ? opts.error : function( jqxhr, status, error ) {
                 if ( status == "abort" )
-                    self.element.ajaxtip("cancel");
+                    this.element.ajaxtip("cancel");
                 else
-                    self.element.ajaxtip( "error", "Error contacting server. " + error);
-                self._trigger( "complete" );
+                    this.element.ajaxtip( "error", "Error contacting server. " + error);
+
+                this._trigger( "complete" );
             }
         });
 
@@ -145,17 +147,24 @@ $.widget("dw.ajaxtip", {
 });
 
 $.extend( $.dw.ajaxtip, {
-    closeall: function() {
+    closeall: function(e) {
         $(".ajaxtip:visible").each(
             function(){
-                $(this).trigger("close");
+                var $this = $(this);
+
+                console.log($this, e.target, $this.has( e.target ).length > 0 );
+                if ( e && e.target && $this.has( e.target ).length > 0 ) {
+                    // clicked inside this popup; do nothing
+                } else {
+                    $(this).trigger("close");
+                }
             })
     }
 })
 })(jQuery);
 
 jQuery(function($) {
-    $(document).click(function() {
-        $.dw.ajaxtip.closeall();
+    $(document).click(function(e) {
+        $.dw.ajaxtip.closeall(e);
     });
 });

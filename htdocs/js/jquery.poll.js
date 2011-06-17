@@ -24,6 +24,7 @@ $.widget("dw.dynamicpoll", {
             .ajaxtip({namespace: "pollanswer"})
             .ajaxtip("load", {
                 endpoint: "poll",
+                context: self,
                 data: {
                     pollid  : pollid,
                     pollqid : pollqid,
@@ -86,6 +87,7 @@ $.widget("dw.dynamicpoll", {
             $submit.ajaxtip({namespace: "pollsubmit"})
                 .ajaxtip("load", {
                     endpoint: "pollvote",
+                    context: self,
                     data: $poll.serialize(),
                     success: function( data, status, jqxhr ) {
                         if ( data.error ) {

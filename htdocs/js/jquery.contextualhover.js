@@ -83,6 +83,7 @@ _create: function() {
             .ajaxtip( "load", {
                 endpoint: "ctxpopup",
                 formmethod: "GET",
+                context: self,
                 data: {
                     "user": opts.username || "",
                     "userid": opts.userid || 0,
@@ -331,6 +332,7 @@ _changeRelation: function(info, action, link, e) {
 
     $link.ajaxtip({namespace: "changerelation"}).ajaxtip("load", {
         endpoint: "changerelation",
+        context: self,
         data: {
             target: info.username,
             action: action,
