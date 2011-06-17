@@ -1034,7 +1034,7 @@ sub create_qr_div {
     $ret .= "\n</script>";
 
     $ret .= LJ::Talk::js_iconbrowser_button()
-        if $remote->can_use_userpic_select;
+        if $remote->can_use_userpic_select && ! LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );;
 
     return $ret;
 }

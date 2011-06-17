@@ -2001,7 +2001,8 @@ sub icon_dropdown {
         # userpic browse button
         if ( $remote && $remote->can_use_userpic_select ) {
             $ret .= '<input type="button" id="lj_userpicselect" value="Browse" />';
-            $ret .= LJ::Talk::js_iconbrowser_button();
+            $ret .= LJ::Talk::js_iconbrowser_button()
+                unless LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
         }
 
         # random icon button - hidden for non-JS
