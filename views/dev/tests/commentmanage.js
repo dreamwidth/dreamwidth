@@ -5,7 +5,7 @@ jquery: js/jquery/jquery.ui.widget.js
 jquery: js/jquery.ajaxtip.js
 jquery: js/jquery.commentmanage.js
 jquery: js/tooltip.js
-jquery: js/tooltip.dynamic.js
+jquery: js/jquery/jquery.ui.position.js
 */
 
 var lifecycle = {

@@ -713,8 +713,8 @@ body<=
                             js/jquery/jquery.ui.widget.js
                             js/jquery.ajaxtip.js
                             js/jquery.commentmanage.js
+                            js/jquery/jquery.ui.position.js
                             js/tooltip.js
-                            js/tooltip.dynamic.js
                             stc/ajaxtip.css
                             stc/popup-form.css
                 ) );

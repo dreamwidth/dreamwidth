@@ -356,7 +356,6 @@ no strict "vars";
 
         "js/hoverIntent.js"             => "js/hoverIntent.minified.js",
         "js/tooltip.js"                 => "js/tooltip.min.js",
-        "js/tooltip.dynamic.js"         => "js/tooltip.dynamic.min.js",
     ) unless defined %LJ::MINIFY;
 }
 
