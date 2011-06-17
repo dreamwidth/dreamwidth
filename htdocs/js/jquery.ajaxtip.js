@@ -32,9 +32,22 @@ $.widget("dw.ajaxtip", {
                 relative: true,
                 effect: "fade",
                 onBeforeShow: function(e) {
-                    var tip = this.getTip();
+                    var tooltipAPI = this;
+                    var tip = tooltipAPI.getTip();
                     tip.removeClass("ajaxresult ajaxresult-success ajaxresult-error")
                         .appendTo("body");
+                    if ( ! tip.data( "boundclose" ) ) {
+                        tip.bind( "close", function () {
+
+                            // abort any existing request
+                            var xhr = tip.data( "xhr" );
+                            if ( xhr ) xhr.abort();
+
+                            // hide any currently shown ones
+                            tooltipAPI.hide();
+                        } );
+                        tip.data( "boundclose", true );
+                    }
 
                     if ( self.options.content && ! this.inprogress ){
                         tip.html(self.options.content)
@@ -84,12 +97,12 @@ $.widget("dw.ajaxtip", {
         if( tip ) {
             if( tip.inprogress ) return;
             if( tip.isShown() ) tip.hide();
+            tip.inprogress = true;
         }
 
-        tip.inprogress = true;
         self.element.trigger("ajaxstart" + self._namespace());
 
-        $.ajax({
+        var xhr = $.ajax({
             type: opts.formmethod || "POST",
             url : opts.endpoint ? self._endpointurl( opts.endpoint) : opts.url,
             data: opts.data,
@@ -99,15 +112,22 @@ $.widget("dw.ajaxtip", {
                 var tip = self.element.data("tooltip");
                 if ( tip ) {
                     tip.inprogress = false;
-                    self._reposition( tip.getTip() );
+                    var tipele = tip.getTip();
+                    self._reposition( tipele );
+                    tipele.removeData("xhr");
                 }
             },
             success: opts.success,
             error: opts.error ? opts.error : function( jqxhr, status, error ) {
-                self.element.ajaxtip( "error", "Error contacting server. " + error);
+                if ( status == "abort" )
+                    self.element.ajaxtip("cancel");
+                else
+                    self.element.ajaxtip( "error", "Error contacting server. " + error);
                 self._trigger( "complete" );
             }
         });
+
+        if ( tip ) tip.getTip().data( "xhr", xhr );
     },
     success: function(msg) {
         this.element.trigger({ type: "ajaxresult"+this._namespace(),
@@ -128,8 +148,7 @@ $.extend( $.dw.ajaxtip, {
     closeall: function() {
         $(".ajaxtip:visible").each(
             function(){
-                var tip = $(this).prev().data("tooltip");
-                if ( !tip.inprogress ) tip.hide()
+                $(this).trigger("close");
             })
     }
 })

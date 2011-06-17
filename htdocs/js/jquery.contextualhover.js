@@ -349,6 +349,7 @@ _changeRelation: function(info, action, link, e) {
                         self.cachedResults[this]=data[this];
                     });
                 }
+                $link.ajaxtip( "cancel" );
                 self._renderPopup();
             }
             self._trigger("complete");
