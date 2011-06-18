@@ -182,7 +182,7 @@ _renderPopup: function() {
         var $membership = $("<span></span>");
         if ( ! data.is_closed_membership || data.is_member ) {
             var $membershiplink = $("<a></a>");
-            var $membershipaction = data.is_member ? "leave" : "join";
+            var membership_action = data.is_member ? "leave" : "join";
 
             if ( data.is_member )
                 $membershiplink.attr("href" , data.url_leavecomm ).html("Leave");
@@ -200,7 +200,7 @@ _renderPopup: function() {
         } else {
             $membership.html("Community closed");
         }
-        $content.append($membership);
+        $content.append($membership, "<br />"   );
     }
 
     var links = [];
