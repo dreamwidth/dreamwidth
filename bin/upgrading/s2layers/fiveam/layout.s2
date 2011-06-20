@@ -476,7 +476,7 @@ h2#pagetitle:first-letter {
     text-align: center;
     }
 
-.has-userpic .contents .userpic img {
+.contents .userpic img {
     background: $*color_entry_text;
     border: 1px solid $*color_entry_text;
     padding: 5px;
