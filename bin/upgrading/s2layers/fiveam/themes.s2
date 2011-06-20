@@ -50,6 +50,8 @@ set color_calendar_background_hover = "#fff";
 set color_calendar_border = "#ccc";
 set color_calendar_link = "#c33";
 set color_calendar_link_hover = "#93c9d2";
+set color_calendar_text = "#444";
+set color_calendar_text_hover = "#444";
 
 ##===============================
 ## Images

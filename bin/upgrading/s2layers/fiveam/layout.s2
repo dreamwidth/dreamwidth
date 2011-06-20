@@ -40,13 +40,15 @@ propgroup colors_child {
     property Color color_comment_interaction_links { des = "Comment interaction links color"; }
     property Color color_comment_interaction_links_border { des = "Comment interaction links border color"; }
     property Color color_module_accent { des = "Module accent color"; }
-    property Color color_calendar_background { des = "Calendar background color"; }
-    property Color color_calendar_background_hover { des = "Calendar hover background color"; }
+    property Color color_calendar_background { des = "Calendar background color on days with entries"; }
+    property Color color_calendar_background_hover { des = "Calendar hover background color on days with entries"; }
     property Color color_calendar_border { des = "Calendar border color"; }
-    property Color color_calendar_link { des = "Calendar link color"; }
-    property Color color_calendar_link_active { des = "Calendar active link color"; }
-    property Color color_calendar_link_hover { des = "Calendar hover link color"; }
-    property Color color_calendar_link_visited { des = "Calendar visited link color"; }
+    property Color color_calendar_link { des = "Calendar link color on days with entries"; }
+    property Color color_calendar_link_active { des = "Calendar active link color on days with entries"; }
+    property Color color_calendar_link_hover { des = "Calendar hover link color on days with entries"; }
+    property Color color_calendar_link_visited { des = "Calendar visited link color on days with entries"; }
+    property Color color_calendar_text { des = "Calendar text color on days with entries"; }
+    property Color color_calendar_text_hover { des = "Calendar hover text color on days with entries"; }
 }
 
 ##===============================
@@ -762,6 +764,7 @@ table.month th:first-child {
 
 .month-wrapper .day-has-entries {
     background: $*color_calendar_background;
+    color: $*color_calendar_text;
     }
 
 .month-wrapper .day-has-entries a {
@@ -770,13 +773,14 @@ table.month th:first-child {
 
 .month-wrapper .day-has-entries:hover {
     background: $*color_calendar_background_hover;
+    color: $*color_calendar_text_hover;
     }
 
 .month-wrapper .day-has-entries a:visited {
     color: $*color_calendar_link_visited;
     }
 
-.month-wrapper .day-has-entries a:hover {
+.month-wrapper .day-has-entries:hover p a {
     color: $*color_calendar_link_hover;
     }
 
@@ -1019,12 +1023,6 @@ ul.userlite-interaction-links li {
     color: $*color_calendar_link_active;
     }
 
-.module-calendar td a:hover,
-.module-powered a:hover,
-.manage-tags-link a:hover {
-    color: $*color_module_link_hover;
-    }
-
 .module-tags_multilevel li {
     list-style-type: none;
     margin-left: 0;
@@ -1056,12 +1054,32 @@ ul.userlite-interaction-links li {
     }
 
 .module-powered a,
-.manage-tags-link a, .manage-link a {
+.manage-tags-link a,
+.manage-link a {
     color: $*color_module_accent;
+    }
+
+.module-powered a:visited,
+.manage-tags-link a:visited,
+.manage-link a:visited {
+    color: $*color_module_link_visited;
+    }
+
+.module-powered a:hover,
+.manage-tags-link a:hover,
+.manage-link a:hover {
+    color: $*color_module_link_hover;
+    }
+
+.module-powered a:active,
+.manage-tags-link a:active,
+.manage-link a:active {
+    color: $*color_module_link_active;
     }
 
 .module-search .search-button {
     margin-left: .2em;
+    padding: .05em;
     }
 
 .module-search .search-box {
