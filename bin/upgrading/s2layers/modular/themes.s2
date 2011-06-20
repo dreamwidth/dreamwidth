@@ -403,10 +403,10 @@ set color_entry_border = "#333";
 set color_entry_link = "#18a418";
 set color_entry_link_hover = "#5A9B93";
 set color_entry_link_visited = "#18a418";
-set color_entry_text = "#4c4c";
-set color_entry_title = "#4c4c";
+set color_entry_text = "#4c4";
+set color_entry_title = "#4c4";
 set color_entry_title_background = "#333";
-set color_comment_title = "#4c4c";
+set color_comment_title = "#4c4";
 set color_comment_title_background = "#333";
 
 ##===============================
@@ -418,8 +418,8 @@ set color_module_border = "#333";
 set color_module_link = "#18a418";
 set color_module_link_hover = "#5a9b93";
 set color_module_link_visited = "#18a418";
-set color_module_text = "#4c4c";
-set color_module_title = "#4c4c";
+set color_module_text = "#4c4";
+set color_module_title = "#4c4";
 set color_module_title_background = "#333";
 
 

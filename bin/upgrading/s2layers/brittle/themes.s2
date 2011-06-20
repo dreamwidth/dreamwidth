@@ -961,10 +961,10 @@ set theme_authors = [ { "name" => "rising", "type" => "user" } ];
 ## Page Colors
 ##===============================
 
-set color_page_link = "38718a";
-set color_page_link_hover = "394c8c";
-set color_page_link_visited = "1e3d4b";
-set color_page_text = "161212";
+set color_page_link = "#38718a";
+set color_page_link_hover = "#394c8c";
+set color_page_link_visited = "#1e3d4b";
+set color_page_text = "#161212";
 set color_footer_background = "#eec5cb";
 
 ##===============================
