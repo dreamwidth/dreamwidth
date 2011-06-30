@@ -1,0 +1,50 @@
+#NEWLAYER: crisped/freshcotton
+layerinfo type = "theme";
+layerinfo name = "Fresh Cotton";
+layerinfo redist_uniq = "crisped/freshcotton";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ededed";
+set color_page_link = "#7B98C1";
+set color_page_link_active = "#7B98C1";
+set color_page_link_hover = "#757575";
+set color_page_link_visited = "#7B98C1";
+set color_page_text = "#5f5f5f";
+set color_page_title = "#7B98C1";
+set color_page_subtitle = "#757575";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#dcdcdc";
+set color_entry_link = "#7B98C1";
+set color_entry_link_active = "#7B98C1";
+set color_entry_link_hover = "#757575";
+set color_entry_link_visited = "#7B98C1";
+set color_entry_text = "#5f5f5f";
+set color_entry_title = "#757575";
+set color_entry_title_background = "#dcdcdc";
+set color_entry_interaction_links = "#757575";
+set color_comment_title = "#757575";
+set color_comment_title_background = "#dcdcdc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#dcdcdc";
+set color_module_link = "#7B98C1";
+set color_module_link_active = "#7B98C1";
+set color_module_link_hover = "#757575";
+set color_module_link_visited = "#7B98C1";
+set color_module_title = "#757575";
+set color_module_title_background = "#dcdcdc";
+set color_calendar_background = "#ededed";
+set color_calendar_text = "#757575";

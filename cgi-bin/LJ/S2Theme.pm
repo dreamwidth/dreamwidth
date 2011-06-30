@@ -41,6 +41,7 @@ sub default_themes {
         brittle => 'brittle/rust',
         compartmentalize => 'compartmentalize/poppyfields',
         core2base => 'core2base/testing',
+        crisped => 'crisped/freshcotton',
         crossroads => 'crossroads/lettuce',
         drifting => 'drifting/blue',
         dustyfoot => 'dustyfoot/dreamer',
