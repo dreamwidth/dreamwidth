@@ -40,6 +40,9 @@ crossroads/themes        theme+                      crossroads/layout
 drifting/layout          layout                      core2
 drifting/themes          theme+                      drifting/layout
 
+dustyfoot/layout         layout(core2base/layout)    core2
+dustyfoot/themes         theme+                      dustyfoot/layout
+
 easyread/layout          layout                      core2
 easyread/themes          theme+                      easyread/layout
 

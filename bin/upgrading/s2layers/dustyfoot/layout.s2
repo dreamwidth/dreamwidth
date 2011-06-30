@@ -1,0 +1,936 @@
+layerinfo type = "layout";
+layerinfo name = "Dusty Foot";
+layerinfo redist_uniq = "dustyfoot/layout";
+layerinfo author_name = "timeasmymeasure";
+layerinfo author_email = "timeasmymeasure@gmail.com";
+layerinfo lang = "en";
+
+set layout_authors = [ {"name" => "timeasmymeasure", "type" => "user"} ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-right";
+set comment_userpic_style = "small";
+set userpics_position = "right";
+set entry_management_links = "text";
+set comment_management_links = "text";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_entry_date { des = "Entry/Comment date color"; }
+    property Color color_header_link { des = "Header link color"; }
+    property Color color_header_link_active { des = "Header link active color"; }
+    property Color color_header_link_visited { des = "Header link visited color"; }
+    property Color color_header_link_hover { des = "Header link hover color"; }
+}
+
+##===============================
+## Modules
+##===============================
+
+property string module_navlinks_section_override {
+    values = "none|(none)|header|Header|one|Group One|two|Group Two";
+    grouped = 1;
+    }
+
+set grouped_property_override = { "module_navlinks_section" => "module_navlinks_section_override" };
+set module_navlinks_section = "header";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Arial";
+set font_fallback = "sans-serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_journal_title_size = "1.667";
+set font_journal_title_units = "em";
+set font_entry_title_size = "1.334";
+set font_entry_title_units = "em";
+set font_comment_title_size = "1.334";
+set font_comment_title_units = "em";
+set font_module_heading_size = "1.167";
+set font_module_heading_units = "em";
+
+##===============================
+## Layout
+##===============================
+
+function print_module_navlinks( bool apply_class_to_link ) {
+    var Page p = get_page();
+    var string title = ($*module_navlinks_section == "header") or (($*layout_type == "two-columns-left" or $*layout_type == "two-columns-right") and $*module_navlinks_section == "two") ? "" : "Navigation";
+    open_module("navlinks", $title, "");
+
+    if ( $apply_class_to_link ) {
+        var string[] links = [];
+        foreach var string k ($p.views_order) {
+            var string css = """ class="$k" """;
+            if ($p.view == $k) { $css = """ class="current $k" """; }
+            $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
+
+        }
+        print_module_list($links);
+    } else {
+        var string{}[] links = [];
+
+        foreach var string k ($p.views_order) {
+            var string class = $k;
+            if ($p.view == $k) { $class = "current $k"; }
+            $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
+        }
+        print_module_list($links);
+    }
+
+    close_module();
+}
+
+function print_module_calendar() {
+    var Page p = get_page();
+    var YearMonth mon = $p->get_latest_month();
+
+    if ($*module_calendar_opts_type=="horizontal") {
+        var string title = (($*layout_type == "two-columns-left" or $*layout_type == "two-columns-right") and $*module_calendar_section == "two") ? "" : "Calendar";
+        open_module("calendar","$title", "");
+        "<div class='calendar-horizontal'>";
+        print $mon->month_format("%%month%%", true);
+        foreach var YearWeek week ($mon.weeks) {
+            foreach var YearDay day ($week.days) {
+                if ($day.num_entries > 0) {
+                    var string entries = get_plural_phrase($day.num_entries, "text_calendar_num_entries");
+                    print """<span class="entry-day"> <a href="$day.url" title="$entries">$day.day</a></span>""";
+                }
+                else {
+                    print """<span class="empty-day"> $day.day </span>""";
+                }
+            }
+        }
+        print $mon->month_format("%%yyyy%%", true);
+        "</div>";
+        close_module();
+    }
+    else {
+        open_module("calendar", $mon->month_format("", true), "");
+        println """<table summary="Monthly calendar with links to each day's entries">""";
+
+        println "<tr>";
+        foreach var int d (weekdays()) {
+            "<th>"+$*lang_dayname_shorter[$d]+"</th>\n";
+        }
+       println "</tr>";
+
+        foreach var YearWeek week ($mon.weeks) {
+            println "<tr>";
+            foreach var int i (1 .. $week.pre_empty) {
+                print "<td>&nbsp;</td>";
+            }
+
+            foreach var YearDay day ($week.days) {
+                if ( $day.num_entries > 0) {
+                    var string entries = get_plural_phrase($day.num_entries, "text_calendar_num_entries");
+                    print """<td class="entry-day"> <a href="$day.url" title="$entries">$day.day</a></td>""";
+                }
+                else {
+                    print """<td class="empty-day">$day.day</td>""";
+                }
+            }
+
+            foreach var int i (1 .. $week.post_empty) {
+                print "<td>&nbsp;</td>";
+            }
+            println "</tr>";
+        }
+
+        println """</table>""";
+        close_module();
+    }
+}
+
+function Page::print() {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+                    $this->print_module_section("header");
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+                    <div id="secondary"><div class="inner">
+                        """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+    """;
+    
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+
+    var string entry_header_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_header_margin = "130px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_header_margin = "105px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_header_margin = "80px"; }
+
+    var string comment_header_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_header_margin = "130px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_header_margin = "105px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_header_margin = "80px"; }
+
+    var string userpic_css = "";
+    if($*userpics_position == "left") {
+        $userpic_css = """
+        .has-userpic div.entry div.header {
+           margin-left: $entry_header_margin;
+           }
+        .has-userpic div.comment div.header {
+           margin-left: $comment_header_margin;
+           }
+        .has-userpic .entry .userpic,
+        .has-userpic .comment .userpic {
+           float: left;
+           margin-left: 10px;
+           margin-right: 10px;
+           }
+        """;
+    }
+    elseif($*userpics_position == "right") {
+        $userpic_css = """
+        .has-userpic div.entry div.header {
+           margin-right: $entry_header_margin;
+           }
+        .has-userpic div.comment div.header {
+           margin-right: $comment_header_margin;
+           }
+        .has-userpic .entry .userpic,
+        .has-userpic .comment .userpic {
+           float: right;
+           margin-left: 10px;
+           margin-right: 10px;
+           }
+        """;
+    }
+"""
+
+/* Dusty Foot */
+/* by timeasmymeasure*/
+
+/* Main
+***************************************************************************/
+
+* {
+    margin: 0;
+    padding: 0;
+    }
+
+body {
+    line-height: 140%;
+    margin: 0;
+    }
+
+a, a:link, a:visited {
+    text-decoration: none;
+    }
+
+img {
+    border: none;
+    }
+
+p {
+    margin: 1em 0;
+    }
+
+blockquote {
+    background: $*color_module_background;
+    color: $*color_module_text;
+    border-left: 15px solid $*color_entry_border;
+    margin: 15px 15px 15px 50px;
+    padding: 10px;
+    width: 65%;
+    }
+
+code, kbd, pre, tt, textarea {
+    font-family: monospace;
+    }
+
+ul {
+    list-style-type: disc;
+    margin-left: 50px;
+    }
+
+ol {
+    list-style-type: decimal-leading-zero;
+    margin-left: 50px;
+    }
+
+/* Page Containers
+***************************************************************************/
+
+#canvas {
+    margin: 0 auto;
+    width: 87%;
+    }
+
+#content {
+    background-color: $*color_entry_background;
+    color: $*color_entry_text;
+    }
+
+#primary > .inner:first-child {
+    padding: 0;
+    }
+
+#secondary,
+.three-columns #tertiary,
+.one-column #tertiary {
+    background-color: $*color_module_background;
+    color: $*color_module_text;
+    }
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+    padding: 0;
+    }
+
+/* Header
+***************************************************************************/
+
+h1#title {
+    margin: 0;
+    padding: 10px 0 0 10px;
+    text-transform: uppercase;
+    }
+
+h2#subtitle {
+    margin: 0;
+    padding: 0 0 0 10px;
+    text-transform: lowercase;
+    }
+
+h2#pagetitle {
+    margin: 0;
+    padding: 10px;
+    font-variant: small-caps;
+    font-weight: lighter;
+    }
+
+#header .module-navlinks {
+    background: $*color_header_background;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+#header .module-navlinks ul {
+    margin: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks li {
+    display: inline;
+    list-style: none;
+    padding: 10px;
+    }
+
+#header .module-navlinks li a { color: $*color_header_link; }
+#header .module-navlinks li a:visited { color: $*color_header_link_visited ; }
+#header .module-navlinks li a:hover { color: $*color_header_link_hover; }
+#header .module-navlinks li a:active { color: $*color_header_link_active ; }
+
+/* Navigation
+***************************************************************************/
+
+.navigation {
+    margin: 0;
+    font-size: .9em;
+    padding: 10px;
+    text-align: left;
+    text-transform: uppercase;
+    }
+
+.navigation li {
+    padding: 5px;
+    }
+
+.navigation .page-back a:before,
+.navigation .page-forward a:after {
+    vertical-align: 40%;
+    }
+
+/* Entries and Comments
+***************************************************************************/
+
+.entry,
+.text_noentries_day {
+    border: none;
+    border-bottom: 5px solid $*color_entry_border;
+    margin: 0 10px 20px;
+    padding: 10px 0;
+    }
+
+.text_noentries_day {
+    margin-bottom: 20px;
+    margin-top: 20px;
+    }
+
+.entry-content {
+    margin: 0 0 1em;
+    }
+
+.entry-title {
+    font-variant: small-caps;
+    margin: 0;
+    padding: 0;
+    }
+
+.datetime {
+    font-size: .8em; 
+    color: $*color_entry_date;
+    text-transform: uppercase;
+    }
+
+.datetime a {
+    color: $*color_entry_date;
+    }
+
+.day-date { padding: 0 0 0 .5em; }
+
+.entry-poster {
+    border-bottom: 1px solid $*color_entry_border;
+    display: block;
+    margin-bottom: 10px;
+    }
+
+.has-userpic .entry .userpic {
+    margin-top: -1.5em;
+    }
+
+.entry .userpic img {
+    border: 5px solid $*color_header_background;
+    }
+
+.entry .metadata.bottom-metadata {
+    clear: both;
+    }
+
+.entry .footer {
+    clear: both;
+    text-align: center;
+    text-transform: uppercase;
+    }
+
+.entry-management-links, .entry-interaction-links,
+.comment-management-links, .comment-interaction-links {
+    display: inline;
+    text-align: right;
+    }
+
+.entry-management-links li, .entry-interaction-links li,
+.comment-management-links li, .comment-interaction-links li {
+    padding: 5px;
+    }
+
+.entry-management-links.text-links li a,
+.comment-management-links.text-links li a,
+.comment-interaction-links.text-links .thread a {
+    background-image: url($*STATDIR/transmogrified/permalink.gif);
+    background-repeat: no-repeat;
+    background-position: 0% 50%;
+    color: $*color_entry_interaction_links;
+    padding-left: 14px;
+    }
+
+.entry-management-links.text-links .edit_entry a,
+.comment-management-links.text-links .delete_comment a,
+.comment-management-links.text-links .edit_comment a {
+    background-image: url($*STATDIR/transmogrified/edit.gif);
+    }
+
+.entry-management-links.text-links .edit_tags a,
+.comment-interaction-links .parent a {
+    background-image: url($*STATDIR/transmogrified/tag.gif);
+    }
+
+.entry-management-links.text-links .mem_add a,
+.entry-management-links.text-links .watch_comments a,
+.comment-management-links.text-links .watch_thread a {
+    background-image: url($*STATDIR/transmogrified/memories.gif);
+    }
+
+.entry-management-links.text-links .link_prev a {
+    background-image: url($*STATDIR/transmogrified/previous.gif);
+    }
+
+.entry-management-links.text-links .link_next a {
+    background-image: url($*STATDIR/transmogrified/next.gif);
+    }
+
+.entry-interaction-links li a,
+.comment-interaction-links li a,
+.entry-management-links.text-links .tell_friend a {
+    background-image: url($*STATDIR/transmogrified/comment.gif);
+    background-repeat: no-repeat;
+    background-position: 0% 50%;
+    display: inline;
+    padding-left: 14px;
+    }
+
+.comment-management-links.text-links .delete_comment a {
+    background-image: url($*STATDIR/transmogrified/delete.gif);
+    }
+
+.text_noentries_day {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    }
+
+.tag {
+    border-bottom: 1px solid $*color_entry_border;
+    font-size: .8em;
+    margin: 1em 0 1em .5em;
+    text-align: left;
+    }
+
+.metadata {
+    line-height: 100%;
+    font-size: .8em;
+    padding: 5px;
+    text-align: left;
+    text-transform: uppercase;
+    }
+
+.metadata.bottom-metadata {
+    border-top: 1px solid $*color_entry_border;
+    margin-top: 1em;
+    }
+
+.metadata.top-metadata {
+    border-bottom: 1px solid $*color_entry_border;
+    }
+
+.metadata .metadata-item,
+.metadata a, .tag a {
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title;
+    }
+
+.footer li,
+.entry .metadata li,
+.tag li {
+    list-style: none;
+    margin-left: 0 !important;
+    }
+
+/* Comments
+***************************************************************************/
+
+.comment-wrapper .comment {
+    border-bottom: 5px solid $*color_entry_border;
+    margin-bottom: 20px;
+    margin-right: 10px;
+    padding: 10px;
+    }
+
+.comment-wrapper .comment-title,
+.comment-wrapper .comment-title a {
+    font-variant: small-caps;
+    letter-spacing: .1em;
+    }
+
+.has-userpic .comment .userpic {
+    margin-top: -1em;
+    }
+
+.comment .userpic img {
+    border: 5px solid $*color_header_background;
+    }
+
+.comment-poster {
+    border-bottom: 1px solid $*color_entry_border;
+    display: block;
+    margin-bottom: 10px;
+    }
+
+.comment .footer {
+    margin-top: 15px;
+    text-align: center;
+    text-transform:uppercase;
+    }
+
+.page-reply .entry-wrapper {
+    margin-top: 20px;
+    }
+
+#postform {
+    border: 1px solid $*color_entry_border;
+    margin: 20px;
+    }
+
+#commenttext {
+    width: 80%;
+    }
+
+.poster-ip {
+    color: $*color_entry_date;
+    text-transform: uppercase;
+    }
+
+.comment-pages {
+    padding: 5px;
+    }
+
+/* Archive Pages
+***************************************************************************/
+
+.month-wrapper,
+#archive-month dl {
+    border: 1px solid $*color_entry_border;
+    margin: 20px;
+    padding: 10px;
+    }
+
+.month-wrapper h3 {
+    color: $*color_entry_title;
+    font-variant: small-caps;
+    }
+
+.month table {
+    margin: auto;
+    width: 90%;
+    }
+
+.month table th {
+    border: 1px solid $*color_entry_border;
+    color: $*color_page_link;
+    padding: 5px;
+    text-align: center;
+    }
+
+.month table td {
+    border: 1px solid $*color_entry_border;
+    border: none;
+    }
+
+.month caption {
+    display: none;
+    }
+
+.month .day {
+    border: 1px solid $*color_entry_border;
+    padding: 5px; 
+    }
+
+.day-has-entries {
+    background-color: $*color_module_background;
+    color: $*color_module_text;
+    padding: 2px;
+    }
+
+.day-has-entries a {
+    color: $*color_module_link;
+    }
+
+.day-has-entries a:visited {
+    color: $*color_module_link_visited;
+    }
+
+.day-has-entries a:hover {
+    color: $*color_module_link_hover;
+    }
+
+.day-has-entries a:active {
+    color: $*color_module_link_active;
+    }
+
+.day-empty {
+    border: 1px solid $*color_entry_border;
+    }
+
+.month .day-has-entries a {
+    font-size: 1.25em;
+    font-weight: bold;
+    }
+
+.day-has-entries p {
+    margin: 3px !important;
+    text-align: right;
+    }
+
+.month .footer {
+    margin: auto;
+    text-align: center;
+    width: 90%;
+    }
+
+#archive-month dt {
+    font-weight: bold;
+    }
+
+#archive-month .entry-title {
+    display: inline-block;
+    padding-left: 5px;
+    }
+
+/* Tags Page
+***************************************************************************/
+
+.page-tags .tags-container {
+    margin: 10px 10px 0 10px;
+    }
+
+.page-tags #content h2 {
+    border-bottom: 1px solid $*color_entry_border;
+    color: $*color_entry_title;
+    font-variant: small-caps;
+    margin-bottom: 10px;
+    }
+
+.page-tags #content ul li {
+    list-style: disc;
+    margin-left: 50px;
+    padding: 5px;
+    }
+
+/* Icons Page
+***************************************************************************/
+
+.page-icons .icons-container {
+    margin: 10px 10px 0 10px;
+    }
+
+.page-icons #content h2 {
+    border-bottom: 1px solid $*color_entry_border;
+    color: $*color_entry_title;
+    font-variant: small-caps;
+    margin-bottom: 10px;
+    }
+
+.page-icons .icons-container ul {
+    list-style: none;
+    margin-left: 0;
+    }
+
+.page-icons .icons-container li,
+.page-icons .icons-container .keywords ul {
+    display: inline;
+    }
+
+.page-icons .icon {
+    border-bottom: 5px solid $*color_entry_border;
+    margin: 0 10px 20px;
+    padding: 10px 0;
+    }
+
+/* Modules
+***************************************************************************/
+
+.module-header {
+    border-bottom: 1px solid $*color_header_background;
+    font-variant: small-caps;
+    }
+
+.module-header a {
+    color: $*color_module_title;
+    }
+
+.module-section-one ul,
+.module-section-two ul {
+    list-style-type: none;
+    margin: 0;
+    }
+
+.module-section-one li,
+.module-section-two li {
+    padding: 2px 0 0 5px;
+    text-transform: lowercase;
+    }
+
+.module-section-one .module,
+.module-section-two .module {
+    margin: 10px 10px 10px 20px;
+    }
+
+.two-columns #tertiary .module-section-two .module-header,
+.two-columns #tertiary .module-section-two .module-content {
+    margin: 10px 10px 10px 20px;
+    }
+
+.module-userprofile .module-content {
+    text-align: center;
+    }
+
+.module-userprofile .userpic img {
+    border: 5px solid $*color_header_background;
+    text-align: center;
+    }
+
+.module-userprofile ul {
+    margin-top: 20px;
+    }
+
+.module-userprofile .icon-links li {
+    padding: 5px; 
+    }
+
+.module-credit .module-content {
+    text-align: center;
+    }
+
+.module-calendar table {
+    font-size: .7em;
+    margin: auto;
+    text-align: center;
+    width: 100%;
+    }
+
+.empty-day {
+    padding: 5px;
+    }
+
+.entry-day {
+    background-color: $*color_header_background;
+    color: $*color_page_title;
+    padding: 5px;
+    }
+
+.entry-day a { 
+    color: $*color_header_link;
+    text-decoration: none;
+    }
+
+.entry-day a:visited { 
+    color: $*color_header_link_visited;
+    }
+
+.entry-day a:hover {
+    color: $*color_header_link_hover;
+    text-decoration: underline;
+    }
+
+.entry-day a:active {
+    color: $*color_header_link_active;
+    text-decoration: underline;
+    }
+
+/* Footer
+***************************************************************************/
+
+#footer {
+    text-align: center;
+    }
+
+/* Contextual Pop-ups
+***************************************************************************/
+
+div.ContextualPopup {
+    background: $*color_page_background;
+    color: $*color_page_text;
+    margin: auto;
+    text-align: left;
+    }
+
+div.ContextualPopup div.Inner {
+    background: $*color_entry_background;
+    color: $*color_entry_text;
+    border: 1px solid $*color_header_background;
+    }
+
+div.ContextualPopup .Userpic {
+    background: $*color_header_background;
+    border: none;
+    padding: 5px;
+    margin:  5px;
+    }
+
+div.ContextualPopup .Content {
+    background: $*color_entry_background;
+    color: $*color_entry_text;
+    border: none;
+    margin: auto;
+    }
+
+div.ContextualPopup div.Inner a,
+div.ContextualPopup div.Inner a:visited,
+div.ContextualPopup div.Inner a:link {
+    color: $*color_entry_link;
+    text-decoration: none !important;
+    }
+
+div.ContextualPopup .Relation {
+    text-transform: lowercase;
+    }
+
+/* Navigation Strip
+***************************************************************************/
+
+#lj_controlstrip td {
+    background: $*color_entry_background;
+    color: $*color_entry_text;
+    border: solid 0px;
+    }
+
+#lj_controlstrip input {
+    background: $*color_page_background;
+    border: 1px solid $*color_header_background;
+    color: $*color_page_text;
+    }
+
+#lj_controlstrip a,
+#lj_controlstrip_statustext,
+#lj_controlstrip .ljuser a b {
+    color: $*color_entry_link;
+    }
+
+$userpic_css
+
+""";
+}

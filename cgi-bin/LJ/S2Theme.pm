@@ -43,6 +43,7 @@ sub default_themes {
         core2base => 'core2base/testing',
         crossroads => 'crossroads/lettuce',
         drifting => 'drifting/blue',
+        dustyfoot => 'dustyfoot/dreamer',
         easyread => 'easyread/green',
         fiveam => 'fiveam/earlyedition',
         fluidmeasure => 'fluidmeasure/spice',
