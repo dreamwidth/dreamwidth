@@ -492,7 +492,7 @@ body<=
             }
         }
 
-        $ret .= "<?p " . BML::ml('.usepublictheme', {'aopts' => "href='$LJ::SITEROOT/customize/'"}) . " p?>"
+        $ret .= "<?p " . BML::ml('.usepublictheme2', {'aopts' => "href='$LJ::SITEROOT/customize/options?group=display'"}) . " p?>"
             unless $moodtheme_upsell;
     }
 
