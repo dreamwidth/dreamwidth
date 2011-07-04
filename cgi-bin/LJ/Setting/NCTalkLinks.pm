@@ -32,8 +32,7 @@ use warnings;
 
 sub should_render {
     my ( $class, $u ) = @_;
-
-    return $u && ($u->is_person || $u->is_community) ? 1 : 0;
+    return 0 unless $u;
 }
 
 sub label {
