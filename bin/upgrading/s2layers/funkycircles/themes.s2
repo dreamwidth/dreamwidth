@@ -588,6 +588,82 @@ set image_module_list_active = "funkycircles/energydrink-modulebulletactive.png"
 set image_module_list_hover = "funkycircles/energydrink-modulebullethover.png";
 
 
+#NEWLAYER: funkycircles/heartofdarkness
+layerinfo type = "theme";
+layerinfo name = "Heart of Darkness";
+layerinfo redist_uniq = "funkycircles/heartofdarkness";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#021301";
+set color_page_link = "#18a418";
+set color_page_link_hover = "#5a9b93";
+set color_page_link_visited = "#18a418";
+set color_page_subtitle = "#111";
+set color_page_subtitle_background = "#4c4";
+set color_page_text = "#4c4";
+set color_page_title = "#4c4";
+set color_page_title_background = "#111";
+set color_header_background = "#111";
+set color_footer_background = "#111";
+set color_footer_link = "#18a418";
+set color_footer_link_hover = "#5a9b93";
+set color_footer_link_visited = "#18a418";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#111";
+set color_entry_border = "#333";
+set color_entry_footer_background = "#333";
+set color_entry_footer_border = "#111";
+set color_entry_footer_link = "#18a418";
+set color_entry_footer_link_hover = "#5a9b93";
+set color_entry_footer_link_visited = "#18a418";
+set color_entry_footer_text = "#4c4";
+set color_entry_link = "#18a418";
+set color_entry_link_hover = "#5a9b93";
+set color_entry_link_hover_background = "#111";
+set color_entry_link_visited = "#18a418";
+set color_entry_poster_border = "#111";
+set color_entry_text = "#4c4";
+set color_entry_title = "#4c4";
+set color_entry_title_background = "#333";
+set color_entry_userpic_border = "#333";
+set color_comment_title = "#4c4";
+set color_comment_title_background = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#111";
+set color_module_border = "#333";
+set color_module_link = "#18a418";
+set color_module_link_hover = "#5a9b93";
+set color_module_link_visited = "#18a418";
+set color_module_text = "#4c4";
+set color_module_title = "#4c4";
+set color_module_title_background = "#333";
+set color_specificmodule_background = "#333";
+
+##===============================
+## Images
+##===============================
+
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "funkycircles/heartofdarkness-header.png";
+set image_background_page_position = "bottom left";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "funkycircles/heartofdarkness-page.png";
+
+
 #NEWLAYER: funkycircles/industrialpink
 layerinfo type = "theme";
 layerinfo name = "Industrial Pink";
