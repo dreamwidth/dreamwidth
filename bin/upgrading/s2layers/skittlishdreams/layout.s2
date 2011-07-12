@@ -610,8 +610,18 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .two-columns-right .module-section-two .module {margin-left: 10px;}
 .two-columns-left .module-section-two .module {margin-right: 10px;}
 
-.module-section-one li {display: inline; list-style: none; }
-.module-section-one ul {$header_colors margin: 0; padding: 0.5em 20px; }
+.module-section-one ul {
+    $header_colors
+    margin: 0;
+    padding: 0 20px;
+    }
+
+.module-section-one li {
+    display: inline;
+    line-height: 2.2em;
+    list-style: none;
+    }
+
 .module-section-one li a {text-decoration: none; padding-top: 0.5em; padding-right: 20px; padding-bottom: 0.5em; padding-left: 20px; $header_colors }
 .module-section-one ul li a:hover, .module-section-one ul li a.current { $header_footer_hover_colors }
 .module-section-two a { $module_link_colors }
