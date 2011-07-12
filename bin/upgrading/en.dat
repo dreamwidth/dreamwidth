@@ -4319,7 +4319,9 @@ widget.createaccountupgrade.text=Purchasing a paid account will give you more ac
 
 widget.createaccountupgrade.title=Upgrade Your Account
 
-widget.currenttheme.desc=[[layout]] by [[designer]]
+widget.currenttheme.desc2=for [[style]]
+
+widget.currenttheme.designer=by [[designer]]
 
 widget.currenttheme.options=More options:
 
@@ -4335,7 +4337,7 @@ widget.currenttheme.options.layout=Change your page setup
 
 widget.currenttheme.options.newtheme=Select a different theme
 
-widget.currenttheme.specialdesc=<a [[aopts]]><em>Special</em></a> by [[designer]]
+widget.currenttheme.specialdesc2=<a [[aopts]]><em>Special</em></a>
 
 widget.currenttheme.title=[[user]]'s Current Theme
 

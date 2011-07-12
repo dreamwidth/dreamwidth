@@ -54,13 +54,14 @@ sub render_body {
     $ret .= "<p class='theme-current-desc'>";
     if ($designer) {
         my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($designer) . "$showarg' class='theme-current-designer'>$designer</a>";
+        $ret .= $class->ml('widget.currenttheme.designer', {'designer' => $designer_link});
         if (LJ::Hooks::run_hook("layer_is_special", $theme->uniq)) {
-            $ret .= $class->ml('widget.currenttheme.specialdesc', {'aopts' => $special_link_opts, 'designer' => $designer_link});
+            $ret .= " " . $class->ml('widget.currenttheme.specialdesc2', {'aopts' => $special_link_opts});
         } else {
-            $ret .= $class->ml('widget.currenttheme.desc', {'layout' => $layout_link, 'designer' => $designer_link});
+            $ret .= " " . $class->ml('widget.currenttheme.desc2', {'style' => $layout_link});
         }
     } elsif ($layout_name) {
-        $ret .= $layout_link;
+        $ret .= $class->ml('widget.currenttheme.desc2', {'style' => $layout_link});
     }
     $ret .= "</p>";
 
