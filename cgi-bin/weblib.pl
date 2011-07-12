@@ -37,7 +37,7 @@ use LJ::Directory::Constraint;
 #      its own dimensions.  This prevents hard-coding filenames & sizes
 #      into the source.  The real image data is stored in LJ::Img, which
 #      has default values provided in cgi-bin/imageconf.pl but can be
-#      overridden in etc/ljconfig.pl.
+#      overridden in etc/config.pl.
 # args: imagecode, type?, attrs?
 # des-imagecode: The unique string key to reference the image.  Not a filename,
 #                but the purpose or location of the image.

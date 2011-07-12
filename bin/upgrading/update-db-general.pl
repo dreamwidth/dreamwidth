@@ -645,7 +645,7 @@ EOC
 # - blobids aren't necessarily unique between domains;
 # global userpicids may collide with the counter used for the rest.
 # so type must be in the key.
-# - domain ids are set up in ljconfig.pl.
+# - domain ids are set up in etc/config.pl.
 # - NULL length indicates the data is external-- we need another
 # table for more data for that.
 register_tablecreate("userblob", <<'EOC'); # clustered

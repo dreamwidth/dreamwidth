@@ -46,7 +46,7 @@ intervals.
 
 =item -p, --port=PORT
 
-Set the port to listen on for reports. This is set in ljconfig.pl, but can be
+Set the port to listen on for reports. This is set in etc/config.pl, but can be
 overridden here.
 
 =item -V, --version

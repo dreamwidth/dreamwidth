@@ -79,7 +79,7 @@ sub load_config {
 
 # handle reloading at the start of a new web request
 sub start_request_reload {
-    # check the modtime of ljconfig.pl and reload if necessary
+    # check the modtime of etc/config.pl and reload if necessary
     # only do a stat every 10 seconds and then only reload
     # if the file has changed
     my $now = time();

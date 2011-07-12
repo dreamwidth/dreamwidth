@@ -54,7 +54,7 @@ sub _build_sink_objs {
             }
             push @sinks, $class->new(@args);
         } else {
-            # already an object in ljconfig.pl (old style)
+            # already an object in etc/config.pl (old style)
             push @sinks, $ci;
         }
     }

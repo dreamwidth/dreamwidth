@@ -127,7 +127,13 @@ sub setup_start {
     }
 
     # set this before we fork
-    $LJ::CACHE_CONFIG_MODTIME = (stat("$LJ::HOME/cgi-bin/ljconfig.pl"))[9];
+    my $newest = 0;
+    foreach my $fn ( @LJ::CONFIG_FILES ) {
+        next unless -e "$LJ::HOME/$fn";
+        my $stattime = ( stat "$LJ::HOME/$fn" )[9];
+        $newest = $stattime if $stattime && $stattime > $newest;
+    }
+    $LJ::CACHE_CONFIG_MODTIME = $newest if $newest;
 
     eval { setup_start_local(); };
 }

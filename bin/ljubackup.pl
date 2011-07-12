@@ -204,7 +204,7 @@ MAIN: {
 
     # Otherwise we can't continue
     else {
-        abort( "Requires MogileFS configuration. Check your ljconfig.pl." );
+        abort( "Requires MogileFS configuration. Check your etc/config.pl." );
     }
 
     unlockStaleUsers() if $unlockMode;

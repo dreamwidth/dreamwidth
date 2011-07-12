@@ -15,7 +15,7 @@
 
 # This script goes through all of the files in your include directory
 # (LJHOME/htdocs/inc) and then imports ones that are specified by your
-# ljconfig.pl file (%LJ::FILEEDIT_VIA_DB) into your database if the file
+# etc/config.pl file (%LJ::FILEEDIT_VIA_DB) into your database if the file
 # on disk is newer than the one in the database.
 
 use strict;

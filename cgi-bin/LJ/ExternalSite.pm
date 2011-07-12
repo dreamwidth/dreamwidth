@@ -18,7 +18,7 @@ use warnings;
 
 my $need_rebuild = 1;
 my @sites = ();
-# class method.  called after ljconfig.pl is reloaded
+# class method.  called after etc/config.pl is reloaded
 # to know we need to reconstruct our list of external site
 # instances
 sub forget_site_objs {

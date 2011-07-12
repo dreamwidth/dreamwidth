@@ -272,8 +272,8 @@ sub check_env {
     $err->("\$LJHOME directory doesn't exist ($ENV{'LJHOME'})")
         unless -d $ENV{'LJHOME'};
 
-    # before ljconfig.pl is called, we want to call the site-local checkconfig,
-    # otherwise ljconfig.pl might load ljconfig-local.pl, which maybe load
+    # before config.pl is called, we want to call the site-local checkconfig,
+    # otherwise config.pl might load config-local.pl, which could load
     # new modules to implement site-specific hooks.
     my $local_config = "$ENV{'LJHOME'}/bin/checkconfig-local.pl";
     $local_config .= ' --needed-debs' if $debs_only;
