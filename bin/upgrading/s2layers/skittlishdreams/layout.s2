@@ -348,11 +348,13 @@ function Page::print()
     """
             </div><div style="clear:both;"></div>
         </div>
-        <div id="footer">
+        <div id="footer"><div class="inner">
     """;
+
     $this->print_module_section("three");
+    print safe """<div class="page-top"><a href="#">$*text_page_top</a></div>""";
     """
-        </div>
+        </div></div>
     """;
     $this->print_wrapper_end();
     """
@@ -739,11 +741,34 @@ if ( $*use_action_links_images ) {
 
 #content > hr {display: none; }
 
-.module-section-three {clear: both; $footer_background $header_footer_colors padding: 0.5em 1em; }
-.two-columns-right .module-section-three {margin-right:5px;}
-.two-columns-left .module-section-three {margin-left:5px;}
 .module-section-three a:hover { $header_footer_hover_colors }
 .module-section-three .module {padding-left: 20px; }
+
+#footer .inner {
+    clear: both;
+    $footer_background
+    $header_footer_colors
+    padding: .5em 1em;
+    }
+
+.two-columns-right #footer .inner {
+    margin-right: 5px;
+    }
+
+.two-columns-left #footer .inner {
+    margin-left: 5px;
+    }
+
+#footer .inner .inner {
+    background: none;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    }
+
+#footer .page-top {
+    text-align: right;
+    }
 
 .module-tags_cloud li, .tags_cloud li { display: inline; list-style-type: none; }
 
