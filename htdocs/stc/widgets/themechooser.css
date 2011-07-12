@@ -71,11 +71,9 @@
 }
 .theme-item .theme-button {
     font-size: 1em;
-    height: 1.9em;
     line-height: 1.3em;
     margin-top: .2em;
-    min-height: 1.9em;
-    padding: .3em;
+    padding: .2em;
 }
 .theme-item .theme-icons {
     position: absolute;

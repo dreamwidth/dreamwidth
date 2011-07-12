@@ -378,7 +378,8 @@ h2#pagetitle {
     padding: 1em;
 }
 
-.one-column #secondary { width: $*sidebar_width; }
+.one-column #secondary { width: auto; }
+
 .two-columns-left #secondary,
 .three-columns-sides #secondary {
     float: left;
@@ -405,7 +406,8 @@ h2#pagetitle {
     padding: 1em;
 }
 
-.one-column #tertiary { width: $*sidebar_width; }
+.one-column #tertiary { width: auto; }
+
 .two-columns-left #tertiary,
 .two-columns-right #tertiary {
     clear: both;
@@ -659,9 +661,19 @@ ul.userlite-interaction-links.text-links {
 .module-calendar .module-content {
     text-align: center;
 }
+
+.one-column .module-calendar .module-content {
+    text-align: left;
+}
+
 .module-calendar table {
     margin: 0 auto;
 }
+
+.one-column .module-calendar table {
+    margin: 0;
+}
+
 .module-calendar td {
     padding: 1px;
 }
@@ -694,8 +706,12 @@ ul.userlite-interaction-links.text-links {
 .tags_cloud li, .module-tags_cloud li { display: inline;
     list-style-type: none; }
 
-.module-syndicate  .module-content {
+.module-syndicate .module-content {
     text-align: center;
+}
+
+.one-column .module-syndicate .module-content {
+    text-align: left;
 }
 
 $userpic_css

@@ -273,21 +273,23 @@ customize.cats.featured=Featured
 
 customize.layoutname.default=(Unnamed - [[layoutid]])
 
-customize.layouts.1=1 Column (no sidebar)
+customize.layouts2.1=1 Column (modules at bottom; no sidebar)
 
-customize.layouts.2l=2 Column (sidebar on left)
+customize.layouts.1s=1 Column (modules at top and bottom; no sidebar)
 
-customize.layouts.2lnh=2 Column (sidebar on left; no header)
+customize.layouts2.2l=2 Column (sidebar on the left)
 
-customize.layouts.2r=2 Column (sidebar on right)
+customize.layouts2.2lnh=2 Columns (sidebar on the left; no header)
 
-customize.layouts.2rnh=2 Column (sidebar on right; no header)
+customize.layouts2.2r=2 Columns (sidebar on the right)
 
-customize.layouts.3=3 Column (sidebars on either side)
+customize.layouts2.2rnh=2 Columns (sidebar on the right; no header)
 
-customize.layouts.3l=3 Column (sidebars on the left)
+customize.layouts2.3=3 Columns (one sidebar on each side)
 
-customize.layouts.3r=3 Column (sidebars on the right)
+customize.layouts2.3l=3 Columns (two sidebars on the left)
+
+customize.layouts2.3r=3 Columns (two sidebars on the right)
 
 customize.layouts_for_dropdown.choose=(Choose a Layout)
 

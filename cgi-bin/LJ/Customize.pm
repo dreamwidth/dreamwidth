@@ -681,14 +681,15 @@ sub get_cats {
 
 sub get_layouts {
     return (
-        '1'    => LJ::Lang::ml('customize.layouts.1'),
-        '2l'   => LJ::Lang::ml('customize.layouts.2l'),
-        '2r'   => LJ::Lang::ml('customize.layouts.2r'),
-        '2lnh' => LJ::Lang::ml('customize.layouts.2lnh'),
-        '2rnh' => LJ::Lang::ml('customize.layouts.2rnh'),
-        '3l'   => LJ::Lang::ml( 'customize.layouts.3l' ),
-        '3r'   => LJ::Lang::ml( 'customize.layouts.3r' ),
-        '3'    => LJ::Lang::ml( 'customize.layouts.3' ),
+        '1'    => LJ::Lang::ml('customize.layouts2.1'),
+        '1s'    => LJ::Lang::ml('customize.layouts.1s'),
+        '2l'   => LJ::Lang::ml('customize.layouts2.2l'),
+        '2r'   => LJ::Lang::ml('customize.layouts2.2r'),
+        '2lnh' => LJ::Lang::ml('customize.layouts2.2lnh'),
+        '2rnh' => LJ::Lang::ml('customize.layouts2.2rnh'),
+        '3l'   => LJ::Lang::ml( 'customize.layouts2.3l' ),
+        '3r'   => LJ::Lang::ml( 'customize.layouts2.3r' ),
+        '3'    => LJ::Lang::ml( 'customize.layouts2.3' ),
     );
 }
 

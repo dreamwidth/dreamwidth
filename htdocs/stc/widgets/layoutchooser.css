@@ -1,10 +1,27 @@
 .layout-content .layout-item {
+    font-size: 1em;
     text-align: center;
     position: relative;
     width: 156px;
 }
+
 .layout-item img.layout-preview {
     border: 1px solid #fff;
     width: 150px;
     height: 114px;
+}
+
+.layout-content .layout-desc {
+    display: block;
+    line-height: 1.3em;
+    min-height: 5.2em;
+    margin: 2px 0 !important;
+}
+
+.layout-item .layout-button {
+    font-size: 1em;
+    line-height: 1.3em;
+    margin-bottom: .7em;
+    margin-top: .2em;
+    padding: .2em;
 }

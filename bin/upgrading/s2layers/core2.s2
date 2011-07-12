@@ -1371,7 +1371,7 @@ set module_tags_opts_count_type = "";
 
 property string layout_type {
         des = "Layout Type";
-        values = "|none|one-column|One column|two-columns-left|Two columns (Sidebar on Left)|two-columns-right|Two columns (Sidebar on Right)|three-columns-sides|Three columns (Sidebars on either side)|three-columns-left|Three column (Sidebars on Left)|three-columns-right|Three column (Sidebars on Right)";
+        values = "|none|one-column|One column (modules at bottom)|one-column-split|One column split (modules at top & bottom)|two-columns-left|Two columns (sidebar on the left)|two-columns-right|Two columns (sidebar on the right)|three-columns-sides|Three columns (one sidebar on each Side)|three-columns-left|Three column (two sidebars on the left)|three-columns-right|Three column (two sidebars on the right)";
     }
 
 property string sidebar_width {
@@ -3698,6 +3698,7 @@ function Page::print_wrapper_start(string{} opts)
     var string column_count = "";
     var string column_side = "";
 
+    if ( $*layout_type->contains("split") ) { $column_count = "one-column"; }
     if ( $*layout_type->contains("two") ) { $column_count = "two-columns"; }
     if ( $*layout_type->contains("three") ) { $column_count = "three-columns"; }
 
@@ -4502,16 +4503,33 @@ function Page::print()
             </div><!-- end header -->
             <div id="content">
                 <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
                     <div id="primary"><div class="inner">
                         """; 
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
                     <div id="secondary"><div class="inner">
-                        """;
+    """;
                         $this->print_module_section("one");
     """
                     </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
                     <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
                     <div id="tertiary"><div class="inner">
                         """;
