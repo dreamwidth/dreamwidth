@@ -27,7 +27,7 @@ body<=
     push @getargs, "from=$GET{from}" if $GET{from};
     push @getargs, "user=$GET{user}" if $GET{user};
     push @getargs, "code=$GET{code}" if $GET{code};
-    my $getextra; 
+    my $getextra;
     $getextra = '?' . join( '&', @getargs ) if @getargs;
 
     if ( $LJ::USE_SSL && !$LJ::IS_SSL && $GET{ssl} ne 'no' ) {
@@ -51,7 +51,8 @@ body<=
     $ret .= "<div id='create-page'>";
     $ret .= LJ::Widget::CreateAccountProgressMeter->render( step => 1, code => $code );
     if ( !$code_valid && !$from_post{code_valid} ) {
-        $ret .= LJ::Widget::CreateAccountEnterCode->render( get => \%GET );
+        $ret .= LJ::Widget::CreateAccountEnterCode->render(
+            get         => \%GET,);
     } else {
         $ret .= LJ::Widget::CreateAccount->render(
             post        => LJ::Widget::CreateAccount->post_fields( \%POST ),

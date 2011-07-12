@@ -4271,6 +4271,10 @@ widget.createaccountprofile.field.bio=Tell us a little (or a lot) about yourself
 
 widget.createaccountprofile.field.gender=For statistical purposes, please provide your gender. (It will not be publicly displayed.)
 
+widget.createaccountprofile.field.genderlabel=What is your gender?
+
+widget.createaccountprofile.field.genderexp=For statistical purposes, please provide your gender. (It will not be publicly displayed.)
+
 widget.createaccountprofile.field.interests=What are your interests?
 
 widget.createaccountprofile.field.interests.books=Books

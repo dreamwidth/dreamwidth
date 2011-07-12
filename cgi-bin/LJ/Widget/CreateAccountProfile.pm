@@ -18,7 +18,7 @@ use base qw(LJ::Widget);
 use Carp qw(croak);
 use LJ::Constants;
 
-sub need_res { qw( stc/widgets/createaccountprofile.css js/widgets/createaccountprofile.js ) }
+sub need_res { qw( stc/widgets/createaccountprofile.css stc/simple-form.css js/widgets/createaccountprofile.js ) }
 
 sub render_body {
     my $class = shift;
@@ -38,13 +38,13 @@ sub render_body {
     };
 
     my $ret;
-    $ret .= "<h2>" . $class->ml('widget.createaccountprofile.title') . "</h2>";
-    $ret .= "<p>" . $class->ml('widget.createaccountprofile.info') . "</p>";
+    $ret .= "<fieldset><legend><h2>" . $class->ml('widget.createaccountprofile.title') . "</h2>";
+    $ret .= $class->ml('widget.createaccountprofile.info') . "</legend>";
 
-    $ret .= "<table summary='' cellspacing='3' cellpadding='0'>\n";
+    $ret .= "<ul>\n";
 
     ### name
-    $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.name') . "</td>\n<td>";
+    $ret .= "<li class='odd'><label for='name'>" . $class->ml('widget.createaccountprofile.field.name') . "</label>\n";
     if (LJ::text_in($u->name_orig)) {
         $ret .= $class->html_text(
             name => 'name',
@@ -56,10 +56,10 @@ sub render_body {
         $ret .= "<?inerr " . LJ::Lang::ml('/manage/profile/index.bml.error.invalidname2', { aopts => "href='$LJ::SITEROOT/utf8convert'" }) . " inerr?>";
     }
     $ret .= $error_msg->('name', '<br /><span class="formitemFlag">', '</span>');
-    $ret .= "</td></tr>\n";
+    $ret .= "</li>\n";
 
     ### gender
-    $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.gender') . "</td>\n<td>";
+    $ret .= "<li class='even'><label for='gender' class='tall'>" . $class->ml('widget.createaccountprofile.field.genderlabel') . "</label>\n";
     $ret .= $class->html_select(
         name => 'gender',
         selected => $post->{gender} || $u->prop( 'gender' ) || 'U',
@@ -71,18 +71,18 @@ sub render_body {
         ],
     );
     $ret .= $error_msg->('gender', '<br /><span class="formitemFlag">', '</span>');
-    $ret .= "</td></tr>\n";
+    $ret .= "<p class='note'>" . $class->ml('widget.createaccountprofile.field.genderexp') . "</p>\n";
 
-    $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.location') . "</td>\n<td>";
+    $ret .= "<li class='odd'><label for='location' class='tall'>" . $class->ml('widget.createaccountprofile.field.location') . "</label>\n";
     $ret .= LJ::Widget::Location->render( minimal_display => 1, skip_timezone => 1, %$loc_post );
-    $ret .= "</td></tr>\n";
+    $ret .= "\n";
 
-    $ret .= "</table><br />\n";
+    $ret .= "</li></ul></fieldset><fieldset>\n";
 
-    $ret .= "<p class='header'>" . $class->ml('widget.createaccountprofile.field.interests') . " ";
-    $ret .= "<span class='header-note'>" . $class->ml('widget.createaccountprofile.field.interests.note') . "</p>\n";
+    $ret .= "<legend><h2>" . $class->ml('widget.createaccountprofile.field.interests') . " ";
+    $ret .= "</h2>" . $class->ml('widget.createaccountprofile.field.interests.note') . "</legend>\n";
 
-    $ret .= "<table summary='' cellspacing='3' cellpadding='0'>\n";
+    $ret .= "<ul>\n";
 
     my @eintsl;
     my $interests = $u->interests;
@@ -91,7 +91,7 @@ sub render_body {
     }
 
     ### interests: music
-    $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.interests.music') . "</td>\n<td>";
+    $ret .= "<li class='odd'><label for='interests_music'>" . $class->ml('widget.createaccountprofile.field.interests.music') . "</label>\n";
     $ret .= $class->html_text(
         name => 'interests_music',
         id => 'interests_music',
@@ -99,10 +99,10 @@ sub render_body {
         value => $post->{interests_music_changed} ? $post->{interests_music} : '',
     );
     $ret .= $class->html_hidden({ name => "interests_music_changed", value => 0, id => "interests_music_changed" });
-    $ret .= "</td>\n";
+    $ret .= "</li>\n";
 
     ### interests: movies/tv
-    $ret .= "<td class='field-name'>" . $class->ml('widget.createaccountprofile.field.interests.moviestv') . "</td>\n<td>";
+    $ret .= "<li class='even'><label for='interests_moviestv'>" . $class->ml('widget.createaccountprofile.field.interests.moviestv') . "</label>\n";
     $ret .= $class->html_text(
         name => 'interests_moviestv',
         id => 'interests_moviestv',
@@ -110,10 +110,10 @@ sub render_body {
         value => $post->{interests_moviestv_changed} ? $post->{interests_moviestv} : '',
     );
     $ret .= $class->html_hidden({ name => "interests_moviestv_changed", value => 0, id => "interests_moviestv_changed" });
-    $ret .= "</td></tr>\n";
+    $ret .= "</li>\n";
 
     ### interests: books
-    $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.interests.books') . "</td>\n<td>";
+    $ret .= "<li class='odd'><label for='interests_books'>" . $class->ml('widget.createaccountprofile.field.interests.books') . "</label>\n";
     $ret .= $class->html_text(
         name => 'interests_books',
         id => 'interests_books',
@@ -121,10 +121,10 @@ sub render_body {
         value => $post->{interests_books_changed} ? $post->{interests_books} : '',
     );
     $ret .= $class->html_hidden({ name => "interests_books_changed", value => 0, id => "interests_books_changed" });
-    $ret .= "</td>\n";
+    $ret .= "</li>\n";
 
     ### interests: hobbies
-    $ret .= "<td class='field-name'>" . $class->ml('widget.createaccountprofile.field.interests.hobbies') . "</td>\n<td>";
+    $ret .= "<li class='even'><label for='interests_hobbies'>" . $class->ml('widget.createaccountprofile.field.interests.hobbies') . "</label>\n";
     $ret .= $class->html_text(
         name => 'interests_hobbies',
         id => 'interests_hobbies',
@@ -132,23 +132,23 @@ sub render_body {
         value => $post->{interests_hobbies_changed} ? $post->{interests_hobbies} : '',
     );
     $ret .= $class->html_hidden({ name => "interests_hobbies_changed", value => 0, id => "interests_hobbies_changed" });
-    $ret .= "</td></tr>\n";
+    $ret .= "</li>\n";
 
     ### interests: other
-    $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.interests.other') . "</td>\n<td colspan='3'>";
+    $ret .= "<li class='odd'><label for='interests_other'>" . $class->ml('widget.createaccountprofile.field.interests.other') . "</label>\n";
     $ret .= $class->html_text(
         name => 'interests_other',
         id => 'interests_other',
-        size => 88,
+        size => 35,
         value => $post->{interests_other_changed} ? $post->{interests_other} : join(", ", @eintsl),
     );
     $ret .= $class->html_hidden({ name => "interests_other_changed", value => 0, id => "interests_other_changed" });
     $ret .= $error_msg->('interests', '<br /><span class="formitemFlag">', '</span>');
-    $ret .= "</td></tr>\n";
+    $ret .= "</li>\n";
 
-    $ret .= "</table><br />\n";
+    $ret .= "</ul></fieldset>\n";
 
-    $ret .= "<p class='header'>" . $class->ml('widget.createaccountprofile.field.bio') . "</p>\n";
+    $ret .= "<fieldset><legend><h2>" . $class->ml('widget.createaccountprofile.field.bio') . "</h2></legend><ul><li class='odd'>\n";
 
     ### bio
     my $bio = $post->{bio} || $u->bio;
@@ -168,7 +168,7 @@ sub render_body {
         $ret .= "<?inerr " . LJ::Lang::ml('/manage/profile/index.bml.error.invalidbio', { aopts => "href='$LJ::SITEROOT/utf8convert'" }) . " inerr?>";
     }
     $ret .= $error_msg->('bio', '<br /><span class="formitemFlag">', '</span>');
-
+    $ret .= "</li></ul></fieldset>";
     # hidden field to know if JS is on or not
     $ret .= $class->html_hidden({ name => "js_on", value => 0, id => "js_on" });
 

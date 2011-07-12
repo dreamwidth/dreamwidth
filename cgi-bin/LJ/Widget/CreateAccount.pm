@@ -19,7 +19,7 @@ use Carp qw(croak);
 use LJ::CreatePage;
 use DW::Captcha;
 
-sub need_res { qw( stc/widgets/createaccount.css js/widgets/createaccount.js js/browserdetect.js ) }
+sub need_res { qw( stc/widgets/createaccount.css stc/simple-form.css js/widgets/createaccount.js js/browserdetect.js ) }
 
 sub render_body {
     my $class = shift;
@@ -41,8 +41,7 @@ sub render_body {
     };
 
     my $ret;
-
-    $ret .= $class->start_form(%{$opts{form_attr}});
+    $ret .= $class->start_form((%{$opts{form_attr}},'class','simple-form'));
 
     my $tip_birthdate = LJ::ejs($class->ml('widget.createaccount.tip.birthdate2'));
     my $tip_email = LJ::ejs($class->ml('widget.createaccount.tip.email'));
@@ -78,7 +77,7 @@ sub render_body {
         $ret .= $error_msg->('bday', '<li class="formitemFlag" role="alert">', '</li>');
         $ret .= $error_msg->('captcha', '<li class="formitemFlag" role="alert">', '</li>');
         $ret .= $error_msg->('tos', '<li class="formitemFlag" role="alert">', '</li>');
-            
+
         $ret .= "</ol>";
         $ret .= "</div> <!-- error-list -->\n";
     }
@@ -86,16 +85,16 @@ sub render_body {
     $ret .= "<div class='relative-container' id='relative-container'>\n";
     $ret .= "<div id='tips-box-container'><div id='tips_box_arrow'></div>";
     $ret .= "<div id='tips_box'></div></div>";
-    $ret .= "<div id='create-form'>\n<dl>";
+    $ret .= "<div id='create-form'>\n<fieldset><ul>";
 
     ### username
 
     # Highlight the field if the user needs to fix errors
-    my $label_username = $errors->{'username'} ? "errors-present" : "errors-absent"; 
-      
-    $ret .= "<dt class='$label_username'>"
+    my $label_username = $errors->{'username'} ? "errors-present" : "errors-absent";
+
+    $ret .= "<li class='odd'><label class='$label_username' for='create_user'>"
             .  $class->ml('widget.createaccount.field.username')
-            .  "</dt>\n<dd class='input-container'>";
+            .  "</label>\n";
     
     # maxlength 26, so if people don't notice that they hit the limit,
     # we give them a warning. (some people don't notice/proofread)
@@ -111,20 +110,20 @@ sub render_body {
     # If JavaScript is available, check to see if the username is available
     # before submitting the form. Make sure that responses are returned as
     # ARIA live region for screen reader compatibility.
-    $ret .= LJ::img( 'create_check', '', { 'id' => 'username_check', 
+    $ret .= LJ::img( 'create_check', '', { 'id' => 'username_check',
                                            'aria-live' => 'polite' } );
     $ret .= "<span id='username_error'><br /><span id='username_error_inner' class='formitemFlag' role='alert'></span></span>";
 
-    $ret .= "</dd>\n";
+    $ret .= "</li>\n";
 
     ### email
 
     # Highlight the field if the user needs to fix errors
-    my $label_email = $errors->{'email'} ? "errors-present" : "errors-absent"; 
+    my $label_email = $errors->{'email'} ? "errors-present" : "errors-absent";
       
-    $ret .= "<dt class='$label_email'>"
+    $ret .= "<li class='even' id='email_li'><label class='$label_email' for='create_email'>"
             .  $class->ml('widget.createaccount.field.email')
-            .  "</dt>\n<dd class='input-container'>";
+            .  "</label>\n";
     $ret .= $class->html_text(
         name => 'email',
         id => 'create_email',
@@ -133,18 +132,18 @@ sub render_body {
         raw => 'tabindex=1 aria-required="true"',
         value => $post->{email},
     );
-    $ret .= "</dd>\n";
+    $ret .= "</li>\n";
 
     ### password
 
     # Highlight the field if the user needs to fix errors
-    my $label_password = $errors->{'password'} ? "errors-present" : "errors-absent"; 
-      
+    my $label_password = $errors->{'password'} ? "errors-present" : "errors-absent";
+
     my $pass_value = $errors->{password} ? "" : $post->{password1};
 
-    $ret .= "<dt class='$label_password'>"
+    $ret .= "<li class='odd'><label class='$label_password' for='create_password1'>"
             .  $class->ml('widget.createaccount.field.password')
-            .  "</dt>\n<dd class='input-container'>";
+            .  "</label>\n";
     $ret .= $class->html_text(
         name => 'password1',
         id => 'create_password1',
@@ -154,16 +153,16 @@ sub render_body {
         raw => 'tabindex=1 aria-required="true"',
         value => $pass_value,
     );
-    $ret .= "</dd>\n";
+    $ret .= "</li>\n";
 
     ### confirm password
 
     # Highlight the field if the user needs to fix errors
-    my $label_confirmpass = $errors->{'confirmpass'} ? "errors-present" : "errors-absent"; 
+    my $label_confirmpass = $errors->{'confirmpass'} ? "errors-present" : "errors-absent";
       
-    $ret .= "<dt class='$label_confirmpass'>"
+    $ret .= "<li class='even'><label class='$label_confirmpass' for='create_password2'>"
             . $class->ml('widget.createaccount.field.confirmpassword')
-            . "</dt>\n<dd class='input-container'>";
+            . "</label>\n";
     $ret .= $class->html_text(
         name => 'password2',
         id => 'create_password2',
@@ -173,17 +172,17 @@ sub render_body {
         raw => 'tabindex=1 aria-required="true"',
         value => $pass_value,
     );
-    $ret .= "</dd>\n";
+    $ret .= "</li>\n";
 
     ### birthdate
 
     # Highlight the field if the user needs to fix errors
-    my $label_bday = $errors->{'bday'} ? "errors-present" : "errors-absent"; 
-      
+    my $label_bday = $errors->{'bday'} ? "errors-present" : "errors-absent";
 
-    $ret .= "<dt class='$label_bday'><label for='create_bday_mm'>"
+
+    $ret .= "<li class='odd'><label class='$label_bday' for='create_bday_mm'>"
             .  $class->ml('widget.createaccount.field.birthdate')
-            .  "</label></dt>\n<dd class='input-container'>";
+            .  "</label>\n";
     $ret .= $class->html_datetime(
         name => 'bday',
         id => 'create_bday',
@@ -192,7 +191,7 @@ sub render_body {
         default => sprintf("%04d-%02d-%02d", $post->{bday_yyyy}, $post->{bday_mm}, $post->{bday_dd}),
     );
       
-    $ret .= "</dd></dl>\n<div id='terms-news'>";
+    $ret .= "</li></ul>\n<div id='terms-news'>";
 
     ### captcha
 
@@ -201,7 +200,7 @@ sub render_body {
     # dreamwidth.org, and because its accessibility is negligible
     # at best, WAI-ARIA code is not wrapped around the
     # captcha functionality.
-    my $label_captcha = $errors->{'captcha'} ? "errors-present" : "errors-absent"; 
+    my $label_captcha = $errors->{'captcha'} ? "errors-present" : "errors-absent";
 
     my $captcha = DW::Captcha->new( 'create', %{$post || {}} );
     if ( $captcha->enabled ) {
@@ -215,10 +214,10 @@ sub render_body {
     ### TOS
 
     # Highlight the field if the user needs to fix errors
-    my $label_tos = $errors->{'tos'} ? "errors-present" : "errors-absent"; 
+    my $label_tos = $errors->{'tos'} ? "errors-present" : "errors-absent";
       
     # site news
-    $ret .= "<div class='field-container'>\n<span class='ticky-container'>";
+    $ret .= "<ul><li class='odd wide'>";
     $ret .= $class->html_check(
         name => 'news',
         id => 'create_news',
@@ -227,10 +226,10 @@ sub render_body {
         selected => LJ::did_post() ? $post->{news} : 1,
         label => $class->ml('widget.createaccount.field.news', { sitename => $LJ::SITENAMESHORT }),
     );
-    $ret .= "</span></div>\n";
+    $ret .= "</li>\n";
 
     # TOS
-    $ret .= "<div class='field-container' id='relative-container'>\n<span class='ticky-container'>";
+    $ret .= "<li class='even wide'>";
     $ret .= $class->html_check(
         name => 'tos',
         id => 'create_tos',
@@ -245,38 +244,38 @@ sub render_body {
         aopts2 => "href='$LJ::SITEROOT/legal/privacy' target='_new'",
     } );
     $ret .= "</label>";
-    $ret .= "</span></div>\n";
+    $ret .= "</li></ul>";
 
     if ( $LJ::USE_ACCT_CODES ) {
         if ( my $pc = DW::InviteCodes::Promo->load( code => $code ) ) {
             if ( $pc->paid_class ) {
-                $ret .= "<div class='news-container'>\n";
+                $ret .= "<ul><li>\n";
                 $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $pc->paid_class_name . "</strong>", nummonths => $pc->paid_months } );
-                $ret .= "</span></div>";
-            } 
+                $ret .= "</li></ul>";
+            }
         } else {
             my $item = DW::InviteCodes->paid_status( code => $code );
             if ( $item ) {
-                $ret .= "<div class='field-container'>\n<span class=news-container>";
+                $ret .= "<ul><li>";
                 if ( $item->permanent ) {
                     $ret .= $class->ml( 'widget.createaccount.field.paidaccount.permanent', { type => "<strong>" . $item->class_name . "</strong>" } );
                 } else {
                     $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $item->class_name . "</strong>", nummonths => $item->months } );
                 }
-                $ret .= "</div>";
+                $ret .= "</li></ul>";
             }
         }
     }
 
     ### submit button
-    $ret .= "<div class='field-container'><span class='errors-absent'>&nbsp;</span>\n<span>";
-    $ret .= $class->html_submit( 
-        submit => $class->ml('widget.createaccount.btn'), 
+    $ret .= "<ul><li style='padding-top: 1ex'>";
+    $ret .= $class->html_submit(
+        submit => $class->ml('widget.createaccount.btn'),
         { class => "create-button",
-          raw => 'tabindex=1', 
+          raw => 'tabindex=1',
         },
     ) . "\n";
-    $ret .= "</span></div>\n";
+    $ret .= "</li></ul></fieldset>\n";
     $ret .= "</div> <!-- create-form -->\n";
     $ret .= "</div> <!-- relative-container -->\n";
 
@@ -382,7 +381,7 @@ sub handle_post {
     }
 
     if ( $is_underage ) {
-        $from_post{errors}->{bday} = 
+        $from_post{errors}->{bday} =
             $class->ml('widget.createaccount.error.birthdate.underage');
     }
 

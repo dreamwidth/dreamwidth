@@ -9,26 +9,21 @@
     margin-bottom: 5px;
 }
 
-.appwidget-createaccountprofile .field-name {
-    font-size: 12px;
-    font-weight: bold;
-    text-align: right;
-    width: 70px;
-    padding-right: 5px;
-}
-
 .appwidget-createaccountprofile .appwidget-location {
     margin: 0;
     padding: 0;
 }
 
-.appwidget-createaccountprofile .header {
-    font-size: 13px;
-    font-weight: bold;
-    margin: 0;
+form.simple-form label.tall{
+    padding-bottom: 4.5ex;
 }
 
-.appwidget-createaccountprofile .header-note {
-    font-size: 12px;
-    font-weight: normal;
+form.simple-form > input{
+    float:left;
+    clear:left;
 }
+
+.simple-form .appwidget-createaccountprofile fieldset ul {
+    padding-top: 0;
+}
+

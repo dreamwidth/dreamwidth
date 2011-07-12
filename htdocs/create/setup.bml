@@ -50,7 +50,7 @@ body<=
     $ret .= "<div id='create-page'>";
     $ret .= LJ::Widget::CreateAccountProgressMeter->render( step => 2 );
 
-    $ret .= "<form method='post' action='$LJ::SITEROOT/create/setup'>";
+    $ret .= "<form method='post' action='$LJ::SITEROOT/create/setup' class='simple-form'>";
     $ret .= LJ::form_auth();
 
     $ret .= LJ::Widget::CreateAccountProfile->render(

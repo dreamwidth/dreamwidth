@@ -45,6 +45,10 @@
     margin-bottom: 0.2em;
 }
 
+.simple-form .error-list li {
+    float: none;
+}
+
 /* Submit/action buttons */
 .simple-form fieldset.submit {
     float: none;     
@@ -81,3 +85,4 @@
     margin-right: auto;
     background-color: transparent;
 }
+

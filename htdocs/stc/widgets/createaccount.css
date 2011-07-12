@@ -90,29 +90,19 @@ span.appwidget-createaccount #username_error {
 }
 
 div#create-form {
-    max-width: 50%;
+    max-width: 66%;
 }
 
-#create-form dt{
-    padding-top: 1.25ex;
-}
-
-#create-form dd{
-    padding-bottom: 1.25ex;
-}
-
-#create-form dl{
-    padding-bottom: 10ex;
-}
-
-.field-container, .news-container{
+.news-container{
     padding-top: 1ex;
     padding-bottom: 1ex;
 }
 
-.news-container{
-    padding-top: 3ex;
-    padding-bottom: 3ex;
+li.wide > label{
+    width: inherit;
+    float: none;
 }
 
-
+.appwidget-createaccount .simple-form fieldset ul {
+    padding-top: 0;
+}

@@ -50,7 +50,7 @@ CreateAccount.showTip = function (id) {
 
     var drop, tipleft, arrowdrop, text, relCont;
     drop = 0;
-    tipleft = $("create_email").offsetWidth + 25;
+    tipleft = $("email_li").offsetWidth + 45;
     relCont = $("relative-container");
     // Create the location for the tooltip
     if (id == "create_bday_mm") {
@@ -127,7 +127,7 @@ CreateAccount.checkUsername = function () {
             CreateAccount.showTip(CreateAccount.id); // recalc
         },
         onError: function (msg) { }
-    }); 
+    });
 }
 
 LiveJournal.register_hook("page_load", CreateAccount.init);
