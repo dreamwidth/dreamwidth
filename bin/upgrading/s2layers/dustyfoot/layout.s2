@@ -326,6 +326,11 @@ ol {
     color: $*color_entry_text;
     }
 
+#content a { color: $*color_entry_link; }
+#content a:active { color: $*color_entry_link_active; }
+#content a:hover { color: $*color_entry_link_hover; }
+#content a:visited { color: $*color_entry_link_visited; }
+
 #primary > .inner:first-child {
     padding: 0;
     }
@@ -432,13 +437,19 @@ h2#pagetitle {
     padding: 0;
     }
 
+/* Restore colors overridden by #content */
+#content .entry .entry-title,
+#content .entry .entry-title a {
+    color: $*color_entry_title;
+    }
+
 .datetime {
     font-size: .8em; 
     color: $*color_entry_date;
     text-transform: uppercase;
     }
 
-.datetime a {
+#content .datetime a {
     color: $*color_entry_date;
     }
 
@@ -479,13 +490,19 @@ h2#pagetitle {
     padding: 5px;
     }
 
+#content .entry-management-links.text-links li a,
+#content .entry-interaction-links li a,
+#content .comment-management-links.text-links li a,
+#content .comment-interaction-links li a {
+    color: $*color_entry_interaction_links;
+    }
+
 .entry-management-links.text-links li a,
 .comment-management-links.text-links li a,
 .comment-interaction-links.text-links .thread a {
     background-image: url($*STATDIR/transmogrified/permalink.gif);
     background-repeat: no-repeat;
     background-position: 0% 50%;
-    color: $*color_entry_interaction_links;
     padding-left: 14px;
     }
 
@@ -558,7 +575,7 @@ h2#pagetitle {
     }
 
 .metadata .metadata-item,
-.metadata a, .tag a {
+#content .metadata a, #content .tag a {
     background-color: $*color_entry_title_background;
     color: $*color_entry_title;
     }
@@ -580,8 +597,9 @@ h2#pagetitle {
     padding: 10px;
     }
 
-.comment-wrapper .comment-title,
-.comment-wrapper .comment-title a {
+#content .comment-wrapper .comment-title,
+#content .comment-wrapper .comment-title a {
+    color: $*color_comment_title;
     font-variant: small-caps;
     letter-spacing: .1em;
     }
@@ -675,19 +693,19 @@ h2#pagetitle {
     padding: 2px;
     }
 
-.day-has-entries a {
+#content .day-has-entries a {
     color: $*color_module_link;
     }
 
-.day-has-entries a:visited {
+#content .day-has-entries a:visited {
     color: $*color_module_link_visited;
     }
 
-.day-has-entries a:hover {
+#content .day-has-entries a:hover {
     color: $*color_module_link_hover;
     }
 
-.day-has-entries a:active {
+#content .day-has-entries a:active {
     color: $*color_module_link_active;
     }
 
@@ -727,14 +745,14 @@ h2#pagetitle {
     margin: 10px 10px 0 10px;
     }
 
-.page-tags #content h2 {
+.page-tags .tags-container h2 {
     border-bottom: 1px solid $*color_entry_border;
     color: $*color_entry_title;
     font-variant: small-caps;
     margin-bottom: 10px;
     }
 
-.page-tags #content ul li {
+.page-tags .tags-container ul li {
     list-style: disc;
     margin-left: 50px;
     padding: 5px;
@@ -747,7 +765,7 @@ h2#pagetitle {
     margin: 10px 10px 0 10px;
     }
 
-.page-icons #content h2 {
+.page-icons .icons-container h2 {
     border-bottom: 1px solid $*color_entry_border;
     color: $*color_entry_title;
     font-variant: small-caps;
@@ -778,7 +796,13 @@ h2#pagetitle {
     font-variant: small-caps;
     }
 
-.module-header a {
+/* Restore colors overridden by #content */
+#content .module a { color: $*color_module_link; }
+#content .module a:visited { color: $*color_module_link_visited; }
+#content .module a:hover { color: $*color_module_link_hover; }
+#content .module a:active { color: $*color_module_link_active; }
+
+#content .module-header a {
     color: $*color_module_title;
     }
 
@@ -842,21 +866,21 @@ h2#pagetitle {
     padding: 5px;
     }
 
-.entry-day a { 
+#content .entry-day a { 
     color: $*color_header_link;
     text-decoration: none;
     }
 
-.entry-day a:visited { 
+#content .entry-day a:visited { 
     color: $*color_header_link_visited;
     }
 
-.entry-day a:hover {
+#content .entry-day a:hover {
     color: $*color_header_link_hover;
     text-decoration: underline;
     }
 
-.entry-day a:active {
+#content .entry-day a:active {
     color: $*color_header_link_active;
     text-decoration: underline;
     }
