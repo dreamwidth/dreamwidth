@@ -7,7 +7,12 @@ sub layout_prop { "layout_type" }
 
 sub page_props {
     my $self = shift;
-    my @props = qw( color_page_usernames );
+    my @props = qw(
+        color_page_usernames
+        color_page_usernames_active
+        color_page_usernames_hover
+        color_page_usernames_visited
+    );
     return $self->_append_props( "page_props", @props );
 }
 

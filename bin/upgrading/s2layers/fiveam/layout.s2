@@ -29,7 +29,10 @@ set userpics_position = "right";
 ##===============================
 
 propgroup colors_child {
-    property Color color_page_usernames { des = "Page usernames color"; }
+    property Color color_page_usernames { des = "Page username color"; }
+    property Color color_page_usernames_active { des = "Page active username color"; }
+    property Color color_page_usernames_hover { des = "Page hover username color"; }
+    property Color color_page_usernames_visited { des = "Page visited username color"; }
     property Color color_header_border { des = "Page header border color"; }
     property Color color_header_accent { des = "Page header accent color"; }
     property Color color_footer_border { des = "Page footer border color"; }
@@ -284,8 +287,27 @@ a, a:link, a:active, a:visited {
     text-decoration: none;
     }
 
+/* Keep before ljuser */
+
+.comment a { color: $*color_page_link; }
+.comment a:visited { color: $*color_page_link_visited; }
+.comment a:hover { color: $*color_page_link_hover; }
+.comment a:active { color: $*color_page_link_active; }
+
 .ljuser a {
     color: $*color_page_usernames;
+    }
+
+.ljuser a:visited {
+    color: $*color_page_usernames_visited;
+    }
+
+.ljuser a:hover {
+    color: $*color_page_usernames_hover;
+    }
+
+.ljuser a:active {
+    color: $*color_page_usernames_active;
     }
 
 /* Page Containers
