@@ -23,6 +23,10 @@
     # keep this enabled only if this site is a development server
     $IS_DEV_SERVER = 1;
 
+    # change this to "1" if you only want changes that
+    # have been tested in production on dreamwidth.org
+    $USE_STABLE_CODE = 0;
+
     # home directory
     $HOME = $ENV{'LJHOME'};
 

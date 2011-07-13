@@ -20,6 +20,11 @@ use strict;
 die "\$LJHOME not set.\n"
     unless -d $ENV{'LJHOME'};
 
+# check to see if we want only stable releases
+eval { require LJ::Config; };
+LJ::Config->load unless $@;  # only load config if available
+my @stable = $LJ::USE_STABLE_CODE ? ( '--stable' ) : ();
+
 # strip off paths beginning with LJHOME
 # (useful if you tab-complete filenames)
 $_ =~ s!\Q$ENV{'LJHOME'}\E/?!! foreach (@ARGV);
@@ -31,4 +36,5 @@ if (-e "$ENV{LJHOME}/bin/vcv") {
 
 exec("$ENV{'LJHOME'}/bin/$vcv_exe",
      "--conf=$ENV{'LJHOME'}/cvs/multicvs.conf",
+     @stable,
      @ARGV);
