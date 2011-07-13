@@ -203,6 +203,7 @@ input, textarea {
 blockquote {
     background: $*color_page_background;
     border-bottom: 3px solid $*color_entry_border;
+    color: $*color_page_text;
     margin: 1em 1em 1.5em 3em;
     padding: 10px;
     width: 85%;
@@ -304,6 +305,7 @@ h2#subtitle {
 .navigation {
     $entry_title_font
     background: $*color_entry_background;
+    color: $*color_entry_text;
     border-bottom: 5px solid $*color_entry_border;
     font-size: 1.2em;
     font-variant: small-caps;
@@ -436,6 +438,7 @@ div.module-calendar table {
 
 div.module-calendar th {
     background: $*color_page_background;
+    color: $*color_page_text;
     border: 1px solid $*color_entry_border;
     }
 
@@ -443,10 +446,15 @@ div.module-calendar td.empty-day {
     border: 1px solid $*color_entry_border;
     }
 
-div.module-calendar td.entry-day { 
+div.module-calendar td.entry-day {
     background: $*color_page_background;
     border: 1px solid $*color_entry_border;
     }
+
+div.module-calendar td.entry-day a { color: $*color_page_link; }
+div.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
+div.module-calendar td.entry-day a:hover { color: $*color_page_link_hover; }
+div.module-calendar td.entry-day a:visited { color: $*color_page_link_visited; }
 
 /*--- Entries ---*/
 
@@ -596,10 +604,16 @@ ul.entry-management-links a:visited {
 
 .month {
     background: $*color_entry_background;
+    color: $*color_entry_text;
     border-bottom: 5px solid $*color_entry_border;
     margin: 0 0 1em 0;
     padding: 2em;
     }
+
+.month a { color: $*color_entry_link; }
+.month a:active { color: $*color_entry_link_active; }
+.month a:hover { color: $*color_entry_link_hover; }
+.month a:visited { color: $*color_entry_link_visited; }
 
 table.month {
     border-bottom: none;
@@ -624,15 +638,17 @@ table.month td, table.month th {
     font-weight: normal;
     }
 
-.month th { 
+.month th {
     background: $*color_page_background;
+    color: $*color_page_text;
     border: 1px solid $*color_entry_border;
     text-align: center;
     }
 
 .month td.day {
     border: 1px solid $*color_entry_border;
-    font-weight: normal; 
+    color: $*color_entry_text;
+    font-weight: normal;
     }
 
 td.day {
@@ -641,6 +657,7 @@ td.day {
 
 .month td.day-has-entries {
     background: $*color_page_background;
+    color: $*color_page_text;
     font-weight: normal;
     text-align: left;
     }
@@ -651,15 +668,26 @@ td.day {
     text-align: right;
     }
 
+.month td.day-has-entries p a { color: $*color_page_link; }
+.month td.day-has-entries p a:active { color: $*color_page_link_active; }
+.month td.day-has-entries p a:hover { color: $*color_page_link_hover; }
+.month td.day-has-entries p a:visited { color: $*color_page_link_visited; }
+
 /*--- Tags Page ---*/
 
 .page-tags .tags-container {
     background: $*color_entry_background;
+    color: $*color_entry_text;
     border-bottom: 5px solid $*color_entry_border;
     padding: .5em;
     }
 
-.page-tags h2 {
+.page-tags .tags-container a { color: $*color_entry_link; }
+.page-tags .tags-container a:active { color: $*color_entry_link_active; }
+.page-tags .tags-container a:hover { color: $*color_entry_link_hover; }
+.page-tags .tags-container a:visited { color: $*color_entry_link_visited; }
+
+.page-tags .tags-container h2 {
     $entry_title_font
     border-bottom: 1px solid $*color_entry_border;
     color: $*color_entry_title;
@@ -668,7 +696,7 @@ td.day {
     margin: 0 0 .5em 0;
     }
 
-.page-tags .ljtaglist {
+.page-tags .tags-container .ljtaglist {
     list-style: none;
     }
 
@@ -680,9 +708,15 @@ hr.above-entry-interaction-links, hr.below-reply-container {
 
 .comment {
     background: $*color_entry_background;
+    color: $*color_entry_text;
     border-bottom: 5px solid $*color_entry_border;
     padding: 1em;
     }
+
+.comment a { color: $*color_entry_link; }
+.comment a:active { color: $*color_entry_link_active; }
+.comment a:hover { color: $*color_entry_link_hover; }
+.comment a:visited { color: $*color_entry_link_visited; }
 
 .comment-title, .comment-title a {
     color: $*color_entry_title;
@@ -714,6 +748,7 @@ hr.above-entry-interaction-links, hr.below-reply-container {
 
 textarea.textbox {
     background: $*color_entry_background;
+    color: $*color_entry_text;
     width: 80% !important;
     }
 
@@ -751,12 +786,18 @@ textarea.textbox {
     border: none !important;
     }
 
-.bottomcomment { 
+.bottomcomment {
     background: $*color_entry_background;
+    color: $*color_entry_text;
     border-bottom: 5px solid $*color_entry_border;
     margin: .5em 0;
     padding: .7em;
     }
+
+.bottomcomment a { color: $*color_entry_link; }
+.bottomcomment a:active { color: $*color_entry_link_active; }
+.bottomcomment a:hover { color: $*color_entry_link_hover; }
+.bottomcomment a:visited { color: $*color_entry_link_visited; }
 
 /*--- Contextual Pop-ups ---*/
 
