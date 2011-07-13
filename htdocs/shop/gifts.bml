@@ -67,6 +67,7 @@ body<=
     @expired  = sort $display_sort @expired;
     @expiring = sort $display_sort @expiring;
     @paid     = sort $display_sort @paid;
+    @seed     = sort $display_sort @seed;
 
     # and we've got our lists. the only thing left is to format them
     # for human display, so we:
@@ -174,6 +175,7 @@ body<=
         $ret .= "<h2>" . LJ::Lang::ml( '.paid.header.other' ) . "</h2>\n";
         $ret .= "<p>" . LJ::Lang::ml( '.paid.other.about' ) . "</p>";
         $ret .= "<ul> " . $paidusers . "</ul>";
+        $ret .= "<br />";
     }
 
     if ( $seedusers ) {
