@@ -60,8 +60,8 @@ is($clean->(qq{Nested: <div class="ljcut" text="Nested">baaaaaaaaaa<div style="b
    "nested div cuts, expanded");
 is($clean->(qq{Nested: <div class="ljcut" text="Nested">baaaaaaaaaa<div style="background: red">I AM RED</div>arrrrrr</div></div>},
             cuturl => ""),
-   qq{Nested: <a name="cutid1"></a><div class="ljcut" text="Nested">baaaaaaaaaa<div style="background: red">I AM RED</div>arrrrrr</div>&lt;/div&gt;},
-   "nested div cuts, expanded, user's extra close div");
+   qq{Nested: <a name="cutid1"></a><div class="ljcut" text="Nested">baaaaaaaaaa<div style="background: red">I AM RED</div>arrrrrr</div>},
+   "nested div cuts, expanded, ignored user's extra close div");
 is($clean->(qq{Nested: <div class="ljcut"><div><div></div></div></div>fin},
             cuturl => ""),
    qq{Nested: <a name="cutid1"></a><div class="ljcut" text="Read more..."><div><div></div></div></div>fin},
