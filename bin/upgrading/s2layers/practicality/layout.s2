@@ -452,9 +452,9 @@ div.module-calendar td.entry-day {
     }
 
 div.module-calendar td.entry-day a { color: $*color_page_link; }
-div.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
-div.module-calendar td.entry-day a:hover { color: $*color_page_link_hover; }
 div.module-calendar td.entry-day a:visited { color: $*color_page_link_visited; }
+div.module-calendar td.entry-day a:hover { color: $*color_page_link_hover; }
+div.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
 
 /*--- Entries ---*/
 
@@ -611,9 +611,9 @@ ul.entry-management-links a:visited {
     }
 
 .month a { color: $*color_entry_link; }
-.month a:active { color: $*color_entry_link_active; }
-.month a:hover { color: $*color_entry_link_hover; }
 .month a:visited { color: $*color_entry_link_visited; }
+.month a:hover { color: $*color_entry_link_hover; }
+.month a:active { color: $*color_entry_link_active; }
 
 table.month {
     border-bottom: none;
@@ -669,9 +669,9 @@ td.day {
     }
 
 .month td.day-has-entries p a { color: $*color_page_link; }
-.month td.day-has-entries p a:active { color: $*color_page_link_active; }
-.month td.day-has-entries p a:hover { color: $*color_page_link_hover; }
 .month td.day-has-entries p a:visited { color: $*color_page_link_visited; }
+.month td.day-has-entries p a:hover { color: $*color_page_link_hover; }
+.month td.day-has-entries p a:active { color: $*color_page_link_active; }
 
 /*--- Tags Page ---*/
 
@@ -683,9 +683,9 @@ td.day {
     }
 
 .page-tags .tags-container a { color: $*color_entry_link; }
-.page-tags .tags-container a:active { color: $*color_entry_link_active; }
-.page-tags .tags-container a:hover { color: $*color_entry_link_hover; }
 .page-tags .tags-container a:visited { color: $*color_entry_link_visited; }
+.page-tags .tags-container a:hover { color: $*color_entry_link_hover; }
+.page-tags .tags-container a:active { color: $*color_entry_link_active; }
 
 .page-tags .tags-container h2 {
     $entry_title_font
@@ -714,9 +714,9 @@ hr.above-entry-interaction-links, hr.below-reply-container {
     }
 
 .comment a { color: $*color_entry_link; }
-.comment a:active { color: $*color_entry_link_active; }
-.comment a:hover { color: $*color_entry_link_hover; }
 .comment a:visited { color: $*color_entry_link_visited; }
+.comment a:hover { color: $*color_entry_link_hover; }
+.comment a:active { color: $*color_entry_link_active; }
 
 .comment-title, .comment-title a {
     color: $*color_entry_title;
@@ -795,9 +795,9 @@ textarea.textbox {
     }
 
 .bottomcomment a { color: $*color_entry_link; }
-.bottomcomment a:active { color: $*color_entry_link_active; }
-.bottomcomment a:hover { color: $*color_entry_link_hover; }
 .bottomcomment a:visited { color: $*color_entry_link_visited; }
+.bottomcomment a:hover { color: $*color_entry_link_hover; }
+.bottomcomment a:active { color: $*color_entry_link_active; }
 
 /*--- Contextual Pop-ups ---*/
 
@@ -823,7 +823,10 @@ div.ContextualPopup .Content {
     color: $*color_entry_text;
     }
 
-div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:link, div.ContextualPopup div.Inner a:visited, div.ContextualPopup div.Inner a:active {
+div.ContextualPopup div.Inner a,
+div.ContextualPopup div.Inner a:link,
+div.ContextualPopup div.Inner a:visited,
+div.ContextualPopup div.Inner a:active {
     color: $*color_entry_link;
     text-decoration: none;
     }
