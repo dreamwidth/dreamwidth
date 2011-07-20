@@ -266,8 +266,8 @@ p {
 
 blockquote {
     $blockquote_background
-    border-bottom: 4px solid $*color_entry_border !important;
-    border-top: 4px solid $*color_entry_border !important;
+    border-bottom: 4px solid $*color_entry_border;
+    border-top: 4px solid $*color_entry_border;
     line-height: 1.4em;
     margin: 1em 0;
     padding: 2em 1em 2em 6.5em;
