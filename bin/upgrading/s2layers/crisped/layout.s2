@@ -326,9 +326,9 @@ ul.entry-interaction-links li {
     }
 
 .comment-wrapper .comment a { color: $*color_entry_link; }
-.comment-wrapper .comment a:active { color: $*color_entry_link_active; }
-.comment-wrapper .comment a:hover { color: $*color_entry_link_hover; }
 .comment-wrapper .comment a:visited { color: $*color_entry_link_visited; }
+.comment-wrapper .comment a:hover { color: $*color_entry_link_hover; }
+.comment-wrapper .comment a:active { color: $*color_entry_link_active; }
 
 .comment .header {
     background-color: $*color_comment_title_background;
@@ -384,9 +384,9 @@ ul.comment-management-links {
     }
 
 .bottomcomment a { color: $*color_entry_link; }
-.bottomcomment a:active { color: $*color_entry_link_active; }
-.bottomcomment a:hover { color: $*color_entry_link_hover; }
 .bottomcomment a:visited { color: $*color_entry_link_visited; }
+.bottomcomment a:hover { color: $*color_entry_link_hover; }
+.bottomcomment a:active { color: $*color_entry_link_active; }
 
 #qrformdiv input {
     margin: 1px;
@@ -419,9 +419,9 @@ table.talkform input {
     }
 
 .month a { color: $*color_entry_link; }
-.month a:active { color: $*color_entry_link_active; }
-.month a:hover { color: $*color_entry_link_hover; }
 .month a:visited { color: $*color_entry_link_visited; }
+.month a:hover { color: $*color_entry_link_hover; }
+.month a:active { color: $*color_entry_link_active; }
 
 .month table {
     border: none;
@@ -502,9 +502,9 @@ table.month td.day {
     }
 
 .page-tags .tags-container a { color: $*color_entry_link; }
-.page-tags .tags-container a:active { color: $*color_entry_link_active; }
-.page-tags .tags-container a:hover { color: $*color_entry_link_hover; }
 .page-tags .tags-container a:visited { color: $*color_entry_link_visited; }
+.page-tags .tags-container a:hover { color: $*color_entry_link_hover; }
+.page-tags .tags-container a:active { color: $*color_entry_link_active; }
 
 .page-tags .tags-container h2 {
     background-color: $*color_entry_title_background;
@@ -535,9 +535,9 @@ table.month td.day {
     }
 
 .page-icons .icons-container a { color: $*color_entry_link; }
-.page-icons .icons-container a:active { color: $*color_entry_link_active; }
-.page-icons .icons-container a:hover { color: $*color_entry_link_hover; }
 .page-icons .icons-container a:visited { color: $*color_entry_link_visited; }
+.page-icons .icons-container a:hover { color: $*color_entry_link_hover; }
+.page-icons .icons-container a:active { color: $*color_entry_link_active; }
 
 .page-icons .icons-container h2 {
     background-color: $*color_entry_title_background;
