@@ -64,7 +64,7 @@ function Page::print()
     """
     <div id="canvas">
         <div class="inner">
-<div id="top-color"></div>
+            <div id="top-color"></div>
             <div id="header">
                 <div class="inner">
                     """;
@@ -76,16 +76,33 @@ function Page::print()
             </div><!-- end header -->
             <div id="content">
                 <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
                     <div id="primary"><div class="inner">
                         """; 
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
                     <div id="secondary"><div class="inner">
-                        """;
+    """;
                         $this->print_module_section("one");
     """
                     </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
                     <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
 
                     <div id="tertiary"><div class="inner">
@@ -515,6 +532,19 @@ text-align: center; }
     -webkit-border-radius: 1em;
     -khtml-border-radius: 1em; }
 
+.one-column #secondary,
+.one-column #tertiary {
+    padding: .5em 0;
+    }
+
+.one-column #tertiary {
+    margin-top: 2em;
+    }
+
+.one-column-split #tertiary {
+    margin-top: 0;
+    }
+
 #secondary a,
 #tertiary a { color: $*color_module_link; }
 #secondary a:visited,
@@ -599,8 +629,17 @@ border-color: transparent !important;
     border: 1px solid $*color_module_title_background;
 }
 .module-search .search-form { margin: .2em auto; }
-.module-search .search-box { margin: .2em; width: 95%; }
-.module-search .search-form { text-align: right; }
+.module-search .search-box { margin: .2em; }
+
+.two-columns #secondary .module-search .search-form,
+.three-columns .module-search .search-form {
+    text-align: right;
+    }
+
+.module-search .module-content,
+.module-cuttagcontrols .module-content {
+    padding-top: 1em;
+    }
 
 /* footer */
 

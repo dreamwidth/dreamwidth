@@ -64,16 +64,33 @@ function Page::print() {
             </div><!-- end header -->
             <div id="content">
                 <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
                     <div id="primary"><div class="inner">
                         """; 
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
                     <div id="secondary"><div class="inner">
-                        """;
+    """;
                         $this->print_module_section("one");
     """
                     </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
                     <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
                     <div id="tertiary"><div class="inner">
                         """;
@@ -412,11 +429,12 @@ $navlinks_css
     background: $*color_entry_background, !important;
     font-size: .9em !important;
     color: $*color_entry_text !important; }
-.module-search .search-form { text-align: right; }
+
+.two-columns #secondary .module-search .search-form,
+.three-columns .module-search .search-form {
+    text-align: right;
+    }
 
 $userpic_css
     """;
 }
-
-
-

@@ -31,7 +31,7 @@ propgroup presentation {
     property use comment_datetime_format_group;
 }
 
-set layout_type = "one-column";
+set layout_type = "one-column-split";
 set use_custom_friend_colors = false;
 set custom_foreground_element = "subject";
 set custom_background_element = "subject";

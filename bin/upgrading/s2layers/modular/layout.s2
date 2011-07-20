@@ -71,16 +71,33 @@ function Page::print() {
             </div><!-- end header -->
             <div id="content">
                 <div class="inner">
+    """;
+                if ($*layout_type == "one-column-split") {
+    """
+                    <div id="secondary"><div class="inner">
+    """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
                     <div id="primary"><div class="inner">
                         """; 
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
+    """;
+                if ($*layout_type != "one-column-split") {
+    """
                     <div id="secondary"><div class="inner">
-                        """;
+    """;
                         $this->print_module_section("one");
     """
                     </div></div><!--  end secondary and secondary>inner -->
+    """;
+                }
+    """
                     <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
                     <div id="tertiary"><div class="inner">
                         """;
@@ -244,6 +261,17 @@ table.talkform { padding: 1em;
 .topnav ul { margin-bottom: 1.5em; }
 
 #primary > .inner:first-child { padding: 0 .5em; }
+
+.one-column #content {
+    margin-left: .5em;
+    margin-right: .5em;
+    }
+
+.one-column #secondary > .inner:first-child,
+.one-column #tertiary > .inner:first-child {
+    padding-left: .5em;
+    padding-right: .5em;
+    }
 
 .two-columns-left #content,
 .three-columns-left #content { margin-right: .5em; }
