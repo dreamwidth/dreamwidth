@@ -337,6 +337,11 @@ div.module-calendar td.entry-day {
     text-transform: uppercase;
     }
 
+div.module-calendar td.entry-day a { color: $*color_page_link; }
+div.module-calendar td.entry-day a:visited { color: $*color_page_link_visited; }
+div.module-calendar td.entry-day a:hover { color: $*color_page_link_hover; }
+div.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
+
 /*--- Entries ---*/
 
 .entry {
@@ -424,9 +429,10 @@ hr.above-entry-interaction-links, hr.below-reply-container {
     padding: 1em;
     }
 
-.comment-content {
-    margin: 0;
-    }
+.comment a { color: $*color_entry_link; }
+.comment a:visited { color: $*color_entry_link_visited; }
+.comment a:hover { color: $*color_entry_link_hover; }
+.comment a:active { color: $*color_entry_link_active; }
 
 .comment-title, .comment-title a {
     color: $*color_entry_title;
@@ -437,6 +443,10 @@ hr.above-entry-interaction-links, hr.below-reply-container {
 .comment-poster {
     font-weight: lighter;
     text-transform: lowercase;
+    }
+
+.comment-content {
+    margin: 0;
     }
 
 textarea.textbox {
@@ -518,37 +528,23 @@ span.tag-text {
     text-align: right;
     }
 
-/*--- Tags Page ---*/
-
-.page-tags .tags-container {
-    $entry_colors
-    border-top: 20px solid $*color_entry_border;
-    margin: 0 0 .5em 0;
-    padding: 1em;
-    }
-
-.page-tags h2 {
-    font-weight: normal;
-    text-transform: uppercase;
-    }
-
 /*--- Archive Page ---*/
-
-.month table {
-    background: $*color_entry_background;
-    margin: auto;
-    width: 100%;
-    }
-
-table .month {
-    background: $*color_entry_background;
-    }
 
 .month {
     $entry_colors
     border-top: 20px solid $*color_entry_border;
     margin: 0 0 1em 0;
     padding: 1em;
+    }
+
+.month a { color: $*color_entry_link; }
+.month a:visited { color: $*color_entry_link_visited; }
+.month a:hover { color: $*color_entry_link_hover; }
+.month a:active { color: $*color_entry_link_active; }
+
+.month table {
+    margin: auto;
+    width: 100%;
     }
 
 .month caption {
@@ -562,7 +558,6 @@ table .month {
 
 .month th {
     background: $*color_page_background;
-    border: none !important;
     border: 1px solid $*color_entry_border !important;
     color: $*color_page_text;
     font-weight: bold;
@@ -592,6 +587,30 @@ table .month {
     display: inline;
     font-weight: bold;
     padding: 0 0 0 .5em;
+    }
+
+.month td.day-has-entries p a { color: $*color_page_link; }
+.month td.day-has-entries p a:visited { color: $*color_page_link_visited; }
+.month td.day-has-entries p a:hover { color: $*color_page_link_hover; }
+.month td.day-has-entries p a:active { color: $*color_page_link_active; }
+
+/*--- Tags Page ---*/
+
+.page-tags .tags-container {
+    $entry_colors
+    border-top: 20px solid $*color_entry_border;
+    margin: 0 0 .5em 0;
+    padding: 1em;
+    }
+
+.page-tags .tags-container a { color: $*color_entry_link; }
+.page-tags .tags-container a:visited { color: $*color_entry_link_visited; }
+.page-tags .tags-container a:hover { color: $*color_entry_link_hover; }
+.page-tags .tags-container a:active { color: $*color_entry_link_active; }
+
+.page-tags .tags-container h2 {
+    font-weight: normal;
+    text-transform: uppercase;
     }
 
 /*--- Contextual Pop-up ---*/
