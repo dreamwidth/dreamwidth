@@ -893,6 +893,62 @@ set color_module_title = "#655a66";
 set color_module_title_background = "#ddd8bb";
 
 
+#NEWLAYER: refriedtablet/pravda
+layerinfo type = "theme";
+layerinfo name = "Právda";
+layerinfo redist_uniq = "refriedtablet/pravda";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fffdfa";
+set color_page_border = "#fae5c8";
+set color_page_link = "#f07a33";
+set color_page_link_active = "#f07a33";
+set color_page_link_hover = "#f5634a";
+set color_page_link_visited = "ed303c";
+set color_page_text = "#222";
+set color_page_title = "#222";
+set color_header_background = "#fae1bf";
+set color_footer_link = "#f07a33";
+set color_footer_link_active = "#f07a33";
+set color_footer_link_hover = "#f5634a";
+set color_footer_link_visited = "ed303c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#fae5c8";
+set color_entry_interaction_links = "#f5634a";
+set color_entry_link = "#f07a33";
+set color_entry_link_active = "#f07a33";
+set color_entry_link_hover = "#5e9c9d";
+set color_entry_link_visited = "ed303c";
+set color_entry_text = "#222";
+set color_entry_title = "#222";
+set color_entry_title_background = "#fff6eb";
+set color_comment_title = "#222";
+set color_comment_title_background = "#fff6eb";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#fae5c8";
+set color_module_link = "#f07a33";
+set color_module_link_active = "#f07a33";
+set color_module_link_hover = "#f5634a";
+set color_module_link_visited = "ed303c";
+set color_module_text = "#222";
+set color_module_title = "#222";
+set color_module_title_background = "#fff6eb";
+
+
 #NEWLAYER: refriedtablet/seeded
 layerinfo type = "theme";
 layerinfo name = "Seeded";
