@@ -1,3 +1,140 @@
+#NEWLAYER: steppingstones/atthehop
+layerinfo type = "theme";
+layerinfo name = "At The Hop";
+layerinfo redist_uniq = "steppingstones/atthehop";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#cefdc2";
+set color_page_details_text = "#a3be9d";
+set color_page_link = "#266B14";
+set color_page_link_active = "#a3be9d";
+set color_page_link_hover = "#a3be9d";
+set color_page_link_visited = "#266B14";
+set color_page_text = "#a3be9d";
+set color_page_title = "#266B14";
+set color_header_background = "#fdedd0";
+set color_footer_background = "#fdedd0";
+set color_footer_link = "#266B14";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fffcdd";
+set color_entry_title = "#266B14";
+set color_entry_title_background = "#fdedd0";
+set color_entry_userpic_border = "#a3be9d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fffcdd";
+set color_module_link = "#266B14";
+set color_module_link_active = "#a3be9d";
+set color_module_link_hover = "#a3be9d";
+set color_module_link_visited = "#266B14";
+set color_module_text = "#a3be9d";
+
+
+#NEWLAYER: steppingstones/atomicage
+layerinfo type = "theme";
+layerinfo name = "Atomic Age";
+layerinfo redist_uniq = "steppingstones/atomicage";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#12c4f3";
+set color_page_details_text = "#303";
+set color_page_link = "#909";
+set color_page_link_active = "#303";
+set color_page_link_hover = "#303";
+set color_page_link_visited = "#909";
+set color_page_text = "#303";
+set color_page_title = "#04f219";
+set color_header_background = "#909";
+set color_footer_background = "#909";
+set color_footer_link = "#04f219";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#04f219";
+set color_entry_title = "#12c4f3";
+set color_entry_title_background = "#909";
+set color_entry_userpic_border = "#12c4f3";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#04f219";
+set color_module_link = "#909";
+set color_module_link_active = "#303";
+set color_module_link_hover = "#303";
+set color_module_link_visited = "#909";
+set color_module_text = "#303";
+set color_module_title = "#12c4f3";
+set color_module_title_background = "#909";
+
+
+#NEWLAYER: steppingstones/bananasplitsville
+layerinfo type = "theme";
+layerinfo name = "Banana Splitsville";
+layerinfo redist_uniq = "steppingstones/bananasplitsville";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ff6";
+set color_page_details_text = "#422100";
+set color_page_link = "#c40000";
+set color_page_link_active = "#422100";
+set color_page_link_hover = "#422100";
+set color_page_link_visited = "#c40000";
+set color_page_text = "#422100";
+set color_page_title = "#FEFFC6";
+set color_header_background = "#422100";
+set color_footer_background = "#422100";
+set color_footer_link = "#FEFFC6";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FEFFC6";
+set color_entry_title = "#FEFFC6";
+set color_entry_title_background = "#422100";
+set color_entry_userpic_border = "#422100";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#FEFFC6";
+set color_module_link = "#c40000";
+set color_module_link_active = "#422100";
+set color_module_link_hover = "#422100";
+set color_module_link_visited = "#c40000";
+set color_module_text = "#422100";
+
+
 #NEWLAYER: steppingstones/chocolate
 layerinfo type = "theme";
 layerinfo name = "Chocolate";
@@ -15,13 +152,14 @@ set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#5B3E3B";
 set color_footer_background = "#5B3E3B";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
-set color_entry_border = "#ECDEC7";
+set color_entry_userpic_border = "#ECDEC7";
 
 ##===============================
 ## Module Colors
@@ -98,6 +236,7 @@ set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#7A5050";
 set color_footer_background = "#7A5050";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -115,6 +254,50 @@ set color_module_link = "#7A5050";
 set color_module_link_visited = "#947070";
 set color_module_text = "#000";
 set color_module_title = "#000";
+
+
+#NEWLAYER: steppingstones/eatatjoes
+layerinfo type = "theme";
+layerinfo name = "Eat At Joe's";
+layerinfo redist_uniq = "steppingstones/eatatjoes";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fc0";
+set color_page_details_text = "#000";
+set color_page_link = "#ff6700";
+set color_page_link_active = "#ffa567";
+set color_page_link_hover = "#ffa567";
+set color_page_link_visited = "#ff6700";
+set color_page_text = "#000";
+set color_page_title = "#fff9e3";
+set color_header_background = "#ff6700";
+set color_footer_background = "#ff6700";
+set color_footer_link = "#fff9e3";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff9e3";
+set color_entry_title = "#fff9e3";
+set color_entry_title_background = "#ff6700";
+set color_entry_userpic_border = "#ff6700";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff9e3";
+set color_module_link = "#ff6700";
+set color_module_link_active = "#ffa567";
+set color_module_link_hover = "#ffa567";
+set color_module_link_visited = "#ff6700";
 
 
 #NEWLAYER: steppingstones/friendlycolors
@@ -143,13 +326,14 @@ set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#9DA6ED";
 set color_footer_background = "#9DA6ED";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
-set color_entry_border = "#7885E3";
+set color_entry_userpic_border = "#7885E3";
 
 ##===============================
 ## Module Colors
@@ -292,13 +476,14 @@ set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#aaa";
 set color_footer_background = "#aaa";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
-set color_entry_border = "#eee";
+set color_entry_userpic_border = "#eee";
 
 ##===============================
 ## Module Colors
@@ -309,6 +494,95 @@ set color_module_link = "#559";
 set color_module_link_visited = "#99c";
 set color_module_text = "#000";
 set color_module_title = "#000";
+
+
+#NEWLAYER: steppingstones/hulahoop
+layerinfo type = "theme";
+layerinfo name = "Hula Hoop";
+layerinfo redist_uniq = "steppingstones/hulahoop";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#7c1427";
+set color_page_details_text = "#000";
+set color_page_link = "#7c1427";
+set color_page_link_active = "#df8d9b";
+set color_page_link_hover = "#df8d9b";
+set color_page_link_visited = "#7c1427";
+set color_page_text = "#000";
+set color_page_title = "#f3ecf4";
+set color_header_background = "#bf3f56";
+set color_footer_background = "#bf3f56";
+set color_footer_link = "#f3ecf4";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f3ecf4";
+set color_entry_title = "#f3ecf4";
+set color_entry_title_background = "#7c1427";
+set color_entry_userpic_border = "#bf3f56";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f3ecf4";
+set color_module_link = "#7c1427";
+set color_module_link_active = "#df8d9b";
+set color_module_link_hover = "#df8d9b";
+set color_module_link_visited = "#7c1427";
+
+
+#NEWLAYER: steppingstones/midcenturymodern
+layerinfo type = "theme";
+layerinfo name = "Mid-Century Modern";
+layerinfo redist_uniq = "steppingstones/midcenturymodern";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#121115";
+set color_page_details_text = "#c39363";
+set color_page_link = "#E1C2A4";
+set color_page_link_active = "#d8d3d1";
+set color_page_link_hover = "#d8d3d1";
+set color_page_link_visited = "#E1C2A4";
+set color_page_text = "#c39363";
+set color_page_title = "#c39363";
+set color_header_background = "#653b2d";
+set color_footer_background = "#653b2d";
+set color_footer_link = "#c39363";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#653b2d";
+set color_entry_title = "#121115";
+set color_entry_title_background = "#c39363";
+set color_entry_userpic_border = "#c39363";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#653b2d";
+set color_module_link = "#E1C2A4";
+set color_module_link_active = "#d8d3d1";
+set color_module_link_hover = "#d8d3d1";
+set color_module_link_visited = "#E1C2A4";
+set color_module_text = "#c39363";
 
 
 #NEWLAYER: steppingstones/nnwm2009
@@ -343,14 +617,6 @@ set color_module_background = "#ffefbd";
 set color_module_text="#000";
 set color_module_title = "#ef8229";
 
-function Page::print_theme_stylesheet () {
-    """
-    #footer a {
-        color: $*color_footer_link;
-        }
-    """;
-}
-
 
 #NEWLAYER: steppingstones/olive
 layerinfo type = "theme";
@@ -369,13 +635,14 @@ set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#484830";
 set color_footer_background = "#484830";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
-set color_entry_border = "#787860";
+set color_entry_userpic_border = "#787860";
 
 ##===============================
 ## Module Colors
@@ -405,13 +672,14 @@ set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#798F8E";
 set color_footer_background = "#798F8E";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
-set color_entry_border = "#C0D8D8";
+set color_entry_userpic_border = "#C0D8D8";
 
 ##===============================
 ## Module Colors
@@ -442,13 +710,14 @@ set color_page_text = "#000";
 set color_page_title = "#fcf0fc";
 set color_header_background = "#757";
 set color_footer_background = "#757";
+set color_footer_link = "#fcf0fc";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff6ff";
-set color_entry_border = "#979";
+set color_entry_userpic_border = "#979";
 
 ##===============================
 ## Module Colors
@@ -459,6 +728,52 @@ set color_module_link = "#eee";
 set color_module_link_visited = "#ddd";
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+
+
+#NEWLAYER: steppingstones/saddleshoes
+layerinfo type = "theme";
+layerinfo name = "Saddle Shoes";
+layerinfo redist_uniq = "steppingstones/saddleshoes";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_details_text = "#000";
+set color_page_link = "#CD0000";
+set color_page_link_active = "#300";
+set color_page_link_hover = "#300";
+set color_page_link_visited = "#CD0000";
+set color_page_text = "#fff";
+set color_page_title = "#f8f8f8";
+set color_header_background = "#CD0000";
+set color_footer_background = "#CD0000";
+set color_footer_link = "#f8f8f8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f8f8f8";
+set color_entry_title = "#f8f8f8";
+set color_entry_title_background = "#CD0000";
+set color_entry_text = "#000";
+set color_entry_userpic_border = "#CD0000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f8f8f8";
+set color_module_link = "#CD0000";
+set color_module_link_active = "#300";
+set color_module_link_hover = "#300";
+set color_module_link_visited = "#CD0000";
+set color_module_text = "#000";
 
 
 #NEWLAYER: steppingstones/shadows
@@ -481,13 +796,14 @@ set color_page_text = "#fff";
 set color_page_title = "#fff";
 set color_header_background = "#2E2C37";
 set color_footer_background = "#2E2C37";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#232029";
-set color_entry_border = "#655A46";
+set color_entry_userpic_border = "#655A46";
 
 ##===============================
 ## Module Colors
@@ -517,13 +833,14 @@ set color_page_text = "#000";
 set color_page_title = "#fff";
 set color_header_background = "#300048";
 set color_footer_background = "#300048";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
 set color_entry_background = "#fff";
-set color_entry_border = "#D89030";
+set color_entry_userpic_border = "#D89030";
 
 ##===============================
 ## Module Colors

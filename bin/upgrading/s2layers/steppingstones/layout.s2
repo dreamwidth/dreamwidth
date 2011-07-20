@@ -8,7 +8,7 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set layout_type = "three-columns-left";
 
 propgroup colors_child {
-
+    property Color color_entry_userpic_border { des = "Entry and comment userpic border color"; }
     property use color_page_details_text;
 }
 
@@ -17,15 +17,9 @@ set color_page_details_text = "#999";
 function print_stylesheet() {
 
     var string header_colors = generate_color_css( $*color_page_title, $*color_header_background, new Color );
-    var string navigation_colors = generate_color_css( new Color, $*color_entry_background, new Color );
-
-    var string entry_colors = generate_color_css( new Color, $*color_entry_background, new Color );
-    var string entry_userpic_colors = generate_color_css( new Color, $*color_entry_border, new Color );
-
-    var string tertiary_colors = generate_color_css( new Color, $*color_module_background, new Color );
-    var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
-    var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
-    var string footer_link_colors = generate_color_css( $*color_page_title, new Color, new Color );
+    var string entry_colors = generate_color_css( $*color_entry_text, $*color_entry_background, $*color_entry_border );
+    var string entry_userpic_colors = generate_color_css( new Color, $*color_entry_userpic_border, new Color );
+    var string tertiary_colors = generate_color_css( $*color_module_text, $*color_module_background, $*color_module_border );
 
     var string{}{} scaling = {
         "" => {
@@ -49,11 +43,11 @@ function print_stylesheet() {
     };
 
     var string entry_header_padding = $scaling{$*entry_userpic_style}{"padding"};
-    var string entry_icon_background = generate_background_css( $scaling{$*entry_userpic_style}{"noicon_img"}, "no-repeat", "center", $*color_entry_border );
+    var string entry_icon_background = generate_background_css( $scaling{$*entry_userpic_style}{"noicon_img"}, "no-repeat", "center", $*color_entry_userpic_border );
     var string entry_icon_wrap_size = $scaling{$*entry_userpic_style}{"icon_wrap_size"};
     var string entry_icon_link_size = $scaling{$*entry_userpic_style}{"icon_link_size"};
 
-    var string comment_icon_background = generate_background_css( $scaling{$*comment_userpic_style}{"noicon_img"}, "no-repeat", "center", $*color_entry_border );
+    var string comment_icon_background = generate_background_css( $scaling{$*comment_userpic_style}{"noicon_img"}, "no-repeat", "center", $*color_entry_userpic_border );
     var string comment_icon_wrap_size = $scaling{$*comment_userpic_style}{"icon_wrap_size"};
     var string comment_icon_link_size = $scaling{$*comment_userpic_style}{"icon_link_size"};
 
@@ -167,7 +161,12 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
 .navigation ul { margin: 0;
     padding: .25em;
     display: inline;
-    $navigation_colors }
+    $entry_colors }
+
+.navigation ul li a { color: $*color_entry_link; }
+.navigation ul li a:visited { color: $*color_entry_link_visited; }
+.navigation ul li a:hover { color: $*color_entry_link_hover; }
+.navigation ul li a:active { color: $*color_entry_link_active; }
 
 /* entries */
 .entry-wrapper { margin-top: 2em;
@@ -178,10 +177,10 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
 .entry-content hr { display: block;
     margin: 1em 10%; }
 
-.entry { position: relative;
-    $entry_colors
+.entry {
     padding: .5em;
-    border: none;}
+    position: relative;
+    }
 
 .entry .contents { padding: .5em .5em 0 .5em; }
 
@@ -225,10 +224,18 @@ ul.entry-interaction-links { text-align: right;
     min-height: 17px; } /* prevent entry-management icons from shoving quickreply aside */
 
 /* comments */
-.comment { margin-bottom: 1em;
-    margin-left: 1em;
+
+.comment {
     $entry_colors
-    padding: .5em }
+    margin-bottom: 1em;
+    margin-left: 1em;
+    padding: .5em;
+    }
+
+.comment a { color: $*color_entry_link; }
+.comment a:visited { color: $*color_entry_link_visited; }
+.comment a:hover { color: $*color_entry_link_hover; }
+.comment a:active { color: $*color_entry_link_active; }
 
 .partial .comment-title {
    display: inline;
@@ -246,7 +253,11 @@ ul.entry-interaction-links { text-align: right;
 .comment-title { margin: 0;
     padding: 0 0 .25em 0;
     font-weight: bold; }
-.partial .comment-title { display: inline; }
+
+/* Restore comment title color */
+.comment-title, .comment-title a {
+    color: $*color_comment_title;
+    }
 
 .comment .contents { margin-top: .5em ; }
 
@@ -284,8 +295,20 @@ ul.entry-interaction-links { text-align: right;
 .comment-management-links { float: right; }
 .comment-interaction-links { text-align: left; }
 
-.bottomcomment, .comments-message { padding: 1px 1px 3px 1px;
-    $navigation_colors }
+.bottomcomment,
+.comments-message {
+    $entry_colors
+    padding: 1px 1px 3px;
+    }
+
+/* User color if there is one */
+.bottomcomment .entry-interaction-links a { color: $*color_entry_interaction_links; }
+
+/* Otherwise fall back on entry colors */
+.bottomcomment a { color: $*color_entry_link; }
+.bottomcomment a:visited { color: $*color_entry_link_visited; }
+.bottomcomment a:hover { color: $*color_entry_link_hover; }
+.bottomcomment a:active { color: $*color_entry_link_active; }
 
 .bottomcomment .entry-management-links,
 .bottomcomment .entry-interaction-links { margin: .25em 0 .5em 0; }
@@ -298,19 +321,31 @@ ul.entry-interaction-links { text-align: right;
 
 /* tags */
 
-.page-tags .tags-container { $entry_colors
+.page-tags .tags-container {
+    $entry_colors
+    margin-left: -1em;
     padding: 1em;
-    margin-left: -1em; }
+    }
 
+.page-tags .tags-container a { color: $*color_entry_link; }
+.page-tags .tags-container a:visited { color: $*color_entry_link_visited; }
+.page-tags .tags-container a:hover { color: $*color_entry_link_hover; }
+.page-tags .tags-container a:active { color: $*color_entry_link_active; }
 
 /* archive */
 
 /* year-by-month view */
 #archive-year .navigation { text-align: left; }
 
-div.month { margin: 2em 0 2em -1em;
+div.month {
     $entry_colors
+    margin: 2em 0 2em -1em;
     padding: 1em; } /*both year and month pages */
+
+.month a { color: $*color_entry_link; }
+.month a:visited { color: $*color_entry_link_visited; }
+.month a:hover { color: $*color_entry_link_hover; }
+.month a:active { color: $*color_entry_link_active; }
 
 table.month td,
 table.month th { border-color: $*color_page_details_text;
@@ -358,8 +393,9 @@ text-align: center; }
 .module-header { 
     font-size: large;
     padding: 1px 3px; }
+
 .module-header a,
-.module-header a:visited { $module_header_link_colors }
+.module-header a:visited { color: $*color_module_title; }
 
 .module-userprofile { text-align: center; }
 .module-userprofile .module-header { text-align: left; }
@@ -372,12 +408,14 @@ text-align: center; }
 
 /* footer */
 #footer { background-color: transparent; }
-#footer > .inner:first-child { $footer_colors
+
+#footer > .inner:first-child {
+    background-color: $*color_footer_background;
+    margin: 1em 2em;
     padding: .5em;
-    margin: 1em 2em; }
-#footer a { $footer_link_colors }
+    }
 
 $userpic_css
-""";
 
+""";
 }
