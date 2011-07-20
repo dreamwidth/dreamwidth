@@ -327,9 +327,9 @@ ol {
     }
 
 #content a { color: $*color_entry_link; }
-#content a:active { color: $*color_entry_link_active; }
-#content a:hover { color: $*color_entry_link_hover; }
 #content a:visited { color: $*color_entry_link_visited; }
+#content a:hover { color: $*color_entry_link_hover; }
+#content a:active { color: $*color_entry_link_active; }
 
 #primary > .inner:first-child {
     padding: 0;
