@@ -1116,13 +1116,13 @@ property builtin string PALIMGROOT {
 # FIXME: Not all of these properties are hooked into the appropriate functions, so setting them does not yet work.
 
 property int num_items_recent {
-    des = "Number of journal entries to show on recent entries page";
+    des = "Number of journal entries to show on the Recent Entries page";
     doc_flags = "[construct]";
     min = 1;
     max = 50;
 }
 property int num_items_reading {
-    des = "Number of journal entries to show on reading page";
+    des = "Number of journal entries to show on the Reading page";
     doc_flags = "[construct]";
     min = 5;
     max = 50;
@@ -1201,10 +1201,10 @@ set show_userpics_entry = true;
 set show_userpics_comments = true;
 
 # was !view_entry_disabled
-property bool use_journalstyle_entry_page  { des = "Show entry pages in my journal style rather than the site layout"; }
+property bool use_journalstyle_entry_page  { des = "Show entry pages in my journal style rather than the site skin"; }
 set use_journalstyle_entry_page = true;
 
-property bool use_journalstyle_icons_page  { des = "Show icons page in my journal style rather than the site layout"; }
+property bool use_journalstyle_icons_page  { des = "Show icons page in my journal style rather than the site skin"; }
 set use_journalstyle_icons_page = false;
 
 # Defaults to false, but layouts can set it to true to switch on custom colors for different posters on reading list.
@@ -1287,7 +1287,7 @@ set reg_firstdayofweek = "sunday";
 ##===============================
 
 property bool use_shared_pic {
-    des = "Use community icons instead of poster's icon";
+    des = "Show community icons instead of posters' icons";
 }
 
 property bool tags_aware {
@@ -1321,8 +1321,8 @@ property string userpics_position {
    }
 
 property string entry_metadata_position {
-    des = "Place metadata after or before entry text";
-    values = "top|Before text|bottom|After text";
+    des = "Place of metadata in entries";
+    values = "top|Before entry text|bottom|After entry text";
     }
 
 property bool linklist_support {
@@ -1375,7 +1375,7 @@ property string layout_type {
     }
 
 property string sidebar_width {
-    des = "Set the width of any sidebars.  Ensure that the value is given in em or px.";
+    des = "Set the width of a single sidebar.  Ensure that the value is given in em or px.";
     example = "15em";
 }
 
@@ -1422,7 +1422,7 @@ property string{} grouped_property_override {
 ## Display settings - modules
 ##===============================
 property string[] module_userprofile_group {
-    des = "Basic Journal Info";
+    des = "Profile";
     grouptype = "module";
 }
 set module_userprofile_group = ["module_userprofile_show", "module_userprofile_order", "module_userprofile_section", "module_userprofile_opts_group"];
@@ -1435,9 +1435,9 @@ property string[] module_userprofile_opts_group {
     grouped = 1;
 }
 set module_userprofile_opts_group = ["module_userprofile_opts_userpic", "module_userprofile_opts_name", "module_userprofile_opts_website"];
-property bool module_userprofile_opts_userpic   { grouped = 1; label = "Default Icon"; }
+property bool module_userprofile_opts_userpic   { grouped = 1; label = "Display Default Icon"; }
 property bool module_userprofile_opts_name      { grouped = 1; label = "Display Name"; }
-property bool module_userprofile_opts_website   { grouped = 1; label = "Website"; }
+property bool module_userprofile_opts_website   { grouped = 1; label = "Display Website"; }
 
 set module_userprofile_show = true;
 set module_userprofile_order = 1;
@@ -1491,7 +1491,7 @@ set module_pagesummary_opts_group = ["module_pagesummary_opts_comments_tooltip"]
 property bool module_pagesummary_opts_comments_tooltip {
     grouped = 1; 
     des = "Display comment counts in page summary as tooltip (otherwise the number will appear next to the entry title)";
-    label = "Comment count as tooltip";
+    label = "Display the comment count as a tooltip";
 }
 
 set module_pagesummary_opts_comments_tooltip = true;
@@ -1515,7 +1515,7 @@ property string[] module_tags_opts_group {
 }
 set module_tags_opts_group = ["module_tags_opts_limit","module_tags_opts_type"];
 property string module_tags_opts_type       { grouped = 1; des = "Type of tags display"; values="|List|cloud|Cloud|multi|Multilevel"; }
-property int module_tags_opts_limit         { grouped = 1; des = "Limit display to these popular tags. '0' for unlimited"; }
+property int module_tags_opts_limit         { grouped = 1; des = "Number of most popular tags to display. Type '0' to display all tags."; }
 
 set module_tags_show = true;
 set module_tags_order = 6;
@@ -2359,11 +2359,11 @@ set text_max_comments = "Maximum comments reached";
 set text_read_comments = "1 comment // # comments";
 
 property string text_post_comment_friends {
-    des = "Link text to leave a comment from your reading page";
+    des = "Link text to leave a comment from your Reading page";
     example = "Reply";
 }
 property string text_read_comments_friends {
-    des = "Link text to read comments from your reading page";
+    des = "Link text to read comments from your Reading page";
     format = "plurals";
     example = "1 comment // # comments";
 }
