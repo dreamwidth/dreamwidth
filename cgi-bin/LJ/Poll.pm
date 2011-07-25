@@ -779,7 +779,7 @@ sub preview {
 
     $ret .= "<br />\n";
 
-    $ret .= "This poll is <b>anonymous</b><br/>\n"
+    $ret .= "This poll is <b>anonymous</b><br />\n"
         if ($self->isanon eq "yes");
 
     my $whoview = $self->whoview eq "none" ? "none_remote" : $self->whoview;
@@ -915,7 +915,7 @@ sub render {
             LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
         if ($self->is_closed);
     
-    $ret .= "This poll is <b>anonymous</b><br/>\n"
+    $ret .= "This poll is <b>anonymous</b><br />\n"
         if ($self->isanon eq "yes");
 
     my $whoview = $self->whoview;
