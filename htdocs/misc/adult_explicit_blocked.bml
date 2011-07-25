@@ -25,10 +25,10 @@ body<=
     my $journal = $r->pnote( 'user' );
     my $poster = defined $entry  ? $entry->poster : $journal;
 
-    # OpenID Server and Yadis
     if ( $journal ) {
         my $u = $journal;
-        $headextra .= $u->openid_tags if $u;
+        $headextra .= $u->meta_discovery_links( feeds => 1, openid => 1 )
+            if $u;
     } else {
         return BML::redirect( $LJ::SITEROOT );
     }

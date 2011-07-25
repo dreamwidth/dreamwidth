@@ -2187,32 +2187,16 @@ sub Page
         $p->{head_content} .= LJ::Hooks::run_hook('s2_head_content_extra', $remote, $opts->{r});
     }
 
-    # Automatic Discovery of RSS/Atom
-    if ($opts && $opts->{'addfeeds'}) {
-        if ( $opts->{'tags'} ) {
-            my $taglist = join( ',', map( { LJ::eurl($_) } @{$opts->{tags}} ) );
-            $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: filtered by selected tags" href="$p->{'base_url'}/data/rss?tag=$taglist" />\n};
-            $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: filtered by selected tags" href="$p->{'base_url'}/data/atom?tag=$taglist" />\n};
-        }
-        $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: all entries" href="$p->{'base_url'}/data/rss" />\n};
-        $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: all entries" href="$p->{'base_url'}/data/atom" />\n};
-        $p->{'head_content'} .= qq{<link rel="service" type="application/atomsvc+xml" title="AtomAPI service document" href="} . $u->atom_service_document . qq{" />\n};
-    }
-
-    # OpenID information if the caller asked us to include it here.
-    $p->{'head_content'} .= $u->openid_tags if $opts && $opts->{'addopenid'};
+    my %meta_opts = $opts ? (   feeds   => $opts->{addfeeds},
+                                tags    => $opts->{tags},
+                                openid  => $opts->{addopenid},
+                            ) : ();
+    $meta_opts{foaf} = 1;
+    $meta_opts{remote} = $remote;
+    $p->{head_content} .= $u->meta_discovery_links( %meta_opts );
 
     # other useful link rels
     $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
-
-    # FOAF autodiscovery
-    my $foafurl = $u->{external_foaf_url} ? LJ::eurl($u->{external_foaf_url}) : "$p->{base_url}/data/foaf";
-    $p->{head_content} .= qq{<link rel="meta" type="application/rdf+xml" title="FOAF" href="$foafurl" />\n};
-
-    if ($u->email_visible($remote)) {
-        my $digest = Digest::SHA1::sha1_hex('mailto:' . $u->email_raw);
-        $p->{head_content} .= qq{<meta name="foaf:maker" content="foaf:mbox_sha1sum '$digest'" />\n};
-    }
 
     # Identity (type I) accounts only have read views
     $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;

@@ -5617,6 +5617,43 @@ sub journal_base {
 }
 
 
+sub meta_discovery_links {
+    my ( $u, %opts ) = @_;
+    my $journalbase = $u->journal_base;
+
+    my $ret = "";
+
+    # Automatic Discovery of RSS/Atom
+    if ( $opts{feeds} ) {
+        if ( $opts{tags} && @{$opts{tags}||[]}) {
+            my $taglist = join( ',', map( { LJ::eurl($_) } @{$opts{tags}||[]} ) );
+            $ret .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: filtered by selected tags" href="$journalbase/data/rss?tag=$taglist" />\n};
+            $ret .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: filtered by selected tags" href="$journalbase/data/atom?tag=$taglist" />\n};
+        }
+
+        $ret .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: all entries" href="$journalbase/data/rss" />\n};
+        $ret .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: all entries" href="$journalbase/data/atom" />\n};
+        $ret .= qq{<link rel="service" type="application/atomsvc+xml" title="AtomAPI service document" href="} . $u->atom_service_document . qq{" />\n};
+    }
+
+    # OpenID Server and Yadis
+    $ret .= $u->openid_tags if $opts{openid};
+
+    # FOAF autodiscovery
+    if ( $opts{foaf} ) {
+        my $foafurl = $u->{external_foaf_url} ? LJ::eurl( $u->{external_foaf_url} ) : "$journalbase/data/foaf";
+        $ret .= qq{<link rel="meta" type="application/rdf+xml" title="FOAF" href="$foafurl" />\n};
+
+        if ($u->email_visible($opts{remote})) {
+            my $digest = Digest::SHA1::sha1_hex( 'mailto:' . $u->email_raw );
+            $ret .= qq{<meta name="foaf:maker" content="foaf:mbox_sha1sum '$digest'" />\n};
+        }
+    }
+
+    return $ret;
+}
+
+
 sub opt_ctxpopup {
     my $u = shift;
 
@@ -8708,26 +8745,7 @@ sub make_journal {
         my $url = "$LJ::SITEROOT/users/$user/";
         $opts->{'status'} = $status if $status;
 
-        my $head;
-        my $journalbase = $u->journal_base;
-
-        # Automatic Discovery of RSS/Atom
-        $head .= qq{<link rel="alternate" type="application/rss+xml" title="RSS" href="$journalbase/data/rss" />\n};
-        $head .= qq{<link rel="alternate" type="application/atom+xml" title="Atom" href="$journalbase/data/atom" />\n};
-        $head .= qq{<link rel="service.feed" type="application/atom+xml" title="AtomAPI-enabled feed" href="$LJ::SITEROOT/interface/atom/feed" />\n};
-        $head .= qq{<link rel="service.post" type="application/atom+xml" title="Create a new post" href="$LJ::SITEROOT/interface/atom/post" />\n};
-
-        # OpenID Server and Yadis
-        $head .= $u->openid_tags;
-
-        # FOAF autodiscovery
-        my $foafurl = $u->{external_foaf_url} ? LJ::eurl($u->{external_foaf_url}) : "$journalbase/data/foaf";
-        $head .= qq{<link rel="meta" type="application/rdf+xml" title="FOAF" href="$foafurl" />\n};
-
-        if ($u->email_visible($remote)) {
-            my $digest = Digest::SHA1::sha1_hex('mailto:' . $u->email_raw);
-            $head .= qq{<meta name="foaf:maker" content="foaf:mbox_sha1sum '$digest'" />\n};
-        }
+        my $head = $u->meta_discovery_links( feeds => 1, openid => 1, foaf => 1, remote => $remote );
 
         return qq{
             <html>
