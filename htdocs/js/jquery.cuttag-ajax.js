@@ -33,7 +33,7 @@ $.widget("dw.cuttag", {
         var a = $("<a>",{
             href: "#",
             id: "cuttag_" + identifier,
-            "class": "cuttag-action"
+            "class": "cuttag-action cuttag-action-before"
         });
         var img = $("<img>",{
             style: "border: 0;",
@@ -125,7 +125,7 @@ $.widget("dw.cuttag", {
             var closeEnd = $("<span>");
             var a = $("<a>",{
                 href: "#cuttag_" + self.identifier,
-                "class": "cuttag-action"
+                "class": "cuttag-action cuttag-action-after"
             });
             var img = $("<img>",{
                 style: "border: 0;",
