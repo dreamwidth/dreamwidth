@@ -1028,6 +1028,23 @@ $userpic_css
     margin-bottom: 4em;
     }
 
+.one-column-split #secondary,
+.one-column-split #tertiary {
+    text-align: center;
+    }
+
+.one-column-split .module {
+    display: inline-block;
+    text-align: left;
+    vertical-align: top;
+    width: $*sidebar_width;
+    }
+
+.one-column-split #secondary .module,
+.one-column-split #tertiary .module {
+    margin: 2em 1em;
+    }
+
 .module li {
     list-style: url($image_module_list_url) disc;
     margin: .5em;
@@ -1070,6 +1087,14 @@ $userpic_css
 .module-userprofile {
     text-align: center;
     }
+
+    .one-column .module-userprofile {
+        text-align: left;
+        }
+
+    .one-column-split .module-userprofile {
+        text-align: center;
+        }
 
     .module-userprofile .userpic {
         margin-bottom: .5em;
@@ -1151,10 +1176,28 @@ $userpic_css
     $module_title_colors
     }
 
+    .one-column .module h2,
+    .one-column .module h2 a {
+        text-align: left;
+        }
+
+    .one-column-split .module h2,
+    .one-column-split .module h2 a {
+        text-align: center;
+        }
+
 .module-search .search-form {
     margin: 0 auto;
     text-align: center;
     }
+
+    .one-column .module-search .search-form {
+        text-align: left;
+        }
+
+    .one-column-split .module-search .search-form {
+        text-align: center;
+        }
 
 .module-search .search-box,
 .module-search .search-button {
@@ -1176,6 +1219,14 @@ $userpic_css
     -khtml-box-shadow: .067em .067em .134em $*color_shadow_alt;
     }
 
+    .one-column .module-search .search-box {
+        width: auto;
+        }
+
+    .one-column-split .module-search .search-box {
+        width: 90%;
+        }
+
 .module-search .search-button {
     background-color: $*color_specificmodule_background;
     color: $*color_specificmodule_text;
@@ -1185,6 +1236,16 @@ $userpic_css
     -webkit-box-shadow: .067em .067em .134em $*color_shadow;
     -khtml-box-shadow: .067em .067em .134em $*color_shadow;
     }
+
+    .one-column .module-search .search-button {
+        margin-left: .3em;
+        margin-top: 0;
+        }
+
+    .one-column-split .module-search .search-button {
+        margin-left: 0;
+        margin-top: .3em ;
+        }
 
 .module-search .search-button:hover {
     background-color: $*color_specificmodule_background_hover;

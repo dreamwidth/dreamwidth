@@ -169,6 +169,11 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
 .navigation ul li a:active { color: $*color_entry_link_active; }
 
 /* entries */
+
+.one-column-split #entries {
+    padding-top: 2em;
+    }
+
 .entry-wrapper { margin-top: 2em;
     margin-bottom: 4em;
     margin-left: .5em; }
