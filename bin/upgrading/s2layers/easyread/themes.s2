@@ -161,6 +161,118 @@ set color_entry_background = "#fff";
 set color_entry_text = "#000";
 
 
+#NEWLAYER: easyread/lcblue
+layerinfo type = "theme";
+layerinfo name = "Low Contrast Blue";
+layerinfo redist_uniq = "easyread/lcblue";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#125c66";
+set color_page_link = "#37909d";
+set color_page_link_active = "#A65E1C";
+set color_page_link_visited = "#A65E1C";
+set color_page_text = "#84c5ce";
+set color_page_title = "#84c5ce";
+set color_header_background = "#125c66";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#125c66";
+set color_entry_text = "#84c5ce";
+
+
+#NEWLAYER: easyread/lcbrown
+layerinfo type = "theme";
+layerinfo name = "Low Contrast Brown";
+layerinfo redist_uniq = "easyread/lcbrown";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#30180C";
+set color_page_link = "#4A3226";
+set color_page_link_active = "#6F988B";
+set color_page_link_visited = "#6F988B";
+set color_page_text = "#A58778";
+set color_page_title = "#A58778";
+set color_header_background = "#30180C";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#30180C";
+set color_entry_text = "#A58778";
+
+
+#NEWLAYER: easyread/lcgreen
+layerinfo type = "theme";
+layerinfo name = "Low Contrast Green";
+layerinfo redist_uniq = "easyread/lcgreen";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#355f0e";
+set color_page_link = "#5d922a";
+set color_page_link_active = "#8f294c";
+set color_page_link_visited = "#8f294c";
+set color_page_text = "#5d922a";
+set color_page_title = "#a0c97a";
+set color_header_background = "#355f0e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#a0c97a";
+set color_entry_text = "#5d922a";
+
+
+#NEWLAYER: easyread/lcgrey
+layerinfo type = "theme";
+layerinfo name = "Low Contrast Grey";
+layerinfo redist_uniq = "easyread/lcgrey";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a7c0ae";
+set color_page_link = "#cfe0d4";
+set color_page_link_active = "#3c6f76";
+set color_page_link_visited = "#3c6f76";
+set color_page_text = "#cfe0d4";
+set color_page_title = "#829086";
+set color_header_background = "#a7c0ae";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#a7c0ae";
+set color_entry_text = "#829086";
+
+
 #NEWLAYER: easyread/lcorange
 layerinfo type = "theme";
 layerinfo name = "Low Contrast Orange";
@@ -187,6 +299,62 @@ set color_header_background = "#d19152";
 
 set color_entry_background = "#ffefa6";
 set color_entry_text = "#d19152";
+
+
+#NEWLAYER: easyread/lcpink
+layerinfo type = "theme";
+layerinfo name = "Low Contrast Pink";
+layerinfo redist_uniq = "easyread/lcpink";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e79298";
+set color_page_link = "#cf6970";
+set color_page_link_active = "#a5d79d";
+set color_page_link_visited = "#a5d79d";
+set color_page_text = "#9B6266";
+set color_page_title = "#cf6970";
+set color_header_background = "#e79298";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e79298";
+set color_entry_text = "#9B6266";
+
+
+#NEWLAYER: easyread/lcpurple
+layerinfo type = "theme";
+layerinfo name = "Low Contrast Purple";
+layerinfo redist_uniq = "easyread/lcpurple";
+layerinfo author_name = "Musyc";
+
+set theme_authors = [ { "name" => "Musyc" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#5c4a59";
+set color_page_link = "#5c4a59";
+set color_page_link_active = "#9da67c";
+set color_page_link_visited = "#9da67c";
+set color_page_text = "#4f1e47";
+set color_page_title = "#4f1e47";
+set color_header_background = "#5c4a59";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#4f1e47";
+set color_entry_text = "#bda2b8";
 
 
 #NEWLAYER: easyread/nnwm2009
