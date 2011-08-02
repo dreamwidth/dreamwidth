@@ -2745,18 +2745,16 @@ sub viewer_is_moderator {
     return $remote->can_moderate( $ju );
 }
 
-sub viewer_can_manage_tags
-{
-    my $remote = LJ::get_remote();
-    return 0 unless $remote;
+sub viewer_can_manage_tags {
     return 0 unless defined $LJ::S2::CURR_PAGE;
 
     my $ju = $LJ::S2::CURR_PAGE->{_u};
-    return $remote->can_control_tags( $ju );
+
+    # use the same function as that used in /manage/tags
+    return LJ::get_authas_user( $ju->user ) ? 1 : 0;
 }
 
-sub viewer_sees_control_strip
-{
+sub viewer_sees_control_strip {
     return 0 unless $LJ::USE_CONTROL_STRIP;
 
     my $r = BML::get_request();
