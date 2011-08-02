@@ -3242,7 +3242,7 @@ sub ljuser_display {
     my $strike = $opts->{del} ? ' text-decoration: line-through;' : '';
     my $profile_url = $opts->{profile_url} || '';
     my $journal_url = $opts->{journal_url} || '';
-    my $display_class = $opts->{no_ljuser_class} ? "" : "class='ljuser'";
+    my $display_class = $opts->{no_ljuser_class} ? "" : " class='ljuser'";
     my $type = $u->journaltype_readable;
 
     my ($url, $name);
@@ -3276,7 +3276,7 @@ sub ljuser_display {
         my $profile = $profile_url ne '' ? $profile_url :
             "$LJ::SITEROOT/profile?userid=" . $u->userid . "&amp;t=I$andfull";
   
-        return "<span $display_class lj:user='$name' style='white-space: nowrap;$strike'><a href='$profile'>" .
+        return "<span lj:user='$name' style='white-space: nowrap;$strike'$display_class><a href='$profile'>" .
             "<img src='$imgurl' alt='[$type profile] ' width='$width' height='$height'" .
             " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a>" .
             "<a href='$url' rel='nofollow'><b>$name</b></a></span>";
@@ -8188,7 +8188,7 @@ sub ljuser
     my $img = $opts->{'imgroot'} || $LJ::IMGPREFIX;
     my $profile_url = $opts->{'profile_url'} || '';
     my $journal_url = $opts->{'journal_url'} || '';
-    my $display_class = $opts->{no_ljuser_class} ? "" : "class='ljuser'";
+    my $display_class = $opts->{no_ljuser_class} ? "" : " class='ljuser'";
     my $profile;
 
     my $make_tag = sub {
@@ -8211,7 +8211,7 @@ sub ljuser
         $profile = $profile_url ne '' ? $profile_url : $profile . $andfull;
         $url = $journal_url ne '' ? $journal_url : $url;
 
-        return "<span $display_class lj:user='$user' style='white-space: nowrap;$strike'>" .
+        return "<span lj:user='$user' style='white-space: nowrap;$strike'$display_class>" .
             "<a href='$profile'><img src='$img/$fil' alt='[$alttext] ' width='$x' height='$y'" .
             " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a>" .
             "<a href='$url'$link_color>$ljusername</a></span>";
