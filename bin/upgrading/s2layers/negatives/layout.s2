@@ -381,6 +381,17 @@ function Page::print_default_stylesheet()
         $module_background
         color: $*color_module_text;
         }
+
+    .one-column #secondary {
+        border-left: 5px double $*color_module_border;
+        border-right: 5px double $*color_module_border;
+        }
+
+    .one-column-split #secondary {
+        border-left: 5px double $*color_module_border;
+        border-right: 5px double $*color_module_border;
+        }
+
     #secondary a {
         color:$*color_module_link;
         font-weight:normal;
@@ -687,14 +698,15 @@ function Page::print_default_stylesheet()
         text-align: right;
     }
 
-    .one-column #primary {float: none;}
-    .one-column #secondary {float: none;}
+    .one-column #primary,
+    .one-column #secondary {
+        margin: 0 5%;
+    }
+
     .two-columns-left #primary {float: right;}
     .two-columns-left #secondary { float: right; }
     .two-columns-right #primary { float: left; }
     .two-columns-right #secondary {float: left;}
-    .one-column #primary {left: 5%; width: 85%;}
-    .one-column #secondary {left: 5%; width: 15%;}
     .two-columns-left #primary { right: 10%; width: 70%; }
     .two-columns-left #secondary { right: 10%; width: 15%; }
     .two-columns-right #primary {left: 10%; width: 70%;}
@@ -898,19 +910,30 @@ function Page::print()
         println "<div id=\"header\">";
         $this->print_module_section("two");
         println "</div>";
+        if ($*layout_type == "one-column-split") {
+            println "<div id=\"secondary\">";
+                if ($this.view != "archive" and $this.view != "month"){
+                    println "<div id='page-navigation-top' class='page-navigation'>";
+                        $this->print_navigation();
+                    println "</div>";
+                }
+                $this->print_module_section("one");
+            println "</div>";
+        }
         println "<div id=\"primary\">";
             $this->print_body();
             println "<div class=\"floatclear\">.</div>";
         println "</div>";
-
-        println "<div id=\"secondary\">";
-            if ($this.view != "archive" and $this.view != "month"){
-                println "<div id='page-navigation-top' class='page-navigation'>";
-                    $this->print_navigation();
-                println "</div>";
-            }
-            $this->print_module_section("one");
-        println "</div>";
+        if ($*layout_type != "one-column-split") {
+            println "<div id=\"secondary\">";
+                if ($this.view != "archive" and $this.view != "month"){
+                    println "<div id='page-navigation-top' class='page-navigation'>";
+                        $this->print_navigation();
+                    println "</div>";
+                }
+                $this->print_module_section("one");
+            println "</div>";
+        }
         println "<div id=\"footer\">";
         $this->print_module_section("three");
         println "<div>";
