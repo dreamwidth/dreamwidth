@@ -1,9 +1,8 @@
 #!/usr/bin/perl
 #
-# DW::Setting::AwesomeNewFeature
+# DW
 #
-# This file is the accompanying settings package for AwesomeNewFeature. It allows users to set and
-# clear their setting choices.
+# This file contains basic information which is always required when running Dreamwidth
 #
 # Authors:
 #      Gabor Szabo <szabgab@gmail.com>
