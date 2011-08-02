@@ -111,6 +111,7 @@ propgroup modules {
     property use module_time_group;
     property use module_poweredby_group;
     property use module_credit_group;
+    property use module_search_group;
     property use module_cuttagcontrols_group;
 }
 
@@ -176,42 +177,23 @@ propgroup text {
 }
 
 set module_userprofile_section = "one";
-set module_userprofile_show = true;
-
 set module_pagesummary_section = "one";
-set module_pagesummary_show = true;
-
 
 set module_navlinks_section = "two";
-set module_navlinks_show = true;
 
 set module_tags_section = "two";
-set module_tags_show = true;
 set module_tags_opts_type = "cloud";
 
 set module_links_section = "two";
-set module_links_show = true;
-
-
 set module_customtext_section = "two";
 set module_customtext_show = false;
-
 set module_syndicate_section = "two";
-set module_syndicate_show = true;
-
 set module_credit_section = "two";
-set module_credit_show = true;
-
 set module_time_section = "two";
-set module_time_show = true;
-
 set module_poweredby_section = "two";
-set module_poweredby_show = true;
-
 
 set module_calendar_section = "two";
 set module_calendar_show = false;
-
 
 set module_userprofile_order = 1;
 set module_pagesummary_order = 2;
@@ -225,6 +207,8 @@ set module_syndicate_order = 14;
 set module_credit_order = 15;
 set module_time_order = 16;
 set module_poweredby_order = 17;
+set module_search_order = 19;
+set module_cuttagcontrols_order = 20;
 
 set module_calendar_order = 18;
 
