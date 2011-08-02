@@ -867,6 +867,17 @@ sub external_services {
         };
     }
 
+    if ( my $etsy = $u->prop( 'etsy' ) ) {
+        my $etsy = LJ::eurl( $etsy );
+        push @ret, {
+            type => 'etsy',
+            text => LJ::ehtml( $etsy ),
+            url => "http://www.etsy.com/people/$etsy",
+            image => 'etsy.png',
+            title_ml => '.service.etsy',
+        };
+    }
+
     return @ret;
 }
 
