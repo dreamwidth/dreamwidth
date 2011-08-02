@@ -84,6 +84,21 @@ _c?>
         $posterids{$r->[3]} = 1 if $r->[3]; # don't include 0 (anonymous)
     }
 
+    # load posterids
+    my $us = LJ::load_userids( keys %posterids );
+
+    my $userid = $u->userid;
+
+    my $filter = sub {
+        my $data = $_[0];
+        return unless $data->{posterid};
+        return if $data->{posterid} == $userid;
+
+        # If the poster is suspended, we treat the comment as if it was deleted
+        # This comment may have children, so it must still seem to exist.
+        $data->{state} = 'D' if $us->{$data->{posterid}}->is_suspended;
+    };
+
     # now we have two choices: comments themselves or metadata
     if ($mode eq 'comment_meta') {
         # meta data is easy :)
@@ -94,12 +109,12 @@ _c?>
         $r->print("<maxid>$max</maxid>\n");
         my $nextid = $startid + $gather;
         $r->print("<nextid>$nextid</nextid>\n") unless ($nextid > $max);
-        # load posterids
-        my $us = LJ::load_userids(keys %posterids);
 
         # now spit out the metadata
         $r->print("<comments>\n");
         while (my ($id, $data) = each %comments) {
+            $filter->( $data );
+
             my $ret = "<comment id='$id'";
             $ret .= " posterid='$data->{posterid}'" if $data->{posterid};
             $ret .= " state='$data->{state}'" if $data->{state} ne 'A';
@@ -148,6 +163,8 @@ _c?>
             # setup the date to be GMT and formatted per W3C specs
             my $date = LJ::mysqldate_to_time($data->{datepost});
             $date = LJ::time_to_w3c($date, 'Z');
+
+            $filter->( $data );
 
             # print the data
             my $ret = "<comment id='$id' jitemid='$data->{nodeid}'";
