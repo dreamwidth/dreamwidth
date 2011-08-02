@@ -27,7 +27,7 @@ set font_journal_subtitle = "'Book Antiqua', Palatino, 'Times New Roman', serif"
 ##===============================
 
     property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Group One|two|Group Two";
+       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
        grouped = 1;
        }
 

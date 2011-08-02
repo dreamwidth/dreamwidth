@@ -194,7 +194,7 @@ set image_comment_border_end_even_repeat = "no-repeat";
 ##===============================
 
     property string module_navlinks_section_override {
-       values = "none|(none)|header|Header|one|Group One|two|Group Two";
+       values = "none|(none)|header|Header|one|Main Module Section|two|Main Module Section";
        grouped = 1;
        }
 

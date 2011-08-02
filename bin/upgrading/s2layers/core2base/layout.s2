@@ -152,7 +152,7 @@ propgroup modules {
 }
 
 # explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
 
 ##===============================
 ## Custom CSS

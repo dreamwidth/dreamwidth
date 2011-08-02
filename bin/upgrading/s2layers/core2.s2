@@ -1405,7 +1405,7 @@ property string module_layout_sections {
     example = "none|(none)|one|Left Sidebar|two|Right Sidebar";
     noui = 1;
 }
-set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
+set module_layout_sections = "none|(none)|one|Main Module Section|two|Second Module Section";
 
 property string[][]{} module_sections {
     des = "Build up a list of module sections and the ordering within them";
