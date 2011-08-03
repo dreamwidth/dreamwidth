@@ -177,17 +177,48 @@ sub is_default_type {
 #
 #   uuserid     required    user object or userid to get paid status of
 #
-# RETURN: undef for free, else a typeid of the account type.
+# RETURN: typeid from get_paid_status, or else default_typeid
 #
 sub get_current_account_status {
-    # try to get current paid status
+    my $uid = LJ::want_userid( $_[0] );
+    return DW::Pay::default_typeid() unless $uid;
+
+    # check memcache first
+    my $memkey = [ $uid, "accttype:$uid" ];
+    my $typeid = LJ::MemCache::get( $memkey );
+    return $typeid if defined $typeid;
+
+    # try to get current paid status if not in memcache
     my $stat = DW::Pay::get_paid_status( @_ );
 
     # default check
-    return DW::Pay::default_typeid() if DW::Pay::is_default_type( $stat );
+    $typeid = DW::Pay::is_default_type( $stat )
+        ? DW::Pay::default_typeid() : $stat->{typeid};
 
-    # valid row, return whatever type it is
-    return $stat->{typeid};
+    # store in memcache for 15 minutes
+    LJ::MemCache::set( $memkey, $typeid, 900 );
+
+    return $typeid;
+}
+
+################################################################################
+# DW::Pay::expire_status_cache
+#
+# ARGUMENTS: uuserid
+#
+#   uuserid     required    user object or userid to expire status cache of
+#
+# RETURN: undef on error, else 1 on success.
+#
+sub expire_status_cache {
+    my $uid = LJ::want_userid( $_[0] );
+    return undef unless $uid;
+
+    my $memkey = [ $uid, "accttype:$uid" ];
+    LJ::MemCache::delete( $memkey );
+    delete $LJ::PAID_STATUS{$uid};
+
+    return 1;
 }
 
 ################################################################################
@@ -488,7 +519,7 @@ sub update_paid_status {
         or return error( ERR_FATAL, "Invalid/not a user object." );
     my %cols = ( @_ )
         or return error( ERR_FATAL, "Nothing to change!" );
-    delete $LJ::PAID_STATUS{$u->id};
+    DW::Pay::expire_status_cache( $u->id );
 
     my $dbh = DW::Pay::get_db_writer()
         or return error( ERR_TEMP, "Unable to get db writer." );
@@ -602,7 +633,7 @@ sub edit_expiration_datetime {
     $dbh->do( q{UPDATE dw_paidstatus SET expiretime=? WHERE userid=?}, undef, $row->{datetime}, $u->id );
     return error( ERR_FATAL, "Database error: " . $dbh->errstr )
         if $dbh->err;
-    delete $LJ::PAID_STATUS{$u->id};
+    DW::Pay::expire_status_cache( $u->id );
     return 1;
 }
 

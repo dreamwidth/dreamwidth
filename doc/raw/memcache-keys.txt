@@ -5,6 +5,7 @@
 <uid> sess:<uid>:<sessid> == sessions row hashref
 <uid> bio:<uid> == user bio text
 <uid> kws:<uid> == { kwid => keyword }; hashref of keyword ids and keywords
+<uid> accttype:<uid> == %LJ::CAP key for user's account, 15 min
 
 <uid> talkprop:<uid>:<jtalkid> == { propname => $value, ... }
 <uid> talksubject:<cid>:<uid>:<jtalkid> == scalar
