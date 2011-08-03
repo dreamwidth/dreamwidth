@@ -27,14 +27,39 @@ package DW::Hooks::EmbedWhitelist;
 
 use strict;
 use LJ::Hooks;
+use URI;
+
+sub match_subdomain {
+    my $want_domain = $_[0];
+    my $domain_from_uri = $_[1];
+
+    return $domain_from_uri =~ /^(?:[\w.-]*\.)?\Q$want_domain\E$/;
+}
+
+sub match_full_path {
+    my $want_path = $_[0];
+    my $path_from_uri = $_[1];
+
+    return $path_from_uri =~ /^$want_path$/;
+}
 
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
     my ( $embed_url, %opts ) = @_;
 
     return 0 unless $embed_url;
 
+    my $parsed_uri = URI->new( $embed_url );
+
+    my $uri_scheme = $parsed_uri->scheme;
+    return 0 unless $uri_scheme eq "http" || $uri_scheme eq "https";
+
+    my $uri_host = $parsed_uri->host;
+    my $uri_path = $parsed_uri->path;   # not including query
+
     ## YouTube (http://apiblog.youtube.com/2010/07/new-way-to-embed-youtube-videos.html)
-    return 1 if $embed_url =~ m!^https?://(?:[\w.-]*\.)?youtube\.com/embed/[-_a-zA-Z0-9]{11,}(?:\?.*)?$!;
+    if ( match_subdomain( "youtube.com", $uri_host ) || match_subdomain( "youtube-nocookie.com", $uri_host ) ) {
+        return 1 if match_full_path( qr!/embed/[-_a-zA-Z0-9]{11,}!, $uri_path );
+    }
 
     return 0;
 
