@@ -208,6 +208,7 @@ sub make_journal
         unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
 
     $page->{head_content} .= $extra_js;
+    $page->{head_content} .= LJ::pagestats_obj()->render_head( 'journal' );
 
     # inject the control strip JS, but only after any libraries have been injected
     $page->{head_content} .= LJ::control_strip_js_inject( user => $u->user, jquery => $beta_jquery )

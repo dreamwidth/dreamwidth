@@ -51,11 +51,39 @@ sub render {
         die "Error loading PageStats '$plugin': $@" if $@;
         my $plugin_obj = $class->new;
         next unless $plugin_obj->should_render;
-        $output .= $plugin_obj->render(conf => $self->{conf}->{$plugin});
+        $output .= $plugin_obj->_render(conf => $self->{conf}->{$plugin});
     }
 
     # return nothing
     return "<div id='hello-world' style='text-align: left; font-size:0; line-height:0; height:0; overflow:hidden;'>$output</div>";
+}
+
+# render JS output that goes into the <head> tags
+sub render_head {
+    my ( $self ) = @_;
+    my $ctx = $self->get_context;
+
+    return '' unless $self->should_do_pagestats;
+
+    my $output = '';
+    foreach my $plugin ( $self->get_active_plugins ) {
+        my $class = $plugin;
+        eval "use $class; 1;";
+        die "Error loading PageStats '$plugin': $@" if $@;
+        my $plugin_obj = $class->new;
+        next unless $plugin_obj->should_render;
+        $output .= $plugin_obj->_render_head( conf => $self->{conf}->{$plugin} );
+    }
+
+    return $output;
+}
+
+sub _render {
+    return "";
+}
+
+sub _render_head {
+    return "";
 }
 
 # method on root object (LJ::PageStats instance) to decide if user has

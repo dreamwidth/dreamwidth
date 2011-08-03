@@ -17,9 +17,8 @@ package DW::PageStats::GoogleAnalytics;
 use base 'LJ::PageStats';
 use strict;
 
-sub render {
+sub _render_head {
     my ( $self ) = @_;
-
     return '' unless $self->should_do_pagestats;
 
     my $ctx = $self->get_context;
@@ -34,16 +33,26 @@ sub render {
         # validation was implemented.
         $code = LJ::ejs( $code );
     }
-    
-    return qq{
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-var pageTracker = _gat._getTracker("$code");
-pageTracker._initData();
-pageTracker._trackPageview();
+
+    return qq{<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', '$code']);
+  _gaq.push(['_trackPageview']);</script>
+};
+}
+
+sub _render {
+    my ( $self ) = @_;
+
+    return '' unless $self->should_do_pagestats;
+
+    return qq{<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
 </script>
 };
 }

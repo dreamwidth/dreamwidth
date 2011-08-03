@@ -61,6 +61,10 @@ sub res_includes {
     return LJ::res_includes();
 }
 
+sub final_head_html {
+    return LJ::final_head_html();
+}
+
 sub final_body_html {
     return LJ::final_body_html();
 }

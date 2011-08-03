@@ -3833,6 +3833,16 @@ $LJ::COMMON_CODE{'autoradio_check'} = q{
 </script>
 };
 
+sub final_head_html {
+    my $ret = "";
+
+    my $pagestats_obj = LJ::pagestats_obj();
+    $ret .= $pagestats_obj->render_head
+        if $pagestats_obj;
+
+    return $ret;
+}
+
 # returns HTML which should appear before </body>
 sub final_body_html {
     my $before_body_close = "";

@@ -30,6 +30,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- PROCESS block.need_res -%]
     [% dw_scheme.res_includes %]
     [% sections.head %]
+    [% dw_scheme.final_head_html %]
 </head>
 [%- END -%]
 
