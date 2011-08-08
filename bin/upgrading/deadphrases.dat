@@ -511,8 +511,6 @@ general /community/leave.bml.label.removed4
 general /community/leave.bml.label.removed.stopwatch3
 
 general /customize/preview.bml.unavailable
-general /manage/profile/index.bml.fn.interests
-general /manage/profile/index.bml.fn.interests2
 general /manage/profile/index.bml.interest.line1
 general /manage/profile/index.bml.interest.line2
 general /manage/profile/index.bml.interest.line3
