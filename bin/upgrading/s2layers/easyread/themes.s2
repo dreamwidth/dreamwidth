@@ -1,3 +1,31 @@
+#NEWLAYER: easyread/aqua
+layerinfo type = "theme";
+layerinfo name = "Aqua";
+layerinfo redist_uniq = "easyread/aqua";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#205c66";
+set color_page_link = "#FBC484";
+set color_page_link_active = "#FBC484";
+set color_page_link_visited = "#d39945";
+set color_page_text = "#cdc1ac";
+set color_page_title = "#cdc1ac";
+set color_header_background = "#194a52";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#13383e";
+set color_entry_text = "#cdc1ac";
+
+
 #NEWLAYER: easyread/clovers
 layerinfo type = "theme";
 layerinfo name = "Clovers!";
@@ -23,6 +51,87 @@ set color_header_background = "#6B8E23";
 
 set color_entry_text = "#000";
 set color_entry_background = "#fff";
+
+
+#NEWLAYER: easyread/desert
+layerinfo type = "theme";
+layerinfo name = "Desert";
+layerinfo redist_uniq = "easyread/desert";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff1d7";
+set color_page_link = "#4A63A2";
+set color_page_link_active = "#2249A2";
+set color_page_link_visited = "#A26C4A";
+set color_page_text = "#080808";
+set color_page_title = "#080808";
+set color_header_background = "#FFE9C3";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff4e1";
+set color_entry_text = "#080808";
+
+
+#NEWLAYER: easyread/desertdark
+layerinfo type = "theme";
+layerinfo name = "Desert Dark";
+layerinfo redist_uniq = "easyread/desertdark";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a26c4a";
+set color_page_link = "#fec494";
+set color_page_link_active = "#fec494";
+set color_page_link_visited = "#d0d3ff";
+set color_page_text = "#FFF7EB";
+set color_page_title = "#FFF7EB";
+set color_header_background = "#7A5037";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#84553C";
+set color_entry_text = "#fff1d7";
+
+
+#NEWLAYER: easyread/fullsky
+layerinfo type = "theme";
+layerinfo name = "Full Sky";
+layerinfo redist_uniq = "easyread/fullsky";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#566da1";
+set color_page_link = "#dc4c4c";
+set color_page_link_visited = "#963434";
+set color_page_text = "#131313";
+set color_header_background = "#9eb3e0";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ecedf1";
 
 
 #NEWLAYER: easyread/green
@@ -159,6 +268,31 @@ set color_header_background = "#fff";
 
 set color_entry_background = "#fff";
 set color_entry_text = "#000";
+
+
+#NEWLAYER: easyread/likelight
+layerinfo type = "theme";
+layerinfo name = "Like Light";
+layerinfo redist_uniq = "easyread/likelight";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fea219";
+set color_page_link = "#b8260d";
+set color_page_link_visited = "#791808";
+set color_page_text = "#0f0200";
+set color_header_background = "#feb041";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fecc91";
 
 
 #NEWLAYER: easyread/lcblue
@@ -357,6 +491,34 @@ set color_entry_background = "#4f1e47";
 set color_entry_text = "#bda2b8";
 
 
+#NEWLAYER: easyread/mintjulep
+layerinfo type = "theme";
+layerinfo name = "Mint Julep";
+layerinfo redist_uniq = "easyread/mintjulep";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e3ede3";
+set color_page_link = "#B54353";
+set color_page_link_active = "#B54353";
+set color_page_link_visited = "#75378F";
+set color_page_text = "#070707";
+set color_page_title = "#070707";
+set color_header_background = "#c7d9c7";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#daedda";
+set color_entry_text = "#070707";
+
+
 #NEWLAYER: easyread/nnwm2009
 layerinfo type = "theme";
 layerinfo name = "NNWM 2009";
@@ -401,6 +563,56 @@ function Page::print_theme_stylesheet() {
         }
     """;
     }
+
+
+#NEWLAYER: easyread/slowingdown
+layerinfo type = "theme";
+layerinfo name = "Slowing Down";
+layerinfo redist_uniq = "easyread/slowingdown";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#259959";
+set color_page_link = "#195231";
+set color_page_link_visited = "#52193b";
+set color_page_text = "#050505";
+set color_header_background = "#2bb267";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#37e47c";
+
+
+#NEWLAYER: easyread/spectrum
+layerinfo type = "theme";
+layerinfo name = "Spectrum";
+layerinfo redist_uniq = "easyread/spectrum";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ff4746";
+set color_page_link = "#4F6132";
+set color_page_link_visited = "#4B4452";
+set color_page_text = "#1b181e";
+set color_header_background = "#ff6e6e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ff6e6e";
 
 
 #NEWLAYER: easyread/toros
