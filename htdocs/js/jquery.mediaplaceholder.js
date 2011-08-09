@@ -12,7 +12,6 @@ $.widget("dw.mediaplaceholder", {
             e.stopPropagation();
             e.preventDefault();
 
-            console.log(html);
             var originalembed = $(unescape(html.html()))
                 .wrap("<span></span>"); // IE weirdness
             container.append(originalembed);

@@ -152,7 +152,6 @@ $.extend( $.dw.ajaxtip, {
             function(){
                 var $this = $(this);
 
-                console.log($this, e.target, $this.has( e.target ).length > 0 );
                 if ( e && e.target && $this.has( e.target ).length > 0 ) {
                     // clicked inside this popup; do nothing
                 } else {
