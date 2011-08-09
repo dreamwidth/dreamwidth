@@ -273,6 +273,10 @@ sub leave_community {
     return LJ::error( 'comm_not_found' ) unless LJ::isu( $u ) && $cu;
     return LJ::error( 'comm_not_comm' ) unless $cu->is_community;
 
+    # log to userlog if remote is a maintainer
+    $cu->log_event( 'maintainer_remove', { actiontarget => $u->id, remote => $u } )
+            if $u->can_manage( $cu );
+
     # remove community membership
     return undef
         unless $u->remove_edge( $cu, member => {} );
@@ -635,7 +639,7 @@ sub membership_level {
     return undef unless $u->is_community;
 
     my ( $membership_level ) = $u->get_comm_settings;
-    return $membership_level || undef;
+    return $membership_level || '';
 }
 
 # helper methods for checking some values about communities

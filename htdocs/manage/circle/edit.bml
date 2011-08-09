@@ -188,20 +188,44 @@ body<=
                             $iscontent = 1;
                         }
                     } elsif ($type eq "comms") {
+                        my $jointext = $ML{'.circle.member'};
+                        my $joinvals = {
+                            name => "editfriend_edit_${uid}_join",
+                            id => "editfriend_edit_${uid}_join",
+                            value => 1,
+                        };
+
                         # check membership
                         if ( $is_member_of_userid{$uid} ) {
-                            $ret .= LJ::img( 'circle_yes', '' );
-                            $ret .= $ML{'.circle.member.y'};
+                            $jointext = $ML{'.circle.maintainer'}
+                                if $u->can_manage( $other_u );
+                            $joinvals->{selected} = 1;
+                            $joinvals->{disabled} =
+                                $u->can_leave( $other_u ) ? 0 : 1;
                         } else {
-                            $ret .= LJ::img( 'circle_no', '' );
-                            $ret .= $ML{'.circle.member.n'};
+                            my $status = $other_u->membership_level;
+                            $jointext = $status ? $ML{".circle.join.$status"} : $ML{'.circle.none'};
+                            if ( $status eq 'moderated' ) {
+                                # print link to join page
+                                my $href = "$LJ::SITEROOT/community/join?comm=" . $other_u->user;
+                                $jointext .= " " .
+                                    LJ::Lang::ml( '.circle.join.apply', { aopts => "href='$href'" } );
+                            }
+                            $joinvals->{selected} = 0;
+                            $joinvals->{disabled} =
+                                $u->can_join( $other_u ) ? 0 : 1;
                         }
+
+                        $ret .= LJ::html_check( $joinvals );
+                        $ret .= " <label for='editfriend_edit_${uid}_join'>";
+                        $ret .= "$jointext</label>";
+
                         $iscontent = 1;
                     }
 
                     $ret .= $ML{'.circle.na'} unless $iscontent;
 
-                    $ret .= "</td></tr>";
+                    $ret .= "</td></tr>\n";
                 }
 
                 unless ( scalar @$uids ) {
@@ -418,6 +442,19 @@ body<=
                     $u->remove_edge( $other_u, watch => {
                         nonotify => $watched_nonotify ? 0 : 1,
                     } );
+                }
+
+                if ( $other_u->is_community ) {
+                    my $wants_member = $POST{"editfriend_edit_${uid}_join"};
+                    my $is_member = $u->member_of( $other_u );
+
+                    if ( $wants_member && ! $is_member ) {
+                        $u->join_community( $other_u )
+                            if $u->can_join( $other_u );
+                    } elsif ( $is_member && ! $wants_member ) {
+                        $u->leave_community( $other_u )
+                            if $u->can_leave( $other_u );
+                    }
                 }
             }
         }

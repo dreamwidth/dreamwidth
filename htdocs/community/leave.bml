@@ -53,10 +53,6 @@ _c?>
         return $error->( $error_msg )
             unless $remote->can_leave( $cu, errref => \$error_msg );
 
-        # log to userlog if remote is a maintainer
-        $cu->log_event( 'maintainer_remove', { actiontarget => $remote->id, remote => $remote } )
-            if $remote->can_manage( $cu );
-
         # remove user's membership to community
         if ($watching && !$memberof) {
             $remote->remove_edge( $cu, watch => {} );

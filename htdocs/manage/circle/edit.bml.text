@@ -33,6 +33,16 @@
 
 .circle.intro.nonpeople=These are the communities and feeds in your Circle. You can use the checkboxes to unsubscribe from these accounts.
 
+.circle.join.apply=<a [[aopts]]>Apply to join?</a>
+
+.circle.join.closed=(Closed)
+
+.circle.join.moderated=(Moderated)
+
+.circle.join.open=(Open)
+
+.circle.maintainer=Maintainer
+
 .circle.member=Member
 
 .circle.member.n=Not a member

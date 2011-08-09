@@ -89,10 +89,6 @@ _c?>
         return $err->( $error )
             unless $remote->can_leave( $targetu, errref => \$error );
 
-        # log to userlog if remote is a maintainer
-        $targetu->log_event( 'maintainer_remove', { actiontarget => $remote->id, remote => $remote } )
-            if $remote->can_manage( $targetu );
-
         $success = $remote->leave_community( $targetu );
     } elsif ( $action eq 'setBan' ) {
         my $list_of_banned = LJ::load_rel_user($remote, 'B') || [ ];

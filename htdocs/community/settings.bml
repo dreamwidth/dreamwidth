@@ -167,7 +167,7 @@ body<=
 
             if ( LJ::is_enabled( 'adult_content' ) ) {
                 my $adult_content = $POST{'adult_content'};
-                $adult_content eq "none"
+                $adult_content = "none"
                     unless $adult_content eq "explicit" || $adult_content eq "concepts";
                 $cu->set_prop('adult_content', $adult_content);
             }

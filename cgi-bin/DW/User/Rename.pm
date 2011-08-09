@@ -593,7 +593,7 @@ sub delete_relationships {
         my @ids = $self->member_of_userids;
         my $memberships = LJ::load_userids( @ids ) || {};
         foreach ( values %$memberships ) {
-            LJ::leave_community( $self, $_, 0 );
+            $self->leave_community( $_ );
         }
     }
 
