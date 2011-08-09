@@ -635,10 +635,10 @@ body<=
             # faq question
             my $faq = LJ::Faq->load( $le->{faqid}, lang => $curlang );
             $faq->render_in_place;
-            $ret .= "<div style='display: table; padding: 3px; background: <?emcolor?>; border: 1px solid #000000; margin-left: auto; margin-right: auto;'>\n";
+            $ret .= "<div style='display: table; padding: 3px; margin-left: auto; margin-right: auto;'>\n";
             # whitespace between these two DIVs is necessary for proper
             # rendering in IE 5 for Mac OS < X
-            $ret .= "<div style='text-align:center; padding: 5px;'>";
+            $ret .= "<div class='highlight-box' style='text-align:center;'>";
             $ret .= "<b>$ML{'.faq.reference'}:</b><br /><a href='faqbrowse?faqid=$le->{faqid}&view=full'>" . $faq->question_html . "</a></div></div>\n";
         }
         $ret .= "<p align='left' style='margin-top: 0px; margin-bottom: 0px;'>$message</p>\n";
