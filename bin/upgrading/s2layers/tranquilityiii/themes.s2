@@ -457,6 +457,63 @@ set color_module_title = "#818a8f";
 set color_module_title_background = "#233535";
 
 
+#NEWLAYER: tranquilityiii/newocean
+layerinfo type = "theme";
+layerinfo name = "New Ocean";
+layerinfo redist_uniq = "tranquilityiii/newocean";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#cfe0e6";
+set color_page_details_text = "#000";
+set color_page_link = "#0a566c";
+set color_page_link_active = "#0a566c";
+set color_page_link_hover = "#021341";
+set color_page_link_visited = "#0a566c";
+set color_page_text = "#000";
+set color_page_title = "#effeff";
+set color_header_background = "#556b80";
+set color_footer_background = "#556b80";
+set color_footer_link = "#effeff";
+set color_footer_link_active = "#effeff";
+set color_footer_link_hover = "#cfe0e6";
+set color_footer_link_visited = "#effeff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#effeff";
+set color_entry_interaction_links = "#0a566c";
+set color_entry_link = "#0a566c";
+set color_entry_link_active = "#0a566c";
+set color_entry_link_hover = "#021341";
+set color_entry_link_visited = "#0a566c";
+set color_entry_text = "#000";
+set color_entry_title = "#cfe0e6";
+set color_entry_title_background = "#556b80";
+set color_comment_title = "#cfe0e6";
+set color_comment_title_background = "#556b80";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#effeff";
+set color_module_link = "#0a566c";
+set color_module_link_active = "#0a566c";
+set color_module_link_hover = "#021341";
+set color_module_link_visited = "#0a566c";
+set color_module_text = "#000";
+set color_module_title = "#cfe0e6";
+set color_module_title_background = "#556b80";
+
+
 #NEWLAYER: tranquilityiii/nightsea
 layerinfo type = "theme";
 layerinfo name = "Night Sea";
@@ -701,6 +758,63 @@ set color_module_link_visited = "#3a5b02";
 set color_module_text = "#3a1201";
 set color_module_title = "#724035";
 set color_module_title_background = "#dabd9f";
+
+
+#NEWLAYER: tranquilityiii/rosewood
+layerinfo type = "theme";
+layerinfo name = "Rosewood";
+layerinfo redist_uniq = "tranquilityiii/rosewood";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#4f423c";
+set color_page_details_text = "#cab8aa";
+set color_page_link = "#CAA099";
+set color_page_link_active = "#CAA099";
+set color_page_link_hover = "#ca7d6b";
+set color_page_link_visited = "#CAA099";
+set color_page_text = "#cab8aa";
+set color_page_title = "#cab8aa";
+set color_header_background = "#3c2f29";
+set color_footer_background = "#2a261b";
+set color_footer_link = "#CAA099";
+set color_footer_link_active = "#CAA099";
+set color_footer_link_hover = "#ca7d6b";
+set color_footer_link_visited = "#CAA099";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#2a261b";
+set color_entry_interaction_links = "#CAA099";
+set color_entry_link = "#CAA099";
+set color_entry_link_active = "#CAA099";
+set color_entry_link_hover = "#ca7d6b";
+set color_entry_link_visited = "#CAA099";
+set color_entry_text = "#cab8aa";
+set color_entry_title = "#CAA099";
+set color_entry_title_background = "#3c2f29";
+set color_comment_title = "#CAA099";
+set color_comment_title_background = "#3c2f29";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#2a261b";
+set color_module_link = "#CAA099";
+set color_module_link_active = "#CAA099";
+set color_module_link_hover = "#ca7d6b";
+set color_module_link_visited = "#CAA099";
+set color_module_text = "#cab8aa";
+set color_module_title = "#CAA099";
+set color_module_title_background = "#3c2f29";
 
 
 #NEWLAYER: tranquilityiii/seadeep
