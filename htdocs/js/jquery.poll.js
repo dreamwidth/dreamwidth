@@ -55,11 +55,22 @@ $.widget("dw.dynamicpoll", {
                                 $pageEle = $("<div class='lj_pollanswer_paging'></div>");
                                 $answerEle = $("<div class='lj_pollanswer'></div>");
 
-                                $clicked.after($answerEle,$pageEle).remove();
+                                $clicked.after($answerEle,$pageEle).hide();
                             }
                             $pageEle.html( data.paging_html || "" );
                             $answerEle.html( data.answer_html || "(No answers)" );
 
+
+                            $answerEle.append("<div class='hideanswers'><p></p><a href='#'>Hide Answers</a></div>" );
+
+                            $(".hideanswers").click(function(e2) {
+                                e2.stopPropagation();
+                                e2.preventDefault();
+                                $(this).closest(".lj_pollanswer")
+                                    .siblings(".lj_pollanswer_paging").remove().end()
+                                    .siblings(".LJ_PollAnswerLink").show().end()
+                                    .remove();
+                            });
                             $pageEle.trigger( "updatedcontent.poll" );
                             $answerEle.trigger( "updatedcontent.poll" );
                         }
