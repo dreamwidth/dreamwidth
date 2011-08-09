@@ -168,6 +168,12 @@
         }
 
         $ret{ok} = 1;
+    } elsif ( $mode eq "view_filter" ) {
+        # called to get reading page url
+        return $err->( 'No name provided.' )
+            unless $GET{name} =~ /\S/;
+
+        $ret{url} = $u->journal_base . "/read/" . $GET{name};
     }
 
     return JSON::objToJson( \%ret );

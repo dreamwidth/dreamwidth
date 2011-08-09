@@ -107,13 +107,13 @@ function cfPopulateLists() {
     // short circuit, if we have no filter, just empty both
     if ( ! cfSelectedFilterId ) {
         $('#cf-in-list, #cf-notin-list').empty();
-        $('#cf-rename, #cf-delete, #cf-edit').hide();
+        $('#cf-rename, #cf-delete, #cf-view, #cf-edit').hide();
         $('#cf-intro').show();
         return;
     }
 
     // show our rename button
-    $('#cf-rename, #cf-delete, #cf-edit').show();
+    $('#cf-rename, #cf-delete, #cf-view, #cf-edit').show();
     $('#cf-intro').hide();
 
     var filt = cfFilters[cfSelectedFilterId];
@@ -540,6 +540,18 @@ function cfRenameFilter() {
     cfSaveChanges();
 }
 
+function cfViewFilter() {
+    var filt = cfFilters[cfSelectedFilterId];
+
+    $.getJSON( '/__rpc_contentfilters?mode=view_filter&user=' + DW.currentUser + '&name=' + filt.name,
+        function( data ) {
+            if ( !data.url )
+                return;
+
+            window.open(data.url);
+        }
+    );
+}
 
 function cfUpdateFilterSelect() {
     // regenerate HTML for the Filter: dropdown
@@ -612,6 +624,7 @@ jQuery( function($) {
     $('#cf-del-btn').bind( 'click', function(e) { cfRemoveMembers(); } );
     $('#cf-new').bind( 'click', function(e) { cfNewFilter(); } );
     $('#cf-rename').bind( 'click', function(e) { cfRenameFilter(); } );
+    $('#cf-view').bind( 'click', function(e) { cfViewFilter(); } );
     $('#cf-delete').bind( 'click', function(e) { cfDeleteFilter(); } );
     $('#cf-showtypes').bind( 'change', function(e) { cfShowTypes( $(e.target).val() ); } );
 
