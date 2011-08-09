@@ -294,6 +294,119 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: fiveam/limeade
+layerinfo type = "theme";
+layerinfo name = "Limeade";
+layerinfo redist_uniq = "fiveam/limeade";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f0f2dd";
+set color_page_border = "#F0F2E8";
+set color_page_link = "#59a80f";
+set color_page_link_active = "#59a80f";
+set color_page_link_hover = "#94d52d";
+set color_page_link_visited = "#45800b";
+set color_page_text = "#050505";
+set color_page_title = "#59a80f";
+set color_page_usernames = "#59a80f";
+set color_page_usernames_active = "#59a80f";
+set color_page_usernames_hover = "#94d52d";
+set color_page_usernames_visited = "#45800b";
+set color_header_background = "#f0f2e2";
+set color_header_border = "#F0F2E8";
+set color_footer_background = "#f0f2e2";
+set color_footer_border = "#F0F2E8";
+set color_footer_link = "#59a80f";
+set color_footer_link_active = "#59a80f";
+set color_footer_link_hover = "#94d52d";
+set color_footer_link_visited = "#45800b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f0f2e2";
+set color_entry_border = "#F0F2E8";
+set color_entry_interaction_links = "#59a80f";
+set color_entry_interaction_links_active = "#59a80f";
+set color_entry_interaction_links_background = "#f0f2e2";
+set color_entry_interaction_links_hover = "#94d52d";
+set color_entry_interaction_links_visited = "#45800b";
+set color_entry_link = "#59a80f";
+set color_entry_link_active = "#59a80f";
+set color_entry_link_hover = "#94d52d";
+set color_entry_link_visited = "#45800b";
+set color_entry_text = "#050505";
+set color_entry_title = "#050505";
+set color_entry_title_background = "#f0f2e2";
+set color_comment_interaction_links = "#59a80f";
+set color_comment_interaction_links_border = "#F0F2E8";
+set color_comment_title = "#050505";
+set color_comment_title_background = "#f0f2e2";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f0f2e2";
+set color_module_border = "#F0F2E8";
+set color_module_link = "#59a80f";
+set color_module_link_active = "#59a80f";
+set color_module_link_hover = "#94d52d";
+set color_module_link_visited = "#45800b";
+set color_module_text = "#050505";
+set color_module_title = "#050505";
+set color_module_title_background = "#f0f2e2";
+set color_calendar_background = "#f6f8e8";
+set color_calendar_background_hover = "#f6f8eb";
+set color_calendar_border = "#F0F2E8";
+set color_calendar_link = "#59a80f";
+set color_calendar_link_active = "#59a80f";
+set color_calendar_link_hover = "#94d52d";
+set color_calendar_link_visited = "#45800b";
+set color_calendar_text = "#050505";
+set color_calendar_text_hover = "#050505";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT, Helvetica";
+set font_comment_title = "Britannic Bold, Calibri";
+set font_comment_title_size = "1.28";
+set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title_size = "1.28";
+set font_journal_subtitle = "News Gothic MT, Helvetica";
+set font_journal_title = "Britannic Bold, Calibri";
+set font_module_heading = "Britannic Bold, Calibri";
+set font_module_heading_size = "1.28";
+set font_module_text = "News Gothic MT, Helvetica";
+
+function Page::print_theme_stylesheet() {
+    """
+    .entry, .entry .inner, .comment, .comment .inner, blockquote {
+        line-height: 1.3em;
+        }
+
+    blockquote {
+        background: $*color_calendar_background_hover;
+        border: 1px solid $*color_calendar_background;
+        color: $*color_calendar_text_hover;
+        font-size: inherit;
+        font-style: italic;
+        margin: 0;
+        padding: 1em;
+        }
+    """;
+}
+
+
 #NEWLAYER: fiveam/meteors
 layerinfo type = "theme";
 layerinfo name = "Meteors";
@@ -696,6 +809,119 @@ set color_calendar_link_hover = "#5e9c9d";
 set color_calendar_link_visited = "#375b5c";
 set color_calendar_text = "#222";
 set color_calendar_text_hover = "#545454";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT, Helvetica";
+set font_comment_title = "Britannic Bold, Calibri";
+set font_comment_title_size = "1.28";
+set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title_size = "1.28";
+set font_journal_subtitle = "News Gothic MT, Helvetica";
+set font_journal_title = "Britannic Bold, Calibri";
+set font_module_heading = "Britannic Bold, Calibri";
+set font_module_heading_size = "1.28";
+set font_module_text = "News Gothic MT, Helvetica";
+
+function Page::print_theme_stylesheet() {
+    """
+    .entry, .entry .inner, .comment, .comment .inner, blockquote {
+        line-height: 1.3em;
+        }
+
+    blockquote {
+        background: $*color_calendar_background_hover;
+        border: 1px solid $*color_calendar_background;
+        color: $*color_calendar_text_hover;
+        font-size: inherit;
+        font-style: italic;
+        margin: 0;
+        padding: 1em;
+        }
+    """;
+}
+
+
+#NEWLAYER: fiveam/sunset
+layerinfo type = "theme";
+layerinfo name = "Sunset";
+layerinfo redist_uniq = "fiveam/sunset";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f7f4e8";
+set color_page_border = "#f7f2de";
+set color_page_link = "#db412d";
+set color_page_link_active = "#db412d";
+set color_page_link_hover = "#f17e2a";
+set color_page_link_visited = "#a52b22";
+set color_page_text = "#0a0a0a";
+set color_page_title = "#141414";
+set color_page_usernames = "#6f87c7";
+set color_page_usernames_active = "#6f87c7";
+set color_page_usernames_hover = "#315ec7";
+set color_page_usernames_visited = "#182f6c";
+set color_header_background = "#f7f3e3";
+set color_header_border = "#f7f2de";
+set color_footer_background = "#f7f3e3";
+set color_footer_border = "#f7f2de";
+set color_footer_link = "#db412d";
+set color_footer_link_active = "#db412d";
+set color_footer_link_hover = "#f17e2a";
+set color_footer_link_visited = "#a52b22";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f7f3e3";
+set color_entry_border = "#f7f2de";
+set color_entry_interaction_links = "#6f87c7";
+set color_entry_interaction_links_active = "#6f87c7";
+set color_entry_interaction_links_background = "#f7f3e3";
+set color_entry_interaction_links_hover = "#315ec7";
+set color_entry_interaction_links_visited = "#182f6c";
+set color_entry_link = "#db412d";
+set color_entry_link_active = "#db412d";
+set color_entry_link_hover = "#f17e2a";
+set color_entry_link_visited = "#a52b22";
+set color_entry_text = "#0a0a0a";
+set color_entry_title = "#141414";
+set color_entry_title_background = "#f7f3e3";
+set color_comment_interaction_links = "#6f87c7";
+set color_comment_interaction_links_border = "#f7f2de";
+set color_comment_title = "#141414";
+set color_comment_title_background = "#f7f3e3";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f7f3e3";
+set color_module_border = "#f7f2de";
+set color_module_link = "#db412d";
+set color_module_link_active = "#db412d";
+set color_module_link_hover = "#f17e2a";
+set color_module_link_visited = "#a52b22";
+set color_module_text = "#0a0a0a";
+set color_module_title = "#141414";
+set color_module_title_background = "#f7f3e3";
+set color_calendar_background = "#f7eec6";
+set color_calendar_background_hover = "#f7eed0";
+set color_calendar_border = "#f7f2de";
+set color_calendar_link = "#6f87c7";
+set color_calendar_link_active = "#6f87c7";
+set color_calendar_link_hover = "#315ec7";
+set color_calendar_link_visited = "#182f6c";
+set color_calendar_text = "#141414";
+set color_calendar_text_hover = "#0a0a0a";
 
 ##===============================
 ## Fonts
