@@ -29,6 +29,9 @@ use strict;
 use LJ::Hooks;
 use URI;
 
+# for internal use only
+# this is used when sites may offer embeds from multiple subdomain
+# e.g., www, www1, etc
 sub match_subdomain {
     my $want_domain = $_[0];
     my $domain_from_uri = $_[1];
@@ -43,6 +46,23 @@ sub match_full_path {
     return $path_from_uri =~ /^$want_path$/;
 }
 
+my %host_path_match = (
+    "bandcamp.com"          => qr!^/EmbeddedPlayer/!,
+    "blip.tv"               => qr!^/play/!,
+
+    "www.dailymotion.com"   => qr!^/embed/video/!,
+    "dotsub.com"            => qr!^/media/!,
+
+    "maps.google.com"       => qr!^/maps!,
+    "ext.nicovideo.jp"      => qr!^/thumb/!,
+
+    "www.sbs.com.au"         => qr!/player/embed/!,  # best guess; language parameter before /player may vary
+    "www.scribd.com"        => qr!^/embeds/!,
+    "www.slideshare.net"    => qr!^/slideshow/embed_code/!,
+
+    "player.vimeo.com"      => qr!^/video/\d+$!,
+);
+
 LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
     my ( $embed_url, %opts ) = @_;
 
@@ -55,6 +75,9 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
 
     my $uri_host = $parsed_uri->host;
     my $uri_path = $parsed_uri->path;   # not including query
+
+    my $path_regex = $host_path_match{$uri_host};
+    return 1 if $path_regex && ( $uri_path =~ $path_regex );
 
     ## YouTube (http://apiblog.youtube.com/2010/07/new-way-to-embed-youtube-videos.html)
     if ( match_subdomain( "youtube.com", $uri_host ) || match_subdomain( "youtube-nocookie.com", $uri_host ) ) {
