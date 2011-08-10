@@ -95,13 +95,16 @@ body<=
 
     my $referer = BML::get_client_header('Referer');
     my ( $style ) = ( $referer =~ /\b(style=\w+)/ );
-    $style = LJ::viewing_style_args( split( /=/, $style ) );
+    my @style_args = split( /=/, $style );
 
     return LJ::subscribe_interface(
                                    $remote,
                                    categories => $categories,
                                    journal => $journal,
-                                   ret_url => ($can_watch ? $comment->url( $style ) : $entry->url . "?$style" ),
+                                   ret_url => ($can_watch
+                                                ? $comment->url( LJ::viewing_style_args( @style_args ) )
+                                                : $entry->url( style_args => LJ::viewing_style_opts( @style_args ) )
+                                              ),
                                    default_selected_notifications => ['LJ::NotificationMethod::Email'],
                                    post_to_settings_page => 1,
                                    );
