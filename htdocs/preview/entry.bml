@@ -79,8 +79,7 @@ _c?>
 
                 # check whether to use custom comment pages
                 $ctx = LJ::S2::s2_context( $u->{s2_style} );
-                my $view_entry_disabled;
-                $view_entry_disabled = ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} if $ctx;
+                my $view_entry_disabled = ! LJ::S2::use_journalstyle_entry_page( $u );
 
                 return (2, $u->{'s2_style'}) unless $forceflag || $view_entry_disabled;
             }

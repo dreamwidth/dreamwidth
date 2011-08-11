@@ -77,6 +77,7 @@ body<=
                 LJ::Setting::EmailFormat
                 LJ::Setting::EntryEditor
                 LJ::Setting::SiteScheme
+                DW::Setting::JournalEntryStyle
                 DW::Setting::ViewEntryStyle
                 DW::Setting::ViewJournalStyle
                 LJ::Setting::NavStrip

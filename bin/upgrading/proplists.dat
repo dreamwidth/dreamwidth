@@ -1158,6 +1158,14 @@ userproplist.urlname:
   multihomed: 0
   prettyname: Website Name
 
+userproplist.use_journalstyle_entry_page:
+  cldversion: 4
+  datatype: char
+  des: Y/N choice regarding whether selected S2 style should be used on journal entry pages.
+  indexed: 0
+  multihomed: 0
+  prettyname: Use Journal Entry Style
+
 userproplist.who_invited:
   cldversion: 4
   datatype: char

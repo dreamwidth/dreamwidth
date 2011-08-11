@@ -860,6 +860,7 @@ sub hidden_props {
         control_strip_fgcolor
         control_strip_bordercolor
         control_strip_linkcolor
+        use_journalstyle_entry_page
     )
 }
 
@@ -868,7 +869,6 @@ sub display_option_props {
     qw(
         num_items_recent
         num_items_reading
-        use_journalstyle_entry_page
         page_recent_items
         page_friends_items
         view_entry_disabled

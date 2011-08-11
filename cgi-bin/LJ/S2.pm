@@ -106,7 +106,7 @@ sub make_journal
         $ctx->[S2::SCRATCH]->{siteviews_enabled} = 1;
         $ctx->[S2::PROPS]->{SITEVIEWS} = $siteviews_class;
     } else {
-        if ( ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} && ( $view eq "entry" || $view eq "reply" ) ) {
+        if ( ! LJ::S2::use_journalstyle_entry_page( $u ) && ( $view eq "entry" || $view eq "reply" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -1729,6 +1729,36 @@ sub get_journal_day_counts
         $counts->{$day->[0]}->{$day->[1]}->{$day->[2]} = $day->[3];
     }
     return $s2page->{'_day_counts'} = $counts;
+}
+
+sub use_journalstyle_entry_page {
+    my ( $u ) = @_;
+    return 0 if !$u || $u->is_syndicated;  # see sitefeeds/layout.s2
+    my $userprop = $u->prop( 'use_journalstyle_entry_page' );
+
+    my $reparse_userprop = sub {
+        # We can't use a regular boolean for this, because "false"
+        # userprops are deleted, and it would always fall back to
+        # the style's previous setting in the negative case.
+        # So let's store this as 'Y' or 'N' and then reparse
+        # it to return the expected boolean value.
+
+        my $val = $userprop;
+        return 1 if $val && $val eq 'Y';
+        return 0 if $val && $val eq 'N';
+        return undef;  # unexpected or undefined value
+    };
+
+    return $reparse_userprop->() if defined $userprop;
+
+    # if the userprop isn't defined, check the current style
+    # for the legacy S2 prop, and then set the userprop going forward
+    my $ctx = LJ::S2::s2_context( $u->{s2_style} ) or return undef;
+    my $ctxval = $ctx->[S2::PROPS]->{use_journalstyle_entry_page};
+    $userprop = $ctxval ? 'Y' : 'N';
+
+    $u->set_prop( 'use_journalstyle_entry_page', $userprop );
+    return $reparse_userprop->();
 }
 
 ## S2 object constructors

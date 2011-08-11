@@ -2511,6 +2511,12 @@ setting.display.emails.label=Email Addresses
 
 setting.display.emails.option=View past email addresses
 
+setting.display.journalentrystyle.label=Journal Entry Style
+
+setting.display.journalentrystyle.note=Note: this setting affects everyone who views your journal who has not chosen a different Entry View Style.
+
+setting.display.journalentrystyle.option=Show my journal's entry pages in my chosen style instead of the site layout
+
 setting.display.logins.label=Logins
 
 setting.display.logins.option=Manage login sessions
