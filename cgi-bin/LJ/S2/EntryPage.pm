@@ -487,10 +487,10 @@ sub EntryPage_entry
 
             if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $entry->security ne "private" ) {
                 $r->notes->{error_key} = ".comm.open";
-                $r->notes->{journalname} = $journal->name_raw;
+                $r->notes->{journalname} = $journal->username;
             } elsif ( $journal->is_community && $journal->is_closed_membership ) {
                 $r->notes->{error_key} = ".comm.closed";
-                $r->notes->{journalname} = $journal->name_raw;
+                $r->notes->{journalname} = $journal->username;
             }
         }
 
