@@ -3275,7 +3275,7 @@ sub ljuser_display {
 
         my $profile = $profile_url ne '' ? $profile_url :
             "$LJ::SITEROOT/profile?userid=" . $u->userid . "&amp;t=I$andfull";
-  
+
         return "<span lj:user='$name' style='white-space: nowrap;$strike'$display_class><a href='$profile'>" .
             "<img src='$imgurl' alt='[$type profile] ' width='$width' height='$height'" .
             " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a>" .
@@ -3605,6 +3605,62 @@ sub rate_log {
 =head2 Banning-Related Functions
 =cut
 
+sub ban_note {
+    my ( $u, $ban_u, $text ) = @_;
+    my @banned;
+
+    if ( ref $ban_u eq 'ARRAY' ) {
+        @banned = @$ban_u;  # array of userids
+    } elsif ( LJ::isu( $ban_u ) ) {
+        @banned = ( $ban_u->id );
+    } elsif ( defined $ban_u ) {
+        my $uid = LJ::want_userid( $ban_u );
+        @banned = ( $uid ) if defined $uid;
+    }
+    return unless @banned;
+
+    if ( defined $text ) {
+        my $dbh = LJ::get_db_writer();
+        my $remote = LJ::get_remote();
+        my @data = map { ( $u->id, $_, $remote->id, $text ) } @banned;
+        my $qps = join( ', ', map { '(?,?,?,?)' } @banned );
+
+        $dbh->do( "REPLACE INTO bannotes (journalid, banid, remoteid, notetext) "
+                . "VALUES $qps", undef, @data );
+        die $dbh->errstr if $dbh->err;
+        return 1;
+
+    } else {
+        my $dbr = LJ::get_db_reader();
+        my $qs = join( ', ', map { '?' } @banned );
+        my $data = $dbr->selectall_arrayref(
+            "SELECT banid, remoteid, notetext FROM bannotes " .
+            "WHERE journalid=? AND banid IN ($qs)", undef, $u->id, @banned );
+        die $dbr->errstr if $dbr->err;
+
+        my ( %rows, %rus );
+        foreach ( @$data ) {
+            my ( $bid, $rid, $note ) = @$_;
+            if ( $note && $rid && $rid != $u->id ) {
+                # display the author of the note
+                if ( $rus{$rid} ||= LJ::load_userid( $rid ) ) {
+                    my $username = $rus{$rid}->user;
+                    $note = "<user name=$username>: $note";
+                }
+            }
+            $rows{$bid} = $note;
+        }
+
+        return \%rows;
+    }
+}
+
+sub ban_notes {
+    my ( $u ) = @_;
+    my $banned = LJ::load_rel_user( $u, 'B' );
+    return $u->ban_note( $banned );
+}
+
 sub ban_user {
     my ($u, $ban_u) = @_;
 
@@ -3647,6 +3703,7 @@ sub unban_user_multi {
     my ($u, @unbanlist) = @_;
 
     LJ::clear_rel_multi(map { [$u->id, $_, 'B'] } @unbanlist);
+    $u->ban_note( \@unbanlist, '' );
 
     my $us = LJ::load_userids(@unbanlist);
     foreach my $banuid (@unbanlist) {
@@ -6304,7 +6361,7 @@ sub expunge_userpic {
     # else now mark it
     $u->do( "UPDATE userpic2 SET state='X' WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
     return LJ::error( $dbcm ) if $dbcm->err;
-    
+
     # Since we don't clean userpicmap2 when we migrate to dversion 9, clean it here on expunge no matter the dversion.
     $u->do( "DELETE FROM userpicmap2 WHERE userid = ? AND picid = ?", undef, $u->userid, $picid );
     if ( $u->userpic_have_mapid ) {
@@ -6644,7 +6701,7 @@ sub get_userpic_info {
                         $info->{mapid}->{$mapid} = $info->{pic}{$id} if $id;
                         $info->{map_redir}->{$mapid} = $redir if $redir;
                     }
-                    
+
                     $pos = $nulpos = 0;
                     while (($nulpos = index($kwmapstr, "\0", $pos)) > 0) {
                         my $kw = substr($kwmapstr, $pos, $nulpos-$pos);
@@ -6754,7 +6811,7 @@ sub get_userpic_info {
             $minfourl{int($pic->{picid})} = $pic->{url}
                 if $opts->{load_urls} && $pic->{url};
             $minfodesc{int($pic->{picid})} = $pic->{description}
-                if $opts->{load_descriptions} && $pic->{description}; 
+                if $opts->{load_descriptions} && $pic->{description};
         }
 
 

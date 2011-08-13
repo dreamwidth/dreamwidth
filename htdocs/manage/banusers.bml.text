@@ -1,15 +1,27 @@
 ;; -*- coding: utf-8 -*-
 .btn.banunban=Ban and Unban Accounts
 
+.btn.edit=Edit
+
+.editmsg=You may now edit and resubmit the existing note.
+
+.editwarn=<b>Warning:</b> any existing ban notes for the specified users will be overwritten. To append new information to an existing note, click "Edit" next to the note in the list below.
+
 .error.toomanybans=Banning the people you specified will take you over the maximum number of allowed bans. Please adjust your lists and try again. Anyone you've unbanned has been unbanned successfully.
 
 .header.ban=Ban People
+
+.header.bannote=Add A Note
 
 .header.unban=Unban People
 
 .intro.ban.comm=Enter the account names of the people you want to ban from commenting in your community. If you want to ban multiple accounts, separate the names with commas.
 
 .intro.ban.self=Enter the account names of people you want to ban from commenting in your journal. If you want to ban multiple accounts, separate the names with commas.
+
+.intro.bannote.comm=If desired, enter a short note indicating why you are banning the user(s) above. Other community admins will be able to see these notes attributed to your account on this page, but they will not be visible anywhere else.
+
+.intro.bannote.self=If desired, enter a short note indicating why you are banning the user(s) above. These notes will not be visible to anyone else.
 
 .intro.unban.comm=You've banned the following people from commenting in your community. Select the ones you want to unban.
 
@@ -18,6 +30,10 @@
 .intro.unban.self=You've banned the following people from your journal. Select the ones you want to unban.
 
 .intro.unban.self.none=You don't have anyone banned from commenting in your journal.
+
+.note=Note
+
+.note.previous=Previous Notes
 
 .success=You've successfully banned and unbanned the specified people.
 

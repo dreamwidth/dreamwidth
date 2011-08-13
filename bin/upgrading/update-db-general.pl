@@ -3084,8 +3084,6 @@ CREATE TABLE tor_proxy_exits (
 EOC
 
 
-# NOTE: new table declarations go ABOVE here ;)
-
 register_tablecreate('renames', <<'EOC');
 CREATE TABLE renames (
     renid INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -3100,6 +3098,19 @@ CREATE TABLE renames (
     INDEX (ownerid)
 )
 EOC
+
+register_tablecreate("bannotes", <<'EOC');
+CREATE TABLE bannotes (
+    journalid    INT UNSIGNED NOT NULL,
+    banid        INT UNSIGNED NOT NULL,
+    remoteid     INT UNSIGNED,
+    notetext     MEDIUMTEXT,
+
+    PRIMARY KEY (journalid,banid)
+)
+EOC
+
+# NOTE: new table declarations go ABOVE here ;)
 
 ### changes
 
