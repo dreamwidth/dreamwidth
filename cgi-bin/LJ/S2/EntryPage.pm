@@ -65,10 +65,10 @@ sub EntryPage
     if ($LJ::UNICODE) {
         $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
     }
-    
+
     my $prev_url = S2::Builtin::LJ::Entry__get_link( $opts->{ctx}, $s2entry, "nav_prev" )->{url};
     $p->{head_content} .= qq{<link rel="prev" href="$prev_url" />\n} if $prev_url;
-    
+
     my $next_url = S2::Builtin::LJ::Entry__get_link( $opts->{ctx}, $s2entry, "nav_next" )->{url};
     $p->{head_content} .= qq{<link rel="next" href="$next_url" />\n} if $next_url;
 
@@ -182,7 +182,7 @@ sub EntryPage
                 if ( defined $com->{picid} && ( my $pic = $userpic{$com->{picid}} ) )  {
                     my $width = $pic->{width};
                     my $height = $pic->{height};
-                
+
                     if ( $comment_userpic_style eq 'small' ) {
                         $width = $width * 3 / 4;
                         $height = $height * 3 / 4;
@@ -507,7 +507,7 @@ sub EntryPage_entry
     my $style_args = LJ::viewing_style_args( %$get );
 
     my $userpic_position = S2::get_property_value( $opts->{ctx}, 'userpics_position' );
-    
+
     # load the userpic; include the keyword selected by the user
     # as a backup for the alttext
     my $userpic;

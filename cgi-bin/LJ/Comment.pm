@@ -149,7 +149,7 @@ sub new_from_url {
 
 sub create {
     my ( $class, %opts ) = @_;
-    
+
     my $need_captcha = delete($opts{ need_captcha }) || 0;
 
     # %talk_opts emulates parameters received from web form.
@@ -181,8 +181,8 @@ sub create {
     # Because LJ::Talk::Post::init needs this.
     foreach my $key (  keys %{ $talk_opts{props} }  ){
         my $talk_key = "prop_$key";
-         
-        $talk_opts{$talk_key} = delete $talk_opts{props}->{$key} 
+
+        $talk_opts{$talk_key} = delete $talk_opts{props}->{$key}
                             if not exists $talk_opts{$talk_key};
     }
 
@@ -197,7 +197,7 @@ sub create {
 
     ## init.  this handles all the error-checking, as well.
     my @errors       = ();
-    my $init = LJ::Talk::Post::init(\%talk_opts, $posteru, \$need_captcha, \@errors); 
+    my $init = LJ::Talk::Post::init(\%talk_opts, $posteru, \$need_captcha, \@errors);
     croak( join "\n" => @errors )
         unless defined $init;
 
@@ -214,11 +214,11 @@ sub create {
     my $err;
     croak ($err)
         unless LJ::Talk::Post::post_comment($init->{entryu},  $init->{journalu},
-                                            $init->{comment}, $init->{parent}, 
+                                            $init->{comment}, $init->{parent},
                                             $init->{item},   \$err,
                                             );
-    
-    return 
+
+    return
         LJ::Comment->new($init->{journalu}, jtalkid => $init->{comment}->{talkid});
 
 }
@@ -246,8 +246,8 @@ sub url {
 *thread_url = \&url;
 
 =head2 C<< $self->threadroot_url >>
-URL to the thread root. It would be unnecessarily expensive to look up the thread 
-root, since it is only rarely needed. So we set up a redirect then look up the 
+URL to the thread root. It would be unnecessarily expensive to look up the thread
+root, since it is only rarely needed. So we set up a redirect then look up the
 thread root only if the user clicks the link.
 =cut
 sub threadroot_url {
@@ -1450,7 +1450,7 @@ sub _format_mail_both {
             $body .= "<br />" . LJ::Lang::get_text( $lang, "esn.journal_new_comment.edit_reason", undef, { reason => LJ::ehtml( $reason ) } ) . "<br />"
                 if $reason;
         } else {
-            $body .= "\n\n" . LJ::Lang::get_text( $lang, "esn.journal_new_comment.edit_reason", undef, { reason => $reason } ) 
+            $body .= "\n\n" . LJ::Lang::get_text( $lang, "esn.journal_new_comment.edit_reason", undef, { reason => $reason } )
                 if $reason;
         }
     }
@@ -1556,7 +1556,7 @@ sub delete {
     return LJ::Talk::delete_comment
         ( $self->journal,
           $self->nodeid, # jitemid
-          $self->jtalkid, 
+          $self->jtalkid,
           $self->state );
 }
 
@@ -1580,7 +1580,7 @@ sub is_text_spam($\$) {
 
     # REF on text
     $ref = \$ref unless ref ($ref) eq 'SCALAR';
-    
+
     my $plain = $$ref; # otherwise we modify the source text
        $plain = LJ::CleanHTML::clean_comment(\$plain);
 
@@ -1588,7 +1588,7 @@ sub is_text_spam($\$) {
         return 1 # spam
             if $re and ($plain =~ /$re/ or $$ref =~ /$re/);
     }
-    
+
     return 0; # normal text
 }
 

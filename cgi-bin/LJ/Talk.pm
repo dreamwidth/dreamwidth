@@ -727,14 +727,14 @@ sub get_talk_data
     # used later in this request anyway) and let it know that its comments are already loaded
     my $set_entry_cache = sub {
         return 1 unless $nodetype eq 'L';
-        
+
         my $entry = LJ::Entry->new($u, jitemid => $nodeid);
 
         # find all singletons that LJ::Comment knows about, then grep for the ones we've set in
         # this get_talk_data call (ones for this userid / nodeid)
-        my @comments_for_entry = 
+        my @comments_for_entry =
             grep { $_->journalid == $u->userid && $_->nodeid == $nodeid } LJ::Comment->all_singletons;
-        
+
         $entry->set_comment_list(@comments_for_entry);
     };
 
