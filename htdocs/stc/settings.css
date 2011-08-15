@@ -53,6 +53,9 @@
 }
 
 /* Display Content */
+.display .display_label {
+    vertical-align: top;
+}
 .display .radiotext {
     position: relative;
     bottom: 2px;
@@ -98,4 +101,20 @@
 .xpost_footer_preview {
     width: 100%;
     padding: 10px 5px 10px 5px;
+}
+
+.sitescheme-item {
+    margin-top: 5px;
+    float:left;
+    clear: both;
+}
+
+.sitescheme-item img {
+    display: block;
+    float: left;
+    margin-right: 10px;
+}
+
+.sitescheme-style {
+    clear: both;
 }

@@ -76,7 +76,6 @@ body<=
                 DW::Setting::CutInbox
                 LJ::Setting::EmailFormat
                 LJ::Setting::EntryEditor
-                LJ::Setting::SiteScheme
                 DW::Setting::JournalEntryStyle
                 DW::Setting::ViewEntryStyle
                 DW::Setting::ViewJournalStyle
@@ -91,6 +90,7 @@ body<=
                 DW::Setting::GoogleAnalytics
                 DW::Setting::ExcludeOwnStats
                 DW::Setting::StickyEntry
+                LJ::Setting::SiteScheme
             )],
         },
         notifications => {

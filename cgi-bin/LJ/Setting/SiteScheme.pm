@@ -57,21 +57,34 @@ sub option {
 
         next if !$show_hidden && $is_hidden && $sitescheme ne $value;
 
-        my $desc = $scheme->{desc} && LJ::Lang::string_exists($scheme->{desc}) ? LJ::Lang::ml($scheme->{desc}) : "";
-        $label .= " ($desc)" if $desc;
+        my $scheme_alt_ml;
+        $scheme_alt_ml = $scheme->{alt} if $scheme->{alt} && LJ::Lang::string_exists( $scheme->{alt} );
+        $scheme_alt_ml ||= "siteskins.$scheme->{scheme}.alt" if LJ::Lang::string_exists( "siteskins.$scheme->{scheme}.alt" );
+        my $alt = $scheme_alt_ml ? "alt='" . LJ::Lang::ml( $scheme_alt_ml ) . "'": "";
 
-        $ret .= LJ::html_check({
+        my $img = $scheme->{img} || "$scheme->{scheme}.png";
+        $label .= qq{<img src="$LJ::IMGPREFIX/siteskins/previews/$img" $alt width="150" height="114" />};
+
+
+        my $desc_ml;
+        $desc_ml = $scheme->{desc} if $scheme->{desc} && LJ::Lang::string_exists( $scheme->{desc} );
+        $desc_ml ||= "siteskins.$scheme->{scheme}.desc" if LJ::Lang::string_exists( "siteskins.$scheme->{scheme}.desc" );
+        my $desc = $desc_ml ? LJ::Lang::ml( $desc_ml ) : "";
+        $label .= "<p class='note'>$desc</p>" if $desc;
+
+
+        $ret .= "<div class='sitescheme-item'>" . LJ::html_check({
             type => "radio",
             name => "${key}sitescheme",
             id => "${key}sitescheme_$value",
             value => $value,
             selected => $sitescheme eq $value ? 1 : 0,
-        }) . "<label for='${key}sitescheme_$value' class='radiotext'>$label</label>";
+        }) . "<label for='${key}sitescheme_$value' class='radiotext'>$label</label></div>";
     }
 
     my $errdiv = $class->errdiv($errs, "sitescheme");
     $ret .= "<br />$errdiv" if $errdiv;
-    $ret .= "<br /><a href='$LJ::SITEROOT/customize/'>" . $class->ml('setting.sitescheme.journal.style') . "</a>";
+    $ret .= "<p class='sitescheme-style'><a href='$LJ::SITEROOT/customize/'>" . $class->ml('setting.sitescheme.journal.style') . "</a></p>";
 
     return $ret;
 }

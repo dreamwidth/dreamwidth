@@ -2774,6 +2774,8 @@ setting.selfcommentemail.option=I comment on any entry in someone else's journal
 
 setting.sitescheme.error.invalid=Invalid site skin.
 
+setting.sitescheme.journal.style=Would you like to select your journal style?
+
 setting.sitescheme.label=Site Skin
 
 setting.sitescheme.label=Site Scheme
@@ -3533,6 +3535,26 @@ sitescheme.footer.legal.tos=Terms of Service
 sitescheme.footer.sitemap=Site Map
 
 sitescheme.footer.suggestion=Make a Suggestion
+
+siteskins.celerity.alt=Celerity: Black text on white background; olive color highlights
+
+siteskins.celerity.desc=Default-sized sans-serif font; vertical, fixed, non-expanding menus.
+
+siteskins.blueshift.alt=Blueshift: Black text ond white background; blue highlights
+
+siteskins.blueshift.desc=Vertical, fixed, non-expanding menus.
+
+siteskins.gradation-horizontal.alt=Gradation Horizontal: Light text on black background; monochrome colors
+
+siteskins.gradation-horizontal.desc=Light on dark for less glare; default-sized sans-serif font; horizontal, drop-down expanding dynamic menus (requires fine mouse control).
+
+siteskins.gradation-vertical.alt=Gradation Vertical: Light text on black background; monochrome colors.
+
+siteskins.gradation-vertical.desc=Light on dark for less glare; default-sized sans-serif font; vertical, fixed, non-expanding menus.
+
+siteskins.lynx.alt=Lynx: Simplest skin with minimal styling. Uses all browser defaults for color and font sizes.
+
+siteskins.lynx.desc=Uses browser default for font and colors. Simplified menu for screenreaders and mobile devices; use site map for navigation.
 
 Sorry|notes=typically used to announce that the requested action can't be done.
 Sorry=Sorry
