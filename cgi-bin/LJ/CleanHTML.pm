@@ -469,7 +469,10 @@ sub clean
             if ($ljuser_div) {
                 my $ljuser_text = $p->get_text("/b");
                 $p->get_tag("/div");
-                $ljuser_text =~ s/\[info\]//;
+                $ljuser_text =~ s/\[        # opening bracket
+                                    [^]]+   # everything up to the closing bracket...
+                                  \]        # closing bracket
+                                //x;
                 $tag = "lj";
                 $attr->{'user'} = $ljuser_text;
             }
