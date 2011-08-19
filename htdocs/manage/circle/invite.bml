@@ -181,7 +181,7 @@ _c?>
                 $invite_obj->send_code( email => $email );
 
                 $body .= "<div class='highlight-box'>" . BML::ml( '.success.code', { email  => $email, invitecode => $code } );
-                $body .= BML::ml( '.success.invitemore' )
+                $body .= " " . BML::ml( '.success.invitemore' )
                     if DW::InviteCodes->unused_count( userid => $u->id ) > 1;
                 $body .= "</div>";
 
