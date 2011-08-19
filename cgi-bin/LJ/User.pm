@@ -2256,7 +2256,7 @@ sub count_maxcomments_before_captcha {
 }
 
 sub count_maxfriends {
-    return $_[0]->get_cap( 'friends' );
+    return $_[0]->get_cap( 'maxfriends' );
 }
 
 sub count_max_interests {

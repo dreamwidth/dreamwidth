@@ -47,8 +47,7 @@ body<=
 
     # no post, show edit form
     unless ( LJ::did_post() ) {
-        my @trusted_userids = $u->trusted_userids;
-        my %is_trusted_userid = map { $_ => 1 } @trusted_userids;
+        my $trust_list = $u->trust_list;
         my $watch_list = $u->watch_list;
         my @trusted_by_userids = $u->trusted_by_userids;
         my %is_trusted_by_userid = map { $_ => 1 } @trusted_by_userids;
@@ -57,7 +56,8 @@ body<=
         my @member_of_userids = $u->member_of_userids;
         my %is_member_of_userid = map { $_ => 1 } @member_of_userids;
 
-        my $us = LJ::load_userids( @trusted_userids, keys %$watch_list, @trusted_by_userids, @watched_by_userids, @member_of_userids );
+        my @all_circle_userids = ( keys %$trust_list, keys %$watch_list, @trusted_by_userids, @watched_by_userids, @member_of_userids );
+        my $us = LJ::load_userids( @all_circle_userids );
 
         $ret .= "<form method='post' name='editFriends' action='edit$getextra'>\n";
         $ret .= LJ::form_auth();
@@ -69,7 +69,7 @@ body<=
         my $standoutbox .= "<?standout " . BML::ml( '.circle.standout', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'" }) . "standout?><br />\n\n";
 
         # does the circle exist
-        if ( @trusted_userids || keys %$watch_list || @trusted_by_userids || @watched_by_userids || @member_of_userids ) {
+        if ( @all_circle_userids ) {
             my ( @person_userids, @comm_userids, @feed_userids );
 
             # get sorted arrays
@@ -130,7 +130,7 @@ body<=
                     # subscription status
                     my $iscontent = 0; # tracks whether the table cell has content
                     $ret .= "<td>";
-                    if ( $u->can_watch( $other_u ) || $watch_list->{$uid} ) {
+                    if ( $watch_list->{$uid} || $u->can_watch( $other_u ) ) {
                         $ret .= LJ::html_check({
                             name => "editfriend_edit_${uid}_watch",
                             value => 1,
@@ -142,16 +142,15 @@ body<=
                     }
 
                     if ($type eq "people") {
-                        if ( $other_u->can_watch( $u ) ) {
-                            my $watched = $is_watched_by_userid{$uid} ? 1 : 0;
-                            $ret .= " | ";
-                            if ( $watched ) {
-                                $ret .= LJ::img( 'circle_yes', '' );
-                                $ret .= $ML{'.circle.subscribe.y'}
-                            } else {
-                                $ret .= LJ::img( 'circle_no', '' );
-                                $ret .= $ML{'.circle.subscribe.n'}
-                            }
+                        if ( $is_watched_by_userid{$uid} ) {
+                            $ret .= " | " if $iscontent;
+                            $ret .= LJ::img( 'circle_yes', '' );
+                            $ret .= $ML{'.circle.subscribe.y'};
+                            $iscontent = 1;
+                        } elsif ( $other_u->can_watch( $u ) ) {
+                            $ret .= " | " if $iscontent;
+                            $ret .= LJ::img( 'circle_no', '' );
+                            $ret .= $ML{'.circle.subscribe.n'};
                             $iscontent = 1;
                         }
                     }
@@ -163,11 +162,11 @@ body<=
                     # ...and access/membership
                     $iscontent = 0; # same as before
                     $iscontent = 1 if $type eq "feeds"; # slightly hacky workaround; feeds don't have this table cell
-                    if ( $u->can_trust( $other_u ) || $is_trusted_userid{$uid} ) {
+                    if ( $trust_list->{$uid} || $u->can_trust( $other_u ) ) {
                         $ret .= LJ::html_check({
                             name => "editfriend_edit_${uid}_trust",
                             value => 1,
-                            selected => $is_trusted_userid{$uid} ? 1 : 0,
+                            selected => $trust_list->{$uid} ? 1 : 0,
                             id => "editfriend_edit_${uid}_trust",
                         });
                         $ret .= "<label for='editfriend_edit_${uid}_trust'>" . $ML{'.circle.access'} . "</label>";
@@ -175,16 +174,15 @@ body<=
                     }
 
                     if ($type eq "people") {
-                        if ( $other_u->can_trust( $u ) ) {
-                            my $trusted = $is_trusted_by_userid{$uid} ? 1 : 0;
-                            $ret .= " | ";
-                            if ( $trusted ) {
-                                $ret .= LJ::img( 'circle_yes', '' );
-                                $ret .= $ML{'.circle.access.y'}
-                            } else {
-                                $ret .= LJ::img( 'circle_no', '' );
-                                $ret .= $ML{'.circle.access.n'}
-                            }
+                        if ( $is_trusted_by_userid{$uid} ) {
+                            $ret .= " | " if $iscontent;
+                            $ret .= LJ::img( 'circle_yes', '' );
+                            $ret .= $ML{'.circle.access.y'};
+                            $iscontent = 1;
+                        } elsif ( $other_u->can_trust( $u ) ) {
+                            $ret .= " | " if $iscontent;
+                            $ret .= LJ::img( 'circle_no', '' );
+                            $ret .= $ML{'.circle.access.n'};
                             $iscontent = 1;
                         }
                     } elsif ($type eq "comms") {
@@ -263,14 +261,29 @@ body<=
         $ret .= "<?h2 $ML{'.addrelationships.head'} h2?>\n";
         $ret .= "<?p " . BML::ml('.addrelationships.text', { sitename => $LJ::SITENAMESHORT, aopts => "href='$LJ::SITEROOT/manage/circle/invite'" }) . " p?>";
 
+        if ( $u->circle_userids >= $u->count_maxfriends ) {
+            # different message if account upgrade is possible
+            my $acttype = DW::Pay::get_account_type( $u );
+            my $noup = ( $acttype eq "seed" || $acttype eq "premium" ) ? 1 : 0;
+            my $warnml = $noup ? '.addrelationships.warning.noupgrade' : '.addrelationships.warning.canupgrade';
+            $ret .= "<?p " . BML::ml( $warnml, { maxnum => $u->count_maxfriends, aopts => "href='$LJ::SITEROOT/shop/account?for=self'" } ) . " p?>";
+        }
+
+        my $show_watch_col = $u->can_watch ? 1 : 0;
+        my $show_trust_col = $u->can_trust ? 1 : 0;
+        my $show_colors = ( $show_watch_col || keys %$watch_list ) ? 1 : 0;
+        # still let them edit colors for existing circle, even if they can't make new subscriptions
+
         $ret .= "<br />";
         $ret .= "<div align='center'><table id='addfriends'>\n";
         $ret .= "<tr><th>$ML{'.circle.username'}</th>";
-        $ret .= "<th>$ML{'.circle.trust'}</th>";
-        $ret .= "<th>$ML{'.circle.watch'}</th><th>$ML{'.foreground'}</th><th>$ML{'.background'}</th>\n";
+        $ret .= "<th>$ML{'.circle.trust'}</th>" if $show_trust_col;
+        $ret .= "<th>$ML{'.circle.watch'}</th>" if $show_watch_col;
+        $ret .= "<th>$ML{'.foreground'}</th><th>$ML{'.background'}</th>\n" if $show_colors;
 
         my @color = ();
-        if ( $u->can_watch ) {
+
+        if ( $show_colors ) {
             # load the colors
             LJ::load_codes({ "color" => \@color });
 
@@ -310,22 +323,24 @@ body<=
                                     'onfocus' => "setFriend($i);" });
             $ret .= "</td>";
 
-            if ( $u->can_trust ) {
+            if ( $show_trust_col ) {
                 $ret .= "<td style='text-align: center;'>";
                 $ret .= LJ::html_check({ name => "editfriend_add_${i}_trust",
                                          value => 1,
                                          onfocus => "setFriend($i);" });
                 $ret .= "</td>";
-            } else {
-                $ret .= "<td>$ML{'.circle.na'}</td>";
             }
 
-            if ( $u->can_watch ) {
+            if ( $show_watch_col ) {
                 $ret .= "<td style='text-align: center;'>";
                 $ret .= LJ::html_check({ name => "editfriend_add_${i}_watch",
                                          value => 1,
                                          onfocus => "setFriend($i);" });
-                $ret .= "</td><td>";
+                $ret .= "</td>";
+            }
+
+            if ( $show_colors ) {
+                $ret .= "<td>";
                 $ret .= LJ::html_select({ 'name' => "editfriend_add_${i}_fg",
                                           'selected' => '#000000',
                                           'onchange' => "updatePreview(); return true;",
@@ -338,10 +353,6 @@ body<=
                                           'onfocus' => "setFriend($i);" },
                                           map { lc($_->{'code'}), $_->{'item'} } @color );
                 $ret .= "</td>";
-            } else {
-                $ret .= "<td>$ML{'.circle.na'}</td>";
-                $ret .= "<td>$ML{'.circle.na'}</td>";
-                $ret .= "<td>$ML{'.circle.na'}</td>";
             }
 
             $ret .= "</tr>\n";
@@ -365,7 +376,7 @@ body<=
         # interface, since anyone who's in both the add and edit interfaces should
         # only be proccessed via the add interface and not by the edit interface
         my %userid_processed;
-        
+
         #  Maintain a list of invalid userids for display to the user
         my @not_user;
 

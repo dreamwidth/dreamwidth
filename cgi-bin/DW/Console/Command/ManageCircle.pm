@@ -55,10 +55,16 @@ sub execute {
     return $self->error( 'You must be logged in, dude!' )
         unless $remote;
 
+    my $edge_err;
+
     if ( $cmd eq 'add_read' ) {
-        $remote->add_edge( $to_u, watch => {
-            nonotify => $remote->watches( $to_u ) ? 1 : 0,
-        } );
+        if ( $remote->can_watch( $to_u, errref => \$edge_err ) ) {
+            $remote->add_edge( $to_u, watch => {
+                nonotify => $remote->watches( $to_u ) ? 1 : 0,
+            } );
+        } else {
+            return $self->error( "Error: $edge_err" );
+        }
 
     } elsif ( $cmd eq 'del_read' ) {
         $remote->remove_edge( $to_u, watch => {
@@ -72,10 +78,14 @@ sub execute {
         my $existing_mask = $remote->trustmask( $to_u );
         $mask |= $existing_mask;
 
-        $remote->add_edge( $to_u, trust => {
-            mask => $mask,
-            nonotify => $remote->trusts( $to_u ) ? 1 : 0,
-        } );
+        if ( $remote->can_trust( $to_u, errref => \$edge_err ) ) {
+            $remote->add_edge( $to_u, trust => {
+                mask => $mask,
+                nonotify => $remote->trusts( $to_u ) ? 1 : 0,
+            } );
+        } else {
+            return $self->error( "Error: $edge_err" );
+        }
 
     } elsif ( $cmd eq 'del_access' ) {
         $remote->remove_edge( $to_u, trust => {

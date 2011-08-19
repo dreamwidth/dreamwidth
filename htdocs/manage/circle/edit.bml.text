@@ -3,6 +3,10 @@
 
 .addrelationships.text=Enter the [[sitename]] account names or OpenID URLs of people you want to add to your Circle. You can also use this form to change the colors associated with an account you subscribe to.  To return to the default colors, select a Black foreground on a White background.
 
+.addrelationships.warning.canupgrade=<b><i>Note: you will not be able to add more users to your circle, because you have met or exceeded your limit of [[maxnum]] [[?maxnum|journal|journals]] in your circle. You may still use the following form to edit the colors associated with an account if it is already in your circle, or you can <a [[aopts]]>upgrade your account</a> in order to increase the maximum size of your circle.</i></b>
+
+.addrelationships.warning.noupgrade=<b><i>Note: you will not be able to add more users to your circle, because you have met or exceeded your limit of [[maxnum]] [[?maxnum|journal|journals]] in your circle. You may still use the following form to edit the colors associated with an account if it is already in your circle.</i></b>
+
 .background=Background
 
 .bgcolor=Background Color:
@@ -57,7 +61,7 @@
 
 .circle.none=(None)
 
-.circle.standout=Jump to: <a [[aopts1]]>People</a> | <a [[aopts2]]>Communities</a> | <a [[aopts3]]>Feeds</a> 
+.circle.standout=Jump to: <a [[aopts1]]>People</a> | <a [[aopts2]]>Communities</a> | <a [[aopts3]]>Feeds</a>
 
 .circle.status=Circle status
 

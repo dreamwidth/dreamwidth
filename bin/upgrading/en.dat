@@ -822,6 +822,12 @@ entryform.xpost.manage=Crossposting Settings
 Error|notes=typically used inside an H1 tag to announce an error.
 Error=Error
 
+error.adduser.limit=You have reached your limit of [[maxnum]] accounts in your circle.
+
+error.adduser.rate=You are trying to watch or trust too many accounts in too short a period of time.
+
+error.adduser.suspended=Suspended users cannot add accounts to their circles.
+
 error.badpassword2=You typed the wrong password. If you make too many wrong login attempts in a row, your account access will be temporarily blocked, so you may want to <a [[aopts]]>reset your password</a> if you aren't sure what it is.
 
 error.blocked=Sorry, you are currently blocked from reaching the page you are attempting to visit.  The block type is: [[blocktype]].  Please email us at [[email]] and reference this message for further assistance.

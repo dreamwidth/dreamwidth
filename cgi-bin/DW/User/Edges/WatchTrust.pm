@@ -1027,6 +1027,9 @@ sub can_trust {
         }
     }
 
+    # check limits
+    return 0 unless _can_add_wt_edge( $u, $errref, { target => $tu } );
+
     # okay, good to go!
     return 1;
 }
@@ -1063,6 +1066,9 @@ sub can_watch {
         }
     }
 
+    # check limits
+    return 0 unless _can_add_wt_edge( $u, $errref, { target => $tu } );
+
     # okay, good to go!
     return 1;
 }
@@ -1079,7 +1085,7 @@ sub _can_add_wt_edge {
     my ($u, $err, $opts) = @_;
 
     if ($u->is_suspended) {
-        $$err = "Suspended journals cannot add friends.";
+        $$err = LJ::Lang::ml( "error.adduser.suspended" );
         return 0;
     }
 
@@ -1087,15 +1093,15 @@ sub _can_add_wt_edge {
     my $fr_count = $opts->{'numfriends'} || $u->circle_userids;
     my $maxfriends = $u->count_maxfriends;
     if ($fr_count >= $maxfriends) {
-        $$err = "You have reached your limit of $maxfriends friends.";
+        $$err = LJ::Lang::ml( "error.adduser.limit", { maxnum => $maxfriends } );
         return 0;
     }
 
     # are they trying to add friends too quickly?
 
     # don't count mutual friends
-    if (exists($opts->{friend})) {
-        my $fr_user = $opts->{friend};
+    if ( defined $opts->{target} ) {
+        my $fr_user = $opts->{target};
         # we needed LJ::User object, not just a hash.
         if (ref($fr_user) eq 'HASH') {
             $fr_user = LJ::load_user($fr_user->{username});
@@ -1108,7 +1114,7 @@ sub _can_add_wt_edge {
     }
 
     unless ($u->rate_log('addfriend', 1)) {
-        $$err = "You are trying to add too many friends in too short a period of time.";
+        $$err = LJ::Lang::ml( "error.adduser.rate" );
         return 0;
     }
 

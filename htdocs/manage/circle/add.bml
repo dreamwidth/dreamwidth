@@ -205,7 +205,9 @@ _c?>
    # users that aren't visible can only be removed, not modified
    if ($u->is_visible) {
 
-    if ( $remote->can_trust( $u ) ) {
+    my ( $w_err, $t_err );
+
+    if ( $trusted || $remote->can_trust( $u, errref => \$t_err ) ) {
         $body .= LJ::html_check({
             name => "add_trust",
             id => "add_trust",
@@ -214,13 +216,23 @@ _c?>
         }) . "<br />";
     }
 
-    if ( $remote->can_watch( $u ) ) {
+    if ( $watched || $remote->can_watch( $u, errref => \$w_err ) ) {
         $body .= LJ::html_check({
             name => "add_watch",
             id => "add_watch",
             selected => ( $watched && $action ne 'remove' ) || $action eq 'subscribe' ? 1 : 0,
             label => $ML{'.add.watch'},
         });
+    }
+
+    if ( $w_err && $t_err ) {
+        # if we get here, the user isn't trusted or watched,
+        # and can_trust and can_watch both failed, which means
+        # no checkboxes can be displayed.
+
+        $title = $ML{'Error'};
+        $body .= "<?p $w_err p?>";
+        return;
     }
 
     my @trust_groups = $remote->trust_groups;
