@@ -4678,7 +4678,7 @@ sub reset_email {
 
     if ( defined $emailsucc ) {
         my $aa = LJ::register_authaction( $u->id, "validateemail", $newemail );
-        my $auth = $aa->{aaid} . $aa->{authcode};
+        my $auth = "$aa->{aaid}.$aa->{authcode}";
         my $sent = LJ::send_mail( {
             to => $newemail,
             from => $LJ::ADMIN_EMAIL,
