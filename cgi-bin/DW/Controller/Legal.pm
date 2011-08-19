@@ -35,7 +35,7 @@ foreach my $page ( @pages ) {
 }
 
 # register the index view
-DW::Routing->register_string( '/legal/', \&index_handler, app => 1 );
+DW::Routing->register_string( '/legal/index', \&index_handler, app => 1 );
 
 sub index_handler {
     return DW::Template->render_template( 'legal/index.tt', $args );
