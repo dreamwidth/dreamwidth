@@ -353,6 +353,7 @@ body<=
         'userref' => \%user,
         'up' => $up,
         'viewall' => $viewall,
+        'filter' => $GET{comments},
     };
 
     my @comments = LJ::Talk::load_comments($u, $remote, "L", $itemid, $opts);

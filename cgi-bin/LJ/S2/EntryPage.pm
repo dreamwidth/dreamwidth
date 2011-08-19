@@ -113,6 +113,7 @@ sub EntryPage
         'up' => LJ::load_user($s2entry->{'poster'}->{'user'}),
         'viewall' => $viewall,
         'expand_all' => $opts->{expand_all},
+        'filter' => $get->{comments},
     };
 
     my $userlite_journal = UserLite($u);

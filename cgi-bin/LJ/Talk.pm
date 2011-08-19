@@ -903,6 +903,8 @@ sub fixup_logitem_replycount {
 #   flat -- boolean:  if set, threading isn't done, and it's just a flat chrono view
 #   up -- [optional] hashref of user object who posted the thing being replied to
 #         only used to make things visible which would otherwise be screened?
+#   filter -- [optional] value of comments getarg (screened|frozen|visible)
+#         used to hide comments not matching the specified type
 #   out_error -- set by us if there's an error code:
 #        nodb:  database unavailable
 #        noposts:  no posts to load
@@ -966,13 +968,28 @@ sub load_comments
                 $post->{'parenttalkid'} = 0;
             }
 
+            # grab the comment object for method calls
+            my $pobj = LJ::Comment->new( $u, jtalkid => $post->{talkid} );
+
             # see if we should ideally show it or not.  even if it's
             # zero, we'll still show it if it has any children (but we won't show content)
-            my $should_show = $post->{state} && $post->{state} eq 'D' ? 0 : 1;
+            my $should_show = ! $pobj->is_deleted;
             my $parenttalkid = $post->{parenttalkid};
             unless ( $viewall ) {
+                # first check to see if a filter has been requested
+                my %filtermap = (
+                    screened => sub { return $pobj->is_screened },
+                    frozen => sub { return $pobj->is_frozen },
+                    visible => sub { return $pobj->visible_to( $remote ) },
+                );
+                if ( $should_show && $opts->{filter} && exists $filtermap{ $opts->{filter} } ) {
+                    $should_show = $filtermap{ $opts->{filter} }->();
+                }
+
+                # then check for comment owner/journal owner
                 my $poster = LJ::load_userid( $post->{posterid} );
-                $should_show = 0 if
+                $should_show = 0 if $should_show &&     # short circuit, and check the following conditions
+                                                        # only if we wanted to show in the first place
                     # can view if not screened, or if screened and some conditions apply
                     $post->{state} eq "S" &&
                     ! ( $remote &&
