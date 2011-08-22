@@ -202,6 +202,7 @@ my %modules = (
                    'opt' => "Required for clean-embed.t.",
                    'ver' => '3.56',
                },
+               "YAML" => { 'deb' => 'libyaml-perl', },
               );
 
 
