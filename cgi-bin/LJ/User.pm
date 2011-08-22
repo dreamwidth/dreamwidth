@@ -7891,7 +7891,7 @@ sub alloc_user_counter
         $newmax = $u->selectrow_array("SELECT MAX(kwid) FROM userkeywords WHERE userid=?",
                                       undef, $uid);
     } elsif ($dom eq "C") {
-        $newmax = $u->selectrow_array("SELECT MAX(pendid) FROM pendcomments WHERE jid=?",
+        $newmax = $u->selectrow_array("SELECT MAX(pendcid) FROM pendcomments WHERE jid=?",
                                       undef, $uid);
     } elsif ($dom eq "V") {
         $newmax = $u->selectrow_array("SELECT MAX(giftid) FROM vgifts WHERE userid=?",
