@@ -980,7 +980,7 @@ sub load_comments
                 my %filtermap = (
                     screened => sub { return $pobj->is_screened },
                     frozen => sub { return $pobj->is_frozen },
-                    visible => sub { return $pobj->visible_to( $remote ) },
+                    visible => sub { return $pobj->viewable_by_others },
                 );
                 if ( $should_show && $opts->{filter} && exists $filtermap{ $opts->{filter} } ) {
                     $should_show = $filtermap{ $opts->{filter} }->();

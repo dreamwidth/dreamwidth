@@ -897,6 +897,22 @@ sub is_frozen {
     return $_[0]->state eq 'F' ? 1 : 0;
 }
 
+sub viewable_by_others {
+    my ( $self ) = @_;
+
+    # Is the comment attached to a visible entry?
+    my $remote = LJ::get_remote();
+    return 0 unless $self->entry && $self->entry->visible_to( $remote );
+
+    # If the entry is visible, the comment should be generally viewable unless
+    # the comment is deleted, screened, or posted by a suspended user.
+    return 0 if $self->is_deleted;
+    return 0 if $self->is_screened;
+    return 0 if $self->poster && $self->poster->is_suspended;
+
+    return 1;
+}
+
 sub visible_to {
     my ($self, $u) = @_;
 
