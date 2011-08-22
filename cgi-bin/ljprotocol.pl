@@ -841,7 +841,7 @@ sub checkforupdates
         $lastupdate = "0000-00-00 00:00:00";
     }
 
-    my $interval = LJ::get_cap_min($u, "checkfriends_interval");
+    my $interval = LJ::Capabilities::get_cap_min( $u, "checkfriends_interval" );
     $res->{'interval'} = $interval;
 
     my $filter;

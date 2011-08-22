@@ -362,7 +362,7 @@ body<=
 
     # account type
     $ret .= "<tr><td align='right' valign='top'><b><span style='white-space: nowrap'>$ML{'.accounttype'}</span>:</b></td><td>";
-    $ret .= LJ::name_caps($u->{'caps'}) || "<i>$ML{'.unknown'}</i>";
+    $ret .= LJ::Capabilities::name_caps( $u->{caps} ) || "<i>$ML{'.unknown'}</i>";
     $ret .= "</td></tr>\n";
 
     if ($u->{'userid'}) {

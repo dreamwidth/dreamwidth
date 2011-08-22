@@ -282,7 +282,7 @@ $hooks{'name_caps'} = {
             'name' => "\$cap",
         },
     ],
-    source => ["cgi-bin/ljlib.pl", "cgi-bin/ljcapabilities.pl"],
+    source => ["cgi-bin/ljlib.pl", "cgi-bin/LJ/Capabilities.pm"],
 };
 
 $hooks{'name_caps_short'} = {
@@ -293,7 +293,7 @@ $hooks{'name_caps_short'} = {
             'name' => "\$cap",
         },
     ],
-    source => ["cgi-bin/ljlib.pl", "cgi-bin/ljcapabilities.pl"],
+    source => ["cgi-bin/ljlib.pl", "cgi-bin/LJ/Capabilities.pm"],
 };
 
 $hooks{'login_add_opts'} = {

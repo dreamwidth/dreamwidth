@@ -165,7 +165,7 @@ $maint{'genstats'} = sub
                        while (my $rec = $sth->fetchrow_hashref) {
 
                            # account types
-                           my $capnameshort = LJ::name_caps_short($rec->{'caps'});
+                           my $capnameshort = LJ::Capabilities::name_caps_short( $rec->{caps} );
                            $ret{'account'}->{$capnameshort}++;
 
                            # ages

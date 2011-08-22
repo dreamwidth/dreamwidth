@@ -1855,7 +1855,7 @@ sub timezone {
 
 sub add_to_class {
     my ($u, $class) = @_;
-    my $bit = LJ::class_bit($class);
+    my $bit = LJ::Capabilities::class_bit( $class );
     die "unknown class '$class'" unless defined $bit;
 
     # call add_to_class hook before we modify the
@@ -2496,7 +2496,7 @@ sub cut_inbox {
 # names are site-specific.
 sub in_class {
     my ($u, $class) = @_;
-    return LJ::caps_in_group($u->{caps}, $class);
+    return LJ::Capabilities::caps_in_group( $u->{caps}, $class );
 }
 
 
@@ -2846,7 +2846,7 @@ sub raw_prop {
 
 sub remove_from_class {
     my ($u, $class) = @_;
-    my $bit = LJ::class_bit($class);
+    my $bit = LJ::Capabilities::class_bit( $class );
     die "unknown class '$class'" unless defined $bit;
 
     # call remove_from_class hook before we modify the

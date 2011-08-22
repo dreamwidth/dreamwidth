@@ -4,7 +4,6 @@ use strict;
 use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'ljcapabilities.pl';
 use LJ::Test qw(temp_user);
 use LJ::BetaFeatures;
 
@@ -12,7 +11,7 @@ my $u = LJ::Test::temp_user();
 
 {
     ok(ref LJ::BetaFeatures->get_handler('foo') eq 'LJ::BetaFeatures::default', "instantiated default handler");
-} 
+}
 
 {
     ok(! $u->in_class('betafeatures'), "cap not set");

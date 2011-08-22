@@ -316,7 +316,7 @@ sub check_ljconfig {
     $ENV{READ_LJ_SOURCE} = 1 if $LJ::IS_DEV_SERVER;
 
     # check for beta features cap
-    unless (LJ::class_bit(LJ::BetaFeatures->cap_name)) {
+    unless ( LJ::Capabilities::class_bit( LJ::BetaFeatures->cap_name ) ) {
         print STDERR "Warning: BetaFeatures module cannot be used unless '" . LJ::BetaFeatures->cap_name . "' cap is configured.";
     }
 

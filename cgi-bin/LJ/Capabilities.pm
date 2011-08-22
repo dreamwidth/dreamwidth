@@ -11,7 +11,7 @@
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
-package LJ;
+package LJ::Capabilities;
 use strict;
 
 sub class_bit {
@@ -35,8 +35,8 @@ sub classes_from_mask {
 
     my @classes = ();
     foreach my $bit (0..15) {
-        my $class = LJ::class_of_bit($bit);
-        next unless $class && LJ::caps_in_group($caps, $class);
+        my $class = class_of_bit( $bit );
+        next unless $class && caps_in_group( $caps, $class );
         push @classes, $class;
     }
 
@@ -48,7 +48,7 @@ sub mask_from_classes {
 
     my $mask = 0;
     foreach my $class (@classes) {
-        my $bit = LJ::class_bit($class);
+        my $bit = class_bit( $class );
         $mask |= (1 << $bit);
     }
 
@@ -69,13 +69,13 @@ sub mask_from_bits {
 sub caps_in_group {
     my ($caps, $class) = @_;
     $caps = $caps ? $caps + 0 : 0;
-    my $bit = LJ::class_bit($class);
+    my $bit = class_bit( $class );
     die "unknown class '$class'" unless defined $bit;
     return ( $caps & ( 1 << $bit ) ) ? 1 : 0;
 }
 
 # <LJFUNC>
-# name: LJ::name_caps
+# name: LJ::Capabilities::name_caps
 # des: Given a user's capability class bit mask, returns a
 #      site-specific string representing the capability class(es) name.
 # args: caps
@@ -84,16 +84,16 @@ sub caps_in_group {
 sub name_caps
 {
     my $bit = shift;
-    my @caps = LJ::caps_string( $bit, '_visible_name' );
+    my @caps = caps_string( $bit, '_visible_name' );
     if ( @caps ) {
         return join( ', ', @caps );
     } else {
-        return LJ::name_caps_short( $bit );
+        return name_caps_short( $bit );
     }
 }
 
 # <LJFUNC>
-# name: LJ::name_caps_short
+# name: LJ::Capabilities::name_caps_short
 # des: Given a user's capability class bit mask, returns a
 #      site-specific string representing the capability class(es) short name.
 # args: caps
@@ -102,11 +102,11 @@ sub name_caps
 sub name_caps_short
 {
     my $bit = shift;
-    return join( ', ', LJ::caps_string( $bit, '_name' ) );
+    return join( ', ', caps_string( $bit, '_name' ) );
 }
 
 # <LJFUNC>
-# name: LJ::caps_string
+# name: LJ::Capabilities::caps_string
 # des: Given a user's capability class bitfield and a name field key,
 #      returns an array of all the account class names.
 # args: caps, name_value
@@ -117,8 +117,8 @@ sub caps_string {
 
     my @classes = ();
     foreach my $bit (0..15) {
-        my $class = LJ::class_of_bit($bit);
-        next unless $class && LJ::caps_in_group($caps, $class);
+        my $class = class_of_bit( $bit );
+        next unless $class && caps_in_group( $caps, $class );
         my $name = $LJ::CAP{$bit}->{$name_value};
         push @classes, $name if $name ne "";
     }
@@ -127,7 +127,7 @@ sub caps_string {
 }
 
 # <LJFUNC>
-# name: LJ::user_caps_icon
+# name: LJ::Capabilities::user_caps_icon
 # des: Given a user's capability class bit mask, returns
 #      site-specific HTML with the capability class icon.
 # args: caps
@@ -166,7 +166,7 @@ sub get_cap
         $caps = $u->{'caps'};
     # If it is not all digits assume it is a key
     } elsif ($caps && $caps !~ /^\d+$/) {
-        my $bit = LJ::class_bit( $caps ) || 0;
+        my $bit = class_bit( $caps ) || 0;
         $caps = 1 << $bit;
     }
     # The caps is the cap mask already or undef, force it to be a number
@@ -228,9 +228,10 @@ sub get_cap
     }
     return defined $max ? $max : $LJ::CAP_DEF{$cname};
 }
+*LJ::get_cap = \&get_cap;
 
 # <LJFUNC>
-# name: LJ::get_cap_min
+# name: LJ::Capabilities::get_cap_min
 # des: Just like [func[LJ::get_cap]], but returns the minimum value.
 #      Although it might not make sense at first, some things are
 #      better when they're low, like the minimum amount of time
@@ -246,7 +247,7 @@ sub get_cap_min
     my $caps = shift;   # capability bitmask (16 bits), or user object
     my $cname = shift;  # capability name
     if (! defined $caps) { $caps = 0; }
-    elsif (isu($caps)) { $caps = $caps->{'caps'}; }
+    elsif ( LJ::isu( $caps ) ) { $caps = $caps->{'caps'}; }
     my $min = undef;
     foreach my $bit (keys %LJ::CAP) {
         next unless ($caps & (1 << $bit));

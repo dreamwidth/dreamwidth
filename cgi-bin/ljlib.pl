@@ -137,7 +137,7 @@ require "ljdb.pl";
 use LJ::Tags;
 require "ljtextutil.pl";
 require "ljtimeutil.pl";
-require "ljcapabilities.pl";
+use LJ::Capabilities;
 use DW::Mood;
 require "ljrelation.pl";
 require "imageconf.pl";
