@@ -941,7 +941,7 @@ sub fixup_logitem_replycount {
 sub load_comments
 {
     my ($u, $remote, $nodetype, $nodeid, $opts) = @_;
-    
+
     my $n = $u->{'clusterid'};
     my $viewall = $opts->{viewall};
 
@@ -1082,7 +1082,7 @@ sub load_comments
     # and deeper until we've hit the page size.  if too many loaded,
     # just mark that we'll load the subjects;
     my @check_for_children = @posts_to_load;
-    
+
     ## expand first reply to top-level comments
     ## %expand_children - list of comments, children of which are to expand
     my %expand_children = map { $_ => 1 } @top_replies;
@@ -1094,7 +1094,7 @@ sub load_comments
             if (@posts_to_load < $page_size || $expand_children{$cfc} || $opts->{expand_all}) {
                 push @posts_to_load, $child;
                 ## expand only the first child, then clear the flag
-                delete $expand_children{$cfc}; 
+                delete $expand_children{$cfc};
             }
             elsif (@posts_to_load < $page_size) {
                 push @posts_to_load, $child;
@@ -1541,7 +1541,7 @@ sub talkform {
                 }
                 $ret .= "</td></tr>\n";
             }
-    
+
             # URL: [    ]  Verify? [ ]
             my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
 
@@ -2642,12 +2642,12 @@ sub mail_comments {
                 $paru->is_visible &&
                 $is_diff_user &&
                 $paru->{'status'} eq "A" &&
-                !$paru->gets_notified(journal => $journalu, arg1 => $ditemid, arg2 => $comment->{talkid}) 
+                !$paru->gets_notified(journal => $journalu, arg1 => $ditemid, arg2 => $comment->{talkid})
 
                 # it is possible to register a hook which will intercept this entire conditional block
                 # and do its own logic... if that's the case and the hook returns true, then we'll
                 # skip creating the email notification
-                && ! LJ::Hooks::run_hook("talklib_email_parent_comment_poster", 
+                && ! LJ::Hooks::run_hook("talklib_email_parent_comment_poster",
                                    user => $paru, journal => $journalu, talkid => $comment->{talkid}
                                  )
                 )
@@ -3226,7 +3226,7 @@ sub init {
     my $cookie_auth;
     # either we are posting from the comment email notification form
     # or we are posting from talkpost, as currently logged-in user
-    if ( ( $form->{usertype} eq "user" && exists $form->{ecphash} ) || 
+    if ( ( $form->{usertype} eq "user" && exists $form->{ecphash} ) ||
         ($form->{'usertype'} eq "cookieuser")) {
         my $userpost = $form->{'userpost'} || $form->{'cookieuser'};
         $mlerr->("$SC.error.lostcookie")
@@ -3455,7 +3455,7 @@ sub init {
     }
 
     if (($form->{'usertype'} ne "user" && $form->{'usertype'} ne 'openid' && $form->{'usertype'} ne 'openid_cookie')
-        && $journalu->{'opt_whocanreply'} ne "all") 
+        && $journalu->{'opt_whocanreply'} ne "all")
     {
         $mlerr->("$SC.error.noanon");
     }
@@ -3603,9 +3603,9 @@ sub require_captcha_test {
 
     ## anonymous commenter user =
     ## not logged-in user, or OpenID without validated e-mail
-    my $anon_commenter = !LJ::isu($commenter) || 
+    my $anon_commenter = !LJ::isu($commenter) ||
         ($commenter->identity && !$commenter->is_validated);
-    
+
     ##
     ## 1. Check rate by remote user and by IP (for anonymous user)
     ##
@@ -3648,7 +3648,7 @@ sub require_captcha_test {
         ## all
         return 1;
     }
-    
+
     ##
     ## 4. Global (site) settings
     ## See if they have any tags or URLs in the comment's body
@@ -3987,7 +3987,7 @@ sub check_rate {
     return 0 if $remote && ( $remote->is_suspended || $remote->is_deleted );
 
     # allow some users to be very aggressive commenters and authors. i.e. our bots.
-    return 1 if $remote 
+    return 1 if $remote
                 and grep { $remote->username eq $_ } @LJ::NO_RATE_CHECK_USERS;
 
 

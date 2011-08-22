@@ -78,14 +78,14 @@ body<=
         my $date = sprintf("%02d:%02d %02d/%02d/%04d", @date[2,1], $date[3], $date[4]+1, $date[5]+1900);
 
         if ( $statusvis eq 'D' ) {
-            
+
             $res = $u->set_deleted;
 
             $u->set_prop( delete_reason => $POST{'reason'} ? $POST{'reason'} : "" );
-            
+
             if($res) {
                 # sending ESN status was changed
-                LJ::Event::SecurityAttributeChanged->new($u, { 
+                LJ::Event::SecurityAttributeChanged->new($u, {
                     action   => 'account_deleted',
                     ip       => BML::get_remote_ip(),
                     datetime => $date,
@@ -104,13 +104,13 @@ body<=
                 R => 'set_renamed',
             }->{$new_status};
             return $dberr->("Can't set status '$new_status'") unless $method;
- 
+
             $res = $u->$method;
 
             $u->set_prop( delete_reason => "" );
-            
+
             if($res) {
-                LJ::Event::SecurityAttributeChanged->new($u ,  { 
+                LJ::Event::SecurityAttributeChanged->new($u ,  {
                     action   => 'account_activated',
                     ip       => BML::get_remote_ip(),
                     datetime => $date,
@@ -194,10 +194,10 @@ body<=
                               map { $_, $statusvis{$_} }
                               reverse sort keys %statusvis) . "<br /><br />\n";
 
-    $ret .= "$ML{'.reason.head'} " . LJ::html_text({ 
-                            name => 'reason', 
-                            id => 'reason', 
-                            class => 'text', 
+    $ret .= "$ML{'.reason.head'} " . LJ::html_text({
+                            name => 'reason',
+                            id => 'reason',
+                            class => 'text',
                             value => $u->prop( 'delete_reason' ),
                             size => 50,
                             maxlength => 255,

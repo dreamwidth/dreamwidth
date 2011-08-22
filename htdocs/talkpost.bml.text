@@ -63,7 +63,7 @@
 
 .opt.noanonpost.nonpublic=You can't comment anonymously on a protected entry.
 
-.opt.noautoformat=Don't auto-format: 
+.opt.noautoformat=Don't auto-format:
 
 .opt.noimage=No Image
 
