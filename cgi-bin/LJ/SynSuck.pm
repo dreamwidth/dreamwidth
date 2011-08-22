@@ -163,6 +163,11 @@ sub parse_items_from_feed {
         $content =~ s/encoding=([\"\'])(.+?)\1/encoding='us-ascii'/;
     }
 
+    # and yet another hack, this time to alias 'ascii' to 'us-ascii'
+    if ( $encoding =~ /^ascii$/i ) {
+        $content =~ s/encoding=([\"\'])(.+?)\1/encoding='us-ascii'/;
+    }
+
     # parsing time...
     my ( $feed, $error ) = LJ::ParseFeed::parse_feed( $content );
     return ( 0, { type => "parseerror", message => $error } ) if $error;
