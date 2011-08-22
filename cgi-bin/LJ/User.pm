@@ -1462,7 +1462,7 @@ sub mysql_insertid {
 
 sub nodb_err {
     my $u = shift;
-    return "Database handle unavailable (user: " . $u->user . "; cluster: " . $u->clusterid . ")";
+    return "Database handle unavailable [user: " . $u->user . "; cluster: " . $u->clusterid . ", errstr: $DBI::errstr]";
 }
 
 
