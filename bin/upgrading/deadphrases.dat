@@ -1353,3 +1353,4 @@ general /create.bml.username.text_1
 general event.user_new_entry.any
 general event.user_new_entry.user
 general widget.createaccountentercode.pay
+general /talkpost.bml.opt.openidsignin

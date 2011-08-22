@@ -69,7 +69,7 @@
 
 .opt.noopenidpost=You must <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address before you can comment.
 
-.opt.openidsignin=- OpenID commenting on this post is limited. Please sign in <a [[aopts]]>here</a>.
+.opt.openidsignin2=You can comment on this post while signed in with an account from many other sites, once you have confirmed your email address. <a [[aopts]]>Sign in using OpenID</a>.
 
 .opt.preview=Preview
 
