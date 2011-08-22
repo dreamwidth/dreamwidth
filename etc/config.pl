@@ -159,6 +159,11 @@
                  tellafriend => 0,
                  );
 
+    # allow extacct_info for all sites except LiveJournal
+    #$DISABLED{extacct_info} = sub {
+    #    ref $_[0] && defined $_[0]->{sitename} &&
+    #        $_[0]->{sitename} eq 'LiveJournal' ? 1 : 0 };
+
     # turn $SERVER_DOWN on while you do any maintenance
     $SERVER_TOTALLY_DOWN = 0;
     $SERVER_DOWN = 0;

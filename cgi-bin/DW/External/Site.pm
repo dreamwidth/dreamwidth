@@ -20,6 +20,7 @@ package DW::External::Site;
 
 use strict;
 use Carp qw/ croak /;
+use DW::External::Userinfo;
 use DW::External::XPostProtocol;
 
 use LJ::ModuleLoader;
@@ -110,17 +111,28 @@ sub accepts {
     return $self;
 }
 
+# returns the account type for this user on this site.
+sub journaltype {
+    my $self = shift;
+    return DW::External::Userinfo->lj_journaltype( @_ )
+        if $self->{servicetype} eq 'lj';
+    return 'P';  # default
+}
+
 # returns the journal_url for this user on this site.
 sub journal_url {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-# FIXME: this should do something like $u->is_person to determine what kind
-# of thing to setup...
-    return 'http://' . $self->{hostname} . '/users/' . $u->user . '/';
-}
+    # IF YOU OVERRIDE THIS WITH CODE THAT CHECKS JOURNALTYPE,
+    # YOU MUST PASS THE BASE URL TO CHECK EXPLICITLY.
+    # OTHERWISE IT WILL CALL BACK HERE FOR THE URL,
+    # AND YOU WILL SEE WHAT INFINITE RECURSION LOOKS LIKE.
 
+    # override this on a site-by-site basis if needed
+    return "http://$self->{hostname}/users/" . $u->user . '/';
+}
 
 # returns the profile_url for this user on this site.
 sub profile_url {
@@ -128,18 +140,48 @@ sub profile_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-# FIXME: same as above
-    return 'http://' . $self->{hostname} . '/users/' . $u->user . '/profile';
+    # IF YOU OVERRIDE THIS WITH CODE THAT CHECKS JOURNALTYPE,
+    # YOU MUST PASS THE BASE URL TO CHECK EXPLICITLY.
+    # OTHERWISE IT WILL CALL BACK HERE FOR THE URL,
+    # AND YOU WILL SEE WHAT INFINITE RECURSION LOOKS LIKE.
+
+    # override this on a site-by-site basis if needed
+    return $self->journal_url( $u ) . 'profile';
 
 }
+
+# returns the feed_url for this user on this site.
+sub feed_url {
+    my ( $self, $u ) = @_;
+    croak 'need a DW::External::User'
+        unless $u && ref $u eq 'DW::External::User';
+
+    # IF YOU OVERRIDE THIS WITH CODE THAT CHECKS JOURNALTYPE,
+    # YOU MUST PASS THE BASE URL TO CHECK EXPLICITLY.
+    # OTHERWISE IT WILL CALL BACK HERE FOR THE URL,
+    # AND YOU WILL SEE WHAT INFINITE RECURSION LOOKS LIKE.
+
+    # override this on a site-by-site basis if needed
+    return $self->journal_url( $u ) . 'data/atom';
+}
+
 # returns the badge_image_url for this user on this site.
 sub badge_image_url {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-# FIXME: same as above
-    return 'http://' . $self->{hostname} . '/img/userinfo.gif';
+    # override this on a site-by-site basis if needed
+    my $type = $self->journaltype( $u ) || 'P';
+    my $gif = {
+               P => '/img/userinfo.gif',
+               C => '/img/community.gif',
+               Y => '/img/syndicated.gif',
+              };
+    # this will do the right thing for an lj-based site,
+    # but it's better to override this with cached images
+    # to avoid hammering the remote site with image requests.
+    return "http://$self->{hostname}$gif->{$type}";
 }
 
 # adjust the request for any per-site limitations

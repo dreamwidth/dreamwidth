@@ -55,7 +55,7 @@ sub profile_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $u->user . '.' . $self->{hostname};
+    return $self->journal_url( $u );
 }
 
 

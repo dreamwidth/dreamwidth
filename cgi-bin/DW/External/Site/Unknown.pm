@@ -48,17 +48,6 @@ sub journal_url {
 
 
 # argument: DW::External::User
-# returns URL to this account's journal
-sub profile_url {
-    my ( $self, $u ) = @_;
-    croak 'need a DW::External::User'
-        unless $u && ref $u eq 'DW::External::User';
-
-    return 'http://www.' . $self->{hostname} . '/users/' . $u->user . '/profile';
-}
-
-
-# argument: DW::External::User
 # returns URL to the badge image (head icon) for this user
 sub badge_image_url {
     my ( $self, $u ) = @_;

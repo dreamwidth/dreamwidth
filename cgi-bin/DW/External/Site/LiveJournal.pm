@@ -44,21 +44,9 @@ sub journal_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-# FIXME: this should do something like $u->is_person to determine what kind
-# of thing to setup...
-    return 'http://www.livejournal.com/users/' . $u->user . '/';
-}
-
-
-# argument: DW::External::User
-# returns URL to this account's journal
-sub profile_url {
-    my ( $self, $u ) = @_;
-    croak 'need a DW::External::User'
-        unless $u && ref $u eq 'DW::External::User';
-
-# FIXME: same as above
-    return 'http://www.livejournal.com/users/' . $u->user . '/profile';
+    my $user = $u->user;
+    $user =~ tr/_/-/;
+    return "http://$user.$self->{domain}/";
 }
 
 
@@ -69,8 +57,13 @@ sub badge_image_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-# FIXME: same as above
-    return "$LJ::IMGPREFIX/external/lj-userinfo.gif";
+    my $type = $self->journaltype( $u ) || 'P';
+    my $gif = {
+               P => '/external/lj-userinfo.gif',
+               C => '/external/lj-community.gif',
+               Y => '/external/lj-syndicated.gif',
+              };
+    return $LJ::IMGPREFIX . $gif->{$type};
 }
 
 sub canonical_username {

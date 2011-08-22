@@ -3083,6 +3083,17 @@ CREATE TABLE tor_proxy_exits (
 )
 EOC
 
+register_tablecreate('externaluserinfo', <<'EOC');
+CREATE TABLE externaluserinfo (
+    site INT UNSIGNED NOT NULL,
+    user VARCHAR(50) NOT NULL,
+    last INT UNSIGNED,
+    type CHAR(1),
+
+    PRIMARY KEY (site, user)
+)
+EOC
+
 
 register_tablecreate('renames', <<'EOC');
 CREATE TABLE renames (

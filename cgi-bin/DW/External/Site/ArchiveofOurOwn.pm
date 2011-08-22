@@ -39,26 +39,6 @@ sub accepts {
 
 
 # argument: DW::External::User
-# returns URL to this user's account
-sub journal_url {
-    my ( $self, $u ) = @_;
-    croak 'need a DW::External::User'
-        unless $u && ref $u eq 'DW::External::User';
-        return 'http://www.archiveofourown.org/users/' . $u->user . '/';
-}
-
-
-# argument: DW::External::User
-# returns URL to this user's profile
-sub profile_url {
-    my ( $self, $u ) = @_;
-    croak 'need a DW::External::User'
-        unless $u && ref $u eq 'DW::External::User';
-        return 'http://www.archiveofourown.org/users/' . $u->user . '/profile';
-}
-
-
-# argument: DW::External::User
 # returns URL to the badge image (head icon) for this user
 sub badge_image_url {
     my ( $self, $u ) = @_;

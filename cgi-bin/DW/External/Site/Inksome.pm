@@ -44,21 +44,10 @@ sub journal_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-# FIXME: this should do something like $u->is_person to determine what kind
-# of thing to setup...
-    return 'http://www.inksome.com/users/' . $u->user . '/';
-}
-
-
-# argument: DW::External::User
-# returns URL to this account's journal
-sub profile_url {
-    my ( $self, $u ) = @_;
-    croak 'need a DW::External::User'
-        unless $u && ref $u eq 'DW::External::User';
-
-# FIXME: same as above
-    return 'http://www.inksome.com/users/' . $u->user . '/profile';
+    # normal default is broken for Inksome community redirect
+    my $user = $u->user;
+    $user =~ tr/_/-/;
+    return "http://$user.$self->{domain}/";
 }
 
 
@@ -69,8 +58,8 @@ sub badge_image_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-# FIXME: same as above
-    return 'http://www.inksome.com/img/userinfo.gif';
+    # Inksome went away, so just assume every account is personal
+    return "$LJ::IMGPREFIX/external/ink-userinfo.gif";
 }
 
 

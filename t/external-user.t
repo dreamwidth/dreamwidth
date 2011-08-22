@@ -96,7 +96,7 @@ note( "Username with hyphen (LJ-based site)" );
 
     is( $u->user, "example_username", "Canonicalize usernames from LJ-based sites" );
     is( $u->site->{hostname}, "www.livejournal.com", "Site is livejournal.com" );
-    is( $u->site->journal_url( $u ), "http://www.livejournal.com/users/example_username/", "hyphen is an underscore when not a subdomain" );
+    is( $u->site->journal_url( $u ), "http://example-username.livejournal.com/", "use hyphen in subdomain" );
 }
 
 note( "Username with hyphen (subdomain)" );
