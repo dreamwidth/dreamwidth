@@ -56,6 +56,23 @@
                 if ( $rv ) {
                     LJ::statushistory_add( $u, $remote, 'paidstatus',
                                            "Admin override: gave paid time to user: months=$months days=$days type=$type" );
+                    LJ::send_mail( {
+                                to => $u->email_raw,
+                                from => $LJ::ACCOUNTS_EMAIL,
+                                fromname => $LJ::SITENAME,
+                                subject => LJ::Lang::ml(
+                                 'shop.email.admin.subject', {
+                                   sitename => $LJ::SITENAME } ),
+                                body => LJ::Lang::ml(
+                                 'shop.email.admin.body', {
+                                   touser => $u->display_name,
+                                   type => $type,
+                                   nummonths => $months,
+                                   numdays => $days,
+                                   sitename => $LJ::SITENAME,
+                                } ),
+                    } ) if $POST{sendemail};
+
                     return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
                 }
             }
@@ -125,6 +142,7 @@ EOF
         for <input type="text" name="months" maxlength="2" size="3" /> months, 
         <input type="text" name="days" maxlength="2" size="3" /> days
 </td>
+        <td><input type="checkbox" name="sendemail">Email?</td>
 <td><input type="submit" name="submit" value="Give!" /></td></tr>
 $body_date
 </table>

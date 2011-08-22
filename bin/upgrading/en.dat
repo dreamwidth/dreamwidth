@@ -3055,6 +3055,21 @@ The account type that was purchased is:
 
 shop.email.acct.subject=[[sitename]] Account Purchase
 
+shop.email.admin.subject=[[sitename]] Account Upgrade
+
+shop.email.admin.body<<
+Dear [[touser]],
+
+A [[sitename]] admin has added paid time to your account. The type of account and amount of time added is:
+
+   [[type]] for [[nummonths]] [[?nummonths|month|months]] [[numdays]] [[?numdays|day|days]]
+
+If you have any questions about this upgrade, you can reply to this email.
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.email.comm.anon=Someone has chosen to upgrade your [[sitename]] community [[commname]].
 
 shop.email.comm.close=Congratulations on your community's paid time!
