@@ -1170,13 +1170,14 @@ my @_ml_strings_en = (
     'esn.you_must_unscreen',                                                     # 'You must respond to it or unscreen it before others can see it.',
     'esn.here_you_can',                                                          # 'From here, you can:',
 
-    'esn.view_thread',                                                           # '[[openlink]]View the thread[[closelink]] starting from this comment',
-    'esn.view_threadroot',                                                       # '[[openlink]]Go to the top of the thread[[closelink]] this comment is part of',
-    'esn.view_comments',                                                         # '[[openlink]]View all comments[[closelink]] to this entry',
     'esn.reply_at_webpage',                                                      # '[[openlink]]Reply[[closelink]] at the webpage',
     'esn.unscreen_comment',                                                      # '[[openlink]]Unscreen the comment[[closelink]]',
-    'esn.delete_comment',                                                        # '[[openlink]]Delete the comment[[closelink]]',
     'esn.edit_comment',                                                          # '[[openlink]]Edit the comment[[closelink]]',
+    'esn.delete_comment',                                                        # '[[openlink]]Delete the comment[[closelink]]',
+    'esn.view_comments',                                                         # '[[openlink]]View all comments[[closelink]] to this entry',
+    'esn.view_threadroot',                                                       # '[[openlink]]Go to the top of the thread[[closelink]] this comment is part of',
+    'esn.view_thread',                                                           # '[[openlink]]View the thread[[closelink]] beginning with this comment',
+
     'esn.if_suport_form',                                                        # 'If your mail client supports it, you can also reply here:',
 
     'esn.journal_new_comment.anonymous.comment',                                 # 'Their reply was:',
@@ -1513,13 +1514,13 @@ sub _format_mail_both {
     $body .= LJ::Lang::get_text($lang, 'esn.here_you_can', undef, $vars);
     $body .= LJ::Event::format_options(undef, $is_html, $lang, $vars,
         {
-            'esn.view_thread'       => [ 1, $self->thread_url ],
-            'esn.view_threadroot'   => [ $self->parenttalkid != 0 ? 2 : 0, $self->threadroot_url ],
-            'esn.view_comments'     => [ 3, $commentsurl ],
-            'esn.reply_at_webpage'  => [ 4, $self->reply_url ],
-            'esn.unscreen_comment'  => [ $can_unscreen ? 5 : 0, $self->unscreen_url ],
-            'esn.delete_comment'    => [ $self->user_can_delete($targetu) ? 6 : 0, $self->delete_url ],
-            'esn.edit_comment'      => [ $self->user_can_edit($targetu) ? 7 : 0, $self->edit_url ],
+            'esn.reply_at_webpage'  => [ 1, $self->reply_url ],
+            'esn.unscreen_comment'  => [ $can_unscreen ? 2 : 0, $self->unscreen_url ],
+            'esn.edit_comment'      => [ $self->user_can_edit($targetu) ? 3 : 0, $self->edit_url ],
+            'esn.delete_comment'    => [ $self->user_can_delete($targetu) ? 4 : 0, $self->delete_url ],
+            'esn.view_comments'     => [ 5, $commentsurl ],
+            'esn.view_threadroot'   => [ $self->parenttalkid != 0 ? 6 : 0, $self->threadroot_url ],
+            'esn.view_thread'       => [ 7, $self->thread_url ],
         });
 
     my $want_form = $is_html && ($self->is_active || $can_unscreen);  # this should probably be a preference, or maybe just always off.
