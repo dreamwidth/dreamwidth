@@ -2579,6 +2579,21 @@ sub alternate
     return $scratch->{alternate}{"$one\0$two"} ? $one : $two;
 }
 
+sub clean_css_classname
+{
+    my ($ctx, $classname) = @_;
+    my $clean_classname;
+
+    if ($classname =~ /eval/) {
+        $clean_classname = $classname . " ";
+        $classname =~ s/eval/ev-l/g;
+        $clean_classname .= $classname;
+    } else {
+        $clean_classname = $classname;
+    }
+    return $clean_classname;
+}
+
 sub set_content_type
 {
     my ($ctx, $type) = @_;

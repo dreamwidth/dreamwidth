@@ -928,6 +928,9 @@ function builtin rand (int low, int high) : int
 function builtin pageview_unique_string () : string
 "Returns a unique string for the remote user.";
 
+function builtin clean_css_classname (string classname) : string
+"Provide a version of a string that's always suitable for classnames, with potentially suspicious words present in original and modified forms.";
+
 function builtin alternate (string a, string b) : string
 "With each call, this function will alternate between the two values and return one of them.
 Useful for making tables whose rows alternate in background color.";
@@ -4787,8 +4790,8 @@ function Entry::print_wrapper_start() {
     var string poster;
     var string journal;
     if ($this.journal.journal_type != "I") {
-        $poster = "poster-$this.poster.username";
-        $journal = "journal-$this.journal.username";
+        $poster = clean_css_classname( "poster-$this.poster.username" );
+        $journal = clean_css_classname( "journal-$this.journal.username" );
     }
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
 
