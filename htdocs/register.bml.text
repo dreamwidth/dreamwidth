@@ -29,7 +29,7 @@ Sincerely,
 [[siteroot]]/
 .
 
-.email.subject=Validate Email
+.email.subject2=Confirm Email - [[sitename]]
 
 .error.emailchanged=This verification link is out of date.  Please <a [[aopts]]>request a new verification email</a>.
 

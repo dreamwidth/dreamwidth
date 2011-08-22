@@ -5,7 +5,7 @@
 
 .enter.user.submit=Proceed...
 
-.enter.user.text2=Enter the Dreamwidth account name of the person you'd like to send a text message to:
+.enter.user.text3=Enter the [[sitenameshort]] account name of the person you'd like to send a text message to:
 
 .error.banned.head=Banned
 

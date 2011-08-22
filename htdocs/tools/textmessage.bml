@@ -40,7 +40,7 @@ body<=
 
     unless ($user) {
         $ret .= "<?h1 $ML{'.enter.user.head'} h1?>".
-            "<?p ".BML::ml('.enter.user.text2', { sitenameshort => $LJ::SITENAMESHORT })." p?>".
+            "<?p " . BML::ml( '.enter.user.text3', { sitenameshort => $LJ::SITENAMESHORT } ) . " p?>".
             "<div style='margin-left: 40px'><form method='get' action='textmessage'>$ML{'.enter.user.input'} <input type='text' size='15' maxlength='15' name='user' /> <input type='submit' value=\"$ML{'.enter.user.submit'}\" /></form></div>".
             "<p>".BML::ml('.setup.text', { aopts => "href='$LJ::SITEROOT/manage/profile/'" })."</p>";
         return add_footer( $ret );

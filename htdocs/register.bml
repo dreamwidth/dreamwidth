@@ -71,7 +71,7 @@ body<=
          'from' => $LJ::ADMIN_EMAIL,
          'fromname' => $LJ::SITENAME,
          'charset' => 'utf-8',
-         'subject' => $ML{'.email.subject'},
+         'subject' => BML::ml( ".email.subject2", { sitename => $LJ::SITENAME } ),
          'body' => BML::ml('.email.body2',
                            { 'sitename' => $LJ::SITENAME,
                              'siteroot' => $LJ::SITEROOT,

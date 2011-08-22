@@ -1975,7 +1975,7 @@ LOGIN
     # Some JavaScript to help the UI out
 
     $ret .= "<script type='text/javascript' language='JavaScript'>\n";
-    $ret .= "var usermismatchtext = \"" . LJ::ejs($BML::ML{'.usermismatch'}) . "\";\n";
+    $ret .= "var usermismatchtext = \"" . LJ::ejs( LJ::Lang::ml( '.usermismatch2', { sitenameshort => $LJ::SITENAMESHORT } ) ) . "\";\n";
     $ret .= "</script><script type='text/javascript' language='JavaScript' src='$LJ::JSPREFIX/talkpost.js'></script>";
     $ret .= "</form>\n";
 

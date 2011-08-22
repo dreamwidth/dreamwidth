@@ -93,10 +93,12 @@
 
 .postresponse=Post a comment in response:
 
+.sorry.cannotcomment=Sorry, you cannot leave comments at this time.
+
 .title=(Reply)
 
-.usermismatch<<
-You've entered an account name but have deselected the 'Dreamwidth account' option.
+.usermismatch2<<
+You've entered an account name but have deselected the '[[sitenameshort]] account' option.
 
 Please clear the textbox or select the correct posting mode and try again.
 .

@@ -39,7 +39,7 @@ body<=
     my $ret = "";
 
     $ret .= "<div id='faq'>";
-    $ret .= "<?p $ML{'.faq.title.text'} p?>";
+    $ret .= "<?p " . BML::ml( ".faq.title.text2", { sitenameshort => $LJ::SITENAMESHORT } ) . " p?>";
 
     # FAQ search
     $ret .= "<?p $ML{'.faq.search.text'} p?>";

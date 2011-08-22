@@ -383,7 +383,7 @@ body<=
     unless ($u->can_get_comments ||
             ($remote && $remote->can_leave_comments)) {
         $ret .= "<?h1 $ML{'Sorry'} h1?><?p ";
-        $ret .= $LJ::MSG_NO_COMMENT || "Sorry, you cannot leave comments at this time.";
+        $ret .= $LJ::MSG_NO_COMMENT || $ML{'.sorry.cannotcomment'};
         $ret .= " p?>";
         return $ret;
     }
