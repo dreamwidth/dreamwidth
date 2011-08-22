@@ -948,7 +948,7 @@ userproplist.opt_show_captcha_to:
   des: Show CAPTCHA before posting a comment to: A=All, N=No one, F=non-Friends, R=anonymous users
   indexed: 0
   multihomed: 0
-  prettyname: Show CAPTHCHA on commenting
+  prettyname: Show CAPTCHA on commenting
 
 userproplist.posting_guidelines_entry:
   cldversion: 4
