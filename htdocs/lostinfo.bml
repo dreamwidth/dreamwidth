@@ -35,7 +35,7 @@ body<=
     # no post action, just show query form
     unless (LJ::did_post()) {
         my $ret;
-        
+
         $ret .=  "<?h1 $ML{'captcha.title'} h1?>\n"
             if $captcha->enabled;
 
@@ -171,17 +171,8 @@ body<=
             'body' => $body,
         }) or die "Error: couldn't send email";
 
-        my $add_message = '';
-
-        if ( LJ::is_enabled('secret_question') ) {
-            my ($redir, $ml_key, $param) = LJ::Hooks::run_hook('use_secret', $u);
-            return BML::redirect($redir) if $redir ne '';
-
-            $add_message = "<?p " . BML::ml($ml_key, { datetime => strftime("%d.%m.%Y %H:%M", gmtime($param)) } ) . " p?>" if $ml_key ne '';
-        }
-
         return "<?h1 $ML{'/lostinfo_do.bml.password_mailed.title'} h1?>\n" .
-               "<?p $ML{'/lostinfo_do.bml.password_mailed.text'} p?>" . $add_message;
+               "<?p $ML{'/lostinfo_do.bml.password_mailed.text'} p?>";
     }
 
     if ($POST{'lostuser'}) {
@@ -228,7 +219,7 @@ body<=
             'subject' => "Lost Username",
             'body' => $body,
         }) or die "Error: couldn't send email";
-    
+
         return "<?h1 $ML{'/lostinfo_do.bml.username_mailed.title'} h1?>\n" .
                "<?p $ML{'/lostinfo_do.bml.username_mailed.text'} p?>";
     }
