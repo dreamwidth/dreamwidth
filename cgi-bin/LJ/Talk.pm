@@ -326,6 +326,8 @@ sub check_viewable
 # </LJFUNC>
 sub can_delete {
     my ( $remote, $u, $up, $userpost ) = @_; # remote, journal, posting user, commenting user
+    $userpost ||= "";
+
     return 0 unless LJ::isu( $remote );
     return 1 if $remote->user eq $userpost ||
                 $remote->user eq ( ref $u ? $u->user : $u ) ||
@@ -3527,13 +3529,14 @@ sub init {
     $form->{'subject'} = LJ::text_trim($form->{'subject'}, 100, 100);
 
     my $subjecticon = "";
-    if ($form->{'subjecticon'} ne "none" && $form->{'subjecticon'} ne "") {
-        $subjecticon = LJ::trim(lc($form->{'subjecticon'}));
+    my $form_subjecticon = $form->{'subjecticon'} || "";
+    if ( $form_subjecticon ne "none" && $form_subjecticon ne "" ) {
+        $subjecticon = LJ::trim( lc( $form_subjecticon ) );
     }
 
     # figure out whether to post this comment screened
     my $state = 'A';
-    my $screening = LJ::Talk::screening_level($journalu, $ditemid >> 8);
+    my $screening = LJ::Talk::screening_level($journalu, $ditemid >> 8) || "";
     if (!$form->{editid} && ($screening eq 'A' ||
         ($screening eq 'R' && ! $up) ||
         ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up ))))) {
@@ -3681,13 +3684,14 @@ sub require_captcha_test {
 sub post_comment {
     my ( $entryu, $journalu, $comment, $parent, $item, $errref, $unscreen_parent ) = @_;
 
+    my $parent_state = $parent->{state} || "";
     # unscreen the parent comment if needed
-    if ( $parent->{state} eq 'S' && $unscreen_parent ) {
+    if ( $parent_state eq 'S' && $unscreen_parent ) {
         # if parent comment is screened and we got this far, the user has the permission to unscreen it
         # in this case the parent comment needs to be unscreened and the comment posted as normal
         LJ::Talk::unscreen_comment($journalu, $item->{itemid}, $parent->{talkid});
         $parent->{state} = 'A';
-    } elsif ( $parent->{state} eq 'S' ) {
+    } elsif ( $parent_state eq 'S' ) {
         # if the parent comment is screened and the unscreen option was not selected, we also want the
         # reply to be posted as screened
         $comment->{state} = 'S';
