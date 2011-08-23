@@ -256,6 +256,10 @@ sub make_feed
                 if $event =~ m!<lj-phonepost journalid=[\'\"]\d+[\'\"] dpid=[\'\"](\d+)[\'\"]( /)?>!;
         }
 
+        # include comment count image at bottom of event (for readers
+        # that don't understand the commentcount)
+        $event .= "<br /><br />" . $entry_obj->comment_imgtag . " comments";
+
         my $mood;
         if ($logprops{$itemid}->{'current_mood'}) {
             $mood = $logprops{$itemid}->{'current_mood'};

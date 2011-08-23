@@ -264,7 +264,7 @@ sub comment_image_url {
 sub comment_imgtag {
     my $self = $_[0];
 
-    my $alttext = LJ::Lang::ml('setting.xpost.option.footer.vars.comment_image.alttext');
+    my $alttext = LJ::Lang::ml('setting.xpost.option.footer.vars.comment_image.alt');
     
     return '<img src="' . $self->comment_image_url . '" width="30" height="12" alt="' . $alttext . '" style="vertical-align: middle;"/>';
 }
