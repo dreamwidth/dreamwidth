@@ -1,0 +1,17 @@
+.appwidget-recentlyactivecomms, .appwidget-newlycreatedcomms {
+    float: left;
+    width: auto;
+}
+
+.appwidget-recentlyactivecomms
+{
+    margin-right: 3em;
+}
+
+h2 {
+    clear: both;
+}
+
+#content ul li {
+    margin-left: 2em;
+}

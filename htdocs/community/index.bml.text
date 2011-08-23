@@ -1,13 +1,24 @@
 ;; -*- coding: utf-8 -*-
-.main2<<
-<?h1 Welcome! h1?>
-<?p Welcome to the Community Center.  This is where you can find out where and how to interact with your fellow members of the [[sitename]] community!  [[sitename]] isn't only a great place for keeping a journal &mdash; it's a place where people meet, interact, share common interests, and have a good time. p?>
+.findcomms=Find Communities
 
-<?h1 What is a Community? h1?>
-<?p A community is a journal run by a member of the site where people share a common interest.  Communities are free to use and create. Anyone can have them and they're easy to set up. p?>
+.findcomms.commsearch=Community Search
 
-<p align='center' style='font-size: 1.7em'><a [[aopts]]>Create a Community Now!</a></p>
-.
+.findcomms.random=Random Active Community
+
+.findcomms.sitesearch=Site Search
+
+.findcomms.sitesearch.detail=Search for content on the site as a whole.
+
+.header=Communities & Community Features
+
+.intro=A community is a journal that many people, not just you, can post to. There are [[sitename]] communities for all sorts of topics, from hobbies to shared beliefs to discussion groups and more. Communities are easy to create and participate in, and anyone can set one up.
+
+.learnmore=Learn More About Communities
+
+.manage=Managing Communities
+
+.manage.create=Create a new community
+
+.manage.yours=Manage your existing communities
 
 .title=Community Center
-
