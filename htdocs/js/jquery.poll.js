@@ -83,7 +83,31 @@ $.widget("dw.dynamicpoll", {
                     self._trigger( "complete" );
                 }
             });
-        });
+        }).end()
+        .filter("a.LJ_PollChangeLink").click(function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            var $clicked = $(this);
+            $clicked.ajaxtip({namespace: "pollchange"})
+            .ajaxtip("load", {
+                    endpoint: "pollvote",
+                    context: self,
+                    data: { action: "change",
+                            pollid: $clicked.attr('lj_pollid')},
+                    success: function( data, status, jqxhr ) {
+                        if ( data.error ) {
+                            $clicked.ajaxtip( "error", data.error )
+                        } else {
+                            $clicked.ajaxtip( "cancel" );
+                            this.element.html(data.results_html)
+                                .trigger( "updatedcontent.poll" );
+                        }
+                        self._trigger( "complete" );
+                    }
+                    });
+        }).end()
+
     },
     _initForm: function() {
         var self = this;
@@ -94,28 +118,28 @@ $.widget("dw.dynamicpoll", {
             e.preventDefault();
             e.stopPropagation();
 
+            var dataarray = new Array();
+            dataarray = $poll.serializeArray();
+            dataarray.push({'name': 'action', 'value': "vote"});
             var $submit = $(this);
             $submit.ajaxtip({namespace: "pollsubmit"})
                 .ajaxtip("load", {
                     endpoint: "pollvote",
                     context: self,
-                    data: $poll.serialize(),
+                    data: dataarray,
                     success: function( data, status, jqxhr ) {
                         if ( data.error ) {
                             $submit.ajaxtip( "error", data.error )
                         } else {
                             $submit.ajaxtip( "cancel" );
-                            var resultsEle = $(data.results_html);
-                            self.element.empty().append(resultsEle);
-
-                            resultsEle.trigger( "updatedcontent.poll" );
+                            this.element.html(data.results_html)
+                                .trigger( "updatedcontent.poll" );
                         }
                         self._trigger( "complete" );
                     }
                 });
-        });
-
-        $poll.find(".LJ_PollClearLink").click(function(e){
+        }).end()
+        .find("a.LJ_PollClearLink").click(function(e){
             e.stopPropagation();
             e.preventDefault();
 
@@ -127,7 +151,32 @@ $.widget("dw.dynamicpoll", {
                 // don't touch hidden and submit
             });
             $poll.find("select").each(function() { this.selectedIndex = 0 });
-        });
+        }).end()
+        .find("a.LJ_PollDisplayLink").click(function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            var $clicked = $(this);
+            $clicked.ajaxtip({namespace: "polldisplay"})
+            .ajaxtip("load", {
+                    endpoint: "pollvote",
+                    context: self,
+                    data: { action: "display",
+                            pollid: $clicked.attr('lj_pollid')},
+                    success: function( data, status, jqxhr ) {
+                        if ( data.error ) {
+                            $clicked.ajaxtip( "error", data.error )
+                        } else {
+                            $clicked.ajaxtip( "cancel" );
+                            this.element.html(data.results_html)
+                                .trigger( "updatedcontent.poll" );
+                        }
+                        self._trigger( "complete" );
+                    }
+            });
+    });
+
+
     }
 });
 

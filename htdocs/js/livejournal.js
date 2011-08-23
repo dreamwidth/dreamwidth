@@ -215,9 +215,23 @@ LiveJournal.initPolls = function (element) {
     Array.prototype.forEach.call(pollButtons, function (pollButton) {
         DOM.addEventListener(pollButton, "click", LiveJournal.pollButtonClicked.bindEventListener(pollButton));
     });
-    
+
+    var pollChange = DOM.getElementsByTagAndClassName(ele, 'a', "LJ_PollChangeLink") || [];
+
+    // attaches a click handler to all poll change answers buttons
+    Array.prototype.forEach.call(pollChange, function (pollChange) {
+        DOM.addEventListener(pollChange, "click", LiveJournal.pollChangeClicked.bindEventListener(pollChange));
+    });
+
+    var pollDisplay = DOM.getElementsByTagAndClassName(ele, 'a', "LJ_PollDisplayLink") || [];
+
+    // attaches a click handler to all poll display answers buttons
+    Array.prototype.forEach.call(pollDisplay, function (pollDisplay) {
+        DOM.addEventListener(pollDisplay, "click", LiveJournal.pollDisplayClicked.bindEventListener(pollDisplay));
+    });
+
     var pollForms = DOM.getElementsByTagAndClassName(ele, 'form', "LJ_PollForm") || []; 
-    
+
     // attach submit handlers to each poll form
     Array.prototype.forEach.call(pollForms, function (pollForm) {
         DOM.addEventListener(pollForm, "submit", LiveJournal.pollFormSubmitted.bindEventListener(pollForm));
@@ -246,9 +260,9 @@ LiveJournal.pollFormSubmitted = function (e) {
     var opts = {
         "url"    : LiveJournal.getAjaxUrl("pollvote"),
         "method" : "POST",
-        "data"   : HTTPReq.formEncoded(formObject),
-        "onData" : LiveJournal.pollVoteSubmitted,
-        "onError": LiveJournal.pollVoteSubmitted
+        "data"   : "action=vote&" + HTTPReq.formEncoded(formObject),
+        "onData" : LiveJournal.pollUpdateContainer,
+        "onError": LiveJournal.pollUpdateContainer
     };
 
     HTTPReq.getJSON(opts);
@@ -256,22 +270,56 @@ LiveJournal.pollFormSubmitted = function (e) {
     return false;
 };
 
-LiveJournal.pollVoteSubmitted = function (results) {
+LiveJournal.pollChangeClicked = function (e) {
+    Event.stop(e);
+
+    var opts = {
+        "url"    : LiveJournal.getAjaxUrl("pollvote"),
+        "method" : "POST",
+        "data"   : "action=change&pollid=" + this.getAttribute("lj_pollid"),
+        "onData" : LiveJournal.pollUpdateContainer,
+        "onError": LiveJournal.pollUpdateContainer
+    };
+
+    HTTPReq.getJSON(opts);
+
+    return false;
+};
+
+LiveJournal.pollDisplayClicked = function (e) {
+    Event.stop(e);
+
+    var opts = {
+        "url"    : LiveJournal.getAjaxUrl("pollvote"),
+        "method" : "POST",
+        "data"   : "action=display&pollid=" + this.getAttribute("lj_pollid"),
+        "onData" : LiveJournal.pollUpdateContainer,
+        "onError": LiveJournal.pollUpdateContainer
+    };
+
+    HTTPReq.getJSON(opts);
+
+    return false;
+};
+
+LiveJournal.pollUpdateContainer = function (results) {
     if (! results) return false;
 
     if (PollPages.hourglass) {
         PollPages.hourglass.hide();
         PollPages.hourglass = null;
     }
-    
+
     if (results.error) return LiveJournal.ajaxError(results.error);
-    
+
     resultsDiv = document.getElementById("poll-"+results.pollid+"-container");
 
     resultsDiv.innerHTML = results.results_html;
-    
+
     LiveJournal.initPolls();
 };
+
+
 
 LiveJournal.getFormObject = function (form) {
 

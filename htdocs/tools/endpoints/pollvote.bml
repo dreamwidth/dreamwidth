@@ -58,27 +58,47 @@ _c?>
     unless ($entry->visible_to($remote)) {
         return $err->("You don't have the permissions to view this poll");
     }
+   
+    my $action = $POST{action};
+
+    if ( $action eq "vote" ) {
+        unless (LJ::did_post()) {
+            return $err->("Post is required");
+        }
+
+        unless (LJ::check_form_auth()) {
+            return $err->("Form is invalid");
+        }
     
-    unless (LJ::did_post()) {
-        return $err->("Post is required");
-    }
+        my $error;
+        LJ::Poll->process_submission(\%POST, \$error);
+        if ($error) {
+            return $err->($error);
+        }
 
-    unless (LJ::check_form_auth()) {
-        return $err->("Form is invalid");
-    }
-    
-    my $error;
-    LJ::Poll->process_submission(\%POST, \$error);
-    if ($error) {
-        return $err->($error);
-    }
+        $ret->{results_html} = $poll->render(mode => "results");
 
-    $ret->{results_html} = $poll->render(mode => "results");
+        $ret = {
+            %$ret,
+            pollid  => $pollid
+        };
 
-    $ret = {
-        %$ret,
-        pollid  => $pollid
-    };
+    } elsif ( $action eq "change" ) {
+        $ret->{results_html} = $poll->render(mode => "enter");
+
+        $ret = {
+            %$ret,
+            pollid  => $pollid
+        };
+
+    } elsif ( $action eq "display" ) {
+        $ret->{results_html} = $poll->render(mode => "results");
+
+        $ret = {
+            %$ret,
+            pollid  => $pollid
+        };
+    }
     
     sleep(1.5) if $LJ::IS_DEV_SERVER;
 

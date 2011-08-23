@@ -928,13 +928,14 @@ sub render {
     $ret .= LJ::Lang::ml('poll.participants', { 'total' => $self->num_participants });
     if ( $mode eq 'enter' && $self->can_view( $remote ) ) {
         $ret .= "<br />\n";
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . LJ::Lang::ml( 'poll.seeresults' ) . "</a> ]  ";
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results' class='LJ_PollDisplayLink' 
+            id='LJ_PollDisplayLink_${pollid}' lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.seeresults' ) . "</a> ]  ";
         $ret .= "&nbsp&nbsp;[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=clear' 
             class='LJ_PollClearLink' id='LJ_PollClearLink_${pollid}' lj_pollid='$pollid'>  " . BML::ml('poll.clear') ."</a> ]";
     } elsif ( $mode eq 'results' ) {
         $ret .= "<br />\n";
         # change vote link
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter'>" . LJ::Lang::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter' class='LJ_PollChangeLink' id='LJ_PollChangeLink_${pollid}' lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
     } else {
         $ret .= "<br />\n";
     }
