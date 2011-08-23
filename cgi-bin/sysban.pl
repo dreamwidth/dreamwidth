@@ -38,7 +38,7 @@ sub sysban_check {
     if ($what eq 'ip') {
 
         my $now = time();
-        my $ip_ban_delay = $LJ::SYSBAN_IP_REFRESH || 120; 
+        my $ip_ban_delay = $LJ::SYSBAN_IP_REFRESH || 120;
 
         # check memcache first if not loaded
         unless ($LJ::IP_BANNED_LOADED + $ip_ban_delay > $now) {
@@ -50,7 +50,7 @@ sub sysban_check {
                 $LJ::IP_BANNED_LOADED = 0;
             }
         }
-        
+
         # is it already cached in memory?
         if ($LJ::IP_BANNED_LOADED) {
             return (defined $LJ::IP_BANNED{$value} &&
@@ -168,7 +168,7 @@ sub sysban_check {
         return 0 unless scalar @domains >= 2;
         my $domain = "$domains[-2].$domains[-1]";
         return 1 if $check->('email_domain', $domain);
-        
+
         # account for GMail troll tricks
         if ( $domain eq "gmail.com" ) {
         	my ($user) = ($value =~ /^(.+)@/);
@@ -412,7 +412,7 @@ sub sysban_create {
             message => "Wrong arguments passed; should be a hash\n",
         }, 'ERROR';
     }
-    
+
     if ( $opts{note} && length( $opts{note} ) > 255 ) {
         return bless {
             message => "Note too long; must be less than 256 characters\n",
@@ -431,7 +431,7 @@ sub sysban_create {
     $opts{'value'} = LJ::trim($opts{'value'});
 
     # do insert
-    $dbh->do( "INSERT INTO sysban (what, value, note, bandate, banuntil) 
+    $dbh->do( "INSERT INTO sysban (what, value, note, bandate, banuntil)
               VALUES (?, ?, ?, NOW(), $banuntil)",
               undef, $opts{what}, $opts{value}, $opts{note} );
 
@@ -439,7 +439,7 @@ sub sysban_create {
         return bless {
             message => $dbh->errstr,
         }, 'ERROR';
-    }    
+    }
 
     my $banid = $dbh->{'mysql_insertid'};
 
@@ -564,11 +564,11 @@ sub sysban_modify {
     my %opts = @_;
     unless ( $opts{'banid'} && defined $opts{'expire'} ) {
         return bless {
-            message => "Arguments must be passed as a hash; ban ID and 
+            message => "Arguments must be passed as a hash; ban ID and
                         old expiry are required\n",
         }, 'ERROR';
     }
-    
+
     if ( $opts{note} && length( $opts{note} ) > 255 ) {
         return bless {
             message => "Note too long; must be less than 256 characters\n",
@@ -584,20 +584,20 @@ sub sysban_modify {
     my $banuntil = "NULL";
     if ($bandays) {
         if ($bandays eq "E") {
-            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . ")" 
+            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . ")"
                 unless ($expire==0);
         } elsif ($bandays eq "X") {
             $banuntil = "NOW()";
         } else {
-            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . 
+            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) .
                         ") + INTERVAL " . $dbh->quote($bandays) . " DAY";
         }
     }
 
-    $dbh->do("UPDATE sysban SET banuntil=$banuntil,note=? 
+    $dbh->do("UPDATE sysban SET banuntil=$banuntil,note=?
              WHERE banid=$banid",
              undef, $opts{note} );
-            
+
     if ( $dbh->err ) {
         return bless {
             message => $dbh->errstr,
