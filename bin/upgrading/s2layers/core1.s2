@@ -195,10 +195,10 @@ class Link
 
     function print_button
     "Output this Link as a clickable button using [member[Link.icon]]";
-    
+
     function as_string() : string
     "Return the button HTML link.";
-    
+
     function print_raw
     "Blank function for backwards compatibility with LiveJournal";
 }
@@ -492,7 +492,7 @@ class Page
     var readonly DateTime time
     "A DateTime object filled with the time (GMT) when the page was created.";
 
-    var bool timeformat24 
+    var bool timeformat24
     "Indicates that the time should be displayed in 24-hour format";
 
     var Link{} data_link "Links to various machine-readable data sources relating to this page";
@@ -1451,7 +1451,7 @@ property string text_multiform_opt_unscreen_to_reply {
     des = "Text for the comment unscreening action it's showed instead of reply-link for screened comments";
 }
 set text_multiform_opt_unscreen_to_reply = "Unscreen to reply";
-    
+
 property string text_multiform_opt_screen {
     des = "Text for the comment screening action";
 }
@@ -1796,7 +1796,7 @@ set theme_linkcolor = "";
 
 ###[ global function implementations ]
 
-function modules_init() 
+function modules_init()
 {
     # does nothing in core1. Placeholder, to prevent breakage
 }

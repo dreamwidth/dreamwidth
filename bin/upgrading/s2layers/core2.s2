@@ -26,10 +26,10 @@ class string
 {
     function builtin index(string sub) : int
     "Returns the index of the first instance of \$sub in string.";
-    
+
     function builtin index(string sub, int position) : int
     "Returns the index of the first instance of \$sub in string, starting from \$position";
-    
+
     function builtin substr(int start, int length) : string
     "Returns up to \$length characters from string, skipping \$start characters from the beginning.";
 
@@ -43,11 +43,11 @@ class string
     "Return true if string contains \$sub";
 
     function builtin replace(string find, string replace) : string
-    "Replace all instances of \$find with \$replace. Case sensitive."; 
-    
+    "Replace all instances of \$find with \$replace. Case sensitive.";
+
     function builtin split (string sub) : string[]
     "Return an array of strings split by \$sub";
-    
+
     function builtin lower : string
     "Returns string in lower case.";
 
@@ -551,7 +551,7 @@ class Page
     var readonly Entry[] activeentries
     "Array of recently active entries available to be seen by the viewer of the page.";
 
-    var readonly bool timeformat24 
+    var readonly bool timeformat24
     "Indicates whether the time should be displayed in 24-hour format";
 
     var readonly DateTime local_time
@@ -697,7 +697,7 @@ class RecentNav
     var int forward_count   "Number of items we'd be potentially seeing going forward.";
     var readonly string backward_url "URL to go backward in time, or blank if furthest back server will allow.";
     var int backward_skip   "Number of items we'd be skipping going back more.";
-    var int backward_count  "Number of items we'd be potentially seeing going backward.";    
+    var int backward_count  "Number of items we'd be potentially seeing going backward.";
 }
 
 class RecentPage extends Page
@@ -1047,7 +1047,7 @@ function builtin htmlattr(string name, string value) : string
 function builtin htmlattr(string name, int value) : string
 "If the value isn't blank, return in HTML attribute format with a leading space.  HTML of name is not escaped.";
 
-function builtin print_search_form(string button_text) 
+function builtin print_search_form(string button_text)
 "Prints a search form, with the button text as the label to the submit button.";
 
 function builtin keys_alpha(string{} elements) : string[]
@@ -1139,7 +1139,7 @@ property int num_items_icons {
 }
 set num_items_icons = 0;
 
-property string tags_page_type { 
+property string tags_page_type {
     des = "Type of tags display on the tags page. For the tag module, see the Modules section.";
     values="list|List|cloud|Cloud|multi|Multilevel";
 }
@@ -1157,13 +1157,13 @@ property string[] reverse_sortorder_group {
 }
 set reverse_sortorder_group = [ "reverse_sortorder_day", "reverse_sortorder_year" ];
 property bool reverse_sortorder_recent    { des = "Display entries in reverse-chronological order on my recent entries page"; }
-property bool reverse_sortorder_day { 
-    des = "Display entries in reverse-chronological order on my day page";  
-    label = "Day Page";    
+property bool reverse_sortorder_day {
+    des = "Display entries in reverse-chronological order on my day page";
+    label = "Day Page";
     grouped = 1;
 }
-property bool reverse_sortorder_year { 
-    des = "Display entries in reverse-chronological order on my year archive"; 
+property bool reverse_sortorder_year {
+    des = "Display entries in reverse-chronological order on my year archive";
     label = "Year Archive";
     grouped = 1;
 }
@@ -1184,7 +1184,7 @@ property bool show_userpics_recent {
     grouped = 1;
 }
 property bool show_userpics_reading {
-    des = "Display userpics on my reading page"; 
+    des = "Display userpics on my reading page";
     label = "Reading Page";
     grouped = 1;
 }
@@ -1492,7 +1492,7 @@ property string module_pagesummary_section { grouped = 1; }
 property string[] module_pagesummary_opts_group { grouptype="moduleopts"; grouped = 1; }
 set module_pagesummary_opts_group = ["module_pagesummary_opts_comments_tooltip"];
 property bool module_pagesummary_opts_comments_tooltip {
-    grouped = 1; 
+    grouped = 1;
     des = "Display comment counts in page summary as tooltip (otherwise the number will appear next to the entry title)";
     label = "Display the comment count as a tooltip";
 }
@@ -1827,7 +1827,7 @@ property string image_background_header_position {
 property int image_background_header_height {
     des = "The height of your header, in pixels.  Use 0 for default.";
     example = "50";
-    size = 6;    
+    size = 6;
 }
 property string[] image_background_entry_group {
     des = "Entry background image";
@@ -2486,7 +2486,7 @@ set text_comment_threadroot = "Thread from start";
 set text_comment_expand = "Expand";
 
 ##===============================
-## Text - icons 
+## Text - icons
 ##===============================
 
 property string text_icons_page_header {
@@ -2551,7 +2551,7 @@ set text_icons_sort_upload = "Upload Order";
 set text_icons_sort_keyword = "Keyword Order";
 
 ##===============================
-## Text - tags 
+## Text - tags
 ##===============================
 
 property string text_tags_page_header {
@@ -2859,7 +2859,7 @@ property string text_multiform_btn { des = "Text on the multiform action button.
 property string text_multiform_opt_unscreen { des = "Text for the comment unscreening action"; }
 
 property string text_multiform_opt_unscreen_to_reply { des = "Text for the comment unscreening action it's showed instead of reply-link for screened comments"; }
-   
+
 property string text_multiform_opt_screen { des = "Text for the comment screening action"; }
 
 property string text_multiform_opt_unscreen_to_reply { des = "Text for the comment unscreening action it's showed instead of reply-link for screened comments"; }
@@ -3108,7 +3108,7 @@ if ($bordercolor) {
 
 ### Language
 
-function lang_map_plural (int n) : int 
+function lang_map_plural (int n) : int
 "This function defines plurals for different languages. Use this if you are writing a language layer that needs customization for its plurals."
 {
     if ($n == 1) { return 0; } # singular
@@ -3222,7 +3222,7 @@ function lang_icon_sortorder_title(string which) [fixed] : string
 
 ### Image Manipulation
 
-function Image::as_string(string{} opts) [fixed] : string 
+function Image::as_string(string{} opts) [fixed] : string
 "You most likely want to use Image::print instead.  Prints HTML for the image. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     var string img = "";
@@ -3320,7 +3320,7 @@ function UserLite::as_string() [fixed] : string
     return $this->ljuser();
 }
 
-function UserLite::print() 
+function UserLite::print()
 "Print a DW user tag for the user. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     print $this->as_string();
@@ -3380,7 +3380,7 @@ function Page::print_theme_stylesheet()
 
 }
 
-function Page::print_default_stylesheets() 
+function Page::print_default_stylesheets()
 "Contains the layout and theme default stylesheets. Themes and child layouts may use this to disable the printing of the layout's base default stylesheet, or to add theme-specific CSS bits. May be overriden on a per-layout/theme basis"
 {
     if ($*external_stylesheet) {
@@ -3395,7 +3395,7 @@ function Page::print_default_stylesheets()
         $this->print_theme_stylesheet();
         end_css();
         println """</style>""";
-    }   
+    }
 }
 
 function Page::print_stylesheets()
@@ -3492,11 +3492,11 @@ function generate_image_url ( string image_path ) : string
 }
 
 function generate_background_css (
-    string background_image, 
-    string background_image_repeat, 
+    string background_image,
+    string background_image_repeat,
     string background_image_position,
     Color background_color
-) : string 
+) : string
 "Take the values for the properties in a background image group and output the appropriate
 line of CSS for inclusion in your stylesheet."
 {
@@ -3513,7 +3513,7 @@ line of CSS for inclusion in your stylesheet."
     return $background_css;
 }
 
-function generate_color_css (Color text_color, Color background_color, Color border_color) : string 
+function generate_color_css (Color text_color, Color background_color, Color border_color) : string
 "Take the color property values and return the appropriate lines of CSS for your style sheet."
 {
     var string color_css = "";
@@ -3573,13 +3573,13 @@ function generate_font_css(string font_base, string font_fallback, string font_s
     return generate_font_css("", $font_base, $font_fallback, $font_size, $font_unit);
 }
 
-function Page::print_title() 
+function Page::print_title()
 "Using standard CSS, print the page title. If you want to change the way this looks, modify the CSS."
 {
     print """<h2 id="pagetitle"><span>""" + $this->view_title() + """</span></h2>\n""";
 }
 
-function Page::print_head_title() 
+function Page::print_head_title()
 "Using standard CSS, print the journal title. If you want to change the way this looks, modify the CSS."
 {
     if ($this.journal.journal_type == "I") {
@@ -3679,13 +3679,13 @@ function Page::title() [notags] : string {
     return $this->view_title();
 }
 
-function Page::print_wrapper_start() 
+function Page::print_wrapper_start()
 "This function adds standard classes to the body of a page.  Pass extra options to it if necessary.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     $this->print_wrapper_start( { "" => "" } );
 }
 
-function Page::print_wrapper_start(string{} opts) 
+function Page::print_wrapper_start(string{} opts)
 "This function adds standard classes to the body of a page.  Pass extra options to it if necessary.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     var string control_strip = viewer_sees_control_strip() ? "has-navstrip" : "no-navstrip";
@@ -3693,11 +3693,11 @@ function Page::print_wrapper_start(string{} opts)
     var string owner = viewer_is_owner() ? "my-journal" : "";
     var string subscribed = viewer_is_subscribed() ? "subscribed" : "not-subscribed";
     var string access = viewer_has_access() ? "has-access" : "no-access";
-    
+
     var string member = viewer_is_member() ? "is-member" : "non-member";
     var string admin = viewer_is_admin() ? "is-admin" : "";
     var string moderator = viewer_is_moderator() ? "is-moderator" : "";
-    
+
     var string column_count = "";
     var string column_side = "";
 
@@ -3717,7 +3717,7 @@ function Page::print_wrapper_start(string{} opts)
     """<body class="page-$.view $column_count$column_side $*layout_type $opts{"class"} $logged_in $owner $subscribed $access $community_options $control_strip">\n""";
 }
 
-function Page::print_wrapper_end() 
+function Page::print_wrapper_end()
 "This function concludes the wrapper to the page.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     """</body>""";
@@ -3759,7 +3759,7 @@ function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list
             } else {
                 var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
                 println """<li $tag_class><a href="$t.url">$t.name</a> - $uses</li>\n""";
-            } 
+            }
         }
         println """</ul>""";
     }
@@ -3790,7 +3790,7 @@ function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a lis
         if ($t.use_count > 1)
         {
             $tag_size = string((($maz_size-$min_size)*$t.use_count)/$high_count + $min_size);
-        }   
+        }
         var string tag_size_em = $tag_size->substr(0,($tag_size->length())-1) + "." + $tag_size->substr(($tag_size->length())-1,1) + "em";
         if ($print_uses == "number") {
             println """<li $tag_class style="font-size: $tag_size_em;"><a rel="tag" href="$t.url">$t.name</a> [$t.use_count]</li>\n""";
@@ -3816,7 +3816,7 @@ function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a lis
 function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of multilevel tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to uses as a number"
 {
     if (size($tagslist) < 1) { return; }
-    
+
     var string list_class = $opts{"list-class"} ? """class="$opts{"list-class"}" """ : "";
     var string item_class = $opts{"item-class"} ? $opts{"item-class"} : "";
     var string print_uses = $opts{"print_uses"} ? $opts{"print_uses"} : "number";
@@ -3831,7 +3831,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
     foreach var TagDetail t ($tagslist) {
         var string[] tags = $t.name->split($*text_tagsmultilevel_delimiter);
         var string tag_class = """class="visibility-$t.visibility $item_class" """;
-        
+
         var int pos = 0;
         var bool show_lower_tiers = false;
         foreach var string tier($tags) {
@@ -3850,10 +3850,10 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
             if (size $tags == ($pos + 1)) {
                 if ($print_uses == "title") {
                     var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-                    $tier_code = """<a rel="tag" href="$t.url" title="$uses">$tier</a>""";                    
+                    $tier_code = """<a rel="tag" href="$t.url" title="$uses">$tier</a>""";
                 } elseif ($print_uses == "text") {
                     var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-                    $tier_code = """<a rel="tag" href="$t.url">$tier</a> - $uses""";                    
+                    $tier_code = """<a rel="tag" href="$t.url">$tier</a> - $uses""";
                 } else {
                     $tier_code = """<a rel="tag" href="$t.url">$tier</a> [${t.use_count}]""";
                 }
@@ -3869,7 +3869,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
             }
             elseif (($tags[$pos] != $prev_tags[$pos]) or ($show_lower_tiers)) {
                 if ($tags[$pos] != $prev_tags[$pos]) {
-                    
+
                     # The current tag's tier is not the same as the previous tag's tier of
                     # the same level.  This means we may need to close some lists.
                     var int i = size $closing_html;
@@ -3900,7 +3900,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
                 # The current tag's tier is exactly the same as the previous tag's tier at
                 # this same level.  It has already been included in the list, so do nothing.
             }
-        
+
             # Moving on to next tier in this tag!
             $pos++;
         }
@@ -3920,9 +3920,9 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
         }
         $i++;
     }
-    
+
     println $remaining_html;
-    
+
 }
 
 function print_multilevel_tags(TagDetail[] tagslist) "Prints out a list of multilevel tags. Takes as arguments the taglist."
@@ -3952,7 +3952,7 @@ function close_module(bool nocontent) {
     if (not $nocontent) { println "</div>"; }
 }
 
-function open_module(string intname, string title, string headlink_url) 
+function open_module(string intname, string title, string headlink_url)
 "Opens up a module for printing, using the appropriate HTML/CSS."
 {
     open_module($intname, $title, $headlink_url, false);
@@ -3990,7 +3990,7 @@ function print_module_search() {
     if (viewer_can_search()) {
         var Page p = get_page();
         var string title = "Search";
-        
+
         open_module("search", $title, "$*SITEROOT/search?user=" + $p.journal.username);
         print_search_form("Search");
         close_module();
@@ -4020,7 +4020,7 @@ function print_module_userprofile() {
         }
     }
     $p.journal->print_interaction_links();
-    close_module(); 
+    close_module();
 }
 
 function print_module_navlinks( bool apply_class_to_link ) {
@@ -4121,7 +4121,7 @@ function print_module_pagesummary() {
             var string comment_display =
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments_friends", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
-            
+
             if ( not $e.poster->equals($e.journal) ) {
                 $poster = "$poster in <span class='pagesummary-community'>$e.journal</span>";
             }
@@ -4145,7 +4145,7 @@ function print_module_pagesummary() {
             }
         }
     }
-    
+
     elseif ( $p isa DayPage ) {
         var DayPage cp = $p as DayPage;
         foreach var Entry e ( $cp.entries ) {
@@ -4518,7 +4518,7 @@ function Page::print()
                 }
     """
                     <div id="primary"><div class="inner">
-                        """; 
+                        """;
                         $this->print_body();
     """
                     </div></div><!-- end primary and primary>inner -->
@@ -4542,9 +4542,9 @@ function Page::print()
                     <div id="content-footer"></div>
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
-        </div> <!-- end canvas>inner --> 
+        </div> <!-- end canvas>inner -->
     """;
-    
+
     """
     <div id="footer">
         <div class="inner">
@@ -4553,7 +4553,7 @@ function Page::print()
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
-    
+
     </div> <!-- end canvas -->
     """;
     $this->print_wrapper_end();
@@ -4660,7 +4660,7 @@ function Comment::print_poster() {
 }
 
 
-function Page::print_entry(Entry e) 
+function Page::print_entry(Entry e)
 "The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
 {
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
@@ -4834,10 +4834,10 @@ function EntryLite::print_wrapper_end() {
 function Entry::print_wrapper_end() {
     "</div>\n</div>\n";
     """<div class="separator separator-after"><div class="inner"></div></div>\n""";
-     "</div>\n";  
+     "</div>\n";
 }
 function Comment::print_wrapper_end() {
-    "</div>\n</div>\n"; 
+    "</div>\n</div>\n";
     """<div class="separator separator-after"><div class="inner"></div></div>\n""";
     "</div>\n";
 }
@@ -4966,7 +4966,7 @@ function Comment::print_management_links()
 }
 
 function EntryLite::print_interaction_links() {}
-function Comment::print_interaction_links() 
+function Comment::print_interaction_links()
 "Prints comment interaction links, aka reply/thread/parent/expand."
 {
     """<ul class="comment-interaction-links">""";
@@ -5010,7 +5010,7 @@ function Entry::print_link_prev() {
         " $link";
     }
 }
-function Entry::print_management_links() 
+function Entry::print_management_links()
 "Prints entry management links, aka prev/edit/tag/memory/tag/next, with standarized CSS."
 {
     ## There's no point in showing previous/next links on pages which show
@@ -5058,7 +5058,7 @@ function Entry::print_interaction_links() {
     $this->print_interaction_links( "" );
 }
 
-function Entry::print_interaction_links(string target) 
+function Entry::print_interaction_links(string target)
 "Prints entry interaction links, aka # comments/leave a comment, with standardized CSS."
 {
     var Page p = get_page();
@@ -5102,7 +5102,7 @@ function RecentPage::print_body {
         if ( $e isa StickyEntry ) {
             var StickyEntry s = $e as StickyEntry;
             $this->print_sticky_entry($s);
-        } 
+        }
         else {
 	    $this->print_entry($e);
         }
@@ -5203,7 +5203,7 @@ function EntryLite::time_display(string datefmt, string timefmt) : string {
 
 function Entry::time_display(string datefmt, string timefmt) : string {
     var Page p = get_page();
-    
+
     var bool linkify = ( $p.view == "recent" or $p.view == "entry" or $p.view == "reply" or $p.view == "day" );
 
     if ($datefmt == "") { $datefmt = $*entry_date_format; }
@@ -5464,7 +5464,7 @@ function YearWeek::print() {
             <td class="day">
                 <span class="label">$d.day</span>
             </td>
-            """;       
+            """;
        }
    }
    if ($.post_empty > 0) {
@@ -5490,7 +5490,7 @@ function MonthPage::print_body {
                 <div class="inner">
                     <dl>
                     """;
-                    
+
     foreach var MonthDay d ($.days) {
         if ($d.has_entries) {
             """<dt><a href="$d.url">""";
@@ -5511,9 +5511,9 @@ function MonthPage::print_body {
             </div><!-- month>inner -->
         </div><!-- month -->
     """;
-    
+
     $this->print_navigation( { "class" => "bottomnav" } );
-    
+
     """
         </div><!-- archive-month>inner -->
     </div><!--archive-month -->
@@ -5525,13 +5525,13 @@ function MonthPage::print_navigation( string{} opts ) [fixed] {
     var string emptyclass = $empty ? "empty" : "";
     """
     <div class="navigation $opts{"class"} $emptyclass">
-        <div class="inner"> 
+        <div class="inner">
             <ul>
             <form method='post' action='$.redir.url'>
             """;
 
             $.redir->print_hiddens();
-            
+
             if ($.prev_url != "") { "<li class='month-back'>[<a href='$.prev_url'>&lt;&lt;&lt;</a>]</li>\n"; }
 
             if (size $.months > 1) {
@@ -5599,12 +5599,12 @@ function DayPage::print_body() {
                     } else {
                         print safe "<div class=\"text_noentries text_noentries_day\">$*text_noentries_day</div>";
                     }
-        
+
                     """
                         </div><!-- day>inner -->
                     </div><!-- day -->
                     """;
-        
+
                     $this->print_navigation( { "class" => "bottomnav" } );
                     """
                 </div> <!-- entries>inner -->
@@ -5621,7 +5621,7 @@ function DayPage::print_navigation( string{} opts ) [fixed] {
     <div class="navigation $opts{"class"} $emptyclass">
         <div class="inner">
     """;
-    
+
     if ( not $empty ) { "<ul>"; }
     if ( $.prev_url != "" ) {
         print safe """<li class="page-back"><a href="$.prev_url">$*text_day_prev</a></li>\n""";
@@ -5721,7 +5721,7 @@ function EntryPage::print_comment_section(Entry e) {
    $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages" });
    if ( $e.comments.comments_disabled_maintainer ) {
        """<div class='comments-message'>$*text_comments_disabled_maintainer</div>""";
-   } 
+   }
    if ($.comment_pages.total_subitems > 0) {
        $this->print_multiform_start();
    }
@@ -5753,7 +5753,7 @@ function EntryPage::print_comments (Comment[] cs) {
         }
         "</div>";
         $this->print_comments($c.replies);
-        "</div>"; 
+        "</div>";
     }
 }
 
@@ -5783,7 +5783,7 @@ function ReplyPage::print_comment (Comment c) {
     $c->print_interaction_links();
     $c->print_reply_container();
     "</div>\n</div>\n";
-    $c->print_wrapper_end();   
+    $c->print_wrapper_end();
 }
 
 function EntryPage::print_comment (Comment c) {
@@ -5851,8 +5851,8 @@ function ItemRange::print(string{} opts) {
     var string url_prev = $this->url_of($.current - 1);
     if ($.current != 1) {
         print " <a href='$url_prev$anchor'>$*comment_page_prev</a> ";
-    } else {  
-        print " $*comment_page_prev "; 
+    } else {
+        print " $*comment_page_prev ";
     }
     foreach var int i (1..$.total) {
         if ($i == $.current) { "<b>[$i]</b> "; }
@@ -5863,8 +5863,8 @@ function ItemRange::print(string{} opts) {
     }
     var string url_next = $this->url_of($.current + 1);
     if ($.current != $.total) {
-         print " <a href='$url_next$anchor'>$*comment_page_next</a> ";  
-    } else { 
+         print " <a href='$url_next$anchor'>$*comment_page_next</a> ";
+    } else {
          print " $*comment_page_next ";
     }
     "</div>";
@@ -5974,7 +5974,7 @@ function TagsPage::print_body
         print_list_tags($.tags, { "list-class" => "ljtaglist tags_list", "print_uses" => $*tags_page_count_type });
         print_tag_manage_link();
     }
-    
+
     print safe "</div>";
 }
 

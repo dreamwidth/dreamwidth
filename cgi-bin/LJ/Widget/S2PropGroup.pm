@@ -55,7 +55,7 @@ sub render_body {
 
         $ret .= "<p class='detail'>" . $class->ml('widget.s2propgroup.presentation.note') . "</p>";
 
-        $ret .= "<div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__basic'><div class='collapse-button'>" 
+        $ret .= "<div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__basic'><div class='collapse-button'>"
          . $class->ml('collapsible.expanded')
          . "</div> "
          . $class->ml('widget.s2propgroup.presentation.basic') . "</div>";
@@ -83,7 +83,7 @@ sub render_body {
             # need to print the header inside the foreach because we don't want it printed if
             # there's no props in this group that are also in this subheader
             unless ($header_printed) {
-                $ret .= "<div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__additional'><div class='collapse-button'>" 
+                $ret .= "<div class='subheader subheader-presentation collapsible expanded' id='subheader__presentation__additional'><div class='collapse-button'>"
                     . $class->ml('collapsible.expanded')
                     . "</div> "
                     .  $class->ml('widget.s2propgroup.presentation.additional') . "</div>";
@@ -107,7 +107,7 @@ sub render_body {
 
         my %subheaders = @layout_sections_order;
         $subheaders{none} = "Unassigned";
-        
+
         # use the module section order as defined by the layout
         my $i=0;
         @layout_sections_order = grep { $i++ % 2 == 0; } @layout_sections_order;
@@ -116,7 +116,7 @@ sub render_body {
         foreach my $prop_name ( @$groupprops ) {
             next unless $prop_name =~ /_group$/;
 
-            # use module_*_section for the dropdown 
+            # use module_*_section for the dropdown
             my $prop_name_section = $prop_name;
             $prop_name_section =~ s/(.*)_group$/$1_section/;
 
@@ -173,7 +173,7 @@ sub render_body {
             push @{$prop_in_subheader{$subheader}}, $prop_name;
         }
 
-        my $subheader_counter = 1; 
+        my $subheader_counter = 1;
         foreach my $subheader ( @layout_sections_order ) {
             my $header_printed = 0;
             foreach my $prop_name ( @{$prop_in_subheader{$subheader}} ) {
@@ -183,7 +183,7 @@ sub render_body {
                     my $prop_list_class;
                     $prop_list_class = " first" if $subheader_counter == 1;
 
-                    $ret .= "<div class='subheader subheader-modules collapsible expanded' id='subheader__modules__${subheader}'><div class='collapse-button'>" 
+                    $ret .= "<div class='subheader subheader-modules collapsible expanded' id='subheader__modules__${subheader}'><div class='collapse-button'>"
                      . $class->ml('collapsible.expanded')
                      . "</div> $subheaders{$subheader}</div>";
                     $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__modules__${subheader}'>";
@@ -236,7 +236,7 @@ sub render_body {
                     my $prop_list_class = "";
                     $prop_list_class = " first" if $subheader_counter == 1;
 
-                    $ret .= "<div class='subheader subheader-$propgroup collapsible expanded' id='subheader__${propgroup}__${subheader}'><div class='collapse-button'>" 
+                    $ret .= "<div class='subheader subheader-$propgroup collapsible expanded' id='subheader__${propgroup}__${subheader}'><div class='collapse-button'>"
                      . $class->ml('collapsible.expanded')
                      . "</div>$subheaders{$subheader}</div>";
                     $ret .= "<table summary='' cellspacing='0' class='prop-list$prop_list_class' id='proplist__${propgroup}__${subheader}'>";
@@ -332,13 +332,13 @@ sub skip_prop {
 
 sub output_prop {
     my ( $class, $prop, $prop_name, $row_class, $u, $style, $theme, $props, $grouped_prop_override ) = @_;
-    
+
     # for themes that don't use the linklist_support prop
     my $linklist_tab;
     if (!$prop && $prop_name eq "linklist_support") {
         $linklist_tab = $theme->linklist_support_tab;
     }
-    
+
     my $ret;
     $ret .= "<tr class='prop-row$row_class' width='100%' valign='top'>";
 
@@ -402,12 +402,12 @@ sub output_prop_element {
                 }
                 $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1, $grouped_prop_override, $overriding_values );
             }
-            
+
             my $modulename = $prop->{name};
             $modulename =~ s/_group$//;
-            
+
             $ret .= "<label for='${modulename}_show'>" . LJ::eall( $prop->{des} )  ."</label>";
-            
+
             $ret .= $class->output_prop_element( $props->{"${modulename}_opts_group"}, "${modulename}_opts_group", $u, $style, $theme, $props, $is_group + 1 ) if $has_opts;
 
             $ret .= "</td>";
@@ -419,7 +419,7 @@ sub output_prop_element {
             $ret .= "</ul>";
         } else {
             $ret .= "<td class='prop-grouped prop-$prop->{grouptype}' colspan=2><label class='prop-header'>" . LJ::eall( $prop->{des} ) . " " . LJ::help_icon( "s2opt_$prop->{name}" ) . "</label>";
-    
+
             foreach my $prop_in_group ( @$override ) {
                 $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
             }
@@ -463,7 +463,7 @@ sub output_prop_element {
             label => $prop->{label},
             id => $name,
         );
-        
+
         # force the checkbox to be submitted, if the user unchecked it
         # so that it can be processed (disabled) when handling the post
         $ret .= $class->html_hidden(
@@ -522,7 +522,7 @@ sub output_prop_element {
         $ret .= "</td>" unless $is_group;
         $ret .= "<td>" . LJ::eall($prop->{des}) . " " . LJ::help_icon("s2opt_$name") . "</td>";
     }
-    
+
     my $offhelp = ! $can_use ? LJ::help_icon('s2propoff', ' ') : "";
     $ret .= " $offhelp";
 
@@ -555,7 +555,7 @@ sub handle_post {
         LJ::Customize->save_language($u, $post->{langcode}, reset => 1) if defined $post->{langcode};
     } else {
         my %override = map { $_ => "" } keys %$post;
-        
+
         # ignore all values after the first true $value
         # only checkboxes have multiple values (forced post of 0,
         # so we don't ignore checkboxes that the user just unchecked)
@@ -599,7 +599,7 @@ sub js {
             expanded: $expanded
         },
     ]
-    . 
+    .
     q [
         initWidget: function () {
             var self = this;
