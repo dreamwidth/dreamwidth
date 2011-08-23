@@ -118,7 +118,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  {
      $ret .= "<h1>$ML{'.new.header'}</h1>";
      $ret .= "<p>$ML{'.new.desc'}</p><ul>";
-     $sth = $dbr->prepare("SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL ORDER BY uu.timecreate DESC LIMIT 10");
+     $sth = $dbr->prepare("SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate IS NOT NULL AND u.journaltype <> 'Y' ORDER BY uu.timecreate DESC LIMIT 10");
      $sth->execute;
      my $ct;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
