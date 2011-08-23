@@ -293,7 +293,7 @@
             'mod_queue_per_poster' => 5,
             'hide_email_after' => 60,
             'userlinks' => 10,
-            'maxcomments' => 5000,
+            'maxcomments' => 10000,
             'rateperiod-lostinfo' => 60*60*24, # 24 hours
             'rateallowed-lostinfo' => 3,
             'rateperiod-failed_login' => 60*5, # 5 minutes
