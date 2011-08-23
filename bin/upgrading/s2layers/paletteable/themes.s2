@@ -1,3 +1,69 @@
+#NEWLAYER: paletteable/certainfrogs
+layerinfo type = "theme";
+layerinfo name = "Certain Frogs";
+layerinfo redist_uniq = "paletteable/certainfrogs";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d7ff9a";
+set color_page_link = "#00AF87";
+set color_page_link_hover = "#02aab0";
+set color_page_link_visited = "#1693a5";
+set color_page_text = "#343434";
+set color_page_title = "#1d1d1d";
+set color_header_background = "#ddffa3";
+set color_footer_background = "#ddffa3";
+set color_footer_link = "#00AF87";
+set color_footer_link_hover = "#02aab0";
+set color_footer_link_visited = "#1693a5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e5ffb8";
+set color_entry_link = "#00AF87";
+set color_entry_link_hover = "#02aab0";
+set color_entry_link_visited = "#1693a5";
+set color_entry_text = "#252525";
+set color_entry_title = "#1d1d1d";
+set color_entry_title_background = "#e1ffae";
+set color_comment_title = "#1d1d1d";
+set color_comment_title_background = "#e1ffae";
+set color_comment_title_background_even = "#e8ffc2";
+set color_comment_title_even = "#1d1d1d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e1ffae";
+set color_module_link = "#00AF87";
+set color_module_link_hover = "#02aab0";
+set color_module_link_visited = "#1693a5";
+set color_module_text = "#343434";
+set color_module_title = "#1d1d1d";
+set color_module_title_background = "#e5ffb8";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
+
+
 #NEWLAYER: paletteable/clarity
 layerinfo type = "theme";
 layerinfo name = "Clarity";
@@ -298,6 +364,57 @@ set color_module_text = "#191919";
 set color_module_title = "#e4e4e4";
 
 
+#NEWLAYER: paletteable/fullsky
+layerinfo type = "theme";
+layerinfo name = "Full Sky";
+layerinfo redist_uniq = "paletteable/fullsky";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#566da1";
+set color_page_link = "#dc4c4c";
+set color_page_link_hover = "#fa5757";
+set color_page_link_visited = "#963434";
+set color_page_text = "#131313";
+set color_header_background = "#9eb3e0";
+set color_footer_background = "#ecedf1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ecedf1";
+set color_entry_title = "#313131";
+set color_entry_title_background = "#d9e1f1";
+set color_comment_title_background = "#d9e1f1";
+set color_comment_title_background_even = "#d9e1f1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d9e1f1";
+set color_module_title_background = "#ecedf1";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
+
+
 #NEWLAYER: paletteable/greenrain
 layerinfo type = "theme";
 layerinfo name = "Green Rain";
@@ -337,6 +454,104 @@ set color_comment_title_background_even = "#40312C";
 set color_module_background = "#D6D9BF";
 set color_module_text = "#000";
 set color_module_title = "#000";
+
+
+#NEWLAYER: paletteable/hereyes
+layerinfo type = "theme";
+layerinfo name = "Her Eyes";
+layerinfo redist_uniq = "paletteable/hereyes";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff7c6";
+set color_page_link = "#5d8b8b";
+set color_page_link_hover = "#3c8b88";
+set color_page_link_visited = "#2c4257";
+set color_page_text = "#212121";
+set color_header_background = "#fff7d1";
+set color_footer_background = "#fff7d1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fffae5";
+set color_entry_title_background = "#fff8db";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff8db";
+set color_module_title_background = "#fffae5";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
+
+
+#NEWLAYER: paletteable/likelight
+layerinfo type = "theme";
+layerinfo name = "Like Light";
+layerinfo redist_uniq = "paletteable/likelight";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fea219";
+set color_page_link = "#b8260d";
+set color_page_link_hover = "#db3c02";
+set color_page_link_visited = "#791808";
+set color_page_text = "#0F0200";
+set color_header_background = "#feb041";
+set color_footer_background = "#feb041";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fecc91";
+set color_entry_title_background = "#febd69";
+set color_comment_title_background = "#febd69";
+set color_comment_title_background_even = "#febd69";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#febd69";
+set color_module_title_background = "#fecc91";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
 
 
 #NEWLAYER: paletteable/phoenix
@@ -429,6 +644,104 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: paletteable/rocket
+layerinfo type = "theme";
+layerinfo name = "Rocket";
+layerinfo redist_uniq = "paletteable/rocket";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b7dbf5";
+set color_page_link = "#907360";
+set color_page_link_hover = "#fc8e36";
+set color_page_link_visited = "#5a483c";
+set color_page_text = "#524a49";
+set color_header_background = "#c9e3f5";
+set color_footer_background = "#c9e3f5";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e6eff5";
+set color_entry_title_background = "#d8e9f5";
+set color_comment_title_background = "#d8e9f5";
+set color_comment_title_background_even = "#d8e9f5";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d8e9f5";
+set color_module_title_background = "#e6eff5";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
+
+
+#NEWLAYER: paletteable/slowingdown
+layerinfo type = "theme";
+layerinfo name = "Slowing Down";
+layerinfo redist_uniq = "paletteable/slowingdown";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#259959";
+set color_page_link = "#195231";
+set color_page_link_hover = "#52193B";
+set color_page_link_visited = "#2A1952";
+set color_page_text = "#050505";
+set color_header_background = "#2bb267";
+set color_footer_background = "#2bb267";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#37e47c";
+set color_entry_title_background = "#31cb72";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#31cb72";
+set color_module_title_background = "#37e47c";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
+
+
 #NEWLAYER: paletteable/sophisticatedlady
 layerinfo type = "theme";
 layerinfo name = "Sophisticated Lady";
@@ -454,7 +767,6 @@ set color_footer_link = "#dd1a3b";
 ## Entry Colors
 ##===============================
 
-
 set color_entry_background = "#fdfced";
 set color_entry_link = "#dd1a3b";
 set color_entry_link_hover = "#bfccb3";
@@ -470,6 +782,108 @@ set color_module_background = "#dd1a3b";
 set color_module_link = "#fdfced";
 set color_module_text = "#e7ecd3";
 set color_module_title = "#fdfced";
+
+
+#NEWLAYER: paletteable/suitcase
+layerinfo type = "theme";
+layerinfo name = "Suitcase";
+layerinfo redist_uniq = "paletteable/suitcase";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#5c2f1e";
+set color_page_link = "#A9DBB6";
+set color_page_link_hover = "#f5c153";
+set color_page_link_visited = "#8ab395";
+set color_page_text = "#fffaed";
+set color_header_background = "#663622";
+set color_footer_background = "#663622";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#7a4229";
+set color_entry_title_background = "#703c25";
+set color_comment_title_background = "#703c25";
+set color_comment_title_background_even = "#703c25";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#703c25";
+set color_module_title_background = "#7a4229";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
+
+
+#NEWLAYER: paletteable/theycorrupt
+layerinfo type = "theme";
+layerinfo name = "They Corrupt";
+layerinfo redist_uniq = "paletteable/theycorrupt";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#C3D9D5";
+set color_page_link = "#eb483f";
+set color_page_link_hover = "#f0814a";
+set color_page_link_visited = "#b93832";
+set color_page_text = "#383838";
+set color_header_background = "#a5d9cf";
+set color_footer_background = "#a5d9cf";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fffbf1";
+set color_entry_title = "#242424";
+set color_entry_title_background = "#aed9d2";
+set color_comment_title = "#242424";
+set color_comment_title_even = "#242424";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fffbf1";
+set color_module_title = "#242424";
+set color_module_title_background = "#aed9d2";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
 
 
 #NEWLAYER: paletteable/unicorn
@@ -520,6 +934,124 @@ set color_module_text = "#55443d";
 set color_module_title = "#4a266b";
 
 
+#NEWLAYER: paletteable/untouchable
+layerinfo type = "theme";
+layerinfo name = "Untouchable";
+layerinfo redist_uniq = "paletteable/untouchable";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#bcc0a4";
+set color_page_link = "#6d7d08";
+set color_page_link_hover = "#0A9B88";
+set color_page_link_visited = "#087D70";
+set color_page_text = "#141414";
+set color_header_background = "#ebf0ce";
+set color_footer_background = "#ebf0ce";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e3e8c7";
+set color_entry_border = "#e6ebc9";
+set color_entry_title_background = "#d0d4b6";
+set color_comment_title_background = "#d0d4b6";
+set color_comment_title_background_even = "#d0d4b6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d0d4b6";
+set color_module_title_background = "#e3e8c7";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
+
+
+#NEWLAYER: paletteable/vinyl
+layerinfo type = "theme";
+layerinfo name = "Vinyl";
+layerinfo redist_uniq = "paletteable/vinyl";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#161616";
+set color_page_link = "#92b35a";
+set color_page_link_hover = "#e7c049";
+set color_page_link_visited = "#5ab3ad";
+set color_page_text = "#fafafa";
+set color_page_title = "#fafafa";
+set color_header_background = "#1b1b1b";
+set color_footer_background = "#1b1b1b";
+set color_footer_link = "#92b35a";
+set color_footer_link_hover = "#e7c049";
+set color_footer_link_visited = "#5ab3ad";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#202020";
+set color_entry_interaction_links = "#e7c049";
+set color_entry_link = "#92b35a";
+set color_entry_link_hover = "#e7c049";
+set color_entry_link_visited = "#5ab3ad";
+set color_entry_text = "#fafafa";
+set color_entry_title = "#e7c049";
+set color_entry_title_background = "#252525";
+set color_comment_title = "#fafafa";
+set color_comment_title_background = "#252525";
+set color_comment_title_background_even = "#252525";
+set color_comment_title_even = "#fafafa";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#252525";
+set color_module_link = "#92b35a";
+set color_module_link_hover = "#e7c049";
+set color_module_link_visited = "#5ab3ad";
+set color_module_text = "#fafafa";
+set color_module_title = "#fafafa";
+set color_module_title_background = "#202020";
+
+function Page::print_theme_stylesheet() {
+    """
+    .userpic {
+        border: 1px solid $*color_entry_title_background;
+        padding: 4px;
+        }
+
+    .module-userprofile .userpic {
+        display: inline-block;
+        }
+    """;
+}
+
+
 #NEWLAYER: paletteable/wearegolden
 layerinfo type = "theme";
 layerinfo name = "We Are Golden";
@@ -545,13 +1077,13 @@ set color_footer_link_hover = "#60266b";
 ## Entry Colors
 ##===============================
 
-set color_comment_title = "#37114c";
 set color_entry_background = "#fffbef";
 set color_entry_interaction_links = "#37114c";
 set color_entry_link = "#853b93";
 set color_entry_link_hover = "#60266b";
 set color_entry_text = "#232221";
 set color_entry_title = "#37114c";
+set color_comment_title = "#37114c";
 
 ##===============================
 ## Module Colors
