@@ -20,7 +20,7 @@ use warnings;
 sub should_render {
     my ( $class, $u ) = @_;
 
-    return $u && $u->is_person && LJ::is_enabled( 'payments' ) ? 1 : 0;
+    return $u && ( $u->is_person || $u->is_community ) && LJ::is_enabled( 'payments' ) ? 1 : 0;
 }
 
 sub label {
