@@ -2141,6 +2141,8 @@ poll.seeresults=Display Results
 
 poll.submit=Answer
 
+poll.useranswer=Your answer was: [[answer]]
+
 poll.viewanswers=View Answers
 
 portal.bdays.count.des=By default, the 5 friends with the soonest birthdays are shown.

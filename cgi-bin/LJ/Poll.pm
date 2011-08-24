@@ -617,6 +617,28 @@ sub close_poll {
     $self->{status} = 'X';
 }
 
+# get the answer a user gave in a poll
+sub get_pollanswers {
+    my ( $pollid, $u ) = @_;
+
+    # try getting the has from memcache
+    my $memkey = [$u->userid, "pollresult2:$u->userid:$pollid"];
+    my $result = LJ::MemCache::get( $memkey );
+    return %$result if $result;
+
+    my $sth;
+    my %answers;
+    $sth = $u->prepare( "SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=?" );
+    $sth->execute( $pollid, $u->userid );
+
+    while ( my ( $qid, $value ) = $sth->fetchrow_array ) {
+        $answers{$qid} = $value;
+    }
+
+    LJ::MemCache::set( $memkey, \%answers );
+    return %answers;
+}
+
 # Mark poll as open
 sub open_poll {
     my $self = $_[0];
@@ -889,14 +911,11 @@ sub render {
     my %preval;
 
     $ret .= qq{<div id='poll-$pollid-container' class='poll-container'>};
+    if ( $remote ) {
+        %preval = get_pollanswers( $pollid, $remote );
+    }
+
     if ( $do_form ) {
-        $sth = $self->journal->prepare( "SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=? AND journalid=?" );
-        $sth->execute( $pollid, $remote->userid, $self->journalid );
-
-        while ( my ( $qid, $value ) = $sth->fetchrow_array ) {
-            $preval{$qid} = $value;
-        }
-
         my $url = LJ::create_url( "/poll/", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => { id => $pollid } );
         $ret .= "<form class='LJ_PollForm' action='$url' method='post'>";
         $ret .= LJ::form_auth();
@@ -1016,8 +1035,12 @@ sub render {
                      id="LJ_PollAnswerLink_${pollid}_$qid">
                 } . LJ::Lang::ml('poll.viewanswers') . "</a><br />" if $self->can_view;
 
-            ### but, if this is a non-text item, and we're showing results, need to load the answers:
-            if ($q->type ne "text") {
+            ### if this is a text question and the viewing user answered it, show that answer
+            if ( $q->type eq "text" && $preval{$qid} ) {
+                LJ::Poll->clean_poll( \$preval{$qid} );
+                $results_table .= "<br />" . BML::ml('poll.useranswer', { "answer" => $preval{$qid} } );
+            } elsif ( $q->type ne "text" ) {
+                ### but, if this is a non-text item, and we're showing results, need to load the answers:
                 $sth = $self->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
                 $sth->execute( $pollid, $qid, $self->journalid );
                 while (my ($val) = $sth->fetchrow_array) {
@@ -1127,8 +1150,8 @@ sub render {
 
                 # displaying a radio or checkbox
                 if ($do_form) {
-                    my $preval_qid = $preval{$qid} || '';
-                    $prevanswer = $clearanswers ? 0 : $preval_qid =~ /\b$itid\b/;
+                    my $qvalue = $preval{$qid} || '';
+                    $prevanswer = $clearanswers ? 0 : $qvalue =~ /\b$itid\b/;
                     $results_table .= LJ::html_check({ 'type' => $q->type, 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
                                               'value' => $itid, 'id' => "pollq-$pollid-$qid-$itid",
                                               'selected' => $prevanswer });
@@ -1141,18 +1164,22 @@ sub render {
                 my $percent = sprintf("%.1f", (100 * $count / ($usersvoted||1)));
                 my $width = 20+int(($count/$maxitvotes)*380);
 
+                # did the user viewing this poll choose this option? If so, mark it
+                my $qvalue = $preval{$qid} || '';
+                my $answered = ( $qvalue =~ /\b$itid\b/ ) ? "*" : "";
+
                 if ($do_table) {
                     $results_table .= "<tr valign='middle'><td align='right'>$item</td><td>";
                     $results_table .= LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
                     $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
                     $results_table .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
-                    $results_table .= "<b>$count</b> ($percent%)</td></tr>";
+                    $results_table .= "<b>$count</b> ($percent%) $answered</td></tr>";
                 } else {
                     $results_table .= "<p>$item<br /><span style='white-space: nowrap'>";
                     $results_table .= LJ::img( 'poll_left', '', { style => 'vertical-align:middle' } );
                     $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
                     $results_table .= LJ::img( 'poll_right', '', { style => 'vertical-align:middle' } );
-                    $results_table .= "<b>$count</b> ($percent%)</span></p>";
+                    $results_table .= "<b>$count</b> ($percent%) $answered</span></p>";
                 }
             }
 
@@ -1375,6 +1402,10 @@ sub process_submission {
         $$error = LJ::Lang::ml('poll.error.cantvote');
         return 0;
     }
+
+    # delete user answer MemCache entry
+    my $memkey = [$remote->userid, "pollresult2:$remote->userid:$pollid"];
+    LJ::MemCache::delete( $memkey );
 
     # if unique prop is on, make sure that a particular email address can only vote once
     if ($poll->is_unique) {
