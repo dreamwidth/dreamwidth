@@ -1422,22 +1422,12 @@ sub journal_content
     elsif ($opts->{'badfriendgroup'})
     {
         # give a real 404 to the journal owner
-        if ($remote && $remote->{'user'} eq $user) {
-            $status = "404 Content filter does not exist";
-            $html = "<h1>Not Found</h1>" .
-                    "<p>The content filter you are trying to access does not exist.</p>";
+        if ( $remote && $remote->{'user'} eq $user ) {
+            return 404;
 
         # otherwise be vague with a 403
         } else {
-            # send back a 403 and don't reveal if the group existed or not
-            $status = "403 Content filter does not exist, or is not public";
-            $html = "<h1>Denied</h1>" .
-                    "<p>Sorry, the content filter you are trying to access does not exist " .
-                    "or is not public.</p>\n";
-
-            $html .= "<p>You're not logged in.  If you're the owner of this journal, " .
-                     "<a href='$LJ::SITEROOT/login.bml'>log in</a> and try again.</p>\n"
-                         unless $remote;
+            return 403;
         }
 
         $generate_iejunk = 1;
