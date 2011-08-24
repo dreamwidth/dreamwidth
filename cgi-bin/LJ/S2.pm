@@ -3452,14 +3452,7 @@ sub _print_quickreply_link
     $onclick = "" unless LJ::is_enabled('s2quickreply');
     $onclick = "" if $page->{'_u'}->does_not_allow_comments_from( $remote );
 
-    # See if we want to force them to change their password
-    my $bp = LJ::bad_password_redirect({ 'returl' => 1 });
-
-    if ($bp) {
-        $S2::pout->("<a href='$bp'>$linktext</a>");
-    } else {
-        $S2::pout->("<a $onclick href='$replyurl' $opt_class>$linktext</a>");
-    }
+    $S2::pout->("<a $onclick href='$replyurl' $opt_class>$linktext</a>");
 }
 
 sub _print_reply_container

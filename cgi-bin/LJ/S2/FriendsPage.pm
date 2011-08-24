@@ -22,10 +22,6 @@ sub FriendsPage
 {
     my ($u, $remote, $opts) = @_;
 
-    # Check if we should redirect due to a bad password
-    $opts->{'redir'} = LJ::bad_password_redirect({ 'returl' => 1 });
-    return 1 if $opts->{'redir'};
-
     my $p = Page($u, $opts);
     $p->{'_type'} = "FriendsPage";
     $p->{view} = $opts->{view} eq "network" ? "network" : "read";

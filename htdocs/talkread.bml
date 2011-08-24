@@ -569,18 +569,12 @@ body<=
                 if ($post->{'state'} eq 'F') {
                     $ret .= "($T{'frozen'})&nbsp; ";
                 } elsif ($remote) {
-                    # See if we want to force them to change their password
-                    my $bp = LJ::bad_password_redirect({ 'returl' => 1 });
-                    if ($bp) {
-                        $ret .= "(<a href='$bp'>$T{'replythis'}</a>)&nbsp; ";
+                    if ( $post->{state} eq 'S' ) {
+                        # if the user can see the comment, they can also reply
+                        # if they can also unscreen, they are given the option to reply and unscreen
+                        $ret .= "(" . LJ::make_qr_link( $dtid, $post->{subject}, $T{replythis}, $replyurl ) .  ")&nbsp; ";
                     } else {
-                        if ( $post->{state} eq 'S' ) {
-                            # if the user can see the comment, they can also reply
-                            # if they can also unscreen, they are given the option to reply and unscreen
-                            $ret .= "(" . LJ::make_qr_link( $dtid, $post->{subject}, $T{replythis}, $replyurl ) .  ")&nbsp; ";
-                       } else {
-                           $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ")&nbsp; ";
-                       }
+                        $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ")&nbsp; ";
                     }
                 } else {
                     $ret .= "(<a href='$replyurl'>$T{'replythis'}</a>)&nbsp; ";
@@ -672,13 +666,7 @@ body<=
         # requires setup when logged in.
         $ret .= "<p class='lesstop' align='center'><b>$readlink";
         if ($remote) {
-            # See if we want to force them to change their password
-            my $bp = LJ::bad_password_redirect({ 'returl' => 1 });
-            if ($bp) {
-                $ret .= "(<a href='$bp'>$T{'replythis'} </a>)";
-            } else {
-                $ret .= "(" . LJ::make_qr_link('top', '', $T{'postcomments'}, $posturl) . ")";
-            }
+            $ret .= "(" . LJ::make_qr_link('top', '', $T{'postcomments'}, $posturl) . ")";
         } else {
             $ret .= "(<a href='$posturl'>$T{'postcomments'}</a>)";
         }

@@ -56,8 +56,6 @@ _c?>
     # Errors that are unlikely to change between starting
     # to compose an entry and submitting it.
     if ($remote) {
-        return if LJ::bad_password_redirect();
-
         if ($remote->identity) {
             $$title = $ML{'Sorry'};
             $$body = BML::ml('.error.nonusercantpost', {'sitename' => $LJ::SITENAME});

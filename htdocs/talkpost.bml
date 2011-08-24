@@ -165,8 +165,6 @@ body<=
                                 $parpost->{'posterid'} => \$ur, ],
                               [ $u ]);
 
-    return if LJ::bad_password_redirect();
-
     my @user_props = ("opt_whoscreened");
     push @user_props, qw( opt_blockrobots adult_content ) if $u->is_visible;
     $u->preload_props(@user_props);
