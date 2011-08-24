@@ -301,11 +301,11 @@ sub handle_post {
 
     # set up global things that can be used to modify the user later
     # reject this email?
-    return LJ::sysban_block(0, "Create user blocked based on email", {
+    return LJ::Sysban::block( 0, "Create user blocked based on email", {
         new_user => $user,
         email => $email,
         name => $user,
-    }) if LJ::sysban_check('email', $email);
+    } ) if LJ::sysban_check( email => $email );
 
     my $dbh = LJ::get_db_writer();
 

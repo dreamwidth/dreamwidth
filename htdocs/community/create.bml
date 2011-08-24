@@ -63,8 +63,8 @@ SUBMIT:
         my $title = $POST{title} || $user;
 
         # reject this email?
-        return LJ::sysban_block(0, "Create user blocked based on email",
-                                { new_user => $user, email => $remote->email_raw, name => $user })
+        return LJ::Sysban::block( 0, "Create user blocked based on email",
+                                { new_user => $user, email => $remote->email_raw, name => $user } )
         if LJ::sysban_check('email', $remote->email_raw);
 
         $error = "$ML{'error.usernamelong'}" if length($user) > 25;

@@ -89,7 +89,7 @@ use LJ::Talk;
 require "ljfeed.pl";
 require "ljmemories.pl";
 require "ljmail.pl";
-require "sysban.pl";
+use LJ::Sysban;
 use LJ::Community;
 use LJ::Tags;
 require "ljemailgateway-web.pl";

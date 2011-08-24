@@ -15,9 +15,8 @@
 
 
 use strict;
-no warnings 'uninitialized';
 
-package LJ;
+package LJ::Sysban;
 
 =head1 Methods
 
@@ -61,7 +60,7 @@ sub sysban_check {
         # set this before the query
         $LJ::IP_BANNED_LOADED = time();
 
-        LJ::sysban_populate(\%LJ::IP_BANNED, "ip")
+        sysban_populate( \%LJ::IP_BANNED, "ip" )
             or return undef $LJ::IP_BANNED_LOADED;
 
         # set in memcache
@@ -93,7 +92,7 @@ sub sysban_check {
         # set this now before the query
         $LJ::UNIQ_BANNED_LOADED++;
 
-        LJ::sysban_populate(\%LJ::UNIQ_BANNED, "uniq")
+        sysban_populate( \%LJ::UNIQ_BANNED, "uniq" )
             or return undef $LJ::UNIQ_BANNED_LOADED;
 
         # set in memcache
@@ -125,7 +124,7 @@ sub sysban_check {
         # set this now before the query
         $LJ::SPAMREPORT_BANNED_LOADED++;
 
-        LJ::sysban_populate( \%LJ::SPAMREPORT_BANNED, "spamreport" )
+        sysban_populate( \%LJ::SPAMREPORT_BANNED, "spamreport" )
             or return undef $LJ::SPAMREPORT_BANNED_LOADED;
 
         # set in memcache
@@ -184,6 +183,7 @@ sub sysban_check {
     # non-ip bans come straight from the db
     return $check->($what, $value);
 }
+*LJ::sysban_check = \&sysban_check;
 
 # takes a hashref to populate with 'value' => expiration  pairs
 # takes a 'what' to populate the hashref with sysbans of that type
@@ -193,7 +193,7 @@ sub sysban_populate {
 
     # call normally if no gearman/not wanted
     my $gc = LJ::gearman_client();
-    return LJ::_db_sysban_populate($where, $what)
+    return _db_sysban_populate( $where, $what )
         unless $gc && LJ::conf_test($LJ::LOADSYSBAN_USING_GEARMAN);
 
     # invoke gearman
@@ -248,7 +248,7 @@ sub _db_sysban_populate {
 }
 
 # <LJFUNC>
-# name: LJ::sysban_populate_full
+# name: LJ::Sysban::populate_full
 # des: populates a hashref with sysbans of given type
 # args: where, what
 # des-where: the hashref to populate with hash of hashes:
@@ -257,8 +257,8 @@ sub _db_sysban_populate {
 # des-what: the type of sysban to look up
 # returns: hashref on success, undef on failure
 # </LJFUNC>
-sub sysban_populate_full {
-    return LJ::_db_sysban_populate_full( @_ );
+sub populate_full {
+    return _db_sysban_populate_full( @_ );
 }
 
 sub _db_sysban_populate_full {
@@ -288,7 +288,7 @@ sub _db_sysban_populate_full {
 }
 
 
-=head2 C<< LJ::sysban_populate_full_by_value( $value, @types ) >>
+=head2 C<< LJ::Sysban::populate_full_by_value( $value, @types ) >>
 
 List all sysbans for the given value, of the specified types. This can be used, for example, to limit the sysban to only the privs that this user can see.
 Returns a hashref of hashes in the format:
@@ -296,9 +296,9 @@ Returns a hashref of hashes in the format:
 
 =cut
 
-sub sysban_populate_full_by_value {
+sub populate_full_by_value {
     my ( $value, @types ) = @_;
-    return LJ::_db_sysban_populate_full_by_value( $value, @types );
+    return _db_sysban_populate_full_by_value( $value, @types );
 }
 
 sub _db_sysban_populate_full_by_value {
@@ -340,7 +340,7 @@ sub _db_sysban_populate_full_by_value {
 
 
 # <LJFUNC>
-# name: LJ::sysban_note
+# name: LJ::Sysban::note
 # des: Inserts a properly-formatted row into [dbtable[statushistory]] noting that a ban has been triggered.
 # args: userid?, notes, vars
 # des-userid: The userid which triggered the ban, if available.
@@ -348,7 +348,7 @@ sub _db_sysban_populate_full_by_value {
 # des-vars: A hashref of helpful variables to log, keys being variable name and values being values.
 # returns: nothing
 # </LJFUNC>
-sub sysban_note
+sub note
 {
     my ($userid, $notes, $vars) = @_;
 
@@ -360,7 +360,7 @@ sub sysban_note
 }
 
 # <LJFUNC>
-# name: LJ::sysban_block
+# name: LJ::Sysban::block
 # des: Notes a sysban in [dbtable[statushistory]] and returns a fake HTTP error message to the user.
 # args: userid?, notes, vars
 # des-userid: The userid which triggered the ban, if available.
@@ -368,11 +368,11 @@ sub sysban_note
 # des-vars: A hashref of helpful variables to log, keys being variable name and values being values.
 # returns: nothing
 # </LJFUNC>
-sub sysban_block
+sub block
 {
     my ($userid, $notes, $vars) = @_;
 
-    LJ::sysban_note($userid, $notes, $vars);
+    note( $userid, $notes, $vars );
 
     my $msg = <<'EOM';
 <html>
@@ -393,7 +393,7 @@ EOM
 }
 
 # <LJFUNC>
-# name: LJ::sysban_create
+# name: LJ::Sysban::create
 # des: creates a sysban.
 # args: what, value, bandays, note
 # des-what: the criteria we're sysbanning on
@@ -403,7 +403,7 @@ EOM
 # info: Takes args as a hash.
 # returns: BanID on success, error object on failure
 # </LJFUNC>
-sub sysban_create {
+sub create {
 
     my %opts = @_;
 
@@ -445,7 +445,7 @@ sub sysban_create {
 
     my $exptime = $opts{bandays} ? time() + 86400*$opts{bandays} : 0;
     # special case: creating ip/uniq/spamreport ban
-    LJ::sysban_do( $opts{what}, $opts{value}, $exptime );
+    ban_do( $opts{what}, $opts{value}, $exptime );
 
     # log in statushistory
     my $remote = LJ::get_remote();
@@ -462,19 +462,19 @@ sub sysban_create {
 
 
 # <LJFUNC>
-# name: LJ::sysban_validate
+# name: LJ::Sysban::validate
 # des: determines whether a sysban can be added for a given value.
 # args: type, value
 # des-type: the sysban type we're checking
 # des-value: the value we're checking
 # returns: nothing on success, error message on failure
 # </LJFUNC>
-sub sysban_validate {
+sub validate {
     my ($what, $value, $opts) = @_;
 
     # bail early if the ban already exists
     return "This is already banned"
-        if !$opts->{skipexisting} && LJ::sysban_check($what, $value);
+        if !$opts->{skipexisting} && sysban_check( $what, $value );
 
     my $validate = {
         'ip' => sub {
@@ -549,7 +549,7 @@ sub sysban_validate {
 
 
 # <LJFUNC>
-# name: LJ::sysban_modify
+# name: LJ::Sysban::modify
 # des: modifies the expiry or note field of an entry
 # args: banid, bandays, expiry, expirenow, note (passed in as hash)
 # des-banid: the ban ID we're modifying
@@ -560,7 +560,7 @@ sub sysban_validate {
 # des-value: the ban value
 # returns: ERROR object on success, error message on failure
 # </LJFUNC>
-sub sysban_modify {
+sub modify {
     my %opts = @_;
     unless ( $opts{'banid'} && defined $opts{'expire'} ) {
         return bless {
@@ -619,7 +619,7 @@ sub sysban_modify {
 
 }
 
-sub sysban_do {
+sub ban_do {
     my ( $what, $value, $until ) = @_;
     my %types = ( ip => 1, uniq => 1, spamreport => 1 );
     return unless $types{$what};
@@ -632,7 +632,7 @@ sub sysban_do {
     return 1;
 }
 
-sub sysban_undo {
+sub ban_undo {
     my ( $what, $value ) = @_;
     my %types = ( ip => 1, uniq => 1, spamreport => 1 );
     return unless $types{$what};

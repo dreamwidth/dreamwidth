@@ -56,7 +56,7 @@ unless (($list   && (($banid && ! $an_opt) || (! $banid && $an_opt)) ||
 
 # now load in the beast
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-require 'sysban.pl';
+use LJ::Sysban;
 my $dbh = LJ::get_db_writer();
 
 # list bans
@@ -116,7 +116,7 @@ if ($add) {
     die $dbh->errstr if $dbh->err;
     my $insertid = $dbh->{'mysql_insertid'};
 
-    LJ::sysban_do( $what, $value, LJ::mysqldate_to_time( $banuntil ) );
+    LJ::Sysban::ban_do( $what, $value, LJ::mysqldate_to_time( $banuntil ) );
 
     # log in statushistory
     LJ::statushistory_add(0, 0, 'sysban_add',
@@ -144,7 +144,7 @@ if ($modify) {
         $banuntil && $banuntil ne $ban->{'banuntil'} || 
         ($status && $status ne $ban->{'status'} && $status eq 'expired')) {
 
-        LJ::sysban_undo( $ban->{what}, $value || $ban->{value} );
+        LJ::Sysban::ban_undo( $ban->{what}, $value || $ban->{value} );
     }
 
     # what - must have a value
@@ -161,7 +161,7 @@ if ($modify) {
         my $new_value    = $value || $ban->{value};
         my $new_banuntil = LJ::mysqldate_to_time( $banuntil || $ban->{banuntil} );
 
-        LJ::sysban_do( $ban->{what}, $new_value, $new_banuntil );
+        LJ::Sysban::ban_do( $ban->{what}, $new_value, $new_banuntil );
     }
 
     # value - must have a value

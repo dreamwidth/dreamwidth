@@ -26,8 +26,9 @@ use DW::InviteCodeRequests;
 use DW::BusinessRules::InviteCodes;
 use LJ::User;
 use LJ::Lang;
+use LJ::Sysban;
 
-BEGIN { require "ljmail.pl"; require "sysban.pl"; }
+BEGIN { require "ljmail.pl"; }
 
 sub schwartz_capabilities { return ('DW::Worker::DistributeInvites'); }
 

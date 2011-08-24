@@ -15,7 +15,7 @@
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'sysban.pl';
+use LJ::Sysban;
 
 use LJ::Worker::Gearman;
 use Storable;
@@ -32,7 +32,7 @@ sub sysban_populate {
 
     # empty hashref, we'll populate the caller from this
     my $data = {};
-    my $res = LJ::_db_sysban_populate($data, $what);
+    my $res = LJ::Sysban::_db_sysban_populate( $data, $what );
 
     return Storable::nfreeze($res);
 }

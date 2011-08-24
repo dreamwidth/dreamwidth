@@ -227,7 +227,7 @@ _c?>
         # add quick sysban links for ease
         my $extra = "";
         if ($by eq "ip") {
-            my $reason = LJ::sysban_populate_full_by_value( $what, 'talk_ip_test' );
+            my $reason = LJ::Sysban::populate_full_by_value( $what, 'talk_ip_test' );
             if ( $reason && $reason->{talk_ip_test} ) {
                 $extra = "<strong>Already talk_ip_test banned</strong>";
                 if ( $remote->has_priv( 'sysban' ) ) {
@@ -251,8 +251,8 @@ _c?>
         my $in = join("','", map { $_+0 } @srids);
         $in = "'$in'";
 
-        if ($POST{sysban_ip} && $remote && $remote->has_priv( 'sysban', "talk_ip_test" ) && !LJ::sysban_validate("talk_ip_test", $POST{sysban_ip})) {
-            LJ::sysban_create(what => 'talk_ip_test', value => $POST{sysban_ip}, bandays => 0, note => ( $POST{sysban_note} || 'anonymous spamreports' ) );
+        if ( $POST{sysban_ip} && $remote && $remote->has_priv( 'sysban', "talk_ip_test" ) && ! LJ::Sysban::validate( "talk_ip_test", $POST{sysban_ip} ) ) {
+            LJ::Sysban::create( what => 'talk_ip_test', value => $POST{sysban_ip}, bandays => 0, note => ( $POST{sysban_note} || 'anonymous spamreports' ) );
         }
 
         $count = $dbh->do("UPDATE spamreports SET state='closed' WHERE srid IN($in) AND state='open'");

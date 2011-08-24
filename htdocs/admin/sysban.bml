@@ -104,7 +104,7 @@ FORM
         my $existing_bans = {};
         my $limit = 20;
 
-        LJ::sysban_populate_full( $existing_bans, $bantype, $limit, $skip );
+        LJ::Sysban::populate_full( $existing_bans, $bantype, $limit, $skip );
 
         $ret = <<QUERYFORM;
 <table>
@@ -176,7 +176,7 @@ QUERYFORM
         return $err->("Invalid form") unless LJ::check_form_auth();
 
         my $banquery = $POST{queryvalue};
-        my $sysbans = LJ::sysban_populate_full_by_value( $banquery, @sysban_privs ) || {};
+        my $sysbans = LJ::Sysban::populate_full_by_value( $banquery, @sysban_privs ) || {};
         if ( %$sysbans ) {
             $ret .= "Sysbans for " . LJ::ehtml( $banquery );
             $ret .= "<table><thead><tr><th>Type</th><th>Expiration</th><th>Note</th></tr></thead>";
@@ -207,9 +207,11 @@ QUERYFORM
         my $bantype   = $POST{bantype};
         my $value     = $POST{value};
 
-        my $modify = LJ::sysban_modify('banid', $banid, 'expire', $expire,
-                'bandays', $bandays, 'note', $note, 'what', $bantype,
-                'value', $value);
+        my $modify = LJ::Sysban::modify(
+                         banid => $banid, expire => $expire,
+                         bandays => $bandays, note => $note,
+                         what => $bantype, value => $value
+                     );
 
         return $err->("Ban modify error:" . $modify->{message}) 
             if ( ref $modify eq 'ERROR' ); 
@@ -270,11 +272,13 @@ FORM
         return $err->("You do not have the correct privileges") unless 
             $remote && $remote->has_priv( $priv, $bantype );
 
-        my $notvalid = LJ::sysban_validate( $bantype, $value );
+        my $notvalid = LJ::Sysban::validate( $bantype, $value );
         return $err->("Ban not valid: $notvalid") if $notvalid;
 
-        my $create = LJ::sysban_create("what", $bantype, "value", $value, 
-                                         "bandays", $bandays, "note", $note); 
+        my $create = LJ::Sysban::create(
+                         what => $bantype, value => $value,
+                         bandays => $bandays, note => $note
+                     );
         return $err->("Ban creation error:" . $create->{message}) 
             if ( ref $create eq 'ERROR' ); 
 

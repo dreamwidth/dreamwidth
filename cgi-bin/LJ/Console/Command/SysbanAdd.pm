@@ -17,6 +17,8 @@ use strict;
 use base qw(LJ::Console::Command);
 use Carp qw(croak);
 
+use LJ::Sysban;
+
 sub cmd { "sysban_add" }
 
 sub desc { "Block an action based on certain criteria" }
@@ -45,14 +47,14 @@ sub execute {
     return $self->error("You cannot create these ban types")
         unless $remote && $remote->has_priv( "sysban", $what );
 
-    my $err = LJ::sysban_validate($what, $value);
+    my $err = LJ::Sysban::validate( $what, $value );
     return $self->error($err) if $err;
 
     $days ||= 0;
     return $self->error("You must specify a numeric value for the length of the ban")
         unless $days =~ /^\d+$/;
 
-    my $banid = LJ::sysban_create(
+    my $banid = LJ::Sysban::create(
                                   'what'    => $what,
                                   'value'   => $value,
                                   'bandays' => $days,

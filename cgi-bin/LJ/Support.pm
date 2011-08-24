@@ -17,7 +17,7 @@ use strict;
 use Digest::MD5 qw(md5_hex);
 
 use lib "$LJ::HOME/cgi-bin";
-require "sysban.pl";
+use LJ::Sysban;
 use LJ::Faq;
 
 # Constants
@@ -574,7 +574,7 @@ sub file_request
             }
 
             if (LJ::sysban_check('support_user', $u->{'user'})) {
-                return LJ::sysban_block($userid, "Support request blocked based on user", $log);
+                return LJ::Sysban::block( $userid, "Support request blocked based on user", $log );
             }
 
             $email = $u->email_raw || $o->{'reqemail'};
@@ -582,10 +582,10 @@ sub file_request
     }
 
     if (LJ::sysban_check('support_email', $email)) {
-        return LJ::sysban_block($userid, "Support request blocked based on email", $log);
+        return LJ::Sysban::block( $userid, "Support request blocked based on email", $log );
     }
     if (LJ::sysban_check('support_uniq', $o->{'uniq'})) {
-        return LJ::sysban_block($userid, "Support request blocked based on uniq", $log);
+        return LJ::Sysban::block( $userid, "Support request blocked based on uniq", $log );
     }
 
     my $reqsubject = LJ::trim($o->{'subject'});
@@ -739,16 +739,16 @@ sub append_request
         $log->{'email'} = $remote->email_raw;
 
         if (LJ::sysban_check('support_user', $remote->{'user'})) {
-            return LJ::sysban_block($remote->{'userid'}, "Support request blocked based on user", $log);
+            return LJ::Sysban::block( $remote->{userid}, "Support request blocked based on user", $log );
         }
         if (LJ::sysban_check('support_email', $remote->email_raw)) {
-            return LJ::sysban_block($remote->{'userid'}, "Support request blocked based on email", $log);
+            return LJ::Sysban::block( $remote->{userid}, "Support request blocked based on email", $log );
         }
     }
 
     if (LJ::sysban_check('support_uniq', $re->{'uniq'})) {
         my $userid = $remote ? $remote->{'userid'} : 0;
-        return LJ::sysban_block($userid, "Support request blocked based on uniq", $log);
+        return LJ::Sysban::block( $userid, "Support request blocked based on uniq", $log );
     }
 
     my $message = $re->{'body'};

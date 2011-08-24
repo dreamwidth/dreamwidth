@@ -19,7 +19,7 @@ use LJ::Worker::TheSchwartz;
 require "ljlib.pl";
 require "ljemailgateway.pl";
 use LJ::Support;
-require "sysban.pl";
+use LJ::Sysban;
 
 schwartz_decl('LJ::Worker::IncomingEmail');
 schwartz_work();
@@ -231,7 +231,7 @@ sub work {
 
         if ( LJ::sysban_check( 'support_email', $from ) ) {
             my $msg = "Support request blocked based on email.";
-            LJ::sysban_block( 0, $msg, { 'email' => $from } );
+            LJ::Sysban::block( 0, $msg, { 'email' => $from } );
             return dequeue($msg);
         }
 

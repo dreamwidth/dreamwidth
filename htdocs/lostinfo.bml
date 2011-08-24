@@ -129,8 +129,8 @@ body<=
 
         # Check to see if they are banned from sending a password
         if (LJ::sysban_check('lostpassword', $u->{'user'})) {
-            LJ::sysban_note($u->{'userid'}, "Password retrieval blocked based on user",
-                            { 'user' => $u->{'user'} });
+            LJ::Sysban::note( $u->{userid}, "Password retrieval blocked based on user",
+                            { user => $u->{user} } );
             return $err->( $ML{'Sorry'}, $ML{'.error.sysbanned'} );
         }
 
