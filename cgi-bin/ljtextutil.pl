@@ -470,9 +470,10 @@ sub text_length
 # </LJFUNC>
 sub text_trim
 {
-    my ($text, $byte_max, $char_max) = @_;
+    my ( $text, $byte_max, $char_max, $didtrim_ref ) = @_;
     $text = defined $text ? LJ::trim( $text ) : '';
     return $text unless $byte_max or $char_max;
+
     if (!$LJ::UNICODE) {
         $byte_max = $char_max if $char_max and $char_max < $byte_max;
         $byte_max = $char_max unless $byte_max;
@@ -486,12 +487,22 @@ sub text_trim
     # than characters, so we can't inherit the other way.
     $char_max ||= $byte_max;
 
+    my $fake_scalar;
+    my $ref = ref $didtrim_ref ? $didtrim_ref : \$fake_scalar;
+
     while ($text =~ m/$utf_char/gco) {
-    last unless $char_max;
-        last if $byte_max and $cur + length($1) > $byte_max;
+        unless ( $char_max ) {
+            $$ref = 1;
+            last;
+        }
+        if ( $byte_max and $cur + length($1) > $byte_max ) {
+            $$ref = 1;
+            last;
+        }
         $cur += length($1);
         $char_max--;
     }
+
     return LJ::trim( substr( $text, 0, $cur ) );
 }
 

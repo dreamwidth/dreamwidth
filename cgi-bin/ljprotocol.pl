@@ -1017,10 +1017,17 @@ sub common_event_validation
     }
     
 
-    # column width
+    # trim to column width
+
+    # we did a quick check for number of bytes earlier
+    # this one also handles the case of too many characters,
+    # even if we'd be within the byte limit
+    my $did_trim = 0;
+    $req->{'event'} = LJ::text_trim( $req->{'event'}, LJ::BMAX_EVENT, LJ::CMAX_EVENT, \$did_trim );
+    return fail( $err, 409 ) if $did_trim;
+
 
     $req->{'subject'} = LJ::text_trim($req->{'subject'}, LJ::BMAX_SUBJECT, LJ::CMAX_SUBJECT);
-    $req->{'event'} = LJ::text_trim($req->{'event'}, LJ::BMAX_EVENT, LJ::CMAX_EVENT);
     foreach (keys %{$req->{'props'}}) {
         # do not trim this property, as it's magical and handled later
         next if $_ eq 'taglist';
