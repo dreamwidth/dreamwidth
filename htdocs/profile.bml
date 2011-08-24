@@ -406,10 +406,10 @@ body<=
 
     # journal creation date, journal update time
     unless ( $u->is_identity ) {
-        my $jcdate = BML::ml( '.details.createdon2', 
+        my $jcdate = BML::ml( '.details.createdon2',
             { createdate => LJ::mysql_time( $u->timecreate )  } );
         $ret .= "<p>$jcdate (#" . $u->id . '), ' . $u->last_updated;
-        $ret .= "</p>"; 
+        $ret .= "</p>";
     }
 
     # comment and support stats
@@ -581,7 +581,7 @@ body<=
         } else {
             $imlist .= "<td colspan='2'>" . $linkify->( $service ) . "</td>";
         }
-        $imlist .= "</tr>"; 
+        $imlist .= "</tr>";
     }
     if ( $imlist ) {
         my $new_im_margin;
@@ -711,8 +711,8 @@ body<=
     @$_ = sort { $us->{$a}->display_name cmp $us->{$b}->display_name } @$_
         foreach ( \@trusted_userids, \@watched_userids, \@trusted_by_userids, \@watched_by_userids,
                   \@mutually_trusted_userids, \@mutually_watched_userids, \@mutually_watched_userids,
-                  \@not_mutually_trusted_userids, \@not_mutually_watched_userids, 
-                  \@not_mutually_trusted_by_userids, \@not_mutually_watched_by_userids, \@members_userids, 
+                  \@not_mutually_trusted_userids, \@not_mutually_watched_userids,
+                  \@not_mutually_trusted_by_userids, \@not_mutually_watched_by_userids, \@members_userids,
                   \@member_of_userids, \@posting_access_to_userids, \@posting_access_from_userids );
 
 ################################################################################
