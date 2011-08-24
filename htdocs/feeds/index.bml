@@ -143,9 +143,10 @@ body<=
                                                           'user'    => $acct,
                                                           'feedurl' => $syn_url,
                                                           );
-
-                return "<?h1 $ML{'.invalid.inuse.title'} h1?><?p $ML{'.invalid.inuse.text'} p?>"
-                    unless $synfeed;
+                unless ( $synfeed ) {
+                    my $u = LJ::load_user( $acct );
+                    return "<?h1 $ML{'.invalid.inuse.title'} h1?><?p " . BML::ml( '.invalid.inuse.text2', { 'user' => $u->ljuser_display } ) . " p?>"
+                }
 
                 $su = $dbh->selectrow_hashref("SELECT u.user, s.* FROM syndicated s, useridmap u ".
                                               "WHERE s.userid=? AND s.userid=u.userid",

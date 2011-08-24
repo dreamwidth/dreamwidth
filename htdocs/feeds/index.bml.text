@@ -33,7 +33,7 @@
 
 .invalid.http.title=Error retrieving content
 
-.invalid.inuse.text=That account name is already in use.
+.invalid.inuse.text2=The account [[user]] already exists.
 
 .invalid.inuse.title=That account name is already in use.
 
