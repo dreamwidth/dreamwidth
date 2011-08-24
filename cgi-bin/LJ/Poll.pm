@@ -920,7 +920,7 @@ sub render {
 
     my $whoview = $self->whoview;
     if ($whoview eq "none") {
-        $whoview = $remote && $remote->id == $self->posterid ? "none_remote" : "none_others";
+        $whoview = $remote && $remote->id == $self->posterid ? "none_remote" : "none_others2";
     }
     $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote),
                                        'whoview' => LJ::Lang::ml('poll.security.'.$whoview) });

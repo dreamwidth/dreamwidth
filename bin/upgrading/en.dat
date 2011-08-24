@@ -2128,7 +2128,7 @@ poll.security.friends=Friends
 poll.security.none=None
 
 poll.security.none_others|notes=Shown to everyone who can see the poll except the poster
-poll.security.none_others=None
+poll.security.none_others2=Just the Poll Creator
 
 poll.security.none_remote|notes=Shown only to the poster of the poll
 poll.security.none_remote=Just Me
