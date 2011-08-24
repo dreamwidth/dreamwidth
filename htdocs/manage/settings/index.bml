@@ -162,7 +162,7 @@ body<=
             settings => [qw(
                 DW::Setting::XPostAccounts
              )],
-                
+
         },
     );
 
@@ -423,19 +423,20 @@ body<=
 
     if ($given_cat eq "notifications") {
 
-    LJ::set_active_resource_group( 'jquery' );
-    LJ::need_res( { group => 'jquery' }, 'js/notifications.js' );
+        LJ::set_active_resource_group( 'jquery' );
+        LJ::need_res( { group => 'jquery' }, 'js/notifications.js' );
 
-    $ret .= "<div id='settings_save' class='action-bar'>";
-    $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
-    $ret .= "&nbsp;";
-    my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
-    $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'}, {
-        class => 'btn',
-        title => $ML{'.btn.deleteinactive2'},
-        onClick => "return confirm( '$del_conf' )"
-        } );
-    $ret .= "</div>";
+        $ret .= "<div id='settings_save' class='action-bar'>";
+        $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
+        $ret .= "&nbsp;";
+        my $del_conf = LJ::ejs( $ML{'.confirm.deleteinactive2'} );
+        $ret .= LJ::html_submit( 'deleteinactive', $ML{'.btn.deleteinactive2'},
+                                 {
+                                   class => 'btn',
+                                   title => $ML{'.btn.deleteinactive2'},
+                                   onClick => "return confirm( '$del_conf' )"
+                                 } );
+        $ret .= "</div>";
 
         my $my_account_extra = LJ::Hooks::run_hook('subscriptions_manage_my_account_extra', $u);
 
