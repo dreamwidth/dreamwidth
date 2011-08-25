@@ -55,7 +55,7 @@ sub render {
     }
 
     # return nothing
-    return "<div id='hello-world' style='text-align: left; font-size:0; line-height:0; height:0; overflow:hidden;'>$output</div>";
+    return "<div id='statistics' style='text-align: left; font-size:0; line-height:0; height:0; overflow:hidden;'>$output</div>";
 }
 
 # render JS output that goes into the <head> tags
