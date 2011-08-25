@@ -8897,8 +8897,11 @@ sub make_journal {
     # now, if there's a GET argument for tags, split those out
     if (exists $opts->{getargs}->{tag}) {
         my $tagfilter = $opts->{getargs}->{tag};
-        return $error->( BML::ml( 'error.tag.noarg' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
-            unless $tagfilter;
+        
+        unless ( $tagfilter ) {
+            $opts->{redir} = $u->journal_base . "/tag/";
+            return;
+        }
 
         # error if disabled
         return $error->( BML::ml( 'error.tag.disabled' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
