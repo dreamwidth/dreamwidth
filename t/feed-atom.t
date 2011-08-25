@@ -16,6 +16,10 @@ my $r = DW::Request::Standard->new(
             HTTP::Request->new( GET => $u->journal_base . "/data/atom" ) );
 my $site_ns = lc $LJ::SITENAMEABBREV;
 
+sub event_with_commentimage {
+    my $e = $_[0];
+    return $e->event_raw . "<br /><br />" . $e->comment_imgtag . " comments";
+}
 
 note( "Empty feed" );
 {
@@ -55,13 +59,13 @@ my $e2 = $u->t_post_fake_entry;
     is_deeply( $feed->{items}, [{
         link    => $e2->url,
         subject => $e2->subject_raw,
-        text    => $e2->event_raw,
+        text    => event_with_commentimage( $e2 ),
         time    => substr( $e2->eventtime_mysql, 0, -3 ),
         author  => $u->name_raw,
     }, {
         link    => $e1->url,
         subject => $e1->subject_raw,
-        text    => $e1->event_raw,
+        text    => event_with_commentimage( $e1 ),
         time    => substr( $e1->eventtime_mysql, 0, -3 ),
         author  => $u->name_raw,
     }], "Check entries from feed" );
@@ -78,7 +82,7 @@ my $e2 = $u->t_post_fake_entry;
     is_deeply( $feed->{items}->[0], {
         link    => $e2->url,
         subject => $e2->subject_raw,
-        text    => $e2->event_raw,
+        text    => event_with_commentimage( $e2 ),
         time    => substr( $e2->eventtime_mysql, 0, -3 ),
         author  => $u->name_raw,
     }, "Check individual entry from feed" );
@@ -136,13 +140,13 @@ note( "No bot crawling" );
     is_deeply( $feed->{items}, [{
         link    => $e2->url,
         subject => $e2->subject_raw,
-        text    => $e2->event_raw,
+        text    => event_with_commentimage( $e2 ),
         time    => substr( $e2->eventtime_mysql, 0, -3 ),
         author  => $u->name_raw,
     }, {
         link    => $e1->url,
         subject => $e1->subject_raw,
-        text    => $e1->event_raw,
+        text    => event_with_commentimage( $e1 ),
         time    => substr( $e1->eventtime_mysql, 0, -3 ),
         author  => $u->name_raw,
     }], "Check entries from feed" );
