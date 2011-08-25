@@ -16,9 +16,9 @@ _parent=>../../lj-bml-blocks.pl
 loginboxstyle=>{Ss}background: url(/img/silk/identity/user.png) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;
 commloginboxstyle=>{Ss}background: url(/img/silk/identity/community.png) no-repeat; background-color: #fff; background-position: 0px 2px; padding-left: 19px; color: #00C; font-weight: bold;
 
-SECURITYPRIVATE=>{Ss}<img src="<?imgprefix?>/silk/entry/private.png" width=16 height=16 align=absmiddle>
-SECURITYPROTECTED=>{Ss}<img src="<?imgprefix?>/silk/entry/locked.png" width=14 height=15 align=absmiddle>
-SECURITYGROUPS=>{Ss}<img src="<?imgprefix?>/silk/entry/filtered.png" width=21 height=13 align=absmiddle>
+SECURITYPRIVATE=>{Ss}<img src="<?imgprefix?>/silk/entry/private.png" alt="private" width=16 height=16 align=absmiddle>
+SECURITYPROTECTED=>{Ss}<img src="<?imgprefix?>/silk/entry/locked.png" alt="protected" width=14 height=15 align=absmiddle>
+SECURITYGROUPS=>{Ss}<img src="<?imgprefix?>/silk/entry/filtered.png" alt="custom" idth=21 height=13 align=absmiddle>
 HELP=>{DR}(<a href="%%data%%"><i>help</i></a>)
 INERR=>{DR}<font color="#ff0000"><b>%%data%%</b></font>
 SOERROR=>{DR}<div><b>%%data%%</b></div>
