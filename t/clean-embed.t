@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 151;
+use Test::More tests => 175;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
@@ -53,6 +53,7 @@ note( "Testing clean_embed (we provide the contents to be cleaned directly)" );
     $clean_post = qq{<object width="123" height="456"></object>};
     $clean->();
     is( $orig_post, $clean_post, "Drop the data attribute" );
+
 
     note("script tag");
     $orig_post = qq{<object><script>bar</script></object>};
@@ -228,6 +229,30 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
             qr{\s*},
         ],
 
+        [   "dimensions: object tag with dimensions in percent",
+            qq{<site-embed id="1"><object width="100%" height="100%"></object></site-embed>},
+            qq{<site-embed id="1"/>},
+            qq{<site-embed id="1"><object width="100%" height="100%"></object></site-embed>},
+            qr{width="100%" height="100%"},
+            qq{<object width="100%" height="100%"></object>},
+        ],
+
+        [   "dimensions: object tag with mixed units for dimensions",
+            qq{<site-embed id="1"><object width="80%" height="200"></object></site-embed>},
+            qq{<site-embed id="1"/>},
+            qq{<site-embed id="1"><object width="80%" height="200"></object></site-embed>},
+            qr{width="80%" height="250"},
+            qq{<object width="80%" height="200"></object>},
+        ],
+
+        [   "dimensions: object tag with dimensions in percent -- too big",
+            qq{<site-embed id="1"><object width="1000%" height="101%"></object></site-embed>},
+            qq{<site-embed id="1"/>},
+            qq{<site-embed id="1"><object width="1000%" height="101%"></object></site-embed>},
+            qr{width="100%" height="100%"},
+            qq{<object width="1000%" height="101%"></object>},
+        ],
+
 
         [   "object tag; no site-embed",
             qq{foo <object>bar</object>baz},
@@ -250,16 +275,16 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
 
         [   "embed tag; no site-embed",
             qq{foo <embed>bar</embed>baz},
-    
+
             qq{foo <site-embed id="1"/>baz},
             qq{foo <site-embed id="1"><embed>bar</embed></site-embed>baz},
             qr{foo ${iframe}baz},
             qq{<embed>bar</embed>},
         ],
-    
+
         [   "embed tag with site-embed",
             qq{foo <site-embed><embed></embed></site-embed> baz},
-    
+
             qq{foo <site-embed id="1"/> baz},
             qq{foo <site-embed id="1"><embed></embed></site-embed> baz},
             qr{foo $iframe baz},
@@ -385,7 +410,7 @@ note( "Testing parse_embed (We parse the embed contents first from a post)" );
         # TODO: DANGER: EATS EVERYTHING PAST THE OPEN TAG
         [   "iframe tag left open in site-embed (trusted)",
             qq{foo <site-embed><iframe src="http://www.youtube.com/embed/ABC123abc_-"></site-embed> baz},
-    
+
             qq{foo },
             qq{foo },
             qr{foo },

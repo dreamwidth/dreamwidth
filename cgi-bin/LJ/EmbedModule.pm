@@ -29,6 +29,8 @@ use constant {
     # maximum embed width and height
     MAX_WIDTH => 800,
     MAX_HEIGHT => 800,
+    MAX_WIDTH_PERCENT => 100,
+    MAX_HEIGHT_PERCENT => 100,
 };
 
 my %embeddable_tags = map { $_ => 1 } qw( object embed iframe );
@@ -247,6 +249,14 @@ sub parse_module_embed {
     $$postref = $newtxt;
 }
 
+# only allow percentage as a unit
+sub _extract_num_unit {
+    my $num = $_[0];
+
+    return ( $num, "" ) unless $num =~ s/%//;
+    return ( $num, "%" );
+}
+
 sub module_iframe_tag {
     my ($class, $u, $moduleid, %opts) = @_;
 
@@ -260,6 +270,8 @@ sub module_iframe_tag {
     my $content = $class->module_content( moduleid => $moduleid, journalid => $journalid, preview => $preview );
     my $width = 0;
     my $height = 0;
+    my $width_unit = "";
+    my $height_unit = "";
     my $p = HTML::TokeParser->new(\$content);
     my $embedcodes;
 
@@ -276,15 +288,23 @@ sub module_iframe_tag {
             my $attr = $token->[2];  # hashref
 
             if ($type eq "S") {
-                my ($elewidth, $eleheight);
+                my ($elewidth, $eleheight, $elewidth_unit, $eleheight_unit);
 
                 if ($attr->{width}) {
-                    $elewidth = $attr->{width}+0;
-                    $width = $elewidth if $elewidth > $width;
+                    ( $elewidth, $elewidth_unit ) = _extract_num_unit( $attr->{width} );
+                    $elewidth += 0;
+                    if ( $elewidth > $width ) {
+                        $width = $elewidth;
+                        $width_unit = $elewidth_unit;
+                    }
                 }
                 if ($attr->{height}) {
-                    $eleheight = $attr->{height}+0;
-                    $height = $eleheight if $eleheight > $height;
+                    ( $eleheight, $eleheight_unit ) = _extract_num_unit( $attr->{height} );
+                    $eleheight += 0;
+                    if ( $eleheight > $height ) {
+                        $height = $eleheight;
+                        $height_unit = $eleheight_unit;
+                    }
                 }
 
                 my $flashvars = $attr->{flashvars};
@@ -318,8 +338,8 @@ sub module_iframe_tag {
         }
 
         # add padding
-        $width += 50 if $width;
-        $height += 50 if $height;
+        $width += 50 if $width && ! $width_unit;
+        $height += 50 if $height && ! $height_unit;
     }
 
     # use explicit values if we have them
@@ -331,9 +351,19 @@ sub module_iframe_tag {
 
     # some dimension min/maxing
     $width = 50 if $width < 50;
-    $width = MAX_WIDTH if $width > MAX_WIDTH;
     $height = 50 if $height < 50;
-    $height = MAX_HEIGHT if $height > MAX_HEIGHT;
+
+    if ( $width_unit eq "%" ) {
+        $width = MAX_WIDTH_PERCENT if $width > MAX_WIDTH_PERCENT;
+    } else {
+        $width = MAX_WIDTH if $width > MAX_WIDTH;
+    }
+
+    if ( $height_unit eq "%" ) {
+        $height = MAX_HEIGHT_PERCENT if $height > MAX_HEIGHT_PERCENT;
+    } else {
+        $height = MAX_HEIGHT if $height > MAX_HEIGHT;
+    }
 
     # safari caches state of sub-resources aggressively, so give
     # each iframe a unique 'name' and 'id' attribute
@@ -344,7 +374,7 @@ sub module_iframe_tag {
     my $auth_token = LJ::eurl(LJ::Auth->sessionless_auth_token('embedcontent', moduleid => $moduleid, journalid => $journalid, preview => $preview,));
     my $iframe_link = qq{http://$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token};
     my $iframe_tag = qq {<iframe src="$iframe_link" } .
-        qq{width="$width" height="$height" allowtransparency="true" frameborder="0" class="lj_embedcontent" id="$id" name="$name"></iframe>};
+        qq{width="$width$width_unit" height="$height$height_unit" allowtransparency="true" frameborder="0" class="lj_embedcontent" id="$id" name="$name"></iframe>};
 
     my $remote = LJ::get_remote();
     return $iframe_tag unless $remote;
@@ -371,7 +401,9 @@ sub module_iframe_tag {
                                 placeholder_html => $iframe_tag,
                                 link             => $iframe_link,
                                 width            => $width,
+                                width_unit       => $width_unit,
                                 height           => $height,
+                                height           => $height_unit,
                                 img              => "$LJ::IMGPREFIX/videoplaceholder.png",
                                 );
 }

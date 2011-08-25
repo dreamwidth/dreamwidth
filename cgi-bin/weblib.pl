@@ -3748,11 +3748,13 @@ sub placeholder_link {
     my $placeholder_html = LJ::ejs_all(delete $opts{placeholder_html} || '');
     my $width  = delete $opts{width}  || 100;
     my $height = delete $opts{height} || 100;
+    my $width_unit  = delete $opts{width_unit}  || "px";
+    my $height_unit = delete $opts{height_unit} || "px";
     my $link   = delete $opts{link}   || '';
     my $img    = delete $opts{img}    || "$LJ::IMGPREFIX/videoplaceholder.png";
 
     return qq {
-            <div class="LJ_Placeholder_Container" style="width: ${width}px; height: ${height}px;">
+            <div class="LJ_Placeholder_Container" style="width: ${width}${width_unit}; height: ${height}${height_unit};">
                 <div class="LJ_Placeholder_HTML" style="display: none;">$placeholder_html</div>
                 <div class="LJ_Container"></div>
                 <a href="$link">
