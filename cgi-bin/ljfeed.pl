@@ -897,7 +897,7 @@ sub create_view_userpics {
     #        the information for a user's set of icons, one of which doesn't
     #        include keywords and the other of which doesn't include pictime.
     #        But hey, at least they both use caching.
-    
+
     my %pictimes = map { $_->picid => $_->pictime }
                        LJ::Userpic->load_user_userpics( $u );
 

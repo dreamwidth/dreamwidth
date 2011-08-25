@@ -1325,8 +1325,8 @@ sub entry_form {
 
     ### Icon Selection
 
-    my $pic = '';      # displays chosen/default pic                                 
-    my $picform = '';  # displays form drop-down                                 
+    my $pic = '';      # displays chosen/default pic
+    my $picform = '';  # displays form drop-down
 
     LJ::Widget::UserpicSelector->render(
                 picargs => [ $remote, \$$head, \$pic, \$picform ],
@@ -1639,7 +1639,7 @@ MOODS
                 return "Enabled";
             };
 
-            my $nocomments_display = $opts->{prop_opt_nocomments_maintainer} ? 
+            my $nocomments_display = $opts->{prop_opt_nocomments_maintainer} ?
                 'entryform.comment.settings.nocomments.maintainer' : 'entryform.comment.settings.nocomments';
 
             my $comment_settings_default = BML::ml('entryform.comment.settings.default5', {'aopts' => $comment_settings_journaldefault->()});
@@ -1740,7 +1740,7 @@ MOODS
             if ( $remote && ! $altlogin ) {
                 # crosspost
                 my @accounts = DW::External::Account->get_external_accounts($remote);
-                
+
                 # populate the per-account html first, so that we only have to
                 # go through them once.
                 my $accthtml = "";
@@ -1774,7 +1774,7 @@ MOODS
                             'onchange' => 'XPostAccount.xpostAcctUpdated();',
                                                              }) . "</td>\n";
                         $xpostbydefault = 1 if $selected;
-                        
+
                         $accthtml .= "<td>";
                         unless ($acct->password) {
                         # password field if no password
@@ -1827,9 +1827,9 @@ MOODS
                 $out .= "</p>\n<table summary=''>";
                 $out .= $accthtml;
                 $out .= "</table>\n";
-                
+
                 $out .= "</div>\n";
-                $out .= qq [ 
+                $out .= qq [
               <p class='pkg'>
               <span class='inputgroup-left'></span>
                        ];
@@ -1934,7 +1934,7 @@ PREVIEW
             # comment disabling is done via a checkbox as it has only two settings
             # if we got this far, this is always set to the maintainer setting
             my $selected = $opts->{prop_opt_nocomments_maintainer};
-            $out .= LJ::html_check( 
+            $out .= LJ::html_check(
                 {
                     type     => 'checkbox',
                     name     => "prop_opt_nocomments_maintainer",
@@ -1990,7 +1990,7 @@ PREVIEW
                     push @secs, ("custom", $string_custom);
                     push @secopts, ("onchange" => "customboxes()");
                 }
-                
+
                 if ( @secs ) {
                     $secbar = 1;
                     $out .= "<div id='security_container'>\n";
@@ -2041,8 +2041,8 @@ PREVIEW
             $$onload .= " changeSecurityOptions('$defaultjournal');" unless $opts->{'security'};
 
             $out .= LJ::html_submit('action:update', BML::ml('entryform.update4'),
-                    { 'onclick' => $onclick, 
-                      'class' => 'update_submit xpost_submit', 
+                    { 'onclick' => $onclick,
+                      'class' => 'update_submit xpost_submit',
                       'id' => 'formsubmit',
                       'tabindex' => $tabindex->() }) . "&nbsp;\n";
         }
@@ -2053,13 +2053,13 @@ PREVIEW
 
             if (!$opts->{'disabled_save'}) {
                 $out .= LJ::html_submit('action:save', BML::ml('entryform.save'),
-                                        { 'onclick' => $onclick, 
+                                        { 'onclick' => $onclick,
                                           'disabled' => $opts->{'disabled_save'},
                                           'class' => 'xpost_submit',
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
             } elsif ( $opts->{maintainer_mode} ) {
                 $out .= LJ::html_submit('action:savemaintainer', BML::ml('entryform.save.maintainer'),
-                                        { 'onclick' => $onclick, 
+                                        { 'onclick' => $onclick,
                                           'disabled' => !$opts->{'maintainer_mode'},
                                           'class' => 'xpost_submit',
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
@@ -2067,7 +2067,7 @@ PREVIEW
 
             if (!$opts->{'disabled_save'} && $opts->{suspended} && !$opts->{unsuspend_supportid}) {
                 $out .= LJ::html_submit('action:saveunsuspend', BML::ml('entryform.saveandrequestunsuspend2'),
-                                        { 'onclick' => $onclick, 
+                                        { 'onclick' => $onclick,
                                           'disabled' => $opts->{'disabled_save'},
                                           'class' => 'xpost_submit',
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
@@ -2237,7 +2237,7 @@ sub entry_form_xpost_widget {
 
     if ( @accounts ) {
         $ret .= LJ::html_hidden( {
-            name => 'prop_xpost_check', 
+            name => 'prop_xpost_check',
             id => 'prop_xpost_check',
             value => 1,
         } );
@@ -2251,7 +2251,7 @@ sub entry_form_xpost_widget {
                 } );
         }
     }
-    
+
     return $ret;
 }
 
@@ -2605,7 +2605,7 @@ sub res_includes {
                 $group ne 'all' &&
                 ( ( defined $LJ::ACTIVE_RES_GROUP && $group ne $LJ::ACTIVE_RES_GROUP ) ||
                   ( ! defined $LJ::ACTIVE_RES_GROUP && $group ne 'default' ) );
-    
+
             my $path;
             my $mtime = _file_modtime($key, $now);
             if ($key =~ m!^stc/fck/! || $LJ::FORCE_WSTAT{$key}) {
@@ -2613,7 +2613,7 @@ sub res_includes {
             } else {
                 $path = $key;
             }
-    
+
             # if we want to also include a local version of this file, include that too
             if (@LJ::USE_LOCAL_RES) {
                 if (grep { lc $_ eq lc $key } @LJ::USE_LOCAL_RES) {
@@ -2622,7 +2622,7 @@ sub res_includes {
                     LJ::need_res($inc);
                 }
             }
-    
+
             if ($path =~ m!^js/(.+)!) {
                 $add->('js', $1, $mtime);
             } elsif ($path =~ /\.css$/ && $path =~ m!^(w?)stc/(.+)!) {
@@ -3242,7 +3242,7 @@ sub rte_js_vars {
                 }
             }
         }
-        
+
         var SiteConfig = new Object();
         SiteConfig.ImagePhotobucket = $photobucket_is_setup;
     </script>^;
@@ -3707,7 +3707,7 @@ sub subscribe_interface {
                             max_total => $system_max,
                     } ) . "</div>";
     }
-    
+
     $ret .= qq {
         $ntypeids
             $catids
@@ -3729,7 +3729,7 @@ sub subscribe_interface {
 
     unless ($settings_page) {
         $ret .= '<div class="action-box"><ul class="inner nostyle">'
-            . "<li>" . LJ::html_submit(BML::ml('subscribe_interface.save')) . '</li>' 
+            . "<li>" . LJ::html_submit(BML::ml('subscribe_interface.save')) . '</li>'
             .
             ($referer && $referer ne $uri ? "<li><input type='button' value='".BML::ml('subscribe_interface.cancel')."' onclick='window.location=\"$referer\"' /></li>" : '');
         $ret .= "</div><div class='clear-floats'></div>";

@@ -482,7 +482,7 @@ sub process {
 #             galname => $post_headers{'gallery'} || $u->{'emailpost_gallery'}
 #         }
 #       ) || return $err->( $fb_upload_errstr, { retry => 1 } );
-# 
+#
 #     # if we found and successfully uploaded some images...
 #     if (ref $fb_upload eq 'ARRAY') {
 #         my $fb_html = LJ::FBUpload::make_html( $u, $fb_upload, \%post_headers );
@@ -497,7 +497,7 @@ sub process {
 #         $fb_html = Encode::encode("utf8", $fb_html) if Encode::is_utf8($fb_html);
 #         $body .= $fb_html;
 #     }
-# 
+#
 #     # at this point, there are either no images in the message ($fb_upload == 1)
 #     # or we had some error during upload that we may or may not want to retry
 #     # from.  $fb_upload contains the http error code.
@@ -510,7 +510,7 @@ sub process {
 #         $body .= "\n";
 #         $body .= "(Your picture was not posted: $fb_upload_errstr)";
 #     }
-# 
+#
 #     # Fotobilder server error.  Retry.
 #     return $err->( $fb_upload_errstr, { retry => 1 } ) if $fb_upload == 500;
 
@@ -711,15 +711,15 @@ sub check_sig {
 # {
 #     my ($entity, $u, $rv, $opts) = @_;
 #     return 1 unless LJ::get_cap($u, 'fb_can_upload') && $LJ::FB_SITEROOT;
-# 
+#
 #     my @imgs = get_entity($entity, 'image');
 #     return 1 unless scalar @imgs;
-# 
+#
 #     my @images;
 #     foreach my $img_entity (@imgs) {
 #         my $img     = $img_entity->bodyhandle;
 #         my $path    = $img->path;
-# 
+#
 #         my $result = LJ::FBUpload::do_upload(
 #             $u, $rv,
 #             {
@@ -729,26 +729,26 @@ sub check_sig {
 #                 galname => $opts->{'galname'},
 #             }
 #         );
-# 
+#
 #         # do upload() returned undef?  This is a posting error
 #         # that should most likely be retried, due to something
 #         # wrong on our side of things.
 #         return if ! defined $result && $$rv;
-# 
+#
 #         # http error during upload attempt
 #         # decide retry based on error type in caller
 #         return $result unless ref $result;
-# 
+#
 #         # examine $result for errors
 #         if ($result->{Error}->{code}) {
 #             $$rv = $result->{Error}->{content};
-# 
+#
 #             # add 1000 to error code, so we can easily tell the
 #             # difference between fb protocol error and
 #             # http error when checking results.
 #             return $result->{Error}->{code} + 1000;
 #         }
-# 
+#
 #         push @images, {
 #             url     => $result->{URL},
 #             width   => $result->{Width},
@@ -756,7 +756,7 @@ sub check_sig {
 #             title   => $result->{Title},
 #         };
 #     }
-# 
+#
 #     return \@images if scalar @images;
 #     return;
 # }

@@ -85,7 +85,7 @@ sub send_mail
         $opt->{'charset'} ||= "utf-8";
         my $charset;
         if (!LJ::is_ascii($subject)
-         || !LJ::is_ascii($body) 
+         || !LJ::is_ascii($body)
          || ($opt->{html} && !LJ::is_ascii($opt->{html}))
          || !LJ::is_ascii($fromname)) {
             $charset = $opt->{'charset'};

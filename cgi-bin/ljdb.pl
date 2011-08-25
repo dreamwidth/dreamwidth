@@ -503,7 +503,7 @@ sub foreach_cluster {
     # context, it will fail.
     eval "use LJ::DBUtil; 1;";
     die $@ if $@;
-    
+
     foreach my $cluster_id (@LJ::CLUSTERS) {
         my $dbr = ($LJ::IS_DEV_SERVER) ?
             LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});

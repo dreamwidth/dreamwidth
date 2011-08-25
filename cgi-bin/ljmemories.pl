@@ -359,11 +359,11 @@ sub get_keywordids {
 #     $u = LJ::want_user($u);
 #     $memid += 0;
 #     return unless $u && $memid && %{$upd || {}};
-# 
+#
 #     # get database handle
 #     my ($db, $table) = ($u, '2');
 #     return undef unless $db;
-# 
+#
 #     # construct update lines... only valid things we can update are des and security
 #     my @updates;
 #     my $security_updated;
@@ -373,15 +373,15 @@ sub get_keywordids {
 #         push @updates, "$what=" . $db->quote($upd->{$what});
 #     }
 #     my $updstr = join ',', @updates;
-# 
+#
 #     # now perform update
 #     $db->do("UPDATE memorable$table SET $updstr WHERE userid = ? AND memid = ?",
 #             undef, $u->{userid}, $memid);
 #     return undef if $db->err;
-# 
+#
 #     # Delete memcache entries if the security of the memory was updated
 #     clear_memcache($u) if $security_updated;
-# 
+#
 #     return 1;
 # }
 
@@ -493,7 +493,7 @@ sub _memory_getter {
 # sub get_by_id {
 #     my $u = shift;
 #     return {} unless @_; # make sure they gave us some ids
-# 
+#
 #     # pass to getter to get by id
 #     return LJ::Memories::_memory_getter($u, { byid => [ map { $_+0 } @_ ] });
 # }

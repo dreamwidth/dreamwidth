@@ -155,7 +155,7 @@ sub LJ::Stats::run_stats {
                 LJ::Stats::save_sum($stat->{'statname'});
             }
         }
-        
+
     }
 
     return 1;
@@ -178,7 +178,7 @@ sub LJ::Stats::get_db {
 
         my $db = LJ::get_dbh($opts, @roles);
         return $db if $db;
-            
+
         # don't fall back to slave/master if STATS_FORCE_SLOW is on
         die "ERROR: Could not get handle for slow database role\n"
             if $LJ::STATS_FORCE_SLOW;

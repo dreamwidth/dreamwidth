@@ -956,7 +956,7 @@ sub auth_digest {
     my $a1 = Digest::MD5::md5_hex($a1src);
     my $a2src = $r->method . ":$attrs{'uri'}";
     my $a2 = Digest::MD5::md5_hex($a2src);
-    my $hashsrc; 
+    my $hashsrc;
     if ( $qop eq 'auth' ) {
         $hashsrc = "$a1:$attrs{'nonce'}:$attrs{'nc'}:$attrs{'cnonce'}:$attrs{'qop'}:$a2";
     } else {

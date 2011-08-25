@@ -225,9 +225,9 @@ sub addcomment
                         journal      => $u,
                         ditemid      => $req->{ditemid},
                         parenttalkid => ($req->{parenttalkid} || ($req->{parent} >> 8)),
-                               
+
                         poster       => $u,
-                                
+
                         body         => $req->{body},
                         subject      => $req->{subject},
 
@@ -274,15 +274,15 @@ sub getfriendspage
         next unless $ei;
 
         # exit cycle if maximum friend items limit reached
-        last 
-            if scalar @res >= FRIEND_ITEMS_LIMIT; 
+        last
+            if scalar @res >= FRIEND_ITEMS_LIMIT;
 
         # if passed lastsync argument - skip items with logtime less than lastsync
         if($lastsync) {
-            next 
+            next
                 if $LJ::EndOfTime - $ei->{rlogtime} <= $lastsync;
         }
-        
+
         my $entry = LJ::Entry->new_from_item_hash($ei);
         next unless $entry;
 
@@ -354,7 +354,7 @@ sub getinbox
         UserMessageSent      => 19,
     );
     my %number_type = reverse %type_number;
-    
+
     my @notifications;
 
     my $sync_date;
@@ -365,13 +365,13 @@ sub getinbox
             return fail($err,203,"Invalid syncitems date format (must be unixtime)");
         }
     }
-    
+
     if ($req->{gettype}) {
         @notifications = grep { $_->event->class eq "LJ::Event::" . $number_type{$req->{gettype}} } $inbox->items;
     } else {
         @notifications = $inbox->all_items;
     }
-    
+
     # By default, notifications are sorted as "oldest are the first"
     # Reverse it by "newest are the first"
     @notifications = reverse @notifications;
@@ -383,7 +383,7 @@ sub getinbox
         next if $sync_date && $item->when_unixtime < $sync_date;
 
         my $raw = $item->event->raw_info($u, {extended => $req->{extended}});
-        
+
         my $type_index = $type_number{$raw->{type}};
         if (defined $type_index) {
             $raw->{type} = $type_index;
@@ -394,14 +394,14 @@ sub getinbox
 
         $raw->{state} = $item->{state};
 
-        push @res, { %$raw, 
+        push @res, { %$raw,
                      when   => $item->when_unixtime,
                      qid    => $item->qid,
                    };
     }
 
-    return { 'items' => \@res, 
-             'login' => $u->user, 
+    return { 'items' => \@res,
+             'login' => $u->user,
              'journaltype' => $u->journaltype };
 }
 
@@ -409,13 +409,13 @@ sub setmessageread {
     my ($req, $err, $flags) = @_;
 
     return undef unless authenticate($req, $err, $flags);
-    
+
     my $u = $flags->{'u'};
 
     # get the user's inbox
     my $inbox = $u->notification_inbox or return fail($err, 500, "Cannot get user inbox");
     my @result;
-    
+
     # passing requested ids for loading
     my @notifications = $inbox->all_items;
 
@@ -434,7 +434,7 @@ sub setmessageread {
         # proccessing only requested ids
         foreach my $item (@notifications) {
             my $msgid = $item->event->raw_info($u)->{msgid};
-            next unless $requested_items{$msgid}; 
+            next unless $requested_items{$msgid};
             # if message already read -
             if ($item->{state} eq 'R') {
                 push @result, { msgid => $msgid, result => 'already red' };
@@ -488,7 +488,7 @@ sub sendmessage
 
     #test if to argument is present
     return fail($err, 200, "to") unless exists $req->{'to'};
-    
+
     my @to = (ref $req->{'to'}) ? @{$req->{'to'}} : ($req->{'to'});
     return fail($err, 200) unless scalar @to;
 
@@ -513,7 +513,7 @@ sub sendmessage
                     userpic => $req->{'userpic'} || undef,
                   });
 
-        push @msg, $msg 
+        push @msg, $msg
             if $msg->can_send(\@errors);
     }
     return fail($err, 203, join('; ', @errors))
@@ -732,7 +732,7 @@ sub getcircle
     my $u = $flags->{u};
     my $res = {};
     my $limit = $LJ::MAX_WT_EDGES_LOAD;
-    $limit = $req->{limit} 
+    $limit = $req->{limit}
       if defined $req->{limit} && $req->{limit} < $limit;
 
     if ( $req->{includetrustgroups} ) {
@@ -752,7 +752,7 @@ sub getcircle
       }
     }
     if ( $req->{includewatchedusers} ) {
-      $res->{watchedusers} = list_users( $u, 
+      $res->{watchedusers} = list_users( $u,
                                          limit => $limit,
                                          watched => 1,
                                          includebdays => $req->{includebdays},
@@ -763,17 +763,17 @@ sub getcircle
       }
     }
     if ( $req->{includewatchedby} ) {
-      $res->{watchedbys} = list_users( $u, 
+      $res->{watchedbys} = list_users( $u,
                                        limit => $limit,
                                        watchedby => 1,
                                      );
       if ( $req->{ver} >= 1 ) {
-        LJ::text_out( \$_->{fullname} ) 
+        LJ::text_out( \$_->{fullname} )
             foreach ( @{$res->{watchedbys} || []} );
       }
     }
     if ( $req->{includetrustedusers} ) {
-      $res->{trustedusers} = list_users( $u, 
+      $res->{trustedusers} = list_users( $u,
                                          limit => $limit,
                                          trusted => 1,
                                          includebdays => $req->{includebdays},
@@ -784,7 +784,7 @@ sub getcircle
       }
     }
     if ( $req->{includetrustedby} ) {
-      $res->{trustedbys} = list_users( $u, 
+      $res->{trustedbys} = list_users( $u,
                                        limit => $limit,
                                        trustedby => 1,
                                      );
@@ -1015,7 +1015,7 @@ sub common_event_validation
                 return fail($err, 208, "The text entered is not a valid UTF-8 stream");
         }
     }
-    
+
 
     # trim to column width
 
@@ -1928,7 +1928,7 @@ sub editevent
     # additionally, if the 'opt_nocomments_maintainer' prop was set before and the poster now sets
     # 'opt_nocomments' to 0 again, 'opt_nocomments_maintainer' should be set to 0 again, as well
     # so comments are enabled again
-    $req->{props}->{opt_nocomments_maintainer} = 0 
+    $req->{props}->{opt_nocomments_maintainer} = 0
         if defined $req->{props}->{opt_nocomments} && !$req->{props}->{opt_nocomments};
 
     my $event = $req->{'event'};
@@ -2525,11 +2525,11 @@ sub editfriendgroups {
     return fail( $_[1], 504 );
 }
 
-sub editcircle 
+sub editcircle
 {
     my ( $req, $err, $flags ) = @_;
     return undef unless authenticate( $req, $err, $flags );
-  
+
     my $u = $flags->{u};
     my $res = {};
 
@@ -2542,13 +2542,13 @@ sub editcircle
                        groupname => $name,
                        _force_create => 1
                      );
-      
+
         $params{sortorder} = $sortorder if defined $sortorder;
         $params{is_public} = $public if defined $public;
         $u->edit_trust_group( %params );
       }
     }
-  
+
     if ( ref $req->{deletetrustgroups} eq 'ARRAY' ) {
       foreach my $bit ( @{$req->{deletetrustgroups}} ) {
         $u->delete_trust_group( id => $bit );
@@ -2570,7 +2570,7 @@ sub editcircle
             if ( defined $sortorder ) && $sortorder ne $cf->sortorder;
         } else {
           my $fid = $u->create_content_filter( name => $name, public => $public, sortorder => $sortorder );
-          my $added = { 
+          my $added = {
                        id => $fid,
                        name => $name,
                       };
@@ -2578,7 +2578,7 @@ sub editcircle
         }
       }
     }
-  
+
     if ( ref $req->{deletecontentfilters} eq 'ARRAY' ) {
       foreach my $bit ( @{$req->{deletecontentfilters}} ) {
         $u->delete_content_filter( id => $bit );
@@ -2588,7 +2588,7 @@ sub editcircle
     if ( ref $req->{add} eq 'ARRAY' ) {
       foreach my $row ( @{$req->{add}} ) {
         my $other_user = LJ::load_user( $row->{username} );
-        return fail( $err, 203 ) unless $other_user; 
+        return fail( $err, 203 ) unless $other_user;
         my $other_userid = $other_user->{userid};
 
         if ( defined ( $row->{groupmask} ) ) {
@@ -2598,13 +2598,13 @@ sub editcircle
                                                 } );
         } else {
           if ( $row->{edge} & 1 ) {
-            $u->add_edge ( $other_userid, trust => { 
+            $u->add_edge ( $other_userid, trust => {
                                                     nonotify => $u->trusts ( $other_userid ) ? 1 : 0,
                                                    } );
           } else {
-            $u->remove_edge ( $other_userid, trust => { 
+            $u->remove_edge ( $other_userid, trust => {
                                                        nonotify => $u->trusts ( $other_userid ) ? 0 : 1,
-                                                      } );         
+                                                      } );
           }
           if ( $row->{edge} & 2 ) {
             my $fg = $row->{fgcolor} || "#000000";
@@ -2615,16 +2615,16 @@ sub editcircle
                                                     nonotify => $u->watches ( $other_userid ) ? 1 : 0,
                                                    } );
           } else {
-            $u->remove_edge ( $other_userid, watch => { 
+            $u->remove_edge ( $other_userid, watch => {
                                                        nonotify => $u->watches ( $other_userid ) ? 0 : 1,
                                                       } );
           }
           if ( $row->{edge} ) {
             my $myid = $u->userid;
-            my $added = { 
+            my $added = {
                          username => $other_user->{user},
                          fullname => $other_user->{name},
-                         trusted => $u->trusts ( $other_userid ), 
+                         trusted => $u->trusts ( $other_userid ),
                          trustedby => $other_user->trusts ( $myid ),
                          watched => $u->watches ( $other_userid ),
                          watchedby => $other_user->watches ( $myid )
@@ -2644,7 +2644,7 @@ sub editcircle
     if ( ref $req->{addtocontentfilters} eq 'ARRAY' ) {
       foreach my $row ( @{$req->{addtocontentfilters}} ) {
         my $other_user = LJ::load_user( $row->{username} );
-        return fail( $err, 203 ) unless $other_user; 
+        return fail( $err, 203 ) unless $other_user;
         my $other_userid = $other_user->{userid};
         my $cf = $u->content_filters( id => $row->{id} );
         $cf->add_row( userid => $other_userid ) if $cf;
@@ -2653,8 +2653,8 @@ sub editcircle
 
     if ( ref $req->{deletefromcontentfilters} eq 'ARRAY' ) {
       foreach my $row ( @{$req->{deletefromcontentfilters}} ) {
-        my $other_user = LJ::load_user( $row->{username} ); 
-        return fail( $err, 203 ) unless $other_user; 
+        my $other_user = LJ::load_user( $row->{username} );
+        return fail( $err, 203 ) unless $other_user;
         my $other_userid = $other_user->{userid};
         my $cf = $u->content_filters( id => $row->{id} );
         $cf->delete_row( $other_userid ) if $cf;
@@ -2814,7 +2814,7 @@ sub list_users
       $filter = $opts{trusted} ? $u->trust_list : $u->watch_list;
       @userids = keys %{$filter};
     }
-  
+
     my $limitnum = $opts{limit} + 0;
     my @res;
 
@@ -2823,7 +2823,7 @@ sub list_users
       next unless LJ::isu( $u );
       next if $friendof && ! $u->is_visible;
       next if $hide{$userid};
-    
+
       my $r = {
                username => $u->user,
                fullname => $u->display_name
@@ -2835,29 +2835,29 @@ sub list_users
         $r->{identity_value} = $i->value;
         $r->{identity_display} = $u->display_name;
       }
-    
+
       if ( $opts{includebdays} ) {
         $r->{birthday} = $u->bday_string;
       }
-    
+
       unless ( $friendof ) {
         $r->{fgcolor} = LJ::color_fromdb( $filter->{$userid}->{fgcolor} );
         $r->{bgcolor} = LJ::color_fromdb( $filter->{$userid}->{bgcolor} );
         $r->{groupmask} = $filter->{$userid}->{groupmask};
       }
-    
+
       $r->{type} = {
                     C => 'community',
                     Y => 'syndicated',
                     I => 'identity',
                    }->{$u->journaltype} unless $u->is_person;
-    
+
       $r->{status} = {
                       D => 'deleted',
                       S => 'suspended',
                       X => 'purged',
                      }->{$u->statusvis} unless $u->is_visible;
-    
+
       push @res, $r;
       # won't happen for zero limit (which means no limit)
       last if scalar @res == $limitnum;
@@ -3033,14 +3033,14 @@ sub list_contentfilters
     return [] unless @filters;
 
     my @res = map { { id => $_->{id},         name => $_->{name},
-                      public => $_->{public}, sortorder => $_->{sortorder}, 
-                      data => join ( ' ', 
-                                    map { my $uid = $_; 
-                                          LJ::load_userid( $uid )->user } 
+                      public => $_->{public}, sortorder => $_->{sortorder},
+                      data => join ( ' ',
+                                    map { my $uid = $_;
+                                          LJ::load_userid( $uid )->user }
                                     ( keys %{$u->content_filters (id => $_->id )->data} ) ) } }
-       @filters;          
-    
-    return \@res;   
+       @filters;
+
+    return \@res;
 }
 
 sub list_usejournals {
