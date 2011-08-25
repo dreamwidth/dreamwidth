@@ -940,6 +940,7 @@ sub fixup_logitem_replycount {
 #      - _loaded => 1 (if fully loaded, subject & body)
 #        unknown items will never be _loaded
 #      - _show => {0|1}, if item is to be ideally shown (0 if deleted or screened)
+#      - echi (explicit comment hierarchy indicator)
 sub load_comments
 {
     my ($u, $remote, $nodetype, $nodeid, $opts) = @_;
@@ -1030,6 +1031,64 @@ sub load_comments
                 $showable_children{$post->{'parenttalkid'}} += $sum;
                 unshift @{$children{$post->{'parenttalkid'}}}, $post->{'talkid'};
             }
+
+        }
+
+        # explicit comment hierarchy indicator generation
+        if ( ( ! $opts->{'flat'} ) && $remote && $remote->prop( "opt_echi_display" ) eq "Y" ) {
+            
+            my @alpha = ( "a".."z" );
+            
+            # all echi values are initially stored as numeric values; this
+            # translates from the number to a..z, a[a..z]..z[a..z], etc.
+            my $to_alpha = sub {
+                my $num = shift;
+                # this is 0-based, while the count is 1-based.
+                $num--;
+                my $retval = "";
+                
+                # prepend a third letter only if we have more than 702
+                # comments (26^2 = 676, plus the initial 26 which don't
+                # have a second letter = 702)
+                if ( $num >= 702 ) {
+                    $retval .= $alpha[ ( $num - 702 ) / 676 ];
+                }
+                if ( $num >= 26 ) {
+                    $retval .= $alpha[ ( ( $num - 26) / 26 ) % 26 ];
+                }
+                $retval .= $alpha[ $num % 26 ];
+                return $retval;
+            };
+            
+            my $top_counter = 1;
+
+            foreach my $post (sort { $a->{'talkid'} <=> $b->{'talkid'} } values %$posts) {
+                # set the echi for this comment
+                my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'} || 0;  
+                if ( $parentid && $posts->{$parentid} ) {
+                    my $parent = $posts->{$parentid};
+                    $post->{'echi_count'} = 0;
+                    if ( ! $parent->{'echi_count'} ) {
+                        $parent->{'echi_count'} = 1;
+                    } else {
+                        $parent->{'echi_count'} = $parent->{'echi_count'} + 1;
+                    }
+                    if ( ! $parent->{'echi_type'} ) {
+                        $parent->{'echi_type'} = 'N';
+                    }
+                    if ( $parent->{'echi_type'} eq 'N' ) {
+                        $post->{'echi_type'} = 'A';
+                        $post->{echi} = $parent->{echi} . $to_alpha->( $parent->{'echi_count'} );
+                    } else {
+                        $post->{'echi_type'} = 'N';
+                        $post->{echi} = $parent->{echi} . $parent->{'echi_count'};
+                    }
+                } else {
+                    $post->{echi} = $top_counter++;
+                    $post->{'echi_count'} = 0;
+                    $post->{'echi_type'} = 'N';
+                }
+            }
         }
     }
 
@@ -1089,8 +1148,10 @@ sub load_comments
     ## %expand_children - list of comments, children of which are to expand
     my %expand_children = map { $_ => 1 } @top_replies;
     my (@subjects_to_load, @subjects_ignored);
+
     while (@check_for_children) {
         my $cfc = shift @check_for_children;
+
         next unless defined $children{$cfc};
         foreach my $child (@{$children{$cfc}}) {
             if (@posts_to_load < $page_size || $expand_children{$cfc} || $opts->{expand_all}) {

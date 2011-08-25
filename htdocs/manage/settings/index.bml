@@ -82,6 +82,7 @@ body<=
                 LJ::Setting::NavStrip
                 LJ::Setting::NCTalkLinks
                 LJ::Setting::StyleMine
+                DW::Setting::DisplayEchi
                 LJ::Setting::CtxPopup
                 LJ::Setting::AdultContent
                 DW::Setting::AdultContentReason

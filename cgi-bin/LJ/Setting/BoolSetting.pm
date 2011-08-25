@@ -56,10 +56,10 @@ sub as_html {
             value    => 1,
             id       => "${key}check",
             selected => $class->is_selected($u),
-        }) . " <label for='${key}check'>" . $class->label . "</label>";
-    if (my $des = $class->des) {
-        $html .= "<br /><span class='helper'>$des</span>";
-    }
+        }) . " <label for='${key}check'>";
+    $html .=  $class->des || $class->label;
+    $html .= "</label>";
+
     return $html;
 }
 

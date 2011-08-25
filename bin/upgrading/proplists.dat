@@ -654,6 +654,14 @@ userproplist.opt_ctxpopup:
   multihomed: 0
   prettyname: Contextual Popup
 
+userproplist.opt_echi_display:
+  cldversion: 4
+  datatype: bool
+  des: Explicit Hierarchy Comment Indicator (1., 1a, 1b, 2.) display for comments 
+  indexed: 1
+  multihomed: 0
+  prettyname: Explicit Hierarchy Comment Indicator display
+
 userproplist.opt_embedplaceholders:
   cldversion: 4
   datatype: char
