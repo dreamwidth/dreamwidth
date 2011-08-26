@@ -67,6 +67,11 @@ sub sphinx_search {
         # allow public posts and anything the mask allows
         my @bits = ( 102, LJ::bit_breakdown( $args->{allowmask} ) );
         $sx->SetFilter( 'security_bits', \@bits );
+
+        # private entries should only be viewable when we choose to ignore security
+        # this works around some data where the entry is marked in sphinx
+        # as being both private and having an allowmask
+        $sx->SetFilter( 'security_bits', [ 0 ], 1 );
     }
 
     my $res = $sx->Query( $args->{query} );
