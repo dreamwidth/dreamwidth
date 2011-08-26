@@ -179,12 +179,6 @@ sub RecentPage
     my $itemnum = 0;
     my $lastentry = undef;
 
-    my (%apu);  # alt poster users
-    foreach (@items) {
-        next unless $_->{posterid} != $u->{userid};
-        $apu{$_->{posterid}} = undef;
-    }
-
     $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_journal' ) );
 
   ENTRY:
@@ -202,7 +196,7 @@ sub RecentPage
         my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 
         # don't show posts from suspended users or suspended posts unless the user doing the viewing says to (and is allowed)
-        next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && !$viewsome;
+        next ENTRY if $entry_obj && $entry_obj->poster->is_suspended && ! $viewsome;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         # create S2 entry, journal posted to is $u

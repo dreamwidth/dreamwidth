@@ -112,12 +112,6 @@ sub DayPage
     my @items;
     push @items, $_ while $_ = $sth->fetchrow_hashref;
 
-    my %apu;  # alt poster users
-    foreach (@items) {
-        next unless $_->{posterid} != $u->{userid};
-        $apu{$_->{posterid}} = undef;
-    }
-
     $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_journal' ) );
 
   ENTRY:
@@ -130,7 +124,7 @@ sub DayPage
         my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 
         # don't show posts from suspended users or suspended posts
-        next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && ! $viewsome;
+        next ENTRY if $entry_obj && $entry_obj->poster->is_suspended && ! $viewsome;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         # create S2 Entry object
