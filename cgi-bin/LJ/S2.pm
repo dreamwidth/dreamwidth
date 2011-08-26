@@ -106,7 +106,9 @@ sub make_journal
         $ctx->[S2::SCRATCH]->{siteviews_enabled} = 1;
         $ctx->[S2::PROPS]->{SITEVIEWS} = $siteviews_class;
     } else {
-        if ( ! LJ::S2::use_journalstyle_entry_page( $u ) && ( $view eq "entry" || $view eq "reply" ) ) {
+        my $style_u = $opts->{style_u} || $u;
+
+        if ( ! LJ::S2::use_journalstyle_entry_page( $style_u ) && ( $view eq "entry" || $view eq "reply" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
