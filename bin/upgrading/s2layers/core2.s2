@@ -1204,7 +1204,11 @@ set show_userpics_entry = true;
 set show_userpics_comments = true;
 
 # was !view_entry_disabled
-property bool use_journalstyle_entry_page  { des = "Show entry pages in my journal style rather than the site skin"; }
+property bool use_journalstyle_entry_page {
+    des = "Show entry pages in my journal style rather than the site skin";
+    note = "OBSOLETE: This option has been moved to Account Settings";
+    obsolete = 1;
+}
 set use_journalstyle_entry_page = true;
 
 property bool use_journalstyle_icons_page  { des = "Show icons page in my journal style rather than the site skin"; }

@@ -321,8 +321,6 @@ sub skip_prop {
     return 1 if $prop_name eq "control_strip_fgcolor";
     return 1 if $prop_name eq "control_strip_bordercolor";
     return 1 if $prop_name eq "control_strip_linkcolor";
-    return 1 if $prop_name eq "use_journalstyle_entry_page";
-    return 1 if $prop_name eq "view_entry_disabled";
 
     my $hook_rv = LJ::Hooks::run_hook("skip_prop_override", $prop_name, user => $opts{user}, theme => $theme, style => $opts{style});
     return $hook_rv if $hook_rv;
@@ -456,21 +454,23 @@ sub output_prop_element {
         $ret .= "</td>" unless $is_group;
     } elsif ($type eq "bool") {
         $ret .= "<td class='prop-check'>" unless $is_group;
-        $ret .= $class->html_check(
-            name => $name,
-            disabled => ! $can_use,
-            selected => $override,
-            label => $prop->{label},
-            id => $name,
-        );
+        unless ( $prop->{obsolete} ) {  # can't be changed, so don't print
+            $ret .= $class->html_check(
+                name => $name,
+                disabled => ! $can_use,
+                selected => $override,
+                label => $prop->{label},
+                id => $name,
+            );
 
-        # force the checkbox to be submitted, if the user unchecked it
-        # so that it can be processed (disabled) when handling the post
-        $ret .= $class->html_hidden(
-            "${name}",
-            "0",
-            { disabled => ! $can_use }
-        );
+            # force the checkbox to be submitted, if the user unchecked it
+            # so that it can be processed (disabled) when handling the post
+            $ret .= $class->html_hidden(
+                "${name}",
+                "0",
+                { disabled => ! $can_use }
+            );
+        }
 
         $ret .= "</td>" unless $is_group;
     } elsif ($type eq "string") {
