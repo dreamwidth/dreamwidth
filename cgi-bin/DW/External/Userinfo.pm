@@ -67,10 +67,13 @@ sub timeout {
     # there are two layers of timeout protection.
     # we set a timeout in memcache for ext_userinfo
     # when we try to load the data for the user,
-    # but we also set one in the database for persistence.
-    # this function checks to see if the timeout
+    # but we also set one in the database for persistence
+    # (and for sites that might not be using memcache).
+    # this function checks to see if the database timeout
     # is in effect, returning true if we need to wait more,
     # or false if it's OK to try to try loading again.
+    # the assumption is that we already know if the memcache
+    # check in the load method failed before calling here.
 
     my ( $class, $u ) = @_;
     croak 'need a DW::External::User'
@@ -78,26 +81,21 @@ sub timeout {
     my $user = $u->user;
     my $site = $u->site->{siteid};
 
-    # check memcache
-    my $memkey = "ext_userinfo:$site:$user";
-    my $timeout = LJ::MemCache::get( $memkey );
-    return 1 if defined $timeout && $timeout eq '';
-
-    # check the database
     my $dbr = LJ::get_db_reader() or return undef;
-    $timeout = $dbr->selectrow_array(
+    my $timeout = $dbr->selectrow_array(
         "SELECT last FROM externaluserinfo WHERE user=?" .
         " AND site=?", undef, $user, $site );
     die $dbr->errstr if $dbr->err;
     return 0 unless $timeout;
 
-    # at this point, we've determined that there is a
-    # timeout in the database but not in memcache.
-    # we need to check and see if it's expired.
+    # at this point, we've determined that there
+    # is a timeout in the database, but we still
+    # need to check and see if it's expired.
 
     my $time_remaining = $timeout + $class->wait - time;
     if (  $time_remaining > 0 ) {
-        # timeout hasn't expired yet
+        # timeout hasn't expired yet! we should notify memcache.
+        my $memkey = "ext_userinfo:$site:$user";
         LJ::MemCache::set( $memkey, '', $time_remaining + 60 );
         return 1;
     } else {
@@ -261,15 +259,16 @@ sub lj_journaltype {
     my ( $class, $u, $urlbase ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
+    croak 'need a valid username' unless $u->user;
 
     # try to load the journaltype from cache
-    if ( my $type = $class->load( $u ) ) {
-        return $type;
-    }
+    my $type = $class->load( $u );
+    return $type if $type;
 
     # if it's not cached, check remote if allowed
-    if ( LJ::is_enabled( 'extacct_info', $u->site ) &&
-              ! $class->timeout( $u ) ) {
+    if ( LJ::is_enabled( 'extacct_info', $u->site ) &&  # allowed in config;
+            ! defined $type &&  # load returned undef; go look for it
+            ! $class->timeout( $u ) ) {  # unless a timeout is in effect
 
         # ask gearman worker to do a lookup (calls check_remote)
         if ( my $gc = LJ::gearman_client() ) {
