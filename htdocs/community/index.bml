@@ -2,7 +2,7 @@
 #
 # community/index.bml
 #
-# Provides a "landing page" for communities and community-related 
+# Provides a "landing page" for communities and community-related
 # stuff, including links for both comm members and admins.
 #
 # Authors:
@@ -48,18 +48,18 @@ body<=
     $ret .= "<h2>" . BML::ml( '.findcomms' ) . "</h2>";
     $ret .= "<ul><li><a href='$LJ::SITEROOT/community/search'>" . BML::ml( '.findcomms.commsearch' ) . "</li>";
     $ret .= "<li><a href='$LJ::SITEROOT/community/random'>" . BML::ml( '.findcomms.random' ) . "</li>";
-    $ret .= "<li><a href='LJ::SITEROOT/search'>" . BML::ml( '.findcomms.sitesearch' ) . "</a>: " . BML::ml( '.findcomms.sitesearch.detail' ) . "</li>";
+    $ret .= "<li><a href='$LJ::SITEROOT/search'>" . BML::ml( '.findcomms.sitesearch' ) . "</a>: " . BML::ml( '.findcomms.sitesearch.detail' ) . "</li>";
     $ret .= LJ::Hooks::run_hook( 'community_search_links' );
 
     $ret .= "</ul><br /><hr width='50%' />";
 
     # div box of recently-updated communities
 
-    $ret .= DW::Widget::RecentlyActiveComms->render;  
+    $ret .= DW::Widget::RecentlyActiveComms->render;
 
     # div box of recently-created communities
 
-    $ret .= DW::Widget::NewlyCreatedComms->render;    
+    $ret .= DW::Widget::NewlyCreatedComms->render;
 
     # hook to create the div box of official DW communities
 
@@ -69,8 +69,8 @@ body<=
     # linked here are going to be site-specific, so -- you guessed it,
     # another hook. see the same package as earlier -- create and define
     # your own if you want to link to your own site's community management
-    # FAQs. in an if block because none of this is applicable to 
-    # logged-out users. 
+    # FAQs. in an if block because none of this is applicable to
+    # logged-out users.
 
     if ( $remote ) {
         $ret .= "<br /><h2>" . BML::ml( '.manage' ) . "</h2><ul>";
