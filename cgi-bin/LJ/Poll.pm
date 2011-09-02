@@ -619,16 +619,18 @@ sub close_poll {
 
 # get the answer a user gave in a poll
 sub get_pollanswers {
-    my ( $pollid, $u ) = @_;
+    my ( $self, $u ) = @_;
 
-    # try getting the has from memcache
-    my $memkey = [$u->userid, "pollresult2:$u->userid:$pollid"];
+    my $pollid = $self->pollid;
+
+    # try getting first from memcache
+    my $memkey = [$u->userid, "pollresults:$u->userid:$pollid"];
     my $result = LJ::MemCache::get( $memkey );
     return %$result if $result;
 
     my $sth;
     my %answers;
-    $sth = $u->prepare( "SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=?" );
+    $sth = $self->journal->prepare( "SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=?" );
     $sth->execute( $pollid, $u->userid );
 
     while ( my ( $qid, $value ) = $sth->fetchrow_array ) {
@@ -912,7 +914,7 @@ sub render {
 
     $ret .= qq{<div id='poll-$pollid-container' class='poll-container'>};
     if ( $remote ) {
-        %preval = get_pollanswers( $pollid, $remote );
+        %preval = $self->get_pollanswers( $remote );
     }
 
     if ( $do_form ) {
@@ -1404,7 +1406,7 @@ sub process_submission {
     }
 
     # delete user answer MemCache entry
-    my $memkey = [$remote->userid, "pollresult2:$remote->userid:$pollid"];
+    my $memkey = [$remote->userid, "pollresults:$remote->userid:$pollid"];
     LJ::MemCache::delete( $memkey );
 
     # if unique prop is on, make sure that a particular email address can only vote once
