@@ -1041,9 +1041,9 @@ sub load_comments
 
         # explicit comment hierarchy indicator generation
         if ( ( ! $opts->{'flat'} ) && $remote && $remote->prop( "opt_echi_display" ) eq "Y" ) {
-            
+
             my @alpha = ( "a".."z" );
-            
+
             # all echi values are initially stored as numeric values; this
             # translates from the number to a..z, a[a..z]..z[a..z], etc.
             my $to_alpha = sub {
@@ -1051,7 +1051,7 @@ sub load_comments
                 # this is 0-based, while the count is 1-based.
                 $num--;
                 my $retval = "";
-                
+
                 # prepend a third letter only if we have more than 702
                 # comments (26^2 = 676, plus the initial 26 which don't
                 # have a second letter = 702)
@@ -1064,12 +1064,12 @@ sub load_comments
                 $retval .= $alpha[ $num % 26 ];
                 return $retval;
             };
-            
+
             my $top_counter = 1;
 
             foreach my $post (sort { $a->{'talkid'} <=> $b->{'talkid'} } values %$posts) {
                 # set the echi for this comment
-                my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'} || 0;  
+                my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'} || 0;
                 if ( $parentid && $posts->{$parentid} ) {
                     my $parent = $posts->{$parentid};
                     $post->{'echi_count'} = 0;
