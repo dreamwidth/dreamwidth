@@ -939,7 +939,7 @@ sub fixup_logitem_replycount {
 #      - children => [ hashrefs like these ]
 #      - _loaded => 1 (if fully loaded, subject & body)
 #        unknown items will never be _loaded
-#      - _show => {0|1}, if item is to be ideally shown (0 if deleted or screened)
+#      - _show => {0|1}, if item is to be ideally shown (0 if deleted, screened, or filtered)
 #      - echi (explicit comment hierarchy indicator)
 sub load_comments
 {
@@ -971,30 +971,35 @@ sub load_comments
                 $post->{'parenttalkid'} = 0;
             }
 
-            # grab the comment object for method calls
-            my $pobj = LJ::Comment->new( $u, jtalkid => $post->{talkid} );
-
             # see if we should ideally show it or not.  even if it's
             # zero, we'll still show it if it has any children (but we won't show content)
-            my $should_show = ! $pobj->is_deleted;
+            my $state = $post->{state} || '';
+            my $should_show = $state eq 'D' ? 0 : 1;  # no deleted comments
             my $parenttalkid = $post->{parenttalkid};
             unless ( $viewall ) {
                 # first check to see if a filter has been requested
+                my $poster = LJ::load_userid( $post->{posterid} );
                 my %filtermap = (
-                    screened => sub { return $pobj->is_screened },
-                    frozen => sub { return $pobj->is_frozen },
-                    visible => sub { return $pobj->viewable_by_others },
+                    screened => sub { return $state eq 'S' },
+                    frozen => sub { return $state eq 'F' },
+                    visible => sub {
+                                     return 0 if $state eq 'S';
+                                     return 0 if $poster && $poster->is_suspended;
+
+                                     # no need to check if deleted, because $should_show does that for us
+
+                                     return 1;
+                                   },
                 );
                 if ( $should_show && $opts->{filter} && exists $filtermap{ $opts->{filter} } ) {
                     $should_show = $filtermap{ $opts->{filter} }->();
                 }
 
                 # then check for comment owner/journal owner
-                my $poster = LJ::load_userid( $post->{posterid} );
                 $should_show = 0 if $should_show &&     # short circuit, and check the following conditions
                                                         # only if we wanted to show in the first place
                     # can view if not screened, or if screened and some conditions apply
-                    $post->{state} eq "S" &&
+                    $state eq "S" &&
                     ! ( $remote &&
                         ( $remote->userid == $uposterid || # made in remote's journal
                           $remote->userid == $post->{posterid} || # made by remote
