@@ -5,13 +5,17 @@ use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
+if ( @LJ::CLUSTERS < 2 || @{$LJ::DEFAULT_CLUSTER||[]} < 2) {
+    plan skip_all => "Less than two clusters.";
+    exit 0;
+}
+
 use LJ::Test qw( temp_user );
 use LJ::Poll;
 
 note( "Set up a poll where the voter is on a different cluster" );
 {
-    $LJ::DEFAULT_CLUSTER = 1;
-    my $poll_journal = temp_user();
+    my $poll_journal = temp_user( cluster => $LJ::DEFAULT_CLUSTER->[0] );
 
     my $entry = $poll_journal->t_post_fake_entry();
     my $poll = LJ::Poll->create(
@@ -25,8 +29,7 @@ note( "Set up a poll where the voter is on a different cluster" );
         );
 
 
-    $LJ::DEFAULT_CLUSTER = 2;
-    my $voter = temp_user();
+    my $voter = temp_user( cluster => $LJ::DEFAULT_CLUSTER->[1] );
     LJ::set_remote( $voter );
 
     LJ::Poll->process_submission( { pollid => $poll->id, "pollq-1" => "voter's answers" } );

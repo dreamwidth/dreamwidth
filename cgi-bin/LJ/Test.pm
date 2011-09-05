@@ -73,6 +73,7 @@ sub temp_user {
     my %args = @_;
     my $underscore  = delete $args{'underscore'};
     my $journaltype = delete $args{'journaltype'}  || "P";
+    my $cluster = delete $args{cluster};
     croak('unknown args') if %args;
 
     my $pfx = $underscore ? "_" : "t_";
@@ -83,6 +84,7 @@ sub temp_user {
             name => "test account $username",
             email => "test\@$LJ::DOMAIN",
             journaltype => $journaltype,
+            cluster => $cluster,
         });
         if ($uid) {
             my $u = LJ::load_userid($uid) or next;
