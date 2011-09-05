@@ -108,7 +108,7 @@ sub make_journal
     } else {
         my $style_u = $opts->{style_u} || $u;
 
-        if ( ! LJ::S2::use_journalstyle_entry_page( $style_u ) && ( $view eq "entry" || $view eq "reply" ) ) {
+        if ( ! LJ::S2::use_journalstyle_entry_page( $style_u, $ctx ) && ( $view eq "entry" || $view eq "reply" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -1734,7 +1734,7 @@ sub get_journal_day_counts
 }
 
 sub use_journalstyle_entry_page {
-    my ( $u ) = @_;
+    my ( $u, $ctx ) = @_;
     return 0 if !$u || $u->is_syndicated;  # see sitefeeds/layout.s2
     my $userprop = $u->prop( 'use_journalstyle_entry_page' );
 
@@ -1751,11 +1751,14 @@ sub use_journalstyle_entry_page {
         return undef;  # unexpected or undefined value
     };
 
-    return $reparse_userprop->() if defined $userprop;
+    my $reparsed;
+    $reparsed = $reparse_userprop->() if defined $userprop;
+    return $reparsed if defined $reparsed;
 
-    # if the userprop isn't defined, check the current style
-    # for the legacy S2 prop, and then set the userprop going forward
-    my $ctx = LJ::S2::s2_context( $u->{s2_style} ) or return undef;
+    # if the userprop isn't defined, or we got an unexpected value
+    # check the current style for the legacy S2 prop, and then
+    # set the userprop going forward
+    $ctx ||= LJ::S2::s2_context( $u->{s2_style} ) or return undef;
     my $ctxval = $ctx->[S2::PROPS]->{use_journalstyle_entry_page};
     $userprop = $ctxval ? 'Y' : 'N';
 

@@ -8749,6 +8749,7 @@ sub make_journal {
                 }
 
                 # return stylesys 2; will fall back on default style
+                $opts->{style_u} = $remote;
                 return ( 2, undef );
             }
 
