@@ -13,11 +13,17 @@
 
 .buying.for=Transfer To:
 
+.buying.note=Note (Optional):
+
 .buying.points=Points to Transfer:
 
 .buying.points.range=(1 to 5,000 points)
 
 .confirm2=If you are sure you wish to do this, please click the button below.
+
+.note.n=The ability to send a note is not allowed for this transaction.
+
+.note.y=The following note will be sent to the recipient:
 
 .request.anon=You have requested to anonymously transfer [[points]] [[?points|point|points]] to [[name]] ([[user]]).  They will not know the points came from you.
 

@@ -1374,8 +1374,18 @@ in the site store.  You can visit the store with this link:
     [[store]]
 
 
+[[reason]]
+
 Regards,
   The [[sitename]] Team
+.
+
+esn.receivedpoints.reason<<
+The following note was authored by the sender:
+
+[[reason]]
+
+--
 .
 
 esn.receivedpoints.subject=You have received [[sitename]] Points!
@@ -1388,6 +1398,8 @@ in the site store.  You can visit the store with this link:
 
     [[store]]
 
+
+[[reason]]
 
 Regards,
   The [[sitename]] Team

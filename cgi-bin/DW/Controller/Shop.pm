@@ -116,12 +116,17 @@ sub shop_transfer_points_handler {
                 }
             }
 
+            # Note: DW::Shop::Item::Points->can_have_reason doesn't check args,
+            # but someone will suggest it do so in the future, so let's save time.
+            $rv->{can_have_reason} = $item->can_have_reason( user => $u, anon => $args->{anon} );
+
         } else {
             $errs{foruser} = LJ::Lang::ml( 'shop.item.points.canbeadded.itemerror' );
         }
 
-        # copy down anon value
+        # copy down anon value and reason
         $rv->{anon} = $args->{anon} ? 1 : 0;
+        $rv->{reason} = LJ::strip_html( $args->{reason} );
 
         # if this is a confirmation page, then confirm if there are no errors
         if ( $args->{confirm} && ! scalar keys %errs ) {
@@ -129,14 +134,18 @@ sub shop_transfer_points_handler {
             $u->give_shop_points( amount => $points, reason => sprintf( 'transfer from %s(%d)', $remote->user, $remote->id ) );
             $remote->give_shop_points( amount => -$points, reason => sprintf( 'transfer to %s(%d)', $u->user, $u->id ) );
 
+            my $get_text = sub { LJ::Lang::get_text( $u->prop( 'browselang' ), $_[0], undef, $_[1] ) };
+
             # send notification ...
             my $e = $rv->{anon} ? 'anon' : 'user';
-            my $body = LJ::Lang::get_text( $u->prop( 'browselang' ), "esn.receivedpoints.$e.body", undef, {
+            my $reason = ( $rv->{reason} && $rv->{can_have_reason} ) ? $get_text->( "esn.receivedpoints.reason", { reason => $rv->{reason} } ) : '';
+            my $body = $get_text->( "esn.receivedpoints.$e.body", {
                     user => $u->display_username,
                     points => $points,
                     from => $remote->display_username,
                     sitename => $LJ::SITENAMESHORT,
                     store => "$LJ::SITEROOT/shop/",
+                    reason => $reason,
                 } );
 
             # FIXME: esnify the notification
@@ -144,7 +153,7 @@ sub shop_transfer_points_handler {
                 to => $u->email_raw,
                 from => $LJ::ACCOUNTS_EMAIL,
                 fromname => $LJ::SITENAME,
-                subject => LJ::Lang::get_text( $u->prop( 'browselang' ), 'esn.receivedpoints.subject', undef, { sitename => $LJ::SITENAMESHORT } ),
+                subject => $get_text->( 'esn.receivedpoints.subject', { sitename => $LJ::SITENAMESHORT } ),
                 body => $body,
             } );
 
@@ -155,7 +164,7 @@ sub shop_transfer_points_handler {
         } elsif ( ! scalar keys %errs ) {
             $rv->{confirm} = 1;
         }
-        
+
     } else {
         if ( my $for = $r->get_args->{for} ) {
             $rv->{foru} = LJ::load_user( $for );
@@ -165,6 +174,8 @@ sub shop_transfer_points_handler {
             $rv->{points} = $points+0
                 if $points > 0 && $points <= 5000;
         }
+
+        $rv->{can_have_reason} = DW::Shop::Item::Points->can_have_reason;
     }
 
     return DW::Template->render_template( 'shop/transferpoints.tt', $rv );
@@ -213,7 +224,7 @@ sub shop_points_handler {
             $rv->{cart}->add_item( $item );
             return $r->redirect( "$LJ::SITEROOT/shop" );
         }
-        
+
     } else {
         my $for = $r->get_args->{for};
 

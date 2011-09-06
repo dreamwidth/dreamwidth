@@ -16,12 +16,20 @@
           ELSE;
             '.request.user' | ml(points = points, user = foru.ljuser_display, name=foru.name_html);
           END %]</p>
+    [% IF reason %]
+        [% IF can_have_reason %]
+            <p>[% '.note.y' | ml %]</p><q>[% reason | html_para %]</q>
+        [% ELSE %]
+            <p>[% '.note.n' | ml %]</p>
+        [% END %]
+    [% END %]
     <p>[% '.confirm2' | ml %]</p>
 
     <form method='post'>
         [% dw.form_auth %]
         <input type='hidden' name='foruser' value='[% foru.user %]' />
         <input type='hidden' name='points' value='[% points %]' />
+        <input type='hidden' name='reason' value="[% reason | html %]" />
         <input type='hidden' name='anon' value='[% anon %]' />
         <input type='hidden' name='confirm' value='1' />
         <input type='submit' value='[% '.btn.confirm' | ml %]' />
@@ -46,13 +54,18 @@
                 </td></tr>
             [% ELSE %]
                 <tr><td>[% '.buying.for' | ml %]</td><td><input type='text' name='foruser' maxlength='25' size='15' />
-                    [% IF errs.foruser %]<br /><strong>[% errs.foruser %][% END %]
+                    [% IF errs.foruser %]<br /><strong>[% errs.foruser %]</strong>[% END %]
                 </td></tr>
             [% END %]
             <tr><td>[% '.buying.points' | ml %]</td><td><input type='text' name='points' id='points' maxlength='4' size='10' value='[% points %]' />
                 [% '.buying.points.range' | ml %]
-                [% IF errs.points %]<br /><strong>[% errs.points %][% END %]
+                [% IF errs.points %]<br /><strong>[% errs.points %]</strong>[% END %]
             </td></tr>
+            [% IF can_have_reason %]
+                <tr><td>[% '.buying.note' | ml %]</td><td>
+                [% form.textarea(name = 'reason', rows = '6', cols = '60', wrap = 'soft') %]
+                </td></tr>
+            [% END %]
             <tr><td></td><td><input type='checkbox' name='anon' id='anon'> <label for='anon'>[% '.anon' | ml %]</label></td></tr>
             <tr><td></td><td><input type='submit' value='[% '.btn.transfer' | ml %]' /></td></tr>
             </table>
