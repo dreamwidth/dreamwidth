@@ -44,7 +44,6 @@ general /create.bml.password.secure2
 general /create.bml.proceed.head
 general /create.bml.proceed.text
 
-general /create.bml.title
 general /create.bml.tos.error
 general /create.bml.tos.haveread
 general /create.bml.tos.p1.2
