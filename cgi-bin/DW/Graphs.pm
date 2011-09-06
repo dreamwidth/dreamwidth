@@ -5,7 +5,7 @@
 # Authors:
 #      Anarres <anarres@dreamwidth.org>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
@@ -26,6 +26,31 @@ use GD::Text;
 use GD::Graph::colour;
 use YAML ();
 
+=head1 NAME
+
+DW::Graphs - creates graphs for the statistics system
+
+=head1 SYNOPSIS
+
+  use DW::Graphs;
+  my $pie = DW::Graphs::pie( { Ponies => 5, Rainbows => 1, Unicorns => 3 } );
+  # Display $pie->png using your favorite library
+  my $bar = DW::Graphs::bar( [ 5, 1, 3 ], [ qw( Ponies Rainbows Unicorns ) ],
+                                  'Critter', 'Count' );
+  # Display $bar->png using your favorite library
+  my $bars = DW::Graphs::bar2( [ [ qw( Ponies Rainbows Unicorns ) ],
+                                 [ 5, 1, 3 ], [ 2, 0, 1 ] ],
+                               'Critter', 'Count',
+                               [ qw( Plain Sparkly ) ] );
+  # Display $bars->png using your favorite library
+  my $lines = DW::Graphs::lines( [ [ qw( Ponies Rainbows Unicorns ) ],
+                                   [ 5, 1, 3 ], [ 2, 0, 1 ] ],
+                                 'Critter', 'Count',
+                                 [ qw( Plain Sparkly ) ] );
+  # Display $lines->png using your favorite library
+
+=cut
+
 # Define colours - the arrays can be over-ridden by config file
 my $background = '#f7f7f7';
 my $nearly_white = '#f8f8f8';
@@ -43,9 +68,18 @@ my %fonts = (
     axis_size => 10,
     legend_size => 12,
 );
-# Generates a pie chart. The argument is a hashref of labels and values.
-# Returns graph object $gd which can be printed with the command: print $gd->png;
-# See ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
+
+=head1 API
+
+=head2 C<< DW::Graphs::pie( $data [, $config_filename ] ) >>
+
+Creates pie chart from $data (slice_label => slice_value hashref), using
+optional $config_filename to override defaults. Returns a GD::Graph::pie.
+
+See ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
+
+=cut
+
 sub pie {
     my ( $pie_ref, $config_filename ) = @_;
 
@@ -110,10 +144,16 @@ sub pie {
     return $gd;
 }
 
-# Generates a bar chart. Arguments: a ref to an array of values, a ref to an
-# array of labels, title, x-axis label, y-axis label. # Returns graph object
-# $gd which can be printed with the command: print $gd->png; see
-# graphs_usage.pl for more detailed usage information.
+=head2 C<< DW::Graphs::bar( $values_ref, $labels_ref, $xlabel, $ylabel [, $config_filename ] ) >>
+
+Creates bar chart from $values_ref (value arrayref), $labels_ref (label
+arrayref), $xlabel, $ylabel, using optional $config_filename to override
+defaults. Returns a GD::Graph::bars.
+
+See ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
+
+=cut
+
 sub bar {
     my ( $values_ref, $labels_ref, $xlabel, $ylabel, $config_filename ) = @_;
 
@@ -188,11 +228,17 @@ sub bar {
     return $gd;
 }
 
-# Generates a bar chart with two or more sets of data represented by each bar.
-# Arguments: a reference containing labels and datasets, x-axis label,
-# y-axis label, ref to array of names for datasets. Returns graph object
-# $gd which can be printed with the command: print $gd->png; see
-# ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
+=head2 C<< DW::Graphs::bar2( $values_ref, $labels_ref, $xlabel, $ylabel [, $config_filename ] ) >>
+
+Creates bar chart with two or more sets of data from $ref ([ [ @value_labels ],
+[ @dataset1 ], [ @dataset2 ], ... ]), $xlabel, $ylabel, $names_ref (label
+arrayref, must have 1 element per dataset), using optional $config_filename to
+override defaults. Returns a GD::Graph::bars.
+
+See ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
+
+=cut
+
 sub bar2 {
     my ( $ref, $xlabel, $ylabel, $names_ref, $config_filename ) = @_;
 
@@ -273,10 +319,17 @@ sub bar2 {
     return $gd;
 }
 
-# Generates a line graph. Arguments: a reference containing labels and datasets,
-# x-axis label, y-axis label, ref to array of names for datasets. Returns
-# graph object $gd which can be printed with the command: print $gd->png; see
-# ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
+=head2 C<< DW::Graphs::bar2( $values_ref, $labels_ref, $xlabel, $ylabel [, $config_filename ] ) >>
+
+Creates line graph with two or more sets of data from $ref ([ [ @value_labels ],
+[ @dataset1 ], [ @dataset2 ], ... ]), $xlabel, $ylabel, $names_ref (label
+arrayref, must have 1 element per dataset), using optional $config_filename to
+override defaults. Returns a GD::Graph::bars.
+
+See ~/dw/bin/dev/graphs_usage.pl for more detailed usage information.
+
+=cut
+
 sub lines {
     my ( $data_ref, $xlabel, $ylabel, $data_names, $config_filename ) = @_;
 
@@ -351,3 +404,13 @@ sub lines {
 }
 
 1;
+
+=head1 AUTHORS AND COPYRIGHT
+
+Authors: Anarres <anarres@dreamwidth.org>
+
+Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
