@@ -49,7 +49,11 @@
 
 .intro.invite=Enter an account name to invite someone to join your community, and select the community privileges you want that account to have.
 
-.jump=Jump to account
+.jump2=Search for account
+
+.jump.clear=Reshow full membership list
+
+.jump.notfound=The specified user was not found in the member list.
 
 .key.admin=<strong>Administrator</strong>
 

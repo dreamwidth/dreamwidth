@@ -441,6 +441,9 @@ body<=
 
     # now get lists of: members, admins, able to post, moderators
     my %users = ();
+    my %typemap = ( A => 'admin', P => 'post', E => 'member',
+                    M => 'moderate', N => 'preapprove' );
+    my $typein = q( 'A','P','M','N','E' );
 
     # need a dbr now
     my $dbr = LJ::get_db_reader();
@@ -448,14 +451,16 @@ body<=
     # get all community edges
     # FIXME: kind of lame to do it this way, manually, instead of having accessors for this...
     my $sth = $dbr->prepare("SELECT r.targetid, r.type, u.user FROM reluser r, useridmap u " .
-                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ('A','P','M','N','E')");
+                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ($typein)");
     $sth->execute($cid);
 
+    my %usernames;
     my %count;
     while (my ($id, $type, $user) = $sth->fetchrow_array) {
         $users{$id}->{'userid'} = $id;
         $users{$id}->{'name'} = $user;
-        my $key = {'A'=>'admin','P'=>'post','M'=>'moderate','N'=>'preapprove','E'=>'member'}->{$type};
+        $usernames{$user} = $id;
+        my $key = $typemap{$type};
         $users{$id}->{$key} = 1;
         $count{$type}++;
     }
@@ -469,34 +474,37 @@ body<=
         if $c->{'moderated'} || $count{'M'};
     push @attribs, 'admin';
 
-    # sorting method;
+    # sorting method; default sort by username
     my $method = $GET{'sort'};
+    my %sortmap = reverse %typemap;
+    my $sort = $sortmap{$method} ? $method : '';
 
-    my $cmp = sub {$a->{'name'} cmp $b->{'name'}};
-    $cmp = sub {$b->{'member'} <=> $a->{'member'}} if $method eq 'member';
-    $cmp = sub {$b->{'admin'} <=> $a->{'admin'}} if $method eq 'admin';
-    $cmp = sub {$b->{'post'} <=> $a->{'post'}} if $method eq 'post';
-    $cmp = sub {$b->{'moderate'} <=> $a->{'moderate'}} if $method eq 'moderate';
-    $cmp = sub {$b->{'preapprove'} <=> $a->{'preapprove'}} if $method eq 'preapprove';
+    # even if we're sorting another way, we still want a
+    # secondary sort by username, for predictability
 
+    my $cmp = $sort ? sub { $b->{$sort} <=> $a->{$sort} || $a->{name} cmp $b->{name} }
+                    : sub { $a->{name} cmp $b->{name} };
     my @users = sort $cmp values %users;
+
+    # iterate through list and store position value in users hash
+    for ( my $i = 0; $i < @users; $i++ ) {
+        my $id = $users[$i]->{userid};
+        $users{$id}->{index} = $i;
+    }
+
     my $page_size = 100; # change to adjust page size
 
     # are we going to jump to a specific user ?
-    my $jumppage;
-    my $jumpuser;
-    if (@users > $page_size && $POST{'jumpto'} =~ /^\w+$/) {
-        my $ct;
-        foreach (@users) {
-            $jumppage++ if $ct % $page_size == 0;
-            if ($POST{'jumpto'} eq $_->{'name'}) {
-                $jumpuser = $_->{'name'};
-                last;
-            }
-            $ct++;
+    my ( $jumppage, $jumpuser, $currpage );
+    if ( $POST{jumpto} ) {
+        if ( my $user = $users{$usernames{$POST{jumpto}}} ) {
+            $jumpuser = $user->{name};
+            $jumppage = $user->{index} + 1;
+            $currpage = int( $user->{index} / $page_size ) + 1;
+            $page_size = 1;  # just show this user
         }
-        undef $jumppage unless $jumpuser;
     }
+    $jumppage = $GET{page} unless defined $jumppage;
 
     # how to make links back to this page
     my $self_link = sub {
@@ -504,25 +512,30 @@ body<=
         return "members?authas=$cname&page=$_[0]$sort";
     };
 
-    my %items = BML::paging(\@users, $jumppage || $GET{'page'}, $page_size);
+    my %items = BML::paging( \@users, $jumppage, $page_size );
     my $navbar = LJ::paging_bar($items{'page'}, $items{'pages'},
                                  { 'self_link' => $self_link });
     @users = @{$items{'items'}};
 
     # output starts here
     $ret .= BML::ml('.intro', { aopts1 => "href='$LJ::HELPURL{maintainership}'", aopts2 => "href='$LJ::HELPURL{add_to_comm}'" }) . "<br /><br />";
-    $ret .= $ML{'.intro.invite'};
+    $ret .= $ML{'.intro.invite'} . "<br /><br />";
 
     $ret .= "<form method='post' action='members?authas=$cname'>";
     $ret .= LJ::form_auth();
 
     # jump to user
-    if ($items{'pages'} > 1) {
-        $ret .= "<div style='margin-left: 30px;'>$ML{'.jump'}: ";
-        $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
-                                'class' => 'text', 'size' => '10', 'maxlength' => '75' }) . " ";
-        $ret .= LJ::html_submit(undef, 'Go') . "</div>";
+    $ret .= "<p>$ML{'.jump2'}: ";
+    $ret .= LJ::html_text( { name => 'jumpto', value => $POST{jumpto},
+                             class => 'text', size => '10', maxlength => '75' } ) . " ";
+    $ret .= LJ::html_submit( undef, 'Go' ) . "</p>";
 
+    if ( $jumpuser ) {
+        $ret .= "<p><h3><a href='" . $self_link->( $currpage ) . "'>";
+        $ret .= "$ML{'.jump.clear'}</a></h3></p>";
+    } else {
+        $ret .= "<p><h3>$ML{'.jump.notfound'}</h3></p>"
+            if $POST{jumpto};  # was not found in the list
         $ret .= $navbar;
     }
 
@@ -551,7 +564,7 @@ body<=
     }
 
     # if on the last page, let users add to the list
-    if ($items{'page'} == $items{'pages'}) {
+    if ( $jumpuser || ( $items{page} == $items{pages} ) ) {
         foreach(1..5) {
             my $rstyle = ($rc++ & 1) ? "even" : "odd";
             $ret .= "<tr class='$rstyle'><td>";
@@ -578,7 +591,7 @@ body<=
     $ret .= "<p>" . LJ::html_submit('action:update', $ML{'.update'}) . "</p>\n";
     $ret .= "</div></form>\n\n";
 
-    $ret .= $navbar;
+    $ret .= $navbar unless $jumpuser;
 
     return $ret;
 
