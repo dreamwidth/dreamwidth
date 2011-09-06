@@ -37,6 +37,7 @@ $domaintosite{"inksome.com"} = DW::External::Site->new("5", "www.inksome.com", "
 $domaintosite{"journalfen.net"} = DW::External::Site->new("6", "www.journalfen.net", "journalfen.net", "JournalFen", "lj");
 $domaintosite{"dreamwidth.org"} = DW::External::Site->new("7", "www.dreamwidth.org", "dreamwidth.org", "Dreamwidth", "lj");
 $domaintosite{"archiveofourown.org"} = DW::External::Site->new("8", "www.archiveofourown.org", "archiveofourown.org", "ArchiveofOurOwn", "AO3");
+$domaintosite{"ao3.org"} = $domaintosite{"archiveofourown.org"};
 $domaintosite{"twitter.com"} = DW::External::Site->new("9", "twitter.com", "twitter.com", "Twitter", "Twitter");
 $domaintosite{"tumblr.com"} = DW::External::Site->new("10", "tumblr.com", "tumblr.com", "Tumblr", "Tumblr");
 $domaintosite{"etsy.com"} = DW::External::Site->new("11", "www.etsy.com", "etsy.com", "Etsy", "Etsy");

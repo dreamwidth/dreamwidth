@@ -30,9 +30,10 @@ sub new { croak 'cannot build with new'; }
 sub accepts {
     my ( $class, $parts ) = @_;
 
-    # allows anything at archiveofourown.org
+    # allows anything at archiveofourown.org and ao3.org
     return 0 unless $parts->[-1] eq 'org' &&
-                    $parts->[-2] eq 'archiveofourown';
+                    ( $parts->[-2] eq 'archiveofourown' ||
+                      $parts->[-2] eq 'ao3' );
 
     return bless { hostname => 'archiveofourown.org' }, $class;
 }
