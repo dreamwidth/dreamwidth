@@ -5078,10 +5078,14 @@ function Entry::print_interaction_links(string target)
             "</li>\n";
             }
         if ($.comments.enabled) {
-            $count ++;
-            """<li class="entry-replylink""" + ( $count == 1 ? " first-item" : "" ) + """">""";
-            $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
-            "</li>\n";
+            if ($.comments.maxcomments) {
+                print safe "$*text_max_comments";
+            } else {
+                $count ++;
+                """<li class="entry-replylink""" + ( $count == 1 ? " first-item" : "" ) + """">""";
+                $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
+                "</li>\n";
+            }
         }
         "</ul>";
     } else {

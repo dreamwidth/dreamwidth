@@ -19,6 +19,8 @@
 
 .from_external=(from [[site]])
 
+.maxcomments=Maximum comments reached
+
 .noreplies=No replies
 
 .nosubject=(no subject)

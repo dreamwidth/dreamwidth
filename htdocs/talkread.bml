@@ -57,7 +57,7 @@ body<=
 
     # pre-load common strings for little speed and less typing later
     # (we're doing this *after* set_language_scope is called, because
-    # two below are relative strings)
+    # a few below are relative strings)
     my %T = qw(postcomments    talk.commentpost
                readcomments    talk.commentsread
                parent          talk.parentlink
@@ -70,6 +70,7 @@ body<=
                link            talk.commentpermlink
                deleted         .subjectdeleted
                nosubject       .nosubject
+               maxcomments     .maxcomments
                );
     foreach (keys %T) { $T{$_} = $ML{$T{$_}}; }
 
@@ -124,6 +125,7 @@ body<=
     }
 
     my $entry = LJ::Entry->new($u, ditemid => $ditemid);
+    my $maxcomments = ( $entry->reply_count >= $u->count_maxcomments ) ? 1 : 0;
 
     # canonical link to the entry or comment thread
     $$head .= LJ::canonical_link( $entry->url, $GET{thread} );
@@ -573,16 +575,18 @@ body<=
                 my $replyurl = LJ::Talk::talkargs( $talkurl, "replyto=$dtid", $style_args );
                 if ($post->{'state'} eq 'F') {
                     $ret .= "($T{'frozen'})&nbsp; ";
-                } elsif ($remote) {
-                    if ( $post->{state} eq 'S' ) {
-                        # if the user can see the comment, they can also reply
-                        # if they can also unscreen, they are given the option to reply and unscreen
-                        $ret .= "(" . LJ::make_qr_link( $dtid, $post->{subject}, $T{replythis}, $replyurl ) .  ")&nbsp; ";
+                } elsif ( ! $maxcomments ) {
+                    if ($remote) {
+                        if ( $post->{state} eq 'S' ) {
+                            # if the user can see the comment, they can also reply
+                            # if they can also unscreen, they are given the option to reply and unscreen
+                            $ret .= "(" . LJ::make_qr_link( $dtid, $post->{subject}, $T{replythis}, $replyurl ) .  ")&nbsp; ";
+                        } else {
+                            $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ")&nbsp; ";
+                        }
                     } else {
-                        $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ")&nbsp; ";
+                        $ret .= "(<a href='$replyurl'>$T{'replythis'}</a>)&nbsp; ";
                     }
-                } else {
-                    $ret .= "(<a href='$replyurl'>$T{'replythis'}</a>)&nbsp; ";
                 }
 
                 my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'};
@@ -670,10 +674,14 @@ body<=
         # Quick Reply when posting a new top level comment
         # requires setup when logged in.
         $ret .= "<p class='lesstop' align='center'><b>$readlink";
-        if ($remote) {
-            $ret .= "(" . LJ::make_qr_link('top', '', $T{'postcomments'}, $posturl) . ")";
+        if ( $maxcomments ) {
+            $ret .= "($T{maxcomments})";
         } else {
-            $ret .= "(<a href='$posturl'>$T{'postcomments'}</a>)";
+            if ($remote) {
+                $ret .= "(" . LJ::make_qr_link('top', '', $T{'postcomments'}, $posturl) . ")";
+            } else {
+                $ret .= "(<a href='$posturl'>$T{'postcomments'}</a>)";
+            }
         }
 
         $ret .= "</b></p>";
@@ -722,10 +730,14 @@ body<=
             }
 
             $ret .= "<hr /><p class='lesstop' align='center'><b>$readlink";
-            if ( $remote ) {
-                $ret .= "(" . LJ::make_qr_link('bottom', '', $T{'postcomments'}, $posturl) . ")";
+            if ( $maxcomments ) {
+                $ret .= "($T{maxcomments})";
             } else {
-                $ret .= "(<a href='$posturl'>$T{'postcomments'}</a>)";
+                if ( $remote ) {
+                    $ret .= "(" . LJ::make_qr_link('bottom', '', $T{'postcomments'}, $posturl) . ")";
+                } else {
+                    $ret .= "(<a href='$posturl'>$T{'postcomments'}</a>)";
+                }
             }
             $ret .= "</b></p>";
             $ret .= "<div align='center'>" . LJ::make_qr_target('bottom') . "</div>" if $remote;
