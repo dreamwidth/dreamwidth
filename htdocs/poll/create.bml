@@ -294,12 +294,12 @@ _c?>
             if ($qrec->{'type'} == 'check') {
                 my $checkmin = $qrec->{'checkmin'};
                 if ($checkmin > $num_opts) {
-                    $err->{$q}->{'checkmin'} = $ML{'.error.checkmintoohigh'};
+                    $err->{$q}->{'checkmin'} = LJ::Lang::ml( ".error.checkmintoohigh2" );
                 }
                 
                 my $checkmax = $qrec->{'checkmax'};
                 if ($checkmax < $checkmin) {
-                    $err->{$q}->{'checkmax'} = $ML{'.error.checkmaxtoolow'};
+                    $err->{$q}->{'checkmax'} = LJ::Lang::ml( ".error.checkmaxtoolow2" );
                 }
             }
         }
@@ -548,7 +548,7 @@ _c?>
 
             # question text and hidden fields
             $ret .= LJ::html_hidden("pq_${q}_type", $elem->{'type'}, "pq_${q}_opts", $elem->{'opts'});
-            $ret .= "<br />Question:<br />";
+            $ret .= "<br />" . LJ::Lang::ml( ".question" ) . "<br />";
             $ret .= LJ::html_text({ 'name' => "pq_${q}_question", 'size' => '50',
                                     'maxlength' => $RULES{'question'}->{'maxlength'},
                                     'value' => $elem->{"question"} }) . "\n";
@@ -559,7 +559,7 @@ _c?>
 
             # spit out opts -- choices for drop-down, radio, etc questions
             if ($elem->{'type'} =~ /^(radio|check|drop)$/) {
-                $ret .= "Options:\n";
+                $ret .= LJ::Lang::ml( ".options2" ) . "\n";
                 foreach my $o (0..$elem->{'opts'}-1) {
                     $ret .= "<br />";
 
@@ -573,18 +573,19 @@ _c?>
                     if $err->{$q}->{"items"};
                 $ret .= $elem->{'opts'} < $RULES{'items'}->{'max'}
                     ? "<br />" . LJ::html_submit("request:$q:do", undef, { 'raw' => " value='More &gt;&gt;'" }) . "\n"
-                    : "<br /><?de [$ML{'.options.limitreached'}] de?>\n";
+                    : "<br />" . LJ::Lang::ml ( ".options.limitreached2" ) . "\n";
                 
                 if ($elem->{'type'} eq 'check') {
                     $ret .= "<br/>";
-                    foreach my $atr ( qw(checkmin checkmax) ) {
-                        $ret .= $ML{"." . $atr};
-                        $ret .= LJ::html_text({ 'name' => "pq_${q}_$atr",
-                                                'value' => defined $elem->{$atr} ? $elem->{$atr} : $RULES{'checkbox'}->{$atr},
+                    my $minnumber .= LJ::html_text({ 'name' => "pq_${q}_checkmin",
+                                                'value' => defined $elem->{'checkmin'} ? $elem->{'checkmin'} : $RULES{'checkbox'}->{'checkmin'},
                                                 'size' => '3', 'maxlength' => '9' }) . "\n";
-                    }                           
+                    my $maxnumber .= LJ::html_text({ 'name' => "pq_${q}_checkmax",
+                                                'value' => defined $elem->{'checkmax'} ? $elem->{'checkmax'} : $RULES{'checkbox'}->{'checkmax'},
+                                                'size' => '3', 'maxlength' => '9' }) . "\n";
+                    $ret .= LJ::Lang::ml( ".checknumber", { min => $minnumber, max => $maxnumber } );
                     foreach my $atr ( qw(checkmin checkmax) ) {
-                       $ret .= "<br /><font size='1'><b>[$err->{$q}->{$atr}]</b></font>\n"
+                       $ret .= "<br /><font size='1'><b>$err->{$q}->{$atr}</b></font>\n"
                             if $err->{$q}->{$atr};
                     }
                 } 
