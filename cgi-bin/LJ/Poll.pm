@@ -373,7 +373,7 @@ sub new_from_html {
                     return $err->('poll.error.missingljpq');
                 }
 
-                return $err->("poll.error.toomanyopts")
+                return $err->( "poll.error.toomanyopts2" )
                     unless $numi++ < 255;
 
                 if ($qopts{'type'} eq "text")
@@ -457,7 +457,7 @@ sub new_from_html {
                 $iopts{'item'} =~ s/\s+$//;
 
                 my $len = length($iopts{'item'});
-                return $err->('poll.error.pitoolong', { 'len' => $len, })
+                return $err->( 'poll.error.pitoolong2', { 'len' => $len, } )
                     if $len > 255 || $len < 1;
 
                 push @{$qopts{'items'}}, { %iopts };
@@ -976,15 +976,15 @@ sub render {
             $maxcheck ||= 255;
             
             if ($mincheck > 0 && $mincheck eq $maxcheck ) {
-                $results_table .= "<i>You must choose exactly <b>" . $mincheck . "</b> options</i><br />\n";
+                $results_table .= "<i>". LJ::Lang::ml( "poll.checkexact", { options => $mincheck } ). "</i><br />\n";
             }
             else {
                 if ($mincheck > 0) {
-                    $results_table .= "<i>You must choose at least <b>" . $mincheck . "</b> options</i><br />\n";
+                    $results_table .= "<i>". LJ::Lang::ml( "poll.checkmin", { options => $mincheck } ). "</i><br />\n";
                 }
             
                 if ($maxcheck < 255) {
-                    $results_table .= "<i>You can choose up to <b>" . $maxcheck . "</b> options</i><br />\n";
+                    $results_table .= "<i>". LJ::Lang::ml( "poll.checkmax", { options => $maxcheck } ). "</i><br />\n";
                 }
             }
         }
@@ -1470,12 +1470,12 @@ sub process_submission {
                 $checkmax ||= 255;
             
                 if($num_opts < $checkmin) {
-                    $$error = LJ::Lang::ml('poll.error.checkfewoptions', {'question' => $qid, 'options' => $checkmin});
+                    $$error = LJ::Lang::ml( 'poll.error.checkfewoptions2', {'question' => $qid, 'options' => $checkmin} );
                     $error_code = 2;
                     $val = "";
                 }
                 if($num_opts > $checkmax) {
-                    $$error = LJ::Lang::ml('poll.error.checktoomuchoptions', {'question' => $qid, 'options' => $checkmax});
+                    $$error = LJ::Lang::ml( 'poll.error.checktoomuchoptions2', {'question' => $qid, 'options' => $checkmax} );
                     $error_code = 2;
                     $val = "";
                 }

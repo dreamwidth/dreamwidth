@@ -2035,6 +2035,12 @@ Password=Password
 
 poll.changevote=Change Your Vote
 
+poll.checkexact=You must choose exactly <b>[[options]]</b> responses.
+
+poll.checkmin=You must choose at least <b>[[options]]</b> responses.
+
+poll.checkmax=You can choose up to <b>[[options]]</b> responses.
+
 poll.clear=Clear Answers
 
 poll.dberror=Database error: [[errmsg]]
@@ -2053,13 +2059,13 @@ poll.error.cantview=Error: you don't have access to these poll results.
 
 poll.error.cantvote=Sorry, you don't have permission to vote in this particular poll.
 
-poll.error.checkfewoptions=You must select at least <b>[[options]]</b> options in question <b>#[[question]]</b>, or you can choose to skip it.
+poll.error.checkfewoptions2=You must select at least <b>[[options]]</b> responses in question <b>#[[question]]</b>, or you can choose to skip it.
 
 poll.error.checkmaxtoolow=Checkmax attribute must be higher than Checkmin attribute.
 
 poll.error.checkmintoolow=Checkmin attribute must be positive.
 
-poll.error.checktoomuchoptions=You can only select up to <b>[[options]]</b> in question <b>#[[question]]</b>.
+poll.error.checktoomuchoptions2=You can only select up to <b>[[options]]</b> responses in question <b>#[[question]]</b>.
 
 poll.error.missingljpoll=All  poll-question (or lj-pq) tags must be nested inside an enclosing poll (or lj-poll) tag.
 
@@ -2081,7 +2087,7 @@ poll.error.notext=You need to have text inside an lj-pq tag to say what the ques
 
 poll.error.notvalidated2=You must <a [[aopts]]>confirm your email address</a> before you can vote in this poll.
 
-poll.error.pitoolong=A poll answer must be between 1 and 255 characters.  Yours is [[len]].
+poll.error.pitoolong2=A poll response must be between 1 and 255 characters.  Yours is [[len]].
 
 poll.error.pollnotfound=Error: poll #[[num]] not found
 
@@ -2095,7 +2101,7 @@ poll.error.scaletoobig1=Your scale exceeds the limit of [[maxselections]] select
 
 poll.error.tagnotopen=You cannot close an [[tag]] tag that's not open.
 
-poll.error.toomanyopts=Your poll has too many options. Each question can only have 255 possible answers.
+poll.error.toomanyopts2=Your poll has too many responses. Each question can only have 255 possible responses.
 
 poll.error.toomanyquestions=You have too many questions in your poll. Polls are limited to 255 questions.
 
