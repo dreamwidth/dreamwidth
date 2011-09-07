@@ -176,7 +176,7 @@ FCKCommands.RegisterCommand('LJUserLink', LJUserCommand ); //otherwise our comma
 
 // Create the toolbar button.
 var oLJUserLink = new FCKToolbarButton('LJUserLink', window.parent.FCKLang.LJUser);
-oLJUserLink.IconPath = FCKConfig.PluginsPath + 'livejournal/ljuser.gif' ;
+oLJUserLink.IconPath = FCKConfig.PluginsPath + 'livejournal/dwuser.png' ;
 
 // Register the button to use in the config
 FCKToolbarItems.RegisterItem('LJUserLink', oLJUserLink) ;
