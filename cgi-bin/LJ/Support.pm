@@ -439,7 +439,7 @@ sub set_prop
 }
 
 # $loadreq is used by /abuse/report.bml and
-# ljcmdbuffer.pl to signify that the full request
+# LJ::Cmdbuffer to signify that the full request
 # should not be loaded.  To simplify code going live,
 # Whitaker and I decided to not try and merge it
 # into the new $opts hash.

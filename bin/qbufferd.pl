@@ -18,7 +18,7 @@ use Getopt::Long
 use lib "$ENV{LJHOME}/cgi-bin";
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
 use LJ::Support;
-require "$ENV{'LJHOME'}/cgi-bin/ljcmdbuffer.pl";
+use LJ::Cmdbuffer;
 
 my $opt_foreground;
 my $opt_debug;
