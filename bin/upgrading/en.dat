@@ -958,6 +958,20 @@ error.security.nocap=This feature is not available for your account level.
 
 error.security.s1=Sorry, security filtering is not supported within S1 styles.
 
+error.support.database=Database error:
+
+error.support.invalid_category=Invalid support category
+
+error.support.nonuser=You cannot submit support requests from non-user accounts.
+
+error.support.norequest=You did not enter a support request.
+
+error.support.nosummary=You must enter a problem summary.
+
+error.support.report=(report this)
+
+error.support.spid=Didn't get a spid
+
 error.suspended.text=This journal has been either temporarily or permanently suspended by [[sitename]] for policy violation.  If you're [[user]], contact us for more information.
 
 error.suspended.name=Suspended
@@ -3680,6 +3694,110 @@ subscribe_interface.special_subs.note=These notification options are only availa
 subscribe_interface.subs.total2=You are using [[active]] out of [[max_active]] active notifications.
 
 subscribe_interface.unavailable_subs.note=These notification options are only available to certain account types.
+
+support.answertype.answer=Answer
+
+support.answertype.bounce=Bounce to Email & Close
+
+support.answertype.comment=Comment or Question
+
+support.answertype.internal=Internal Comment / Action
+
+support.answertype.moreinfo=More information
+
+support.answertype.screened=Screened Response
+
+support.blocked.email=Support request blocked based on email
+
+support.blocked.uniq=Support request blocked based on uniq
+
+support.blocked.user=Support request blocked based on user
+
+support.email.confirmation.body<<
+Your [[sitename]] support request regarding "[[subject]]" has been filed and will be answered as soon as possible. Your request tracking number is [[number]]
+
+You can track your request's progress or add information here:
+
+[[url]]
+
+.
+
+support.email.confirmation.close=If you figure out the problem before somebody gets back to you, please cancel your request by clicking this:
+
+support.email.fromname=[[sitename]] Support
+
+support.email.notif.new.body<<
+A [[sitename]] support request has been submitted regarding the following:
+
+Category: [[category]]
+Subject: [[subject]]
+URL: [[url]]
+Text:
+
+[[text]]
+
+.
+
+support.email.notif.new.footer<<
+You can view this request here:
+
+[[url]]
+
+You are receiving this email because you've requested notifications of new support requests. You may change this notification setting here:
+
+[[setting]]
+
+.
+
+support.email.notif.update.body<<
+A follow-up to the following [[sitename]] support request has been submitted:
+
+Category: [[category]]
+Subject: [[subject]]
+URL: [[url]]
+Text:
+
+[[text]]
+
+.
+
+support.email.notif.update.subject=Re: Support Request #[[number]]
+
+support.email.notif.update.footer<<
+You can view this request here:
+
+[[url]]
+
+You are receiving this email because you've requested notifications of changes to support requests. You may change this notification setting here:
+
+[[setting]]
+
+.
+
+support.email.subject=Support Request #[[number]]
+
+support.email.update.body_a=Below is an answer to your support question regarding "[[subject]]"
+
+support.email.update.body_c=Below is a comment on your support question regarding "[[subject]]"
+
+support.email.update.close<<
+Did this answer your question?
+YES:
+[[close]]
+NO:
+[[reply]]
+
+.
+
+support.email.update.faqref=FAQ REFERENCE:
+
+support.email.update.linkserror=If you are having problems using any of the links in this email, please try copying and pasting the *entire* link into your browser's address bar rather than clicking on it.
+
+support.email.update.noreply=Replies to this address are not monitored. To reply to your request, use the links above.
+
+support.email.update.subject=Re: [[subject]]
+
+support.email.update.unknown_username=[Unknown or undefined example username]
 
 taglib.error.access=You are not allowed to tag entries in this journal.
 

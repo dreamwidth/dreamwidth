@@ -526,26 +526,26 @@ sub get_answer_types
     my @ans_type;
 
     if (is_poster($sp, $remote, $auth)) {
-        push @ans_type, ("comment", "More information");
+        push @ans_type, ("comment", LJ::Lang::ml( "support.answertype.moreinfo" ));
         return @ans_type;
     }
 
     if (can_help($sp, $remote)) {
-        push @ans_type, ("screened" => "Screened Response",
-                         "answer" => "Answer",
-                         "comment" => "Comment or Question");
+        push @ans_type, ("screened" => LJ::Lang::ml( "support.answertype.screened" ),
+                         "answer" => LJ::Lang::ml( "support.answertype.answer" ),
+                         "comment" => LJ::Lang::ml( "support.answertype.comment" ));
     } elsif ($sp->{_cat}->{'allow_screened'}) {
-        push @ans_type, ("screened" => "Screened Response");
+        push @ans_type, ("screened" => LJ::Lang::ml( "support.answertype.screened" ));
     }
 
     if (can_make_internal($sp, $remote) &&
         ! $sp->{_cat}->{'public_help'})
     {
-        push @ans_type, ("internal" => "Internal Comment / Action");
+        push @ans_type, ("internal" => LJ::Lang::ml( "support.answertype.internal" ));
     }
 
     if (can_bounce($sp, $remote)) {
-        push @ans_type, ("bounce" => "Bounce to Email & Close");
+        push @ans_type, ("bounce" => LJ::Lang::ml( "support.answertype.bounce" ));
     }
 
     return @ans_type;
@@ -595,14 +595,14 @@ sub file_request
     $reqbody =~ s/(see_request\.bml.+?)\&auth=\w+/$1/ig;
 
     unless ($reqsubject) {
-        push @$errors, "You must enter a problem summary.";
+        push @$errors, LJ::Lang::ml( "error.support.nosummary" );
     }
     unless ($reqbody) {
-        push @$errors, "You did not enter a support request.";
+        push @$errors, LJ::Lang::ml( "error.support.norequest" );
     }
 
     my $cats = LJ::Support::load_cats();
-    push @$errors, $BML::ML{'error.invalid.support.category'} unless $cats->{$o->{'spcatid'}+0};
+    push @$errors, LJ::Lang::ml{"error.support.invalid_category"} unless $cats->{$o->{'spcatid'}+0};
 
     if (@$errors) { return 0; }
 
@@ -652,7 +652,7 @@ sub file_request
     if ($dbh->err) {
         my $error = $dbh->errstr;
         $dbh->do("UNLOCK TABLES");
-        push @$errors, "<b>Database error:</b> (report this)<br>$error";
+        push @$errors, "<b>" . LJ::Lang::ml( "error.support.database" ) . "</b> " . LJ::Lang::ml( "error.support.report" ) . "<br />$error";
         return 0;
     }
     $spid = $dbh->{'mysql_insertid'};
@@ -662,7 +662,7 @@ sub file_request
     $dbh->do("UNLOCK TABLES");
 
     unless ($spid) {
-        push @$errors, "<b>Database error:</b> (report this)<br>Didn't get a spid.";
+        push @$errors, "<b>" . LJ::Lang::ml( "error.support.database" ) . "</b> " . LJ::Lang::ml( "error.support.report" ) . "<br />" . LJ::Lang::ml( "error.support.spid" );
         return 0;
     }
 
@@ -688,12 +688,15 @@ sub file_request
     $url = "$LJ::SITEROOT/support/see_request?id=$spid";
     $urlauth = "$url&auth=$miniauth";
 
-    $body = "Your $LJ::SITENAME support request regarding \"$o->{'subject'}\" has been filed and will be answered as soon as possible.  Your request tracking number is $spid.\n\n";
-    $body .= "You can track your request's progress or add information here:\n\n  ";
-    $body .= $urlauth . "\n\n";
+    $body = LJ::Lang::ml( "support.email.confirmation.body", {
+                sitename => $LJ::SITENAME,
+                subject => $o->{'subject'},
+                number => $spid,
+                url => $urlauth
+            } );
 
     if ($scat->{user_closeable}) {
-        $body .= "If you figure out the problem before somebody gets back to you, please cancel your request by clicking this:\n\n  ";
+        $body .= "\n\n" . LJ::Lang::ml( "support.email.confirmation.close" ) . "\n\n";
         $body .= "$LJ::SITEROOT/support/act?close;$spid;$authcode";
     }
 
@@ -702,9 +705,9 @@ sub file_request
         LJ::send_mail({
             'to' => $email,
             'from' => $LJ::BOGUS_EMAIL,
-            'fromname' => "$LJ::SITENAME Support",
+            'fromname' => LJ::Lang::ml( "support.email.fromname", { sitename => $LJ::SITENAME } ),
             'charset' => 'utf-8',
-            'subject' => "Support Request \#$spid",
+            'subject' => LJ::Lang::ml( "support.email.subject", { number => $spid } ),
             'body' => $body
             });
     }
@@ -941,11 +944,10 @@ sub mail_response_to_user
     $lang ||= $u->prop( 'browselang' ) if $u;
     $lang ||= $LJ::DEFAULT_LANG;
 
-    # FIXME: strip
     my $body = "";
     my $dbh = LJ::get_db_writer();
-    my $what = $type eq "answer" ? "an answer to" : "a comment on";
-    $body .= "Below is $what your support question regarding \"$sp->{'subject'}\"\n";
+    $body .= $type eq "answer" ? LJ::Lang::ml( "support.email.update.body_a", { subject => $sp->{'subject'} } ) : LJ::Lang::ml( "support.email.update.body_c", { subject => $sp->{'subject'} } );
+    $body .= "\n";
 
     my $miniauth = mini_auth($sp);
     $body .= "($LJ::SITEROOT/support/see_request?id=$spid&auth=$miniauth).\n\n";
@@ -956,13 +958,13 @@ sub mail_response_to_user
         # and journal URL
         my ( $user, $user_url );
         $u ||= LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
-        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
-        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+        $user = $u ? $u->user : "<b>". LJ::Lang::ml( "support.email.update.unknown_username") . "</b>";
+        $user_url = $u ? $u->journal_base : "<b>". LJ::Lang::ml( "support.email.update.unknown_username") . "</b>";
 
         my $faq = LJ::Faq->load( $faqid, lang => $lang );
         if ( $faq ) {
             $faq->render_in_place;
-            $body .= "FAQ REFERENCE: " . $faq->question_raw . "\n";
+            $body .= LJ::Lang::ml( "support.email.update.faqref") . " " . $faq->question_raw . "\n";
             $body .= "$LJ::SITEROOT/support/faqbrowse?faqid=$faqid&view=full";
             $body .= "\n\n";
         }
@@ -971,13 +973,15 @@ sub mail_response_to_user
     $body .= "$res->{'message'}\n\n";
 
     if ($sp->{_cat}->{user_closeable}) {
-        $body .= "Did this answer your question?\nYES:\n";
-        $body .= "$LJ::SITEROOT/support/act?close;$spid;$sp->{'authcode'}";
-        $body .= ";$splid" if $type eq "answer";
-        $body .= "\nNO:\n$LJ::SITEROOT/support/see_request?id=$spid&auth=$miniauth\n\n";
+        my $closeurl = "$LJ::SITEROOT/support/act?close;$spid;$sp->{'authcode'}" . ( $type eq "answer" ? ";$splid" : "" );
+        $body .= LJ::Lang::ml( "support.email.update.close", {
+                close => $closeurl,
+                reply => "$LJ::SITEROOT/support/see_request?id=$spid&auth=$miniauth"
+            } );
+            $body .= "\n\n";
     }
 
-    $body .= "If you are having problems using any of the links in this email, please try copying and pasting the *entire* link into your browser's address bar rather than clicking on it.";
+    $body .= LJ::Lang::ml( "support.email.update.linkserror" );
 
     my $fromemail;
     if ($sp->{_cat}->{'replyaddress'}) {
@@ -988,15 +992,15 @@ sub mail_response_to_user
         $fromemail =~ s/\@/$rep/;
     } else {
         $fromemail = $LJ::BOGUS_EMAIL;
-        $body .= "\n\nReplies to this address are not monitored. To reply to your request, use the links above.";
+        $body .= "\n\n" . LJ::Lang::ml( "support.email.update.noreply" );
     }
 
     LJ::send_mail({
         'to' => $email,
         'from' => $fromemail,
-        'fromname' => "$LJ::SITENAME Support",
+        'fromname' => LJ::Lang::ml( "support.email.fromname", { sitename => $LJ::SITENAME } ),
         'charset' => 'utf-8',
-        'subject' => "Re: $sp->{'subject'}",
+        'subject' => LJ::Lang::ml( "support.email.update.subject", { subject => $sp->{'subject'} } ),
         'body' => $body
         });
 
@@ -1049,17 +1053,17 @@ sub work {
     my @emails;
 
     if ($type eq 'new') {
-        $body = "A $LJ::SITENAME support request has been submitted regarding the following:\n\n";
-        $body .= "Category: $sp->{_cat}{catname}\n";
-        $body .= "Subject:  $sp->{subject}\n";
-        $body .= "URL: $LJ::SITEROOT/support/see_request?id=$spid\n";
-        $body .= "Text:\n\n  $sp->{body}";
+        $body = LJ::Lang::ml( "support.email.notif.new.body", {
+                category => $sp->{_cat}{catname},
+                subject => $sp->{subject},
+                url => "$LJ::SITEROOT/support/see_request?id=$spid",
+                text => $sp->{body}
+            } );
         $body .= "\n\n" . "="x4 . "\n\n";
-        $body .= "You can view this request here:\n\n";
-        $body .= "$LJ::SITEROOT/support/see_request?id=$spid";
-        $body .= "\n\nYou are receiving this email because you've requested notifications of new support requests. You may change this notification setting here:\n\n";
-        $body .= "$LJ::SITEROOT/support/changenotify";
-
+        $body .= LJ::Lang::ml( "support.email.notif.new.footer", {
+                url => "$LJ::SITEROOT/support/see_request?id=$spid",
+                setting => "$LJ::SITEROOT/support/changenotify"
+            } );
 
         foreach my $u (values %$userids) {
             next unless $u->is_visible;
@@ -1075,17 +1079,17 @@ sub work {
                                   undef, $sp->{spid}, $a->{splid}+0);
 
         # build body
-        $body = "A follow-up to the following $LJ::SITENAME support request has been submitted:\n\n";
-        $body .= "Category: $sp->{_cat}{catname}\n";
-        $body .= "Subject:  $sp->{subject}\n";
-        $body .= "URL: $LJ::SITEROOT/support/see_request?id=$spid\n";
-        $body .= "Text:\n\n  $resp";
+        $body = LJ::Lang::ml( "support.email.notif.update.body", {
+                category => $sp->{_cat}{catname},
+                subject => $sp->{subject},
+                url => "$LJ::SITEROOT/support/see_request?id=$spid",
+                text => $resp
+            } );
         $body .= "\n\n" . "="x4 . "\n\n";
-        $body .= "You can view this request here:\n\n";
-        $body .= "$LJ::SITEROOT/support/see_request?id=$spid";
-        $body .= "\n\nYou are receiving this email because you've requested notifications of changes to support requests. You may change this notification setting here:\n\n";
-        $body .= "$LJ::SITEROOT/support/changenotify";
-
+        $body .= LJ::Lang::ml( "support.email.notif.update.footer", {
+                url => "$LJ::SITEROOT/support/see_request?id=$spid",
+                setting => "$LJ::SITEROOT/support/changenotify"
+            } );
 
         # now see who this should be sent to
         foreach my $u (values %$userids) {
@@ -1102,9 +1106,9 @@ sub work {
     LJ::send_mail({
         bcc => join(', ', @emails),
         from => $LJ::BOGUS_EMAIL,
-        fromname => "$LJ::SITENAME Support",
+        fromname => LJ::Lang::ml( "support.email.fromname", { sitename => $LJ::SITENAME } ),
         charset => 'utf-8',
-        subject => ($type eq 'update' ? 'Re: ' : '') . "Support Request \#$spid",
+        subject => ($type eq 'update' ? LJ::Lang::ml( "support.email.notif.update.subject", { number => $spid } ) : LJ::Lang::ml( "support.email.subject", { number => $spid } )),
         body => $body,
         wrap => 1,
     }) if @emails;

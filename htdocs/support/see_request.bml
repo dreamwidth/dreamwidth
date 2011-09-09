@@ -397,7 +397,7 @@ body<=
                     $ret .= (defined $pub->{$lid} ? 'public' : 'custom') . "</a>, ";
                 }
             } else {
-                $ret .= $ML{'none'};
+                $ret .= $ML{'.none'};
             }
         } else {
             $ret .= "(User on S1; why?) ";
@@ -761,7 +761,7 @@ body<=
 
     # answer type
     {
-        $ret .= "<tr><td align='right'>$ML{'.reply.type'}:</td><td>";
+        $ret .= "<tr><td align='right'>$ML{'.reply.type'}</td><td>";
 
         # if less than 2, remote is the person filing the request
         # so all they can do is add more info
