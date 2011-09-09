@@ -1,4 +1,6 @@
 ;; -*- coding: utf-8 -*-
+.backlink=<a [[aopts]]>&lt;&lt; Back to Member Settings</a>
+
 .email.add.body1=You have just been added as a maintainer of the community [[comm]] by one of the current maintainers. As the maintainer, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove your maintainership or transfer your community to another user.
 
 .email.add.body2.html=To manage your communities please visit <a [[aopts]]>your community management page.</a>
@@ -67,6 +69,16 @@
 
 .key.user=<strong>Account</strong>
 
+.label.admin=Administrator
+
+.label.member=Member
+
+.label.moderate=Moderator
+
+.label.post=Posting Access
+
+.label.preapprove=Unmoderated
+
 .manage2=Manage Communities
 
 .name=<strong>Community name:</strong> [[name]]
@@ -74,6 +86,16 @@
 .nextlink=<em>(Next page...)</em>
 
 .prevlink=<em>(Previous page...)</em>
+
+.purge.confirm=Remove these users
+
+.purge.continue=Review the list below and confirm that you want to remove these users from your community.
+
+.purge.explain=The following [[count]] [[?count|member|members]] of [[commname]] [[?count|has|have]] been purged from the site.
+
+.purge.none=There are no members of [[commname]] who have had their accounts purged.
+
+.purge.request=Remove Purged Members
 
 .reinvited2=You've invited [[user]] to rejoin this community. [[user]] must accept the invitation from the <a [[aopts]]>Community Invitation Page</a> to rejoin.
 

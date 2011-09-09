@@ -257,7 +257,7 @@ body<=
         # added or removed from being a maintainer
         my $sendmail = sub {
             my ($targetu, $html, $plain, $subject) = @_;
-            return unless $targetu;
+            return if ! $targetu || $targetu->is_expunged;
 
             my $fromname = $remote->{user};
 
@@ -349,7 +349,7 @@ body<=
 
         foreach my $uid (keys %{$delete{admin} || {}}) {
             my $delmaintu = $changedmaintainers->{$uid};
-            next unless $delmaintu;
+            next if ! $delmaintu || $delmaintu->is_expunged;
 
             $maintainer_notify->( $delmaintu, 'maintainer_remove', 'del' );
         }
@@ -408,13 +408,18 @@ body<=
             next if $done{$id}++;
 
             my ($str, @astr, @dstr);
-            push @astr, $ML{"/manage/invites.bml.label.$_"}
+            push @astr, $ML{".label.$_"}
                 foreach keys %{$addr{$id} || {}};
-            push @dstr, $ML{"/manage/invites.bml.label.$_"}
+            push @dstr, $ML{".label.$_"}
                 foreach keys %{$delr{$id} || {}};
             $str .= "<li>" . BML::ml('.success.added', { list => join(', ', @astr) }) . "</li>\n" if @astr;
             $str .= "<li>" . BML::ml('.success.deleted', { list => join(', ', @dstr) }) . "</li>\n" if @dstr;
             push @msgs, LJ::ljuser($users{$id}) . ":<ul>$str</ul>" if $str;
+        }
+
+        if ( @msgs ) {
+            $ret .= "<?p $ML{'.success.message2'} p?>";
+            $ret .= $_ foreach @msgs;
         }
 
         if (@invited) {
@@ -432,6 +437,57 @@ body<=
         }
         $ret .= "<?p $ML{'.success.nochanges'} p?>" unless @msgs || @invited;
         $ret .= "<?p " . BML::ml( '.success.return2', { aopts => "href='" . BML::get_uri() . "?authas=$cname'" } ) . " p?>";
+
+        return $ret;
+
+    } elsif ( $POST{'action:purge'} ) {
+        # show list of purged members and request confirmation
+        my $members = LJ::load_userids( $c->member_userids );
+        my @purged = sort { $a->user cmp $b->user }
+                     grep { $_ && $_->is_expunged } values %$members;
+
+        if ( @purged ) {
+            $ret .= "<p>";
+            $ret .= LJ::Lang::ml( '.purge.explain', { commname => $c->ljuser_display,
+                                                      count => scalar @purged } );
+            $ret .= "</p><p>$ML{'.purge.continue'}</p>\n";
+
+            # list of users
+            $ret .= "<ul class='bullet-list'>";
+            $ret .= "<li>" . $_->ljuser_display . "</li>" foreach @purged;
+            $ret .= "</ul>\n";
+
+            # submit confirmation via action:update
+            $ret .= "<form method='post' action='members?authas=$cname'>";
+            $ret .= LJ::form_auth();
+
+            my @ids = map { $_->id } @purged;
+            my %hidden = ( attribs => '', ids => join ',', @ids );
+            my @wstrs;
+
+            foreach my $id ( @ids ) {
+                # clear all the attrs. we don't care if they're valid.
+                my $name = $members->{$id}->user;
+                push @wstrs, "$id:$name:" . join '', keys %attrshort;
+                $hidden{"edit_${id}_$_"} = 0 foreach values %attrshort;
+            }
+
+            $hidden{was} = join ';', @wstrs;
+            $ret .= LJ::html_hidden( %hidden );
+
+            $ret .= LJ::html_submit( 'action:update', $ML{'.purge.confirm'} );
+            $ret .= "</form><br />\n";
+
+        } else {
+            # no one in the community was purged
+            $ret .= "<p>";
+            $ret .= LJ::Lang::ml( '.purge.none', { commname => $c->ljuser_display } );
+            $ret .= "</p>\n";
+        }
+
+        $ret .= "<p>";
+        $ret .= LJ::Lang::ml( '.backlink', { aopts => "href='members?authas=$cname'" } );
+        $ret .= "</p>\n";
 
         return $ret;
 
@@ -536,11 +592,12 @@ body<=
     } else {
         $ret .= "<p><h3>$ML{'.jump.notfound'}</h3></p>"
             if $POST{jumpto};  # was not found in the list
-        $ret .= $navbar;
+        $ret .= "$navbar<br />";
     }
 
+    my $purge_button = "<p>" . LJ::html_submit( 'action:purge', $ML{'.purge.request'} ) . "</p>\n";
     my $sortlink = BML::get_uri() . "?authas=$cname&sort=";
-    $ret .= "<br /><div align='center'><table cellpadding='0' cellspacing='0'>\n<thead><tr>" .
+    $ret .= "<div align='center'>$purge_button<table cellpadding='0' cellspacing='0'>\n<thead><tr>" .
             "<th><a href='${sortlink}name'>$ML{'.key.user'}</a></th>";
     $ret .= "<th><a href='${sortlink}$_'>".$ML{".key.$_"}."</a></th>" for (@attribs);
     $ret .= "</tr></thead>\n";
