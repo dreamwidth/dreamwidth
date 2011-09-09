@@ -24,23 +24,26 @@ sub new {
     return $class->SUPER::new( $u, $acctid, $ditemid );
 }
 
-# for this to be on for all users
-# FIXME we should allow users to unsubscribe to these notifications
-sub is_common { 1 }
+sub is_common { 0 }
 
 sub is_visible { 1 }
 
 sub is_significant { 1 }
 
-sub always_checked { 1 }
+sub always_checked { 0 }
+
+sub subscription_as_html {
+    my ( $class, $subscr ) = @_;
+    return LJ::Lang::ml( 'event.xpost.success' );
+}
 
 # FIXME make this more useful, like include a link to the crosspost
 sub content {
     my ($self) = @_;
     if ( $self->account ) {
-        return BML::ml( 'event.xpost.success.content', { accountname => $self->account->displayname } );
+        return LJ::Lang::ml( 'event.xpost.success.content', { accountname => $self->account->displayname } );
     } else {
-        return BML::ml( 'event.xpost.noaccount' );
+        return LJ::Lang::ml( 'event.xpost.noaccount' );
     }
 }
 
@@ -49,13 +52,51 @@ sub content_summary {
     return $_[0]->content( @_ );
 }
 
-# the main title for the event
-sub as_html {
+# contents for plaintext email
+sub as_email_string {
     my $self = $_[0];
-    my $subject = $self->entry->subject_html ?  $self->entry->subject_html : BML::ml('event.xpost.nosubject');
+    my $subject = '"' . $self->entry->subject_text . '"';
+    $subject = LJ::Lang::ml( 'event.xpost.nosubject' ) unless defined $subject;
+
+    return LJ::Lang::ml( 'event.xpost.email.body.text.success',
+        {
+            accountname => $self->account->displayname,
+            entrydesc => $subject,
+            entryurl => $self->entry->url,
+        } ) . "\n\n";
+}
+
+sub as_email_html {
+    my $self = $_[0];
+    my $subject = $self->entry->subject_html;
+    $subject = LJ::Lang::ml( 'event.xpost.nosubject' ) unless defined $subject;
+
+    return LJ::Lang::ml( 'event.xpost.email.body.html.success',
+        {
+            accountname => $self->account->displayname,
+            entrydesc => $subject,
+            entryurl => $self->entry->url,
+        } ) . "\n\n";
+}
+
+sub as_email_subject {
+    my $self = $_[0];
+    my $journal = $self->u ?  $self->u->user : LJ::Lang::ml( 'error.nojournal' );
+
+    return LJ::Lang::ml( 'event.xpost.email.subject.success',
+        {
+            sitenameshort => $LJ::SITENAMESHORT,
+            username => $journal,
+        } );
+}
+
+# the main title for the event
+sub as_string {
+    my $self = $_[0];
+    my $subject = $self->entry->subject_html ?  $self->entry->subject_html : LJ::Lang::ml('event.xpost.nosubject');
 
     if ( $self->account ) {
-        return BML::ml( 'event.xpost.success.title',
+        return LJ::Lang::ml( 'event.xpost.success.title',
             {
                 accountname => $self->account->displayname,
                 entrydesc => $subject,
@@ -63,53 +104,14 @@ sub as_html {
             } );
 
     } else {
-        return BML::ml( 'event.xpost.noaccount' );
+        return LJ::Lang::ml( 'event.xpost.noaccount' );
     }
 }
 
-# available for all users.
+# available for all personal users.
 sub available_for_user  {
     my ( $class, $u, $subscr ) = @_;
-    return 1;
-}
-
-# override parent class sbuscriptions method to always return
-# a subscription object for the user
-sub subscriptions {
-    my ( $self, %args ) = @_;
-    my $cid   = delete $args{'cluster'};  # optional
-    my $limit = delete $args{'limit'};    # optional
-    croak("Unknown options: " . join(', ', keys %args)) if %args;
-    croak("Can't call in web context") if LJ::is_web_context();
-
-    my @subs;
-    my $u = $self->u;
-    return unless $cid == $u->clusterid;
-
-    my $row = { userid  => $self->u->id,
-                ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-              };
-
-    push @subs, LJ::Subscription->new_from_row($row);
-
-    push @subs, eval { $self->SUPER::subscriptions(cluster => $cid,
-                                                   limit   => $limit) };
-
-    return @subs;
-}
-
-sub get_subscriptions {
-    my ( $self, $u, $subid ) = @_;
-
-    unless ($subid) {
-        my $row = { userid  => $u->{userid},
-                    ntypeid => LJ::NotificationMethod::Inbox->ntypeid, # Inbox
-                  };
-
-        return LJ::Subscription->new_from_row($row);
-    }
-
-    return $self->SUPER::get_subscriptions($u, $subid);
+    return $u->is_personal ? 1 : 0,
 }
 
 sub acctid {

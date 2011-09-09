@@ -45,8 +45,6 @@ sub new {
     return undef;
 }
 
-# for this to be on for all users
-# FIXME we should allow users to unsubscribe to these notifications
 sub is_common { 1 }
 
 sub is_visible { 1 }
@@ -55,19 +53,23 @@ sub is_significant { 1 }
 
 sub always_checked { 1 }
 
+sub subscription_as_html {
+    my ( $class, $subscr ) = @_;
+    return LJ::Lang::ml( 'event.xpost.failure' );
+}
 
 sub content {
     my $self = $_[0];
 
     if ( $self->account ) {
-        return BML::ml( 'event.xpost.failure.content',
+        return LJ::Lang::ml( 'event.xpost.failure.content',
             {
                 accountname => $self->account->displayname,
                 errmsg => $self->errmsg,
             } );
 
     } else {
-        return BML::ml( 'event.xpost.noaccount' );
+        return LJ::Lang::ml( 'event.xpost.noaccount' );
     }
 }
 
@@ -76,13 +78,53 @@ sub content_summary {
     return $_[0]->content( @_ );
 }
 
-# the main title for the event
-sub as_html {
+# contents for plaintext email
+sub as_email_string {
     my $self = $_[0];
-    my $subject = $self->entry->subject_html ?  $self->entry->subject_html : BML::ml('event.xpost.nosubject');
+    my $subject = '"' . $self->entry->subject_text . '"';
+    $subject = LJ::Lang::ml( 'event.xpost.nosubject' ) unless defined $subject;
+
+    return LJ::Lang::ml( 'event.xpost.email.body.text.failure',
+        {
+            accountname => $self->account->displayname,
+            entrydesc => $subject,
+            entryurl => $self->entry->url,
+            errmsg => $self->errmsg,
+        } ) . "\n\n";
+}
+
+sub as_email_html {
+    my $self = $_[0];
+    my $subject = $self->entry->subject_html;
+    $subject = LJ::Lang::ml( 'event.xpost.nosubject' ) unless defined $subject;
+
+    return LJ::Lang::ml( 'event.xpost.email.body.html.failure',
+        {
+            accountname => $self->account->displayname,
+            entrydesc => $subject,
+            entryurl => $self->entry->url,
+            errmsg => $self->errmsg,
+        } ) . "\n\n";
+}
+
+sub as_email_subject {
+    my $self = $_[0];
+    my $journal = $self->u ?  $self->u->user : LJ::Lang::ml( 'error.nojournal' );
+
+    return LJ::Lang::ml( 'event.xpost.email.subject.failure',
+        {
+            sitenameshort => $LJ::SITENAMESHORT,
+            username => $journal,
+        } );
+}
+
+# the main title for the event
+sub as_string {
+    my $self = $_[0];
+    my $subject = $self->entry->subject_html ?  $self->entry->subject_html : LJ::Lang::ml('event.xpost.nosubject');
 
     if ( $self->account ) {
-        return BML::ml( 'event.xpost.failure.title',
+        return LJ::Lang::ml( 'event.xpost.failure.title',
             {
                 accountname => $self->account->displayname,
                 entrydesc => $subject,
@@ -90,14 +132,14 @@ sub as_html {
             });
 
     } else {
-        return BML::ml( 'event.xpost.noaccount' );
+        return LJ::Lang::ml( 'event.xpost.noaccount' );
     }
 }
 
-# available for all users.
+# available for all personal users.
 sub available_for_user  {
     my ( $class, $u, $subscr ) = @_;
-    return 1;
+    return $u->is_personal ? 1 : 0,
 }
 
 # override parent class sbuscriptions method to always return

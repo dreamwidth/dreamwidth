@@ -1656,6 +1656,31 @@ event.vgift.approved.reason=The reviewer, [[admin]], included the following comm
 
 event.vgift.notfound=The specified virtual gift could not be found.
 
+event.xpost.email.body.html.failure<<
+Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> to [[accountname]] failed.
+<br /><br />[[errmsg]]
+.
+
+event.xpost.email.body.html.success<<
+Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> to [[accountname]] successful.
+.
+
+event.xpost.email.body.text.failure<<
+Crosspost of [[entrydesc]] ([[entryurl]]) to [[accountname]] failed.
+
+[[errmsg]]
+.
+
+event.xpost.email.body.text.success<<
+Crosspost of [[entrydesc]] ([[entryurl]]) to [[accountname]] successful.
+.
+
+event.xpost.email.subject.failure=[[sitenameshort]] crosspost failed: [[username]]
+
+event.xpost.email.subject.success=[[sitenameshort]] crosspost succeeded: [[username]]
+
+event.xpost.failure=An attempt to crosspost an entry fails
+
 event.xpost.failure.content=Crosspost to [[accountname]] failed.<br /><br />[[errmsg]]
 
 event.xpost.failure.title=Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> to [[accountname]] action failed.
@@ -1663,6 +1688,8 @@ event.xpost.failure.title=Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> 
 event.xpost.noaccount=Account not found.
 
 event.xpost.nosubject=an entry
+
+event.xpost.success=An attempt to crosspost an entry succeeds
 
 event.xpost.success.content=Crosspost to [[accountname]] successful.
 
