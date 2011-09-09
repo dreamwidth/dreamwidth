@@ -70,6 +70,8 @@ body<=
                link            talk.commentpermlink
                deleted         .subjectdeleted
                nosubject       .nosubject
+               hide            talk.hide
+               unhide          talk.unhide
                maxcomments     .maxcomments
                );
     foreach (keys %T) { $T{$_} = $ML{$T{$_}}; }
@@ -343,11 +345,13 @@ body<=
 
     my $view_arg = $GET{'view'} || "";
     my $flat_mode = ($view_arg =~ /\bflat\b/);
+    my $top_only = ($view_arg =~ /\btop-only\b/);
     my $view_num = ($view_arg =~ /(\d+)/) ? $1 : undef;
 
     my %user;
     my $opts = {
         'flat' => $flat_mode,
+        'top-only' => $top_only,
         'thread' => $thread,
         'page' => $GET{'page'},
         'view' => $view_num,
@@ -416,17 +420,64 @@ body<=
 
         my $htmlid = LJ::Talk::comment_htmlid( $dtid );
 
+        my $hidestyle = $post->{'hidden_child'} ? " style=\"display: none;\"" : "";
         if ($post->{'state'} eq "D") {
-            $ret .= "<p><a name='$htmlid'></a><table summary='' class='delcomment'><tr>";
+            $ret .= "<div id='$htmlid'><p><a name='$htmlid'></a><table summary='' class='delcomment'$hidestyle><tr>";
             $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
-            $ret .= "<td>$ML{'.deletedpost'}</td></tr></table>\n";
+            $ret .= "<td>$ML{'.deletedpost'}</td>";
+            if ($post->{'hide_children'} && $post->{'children'} && @{$post->{'children'}}) {
+                if ( grep {! $_->{_loaded} and !($_->{state} eq "D")} @{$post->{'children'}} ) {
+                    my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
+                    $ret .= "<td>";
+                    # if we're in top-only mode, then we display the
+                    # expand link as the unhide ('show x comments')
+                    # message
+                    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+                        $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
+                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                        $ret .= qq[</a>)</span>];
+                    } else {
+                        # unhide only works with jquery; if the user
+                        # isn't in the jquery beta, drop back down to
+                        # the no-javascript option
+                        $ret .= qq[(<a href='$url'>];
+                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                        $ret .= qq[</a>)</span>];
+                    }
+                    $ret .= "</td>";
+                }
+            }
+            $ret .= "</tr></table></div>\n";
         } elsif ($post->{'state'} eq "S" && !$post->{'_loaded'} && !$post->{'_show'}) {
-            $ret .= "<p><a name='$htmlid'></a><table summary='' class='screenedcomment'><tr>";
+            $ret .= "<p><a name='$htmlid'></a><table summary='' class='screenedcomment'$hidestyle><tr>";
             $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             my $screenedtext = $ML{'.screenedpost'};
-            $ret .= "<td>$screenedtext</td></tr></table>\n";
+            $ret .= "<td>$screenedtext</td>";
+            if ($post->{'hide_children'} && $post->{'children'} && @{$post->{'children'}}) {
+                if ( grep {! $_->{_loaded} and !($_->{state} eq "D")} @{$post->{'children'}} ) {
+                    my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
+                    $ret .= "<td>";
+                    # if we're in top-only mode, then we display the
+                    # expand link as the unhide ('show x comments')
+                    # message
+                    if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+                        $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
+                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                        $ret .= qq[</a>)</span>];
+                    } else {
+                        # unhide only works with jquery; if the user
+                        # isn't in the jquery beta, drop back down to
+                        # the no-javascript option
+                        $ret .= qq[(<a href='$url'>];
+                        $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                        $ret .= qq[</a>)</span>];
+                    }
+                    $ret .= "</td>";
+                }
+            }
+            $ret .= "</tr></table>\n";
         } elsif ($pu && $pu->is_suspended && !$viewsome) {
-            $ret .= "<p><a name='$htmlid'></a><table summary='' class='suspendedcomment'><tr>";
+            $ret .= "<p><a name='$htmlid'></a><table summary='' class='suspendedcomment'$hidestyle><tr>";
             $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             $ret .= "<td>$ML{'.replysuspended'}";
             if (LJ::Talk::can_delete($remote, $u, $up, $userpost)) {
@@ -603,8 +654,38 @@ body<=
                     $ret .= "(<a href='$url'>$T{'thread'}</a>)&nbsp; ";
 
                     if ((grep {! $_->{_loaded} and !($_->{state} eq "D")} @{$post->{'children'}}) && $show_thread_expander) {
-                       $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)];
-                   }
+                        if ( $post->{'hide_children'} ) {
+                            # if we're in top-only mode, then we display the
+                            # expand link as the unhide ('show x comments')
+                            # message
+                            if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+                                $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true,true);return false;">];
+                                $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                                $ret .= qq[</a>)</span>];
+                            } else {
+                                # unhide only works with jquery; if the user
+                                # isn't in the jquery beta, drop back down to
+                                # the no-javascript option
+                                $ret .= qq[(<a href='$url'>];
+                                $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                                $ret .= qq[</a>)</span>];
+                            }
+                        }
+                    } else {
+                        $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)];
+                    }
+                    if ( $show_thread_expander ) {
+                        if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+                            my $hideclass = $post->{'hide_children'} ? "" : " cmt_show_hide_default";
+
+                            $ret .= qq[ <span id="cmt${dtid}_hide" class="cmt_hide$hideclass" style="display:none;">(<a href='#' onClick="Expander.hideComments(this,'$dtid',true);return false;">];
+                            $ret .= BML::ml( 'talk.hide', { num => $post->{'showable_children'} } );
+                            $ret .= qq[</a>)</span>];
+                            $ret .= qq[ <span id="cmt${dtid}_unhide" style="display: none;" class="cmt_unhide">(<a href='#' onClick="Expander.unhideComments(this,'$dtid',true);return false;">];
+                            $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
+                            $ret .= qq[</a>)</span>];
+                        }
+                    }
                 }
 
                 $ret .= "</font></p><br />";
@@ -616,7 +697,7 @@ body<=
                 # link to message
 
                 my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
-                $ret .= "<div id='$htmlid'><table summary=''><tbody><tr>";
+                $ret .= "<div id='$htmlid'$hidestyle><table summary=''><tbody><tr>";
                 $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td  class='cmtpartial'>";
                 if ($post->{'state'} eq 'F') {
@@ -684,6 +765,18 @@ body<=
             }
         }
 
+        $ret .= "<br>\n";
+
+        # comment nav
+        my $view_mode = $flat_mode ? "flat" : $top_only ? "top-only" : "threaded";
+
+        if ( $view_mode eq "threaded" ) {
+            $ret .= "(<a href = '" . BML::self_link( { view => 'flat'  } ) . "#comments'>" . BML::ml('.commentnav.flat') . "</a>) (<a href = '" . BML::self_link( { view => 'top-only'  } ) . "#comments'>" . BML::ml('.commentnav.toponly') . "</a>)";
+        } elsif ( $view_mode eq "flat" ) {
+            $ret .= "(<a href = '" . BML::self_link( { view => ''  } ) . "#comments'>" . BML::ml('.commentnav.threaded') . "</a>) (<a href = '" . BML::self_link( { view => 'top-only'  } ) . "#comments'>" . BML::ml('.commentnav.toponly') . "</a>)";
+        } elsif ( $view_mode eq "top-only" ) {
+            $ret .= "(<a href = '" . BML::self_link( { view => ''  } ) . "#comments'>" . BML::ml('.commentnav.threaded') . "</a>) (<a href = '" . BML::self_link( { view => 'flat'  } ) . "#comments'>" . BML::ml('.commentnav.flat') . "</a>)";
+        }
         $ret .= "</b></p>";
 
         $ret .= "<div align='center'>" . LJ::make_qr_target('top') . "</div>" if $remote;

@@ -1012,11 +1012,13 @@ sub comment_props {
         text_comment_expand
         text_comment_from
         text_comment_frozen
+        text_comment_hide
         text_comment_ipaddr
         text_comment_parent
         text_comment_posted
         text_comment_reply
         text_comment_thread
+        text_comment_unhide
         color_comment_title
         color_comment_title_background
         font_comment_title

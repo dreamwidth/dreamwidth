@@ -32,8 +32,8 @@ sub EntryPage
     $p->{'_type'} = "EntryPage";
     $p->{'view'} = "entry";
     $p->{'comment_pages'} = undef;
+    $p->{'comment_navbar'} = undef;
     $p->{'comments'} = [];
-    $p->{'comment_pages'} = undef;
 
     # setup viewall options
     my ($viewall, $viewsome) = (0, 0);
@@ -98,12 +98,14 @@ sub EntryPage
     # add the comments
     my $view_arg = $get->{'view'} || "";
     my $flat_mode = ($view_arg =~ /\bflat\b/);
+    my $top_only_mode  = ($view_arg =~ /\btop-only\b/);
     my $view_num = ($view_arg =~ /(\d+)/) ? $1 : undef;
 
     my %userpic;
     my %user;
     my $copts = {
         'flat' => $flat_mode,
+        'top-only' => $top_only_mode,
         'thread' => $get->{thread} ? ( $get->{thread} >> 8 ) : 0,
         'page' => $get->{'page'},
         'view' => $view_num,
@@ -165,7 +167,7 @@ sub EntryPage
                     $edittime_poster = DateTime_tz($comment->edit_time, $pu);
                 }
 
-                $threadroot_url = $comment->threadroot_url( LJ::viewing_style_args( %$get ) ) if $com->{parenttalkid};
+                $threadroot_url = $comment->threadroot_url( $style_arg ) if $com->{parenttalkid};
             }
 
             my $subject_icon = undef;
@@ -248,6 +250,7 @@ sub EntryPage
                 'subject' => LJ::ehtml($com->{'subject'}),
                 'subject_icon' => $subject_icon,
                 'talkid' => $dtalkid,
+                'ditemid' => $entry->ditemid,
                 'text' => $text,
                 'userpic' => $comment_userpic,
                 'time' => $datetime,
@@ -276,6 +279,9 @@ sub EntryPage
                 'edittime_poster' => $edittime_poster,
                 'edit_url' => $edit_url,
                 timeformat24 => $remote && $remote->use_24hour_time,
+                'showable_children' => $com->{'showable_children'},
+                'hide_children' => $com->{'hide_children'},
+                'hidden_child' => $com->{'hidden_child'},
             };
 
             # don't show info from suspended users
@@ -409,6 +415,13 @@ sub EntryPage
         $copts->{'out_itemfirst'} = $copts->{'out_itemlast'} = undef;
     }
 
+    # creates the comment nav bar
+    $p->{'comment_nav'} = CommentNav({
+        'view_mode' => $flat_mode ? "flat" : $top_only_mode ? "top-only" : "threaded",
+        'url' => $entry->url( style_args => LJ::viewing_style_opts( %$get ) ),
+        'current_page' => $copts->{'out_page'},
+    });
+
     $p->{'comment_pages'} = ItemRange({
         'all_subitems_displayed' => ($copts->{'out_pages'} == 1),
         'current' => $copts->{'out_page'},
@@ -418,7 +431,7 @@ sub EntryPage
         'total' => $copts->{'out_pages'},
         'total_subitems' => $copts->{'out_items'},
         '_url_of' => sub {
-            my $sty = $flat_mode ? "view=flat&" : "";
+            my $sty = $flat_mode ? "view=flat&" : $top_only_mode ? "view=top-only&" : "";
             return "$permalink?${sty}page=" . int($_[0]) .
                 ($style_arg ? "&$style_arg" : '');
         },

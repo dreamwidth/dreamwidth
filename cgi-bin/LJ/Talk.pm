@@ -920,6 +920,7 @@ sub fixup_logitem_replycount {
 #   userpicref -- hashref to load userpics into, or undef to
 #                 not load them.
 #   userref -- hashref to load users into, keyed by userid
+#   top-only -- boolean; if set, only load the top-level comments
 #
 # returns:
 #   array of hashrefs containing keys:
@@ -940,6 +941,9 @@ sub fixup_logitem_replycount {
 #      - _loaded => 1 (if fully loaded, subject & body)
 #        unknown items will never be _loaded
 #      - _show => {0|1}, if item is to be ideally shown (0 if deleted, screened, or filtered)
+#      - showable_children - count of showable children for this comment
+#      - hidden_child => {0|1}, if this comment is hidden by default
+#      - hide_children => {0|1}, if this comment has its children hidden
 #      - echi (explicit comment hierarchy indicator)
 sub load_comments
 {
@@ -1035,6 +1039,11 @@ sub load_comments
             if ($sum) {
                 $showable_children{$post->{'parenttalkid'}} += $sum;
                 unshift @{$children{$post->{'parenttalkid'}}}, $post->{'talkid'};
+                # record the # of showable children for each comment (though
+                # not for the post itself (0))
+                if ( $post->{parenttalkid} ) {
+                    $posts->{$post->{parenttalkid}}->{'showable_children'} = $showable_children{$post->{'parenttalkid'}};
+                }
             }
 
         }
@@ -1151,7 +1160,13 @@ sub load_comments
 
     ## expand first reply to top-level comments
     ## %expand_children - list of comments, children of which are to expand
-    my %expand_children = map { $_ => 1 } @top_replies;
+    my %expand_children;
+    unless ( $opts->{'top-only'} ) {
+        ## expand first reply to top-level comments
+        ## %expand_children - list of comments, children of which are to expand
+        %expand_children = map { $_ => 1 } @top_replies;
+    }
+
     my (@subjects_to_load, @subjects_ignored);
 
     while (@check_for_children) {
@@ -1159,14 +1174,14 @@ sub load_comments
 
         next unless defined $children{$cfc};
         foreach my $child (@{$children{$cfc}}) {
-            if (@posts_to_load < $page_size || $expand_children{$cfc} || $opts->{expand_all}) {
+            if ( ! $opts->{'top-only'} && ( @posts_to_load < $page_size || $expand_children{$cfc} || $opts->{expand_all} ) ) {
                 push @posts_to_load, $child;
                 ## expand only the first child, then clear the flag
                 delete $expand_children{$cfc};
-            }
-            elsif (@posts_to_load < $page_size) {
-                push @posts_to_load, $child;
             } else {
+                if ( $opts->{'top-only'} ) {
+                    $posts->{$child}->{'hidden_child'} = 1;
+                }
                 if (@subjects_to_load < $max_subjects) {
                     push @subjects_to_load, $child;
                 } else {
@@ -1189,11 +1204,17 @@ sub load_comments
     $posts_loaded = LJ::get_talktext2($u, @posts_to_load);
     $subjects_loaded = LJ::get_talktext2($u, {'onlysubjects'=>1}, @subjects_to_load) if @subjects_to_load;
     foreach my $talkid (@posts_to_load) {
+        if ( $opts->{'top-only'} ) {
+            $posts->{$talkid}->{'hide_children'} = 1;
+        }
         next unless $posts->{$talkid}->{'_show'};
         $posts->{$talkid}->{'_loaded'} = 1;
         $posts->{$talkid}->{'subject'} = $posts_loaded->{$talkid}->[0];
         $posts->{$talkid}->{'body'} = $posts_loaded->{$talkid}->[1];
         $users_to_load{$posts->{$talkid}->{'posterid'}} = 1;
+        if ( $opts->{'top-only'} ) {
+            $posts->{$talkid}->{'hide_children'} = 1;
+        }
     }
     foreach my $talkid (@subjects_to_load) {
         next unless $posts->{$talkid}->{'_show'};

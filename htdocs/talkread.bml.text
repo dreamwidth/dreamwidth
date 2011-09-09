@@ -7,6 +7,12 @@
 
 .comment.screened.subject=(screened) 
 
+.commentnav.flat=Flat
+
+.commentnav.threaded=Threaded
+
+.commentnav.toponly=Top-level comments only
+
 .confirm.action=Are you sure you want to delete the selected comments?
 
 .deletedpost=<b>(Deleted post)</b>

@@ -3774,6 +3774,8 @@ talk.expandlink=Expand
 
 talk.frozen=Replies frozen
 
+talk.hide=Hide [[num]] [[?num|comment|comments]]
+
 talk.parentlink=Parent
 
 talk.readsimilar=Read similar journal entries:
@@ -3791,6 +3793,8 @@ talk.spellcheck=Check spelling during preview
 talk.threadlink=Thread
 
 talk.threadrootlink=Thread from start
+
+talk.unhide=Show [[num]] [[?num|comment|comments]]
 
 time.ago.day=[[num]] [[?num|day|days]] ago
 

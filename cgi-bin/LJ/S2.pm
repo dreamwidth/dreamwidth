@@ -2421,6 +2421,14 @@ sub ItemRange
     return $h;
 }
 
+sub CommentNav
+{
+    my $h = shift;
+    $h->{'_type'} = "CommentNav";
+
+    return $h;
+}
+
 sub User
 {
     my ($u) = @_;
@@ -3368,6 +3376,26 @@ sub _Comment__get_link
         return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
                             $ctx->[S2::PROPS]->{"text_comment_expand"});
     }
+    if ($key eq "hide_comments") {
+        ## show "Hide/Show" link if the comment has any children
+        # only show hide/show comments if using jquery
+        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) && @{ $this->{replies} } > 0 ) {
+            return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
+                                $ctx->[S2::PROPS]->{"text_comment_hide"});
+        } else {
+            return $null_link;
+        }
+    }
+    if ($key eq "unhide_comments") {
+        ## show "Hide/Unhide" link if the comment has any children
+        # only show hide/show comments if using jquery
+        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) && @{ $this->{replies} } > 0 ) {
+            return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
+                                $ctx->[S2::PROPS]->{"text_comment_unhide"});
+        } else {
+            return $null_link;
+        }
+    }
 }
 
 sub Comment__print_multiform_check
@@ -3536,12 +3564,118 @@ sub Comment__expand_link
     my $title = $opts->{title} ? " title='" . LJ::ehtml($opts->{title}) . "'" : "";
     my $class = $opts->{class} ? " class='" . LJ::ehtml($opts->{class}) . "'" : "";
 
-    return "<a href='$this->{expand_url}'$title$class onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}'); return false;\">$text</a>";
+    my $onclick = "";
+    # if we're in top-only mode, then we display the expand link as
+    # the unhide ('show x comments') message
+
+    if ( $this->{"hide_children"} ) {
+        my $comment_count = $this->{'showable_children'};
+
+        $text = LJ::ehtml( get_plural_phrase( $ctx, $comment_count, "text_comment_unhide" ) );
+        my $remote = LJ::get_remote();
+
+        # unhide only works with jquery; if the user isn't in the jquery
+        # beta, drop back down to the no-javascript option
+        if  ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
+            $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false, true); return false;\"";
+        }
+    } else {
+        $onclick = " onClick=\"Expander.make(this,'$this->{expand_url}','$this->{talkid}', false); return false;\"";
+    }
+    return"<a href='$this->{expand_url}'$title$class$onclick>$text</a>";
 }
 
 sub Comment__print_expand_link
 {
     $S2::pout->(Comment__expand_link(@_));
+}
+
+# creates the (javascript) link that hides comments under this comment.
+sub Comment__print_hide_link
+{
+    my ($ctx, $this, $opts) = @_;
+    $opts ||= {};
+
+    my $comment_count = $this->{'showable_children'};
+
+    my $prop_text = LJ::ehtml( get_plural_phrase( $ctx, $comment_count, "text_comment_hide" ) );
+
+    my $text = LJ::ehtml($opts->{text});
+    $text =~ s/&amp;nbsp;/&nbsp;/gi; # allow &nbsp; in the text
+
+    my $opt_img = LJ::CleanHTML::canonical_url($opts->{img_url});
+
+    # if they want an image change the text link to the image,
+    # and add the text after the image if they specified it as well
+    if ($opt_img) {
+        my $width = $opts->{img_width};
+        my $height = $opts->{img_height};
+        my $border = $opts->{img_border};
+        my $align = LJ::ehtml($opts->{img_align});
+        my $alt = LJ::ehtml($opts->{img_alt}) || $prop_text;
+        my $title = LJ::ehtml($opts->{img_title}) || $prop_text;
+
+        $width  = defined $width  && $width  =~ /^\d+$/ ? " width=\"$width\"" : "";
+        $height = defined $height && $height =~ /^\d+$/ ? " height=\"$height\"" : "";
+        $border = defined $border && $border =~ /^\d+$/ ? " border=\"$border\"" : "";
+
+        $align  = $align =~ /^\w+$/ ? " align=\"$align\"" : "";
+        $alt    = $alt   ? " alt=\"$alt\"" : "";
+        $title  = $title ? " title=\"$title\"" : "";
+
+        $text = "<img src=\"$opt_img\"$width$height$border$align$title$alt />$text";
+    } elsif (!$text) {
+        $text = $prop_text;
+    }
+
+    my $title = $opts->{title} ? " title='" . LJ::ehtml($opts->{title}) . "'" : "";
+    my $class = $opts->{class} ? " class='" . LJ::ehtml($opts->{class}) . "'" : "";
+
+    $S2::pout->("<a href='#cmt$this->{talkid}'$title$class onClick=\"Expander.hideComments(this, '$this->{talkid}'); return false;\">$text</a>");
+}
+
+# creates the (javascript) link that unhides comments under this comment.
+sub Comment__print_unhide_link
+{
+    my ($ctx, $this, $opts) = @_;
+    $opts ||= {};
+
+    my $comment_count = $this->{'showable_children'};
+
+    my $prop_text = LJ::ehtml( get_plural_phrase( $ctx, $comment_count, "text_comment_unhide" ) );
+
+    my $text = LJ::ehtml($opts->{text});
+    $text =~ s/&amp;nbsp;/&nbsp;/gi; # allow &nbsp; in the text
+
+    my $opt_img = LJ::CleanHTML::canonical_url($opts->{img_url});
+
+    # if they want an image change the text link to the image,
+    # and add the text after the image if they specified it as well
+    if ($opt_img) {
+        my $width = $opts->{img_width};
+        my $height = $opts->{img_height};
+        my $border = $opts->{img_border};
+        my $align = LJ::ehtml($opts->{img_align});
+        my $alt = LJ::ehtml($opts->{img_alt}) || $prop_text;
+        my $title = LJ::ehtml($opts->{img_title}) || $prop_text;
+
+        $width  = defined $width  && $width  =~ /^\d+$/ ? " width=\"$width\"" : "";
+        $height = defined $height && $height =~ /^\d+$/ ? " height=\"$height\"" : "";
+        $border = defined $border && $border =~ /^\d+$/ ? " border=\"$border\"" : "";
+
+        $align  = $align =~ /^\w+$/ ? " align=\"$align\"" : "";
+        $alt    = $alt   ? " alt=\"$alt\"" : "";
+        $title  = $title ? " title=\"$title\"" : "";
+
+        $text = "<img src=\"$opt_img\"$width$height$border$align$title$alt />$text";
+    } elsif (!$text) {
+        $text = $prop_text;
+    }
+
+    my $title = $opts->{title} ? " title='" . LJ::ehtml($opts->{title}) . "'" : "";
+    my $class = $opts->{class} ? " class='" . LJ::ehtml($opts->{class}) . "'" : "";
+
+    $S2::pout->("<a href='$this->{expand_url}'$title$class onClick=\"Expander.unhideComments(this, '$this->{talkid}'); return false;\">$text</a>");
 }
 
 sub Page__print_trusted
