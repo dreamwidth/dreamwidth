@@ -28,13 +28,9 @@ use Storable;
 gearman_decl( 'sphinx_search'  => \&sphinx_search );
 gearman_work();
 
-sub sphinx_search {
-    my $job = $_[0];
+sub _run_search {
+    my ( $sx, $args ) = @_;
 
-    my $args = Storable::thaw( $job->arg ) || {};
-    return undef unless $args->{query};
-
-    my $sx = Sphinx::Search->new();
     $sx->SetServer( @LJ::SPHINX_SEARCHD );
 
     $sx->SetMatchMode( SPH_MATCH_ALL )
@@ -53,7 +49,7 @@ sub sphinx_search {
     } elsif ( $args->{sort_by} eq 'old' ) {
         $sx->SetSortMode( SPH_SORT_ATTR_ASC, 'date_posted' );
     }
-    
+
     # filter to a journal if we have a userid set; else, filter on allow_global_search items
     $sx->SetFilter( 'journal_id', [ $args->{userid} ] )
         if $args->{userid};
@@ -74,8 +70,11 @@ sub sphinx_search {
         $sx->SetFilter( 'security_bits', [ 0 ], 1 );
     }
 
-    my $res = $sx->Query( $args->{query} );
-    return undef unless $res;
+    return $sx->Query( $args->{query} );
+}
+
+sub _build_output {
+    my ( $sx, $query, $res ) = @_;
 
     # try to build some excerpts of these searches, which involves us loading
     # up the exact entry contents...
@@ -117,7 +116,7 @@ sub sphinx_search {
         # FIXME: this should use some other index name than 'test1' heh, and we should probably
         # try to figure out the language of the journal being searched (or the searcher?) and use
         # an appropriate stemming library?  (future expansion opportunity)
-        my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1stemmed', $args->{query}, {} ) || [];
+        my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1stemmed', $query, {} ) || [];
 
         # if we have a matching number of excerpts to events, then we can determine
         # which one goes with which post.
@@ -136,5 +135,20 @@ sub sphinx_search {
         }
     }
 
+    return $res;
+}
+
+sub sphinx_search {
+    my $job = $_[0];
+
+    my $args = Storable::thaw( $job->arg ) || {};
+    return undef unless $args->{query};
+
+    my $sx = Sphinx::Search->new();
+    my $search_results = _run_search( $sx, $args );
+    return undef unless $search_results;
+
+    my $res = _build_output( $sx, $args->{query}, $search_results );
     return Storable::nfreeze( $res );
 }
+
