@@ -958,8 +958,6 @@ error.security.nocap=This feature is not available for your account level.
 
 error.security.s1=Sorry, security filtering is not supported within S1 styles.
 
-error.support.database=Database error:
-
 error.support.invalid_category=Invalid support category
 
 error.support.nonuser=You cannot submit support requests from non-user accounts.
@@ -967,10 +965,6 @@ error.support.nonuser=You cannot submit support requests from non-user accounts.
 error.support.norequest=You did not enter a support request.
 
 error.support.nosummary=You must enter a problem summary.
-
-error.support.report=(report this)
-
-error.support.spid=Didn't get a spid
 
 error.suspended.text=This journal has been either temporarily or permanently suspended by [[sitename]] for policy violation.  If you're [[user]], contact us for more information.
 
@@ -3706,12 +3700,6 @@ support.answertype.internal=Internal Comment / Action
 support.answertype.moreinfo=More information
 
 support.answertype.screened=Screened Response
-
-support.blocked.email=Support request blocked based on email
-
-support.blocked.uniq=Support request blocked based on uniq
-
-support.blocked.user=Support request blocked based on user
 
 support.email.confirmation.body<<
 Your [[sitename]] support request regarding "[[subject]]" has been filed and will be answered as soon as possible. Your request tracking number is [[number]]

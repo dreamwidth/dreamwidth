@@ -570,7 +570,7 @@ sub file_request
             $log->{'email'} = $u->email_raw;
 
             unless ($u->is_person || $u->is_identity) {
-                push @$errors, "You cannot submit support requests from non-user accounts.";
+                push @$errors, LJ::Lang::ml( "error.support.nonuser" );
             }
 
             if (LJ::sysban_check('support_user', $u->{'user'})) {
@@ -652,7 +652,7 @@ sub file_request
     if ($dbh->err) {
         my $error = $dbh->errstr;
         $dbh->do("UNLOCK TABLES");
-        push @$errors, "<b>" . LJ::Lang::ml( "error.support.database" ) . "</b> " . LJ::Lang::ml( "error.support.report" ) . "<br />$error";
+        push @$errors, "<b>Database error:</b> (report this)<br>$error";
         return 0;
     }
     $spid = $dbh->{'mysql_insertid'};
@@ -662,7 +662,7 @@ sub file_request
     $dbh->do("UNLOCK TABLES");
 
     unless ($spid) {
-        push @$errors, "<b>" . LJ::Lang::ml( "error.support.database" ) . "</b> " . LJ::Lang::ml( "error.support.report" ) . "<br />" . LJ::Lang::ml( "error.support.spid" );
+        push @$errors, "<b>Database error:</b> (report this)<br>Didn't get a spid.";
         return 0;
     }
 
