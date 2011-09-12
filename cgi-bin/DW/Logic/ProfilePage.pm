@@ -402,15 +402,16 @@ sub _basic_info_birthday {
         my $bdate = $u->prop( 'bdate' );
         if ( $bdate && $bdate ne "0000-00-00" ) {
             $ret->[0] = LJ::Lang::ml( '.label.birthdate' );
+            $ret->[1] = $self->security_image( $u->opt_sharebday );
             my ($year, $mon, $day) = split /-/, $bdate;
             my $moname = LJ::Lang::month_short_ml( $mon );
             $day += 0;
             if ( $u->bday_string =~ /\d+-\d+-\d+/ ) {
-                $ret->[1] = "$moname $day, $year";
+                $ret->[1] .= "$moname $day, $year";
             } elsif ( $u->bday_string =~ /\d+-\d+/ ) {
-                $ret->[1] = "$moname $day";
+                $ret->[1] .= "$moname $day";
             } else {
-                $ret->[1] = $u->bday_string;
+                $ret->[1] .= $u->bday_string;
             }
         }
     }
@@ -435,6 +436,7 @@ sub _basic_info_location {
         my $ecity = LJ::eurl( $city );
         my $ecountry = LJ::eurl( $country );
         my $estate = "";
+        my $secimg = $self->security_image( $u->opt_showlocation );
 
         if ( $country ) {
             my %countries = ();
@@ -443,6 +445,9 @@ sub _basic_info_location {
             $country_ret = LJ::is_enabled( 'directory' ) ?
                 { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry", text => $countries{ $country } } :
                 $countries{ $country };
+            if ( !$state && !$city ) {
+                $country_ret->{secimg} = $secimg;
+            }
         }
 
         if ( $state ) {
@@ -456,6 +461,9 @@ sub _basic_info_location {
             $state_ret = $country && LJ::is_enabled( 'directory' ) ?
                 { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate", text => LJ::ehtml( $state ) } :
                 LJ::ehtml( $state );
+            if ( !$city ) {
+                $state_ret->{secimg} = $secimg;
+            }
         }
 
         if ( $city ) {
@@ -463,6 +471,7 @@ sub _basic_info_location {
             $city_ret = $country && LJ::is_enabled( 'directory' ) ?
                 { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity", text => $city } :
                 $city;
+            $city_ret->{secimg} = $secimg;
         }
 
         push @$ret, $city_ret, $state_ret, $country_ret;
@@ -973,6 +982,23 @@ sub not_mutually_watched_by_userids {
 
     return @ret;
 }
+
+# returns image link based on privacy settings
+sub security_image {
+    my ( $self, $code ) = @_;
+    my %img = (
+        R => [ 'registered', 'identity/user.png' ],
+        F => [ 'trusted', 'entry/locked.png' ],
+        N => [ 'private', 'entry/private.png' ],
+    );
+    return '' unless $img{$code};
+    my ( $text, $imgfile ) = @{ $img{$code} };
+    $text = LJ::Lang::ml( 'entryform.security' ) . " $text";
+    $imgfile = "$LJ::SITEROOT/img/silk/$imgfile";
+    return "&nbsp;(<img alt='$text' title='$text' width='16' height='16'"
+        . " style='vertical-align: bottom' src='$imgfile' />)&nbsp;&nbsp;";
+}
+
 
 
 1;

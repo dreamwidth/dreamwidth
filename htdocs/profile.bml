@@ -175,6 +175,7 @@ body<=
         return $l unless ref $l eq 'HASH';
 
         if ( $l->{text} ) {
+            return qq($l->{secimg}<a href="$l->{url}">$l->{text}</a>) if $l->{secimg};
             return qq(<a href="$l->{url}">$l->{text}</a>) if $l->{url};
             return $l->{text};
         } elsif ( $l->{email} ) {
@@ -450,7 +451,8 @@ body<=
     }
 
     if ( my @contacts = $profile->contact_rows ) {
-        $bibody .= qq( <div class="contact"><p class="section_body_title">$ML{'.contact.header'}</p> );
+        my $secimg = $profile->security_image( $u->opt_showcontact );
+        $bibody .= qq( <div class="contact"><p class="section_body_title">$ML{'.contact.header'}$secimg</p> );
         $bibody .= join( '<br />', map { $linkify->( $_ ) } @contacts );
         $bibody .= q{ </div> };
     };
