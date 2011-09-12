@@ -86,6 +86,7 @@ use Pod::Usage qw{pod2usage};
 use IO::Socket::INET;
 
 use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Cmdbuffer;
 
 # NOTE: these options are used both by Getopt::Long for command-line parsing
 # in single user move move, and also set by hand when in --jobserver mode,
@@ -650,7 +651,6 @@ sub moveUser {
     while (my $cmd = $dboa->selectrow_array("SELECT cmd FROM cmdbuffer WHERE journalid=$userid")) {
         die "Already flushed cmdbuffer job '$cmd' -- it didn't take?\n" if $cmd_done{$cmd}++;
         print "Flushing cmdbuffer for cmd: $cmd\n" if $optv > 1;
-        use LJ::Cmdbuffer;
         LJ::Cmdbuffer::flush($dbh, $dboa, $cmd, $userid);
     }
 
