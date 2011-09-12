@@ -91,7 +91,6 @@ use Errno qw(ENOENT);
     'supportscores' => ['High Scores', '/support/highscores', 'support'],
     'supportsubmit' => ['Submit Request', '/support/submit', 'support'],
     'textmessage' => ['Send Text Message', '/tools/textmessage', 'home'],
-    'transfercomm' => ['Transfer Community', '/community/transfer', 'managecommunity'],
     'translate' => ['Translation Area', '/translate/', 'home'],
     'translateteams' => ['Translation Teams', '/translate/teams', 'translate'],
     'unsubscribe' => ['Unsubscribe', '/unsubscribe', 'home'],
