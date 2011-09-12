@@ -17,8 +17,6 @@ use strict;
 use warnings;
 use LJ::Constants;
 
-sub tags { qw(name) }
-
 sub current_value {
     my ($class, $u) = @_;
     return $u->{name} || "";

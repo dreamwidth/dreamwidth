@@ -16,8 +16,6 @@ use base 'LJ::Setting';
 use strict;
 use warnings;
 
-sub tags { qw(FOAF url external) }
-
 sub as_html {
     my ($class, $u, $errs) = @_;
     my $key = $class->pkgkey;

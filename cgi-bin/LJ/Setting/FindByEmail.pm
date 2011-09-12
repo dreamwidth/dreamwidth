@@ -16,8 +16,6 @@ use base 'LJ::Setting';
 use strict;
 use warnings;
 
-sub tags { qw(email search) }
-
 sub helpurl {
     my ($class, $u) = @_;
 

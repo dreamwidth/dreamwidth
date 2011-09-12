@@ -16,8 +16,6 @@ use base 'LJ::Setting';
 use strict;
 use warnings;
 
-sub tags { qw(email message contact) }
-
 sub should_render {
     my ( $class, $u ) = @_;
     return $u->is_person && LJ::is_enabled( 'user_messaging' );

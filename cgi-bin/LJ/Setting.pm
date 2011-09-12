@@ -26,7 +26,6 @@ LJ::ModuleLoader->require_subclasses( "DW::Setting" );
 sub should_render { 1 }
 sub disabled { 0 }
 sub selected { 0 }
-sub tags { () }
 sub label { "" }
 sub actionlink { "" }
 sub helpurl { "" }

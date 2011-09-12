@@ -16,8 +16,6 @@ use base 'LJ::Setting';
 use strict;
 use warnings;
 
-sub tags { qw(birthday birthdate dob hide display) }
-
 sub as_html {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;

@@ -16,8 +16,6 @@ use base 'LJ::Setting';
 use strict;
 use warnings;
 
-sub tags { qw(domain domainname mapping forwarding alias) }
-
 sub save {
     my ($class, $u, $args) = @_;
 

@@ -16,8 +16,6 @@ use base 'LJ::Setting';
 use strict;
 use warnings;
 
-sub tags { qw( gender sex male female boy girl other ) }
-
 sub as_html {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
