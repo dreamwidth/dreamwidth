@@ -65,7 +65,7 @@ body<=
     # is $remote an admin?
     unless ( $remote->can_manage_other( $c ) ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
-        $ret .= BML::ml('/community/members.bml.error.noaccess', 
+        $ret .= BML::ml('/community/members.bml.error.noaccess',
                         { 'comm' => LJ::ljuser($cname, { 'type' => 'C' }) });
         $ret .= " p?>";
         return $ret;
@@ -133,7 +133,7 @@ body<=
             BML::ml( '.none.body', { aopts => "href='/community/members?authas=$c->{user}'" } ) .
             " p?>";
     }
-    
+
     # sorting method;
     my $method = $GET{'sort'};
 
@@ -202,7 +202,7 @@ body<=
     my $filter = $GET{show} ? "&show=$GET{show}" : "";
     my $sortlink = BML::get_uri() . "?authas=$cname$filter&sort=";
     $ret .= "<br /><div align='center'>$showlinks";
-    $ret .= <<END; 
+    $ret .= <<END;
 <table class='borderedtable' cellpadding='2' cellspacing='0'>
 <tr style="border-bottom: solid 1px black;">
     <th style='border-right: solid 1px black;'>$ML{'.key.posting.abbrev'}</th>
