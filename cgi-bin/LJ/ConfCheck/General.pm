@@ -364,7 +364,7 @@ add_conf('$SPELLER',
          );
 
 add_conf('$STATS_BLOCK_SIZE',
-         des => "Used in statslib.pl for scaling stat totals."
+         des => "Used in LJ/Stats.pm for scaling stat totals."
          );
 
 add_conf('$SUICIDE_UNDER',

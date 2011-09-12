@@ -17,7 +17,8 @@
 use strict;
 our %maint;
 
-require "$ENV{'LJHOME'}/cgi-bin/statslib.pl";
+use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Stats;
 
 # filled in by ljmaint.pl, 0=quiet, 1=normal, 2=verbose
 $LJ::Stats::VERBOSE = $LJ::LJMAINT_VERBOSE >= 2 ? 1 : 0;
