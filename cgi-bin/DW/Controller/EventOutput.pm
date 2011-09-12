@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 #
-# DW::Controller::EventPreview
+# DW::Controller::EventOutput
 #
 # This controller is for getting a preview of the output for events, for easy debugging.
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself. For a copy of the license, please reference
