@@ -44,3 +44,7 @@
 /help/                              /support/
 /tos                                /legal/tos
 /tos/                               /legal/tos
+/settings                           /manage/settings
+/settings/                          /manage/settings
+/settings/index                     /manage/settings
+/settings/index.bml                 /manage/settings
