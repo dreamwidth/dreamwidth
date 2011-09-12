@@ -221,24 +221,88 @@ body<=
         # added is_individual because all previous tests were checking for both
     };
 
+    my $format_userlink = sub {
+        my ( $user, $link ) = @_;
+        $link = "<strike>$link</strike>" if $strikeuser->( $user );
+        # if user is logged in and not looking at own profile, use
+        # appropriate highlighting for users they have in common
+        if ( $remote && ! $remote->equals( $u ) ) {
+            $link = "<em>$link</em>" if $remote->watches( $user );
+            $link = "<strong>$link</strong>"
+                if ( $user->is_community ? $remote->member_of( $user ) : $remote->trusts( $user ) );
+        }
+        return $link;
+    };
+
     my $listusers = sub {
-        my $users = $_[0];
+        my ( $users, $openids ) = @_;
+
+        my %sites;
+        my %shortnames;
+        my $sitestore = sub {
+            my ( $site, $u, $name ) = @_;
+            $sites{$site} ||= [];
+            push @{$sites{$site}}, $u;
+            $shortnames{$site} ||= [];
+            push @{$shortnames{$site}}, $name;
+        };
+
+        # separate openids by site
+        # FIXME: use DW::External methods here?
+        foreach my $u ( @$openids ) {
+            my $id = $u->display_name;
+            my @parts = split /\./, $id;
+            if ( @parts < 2 ) {
+                # we don't know how to parse this, so don't
+                $sitestore->( 'unknown', $u, $id );
+                next;
+            }
+
+            my ( $name, $site );
+
+            # if this looks like a URL, hope the username is at the end
+            if ( $parts[-1] =~ m=/([^/]+)/?$= ) {
+                $name = $1;
+                ( $site ) = ( $id =~ m=([^/.]+\.[^/]+)= );
+
+            } else { # assume the username is the hostname
+                my $host = shift @parts;
+                ( $name ) = ( $host =~ m=([^/]+)$= );
+                $site = join '.', @parts;
+            }
+
+            $sitestore->( $site, $u, $name );
+        }
+
+        my $ret = '';
         my @linked_users;
 
         foreach my $user ( @$users ) {
             my $linked_u = $linkify->( { url => $user->profile_url, text => $user->display_name } );
-            $linked_u = "<strike>$linked_u</strike>" if $strikeuser->( $user );
-            #if user is logged in and not looking at own profile, use appropiate highlighting for users they have in common
-            if ( $remote && ( $remote != $u ) ) {
-                $linked_u = "<em>$linked_u</em>" if $remote->watches( $user );
-                $linked_u = "<strong>$linked_u</strong>"
-                    if ( $user->is_community ? $remote->member_of( $user ) : $remote->trusts( $user ) );
-            }
 
-            push @linked_users, $linked_u;
+            push @linked_users, $format_userlink->( $user, $linked_u );
         }
 
-        return join( ', ', @linked_users );
+        $ret .= join ', ', @linked_users;
+
+        foreach my $site ( sort keys %sites ) {
+            $ret .= ', ' if $ret;
+            $ret .= LJ::img( 'id_openid', '' );
+            $ret .= "[$site] ";
+
+            my @site_users;
+            for ( my $i = 0; $i < @{$sites{$site}}; $i++ ) {
+                my $user = $sites{$site}->[$i];
+                my $text = $shortnames{$site}->[$i];
+                my $linked_u = $linkify->( { url => $user->profile_url, text => $text } );
+
+                push @site_users, $format_userlink->( $user, $linked_u );
+            }
+
+            $ret .= join ', ', @site_users;
+        }
+
+        return $ret;
     };
 
     my $content_block = sub {
@@ -747,13 +811,17 @@ body<=
                 body            => $listusers->( \@mutually_trusted_list ),
             );
 
-            my @not_mutually_trusted_list = grep { $_->is_individual }
-                map { $us->{$_} } @not_mutually_trusted_userids;
+            my @not_mutually_trusted_us = map { $us->{$_} } @not_mutually_trusted_userids;
+            my @not_mutually_trusted_list_p = grep { $_->is_personal } @not_mutually_trusted_us;
+            my @not_mutually_trusted_list_i = grep { $_->is_identity } @not_mutually_trusted_us;
+
             $trusted_body .= $content_inner_block->(
                 section_name    => 'not_mutually_trusted_people',
-                section_name_ml => $mlsn->( '.people.not_mutually_trusted', \@not_mutually_trusted_list ),
+                section_name_ml => $mlsn->( '.people.not_mutually_trusted',
+                    [ @not_mutually_trusted_list_p, @not_mutually_trusted_list_i ] ),
                 section_link    => 'not_mutually_trusted',
-                body            => $listusers->( \@not_mutually_trusted_list ),
+                body            => $listusers->( \@not_mutually_trusted_list_p,
+                                                 \@not_mutually_trusted_list_i ),
             );
 
             my @not_mutually_trusted_by_list = grep { $includeuser->( $_ ) }
@@ -796,14 +864,16 @@ body<=
         );
     } else {  # show_mutualfriends is false
         if ( $u->is_personal ) {
-            my @trusted_list = grep { $_->is_individual }
-                map { $us->{$_} } @trusted_userids;
+            my @trusted_us = map { $us->{$_} } @trusted_userids;
+            my @trusted_list_p = grep { $_->is_personal } @trusted_us;
+            my @trusted_list_i = grep { $_->is_identity } @trusted_us;
+
             $trusted_body = $content_inner_block->(
                 section_name    => 'trusted_people',
-                section_name_ml => $mlsn->( '.people.trusted', \@trusted_list ),
+                section_name_ml => $mlsn->( '.people.trusted', [ @trusted_list_p, @trusted_list_i ] ),
                 section_link    => 'trusted',
                 extra_classes   => ' first',
-                body            => $listusers->( \@trusted_list ),
+                body            => $listusers->( \@trusted_list_p, \@trusted_list_i ),
             );
 
             my @trusted_by_list = grep { $includeuser->( $_ ) }
