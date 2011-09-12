@@ -108,16 +108,19 @@ body<=
 
     # populate %users hash
     my %users = ();
+    my %usernames;
     foreach my $invite (@$sent) {
         my $id = $invite->{userid};
         next if $GET{show} && $GET{show} ne 'all' && $invite->{status} ne $GET{show};
+        my $name = $us->{$id}{user};
         $users{$id}{userid} = $id;
         $users{$id}{maintainer} = $us->{$invite->{maintid}}{user};
-        $users{$id}{user} = $us->{$id}{user};
+        $users{$id}{user} = $name;
         $users{$id}{$_} = 1 foreach keys %{$invite->{args}};
         $users{$id}{status} = $invite->{status};
         $users{$id}{date} = LJ::mysql_time($invite->{recvtime});
         $users{$id}{date} =~ s/\s.+$//; # we just want the date, ignore time
+        $usernames{$name} = $id;
     }
 
     # hop out if there were no invites
@@ -134,36 +137,43 @@ body<=
             " p?>";
     }
 
-    # sorting method;
+    # sorting method; default sort by username
     my $method = $GET{'sort'};
+    my %sortmap = ( A      => sub { $b->{admin}      <=> $a->{admin} },
+                    P      => sub { $b->{post}       <=> $a->{post} },
+                    M      => sub { $b->{moderate}   <=> $a->{moderate} },
+                    U      => sub { $b->{preapprove} <=> $a->{preapprove} },
+                    status => sub { $a->{status}     cmp $b->{status} },
+                    date   => sub { $b->{date}       cmp $a->{date} },
+                    maint  => sub { $b->{maintainer} cmp $a->{maintainer} },
+                  );
+    my $sort = $sortmap{$method} || sub { 0 };
 
-    my $cmp = sub {$a->{'user'} cmp $b->{'user'}};
-    $cmp = sub {$b->{'admin'} <=> $a->{'admin'}} if $method eq 'A';
-    $cmp = sub {$b->{'post'} <=> $a->{'post'}} if $method eq 'P';
-    $cmp = sub {$b->{'moderate'} <=> $a->{'moderate'}} if $method eq 'M';
-    $cmp = sub {$b->{'preapprove'} <=> $a->{'preapprove'}} if $method eq 'U';
-    $cmp = sub {$a->{'status'} cmp $b->{'status'}} if $method eq 'status';
-    $cmp = sub {$b->{'date'} cmp $a->{'date'}} if $method eq 'date';
-    $cmp = sub {$b->{'maintainer'} cmp $a->{'maintainer'}} if $method eq 'maint';
+    # even if we're sorting another way, we still want a
+    # secondary sort by username, for predictability
 
+    my $cmp = sub { $sort->( $a, $b ) || $a->{user} cmp $b->{user} };
     my @users = sort $cmp values %users;
+
+    # iterate through list and store position value in users hash
+    for ( my $i = 0; $i < @users; $i++ ) {
+        my $id = $users[$i]->{userid};
+        $users{$id}->{index} = $i;
+    }
+
     my $page_size = 100; # change to adjust page size
 
     # are we going to jump to a specific user ?
-    my $jumppage;
-    my $jumpuser;
-    if (@users > $page_size && $POST{'jumpto'} =~ /^\w+$/) {
-        my $ct;
-        foreach (@users) {
-            $jumppage++ if $ct % $page_size == 0;
-            if ($POST{'jumpto'} eq $_->{'name'}) {
-                $jumpuser = $_->{'name'};
-                last;
-            }
-            $ct++;
+    my ( $jumppage, $jumpuser, $currpage );
+    if ( $POST{jumpto} ) {
+        if ( my $user = $users{$usernames{$POST{jumpto}}} ) {
+            $jumpuser = $user->{user};
+            $jumppage = $user->{index} + 1;
+            $currpage = int( $user->{index} / $page_size ) + 1;
+            $page_size = 1;  # just show this user
         }
-        undef $jumppage unless $jumpuser;
     }
+    $jumppage = $GET{page} unless defined $jumppage;
 
     # how to make links back to this page
     my $self_link = sub {
@@ -173,7 +183,7 @@ body<=
         return "sentinvites?authas=$cname&page=$_[0]$sort$filter";
     };
 
-    my %items = BML::paging(\@users, $jumppage || $GET{'page'}, $page_size);
+    my %items = BML::paging( \@users, $jumppage, $page_size );
     my $navbar = LJ::paging_bar($items{'page'}, $items{'pages'},
                                  { 'self_link' => $self_link });
     @users = @{$items{'items'}};
@@ -181,13 +191,18 @@ body<=
     # output starts here
 
     # jump to user
-    if ($items{'pages'} > 1) {
-        $ret .= "<form method='post' action='sentinvites?authas=$cname'>";
-        $ret .= "<div style='margin-left: 30px;'>Jump to user: ";
-        $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
-                                'size' => '10', 'maxlength' => '25' }) . " ";
-        $ret .= LJ::html_submit(undef, 'Go') . "</div>";
-        $ret .= "</form>";
+    $ret .= "<form method='post' action='sentinvites?authas=$cname'>";
+    $ret .= "<p>$ML{'/community/members.bml.jump2'}: ";
+    $ret .= LJ::html_text( { name => 'jumpto', value => $POST{jumpto},
+                             size => '10', maxlength => '75' } ) . " ";
+    $ret .= LJ::html_submit(undef, 'Go') . "</p></form>";
+
+    if ( $jumpuser ) {
+        $ret .= "<p><h3><a href='" . $self_link->( $currpage ) . "'>";
+        $ret .= "$ML{'/community/members.bml.jump.clear'}</a></h3></p>";
+    } else {
+        $ret .= "<p><h3>$ML{'/community/members.bml.jump.notfound'}</h3></p>"
+            if $POST{jumpto};  # was not found in the list
         $ret .= $navbar;
     }
 
@@ -273,7 +288,7 @@ END
 
     $ret .= "<br /><a href='/community/members?authas=$c->{user}'>$ML{'.send'}</a>";
     $ret .= "</div>\n\n";
-    $ret .= $navbar;
+    $ret .= $navbar unless $jumpuser;
     return $ret;
 
 }
