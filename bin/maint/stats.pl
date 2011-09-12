@@ -24,10 +24,10 @@ $LJ::Stats::VERBOSE = $LJ::LJMAINT_VERBOSE >= 2 ? 1 : 0;
 
 $maint{'genstats'} = sub
 {
-    my @which = @_ || qw(users countries 
+    my @which = @_ || qw(users countries
                          states gender clients
                          pop_interests popfaq);
-    
+
     # popular faq items
     LJ::Stats::register_stat
         ({ 'type' => "global",
@@ -176,7 +176,7 @@ $maint{'genstats'} = sub
                            $ret{'userinfo'}->{'allow_getljnews'}++
                                if $rec->{'status'} eq "A" && $rec->{'allow_getljnews'} eq "Y";
                        }
-                       
+
                        # userusage query: gets timeupdate,datereg,nowdate
                        my $sth = $db->prepare
                            ("SELECT DATE_FORMAT(timecreate, '%Y-%m-%d') AS 'datereg', " .
@@ -191,7 +191,7 @@ $maint{'genstats'} = sub
                            # date registered
                            $ret{'newbyday'}->{$rec->{'datereg'}}++
                                unless $rec->{'datereg'} eq $rec->{'nowdate'};
-                
+
                            # total user/activity counts
                            $ret{'userinfo'}->{'total'}++;
                            if (my $time = $rec->{'timeupdate'}) {
@@ -450,7 +450,7 @@ $maint{'genstats_weekly'} = sub
                    return { ( map { $_->[0] => $_->[1] } @$rows ) };
                }
         });
- 
+
     LJ::Stats::register_stat
         ({ 'type' => "global",
            'jobname' => "supportrank",

@@ -393,7 +393,7 @@ add_conf('@SUPPORT_SLOW_ROLES',
          type => 'array',
          des => "Array of database roles to be used for slow support queries, in order of precedence."
          );
-    
+
 add_conf('$TALK_ABORT_REGEXP',
          type => 'regexp',
          des => "Regular expression which, when matched on incoming comment bodies, kills the comment."
