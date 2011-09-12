@@ -34,6 +34,7 @@ body<=
         my $data = $_[0] || {};
         my $errors = $_[1] || {};
         my $suggest_u = ( $data && $data->{suggest_journalid} ) ? LJ::load_userid($data->{suggest_journalid}) : undef;
+        my $active = ( defined $data->{active} ) ? $data->{active} : 1;
 
         if ( $state eq 'create' ) {
             $title = $ML{'.title.create'};
@@ -46,7 +47,7 @@ body<=
         $ret .= "<form method='POST' action='/admin/invites/promo'>";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden( { name => 'state', value => $state });
-        $ret .= LJ::html_check( { id => 'active', name => 'active', value => 1, selected => $data->{active}, label => $ML{'.field.active.label'} } );
+        $ret .= LJ::html_check( { id => 'active', name => 'active', value => 0, selected => $active, label => $ML{'.field.active.label'} } );
         $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{active}}) . "]</strong>" if $errors->{active};
         $ret .= '<br />';
         if ( $state eq 'create' ) {
@@ -97,7 +98,7 @@ body<=
         $state = lc( $POST{state} || "" );
         if ( $state eq 'create' ) {
             my $data = {
-                active => $POST{active} ? 1 : 0,
+                active => defined( $POST{active} ) ? 1 : 0,
                 code => $code,
                 current_count => 0,
                 max_count => $POST{max_count} || 0,
