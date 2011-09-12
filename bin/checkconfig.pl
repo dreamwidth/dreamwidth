@@ -203,6 +203,10 @@ my %modules = (
                    'ver' => '3.56',
                },
                "YAML" => { 'deb' => 'libyaml-perl', },
+               "Business::CreditCard" => {
+                   'deb' => "libbusiness-creditcard-perl",
+                   'opt' => "Required for taking credit/debit cards in the shop.",
+               },
               );
 
 
