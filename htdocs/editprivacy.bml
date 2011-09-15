@@ -87,7 +87,7 @@ body<=
     if ($mode eq "init") {
         my $ret = '';
         $ret .= LJ::bad_input(@errors) if @errors;
-        $ret .= "<?p $ML{'.intro'} p?>";
+        $ret .= "<p>" . BML::ml( '.intro2', { aopts => qq{href="$LJ::SITEROOT/accountstatus"} } ) . "</p>";
 
         $ret .= "<?p " . BML::ml('.archive',
                                 { aopts => "href='" . $u->journal_base() . "/archive/'" })
