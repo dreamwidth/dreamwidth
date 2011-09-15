@@ -40,6 +40,7 @@ sub sysban_check {
         my $ip_ban_delay = $LJ::SYSBAN_IP_REFRESH || 120;
 
         # check memcache first if not loaded
+        $LJ::IP_BANNED_LOADED = 0 unless defined $LJ::IP_BANNED_LOADED;
         unless ($LJ::IP_BANNED_LOADED + $ip_ban_delay > $now) {
             my $memval = LJ::MemCache::get("sysban:ip");
             if ($memval) {
@@ -74,6 +75,7 @@ sub sysban_check {
     if ($what eq 'uniq') {
 
         # check memcache first if not loaded
+        $LJ::UNIQ_BANNED_LOADED = 0 unless defined $LJ::UNIQ_BANNED_LOADED;
         unless ($LJ::UNIQ_BANNED_LOADED) {
             my $memval = LJ::MemCache::get("sysban:uniq");
             if ($memval) {
@@ -106,6 +108,8 @@ sub sysban_check {
     # cache if spamreport ban
     if ( $what eq 'spamreport' ) {
         # check memcache first if not loaded
+        $LJ::SPAM_BANNED_LOADED = 0
+            unless defined $LJ::SPAMREPORT_BANNED_LOADED;
         unless ( $LJ::SPAMREPORT_BANNED_LOADED ) {
             my $memval = LJ::MemCache::get( "sysban:spamreport" );
             if ( $memval ) {
