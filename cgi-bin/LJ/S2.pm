@@ -2318,7 +2318,7 @@ sub Image_std
                        $ctx->[S2::PROPS]->{ $textmap->{$_} } );
         }
 
-        # additional icons from imageconf.pl
+        # additional icons from LJ::Img
         # with alt text from translation system
         my @ic = qw( btn_del btn_freeze btn_unfreeze btn_scr btn_unscr
                      editcomment editentry edittags tellfriend memadd

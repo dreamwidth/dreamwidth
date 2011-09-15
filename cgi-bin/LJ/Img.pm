@@ -452,8 +452,10 @@ $img{post} = {
 };
 
 # load the site-local version, if it's around.
-if (-e "$LJ::HOME/cgi-bin/imageconf-local.pl") {
-    require "$LJ::HOME/cgi-bin/imageconf-local.pl";
-}
+eval "use LJ::ImgLocal;";
+
+# if the old local filename is in use, log an error.
+warn "NOTE: Found imageconf-local.pl, please rename to cgi-bin/LJ/ImgLocal.pm"
+    if -e "$LJ::HOME/cgi-bin/imageconf-local.pl";
 
 1;
