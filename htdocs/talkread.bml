@@ -332,7 +332,7 @@ body<=
         my $subject = LJ::CleanHTML::quote_html( $item->{subject}, $GET{nohtml} );
         LJ::CleanHTML::clean_subject(\$subject);
         BML::ebml(\$subject);
-        $ret .= "<div id='entrysubj'>$subject</div><br />\n";
+        $ret .= qq{<div id='entrysubj'><a href="$talkurl">$subject</a></div><br />\n};
     }
 
 
