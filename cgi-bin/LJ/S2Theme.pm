@@ -483,7 +483,7 @@ sub new {
     } else {
         bless $self, $class;
     }
-    
+
     $LJ::CACHE_S2THEME{$themeid} = $self;
 
     return $self;
@@ -658,11 +658,11 @@ sub get_preview_styleid {
     # we don't have a style for this theme, so get the new layers and set them to _for_preview directly
     my %style = LJ::S2::get_style($u);
     my $i18n_layer = $self->get_custom_i18n_layer_for_theme($u);
-    
+
     # for the i18nc layer, match the user's preferences if they're not switching cores
     # if they are switching cores, we don't know what the equivalent should be
     my $i18nc_layer = ( $self->coreid == $style{core} ) ? $style{i18nc} : undef;
-    
+
     my %layers = (
         core   => $self->coreid,
         i18nc  => $i18nc_layer,
@@ -691,7 +691,7 @@ sub all_categories {
         );
         return sort {
             ( $order{$a} || 0 ) <=> ( $order{$b} || 0 ) ||
-            $a cmp $b 
+            $a cmp $b
         } keys %data;
     };
 
@@ -700,13 +700,13 @@ sub all_categories {
     return $post_filter->( @$minfo ) if $minfo;
 
     my $dbr = LJ::get_db_reader();
-    my $cats = $dbr->selectall_arrayref( "SELECT k.keyword AS keyword " . 
+    my $cats = $dbr->selectall_arrayref( "SELECT k.keyword AS keyword " .
                                             "FROM s2categories AS c, sitekeywords AS k WHERE " .
                                             "c.kwid = k.kwid " . ( $all ? "" : "AND c.active = 1 " ) .
                                             "GROUP BY keyword", undef );
 
     my @rv = map { $_->[0] } @$cats;
-    
+
     LJ::MemCache::set( $memkey, \@rv );
     return $post_filter->( @rv );
 }
@@ -720,7 +720,7 @@ sub metadata {
     my $self = $_[0];
 
     return $self->{metadata} if exists $self->{metadata};
-	
+
     my $VERSION_DATA = 1;
 
     my $memkey = [ $self->s2lid, "s2meta:".$self->s2lid ];
@@ -728,12 +728,12 @@ sub metadata {
 
     my $load_info_from_cats = sub {
         my $cats = $_[0];
-        
+
         $cats->{featured}->{order} = -1;
         $cats->{featured}->{special} = 1;
 
         $info->{cats} = $cats;
-        $info->{active_cats} = [ grep { $cats->{$_}->{active} } keys %$cats ];        
+        $info->{active_cats} = [ grep { $cats->{$_}->{active} } keys %$cats ];
     };
 
     if ( $minfo = LJ::MemCache::get( $memkey ) ) {
@@ -745,7 +745,7 @@ sub metadata {
             my ( undef, $catstr, $cat_active ) = @$minfo;
 
             my %id_map;
-            my $cats = {};  
+            my $cats = {};
             my ( $pos, $nulpos );
             $pos = $nulpos = 0;
             while ( ( $nulpos = index( $catstr, "\0", $pos ) ) > 0 ) {
@@ -758,7 +758,7 @@ sub metadata {
                 };
                 $id_map{$id} = $cats->{$kw};
             }
-            
+
             while ( length $cat_active >= 4 ) {
                 my ( $id ) = unpack "N", substr( $cat_active, 0, 4, '' );
                 $id_map{$id}->{active} = 1;
@@ -789,7 +789,7 @@ sub metadata {
             join( '', map { pack( "Z*N", $_, $cats->{$_}->{kwid} ) } keys %$cats ) || "",
             join( '', map { pack( "N", $cats->{$_}->{kwid} ) } grep { $cats->{$_}->{active} } keys %$cats ) || "",
         ];
- 
+
        LJ::MemCache::set( $memkey, $minfo );
     }
 
@@ -823,13 +823,13 @@ sub designer { # designer of the theme
 
     my $id = $_[0]->s2lid;
     my $bid = $_[0]->b2lid;
-    my $li = {}; 
+    my $li = {};
     LJ::S2::load_layer_info( $li, [ $id, $bid ] );
 
     my $rv = $li->{$id}->{author_name} ||
         $li->{$bid}->{author_name} ||
         "";
-    
+
     $_[0]->{designer} = $rv;
     return $rv;
 }
@@ -912,7 +912,7 @@ sub module_props {
     )
 }
 
-sub navigation_props { 
+sub navigation_props {
     qw (
         text_view_archive
         text_view_friends
@@ -923,16 +923,16 @@ sub navigation_props {
         text_view_recent
         text_view_userinfo
         text_view_tags
-    ) 
+    )
 }
 
 sub header_props {
     qw (
         text_tags_page_header
         color_header_background
-        color_header_link 
-        color_header_link_active 
-        color_header_link_hover 
+        color_header_link
+        color_header_link_active
+        color_header_link_hover
         color_header_link_visited
         font_journal_title
         font_journal_title_size
