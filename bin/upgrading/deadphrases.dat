@@ -131,6 +131,16 @@ general /manage/index.bml.userpictures.edit.about
 general /manage/index.bml.userpictures.header
 general /manage/index.bml.information.emailpost
 general /manage/index.bml.information.emailpost.about
+
+general /manage/links.bml.about
+general /manage/links.bml.about.blank
+general /manage/links.bml.about.heading
+general /manage/links.bml.about.reorder
+general /manage/links.bml.error.s2required
+general /manage/links.bml.error.s2required.header
+general /manage/links.bml.success
+general /manage/links.bml.title
+
 general /manage/profile/index.bml.birthday
 general /manage/profile/index.bml.intro
 general /manage/profile/index.bml.im
@@ -155,6 +165,7 @@ general /modify.bml.lostinfo.head
 general /modify.bml.lostinfo.text
 general /modify.bml.modify.head
 general /modify.bml.modify.text
+general /modify.bml.title
 
 general /modify_do.bml.title
 
@@ -1220,7 +1231,7 @@ general widget.accountstatistics.memories
 general widget.accountstatistics.tags
 general widget.addqotd.extratext
 general widget.addqotd.extratext.note
-general widget.addqotd.is_special 
+general widget.addqotd.is_special
 general widget.browse.directorysearch
 general widget.browse.directorysearch.communities
 general widget.browse.directorysearch.users
