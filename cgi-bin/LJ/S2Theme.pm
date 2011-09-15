@@ -470,7 +470,7 @@ sub new {
     }
 
     # package name for the layout
-    my $layout_class = $self->{uniq} || $self->{layout_uniq};
+    my $layout_class = $self->{uniq} || $self->{layout_uniq} || '';
     $layout_class =~ s/\/.+//;
     $layout_class =~ s/-/_/g;
     $layout_class = "LJ::S2Theme::$layout_class";
