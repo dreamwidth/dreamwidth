@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+#
+# spellcheck-gm
+#
+# This Gearman worker is responsible for running text through a spellchecker
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljlib.pl";
+
+use Gearman::Worker;
+use LJ::Worker::Gearman;
+use Storable;
+
+use LJ::SpellCheck;
+
+gearman_decl( 'spellcheck'  => \&spellcheck );
+gearman_work();
+
+sub spellcheck {
+    my $job = shift;
+    my $args = Storable::thaw( $job->arg );
+
+    my $spellcheck = LJ::SpellCheck->new( {
+        command      => $args->{command},
+        command_args => $args->{command_args},
+        class        => $args->{class},
+        color        => $args->{color},
+    } );
+
+    my $results = $spellcheck->run( text => $args->{text}, no_ehtml => $args->{no_ehtml} );
+    my $ret = { results => $results };
+    return Storable::nfreeze( $ret );
+}

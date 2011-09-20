@@ -707,6 +707,8 @@ entryform.entry=Entry:
 
 entryform.entry.hint=Begin your entry
 
+entryform.form=Entry form:
+
 entryform.format=Text Formatting:
 
 entryform.format.auto=Auto
