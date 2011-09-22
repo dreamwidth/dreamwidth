@@ -1831,7 +1831,7 @@ property string image_background_page_position {
 }
 
 property string[] image_background_header_group {
-    des = "Header image";
+    des = "Header background image";
     grouptype = "image";
 }
 set image_background_header_group = [ "image_background_header_url", "image_background_header_repeat", "image_background_header_position" ];
