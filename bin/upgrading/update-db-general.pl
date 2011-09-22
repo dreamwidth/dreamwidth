@@ -1167,9 +1167,9 @@ register_tablecreate("s2categories", <<'EOC'); # global
 CREATE TABLE s2categories (
     s2lid INT UNSIGNED NOT NULL,
     kwid INT(10) UNSIGNED NOT NULL,
-    active TINYINT(1) UNSIGNED NOT NULL DEFAULT 1, 
+    active TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
 
-    PRIMARY KEY (s2lid, kwid)    
+    PRIMARY KEY (s2lid, kwid)
 )
 EOC
 
@@ -2454,7 +2454,7 @@ CREATE TABLE pollresult2 (
     pollid INT UNSIGNED NOT NULL,
     pollqid TINYINT UNSIGNED NOT NULL,
     userid INT UNSIGNED NOT NULL,
-    value VARCHAR(255) DEFAULT NULL,
+    value VARCHAR(1024) DEFAULT NULL,
 
     PRIMARY KEY  (journalid,pollid,pollqid),
     KEY (userid,pollid)
@@ -3105,7 +3105,7 @@ CREATE TABLE renames (
     fromuser CHAR(25),
     touser CHAR(25),
     rendate INT UNSIGNED,
-    
+
     INDEX (ownerid)
 )
 EOC
@@ -4014,6 +4014,12 @@ EOF
         set_dbnote( "fix_redirect_edges", 1 );
     }
 
+    # accommodate more poll answers by widening value
+    if ( column_type("pollresult2", "value") eq "varchar(255)" ) {
+        do_alter("pollresult2",
+                 "ALTER TABLE pollresult2 " .
+                 "MODIFY COLUMN value VARCHAR(1024) DEFAULT NULL");
+    }
 
 });
 
