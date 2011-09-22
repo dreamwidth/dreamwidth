@@ -102,7 +102,7 @@ body<=
             '--' => '',
             ccnum => LJ::html_text({ name => 'ccnum', id => 'ccnum', maxlength => 19 }) . $accepted_ccs,
             cvv2 => LJ::html_text({ name => 'cvv2', id => 'cvv2', maxlength => 4, size => 5 }),
-            expmon => LJ::html_select({ name => 'expmon', id => 'expmon', selected => $POST{expmon} }, map { $_ => LJ::Lang::month_long( $_ ) } 1..12 ),
+            expmon => LJ::html_select({ name => 'expmon', id => 'expmon', selected => $POST{expmon} }, map { $_ => LJ::Lang::month_long_ml( $_ ) . " - " . sprintf( '%0.2d', $_ ); } 1..12 ),
             expyear => LJ::html_select({ name => 'expyear', id => 'expyear', selected => $POST{expyear} }, map { $_ => $_ } 2011..2020 ),
         );
 
