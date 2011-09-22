@@ -63,7 +63,7 @@ sub option {
         $extra ? ("$maxwidth|$maxheight" => $extra) : ()
     );
 
-    my $ret = "<label for='${key}imgplaceholders'>" . $class->ml('setting.imageplaceholders.option') . "</label> ";
+    my $ret = "<label for='${key}imgplaceholders'>" . $class->ml('setting.imageplaceholders.option2') . "</label> ";
     $ret .= LJ::html_select({
         name => "${key}imgplaceholders",
         id => "${key}imgplaceholders",
@@ -73,11 +73,11 @@ sub option {
     # Option for undefined-size images. Might want to be magicked into only displaying when placeholders are set for other than all/none
 
     my @optionundef = (
-        0 => $class->ml( 'setting.imageplaceholders.option.undef.small' ),
-        1 => $class->ml( 'setting.imageplaceholders.option.undef.large' )
+        0 => $class->ml( 'setting.imageplaceholders.option.undef.always' ),
+        1 => $class->ml( 'setting.imageplaceholders.option.undef.never' )
     );
 
-    $ret .= "<br /><label for='${key}imgplaceundef'>" . $class->ml( 'setting.imageplaceholders.option.undef' ) . "</label> ";
+    $ret .= "<br /><label for='${key}imgplaceundef'>" . $class->ml( 'setting.imageplaceholders.option.undef2' ) . "</label> ";
     $ret .= LJ::html_select({
         name => "${key}imgplaceundef",
         id => "${key}imgplaceundef",

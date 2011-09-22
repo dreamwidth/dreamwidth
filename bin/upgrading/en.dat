@@ -2743,7 +2743,7 @@ setting.imageplaceholders.error.invalid=Invalid image size.
 
 setting.imageplaceholders.label=Image Placeholders
 
-setting.imageplaceholders.option=Replace images on your Reading Page with a placeholder for
+setting.imageplaceholders.option2=Replace images of known size on your Reading Page with a placeholder for
 
 setting.imageplaceholders.option.select.all=all images
 
@@ -2755,11 +2755,11 @@ setting.imageplaceholders.option.select.medium=medium images (over [[width]]x[[h
 
 setting.imageplaceholders.option.select.none=nothing (display all images)
 
-setting.imageplaceholders.option.undef=Treat images with undefined size as
+setting.imageplaceholders.option.undef2=Replace images of unknown size with a placeholder
 
-setting.imageplaceholders.option.undef.large=large images (use placeholder)
+setting.imageplaceholders.option.undef.always=always
 
-setting.imageplaceholders.option.undef.small=small images (display image)
+setting.imageplaceholders.option.undef.never=never
 
 setting.interests.desc|notes=There shouldn't be a description unless the page specifies one
 setting.interests.desc=_none
