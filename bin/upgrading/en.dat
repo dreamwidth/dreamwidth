@@ -4785,7 +4785,7 @@ widget.latestinbox.title=Inbox
 
 widget.latestnews.comments=[[num_comments]] [[?num_comments|comment|comments]]
 
-widget.latestnews.subscribe.add=<a [[aopts]]>Add</a> [[news]] to your reading list
+widget.latestnews.subscribe.add2=<a [[aopts]]>Subscribe</a> to [[news]]
 
 widget.latestnews.subscribe.modify=<a [[aopts]]>Modify your subscription</a> to [[news]]
 
@@ -4921,9 +4921,9 @@ widget.readinglist.filters.nofilters=You currently have no subscription filters.
 
 widget.readinglist.filters.title=Your Subscription Filters
 
-widget.readinglist.readpage=Check out recent updates on your <a [[aopts]]>reading list</a>!
+widget.readinglist.readpage2=Check out recent updates on your <a [[aopts]]>reading page</a>!
 
-widget.readinglist.title=Reading List
+widget.readinglist.title2=Reading Page
 
 widget.recentcomments.anon=Somebody
 

@@ -29,8 +29,8 @@ sub render_body {
     my @watched = $remote->watched_users;
     $count{$_->journaltype_readable}++ foreach @watched;
 
-    my $ret = "<h2>" . $class->ml( 'widget.readinglist.title' ) . "</h2>";
-    $ret .= "<p>" . $class->ml( 'widget.readinglist.readpage', { aopts => "href='" . $remote->journal_base. "/read'" } ) . "</p>";
+    my $ret = "<h2>" . $class->ml( 'widget.readinglist.title2' ) . "</h2>";
+    $ret .= "<p>" . $class->ml( 'widget.readinglist.readpage2', { aopts => "href='" . $remote->journal_base. "/read'" } ) . "</p>";
     $ret .= "<p>" . $class->ml( 'widget.readinglist.breakdown.header' ) . "</p>";
     $ret .= "<ul><li>" . $class->ml( 'widget.readinglist.breakdown.personal', { num => $count{personal} } ) . "</li>";
     $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.communities', { num => $count{community} } ) . "</li>";

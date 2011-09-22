@@ -56,7 +56,7 @@ sub render_body {
             aopts => "href='$LJ::SITEROOT/manage/circle/add?user=" . $news_journal->user . "'",
             news => LJ::ljuser( $news_journal ) } ) . "</p>";
     } else {
-        $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe.add', { 
+        $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe.add2', { 
             aopts => "href='$LJ::SITEROOT/manage/circle/add?user=" . $news_journal->user. "&action=subscribe'",
             news => LJ::ljuser( $news_journal ) } ) . "</p>";
     }
