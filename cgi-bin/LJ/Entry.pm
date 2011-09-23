@@ -2305,7 +2305,7 @@ sub currents_table {
         $ret .= "<tr><td align='right'>$curname</td>";
         $ret .= "<td>$current{$_}</td></tr>\n";
     }
-    $ret .= "</table><p>\n";
+    $ret .= "</table>\n";
 
     return $ret;
 }

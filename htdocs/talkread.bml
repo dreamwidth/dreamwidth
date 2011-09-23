@@ -324,17 +324,18 @@ body<=
         $age_restriction = LJ::img( "adult-nsfw" );
     }
 
-    $ret .= $sec . $age_restriction;
-    $ret .= "<br />\n" unless ( $sec eq "" && $age_restriction eq "" ) or $item->{subject};
 
     ###
-    if ($item->{'subject'}) {
-        my $subject = LJ::CleanHTML::quote_html( $item->{subject}, $GET{nohtml} );
+    my $subject;
+    if ( $item->{subject} ) {
+        $subject = LJ::CleanHTML::quote_html( $item->{subject}, $GET{nohtml} );
         LJ::CleanHTML::clean_subject(\$subject);
         BML::ebml(\$subject);
-        $ret .= qq{<div id='entrysubj'><a href="$talkurl">$subject</a></div><br />\n};
+    } else {
+        $subject = $T{nosubject};
     }
-
+    my $flags = ( $sec or $age_restriction ) ? "$sec$age_restriction " : "";
+    $ret .= qq{<div id='entrysubj'>$flags<a href="$talkurl">$subject</a></div><br />\n};
 
     $event = LJ::CleanHTML::quote_html( $event, $GET{nohtml} );
     $ret .= $event;
