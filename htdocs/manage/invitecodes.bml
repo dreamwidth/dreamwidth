@@ -20,13 +20,13 @@ body<=
 <?_code
 {
     use strict;
-    
+
     return LJ::server_down_html() if ($LJ::SERVER_DOWN);
-    
+
     my $remote = LJ::get_remote();
     return "<?needlogin?>"
         unless $remote;
-    
+
     my $ret;
 
     if ( LJ::did_post() ) {
@@ -61,38 +61,38 @@ body<=
     foreach my $code ( @invitecodes ) {
         push @recipient_ids, $code->recipient if $code->recipient;
     }
-    
+
     my $recipient_users = LJ::load_userids( @recipient_ids );
 
     unless ( $GET{full} ) {
         # filter out codes that were used over two weeks ago
         my $two_weeks_ago = time() - ( 14 * 24 * 60 * 60 );
-        @invitecodes = grep { 
+        @invitecodes = grep {
             my $u = $recipient_users->{$_->recipient};
             # if it's used, we should always have a recipient, but...
             ! $_->is_used || ( $u && $u->timecreate ) > $two_weeks_ago
         } @invitecodes;
     }
-    
+
     if ( @invitecodes ) {
 
         # sort so that invite codes end up in this order:
         #  - unsent and unused
         #  - sent but unused, with earliest sent first
         #  - used
-        @invitecodes = sort { 
+        @invitecodes = sort {
             return $a->is_used <=> $b->is_used if $a->is_used != $b->is_used;
             return $a->timesent <=> $b->timesent;
         } @invitecodes;
 
 
         $ret .= "<table class='invitecodes' id='invitecodes'><thead><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th width='200'>$ML{'.header.used'}</th><th width='200'>$ML{'.header.sent'}</th><th>$ML{'.header.email'}</th></tr></thead>";
-    
+
         foreach my $code ( @invitecodes ) {
             $ret .= "<tr>";
             $ret .= "<td><tt>".$code->code."</tt></td>";
             $ret .= "<td>";
-        
+
             if( $code->is_used ) {
                 my $u = $recipient_users->{$code->recipient};
                 $ret .= $u->ljuser_display;
@@ -100,10 +100,10 @@ body<=
                 my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT)
                     . "/create?from=$remote->{user}&code=".$code->code;
                 $ret .= BML::ml( '.code.use', { aopts => "href='$create_link'" } );
-            }        
+            }
 
             $ret .= "</td>";
-            
+
             $ret .= "<td>";
             if ( $code->is_used ) {
                 my $u = $recipient_users->{$code->recipient};
@@ -111,18 +111,18 @@ body<=
                 $ret .= LJ::time_to_http( $timeused ) if $timeused;
             }
             $ret .= "</td>";
-            
+
             $ret .= "<td>";
             $ret .= LJ::time_to_http( $code->timesent ) if $code->timesent;
             $ret .= "</td>";
-            
+
             $ret .= "<td>";
             $ret .= $code->email;
             $ret .= "</td>";
-            
+
             $ret .= "</tr>";
         }
-    
+
         $ret .= "</table>";
     } elsif ( $GET{full} ) {
         $ret .= "<?p $ML{'.noinvitecodes'} p?>";
