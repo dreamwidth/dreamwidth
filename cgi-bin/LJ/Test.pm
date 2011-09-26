@@ -79,18 +79,16 @@ sub temp_user {
     my $pfx = $underscore ? "_" : "t_";
     while (1) {
         my $username = $pfx . LJ::rand_chars(15 - length $pfx);
-        my $uid = LJ::create_account({
+        my $u = LJ::User->create(
             user => $username,
             name => "test account $username",
             email => "test\@$LJ::DOMAIN",
             journaltype => $journaltype,
             cluster => $cluster,
-        });
-        if ($uid) {
-            my $u = LJ::load_userid($uid) or next;
-            push @temp_userids, $uid;
-            return $u;
-        }
+        );
+        next unless $u;
+        push @temp_userids, $u->id;
+        return $u;
     }
 }
 

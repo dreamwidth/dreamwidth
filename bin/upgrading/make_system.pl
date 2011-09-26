@@ -32,18 +32,18 @@ chomp $pass;
 print "\n";
 
 print "Creating system account...\n";
-unless (LJ::create_account({ 'user' => 'system',
-                             'name' => 'System Account',
-                             'password' => $pass }))
-{
+my $u = LJ::User->create( user => 'system',
+                          name => 'System Account',
+                          password => $pass );
+unless ( $u ) {
     print "Already exists.\nModifying 'system' account...\n";
     my $id = LJ::get_userid("system");
     $dbh->do("UPDATE password SET password=? WHERE userid=?",
              undef, $pass, $id);
 }
 
-my $u = LJ::load_user("system");
-unless ($u) {
+$u ||= LJ::load_user( "system" );
+unless ( $u ) {
     print "ERROR: can't find newly-created system account.\n";
     exit 1;
 }

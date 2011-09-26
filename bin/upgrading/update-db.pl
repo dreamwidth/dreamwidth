@@ -245,11 +245,10 @@ sub vivify_system_user {
     unless ($su) {
         print "System user not found. Creating with random password.\n";
         my $pass = LJ::make_auth_code(10);
-        LJ::create_account({ 'user' => 'system',
-                             'name' => 'System Account',
-                             'password' => $pass })
-            || die "Failed to create system user.";
-        $su = LJ::load_user("system") || die "Failed to load the newly created system user.";
+        $su = LJ::User->create( user => 'system',
+                                name => 'System Account',
+                                password => $pass );
+        die "Failed to create system user." unless $su;
         $freshly_made = 1;
     }
     return wantarray ? ($su, $freshly_made) : $su;

@@ -5232,8 +5232,6 @@ sub load_identity_user {
     # increment ext_ counter until we successfully create an LJ
     # account.  hard cap it at 10 tries. (arbitrary, but we really
     # shouldn't have *any* failures here, let alone 10 in a row)
-    my $dbh = LJ::get_db_writer();
-    my $uid;
 
     for (1..10) {
         my $extuser = 'ext_' . LJ::alloc_global_counter('E');
@@ -5243,20 +5241,22 @@ sub load_identity_user {
             $name = $vident->display;
         }
 
-        $uid = LJ::create_account({
+        $u = LJ::User->create(
             caps => undef,
             user => $extuser,
             name => $ident,
             journaltype => 'I',
-        });
-        last if $uid;
+        );
+        last if $u;
         select undef, undef, undef, .10;  # lets not thrash over this
     }
-    return undef unless $uid &&
-        $dbh->do("INSERT INTO identitymap (idtype, identity, userid) VALUES (?,?,?)",
-                 undef, $type, $ident, $uid);
 
-    $u = LJ::load_userid($uid);
+    return undef unless $u;
+
+    my $dbh = LJ::get_db_writer();
+    return undef unless
+        $dbh->do( "INSERT INTO identitymap (idtype, identity, userid) VALUES (?,?,?)",
+                  undef, $type, $ident, $u->id );
 
     # set default style
     $u->set_default_style;
@@ -7126,24 +7126,6 @@ use Carp;
 
 =head2 Creating and Deleting Accounts (LJ)
 =cut
-
-# <LJFUNC>
-# name: LJ::create_account
-# des: Creates a new basic account.  <strong>Note:</strong> This function is
-#      not really too useful but should be extended to be useful so
-#      htdocs/create.bml can use it, rather than doing the work itself.
-# returns: integer of userid created, or 0 on failure.
-# args: dbarg?, opts
-# des-opts: hashref containing keys 'user', 'name', 'password', 'email', 'caps', 'journaltype'.
-# </LJFUNC>
-sub create_account {
-    my $opts = shift;
-    my $u = LJ::User->create(%$opts)
-        or return 0;
-
-    return $u->id;
-}
-
 
 # <LJFUNC>
 # name: LJ::new_account_cluster
