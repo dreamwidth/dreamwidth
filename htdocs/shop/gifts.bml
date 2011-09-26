@@ -36,7 +36,7 @@ body<=
     foreach my $target ( values %$circle ) {
 
         if ( ( $target->is_person || $target->is_community ) && $target->is_visible ) {
-            my $paidstatus = DW::Pay::get_paid_status( $target );   
+            my $paidstatus = DW::Pay::get_paid_status( $target );
 
             # account was never paid if it has no paidstatus row:
             push @free, $target unless defined $paidstatus;
@@ -78,7 +78,7 @@ body<=
         my $ret = '';
 
         $ret .= "<li>" . $person->ljuser_display . ": " . $person->name_html;
-        $ret .= ", " . $person->last_updated if $opts{last_updated};
+        $ret .= ", " . $person->last_updated;
 
         unless ( $opts{no_paid_time} ) {
             $ret .= " [<a href='" . $person->gift_url . "'>";
@@ -104,7 +104,7 @@ body<=
     # sort into two lists depending on whether it's a personal or community account
     my ( $freeusers, $freecommunities ) = ( '', '' );
     foreach my $person ( @free ) {
-        my $linked = $list_item->( $person, last_updated => 1 );
+        my $linked = $list_item->( $person );
         if ( $person->is_personal ) {
             $freeusers .= $linked;
         } else {
