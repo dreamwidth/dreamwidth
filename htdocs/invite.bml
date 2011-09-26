@@ -50,9 +50,9 @@ body<=
     }
 
     if ( $GET{full} ) {
-        $ret .= "<p>" . BML::ml( '.label.viewing.full', { aopts => "href='invitecodes'" } ) . "</p>";
+        $ret .= "<p>" . LJ::Lang::ml( '.label.viewing.full', { aopts => "href='/invite'" } ) . "</p>";
     } else {
-        $ret .= "<p>" . BML::ml( '.label.viewing.partial', { aopts => "href='invitecodes?full=1'" } ) . "</p>";
+        $ret .= "<p>" . LJ::Lang::ml( '.label.viewing.partial', { aopts => "href='/invite?full=1'" } ) . "</p>";
     }
 
     my @invitecodes = DW::InviteCodes->by_owner( userid => $remote->id );
@@ -75,6 +75,8 @@ body<=
     }
 
     if ( @invitecodes ) {
+
+        $ret .= "<p>" . LJ::Lang::ml( '.label.send', { aopts => "href='/manage/circle/invite'" } ) . "</p>";
 
         # sort so that invite codes end up in this order:
         #  - unsent and unused

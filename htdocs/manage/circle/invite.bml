@@ -52,7 +52,7 @@ _c?>
 
         unless ( @invitecodes ) {
             $body = $ML{'.msg.noinvitecodes'};
-            $body .= " " . BML::ml( '.msg.noinvitecodes.requestmore', { aopts => "href='$LJ::SITEROOT/manage/invitecodes'" } )
+            $body .= " " . BML::ml( '.msg.noinvitecodes.requestmore', { aopts => "href='$LJ::SITEROOT/invite'" } )
                 if DW::BusinessRules::InviteCodeRequests::can_request( user => $u );
             return;
         }
@@ -207,7 +207,7 @@ _c?>
         $body .= $findfriends_intro;
     } elsif ( $LJ::USE_ACCT_CODES ) {
         my $unusedinvites = DW::InviteCodes->unused_count( userid => $u->id );
-        $body .= "<?p " . BML::ml('.intro.code3', { aopts => "href='$LJ::SITEROOT/manage/invitecodes'" , num => $unusedinvites, notif => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'" } ) . " p?>";
+        $body .= "<?p " . BML::ml('.intro.code3', { aopts => "href='$LJ::SITEROOT/invite'" , num => $unusedinvites, notif => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'" } ) . " p?>";
     } else {
         $body .= "<?p " . BML::ml('.intro', { aopts => "href='$create_link'", createlink => $create_link} ) . " p?>";
     }

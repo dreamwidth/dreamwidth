@@ -19,6 +19,8 @@
 
 .header.used=Used on:
 
+.label.send=You can <a [[aopts]]>email an invite code to a friend.</a>
+
 .label.viewing.full=Here is a full list of your invite codes. See only those which are <a [[aopts]]>unused, or used but recently sent</a>.
 
 .label.viewing.partial=Here are your unused and recently sent invite codes. See the <a [[aopts]]>full list of your invite codes</a>.

@@ -232,7 +232,7 @@ sub accept {
         subject => LJ::Lang::ml( 'email.invitecoderequest.accept.subject' ),
         body => LJ::Lang::ml( 'email.invitecoderequest.accept.body2', { 
             siteroot => $LJ::SITEROOT, 
-            invitesurl => $LJ::SITEROOT . '/manage/invitecodes',
+            invitesurl => $LJ::SITEROOT . '/invite',
             sitename => $LJ::SITENAMESHORT,
             number => $opts{num_invites},
             codes => join( "\n", @invitecodes ),

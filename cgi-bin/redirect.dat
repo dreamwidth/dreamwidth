@@ -13,6 +13,8 @@
 /manage/comments                    /manage/settings/?cat=privacy
 /manage/comments/                   /manage/settings/?cat=privacy
 /manage/comments/index.bml          /manage/settings/?cat=privacy
+/manage/invitecodes                 /invite
+/manage/invitecodes.bml             /invite
 /manage/subscriptions               /manage/subscriptions/filters
 /manage/subscriptions/              /manage/subscriptions/filters
 /manage/subscriptions/index.bml     /manage/subscriptions/filters

@@ -132,6 +132,23 @@ general /manage/index.bml.userpictures.header
 general /manage/index.bml.information.emailpost
 general /manage/index.bml.information.emailpost.about
 
+general /manage/invitecodes.bml.code.use
+general /manage/invitecodes.bml.form.request.header
+general /manage/invitecodes.bml.form.request.intro
+general /manage/invitecodes.bml.form.request.reason
+general /manage/invitecodes.bml.form.request.submit
+general /manage/invitecodes.bml.header.code
+general /manage/invitecodes.bml.header.email
+general /manage/invitecodes.bml.header.recipient
+general /manage/invitecodes.bml.header.sent
+general /manage/invitecodes.bml.header.used
+general /manage/invitecodes.bml.label.viewing.full
+general /manage/invitecodes.bml.label.viewing.partial
+general /manage/invitecodes.bml.msg.request.error
+general /manage/invitecodes.bml.msg.request.success
+general /manage/invitecodes.bml.noinvitecodes
+general /manage/invitecodes.bml.noinvitecodes.partial
+
 general /manage/links.bml.about
 general /manage/links.bml.about.blank
 general /manage/links.bml.about.heading

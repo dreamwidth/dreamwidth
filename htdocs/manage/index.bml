@@ -238,7 +238,7 @@ list<=
 <li><a href="/manage/circle/edit" title="<?_ml .friends.edit.about _ml?>"><?_ml /manage/circle/edit.bml.title2 _ml?></a></li>
 <li><a href="/manage/circle/editfilters" title="<?_ml .friends.groups.about _ml?>"><?_ml /manage/circle/editfilters.bml.title2 _ml?></a></li>
 <li><a href="/manage/circle/filter" title="<?_ml .friends.filter.about _ml?>"><?_ml .friends.filter _ml?></a></li>
-<li><a href="/manage/invitecodes" title="<?_ml .invites.manage.about _ml?>"><?_ml .invites.manage _ml?></a></li>
+<li><a href="/invite" title="<?_ml .invites.manage.about _ml?>"><?_ml .invites.manage _ml?></a></li>
 <=list
 block?>
 
