@@ -2607,6 +2607,10 @@ sub clean_css_classname
     return $clean_classname;
 }
 
+sub get_image {
+    return LJ::S2::Image_std( $_[1] );
+}
+
 sub set_content_type
 {
     my ($ctx, $type) = @_;

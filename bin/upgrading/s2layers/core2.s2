@@ -1073,6 +1073,9 @@ function builtin print_search_form(string button_text)
 function builtin keys_alpha(string{} elements) : string[]
 "Return the keys of the array in alphabetically sorted order.";
 
+function builtin get_image(string key) : Image
+"Given an image key to look up, returns an Image object populated with src, width, height taken from the standard images used by S2. Image object may be null if key is not valid";
+
 ##[ properties ]
 
 propgroup colors = "Colors";
