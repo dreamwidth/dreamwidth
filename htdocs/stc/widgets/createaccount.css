@@ -10,6 +10,7 @@
    left: 34em;
    right: 0px;
    top: 0px;
+   z-index: 99;
 }
 
 div.error-list ol, div.error-list li {
