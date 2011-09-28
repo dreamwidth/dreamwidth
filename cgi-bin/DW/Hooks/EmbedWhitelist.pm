@@ -84,6 +84,10 @@ LJ::Hooks::register_hook( 'allow_iframe_embeds', sub {
         return 1 if match_full_path( qr!/embed/[-_a-zA-Z0-9]{11,}!, $uri_path );
     }
 
+    if ( $uri_host eq "commons.wikimedia.org" ) {
+        return 1 if $uri_path =~ m!^/wiki/File:! && $parsed_uri->query =~ m/embedplayer=yes/;
+    }
+
     return 0;
 
 } );

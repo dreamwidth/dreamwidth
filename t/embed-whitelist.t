@@ -1,7 +1,7 @@
 # -*-perl-*-
 use strict;
 
-use Test::More tests => 24;
+use Test::More tests => 26;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
@@ -71,7 +71,10 @@ note( "misc" );
     test_good_url( "http://www.slideshare.net/slideshow/embed_code/12312312" );
 
     test_good_url( "http://player.vimeo.com/video/123123123?title=0&byline=0&portrait=0" );
-    test_bad_url("http://player.vimeo.com/video/123abc?title=0&byline=0&portrait=0");
+    test_bad_url( "http://player.vimeo.com/video/123abc?title=0&byline=0&portrait=0" );
+
+    test_good_url( "http://commons.wikimedia.org/wiki/File:somethingsomethingsomething.ogv?withJS=MediaWiki:MwEmbed.js&embedplayer=yes" );
+    test_bad_url( "http://commons.wikimedia.org/wiki/File:1903_Burnley_Ironworks_company_steam_engine_in_use.ogv?withJS=MediaWiki:MwEmbed.js" );
 }
 
 
