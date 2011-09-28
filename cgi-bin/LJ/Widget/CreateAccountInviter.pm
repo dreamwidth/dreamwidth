@@ -42,7 +42,8 @@ sub render_body {
     };
 
     my $ret;
-    $ret .= "<h2>" . $class->ml( 'widget.createaccountinviter.title' ) . "</h2>";
+    $ret .= "<fieldset>";
+    $ret .= "<legend><h2>" . $class->ml( 'widget.createaccountinviter.title' ) . "</h2></legend>";
 
     $ret .= $class->html_hidden( from => $inviter->user );
 
@@ -124,6 +125,7 @@ sub render_body {
         }
     }
 
+    $ret .= "</fieldset>";
     return $ret;
 }
 

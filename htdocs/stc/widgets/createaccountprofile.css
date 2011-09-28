@@ -27,3 +27,6 @@ form.simple-form > input{
     padding-top: 0;
 }
 
+.simple-form .appwidget-createaccountinviter label {
+    float: none;
+}
