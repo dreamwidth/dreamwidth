@@ -56,7 +56,7 @@ sub action_links {
 
     my $u = $self->{u};
     my $remote = $self->{remote};
-    
+
     my $user_link_bar = $u->user_link_bar( $remote, class_prefix => "profile" );
     my @ret = $user_link_bar->get_links( "manage_membership", "trust", "watch", "post", "track", "message", "search", "buyaccount" );
 }
@@ -103,7 +103,7 @@ sub userpic {
             $ret->{width} = 100;
             $ret->{height} = 100;
         }
-    
+
         # now determine what caption text to show
         if ( $remote && $remote->can_manage( $u ) ) {
             if ( $u->get_userpic_count ) {
@@ -134,7 +134,7 @@ sub userpic {
                             ' alt="' . $ret->{alt_text} .
                             '" />';
     }
-   
+
 
     #  Set the wrapper materials to surrounded the  userpic image
     my ( $apre, $apost ) = ( '', '' );
@@ -240,7 +240,7 @@ sub entry_stats {
         aopts => 'href="' . $u->journal_base . '"',
     } )
         unless $u->is_identity;
-    
+
     return @ret;
 }
 
@@ -259,7 +259,7 @@ sub tag_stats {
         aopts => 'href="' . $u->journal_base . '/tag/"',
     } )
         unless $u->is_identity || $u->is_syndicated;
-    
+
     return @ret;
 }
 
@@ -278,7 +278,7 @@ sub memory_stats {
         aopts => "href='$LJ::SITEROOT/tools/memories?user=" . $u->user . "'",
     } )
         unless $u->is_syndicated;
-    
+
     return @ret;
 }
 
@@ -297,7 +297,7 @@ sub userpic_stats {
         aopts => "href='" . $u->allpics_base . "'",
     } )
         unless $u->is_syndicated;
-    
+
     return @ret;
 }
 
