@@ -121,10 +121,10 @@ sub run_tests {
         ok($last_delete_ct == 15, "deleted correct number of rows by user");
         
         # shouldn't clean this time around
-        LJ::no_cache(sub {
+        LJ::DB::no_cache( sub {
             $class->clear_request_cache;
             $class->load_mapping( user => $u );
-        });
+        } );
         
         ok($last_delete_ct == 0, "loaded by user without redundant cleaning");
         
@@ -148,10 +148,10 @@ sub run_tests {
         ok($last_delete_ct == 15, "deleted correct number of rows by uniq");
         
         # shouldn't clean this time around
-        LJ::no_cache(sub {
+        LJ::DB::no_cache( sub {
             $class->clear_request_cache;
             $class->load_mapping( uniq => $uniq );
-        });
+        } );
         
         ok($last_delete_ct == 0, "loaded by uniq without redundant cleaning");
     }

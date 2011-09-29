@@ -32,12 +32,12 @@ $LJ::DBIRole = new DBI::Role {
     'sources' => \%LJ::DBINFO,
     'default_db' => "livejournal",
     'time_check' => 60,
-    'time_report' => \&LJ::dbtime_callback,
+    'time_report' => \&LJ::DB::dbtime_callback,
 };
 
 package LJ::DB;
 
-use Carp qw(croak);
+use Carp qw(croak);  # import croak into package LJ::DB
 
 # <LJFUNC>
 # name: LJ::DB::time_range_to_ids
@@ -148,6 +148,9 @@ sub time_range_to_ids {
     return ($startid, $endid);
 }
 
+sub isdb { return ref $_[0] && (ref $_[0] eq "DBI::db" ||
+                                ref $_[0] eq "Apache::DBI::db"); }
+
 sub dbh_by_role {
     return $LJ::DBIRole->get_dbh( @_ );
 }
@@ -216,9 +219,24 @@ sub user_cluster_details {
     return ($1, $2);
 }
 
-package LJ;
+sub foreach_cluster {
+    my $coderef = shift;
+    my $opts = shift || {};
 
-use Carp qw(croak);
+    # have to include this via an eval so it doesn't actually get included
+    # until someone calls foreach cluster.  at which point, if they're in web
+    # context, it will fail.
+    eval "use LJ::DBUtil; 1;";
+    die $@ if $@;
+
+    foreach my $cluster_id (@LJ::CLUSTERS) {
+        my $dbr = ($LJ::IS_DEV_SERVER) ?
+            LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});
+        $coderef->($cluster_id, $dbr);
+    }
+}
+
+sub bindstr { return join(', ', map { '?' } @_); }
 
 # when calling a supported function (currently: LJ::load_user() or LJ::load_userid*)
 # ignores in-process request cache, memcache, and selects directly
@@ -252,6 +270,135 @@ sub no_ml_cache {
     local $LJ::NO_ML_CACHE = 1;
     return $sb->();
 }
+
+# returns the DBI::Role role name of a cluster master given a clusterid
+sub master_role {
+    my $id = shift;
+    my $role = "cluster${id}";
+    if (my $ab = $LJ::CLUSTER_PAIR_ACTIVE{$id}) {
+        $ab = lc($ab);
+        # master-master cluster
+        $role = "cluster${id}${ab}" if $ab eq "a" || $ab eq "b";
+    }
+    return $role;
+}
+
+sub dbtime_callback {
+    my ($dsn, $dbtime, $time) = @_;
+    my $diff = abs($dbtime - $time);
+    if ($diff > 2) {
+        $dsn =~ /host=([^:\;\|]*)/;
+        my $db = $1;
+        print STDERR "Clock skew of $diff seconds between web($LJ::SERVER_NAME) and db($db)\n";
+    }
+}
+
+# <LJFUNC>
+# name: LJ::DB::get_dbirole_dbh
+# class: db
+# des: Internal function for get_dbh(). Uses the DBIRole to fetch a dbh, with
+#      hooks into db stats-generation if that's turned on.
+# info:
+# args: opts, role
+# des-opts: A hashref of options.
+# des-role: The database role.
+# returns: A dbh.
+# </LJFUNC>
+sub get_dbirole_dbh {
+    my $dbh = $LJ::DBIRole->get_dbh( @_ ) or return undef;
+
+    if ( $LJ::DB_LOG_HOST && $LJ::HAVE_DBI_PROFILE ) {
+        $LJ::DB_REPORT_HANDLES{ $dbh->{Name} } = $dbh;
+
+        # :TODO: Explain magic number
+        $dbh->{Profile} ||= "2/DBI::Profile";
+
+        # And turn off useless (to us) on_destroy() reports, too.
+        undef $DBI::Profile::ON_DESTROY_DUMP;
+    }
+
+    return $dbh;
+}
+
+# <LJFUNC>
+# name: LJ::DB::get_lock
+# des: get a MySQL lock on a given key/dbrole combination.
+# returns: undef if called improperly, true on success, die() on failure
+# args: db, dbrole, lockname, wait_time?
+# des-dbrole: the role this lock should be gotten on, either 'global' or 'user'.
+# des-lockname: the name to be used for this lock.
+# des-wait_time: an optional timeout argument, defaults to 10 seconds.
+# </LJFUNC>
+sub get_lock
+{
+    my ($db, $dbrole, $lockname, $wait_time) = @_;
+    return undef unless $db && $lockname;
+    return undef unless $dbrole eq 'global' || $dbrole eq 'user';
+
+    my $curr_sub = (caller 1)[3]; # caller of current sub
+
+    # die if somebody already has a lock
+    die "LOCK ERROR: $curr_sub; can't get lock from: $LJ::LOCK_OUT{$dbrole}\n"
+        if exists $LJ::LOCK_OUT{$dbrole};
+
+    # get a lock from mysql
+    $wait_time ||= 10;
+    $db->do("SELECT GET_LOCK(?,?)", undef, $lockname, $wait_time)
+        or return undef;
+
+    # successfully got a lock
+    $LJ::LOCK_OUT{$dbrole} = $curr_sub;
+    return 1;
+}
+
+# <LJFUNC>
+# name: LJ::DB::release_lock
+# des: release a MySQL lock on a given key/dbrole combination.
+# returns: undef if called improperly, true on success, die() on failure
+# args: db, dbrole, lockname
+# des-dbrole: role on which to get this lock, either 'global' or 'user'.
+# des-lockname: the name to be used for this lock
+# </LJFUNC>
+sub release_lock
+{
+    my ($db, $dbrole, $lockname) = @_;
+    return undef unless $db && $lockname;
+    return undef unless $dbrole eq 'global' || $dbrole eq 'user';
+
+    # get a lock from mysql
+    $db->do("SELECT RELEASE_LOCK(?)", undef, $lockname);
+    delete $LJ::LOCK_OUT{$dbrole};
+
+    return 1;
+}
+
+# <LJFUNC>
+# name: LJ::DB::disconnect_dbs
+# des: Clear cached DB handles
+# </LJFUNC>
+sub disconnect_dbs {
+    # clear cached handles
+    $LJ::DBIRole->disconnect_all( { except => [qw(logs)] });
+}
+
+# <LJFUNC>
+# name: LJ::DB::use_diff_db
+# class:
+# des: given two DB roles, returns true only if it is certain the two roles are
+#      served by different database servers.
+# info: This is useful for, say, the moveusercluster script: You would not want
+#       to select something from one DB, copy it into another, and then delete it from the
+#       source if they were both the same machine.
+# args:
+# des-:
+# returns:
+# </LJFUNC>
+sub use_diff_db {
+    $LJ::DBIRole->use_diff_db(@_);
+}
+
+
+package LJ;
 
 # <LJFUNC>
 # name: LJ::get_dbh
@@ -293,7 +440,7 @@ sub get_dbh {
         # let site admin turn off global master write access during
         # maintenance
         return $nodb->([@_]) if $LJ::DISABLE_MASTER && $role eq "master";
-        my $db = LJ::get_dbirole_dbh($opts, $role);
+        my $db = LJ::DB::get_dbirole_dbh( $opts, $role );
         return $db if $db;
     }
     return $nodb->([@_]);
@@ -347,7 +494,7 @@ sub get_cluster_def_reader
     my $id = isu($arg) ? $arg->{'clusterid'} : $arg;
     return LJ::get_cluster_reader(@dbh_opts, $id) if
         $LJ::DEF_READER_ACTUALLY_SLAVE{$id};
-    return LJ::get_dbh(@dbh_opts, LJ::master_role($id));
+    return LJ::get_dbh( @dbh_opts, LJ::DB::master_role($id) );
 }
 
 # <LJFUNC>
@@ -365,158 +512,9 @@ sub get_cluster_master
     my $arg = shift;
     my $id = isu($arg) ? $arg->{'clusterid'} : $arg;
     return undef if $LJ::READONLY_CLUSTER{$id};
-    return LJ::get_dbh(@dbh_opts, LJ::master_role($id));
+    return LJ::get_dbh( @dbh_opts, LJ::DB::master_role($id) );
 }
 
-# returns the DBI::Role role name of a cluster master given a clusterid
-sub master_role {
-    my $id = shift;
-    my $role = "cluster${id}";
-    if (my $ab = $LJ::CLUSTER_PAIR_ACTIVE{$id}) {
-        $ab = lc($ab);
-        # master-master cluster
-        $role = "cluster${id}${ab}" if $ab eq "a" || $ab eq "b";
-    }
-    return $role;
-}
-
-# <LJFUNC>
-# name: LJ::get_dbirole_dbh
-# class: db
-# des: Internal function for get_dbh(). Uses the DBIRole to fetch a dbh, with
-#      hooks into db stats-generation if that's turned on.
-# info:
-# args: opts, role
-# des-opts: A hashref of options.
-# des-role: The database role.
-# returns: A dbh.
-# </LJFUNC>
-sub get_dbirole_dbh {
-    my $dbh = $LJ::DBIRole->get_dbh( @_ ) or return undef;
-
-    if ( $LJ::DB_LOG_HOST && $LJ::HAVE_DBI_PROFILE ) {
-        $LJ::DB_REPORT_HANDLES{ $dbh->{Name} } = $dbh;
-
-        # :TODO: Explain magic number
-        $dbh->{Profile} ||= "2/DBI::Profile";
-
-        # And turn off useless (to us) on_destroy() reports, too.
-        undef $DBI::Profile::ON_DESTROY_DUMP;
-    }
-
-    return $dbh;
-}
-
-# <LJFUNC>
-# name: LJ::get_lock
-# des: get a MySQL lock on a given key/dbrole combination.
-# returns: undef if called improperly, true on success, die() on failure
-# args: db, dbrole, lockname, wait_time?
-# des-dbrole: the role this lock should be gotten on, either 'global' or 'user'.
-# des-lockname: the name to be used for this lock.
-# des-wait_time: an optional timeout argument, defaults to 10 seconds.
-# </LJFUNC>
-sub get_lock
-{
-    my ($db, $dbrole, $lockname, $wait_time) = @_;
-    return undef unless $db && $lockname;
-    return undef unless $dbrole eq 'global' || $dbrole eq 'user';
-
-    my $curr_sub = (caller 1)[3]; # caller of current sub
-
-    # die if somebody already has a lock
-    die "LOCK ERROR: $curr_sub; can't get lock from: $LJ::LOCK_OUT{$dbrole}\n"
-        if exists $LJ::LOCK_OUT{$dbrole};
-
-    # get a lock from mysql
-    $wait_time ||= 10;
-    $db->do("SELECT GET_LOCK(?,?)", undef, $lockname, $wait_time)
-        or return undef;
-
-    # successfully got a lock
-    $LJ::LOCK_OUT{$dbrole} = $curr_sub;
-    return 1;
-}
-
-# <LJFUNC>
-# name: LJ::release_lock
-# des: release a MySQL lock on a given key/dbrole combination.
-# returns: undef if called improperly, true on success, die() on failure
-# args: db, dbrole, lockname
-# des-dbrole: role on which to get this lock, either 'global' or 'user'.
-# des-lockname: the name to be used for this lock
-# </LJFUNC>
-sub release_lock
-{
-    my ($db, $dbrole, $lockname) = @_;
-    return undef unless $db && $lockname;
-    return undef unless $dbrole eq 'global' || $dbrole eq 'user';
-
-    # get a lock from mysql
-    $db->do("SELECT RELEASE_LOCK(?)", undef, $lockname);
-    delete $LJ::LOCK_OUT{$dbrole};
-
-    return 1;
-}
-
-# <LJFUNC>
-# name: LJ::disconnect_dbs
-# des: Clear cached DB handles
-# </LJFUNC>
-sub disconnect_dbs {
-    # clear cached handles
-    $LJ::DBIRole->disconnect_all( { except => [qw(logs)] });
-}
-
-# <LJFUNC>
-# name: LJ::use_diff_db
-# class:
-# des: given two DB roles, returns true only if it is certain the two roles are
-#      served by different database servers.
-# info: This is useful for, say, the moveusercluster script: You would not want
-#       to select something from one DB, copy it into another, and then delete it from the
-#       source if they were both the same machine.
-# args:
-# des-:
-# returns:
-# </LJFUNC>
-sub use_diff_db {
-    $LJ::DBIRole->use_diff_db(@_);
-}
-
-sub dbtime_callback {
-    my ($dsn, $dbtime, $time) = @_;
-    my $diff = abs($dbtime - $time);
-    if ($diff > 2) {
-        $dsn =~ /host=([^:\;\|]*)/;
-        my $db = $1;
-        print STDERR "Clock skew of $diff seconds between web($LJ::SERVER_NAME) and db($db)\n";
-    }
-}
-
-sub foreach_cluster {
-    my $coderef = shift;
-    my $opts = shift || {};
-
-    # have to include this via an eval so it doesn't actually get included
-    # until someone calls foreach cluster.  at which point, if they're in web
-    # context, it will fail.
-    eval "use LJ::DBUtil; 1;";
-    die $@ if $@;
-
-    foreach my $cluster_id (@LJ::CLUSTERS) {
-        my $dbr = ($LJ::IS_DEV_SERVER) ?
-            LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});
-        $coderef->($cluster_id, $dbr);
-    }
-}
-
-
-sub isdb { return ref $_[0] && (ref $_[0] eq "DBI::db" ||
-                                ref $_[0] eq "Apache::DBI::db"); }
-
-
-sub bindstr { return join(', ', map { '?' } @_); }
 
 package LJ::Error::Database::Unavailable;
 sub fields { qw(roles) }  # arrayref of roles requested

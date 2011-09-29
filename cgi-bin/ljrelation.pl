@@ -50,7 +50,7 @@ sub get_reluser_id {
 # </LJFUNC>
 sub load_rel_user
 {
-    my $db = isdb($_[0]) ? shift : undef;
+    my $db = LJ::DB::isdb( $_[0] ) ? shift : undef;
     my ($userid, $type) = @_;
     return undef unless $type and $userid;
     my $u = LJ::want_user($userid);
@@ -114,7 +114,7 @@ sub load_rel_user_cache
 # </LJFUNC>
 sub load_rel_target
 {
-    my $db = isdb($_[0]) ? shift : undef;
+    my $db = LJ::DB::isdb( $_[0] ) ? shift : undef;
     my ($targetid, $type) = @_;
     return undef unless $type and $targetid;
     my $u = LJ::want_user($targetid);

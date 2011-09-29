@@ -1388,7 +1388,7 @@ sub end_request
 {
     LJ::work_report_end();
     LJ::flush_cleanup_handlers();
-    LJ::disconnect_dbs() if $LJ::DISCONNECT_DBS;
+    LJ::DB::disconnect_dbs() if $LJ::DISCONNECT_DBS;
     LJ::MemCache::disconnect_all() if $LJ::DISCONNECT_MEMCACHE;
     return 1;
 }
@@ -1511,7 +1511,7 @@ sub cmd_buffer_add
 # </LJFUNC>
 sub load_talk_props2
 {
-    my $db = isdb($_[0]) ? shift @_ : undef;
+    my $db = LJ::DB::isdb( $_[0] ) ? shift @_ : undef;
     my ($uuserid, $listref, $hashref) = @_;
 
     my $userid = want_userid($uuserid);
@@ -2169,7 +2169,7 @@ sub last_error
 sub error
 {
     my $err = shift;
-    if (isdb($err)) {
+    if ( LJ::DB::isdb( $err ) ) {
         $LJ::db_error = $err->errstr;
         $err = "db";
     } elsif ($err eq "db") {

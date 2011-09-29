@@ -2430,9 +2430,9 @@ sub getevents
     }
 
     ## load the text
-    my $text = LJ::cond_no_cache($use_master, sub {
-        return LJ::get_logtext2($uowner, @itemids);
-    });
+    my $text = LJ::DB::cond_no_cache( $use_master, sub {
+        return LJ::get_logtext2( $uowner, @itemids );
+    } );
 
     foreach my $i (@itemids)
     {

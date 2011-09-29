@@ -79,7 +79,7 @@ $maint{'synsuck'} = sub
                 $userct++;
             } else {
                 # handles won't survive the fork
-                LJ::disconnect_dbs();
+                LJ::DB::disconnect_dbs();
                 LJ::SynSuck::update_feed($urow, $verbose);
                 exit 0;
             }

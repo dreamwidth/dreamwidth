@@ -108,7 +108,7 @@ sub collect {
         $data{$k} = 0;
     }
 
-    LJ::foreach_cluster( sub {
+    LJ::DB::foreach_cluster( sub {
         my ( $cid, $dbr ) = @_; # $cid isn't used
 
         my $sth = $dbr->prepare( qq{

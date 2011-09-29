@@ -25,7 +25,7 @@ ok($u->selfassert);
 {
     local $u->{user} = "systemNOT";
     eval {
-        my $u2 = LJ::require_master(sub { LJ::load_userid($u->{userid}) });
+        my $u2 = LJ::DB::require_master( sub { LJ::load_userid($u->{userid}) } );
     };
     like($@, qr/AssertIs/);
 }

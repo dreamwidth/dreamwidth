@@ -1451,7 +1451,7 @@ sub mysql_insertid {
     my $u = shift;
     if ($u->isa("LJ::User")) {
         return $u->{_mysql_insertid};
-    } elsif (LJ::isdb($u)) {
+    } elsif ( LJ::DB::isdb( $u ) ) {
         my $db = $u;
         return $db->{'mysql_insertid'};
     } else {
@@ -7998,7 +7998,7 @@ sub update_user
     if ($used_raw) {
         # for a load of userids from the master after update
         # so we pick up the values set via the 'raw' option
-        require_master( sub { LJ::load_userid($uid) } );
+        LJ::DB::require_master( sub { LJ::load_userid($uid) } );
     } else {
         while ( my ($k, $v) = each %$ref ) {
             my $cache = $LJ::REQ_CACHE_USER_ID{$uid} or next;

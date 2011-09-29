@@ -47,10 +47,10 @@ unless ($args{swap}) {
 
 ### check that emails/passwords match, and that at least one is verified
 unless ($args{force}) {
-    my @acct = grep { $_ } LJ::no_cache(sub {
-        return (LJ::load_user($from),
-                LJ::load_user($to));
-    });
+    my @acct = grep { $_ } LJ::DB::no_cache( sub {
+        return ( LJ::load_user($from),
+                 LJ::load_user($to) );
+    } );
     unless (@acct == 2) {
         print "Both accounts aren't valid.\n";
         exit 1;

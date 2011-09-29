@@ -73,7 +73,7 @@ sub errobj {
     my $ref = ref $_[0];
 
     # wrapping a database (or database-like) handle
-    if (LJ::isdb($_[0]) || $ref eq "LJ::User") {
+    if ( LJ::DB::isdb( $_[0] ) || $ref eq "LJ::User" ) {
         return errobj("Database::Failure", db => $_[0]);
     }
 
@@ -249,7 +249,7 @@ sub log {
         $ins->();
     }
 
-    $dbl->disconnect if $LJ::DISCONNECT_DB_LOG && LJ::use_diff_db("master", "logs");
+    $dbl->disconnect if $LJ::DISCONNECT_DB_LOG && LJ::DB::use_diff_db( "master", "logs" );
 }
 
 # override this: whether it was user-defined.  should return 0 or 1.

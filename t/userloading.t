@@ -54,19 +54,19 @@ memcache_stress(sub {
         $name = "My name is " . rand();
         $dbh->do("UPDATE user SET name=? WHERE userid=?",
                  undef, $name, $u->{userid});
-        $u = LJ::require_master(sub { LJ::load_user($u->{user}) });
+        $u = LJ::DB::require_master( sub { LJ::load_user($u->{user}) } );
         is($u->{name}, $name, "name correct after change + load_user");
 
         $name = "My name is " . rand();
         $dbh->do("UPDATE user SET name=? WHERE userid=?",
                  undef, $name, $u->{userid});
-        $u = LJ::require_master(sub { LJ::load_userid($u->{userid}) });
+        $u = LJ::DB::require_master( sub { LJ::load_userid($u->{userid}) } );
         is($u->{name}, $name, "name correct after change + load_user");
 
         $name = "My name is " . rand();
         $dbh->do("UPDATE user SET name=? WHERE userid=?",
                  undef, $name, $u->{userid});
-        my $users = LJ::require_master(sub { LJ::load_userids($u->{userid}) });
+        my $users = LJ::DB::require_master( sub { LJ::load_userids($u->{userid}) } );
         $u = $users->{$u->{userid}};
         is($u->{name}, $name, "name correct after change + load_user");
     }

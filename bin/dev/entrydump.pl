@@ -20,15 +20,15 @@ use LJ::Entry;
 
 my $url = shift;
 
-LJ::no_cache(sub {
+LJ::DB::no_cache( sub {
 
-my $entry = LJ::Entry->new_from_url($url);
+    my $entry = LJ::Entry->new_from_url( $url );
 
-print "entry = $entry\n";
-use Data::Dumper;
+    print "entry = $entry\n";
+    use Data::Dumper;
 
-    print Dumper($entry->props, clean($entry->event_orig), clean($entry->event_raw));
-});
+    print Dumper( $entry->props, clean($entry->event_orig), clean($entry->event_raw) );
+} );
 
 
 sub clean {

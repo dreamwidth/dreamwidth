@@ -55,7 +55,7 @@ sub matching_uids {
         push @propids, $p->{upropid};
     }
 
-    my $bind = LJ::bindstr(@propids);
+    my $bind = LJ::DB::bindstr( @propids );
     my $rows = $dbr->selectcol_arrayref("SELECT userid FROM userprop WHERE upropid IN ($bind) AND value = ?",
                                         undef, @propids, $self->screenname);
     die $dbr->errstr if $dbr->err;

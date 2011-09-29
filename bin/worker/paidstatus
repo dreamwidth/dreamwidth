@@ -95,7 +95,7 @@ while ( 1 ) {
 
 sub main_loop {
     # disconnect dbs
-    LJ::disconnect_dbs();
+    LJ::DB::disconnect_dbs();
     LJ::start_request();
 
     # now get a db or die

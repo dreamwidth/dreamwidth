@@ -202,7 +202,7 @@ sub multiMove {
                     print "moveUser($u->{user}/$u->{userid}) = fail: $@\n";
                 }
                 LJ::end_request();
-                LJ::disconnect_dbs();  # end_request could do this, but we want to force it
+                LJ::DB::disconnect_dbs();  # end_request could do this, but we want to force it
             } else {
                 die "Unknown response from server: $line\n";
             }

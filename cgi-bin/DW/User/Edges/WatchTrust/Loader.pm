@@ -194,12 +194,12 @@ sub _wt_list_db {
 
     my $lockname = "get_wt_list:$userid";
     my $release_lock = sub {
-        LJ::release_lock($dbh, "global", $lockname);
+        LJ::DB::release_lock( $dbh, "global", $lockname );
         return $_[0];
     };
 
     # get a lock
-    my $lock = LJ::get_lock($dbh, "global", $lockname);
+    my $lock = LJ::DB::get_lock( $dbh, "global", $lockname );
     return {} unless $lock;
 
     # in lock, try memcache first (unless told not to)

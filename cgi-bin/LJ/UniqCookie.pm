@@ -197,10 +197,10 @@ sub save_mapping {
     # with users who write many rows but for some reason never
     # load any rows, and are therefore never cleaned
     if ($class->should_lazy_clean) {
-        LJ::no_cache(sub {
+        LJ::DB::no_cache( sub {
             $class->load_mapping( user => $uid );
             # no need for uniq => $uniq case
-        });
+        } );
     }
 
     return $rv;

@@ -364,7 +364,7 @@ sub startDaemon () {
     }
 
     else {
-        LJ::disconnect_dbs();
+        LJ::DB::disconnect_dbs();
         daemonRoutine( $lsock, $id );
         exit;
     }
@@ -693,7 +693,7 @@ sub start {
                 # :FIXME: Is this necessary? We obviously don't have a
                 # destination cluster...
 
-                #LJ::disconnect_dbs();
+                #LJ::DB::disconnect_dbs();
                 #$dbh = LJ::get_db_writer()
                 #    or die "Couldn't fetch a writer.";
                 #$dbh->do(q{
@@ -757,7 +757,7 @@ sub start {
 
         foreach my $thread ( values %{$self->{userThreads}} ) {
             $thread->unlock;
-            LJ::disconnect_dbs();
+            LJ::DB::disconnect_dbs();
             my $dbh = LJ::get_db_writer() or die "Couldn't get a db_writer.";
             $dbh->do( "DELETE FROM clustermove_inprogress WHERE userid = ?",
                       undef, $thread->user->userid )
@@ -788,7 +788,7 @@ sub reapChildren {
         delete $self->{userThreads}{$thread->user->userid};
 
         $thread->unlock;
-        LJ::disconnect_dbs();
+        LJ::DB::disconnect_dbs();
         my $dbh = LJ::get_db_writer() or die "Couldn't get a db_writer.";
         $dbh->do( "DELETE FROM clustermove_inprogress WHERE userid = ?",
                   undef, $thread->user->userid )
@@ -828,7 +828,7 @@ sub getDirtyUsers {
     # disconnect_dbs() in the thread's start() method immediately after the
     # fork(), too. Perhaps I'll revisit this after hacking on DBI::Role for a
     # bit.
-    LJ::disconnect_dbs();
+    LJ::DB::disconnect_dbs();
     $dbh = LJ::get_db_writer() or die "failed to get_db_writer()";
 
     $sql = q{
@@ -1045,7 +1045,7 @@ sub run {
 
     # Fork and exec a child, keeping the pid
     unless (( $self->{pid} = fork )) {
-        LJ::disconnect_dbs();
+        LJ::DB::disconnect_dbs();
 
 		my (
 			$user,

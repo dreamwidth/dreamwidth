@@ -458,7 +458,7 @@ sub startDaemon () {
     }
 
     else {
-        LJ::disconnect_dbs();
+        LJ::DB::disconnect_dbs();
         daemonRoutine( $lsock, $id );
         exit;
     }
@@ -879,7 +879,7 @@ sub start {
                 # cluster field. :FIXME: This is obviously stupid to disconnect
                 # and reconnect every time, but since the handle is b0rked after
                 # the ->run() below fork()s, this is necessary for it to work.
-                LJ::disconnect_dbs();
+                LJ::DB::disconnect_dbs();
                 $dbh = LJ::get_db_writer()
                     or die "Couldn't fetch a writer.";
                 $dbh->do(q{
@@ -943,7 +943,7 @@ sub start {
         $self->message( "Unlocking %d remaining users.", values %{$self->{userThreads}} );
 
         foreach my $thread ( values %{$self->{userThreads}} ) {
-            LJ::disconnect_dbs();
+            LJ::DB::disconnect_dbs();
             $thread->unlock;
             my $dbh = LJ::get_db_writer() or die "Couldn't get a db_writer.";
             $dbh->do( "DELETE FROM clustermove_inprogress WHERE userid = ?",
@@ -974,7 +974,7 @@ sub reapChildren {
         $self->{fakeMovedUsers}{$thread->userid} = 1 if $thread->testingMode;
         delete $self->{userThreads}{$thread->userid};
 
-        LJ::disconnect_dbs();
+        LJ::DB::disconnect_dbs();
         $thread->unlock;
         my $dbh = LJ::get_db_writer() or die "Couldn't get a db_writer.";
         $dbh->do( "DELETE FROM clustermove_inprogress WHERE userid = ?",
@@ -1028,7 +1028,7 @@ sub getPendingUsers {
     # disconnect_dbs() in the thread's start() method immediately after the
     # fork(), too. Perhaps I'll revisit this after hacking on DBI::Role for a
     # bit.
-    LJ::disconnect_dbs();
+    LJ::DB::disconnect_dbs();
     $dbh = LJ::get_db_writer() or die "failed to get_db_writer()";
 
     $sql = q{
@@ -1248,7 +1248,7 @@ sub new {
     my ( $user, $userid, $src, $dest ) = @_;
 
     # Lock the user
-    LJ::disconnect_dbs();
+    LJ::DB::disconnect_dbs();
     LJ::update_user( $userid, {raw => "caps=caps|(1<<$ReadOnlyBit)"} );
 
     return bless {
@@ -1270,7 +1270,7 @@ sub run {
 
     # Fork and exec a child, keeping the pid
     unless (( $self->{pid} = fork )) {
-        LJ::disconnect_dbs();
+        LJ::DB::disconnect_dbs();
 
         if ( $self->testingMode ) {
             my $seconds = int(rand 20) + 3;

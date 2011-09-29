@@ -51,7 +51,7 @@ sub log {
         #   ]
 
         # The leaves are stored as values in the hash keyed by statement
-        # because LJ::get_dbirole_dbh() sets the profile to
+        # because LJ::DB::get_dbirole_dbh() sets the profile to
         # "2/DBI::Profile". The 2 part is the DBI::Profile magic number
         # which means split the times by statement.
         my $data = $dbh->{Profile}{Data};

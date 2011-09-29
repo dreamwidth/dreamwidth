@@ -1743,7 +1743,7 @@ sub set_logprop
 # </LJFUNC>
 sub load_log_props2
 {
-    my $db = isdb($_[0]) ? shift @_ : undef;
+    my $db = LJ::DB::isdb( $_[0] ) ? shift @_ : undef;
 
     my ($uuserid, $listref, $hashref) = @_;
     my $userid = want_userid($uuserid);
