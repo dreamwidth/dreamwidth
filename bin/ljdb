@@ -21,7 +21,7 @@
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljdb.pl';
+use LJ::DB;
 
 use Getopt::Long;
 my ($user, $role, $inactive, $help);

@@ -16,7 +16,7 @@
 use strict;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-require "ljdb.pl";
+use LJ::DB;
 
 use DBI;
 use Getopt::Long;

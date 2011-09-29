@@ -89,7 +89,7 @@ Terms, definitions, and insight.</para>
     </glossentry>
 
     <glossentry>
-    <glossterm><filename>ljdb.pl</filename></glossterm>
+    <glossterm><filename>ljdb</filename></glossterm>
     <glossdef><para>This file (in the
     <filename class="directory">bin</filename> directory) is a
     tool to run the &mysql; interactive shell on your &lj; database.</para></glossdef>

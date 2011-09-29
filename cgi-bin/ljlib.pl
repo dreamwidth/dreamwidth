@@ -133,7 +133,7 @@ sub END { LJ::end_request(); }
 # keep track of what db locks we have out
 %LJ::LOCK_OUT = (); # {global|user} => caller_with_lock
 
-require "ljdb.pl";
+use LJ::DB;
 use LJ::Tags;
 require "ljtextutil.pl";
 require "ljtimeutil.pl";
