@@ -899,6 +899,7 @@ sub hide_list {
     my $remote = $self->{remote};
 
     return 1 if $list =~ /^posting_access/;
+    return 1 if $list =~ /of_comms$/ && $u->prop( 'opt_hidememberofs' );
     return 1 if $u->prop( 'opt_hidefriendofs' );
     return 0;
 }
