@@ -3066,6 +3066,16 @@ sub show_thread_expander {
     return 0;
 }
 
+# should allow expand-all for this user/journal
+sub thread_expand_all {
+    my ( $u, $remote ) = @_;
+
+    return 1 if $remote && $remote->get_cap( 'thread_expand_all' )
+        || $u->get_cap( 'thread_expand_all' );
+
+    return 0;
+}
+
 #get/set Sticky Entry parent ID for settings menu
 sub sticky_entry {
     my ( $u, $input ) = @_;

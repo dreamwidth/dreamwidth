@@ -23,8 +23,23 @@
     if (includeSelf) {
       returnValue.push(talkid);
     }
-    for (var i = 0; i < LJ[talkid].rc.length; i++) {
-      returnValue = returnValue.concat(getReplies(LJ, LJ[talkid].rc[i], true));
+    if (LJ[talkid] && LJ[talkid].rc) {
+      for (var i = 0; i < LJ[talkid].rc.length; i++) {
+        returnValue = returnValue.concat(getReplies(LJ, LJ[talkid].rc[i], true));
+      }
+    }
+    return returnValue;
+  }
+
+  /**
+   * Returns all of the unexpanded comments on this page.
+   */
+  function getUnexpandedComments(LJ) {
+    var returnValue = [];
+    for (var talkid in LJ) {
+      if (LJ[talkid].hasOwnProperty("full") && ! LJ[talkid].full && ! LJ[talkid].deleted && ! LJ[talkid].screened) {
+        returnValue.push(talkid);
+      }
     }
     return returnValue;
   }
@@ -55,14 +70,31 @@
           datatype: "html",
           timeout: 30000,
           success: function(data) {
-          element.doJqExpand(LJ, data, talkid, isS1, unhide);
-        },
+            var updateCount = element.doJqExpand(LJ, data, talkid, isS1, unhide);
+            // if we didn't update any comments, something must have gone wrong
+            if (updateCount == 0) {
+              showExpanderError($.threadexpander.config.text.error_nomatches);
+            } else if (unhide) {
+              element.unhideComments(LJ, talkid, isS1);
+            }
+
+            // remove the expand_all option if all comments are expanded
+            var expand_all_span = $('#expand_all');
+            if (expand_all_span.length > 0) {
+              if (getUnexpandedComments(LJ).length == 0) {
+                expand_all_span.fadeOut('fast');
+              } else if (talkid < 0) {
+                img.remove();
+                element.removeClass("disabled").fadeTo("fast", 1.0);
+              }
+            }
+          },
           error: function(jqXHR, textStatus, errorThrown) {
-          img.remove();
-          element.removeClass("disabled");
-          element.fadeTo("fast", 1.0);
-          showExpanderError($.threadexpander.config.text.error);
-        }
+            img.remove();
+            element.removeClass("disabled");
+            element.fadeTo("fast", 1.0);
+            showExpanderError($.threadexpander.config.text.error);
+          }
       } );
   };
 
@@ -70,39 +102,61 @@
   $.fn.doJqExpand = function(LJ, data, talkid, isS1, unhide) {
     var updateCount = 0;
     // check for matching expansions on the page
-    var replies = getReplies(LJ, talkid, true);
-    for (var cmtIdCnt = 0; cmtIdCnt < replies.length; cmtIdCnt++) {
-      var cmtId = replies[cmtIdCnt];
-      // if we're a valid comment, and either the comment is not expanded
-      // or it's the original comment, then it's valid to expand it.
-      if (/^\d*$/.test(cmtId) && (talkid == cmtId || (! LJ[cmtId].full))) {
-        var cmtElement = $("#cmt" + cmtId);
-        if (cmtElement) {
-          var newComment = $("#cmt" + cmtId, data);
-          if (newComment && newComment.attr('id') == 'cmt' + cmtId) {
-            if (isS1) {
-              var oldWidth = getS1SpacerObject(cmtElement).width();
-              getS1SpacerObject(newComment).width(oldWidth);
-            }
-            cmtElement.html($(newComment).html())
+    var replies;
+    if (talkid > 0) {
+      replies = getReplies(LJ, talkid, true);
+    } else {
+      replies = getUnexpandedComments(LJ);
+    }
+
+    if (replies.length > 0) {
+      // get all comments and map them by id.  this seems to be more efficient
+      // in jquery (at least for the results of an ajax request).
+      var newComments = $(".comment", data);
+      var newCommentMap = {};
+      newComments.each(function() {
+          newCommentMap[$(this).attr("id")] = $(this);
+        });
+
+      var cmtIdPrefix = isS1 ? "cmt" : "comment-cmt";
+      for (var cmtIdCnt = 0; cmtIdCnt < replies.length; cmtIdCnt++) {
+        var cmtId = replies[cmtIdCnt];
+        // if we're a valid comment, and either the comment is not expanded
+        // or it's the original comment, then it's valid to expand it.
+        if (/^\d*$/.test(cmtId) && (talkid == cmtId || (! LJ[cmtId].full))) {
+          var cmtElement = $('#' + cmtIdPrefix + cmtId);
+          if (cmtElement.length > 0) {
+            var newComment = newCommentMap[cmtIdPrefix + cmtId];
+            if (newComment) {
+              if (isS1) {
+                var oldWidth = getS1SpacerObject(cmtElement).width();
+                getS1SpacerObject(newComment).width(oldWidth);
+              }
+              cmtElement.html($(newComment).html())
                 .trigger( "updatedcontent.comment" );
-            $(".cmt_show_hide_default", cmtElement).show();
-            LJ[cmtId].full = true;
-            if (! isS1) {
-              setFull(cmtElement, true);
+              $(".cmt_show_hide_default", cmtElement).show();
+
+              // don't mark partial comments as full; make sure that the
+              // loaded comments are full.
+              if (isS1) {
+                if ($('table.talk-comment', newComment).length > 0) {
+                  LJ[cmtId].full = true;
+                }
+              } else {
+                if (newComment.parent().hasClass("full")) {
+                  LJ[cmtId].full = true;
+                  setFull(cmtElement, true);
+                }
+              }
+              updateCount++;
             }
-            updateCount++;
           }
         }
       }
     }
 
-    // if we didn't update any comments, something must have gone wrong
-    if (updateCount == 0) {
-      showExpanderError($.threadexpander.config.text.error_nomatches);
-    } else if (unhide) {
-      this.unhideComments(LJ, talkid, isS1);
-    }
+    return updateCount;
+
   }
 
   // returns the comment elements for the given talkids.

@@ -3903,6 +3903,8 @@ talk.error.suspendedentry=This entry has been suspended. <a [[aopts]]>Visit the 
 
 talk.error.suspendedentryreply=This entry has been suspended. You can't reply to it. <a [[aopts]]>Visit the journal</a>.
 
+talk.expandalllink=Expand All
+
 talk.expandlink=Expand
 
 talk.frozen=Replies frozen

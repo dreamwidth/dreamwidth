@@ -101,6 +101,8 @@ sub EntryPage
     my $top_only_mode  = ($view_arg =~ /\btop-only\b/);
     my $view_num = ($view_arg =~ /(\d+)/) ? $1 : undef;
 
+    my $expand_all = ( $u->thread_expand_all( $remote ) && $get->{'expand_all'} );
+
     my %userpic;
     my %user;
     my $copts = {
@@ -114,7 +116,7 @@ sub EntryPage
         # user object is cached from call just made in EntryPage_entry
         'up' => LJ::load_user($s2entry->{'poster'}->{'user'}),
         'viewall' => $viewall,
-        'expand_all' => $opts->{expand_all},
+        'expand_all' => $expand_all,
         'filter' => $get->{comments},
     };
 
@@ -377,6 +379,8 @@ sub EntryPage
                     u      => $poster,
                     parent => $cmt->parent ? $cmt->parent->dtalkid : undef,
                     full   => ($i->{full}),
+                    deleted   => $cmt->is_deleted,
+                    screened   => $cmt->is_screened,
                 };
                 $self->($self, $i->{'replies'}) if $has_threads;
             }
@@ -415,11 +419,13 @@ sub EntryPage
         $copts->{'out_itemfirst'} = $copts->{'out_itemlast'} = undef;
     }
 
+    my $show_expand_all = $u->thread_expand_all( $remote ) && $copts->{out_has_collapsed} && ! $top_only_mode;
     # creates the comment nav bar
     $p->{'comment_nav'} = CommentNav({
         'view_mode' => $flat_mode ? "flat" : $top_only_mode ? "top-only" : "threaded",
         'url' => $entry->url( style_args => LJ::viewing_style_opts( %$get ) ),
         'current_page' => $copts->{'out_page'},
+        'show_expand_all' => $show_expand_all,
     });
 
     $p->{'comment_pages'} = ItemRange({

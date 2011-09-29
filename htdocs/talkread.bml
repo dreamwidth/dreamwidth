@@ -64,6 +64,7 @@ body<=
                thread          talk.threadlink
                threadroot      talk.threadrootlink
                expand          talk.expandlink
+               expandall       talk.expandalllink
                replythis       talk.replytothis
                screened        talk.screened
                frozen          talk.frozen
@@ -243,13 +244,13 @@ body<=
     BML::ebml(\$event);
 
     # make the title
-{
-       my $subject = $item->{'subject'} || $event;
-       # yes, the 3 param to text_trim is chars, and length returns bytes, but
-       # it works, as bytes >= chars:
-       $subject = LJ::CleanHTML::clean_and_trim_subject(\$subject, length($item->{'subject'}) || 40);
-       $$title = "$u->{'user'}: $subject";
-}
+    {
+        my $subject = $item->{'subject'} || $event;
+        # yes, the 3 param to text_trim is chars, and length returns bytes, but
+        # it works, as bytes >= chars:
+        $subject = LJ::CleanHTML::clean_and_trim_subject(\$subject, length($item->{'subject'}) || 40);
+        $$title = "$u->{'user'}: $subject";
+    }
 
     $ret .= "<p>";
     $ret .= "<table summary='' id='poster'><tr>";
@@ -349,6 +350,8 @@ body<=
     my $top_only = ($view_arg =~ /\btop-only\b/);
     my $view_num = ($view_arg =~ /(\d+)/) ? $1 : undef;
 
+    my $expand_all = ( $u->thread_expand_all( $remote ) && $GET{'expand_all'} );
+
     my %user;
     my $opts = {
         'flat' => $flat_mode,
@@ -361,6 +364,7 @@ body<=
         'up' => $up,
         'viewall' => $viewall,
         'filter' => $GET{comments},
+        'expand_all' => $expand_all,
     };
 
     my @comments = LJ::Talk::load_comments($u, $remote, "L", $itemid, $opts);
@@ -368,6 +372,8 @@ body<=
 
     my $page  = $opts->{out_page};
     my $pages = $opts->{out_pages};
+
+    my $has_collapsed = $opts->{out_has_collapsed};
 
     # this overrides the default self_link to add the #comments anchor
     my $self_link = sub { BML::self_link( { page => $_[0] } ) . "#comments" };
@@ -393,7 +399,7 @@ body<=
 
         my $tid = $post->{'talkid'};
         my $dtid = $tid * 256 + $init->{'anum'};
-        my $LJci = $LJ_cmtinfo{$dtid} = { rc => [], u => '', full => $post->{_loaded} };
+        my $LJci = $LJ_cmtinfo{$dtid} = { rc => [], u => '', full => $post->{_loaded}, deleted => ( $post->{state} eq "D" ), screened => ( $post->{state} eq "S" ) };
 
         my $datepost = LJ::S2::sitescheme_secs_to_iso( $post->{datepost_unix}, tz => 1 );
 
@@ -423,7 +429,7 @@ body<=
 
         my $hidestyle = $post->{'hidden_child'} ? " style=\"display: none;\"" : "";
         if ($post->{'state'} eq "D") {
-            $ret .= "<div id='$htmlid'><p><a name='$htmlid'></a><table summary='' class='delcomment'$hidestyle><tr>";
+            $ret .= "<div class='comment' id='$htmlid'><p><a name='$htmlid'></a><table summary='' class='delcomment'$hidestyle><tr>";
             $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             $ret .= "<td>$ML{'.deletedpost'}</td>";
             if ($post->{'hide_children'} && $post->{'children'} && @{$post->{'children'}}) {
@@ -507,7 +513,7 @@ body<=
                     $editreason = "($editreason)" if $editreason;
                 }
 
-                $ret .= "<div id='$htmlid'><table summary='' width='100%' class='talk-comment'><tbody><tr>";
+                $ret .= "<div class='comment' id='$htmlid'><table summary='' width='100%' class='talk-comment'><tbody><tr>";
                 $ret .= "<td rowspan='2' class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td id='cmtbar$dtid' class='cmtbar $level $additional_classes' width='100%'>";
 
@@ -671,9 +677,9 @@ body<=
                                 $ret .= BML::ml( 'talk.unhide', { num => $post->{'showable_children'} } );
                                 $ret .= qq[</a>)</span>];
                             }
+                        } else {
+                            $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)];
                         }
-                    } else {
-                        $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)];
                     }
                     if ( $show_thread_expander ) {
                         if ( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) {
@@ -698,7 +704,7 @@ body<=
                 # link to message
 
                 my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
-                $ret .= "<div id='$htmlid'$hidestyle><table summary=''><tbody><tr>";
+                $ret .= "<div class='comment' id='$htmlid'$hidestyle><table summary=''><tbody><tr>";
                 $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td  class='cmtpartial'>";
                 if ($post->{'state'} eq 'F') {
@@ -777,6 +783,11 @@ body<=
             $ret .= "(<a href = '" . BML::self_link( { view => ''  } ) . "#comments'>" . BML::ml('.commentnav.threaded') . "</a>) (<a href = '" . BML::self_link( { view => 'top-only'  } ) . "#comments'>" . BML::ml('.commentnav.toponly') . "</a>)";
         } elsif ( $view_mode eq "top-only" ) {
             $ret .= "(<a href = '" . BML::self_link( { view => ''  } ) . "#comments'>" . BML::ml('.commentnav.threaded') . "</a>) (<a href = '" . BML::self_link( { view => 'flat'  } ) . "#comments'>" . BML::ml('.commentnav.flat') . "</a>)";
+        }
+
+        if ( $u->thread_expand_all( $remote ) && $has_collapsed && $view_mode ne "top-only" ) {
+            my $expand_all_url = $page > 1 ? BML::self_link( { expand_all => '1', page => $page } ) . "#comments" : BML::self_link( { expand_all => '1' } ) . "#comments";
+            $ret .= "<span id='expand_all'> (<a href=\"$expand_all_url\" onClick=\"Expander.make(this,'$expand_all_url',-1,true,false);return false;\">" . $T{expandall} . "</a>)</span>";
         }
         $ret .= "</b></p>";
 

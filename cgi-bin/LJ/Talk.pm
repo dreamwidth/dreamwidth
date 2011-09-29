@@ -916,6 +916,7 @@ sub fixup_logitem_replycount {
 #   out_itemlast:  last comment number on page (1-based, not db numbers)
 #   out_pagesize:  size of each page
 #   out_items:  number of total top level items
+#   out_has_collpased:  set by us; 0 if no collapsed messages, 1 if there are
 #
 #   userpicref -- hashref to load userpics into, or undef to
 #                 not load them.
@@ -1169,6 +1170,9 @@ sub load_comments
 
     my (@subjects_to_load, @subjects_ignored);
 
+    # track if there are any collapsed messages being displayed
+    my $has_collapsed = 0;
+
     while (@check_for_children) {
         my $cfc = shift @check_for_children;
 
@@ -1179,6 +1183,7 @@ sub load_comments
                 ## expand only the first child, then clear the flag
                 delete $expand_children{$cfc};
             } else {
+                $has_collapsed = 1;
                 if ( $opts->{'top-only'} ) {
                     $posts->{$child}->{'hidden_child'} = 1;
                 }
@@ -1198,6 +1203,7 @@ sub load_comments
     $opts->{'out_itemlast'} = $itemlast;
     $opts->{'out_pagesize'} = $page_size;
     $opts->{'out_items'} = $top_replies;
+    $opts->{'out_has_collapsed'} = $has_collapsed;
 
     # load text of posts
     my ($posts_loaded, $subjects_loaded);

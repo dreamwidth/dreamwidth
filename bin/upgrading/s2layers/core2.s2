@@ -487,7 +487,9 @@ class CommentNav
 {
   var string view_mode "The current view mode (threaded, flat, top-only).";
   var string url "The url for this entry page, complete with style argument if present.";
+  var int current_page "The currently displayed page";
   var bool filter "True if the current view is filtered.";
+  var bool show_expand_all "True if we should show the expand_all option.";
 
   function print () "Prints the nav bar, including the comment_pages bar";
 }
@@ -5968,13 +5970,15 @@ function ItemRange::print(string{} opts) {
 function CommentNav::print
 {
     var string sep = $.url->contains( "?" ) ? "&" : "?";
+    var string page_arg = $.current_page > 1 ? "&page=$.current_page" : "";
 
     print "<div class='comment-pages'>";
 
     var string{} links = {
         "flat"      => """<a href="$.url${sep}view=flat#comments">Flat</a>""",
         "threaded"  => """<a href="$.url#comments">Threaded</a>""",
-        "top-only"  => """<a href="$.url${sep}view=top-only#comments">Top-Level Comments Only</a>"""
+        "top-only"  => """<a href="$.url${sep}view=top-only#comments">Top-Level Comments Only</a>""",
+        "expand_all"  => """<a href="$.url${sep}expand_all=1${page_arg}#comments" onClick="Expander.make(this,'$.url${sep}expand_all=1${page_arg}#comments',-1,false,false);return false;">Expand All</a>"""
     };
 
     if ( $.view_mode == "threaded" ) {
@@ -5985,6 +5989,9 @@ function CommentNav::print
         print "$links{"threaded"} | $links{"flat"}";
     }
 
+    if ( $.show_expand_all ) {
+        print "<span id='expand_all'> | $links{"expand_all"}</span>";
+    }
     print "</div>";
 }
 
