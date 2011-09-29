@@ -4,7 +4,7 @@ use strict;
 use Test::More tests => 13;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'ljemailgateway-web.pl';
+use LJ::Emailpost::Web;
 require 'ljemailgateway.pl';
 use LJ::Test;
 use FindBin qw($Bin);
@@ -32,7 +32,7 @@ $msg = LJ::Emailpost::process( $mime, $user, \$dequeue );
 like($msg, qr/No allowed senders have been saved for your account/, "rejected due to no allowed senders");
 is($dequeue, 1, "and it's deqeueued");
 
-LJ::Emailpost::set_allowed_senders($u, { 'foo@example.com' => { get_errors => 1 } });
+LJ::Emailpost::Web::set_allowed_senders( $u, { 'foo@example.com' => { get_errors => 1 } } );
 
 is($u->prop("emailpost_allowfrom"), "foo\@example.com(E)", "allowed sender set correctly");
 

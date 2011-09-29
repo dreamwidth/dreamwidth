@@ -333,7 +333,7 @@ body<=
 
         return LJ::bad_input(@errors) if @errors;
 
-        LJ::Emailpost::set_allowed_senders($u, \%allowed);
+        LJ::Emailpost::Web::set_allowed_senders( $u, \%allowed );
         foreach my $prop (@props) {
             next if $prop =~ /emailpost_(allowfrom|pin)/;
             next if $u->{'prop'} eq $POST{$prop};
@@ -364,7 +364,7 @@ body<=
 #--------------------------------------------------------------------------
 
     # Initial page
-    my $addrlist = LJ::Emailpost::get_allowed_senders($u);
+    my $addrlist = LJ::Emailpost::Web::get_allowed_senders( $u );
     my (@address, $res, $ret);
     push @address, $_ foreach sort keys %$addrlist;
 

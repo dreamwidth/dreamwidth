@@ -92,7 +92,7 @@ require "ljmail.pl";
 use LJ::Sysban;
 use LJ::Community;
 use LJ::Tags;
-require "ljemailgateway-web.pl";
+use LJ::Emailpost::Web;
 use LJ::Customize;
 
 use DW::Captcha;

@@ -41,7 +41,7 @@ sub option {
     my $can_emailpost = $u->can_emailpost;
     my $upgrade_link = $can_emailpost ? "" : LJ::Hooks::run_hook("upgrade_link", $u, "plus");
 
-    my $addrlist = LJ::Emailpost::get_allowed_senders($u);
+    my $addrlist = LJ::Emailpost::Web::get_allowed_senders( $u );
     my @addresses = sort keys %$addrlist;
 
     my $pin = $class->get_arg($args, "emailposting_pin") || $u->prop("emailpost_pin");
@@ -146,7 +146,7 @@ sub save {
         $addrcount++;
     }
 
-    LJ::Emailpost::set_allowed_senders($u, \%allowed);
+    LJ::Emailpost::Web::set_allowed_senders( $u, \%allowed );
     $class->email_helpmessage( $u, $_ ) foreach @send_helpmessage;
 
     $pin_val =~ s/\s+//g;

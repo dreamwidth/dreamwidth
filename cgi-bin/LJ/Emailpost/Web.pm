@@ -15,10 +15,10 @@
 # also available from ljemailgateway.pl (which contains the full
 # libraries)
 
-package LJ::Emailpost;
+package LJ::Emailpost::Web;
 use strict;
 
-# Retreives an allowed email addr list for a given user object.
+# Retrieves an allowed email addr list for a given user object.
 # Returns a hashref with addresses / flags.
 # Used for ljemailgateway and manage/emailpost.bml
 sub get_allowed_senders {

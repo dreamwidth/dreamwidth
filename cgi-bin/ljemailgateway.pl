@@ -29,7 +29,7 @@ BEGIN {
 }
 
 require 'ljlib.pl';
-require 'ljemailgateway-web.pl';
+use LJ::Emailpost::Web;
 require 'ljprotocol.pl';
 use Date::Parse;
 use HTML::Entities;
@@ -73,7 +73,7 @@ sub process {
     return unless $u && $u->is_visible;
 
     # Pick what address to send potential errors to.
-    $addrlist = LJ::Emailpost::get_allowed_senders($u);
+    $addrlist = LJ::Emailpost::Web::get_allowed_senders( $u );
     $from = ${(Mail::Address->parse( $head->get('From:') ))[0] || []}[1];
     return unless $from;
     my $err_addr;
