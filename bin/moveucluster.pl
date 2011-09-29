@@ -508,7 +508,7 @@ sub moveUser {
 
         print "Expunging user '$u->{'user'}'\n";
         $dbh->do("INSERT INTO clustermove (userid, sclust, dclust, timestart, timedone) ".
-                 "VALUES (?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())", undef, 
+                 "VALUES (?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())", undef,
                  $userid, $sclust, 0);
 
         $u->update_self( { clusterid => 0,

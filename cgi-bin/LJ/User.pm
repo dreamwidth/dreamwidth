@@ -8880,7 +8880,7 @@ sub make_journal {
     # now, if there's a GET argument for tags, split those out
     if (exists $opts->{getargs}->{tag}) {
         my $tagfilter = $opts->{getargs}->{tag};
-        
+
         unless ( $tagfilter ) {
             $opts->{redir} = $u->journal_base . "/tag/";
             return;

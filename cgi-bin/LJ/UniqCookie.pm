@@ -42,7 +42,7 @@ sub set_request_cache_by_user {
         unless ref $uniq_list eq 'ARRAY';
 
     return $req_cache_uid2uniqs{$uid} = $uniq_list;
-} 
+}
 
 sub get_request_cache_by_user {
     my $class = shift;
@@ -73,7 +73,7 @@ sub set_request_cache_by_uniq {
     }
 
     $req_cache_uniq2uids{$uniq} = \@userids;
-} 
+}
 
 sub get_request_cache_by_uniq {
     my $class = shift;
@@ -106,7 +106,7 @@ sub delete_memcache_by_uniq {
 sub set_memcache_by_user {
     my $class = shift;
     my ($u_arg, $uniq_list) = @_;
-    
+
     my $uid = LJ::want_userid($u_arg)
         or croak "invalid user arg: $u_arg";
 
@@ -129,7 +129,7 @@ sub get_memcache_by_user {
 sub set_memcache_by_uniq {
     my $class = shift;
     my ($uniq, $user_list) = @_;
-    
+
     croak "invalid 'uniq' argument: $uniq"
         unless length $uniq;
 
@@ -215,7 +215,7 @@ sub should_lazy_clean {
     if ($LJ::_T_UNIQCOOKIE_LAZY_CLEAN_PCT) {
         $pct = $LJ::_T_UNIQCOOKIE_LAZY_CLEAN_PCT;
     }
-    
+
     return rand() <= $pct;
 }
 
@@ -275,7 +275,7 @@ sub _load_mapping_uid {
     # first, check request cache
     my $cache_val = $class->get_request_cache_by_user($uid);
     return @$cache_val if defined $cache_val;
-    
+
     # second, check memcache
     my $memval = $class->get_memcache_by_user($uid);
     if ($memval) {
@@ -288,7 +288,7 @@ sub _load_mapping_uid {
 
     my $limit = $window_size + 1;
     my $sth = $dbh->prepare
-        ("SELECT uniq, modtime FROM uniqmap WHERE userid=? " . 
+        ("SELECT uniq, modtime FROM uniqmap WHERE userid=? " .
          "ORDER BY modtime DESC LIMIT $limit");
     $sth->execute($uid);
     die $dbh->errstr if $dbh->err;
@@ -303,7 +303,7 @@ sub _load_mapping_uid {
     # has happened ... we'll clean that now
     my $delete_ct = 0;
     if (@uniq_list >= $limit) {
-        $delete_ct = $dbh->do("DELETE FROM uniqmap WHERE userid=? AND modtime<=?", 
+        $delete_ct = $dbh->do("DELETE FROM uniqmap WHERE userid=? AND modtime<=?",
                           undef, $uid, $min_modtime);
 
         @uniq_list = @uniq_list[0..$window_size-1];
@@ -330,7 +330,7 @@ sub _load_mapping_uniq {
     # first, check request cache
     my $cache_val = $class->get_request_cache_by_uniq($uniq);
     return @$cache_val if defined $cache_val;
-    
+
     # second, check memcache
     my $memval = $class->get_memcache_by_uniq($uniq);
     if ($memval) {
@@ -358,7 +358,7 @@ sub _load_mapping_uniq {
     # has happened ... we'll clean that now
     my $delete_ct = 0;
     if (@uid_list >= $limit) {
-        $delete_ct = $dbh->do("DELETE FROM uniqmap WHERE uniq=? AND modtime<=?", 
+        $delete_ct = $dbh->do("DELETE FROM uniqmap WHERE uniq=? AND modtime<=?",
                           undef, $uniq, $min_modtime);
 
         # trim the cached/returned value as well
@@ -394,7 +394,7 @@ sub ensure_cookie_value {
 
     my $r = DW::Request->get;
     return unless $r;
-    
+
     my ($uniq, $uniq_time, $uniq_extra) = $class->parts_from_cookie;
 
     # set this uniq as our current

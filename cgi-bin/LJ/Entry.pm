@@ -265,7 +265,7 @@ sub comment_imgtag {
     my $self = $_[0];
 
     my $alttext = LJ::Lang::ml('setting.xpost.option.footer.vars.comment_image.alt');
-    
+
     return '<img src="' . $self->comment_image_url . '" width="30" height="12" alt="' . $alttext . '" style="vertical-align: middle;"/>';
 }
 
@@ -827,7 +827,7 @@ sub visible_to
         # check if it's a community and they're a member
         return 1 if $self->journal->is_community &&
                 $remote->member_of( $self->journal );
-    
+
         my $gmask = $self->journal->trustmask( $remote );
         my $allowed = (int($gmask) & int($self->{'allowmask'}));
         return $allowed ? 1 : 0;  # no need to return matching mask
@@ -876,7 +876,7 @@ sub userpic_kw {
     my $self = $_[0];
 
     my $up = $self->poster;
-    
+
     my $key;
     # try their entry-defined userpic keyword
     if ( $up->userpic_have_mapid ) {

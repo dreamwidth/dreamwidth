@@ -501,7 +501,7 @@ sub get_effective_lang {
     my $lang;
     if (LJ::is_web_context()) {
         $lang = BML::get_language();
-    } 
+    }
     if (my $remote = LJ::get_remote()) {
         # we have a user; try their browse language
         $lang ||= $remote->prop("browselang");
@@ -553,7 +553,7 @@ sub get_text
 {
     my ($lang, $code, $dmid, $vars) = @_;
     $lang ||= $LJ::DEFAULT_LANG;
-    
+
     my $from_db = sub {
         my $text = get_text_multi($lang, $dmid, [ $code ]);
         return $text->{$code};
@@ -633,16 +633,16 @@ sub get_text_multi
     ##  Codes in disk .text files, mysql and bml files may be mixed-cased
     ##  Codes in memcache and %TXT_CACHE are lower-case
     ##  Codes are not case-sensitive
-    
+
     ## %lc_code: lower-case code --> original code
     my %lc_codes = map { lc($_) => $_ } @$codes;
-    
+
     ## %memkeys: lower-case code --> memcache key
-    my %memkeys; 
+    my %memkeys;
     foreach my $code (keys %lc_codes) {
         my $cache_key = "ml.${lang}.${dmid}.${code}";
         my $text = $LJ::NO_ML_CACHE ? undef : $TXT_CACHE{$cache_key};
-        
+
         if (defined $text) {
             $strings{ $lc_codes{$code} } = $text;
             $LJ::_ML_USED_STRINGS{$code} = $text if $LJ::IS_DEV_SERVER;
@@ -660,7 +660,7 @@ sub get_text_multi
     foreach my $cache_key (keys %memkeys) {
         my $code = $memkeys{$cache_key};
         my $text = $mem->{$cache_key};
-        
+
         if (defined $text) {
             $strings{ $lc_codes{$code} } = $text;
             $LJ::_ML_USED_STRINGS{$code} = $text if $LJ::IS_DEV_SERVER;
