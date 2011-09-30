@@ -65,8 +65,7 @@ body<=
         $ret .= "<?h2 $ML{'.circle.header'} h2?>\n";
 
         # little standout box to repeat before each section:
-
-        my $standoutbox .= "<?standout " . BML::ml( '.circle.standout', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'" }) . "standout?><br />\n\n";
+        my $standoutbox .= "<?standout " . BML::ml( '.circle.standout', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'" }) . "<br/>" . LJ::html_submit($ML{'.btn.save'}) . " standout?><br />\n\n";
 
         # does the circle exist
         if ( @all_circle_userids ) {
@@ -245,10 +244,10 @@ body<=
             $ret .= $generate_table->( 'comms', \@comm_userids ) . "<br>";
             $ret .= $standoutbox;
             $ret .= $generate_table->( 'feeds', \@feed_userids ) . "<br>";
+            $ret .= $standoutbox;
             $ret .= "</div>";
 
-            ### middleified submit block
-            $ret .= "<?standout " . LJ::html_submit($ML{'.btn.save'}) . " standout?>\n";
+
         } else {
             $ret .= "<p>$ML{'.circle.nocircle'}</p><br><br>\n\n";
         }
@@ -360,7 +359,7 @@ body<=
         $ret .= "</table></div><br />";
 
         ### ending submit block
-        $ret .= "<?standout " . LJ::html_submit($ML{'.btn.save2'}) . " standout?>\n";
+        $ret .= "<?standout " . LJ::html_submit( $ML{'.btn.save2'} ) . " standout?>\n";
         $ret .= "</form>\n";
 
         return $ret;
