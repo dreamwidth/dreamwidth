@@ -758,18 +758,19 @@ body<=
             unless $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) );
     }
 
-    my ( @members_userids, @member_of_userids, @posting_access_to_userids, @posting_access_from_userids );
+    my ( @members_userids, @member_of_userids, @admin_of_userids, @posting_access_to_userids, @posting_access_from_userids );
     @members_userids = $u->member_userids if $u->is_community;
     @member_of_userids = $u->member_of_userids if $u->is_personal;
-    @posting_access_to_userids = @{LJ::load_rel_target( $u, 'P' )} if $u->is_personal;
-    @posting_access_from_userids = @{LJ::load_rel_user( $u, 'P' )} if $u->is_community;
+    @admin_of_userids = @{LJ::load_rel_target_cache( $u, 'A' )} if $u->is_personal;
+    @posting_access_to_userids = @{LJ::load_rel_target_cache( $u, 'P' )} if $u->is_personal;
+    @posting_access_from_userids = @{LJ::load_rel_user_cache( $u, 'P' )} if $u->is_community;
 
     my $us = LJ::load_userids(
         @trusted_userids, @trusted_by_userids,
         @mutually_trusted_userids, @not_mutually_trusted_userids, @not_mutually_trusted_by_userids,
         @watched_userids, @watched_by_userids,
         @mutually_watched_userids, @not_mutually_watched_userids, @not_mutually_watched_by_userids,
-        @members_userids, @member_of_userids,
+        @members_userids, @member_of_userids, @admin_of_userids,
         @posting_access_to_userids, @posting_access_from_userids,
     );
 
@@ -779,7 +780,7 @@ body<=
                   \@mutually_trusted_userids, \@mutually_watched_userids, \@mutually_watched_userids,
                   \@not_mutually_trusted_userids, \@not_mutually_watched_userids,
                   \@not_mutually_trusted_by_userids, \@not_mutually_watched_by_userids, \@members_userids,
-                  \@member_of_userids, \@posting_access_to_userids, \@posting_access_from_userids );
+                  \@member_of_userids, \@admin_of_userids, \@posting_access_to_userids, \@posting_access_from_userids );
 
 ################################################################################
 ##### PEOPLE LISTS
@@ -957,7 +958,7 @@ body<=
 ##### COMMUNITY LISTS
 
     if ( $u->is_individual ) {
-        my ( $member_of_body, $posting_access_to_body, $watched_body );
+        my ( $member_of_body, $admin_of_body, $posting_access_to_body, $watched_body );
 
         if ( $u->is_personal ) {
             my @member_of_list = map { $us->{$_} } @member_of_userids;
@@ -967,6 +968,15 @@ body<=
                 section_link    => 'member_of',
                 extra_classes   => ' first',
                 body            => $listusers->( \@member_of_list ),
+                hidable         => 1,
+            );
+
+            my @admin_of_list = map { $us->{$_} } @admin_of_userids;
+            $admin_of_body = $content_inner_block->(
+                section_name    => 'admin_of_comms',
+                section_name_ml => $mlsn->( '.comms.admin_of', \@admin_of_list ),
+                section_link    => 'admin_of',
+                body            => $listusers->( \@admin_of_list ),
                 hidable         => 1,
             );
 
@@ -989,7 +999,7 @@ body<=
             body            => $listusers->( \@watched_list ),
         );
 
-        if ( $member_of_body || $posting_access_to_body || $watched_body ) {
+        if ( $member_of_body || $admin_of_body || $posting_access_to_body || $watched_body ) {
             my $links = [];
             if ( $remote && $remote->can_manage( $u ) ) {
                 push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} };
@@ -1002,7 +1012,7 @@ body<=
                 section_link    => 'communities',
                 header_image    => "$LJ::IMGPREFIX/silk/identity/community.png",
                 links           => $links,
-                body            => "$member_of_body$watched_body$posting_access_to_body",
+                body            => "$member_of_body$watched_body$admin_of_body$posting_access_to_body",
                 collapsible     => 0,
             );
         }

@@ -21,6 +21,10 @@
 
 .comminfo.name=Community Information
 
+.comms.admin_of.none=Administrator Of (0)
+
+.comms.admin_of.some=Administrator Of ([[num]]):
+
 .comms.header=Communities
 
 .comms.member_of.none=Member Of (0)

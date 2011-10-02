@@ -539,7 +539,7 @@ body<=
             $ret .= LJ::html_check( { type => 'check', name => 'opt_hidememberofs',
                                       id => 'opt_hidememberofs', selected => ! $u->{'opt_hidememberofs'} } );
             $ret .= "</td><td style='vertical-align: middle'>";
-            $ret .= "<label for='opt_hidememberofs'>$ML{'.comms'}</label></td></tr>\n";
+            $ret .= "<label for='opt_hidememberofs'>$ML{'.comms2'}</label></td></tr>\n";
         }
 
         $ret .= "</table>\n";
