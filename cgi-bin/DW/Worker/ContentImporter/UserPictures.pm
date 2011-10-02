@@ -44,7 +44,7 @@ sub work {
         return;
     };
 
-    # failure closer for permanent errors
+    # failure closer for temporary errors
     my $temp_fail = sub {
         my $msg = sprintf( shift(), @_ );
 
