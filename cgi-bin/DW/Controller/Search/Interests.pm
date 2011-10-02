@@ -90,27 +90,30 @@ sub interest_handler {
                          { maxinterests => $maxinterests } )
             if scalar( @$rints ) >= $maxinterests;
 
-        my $intid;
+        my @intids;
         if ( $mode eq "add" ) {
             # adding an existing interest, so we have an intid to work with
-            $intid = $args->{intid} + 0;
+            @intids = ( $args->{intid} + 0 );
         } else {
             # adding a new interest
-            my @validate = LJ::validate_interest_list( $args->{keyword} );
-            $intid = LJ::get_sitekeyword_id( $validate[0] ) if @validate;
+            my @keywords = LJ::interest_string_to_list( $args->{keyword} );
+            my @validate = LJ::validate_interest_list( @keywords );
+            @intids = map { LJ::get_sitekeyword_id( $_ ) } @validate;
         }
 
-        return error_ml( 'error.invalidform' ) unless $intid;
+        @intids = grep { $_ } @intids;  # ignore any zeroes
+        return error_ml( 'error.invalidform' ) unless @intids;
 
         # force them to either come from the interests page, or have posted the request.
         # if both fail, ask them to confirm with a post form.
+        # (only uses first interest; edge case not worth the trouble to fix)
 
         unless ( $did_post || LJ::check_referer( '/interests' ) ) {
-            my $int = LJ::get_interest( $intid );
+            my $int = LJ::get_interest( $intids[0] );
             LJ::text_out( \$int );
-            $rv->{need_post} = { int => $int, intid => $intid };
+            $rv->{need_post} = { int => $int, intid => $intids[0] };
         } else {  # let the user add the interest
-            $remote->interest_update( add => [$intid] );
+            $remote->interest_update( add => \@intids );
         }
         return DW::Template->render_template( 'interests/add.tt', $rv );
     }
