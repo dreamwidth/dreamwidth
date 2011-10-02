@@ -126,19 +126,27 @@ sub users_with_all_ints {
     push @tables, 'comminterests' unless $opts->{nocomms};
     return unless @tables;
 
+    # allow restricting to user's circle
+    my $cids;
+    if ( $opts->{circle} && ( my $u = LJ::get_remote() ) ) {
+        my @circle = ( $u->circle_userids, $u->member_of_userids, $u->id );
+        $cids = join ',', @circle;
+    }
+
     my $dbr = LJ::get_db_reader();
     my $qs = join ',', map { '?' } @intids;
     my @uids;
 
     foreach ( @tables ) {
         my $q = "SELECT userid FROM $_ WHERE intid IN ($qs)";
+        $q .= " AND userid IN ($cids)" if $cids;
         my $uref = $dbr->selectall_arrayref( $q, undef, @intids );
         die $dbr->errstr if $dbr->err;
 
         # Count the number of times the uid appears.
         # If it's the same as the number of interests, it has all of them.
         my %ucount;
-        $ucount{$_}++ foreach map { $_->[0] } @$uref;
+        $ucount{ $_->[0] }++ foreach @$uref;
         push @uids, grep { $ucount{$_} == scalar @intids } keys %ucount;
     }
 

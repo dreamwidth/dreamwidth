@@ -292,10 +292,13 @@ sub interest_handler {
         $rv->{intcount} = $intcount;
 
         # filtering by account type
-        $rv->{type_list} = [ 'none', 'P', 'C', 'I' ];
+        my @type_args = ( 'none', 'P', 'C', 'I' );
+        push @type_args, 'F' if $remote;  # no circle if not logged in
+        $rv->{type_list} = \@type_args;
 
         my $type = $args->{type};
-        $type = 'none' unless $type && $type =~ /^[PCI]$/;
+        $type = 'none' unless $type && $type =~ /^[PCIF]$/;
+        $type = 'none' if $type eq 'F' && ! $remote;  # just in case
 
         # constructor for filter links
         $rv->{type_link} = sub {
@@ -306,7 +309,8 @@ sub interest_handler {
 
         # determine which account types we need to search for
         my $type_opts = {};
-        my %opt_map = ( C => 'nousers', P => 'nocomms', I => 'nocomms' );
+        my %opt_map = ( C => 'nousers', P => 'nocomms',
+                        I => 'nocomms', F => 'circle' );
         $type_opts = { $opt_map{$type} => 1 } if defined $opt_map{$type};
 
         my @uids = LJ::users_with_all_ints( [$intid], $type_opts );
@@ -328,7 +332,9 @@ sub interest_handler {
 
         my $typefilter = sub {
             $rv->{comm_count}++ if $_[0]->is_community;
-            return $type eq 'none' ? 1 : $_[0]->journaltype eq $type;
+            return 1 if $type eq 'none';
+            return 1 if $type eq 'F';  # already filtered
+            return $_[0]->journaltype eq $type;
         };
 
         my $should_show = sub {

@@ -5,6 +5,8 @@
 
 .filterlink.c=Communities Only
 
+.filterlink.f=Circle Only
+
 .filterlink.i=OpenIDs Only
 
 .filterlink.label=Show:
