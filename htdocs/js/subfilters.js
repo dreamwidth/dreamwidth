@@ -145,6 +145,8 @@ function cfPopulateLists() {
 
     $('#cf-in-list').html( inOpts );
     $('#cf-notin-list').html( outOpts );
+
+    if ($.browser.msie && parseInt($.browser.version, 10) <= 8) $('#cf-in-list, #cf-notin-list').css('width', 'auto').css('width', '100%'); // set #cf-in-list and #cf-notin-list width (IE n..7 bug)
 }
 
 
