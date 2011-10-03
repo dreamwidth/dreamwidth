@@ -898,6 +898,34 @@ sub trans
         return $view if defined $view;
     }
 
+    # custom interface handler
+    if ($uri =~ m!^/interface/([\w\-]+)$!) {
+        my $inthandle = LJ::Hooks::run_hook("interface_handler", {
+            int         => $1,
+            r           => $r,
+            bml_handler => $bml_handler,
+        });
+        return $inthandle if defined $inthandle;
+    }
+
+    # see if there is a modular handler for this URI
+    my $ret = LJ::URI->handle( $uri, $r );
+    $ret = DW::Routing->call unless defined $ret;
+    return $ret if defined $ret;
+
+    # protocol support
+    if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
+        my $int = $1;
+        $r->handler("perl-script");
+        if ($int =~ /^xmlrpc|blogger|elsewhere_info$/) {
+            $RQ{'interface'} = $int;
+            $RQ{'is_ssl'} = $is_ssl;
+            $r->push_handlers(PerlResponseHandler => \&interface_content);
+            return OK;
+        }
+        return 404;
+    }
+
     # normal (non-domain) journal view
     if (
         $uri =~ m!
@@ -933,34 +961,6 @@ sub trans
 
         my $view = $determine_view->($user, $vhost, $rest);
         return $view if defined $view;
-    }
-
-    # custom interface handler
-    if ($uri =~ m!^/interface/([\w\-]+)$!) {
-        my $inthandle = LJ::Hooks::run_hook("interface_handler", {
-            int         => $1,
-            r           => $r,
-            bml_handler => $bml_handler,
-        });
-        return $inthandle if defined $inthandle;
-    }
-
-    # see if there is a modular handler for this URI
-    my $ret = LJ::URI->handle( $uri, $r );
-    $ret = DW::Routing->call unless defined $ret;
-    return $ret if defined $ret;
-
-    # protocol support
-    if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
-        my $int = $1;
-        $r->handler("perl-script");
-        if ($int =~ /^xmlrpc|blogger|elsewhere_info$/) {
-            $RQ{'interface'} = $int;
-            $RQ{'is_ssl'} = $is_ssl;
-            $r->push_handlers(PerlResponseHandler => \&interface_content);
-            return OK;
-        }
-        return 404;
     }
 
     # customview (get an S1 journal by number)

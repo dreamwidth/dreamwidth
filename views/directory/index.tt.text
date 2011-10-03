@@ -1,0 +1,62 @@
+;; -*- coding: utf-8 -*-
+.and=and
+
+.between=Between
+
+.button.clear=Clear Form
+
+.button.search=Search
+
+.by_age=By Age
+
+.by_circle=By Circle
+
+.by_interest=By Interest
+
+.by_location=By Location
+
+.by_members=By Member
+
+.by_updated=By Journal Update Time
+
+.comm.member=Community membership includes this user:
+
+.display_by=Result format:
+
+.display_results=Display Options
+
+.int_multiple=<i>Note: you may specify multiple interests separated by commas.</i>
+
+.opt.day=day
+
+.opt.month=month
+
+.opt.week=week
+
+.records_per_page=Results per page:
+
+.show.picture=picture
+
+.show.text_only=text only
+
+.title.comm=Community Search
+
+.title.directory=Directory Search
+
+.updated_in_last=Updated in last
+
+.use.comm=You can use this page to search for communities on [[sitename]]. If you fill in more than one search box, the search will return only results that contain all your search words: for example, if you put in "Boston" and "beer", the only communities your search will show are those which have both words somewhere in their Profile.
+
+.use.dir=You can use this directory to search for users on [[sitename]]. If you fill in more than one search box, the search will return only results that contain all your search words; for example, if you put in "Baltimore City" and "cars", the journals your search will show are those which have both words somewhere in their Profile.  If you're looking for a community, you can try our <a [[aopts]]>community search page</a> instead.
+
+.user_likes=Interested in:
+
+.user_trusted_by=Accounts granted access by:
+
+.user_trusts=Accounts who grant access to:
+
+.user_watched_by=Accounts subscribed to by:
+
+.user_watches=Accounts subscribed to:
+
+.years_old=years old.

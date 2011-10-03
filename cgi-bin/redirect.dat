@@ -50,3 +50,5 @@
 /settings/                          /manage/settings
 /settings/index                     /manage/settings
 /settings/index.bml                 /manage/settings
+/directory                          /directorysearch
+/directory.bml                      /directorysearch

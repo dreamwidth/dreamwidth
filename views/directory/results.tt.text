@@ -1,0 +1,22 @@
+;; -*- coding: utf-8 -*-
+.error.search_dir=There was an error searching the directory. Please try again in a few minutes.
+
+.new_all_search=All
+
+.new_community_search=Communities Only
+
+.new_identity_search=OpenIDs Only
+
+.new_search=New search
+
+.new_search_show=Show:
+
+.new_user_search=Accounts Only
+
+.no_results=No Results Found.
+
+.search_results=Search Results
+
+.title=Directory Search
+
+.unable_find_users=We're unable to find anyone matching the interests you've provided.
