@@ -37,7 +37,7 @@ sub render_body {
         @_
     );
 
-    my $minimal_display = $opts{minimal_display} ? 1 : 0;
+    my $minimal_display = $opts{minimal_display} ? 1 : '';
 
     # use "authas"-aware code
     my $u = $class->get_effective_remote;
