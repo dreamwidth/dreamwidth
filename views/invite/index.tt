@@ -1,0 +1,77 @@
+[%# TT conversion of manage/invitecodes.bml
+  # Invite code management system (user-facing).
+  #
+  # Authors:
+  #      Jen Griffin <kareila@livejournal.com>
+  #
+  # Copyright (c) 2011 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it
+  # under the same terms as Perl itself. For a copy of the license, please
+  # reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+
+[%- sections.title='.title' | ml -%]
+
+[%- IF req_yes -%]
+    <div class='highlight-box'>[% '.msg.request.success' | ml %]</div>
+[%- ELSIF req_no -%]
+    <div class='error-box'>[% '.msg.request.error' | ml %]</div>
+[%- END -%]
+
+[%- IF print_req_form -%]
+    <h2>[% '.form.request.header' | ml %]</h2>
+    <p>[% '.form.request.intro' | ml %]</p>
+    <div><form method='POST'>
+    [% dw.form_auth;
+    reason_label = '.form.request.reason' | ml;
+    submit_label = '.form.request.submit' | ml;
+    form.textbox( label = reason_label, name = 'reason', id = 'reason',
+                  size = 75, maxlength = 255 );
+    form.submit( value = submit_label ) %]
+    </form></div>
+[%- END -%]
+
+[%- IF view_full;
+        viewing_label = '.label.viewing.full' | ml(aopts = "href='/invite'");
+    ELSE;
+        viewing_label = '.label.viewing.partial' | ml(aopts = "href='/invite?full=1'");
+    END -%]
+<p>[% viewing_label %]</p>
+
+[%- IF has_codes -%]
+    <p>[% '.label.send' | ml(aopts = "href='/manage/circle/invite'") %]</p>
+    <table class='invitecodes' id='invitecodes'>
+      <thead><tr>
+        <th>[% '.header.code' | ml %]</th>
+        <th>[% '.header.recipient' | ml %]</th>
+        <th width='200'>[% '.header.used' | ml %]</th>
+        <th width='200'>[% '.header.sent' | ml %]</th>
+        <th>[% '.header.email' | ml %]</th>
+      </tr></thead>
+
+    [%- FOREACH code = invitecodes;
+                IF code.is_used; recuser = code.recipient; END -%]
+      <tr>
+        <td><tt>[% code.code %]</tt></td>
+        <td>
+        [%- IF code.is_used;
+                users.$recuser.ljuser_display;
+            ELSE;
+                link = create_link( code.code );
+                '.code.use' | ml(aopts = "href='$link'");
+            END -%]
+        </td><td>
+        [% IF code.is_used; time_to_http( users.$recuser.timecreate ); END %]
+        </td><td>
+        [% time_to_http( code.timesent ) %]
+        </td><td>[% code.email %]</td>
+      </tr>
+    [% END %]
+    </table>
+
+[%- ELSE -%]
+    <p>[% IF view_full; '.noinvitecodes' | ml;
+          ELSE; '.noinvitecodes.partial' | ml; END %]</p>
+[%- END -%]

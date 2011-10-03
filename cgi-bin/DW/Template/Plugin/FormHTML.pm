@@ -155,6 +155,19 @@ sub select {
     return $ret;
 }
 
+=head2 [% form.submit( name =... ) %]
+
+Return a button for submitting a form. Values are prepopulated by the plugin's datasource.
+
+=cut
+
+sub submit {
+    my ( $self, $args ) = @_;
+
+    $self->_process_value_and_label( $args );
+    return LJ::html_submit( delete $args->{name}, delete $args->{value}, $args );
+}
+
 =head2 [% form.textarea( label=... ) %]
 
 Return a textarea with a matching label, if provided. Values are prepopulated
