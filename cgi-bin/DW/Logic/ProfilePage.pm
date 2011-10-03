@@ -437,14 +437,15 @@ sub _basic_info_location {
         my $ecountry = LJ::eurl( $country );
         my $estate = "";
         my $secimg = $self->security_image( $u->opt_showlocation );
+        my $dirurl = "$LJ::SITEROOT/directorysearch?opt_sort=ut&amp;s_loc=1";
 
         if ( $country ) {
             my %countries = ();
             LJ::load_codes( { country => \%countries } );
 
             $country_ret = LJ::is_enabled( 'directory' ) ?
-                { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry", text => $countries{ $country } } :
-                $countries{ $country };
+                { url => "$dirurl&amp;loc_cn=$ecountry",
+                  text => $countries{ $country } } : $countries{ $country };
             if ( !$state && !$city ) {
                 $country_ret->{secimg} = $secimg;
             }
@@ -459,8 +460,8 @@ sub _basic_info_location {
             $state = $states{$state} if $states_type && $states{$state};
             $estate = LJ::eurl( $state );
             $state_ret = $country && LJ::is_enabled( 'directory' ) ?
-                { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate", text => LJ::ehtml( $state ) } :
-                LJ::ehtml( $state );
+                { url => "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate",
+                  text => LJ::ehtml( $state ) } : LJ::ehtml( $state );
             if ( !$city ) {
                 $state_ret->{secimg} = $secimg;
             }
@@ -469,8 +470,8 @@ sub _basic_info_location {
         if ( $city ) {
             $city = LJ::ehtml( $city );
             $city_ret = $country && LJ::is_enabled( 'directory' ) ?
-                { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity", text => $city } :
-                $city;
+                { url => "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity",
+                  text => $city } : $city;
             $city_ret->{secimg} = $secimg;
         }
 

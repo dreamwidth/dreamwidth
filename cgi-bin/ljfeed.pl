@@ -647,11 +647,11 @@ sub create_view_foaf {
     # user location
     if ($u->{'country'}) {
         my $ecountry = LJ::eurl($u->{'country'});
-        $ret .= "    <ya:country dc:title=\"$ecountry\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry\"/>\n" if $u->can_show_location($remote);
+        $ret .= "    <ya:country dc:title=\"$ecountry\" rdf:resource=\"$LJ::SITEROOT/directorysearch?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry\"/>\n" if $u->can_show_location($remote);
         if ($u->{'city'}) {
             my $estate = '';  # FIXME: add state.  Yandex didn't need it.
             my $ecity = LJ::eurl($u->{'city'});
-            $ret .= "    <ya:city dc:title=\"$ecity\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity\"/>\n" if $u->can_show_location($remote);
+            $ret .= "    <ya:city dc:title=\"$ecity\" rdf:resource=\"$LJ::SITEROOT/directorysearch?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity\"/>\n" if $u->can_show_location($remote);
        }
     }
 

@@ -1,6 +1,5 @@
 User-Agent: *
-Disallow: /directory.bml
-Disallow: /directory
+Disallow: /directorysearch
 Disallow: /latest
 Disallow: /search
 
