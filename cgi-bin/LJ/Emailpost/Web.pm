@@ -12,8 +12,7 @@
 # part of this distribution.
 
 # these are the email gateway functions needed from web land.  they're
-# also available from ljemailgateway.pl (which contains the full
-# libraries)
+# also available from LJ/Emailpost.pm (which contains the full libraries)
 
 package LJ::Emailpost::Web;
 use strict;

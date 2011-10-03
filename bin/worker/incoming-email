@@ -17,7 +17,7 @@ use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::Worker::TheSchwartz;
 
 require "ljlib.pl";
-require "ljemailgateway.pl";
+use LJ::Emailpost;
 use LJ::Support;
 use LJ::Sysban;
 
