@@ -22,8 +22,6 @@ body<=
 
     LJ::set_active_crumb('commsentinvites');
 
-    return LJ::server_down_html() if $LJ::SERVER_DOWN;
-
     # always have links at top
     my $ret;
 

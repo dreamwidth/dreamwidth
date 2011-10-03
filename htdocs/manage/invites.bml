@@ -22,9 +22,6 @@ body<=
 
     LJ::set_active_crumb('comminvites');
 
-    return LJ::server_down_html()
-        if $LJ::SERVER_DOWN;
-
     my $remote = LJ::get_remote();
     return "<?needlogin?>"
         unless $remote;

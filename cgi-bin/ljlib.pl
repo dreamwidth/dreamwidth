@@ -1404,18 +1404,6 @@ sub flush_cleanup_handlers {
     }
 }
 
-
-
-# <LJFUNC>
-# name: LJ::server_down_html
-# des: Returns an HTML server down message.
-# returns: A string with a server down message in HTML.
-# </LJFUNC>
-sub server_down_html
-{
-    return "<b>$LJ::SERVER_DOWN_SUBJECT</b><br />$LJ::SERVER_DOWN_MESSAGE";
-}
-
 # <LJFUNC>
 # name: LJ::get_cluster_description
 # des: Get descriptive text for a cluster id.

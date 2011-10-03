@@ -47,7 +47,6 @@ body<=
     LJ::set_active_crumb('mobilepost');
 
     return $ML{'.error.sitenotconfigured'} unless $LJ::EMAIL_POST_DOMAIN;
-    return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
     my $u = LJ::get_remote();
     return "<?needlogin?>" unless $u;

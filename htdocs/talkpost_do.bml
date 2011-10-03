@@ -43,8 +43,6 @@ body<=
         return if ($POST{'body'} =~ /$re/);
     }
 
-    return LJ::server_down_html() if $LJ::SERVER_DOWN;
-
     my $editid = $POST{editid};
 
     # OpenID support

@@ -30,12 +30,6 @@ _c?>
 
     $$title = $ML{'.title2'};
 
-    # server down?
-    if ($LJ::SERVER_DOWN) {
-        $$body = LJ::server_down_html();
-        return;
-    }
-
     LJ::set_active_crumb("postentry");
 
     # invalid text input?

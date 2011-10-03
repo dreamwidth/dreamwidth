@@ -24,8 +24,6 @@ body<=
 
     LJ::set_active_crumb('lostinfo');
 
-    return LJ::server_down_html() if $LJ::SERVER_DOWN;
-
     my %captcha_fields;
     @captcha_fields{DW::Captcha->form_fields} = @POST{DW::Captcha->form_fields};
     my $captcha = DW::Captcha->new( 'lostinfo', %captcha_fields );

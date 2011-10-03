@@ -21,8 +21,6 @@ body<=
 
     $head = "";  # not local, used to build <link> tags
 
-    return LJ::server_down_html() if $LJ::SERVER_DOWN;
-
     LJ::need_res(qw (stc/display_none.css stc/talkpage.css) );
 
     my $remote = LJ::get_remote();

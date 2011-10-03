@@ -22,8 +22,6 @@ body<=
 
     LJ::set_active_crumb('commpending');
 
-    return LJ::server_down_html() if $LJ::SERVER_DOWN;
-
     # get remote
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;

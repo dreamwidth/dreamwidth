@@ -21,11 +21,6 @@ body<=
 
     my $body;
 
-    if ($LJ::SERVER_DOWN) {
-        $body = LJ::server_down_html();
-        return $body;
-    }
-
     my $remote = LJ::get_remote()
         or return "<?needlogin?>";
 

@@ -8632,13 +8632,6 @@ sub make_journal {
     my $r = DW::Request->get;
     my $geta = $opts->{'getargs'};
 
-    if ($LJ::SERVER_DOWN) {
-        if ($opts->{'vhost'} eq "customview") {
-            return "<!-- LJ down for maintenance -->";
-        }
-        return LJ::server_down_html();
-    }
-
     my $u = $opts->{'u'} || LJ::load_user($user);
     unless ($u) {
         $opts->{'baduser'} = 1;

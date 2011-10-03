@@ -24,8 +24,6 @@ body<=
     LJ::set_active_crumb('editprofile');
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/lj_settings.css' );
 
-    return LJ::server_down_html() if $LJ::SERVER_DOWN;
-
     my $remote = LJ::get_remote()
         or return "<?needlogin?>";
 
