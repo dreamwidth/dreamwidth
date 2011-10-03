@@ -24,6 +24,8 @@ use CGI::Util qw( unescape );
 use fields (
             'cookies_in',
             'cookies_in_multi',
+
+            'get_args',
         );
 
 sub new {
@@ -33,6 +35,8 @@ sub new {
 
     $self->{cookies_in} = undef;
     $self->{cookies_in_multi} = undef;
+
+    $self->{get_args} = undef;
 }
 
 sub cookie {
@@ -74,6 +78,29 @@ sub delete_cookie {
     $args{expires}  = "-1d";
 
     return $self->add_cookie( %args );
+}
+
+# FIXME: This relies on the behavior parse_args
+#   and the \0 seperated arguments. This should be cleaned
+#   up at the same point parse_args is.
+sub _string_to_multivalue {
+    my %gets = LJ::parse_args( $_[1] );
+
+    my @out;
+    foreach my $key ( keys %gets ) {
+        my @parts = split(/\0/, $gets{$key});
+        push @out, map { $key => $_ } @parts;
+    }
+
+    return Hash::MultiValue->new( @out );
+}
+
+sub get_args {
+    my DW::Request $self = $_[0];
+    return $self->{get_args} if defined $self->{get_args};
+
+    return $self->{get_args} =
+        $self->_string_to_multivalue( $self->query_string );
 }
 
 #

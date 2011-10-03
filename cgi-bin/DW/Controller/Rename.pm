@@ -115,9 +115,9 @@ sub rename_handler {
                 touser      => $post_args->{touser} || $get_args->{to} || "",
                 redirect    => $post_args->{redirect} || "disconnect",
                 rel_types   => \@rel_types,
-                rel_options => %$post_args ? { map { $_ => 1 } $post_args->get( "rel_options" ) }
+                rel_options => %$post_args ? { map { $_ => 1 } $post_args->get_all( "rel_options" ) }
                                             : { map { $_ => 1 } @rel_types },
-                others      => %$post_args ? { map { $_ => 1 } $post_args->get( "others" ) }
+                others      => %$post_args ? { map { $_ => 1 } $post_args->get_all( "others" ) }
                                             : { email => 0 },
             };
 
@@ -152,7 +152,7 @@ sub handle_post {
 
     # since you can't recover deleted relationships, but you can delete the relationships later if something was missed
     # negate the form submission so we're explicitly stating which rels we want to delete, rather than deleting everything not listed
-    my %keep_rel = map { $_ => 1 } $post_args->get( "rel_options" );
+    my %keep_rel = map { $_ => 1 } $post_args->get_all( "rel_options" );
     my %del_rel = map { +"del_$_" => ! $keep_rel{$_} } qw( trusted_by watched_by trusted watched communities );
 
     my %other_opts = map { $_ => 1 } $post_args->get( "others" );
@@ -352,7 +352,7 @@ sub handle_admin_post {
     if( $post_args->{override_relationships} ) {
         # since you can't recover deleted relationships, but you can delete the relationships later if something was missed
         # negate the form submission so we're explicitly stating which rels we want to delete, rather than deleting everything not listed
-        my %keep_rel = map { $_ => 1 } $post_args->get( "rel_options" );
+        my %keep_rel = map { $_ => 1 } $post_args->get_all( "rel_options" );
         my %del_rel = map { +"del_$_" => ! $keep_rel{$_} } qw( trusted_by watched_by trusted watched communities );
 
         $rename_opts{del} = \%del_rel;
@@ -360,7 +360,7 @@ sub handle_admin_post {
 
 
     if( $post_args->{override_others} ) {
-        my %other_opts = map { $_ => 1 } $post_args->get( "others" );
+        my %other_opts = map { $_ => 1 } $post_args->get_all( "others" );
 
         # force email to false if we can't support forwarding for this user
         if ( $other_opts{email} ) {

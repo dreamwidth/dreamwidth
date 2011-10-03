@@ -36,6 +36,10 @@ sub trim {
 
 # similar to decode_url_string below, but a nicer calling convention.  returns
 # a hash of items parsed from the string passed in as the only argument.
+
+# FIXME: This method using \0 is being used in legacy locations
+#  however should be factored out ( to Hash::MultiValue )
+#  as soon as the need for the legacy use is removed.
 sub parse_args {
     my $args = $_[0];
     return unless defined $args;

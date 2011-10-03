@@ -29,6 +29,7 @@ package DW::Request;
 use strict;
 use DW::Request::Apache2;
 use DW::Request::Standard;
+use Hash::MultiValue;
 
 our ( $cur_req, $determined );
 
@@ -166,7 +167,7 @@ This can be any perl ref or string.
 
 =head2 C<< $r->post_args >>
 
-Get the POST arguments.
+Return the POST arguments.
 
 =head2 C<< $r->print( $string ) >>
 

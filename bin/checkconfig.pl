@@ -207,6 +207,7 @@ my %modules = (
                    'deb' => "libbusiness-creditcard-perl",
                    'opt' => "Required for taking credit/debit cards in the shop.",
                },
+               "Hash::MultiValue" => {},
               );
 
 

@@ -35,7 +35,6 @@ use fields (
             # these are mutually exclusive; if you use one you can't use the other
             'content',   # raw content
             'post_args', # hashref of POST arguments
-            'get_args',  # hashref of GET arguments
 
             # we have to parse these out ourselves
             'uri',
@@ -124,7 +123,6 @@ sub response_as_string {
     return $self->{res}->as_string;
 }
 
-# get POST arguments as an APR::Table object (which is a tied hashref)
 sub post_args {
     my DW::Request::Standard $self = $_[0];
 
@@ -135,13 +133,8 @@ sub post_args {
 
     # get the content and parse it.  I would have expected there to be some
     # official method of doing this on HTTP::Request?  guess not.
-    return $self->{post_args} = { LJ::parse_args( $self->{req}->content ) };
-}
-
-sub get_args {
-    my DW::Request::Standard $self = $_[0];
-    return $self->{get_args} if defined $self->{get_args};
-    return $self->{get_args} = { LJ::parse_args( $self->query_string ) };
+    return $self->{post_args} =
+        $self->_string_to_multivalue( $self->{req}->content );
 }
 
 # searches for a given note and returns the value, or sets it

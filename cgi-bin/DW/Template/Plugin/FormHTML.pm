@@ -26,7 +26,7 @@ with preset values
 
 The form plugin generates HTML elements with attributes suitably escaped, and values automatically prepopulated, depending on the form's data field.
 
-The "data" field is a hashref, with the keys being the form element's name, and the values being the form element's desired value.
+The "data" field is an instance of Hash::MultiValue, with the keys being the form element's name, and the values being the form element's desired value.
 
 If a "formdata" property is available via the context, this is used to automatically populate the plugin's data field.
 =cut
@@ -79,10 +79,8 @@ sub checkbox {
 
     my $ret = "";
 
-    # FIXME: check an array of args, rather than expecting this to be an APR::RequestTable
-    # processes any previous form submissions. Doing this out here as it's special-cased
     if ( ! defined $args->{selected} && $self->{data} ) {
-        my %selected = map { $_ => 1 } $self->{data}->get( $args->{name} );
+        my %selected = map { $_ => 1 } $self->{data}->get_all( $args->{name} );
         $args->{selected} = $selected{$args->{value}};
     }
 
@@ -121,10 +119,8 @@ sub radio {
 
     my $ret = "";
 
-    # FIXME: check an array of args, rather than expecting this to be an APR::RequestTable
-    # processes any previous form submissions. Doing this out here as it's special-cased
     if ( ! defined $args->{selected} && $self->{data} ) {
-        my %selected = map { $_ => 1 } $self->{data}->get( $args->{name} );
+        my %selected = map { $_ => 1 } $self->{data}->get_all( $args->{name} );
         $args->{selected} = $selected{$args->{value}};
     }
 
