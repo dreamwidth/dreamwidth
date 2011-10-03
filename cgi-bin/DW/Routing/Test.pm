@@ -118,11 +118,16 @@ sub handle_request {
 
 sub handle_redirect {
     my ( $uri, $expected ) = @_;
-    my $tb = $CLASS->builder;
     $CLASS->builder->subtest($uri, sub {
-        my $req = HTTP::Request->new(GET=>"$uri");
+        my $tb = $CLASS->builder;
+        $tb->plan( tests => 3 );
 
-        my $opts = DW::Routing->get_call_opts( uri => $uri );
+        my $req = HTTP::Request->new(GET=>"http://www.example.com$uri");
+        $req->header( Host => 'www.example.com' );
+        DW::Request->reset;
+        my $r = DW::Request::Standard->new($req);
+
+        my $opts = DW::Routing->get_call_opts( );
 
         unless ( $opts ) {
             ok( 0, "opts exists" );
@@ -135,16 +140,26 @@ sub handle_redirect {
         unless ( $hash && $hash->{sub} ) {
              ok( 0, "improper opts" );
              _skip("opts are improper");
+             return;
         }
 
         is( $hash->{sub}, \&DW::Routing::_redirect_helper );
-        is( $hash->{args}, $expected );
+        # Safe to call!
+
+        my $rv = DW::Routing->call_hash( $opts );
+
+        is( $rv, $r->REDIRECT );
+        if ( substr($expected,0,1) == '/' ) {
+            is( $r->header_out( 'Location' ), "http://www.example.com$expected" );
+        } else {
+            is( $r->header_out( 'Location' ), $expected );
+        }
+
     });
 }
 
 sub handle_server_error {
     my ( $name, $uri, $format, %opts ) = @_;
-    my $tb = $CLASS->builder;
     $CLASS->builder->subtest($name, sub {
         DW::Request->reset;
 

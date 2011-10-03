@@ -16,7 +16,7 @@
 use strict;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-use DW::Routing::Test tests => 5;
+use DW::Routing::Test tests => 6;
 
 $DW::Routing::T_TESTING_ERRORS = 1;
 
@@ -29,10 +29,13 @@ DW::Routing->register_string( "/xx3/index", \&handler, app => 1, args => "it_wor
 handle_request( "/xx3/" , "/xx3/", 1, "it_worked_redir" );
 handle_request( "/xx3/index" , "/xx3/index", 1, "it_worked_redir" );
 handle_redirect( '/xx3', '/xx3/' );
-# 3
+
+handle_redirect( '/xx3?kittens=cute', '/xx3/?kittens=cute' );
+
+# 4
 
 DW::Routing->register_string( "/index", \&handler, app => 1, args => "it_worked_redir" );
 
 handle_request( "/" , "/", 1, "it_worked_redir" );
 handle_request( "/index" , "/index", 1, "it_worked_redir" );
-# 5
+# 6

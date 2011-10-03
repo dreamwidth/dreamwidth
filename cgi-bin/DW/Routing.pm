@@ -248,7 +248,13 @@ sub _static_helper {
 # controller sub for register_redirect
 sub _redirect_helper {
     my $r = DW::Request->get;
-    return $r->redirect( $_[0]->args );
+    my $data = $_[0]->args;
+
+    if ( $data->{full_uri} ) {
+        return $r->redirect( $data->{dest} );
+    } else {
+        return $r->redirect( LJ::create_url( $data->{dest}, keep_args => $data->{keep_args} ) );
+    }
 }
 
 =head1 Registration API
@@ -324,6 +330,7 @@ sub register_string {
             formats => $hash->{formats},
             format => $hash->{format},
             no_redirects => 1,
+            keep_args => 1,
         );
         $class->register_redirect( $2, $1, %opts ) if $2;
         $string_choices{'app'  . $1} = $hash if $hash->{app};
@@ -344,6 +351,14 @@ Redirect helper.
 
 =item Opts ( see register_string )
 
+=over
+
+=item keep_args - Persist GET arguments over redirect ( same as the keep_args argument to create_url ).
+
+=item full_uri - A full URI ( http://...../foo v.s. /foo )
+
+=back
+
 =back
 
 =cut
@@ -351,7 +366,11 @@ Redirect helper.
 sub register_redirect {
     my ( $class, $string, $dest, %opts ) = @_;
 
-    $opts{args} = $dest;
+    my $args = { dest => $dest };
+    $args->{keep_args} = delete $opts{keep_args} || 0;
+    $args->{full_uri} = delete $opts{full_uri} || 0;
+
+    $opts{args} = $args;
     $class->register_string( $string, \&_redirect_helper, %opts );
 }
 
@@ -415,7 +434,7 @@ sub _apply_defaults {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference
