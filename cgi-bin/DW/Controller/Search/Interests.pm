@@ -264,6 +264,34 @@ sub interest_handler {
     }
 
     if ( $mode eq 'int' ) {
+        my $trunc_check = sub {
+            my ( $check_int, $interest ) = @_;
+            my $e_int = LJ::ehtml( $check_int );
+
+            # Determine whether the interest is too long:
+            # 1. If the interest already exists, a long interest will result
+            #    in $check_int and $interest not matching.
+            # 2. If it didn't already exist, we fall back on just checking
+            #    the length of $check_int.
+
+            if ( ( $interest && $check_int ne $interest ) ||
+                   length( $check_int ) > LJ::CMAX_SITEKEYWORD ) {
+
+                # The searched-for interest is too long, so use the short version.
+                my $e_int_long = $e_int;
+                $e_int = LJ::ehtml( $interest ? $interest :
+                                    substr( $check_int, 0, LJ::CMAX_SITEKEYWORD ) );
+
+                $rv->{warn_toolong} =
+                    LJ::Lang::ml( 'interests.error.longinterest',
+                                  { sitename => $LJ::SITENAMESHORT,
+                                    old_int => $e_int_long, new_int => $e_int,
+                                    maxlen => LJ::CMAX_SITEKEYWORD } );
+            }
+
+            return $e_int;
+        };
+
         my $intarg = LJ::utf8_lc ( $args->{int} );
         my $intid = $args->{intid} ? $args->{intid} + 0 :
             LJ::get_sitekeyword_id( $intarg, 0 ) || 0;
@@ -275,21 +303,7 @@ sub interest_handler {
             return error_ml( 'interests.error.ignored' );
         }
 
-        my $e_int = LJ::ehtml( $check_int );
-        # determine whether the interest is too long:
-        # 1. if the interest already exists, a long interest will result in $check_int and $interest not matching
-        # 2. if it didn't already exist, we fall back on just checking the length of $check_int
-        if ( ( $interest && $check_int ne $interest ) || length( $check_int ) > LJ::CMAX_SITEKEYWORD ) {
-            # if the searched-for interest is too long, we use the short version from here on
-            my $e_int_long = $e_int;
-            $e_int = LJ::ehtml( $interest ? $interest : substr( $check_int, 0, LJ::CMAX_SITEKEYWORD ) );
-            $rv->{warn_toolong} =
-                LJ::Lang::ml( 'interests.error.longinterest',
-                              { sitename => $LJ::SITENAMESHORT,
-                                old_int => $e_int_long, new_int => $e_int,
-                                maxlen => LJ::CMAX_SITEKEYWORD } );
-        }
-        $rv->{e_int} = $e_int;
+        $rv->{e_int} = $trunc_check->( $check_int, $interest );
         $rv->{interest} = $interest;
         $rv->{intid} = $intid;
         $rv->{intcount} = $intcount;
