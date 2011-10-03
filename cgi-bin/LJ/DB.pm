@@ -397,6 +397,48 @@ sub use_diff_db {
     $LJ::DBIRole->use_diff_db(@_);
 }
 
+# <LJFUNC>
+# name: LJ::DB::new_account_cluster
+# des: Which cluster to put a new account on.  $DEFAULT_CLUSTER if it's
+#      a scalar, random element from [ljconfig[default_cluster]] if it's arrayref.
+#      also verifies that the database seems to be available.
+# returns: clusterid where the new account should be created; 0 on error
+#          (such as no clusters available).
+# </LJFUNC>
+sub new_account_cluster
+{
+    # if it's not an arrayref, put it in an array ref so we can use it below
+    my $clusters = ref $LJ::DEFAULT_CLUSTER ? $LJ::DEFAULT_CLUSTER : [ $LJ::DEFAULT_CLUSTER+0 ];
+
+    # select a random cluster from the set we've chosen in $LJ::DEFAULT_CLUSTER
+    return LJ::DB::random_cluster(@$clusters);
+}
+
+# returns the clusterid of a random cluster which is up
+# -- accepts @clusters as an arg to enforce a subset, otherwise
+#    uses @LJ::CLUSTERS
+sub random_cluster {
+    my @clusters = @_ ? @_ : @LJ::CLUSTERS;
+
+    # iterate through the new clusters from a random point
+    my $size = @clusters;
+    my $start = int(rand() * $size);
+    foreach (1..$size) {
+        my $cid = $clusters[$start++ % $size];
+
+        # verify that this cluster is in @LJ::CLUSTERS
+        my @check = grep { $_ == $cid } @LJ::CLUSTERS;
+        next unless scalar(@check) >= 1 && $check[0] == $cid;
+
+        # try this cluster to see if we can use it, return if so
+        my $dbcm = LJ::get_cluster_master($cid);
+        return $cid if $dbcm;
+    }
+
+    # if we get here, we found no clusters that were up...
+    return 0;
+}
+
 
 package LJ;
 

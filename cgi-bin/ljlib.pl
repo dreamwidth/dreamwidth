@@ -2008,7 +2008,7 @@ sub note_recent_action {
     my ($cid, $action) = @_;
 
     # fall back to selecting a random cluster
-    $cid = LJ::random_cluster() unless defined $cid;
+    $cid = LJ::DB::random_cluster() unless defined $cid;
 
     # accept a user object
     $cid = ref $cid ? $cid->{clusterid}+0 : $cid+0;
