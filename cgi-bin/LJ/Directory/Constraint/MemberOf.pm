@@ -47,7 +47,7 @@ sub u {
 sub matching_uids {
     my $self = shift;
     my $u = $self->u or return ();
-    return $u->member_userids;
+    return $u->member_of_userids;
 }
 
 1;
