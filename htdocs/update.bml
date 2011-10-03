@@ -146,7 +146,7 @@ _c?>
     my $errors;
     my $showform = $POST{'showform'} || $auth_missing;                            # show entry form
     my $preview = $POST{'action:preview'};
-    
+
         # are we spellchecking before we post?
     my $did_spellcheck; my $spellcheck_html;
     if ($LJ::SPELLER && $POST{'action:spellcheck'}) {
@@ -179,12 +179,12 @@ _c?>
         $auth .= "<div id='altlogin_wrapper' style='display: $altlogin_display;'>";
         $auth .= "<p class='pkg'>\n";
         $auth .= "<label for='altlogin_username' class='left'>$ML{'.username'}</label>\n";
-        $auth .=  LJ::html_text({ 'name' => 'user', 'id' => 'altlogin_username', 'class' => 'text', 'size' => '15', 
+        $auth .=  LJ::html_text({ 'name' => 'user', 'id' => 'altlogin_username', 'class' => 'text', 'size' => '15',
                 'maxlength' => '25', 'tabindex' => '5', 'value' => $POST{'user'} || $GET{'user'} }) . "\n";
         $auth .= "</p>\n";
         $auth .= "<p class='pkg'>\n";
         $auth .= "<label for='altlogin_password' class='left'>$ML{'.password'}</label>\n";
-        $auth .= LJ::html_text({ 'type' => 'password', 'id' => 'altlogin_password', 'class' => 'text',  
+        $auth .= LJ::html_text({ 'type' => 'password', 'id' => 'altlogin_password', 'class' => 'text',
                 'name' => 'password', 'tabindex' => '6', 'size' => '15', 'maxlength' => '30' }) . "\n";
         # posted with a user, but no password
         if ($did_post && $auth_missing) {
@@ -223,7 +223,7 @@ _c?>
             'include_insert_object' => $GET{'insobj'},
             'altlogin' => $GET{altlogin} ? 1 : 0,
             'prop_opt_preformatted' => $opt_preformatted ? 1 : 0,
-            
+
             %xpost_vals,
         };
 
@@ -233,7 +233,7 @@ _c?>
             $entry->{prop_opt_default_screening} = $remote->prop('opt_whoscreened');
             $entry->{prop_last_fm_user} = $remote->prop('last_fm_user');
         }
-        
+
         if ($did_post) {
             $entry->{$_} = $POST{$_} foreach keys %POST;
 
@@ -424,7 +424,7 @@ _c?>
                     } else {
                         $ju = $remote;                             # posting as remote
                     };
-                    
+
                     if ( $ju->is_community ) { # changes the update message if journal is from a community
                         $updatemessage = '.update.success2.community';
                     }
@@ -550,7 +550,7 @@ head<=
         # a frozen Storable string, which we then thaw into a hash by the same
         # name.
         $draft = LJ::ejs_string($remote->prop('entry_draft'));
-        %draft_properties = $remote->prop( 'draft_properties' ) ? 
+        %draft_properties = $remote->prop( 'draft_properties' ) ?
             %{ Storable::thaw( $remote->prop( 'draft_properties' ) ) } : ();
 
         # store raw for later use; will be escaped later
@@ -565,7 +565,7 @@ head<=
 
     # not enough to just escape the draft_subject, we want to escape the entire thing, just in case the translation text
     # for.draft.confirm2 contains JS-breaking characters such as apostrophes
-    my $eMLconfirm = LJ::ejs_string( BML::ml( '.draft.confirm2', 
+    my $eMLconfirm = LJ::ejs_string( BML::ml( '.draft.confirm2',
                 { subjectline => "\"$draft_subject_raw\"" } ) );
 
     # Setup draft saving and try to restore from a draft
@@ -592,7 +592,7 @@ head<=
     $ret .= qq^
     <script type="text/javascript">
     //<![CDATA[
-        
+
         // These JS variables contain the contents of the various draft fields.
         var restoredDraft       = $draft;
         var restoredSubject     = $draft_properties{subject};

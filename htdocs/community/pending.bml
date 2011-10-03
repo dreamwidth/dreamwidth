@@ -50,7 +50,7 @@ body<=
     # is $remote an admin?
     unless ( $remote->can_manage_other( $c ) ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
-        $ret .= BML::ml('.error.noaccess', 
+        $ret .= BML::ml('.error.noaccess',
                         { comm => LJ::ljuser($cname, { type => 'C' }) });
         $ret .= " p?>";
         return $ret;
@@ -76,7 +76,7 @@ body<=
 
         # need a db handle now
         my $dbh = LJ::get_db_writer();
-        
+
         # hit up each user to find out what to do with them
         my ($added, $rejected, $ignored, $previous, $banned, $ban_skipped);
         foreach my $id (@userids) {
@@ -169,21 +169,21 @@ body<=
 
     # table headers
     $ret .= "<br /><div align='center'><table class='userslist-table' cellspacing='0' cellpadding='2'>\n<thead><tr><th>";
-    $ret .= LJ::html_check({ id => 'all', name => 'all', checked => 'checked', 
+    $ret .= LJ::html_check({ id => 'all', name => 'all', checked => 'checked',
 	onchange =>
 		"var inputs = document.pending_member_form.getElementsByTagName('input');
 		for (var i = 0; i < inputs.length; i++) {
 			if (inputs[i].type == 'checkbox' && inputs[i].getAttribute('id') !== 'all') {
 				inputs[i].checked = this.checked;
 			}
-		}", 
+		}",
 	onclick =>
 		"var inputs = document.pending_member_form.getElementsByTagName('input');
 		for (var i = 0; i < inputs.length; i++) {
 			if (inputs[i].type == 'checkbox' && inputs[i].getAttribute('id') !== 'all') {
 				inputs[i].checked = this.checked;
 			}
-		}", 
+		}",
   	 selected => 0 });
     $ret .= "</th><th>$ML{'/community/members.bml.key.user'}</th></tr></thead>\n";
 
@@ -192,7 +192,7 @@ body<=
     foreach (@users) {
         my $rstyle = ($rc++ & 1) ? 'even' : 'odd';
         $ret .= "<tr class='$rstyle'><td>";
-        $ret .= LJ::html_check({ id => 'pending_' . $_->userid, name => 'pending_' . $_->userid, 
+        $ret .= LJ::html_check({ id => 'pending_' . $_->userid, name => 'pending_' . $_->userid,
                                  selected => $jumpto ? ($_->user eq $jumpto ? 1 : 0) : 1 });
         $ret .= "</td><td>" . LJ::ljuser($_->{user}) . "</td></tr>\n";
     }

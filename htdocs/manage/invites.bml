@@ -30,11 +30,11 @@ body<=
         unless $remote;
 
     LJ::need_res('stc/invites.css');
-    
+
     # for now, assume we're operating on $remote.  maybe in the future we'll be able to
     # manage other P type accounts, but we can't yet
     my $u = $remote;
-    
+
     return $LJ::MSG_READONLY_USER
         if $u->is_readonly;
 
@@ -60,7 +60,7 @@ body<=
     if (LJ::did_post()) {
         return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
             unless LJ::check_form_auth();
-        
+
         my (@accepted, @rejected, @undecided);
         foreach my $invite (@$pending) {
             my ($commid, $maintid, $date, $argline) = @$invite;
@@ -106,10 +106,10 @@ body<=
             $ret .= "<li>" . LJ::ljuser($us->{$_}, { type => 'C' }) . "</li>\n" foreach @undecided;
             $ret .= "</ul>";
         }
-        
+
         return $ret;
     }
-    
+
     # prepare table
     $ret .= "<form method='post'>\n<div align='center'><table id='invites-list' cellspacing='0' cellpadding='0'>";
     $ret .= LJ::form_auth();
@@ -132,7 +132,7 @@ body<=
         }
         my $ename = LJ::ehtml($cu->{name});
         my $date = LJ::mysql_time($invite->[2]);
-        
+
         # now generate HTML
         $ret .= "<tr class='$rstyle'><td class='invite-info'>" . LJ::ljuser($cu, { type => 'C' }) . " <br />$ename<br /><span class='invite-from'>";
         $ret .= BML::ml('.fromline', { user => LJ::ljuser($us->{$invite->[1]}, { type => 'P' }), date => $date });
@@ -149,7 +149,7 @@ body<=
     $ret .= "</table><br />";
     $ret .= "<div class='action-box'><ul class='nostyle inner'><li>" . LJ::html_submit('submit', $ML{'.submit'}) . "</li></ul></div><div class='clear-floats'></div>";
     $ret .= "</div></form>";
-        
+
     return $ret;
 
 } _code?>

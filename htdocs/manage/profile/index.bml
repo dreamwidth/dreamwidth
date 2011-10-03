@@ -412,7 +412,7 @@ body<=
 
             $ret .= "</td></tr>\n";
         }
-        
+
         if ( $u->is_person ) {
 
             # chat thingies
