@@ -19,10 +19,20 @@ use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
+use Time::HiRes qw/ gettimeofday tv_interval /;
+
+$| = 1;  # Line buffered.
+my $DEBUG = 0;
 sub _log {
-    open FILE, ">>$ENV{LJHOME}/logs/import-scheduler.log" or die;
-    print FILE "[$$] " . sprintf( shift() . "\n", @_ );
-    close FILE;
+    my $txt = "[$$] " . sprintf( shift() . "\n", @_ );
+
+    if ( $DEBUG ) {
+        print $txt;
+    } else {
+        open FILE, ">>$ENV{LJHOME}/logs/import-scheduler.log" or die;
+        print FILE $txt;
+        close FILE;
+    }
 
     return undef;
 }
@@ -143,6 +153,24 @@ sub worker {
     }
 }
 
-# okay, actually run the job
-worker_helper();
-exit 0;
+my $begin_time = [ gettimeofday() ];
+# run the job in a loop
+while ( 1 ) {
+    $DEBUG = 1 if $ARGV[0] =~ /^--?v(?:erbose)?$/;
+    _log( 'Main loop beginning...' );
+
+    worker_helper();
+
+    # now we sleep to the next one minute boundary, and if we're taking more
+    # than one minute to run, we fire off an alert
+    my $sleep_time = 60 - tv_interval( $begin_time );
+    if ( $sleep_time < 0 ) {
+        _log( 'Warning: main loop is taking longer than a minute.' );
+        $sleep_time = 60;
+    }
+    _log( 'Sleeping for %0.2f seconds.', $sleep_time );
+    select undef, undef, undef, $sleep_time;
+
+    _log( 'Main loop ended.' );
+    $begin_time = [ gettimeofday() ];
+}

@@ -73,10 +73,10 @@ while ( 1 ) {
     # do this in a sub so it can return on error
     main_loop();
 
-    # now we sleep to the next five minute boundary, and if we're taking more
-    # than five minutes to run, we fire off an alert
-    my $sleep_time = 60 - ( tv_interval( $begin_time ) % 60 );
-    if ( $sleep_time < 0 ) {
+    # now we sleep to the next one minute boundary, and if we're taking more
+    # than one minute to run, we fire off an alert
+    my $sleep_time = 60 - tv_interval( $begin_time );
+    if ( $sleep_time <= 0 ) {
         $alert->( 'Warning: main loop is taking longer than a minute.' );
         $sleep_time = 60;
     }
