@@ -28,11 +28,7 @@ sub interface_handler {
     my ( %out, %post );
 
     my $post_args = $r->post_args;
-    $post_args->do( sub {
-        my ( $k, $v ) = @_;
-        $post{$k} = $v;
-        return 1;
-    } ) if $post_args;
+    %post = %{ $post_args->as_hashref } if $post_args;
 
     LJ::do_request( \%post, \%out );
 
