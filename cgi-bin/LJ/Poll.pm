@@ -803,7 +803,7 @@ sub preview {
 
     $ret .= "<br />\n";
 
-    $ret .= "This poll is <b>anonymous</b><br />\n"
+    $ret .= LJ::Lang::ml( 'poll.isanonymous2' ) . "<br />\n"
         if ($self->isanon eq "yes");
 
     my $whoview = $self->whoview eq "none" ? "none_remote" : $self->whoview;
@@ -862,9 +862,9 @@ sub render {
     # Default pagesize.
     $pagesize = 2000 unless $pagesize;
 
-    return "<b>[ Poll owner has been deleted ]</b>" unless $self->journal->clusterid;
-    return "<b>[" . LJ::Lang::ml('poll.error.pollnotfound', { 'num' => $pollid }) . "]</b>" unless $pollid;
-    return "<b>[" . LJ::Lang::ml('poll.error.noentry') . "</b>" unless $ditemid;
+    return "<b>[" . LJ::Lang::ml( 'poll.error.deletedowner' ) . "]</b>" unless $self->journal->clusterid;
+    return "<b>[" . LJ::Lang::ml( 'poll.error.pollnotfound', { 'num' => $pollid } ) . "]</b>" unless $pollid;
+    return "<b>[" . LJ::Lang::ml( 'poll.error.noentry' ) . "]</b>" unless $ditemid;
 
     my $can_vote = $self->can_vote;
 
@@ -936,7 +936,7 @@ sub render {
             LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
         if ($self->is_closed);
     
-    $ret .= "This poll is <b>anonymous</b><br />\n"
+    $ret .= LJ::Lang::ml( 'poll.isanonymous2' ) . "<br />\n"
         if ($self->isanon eq "yes");
 
     my $whoview = $self->whoview;

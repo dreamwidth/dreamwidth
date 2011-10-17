@@ -2114,6 +2114,8 @@ poll.error.checkmintoolow=Checkmin attribute must be positive.
 
 poll.error.checktoomuchoptions2=You can only select up to <b>[[options]]</b> responses in question <b>#[[question]]</b>.
 
+poll.error.deletedowner=Error: poll owner has been deleted
+
 poll.error.missingljpoll=All  poll-question (or lj-pq) tags must be nested inside an enclosing poll (or lj-poll) tag.
 
 poll.error.missingljpq=All poll-item (or lj-pi) tags must be nested inside an enclosing poll-question (or  lj-pq) tag.
@@ -2162,7 +2164,7 @@ poll.error.whoview=whoview must be 'all', 'friends', or 'none'.
 
 poll.error.whovote=whovote must be 'all' or 'friends'.
 
-poll.isanonymous=This poll is anonymous.
+poll.isanonymous2=This poll is <strong>anonymous</strong>.
 
 poll.isclosed=This poll is closed.
 
