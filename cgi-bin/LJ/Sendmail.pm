@@ -118,8 +118,8 @@ sub send_mail
 
             $msg = new MIME::Lite ('From'    => $fromname,
                                    'To'      => $clean_name->($opt->{'toname'},   $opt->{'to'}),
-                                   'Cc'      => $opt->{'cc'},
-                                   'Bcc'     => $opt->{'bcc'},
+                                   'Cc'      => $opt->{cc}  || '',
+                                   'Bcc'     => $opt->{bcc} || '',
                                    'Subject' => $subject,
                                    'Type'    => 'multipart/alternative');
 
@@ -143,8 +143,8 @@ sub send_mail
             # no html version, do simple email
             $msg = new MIME::Lite ('From'    => $fromname,
                                    'To'      => $clean_name->($opt->{'toname'},   $opt->{'to'}),
-                                   'Cc'      => $opt->{'cc'},
-                                   'Bcc'     => $opt->{'bcc'},
+                                   'Cc'      => $opt->{cc}  || '',
+                                   'Bcc'     => $opt->{bcc} || '',
                                    'Subject' => $subject,
                                    'Type'    => 'text/plain',
                                    'Data'    => $body);
