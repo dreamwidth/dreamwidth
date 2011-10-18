@@ -2096,7 +2096,7 @@ sub is_from_test {
 our $AUTOLOAD;
 sub AUTOLOAD {
     if ($AUTOLOAD eq "LJ::send_mail") {
-        require "ljmail.pl";
+        eval "use LJ::Sendmail;";
         goto &$AUTOLOAD;
     }
     Carp::croak("Undefined subroutine: $AUTOLOAD");

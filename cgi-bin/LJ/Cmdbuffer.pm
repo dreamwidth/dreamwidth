@@ -19,7 +19,7 @@ use LJ::Event;
 
 use lib "$LJ::HOME/cgi-bin";
 require "ljlib.pl";
-require "ljmail.pl";
+use LJ::Sendmail;
 
 package LJ::Cmdbuffer;
 

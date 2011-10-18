@@ -16,7 +16,7 @@ use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Support;
-require "ljmail.pl";
+use LJ::Sendmail;
 
 use LJ::Worker::TheSchwartz;
 

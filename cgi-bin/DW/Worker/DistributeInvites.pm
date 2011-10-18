@@ -28,7 +28,7 @@ use LJ::User;
 use LJ::Lang;
 use LJ::Sysban;
 
-BEGIN { require "ljmail.pl"; }
+BEGIN { use LJ::Sendmail; }
 
 sub schwartz_capabilities { return ('DW::Worker::DistributeInvites'); }
 
