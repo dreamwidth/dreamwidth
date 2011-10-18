@@ -778,7 +778,7 @@ sub _current_url {
     my $r = BML::get_request();
     my $args = $r->args;
     my $args_wq = $args ? "?$args" : "";
-    my $host = $r->headers_in->{Host};
+    my $host = $r->headers_in->{Host} || '';
     my $uri = $r->uri;
     return "http://$host$uri$args_wq";
 }
