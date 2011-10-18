@@ -315,9 +315,14 @@ sub entry_to_req {
     my $entryprops = $entry->props;
     $req->{props} = {};
     # only bring over these properties
-    for my $entrykey (qw ( adult_content current_coords current_location current_music opt_backdated opt_nocomments opt_noemail opt_preformatted opt_screening taglist used_rte pingback )) {
+    for my $entrykey (qw ( adult_content current_coords current_location current_music opt_backdated opt_nocomments opt_noemail opt_preformatted opt_screening used_rte pingback )) {
         $req->{props}->{$entrykey} = $entryprops->{$entrykey} if defined $entryprops->{$entrykey};
     }
+
+    # the taglist entryprop stored in the DB is not canonical, and may be truncated if there are too many tags
+    # so let's grab the actual tag items and rebuild a string
+    my @tags = $entry->tags;
+    $req->{props}->{taglist} = join( ', ', @tags);
 
     # and regenerate this one from data
     $req->{props}->{picture_keyword} = $entry->userpic_kw;
