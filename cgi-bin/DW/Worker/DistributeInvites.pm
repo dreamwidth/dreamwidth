@@ -27,8 +27,7 @@ use DW::BusinessRules::InviteCodes;
 use LJ::User;
 use LJ::Lang;
 use LJ::Sysban;
-
-BEGIN { use LJ::Sendmail; }
+use LJ::Sendmail;
 
 sub schwartz_capabilities { return ('DW::Worker::DistributeInvites'); }
 
