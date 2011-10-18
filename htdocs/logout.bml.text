@@ -21,7 +21,7 @@
 
 .logout.head=Log out?
 
-.logout.text=Click the button below to log out.
+.logout.text2=Click the button below to confirm you wish to log out.
 
 .title=Log out
 

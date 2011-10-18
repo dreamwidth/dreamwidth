@@ -84,7 +84,7 @@ _c?>
             $body .= LJ::html_hidden('ret', $GET{'ret'}) if $GET{'ret'};
             $body .= LJ::html_hidden("user", $u->{'user'},
                                      "sessid", $u->{'_session'}->{'sessid'});
-            $body .= "<?h1 $ML{'.logout.head'} h1?><?p $ML{'.logout.text'} ";
+            $body .= "<?h1 $ML{'.logout.head'} h1?><?p $ML{'.logout.text2'} ";
             $body .= "<blockquote><input type='submit' value='$ML{'.logout.btn'}'></blockquote> p?></form>";
 
             # do they have any other sessions?
