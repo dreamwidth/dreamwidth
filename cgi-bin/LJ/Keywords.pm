@@ -12,7 +12,7 @@
 # part of this distribution.
 
 use strict;
-use LJ::Constants;
+use LJ::Global::Constants;
 
 package LJ;
 

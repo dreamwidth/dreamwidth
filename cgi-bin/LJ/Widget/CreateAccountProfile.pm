@@ -16,7 +16,7 @@ package LJ::Widget::CreateAccountProfile;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use LJ::Constants;
+use LJ::Global::Constants;
 
 sub need_res { qw( stc/widgets/createaccountprofile.css stc/simple-form.css js/widgets/createaccountprofile.js ) }
 

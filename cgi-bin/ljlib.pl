@@ -62,7 +62,7 @@ use LJ::MemCache;
 use LJ::Error;
 use LJ::User;      # has a bunch of pkg LJ, non-OO methods at bottom
 use LJ::Entry;     # has a bunch of pkg LJ, non-OO methods at bottom
-use LJ::Constants;
+use LJ::Global::Constants;  # formerly LJ::Constants
 use Time::Local ();
 use Storable ();
 use Compress::Zlib ();

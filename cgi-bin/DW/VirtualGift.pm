@@ -32,7 +32,7 @@ sub _memcache_stored_props { return ( '1', PROPLIST ) }  #
 # end MemCacheable methods ###############################
 
 use Digest::MD5 qw/ md5_hex /;
-use LJ::Constants;
+use LJ::Global::Constants;
 use LJ::Event::VgiftApproved;
 
 

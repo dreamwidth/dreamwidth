@@ -17,7 +17,7 @@ use strict;
 use MIME::Words;
 use Carp qw(croak);
 
-use LJ::Constants;
+use LJ::Global::Constants;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
 use LJ::Comment;

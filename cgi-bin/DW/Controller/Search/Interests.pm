@@ -22,7 +22,7 @@ use warnings;
 use DW::Routing;
 use DW::Template;
 use DW::Controller;
-use LJ::Constants;
+use LJ::Global::Constants;
 
 DW::Routing->register_string( '/interests', \&interest_handler, app => 1 );
 

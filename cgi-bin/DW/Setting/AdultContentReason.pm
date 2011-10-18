@@ -2,7 +2,7 @@ package DW::Setting::AdultContentReason;
 use base 'LJ::Setting';
 use strict;
 use warnings;
-use LJ::Constants;
+use LJ::Global::Constants;
 
 sub should_render {
     my ( $class, $u ) = @_;

@@ -15,7 +15,7 @@ package LJ::Setting::Name;
 use base 'LJ::Setting::TextSetting';
 use strict;
 use warnings;
-use LJ::Constants;
+use LJ::Global::Constants;
 
 sub current_value {
     my ($class, $u) = @_;

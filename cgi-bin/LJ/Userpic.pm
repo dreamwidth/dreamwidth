@@ -16,7 +16,7 @@ use strict;
 use Carp qw(croak);
 use Digest::MD5;
 use LJ::Event::NewUserpic;
-use LJ::Constants;
+use LJ::Global::Constants;
 use Storable;
 
 ##

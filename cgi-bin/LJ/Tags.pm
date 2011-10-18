@@ -14,7 +14,7 @@
 package LJ::Tags;
 use strict;
 
-use LJ::Constants;
+use LJ::Global::Constants;
 use LJ::Lang;
 
 # <LJFUNC>

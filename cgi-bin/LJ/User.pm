@@ -34,7 +34,7 @@ use Carp;
 use Storable;
 use lib "$LJ::HOME/cgi-bin";
 use List::Util ();
-use LJ::Constants;
+use LJ::Global::Constants;
 use LJ::MemCache;
 use LJ::Session;
 

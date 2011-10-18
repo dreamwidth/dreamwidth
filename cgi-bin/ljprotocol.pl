@@ -17,7 +17,7 @@
 use strict;
 no warnings 'uninitialized';
 
-use LJ::Constants;
+use LJ::Global::Constants;
 use LJ::Console;
 use LJ::Event::JournalNewEntry;
 use LJ::Event::AddedToCircle;
