@@ -66,6 +66,13 @@ sub method {
     return $self->{r}->method;
 }
 
+# boolean: returns true if using POST method
+sub did_post {
+    my DW::Request::Apache2 $self = $_[0];
+    my $method = $self->method || '';
+    return uc $method eq 'POST';
+}
+
 # the URI requested (does not include host:port info)
 sub uri {
     my DW::Request::Apache2 $self = $_[0];

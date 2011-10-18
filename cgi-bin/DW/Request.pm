@@ -119,6 +119,10 @@ Returns value(s) of cookie.
 
 %args should be the same arguments passed to CGI::Cookie->new.
 
+=head2 C<< $r->did_post >>
+
+Returns true if the request used the POST method.  (see $r->method)
+
 =head2 C<< $r->err_header_out( $header[, $value] ) >>
 
 Sets or gets an response header that is also included on the error pages.
