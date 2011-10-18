@@ -36,7 +36,7 @@ sub management_handler {
     my $remote = $rv->{remote};
 
     # check whether we requested more invite codes
-    if ( LJ::did_post() ) {
+    if ( $r->did_post ) {
         my $args = $r->post_args;
         return error_ml( 'error.invalidform' )
             unless LJ::check_form_auth( $args->{lj_form_auth} );

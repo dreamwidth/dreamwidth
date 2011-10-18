@@ -317,7 +317,7 @@ sub rename_admin_edit_handler {
         token => $token,
     };
 
-    if ( LJ::did_post() ) {
+    if ( $r->did_post ) {
         my ( $post_ok, $rv ) = handle_admin_post( $token, $post_args,
                     journal     => $u,
                     from_user    => $token->fromuser,

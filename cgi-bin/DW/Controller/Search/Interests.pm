@@ -28,7 +28,7 @@ DW::Routing->register_string( '/interests', \&interest_handler, app => 1 );
 
 sub interest_handler {
     my $r = DW::Request->get;
-    my $did_post = LJ::did_post();
+    my $did_post = $r->did_post;
     my $args = $did_post ? $r->post_args : $r->get_args;
     return error_ml( 'bml.badinput.body' ) unless LJ::text_in( $args );
     return error_ml( 'error.invalidform' )

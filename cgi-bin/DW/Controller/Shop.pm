@@ -86,7 +86,7 @@ sub shop_transfer_points_handler {
     $rv->{has_points} = $remote->shop_points;
 
     my $r = DW::Request->get;
-    if ( LJ::did_post() ) {
+    if ( $r->did_post ) {
         my $args = $r->post_args;
         die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
 
@@ -191,7 +191,7 @@ sub shop_points_handler {
     $rv->{errs} = \%errs;
 
     my $r = DW::Request->get;
-    if ( LJ::did_post() ) {
+    if ( $r->did_post ) {
         my $args = $r->post_args;
         die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
 
