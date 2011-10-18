@@ -100,38 +100,6 @@ sub Unicode::MapUTF8::AUTOLOAD {
 
 sub END { LJ::end_request(); }
 
-# tables on user databases (ljlib-local should define @LJ::USER_TABLES_LOCAL)
-# this is here and no longer in bin/upgrading/update-db-{general|local}.pl
-# so other tools (in particular, the inter-cluster user mover) can verify
-# that it knows how to move all types of data before it will proceed.
-@LJ::USER_TABLES = ("userbio", "birthdays", "cmdbuffer", "dudata",
-                    "log2", "logtext2", "logprop2", "logsec2",
-                    "talk2", "talkprop2", "talktext2", "talkleft",
-                    "userpicblob2", "subs", "subsprop", "has_subs",
-                    "ratelog", "loginstall", "sessions", "sessions_data",
-                    "modlog", "modblob", "userproplite2", "links",
-                    "userblob", "userpropblob",
-                    "clustertrack2", "reluser2",
-                    "tempanonips", "inviterecv", "invitesent",
-                    "memorable2", "memkeyword2", "userkeywords",
-                    "trust_groups", "userpicmap2", "userpic2",
-                    "s2stylelayers2", "s2compiled2", "userlog",
-                    "logtags", "logtagsrecent", "logkwsum",
-                    "recentactions", "usertags", "pendcomments",
-                    "loginlog", "active_user", "bannotes",
-                    "notifyqueue", "cprod", "blobcache",
-                    "jabroster", "jablastseen", "random_user_set",
-                    "poll2", "pollquestion2", "pollitem2",
-                    "pollresult2", "pollsubmission2",
-                    "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
-                    "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
-                    "logprop_history", "import_status", "externalaccount",
-                    "content_filters", "content_filter_data", "userpicmap3",
-                    );
-
-# keep track of what db locks we have out
-%LJ::LOCK_OUT = (); # {global|user} => caller_with_lock
-
 use LJ::DB;
 use LJ::Tags;
 require "ljtextutil.pl";
