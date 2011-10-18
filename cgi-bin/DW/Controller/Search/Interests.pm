@@ -282,7 +282,8 @@ sub interest_handler {
                 $e_int = LJ::ehtml( $interest ? $interest :
                                     substr( $check_int, 0, LJ::CMAX_SITEKEYWORD ) );
 
-                $rv->{warn_toolong} =
+                $rv->{warn_toolong} = ( $rv->{warn_toolong} ?
+                                        $rv->{warn_toolong} . "<br />" : '' ) .
                     LJ::Lang::ml( 'interests.error.longinterest',
                                   { sitename => $LJ::SITENAMESHORT,
                                     old_int => $e_int_long, new_int => $e_int,
@@ -292,21 +293,53 @@ sub interest_handler {
             return $e_int;
         };
 
-        my $intarg = LJ::utf8_lc ( $args->{int} );
-        my $intid = $args->{intid} ? $args->{intid} + 0 :
-            LJ::get_sitekeyword_id( $intarg, 0 ) || 0;
-        my ( $interest, $intcount ) = LJ::get_interest( $intid );
-
-        my $check_int = $intarg || $interest;
-        if ( LJ::Hooks::run_hook( "interest_search_ignore",
-                                  query => $check_int, intid => $intid ) ) {
-            return error_ml( 'interests.error.ignored' );
+        my ( @intids, @intargs );
+        if ( $args->{intid} ) {
+            @intids = ( $args->{intid} + 0 );
+        } else {
+            @intargs = LJ::interest_string_to_list( $args->{int} );
+            @intids = map { LJ::get_sitekeyword_id( $_, 0 ) || 0 } @intargs;
         }
 
-        $rv->{e_int} = $trunc_check->( $check_int, $interest );
-        $rv->{interest} = $interest;
-        $rv->{intid} = $intid;
-        $rv->{intcount} = $intcount;
+        my $max_search = 3;
+        if ( scalar @intids > $max_search ) {
+            return error_ml( 'interests.error.toomany', { num => $max_search } );
+        }
+
+        my ( @intdata, @no_users, @not_interested );
+        my $index = 0;  # for referencing @intargs
+        my $remote_interests = $remote ? $remote->interests : {};
+
+        foreach my $intid ( @intids ) {
+            my $intarg = @intargs ? $intargs[$index++] : '';
+            my ( $interest, $intcount ) = LJ::get_interest( $intid );
+            my $check_int = $intarg || $interest;
+
+            if ( LJ::Hooks::run_hook( "interest_search_ignore",
+                                      query => $check_int,
+                                      intid => $intid ) ) {
+                return error_ml( 'interests.error.ignored' );
+            }
+
+            my $e_int = $trunc_check->( $check_int, $interest );
+            push @intdata, $e_int;
+            push @no_users, $e_int unless $intcount;
+
+            $rv->{allcount} = $intcount if scalar @intids == 1;
+
+            # check to see if the remote user already has the interest
+            push @not_interested, { int => $e_int, intid => $intid }
+                if defined $interest && ! $remote_interests->{$interest};
+        }
+
+        $rv->{interest} = join ', ', @intdata;
+        $rv->{query_count} = scalar @intdata;
+        $rv->{no_users} = join ', ', @no_users;
+        $rv->{no_users_count} = scalar @no_users;
+        $rv->{not_interested} = \@not_interested;
+
+        # if any one interest is unused, the search can't succeed
+        undef @intids if @no_users;
 
         # filtering by account type
         my @type_args = ( 'none', 'P', 'C', 'I' );
@@ -330,7 +363,16 @@ sub interest_handler {
                         I => 'nocomms', F => 'circle' );
         $type_opts = { $opt_map{$type} => 1 } if defined $opt_map{$type};
 
-        my @uids = LJ::users_with_all_ints( [$intid], $type_opts );
+        my @uids = LJ::users_with_all_ints( \@intids, $type_opts );
+
+        # determine the count of the full set for comparison
+        # (already set to intcount, unless we have multiple ints)
+        if ( $opt_map{$type} ) {
+            $rv->{allcount} ||= scalar LJ::users_with_all_ints( \@intids );
+        } else {
+            # we just did the full search; count the existing list
+            $rv->{allcount} ||= scalar @uids;
+        }
 
         # limit results to 500 most recently updated journals
         if ( scalar @uids > 500 ) {
@@ -365,7 +407,7 @@ sub interest_handler {
         my @ul = sort { $def_upd->($b) <=> $def_upd->($a) || $a->user cmp $b->user }
                  grep { $_ && $typefilter->( $_ ) && $should_show->( $_ ) }
                  values %$us;
-        $rv->{type_count} = scalar @ul if $intcount != scalar @ul;
+        $rv->{type_count} = scalar @ul if $rv->{allcount} != scalar @ul;
         $rv->{comm_count} = 1 if $type_opts->{nocomms};  # doesn't count
 
         if ( @ul ) {
@@ -399,10 +441,6 @@ sub interest_handler {
             $rv->{navbar} = LJ::paging_bar( $items{page}, $items{pages} );
             $rv->{data} = \@data;
         }
-
-        # check to see if the remote user already has the interest
-        $rv->{not_interested} = ! $remote->interests->{$interest}
-            if $remote && defined $interest;
 
         return DW::Template->render_template( 'interests/int.tt', $rv );
     }

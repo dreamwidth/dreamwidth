@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.addint2=If you're also interested in this, would you like to be <a [[aopts]]>added to this list</a>?
+.addint3=If you're also interested in "<b>[[int]]</b>", would you like to <a [[aopts]]>add it to your profile</a>?
 
 .filtered=[[num]] [[?num|match|matches]], showing [[count]] [[?count|result|results]]:
 
@@ -25,10 +25,12 @@
 
 .morestuff2=You can find more fun stuff on the <a [[aopts]]>interests page</a>.
 
-.nocomms=There are no communities interested in "<b>[[int]]</b>." You can <a [[aopts]]>create one</a>!
+.nocomms2=There are no communities matching the [[?num|interest|interests]] you specified, but you can <a [[aopts]]>create one</a>!
 
 .nomatch=No matching users for the specified account type. <a href="[[link]]">View all accounts with this interest.</a>
 
-.nousers=There are no users interested in "<b>[[int]]</b>". If you are interested in this, <a [[aopts_add]]>click here to add the interest to your profile</a>. More fun stuff can be found on the <a [[aopts_int]]>interests page</a>.
+.notall=There are no users matching all of the interests you specified.  You may want to modify your search.
+
+.nousers2=No one currently has [[num]] of the interests you're searching for. If you're interested, <a [[aopts]]>click here to add [[?num|the new interest|all of the new interests]] to your profile</a>.
 
 .title=Interests

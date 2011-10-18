@@ -1859,6 +1859,8 @@ interests.error.longinterest=As [[sitename]] does not support interests longer t
 
 interests.error.nointerests=The selected account hasn't specified any interests.
 
+interests.error.toomany=You can't search for more than [[num]] interests at a time.
+
 interests.findsim_do.account.notallowed=Your account type doesn't let you use this tool.
 
 interests.findsim_do.nomatch=Nobody similar to [[user]].

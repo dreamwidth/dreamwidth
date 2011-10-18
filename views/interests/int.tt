@@ -32,8 +32,7 @@
 <table summary=''><tr valign='middle'><td class='findandmodify'>
 [% 'interests.interested.in' | ml %]</td><td class='findandmodify'>
 <form method='get' action='interests'>
-<input type="text" name="int" size="20" value="
-[%- interest ? interest : e_int %]" />&nbsp;
+<input type="text" name="int" size="20" value="[% interest # escaped in the controller %]" />&nbsp;
 <input type='submit' value='[% "interests.interested.btn" | ml %]' />
 </form></td></tr>
 <tr valign='middle'><td class='findandmodify'>
@@ -43,32 +42,32 @@
 <input type="text" name="fromuser" size="20" />&nbsp;
 <input type='submit' value='[% "interests.enmasse.btn" | ml %]' />
 </form></td></tr></table>
-<h1>[% ".header" | ml(interest = e_int) %]</h1>
-<div class='typefilter'>[% '.filterlink.label' | ml %]&nbsp;
-[%- FOREACH type = type_list -%]
-    [%- link = type_link(type) -%]
-    [%- IF type != 'none' ; '&nbsp;|&nbsp;' ; END -%]
-    [%- IF link %]<a href="[% link | html %]">[% END -%]
-    [%- ".filterlink.$type" | ml -%]
-    [%- IF link ; '</a>' ; END -%]
-[%- END -%]
-</div>
-[%- IF intcount -%]
-    <p class='interestinfo'>
-    [%- IF not_interested -%]
-        [%- '.addint2' | ml(aopts = "href='$site.root/interests?mode=add&amp;intid=$intid'") -%]
+<h1>[% ".header" | ml(interest = interest) %]</h1>
+[%- IF allcount -%]
+  <div class='typefilter'>[% '.filterlink.label' | ml %]&nbsp;
+    [%- FOREACH type = type_list;
+        link = type_link(type);
+        IF type != 'none' ; '&nbsp;|&nbsp;' ; END;
+        IF link %]<a href="[% link | html %]">[% END;
+        ".filterlink.$type" | ml;
+        IF link ; '</a>' ; END;
+        END -%]
+  </div>
+    [%- FOREACH not_interested -%]
+        <p class='interestinfo'>
+        [%- '.addint3' | ml(int = int, aopts = "href='$site.root/interests?mode=add&amp;intid=$intid'") -%]</p>
     [%- END -%]
-    [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
     [%- UNLESS comm_count -%]
         <p class='interestinfo'>
-        [%- '.nocomms' | ml(aopts = "href='$site.root/community/create'",
-                            int = e_int) %]</p>
+        [%- '.nocomms2' | ml(aopts = "href='$site.root/community/create'", num = query_count) %]</p>
     [%- END -%]
+    <p class='interestinfo'>
+    [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
     <p class='matches'><b>
     [%- IF type_count -%]
-        [% '.filtered' | ml(num = intcount, count = type_count) %]</p>
+        [% '.filtered' | ml(num = allcount, count = type_count) %]</p>
     [%- ELSE -%]
-        [% '.matches2' | ml(num = intcount) %]
+        [% '.matches2' | ml(num = allcount) %]
     [%- END -%]
     </b></p>
     [%- IF data -%]
@@ -95,10 +94,17 @@
     [%- END -%]
 [%- ELSE -%]
     <p class='interestinfo'>
-    [%- '.nocomms' | ml(aopts = "href='$site.root/community/create'",
-                        int = e_int) %]</p>
+    [%- '.nocomms2' | ml(aopts = "href='$site.root/community/create'", num = query_count) %]</p>
     <p class='interestinfo'>
-    [%- '.nousers' | ml(int = e_int,
-        aopts_add = "href='$site.root/interests?mode=addnew&amp;keyword=$e_int'",
-        aopts_int = "href='$site.root/interests'") %]</p>
+    [%- IF no_users -%]
+        [%- '.nousers2' | ml(aopts = "href='$site.root/interests?mode=addnew&amp;keyword=$no_users'", num = no_users_count) %]</p>
+    [%- ELSE -%]
+        [%- '.notall' | ml %]</p>
+        [%- FOREACH not_interested -%]
+            <p class='interestinfo'>
+            [%- '.addint3' | ml(int = int, aopts = "href='$site.root/interests?mode=add&amp;intid=$intid'") -%]</p>
+        [%- END -%]
+    [%- END -%]
+    <p class='interestinfo'>
+    [% '.morestuff2' | ml(aopts = "href='$site.root/interests'") %]</p>
 [%- END -%]
