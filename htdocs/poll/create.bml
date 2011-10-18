@@ -58,7 +58,7 @@ _c?>
                   "maxitems" => 21,         # maximum number of items allowed in a scale
               },
               "checkbox" => {
-                  "checkmin" => 0,      # number of checkboxes a user must tick in that question (default 0: no limit)  
+                  "checkmin" => 0,      # number of checkboxes a user must tick in that question (default 0: no limit)
                   "checkmax" => 255,    # maximum number of checkboxes a user is allowed to tick in that question
               },
               );
@@ -255,7 +255,7 @@ _c?>
 
                     next;
                 }
-                
+
                 if ($atr eq 'checkmin') {
                     $qrec->{'checkmin'} = int($POST{"pq_${q}_checkmin"}) || 0;
                     $qrec->{'checkmax'} = int($POST{"pq_${q}_checkmax"}) || 255;
@@ -290,13 +290,13 @@ _c?>
             }
 
             # checks if minimum and maximum options for checkboxes are OK
-            
+
             if ($qrec->{'type'} == 'check') {
                 my $checkmin = $qrec->{'checkmin'};
                 if ($checkmin > $num_opts) {
                     $err->{$q}->{'checkmin'} = LJ::Lang::ml( ".error.checkmintoohigh2" );
                 }
-                
+
                 my $checkmax = $qrec->{'checkmax'};
                 if ($checkmax < $checkmin) {
                     $err->{$q}->{'checkmax'} = LJ::Lang::ml( ".error.checkmaxtoolow2" );
@@ -450,15 +450,15 @@ _c?>
         $ret .= "<?h1 $ML{'.properties'} h1?>\n";
 
         $ret .= "<div style='margin-left: 40px; margin-bottom: 20px'>\n";
-        
+
         $ret .= "<p>" . LJ::html_check({
             name => 'isanon',
             id => 'isanon',
-            label => $ML{'.isanon'}, 
+            label => $ML{'.isanon'},
             value => "yes",
             selected => ( $poll->{isanon} eq "yes" )
         }) . "</p>\n";
-        
+
         $ret .= "<p>$ML{'.whoview2'}<br /><select name='whoview'>\n";
         foreach my $sec ( qw(all trusted none) ) {
             $ret .= "<option value='$sec'";
@@ -574,7 +574,7 @@ _c?>
                 $ret .= $elem->{'opts'} < $RULES{'items'}->{'max'}
                     ? "<br />" . LJ::html_submit("request:$q:do", undef, { 'raw' => " value='More &gt;&gt;'" }) . "\n"
                     : "<br />" . LJ::Lang::ml ( ".options.limitreached2" ) . "\n";
-                
+
                 if ($elem->{'type'} eq 'check') {
                     $ret .= "<br/>";
                     my $minnumber .= LJ::html_text({ 'name' => "pq_${q}_checkmin",
@@ -588,7 +588,7 @@ _c?>
                        $ret .= "<br /><font size='1'><b>$err->{$q}->{$atr}</b></font>\n"
                             if $err->{$q}->{$atr};
                     }
-                } 
+                }
 
             # text type
             } elsif ($elem->{'type'} eq 'text') {

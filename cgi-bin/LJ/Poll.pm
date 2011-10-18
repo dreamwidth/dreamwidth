@@ -78,7 +78,7 @@ sub create {
         $journalid = $opts{journalid} or croak "No journalid";
         $posterid  = $opts{posterid} or croak "No posterid";
     }
-    
+
     my $isanon = $opts{isanon} or croak "No isanon";
     my $whovote = $opts{whovote} or croak "No whovote";
     my $whoview = $opts{whoview} or croak "No whoview";
@@ -244,9 +244,9 @@ sub new_from_html {
                     $popts{props}->{createdate} = $opts->{createdate} || undef;
                 }
                 LJ::Hooks::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
-                
+
                 $popts{'isanon'} = "no" unless ($popts{'isanon'} eq "yes");
-                
+
                 if ($popts{'whovote'} ne "all" &&
                     $popts{'whovote'} ne "trusted")
                 {
@@ -305,7 +305,7 @@ sub new_from_html {
                 if ($qopts{'type'} eq "check") {
                     my $checkmin = 0;
                     my $checkmax = 255;
-                    
+
                     if (defined $opts->{'checkmin'}) {
                         $checkmin = int($opts->{'checkmin'});
                     }
@@ -320,7 +320,7 @@ sub new_from_html {
                     }
 
                     $qopts{'opts'} = "$checkmin/$checkmax";
-                    
+
                 }
                 if ($qopts{'type'} eq "scale")
                 {
@@ -839,7 +839,7 @@ sub render_ans {
 # opts:
 #   mode => enter|results|ans
 #   qid  => show a specific question
-#   page => page 
+#   page => page
 sub render {
     my ($self, %opts) = @_;
 
@@ -935,7 +935,7 @@ sub render {
     $ret .= "<span style='font-family: monospace; font-weight: bold; font-size: 1.2em;'>" .
             LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
         if ($self->is_closed);
-    
+
     $ret .= LJ::Lang::ml( 'poll.isanonymous2' ) . "<br />\n"
         if ($self->isanon eq "yes");
 
@@ -949,9 +949,9 @@ sub render {
     $ret .= LJ::Lang::ml('poll.participants', { 'total' => $self->num_participants });
     if ( $mode eq 'enter' && $self->can_view( $remote ) ) {
         $ret .= "<br />\n";
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results' class='LJ_PollDisplayLink' 
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results' class='LJ_PollDisplayLink'
             id='LJ_PollDisplayLink_${pollid}' lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.seeresults' ) . "</a> ]  ";
-        $ret .= "&nbsp&nbsp;[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=clear' 
+        $ret .= "&nbsp&nbsp;[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=clear'
             class='LJ_PollClearLink' id='LJ_PollClearLink_${pollid}' lj_pollid='$pollid'>  " . BML::ml('poll.clear') ."</a> ]";
     } elsif ( $mode eq 'results' ) {
         $ret .= "<br />\n";
@@ -968,13 +968,13 @@ sub render {
         my $text = $q->text;
         LJ::Poll->clean_poll(\$text);
         $results_table .= "<p>$text</p>";
-        
+
         # shows how many options a user must/can choose if that restriction applies
         if ($q->type eq 'check' && $do_form) {
             my ($mincheck, $maxcheck) = split(m!/!, $q->opts);
             $mincheck ||= 0;
             $maxcheck ||= 255;
-            
+
             if ($mincheck > 0 && $mincheck eq $maxcheck ) {
                 $results_table .= "<i>". LJ::Lang::ml( "poll.checkexact", { options => $mincheck } ). "</i><br />\n";
             }
@@ -982,13 +982,13 @@ sub render {
                 if ($mincheck > 0) {
                     $results_table .= "<i>". LJ::Lang::ml( "poll.checkmin", { options => $mincheck } ). "</i><br />\n";
                 }
-            
+
                 if ($maxcheck < 255) {
                     $results_table .= "<i>". LJ::Lang::ml( "poll.checkmax", { options => $maxcheck } ). "</i><br />\n";
                 }
             }
         }
-        
+
         $results_table .= "<div style='margin: 10px 0 10px 40px'>";
 
         ### get statistics, for scale questions
@@ -1080,7 +1080,7 @@ sub render {
                 LJ::Poll->clean_poll(\$item);
                 push @optlist, ($itid, $item);
             }
-            $prevanswer = $clearanswers ? 0 : $preval{$qid}; 
+            $prevanswer = $clearanswers ? 0 : $preval{$qid};
             $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid",
                                       'selected' => $prevanswer }, @optlist);
         } elsif ($q->type eq "scale" && $do_form) {
@@ -1468,7 +1468,7 @@ sub process_submission {
                 my ($checkmin, $checkmax) = split(m!/!, $q->opts);
                 $checkmin ||= 0;
                 $checkmax ||= 255;
-            
+
                 if($num_opts < $checkmin) {
                     $$error = LJ::Lang::ml( 'poll.error.checkfewoptions2', {'question' => $qid, 'options' => $checkmin} );
                     $error_code = 2;
