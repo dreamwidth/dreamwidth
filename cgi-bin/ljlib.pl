@@ -72,7 +72,6 @@ use TheSchwartz::Job;
 use LJ::Comment;
 use LJ::ExternalSite;
 use LJ::Message;
-use LJ::PageStats;
 use LJ::AccessLogSink;
 use LJ::ConvUTF8;
 use LJ::Userpic;
@@ -2102,9 +2101,6 @@ sub AUTOLOAD {
     Carp::croak("Undefined subroutine: $AUTOLOAD");
 }
 
-sub pagestats_obj {
-    return LJ::PageStats->new;
-}
 
 sub conf_test {
     my ($conf, @args) = @_;

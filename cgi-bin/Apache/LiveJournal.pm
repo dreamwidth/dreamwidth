@@ -34,6 +34,7 @@ use LJ::AccessLogSink::DInsertd;
 use LJ::AccessLogSink::DBIProfile;
 use Compress::Zlib;
 use XMLRPC::Transport::HTTP;
+use LJ::PageStats;
 use LJ::URI;
 use DW::Routing;
 use DW::Template;
@@ -1489,7 +1490,7 @@ sub journal_content
     LJ::Hooks::run_hooks("insert_html_before_journalctx_body_close", \$before_body_close);
 
     # Insert pagestats HTML and Javascript
-    $before_body_close .= LJ::pagestats_obj()->render('journal');
+    $before_body_close .= LJ::PageStats->new->render( 'journal' );
 
     $html =~ s!</body>!$before_body_close</body>!i if $before_body_close;
 

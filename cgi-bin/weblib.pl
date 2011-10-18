@@ -29,6 +29,7 @@ use LJ::Event;
 use LJ::Subscription::Pending;
 use LJ::Directory::Search;
 use LJ::Directory::Constraint;
+use LJ::PageStats;
 
 # <LJFUNC>
 # name: LJ::img
@@ -3838,9 +3839,9 @@ $LJ::COMMON_CODE{'autoradio_check'} = q{
 sub final_head_html {
     my $ret = "";
 
-    my $pagestats_obj = LJ::pagestats_obj();
-    $ret .= $pagestats_obj->render_head
-        if $pagestats_obj;
+    if ( my $pagestats_obj = LJ::PageStats->new ) {
+        $ret .= $pagestats_obj->render_head;
+    }
 
     return $ret;
 }
@@ -3850,9 +3851,9 @@ sub final_body_html {
     my $before_body_close = "";
     LJ::Hooks::run_hooks('insert_html_before_body_close', \$before_body_close);
 
-    my $pagestats_obj = LJ::pagestats_obj();
-    $before_body_close .= $pagestats_obj->render
-        if $pagestats_obj;
+    if ( my $pagestats_obj = LJ::PageStats->new ) {
+        $before_body_close .= $pagestats_obj->render;
+    }
 
     return $before_body_close;
 }
