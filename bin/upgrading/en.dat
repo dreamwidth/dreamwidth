@@ -35,6 +35,14 @@ captcha.invalid=Incorrect response in the antispam field. Please try again.
 
 captcha.title=Please fill out the CAPTCHA as an anti-spam measure
 
+cleanhtml.error.markup=( <a [[aopts]]>Error: Irreparable invalid markup in entry. Raw contents behind the cut.</a> )
+
+cleanhtml.error.markup.extra=[<strong>Error:</strong> Irreparable invalid markup ('&lt;[[aopts]]&gt;') in entry. Owner must fix manually. Raw contents below.]
+
+cleanhtml.error.template=[Error: unknown template [[aopts]]]
+
+cleanhtml.error.template.video=[Error: unknown template 'video']
+
 cleanhtml.suspend_msg=This is a suspended entry.
 
 cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened and this entry will be reviewed soon.

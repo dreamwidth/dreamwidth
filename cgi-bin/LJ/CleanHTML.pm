@@ -222,11 +222,11 @@ sub clean
         $edata =~ s/\r?\n/<br \/>/g if $addbreaks;
 
         if ( $cuturl ) {
-            $extra_text = "<b>&nbsp;(<a href=\"" . LJ::ehtml( $cuturl ) . "\">Error: Irreparable invalid markup in entry. Raw contents behind the cut.</a>&nbsp;)</b>";
+            my $cutlink = LJ::ehtml( $cuturl );
+            $extra_text = "<strong>" . LJ::Lang::ml( 'cleanhtml.error.markup', { aopts => $cutlink } ) . "</strong>";
         }
         else {
-            $extra_text = "[<b>Error:</b> Irreparable invalid markup ('&lt;$tag&gt;') in entry.  ".
-                      "Owner must fix manually.  Raw contents below.]<br /><br />" .
+            $extra_text = LJ::Lang::ml( 'cleanhtml.error.markup.extra', { aopts => $tag } ) . "<br /><br />" .
                       '<div style="width: 95%; overflow: auto">' . $edata . '</div>';
         }
 
@@ -331,7 +331,8 @@ sub clean
                     my ($token, $override_capture) = @_;
                     my $capture = $override_capture ? [$token] : \@capture;
                     my $expanded = ($name =~ /^\w+$/) ? LJ::Hooks::run_hook("expand_template_$name", $capture) : "";
-                    $newdata .= $expanded || "<b>[Error: unknown template '" . LJ::ehtml($name) . "']</b>";
+                    my $template = LJ::ehtml( $name );
+                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template', { aopts => $template } ) . "</strong>";
                 };
 
                 if ($attr->{'/'}) {
@@ -384,7 +385,7 @@ sub clean
             if (($tag eq "div" || $tag eq "span") && lc $attr->{class} eq "ljvideo") {
                 $start_capture->($tag, $token, sub {
                     my $expanded = LJ::Hooks::run_hook("expand_template_video", \@capture);
-                    $newdata .= $expanded || "<b>[Error: unknown template 'video']</b>";
+                    $newdata .= $expanded || "<strong>" . LJ::Lang::ml( 'cleanhtml.error.template.video' ) . "</strong>";
                 });
                 next TOKEN;
             }
