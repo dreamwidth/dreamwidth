@@ -91,7 +91,20 @@ body<=
         while ( my $p = $sth->fetchrow_hashref ) {
             my $extra = "<br /><small>$p->{des}</small>";
             my $value = $u->raw_prop( $p->{name} );
-            $value = "<br />" . LJ::html_text({ name => $p->{name}, value => $value, maxlength => '255', size => '100' }) if $can_save;
+
+            if ( $can_save ) {
+                if ( $p->{des} =~ /Storable hashref/ ) {
+                    # prevent this from being resaved via this form
+                    # non-ASCII characters can prevent the value from showing up properly in the input textbox
+                    # which would have caused the data to be wiped out when this form is used
+                    $value = "<br />" . LJ::html_textarea({ value => $value, disabled => 1, cols => 75 } );
+                } else {
+                    $value = "<br />" . LJ::html_text({ name => $p->{name}, value => $value, maxlength => '255', size => '100' })
+                }
+            } else {
+                $value = LJ::ehtml( $value );
+            }
+
             $ret .= "<li><strong>$p->{name}</strong>: $value$extra</li><br />";
         }
         $ret .= "</ul>";
