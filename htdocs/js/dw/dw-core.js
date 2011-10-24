@@ -48,3 +48,31 @@ $.extractParams = function(url) {
     $.extractParams.cache[url] = params;
     return params;
 };
+
+$.throbber = {
+  src: Site.imgprefix + "/ajax-loader.gif",
+  image: function() { return $("<img>", { src:  $.throbber.src } ) }
+};
+
+// position is an optional first argument
+$.fn.throbber = function(position, jqxhr) {
+    var $this = $(this);
+
+    if ( $this.data("throbber") )
+        $this.data("throbber").remove();
+
+    if ( jqxhr === undefined ) jqxhr = position;
+    if ( position != "before" && position != "after" && position != "prepend" && position != "append" ) {
+        if ( $this.is(":input") )
+            position = "after"
+        else
+            position = "append"
+    }
+
+    var $img = $.throbber.image();
+    $this[position]($img);
+    $this.data("throbber", $img);
+    jqxhr.complete(function() { $img.remove(); $this.removeData("throbber") });
+
+    return $this;
+}
