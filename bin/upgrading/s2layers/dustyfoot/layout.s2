@@ -789,20 +789,18 @@ h2#pagetitle {
     margin-bottom: 10px;
     }
 
-.page-icons .icons-container ul {
-    list-style: none;
-    margin-left: 0;
-    }
-
-.page-icons .icons-container li,
-.page-icons .icons-container .keywords ul {
-    display: inline;
-    }
-
 .page-icons .icon {
     border-bottom: 5px solid $*color_entry_border;
     margin: 0 10px 20px;
     padding: 10px 0;
+    }
+
+.page-icons .keywords ul {
+    margin-left: 0;
+    }
+
+.page-icons .keywords ul li {
+    padding: 0;
     }
 
 /* Modules

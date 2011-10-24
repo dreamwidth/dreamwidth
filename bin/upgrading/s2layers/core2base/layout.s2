@@ -613,6 +613,29 @@ table.month td p {
     margin-top: 0;
 }
 
+/* icons */
+
+.sorting-options ul {
+    list-style: none;
+    margin-left: 0;
+}
+
+.sorting-options ul li {
+    display: inline;
+}
+
+.keywords ul {
+    display: inline;
+    list-style: none;
+    margin-left: .5em;
+    padding-left: 0;
+}
+
+.keywords ul li {
+    display: inline;
+    padding: .25em;
+}
+
 /* modules */
 
 .module {

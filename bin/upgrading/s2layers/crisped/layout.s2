@@ -548,22 +548,20 @@ table.month td.day {
     text-transform: uppercase;
     }
 
-.page-icons .icons-container ul {
-    list-style: none;
-    margin-left: 0;
-    }
-
-.page-icons .icons-container li,
-.page-icons .icons-container .keywords ul {
-    display: inline;
-    }
-
 .page-icons .icons-container .inner {
     padding: 15px;
     }
 
 .page-icons .icons-container .icon {
     margin-top: 10px;
+    }
+
+.page-icons .keywords ul {
+    margin-left: 0;
+    }
+
+.page-icons .keywords ul li {
+    padding: 0;
     }
 
 /* Modules

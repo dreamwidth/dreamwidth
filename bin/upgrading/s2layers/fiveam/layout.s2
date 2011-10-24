@@ -926,15 +926,6 @@ h3.day-date {
     padding: .5em 0 1em;
     }
 
-.icons-container ul {
-    list-style: none;
-    }
-
-.icons-container li,
-.icons-container .keywords ul {
-    display: inline;
-    }
-
 .icons-container .icon {
     margin: 1.5em 0;
     }
@@ -947,6 +938,14 @@ h3.day-date {
 
 .icons-container .icon-info {
     min-height: 100px;
+    }
+
+.icons-container .keywords ul {
+    margin-left: 0;
+    }
+
+.icons-container .keywords ul li {
+    padding: 0;
     }
 
 /* Modules
