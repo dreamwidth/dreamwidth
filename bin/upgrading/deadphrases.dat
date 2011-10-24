@@ -183,7 +183,19 @@ general /modify.bml.title
 
 general /modify_do.bml.title
 
+general /multisearch.bml.formaterror
+general /multisearch.bml.noaddress.text
+general /multisearch.bml.noaddress.title
+general /multisearch.bml.nofaqsearch.text
+general /multisearch.bml.nofaqsearch.title
+general /multisearch.bml.nointerest.text
+general /multisearch.bml.nointerest.title
+general /multisearch.bml.nomatch.text
+general /multisearch.bml.nomatch.title
+general /multisearch.bml.region.bodytext2
+general /multisearch.bml.region.head
 general /multisearch.bml.region.text
+general /multisearch.bml.title.results
 
 general /register.bml.new.body
 general /register.bml.new.modify2

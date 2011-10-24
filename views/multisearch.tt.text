@@ -1,0 +1,46 @@
+;; -*- coding: utf-8 -*-
+.errorpage.noaddress=You didn't enter an email address.
+
+.errorpage.nofaq=You didn't enter a term to search for in the FAQ.
+
+.errorpage.nointerest=You didn't enter an interest.
+
+.errorpage.nomatch=There were no results for the criteria you specified.
+
+.errorpage.nomatch.nav=No site page or username matches your search for <b>[[query]]</b>.
+
+.head.site=Site pages
+
+.head.user=User account
+
+.region.bodytext<<
+<p>Your search criteria were incorrectly specified.</p>
+
+<p>You can search by region in one of the following formats:</p>
+<ul class='bullet-list'>
+ <li>Country</li>
+ <li>City *</li>
+ <li>City, State *</li>
+ <li>State, Country</li>
+ <li>City, State, Country</li>
+</ul>
+<p>Notes:</p>
+<ul class='bullet-list'>
+ <li>* Searching for only a city or a city and state defaults to assuming
+     the country is the United States.</li>
+ <li>Country can either be the country's full name, or its two letter
+     country code.</li>
+</ul>
+<p>If you want to do a different type of search, check out the
+<a [[aopts]]>directory search</a>.</p>
+.
+
+.text.site=The following [[sitename]] pages match your search for <b>[[query]]</b>:
+
+.text.user=The following user account matches your search for <b>[[query]]</b>:
+
+.title.im=Search Results
+
+.title.nav=Multiple Choices
+
+.title.region=Search by Region
