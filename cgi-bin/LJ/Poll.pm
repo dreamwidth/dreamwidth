@@ -487,7 +487,7 @@ sub new_from_html {
         }
 
         ##### append stuff to the right place
-        if (length($append))
+        if ( defined $append && length $append )
         {
             if ($iopen) {
                 $iopts{'item'} .= $append;

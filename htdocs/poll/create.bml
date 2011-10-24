@@ -160,9 +160,10 @@ _c?>
         };
 
         # make sure they don't plug in an outrageous count
-        $POST{'count'} = 0 if $POST{'count'} < 0;
-        $POST{'count'} = $RULES{'elements'}->{'max'}
-            if $POST{'count'} > $RULES{'elements'}->{'max'};
+        my $post_count = $POST{count} || 0;
+        $POST{count} = 0 if $post_count < 0;
+        $POST{count} = $RULES{elements}->{max}
+            if $post_count > $RULES{elements}->{max};
 
         # form properties
         foreach my $it (qw(count name isanon whoview whovote)) {
@@ -291,7 +292,7 @@ _c?>
 
             # checks if minimum and maximum options for checkboxes are OK
 
-            if ($qrec->{'type'} == 'check') {
+            if ( $qrec->{type} eq 'check' ) {
                 my $checkmin = $qrec->{'checkmin'};
                 if ($checkmin > $num_opts) {
                     $err->{$q}->{'checkmin'} = LJ::Lang::ml( ".error.checkmintoohigh2" );
@@ -325,7 +326,7 @@ _c?>
                 return unless $adj;
 
                 # swap poll items and error references
-                my $swap = sub { return (@_[1], @_[0]) };
+                my $swap = sub { return ( $_[1], $_[0] ) };
 
                 ($poll->{'pq'}->[$adj], $poll->{'pq'}->[$item]) =
                     $swap->($poll->{'pq'}->[$adj], $poll->{'pq'}->[$item]);
