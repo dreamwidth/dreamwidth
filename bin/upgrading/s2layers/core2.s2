@@ -6023,8 +6023,8 @@ function ReplyPage::print_body
 ### IconsPage functions
 
 function IconsPage::print_body {
-    print safe "<div class='icons-container'><h2>$*text_icons_page_header</h2><div class='inner'>";
-    """<div class="sorting-options"><ul>""";
+    print safe "<div class='icons-container'><h2>$*text_icons_page_header</h2>\n<div class='inner'>\n";
+    """<div class="sorting-options">\n<ul>""";
     var int sort_ct = 0;
     foreach var string k ($.sort_keyseq) {
         var string text = lang_icon_sortorder_title($k);
@@ -6036,7 +6036,7 @@ function IconsPage::print_body {
         if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
         """</li>""";
     }
-    """</ul></div>""";
+    """</ul></div>\n""";
     $.pages->print();
     foreach var Icon i ($.icons) {
         $i->print();
@@ -6049,14 +6049,14 @@ function Icon::print {
     var string default_class = $.default ? "icon-default" : "";
     var string inactive_class = $.active ? "" : "icon-inactive";
 
-    """<div class="icon $default_class $inactive_class">""";
-    """<div class="icon-image"><a href="$.link_url">"""; $.image->print(); """</a></div>""";
-    """<div class="icon-info">""";
+    """<div class="icon $default_class $inactive_class">\n""";
+    """<div class="icon-image"><a href="$.link_url">"""; $.image->print(); """</a></div>\n""";
+    """<div class="icon-info">\n""";
     if ($.default) {
-        print safe "<div class='default label'>$*text_icons_default</div>";
+        print safe "<div class='default label'>$*text_icons_default</div>\n";
     }
     if (not $.active) {
-        print safe "<div class='inactive label'>$*text_icons_inactive</div>";
+        print safe "<div class='inactive label'>$*text_icons_inactive</div>\n";
     }
     if ($.keywords) {
         """<div class="keywords">""";
@@ -6070,15 +6070,15 @@ function Icon::print {
             if ($keyword_count < size $.keywords) { print $*text_icons_keyword_sep; }
             """</li>""";
         }
-        """</ul></div>""";
+        """</ul></div>\n""";
     }
     if ($.comment) {
-        print safe "<div class='comment'><span class='comment-text'>$*text_icons_comment</span> $.comment</div>";
+        print safe "<div class='comment'><span class='comment-text'>$*text_icons_comment</span> $.comment</div>\n";
     }
     if ($.description) {
-        print safe "<div class='description'><span class='description-text'>$*text_icons_description</span> $.description</div>";
+        print safe "<div class='description'><span class='description-text'>$*text_icons_description</span> $.description</div>\n";
     }
-    """</div></div>""";
+    """</div></div>\n""";
 }
 
 ### TagsPage functions
