@@ -15,7 +15,6 @@
 
 package LJ::Feed;
 use strict;
-no warnings 'uninitialized';
 
 use LJ::Entry;
 use XML::Atom::Person;
@@ -55,8 +54,9 @@ sub make_feed
         foreach ("name", "url", "urlname");
 
     # opt_synlevel will default to 'cut'
-    $u->{'opt_synlevel'} = 'cut'
-        unless $u->{'opt_synlevel'} =~ /^(?:full|cut|summary|title)$/;
+    $u->{opt_synlevel} = 'cut'
+        unless $u->{opt_synlevel} &&
+               $u->{opt_synlevel} =~ /^(?:full|cut|summary|title)$/;
 
     # some data used throughout the channel
     my $journalinfo = {
@@ -90,7 +90,7 @@ sub make_feed
     my (@itemids, @items);
 
     # for consistency, we call ditemids "itemid" in user-facing settings
-    my $ditemid = $FORM{itemid}+0;
+    my $ditemid = defined $FORM{itemid} ? $FORM{itemid} + 0 : 0;
 
     if ($ditemid) {
         my $entry = LJ::Entry->new($u, ditemid => $ditemid);
@@ -139,7 +139,7 @@ sub make_feed
     my $lastmod = 0;
     foreach my $item (@items) {
         # revtime of the item.
-        my $revtime = $logprops{$item->{itemid}}->{revtime};
+        my $revtime = $logprops{$item->{itemid}}->{revtime} || 0;
         $lastmod = $revtime if $revtime > $lastmod;
 
         # if we don't have a revtime, use the logtime of the item.
@@ -268,6 +268,8 @@ sub make_feed
         }
 
         my $createtime = $LJ::EndOfTime - $it->{rlogtime};
+        my $can_comment = ! defined $logprops{$itemid}->{opt_nocomments} ||
+                          ( $logprops{$itemid}->{opt_nocomments} == 0 );
         my $cleanitem = {
             itemid     => $itemid,
             ditemid    => $ditemid,
@@ -276,7 +278,7 @@ sub make_feed
             createtime => $createtime,
             eventtime  => $it->{alldatepart},  # ugly: this is of a different format than the other two times.
             modtime    => $logprops{$itemid}->{revtime} || $createtime,
-            comments   => ($logprops{$itemid}->{'opt_nocomments'} == 0),
+            comments   => $can_comment,
             music      => $logprops{$itemid}->{'current_music'},
             mood       => $mood,
             ppid       => $ppid,
