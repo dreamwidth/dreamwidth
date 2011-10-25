@@ -30,10 +30,8 @@ use LJ::Comment;
 
 LJ::Config->load;
 
-use lib "$LJ::HOME/cgi-bin";
-
 use LJ::Tags;
-require "ljfeed.pl";
+use LJ::Feed;
 use LJ::EmbedModule;
 
 #### New interface (meta handler) ... other handlers should call into this.

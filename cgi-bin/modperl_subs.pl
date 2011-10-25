@@ -86,7 +86,7 @@ require "weblib.pl";
 use LJ::Support;
 use LJ::CleanHTML;
 use LJ::Talk;
-require "ljfeed.pl";
+use LJ::Feed;
 use LJ::Memories;
 use LJ::Sendmail;
 use LJ::Sysban;

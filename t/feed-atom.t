@@ -7,7 +7,7 @@ use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Test qw( temp_user );
 
-require 'ljfeed.pl';
+use LJ::Feed;
 use LJ::ParseFeed;
 
 my $u = temp_user();
