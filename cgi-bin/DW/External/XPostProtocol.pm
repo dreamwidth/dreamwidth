@@ -25,7 +25,7 @@ eval { $protocols{"lj"} = DW::External::XPostProtocol::LJXMLRPC->new; };
 # returns the given protocol, if configured.
 sub get_protocol {
     my ($class, $protocol) = @_;
-    
+
     return $protocols{$protocol};
 }
 
@@ -42,7 +42,7 @@ sub get_all_protocols {
 # success => 0 and error => the error message on failure.
 #
 # usage:  $protocol->crosspost($extacct, $auth, $entry, $itemid, $delete);
-sub crosspost { 
+sub crosspost {
     return {
         success => 0,
         error => "Crossposting not implemented for this protocol."
@@ -55,10 +55,10 @@ sub clean_entry_text {
     my ($self, $entry) = @_;
 
     my $event_text = $entry->event_text;
-    
+
     # clean up any embedded objects
     LJ::EmbedModule->expand_entry($entry->journal, \$event_text, expand_full => 1);
-    
+
     # remove polls, then return the text
     return $self->scrub_polls($event_text);
 }
@@ -66,11 +66,11 @@ sub clean_entry_text {
 # replaces <poll> tags with a link to the original poll
 sub scrub_polls {
     my ($self, $entry_text) = @_;
-    
-    # taken more or less from cgi-bin/ljfeed.pl
+
+    # taken more or less from cgi-bin/LJ/Feed.pm
     while ($entry_text =~ /<(?:lj-)?poll-(\d+)>/g) {
         my $pollid = $1;
-        
+
         my $name = LJ::Poll->new($pollid)->name;
         if ($name) {
             LJ::Poll->clean_poll(\$name);
@@ -79,7 +79,7 @@ sub scrub_polls {
         }
 
         my $view_poll = LJ::Lang::ml("xpost.poll.view", { name => $name });
-        
+
         $entry_text =~ s!<(lj-)?poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">$view_poll</a></div>!g;
     }
     return $entry_text;
@@ -88,10 +88,10 @@ sub scrub_polls {
 # creates the footer
 sub create_footer {
     my ( $self, $entry, $extacct, $local_nocomments, $disabling_remote_comments ) = @_;
-    
+
     # are we adding a footer?
     my $xpostfootprop = $extacct->owner->prop( 'crosspost_footer_append' ) ? $extacct->owner->prop( 'crosspost_footer_append' ) : "D"; # assume old behavior if undefined
-    
+
     if ( ( $xpostfootprop eq "A" ) || ( ( $xpostfootprop eq "D" ) && $disabling_remote_comments ) ) {
         # get the default custom footer text
         my $custom_footer_template;
@@ -106,7 +106,7 @@ sub create_footer {
         } else {
             # did we disable comments on the local entry? tweak language string to match
             my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment';
-            
+
             return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url } );
         }
     } elsif ( ( $xpostfootprop eq "N" ) || ( ( $xpostfootprop eq "D" ) && ( ! $disabling_remote_comments ) )  ) {
@@ -115,7 +115,7 @@ sub create_footer {
         # fallthrough. shouldn't get here, but in case we do for
         # some crazy reason, let's assume the old behavior.
         my $footer_text_redirect_key = $local_nocomments ? 'xpost.redirect' : 'xpost.redirect.comment';
-            
+
         return "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url } );
     }
 }
@@ -136,7 +136,7 @@ sub create_footer_text {
     $footer_text =~ s/%%comment_url%%/$comment_url/gi;
     $footer_text =~ s/%%comment_image%%/$comment_image/gi;
     $footer_text = "\n\n" . $footer_text;
-    
+
     return $footer_text;
 }
 
@@ -145,21 +145,21 @@ sub create_footer_text {
 sub validate_server { 1 }
 
 # hash the password in a protocol-specific manner
-sub encrypt_password { 
+sub encrypt_password {
     my ($self, $password) = @_;
-    
+
     # default implementation; just return the password in plaintext
     return $password;
 }
 
 # get a challenge for this protocol
-sub challenge { 
+sub challenge {
     # don't support challenges by default.  subclasses will have to override.
     return 0;
 }
 
 # checks to see if this account supports challenge/response authentication
-sub supports_challenge { 
+sub supports_challenge {
     # don't support challenges by default.  subclasses will have to override.
     return 0;
 }

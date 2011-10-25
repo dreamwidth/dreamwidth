@@ -55,7 +55,7 @@ sub err {
     my ( $message, $status ) = @_;
     return DW::Template->render_string(
         $message,
-        { status => $status || DW::Request->get->NOT_FOUND, 
+        { status => $status || DW::Request->get->NOT_FOUND,
           content_type => "text/plain",
           no_sitescheme => 1,
         }
@@ -333,7 +333,7 @@ sub _list_entries {
     unless ( defined $ret ) {
         if ( $op{redir} ) {
             # this happens if the account was renamed or a syn account.
-            # the redir URL is wrong because ljfeed.pl is too
+            # the redir URL is wrong because LJ::Feed is too
             # dataview-specific. Since this is an admin interface, we can
             # just fail.
             return err( qq{The account "$u->{user}" is of a wrong type and does not allow AtomAPI administration.}, $r->NOT_FOUND );
@@ -441,7 +441,7 @@ sub _edit_entry {
         $len = $r->header_in( "Content-length" );
         return err( "Content is too long", $r->HTTP_BAD_REQUEST )
             if $len > $LJ::MAX_ATOM_UPLOAD;
-    
+
         # read the content
         $r->read( $buff, $len );
     }

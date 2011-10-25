@@ -50,7 +50,7 @@ sub work {
     die $dbh->errstr if $dbh->err;
     die "Unable to get syndicated row.\n" unless $row;
 
-    # now, all we have to actually do is pass through to the ljfeed code
+    # now, all we have to actually do is pass through to the LJ::Feed code
     LJ::SynSuck::update_feed( $row, 1 );
 
     # all good

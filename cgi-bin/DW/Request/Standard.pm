@@ -204,10 +204,10 @@ sub get_remote_ip {
     # assume that if there is no X-Forwarded-For or we don't trust it, we just put in
     # a bogus IP...
     return '127.0.0.100' unless $LJ::TRUST_X_HEADERS;
-    
+
     my @ips = split /\s*,\s*/, $self->{req}->header( 'X-Forwarded-For' );
     return '127.0.0.101' unless @ips && $ips[0];
-    
+
     return $ips[0];
 }
 
@@ -257,7 +257,7 @@ sub meets_conditions {
 
     # FIXME: this should be pretty easy ... check the If headers (only time ones?)
     # and see if they're good or not.  return proper status code here (OK, NOT_MODIFIED)
-    # go see the one caller in ljfeed
+    # go see the one caller in LJ::Feed
     return 0;
 }
 
