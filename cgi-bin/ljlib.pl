@@ -107,7 +107,7 @@ require "ljtimeutil.pl";
 use LJ::Capabilities;
 use DW::Mood;
 require "ljrelation.pl";
-use LJ::Img;
+use LJ::Global::Img;  # defines LJ::Img
 
 require "$LJ::HOME/cgi-bin/ljlib-local.pl"
     if -e "$LJ::HOME/cgi-bin/ljlib-local.pl";
