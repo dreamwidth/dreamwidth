@@ -280,6 +280,8 @@ sub watch_items
 
             $itemsleft--;
 
+            my $evtime = sub { LJ::mysqldate_to_time( $_[0]->{eventtime} ) };
+
             # sort all the total items by rlogtime (recent at beginning).
             # if there's an in-second tie, the "newer" post is determined by
             # the later eventtime (if known/different from rlogtime), then by
@@ -287,7 +289,7 @@ sub watch_items
             # the same journal, but means everything if they are (which happens
             # almost never for a human, but all the time for RSS feeds)
             @items = sort { $a->{rlogtime}  <=> $b->{rlogtime}  ||
-                            $b->{eventtime} <=> $a->{eventtime} ||
+                            $evtime->($b)   <=> $evtime->($a) ||
                             $b->{jitemid}   <=> $a->{jitemid}     } @items;
 
             # cut the list down to what we need.
@@ -615,7 +617,7 @@ sub active_entries
 
     my $entryids = $u->selectcol_arrayref(
         q{SELECT DISTINCT nodeid FROM talk2
-          WHERE journalid = ? AND state NOT IN ('D', 'S') 
+          WHERE journalid = ? AND state NOT IN ('D', 'S')
           ORDER BY jtalkid DESC LIMIT 10},
         undef, $u->id
     );
