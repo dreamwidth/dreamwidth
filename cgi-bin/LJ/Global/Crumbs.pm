@@ -100,7 +100,11 @@ use Errno qw(ENOENT);
 );
 
 # include the local crumbs info
-eval { require "crumbs-local.pl" };
+eval "use LJ::Local::Crumbs;";
 die $@ if $@ && $! != ENOENT;
+
+# if the old local filename is in use, log an error.
+warn "NOTE: Found crumbs-local.pl, please rename to cgi-bin/LJ/Local/Crumbs.pm"
+    if -e "$LJ::HOME/cgi-bin/crumbs-local.pl";
 
 1;

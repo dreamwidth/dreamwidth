@@ -16,12 +16,13 @@ itself and one (only one) parent. Each crumb is also defined as having a
 default English title and a link to its page.</para></formalpara>
 
 <formalpara><title>Adding crumbs.</title><para>
-In the relevant crumbs definition files (<filename>cgi-bin/crumbs.pl</filename> and <filename>crumbs-local.pl</filename>) you
-will find the hashes that define the crumbs. If you want to add a new crumb, you
-need to add it to one of these files. Note that crumbs in <filename>crumbs-local.pl</filename> override
-crumbs in <filename>crumbs.pl</filename>. Site-specific files, like those from
-<literal>ljcom</literal>, <emphasis role="strong">need</emphasis> to have their
-crumbs put into <filename>crumbs-local.pl</filename>.</para></formalpara>
+In the relevant crumbs definition files (<filename>cgi-bin/LJ/Global/Crumbs.pm</filename>
+and <filename>cgi-bin/LJ/Local/Crumbs.pm</filename>) you will find the hashes
+that define the crumbs. If you want to add a new crumb, you need to add it to
+one of these files. Note that crumbs in <filename>cgi-bin/LJ/Local/Crumbs.pm</filename>
+override crumbs in <filename>cgi-bin/LJ/Global/Crumbs.pm</filename>.
+Site-specific files <emphasis role="strong">need</emphasis> to have their
+crumbs put into <filename>cgi-bin/LJ/Local/Crumbs.pm</filename>.</para></formalpara>
 
 <formalpara><title><literal>%LJ::CRUMBS(_LOCAL)</literal> Hash format.</title><para>
 <programlisting>&apos;<literal>unique_key</literal>&apos; =&gt; [ &apos;<replaceable>Title of Crumb</replaceable>&apos;, &apos;<replaceable>/some/page.bml</replaceable>&apos;, &apos;<replaceable>my_parent</replaceable>&apos; ]</programlisting></para></formalpara>
@@ -43,7 +44,7 @@ If you have a page that does not have a code block, you should insert one in
      return <literal>LJ::set_active_crumb</literal>(&apos;<replaceable>unique_key</replaceable>&apos;);
 _code?&gt;</programlisting></para>
 
-<formalpara><title>Example site-specific crumb definition file (<filename>cgi-bin/crumbs-local.pl</filename>)</title><para>
+<formalpara><title>Example site-specific crumb definition file (<filename>cgi-bin/LJ/Local/Crumbs.pm</filename>)</title><para>
 <informalexample><programlisting>#!/usr/bin/perl
 #
 # Stores all local crumbs and adds to the global <literal>%LJ::CRUMBS</literal> hash

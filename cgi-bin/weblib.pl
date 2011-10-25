@@ -20,7 +20,7 @@ use strict;
 use lib "$LJ::HOME/cgi-bin";
 
 # load the bread crumb hash
-require "crumbs.pl";
+use LJ::Global::Crumbs;
 
 use Carp;
 use DW::External::Site;

@@ -51,7 +51,7 @@ Where <command> is one of:
                ($LJ::DEFAULT_LANG or $LJ::LANGS[0]), but existing text files
                will be appended, not overwritten.
     copyfaq    If site is translating FAQ, copy FAQ data into trans area
-    loadcrumbs Load crumbs from crumbs.pl and crumbs-local.pl.
+    loadcrumbs Load crumbs from LJ/Global/Crumbs.pm and LJ/Local/Crumbs.pm.
     makeusable Setup internal indexes necessary after loading text
   dumptext     Dump lang text based on text[-local].dat information
                Optionally:
