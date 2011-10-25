@@ -81,7 +81,7 @@ Terms, definitions, and insight.</para>
     </glossentry>
 
     <glossentry>
-    <glossterm><filename>ljconfig.pl</filename></glossterm>
+    <glossterm><filename>config.pl</filename></glossterm>
     <glossdef><para>This file (in the 
     <filename class="directory">etc</filename> directory) contains the
     settings for a &lj; installation; site admins enable/disable/configure features
@@ -89,27 +89,18 @@ Terms, definitions, and insight.</para>
     </glossentry>
 
     <glossentry>
-    <glossterm><filename>ljdb</filename></glossterm>
+    <glossterm><filename>Defaults.pm</filename></glossterm>
     <glossdef><para>This file (in the
-    <filename class="directory">bin</filename> directory) is a
-    tool to run the &mysql; interactive shell on your &lj; database.</para></glossdef>
-    </glossentry>
-
-    <glossentry>
-    <glossterm><filename>ljdefaults.pl</filename></glossterm>
-    <glossdef><para>This file (in the
-    <filename class="directory">cgi-bin</filename> directory)
-    contains &lj; installation default settings. It is similar to ljconfig.pl,
+    <filename class="directory">cgi-bin/LJ/Global</filename> directory)
+    contains &lj; installation default settings. It is similar to config.pl,
     but you don&apos;t make changes to this defaults file.</para></glossdef>
     </glossentry>
 
     <glossentry>
-    <glossterm><filename>ljoverrides.pl</filename></glossterm>
+    <glossterm><filename>ljdb</filename></glossterm>
     <glossdef><para>This file (in the
-    <filename class="directory">cgi-bin</filename> directory)
-    is for local &lj; server config overrides; this file gets loaded last,
-    overriding any other configuration. It uses the same format as
-    <filename>ljconfig.pl</filename>.</para></glossdef>
+    <filename class="directory">bin</filename> directory) is a
+    tool to run the &mysql; interactive shell on your &lj; database.</para></glossdef>
     </glossentry>
 
     <glossentry>

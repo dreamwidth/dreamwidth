@@ -28,7 +28,7 @@ $LJ::CACHE_CONFIG_MODTIME = 0;
         etc/config-private.pl
         etc/config-local.pl
         etc/config.pl
-        cgi-bin/ljdefaults.pl
+        cgi-bin/LJ/Global/Defaults.pm
     );
 
 # loads all configurations from scratch

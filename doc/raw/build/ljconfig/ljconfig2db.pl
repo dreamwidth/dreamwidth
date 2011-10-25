@@ -17,7 +17,7 @@ my %ljconfig =
     'user' => {
         'name' => 'User-Configurable',
         'desc' => "New installations will probably want to set these variables. Some are ".
-                  "automatically set by ljdefaults.pl based on your other settings, but it ".
+                  "automatically set by LJ/Global/Defaults.pm based on your other settings, but it ".
                   "wouldn't hurt to specify them all explicitly.",
 
         'abuse' => {
@@ -875,9 +875,9 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
     'auto' => {
         'name' => 'Auto-Configured',
                     'desc' => "These <varname>\$LJ::</varname> settings are automatically set in ".
-                    "<filename>ljdefaults.pl</filename>. You do not need to use all of them. ".
+                    "<filename>cgi-bin/LJ/Global/Defaults.pm</filename>. You do not need to use all of them. ".
                     "Some are only documented here for people interested in extending &lj;, or for other special cases.".
-                    "You can define them in <filename>ljconfig.pl</filename> ahead of time so you can use them in ".
+                    "You can define them in <filename>etc/config.pl</filename> ahead of time so you can use them in ".
                     "definitions of future variables. ",
 
         'configuration_directories' => {
