@@ -250,7 +250,7 @@ sub show_entry {
     }
 
     # step 2) adult content flag
-    if ( $opts->{adultcontent} ne 'any' ) {
+    if ( $opts->{adultcontent} && $opts->{adultcontent} ne 'any' ) {
         my $aclevel = $entry->adult_content_calculated;
 
         if ( $aclevel ) {
