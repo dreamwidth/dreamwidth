@@ -17,7 +17,7 @@ body<=
 <?_code
 {
     use strict;
-    use vars qw($r_head $r_title %GET %ML $r_bodyopts);
+    use vars qw($actual_title $r_head $r_title %GET %ML $r_bodyopts);
 
     # make refs to both title and head, that work in cached or non-cached contexts
     # $_[0] is the BML $req object, $_[1] is a pre-request scratch area.
@@ -174,8 +174,12 @@ body<=
             if ($u->is_suspended || $up->is_suspended);
 
         # check deleted
-        return "<?h1 $ML{'talk.error.deleted.title'} h1?><?p $ML{'talk.error.deleted'} p?>"
-            if ($u->is_deleted);
+        if ( $u->is_deleted ) {
+            $$title = "";
+            return $u->display_journal_deleted( $remote, bml => {
+                title => \$actual_title,
+                head => $head } );
+        }
 
         # check suspended entry
         return "<?h1 $ML{'talk.error.suspended.title'} h1?><?p " . BML::ml('talk.error.suspendedentry', { aopts => "href='" . $u->journal_base . "/'" }) . " p?>"
@@ -880,6 +884,7 @@ body<=
 }
 _code?>
 <=body
+title=><?_code return $actual_title; _code?>
 windowtitle=><?_code return $_[1] ? $_[1]->{'title'} : $r_title _code?>
 head=><?_code return $_[1] ? $_[1]->{'head'} : $r_head _code?>
 bodyopts=><?_code return "id='page_talkread' class='self_wrap'" . $_[1]->{'bodyopts'}; _code?>

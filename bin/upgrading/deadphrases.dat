@@ -1482,3 +1482,12 @@ general /directorysearch.bml.user_watches
 general /directorysearch.bml.use_this_dir2
 general /directorysearch.bml.week
 general /directorysearch.bml.years_old
+
+general error.deleted.leavecomm
+general error.deleted.name
+general error.deleted.text
+general error.deleted.text.withreason
+general error.deleted.title
+general talk.error.deleted
+general talk.error.deleted.title
+general /profile.bml.error.deleted.purgenotification

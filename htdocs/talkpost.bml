@@ -17,7 +17,7 @@ body<=
 <?_code
 {
     use strict;
-    use vars qw($head %FORM %ML %GET $title_user $title_subject);
+    use vars qw($head %FORM %ML %GET $title_user $title_subject $title);
 
     $head = "";  # not local, used to build <link> tags
 
@@ -182,8 +182,11 @@ body<=
         if $u->is_readonly;
 
     # check deleted
-    return "<?h1 $ML{'talk.error.deleted.title'} h1?><?p $ML{'talk.error.deleted'} p?>"
-        if ($u->is_deleted);
+    if ( $u->is_deleted ) {
+        return $u->display_journal_deleted( $remote, bml => {
+                title => \$title,
+                head => \$head } );
+    }
 
     # check suspended entry
     # reply page of suspended entry cannot be accessed by anyone, even entry poster
@@ -401,9 +404,10 @@ body<=
 _code?>
 
 <=body
+title=> <?_code return $title _code?>
 head<=
 <?_code return $head _code?>
 <?_code return (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : ""; _code?>
 <=head
-windowtitle=> <?_code "$title_user : $title_subject $ML{'.title'}" _code?>
+windowtitle=> <?_code $title ? "" : "$title_user : $title_subject $ML{'.title'}" _code?>
 page?>

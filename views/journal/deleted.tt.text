@@ -1,0 +1,9 @@
+.leavecomm=If you want, you can <a [[aopts]]>leave the community</a>.
+
+.purgenotification=If you'd like to rename your account with this account name, <a [[aopts]]>you can be notified</a> when the account is purged.
+
+.text=Deleted journal.  If you're [[user]], you have 30 days from the date of deletion to restore the journal.  After 30 days we'll delete all content permanently from our servers.
+
+.text.withreason=This journal has been deleted by [[user]], with a reason of: "[[reason]]".  If you are [[user]], you have a period of 30 days from the deletion time to undelete the journal.  After 30 days we will delete all content permanently from our servers.
+
+.title=Deleted Account

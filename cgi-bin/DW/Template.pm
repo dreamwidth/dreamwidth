@@ -218,6 +218,75 @@ sub render_template {
     return $class->render_string( $out, $extra );
 }
 
+=head2 C<< $class->render_template_misc( $filename, $opts, $extra ) >>
+
+Render a template inside the sitescheme or alone.
+This can also be safely called ( with some work on the other side )
+from a BML context and still spit the content where required.
+( Note, the "alone" bit will be ignored from BML contexts )
+
+Can safely directly return this from either trans/Controller, internal journal page generation or (most) BML contexts.
+
+$extra can contain:
+
+=over
+
+=item B< no_sitescheme > == render alone
+
+=item B< title / windowtitle / head / bodyopts / ... > == text to get thrown in the section if inside sitescheme
+
+=item B< content_type > = content type
+
+=item B< status > = HTTP status code
+
+=item B< scope > = Scope, accepts nothing, 'bml', or 'journal'
+
+=item B< scope_data > = Depends on B< scope >
+
+=over
+
+=item B< bml > Hashref of scalar-refs of where to throw the sections
+
+=item B< journal > $opts hashref passed into LJ::make_journal and beyond.
+
+=back 
+
+=back
+
+=cut
+
+# FIXME(dre): Remove this method when BML is completely dead
+#   and refactor the journal scope bits up into render_template or render_string.
+sub render_template_misc {
+    my ( $class, $filename, $opts, $extra ) = @_;
+
+    $extra ||= {};
+    my $out = $class->template_string( $filename, $opts, $extra );
+
+    my $scope = $extra->{scope};
+
+    if ( $scope eq 'bml' ) {
+        my $r = DW::Request->get;
+        my $bml = $extra->{scope_data};
+
+        $r->status( $extra->{status} ) if $extra->{status};
+        $r->content_type( $extra->{content_type} ) if $extra->{content_type};
+
+        for my $item ( qw(title windowtitle head bodyopts) ) {
+            ${$bml->{$item}} = $extra->{$item} || "";
+        }
+        return $out;
+    }
+
+    my $rv =  $class->render_string( $out, $extra );
+    if ( $scope eq 'journal' ) {
+        $extra->{scope_data}->{handler_return} = $rv;
+        return;
+    } else {
+        return $rv;
+    }
+}
+
 =head2 C<< $class->render_string( $string, $extra ) >>
 
 Render a string inside the sitescheme or alone.

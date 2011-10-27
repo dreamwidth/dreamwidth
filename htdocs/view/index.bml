@@ -84,7 +84,9 @@ _c?>
 
         # check deleted
         if ($u->is_deleted) {
-            $body = "<?h1 $ML{'talk.error.deleted.title'} h1?><?p $ML{'talk.error.deleted'} p?>";
+            $body = $u->display_journal_deleted( $remote, bml => {
+                title => \$title,
+                head => \$head } );
             return;
         }
     }

@@ -137,8 +137,6 @@
 
 .details.warning.explicit=This journal contains content only suitable for those over the age of 18.
 
-.error.deleted.purgenotification=If you'd like to rename your account with this account name, <a [[aopts]]>you can be notified</a> when the account is purged.
-
 .error.malfname=Malformed username.
 
 .feeds.header=Feeds

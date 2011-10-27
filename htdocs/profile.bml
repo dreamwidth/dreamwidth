@@ -136,22 +136,10 @@ body<=
             return "<?h1 $ML{'error.suspended.name'} h1?><?p " . BML::ml( 'error.suspended.text', { user => $u->ljuser_display, sitename => $LJ::SITENAME } ) . " p?>";
         }
         if ( $u->is_deleted ) {
-            BML::set_status(404); # 404 Not Found
-            $title = $ML{'error.deleted.title'};
-            my $del_body = "<?p ";
-
-            if ( $u->prop( 'delete_reason' ) ) {
-                $del_body .= BML::ml( 'error.deleted.text.withreason', { user => $u->display_name, reason => $u->prop( 'delete_reason' ) } );
-            } else {
-                $del_body .= BML::ml( 'error.deleted.text', { user => $u->display_name } );
-            }
-
-            $del_body .= "&nbsp;" . BML::ml( 'error.deleted.leavecomm', { aopts => "href='$LJ::SITEROOT/community/leave?comm=" . $u->user . "'" } ) if $u->is_community && $u->trusts_or_has_member( $remote );
-
-            $del_body .= " p?>";
-            $del_body .= BML::ml( '.error.deleted.purgenotification', { aopts => "href='$LJ::SITEROOT/manage/tracking/user?journal=" . $u->user . "'" } )
-                unless LJ::User->is_protected_username( $u->user );
-            return $del_body;
+            return $u->display_journal_deleted( $remote, bml => {
+                    title => \$title,
+                    windowtitle => \$windowtitle,
+                    head => \$headextra } );
         }
     }
 

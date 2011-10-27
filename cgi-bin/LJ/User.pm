@@ -5608,6 +5608,31 @@ sub revoke_priv_all {
 =head2 Styles and S2-Related Functions
 =cut
 
+sub display_journal_deleted {
+    my ( $u, $remote, %opts ) = @_;
+    return undef unless LJ::isu( $u );
+
+    my $r = DW::Request->get;
+
+    my $extra = {};
+    if ( $opts{bml} ) {
+        $extra->{scope} = 'bml';
+        $extra->{scope_data} = $opts{bml};
+    } elsif ( $opts{journal_opts} ) {
+        $extra->{scope} = 'journal';
+        $extra->{scope_data} = $opts{journal_opts};
+    }
+
+    my $data = {
+        reason => $u->prop( 'delete_reason' ),
+        u => $u,
+
+        is_member_of => $u->is_community && $u->trusts_or_has_member( $remote ),
+        is_protected => LJ::User->is_protected_username( $u->user ),
+    };
+
+    return DW::Template->render_template_misc( "journal/deleted.tt", $data, $extra );
+}
 # returns undef on error, or otherwise arrayref of arrayrefs,
 # each of format [ year, month, day, count ] for all days with
 # non-zero count.  examples:
@@ -9086,19 +9111,8 @@ sub make_journal {
 
     unless ( $geta->{'viewall'} && $remote && $remote->has_priv( "canview", "suspended" ) ||
              $opts->{'pathextra'} =~ m!/(\d+)/stylesheet$! ) { # don't check style sheets
-        if ( $u->is_deleted ) {
-            my $warning;
+        return $u->display_journal_deleted( $remote, journal_opts => $opts ) if $u->is_deleted;
 
-            if ( $u->prop( 'delete_reason' ) ) {
-                $warning = BML::ml( 'error.deleted.text.withreason', { user => $u->display_name, reason => $u->prop( 'delete_reason' ) } );
-            } else {
-                $warning = BML::ml( 'error.deleted.text', { user => $u->display_name } );
-            }
-
-            $warning .= "&nbsp;" . BML::ml( 'error.deleted.leavecomm', { aopts => "href='$LJ::SITEROOT/community/leave?comm=" . $u->user . "'" } ) if $u->is_community && $u->trusts_or_has_member( $remote );
-
-            return $error->( $warning, "404 Not Found", BML::ml( 'error.deleted.name' ) );
-        }
         if ( $u->is_suspended ) {
             my $warning = BML::ml( 'error.suspended.text', { user => $u->ljuser_display, sitename => $LJ::SITENAME } );
             return $error->( $warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );

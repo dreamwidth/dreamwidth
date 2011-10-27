@@ -107,8 +107,9 @@ _c?>
  }
 
  if ($u->is_deleted) {
-     $title = $ML{'error.deleted.title'};
-     $body = "<?h1 $ML{'error.deleted.name'} h1?><?p " . BML::ml('error.deleted.text',{'user'=>$user}) . " p?>";
+     $body = $u->display_journal_deleted( $remote, bml => {
+         title => \$title,
+         head => \$head } );
      return;
  }
 

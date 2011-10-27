@@ -1,0 +1,14 @@
+[%- sections.title = '.title' | ml -%]
+<p>
+[%- IF reason -%]
+  [%- '.text.withreason' | ml( user = u.display_name, reason = reason ) -%]
+[%- ELSE -%]
+  [%- '.text' | ml( user = u.display_name ) -%]
+[%- END -%]
+[%- IF is_member_of -%]
+    [% '.leavecomm' | ml( aopts = "href='$site.root/community/leave?comm=$u.user'" ) -%]
+[%- END -%]
+</p>
+[%- UNLESS is_protected -%]
+    <p>[% '.purgenotification' | ml( aopts = "href='$site.root/manage/tracking/user?journal=$u.user'" ) -%]</p>
+[%- END -%]
