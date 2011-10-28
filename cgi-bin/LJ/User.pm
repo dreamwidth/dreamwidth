@@ -5613,6 +5613,7 @@ sub display_journal_deleted {
     return undef unless LJ::isu( $u );
 
     my $r = DW::Request->get;
+    $r->status( 404 );
 
     my $extra = {};
     if ( $opts{bml} ) {
