@@ -2972,6 +2972,7 @@ CREATE TABLE acctcode_promo (
     suggest_journalid int unsigned,
     paid_class varchar(100),
     paid_months tinyint unsigned,
+    expiry_date int(10) unsigned not null default 0,
 
     PRIMARY KEY ( code )
 )
@@ -3947,6 +3948,10 @@ EOF
 
     unless ( column_type( 'acctcode_promo', 'paid_months' ) ) {
         do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN paid_months tinyint unsigned" );
+    }
+
+    unless ( column_type( 'acctcode_promo', 'expiry_date' ) ) {
+        do_alter( 'acctcode_promo', "ALTER TABLE acctcode_promo ADD COLUMN expiry_date int(10) unsigned NOT NULL default '0'" );
     }
 
     if ( $LJ::IS_DEV_SERVER ) {

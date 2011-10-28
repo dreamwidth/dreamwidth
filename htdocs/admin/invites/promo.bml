@@ -35,6 +35,7 @@ body<=
         my $errors = $_[1] || {};
         my $suggest_u = ( $data && $data->{suggest_journalid} ) ? LJ::load_userid($data->{suggest_journalid}) : undef;
         my $active = ( defined $data->{active} ) ? $data->{active} : 1;
+        my $expiry_date = $data->{expiry_date} ? LJ::mysql_date( $data->{expiry_date} ) : "";
 
         if ( $state eq 'create' ) {
             $title = $ML{'.title.create'};
@@ -69,7 +70,7 @@ body<=
         $ret .= LJ::html_text( { id => 'suggest_journal', name => 'suggest_journal', value => ( $suggest_u ? $suggest_u->username : ( $data->{suggest_journal} || "" ) ), size => 28, maxlength => 25  } );
         $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{suggest_journal}}) . "]</strong>" if $errors->{suggest_journal};
         $ret .= '<br />';
-        
+
         $ret .= LJ::labelfy( 'paid_class', "$ML{'.field.paid_class.label'} "  );
         $ret .= LJ::html_select( {
                 id => 'paid_class',
@@ -81,16 +82,27 @@ body<=
             { value => 'premium', text => $ML{'.field.paid_class.premium'} },
         );
         $ret .= '<br />';
-        
+
         $ret .= LJ::labelfy( 'paid_months', "$ML{'.field.paid_months.label'} "  );
         $ret .= LJ::html_text( { id => 'paid_months', name => 'paid_months', value => ( $data->{paid_months} || "" ), size => 10, maxlength => 2 } );
         $ret .= '<br />';
 
-        
+        $ret .= LJ::html_hidden( { name => 'expiry_date_unedited', value => $expiry_date } );
+
+        $ret .= LJ::labelfy( 'expiry_date', "$ML{'.field.expiry_date.label'} " );
+        $ret .= LJ::html_text( { id => 'expiry_date', name => 'expiry_date', value => $expiry_date, size => 12, maxlength => 12  } );
+        $ret .= $ML{'.field.expiry_date.format'} . ", " . $ML{'.field.expiry_date.label_extra'} . " ";
+        $ret .= LJ::html_text( { id => 'expiry_months', name => 'expiry_months', value => ( $data->{expiry_months} || "" ), size => 5, maxlength => 2 } );
+        $ret .= LJ::labelfy( 'expiry_months', "$ML{'.field.expiry_date.months'} " );
+        $ret .= LJ::html_text( { id => 'expiry_days', name => 'expiry_days', value => ( $data->{expiry_days} || "" ), size => 5, maxlength => 2 } );
+        $ret .= LJ::labelfy( 'expiry_days', "$ML{'.field.expiry_date.days'} " );
+        $ret .= "  <strong>[$ML{'.error.label'} " . join(', ', @{$errors->{expiry_date}}) . "]</strong>" if $errors->{expiry_date};
+        $ret .= "</br>";
+
         $ret .= LJ::html_submit( value => $ML{ ( $data ? '.btn.save' : '.btn.create' ) } );
         $ret .= "</form>";
     };
-    
+
     if ( LJ::did_post ) {
         return LJ::error_list( $ML{'error.invalidform'} )
             unless LJ::check_form_auth();
@@ -105,6 +117,10 @@ body<=
                 suggest_journal => $POST{suggest_journal},
                 paid_class => $POST{paid_class} || '',
                 paid_months => $POST{paid_months} || undef,
+                expiry_date_unedited => $POST{expiry_date_unedited} || 0,
+                expiry_date => $POST{expiry_date} || 0,
+                expiry_months => $POST{expiry_months} || 0,
+                expiry_days => $POST{expiry_days} || 0,
             };
             my $valid = 1;
             my $errors = {};
@@ -136,10 +152,35 @@ body<=
                 $data->{paid_class} = undef;
                 $data->{paid_months} = undef;
             }
+            
+            if ( $data->{expiry_date} ne $data->{expiry_date_unedited} ) {
+                if ( $data->{expiry_days} || $data->{expiry_months} ) {
+                    push @{$errors->{expiry_date}}, $ML{'.error.date.double_specified'};
+                    $valid = 0;
+                }
+                $data->{expiry_db} = LJ::mysqldate_to_time( $data->{expiry_date} );
+            } else {
+                if ( $data->{expiry_days} < 0 ) {
+                    push @{$errors->{expiry_date}}, $ML{'.error.days.negative'};
+                    $valid = 0;
+                }
+                if ($data->{expiry_months} < 0) {
+                    push @{$errors->{expiry_date}}, $ML{'.error.months.negative'};
+                    $valid = 0;
+                }
+                $data->{expiry_months} = 0 unless $data->{expiry_months};
+                $data->{expiry_days} = 0 unless $data->{expiry_days};
+                my $length = $data->{expiry_months} * 30 + $data->{expiry_days};
+                if ( $length ) {
+                    $data->{expiry_db} = time() + ( $length * 86400 );
+                } else {
+                    $data->{expiry_db} = 0;
+                }
+            }
             if ( $valid ) {
                 my $dbh = LJ::get_db_writer();
-                $dbh->do( "INSERT INTO acctcode_promo (code, max_count, active, suggest_journalid, paid_class, paid_months) VALUES (?, ?, ?, ?, ?, ?)", undef,
-                            $data->{code}, $data->{max_count}, $data->{active}, $data->{suggest_journalid}, $data->{paid_class}, $data->{paid_months} ) or die $dbh->errstr;
+                $dbh->do( "INSERT INTO acctcode_promo (code, max_count, active, suggest_journalid, paid_class, paid_months, expiry_date) VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
+                        $data->{code}, $data->{max_count}, $data->{active}, $data->{suggest_journalid}, $data->{paid_class}, $data->{paid_months}, $data->{expiry_db} ) or die $dbh->errstr;
             } else {
                 $create_form->( $data, $errors );
                 return $ret;
@@ -155,6 +196,10 @@ body<=
                 suggest_journal => $POST{suggest_journal},
                 paid_class => $POST{paid_class} || '',
                 paid_months => $POST{paid_months} || undef,
+                expiry_date_unedited => $POST{expiry_date_unedited} || 0,
+                expiry_date => $POST{expiry_date} || 0,
+                expiry_days => $POST{expiry_days} || 0,
+                expiry_months => $POST{expiry_months} || 0,
             };
             my $valid = 1;
             my $errors = {};
@@ -186,10 +231,36 @@ body<=
                 $data->{paid_class} = undef;
                 $data->{paid_months} = undef;
             }
+           
+            if ( $data->{expiry_date} ne $data->{expiry_date_unedited} ) {
+                if ( $data->{expiry_days} || $data->{expiry_months} ) {
+                    push @{$errors->{expiry_date}}, $ML{'.error.date.double_specified'};
+                    $valid = 0;
+                }
+                $data->{expiry_db} = LJ::mysqldate_to_time( $data->{expiry_date} );
+            } else {
+                if ( $data->{expiry_days} < 0 ) {
+                    push @{$errors->{expiry_date}}, $ML{'.error.days.negative'};
+                    $valid = 0;
+                }
+                if ($data->{expiry_months} < 0) {
+                    push @{$errors->{expiry_date}}, $ML{'.error.months.negative'};
+                    $valid = 0;
+                }
+                $data->{expiry_months} = 0 unless $data->{expiry_months};
+                $data->{expiry_days} = 0 unless $data->{expiry_days};
+                my $length = $data->{expiry_months} * 30 + $data->{expiry_days};
+                if ( $length ) {
+                    $data->{expiry_db} = time() + ( $length * 86400 );
+                } else {
+                    $data->{expiry_db} = 0;
+                }
+            }
+
             if ( $valid ) {
                 my $dbh = LJ::get_db_writer();
-                $dbh->do( "UPDATE acctcode_promo SET max_count = ?, active = ?, suggest_journalid = ?, paid_class = ?, paid_months = ? WHERE code = ?", undef,
-                            $data->{max_count}, $data->{active}, $data->{suggest_journalid}, $data->{paid_class}, $data->{paid_months}, $data->{code} ) or die $dbh->errstr;
+                $dbh->do( "UPDATE acctcode_promo SET max_count = ?, active = ?, suggest_journalid = ?, paid_class = ?, paid_months = ?, expiry_date =? WHERE code = ?", undef,
+                        $data->{max_count}, $data->{active}, $data->{suggest_journalid}, $data->{paid_class}, $data->{paid_months}, $data->{expiry_db}, $data->{code} ) or die $dbh->errstr;
             } else {
                 $create_form->( $data, $errors );
                 return $ret;
@@ -214,7 +285,7 @@ body<=
         $ret .= '<a href="/admin/invites/promo?state=noneleft">' . $ML{'.state.noneleft'} . '</a>';
 
         $ret .= "<table>";
-        $ret .= "<thead><tr><th>$ML{'.heading.code'}</th><th>$ML{'.heading.active'}</th><th>$ML{'.heading.count'}</th><th>$ML{'.heading.suggest'}</th><th>$ML{'.heading.paid'}</tr></thead>";
+        $ret .= "<thead><tr><th>$ML{'.heading.code'}</th><th>$ML{'.heading.active'}</th><th>$ML{'.heading.count'}</th><th>$ML{'.heading.suggest'}</th><th>$ML{'.heading.paid'}</th><th>$ML{'.heading.expiry'}</th></tr></thead>";
         
         if ( scalar( @$codes ) ) {
             foreach my $code (@$codes) {
@@ -233,10 +304,11 @@ body<=
                 } else {
                     $ret .= "<td>$ML{'.paid.no'}</td>";
                 }
+                $ret .= "<td>" . ( $code->{expiry_date} ? LJ::mysql_date( $code->{expiry_date} ) : $ML{'.expiry.none'} ) . "</td>";
                 $ret .= "</tr>";
             }
         } else {
-            $ret .= '<tr><th colspan="4">' . $ML{'.nomatch'} . '</th></tr>';
+            $ret .= '<tr><th colspan="5">' . $ML{'.nomatch'} . '</th></tr>';
         }
         $ret .= "</table>";
     }
@@ -252,3 +324,4 @@ td, th { padding: 4px; }
 </style>
 <=head
 page?>
+

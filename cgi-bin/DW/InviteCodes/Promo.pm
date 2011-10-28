@@ -100,6 +100,23 @@ sub is_promo_code {
 
 =head1 INSTANCE METHODS
 
+=head2 C<< $self->usable >>
+
+Checks code is available, not already used up, and not expired.
+
+=cut
+
+sub usable {
+    my ( $self ) = @_;
+        
+    return 0 unless $self->{active};
+    return 0 unless $self->{current_count} < $self->{max_count}; 
+
+    # 0 for expiry_date means never expire;
+    return 0 unless $self->{expiry_date} && time() < $self->{expiry_date};
+    return 1;
+}
+
 =head2 C<< $self->apply_for_user( $u ) >>
 
 Handle any post-create operations for this user.
@@ -151,7 +168,7 @@ sub paid_months {
     return $_[0]->{paid_class} ? $_[0]->{paid_months} : 0;
 }
 
-=head2 C<< $self->paid_type >>
+=head2 C<< $self->paid_class >>
 
 =cut
 sub paid_class {

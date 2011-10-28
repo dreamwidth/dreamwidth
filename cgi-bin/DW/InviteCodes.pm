@@ -148,8 +148,7 @@ sub check_code {
     # if it is, make sure it's active and we're not over the creation limit for the code
     my $promo_code_info = DW::InviteCodes::Promo->load( code => $code );
     if ( ref $promo_code_info ) {
-        return 0 unless $promo_code_info->{active} && ( $promo_code_info->{current_count} < $promo_code_info->{max_count} );
-        return 1;
+        return $promo_code_info->usable;
     }
 
     return 0 unless $class->could_be_code( string => $code );

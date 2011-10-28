@@ -23,6 +23,14 @@
 
 .error.suggest_journal.invalid=Cannot find that user
 
+.error.months.negative=Months until expiry must be positive or zero
+
+.error.days.negative=Days until expiry must be positive or zero
+
+.error.date.double_specified=You can't specify both an expiry date and months/days to add.
+
+.expiry.none=(none)
+
 .field.active.label=Active
 
 .field.code.label=Code:
@@ -41,6 +49,16 @@
 
 .field.suggest_journal.label=Suggest Journal:
 
+.field.expiry_date.label=Expiry Date:
+
+.field.expiry_date.format=(YYYY-MM-DD)
+
+.field.expiry_date.label_extra=or add time
+
+.field.expiry_date.months=months
+
+.field.expiry_date.days=days
+
 .heading.active=Active
 
 .heading.code=Code
@@ -50,6 +68,8 @@
 .heading.paid=Paid Time
 
 .heading.suggest=Suggest Journal
+
+.heading.expiry=Expiry Date
 
 .nomatch=No promo codes match your criteria
 
