@@ -40,12 +40,18 @@ sub accepts {
 
 
 # argument: DW::External::User
-# returns URL to the badge image (head icon) for this user
-sub badge_image_url {
+# returns info for the to the badge image (head icon) for this user
+sub badge_image {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
-        return 'http://archiveofourown.org/favicon.ico';
+
+    return {
+        url => 'http://archiveofourown.org/favicon.ico',
+        width => 16,
+        height => 16,
+    }
+        ;
 }
 
 1;

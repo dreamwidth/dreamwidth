@@ -167,23 +167,32 @@ sub feed_url {
     return $self->journal_url( $u ) . 'data/atom';
 }
 
-# returns the badge_image_url for this user on this site.
-sub badge_image_url {
+# returns the badge_image info for this user on this site.
+sub badge_image {
     my ( $self, $u ) = @_;
+
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
     # override this on a site-by-site basis if needed
     my $type = $self->journaltype( $u ) || 'P';
     my $gif = {
-               P => '/img/userinfo.gif',
-               C => '/img/community.gif',
-               Y => '/img/syndicated.gif',
+               #      URL,                   width, height
+               P => [ '/img/userinfo.gif',   17, 17 ],
+               C => [ '/img/community.gif',  16, 16 ],
+               Y => [ '/img/syndicated.gif', 16, 16 ],
               };
+
+    my $img = $gif->{$type};
+    return {
     # this will do the right thing for an lj-based site,
     # but it's better to override this with cached images
     # to avoid hammering the remote site with image requests.
-    return "http://$self->{hostname}$gif->{$type}";
+
+        url     => "http://$self->{hostname}$img->[0]",
+        width   => $img->[1],
+        height  => $img->[2],
+    }
 }
 
 # adjust the request for any per-site limitations

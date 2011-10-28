@@ -59,14 +59,18 @@ sub profile_url {
 
 
 # argument: DW::External::User
-# returns URL to the badge image (head icon) for this user
-sub badge_image_url {
+# returns info for the badge image (head icon) for this user
+sub badge_image {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
     # for lack of anything better, let's use the favicon
-    return "http://twitter.com/favicon.ico";
+    return {
+        url => "http://twitter.com/favicon.ico",
+        width => 16,
+        height => 16,
+    }
 }
 
 

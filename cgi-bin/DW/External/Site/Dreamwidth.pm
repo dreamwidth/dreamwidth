@@ -51,19 +51,25 @@ sub journal_url {
 
 
 # argument: DW::External::User
-# returns URL to the badge image (head icon) for this user
-sub badge_image_url {
+# returns info for the badge image (head icon) for this user
+sub badge_image {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
     my $type = $self->journaltype( $u ) || 'P';
-    my $img = {
-               P => '/silk/identity/user.png',
-               C => '/silk/identity/community.png',
-               Y => '/silk/identity/feed.png',
+    my $gif = {
+               P => [ '/silk/identity/user.png',      16, 16 ],
+               C => [ '/silk/identity/community.png', 16, 16 ],
+               Y => [ '/silk/identity/feed.png',      16, 16 ],
               };
-    return $LJ::IMGPREFIX . $img->{$type};
+
+    my $img = $gif->{$type};
+    return {
+        url     => $LJ::IMGPREFIX . $img->[0],
+        width   => $img->[1],
+        height  => $img->[2],
+    }
 }
 
 sub canonical_username {

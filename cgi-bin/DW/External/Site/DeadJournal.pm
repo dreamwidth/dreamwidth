@@ -38,19 +38,25 @@ sub accepts {
 
 
 # argument: DW::External::User
-# returns URL to the badge image (head icon) for this user
-sub badge_image_url {
+# returns info for the badge image (head icon) for this user
+sub badge_image {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
     my $type = $self->journaltype( $u ) || 'P';
     my $gif = {
-               P => '/external/dj-userinfo.gif',
-               C => '/external/dj-community.gif',
-               Y => '/external/dj-syndicated.gif',
+               P => [ '/external/dj-userinfo.gif',   17, 25 ],
+               C => [ '/external/dj-community.gif',  17, 17 ],
+               Y => [ '/external/dj-syndicated.gif', 17, 17 ]
               };
-    return $LJ::IMGPREFIX . $gif->{$type};
+
+    my $img = $gif->{$type};
+    return {
+        url     => $LJ::IMGPREFIX . $img->[0],
+        width   => $img->[1],
+        height  => $img->[2],
+    }
 }
 
 

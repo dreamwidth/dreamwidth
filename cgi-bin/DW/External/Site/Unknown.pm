@@ -48,14 +48,18 @@ sub journal_url {
 
 
 # argument: DW::External::User
-# returns URL to the badge image (head icon) for this user
-sub badge_image_url {
+# returns info for the badge image (head icon) for this user
+sub badge_image {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
     # since we don't know what site this is, they can have an "unknown" icon
-    return "$LJ::IMGPREFIX/silk/identity/user_other.png";
+    return {
+        url => "$LJ::IMGPREFIX/silk/identity/user_other.png",
+        width => 16,
+        height => 16,
+    };
 }
 
 

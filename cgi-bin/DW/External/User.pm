@@ -66,12 +66,12 @@ sub ljuser_display {
     my $user = $self->user;
     my $profile_url = $self->site->profile_url( $self );
     my $journal_url = $self->site->journal_url( $self );
-    my $badge_image_url = $self->site->badge_image_url( $self );
+    my $badge_image = $self->site->badge_image( $self );
     my $display_class = $opts{no_ljuser_class} ? "" : " class='ljuser'";
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
     return "<span style='white-space: nowrap;'$display_class><a href='$profile_url'>" .
-           "<img src='$badge_image_url' alt='[$domain profile] ' style='vertical-align: bottom; border: 0; padding-right: 1px;' />" .
+           "<img src='$badge_image->{url}' alt='[$domain profile] ' style='vertical-align: bottom; border: 0; padding-right: 1px;' width='$badge_image->{width}' height='$badge_image->{height}'/>" .
            "</a><a href='$journal_url'><b>$user</b></a></span>";
 }
 
