@@ -148,7 +148,7 @@ body<=
             $code = "";
         } else {
             my $data = {
-                active => $POST{active} ? 1 : 0,
+                active => defined( $POST{active} ) ? 1 : 0,
                 code => $code,
                 current_count => 0,
                 max_count => $POST{max_count} || 0,
