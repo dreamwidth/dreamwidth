@@ -139,6 +139,10 @@ Returns the GET arguments.
 
 Returns the remote IP.
 
+=head2 C<< $r->host >>
+
+Return the (normalized) value of the Host header.
+
 =head2 C<< $r->header_in( $header[, $value] ) >>
 
 Sets or gets an request header.

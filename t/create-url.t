@@ -1,6 +1,6 @@
 # -*-perl-*-
 use strict;
-use Test::More tests => 19; # replace this number with the number of check_req calls
+use Test::More tests => 20; # replace this number with the number of check_req calls
 use lib "$ENV{LJHOME}/cgi-bin";
 
 require 'ljlib.pl';
@@ -248,6 +248,15 @@ check_req(
     {
         format => "light",
     },
+);
+
+check_req(
+    "http://www.ExAmPlE.com/",
+    undef, {
+        keep_args => 1,
+    },
+    { ssl => 0, host => "www.example.com", uri => "/", },
+    {},
 );
 
 sub check_req {

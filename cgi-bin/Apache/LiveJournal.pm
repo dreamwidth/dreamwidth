@@ -286,7 +286,7 @@ sub trans
     my $uri = $r->uri;
     my $args = $r->args;
     my $args_wq = $args ? "?$args" : "";
-    my $host = $r->headers_in->{"Host"};
+    my $host = lc( $r->headers_in->{"Host"} );
     my $hostport = ( $host =~ s/(:\d+)$// ) ? $1 : "";
 
     # Allow hosts ending in . to work properly.

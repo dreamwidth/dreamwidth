@@ -1234,7 +1234,7 @@ sub create_url {
     my $r = DW::Request->get;
     my %out_args = %{ $opts{args} || {} };
 
-    my $host = $opts{host} || $r->header_in("Host");
+    my $host = lc( $opts{host} || $r->host );
     $path ||= $r->uri;
 
     # Default SSL if SSL is set and we are on the same host, unless we explicitly don't want it
@@ -2725,7 +2725,7 @@ sub control_strip
 
     my $r = DW::Request->get;
     my $passed_in_location = $opts{host} && $opts{uri} ? 1 : 0;
-    my $host = delete $opts{host} || $r->header_in('Host');
+    my $host = delete $opts{host} || $r->host;
     my $uri = delete $opts{uri} || $r->uri;
 
     my $args;
@@ -3166,7 +3166,7 @@ sub control_strip_js_inject
     my $ret;
 
     my $r = DW::Request->get;
-    my $host = $r->header_in( 'Host' );
+    my $host = $r->host;
     my $uri = $r->uri;
     my $args = LJ::eurl( $r->query_string ) || '';
     my $view = $r->note( 'view' ) || '';

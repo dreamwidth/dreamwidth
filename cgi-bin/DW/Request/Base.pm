@@ -39,6 +39,10 @@ sub new {
     $self->{get_args} = undef;
 }
 
+sub host {
+    return lc( $_[0]->header_in("Host") );
+}
+
 sub cookie {
     my DW::Request::Base $self = $_[0];
 

@@ -1419,7 +1419,7 @@ sub work_report {
 
     my @fields = ($$, $what);
     if ($what eq "start") {
-        my $host = $r->header_in("Host");
+        my $host = $r->host;
         my $uri = $r->uri;
         my $args = $r->query_string;
         $args = substr($args, 0, 100) if length $args > 100;
