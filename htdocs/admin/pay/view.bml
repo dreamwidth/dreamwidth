@@ -101,8 +101,9 @@ EOF
     my $from = ( defined $u ? $u->ljuser_display : "Logged-out user with uniq: " . $cart->uniq );
 
     my $paymentmethod = $cart->paymentmethod;
-    my $paystr = ( $paymentmethod ?
-                       $ML{"/shop/receipt.bml.cart.paymentmethod.$paymentmethod"} :
+    my $paymentmethod_userfacing = $cart->paymentmethod_visible;
+    my $paystr = ( $paymentmethod_userfacing ?
+                       $ML{"/shop/receipt.bml.cart.paymentmethod.$paymentmethod_userfacing"} :
                        "(not yet selected)" );
 
     $body .= "<h2>Cart #$cartid</h2>";

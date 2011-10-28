@@ -465,6 +465,15 @@ sub paymentmethod {
     return $self->{paymentmethod};
 }
 
+# payment method the user should be aware of
+sub paymentmethod_visible {
+    my $self = $_[0];
+
+    my $paymentmethod = $self->{paymentmethod};
+    return $paymentmethod unless $paymentmethod eq "checkmoneyorder";
+    return ( $self->total_cash == 0 ) ? "points" : $paymentmethod;
+}
+
 
 # get/set email address
 sub email {

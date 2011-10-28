@@ -43,7 +43,7 @@ body<=
     $ret .= "<th>$ML{'.cart.header.paymentmethod'}</th><th>$ML{'.cart.header.status'}</th><th>$ML{'.cart.header.details'}</th></tr></thead>";
     foreach my $cart ( @carts ) {
         my $state = $cart->state;
-        my $paymentmethod = $cart->paymentmethod;
+        my $paymentmethod = $cart->paymentmethod_visible;
         my $date = DateTime->from_epoch( epoch => $cart->starttime );
 
         $ret .= "<tr>";

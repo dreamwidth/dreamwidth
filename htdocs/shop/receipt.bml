@@ -34,7 +34,7 @@ _c?>
         unless $cart;
 
     my $state = $cart->state;
-    my $paymentmethod = $cart->paymentmethod;
+    my $paymentmethod = $cart->paymentmethod_visible;
     my $orderdate = DateTime->from_epoch( epoch => $cart->starttime );
 
     # cart cannot be in open, closed, or checkout state

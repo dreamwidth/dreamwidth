@@ -159,7 +159,7 @@ EOF
             $body .= "<th>Payment Method</th><th>Status</th><th>Details</th></tr></thead>";
             foreach my $cart ( @carts ) {
                 my $state = $cart->state;
-                my $paymentmethod = $cart->paymentmethod;
+                my $paymentmethod = $cart->paymentmethod_visible;
                 my $paystr = ( $paymentmethod ?
                                    $ML{"/shop/receipt.bml.cart.paymentmethod.$paymentmethod"} :
                                    "(not yet selected)" );
