@@ -81,13 +81,6 @@ sub method {
     return $self->{req}->method;
 }
 
-# boolean: returns true if using POST method
-sub did_post {
-    my DW::Request::Standard $self = $_[0];
-    my $method = $self->method || '';
-    return uc $method eq 'POST';
-}
-
 # the URI requested (does not include host:port info)
 sub uri {
     my DW::Request::Standard $self = $_[0];

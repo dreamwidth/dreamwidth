@@ -84,6 +84,12 @@ sub delete_cookie {
     return $self->add_cookie( %args );
 }
 
+sub did_post {
+    my DW::Request::Base $self = $_[0];
+    my $method = $self->method || '';
+    return uc $method eq 'POST';
+}
+
 # FIXME: This relies on the behavior parse_args
 #   and the \0 seperated arguments. This should be cleaned
 #   up at the same point parse_args is.
