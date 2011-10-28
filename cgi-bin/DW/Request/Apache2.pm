@@ -276,12 +276,10 @@ sub redirect {
 
 # constants
 sub OK {
-    my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::OK;
 }
 
 sub HTTP_OK {
-    my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::HTTP_OK;
 }
 
@@ -290,12 +288,10 @@ sub HTTP_CREATED {
 }
 
 sub REDIRECT {
-    my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::REDIRECT;
 }
 
 sub NOT_FOUND {
-    my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::NOT_FOUND;
 }
 
