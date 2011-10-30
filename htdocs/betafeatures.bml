@@ -17,7 +17,7 @@ body<=
 <?_code
 {
     use strict;
-    use vars qw(%GET %POST $title $headextra @errors @warnings);
+    use vars qw(%GET %POST $title @errors @warnings);
 
     $title = BML::ml('.title', {'sitename' => $LJ::SITENAMESHORT});
     my $remote = LJ::get_remote();
@@ -46,10 +46,14 @@ body<=
         }
     }
 
-    $ret .= $body_ret ? $body_ret : "<?p $ML{'.nofeatures'} p?>";
-
     my $news = LJ::load_user('news');
-    $ret .= "<?p " . BML::ml('.staytuned', {'news' => $news->ljuser_display}) . " p?>" if $news;
+    if ( $news ) {
+        $ret .= "<p class='highlight-box'>" . BML::ml('.staytuned.newscomm', {'news' => $news->ljuser_display}) . "</p>" if $news;
+    } else {
+        $ret .= "<p class='highlight-box'>$ML{'.staytuned.generic'}</p>";
+    }
+
+    $ret .= $body_ret ? $body_ret : "<?p $ML{'.nofeatures'} p?>";
 
     return $ret;
 }
@@ -57,6 +61,8 @@ _code?>
 <=body
 title=><?_code return $title; _code?>
 head<=
-<?_code return $headextra; _code?>
+<style type="text/css">
+form { max-width: 40em; margin-left: 2em; }
+</style>
 <=head
 page?>

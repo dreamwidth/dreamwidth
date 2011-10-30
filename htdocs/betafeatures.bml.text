@@ -1,7 +1,9 @@
 ;; -*- coding: utf-8 -*-
 .nofeatures=There are no features currently available for beta testing.
 
-.staytuned=Stay tuned to [[news]] for upcoming testing opportunities. Thank you.
+.staytuned.newscomm=Stay tuned to [[news]] for upcoming testing opportunities. Thank you.
+
+.staytuned.generic=We'll announce more testing opportunities in our official communities. Thank you.
 
 .title=[[sitename]] Beta
 

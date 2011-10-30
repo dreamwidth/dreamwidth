@@ -18,7 +18,7 @@ use base qw(LJ::Widget);
 use Carp qw(croak);
 use LJ::BetaFeatures;
 
-sub need_res { }
+sub need_res { qw( stc/simple-form.css ) }
 
 sub render_body {
     my $class = shift;
@@ -37,16 +37,18 @@ sub render_body {
         if $handler->is_active;
 
     if ($handler->is_active && $handler->user_can_add($u)) {
+        $ret .= "<div class='simple-form'>";
         $ret .= $class->start_form;
         if ($u->is_in_beta($feature)) {
             $ret .= "<?p " . $class->ml("widget.betafeature.$feature.on", { $handler->args_list } ) . " p?>";
-            $ret .= $class->html_submit("off", $class->ml('widget.betafeature.btn.off'));
+            $ret .= "<fieldset class='submit'>" . $class->html_submit("off", $class->ml('widget.betafeature.btn.off')) . "</fieldset>";
         } else {
             $ret .= "<?p " . $class->ml("widget.betafeature.$feature.off", { $handler->args_list } ) . " p?>";
-            $ret .= $class->html_submit("on", $class->ml('widget.betafeature.btn.on'));
+            $ret .= "<fieldset class='submit'>" . $class->html_submit("on", $class->ml('widget.betafeature.btn.on')) . "</fieldset>";
         }
         $ret .= $class->html_hidden( feature => $feature, user => $u->user );
         $ret .= $class->end_form;
+        $ret .= "</div>";
     } elsif (!$handler->user_can_add($u)) {
         $ret .= "<?p " . $class->ml("widget.betafeature.$feature.cantadd") . " p?>";
     }
