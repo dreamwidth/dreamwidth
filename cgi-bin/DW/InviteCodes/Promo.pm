@@ -113,7 +113,7 @@ sub usable {
     return 0 unless $self->{current_count} < $self->{max_count}; 
 
     # 0 for expiry_date means never expire;
-    return 0 unless $self->{expiry_date} && time() < $self->{expiry_date};
+    return 0 if $self->{expiry_date} && time() >= $self->{expiry_date};
     return 1;
 }
 
