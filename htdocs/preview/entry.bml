@@ -21,13 +21,18 @@ _c?>
     my $remote = LJ::get_remote();
     my $styleid; my $stylesys = 1;
 
+
+    my $username = $POST{user} || $POST{username};
+    my $altlogin = $GET{altlogin} || $POST{post_as_other};
+    my $usejournal = $altlogin ? $POST{postas_usejournal} : $POST{usejournal};
+
     ### Figure out poster/journal
-    my ($u, $up);
-    if ($POST{'usejournal'}) {
-        $u = LJ::load_user($POST{'usejournal'});
-        $up = $POST{'user'} ? LJ::load_user($POST{'user'}) : $remote;
-    } elsif ($POST{'user'} && $GET{altlogin}) {
-        $u = LJ::load_user($POST{'user'});
+    my ( $u, $up );
+    if ( $usejournal ) {
+        $u = LJ::load_user( $usejournal );
+        $up = $username ? LJ::load_user( $username ) : $remote;
+    } elsif ( $username && $altlogin ) {
+        $u = LJ::load_user( $username );
     } else {
         $u = $remote;
     }
@@ -57,9 +62,9 @@ _c?>
     my $r = BML::get_request();
     my $ctx;
 
-    # Get the preview message to hand to S2 or use in $ret. 
-    my $preview_warn_text = $ML{".entry.preview_warn_text"}; 
-    
+    # Get the preview message to hand to S2 or use in $ret.
+    my $preview_warn_text = $ML{".entry.preview_warn_text"};
+
     if ($u && $up) {
         $r->notes->{_journal} = $u->{user};
         $r->notes->{journalid} = $u->{userid};
@@ -196,7 +201,7 @@ _c?>
 
 
         $ret .= "<br clear='all' /><hr width='100%' size='2' align='center' />";
-        
+
         $ret .= "\n<=body";
         $ret .= "\npage?>";
 

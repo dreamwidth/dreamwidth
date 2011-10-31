@@ -1,0 +1,51 @@
+  <fieldset>
+    <h3>[% ".header" | ml %]</h3>
+    <div class='inner'>
+      <p>
+        [%- moodselect = [];
+            FOREACH mood IN moods;
+                moodselect.push( mood.id, mood.name );
+            END
+        -%]
+        [%- label = ".label.current_mood" | ml;
+        form.select( label = "$label:"
+            name = "current_mood"
+            id = "current_mood"
+
+            class = "select"
+
+            items = moodselect
+        ) -%]
+      </p>
+      <p>
+        [%- label = ".label.current_mood_other" | ml;
+        form.textbox( label = "$label:"
+            name = "current_mood_other"
+            id = "current_mood_other"
+
+            size = "20"
+            maxlength = "30"
+         ) %]
+      </p>
+      <p>
+        [%- label = ".label.current_music" | ml;
+        form.textbox( label = "$label:"
+            name = "current_music"
+            id = "current_music"
+
+            size="20"
+            maxlength="80"
+        ) %]
+      </p>
+      <p>
+        [%- label = ".label.current_location" | ml;
+        form.textbox( label = "$label:"
+            name = "current_location"
+            id = "current_location"
+
+            size = "20"
+            maxlength = "60"
+        ) %]
+      </p>
+    </div>
+  </fieldset>

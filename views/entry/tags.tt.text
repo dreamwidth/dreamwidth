@@ -1,0 +1,6 @@
+;; -*- coding: utf-8 -*-
+.header=Tags
+
+.label.tags=Tags (comma separated)
+
+.link.tagspage=go to journal tags

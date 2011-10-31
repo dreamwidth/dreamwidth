@@ -84,7 +84,7 @@ table.grid {
     border-collapse: collapse;
 }
 table.grid, table.grid td {
-    border: 1px solid #999;    
+    border: 1px solid #999;
 }
 
 .collapsible .collapse-button {
@@ -96,10 +96,10 @@ table.grid, table.grid td {
     border-bottom: 1px solid #ccc;
 }
 
-.simple-form .error input {
+.simple-form .error input, form .error input {
     border: 3px solid #ff0000;
 }
-.simple-form .error .error-msg {
+.simple-form .error .error-msg, form .error .error-msg  {
     color: #ff0000;
     display: block;
 }

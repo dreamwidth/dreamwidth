@@ -1,0 +1,40 @@
+[% IF remote %]
+<fieldset>
+  <h3>[% ".header" | ml %]</h3>
+
+  <div class='inner'>
+    <div id='icon_preview'>
+      <div class="icon [% IF icons.size==0 %] noicon [% END %]">
+        [% IF icons.size > 0 %]
+            [% IF defaulticon %]
+                <img id="icon_preview_image" src="[% defaulticon.url | url %]" alt="[% defaulticon.description | html %]" />
+            [% END %]
+        [% ELSE %]
+            <a href='[% site.root %]/editicons'>[% 'entryform.userpic.upload' | ml %]</a>
+        [% END %]
+        </div>
+    </div>
+
+    [%- IF icons.size > 0 -%]
+        [%- iconselect = [] -%]
+        [%- FOREACH icon IN icons -%]
+            [%- IF icon.keyword.defined -%]
+                [%- iconselect.push( icon.keyword, icon.keyword ) -%]
+            [%- ELSE -%]
+                [%- defaulttext = ".keyword.default" | ml -%]
+                [%- iconselect.push( "", defaulttext ) -%]
+            [% END %]
+        [% END %]
+
+        [%- form.select(
+            name = "icon"
+            id = "iconselect"
+
+            class = "select"
+
+            items = iconselect
+        ) -%]
+    [% END %]
+  </div>
+</fieldset>
+[% END %]

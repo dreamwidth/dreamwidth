@@ -1,0 +1,28 @@
+[%- sections.title = 'success' | ml -%]
+
+[%- IF warnings.size > 0 -%]
+    [%- FOREACH warning IN warnings -%]
+        <div class="message-box [% warning.type %]-box">[%- warning.message -%]</div>
+    [%- END -%]
+[%- END -%]
+
+<p>[% poststatus %]</p>
+
+[%- IF crossposts.size > 0 -%]
+<ul>
+    [%- FOREACH crosspost IN crossposts -%]
+        <li [% IF crosspost.status == "error" -%] class="error-box" [%- END -%]>
+            [%- crosspost.text -%]
+        </li>
+    [%- END -%]
+</ul>
+[%- END -%]
+
+[%- IF links.size > 0 -%]
+<p>[%- "/update.bml.success.links" | ml -%]</p>
+<ul>
+    [%- FOREACH link IN links -%]
+        <li><a href="[% link.url %]">[% link.text %]</a></li>
+    [%- END -%]
+</ul>
+[%- END -%]

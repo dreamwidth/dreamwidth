@@ -1,3 +1,11 @@
+.simple-form {
+    overflow: auto;
+}
+
+.simple-form .inner {
+    float: left; /* align the submit button */
+}
+
 .simple-form fieldset {
     position: relative;
     float: left;
@@ -29,6 +37,7 @@
     list-style: none;
     padding: 2.5em 0 0 0;
     margin: 0;
+    width: 100%;
     zoom: 1;
 }
 
@@ -51,11 +60,39 @@
 
 /* Submit/action buttons */
 .simple-form fieldset.submit {
-    float: none;     
+    float: right;
     width: auto;
-    text-align: center;
+    text-align: right;
     padding: 1em 0;
-    margin:0;
+    margin:0 2em;
+}
+.simple-form fieldset.destructive {
+   float: left;
+   clear: none;
+   width: auto;
+   text-align: left;
+   margin-right: 3em;
+   line-height: 3em;
+}
+
+.simple-form fieldset.submit input {
+  border-width: 1px;
+  border-style: solid;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 3px 8px 4px;
+  text-align: center;
+
+  font-size: 1.2em;
+  line-height: 1.5em;
+}
+
+.simple-form fieldset.destructive input {
+  font-size: 1em;
+  line-height: 1em;
 }
 
 /* Nested Fieldsets */
@@ -64,8 +101,9 @@
     background-color: transparent;
 }
 .simple-form fieldset fieldset ul {
-    margin: 0 0 0 12.2em;
-    padding: 0;
+    padding: 0 0 0 12.2em;
+    margin: 0;
+    width: auto;
 }
 .simple-form fieldset fieldset legend {
     font-weight: normal;

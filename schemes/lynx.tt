@@ -8,6 +8,7 @@
 [% dw_scheme.need_res(
     'stc/jquery/jquery.ui.theme.smoothness.css',
     'stc/lj_base-app.css',
+    'stc/base-colors-light.css',
     'stc/lynx/lynx.css' ) %]
 <style>
     #Comments q { padding-left: 2.5em; font-style: italic; }

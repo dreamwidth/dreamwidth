@@ -1,2 +1,10 @@
 [%- sections.title = 'success' | ml -%]
 <p>[% message %]</p>
+
+[% IF links %]
+<ul>
+    [% FOREACH link IN links %]
+        <li><a href="[% link.url %]">[% link.text %]</a></li>
+    [% END %]
+</ul>
+[% END %]

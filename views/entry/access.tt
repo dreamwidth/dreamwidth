@@ -1,0 +1,39 @@
+    <fieldset>
+        <h3>[% ".header" | ml %]</h3>
+        <div class="inner">
+        <div id="security_group">
+            [%- securitylist = [];
+                FOREACH level IN security;
+                    securitylist.push( level.value, level.label );
+                END;
+            -%]
+            [%- label = ".label" | ml;
+            form.select( label = "$label:"
+                name = "security"
+                id = "security"
+
+                class = "select"
+
+                items = securitylist
+            ) -%]
+        </div>
+
+        [% IF customgroups.size > 0 %]
+        <div id="custom_access_groups">
+          <h4>[% ".header.custom" | ml %]</h4>
+          <ul>
+            [% FOREACH group IN customgroups %]
+                <li>[%- form.checkbox( label = group.label
+                            name = "custom_bit"
+                            id = "custom_bit_$group.value"
+
+                            labelclass = "checkboxlabel"
+
+                            value = group.value
+                ) -%]</li>
+            [% END %]
+          </ul>
+        </div>
+        [% END %]
+        </div>
+    </fieldset>

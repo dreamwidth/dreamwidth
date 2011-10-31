@@ -1,0 +1,42 @@
+  <fieldset class="comments_settings">
+    <h3>Comment Settings</h3>
+  <div class='inner'>
+  <p>
+    <label class='unimplemented' for="comment_email">Email Comments:</label>
+    <select class='unimplemented select' name="comment_email" id="comment_email" class="select">
+      <option value="" selected="selected">Journal Default</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+  </p>
+  <p>
+    <!-- TODO: also tweak "Enable comments" under the privacy tab: remove no one, rename to "Commenting Security" -->
+    <label class='unimplemented' for="comment_permissions">Allow from:</label>
+    <select class='unimplemented select' name="comment_permissions" id="comment_permissions" class="select">
+      <option value="" selected="selected">Journal Default</option>
+      <option value="anyone">Anyone</option>
+      <option value="registered">Registered Users</option>
+      <option value="access">Access List Only</option>
+    </select>
+  </p>
+  <p>
+    <label class='unimplemented' for="comment_enabled">Commenting is:</label>
+    <select class='unimplemented select' name="comment_enabled" id="comment_enabled" class="select">
+      <option value="" selected="selected">Journal Default</option>
+      <option value="enabled">Enabled</option>
+      <option value="closed">Closed</option>
+      <option value="hidden">Hidden</option>
+    </select>
+  </p>
+  <p>
+    <label class='unimplemented' for="comment_screening">Screen from:</label>
+    <select class='unimplemented select' name="comment_screening" id="comment_screening" class="select">
+      <option value="" selected="selected">Journal Default</option>
+      <option value="none">No Screening</option>
+      <option value="anonymous">Anonymous Only</option>
+      <option value="nonaccess">Non-Access List</option>
+      <option value="all">All Comments</option>
+    </select>
+  </p>
+  </div>
+  </fieldset>

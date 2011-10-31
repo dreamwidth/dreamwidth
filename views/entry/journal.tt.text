@@ -1,0 +1,14 @@
+;; -*- coding: utf-8 -*-
+.header=Journal
+
+.header.post_as=Posting as User
+
+.label.post_as=Post as
+
+.label.post_as_other=another user
+
+.label.post_as_password=Password
+
+.label.post_as_username=Username
+
+.label.post_to= Post to

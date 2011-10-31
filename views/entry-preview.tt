@@ -1,0 +1,56 @@
+[%# post-preview.tt
+
+Page to preview entries in site skin
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- dw.need_res( "stc/talkpage.css" ) -%]
+
+[%- sections.windowtitle = '.title' | ml( sitenameshort = site.nameshort ) -%]
+
+[%- IF journal -%]
+    <table summary=''><tr valign='middle'>
+    [%- IF icon -%]
+        <td>[% icon %]</td>
+    [%- END -%]
+
+    <td>
+        [%- postername = poster.name | html -%]
+
+        [%- IF journal.is_community -%]
+            [%- "talk.somebodywrote_comm" | ml( realname = postername
+                                                userlink = poster.ljuser_display
+                                                commlink = journal.ljuser_display )
+            -%]
+        [%- ELSE -%]
+            [%- "talk.somebodywrote" | ml(  realname = postername
+                                            userlink = poster.ljuser_display )
+            -%]
+        [%- END -%]
+
+        <br /><span class='time'>@ [% displaydate %]</span>
+    </td>
+
+    </tr></table>
+[%- END -%]
+
+<div id='entry' class='usercontent' style='margin-left: 30px'>
+    [%- currents -%]
+
+    [%- security -%]
+    <div id='entrysubj'>[% subject %]</div>
+    [%- IF security OR subject -%]<br />[%- END -%]
+
+    [%- event -%]
+</div>
+
+<br clear='all' /><hr width='100%' size='2' align='center' />
+
+<div class='highlight-box'><p>[% '.entry.preview_warn_text' | ml %]</p></div>
+

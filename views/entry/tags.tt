@@ -1,0 +1,17 @@
+  <fieldset>
+    <h3>[% ".header" | ml %]</h3>
+    <div class="inner">
+        [%- label = ".label.tags" | ml;
+        form.textarea( label = "$label:"
+            id = "taglist"
+            name = "taglist"
+
+            cols = "20"
+            rows = "1"
+        ) -%]
+
+      [% IF journalu %]
+          <a id="taglist_link" href="[% journalu.journal_base %]/tag/">[% ".link.tagspage" | ml %] </a>
+      [% END %]
+    </div>
+  </fieldset>

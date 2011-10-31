@@ -1,0 +1,118 @@
+[%# post/options.tt
+
+Page to edit options for the post entry page
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.windowtitle = ".title" | ml -%]
+
+[% dw.need_res( "stc/simple-form.css" ) %]
+
+<form action="/entry/options" method="post" id="post-options" class="simple-form">
+
+[% IF error_list %]
+<div class='error-box message-box'>
+<div class='title'>[% '.error.header' | ml %]</div>
+<ul class='error-list'>
+    [% FOREACH error = error_list %]
+        <li>[% error %] </li>
+    [% END %]
+</ul>
+</div>
+[% END %]
+
+[% dw.form_auth %]
+
+<div class='inner'>
+<fieldset>
+    <legend><span>[%sections.windowtitle%]</span></legend>
+
+    <ul>
+    <li class="odd">
+        <fieldset class="radio-group" id='entry_field_width'>
+            <legend><span>[% '.width.header' | ml %]</span></legend>
+            <ul>
+                <li>
+                    [%- width_full_label = '.width.label.full' | ml;
+                        form.radio(
+                            label = width_full_label
+                            id = 'entry_field_full_width'
+                            name = 'entry_field_width'
+                            value = 'F'
+                        )
+                    -%]
+                </li>
+                <li>
+                    [%- width_partial_label = '.width.label.partial' | ml;
+                        form.radio(
+                            label = width_partial_label
+                            id = 'entry_field_partial_width'
+                            name = 'entry_field_width'
+                            value = 'P'
+                        )
+                    -%]
+                <p class='note'>[% '.width.note' | ml %]</p>
+                </li>
+            </ul>
+        </fieldset>
+    </li>
+    <li class="even">
+        <fieldset class="checkbox-group">
+            <legend><span>[% '.panels.header' | ml %]</span></legend>
+            [%- IF panels.size > 0 -%]
+            <ul class='panels-list'>
+                [%- FOREACH panel IN panels -%]
+                <li>
+                    [% panel_label = panel.label_ml | ml;
+                        form.checkbox(
+                            label = panel_label
+                            name = panel.name
+                            id = panel.id
+                            value = panel.panel_name
+                        ) %]
+                </li>
+                [%- END -%]
+            </ul>
+            [%- END -%]
+        </fieldset>
+    </li>
+    <li class="odd">
+        <fieldset>
+            <legend><span>[% '.animations.header' | ml %]</span></legend>
+            <ul>
+                <li>
+                [%- animations_label = '.animations.label' | ml;
+                    form.checkbox(
+                        label = animations_label
+                        id = 'minimal_animations'
+                        name = 'minimal_animations'
+                        value = '1'
+                    ) -%]
+                </li>
+            </ul>
+        </fieldset>
+    </li>
+    </ul>
+</fieldset>
+
+<fieldset class='submit'>[% submit_label = ".submit" | ml; form.submit( value = submit_label ) %]</fieldset>
+
+</div>
+</form>
+
+
+[%- IF use_js -%]
+<link rel="stylesheet" type="text/css" href="[%site.statroot%]/simple-form.css"">
+<link rel="stylesheet" type="text/css" href="[%site.statroot%]/jquery.postoptions.css"">
+
+<script type="text/javascript" src="[%site.jsroot%]/jquery/jquery.ui.mouse.min.js"></script>
+<script type="text/javascript" src="[%site.jsroot%]/jquery/jquery.ui.sortable.min.js"></script>
+
+<script type="text/javascript" src="[%site.jsroot%]/jquery.postoptions.js"></script>
+[%- END -%]

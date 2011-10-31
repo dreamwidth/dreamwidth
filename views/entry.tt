@@ -1,0 +1,286 @@
+[%# entry.tt
+
+Page to post and edit entries
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- CALL dw.active_resource_group( "jquery" ) -%]
+
+[% dw.need_res(
+    "stc/postform.css",
+    "stc/postform-resize.css"
+) %]
+
+[% dw.need_res( { group => "jquery" },
+    # jquery ui
+    "js/jquery/jquery.ui.core.js"
+    "js/jquery/jquery.ui.widget.js"
+
+    "js/jquery/jquery.ui.datepicker.js"
+    "js/jquery/jquery.ui.dialog.js"
+
+    "stc/jquery/jquery.ui.core.css"
+    "stc/jquery/jquery.ui.datepicker.css"
+    "stc/jquery/jquery.ui.dialog.css"
+
+
+    # jquery utility plugins
+    #"js/jquery.ultrafocus.js"
+    "js/jquery.radioreveal.js"
+
+    # icons
+    "js/jquery.iconrandom.js"
+
+    # tags
+    "js/jquery.vertigro.js"
+    "js/jquery.tagselector.js"
+    "js/jquery/jquery.ui.autocomplete.js"
+    "js/jquery.autocompletewithunknown.js"
+    "stc/jquery.tagselector.css"
+    "stc/jquery/jquery.ui.autocomplete.css"
+    "stc/jquery.autocompletewithunknown.css"
+
+    # crosspost
+    "js/md5.js"
+    "js/jquery.crosspost.js"
+
+    # page-specific
+    "js/jquery.postform.js"
+) %]
+
+[% IF remote && remote.can_use_userpic_select;
+dw.need_res( { group => "jquery" },
+    "js/jquery.iconselector.js"
+    "stc/jquery.iconselector.css"
+); END %]
+
+[% sections.title = '.title' | ml %]
+[% sections.contentopts = '' %]
+
+[% sections.head = BLOCK %]
+<meta name="viewport" content="width=device-width" />
+
+[% dw.need_res( "stc/postform-minimal.css" ) %]
+
+[% IF show_unimplemented %]
+<style type="text/css">
+.unimplemented {
+  outline: 2px orange solid;
+  opacity: 0.6;
+}
+</style>
+[% ELSE %]
+<style type="text/css">
+.unimplemented {
+    opacity: 0.2;
+    display: none;
+}
+.unimplemented:hover {
+    opacity: 1;
+}
+</style>
+[% END %]
+
+[%- chalresp_js -%]
+
+<script type="text/javascript">
+var postFormInitData = new Object();
+postFormInitData.icons = [
+    [%- FOREACH icon = icons %]
+        { 'src': '[% icon.userpic.url %]', 'alt': [% icon.userpic.description | js %] }
+        [%- UNLESS loop.last %],[% END -%]
+    [% END %]
+];
+
+postFormInitData.moodpics = {
+    [%- FOREACH mood = moodtheme.pics.pairs %]
+        [% mood.key | js %] : [ [% mood.value.name | js %], [% mood.value.pic | js %], [% mood.value.width | js %], [% mood.value.height | js %] ]
+        [%- UNLESS loop.last %],[% END -%]
+    [% END %]
+};
+
+postFormInitData.panels = {
+    "show" : {
+        [%- FOREACH panel = panels.show.pairs -%]
+            [%- panel.key | js -%] : [%- panel.value ? "true" : "false" -%]
+            [%- UNLESS loop.last %],[% END -%]
+        [%- END -%]
+    }
+};
+
+postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
+</script>
+[% END %]
+
+<div class="message-box ui-state-highlight">[% ".beta.on" | ml( aopts = "href='$LJ::SITEROOT/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
+
+[%- IF warnings.size > 0 -%]
+    [%- FOREACH warning IN warnings -%]
+        <div class="message-box [% warning.type %]-box">[%- warning.message -%]</div>
+    [%- END -%]
+[%- END -%]
+
+[% IF error_list %]
+<div class='error-box message-box'>
+<div class='title'>[% '.error.header' | ml %]</div>
+<ul class='error-list'>
+    [% FOREACH error = error_list %]
+        <li>[% error %] </li>
+    [% END %]
+</ul>
+</div>
+[% END %]
+
+[%- IF spellcheck.did_spellcheck -%]
+    <h2>[% 'entryform.spellchecked' | ml %]</h2>
+    [%-
+    IF spellcheck.results;
+         spellcheck.results;
+    ELSE;
+        'entryform.spellcheck.noerrors' | ml;
+    END -%]
+
+    [%# indicate where the spellcheck bit ends, and the entry form begins #%]
+    <h2>[% 'entryform.form' | ml %]</h2>
+[%- END -%]
+
+<form method="POST" id="post_entry" action="" class="
+        [%- formwidth == "narrow" ? "entry-partial-width" : "entry-full-width" -%]
+        [%- " $vclass" -%]">
+    <input type="hidden" id="nojs" value="1" name="nojs" />
+
+    [% IF login_chal %]
+        <input type="hidden" id="login_chal" name="chal" value="[%login_chal%]" />
+        <input type="hidden" id="login_response" name="response" value="" />
+    [% END %]
+
+    [%- dw.form_auth -%]
+
+    <div id="primary"><!-- Start main column sub & entry -->
+        <div id="current_entry">
+            <fieldset>
+                <legend></legend>
+
+                <!-- FIXME: TODO
+                <div class="permalink unimplemented">permalink: <span class="url">http://long-username-is-long.dreamwidth.org/12345.html</span></div>
+                -->
+
+                <!-- TODO make this only take up one tab area? -->
+                <div class="toolbar">
+                    <div id="main-tools" class='subtoolbar'>
+                        <a href="http://www.dreamwidth.org/poll/create">Create Poll</a>
+                        [%- preview_label = 'talk.btn.preview' | ml;
+                            form.submit( value = preview_label
+                                         name = "action:preview"
+                                         id = "preview_button" )
+                        %]
+
+                        [%- IF can_spellcheck;
+                            spellcheck_label = 'entryform.spellcheck' | ml;
+                            form.submit( value = spellcheck_label
+                                         name = "action:spellcheck"
+                                         id = "spellcheck_button" );
+                        END -%]
+
+                        <a href="#" class="unimplemented"><img src="[% site.imgroot%]/silk/site/help.png" alt="Help for valid HTML tags" title="Help for valid HTML tags" width="16" height="16"></a>
+                        <a href="[%site.root%]/entry/options" id="post_options"><img src="[% site.imgroot%]/silk/site/cog.png" alt="Edit entry form settings" title="Edit entry form settings" width="16" height="16"></a>
+                    </div>
+
+                    <div id="settings-tools" class='subtoolbar' aria-live="polite">
+                    <!-- TODO:
+                    autoformat
+                    supported html...
+                    -->
+                    </div>
+
+                    <div id="plaintext-tools" class='subtoolbar'>
+                        <!-- TODO: needs to be JS only -->
+                        <input type='button' value='Insert image' class='unimplemented' />
+                        <input type='button' value='Embed media' class='unimplemented' />
+                        <input type="button" value="Use Rich Text Mode" class='unimplemented' />
+                    </div>
+                </div>
+
+                <div class='subject-container'>
+                    [%- placeholder = ".subject.placeholder" | ml;
+                        title = ".subject.label" | ml;
+                        form.textbox( label = title
+                            id = "subject"
+                            name = "subject"
+
+                            maxlength = "255"
+                            size = "50"
+
+                            labelclass = "invisible"
+
+                            placeholder = placeholder
+                            title = title
+                    ) -%]
+                </div>
+
+                <div class='event-container'>
+                    [%- placeholder = ".event.placeholder" | ml -%]
+                    [%- title = ".event.label" | ml -%]
+                    [%- form.textarea( label = title
+                        id = "event"
+                        name = "event"
+
+                        cols = "50"
+                        rows = "20"
+                        wrap = "soft"
+
+                        labelclass = "invisible"
+
+                        placeholder = placeholder
+                        title = title
+                    ) -%]
+                </div>
+            </fieldset>
+        </div>
+
+    </div> <!-- End main column sub & entry -->
+
+    [%- BLOCK column %]
+        [% FOREACH component = components %]
+        <div class='component [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'>
+        [%- CALL dw.ml_scope( "/entry/${component}.tt" );
+            INCLUDE "entry/${component}.tt";
+            CALL dw.ml_scope( "/entry.tt" )
+         %]
+        </div>
+        [%- END -%]
+    [% END -%]
+
+    <div id="secondary" class='column'> <!-- Start column of components -->
+        [% PROCESS column components = panels.order.shift %]
+    </div> <!-- end second column of components -->
+
+    <div id="tertiary"> <!-- Start components below entry field -->
+        <div class="column">
+            [% PROCESS column components = panels.order.shift %]
+        </div>
+
+        <div class="column tertiary-right">
+            [% PROCESS column components = panels.order.shift %]
+        </div>
+    </div>
+
+    <div class="submit action-bar">
+        <span id="actions">
+            <input type="submit" name="action:post" id="submit_entry" value="Post Entry" />
+        </span>
+
+<!--    TODO:
+        <span class="otheractions unimplemented">
+            <input type='submit' name="action:delete" value='Delete' />
+        </span>
+-->
+    </div>
+</form>
+

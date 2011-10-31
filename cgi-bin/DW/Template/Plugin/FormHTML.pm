@@ -17,6 +17,8 @@ package DW::Template::Plugin::FormHTML;
 use base 'Template::Plugin';
 use strict;
 
+use Hash::MultiValue;
+
 =head1 NAME
 
 DW::Template::Plugin::FormHTML - Template Toolkit plugin to generate HTML elements
@@ -26,9 +28,9 @@ with preset values
 
 The form plugin generates HTML elements with attributes suitably escaped, and values automatically prepopulated, depending on the form's data field.
 
-The "data" field is an instance of Hash::MultiValue, with the keys being the form element's name, and the values being the form element's desired value.
+The "data" field is a hashref, with the keys being the form element's name, and the values being the form element's desired value.
 
-If a "formdata" property is available via the context, this is used to automatically populate the plugin's data field.
+If a "formdata" property is available via the context, this is used to automatically populate the plugin's data field. It may be either a hashref or an instance of Hash::MultiValue.
 =cut
 
 sub load {
@@ -38,9 +40,15 @@ sub load {
 sub new {
     my ( $class, $context, @params ) = @_;
 
+    my $data;
+    if ( $context ) {
+        my $formdata = $context->stash->{formdata};
+        $data = ref $formdata eq "Hash::MultiValue" ? $formdata : Hash::MultiValue->from_mixed( $formdata );
+    }
+
     my $self = bless {
         _CONTEXT => $context,
-        data     => $context ? $context->stash->{formdata} : undef,
+        data     => $data,
     }, $class;
 
     return $self;
@@ -199,6 +207,24 @@ sub textbox {
     return $ret;
 }
 
+=head2 [% form.password( label="A Label", id="elementid", name="elementname",... ) %]
+
+Return a password field with a matching label, if provided. Values are never prepopulated
+
+=cut
+sub password {
+    my ( $self, $args ) = @_;
+
+    $args->{type} = "password";
+
+    my $ret = "";
+    $ret .= $self->_process_value_and_label( $args, noautofill => 1 );
+    $ret .= LJ::html_text( $args );
+
+    return $ret;
+
+}
+
 
 # populate the element's value, modifying the $args hashref
 # return the label HTML if applicable
@@ -206,17 +232,18 @@ sub _process_value_and_label {
     my ( $self, $args, %opts ) = @_;
 
     my $valuekey = $opts{use_as_value} || "value";
+    my $default = delete $args->{default};
+
     if ( defined $args->{$valuekey} ) {
         # explicitly override with a value when we created the form element
         # do nothing! Just use what we passed in
     } else {
         # we didn't pass in an explicit value; check our data source (probably form post)
-        if ( $self->{data} && ! $opts{noautofill} ) {
+        if ( $self->{data} && ! $opts{noautofill} && $args->{name} ) {
             $args->{$valuekey} = $self->{data}->{$args->{name}};
         }
 
         # no data source, value not set explicitly, use a default if provided
-        my $default = delete $args->{default};
         $args->{$valuekey} ||= $default;
     }
 

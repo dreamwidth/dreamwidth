@@ -1,0 +1,19 @@
+.animations.header=Simplify effects
+
+.animations.label=Use minimal animations for the panels as they expand/collapse
+
+.error.header=Error
+
+.panels.header=Show panels
+
+.submit=Save
+
+.title=Entry Form Options
+
+.width.header=Entry field
+
+.width.label.full=Entry text takes up full page width
+
+.width.label.partial=Column alongside entry text
+
+.width.note=Side column only available in wider windows.

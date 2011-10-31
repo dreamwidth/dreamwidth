@@ -1,0 +1,93 @@
+
+  <fieldset>
+    <h3>[% ".header" | ml %]</h3>
+    <div class='inner'>
+      <div class='time_container' id="entrytime_container">
+        [%- form.hidden(
+            name  = "trust_datetime"
+            id    = "trust_datetime"
+            value = displaydate.trust_initial   # FIXME: do this in the controller, rather than here?
+        ) -%]
+
+        [%- entrytime_title = ".title.entrytime" | ml( example = "$displaydate.year-01-30" );
+        form.textbox(
+            name = "entrytime"
+            id = "entrytime"
+
+            maxlength = "10"
+            size = "10"
+
+            title = entrytime_title
+            default = "$displaydate.year-$displaydate.month-$displaydate.day"
+        ) -%]
+
+        [%- entrytime_title = ".title.entrytime_hr" | ml;
+        form.textbox(
+            name = "entrytime_hr"
+            id = "entrytime_hr"
+
+            maxlength = "2"
+            size = "2"
+            class = "time_hr"
+
+            title = entrytime_title
+            default = displaydate.hour
+        ) ~%]
+        :
+        [%- entrytime_title = ".title.entrytime_min" | ml;
+        form.textbox(
+            name = "entrytime_min"
+            id = "entrytime_min"
+
+            maxlength = "2"
+            size = "2"
+            class = "time_min"
+
+            title = entrytime_title
+            default = displaydate.minute
+        ) -%]
+
+        [% # update year so it doesn't look dated
+           # keep the month/hours, etc static because the example was chosen to avoid ambiguity %]
+        <div class="dateformat">(e.g. [% displaydate.year %]-01-30 23:59)</div>
+      </div>
+
+      <div class="displaydate_options">
+        <p>
+        [%- autoupdate_label = ".label.autoupdate" | ml;
+        form.checkbox( label = autoupdate_label
+            name ="update_displaydate"
+            id = "entrytime_auto_update"
+
+            labelclass = "radiolabel"
+
+            value = "1"
+        ) -%]
+        </p>
+        <p>
+        [%- stickyentry_label = ".label.sticky" | ml;
+        form.checkbox( label = stickyentry_label
+            name ="sticky_entry"
+            id = "sticky_entry"
+
+            class = "unimplemented"
+            labelclass = "unimplemented radiolabel"
+
+            value = "1"
+        ) -%]
+        </p>
+        <p>
+        [%- dateoutoforder_label = ".label.dateoutoforder" | ml;
+        form.checkbox( label = dateoutoforder_label
+            name ="entrytime_outoforder"
+            id = "entrytime_outoforder"
+
+            labelclass = "radiolabel"
+
+            value = "1"
+        ) -%]
+        </p>
+      </div>
+
+    </div>
+  </fieldset>

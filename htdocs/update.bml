@@ -50,6 +50,9 @@ _c?>
     # Errors that are unlikely to change between starting
     # to compose an entry and submitting it.
     if ($remote) {
+        BML::redirect( LJ::create_url( "/entry/new", cur_args => \%GET, keep_args => 1 ) )
+            if LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
+
         if ($remote->identity) {
             $$title = $ML{'Sorry'};
             $$body = BML::ml('.error.nonusercantpost', {'sitename' => $LJ::SITENAME});

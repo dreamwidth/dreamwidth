@@ -1,0 +1,62 @@
+[% IF remote %]
+  <fieldset>
+    <h3>[% ".header" | ml %]</h3>
+    <div class="inner">
+
+    <span class="crosspost-settings">
+        <a href="[% crosspost_url %]">[% ".settings.link" | ml %]</a>
+    </span>
+
+    [% IF crosspostlist.size > 0 %]
+
+        [%- crosspost_entry_label = ".label.crosspost_entry" | ml;
+        form.checkbox( label = crosspost_entry_label
+            name ="crosspost_entry"
+            id = "crosspost_entry"
+
+            labelclass = "checkboxlabel"
+
+            value = 1
+            default = crosspost_entry
+        ) -%]
+
+        <h4>[% ".header.accounts" | ml %]</h4>
+        <input type="text" name="" value="chrome autocomplete fix; ignore" style="display: none"/>
+        <ul id="crosspost_accounts">
+            [% crosspost_password_label = ".label.password" | ml %]
+
+            [% FOREACH account IN crosspostlist %]
+                <li>
+                [%- form.checkbox( label = account.name
+                    name = "crosspost"
+                    id = "crosspost_$account.id"
+
+                    labelclass = "checkboxlabel"
+
+                    value = account.id
+                    default = account.selected
+                ) -%]
+
+                [% IF account.need_password %]
+                    <div class="crosspost_password_container" id="crosspost_password_container_[% account.id %]">
+                    [%- form.password( label = "$crosspost_password_label:"
+                            name = "crosspost_password_$account.id"
+                            id = "crosspost_password_$account.id"
+
+                            class = "crosspost_password"
+                            labelclass="checkboxlabel"
+                    ) -%]
+
+                        <div class="crosspost_password_status" aria-live="imperative"></div>
+                        [%# we don't want these to be carried over between posts %]
+                        <input type="hidden" name="crosspost_chal_[%account.id%]" id="crosspost_chal_[%account.id%]" class="crosspost_chal" />
+                        <input type="hidden" name="crosspost_resp_[%account.id%]" id="crosspost_resp_[%account.id%]" class="crosspost_resp" />
+                    </div>
+                [% END %]
+                </li>
+              [% END %]
+        </ul>
+      [% END %]
+      </div>
+    </fieldset>
+[% END %]

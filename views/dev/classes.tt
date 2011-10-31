@@ -66,6 +66,7 @@
 <h3>Forms</h3>
 <h4>simple-form</h4>
 <form class='simple-form'>
+<div class='inner'>
     <fieldset>
         <legend><span>Group 1</span></legend>
         <ul>
@@ -158,6 +159,10 @@
     <fieldset class="submit">   
         <input type="submit" value="Submit" />
     </fieldset>
+    <fieldset class="submit destructive">
+        <input type="submit" value="Cancel/Delete/Destroy" />
+    </fieldset>
+</div>
 </form>
 
 <h4>table-form</h4>

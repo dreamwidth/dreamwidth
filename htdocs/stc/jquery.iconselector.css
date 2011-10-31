@@ -1,0 +1,148 @@
+.image-text-toggle {
+    display:block;
+    text-align:right;
+    margin-bottom:.5em;
+    font-size:90%;
+}
+
+.iconselector_searchbox {
+  float:left;
+  padding-bottom:1em;
+  font-weight:bold;
+}
+
+#iconselector_icons_list {
+    list-style-type:none;
+
+}
+#iconselector_icons_list li {
+    float:left;
+    margin:.25em;
+    padding:.25em;
+    width:110px;
+    text-align:center;
+    border-width:1px;
+    border-style: solid;
+    overflow:hidden;
+}
+
+#iconselector_icons_list li:hover {
+    border-width:1px;
+    border-style:solid;
+}
+
+.icon_image {
+    text-align:center;
+    padding:5px;
+    height:100px;
+    width:100px;
+}
+
+
+.meta_wrapper {
+    height: 5em;
+    font-size:90%;
+    line-height:1.2em;
+}
+
+.no_meta .meta_wrapper {
+    display: none;
+}
+
+.image-text-toggle .toggle-image-only, .image-text-toggle.no_meta .toggle-no-meta {
+    display: inline;
+}
+
+.image-text-toggle.no_meta .toggle-image-only, .image-text-toggle .toggle-no-meta {
+    display: none;
+}
+
+.comment {
+  margin-top:.5em;
+}
+
+.kwmenu {
+  clear:left;
+  padding-bottom:.1em;
+}
+
+.kwmenu .keyword {
+    font-size:90%;
+    border-width: 1px;
+    border-style: solid;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    margin:0 .2em;
+    padding:.2em .3em;
+    line-height:1.1em;
+    text-align:center;
+}
+
+.kwmenu .keyword, .kwmenu .keyword {
+  text-decoration:none;
+}
+
+.kwmenu .selected, #iconselector_icons_list .iconselector_selected {
+    border-width:1px;
+    border-style: solid;
+}
+
+.iconselector_top {
+  margin-bottom:1em;
+}
+
+.iconselector_top .keywords {
+    display: inline;
+}
+
+.iconselector .ui-dialog-content {
+    overflow: visible;
+}
+
+#iconselector_icons {
+    overflow: auto;
+}
+
+#iconselector_select {
+  float:right;
+  margin-top:-.3em;
+}
+
+/* UI overrides */
+
+.ui-dialog {
+  padding:0;
+}
+
+.ui-dialog .ui-dialog-content {
+  padding:.5em;
+}
+
+.ui-widget-content {
+  border-width:1px;
+  border-style:solid;
+}
+
+.ui-widget-header {
+  border:0;
+}
+.ui-dialog .ui-dialog-titlebar {
+  padding:.3em;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+  padding:.3em 0;
+  text-align:center;
+  margin:0;
+}
+
+.ui-dialog .ui-dialog-buttonpane button {
+  margin:0;
+  padding:0;
+  float:none;
+}
+
+.iconselector {
+  padding-bottom:1em;
+}

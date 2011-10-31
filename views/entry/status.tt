@@ -1,0 +1,17 @@
+  <fieldset>
+    <h3>Status</h3>
+
+    <div class='inner'>
+      <div class="status-notice">
+        <span class="status-label">Status:</span> Published
+         <div class="revert"><a href="#">Revert to draft</a></div>
+      </div>
+      <div class="savedraft">
+       <input type='submit' name="action:save" value='Save' class="save" />
+       <input type='submit' name="action:preview" value='Preview' class="preview"/>
+      </div>
+
+
+    </div>
+
+  </fieldset>

@@ -1,0 +1,14 @@
+;; -*- coding: utf-8 -*-
+.header=Display Date
+
+.label.autoupdate=Use the time when entry is posted
+
+.label.dateoutoforder=Don't show on Reading Pages (allows dating out of order)
+
+.label.sticky=Make sticky (future option?)
+
+.title.entrytime=displayed entry date; example [[example]]
+
+.title.entrytime_hr=hours; 24-hour time
+
+.title.entrytime_min=minutes

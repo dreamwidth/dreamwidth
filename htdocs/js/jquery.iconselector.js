@@ -1,0 +1,276 @@
+(function($) {
+    var kwtoicon = {};
+    var opts;
+
+    $.fn.iconselector = function( options ) {
+        opts = $.extend({}, $.fn.iconselector.defaults, options );
+
+        $.fn.iconselector.owner = $(this);
+
+        if( opts.selectorButtons ) {
+            $(opts.selectorButtons).not("a").wrap("<a href='#'></a>").end()
+                .click(function(e) {
+                    _open.apply( $.fn.iconselector.owner, [ opts ] );
+                    e.preventDefault();
+                });
+        }
+
+        return $(this).wrap("<div class='iconselect_trigger_wrapper'></div>");
+    };
+
+    // selected icon
+    $.fn.iconselector.selected = null;
+    // selected keyword
+    $.fn.iconselector.selectedKeyword = null;
+
+    $.fn.iconselector.defaults = {
+        title: 'Choose Icon',
+        width: "70%",
+        height: $(window).height() * 0.8,
+        selectedClass: "iconselector_selected",
+        onSelect: function() {},
+        selectorButtons: null
+    };
+
+    function _dialogHTML() {
+            return "<div>\
+      <div class='iconselector_top'>\
+        <span class='iconselector_searchbox'>\
+          Search: <input type='text' id='iconselector_search'>\
+          </span>\
+        <span class='image-text-toggle' id='iconselector_image_text_toggle'>\
+          <span class='toggle-image-only'><a href='#' class='image_only'>Images only</a> / Show meta text</span>\
+          <span class='toggle-no-meta'>Images only / <a href='#' class='show_text'>Show meta text</a></span>\
+        </span>\
+        <div class='kwmenu'>\
+          <label for='iconselector_kwmenu'>Keywords of selected icon:</label>\
+          <div class='keywords'></div>\
+          <input id='iconselector_select' disabled='disabled' type='button' value='Select'>\
+        </div>\
+      </div>\
+      <div id='iconselector_icons'><span class='iconselector_status'>Loading...</span></div>\
+    </div>";
+    };
+
+    function _selectContainer($container, keyword, replaceKwMenu) {
+        $("#"+$.fn.iconselector.selected).removeClass(opts.selectedClass);
+        if ( $container.length == 0 ) return;
+
+        $.fn.iconselector.selected = $container.attr("id");
+        $container.addClass(opts.selectedClass);
+        $container.show();
+
+        if ( keyword != null ) {
+            // select by keyword
+            $.fn.iconselector.selectedKeyword = keyword;
+        } else {
+            // select by picid (first keyword)
+            $.fn.iconselector.selectedKeyword = $container.data("defaultkw");
+        }
+
+        if ( replaceKwMenu ) {
+            var $keywords = $container.find(".keywords");
+            $(".iconselector_top .keywords", $.fn.iconselector.instance)
+                .replaceWith($keywords.clone());
+            if ($keywords.length > 0)
+                $("#iconselector_select").removeAttr("disabled");
+            else
+                $("#iconselector_select").attr("disabled", "disabled");
+        } else {
+            $(".iconselector_top .selected", $.fn.iconselector.instance)
+                .removeClass("selected");
+        }
+
+        // can't rely on a cached value, because it may have been replaced
+        $(".iconselector_top .keywords", $.fn.iconselector.instance)
+            .find("a.keyword")
+            .filter(function() {
+                return $(this).text() == $.fn.iconselector.selectedKeyword;
+            })
+            .addClass("selected");
+    }
+
+    function _selectByKeyword(keyword) {
+        var iconcontainer_id = kwtoicon[keyword];
+        if ( iconcontainer_id )
+            _selectContainer($("#"+iconcontainer_id), keyword, true);
+    }
+
+    function _selectByKeywordClick(event) {
+        var $keyword = $(event.target).closest("a.keyword");
+        if ( $keyword.length > 0 ) {
+            var keyword = $keyword.text();
+            var iconcontainer_id = kwtoicon[keyword];
+            if ( iconcontainer_id )
+                _selectContainer($("#"+iconcontainer_id), keyword, false);
+        }
+
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    function _selectByClick(event) {
+        var $icon = $(event.target).closest("li");
+        var $keyword = $(event.target).closest("a.keyword");
+
+        _selectContainer($icon, $keyword.length > 0 ? $keyword.text() : null, true);
+
+        event.stopPropagation();
+        event.preventDefault();
+    };
+
+    function _selectByEnter(event) {
+        if (event.keyCode && event.keyCode === $.ui.keyCode.ENTER) {
+            var $originalTarget = $(event.originalTarget);
+            if ($originalTarget.hasClass("keyword")) {
+                $originalTarget.click();
+            } else if ($originalTarget.is("a")) {
+                return;
+            }
+            _selectCurrent();
+        }
+    }
+
+    function _selectCurrent() {
+        if ($.fn.iconselector.selectedKeyword) {
+            $.fn.iconselector.owner.val($.fn.iconselector.selectedKeyword);
+            opts.onSelect.apply($.fn.iconselector.owner[0]);
+            $.fn.iconselector.instance.dialog("close");
+        }
+    }
+
+    function _filterPics(event) {
+        var val = $("#iconselector_search").val().toLocaleUpperCase();
+        $("#iconselector_icons_list li").hide().each(function(i, item) {
+            if ( $(this).data("keywords").indexOf(val) != -1 || $(this).data("comment").indexOf(val) != -1
+                || $(this).data("alt").indexOf(val) != -1 ) {
+
+                $(this).show();
+             }
+        });
+
+        var $visible = $("#iconselector_icons_list li:visible");
+        if ( $visible.length == 1 )
+            _selectContainer($visible, null, true);
+    };
+
+    function _open () {
+        if ( ! $.fn.iconselector.instance ) {
+            $.fn.iconselector.instance = $(_dialogHTML());
+
+            $.fn.iconselector.instance.dialog( { title: opts.title, width: opts.width, height: opts.height, dialogClass: "iconselector", modal: true,
+                close: function() { $("#iconselect").focus(); },
+                resize: function() {
+                    $("#iconselector_icons").height(
+                        $.fn.iconselector.instance.height() -
+                        $.fn.iconselector.instance.find('.iconselector_top').height()
+                        - 5
+                    );
+                }
+             } )
+            .keydown(_selectByEnter);
+
+            $("#iconselector_image_text_toggle a").click(function() {
+                if ( $(this).hasClass("image_only") ) {
+                    $("#iconselector_icons, #iconselector_image_text_toggle").addClass("no_meta");
+                } else {
+                    $("#iconselector_icons, #iconselector_image_text_toggle").removeClass("no_meta");
+                }
+
+                // refocus, because we just hid the link we just clicked on
+                $("#iconselector_image_text_toggle a").focus();
+
+                return false;
+            });
+
+            $("#iconselector_icons").height(
+                $.fn.iconselector.instance.height() -
+                $.fn.iconselector.instance.find('.iconselector_top').height()
+                - 5
+            );
+
+            $("button", $.fn.iconselector.instance.siblings()).attr("disabled", "true");
+            $(":input", $.fn.iconselector.instance).attr("disabled", "true");
+            $("#iconselector_search", $.fn.iconselector.instance).bind("keyup", _filterPics);
+
+            $.getJSON(Site.siteroot + "/tools/endpoints/getuserpics",
+                function(data) {
+                    if ( !data ) {
+                        $("#iconselector_icons").html("<h2>Error</h2><p>Unable to load icons data</p>");
+                        return;
+                    }
+
+                    if ( data.alert ) {
+                        $("#iconselector_icons").html("<h2>Error</h2><p>"+data.alert+"</p>");
+                        return;
+                    }
+
+                    var $iconslist = $("<ul id='iconselector_icons_list'></ul>");
+
+                    $.each(data.pics, function(id, icon) {
+                        var idstring = "iconselector_item_"+id;
+
+                        var $img = $("<img />").attr( { src: icon.url, alt: icon.alt, height: icon.height, width: icon.width } ).wrap("<div class='icon_image'></div>").parent();
+                        var $keywords = "";
+                        if ( icon.keywords ) {
+                            $keywords = $("<div class='keywords'></div>");
+                            var last = icon.keywords.length - 1;
+
+                            $.each(icon.keywords, function(i, kw) {
+                                kwtoicon[kw] = idstring;
+                                $keywords.append( $("<a href='#' class='keyword'></a>").text(kw) );
+                                if ( i < last )
+                                    $keywords.append(document.createTextNode(", "));
+                            });
+                        }
+
+                        var $comment = ( icon.comment != "" ) ? $("<div class='comment'></div>").text( icon.comment ) : "";
+
+                        var $meta = $("<div class='meta_wrapper'></div>").append($keywords).append($comment);
+                        var $item = $("<div class='iconselector_item'></div>").append($img).append($meta);
+                        $("<li></li>").append($item).appendTo($iconslist)
+                            .data( "keywords", icon.keywords.join(" ").toLocaleUpperCase() )
+                            .data( "comment", icon.comment.toLocaleUpperCase() )
+                            .data( "alt", icon.alt.toLocaleUpperCase() )
+                            .data( "defaultkw", icon.keywords[0] )
+                            .attr( "id", idstring );
+                    });
+
+                    $("#iconselector_icons").empty().append($iconslist);
+
+                    $("button", $.fn.iconselector.instance.siblings()).removeAttr("disabled");
+                    $(":input:not([id='iconselector_select'])", $.fn.iconselector.instance).removeAttr("disabled");
+                    $("#iconselector_icons_list")
+                        .click(_selectByClick)
+                        .dblclick(function(e) {
+                            _selectByClick(e);
+                            _selectCurrent();
+                        });
+
+                    $(".iconselector_top .kwmenu", $.fn.iconselector.instance)
+                        .click(_selectByKeywordClick)
+                        .dblclick(function(e) {
+                            _selectByKeywordClick(e);
+                            _selectCurrent();
+                        });
+
+
+                    $("#iconselector_search").focus();
+
+                    $("#iconselector_select").click(_selectCurrent);
+                    $(document).bind("keydown.dialog-overlay", _selectByEnter);
+
+                    // initialize
+                    _selectByKeyword($.fn.iconselector.owner.val());
+                 });
+        } else {
+            // reinitialize
+            _selectByKeyword($.fn.iconselector.owner.val());
+            $.fn.iconselector.instance.dialog("open");
+            $("#iconselector_search").focus();
+
+            $(document).bind("keydown.dialog-overlay", _selectByEnter);
+        }
+    };
+
+})(jQuery);

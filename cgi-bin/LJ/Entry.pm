@@ -957,6 +957,17 @@ sub adult_content_marker {
     return $self->journal->adult_content_marker;
 }
 
+# return whether this entry has comment emails enabled or not
+sub comment_email_disabled {
+    my $self = $_[0];
+
+    my $entry_no_email = $self->prop( 'opt_noemail' );
+    return $entry_no_email if $entry_no_email;
+
+    #my $journal_no_email = $self->
+    return 0;
+}
+
 # return whether this entry has comments disabled, either by the poster or by the maintainer
 sub comments_disabled {
     my $self = $_[0];
@@ -2196,7 +2207,7 @@ sub currents {
     return unless ref $props eq 'HASH';
     my %current;
 
-    my ( $key, $entry, $s2imgref );
+    my ( $key, $entry, $s2imgref ) = ( "", undef, undef );
     if ( $opts && ref $opts ) {
         $key = $opts->{key} || '';
         $entry = $opts->{entry};

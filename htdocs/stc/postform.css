@@ -1,0 +1,358 @@
+/* Page layout */
+#primary, #secondary, #tertiary {
+  margin-bottom: 0.5em;
+}
+
+.entry-full-width #primary {
+  width: 100%;
+}
+
+.entry-full-width #secondary {
+  clear:left;
+  float: none;
+  width:100%;
+  padding-top:.5em;
+}
+
+.entry-partial-width #primary, .entry-partial-width #tertiary {
+  width:72%;
+  float:left;
+  padding:0;
+  margin:0;
+}
+
+.entry-partial-width #secondary {
+  width:26.5%;
+  float:right;
+  padding:0;
+}
+
+#tertiary .column {
+  padding-top: .5em;
+}
+
+.column {
+  min-width: 15em;
+}
+
+
+#content  {
+  overflow:visible;
+}
+
+/* Components */
+
+.component {
+  margin-bottom:0.5em;
+}
+
+.inactive_component {
+  display: none;
+}
+
+#primary .component,
+#secondary .component,
+#tertiary .component {
+  border-width:1px;
+  border-style:solid;
+}
+
+#tertiary .column {
+  width: 49%;
+  float: left;
+  overflow: visible;
+}
+#tertiary .tertiary-right {
+  float:right;
+}
+
+#post_entry fieldset {
+  width:100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.component legend {
+  width:100%;
+  font-weight:bold;
+}
+
+.component h3 {
+  font-size:110%;
+  margin: 0;
+  padding: .5em 0 .2em .5em;
+}
+
+.component h4 {
+  font-size:105%;
+  margin-top:.5em;
+}
+
+#content .component p {
+  margin-bottom:.5em;
+}
+
+.component .inner {
+  padding:5px;
+  font-size:90%;
+}
+
+.component .inner p {
+  clear:both;
+  margin-top:0;
+  padding:0;
+}
+
+.component ul {
+  list-style-type:none;
+  margin-left:0;
+  padding-left:0;
+}
+
+/* Labels */
+.component label {
+  font-weight:bold;
+}
+
+.component .radiolabel,
+.component .checkboxlabel {
+  font-weight:normal;
+}
+
+#currents_component label,
+.recurring_container label,
+.age_level_reason label,
+.posting_settings label {
+  float:left;
+  display:block;
+  width:8em;
+}
+
+#currents_component label {
+  width:38%;
+}
+
+.comments_settings label,
+#security_group label {
+  display:block;
+  float:left;
+  width:40%;
+}
+
+/* Subject & Entry */
+
+#subject {
+  font-size: 1.2em;
+}
+
+#event {
+  font-size: normal;
+  margin-bottom:.5em;
+}
+
+#event, #subject {
+  width: 100%;
+  -ms-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.event-container, .subject-container {
+  padding: 0 2px;
+}
+
+.toolbar {
+  width: 100%;
+  margin-bottom: 0.2em;
+}
+.toolbar input, .submit input {
+  border-width: 1px;
+  border-style: solid;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 3px 8px 4px;
+  text-align: center;
+}
+
+.toolbar img {
+  vertical-align: text-bottom;
+}
+
+.subtoolbar {
+  padding: 0.2em 1em;
+}
+
+.subtoolbar form, .subtoolbar form .inner {
+  width: 100%;
+}
+
+#main-tools {
+  -webkit-border-top-left-radius: 8px;
+  -webkit-border-top-right-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+  -moz-border-radius-topright: 8px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  text-align: right;
+}
+
+#plaintext-tools {
+  -webkit-border-bottom-right-radius: 8px;
+  -webkit-border-bottom-left-radius: 8px;
+  -moz-border-radius-bottomright: 8px;
+  -moz-border-radius-bottomleft: 8px;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+}
+
+/* Icon */
+
+#icon_component .inner {
+  text-align:center;
+}
+
+#icon_preview_image {
+  padding: 5px 5px 5px 5px;
+  height:100px;
+  position: absolute;
+}
+
+ul.icon-functions {
+  float: right;
+  margin-top: 65px;
+  line-height: 1.8em;
+}
+
+.icon {
+    width:100px;
+    height:100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.noicon {
+    border-width: 1px;
+    border-style: solid;
+    line-height: 50px;
+}
+
+#icon_component :link img {
+    border: 0;
+}
+
+#iconselect {
+  width:100%;
+}
+
+/* Tags */
+
+#taglist { /* the tags textfield */
+  width:99%;
+}
+.autocomplete_container {
+  float:none;
+  margin-bottom: 5px;
+}
+#tags_component .inner {
+  overflow: auto;
+}
+
+/* Currents */
+
+#moodpreview {
+    margin-top: 5px;
+    text-align: center;
+}
+
+#currents_component input,
+#currents_component select {
+  width:11.9em;
+  margin-left:.1em;
+}
+
+#currents_component  p,
+#restrictions p,  {
+    margin-bottom:.5em;
+}
+
+/* Display Dates */
+
+#displaydate_component .ui-icon {
+    float: left;
+    margin-right: 0.5em;
+}
+
+.time_container_with_picker .dateformat {
+    display: none;
+}
+
+.displaydate_options {
+  margin-top:.5em;
+}
+
+.dateformat {
+  margin-left:16px;
+  padding-left:.5em;
+}
+
+/* Security & Access */
+
+#custom_access_groups li {
+  float:left;
+  width:50%;
+  margin-bottom:.3em;
+}
+
+/* Publishing */
+#post_as fieldset legend {
+  float: left;
+  width: 8em;
+}
+
+.posting_settings li {
+  margin-bottom:.5em;
+}
+
+.posting_settings {
+  margin-top:.5em;
+}
+
+.crosspost_password_container {
+  margin-left: 2em;
+}
+
+.crosspost-settings {
+  float:right;
+}
+
+
+/* Scheduled Posts */
+
+/* Footer Buttons */
+
+.action-bar {
+  clear:both;
+  padding: 0.2em .5em;
+  text-align:left;
+  overflow: auto;
+  position: relative;
+}
+
+#actions input {
+  float: right;
+  font-size: 1.2em;
+  line-height: 1.5em;
+}
+
+.otheractions {
+  line-height: 2em;
+  position: absolute;
+  bottom: 0.5em;
+}
+

@@ -294,6 +294,22 @@ userproplist.entry_editor:
   multihomed: 0
   prettyname: Default entry editor
 
+userproplist.entryform_width:
+  cldversion: 4
+  datatype: char
+  des: Whether the entry textarea should take up the full width "F" or partial width "P"
+  indexed: 0
+  multihomed: 0
+  prettyname: Width of the entry field when posting an entry
+
+userproplist.entryform_panels:
+  cldversion: 4
+  datatype: blobchar
+  des: Storable hashref containing information about panel visibility, order, collapsedness
+  indexed: 0
+  multihomed: 0
+  prettyname: Entry form panel configuration
+
 userproplist.esn_has_managed:
   cldversion: 4
   datatype: bool
@@ -501,6 +517,14 @@ userproplist.journal_box_placement:
   indexed: 0
   multihomed: 0
   prettyname: Journal Box Placement
+
+userproplist.js_animations_minimal:
+  cldversion: 4
+  datatype: bool
+  des: Use minimal animation effects when possible
+  indexed: 0
+  multihomed: 0
+  prettyname: Use minimal JS animations
 
 userproplist.last_fm_user:
   cldversion: 4

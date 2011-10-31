@@ -1,0 +1,20 @@
+<fieldset>
+  <h3>Scheduled Publishing</h3>
+    <div class="inner">
+    <div class='time_container' id="publishingtime_container">
+      <input type="text" name="publishingtime" id="publishingtime" value="2010-04-10" maxlength="10" size="10" />
+      <input type="text" name="publishingtime_hr" id="publishingtime_hr" value="03" maxlength="2" size="2" class='time_hr' />:<input type="text" name="publishingtime_min" id="publishingtime_min" value="15" maxlength="2" size="2" class='time_min' />
+      <div class="dateformat">(e.g. 2010-01-30 23:45)</div>
+    </div>
+
+    <div class="recurring_container">
+      <label for="recurring_period">Recurring:</label>
+      <select name="recurring_period" class="select" id="recurring_period">
+        <option value="never">never</option>
+        <option value="day">every day</option>
+        <option value="week">every week</option>
+        <option value="month">every month</option>
+      </select>
+    </div>
+  </div>
+</fieldset>

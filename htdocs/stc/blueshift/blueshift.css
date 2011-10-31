@@ -818,7 +818,8 @@ input.create-account {
 }
 input.text,
 textarea.text,
-select.select {
+select.select,
+.autocomplete_container {
     background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;
     border: 1px solid #bbb;
     border-top: 1px solid #999;
@@ -1084,6 +1085,24 @@ a#lj_userpicselect {
     /*color:#666;*/
 }
 
+/* post page */
+.token:hover, .token.hover, .token:focus, .token.focus {
+    color: #3960A0;
+    border-color: #002A92;
+}
+
+.token .token_remove:hover, .token .token_remove:focus {
+    color: #3960A0;
+    background-color: #E6ECF9;
+}
+
+#iconselector_icons_list li:hover, .kwmenu .selected, #iconselector_icons_list .iconselector_selected {
+    border-color: #3960A0;
+}
+
+.slidecontrols a:hover {
+    color: #002A92;
+}
 
 /* contextualhover.css */
 div.ContextualPopup div.Inner {

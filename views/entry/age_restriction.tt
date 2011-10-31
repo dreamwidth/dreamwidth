@@ -1,0 +1,42 @@
+  <fieldset>
+    <h3>[% ".header" | ml %]</h3>
+  <div class='inner'>
+  <div class="age_level_reason">
+    <p>
+        [%- levelselect = [];
+            FOREACH opt IN [
+                ""              ".option.adultcontent.default"
+                "none"          ".option.adultcontent.none"
+                "discretion"    ".option.adultcontent.discretion"
+                "restricted"    ".option.adultcontent.restricted" ];
+
+                IF loop.count % 2 == 0;
+                    opt = opt | ml;
+                END;
+
+                levelselect.push( opt );
+            END
+        -%]
+        [%- label = ".label.age_restriction" | ml;
+        form.select( label = "$label:"
+            name = "age_restriction"
+            id = "age_restriction"
+
+            class = "select"
+
+            items = levelselect
+        ) -%]
+    </p>
+    <p>
+        [%- label = ".label.age_restriction_reason" | ml;
+        form.textbox( label = "$label:"
+            name = "age_restriction_reason"
+            id = "age_restriction_reason"
+
+            size = "30"
+            maxlength = "255"
+        ) -%]
+    </p>
+  </div>
+  </div>
+  </fieldset>

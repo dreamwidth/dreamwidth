@@ -202,7 +202,7 @@ body {
 	border-top: 1px solid #000;
 	border-bottom: 1px solid #000;
 }
-#canvas.horizontal-nav #menu ul { margin-left: 0; 
+#canvas.horizontal-nav #menu ul { margin-left: 0;
 	padding-left: 0;
 	list-style: none; }
 #canvas.horizontal-nav #menu ul li {
@@ -533,7 +533,7 @@ table.grid {
     border-collapse: collapse;
 }
 table.grid, table.grid td {
-    border: 1px solid #888;    
+    border: 1px solid #888;
 }
 
 .select-list li, .NotificationTable td {
@@ -566,10 +566,10 @@ form, fieldset, legend, legend span {
   background-color:#111;
 }
 
-.simple-form .error input {
+.simple-form .error input, form .error input {
     border: 3px solid #ff0000;
 }
-.simple-form .error .error-msg {
+.simple-form .error .error-msg, form .error .error-msg {
     color: #ff0000;
     display: block;
 }
@@ -618,6 +618,10 @@ form, fieldset, legend, legend span {
      border: 1px solid #111111;
 }
 
+/* posts page */
+.slidepanel {
+    margin-top: 0.5em;
+}
 
 /* contextualhover.css */
 div.ContextualPopup div.Inner {
@@ -723,7 +727,8 @@ hr.hr {
 
 input.text,
 textarea.text,
-select {
+select,
+.autocomplete_container {
     /*background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;*/
     background-color: #222;
     border: 1px solid #666666;

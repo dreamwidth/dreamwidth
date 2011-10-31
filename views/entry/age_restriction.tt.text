@@ -1,0 +1,14 @@
+;; -*- coding: utf-8 -*-
+.header=Age Restriction
+
+.label.age_restriction=Age Restriction
+
+.label.age_restriction_reason=Reason
+
+.option.adultcontent.default=Journal Default
+
+.option.adultcontent.discretion=Viewer Discretion Advised
+
+.option.adultcontent.none=No Age Restriction
+
+.option.adultcontent.restricted=Age 18+

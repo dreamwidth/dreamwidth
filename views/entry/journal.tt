@@ -1,0 +1,99 @@
+ <fieldset>
+   <h3>[% ".header" | ml %]</h3>
+   <div class="inner">
+
+   <div id="post_as">
+   [% IF remote %]
+    <fieldset>
+    <legend><span>[% ".label.post_as" | ml %]:</span></legend>
+        [%-
+        form.radio( label = remote.user
+            name = "post_as"
+            id = "post_as_remote"
+
+            labelclass = "radiolabel"
+
+            value = "remote"
+            default = ( post_as == "remote" )
+        ) -%]
+        [%- post_as_other_label = ".label.post_as_other" | ml;
+        form.radio( label = post_as_other_label
+            name = "post_as"
+            id = "post_as_other"
+
+            labelclass = "radiolabel"
+
+            value = "other"
+            default = ( post_as == "other" )
+        ) -%]
+    </fieldset>
+   [% ELSE %]
+        [%- form.hidden(
+            name = "post_as"
+            id = "post_as_other"
+
+            value = "other"
+        ) -%]
+   [% END %]
+   </div>
+
+   [% IF remote %]
+   <div id="post_to"  class="posting_settings">
+       <label for="usejournal">[%- ".label.post_to" | ml %]:</label>
+        [%- IF journallist.size > 1 %]
+            [%-
+                journalselect = [];
+                FOREACH journal IN journallist;
+                    IF journal.equals( remote );
+                        journalselect.push( "", journal.user );
+                    ELSE;
+                        journalselect.push( journal.user, journal.user );
+                    END;
+                END
+            -%]
+
+            [% form.select(
+                name = "usejournal"
+                id = "usejournal"
+
+                class = "select"
+
+                items = journalselect
+            ) -%]
+        [% ELSE %]
+            [% journallist.first.ljuser_display%]</span>
+            [% form.hidden( name = "usejournal", id = "usejournal", value = journallist.first.user ) %]
+        [% END %]
+   </div>
+   [% END %]
+
+   <fieldset id="post_login" class="posting_settings">
+    <legend>[% ".header.post_as" | ml %]</legend>
+       <ul>
+       <li>
+        [%- postas_username_label = ".label.post_as_username" | ml;
+        form.textbox( label = "$postas_username_label:"
+            name = "username"
+            id = "post_username"
+        ) -%]
+       </li>
+       <li>
+        [%- postas_password_label = ".label.post_as_password" | ml;
+        form.password( label = "$postas_password_label:"
+            name = "password"
+            id = "password"
+        ) -%]
+       </li>
+       <li>
+            <label for="postas_usejournal">[% ".label.post_to" | ml %]:</label>
+            [% IF usejournal %]
+                [% usejournal.ljuser_display %]
+            [% ELSE %]
+                [% form.textbox( name = "postas_usejournal", id = "postas_usejournal" ) %]
+            [% END %]
+       </li>
+       </ul>
+   </fieldset>
+
+   </div>
+ </fieldset>

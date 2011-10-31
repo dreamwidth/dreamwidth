@@ -1,0 +1,10 @@
+;; -*- coding: utf-8 -*-
+.header=Crosspost
+
+.header.accounts=Crosspost Accounts
+
+.label.crosspost_entry=Crosspost this entry
+
+.label.password=Password
+
+.settings.link=go to settings

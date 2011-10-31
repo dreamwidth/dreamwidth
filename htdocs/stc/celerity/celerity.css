@@ -440,7 +440,7 @@ table.grid {
     border-collapse: collapse;
 }
 table.grid, table.grid td {
-    border: 1px solid #999;    
+    border: 1px solid #999;
 }
 
 .select-list li, .NotificationTable td {
@@ -474,10 +474,10 @@ form, fieldset, legend, legend span {
   background-color:#fff;
 }
 
-.simple-form .error input {
+.simple-form .error input, form .error input {
     border: 3px solid #ff0000;
 }
-.simple-form .error .error-msg {
+.simple-form .error .error-msg, form .error .error-msg {
     color: #ff0000;
     display: block;
 }
@@ -526,6 +526,24 @@ form, fieldset, legend, legend span {
 
 .preview-image {
     border: 1px solid #fff;
+}
+
+.token:hover, .token.hover, .token:focus, .token.focus {
+    color: #999966;
+    border-color:#666611;
+}
+
+.token .token_remove:hover, .token .token_remove:focus {
+    color: #999966;
+    background-color: #EEEECC;
+}
+
+#iconselector_icons_list li:hover, .kwmenu .selected, #iconselector_icons_list .iconselector_selected {
+    border-color: #999966;
+}
+
+.slidecontrols a:hover {
+    color: #999966;
 }
 
 /* contextualhover.css */
@@ -636,7 +654,8 @@ hr.hr {
 
 input.text,
 textarea.text,
-select.select {
+select.select,
+.autocomplete_container {
     background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;
     border: 1px solid #bbb;
     border-top: 1px solid #999;

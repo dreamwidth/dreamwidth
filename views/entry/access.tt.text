@@ -1,0 +1,6 @@
+;; -*- coding: utf-8 -*-
+.header=Security Settings
+
+.header.custom=Custom Access Groups
+
+.label=Security Level

@@ -3789,6 +3789,8 @@ support.email.update.subject=Re: [[subject]]
 
 support.email.update.unknown_username=[Unknown or undefined example username]
 
+success=Success
+
 taglib.error.access=You are not allowed to tag entries in this journal.
 
 taglib.error.add=You are not allowed to create new tags for this journal; the entry was not tagged with [[tags]].
@@ -4332,6 +4334,20 @@ Currently beta-testing the new JS behavior on journals.
 .
 
 widget.betafeature.journaljquery.title=New JS on Journals
+
+widget.betafeature.updatepage.off<<
+<p>Activate the testing version of the new Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
+
+<p>To report bugs with the new Create Entries page, <a href="http://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
+.
+
+widget.betafeature.updatepage.on<<
+<p>You are currently testing the Create Entries management page. This is a complete rewrite of the existing update page in order to modernize the code and allow for future feature expansion. It is <b>not complete</b>, but is reasonably full-featured and will work for most if not all updating purposes.</p>
+
+<p>To report bugs with the new Create Entries page, <a href="http://dw-beta.dreamwidth.org/12259.html">leave a comment</a> in <?ljuser dw_beta ljuser?></p>.
+.
+
+widget.betafeature.updatepage.title=New Create Entries Page
 
 widget.comms.notavailable=This list is currently unavailable.
 

@@ -1,0 +1,37 @@
+[%# old implementation for comments just to show people where things are
+; will be phased out for new implementation %]
+  <fieldset class="comments_settings">
+    <h3>[% ".header" | ml %]</h3>
+  <div class='inner'>
+  <p>
+    [%- form.select( label = "Comment Settings:"
+        name = "comment_settings"
+        id = "comment_settings"
+
+        class ="select"
+
+        items = [
+            ""              "Journal Default"
+            "nocomments"    "Disabled"
+            "noemail"       "Don't Email"
+        ]
+    ) -%]
+  </p>
+  <p>
+    [%- form.select( label = "Screening:"
+        name = "opt_screening"
+        id = "opt_screening"
+
+        class = "select"
+
+        items = [
+            ""      "Journal Default"
+            "N"     "Disabled"
+            "R"     "Anonymous Only"
+            "F"     "Non-access List"
+            "A"     "All Comments"
+        ]
+    ) -%]
+  </p>
+  </div>
+  </fieldset>

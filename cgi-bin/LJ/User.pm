@@ -4768,6 +4768,92 @@ sub draft_text {
     return $u->prop('entry_draft');
 }
 
+sub entryform_width {
+    my ( $u, $prop ) = @_;
+
+    if ( $u->raw_prop( 'entryform_width' ) =~ /^(F|P)$/ ) {
+        return $u->raw_prop( 'entryform_width' )
+    } else {
+        return 'F';
+    }
+}
+
+# getter/setter
+sub entryform_panels {
+    my ( $u, $val ) = @_;
+
+    if ( defined $val ) {
+        $u->set_prop( entryform_panels => Storable::nfreeze( $val ) );
+        return $val;
+    }
+
+    my $prop = $u->prop( "entryform_panels" );
+    return $prop ? Storable::thaw( $prop ) : {
+        order => [ [ "tags", "displaydate" ],
+
+                   # FIXME: should be [ "status"  "journal" "comments" "age_restriction" ] %]
+                   [ "access", "journal", "currents", "comments", "age_restriction" ],
+
+                   # FIXME: should be [ "icons" "crosspost" "scheduled" ]
+                   [ "icons", "crosspost" ],
+                ],
+        show => {
+            "tags"          => 1,
+            "currents"      => 1,
+            "displaydate"   => 0,
+            "access"        => 1,
+            "journal"       => 1,
+            "comments"      => 0,
+            "age_restriction" => 0,
+            "icons"         => 1,
+            "crosspost"     => 0,
+
+            #"scheduled"     => 0,
+            #"status"        => 1,
+        },
+        collapsed => {
+        }
+    };
+}
+
+sub entryform_panels_order {
+    my ( $u, $val ) = @_;
+
+    my $panels = $u->entryform_panels;
+
+    if ( defined $val ) {
+        $panels->{order} = $val;
+        $panels = $u->entryform_panels( $panels );
+    }
+
+    return $panels->{order};
+}
+
+sub entryform_panels_visibility {
+    my ( $u, $val ) = @_;
+
+    my $panels = $u->entryform_panels;
+    if ( defined $val ) {
+        $panels->{show} = $val;
+        $panels = $u->entryform_panels( $panels );
+    }
+
+    return $panels->{show};
+}
+
+sub entryform_panels_collapsed {
+    my ( $u, $val ) = @_;
+
+    my $panels = $u->entryform_panels;
+    if ( defined $val ) {
+        $panels->{collapsed} = $val;
+        $panels = $u->entryform_panels( $panels );
+    }
+
+    return $panels->{collapsed};
+}
+
+
 
 # <LJFUNC>
 # name: LJ::get_post_ids
