@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.beta.on=You are beta-testing the new Create Entries page. If you notice any problems, please report them in [[user]]. To turn off beta testing,  visit the <a [[aopts]]>beta features</a> page.
+.beta.on=You are beta-testing the new Create Entries page. If you notice any problems, please report them in [[user]]. To turn off beta testing, visit the <a [[aopts]]>beta features</a> page.
 
 .beta.off=You need to enable beta testing to use the new Create Entries page. <a [[aopts]]>Enable beta testing?</a>.
 

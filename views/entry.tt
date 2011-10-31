@@ -118,7 +118,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 </script>
 [% END %]
 
-<div class="message-box ui-state-highlight">[% ".beta.on" | ml( aopts = "href='$LJ::SITEROOT/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
+<div class="message-box ui-state-highlight">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
 
 [%- IF warnings.size > 0 -%]
     [%- FOREACH warning IN warnings -%]
