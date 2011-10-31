@@ -125,8 +125,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <link rel="stylesheet" type="text/css" href="[%site.statroot%]/simple-form.css">
 <link rel="stylesheet" type="text/css" href="[%site.statroot%]/jquery.postoptions.css">
 
-<script type="text/javascript" src="[%site.jsroot%]/jquery/jquery.ui.mouse.min.js"></script>
-<script type="text/javascript" src="[%site.jsroot%]/jquery/jquery.ui.sortable.min.js"></script>
 
 <script type="text/javascript" src="[%site.jsroot%]/jquery.postoptions.js"></script>
 [%- ELSE -%]

@@ -69,7 +69,16 @@ $("#minimal_animations").click(function() {
 
 $(".panels-list").append("<p class='note'>Scroll down to arrange panels to your preference</p>")
 
+
 if ($(".sortable_column_text").length == 0) {
+    $.getScript(Site.siteroot + "/js/jquery/jquery.ui.mouse.min.js",
+        function() { $.getScript(Site.siteroot + "/js/jquery/jquery.ui.sortable.min.js",
+            setupSortable
+        ) }
+    );
+}
+
+function setupSortable() {
     var $draginstructions = $("<div class='sortable_column_text'>drag and drop to rearrange</div>").disableSelection();
 
     $(".column").sortable({
@@ -79,15 +88,15 @@ if ($(".sortable_column_text").length == 0) {
       opacity: 0.8,
       cancel: ".sortable_column_text"
     })
-    .sortable( "disable" )
+    .sortable( "enable" ).disableSelection()
     .append($draginstructions);
 }
-
 
 startEditing();
 
 function stopEditing() {
-    $(".column").sortable( "disable" ).enableSelection();
+    if ( $.fn.sortable )
+        $(".column").sortable( "disable" ).enableSelection();
     $(document.body).removeClass("screen-customize-mode");
 
     $("#post_entry").addClass("minimal");
@@ -95,7 +104,8 @@ function stopEditing() {
 }
 
 function startEditing() {
-    $(".column").sortable( "enable" ).disableSelection();
+    if ( $.fn.sortable )
+        $(".column").sortable( "enable" ).disableSelection();
     $(document.body).addClass("screen-customize-mode");
 
     $("#post_entry").removeClass("minimal");
