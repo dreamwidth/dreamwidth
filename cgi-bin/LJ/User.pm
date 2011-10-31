@@ -4796,7 +4796,7 @@ sub entryform_panels {
     }
 
     my $prop = $u->prop( "entryform_panels" );
-    return $prop ? Storable::thaw( $prop ) : {
+    my $default = {
         order => [ [ "tags", "displaydate" ],
 
                    # FIXME: should be [ "status"  "journal" "comments" "age_restriction" ] %]
@@ -4822,6 +4822,32 @@ sub entryform_panels {
         collapsed => {
         }
     };
+
+    my %need_panels = map { $_ => 1 } keys %{$default->{show}};
+
+    my $ret;
+    $ret = Storable::thaw( $prop ) if $prop;
+
+    if ( $ret ) {
+        # fill in any modules that somehow are not in this list
+        foreach my $column ( @{$ret->{order}} ) {
+            foreach my $panel ( @{$column} ) {
+                delete $need_panels{$panel};
+            }
+        }
+
+        my @col = @{$ret->{order}->[2]};
+        foreach ( keys %need_panels ) {
+            # add back into last column, but don't show
+            push @col, $_;
+            $ret->{show}->{$_} = 0;
+        }
+        $ret->{order}->[2] = \@col;
+    } else {
+        $ret = $default;
+    }
+
+    return $ret;
 }
 
 sub entryform_panels_order {
