@@ -24,7 +24,7 @@
     position: relative;
 }
 
-#post_entry .ui-sortable .component {
+.ui-sortable .component {
     cursor: move;
     border-left-style: none;
     border-right-style: none;
@@ -32,16 +32,6 @@
 
 #post_entry .ui-sortable .ui-sortable-helper {
     border-style: solid;
-}
-
-.ui-sortable-disabled {
-    border-style: none;
-    min-height: 0;
-    padding: 0 !important;
-}
-
-.ui-sortable-disabled .component {
-    cursor: auto;
 }
 
 .sortable_column_text {
@@ -75,3 +65,17 @@
     display: none;
 }
 
+
+.ui-sortable-disabled {
+    border-style: none;
+    min-height: 0;
+    padding: 0 !important;
+}
+
+.ui-sortable-disabled .component {
+    cursor: auto;
+}
+
+.ui-sortable-disabled .inactive_component {
+    display: none;
+}
