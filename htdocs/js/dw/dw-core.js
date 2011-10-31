@@ -75,4 +75,6 @@ $.fn.throbber = function(position, jqxhr) {
     jqxhr.complete(function() { $img.remove(); $this.removeData("throbber") });
 
     return $this;
-}
+};
+
+;
