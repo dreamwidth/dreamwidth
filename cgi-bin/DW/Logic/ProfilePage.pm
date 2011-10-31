@@ -446,9 +446,7 @@ sub _basic_info_location {
             $country_ret = LJ::is_enabled( 'directory' ) ?
                 { url => "$dirurl&amp;loc_cn=$ecountry",
                   text => $countries{ $country } } : $countries{ $country };
-            if ( !$state && !$city ) {
-                $country_ret->{secimg} = $secimg;
-            }
+            $country_ret->{secimg} = $secimg if ! $state && ! $city && ref $country_ret eq "HASHREF";
         }
 
         if ( $state ) {
@@ -462,9 +460,7 @@ sub _basic_info_location {
             $state_ret = $country && LJ::is_enabled( 'directory' ) ?
                 { url => "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate",
                   text => LJ::ehtml( $state ) } : LJ::ehtml( $state );
-            if ( !$city ) {
-                $state_ret->{secimg} = $secimg;
-            }
+            $state_ret->{secimg} = $secimg if !$city && ref $state_ret eq "HASHREF";
         }
 
         if ( $city ) {
@@ -472,7 +468,7 @@ sub _basic_info_location {
             $city_ret = $country && LJ::is_enabled( 'directory' ) ?
                 { url => "$dirurl&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity",
                   text => $city } : $city;
-            $city_ret->{secimg} = $secimg;
+            $city_ret->{secimg} = $secimg if ref $city_ret eq "HASHREF";
         }
 
         push @$ret, $city_ret, $state_ret, $country_ret;
