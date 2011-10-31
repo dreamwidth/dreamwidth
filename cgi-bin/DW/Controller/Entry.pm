@@ -137,6 +137,7 @@ sub new_handler {
             # if we didn't have any errors with decoding the form, proceed to post
             unless ( @error_list ) {
                 my %post_res = _do_post( $form_req, $flags, \%auth, warnings => \@warnings );
+                return $post_res{render} if $post_res{status} eq "ok";
 
                 # oops errors when posting: show error, fall through to show form
                 push @error_list, $post_res{errors} if $post_res{errors};
@@ -634,6 +635,7 @@ sub _do_post {
     _persist_props( $auth->{poster}, $form_req );
 
     my $ret = "";
+    my $render_ret;
     my @links;
     my @crossposts;
 
@@ -643,7 +645,7 @@ sub _do_post {
     # special-case moderated: no itemid, but have a message
     if ( ! defined $res->{itemid} && $res->{message} ) {
         $ret .= qq{<div class="message-box info-box"><p>$res->{message}</p></div>};
-        DW::Template->render_template(
+        $render_ret = DW::Template->render_template(
             'entry-success.tt', {
                 poststatus  => $ret,
             }
@@ -737,7 +739,7 @@ sub _do_post {
             }
         }
 
-        DW::Template->render_template(
+        $render_ret = DW::Template->render_template(
             'entry-success.tt', {
                 poststatus  => $ret,        # did the update succeed or fail?
                 warnings    => \@warnings,   # warnings about the entry or your account
@@ -747,7 +749,7 @@ sub _do_post {
         );
     }
 
-    return ( status => "ok" );
+    return ( status => "ok", render => $render_ret );
 }
 
 # remember value of properties, to use the next time the user makes a post
