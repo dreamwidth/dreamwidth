@@ -1037,7 +1037,7 @@ sub get_renamed_user {
 
     # return both the user object, and the last known renamedto username
     # in case the user object isn't valid
-    return ( $u, $username );
+    return wantarray ? ( $u, $username ) : $u;
 }
 
 
