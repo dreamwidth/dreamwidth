@@ -21,7 +21,7 @@
         ) -%]
 
         <h4>[% ".header.accounts" | ml %]</h4>
-        <input type="text" name="" value="chrome autocomplete fix; ignore" style="display: none"/>
+        <input type="text" name="autocompletefix" value="chrome autocomplete fix; ignore" style="display: none"/>
         <ul id="crosspost_accounts">
             [% crosspost_password_label = ".label.password" | ml %]
 
