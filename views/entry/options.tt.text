@@ -2,6 +2,8 @@
 
 .animations.label=Use minimal animations for the panels as they expand/collapse
 
+.back=Return to Create Entries pages
+
 .error.header=Error
 
 .panels.header=Show panels

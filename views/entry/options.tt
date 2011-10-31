@@ -115,4 +115,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <script type="text/javascript" src="[%site.jsroot%]/jquery/jquery.ui.sortable.min.js"></script>
 
 <script type="text/javascript" src="[%site.jsroot%]/jquery.postoptions.js"></script>
+[%- ELSE -%]
+    <p><a href="[%site.root%]/entry/new">[% ".back" | ml %]</a></p>
 [%- END -%]
