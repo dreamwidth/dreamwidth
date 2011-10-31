@@ -158,6 +158,9 @@
   box-sizing: border-box;
 }
 
+.event-container {
+  margin-top: 5px;
+}
 .event-container, .subject-container {
   padding: 0 2px;
 }
