@@ -1071,6 +1071,21 @@ sub options_rpc_handler {
     return DW::Template->render_template( 'entry/options.tt', $vars, { no_sitescheme => 1, status => $status } );
 }
 
+sub _load_visible_panels {
+    my $u = $_[0];
+
+    my $user_panels = $u->entryform_panels;
+
+    my @panels;
+    foreach my $panel_group ( @{$user_panels->{order}} ) {
+        foreach my $panel ( @$panel_group ) {
+            push @panels, $panel if $user_panels->{show}->{$panel};
+        }
+    }
+
+    return \@panels;
+}
+
 sub _options {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
@@ -1099,31 +1114,37 @@ sub _options {
         $vars->{formdata} = $post;
 
         if ( LJ::check_form_auth( $post->{lj_form_auth} ) ) {
-            $u->set_prop( entryform_width => $post->{entry_field_width} );
+            if ( $post->{reset_panels} ) {
+                $vars->{formdata}->remove( "reset_panels" );
+                $u->set_prop( "entryform_panels" => undef );
+                $vars->{formdata}->set( $panel_element_name => @{_load_visible_panels( $u )||[]} );
+            } else {
+                $u->set_prop( entryform_width => $post->{entry_field_width} );
 
-            my %panels;
-            my %post_panels = map { $_ => 1 } $post->get_all( $panel_element_name );
-            foreach my $panel ( @panel_options ) {
-                my $name = $panel->{panel_name};
-                $panels{$name} = $post_panels{$name} ? 1 : 0;
-            }
-            $u->entryform_panels_visibility( \%panels );
-
-
-            my @columns;
-            foreach my $column_index ( 0...2 ) {
-                my @col;
-
-                foreach ( $post->get_all( "column_$column_index" ) ) {
-                    my ( $order, $panel ) = m/(\d+):(.+)_component/;
-                    $col[$order] = $panel;
-
+                my %panels;
+                my %post_panels = map { $_ => 1 } $post->get_all( $panel_element_name );
+                foreach my $panel ( @panel_options ) {
+                    my $name = $panel->{panel_name};
+                    $panels{$name} = $post_panels{$name} ? 1 : 0;
                 }
+                $u->entryform_panels_visibility( \%panels );
 
-                # remove any in-betweens in case we managed to skip a number in the order somehow
-                $columns[$column_index] = [ grep { $_ } @col];
+
+                my @columns;
+                foreach my $column_index ( 0...2 ) {
+                    my @col;
+
+                    foreach ( $post->get_all( "column_$column_index" ) ) {
+                        my ( $order, $panel ) = m/(\d+):(.+)_component/;
+                        $col[$order] = $panel;
+
+                    }
+
+                    # remove any in-betweens in case we managed to skip a number in the order somehow
+                    $columns[$column_index] = [ grep { $_ } @col];
+                }
+                $u->entryform_panels_order( \@columns );
             }
-            $u->entryform_panels_order( \@columns );
 
             $u->set_prop( js_animations_minimal => $post->{minimal_animations} );
         } else {
@@ -1137,15 +1158,7 @@ sub _options {
             minimal_animations  => $u->prop( "js_animations_minimal" ) ? 1 : 0,
         };
 
-        my $user_panels = $u->entryform_panels;
-
-        my @panels;
-        foreach my $panel_group ( @{$user_panels->{order}} ) {
-            foreach my $panel ( @$panel_group ) {
-                push @panels, $panel if $user_panels->{show}->{$panel};
-            }
-        }
-        $default->{$panel_element_name} = \@panels;
+        $default->{$panel_element_name} = _load_visible_panels( $u );
 
         $vars->{formdata} = $default;
     }

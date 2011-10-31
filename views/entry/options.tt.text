@@ -8,6 +8,10 @@
 
 .panels.header=Show panels
 
+.panels.reset.header=Reset panels
+
+.panels.reset.label=Reset panels to original settings
+
 .submit=Save
 
 .title=Entry Form Options

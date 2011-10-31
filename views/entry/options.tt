@@ -84,6 +84,20 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </li>
     <li class="odd">
         <fieldset>
+        <legend><span>[% '.panels.reset.header' | ml %]</span></legend>
+        <ul>
+            <li>[%- reset_label = '.panels.reset.label' | ml;
+                form.checkbox(
+                    label = reset_label
+                    id = "reset_panels"
+                    name = "reset_panels"
+                    value = "1"
+                )
+            -%]</li>
+        </ul>
+    </li>
+    <li class="even">
+        <fieldset>
             <legend><span>[% '.animations.header' | ml %]</span></legend>
             <ul>
                 <li>
