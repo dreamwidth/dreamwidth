@@ -1019,17 +1019,25 @@ sub get_renamed_user {
     my $u = shift;
     my %opts = @_;
     my $hops = $opts{hops} || 5;
+    my $username;
 
     # Traverse the renames to the final journal
     if ($u) {
         while ( $u->is_redirect && $hops-- > 0 ) {
             my $rt = $u->prop("renamedto");
             last unless length $rt;
-            $u = LJ::load_user($rt);
+
+            $username = $rt;
+            $u = LJ::load_user( $rt );
+
+            # the username we renamed to is no longer a valid user
+            last unless LJ::isu( $u );
         }
     }
 
-    return $u;
+    # return both the user object, and the last known renamedto username
+    # in case the user object isn't valid
+    return ( $u, $username );
 }
 
 
@@ -8456,7 +8464,7 @@ sub ljuser
 
     # Traverse the renames to the final journal
     if ($u && !$opts->{'no_follow'}) {
-        $u = $u->get_renamed_user;
+        ( $u, $user ) = $u->get_renamed_user;
     }
 
     # if invalid user, link to dummy userinfo page
