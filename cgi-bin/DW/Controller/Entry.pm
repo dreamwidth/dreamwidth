@@ -93,7 +93,8 @@ sub new_handler {
                 $spellcheck{results} = $spellchecker->check_html( \$event, 1 );
                 $spellcheck{did_spellcheck} = 1;
             }
-        } elsif ( $okay_formauth ) {
+        } elsif ( $okay_formauth && ! $post->{showform} # some other form posted content to us, which the user will want to edit further
+        ) {
             my $flags = {};
 
             my %auth = _auth( $flags, $post, $remote );

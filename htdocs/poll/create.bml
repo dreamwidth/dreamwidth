@@ -760,7 +760,9 @@ _c?>
 
         # submit button / form
         my $usejournal = $getextra ? "?usejournal=$authas" : '';
-        $ret .= "<form method='post' action='$LJ::SITEROOT/update$usejournal' style='display: inline'>\n";
+        my $update_url = LJ::BetaFeatures->user_in_beta( $remote => "updatepage" )
+            ? "$LJ::SITEROOT/entry/new" : "$LJ::SITEROOT/update";
+        $ret .= "<form method='post' action='$update_url$usejournal' style='display: inline'>\n";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden('event', $code) . "\n";
         $ret .= LJ::html_submit('showform', undef, { 'raw' => "value='$ML{'.button.postpoll'} &rarr;'" }) . "\n";
