@@ -55,7 +55,7 @@ body<=
         qw/ country state city timezone
           icq aolim yahoo msn url jabber
           google_talk skype gizmo
-          twitter delicious ravelry etsy
+          twitter delicious ravelry etsy diigo
           urlname gender last_fm_user
           opt_hidefriendofs opt_hidememberofs
           sidx_bdate sidx_bday sidx_loc
@@ -437,6 +437,7 @@ body<=
                            ["delicious", $ML{ '.services.delicious' }, 40],
                            ["ravelry", $ML{ '.services.ravelry' }, 40],
                            ["etsy", $ML{ '.services.etsy' }, 20],
+                           ["diigo", $ML{ '.services.diigo' }, 16],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
                           )
 
@@ -694,7 +695,7 @@ body<=
               opt_whatemailshow comm_theme
               icq aolim yahoo msn url jabber
               google_talk skype
-              twitter delicious ravelry etsy
+              twitter delicious ravelry etsy diigo
               urlname gender last_fm_user
               opt_hidefriendofs opt_hidememberofs
               sidx_bdate sidx_bday

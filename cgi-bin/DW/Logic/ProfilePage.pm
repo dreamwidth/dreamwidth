@@ -888,6 +888,17 @@ sub external_services {
         };
     }
 
+    if ( my $diigo = $u->prop( 'diigo' ) ) {
+        my $diigo = LJ::eurl( $diigo );
+        push @ret, {
+            type => 'diigo',
+            text => LJ::ehtml( $diigo ),
+            url => "http://www.diigo.com/user/$diigo",
+            image => 'diigo.png',
+            title_ml => '.service.diigo',
+        };
+    }
+
     return @ret;
 }
 

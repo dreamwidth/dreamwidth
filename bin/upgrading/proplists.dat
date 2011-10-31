@@ -334,6 +334,14 @@ userproplist.etsy:
   multihomed: 0
   prettyname: Etsy user account name
 
+userproplist.diigo:
+  cldversion: 4
+  datatype: char
+  des: Diigo user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Diigo user account name
+
 userproplist.exclude_from_own_stats:
   cldversion: 4
   datatype: bool

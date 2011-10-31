@@ -199,6 +199,8 @@
 
 .services.etsy=Etsy Username
 
+.services.diigo=Diigo Username
+
 .services.last_fm=Last.fm Username
 
 .services.ravelry=Ravelry Username
