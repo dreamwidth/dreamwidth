@@ -276,7 +276,7 @@ sub init {
 
 
         # icons
-        @icons = LJ::Userpic->load_user_userpics( $u );
+        @icons = grep { ! ( $_->inactive || $_->expunged ) } LJ::Userpic->load_user_userpics( $u );
         @icons = LJ::Userpic->separate_keywords( \@icons )
             if @icons;
 
