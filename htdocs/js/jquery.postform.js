@@ -305,10 +305,10 @@ init: function(formData) {
 
                             // select the minsecurity value and disable the values with lesser security
                             $security.val(data.ret['minsecurity']);
-                            if ( data.ret['minsecurity'] == 'access' ) {
-                                $security.find("option[value='public']").attr("disabled", "disabled");
+                            if ( data.ret['minsecurity'] == 'friends' ) {
+                                $security.val("access").find("option[value='public']").attr("disabled", "disabled");
                             } else if ( data.ret['minsecurity'] == 'private' ) {
-                                $security.find("option[value='public'],option[value='access'],option[value='custom']")
+                                $security.val("private").find("option[value='public'],option[value='access'],option[value='custom']")
                                     .attr("disabled", "disabled");
                             }
                         } else {
