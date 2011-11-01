@@ -215,7 +215,7 @@ $.widget("dw.cuttag_controls", {
 
         if ( aria_closed ) {
             var a_exp = $("<a>",{
-                'aria-controls': aria_closed,
+                'aria-controls': aria_closed
             });
             a_exp.append(el_exp);
             el_exp = a_exp;
@@ -238,7 +238,7 @@ $.widget("dw.cuttag_controls", {
         });
         if ( aria_open ) {
             var a_col = $("<a>",{
-                'aria-controls': aria_open,
+                'aria-controls': aria_open
             });
             a_col.append(el_col);
             el_col = a_col;
