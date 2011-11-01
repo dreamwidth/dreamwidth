@@ -327,8 +327,6 @@ general /customize/index.bml.s1
 
 general /changepassword.bml.email.body
 
-general Success
-
 general /schools/index.bml.addschool.input.name.rule1
 general /schools/index.bml.addschool.input.name.rule2
 general /schools/index.bml.addschool.input.name.rule3
