@@ -34,7 +34,7 @@ init: function(formData) {
             }
         }
         if ( $.fn.iconselector ) {
-            $select.iconselector( { onSelect: update_icon_preview, selectorButtons: "#icon_preview .icon, #icon_browser_link" } );
+            $select.iconselector( { onSelect: update_icon_preview, selectorButtons: "#icon_preview .icon img, #icon_browser_link" } );
         } else {
             $("#icon_browser_link").remove();
         }

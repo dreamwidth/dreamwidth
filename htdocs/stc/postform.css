@@ -216,25 +216,34 @@
 
 /* Icon */
 
-#icon_component .inner {
+#icons_component .inner {
+  position: relative;
   text-align:center;
 }
 
+#icon_preview {
+  position: relative;
+  margin-bottom: 5px;
+}
 #icon_preview_image {
   padding: 5px 5px 5px 5px;
-  height:100px;
   position: absolute;
+  bottom: 0;
+  right: 15px;
 }
 
 ul.icon-functions {
   float: right;
-  margin-top: 65px;
   line-height: 1.8em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 
 .icon {
-    width:100px;
-    height:100px;
+    position: relative;
+    height: 100px;
+    width: 100px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -245,7 +254,7 @@ ul.icon-functions {
     line-height: 50px;
 }
 
-#icon_component :link img {
+#icons_component :link img {
     border: 0;
 }
 
