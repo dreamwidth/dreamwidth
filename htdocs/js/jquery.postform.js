@@ -44,12 +44,14 @@ init: function(formData) {
 
     // date
     function initDisplayDate() {
+        function zeropad(num) { return num < 10 ? "0" + num : num }
+
         // initialize date to current system time
         function updateDateOnInputFields(date) {
             if (!date) date = new Date();
             $("#entrytime").val( $.datepicker.formatDate("yy-mm-dd", date) );
-            $("#entrytime_hr").val( date.getHours() );
-            $("#entrytime_min").val( date.getMinutes() );
+            $("#entrytime_hr").val(zeropad(date.getHours()));
+            $("#entrytime_min").val(zeropad(date.getMinutes()));
 
             $("#trust_datetime").val(1);
         }
@@ -87,13 +89,8 @@ init: function(formData) {
                 if ($this.data("customized")) return;
 
                 var now = new Date();
-                var hours = now.getHours();
-                if ( hours < 10 ) hours = "0" + hours;
-                $this.siblings(".time_hr").val(hours);
-
-                var min = now.getMinutes();
-                if ( min < 10 ) min = "0" + min;
-                $this.siblings(".time_min").val(min);
+                $this.siblings(".time_hr").val(zeropad(now.getHours()));
+                $this.siblings(".time_min").val(zeropad(now.getMinutes()));
 
                 $this.focus();
             }
