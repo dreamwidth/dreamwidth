@@ -341,7 +341,7 @@ no strict "vars";
     # so for now, let's just configure which files to use a minified version of
     # TODO: minify as part of the build process, and remove this hardcoding
     %LJ::MINIFY = (
-        "js/jquery/jquery-1.5.js"       => "js/jquery/jquery-1.5.min.js",
+        "js/jquery/jquery-1.5.2.js"     => "js/jquery/jquery-1.5.2.min.js",
         "js/jquery/jquery.ui.core.js"   => "js/jquery/jquery.ui.core.min.js",
         "js/jquery/jquery.ui.autocomplete.js" =>  "js/jquery/jquery.ui.autocomplete.min.js",
         "js/jquery/jquery.ui.datepicker.js" => "js/jquery/jquery.ui.datepicker.min.js",
