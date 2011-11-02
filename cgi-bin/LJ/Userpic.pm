@@ -1295,7 +1295,7 @@ sub separate_keywords {
         } 
     }
         
-    @userpic_array = sort { $a->{keyword} cmp $b->{keyword} } @userpic_array;
+    @userpic_array = sort { lc( $a->{keyword} ) cmp lc( $b->{keyword} ) } @userpic_array;
     push @userpic_array, sort { $a->{keyword} cmp $b->{keyword} } @nokw_array;
 
     return @userpic_array;
