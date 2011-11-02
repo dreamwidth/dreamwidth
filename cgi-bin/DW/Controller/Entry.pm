@@ -706,7 +706,7 @@ sub _do_post {
         if ( $u->equals( $ju ) && $form_req->{crosspost_entry} ) {
             my $user_crosspost = $form_req->{crosspost};
             my ( $xpost_successes, $xpost_errors ) =
-                LJ::Protocol::schedule_xposts( $u, $res->{itemid}, 0,
+                LJ::Protocol::schedule_xposts( $u, $ditemid, 0,
                         sub {
                             my $submitted = $user_crosspost->{$_[0]->acctid} || {};
 
