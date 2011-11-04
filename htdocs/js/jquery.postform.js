@@ -229,7 +229,7 @@ init: function(formData) {
 
             var options = {
                 grow: true,
-                maxlength: 50
+                maxlength: 40
             }
 
             if ( journal.name ) {
