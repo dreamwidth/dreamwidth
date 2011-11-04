@@ -61,7 +61,6 @@ _create: function() {
     var opts = self.options;
 
     if ( opts.type == "icon" ) {
-        self.element.removeAttr("title");
         var parent = self.element.parent("a")
         if ( parent.length > 0 )
             self.element = parent;
