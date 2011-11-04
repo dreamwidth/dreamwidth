@@ -43,9 +43,9 @@ init: function(formData) {
 
         $("#post_entry").bind( "journalselect", function( e, journal ) {
             if ( journal.name ) {
-                $("#icons_component").slideDown()
+                $("#icons_component").not(".inactive_component").slideDown()
             } else {
-                $("#icons_component").slideUp()
+                $("#icons_component").not(".inactive_component").slideUp()
             }
         });
     }
