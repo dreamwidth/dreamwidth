@@ -1132,6 +1132,7 @@ sub _options {
 
 
                 my @columns;
+                my $didpost_order = 0;
                 foreach my $column_index ( 0...2 ) {
                     my @col;
 
@@ -1139,12 +1140,13 @@ sub _options {
                         my ( $order, $panel ) = m/(\d+):(.+)_component/;
                         $col[$order] = $panel;
 
+                        $didpost_order = 1;
                     }
 
                     # remove any in-betweens in case we managed to skip a number in the order somehow
                     $columns[$column_index] = [ grep { $_ } @col];
                 }
-                $u->entryform_panels_order( \@columns );
+                $u->entryform_panels_order( \@columns ) if $didpost_order;
             }
 
             $u->set_prop( js_animations_minimal => $post->{minimal_animations} );
