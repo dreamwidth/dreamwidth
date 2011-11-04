@@ -20,6 +20,7 @@
 
 #tagselector_tags {
     overflow: auto;
+    clear: both;
 }
 
 #tagselector_select {

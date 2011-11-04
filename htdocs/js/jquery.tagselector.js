@@ -114,7 +114,7 @@
         <span class='tagselector_searchbox'>\
           Search: <input type='text' id='tagselector_search'>\
           </span>\
-          <button id='tagselector_select' disabled='disabled'>Save</button>\
+          <button id='tagselector_select' class='ui-state-default' disabled='disabled'>Save</button>\
       </div>\
       <div id='tagselector_tags'><span class='tagselector_status'>Loading...</span></div>\
     </div>";
