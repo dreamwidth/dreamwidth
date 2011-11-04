@@ -73,8 +73,8 @@ sub option {
     # Option for undefined-size images. Might want to be magicked into only displaying when placeholders are set for other than all/none
 
     my @optionundef = (
-        0 => $class->ml( 'setting.imageplaceholders.option.undef.always' ),
-        1 => $class->ml( 'setting.imageplaceholders.option.undef.never' )
+        0 => $class->ml( 'setting.imageplaceholders.option.undef.never' ),
+        1 => $class->ml( 'setting.imageplaceholders.option.undef.always' )
     );
 
     $ret .= "<br /><label for='${key}imgplaceundef'>" . $class->ml( 'setting.imageplaceholders.option.undef2' ) . "</label> ";
