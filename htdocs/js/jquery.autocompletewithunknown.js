@@ -1,4 +1,13 @@
 (function($) {
+    function _arrayToVal( array, ele ) {
+        var tags_array = [];
+        $.each( array, function(key) {
+            tags_array.push( key );
+        });
+
+        ele.val( tags_array.join(",") );
+    }
+
     // this doesn't act on the autocompletewithunknown widget. Instead, it's called on our input field with autocompletion
     function _handleComplete(e, ui, $oldElement) {
         var self = $(this).data("autocompletewithunknown");
@@ -47,12 +56,7 @@
                 $("#"+self.options.id+"_count").text(self.options.maxlength);
         }
 
-        var tags_array = [];
-        $.each( self.tagslist, function(key) {
-            tags_array.push( key );
-        });
-
-        ele.val( tags_array.join(",") );
+        _arrayToVal(self.tagslist, ele)
 
         if ( $.browser.opera ) {
             var keyCode = $.ui.keyCode;
@@ -236,6 +240,7 @@
                 $("span."+self.options.tokenTextClass, self.uiAutocomplete.get(0))
                 .live("click", function(event) {
                     delete self.tagslist[$(this).text()];
+                    _arrayToVal(self.tagslist, self.element);
                     var $input = $("<input type='text' />")
                         .addClass(self.options.tokenTextClass)
                         .val($(this).text())
@@ -253,6 +258,7 @@
                     var $token = $(this).closest("."+self.options.tokenClass);
 
                     delete self.tagslist[$token.children("."+self.options.tokenTextClass).text()];
+                    _arrayToVal(self.tagslist, self.element);
                     $token.fadeOut(function() {$(this).remove()});
 
                     event.preventDefault();
