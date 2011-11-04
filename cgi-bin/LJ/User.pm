@@ -4838,9 +4838,9 @@ sub entryform_panels {
 
         my @col = @{$ret->{order}->[2]};
         foreach ( keys %need_panels ) {
-            # add back into last column, but don't show
+            # add back into last column, but respect user's option to show/not-show
             push @col, $_;
-            $ret->{show}->{$_} = 0;
+            $ret->{show}->{$_} = 0 unless defined $ret->{show}->{$_};
         }
         $ret->{order}->[2] = \@col;
     } else {
