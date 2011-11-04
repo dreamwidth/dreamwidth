@@ -135,8 +135,10 @@
         var $tagslist = $("<ul id='tagselector_tags_list'></ul>");
 
         $.each(data, function(index, value) {
-            var checked = selected[value] ? "checked='checked'" : "";
-            $("<li><input type='checkbox' id='tagselector_tag_"+value+"' value='"+value+"' "+checked+"/><label for='tagselector_tag_"+value+"'>"+value+"</label></li>").appendTo($tagslist);
+            $("<li>").append(
+                $( "<input>", { type: "checkbox", id: "tagselector_tag_" + value, value: value, checked: selected[value] } ),
+                $("<label>", { for: "tagselector_tag_" + value } ).text(value) )
+            .appendTo($tagslist)
         });
 
         $("#tagselector_tags").empty().append($tagslist);
