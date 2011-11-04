@@ -10,8 +10,7 @@ function saveOriginalValues(elements) {
 var $inputs = $("#post-options input");
 saveOriginalValues($inputs);
 
-var $cancel_button = $("<input>", { "type": "submit", "value" : "Cancel" }).click(function(e) {
-    e.preventDefault();
+$("#post-options").bind( "settings.cancel", function() {
     stopEditing();
 
     // restore to original
@@ -23,6 +22,12 @@ var $cancel_button = $("<input>", { "type": "submit", "value" : "Cancel" }).clic
         var $this = $(this);
         if ($this.data("originalValue") != $this.is(":checked") ) $this.click();
     });
+})
+
+var $cancel_button = $("<input>", { "type": "submit", "value" : "Cancel" }).click(function(e) {
+    e.preventDefault();
+
+    $("#post-options").trigger("settings.cancel");
 
 }).wrap("<fieldset class='destructive submit'></fieldset>").parent();
 

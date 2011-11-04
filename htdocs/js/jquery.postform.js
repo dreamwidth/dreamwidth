@@ -400,13 +400,18 @@ init: function(formData) {
         $("#post_options").click(function(e){
             e.preventDefault();
 
-            var $img = $(this).find("img");
-            var oldsrc = $img.attr("src");
-            $img.attr("src", $.throbber.src );
-            $("#settings-tools").load(Site.siteroot + "/__rpc_entryoptions", function(html,status,jqxhr) {
-                $img.attr("src", oldsrc);
-                $("#post_entry").trigger("deleted");
-            });
+            var $settings = $("#settings-tools");
+            var $settingsform = $settings.children("form:visible");
+            if ( $settingsform.length > 0 ) {
+                $settingsform.trigger("settings.cancel")
+            } else {
+                var $img = $(this).find("img");
+                var oldsrc = $img.attr("src");
+                $img.attr("src", $.throbber.src );
+                $settings.load(Site.siteroot + "/__rpc_entryoptions", function(html,status,jqxhr) {
+                    $img.attr("src", oldsrc);
+                })
+            }
         });
 
         $.fx.off = formData.minAnimation;
