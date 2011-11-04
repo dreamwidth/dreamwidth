@@ -344,6 +344,12 @@
                     self._cacheData(data.tags, id);
                     self.tagstatus(id);
                 });
+            },
+
+            clear: function () {
+                var self = this;
+                self._cacheData([], "");
+                self.tagstatus("");
             }
     });
 

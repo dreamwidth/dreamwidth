@@ -236,7 +236,7 @@ toggle: function(why, allowThisCrosspost, animate) {
 
     if( allowThisCrosspost ) {
         $msg.remove();
-    } else if ( $msg.length == 0 ) {
+    } else if ( $msg.length == 0 && self.options.strings.crosspostDisabled[why] ) {
         var $p = $("<p></p>", { "class": msg_class, "id": msg_id }).text(self.options.strings.crosspostDisabled[why]);
         $p.insertBefore("#crosspost_accounts");
     }

@@ -40,6 +40,14 @@ init: function(formData) {
         }
         $select.iconrandom( { handler: update_icon_preview, trigger: "#icon_random_link" } );
         $select.change(update_icon_preview);
+
+        $("#post_entry").bind( "journalselect", function( e, journal ) {
+            if ( journal.name ) {
+                $("#icons_component").slideDown()
+            } else {
+                $("#icons_component").slideUp()
+            }
+        });
     }
 
     // date
@@ -216,6 +224,9 @@ init: function(formData) {
     // tags
     function initTags() {
         $("#post_entry").one("journalselect", function(e, journal) {
+
+            var $taglist = $("#taglist");
+
             var options = {
                 grow: true,
                 maxlength: 50
@@ -226,16 +237,18 @@ init: function(formData) {
                 options.populateId = journal.name;
             }
 
-            var $taglist = $("#taglist");
             $taglist.autocompletewithunknown(options);
 
             if ( journal.name )
                 $taglist.tagselector({fallbackLink: "#taglist_link"});
 
             $("#post_entry").bind("journalselect", function(e, journal) {
-                if ( ! journal.name ) return;
-                $taglist.autocompletewithunknown( "populate",
-                    Site.siteroot + "/tools/endpoints/gettags?user=" + journal.name, journal.name );
+                if ( journal.name ) {
+                    $taglist.autocompletewithunknown( "populate",
+                        Site.siteroot + "/tools/endpoints/gettags?user=" + journal.name, journal.name );
+                } else {
+                    $taglist.autocompletewithunknown( "clear" )
+                }
             })
         });
     }
@@ -255,8 +268,13 @@ init: function(formData) {
             }
             $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm});
         });
-
-        $("#post_to").radioreveal({ radio: "post_as_remote" });
+        $("#post_as_other").click(function() {
+            $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false } );
+        })
+        $("#post_as_remote").click(function() {
+            $("#usejournal").triggerHandler("change");
+        })
+        $("#post_to").radioreveal({ radio: "post_as_remote" })
         $("#post_login").radioreveal({ radio: "post_as_other" });
     }
 
@@ -270,59 +288,64 @@ init: function(formData) {
                 $("#custom_access_groups").slideUp();
         });
 
+        function adjustSecurityDropdown(data) {
+            if ( ! data ) return;
+
+            var $security = $("#security");
+            $security.empty();
+            if ( data.ret ) {
+                var opts;
+                if ( data.ret['is_comm'] ) {
+                    opts = [
+                        "<option value='public'>Everyone (Public)</option>",
+                        "<option value='access'>Members</option>"
+                    ];
+                    if ( data.ret['can_manage'] )
+                        opts.push("<option value='private'>Admin</option>");
+                } else {
+                    opts = [
+                        "<option value='public'>Everyone (Public)</option>",
+                        "<option value='access'>Access List</option>",
+                        "<option value='private'>Private (Just You)</option>"
+                    ];
+                    if ( data.ret['friend_groups_exist'] )
+                        opts.push("<option value='custom'>Custom</option>");
+                }
+
+                $security.append(opts.join("\n"))
+
+                // select the minsecurity value and disable the values with lesser security
+                $security.val(data.ret['minsecurity']);
+                if ( data.ret['minsecurity'] == 'friends' ) {
+                    $security.val("access").find("option[value='public']").attr("disabled", "disabled");
+                } else if ( data.ret['minsecurity'] == 'private' ) {
+                    $security.val("private").find("option[value='public'],option[value='access'],option[value='custom']")
+                        .attr("disabled", "disabled");
+                }
+            } else {
+                // user is not known. no custom groups, no minsecurity
+                $security.append([
+                    "<option value='public'>Everyone (Public)</option>",
+                    "<option value='access'>Access List</option>",
+                    "<option value='private'>Private (Just You)</option>"
+                ].join("\n"))
+            }
+        }
+
         $("#post_entry").bind( "journalselect", function(e, journal) {
-            if ( journal.iscomm )
+            var anon = ! journal.name
+            if ( anon || journal.iscomm )
                 $("#custom_access_groups").slideUp();
 
             var $security = $("#security");
-            if ( $security.length > 0 && journal.name ) {
+            if ( $security.length > 0 ) {
+              if ( anon ) {
+                adjustSecurityDropdown({})
+              } else {
                 $.getJSON( Site.siteroot + "/tools/endpoints/getsecurityoptions",
-                    { "user": journal.name },
-                    function(data) {
-                        if ( ! data ) return;
-
-                        $security.empty();
-                        if ( data.ret ) {
-                            var opts;
-                            if ( data.ret['is_comm'] ) {
-                                opts = [
-                                    "<option value='public'>Everyone (Public)</option>",
-                                    "<option value='access'>Members</option>"
-                                ];
-                                if ( data.ret['can_manage'] )
-                                    opts.push("<option value='private'>Admin</option>");
-                            } else {
-                                opts = [
-                                    "<option value='public'>Everyone (Public)</option>",
-                                    "<option value='access'>Access List</option>",
-                                    "<option value='private'>Private (Just You)</option>"
-                                ];
-                                if ( data.ret['friend_groups_exist'] )
-                                    opts.push("<option value='custom'>Custom</option>");
-                            }
-
-                            $security.append(opts.join("\n"))
-
-                            // select the minsecurity value and disable the values with lesser security
-                            $security.val(data.ret['minsecurity']);
-                            if ( data.ret['minsecurity'] == 'friends' ) {
-                                $security.val("access").find("option[value='public']").attr("disabled", "disabled");
-                            } else if ( data.ret['minsecurity'] == 'private' ) {
-                                $security.val("private").find("option[value='public'],option[value='access'],option[value='custom']")
-                                    .attr("disabled", "disabled");
-                            }
-                        } else {
-                            // user is not known. no custom groups, no minsecurity
-                            $security.append([
-                                "<option value='public'>Everyone (Public)</option>",
-                                "<option value='access'>Access List</option>",
-                                "<option value='private'>Private (Just You)</option>"
-                            ].join("\n"))
-                        }
-                    }
-                );
+                    { "user": journal.name }, adjustSecurityDropdown);
             }
-
+          }
         });
     }
 
@@ -330,7 +353,10 @@ init: function(formData) {
         $("#crosspost_component").crosspost();
 
         $("#post_entry").bind("journalselect", function(e, journal) {
-            $("#crosspost_component").crosspost("toggle", "community", ! journal.iscomm, true);
+            if ( journal.name )
+                $("#crosspost_component").crosspost("toggle", "community", ! journal.iscomm, true);
+            else
+                $("#crosspost_component").crosspost("toggle", "unknown", false, true);
         });
     }
 
