@@ -18,12 +18,12 @@
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 
+BEGIN { require "ljlib.pl"; }
 use Getopt::Long;
 use File::Path ();
 use File::Basename ();
 use File::Copy ();
 use Image::Size ();
-BEGIN { require "ljlib.pl"; }
 use LJ::S2;
 use MogileFS::Admin;
 

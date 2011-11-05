@@ -18,7 +18,7 @@ use strict;
 use Getopt::Long;
 
 my $debs_only = 0;
-my ($only_check, $no_check, $opt_nolocal);
+my ($only_check, $no_check, $opt_nolocal, $opt_cpanm);
 
 my %dochecks;   # these are the ones we'll actually do
 my @checks = (  # put these in the order they should be checked in
@@ -33,6 +33,7 @@ sub usage {
     die "Usage: checkconfig.pl
 checkconfig.pl --needed-debs
 checkconfig.pl --only=<check> | --no=<check>
+checkconfig.pl --cpanm
 
 Checks are:
  " . join(', ', @checks);
@@ -43,6 +44,7 @@ usage() unless GetOptions(
                           'only=s'      => \$only_check,
                           'no=s'        => \$no_check,
                           'nolocal'     => \$opt_nolocal,
+                          'cpanm'       => \$opt_cpanm,
                           );
 
 if ($debs_only) {
@@ -69,11 +71,18 @@ my $err = sub {
     die "\nProblem:\n" . join('', map { "  * $_\n" } @_);
 };
 
+# base packages we need installed
+my @packages = ('apache2-mpm-prefork');
+
+# packages we need if we're building from source (using cpanm)
+my @cpanm_packages = ('libexpat1-dev', 'g++', 'make', 'libgtop2-dev', 'libgmp3-dev',
+        'libxml2-dev');
+
 my %modules = (
                "Date::Parse" => { 'deb' => 'libtimedate-perl' },
                "DateTime" => { 'deb' => 'libdatetime-perl' },
-               "DBI" => { 'deb' => 'libdbi-perl',  },
-               "DBD::mysql" => { 'deb' => 'libdbd-mysql-perl', },
+               "DBI" => { 'deb' => 'libdbi-perl', 'system' => 1, },
+               "DBD::mysql" => { 'deb' => 'libdbd-mysql-perl', 'system' => 1, },
                "Class::Autouse" => { 'deb' => 'libclass-autouse-perl', },
                "Digest::MD5" => { 'deb' => 'libmd5-perl', },
                "Digest::SHA1" => { 'deb' => 'libdigest-sha1-perl', },
@@ -95,10 +104,11 @@ my %modules = (
                "HTML::Parser" => { 'deb' => 'libhtml-parser-perl', },
                "LWP::Simple" => { 'deb' => 'libwww-perl', },
                "LWP::UserAgent" => { 'deb' => 'libwww-perl', },
-               "GD" => { 'deb' => 'libgd-gd2-perl' },
+               "GD" => { 'deb' => 'libgd-gd2-perl', 'system' => 1, },
                "GD::Graph" => {
                    'deb' => 'libgd-graph-perl',
                    'opt' => 'Required for making graphs for the statistics page.',
+                   'system' => 1,
                },
                "Mail::Address" => { 'deb' => 'libmailtools-perl', },
                "Proc::ProcessTable" => {
@@ -155,6 +165,7 @@ my %modules = (
                "Image::Magick" => {
                    'deb' => 'perlmagick',
                    'opt' => "Required for the userpic factory.",
+                   'system' => 1,
                },
                "Class::Accessor" => {
                    'deb' => 'libclass-accessor-perl',
@@ -187,10 +198,12 @@ my %modules = (
                "Apache2::RequestRec"   => {
                    'deb' => "libapache2-mod-perl2",
                    'opt' => "Required for modperl2",
+                   'system' => 1, # don't cpanm this
                },
                "Apache2::Request"      => {
                    'deb' => "libapache2-request-perl",
                    'opt' => "Required for Apache2",
+                   'system' => 1, # don't cpanm this
                },
                "Test::More" => {
                    'deb' => "libtest-simple-perl",
@@ -208,6 +221,9 @@ my %modules = (
                    'opt' => "Required for taking credit/debit cards in the shop.",
                },
                "Hash::MultiValue" => {},
+               "Sys::Syscall" => { dev => 'libsys-syscall-perl' },
+               "Danga::Socket" => { dev => 'libdanga-socket-perl' },
+               "IO::AIO" => { dev => 'libio-aoi-perl' },
               );
 
 
@@ -215,7 +231,7 @@ sub check_modules {
     print "[Checking for Perl Modules....]\n"
         unless $debs_only;
 
-    my @debs;
+    my (@debs, @mods);
 
     foreach my $mod (sort keys %modules) {
         my $rv = eval "use $mod;";
@@ -228,7 +244,12 @@ sub check_modules {
                     push @errors, "Missing perl module: $mod";
                 }
             }
-            push @debs, $dt->{'deb'} if $dt->{'deb'};
+            if ($opt_cpanm) {
+                push @debs, $dt->{'deb'} if $dt->{'deb'} && $dt->{'system'};
+                push @mods, $mod;
+            } else {
+                push @debs, $dt->{'deb'} if $dt->{'deb'};
+            }
             next;
         }
 
@@ -264,6 +285,10 @@ sub check_modules {
         } else {
             print STDERR "\n# apt-get install ", join(' ', @debs), "\n\n";
         }
+    }
+    if (@mods) {
+        print "\n# curl -L http://cpanmin.us | sudo perl - --self-upgrade\n";
+        print "# cpanm -L \$LJHOME/extlib/ " . join(' ', @mods) . "\n\n";
     }
 
     $err->(@errors);

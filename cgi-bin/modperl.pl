@@ -18,6 +18,7 @@ package LJ::ModPerl;
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 
 # very important that this is done early!  everything else in the LJ
 # setup relies on $LJ::HOME being set...
