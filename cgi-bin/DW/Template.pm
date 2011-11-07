@@ -169,10 +169,6 @@ $extra can contain:
 
 =item B< title / windowtitle / head / bodyopts / ... > == text to get thrown in the section if inside sitescheme
 
-=item B< content_type > = content type
-
-=item B< status > = HTTP status code
-
 =item B< lock_failed > = subref for lock failed.
 
 =item B< expire > - Number of seconds the fragment is valid for
@@ -203,10 +199,6 @@ $extra can contain:
 
 =item B< title / windowtitle / head / bodyopts / ... > == text to get thrown in the section if inside sitescheme
 
-=item B< content_type > = content type
-
-=item B< status > = HTTP status code
-
 =back
 
 =cut
@@ -235,11 +227,13 @@ $extra can contain:
 
 =item B< no_sitescheme > == render alone
 
+=over
+
+This will be ignored for 'bml' scopes.
+
+=back
+
 =item B< title / windowtitle / head / bodyopts / ... > == text to get thrown in the section if inside sitescheme
-
-=item B< content_type > = content type
-
-=item B< status > = HTTP status code
 
 =item B< scope > = Scope, accepts nothing, 'bml', or 'journal'
 
@@ -271,16 +265,13 @@ sub render_template_misc {
         my $r = DW::Request->get;
         my $bml = $extra->{scope_data};
 
-        $r->status( $extra->{status} ) if $extra->{status};
-        $r->content_type( $extra->{content_type} ) if $extra->{content_type};
-
         for my $item ( qw(title windowtitle head bodyopts) ) {
             ${$bml->{$item}} = $extra->{$item} || "";
         }
         return $out;
     }
 
-    my $rv =  $class->render_string( $out, $extra );
+    my $rv = $class->render_string( $out, $extra );
     if ( $scope eq 'journal' ) {
         $extra->{scope_data}->{handler_return} = $rv;
         return;
@@ -299,11 +290,16 @@ $extra can contain:
 
 =item B< no_sitescheme > == render alone
 
+=over
+
+If you are just printing text or other data, do not call DW::Template->render_string and instead just
+$r->print and return $r->OK.
+
+This is mostly for being used from render_template.
+
+=back
+
 =item B< title / windowtitle / head / bodyopts / ... > == text to get thrown in the section if inside sitescheme
-
-=item B< content_type > = content type
-
-=item B< status > = HTTP status code
 
 =back
 
@@ -313,8 +309,6 @@ sub render_string {
     my ( $class, $out, $extra ) = @_;
 
     my $r = DW::Request->get;
-    $r->status( $extra->{status} ) if $extra->{status};
-    $r->content_type( $extra->{content_type} ) if $extra->{content_type};
 
     my $scheme = DW::SiteScheme->get;
 

@@ -210,12 +210,11 @@ sub _call_hash {
         $msg .= " \@ $LJ::SERVER_NAME" if $LJ::SERVER_NAME;
 
         $r->status( 500 );
+        $r->content_type( $default_content_types->{html} );
+
         my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";
         my $remote = LJ::get_remote();
         $text = "<b>[Error: $msg]</b>" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
-
-        my $opts = { status=>500, content_type=>'text/html' };
-
         $opts->{no_sitescheme} = 1 if $T_TESTING_ERRORS;
 
         return DW::Template->render_string( $text, $opts );
@@ -229,11 +228,11 @@ sub _call_hash {
         my $remote = LJ::get_remote();
         $text = "Error: $msg" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
 
-        return DW::Template->render_string( $text, {
-            status => 500,
-            content_type => 'text/plain',
-            no_sitescheme => 1
-        } );
+        $r->status( 500 );
+        $r->content_type( 'text/plain' );
+        $r->print( $text );
+
+        return $r->OK;
     }
 }
 

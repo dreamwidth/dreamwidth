@@ -23,6 +23,7 @@ use DW::Routing;
 use DW::Template;
 
 use Hash::MultiValue;
+use HTTP::Status qw( :constants );
 
 
 =head1 NAME
@@ -1044,7 +1045,8 @@ sub preview_handler {
 
 
         LJ::S2::s2_run( $r, $ctx, $opts, "EntryPage::print()", $p );
-        return DW::Template->render_string( $ret, { no_sitescheme => 1 } );
+        $r->print( $ret );
+        return $r->OK;
     }
 }
 
@@ -1073,9 +1075,10 @@ sub options_rpc_handler {
 
     my $vars = _options( $rv->{remote} );
     $vars->{use_js} = 1;
-    my $status = @{$vars->{error_list} || []} ? DW::Request->get->HTTP_BAD_REQUEST : DW::Request->get->HTTP_OK;
+    my $r = DW::Request->get;
+    $r->status( @{$vars->{error_list} || []} ? HTTP_BAD_REQUEST : HTTP_OK );
 
-    return DW::Template->render_template( 'entry/options.tt', $vars, { no_sitescheme => 1, status => $status } );
+    return DW::Template->render_template( 'entry/options.tt', $vars, { no_sitescheme => 1 } );
 }
 
 sub _load_visible_panels {

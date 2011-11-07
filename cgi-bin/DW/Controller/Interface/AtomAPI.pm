@@ -25,6 +25,8 @@ use XML::Atom::Category;
 use Digest::SHA1;
 use MIME::Base64;
 
+use HTTP::Status qw( :constants );
+
 require 'ljprotocol.pl';
 
 # service document URL is the same for all users
@@ -37,29 +39,31 @@ DW::Routing->register_string( "/interface/atom/entries", \&entries_handler, user
         format => "atom", methods => { POST => 1, GET => 1 } );
 DW::Routing->register_string( "/interface/atom/entries/tags", \&categories_document, user => 1,
         format => "atom", methods => { GET => 1 } );
-DW::Routing->register_regex( qr#/interface/atom/entries/(\d+)#, \&entry_handler, user => 1,
+DW::Routing->register_regex( qr#^/interface/atom/entries/(\d+)$#, \&entry_handler, user => 1,
         format => "atom", methods => { GET => 1, PUT => 1, DELETE => 1 } );
 
 sub ok {
     my ( $message, $status, $content_type ) = @_;
-    return DW::Template->render_string(
-        $message,
-        { status => $status || DW::Request->get->HTTP_OK,
-          content_type => $content_type || "application/atom+xml",
-          no_sitescheme => 1,
-        }
-    );
+
+    my $r = DW::Request->get;
+    $r->status( $status || HTTP_OK );
+    $r->content_type( $content_type || "application/atom+xml" );
+
+    $r->print( $message );
+
+    return $r->OK;
 }
 
 sub err {
     my ( $message, $status ) = @_;
-    return DW::Template->render_string(
-        $message,
-        { status => $status || DW::Request->get->NOT_FOUND,
-          content_type => "text/plain",
-          no_sitescheme => 1,
-        }
-    );
+
+    my $r = DW::Request->get;
+    $r->status( $status || HTTP_NOT_FOUND );
+    $r->content_type( 'text/plain' );
+
+    $r->print($message);
+
+    return $r->OK;
 }
 
 sub check_enabled {
