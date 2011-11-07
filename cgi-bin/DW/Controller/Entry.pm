@@ -1055,7 +1055,10 @@ Show the entry options page in a separate page
 
 =cut
 sub options_handler {
-    return DW::Template->render_template( 'entry/options.tt', _options( @_ ) );
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    return DW::Template->render_template( 'entry/options.tt', _options( $rv->{remote} ) );
 }
 
 
@@ -1065,7 +1068,10 @@ Show the entry options page in a form suitable for loading via JS
 
 =cut
 sub options_rpc_handler {
-    my $vars = _options( @_ );
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $vars = _options( $rv->{remote} );
     $vars->{use_js} = 1;
     my $status = @{$vars->{error_list} || []} ? DW::Request->get->HTTP_BAD_REQUEST : DW::Request->get->HTTP_OK;
 
@@ -1088,10 +1094,7 @@ sub _load_visible_panels {
 }
 
 sub _options {
-    my ( $ok, $rv ) = controller();
-    return $rv unless $ok;
-
-    my $u = $rv->{remote};
+    my $u = $_[0];
 
     my $panel_element_name = "visible_panels";
     my @panel_options;
