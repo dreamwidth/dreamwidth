@@ -1,16 +1,13 @@
-# -*-perl-*-
+#!/usr/bin/perl
 
 use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Lang;
+use LJ::HTMLControls;
 
 plan tests => 9;
-
-package LJ;
-require 'htmlcontrols.pl';
-package main;
 
 
 use LJ::Setting::Gender;

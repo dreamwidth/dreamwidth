@@ -20,11 +20,9 @@ package LJ::Comment;
 
 use strict;
 use Carp qw/ croak /;
+
 use LJ::Entry;
-
-use lib "$LJ::HOME/cgi-bin";
-
-require "htmlcontrols.pl";
+use LJ::HTMLControls;
 use LJ::Talk;
 
 =head1 NAME

@@ -11,7 +11,7 @@ plan tests => 1;
 package LJ;
 
 require 'ljlib.pl';
-require 'htmlcontrols.pl';
+use LJ::HTMLControls;
 use LJ::Talk;
 
 use LJ::Test qw(temp_user memcache_stress);
