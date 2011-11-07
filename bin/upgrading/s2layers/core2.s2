@@ -3862,12 +3862,10 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
     var string item_class = $opts{"item-class"} ? $opts{"item-class"} : "";
     var string print_uses = $opts{"print_uses"} ? $opts{"print_uses"} : "number";
 
-    var string[] closing_html;
-    var string[] prev_tags;
+    var string[] prev_tags = [];
     var int tag_list_pos = 0;
     var string tier_code = "";
-    $closing_html[0] = "";  # keeps track of html that is used to close off lists
-    $prev_tags[0] = "";
+    var int levels_to_close = 0;
 
     foreach var TagDetail t ($tagslist) {
         var string[] tags = $t.name->split($*text_tagsmultilevel_delimiter);
@@ -3876,15 +3874,6 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
         var int pos = 0;
         var bool show_lower_tiers = false;
         foreach var string tier($tags) {
-            if (size $closing_html <= $pos) {
-                # $closing_html length must be kept greater than or equal to that of the current tag.
-                $closing_html[$pos] = "";
-            }
-
-            if (size $prev_tags <= $pos) {
-                # The current tag has more tiers than the previous tag.
-                $prev_tags[$pos] = "";
-            }
 
             # If we're on a tag's last tier, we need to return a link to the tag,
             # otherwise plain text is returned.
@@ -3904,20 +3893,20 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
             }
 
             # $prev_tags has fewer tiers than current tag.
-            if ($prev_tags[$pos] == "") {
+            if (size $prev_tags < $pos + 1) {
                 print """\n<ul $list_class><li $tag_class>$tier_code""";
-                $closing_html[$pos] = "</li></ul>";
+                $levels_to_close++;
             }
             elseif (($tags[$pos] != $prev_tags[$pos]) or ($show_lower_tiers)) {
                 if ($tags[$pos] != $prev_tags[$pos]) {
 
                     # The current tag's tier is not the same as the previous tag's tier of
                     # the same level.  This means we may need to close some lists.
-                    var int i = size $closing_html;
-                    foreach var string html ($closing_html) {
-                        if ($i > $pos) {
-                            print $closing_html[$i];
-                            $closing_html[$i] = "";
+                    var int i = $levels_to_close;
+                    foreach var string html ($prev_tags) {
+                        if ($i > $pos + 1) {
+                            print "</li></ul>";
+                            $levels_to_close--;
                         }
                         $i--;
                     }
@@ -3927,10 +3916,10 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
                     $show_lower_tiers = true;
                 }
 
-                if ($closing_html[$pos] == "") {
+                if ($levels_to_close <= $pos) {
                     # This is the first tier at this level, so open list.
                     print """\n<ul $list_class><li $tag_class>$tier_code""";
-                    $closing_html[$pos] = "</li></ul>";
+                    $levels_to_close++;
                 }
                 else {
                     # There have already been tiers added at this level
@@ -3952,17 +3941,12 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
     $tag_list_pos++;
 
     # All the tags have been added so close all outstanding lists.
-    var int i = 0;
-    var string remaining_html = "";
-    foreach var string html ($closing_html) {
-        if ($html != "") {
-            $remaining_html = $html + $remaining_html;
-            $closing_html[$i] = "";
+    foreach var string html ($prev_tags) {
+        if ($levels_to_close > 0) {
+            print "</li></ul>";
+            $levels_to_close--;
         }
-        $i++;
     }
-
-    println $remaining_html;
 
 }
 
