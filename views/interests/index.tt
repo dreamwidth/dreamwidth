@@ -35,6 +35,7 @@
 <td><form method='get' action='interests'>
 <input type="text" name="int" size="20" />&nbsp;
 <input type='submit' value='[% "interests.interested.btn" | ml %]' />
+<br />[% '/directory/index.tt.int_multiple' | ml %]
 </form></td></tr>
 
 [%- IF can_use_findsim -%]

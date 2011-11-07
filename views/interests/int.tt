@@ -34,9 +34,11 @@
 <form method='get' action='interests'>
 <input type="text" name="int" size="20" value="[% interest # escaped in the controller %]" />&nbsp;
 <input type='submit' value='[% "interests.interested.btn" | ml %]' />
-</form></td></tr>
+</form></td>
+<td class='findandmodify'>[% '/directory/index.tt.int_multiple' | ml %]
+</td></tr>
 <tr valign='middle'><td class='findandmodify'>
-[% 'interests.enmasse.intro' | ml %]</td><td class='findandmodify'>
+[% 'interests.enmasse.intro' | ml %]</td><td colspan='2' class='findandmodify'>
 <form method='get' action='interests'>
 <input type='hidden' name='mode' value='enmasse' />
 <input type="text" name="fromuser" size="20" />&nbsp;
