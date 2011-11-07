@@ -818,15 +818,6 @@ sub external_services {
         push @ret, $service;
     }
 
-    if ( my $gizmo = $u->gizmo_account ) {
-        push @ret, {
-            type => 'gizmo',
-            email => LJ::ehtml( $gizmo ),
-            image => 'gizmo.gif',
-            title_ml => '.im.gizmo',
-        };
-    }
-
     if ( my $lastfm = $u->prop( 'last_fm_user' ) ) {
         my $elastfm = LJ::eurl( $lastfm );
         my $lastfm_url = 'http://www.last.fm/user/%username%';

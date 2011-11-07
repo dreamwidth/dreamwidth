@@ -54,8 +54,8 @@ body<=
     $u->preload_props( { use_master => 1 },
         qw/ country state city timezone
           icq aolim yahoo msn url jabber
-          google_talk skype gizmo
-          twitter delicious ravelry etsy diigo
+          google_talk skype twitter
+          delicious ravelry etsy diigo
           urlname gender last_fm_user
           opt_hidefriendofs opt_hidememberofs
           sidx_bdate sidx_bday sidx_loc
@@ -422,8 +422,6 @@ body<=
     $ML{'.fn.privacy'}: $curr_privacy</a></td></tr>\n
         };
 
-            $u->{'gizmo'} = $u->gizmo_account();
-
             $ret .= "<tr><td colspan=3><table summary=''>";
             my $oddeven = 0;
 
@@ -432,12 +430,11 @@ body<=
                            ["yahoo", $ML{'.chat.yahooid'}, 33], ["msn", $ML{'.chat.msnusername'}, 60],
                            ["jabber", $ML{'.chat.jabber'}, 60], ["google_talk", $ML{'.chat.googletalk'}, 60],
                            ["skype", $ML{'.chat.skype'}, 40],
-                           ["gizmo", $ML{'.chat.gizmo'}, 40],
                            ["twitter", $ML{ '.services.twitter' }, 40],
                            ["delicious", $ML{ '.services.delicious' }, 40],
+                           ["diigo", $ML{ '.services.diigo' }, 16],
                            ["ravelry", $ML{ '.services.ravelry' }, 40],
                            ["etsy", $ML{ '.services.etsy' }, 20],
-                           ["diigo", $ML{ '.services.diigo' }, 16],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
                           )
 
@@ -694,8 +691,8 @@ body<=
             my @uprops = qw(
               opt_whatemailshow comm_theme
               icq aolim yahoo msn url jabber
-              google_talk skype
-              twitter delicious ravelry etsy diigo
+              google_talk skype twitter
+              delicious ravelry etsy diigo
               urlname gender last_fm_user
               opt_hidefriendofs opt_hidememberofs
               sidx_bdate sidx_bday
@@ -703,10 +700,6 @@ body<=
               opt_showbday opt_showlocation opt_showljtalk
               opt_sharebday opt_showonlinestatus
             );
-
-            # reset the gizmo account for this user account
-            $u->gizmo_account( $POST{'gizmo'} )
-                if $u->gizmo_account ne $POST{'gizmo'};
 
             # set userprops
             my %prop;

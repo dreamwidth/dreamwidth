@@ -155,8 +155,6 @@
 
 .im.aol.status=AIM status
 
-.im.gizmo=Gizmo
-
 .im.gtalk=Google Talk
 
 .im.header=Instant Message:
@@ -214,10 +212,6 @@
 .label.frpeople=People
 
 .label.frsyndication2=Feeds
-
-.label.gizmo=Gizmo Project:
-
-.label.gizmo3=Gizmo Project:
 
 .label.googletalk=Google Talk:
 

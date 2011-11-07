@@ -2439,31 +2439,6 @@ sub give_shop_points {
 }
 
 
-# get/set the gizmo account of a user
-sub gizmo_account {
-    my $u = shift;
-
-    # parse out their account information
-    my $acct = $u->prop( 'gizmo' );
-    my ($validated, $gizmo);
-    if ($acct && $acct =~ /^([01]);(.+)$/) {
-        ($validated, $gizmo) = ($1, $2);
-    }
-
-    # setting the account
-    # all account sets are initially unvalidated
-    if (@_) {
-        my $newgizmo = shift;
-        $u->set_prop( 'gizmo' => "0;$newgizmo" );
-
-        # purge old memcache keys
-        LJ::MemCache::delete( "gizmo-ljmap:$gizmo" );
-    }
-
-    # return the information (either account + validation or just account)
-    return wantarray ? ($gizmo, $validated) : $gizmo unless @_;
-}
-
 # get/set the Google Analytics ID
 sub google_analytics {
     my $u = shift;

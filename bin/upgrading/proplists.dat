@@ -382,14 +382,6 @@ userproplist.gender:
   multihomed: 0
   prettyname: Gender
 
-userproplist.gizmo:
-  cldversion: 0
-  datatype: char
-  des: Gizmo VoIP account ID
-  indexed: 1
-  multihomed: 0
-  prettyname: Gizmo Project ID
-
 userproplist.google_talk:
   cldversion: 0
   datatype: char

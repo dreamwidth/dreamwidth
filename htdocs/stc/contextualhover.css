@@ -44,10 +44,6 @@ div.ContextualPopup .Content {
        font-weight: bold;
        }
 
-   div.ContextualPopup .Content .GizmoBlurb {
-       font-size: smaller;
-       }
-
 div.ContextualPopup .Userpic {
     float: right;
     top: 0;
