@@ -277,7 +277,7 @@ sub FriendsPage
         my $newskip = $skip - $itemshow;
         if ($newskip > 0) { $linkvars{'skip'} = $newskip; }
         else { $newskip = 0; }
-        $nav->{'forward_url'} = LJ::make_link($base, \%linkvars);
+        $nav->{'forward_url'} = LJ::S2::make_link( $base, \%linkvars );
         $nav->{'forward_skip'} = $newskip;
         $nav->{'forward_count'} = $itemshow;
         $p->{head_content} .= qq#<link rel="next" href="$nav->{forward_url}" />\n#;
@@ -290,7 +290,7 @@ sub FriendsPage
     unless (($eventnum + $hiddenentries) != $itemshow || $skip == $maxskip || !$is_prev_exist) {
         my $newskip = $skip + $itemshow;
         $linkvars{'skip'} = $newskip;
-        $nav->{'backward_url'} = LJ::make_link($base, \%linkvars);
+        $nav->{'backward_url'} = LJ::S2::make_link( $base, \%linkvars );
         $nav->{'backward_skip'} = $newskip;
         $nav->{'backward_count'} = $itemshow;
         $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;

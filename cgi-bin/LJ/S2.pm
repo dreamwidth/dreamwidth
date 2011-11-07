@@ -339,6 +339,28 @@ sub s2_run
 }
 
 # <LJFUNC>
+# name: LJ::S2::make_link
+# des: Takes a group of key=value pairs to append to a URL.
+# returns: The finished URL.
+# args: url, vars
+# des-url: A string with the URL to append to.  The URL
+#          should not have a question mark in it.
+# des-vars: A hashref of the key=value pairs to append with.
+# </LJFUNC>
+sub make_link
+{
+    my $url = shift;
+    my $vars = shift;
+    my $append = "?";
+    foreach (keys %$vars) {
+        next if ($vars->{$_} eq "");
+        $url .= "${append}${_}=$vars->{$_}";
+        $append = "&";
+    }
+    return $url;
+}
+
+# <LJFUNC>
 # name: LJ::S2::get_tags_text
 # class: s2
 # des: Gets text for display in entry for tags compatibility.

@@ -410,28 +410,6 @@ sub statushistory_add {
 }
 
 # <LJFUNC>
-# name: LJ::make_link
-# des: Takes a group of key=value pairs to append to a URL.
-# returns: The finished URL.
-# args: url, vars
-# des-url: A string with the URL to append to.  The URL
-#          should not have a question mark in it.
-# des-vars: A hashref of the key=value pairs to append with.
-# </LJFUNC>
-sub make_link
-{
-    my $url = shift;
-    my $vars = shift;
-    my $append = "?";
-    foreach (keys %$vars) {
-        next if ($vars->{$_} eq "");
-        $url .= "${append}${_}=$vars->{$_}";
-        $append = "&";
-    }
-    return $url;
-}
-
-# <LJFUNC>
 # name: LJ::get_authas_user
 # des: Given a username, will return a user object if remote is an admin for the
 #      username.  Otherwise returns undef.
