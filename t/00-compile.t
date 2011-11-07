@@ -16,7 +16,7 @@ my %SKIP = (
     'Data/ObjectDriver/Driver/DBD/SQLite.pm' => 'Bareword "DBI::SQL_BLOB"',
     'Data/ObjectDriver/Driver/DBD/Oracle.pm' => 'no Oracle',
 
-    'cgi-bin/lj-bml-init.pl' => 'BML::register_isocode called from non-conffile context',
+    'LJ/Global/BMLInit.pm' => 'BML::register_isocode called from non-conffile context',
     'cgi-bin/lj-bml-blocks.pl' => 'BML::register_block called from non-lookfile context',
 );
 
@@ -66,7 +66,7 @@ foreach my $file (@scripts) {
 }
 
 # Bail out if any of the tests failed
-BAIL_OUT("Aborting test suite") if scalar 
+BAIL_OUT("Aborting test suite") if scalar
     grep { not $_->{ok} } Test::More->builder->details;
 
 

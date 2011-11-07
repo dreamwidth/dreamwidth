@@ -91,7 +91,11 @@ BML::register_hook("codeblock_init_perl", sub {
 });
 
 # now apply any local behaviors which may be defined
-eval { require "lj-bml-init-local.pl" };
+eval "use LJ::Local::BMLInit;";
 die $@ if $@ && $! != ENOENT;
+
+# if the old local filename is in use, log an error.
+warn "NOTE: Found lj-bml-init-local.pl, please rename to cgi-bin/LJ/Local/BMLInit.pm"
+    if -e "$LJ::HOME/cgi-bin/lj-bml-init-local.pl";
 
 1;
