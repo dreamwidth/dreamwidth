@@ -31,6 +31,6 @@
 
 .notall=There are no users matching all of the interests you specified.  You may want to modify your search.
 
-.nousers2=No one currently has [[num]] of the interests you're searching for. If you're interested, <a [[aopts]]>click here to add [[?num|the new interest|all of the new interests]] to your profile</a>.
+.nousers3=No one currently has [[num]] of the interests you're searching for. If you're interested, <a [[aopts]]>click here to add "[[interests]]" to your profile</a>.
 
 .title=Interests

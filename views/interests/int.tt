@@ -99,7 +99,7 @@
     [%- '.nocomms2' | ml(aopts = "href='$site.root/community/create'", num = query_count) %]</p>
     <p class='interestinfo'>
     [%- IF no_users -%]
-        [%- '.nousers2' | ml(aopts = "href='$site.root/interests?mode=addnew&amp;keyword=$no_users'", num = no_users_count) %]</p>
+        [%- '.nousers3' | ml(aopts = "href='$site.root/interests?mode=addnew&amp;keyword=$no_users'", num = no_users_count, interests = no_users ) %]</p>
     [%- ELSE -%]
         [%- '.notall' | ml %]</p>
         [%- FOREACH not_interested -%]
