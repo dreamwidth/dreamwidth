@@ -125,8 +125,7 @@ LJ::MemCache::init();
 # used uniformly by server code which uses the protocol.
 $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
 
-# declare views (calls into ljviews.pl)
-@LJ::views = qw(lastn read archive day);
+# declare views for user journals
 %LJ::viewinfo = (
                  "lastn" => {
                      "des" => "Most Recent Events",
