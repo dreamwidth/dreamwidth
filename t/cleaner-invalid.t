@@ -23,7 +23,7 @@ is($clean_post, $post, "Valid HTML is okay.");
 $post = "<marquee><font size=\"24\"><color=\"FF0000\">blah blah";
 $clean->();
 is($clean_post,
-   qq {<marquee><font size="24"></font></marquee><div class='ljparseerror'>[<b>Error:</b> Irreparable invalid markup ('&lt;color=&quot;ff0000&quot;&gt;') in entry.  Owner must fix manually.  Raw contents below.]<br /><br /><div style="width: 95%; overflow: auto">} . LJ::ehtml($post) . "</div></div>",
+   qq {<marquee><font size="24"></font></marquee><div class='ljparseerror'>[<strong>Error:</strong> Irreparable invalid markup ('&lt;color=&quot;ff0000&quot;&gt;') in entry. Owner must fix manually. Raw contents below.]<br /><br /><div style="width: 95%; overflow: auto">} . LJ::ehtml($post) . "</div></div>",
    "Invalid HTML is not okay.");
 
 
@@ -38,7 +38,7 @@ is($clean_post, $u->ljuser_display, "User tag is fine.");
     $post = "<lj user=\"" . $u->user . "\"> and some text <marquee><font size=\"24\"><color=\"FF0000\">blah blah";
     $clean->();
     is($clean_post,
-        $u->ljuser_display . qq { and some text <marquee><font size="24"></font></marquee><div class='ljparseerror'>[<b>Error:</b> Irreparable invalid markup ('&lt;color=&quot;ff0000&quot;&gt;') in entry.  Owner must fix manually.  Raw contents below.]<br /><br /><div style="width: 95%; overflow: auto">} . LJ::ehtml($post) . "</div></div>",
+        $u->ljuser_display . qq { and some text <marquee><font size="24"></font></marquee><div class='ljparseerror'>[<strong>Error:</strong> Irreparable invalid markup ('&lt;color=&quot;ff0000&quot;&gt;') in entry. Owner must fix manually. Raw contents below.]<br /><br /><div style="width: 95%; overflow: auto">} . LJ::ehtml($post) . "</div></div>",
         "Invalid markup with a user tag renders correctly.");
 }
 
