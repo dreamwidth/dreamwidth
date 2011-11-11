@@ -288,7 +288,13 @@ sub check_modules {
                     last;
                 }
             }
-            push @errors, "Out of date module: $mod (need $ver_want, $ver_got installed)" if $invalid;
+            if ( $invalid ) {
+                if ( $modules{$mod}->{opt} ) {
+                    print STDERR "Out of date optional module: $mod (need $ver_want, $ver_got installed)\n";
+                } else {
+                    push @errors, "Out of date module: $mod (need $ver_want, $ver_got installed)";
+                }
+            }
         }
     }
     if (@debs && -e '/etc/debian_version') {
