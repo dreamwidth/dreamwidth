@@ -141,7 +141,7 @@ sub spawn_children {
 sub terminate {
     print "terminate()\n" if $debug;
 
-    kill 1, $_ foreach keys %kids;
+    kill 15, $_ foreach keys %kids;
 
     my $stop = time + 10;
     while ( time < $stop && scalar(keys %kids) > 0 ) {
