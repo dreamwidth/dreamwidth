@@ -224,7 +224,7 @@ my %modules = (
                },
                "Hash::MultiValue" => {},
                "DateTime::TimeZone" => { 'deb' => "libdatetime-timezone-perl", },
-               "Sys::Syscal" => {
+               "Sys::Syscall" => {
                     deb => 'libsys-syscall-perl',
                     opt => 'Required for Perlbal',
                },
