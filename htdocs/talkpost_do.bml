@@ -245,7 +245,7 @@ body<=
             if ( $POST{'usertype'} eq 'anonymous' ) {
                 $mlcode = 'success.screened.comm.anon2';
             } elsif ( $commentu && $commentu->can_manage( $journalu ) ) {
-                $mlcode = '.success.screened.comm.owncomm';
+                $mlcode = '.success.screened.comm.owncomm2';
             } else {
                 $mlcode = '.success.screened.comm2';
             }
