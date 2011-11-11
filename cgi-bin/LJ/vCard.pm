@@ -59,7 +59,7 @@ sub new_remote {
     }
 
     if ($u->share_contactinfo($remote)) {
-        my @chats = qw(aolim google_talk icq jabber msn skype twitter yahoo);
+        my @chats = qw(aolim google_talk icq jabber msn skype yahoo);
         foreach my $c (@chats) {
             my $field = uc $c;
             $field =~ s/_//g;
