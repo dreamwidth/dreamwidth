@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 #
-# DW::External::Site::Diigo
+# DW::External::Site::LastFM
 #
-# Class to support Diigo linking.
+# Class to support the Last.fm site.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
-#      Ricky Buchanan <ricky@notdoneliving.net>
+#      Denise Paolucci <denise@dreamwidth.org>
 #
 # Copyright (c) 2011 by Dreamwidth Studios, LLC.
 #
@@ -15,7 +15,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::External::Site::Diigo;
+package DW::External::Site::LastFM;
 
 use strict;
 use base 'DW::External::Site';
@@ -38,7 +38,7 @@ sub accepts {
 
 
 # argument: DW::External::User
-# returns URL to this account's library
+# returns URL to this account's main dashboard
 sub journal_url {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
@@ -49,13 +49,13 @@ sub journal_url {
 
 
 # argument: DW::External::User
-# returns URL to this account's profile
+# returns URL to this account's stacks list
 sub profile_url {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/profile/' . $u->user;
+    return 'http://' . $self->{hostname} . '/user/' . $u->user . '/charts';
 }
 
 
@@ -68,7 +68,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url     => "http://www.diigo.com/favicon.ico",
+        url     => "http://cdn.last.fm/flatness/favicon.2.ico",
         width   => 16,
         height  => 16,
     }

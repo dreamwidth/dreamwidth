@@ -9,7 +9,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -42,6 +42,14 @@ $domaintosite{"twitter.com"} = DW::External::Site->new("9", "twitter.com", "twit
 $domaintosite{"tumblr.com"} = DW::External::Site->new("10", "tumblr.com", "tumblr.com", "Tumblr", "Tumblr");
 $domaintosite{"etsy.com"} = DW::External::Site->new("11", "www.etsy.com", "etsy.com", "Etsy", "Etsy");
 $domaintosite{"diigo.com"} = DW::External::Site->new("12", "www.diigo.com", "diigo.com", "Diigo", "Diigo");
+$domaintosite{"blogspot.com"} = DW::External::Site->new("13", "blogspot.com", "blogspot.com", "Blogspot", "blogspot");
+$domaintosite{"delicious.com"} = DW::External::Site->new("14", "delicious.com", "delicious.com", "Delicious", "delicious");
+$domaintosite{"deviantart.com"} = DW::External::Site->new("15", "deviantart.com", "deviantart.com", "DeviantArt", "da");
+$domaintosite{"last.fm"} = DW::External::Site->new("16", "last.fm", "last.fm", "LastFM", "lastfm");
+$domaintosite{"ravelry.com"} = DW::External::Site->new("17", "www.ravelry.com", "ravelry.com", "Ravelry", "ravelry");
+$domaintosite{"wordpress.com"} = DW::External::Site->new("18", "wordpress.com", "wordpress.com", "Wordpress", "WP");
+$domaintosite{"plurk.com"} = DW::External::Site->new("19", "plurk.com", "plurk.com", "Plurk", "Plurk");
+
 
 foreach my $value (values %domaintosite) {
     $idtosite{$value->{siteid}} = $value;

@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 #
-# DW::External::Site::Diigo
+# DW::External::Site::Delicious
 #
-# Class to support Diigo linking.
+# Class to support Delicious linking.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
-#      Ricky Buchanan <ricky@notdoneliving.net>
+#      Denise Paolucci <denise@dreamwidth.org>
 #
 # Copyright (c) 2011 by Dreamwidth Studios, LLC.
 #
@@ -15,7 +15,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::External::Site::Diigo;
+package DW::External::Site::Delicious;
 
 use strict;
 use base 'DW::External::Site';
@@ -38,24 +38,24 @@ sub accepts {
 
 
 # argument: DW::External::User
-# returns URL to this account's library
+# returns URL to this account's bookmarks
 sub journal_url {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/user/' . $u->user;
+    return 'http://' . $self->{hostname} . '/' . $u->user;
 }
 
 
 # argument: DW::External::User
-# returns URL to this account's profile
+# returns URL to this account's stacks list
 sub profile_url {
     my ( $self, $u ) = @_;
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    return 'http://' . $self->{hostname} . '/profile/' . $u->user;
+    return 'http://' . $self->{hostname} . '/stacks/' . $u->user;
 }
 
 
@@ -68,7 +68,7 @@ sub badge_image {
 
     # for lack of anything better, let's use the favicon
     return {
-        url     => "http://www.diigo.com/favicon.ico",
+        url     => "http://delicious.com/favicon.ico",
         width   => 16,
         height  => 16,
     }
