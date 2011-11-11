@@ -1078,6 +1078,8 @@ sub load_comments
             my $top_counter = 1;
 
             foreach my $post (sort { $a->{'talkid'} <=> $b->{'talkid'} } values %$posts) {
+                next unless $post->{_show} || $post->{showable_children};
+
                 # set the echi for this comment
                 my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'} || 0;
                 if ( $parentid && $posts->{$parentid} ) {
