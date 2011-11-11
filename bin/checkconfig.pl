@@ -224,9 +224,18 @@ my %modules = (
                },
                "Hash::MultiValue" => {},
                "DateTime::TimeZone" => { 'deb' => "libdatetime-timezone-perl", },
-               "Sys::Syscall" => { dev => 'libsys-syscall-perl' },
-               "Danga::Socket" => { dev => 'libdanga-socket-perl' },
-               "IO::AIO" => { dev => 'libio-aoi-perl' },
+               "Sys::Syscal" => {
+                    deb => 'libsys-syscall-perl',
+                    opt => 'Required for Perlbal',
+               },
+               "Danga::Socket" => {
+                    deb => 'libdanga-socket-perl',
+                    opt => 'Required for Perlbal',
+                },
+               "IO::AIO" => {
+                    deb => 'libio-aoi-perl',
+                    opt => 'Required for Perlbal',
+                 },
               );
 
 
