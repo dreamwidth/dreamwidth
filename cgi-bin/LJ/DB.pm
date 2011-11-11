@@ -475,6 +475,8 @@ sub random_cluster {
 
 package LJ;
 
+use Carp qw(confess);  # import confess into package LJ
+
 # <LJFUNC>
 # name: LJ::get_dbh
 # class: db
@@ -588,6 +590,237 @@ sub get_cluster_master
     my $id = isu($arg) ? $arg->{'clusterid'} : $arg;
     return undef if $LJ::READONLY_CLUSTER{$id};
     return LJ::get_dbh( @dbh_opts, LJ::DB::master_role($id) );
+}
+
+
+# Single-letter domain values are for livejournal-generic code.
+#  - 0-9 are reserved for site-local hooks and are mapped from a long
+#    (> 1 char) string passed as the $dom to a single digit by the
+#    'map_global_counter_domain' hook.
+#
+# LJ-generic domains:
+#  $dom: 'S' == style, 'P' == userpic, 'A' == stock support answer
+#        'E' == external user, 'V' == vgifts,
+#        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart,
+#        'F' == PubSubHubbub subscription id (F for Fred),
+#        'K' == sitekeyword, 'I' == shopping cart Item
+#
+sub alloc_global_counter
+{
+    my ($dom, $recurse) = @_;
+    my $dbh = LJ::get_db_writer();
+    return undef unless $dbh;
+
+    # $dom can come as a direct argument or as a string to be mapped via hook
+    my $dom_unmod = $dom;
+    unless ( $dom =~ /^[ESLPAHCMFKIV]$/ ) {
+        $dom = LJ::Hooks::run_hook('map_global_counter_domain', $dom);
+    }
+    return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
+        unless defined $dom;
+
+    my $newmax;
+    my $uid = 0; # userid is not needed, we just use '0'
+
+    my $rs = $dbh->do("UPDATE counter SET max=LAST_INSERT_ID(max+1) WHERE journalid=? AND area=?",
+                      undef, $uid, $dom);
+    if ($rs > 0) {
+        $newmax = $dbh->selectrow_array("SELECT LAST_INSERT_ID()");
+        return $newmax;
+    }
+
+    return undef if $recurse;
+
+    # no prior counter rows - initialize one.
+    if ($dom eq "S") {
+        confess 'Tried to allocate S1 counter.';
+    } elsif ($dom eq "P") {
+        $newmax = 0;
+        foreach my $cid ( @LJ::CLUSTERS ) {
+            my $dbcm = LJ::get_cluster_master( $cid ) or return undef;
+            my $max = $dbcm->selectrow_array( 'SELECT MAX(picid) FROM userpic2' ) + 0;
+            $newmax = $max if $max > $newmax;
+        }
+    } elsif ($dom eq "E" || $dom eq "M") {
+        # if there is no extuser or message counter row
+        # start at 'ext_1'  - ( the 0 here is incremented after the recurse )
+        $newmax = 0;
+    } elsif ($dom eq "A") {
+        $newmax = $dbh->selectrow_array("SELECT MAX(ansid) FROM support_answers");
+    } elsif ($dom eq "H") {
+        $newmax = $dbh->selectrow_array("SELECT MAX(cartid) FROM shop_carts");
+    } elsif ($dom eq "L") {
+        # pick maximum id from pollowner
+        $newmax = $dbh->selectrow_array( "SELECT MAX(pollid) FROM pollowner" );
+    } elsif ( $dom eq 'F' ) {
+        $newmax = $dbh->selectrow_array( 'SELECT MAX(id) FROM syndicated_hubbub2' );
+    } elsif ( $dom eq 'V' ) {
+        $newmax = $dbh->selectrow_array( "SELECT MAX(vgiftid) FROM vgift_ids" );
+    } elsif ( $dom eq 'K' ) {
+        # pick maximum id from sitekeywords & interests
+        my $max_sitekeys  = $dbh->selectrow_array( "SELECT MAX(kwid) FROM sitekeywords" );
+        my $max_interests = $dbh->selectrow_array( "SELECT MAX(intid) FROM interests" );
+        $newmax = $max_sitekeys > $max_interests ? $max_sitekeys : $max_interests;
+    } elsif ( $dom eq 'I' ) {
+        # if we have no counter, start at 0, as we have no way of determining what
+        # the maximum used item id is
+        $newmax = 0;
+    } else {
+        $newmax = LJ::Hooks::run_hook('global_counter_init_value', $dom);
+        die "No alloc_global_counter initalizer for domain '$dom'"
+            unless defined $newmax;
+    }
+    $newmax += 0;
+    $dbh->do("INSERT IGNORE INTO counter (journalid, area, max) VALUES (?,?,?)",
+             undef, $uid, $dom, $newmax) or return LJ::errobj($dbh)->cond_throw;
+    return LJ::alloc_global_counter($dom, 1);
+}
+
+
+# $dom: 'L' == log, 'T' == talk, 'M' == modlog, 'S' == session,
+#       'R' == memory (remembrance), 'K' == keyword id,
+#       'C' == pending comment
+#       'V' == 'vgift', 'E' == ESN subscription id
+#       'Q' == Notification Inbox,
+#       'D' == 'moDule embed contents', 'I' == Import data block
+#       'Z' == import status item, 'X' == eXternal account
+#       'F' == filter id, 'Y' = pic/keYword mapping id
+#
+sub alloc_user_counter
+{
+    my ($u, $dom, $opts) = @_;
+    $opts ||= {};
+
+    ##################################################################
+    # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXFY]$/;           #
+    ##################################################################
+
+    my $dbh = LJ::get_db_writer();
+    return undef unless $dbh;
+
+    my $newmax;
+    my $uid = $u->userid + 0;
+    return undef unless $uid;
+    my $memkey = [$uid, "auc:$uid:$dom"];
+
+    # in a master-master DB cluster we need to be careful that in
+    # an automatic failover case where one cluster is slightly behind
+    # that the same counter ID isn't handed out twice.  use memcache
+    # as a sanity check to record/check latest number handed out.
+    my $memmax = int(LJ::MemCache::get($memkey) || 0);
+
+    my $rs = $dbh->do("UPDATE usercounter SET max=LAST_INSERT_ID(GREATEST(max,$memmax)+1) ".
+                      "WHERE journalid=? AND area=?", undef, $uid, $dom);
+    if ($rs > 0) {
+        $newmax = $dbh->selectrow_array("SELECT LAST_INSERT_ID()");
+
+        # if we've got a supplied callback, lets check the counter
+        # number for consistency.  If it fails our test, wipe
+        # the counter row and start over, initializing a new one.
+        # callbacks should return true to signal 'all is well.'
+        if ($opts->{callback} && ref $opts->{callback} eq 'CODE') {
+            my $rv = 0;
+            eval { $rv = $opts->{callback}->($u, $newmax) };
+            if ($@ or ! $rv) {
+                $dbh->do("DELETE FROM usercounter WHERE " .
+                         "journalid=? AND area=?", undef, $uid, $dom);
+                return LJ::alloc_user_counter($u, $dom);
+            }
+        }
+
+        LJ::MemCache::set($memkey, $newmax);
+        return $newmax;
+    }
+
+    if ($opts->{recurse}) {
+        # We shouldn't ever get here if all is right with the world.
+        return undef;
+    }
+
+    my $qry_map = {
+        # for entries:
+        'log'         => "SELECT MAX(jitemid) FROM log2     WHERE journalid=?",
+        'logtext'     => "SELECT MAX(jitemid) FROM logtext2 WHERE journalid=?",
+        'talk_nodeid' => "SELECT MAX(nodeid)  FROM talk2    WHERE nodetype='L' AND journalid=?",
+        # for comments:
+        'talk'     => "SELECT MAX(jtalkid) FROM talk2     WHERE journalid=?",
+        'talktext' => "SELECT MAX(jtalkid) FROM talktext2 WHERE journalid=?",
+    };
+
+    my $consider = sub {
+        my @tables = @_;
+        foreach my $t (@tables) {
+            my $res = $u->selectrow_array($qry_map->{$t}, undef, $uid);
+            $newmax = $res if $res > $newmax;
+        }
+    };
+
+    # Make sure the counter table is populated for this uid/dom.
+    if ($dom eq "L") {
+        # back in the ol' days IDs were reused (because of MyISAM)
+        # so now we're extra careful not to reuse a number that has
+        # foreign junk "attached".  turns out people like to delete
+        # each entry by hand, but we do lazy deletes that are often
+        # too lazy and a user can see old stuff come back alive
+        $consider->("log", "logtext", "talk_nodeid");
+    } elsif ($dom eq "T") {
+        # just paranoia, not as bad as above.  don't think we've ever
+        # run into cases of talktext without a talk, but who knows.
+        # can't hurt.
+        $consider->("talk", "talktext");
+    } elsif ($dom eq "M") {
+        $newmax = $u->selectrow_array("SELECT MAX(modid) FROM modlog WHERE journalid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "S") {
+        $newmax = $u->selectrow_array("SELECT MAX(sessid) FROM sessions WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "R") {
+        $newmax = $u->selectrow_array("SELECT MAX(memid) FROM memorable2 WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "K") {
+        $newmax = $u->selectrow_array("SELECT MAX(kwid) FROM userkeywords WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "C") {
+        $newmax = $u->selectrow_array("SELECT MAX(pendcid) FROM pendcomments WHERE jid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "V") {
+        $newmax = $u->selectrow_array("SELECT MAX(giftid) FROM vgifts WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "E") {
+        $newmax = $u->selectrow_array("SELECT MAX(subid) FROM subs WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "Q") {
+        $newmax = $u->selectrow_array("SELECT MAX(qid) FROM notifyqueue WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "D") {
+        $newmax = $u->selectrow_array("SELECT MAX(moduleid) FROM embedcontent WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "I") {
+        $newmax = $dbh->selectrow_array("SELECT MAX(import_data_id) FROM import_data WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "Z") {
+        $newmax = $dbh->selectrow_array("SELECT MAX(import_status_id) FROM import_status WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "X") {
+        $newmax = $u->selectrow_array("SELECT MAX(acctid) FROM externalaccount WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "F") {
+        $newmax = $u->selectrow_array("SELECT MAX(filterid) FROM watch_filters WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "Y") {
+        $newmax = $u->selectrow_array("SELECT MAX(mapid) FROM userpicmap3 WHERE userid=?",
+                                         undef, $uid);
+    } else {
+        die "No user counter initializer defined for area '$dom'.\n";
+    }
+    $newmax += 0;
+    $dbh->do("INSERT IGNORE INTO usercounter (journalid, area, max) VALUES (?,?,?)",
+             undef, $uid, $dom, $newmax) or return undef;
+
+    # The 2nd invocation of the alloc_user_counter sub should do the
+    # intended incrementing.
+    return LJ::alloc_user_counter($u, $dom, { recurse => 1 });
 }
 
 
