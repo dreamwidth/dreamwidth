@@ -22,6 +22,7 @@ my ($only_check, $no_check, $opt_nolocal, $opt_cpanm);
 
 my %dochecks;   # these are the ones we'll actually do
 my @checks = (  # put these in the order they should be checked in
+    "timezone",
     "modules",
     "env",
     "database",
@@ -50,6 +51,7 @@ usage() unless GetOptions(
 if ($debs_only) {
     $dochecks{ljconfig} = 0;
     $dochecks{database} = 0;
+    $dochecks{timezone} = 0;
 }
 
 usage() if $only_check && $no_check;
@@ -221,6 +223,7 @@ my %modules = (
                    'opt' => "Required for taking credit/debit cards in the shop.",
                },
                "Hash::MultiValue" => {},
+               "DateTime::TimeZone" => { 'deb' => "libdatetime-timezone-perl", },
                "Sys::Syscall" => { dev => 'libsys-syscall-perl' },
                "Danga::Socket" => { dev => 'libdanga-socket-perl' },
                "IO::AIO" => { dev => 'libio-aoi-perl' },
@@ -367,5 +370,17 @@ foreach my $check (@checks) {
 unless ($debs_only) {
     print "All good.\n";
     print "NOTE: checkconfig.pl doesn't check everything yet\n";
+}
+
+sub check_timezone {
+    print "[Checking Timezone...]\n";
+    my $rv = eval "use DateTime::TimeZone;";
+    if ($@) {
+        $err->( "Missing required perl module: DateTime::TimeZone" );
+    }
+
+    my $timezone = DateTime::TimeZone->new( name => 'local' );
+
+    $err->( "Timezone must be UTC." ) unless $timezone->is_utc;
 }
 
