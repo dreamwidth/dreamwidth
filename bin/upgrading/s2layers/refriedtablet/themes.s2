@@ -758,6 +758,65 @@ set color_module_title = "#363636";
 set color_module_title_background = "#a3a68a";
 
 
+#NEWLAYER: refriedtablet/nightfall
+layerinfo type = "theme";
+layerinfo name = "Nightfall";
+layerinfo redist_uniq = "refriedtablet/nightfall";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#293b3f";
+set color_page_border = "#000302";
+set color_page_link = "#a7581d";
+set color_page_link_active = "#a7581d";
+set color_page_link_hover = "#cc9728";
+set color_page_link_visited = "#a7581d";
+set color_page_text = "#cc8833";
+set color_page_title = "#cc8833";
+set color_header_background = "#192c3a";
+set color_footer_background = "#000302";
+set color_footer_link = "#a7581d";
+set color_footer_link_active = "#a7581d";
+set color_footer_link_hover = "#cc9728";
+set color_footer_link_visited = "#a7581d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#293b3f";
+set color_entry_border = "#000302";
+set color_entry_interaction_links = "#a7581d";
+set color_entry_link = "#a7581d";
+set color_entry_link_active = "#a7581d";
+set color_entry_link_hover = "#cc9728";
+set color_entry_link_visited = "#a7581d";
+set color_entry_text = "#cc8833";
+set color_entry_title = "#cc8833";
+set color_entry_title_background = "#293b3f";
+set color_comment_title = "#cc8833";
+set color_comment_title_background = "#293b3f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#192c3a";
+set color_module_border = "#293b3f";
+set color_module_link = "#a7581d";
+set color_module_link_active = "#a7581d";
+set color_module_link_hover = "#cc9728";
+set color_module_link_visited = "#a7581d";
+set color_module_text = "#cc8833";
+set color_module_title = "#cc8833";
+set color_module_title_background = "#000302";
+
+
 #NEWLAYER: refriedtablet/paisaje
 layerinfo type = "theme";
 layerinfo name = "Paisaje";
@@ -947,6 +1006,65 @@ set color_module_link_visited = "ed303c";
 set color_module_text = "#222";
 set color_module_title = "#222";
 set color_module_title_background = "#fff6eb";
+
+
+#NEWLAYER: refriedtablet/seaserpent
+layerinfo type = "theme";
+layerinfo name = "Sea Serpent";
+layerinfo redist_uniq = "refriedtablet/seaserpent";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3a715c";
+set color_page_border = "#000";
+set color_page_link = "#98dfd2";
+set color_page_link_active = "#98dfd2";
+set color_page_link_hover = "#84825b";
+set color_page_link_visited = "#98dfd2";
+set color_page_text = "#cfd8ad";
+set color_page_title = "#cfd8ad";
+set color_header_background = "#0a342a";
+set color_footer_background = "#000";
+set color_footer_link = "#98dfd2";
+set color_footer_link_active = "#98dfd2";
+set color_footer_link_hover = "#84825b";
+set color_footer_link_visited = "#98dfd2";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3a715c";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#98dfd2";
+set color_entry_link = "#98dfd2";
+set color_entry_link_active = "#98dfd2";
+set color_entry_link_hover = "#84825b";
+set color_entry_link_visited = "#98dfd2";
+set color_entry_text = "#cfd8ad";
+set color_entry_title = "#cfd8ad";
+set color_entry_title_background = "#3a715c";
+set color_comment_title = "#cfd8ad";
+set color_comment_title_background = "#3a715c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#0a342a";
+set color_module_border = "#3a715c";
+set color_module_link = "#98dfd2";
+set color_module_link_active = "#98dfd2";
+set color_module_link_hover = "#84825b";
+set color_module_link_visited = "#98dfd2";
+set color_module_text = "#cfd8ad";
+set color_module_title = "#cfd8ad";
+set color_module_title_background = "#000";
 
 
 #NEWLAYER: refriedtablet/seeded
