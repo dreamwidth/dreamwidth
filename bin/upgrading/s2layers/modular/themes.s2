@@ -133,6 +133,53 @@ set color_module_title = "#95bfb1";
 set color_module_title_background = "#603048";
 
 
+#NEWLAYER: modular/cherie
+layerinfo type = "theme";
+layerinfo name = "Cherie";
+layerinfo redist_uniq = "modular/cherie";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a87890";
+set color_page_link = "#c01848";
+set color_page_link_hover = "A87890";
+set color_page_text = "#000030";
+set color_header_background = "#d8d8a8";
+set color_footer_background = "#d8d8a8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title_background = "#d8d8a8";
+set color_entry_background = "#f0f0f0";
+set color_entry_border = "#000030";
+set color_entry_title_background = "#d8d8a8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f0f0f0";
+set color_module_border = "#000030";
+set color_module_title_background = "#d8d8a8";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS, Verdana";
+set font_comment_title = "Trebuchet MS, Verdana";
+set font_entry_title = "Trebuchet MS, Verdana";
+set font_journal_title = "Trebuchet MS, Verdana";
+set font_module_heading = "Trebuchet MS, Verdana";
+
+
 #NEWLAYER: modular/coffeeandcream
 layerinfo type = "theme";
 layerinfo name = "Coffee and Cream";
@@ -333,6 +380,58 @@ set color_module_title_background = "#1F305C";
 set image_background_page_url = "modular/distinctblue-background.png";
 
 
+#NEWLAYER: modular/freshearth
+layerinfo type = "theme";
+layerinfo name = "Fresh Earth";
+layerinfo redist_uniq = "modular/freshearth";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#F4F0D2";
+set color_page_link = "#7E9336";
+set color_page_link_hover = "#A17531";
+set color_page_text = "#4A321A";
+set color_page_title = "#FDFFD6";
+set color_header_background = "#A17531";
+set color_footer_background = "#A17531";
+set color_footer_link = "#FDFFD6";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FDFFD6";
+set color_entry_border = "#A17531";
+set color_entry_title = "#FDFFD6";
+set color_entry_title_background = "#A17531";
+set color_comment_title = "#FDFFD6";
+set color_comment_title_background = "#A17531";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#FDFFD6";
+set color_module_border = "#A17531";
+set color_module_title = "#FDFFD6";
+set color_module_title_background = "#A17531";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS, Verdana";
+set font_comment_title = "Trebuchet MS, Verdana";
+set font_entry_title = "Trebuchet MS, Verdana";
+set font_journal_title = "Trebuchet MS, Verdana";
+set font_module_heading = "Trebuchet MS, Verdana";
+
+
 #NEWLAYER: modular/freshprose
 layerinfo type = "theme";
 layerinfo name = "Fresh Prose";
@@ -527,6 +626,63 @@ set color_module_title_background = "#b6a2b8";
 set image_background_page_url = "modular/irisatdusk-background.png";
 
 
+#NEWLAYER: modular/laborswon
+layerinfo type = "theme";
+layerinfo name = "Labors Won";
+layerinfo redist_uniq = "modular/laborswon";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#e1e6cd";
+set color_page_border = "#dd1a3b";
+set color_page_link = "#dd1a3b";
+set color_page_text = "#523e4f";
+set color_page_title = "#dd1a3b";
+set color_header_background = "#fdfced";
+set color_footer_background = "#fdfced";
+set color_footer_link = "#dd1a3b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fdfced";
+set color_entry_border = "#dd1a3b";
+set color_entry_interaction_links = "#dd1a3b";
+set color_entry_link = "#dd1a3b";
+set color_entry_text = "#523e4f";
+set color_entry_title = "#fdfced";
+set color_entry_title_background = "#dd1a3b";
+set color_comment_title = "#fdfced";
+set color_comment_title_background = "#dd1a3b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fdfced";
+set color_module_border = "#dd1a3b";
+set color_module_link = "#dd1a3b";
+set color_module_text = "#523e4f";
+set color_module_title = "#fdfced";
+set color_module_title_background = "#dd1a3b";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS, Verdana";
+set font_comment_title = "Trebuchet MS, Verdana";
+set font_entry_title = "Trebuchet MS, Verdana";
+set font_journal_title = "Trebuchet MS, Verdana";
+set font_module_heading = "Trebuchet MS, Verdana";
+
+
 #NEWLAYER: modular/mediterraneanpeach
 layerinfo type = "theme";
 layerinfo name = "Mediterranean Peach";
@@ -713,6 +869,58 @@ set color_module_title = "#fff";
 set color_module_title_background = "#b6a2b8";
 
 
+#NEWLAYER: modular/realization
+layerinfo type = "theme";
+layerinfo name = "Realization";
+layerinfo redist_uniq = "modular/realization";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d8d8a8";
+set color_page_link = "#aa0400";
+set color_page_link_hover = "#89896b";
+set color_page_text = "#301818";
+set color_page_title = "#fafac2";
+set color_header_background = "#89896b";
+set color_footer_background = "#89896b";
+set color_footer_link = "#fafac2";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fafac2";
+set color_entry_border = "#89896b";
+set color_entry_title = "#fafac2";
+set color_entry_title_background = "#89896b";
+set color_comment_title = "#fafac2";
+set color_comment_title_background = "#89896b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fafac2";
+set color_module_border = "#89896b";
+set color_module_title = "#fafac2";
+set color_module_title_background = "#89896b";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS, Verdana";
+set font_comment_title = "Trebuchet MS, Verdana";
+set font_entry_title = "Trebuchet MS, Verdana";
+set font_journal_title = "Trebuchet MS, Verdana";
+set font_module_heading = "Trebuchet MS, Verdana";
+
+
 #NEWLAYER: modular/starrynight
 layerinfo type = "theme";
 layerinfo name = "Starry Night";
@@ -810,6 +1018,58 @@ function Page::print_theme_stylesheet() {
         }
     """;
 }
+
+
+#NEWLAYER: modular/subliminal
+layerinfo type = "theme";
+layerinfo name = "Subliminal";
+layerinfo redist_uniq = "modular/subliminal";
+layerinfo author_name = "timeasmymeasure";
+
+set theme_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#E6CFA8";
+set color_page_link = "#3E7BA4";
+set color_page_link_hover = "#366E92";
+set color_page_text = "#3A3229";
+set color_page_title = "#FDFFD6";
+set color_header_background = "#366E92";
+set color_footer_background = "#366E92";
+set color_footer_link = "#FDFFD6";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FDFFD6";
+set color_entry_border = "#366E92";
+set color_entry_title = "#FDFFD6";
+set color_entry_title_background = "#366E92";
+set color_comment_title = "#FDFFD6";
+set color_comment_title_background = "#366E92";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#FDFFD6";
+set color_module_border = "#366E92";
+set color_module_title = "#FDFFD6";
+set color_module_title_background = "#366E92";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS, Verdana";
+set font_comment_title = "Trebuchet MS, Verdana";
+set font_entry_title = "Trebuchet MS, Verdana";
+set font_journal_title = "Trebuchet MS, Verdana";
+set font_module_heading = "Trebuchet MS, Verdana";
 
 
 #NEWLAYER: modular/subtlemisses
