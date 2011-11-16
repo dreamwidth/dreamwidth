@@ -650,6 +650,81 @@ set color_entry_interaction_links_hover = "#E1D988";
 set color_module_border = "#403230";
 
 
+#NEWLAYER: negatives/hesperidesdark
+layerinfo type = "theme";
+layerinfo name = "Hesperides Dark";
+layerinfo redist_uniq = "negatives/hesperidesdark";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#6f483f";
+set color_page_link = "#edc890";
+set color_page_link_active = "#ed791b";
+set color_page_link_hover = "#ed964a";
+set color_page_link_visited = "#e3ad47";
+set color_page_text = "#f1f3e1";
+set color_header_background = "#65433a";
+set color_header_link = "#edc890";
+set color_header_link_active = "#ed791b";
+set color_header_link_hover = "#ed964a";
+set color_header_link_visited = "#e3ad47";
+set color_footer_background = "#65433a";
+set color_footer_link = "#edc890";
+set color_footer_link_active = "#ed791b";
+set color_footer_link_hover = "#ed964a";
+set color_footer_link_visited = "#e3ad47";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#65433a";
+set color_entry_border = "#51352e";
+set color_entry_interaction_links = "#edc890";
+set color_entry_interaction_links_active = "#ed791b";
+set color_entry_interaction_links_background = "#5b3b34";
+set color_entry_interaction_links_hover = "#ed964a";
+set color_entry_interaction_links_visited = "#e3ad47";
+set color_entry_link = "#edc890";
+set color_entry_link_active = "#ed791b";
+set color_entry_link_hover = "#ed964a";
+set color_entry_link_visited = "#e3ad47";
+set color_entry_text = "#f1f3e1";
+set color_entry_title = "#eff3ce";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#65433a";
+set color_module_border = "#51352e";
+set color_module_link = "#edc890";
+set color_module_link_active = "#ed791b";
+set color_module_link_hover = "#ed964a";
+set color_module_link_visited = "#e3ad47";
+set color_module_text = "#f1f3e1";
+set color_module_title = "#eff3ce";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Georgia";
+set font_comment_title_size = "1.1";
+set font_comment_title_units = "em";
+set font_entry_title = "Georgia";
+set font_module_heading = "Georgia";
+set font_module_text = "Georgia";
+set font_module_text_size = "1";
+set font_module_text_units = "em";
+
+
 #NEWLAYER: negatives/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light On Dark";
@@ -898,6 +973,82 @@ set color_module_text = "#000002";
 set color_module_title = "#a6e820";
 
 
+#NEWLAYER: negatives/raspberrykiss
+layerinfo type = "theme";
+layerinfo name = "Raspberry Kiss";
+layerinfo redist_uniq = "negatives/raspberrykiss";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fdb7b8";
+set color_page_link = "#d03f43";
+set color_page_link_active = "#413099";
+set color_page_link_hover = "#d0060b";
+set color_page_link_visited = "#5a4d99";
+set color_page_text = "#060606";
+set color_header_background = "#fddadb";
+set color_header_link = "#d03f43";
+set color_header_link_active = "#413099";
+set color_header_link_hover = "#d0060b";
+set color_header_link_visited = "#5a4d99";
+set color_footer_background = "#fddadb";
+set color_footer_link = "#d03f43";
+set color_footer_link_active = "#413099";
+set color_footer_link_hover = "#d0060b";
+set color_footer_link_visited = "#5a4d99";
+
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fddadb";
+set color_entry_border = "#fdc1c2";
+set color_entry_interaction_links = "#d03f43";
+set color_entry_interaction_links_active = "#413099";
+set color_entry_interaction_links_background = "#fde4e5";
+set color_entry_interaction_links_hover = "#d0060b";
+set color_entry_interaction_links_visited = "#5a4d99";
+set color_entry_link = "#d03f43";
+set color_entry_link_active = "#413099";
+set color_entry_link_hover = "#d0060b";
+set color_entry_link_visited = "#5a4d99";
+set color_entry_text = "#060606";
+set color_entry_title = "#060606";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fddadb";
+set color_module_border = "#fdc1c2";
+set color_module_link = "#d03f43";
+set color_module_link_active = "#413099";
+set color_module_link_hover = "#d0060b";
+set color_module_link_visited = "#5a4d99";
+set color_module_text = "#060606";
+set color_module_title = "#060606";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Georgia";
+set font_comment_title_size = "1.1";
+set font_comment_title_units = "em";
+set font_entry_title = "Georgia";
+set font_module_heading = "Georgia";
+set font_module_text = "Georgia";
+set font_module_text_size = "1";
+set font_module_text_units = "em";
+
+
 #NEWLAYER: negatives/spring
 layerinfo type = "theme";
 layerinfo name = "Spring";
@@ -994,6 +1145,81 @@ set color_module_text = "#000";
 set color_module_title = "#000";
 
 
+#NEWLAYER: negatives/valkyrie
+layerinfo type = "theme";
+layerinfo name = "Valkyrie";
+layerinfo redist_uniq = "negatives/valkyrie";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d2e3c6";
+set color_page_link = "#609eb5";
+set color_page_link_active = "#316456";
+set color_page_link_hover = "#4b9884";
+set color_page_link_visited = "#8d5b50";
+set color_page_text = "#413f3f";
+set color_header_background = "#f2fadc";
+set color_header_link = "#609eb5";
+set color_header_link_active = "#316456";
+set color_header_link_hover = "#4b9884";
+set color_header_link_visited = "#8d5b50";
+set color_footer_background = "#effad2";
+set color_footer_link = "#609eb5";
+set color_footer_link_active = "#316456";
+set color_footer_link_hover = "#4b9884";
+set color_footer_link_visited = "#8d5b50";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f8ffe6";
+set color_entry_border = "#dbedcf";
+set color_entry_interaction_links = "#609eb5";
+set color_entry_interaction_links_active = "#316456";
+set color_entry_interaction_links_background = "#f2fadc";
+set color_entry_interaction_links_hover = "#4b9884";
+set color_entry_interaction_links_visited = "#8d5b50";
+set color_entry_link = "#609eb5";
+set color_entry_link_active = "#316456";
+set color_entry_link_hover = "#4b9884";
+set color_entry_link_visited = "#8d5b50";
+set color_entry_text = "#413f3f";
+set color_entry_title = "#70696a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#effad2";
+set color_module_border = "#dbedcf";
+set color_module_link = "#609eb5";
+set color_module_link_active = "#316456";
+set color_module_link_hover = "#4b9884";
+set color_module_link_visited = "#8d5b50";
+set color_module_text = "#413f3f";
+set color_module_title = "#70696a";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Georgia";
+set font_comment_title_size = "1.1";
+set font_comment_title_units = "em";
+set font_entry_title = "Georgia";
+set font_module_heading = "Georgia";
+set font_module_text = "Georgia";
+set font_module_text_size = "1";
+set font_module_text_units = "em";
+
+
 #NEWLAYER: negatives/want
 layerinfo type = "theme";
 layerinfo name = "Want";
@@ -1075,6 +1301,81 @@ set color_module_link_hover = "#8b74db";
 set color_module_link_visited = "#9f926e";
 set color_module_text = "#000";
 set color_module_title = "#202260";
+
+
+#NEWLAYER: negatives/wonderland
+layerinfo type = "theme";
+layerinfo name = "Wonderland";
+layerinfo redist_uniq = "negatives/wonderland";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d8e8ee";
+set color_page_link = "#8095ab";
+set color_page_link_active = "#60398c";
+set color_page_link_hover = "#4678ab";
+set color_page_link_visited = "#5b4e69";
+set color_page_text = "#191919";
+set color_header_background = "#ffedcd";
+set color_header_link = "#8095ab";
+set color_header_link_active = "#60398c";
+set color_header_link_hover = "#4678ab";
+set color_header_link_visited = "#5b4e69";
+set color_footer_background = "#ffedcd";
+set color_footer_link = "#8095ab";
+set color_footer_link_active = "#60398c";
+set color_footer_link_hover = "#4678ab";
+set color_footer_link_visited = "#5b4e69";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff0d8";
+set color_entry_border = "#c5e3ee";
+set color_entry_interaction_links = "#8095ab";
+set color_entry_interaction_links_active = "#60398c";
+set color_entry_interaction_links_background = "#fff3e2";
+set color_entry_interaction_links_hover = "#4678ab";
+set color_entry_interaction_links_visited = "#5b4e69";
+set color_entry_link = "#8095ab";
+set color_entry_link_active = "#60398c";
+set color_entry_link_hover = "#4678ab";
+set color_entry_link_visited = "#5b4e69";
+set color_entry_text = "#191919";
+set color_entry_title = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff3e2";
+set color_module_border = "#c5e3ee";
+set color_module_link = "#8095ab";
+set color_module_link_active = "#60398c";
+set color_module_link_hover = "#4678ab";
+set color_module_link_visited = "#5b4e69";
+set color_module_text = "#191919";
+set color_module_title = "#333";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Georgia";
+set font_comment_title_size = "1.1";
+set font_comment_title_units = "em";
+set font_entry_title = "Georgia";
+set font_module_heading = "Georgia";
+set font_module_text = "Georgia";
+set font_module_text_size = "1";
+set font_module_text_units = "em";
 
 
 #NEWLAYER: negatives/yozakura
