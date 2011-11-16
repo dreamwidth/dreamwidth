@@ -136,8 +136,8 @@
 
         $.each(data, function(index, value) {
             $("<li>").append(
-                $( "<input>", { type: "checkbox", id: "tagselector_tag_" + value, value: value, checked: selected[value] } ),
-                $("<label>", { for: "tagselector_tag_" + value } ).text(value) )
+                $( "<input>", { "type": "checkbox", id: "tagselector_tag_" + value, "value": value, "checked": selected[value] } ),
+                $("<label>", { "for": "tagselector_tag_" + value } ).text(value) )
             .appendTo($tagslist)
         });
 
