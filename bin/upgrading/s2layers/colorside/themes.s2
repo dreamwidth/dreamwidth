@@ -157,6 +157,66 @@ function Page::print_theme_stylesheet () {
 }
 
 
+#NEWLAYER: colorside/fadedblues
+layerinfo type = "theme";
+layerinfo name = "Faded Blues";
+layerinfo redist_uniq = "colorside/fadedblues";
+layerinfo author_name = "bindingthreads";
+
+set theme_authors = [ { "name" => "bindingthreads", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d8e0e3";
+set color_page_border = "#d8e0e3";
+set color_page_details_text = "#3d4256";
+set color_page_link = "#638c99";
+set color_page_link_active = "#638c99";
+set color_page_link_hover = "#70727a";
+set color_page_link_visited = "#638c99";
+set color_page_text = "#3d4256";
+set color_page_title = "#3d4256";
+set color_header_background = "#d8e0e3";
+set color_footer_background = "#d8e0e3";
+set color_footer_link = "#638c99";
+set color_footer_link_active = "#638c99";
+set color_footer_link_hover = "#70727a";
+set color_footer_link_visited = "#638c99";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d8e0e3";
+set color_entry_border = "#d8e0e3";
+set color_entry_interaction_links = "#638c99";
+set color_entry_link = "#638c99";
+set color_entry_link_active = "#638c99";
+set color_entry_link_hover = "#70727a";
+set color_entry_link_visited = "#638c99";
+set color_entry_text = "#05152f";
+set color_entry_title = "#3d4256";
+set color_entry_title_background = "#c7d2d7";
+set color_comment_title = "#3d4256";
+set color_comment_title_background = "#c7d2d7";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d8e0e3";
+set color_module_border = "#d8e0e3";
+set color_module_link = "#638c99";
+set color_module_link_active = "#638c99";
+set color_module_link_hover = "#70727a";
+set color_module_link_visited = "#638c99";
+set color_module_text = "#3d4256";
+set color_module_title = "#3d4256";
+set color_module_title_background = "#d8e0e3";
+
+
 #NEWLAYER: colorside/icedcucumber
 layerinfo type = "theme";
 layerinfo name = "Iced Cucumber";
@@ -455,6 +515,66 @@ function Page::print_theme_stylesheet () {
 }
 
 
+#NEWLAYER: colorside/palegold
+layerinfo type = "theme";
+layerinfo name = "Pale Gold";
+layerinfo redist_uniq = "colorside/palegold";
+layerinfo author_name = "bindingthreads";
+
+set theme_authors = [ { "name" => "bindingthreads", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff0c4";
+set color_page_border = "#fff0c4";
+set color_page_details_text = "#6d2d0c";
+set color_page_link = "#e38f38";
+set color_page_link_active = "#e38f38";
+set color_page_link_hover = "#aa7b4a";
+set color_page_link_visited = "#e38f38";
+set color_page_text = "#6d2d0c";
+set color_page_title = "#6d2d0c";
+set color_header_background = "#fff0c4";
+set color_footer_background = "#fff0c4";
+set color_footer_link = "#e38f38";
+set color_footer_link_active = "#e38f38";
+set color_footer_link_hover = "#aa7b4a";
+set color_footer_link_visited = "#e38f38";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff0c4";
+set color_entry_border = "#fff0c4";
+set color_entry_interaction_links = "#e38f38";
+set color_entry_link = "#e38f38";
+set color_entry_link_active = "#e38f38";
+set color_entry_link_hover = "#aa7b4a";
+set color_entry_link_visited = "#e38f38";
+set color_entry_text = "#18120f";
+set color_entry_title = "#6d2d0c";
+set color_entry_title_background = "#ffe89f";
+set color_comment_title = "#6d2d0c";
+set color_comment_title_background = "#ffe89f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff0c4";
+set color_module_border = "#fff0c4";
+set color_module_link = "#e38f38";
+set color_module_link_active = "#e38f38";
+set color_module_link_hover = "#aa7b4a";
+set color_module_link_visited = "#e38f38";
+set color_module_text = "#6d2d0c";
+set color_module_title = "#6d2d0c";
+set color_module_title_background = "#fff0c4";
+
+
 #NEWLAYER: colorside/retrocircus
 layerinfo type = "theme";
 layerinfo name = "Retro Circus";
@@ -672,3 +792,63 @@ set color_entry_title_background = "#eae1da";
 set color_module_background = "#f5f0ed";
 set color_module_title = "#79665b";
 set color_module_title_background = "#eae1da";
+
+
+#NEWLAYER: colorside/waterrose
+layerinfo type = "theme";
+layerinfo name = "Water Rose";
+layerinfo redist_uniq = "colorside/waterrose";
+layerinfo author_name = "bindingthreads";
+
+set theme_authors = [ { "name" => "bindingthreads", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fcd8cf";
+set color_page_border = "#fcd8cf";
+set color_page_details_text = "#825c56";
+set color_page_link = "#b3565a";
+set color_page_link_active = "#b3565a";
+set color_page_link_hover = "#8B7D79";
+set color_page_link_visited = "#b3565a";
+set color_page_text = "#825c56";
+set color_page_title = "#825c56";
+set color_header_background = "#fcd8cf";
+set color_footer_background = "#fcd8cf";
+set color_footer_link = "#b3565a";
+set color_footer_link_active = "#b3565a";
+set color_footer_link_hover = "#8B7D79";
+set color_footer_link_visited = "#b3565a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fcd8cf";
+set color_entry_border = "#fcd8cf";
+set color_entry_interaction_links = "#b3565a";
+set color_entry_link = "#b3565a";
+set color_entry_link_active = "#b3565a";
+set color_entry_link_hover = "#8B7D79";
+set color_entry_link_visited = "#b3565a";
+set color_entry_text = "#2b0e0e";
+set color_entry_title = "#825c56";
+set color_entry_title_background = "#f8c9be";
+set color_comment_title = "#825c56";
+set color_comment_title_background = "#f8c9be";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fcd8cf";
+set color_module_border = "#fcd8cf";
+set color_module_link = "#b3565a";
+set color_module_link_active = "#b3565a";
+set color_module_link_hover = "#8B7D79";
+set color_module_link_visited = "#b3565a";
+set color_module_text = "#825c56";
+set color_module_title = "#825c56";
+set color_module_title_background = "#fcd8cf";
