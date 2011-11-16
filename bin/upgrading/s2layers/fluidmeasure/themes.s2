@@ -117,6 +117,197 @@ set color_module_title = "#1f2727";
 set color_module_title_background = "#1f6b68";
 
 
+#NEWLAYER: fluidmeasure/citrusy
+layerinfo type = "theme";
+layerinfo name = "Citrusy";
+layerinfo redist_uniq = "fluidmeasure/citrusy";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#c6dbdc";
+set color_page_border = "#8dc7c8";
+set color_page_link = "#2f9762";
+set color_page_link_active = "#2f9762";
+set color_page_link_hover = "#cf6202";
+set color_page_link_visited = "#78426d";
+set color_page_text = "#0e0e0e";
+set color_page_title = "#739045";
+set color_header_background = "#fff5e9";
+set color_footer_background = "#fff5e9";
+set color_footer_link = "#2f9762";
+set color_footer_link_active = "#2f9762";
+set color_footer_link_hover = "#cf6202";
+set color_footer_link_visited = "#78426d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#0e0e0e";
+set color_comment_title_background = "#c0d999";
+set color_entry_background = "#fff9f3";
+set color_entry_border = "#acd968";
+set color_entry_interaction_links = "#cf6202";
+set color_entry_link = "#2f9762";
+set color_entry_link_active = "#2f9762";
+set color_entry_link_hover = "#cf6202";
+set color_entry_link_visited = "#78426d";
+set color_entry_text = "#0e0e0e";
+set color_entry_title = "#0e0e0e";
+set color_entry_title_background = "#c0d999";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff9f3";
+set color_module_border = "#acd968";
+set color_module_link = "#2f9762";
+set color_module_link_active = "#2f9762";
+set color_module_link_hover = "#cf6202";
+set color_module_link_visited = "#78426d";
+set color_module_text = "#0e0e0e";
+set color_module_title = "#0e0e0e";
+set color_module_title_background = "#c0d999";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Impact";
+set font_entry_title = "Impact";
+set font_journal_subtitle = "Impact";
+set font_journal_title = "Impact";
+set font_module_heading = "Impact";
+set font_module_text = "News Gothic MT";
+
+
+#NEWLAYER: fluidmeasure/driedflowers
+layerinfo type = "theme";
+layerinfo name = "Dried Flowers";
+layerinfo redist_uniq = "fluidmeasure/driedflowers";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#90926a";
+set color_page_border = "#90926a";
+set color_page_details_text = "#000";
+set color_page_link = "#482d36";
+set color_page_link_active = "#482d36";
+set color_page_link_hover = "#776267";
+set color_page_link_visited = "#482d36";
+set color_page_text = "#000";
+set color_page_title = "#c9a599";
+set color_header_background = "#482d36";
+set color_footer_background = "#b4ba8e";
+set color_footer_link = "#482d36";
+set color_footer_link_active = "#482d36";
+set color_footer_link_hover = "#776267";
+set color_footer_link_visited = "#482d36";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#b4ba8e";
+set color_entry_border = "#b4ba8e";
+set color_entry_interaction_links = "#482d36";
+set color_entry_link = "#482d36";
+set color_entry_link_active = "#482d36";
+set color_entry_link_hover = "#776267";
+set color_entry_link_visited = "#482d36";
+set color_entry_text = "#000";
+set color_entry_title = "#c9a599";
+set color_entry_title_background = "#482d36";
+set color_comment_title = "#c9a599";
+set color_comment_title_background = "#482d36";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b4ba8e";
+set color_module_border = "#776267";
+set color_module_link = "#482d36";
+set color_module_link_active = "#482d36";
+set color_module_link_hover = "#776267";
+set color_module_link_visited = "#482d36";
+set color_module_text = "#000";
+set color_module_title = "#c9a599";
+set color_module_title_background = "#482d36";
+
+
+#NEWLAYER: fluidmeasure/fireelemental
+layerinfo type = "theme";
+layerinfo name = "Fire Elemental";
+layerinfo redist_uniq = "fluidmeasure/fireelemental";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a91e23";
+set color_page_border = "#a91e23";
+set color_page_details_text = "#0a0505";
+set color_page_link = "#f8ee4d";
+set color_page_link_active = "#f8ee4d";
+set color_page_link_hover = "#a91e23";
+set color_page_link_visited = "#f8ee4d";
+set color_page_text = "#0a0505";
+set color_page_title = "#f8ee4d";
+set color_header_background = "#0a0505";
+set color_footer_background = "#f37132";
+set color_footer_link = "#f8ee4d";
+set color_footer_link_active = "#f8ee4d";
+set color_footer_link_hover = "#f9c342";
+set color_footer_link_visited = "#f8ee4d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f37132";
+set color_entry_border = "#0a0505";
+set color_entry_interaction_links = "#f8ee4d";
+set color_entry_link = "#f8ee4d";
+set color_entry_link_active = "#f8ee4d";
+set color_entry_link_hover = "#a91e23";
+set color_entry_link_visited = "#f8ee4d";
+set color_entry_text = "#0a0505";
+set color_entry_title = "#f8ee4d";
+set color_entry_title_background = "#0a0505";
+set color_comment_title = "#f8ee4d";
+set color_comment_title_background = "#0a0505";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f37132";
+set color_module_border = "#f37132";
+set color_module_link = "#f8ee4d";
+set color_module_link_active = "#f8ee4d";
+set color_module_link_hover = "#f9c342";
+set color_module_link_visited = "#f8ee4d";
+set color_module_text = "#0a0505";
+set color_module_title = "#f8ee4d";
+set color_module_title_background = "#0a0505";
+
+
 #NEWLAYER: fluidmeasure/forestgreen
 layerinfo type = "theme";
 layerinfo name = "Forest Green";
@@ -237,6 +428,149 @@ set color_module_title = "#afcbcd";
 set color_module_title_background = "#212f31";
 
 
+#NEWLAYER: fluidmeasure/fullsky
+layerinfo type = "theme";
+layerinfo name = "Full Sky";
+layerinfo redist_uniq = "fluidmeasure/fullsky";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ecedf1";
+set color_page_border = "#c1d2f1";
+set color_page_details_text = "#131313";
+set color_page_link = "#dc4c4c";
+set color_page_link_active = "#dc4c4c";
+set color_page_link_hover = "#fa5757";
+set color_page_link_visited = "#963434";
+set color_page_text = "#131313";
+set color_page_title = "#667fa9";
+set color_header_background = "#fdfdfd";
+set color_footer_background = "#ecedf1";
+set color_footer_link = "#dc4c4c";
+set color_footer_link_active = "#dc4c4c";
+set color_footer_link_hover = "#fa5757";
+set color_footer_link_visited = "#963434";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fdfdfd";
+set color_entry_border = "#d9e1f1";
+set color_entry_interaction_links = "#fa5757";
+set color_entry_link = "#dc4c4c";
+set color_entry_link_active = "#dc4c4c";
+set color_entry_link_hover = "#fa5757";
+set color_entry_link_visited = "#963434";
+set color_entry_text = "#131313";
+set color_entry_title = "#d22d2d";
+set color_entry_title_background = "#cbd8f1";
+set color_comment_title = "#d22d2d";
+set color_comment_title_background = "#cbd8f1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fdfdfd";
+set color_module_border = "#d9e1f1";
+set color_module_link = "#dc4c4c";
+set color_module_link_active = "#dc4c4c";
+set color_module_link_hover = "#fa5757";
+set color_module_link_visited = "#963434";
+set color_module_text = "#131313";
+set color_module_title = "#d22d2d";
+set color_module_title_background = "#d9e1f1";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Impact";
+set font_entry_title = "Impact";
+set font_journal_subtitle = "Impact";
+set font_journal_title = "Impact";
+set font_module_heading = "Impact";
+set font_module_text = "News Gothic MT";
+
+
+#NEWLAYER: fluidmeasure/hollowsilence
+layerinfo type = "theme";
+layerinfo name = "Hollow Silence";
+layerinfo redist_uniq = "fluidmeasure/hollowsilence";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#8fc2a3";
+set color_page_border = "#a6d6b7";
+set color_page_link = "#406e65";
+set color_page_link_active = "#406e65";
+set color_page_link_hover = "#4b6e40";
+set color_page_link_visited = "#665f5b";
+set color_page_text = "#090808";
+set color_page_title = "#524c49";
+set color_header_background = "#9eccaf";
+set color_footer_background = "#eaf4ec";
+set color_footer_link = "#406e65";
+set color_footer_link_active = "#406e65";
+set color_footer_link_hover = "#4b6e40";
+set color_footer_link_visited = "#665f5b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#eaf4ec";
+set color_entry_border = "#b6e0c3";
+set color_entry_interaction_links = "#026E58";
+set color_entry_link = "#406e65";
+set color_entry_link_active = "#406e65";
+set color_entry_link_hover = "#4b6e40";
+set color_entry_link_visited = "#665f5b";
+set color_entry_text = "#090808";
+set color_entry_title = "#524c49";
+set color_entry_title_background = "#daf4e0";
+set color_comment_title = "#524c49";
+set color_comment_title_background = "#daf4e0";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#eaf4ec";
+set color_module_border = "#b6e0c3";
+set color_module_link = "#406e65";
+set color_module_link_active = "#406e65";
+set color_module_link_hover = "#4b6e40";
+set color_module_link_visited = "#665f5b";
+set color_module_text = "#090808";
+set color_module_title = "#524c49";
+set color_module_title_background = "#daf4e0";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Impact";
+set font_entry_title = "Impact";
+set font_journal_subtitle = "Impact";
+set font_journal_title = "Impact";
+set font_module_heading = "Impact";
+set font_module_text = "News Gothic MT";
+
+
 #NEWLAYER: fluidmeasure/kiwi
 layerinfo type = "theme";
 layerinfo name = "Kiwi";
@@ -295,6 +629,78 @@ set color_module_link_visited = "#748038";
 set color_module_text = "#262c0a";
 set color_module_title = "#dbe479";
 set color_module_title_background = "#262c0a";
+
+
+#NEWLAYER: fluidmeasure/lavendermist
+layerinfo type = "theme";
+layerinfo name = "Lavender Mist";
+layerinfo redist_uniq = "fluidmeasure/lavendermist";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#cda0c1";
+set color_page_border = "#e1bad5";
+set color_page_details_text = "#000";
+set color_page_link = "#947237";
+set color_page_link_active = "#947237";
+set color_page_link_hover = "#946214";
+set color_page_link_visited = "#654c25";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#e1d4dd";
+set color_footer_background = "#e1d4dd";
+set color_footer_link = "#947237";
+set color_footer_link_active = "#947237";
+set color_footer_link_hover = "#946214";
+set color_footer_link_visited = "#654c25";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#e1d4dd";
+set color_entry_border = "#e1a8d0";
+set color_entry_interaction_links = "#943214";
+set color_entry_link = "#947237";
+set color_entry_link_active = "#947237";
+set color_entry_link_hover = "#946214";
+set color_entry_link_visited = "#654c25";
+set color_entry_text = "#000";
+set color_entry_title = "#000";
+set color_entry_title_background = "#E196CB";
+set color_comment_title = "#000";
+set color_comment_title_background = "#e1a8d0";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#e1d4dd";
+set color_module_border = "#e1a8d0";
+set color_module_link = "#947237";
+set color_module_link_active = "#947237";
+set color_module_link_hover = "#946214";
+set color_module_link_visited = "#654c25";
+set color_module_text = "#000";
+set color_module_title = "#000";
+set color_module_title_background = "#e1a8d0";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Impact";
+set font_entry_title = "Impact";
+set font_journal_subtitle = "Impact";
+set font_journal_title = "Impact";
+set font_module_heading = "Impact";
+set font_module_text = "News Gothic MT";
 
 
 #NEWLAYER: fluidmeasure/marblei
@@ -515,6 +921,66 @@ set color_module_link_visited = "#0a566c";
 set color_module_text = "#000";
 set color_module_title = "#cfe0e6";
 set color_module_title_background = "#556b80";
+
+
+#NEWLAYER: fluidmeasure/nightfall
+layerinfo type = "theme";
+layerinfo name = "Nightfall";
+layerinfo redist_uniq = "fluidmeasure/nightfall";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#192c3a";
+set color_page_border = "#192c3a";
+set color_page_details_text = "#c83";
+set color_page_link = "#a7581d";
+set color_page_link_active = "#a7581d";
+set color_page_link_hover = "#cc9728";
+set color_page_link_visited = "#a7581d";
+set color_page_text = "#c83";
+set color_page_title = "#c83";
+set color_header_background = "#000302";
+set color_footer_background = "#293b3f";
+set color_footer_link = "#a7581d";
+set color_footer_link_active = "#a7581d";
+set color_footer_link_hover = "#cc9728";
+set color_footer_link_visited = "#a7581d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#293b3f";
+set color_entry_border = "#000302";
+set color_entry_interaction_links = "#a7581d";
+set color_entry_link = "#a7581d";
+set color_entry_link_active = "#a7581d";
+set color_entry_link_hover = "#cc9728";
+set color_entry_link_visited = "#a7581d";
+set color_entry_text = "#c83";
+set color_entry_title = "#a7581d";
+set color_entry_title_background = "#000302";
+set color_comment_title = "#a7581d";
+set color_comment_title_background = "#000302";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#293b3f";
+set color_module_border = "#293b3f";
+set color_module_link = "#a7581d";
+set color_module_link_active = "#a7581d";
+set color_module_link_hover = "#cc9728";
+set color_module_link_visited = "#a7581d";
+set color_module_text = "#c83";
+set color_module_title = "#a7581d";
+set color_module_title_background = "#000302";
 
 
 #NEWLAYER: fluidmeasure/nnwm2009
@@ -840,6 +1306,66 @@ set color_module_title = "#020920";
 set color_module_title_background = "#454f70";
 
 
+#NEWLAYER: fluidmeasure/prophecy
+layerinfo type = "theme";
+layerinfo name = "Prophecy";
+layerinfo redist_uniq = "fluidmeasure/prophecy";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#4d5c35";
+set color_page_border = "#4d5c35";
+set color_page_details_text = "#000";
+set color_page_link = "#4d5c35";
+set color_page_link_active = "#4d5c35";
+set color_page_link_hover = "#a8732d";
+set color_page_link_visited = "#4d5c35";
+set color_page_text = "#000";
+set color_page_title = "#f5d580";
+set color_header_background = "#1e130f";
+set color_footer_background = "#fff";
+set color_footer_link = "#4d5c35";
+set color_footer_link_active = "#4d5c35";
+set color_footer_link_hover = "#a8732d";
+set color_footer_link_visited = "#4d5c35";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#fff";
+set color_entry_interaction_links = "#4d5c35";
+set color_entry_link = "#4d5c35";
+set color_entry_link_active = "#4d5c35";
+set color_entry_link_hover = "#a8732d";
+set color_entry_link_visited = "#4d5c35";
+set color_entry_text = "#000";
+set color_entry_title = "#f5d580";
+set color_entry_title_background = "#232b1e";
+set color_comment_title = "#f5d580";
+set color_comment_title_background = "#232b1e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#a8732d";
+set color_module_link = "#a8732d";
+set color_module_link_active = "#a8732d";
+set color_module_link_hover = "#4d5c35";
+set color_module_link_visited = "#a8732d";
+set color_module_text = "#000";
+set color_module_title = "#f5d580";
+set color_module_title_background = "#232b1e";
+
+
 #NEWLAYER: fluidmeasure/quiethours
 layerinfo type = "theme";
 layerinfo name = "Quiet Hours";
@@ -1140,6 +1666,66 @@ set color_module_title = "#edeedd";
 set color_module_title_background = "#69733a";
 
 
+#NEWLAYER: fluidmeasure/seaserpent
+layerinfo type = "theme";
+layerinfo name = "Sea Serpent";
+layerinfo redist_uniq = "fluidmeasure/seaserpent";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0a342a";
+set color_page_border = "#0a342a";
+set color_page_details_text = "#cfd8ad";
+set color_page_link = "#98dfd2";
+set color_page_link_active = "#98dfd2";
+set color_page_link_hover = "#84825b";
+set color_page_link_visited = "#98dfd2";
+set color_page_text = "#cfd8ad";
+set color_page_title = "#cfd8ad";
+set color_header_background = "#000";
+set color_footer_background = "#3a715c";
+set color_footer_link = "#98dfd2";
+set color_footer_link_active = "#98dfd2";
+set color_footer_link_hover = "#84825b";
+set color_footer_link_visited = "#98dfd2";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3a715c";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#98dfd2";
+set color_entry_link = "#98dfd2";
+set color_entry_link_active = "#98dfd2";
+set color_entry_link_hover = "#84825b";
+set color_entry_link_visited = "#98dfd2";
+set color_entry_text = "#cfd8ad";
+set color_entry_title = "#98dfd2";
+set color_entry_title_background = "#000";
+set color_comment_title = "#98dfd2";
+set color_comment_title_background = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#3a715c";
+set color_module_border = "#3a715c";
+set color_module_link = "#98dfd2";
+set color_module_link_active = "#98dfd2";
+set color_module_link_hover = "#84825b";
+set color_module_link_visited = "#98dfd2";
+set color_module_text = "#cfd8ad";
+set color_module_title = "#98dfd2";
+set color_module_title_background = "#000";
+
+
 #NEWLAYER: fluidmeasure/sleepingwarrior
 layerinfo type = "theme";
 layerinfo name = "Sleeping Warrior";
@@ -1287,6 +1873,66 @@ set color_module_title = "#ECDEC7";
 set color_module_title_background = "#604830";
 
 
+#NEWLAYER: fluidmeasure/surf
+layerinfo type = "theme";
+layerinfo name = "Surf";
+layerinfo redist_uniq = "fluidmeasure/surf";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#9ee6ce";
+set color_page_border = "#9ee6ce";
+set color_page_details_text = "#000";
+set color_page_link = "#5a5c91";
+set color_page_link_active = "#5a5c91";
+set color_page_link_hover = "#3b095e";
+set color_page_link_visited = "#5a5c91";
+set color_page_text = "#000";
+set color_page_title = "#fff";
+set color_header_background = "#7c9ba6";
+set color_footer_background = "#fff";
+set color_footer_link = "#5a5c91";
+set color_footer_link_active = "#5a5c91";
+set color_footer_link_hover = "#3b095e";
+set color_footer_link_visited = "#5a5c91";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#fff";
+set color_entry_interaction_links = "#5a5c91";
+set color_entry_link = "#5a5c91";
+set color_entry_link_active = "#5a5c91";
+set color_entry_link_hover = "#3b095e";
+set color_entry_link_visited = "#5a5c91";
+set color_entry_text = "#000";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#7c9ba6";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#7c9ba6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#76c2cc";
+set color_module_link = "#5a5c91";
+set color_module_link_active = "#5a5c91";
+set color_module_link_hover = "#3b095e";
+set color_module_link_visited = "#5a5c91";
+set color_module_text = "#000";
+set color_module_title = "#fff";
+set color_module_title_background = "#7c9ba6";
+
+
 #NEWLAYER: fluidmeasure/toxicity
 layerinfo type = "theme";
 layerinfo name = "Toxicity";
@@ -1407,6 +2053,66 @@ set color_module_title = "#85A694";
 set color_module_title_background = "#572f51";
 
 
+#NEWLAYER: fluidmeasure/vintagechristmas
+layerinfo type = "theme";
+layerinfo name = "Vintage Christmas";
+layerinfo redist_uniq = "fluidmeasure/vintagechristmas";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#61231d";
+set color_page_border = "#61231d";
+set color_page_details_text = "#000";
+set color_page_link = "#61231d";
+set color_page_link_active = "#61231d";
+set color_page_link_hover = "#2b1717";
+set color_page_link_visited = "#61231d";
+set color_page_text = "#000";
+set color_page_title = "#91854d";
+set color_header_background = "#2b1717";
+set color_footer_background = "#516624";
+set color_footer_link = "#61231d";
+set color_footer_link_active = "#61231d";
+set color_footer_link_hover = "#2b1717";
+set color_footer_link_visited = "#61231d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#91854d";
+set color_entry_border = "#516624";
+set color_entry_interaction_links = "#61231d";
+set color_entry_link = "#61231d";
+set color_entry_link_active = "#61231d";
+set color_entry_link_hover = "#2b1717";
+set color_entry_link_visited = "#61231d";
+set color_entry_text = "#000";
+set color_entry_title = "#89a847";
+set color_entry_title_background = "#2b1717";
+set color_comment_title = "#91854d";
+set color_comment_title_background = "#2b1717";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#91854d";
+set color_module_border = "#516624";
+set color_module_link = "#2b1717";
+set color_module_link_active = "#2b1717";
+set color_module_link_hover = "#89a847";
+set color_module_link_visited = "#2b1717";
+set color_module_text = "#000";
+set color_module_title = "#2b1717";
+set color_module_title_background = "#516624";
+
+
 #NEWLAYER: fluidmeasure/warmembrace
 layerinfo type = "theme";
 layerinfo name = "Warm Embrace";
@@ -1465,6 +2171,78 @@ set color_module_link_visited = "#4A5E1E";
 set color_module_text = "#000";
 set color_module_title = "#000";
 set color_module_title_background = "#cca66a";
+
+
+#NEWLAYER: fluidmeasure/wonderland
+layerinfo type = "theme";
+layerinfo name = "Wonderland";
+layerinfo redist_uniq = "fluidmeasure/wonderland";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b4d2de";
+set color_page_border = "#82bdd4";
+set color_page_link = "#547ba0";
+set color_page_details_text = "#000";
+set color_page_link_active = "#547ba0";
+set color_page_link_hover = "#875fb5";
+set color_page_link_visited = "#5b4e69";
+set color_page_text = "#000";
+set color_page_title = "#333";
+set color_header_background = "#ffe6b3";
+set color_footer_background = "#ffebc7";
+set color_footer_link = "#547ba0";
+set color_footer_link_active = "#547ba0";
+set color_footer_link_hover = "#875fb5";
+set color_footer_link_visited = "#5b4e69";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#333";
+set color_comment_title_background = "#c9dde4";
+set color_entry_background = "#f5f2ed";
+set color_entry_border = "#ffe6b3";
+set color_entry_interaction_links = "#875fb5";
+set color_entry_link = "#547ba0";
+set color_entry_link_active = "#547ba0";
+set color_entry_link_hover = "#875fb5";
+set color_entry_link_visited = "#5b4e69";
+set color_entry_text = "#000";
+set color_entry_title = "#333";
+set color_entry_title_background = "#c9dde4";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ffe6b3";
+set color_module_border = "#9acbde";
+set color_module_link = "#547ba0";
+set color_module_link_active = "#547ba0";
+set color_module_link_hover = "#875fb5";
+set color_module_link_visited = "#5b4e69";
+set color_module_text = "#000";
+set color_module_title = "#636363";
+set color_module_title_background = "#9acbde";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_comment_title = "Impact";
+set font_entry_title = "Impact";
+set font_journal_subtitle = "Impact";
+set font_journal_title = "Impact";
+set font_module_heading = "Impact";
+set font_module_text = "News Gothic MT";
 
 
 #NEWLAYER: fluidmeasure/wooded
