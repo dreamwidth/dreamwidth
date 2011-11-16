@@ -91,3 +91,8 @@ a .userpic-img {
 .action-box img {
     display: block;
 }
+
+/* Specify width to fix alignment issue in FF */
+#Comments .action-box .inner {
+    width: 100%;
+}
