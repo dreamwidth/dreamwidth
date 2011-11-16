@@ -921,9 +921,10 @@ sub preview_handler {
 
         my $security = "";
         if ( $form_req->{security} eq "private" ) {
-            $security = BML::fill_template( "securityprivate" );
+            $security = $LJ::Img::img{"security-private"};
         } elsif ( $form_req->{security} eq "usemask" ) {
-            $security = BML::fill_template( "securityprotected" );
+            $security = $form_req->{allowmask} > 1 ? $LJ::Img::img{"security-groups"}
+                                                   : $LJ::Img::img{"security-protected"};
         }
         $vars->{security} = $security;
 

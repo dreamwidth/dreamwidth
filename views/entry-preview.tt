@@ -43,7 +43,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <div id='entry' class='usercontent' style='margin-left: 30px'>
     [%- currents -%]
 
-    [%- security -%]
+    [%- IF security -%]
+        <img src="[% site.imgroot %][% security.src %]" alt="[% security.alt%]" width="[% security.width %]" height="[% security.height %]" align="absmiddle" />
+    [%- END -%]
+
     <div id='entrysubj'>[% subject %]</div>
     [%- IF security OR subject -%]<br />[%- END -%]
 
