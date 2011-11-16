@@ -1,49 +1,46 @@
-#NEWLAYER: practicality/andune
+#NEWLAYER: practicality/alittlefire
 layerinfo type = "theme";
-layerinfo name = "Andúnë";
-layerinfo redist_uniq = "practicality/andune";
-layerinfo author_name = "nornoriel";
-
-set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+layerinfo name = "A Little Fire";
+layerinfo redist_uniq = "practicality/alittlefire";
+layerinfo author_name = "timeasmymeasure";
 
 ##===============================
 ## Page Colors
 ##===============================
 
-set color_page_background = "#0a0c19";
-set color_page_link = "#d5d2e3";
-set color_page_link_hover = "#e5dcf4";
-set color_page_link_visited = "#d5caf7";
-set color_page_text = "#f9f7fc";
-set color_header_background = "#7e718f";
-set color_footer_background = "#7e718f";
-set color_footer_link = "#d5d2e3";
-set color_footer_link_hover = "#e5dcf4";
-set color_footer_link_visited = "#d5caf7";
+set color_page_background = "#f0d848";
+set color_page_link = "#d83000";
+set color_page_link_hover = "#FD2F00";
+set color_page_text = "#180000";
+set color_page_title = "#180000";
+set color_header_background = "#f03000";
+set color_footer_background = "#d83000";
+set color_footer_link = "#180000";
+set color_footer_link_hover = "#300000";
 
 ##===============================
 ## Entry Colors
 ##===============================
 
-set color_entry_background = "#565e71";
-set color_entry_border = "#7e718f";
-set color_entry_link = "#d5d2e3";
-set color_entry_link_hover = "#e5dcf4";
-set color_entry_link_visited = "#d5caf7";
-set color_entry_text = "#f9f7fc";
-set color_entry_title = "#e1def9";
+set color_entry_background = "#fff";
+set color_entry_border = "#300000";
+set color_entry_interaction_links = "#300000";
+set color_entry_link = "#d83000";
+set color_entry_link_hover = "#FD2F00";
+set color_entry_text = "#180000";
+set color_entry_title = "#300000";
+set color_comment_title = "#300000";
 
 ##===============================
 ## Module Colors
 ##===============================
 
-set color_module_background = "#565e71";
-set color_module_border = "#7e718f";
-set color_module_link = "#d5d2e3";
-set color_module_link_hover = "#e5dcf4";
-set color_module_link_visited = "#d5caf7";
-set color_module_text = "#f9f7fc";
-set color_module_title = "#e1def9";
+set color_module_background = "#fff";
+set color_module_border = "#300000";
+set color_module_link = "#d83000";
+set color_module_link_hover = "#FD2F00";
+set color_module_text = "#180000";
+set color_module_title = "#300000";
 
 
 #NEWLAYER: practicality/ableconstructs
@@ -85,6 +82,93 @@ set color_comment_title = "#9da286";
 set color_module_background = "#fff";
 set color_module_border = "#e3cba4";
 set color_module_title = "#9da286";
+
+#NEWLAYER: practicality/abouttime
+layerinfo type = "theme";
+layerinfo name = "About Time";
+layerinfo redist_uniq = "practicality/abouttime";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d89078";
+set color_page_link = "#003048";
+set color_page_link_hover = "#7e6032";
+set color_page_text = "#453524";
+set color_page_title = "#f0c060";
+set color_comment_title = "#003048";
+set color_header_background = "#003048";
+set color_footer_background = "#003048";
+set color_footer_link = "#f0c060";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f0d8a8";
+set color_entry_border = "#7e6032";
+set color_entry_text = "#453524";
+set color_entry_interaction_links = "#003048";
+set color_entry_link = "#003048";
+set color_entry_link_hover = "#7e6032";
+set color_entry_title = "#003048";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f0d8a8";
+set color_module_border = "#7e6032";
+set color_module_text = "#453524";
+set color_module_link = "#003048";
+set color_module_link_hover = "#7e6032";
+set color_module_title = "#003048";
+
+
+#NEWLAYER: practicality/againandagain
+layerinfo type = "theme";
+layerinfo name = "Again & Again";
+layerinfo redist_uniq = "practicality/againandagain";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#D0A487";
+set color_page_link = "#442b59";
+set color_page_link_hover = "#a27455";
+set color_page_text = "#1d191f";
+set color_page_title = "#1d191f";
+set color_header_background = "#f36a5c";
+set color_footer_background = "#f36a5c";
+set color_footer_link = "#1d191f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f0e5bb";
+set color_entry_border = "#442b59";
+set color_entry_interaction_links = "#614633";
+set color_entry_link = "#442b59";
+set color_entry_link_hover = "#a27455";
+set color_entry_text = "#1d191f";
+set color_entry_title = "#614633";
+set color_comment_title = "#614633";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#f0e5bb";
+set color_module_border = "#442b59";
+set color_module_link = "#442b59";
+set color_module_link_hover = "#a27455";
+set color_module_text = "#1d191f";
+set color_module_title = "#614633";
 
 
 #NEWLAYER: practicality/agingcopper
@@ -193,6 +277,54 @@ set color_module_link_hover = "#EB7F17";
 set color_module_link_visited = "#eb9c4d";
 set color_module_text = "#faffeb";
 set color_module_title = "#FDFFFA";
+
+
+#NEWLAYER: practicality/andune
+layerinfo type = "theme";
+layerinfo name = "Andúnë";
+layerinfo redist_uniq = "practicality/andune";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0a0c19";
+set color_page_link = "#d5d2e3";
+set color_page_link_hover = "#e5dcf4";
+set color_page_link_visited = "#d5caf7";
+set color_page_text = "#f9f7fc";
+set color_header_background = "#7e718f";
+set color_footer_background = "#7e718f";
+set color_footer_link = "#d5d2e3";
+set color_footer_link_hover = "#e5dcf4";
+set color_footer_link_visited = "#d5caf7";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#565e71";
+set color_entry_border = "#7e718f";
+set color_entry_link = "#d5d2e3";
+set color_entry_link_hover = "#e5dcf4";
+set color_entry_link_visited = "#d5caf7";
+set color_entry_text = "#f9f7fc";
+set color_entry_title = "#e1def9";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#565e71";
+set color_module_border = "#7e718f";
+set color_module_link = "#d5d2e3";
+set color_module_link_hover = "#e5dcf4";
+set color_module_link_visited = "#d5caf7";
+set color_module_text = "#f9f7fc";
+set color_module_title = "#e1def9";
 
 
 #NEWLAYER: practicality/appleblossoms
