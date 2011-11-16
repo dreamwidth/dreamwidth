@@ -3444,7 +3444,7 @@ set color_module_title = "#383939";
 
 #NEWLAYER: practicality/sweetberrygolds
 layerinfo type = "theme";
-layerinfo name = "Sweet Berry Golds";
+layerinfo name = "Sweet BerryGolds";
 layerinfo redist_uniq = "practicality/sweetberrygolds";
 layerinfo author_name = "timeasmymeasure";
 
