@@ -1,3 +1,131 @@
+#NEWLAYER: dustyfoot/alive
+layerinfo type = "theme";
+layerinfo name = "Alive";
+layerinfo redist_uniq = "dustyfoot/alive";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f79c1b";
+set color_page_border = "#f79c1b";
+set color_page_link = "#c43911";
+set color_page_link_active = "#c43911";
+set color_page_link_hover = "#f79c1b";
+set color_page_link_visited = "#c43911";
+set color_page_text = "#100061";
+set color_page_title = "#fffcef";
+set color_header_background = "#75003c";
+set color_header_link = "#f79c1b";
+set color_header_link_active = "#f79c1b";
+set color_header_link_hover = "#c43911";
+set color_header_link_visited = "#f79c1b";
+set color_footer_background = "#75003c";
+set color_footer_link = "#f79c1b";
+set color_footer_link_active = "#f79c1b";
+set color_footer_link_hover = "#c43911";
+set color_footer_link_visited = "#f79c1b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fffcef";
+set color_entry_border = "#75003c";
+set color_entry_date = "#4a1461";
+set color_entry_link = "#c43911";
+set color_entry_link_hover = "#f79c1b";
+set color_entry_text = "#100061";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#4a1461";
+set color_module_link = "#f79c1b";
+set color_module_link_hover = "#c43911";
+set color_module_text = "#fffcef";
+set color_module_title = "#fffcef";
+set color_module_title_background = "#4a1461";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Calibri";
+set font_base_size = "1.02";
+
+function Page::print_theme_stylesheet() {
+    """
+    blockquote {
+        background-color: $*color_entry_background;
+        color: $*color_entry_date; 
+        }
+    """;
+}
+
+
+#NEWLAYER: dustyfoot/bolddances
+layerinfo type = "theme";
+layerinfo name = "Bold Dances";
+layerinfo redist_uniq = "dustyfoot/bolddances";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1e3e42";
+set color_page_link = "#db2082";
+set color_page_link_hover = "#20c4db";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#08a863";
+set color_header_link = "#fffaff";
+set color_footer_background = "#08a863";
+set color_footer_link = "#fffaff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fffaff";
+set color_entry_border = "#20c4db";
+set color_entry_date = "#000";
+set color_entry_interaction_links = "#08a863";
+set color_entry_link = "#db2082";
+set color_entry_link_hover = "#20c4db";
+set color_entry_text = "#000";
+set color_entry_title = "#08a863";
+set color_comment_title = "#08a863";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#000";
+set color_module_link = "#20c4db";
+set color_module_link_hover = "#db2082";
+set color_module_text = "#fffaff";
+set color_module_title = "#fffaff";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS";
+
+function Page::print_theme_stylesheet() {
+    """
+    #lj_controlstrip input {
+        background-color: $*color_entry_background;
+        color: $*color_entry_text;
+        }
+    """;
+}
+
+
 #NEWLAYER: dustyfoot/comfortzone
 layerinfo type = "theme";
 layerinfo name = "Comfort Zone";
@@ -44,6 +172,60 @@ set color_module_text = "#452b22";
 set color_module_title = "#4e8693";
 
 
+#NEWLAYER: dustyfoot/diditagain
+layerinfo type = "theme";
+layerinfo name = "Did It Again";
+layerinfo redist_uniq = "dustyfoot/diditagain";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#DFDAAA";
+set color_page_border = "#DFDAAA";
+set color_page_link = "#BF0436";
+set color_page_link_hover = "#9C8F68";
+set color_page_text = "#7D7253";
+set color_page_title = "#FFEFBE";
+set color_header_background = "#BF0436";
+set color_header_link = "#fafac2";
+set color_header_link_hover = "#BDBD93";
+set color_footer_background = "#BF0436";
+set color_footer_link = "#fafac2";
+set color_footer_link_hover = "#BDBD93";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#FFFBF0";
+set color_entry_border = "#DFDAAA";
+set color_entry_date = "#7D7253";
+set color_entry_interaction_links = "#BF0436";
+set color_entry_link = "#BF0436";
+set color_entry_link_hover = "#9C8F68";
+set color_entry_text = "#7D7253";
+set color_entry_title = "#7D7253";
+set color_comment_title = "#7D7253";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#BDBD93";
+set color_module_link = "#BF0436";
+set color_module_link_hover = "#9C8F68";
+set color_module_text = "#5D3C23";
+set color_module_title = "#5D3C23";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS";
+
+
 #NEWLAYER: dustyfoot/dreamer
 layerinfo type = "theme";
 layerinfo name = "Dreamer";
@@ -84,6 +266,65 @@ set color_entry_title = "#aa9568";
 
 set color_module_background = "#d5d5d5";
 set color_module_title = "#aa9568";
+
+
+#NEWLAYER: dustyfoot/emergingdiscoveries
+layerinfo type = "theme";
+layerinfo name = "Emerging Discoveries";
+layerinfo redist_uniq = "dustyfoot/emergingdiscoveries";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ed5a9a";
+set color_page_border = "#ed5a9a";
+set color_page_link = "#a12f90";
+set color_page_link_active = "#a12f90";
+set color_page_link_hover = "#8c652e";
+set color_page_link_visited = "#a12f90";
+set color_page_text = "#2a1d0d";
+set color_page_title = "#2a1d0d";
+set color_header_background = "#a12f90";
+set color_header_link = "#edd08c";
+set color_header_link_hover = "#edd08c";
+set color_footer_background = "#a12f90";
+set color_footer_link = "#edd08c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff7fd";
+set color_entry_border = "#8c652e";
+set color_entry_date = "#2a1d0d";
+set color_entry_interaction_links = "#8b345b";
+set color_entry_link = "#a12f90";
+set color_entry_link_active = "#a12f90";
+set color_entry_link_hover = "#8c652e";
+set color_entry_link_visited = "#a12f90";
+set color_entry_text = "#2a1d0d";
+set color_entry_title = "#8b345b";
+set color_comment_title = "#8b345b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#edd08c";
+set color_module_link = "#6f3480";
+set color_module_link_active = "#6f3480";
+set color_module_link_hover = "#a12f90";
+set color_module_link_visited = "#6f3480";
+set color_module_text = "#2a1d0d";
+set color_module_title = "#2a1d0d";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Century Gothic";
 
 
 #NEWLAYER: dustyfoot/garden
@@ -127,6 +368,61 @@ set color_entry_title = "#556919";
 
 set color_module_background = "#edcc9d";
 set color_module_title = "#556919";
+
+
+#NEWLAYER: dustyfoot/heartwarming
+layerinfo type = "theme";
+layerinfo name = "Heart Warming";
+layerinfo redist_uniq = "dustyfoot/heartwarming";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_border = "#ef9050";
+set color_page_background = "#ef9050";
+set color_page_link = "#165c75";
+set color_page_link_hover = "#c47642";
+set color_page_text = "#433424";
+set color_page_title = "#f9e69f";
+set color_header_background = "#cd0d0a";
+set color_header_link = "#ffa569";
+set color_header_link_hover = "#f9e69f";
+set color_footer_background = "#cd0d0a";
+set color_footer_link = "#f9e69f";
+set color_footer_link_hover = "#f9e69f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#cd0d0a";
+set color_entry_background = "#f9e69f";
+set color_entry_border = "#de8243";
+set color_entry_date = "#165c75";
+set color_entry_interaction_links = "#165c75";
+set color_entry_link = "#165c75";
+set color_entry_link_hover = "#c47642";
+set color_entry_text = "#433424";
+set color_entry_title = "#cd0d0a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d3c189";
+set color_module_link = "#165c75";
+set color_module_link_hover = "#655037";
+set color_module_title = "#cd0d0a";
+set color_module_text = "#433424";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Calisto MT";
+set font_fallback = "serif";
 
 
 #NEWLAYER: dustyfoot/lightbursts
@@ -209,6 +505,60 @@ set color_entry_title = "#aa9568";
 
 set color_module_background = "#f0d8c0";
 set color_module_title = "#aa9568";
+
+
+#NEWLAYER: dustyfoot/realizations
+layerinfo type = "theme";
+layerinfo name = "Realizations";
+layerinfo redist_uniq = "dustyfoot/realizations";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#89896b";
+set color_page_border = "#89896b";
+set color_page_link = "#aa0400";
+set color_page_link_hover = "#89896b";
+set color_page_text = "#301818";
+set color_page_title = "#d8d8a8";
+set color_header_background = "#aa0400";
+set color_header_link = "#fafac2";
+set color_header_link_hover = "#d8d8a8";
+set color_footer_background = "#aa0400";
+set color_footer_link = "#fafac2";
+set color_footer_link_hover = "#d8d8a8";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fefdc5";
+set color_entry_border = "#89896b";
+set color_entry_date = "#301818";
+set color_entry_interaction_links = "#aa0400";
+set color_entry_link = "#aa0400";
+set color_entry_link_hover = "#89896b";
+set color_entry_text = "#301818";
+set color_entry_title = "#301818";
+set color_comment_title = "#301818";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d8d8a8";
+set color_module_link = "#aa0400";
+set color_module_link_hover = "#89896b";
+set color_module_text = "#301818";
+set color_module_title = "#301818";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Trebuchet MS";
 
 
 #NEWLAYER: dustyfoot/sunnyblush
