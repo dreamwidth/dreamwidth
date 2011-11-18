@@ -104,7 +104,7 @@ sub END { LJ::end_request(); }
 use LJ::DB;
 use LJ::Tags;
 require "ljtextutil.pl";
-require "ljtimeutil.pl";
+use LJ::Time;
 use LJ::Capabilities;
 use DW::Mood;
 use LJ::Global::Img;  # defines LJ::Img
