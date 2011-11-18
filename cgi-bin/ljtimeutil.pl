@@ -197,67 +197,6 @@ sub alldatepart_s2
                 $wday);
 }
 
-# <LJFUNC>
-# name: LJ::statushistory_time
-# des: Convert a time like "20070401120323" to "2007-04-01 12:03:23".
-# class: time
-# args:
-# des-:
-# info: Only [dbtable[statushistory]] currently formats dates like this.
-# returns:
-# </LJFUNC>
-sub statushistory_time {
-    my $time = shift;
-    $time =~ s/(\d{4})(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)/$1-$2-$3 $4:$5:$6/;
-    return $time;
-}
-
-# <LJFUNC>
-# class: time
-# name: LJ::ago_text
-# des: Converts integer seconds to English time span
-# info: Turns a number of seconds into the largest possible unit of
-#       time. "2 weeks", "4 days", or "20 hours".
-# returns: A string with the number of largest units found
-# args: secondsold
-# des-secondsold: The number of seconds from now something was made.
-# </LJFUNC>
-sub ago_text
-{
-    my $secondsold = shift;
-    return $BML::ML{'time.ago.never'} unless $secondsold > 0;
-    my $num;
-    my $unit;
-    if ($secondsold >= 60*60*24*7) {
-        $num = int($secondsold / (60*60*24*7));
-        return LJ::Lang::ml('time.ago.week', {'num' => $num});
-    } elsif ($secondsold >= 60*60*24) {
-        $num = int($secondsold / (60*60*24));
-        return LJ::Lang::ml('time.ago.day', {'num' => $num});
-    } elsif ($secondsold >= 60*60) {
-        $num = int($secondsold / (60*60));
-        return LJ::Lang::ml('time.ago.hour', {'num' => $num});
-    } elsif ($secondsold >= 60) {
-        $num = int($secondsold / (60));
-        return LJ::Lang::ml('time.ago.minute', {'num' => $num});
-    } else {
-        $num = $secondsold;
-        return LJ::Lang::ml('time.ago.second', {'num' => $num});
-    }
-}
-
-# args: time in seconds of last activity; "current" time in seconds.
-# returns: result of LJ::ago_text for the difference.
-
-sub diff_ago_text {
-    my ( $last, $time ) = @_;
-    return ago_text( 0 ) unless $last;
-    $time = time() unless defined $time;
-
-    my $diff = ( $time - $last ) || 1;
-    return ago_text( $diff );
-}
-
 # Given a year, month, and day; calculate the age in years compared to now. May return a negative number or
 # zero if called in such a way as would cause those.
 

@@ -90,6 +90,46 @@ sub time_format
     return "";
 }
 
+# args: secondsold - The number of seconds ago something happened.
+# returns: approximate English time span - "2 weeks", "20 hours", etc.
+
+sub ago_text {
+    my $secondsold = $_[0] || 0;
+    return LJ::Lang::ml( 'time.ago.never' ) unless $secondsold > 0;
+
+    my $num;
+    if ( $secondsold >= 60*60*24*7 ) {
+        $num = int( $secondsold / (60*60*24*7) );
+        return LJ::Lang::ml( 'time.ago.week', { num => $num } );
+    } elsif ( $secondsold >= 60*60*24 ) {
+        $num = int( $secondsold / (60*60*24) );
+        return LJ::Lang::ml( 'time.ago.day', { num => $num } );
+    } elsif ( $secondsold >= 60*60 ) {
+        $num = int( $secondsold / (60*60) );
+        return LJ::Lang::ml( 'time.ago.hour', { num => $num } );
+    } elsif ( $secondsold >= 60 ) {
+        $num = int( $secondsold / 60 );
+        return LJ::Lang::ml( 'time.ago.minute', { num => $num } );
+    } else {
+        $num = $secondsold;
+        return LJ::Lang::ml( 'time.ago.second', { num => $num } );
+    }
+}
+*LJ::ago_text = \&ago_text;
+
+# args: time in seconds of last activity; "current" time in seconds.
+# returns: result of ago_text for the difference.
+
+sub diff_ago_text {
+    my ( $last, $time ) = @_;
+    return ago_text( 0 ) unless $last;
+    $time = time() unless defined $time;
+
+    my $diff = ( $time - $last ) || 1;
+    return ago_text( $diff );
+}
+*LJ::diff_ago_text = \&diff_ago_text;
+
 #### ml_ stuff:
 my $LS_CACHED = 0;
 my %DM_ID = ();     # id -> { type, args, dmid, langs => { => 1, => 0, => 1 } }

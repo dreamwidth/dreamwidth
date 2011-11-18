@@ -114,7 +114,9 @@ _c?>
             if ($hist->{$_} && ($_ eq 'user' || $_ eq 'admin')) {
                 $ret .= LJ::ljuser($hist->{$_});
             } elsif ($_ eq 'shdate') {
-                $ret .= LJ::statushistory_time($hist->{$_});
+                my $time = $hist->{$_};
+                $time =~ s/(\d{4})(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)/$1-$2-$3 $4:$5:$6/;
+                $ret .= $time;
             } elsif ($_ eq 'notes') {
                 # notes need to be ehtml'd, but afterwards, we can convert \n to <br />
                 my $enotes = LJ::ehtml($hist->{$_});
