@@ -15,7 +15,7 @@ RETURN VALUE:  none.  just modify the provided urlref.
 
 HOOK: get_ad_uri_mapping
 DESC: Returns allowed ad blocks for specified URI.
-USED BY: LJ::check_page_ad_block from weblib.pl.
+USED BY: LJ::check_page_ad_block from LJ::Web.
 MULTIPLE: No. Run with run_hook.
 ARGS:
   uri -- scalar, e.g. '/chat/index.bml'
@@ -31,7 +31,7 @@ RETURN VALUE:
 
 HOOK: get_page_mapping
 DESC: Returns the parameters for the specified ad block.
-USED BY: LJ::ads from weblib.pl.
+USED BY: LJ::ads from LJ::Web.
 MULTIPLE: No. Run with run_hook.
 ARGS:
    name of the ad block - scalar, e.g. 'App-Confirm'

@@ -73,7 +73,7 @@ unless (-d $ENV{'LJHOME'}) {
 }
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
 use LJ::Lang;
-require "$ENV{'LJHOME'}/cgi-bin/weblib.pl";
+use LJ::Web;
 
 my %dom_id;     # number -> {}
 my %dom_code;   # name   -> {}

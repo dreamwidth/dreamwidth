@@ -103,7 +103,7 @@ sub END { LJ::end_request(); }
 
 use LJ::DB;
 use LJ::Tags;
-require "ljtextutil.pl";
+use LJ::TextUtil;
 use LJ::Time;
 use LJ::Capabilities;
 use DW::Mood;

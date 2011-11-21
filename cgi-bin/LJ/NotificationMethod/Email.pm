@@ -17,7 +17,7 @@ use strict;
 use Carp qw/ croak /;
 use base 'LJ::NotificationMethod';
 
-require "weblib.pl";
+use LJ::Web;
 
 sub can_digest { 1 };
 

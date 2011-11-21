@@ -4,7 +4,7 @@ use strict;
 use Test::More;
 
 use lib "$ENV{LJHOME}/cgi-bin";
-require 'ljtextutil.pl';
+use LJ::TextUtil;
 
 plan tests => 16;
 

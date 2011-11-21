@@ -82,7 +82,7 @@ use LJ::Lang;
 use LJ::Links;
 use LJ::Syn;
 use LJ::HTMLControls;
-require "weblib.pl";
+use LJ::Web;
 use LJ::Support;
 use LJ::CleanHTML;
 use LJ::Talk;
