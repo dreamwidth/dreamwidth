@@ -153,8 +153,6 @@ _c?>
      my $ditemid = $itemid;
      my $uj;
 
-     $subject = BML::ml( ".email.subject.entry", { sitenameshort => $LJ::SITENAMESHORT } );
-
      $itemid = int($itemid / 256);
 
      $uj = LJ::load_user($journal);
@@ -162,7 +160,7 @@ _c?>
 
      my $entry = LJ::Entry->new($uj->{'userid'}, jitemid => $itemid);
 
-     my $subject = $entry->subject_text;
+     my $entry_subject = $entry->subject_text;
      my $pu = $entry->poster;
      my $url = $entry->url;
 
@@ -182,8 +180,13 @@ _c?>
      }
 
      $msg .= BML::ml( ".email.body", { user => $u->{'user'}, sitenameshort => $LJ::SITENAMESHORT } );
-     $msg .= BML::ml( ".email.sharedentry.title" ) . " $subject\n" if $subject;
+     $msg .= BML::ml( ".email.sharedentry.title" ) . " $entry_subject\n" if $entry_subject;
      $msg .= BML::ml( ".email.sharedentry.url" ) . " $url ";
+
+     # email subject
+     $subject = $entry_subject
+            ? BML::ml( ".email.subject.entryhassubject", { sitenameshort => $LJ::SITENAMESHORT, subject => $entry_subject } )
+            : BML::ml( ".email.subject.entrynosubject", { sitenameshort => $LJ::SITENAMESHORT } );
  }
 
  if ($GET{'user'} =~ /^\w{1,15}$/) {

@@ -42,7 +42,9 @@ Here's a link to the journal that I'm keeping online:
 
 .email.sharedentry.url=URL:
 
-.email.subject.entry=Take a look at this [[sitenameshort]] entry
+.email.subject.entryhassubject=Take a look at this [[sitenameshort]] entry: [[subject]]
+
+.email.subject.entrynosubject=Take a look at this [[sitenameshort]] entry
 
 .email.subject.journal=Take a look at this journal
 
