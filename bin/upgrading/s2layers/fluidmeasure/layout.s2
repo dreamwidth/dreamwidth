@@ -626,6 +626,7 @@ border-color: transparent !important;
     -webkit-border-radius: 1em;
     -khtml-border-radius: 1em;
     background-color: $*color_entry_background;
+    color: $*color_entry_text;
     border: 1px solid $*color_module_title_background;
 }
 .module-search .search-form { margin: .2em auto; }
