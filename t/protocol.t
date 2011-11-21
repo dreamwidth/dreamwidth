@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 222;
+plan tests => 231;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -533,7 +533,7 @@ note( "post to community by various journaltypes" );
 
 
 
-    # openid casess
+    # openid cases
     my $identity_u = temp_user( journaltype => "I" );
     $identity_u->update_self( { status => "A" } );
 
@@ -583,6 +583,98 @@ note( "post to community by various journaltypes" );
         tz          => "guess",
     );
     $success->( "OpenID users can post entries to communities with the appropriate prop." );
+}
+
+
+# Bug 3271
+note( "editing an entry with existing tags, when only admins can edit tags" );
+{
+    my $u = temp_user();
+    my $admin = temp_user();
+    my $comm = temp_comm();
+
+    ## SETUP
+    $admin->join_community( $comm, 1, 1 );
+    LJ::set_rel( $comm->userid, $admin->userid, "A" );
+    delete $LJ::REQ_CACHE_REL{$comm->userid."-".$admin->userid."-A"};  # to be safe
+
+    $comm->set_comm_settings( $admin, { membership => "open", postlevel => "members" } );
+    $comm->set_prop( nonmember_posting => 1 );
+
+    # restrict so that only admins can edit tags
+    $comm->set_prop( opt_tagpermissions => "private,private" );
+
+    # validate the user, so they can post
+    LJ::update_user( $u, { status => 'A' } );
+
+
+    ## TEST
+    # post entry with tags...
+    ( $res, $err ) = $do_request->( "postevent",
+        username    => $u->user,
+        usejournal  => $comm->user,
+
+        event       => "new test post to a community containing tags when you're not allowed to have them",
+        props       => { taglist => "user-tag" },
+        tz          => "guess",
+    );
+    $check_err->( 312, "Can't add tags to entries in this community" );
+
+
+    # post entry with no tags
+    ( $res, $err ) = $do_request->( "postevent",
+        username    => $u->user,
+        usejournal  => $comm->user,
+
+        event       => "new test post to a community this time with no tags",
+        tz          => "guess",
+    );
+    $success->( "entry posted successfully" );
+    my $itemid = $res->{itemid};
+
+    # admin adds tags
+    LJ::Tags::update_logtags($comm, $itemid, {
+            set_string => "admin-tag",
+            remote => $admin,
+    });
+
+    my $entry = LJ::Entry->new( $comm, jitemid => $itemid );
+    is_deeply( [ $entry->tags ], [ qw( admin-tag ) ], "yes, admin added tags successfully" );
+
+    # try to edit entry (editing tags)
+    ( $res, $err ) = $do_request->( "editevent",
+        username    => $u->user,
+        usejournal  => $comm->user,
+        itemid      => $entry->jitemid,
+        ver         => 1,
+
+        event       => "new entry text lalala",
+        props       => { taglist => "admin-tag, user-tag" },
+    );
+    $check_err->( 157, "error fails because we can't edit the tags" );
+
+    LJ::start_request();
+    $entry = LJ::Entry->new( $comm, jitemid => $itemid );
+    is( $entry->event_raw, "new entry text lalala", "BUT entry text was edited" );
+    is_deeply( [ $entry->tags ], [ qw( admin-tag ) ], "did not touch the tags" );
+
+
+    # try to edit entry (original tags)
+    ( $res, $err ) = $do_request->( "editevent",
+        username    => $u->user,
+        usejournal  => $comm->user,
+        itemid      => $itemid,
+        ver         => 1,
+
+        event       => "new entry text (again) lalala",
+        props       => { taglist =>  "admin-tag", },
+    );
+    $success->( "edited entry successfully" );
+
+    LJ::start_request();
+    $entry = LJ::Entry->new( $comm, jitemid => $itemid );
+    is( $entry->event_raw, "new entry text (again) lalala", "entry text edited" );
+    is_deeply( [ $entry->tags ], [ qw( admin-tag ) ], "did not touch the tags" );
 }
 
 
