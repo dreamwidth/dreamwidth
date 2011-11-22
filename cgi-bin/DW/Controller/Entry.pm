@@ -202,11 +202,6 @@ sub new_handler {
         $vars->{login_chal} = LJ::challenge_generate( 3600 ); # one hour to post if they're not logged in
     }
 
-    $vars->{vclass} = [qw(
-        midimal
-        minimal
-        maximal
-    )]->[$get->{v}||0];
     $vars->{show_unimplemented} = $get->{highlight} ? 1 : 0;
     $vars->{betacommunity} = LJ::load_user( "dw_beta" );
     return DW::Template->render_template( 'entry.tt', $vars );

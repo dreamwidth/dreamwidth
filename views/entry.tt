@@ -66,8 +66,6 @@ dw.need_res( { group => "jquery" },
 [% sections.head = BLOCK %]
 <meta name="viewport" content="width=device-width" />
 
-[% dw.need_res( "stc/postform-minimal.css" ) %]
-
 [% IF show_unimplemented %]
 <style type="text/css">
 .unimplemented {
@@ -151,8 +149,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 [%- END -%]
 
 <form method="POST" id="post_entry" action="" class="
-        [%- formwidth == "narrow" ? "entry-partial-width" : "entry-full-width" -%]
-        [%- " $vclass" -%]">
+        [%- formwidth == "narrow" ? "entry-partial-width" : "entry-full-width" -%]">
     <input type="hidden" id="nojs" value="1" name="nojs" />
 
     [% IF login_chal %]

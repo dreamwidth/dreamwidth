@@ -104,7 +104,6 @@ function stopEditing() {
         $(".column").sortable( "disable" ).enableSelection();
     $(document.body).removeClass("screen-customize-mode");
 
-    $("#post_entry").toggleClass("midimal");
     $("#post-options").slideUp();
 }
 
@@ -112,8 +111,6 @@ function startEditing() {
     if ( $.fn.sortable )
         $(".column").sortable( "enable" ).disableSelection();
     $(document.body).addClass("screen-customize-mode");
-
-    $("#post_entry").toggleClass("midimal");
 }
 
 });
