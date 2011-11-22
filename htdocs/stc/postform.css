@@ -123,21 +123,16 @@
 #currents_component label,
 .recurring_container label,
 .age_level_reason label,
-.posting_settings label {
+.posting_settings label,
+.comments_settings label,
+#security_group label {
   float:left;
   display:block;
-  width:8em;
+  width:30%;
 }
 
 #currents_component label {
-  width:38%;
-}
-
-.comments_settings label,
-#security_group label {
-  display:block;
-  float:left;
-  width:40%;
+  width:33%;
 }
 
 /* Subject & Entry */
@@ -324,7 +319,7 @@ ul.icon-functions {
 /* Publishing */
 #post_as fieldset legend {
   float: left;
-  width: 8em;
+  width: 30%;
 }
 
 .posting_settings li {

@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
 .header=Age Restriction
 
-.label.age_restriction=Age Restriction
+.label.age_restriction=Level
 
 .label.age_restriction_reason=Reason
 

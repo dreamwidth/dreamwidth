@@ -4,7 +4,7 @@
     <h3>[% ".header" | ml %]</h3>
   <div class='inner'>
   <p>
-    [%- form.select( label = "Comment Settings:"
+    [%- form.select( label = "Comments:"
         name = "comment_settings"
         id = "comment_settings"
 
