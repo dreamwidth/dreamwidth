@@ -274,7 +274,7 @@ body<=
         $ret .= join ', ', @linked_users;
 
         foreach my $site ( sort keys %sites ) {
-            $ret .= ', ' if $ret;
+            $ret .= "<div class='openid-users-block'>";
             $ret .= LJ::img( 'id_openid', '' );
             $ret .= "[$site] ";
 
@@ -288,6 +288,7 @@ body<=
             }
 
             $ret .= join ', ', @site_users;
+            $ret .= "</div>";
         }
 
         return $ret;
