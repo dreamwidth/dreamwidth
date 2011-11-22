@@ -97,6 +97,14 @@
   color: #000;
 }
 
+.destructive input {
+  color: #888;
+}
+
+.destructive input:hover {
+  color: #a11;
+}
+
 #main-tools {
   background-color: #333;
 }
