@@ -67,11 +67,10 @@
     margin:0 2em;
 }
 .simple-form fieldset.destructive {
-   float: left;
    clear: none;
    width: auto;
    text-align: left;
-   margin-right: 3em;
+   margin-right: 2em;
    line-height: 3em;
 }
 
@@ -91,8 +90,15 @@
 }
 
 .simple-form fieldset.destructive input {
-  font-size: 1em;
-  line-height: 1em;
+  border: 0;
+  background: transparent;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+
+  font-size: 0.9em;
+  text-decoration: underline;
+  margin-right: 2em;
 }
 
 /* Nested Fieldsets */

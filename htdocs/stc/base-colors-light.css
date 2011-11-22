@@ -98,6 +98,14 @@
   color: #000;
 }
 
+.destructive input {
+  color: #888;
+}
+
+.destructive input:hover {
+  color: #cc2222;
+}
+
 #main-tools {
   background-color: #ebebeb;
 }
