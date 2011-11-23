@@ -100,7 +100,7 @@ function cfShowTypes( newtype ) {
 }
 
 
-function cfPopulateLists() {
+function cfPopulateLists(selectValue) {
     // whenever we repopulate the lists, we lose what is selected
     cfHideOptions();
 
@@ -144,7 +144,7 @@ function cfPopulateLists() {
     }
 
     $('#cf-in-list').html( inOpts );
-    $('#cf-notin-list').html( outOpts );
+    $('#cf-notin-list').html( outOpts ).val( selectValue );
 
     if ($.browser.msie && parseInt($.browser.version, 10) <= 8) $('#cf-in-list, #cf-notin-list').css('width', 'auto').css('width', '100%'); // set #cf-in-list and #cf-notin-list width (IE n..7 bug)
 }
@@ -429,8 +429,13 @@ function cfAddMembers() {
     // kick off a save event
     cfSaveChanges();
 
+    var $opt = $("#cf-notin-list option");
+    var lastsel = $opt.filter(":selected:last").index();
+    var at_end = $opt.length - 1 - lastsel == 0;
+    var $newsel = $opt.filter((at_end?":lt(":":gt(") + lastsel+")").filter(":not(:selected)" + (at_end?":last":":first"))
+
     // and then redisplay our lists
-    cfPopulateLists();
+    cfPopulateLists( $newsel.val() );
 }
 
 
