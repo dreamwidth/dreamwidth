@@ -189,12 +189,10 @@ use strict;
 
     $body .= "<tr><td class='setting_label'><label for='password'>" . $ML{'.setting.xpost.option.password'} . "</label></td>";
 
-    # we don't have the password itself, so either use "" (for no password /
-    # new account) or "__passwd__"
     $body .= "<td>" . LJ::html_text({
         name => "password",
         id => "password",
-        value => $editpage ? "__passwd__" : $POST{password},
+        value => $editpage ? "" : $POST{password},
         disabled => 0,
         size => 40,
         maxlength => 80,
@@ -431,15 +429,15 @@ sub account_isvalid {
 # form handler.  edits the given account.
 sub edit_external_account {
     my ($u, $POST, $errs) = @_;
-    
+
     my $acct = DW::External::Account->get_external_account($u, $POST{acctid});
     return 0 unless $acct;
-    
+
     my $newpw = $POST{password} || "";
     if (! $POST{savepassword}) {
-        # don't save the password.
+        # don't save the password. checkbox unchecked
         $acct->set_password("");
-    } elsif ($POST{password} ne "__passwd__") {
+    } elsif ( $POST{password} && $POST{password} ne "" ) {
         # we have a password
         $acct->set_password($POST{password});
     }
