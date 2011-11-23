@@ -120,9 +120,6 @@ sub accept_comm_invite {
     $joined = $u->join_community( $cu, 1, 0, moderated_add => 1 ) or return undef
         if $args->{member};
 
-    # we watch the community; now automatically add to default view, as most useful behavior
-    $u->add_to_default_filters( $cu ) if $joined;
-
     # now grant necessary abilities
     my %edgelist = (
         post => 'P',
@@ -327,6 +324,11 @@ sub join_community {
 
     # watch the comm
     $u->add_edge( $cu, watch => {} );
+
+    # also automatically add to default view, as most useful behavior
+    # this only applies if we are doing a quick / easy join, so it won't affect
+    # things if the user is joining + watching communities the long way
+    $u->add_to_default_filters( $cu );
 
     # done
     return 1;

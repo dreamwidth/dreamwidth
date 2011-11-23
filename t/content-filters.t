@@ -8,7 +8,7 @@ use LJ::Test qw ( temp_user temp_comm );
 
 use LJ::Community;
 
-plan tests => 14;
+plan tests => 15;
 
 my $u1 = temp_user();
 my $u2 = temp_user();
@@ -83,7 +83,6 @@ note( "in default filter after accepting a community invite" );
     my $invite_u = temp_user();
 
     LJ::set_rel( $comm_u, $admin_u, 'A' );
-
     LJ::start_request();
 
     $invite_u->create_content_filter( name => 'default' );
@@ -92,10 +91,29 @@ note( "in default filter after accepting a community invite" );
     $filter = $invite_u->content_filters( name => 'default' );
 
     $invite_u->send_comm_invite( $comm_u, $admin_u, [qw ( member )] );
-    ok( ! $filter->contains_userid( $comm_u->userid ) );
+    ok( ! $filter->contains_userid( $comm_u->userid ), "not in filter yet because invite hasen't been accepted" );
 
     $invite_u->accept_comm_invite( $comm_u );
-    ok( $filter->contains_userid( $comm_u->userid ) );
+    ok( $filter->contains_userid( $comm_u->userid ), "accepted invite, now in filter" );
+}
+
+################################################################################
+note( "in default filter after creating a community");
+{
+    my $admin_u = temp_user();
+    LJ::set_remote( $admin_u );
+
+    $admin_u->create_content_filter( name => 'default' );
+
+    my $filter;
+    $filter = $admin_u->content_filters( name => 'default' );
+
+    my $comm_u = LJ::User->create_community(
+        user        => "t_". LJ::rand_chars( 15 - 2 ),
+        membership  => 'open',
+        postlevel   => 'members',
+    );
+    ok( $filter->contains_userid( $comm_u->userid ), "newly created community should go into the admin's default filters" );
 }
 
 ################################################################################
