@@ -14,6 +14,8 @@
 package LJ;
 use strict;
 
+use Time::Local ();
+
 # <LJFUNC>
 # name: LJ::days_in_month
 # class: time
