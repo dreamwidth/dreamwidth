@@ -4,9 +4,11 @@ use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-use LJ::Test qw (temp_user);
+use LJ::Test qw ( temp_user temp_comm );
 
-plan tests => 12;
+use LJ::Community;
+
+plan tests => 14;
 
 my $u1 = temp_user();
 my $u2 = temp_user();
@@ -71,5 +73,29 @@ ok( $data && exists $data->{$u2->id}, 'get data, has u2' );
 ################################################################################
 $fid = $u1->delete_content_filter( name => 'foob' );
 ok( $fid > 0, 'delete filter' );
+
+
+################################################################################
+note( "in default filter after accepting a community invite" );
+{
+    my $admin_u = temp_user();
+    my $comm_u = temp_comm();
+    my $invite_u = temp_user();
+
+    LJ::set_rel( $comm_u, $admin_u, 'A' );
+
+    LJ::start_request();
+
+    $invite_u->create_content_filter( name => 'default' );
+
+    my $filter;
+    $filter = $invite_u->content_filters( name => 'default' );
+
+    $invite_u->send_comm_invite( $comm_u, $admin_u, [qw ( member )] );
+    ok( ! $filter->contains_userid( $comm_u->userid ) );
+
+    $invite_u->accept_comm_invite( $comm_u );
+    ok( $filter->contains_userid( $comm_u->userid ) );
+}
 
 ################################################################################

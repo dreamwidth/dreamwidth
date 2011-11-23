@@ -121,15 +121,7 @@ sub accept_comm_invite {
         if $args->{member};
 
     # we watch the community; now automatically add to default view, as most useful behavior
-    if ( $joined ) {
-        my @content_filters = $u->content_filters;
-        foreach my $filter ( @content_filters ) {
-            next unless $filter->is_default();
-            next if $filter->contains_userid( $cu->userid );
-
-            $filter->add_row( userid => $cu->userid );
-        }
-    }
+    $u->add_to_default_filters( $cu ) if $joined;
 
     # now grant necessary abilities
     my %edgelist = (

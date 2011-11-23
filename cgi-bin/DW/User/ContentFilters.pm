@@ -157,5 +157,22 @@ sub delete_content_filter {
 }
 *LJ::User::delete_content_filter = \&delete_content_filter;
 
+sub add_to_default_filters {
+    my ( $u, $targetu ) = @_;
+
+    # assume things are okay at first
+    # one mis-add means failure
+    # (but we're still okay if no adds were done)
+    my $ok = 1;
+    foreach my $filter( $u->content_filters ) {
+        next unless $filter->is_default();
+        next if $filter->contains_userid( $targetu->userid );
+
+        $ok = $filter->add_row( userid => $targetu->userid ) && $ok;
+    }
+
+    return $ok;
+}
+*LJ::User::add_to_default_filters = \&add_to_default_filters;
 
 1;
