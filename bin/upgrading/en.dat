@@ -2903,6 +2903,24 @@ setting.txtmsgsetup.select.provider=-- Select Carrier --
 
 setting.txtmsgsetup.vis=Who can send you text messages?
 
+setting.usermessaging.error.invalid=Invalid selection.
+
+setting.usermessaging.label=[[siteabbrev]] Private Messages
+
+setting.usermessaging.opt.a=Everyone
+
+setting.usermessaging.opt.f=Access List Only
+
+setting.usermessaging.opt.m=Only Mutually Trusted
+
+setting.usermessaging.opt.n=Nobody
+
+setting.usermessaging.opt.y=Registered Accounts
+
+setting.usermessaging.option=Receive messages from:
+
+setting.usermessaging.option.note=Only registered [[sitename]] users can send you messages. You also have options to receive messages only from users on your Access List.
+
 setting.viewingadultcontent.error.invalid=Invalid viewing adult content setting.
 
 setting.viewingadultcontent.label=Viewing Adult Content
@@ -3049,23 +3067,7 @@ settings.state=State
 
 settings.state.us=US States
 
-settings.usermessaging.error.invalid=Invalid Option
-
-settings.usermessaging.helper=Only registered [[sitename]] users can send you messages. You also have options to receive messages only from users on your Access List.
-
-settings.usermessaging.label=[[siteabbrev]] Private Messages
-
-settings.usermessaging.opt.a=Everyone
-
-settings.usermessaging.opt.F=Access List Only
-
-settings.usermessaging.opt.M=Only Mutually Trusted
-
-settings.usermessaging.opt.N=Nobody
-
-settings.usermessaging.opt.Y=Registered Accounts
-
-settings.usermessaging.question=Receive messages from:
+settings.usermessaging.obsolete=OBSOLETE: this option has been moved to Account Settings.
 
 settings.yearofbirth=Year of Birth
 

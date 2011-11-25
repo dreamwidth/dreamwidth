@@ -126,6 +126,7 @@ body<=
             settings => [qw(
                 DW::Setting::EmailAlias
                 DW::Setting::ContactInfo
+                LJ::Setting::UserMessaging
                 LJ::Setting::MinSecurity
                 DW::Setting::SynLevel
                 LJ::Setting::SearchInclusion

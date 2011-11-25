@@ -91,10 +91,10 @@ sub option {
     my $security = $class->get_arg( $args, "txtmsg_security" ) || $tminfo->{security};
 
     my @opts = (
-        all => $class->ml( "settings.usermessaging.opt.a" ),
-        reg => $class->ml( "settings.usermessaging.opt.y" ),
-        friends => $class->ml( "settings.usermessaging.opt.f" ),
-        none    => $class->ml( "settings.usermessaging.opt.n" ),
+        all => $class->ml( "setting.usermessaging.opt.a" ),
+        reg => $class->ml( "setting.usermessaging.opt.y" ),
+        friends => $class->ml( "setting.usermessaging.opt.f" ),
+        none    => $class->ml( "setting.usermessaging.opt.n" ),
     );
 
     $ret .= LJ::html_select( { name => "${key}txtmsg_security",

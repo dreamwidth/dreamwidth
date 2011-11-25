@@ -36,10 +36,10 @@ sub option {
     my $contactinfo = $class->get_arg( $args, "contactinfo" ) || $u->opt_showcontact;
 
     my @options = (
-        "Y" => $class->ml( 'settings.usermessaging.opt.a' ),
-        "R" => $class->ml( 'settings.usermessaging.opt.y' ),
-        "F" => $class->ml( 'settings.usermessaging.opt.f' ),
-        "N" => $class->ml( 'settings.usermessaging.opt.n' ),
+        "Y" => $class->ml( 'setting.usermessaging.opt.a' ),
+        "R" => $class->ml( 'setting.usermessaging.opt.y' ),
+        "F" => $class->ml( 'setting.usermessaging.opt.f' ),
+        "N" => $class->ml( 'setting.usermessaging.opt.n' ),
     );
 
     my $ret;

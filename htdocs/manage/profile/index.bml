@@ -42,7 +42,6 @@ body<=
 
     # The settings used on this page
     my @settings = ();
-    push @settings, "LJ::Setting::UserMessaging" if LJ::is_enabled('user_messaging');
     push @settings, "LJ::Setting::FindByEmail" if LJ::is_enabled('opt_findbyemail');
     push @settings, "DW::Setting::ProfileEmail";
     push @settings, "DW::Setting::TxtMsgSetup";
@@ -389,11 +388,10 @@ body<=
             # opt_usermsg
             if ( LJ::is_enabled( 'user_messaging' ) ) {
                 $ret .= "<tr class='field_block" . $zebra_row->() . "'><td class='field_name'>";
-                $ret .= LJ::Setting::UserMessaging->label;
+                $ret .= BML::ml( 'setting.usermessaging.label', { siteabbrev => $LJ::SITENAMEABBREV } );
                 $ret .= "</td><td><span class='helper'>";
-                $ret .= BML::ml( 'settings.usermessaging.helper', { sitename => $LJ::SITENAMESHORT } );
+                $ret .= BML::ml( 'settings.usermessaging.obsolete' );
                 $ret .= "</span></td>\n<td class='selectvis'>";
-                $ret .= LJ::Setting::UserMessaging->option( $u, undef, { minimal_display => 1, helper => 0 } );
                 $ret .= "</td></tr>\n";
             }
 
@@ -589,10 +587,6 @@ body<=
 
         if (@errors == 0 && $POST{'day'} > LJ::days_in_month($POST{'month'}, $POST{'year'})) {
             push @errors, $ML{'.error.day.notinmonth'};
-        }
-
-        if ($POST{'LJ__Setting__UserMessaging_opt_usermsg'} && !$POST{'LJ__Setting__UserMessaging_opt_usermsg'} =~ /^[MFNY]$/) {
-            push @errors, $ML{'.error.usermessaging'};
         }
 
         if ($POST{'LJ__Setting__FindByEmail_opt_findbyemail'} && !$POST{'LJ__Setting__FindByEmail_opt_findbyemail'} =~ /^[HNY]$/) {

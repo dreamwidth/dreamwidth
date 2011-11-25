@@ -23,7 +23,7 @@ sub should_render {
 
 sub label {
     my $class = shift;
-    return $class->ml( 'settings.usermessaging.label',
+    return $class->ml( 'setting.usermessaging.label',
                        { siteabbrev => $LJ::SITENAMEABBREV }
                      );
 }
@@ -31,34 +31,45 @@ sub label {
 sub option {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
-    my $ret;
-    my $helper = ( $args && $args->{helper} == 0 ) ? 0 : 1;
 
-    $ret .= "<label for='${key}opt_usermsg'>" . $class->ml('settings.usermessaging.question') . "</label>"
-        unless $args && $args->{minimal_display};
-    $ret .= LJ::html_select( { name => "${key}opt_usermsg",
-                               id => "${key}opt_usermsg",
-                               class => "select",
-                               title => $class->label,
-                               selected => $u->opt_usermsg },
-                             Y => LJ::Lang::ml('settings.usermessaging.opt.Y'),
-                             F => LJ::Lang::ml('settings.usermessaging.opt.F'),
-                             M => LJ::Lang::ml('settings.usermessaging.opt.M'),
-                             N => LJ::Lang::ml('settings.usermessaging.opt.N'),
-                           );
-    $ret .= "<div class='helper'>" .
-            $class->ml('settings.usermessaging.helper', {
-                sitename => $LJ::SITENAMESHORT }) .
-            "</div>" if $helper;
-    $ret .= $class->errdiv($errs, "opt_usermsg");
+    my $usermsg = $class->get_arg($args, "usermsg") || $u->prop("opt_usermsg");
+
+    my @options = (
+        "Y" => $class->ml( 'setting.usermessaging.opt.y' ),
+        "F" => $class->ml( 'setting.usermessaging.opt.f' ),
+        "M" => $class->ml( 'setting.usermessaging.opt.m' ),
+        "N" => $class->ml( 'setting.usermessaging.opt.n' ),
+    );
+
+    my $ret;
+
+    $ret .= "<label for='${key}usermsg'>";
+    $ret .= $class->ml( 'setting.usermessaging.option' );
+    $ret .= "</label> ";
+
+    $ret .= LJ::html_select( {
+        name => "${key}usermsg",
+        id => "${key}usermsg",
+        selected => $usermsg,
+    }, @options );
+
+    $ret .= "<p class='details'>";
+    $ret .= $class->ml( 'setting.usermessaging.option.note', { sitename  => $LJ::SITENAMESHORT } );
+    $ret .= "</p>";
+
+    my $errdiv = $class->errdiv( $errs, "usermsg" );
+    $ret .= "<br />$errdiv" if $errdiv;
 
     return $ret;
 }
 
 sub error_check {
     my ($class, $u, $args) = @_;
-    my $opt_usermsg= $class->get_arg($args, "opt_usermsg");
-    $class->errors("opt_usermsg" => $class->ml('settings.usermessaging.error.invalid')) unless $opt_usermsg=~ /^[MFNY]$/;
+    my $val= $class->get_arg($args, "usermsg");
+
+    $class->errors( usermsg => $class->ml('setting.usermessaging.error.invalid'))
+        unless $val=~ /^[MFNY]$/;
+
     return 1;
 }
 
@@ -66,8 +77,11 @@ sub save {
     my ($class, $u, $args) = @_;
     $class->error_check($u, $args);
 
-    my $opt_usermsg = $class->get_arg($args, "opt_usermsg");
-    return $u->set_prop('opt_usermsg', $opt_usermsg);
+    my $val = $class->get_arg($args, "usermsg");
+
+    $u->set_prop( opt_usermsg => $val );
+
+    return 1;
 }
 
 1;
