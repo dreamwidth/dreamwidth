@@ -21,6 +21,41 @@ use Digest::MD5 qw/ md5_hex /;
 use DW::Pay;
 use Storable;
 
+=head1 API
+
+=head2 C<<DW::Logic::Importer->get_import_data( $u, id1, [ id2, id3 ] )>>
+
+Get import data for this user for all provided import ids
+
+=cut
+sub get_import_data {
+    my ( $class, $u, @ids ) = @_;
+
+    my $dbh = LJ::get_db_writer()
+        or die "No database.";
+
+    my $qs = join ",", map { "?" } @ids;
+
+    # FIXME: memcache this
+    my $imports = $dbh->selectall_arrayref(
+        "SELECT import_data_id, hostname, username, usejournal, password_md5, options FROM import_data WHERE userid = ? AND import_data_id IN ( $qs ) " .
+        "ORDER BY import_data_id ASC",
+        undef, $u->id, @ids
+    );
+
+    foreach my $import ( @{$imports||[]} ) {
+        $import->[5] = Storable::thaw( $import->[5] ) || {}
+            if $import->[5];
+    }
+
+    return $imports;
+}
+
+=head2 C<<DW::Logic::Importer->get_import_data_for_user>>
+
+Get the latest import data for this user
+
+=cut
 sub get_import_data_for_user {
     my ( $class, $u ) = @_;
 
@@ -41,34 +76,90 @@ sub get_import_data_for_user {
     return $imports;
 }
 
+=head2 C<<DW::Logic::Importer->get_import_items( $u, id1, [ id2, id3... ] )>>
+
+Get import items for this user for all provided import ids.
+
+=cut
+sub get_import_items {
+    my ( $class, $u, @importids ) = @_;
+
+    my $dbh = LJ::get_db_writer()
+        or die "No database.";
+
+    my $qs = join ",", map { "?" } @importids;
+
+    my $import_items = $dbh->selectall_arrayref(
+        "SELECT import_data_id, item, status, created, last_touch FROM import_items WHERE userid = ? AND import_data_id IN ( $qs )",
+        undef, $u->id, @importids
+    );
+
+    my %ret;
+    foreach my $import_item ( @$import_items ) {
+        my ( $id, $item, $status, $created, $last_touch ) = @$import_item;
+        $ret{$id}->{$item} = {
+            status => $status,
+            created => $created,
+            last_touch => $last_touch,
+        };
+    }
+
+    return \%ret;
+}
+
+=head2 C<<DW::Logic::Importer->get_import_items_for_user( $u, id1, [ id2, id3... ] )>>
+
+Get latest import item for this user. Includes import data.
+
+=cut
+
 sub get_import_items_for_user {
     my ( $class, $u ) = @_;
 
     my $imports = DW::Logic::Importer->get_import_data_for_user( $u );
     my %items;
-    my $dbh = LJ::get_db_writer()
-        or die "No database.";
 
     my $has_items = 0;
     foreach my $import ( @$imports ) {
         my ( $importid, $host, $username, $usejournal, $password ) = @$import;
-        $items{$importid} = { host => $host, user => $username, pw => $password, usejournal => $usejournal, items => {} };
+        $items{$importid} = {
+                    host => $host,
+                    user => $username,
+                    pw => $password,
+                    usejournal => $usejournal,
+                    items => DW::Logic::Importer->get_import_items( $u, $importid )->{$importid}, };
 
-        my $import_items = $dbh->selectall_arrayref(
-            'SELECT item, status, created, last_touch FROM import_items WHERE userid = ? AND import_data_id = ?',
-            undef, $u->id, $importid
-        );
-
-        foreach my $import_item ( @$import_items ) {
-            $items{$importid}->{items}->{$import_item->[0]} = {
-                status => $import_item->[1], created => $import_item->[2], last_touch => $import_item->[3]
-            };
-            $has_items = 1 if $import_item->[0];
-        }
+        $has_items = 1 if scalar keys %{ $items{$importid}->{items} };
     }
 
     return $has_items ? \%items : {};
 }
+
+=head2 C<<DW::Logic::Importer->get_queued_imports( $u )>>
+
+Get a list of imports that have yet to be processed. May be in the schwartz queue, and thus running soon
+or else in the import queue, and have yet to be put into the schwartz queue. The latter may not run if they
+are duplicates of something in the schwartz queue.
+
+=cut
+
+sub get_queued_imports {
+    my ( $class, $u ) = @_;
+
+    return {} unless $u;
+
+    # the latest import the user has queued
+    my $latestimport = DW::Logic::Importer->get_import_data_for_user( $u );
+
+    # the latest job that's currently running
+    # should be <= $latestimport
+    my $runningjob = $u->prop( "import_job" );
+
+    return {} unless $latestimport && $runningjob;
+
+    return DW::Logic::Importer->get_import_items( $u, $runningjob .. $latestimport->[0]->[0] );
+}
+
 
 sub set_import_data_for_user {
     my ( $class, $u, %opts ) = @_;

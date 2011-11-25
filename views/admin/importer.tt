@@ -1,0 +1,35 @@
+[%# admin/importer.tt
+
+Admin page for the importer queue
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = '.title' | ml -%]
+
+<h2>[% '.theschwartz.header' | ml %]</h2>
+<p>[% '.theschwartz.intro' | ml %]</p>
+<p>[% '.theschwartz.queue' | ml( num = jobs.size ) %]</p>
+
+
+[%- IF jobs.size > 0 -%]
+<table>
+<thead><tr><th>Order</th><th>User</th><th>Job Type</th><th>Job Import ID</th><th>Latest Queued ID</th><th>Details</th></tr>
+<tbody>
+    [%- FOREACH job = jobs -%]
+    <tr>
+        <td>[% loop.count %]</td>
+        <td>[% job.user %]</td>
+        <td>[% job.type %]</td>
+        <td>[% job.importid.job %]</td>
+        <td>[% job.importid.latest %]</td>
+        <td><a href="[% site.root %]/admin/importer/details/?user=[% job.username %]">Details</a></td>
+    </tr>
+    [%- END -%]
+</tbody>
+</table>
+[%- END -%]

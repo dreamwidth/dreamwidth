@@ -1,0 +1,46 @@
+[%# admin/importer/detail.tt
+
+Details for pending imports for a user
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = '.title' | ml -%]
+
+[%- USE date -%]
+
+Pending imports for [% username %].
+
+[% IF errmsg %]
+<div class='error-box'>
+    <p>[% errmsg | ml %]</p>
+</div>
+[% END %]
+
+[%- IF import_items.size > 0 -%]
+    [%- FOREACH import_id = import_items.keys.sort -%]
+    <h3>Import #[% import_id %]</h3>
+    <table>
+    <thead><tr>
+        <th>Item</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Last Touch</th>
+    </tr></thead>
+    <tbody>
+    [%- FOREACH item = import_items.$import_id.pairs -%]
+    <tr>
+        <td>[% item.key %]</td>
+        <td>[% item.value.status %]</td>
+        <td>[% date.format( item.value.created ) %]</td>
+        <td>[% item.value.last_touch ? date.format( item.value.last_touch ) : "-" %]</td>
+    </tr>
+    [%- END -%]
+    </tbody>
+    </table>
+    [%- END %]
+[%- END -%]

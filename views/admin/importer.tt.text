@@ -1,0 +1,12 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Importer Queue
+
+.admin.text=View importer queue status
+
+.theschwartz.header=TheSchwartz Queue
+
+.theschwartz.intro=This is a list of jobs currently in the (schwartz) job queue, but does not include jobs that are waiting for other things to complete (e.g., comment imports that are still importing comments).
+
+.theschwartz.queue=There [[?num|is|are]] [[num]] [[?num|item|items]] in the queue.
+
+.title=Importer Queue
