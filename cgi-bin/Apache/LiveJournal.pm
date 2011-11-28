@@ -396,7 +396,7 @@ sub trans
     }
 
     # handle alternate domains
-    if ( $host ne $LJ::DOMAIN && $host ne $LJ::DOMAIN_WEB && 
+    if ( $host ne $LJ::DOMAIN && $host ne $LJ::DOMAIN_WEB &&
            !( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ ) ) {
         my $which_alternate_domain = undef;
         foreach my $other_host ( @LJ::ALTERNATE_DOMAINS ) {
@@ -426,7 +426,7 @@ sub trans
 
     # block on IP address for anonymous users but allow users to log in,
     # and logged in users to go through
-    
+
     # we're not logged in, and we're not in the middle of logging in
     unless ( LJ::get_remote() || LJ::remote_bounce_url() ) {
         # blocked anon uri contains more information for the user
@@ -535,9 +535,9 @@ sub trans
             # the entry is specified but invalid OR
             # the remote user owns the journal we're viewing OR
             # the remote user posted the entry we're viewing
-            my $should_show_page = ( $u && ! $u->is_visible ) || 
+            my $should_show_page = ( $u && ! $u->is_visible ) ||
                                    ( $entry && ! $entry->valid ) ||
-                                   ( $remote && 
+                                   ( $remote &&
                                        ( $remote->can_manage( $u ) || ( $entry && $remote->equals( $poster ) ) )
                                    );
 
@@ -1263,7 +1263,7 @@ sub journal_content
                 $r->print("User-Agent: $_\n");
                 # Some bots ignore generic section if a more specific on exists
                 $r->print("Disallow: /\n");
-                $r->print("Allow: /data/foaf\n"); 
+                $r->print("Allow: /data/foaf\n");
                 $r->print("\n");
             }
         }
@@ -1745,7 +1745,7 @@ sub xmlrpc_method {
     # (e.g. string username goes as int, if username contains digits only).
     # As workaround, we can select some elements by it's names
     # and label them by correct types.
- 
+
     # Key - field name, value - type.
     my %lj_types_map = (
         journalname => 'string',

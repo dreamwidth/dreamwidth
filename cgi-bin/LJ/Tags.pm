@@ -413,7 +413,7 @@ sub get_logtagsmulti {
             or return undef;
 
         # list of (jid, jitemid) pairs that we get from %need
-        my @where; 
+        my @where;
         foreach my $jid (keys %{$need{$cid} || {}}) {
             my @jitemids = keys %{$need{$cid}->{$jid} || {}};
             next unless @jitemids;
@@ -1407,7 +1407,7 @@ sub merge_usertags {
             while $_ = $sth->fetchrow_array;
     }
 
-    # getting the entry ids the tag might need to be added to (might because if we are merging to an existing tag, 
+    # getting the entry ids the tag might need to be added to (might because if we are merging to an existing tag,
     # we need to take out the entries that already have both a tag we are merging from and the tag we are merging to)
     my $sth = $u->prepare( "SELECT DISTINCT jitemid FROM logtags WHERE journalid= ? AND kwid IN (" . join( ", ", ( "?" ) x @merge_from_ids ) . ")" );
     return $rollback->() if $u->err || ! $sth;
@@ -1504,7 +1504,7 @@ sub merge_usertags {
         }
     }
 
-    # delete other tags from database and entries 
+    # delete other tags from database and entries
     foreach my $table ( qw( usertags logtags logtagsrecent logkwsum ) ) {
         $sth = $u->prepare( "DELETE FROM $table WHERE journalid = ? AND kwid IN (" . join( ", ", ( "?" ) x @merge_from_ids ) . ")" );
         return $rollback->() if $u->err || ! $sth;
@@ -1520,7 +1520,7 @@ sub merge_usertags {
     LJ::Tags::reset_cache( $u );
     LJ::Tags::reset_cache( $u => \@jitemids );
 
-    return 1;    
+    return 1;
 }
 
 # <LJFUNC>

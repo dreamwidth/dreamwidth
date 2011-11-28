@@ -23,7 +23,7 @@ plan tests => 36;
 #    S4:     0       0       0   all new comments from any journal you watch
 #    -- NOTE: This test is disabled unless JournalNewComment allows it
 
-# we also want to test for matching and not matching cases for JournalNewComment::TopLevel 
+# we also want to test for matching and not matching cases for JournalNewComment::TopLevel
 # a subclass of JournalNewComment
 
 my %got_email = ();   # userid -> received email
@@ -265,7 +265,7 @@ test_esn_flow(sub {
                             arg1    => $u2e6->ditemid,
                             );
 
-    my $subsc2 = $u1->subscribe( 
+    my $subsc2 = $u1->subscribe(
                     event  => "JournalNewComment::TopLevel",
                     method  => "Email",
                     journal => $u2,

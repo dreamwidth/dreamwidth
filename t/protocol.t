@@ -90,7 +90,7 @@ note( "gettrustgroups" );
 
     ( $res, $err ) = $do_request->( "gettrustgroups", username => $u->user );
     $success->( "'gettrustgroups' for user." );
-    ok( ref $res->{trustgroups} eq "ARRAY" && scalar @{$res->{trustgroups}} == 0, 
+    ok( ref $res->{trustgroups} eq "ARRAY" && scalar @{$res->{trustgroups}} == 0,
         "Empty trust groups list." );
 };
 
@@ -164,7 +164,7 @@ note( "getcircle" );
     ( $res, $err ) = $do_request->( "getcircle", username => $u->user, includetrustgroups => 1 );
     $success->( "'getcircle' => includetrustgroups" );
     is( scalar keys %$res, 1, "One key: " . (keys %$res)[0] );
-    ok( ref $res->{trustgroups} eq "ARRAY" && scalar @{$res->{trustgroups}} == 0, 
+    ok( ref $res->{trustgroups} eq "ARRAY" && scalar @{$res->{trustgroups}} == 0,
         "Empty trust groups list." );
 
 
@@ -347,7 +347,7 @@ note( "editcircle" );
     ok( $watchertruster->watches( $u ), "Watched by." );
 
 
-    # now to 
+    # now to
     my %contentfilters = (
         1 => {
             name => "first",
@@ -680,7 +680,7 @@ note( "editing an entry with existing tags, when only admins can edit tags" );
 
 note( "checkforupdates" );
 {
-    
+
     my $u = temp_user();
 
     my $start = 0;

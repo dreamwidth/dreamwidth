@@ -55,7 +55,7 @@ sub run_tests {
         # set a prop once, then re-set its value again
         my $jtalkid = $c2->jtalkid;
 
-        # FIXME the whole idea of using undef as one of the loop values seem to make the code 
+        # FIXME the whole idea of using undef as one of the loop values seem to make the code
         # more complex, check if this can be changed
         foreach my $propval (0,1,undef,1) {
             # re-instantiate if we've blown $c2 away
@@ -65,15 +65,15 @@ sub run_tests {
             $LJ::_T_COMMENT_SET_PROPS_INSERT = sub { $inserted++ };
             my $deleted = 0;
             $LJ::_T_COMMENT_SET_PROPS_DELETE = sub { $deleted++ };
-                
+
             $c2->set_prop('opt_preformatted', $propval);
-                
+
             if (defined $propval) {
                 ok($inserted == 1 && $deleted == 0, "$propval: Inserted talkprop row prop-erly");
             } else {
                 ok($deleted == 1 && $inserted == 0, "undef: Deleted talkprop row prop-erly");
             }
-                
+
             is($c2->prop('opt_preformatted'),  $propval, (defined $propval ? $propval : 'undef') . ": Set prop and read back via ->prop");
             is($c2->props->{opt_preformatted}, $propval, (defined $propval ? $propval : 'undef') . ": Set prop and read back via ->props");
 
@@ -81,7 +81,7 @@ sub run_tests {
             LJ::Comment->reset_singletons;
             my $loaded = 0;
             $LJ::_T_GET_TALK_PROPS2_MEMCACHE = sub { $loaded++ };
-            
+
             my $c2_new = LJ::Comment->new($u, jtalkid => $jtalkid);
             my $propval = $c2_new->prop('opt_preformatted');
             ok($loaded == 1, (defined $propval ? $propval : 'undef') . ", Re-instantiated comment and re-loaded prop");
@@ -97,11 +97,11 @@ sub run_tests {
             $LJ::_T_COMMENT_SET_PROPS_INSERT = sub { $inserted++ };
             my $deleted = 0;
             $LJ::_T_COMMENT_SET_PROPS_DELETE = sub { $deleted++ };
-                
+
             $c2->set_prop_raw('edit_time', "UNIX_TIMESTAMP()");
-                
+
             ok($inserted == 1 && $deleted == 0, "Inserted raw talkprop row prop-erly");
-                
+
             ok($c2->prop('edit_time') =~ /^\d+$/, "Set raw prop and read back via ->prop");
             ok($c2->props->{edit_time} =~ /^\d+$/ , "Set raw prop and read back via ->props");
 
@@ -109,7 +109,7 @@ sub run_tests {
             LJ::Comment->reset_singletons;
             my $loaded = 0;
             $LJ::_T_GET_TALK_PROPS2_MEMCACHE = sub { $loaded++ };
-            
+
             my $c2_new = LJ::Comment->new($u, jtalkid => $jtalkid);
             my $propval = $c2_new->prop('edit_time');
             ok($loaded == 1 && $c2_new != $c2 && $propval == $propval, "Re-instantiated comment and re-loaded raw prop");
@@ -130,7 +130,7 @@ sub run_tests {
                 my $c3 = $e3->t_enter_comment;
 
                 $c3->set_props('opt_preformatted' => 1, 'picture_keyword' => 2);
-                ok($c3->prop('opt_preformatted') == 1 && $c3->prop('picture_keyword') == 2 && 
+                ok($c3->prop('opt_preformatted') == 1 && $c3->prop('picture_keyword') == 2 &&
                    $inserted == 1 && $deleted == 0 && $queried == 1,
                    "Set 2 props and read back");
             }
@@ -142,7 +142,7 @@ sub run_tests {
                 my $c4 = $e4->t_enter_comment;
 
                 $c4->set_props('opt_preformatted' => undef, 'picture_keyword' => 2);
-                ok(!defined( $c4->prop('opt_preformatted') ) && $c4->prop('picture_keyword') == 2 && 
+                ok(!defined( $c4->prop('opt_preformatted') ) && $c4->prop('picture_keyword') == 2 &&
                    $inserted == 1 && $deleted == 1 && $queried == 1,
                    "Set 1 prop, deleted 1, and read back");
             }
@@ -154,7 +154,7 @@ sub run_tests {
                 my $c5 = $e5->t_enter_comment;
 
                 $c5->set_props('opt_preformatted' => undef, 'picture_keyword' => undef);
-                ok(!defined( $c5->prop('opt_preformatted') ) && !defined( $c5->prop('picture_keyword') ) && 
+                ok(!defined( $c5->prop('opt_preformatted') ) && !defined( $c5->prop('picture_keyword') ) &&
                    $inserted == 0 && $deleted == 1 && $queried == 1,
                    "Set 1 prop, deleted 1, and read back");
             }
@@ -166,7 +166,7 @@ sub run_tests {
                 my $c6 = $e6->t_enter_comment;
 
                 $c6->set_props_raw('edit_time' => "UNIX_TIMESTAMP()", 'opt_preformatted' => 1);
-                ok($c6->prop('opt_preformatted') == 1 && $c6->prop('edit_time') =~ /^\d+$/ && 
+                ok($c6->prop('opt_preformatted') == 1 && $c6->prop('edit_time') =~ /^\d+$/ &&
                    $inserted == 1 && $deleted == 0 && $queried == 1,
                    "Set 2 raw props and read back");
             }
@@ -174,7 +174,7 @@ sub run_tests {
     }
 
     # post a tree of comments
-    { 
+    {
 
         # step counter so we can test multiple legacy API interactions
         foreach my $step (0..2) {
@@ -212,11 +212,11 @@ sub run_tests {
 
                 my $curr = [ $c => [] ];
                 push @tree, $curr;
- 
+
                 # now make 5 replies to each comment, except for the first
                 foreach my $reply_ct (1..$top_reply_ct) {
                     last if $top_reply_ct == 0;
-                    
+
                     my $child = $c->t_reply;
                     $child->set_prop('opt_preformatted', 1);
                     push @{$curr->[1]}, $child;
@@ -225,7 +225,7 @@ sub run_tests {
 
             # are the first-level children created properly?
             ok(@tree == 6, "$step: Created 6 child comments");
-        
+
             # how about subchildren?
             my %want = map { $_ => 1 } 0..5;
             delete $want{scalar @{$_->[1]} } foreach @tree;
@@ -245,7 +245,7 @@ sub run_tests {
             LJ::Talk::get_talk_data($u, 'L', $entry->jitemid)        if $step == 1;
             $entry->comment_list                                     if $step == 2;
             LJ::Talk::load_comments($u, undef, 'L', $entry->jitemid) if $step == 3;
-            
+
             %want = map { $_ => 1 } 0..5;
             foreach my $parent (map { $_->[0] } @tree) {
 
@@ -298,7 +298,7 @@ sub run_tests {
                     }
                 }
             }
-        } 
+        }
     }
 
     # test editing of comment text

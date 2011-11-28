@@ -56,7 +56,7 @@ sub work {
         if keys %$arg;
     return $job->permanent_failure("Missing argument")
         unless defined $uid && defined $ditemid && defined $acctid;
-        
+
     # get the user from the uid
     my $u = LJ::want_user($uid) or return $job->failed("Unable to load user with uid $uid");
 
@@ -86,7 +86,7 @@ sub work {
             )->fire_job
         );
     }
-    
+
     $job->completed;
 }
 
