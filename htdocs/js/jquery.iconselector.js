@@ -208,7 +208,9 @@
 
                     var $iconslist = $("<ul id='iconselector_icons_list'></ul>");
 
-                    $.each(data.pics, function(id, icon) {
+                    var pics = data.pics;
+                    $.each(data.ids, function(index,id) {
+                        var icon = pics[id];
                         var idstring = "iconselector_item_"+id;
 
                         var $img = $("<img />").attr( { src: icon.url, alt: icon.alt, height: icon.height, width: icon.width } ).wrap("<div class='icon_image'></div>").parent();

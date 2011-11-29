@@ -10,15 +10,25 @@ test( "no corresponding old function", 0, function() {
 });
 
 module( "jquery" );
-test( "initialize iconselector", 4, function() {
+test( "initialize iconselector", 6, function() {
     // setup callback
     var server = sinon.sandbox.useFakeServer();
 
     var icons = {
         "pics": {},
-        "ids" : []
+        "ids" : [ 1, 5 ]
     };
     var data = [
+        {
+            "id"      : 5,
+            "url"     : "/img/search.gif",
+            "state"   : "A",
+            "width"   : 16,
+            "height"  : 16,
+            "alt"     : "search",
+            "comment" : "from repo",
+            "keywords": [ "search" ]
+        },
         {
             "id"     : 1,
             "url"    : "/img/ajax-loader.gif",
@@ -26,15 +36,15 @@ test( "initialize iconselector", 4, function() {
             "width"  : 16,
             "height" : 16,
             "alt"    : "swirling loading icon",
-            "comment": "by ...",
+            "comment": "from repo",
             "keywords": ["loading", "animated"]
         }
     ];
     var keywords = [ "" ];
+    icons.ids = [ 1, 5 ];
     for ( var i = 0; i < data.length; i++ ) {
         var icon = data[i];
         icons.pics[icon.id] = icon;
-        icons.ids.push( icon.id )
 
         for ( var k = 0; k < icon.keywords.length; k++ ) {
             keywords.push(icon.keywords[k]);
@@ -62,6 +72,12 @@ test( "initialize iconselector", 4, function() {
 
     $("#browse-icons").click();
     server.respond();
+
+    // check the icon order
+    var $li = $("#iconselector_icons li");
+    $.each(icons.ids, function(index,id) {
+        equals($li.eq(index).attr("id"), "iconselector_item_"+id, "matches expected order")
+    })
 
     $("#iconselector_icons .keyword:contains('animated')").click();
     equals( $select.val(), "", "one click doesn't do anything");

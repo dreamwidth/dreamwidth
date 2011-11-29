@@ -50,7 +50,7 @@ _c?>
         };
     }
 
-    $upics{ids} = [keys %{$upics{pics}}];
+    $upics{ids} = [sort { $a <=> $b } keys %{$upics{pics}}];
     sleep 1 if $LJ::IS_DEV_SERVER;
 
     return JSON::objToJson(\%upics);
