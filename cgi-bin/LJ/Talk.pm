@@ -2115,8 +2115,7 @@ sub icon_dropdown {
         # userpic browse button
         if ( $remote && $remote->can_use_userpic_select ) {
             $ret .= '<input type="button" id="lj_userpicselect" value="Browse" />';
-            $ret .= LJ::Talk::js_iconbrowser_button()
-                unless LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
+            $ret .= LJ::Talk::js_iconbrowser_button();
         }
 
         # random icon button - hidden for non-JS
@@ -2134,7 +2133,26 @@ sub icon_dropdown {
 sub init_iconbrowser_js {
     my @additional = @_;
 
-    my @list = (
+    my $beta = LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" );
+    my @list = $beta
+    ? (
+        { group => 'jquery' },
+        # base libraries
+        'js/jquery/jquery.ui.core.js',
+        'js/jquery/jquery.ui.widget.js',
+        'stc/jquery/jquery.ui.core.css',
+
+        # for the formatting of the icon selector popup
+        'js/jquery/jquery.ui.dialog.js',
+        'stc/jquery/jquery.ui.dialog.css',
+
+        # logic for the icon selector
+        'js/jquery.iconselector.js',
+        'stc/jquery.iconselector.css',
+
+        # additional files from arguments
+        @additional,
+    ) : (
         # base libraries
         'js/core.js',
         'js/dom.js',
@@ -2163,7 +2181,16 @@ sub init_iconbrowser_js {
 
 # generate the javascript code for the icon browser
 sub js_iconbrowser_button {
-    return qq {
+    return LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" )
+    ?   qq {
+        <script type="text/javascript">
+        jQuery(function(jQ){
+            jQ("#prop_picture_keyword").iconselector({
+                selectorButtons: "#lj_userpicselect"
+            });
+        })
+        </script>
+    } : qq {
         <script type="text/javascript" language="JavaScript">
         DOM.addEventListener(window, "load", function (evt) {
             // attach userpicselect code to userpicbrowse button

@@ -15,7 +15,7 @@
                 });
         }
 
-        return $(this).wrap("<div class='iconselect_trigger_wrapper'></div>");
+        return $(this).wrap("<span class='iconselect_trigger_wrapper'></span>");
     };
 
     // selected icon
@@ -193,7 +193,8 @@
             $(":input", $.fn.iconselector.instance).attr("disabled", "true");
             $("#iconselector_search", $.fn.iconselector.instance).bind("keyup", _filterPics);
 
-            $.getJSON(Site.siteroot + "/tools/endpoints/getuserpics",
+            var url = Site.currentJournalBase ? "/" + Site.currentJournal + "/__rpc_userpicselect" : "/__rpc_userpicselect";
+            $.getJSON(url,
                 function(data) {
                     if ( !data ) {
                         $("#iconselector_icons").html("<h2>Error</h2><p>Unable to load icons data</p>");

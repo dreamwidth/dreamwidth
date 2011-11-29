@@ -76,7 +76,7 @@ sub EntryPage
     $p->{head_content} .= LJ::canonical_link( $permalink, $get->{thread} );
 
     # quickreply js libs
-    LJ::need_res( LJ::Talk::init_iconbrowser_js( 'stc/lj_base.css' ) )
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" ) ? 'stc/jquery/jquery.ui.theme.smoothness.css' : 'stc/lj_base.css' ) )
         if $remote && $remote->can_use_userpic_select;
 
     LJ::need_res(qw(

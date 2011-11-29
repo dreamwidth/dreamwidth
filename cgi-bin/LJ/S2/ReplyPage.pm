@@ -63,7 +63,7 @@ sub ReplyPage
     LJ::need_res('stc/display_none.css');
     
     # libs for userpicselect
-    LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" ) ? 'stc/jquery/jquery.ui.theme.smoothness.css' : 'stc/lj_base.css' ) )
         if $remote && $remote->can_use_userpic_select;
 
     if ($u->should_block_robots || $entry->should_block_robots) {
