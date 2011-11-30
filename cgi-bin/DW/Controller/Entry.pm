@@ -59,7 +59,7 @@ sub new_handler {
     my $r = DW::Request->get;
     my $remote = LJ::get_remote();
 
-    return error_ml( "/entry.tt.beta.off", { aopts => "href='$LJ::SITEROOT/betafeatures'" } )
+    return error_ml( "/entry/form.tt.beta.off", { aopts => "href='$LJ::SITEROOT/betafeatures'" } )
         unless $remote && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
     my @error_list;
@@ -204,7 +204,7 @@ sub new_handler {
 
     $vars->{show_unimplemented} = $get->{highlight} ? 1 : 0;
     $vars->{betacommunity} = LJ::load_user( "dw_beta" );
-    return DW::Template->render_template( 'entry.tt', $vars );
+    return DW::Template->render_template( 'entry/form.tt', $vars );
 }
 
 
@@ -643,7 +643,7 @@ sub _do_post {
     if ( ! defined $res->{itemid} && $res->{message} ) {
         $ret .= qq{<div class="message-box info-box"><p>$res->{message}</p></div>};
         $render_ret = DW::Template->render_template(
-            'entry-success.tt', {
+            'entry/success.tt', {
                 poststatus  => $ret,
             }
         );
@@ -737,7 +737,7 @@ sub _do_post {
         }
 
         $render_ret = DW::Template->render_template(
-            'entry-success.tt', {
+            'entry/success.tt', {
                 poststatus  => $ret,        # did the update succeed or fail?
                 warnings    => \@warnings,   # warnings about the entry or your account
                 crossposts  => \@crossposts,# crosspost status list
@@ -923,7 +923,7 @@ sub preview_handler {
         }
         $vars->{security} = $security;
 
-        return DW::Template->render_template( 'entry-preview.tt', $vars );
+        return DW::Template->render_template( 'entry/preview.tt', $vars );
     } else {
         my $ret = "";
         my $opts = {};
@@ -1006,7 +1006,7 @@ sub preview_handler {
 
         $p->{entry} = $s2entry;
         $p->{comments} = [];
-        $p->{preview_warn_text} = LJ::Lang::ml( '/entry-preview.tt.entry.preview_warn_text' );
+        $p->{preview_warn_text} = LJ::Lang::ml( '/entry/preview.tt.entry.preview_warn_text' );
 
         $p->{viewing_thread} = 0;
         $p->{multiform_on} = 0;
@@ -1100,7 +1100,7 @@ sub _options {
     foreach ( qw( access comments age_restriction journal crosspost
                     icons tags currents displaydate ) ) {
         push @panel_options, {
-            label_ml    => "/entry/$_.tt.header",
+            label_ml    => "/entry/module-$_.tt.header",
             panel_name  => $_,
             id          => "panel_$_",
             name        =>  $panel_element_name,
