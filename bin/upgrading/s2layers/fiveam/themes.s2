@@ -611,6 +611,55 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: fiveam/lovegame
+layerinfo type = "theme";
+layerinfo name = "Love Game";
+layerinfo redist_uniq = "fiveam/lovegame";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#f463a6";
+set color_page_link_hover = "#f49cc5";
+set color_page_link_visited = "#dc2b7e";
+set color_page_text = "#f8f8f8";
+set color_page_title = "#dc2b7e";
+set color_page_usernames = "#dc2b7e";
+set color_header_border = "#dc2b7e";
+set color_footer_link = "#f463a6";
+set color_footer_link_hover = "#f49cc5";
+set color_footer_link_visited = "#dc2b7e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#dc2b7e";
+set color_entry_link = "#f463a6";
+set color_entry_link_hover = "#f49cc5";
+set color_entry_link_visited = "#dc2b7e";
+set color_entry_text = "#f8f8f8";
+set color_entry_title = "#dc2b7e";
+set color_comment_title = "#dc2b7e";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#dc2b7e";
+set color_module_link = "#f463a6";
+set color_module_link_hover = "#f49cc5";
+set color_module_link_visited = "#dc2b7e";
+set color_module_text = "#f8f8f8";
+set color_module_title = "#dc2b7e";
+set color_calendar_border = "#dc2b7e";
+
+
 #NEWLAYER: fiveam/lowfrequency
 layerinfo type = "theme";
 layerinfo name = "Low Frequency";
@@ -787,6 +836,55 @@ function Page::print_theme_stylesheet() {
         }
     """;
 }
+
+
+#NEWLAYER: fiveam/monster
+layerinfo type = "theme";
+layerinfo name = "Monster";
+layerinfo redist_uniq = "fiveam/monster";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_link = "#419e4b";
+set color_page_link_hover = "#80c883";
+set color_page_link_visited = "#1e9a24";
+set color_page_text = "#f8f8f8";
+set color_page_title = "#1e9a24";
+set color_page_usernames = "#1e9a24";
+set color_header_border = "#115714";
+set color_footer_border = "#115714";
+set color_footer_link = "#419e4b";
+set color_footer_link_hover = "#80c883";
+set color_footer_link_visited = "#1e9a24";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#115714";
+set color_entry_link = "#419e4b";
+set color_entry_link_hover = "#80c883";
+set color_entry_link_visited = "#1e9a24";
+set color_entry_text = "#f8f8f8";
+set color_entry_title = "#1e9a24";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#115714";
+set color_module_link = "#419e4b";
+set color_module_link_hover = "#80c883";
+set color_module_link_visited = "#1e9a24";
+set color_module_text = "#f8f8f8";
+set color_module_title = "#1e9a24";
+set color_calendar_border = "#115714";
 
 
 #NEWLAYER: fiveam/nebesa
@@ -1363,6 +1461,58 @@ function Page::print_theme_stylesheet() {
         }
     """;
 }
+
+
+#NEWLAYER: fiveam/underworld
+layerinfo type = "theme";
+layerinfo name = "Underworld";
+layerinfo redist_uniq = "fiveam/underworld";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#16141e";
+set color_page_border = "#c8bdc1";
+set color_page_link = "#c8bdc1";
+set color_page_link_hover = "#bdc6c8";
+set color_page_link_visited = "#c8bdc1";
+set color_page_text = "#fdffff";
+set color_page_title = "#c8bdc1";
+set color_page_usernames = "#bdc6c8";
+set color_header_border = "#c8bdc1";
+set color_footer_border = "#c8bdc1";
+set color_footer_link = "#c8bdc1";
+set color_footer_link_hover = "#bdc6c8";
+set color_footer_link_visited = "#c8bdc1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#c8bdc1";
+set color_entry_interaction_links = "#c8bdc1";
+set color_entry_interaction_links_hover = "#bdc6c8";
+set color_entry_interaction_links_visited = "#c8bdc1";
+set color_entry_link = "#c8bdc1";
+set color_entry_link_hover = "#bdc6c8";
+set color_entry_link_visited = "#c8bdc1";
+set color_entry_text = "#fdffff";
+set color_entry_title = "#c8bdc1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#c8bdc1";
+set color_module_link = "#c8bdc1";
+set color_module_link_hover = "#bdc6c8";
+set color_module_link_visited = "#c8bdc1";
+set color_module_text = "#fdffff";
+set color_module_title = "#c8bdc1";
 
 
 #NEWLAYER: fiveam/velvetsteel
