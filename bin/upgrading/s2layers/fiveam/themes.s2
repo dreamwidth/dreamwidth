@@ -498,6 +498,126 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: fiveam/hesperides
+layerinfo type = "theme";
+layerinfo name = "Hesperides";
+layerinfo redist_uniq = "fiveam/hesperides";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f2f3eb";
+set color_page_border = "#f2f3eb";
+set color_page_link = "#b35d4e";
+set color_page_link_active = "#b35d4e";
+set color_page_link_hover = "#c7260b";
+set color_page_link_visited = "#65433a";
+set color_page_text = "#0a0a0a";
+set color_page_title = "#0a0a0a";
+set color_page_usernames = "#c7260b";
+set color_page_usernames_active = "#c7260b";
+set color_page_usernames_hover = "#f42e0e";
+set color_page_usernames_visited = "#8f1b08";
+set color_header_accent = "#0a0a0a";
+set color_header_background = "#f2f3eb";
+set color_header_border = "#eff3ce";
+set color_footer_background = "#f1f3e1";
+set color_footer_border = "#f1f3e1";
+set color_footer_link = "#b35d4e";
+set color_footer_link_active = "#b35d4e";
+set color_footer_link_hover = "#c72608";
+set color_footer_link_visited = "#65433a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f2f3eb";
+set color_entry_border = "#eff3ce";
+set color_entry_interaction_links = "#c7260b";
+set color_entry_interaction_links_active = "#c7260b";
+set color_entry_interaction_links_background = "#f1f3e1";
+set color_entry_interaction_links_hover = "#f42e0e";
+set color_entry_interaction_links_visited = "#8f1b08";
+set color_entry_link = "#b35d4e";
+set color_entry_link_active = "#b35d4e";
+set color_entry_link_hover = "#c7260b";
+set color_entry_link_visited = "#65433a";
+set color_entry_text = "#0a0a0a";
+set color_entry_title = "#0a0a0a";
+set color_entry_title_background = "#f2f3eb";
+set color_comment_interaction_links = "#c7260b";
+set color_comment_interaction_links_border = "#f1f3e1";
+set color_comment_title = "#0a0a0a";
+set color_comment_title_background = "#f2f3eb";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_accent = "#0a0a0a";
+set color_module_background = "#f1f3e1";
+set color_module_border = "#f1f3e1";
+set color_module_link = "#b35d4e";
+set color_module_link_active = "#b35d4e";
+set color_module_link_hover = "#c7260b";
+set color_module_link_visited = "#65433a";
+set color_module_text = "#0a0a0a";
+set color_module_title = "#0a0a0a";
+set color_module_title_background = "#eff3ce";
+set color_calendar_background = "#eff3ce";
+set color_calendar_background_hover = "#eef3c5";
+set color_calendar_border = "#eff3ce";
+set color_calendar_link = "#b35d4e";
+set color_calendar_link_active = "#b35d4e";
+set color_calendar_link_hover = "#b32e18";
+set color_calendar_link_visited = "#65433a";
+set color_calendar_text = "#0a0a0a";
+set color_calendar_text_hover = "#0a0a0a";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT, Helvetica";
+set font_comment_title = "Impact, Calibri";
+set font_comment_title_size = "1.28";
+set font_entry_title = "Impact, Calibri";
+set font_entry_title_size = "1.28";
+set font_journal_subtitle = "Impact, Calibri";
+set font_journal_title = "Impact, Calibri";
+set font_module_heading = "Impact, Calibri";
+set font_module_heading_size = "1.28";
+set font_module_text = "News Gothic MT, Helvetica";
+
+function Page::print_theme_stylesheet() {
+"""
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
+    blockquote {
+        line-height: 1.2em;
+        }
+
+    blockquote {
+        background: #eef3c5;
+        border: 1px solid #eff3ce;
+        color: inherit;
+        font-size: inherit;
+        font-style: italic;
+        margin-bottom: none;
+        margin-top: none;
+        padding: 1em;
+        }
+""";
+}
+
+
 #NEWLAYER: fiveam/limeade
 layerinfo type = "theme";
 layerinfo name = "Limeade";
@@ -1350,6 +1470,126 @@ set color_calendar_text = "#FCFF9B";
 set color_calendar_text_hover = "#FCFF9B";
 
 
+#NEWLAYER: fiveam/spectrum
+layerinfo type = "theme";
+layerinfo name = "Spectrum";
+layerinfo redist_uniq = "fiveam/spectrum";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#48645f";
+set color_page_border = "#48645f";
+set color_page_link = "#92b55f";
+set color_page_link_active = "#92b55f";
+set color_page_link_hover = "#a3c869";
+set color_page_link_visited = "#e8da5e";
+set color_page_text = "#EBEAEA";
+set color_page_title = "#EBEAEA";
+set color_page_usernames = "#8fd2c1";
+set color_page_usernames_active = "#8fd2c1";
+set color_page_usernames_hover = "#a2eed9";
+set color_page_usernames_visited = "#e8dc7a";
+set color_header_accent = "#EBEAEA";
+set color_header_background = "#48645f";
+set color_header_border = "#5b7d77";
+set color_footer_background = "#4f6e67";
+set color_footer_border = "#5b7d77";
+set color_footer_link = "#92b55f";
+set color_footer_link_active = "#92b55f";
+set color_footer_link_hover = "#a3c869";
+set color_footer_link_visited = "#e8da5e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#48645f";
+set color_entry_border = "#5b7d77";
+set color_entry_interaction_links = "#8fd2c1";
+set color_entry_interaction_links_active = "#8fd2c1";
+set color_entry_interaction_links_background = "#4f6e67";
+set color_entry_interaction_links_hover = "#a2eed9";
+set color_entry_interaction_links_visited = "#e8dc7a";
+set color_entry_link = "#92b55f";
+set color_entry_link_active = "#92b55f";
+set color_entry_link_hover = "#a3c869";
+set color_entry_link_visited = "#e8da5e";
+set color_entry_text = "#EBEAEA";
+set color_entry_title = "#EBEAEA";
+set color_entry_title_background = "#48645f";
+set color_comment_interaction_links = "#a2eed9";
+set color_comment_interaction_links_border = "#5b7d77";
+set color_comment_title = "#EBEAEA";
+set color_comment_title_background = "#48645f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_accent = "#EBEAEA";
+set color_module_background = "#4f6e67";
+set color_module_border = "#5b7d77";
+set color_module_link = "#92b55f";
+set color_module_link_active = "#92b55f";
+set color_module_link_hover = "#a3c869";
+set color_module_link_visited = "#e8da5e";
+set color_module_text = "#f0ebeb";
+set color_module_title = "#EBEAEA";
+set color_module_title_background = "#5b7d77";
+set color_calendar_background = "#4f6e67";
+set color_calendar_background_hover = "#56786f";
+set color_calendar_border = "#4f6e67";
+set color_calendar_link = "#92b55f";
+set color_calendar_link_active = "#92b55f";
+set color_calendar_link_hover = "#a3c869";
+set color_calendar_link_visited = "#e8da5e";
+set color_calendar_text = "#EBEAEA";
+set color_calendar_text_hover = "#EBEAEA";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT, Helvetica";
+set font_comment_title = "Impact, Calibri";
+set font_comment_title_size = "1.28";
+set font_entry_title = "Impact, Calibri";
+set font_entry_title_size = "1.28";
+set font_journal_subtitle = "Impact, Calibri";
+set font_journal_title = "Impact, Calibri";
+set font_module_heading = "Impact, Calibri";
+set font_module_heading_size = "1.28";
+set font_module_text = "News Gothic MT, Helvetica";
+
+function Page::print_theme_stylesheet() {
+"""
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
+    blockquote {
+        line-height: 1.2em;
+        }
+
+    blockquote {
+        background: #56786f;
+        border: 1px solid #4f6e67;
+        color: inherit;
+        font-size: inherit;
+        font-style: italic;
+        margin-bottom: none;
+        margin-top: none;
+        padding: 1em;
+        }
+""";
+}
+
+
 #NEWLAYER: fiveam/sunset
 layerinfo type = "theme";
 layerinfo name = "Sunset";
@@ -1592,3 +1832,241 @@ set color_calendar_link_hover = "#8c3871";
 set color_calendar_link_visited = "#783060";
 set color_calendar_text = "#404040";
 set color_calendar_text_hover = "#404040";
+
+
+#NEWLAYER: fiveam/yellowhighlighter
+layerinfo type = "theme";
+layerinfo name = "Yellow Highlighter";
+layerinfo redist_uniq = "fiveam/yellowhighlighter";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fffe66";
+set color_page_border = "#98d26b";
+set color_page_link = "#e56564";
+set color_page_link_active = "#e56564";
+set color_page_link_hover = "#e53131";
+set color_page_link_visited = "#bf5353";
+set color_page_text = "#403b39";
+set color_page_title = "#5c79bb";
+set color_page_usernames = "#e53131";
+set color_page_usernames_active = "#e53131";
+set color_page_usernames_hover = "#dc0404";
+set color_page_usernames_visited = "#bf2929";
+set color_header_accent = "#526CA7";
+set color_header_background = "#fffe66";
+set color_header_border = "#98d26b";
+set color_footer_background = "#fffb98";
+set color_footer_border = "#98d26b";
+set color_footer_link = "#e56564";
+set color_footer_link_active = "#e56564";
+set color_footer_link_hover = "#e53131";
+set color_footer_link_visited = "#bf5353";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fffab3";
+set color_entry_border = "#98d26b";
+set color_entry_interaction_links = "#e53131";
+set color_entry_interaction_links_active = "#e53131";
+set color_entry_interaction_links_background = "#fffb98";
+set color_entry_interaction_links_hover = "#dc0404";
+set color_entry_interaction_links_visited = "#bf2929";
+set color_entry_link = "#e56564";
+set color_entry_link_active = "#e56564";
+set color_entry_link_hover = "#e53131";
+set color_entry_link_visited = "#bf5353";
+set color_entry_text = "#403b39";
+set color_entry_title = "#5c79bb";
+set color_entry_title_background = "#fffb98";
+set color_comment_interaction_links = "#e53131";
+set color_comment_interaction_links_border = "#98d26b";
+set color_comment_title = "#5c79bb";
+set color_comment_title_background = "#fffb98";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_accent = "#526CA7";
+set color_module_background = "#fffab3";
+set color_module_border = "#98d26b";
+set color_module_link = "#e56564";
+set color_module_link_active = "#e56564";
+set color_module_link_hover = "#e53131";
+set color_module_link_visited = "#bf5353";
+set color_module_text = "#403b39";
+set color_module_title = "#5c79bb";
+set color_module_title_background = "#fffb98";
+set color_calendar_background = "#f4e864";
+set color_calendar_background_hover = "#ffee37";
+set color_calendar_border = "#98d26b";
+set color_calendar_link = "#e56564";
+set color_calendar_link_active = "#e56564";
+set color_calendar_link_hover = "#e53131";
+set color_calendar_link_visited = "#bf5353";
+set color_calendar_text = "#403b39";
+set color_calendar_text_hover = "#665f5b";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT, Helvetica";
+set font_comment_title = "Impact, Calibri";
+set font_comment_title_size = "1.28";
+set font_entry_title = "Impact, Calibri";
+set font_entry_title_size = "1.28";
+set font_journal_subtitle = "Impact, Calibri";
+set font_journal_title = "Impact, Calibri";
+set font_module_heading = "Impact, Calibri";
+set font_module_heading_size = "1.28";
+set font_module_text = "News Gothic MT, Helvetica";
+
+function Page::print_theme_stylesheet() {
+"""
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
+    blockquote {
+        line-height: 1.2em;
+        }
+
+    blockquote {
+        background: #ffee37;
+        border: 1px solid #f4e864;
+        color: inherit;
+        font-size: inherit;
+        font-style: italic;
+        margin-bottom: none;
+        margin-top: none;
+        padding: 1em;
+        }
+""";
+}
+
+
+#NEWLAYER: fiveam/yoursmile
+layerinfo type = "theme";
+layerinfo name = "Your Smile";
+layerinfo redist_uniq = "fiveam/yoursmile";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fffbf5";
+set color_page_border = "#fffbf5";
+set color_page_link = "#dc6966";
+set color_page_link_active = "#dc6966";
+set color_page_link_hover = "#ef413c";
+set color_page_link_visited = "#ab3e5b";
+set color_page_text = "#040404";
+set color_page_title = "#040404";
+set color_page_usernames = "#9FB44C";
+set color_page_usernames_active = "#9FB44C";
+set color_page_usernames_hover = "#89AA0A";
+set color_page_usernames_visited = "#6B7A33";
+set color_header_background = "#fff7eb";
+set color_header_border = "#fff7eb";
+set color_footer_background = "#fffbf5";
+set color_footer_border = "#fffbf5";
+set color_footer_link = "#dc6966";
+set color_footer_link_active = "#dc6966";
+set color_footer_link_hover = "#ef413c";
+set color_footer_link_visited = "#ab3e5b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fffbf5";
+set color_entry_border = "#fffbf5";
+set color_entry_interaction_links = "#dc6966";
+set color_entry_interaction_links_active = "#dc6966";
+set color_entry_interaction_links_background = "#fff7eb";
+set color_entry_interaction_links_hover = "#ef413c";
+set color_entry_interaction_links_visited = "#ab3e5b";
+set color_entry_link = "#dc6966";
+set color_entry_link_active = "#dc6966";
+set color_entry_link_hover = "#ef413c";
+set color_entry_link_visited = "#ab3e5b";
+set color_entry_text = "#040404";
+set color_entry_title = "#040404";
+set color_entry_title_background = "#fffbf5";
+set color_comment_interaction_links = "#dc6966";
+set color_comment_interaction_links_border = "#fffbf5";
+set color_comment_title = "#040404";
+set color_comment_title_background = "#fffbf5";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fffbf5";
+set color_module_border = "#fffbf5";
+set color_module_link = "#dc6966";
+set color_module_link_active = "#dc6966";
+set color_module_link_hover = "#ef413c";
+set color_module_link_visited = "#ab3e5b";
+set color_module_text = "#040404";
+set color_module_title = "#040404";
+set color_module_title_background = "#fff7eb";
+set color_calendar_background = "#fff2e1";
+set color_calendar_background_hover = "#ffeed7";
+set color_calendar_border = "#fffbf5";
+set color_calendar_link = "#dc6966";
+set color_calendar_link_active = "#dc6966";
+set color_calendar_link_hover = "#ef413c";
+set color_calendar_link_visited = "#ab3e5b";
+set color_calendar_text = "#040404";
+set color_calendar_text_hover = "#040404";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT, Helvetica";
+set font_comment_title = "Britannic Bold, Calibri";
+set font_comment_title_size = "1.28";
+set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title_size = "1.28";
+set font_journal_subtitle = "News Gothic MT, Helvetica";
+set font_journal_title = "Britannic Bold, Calibri";
+set font_module_heading = "Britannic Bold, Calibri";
+set font_module_heading_size = "1.28";
+set font_module_text = "News Gothic MT, Helvetica";
+
+function Page::print_theme_stylesheet() {
+"""
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
+    blockquote {
+        line-height: 1.2em;
+        }
+
+    blockquote {
+        background: #ffeed7;
+        border: 1px solid #fff2e1;
+        color: inherit;
+        font-size: inherit;
+        font-style: italic;
+        margin-bottom: none;
+        margin-top: none;
+        padding: 1em;
+        }
+""";
+}
