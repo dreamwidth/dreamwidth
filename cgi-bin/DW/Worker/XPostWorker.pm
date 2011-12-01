@@ -23,12 +23,11 @@ use warnings;
 
 package DW::Worker::XPostWorker;
 use base 'TheSchwartz::Worker';
+use LJ::Protocol;
 use DW::External::Account;
 use LJ::Event::XPostSuccess;
 use LJ::User;
 use LJ::Lang;
-
-BEGIN { require "ljprotocol.pl" }
 
 sub schwartz_capabilities { return ('DW::Worker::XPostWorker'); }
 

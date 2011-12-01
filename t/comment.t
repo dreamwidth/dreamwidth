@@ -4,7 +4,7 @@ use strict;
 use Test::More tests => 405;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'ljprotocol.pl';
+use LJ::Protocol;
 use LJ::Comment;
 use LJ::Talk;
 use LJ::Test qw(memcache_stress temp_user);

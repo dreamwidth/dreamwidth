@@ -27,7 +27,7 @@ use MIME::Base64;
 
 use HTTP::Status qw( :constants );
 
-require 'ljprotocol.pl';
+use LJ::Protocol;
 
 # service document URL is the same for all users
 DW::Routing->register_string( "/interface/atom",   \&service_document, app => 1,

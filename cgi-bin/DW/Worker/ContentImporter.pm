@@ -31,7 +31,7 @@ use LWP::UserAgent;
 use XMLRPC::Lite;
 use Digest::MD5 qw/ md5_hex /;
 
-require 'ljprotocol.pl';
+use LJ::Protocol;
 use LJ::Talk;
 
 use base 'TheSchwartz::Worker';

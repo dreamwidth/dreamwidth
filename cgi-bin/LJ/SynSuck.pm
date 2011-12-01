@@ -16,7 +16,7 @@ use strict;
 use HTTP::Status;
 
 use lib "$LJ::HOME/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
-require "ljprotocol.pl";
+use LJ::Protocol;
 use LJ::ParseFeed;
 use LJ::CleanHTML;
 

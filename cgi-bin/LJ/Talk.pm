@@ -3820,7 +3820,7 @@ sub post_comment {
     }
 
     # check for duplicate entry (double submission)
-    # Note:  we don't do it inside a locked section like ljprotocol.pl's postevent,
+    # Note:  we don't do it inside a locked section like LJ::Protocol's postevent,
     # so it's not perfect, but it works pretty well.
     my $posterid = $comment->{u} ? $comment->{u}{userid} : 0;
     my $jtalkid;

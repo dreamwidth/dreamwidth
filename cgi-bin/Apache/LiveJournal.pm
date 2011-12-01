@@ -22,6 +22,8 @@ use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
                        HTTP_MOVED_PERMANENTLY HTTP_MOVED_TEMPORARILY
                        M_TRACE M_OPTIONS /;
 
+use LJ::Protocol;
+
 # needed to call S2::set_domain() so early:
 use LJ::S2;
 use Apache::LiveJournal::Interface::Blogger;
@@ -44,7 +46,6 @@ BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
 
     require "ljlib.pl";
-    require "ljprotocol.pl";
 }
 
 my %RQ;       # per-request data

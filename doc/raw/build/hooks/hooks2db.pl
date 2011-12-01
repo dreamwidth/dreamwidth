@@ -87,7 +87,7 @@ $hooks{'modify_login_menu'} = {
             ],
         },
     ],
-    source => ["cgi-bin/ljprotocol.pl"],
+    source => ["cgi-bin/LJ/Protocol.pm"],
 };
 
 $hooks{'post_login'} = {
@@ -271,7 +271,7 @@ $hooks{'bad_password'} = {
             'name' => "\$arg",
         },
     ],
-    source => ["cgi-bin/ljprotocol.pl","htdocs/changepassword.bml","htdocs/create.bml","htdocs/update.bml", "ssldocs/changepassword.bml"],
+    source => ["cgi-bin/LJ/Protocol.pm","htdocs/changepassword.bml","htdocs/create.bml","htdocs/update.bml", "ssldocs/changepassword.bml"],
 };
 
 $hooks{'name_caps'} = {

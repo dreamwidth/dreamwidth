@@ -30,7 +30,7 @@ BEGIN {
 
 require 'ljlib.pl';
 use LJ::Emailpost::Web;
-require 'ljprotocol.pl';
+use LJ::Protocol;
 use Date::Parse;
 use HTML::Entities;
 use IO::Handle;

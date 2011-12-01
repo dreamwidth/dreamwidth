@@ -321,7 +321,7 @@ sub t_post_fake_entry {
     my $u = shift;
     my %opts = @_;
 
-    require 'ljprotocol.pl';
+    use LJ::Protocol;
 
     my $security = delete $opts{security} || 'public';
     my $proto_sec = $security;

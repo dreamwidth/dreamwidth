@@ -1563,7 +1563,7 @@ sub set_usertag_display {
 # <LJFUNC>
 # name: LJ::Tags::deleted_trust_group
 # class: tags
-# des: Called from ljprotocol when a trust group is deleted.
+# des: Called from LJ::Protocol when a trust group is deleted.
 # args: uobj, bit
 # des-uobj: User id or object of account deleting the group.
 # des-bit: The id (1..60) of the trust group being deleted.

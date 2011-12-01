@@ -7,7 +7,7 @@ plan tests => 231;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'ljprotocol.pl';
+use LJ::Protocol;
 
 use LJ::Test qw( temp_user temp_comm );
 no warnings "once";

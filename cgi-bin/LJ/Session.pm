@@ -498,7 +498,7 @@ sub session_from_cookies {
         # this is the master cookie at "www.livejournal.com" or "livejournal.com";
         my @cookies = $r->cookie_multi( 'ljmastersession' );
         # but support old clients who are just sending an "ljsession" cookie which they got
-        # from ljprotocol's "generatesession" mode.
+        # from LJ::Protocol's "generatesession" mode.
         unless ( @cookies ) {
             @cookies = $r->cookie_multi( 'ljsession' );
             $getopts{old_cookie} = 1;

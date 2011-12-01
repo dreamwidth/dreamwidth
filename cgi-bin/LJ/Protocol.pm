@@ -3001,7 +3001,7 @@ sub list_friendgroups
 {
     my $u = shift;
 
-#    warn "ljprotocol.pl: list_friendgroups called.\n";
+#    warn "LJ::Protocol: list_friendgroups called.\n";
     return [];
 }
 
