@@ -1385,57 +1385,6 @@ sub blocking_report {
 
 
 # <LJFUNC>
-# name: LJ::delete_comments
-# des: deletes comments, but not the relational information, so threading doesn't break
-# info: The tables [dbtable[talkprop2]] and [dbtable[talktext2]] are deleted from.  [dbtable[talk2]]
-#       just has its state column modified, to 'D'.
-# args: u, nodetype, nodeid, talkids
-# des-nodetype: The thread nodetype (probably 'L' for log items)
-# des-nodeid: The thread nodeid for the given nodetype (probably the jitemid
-#              from the [dbtable[log2]] row).
-# des-talkids: List array of talkids to delete.
-# returns: scalar integer; number of items deleted.
-# </LJFUNC>
-sub delete_comments {
-    my ($u, $nodetype, $nodeid, @talkids) = @_;
-
-    return 0 unless $u->writer;
-
-    my $jid = $u->{'userid'}+0;
-    my $in = join(',', map { $_+0 } @talkids);
-
-    # invalidate talk2row memcache
-    LJ::Talk::invalidate_talk2row_memcache($u->id, @talkids);
-
-    return 1 unless $in;
-    my $where = "WHERE journalid=$jid AND jtalkid IN ($in)";
-
-    my $num = $u->talk2_do($nodetype, $nodeid, undef,
-                           "UPDATE talk2 SET state='D' $where");
-    return 0 unless $num;
-    $num = 0 if $num == -1;
-
-    if ($num > 0) {
-        $u->do("UPDATE talktext2 SET subject=NULL, body=NULL $where");
-        $u->do("DELETE FROM talkprop2 $where");
-    }
-
-    my @jobs;
-    foreach my $talkid (@talkids) {
-        my $cmt = LJ::Comment->new($u, jtalkid => $talkid);
-        push @jobs, LJ::EventLogRecord::DeleteComment->new($cmt)->fire_job;
-        LJ::Hooks::run_hooks('delete_comment', $jid, $nodeid, $talkid); # jitemid, jtalkid
-    }
-
-    my $sclient = LJ::theschwartz();
-    $sclient->insert_jobs(@jobs) if @jobs;
-
-    LJ::MemCache::delete( [ $jid, "activeentries:$jid" ] );
-
-    return $num;
-}
-
-# <LJFUNC>
 # name: LJ::color_fromdb
 # des: Takes a value of unknown type from the DB and returns an #rrggbb string.
 # args: color
