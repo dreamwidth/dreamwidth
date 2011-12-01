@@ -445,18 +445,6 @@ sub mark_authaction_used
 }
 
 # <LJFUNC>
-# name: LJ::get_urls
-# des: Returns a list of all referenced URLs from a string.
-# args: text
-# des-text: Text from which to return extra URLs.
-# returns: list of URLs
-# </LJFUNC>
-sub get_urls
-{
-    return ($_[0] =~ m!https?://[^\s\"\'\<\>]+!g);
-}
-
-# <LJFUNC>
 # name: LJ::make_auth_code
 # des: Makes a random string of characters of a given length.
 # returns: string of random characters, from an alphabet of 30

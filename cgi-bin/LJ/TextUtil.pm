@@ -34,6 +34,19 @@ sub trim {
     return $a;
 }
 
+# <LJFUNC>
+# name: LJ::get_urls
+# class: text
+# des: Returns a list of all referenced URLs from a string.
+# args: text
+# des-text: Text from which to return extra URLs.
+# returns: list of URLs
+# </LJFUNC>
+sub get_urls
+{
+    return ( $_[0] =~ m!https?://[^\s\"\'\<\>]+!g );
+}
+
 # similar to decode_url_string below, but a nicer calling convention.  returns
 # a hash of items parsed from the string passed in as the only argument.
 
