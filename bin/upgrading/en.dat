@@ -2172,6 +2172,8 @@ poll.participants=, participants: [[total]]
 
 poll.pollnum=Poll #[[num]]
 
+poll.respondents.user=[[user]] answered:
+
 poll.scaleanswers=<strong>Mean:</strong> [[mean]] <strong>Median:</strong> [[median]] <strong>Std. Dev</strong> [[stddev]]
 
 poll.security=Open to <strong>[[whovote]]</strong>. Results viewable to <strong>[[whoview]]</strong>
@@ -2199,6 +2201,8 @@ poll.submit=Answer
 poll.useranswer=Your answer was: [[answer]]
 
 poll.viewanswers=View Answers
+
+poll.viewrespondents=View Respondents
 
 portal.bdays.count.des=By default, the 5 friends with the soonest birthdays are shown.
 

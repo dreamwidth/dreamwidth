@@ -32,7 +32,8 @@ _c?>
     BML::noparse();
 
     my $pollid   = $POST{pollid}  or return $err->("No pollid");
-    my $pollqid  = $POST{pollqid} or return $err->("No pollqid");
+    my $pollqid  = $POST{pollqid} || 0;
+    my $userid   = $POST{userid} || 0;
     my $action   = $POST{action};
     my $page     = $POST{page};
     my $pagesize = $POST{pagesize} || 2000;
@@ -46,10 +47,18 @@ _c?>
     }
 
     if ($action eq 'get_answers') {
+        return $err->( "No pollqid" ) unless $pollqid;
+
         my $question = $poll->question($pollqid) or return $err->("Error loading question $pollqid");
         my $pages    = $question->answers_pages($poll->journalid, $pagesize);
         $ret->{paging_html} = $question->paging_bar_as_html($page, $pages, $pagesize, $poll->journalid, $pollid, $pollqid);
         $ret->{answer_html} = $question->answers_as_html($poll->journalid, $poll->isanon, $page, $pagesize, $pages);
+    } elsif ( $action eq 'get_respondents' ) {
+        $ret->{answer_html} = $poll->respondents_as_html;
+    }  elsif ($action eq 'get_user_answers') {
+        return $err->( "No userid" ) unless $userid;
+
+        $ret->{answer_html} = $poll->user_answer_as_html( $userid );
     } else {
         return $err->("Invalid action $action");
     }
@@ -58,6 +67,7 @@ _c?>
         %$ret,
         pollid  => $pollid,
         pollqid => $pollqid,
+        userid  => $userid,
         page    => $page,
     };
 

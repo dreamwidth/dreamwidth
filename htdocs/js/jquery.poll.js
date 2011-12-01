@@ -84,6 +84,35 @@ $.widget("dw.dynamicpoll", {
                 }
             });
         }).end()
+        .filter(".respondents").children("a.LJ_PollRespondentsLink").click(function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            var $clicked = $(this);
+            var pollid = $clicked.attr("lj_pollid");
+
+            $clicked
+            .ajaxtip({namespace: "pollanswer"})
+            .ajaxtip("load", {
+                endpoint: "poll",
+                context: self,
+                data: {
+                    pollid  : pollid,
+                    action  : "get_respondents"
+                },
+                success: function( data, status, jqxhr ) {
+                    if ( data.error ) {
+                        $clicked.ajaxtip( "error", data.error )
+                    } else {
+                        $clicked.ajaxtip( "cancel" ).hide();
+                        $clicked.closest("div").append(data.answer_html);
+                        $clicked.closest("div").parent().trigger( "updatedcontent.poll" );
+                    }
+                    self._trigger( "complete" );
+                }
+                });
+
+        }).end()
         .filter("a.LJ_PollChangeLink").click(function(e){
             e.stopPropagation();
             e.preventDefault();
@@ -106,7 +135,60 @@ $.widget("dw.dynamicpoll", {
                         self._trigger( "complete" );
                     }
                     });
-        }).end()
+        }).end();
+
+        $("a.LJ_PollUserAnswerLink").click(function(e){
+            e.stopImmediatePropagation();
+            e.preventDefault();
+
+            var $clicked = $(this);
+
+            var pollid = $clicked.attr("lj_pollid");
+            var userid = $clicked.attr("lj_userid");
+
+            if ( ! pollid || ! userid ) return;
+
+            if ( $clicked.attr('innerHTML') === "[-]" ) {
+                $clicked.siblings(".useranswer").remove()
+                    .end().siblings(".polluser").show();
+                $clicked.html("[+]");
+            } else {
+                $clicked
+                .ajaxtip({namespace: "polluseranswer"})
+                .ajaxtip("load", {
+                    endpoint: "poll",
+                    context: self,
+                    data: {
+                        pollid  : pollid,
+                        userid  : userid,
+                        action  : "get_user_answers"
+                    },
+                    success: function( data, status, jqxhr ) {
+                        if ( data.error ) {
+                            $clicked.ajaxtip( "error", data.error )
+                        } else {
+                            var pollid = data.pollid;
+                            var userid = data.userid;
+                            if ( ! pollid || ! userid ) {
+                                $clicked.ajaxtip( "error", "Error fetching poll results." );
+                            } else {
+                                $clicked.ajaxtip( "cancel" );
+
+                                $clicked.html("[-]");
+                                $clicked.siblings(".polluser").hide()
+                                    .closest("div").append(data.answer_html);
+                            }
+                        }
+
+                        self._trigger( "complete" );
+                    },
+                    error: function( jqxhr, status, error ) {
+                        $clicked.ajaxtip( "error", "Error contacting server. " + error);
+                        self._trigger( "complete" );
+                    }
+                });
+            }
+        });
 
     },
     _initForm: function() {

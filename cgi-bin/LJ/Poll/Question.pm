@@ -307,6 +307,51 @@ sub answers_as_html {
     return $ret;
 }
 
+#returns how a user answered this question
+sub user_answer_as_html {
+    my $self = shift;
+    my $userid = shift;
+    my $isanon = shift;
+
+    my $ret = '';
+
+    # Get data
+    my $sth = $self->poll->journal->prepare(
+        "SELECT value FROM pollresult2 " .
+        "WHERE pollid=? AND pollqid=? AND userid=? " );
+
+    $sth->execute( $self->pollid, $self->pollqid, $userid );
+    die $sth->errstr if $sth->err;
+
+    my ( $pollid, $pollqid ) = ( $self->pollid, $self->pollqid );
+
+    my $qtext = $self->qtext;
+    my @res;
+    push @res, $_ while $_ = $sth->fetchrow_hashref;
+
+    foreach my $res ( @res ) {
+        my $value = $res->{value};
+        my @items = $self->items;
+
+        my %it;
+        $it{$_->{pollitid}} = $_->{item} foreach @items;
+
+        # some question types need translation; type 'text' doesn't.
+        if ( $self->type eq "radio" || $self->type eq "drop" ) {
+            $value = $it{$value};
+        } elsif ( $self->type eq "check" ) {
+            $value = join( ", ", map { $it{$_} } split( /,/, $value ) );
+        }
+
+        LJ::Poll->clean_poll( \$value );
+        LJ::Poll->clean_poll( \$qtext );
+
+        $ret .= '<b>' . $qtext . "</b> -- " . $value . "<br/>\n";
+    }
+
+    return $ret;
+}
+
 sub paging_bar_as_html {
     my $self = shift;
 

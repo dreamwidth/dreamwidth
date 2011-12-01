@@ -676,6 +676,7 @@ sub name {
     $self->_load;
     return $self->{name};
 }
+# returns "yes" if the poll is anonymous
 sub isanon {
     my $self = $_[0];
     $self->_load;
@@ -884,7 +885,7 @@ sub render {
     my @qs = $self->questions;
 
     ### view answers to a particular question in a poll
-    if ($mode eq "ans") {
+    if ( $mode eq "ans" ) {
         return "<b>[" . LJ::Lang::ml('poll.error.cantview') . "]</b>"
             unless $self->can_view;
         my $q = $self->question($qid)
@@ -897,6 +898,22 @@ sub render {
 
         my $pages    = $q->answers_pages($self->journalid, $pagesize);
         $ret .= '<div>' . $q->paging_bar_as_html($page, $pages, $pagesize, $self->journalid, $pollid, $qid, no_class => 1) . '</div>';
+        return $ret;
+    } elsif ( $mode eq "ans_extended" ) {
+        # view detailed answers for every user
+        return "<b>[" . LJ::Lang::ml( 'poll.error.cantview' ) . "]</b>"
+            unless $self->can_view;
+
+        my @userids;
+
+        my $respondents = $self->journal->selectall_arrayref(
+            "SELECT DISTINCT(userid) FROM pollresult2 WHERE pollid=? AND journalid=? ",
+            undef, $pollid, $self->journalid );
+
+        foreach my $userid ( @$respondents ) {
+            $ret .= "<div class='useranswer'>" . $self->user_answers_as_html( $userid ) . "</div><br />";
+        }
+
         return $ret;
     }
 
@@ -957,6 +974,11 @@ sub render {
         $ret .= "<br />\n";
         # change vote link
         $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter' class='LJ_PollChangeLink' id='LJ_PollChangeLink_${pollid}' lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
+        if ( $self->can_view && $self->isanon ne "yes" ) {
+            $ret .= "<br /><br /><div class='respondents'><a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=ans_extended' class='LJ_PollRespondentsLink' " .
+            "id='LJ_PollRespondentsLink_${pollid}' " .
+            "lj_pollid='$pollid' >" . LJ::Lang::ml( 'poll.viewrespondents' ) . "</a></div><br />"
+        }
     } else {
         $ret .= "<br />\n";
     }
@@ -1299,6 +1321,50 @@ sub questions {
     return @qs;
 }
 
+# returns a string with the html of how a user answered all questions of this poll
+sub user_answers_as_html {
+    my ( $self, $userid ) = @_;
+
+    my $ret;
+    my $u = LJ::load_userid( $userid );
+
+    $ret = "<span class='useranswer' id='useranswer_" . $u->userid . "'>"  . LJ::Lang::ml( 'poll.respondents.user', { user => $u->ljuser_display } ) . "\n";
+
+    my @qs = $self->questions;
+
+    foreach my $q ( @qs ) {
+        $ret .= $q->user_answer_as_html( $userid );
+    }
+    $ret .= "</span>";
+
+    return $ret;
+ }
+
+# returns a string with the html of the people who responded to this poll
+sub respondents_as_html {
+    my ( $self ) = @_;
+    my $pollid = $self->pollid;
+
+    my @res = @{ $self->journal->selectall_arrayref(
+        "SELECT DISTINCT(userid) FROM pollresult2 WHERE pollid=? AND journalid=? ",
+        undef, $pollid, $self->journalid ) };
+    my @respondents = map { $_->[0] } @res;
+
+    my $users = LJ::load_userids( @respondents );
+
+    my $ret;
+    foreach my $userid ( @respondents ) {
+        my $u = $users->{$userid};
+        next unless $u;
+
+        $ret .= "<div> <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=ans_extended'" .
+            "class='LJ_PollUserAnswerLink'" .
+            "lj_pollid='$pollid' lj_userid='$userid'" .
+            "id='LJ_PollUserAnswerLink_${pollid}_$userid'>[+]</a>" .
+            "<span class='polluser' id='LJ_PollUserAnswerRes_${pollid}_$userid'>" . $u->ljuser_display . "</span></div>\n";
+    }
+    return $ret;
+}
 
 ########## Props
 # get the typemap for pollprop2
