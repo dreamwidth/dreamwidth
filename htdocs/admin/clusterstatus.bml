@@ -29,7 +29,7 @@ body<=
 
     my $ret;
     foreach my $cid (@LJ::CLUSTERS) {
-        my $name = LJ::get_cluster_description($cid) || 'no name';
+        my $name = LJ::DB::get_cluster_description( $cid ) || 'no name';
 
         $ret .= "<b>$name</b>: ";
 

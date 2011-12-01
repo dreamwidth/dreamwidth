@@ -1222,23 +1222,6 @@ sub flush_cleanup_handlers {
 }
 
 # <LJFUNC>
-# name: LJ::get_cluster_description
-# des: Get descriptive text for a cluster id.
-# args: clusterid
-# des-clusterid: id of cluster to get description of.
-# returns: string representing the cluster description
-# </LJFUNC>
-sub get_cluster_description {
-    my ($cid) = shift;
-    $cid += 0;
-    my $text = LJ::Hooks::run_hook('cluster_description', $cid);
-    return $text if $text;
-
-    # default behavior just returns clusterid
-    return $cid;
-}
-
-# <LJFUNC>
 # name: LJ::cmd_buffer_add
 # des: Schedules some command to be run sometime in the future which would
 #      be too slow to do synchronously with the web request.  An example

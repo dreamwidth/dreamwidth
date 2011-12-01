@@ -422,7 +422,8 @@ body<=
         if ($u->{'status'} eq "N") { $ret .= "<b>$ML{'.no'}</b>" . $extraval->(); }
         if ($u->{'status'} eq "T") { $ret .= $ML{'.transitioning'} . $extraval->(); }
         $ret .= "<br />";
-        if ($u->{clusterid}) { $ret .= "$ML{'.cluster'}: <b>" . LJ::get_cluster_description($u->{clusterid}, 1) . "</b>; "; }
+        $ret .= "$ML{'.cluster'}: <b>" . LJ::DB::get_cluster_description( $u->{clusterid} ) . "</b>; "
+            if $u->{clusterid};
         $ret .= "$ML{'.dataversion'}: <b>$u->{dversion}</b>";
         $ret .= "<br />$ML{'.scheme'}: <b>" . ($u->{schemepref} ? $u->{schemepref} : "default") . "</b>; ";
         $ret .= "$ML{'.language'}: <b>" . ($u->{browselang} ? $u->{browselang} : "default") . "</b>";

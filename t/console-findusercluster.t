@@ -21,10 +21,10 @@ is($run->("find_user_cluster " . $u2->user),
    "error: You are not authorized to run this command.");
 $u->grant_priv("supporthelp");
 is($run->("find_user_cluster " . $u2->user),
-   "success: " . $u2->user . " is on the " . LJ::get_cluster_description($u2->{clusterid}, 0) . " cluster");
+   "success: " . $u2->user . " is on the " . LJ::DB::get_cluster_description( $u2->{clusterid} ) . " cluster");
 $u->revoke_priv("supporthelp");
 
 $u->grant_priv("supportviewscreened");
 is($run->("find_user_cluster " . $u2->user),
-   "success: " . $u2->user . " is on the " . LJ::get_cluster_description($u2->{clusterid}, 0) . " cluster");
+   "success: " . $u2->user . " is on the " . LJ::DB::get_cluster_description( $u2->{clusterid} ) . " cluster");
 $u->revoke_priv("supportviewscreened");

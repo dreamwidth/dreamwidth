@@ -431,6 +431,23 @@ sub use_diff_db {
 }
 
 # <LJFUNC>
+# name: LJ::DB::get_cluster_description
+# des: Get descriptive text for a cluster id.
+# args: clusterid
+# des-clusterid: id of cluster to get description of.
+# returns: string representing the cluster description
+# </LJFUNC>
+sub get_cluster_description {
+    my ( $cid ) = @_;
+    $cid += 0;
+    my $text = LJ::Hooks::run_hook( 'cluster_description', $cid );
+    return $text if $text;
+
+    # default behavior just returns clusterid
+    return $cid;
+}
+
+# <LJFUNC>
 # name: LJ::DB::new_account_cluster
 # des: Which cluster to put a new account on.  $DEFAULT_CLUSTER if it's
 #      a scalar, random element from [ljconfig[default_cluster]] if it's arrayref.

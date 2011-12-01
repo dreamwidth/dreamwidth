@@ -42,7 +42,7 @@ sub execute {
     return $self->error("Invalid username $user")
         unless $u;
 
-    my $cluster = LJ::get_cluster_description($u->{clusterid}, 0);
+    my $cluster = LJ::DB::get_cluster_description( $u->{clusterid} );
     return $self->print("$user is on the $cluster cluster");
 }
 
