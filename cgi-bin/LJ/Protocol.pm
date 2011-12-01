@@ -1658,7 +1658,7 @@ sub postevent
     $u->invalidate_directory_record;
 
     # note this post in recentactions table
-    LJ::note_recent_action($uowner, 'post');
+    LJ::DB::note_recent_action($uowner, 'post');
 
     # if the post was public, and the user has not opted out, try to insert into the random table;
     # We're doing a REPLACE INTO because chances are the user will already
