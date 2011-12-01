@@ -490,6 +490,31 @@ sub random_cluster {
 }
 
 
+sub note_recent_action {
+    my ( $cid, $action ) = @_;
+
+    # make sure they gave us an action (and it's not a long string)
+    return undef if ! $action || length( $action ) > 20;
+
+    # fall back to selecting a random cluster if none specified
+    $cid = LJ::DB::random_cluster() unless defined $cid;
+
+    # accept a user object
+    $cid = ref $cid ? $cid->{clusterid} + 0 : $cid + 0;
+
+    return undef unless $cid;
+
+    my $dbcm = LJ::get_cluster_master( $cid )
+        or return undef;
+
+    # append to recentactions table
+    $dbcm->do( "INSERT INTO recentactions VALUES (?)", undef, $action );
+    return undef if $dbcm->err;
+
+    return 1;
+}
+
+
 package LJ;
 
 use Carp qw(confess);  # import confess into package LJ

@@ -1678,30 +1678,6 @@ sub get_secret
 }
 
 
-sub note_recent_action {
-    my ($cid, $action) = @_;
-
-    # fall back to selecting a random cluster
-    $cid = LJ::DB::random_cluster() unless defined $cid;
-
-    # accept a user object
-    $cid = ref $cid ? $cid->{clusterid}+0 : $cid+0;
-
-    return undef unless $cid;
-
-    # make sure they gave us an action
-    return undef if !$action || length($action) > 20;;
-
-    my $dbcm = LJ::get_cluster_master($cid)
-        or return undef;
-
-    # append to recentactions table
-    $dbcm->do( "INSERT INTO recentactions VALUES (?)", undef, $action );
-    return undef if $dbcm->err;
-
-    return 1;
-}
-
 sub is_web_context {
     return $ENV{MOD_PERL} ? 1 : 0;
 }
