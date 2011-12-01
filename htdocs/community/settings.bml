@@ -41,7 +41,7 @@ body<=
     use strict;
     use vars qw(%GET %POST);
 
-    my $ret; 
+    my $ret;
     my %errors;
 
 
@@ -72,8 +72,8 @@ body<=
         my $sth;
         my $cuser = LJ::canonical_username($POST{'cuser'});
         my $cu = LJ::load_user($cuser);
-        
-        
+
+
         $errors{username} = $ML{'.error.notfound'} unless $cu;
 
         $errors{username} = $ML{'.error.samenames'}
@@ -93,10 +93,10 @@ body<=
         if ( $mode eq 'create' && !%errors && ( !$remote || !$remote->has_priv( "changejournaltype", "" ) ) ) {
             my $count;
             my $userid=$cu->{'userid'}+0;
-            
+
             my $dbcr = LJ::get_cluster_reader($cu);
             $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM log2 WHERE journalid=$userid AND posterid=journalid");
-            
+
             $errors{'username'} = $ML{'.error.hasentries'} if $count;
         }
 
@@ -207,14 +207,14 @@ body<=
     my ($cname, $c);
 
     $cname = $POST{'cuser'}; # if we're falling through with errors when creating
-    
+
     my %info = (
                 'membership'=>$POST{'membership'} || 'open',
                 'postlevel'=>$POST{'postlevel'} || 'members',
                 'nonmember_posting'=>$POST{'nonmember_posting'} || 0,
                 'moderated'=>$POST{'moderated'} || 0,
                 'hide_join_post_link'=>$POST{'showjoinpostlink'} ? 0 : 1,
-                'posting_guidelines_entry'=>$POST{'postingguidelinesentry'} || '',                
+                'posting_guidelines_entry'=>$POST{'postingguidelinesentry'} || '',
                 );
 
     if ($mode eq 'modify') {
@@ -238,7 +238,7 @@ body<=
         # get props unless we're reloading the form because of an error
         unless ( LJ::did_post() ) {
             my $dbr = LJ::get_db_reader();
-            ($info{'membership'},$info{'postlevel'}) = 
+            ($info{'membership'},$info{'postlevel'}) =
                 $dbr->selectrow_array("SELECT membership, postlevel FROM community WHERE userid=$c->{'userid'}");
             $c->preload_props( qw/ nonmember_posting moderated hide_join_post_link posting_guidelines_entry / );
             $info{'nonmember_posting'} = $c->{'nonmember_posting'} ? 1 : 0;
@@ -276,13 +276,13 @@ body<=
     $ret .= "<fieldset id='membership'>";
     $ret .= "<legend>$ML{'.label.membership'}</legend><div><?p $ML{'.label.whocanjoin'} p?>";
     $ret .= "<p class='input-wrapper'>";
-    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memopen', 
+    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memopen',
                              value => 'open', selected => ($info{membership} eq 'open' ? 1 : 0)});
     $ret .= "<label for='memopen'> $ML{'.label.openmemb'}</label></p><p class='input-wrapper'>";
-    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memmoderated', 
+    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memmoderated',
                              value => 'moderated', selected => ($info{membership} eq 'moderated' ? 1 : 0)});
     $ret .= " <label for='memmoderated'>$ML{'.label.moderatedmemb'}</label></p><p class='input-wrapper'>";
-    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memclosed', 
+    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memclosed',
                              value => 'closed', selected => ($info{membership} eq 'closed' ? 1 : 0)});
     $ret .= "<label for='memclosed'> $ML{'.label.closedmemb2'}</label></p>";
     $ret .= "</div></fieldset>";

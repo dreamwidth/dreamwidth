@@ -11,7 +11,7 @@
     my @displayprivs = ( "payments" );
     my $numprivs = @displayprivs;
 
-    return "<?needlogin?>" unless $remote; 
+    return "<?needlogin?>" unless $remote;
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless $remote->has_priv( 'payments' );
 
@@ -35,7 +35,7 @@
                   return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
               }
               return "Error: " . DW::Pay::error_text() . "\n";
-            } 
+            }
 
             return "invalid type"
                 unless $type =~ /^(?:seed|premium|paid|expire)$/;
@@ -50,7 +50,7 @@
                                            "Admin override: expired account." );
                     return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
                 }
-                    
+
             } else {
                 my $rv = DW::Pay::add_paid_time( $u, $type, $months, $days );
                 if ( $rv ) {
@@ -139,7 +139,7 @@ EOF
         <option value="expire">FORCE EXPIRATION</option>
     </select></td>
 <td align="center">
-        for <input type="text" name="months" maxlength="2" size="3" /> months, 
+        for <input type="text" name="months" maxlength="2" size="3" /> months,
         <input type="text" name="days" maxlength="2" size="3" /> days
 </td>
         <td><input type="checkbox" name="sendemail">Email?</td>

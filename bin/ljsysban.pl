@@ -42,9 +42,9 @@ unless (($list   && (($banid && ! $an_opt) || (! $banid && $an_opt)) ||
                 "             [--what=? --status=? --bandate=datetime --banuntil=datetime\n" .
                 "              --value=? --note=?]\n" .
                 "           }\n\n" .
-                "  --add    <--what=? --value=?\n" . 
+                "  --add    <--what=? --value=?\n" .
                 "             [--status=? --bandate=datetime { --banuntil=datetime | --banlength=duration } --note=?]>\n\n" .
-                "  --modify <--banid=?>\n" . 
+                "  --modify <--banid=?>\n" .
                 "             [--status=? --bandate=datetime { --banuntil=datetime |\n" .
                 "              --banlength=duration } --value=? --note=?]\n\n" .
                 "datetime in format 'YYYY-MM-DD HH:MM:SS', duration in format 'N[dhms]' e.g. '5d' or '3h'.\n\n" .
@@ -109,8 +109,8 @@ if ($add) {
     $status = ($status eq 'expired' ? 'expired' : 'active');
 
     $dbh->do("INSERT INTO sysban (status, what, value, note, bandate, banuntil)" .
-             "VALUES (?, ?, ?, ?, " . 
-             ($bandate ? $dbh->quote($bandate) : 'NOW()') . ", " . 
+             "VALUES (?, ?, ?, ?, " .
+             ($bandate ? $dbh->quote($bandate) : 'NOW()') . ", " .
              ($banuntil ? $dbh->quote($banuntil) : 'NULL') . ")",
              undef, $status, $what, $value, $note);
     die $dbh->errstr if $dbh->err;
@@ -141,7 +141,7 @@ if ($modify) {
 
     # ip/uniq ban and we're going to change the value
     if (($value && $value ne $ban->{'value'}) ||
-        $banuntil && $banuntil ne $ban->{'banuntil'} || 
+        $banuntil && $banuntil ne $ban->{'banuntil'} ||
         ($status && $status ne $ban->{'status'} && $status eq 'expired')) {
 
         LJ::Sysban::ban_undo( $ban->{what}, $value || $ban->{value} );
@@ -155,7 +155,7 @@ if ($modify) {
 
     # ip/uniq ban and we are going to change the value
     if (($value && $value ne $ban->{'value'}) ||
-        $banuntil && $banuntil ne $ban->{'banuntil'} || 
+        $banuntil && $banuntil ne $ban->{'banuntil'} ||
         ($status && $status ne $ban->{'status'} && $status eq 'active')) {
 
         my $new_value    = $value || $ban->{value};

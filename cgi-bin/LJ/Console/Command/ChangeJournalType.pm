@@ -92,7 +92,7 @@ sub execute {
                                            undef, $u->id);
         if ($count) {
             if ($args[0] eq 'force') {
-                $u->do("UPDATE log2 SET posterid = ? WHERE journalid = ? AND posterid = journalid", undef, $ou->id, $u->id) 
+                $u->do("UPDATE log2 SET posterid = ? WHERE journalid = ? AND posterid = journalid", undef, $ou->id, $u->id)
                     or return $self->error($DBI::errstr);
                 $self->info("$count entries of user '$u->{user}' belong to '$ou->{user}' now");
             } else {

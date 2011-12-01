@@ -108,9 +108,9 @@ Checks code is available, not already used up, and not expired.
 
 sub usable {
     my ( $self ) = @_;
-        
+
     return 0 unless $self->{active};
-    return 0 unless $self->{current_count} < $self->{max_count}; 
+    return 0 unless $self->{current_count} < $self->{max_count};
 
     # 0 for expiry_date means never expire;
     return 0 if $self->{expiry_date} && time() >= $self->{expiry_date};

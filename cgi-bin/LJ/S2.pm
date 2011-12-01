@@ -103,7 +103,7 @@ sub make_journal
             '_input_captures' => [],
             '_content' => $opts->{siteviews_extra_content},
         };
-        
+
         $ctx->[S2::SCRATCH]->{siteviews_enabled} = 1;
         $ctx->[S2::PROPS]->{SITEVIEWS} = $siteviews_class;
     } else {
@@ -2056,7 +2056,7 @@ sub Entry_from_entryobj
     # their journal.  if either are yes, it needs to be added to comment links
     my %opt_stylemine = $remote && $remote->prop( 'opt_stylemine' ) && $remote->id != $journalid ? ( style => 'mine' ) : ();
     my $style_args = LJ::viewing_style_args( %$get, %opt_stylemine );
-    
+
     #load and prepare subject and text of entry
     my $subject = LJ::CleanHTML::quote_html( $entry_obj->subject_html, $get->{nohtml} );
     my $text = $no_entry_body ? "" : LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
@@ -2082,7 +2082,7 @@ sub Entry_from_entryobj
             $cleanhtml_opts->{$k} = $cleanhtml_extra->{$k}
         }
         LJ::CleanHTML::clean_event( \$text, $cleanhtml_opts );
-    
+
         LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
         $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $journal,
                                                          remote => $remote, entry => $entry_obj );
@@ -2852,10 +2852,10 @@ sub viewer_can_search {
     my $remote = LJ::get_remote();
     return 0 unless $remote;
     return 0 unless defined $LJ::S2::CURR_PAGE;
- 
+
     my $ju = $LJ::S2::CURR_PAGE->{_u};
 
-    # return based on this function 
+    # return based on this function
     return $ju->allow_search_by( $remote );
 }
 
@@ -3995,7 +3995,7 @@ sub _Entry__get_link
     }
     if ($key eq "edit_tags") {
         my $entry = LJ::Entry->new( $journalu, ditemid => $this->{itemid} );
-        
+
         return $null_link unless $remote && LJ::Tags::can_add_entry_tags( $remote, $entry );
         return LJ::S2::Link("$LJ::SITEROOT/edittags?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_edit_tags"},
@@ -4617,7 +4617,7 @@ sub Siteviews__end_capture {
 sub Siteviews__set_content {
     my ($ctx, $this, $content, $text) = @_;
     die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
-    
+
     $this->{_content}->{$content} = $text;
 }
 

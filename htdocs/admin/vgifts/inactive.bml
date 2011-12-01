@@ -13,7 +13,7 @@
 
     # helper routines
 
-    my $error = sub { 
+    my $error = sub {
         $title = $ML{'.error'};
         $body = join '', @_;
         return undef;
@@ -34,7 +34,7 @@
         my ( $name, $ml, $optref ) = @_;
         my %opts = $optref ? %$optref : ();
         my $text = "\n<label for='$name'>$ML{$ml}</label>";
-        $text .= '<br />' and delete $opts{br} if $opts{br}; 
+        $text .= '<br />' and delete $opts{br} if $opts{br};
         $text .= LJ::html_text( { name => $name, id => $name, %opts } );
         return $text;
     };
