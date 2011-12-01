@@ -409,37 +409,6 @@ sub statushistory_add {
 }
 
 # <LJFUNC>
-# name: LJ::get_authas_user
-# des: Given a username, will return a user object if remote is an admin for the
-#      username.  Otherwise returns undef.
-# returns: user object if authenticated, otherwise undef.
-# args: user
-# des-opts: Username of user to attempt to auth as.
-# </LJFUNC>
-sub get_authas_user {
-    my $user = shift;
-    return undef unless $user;
-
-    # get a remote
-    my $remote = LJ::get_remote();
-    return undef unless $remote;
-
-    # remote is already what they want?
-    return $remote if $remote->user eq $user;
-
-    # load user and authenticate
-    my $u = LJ::load_user($user);
-    return undef unless $u;
-    return undef unless $u->{clusterid};
-
-    # does $remote have admin access to $u?
-    return undef unless $remote->can_manage( $u );
-
-    # passed all checks, return $u
-    return $u;
-}
-
-# <LJFUNC>
 # name: LJ::is_valid_authaction
 # des: Validates a shared secret (authid/authcode pair)
 # info: See [func[LJ::register_authaction]].
