@@ -245,25 +245,44 @@ sub get_friendgroups {
 # must be run in an eval block.  returns 1 on success, dies with an error
 # message on failure.
 sub validate_server {
-    my ($self, $proxyurl) = @_;
+    my ($self, $proxyurl, $depth) = @_;
+    $depth ||= 1;
 
     # get the xml-rpc proxy and start the connection.
     my $xmlrpc = eval { XMLRPC::Lite->proxy($proxyurl); };
+
     # fail if no proxy
     return 0 unless $xmlrpc;
 
     # assume if we respond to LJ.XMLRPC.getchallenge, then we're good
     # on the server.
     # note:  this will die on a failed connection with an error.
-    my $challengecall = $xmlrpc->call("LJ.XMLRPC.getchallenge");
-    if ($challengecall->fault) {
+    my $challengecall = eval{ $xmlrpc->call("LJ.XMLRPC.getchallenge"); };
+    if ($challengecall && $challengecall->fault) {
         # error from the server
         #die($challengecall->faultstring);
         return 0;
     }
 
-    # otherwise success.
-    return 1;
+    # error; URL probably wrong. Guess and try again
+    if ( $@ ) {
+        return 0 if $depth > 2;
+        eval "use URI;";
+        return 0 if $@;
+
+        my $uri = URI->new( $proxyurl );
+
+        my $path = $uri->path;
+        # don't try to guess further if user actually gave us a path
+        return 0 if $path && $path ne "/";
+
+        # user didn't provide us a path, so let's guess
+        $uri->path( "/interface/xmlrpc" );
+        return $self->validate_server( $uri->as_string, $depth+1 );
+    }
+
+    # otherwise success. (proxyurl has possibly been updated)
+    return ( 1, $proxyurl );
 }
 
 # translates at Entry object into a request for crossposting

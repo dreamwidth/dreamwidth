@@ -141,8 +141,8 @@ sub create_footer_text {
 }
 
 # validates that the given server is running the appropriate protocol.
-# must be run in an eval block.  returns 1 on success, 0 on failure
-sub validate_server { 1 }
+# must be run in an eval block.  returns ( 1, $validurl ) on success, 0 on failure
+sub validate_server { return ( 1, $_[0] ); }
 
 # hash the password in a protocol-specific manner
 sub encrypt_password {

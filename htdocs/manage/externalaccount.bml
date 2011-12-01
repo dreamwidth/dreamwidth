@@ -309,7 +309,9 @@ sub create_external_account {
         $errs->{username} = BML::ml('.settings.xpost.error.username.required');
         $ok = 0;
     }
-    
+
+    my $extacct_info = +{ map { $_ => $POST{$_}  } keys %POST };
+
     # check if it's a default site or a custom site
     if ($POST->{"site"} ne -1) {
         # default site; just use the siteid
@@ -335,8 +337,11 @@ sub create_external_account {
                 $errs->{servicetype} = BML::ml('.settings.xpost.error.servicetype', { servicetype => $opts{servicetype} });
                 $ok = 0;
             } else {
-                my $valid = $protocol->validate_server($opts{serviceurl});
-                if (! $valid) {
+                my ( $valid, $serviceurl ) = $protocol->validate_server( $opts{serviceurl} );
+                if ( $valid ) {
+                    # update in case it's been canonicalized
+                    $extacct_info->{serviceurl} = $opts{serviceurl} = $serviceurl;
+                } else {
                     $errs->{serviceurl} = BML::ml('.settings.xpost.error.url', { url => $opts{serviceurl} });
                     $ok = 0;
                 }
@@ -346,7 +351,8 @@ sub create_external_account {
 
     # verification of account info - only do this if $ok isn't already set to 0, so we have username/password and valid site info
     if ( $ok ) {
-        my $account_valid = account_isvalid( $u, \%POST );
+        my $account_valid = account_isvalid( $u, $extacct_info );
+
         if ( $account_valid != 1 ) {
             $ok = 0;
             #create different error messages for different server errors. If we get some other error message, show the one we get from the server
@@ -371,8 +377,7 @@ sub create_external_account {
         } else { 
             $protocol = DW::External::XPostProtocol->get_protocol( $opts{servicetype} );
         }
-        my $options = parse_options( $protocol, $POST );
-
+        my $options = parse_options( $protocol, $extacct_info );
         $opts{options} = $options;
 
         # if the user requested that we don't save their password, then
