@@ -15,6 +15,7 @@
 
 
 use strict;
+use lib "$ENV{LJHOME}/extlib/lib/perl5";
 use Getopt::Long;
 
 my $debs_only = 0;
