@@ -193,7 +193,7 @@ propgroup fonts {
     property use font_module_text_units;
 }
 
-set font_base = "tahoma, verdana, arial";
+set font_base = "Tahoma, Verdana, Arial";
 set font_fallback = "sans-serif";
 set font_base_size = "1";
 set font_base_units = "em";

@@ -60,13 +60,13 @@ set color_module_title_background = "#f4b78f";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/aqualicious
@@ -132,13 +132,13 @@ set color_module_title_background = "#b0d7dc";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/autumnclouds
@@ -323,13 +323,13 @@ set color_module_title_background = "#1a1a1a";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/citrusy
@@ -394,13 +394,13 @@ set color_module_title_background = "#c0d999";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/dependable
@@ -465,13 +465,13 @@ set color_module_title_background = "#ada897";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/driedflowers
@@ -777,13 +777,13 @@ set color_module_title_background = "#d9e1f1";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/hollowsilence
@@ -848,13 +848,13 @@ set color_module_title_background = "#daf4e0";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/kiwi
@@ -980,13 +980,13 @@ set color_module_title_background = "#e1a8d0";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/lemonade
@@ -1052,13 +1052,13 @@ set color_module_title_background = "#ff9714";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/marblei
@@ -1608,13 +1608,13 @@ set color_module_title_background = "#1a1a1a";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/peacefuldreams
@@ -1919,13 +1919,13 @@ set color_module_title_background = "#fdd0d2";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/rosegardeni
@@ -2738,13 +2738,13 @@ set color_module_title_background = "#9acbde";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Impact";
 set font_entry_title = "Impact";
 set font_journal_subtitle = "Impact";
 set font_journal_title = "Impact";
 set font_module_heading = "Impact";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: fluidmeasure/wooded

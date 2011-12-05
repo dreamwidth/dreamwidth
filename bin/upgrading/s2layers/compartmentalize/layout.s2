@@ -19,27 +19,27 @@ set entry_metadata_position = "top";
 ## Fonts
 ##===============================
 
-set font_base = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_base = "'Franklin Gothic Book', Arial Narrow, Arial";
 set font_fallback = "sans-serif";
 set font_base_size = "1";
 set font_base_units = "em";
 
-set font_journal_title = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_journal_title = "'Franklin Gothic Book', Arial Narrow, Arial";
 set font_journal_title_size = "1.5";
 set font_journal_title_units = "em";
 
-set font_journal_subtitle = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_journal_subtitle = "'Franklin Gothic Book', Arial Narrow, Arial";
 set font_journal_subtitle_size = "1.1";
 set font_journal_subtitle_units = "em";
 
-set font_entry_title = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_entry_title = "'Franklin Gothic Book', Arial Narrow, Arial";
 set font_entry_title_size = "1.1";
 set font_entry_title_units = "em";
 
 set font_comment_title_size = "1.1";
 set font_comment_title_units = "em";
 
-set font_module_heading = "Franklin Gothic Book, Arial Narrow, Arial";
+set font_module_heading = "'Franklin Gothic Book', Arial Narrow, Arial";
 set font_module_heading_size = "1.1";
 set font_module_heading_units = "em";
 

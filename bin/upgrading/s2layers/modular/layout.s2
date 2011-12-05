@@ -27,11 +27,11 @@ set module_navlinks_section = "header";
 
 set font_base = "Verdana, Helvetica";
 set font_fallback = "sans-serif";
-set font_journal_title = "Century Gothic, Verdana, sans-serif";
-set font_journal_subtitle = "Century Gothic, Verdana, sans-serif";
-set font_entry_title = "Century Gothic, Verdana, sans-serif";
-set font_comment_title = "Century Gothic, Verdana, sans-serif";
-set font_module_heading = "Century Gothic, Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
 
 # Give a title to the navlinks module
 function print_module_navlinks() {

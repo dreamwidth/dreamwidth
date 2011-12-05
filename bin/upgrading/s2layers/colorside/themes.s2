@@ -687,10 +687,10 @@ set color_module_title_background = "#d8d8a8";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, Helvetica";
-set font_entry_title = "Trebuchet MS, Helvetica";
-set font_journal_title = "Trebuchet MS, Helvetica";
-set font_module_heading = "Trebuchet MS, Helvetica";
+set font_base = "'Trebuchet MS', Helvetica";
+set font_entry_title = "'Trebuchet MS', Helvetica";
+set font_journal_title = "'Trebuchet MS', Helvetica";
+set font_module_heading = "'Trebuchet MS', Helvetica";
 
 function Page::print_theme_stylesheet () {
     """

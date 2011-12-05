@@ -417,7 +417,7 @@ set color_module_title = "#5c6b7a";
 ## Fonts
 ##===============================
 
-set font_base = "'Lucida Grande', 'Lucida'";
+set font_base = "'Lucida Grande', Lucida";
 
 
 #NEWLAYER: blanket/jewels

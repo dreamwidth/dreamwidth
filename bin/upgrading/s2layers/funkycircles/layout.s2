@@ -64,11 +64,11 @@ set color_shadow_alt = "#8c8c8c";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, DejaVu Sans";
+set font_base = "'Trebuchet MS', 'DejaVu San's";
 set font_fallback = "sans-serif";
 set font_base_size = "1";
 set font_base_units = "em";
-set font_journal_title = "Impact, MgOpen Moderna";
+set font_journal_title = "Impact, 'MgOpen Moderna'";
 set font_journal_title_size = "2";
 set font_journal_title_units ="em";
 set font_journal_subtitle_size = "1.5";

@@ -178,17 +178,17 @@ set color_navigation_module_link_visited = "#81eb97";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
-set font_date_time = "News Gothic MT";
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
 set font_date_time_size = ".9";
-set font_entry_text = "News Gothic MT";
+set font_entry_text = "'News Gothic MT'";
 set font_entry_text_size = "1";
-set font_entry_title = "News Gothic MT";
+set font_entry_title = "'News Gothic MT'";
 set font_entry_title_size = ".9";
-set font_module_heading = "News Gothic MT";
-set font_navigation_module_text = "News Gothic MT";
+set font_module_heading = "'News Gothic MT'";
+set font_navigation_module_text = "'News Gothic MT'";
 set font_navigation_module_text_size = ".9";
-set font_other_module_text = "News Gothic MT";
+set font_other_module_text = "'News Gothic MT'";
 set font_other_module_text_size = ".9";
 
 ##===============================
@@ -772,17 +772,17 @@ set color_navigation_module_background = "#bcd0df";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
-set font_date_time = "News Gothic MT";
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
 set font_date_time_size = ".9";
-set font_entry_text = "News Gothic MT";
+set font_entry_text = "'News Gothic MT'";
 set font_entry_text_size = "1";
-set font_entry_title = "News Gothic MT";
+set font_entry_title = "'News Gothic MT'";
 set font_entry_title_size = ".9";
-set font_module_heading = "News Gothic MT";
-set font_navigation_module_text = "News Gothic MT";
+set font_module_heading = "'News Gothic MT'";
+set font_navigation_module_text = "'News Gothic MT'";
 set font_navigation_module_text_size = ".9";
-set font_other_module_text = "News Gothic MT";
+set font_other_module_text = "'News Gothic MT'";
 set font_other_module_text_size = ".9";
 
 ##===============================
@@ -1026,17 +1026,17 @@ set color_navigation_module_background = "#eec5cb";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
-set font_date_time = "News Gothic MT";
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
 set font_date_time_size = ".9";
-set font_entry_text = "News Gothic MT";
+set font_entry_text = "'News Gothic MT'";
 set font_entry_text_size = "1";
-set font_entry_title = "News Gothic MT";
+set font_entry_title = "'News Gothic MT'";
 set font_entry_title_size = ".9";
-set font_module_heading = "News Gothic MT";
-set font_navigation_module_text = "News Gothic MT";
+set font_module_heading = "'News Gothic MT'";
+set font_navigation_module_text = "'News Gothic MT'";
 set font_navigation_module_text_size = ".9";
-set font_other_module_text = "News Gothic MT";
+set font_other_module_text = "'News Gothic MT'";
 set font_other_module_text_size = ".9";
 
 ##===============================
@@ -1251,17 +1251,17 @@ set color_navigation_module_background = "#4b1b2a";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
-set font_date_time = "News Gothic MT";
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
 set font_date_time_size = ".9";
-set font_entry_text = "News Gothic MT";
+set font_entry_text = "'News Gothic MT'";
 set font_entry_text_size = "1";
-set font_entry_title = "News Gothic MT";
+set font_entry_title = "'News Gothic MT'";
 set font_entry_title_size = ".9";
-set font_module_heading = "News Gothic MT";
-set font_navigation_module_text = "News Gothic MT";
+set font_module_heading = "'News Gothic MT'";
+set font_navigation_module_text = "'News Gothic MT'";
 set font_navigation_module_text_size = ".9";
-set font_other_module_text = "News Gothic MT";
+set font_other_module_text = "'News Gothic MT'";
 set font_other_module_text_size = ".9";
 
 ##===============================

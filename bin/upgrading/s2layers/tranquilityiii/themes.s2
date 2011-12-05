@@ -855,12 +855,12 @@ set color_module_background = "#aadbc2";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, Arial";
-set font_entry_title = "Trebuchet MS, Arial";
-set font_journal_title = "Trebuchet MS";
+set font_base = "'Trebuchet MS', Arial";
+set font_entry_title = "'Trebuchet MS', Arial";
+set font_journal_title = "'Trebuchet MS'";
 set font_journal_title_size = "2.5";
 set font_journal_title_units = "em";
-set font_module_heading = "Trebuchet MS, Arial";
+set font_module_heading = "'Trebuchet MS', Arial";
 
 function Page::print_theme_stylesheet() {
     """

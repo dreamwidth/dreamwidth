@@ -173,11 +173,11 @@ set color_module_title_background = "#d8d8a8";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, Verdana";
-set font_comment_title = "Trebuchet MS, Verdana";
-set font_entry_title = "Trebuchet MS, Verdana";
-set font_journal_title = "Trebuchet MS, Verdana";
-set font_module_heading = "Trebuchet MS, Verdana";
+set font_base = "'Trebuchet MS', Verdana";
+set font_comment_title = "'Trebuchet MS', Verdana";
+set font_entry_title = "'Trebuchet MS', Verdana";
+set font_journal_title = "'Trebuchet MS', Verdana";
+set font_module_heading = "'Trebuchet MS', Verdana";
 
 
 #NEWLAYER: modular/coffeeandcream
@@ -425,11 +425,11 @@ set color_module_title_background = "#A17531";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, Verdana";
-set font_comment_title = "Trebuchet MS, Verdana";
-set font_entry_title = "Trebuchet MS, Verdana";
-set font_journal_title = "Trebuchet MS, Verdana";
-set font_module_heading = "Trebuchet MS, Verdana";
+set font_base = "'Trebuchet MS', Verdana";
+set font_comment_title = "'Trebuchet MS', Verdana";
+set font_entry_title = "'Trebuchet MS', Verdana";
+set font_journal_title = "'Trebuchet MS', Verdana";
+set font_module_heading = "'Trebuchet MS', Verdana";
 
 
 #NEWLAYER: modular/freshprose
@@ -676,11 +676,11 @@ set color_module_title_background = "#dd1a3b";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, Verdana";
-set font_comment_title = "Trebuchet MS, Verdana";
-set font_entry_title = "Trebuchet MS, Verdana";
-set font_journal_title = "Trebuchet MS, Verdana";
-set font_module_heading = "Trebuchet MS, Verdana";
+set font_base = "'Trebuchet MS', Verdana";
+set font_comment_title = "'Trebuchet MS', Verdana";
+set font_entry_title = "'Trebuchet MS', Verdana";
+set font_journal_title = "'Trebuchet MS', Verdana";
+set font_module_heading = "'Trebuchet MS', Verdana";
 
 
 #NEWLAYER: modular/mediterraneanpeach
@@ -914,11 +914,11 @@ set color_module_title_background = "#89896b";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, Verdana";
-set font_comment_title = "Trebuchet MS, Verdana";
-set font_entry_title = "Trebuchet MS, Verdana";
-set font_journal_title = "Trebuchet MS, Verdana";
-set font_module_heading = "Trebuchet MS, Verdana";
+set font_base = "'Trebuchet MS', Verdana";
+set font_comment_title = "'Trebuchet MS', Verdana";
+set font_entry_title = "'Trebuchet MS', Verdana";
+set font_journal_title = "'Trebuchet MS', Verdana";
+set font_module_heading = "'Trebuchet MS', Verdana";
 
 
 #NEWLAYER: modular/starrynight
@@ -1065,11 +1065,11 @@ set color_module_title_background = "#366E92";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, Verdana";
-set font_comment_title = "Trebuchet MS, Verdana";
-set font_entry_title = "Trebuchet MS, Verdana";
-set font_journal_title = "Trebuchet MS, Verdana";
-set font_module_heading = "Trebuchet MS, Verdana";
+set font_base = "'Trebuchet MS', Verdana";
+set font_comment_title = "'Trebuchet MS', Verdana";
+set font_entry_title = "'Trebuchet MS', Verdana";
+set font_journal_title = "'Trebuchet MS', Verdana";
+set font_module_heading = "'Trebuchet MS', Verdana";
 
 
 #NEWLAYER: modular/subtlemisses

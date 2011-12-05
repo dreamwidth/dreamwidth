@@ -699,11 +699,11 @@ set color_module_title = "#569d71";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS, Arial";
-set font_entry_title = "Trebuchet MS, Arial";
+set font_base = "'Trebuchet MS', Arial";
+set font_entry_title = "'Trebuchet MS', Arial";
 set font_journal_title = "Verdana";
 set font_journal_title_size = "2.5";
-set font_module_heading = "Trebuchet MS, Arial";
+set font_module_heading = "'Trebuchet MS', Arial";
 set font_title_fallback = "sans-serif";
 
 

@@ -714,7 +714,7 @@ set color_module_title = "#eff3ce";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Georgia";
 set font_comment_title_size = "1.1";
 set font_comment_title_units = "em";
@@ -1038,7 +1038,7 @@ set color_module_title = "#060606";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Georgia";
 set font_comment_title_size = "1.1";
 set font_comment_title_units = "em";
@@ -1209,7 +1209,7 @@ set color_module_title = "#70696a";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Georgia";
 set font_comment_title_size = "1.1";
 set font_comment_title_units = "em";
@@ -1367,7 +1367,7 @@ set color_module_title = "#333";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
+set font_base = "'News Gothic MT'";
 set font_comment_title = "Georgia";
 set font_comment_title_size = "1.1";
 set font_comment_title_units = "em";

@@ -34,7 +34,7 @@ propgroup colors_child {
 ## Fonts
 ##===============================
 
-set font_base = "Palatino Linotype, Book Antiqua, Georgia, Times New Roman";
+set font_base = "'Palatino Linotype', 'Book Antiqua', Georgia, 'Times New Roman'";
 set font_fallback = "serif";
 set font_journal_title_size = "1.8";
 set font_journal_title_units = "em";

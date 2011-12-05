@@ -2061,16 +2061,16 @@ set color_calendar_text = "#fdfdfd";
 ## Fonts
 ##===============================
 
-set font_base = "Gourier New";
-set font_comment_title = "Courier New";
+set font_base = "'Courier New'";
+set font_comment_title = "'Courier New'";
 set font_comment_title_units = "em";
-set font_entry_title = "Courier New";
-set font_journal_subtitle = "Courier New";
+set font_entry_title = "'Courier New'";
+set font_journal_subtitle = "'Courier New'";
 set font_journal_subtitle_size = "1.5";
-set font_journal_title = "Courier New";
+set font_journal_title = "'Courier New'";
 set font_journal_title_size = "2";
-set font_module_heading = "Courier New";
-set font_module_text = "Courier New";
+set font_module_heading = "'Courier New'";
+set font_module_text = "'Courier New'";
 set font_module_text_units = "em";
 
 

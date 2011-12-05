@@ -978,17 +978,17 @@ set color_module_title = "3B2D3C";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
-set font_comment_title = "Bernard MT Condensed";
-set font_entry_title = "Bernard MT Condensed";
+set font_base = "'News Gothic MT'";
+set font_comment_title = "'Bernard MT Condensed'";
+set font_entry_title = "'Bernard MT Condensed'";
 set font_entry_title_size = "1.42";
-set font_journal_subtitle = "News Gothic MT";
+set font_journal_subtitle = "'News Gothic MT'";
 set font_journal_subtitle_size = "1.37";
-set font_journal_title = "Bernard MT Condensed";
+set font_journal_title = "'Bernard MT Condensed'";
 set font_journal_title_size = "1.92";
-set font_module_heading = "Bernard MT Condensed";
+set font_module_heading = "'Bernard MT Condensed'";
 set font_module_heading_size = "1.42";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: practicality/danceinthedark
@@ -3026,17 +3026,17 @@ set color_module_title = "#222";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
-set font_comment_title = "Bernard MT Condensed";
-set font_entry_title = "Bernard MT Condensed";
+set font_base = "'News Gothic MT'";
+set font_comment_title = "'Bernard MT Condensed'";
+set font_entry_title = "'Bernard MT Condensed'";
 set font_entry_title_size = "1.42";
-set font_journal_subtitle = "News Gothic MT";
+set font_journal_subtitle = "'News Gothic MT'";
 set font_journal_subtitle_size = "1.37";
-set font_journal_title = "Bernard MT Condensed";
+set font_journal_title = "'Bernard MT Condensed'";
 set font_journal_title_size = "1.92";
-set font_module_heading = "Bernard MT Condensed";
+set font_module_heading = "'Bernard MT Condensed'";
 set font_module_heading_size = "1.42";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";
 
 
 #NEWLAYER: practicality/printemps
@@ -4378,14 +4378,14 @@ set color_module_title = "#070707";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT";
-set font_comment_title = "Bernard MT Condensed";
-set font_entry_title = "Bernard MT Condensed";
+set font_base = "'News Gothic MT'";
+set font_comment_title = "'Bernard MT Condensed'";
+set font_entry_title = "'Bernard MT Condensed'";
 set font_entry_title_size = "1.42";
-set font_journal_subtitle = "News Gothic MT";
+set font_journal_subtitle = "'News Gothic MT'";
 set font_journal_subtitle_size = "1.37";
-set font_journal_title = "Bernard MT Condensed";
+set font_journal_title = "'Bernard MT Condensed'";
 set font_journal_title_size = "1.92";
-set font_module_heading = "Bernard MT Condensed";
+set font_module_heading = "'Bernard MT Condensed'";
 set font_module_heading_size = "1.42";
-set font_module_text = "News Gothic MT";
+set font_module_text = "'News Gothic MT'";

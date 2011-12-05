@@ -114,7 +114,7 @@ set color_module_title = "#fffaff";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS";
+set font_base = "'Trebuchet MS'";
 
 function Page::print_theme_stylesheet() {
     """
@@ -223,7 +223,7 @@ set color_module_title = "#5D3C23";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS";
+set font_base = "'Trebuchet MS'";
 
 
 #NEWLAYER: dustyfoot/dreamer
@@ -324,7 +324,7 @@ set color_module_title = "#2a1d0d";
 ## Fonts
 ##===============================
 
-set font_base = "Century Gothic";
+set font_base = "'Century Gothic'";
 
 
 #NEWLAYER: dustyfoot/garden
@@ -421,7 +421,7 @@ set color_module_text = "#433424";
 ## Fonts
 ##===============================
 
-set font_base = "Calisto MT";
+set font_base = "'Calisto MT'";
 set font_fallback = "serif";
 
 
@@ -558,7 +558,7 @@ set color_module_title = "#301818";
 ## Fonts
 ##===============================
 
-set font_base = "Trebuchet MS";
+set font_base = "'Trebuchet MS'";
 
 
 #NEWLAYER: dustyfoot/sunnyblush

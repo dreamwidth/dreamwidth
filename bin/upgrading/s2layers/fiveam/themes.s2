@@ -275,16 +275,16 @@ set color_calendar_text_hover = "#15121b";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
     """
@@ -386,16 +386,16 @@ set color_calendar_text_hover = "#0b0b0b";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
     """
@@ -583,7 +583,7 @@ set color_calendar_text_hover = "#0a0a0a";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
+set font_base = "'News Gothic MT', Helvetica";
 set font_comment_title = "Impact, Calibri";
 set font_comment_title_size = "1.28";
 set font_entry_title = "Impact, Calibri";
@@ -592,7 +592,7 @@ set font_journal_subtitle = "Impact, Calibri";
 set font_journal_title = "Impact, Calibri";
 set font_module_heading = "Impact, Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
@@ -701,16 +701,16 @@ set color_calendar_text_hover = "#050505";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
     """
@@ -928,16 +928,16 @@ set color_calendar_text_hover = "#faf5f0";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
     """
@@ -1084,16 +1084,16 @@ set color_calendar_text_hover = "#515151";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
     """
@@ -1192,16 +1192,16 @@ set color_calendar_text = "#161616";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
     """
@@ -1304,16 +1304,16 @@ set color_calendar_text_hover = "#545454";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
     """
@@ -1555,7 +1555,7 @@ set color_calendar_text_hover = "#EBEAEA";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
+set font_base = "'News Gothic MT', Helvetica";
 set font_comment_title = "Impact, Calibri";
 set font_comment_title_size = "1.28";
 set font_entry_title = "Impact, Calibri";
@@ -1564,7 +1564,7 @@ set font_journal_subtitle = "Impact, Calibri";
 set font_journal_title = "Impact, Calibri";
 set font_module_heading = "Impact, Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
@@ -1673,16 +1673,16 @@ set color_calendar_text_hover = "#0a0a0a";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
     """
@@ -1919,7 +1919,7 @@ set color_calendar_text_hover = "#665f5b";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
+set font_base = "'News Gothic MT', Helvetica";
 set font_comment_title = "Impact, Calibri";
 set font_comment_title_size = "1.28";
 set font_entry_title = "Impact, Calibri";
@@ -1928,7 +1928,7 @@ set font_journal_subtitle = "Impact, Calibri";
 set font_journal_title = "Impact, Calibri";
 set font_module_heading = "Impact, Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
@@ -2037,16 +2037,16 @@ set color_calendar_text_hover = "#040404";
 ## Fonts
 ##===============================
 
-set font_base = "News Gothic MT, Helvetica";
-set font_comment_title = "Britannic Bold, Calibri";
+set font_base = "'News Gothic MT', Helvetica";
+set font_comment_title = "'Britannic Bold', Calibri";
 set font_comment_title_size = "1.28";
-set font_entry_title = "Britannic Bold, Calibri";
+set font_entry_title = "'Britannic Bold', Calibri";
 set font_entry_title_size = "1.28";
-set font_journal_subtitle = "News Gothic MT, Helvetica";
-set font_journal_title = "Britannic Bold, Calibri";
-set font_module_heading = "Britannic Bold, Calibri";
+set font_journal_subtitle = "'News Gothic MT', Helvetica";
+set font_journal_title = "'Britannic Bold', Calibri";
+set font_module_heading = "'Britannic Bold', Calibri";
 set font_module_heading_size = "1.28";
-set font_module_text = "News Gothic MT, Helvetica";
+set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """

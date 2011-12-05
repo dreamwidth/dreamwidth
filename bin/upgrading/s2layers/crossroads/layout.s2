@@ -29,11 +29,11 @@ set text_post_comment_friends = "Reply";
 
 set font_base = "Verdana, Helvetica";
 set font_fallback = "sans-serif";
-set font_journal_title = "Century Gothic, Verdana, sans-serif";
-set font_journal_subtitle = "Century Gothic, Verdana, sans-serif";
-set font_entry_title = "Century Gothic, Verdana, sans-serif";
-set font_comment_title = "Century Gothic, Verdana, sans-serif";
-set font_module_heading = "Century Gothic, Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
 set font_module_text = "Verdana, Helvetica, sans-serif";
 
 ##===============================
