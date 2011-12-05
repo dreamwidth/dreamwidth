@@ -52,7 +52,7 @@ DW::Routing->register_string( '/entry/new', \&_new_handler_userspace, user => 1 
 # redirect to app-space
 sub _user_to_app_role {
     my ( $path ) = @_;
-    return DW::Request->get->redirect( LJ::create_url( $path, host => $LJ::SITEROOT ) );
+    return DW::Request->get->redirect( "$LJ::SITEROOT$path" );
 }
 
 sub _new_handler_userspace { return _user_to_app_role( "/entry/$_[0]->{username}/new" ) }
