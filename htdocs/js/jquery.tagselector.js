@@ -120,6 +120,11 @@
     </div>";
     };
 
+    var _regex = new RegExp("[^a-z0-9]","ig");
+    function _as_attr(tag) {
+        return tag.replace(_regex, "_");
+    }
+
     function _initTags() {
         $("button", $.fn.tagselector.instance.siblings()).attr("disabled", "true");
         $(":input", $.fn.tagselector.instance).attr("disabled", "true");
@@ -135,9 +140,10 @@
         var $tagslist = $("<ul id='tagselector_tags_list'></ul>");
 
         $.each(data, function(index, value) {
+            var attr = _as_attr(value);
             $("<li>").append(
-                $( "<input>", { "type": "checkbox", id: "tagselector_tag_" + value, "value": value, "checked": selected[value] } ),
-                $("<label>", { "for": "tagselector_tag_" + value } ).text(value) )
+                $( "<input>", { "type": "checkbox", id: "tagselector_tag_" + attr, "value": value, "checked": selected[value] } ),
+                $("<label>", { "for": "tagselector_tag_" + attr } ).text(value) )
             .appendTo($tagslist)
         });
 
