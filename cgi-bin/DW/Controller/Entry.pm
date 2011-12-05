@@ -1067,10 +1067,11 @@ sub options_rpc_handler {
 
     my $vars = _options( $rv->{remote} );
     $vars->{use_js} = 1;
+
     my $r = DW::Request->get;
     $r->status( @{$vars->{error_list} || []} ? HTTP_BAD_REQUEST : HTTP_OK );
 
-    return DW::Template->render_template( 'entry/options.tt', $vars, { no_sitescheme => 1 } );
+    return DW::Template->render_template( 'entry/options.tt', $vars, { fragment => 1 } );
 }
 
 sub _load_visible_panels {

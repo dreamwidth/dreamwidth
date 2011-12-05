@@ -316,6 +316,12 @@ sub render_string {
         $r->print( $out );
 
         return $r->OK;
+    } elsif ( $extra->{fragment} ) {
+        LJ::set_active_resource_group( "fragment" );
+        $out .= LJ::res_includes( nojs => 1, nolib => 1 );
+        $r->print( $out );
+
+        return $r->OK;
     } elsif ( $scheme->engine eq 'tt' ) {
         $r->content_type("text/html; charset=utf-8");
         $r->print( $class->render_scheme( $scheme, $out, $extra ) );

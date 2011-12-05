@@ -2484,6 +2484,12 @@ sub need_res {
 }
 
 sub res_includes {
+    my ( %opts ) = @_;
+
+    my $include_js = ! $opts{nojs};
+    my $include_links = ! $opts{nolinks};
+    my $include_libs = ! $opts{nolib};
+
     # TODO: automatic dependencies from external map and/or content of files,
     # currently it's limited to dependencies on the order you call LJ::need_res();
     my $ret = "";
@@ -2505,158 +2511,166 @@ sub res_includes {
         $wstatprefix = $LJ::WSTATPREFIX;
     }
 
-    # find current journal
-    my $r = DW::Request->get;
-    my $journal_base = '';
-    my $journal = '';
-    if ($r) {
-        my $journalid = $r->note('journalid');
+    if ( $include_js ) {
+        # find current journal
+        my $r = DW::Request->get;
+        my $journal_base = '';
+        my $journal = '';
+        if ($r) {
+            my $journalid = $r->note('journalid');
 
-        my $ju;
-        $ju = LJ::load_userid($journalid) if $journalid;
+            my $ju;
+            $ju = LJ::load_userid($journalid) if $journalid;
 
-        if ($ju) {
-            $journal_base = $ju->journal_base;
-            $journal = $ju->{user};
+            if ($ju) {
+                $journal_base = $ju->journal_base;
+                $journal = $ju->{user};
+            }
         }
+
+        my $remote = LJ::get_remote();
+        my $hasremote = $remote ? 1 : 0;
+
+        # ctxpopup prop
+        my $ctxpopup_icons = 1;
+        my $ctxpopup_userhead = 1;
+        $ctxpopup_icons = 0 if $remote && ! $remote->opt_ctxpopup_icons;
+        $ctxpopup_userhead = 0 if $remote && ! $remote->opt_ctxpopup_userhead;
+
+        # poll for esn inbox updates?
+        my $inbox_update_poll = LJ::is_enabled('inbox_update_poll');
+
+        # are media embeds enabled?
+        my $embeds_enabled = LJ::is_enabled('embed_module');
+
+        # esn ajax enabled?
+        my $esn_async = LJ::is_enabled('esn_ajax');
+
+        my %site = (
+                    imgprefix => "$imgprefix",
+                    siteroot => "$siteroot",
+                    statprefix => "$statprefix",
+                    currentJournalBase => "$journal_base",
+                    currentJournal => "$journal",
+                    has_remote => $hasremote,
+                    ctx_popup => ( $ctxpopup_icons || $ctxpopup_userhead ),
+                    ctx_popup_icons => $ctxpopup_icons,
+                    ctx_popup_userhead => $ctxpopup_userhead,
+                    inbox_update_poll => $inbox_update_poll,
+                    media_embed_enabled => $embeds_enabled,
+                    esn_async => $esn_async,
+                    );
+
+        my $site_params = LJ::js_dumper(\%site);
+        my $site_param_keys = LJ::js_dumper([keys %site]);
+
+        # include standard JS info
+        $ret .= qq {
+            <script type="text/javascript">
+                var Site;
+                if (!Site)
+                    Site = {};
+
+                var site_p = $site_params;
+                var site_k = $site_param_keys;
+                for (var i = 0; site_k.length > i; i++) {
+                    Site[site_k[i]] = site_p[site_k[i]];
+                }
+           </script>
+        };
     }
 
-    my $remote = LJ::get_remote();
-    my $hasremote = $remote ? 1 : 0;
+    if ( $include_links ) {
+        my $now = time();
+        my %list;   # type -> [];
+        my %oldest; # type -> $oldest
+        my %included = ();
+        my $add = sub {
+            my ($type, $what, $modtime) = @_;
 
-    # ctxpopup prop
-    my $ctxpopup_icons = 1;
-    my $ctxpopup_userhead = 1;
-    $ctxpopup_icons = 0 if $remote && ! $remote->opt_ctxpopup_icons;
-    $ctxpopup_userhead = 0 if $remote && ! $remote->opt_ctxpopup_userhead;
+            # the same file may have been included twice
+            # if it was in two different groups and not JS
+            # so add another check here
+            next if $included{$what};
+            $included{$what} = 1;
 
-    # poll for esn inbox updates?
-    my $inbox_update_poll = LJ::is_enabled('inbox_update_poll');
+            # in the concat-res case, we don't directly append the URL w/
+            # the modtime, but rather do one global max modtime at the
+            # end, which is done later in the tags function.
+            $what .= "?v=$modtime" unless $do_concat;
 
-    # are media embeds enabled?
-    my $embeds_enabled = LJ::is_enabled('embed_module');
+            push @{$list{$type} ||= []}, $what;
+            $oldest{$type} = $modtime if $modtime > ( $oldest{$type} || 0 );
+        };
 
-    # esn ajax enabled?
-    my $esn_async = LJ::is_enabled('esn_ajax');
+        # we may not want to pull in the libraries again, say if we're pulling in elements via an ajax load
+        delete $LJ::NEEDED_RES[$LJ::LIB_RES_PRIORITY] unless $include_libs;
 
-    my %site = (
-                imgprefix => "$imgprefix",
-                siteroot => "$siteroot",
-                statprefix => "$statprefix",
-                currentJournalBase => "$journal_base",
-                currentJournal => "$journal",
-                has_remote => $hasremote,
-                ctx_popup => ( $ctxpopup_icons || $ctxpopup_userhead ),
-                ctx_popup_icons => $ctxpopup_icons,
-                ctx_popup_userhead => $ctxpopup_userhead,
-                inbox_update_poll => $inbox_update_poll,
-                media_embed_enabled => $embeds_enabled,
-                esn_async => $esn_async,
-                );
+        foreach my $by_priority ( reverse @LJ::NEEDED_RES ) {
+            next unless $by_priority;
 
-    my $site_params = LJ::js_dumper(\%site);
-    my $site_param_keys = LJ::js_dumper([keys %site]);
+            foreach my $resrow ( @$by_priority ) {
+                # determine if this resource is part of the resource group that is active;
+                # or 'default' if no group explicitly active
+                my ( $group, $key ) = @$resrow;
+                next if
+                    $group ne 'all' &&
+                    ( ( defined $LJ::ACTIVE_RES_GROUP && $group ne $LJ::ACTIVE_RES_GROUP ) ||
+                      ( ! defined $LJ::ACTIVE_RES_GROUP && $group ne 'default' ) );
 
-    # include standard JS info
-    $ret .= qq {
-        <script type="text/javascript">
-            var Site;
-            if (!Site)
-                Site = {};
+                my $path;
+                my $mtime = _file_modtime($key, $now);
+                if ($key =~ m!^stc/fck/! || $LJ::FORCE_WSTAT{$key}) {
+                    $path = "w$key";  # wstc/ instead of stc/
+                } else {
+                    $path = $key;
+                }
 
-            var site_p = $site_params;
-            var site_k = $site_param_keys;
-            for (var i = 0; site_k.length > i; i++) {
-                Site[site_k[i]] = site_p[site_k[i]];
-            }
-       </script>
-    };
+                # if we want to also include a local version of this file, include that too
+                if (@LJ::USE_LOCAL_RES) {
+                    if (grep { lc $_ eq lc $key } @LJ::USE_LOCAL_RES) {
+                        my $inc = $key;
+                        $inc =~ s/(\w+)\.(\w+)$/$1-local.$2/;
+                        LJ::need_res($inc);
+                    }
+                }
 
-    my $now = time();
-    my %list;   # type -> [];
-    my %oldest; # type -> $oldest
-    my %included = ();
-    my $add = sub {
-        my ($type, $what, $modtime) = @_;
-
-        # the same file may have been included twice
-        # if it was in two different groups and not JS
-        # so add another check here
-        next if $included{$what};
-        $included{$what} = 1;
-
-        # in the concat-res case, we don't directly append the URL w/
-        # the modtime, but rather do one global max modtime at the
-        # end, which is done later in the tags function.
-        $what .= "?v=$modtime" unless $do_concat;
-
-        push @{$list{$type} ||= []}, $what;
-        $oldest{$type} = $modtime if $modtime > ( $oldest{$type} || 0 );
-    };
-
-    foreach my $by_priority ( reverse @LJ::NEEDED_RES ) {
-        next unless $by_priority;
-
-        foreach my $resrow ( @$by_priority ) {
-            # determine if this resource is part of the resource group that is active;
-            # or 'default' if no group explicitly active
-            my ( $group, $key ) = @$resrow;
-            next if
-                $group ne 'all' &&
-                ( ( defined $LJ::ACTIVE_RES_GROUP && $group ne $LJ::ACTIVE_RES_GROUP ) ||
-                  ( ! defined $LJ::ACTIVE_RES_GROUP && $group ne 'default' ) );
-
-            my $path;
-            my $mtime = _file_modtime($key, $now);
-            if ($key =~ m!^stc/fck/! || $LJ::FORCE_WSTAT{$key}) {
-                $path = "w$key";  # wstc/ instead of stc/
-            } else {
-                $path = $key;
-            }
-
-            # if we want to also include a local version of this file, include that too
-            if (@LJ::USE_LOCAL_RES) {
-                if (grep { lc $_ eq lc $key } @LJ::USE_LOCAL_RES) {
-                    my $inc = $key;
-                    $inc =~ s/(\w+)\.(\w+)$/$1-local.$2/;
-                    LJ::need_res($inc);
+                if ($path =~ m!^js/(.+)!) {
+                    $add->('js', $1, $mtime);
+                } elsif ($path =~ /\.css$/ && $path =~ m!^(w?)stc/(.+)!) {
+                    $add->("${1}stccss", $2, $mtime);
+                } elsif ($path =~ /\.js$/ && $path =~ m!^(w?)stc/(.+)!) {
+                    $add->("${1}stcjs", $2, $mtime);
                 }
             }
-
-            if ($path =~ m!^js/(.+)!) {
-                $add->('js', $1, $mtime);
-            } elsif ($path =~ /\.css$/ && $path =~ m!^(w?)stc/(.+)!) {
-                $add->("${1}stccss", $2, $mtime);
-            } elsif ($path =~ /\.js$/ && $path =~ m!^(w?)stc/(.+)!) {
-                $add->("${1}stcjs", $2, $mtime);
-            }
         }
+
+        my $tags = sub {
+            my ($type, $template) = @_;
+            my $list;
+            return unless $list = $list{$type};
+
+            if ($do_concat) {
+                my $csep = join(',', @$list);
+                $csep .= "?v=" . $oldest{$type};
+                $template =~ s/__+/??$csep/;
+                $ret .= $template;
+            } else {
+                foreach my $item (@$list) {
+                    my $inc = $template;
+                    $inc =~ s/__+/$item/;
+                    $ret .= $inc;
+                }
+            }
+        };
+
+        $tags->("js",      "<script type=\"text/javascript\" src=\"$jsprefix/___\"></script>\n");
+        $tags->("stccss",  "<link rel=\"stylesheet\" type=\"text/css\" href=\"$statprefix/___\" />\n");
+        $tags->("wstccss", "<link rel=\"stylesheet\" type=\"text/css\" href=\"$wstatprefix/___\" />\n");
+        $tags->("stcjs",   "<script type=\"text/javascript\" src=\"$statprefix/___\"></script>\n");
+        $tags->("wstcjs",  "<script type=\"text/javascript\" src=\"$wstatprefix/___\"></script>\n");
     }
 
-    my $tags = sub {
-        my ($type, $template) = @_;
-        my $list;
-        return unless $list = $list{$type};
-
-        if ($do_concat) {
-            my $csep = join(',', @$list);
-            $csep .= "?v=" . $oldest{$type};
-            $template =~ s/__+/??$csep/;
-            $ret .= $template;
-        } else {
-            foreach my $item (@$list) {
-                my $inc = $template;
-                $inc =~ s/__+/$item/;
-                $ret .= $inc;
-            }
-        }
-    };
-
-    $tags->("js",      "<script type=\"text/javascript\" src=\"$jsprefix/___\"></script>\n");
-    $tags->("stccss",  "<link rel=\"stylesheet\" type=\"text/css\" href=\"$statprefix/___\" />\n");
-    $tags->("wstccss", "<link rel=\"stylesheet\" type=\"text/css\" href=\"$wstatprefix/___\" />\n");
-    $tags->("stcjs",   "<script type=\"text/javascript\" src=\"$statprefix/___\"></script>\n");
-    $tags->("wstcjs",  "<script type=\"text/javascript\" src=\"$wstatprefix/___\"></script>\n");
     return $ret;
 }
 
