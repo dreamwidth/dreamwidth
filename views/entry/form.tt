@@ -246,10 +246,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
     [%- BLOCK column %]
         [% FOREACH component = components %]
         <div class='component [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'>
-        [%- CALL dw.ml_scope( "/entry/module-${component}.tt" );
-            INCLUDE "entry/module-${component}.tt";
-            CALL dw.ml_scope( "/entry/form.tt" )
-         %]
+        [%- dw.scoped_include( "entry/module-${component}.tt" ); %]
         </div>
         [%- END -%]
     [% END -%]

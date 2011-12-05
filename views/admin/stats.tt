@@ -15,8 +15,7 @@ the same terms as Perl itself. For a copy of the license, please reference
 %]
 
 [% dw.need_res( 'stc/sitestats.css' ) %]
-[% scope = dw.ml_scope( ); CALL dw.ml_scope( '/stats/site.tt' );
-   INCLUDE stats/site.tt; CALL dw.ml_scope( scope ); %]
+[% dw.scoped_include( 'stats/site.tt' ); %]
 [% sections.title = '.title' | ml( sitenameshort => site.nameshort ) %]
 
 [%#

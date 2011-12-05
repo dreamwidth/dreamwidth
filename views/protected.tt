@@ -28,9 +28,6 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 </div>
 
 [% UNLESS remote %]
-  [% old_scope = dw.ml_scope() %]
-  [% CALL dw.ml_scope( '/login.tt' ) %]
-  [% INCLUDE login.tt %]
-  [% CALL dw.ml_scope( old_scope ) %]
+  [% dw.scoped_include( "login.tt" ); %]
 [% END %]
 

@@ -124,6 +124,42 @@ sub img {
     my $self = shift;
     return LJ::img(@_);
 }
+
+=head2 scoped_include
+
+Easy way to handle changing the ml scope around an INCLUDE block.
+
+    [% dw.scoped_include 'blah.tt' a=1 %]
+
+=cut
+
+sub scoped_include {
+    my ( $self, $page, $args ) = @_;
+    my $old_scope = $self->ml_scope;
+    $self->ml_scope( '/' . $page );
+    my $rv = $self->{_CONTEXT}->include( $page, $args || {} );
+    $self->ml_scope( $old_scope );
+    return $rv;
+}
+
+=head2 scoped_process
+
+Easy way to handle changing the ml scope around a PROCESS block.
+
+    [% dw.scoped_process 'blah.tt' %]
+    [% dw.scoped_process 'blah.tt' a=1 %]
+
+=cut
+
+sub scoped_process {
+    my ( $self, $page, $args ) = @_;
+    my $old_scope = $self->ml_scope;
+    $self->ml_scope( '/' . $page );
+    my $rv = $self->{_CONTEXT}->process( $page, $args || {} );
+    $self->ml_scope( $old_scope );
+    return $rv;
+}
+
 =head1 AUTHOR
 
 =over
