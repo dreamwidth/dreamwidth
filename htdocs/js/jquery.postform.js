@@ -292,8 +292,13 @@ init: function(formData) {
             if ( ! data ) return;
 
             var $security = $("#security");
+            var oldval = $security.val();
+            var rank = { "public": "0", "access": "1", "private": "2", "custom": "3" };
+
             $security.empty();
             if ( data.ret ) {
+                if ( data.ret["minsecurity"] == "friends" ) data.ret["minsecurity"] = "access";
+
                 var opts;
                 if ( data.ret['is_comm'] ) {
                     opts = [
@@ -315,11 +320,11 @@ init: function(formData) {
                 $security.append(opts.join("\n"))
 
                 // select the minsecurity value and disable the values with lesser security
-                $security.val(data.ret['minsecurity']);
-                if ( data.ret['minsecurity'] == 'friends' ) {
-                    $security.val("access").find("option[value='public']").attr("disabled", "disabled");
+                $security.val(rank[oldval] >= rank[data.ret['minsecurity']] ? oldval : data.ret['minsecurity']);
+                if ( data.ret['minsecurity'] == 'access' ) {
+                    $security.find("option[value='public']").attr("disabled", "disabled");
                 } else if ( data.ret['minsecurity'] == 'private' ) {
-                    $security.val("private").find("option[value='public'],option[value='access'],option[value='custom']")
+                    $security.find("option[value='public'],option[value='access'],option[value='custom']")
                         .attr("disabled", "disabled");
                 }
             } else {
@@ -329,6 +334,7 @@ init: function(formData) {
                     "<option value='access'>Access List</option>",
                     "<option value='private'>Private (Just You)</option>"
                 ].join("\n"))
+                $security.val(oldval);
             }
         }
 
