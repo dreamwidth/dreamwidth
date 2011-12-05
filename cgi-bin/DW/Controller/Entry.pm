@@ -47,6 +47,15 @@ DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app 
                              # /entry/username/ditemid/edit
 #DW::Routing->register_regex( '^/entry/(?:(.+)/)?(\d+)/edit$', \&edit_handler, app => 1 );
 
+DW::Routing->register_string( '/entry/new', \&_new_handler_userspace, user => 1 );
+
+# redirect to app-space
+sub _user_to_app_role {
+    my ( $path ) = @_;
+    return DW::Request->get->redirect( "$LJ::SITEROOT$path" );
+}
+
+sub _new_handler_userspace { return _user_to_app_role( "/entry/$_[0]->{username}/new" ) }
 
 =head2 C<< DW::Controller::Entry::new_handler( ) >>
 
