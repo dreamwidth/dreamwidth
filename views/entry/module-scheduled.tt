@@ -1,3 +1,17 @@
+[%# views/entry/module-scheduled.tt
+
+Module for scheduling entries
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2011 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
 <fieldset>
   <h3>Scheduled Publishing</h3>
     <div class="inner">

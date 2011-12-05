@@ -2,7 +2,7 @@
 #
 # DW::Controller::Entry
 #
-# This controller is for the create entry page
+# This controller is for creating and managing entries
 #
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
@@ -41,8 +41,8 @@ DW::Routing->register_regex( '/entry/([^/]+)/new', \&new_handler, app => 1 );
 
 DW::Routing->register_string( '/entry/preview', \&preview_handler, app => 1, methods => { POST => 1 } );
 
-DW::Routing->register_string( '/entry/options', \&options_handler, app => 1, format => "html" );
-DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app => 1, format => "html" );
+DW::Routing->register_string( '/entry/options', \&options_handler, app => 1 );
+DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app => 1 );
 
                              # /entry/username/ditemid/edit
 #DW::Routing->register_regex( '^/entry/(?:(.+)/)?(\d+)/edit$', \&edit_handler, app => 1 );
@@ -87,7 +87,6 @@ sub new_handler {
 
         my $okay_formauth = ! $remote || LJ::check_form_auth( $post->{lj_form_auth} );
 
-        # ... but see TODO below
         push @error_list, LJ::Lang::ml( "error.invalidform" )
             unless $okay_formauth;
 
@@ -180,13 +179,15 @@ sub new_handler {
 
     my $get = $r->get_args;
     $usejournal ||= $get->{usejournal};
-    my $vars = init( {  usejournal  => $usejournal,
+    my $vars = _init( {  usejournal  => $usejournal,
                         altlogin    => $get->{altlogin},
                         datetime    => $datetime || "",
                         trust_datetime_value => $trust_datetime_value,
                       }, @_ );
 
-    # these kinds of errors prevent us from initiating the form at all
+    return $vars->{ret} if $vars->{handled};
+
+    # these kinds of errors prevent us from initializing the form at all
     # so abort and return it without the form
     return error_ml( $vars->{abort}, $vars->{args} )
         if $vars->{abort};
@@ -217,31 +218,20 @@ sub new_handler {
 }
 
 
-=head2 C<< DW::Controller::Entry::init( ) >>
-
-Initializes entry form values.
-
-Can be used when posting a new entry or editing an old entry. .
-
-Arguments:
-* form_opts: options for initializing the form
-=over
-
-=item altlogin      bool: whether we are posting as someone other than the currently logged in user
-=item usejournal    string: username of the journal we're posting to (if not provided,
-                        use journal of the user we're posting as)
-=item datetime      string: display date of the entry in format "$year-$mon-$mday $hour:$min" (already taking into account timezones)
-
-=back
-
-* call_opts: instance of DW::Routing::CallInfo
-
-=cut
-sub init {
+# Initializes entry form values.
+# Can be used when posting a new entry or editing an old entry. .
+# Arguments:
+# * form_opts: options for initializing the form
+#       altlogin      bool: whether we are posting as someone other than the currently logged in user
+#       usejournal    string: username of the journal we're posting to (if not provided,
+#                        use journal of the user we're posting as)
+#       datetime      string: display date of the entry in format "$year-$mon-$mday $hour:$min" (already taking into account timezones)
+# * call_opts: instance of DW::Routing::CallInfo (currently unused)
+sub _init {
     my ( $form_opts, $call_opts ) = @_;
 
     my ( $ok, $rv ) = controller( anonymous => 1 );
-    return $rv unless $ok;
+    return { handled => 1, ret => $rv } unless $ok;
 
     my $post_as_other = $form_opts->{altlogin} ? 1 : 0;
     my $u = $post_as_other ? undef : $rv->{remote};
@@ -871,13 +861,10 @@ sub preview_handler {
 
 
         # determine style system to preview with
-        my $forceflag = 0;
-        LJ::Hooks::run_hooks( "force_s1", $u, \$forceflag );
-
         $ctx = LJ::S2::s2_context( $u->{s2_style} );
         my $view_entry_disabled = ! LJ::S2::use_journalstyle_entry_page( $u, $ctx );
 
-        if ( $forceflag || $view_entry_disabled ) {
+        if ( $view_entry_disabled ) {
             # force site-skinned
             ( $siteskinned, $styleid ) = ( 1, 0 );
         } else {
@@ -1105,16 +1092,13 @@ sub _options {
     my $u = $_[0];
 
     my $panel_element_name = "visible_panels";
-    my @panel_options;
-    foreach ( qw( access comments age_restriction journal crosspost
-                    icons tags currents displaydate ) ) {
-        push @panel_options, {
-            label_ml    => "/entry/module-$_.tt.header",
-            panel_name  => $_,
-            id          => "panel_$_",
-            name        =>  $panel_element_name,
-        }
-    }
+    my @panel_options = map +{
+                            label_ml    => "/entry/module-$_.tt.header",
+                            panel_name  => $_,
+                            id          => "panel_$_",
+                            name        =>  $panel_element_name, },
+                      qw( access comments age_restriction journal
+                          crosspost icons tags currents displaydate );
 
     my $vars = {
         panels => \@panel_options

@@ -1,3 +1,17 @@
+[%# views/entry/module-age_restriction.tt
+
+Module for age restriction level in the entry form
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2011 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+
   <fieldset>
     <h3>[% ".header" | ml %]</h3>
   <div class='inner'>
@@ -18,7 +32,7 @@
             END
         -%]
         [%- label = ".label.age_restriction" | ml;
-        form.select( label = "$label:"
+        form.select( label = label
             name = "age_restriction"
             id = "age_restriction"
 
@@ -29,7 +43,7 @@
     </p>
     <p>
         [%- label = ".label.age_restriction_reason" | ml;
-        form.textbox( label = "$label:"
+        form.textbox( label = label
             name = "age_restriction_reason"
             id = "age_restriction_reason"
 

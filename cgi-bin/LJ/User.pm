@@ -4752,7 +4752,7 @@ sub draft_text {
 }
 
 sub entryform_width {
-    my ( $u, $prop ) = @_;
+    my ( $u ) = @_;
 
     if ( $u->raw_prop( 'entryform_width' ) =~ /^(F|P)$/ ) {
         return $u->raw_prop( 'entryform_width' )

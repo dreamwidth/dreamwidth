@@ -5,6 +5,6 @@
 
 .label.crosspost_entry=Crosspost this entry
 
-.label.password=Password
+.label.password=Password:
 
 .settings.link=go to settings

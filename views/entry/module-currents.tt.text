@@ -1,10 +1,10 @@
 ;; -*- coding: utf-8 -*-
 .header=Currents
 
-.label.current_location=Location
+.label.current_location=Location:
 
-.label.current_mood=Mood
+.label.current_mood=Mood:
 
-.label.current_mood_other=Custom Mood
+.label.current_mood_other=Custom Mood:
 
-.label.current_music=Music
+.label.current_music=Music:

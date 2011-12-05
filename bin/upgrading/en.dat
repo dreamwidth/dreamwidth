@@ -3697,6 +3697,8 @@ subscribe_interface.subs.total2=You are using [[active]] out of [[max_active]] a
 
 subscribe_interface.unavailable_subs.note=These notification options are only available to certain account types.
 
+success=Success
+
 support.answertype.answer=Answer
 
 support.answertype.bounce=Bounce to Email & Close
@@ -3794,8 +3796,6 @@ support.email.update.noreply=Replies to this address are not monitored. To reply
 support.email.update.subject=Re: [[subject]]
 
 support.email.update.unknown_username=[Unknown or undefined example username]
-
-success=Success
 
 taglib.error.access=You are not allowed to tag entries in this journal.
 

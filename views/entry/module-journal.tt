@@ -1,3 +1,17 @@
+[%# views/entry/module-journal.tt
+
+Module for the journal we're posting as/to
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2011 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
  <fieldset>
    <h3>[% ".header" | ml %]</h3>
    <div class="inner">
@@ -5,7 +19,7 @@
    <div id="post_as">
    [% IF remote %]
     <fieldset>
-    <legend><span>[% ".label.post_as" | ml %]:</span></legend>
+    <legend><span>[% ".label.post_as" | ml %]</span></legend>
         [%-
         form.radio( label = remote.user
             name = "post_as"
@@ -39,7 +53,7 @@
 
    [% IF remote %]
    <div id="post_to"  class="posting_settings">
-       <label for="usejournal">[%- ".label.post_to" | ml %]:</label>
+       <label for="usejournal">[%- ".label.post_to" | ml %]</label>
         [%- IF journallist.size > 1 %]
             [%-
                 journalselect = [];
@@ -72,20 +86,20 @@
        <ul>
        <li>
         [%- postas_username_label = ".label.post_as_username" | ml;
-        form.textbox( label = "$postas_username_label:"
+        form.textbox( label = postas_username_label
             name = "username"
             id = "post_username"
         ) -%]
        </li>
        <li>
         [%- postas_password_label = ".label.post_as_password" | ml;
-        form.password( label = "$postas_password_label:"
+        form.password( label = postas_password_label
             name = "password"
             id = "password"
         ) -%]
        </li>
        <li>
-            <label for="postas_usejournal">[% ".label.post_to" | ml %]:</label>
+            <label for="postas_usejournal">[% ".label.post_to" | ml %]</label>
             [% IF usejournal %]
                 [% usejournal.ljuser_display %]
             [% ELSE %]

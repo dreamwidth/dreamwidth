@@ -1,9 +1,9 @@
 ;; -*- coding: utf-8 -*-
 .header=Age Restriction
 
-.label.age_restriction=Level
+.label.age_restriction=Level:
 
-.label.age_restriction_reason=Reason
+.label.age_restriction_reason=Reason:
 
 .option.adultcontent.default=Journal Default
 

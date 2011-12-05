@@ -5,6 +5,8 @@ Page to post and edit entries
 Authors:
     Afuna <coder.dw@afunamatata.com>
 
+Copyright (c) 2011 by Dreamwidth Studios, LLC.
+
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
@@ -12,12 +14,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- CALL dw.active_resource_group( "jquery" ) -%]
 
-[% dw.need_res(
-    "stc/postform.css",
+[%- dw.need_res(
+    "stc/postform.css"
     "stc/postform-resize.css"
-) %]
+) -%]
 
-[% dw.need_res( { group => "jquery" },
+[%- dw.need_res( { group => "jquery" },
     # jquery ui
     "js/jquery/jquery.ui.core.js"
     "js/jquery/jquery.ui.widget.js"
@@ -52,13 +54,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     # page-specific
     "js/jquery.postform.js"
-) %]
+) -%]
 
-[% IF remote && remote.can_use_userpic_select;
-dw.need_res( { group => "jquery" },
-    "js/jquery.iconselector.js"
-    "stc/jquery.iconselector.css"
-); END %]
+[%- IF remote && remote.can_use_userpic_select;
+    dw.need_res( { group => "jquery" },
+        "js/jquery.iconselector.js"
+        "stc/jquery.iconselector.css"
+    );
+END -%]
 
 [% sections.title = '.title' | ml %]
 [% sections.contentopts = '' %]
@@ -114,7 +117,7 @@ postFormInitData.panels = {
 
 postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 </script>
-[% END %]
+[% END  # sections.head %]
 
 <div class="message-box ui-state-highlight">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = betacommunity.ljuser_display ) %]</div>
 

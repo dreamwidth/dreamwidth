@@ -1,3 +1,18 @@
+[%# views/entry/module-crosspost.tt
+
+Module to control crosspost behavior
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2011 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+
 [% IF remote %]
   <fieldset>
     <h3>[% ".header" | ml %]</h3>
@@ -39,7 +54,7 @@
 
                 [% IF account.need_password %]
                     <div class="crosspost_password_container" id="crosspost_password_container_[% account.id %]">
-                    [%- form.password( label = "$crosspost_password_label:"
+                    [%- form.password( label = crosspost_password_label
                             name = "crosspost_password_$account.id"
                             id = "crosspost_password_$account.id"
 
