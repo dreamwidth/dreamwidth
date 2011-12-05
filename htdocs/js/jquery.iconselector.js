@@ -36,7 +36,7 @@
             return "<div>\
       <div class='iconselector_top'>\
         <span class='iconselector_searchbox'>\
-          Search: <input type='text' id='iconselector_search'>\
+          Search: <input type='search' id='iconselector_search'>\
           </span>\
         <span class='image-text-toggle' id='iconselector_image_text_toggle'>\
           <span class='toggle-image-only'><a href='#' class='image_only'>Images only</a> / Show meta text</span>\

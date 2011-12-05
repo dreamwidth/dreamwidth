@@ -112,7 +112,7 @@
             return "<div>\
       <div class='tagselector_top'>\
         <span class='tagselector_searchbox'>\
-          Search: <input type='text' id='tagselector_search'>\
+          Search: <input type='search' id='tagselector_search'>\
           </span>\
           <button id='tagselector_select' class='ui-state-default' disabled='disabled'>Save</button>\
       </div>\
