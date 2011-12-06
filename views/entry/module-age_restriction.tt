@@ -36,8 +36,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name = "age_restriction"
             id = "age_restriction"
 
-            class = "select"
-
             items = levelselect
         ) -%]
     </p>

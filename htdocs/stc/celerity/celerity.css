@@ -370,7 +370,7 @@ a:active,
     background-color: #DDDDAA;
 }
 
-.select-list input, input.submit {
+.select-list input {
     color: #222;
     background-color: #DDDDAA;
     border: 2px solid #999966;

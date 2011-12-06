@@ -25,8 +25,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name = "post_as"
             id = "post_as_remote"
 
-            labelclass = "radiolabel"
-
             value = "remote"
             default = ( post_as == "remote" )
         ) -%]
@@ -34,8 +32,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         form.radio( label = post_as_other_label
             name = "post_as"
             id = "post_as_other"
-
-            labelclass = "radiolabel"
 
             value = "other"
             default = ( post_as == "other" )
@@ -69,8 +65,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             [% form.select(
                 name = "usejournal"
                 id = "usejournal"
-
-                class = "select"
 
                 items = journalselect
             ) -%]

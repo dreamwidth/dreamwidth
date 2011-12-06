@@ -25,8 +25,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name = "current_mood"
             id = "current_mood"
 
-            class = "select"
-
             items = moodselect
         ) -%]
       </p>

@@ -270,7 +270,11 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 
     <div class="submit action-bar">
         <span id="actions">
-            <input type="submit" name="action:post" id="submit_entry" value="Post Entry" />
+            [%- post_label = '.button.post' | ml;
+                form.submit( value = post_label
+                             name = "action:post"
+                             id = "submit_entry" )
+            -%]
         </span>
 
 <!--    TODO:

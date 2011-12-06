@@ -92,6 +92,9 @@ sub checkbox {
         $args->{selected} = $selected{$args->{value}};
     }
 
+    $args->{labelclass} ||= "checkboxlabel";
+    $args->{class} ||= "checkbox";
+
     # makes the form element use the default or an explicit value...
     my $label_html = $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
 
@@ -132,6 +135,9 @@ sub radio {
         $args->{selected} = $selected{$args->{value}};
     }
 
+    $args->{labelclass} ||= "radiolabel";
+    $args->{class} ||= "radio";
+
     # makes the form element use the default or an explicit value...
     my $label_html = $self->_process_value_and_label( $args, use_as_value => "selected", noautofill => 1 );
 
@@ -152,6 +158,7 @@ sub select {
     my ( $self, $args ) = @_;
 
     my $items = delete $args->{items};
+    $args->{class} ||= "select";
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, use_as_value => "selected" );
@@ -168,6 +175,8 @@ Return a button for submitting a form. Values are prepopulated by the plugin's d
 sub submit {
     my ( $self, $args ) = @_;
 
+    $args->{class} ||= "submit";
+
     $self->_process_value_and_label( $args );
     return LJ::html_submit( delete $args->{name}, delete $args->{value}, $args );
 }
@@ -181,6 +190,8 @@ by the plugin's datasource.
 
 sub textarea {
     my ( $self, $args ) = @_;
+
+    $args->{class} ||= "text";
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args );
@@ -200,6 +211,8 @@ are prepopulated by the plugin's datasource.
 sub textbox {
     my ( $self, $args ) = @_;
 
+    $args->{class} ||= "text";
+
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args );
     $ret .= LJ::html_text( $args );
@@ -216,6 +229,7 @@ sub password {
     my ( $self, $args ) = @_;
 
     $args->{type} = "password";
+    $args->{class} ||= "text";
 
     my $ret = "";
     $ret .= $self->_process_value_and_label( $args, noautofill => 1 );

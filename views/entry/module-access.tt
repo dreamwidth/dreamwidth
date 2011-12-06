@@ -26,8 +26,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 name = "security"
                 id = "security"
 
-                class = "select"
-
                 items = securitylist
             ) -%]
         </div>
@@ -40,8 +38,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 <li>[%- form.checkbox( label = group.label
                             name = "custom_bit"
                             id = "custom_bit_$group.value"
-
-                            labelclass = "checkboxlabel"
 
                             value = group.value
                 ) -%]</li>

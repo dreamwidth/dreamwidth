@@ -21,8 +21,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         name = "comment_settings"
         id = "comment_settings"
 
-        class ="select"
-
         items = [
             ""              "Journal Default"
             "nocomments"    "Disabled"
@@ -34,8 +32,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- form.select( label = "Screening:"
         name = "opt_screening"
         id = "opt_screening"
-
-        class = "select"
 
         items = [
             ""      "Journal Default"

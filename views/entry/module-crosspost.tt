@@ -29,8 +29,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name ="crosspost_entry"
             id = "crosspost_entry"
 
-            labelclass = "checkboxlabel"
-
             value = 1
             default = crosspost_entry
         ) -%]
@@ -45,8 +43,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [%- form.checkbox( label = account.name
                     name = "crosspost"
                     id = "crosspost_$account.id"
-
-                    labelclass = "checkboxlabel"
 
                     value = account.id
                     default = account.selected

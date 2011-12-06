@@ -44,8 +44,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name = "icon"
             id = "iconselect"
 
-            class = "select"
-
             items = iconselect
         ) -%]
     [% END %]

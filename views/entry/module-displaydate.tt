@@ -72,8 +72,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name ="update_displaydate"
             id = "entrytime_auto_update"
 
-            labelclass = "radiolabel"
-
             value = "1"
         ) -%]
         </p>
@@ -94,8 +92,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         form.checkbox( label = dateoutoforder_label
             name ="entrytime_outoforder"
             id = "entrytime_outoforder"
-
-            labelclass = "radiolabel"
 
             value = "1"
         ) -%]

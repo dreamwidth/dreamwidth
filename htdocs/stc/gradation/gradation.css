@@ -462,7 +462,7 @@ textarea, input {
     background-color: #333333;
 }
 
-.select-list input, input.submit {
+.select-list input {
     background: #444444;
     color: #fff;
     border: 2px solid #444;
