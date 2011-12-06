@@ -129,7 +129,7 @@
                 if (!self.options.id)
                     self.options.id = "autocomplete_"+self.element.attr("id");
 
-                self.uiAutocomplete = self.element.wrap("<div class='autocomplete_container'></div>").parent().attr("id", self.options.id);
+                self.uiAutocomplete = self.element.wrap("<div class='autocomplete_container'></div>").parent().attr("id", self.options.id).addClass(self.element.attr("class"));
 
                 self.uiAutocompletelist = $("<ul class='autocomplete_list'></ul>").appendTo(self.uiAutocomplete).attr( "aria-live", "assertive" );
 

@@ -54,7 +54,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                             name = "crosspost_password_$account.id"
                             id = "crosspost_password_$account.id"
 
-                            class = "crosspost_password"
+                            class = "crosspost_password text"
                             labelclass="checkboxlabel"
                     ) -%]
 

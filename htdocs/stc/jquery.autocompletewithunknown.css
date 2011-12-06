@@ -38,6 +38,7 @@
     width: 100%;
     margin-top: 0.25em;
     line-height: 1em;
+    padding: 2px 0 0 2px;
 }
 
 .autocomplete_container textarea {
