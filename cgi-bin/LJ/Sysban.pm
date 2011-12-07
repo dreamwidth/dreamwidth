@@ -630,7 +630,7 @@ sub ban_do {
 
     my $procopts = { $what => $value, exptime => $until };
 
-    LJ::procnotify_add( "ban_$what", $procopts );
+    LJ::Procnotify::add( "ban_$what", $procopts );
     LJ::MemCache::delete( "sysban:$what" );
 
     return 1;
@@ -643,7 +643,7 @@ sub ban_undo {
 
     my $procopts = { $what => $value };
 
-    LJ::procnotify_add( "unban_$what", $procopts );
+    LJ::Procnotify::add( "unban_$what", $procopts );
     LJ::MemCache::delete( "sysban:$what" );
 
     return 1;

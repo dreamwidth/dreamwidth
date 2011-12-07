@@ -355,8 +355,8 @@ sub _rename {
     DW::User::Rename::_clear_from_cache( $self, $fromusername, $tousername );
 
     # tell everything else that we renamed
-    LJ::procnotify_add( "rename_user", { user => $fromusername,
-                                         userid => $self->userid });
+    LJ::Procnotify::add( "rename_user", { user   => $fromusername,
+                                          userid => $self->userid } );
 
     $token->apply( userid => $self->userid, from => $fromusername, to => $tousername );
 
