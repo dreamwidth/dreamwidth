@@ -381,35 +381,6 @@ sub get_authaction {
 
 
 # <LJFUNC>
-# class: logging
-# name: LJ::statushistory_add
-# des: Adds a row to a user's statushistory
-# info: See the [dbtable[statushistory]] table.
-# returns: boolean; 1 on success, 0 on failure
-# args: dbarg?, userid, adminid, shtype, notes?
-# des-userid: The user being acted on.
-# des-adminid: The site admin doing the action.
-# des-shtype: The status history type code.
-# des-notes: Optional notes associated with this action.
-# </LJFUNC>
-sub statushistory_add {
-    my $dbh = LJ::get_db_writer();
-
-    my $userid = shift;
-    $userid = LJ::want_userid($userid) + 0;
-
-    my $actid  = shift;
-    $actid = LJ::want_userid($actid) + 0;
-
-    my $qshtype = $dbh->quote(shift);
-    my $qnotes  = $dbh->quote(shift);
-
-    $dbh->do("INSERT INTO statushistory (userid, adminid, shtype, notes) ".
-             "VALUES ($userid, $actid, $qshtype, $qnotes)");
-    return $dbh->err ? 0 : 1;
-}
-
-# <LJFUNC>
 # name: LJ::is_valid_authaction
 # des: Validates a shared secret (authid/authcode pair)
 # info: See [func[LJ::register_authaction]].
