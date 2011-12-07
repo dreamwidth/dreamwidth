@@ -100,8 +100,8 @@ body<=
             zip => LJ::html_text({ name => 'zip', id => 'zip', maxlength => 20, value => $POST{zip} }),
             phone => LJ::html_text({ name => 'phone', id => 'phone', maxlength => 40, value => $POST{phone} }),
             '--' => '',
-            ccnum => LJ::html_text({ name => 'ccnum', id => 'ccnum', maxlength => 19 }) . $accepted_ccs,
-            cvv2 => LJ::html_text({ name => 'cvv2', id => 'cvv2', maxlength => 4, size => 5 }),
+            ccnum => LJ::html_text({ name => 'ccnum', id => 'ccnum', maxlength => 19, autocomplete => 'off' }) . $accepted_ccs,
+            cvv2 => LJ::html_text({ name => 'cvv2', id => 'cvv2', maxlength => 4, size => 5, autocomplete => 'off' }),
             expmon => LJ::html_select({ name => 'expmon', id => 'expmon', selected => $POST{expmon} }, map { $_ => LJ::Lang::month_long_ml( $_ ) . " - " . sprintf( '%0.2d', $_ ); } 1..12 ),
             expyear => LJ::html_select({ name => 'expyear', id => 'expyear', selected => $POST{expyear} }, map { $_ => $_ } 2011..2020 ),
         );
