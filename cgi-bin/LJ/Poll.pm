@@ -327,8 +327,6 @@ sub new_from_html {
                     my $from = 1;
                     my $to = 10;
                     my $by = 1;
-                    my $lowlabel = "";
-                    my $highlabel = "";
 
                     if (defined $opts->{'from'}) {
                         $from = int($opts->{'from'});
@@ -338,12 +336,6 @@ sub new_from_html {
                     }
                     if (defined $opts->{'by'}) {
                         $by = int($opts->{'by'});
-                    }
-                    if ( defined $opts->{'lowlabel'} ) {
-                        $lowlabel = LJ::strip_html( $opts->{'lowlabel'} );
-                    }
-                    if ( defined $opts->{'highlabel'} ) {
-                        $highlabel = LJ::strip_html( $opts->{'highlabel'} );
                     }
                     if ($by < 1) {
                         return $err->('poll.error.scaleincrement');
@@ -355,7 +347,7 @@ sub new_from_html {
                     if ( $scaleoptions > 21 ) {
                         return $err->( 'poll.error.scaletoobig1', { 'maxselections' => 21, 'selections' => $scaleoptions - 21 } );
                     }
-                    $qopts{'opts'} = "$from/$to/$by/$lowlabel/$highlabel";
+                    $qopts{'opts'} = "$from/$to/$by";
                 }
 
                 $qopts{'type'} = lc($opts->{'type'}) || "text";
@@ -1115,7 +1107,7 @@ sub render {
                                       'selected' => $prevanswer }, @optlist);
         } elsif ($q->type eq "scale" && $do_form) {
             #### scales (from 1-10) questions
-            my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $q->opts );
+            my ($from, $to, $by) = split(m!/!, $q->opts);
             $by ||= 1;
             my $count = int(($to-$from)/$by) + 1;
             my $do_radios = ($count <= 11);
@@ -1124,9 +1116,6 @@ sub render {
             if ($do_radios) {
 
                 $results_table .= "<table summary=''><tr valign='top' align='center'>";
-
-                # appends the lower end
-                $results_table .= "<td style='padding-right: 5px;'><b>$lowlabel</b></td>" if defined $lowlabel;
 
                 for (my $at=$from; $at<=$to; $at+=$by) {
 
@@ -1138,9 +1127,6 @@ sub render {
                     $results_table .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
                 }
 
-                # appends the higher end
-                $results_table .= "<td style='padding-left: 5px;'><b>$highlabel</b></td>" if defined $highlabel;
-
                 $results_table .= "</tr></table>\n";
 
             # many opts, display select
@@ -1149,15 +1135,9 @@ sub render {
                 $prevanswer = $clearanswers ? "" : $preval{$qid};
 
                 my @optlist = ('', '');
-                push @optlist, ( $from, $from . " " . $lowlabel );
-
-                my $at = 0;
-                for ( $at=$from+$by; $at<=$to-$by; $at+=$by ) {
+                for (my $at=$from; $at<=$to; $at+=$by) {
                     push @optlist, ($at, $at);
                 }
-
-                push @optlist, ( $at, $at . " " . $highlabel );
-
                 $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'class'=>"poll-$pollid", 'selected' => $prevanswer }, @optlist);
             }
 
@@ -1179,14 +1159,11 @@ sub render {
 
             # generate poll items dynamically if this is a scale
             if ($q->type eq 'scale') {
-                my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $q->opts );
+                my ($from, $to, $by) = split(m!/!, $q->opts);
                 $by = 1 unless ($by > 0 and int($by) == $by);
-
-                push @items, [ $from, "$lowlabel $from" ];
-                for (my $at=$from+$by; $at<=$to-$by; $at+=$by) {
-                    push @items, [$at, $at]; # note: fake itemid, doesn't matter, but needed to be unique
+                for (my $at=$from; $at<=$to; $at+=$by) {
+                    push @items, [$at, $at]; # note: fake itemid, doesn't matter, but needed to be uniqeu
                 }
-                push @items, [ $to, "$highlabel $to" ];
             }
 
             foreach my $item (@items) {
@@ -1571,7 +1548,7 @@ sub process_submission {
             }
         }
         if ($q->type eq "scale") {
-            my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $q->opts );
+            my ($from, $to, $by) = split(m!/!, $q->opts);
             if ($val < $from || $val > $to) {
                 # bogus! cheating?
                 $val = "";
