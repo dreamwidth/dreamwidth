@@ -59,6 +59,7 @@ propgroup colors {
     property use color_module_border;
     property use color_module_title;
 
+    property Color color_entry_accent { des = "Entry accents color"; }
     property use color_entry_background;
     property use color_entry_text;
     property use color_entry_border;
@@ -257,6 +258,7 @@ var string module_title_colors = generate_color_css( $*color_module_title, $*col
 
 var string entry_colors = generate_color_css( $*color_entry_text, $*color_entry_background, new Color );
 var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+var string entry_accent_colors = generate_color_css( $*color_entry_accent, new Color, new Color );
 var string userpic_colors = generate_color_css( new Color, $*color_entry_background, $*color_entry_border->darker() );
 
 var string input_colors = generate_color_css( $*color_entry_text, $*color_entry_background, $*color_entry_border );
@@ -352,8 +354,8 @@ div.header { padding: 0; margin: 0 0 1em 0; }
 h3.entry-title { font-weight: normal; text-transform: lowercase; letter-spacing: -1; padding: 0; margin: 0; $entry_title_font $entry_title_colors }
 h3.entry-title a { $entry_title_colors }
 
-.datetime { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; padding: 0; $page_title_colors }
-.datetime a { $page_title_colors }
+.datetime { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; padding: 0; $entry_accent_colors }
+.datetime a { $entry_accent_colors }
 
 .userpic { display: block; }
 
@@ -362,7 +364,7 @@ h3.entry-title a { $entry_title_colors }
     $userpic_colors
     }
 
-span.poster { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; $page_title_colors }
+span.poster { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; $entry_accent_colors }
 
 /* To prevent overlapping when icon's on the left */
 /* and list is the first thing in content */
@@ -374,7 +376,7 @@ span.poster { font-size: 0.9em; font-weight: normal; text-transform: uppercase; 
 .metadata { margin: 2em 0 0 0; }
 .metadata.top-metadata { margin: 1em 0 2em 0; }
 div.metadata ul { padding: 0; margin: 0; }
-div.metadata ul li { list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0; $page_title_colors }
+div.metadata ul li { list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0; $entry_accent_colors }
 span.metadata-label-location, span.metadata-label-mood, span.metadata-label-music { display: none; }
 span.metadata-item-location { padding: 0 0 0 1.3em; }
 span.metadata-item-mood { padding: 0 0 0 1.3em; }
@@ -382,13 +384,13 @@ span.metadata-item-music { padding: 0 0 0 1.3em; }
 
 span.tag-text { display: none; }
 div.tag ul { padding: 0 0 0 1.3em; margin: 0; display: inline; }
-div.tag ul li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0; $page_title_colors }
+div.tag ul li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0; $entry_accent_colors }
 
 ul.entry-management-links { padding: 0; margin: 2em 0 0 0; }
-ul.entry-management-links li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0 5px 0 0; $page_title_colors }
+ul.entry-management-links li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0 5px 0 0; $entry_accent_colors }
 
 ul.entry-interaction-links { padding: 0 0 0.5em 0; margin: 1em 0 0 0; text-align: center; border-bottom: 1px solid $*color_entry_border; }
-ul.entry-interaction-links li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0 5px 0 0; $page_title_colors }
+ul.entry-interaction-links li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0 5px 0 0; $entry_accent_colors }
 
 /*--- comments ---*/
 
@@ -422,7 +424,7 @@ textarea.textbox  { width: 100% !important; }
 li.active { list-style: none; display: inline; text-transform: uppercase; padding: 0; margin: 0; text-align: center; $active_month_colors }
 
 .month { margin: 0 auto 2em auto; padding: 4em 2em; border-left: 20px solid $*color_page_border; $entry_colors }
-.month h3 { font-size: 1em; font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; text-align: right; $page_title_colors }
+.month h3 { font-size: 1em; font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; text-align: right; $entry_title_colors }
 
 div.navigation ul { display: inline; }
 div.navigation li { display: inline; list-style: none; }
@@ -431,10 +433,10 @@ div.navigation li { display: inline; list-style: none; }
 .month table { width: 100%; border: 0; margin: auto; }
 .month caption { display: none; }
 
-td.day { padding: 5px; border: 1px solid #F0F0F0; }
+td.day { padding: .5em; border: .1em solid $*color_entry_border; }
 
 /*--- tags ---*/
-.page-tags .tags-container h2 { font-size: 1em; font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; text-align: right; $page_title_colors }
+.page-tags .tags-container h2 { font-size: 1em; font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; text-align: right; $entry_title_colors }
 
 .page-tags .tags-container { margin: 0 auto 2em auto; padding: 4em 2em; border-left: 20px solid $*color_page_border; $entry_colors}
 

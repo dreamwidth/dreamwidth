@@ -25,6 +25,7 @@ set color_header_footer_border = "#9b9181";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#1e1e1e";
 set color_entry_background = "#e0ddd7";
 set color_entry_border = "#9b9181";
 set color_entry_text = "#000";
@@ -67,6 +68,7 @@ set color_header_footer_border = "#452b22";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#972648";
 set color_entry_background = "#f2f0ce";
 set color_entry_border = "#452b22";
 set color_entry_text = "#301713";
@@ -96,21 +98,12 @@ set font_journal_subtitle = "'Liberation Serif', Helvetica, 'Times New Roman'";
 function Page::print_theme_stylesheet () {
 """
 
-span.datetime {
-    color: #972648;
-}
-
-span.datetime a {
-    color: #972648;
-}
-
 div.metadata ul li {
     color: #4e8693;
 }
 
 span.poster {
     text-transform: lowercase;
-    color: #972648;
 }
 
 div#header h2#subtitle, h3.entry-title {
@@ -150,6 +143,7 @@ set color_header_footer_border = "#663974";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#fff2eb";
 set color_entry_background = "#400f68";
 set color_entry_border = "#663974";
 set color_entry_text = "#deccd5";
@@ -192,6 +186,7 @@ set color_header_footer_border = "#0f6832";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#1e1e1e";
 set color_entry_background = "#ebffed";
 set color_entry_border = "#0f6832";
 set color_entry_text = "#000";
@@ -234,6 +229,7 @@ set color_header_footer_border = "#4b696b";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#395155";
 set color_entry_background = "#e6e6e6";
 set color_entry_border = "#4b696b";
 set color_entry_text = "#212f31";
@@ -276,6 +272,7 @@ set color_header_footer_border = "#0f6832";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#1e1e1e";
 set color_entry_background = "#ebffed";
 set color_entry_border = "#0f6832";
 set color_entry_text = "#000";
@@ -318,6 +315,7 @@ set color_header_footer_border = "#18a418";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#73d973";
 set color_entry_background = "#111";
 set color_entry_border = "#18a418";
 set color_entry_text = "#4c4";
@@ -358,6 +356,7 @@ set color_header_footer_border = "#bc707c";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#cf99a2";
 set color_entry_background = "#c3b6ba";
 set color_entry_border = "#bc707c";
 set color_entry_text = "#1e1e1e";
@@ -399,6 +398,7 @@ set color_header_footer_border = "#c7f464";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#697e93";
 set color_entry_background = "#fff";
 set color_entry_border = "#8c8c8c";
 set color_entry_text = "#8c8c8c";
@@ -447,6 +447,7 @@ set color_header_footer_border = "#886c9d";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#545454";
 set color_entry_background = "#e9faee";
 set color_entry_border = "#886c9d";
 set color_entry_text = "#363636";
@@ -489,6 +490,7 @@ set color_header_footer_border = "#E0D665";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#bbb1a7";
 set color_entry_background = "#453E3A";
 set color_entry_border = "#9e9286";
 set color_entry_text = "#E8E6CC";
@@ -531,6 +533,7 @@ set color_header_footer_border = "#000302";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#da7226";
 set color_entry_background = "#293b3f";
 set color_entry_border = "#000302";
 set color_entry_text = "#c83";
@@ -585,6 +588,7 @@ set color_header_background = "#ffefbd";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#f3a261";
 set color_entry_text = "#fff";
 
 ##===============================
@@ -637,6 +641,7 @@ set color_header_footer_border = "#556b80";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#1e1e1e";
 set color_entry_background = "#effeff";
 set color_entry_border = "#556b80";
 set color_entry_text = "#000";
@@ -677,6 +682,7 @@ set color_header_footer_border = "#f2ebd7";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#c8c8c8";
 set color_entry_background = "#fff";
 set color_entry_text = "#888";
 set color_entry_title = "#099aaf";
@@ -719,6 +725,7 @@ set color_header_footer_border = "#454f70";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#dadce0";
 set color_entry_background = "#020920";
 set color_entry_border = "#454f70";
 set color_entry_text = "#babdc4";
@@ -761,6 +768,7 @@ set color_header_footer_border = "#64434b";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#165042";
 set color_entry_background = "#ffffff";
 set color_entry_border = "#64434b";
 set color_entry_text = "#09211b";
@@ -803,6 +811,7 @@ set color_header_footer_border = "#4d1b14";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#762602";
 set color_entry_background = "#f2e2c9";
 set color_entry_border = "#4d1b14";
 set color_entry_text = "#3a1201";
@@ -845,6 +854,7 @@ set color_header_footer_border = "#4f423c";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#e1d7cf";
 set color_entry_background = "#2a261b";
 set color_entry_border = "#4f423c";
 set color_entry_text = "#cab8aa";
@@ -887,6 +897,7 @@ set color_header_footer_border = "#3d443d";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#1e1e1e";
 set color_entry_background = "#edeedd";
 set color_entry_border = "#3d443d";
 set color_entry_text = "#000";
@@ -929,6 +940,7 @@ set color_header_footer_border = "#000";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#c7ede7";
 set color_entry_background = "#3a715c";
 set color_entry_border = "#000";
 set color_entry_text = "#cfd8ad";
@@ -985,6 +997,7 @@ set color_header_footer_border = "#6ab1b2";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#1e1e1e";
 set color_entry_background = "#effeff";
 set color_entry_border = "#6ab1b2";
 set color_entry_text = "#000";
@@ -1027,6 +1040,7 @@ set color_header_footer_border = "#73a791";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#3c4e50";
 set color_entry_background = "#fff9f1";
 set color_entry_border = "#73a791";
 set color_entry_text = "#222c2d";
@@ -1069,6 +1083,7 @@ set color_header_footer_border = "#f2ebd7";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#babe9a";
 set color_entry_background = "#fff";
 set color_entry_border = "#a2a775";
 set color_entry_text = "#5c5726";
@@ -1111,6 +1126,7 @@ set color_header_footer_border = "#099aaf";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#0ccce8";
 set color_entry_background = "#fff";
 set color_entry_text = "#888";
 set color_entry_title = "#099aaf";
@@ -1153,6 +1169,7 @@ set color_header_footer_border = "#757853";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#cbdf29";
 set color_entry_background = "#0a0809";
 set color_entry_border = "#757853";
 set color_entry_text = "#a1b11b";
@@ -1193,6 +1210,7 @@ set color_header_footer_border = "#fe4365";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#799b8b";
 set color_entry_background = "#c8c8a9";
 set color_entry_border = "#fe4365";
 set color_entry_text = "#55443d";
@@ -1235,6 +1253,7 @@ set color_header_footer_border = "#572f51";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#a8c0b3";
 set color_entry_background = "#2c1633";
 set color_entry_border = "#572f51";
 set color_entry_text = "#fff";
@@ -1276,6 +1295,7 @@ set color_header_footer_border = "#201e26";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#e4dee0";
 set color_entry_background = "#232029";
 set color_entry_border = "#201e26";
 set color_entry_text = "#fdffff";
@@ -1317,6 +1337,7 @@ set color_header_footer_border = "#a3abad";
 ## Entry Colors
 ##===============================
 
+set color_entry_accent = "#1c1c5e";
 set color_entry_background = "#b0bcbf";
 set color_entry_border = "#a3abad";
 set color_entry_text = "#333";
