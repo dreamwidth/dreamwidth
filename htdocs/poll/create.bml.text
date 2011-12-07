@@ -63,6 +63,10 @@
 
 .questions=Poll Questions
 
+.scale.lowlabel=Low label:
+
+.scale.highlabel=High label:
+
 .seecode.desc=This is the code for your poll. Use the buttons below to go back and make changes, or to post it to your journal.
 
 .title=Poll Creator

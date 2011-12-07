@@ -184,7 +184,7 @@ _c?>
             my $qrec = {};
 
             # validate question attributes
-            foreach my $atr (qw(type question opts size maxlength from to by checkmin checkmax)) {
+            foreach my $atr (qw(type question opts size maxlength from to by checkmin checkmax lowlabel highlabel)) {
                 my $val = $POST{"pq_${q}_$atr"};
                 next unless defined $val;
 
@@ -603,12 +603,21 @@ _c?>
 
             # scale type
             } elsif ($elem->{'type'} eq 'scale') {
+                $ret .= "<br/>\n";
                 foreach my $atr ( qw(from to by) ) {
                     $ret .= ' ' . ucfirst($atr) . ": ";
                     $ret .= LJ::html_text({ 'name' => "pq_${q}_$atr",
                                             'value' => defined $elem->{$atr} ? $elem->{$atr} : $RULES{'scale'}->{$atr},
                                             'size' => '3', 'maxlength' => '9' }) . "\n";
                 }
+                $ret .= "<br />";
+                foreach my $atr ( qw(lowlabel highlabel) ) {
+                    $ret .= $ML{'.scale.' . $atr};
+                    $ret .= LJ::html_text({ 'name' => "pq_${q}_$atr",
+                                            'value' => defined $elem->{$atr} ? $elem->{$atr} : "",
+                                            'size' => '20', 'maxlength' => '50' }) . " \n";
+                }
+
                 foreach my $atr ( qw(from to by items) ) {
                     $ret .= "<br /><font size='1'><b>[$err->{$q}->{$atr}]</b></font>\n"
                         if $err->{$q}->{$atr};
@@ -662,7 +671,7 @@ _c?>
                         $ret .= " $el='" . LJ::ehtml($elem->{$el}) . "'";
                     }
                 } elsif ($elem->{'type'} eq 'scale') {
-                    foreach my $el ( qw(from to by) ) {
+                    foreach my $el ( qw(from to by lowlabel highlabel) ) {
                         $ret .= " $el='" . LJ::ehtml($elem->{$el}) . "'";
                     }
                 } elsif ($elem->{'type'} eq 'check') {

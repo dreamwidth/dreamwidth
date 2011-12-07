@@ -105,7 +105,7 @@ sub preview_as_html {
 
         # scale questions
     } elsif ($type eq 'scale') {
-        my ($from, $to, $by) = split(m!/!, $opts);
+        my ( $from, $to, $by, $lowlabel, $highlabel ) = split( m!/!, $opts );
         $by ||= 1;
         my $count = int(($to-$from)/$by) + 1;
         my $do_radios = ($count <= 11);
@@ -113,17 +113,25 @@ sub preview_as_html {
         # few opts, display radios
         if ($do_radios) {
             $ret .= "<table summary=''><tr valign='top' align='center'>\n";
+            $ret .= "<td style='padding-right: 5px;'><b>$lowlabel</b></td>";
             for (my $at = $from; $at <= $to; $at += $by) {
                 $ret .= "<td>" . LJ::html_check({ 'type' => 'radio' }) . "<br />$at</td>\n";
             }
+            $ret .= "<td style='padding-left: 5px;'><b>$highlabel</b></td>";
             $ret .= "</tr></table>\n";
 
             # many opts, display select
         } else {
-            my @optlist = ();
-            for (my $at = $from; $at <= $to; $at += $by) {
+            my @optlist = ( '', ' ' );
+            push @optlist, ( $from, $from . " " . $lowlabel );
+
+            my $at = 0;
+            for ( $at=$from+$by; $at<=$to-$by; $at+=$by ) {
                 push @optlist, ('', $at);
             }
+
+            push @optlist, ( $at, $at . " " . $highlabel );
+
             $ret .= LJ::html_select({}, @optlist);
         }
 

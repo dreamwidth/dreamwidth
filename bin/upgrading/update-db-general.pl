@@ -2441,7 +2441,7 @@ CREATE TABLE pollquestion2 (
     pollqid TINYINT UNSIGNED NOT NULL,
     sortorder TINYINT UNSIGNED NOT NULL DEFAULT '0',
     type ENUM('check','radio','drop','text','scale') NOT NULL,
-    opts VARCHAR(20) DEFAULT NULL,
+    opts VARCHAR(255) DEFAULT NULL,
     qtext TEXT,
 
     PRIMARY KEY  (journalid,pollid,pollqid)
@@ -4024,6 +4024,12 @@ EOF
         do_alter("pollresult2",
                  "ALTER TABLE pollresult2 " .
                  "MODIFY COLUMN value VARCHAR(1024) DEFAULT NULL");
+    }
+
+    # changes opts size of pollquestion2 to 255 in order to accommodate labels
+    if ( column_type( 'pollquestion2', 'opts' ) eq "varchar(20)" ) {
+        do_alter( 'pollquestion2',
+            "ALTER TABLE pollquestion2 MODIFY COLUMN opts VARCHAR(255) DEFAULT NULL");
     }
 
 });
