@@ -378,6 +378,8 @@ ul.entry-interaction-links { text-align: right;
     margin-top: .5em;
     margin-bottom: .5em; }
 
+.entry-management-links a { color: $*color_entry_interaction_links; }
+
 .entry-management-links a:visited,
 .entry-interaction-links a:visited { color: $*color_entry_interaction_links; }
 
@@ -467,6 +469,12 @@ ul.entry-interaction-links { text-align: right;
     background-color: $*color_entry_border; }
 .comment .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
 
+.comment .footer a,
+.comment .footer a { color: $*color_entry_interaction_links; }
+
+.comment .footer a:visited,
+.comment .footer a:visited { color: $*color_entry_interaction_links; }
+
 .comment-management-links { float: right;
     margin-top: .5em;
     margin-bottom: .5em; }
@@ -486,13 +494,37 @@ ul.entry-interaction-links { text-align: right;
 
 .comment-pages { text-align: center; }
 
-#qrformdiv table { margin: .5em 1%;
-    width: 98%; }
+#qrformdiv table {
+    margin: .5em 1%;
+    width: 98%;
+    }
 
-#postform { background-color: $*color_entry_background;
-    padding: .5em; } /* non-quick reply form */
-table.talkform { background-color: $*color_entry_background; }
+#postform {
+    background-color: $*color_entry_background;
+    color: $*color_entry_text;
+    padding: .5em;
+    }
 
+#postform a {
+    color: $*color_entry_link;
+    }
+
+#postform a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+#postform a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+#postform a:active {
+    color: $*color_entry_link_active;
+    }
+
+table.talkform {
+    background-color: $*color_entry_background;
+    color: $*color_entry_text;
+    }
 
 /* archive */
 
