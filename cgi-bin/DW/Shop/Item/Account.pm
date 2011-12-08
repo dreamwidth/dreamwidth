@@ -25,7 +25,7 @@ use DW::Pay;
 
 =head1 NAME
 
-DW::Shop::Item::Account - Represents a paid account that someone is purchasing. See 
+DW::Shop::Item::Account - Represents a paid account that someone is purchasing. See
 the documentation for DW::Shop::Item for usage examples and description of methods
 inherited from that base class.
 
@@ -36,11 +36,11 @@ inherited from that base class.
 Instantiates an account of some sort to be purchased.
 
 Arguments:
-=item ( see DW::Shop::Item ), 
+=item ( see DW::Shop::Item ),
 =item months => number of months of paid time,
 =item class => type of paid account,
 =item random => 1 (if gifting paid time to a random user),
-=item anonymous_target => 1 (if random user should be anonymous, not identified) 
+=item anonymous_target => 1 (if random user should be anonymous, not identified)
 
 =cut
 
@@ -379,7 +379,7 @@ sub t_html {
         } else {
             return "<strong>$random_user_string</strong>";
         }
-    } 
+    }
 
     # otherwise, fall back upon default display
     return $self->SUPER::t_html( %opts );

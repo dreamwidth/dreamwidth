@@ -35,7 +35,7 @@ inherited from that base class.
 Instantiates a block of points to be purchased.
 
 Arguments:
-=item ( see DW::Shop::Item ), 
+=item ( see DW::Shop::Item ),
 =item points => number of points to buy,
 
 =cut

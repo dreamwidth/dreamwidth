@@ -25,13 +25,13 @@ use DW::Shop::Cart;
 
 =head1 NAME
 
-DW::Shop::Item::Rename - Represents a rename token that someone is purchasing. See 
+DW::Shop::Item::Rename - Represents a rename token that someone is purchasing. See
 the documentation for DW::Shop::Item for usage examples and description of methods
 inherited from that base class.
 
 =head1 API
 
-=cut 
+=cut
 
 =head2 C<< $class->new( [ %args ] ) >>
 
@@ -108,7 +108,7 @@ sub cart_state_changed {
     my ( $self, $newstate ) = @_;
 
     # create a new rename token once the cart has been paid for
-    # but only do so if we haven't created one before (just checking in case we manage to set the cart to 
+    # but only do so if we haven't created one before (just checking in case we manage to set the cart to
     #    paid status multiple times -- but that had better not happen!)
     if ( $newstate == $DW::Shop::STATE_PAID  && ! $self->{token} ) {
         my $token = DW::RenameToken->create( ownerid => $self->t_userid, cartid => $self->cartid );
