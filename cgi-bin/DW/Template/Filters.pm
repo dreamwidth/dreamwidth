@@ -19,7 +19,7 @@ use strict;
 
 =head1 NAME
 
-DW::Template::Plugin - Template Toolkit plugin for Dreamwidth
+DW::Template::Filters - Filters for the Dreamwidth Template Toolkit plugin
 
 =head1 METHODS
 
