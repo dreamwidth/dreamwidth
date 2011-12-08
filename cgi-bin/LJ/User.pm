@@ -566,7 +566,7 @@ sub set_unsuspended {
         return 0;
     }
 
-    my $res = $u->set_statusvis('V');
+    my $res = $u->set_visible;
     unless ($res) {
         $$errref = "DB error while setting statusvis to 'V'" if ref $errref;
         return $res;
@@ -580,7 +580,13 @@ sub set_unsuspended {
 
 sub set_visible {
     my $u = shift;
-    return $u->set_statusvis('V');
+
+    my $old_statusvis = $u->statusvis;
+    my $ret = $u->set_statusvis('V');
+
+    LJ::Hooks::run_hooks( "account_makevisible", $u, old_statusvis => $old_statusvis );
+
+    return $ret;
 }
 
 

@@ -56,6 +56,10 @@ sub _run_search {
     $sx->SetFilter( 'allow_global_search', [ 1 ] )
         unless $args->{userid};
 
+    # we don't want items marked deleted (user is not visible)
+    $sx->SetFilter( 'is_deleted', [ 0 ] );
+
+
     # security filtering is a dangerous game.  basically, the caller tells us whether to
     # ignore security or gives us a mask of bits to work with.  from that we intuit what
     # security options to enable on our filters to Sphinx.
@@ -84,9 +88,10 @@ sub _build_output {
         # convenience only... they're the same hashrefs you know and love
         my @out;
 
+        my $remote = LJ::get_remote();
         foreach my $match ( @{ $res->{matches} } ) {
             my $entry = LJ::Entry->new( $match->{journal_id}, jitemid => $match->{jitemid} );
-            if ( $entry && $entry->valid ) {
+            if ( $entry && $entry->visible_to( $remote ) ) {
                 # use text only version of event for excerpt purposes.  best effort.
                 $match->{entry} = $entry->event_text;
                 $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
