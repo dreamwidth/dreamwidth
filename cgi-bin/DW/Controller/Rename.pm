@@ -105,6 +105,8 @@ sub rename_handler {
                 ? qw( trusted_by watched_by trusted watched communities )
                 : ();
 
+            $vars->{rel_types} = \@rel_types;
+
             # initialize the form based on previous posts (in case of error) or with some default values
             $vars->{formdata} = {
                 authas      => $authas,
@@ -114,13 +116,11 @@ sub rename_handler {
                 token       => $token->token,
                 touser      => $post_args->{touser} || $get_args->{to} || "",
                 redirect    => $post_args->{redirect} || "disconnect",
-                rel_types   => \@rel_types,
                 rel_options => %$post_args ? { map { $_ => 1 } $post_args->get_all( "rel_options" ) }
                                             : { map { $_ => 1 } @rel_types },
                 others      => %$post_args ? { map { $_ => 1 } $post_args->get_all( "others" ) }
                                             : { email => 0 },
             };
-
         }
     }
 
@@ -295,25 +295,25 @@ sub rename_admin_edit_handler {
     my $token = DW::RenameToken->new( token => $get_args->{token} );
 
     my $u = LJ::load_userid( $token->renuserid );
+    my @rel_types = qw( trusted_by watched_by trusted watched communities );
     my $form = {
         from    => $token->fromuser,
         to      => $token->touser,
         byuser  => LJ::load_userid( $token->ownerid ),
         user    => $u,
         journaltype => $u ? $u->journaltype : "P",
-
-        rel_types => [ qw( trusted_by watched_by trusted watched communities ) ],
     };
 
     # load up the old values
     my $token_details = $token->details;
     $form->{redirect} = $token_details->{redirect}->{username} ? "forward" : "disconnect";
-    $form->{rel_options} = { map { $_ => ! $token_details->{del}->{$_} } @{$form->{rel_types}} };
+    $form->{rel_options} = { map { $_ => ! $token_details->{del}->{$_} } @rel_types };
     $form->{others}->{email} = $token_details->{redirect}->{email};
 
     my $vars = {
         %$rv,
         formdata => $form,
+        rel_types => \@rel_types,
         token => $token,
     };
 

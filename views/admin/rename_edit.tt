@@ -55,12 +55,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
         </fieldset>
 
-        [% IF form.data.rel_types.size > 0 %]
+        [% IF rel_types.size > 0 %]
         <fieldset class="relationships">
             <legend>[% '.form.relationships.header' | ml %]</legend>
             <input type="checkbox" name="override_relationships" id="override_relationships" /><label for="override_relationships">Override</label>
             <p class="note">be careful when leaving these unchecked! We cannot recover the list once the relationships have been broken, so make sure you don't carry over old opts. Otherwise you may delete everyone the user has added since they renamed</p>
-            [% FOREACH rel IN form.data.rel_types %]
+            [% FOREACH rel IN rel_types %]
                 <div class="formfield">
                     <input type="checkbox" name="rel_options" value="[% rel %]" id="rel_[% rel %]" [%- 'checked="checked"' IF form.data.rel_options.$rel -%] /><label for="rel_[% rel %]">[% ".form.relationships.$rel" | ml %]</label>
                 </div>
