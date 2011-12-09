@@ -114,6 +114,7 @@ table.grid, table.grid td {
     border: 1px solid #999;
 }
 
+.text { color: #000; background: #fff; border-color: #777; }
 
 /* Temporary page-specific */
 /* profile.css */
@@ -131,3 +132,4 @@ td.highlight { background-color: #eeeeee; }
 #qrformdiv table {
     border: 1px solid #999;
 }
+

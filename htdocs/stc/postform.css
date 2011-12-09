@@ -43,18 +43,13 @@
 /* Components */
 
 .component {
-  margin-bottom:0.5em;
+  margin-bottom:0.8em;
+  border-width: 1px;
+  border-style: solid;
 }
 
 .inactive_component {
   display: none;
-}
-
-#primary .component,
-#secondary .component,
-#tertiary .component {
-  border-width:1px;
-  border-style:solid;
 }
 
 #tertiary .column {
@@ -81,7 +76,7 @@
 .component h3 {
   font-size:110%;
   margin: 0;
-  padding: .5em 0 .2em .5em;
+  padding: .2em 0 .2em 5px;
 }
 
 .component h4 {

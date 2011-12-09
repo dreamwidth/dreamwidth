@@ -22,17 +22,16 @@
   color: #808080;
 }
 
-#primary .component,
-#secondary .component,
-#tertiary .component,
 .column {
   border-color:#888888;
 }
 .component {
   background-color:#444;
+  border-color:#444;
 }
 .component h3 {
-  background-color:#727272;
+  color: #999;
+  text-shadow: -1px 0 0 #777;
 }
 .component-header-hover {
   background-color: #999;

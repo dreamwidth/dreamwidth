@@ -248,7 +248,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 
     [%- BLOCK column %]
         [% FOREACH component = components %]
-        <div class='component [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'>
+        <div class='component ui-corner-top [% UNLESS panels.show.$component -%] inactive_component [%- END -%]' id='[% component %]_component'>
         [%- dw.scoped_include( "entry/module-${component}.tt" ); %]
         </div>
         [%- END -%]
