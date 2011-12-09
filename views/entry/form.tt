@@ -174,7 +174,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                 <!-- TODO make this only take up one tab area? -->
                 <div class="toolbar">
                     <div id="main-tools" class='subtoolbar'>
-                        <a href="[%site.root%]/poll/create">Create Poll</a>
+                        <a href="[%site.root%]/poll/create" class="external-link" target="_blank">Create Poll <span class="ui-icon ui-icon-newwin"></span></a>
                         [%- preview_label = 'talk.btn.preview' | ml;
                             form.submit( value = preview_label
                                          name = "action:preview"

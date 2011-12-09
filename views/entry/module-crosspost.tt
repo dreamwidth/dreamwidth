@@ -19,7 +19,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="inner">
 
     <span class="crosspost-settings">
-        <a href="[% crosspost_url %]">[% ".settings.link" | ml %]</a>
+        <a href="[% crosspost_url %]" class="external-link" target="_blank">[% ".settings.link" | ml %] <span class="ui-icon ui-icon-newwin"></span></a>
     </span>
 
     [% IF crosspostlist.size > 0 %]

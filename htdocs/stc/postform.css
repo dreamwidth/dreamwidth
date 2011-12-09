@@ -188,6 +188,23 @@
   width: 100%;
 }
 
+.subtoolbar a {
+  text-decoration: none;
+  margin-right: 0.5em;
+}
+
+.external-link {
+  position: relative;
+  padding-right: 12px;
+  margin-right: 0.5em;
+}
+
+.external-link .ui-icon-newwin {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
 #main-tools {
   -webkit-border-top-left-radius: 8px;
   -webkit-border-top-right-radius: 8px;
