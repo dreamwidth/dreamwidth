@@ -375,7 +375,7 @@ a:active,
     background-color: #DDDDAA;
     border: 2px solid #999966;
 }
-.select-list input:active, input.submit:active {
+.select-list input:active {
     color: #555;
     background-color: #EEEEBB;
     border: 2px solid #BBBB88;

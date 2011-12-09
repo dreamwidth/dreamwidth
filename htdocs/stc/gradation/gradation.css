@@ -469,7 +469,7 @@ textarea, input {
     border-top: 2px solid #888;
     border-left: 2px solid #888;
 }
-.select-list input:active, input.submit:active {
+.select-list input:active {
     background: #666666;
     color: #eee;
     border: 2px solid #888;
