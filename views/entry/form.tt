@@ -175,19 +175,6 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                 <div class="toolbar">
                     <div id="main-tools" class='subtoolbar'>
                         <a href="[%site.root%]/poll/create" class="external-link" target="_blank">Create Poll <span class="ui-icon ui-icon-newwin"></span></a>
-                        [%- preview_label = 'talk.btn.preview' | ml;
-                            form.submit( value = preview_label
-                                         name = "action:preview"
-                                         id = "preview_button" )
-                        %]
-
-                        [%- IF can_spellcheck;
-                            spellcheck_label = 'entryform.spellcheck' | ml;
-                            form.submit( value = spellcheck_label
-                                         name = "action:spellcheck"
-                                         id = "spellcheck_button" );
-                        END -%]
-
                         <a href="#" class="unimplemented"><img src="[% site.imgroot%]/silk/site/help.png" alt="Help for valid HTML tags" title="Help for valid HTML tags" width="16" height="16"></a>
                         <a href="[%site.root%]/entry/options" id="post_options"><img src="[% site.imgroot%]/silk/site/cog.png" alt="Edit entry form settings" title="Edit entry form settings" width="16" height="16"></a>
                     </div>
@@ -242,6 +229,26 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                     ) -%]
                 </div>
             </fieldset>
+            <fieldset class='submit toolbar'>
+                [%- preview_label = 'talk.btn.preview' | ml;
+                    form.submit( value = preview_label
+                                 name = "action:preview"
+                                 id = "preview_button" )
+                %]
+
+                [%- IF can_spellcheck;
+                    spellcheck_label = 'entryform.spellcheck' | ml;
+                    form.submit( value = spellcheck_label
+                                 name = "action:spellcheck"
+                                 id = "spellcheck_button" );
+                END -%]
+
+                [%- post_label = '.button.post' | ml;
+                    form.submit( value = post_label
+                                 name = "action:post"
+                                 id = "submit_entry" )
+                -%]
+            </fieldset>
         </div>
 
     </div> <!-- End main column sub & entry -->
@@ -270,10 +277,9 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 
     <div class="submit action-bar">
         <span id="actions">
-            [%- post_label = '.button.post' | ml;
-                form.submit( value = post_label
+            [%- form.submit( value = post_label
                              name = "action:post"
-                             id = "submit_entry" )
+                             id = "submit_entry_large" )
             -%]
         </span>
 

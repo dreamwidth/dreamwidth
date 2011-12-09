@@ -367,12 +367,13 @@ init: function(formData) {
     }
 
     function initPostButton() {
+        $("#submit_entry").data("label",$("#submit_entry").val());
         $("#post_entry").bind("journalselect", function(e, journal) {
             var $submit = $("#submit_entry");
             if ( journal.iscomm && journal.name )
-                $submit.val("Post Entry to " + journal.name);
+                $submit.val( $submit.data("label") + ": " + journal.name);
             else
-                $submit.val("Post Entry");
+                $submit.val($submit.data("label"));
         });
 
         if ( $("#login_chal").length == 1 )

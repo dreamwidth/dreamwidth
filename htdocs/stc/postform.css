@@ -138,7 +138,6 @@
 
 #event {
   font-size: normal;
-  margin-bottom:.5em;
 }
 
 #event, #subject {
@@ -153,6 +152,11 @@
 }
 .event-container, .subject-container {
   padding: 0 2px;
+}
+
+#post_entry fieldset.submit {
+  text-align: right;
+  margin-bottom: 1em;
 }
 
 .toolbar {
