@@ -64,7 +64,7 @@ set color_shadow_alt = "#8c8c8c";
 ## Fonts
 ##===============================
 
-set font_base = "'Trebuchet MS', 'DejaVu San'";
+set font_base = "'Trebuchet MS', 'DejaVu Sans'";
 set font_fallback = "sans-serif";
 set font_base_size = "1";
 set font_base_units = "em";
