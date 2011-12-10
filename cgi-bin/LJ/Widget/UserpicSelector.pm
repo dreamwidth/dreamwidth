@@ -20,7 +20,8 @@ use Carp qw(croak);
 use LJ::Talk;
 
 sub need_res {
-   return LJ::Talk::init_iconbrowser_js( 'stc/entry.css' );
+   # force to not use beta, because this is not used in journal spaces
+   return LJ::Talk::init_iconbrowser_js( 0, 'stc/entry.css' );
 }
 
 sub handle_post {

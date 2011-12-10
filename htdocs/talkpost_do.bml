@@ -117,7 +117,7 @@ body<=
 
     LJ::need_res('stc/display_none.css');
     # libs for userpicselect
-    LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) )
         if $remote && $remote->can_use_userpic_select;
 
     # FIXME: this isn't entirely correct, if ecphash is present but ignored/incorrect

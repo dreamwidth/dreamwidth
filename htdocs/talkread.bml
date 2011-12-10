@@ -228,7 +228,7 @@ body<=
                         js/jquery.quickreply.js
                     ) );
 
-        LJ::need_res( LJ::Talk::init_iconbrowser_js( 'stc/lj_base.css' ) )
+        LJ::need_res( LJ::Talk::init_iconbrowser_js( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ), 'stc/lj_base.css' ) )
             if $remote->can_use_userpic_select;
     }
 

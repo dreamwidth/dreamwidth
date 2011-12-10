@@ -2131,9 +2131,8 @@ sub icon_dropdown {
 # args: names of any additional files to load
 # returns: full list of arguments to pass to LJ::need_res
 sub init_iconbrowser_js {
-    my @additional = @_;
+    my ( $beta, @additional ) = @_;
 
-    my $beta = LJ::BetaFeatures->user_in_beta( LJ::get_remote() => "journaljquery" );
     my @list = $beta
     ? (
         { group => 'jquery' },

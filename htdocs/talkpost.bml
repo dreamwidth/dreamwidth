@@ -27,7 +27,7 @@ body<=
     my $errtxt;
 
     # libs for userpicselect
-    LJ::need_res( LJ::Talk::init_iconbrowser_js() )
+    LJ::need_res( LJ::Talk::init_iconbrowser_js( LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" ) ) )
         if $remote && $remote->can_use_userpic_select;
     LJ::set_active_resource_group( "jquery" )
         if LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );
