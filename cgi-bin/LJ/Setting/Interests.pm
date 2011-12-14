@@ -72,9 +72,8 @@ sub save {
 
     my $interest_list = $class->get_arg($args, "interests");
     my @new_interests = LJ::interest_string_to_list($interest_list);
-    my $old_interests = $u->interests;
 
-    $u->set_interests($old_interests, \@new_interests);
+    $u->set_interests( \@new_interests );
 }
 
 1;

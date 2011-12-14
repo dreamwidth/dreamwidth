@@ -222,8 +222,6 @@ sub handle_post {
                                               'int' => $err->[1]{int} } );
     }
 
-    my $old_interests = $u->interests;
-
     # bio
     $from_post{errors}->{bio} = LJ::Lang::ml('/manage/profile/index.bml.error.bio.toolong') if length $post->{bio} >= LJ::BMAX_BIO;
     LJ::EmbedModule->parse_module_embed($u, \$post->{bio});
@@ -232,7 +230,7 @@ sub handle_post {
         $u->update_self( { name => $post->{name} } );
         $u->invalidate_directory_record;
         $u->set_prop('gender', $post->{gender});
-        $u->set_interests($old_interests, \@valid_ints);
+        $u->set_interests( \@valid_ints );
         $u->set_bio($post->{bio}, $post->{bio_absent});
     }
 

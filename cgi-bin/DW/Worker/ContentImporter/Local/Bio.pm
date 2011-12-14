@@ -45,7 +45,7 @@ sub merge_interests {
         push @all_ints, lc( $int ) unless defined( $old_interests->{$int} );
     }
 
-    $u->set_interests( $old_interests, \@all_ints );
+    $u->set_interests( \@all_ints );
 }
 
 =head2 C<< $class->merge_bio_items( $user, $hashref, $items ) >>

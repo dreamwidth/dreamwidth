@@ -735,7 +735,7 @@ body<=
                 return LJ::bad_input( map { BML::ml(@$_) } @interrors );
             }
 
-            $u->set_interests( \%interests, \@valid_ints );
+            $u->set_interests( \@valid_ints );
         }
 
         LJ::Hooks::run_hooks('profile_save', $u);

@@ -302,6 +302,23 @@ sub interest_update {
     my ( $add, $del ) = ( $opts{add}, $opts{del} );
     return 1 unless $add || $del;  # nothing to do
 
+    my $lock;
+    unless ( $opts{has_lock} ) {
+        while ( 1 ) {
+            $lock = LJ::locker()->trylock( 'interests:' . $u->userid );
+            last if $lock;
+
+            # pause for 0.0-0.3 seconds to shuffle things up.  generally good behavior
+            # when you're contending for locks.
+            select undef, undef, undef, rand() * 0.3;
+        }
+    }
+
+    my %wanted_add = map { $_ => 1 } @$add;
+    my %wanted_del = map { $_ => 1 } @$del;
+
+    my %cur_ids = map { $_ => 1 } @{ $u->get_interests( { justids => 1, forceids => 1 } ) };
+
     # track if we made changes to refresh memcache later.
     my $did_mod = 0;
 
@@ -311,26 +328,29 @@ sub interest_update {
     my $uid = $u->userid;
     my $dbh = LJ::get_db_writer() or die LJ::Lang::ml( "error.nodb" );
 
-    if ( $del && @$del ) {
+    my @filtered_del = grep { delete $cur_ids{$_} && ! $wanted_add{$_} } @$del;
+    if ( $del && @filtered_del ) {
         $did_mod = 1;
-        my $intid_in = join ',', map { $dbh->quote( $_ ) } @$del;
+        my $intid_in = join ',', map { $dbh->quote( $_ ) } @filtered_del;
+
         $dbh->do( "DELETE FROM $uitable WHERE userid=$uid AND intid IN ($intid_in)" );
         die $dbh->errstr if $dbh->err;
         $dbh->do( "UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)" );
         die $dbh->errstr if $dbh->err;
     }
 
-    if ( $add && @$add ) {
+    my @filtered_add = grep { ! $cur_ids{$_}++ && ! $wanted_del{$_} } @$add;
+    if ( $add && @filtered_add ) {
         # assume we've already checked maxinterests
         $did_mod = 1;
-        my $intid_in = join ',', map { $dbh->quote( $_ ) } @$add;
-        my $sqlp = join ',', map { "(?,?)" } @$add;
+        my $intid_in = join ',', map { $dbh->quote( $_ ) } @filtered_add;
+        my $sqlp = join ',', map { "(?,?)" } @filtered_add;
         $dbh->do( "REPLACE INTO $uitable (userid, intid) VALUES $sqlp",
-                  undef, map { ( $uid, $_ ) } @$add );
+                  undef, map { ( $uid, $_ ) } @filtered_add );
         die $dbh->errstr if $dbh->err;
         # set a zero intcount for any new ints
         $dbh->do( "INSERT IGNORE INTO interests (intid, intcount) VALUES $sqlp",
-                  undef, map { ( $_, 0 ) } @$add );
+                  undef, map { ( $_, 0 ) } @filtered_add );
         die $dbh->errstr if $dbh->err;
         # now do the increment for all ints
         $dbh->do( "UPDATE interests SET intcount=intcount+1 WHERE intid IN ($intid_in)" );
@@ -385,17 +405,26 @@ sub lazy_interests_cleanup {
 
 
 # des: Change a user's interests.
-# des-old: hashref of old interests (hashing being interest => intid)
 # des-new: listref of new interests
 # returns: 1 on success, undef on failure
 sub set_interests {
-    my ($u, $old, $new) = @_;
+    my ($u, $new) = @_;
 
     $u = LJ::want_user( $u ) or return undef;
 
-    return undef unless ref $old eq 'HASH';
     return undef unless ref $new eq 'ARRAY';
 
+    my $lock;
+    while ( 1 ) {
+        $lock = LJ::locker()->trylock( 'interests:' . $u->userid );
+        last if $lock;
+
+        # pause for 0.0-0.3 seconds to shuffle things up.  generally good behavior
+        # when you're contending for locks.
+        select undef, undef, undef, rand() * 0.3;
+    }
+
+    my $old = $u->interests( { forceids => 1 } );
     my %int_add = ();
     my %int_del = %$old;  # assume deleting everything, unless in @$new
 
@@ -413,7 +442,7 @@ sub set_interests {
     }
 
     # Note this does NOT check against maxinterests, do that in the caller.
-    $u->interest_update( add => \@new_intids, del => [ values %int_del ] );
+    $u->interest_update( add => \@new_intids, del => [ values %int_del ], has_lock => 1 );
 
     LJ::Hooks::run_hooks("set_interests", $u, \%int_del, \@new_intids); # interest => intid
 
