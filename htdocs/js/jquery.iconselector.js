@@ -8,7 +8,7 @@
         $.fn.iconselector.owner = $(this);
 
         if( opts.selectorButtons ) {
-            $(opts.selectorButtons).not("a").wrap("<a href='#'></a>").end()
+            $(opts.selectorButtons)
                 .click(function(e) {
                     _open.apply( $.fn.iconselector.owner, [ opts ] );
                     e.preventDefault();

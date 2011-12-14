@@ -12,7 +12,7 @@ init: function(formData) {
         var $select = $("#iconselect");
         if ( $select.length == 0 ) return;
 
-        $preview.prepend("<ul class='icon-functions'><li><button id='icon_browser_link' class='ui-button ui-state-default'>browse</button></li><li><button id='icon_random_link' class='ui-button ui-state-default'>random</a></li></ul>");
+        $preview.prepend("<ul class='icon-functions'><li><button id='icon_browser_link' class='ui-button ui-state-default'>browse</button></li><li><button id='icon_random_link' class='ui-button ui-state-default'>random</button></li></ul>");
 
         function update_icon_preview() {
             var icons = formData.icons;
