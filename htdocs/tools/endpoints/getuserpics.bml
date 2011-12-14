@@ -43,7 +43,11 @@ _c?>
             state => $upic->state,
             width => $upic->width,
             height => $upic->height,
-            alt => LJ::ehtml($upic->alttext),
+
+            # FIXME: update to a simple . "" conversion when we have a newer JSON version
+            #        ( no code ref will be required )
+            alt => sub { LJ::ehtml($upic->alttext)  . "" }, # force to string
+
             comment => LJ::strip_html($upic->comment),
             id => $id,
             keywords => [ map { LJ::strip_html($_) } $upic->keywords],
@@ -53,6 +57,7 @@ _c?>
     $upics{ids} = [sort { $a <=> $b } keys %{$upics{pics}}];
     sleep 1 if $LJ::IS_DEV_SERVER;
 
+    local $JSON::ExecCoderef = 1;
     return JSON::objToJson(\%upics);
 }
 _code?>
