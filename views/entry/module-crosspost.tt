@@ -34,7 +34,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         ) -%]
 
         <h4>[% ".header.accounts" | ml %]</h4>
-        <input type="text" name="autocompletefix" value="chrome autocomplete fix; ignore" style="display: none"/>
+        <input type="text" name="autocompletefix" value="crosspost account" style="display: none"/>
         <ul id="crosspost_accounts">
             [% crosspost_password_label = ".label.password" | ml %]
 
