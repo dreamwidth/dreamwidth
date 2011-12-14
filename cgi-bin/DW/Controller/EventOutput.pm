@@ -45,7 +45,7 @@ sub event_output {
     return $rv unless $ok;
 
     if ( $r->method eq "POST" ) {
-        return handle_post( %{ DW::Request->get->post_args || {} } );
+        return handle_post( %{ DW::Request->get->post_args } );
     } else {
         my @event_classes = map { 
                 { id    => LJ::Event->event_to_etypeid( $_ ),

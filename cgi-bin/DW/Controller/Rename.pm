@@ -59,8 +59,8 @@ sub rename_handler {
     my $vars = {};
 
     my $token = DW::RenameToken->new( token => $given_token );
-    my $post_args = DW::Request->get->post_args || {};
-    my $get_args = DW::Request->get->get_args || {};
+    my $post_args = DW::Request->get->post_args;
+    my $get_args = DW::Request->get->get_args;
 
     $get_args->{type} ||= "P";
     $get_args->{type} = "P" unless $get_args->{type} =~ m/^(P|C)$/;
@@ -189,7 +189,7 @@ sub swap_handler {
 
     my $vars = {};
 
-    my $post_args = DW::Request->get->post_args || {};
+    my $post_args = DW::Request->get->post_args;
 
     my @unused_tokens = @{DW::RenameToken->by_owner_unused( userid => $remote->userid ) || []};
     $vars->{numtokens} = scalar @unused_tokens;
@@ -249,8 +249,8 @@ sub rename_admin_handler {
     return $rv unless $ok;
 
     my $r = DW::Request->get;
-    my $post_args = $r->post_args || {};
-    my $get_args = $r->get_args || {};
+    my $post_args = $r->post_args;
+    my $get_args = $r->get_args;
 
     # just get the username, and not a user object, because username may no longer be valid for a user
     my $user = $post_args->{user} || $get_args->{user};
@@ -289,8 +289,8 @@ sub rename_admin_edit_handler {
     return $rv unless $ok;
 
     my $r = DW::Request->get;
-    my $post_args = $r->post_args || {};
-    my $get_args = $r->get_args || {};
+    my $post_args = $r->post_args;
+    my $get_args = $r->get_args;
 
     my $token = DW::RenameToken->new( token => $get_args->{token} );
 
@@ -394,7 +394,7 @@ sub siteadmin_rename_handler {
     return $rv unless $ok;
 
     my $r = DW::Request->get;
-    my $post_args = DW::Request->get->post_args || {};
+    my $post_args = DW::Request->get->post_args;
 
     my $vars = {};
 
