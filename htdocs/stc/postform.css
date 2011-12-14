@@ -173,6 +173,7 @@
   line-height: 1;
   padding: 3px 8px 4px;
   text-align: center;
+  margin-left: 0.8em;
 }
 
 .toolbar img {
@@ -249,6 +250,10 @@ ul.icon-functions {
   position: absolute;
   bottom: 0;
   right: 0;
+}
+
+ul.icon-functions li {
+  margin-bottom: 0.5em;
 }
 
 .icon {
@@ -338,12 +343,12 @@ ul.icon-functions {
   width: 30%;
 }
 
-.posting_settings li {
-  margin-bottom:.5em;
+#post_as ul {
+  margin-left: 30%;
 }
 
-.posting_settings {
-  margin-top:.5em;
+#post_entry .posting_settings, #post_entry .posting_settings ul {
+  padding-top:.5em;
 }
 
 .crosspost_password_container {

@@ -20,22 +20,22 @@ the same terms as Perl itself.  For a copy of the license, please reference
    [% IF remote %]
     <fieldset>
     <legend><span>[% ".label.post_as" | ml %]</span></legend>
-        [%-
+    <ul><li>[%-
         form.radio( label = remote.user
             name = "post_as"
             id = "post_as_remote"
 
             value = "remote"
             default = ( post_as == "remote" )
-        ) -%]
-        [%- post_as_other_label = ".label.post_as_other" | ml;
+        ) -%]</li>
+        <li>[%- post_as_other_label = ".label.post_as_other" | ml;
         form.radio( label = post_as_other_label
             name = "post_as"
             id = "post_as_other"
 
             value = "other"
             default = ( post_as == "other" )
-        ) -%]
+        ) -%]</li></ul>
     </fieldset>
    [% ELSE %]
         [%- form.hidden(

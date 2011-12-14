@@ -234,7 +234,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                     form.submit( value = preview_label
                                  name = "action:preview"
                                  id = "preview_button" )
-                %]
+                -%]
 
                 [%- IF can_spellcheck;
                     spellcheck_label = 'entryform.spellcheck' | ml;
