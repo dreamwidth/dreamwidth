@@ -21,54 +21,39 @@
 }
 .moodtheme-form {
     float: left;
+    margin-right: 40px;
 }
 div.moodtheme-preview {
     float: left;
     padding: 5px;
     margin-left: 20px;
+    width: auto;
 }
-.moodtheme-preview-nospecial {
-    width: 360px;
+
+.moodtheme-preview div {
+    float: left;
 }
-.moodtheme-preview table {
-    border: 0;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-}
-.moodtheme-preview table td {
+
+.moodtheme-mood {
+    margin: 0.2em 0.5em;
     text-align: center;
 }
-.moodtheme-preview-nospecial table td {
-    vertical-align: bottom;
+
+.moodtheme-mood p {
+    text-align: center;
+    margin-bottom: 0.2em;
 }
-.moodtheme-preview p {
-    text-align: right;
+
+.moodtheme-view-link {
+    margin: 0.2em 0.5em;
+    text-align: center;
 }
-.special-moodthemes {
-    width: 175px;
-    float: left;
-    margin-left: 20px;
+
+.moodtheme-description {
+    clear: left;
 }
-.special-moodthemes-inner {
-    border: 1px solid #FFCC33;
-}
-* html .special-moodthemes-inner {
-    height: 1%;
-}
-.special-moodthemes h3 {
-    font-weight: bold;
-    font-style: italic;
-    font-size: 11px;
-    margin: 0 !important;
-    padding: 2px 4px;
-}
-.special-moodthemes ul li {
-    margin: 5px;
-    float: left;
-}
-.special-moodthemes-desc {
-    padding: 5px;
-    margin-top: 3px;
-    font-size: smaller;
+
+.moodtheme-description p {
+    text-align: left;
+    margin: 0.2em 0.5em;
 }

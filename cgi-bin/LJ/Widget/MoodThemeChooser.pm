@@ -64,42 +64,33 @@ sub render_body {
     $ret .= "</ul>";
     $ret .= "</div>";
 
-    my $moodtheme_extra = LJ::Hooks::run_hook( "mood_theme_extra_content", $u, \@themes ) || '';
-    my $show_special = $moodtheme_extra ? "special" : "nospecial";
-
     my $mobj = DW::Mood->new( $preview_moodthemeid );
     my @show_moods = qw( happy sad angry tired );
 
     if ( $mobj) {
         my $count = 0;
 
-        $ret .= "<div class='moodtheme-preview moodtheme-preview-$show_special highlight-box'>";
-        $ret .= "<table summary=''>";
-        $ret .= "<tr>" unless $moodtheme_extra;
+        $ret .= "<div class='moodtheme-preview moodtheme-preview highlight-box'>";
         foreach my $mood (@show_moods) {
             my %pic;
             if ( $mobj->get_picture( $mobj->mood_id( $mood ), \%pic ) ) {
-                $ret .= "<tr>" if $moodtheme_extra && $count % 2 == 0;
-                $ret .= "<td><img class='moodtheme-img' align='absmiddle' alt='$mood' src=\"$pic{pic}\" width='$pic{w}' height='$pic{h}' /><br />$mood</td>";
-                $ret .= "</tr>" if $moodtheme_extra && $count % 2 != 0;
+                $ret .= "<div class='moodtheme-mood'>";
+				$ret .= "<img alt='$mood' src=\"$pic{pic}\" width='$pic{w}' height='$pic{h}' />";
+				$ret .= "<p>$mood</p>";
+				$ret .= "</div>";
                 $count++;
             }
         }
-        if ( $moodtheme_extra ) {
-            $ret .= "<tr><td colspan='2'>";
-        } else {
-            $ret .= "<td>";
-        }
-        $ret .= "<p><a href='$LJ::SITEROOT/moodlist?moodtheme=$preview_moodthemeid'>";
-        $ret .= $class->ml( 'widget.moodthemechooser.viewtheme' ) . "</a></p>";
-        $ret .= "</td></tr></table>";
+        $ret .= "<div class='moodtheme-view-link'>";
+		$ret .= "<a href='$LJ::SITEROOT/moodlist?moodtheme=$preview_moodthemeid'>";
+        $ret .= $class->ml( 'widget.moodthemechooser.viewtheme' ) . "</a>";
+        $ret .= "</div>";
         my $mood_des = $mobj->des;
         LJ::CleanHTML::clean( \$mood_des );
-        $ret .= "<p>$mood_des</p>";
+        $ret .= "<div class='moodtheme-description'>";
+		$ret .= "<p>$mood_des</p></div>";
         $ret .= "</div>";
     }
-
-    $ret .= $moodtheme_extra;
 
     $ret .= "</fieldset>" unless $u->prop('stylesys') == 2;
 
