@@ -58,7 +58,7 @@
 }
 .ui-sortable .inactive_component {
     display: block;
-    opacity: 0.4;
+    opacity: 0.65;
 }
 
 .ui-sortable .inactive_component .inner {

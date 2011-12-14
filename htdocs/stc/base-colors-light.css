@@ -29,7 +29,7 @@
   border-color: #eee;
 }
 .component h3 {
-  color: #666;
+  color: #444;
   text-shadow: 1px 1px 0px #fff;
 }
 .component-header-hover {
@@ -71,7 +71,7 @@
   color: #ccc;
 }
 
-.toolbar input, .submit input {
+.toolbar input, .submit input, .component button {
   background-color: #e3e3e3;
   border-color: #ccc;
   box-shadow: inset 0 0 1px 1px #f6f6f6;
@@ -81,7 +81,7 @@
   text-shadow: 0 1px 0px #fff;
 }
 
-.toolbar input:hover, .submit input:hover {
+.toolbar input:hover, .submit input:hover, .component button:hover {
   background: #f6f6f6;
   box-shadow: inset 0 0 1px 1px #fff;
   -moz-box-shadow: inset 0 0 1px 1px #fff;
@@ -89,7 +89,7 @@
   color: #222;
 }
 
-.toolbar input:active, .submit input:active {
+.toolbar input:active, .submit input:active, .component button:active {
   background-color: #d9d9d9;
   box-shadow: inset 0 0 1px 1px #eaeaea;
   -moz-box-shadow: inset 0 0 1px 1px #eaeaea;
@@ -98,7 +98,7 @@
 }
 
 .destructive input {
-  color: #888;
+  color: #636363;
 }
 
 .destructive input:hover {

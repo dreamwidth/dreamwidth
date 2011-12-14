@@ -229,7 +229,7 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                     ) -%]
                 </div>
             </fieldset>
-            <fieldset class='submit toolbar'>
+            <fieldset class='submit'>
                 [%- preview_label = 'talk.btn.preview' | ml;
                     form.submit( value = preview_label
                                  name = "action:preview"
