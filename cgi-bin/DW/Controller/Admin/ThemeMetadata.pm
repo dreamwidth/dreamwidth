@@ -71,7 +71,7 @@ sub theme_controller {
 
     my $r = DW::Request->get;
 
-    my $args = $r->post_args || $r->get_args || {};
+    my $args = $r->did_post ? $r->post_args : $r->get_args;
     my $uniq = $args->{theme};
  
     my $pub = LJ::S2::get_public_layers();
@@ -171,7 +171,7 @@ sub category_controller {
 
     my $r = DW::Request->get;
 
-    my $args = $r->post_args || $r->get_args || {};
+    my $args = $r->did_post ? $r->post_args : $r->get_args;
     my $cat = $args->{category};
 
     $cat = undef unless _validate_category( $cat );

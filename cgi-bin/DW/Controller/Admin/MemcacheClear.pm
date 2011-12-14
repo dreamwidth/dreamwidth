@@ -53,7 +53,7 @@ sub index_controller {
     return $rv unless $ok;
 
     my $r = DW::Request->get;
-    my $args = $r->post_args || $r->get_args || {};
+    my $args = $r->did_post ? $r->post_args : $r->get_args;
 
     my $vars = {
         %$rv,
