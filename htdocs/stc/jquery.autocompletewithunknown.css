@@ -1,15 +1,14 @@
-
 .token {
     font-size:1em;
-    padding:.2em .3em;
+    padding:.2em 0 .2em .3em;
     border-width: 1px;
     border-style: solid;
     line-height: 1.1em;
     margin: 0.2em;
     float: left;
-    -webkit-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
 }
 
 .token.new {
@@ -18,17 +17,17 @@
 }
 
 .token .token_remove {
-    padding: 0.2em 0.3em;
+    padding: 0.1em 0.3em;
     border-left: 1px solid;
     margin-left: 0.2em;
     font-weight: bold;
     text-decoration: none;
-    -moz-border-radius-topright:5px;
-    -moz-border-radius-bottomright:5px;
-    -webkit-border-top-right-radius:5px;
-    -webkit-border-bottom-right-radius:5px;
-    border-top-right-radius:5px;
-    border-bottom-right-radius:5px;
+    -moz-border-radius-topright:4px;
+    -moz-border-radius-bottomright:4px;
+    -webkit-border-top-right-radius:4px;
+    -webkit-border-bottom-right-radius:4px;
+    border-top-right-radius:4px;
+    border-bottom-right-radius:4px;
 }
 
 .autocomplete_container {
