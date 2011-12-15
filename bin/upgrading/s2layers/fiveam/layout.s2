@@ -263,11 +263,6 @@ function print_stylesheet () {
 /* Main
 ***************************************************************************/
 
-* {
-    margin: 0;
-    padding: 0;
-    }
-
 body {
     margin: 0;
     }
@@ -549,6 +544,7 @@ h2#pagetitle:first-letter {
     text-transform: uppercase;
     }
 
+.metadata ul,
 .metadata ul li {
     margin: 0;
     padding: 0;
@@ -560,6 +556,10 @@ h2#pagetitle:first-letter {
 
 .entry .footer {
     clear: left;
+    }
+
+.footer ul {
+    margin: 0;
     }
 
 .tag {
@@ -871,6 +871,11 @@ dd.month {
     display: inline;
     }
 
+.month dl, .month dt, .month dd {
+    margin: 0;
+    padding: 0;
+    }
+
 .month .datetime,
 .month .access-filter,
 .month .entry-title {
@@ -902,7 +907,6 @@ h3.day-date {
 
 .tags-container .ljtaglist {
     line-height: 1.8em;
-    margin-left: 3em;
     }
 
 .tags-container ul.ljtaglist {
@@ -1024,7 +1028,6 @@ h3.day-date {
 
 ul.userlite-interaction-links {
     list-style: none;
-    padding-top: 1em;
     }
 
 ul.userlite-interaction-links li {
@@ -1121,13 +1124,9 @@ ul.userlite-interaction-links li {
     color: $*color_module_link_active;
     }
 
-.module-search .search-button {
-    margin-left: .2em;
-    padding: .05em;
-    }
-
 .module-search .search-box {
-    padding: .1em;
+    margin-right: 2px;
+    padding: 1px;
     }
 
 /* Footer

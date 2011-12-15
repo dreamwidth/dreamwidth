@@ -194,11 +194,6 @@ function print_stylesheet () {
 
 /*--- Main ---*/
 
-* {
-    margin: 0;
-    padding: 0;
-    }
-
 body {
     margin: 0;
     }
@@ -457,6 +452,7 @@ div.module-calendar th {
     background: $*color_page_background;
     color: $*color_page_text;
     border: 1px solid $*color_entry_border;
+    padding: 0;
     }
 
 div.module-calendar td.empty-day {
@@ -690,6 +686,11 @@ td.day {
 .month td.day-has-entries p a:hover { color: $*color_page_link_hover; }
 .month td.day-has-entries p a:active { color: $*color_page_link_active; }
 
+.month dl, .month dt, .month dd {
+    margin: 0;
+    padding: 0;
+    }
+
 /*--- Tags Page ---*/
 
 .page-tags .tags-container {
@@ -715,6 +716,7 @@ td.day {
 
 .page-tags .tags-container .ljtaglist {
     list-style: none;
+    margin-left: 0;
     }
 
 /*--- Comments ---*/
