@@ -15,7 +15,7 @@
 
 use strict;
 
-my %maint;
+our %maint;
 
 $maint{joinmail} = sub {
     # this needs to be resumeable, so that it can run once every 10 or 15 minutes to digest things

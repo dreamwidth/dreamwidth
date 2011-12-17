@@ -16,7 +16,7 @@
 use strict;
 use GD::Graph::bars;
 
-my %maint;
+our %maint;
 
 $maint{'genstatspics'} = sub
 {

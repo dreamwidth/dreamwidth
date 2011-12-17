@@ -15,7 +15,7 @@
 
 use strict;
 
-my %maint;
+our %maint;
 
 $maint{'clean_caches'} = sub
 {
