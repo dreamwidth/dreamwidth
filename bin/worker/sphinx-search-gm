@@ -88,10 +88,12 @@ sub _build_output {
         # convenience only... they're the same hashrefs you know and love
         my @out;
 
-        my $remote = LJ::get_remote();
         foreach my $match ( @{ $res->{matches} } ) {
             my $entry = LJ::Entry->new( $match->{journal_id}, jitemid => $match->{jitemid} );
-            if ( $entry && $entry->visible_to( $remote ) ) {
+
+            # check for validity, but not for security. Security was filtered for in the query on sphinx
+            # make sure that the journal and poster have the right status for the entry to be visible
+            if ( $entry && $entry->valid && ! $entry->journal->is_inactive && ! $entry->poster->is_suspended ) {
                 # use text only version of event for excerpt purposes.  best effort.
                 $match->{entry} = $entry->event_text;
                 $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
