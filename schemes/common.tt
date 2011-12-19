@@ -88,7 +88,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- IF unread -%] <span id='Inbox_Unread_Count'>([% unread %])</span>[%- END -%]
     [%- -%]</a> &bull; </li>
     [%- -%]<li><a href='[% site.root %]/manage/settings/'>[% 'sitescheme.accountlinks.account' | ml %]</a></li> <br />
-    [%- IF ! identity -%]<li><a href='[% site.root %]/manage/circle/invite'>[% 'sitescheme.accountlinks.invitefriend' | ml %]</a> &bull; </li>[%- END -%]
+    [%- IF ! identity AND dw_scheme.show_invite_link -%]<li><a href='[% site.root %]/manage/circle/invite'>[% 'sitescheme.accountlinks.invitefriend' | ml %]</a> &bull; </li>[%- END -%]
     [%- -%]<li><a href='[% site.root %]/support/'>[% 'sitescheme.accountlinks.help' | ml %]</a></li>
     [%- -%]</div>
 [%- ELSE -%]

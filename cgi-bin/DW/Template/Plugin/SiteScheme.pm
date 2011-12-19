@@ -86,6 +86,10 @@ sub show_logout_button {
     return DW::Request->get->uri !~ m!^/logout!;
 }
 
+sub show_invite_link {
+    return $LJ::USE_ACCT_CODES ? 1 : 0;
+}
+
 =head1 AUTHOR
 
 =over
