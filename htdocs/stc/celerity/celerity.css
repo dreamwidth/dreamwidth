@@ -567,6 +567,11 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
  * Temporary page-specific styling
  * /
 /* talkpage */
+
+.talkform .disabled {
+    background: transparent !important;
+}
+
 .cmtbar { border-bottom: none; border-right: none; }
 td.odd  { background-color: #EEEECC; }
 td.even { background-color: #DDDBBB; }

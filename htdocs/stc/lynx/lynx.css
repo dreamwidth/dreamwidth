@@ -122,6 +122,11 @@ table.grid, table.grid td {
 .section_head { background: #ccc; }
 
 /* talkpage */
+
+.talkform .disabled {
+    background: transparent !important;
+}
+
 td.odd { background-color: #c0c0c0; }
 td.even { background-color: #e2e2e2; }
 td.screened { background-color: #707070; }
