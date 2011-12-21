@@ -31,6 +31,8 @@
 
 .loginq=Log in?
 
+.login.url=Identity URL:
+
 .logyourip=<strong>Notice:</strong> This account is set to log the IP addresses of everyone who comments.
 
 .noaccount=If you don't have an account you can <a [[aopts]]>create one now</a>.
@@ -68,6 +70,10 @@
 .opt.noimage=No Image
 
 .opt.noopenidpost=You must <a [[aopts1]]>set</a> and <a [[aopts2]]>confirm</a> your email address before you can comment.
+
+.opt.openid=OpenID
+
+.opt.openid.loggedin=OpenID identity:
 
 .opt.openidsignin2=You can comment on this post while signed in with an account from many other sites, once you have confirmed your email address. <a [[aopts]]>Sign in using OpenID</a>.
 

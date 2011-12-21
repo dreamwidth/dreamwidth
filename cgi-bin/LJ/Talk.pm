@@ -1608,7 +1608,7 @@ sub talkform {
                 $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) . "</td>";
                 $ret .= "<td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'";
                 $ret .= $whocheck->('openid_cookie') . "/>";
-                $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>OpenID identity:</label></b> ";
+                $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>$BML::ML{'.opt.openid.loggedin'}</label></b> ";
 
                 $ret .= "<strong>$logged_in</strong>";
 
@@ -1624,7 +1624,7 @@ sub talkform {
                 $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
                 $ret .= "<td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'" .
                     $whocheck->('openid') . "/>";
-                $ret .= "</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>OpenID</label></b> ";
+                $ret .= "</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>$BML::ML{'.opt.openid'}</label></b> ";
 
                 $ret .= LJ::help_icon_html("openid", " ");
 
@@ -1643,7 +1643,7 @@ sub talkform {
             my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
 
             $ret .= "<tr valign='middle' align='left' id='oid_more'><td colspan='2'></td><td>";
-            $ret .= "Identity URL:&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
+            $ret .= "$BML::ML{'.login.url'}&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
             $ret .= "<br /><label for='oidlogincheck'>$BML::ML{'.loginq'}&nbsp;</label><input type='checkbox' name='oiddo_login' id='oidlogincheck' ";
             $ret .= "checked='checked' " if $form->{'oiddo_login'};
             $ret .= "/></td></tr>\n";
@@ -1671,7 +1671,7 @@ sub talkform {
                     $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(4);' } ) . "</td>";
                     $ret .= "<td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'";
                     $ret .= $whocheck->('openid_cookie') . "/>";
-                    $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>OpenID identity:</label></b> ";
+                    $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>$BML::ML{'.opt.openid.loggedin'}</label></b> ";
 
                     $ret .= "<strong>$logged_in</strong>";
 
@@ -1683,7 +1683,7 @@ sub talkform {
                 $ret .= "<tr valign='middle'><td align='center'>";
                 $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
                 $ret .= "<td align='center'>(  )</td>";
-                $ret .= "<td align='left'><span class='disabled'><strong>OpenID</strong></span>" . " " . BML::ml('.opt.openidsignin2', { 'aopts' => "href='$LJ::SITEROOT/openid'" });
+                $ret .= "<td align='left'><span class='disabled'><strong>$BML::ML{'.opt.openid'}</strong></span>" . " " . BML::ml('.opt.openidsignin2', { 'aopts' => "href='$LJ::SITEROOT/openid'" });
                 $ret .= BML::ml('.opt.noopenidpost', { aopts1 => "href='$LJ::SITEROOT/changeemail'", aopts2 => "href='$LJ::SITEROOT/register'" })
                     if defined $oid_identity;
 
@@ -1716,9 +1716,9 @@ sub talkform {
                 if ( $remote_can_comment ) {
                     $ret .= "<td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'";
                     $ret .= $whocheck->('openid_cookie') . "/>";
-                    $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>OpenID identity:</label></b> ";
+                    $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>$BML::ML{'.opt.openid.loggedin'}</label></b> ";
                 } else {
-                    $ret .= "<td align='center'>( )</td><td align='left'><span class='disabled'><strong>OpenID identity:</strong></span>&nbsp;";
+                    $ret .= "<td align='center'>( )</td><td align='left'><span class='disabled'><strong>$BML::ML{'.opt.openid.loggedin'}</strong></span>&nbsp;";
                 }
 
                 $ret .= "<strong>$logged_in</strong>";
@@ -1737,7 +1737,7 @@ sub talkform {
                 $ret .= LJ::img( 'id_openid', '', { onclick => 'handleRadios(3);' } ) . "</td>";
                 $ret .= "<td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'" .
                     $whocheck->('openid') . "/>";
-                $ret .= "</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>OpenID</label></b> ";
+                $ret .= "</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>$BML::ML{'.opt.openid'}</label></b> ";
 
                 $ret .= LJ::help_icon_html("openid", " ");
 
@@ -1757,7 +1757,7 @@ sub talkform {
             my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
 
             $ret .= "<tr valign='middle' align='left' id='oid_more'><td colspan='2'></td><td>";
-            $ret .= "Identity URL:&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
+            $ret .= "$BML::ML{'.login.url'}&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
             $ret .= "<br /><label for='oidlogincheck'>$BML::ML{'.loginq'}&nbsp;</label><input type='checkbox' name='oiddo_login' id='oidlogincheck' ";
             $ret .= "checked='checked' " if $form->{'oiddo_login'};
             $ret .= "/></td></tr>\n";
