@@ -443,6 +443,17 @@ init: function(formData) {
     initCrosspost();
     initToolbar();
 
+    $.getJSON("/__rpc_entryformcollapse", null, function(data) {
+        var xhr = this;
+        $.ui.collapsible.cache = data;
+        // make all components collapsible
+        $("#post_entry .component").collapsible({ /*expanded: expanded[val],*/
+            parseid: function() { return this.attr("id").replace("_component","") },
+            endpointurl: xhr.url,
+            trigger: "h3" });
+    })
+
+
     // trigger all handlers associated with a journal selection
     if ( $("#usejournal").length == 1 ) {
         $("#usejournal").triggerHandler("change");

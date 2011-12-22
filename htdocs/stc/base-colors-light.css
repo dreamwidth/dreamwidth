@@ -32,10 +32,6 @@
   color: #444;
   text-shadow: 1px 1px 0px #fff;
 }
-.component-header-hover {
-  background-color: #ccc;
-}
-
 .ui-widget-header {
   background-color:#F2F2F2;
   background-image: url();

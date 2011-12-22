@@ -311,7 +311,7 @@ ul.icon-functions li {
 
 /* Display Dates */
 
-#displaydate_component .ui-icon {
+#displaydate_component .inner .ui-icon {
     float: left;
     margin-right: 0.5em;
 }

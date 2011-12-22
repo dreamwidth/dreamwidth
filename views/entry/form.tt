@@ -52,6 +52,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "js/md5.js"
     "js/jquery.crosspost.js"
 
+    # collapsing
+    "js/jquery.collapsible.js"
+    "stc/jquery.collapsible.css"
+
     # page-specific
     "js/jquery.postform.js"
 ) -%]

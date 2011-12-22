@@ -13,7 +13,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 -%]
 
   <fieldset>
-    <h3>[% ".header" | ml %]</h3>
+    <h3 class='ui-corner-top'>[% ".header" | ml %]</h3>
     <div class="inner">
         [%- label = ".label.tags" | ml;
         form.textarea( label = label

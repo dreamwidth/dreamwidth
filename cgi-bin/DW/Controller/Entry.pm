@@ -43,6 +43,7 @@ DW::Routing->register_string( '/entry/preview', \&preview_handler, app => 1, met
 
 DW::Routing->register_string( '/entry/options', \&options_handler, app => 1 );
 DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app => 1 );
+DW::Routing->register_string( '/__rpc_entryformcollapse', \&collapse_rpc_handler, app => 1, methods => { GET => 1 }, format => 'json' );
 
                              # /entry/username/ditemid/edit
 #DW::Routing->register_regex( '^/entry/(?:(.+)/)?(\d+)/edit$', \&edit_handler, app => 1 );
@@ -1072,6 +1073,48 @@ sub options_rpc_handler {
     $r->status( @{$vars->{error_list} || []} ? HTTP_BAD_REQUEST : HTTP_OK );
 
     return DW::Template->render_template( 'entry/options.tt', $vars, { fragment => 1 } );
+}
+
+=head2 C<< DW::Controller::Entry::collapse_rpc_handler( ) >>
+
+Load or save entry form module header settings
+
+=cut
+sub collapse_rpc_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $u = $rv->{remote};
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+
+    my $module = $args->{id} || "";
+    my $expand = $args->{expand} && $args->{expand} eq "true" ? 1 : 0;
+
+    my $show = sub {
+        $r->print( JSON::objToJson( $u->entryform_panels_collapsed ) );
+        return $r->OK;
+    };
+
+    if ( $module ) {
+        my $is_collapsed = $u->entryform_panels_collapsed;
+
+        # no further action needed
+        return $show->() if $is_collapsed->{$module} && ! $expand;
+        return $show->() if ! $is_collapsed->{$module} && $expand;
+
+        if ( $expand ) {
+            delete $is_collapsed->{$module};
+        } else {
+            $is_collapsed->{$module} = 1;
+        }
+        $u->entryform_panels_collapsed( $is_collapsed );
+
+        return $show->();
+    } else {
+        # just view
+        return $show->();
+    }
 }
 
 sub _load_visible_panels {
