@@ -156,7 +156,7 @@
                 - 5
             );
 
-            $("#tagselector_search").bind("keyup", _filter);
+            $("#tagselector_search").bind("keyup click", _filter);
             $("#tagselector_select").click(_save);
 
             _initTags();

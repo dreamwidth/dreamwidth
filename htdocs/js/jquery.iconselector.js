@@ -191,7 +191,7 @@
 
             $("button", $.fn.iconselector.instance.siblings()).attr("disabled", "true");
             $(":input", $.fn.iconselector.instance).attr("disabled", "true");
-            $("#iconselector_search", $.fn.iconselector.instance).bind("keyup", _filterPics);
+            $("#iconselector_search", $.fn.iconselector.instance).bind("keyup click", _filterPics);
 
             var url = Site.currentJournalBase ? "/" + Site.currentJournal + "/__rpc_userpicselect" : "/__rpc_userpicselect";
             $.getJSON(url,
