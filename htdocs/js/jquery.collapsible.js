@@ -16,8 +16,11 @@ $.widget("ui.collapsible", {
             return self;
 
         var opts = self.options;
+        self._target = $(opts.target, self.element)
         self._trigger = $trigger;
-        self._target = $(opts.target, self.element);
+
+        self._target.attr("aria-live","polite").filter(":not([id])").attr("id", "collapsibletarget_" + self.element.attr("id"))
+        self._trigger.attr("aria-controls", self._target.attr("id"))
         self.element.data("collapsibleid", $.proxy(opts.parseid, self.element)());
 
         $trigger.ultrafocus(function() {
