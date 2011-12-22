@@ -13,8 +13,8 @@
 
         $("<button class='tagselector_trigger ui-state-default'>browse</button>")
             .click(function(e) {
-                    _open.apply( $.fn.tagselector.owner, [ opts ] );
                     e.preventDefault();
+                    _open.apply( $.fn.tagselector.owner, [ opts ] );
             })
             .insertAfter($(this).closest("div"));
 
@@ -142,7 +142,7 @@
         $.each(data, function(index, value) {
             var attr = _as_attr(value);
             $("<li>").append(
-                $( "<input>", { "type": "checkbox", id: "tagselector_tag_" + attr, "value": value, "checked": selected[value] } ),
+                $( "<input>", { "type": "checkbox", "id": "tagselector_tag_" + attr, "value": value, "checked": selected[value] } ),
                 $("<label>", { "for": "tagselector_tag_" + attr } ).text(value) )
             .appendTo($tagslist)
         });

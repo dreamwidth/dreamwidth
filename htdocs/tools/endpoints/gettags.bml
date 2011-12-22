@@ -37,8 +37,11 @@ _c?>
     if (keys %$tags) {
         @tag_names = map { $_->{name} } values %$tags;
         @tag_names = sort { lc $a cmp lc $b } @tag_names;
+        @tag_names = map { my $tag = $_;
+                            $tag =~ /^\d+$/ ? sub { $tag . "" } : $tag } @tag_names;
     }
 
+    local $JSON::ExecCoderef = 1;
     return JSON::objToJson({ tags => \@tag_names });
 }
 _code?>
