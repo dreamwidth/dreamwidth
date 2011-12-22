@@ -18,7 +18,9 @@
     padding: 2px;
     vertical-align: top;
 }
-
+#qrform td a {
+    vertical-align: top;
+}
 
 .userpic {
     margin-bottom: 0px;
