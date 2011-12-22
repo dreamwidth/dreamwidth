@@ -18,12 +18,16 @@
 #
 
 use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+
+BEGIN { require "ljlib.pl"; }
 use File::Basename ();
 use File::Path ();
 use Getopt::Long;
-use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::Config; LJ::Config->load;
 use LJ::LangDatFile;
+use LJ::Lang;
+use LJ::Web;
 
 my $opt_help = 0;
 my $opt_local_lang;
@@ -65,15 +69,6 @@ Where <command> is one of:
 
 ';
 }
-
-## make sure $LJHOME is set so we can load & run everything
-unless (-d $ENV{'LJHOME'}) {
-    die "LJHOME environment variable is not set, or is not a directory.\n".
-        "You must fix this before you can run this database update script.";
-}
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-use LJ::Lang;
-use LJ::Web;
 
 my %dom_id;     # number -> {}
 my %dom_code;   # name   -> {}
