@@ -42,7 +42,7 @@ init: function(formData) {
         $select.change(update_icon_preview);
 
         $("#post_entry").bind( "journalselect", function( e, journal ) {
-            if ( journal.name ) {
+            if ( journal.name && journal.isremote ) {
                 $("#icons_component").not(".inactive_component").slideDown()
             } else {
                 $("#icons_component").not(".inactive_component").slideUp()
@@ -266,10 +266,18 @@ init: function(formData) {
                 journal = $this.val();
                 iscomm = journal !== $.trim($("#post_as_remote").next("label").text());
             }
-            $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm});
+            $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: true});
+        });
+        $("#postas_usejournal, #post_username").change(function() {
+            var journal, iscomm;
+            var postas = $.trim($("#post_username").val());
+            journal = $.trim($("#postas_usejournal").val()) || postas;
+            iscomm = journal !== postas;
+            console.log(journal, postas)
+            $(this).trigger( "journalselect", {"name":journal, "iscomm":iscomm, isremote: false});
         });
         $("#post_as_other").click(function() {
-            $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false } );
+            $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false, isremote: true } );
         })
         $("#post_as_remote").click(function() {
             $("#usejournal").triggerHandler("change");
@@ -340,7 +348,7 @@ init: function(formData) {
 
         $("#post_entry").bind( "journalselect", function(e, journal) {
             var anon = ! journal.name
-            if ( anon || journal.iscomm )
+            if ( anon || journal.iscomm || ! journal.isremote )
                 $("#custom_access_groups").slideUp();
 
             var $security = $("#security");
@@ -359,7 +367,7 @@ init: function(formData) {
         $("#crosspost_component").crosspost();
 
         $("#post_entry").bind("journalselect", function(e, journal) {
-            if ( journal.name )
+            if ( journal.name && journal.isremote )
                 $("#crosspost_component").crosspost("toggle", "community", ! journal.iscomm, true);
             else
                 $("#crosspost_component").crosspost("toggle", "unknown", false, true);
@@ -440,7 +448,7 @@ init: function(formData) {
         $("#usejournal").triggerHandler("change");
     } else {
         // not logged in and no usejournal
-        $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false } );
+        $("#post_entry").trigger( "journalselect", { name: undefined, iscomm: false, isremote: true } );
     }
 } }
 })(jQuery);
