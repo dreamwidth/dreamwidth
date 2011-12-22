@@ -58,54 +58,12 @@
         $("#taglist").trigger("autocomplete_inittext", tags);
     }
 
-    function _selectContainer($container, keyword, replaceKwMenu) {
-        $("#"+$.fn.tagselector.selected).removeClass(opts.selectedClass);
-        if ( $container.length == 0 ) return;
-
-        $.fn.iconselector.selected = $container.attr("id");
-        $container.addClass(opts.selectedClass);
-        $container.show();
-
-        if ( keyword != null ) {
-            // select by keyword
-            $.fn.iconselector.selectedKeyword = keyword;
-        } else {
-            // select by picid (first keyword)
-            $.fn.iconselector.selectedKeyword = $container.data("defaultkw");
-        }
-
-        if ( replaceKwMenu ) {
-            var $keywords = $container.find(".keywords");
-            $(".iconselector_top .keywords", $.fn.iconselector.instance)
-                .replaceWith($keywords.clone());
-            if ($keywords.length > 0)
-                $("#iconselector_select").removeAttr("disabled");
-            else
-                $("#iconselector_select").attr("disabled", "disabled");
-        } else {
-            $(".iconselector_top .selected", $.fn.iconselector.instance)
-                .removeClass("selected");
-        }
-
-        // can't rely on a cached value, because it may have been replaced
-        $(".iconselector_top .keywords", $.fn.iconselector.instance)
-            .find("a.keyword")
-            .filter(function() {
-                return $(this).text() == $.fn.iconselector.selectedKeyword;
-            })
-            .addClass("selected");
-    }
-
     function _filter(event) {
         var val = $("#tagselector_search").val().toLocaleLowerCase();
         $("#tagselector_tags_list li").hide().each(function(i, item) {
             if ( $(this).text().indexOf(val) != -1 )
                 $(this).show();
         });
-
-        var $visible = $("#tagselector_tags_list li:visible");
-        if ( $visible.length == 1 )
-            _selectContainer($visible);
     };
 
     function _dialogHTML() {
