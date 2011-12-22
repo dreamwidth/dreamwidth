@@ -174,7 +174,9 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
                 <!-- TODO make this only take up one tab area? -->
                 <div class="toolbar">
                     <div id="main-tools" class='subtoolbar'>
+                        [%- IF remote.can_create_polls OR journalu.can_create_polls -%]
                         <a href="[%site.root%]/poll/create" class="external-link" target="_blank">Create Poll <span class="ui-icon ui-icon-newwin"></span></a>
+                        [%- END -%]
                         <a href="#" class="unimplemented"><img src="[% site.imgroot%]/silk/site/help.png" alt="Help for valid HTML tags" title="Help for valid HTML tags" width="16" height="16"></a>
                         <a href="[%site.root%]/entry/options" id="post_options"><img src="[% site.imgroot%]/silk/site/cog.png" alt="Edit entry form settings" title="Edit entry form settings" width="16" height="16"></a>
                     </div>
