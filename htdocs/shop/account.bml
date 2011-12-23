@@ -67,17 +67,18 @@ body<=
         $ret .= "<p>" . BML::ml( '.intro.new', { aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</p>";
     }
 
+    my $post_fields = {};
     if ( LJ::did_post() ) {
         return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
             unless LJ::check_form_auth();
 
         my $error;
-        my $post_fields = LJ::Widget::ShopItemOptions->post_fields( \%POST );
+        $post_fields = LJ::Widget::ShopItemOptions->post_fields( \%POST );
         if ( keys %$post_fields ) { # make sure the user selected an account type
             # need to do this because all of these form fields are in the BML page instead of in the widget
             LJ::Widget->use_specific_form_fields( post => \%POST,
                                                   widget => "ShopItemOptions",
-                                                  fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous reason ) ] );
+                                                  fields => [ qw( for username email deliverydate_mm deliverydate_dd deliverydate_yyyy anonymous reason alreadyposted ) ] );
             my %from_post = LJ::Widget->handle_post( \%POST, ( 'ShopItemOptions' ) );
             $error = $from_post{error} if $from_post{error};
         } else {
@@ -95,14 +96,14 @@ body<=
     $ret .= "<form method='post'>";
     $ret .= LJ::form_auth();
     $ret .= "<table summary='' class='shop-table'><tr>";
-    $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'prem' ) . "</td>";
-    $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'paid' ) . "</td>"
+    $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'prem', post => $post_fields ) . "</td>";
+    $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'paid', post => $post_fields ) . "</td>"
         if $for ne 'self' || DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
     $ret .= "</tr>";
 
     if ( DW::Pay::num_permanent_accounts_available() > 0 ) {
         $ret .= "<tr><td colspan='2'>";
-        $ret .= LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'seed' );
+        $ret .= LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'seed', post => $post_fields );
         $ret .= "</td></tr>";
     }
 
@@ -112,7 +113,7 @@ body<=
         $ret .= "<table summary='' class='shop-table-gift'>";
 
         if ( $for eq 'gift' ) {
-            $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username', value => LJ::ehtml( $GET{user} ) } ) . "</td></tr>";
+            $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username', value => LJ::ehtml( $POST{username} || $GET{user} ) } ) . "</td></tr>";
         } elsif ( $for eq 'random' ) {
             if ( my $username = LJ::ehtml( $GET{user} ) ) {
                 my $randomu = LJ::load_user( $username );
@@ -127,13 +128,16 @@ body<=
                 $ret .= LJ::html_hidden( username => '(random)' );
             }
         } else { # $for eq 'new'
-            $ret .= "<tr><td>$ML{'.giftfor.email'}</td><td>" . LJ::html_text( { name => 'email' } ) . "</td></tr>";
+            $ret .= "<tr><td>$ML{'.giftfor.email'}</td><td>" . LJ::html_text( { name => 'email', value => LJ::ehtml( $POST{email} ) } ) . "</td></tr>";
         }
 
         $ret .= "<tr><td>$ML{'.giftfor.deliverydate'}</td>";
+        my $deliverydate = $POST{deliverydate_mm} && $POST{deliverydate_dd} && $POST{deliverydate_yyyy}
+                    ? "$POST{deliverydate_yyyy}-$POST{deliverydate_mm}-$POST{deliverydate_dd}"
+                    : DateTime->today->date;
         $ret .= "<td>" . LJ::html_datetime( {
             name => 'deliverydate',
-            default => DateTime->today->date,
+            default => $deliverydate,
             notime => 1,
         } ) . "</td></tr>";
         $ret .= "<tr><td>$ML{'.giftfor.anonymous'}</td>";
@@ -142,6 +146,7 @@ body<=
             value => 1,
             selected => $remote ? 0 : 1,
             disabled => $remote ? 0 : 1,
+            selected => $POST{anonymous},
         } ) . "</td></tr>";
 
         if ( DW::Shop::Item::Account->can_have_reason ) {
@@ -150,7 +155,8 @@ body<=
                                         name => 'reason',
                                         rows => 6,
                                         cols => 60,
-                                        wrap => 'soft'
+                                        wrap => 'soft',
+                                        value => $POST{reason},
                                        } );
             $ret .= "</td></tr>";
         }
@@ -159,6 +165,7 @@ body<=
     }
 
     $ret .= LJ::html_hidden( for => $GET{for} );
+    $ret .= LJ::html_hidden( alreadyposted => 1 ) if LJ::did_post();
     $ret .= "<p>" . LJ::html_submit( $ML{'.btn.addtocart'} ) . "</p>";
     $ret .= "</form>";
 

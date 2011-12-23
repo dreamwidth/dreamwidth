@@ -278,7 +278,7 @@ sub add_item {
 
     # make sure this item is allowed to be added
     my $error;
-    unless ( $item->can_be_added( errref => \$error ) ) {
+    unless ( $item->can_be_added( errref => \$error, user_confirmed => delete $item->{user_confirmed} ) ) {
         return ( 0, $error );
     }
 

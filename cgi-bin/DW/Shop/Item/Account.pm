@@ -290,6 +290,12 @@ sub can_be_added {
         return 0;
     }
 
+    # check to make sure that the target user is valid: not deleted / suspended, etc
+    if ( ! $opts{user_confirmed} && LJ::isu( $target_u ) && $target_u->is_inactive ) {
+        $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.notactive', { user => $target_u->ljuser_display } );
+        return 0;
+    }
+
     # check to make sure the target user's current account type doesn't conflict with the item
     if ( LJ::isu( $target_u ) ) {
         my $account_type = DW::Pay::get_account_type( $target_u );

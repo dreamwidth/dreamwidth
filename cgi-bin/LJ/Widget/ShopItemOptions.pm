@@ -69,6 +69,7 @@ sub render_body {
                 name => $option_name,
                 id => $full_item,
                 value => $full_item,
+                selected => ($opts{post}->{$option_name} || "") eq $full_item,
             ) . " <label for='$full_item'>$price_string</label><br />";
         }
     }
@@ -154,7 +155,7 @@ sub handle_post {
     # conflict or something
     if ( $post->{accttype} ) {
         my ( $rv, $err ) = $cart->add_item(
-            DW::Shop::Item::Account->new( type => $post->{accttype}, %item_data )
+            DW::Shop::Item::Account->new( type => $post->{accttype}, user_confirmed => $post->{alreadyposted}, %item_data )
         );
         return ( error => $err ) unless $rv;
     } elsif ( $post->{item} eq "rename" ) {

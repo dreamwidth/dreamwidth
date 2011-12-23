@@ -3542,6 +3542,8 @@ shop.item.account.canbeadded.nopaidforpremium=[[user]] has a Premium Paid Accoun
 
 shop.item.account.canbeadded.noperms=There are no more seed accounts available for purchase at this time.
 
+shop.item.account.canbeadded.notactive=[[user]] is not currently active. Submit your order again to confirm that you want to buy them paid time.
+
 shop.item.account.conflicts.differentpaid=You cannot purchase two different types of paid accounts for the same person.
 
 shop.item.account.conflicts.multipleperms=You cannot purchase more than one seed account for the same person.
