@@ -178,7 +178,7 @@ _c?>
             $what += 0;
             my $u = LJ::load_userid($what);
             return $error->('No such posterid.') unless $u;
-            $title = "Spam Reports - By" . $u->ljuser_display . "($state)";
+            $title = "Spam Reports - By " . $u->ljuser_display . "($state)";
         } elsif ($by eq 'poster') {
             my $u = LJ::load_user($what);
             return $error->('No such user.') unless $u;
@@ -306,5 +306,6 @@ _c?>
 }
 _code?><?page
 title=><?_code return $title; _code?>
+windowtitle=><?_code return LJ::strip_html( $title ); _code?>
 body=><?_code return $body; _code?>
 page?>
