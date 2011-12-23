@@ -199,9 +199,10 @@ sub handle_post {
     LJ::load_codes({ "country" => \%countries});
 
     my $state_inline_desc = $class->ml('widget.location.fn.state.inline');
+    my $state_from_dropdown = $class->ml('states.head.defined');
     my $city_inline_desc = $class->ml('widget.location.fn.city.inline');
 
-    $post->{stateother} = "" if $post->{stateother} eq $state_inline_desc;
+    $post->{stateother} = "" if $post->{stateother} eq $state_inline_desc || $post->{stateother} eq $state_from_dropdown;
     $post->{city} = "" if $post->{city} eq $city_inline_desc;
 
     my $regions_cfg = $class->country_regions_cfg($post->{'country'});
