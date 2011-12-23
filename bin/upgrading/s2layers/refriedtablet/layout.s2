@@ -41,8 +41,8 @@ propgroup colors_child {
 propgroup fonts_child {
     property string font_view_text {
         des = "Preferred font for page view titles";
-        maxlength = 25;
-        size = 15;
+        maxlength = 50;
+        size = 25;
         note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
         }
 
@@ -58,8 +58,8 @@ propgroup fonts_child {
 
     property string font_comment_special {
         des = "Preferred font for frozen and screened comments";
-        maxlength = 25;
-        size = 15;
+        maxlength = 50;
+        size = 25;
         note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
         }
 

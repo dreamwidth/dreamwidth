@@ -85,8 +85,8 @@ propgroup fonts {
 
     property string font_entry_text {
         des = "Preferred font for entry text";
-        maxlength = 25;
-        size = 15;
+        maxlength = 50;
+        size = 25;
         note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
         }
     property string font_entry_text_size {
@@ -106,8 +106,8 @@ propgroup fonts {
 
     property string font_navigation_module_text {
         des = "Preferred font for navigation module text";
-        maxlength = 25;
-        size = 15;
+        maxlength = 50;
+        size = 25;
         note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
         }
     property string font_navigation_module_text_size {
@@ -123,8 +123,8 @@ propgroup fonts {
     property use font_module_heading_units;
     property string font_other_module_text {
         des = "Preferred font for module text other than navigation module";
-        maxlength = 25;
-        size = 15;
+        maxlength = 50;
+        size = 25;
         note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
         }
     property string font_other_module_text_size {
@@ -138,8 +138,8 @@ propgroup fonts {
 
     property string font_date_time {
         des = "Preferred font for date and time in entries and comments";
-        maxlength = 25;
-        size = 15;
+        maxlength = 50;
+        size = 25;
         note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
         }
     property string font_date_time_size {
