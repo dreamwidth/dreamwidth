@@ -75,14 +75,25 @@ sub render_body {
         $ret .= "<div style='margin-left: 30px'><p>";
 
         my @choices;
+        my $has_nonpublic = 0;
+
         foreach (sort { $a->{sortorder} <=> $b->{sortorder} } values %$cats) {
             next unless $_->{is_selectable};
-            push @choices, $_->{spcatid}, $_->{catname};
+
+            my $catname = $_->{catname};
+            unless ( $_->{public_read} ) {
+                $catname .= "*";
+                $has_nonpublic = 1;
+            }
+
+            push @choices, $_->{spcatid}, $catname;
         }
 
         $ret .= $class->html_select(name => 'spcatid', list => \@choices, selected => $post->{spcatid});
         $ret .= LJ::Hooks::run_hook("support_request_cat_extra_text") || '';
-        $ret .= "</p></div>";
+        $ret .= "</p>";
+        $ret .= "<p class='note'>" . $class->ml( 'widget.support.submit.nonpublic' ) . "</p>" if $has_nonpublic;
+        $ret .= "</div>";
     }
 
     if (LJ::is_enabled("support_request_language")) {

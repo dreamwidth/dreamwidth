@@ -5115,6 +5115,8 @@ widget.support.submit.language.other=(Other)
 
 widget.support.submit.login.note=If you're a [[sitename]] user, <a [[loginlink]]>please log in</a> before submitting your request.
 
+widget.support.submit.nonpublic=* Only visible to staff and those trusted volunteers with appropriate privileges
+
 widget.support.submit.notshow=(not shown to the public)
 
 widget.support.submit.question=Question or Problem
