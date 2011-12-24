@@ -21,6 +21,7 @@
     border-style: dashed;
     min-height: 200px;
     padding: 1em 0 10em 0 !important;
+    top: -1em;
     position: relative;
 }
 
@@ -70,6 +71,7 @@
     border-style: none;
     min-height: 0;
     padding: 0 !important;
+    top: 0;
 }
 
 .ui-sortable-disabled .component {
