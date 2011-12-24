@@ -30,7 +30,9 @@ _c?>
 
     $body = "";
 
-    LJ::need_res(qw(js/core.js js/dom.js js/colorpicker.js));
+    LJ::need_res( { group => "jquery" }, qw( js/colorpicker.js js/jquery.circle-add.js ) );
+    LJ::set_active_resource_group( "jquery" );
+
     LJ::set_active_crumb('addfriend');
 
     unless ($remote)
@@ -261,7 +263,7 @@ _c?>
 
     # trust group buttons
     if ( $remote->can_trust( $u ) && @trust_groups ) {
-        $body .= "<div style='float: left; width: 45%; padding: 1em;'>";
+        $body .= "<div class='add_trust' style='float: left; width: 45%; padding: 1em;'>";
         $body .= "<?p &nbsp;<br />";
         $body .= "$ML{'.groups.text1'} p?>\n";
         foreach my $group ( @trust_groups ) {
@@ -278,7 +280,7 @@ _c?>
 
     # content filter buttons
     if ( $remote->can_watch( $u ) && @content_filters ) {
-        $body .= "<div style='float: left; width: 45%; padding: 1em;'><?p &nbsp;<br />";
+        $body .= "<div class='add_watch' style='float: left; width: 45%; padding: 1em;'><?p &nbsp;<br />";
         $body .= "$ML{'.groups.reading'} p?>\n";
         my @sorted_content_filters = sort { $a->{sortorder} <=> $b->{sortorder} } @content_filters;
         foreach my $filter ( @sorted_content_filters ) {
@@ -298,6 +300,7 @@ _c?>
 
     my $color_switch_checked = $custom_colors ?  "checked=\"checked\"" : "";
 
+    $body .= "<div class='add_watch'>";
     ## let them pick the colors
     my $color_text = "<?p <table summary=\\'\\'><tr><td valign=\"top\"><i>$ML{'.optional'}:</i> ".
              "<input type=\"checkbox\" id=\"color_switch\" name=\"color_switch\" onClick=\"color_display(this);\" $color_switch_checked> </td><td><label for=\"color_switch\">" .
@@ -306,9 +309,9 @@ _c?>
     $body .= "<script>\n";
     $body .= "function color_display(check) {\n";
     $body .= "  if (check.checked) {\n";
-    $body .= "    \$(\"color_opt\").style.display = '';\n";
+    $body .= "    \$(\"#color_opt\").slideDown();\n";
     $body .= "  } else {\n";
-    $body .= "    \$(\"color_opt\").style.display = 'none';\n";
+    $body .= "    \$(\"#color_opt\").slideUp();\n";
     $body .= "  }\n";
     $body .= "}\n";
     $body .= "var text = '$color_text';\n";
@@ -325,8 +328,8 @@ _c?>
     my $ret = "";
     $ret .= "  <div id='color_opt'>\n";
     $ret .= "<script>\n";
-    $ret .= "  \$(\"color_opt\").style.display = 'none'\n";
-    $ret .= "  color_display(\$(\"color_switch\"));\n";
+    $ret .= "  \$(\"#color_opt\").hide()\n";
+    $ret .= "  color_display(\$(\"#color_switch\"));\n";
     $ret .= "</script>\n";
 
     $ret .= "<?p <script type=\"text/javascript\" language=\"JavaScript\">\n<!--\ndocument.write(\"<span style='font-size: 7pt;'>";
@@ -548,7 +551,7 @@ _c?>
    p?>
    ~;
 
-    $ret .= "</div>\n";
+    $ret .= "</div></div>\n";
 
    if ( $u->is_community ) {
        $body .= "<br />$ML{'.disclaimer'}";
