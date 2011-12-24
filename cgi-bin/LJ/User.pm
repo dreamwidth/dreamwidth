@@ -3275,7 +3275,8 @@ sub ljuser_display {
         my $profile = $profile_url ne '' ? $profile_url :
             "$LJ::SITEROOT/profile?userid=" . $u->userid . "&amp;t=I$andfull";
 
-        return "<span lj:user='$name' style='white-space: nowrap;$strike'$display_class><a href='$profile'>" .
+        my $lj_user = $opts->{no_ljuser_class} ? "" : " lj:user='$name'";
+        return "<span$lj_user style='white-space: nowrap;$strike'$display_class><a href='$profile'>" .
             "<img src='$imgurl' alt='[$type profile] ' width='$width' height='$height'" .
             " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a>" .
             "<a href='$url' rel='nofollow'><b>$name</b></a></span>";
@@ -8335,6 +8336,7 @@ sub ljuser
         # Backwards check, because we want it to default to on
         my $bold = (exists $opts->{'bold'} and $opts->{'bold'} == 0) ? 0 : 1;
         my $ljusername = $bold ? "<b>$user</b>" : "$user";
+        my $lj_user = $opts->{no_ljuser_class} ? "" : " lj:user='$user'";
 
         my $alttext = $type ? "$type profile" : "profile";
 
@@ -8347,7 +8349,7 @@ sub ljuser
         $profile = $profile_url ne '' ? $profile_url : $profile . $andfull;
         $url = $journal_url ne '' ? $journal_url : $url;
 
-        return "<span lj:user='$user' style='white-space: nowrap;$strike'$display_class>" .
+        return "<span$lj_user style='white-space: nowrap;$strike'$display_class>" .
             "<a href='$profile'><img src='$img/$fil' alt='[$alttext] ' width='$x' height='$y'" .
             " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a>" .
             "<a href='$url'$link_color>$ljusername</a></span>";
