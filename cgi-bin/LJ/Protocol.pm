@@ -1361,6 +1361,14 @@ sub postevent
     unless ($req->{'props'}->{"opt_backdated"}) {
         $rlogtime -= $now;
     }
+    my $logtime = "FROM_UNIXTIME($now)";
+
+    # this is when the entry was posted. for most cases this is accurate but in case
+    # we're using the importer in the community case, it will mess life up.
+    if ( $importer_bypass && $posterid != $ownerid ) {
+        $logtime = $qeventtime;
+        $rlogtime = "$LJ::EndOfTime - UNIX_TIMESTAMP($qeventtime)";
+    }
 
     my $dupsig = Digest::MD5::md5_hex(join('', map { $req->{$_} }
                                            qw(subject event usejournal security allowmask)));
@@ -1523,7 +1531,7 @@ sub postevent
     my $dberr;
     $uowner->log2_do(\$dberr, "INSERT INTO log2 (journalid, jitemid, posterid, eventtime, logtime, security, ".
                      "allowmask, replycount, year, month, day, revttime, rlogtime, anum) ".
-                     "VALUES ($ownerid, $jitemid, $posterid, $qeventtime, FROM_UNIXTIME($now), $qsecurity, $qallowmask, ".
+                     "VALUES ($ownerid, $jitemid, $posterid, $qeventtime, $logtime, $qsecurity, $qallowmask, ".
                      "0, $req->{'year'}, $req->{'mon'}, $req->{'day'}, $LJ::EndOfTime-".
                      "UNIX_TIMESTAMP($qeventtime), $rlogtime, $anum)");
     return $fail->($err,501,$dberr) if $dberr;

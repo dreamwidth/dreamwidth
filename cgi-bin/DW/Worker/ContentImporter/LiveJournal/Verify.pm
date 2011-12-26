@@ -77,6 +77,19 @@ sub try_work {
     return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
         if ! $r || $r->{fault};
 
+    # If this is a community import, we have to do a second step now to make sure
+    # that the user is an administrator of the remote community. The best way I can
+    # come up with is try to unban the owner -- if it works, you're an admin.
+    if ( $data->{usejournal} ) {
+        $r = $class->call_xmlrpc( $data, 'consolecommand', {
+            commands => [ "ban_unset $data->{username} from $data->{usejournal}" ],
+        } );
+        return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
+            if ! $r || $r->{fault};
+        return $fail->( 'You are not an administrator/maintainer of the remote community.' )
+            unless $r->{results}->[0]->{output}->[0]->[0] eq 'success';
+    }
+
     # mark the next group as ready to schedule
     my $dbh = LJ::get_db_writer();
     $dbh->do(

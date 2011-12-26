@@ -1,4 +1,6 @@
 ;; -*- coding: utf-8 -*-
+.error.cant_import_comm=Community imports are not currently available for the chosen community.
+
 .error.notperson=You must be logged in to a personal account (not OpenID) in order to import content into it.
 
 .intro<<

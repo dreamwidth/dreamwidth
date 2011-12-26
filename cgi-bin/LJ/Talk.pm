@@ -1300,7 +1300,8 @@ sub load_comments
                 }
                 $post->{picid} = $id;
                 $post->{pickw} = $kw;
-                push @load_pic, [ $pu, $id ];
+                push @load_pic, [ $pu, $id ]
+                    if defined $id;
             }
             load_userpics( $opts->{userpicref}, \@load_pic );
         }
@@ -1336,7 +1337,7 @@ sub load_userpics {
     foreach my $row (@{$idlist})
     {
         my ($u, $id) = @$row;
-        next unless ref $u;
+        next unless ref $u && defined $id;
 
         if ($LJ::CACHE_USERPIC{$id}) {
             $upics->{$id} = $LJ::CACHE_USERPIC{$id};

@@ -32,11 +32,19 @@ body<=
 
     $title = $ML{'.title'};
 
-    my $remote = LJ::get_remote()
-        or return "<?needlogin?>";
+    my $u = LJ::get_remote();
+    my $remote = LJ::get_effective_remote();
+    return "<?needlogin?>" unless $u && $remote;
+
+    # if these aren't the same users, make sure we're allowed to do a community import
+    unless ( $u->equals( $remote ) ) {
+        return $ML{'.error.cant_import_comm'}
+            unless $LJ::ALLOW_COMM_IMPORTS &&
+                ( $u->can_import_comm || $remote->can_import_comm );
+    }
 
     return $ML{'.error.notperson'}
-        unless $remote->is_person;
+        unless $u->is_person;
 
     if ( LJ::did_post() ) {
         return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
@@ -46,13 +54,22 @@ body<=
         if ( $from_post{notloggedin} ) {
             return "<?needlogin?>";
         } elsif ( $from_post{refresh} ) {
-            return BML::redirect( "$LJ::SITEROOT/tools/importer" );
+            my $authas = $remote->equals( $u ) ? "" : "?authas=" . $remote->user;
+            return BML::redirect( "$LJ::SITEROOT/tools/importer$authas" );
         } elsif ( $from_post{ret} ) {
             return "<div class='importer'>$from_post{ret}</div>";
         }
     }
 
-    my $ret = "<p class='intro'>" . BML::ml( '.intro', { sitename => $LJ::SITENAMESHORT, user => $remote->ljuser_display } ) . "</p>";
+    # user switcher
+    my $ret = '';
+    if ( $LJ::ALLOW_COMM_IMPORTS && $u->can_import_comm ) {
+        $ret .= "<form method='get'>\n";
+        $ret .= LJ::make_authas_select($u, { authas => $GET{authas}, showall => 0 });
+        $ret .= "</form>\n\n";
+    }
+
+    $ret .= "<p class='intro'>" . BML::ml( '.intro', { sitename => $LJ::SITENAMESHORT, user => $remote->ljuser_display } ) . "</p>";
     $ret .= LJ::Widget::ImportQueueStatus->render;
 
     if ( LJ::Widget::ImportStatus->should_render ) {

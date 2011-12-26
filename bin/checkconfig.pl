@@ -237,6 +237,7 @@ my %modules = (
                     deb => 'libio-aoi-perl',
                     opt => 'Required for Perlbal',
                  },
+               "LWPx::ParanoidAgent" => { deb => 'liblwpx-paranoidagent-perl' },
               );
 
 

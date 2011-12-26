@@ -221,6 +221,12 @@ sub try_work {
             }
         );
         $parser->parse( $content );
+
+        # this is the best place to test for too many comments. if this site is limiting
+        # the comment imports for some reason or another, we can bail here.
+        return $fail->( $LJ::COMMENT_IMPORT_ERROR || 'Too many comments to import.' )
+            if defined $LJ::COMMENT_IMPORT_MAX && defined $server_max_id &&
+                $server_max_id > $LJ::COMMENT_IMPORT_MAX;
     }
     $log->( 'Finished fetching metadata.' );
 

@@ -34,12 +34,28 @@ sub render_body {
             display_name => $class->ml( 'widget.importstatus.item.lj_bio' ),
             desc => $class->ml( 'widget.importchoosedata.item.lj_bio.desc' ),
             selected => 0,
+            comm_okay => 1,
+        },
+        {
+            name => 'lj_friends',
+            display_name => $class->ml( 'widget.importstatus.item.lj_friends' ),
+            desc => $class->ml( 'widget.importchoosedata.item.lj_friends.desc' ),
+            selected => 0,
+            comm_okay => 0,
+        },
+        {
+            name => 'lj_friendgroups',
+            display_name => $class->ml( 'widget.importstatus.item.lj_friendgroups' ),
+            desc => $class->ml( 'widget.importchoosedata.item.lj_friendgroups.desc', { sitename => $LJ::SITENAMESHORT } ),
+            selected => 0,
+            comm_okay => 0,
         },
         {
             name => 'lj_entries',
             display_name => $class->ml( 'widget.importstatus.item.lj_entries' ),
             desc => $class->ml( 'widget.importchoosedata.item.lj_entries.desc' ),
             selected => 0,
+            comm_okay => 1,
 
             suboptions => [
                 {
@@ -51,34 +67,25 @@ sub render_body {
             ]
         },
         {
-            name => 'lj_friends',
-            display_name => $class->ml( 'widget.importstatus.item.lj_friends' ),
-            desc => $class->ml( 'widget.importchoosedata.item.lj_friends.desc' ),
-            selected => 0,
-        },
-        {
             name => 'lj_comments',
             display_name => $class->ml( 'widget.importstatus.item.lj_comments' ),
             desc => $class->ml( 'widget.importchoosedata.item.lj_comments.desc' ),
             selected => 0,
+            comm_okay => 1,
         },
         {
             name => 'lj_tags',
             display_name => $class->ml( 'widget.importstatus.item.lj_tags' ),
             desc => $class->ml( 'widget.importchoosedata.item.lj_tags.desc' ),
             selected => 0,
+            comm_okay => 1,
         },
         {
             name => 'lj_userpics',
             display_name => $class->ml( 'widget.importstatus.item.lj_userpics' ),
             desc => $class->ml( 'widget.importchoosedata.item.lj_userpics.desc', { sitename => $LJ::SITENAMESHORT } ),
             selected => 0,
-        },
-        {
-            name => 'lj_friendgroups',
-            display_name => $class->ml( 'widget.importstatus.item.lj_friendgroups' ),
-            desc => $class->ml( 'widget.importchoosedata.item.lj_friendgroups.desc', { sitename => $LJ::SITENAMESHORT } ),
-            selected => 0,
+            comm_okay => 1,
         },
     );
 
@@ -90,6 +97,8 @@ sub render_body {
     $ret .= "<div class='importoptions'>";
 
     foreach my $option ( @options ) {
+        next unless $u->is_person || $option->{comm_okay};
+
         $ret .= "<div class='importoption'>";
         $ret .= $class->html_check(
             name => $option->{name},
@@ -165,6 +174,12 @@ sub handle_post {
 
     # everybody needs a verifier
     $post->{lj_verify} = 1;
+
+    # and finally, make sure modes that make no sense for communities are off
+    if ( $u->is_community ) {
+        $post->{lj_friends} = 0;
+        $post->{lj_friendgroups} = 0;
+    }
 
     return ( ret => LJ::Widget::ImportConfirm->render( %$post ) );
 }

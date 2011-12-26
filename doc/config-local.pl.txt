@@ -113,6 +113,14 @@
     #    rename => [ 15, undef, undef, 150 ],
     #);
 
+    # You can turn on/off community importing here.
+    $ALLOW_COMM_IMPORTS = 0;
+
+    # If this is defined and a number, if someone tries to import more than this many
+    # comments in a single import, the error specified will be raised and the job will fail.
+    $COMMENT_IMPORT_MAX = undef;
+    $COMMENT_IMPORT_ERROR = "Importing more than 10,000 comments is currently disabled.";
+
 }
 
 1;

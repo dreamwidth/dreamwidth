@@ -88,7 +88,7 @@ sub render_body {
     $ret .= "<label for='password'>" . $class->ml( 'widget.importchoosesource.password' ) . "</label>";
     $ret .= $class->html_text( type => 'password', name => 'password' );
     $ret .= "</div>";
-    if ( $LJ::ALLOW_COMM_IMPORT{$u->user} ) {
+    if ( $u->is_community ) {
         $ret .= "<div class='i-usejournal'>";
         $ret .= "<label for='usejournal'>" . $class->ml( 'widget.importchoosesource.usejournal' ) . "</label>";
         $ret .= $class->html_text( name => 'usejournal', maxlength => 255 );
@@ -117,13 +117,13 @@ sub handle_post {
     $un =~ s/-/_/g;
 
     # be sure to sanitize the usejournal
-    my $uj = undef;
-    if ( $LJ::ALLOW_COMM_IMPORT{$u->user} ) {
+    my $uj;
+    if ( $u->is_community ) {
         $uj = LJ::trim( lc $post->{usejournal} );
         $uj =~ s/-/_/g;
     }
 
-    my $pw = $post->{password};
+    my $pw = LJ::trim( $post->{password} );
     return ( ret => $class->ml( 'widget.importchoosesource.error.nocredentials' ) )
         unless $un && $pw;
 

@@ -76,7 +76,7 @@ sub try_work {
         q{UPDATE import_items SET status = 'ready'
           WHERE userid = ? AND item IN ('lj_friends', 'lj_entries')
           AND import_data_id = ? AND status = 'init'},
-        undef, $u->id, $opts->{import_data_id}        
+        undef, $u->id, $opts->{import_data_id}
     );
 
     return $ok->();

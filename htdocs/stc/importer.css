@@ -68,6 +68,32 @@ p.intro {
     margin-left: -10px;
 }
 
+.importer .usejournal {
+    border-top: 1px solid #CCC;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.importer .usejournal select {
+    position: absolute;
+    left: 22em;
+    margin-top: -1px;
+}
+
+.importer .usejournal input {
+    position: absolute;
+    left: 22em;
+    margin-top: -1px;
+}
+
+.importer .usejournal label {
+    font-weight: bold;
+}
+
+.importer .usejournal div {
+    margin-bottom: 5px;
+}
+
 .importer .credentials {
     border-top: 1px solid #CCC;
     padding: 10px;
@@ -97,7 +123,7 @@ p.intro {
 }
 
 .importer .importantnote {
-    color: #666;
+    color: #667;
     font-size: 0.9em;
     padding: 10px;
     border-top: 1px solid #CCC;
