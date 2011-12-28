@@ -1515,7 +1515,10 @@ set image_background_header_url = "funkycircles/darkpurple-header.jpg";
 set image_background_page_position = "bottom left";
 set image_background_page_repeat = "no-repeat";
 set image_background_page_url = "funkycircles/darkpurple-page.jpg";
+set image_entry_list_background_url = "funkycircles/darkpurple-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
 set image_module_list = "funkycircles/darkpurple-modulebullet.jpg";
+set image_module_list_active = "funkycircles/darkpurple-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/darkpurple-modulebullethover.jpg";
 
 
