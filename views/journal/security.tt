@@ -1,20 +1,35 @@
-[% IF header %]<h1>[% header | ml %]</h1>[% END %]
+[%# journal/security.tt
+
+Index page to filter by security level
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+
 [% IF message %]<p>[% message | ml %]</p> [% END %]
 
 [% IF levels.size > 0 %]
-<p>[% ".filter.levels" | ml %]</p>
+<p>[% ".filter.levels" | ml %]
 <ul>
     [% FOREACH level IN levels %]
         <li><a href="[%level.link%]">[% level.name_ml | ml %]</a></li>
     [% END %]
 </ul>
+</p>
 [% END %]
 
 [% IF groups.size > 0 %]
-<p>[% ".filter.custom" | ml %]</p>
+<p>[% ".filter.custom" | ml %]
 <ul>
     [% FOREACH group IN groups %]
     <li><a href="[%group.link%]">[%group.name%]</a></li>
     [% END %]
 </ul>
+</p>
 [% END %]

@@ -944,17 +944,13 @@ error.purged.text=This journal has been deleted and purged.
 
 error.purged.title=Purged Account
 
-error.security.disabled=Sorry, the security-filtering system is currently disabled.
+error.security.disabled2=Error: Sorry, the security-filtering system is currently disabled.
 
-error.security.invalid=You have specified an invalid security setting, the access group you specified does not exist, or you are not a member of that group.
+error.security.invalid2=Error: You have specified an invalid security setting, the access group you specified does not exist, or you are not a member of that group.
 
-error.security.name2=Security Filter Error
+error.security.nocap2=Error: This feature is not available for your account level.
 
-error.security.noarg=You must provide a security level to filter by.
-
-error.security.nocap=This feature is not available for your account level.
-
-error.security.s1=Sorry, security filtering is not supported within S1 styles.
+error.security.s1.2=Error: Sorry, security filtering is not supported within S1 styles.
 
 error.support.invalid_category=Invalid support category
 

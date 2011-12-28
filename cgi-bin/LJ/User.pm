@@ -9598,7 +9598,6 @@ sub make_journal {
         my $r = DW::Request->get;
         my $security_err = sub {
             my ( $args, %opts ) = @_;
-            $args->{header} ||= "error.security.name2";
 
             my $status = $opts{status} || $r->NOT_FOUND;
 
@@ -9640,25 +9639,27 @@ sub make_journal {
             }
 
             ${$opts->{handle_with_siteviews_ref}} = 1;
-            return DW::Template->template_string( "journal/security.tt",
+            my $ret = DW::Template->template_string( "journal/security.tt",
                 $args,
                 {
                     status => $status,
                 }
             );
+            $opts->{siteviews_extra_content} = $args->{sections};
+            return $ret;
         };
 
-        return $security_err->( { message => undef, header => "/journal/security.tt.header" }, show_list => 1 )
+        return $security_err->( { message => undef }, show_list => 1 )
             unless $securityfilter;
 
-        return $security_err->( { message => "error.security.nocap" }, status => $r->FORBIDDEN )
+        return $security_err->( { message => "error.security.nocap2" }, status => $r->FORBIDDEN )
             unless LJ::get_cap( $remote, "security_filter" ) || LJ::get_cap( $u, "security_filter" );
 
-        return $security_err->( { message => "error.security.disabled" } )
+        return $security_err->( { message => "error.security.disabled2" } )
             unless LJ::is_enabled( "security_filter" );
 
         # throw an error if we're rendering in S1, but not for renamed accounts
-        return $security_err->( { message => "error.security.s1" } )
+        return $security_err->( { message => "error.security.s1.2" } )
             if $stylesys == 1 && $view ne 'data' && ! $u->is_redirect;
 
         # check the filter itself
@@ -9677,7 +9678,7 @@ sub make_journal {
             }
         }
 
-        return $security_err->( { message => "error.security.invalid" }, show_list => 1 )
+        return $security_err->( { message => "error.security.invalid2" }, show_list => 1 )
             unless defined $opts->{securityfilter};
     }
 
