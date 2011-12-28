@@ -777,22 +777,24 @@ body<=
         $ret .= "<br>\n";
 
         # comment nav
+        my $viewlinks = "";
         my $view_mode = $flat_mode ? "flat" : $top_only ? "top-only" : "threaded";
 
         if ( $view_mode eq "threaded" ) {
-            $ret .= "(<a href = '" . BML::self_link( { view => 'flat'  } ) . "#comments'>" . BML::ml('.commentnav.flat') . "</a>) (<a href = '" . BML::self_link( { view => 'top-only'  } ) . "#comments'>" . BML::ml('.commentnav.toponly') . "</a>)";
+            $viewlinks .= "(<a href = '" . BML::self_link( { view => 'flat'  } ) . "#comments'>" . BML::ml('.commentnav.flat') . "</a>) (<a href = '" . BML::self_link( { view => 'top-only'  } ) . "#comments'>" . BML::ml('.commentnav.toponly') . "</a>)";
         } elsif ( $view_mode eq "flat" ) {
-            $ret .= "(<a href = '" . BML::self_link( { view => ''  } ) . "#comments'>" . BML::ml('.commentnav.threaded') . "</a>) (<a href = '" . BML::self_link( { view => 'top-only'  } ) . "#comments'>" . BML::ml('.commentnav.toponly') . "</a>)";
+            $viewlinks .= "(<a href = '" . BML::self_link( { view => ''  } ) . "#comments'>" . BML::ml('.commentnav.threaded') . "</a>) (<a href = '" . BML::self_link( { view => 'top-only'  } ) . "#comments'>" . BML::ml('.commentnav.toponly') . "</a>)";
         } elsif ( $view_mode eq "top-only" ) {
-            $ret .= "(<a href = '" . BML::self_link( { view => ''  } ) . "#comments'>" . BML::ml('.commentnav.threaded') . "</a>) (<a href = '" . BML::self_link( { view => 'flat'  } ) . "#comments'>" . BML::ml('.commentnav.flat') . "</a>)";
+            $viewlinks .= "(<a href = '" . BML::self_link( { view => ''  } ) . "#comments'>" . BML::ml('.commentnav.threaded') . "</a>) (<a href = '" . BML::self_link( { view => 'flat'  } ) . "#comments'>" . BML::ml('.commentnav.flat') . "</a>)";
         }
 
         if ( $u->thread_expand_all( $remote ) && $has_collapsed && $view_mode ne "top-only" ) {
             my $expand_all_url = $page > 1 ? BML::self_link( { expand_all => '1', page => $page } ) . "#comments" : BML::self_link( { expand_all => '1' } ) . "#comments";
-            $ret .= "<span id='expand_all'> (<a href=\"$expand_all_url\" onClick=\"Expander.make(this,'$expand_all_url',-1,true,false);return false;\">" . $T{expandall} . "</a>)</span>";
+            $viewlinks .= "<span class='expand_all'> (<a href=\"$expand_all_url\" onClick=\"Expander.make(this,'$expand_all_url',-1,true,false);return false;\">" . $T{expandall} . "</a>)</span>";
         }
-        $ret .= "</b></p>";
 
+        $ret .= $viewlinks;
+        $ret .= "</b></p>";
         $ret .= "<div align='center'>" . LJ::make_qr_target('top') . "</div>" if $remote;
 
         my $styleopts = LJ::viewing_style_opts( %GET );
@@ -846,6 +848,9 @@ body<=
                     $ret .= "(<a href='$posturl'>$T{'postcomments'}</a>)";
                 }
             }
+
+            $ret .= "<br>\n";
+            $ret .= $viewlinks;
             $ret .= "</b></p>";
             $ret .= "<div align='center'>" . LJ::make_qr_target('bottom') . "</div>" if $remote;
 

@@ -79,7 +79,7 @@
             }
 
             // remove the expand_all option if all comments are expanded
-            var expand_all_span = $('#expand_all');
+            var expand_all_span = $('.expand_all');
             if (expand_all_span.length > 0) {
               if (getUnexpandedComments(LJ).length == 0) {
                 expand_all_span.fadeOut('fast');

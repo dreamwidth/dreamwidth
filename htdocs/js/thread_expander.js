@@ -49,8 +49,8 @@ Expander.prototype.loadingStateOn = function(){
 }
 
 Expander.prototype.loadingStateOff = function(){
-    var expand_all = document.getElementById("expand_all");
-    if (expand_all != null) {
+    var expand_all = DOM.getElementsByClassName( document, "expand_all" );
+    if (expand_all.length > 0) {
       // if all comments have been expanded, remove the expand_all entry
       var LJ = window.LJ_cmtinfo;
       var removeExpandAll = true;
@@ -59,8 +59,12 @@ Expander.prototype.loadingStateOff = function(){
           removeExpandAll = false;
         }
       }
+
       if (removeExpandAll) {
-        expand_all.parentNode.removeChild(expand_all);
+        for(var i = 0; i < expand_all.length; i++) {
+            var ele = expand_all[i];
+            ele.parentNode.removeChild(ele);
+        }
       }
     }
 

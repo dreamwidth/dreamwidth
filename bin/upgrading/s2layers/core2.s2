@@ -491,7 +491,8 @@ class CommentNav
   var bool filter "True if the current view is filtered.";
   var bool show_expand_all "True if we should show the expand_all option.";
 
-  function print () "Prints the nav bar, including the comment_pages bar";
+  function print () "Prints the nav bar, including the comment_pages bar, with a default CSS class";
+  function print(string{} extra) "Prints the nav bar with the given attributes. Accepts 'class'";
 }
 
 
@@ -5766,11 +5767,11 @@ function EntryPage::print_comment_section(Entry e) {
    "<div id='comments'><div class='inner'>";
    $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages toppages" });
    if ( $e.comments.comments_disabled_maintainer ) {
-       """<div class='comments-message'>$*text_comments_disabled_maintainer</div>""";
+        """<div class='comments-message'>$*text_comments_disabled_maintainer</div>""";
    }
    if ($.comment_pages.total_subitems > 0) {
-       $.comment_nav->print();
-       $this->print_multiform_start();
+        $.comment_nav->print({ "class" => "comment-pages toppages" });
+        $this->print_multiform_start();
    }
    $this->print_comments($.comments);
    if ($.comment_pages.total_subitems > 0) {
@@ -5783,6 +5784,9 @@ function EntryPage::print_comment_section(Entry e) {
         "</div>";
    }
    $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages bottompages" });
+   if ($.comment_pages.total_subitems > 0) {
+        $.comment_nav->print({ "class" => "comment-pages bottompages" });
+   }
     "</div></div>";
 }
 
@@ -5951,12 +5955,17 @@ function ItemRange::print(string{} opts) {
     "</div>";
 }
 
-function CommentNav::print
-{
+function CommentNav::print() {
+    $this->print({ "class" => "" });
+}
+
+function CommentNav::print(string{} opts) {
+
+    var string class = $opts{"class"} ? $opts{"class"} : "pages";
     var string sep = $.url->contains( "?" ) ? "&" : "?";
     var string page_arg = $.current_page > 1 ? "&page=$.current_page" : "";
 
-    print "<div class='comment-pages'>";
+    print "<div class='$class'>";
 
     var string{} links = {
         "flat"      => """<a href="$.url${sep}view=flat#comments">Flat</a>""",
@@ -5974,7 +5983,7 @@ function CommentNav::print
     }
 
     if ( $.show_expand_all ) {
-        print "<span id='expand_all'> | $links{"expand_all"}</span>";
+        print "<span class='expand_all'> | $links{"expand_all"}</span>";
     }
     print "</div>";
 }
