@@ -156,32 +156,32 @@ function print_stylesheet () {
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
-            .has-userpic div.entry div.userpic,
-            .has-userpic div.comment div.userpic {
+            .has-userpic .entry .userpic,
+            .has-userpic .comment .userpic {
                 float: left;
                 }
-            .has-userpic div.entry .header,
-            .has-userpic div.comment .header {
+            .has-userpic .entry .header,
+            .has-userpic .comment .header {
                 text-align: right;
                 }
-            .has-userpic div.entry .header {
+            .has-userpic .entry .header {
                 margin-left: $entry_header_margin;
                 }
-            .has-userpic div.comment .header {
+            .has-userpic .comment .header {
                 margin-left: $comment_header_margin;
                 }
             """;
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
-            .has-userpic div.entry div.userpic,
-            .has-userpic div.comment div.userpic {
+            .has-userpic .entry .userpic,
+            .has-userpic .comment .userpic {
                 float: right;
                 }
-            .has-userpic div.entry .header {
+            .has-userpic .entry .header {
                 margin-right: $entry_header_margin;
                 }
-            .has-userpic div.comment .header {
+            .has-userpic .comment .header {
                 margin-right: $comment_header_margin;
                 }
             """;
@@ -391,23 +391,23 @@ ul.module-list-item li {
     list-style: none;
     }
 
-div.module-content div.userpic {
+.module-content .userpic {
     text-align: center;
     }
 
-div.module-content div.userpic img {
+.module-content .userpic img {
     background: $*color_header_background;
     border: none;
     padding: 10px;
     }
 
-div.journal-name {
+.journal-name {
     font-variant: small-caps;
     margin-top: 5px;
     text-align: center;
     }
 
-div.journal-website-name {
+.journal-website-name {
     font-variant: small-caps;
     text-align: center;
     }
@@ -426,7 +426,7 @@ ul.userlite-interaction-links.text-links {
     list-style: none;;
     }
 
-div.module-navlinks {
+.module-navlinks {
     color: $*color_module_title;
     font-variant: small-caps;
     font-size: 1.45em;
@@ -435,55 +435,55 @@ div.module-navlinks {
     text-align: right;
     }
 
-div.module-navlinks a {
+.module-navlinks a {
     color: $*color_module_title;
     }
 
-div.manage-link {
+.manage-link {
     margin: 10px 0 0;
     text-align: right;
     }
 
-div.module-calendar table {
+.module-calendar table {
     text-align: center;
     }
 
-div.module-calendar th {
+.module-calendar th {
     background: $*color_page_background;
     color: $*color_page_text;
     border: 1px solid $*color_entry_border;
     padding: 0;
     }
 
-div.module-calendar td.empty-day {
+.module-calendar td.empty-day {
     border: 1px solid $*color_entry_border;
     }
 
-div.module-calendar td.entry-day {
+.module-calendar td.entry-day {
     background: $*color_page_background;
     border: 1px solid $*color_entry_border;
     }
 
-div.module-calendar td.entry-day a { color: $*color_page_link; }
-div.module-calendar td.entry-day a:visited { color: $*color_page_link_visited; }
-div.module-calendar td.entry-day a:hover { color: $*color_page_link_hover; }
-div.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
+.module-calendar td.entry-day a { color: $*color_page_link; }
+.module-calendar td.entry-day a:visited { color: $*color_page_link_visited; }
+.module-calendar td.entry-day a:hover { color: $*color_page_link_hover; }
+.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
 
 /*--- Entries ---*/
 
-div.entry {
+.entry {
     border: none;
     border-bottom: 5px solid $*color_entry_border;
     padding: 10px;
     margin: 0 0 15px 0;
     }
 
-div.entry-content {
+.entry-content {
     margin: 10px 0 0;
     min-height: 100px;
     }
 
-div.entry div.header {
+.entry .header {
     $entry_title_font
     font-size: 1em;
     padding: 0;
@@ -511,12 +511,12 @@ h3.entry-title a:visited {
     color: $*color_entry_text;
     }
 
-.has-userpic div.entry div.userpic {
+.has-userpic .entry .userpic {
     border: none;
     margin: -20px 10px 10px 10px;
     }
 
-.has-userpic div.entry div.userpic img {
+.entry .userpic img {
     background: $*color_header_background;
     border: none;
     padding: 10px;
@@ -545,17 +545,17 @@ h3.entry-title a:visited {
     text-align: right;
     }
 
-div.metadata ul {
+.metadata ul {
     padding: 0;
     margin: 0;
     }
 
-div.metadata ul li {
+.metadata ul li {
     padding: 0;
     margin: 0;
     }
 
-span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, div.tag ul {
+.metadata-item-location, .metadata-item-music, .metadata-item-mood, .tag ul {
     color: $*color_entry_link;
     text-align: right;
     }
@@ -564,13 +564,13 @@ span.metadata-item-location, span.metadata-item-music, span.metadata-item-mood, 
     clear: both;
     }
 
-div.tag {
+.tag {
     margin: 1em 0 .5em 0;
     font-size: 0.85em;
     font-variant: small-caps;
     }
 
-div.tag ul li {
+.tag ul li {
     margin: .5em 0 0;
     text-align: right;
     }
@@ -771,13 +771,13 @@ textarea.textbox {
     width: 80% !important;
     }
 
-.has-userpic div.comment div.userpic {
+.has-userpic .comment .userpic {
     border: none;
     display: block;
     margin: -1em .5em .5em .5em;
     }
 
-.has-userpic div.comment div.userpic img {
+.comment .userpic img {
     background: $*color_header_background;
     border: none;
     padding: 10px;

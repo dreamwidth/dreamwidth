@@ -3484,26 +3484,26 @@ function FriendsPage::print_stylesheets() {
             var string{} custom_background_location;
 
             $custom_foreground_location = {
-                "subject" => "h3.entry-title a {color:",
-                "userpic_border" => "div.userpic a img {border: solid; border-color:",
-                "postername" => "span.entry-poster a {color:",
-                "entry" => "div.entry-content {color:",
-                "metadata" => ".metadata {color:",
-                "bottom_links" => ".footer a {color:"
+                "subject" => ".entry h3.entry-title a {color:",
+                "userpic_border" => ".entry .userpic a img {border: solid !important; border-color:",
+                "postername" => ".entry .entry-poster a {color:",
+                "entry" => ".entry .entry-content {color:",
+                "metadata" => ".entry .metadata {color:",
+                "bottom_links" => ".entry .footer a {color:"
                 };
 
             $custom_background_location = {
-                "subject" => "h3.entry-title {background-color:",
-                "userpic_background" => "div.userpic a img {padding: 2px; background-color:",
-                "entry_border" => "div.entry-content {border: solid; border-color:",
-                "metadata_background" => ".metadata {background-color:",
-                "footer_border" => "div.footer {border: solid; border-color:"
+                "subject" => ".entry h3.entry-title {background-color:",
+                "userpic_background" => ".entry .userpic a img {padding: 2px !important; background-color:",
+                "entry_border" => ".entry .entry-content {border: solid !important; border-color:",
+                "metadata_background" => ".entry .metadata {background-color:",
+                "footer_border" => ".entry .footer {border: solid !important; border-color:"
                 };
 
             var string custom_foreground_css = "";
             var string custom_background_css = "";
-            $custom_foreground_css = """.journal-$e.journal.username $custom_foreground_location{$*custom_foreground_element} $fg; } \n""";
-            $custom_background_css = """.journal-$e.journal.username $custom_background_location{$*custom_background_element} $bg; } \n\n""";
+            $custom_foreground_css = """.journal-$e.journal.username $custom_foreground_location{$*custom_foreground_element} $fg !important; } \n""";
+            $custom_background_css = """.journal-$e.journal.username $custom_background_location{$*custom_background_element} $bg !important; } \n\n""";
 
             var string custom_colors_css;
             if ($*custom_colors_template != ""){
