@@ -221,18 +221,18 @@ function Page::print_theme_stylesheet() {
         text-align: left;
         }
 
-    div.entry, div.entry .inner,
-    div.comment, div.comment .inner {
+    .entry, .entry .inner,
+    .comment, .comment .inner {
         line-height: 1.05em;
         }
 
-    span.tag-text,
-    div.tag ul li,
-    div.metadata ul li {
+    .tag-text,
+    .tag ul li,
+    .metadata ul li {
         font-size: .9em;
         }
 
-    div.tag ul {
+    .tag ul {
         padding: 0;
         }
     """;
@@ -636,19 +636,19 @@ function Page::print_theme_stylesheet() {
         text-align: left;
         }
 
-    div.entry, div.entry .inner,
-    div.comment, div.comment .inner {
+    .entry, .entry .inner,
+    .comment, .comment .inner {
         line-height: 1.05em;
         }
 
-    span.tag-text,
-    div.tag ul li,
-    div.metadata ul li {
+    .tag-text,
+    .tag ul li,
+    .metadata ul li {
         font-family: $*font_entry_title;
         font-size: .9em;
         }
 
-    div.tag ul {
+    .tag ul {
         padding: 0;
         }
     """;
@@ -811,18 +811,18 @@ function Page::print_theme_stylesheet() {
         text-align: left;
         }
 
-    div.entry, div.entry .inner,
-    div.comment, div.comment .inner {
+    .entry, .entry .inner,
+    .comment, .comment .inner {
         line-height: 1.05em;
         }
 
-    span.tag-text,
-    div.tag ul li,
-    div.metadata ul li {
+    .tag-text,
+    .tag ul li,
+    .metadata ul li {
         font-size: .9em;
         }
 
-    div.tag ul {
+    .tag ul {
         padding: 0;
         }
     """;
@@ -1069,18 +1069,18 @@ function Page::print_theme_stylesheet() {
         text-align: left;
         }
 
-    div.entry, div.entry .inner,
-    div.comment, div.comment .inner {
+    .entry, .entry .inner,
+    .comment, .comment .inner {
         line-height: 1.05em;
         }
 
-    span.tag-text,
-    div.tag ul li,
-    div.metadata ul li {
+    .tag-text,
+    .tag ul li,
+    .metadata ul li {
         font-size: .9em;
         }
 
-    div.tag ul {
+    .tag ul {
         padding: 0;
         }
     """;
@@ -1290,18 +1290,18 @@ function Page::print_theme_stylesheet() {
         text-align: left;
         }
 
-    div.entry, div.entry .inner,
-    div.comment, div.comment .inner {
+    .entry, .entry .inner,
+    .comment, .comment .inner {
         line-height: 1.05em;
         }
 
-    span.tag-text,
-    div.tag ul li,
-    div.metadata ul li {
+    .tag-text,
+    .tag ul li,
+    .metadata ul li {
         font-size: .9em;
         }
 
-    div.tag ul {
+    .tag ul {
         padding: 0;
         }
     """;

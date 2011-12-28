@@ -339,30 +339,30 @@ function Page::print_default_stylesheet() {
     var string entryicon_css = "";
     if ($*entryicons_position == "opposite") {
         $entryicon_css = """
-        div.entry div.userpic,
-        div.comment div.userpic {
+        .entry .userpic,
+        .comment .userpic {
             float: $sidebar_position_opposite;
             text-align: $sidebar_position;
             }
-        div.entry div.userpic {
+        .entry .userpic {
             margin-$sidebar_position_opposite: -$entry_userpic_margin;
             }
-        div.comment div.userpic {
+        .comment .userpic {
             margin-$sidebar_position_opposite: -$comment_userpic_margin;
             }
         """;
     }
     elseif ($*entryicons_position == "same") {
         $entryicon_css = """
-        div.entry div.userpic,
-        div.comment div.userpic {
+        .entry .userpic,
+        .comment .userpic {
             float: $sidebar_position;
             text-align: $sidebar_position;
             }
-        div.entry div.userpic{
+        .entry .userpic{
             margin-$sidebar_position: -$entry_userpic_margin;
             }
-        div.comment div.userpic {
+        .comment .userpic {
             margin-$sidebar_position: -$comment_userpic_margin;
             }
         #secondary {
@@ -464,7 +464,7 @@ li.page-back, li.page-forward {
 
 li.page-separator { display: none; }
 
-div.navigation ul {
+.navigation ul {
     display: inline;
     padding: 0;
     margin: 0;
@@ -520,16 +520,16 @@ h3.entry-title a { color: $*color_entry_title; }
     }
 .datetime a { color: $*color_entry_title; }
 
-div.entry div.userpic {
+.entry .userpic {
     display: block;
     margin: 0;
     }
 
-div.entry div.userpic img {
+.entry .userpic img {
     border: 5px solid $*color_navigation_module_background;
     }
 
-span.poster {
+.poster {
     $date_time_font
     text-transform: uppercase;
     }
@@ -538,12 +538,12 @@ span.poster {
 
 .metadata.top-metadata { margin: 10px 0 1.25em 0; }
 
-div.metadata ul {
+.metadata ul {
     padding: 0;
     margin: 0;
     }
 
-div.metadata ul li {
+.metadata ul li {
     list-style: none;
     font-size: 60%;
     font-weight: normal;
@@ -553,18 +553,18 @@ div.metadata ul li {
     padding: 0;
     }
 
-span.tag-text {
+.tag-text {
     font-size: 60%;
     text-transform: lowercase;
     }
 
-div.tag ul {
+.tag ul {
     padding: 0 0 0 13px;
     margin: 0;
     display: inline;
     }
 
-div.tag ul li {
+.tag ul li {
     display: inline;
     list-style: none;
     font-size: 60%;
@@ -768,12 +768,12 @@ textarea.textbox  { width: 90%!important; }
     text-align: left;
     }
 
-div.comment div.userpic {
+.comment .userpic {
     display: block;
     margin: 0;
     }
 
-div.comment div.userpic img {
+.comment .userpic img {
     border: 5px solid $*color_navigation_module_background;
     }
 

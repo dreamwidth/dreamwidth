@@ -247,10 +247,10 @@ function print_stylesheet () {
     var string userpic_css = "";
     if($*userpics_position == "left") {
         $userpic_css = """
-        .has-userpic div.entry div.header {
+        .has-userpic .entry .header {
            margin-left: $entry_header_margin;
            }
-        .has-userpic div.comment div.header {
+        .has-userpic .comment .header {
            margin-left: $comment_header_margin;
            }
         .has-userpic .entry .userpic,
@@ -263,10 +263,10 @@ function print_stylesheet () {
     }
     elseif($*userpics_position == "right") {
         $userpic_css = """
-        .has-userpic div.entry div.header {
+        .has-userpic .entry .header {
            margin-right: $entry_header_margin;
            }
-        .has-userpic div.comment div.header {
+        .has-userpic .comment .header {
            margin-right: $comment_header_margin;
            }
         .has-userpic .entry .userpic,

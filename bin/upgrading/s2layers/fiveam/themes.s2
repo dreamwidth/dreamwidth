@@ -232,10 +232,10 @@ set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
-    div.entry,
-    div.entry .inner,
-    div.comment,
-    div.comment .inner,
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
     blockquote {
         line-height: 1.2em;
         }
@@ -836,10 +836,10 @@ set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
-    div.entry,
-    div.entry .inner,
-    div.comment,
-    div.comment .inner,
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
     blockquote {
         line-height: 1.2em;
         }
@@ -956,10 +956,10 @@ set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
-    div.entry,
-    div.entry .inner,
-    div.comment,
-    div.comment .inner,
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
     blockquote {
         line-height: 1.2em;
         }
@@ -1790,10 +1790,10 @@ set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
-    div.entry,
-    div.entry .inner,
-    div.comment,
-    div.comment .inner,
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
     blockquote {
         line-height: 1.2em;
         }
@@ -1978,10 +1978,10 @@ set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
-    div.entry,
-    div.entry .inner,
-    div.comment,
-    div.comment .inner,
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
     blockquote {
         line-height: 1.2em;
         }
@@ -2286,10 +2286,10 @@ set font_module_text = "'News Gothic MT', Helvetica";
 
 function Page::print_theme_stylesheet() {
 """
-    div.entry,
-    div.entry .inner,
-    div.comment,
-    div.comment .inner,
+    .entry,
+    .entry .inner,
+    .comment,
+    .comment .inner,
     blockquote {
         line-height: 1.2em;
         }

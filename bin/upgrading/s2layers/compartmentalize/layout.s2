@@ -61,21 +61,21 @@ function print_stylesheet () {
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
-            .has-userpic div.entry div.userpic {
+            .has-userpic .entry .userpic {
                 float: left;
                 margin: -4em 1em 1em 0;
                 }
-            .has-userpic div.entry div.header,
-            .has-userpic div.comment div.header {
+            .has-userpic .entry .header,
+            .has-userpic .comment .header {
                 text-align: right;
                 }
-            .has-userpic div.entry div.header {
+            .has-userpic .entry .header {
                 margin-left: $entry_header_margin;
                 }
-            .has-userpic div.comment div.header {
+            .has-userpic .comment .header {
                 margin-left: $comment_header_margin;
                 }
-            .has-userpic div.comment div.userpic {
+            .has-userpic .comment .userpic {
                 float: left;
                 margin: -1em 1em 0 0;
                 }
@@ -83,17 +83,17 @@ function print_stylesheet () {
         }
         elseif ($*userpics_position == "right") {
             $userpic_css = """
-            .has-userpic div.entry div.userpic {
+            .has-userpic .entry .userpic {
                 float: right;
                 margin: -4em 0 1em 1em;
                 }
-            .has-userpic div.entry div.header {
+            .has-userpic .entry .header {
                 margin-right: $entry_header_margin;
                 }
-            .has-userpic div.comment div.header {
+            .has-userpic .comment .header {
                 margin-right: $comment_header_margin;
                 }
-            .has-userpic div.comment div.userpic {
+            .has-userpic .comment .userpic {
                 float: right;
                 margin: -1em 0 0 1em;
                 }
@@ -247,23 +247,23 @@ h2.module-header a {
     color: $*color_module_title;
     }
 
-div.module-content div.userpic {
+.module-content .userpic {
     text-align: center;
     }
 
-div.module-content div.userpic img {
+.module-content .userpic img {
     border: 1px solid $*color_module_border;
     border-top: 10px solid $*color_module_border;
     padding: .5em;
     }
 
-div.journal-name {
+.journal-name {
     text-transform: uppercase;
     margin: .5em 0 0 0;
     text-align: center;
     }
 
-div.journal-website-name {
+.journal-website-name {
     text-transform: uppercase;
     text-align: center;
     }
@@ -292,26 +292,26 @@ ul.module-list li {
     list-style: none;
     }
 
-div.module-navlinks, div.module-navlinks a {
+.module-navlinks, .module-navlinks a {
     color: $*color_module_title;
     font-family: $*font_module_heading;
     font-weight: bold;
     text-align: right;
     }
 
-div.module-navlinks ul.module-list {
+.module-navlinks ul.module-list {
     color: $*color_module_title;
     list-style: none;
     text-transform: uppercase;
     }
 
-div.manage-link {
+.manage-link {
     margin: .5em 0 0;
     text-align: right;
     text-transform: uppercase;
     }
 
-div.module-calendar th {
+.module-calendar th {
     border: 1px solid $*color_module_border;
     font-weight: lighter;
     margin: 0 .2em;
@@ -319,23 +319,23 @@ div.module-calendar th {
     text-transform: uppercase;
     }
 
-div.module-calendar td.empty-day {
+.module-calendar td.empty-day {
     border: 1px solid $*color_module_border;
     margin: 0 .2em;
     text-transform: uppercase;
     }
 
-div.module-calendar td.entry-day {
+.module-calendar td.entry-day {
     background: $*color_page_background;
     border: 1px solid $*color_module_border;
     margin: 0 .1em;
     text-transform: uppercase;
     }
 
-div.module-calendar td.entry-day a { color: $*color_page_link; }
-div.module-calendar td.entry-day a:visited { color: $*color_page_link_visited; }
-div.module-calendar td.entry-day a:hover { color: $*color_page_link_hover; }
-div.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
+.module-calendar td.entry-day a { color: $*color_page_link; }
+.module-calendar td.entry-day a:visited { color: $*color_page_link_visited; }
+.module-calendar td.entry-day a:hover { color: $*color_page_link_hover; }
+.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
 
 /*--- Entries ---*/
 
@@ -345,11 +345,11 @@ div.module-calendar td.entry-day a:active { color: $*color_page_link_active; }
     padding: 1em;
     }
 
-div.entry-content {
+.entry-content {
     margin: 1em 0 0 0;
     }
 
-div.entry div.header {
+.entry .header {
     color: $*color_entry_title;
     margin: 0 0 .5em 0;
     padding: 0;
@@ -370,13 +370,13 @@ span.poster {
     margin: 1em 0;
     }
 
-div.entry div.userpic img {
+.entry .userpic img {
     border: 1px solid $*color_entry_border;
     border-top: 10px solid $*color_entry_border;
     padding: 8px;
     }
 
-div.entry div.footer {
+.entry .footer {
     clear: both;
     }
 
@@ -462,17 +462,17 @@ table.talkform {
     padding: .5em;
     }
 
-div.comment div.userpic {
+.comment .userpic {
     display: block;
     }
 
-div.comment div.userpic img {
+.comment .userpic img {
     border: 1px solid $*color_entry_border;
     border-top: 10px solid $*color_entry_border;
     padding: 8px;
     }
 
-div.comment div.footer {
+.comment .footer {
     clear: both;
     }
 
