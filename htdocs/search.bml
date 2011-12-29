@@ -164,6 +164,7 @@ body<=
     my $matches = '<br /><br />';
     foreach my $match ( @{ $result->{matches} } ) {
         my $mu = LJ::load_userid( $match->{journal_id} );
+        my $pu = LJ::load_userid( $match->{poster_id} ) if $mu->is_comm;
 
         # Do not show filtered icon for other users
         $match->{security} = 'access'
@@ -180,8 +181,11 @@ body<=
         $tags = "<br />Tags: $tags"
             if $tags;
 
-        my $mulj = $mu->ljuser_display;
-        my $html = qq(<div class='searchres'>$mulj: $icon <a href="$match->{url}">$match->{subject}</a><br />
+        my $attribution = $mu->is_comm
+                            ? BML::ml( '.attribution.comm', { journal => $mu->ljuser_display, poster => $pu->ljuser_display } )
+                            : BML::ml( '.attribution', { journal => $mu->ljuser_display } );
+
+        my $html = qq(<div class='searchres'>$attribution: $icon <a href="$match->{url}">$match->{subject}</a><br />
                       <span class='exc'>$match->{excerpt}</span>$tags<br />Posted: <strong>$match->{eventtime}</strong><br /><br />
                       </div>);
         $matches .= $html;
