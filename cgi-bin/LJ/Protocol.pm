@@ -196,6 +196,7 @@ sub do_request
     if ($method eq "sessionexpire")    { return sessionexpire(@args);    }
     if ($method eq "getusertags")      { return getusertags(@args);      }
     if ($method eq "getfriendspage")   { return getfriendspage(@args);   }
+    if ($method eq "getreadpage")      { return getreadpage(@args);   }
     if ($method eq "getinbox")         { return getinbox(@args);         }
     if ($method eq "sendmessage")      { return sendmessage(@args);      }
     if ($method eq "setmessageread")   { return setmessageread(@args);   }
@@ -252,6 +253,11 @@ sub addcomment
 
 sub getfriendspage
 {
+    return fail( $_[1], 504, "Use 'getreadpage' instead." );
+}
+
+sub getreadpage
+{
     my ($req, $err, $flags) = @_;
     return undef unless authenticate($req, $err, $flags);
     my $u = $flags->{'u'};
@@ -261,14 +267,14 @@ sub getfriendspage
     my $skip = (defined $req->{skip}) ? $req->{skip} : 0;
     return fail($err, 209, "Bad skip value") if $skip ne int($skip ) or $skip  < 0 or $skip  > 100;
 
-    my @entries = LJ::get_friend_items({
-        'u' => $u,
-        'userid' => $u->{'userid'},
-        'remote' => $u,
-        'itemshow' => $itemshow,
-        'skip' => $skip,
-        'dateformat' => 'S2',
-    });
+    my @entries = $u->watch_items(
+        remote      => $u,
+
+        itemshow    => $itemshow,
+        skip        => $skip,
+
+        dateformat  => 'S2',
+    );
 
     my @attrs = qw/subject_raw event_raw journalid posterid ditemid security/;
 
@@ -3385,6 +3391,9 @@ sub do_request
     if ($req->{'mode'} eq "getfriendspage") {
         return getfriendspage($req, $res, $flags);
     }
+    if ($req->{'mode'} eq "getfriendspage") {
+        return getreadpage( $req, $res, $flags );
+    }
 
     ### unknown mode!
     $res->{'success'} = "FAIL";
@@ -3393,7 +3402,7 @@ sub do_request
 }
 
 ## flat wrapper
-sub getfriendspage
+sub getreadpage
 {
     my ($req, $res, $flags) = @_;
 
@@ -3401,6 +3410,37 @@ sub getfriendspage
     my $rq = upgrade_request($req);
 
     my $rs = LJ::Protocol::do_request("getfriendspage", $rq, \$err, $flags);
+    unless ($rs) {
+        $res->{'success'} = "FAIL";
+        $res->{'errmsg'} = LJ::Protocol::error_message($err);
+        return 0;
+    }
+
+    my $ect = 0;
+    foreach my $evt (@{$rs->{'entries'}}) {
+        $ect++;
+        foreach my $f (qw(subject_raw journalname journaltype postername postertype ditemid security)) {
+            if (defined $evt->{$f}) {
+                $res->{"entries_${ect}_$f"} = $evt->{$f};
+            }
+        }
+        $res->{"entries_${ect}_event"} = LJ::eurl($evt->{'event_raw'});
+    }
+
+    $res->{'entries_count'} = $ect;
+    $res->{'success'} = "OK";
+
+    return 1;
+}
+
+sub getreadpage
+{
+    my ($req, $res, $flags) = @_;
+
+    my $err = 0;
+    my $rq = upgrade_request($req);
+
+    my $rs = LJ::Protocol::do_request("getreadpage", $rq, \$err, $flags);
     unless ($rs) {
         $res->{'success'} = "FAIL";
         $res->{'errmsg'} = LJ::Protocol::error_message($err);

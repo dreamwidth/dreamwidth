@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 237;
+plan tests => 246;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
@@ -893,3 +893,56 @@ note( "adding a comment to another journal" );
     ok( $comment->journal->equals( $u2 ), "Check comment journal when posting to another journal" );
 }
 
+note( "getfriendspage" );
+{
+    my $u = temp_user();
+    ( $res, $err ) = $do_request->( "getfriendspage",
+        username => $u->user
+    );
+
+    $check_err->( 504, "'getfriendspage' is deprecated." );
+}
+
+note( "getreadpage" );
+{
+    my $u1 = temp_user();
+    my $u2 = temp_user();
+
+    $u1->add_edge( $u2, watch => { nonotify => 1 } );
+    my $e1 = $u2->t_post_fake_entry( body => "entry 1 " . rand(), subject => "#1", );
+    my $e2 = $u2->t_post_fake_entry( body => "entry 2 " . rand(), subject => "#2", );
+    my $e3 = $u2->t_post_fake_entry( body => "entry 3 " . rand(), subject => "#3", );
+
+    my @entries;
+
+    # show everything
+    ( $res, $err ) = $do_request->( "getreadpage",
+        username => $u1->user,
+    );
+    @entries = @{$res->{entries}};
+    is( scalar @entries, 3, "3... 3 entries ah HA HA HA" );
+    is( $entries[0]->{subject_raw}, "#3" );
+    is( $entries[1]->{subject_raw}, "#2" );
+    is( $entries[2]->{subject_raw}, "#1" );
+
+
+    # limit to one item
+    ( $res, $err ) = $do_request->( "getreadpage",
+        username => $u1->user,
+        itemshow => 1,
+    );
+    @entries = @{$res->{entries}};
+    is( scalar @entries, 1, "we asked for one entry" );
+    is( $entries[0]->{subject_raw}, "#3" );
+
+    # limit to one, skip one
+    ( $res, $err ) = $do_request->( "getreadpage",
+        username => $u1->user,
+        itemshow => 1,
+        skip     => 1,
+    );
+    @entries = @{$res->{entries}};
+    is( scalar @entries, 1, "we asked for one entry (skip back one)" );
+    is( $entries[0]->{subject_raw}, "#2" );
+
+}
