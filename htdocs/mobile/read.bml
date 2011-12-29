@@ -93,7 +93,16 @@ _c?>
             $who .= " in " . "<a href='" . $ju->journal_base . "/'><b>$ju->{user}</b></a>";
         }
 
-        $ret .= "$who: " . "<a href='$url'>" . ($entry->subject_text || "(no subject)") . "</a><br />";
+        my $subject = $entry->subject_text;
+        unless ( $subject ) {
+            $subject = $entry->event_text;
+
+            my $truncated = 0;
+            LJ::CleanHTML::clean_and_trim_subject( \$subject, undef, \$truncated );
+            $subject .= "..." if $truncated;
+        }
+
+        $ret .= "$who: " . "<a href='$url'>$subject</a><br />";
     }
     
     $ret .= BML::ml( '.read.noentries', { groupname => $groupname } ) unless $numentries;

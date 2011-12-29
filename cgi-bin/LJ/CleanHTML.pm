@@ -1432,12 +1432,12 @@ sub clean_subject_all
 
 # wrapper around clean_subject_all; this also trims the subject to the given length
 sub clean_and_trim_subject {
-    my $ref = shift;
-    my $length = shift || 40;
+    my ( $ref, $length, $truncated ) = @_;
+    $length ||= 40;
 
     LJ::CleanHTML::clean_subject_all($ref);
     $$ref =~ s/\n.*//s;
-    $$ref = LJ::text_trim($$ref, 0, $length);
+    $$ref = LJ::text_trim($$ref, 0, $length, $truncated);
 }
 
 my @comment_close = qw(
