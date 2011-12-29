@@ -117,6 +117,7 @@ sub post_event {
         personifi_word_count => 1,
         personifi_lang => 1,
         personifi_tags => 1,
+        give_features => 1,
     );
     foreach my $prop ( keys %$props ) {
         next if $bad_props{$prop};
