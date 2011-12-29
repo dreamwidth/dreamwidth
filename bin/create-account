@@ -19,31 +19,41 @@ require 'ljlib.pl';
 
 use Getopt::Long;
 
-my ( $user, $email, $pass );
+my ( $user, $email, $pass, $comm, $admin );
 GetOptions(
         'user=s' => \$user,
         'password=s' => \$pass,
         'email=s' => \$email,
+        'community' => \$comm,
+        'admin=s' => \$admin,
     ) or die "usage: $0 -u USERNAME -e EMAIL\n";
-die "usage: $0 -u USERNAME -e EMAIL [-p PASSWORD]\n"
-    unless $user && $email;
+die "usage: $0 -u USERNAME [-e EMAIL -p PASSWORD|--community --admin=USER]\n"
+    unless (!$comm && $user && $email) || ($comm && $user && $admin);
 
 $user = LJ::canonical_username( $user );
 die "Username invalid\n"
     unless $user;
-die "Email invalid\n"
-    unless $email && $email =~ /^[^@]+@[^@]+\.\w+$/;
 
 LJ::MemCache::delete( 'uidof:' . $user );
 my $u2 = LJ::load_user( $user )
     and die "User already exists\n";
 
-my $password = $pass || '';
-unless ( $password ) {
-    $password .= substr( 'abcdefghijklmnopqrstuvwxyzABCEFGHIJKLMNOPQRSTUVWXYZ0123456789', int(rand()*62), 1 ) for 1..10;
+if ( $comm ) {
+    my $adminu = LJ::load_user($admin)
+        or die "Can't load admin user\n";
+
+    my $u = LJ::User->create_community( user => $user, email => $email, admin_userid => $adminu->id );
+    print "User: $u->{user}($u->{userid}) created with maintainer $adminu->{user}.\n";
+} else {
+    die "Email invalid\n"
+        unless $email && $email =~ /^[^@]+@[^@]+\.\w+$/;
+
+    my $password = $pass || '';
+    unless ( $password ) {
+        $password .= substr( 'abcdefghijklmnopqrstuvwxyzABCEFGHIJKLMNOPQRSTUVWXYZ0123456789', int(rand()*62), 1 ) for 1..10;
+    }
+
+    my $u = LJ::User->create_personal( user => $user, email => $email, password => $password )
+        or die "unable to create account?\n";
+    print "User: $u->{user}($u->{userid}) created with password $password.\n";
 }
-
-my $u = LJ::User->create_personal( user => $user, email => $email, password => $password )
-    or die "unable to create account?\n";
-
-print "User: $u->{user}($u->{userid}) created with password $password.\n";
