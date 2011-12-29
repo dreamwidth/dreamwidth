@@ -218,9 +218,18 @@ sub addcomment
     return fail($err,314) unless $u->is_paid;
     return fail($err,214) if LJ::Comment->is_text_spam( \ $req->{body} );
 
+    my $journal;
+    if ( $req->{journal} ){
+        $journal = LJ::load_user( $req->{journal} ) or return fail( $err, 100 );
+        return fail( $err, 214 )
+            if LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $req->{ditemid} );
+    } else {
+        $journal = $u;
+    }
+
     # create
     my $comment = LJ::Comment->create(
-                        journal      => $u,
+                        journal      => $journal,
                         ditemid      => $req->{ditemid},
                         parenttalkid => ($req->{parenttalkid} || ($req->{parent} >> 8)),
 

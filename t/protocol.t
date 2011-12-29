@@ -3,11 +3,12 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 231;
+plan tests => 237;
 
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Protocol;
+use DW::Pay;
 
 use LJ::Test qw( temp_user temp_comm );
 no warnings "once";
@@ -822,3 +823,73 @@ note( "checkforupdates" );
     }, "No new entries." );
 
 }
+
+note( "adding a comment to a journal" );
+{
+    my $u = temp_user();
+    $u->update_self({ status => "A" });
+    DW::Pay::add_paid_time( $u, "paid", 2 );
+
+    my $entry = $u->t_post_fake_entry;
+
+    ( $res, $err ) = $do_request->( "addcomment",
+        username => $u->user,
+
+        ditemid => $entry->ditemid,
+        subject => "subject",
+        body    => "comment body " . rand(),
+    );
+
+    my $comment = LJ::Comment->new( $entry->journal, dtalkid => $res->{dtalkid} );
+    ok( $comment->poster->equals( $u ), "Check comment poster when posting to your own journal" );
+    ok( $comment->journal->equals( $u ), "Check comment journal when posting to your own journal" );
+}
+
+note( "adding a comment to a community" );
+{
+    my $u = temp_user();
+    $u->update_self({ status => "A" });
+    DW::Pay::add_paid_time( $u, "paid", 2 );
+
+    my $cu = temp_comm();
+
+    my $entry = $u->t_post_fake_comm_entry( $cu );
+
+    ( $res, $err ) = $do_request->( "addcomment",
+        username => $u->user,
+        journal => $cu->user,
+
+        ditemid => $entry->ditemid,
+        subject => "subject",
+        body    => "comment body " . rand(),
+    );
+
+    my $comment = LJ::Comment->new( $entry->journal, dtalkid => $res->{dtalkid} );
+    ok( $comment->poster->equals( $u ), "Check comment poster when posting to a community" );
+    ok( $comment->journal->equals( $cu ), "Check comment journal when posting to a community" );
+}
+
+note( "adding a comment to another journal" );
+{
+    my $u1 = temp_user();
+    $u1->update_self({ status => "A" });
+    DW::Pay::add_paid_time( $u1, "paid", 2 );
+
+    my $u2 = temp_user();
+
+    my $entry = $u2->t_post_fake_entry;
+
+    ( $res, $err ) = $do_request->( "addcomment",
+        username => $u1->user,
+        journal => $u2->user,
+
+        ditemid => $entry->ditemid,
+        subject => "subject",
+        body    => "comment body " . rand(),
+    );
+
+    my $comment = LJ::Comment->new( $entry->journal, dtalkid => $res->{dtalkid} );
+    ok( $comment->poster->equals( $u1 ), "Check comment poster when posting to another journal" );
+    ok( $comment->journal->equals( $u2 ), "Check comment journal when posting to another journal" );
+}
+
