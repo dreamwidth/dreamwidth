@@ -59,20 +59,14 @@ sub merge_bio_items {
 
     $u->set_bio( $items->{'bio'} ) if defined( $items->{'bio'} );
 
-    my %propMap = (
-        'icq' => 'icq',
-        'aolim' => 'aolim',
-        'jabber' => 'jabber',
-        'msn' => 'msn',
-        'yahoo' => 'yahoo',
-    );
-    foreach my $key ( keys %propMap ) {
-        $u->set_prop( $propMap{$key}, $items->{$key} ) if defined($items->{$key});
+    foreach my $prop ( qw/ icq aolim jabber msn yahoo journaltitle journalsubtitle / ) {
+        $u->set_prop( $prop => $items->{$prop} )
+            if defined $items->{$prop};
     }
 
-    if ( defined( $items->{'foaf:homepage'} ) ) {
-        $u->set_prop( 'url', $items->{'homepage'}->{'url'} );
-        $u->set_prop( 'urlname', $items->{'homepage'}->{'title'} );
+    if ( defined $items->{homepage} ) {
+        $u->set_prop( url => $items->{'homepage'}->{'url'} );
+        $u->set_prop( urlname => $items->{'homepage'}->{'title'} );
     }
 }
 

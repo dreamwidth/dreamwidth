@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -484,6 +484,8 @@ sub get_foaf_from {
         'foaf:msnChatID' => 'msn',
         'foaf:yahooChatID' => 'yahoo',
         'ya:bio' => 'bio',
+        'lj:journaltitle' => 'journaltitle',
+        'lj:journalsubtitle' => 'journalsubtitle',
     );
     my %wanted_attrib_items = (
         'foaf:homepage' => { _tag => 'homepage', 'rdf:resource' => 'url', 'dc:title' => 'title'  },
@@ -568,7 +570,7 @@ sub get_foaf_from {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference
