@@ -17,8 +17,9 @@
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
-
 require 'ljlib.pl';
+
+$LJ::LOG_GTOP = 1;
 
 use LJ::Worker::TheSchwartz;
 use DW::Worker::ContentImporter::LiveJournal::Bio;

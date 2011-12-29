@@ -88,6 +88,7 @@ sub show_image
 {
     my ( $pics, $id, $extra ) = @_;
     return unless defined $id && defined $pics->{pic}->{$id};
+    $extra = '' unless defined $extra;
 
     my $p = $pics->{pic}->{$id};
     return "<img src='$LJ::IMGPREFIX/talk/$p->{img}' border='0' ".

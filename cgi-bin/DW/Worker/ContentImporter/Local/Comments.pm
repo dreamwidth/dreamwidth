@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -18,6 +18,8 @@
 package DW::Worker::ContentImporter::Local::Comments;
 use strict;
 
+our ( $EntryCache, $UserCache );
+
 =head1 NAME
 
 DW::Worker::ContentImporter::Local::Comments - Local data utilities for comments
@@ -26,28 +28,61 @@ DW::Worker::ContentImporter::Local::Comments - Local data utilities for comments
 
 These functions are part of the Saving API for comments.
 
+=head2 C<< $class->clear_caches() >>
+
+This needs to be called between each import. This ensures we clear out the local caches
+so we don't bleed data from one import to the next.
+
+=cut
+
+sub clear_caches {
+    $EntryCache = undef;
+    $UserCache = undef;
+}
+
+=head2 C<< $class->precache( $u, $jitemid_hash, $userid_hash ) >>
+
+Given a user and two hashrefs (keys are jitemids and then userids respectively), this
+will do a bulk load of those items and precache them. This is designed to be used
+right before we import a bunch of comments to give us some performance and save all
+the roundtrips.
+
+=cut
+
+sub precache {
+    my ( $class, $u, $jitemids, $userids ) = @_;
+
+    $UserCache = LJ::load_userids( @$userids );
+
+    foreach my $jitemid ( @$jitemids ) {
+        $EntryCache->{$jitemid} = LJ::Entry->new( $u, jitemid => $jitemid );
+    }
+    LJ::Entry->preload_props_all();
+}
+
 =head2 C<< $class->get_comment_map( $user, $hashref ) >>
 
-Returns a hashref mapping import_source keys to jtalkids
+Returns a hashref mapping import_source keys to jtalkids. This really shouldn't
+fail or we get into awkward duplication states.
 
 =cut
 
 sub get_comment_map {
     my ( $class, $u ) = @_;
 
-    my $p = LJ::get_prop( "talk", "import_source" );
-    return {} unless $p;
+    my $p = LJ::get_prop( "talk", "import_source" )
+        or die "Failed to load import_source property.";
+    my $dbr = LJ::get_cluster_reader( $u )
+        or die "Failed to get database reader for user.";
+    my $sth = $dbr->prepare( "SELECT jtalkid, value FROM talkprop2 WHERE journalid = ? AND tpropid = ?" )
+        or die "Failed to allocate statement handle.";
+    $sth->execute( $u->id, $p->{id} )
+        or die "Failed to execute query.";
 
-    my $dbr = LJ::get_cluster_reader( $u );
     my %map;
-    my $sth = $dbr->prepare( "SELECT jtalkid, value FROM talkprop2 WHERE journalid = ? AND tpropid = ?" );
-
-    $sth->execute( $u->id, $p->{id} );
-
     while ( my ( $jitemid, $value ) = $sth->fetchrow_array ) {
         $map{$value} = $jitemid;
     }
-
     return \%map;
 }
 
@@ -115,9 +150,10 @@ sub insert_comment {
     $errref ||= '';
 
     # load the data we need to make this comment
-    my $jitem = LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
-    my $source = ( $cmt->{entry_source} || $jitem->prop( "import_source" ) ) . "?thread=" . ( $cmt->{id} << 8 );
-    my $user = $cmt->{posterid} ? LJ::load_userid( $cmt->{posterid} ) : undef;
+    my $jitem = $EntryCache->{$cmt->{jitemid}} ||
+        LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
+    my $source = ( $cmt->{entry_source} || $jitem->prop( "import_source" ) ) . "?thread=" . ( $cmt->{orig_id} << 8 );
+    my $user = $cmt->{posterid} ? ( $UserCache->{$cmt->{posterid}} || LJ::load_userid( $cmt->{posterid} ) ) : undef;
 
     # fix the XML timestamp to a useful timestamp
     my $date = $cmt->{date};
@@ -183,7 +219,7 @@ sub insert_comment {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

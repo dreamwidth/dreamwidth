@@ -383,6 +383,27 @@ sub preload_props {
     }
 }
 
+# method for preloading props into all outstanding singletons that haven't already
+# loaded properties.
+sub preload_props_all {
+    foreach my $uid ( keys %singletons ) {
+        my $hr = $singletons{$uid};
+
+        my @load;
+        foreach my $jid ( keys %$hr ) {
+            next if $hr->{$jid}->{_loaded_props};
+            push @load, $jid;
+        }
+
+        my $props = {};
+        LJ::load_log_props2( $uid, \@load, $props );
+        foreach my $jid ( keys %$props ) {
+            $hr->{$jid}->{props} = $props->{$jid};
+            $hr->{$jid}->{_loaded_props} = 1;
+        }
+    }
+}
+
 # returns array of tags for this post
 sub tags {
     my $self = $_[0];

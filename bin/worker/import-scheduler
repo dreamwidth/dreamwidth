@@ -20,6 +20,7 @@ use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
 use Time::HiRes qw/ gettimeofday tv_interval /;
+use Getopt::Long;
 
 $| = 1;  # Line buffered.
 my $DEBUG = 0;
@@ -153,13 +154,16 @@ sub worker {
     }
 }
 
-my $begin_time = [ gettimeofday() ];
 # run the job in a loop
+my $begin_time = [ gettimeofday() ];
 while ( 1 ) {
-    $DEBUG = 1 if $ARGV[0] =~ /^--?v(?:erbose)?$/;
+    my $once = 0;
+    GetOptions( 'verbose' => \$DEBUG, 'once' => \$once );
+
     _log( 'Main loop beginning...' );
 
     worker_helper();
+    last if $once;
 
     # now we sleep to the next one minute boundary, and if we're taking more
     # than one minute to run, we fire off an alert

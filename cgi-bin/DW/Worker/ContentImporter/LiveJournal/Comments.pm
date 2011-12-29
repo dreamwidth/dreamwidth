@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -24,14 +24,34 @@ use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::Worker::ContentImporter::Local::Comments;
 
+# to save memory, we use arrays instead of hashes.
+use constant C_id => 0;
+use constant C_remote_posterid => 1;
+use constant C_state => 2;
+use constant C_remote_parentid => 3;
+use constant C_remote_jitemid => 4;
+use constant C_body => 5;
+use constant C_subject => 6;
+use constant C_date => 7;
+use constant C_props => 8;
+use constant C_source => 9;
+use constant C_entry_source => 10;
+use constant C_orig_id => 11;
+use constant C_done => 12;
+use constant C_body_fixed => 13;
+use constant C_local_parentid => 14;
+use constant C_local_jitemid => 15;
+use constant C_local_posterid => 16;
+
 # these come from LJ
 our $COMMENTS_FETCH_META = 10000;
 our $COMMENTS_FETCH_BODY = 500;
 
 sub work {
-
     # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
     %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
+    DW::Worker::ContentImporter::Local::Comments->clear_caches();
+    LJ::start_request();
 
     my ( $class, $job ) = @_;
     my $opts = $job->arg;
@@ -44,6 +64,31 @@ sub work {
         $msg =~ s/\r?\n/ /gs;
         return $class->temp_fail( $data, 'lj_comments', $job, 'Failure running job: %s', $msg );
     }
+}
+
+sub new_comment {
+    my ( $id, $posterid, $state ) = @_;
+    return [ undef, $posterid+0, $state, undef, undef, undef, undef, undef, {},
+             undef, undef, $id+0, undef, 0, undef, undef, undef ];
+}
+
+sub hashify {
+    return {
+        id => $_[0]->[C_id],
+        posterid => $_[0]->[C_local_posterid],
+        state => $_[0]->[C_state],
+        parentid => $_[0]->[C_local_parentid],
+        jitemid => $_[0]->[C_local_jitemid],
+        body => $_[0]->[C_body],
+        subject => $_[0]->[C_subject],
+        date => $_[0]->[C_date],
+        props => $_[0]->[C_props],
+        source => $_[0]->[C_source],
+        entry_source => $_[0]->[C_entry_source],
+        orig_id => $_[0]->[C_orig_id],
+        done => $_[0]->[C_done],
+        body_fixed => $_[0]->[C_body_fixed],
+    };
 }
 
 sub try_work {
@@ -87,6 +132,7 @@ sub try_work {
     my $u = LJ::load_userid( $data->{userid} )
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
     $log->( 'Import begun for %s(%d).', $u->user, $u->userid );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # title munging
     my $title = sub {
@@ -100,14 +146,15 @@ sub try_work {
     # this will take a entry_map (old URL -> new jitemid) and convert it into a jitemid map (old jitemid -> new jitemid)
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map( $u ) || {};
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # and xpost map
     my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
     $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # now backfill into jitemid_map
-    my $entry_source = {};
-    my $jitemid_map = {};
+    my ( %entry_source, %jitemid_map );
     $log->( 'Filtering parameters: hostname=[%s], username=[%s].', $data->{hostname}, $data->{username} );
     foreach my $url ( keys %$entry_map ) {
         # this works, see the Entries importer for more information
@@ -120,20 +167,22 @@ sub try_work {
 
         if ( $url =~ m!/(\d+)\.html$! ) {
             my $jitemid = $1 >> 8;
-            $jitemid_map->{$jitemid} = $entry_map->{$url};
-            $entry_source->{$jitemid_map->{$jitemid}} = $url;
+            $jitemid_map{$jitemid} = $entry_map->{$url};
+            $entry_source{$jitemid_map{$jitemid}} = $url;
         }
     }
     $log->( 'Entry map has %d entries post-prune.', scalar( keys %$entry_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     foreach my $jitemid ( keys %$xpost_map ) {
-        $jitemid_map->{$jitemid} = $xpost_map->{$jitemid};
-        $entry_source->{$jitemid_map->{$jitemid}} = "CROSSPOSTER " . $data->{hostname} . " " . $data->{username} . " $jitemid "
+        $jitemid_map{$jitemid} = $xpost_map->{$jitemid};
+        $entry_source{$jitemid_map{$jitemid}} = "CROSSPOSTER " . $data->{hostname} . " " . $data->{username} . " $jitemid "
     }
 
     # this will take a talk_map (old URL -> new jtalkid) and convert it to a jtalkid map (old jtalkid -> new jtalkid)
     my $talk_map = DW::Worker::ContentImporter::Local::Comments->get_comment_map( $u ) || {};
     $log->( 'Loaded comment map with %d entries.', scalar( keys %$talk_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # now reverse it as above
     my $jtalkid_map = {};
@@ -152,8 +201,15 @@ sub try_work {
         }
     }
 
+    # for large imports, the two maps are big (contains URLs), so let's drop it
+    # since we're never going to use it again. PS I don't actually know if this
+    # frees the memory, but I'm hoping it does.
+    undef $talk_map;
+    undef $entry_map;
+    undef $xpost_map;
+
     # parameters for below
-    my ( %meta, @userids, $identity_map, $was_external_user );
+    my ( %meta, %identity_map, %was_external_user );
     my ( $maxid, $server_max_id, $server_next_id, $lasttag ) = ( 0, 0, 1, '' );
 
     # setup our parsing function
@@ -166,18 +222,12 @@ sub try_work {
         # if we were last getting a comment, start storing the info
         if ( $lasttag eq 'comment' ) {
             # get some data on a comment
-            $meta{$temp{id}} = {
-                id => $temp{id},
-                posterid => $temp{posterid}+0,
-                state => $temp{state} || 'A',
-            };
+            $meta{$temp{id}} = new_comment( $temp{id}, $temp{posterid}+0, $temp{state} || 'A' );
 
-        } elsif ( $lasttag eq 'usermap' && ! exists $identity_map->{$temp{id}} ) {
-            push @userids, $temp{id};
-
+        } elsif ( $lasttag eq 'usermap' && ! exists $identity_map{$temp{id}} ) {
             my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user} );
-            $identity_map->{$temp{id}} = $local_oid;
-            $was_external_user->{$temp{id}} = 1
+            $identity_map{$temp{id}} = $local_oid;
+            $was_external_user{$temp{id}} = 1
                 if $temp{user} =~ m/^ext_/; # If the remote username starts with ext_ flag it as external
 
             $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid );
@@ -191,7 +241,7 @@ sub try_work {
         # if we're in a maxid tag, we want to save that value so we know how much further
         # we have to go in downloading meta info
         return undef
-            unless $lasttag eq 'maxid' || 
+            unless $lasttag eq 'maxid' ||
                    $lasttag eq 'nextid';
 
         # save these values for later
@@ -229,6 +279,119 @@ sub try_work {
                 $server_max_id > $LJ::COMMENT_IMPORT_MAX;
     }
     $log->( 'Finished fetching metadata.' );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+
+    # this method is called when we have some comments to post. this will do a best effort
+    # attempt to post all comments that are filled in.
+    my $post_comments = sub {
+        # now iterate over each comment and build the nearly final structure
+        foreach my $id ( sort keys %meta ) {
+            my $comment = $meta{$id};
+            next unless defined $comment->[C_done]; # must be defined
+            next if $comment->[C_done] || $comment->[C_body_fixed];
+
+            # where this comment comes from
+            $comment->[C_source] = $data->{hostname}
+                if $was_external_user{$comment->[C_remote_posterid]};
+
+            # basic mappings
+            $comment->[C_local_posterid] = $identity_map{$comment->[C_remote_posterid]}+0;
+            $comment->[C_local_jitemid] = $jitemid_map{$comment->[C_remote_jitemid]}+0;
+            $comment->[C_entry_source] = $entry_source{$comment->[C_local_jitemid]};
+
+            # remap content (user links) then remove embeds/templates
+            my $body = $class->remap_lj_user( $data, $comment->[C_body] );
+            $body =~ s/<.+?-embed-.+?>/[Embedded content removed during import.]/g;
+            $body =~ s/<.+?-template-.+?>/[Templated content removed during import.]/g;
+            $comment->[C_body] = $body;
+
+            # now let's do some encoding, just in case the input we get is in some other
+            # character encoding
+            $comment->[C_body] = encode_utf8( $comment->[C_body] || '' );
+            $comment->[C_subject] = encode_utf8( $comment->[C_subject] || '' );
+
+            # this body is done
+            $comment->[C_body_fixed] = 1;                
+        }
+
+        # variable setup for the database work
+        my @to_import = sort { ( $a->[C_orig_id]+0 ) <=> ( $b->[C_orig_id]+0 ) }
+                        grep { defined $_->[C_done] && $_->[C_done] == 0 && $_->[C_body_fixed] == 1 }
+                        values %meta;
+
+        # This loop should never need to run through more than once
+        # but, it will *if* for some reason a comment comes before its parent
+        # which *should* never happen, but I'm handling it anyway, just in case.
+        $title->( 'posting %d comments', scalar( @to_import ) );
+
+        # let's do some batch loads of the users and entries we're going to need
+        my ( %jitemids, %userids );
+        foreach my $comment ( @to_import ) {
+            $jitemids{$comment->[C_local_jitemid]} = 1;
+            $userids{$comment->[C_local_posterid]} = 1
+                if defined $comment->[C_local_posterid];
+        }
+        DW::Worker::ContentImporter::Local::Comments->precache( $u, [ keys %jitemids ], [ keys %userids ] );
+
+        # now doing imports!
+        foreach my $comment ( @to_import ) {
+            next if $comment->[C_done];
+
+            # status output update
+            $title->( 'posting %d/%d comments [%d]', $comment->[C_orig_id], $server_max_id, scalar( @to_import ) );
+            $log->( "Attempting to import remote id %d, parentid %d, state %s.",
+                    $comment->[C_orig_id], $comment->[C_remote_parentid], $comment->[C_state] );
+
+            # if this comment already exists, we might need to update it, however
+            my $err = "";
+            if ( my $jtalkid = $jtalkid_map->{$comment->[C_orig_id]} ) {
+                $log->( 'Comment already exists, passing to updater.' );
+
+                $comment->[C_local_parentid] = $jtalkid_map->{$comment->[C_remote_parentid]}+0;
+                $comment->[C_id] = $jtalkid;
+
+                DW::Worker::ContentImporter::Local::Comments->update_comment( $u, hashify( $comment ), \$err );
+                $log->( 'ERROR: %s', $err ) if $err;
+
+                $comment->[C_done] = 1;
+                next;
+            }
+
+            # due to the ordering, by the time we're here we should be guaranteed to have
+            # our parent comment. if we don't, bail out on this comment and mark it as done.
+            if ( $comment->[C_remote_parentid] && !defined $comment->[C_local_parentid] ) {
+                my $lpid = $jtalkid_map->{$comment->[C_remote_parentid]};
+                unless ( defined $lpid ) {
+                    $log->( 'ERROR: Failed to map remote parent %d.', $comment->[C_remote_parentid] );
+                    next;
+                }
+                $comment->[C_local_parentid] = $lpid+0;
+            } else {
+                $comment->[C_local_parentid] = 0; # top level
+            }
+            $log->( 'Remote parent %d is local parent %d for orig_id=%d.',
+                    $comment->[C_remote_parentid], $comment->[C_local_parentid], $comment->[C_orig_id] )
+                if $comment->[C_remote_parentid];
+
+            # if we get here we're good to insert into the database
+            my $talkid = DW::Worker::ContentImporter::Local::Comments->insert_comment( $u, hashify( $comment ), \$err );
+            if ( $talkid ) {
+                $log->( 'Successfully imported remote id %d to new jtalkid %d.', $comment->[C_orig_id], $talkid );
+            } else {
+                $log->( 'Failed to import comment %d: %s.', $comment->[C_orig_id], $err );
+                return $temp_fail->( 'Failure importing comment: %s.', $err );
+            }
+
+            # store this information
+            $jtalkid_map->{$comment->[C_orig_id]} = $talkid;
+            $comment->[C_id] = $talkid;
+            $comment->[$_] = undef # free up some memory
+                foreach ( C_props, C_body, C_subject );
+            $comment->[C_done] = 1;
+        }
+
+        $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
+    };
 
     # body handling section now
     my ( $lastid, $curid, $lastprop, @tags ) = ( 0, 0, undef );
@@ -242,9 +405,9 @@ sub try_work {
         my %temp = ( @_ ); # take the rest into our humble hash
         if ( $lasttag eq 'comment' ) {
             # get some data on a comment
-            $curid = $temp{id};
-            $meta{$curid}{parentid} = $temp{parentid}+0;
-            $meta{$curid}{jitemid} = $temp{jitemid}+0;
+            $curid = $temp{id}+0;
+            $meta{$curid}->[C_remote_parentid] = $temp{parentid}+0;
+            $meta{$curid}->[C_remote_jitemid] = $temp{jitemid}+0;
         } elsif ( $lasttag eq 'property' ) {
             $lastprop = $temp{name};
         }
@@ -254,6 +417,10 @@ sub try_work {
         my $tag = pop @tags;
         $lasttag = $tags[0];
         $lastprop = undef;
+        if ( $curid ) {
+            $meta{$curid}->[C_done] = 0
+                unless defined $meta{$curid}->[C_done];
+        }
     };
     my $body_content = sub {
         # this grabs data inside of comments: body, subject, date, properties
@@ -263,9 +430,10 @@ sub try_work {
         # that may or may not be in the data stream, and we won't know until we've already gotten
         # some data
         if ( $lasttag =~ /(?:body|subject|date)/ ) {
-            $meta{$curid}{$lasttag} .= $_[1];
+            my $arrid = { body => 5, subject => 6, date => 7 }->{$lasttag};
+            $meta{$curid}->[$arrid] .= $_[1];
         } elsif ( $lastprop && $lasttag eq 'property' ) {
-            $meta{$curid}{props}{$lastprop} .= $_[1];
+            $meta{$curid}->[C_props]->{$lastprop} .= $_[1];
         }
     };
 
@@ -306,8 +474,8 @@ sub try_work {
 
                 # reset all text so we don't get it double posted
                 foreach my $cmt ( values %meta ) {
-                    delete $cmt->{$_}
-                        foreach qw/ subject body date props /;
+                    $cmt->[$_] = undef
+                        foreach ( C_subject, C_body, C_date, C_props );
                 }
 
                 # and now filter.  note that we're assuming this is ISO-8859-1, as that's a
@@ -325,142 +493,15 @@ sub try_work {
         # this will fail nicely as soon as some site we're importing from reduces the max items
         # they return due to load.  http://community.livejournal.com/changelog/5907095.html
         $lastid += $COMMENTS_FETCH_BODY;
+
+        # now we've got some body text, try to post these comments. if we can do that, we can clear
+        # them from memory to reduce how much we're storing.
+        $post_comments->();
     }
 
-    # now iterate over each comment and build the nearly final structure
-    foreach my $comment ( values %meta ) {
-
-        # if we weren't able to map to a jitemid (last entry import a while ago?)
-        # or some other problem, log it and bail
-        unless ( $jitemid_map->{$comment->{jitemid}} ) {
-            $comment->{skip} = 1;
-            $log->( 'NO MAPPED ENTRY: remote values: jitemid %d, posterid %d, jtalkid %d.',
-                    $comment->{jitemid}, $comment->{posterid}, $comment->{id} );
-            next;
-        }
-
-        $comment->{source} = $data->{hostname}
-            if $was_external_user->{$comment->{posterid}};
-
-        # basic mappings
-        $comment->{posterid} = $identity_map->{$comment->{posterid}};
-        $comment->{jitemid} = $jitemid_map->{$comment->{jitemid}};
-        $comment->{orig_id} = $comment->{id};
-
-        $comment->{entry_source} = $entry_source->{$comment->{jitemid}};
-
-        # unresolved comments means we haven't got the parent in the database
-        # yet so we can't post this one
-        $comment->{unresolved} = 1
-            if $comment->{parentid};
-
-        # the reverse of unresolved, tell the parent it has visible children
-        $meta{$comment->{parentid}}->{has_children} = 1
-            if exists $meta{$comment->{parentid}} &&
-               $comment->{parentid} && $comment->{state} ne 'D';
-
-        # remap content (user links) then remove embeds/templates
-        my $body = $class->remap_lj_user( $data, $comment->{body} );
-        $body =~ s/<.+?-embed-.+?>/[Embedded content removed during import.]/g;
-        $body =~ s/<.+?-template-.+?>/[Templated content removed during import.]/g;
-        $comment->{body} = $body;
-
-        # now let's do some encoding, just in case the input we get is in some other
-        # character encoding
-        $comment->{body} = encode_utf8( $comment->{body} || '' );
-        $comment->{subject} = encode_utf8( $comment->{subject} || '' );
-    }
-
-    # variable setup for the database work
-    my @to_import = sort { ( $a->{id}+0 ) <=> ( $b->{id}+0 ) } values %meta;
-    my $had_unresolved = 1;
-
-    # This loop should never need to run through more than once
-    # but, it will *if* for some reason a comment comes before its parent
-    # which *should* never happen, but I'm handling it anyway, just in case.
-    $title->( 'posting %d comments', scalar( @to_import ) );
-    while ( $had_unresolved ) {
-
-        # variables, and reset
-        my ( $ct, $ct_unresolved ) = ( 0, 0 );
-        $had_unresolved = 0;
-
-        # now doing imports!
-        foreach my $comment ( @to_import ) {
-            next if $comment->{skip};
-
-            $title->( 'posting %d/%d comments', $comment->{orig_id}, scalar( @to_import ) );
-            $log->( "Attempting to import remote id %d, parentid %d, state %s.",
-                    $comment->{orig_id}, $comment->{parentid}, $comment->{state} );
-
-            # rules we might skip a content with
-            next if $comment->{done}; # Skip this comment if it was already imported this round
-
-            # if this comment already exists, we might need to update it, however
-            my $err = "";
-            if ( my $jtalkid = $jtalkid_map->{$comment->{orig_id}} ) {
-                $log->( 'Comment already exists, passing to updater.' );
-
-                $comment->{id} = $jtalkid;
-                DW::Worker::ContentImporter::Local::Comments->update_comment( $u, $comment, \$err );
-                $log->( 'ERROR: %s', $err ) if $err;
-
-                $comment->{done} = 1;
-                next;
-            }
-
-            # now we know this one is going in the database
-            $ct++;
-
-            # try to resolve
-            if ( $comment->{unresolved} ) {
-                # lets see if this is resolvable at the moment
-                # A resolvable comment is a comment that's parent is already in the DW database
-                # and an unresolved comment is a comment that has a parent that is currently not in the database.
-                if ( $jtalkid_map->{$comment->{parentid}} ) {
-                    $comment->{parentid} = $jtalkid_map->{$comment->{parentid}};
-                    $comment->{unresolved} = 0;
-
-                    $log->( 'Resolved unresolved comment to local parentid %d.',
-                            $comment->{parentid} );
-
-                } else {
-                    # guess we couldn't resolve it :( next pass!
-                    $ct_unresolved++;
-                    $had_unresolved = 1;
-
-                    $log->( 'Failed to resolve comment.' );
-
-                    next;
-                }
-            }
-
-            # if we get here we're good to insert into the database
-            my $talkid = DW::Worker::ContentImporter::Local::Comments->insert_comment( $u, $comment, \$err );
-            if ( $talkid ) {
-                $log->( 'Successfully imported source %d to new jtalkid %d.', $comment->{id}, $talkid );
-            } else {
-                $log->( 'Failed to import comment %d: %s.', $comment->{id}, $err );
-                return $temp_fail->( 'Failure importing comment: %s.', $err );
-            }
-
-            # store this information
-            $jtalkid_map->{$comment->{orig_id}} = $talkid;
-            $comment->{id} = $talkid;
-            $comment->{done} = 1;
-        }
-
-        # sanity check.  this happens from time to time when, for example, a comment
-        # is deleted but the chain of comments underneath it is never actually removed.
-        # given that the codebase doesn't use foreign keys and transactions, this can
-        # happen and we have to deal with it gracefully.  log it.
-        if ( $ct == $ct_unresolved && $had_unresolved ) {
-            $log->( 'WARNING: User had %d unresolvable comments.', $ct_unresolved );
-
-            # set this to false so that we fall out of the main loop.
-            $had_unresolved = 0;
-        }
-    }
+    # now we have the final post loop...
+    $post_comments->();
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     return $ok->();
 }

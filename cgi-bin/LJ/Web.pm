@@ -54,7 +54,7 @@ sub img
     my $type = shift;  # either "" or "input"
     my $attr = shift;
 
-    my ( $attrs, $alt, $ssl ) = ( '', '' );
+    my ( $attrs, $alt, $ssl ) = ( '', '', 0 );
     if ( $attr ) {
         if ( ref $attr eq "HASH" ) {
             if ( exists $attr->{alt} ) {

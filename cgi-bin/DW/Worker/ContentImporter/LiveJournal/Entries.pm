@@ -8,7 +8,7 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2011 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -27,6 +27,7 @@ sub work {
 
     # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
     %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
+    LJ::start_request();
 
     my ( $class, $job ) = @_;
     my $opts = $job->arg;
@@ -48,9 +49,9 @@ sub try_work {
     my ( $class, $job, $opts, $data ) = @_;
     my $begin_time = [ gettimeofday() ];
 
-    # we know that we can potentially take a while, so budget an hour for
+    # we know that we can potentially take a while, so budget some hours for
     # the import job before someone else comes in to snag it
-    $job->grabbed_until( time() + 3600 );
+    $job->grabbed_until( time() + 3600*12 );
     $job->save;
 
     # failure wrappers for convenience
@@ -85,6 +86,7 @@ sub try_work {
     my $u = LJ::load_userid( $data->{userid} )
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
     $log->( 'Import begun for %s(%d).', $u->user, $u->userid );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # title munging
     my $title = sub {
@@ -98,10 +100,12 @@ sub try_work {
     # load entry map
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map( $u ) || {};
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # and xpost map
     my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
     $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # this is a helper sub that steps a MySQL formatted time by some offset
     # arguments: '2008-01-01 12:03:53', -1 ... returns '2008-01-01 12:03:52'
@@ -135,11 +139,12 @@ sub try_work {
         # now we can mark this, as we have officially syncd this time
         $tried_syncs{$lastsync}++;
 
-        $title->( 'syncitems - %d left', $hash->{title} );
+        $title->( 'syncitems - %d left', $hash->{total} );
         $log->( '    retrieved %d items and %d left to sync', $hash->{count}, $hash->{total} );
         last if $hash->{count} == $hash->{total};
     }
     $log->( 'Syncitems finished with %d items pre-prune.', scalar( keys %sync ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # this is an optimization.  since we never do an edit event (only post!) we will
     # never get changes anyway.  so let's remove from the list of things to sync any
@@ -167,6 +172,7 @@ sub try_work {
         delete $sync{$1 >> 8};
     }
     $log->( 'Syncitems now has %d items post-prune (first pass).', scalar( keys %sync ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     # this is another optimization.  we know crossposted entries can be removed from
     # the list of things we will import, as we generated them to begin with.
@@ -174,6 +180,7 @@ sub try_work {
         delete $sync{$itemid};
     }
     $log->( 'Syncitems now has %d items post-prune (second pass).', scalar( keys %sync ) );
+    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
     $title->( 'post-prune' );
 
@@ -282,6 +289,10 @@ sub try_work {
             # actually post it
             my ( $ok, $res ) =
                 DW::Worker::ContentImporter::Local::Entries->post_event( $data, $entry_map, $u, $posteru, $evt, \@item_errors );
+
+            # we don't need this text anymore, so nuke it to try to save memory
+            delete $evt->{event};
+            delete $evt->{subject};
 
             # now record any errors that happened
             $status->(
@@ -409,6 +420,7 @@ SYNC:   while ( $tries++ <= 10 ) {
 
         # log some status for later
         $log->( '    counted %d entries, lastgrab is now %s.', $count, $lastgrab );
+        $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
     }
 
     # mark the comments mode as ready to schedule

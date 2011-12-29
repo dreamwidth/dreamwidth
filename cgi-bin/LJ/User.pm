@@ -208,13 +208,18 @@ sub create_community {
     $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled( 'adult_content' );
     $u->set_default_style;
 
-    if ( my $remote = LJ::get_remote() ) {
-        LJ::set_rel($u, $remote, "A");  # maintainer
-        LJ::set_rel($u, $remote, "M") if $opts{moderated}; # moderator if moderated
-        $remote->join_community( $u, 1, 1 ); # member
+    my $admin = LJ::load_userid( $opts{admin_userid} )
+        if $opts{admin_userid};
+    $admin ||= LJ::get_remote();
 
-        $u->set_comm_settings( $remote, { membership => $opts{membership},
-                                          postlevel => $opts{postlevel} } );
+    if ( $admin ) {
+        LJ::set_rel($u, $admin, "A");  # maintainer
+        LJ::set_rel($u, $admin, "M") if $opts{moderated}; # moderator if moderated
+        $admin->join_community( $u, 1, 1 ); # member
+
+        $u->set_comm_settings( $admin, { membership => $opts{membership},
+                                         postlevel => $opts{postlevel} } )
+            if exists $opts{membership} && exists $opts{postlevel};
     }
     return $u;
 }
