@@ -190,9 +190,6 @@ sub try_work {
         return $sync{$id}->[1] if @{$sync{$id} || []};
     };
 
-    # helper so we don't have to get so much FOAF data
-    my %user_map;
-
     # now get the actual events
     while ( scalar( keys %sync ) > 0 ) {
         my ( $count, $last_itemid ) = ( 0, undef );
@@ -246,13 +243,9 @@ sub try_work {
             # now try to determine if we need to post this as a user
             my $posteru;
             if ( $data->{usejournal} ) {
-                my $posterid = exists $user_map{$evt->{poster}} ? $user_map{$evt->{poster}} :
-                    DW::Worker::ContentImporter::LiveJournal->remap_username_friend( $data, $evt->{poster} );
+                my ( $posterid, $fid ) = $class->get_remapped_userids( $data, $evt->{poster} );
 
                 unless ( $posterid ) {
-                    # set it to 0, but exists, so we don't hit LJ again, but we continue to fail this poster
-                    $user_map{$evt->{poster}} = 0;
-
                     # FIXME: need a better way of totally dying...
                     push @item_errors, "Unable to map poster from LJ user '$evt->{poster}' to local user.";
                     $status->(
@@ -262,7 +255,6 @@ sub try_work {
                     return;
                 }
 
-                $user_map{$evt->{poster}} ||= $posterid;
                 $posteru = LJ::load_userid( $posterid );
             }
 
