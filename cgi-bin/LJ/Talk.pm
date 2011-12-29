@@ -3892,8 +3892,8 @@ sub edit_comment {
         edit_reason => $comment->{editreason},
     );
 
-    # remove blank/0 values (defaults)
-    foreach ( keys %props ) { delete $props{$_} unless $props{$_}; }
+    # set to undef if we have blank/0 values (set_props will delete these from the DB later)
+    foreach ( keys %props ) { $props{$_} = undef unless $props{$_}; }
 
     my $pu = $comment_obj->poster;
     if ( $pu && $pu->userpic_have_mapid ) {
