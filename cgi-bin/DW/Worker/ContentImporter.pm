@@ -108,6 +108,23 @@ sub import_data {
     return $hr;
 }
 
+=head2 C<< $class->userids_to_message( $userid ) >>
+
+For communities, this returns the userids for all of the admins so we let them know what has
+happened with their import.
+
+=cut
+
+sub userids_to_message {
+    my ( $class, $uid ) = @_;
+
+    my $u = LJ::load_userid( $uid )
+        or return $uid; # fail?
+    return $uid unless $u->is_community;
+
+    return $u->maintainer_userids;
+}
+
 =head2 C<< $class->fail( $import_data, $item, $job, "text", [arguments, ...] ) >>
 
 Permanently fail this import job.
@@ -130,7 +147,9 @@ sub fail {
         if $LJ::IS_DEV_SERVER;
 
     # fire an event for the user to know that it failed
-    LJ::Event::ImportStatus->new( $imp->{userid}, $item, { type => 'fail', msg => $msg } )->fire;
+    foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
+        LJ::Event::ImportStatus->new( $uid, $item, { type => 'fail', msg => $msg } )->fire;
+    }
 
     $job->permanent_failure( $msg );
     return;
@@ -156,14 +175,16 @@ sub temp_fail {
         if $LJ::IS_DEV_SERVER;
 
     # fire an event for the user to know that it failed (temporarily)
-    LJ::Event::ImportStatus->new( $imp->{userid}, $item,
-        {
-            type     => 'temp_fail',
-            msg      => $msg,
-            failures => $job->failures,
-            retries  => $job->funcname->max_retries,
-        }
-    )->fire;
+    foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
+        LJ::Event::ImportStatus->new( $uid, $item,
+            {
+                type     => 'temp_fail',
+                msg      => $msg,
+                failures => $job->failures,
+                retries  => $job->funcname->max_retries,
+            }
+        )->fire;
+    }
 
     $job->failed( $msg );
     return;
@@ -187,8 +208,11 @@ sub ok {
     }
 
     # advise the user this finished
-    LJ::Event::ImportStatus->new( $imp->{userid}, $item, { type => 'ok' } )->fire
-        unless defined $show && $show == 0;
+    unless ( defined $show && $show == 0 ) {
+        foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
+            LJ::Event::ImportStatus->new( $uid, $item, { type => 'ok' } )->fire
+        }
+    }
 
     $job->completed;
     return;
@@ -232,7 +256,9 @@ is a hashref that is passed straight through in the item.
 
 sub status {
     my ( $class, $imp, $item, $args ) = @_;
-    return LJ::Event::ImportStatus->new( $imp->{userid}, $item, { type => 'status', %{ $args || {} } } )->fire;
+    foreach my $uid ( $class->userids_to_message( $imp->{userid} ) ) {
+        LJ::Event::ImportStatus->new( $uid, $item, { type => 'status', %{ $args || {} } } )->fire;
+    }
 }
 
 
