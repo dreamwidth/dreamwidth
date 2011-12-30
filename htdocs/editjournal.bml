@@ -174,7 +174,6 @@ body<=
                 $disabled_delete = ! $u->can_manage( $usejournal_u );
                 $disabled_save++;
             }
-            $disabled_save++ if $usejournal && ! $u->can_post_to( $usejournal_u );
             $disabled_spamdelete = $disabled_delete || !$usejournal || ($res{'events_1_poster'} eq $u->{'user'});
             $disabled_spamdelete ||= LJ::sysban_check( 'spamreport', $usejournal_u->user ) if $usejournal_u;
 

@@ -1911,9 +1911,11 @@ sub editevent
     return fail($err, 210)
         if $req->{event} eq $CannotBeShown;
 
-    # don't allow backdated posts in communities
-    return fail($err,152) if
-        $req->{props}->{opt_backdated} && $uowner->is_community;
+    # don't allow backdated posts in communities... unless this is an import
+    if ( $req->{props}->{opt_backdated} && $uowner->is_community ) {
+        return fail($err, 152)
+            unless $curprops{$itemid}->{import_source};
+    }
 
     # make year/mon/day/hour/min optional in an edit event,
     # and just inherit their old values
@@ -1946,6 +1948,7 @@ sub editevent
             $props_byname{$key} = $req->{'props'}->{$key};
         }
     }
+
     # additionally, if the 'opt_nocomments_maintainer' prop was set before and the poster now sets
     # 'opt_nocomments' to 0 again, 'opt_nocomments_maintainer' should be set to 0 again, as well
     # so comments are enabled again
