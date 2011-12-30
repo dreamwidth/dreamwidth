@@ -102,6 +102,9 @@ _c?>
             $subject .= "..." if $truncated;
         }
 
+        # say the entry was all HTML, and we thus have nothing, one more fallback
+        $subject ||= "(no subject)";
+
         $ret .= "$who: " . "<a href='$url'>$subject</a><br />";
     }
     
