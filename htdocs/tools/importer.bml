@@ -63,7 +63,7 @@ body<=
 
     # user switcher
     my $ret = '';
-    if ( $LJ::ALLOW_COMM_IMPORTS && $u->can_import_comm ) {
+    if ( $LJ::ALLOW_COMM_IMPORTS ) {
         $ret .= "<form method='get'>\n";
         $ret .= LJ::make_authas_select($u, { authas => $GET{authas}, showall => 0 });
         $ret .= "</form>\n\n";
