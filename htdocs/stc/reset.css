@@ -20,7 +20,6 @@ time, mark, audio, video {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	font: inherit;
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
@@ -64,19 +63,28 @@ q {
     margin-left: 1em;
     font-style: italic;
 }
-small {
-    font-size: smaller;
+blockquote {
+    margin-left: 1em;
+    padding: 1em 0.5em;
 }
-big {
-    font-size: larger;
-}
+small { font-size: smaller; }
+big { font-size: larger; }
+sub { vertical-align: sub; }
+sup { vertical-align: super; }
+
+h3 { font-size: 1.4em; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1.1em; }
+h6 { font-size: 1em; }
 
 ol {
     list-style-type: decimal;
     margin-left: 1em;
 }
-
 ul {
     list-style-type: disc;
+    margin-left: 1em;
+}
+dd {
     margin-left: 1em;
 }

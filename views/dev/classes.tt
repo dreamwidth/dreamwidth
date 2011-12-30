@@ -297,13 +297,29 @@ highlight-box: small boxes of content important enough to give focus to, but not
 
 <ul><li>item 1</li><li>item 2</li></ul>
 <ol><li>item 1</li><li>item 2</li></ol>
+<dl><dt>term 1</dt><dd>definition 1</dd><dt>term 2</dt><dd>definition 2</dd></dl>
 <small>small</small>
 <large>large</large>
+<del>del</del>
+<ins>ins</ins>
+<sub>sub</sub>
+<sup>sup</sup>
 <q>quoted text</q>
 <cite>cite</cite>
 <blockquote>blockquoted text</blockquote>
+<code>code</code>
 
 <a href="#">Link</a> <a href="">Visited Link</a>
+
+<table>
+<thead><th>Col 1</th><th>Col 2</th></thead>
+<tbody>
+<tr><td>row 1</td><td>row 1</td></tr>
+<tr><td>row 2</td><td>row 2</td></tr>
+<tr><td>row 3</td><td>row 3</td></tr>
+<tr><td>row 4</td><td>row 4</td></tr>
+</tbody>
+</table>
 
 <h3>Misc / accents</h3>
 <p>.preview-image:</p>
