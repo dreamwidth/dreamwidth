@@ -5864,7 +5864,7 @@ function EntryPage::print_comment (Comment c) {
         """<span class="multiform-checkbox">""";
         print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
         $c->print_multiform_check();
-	"</span>";
+    "</span>";
     }
     $c->print_management_links();
     $c->print_interaction_links();
