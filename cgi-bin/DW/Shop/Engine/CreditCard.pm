@@ -123,18 +123,26 @@ sub get_transaction {
     # if the job is known to the server, that means it's in the queue somewhere, so we are
     # okay to just return whatever state the row has (which should be 'queued')
     return $row if $js && $js->known;
+    return $row unless $row->{jobstate} eq 'queued';
+
+    # if we get here and it says 'queued', that means that we think the job is in Gearman,
+    # but by this point we know it's not. we need to check the database again to see if
+    # the state has been updated. this prevents a race condition we've sometimes seen.
+    my $row2 = $dbh->selectrow_hashref( 'SELECT * FROM cc_trans WHERE cctransid = ?', undef, $cctransid );
+    die "Database error: " . $dbh->errstr . "\n"
+        if $dbh->err;
 
     # now, if the job is not known, and we are still 'queued', something terrible happened
     # like the worker crashed or the gearman server crashed
-    if ( $row->{jobstate} eq 'queued' ) {
-        $row->{jobstate} = 'internal_failure';
-        $row->{joberr} = 'Task no longer known to Gearman.';
+    if ( $row2->{jobstate} eq 'queued' ) {
+        $row2->{jobstate} = 'internal_failure';
+        $row2->{joberr} = 'Task no longer known to Gearman.';
         $dbh->do( 'UPDATE cc_trans SET jobstate = ?, joberr = ?, gctaskref = NULL WHERE cctransid = ?',
-                  undef, $row->{jobstate}, $row->{joberr}, $cctransid );
+                  undef, $row2->{jobstate}, $row2->{joberr}, $cctransid );
         die $dbh->errstr if $dbh->err;
     }
 
-    return $row;
+    return $row2;
 }
 
 # try_capture( ...many values... )
