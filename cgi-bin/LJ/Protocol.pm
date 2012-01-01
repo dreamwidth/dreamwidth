@@ -3305,7 +3305,6 @@ sub do_request
     # get the request and response hash refs
     my ($req, $res, $flags) = @_;
 
-warn Data::Dumper::Dumper( "in do_request", $req );
     # initialize some stuff
     %{$res} = ();                      # clear the given response hash
     $flags = {} unless (ref $flags eq "HASH");
