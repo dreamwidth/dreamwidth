@@ -3305,6 +3305,7 @@ sub do_request
     # get the request and response hash refs
     my ($req, $res, $flags) = @_;
 
+warn Data::Dumper::Dumper( "in do_request", $req );
     # initialize some stuff
     %{$res} = ();                      # clear the given response hash
     $flags = {} unless (ref $flags eq "HASH");
@@ -3394,7 +3395,7 @@ sub do_request
     if ($req->{'mode'} eq "getfriendspage") {
         return getfriendspage($req, $res, $flags);
     }
-    if ($req->{'mode'} eq "getfriendspage") {
+    if ($req->{'mode'} eq "getreadpage") {
         return getreadpage( $req, $res, $flags );
     }
 
@@ -3405,7 +3406,7 @@ sub do_request
 }
 
 ## flat wrapper
-sub getreadpage
+sub getfriendspage
 {
     my ($req, $res, $flags) = @_;
 
@@ -3418,20 +3419,6 @@ sub getreadpage
         $res->{'errmsg'} = LJ::Protocol::error_message($err);
         return 0;
     }
-
-    my $ect = 0;
-    foreach my $evt (@{$rs->{'entries'}}) {
-        $ect++;
-        foreach my $f (qw(subject_raw journalname journaltype postername postertype ditemid security)) {
-            if (defined $evt->{$f}) {
-                $res->{"entries_${ect}_$f"} = $evt->{$f};
-            }
-        }
-        $res->{"entries_${ect}_event"} = LJ::eurl($evt->{'event_raw'});
-    }
-
-    $res->{'entries_count'} = $ect;
-    $res->{'success'} = "OK";
 
     return 1;
 }
