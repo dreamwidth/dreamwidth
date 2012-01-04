@@ -1106,7 +1106,7 @@ CREATE TABLE s2source_inno (
     s2lid INT UNSIGNED NOT NULL,
     PRIMARY KEY (s2lid),
     s2code MEDIUMBLOB
-) TYPE=InnoDB
+) ENGINE=InnoDB
 EOC
 
 register_tablecreate("s2checker", <<'EOC'); # global
@@ -1197,7 +1197,7 @@ CREATE TABLE ml_items (
     INDEX   (updated),
     visible TINYINT NOT NULL DEFAULT 0, -- also boolean
     notes   MEDIUMTEXT
-) TYPE=MYISAM
+) ENGINE=MYISAM
 EOC
 
 register_tablecreate("ml_langs", <<'EOC');
@@ -1252,7 +1252,7 @@ CREATE TABLE ml_text (
     INDEX (lnid, dmid, itid),
     text    TEXT NOT NULL,
     userid  INT UNSIGNED NOT NULL
-) TYPE=MYISAM
+) ENGINE=MYISAM
 EOC
 
 register_tablecreate("domains", <<'EOC');
@@ -1929,7 +1929,7 @@ EOC
 register_tablecreate("recentactions", <<'EOC');
 CREATE TABLE recentactions (
     what CHAR(2) NOT NULL
-) TYPE=MYISAM
+) ENGINE=MYISAM
 EOC
 
 # external identities
@@ -2654,7 +2654,7 @@ CREATE TABLE embedcontent_preview (
     content text,
 
     PRIMARY KEY  (userid,moduleid)
-) TYPE=InnoDB
+) ENGINE=InnoDB
 EOC
 
 register_tablecreate("dw_paidstatus", <<'EOC');
@@ -3774,7 +3774,7 @@ register_alter(sub {
                   q{ALTER TABLE syndicated_hubbub2 ADD COLUMN timespinged INT UNSIGNED NOT NULL DEFAULT '0'} );
     }
 
-    if ( table_relevant( "logkwsum" ) && ! check_dbnote( "logkwsum_fix_filtered_counts_2010" ) ) {
+    if ( 0 && table_relevant( "logkwsum" ) && ! check_dbnote( "logkwsum_fix_filtered_counts_2010" ) ) {
         # this is a very, very racy situation ... we want to do an update of this data, but if anybody
         # else is actively using this table, they're going to be inserting bad data on top of us which
         # will leave SOMEONE in an inconsistent state.  let's warn the user that they should have the site

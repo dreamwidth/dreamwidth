@@ -786,7 +786,7 @@ sub create_table
 
     my $create_sql = $table_create{$table};
     if ($opt_innodb && $create_sql !~ /type=myisam/i) {
-        $create_sql .= " TYPE=INNODB";
+        $create_sql .= " ENGINE=INNODB";
     }
     do_sql($create_sql);
 
