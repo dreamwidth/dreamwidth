@@ -281,11 +281,16 @@ sub try_work {
     $log->( 'Finished fetching metadata.' );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
 
+    # as an optimization, keep track of which comments are on the "to do" list
+    my %in_flight;
+
     # this method is called when we have some comments to post. this will do a best effort
     # attempt to post all comments that are filled in.
     my $post_comments = sub {
+        $log->( 'post sub starting with %d comments in flight', scalar( keys %in_flight ) );
+
         # now iterate over each comment and build the nearly final structure
-        foreach my $id ( sort keys %meta ) {
+        foreach my $id ( sort keys %in_flight ) {
             my $comment = $meta{$id};
             next unless defined $comment->[C_done]; # must be defined
             next if $comment->[C_done] || $comment->[C_body_fixed];
@@ -317,11 +322,8 @@ sub try_work {
         # variable setup for the database work
         my @to_import = sort { ( $a->[C_orig_id]+0 ) <=> ( $b->[C_orig_id]+0 ) }
                         grep { defined $_->[C_done] && $_->[C_done] == 0 && $_->[C_body_fixed] == 1 }
-                        values %meta;
-
-        # This loop should never need to run through more than once
-        # but, it will *if* for some reason a comment comes before its parent
-        # which *should* never happen, but I'm handling it anyway, just in case.
+                        map { $meta{$_} }
+                        keys %in_flight;
         $title->( 'posting %d comments', scalar( @to_import ) );
 
         # let's do some batch loads of the users and entries we're going to need
@@ -390,6 +392,11 @@ sub try_work {
             $comment->[C_done] = 1;
         }
 
+        # remove things that have finished from the in_flight list
+        delete $in_flight{$_}
+            foreach grep { defined $meta{$_}->[C_done] && $meta{$_}->[C_done] == 1 }
+                    keys %in_flight;
+        $log->( 'end of post sub has %d comments in flight', scalar( keys %in_flight ) );
         $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident/1024/1024 );
     };
 
@@ -417,9 +424,9 @@ sub try_work {
         my $tag = pop @tags;
         $lasttag = $tags[0];
         $lastprop = undef;
-        if ( $curid ) {
-            $meta{$curid}->[C_done] = 0
-                unless defined $meta{$curid}->[C_done];
+        if ( $curid && ! defined $meta{$curid}->[C_done] ) {
+            $meta{$curid}->[C_done] = 0;
+            $in_flight{$curid} = 1;
         }
     };
     my $body_content = sub {
