@@ -234,7 +234,7 @@ my %modules = (
                     opt => 'Required for Perlbal',
                 },
                "IO::AIO" => {
-                    deb => 'libio-aoi-perl',
+                    deb => 'libio-aio-perl',
                     opt => 'Required for Perlbal',
                  },
                "LWPx::ParanoidAgent" => { deb => 'liblwpx-paranoidagent-perl' },
