@@ -230,17 +230,20 @@ function subjectIconChange(icon) {
 }
 
 function showRandomIcon() {
-    var randomicon = document.getElementById("randomicon");
-    if (randomicon)
-        randomicon.setAttribute("class", "randomicon");
+    var ele = document.getElementById("randomicon");
+    if (ele) {
+        ele.setAttribute("class", "randomicon");
+        ele.onclick = randomicon;
+    }
 }
 
-function randomicon() {
+function randomicon(e) {
     var icons_list = document.getElementById('prop_picture_keyword');
     // we need to ignore the "(default)" option for this code
     var numberoficons = icons_list.length-1;
     var randomnumber=Math.floor(Math.random()*numberoficons) +1;
     icons_list.selectedIndex = randomnumber;
+    e.preventDefault();
 }
 
 function subjectNoHTML(e) {

@@ -1497,3 +1497,5 @@ general /manage/profile/index.bml.chat.gizmo
 general esn.comm_invite.subject
 
 general error.security.noarg
+
+general /talkpost.bml.userpic.random

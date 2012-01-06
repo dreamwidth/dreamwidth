@@ -949,7 +949,7 @@ sub create_qr_div {
                 } if $remote->can_use_userpic_select;
 
             my $onclick = $beta_jquery ? "" : "onclick='randomicon();'";
-            $qrhtml .= "<a href='javascript:void(0)' $onclick id='randomicon'>" . BML::ml('/talkpost.bml.userpic.random') . "</a>";
+            $qrhtml .= "<button $onclick id='randomicon'>" . BML::ml('/talkpost.bml.userpic.random2') . "</button>";
 
             $qrhtml .= LJ::help_icon_html("userpics", " ");
         }
