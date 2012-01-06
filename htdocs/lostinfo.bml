@@ -186,7 +186,7 @@ body<=
         my @users;
         foreach my $uid ( LJ::User->accounts_by_email( $email ) ) {
             my $u = LJ::load_userid($uid);
-            next unless $u && $u->{clusterid};  # not purged
+            next if !$u || $u->is_expunged;  # not purged
 
             # As the idea is to limit spam to one e-mail address, if any of their username's are
             # over the limit, then don't send them any more e-mail.
