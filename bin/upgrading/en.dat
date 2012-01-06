@@ -1054,7 +1054,7 @@ Hi [[user]],
 You can:
 .
 
-esn.comm_invite.subject=You've been invited to join [[user]]
+esn.comm_invite.email.subject=You've been invited to join [[community]]
 
 esn.comm_join_approve.email_subject=Your request to join [[community]] community
 

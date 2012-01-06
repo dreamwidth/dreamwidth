@@ -1493,3 +1493,5 @@ general /profile.bml.error.deleted.purgenotification
 general /profile.bml.label.gizmo
 general /profile.bml.label.gizmo3
 general /manage/profile/index.bml.chat.gizmo
+
+general esn.comm_invite.subject

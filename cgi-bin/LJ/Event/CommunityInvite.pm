@@ -29,7 +29,7 @@ sub new {
 sub is_common { 0 }
 
 my @_ml_strings = (
-    'esn.comm_invite.subject',      # "You've been invited to join [[user]]"
+    'esn.comm_invite.email.subject',# "You've been invited to join [[community]]"
     'esn.comm_invite.email',        # 'Hi [[user]],
                                     #
                                     # [[maintainer]] has invited you to join the community [[community]]!
@@ -42,8 +42,10 @@ my @_ml_strings = (
 );
 
 sub as_email_subject {
-    my $self = shift;
-    return sprintf "You've been invited to join %s", $self->comm->user;
+    my ($self, $u) = @_;
+    my $cu      = $self->comm;
+    my $lang    = $u->prop( 'browselang' );
+    return LJ::Lang::get_text( $lang, 'esn.comm_invite.email.subject', undef, { 'community' => $cu->user } );
 }
 
 sub _as_email {
