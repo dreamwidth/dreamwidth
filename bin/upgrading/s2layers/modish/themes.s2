@@ -105,7 +105,9 @@ set color_module_title_background = "#D1AB94";
 
 function Page::print_theme_stylesheet() {
     """
-    div.module-navlinks, div.module-time, div.module-powered {
+    .module-navlinks,
+    .module-time,
+    .module-powered {
         background-color: $*color_page_background;
         }
 
@@ -246,7 +248,9 @@ set color_module_title_background = "#787856";
 
 function Page::print_theme_stylesheet() {
     """
-    div.module-navlinks, div.module-time, div.module-powered {
+    .module-navlinks,
+    .module-time,
+    .module-powered {
         background-color: $*color_page_background;
         }
 
@@ -254,19 +258,21 @@ function Page::print_theme_stylesheet() {
         background-color: $*color_header_background;
         }
 
-    span.date, span.time {
+    .date,
+    .time {
         color: $*color_page_title;
         }
 
     .entry .entry-title a:visited {
         color: $*color_entry_link_visited;
-    }
+        }
 
     .entry .entry-title a:hover {
         color: $*color_entry_link_hover;
-    }
+        }
 
-    ul.entry-interaction-links, ul.entry-management-links {
+    ul.entry-interaction-links,
+    ul.entry-management-links {
         padding-top: 2px;
         }
 
@@ -519,19 +525,21 @@ set color_module_title_background = "#9FB9C2";
 
 function Page::print_theme_stylesheet() {
     """
-    div.module-navlinks, div.module-time, div.module-powered {
+    .module-navlinks,
+    .module-time,
+    .module-powered {
         background-color: $*color_page_background;
         }
 
-    div.module-navlinks ul.module-list li.module-list-item a {
+    .module-navlinks .module-list .module-list-item a {
         color: $*color_footer_link_active;
         }
 
-    div.module-navlinks ul.module-list li.module-list-item:hover a {
+    .module-navlinks .module-list .module-list-item:hover a {
         color: $*color_module_title;
         }
 
-    div.topnav a, div.bottomnav a {
+    .topnav a, .bottomnav a {
         color: $*color_page_text;
         }
 
@@ -540,7 +548,8 @@ function Page::print_theme_stylesheet() {
         border-bottom: 1px solid $*color_module_border;
         }
 
-    ul.entry-interaction-links a:visited, ul.entry-interaction-links a:hover {
+    ul.entry-interaction-links a:visited,
+    ul.entry-interaction-links a:hover {
         color: $*color_entry_interaction_links;
         }
     """;

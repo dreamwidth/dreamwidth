@@ -599,7 +599,7 @@ table.month td p {
 .month dl dt {
     font-weight: bold;
 }
-.month dl span.time {
+.month dl .time {
     padding-right: .5em;
 }
 .month dl h3 {

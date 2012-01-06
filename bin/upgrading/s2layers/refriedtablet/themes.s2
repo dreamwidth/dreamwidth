@@ -1118,25 +1118,30 @@ set color_module_title_background = "#054976";
 
 function Page::print_theme_stylesheet() {
     """
-    .two-columns-left #tertiary .module, .two-columns-right #tertiary .module {
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module {
         background-color: $*color_entry_background;
         color: $*color_entry_text;
         }
 
-    .two-columns-left #tertiary .module, .two-columns-right #tertiary .module a {
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module a {
         color: $*color_entry_link;
         }
 
-    .two-columns-left #tertiary .module, .two-columns-right #tertiary .module a:hover {
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module a:visited {
+        color: $*color_entry_link_visited;
+        }
+
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module a:hover {
         color: $*color_entry_link_hover;
         }
 
-    .two-columns-left #tertiary .module, .two-columns-right #tertiary .module a:active {
+    .two-columns-left #tertiary .module,
+    .two-columns-right #tertiary .module a:active {
         color: $*color_entry_link_active;
-        }
-
-    .two-columns-left #tertiary .module, .two-columns-right #tertiary .module a:visited {
-        color: $*color_entry_link_visited;
         }
     """;
 }

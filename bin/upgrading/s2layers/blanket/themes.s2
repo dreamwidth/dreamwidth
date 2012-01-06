@@ -97,23 +97,21 @@ set font_journal_subtitle = "'Liberation Serif', Helvetica, 'Times New Roman'";
 
 function Page::print_theme_stylesheet () {
 """
+    .metadata ul li {
+        color: #4e8693;
+        }
 
-div.metadata ul li {
-    color: #4e8693;
-}
+    .poster {
+        text-transform: lowercase;
+        }
 
-span.poster {
-    text-transform: lowercase;
-}
+    #header h2#subtitle, h3.entry-title {
+        text-transform: none;
+        }
 
-div#header h2#subtitle, h3.entry-title {
-    text-transform: none;
-}
-
-#secondary>.inner {
-    padding: 1em .5em;
-}
-
+    #secondary > .inner {
+        padding: 1em .5em;
+        }
 """;
 }
 

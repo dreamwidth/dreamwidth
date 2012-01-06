@@ -611,7 +611,8 @@ h2.module-header a {
 }
 
 /* Entry/Comment links */
-ul.entry-interaction-links, ul.entry-management-links, ul.comment-management-links, ul.comment-interaction-links {
+ul.entry-interaction-links, ul.entry-management-links,
+ul.comment-management-links, ul.comment-interaction-links {
     list-style: none;
     padding-left: 0;
     margin-bottom: 10px;
@@ -650,18 +651,12 @@ ul.entry-interaction-links, ul.entry-management-links, ul.comment-management-lin
     display: none;
 }
 
-#archive-year div.inner div.year div.inner div.month-wrapper div.month div.inner div.header h3 {
+#archive-year .month .header h3,
+#archive-year .month .footer a {
     margin-left: 0;
     float: left;
     clear: left;
 }
-
-#archive-year div.inner div.year div.inner div.month-wrapper div.month div.inner div.footer div.inner a {
-    margin-left: 0;
-    float: left;
-    clear: left;
-}
-
 
 /*
  * Comments
@@ -676,7 +671,8 @@ ul.entry-interaction-links, ul.entry-management-links, ul.comment-management-lin
     margin-bottom: 1em;
 }
 
-ul.entry-interaction-links li, ul.entry-management-links li,  ul.comment-interaction-links li, ul.comment-management-links li {
+ul.entry-interaction-links li, ul.entry-management-links li,
+ul.comment-interaction-links li, ul.comment-management-links li {
     display: inline;
     font-weight: bold;
 }
@@ -723,7 +719,7 @@ module-section-two ul.module-list li {
 
 }
 
-div.page-top {
+.page-top {
     text-align: right;
     margin-bottom: 10px;
 }

@@ -897,7 +897,7 @@ $userpic_css
     padding: .5em 0;
     }
 
-.comment span.multiform-checkbox {
+.comment .multiform-checkbox {
     padding-right: 1em;
     }
 
@@ -973,7 +973,7 @@ $userpic_css
         width: 99%;
         }
 
-    #qrformdiv span.de {
+    #qrformdiv .de {
         $entry_footer_link_visited_colors
         }
 

@@ -366,7 +366,7 @@ h3.entry-title {
     text-transform: uppercase;
     }
 
-span.poster {
+.poster {
     margin: 1em 0;
     }
 
@@ -513,7 +513,7 @@ hr.above-entry-interaction-links, hr.below-reply-container {
     text-transform: uppercase;
     }
 
-span.tag-text {
+.tag-text {
     text-transform: uppercase;
     }
 

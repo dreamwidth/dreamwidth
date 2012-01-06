@@ -674,22 +674,14 @@ function Page::print_default_stylesheet()
 
     .floatclear {
         visibility: hidden;
-        clear:both;
-        height:0;
+        clear: both;
+        height: 0;
     }
 
-    /*separators*/
-    span.invis{
-        display:none;
-    }
-    /* correct LJ breaking the comment page */
     textarea.textbox{
         width: 100%;
     }
-    q{
-        font-style: italic;
-    }
-    
+
     .entry h3 { display: inline; }
 
     .page-top {

@@ -137,7 +137,7 @@ ol {
     list-style-type: decimal;
     }
 
-span.poster {
+.poster {
     padding: 5px;
     }
 
@@ -256,10 +256,10 @@ h3.entry-title {
     text-transform: uppercase;
     }
 
-span.metadata-item-location,
-span.metadata-item-music,
-span.metadata-item-mood,
-div.tag ul {
+.metadata-item-location,
+.metadata-item-music,
+.metadata-item-mood,
+.tag ul {
     color: $*color_entry_link;
     text-align: right;
     text-transform: uppercase;
@@ -271,7 +271,7 @@ div.tag ul {
     text-transform: uppercase;
     }
 
-span.tag-text {
+.tag-text {
     text-transform: uppercase;
     }
 
