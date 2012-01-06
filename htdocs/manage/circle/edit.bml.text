@@ -85,6 +85,8 @@
 
 .comm.leave=Leave
 
+.customcolors.enable=For your Reading Page to display these colors, you need to enable the 'Use my custom reading page colors' option at <a [[aopts]]>Customize Journal Style</a>. All official [[sitename]] styles support this option except for Zesty; custom styles may not.
+
 .editfriends.friend=Friend?
 
 .editfriends.head=Edit Friends

@@ -256,6 +256,7 @@ body<=
         ### add friends
         $ret .= "<?h2 $ML{'.addrelationships.head'} h2?>\n";
         $ret .= "<?p " . BML::ml('.addrelationships.text', { sitename => $LJ::SITENAMESHORT, aopts => "href='$LJ::SITEROOT/manage/circle/invite'" }) . " p?>";
+        $ret .= "<?p " . BML::ml('.customcolors.enable', { aopts => "href='$LJ::SITEROOT/customize/options'", sitename => $LJ::SITENAMESHORT }) . " p?>";
 
         if ( $u->circle_userids >= $u->count_maxfriends ) {
             # different message if account upgrade is possible
