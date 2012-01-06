@@ -785,7 +785,7 @@ sub create_table
     return if $cluster && ! defined $clustered_table{$table};
 
     my $create_sql = $table_create{$table};
-    if ($opt_innodb && $create_sql !~ /type=myisam/i) {
+    if ($opt_innodb && $create_sql !~ /engine=myisam/i) {
         $create_sql .= " ENGINE=INNODB";
     }
     do_sql($create_sql);
