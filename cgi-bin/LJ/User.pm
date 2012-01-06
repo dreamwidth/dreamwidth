@@ -5576,8 +5576,22 @@ sub password {
 
 
 sub set_password {
-    my ($u, $password) = @_;
-    return LJ::set_password($u->id, $password);
+    my ( $u, $password ) = @_;
+    my $userid = $u->id;
+
+    my $dbh = LJ::get_db_writer();
+    if ( $LJ::DEBUG{'write_passwords_to_user_table'} ) {
+        $dbh->do( "UPDATE user SET password=? WHERE userid=?", undef,
+                  $password, $userid );
+    }
+    $dbh->do( "REPLACE INTO password (userid, password) VALUES (?, ?)",
+              undef, $userid, $password );
+
+    # update caches
+    LJ::memcache_kill( $userid, "userid" );
+    $u->memc_delete( 'pw' );
+    my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
+    $cache->{'_password'} = $password;
 }
 
 
@@ -7262,7 +7276,6 @@ use Carp;
 ###  15. Email-Related Functions
 ###  16. Entry-Related Functions
 ###  19. OpenID and Identity Functions
-###  21. Password Functions
 ###  23. Relationship Functions
 ###  24. Styles and S2-Related Functions
 
@@ -7941,8 +7954,8 @@ sub memcache_set_u
 sub update_user
 {
     my ( $u, $ref ) = @_;
-    my $uid = LJ::want_userid( $u ) + 0;
-    return 0 unless $uid;
+    $u = LJ::want_user( $u ) or return 0;
+    my $uid = $u->id;
 
     my @sets;
     my @bindparams;
@@ -7954,7 +7967,7 @@ sub update_user
         } elsif ($k eq 'email') {
             LJ::set_email( $uid, $v );
         } elsif ($k eq 'password') {
-            LJ::set_password( $uid, $v );
+            $u->set_password( $v );
         } else {
             push @sets, "$k=?";
             push @bindparams, $v;
@@ -8619,54 +8632,6 @@ sub get_extuser_uid
     }
 
     return $dbh->selectrow_array($sql, undef, @bind);
-}
-
-
-########################################################################
-###  21. Password Functions
-
-=head2 Password Functions (LJ)
-=cut
-
-# Checks if they are flagged as having a bad password and redirects
-# to changepassword.bml.  If returl is on it returns the URL to
-# redirect to vs doing the redirect itself.  Useful in non-BML context
-# and for QuickReply links
-sub bad_password_redirect {
-    my $opts = shift;
-
-    my $remote = LJ::get_remote();
-    return undef unless $remote;
-
-    return undef unless LJ::is_enabled('force_pass_change');
-
-    return undef unless $remote->prop('badpassword');
-
-    my $redir = "$LJ::SITEROOT/changepassword";
-    unless (defined $opts->{'returl'}) {
-        return BML::redirect($redir);
-    } else {
-        return $redir;
-    }
-}
-
-
-sub set_password {
-    my ($userid, $password) = @_;
-
-    my $dbh = LJ::get_db_writer();
-    if ($LJ::DEBUG{'write_passwords_to_user_table'}) {
-        $dbh->do("UPDATE user SET password=? WHERE userid=?", undef,
-                 $password, $userid);
-    }
-    $dbh->do("REPLACE INTO password (userid, password) VALUES (?, ?)",
-             undef, $userid, $password);
-
-    # update caches
-    LJ::memcache_kill($userid, "userid");
-    LJ::MemCache::delete([$userid, "pw:$userid"]);
-    my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
-    $cache->{'_password'} = $password;
 }
 
 

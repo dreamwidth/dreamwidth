@@ -782,6 +782,26 @@ sub check_referer {
     return undef;
 }
 
+# Checks if the user is flagged as having a bad password and redirects
+# to changepassword page.  If returl is on it returns the URL to
+# redirect to vs doing the redirect itself.  Useful in non-web context
+# and for QuickReply links.
+sub bad_password_redirect {
+    my ( $opts ) = @_;
+    return undef unless LJ::is_enabled( 'force_pass_change' );
+
+    my $remote = LJ::get_remote();
+    return undef unless $remote && $remote->prop( 'badpassword' );
+
+    my $redir = "$LJ::SITEROOT/changepassword";
+    if ( defined $opts->{returl} ) {
+        return $redir;
+    } else {
+        my $r = DW::Request->get;
+        return $r->redirect( $redir );
+    }
+}
+
 # <LJFUNC>
 # name: LJ::form_auth
 # class: web
