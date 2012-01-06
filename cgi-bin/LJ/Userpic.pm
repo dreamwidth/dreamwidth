@@ -493,7 +493,7 @@ sub keywords {
         # if scalar context return comma-seperated list of keywords, or "pic#12345" if no keywords
         return ($raw ? '' : "pic#" . $self->id) unless @pickeywords;
 
-        return join(', ', sort @pickeywords);
+        return join(', ', sort { lc $a cmp lc $b } @pickeywords);
     }
 }
 
@@ -1260,8 +1260,8 @@ sub sort {
             $nokwhash{$pickw} = $pic;
         }
     }
-    my @sortedkw = sort keys %kwhash;
-    my @sortednokw = sort keys %nokwhash;
+    my @sortedkw = sort { lc $a cmp lc $b } keys %kwhash;
+    my @sortednokw = sort { lc $a cmp lc $b } keys %nokwhash;
 
     my @sortedpics;
     foreach my $kw ( @sortedkw ) {
