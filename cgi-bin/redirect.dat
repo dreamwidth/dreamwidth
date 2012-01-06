@@ -1,11 +1,11 @@
-/community.bml      /community/
-/communities        /community/
-/support.bml        /support/
-/textmessage.bml    /tools/textmessage.bml
-/memories.bml       /tools/memories.bml
-/memadd.bml     /tools/memadd.bml
-/faq.bml        /support/faq.bml
-/faqbrowse.bml      /support/faqbrowse.bml
+/community.bml                      /community/
+/communities                        /community/
+/support.bml                        /support/
+/textmessage.bml                    /tools/textmessage.bml
+/memories.bml                       /tools/memories.bml
+/memadd.bml                         /tools/memadd.bml
+/faq.bml                            /support/faq.bml
+/faqbrowse.bml                      /support/faqbrowse.bml
 /customize/advanced.bml             /customize/
 /customize/preview.bml              /customize/
 /customize/style.bml                /customize/
@@ -52,3 +52,5 @@
 /settings/index.bml                 /manage/settings
 /directory                          /directorysearch
 /directory.bml                      /directorysearch
+/support/known_issues               /support/
+/support/known_issues.bml           /support/
