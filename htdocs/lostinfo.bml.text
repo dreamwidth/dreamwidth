@@ -1,6 +1,23 @@
 ;; -*- coding: utf-8 -*-
 .btn.proceed=Proceed
 
+.email.body<<
+
+This is your requested username reminder from [[sitename]]. Below are the usernames you have registered for the email address [[emailaddress]]:
+
+          [[usernames]]
+
+This information was requested on the website from [[remoteip]].
+
+Regards,
+[[sitename]] Team
+
+[[siteurl]]
+
+.
+
+.email.subject=Lost Username
+
 .enter_email=Enter your email address:
 
 .enter_email_optional=Email address:  (optional)

@@ -200,21 +200,23 @@ body<=
 
         # we have valid usernames, build email body
         my $body;
-        $body .= "This is your requested username reminder from $LJ::SITENAME.  ";
-        $body .= "Below are the usernames you have registered for the email address $email:\n\n";
+        my $userlist = join "\n          ", @users;
+        my $ip = BML::get_remote_host() . "(" . BML::get_remote_ip() . ")";
 
-        $body .= "          $_\n" foreach @users;
-
-        $body .= "\nThis information was requested on the website from " . BML::get_remote_host() .
-                 " (" . BML::get_remote_ip() . ").\n\n";
-        $body .= "Regards,\n$LJ::SITENAME Team\n\n$LJ::SITEROOT/\n";
+        $body = LJ::Lang::ml( ".email.body", {
+                sitename => $LJ::SITENAME,
+                emailaddress  => $email,
+                usernames => $userlist,
+                remoteip => $ip,
+                siteurl => $LJ::SITEROOT
+            } );
 
         LJ::send_mail({
             'to' => $email,
             'from' => $LJ::ADMIN_EMAIL,
             'fromname' => $LJ::SITENAME,
             'charset' => 'utf-8',
-            'subject' => "Lost Username",
+            'subject' => LJ::Lang::ml( ".email.subject" ),
             'body' => $body,
         }) or die "Error: couldn't send email";
 
