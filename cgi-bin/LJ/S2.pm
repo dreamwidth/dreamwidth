@@ -2908,7 +2908,7 @@ sub control_strip_logged_out_full_userpic_css
 sub weekdays
 {
     my ($ctx) = @_;
-    return [ 1..7 ];  # FIXME: make this conditionally monday first: [ 2..7, 1 ]
+    return S2::get_property_value($ctx, 'reg_firstdayofweek') eq "monday" ? [ 2..7, 1 ] : [ 1..7 ];
 }
 
 sub journal_current_datetime {
@@ -4265,7 +4265,7 @@ sub Page__get_latest_month
     return $this->{'_latest_month'} = LJ::S2::YearMonth($this, {
         'year' => $year,
         'month' => $month,
-    });
+    }, S2::get_property_value($ctx, 'reg_firstdayofweek') eq "monday" ? 1 : 0);
 }
 *RecentPage__get_latest_month = \&Page__get_latest_month;
 *DayPage__get_latest_month = \&Page__get_latest_month;

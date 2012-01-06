@@ -76,14 +76,14 @@ sub YearPage
         push @{$p->{'months'}}, YearMonth($p, {
             'month' => $month,
             'year' => $year,
-        });
+        }, S2::get_property_value($opts->{ctx}, 'reg_firstdayofweek') eq "monday" ? 1 : 0);
     }
 
     return $p;
 }
 
 sub YearMonth {
-    my ($p, $calmon) = @_;
+    my ($p, $calmon, $start_monday) = @_;
 
     my ($month, $year) = ($calmon->{'month'}, $calmon->{'year'});
     $calmon->{'_type'} = 'YearMonth';
@@ -94,7 +94,6 @@ sub YearMonth {
     my $has_entries = $count->{$year} && $count->{$year}->{$month} ? 1 : 0;
     $calmon->{'has_entries'} = $has_entries;
 
-    my $start_monday = 0;  # FIXME: check some property to see if weeks start on monday
     my $week = undef;
 
     my $flush_week = sub {

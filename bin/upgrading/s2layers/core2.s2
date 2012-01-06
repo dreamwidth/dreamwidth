@@ -1305,9 +1305,7 @@ set time_ago_minutes = "1 minute // # minutes";
 set time_ago_hours = "1 hour // # hours";
 set time_ago_days = "1 day // # days";
 
-# FIXME: this is not currently implemented, so not showing it in the UI yet
 property string reg_firstdayofweek {
-    noui = 1;
     des = "The day of the week the calendar weeks starts on.";
     doc = "The day of the week the calendar weeks starts on.  Either 'sunday' or 'monday'. Not currently implemented";
     doc_flags = "[construct]";

@@ -24,6 +24,7 @@ propgroup presentation {
     property use userlite_interaction_links;
     property use entry_management_links;
     property use comment_management_links;
+    property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
 }
