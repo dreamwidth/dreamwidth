@@ -306,15 +306,18 @@ sub rename_admin_edit_handler {
 
     # load up the old values
     my $token_details = $token->details;
-    $form->{redirect} = $token_details->{redirect}->{username} ? "forward" : "disconnect";
-    $form->{rel_options} = { map { $_ => ! $token_details->{del}->{$_} } @rel_types };
-    $form->{others}->{email} = $token_details->{redirect}->{email};
+    if ( $token_details ) {
+        $form->{redirect} = $token_details->{redirect}->{username} ? "forward" : "disconnect";
+        $form->{rel_options} = { map { $_ => ! $token_details->{del}->{$_} } @rel_types };
+        $form->{others}->{email} = $token_details->{redirect}->{email};
+    }
 
     my $vars = {
         %$rv,
         formdata => $form,
         rel_types => \@rel_types,
         token => $token,
+        nodetails => $token_details ? 0: 1,
     };
 
     if ( $r->did_post ) {

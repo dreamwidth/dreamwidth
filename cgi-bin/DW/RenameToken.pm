@@ -325,6 +325,7 @@ sub details {
 
     my $u = LJ::load_userid( $self->renuserid );
     return unless LJ::isu( $u );
+    return if $u->is_expunged; # can't retrieve the info from userlog
 
     # get more than we need and filter, just in case the timestamps don't match up perfectly
     my $results = $u->selectall_arrayref(

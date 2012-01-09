@@ -274,13 +274,19 @@ note( "-- user status special casing" );
     my $fromusername = $fromu->username;
     my $tousername = $tou->user;
 
-    $tou->set_statusvis( "X" );
+    $tou->update_self( { clusterid => 0,
+                       statusvis => 'X',
+                       raw => "statusvisdate=NOW()" } );
+
+    LJ::start_request();
+    $tou = LJ::load_user( $tousername, 1 );
+    $fromu = LJ::load_user( $fromusername, 1 );
 
     ok( $fromu->can_rename_to( $tousername ), "Can always rename to expunged users." );
     ok( $fromu->rename( $tousername, token => new_token( $fromu ) ), "Rename to expunged user $tousername" );
 
-    $fromu = LJ::load_userid( $fromu->userid );
-    $tou = LJ::load_userid( $tou->userid );
+    $fromu = LJ::load_userid( $fromu->userid, 1 );
+    $tou = LJ::load_userid( $tou->userid, 1 );
     is( $fromu->user, $tousername, "Rename fromu to tou, which is under the control of fromu" );
     my $ex_user = substr( $tousername, 0, 10 );
     like( $tou->user, qr/^ex_$ex_user/ , "Moved out of the way." );

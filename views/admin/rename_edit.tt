@@ -35,12 +35,13 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 <label>Account: </label>    [% form.data.user.ljuser_display %]
             </div>
             <div class="formfield">
-                <label>Renamed by: </label> [% form.data.byuser.ljuser_display %]
+                <label>Renamed by: </label> [% form.data.byuser.ljuser_display OR "(system)" %]
             </div>
 
         </fieldset>
 
         [% scope = dw.ml_scope( ); CALL dw.ml_scope( '/rename.tt' ) %]
+        [% UNLESS nodetails %]
         <h2>Options chosen</h2>
         <p>You will need to check the "override" to override the displayed options.</p>
         <fieldset>
@@ -78,6 +79,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </fieldset>
 
         <input type="submit" value="Override rename options" />
+
+        [% END # nodetails %]
     </form>
     [% CALL dw.ml_scope( scope ); %]
 [% ELSE %]

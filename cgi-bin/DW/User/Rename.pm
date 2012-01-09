@@ -473,7 +473,8 @@ sub apply_rename_opts {
     $self->log_event( 'rename', {
         remote => $remote,
         %extra_args,
-    } );
+    } ) unless $self->is_expunged;  # if expunged, we don't need this info anymore
+                                    # also, would error; don't have a cluster 0
 }
 
 =head2 C<< $self->break_redirects >>
