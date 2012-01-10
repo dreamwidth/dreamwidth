@@ -168,6 +168,15 @@ sub pollvote_items {
     return $_[0]->subset_items( 'PollVote' );
 }
 
+sub communitymembership_items {
+    my $self = shift;
+
+    my @community_events = communitymembership_event_list();
+
+    my %community_events = map { "LJ::Event::" . $_ => 1 } @community_events;
+    return grep { $community_events{$_->event->class} } $self->items;
+}
+
 # return a subset of notificationitems
 sub subset_items {
     my ($self, @subset) = @_;
@@ -585,6 +594,8 @@ sub delete_all {
         @items = $self->singleentry_items( $itemid );
     } elsif ( $view eq 'pollvote' ) {
         @items = $self->pollvote_items;
+    } elsif ( $view eq 'communitymembership' ) {
+        @items = $self->communitymembership_items;
     } elsif ( $view eq 'unread' ) {
         @items = $self->unread_items;
     }
@@ -635,6 +646,8 @@ sub mark_all_read {
         @items = $self->singleentry_items( $itemid );
     } elsif ( $view eq 'pollvote' ) {
         @items = $self->pollvote_items;
+    } elsif ( $view eq 'communitymembership' ) {
+        @items = $self->communitymembership_items;
     } elsif ( $view eq 'unread' ) {
         @items = $self->unread_items;
     }
@@ -729,6 +742,11 @@ sub usermsg_sent_event_count {
     return $self->subset_unread_count(@events);
 }
 
+sub communitymembership_event_count {
+    my $self = shift;
+    return $self->subset_unread_count(communitymembership_event_list());
+}
+
 # Methods that return Arrays of Event categories
 sub friend_event_list {
     my @events = qw(
@@ -757,6 +775,11 @@ sub circle_event_list {
 
 sub entrycomment_event_list {
     my @events = ( 'JournalNewEntry', 'JournalNewComment', 'JournalNewComment::TopLevel' );
+    return @events;
+}
+
+sub communitymembership_event_list {
+    my @events = ( 'CommunityJoinApprove', 'CommunityJoinReject', 'CommunityJoinRequest' );
     return @events;
 }
 
