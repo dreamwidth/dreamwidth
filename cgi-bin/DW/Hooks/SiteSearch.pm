@@ -29,7 +29,7 @@ LJ::Hooks::register_hook( 'setprop', sub {
     my %opts = @_;
     return unless $opts{prop} eq 'opt_blockglobalsearch';
 
-    my $dbh = _sphinx_db();
+    my $dbh = _sphinx_db() or return 0;
     $dbh->do( 'UPDATE posts_raw SET allow_global_search = ? WHERE journal_id = ?',
               undef, $opts{value} eq 'Y' ? 0 : 1, $opts{u}->id );
     die $dbh->errstr if $dbh->err;
@@ -45,7 +45,7 @@ LJ::Hooks::register_hook( 'setprop', sub {
 sub _mark_deleted {
     my ( $u, $is_deleted ) = @_;
 
-    my $dbh = _sphinx_db();
+    my $dbh = _sphinx_db() or return 0;
     $dbh->do( 'UPDATE posts_raw SET is_deleted = ? where journal_id = ?',
               undef, $is_deleted, $u->id );
     die $dbh->errstr if $dbh->err;
