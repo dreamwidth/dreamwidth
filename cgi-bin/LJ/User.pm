@@ -4684,7 +4684,9 @@ sub reset_email {
         return $errsub->( LJ::Lang::ml( "email.emailreset.error",
                                         { user => $u->user } ) );
 
-    if ( defined $emailsucc ) {
+    if ( $LJ::T_SUPPRESS_EMAIL ) {
+        $$emailsucc = 1 if ref $emailsucc;  # pretend we sent it
+    } elsif ( defined $emailsucc ) {
         my $aa = LJ::register_authaction( $u->id, "validateemail", $newemail );
         my $auth = "$aa->{aaid}.$aa->{authcode}";
         my $sent = LJ::send_mail( {

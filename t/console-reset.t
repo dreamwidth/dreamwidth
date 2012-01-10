@@ -6,6 +6,7 @@ require 'ljlib.pl';
 use LJ::Console;
 use LJ::Test qw (temp_user);
 local $LJ::T_NO_COMMAND_PRINT = 1;
+local $LJ::T_SUPPRESS_EMAIL = 1;
 
 plan tests => 14;
 
