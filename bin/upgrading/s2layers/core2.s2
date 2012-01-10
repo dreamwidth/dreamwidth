@@ -289,6 +289,7 @@ class UserLite
     function base_url () : string "Returns URL of user's journal.";
     function linklist_manage_url () : string "Returns URL to user's tag management page.";
     function tag_manage_url () : string "Returns URL to user's tag management page.";
+    function icon_manage_url () : string "Returns URL to user's icon management page.";
     function print_interaction_links() "Print the interaction links for this user/journal.";
     function as_string() : string;
     function print ();
@@ -685,6 +686,8 @@ class IconsPage extends Page
 
     var readonly string{} sort_urls "An associative array of link for various sort orders.";
     var readonly string[] sort_keyseq "A list of sort orders, indicated by key.";
+    function print_icon_manage_link
+    "Prints out a link to the icon management page, if the viewer can manage icons.";
 }
 
 class TagsPage extends Page
@@ -2579,6 +2582,11 @@ property string text_icons_sort_keyword {
     example = "Keyword Order";
 }
 
+property string text_icon_manage {
+    des = "Text to use to link to this journal's icon management page.";
+    example = "Manage Icons";
+}
+
 set text_icons_page_header = "Current Icons";
 set text_icons_page_empty_header = "No Icons";
 set text_icons_keywords = "Keywords:";
@@ -2589,6 +2597,7 @@ set text_icons_default = "Default";
 set text_icons_inactive = "Inactive";
 set text_icons_sort_upload = "Upload Order";
 set text_icons_sort_keyword = "Keyword Order";
+set text_icon_manage = "Manage Icons";
 
 ##===============================
 ## Text - tags
@@ -3354,6 +3363,12 @@ function UserLite::tag_manage_url() [fixed] : string
     return "$*SITEROOT/manage/tags.bml?authas=$.username";
 }
 
+function UserLite::icon_manage_url() [fixed] : string
+"Returns a link to the user's icon management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
+    return "$*SITEROOT/editicons?authas=$.username";
+}
+
 function UserLite::as_string() [fixed] : string
 "Use UserLite::print instead in most cases. Returns a DW user tag for the user. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
@@ -3779,6 +3794,11 @@ function print_tag_manage_link() "Prints out a link to the tag management page, 
 {
     var Page p = get_page();
     print viewer_can_manage_tags() ? "<div class=\"manage-link manage-tags-link\"><a href=\"" + $p.journal->tag_manage_url() + "\">$*text_tags_manage</a></div>" : "";
+}
+
+function IconsPage::print_icon_manage_link() "Prints out a link to the icon management page, if the viewer can manage icons."
+{
+    print ($.can_manage) ? "<div class=\"manage-link manage-icons-link\"><a href=\"" + $.journal->icon_manage_url() + "\">$*text_icon_manage</a></div>\n" : "";
 }
 
 function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to full text"
@@ -6014,8 +6034,12 @@ function ReplyPage::print_body
 ### IconsPage functions
 
 function IconsPage::print_body {
-    print safe "<div class='icons-container'><h2>$*text_icons_page_header</h2>\n<div class='inner'>\n";
-    """<div class="sorting-options">\n<ul>""";
+    """<div class='icons-container'>\n<div class="inner">\n""";
+    """<div class="header">\n<div class="inner">\n""";
+    print safe "<h2>$*text_icons_page_header</h2>";
+    "</div>\n</div>\n";
+    """<div class="contents">\n<div class="inner">\n""";
+    """<div class="sorting-options">\n<ul>\n""";
     var int sort_ct = 0;
     foreach var string k ($.sort_keyseq) {
         var string text = lang_icon_sortorder_title($k);
@@ -6025,15 +6049,19 @@ function IconsPage::print_body {
             print safe """<li class='$k'><a href='$.sort_urls{$k}'>$text</a>""";
         }
         if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
-        """</li>""";
+        "</li>\n";
     }
-    """</ul></div>\n""";
-    $.pages->print();
+    "</ul>\n</div>\n";
+    $.pages->print({ "class" => "icon-pages toppages" });
     foreach var Icon i ($.icons) {
         $i->print();
     }
-    $.pages->print();
-    print safe "</div></div>";
+    $.pages->print({ "class" => "icon-pages bottompages" });
+    "</div>\n</div>\n";
+    """<div class="footer">\n<div class="inner">\n""";
+    $this->print_icon_manage_link();
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
 }
 
 function Icon::print {

@@ -61,7 +61,7 @@ function IconsPage::print_body() {
     if ( size($.icons) == 0 ) {
         """<h1>$*text_icons_page_empty_header</h1><p>""";
         if ( $.can_manage ) {
-            """You don't have any icons uploaded. <a href="$*SITEROOT/editpics">Upload an icon here</a>.""";
+            "You don't have any icons uploaded. <a href=\"" + $.journal->icon_manage_url() + "\">Upload an icon here</a>.";
         } else {
             """$.journal hasn't uploaded any icons. You can <a href="$*SITEROOT/manage/subscriptions/user?journal=$.journal.username">be notified</a> when $.journal uploads an icon, if you want.""";
         }
@@ -71,7 +71,7 @@ function IconsPage::print_body() {
         print $.journal;
         print ". ";
         if ( $.can_manage ) {
-            """Would you like to <a href="$*SITEROOT/editpics">upload a new icon or edit your icon keywords, comments, and descriptions</a>?""";
+            "Would you like to <a href=\"" + $.journal->icon_manage_url() + "\">upload a new icon or edit your icon keywords, comments, and descriptions</a>?";
         } else {
             """We can <a href="$*SITEROOT/manage/tracking/user?journal=$.journal.username">notify</a> you when this account uploads a new one.""";
         }
