@@ -135,6 +135,8 @@ function print_stylesheet () {
     var string module_header_colors = generate_color_css( $*color_module_title, $*color_module_title_background, $*color_module_border );
     var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
 
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
@@ -386,9 +388,27 @@ text-align: center; }
 
 /* icons */
 
+.icons-container .header {
+    $entry_colors
+    color: $*color_entry_title;
+    }
+
+/* Reset font size to H3 */
+/* But use entry title font if set */
+.icons-container .header h2 {
+    font-size: 1.17em;
+    $entry_title_font
+    margin: 0;
+    padding: .25em 5px;
+    }
+
+.icons-container .contents {
+    padding: 0 .5em;
+    }
+
 .sorting-options ul {
     padding-left: 0;
-}
+    }
 
 .page-icons .comment {
     margin-bottom: 0;

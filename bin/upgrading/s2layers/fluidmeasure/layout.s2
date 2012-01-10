@@ -132,9 +132,9 @@ function Page::print()
     """</html>""";
 }
 
-
-
 function print_stylesheet() {
+
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
     var string userpic_css = "";
         if ($*userpics_position == "left") {
@@ -526,12 +526,9 @@ text-align: center; }
 
 .icons-container {
     background: $*color_entry_background;
-    color: $*color_entry_text;
-    padding: .5em;
-    margin: 1em 2em;
     border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
+    color: $*color_entry_text;
+    margin-top: 2em;
     }
 
 .icons-container a {
@@ -550,6 +547,35 @@ text-align: center; }
     color: $*color_entry_link_active;
     }
 
+.icons-container > .inner:first-child {
+    padding: 3em 0 0 0;
+    }
+
+.icons-container .header {
+    padding: 0 .5em;
+    }
+
+/* Reset font size to H3 */
+/* But use entry title font if set */
+.icons-container .header h2 {
+    background-color: $*color_entry_title_background;
+    border-radius: 1em;
+    float: left;
+    clear: left;
+    font-size: 1.17em;
+    $entry_title_font
+    margin: -4em 15em 1em 1.5em;
+    padding: .5em;
+    }
+
+.icons-container .contents {
+    padding: 0 1em 1em;
+    }
+
+.icons-container .footer {
+    padding: 0 .5em 1em;
+    }
+
 .sorting-options ul {
     padding-left: 0;
     }
@@ -557,9 +583,6 @@ text-align: center; }
 .page-icons .comment {
     background: transparent;
     border-radius: 0;
-    -moz-border-radius: 0;
-    -khtml-border-radius: 0;
-    -webkit-border-radius: 0;
     padding: 0;
     }
 

@@ -125,8 +125,9 @@ function Page::print() {
     """</html>""";
 }
 
-
 function print_stylesheet () {
+
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
 var string userpic_css = "";
     if ($*userpics_position == "left") {
@@ -433,9 +434,7 @@ table.month caption { color: $*color_entry_background; }
     border: 1px solid $*color_page_border;
     border-radius: 1em;
     color: $*color_entry_text;
-    -khtml-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    padding: .5em 1em;
+    margin: 1em 0 1.5em 0;
     }
 
 .icons-container a {
@@ -454,8 +453,27 @@ table.month caption { color: $*color_entry_background; }
     color: $*color_entry_link_active;
     }
 
+.icons-container .header {
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title;
+    border-radius: 1em 1em 0 0;
+    padding: 1px .5em .5em;
+    }
+
+/* Reset font size to H3 */
+/* But use entry title font if set */
 .icons-container h2 {
-    font-family: $*font_journal_title;
+    font-size: 1.17em;
+    $entry_title_font;
+    margin-bottom: 0;
+    }
+
+.icons-container .contents {
+    padding: .5em 1em;
+    }
+
+.icons-container .footer {
+    padding: .5em .5em 1em;
     }
 
 .sorting-options ul {
