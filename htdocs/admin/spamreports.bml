@@ -178,11 +178,14 @@ _c?>
             $what += 0;
             my $u = LJ::load_userid($what);
             return $error->('No such posterid.') unless $u;
-            $title = "Spam Reports - By " . $u->ljuser_display . "($state)";
+            $title = "Spam Reports - By " . $u->ljuser_display;
+            $title .= " (" . $u->{user} . ")" if $u->is_identity;
+            $title .= " ($state)";
         } elsif ($by eq 'poster') {
             my $u = LJ::load_user($what);
             return $error->('No such user.') unless $u;
             $title = "Spam Reports - Comments By " . $u->ljuser_display;
+            $title .= " (" . $u->{user} . ")" if $u->is_identity;
 
             # Now just pretend that user used 'posterid'
             $by = 'posterid';
