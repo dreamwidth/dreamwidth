@@ -164,7 +164,7 @@ body<=
     my $matches = '<br /><br />';
     foreach my $match ( @{ $result->{matches} } ) {
         my $mu = LJ::load_userid( $match->{journal_id} );
-        my $pu = LJ::load_userid( $match->{poster_id} ) if $mu->is_comm;
+        my $pu = $mu->is_comm ? LJ::load_userid( $match->{poster_id} ) : undef;
 
         # Do not show filtered icon for other users
         $match->{security} = 'access'
