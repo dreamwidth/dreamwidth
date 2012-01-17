@@ -3095,7 +3095,6 @@ CREATE TABLE externaluserinfo (
 )
 EOC
 
-
 register_tablecreate('renames', <<'EOC');
 CREATE TABLE renames (
     renid INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -3119,6 +3118,16 @@ CREATE TABLE bannotes (
     notetext     MEDIUMTEXT,
 
     PRIMARY KEY (journalid,banid)
+)
+EOC
+
+register_tablecreate("openid_claims", <<'EOC');
+CREATE TABLE openid_claims (
+    userid          INT UNSIGNED NOT NULL,
+    claimed_userid  INT UNSIGNED NOT NULL,
+
+    PRIMARY KEY (userid),
+    INDEX (claimed_userid)
 )
 EOC
 

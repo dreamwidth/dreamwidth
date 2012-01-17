@@ -1,0 +1,46 @@
+;; -*- coding: utf-8 -*-
+.about=Use this tool to claim an OpenID account. When you claim an account, all comments that are owned by that account will now be owned by you. This is effectively an account merge and is not reversible.
+
+.claimed=You have claimed the following OpenID accounts:
+
+.delay=An email will be sent to the email address we have on file for your account. You will need to read this email and then confirm that you wish to merge your OpenID account. The email will take approximately one hour to arrive.
+
+.email<<
+Hi [[remote]],
+
+You have requested to merge the following OpenID account into your [[sitenameshort]] account:
+
+    [[openid]]
+
+Claiming this account will merge all of the comments and entries that are currently owned by the OpenID account into your account. This action is immediate and irreversible -- we will not be able to unmerge them.
+
+If you are sure you want to do this, please click this link:
+
+    [[confirm_url]]
+
+If you did not request this, please delete this email.
+
+
+Regards,
+[[sitename]]
+.
+
+.email.subject=Your [[sitename]] Request
+
+.error.cantuseownsite=You can't claim a [[sitename]] account!
+
+.error.failed_vivification=We failed to load a user account for that OpenID. Please try again and if it continues to fail, report this error.
+
+.error.header=There were errors in your request:
+
+.error.invalidchars=The URL you entered appears to be invalid.
+
+.error.no_openid=OpenID is not enabled on this site.
+
+.error.required=You must enter the URL of your account on the remote site.
+
+.openid=Claim a new OpenID URL:
+
+.title=Claim OpenID Account
+
+.submit=Claim Account

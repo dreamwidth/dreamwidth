@@ -1,0 +1,24 @@
+[%# claim_confirm.tt
+
+The confirmation page for claiming an OpenID account.
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[% IF error_list %]
+    <p>[% '.error.header' | ml %]</p>
+    <ul class='error-list'>
+        [% FOREACH error = error_list %]
+            <li>[% error %] </li>
+        [% END %]
+    </ul>
+[% ELSE %]
+    <p>[% '.confirmed' | ml %]</p>
+[% END %]

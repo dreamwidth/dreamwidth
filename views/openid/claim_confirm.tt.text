@@ -1,0 +1,16 @@
+;; -*- coding: utf-8 -*-
+.confirmed=Your claim has been confirmed. All comments and posts that were previously attributed to the OpenID account will now be reattributed to you. <strong>This process may take several hours or longer to complete.</strong>
+
+.error.already_claimed_other=The OpenID account you have attempted to claim has already been claimed.
+
+.error.already_claimed_self=You have already claimed this OpenID account. If comments and posts have not been updated yet, and it has been at least 24 hours from the time you first claimed this account, please let us know.
+
+.error.header=There were errors in your request:
+
+.error.invalid_account=The account being claimed is not an OpenID account. This should never happen. Please try again or report this error.
+
+.error.invalid_auth=The claim you attempted has timed out or the link you followed is invalid. Please try again.
+
+.error.wrong_account=You are not logged in with the same account. Please check your email and make sure you are logged in to the right account before claiming this OpenID.
+
+.title=Claim OpenID Account

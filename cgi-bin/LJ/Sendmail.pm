@@ -183,6 +183,7 @@ sub send_mail
                                             data     => $msg->as_string,
                                         },
                                         coalesce => $host,
+                                        run_after => $opt->{delay} ? time() + $opt->{delay} : undef,
                                         );
         my $h = $sclient->insert($job);
 

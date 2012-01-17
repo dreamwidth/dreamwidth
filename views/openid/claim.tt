@@ -1,0 +1,43 @@
+[%# claim.tt
+
+The page for claiming an OpenID account.
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- sections.title = '.title' | ml -%]
+
+[% IF error_list %]
+    <div class='error-box'>
+    <p>[% '.error.header' | ml %]</p>
+    <ul class='error-list'>
+        [% FOREACH error = error_list %]
+            <li>[% error %] </li>
+        [% END %]
+    </ul>
+    </div>
+[% END %]
+
+<p>[% '.about' | ml %]</p>
+
+[% IF claims.0 %]
+    <p>[% '.claimed' | ml %]</p>
+    <ul>
+    [% FOR claim IN claims %]
+        <li>[% claim.ljuser_display %]</li>
+    [% END %]
+    </ul>
+[% END %]
+
+<p><form method="post" action="[% site.root %]/openid/claim">
+    [% dw.form_auth() %]
+    <label for="openid_url">[% '.openid' | ml %]</label> <input type="text" name="openid_url" aria-required="true" />
+    <input type="submit" value="[% '.submit' | ml %]" />
+</form></p>
+
+<p>[% '.delay' | ml %]</p>

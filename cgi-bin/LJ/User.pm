@@ -42,6 +42,7 @@ use DW::Logic::ProfilePage;
 use DW::Pay;
 use DW::User::ContentFilters;
 use DW::User::Edges;
+use DW::User::OpenID;
 use DW::InviteCodes::Promo;
 use DW::SiteScheme;
 use DW::Template;

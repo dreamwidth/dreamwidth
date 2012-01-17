@@ -193,8 +193,15 @@ sub get_remapped_userids {
 
     $dbh->do( 'REPLACE INTO import_usermap (hostname, username, identity_userid, feed_userid) VALUES (?, ?, ?, ?)',
               undef, $data->{hostname}, $user, $oid, $fid );
-    $MAPS{$data->{hostname}}->{$user} = [ $oid, $fid ];
 
+    # load this user and determine if they've been claimed. if so, we want to post
+    # all content as from the claimant.
+    my $ou = LJ::load_userid( $oid );
+    if ( my $cu = $ou->claimed_by ) {
+        $oid = $cu->id;
+    }
+
+    $MAPS{$data->{hostname}}->{$user} = [ $oid, $fid ];
     return ( $oid, $fid );
 }
 
