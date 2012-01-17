@@ -155,26 +155,12 @@ sub worker {
 }
 
 # run the job in a loop
-my $begin_time = [ gettimeofday() ];
 while ( 1 ) {
     my $once = 0;
     GetOptions( 'verbose' => \$DEBUG, 'once' => \$once );
 
-    _log( 'Main loop beginning...' );
-
     worker_helper();
     last if $once;
 
-    # now we sleep to the next one minute boundary, and if we're taking more
-    # than one minute to run, we fire off an alert
-    my $sleep_time = 60 - tv_interval( $begin_time );
-    if ( $sleep_time < 0 ) {
-        _log( 'Warning: main loop is taking longer than a minute.' );
-        $sleep_time = 60;
-    }
-    _log( 'Sleeping for %0.2f seconds.', $sleep_time );
-    select undef, undef, undef, $sleep_time;
-
-    _log( 'Main loop ended.' );
-    $begin_time = [ gettimeofday() ];
+    sleep 1;
 }
