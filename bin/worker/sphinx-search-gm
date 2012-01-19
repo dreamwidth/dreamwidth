@@ -124,6 +124,7 @@ sub _build_output {
         # try to figure out the language of the journal being searched (or the searcher?) and use
         # an appropriate stemming library?  (future expansion opportunity)
         my $exc = $sx->BuildExcerpts( [ map { $_->{entry} } @out ], 'dw1stemmed', $query, {} ) || [];
+        my $subj = $sx->BuildExcerpts( [ map { $_->{subject} } @out ], 'dw1stemmed', $query, {} ) || [];
 
         # if we have a matching number of excerpts to events, then we can determine
         # which one goes with which post.
@@ -131,6 +132,7 @@ sub _build_output {
             foreach my $m ( @out ) {
                 delete $m->{entry};
                 $m->{excerpt} = shift @$exc;
+                $m->{subject} = shift @$subj;
             }
 
         } else {
