@@ -86,6 +86,10 @@ body<=
         my @countries = ( '--' => '', US => 'United States', map { $_ => $countries{$_} } sort { $countries{$a} cmp $countries{$b} } keys %countries );
         my @usstates = ( '--' => '(select state)', map { $_ => $usstates{$_} } sort { $usstates{$a} cmp $usstates{$b} } keys %usstates );
 
+        # calculate which years to accept for the expiration date
+        my $startyear = ( localtime() )[5] + 1900;  # current year
+        my $endyear = $startyear + 10;              # ten years from now
+
         my @form = (
             firstname => LJ::html_text({ name => 'firstname', maxlength => 25, value => $POST{firstname}, id => 'firstname' }),
             lastname => LJ::html_text({ name => 'lastname', maxlength => 25, value => $POST{lastname}, id => 'lastname' }),
@@ -103,7 +107,7 @@ body<=
             ccnum => LJ::html_text({ name => 'ccnum', id => 'ccnum', maxlength => 19, autocomplete => 'off' }) . $accepted_ccs,
             cvv2 => LJ::html_text({ name => 'cvv2', id => 'cvv2', maxlength => 4, size => 5, autocomplete => 'off' }),
             expmon => LJ::html_select({ name => 'expmon', id => 'expmon', selected => $POST{expmon} }, map { $_ => LJ::Lang::month_long_ml( $_ ) . " - " . sprintf( '%0.2d', $_ ); } 1..12 ),
-            expyear => LJ::html_select({ name => 'expyear', id => 'expyear', selected => $POST{expyear} }, map { $_ => $_ } 2012..2022 ),
+            expyear => LJ::html_select({ name => 'expyear', id => 'expyear', selected => $POST{expyear} }, map { $_ => $_ } $startyear..$endyear ),
         );
 
         my $out = "<?p $ML{'.about'} p?><?p <strong>" . LJ::Lang::ml( '.about.security', { sitename => $LJ::SITENAME } ) . "</strong> p?>";
