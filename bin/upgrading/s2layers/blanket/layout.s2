@@ -7,6 +7,9 @@ layerinfo "lang" = "en";
 set layout_type = "one-column";
 set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
 
+## TODO: REMOVE THIS
+set use_journalstyle_icons_page = true;
+
 ##===============================
 ## Display settings - general
 ##===============================
@@ -861,6 +864,76 @@ td.day {
 .page-tags .tags-container ul li {
     list-style: none;
     margin: 0 0 0 1em;
+    padding: 0;
+    }
+
+/*--- Icons Page ---*/
+
+.icons-container {
+    $entry_colors
+    border-left: 20px solid $*color_page_border;
+    margin: 0 auto 2em;
+    padding: 4em 2em;
+    }
+
+.icons-container h2 {
+    $entry_title_colors
+    font-size: 1em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    text-transform: lowercase;
+    }
+
+.sorting-options ul {
+    padding-left: 0;
+    text-align: right;
+    }
+
+.sorting-options ul li {
+    display: inline;
+    list-style: none;
+    }
+
+.page-icons .comment {
+    border: none;
+    margin: 0;
+    padding: 0;
+    }
+
+.page-icons .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+.icon-info .keywords ul {
+    display: inline;
+    }
+
+.icon-info .keywords ul li {
+    display: inline;
+    list-style: none;
     padding: 0;
     }
 

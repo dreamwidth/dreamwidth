@@ -5,6 +5,9 @@ layerinfo author_name = "renoir";
 
 set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
 
+## TODO: REMOVE THIS
+set use_journalstyle_icons_page = true;
+
 ##===============================
 ## Display settings - general
 ##===============================
@@ -730,6 +733,90 @@ td.day {
     }
 
 .page-tags .tags_cloud { text-align: center; }
+
+/*-- icons page --*/
+
+.icons-container {
+    background-color: $*color_entry_background;
+    color: $*color_entry_text;
+    $entry_font
+    padding: 10px;
+    margin: 0 0 10px;
+    }
+
+.icons-container h2 {
+    border-color: $bottom_border;
+    border-style: dotted;
+    border-width: 0 0 1px 0;
+    color: $*color_entry_title;
+    $entry_title_font
+    font-weight: normal;
+    letter-spacing: 1px;
+    margin: 0 0 10px 0;
+    padding: 0;
+    text-transform: lowercase;
+    }
+
+.icons-container a {
+    color: $*color_entry_link;
+    }
+
+.icons-container a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+.icons-container a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+.sorting-options ul {
+    padding-left: 0;
+    }
+
+.sorting-options ul li {
+    display: inline;
+    list-style: none;
+    margin: 0;
+    }
+
+.page-icons .comment {
+    margin: 0;
+    padding: 0;
+    }
+
+.page-icons .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+.icon-info .keywords ul {
+    display: inline;
+    padding: 0 0 0 13px;
+    }
+
+.icon-info .keywords ul li {
+    display: inline;
+    list-style: none;
+    }
 
 /*--- comments ---*/
 

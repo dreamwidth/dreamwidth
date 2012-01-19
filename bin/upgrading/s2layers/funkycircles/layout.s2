@@ -6,6 +6,9 @@ layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
 
+## TODO: REMOVE THIS
+set use_journalstyle_icons_page = true;
+
 ##===============================
 ## Presentation
 ##===============================
@@ -514,8 +517,7 @@ h2#pagetitle {
 .comment-wrapper.partial,
 .page-month .month .inner,
 .tags-container ul,
-.tags-container .tags_cloud,
-.icons-container .inner {
+.tags-container .tags_cloud {
     $entry_colors
     border-width: 20px;
     border-left: none;
@@ -528,7 +530,8 @@ h2#pagetitle {
 
 .no-userpic .contents,
 .month .contents,
-.page-month .month .inner {
+.page-month .month .inner,
+.icons-container .contents {
     padding: 2em;
     }
 
@@ -576,31 +579,23 @@ h2#pagetitle {
                     list-style: circle;
                     }
 
-.icons-container .inner {
-    margin: 0;
-    padding: 2em;
-    }
-
 .icons-container ul {
     margin: 0;
     padding: 0;
     }
 
-    .icons-container ul li {
-        display: inline;
-        }
+.icons-container ul li {
+    display: inline;
+    padding: 0;
+    }
 
 .icons-container .sorting-options {
     text-align: center;
     }
 
-.icons-container .pages {
+.icons-container .icon-pages {
     text-align: right;
     }
-
-    .icons-container .pages b {
-        font-weight: normal;
-        }
 
 .icons-container .icon {
     border-bottom: 1px dashed $*color_entry_poster_border;
@@ -608,30 +603,26 @@ h2#pagetitle {
     padding-bottom: 2em;
     }
 
-    .icons-container .icon:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
-        }
-
-.icons-container .icon-image {
-    display: inline-block;
-    width: 100px;
+.icons-container .icon:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
     }
 
-.icons-container .icon-info {
-    display: inline-block;
-    margin-left: .5em;
-    vertical-align: top;
-    width: 75%;
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
     }
 
 .icons-container .default {
     font-weight: bold;
-    }
-
-.icons-container .keywords ul {
-    display: inline;
     }
 
 .icons-container .comment-text,
@@ -827,7 +818,8 @@ $userpic_css
     -webkit-box-shadow: .067em .067em .667em $*color_shadow;
     }
 
-    .tags-container .manage-tags-link {
+    .tags-container .manage-tags-link,
+    .icons-container .manage-link {
         margin-top: 1em;
         padding: .5em;
         }

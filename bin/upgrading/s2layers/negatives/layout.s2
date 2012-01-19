@@ -7,6 +7,9 @@ layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "phoenix", "type" => "user" } ];
 
+## TODO: REMOVE THIS
+set use_journalstyle_icons_page = true;
+
 ##===============================
 ## Display settings - general
 ##===============================
@@ -587,6 +590,88 @@ function Page::print_default_stylesheet()
     .tags-container a:active {
         color: $*color_entry_link_active !important;
     }
+
+    /*--- Icons Page ---*/
+
+    .icons-container {
+        color: $*color_entry_text;
+        margin: 5px;
+        padding: 5px;
+        $entry_background;
+        }
+
+    .icons-container h2 {
+        font-weight: bold !important;
+        margin: 0 !important;
+        padding-bottom: 10px !important;
+        $entry_title_font
+        }
+
+    .icons-container a {
+        color: $*color_entry_link !important;
+        }
+
+    .icons-container a:visited {
+        color: $*color_entry_link_visited !important;
+        }
+
+    .icons-container a:hover {
+        color: $*color_entry_link_hover !important;
+        }
+
+    .icons-container a:active {
+        color: $*color_entry_link_active !important;
+        }
+
+    .sorting-options ul {
+        padding-left: 0;
+        }
+
+    .sorting-options ul li {
+        display: inline;
+        list-style: none;
+        }
+
+    .page-icons .comment {
+        border: none;
+        min-height: 0;
+        padding: 0;
+        }
+
+    .page-icons .icon {
+        margin: 1em 0;
+        }
+
+    .icon-image {
+        float: left;
+        clear: left;
+        margin-bottom: .25em;
+        min-width: 100px;
+        padding-right: 1em;
+        }
+
+    .icon-info {
+        min-height: 100px;
+        }
+
+    .icon-info span {
+        font-weight: bold;
+        }
+
+    .icon-info .default {
+        text-decoration: underline;
+        }
+
+    .icon-info .keywords ul {
+        display: inline;
+        padding: 0;
+        }
+
+    .icon-info .keywords ul li {
+        display: inline;
+        list-style: none;
+        padding: 0;
+        }
 
     .module-section-two .module,
     .module-section-three .module {

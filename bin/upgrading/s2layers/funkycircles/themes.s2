@@ -688,15 +688,14 @@ function Page::print_theme_stylesheet() {
     h2#subtitle,
     h2#pagetitle,
     .navigation,
-    .entry .header,
-    .comment .header,
+    .header,
     .entry-title,
     .comment-title,
-    .entry .footer,
-    .comment .footer,
+    .footer,
     .month,
     .page-tags .tags-container,
-    .page-tags h2,
+    .tags-container h2,
+    .icons-container h2,
     .page-archive h3,
     .page-month dd h3,
     .module h2,
@@ -727,10 +726,12 @@ function Page::print_theme_stylesheet() {
         text-decoration: none;
         }
 
-    .entry-content a:visited,
-    .comment-content a:visited,
-    .entry-content a:hover,
-    .comment-content a:hover {
+    .contents a:visited,
+    .contents a:hover,
+    .month dl a:visited,
+    .month dl a:hover,
+    .tags-container a:visited,
+    .tags-container a:hover {
         border-bottom: none;
         }
 
@@ -1021,15 +1022,14 @@ function Page::print_theme_stylesheet() {
     h2#subtitle,
     h2#pagetitle,
     .navigation,
-    .entry .header,
-    .comment .header,
+    .header,
     .entry-title,
     .comment-title,
-    .entry .footer,
-    .comment .footer,
+    .footer,
     .month,
     .page-tags .tags-container,
-    .page-tags h2,
+    .tags-container h2,
+    .icons-container h2,
     .page-archive h3,
     .page-month dd h3,
     .module h2,
@@ -1774,9 +1774,11 @@ function Page::print_theme_stylesheet() {
         }
 
     .navigation,
+    .header,
     .entry-title,
     .comment-title,
-    .page-tags h2,
+    .tags-container h2,
+    .icons-container h2,
     .page-archive h3,
     .page-month dd h3,
     .module h2,
@@ -2197,15 +2199,14 @@ function Page::print_theme_stylesheet() {
     h2#subtitle,
     h2#pagetitle,
     .navigation,
-    .entry .header,
-    .comment .header,
+    .header,
     .entry-title,
     .comment-title,
-    .entry .footer,
-    .comment .footer,
+    .footer,
     .month,
     .page-tags .tags-container,
-    .page-tags h2,
+    .tags-container h2,
+    .icons-container h2,
     .page-archive h3,
     .page-month dd h3,
     .module h2,
@@ -2515,7 +2516,7 @@ function Page::print_theme_stylesheet() {
     .partial a,
     .month a,
     .tags-container a:hover,
-    .icons-container a:hover {
+    .icons-container .contents a:hover {
         border-bottom: none;
         }
 
@@ -2730,9 +2731,11 @@ function Page::print_theme_stylesheet() {
         }
 
     .navigation,
+    .header,
     .entry-title,
     .comment-title,
-    .page-tags h2,
+    .tags-container h2,
+    .icons-container h2,
     .page-archive h3,
     .page-month dd h3,
     .module h2,

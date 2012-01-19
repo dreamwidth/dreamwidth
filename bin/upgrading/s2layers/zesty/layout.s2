@@ -8,6 +8,10 @@ layerinfo "is_public" = 1;
 layerinfo "source_viewable" = 1;
 layerinfo "redist_uniq" = "zesty/layout";
 
+## TODO: REMOVE THIS
+set use_journalstyle_icons_page = true;
+
+
 ###################################################
 #                                                 #
 #                   [S2] Zesty                    #
@@ -1059,6 +1063,56 @@ h3 {
     list-style-type: none;
 }
 
+
+/* IconsPage */
+
+.icons-container {
+    margin: 10px;
+    padding: 10px;
+    }
+
+.sorting-options ul {
+    padding-left: 0;
+    }
+
+.sorting-options ul li {
+    display: inline;
+    }
+
+.icons-container .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+.icon-info .keywords ul {
+    display: inline;
+    padding-left: 0;
+    }
+
+.icon-info .keywords ul li {
+    display: inline;
+    list-style: none;
+    padding: 0;
+    }
 
 /* ReplyPage reply box */
 
