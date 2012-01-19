@@ -834,6 +834,23 @@ sub preview_handler {
     my ( $event, $subject ) = ( $form_req->{event}, $form_req->{subject} );
     LJ::CleanHTML::clean_subject( \$subject );
 
+    # preview poll
+    if ( LJ::Poll->contains_new_poll( \$event ) ) {
+        my $error;
+        my @polls = LJ::Poll->new_from_html( \$event, \$error, {
+            'journalid' => $u->userid,
+            'posterid' => $up->userid,
+        });
+
+        my $can_create_poll = $up->can_create_polls || ( $u->is_community && $u->can_create_polls );
+        my $poll_preview = sub {
+            my $poll = shift @polls;
+            return '' unless $poll;
+            return $can_create_poll ? $poll->preview : qq{<div class="highlight-box">} . LJ::Lang::ml( '/poll/create.bml.error.accttype2' ) . qq{</div>};
+        };
+
+        $event =~ s/<poll-placeholder>/$poll_preview->()/eg;
+    }
 
     # parse out embed tags from the RTE
     $event = LJ::EmbedModule->transform_rte_post( $event );
