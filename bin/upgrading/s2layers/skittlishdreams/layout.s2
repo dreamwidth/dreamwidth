@@ -395,6 +395,49 @@ function TagsPage::print_body
     $this->print_navigation( { "class" => "bottomnav" } );
 }
 
+# so that the decorative background image will show up
+function IconsPage::print_navigation( string{} opts ) {
+    """
+    <div class="navigation $opts{"class"}">
+        <div class="inner">
+        </div><!-- navigation>inner -->
+    </div><!-- navigation -->
+    """;
+}
+
+function IconsPage::print_body {
+    $this->print_navigation( { "class" => "topnav" } );
+    """<div class='icons-container'>\n<div class="inner">\n""";
+    """<div class="header">\n<div class="inner">\n""";
+    print safe "<h2>$*text_icons_page_header</h2>";
+    "</div>\n</div>\n";
+    """<div class="contents">\n<div class="inner">\n""";
+    """<div class="sorting-options">\n<ul>\n""";
+    var int sort_ct = 0;
+    foreach var string k ($.sort_keyseq) {
+        var string text = lang_icon_sortorder_title($k);
+        if ( $k == $.sortorder ) {
+            print safe """<li class='$k active'>$text""";
+        } else {
+            print safe """<li class='$k'><a href='$.sort_urls{$k}'>$text</a>""";
+        }
+        if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
+        "</li>\n";
+    }
+    "</ul>\n</div>\n";
+    $.pages->print({ "class" => "icon-pages toppages" });
+    foreach var Icon i ($.icons) {
+        $i->print();
+    }
+    $.pages->print({ "class" => "icon-pages bottompages" });
+    "</div>\n</div>\n";
+    """<div class="footer">\n<div class="inner">\n""";
+    $this->print_icon_manage_link();
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
+    $this->print_navigation( { "class" => "bottomnav" } );
+}
+
 function generate_background_css_flipped (
     string background_image, 
     string background_image_repeat, 
@@ -594,9 +637,43 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .two-columns-right #content {margin: 0 -5px 0 0; float: left;}
 .two-columns-left #content {margin: 0 0 0 -5px; float: right;}
 
-.tags-container { padding: 10px; margin-top: 10px; background-color: $*color_entry_background; }
-.two-columns-right.page-tags #wrap {margin-left: 20px; }
-.two-columns-left.page-tags #wrap {margin-right: 20px; }
+.tags-container,
+.icons-container {
+    background-color: $*color_entry_background;
+    color: $*color_entry_text;
+    margin-top: 10px;
+    padding: 10px;
+    }
+
+.tags-container a,
+.icons-container a {
+    color: $*color_entry_link;
+    }
+
+.tags-container a:visited,
+.icons-container a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+.tags-container a:hover,
+.icons-container a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+.tags-container a:active,
+.icons-container a:active {
+    color: $*color_entry_link_active;
+    }
+
+.two-columns-right.page-tags #wrap,
+.two-columns-right.page-icons #wrap {
+    margin-left: 20px;
+    }
+
+.two-columns-left.page-tags #wrap,
+.two-columns-left.page-icons #wrap {
+    margin-right: 20px;
+    }
 
 .module-section-one .inner {border-bottom:2px solid $header_bottom_color;}
 .two-columns-right .module-section-one .inner {text-align: right;}
@@ -793,9 +870,21 @@ if ( $*use_action_links_images ) {
 .two-columns-left #archive-month .navigation,
 .two-columns-left #archive-day .navigation  {margin-left:-22px; $navigation_background_redux}
 
-.page-tags .navigation {height:61px;  margin-bottom:-10px;}
-.two-columns-right.page-tags .navigation {$navigation_background}
-.two-columns-left.page-tags .navigation {$navigation_background_redux}
+.page-tags .navigation,
+.page-icons .navigation {
+    height: 61px;
+    margin-bottom: -10px;
+    }
+
+.two-columns-right.page-tags .navigation,
+.two-columns-right.page-icons .navigation {
+    $navigation_background
+    }
+
+.two-columns-left.page-tags .navigation,
+.two-columns-left.page-icons .navigation {
+    $navigation_background_redux
+    }
 
 .two-columns-right .bottomcomment, .two-columns-right .comments-message { $navigation_background }
 .two-columns-left .bottomcomment, .two-columns-left .comments-message { $navigation_background_redux }
@@ -814,9 +903,25 @@ if ( $*use_action_links_images ) {
 .two-columns-right #archive-month .navigation   {margin:0 -22px 0 0;}
 .two-columns-left #archive-month .navigation   {margin:0 0 0 -22px;}
 
-.page-tags #content h2 {padding: 0.2em; margin: 0; border: solid 1px $*color_page_border; $entry_colors font-size: 1.2em; margin-bottom: 20px; }
-.two-columns-right.page-tags #content h2 {margin-right: 10px; }
-.two-columns-left.page-tags #content h2 {margin-left: 10px; }
+.page-tags #content h2,
+.page-icons #content h2 {
+    $entry_colors
+    border: solid 1px $*color_page_border;
+    font-size: 1.2em;
+    margin: 0;
+    margin-bottom: 20px;
+    padding: .2em;
+    }
+
+.two-columns-right.page-tags #content h2,
+.two-columns-right.page-icons #content h2 {
+    margin-right: 10px;
+    }
+
+.two-columns-left.page-tags #content h2,
+.two-columns-left.page-icons #content h2 {
+    margin-left: 10px;
+    }
 
 #archive-month dt {font-weight: bold; }
 .two-columns-right #archive-month .entry-title {display: inline-block; margin:0 0 .5em 0; padding-left: 5px; }
@@ -865,6 +970,60 @@ if ( $*use_action_links_images ) {
     }
 
 .partial .comment .datetime {
+    display: inline;
+    }
+
+
+/*--- Icons Page ---*/
+
+.sorting-options ul {
+    list-style: none;
+    padding-left: 0;
+    text-align: center;
+    }
+
+.sorting-options ul li {
+    display: inline;
+    }
+
+.page-icons .comment {
+    background: transparent;
+    border: none;
+    margin: 0;
+    padding: 0;
+    }
+
+.page-icons .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+.keywords ul {
+    display: inline;
+    list-style: none;
+    padding-left: 0;
+    }
+
+.keywords ul li {
     display: inline;
     }
 

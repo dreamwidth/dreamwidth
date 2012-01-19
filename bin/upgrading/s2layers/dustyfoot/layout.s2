@@ -778,29 +778,48 @@ h2#pagetitle {
 /* Icons Page
 ***************************************************************************/
 
-.page-icons .icons-container {
+.icons-container {
     margin: 10px 10px 0 10px;
     }
 
-.page-icons .icons-container h2 {
+.icons-container h2 {
     border-bottom: 1px solid $*color_entry_border;
     color: $*color_entry_title;
     font-variant: small-caps;
     margin-bottom: 10px;
     }
 
-.page-icons .icon {
-    border-bottom: 5px solid $*color_entry_border;
-    margin: 0 10px 20px;
-    padding: 10px 0;
+.sorting-options ul {
+    padding-left: 0;
     }
 
-.page-icons .keywords ul {
-    margin-left: 0;
-    }
-
-.page-icons .keywords ul li {
+.page-icons .comment {
+    border: none;
     padding: 0;
+    }
+
+.page-icons .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
     }
 
 /* Modules

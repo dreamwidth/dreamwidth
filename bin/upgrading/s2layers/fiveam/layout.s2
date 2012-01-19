@@ -6,7 +6,6 @@ layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "winterfish", "type" => "user" } ];
 
-
 ##===============================
 ## Presentation
 ##===============================
@@ -930,25 +929,39 @@ h3.day-date {
     padding: .5em 0 1em;
     }
 
-.icons-container .icon {
+.sorting-options ul {
+    padding-left: 0;
+    }
+
+.page-icons .icon {
     margin: 1.5em 0;
     }
 
-.icons-container .icon-image {
+.icon-image {
     float: left;
     clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
     padding-right: 1em;
     }
 
-.icons-container .icon-info {
+.icon-info {
     min-height: 100px;
     }
 
-.icons-container .keywords ul {
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+.icon-info .keywords ul {
     margin-left: 0;
     }
 
-.icons-container .keywords ul li {
+.icon-info .keywords ul li {
     padding: 0;
     }
 
