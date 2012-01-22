@@ -1394,7 +1394,7 @@ sub ExpandLJURL
     return "$LJ::SITEROOT/$uri";
 }
 
-my $subject_eat = [qw[head title style layer iframe applet object param]];
+my $subject_eat = [ qw[ head title style layer iframe applet object xml param base ] ];
 my $subject_allow = [qw[a b i u em strong cite]];
 my $subject_remove = [qw[bgsound embed object caption link font noscript]];
 sub clean_subject
@@ -1414,7 +1414,7 @@ sub clean_subject
 }
 
 ## returns a pure text subject (needed in links, email headers, etc...)
-my $subjectall_eat = [qw[head title style layer iframe applet object]];
+my $subjectall_eat = $subject_eat;
 sub clean_subject_all
 {
     my $ref = shift;
@@ -1451,7 +1451,7 @@ my @comment_close = qw(
 );
 my @comment_all = ( @comment_close, qw( img br hr p col ) );
 
-my $event_eat = [ qw[ head title style layer iframe applet object xml param ] ];
+my $event_eat = $subject_eat;
 my $event_remove = [ qw[ bgsound embed object link body meta noscript plaintext noframes ] ];
 my @event_close = ( @comment_close, qw( marquee blink ) );
 
