@@ -27,7 +27,6 @@ my @checks = (  # put these in the order they should be checked in
     "modules",
     "env",
     "database",
-    "ljconfig",
 );
 foreach my $check (@checks) { $dochecks{$check} = 1; }
 
@@ -50,7 +49,6 @@ usage() unless GetOptions(
                           );
 
 if ($debs_only) {
-    $dochecks{ljconfig} = 0;
     $dochecks{database} = 0;
     $dochecks{timezone} = 0;
 }
@@ -59,11 +57,6 @@ usage() if $only_check && $no_check;
 
 %dochecks = ( $only_check => 1)
     if $only_check;
-
-# dependencies
-if ($dochecks{ljconfig}) {
-    $dochecks{env} = 1;
-}
 
 $dochecks{$no_check} = 0
     if $no_check;
@@ -360,22 +353,6 @@ sub check_database {
         my $mog = LJ::mogclient();
         die "Couldn't create MogileFS client." unless $mog;
     }
-}
-
-sub check_ljconfig {
-    # if we're a developer running this, make sure we didn't add any
-    # new configuration directives without first documenting them:
-    $ENV{READ_LJ_SOURCE} = 1 if $LJ::IS_DEV_SERVER;
-
-    # check for beta features cap
-    unless ( LJ::Capabilities::class_bit( LJ::BetaFeatures->cap_name ) ) {
-        print STDERR "Warning: BetaFeatures module cannot be used unless '" . LJ::BetaFeatures->cap_name . "' cap is configured.";
-    }
-
-    require LJ::ConfCheck;
-    my @errs = LJ::ConfCheck::config_errors();
-    local $" = ",\n\t";
-    $err->("Config errors: @errs") if @errs;
 }
 
 foreach my $check (@checks) {
