@@ -20,6 +20,7 @@ use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use Carp qw/ croak confess /;
+use Digest::MD5 qw/ md5_hex /;
 use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::Worker::ContentImporter::Local::Comments;
@@ -62,6 +63,11 @@ sub work {
     eval { try_work( $class, $job, $opts, $data ); };
     if ( my $msg = $@ ) {
         $msg =~ s/\r?\n/ /gs;
+
+        open FILE, ">$LJ::HOME/logs/imports/$opts->{userid}/$opts->{import_data_id}.lj_comments.$$.failure";
+        print FILE "FAILURE: $msg";
+        close FILE;
+
         return $class->temp_fail( $data, 'lj_comments', $job, 'Failure running job: %s', $msg );
     }
 }
@@ -160,7 +166,7 @@ sub try_work {
         # this works, see the Entries importer for more information
         my $turl = $url;
         $turl =~ s/-/_/g; # makes \b work below
-        $log->( 'Filtering entry URL: %s', $turl );
+        #$log->( 'Filtering entry URL: %s', $turl );
         next unless $turl =~ /\Q$data->{hostname}\E/ &&
                     ( $turl =~ /\b$data->{username}\b/ ||
                         ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
@@ -190,7 +196,7 @@ sub try_work {
         # this works, see the Entries importer for more information
         my $turl = $url;
         $turl =~ s/-/_/g; # makes \b work below
-        $log->( 'Filtering comment URL: %s', $turl );
+        #$log->( 'Filtering comment URL: %s', $turl );
         next unless $turl =~ /\Q$data->{hostname}\E/ &&
                     ( $turl =~ /\b$data->{username}\b/ ||
                         ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
@@ -255,7 +261,7 @@ sub try_work {
 
         $title->( 'meta-fetch from id %d', $server_next_id );
         my $content = $class->do_authed_comment_fetch(
-            $data, 'comment_meta', $server_next_id, $COMMENTS_FETCH_META
+            $data, 'comment_meta', $server_next_id, $COMMENTS_FETCH_META, $log
         );
         return $temp_fail->( 'Error fetching comment metadata from server.' )
             unless $content;
@@ -352,7 +358,9 @@ sub try_work {
                 $comment->[C_local_parentid] = $jtalkid_map->{$comment->[C_remote_parentid]}+0;
                 $comment->[C_id] = $jtalkid;
 
-                DW::Worker::ContentImporter::Local::Comments->update_comment( $u, hashify( $comment ), \$err );
+# Temporarily disabled, this slows down reimports a LOT and we aren't
+# really doing anything with them.
+#DW::Worker::ContentImporter::Local::Comments->update_comment( $u, hashify( $comment ), \$err );
                 $log->( 'ERROR: %s', $err ) if $err;
 
                 $comment->[C_done] = 1;
@@ -452,7 +460,7 @@ sub try_work {
 
         $title->( 'body-fetch from id %d', $lastid+1 );
         my $content = $class->do_authed_comment_fetch(
-            $data, 'comment_body', $lastid+1, $COMMENTS_FETCH_BODY
+            $data, 'comment_body', $lastid+1, $COMMENTS_FETCH_BODY, $log
         );
         return $temp_fail->( 'Error fetching comment body data from server.' )
             unless $content;
@@ -473,6 +481,7 @@ sub try_work {
         if ( $@ ) {
             # this error typically means the encoding is bad.  not sure how this happens,
             # it's probably just on a very, very old comment?
+            $log->( 'Parse failure: %s', $@ );
             if ( $@ =~ /token/ ) {
 
                 # reset for another body pass
@@ -480,8 +489,9 @@ sub try_work {
                 @tags = ();
 
                 # reset all text so we don't get it double posted
-                foreach my $cmt ( values %meta ) {
-                    $cmt->[$_] = undef
+                $log->( 'Resetting comment bodies of in-flight data.' );
+                foreach my $id ( keys %in_flight ) {
+                    $meta{$id}->[$_] = undef
                         foreach ( C_subject, C_body, C_date, C_props );
                 }
 
@@ -492,6 +502,7 @@ sub try_work {
 
             } else {
                 # can't handle, pass it up
+                $log->( 'Ultimate failure. Bailing out!' );
                 die $@;
             }
         }
@@ -515,17 +526,31 @@ sub try_work {
 
 
 sub do_authed_comment_fetch {
-    my ( $class, $data, $mode, $startid, $numitems ) = @_;
+    my ( $class, $data, $mode, $startid, $numitems, $log ) = @_;
+    my $authas = $data->{usejournal} ? "&authas=$data->{usejournal}" : '';
+    my $url = "http://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems&props=1$authas";
+
+    # see if the file is cached and recent. this is mostly a hack useful for debugging
+    # when something goes bad, or if we somehow get stuck in a loop. at least we won't
+    # unintentionally DoS the target.
+    my $md5 = md5_hex( $url . ($data->{user} || $data->{username}) . ($data->{usejournal} || '') );
+    my $fn = "$LJ::HOME/logs/imports/$data->{userid}/$md5.xml";
+    my $rv = open FILE, "<$fn";
+    if ( $rv ) {
+        $log->( 'Using cached file %s.xml', $md5 );
+
+        local $/ = undef;
+        my $ret = <FILE>;
+        close FILE;
+        return $ret;
+    }
 
     # if we don't have a session, then let's generate one
     $data->{_session} ||= $class->get_lj_session( $data );
 
     # hit up the server with the specified information and return the raw content
     my $ua = LWP::UserAgent->new;
-    my $authas = $data->{usejournal} ? "&authas=$data->{usejournal}" : '';
-    my $request = HTTP::Request->new(
-        GET => "http://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems&props=1$authas"
-    );
+    my $request = HTTP::Request->new( GET => $url );
     $request->push_header( Cookie => "ljsession=$data->{_session}" );
 
     # try to get the response
@@ -534,7 +559,14 @@ sub do_authed_comment_fetch {
 
     # now get the content
     my $xml = $response->content;
-    return $xml if $xml;
+    if ( $xml ) {
+        $log->( 'Writing cache file %s.xml', $md5 );
+
+        open FILE, ">$fn";
+        print FILE $xml;
+        close FILE;
+        return $xml;
+    }
 
     # total failure...
     return undef;
