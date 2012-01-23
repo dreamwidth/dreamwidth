@@ -5,9 +5,6 @@ layerinfo author_name = "renoir";
 
 set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
 
-## TODO: REMOVE THIS
-set use_journalstyle_icons_page = true;
-
 ##===============================
 ## Display settings - general
 ##===============================

@@ -6,9 +6,6 @@ layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
 
-## TODO: REMOVE THIS
-set use_journalstyle_icons_page = true;
-
 ##===============================
 ## Presentation
 ##===============================

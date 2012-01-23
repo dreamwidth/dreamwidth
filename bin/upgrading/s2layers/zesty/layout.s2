@@ -8,10 +8,6 @@ layerinfo "is_public" = 1;
 layerinfo "source_viewable" = 1;
 layerinfo "redist_uniq" = "zesty/layout";
 
-## TODO: REMOVE THIS
-set use_journalstyle_icons_page = true;
-
-
 ###################################################
 #                                                 #
 #                   [S2] Zesty                    #
