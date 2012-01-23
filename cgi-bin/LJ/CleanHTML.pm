@@ -114,8 +114,8 @@ sub clean
     # anything to it if $$data contains only invalid content
     my $newdata = '';
 
-    # remove the auth portion of any see_request.bml links
-    $$data =~ s/(see_request\.bml\S+?)auth=\w+/$1/ig;
+    # remove the auth portion of any see_request links
+    $$data = LJ::strip_request_auth( $$data );
 
     my $p = HTML::TokeParser->new($data);
 

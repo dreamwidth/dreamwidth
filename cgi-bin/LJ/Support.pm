@@ -591,8 +591,8 @@ sub file_request
     my $reqsubject = LJ::trim($o->{'subject'});
     my $reqbody = LJ::trim($o->{'body'});
 
-    # remove the auth portion of any see_request.bml links
-    $reqbody =~ s/(see_request\.bml.+?)\&auth=\w+/$1/ig;
+    # remove the auth portion of any see_request links
+    $reqbody = LJ::strip_request_auth( $reqbody );
 
     unless ($reqsubject) {
         push @$errors, LJ::Lang::ml( "error.support.nosummary" );

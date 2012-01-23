@@ -34,6 +34,16 @@ sub trim {
     return $a;
 }
 
+# check argument text for see_request links, and strip any auth args
+
+sub strip_request_auth {
+    my $a = $_[0];
+    return '' unless defined $a;
+
+    $a =~ s/(see_request\S+?)\&auth=\w+/$1/ig;
+    return $a;
+}
+
 # <LJFUNC>
 # name: LJ::get_urls
 # class: text
