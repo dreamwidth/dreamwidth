@@ -78,7 +78,7 @@ sub _run_search {
 }
 
 sub _build_output {
-    my ( $sx, $query, $res ) = @_;
+    my ( $sx, $query, $res, $remoteid ) = @_;
 
     # try to build some excerpts of these searches, which involves us loading
     # up the exact entry contents...
@@ -90,10 +90,12 @@ sub _build_output {
 
         foreach my $match ( @{ $res->{matches} } ) {
             my $entry = LJ::Entry->new( $match->{journal_id}, jitemid => $match->{jitemid} );
+            my $remote = LJ::load_userid( $remoteid );
 
-            # check for validity, but not for security. Security was filtered for in the query on sphinx
-            # make sure that the journal and poster have the right status for the entry to be visible
-            if ( $entry && $entry->valid && ! $entry->journal->is_inactive && ! $entry->poster->is_suspended ) {
+            # check for validity and for security
+            # we filtered by security earlier, but there's a chance it was changed
+            # but not yet indexed
+            if ( $entry && $entry->valid && $entry->visible_to( $remote ) ) {
                 # use text only version of event for excerpt purposes.  best effort.
                 $match->{entry} = $entry->event_text;
                 $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
@@ -157,7 +159,7 @@ sub sphinx_search {
     my $search_results = _run_search( $sx, $args );
     return undef unless $search_results;
 
-    my $res = _build_output( $sx, $args->{query}, $search_results );
+    my $res = _build_output( $sx, $args->{query}, $search_results, $args->{remoteid} );
     return Storable::nfreeze( $res );
 }
 

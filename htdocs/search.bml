@@ -128,7 +128,8 @@ body<=
     }
 
     # the arguments to the search (userid=0 implies global search)
-    my $args = { userid => $su ? $su->id : 0, query => $q, offset => $offset, sort_by => $sby,
+    my $args = { userid => $su ? $su->id : 0, remoteid => $remote->id,
+                 query => $q, offset => $offset, sort_by => $sby,
                  ignore_security => $ignore_security, allowmask => $allowmask };
     my $arg = Storable::nfreeze( $args );
 
