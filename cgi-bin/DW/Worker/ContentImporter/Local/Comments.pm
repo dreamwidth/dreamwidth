@@ -116,7 +116,7 @@ sub update_comment {
 
     my $pu = $c->poster;
     if ( $pu && $pu->userpic_have_mapid ) {
-        $c->set_prop( picture_mapid => $u->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 ) );
+        $c->set_prop( picture_mapid => $pu->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 ) );
     } else {
         $c->set_prop( picture_keyword => $cmt->{props}->{picture_keyword} );
     }
