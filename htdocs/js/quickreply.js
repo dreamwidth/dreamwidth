@@ -145,7 +145,7 @@
         submitform();
    }
 
-   function randomicon() {
+   function randomIcon() {
         var icons_list = document.getElementById('prop_picture_keyword');
         // we need to ignore the "(default)" option for this code
         var numberoficons = icons_list.length-1;

@@ -944,12 +944,10 @@ sub create_qr_div {
                                        ("", BML::ml('/talkpost.bml.opt.defpic'), map { ($_, $_) } @pics));
 
             # userpic browse button
-            $qrhtml .= qq {
-                <input type="button" id="lj_userpicselect" value="Browse" />
-                } if $remote->can_use_userpic_select;
+            $qrhtml .= qq {<input type="button" id="lj_userpicselect" value="Browse" />} if $remote->can_use_userpic_select;
 
-            my $onclick = $beta_jquery ? "" : "onclick='randomicon();'";
-            $qrhtml .= "<button $onclick id='randomicon'>" . BML::ml('/talkpost.bml.userpic.random2') . "</button>";
+            my $onclick = $beta_jquery ? "" : "onclick='randomIcon();'";
+            $qrhtml .= "<input type='button' $onclick id='randomicon' value='" . BML::ml('/talkpost.bml.userpic.random2') . "' />";
 
             $qrhtml .= LJ::help_icon_html("userpics", " ");
         }
