@@ -2121,7 +2121,7 @@ sub icon_dropdown {
         }
 
         # random icon button - hidden for non-JS
-        $ret .= "<button class='ljhidden' id='randomicon'>" . BML::ml('/talkpost.bml.userpic.random2') ."</button>";
+        $ret .= "<input type='button' class='ljhidden' id='randomicon' value='" . BML::ml('/talkpost.bml.userpic.random2') . "'/>" ;
 
         $ret .= LJ::help_icon_html("userpics", " ");
     }
