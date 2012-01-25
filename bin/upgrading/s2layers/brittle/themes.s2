@@ -1113,6 +1113,10 @@ set color_footer_link = "#ef8229";
 
 set color_entry_background = "#000";
 set color_entry_text = "#fff";
+set color_entry_link = "#429ace";
+set color_entry_link_hover = "#842021";
+set color_entry_link_visited = "#ef4921";
+set color_entry_title = "#429ace";
 
 ##===============================
 ## Module Colors

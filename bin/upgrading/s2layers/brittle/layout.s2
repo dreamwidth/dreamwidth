@@ -1078,6 +1078,22 @@ div.ContextualPopup div.Inner {
     padding: 10px;
     }
 
+div.ContextualPopup div.Inner a {
+    color: $*color_entry_link;
+    }
+
+div.ContextualPopup div.Inner a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+div.ContextualPopup div.Inner a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+div.ContextualPopup div.Inner a:active {
+    color: $*color_entry_link_active;
+    }
+
 div.ContextualPopup .Userpic {
     margin: 5px;
     border: 1px dotted $bottom_border;
