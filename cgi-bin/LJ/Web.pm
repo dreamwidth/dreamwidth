@@ -2493,7 +2493,7 @@ sub need_res {
         # we put javascript in the 'default' group and CSS in the 'all' group
         # since we need CSS everywhere and we are switching JS groups
         my $lgroup = $group || ( $reskey =~ /^js/ ? 'default' : 'all' );
-        unless ($LJ::NEEDED_RES{$reskey}++) {
+        unless ($LJ::NEEDED_RES{"$lgroup-$reskey"}++) {
             $LJ::NEEDED_RES[$priority] ||= [];
 
             push @{$LJ::NEEDED_RES[$priority]}, [ $lgroup, $resinclude ];
@@ -2609,7 +2609,7 @@ sub res_includes {
             # the same file may have been included twice
             # if it was in two different groups and not JS
             # so add another check here
-            next if $included{$what};
+            return if $included{$what};
             $included{$what} = 1;
 
             # in the concat-res case, we don't directly append the URL w/
