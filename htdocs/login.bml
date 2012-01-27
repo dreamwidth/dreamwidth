@@ -235,7 +235,6 @@ _c?>
     };
 
     if (LJ::did_post()) {
-        warn Data::Dumper::Dumper( \%POST );
         my $do_change = $POST{'action:change'};
         my $do_login  = $POST{'action:login'};
         my $do_logout = $POST{'action:logout'};
