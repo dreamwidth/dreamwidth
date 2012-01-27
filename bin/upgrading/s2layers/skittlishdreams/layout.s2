@@ -641,8 +641,7 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .icons-container {
     background-color: $*color_entry_background;
     color: $*color_entry_text;
-    margin-top: 10px;
-    padding: 10px;
+    padding: 10px 10px 10px 30px;
     }
 
 .tags-container a,
@@ -663,16 +662,6 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .tags-container a:active,
 .icons-container a:active {
     color: $*color_entry_link_active;
-    }
-
-.two-columns-right.page-tags #wrap,
-.two-columns-right.page-icons #wrap {
-    margin-left: 20px;
-    }
-
-.two-columns-left.page-tags #wrap,
-.two-columns-left.page-icons #wrap {
-    margin-right: 20px;
     }
 
 .module-section-one .inner {border-bottom:2px solid $header_bottom_color;}
@@ -733,6 +722,11 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .two-columns-left.page-entry #comments, 
 .two-columns-left.page-archive .year, 
 .two-columns-left #archive-month {padding-left:22px; margin:-20px -20px -20px 5px; padding-right:5px; border-right: solid 1px $*color_page_border; $entry_background_redux }
+
+.two-columns-right .tags-container,
+.two-columns-right .icons-container { margin: 20px 5px -20px -20px; border-left: solid 1px $*color_page_border; $entry_background }
+.two-columns-left .tags-container,
+.two-columns-left .icons-container { margin: 20px -20px -20px 5px; border-right: solid 1px $*color_page_border; $entry_background_redux }
 
 .page-entry .entry-wrapper {margin-top:0;}
 
@@ -873,17 +867,16 @@ if ( $*use_action_links_images ) {
 .page-tags .navigation,
 .page-icons .navigation {
     height: 61px;
-    margin-bottom: -10px;
     }
 
 .two-columns-right.page-tags .navigation,
 .two-columns-right.page-icons .navigation {
-    $navigation_background
+    margin: -20px 5px -20px -20px; border-left: solid 1px $*color_page_border; $navigation_background
     }
 
 .two-columns-left.page-tags .navigation,
 .two-columns-left.page-icons .navigation {
-    $navigation_background_redux
+    margin: -20px -20px -20px 5px; border-right: solid 1px $*color_page_border; $navigation_background_redux
     }
 
 .two-columns-right .bottomcomment, .two-columns-right .comments-message { $navigation_background }
