@@ -59,7 +59,7 @@ sub display_codes {
 
     foreach my $code ( @codes ) {
         my $owner = $code->owner == $account->id ? $account : LJ::load_userid( $code->owner );
-        my $recipient = LJ::load_userid( $code->recipient ) if $code->is_used;
+        my $recipient = $code->is_used ? LJ::load_userid( $code->recipient ) : undef;
         $ret .= "<tr>";
         $ret .= "<td><tt>" . $code->code . "</tt></td>";
         $ret .= "<td>" . ( $owner ? $owner->ljuser_display : "" ) . "</td>";

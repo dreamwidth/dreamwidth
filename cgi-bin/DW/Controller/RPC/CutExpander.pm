@@ -45,7 +45,7 @@ sub cutexpander_handler {
         # all parameters are included; get the entry.
         my $ditemid = $args->{ditemid};
         my $uid = LJ::get_userid( $args->{journal} );
-        my $entry = LJ::Entry->new( $uid, ditemid => $ditemid ) if $uid;
+        my $entry = $uid ? LJ::Entry->new( $uid, ditemid => $ditemid ) : undef;
 
         # FIXME: This returns 200 due to old library, Make return proper when we are jQuery only.
         return $error_out->( 200, BML::ml( "error.nopermission" ) ) unless $entry;
