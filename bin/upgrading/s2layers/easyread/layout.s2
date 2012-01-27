@@ -770,6 +770,7 @@ module-section-two ul.module-list li {
 
 .icon-info .keywords ul li {
     display: inline;
+    padding: 0 .25em 0 0;
     }
 
 $userpic_css

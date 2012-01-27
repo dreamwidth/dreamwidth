@@ -634,7 +634,7 @@ table.month td p {
 
 .keywords ul li {
     display: inline;
-    padding: .25em;
+    padding: 0 .25em 0 0;
 }
 
 /* modules */

@@ -35,11 +35,11 @@ sub IconsPage {
         my @newpics;
         my $default_pic;
         foreach my $pic ( @allpics ) {
-            my $keyword = $pic->keywords;
+            my @keyword = $pic->keywords;
             if ( $pic->is_default ) {
-                $default_pic = { keywords => [ $keyword ] , userpic => $pic };
+                $default_pic = { keywords => \@keyword, userpic => $pic };
             } else {
-                push @newpics, { keywords => [ $keyword ], userpic => $pic };
+                push @newpics, { keywords => \@keyword, userpic => $pic };
             }
         }
         @pics = $default_pic if $default_pic;

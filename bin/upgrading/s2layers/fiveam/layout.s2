@@ -962,7 +962,7 @@ h3.day-date {
     }
 
 .icon-info .keywords ul li {
-    padding: 0;
+    padding: 0 .25em 0 0;
     }
 
 /* Modules

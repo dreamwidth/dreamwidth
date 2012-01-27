@@ -926,12 +926,13 @@ td.day {
 
 .icon-info .keywords ul {
     display: inline;
+    padding-left: 0;
     }
 
 .icon-info .keywords ul li {
     display: inline;
     list-style: none;
-    padding: 0;
+    padding: 0 .25em 0 0;
     }
 
 $userpic_css

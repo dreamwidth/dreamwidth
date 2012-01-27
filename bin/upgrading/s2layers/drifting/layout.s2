@@ -981,6 +981,7 @@ function Page::print_default_stylesheet()
 
     .icon-info .keywords ul li {
         display: inline;
+        padding: 0 .25em 0 0;
     }
 
     /* Footer

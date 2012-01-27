@@ -1025,6 +1025,7 @@ if ( $*use_action_links_images ) {
 
 .keywords ul li {
     display: inline;
+    padding: 0 .25em 0 0;
     }
 
 $entryicon_css
