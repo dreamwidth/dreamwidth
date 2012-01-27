@@ -29,7 +29,7 @@ sub render_body {
 
     my $nojs = $opts{nojs};
     my $user = $opts{user};
-    my $mode = $opts{mode};
+    my $mode = $opts{mode} || '';
 
     my $getextra = $nojs ? '?nojs=1' : '';
 
@@ -38,13 +38,15 @@ sub render_body {
     my $r = eval { BML::get_request() };
     my $isloginpage = 0;
     $isloginpage = 1 if ($r->uri eq '/login.bml');
+    my $has_get_ret;
+    $has_get_ret = 1 if $opts{get_ret} && $opts{get_ret} == 1;
 
-    if (!$isloginpage && $opts{get_ret} == 1) {
+    if ( ! $isloginpage && $has_get_ret ) {
         $getextra .= $getextra eq '' ? '?ret=1' : '&ret=1';
     }
 
     my $root = $LJ::IS_SSL ? $LJ::SSLROOT : $LJ::SITEROOT;
-    my $form_class = LJ::Hooks::run_hook("login_form_class_name_$opts{mode}");
+    my $form_class = LJ::Hooks::run_hook("login_form_class_name_$mode");
     $form_class = "lj_login_form pkg" unless $form_class;
     $ret .= "<form action='$root/login$getextra' method='post' class='$form_class'>\n";
     $ret .= LJ::form_auth();
@@ -55,7 +57,7 @@ sub render_body {
 
     my $referer = BML::get_client_header('Referer');
     my $eh_ref;
-    if ($isloginpage && $opts{get_ret} == 1 && $referer) {
+    if ( $isloginpage && $has_get_ret && $referer ) {
         $eh_ref = LJ::ehtml($referer);
         $ret .= "<input type='hidden' name='ref' value='$eh_ref' />\n";
     }
@@ -69,7 +71,7 @@ sub render_body {
         $ret .= LJ::html_hidden('returnto', LJ::ehtml($opts{returnto}));
     }
 
-    my $hook_rv = LJ::Hooks::run_hook("login_form_$opts{mode}", create_link => $opts{create_link});
+    my $hook_rv = LJ::Hooks::run_hook("login_form_$mode", create_link => $opts{create_link});
     if ($hook_rv) {
         $ret .= $hook_rv;
     } else {
