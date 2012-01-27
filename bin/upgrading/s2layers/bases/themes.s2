@@ -60,6 +60,7 @@ function Page::print_theme_stylesheet() {
     #entries,
     .page-entry .entry,
     .page-tags .tags-container,
+    .page-icons .icons-container,
     .page-archive #archive-year,
     .page-month #archive-month,
     .page-reply .entry-title {
