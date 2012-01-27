@@ -202,12 +202,11 @@ function Page::print_theme_stylesheet () {
         border: 1px solid $*color_module_border;
     }
 
-    .module-calendar th, .module-calendar .entry-day, .month th, 
-      .month .day-has-entries {
+    .module-calendar th, .module-calendar .entry-day, .month th, .month .day-has-entries {
         background-color: $*color_page_background;
         border: 1px solid $*color_module_border;
     }
-    
+
     .module-navlinks, .module-time, .module-powered, .module-header {
         background: -moz-linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* Firefox */
@@ -216,18 +215,17 @@ function Page::print_theme_stylesheet () {
           $*color_module_background)); /* Safari 4+, Chrome 2+ */
         background: -webkit-linear-gradient(top, 
           $*color_module_title_background, $*color_module_background 30px);
-        filter:  progid:DXImageTransform.Microsoft.gradient
+        filter: progid:DXImageTransform.Microsoft.gradient
           (GradientType=0,startColorstr='$*color_module_title_background',
           endColorstr='$*color_module_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
-	background: -ms-linear-gradient(top, $*color_module_title_background, 
+        background: -ms-linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* IE 10 */
         background: linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* Standard Syntax */
     }
-    
-    noindex:-o-prefocus, .module-navlinks, .module-time, 
-      .module-powered, .module-header {
+
+    noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
         background: -o-linear-gradient(top, $*color_module_title_background 0, 
           $*color_module_background 30px); /* Opera 11.10+ */
     }
@@ -239,7 +237,7 @@ function Page::print_theme_stylesheet () {
     }
 
     .entry .userpic, .comment .userpic {
-	box-shadow: 1px 2px 3px $*color_entry_border;
+        box-shadow: 1px 2px 3px $*color_entry_border;
     }
 
     .entry .userpic img, .comment .userpic img {
@@ -254,7 +252,7 @@ function Page::print_theme_stylesheet () {
         background-color: transparent;
     }
 
-    .comment, .bottomcomment {
+    #comments .comment, .bottomcomment {
         border-right: 1px solid $*color_entry_title_background;
         border-bottom: 1px solid $*color_entry_title_background;
         box-shadow: 1px 2px 3px $*color_entry_border;
@@ -275,8 +273,19 @@ function Page::print_theme_stylesheet () {
         box-shadow: 1px 2px 3px $*color_entry_border;
     }
 
-    .entry .header, .comment, .bottomcomment, .month, .page-tags h2 {
-	background: $*color_entry_background;	
+    .page-icons .icons-container {
+        border-right: 1px solid $*color_entry_title_background;
+        border-bottom: 1px solid $*color_entry_title_background;
+        box-shadow: 1px 2px 3px $*color_entry_border;
+    }
+
+    .entry .header,
+    #comments .comment,
+    .bottomcomment,
+    .month,
+    .tags-container h2,
+    .icons-container h2 {
+        background: $*color_entry_background;
         background: -moz-linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* Firefox */
         background: -webkit-linear-gradient(linear, left top, left bottom, 
@@ -284,22 +293,27 @@ function Page::print_theme_stylesheet () {
           $*color_entry_background)); /* Safari 4+, Chrome 2+ */
         background: -webkit-linear-gradient(top, $*color_entry_title_background,
           $*color_entry_background 30px); /* Safari 5/1+, Chrome 10+ */
-        filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,
+        filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,
           startColorstr='$*color_entry_title_background',
           endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
-	background: -ms-linear-gradient(top, $*color_entry_title_background, 
+        background: -ms-linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* IE 10 */
         background: linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* Standard Syntax */
     }
-	
-    noindex:-o-prefocus, .entry .header, .comment, .bottomcomment, .month, 
-      .page-tags h2 {
+
+    noindex:-o-prefocus,
+    .entry .header,
+    #comments .comment,
+    .bottomcomment,
+    .month,
+    .tags-container h2,
+    .icons-container h2 {
         background: -o-linear-gradient(top, $*color_entry_title_background 0, 
           $*color_entry_background 30px); /* Opera 11.10+ */
     }
-    
+
     #lj_controlstrip {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
@@ -314,7 +328,7 @@ function Page::print_theme_stylesheet () {
 
     div.ContextualPopup .Userpic {
         background-color: $*color_entry_title_background;
-	    box-shadow: 1px 2px 3px $*color_entry_border;
+        box-shadow: 1px 2px 3px $*color_entry_border;
     }
     """;
 }
@@ -716,7 +730,7 @@ function Page::print_theme_stylesheet () {
 
     .module-content .userpic img {
         background-color: $*color_module_border !important;
-	box-shadow: 1px 2px 3px $*color_module_border;
+        box-shadow: 1px 2px 3px $*color_module_border;
     }
 
     .module-calendar .empty-day, .month .day {
@@ -724,12 +738,11 @@ function Page::print_theme_stylesheet () {
         border: 1px solid $*color_module_border;
     }
 
-    .module-calendar th, .module-calendar .entry-day, .month th, 
-      .month .day-has-entries {
+    .module-calendar th, .module-calendar .entry-day, .month th, .month .day-has-entries {
         background-color: $*color_page_background;
         border: 1px solid $*color_module_border;
     }
-    
+
     .module-navlinks, .module-time, .module-powered, .module-header {
         background: -moz-linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* Firefox */
@@ -738,18 +751,17 @@ function Page::print_theme_stylesheet () {
           $*color_module_background)); /* Safari 4+, Chrome 2+ */
         background: -webkit-linear-gradient(top, 
           $*color_module_title_background, $*color_module_background 30px);
-        filter:  progid:DXImageTransform.Microsoft.gradient
+        filter: progid:DXImageTransform.Microsoft.gradient
           (GradientType=0,startColorstr='$*color_module_title_background',
           endColorstr='$*color_module_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
-	background: -ms-linear-gradient(top, $*color_module_title_background, 
+        background: -ms-linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* IE 10 */
         background: linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* Standard Syntax */
     }
-    
-    noindex:-o-prefocus, .module-navlinks, .module-time, 
-      .module-powered, .module-header {
+
+    noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
         background: -o-linear-gradient(top, $*color_module_title_background 0, 
           $*color_module_background 30px); /* Opera 11.10+ */
     }
@@ -761,7 +773,7 @@ function Page::print_theme_stylesheet () {
     }
 
     .entry .userpic, .comment .userpic {
-	box-shadow: 1px 2px 3px $*color_entry_border;
+        box-shadow: 1px 2px 3px $*color_entry_border;
     }
 
     .entry .userpic img, .comment .userpic img {
@@ -776,7 +788,7 @@ function Page::print_theme_stylesheet () {
         background-color: transparent;
     }
 
-    .comment, .bottomcomment {
+    #comments .comment, .bottomcomment {
         border-right: 1px solid $*color_entry_title_background;
         border-bottom: 1px solid $*color_entry_title_background;
         box-shadow: 1px 2px 3px $*color_entry_border;
@@ -797,8 +809,19 @@ function Page::print_theme_stylesheet () {
         box-shadow: 1px 2px 3px $*color_entry_border;
     }
 
-    .entry .header, .comment, .bottomcomment, .month, .page-tags h2 {
-	background: $*color_entry_background;	
+    .page-icons .icons-container {
+        border-right: 1px solid $*color_entry_title_background;
+        border-bottom: 1px solid $*color_entry_title_background;
+        box-shadow: 1px 2px 3px $*color_entry_border;
+    }
+
+    .entry .header,
+    #comments .comment,
+    .bottomcomment,
+    .month,
+    .tags-container h2,
+    .icons-container h2 {
+        background: $*color_entry_background;
         background: -moz-linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* Firefox */
         background: -webkit-linear-gradient(linear, left top, left bottom, 
@@ -810,18 +833,23 @@ function Page::print_theme_stylesheet () {
           startColorstr='$*color_entry_title_background',
           endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
-	background: -ms-linear-gradient(top, $*color_entry_title_background, 
+        background: -ms-linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* IE 10 */
         background: linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* Standard Syntax */
     }
-	
-    noindex:-o-prefocus, .entry .header, .comment, .bottomcomment, .month, 
-      .page-tags h2 {
+
+    noindex:-o-prefocus,
+    .entry .header,
+    #comments .comment,
+    .bottomcomment,
+    .month,
+    .tags-container h2,
+    .icons-container h2 {
         background: -o-linear-gradient(top, $*color_entry_title_background 0, 
           $*color_entry_background 30px); /* Opera 11.10+ */
     }
-    
+
     #lj_controlstrip {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
@@ -836,7 +864,7 @@ function Page::print_theme_stylesheet () {
 
     div.ContextualPopup .Userpic {
         background-color: $*color_entry_title_background;
-	    box-shadow: 1px 2px 3px $*color_entry_border;
+        box-shadow: 1px 2px 3px $*color_entry_border;
     }
     """;
 }
@@ -1346,7 +1374,7 @@ function Page::print_theme_stylesheet () {
 
     .module-content .userpic img {
         background-color: $*color_module_border !important;
-	box-shadow: 1px 2px 3px $*color_module_border;
+        box-shadow: 1px 2px 3px $*color_module_border;
     }
 
     .module-calendar .empty-day, .month .day {
@@ -1359,7 +1387,7 @@ function Page::print_theme_stylesheet () {
         background-color: $*color_page_background;
         border: 1px solid $*color_module_border;
     }
-    
+
     .module-navlinks, .module-time, .module-powered, .module-header {
         background: -moz-linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* Firefox */
@@ -1372,14 +1400,13 @@ function Page::print_theme_stylesheet () {
           (GradientType=0,startColorstr='$*color_module_title_background',
           endColorstr='$*color_module_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_module_title_background',endColorstr='$*color_module_background')"; /* IE 8+ */
-	background: -ms-linear-gradient(top, $*color_module_title_background, 
+        background: -ms-linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* IE 10 */
         background: linear-gradient(top, $*color_module_title_background, 
           $*color_module_background 30px); /* Standard Syntax */
     }
-    
-    noindex:-o-prefocus, .module-navlinks, .module-time, 
-      .module-powered, .module-header {
+
+    noindex:-o-prefocus, .module-navlinks, .module-time, .module-powered, .module-header {
         background: -o-linear-gradient(top, $*color_module_title_background 0, 
           $*color_module_background 30px); /* Opera 11.10+ */
     }
@@ -1391,7 +1418,7 @@ function Page::print_theme_stylesheet () {
     }
 
     .entry .userpic, .comment .userpic {
-	box-shadow: 1px 2px 3px $*color_entry_border;
+        box-shadow: 1px 2px 3px $*color_entry_border;
     }
 
     .entry .userpic img, .comment .userpic img {
@@ -1406,7 +1433,7 @@ function Page::print_theme_stylesheet () {
         background-color: transparent;
     }
 
-    .comment, .bottomcomment {
+    #comments .comment, .bottomcomment {
         border-right: 1px solid $*color_entry_title_background;
         border-bottom: 1px solid $*color_entry_title_background;
         box-shadow: 1px 2px 3px $*color_entry_border;
@@ -1427,8 +1454,19 @@ function Page::print_theme_stylesheet () {
         box-shadow: 1px 2px 3px $*color_entry_border;
     }
 
-    .entry .header, .comment, .bottomcomment, .month, .page-tags h2 {
-	background: $*color_entry_background;	
+    .page-icons .icons-container {
+        border-right: 1px solid $*color_entry_title_background;
+        border-bottom: 1px solid $*color_entry_title_background;
+        box-shadow: 1px 2px 3px $*color_entry_border;
+    }
+
+    .entry .header,
+    #comments .comment,
+    .bottomcomment,
+    .month,
+    .tags-container h2,
+    .icons-container h2 {
+        background: $*color_entry_background;
         background: -moz-linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* Firefox */
         background: -webkit-linear-gradient(linear, left top, left bottom, 
@@ -1440,18 +1478,23 @@ function Page::print_theme_stylesheet () {
           startColorstr='$*color_entry_title_background',
           endColorstr='$*color_entry_background'); /* IE6 + IE 7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='$*color_entry_title_background',endColorstr='$*color_entry_background')"; /* IE 8+ */
-	background: -ms-linear-gradient(top, $*color_entry_title_background, 
+        background: -ms-linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* IE 10 */
         background: linear-gradient(top, $*color_entry_title_background, 
           $*color_entry_background 30px); /* Standard Syntax */
     }
-	
-    noindex:-o-prefocus, .entry .header, .comment, .bottomcomment, .month, 
-      .page-tags h2 {
+
+    noindex:-o-prefocus,
+    .entry .header,
+    #comments .comment,
+    .bottomcomment,
+    .month,
+    .tags-container h2,
+    .icons-container h2 {
         background: -o-linear-gradient(top, $*color_entry_title_background 0, 
           $*color_entry_background 30px); /* Opera 11.10+ */
     }
-    
+
     #lj_controlstrip {
         box-shadow: 0px 1px 2px $*color_entry_border;
     }
@@ -1466,7 +1509,7 @@ function Page::print_theme_stylesheet () {
 
     div.ContextualPopup .Userpic {
         background-color: $*color_entry_title_background;
-	    box-shadow: 1px 2px 3px $*color_entry_border;
+        box-shadow: 1px 2px 3px $*color_entry_border;
     }
     """;
 }
