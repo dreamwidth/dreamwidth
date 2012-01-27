@@ -909,10 +909,11 @@ function Page::print_default_stylesheet()
 
     /* Tags Page
     ***************************************************************************/
-    body.page-tags #primary h2 {
+    .tags-container h2 {
+        background: $*color_page_background;
+        color: $*color_page_text;
         border: 1px solid $*color_entry_border;
         border-left: none;
-        background: $*color_page_background;
         padding: 3px;
         padding-left: 10px;
     }
@@ -920,6 +921,66 @@ function Page::print_default_stylesheet()
     .ljtaglist {
         list-style: none;
         padding-left: 10px;
+    }
+
+    /* Icons Page
+    ***************************************************************************/
+
+    .icons-container .contents,
+    .icons-container .footer {
+        padding: 0 5px 5px 10px;
+    }
+
+    .icons-container h2 {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        border: 1px solid $*color_entry_border;
+        border-left: none;
+        padding: 3px;
+        padding-left: 10px;
+    }
+
+    .sorting-options ul {
+        padding-left: 0;
+        text-align: right;
+    }
+
+    .sorting-options ul li {
+        display: inline;
+    }
+
+    .page-icons .icon {
+        margin: 1em 0;
+    }
+
+    .icon-image {
+        display: inline-block;
+        margin-bottom: .25em;
+        min-width: 100px;
+    }
+
+    .icon-info {
+        display: inline-block;
+        vertical-align: top;
+        width: 80%;
+    }
+
+    .icon-info span {
+        font-weight: bold;
+    }
+
+    .icon-info .default {
+        text-decoration: underline;
+    }
+
+    .icon-info .keywords ul {
+        display: inline;
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .icon-info .keywords ul li {
+        display: inline;
     }
 
     /* Footer
