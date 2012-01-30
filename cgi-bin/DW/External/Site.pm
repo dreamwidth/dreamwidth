@@ -49,7 +49,8 @@ $domaintosite{"last.fm"} = DW::External::Site->new("16", "last.fm", "last.fm", "
 $domaintosite{"ravelry.com"} = DW::External::Site->new("17", "www.ravelry.com", "ravelry.com", "Ravelry", "ravelry");
 $domaintosite{"wordpress.com"} = DW::External::Site->new("18", "wordpress.com", "wordpress.com", "Wordpress", "WP");
 $domaintosite{"plurk.com"} = DW::External::Site->new("19", "plurk.com", "plurk.com", "Plurk", "Plurk");
-
+$domaintosite{"pinboard.in"} = DW::External::Site->new("20", "www.pinboard.in", "pinboard.in", "Pinboard", "Pinboard");
+$domaintosite{"fanfiction.net"} = DW::External::Site->new("21", "www.fanfiction.net", "fanfiction.net", "FanFiction", "FanFiction");
 
 foreach my $value (values %domaintosite) {
     $idtosite{$value->{siteid}} = $value;
