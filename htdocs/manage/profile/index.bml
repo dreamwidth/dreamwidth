@@ -49,21 +49,24 @@ body<=
     my $dbr = LJ::get_db_reader();
     my $sth;
 
+    # list the userprops that are handled explicitly by code on this page
+    # props in this list will be preloaded on page load and saved on post
+    my @uprops = qw/
+        opt_whatemailshow comm_theme
+        aolim google_talk icq jabber
+        msn skype yahoo tumblr
+        plurk twitter delicious diigo
+        pinboard last_fm_user
+        etsy ravelry url urlname gender
+        opt_hidefriendofs opt_hidememberofs
+        sidx_bdate sidx_bday
+        opt_showmutualfriends
+        opt_showbday opt_showlocation opt_showljtalk
+        opt_sharebday opt_showonlinestatus
+    /;
+
     # load user props
-    $u->preload_props( { use_master => 1 },
-        qw/ country state city timezone
-          aolim google_talk icq jabber
-          msn skype yahoo tumblr
-          plurk twitter delicious diigo
-          pinboard last_fm_user
-          etsy ravelry url urlname gender
-          opt_hidefriendofs opt_hidememberofs
-          sidx_bdate sidx_bday sidx_loc
-          opt_showmutualfriends
-          opt_showbday opt_showlocation
-          opt_sharebday
-          comm_theme opt_showljtalk opt_showonlinestatus/
-    );
+    $u->preload_props( { use_master => 1 }, @uprops );
 
     # to store values before they undergo normalisation
     my %saved = ();
@@ -688,20 +691,6 @@ body<=
                     }
                 }
             }
-
-            my @uprops = qw(
-              opt_whatemailshow comm_theme
-              aolim google_talk icq jabber
-              msn skype yahoo tumblr
-              plurk twitter delicious diigo
-              pinboard last_fm_user
-              etsy ravelry url urlname gender
-              opt_hidefriendofs opt_hidememberofs
-              sidx_bdate sidx_bday
-              opt_showmutualfriends
-              opt_showbday opt_showlocation opt_showljtalk
-              opt_sharebday opt_showonlinestatus
-            );
 
             # set userprops
             my %prop;
