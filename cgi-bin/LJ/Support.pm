@@ -1052,11 +1052,20 @@ sub work {
     my $body;
     my @emails;
 
+    my $show_name = $sp->{reqname};
+    my $show_email = $sp->{reqemail};
+    $show_email =~ s/^.+\@/********\@/;
+    if ( $sp->{reqtype} eq 'user' ) {
+        my $u = LJ::load_userid( $sp->{requserid} );
+        $show_name = $u->display_name if $u;
+    }
+
     if ($type eq 'new') {
-        $body = LJ::Lang::ml( "support.email.notif.new.body", {
+        $body = LJ::Lang::ml( "support.email.notif.new.body2", {
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",
+                username => LJ::trim( "$show_name ($show_email)" ),
                 text => $sp->{body}
             } );
         $body .= "\n\n" . "="x4 . "\n\n";
@@ -1079,10 +1088,11 @@ sub work {
                                   undef, $sp->{spid}, $a->{splid}+0);
 
         # build body
-        $body = LJ::Lang::ml( "support.email.notif.update.body", {
+        $body = LJ::Lang::ml( "support.email.notif.update.body2", {
                 category => $sp->{_cat}{catname},
                 subject => $sp->{subject},
                 url => "$LJ::SITEROOT/support/see_request?id=$spid",
+                username => LJ::trim( "$show_name ($show_email)" ),
                 text => $resp
             } );
         $body .= "\n\n" . "="x4 . "\n\n";
