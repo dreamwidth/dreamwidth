@@ -886,6 +886,39 @@ sub external_services {
         };
     }
 
+    if ( my $pinboard = $u->prop( 'pinboard' ) ) {
+        my $pinboard = LJ::eurl( $pinboard );
+        push @ret, {
+            type => 'pinboard',
+            text => LJ::ehtml( $pinboard ),
+            url => "http://pinboard.in/u:$pinboard",
+            image => 'pinboard.png',
+            title_ml => '.service.pinboard',
+        };
+    }
+
+    if ( my $plurk = $u->prop( 'plurk' ) ) {
+        my $plurk = LJ::eurl( $plurk );
+        push @ret, {
+            type => 'plurk',
+            text => LJ::ehtml( $plurk ),
+            url => "http://www.plurk.com/$plurk",
+            image => 'plurk.png',
+            title_ml => '.service.plurk',
+        };
+    }
+
+    if ( my $tumblr = $u->prop( 'tumblr' ) ) {
+        my $tumblr = LJ::eurl( $tumblr );
+        push @ret, {
+            type => 'tumblr',
+            text => LJ::ehtml( $tumblr ),
+            url => "http://$tumblr.tumblr.com",
+            image => 'tumblr.png',
+            title_ml => '.service.tumblr',
+        };
+    }
+
     return @ret;
 }
 

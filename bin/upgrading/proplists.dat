@@ -990,6 +990,22 @@ userproplist.opt_show_captcha_to:
   multihomed: 0
   prettyname: Show CAPTCHA on commenting
 
+userproplist.pinboard:
+  cldversion: 4
+  datatype: char
+  des: Pinboard user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Pinboard user account name
+
+userproplist.plurk:
+  cldversion: 4
+  datatype: char
+  des: Plurk user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Plurk user account name
+
 userproplist.posting_guidelines_entry:
   cldversion: 4
   datatype: char
@@ -1173,6 +1189,14 @@ userproplist.timezone:
   indexed: 0
   multihomed: 0
   prettyname: Timezone
+
+userproplist.tumblr:
+  cldversion: 4
+  datatype: char
+  des: Tumblr user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Tumblr user account name
 
 userproplist.twitter:
   cldversion: 4

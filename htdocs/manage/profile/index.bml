@@ -52,10 +52,11 @@ body<=
     # load user props
     $u->preload_props( { use_master => 1 },
         qw/ country state city timezone
-          icq aolim yahoo msn url jabber
-          google_talk skype twitter
-          delicious ravelry etsy diigo
-          urlname gender last_fm_user
+          aolim google_talk icq jabber
+          msn skype yahoo tumblr
+          plurk twitter delicious diigo
+          pinboard last_fm_user
+          etsy ravelry url urlname gender
           opt_hidefriendofs opt_hidememberofs
           sidx_bdate sidx_bday sidx_loc
           opt_showmutualfriends
@@ -424,16 +425,22 @@ body<=
             my $oddeven = 0;
 
             foreach my $p (
-                           ["aolim", $ML{'.chat.aolim'}, 28], ["icq", $ML{'.chat.icquin'}, 12],
-                           ["yahoo", $ML{'.chat.yahooid'}, 33], ["msn", $ML{'.chat.msnusername'}, 60],
-                           ["jabber", $ML{'.chat.jabber'}, 60], ["google_talk", $ML{'.chat.googletalk'}, 60],
+                           ["aolim", $ML{'.chat.aolim'}, 28],
+                           ["google_talk", $ML{'.chat.googletalk'}, 60],
+                           ["icq", $ML{'.chat.icquin'}, 12],
+                           ["jabber", $ML{'.chat.jabber'}, 60],
+                           ["msn", $ML{'.chat.msnusername'}, 60],
                            ["skype", $ML{'.chat.skype'}, 40],
+                           ["yahoo", $ML{'.chat.yahooid'}, 33],
+                           ["tumblr", $ML{ '.services.tumblr' }, 255],
+                           ["plurk", $ML{ '.services.plurk' }, 255],
                            ["twitter", $ML{ '.services.twitter' }, 40],
                            ["delicious", $ML{ '.services.delicious' }, 40],
                            ["diigo", $ML{ '.services.diigo' }, 16],
-                           ["ravelry", $ML{ '.services.ravelry' }, 40],
-                           ["etsy", $ML{ '.services.etsy' }, 20],
+                           ["pinboard", $ML{'.services.pinboard'}, 30],
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
+                           ["etsy", $ML{ '.services.etsy' }, 20],
+                           ["ravelry", $ML{ '.services.ravelry' }, 40],
                           )
 
             {
@@ -684,10 +691,11 @@ body<=
 
             my @uprops = qw(
               opt_whatemailshow comm_theme
-              icq aolim yahoo msn url jabber
-              google_talk skype twitter
-              delicious ravelry etsy diigo
-              urlname gender last_fm_user
+              aolim google_talk icq jabber
+              msn skype yahoo tumblr
+              plurk twitter delicious diigo
+              pinboard last_fm_user
+              etsy ravelry url urlname gender
               opt_hidefriendofs opt_hidememberofs
               sidx_bdate sidx_bday
               opt_showmutualfriends

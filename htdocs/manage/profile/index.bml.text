@@ -193,15 +193,21 @@
 
 .services.delicious=Delicious Username
 
-.services.etsy=Etsy Username
-
 .services.diigo=Diigo Username
 
+.services.etsy=Etsy Username
+
 .services.last_fm=Last.fm Username
+
+.services.pinboard=Pinboard Username
+
+.services.plurk=Plurk Username
 
 .services.ravelry=Ravelry Username
 
 .services.twitter=Twitter Username
+
+.services.tumblr=Tumblr Username
 
 .show.birthday.day2=Show only month and day
 

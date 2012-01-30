@@ -405,7 +405,13 @@
 
 .service.etsy=Etsy
 
+.service.pinboard=Pinboard
+
+.service.plurk=Plurk
+
 .service.ravelry=Ravelry
+
+.service.tumblr=Tumblr
 
 .service.twitter=Twitter
 
