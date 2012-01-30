@@ -117,7 +117,9 @@
 
 .success.editfriends=Manage your Circle
 
-.success.editgroups=Edit posting and reading filters
+.success.editaccess_filters=Manage your access filters
+
+.success.editsubscr_filters=Manage your subscription filters
 
 .success.friendspage=View your Reading Page
 

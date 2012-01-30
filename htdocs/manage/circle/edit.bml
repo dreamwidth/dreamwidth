@@ -478,7 +478,8 @@ body<=
         $ret .= "<ul>";
         $ret .= "<li><a href='" . $u->journal_base . "/read'>$ML{'.success.friendspage'}</a></li>";
         $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/edit'>$ML{'.success.editfriends'}</a></li>";
-        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editfilters'>$ML{'.success.editgroups'}</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editfilters'>$ML{'.success.editaccess_filters'}</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/subscriptions/filters'>$ML{'.success.editsubscr_filters'}</a></li>";
         $ret .= "</ul>";
 
         return $ret;

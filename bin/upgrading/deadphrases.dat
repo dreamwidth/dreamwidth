@@ -1499,3 +1499,5 @@ general esn.comm_invite.subject
 general error.security.noarg
 
 general /talkpost.bml.userpic.random
+
+general /manage/circle/edit.bml.success.editgroups
