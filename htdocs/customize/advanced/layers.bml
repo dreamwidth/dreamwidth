@@ -160,28 +160,6 @@ _c?>
         return $err->($ML{'.error.notyourlayer'})
             unless $lay->{userid} == $u->userid;
 
-        unless ($POST{'confirm'}) {
-            my $layerinfo = {};
-            LJ::S2::load_layer_info($layerinfo, [ $id ]);
-            my $name = $layerinfo->{$id}->{'name'} ? BML::ml('.delete.layername', {'name' => $layerinfo->{$id}->{'name'}}) : BML::ml('.delete.layerid', {'id' => $id});
-            $name = LJ::ehtml($name);
-
-            $title = BML::ml('.delete.title', {'name' => $name});
-            $body .= "<br /> ";
-            $body .= BML::ml("Backlink", {
-                'link' => "$LJ::SITEROOT/customize/advanced/layers?authas=$authas",
-                'text' => $ML{'.back2layers'},
-            }) . "\n";
-            $body .= "<form method='post' action='layers?authas=$authas'>";
-            $body .= $formauth;
-            $body .= LJ::html_hidden('action:del', '1', 'id', $id);
-              
-            $body .= BML::ml('.delete.text', {'type' => $lay->{'type'}, 'name' => $name});
-            $body .= "<p>" . LJ::html_submit('confirm', $ML{'.btn.delete'}) . "</p>\n";;
-            $body .= "</form>\n";
-            return;
-        }
-
         LJ::S2::delete_layer($u, $id);
         return BML::redirect("layers?authas=$authas");
     }
@@ -262,7 +240,12 @@ _c?>
             $body .= "<form method='post' style='display:inline' action='layers?authas=$authas'>";
             $body .= $formauth;
             $body .= LJ::html_hidden('id', $lid);
-            $body .= LJ::html_submit('action:del', $ML{'.btn.delete2'}, { disabled => $noactions });
+
+            my $confirm_msg = LJ::ejs(BML::ml('.delete.text', {'type' => $laytype, 'name' => $name}));
+
+            $body .= LJ::html_submit('action:del', $ML{'.btn.delete2'},
+                                    { 'onclick' => "return confirm('$confirm_msg')", disabled => $noactions }) . " ";
+
             $body .= "</form>";
             $body .= "</td></tr>\n"
         }
