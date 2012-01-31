@@ -123,6 +123,8 @@ body<=
             $usejournal_u = LJ::load_user($usejournal);
             return LJ::bad_input( $ML{'error.nocomm'} )
                 unless $usejournal_u;
+            return LJ::bad_input( $ML{'error.invalidauth'} )
+                unless $usejournal_u->is_comm;
         }
 
         ###
