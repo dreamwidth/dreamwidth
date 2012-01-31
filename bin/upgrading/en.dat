@@ -3724,12 +3724,11 @@ support.email.confirmation.close=If you figure out the problem before somebody g
 
 support.email.fromname=[[sitename]] Support
 
-support.email.notif.new.body2<<
+support.email.notif.new.body<<
 A [[sitename]] support request has been submitted regarding the following:
 
 Category: [[category]]
 Subject: [[subject]]
-User: [[username]]
 URL: [[url]]
 Text:
 
@@ -3748,12 +3747,11 @@ You are receiving this email because you've requested notifications of new suppo
 
 .
 
-support.email.notif.update.body2<<
+support.email.notif.update.body<<
 A follow-up to the following [[sitename]] support request has been submitted:
 
 Category: [[category]]
 Subject: [[subject]]
-User: [[username]]
 URL: [[url]]
 Text:
 
