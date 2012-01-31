@@ -2620,7 +2620,7 @@ setting.display.viewstyle.original=Original style
 
 setting.display.viewstyle.site=Site skin
 
-setting.echi_display.des=Display Explicit Comment Hierarchy Indicators (site scheme only)
+setting.echi_display.des=Display Explicit Comment Hierarchy Indicators
 
 setting.echi_display.label=Comment Hierarchy
 

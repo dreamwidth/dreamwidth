@@ -285,6 +285,7 @@ sub EntryPage
                 'showable_children' => $com->{'showable_children'},
                 'hide_children' => $com->{'hide_children'},
                 'hidden_child' => $com->{'hidden_child'},
+                'echi' => $com->{echi},
             };
 
             # don't show info from suspended users

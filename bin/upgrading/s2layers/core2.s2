@@ -344,6 +344,7 @@ class EntryLite
 
     var readonly bool hidden_child "Indicates if the child is hidden by default.";
     var readonly bool hide_children "Indicates we are hiding the children of this comment";
+    var readonly string echi "The Explicit Comment Hierarchy Indicator, if enabled by user.";
 
     function print_wrapper_start() "Start the wrapper for this entry or comment; includes anchor and classes";
     function print_wrapper_end() "End the wrapper for this entry or comment.";
@@ -4797,6 +4798,9 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
         }
         if ($c.frozen) {
             print $*text_frozen;
+        }
+        if ($c.echi) {
+            print "<span class='echi'>${c.echi}.</span> ";
         }
         print $this->formatted_subject( $opts );
         "</h4></div>";
