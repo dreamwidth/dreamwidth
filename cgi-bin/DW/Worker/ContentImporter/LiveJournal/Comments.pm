@@ -320,6 +320,9 @@ sub try_work {
             # character encoding
             $comment->[C_body] = encode_utf8( $comment->[C_body] || '' );
             $comment->[C_subject] = encode_utf8( $comment->[C_subject] || '' );
+            foreach my $prop ( keys %{$comment->[C_props]} ) {
+                $comment->[C_props]->{$prop} = encode_utf8( $comment->[C_props]->{$prop} );
+            }
 
             # this body is done
             $comment->[C_body_fixed] = 1;                
@@ -358,9 +361,7 @@ sub try_work {
                 $comment->[C_local_parentid] = $jtalkid_map->{$comment->[C_remote_parentid]}+0;
                 $comment->[C_id] = $jtalkid;
 
-# Temporarily disabled, this slows down reimports a LOT and we aren't
-# really doing anything with them.
-#DW::Worker::ContentImporter::Local::Comments->update_comment( $u, hashify( $comment ), \$err );
+                DW::Worker::ContentImporter::Local::Comments->update_comment( $u, hashify( $comment ), \$err );
                 $log->( 'ERROR: %s', $err ) if $err;
 
                 $comment->[C_done] = 1;
