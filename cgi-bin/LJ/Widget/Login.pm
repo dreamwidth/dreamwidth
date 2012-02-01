@@ -28,7 +28,7 @@ sub render_body {
     return "" if $remote;
 
     my $nojs = $opts{nojs};
-    my $user = $opts{user};
+    my $user = $opts{user} || '';
     my $mode = $opts{mode} || '';
 
     my $getextra = $nojs ? '?nojs=1' : '';
