@@ -124,6 +124,7 @@ LJ::Hooks::register_hook( 'privlist-add', sub {
         rename         => "Access to rename_opts console command",
         sitemessages   => "Access to /admin/sitemessages",
         spamreports    => "Access to /admin/spamreports",
+        themes         => "Access to /admin/themes",
         theschwartz    => "Access to /admin/theschwartz",
         usernames      => "Bypasses is_protected_username check",
         userpics       => "Access to expunge_userpic console command",
