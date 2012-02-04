@@ -13,6 +13,7 @@
 
 # Event that is fired when there is a new post in a journal.
 # sarg1 = optional tag id to filter on
+# sarg2 = optional poster id to filter on (in a community)
 
 package LJ::Event::JournalNewEntry;
 use strict;
@@ -58,6 +59,13 @@ sub matches_filter {
 
             return 0 unless grep { $tagmap{$_} == $stagid } $entry->tags;
         }
+    }
+
+    # filter by user?
+    my $suserid = $subscr->arg2;
+    my $su = LJ::load_userid ( $suserid );
+    if ( $su ) {
+        return 0 unless $subscr->journalid && $entry->poster->equals( $su );
     }
 
     # all posts by friends
@@ -394,6 +402,20 @@ sub subscription_as_html {
                     user    => $journal->ljuser_display,
                     tags    => $usertags,
                 });
+    }
+
+    # are we filtering on a poster?
+    my $arg2 = $subscr->arg2;
+
+    if ( $arg2 ) {
+        my $postu = LJ::load_userid( $arg2 );
+        if ( $postu ) {
+            return BML::ml( 'event.journal_new_entry.poster',
+                    {
+                        user    => $journal->ljuser_display,
+                        poster  => $postu->ljuser_display,
+                    } );
+        }
     }
 
     return BML::ml('event.journal_new_entry.friendlist') unless $journal;

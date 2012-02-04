@@ -1600,6 +1600,8 @@ event.journal_new_entry.community=Someone posts a new entry to [[user]]
 
 event.journal_new_entry.friendlist=Someone I subscribe to posts a new entry
 
+event.journal_new_entry.poster=[[poster]] posts a new entry to [[user]]
+
 event.journal_new_entry.tag.community=Someone posts an entry tagged [[tags]] to [[user]]
 
 event.journal_new_entry.tag.user=[[user]] posts a new entry tagged [[tags]]

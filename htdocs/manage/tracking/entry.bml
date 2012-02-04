@@ -88,7 +88,17 @@ body<=
             journal => $journal,
             entry   => $entry,
             flags   => LJ::Subscription::TRACKING,
-        ),
+        );
+
+    push @{ @$categories[0]->{$cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewEntry",
+            arg2    => $entry->posterid,
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        ) if $journal->is_community;
+
+    push @{ @$categories[0]->{$cat_title} },
         LJ::Subscription::Pending->new( $remote,
             event   => "JournalNewEntry",
             journal => $journal,
