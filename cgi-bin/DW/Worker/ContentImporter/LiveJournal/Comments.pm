@@ -103,7 +103,7 @@ sub try_work {
 
     # we know that we can potentially take a while, so budget a few hours for
     # the import job before someone else comes in to snag it
-    $job->grabbed_until( time() + 3600*12 );
+    $job->grabbed_until( time() + 3600*72 );
     $job->save;
 
     # failure wrappers for convenience

@@ -67,6 +67,11 @@ sub reset_singletons {
     %singletons = ();
 }
 
+# singletons still to be loaded
+my @unloaded_singletons;
+my @unloaded_text_singletons;
+my @unloaded_prop_singletons;
+
 # <LJFUNC>
 # name: LJ::Comment::new
 # class: comment
@@ -78,33 +83,14 @@ sub reset_singletons {
 # returns: A new LJ::Comment object. Returns undef on failure.
 # </LJFUNC>
 sub instance {
-    my $class = shift;
-    my $self  = bless {};
-
-    my $uuserid = shift;
-    my $n_arg   = scalar @_;
     croak("wrong number of arguments")
-        unless $n_arg && ($n_arg % 2 == 0);
+        unless scalar @_ == 4;
+    my ( $class, $uuserid, $which, $value ) = @_;
 
-    my %opts = @_;
-
-    $self->{journalid} = LJ::want_userid($uuserid) or
-        croak("invalid journalid parameter");
-
-    $self->{jtalkid} = int( delete( $opts{jtalkid} ) || 0 );
-
-    if ( my $dtalkid = int( delete( $opts{dtalkid} ) || 0 ) ) {
-        $self->{jtalkid} = $dtalkid >> 8;
-    }
-
-    croak("need to supply jtalkid or dtalkid")
-        unless $self->{jtalkid};
-
-    croak("unknown parameter: " . join(", ", keys %opts))
-        if %opts;
-
-    my $journalid = $self->{journalid};
-    my $jtalkid   = $self->{jtalkid};
+    my $journalid = LJ::want_userid( $uuserid )
+        or croak("invalid journalid parameter");
+    my $jtalkid = $which eq 'jtalkid' ? $value+0 : ( $value+0 >> 8 )
+        or croak("need to supply jtalkid or dtalkid");
 
     # do we have a singleton for this comment?
     $singletons{$journalid} ||= {};
@@ -112,12 +98,16 @@ sub instance {
         if $singletons{$journalid}->{$jtalkid};
 
     # save the singleton if it doesn't exist
-    $singletons{$journalid}->{$jtalkid} = $self;
+    my $self = bless {
+        journalid => $journalid,
+        jtalkid => $jtalkid,
+    }, $class;
 
-    croak("need to supply jtalkid") unless $self->{jtalkid};
-    croak("unknown parameters: " . join(", ", keys %opts))
-        if %opts;
-    return $self;
+    push @unloaded_singletons, $self;
+    push @unloaded_text_singletons, $self;
+    push @unloaded_prop_singletons, $self;
+
+    return $singletons{$journalid}->{$jtalkid} = $self;
 }
 *new = \&instance;
 
@@ -340,22 +330,13 @@ sub dtalkid {
 }
 
 sub nodeid {
-    my $self = $_[0];
-
-    # we want to fast-path and not preload_rows here if we can avoid it...
-    # this sometimes gets called en masse on a bunch of comments, and
-    # if there are a lot, the preload_rows calls (which do nothing) cause
-    # the apache request to time out.
-    return $self->{nodeid} if $self->{_loaded_row};
-
-    __PACKAGE__->preload_rows([ $self->unloaded_singletons] );
-    return $self->{nodeid};
+    __PACKAGE__->preload_rows();
+    return $_[0]->{nodeid};
 }
 
 sub nodetype {
-    my $self = $_[0];
-    __PACKAGE__->preload_rows([ $self->unloaded_singletons] );
-    return $self->{nodetype};
+    __PACKAGE__->preload_rows();
+    return $_[0]->{nodetype};
 }
 
 =head2 C<< $self->threadrootid >>
@@ -409,9 +390,8 @@ sub threadrootid {
 
 
 sub parenttalkid {
-    my $self = $_[0];
-    __PACKAGE__->preload_rows([ $self->unloaded_singletons ]);
-    return $self->{parenttalkid};
+    __PACKAGE__->preload_rows();
+    return $_[0]->{parenttalkid};
 }
 
 # returns a LJ::Comment object for the parent
@@ -451,15 +431,14 @@ sub valid {
     my $self = $_[0];
     my $u = $self->journal;
     return 0 unless $u && $u->{clusterid};
-    __PACKAGE__->preload_rows([ $self->unloaded_singletons ]);
+    __PACKAGE__->preload_rows();
     return $self->{_loaded_row};
 }
 
 # when was this comment left?
 sub unixtime {
-    my $self = $_[0];
-    __PACKAGE__->preload_rows([ $self->unloaded_singletons ]);
-    return LJ::mysqldate_to_time($self->{datepost}, 0);
+    __PACKAGE__->preload_rows();
+    return LJ::mysqldate_to_time( $_[0]->{datepost}, 0 );
 }
 
 # returns LJ::User object for the poster of this entry, or undef for anonymous
@@ -468,9 +447,8 @@ sub poster {
 }
 
 sub posterid {
-    my $self = $_[0];
-    __PACKAGE__->preload_rows([ $self->unloaded_singletons ]);
-    return $self->{posterid};
+    __PACKAGE__->preload_rows();
+    return $_[0]->{posterid};
 }
 
 sub all_singletons {
@@ -480,28 +458,11 @@ sub all_singletons {
     return @singletons;
 }
 
-# returns an array of unloaded comment singletons
-sub unloaded_singletons {
-    return grep { ! $_->{_loaded_row} } $_[0]->all_singletons;
-}
-
-# returns an array of comment singletons which don't have text loaded yet
-sub unloaded_text_singletons {
-    return grep { ! $_->{_loaded_text} } $_[0]->all_singletons;
-}
-
-# returns an array of comment singletons which don't have prop rows loaded yet
-sub unloaded_prop_singletons {
-    return grep { ! $_->{_loaded_props} } $_[0]->all_singletons;
-}
-
 # class method:
 sub preload_rows {
-    my ($class, $obj_list) = @_;
-
     my @to_load =
-        (map  { [ $_->journal, $_->jtalkid ] }
-         grep { ! $_->{_loaded_row} } @$obj_list);
+        map  { [ $_->journal, $_->jtalkid ] }
+            grep { ! $_->{_loaded_row} } @unloaded_singletons;
 
     # already loaded?
     return 1 unless @to_load;
@@ -512,7 +473,7 @@ sub preload_rows {
     # make a mapping of journalid-jtalkid => $row
     my %row_map = map { join("-", $_->{journalid}, $_->{jtalkid}) => $_ } @rows;
 
-    foreach my $obj (@$obj_list) {
+    foreach my $obj (@unloaded_singletons) {
         my $u = $obj->journal;
 
         my $row = $row_map{join("-", $u->id, $obj->jtalkid)};
@@ -522,6 +483,7 @@ sub preload_rows {
         $obj->absorb_row(%$row);
     }
 
+    @unloaded_singletons = ();
     return 1;
 }
 
@@ -536,7 +498,15 @@ sub _load_text {
     my $entry_uid = $entryu->id;
 
     # find singletons which don't already have text loaded
-    my @to_load = grep { $_->journalid == $entry_uid } $self->unloaded_text_singletons;
+    my (@to_load, @to_keep);
+    foreach my $c_obj (@unloaded_text_singletons) {
+        if ($c_obj->journalid == $entry_uid) {
+            push @to_load, $c_obj;
+        } else {
+            push @to_keep, $c_obj;
+        }
+    }
+    @unloaded_text_singletons = @to_keep;
 
     my $ret  = LJ::get_talktext2($entryu, map { $_->jtalkid } @to_load);
     return 0 unless $ret && ref $ret;
@@ -692,9 +662,18 @@ sub _load_props {
     my $self = $_[0];
     return 1 if $self->{_loaded_props};
 
-    # find singletons which don't already have text loaded
     my $journalid = $self->journalid;
-    my @to_load = grep { $_->journalid == $journalid } $self->unloaded_prop_singletons;
+
+    # find singletons which don't already have props loaded
+    my (@to_load, @to_keep);
+    foreach my $c_obj (@unloaded_prop_singletons) {
+        if ($c_obj->journalid == $journalid) {
+            push @to_load, $c_obj;
+        } else {
+            push @to_keep, $c_obj;
+        }
+    }
+    @unloaded_prop_singletons = @to_keep;
 
     my $prop_ret = {};
     LJ::load_talk_props2($journalid, [ map { $_->jtalkid } @to_load ], $prop_ret);
@@ -873,9 +852,8 @@ sub subject_text {
 }
 
 sub state {
-    my $self = $_[0];
-    __PACKAGE__->preload_rows([ $self->unloaded_singletons] );
-    return $self->{state} || '';
+    __PACKAGE__->preload_rows();
+    return $_[0]->{state} || '';
 }
 
 
