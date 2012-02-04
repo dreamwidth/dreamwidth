@@ -1,3 +1,62 @@
+#NEWLAYER: crossroads/agedwine
+layerinfo type = "theme";
+layerinfo name = "Aged Wine";
+layerinfo redist_uniq = "crossroads/agedwine";
+layerinfo author_name = "inoru_no_hoshi";
+
+set theme_authors = [ { "name" => "inoru_no_hoshi", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#370400";
+set color_page_border = "#000";
+set color_page_link = "#b8aac5";
+set color_page_link_active = "#b8aac5";
+set color_page_link_hover = "#e6e5ce";
+set color_page_link_visited = "#7531ba";
+set color_page_text = "#b6b5c7";
+set color_page_title = "#b6b5c7";
+set color_header_background = "#1e1d3f";
+set color_footer_background = "#1e1d3f";
+set color_footer_link = "#b8aac5";
+set color_footer_link_active = "#b8aac5";
+set color_footer_link_hover = "#e6e5ce";
+set color_footer_link_visited = "#7531ba";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#cbc8e4";
+set color_comment_title_background = "#1e1d3f";
+set color_entry_background = "#222143";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#b8aac5";
+set color_entry_link = "#b8aac5";
+set color_entry_link_active = "#b8aac5";
+set color_entry_link_hover = "#e6e5ce";
+set color_entry_link_visited = "#7531ba";
+set color_entry_text = "#cbc8e4";
+set color_entry_title = "#cbc8e4";
+set color_entry_title_background = "#1e1d3f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#560406";
+set color_module_border = "#1e1d3f";
+set color_module_link = "#dcdad3";
+set color_module_link_active = "#dcdad3";
+set color_module_link_hover = "#e6e5ce";
+set color_module_link_visited = "#baae03";
+set color_module_text = "#ededef";
+set color_module_title = "#ededef";
+set color_module_title_background = "#560406";
+
+
 #NEWLAYER: crossroads/appleblossoms
 layerinfo type = "theme";
 layerinfo name = "Apple Blossoms";
@@ -837,6 +896,65 @@ set color_entry_title = "#bc707c";
 set color_module_background = "#bc707c";
 set color_module_link = "#fff";
 set color_module_link_visited = "#f3f3f3";
+
+
+#NEWLAYER: crossroads/killjoys
+layerinfo type = "theme";
+layerinfo name = "Killjoys";
+layerinfo redist_uniq = "crossroads/killjoys";
+layerinfo author_name = "inoru_no_hoshi";
+
+set theme_authors = [ { "name" => "inoru_no_hoshi", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#252525";
+set color_page_border = "#fff";
+set color_page_link = "#bd0009";
+set color_page_link_active = "#bd0009";
+set color_page_link_hover = "#fff";
+set color_page_link_visited = "#40ff40";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#0c5aa6";
+set color_footer_link_active = "#0c5aa6";
+set color_footer_link_hover = "#ff68a7";
+set color_footer_link_visited = "#40ff40";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#000";
+set color_comment_title_background = "#0c5aa6";
+set color_entry_background = "#d19c5a";
+set color_entry_border = "#000";
+set color_entry_interaction_links = "#0c5aa6";
+set color_entry_link = "#fff";
+set color_entry_link_active = "#fff";
+set color_entry_link_hover = "#ff2883";
+set color_entry_link_visited = "#40ff40";
+set color_entry_text = "#000";
+set color_entry_title = "#0c5aa6";
+set color_entry_title_background = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#bd0009";
+set color_module_border = "#000";
+set color_module_link = "#ffc600";
+set color_module_link_active = "#ffc600";
+set color_module_link_hover = "#fbf5e2";
+set color_module_link_visited = "#000";
+set color_module_text = "#ffc600";
+set color_module_title = "#ffc600";
+set color_module_title_background = "#bd0009";
 
 
 #NEWLAYER: crossroads/lavender
@@ -1712,6 +1830,65 @@ set color_module_text = "#20073d";
 set color_module_title = "#edf1f4";
 
 
+#NEWLAYER: crossroads/sakura
+layerinfo type = "theme";
+layerinfo name = "Sakura";
+layerinfo redist_uniq = "crossroads/sakura";
+layerinfo author_name = "inoru_no_hoshi";
+
+set theme_authors = [ { "name" => "inoru_no_hoshi", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#5f3f61";
+set color_page_border = "#d695d9";
+set color_page_link = "#08352a";
+set color_page_link_active = "#08352a";
+set color_page_link_hover = "#3c143f";
+set color_page_link_visited = "#4b1c13";
+set color_page_text = "#000";
+set color_page_title = "#000";
+set color_header_background = "#b57cb6";
+set color_footer_background = "#b57cb6";
+set color_footer_link = "#08352a";
+set color_footer_link_active = "#08352a";
+set color_footer_link_hover = "#3c143f";
+set color_footer_link_visited = "#4b1c13";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_comment_title = "#330901";
+set color_comment_title_background = "#b57cb6";
+set color_entry_background = "#287676";
+set color_entry_border = "#3c143f";
+set color_entry_interaction_links = "#d695d9";
+set color_entry_link = "#d695d9";
+set color_entry_link_active = "#d695d9";
+set color_entry_link_hover = "#4b1c13";
+set color_entry_link_visited = "#330901";
+set color_entry_text = "#000";
+set color_entry_title = "#330901";
+set color_entry_title_background = "#b57cb6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b57cb6";
+set color_module_border = "#08352a";
+set color_module_link = "#08352a";
+set color_module_link_active = "#08352a";
+set color_module_link_hover = "#4b1c13";
+set color_module_link_visited = "#3c143f";
+set color_module_text = "#000";
+set color_module_title = "#08352a";
+set color_module_title_background = "#b57cb6";
+
+
 #NEWLAYER: crossroads/sanguine
 layerinfo type = "theme";
 layerinfo name = "Sanguine";
@@ -1932,6 +2109,64 @@ set color_module_link_active = "#000";
 set color_module_link_visited = "#EFF3F1";
 set color_module_text = "#fff";
 set color_module_title = "#fff";
+
+
+#NEWLAYER: crossroads/turtle
+layerinfo type = "theme";
+layerinfo name = "Turtle";
+layerinfo redist_uniq = "crossroads/turtle";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#233030";
+set color_page_border = "#7d966c";
+set color_page_link = "#a7ba86";
+set color_page_link_visited = "#7d966c";
+set color_page_text = "#d6e5cc";
+set color_page_title = "#a7ba86";
+set color_header_background = "#212f26";
+set color_footer_background = "#3b5244";
+set color_footer_link = "#a7ba86";
+set color_footer_link_visited = "#7d966c";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#3b5244";
+set color_entry_border = "#3b5244";
+set color_entry_link = "#a7ba86";
+set color_entry_link_visited = "#7d966c";
+set color_entry_text = "#d6e5cc";
+set color_entry_title = "#a7ba86";
+set color_module_background = "#597554";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#7d966c";
+set color_module_link = "#a7ba86";
+set color_module_link_visited = "#c7eeab";
+set color_module_text = "#d6e5cc";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Palatino Linotype', Georgia, Palatino";
+set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
+set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
+set font_fallback = "serif";
+set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
+set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
+set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
+set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 
 
 #NEWLAYER: crossroads/tweedreams
