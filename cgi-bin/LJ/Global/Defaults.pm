@@ -87,6 +87,7 @@ no strict "vars";
     $MAX_SCROLLBACK_LASTN ||= 100;
     $MAX_SCROLLBACK_FRIENDS ||= 1000;
     $MAX_USERPIC_KEYWORDS ||= 10;
+    $MAX_ICONS_PER_PAGE = 50 unless defined $MAX_ICONS_PER_PAGE; # We want to be able to configure this to unlimited ( 0 )
 
     $LJ::AUTOSAVE_DRAFT_INTERVAL ||= 3;
 

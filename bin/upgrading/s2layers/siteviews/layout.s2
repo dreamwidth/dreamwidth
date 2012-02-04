@@ -43,6 +43,40 @@ function Page::print_default_stylesheet() {
 
 function Page::print_theme_stylesheet() {}
 
+# ItemRange
+
+function ItemRange::print(string{} opts) {
+    if ($.all_subitems_displayed) { return; }
+
+    var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
+    var string class = $opts{"class"} ? $opts{"class"} : "action-box";
+
+    """<div class="$class">""";
+    print """<p style="font-weight: bolder; margin: 0 0 .5em 0;">""" + lang_page_of_pages($.current, $.total) + "</p>";
+    var string url_prev = $this->url_of($.current - 1);
+    if ($.current != 1) {
+        print " <b><a href='$url_prev$anchor'>$*comment_page_prev</a></b> ";
+    } else {
+        print " <b>$*comment_page_prev</b> ";
+    }
+    """<span style="text-align: center">""";
+    foreach var int i (1..$.total) {
+        if ($i == $.current) { "<b>[$i]</b> "; }
+        else {
+            var string url_of = $this->url_of($i);
+            "<a href='$url_of$anchor'><b>[$i]</b></a> ";
+        }
+    }
+    """</span>""";
+    var string url_next = $this->url_of($.current + 1);
+    if ($.current != $.total) {
+         print " <b><a href='$url_next$anchor'>$*comment_page_next</a></b> ";
+    } else {
+         print " <b>$*comment_page_next</b> ";
+    }
+    "</div>";
+}
+
 # IconsPage
 
 set text_icons_keyword_sep = ", ";

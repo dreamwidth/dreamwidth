@@ -1164,8 +1164,9 @@ set num_items_recent = 20;
 set num_items_reading = 20;
 
 property int num_items_icons {
-    des = "Number of icons to show on the icons page, or 0 for no pagination";
+    des = "Number of icons to show on the icons page, or 0 for site default";
     doc_flags = "[construct]";
+    max = 50;
 }
 set num_items_icons = 0;
 

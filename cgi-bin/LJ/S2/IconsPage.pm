@@ -62,7 +62,11 @@ sub IconsPage {
 
     my $pagingbar;
     my $start_index = 0;
-    my $page_size = S2::get_property_value($opts->{'ctx'}, "num_items_icons")+0;
+    my $page_size = S2::get_property_value($opts->{'ctx'}, "num_items_icons")+0 || $LJ::MAX_ICONS_PER_PAGE || 0;
+
+    $page_size = $LJ::MAX_ICONS_PER_PAGE if ( $LJ::MAX_ICONS_PER_PAGE && $page_size > $LJ::MAX_ICONS_PER_PAGE );
+    $page_size = 0 if $get->{view} eq 'all';
+
     $p->{pages} = ItemRange_fromopts({
         items => \@pics,
         pagesize => $page_size || scalar @pics,
@@ -72,7 +76,7 @@ sub IconsPage {
                 args => {
                     page => $_[0],
                 },
-                keep_args => [ 'sortorder' ],
+                keep_args => [ 'sortorder', 'view', 'inactive' ],
                 viewing_style => 1,
                 cur_args => $get,
             );
