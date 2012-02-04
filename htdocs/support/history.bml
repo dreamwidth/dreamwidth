@@ -19,13 +19,11 @@ body<=
 {
     use strict;
     use vars qw(%GET);
-    
+
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    # supporthelp anywhere lets them in
-    return "You are not authorized to view this page."
-        unless $remote && $remote->has_priv( 'supporthelp' );
+    my $fullsearch = $remote->has_priv( 'supporthelp' );
 
     my $ret;
     if ($GET{user} || $GET{email} || $GET{userid}) {
@@ -37,7 +35,10 @@ body<=
         if ($GET{user} || $GET{userid}) {
             # get requests by a user, regardless of email (only gets user requests)
             my $userid = $GET{userid} ? $GET{userid}+0 : LJ::get_userid(LJ::trim($GET{user}));
-            return "Invalid user to search on." unless $userid;
+            return "Invalid user to search on." unless $userid
+                && ( $fullsearch || $remote->id == $userid );
+            $ret .= "<h2>Viewing support requests for " .
+                    LJ::ljuser( LJ::get_username( $userid ) ) . "</h2>\n";
             $reqlist = $dbr->selectall_arrayref('SELECT spid, subject, state, spcatid, requserid, timecreate, reqemail ' .
                                                 'FROM support WHERE reqtype = \'user\' AND requserid = ?',
                                                 undef, $userid);
@@ -45,7 +46,21 @@ body<=
             # try by email, note that this gets requests opened by users and anonymous
             # requests, so we can view them all
             my $email = LJ::trim($GET{email});
-            return "Invalid email to search on." unless $email =~ /^.+\@.+$/;
+            my %user_emails;
+
+            unless ( $fullsearch ) {
+                # check the list of allowable emails for this user
+                my $query = "SELECT oldvalue FROM infohistory WHERE userid=? " .
+                            "AND what='email' AND other='A'";
+                my $rows = $dbr->selectall_arrayref( $query, undef, $remote->id );
+                $user_emails{$_->[0]} = 1 foreach @$rows;
+                $user_emails{$remote->email_raw} = 1 if $remote->email_status eq 'A';
+            }
+
+            return "Invalid email to search on." unless $email =~ /^.+\@.+$/
+                && ( $fullsearch || $user_emails{$email} );
+            $ret .= "<h2>Viewing support requests for " .
+                    LJ::ehtml( $email ) . "</h2>\n";
             $reqlist = $dbr->selectall_arrayref('SELECT spid, subject, state, spcatid, requserid, timecreate, reqemail ' .
                                                 'FROM support WHERE reqemail = ?',
                                                 undef, $email);
@@ -63,7 +78,7 @@ body<=
                                                    "WHERE u.userid = sp.userid AND sp.spid IN ($idlist)");
             my %points;
             $points{$_->[0]+0} = [ $_->[1], $_->[2]+0 ] foreach @{$winners || []};
-            
+
             # now construct the request blocks
             my %reqs;
             my @userids;
@@ -113,6 +128,21 @@ body<=
         } else {
             $ret .= "No results found for the search terms you entered.<br /><br />";
         }
+    } else {
+        return BML::redirect( "$LJ::SITEROOT/support/history?user=" . $remote->user )
+            unless $fullsearch;
+    }
+
+    unless ( $fullsearch ) {
+        # don't show full search form
+        $ret .= "<h3>You may also search for requests from email addresses associated with your account.</h3>"
+            if $GET{user};
+        $ret .= "<form method='get' action='history'>";
+        $ret .= "<label>Search by email:</label> <input type='text' name='email'>";
+        $ret .= "<p><a href='$LJ::SITEROOT/support/history?user=" . $remote->user .
+                "'>Back to account results</a></p>" if $GET{email};
+        $ret .= "</form>";
+        return $ret;
     }
 
     $ret .= "<table summary=''><tr><th colspan='2'>Search for Requests</th></tr>";
