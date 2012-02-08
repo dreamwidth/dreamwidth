@@ -3675,6 +3675,8 @@ subscribe_interface.category.track-comments=Track These Comments
 
 subscribe_interface.category.track-entry=Track This Entry
 
+subscribe_interface.category.track-journal=Track Entries to this Journal
+
 subscribe_interface.category.track-user=Track This User
 
 subscribe_interface.inbox=Inbox

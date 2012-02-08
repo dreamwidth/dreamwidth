@@ -50,7 +50,9 @@ body<=
     return LJ::error_list("Invalid entry") unless $entry && $entry->valid;
     return LJ::error_list("You are not authorized to subscribe to this entry.") unless $entry->visible_to($remote);
 
+    # comments to this entry
     my $cat_title = 'Track Entry';
+    my $journal_cat_title = 'Track Journal';
     my $categories =
         [
             { $cat_title =>
@@ -71,17 +73,34 @@ body<=
                         flags   => LJ::Subscription::TRACKING,
                     ),
                 ],
-            }
+            },
+            {
+                $journal_cat_title => [],
+            },
         ];
 
-    push @{ @$categories[0]->{$cat_title} },
+
+    # journal-wide comments and entries
+
+    # all comments in a community
+    push @{ @$categories[1]->{$journal_cat_title} },
         LJ::Subscription::Pending->new( $remote,
             event   => "JournalNewComment",
             journal => $journal,
             flags   => LJ::Subscription::TRACKING,
         ) if $remote->can_track_all_community_comments( $journal );
 
-    push @{ @$categories[0]->{$cat_title} },
+    # all new entries
+    push @{ @$categories[1]->{$journal_cat_title} },
+        LJ::Subscription::Pending->new( $remote,
+            event   => "JournalNewEntry",
+            journal => $journal,
+            flags   => LJ::Subscription::TRACKING,
+        );
+
+
+    # new entries with a tag
+    push @{ @$categories[1]->{$journal_cat_title} },
         LJ::Subscription::Pending->new( $remote,
             event   => "JournalNewEntry",
             arg1    => '?',
@@ -90,7 +109,8 @@ body<=
             flags   => LJ::Subscription::TRACKING,
         );
 
-    push @{ @$categories[0]->{$cat_title} },
+    # new entries by a specific poster
+    push @{ @$categories[1]->{$journal_cat_title} },
         LJ::Subscription::Pending->new( $remote,
             event   => "JournalNewEntry",
             arg2    => $entry->posterid,
@@ -98,12 +118,6 @@ body<=
             flags   => LJ::Subscription::TRACKING,
         ) if $journal->is_community;
 
-    push @{ @$categories[0]->{$cat_title} },
-        LJ::Subscription::Pending->new( $remote,
-            event   => "JournalNewEntry",
-            journal => $journal,
-            flags   => LJ::Subscription::TRACKING,
-        );
 
     my $referer = BML::get_client_header('Referer');
     my ( $style ) = ( $referer =~ /\b(style=\w+)/ );
