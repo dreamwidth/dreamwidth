@@ -11,6 +11,8 @@
 
 .message.concepts.byposter.reason=[[poster]] provided the following reason why this entry should be viewed with discretion: <strong>[[reason]]</strong>.
 
+.message.concepts.bycommunity=You're about to view content that community administrators on [[journal]] have advised <strong>should be viewed with discretion</strong>. To continue, you must confirm you want to view this content.
+
 .message.concepts.communityreason=[[journal]] has provided the following reason why this community should be viewed with discretion: <strong>[[reason]]</strong>.
 
 .message.concepts.journalreason=[[journal]] provided the following reason why this journal should be viewed with discretion: <strong>[[reason]]</strong>.
@@ -30,6 +32,8 @@
 .message.explicit.byposter=You're about to view content that [[poster]] marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 
 .message.explicit.byposter.reason=[[poster]] provided the following reason for this entry being marked "suitable for 18+": <strong>[[reason]]</strong>.
+
+.message.explicit.bycommunity=You're about to view content that community administrators on [[journal]] have marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 
 .message.explicit.communityreason=[[journal]] provided the following reason for this community being marked"suitable for 18+": <strong>[[reason]]</strong>.
 
