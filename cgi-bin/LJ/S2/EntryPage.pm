@@ -136,6 +136,8 @@ sub EntryPage
     }
 
     my $pics = LJ::Talk::get_subjecticons()->{'pic'};  # hashref of imgname => { w, h, img }
+    my ($last_talkid, $last_jid) = LJ::get_lastcomment();
+
     my $convert_comments = sub {
         my ($self, $destlist, $srclist, $depth) = @_;
 
@@ -234,7 +236,6 @@ sub EntryPage
             }
 
             # Comment Posted Notice
-            my ($last_talkid, $last_jid) = LJ::get_lastcomment();
             my $same_talkid = ( $last_talkid || 0 ) == ( $dtalkid || 0 );
             my $same_jid = ( $last_jid || 0 ) == ( $remote ? $remote->userid : 0 );
             my $commentposted = "";
