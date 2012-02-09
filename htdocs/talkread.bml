@@ -746,16 +746,30 @@ body<=
 
         my $readlink;
         my $replycount = $entry->prop("replycount");
-        my $readlink_text = BML::ml( "talk.commentsread.counted",
+        my $readlink_text;
+        my $comments_count;
+        my $totalcount = $replycount;
+
+        # show total number of comments, including screened comments if the viewer is allowed to
+        if ( $remote && LJ::Talk::can_screen( $remote, $u, $up )  &&  $entry->prop("hasscreened") ) {
+            my $screenedcount = LJ::Talk::get_screenedcount( $u, $itemid );
+            $totalcount = $replycount + $screenedcount;
+            $readlink_text = BML::ml( "talk.commentsread.counted.screened",
+                            { replycount => $replycount, screenedcount => $screenedcount } );
+            $comments_count = BML::ml( "talk.comments.counted.screened",
+                            { replycount => $replycount, screenedcount => $screenedcount } );
+        } else {
+            $readlink_text = BML::ml( "talk.commentsread.counted",
                             { replycount => $replycount } );
-        my $comments_count = BML::ml( "talk.comments.counted",
-                            { replycount => $replycount } );
+            $comments_count = BML::ml( "talk.comments.counted",
+                            { replycount => $replycount } ) if $replycount > 0;
+        }
 
         if ( $dthread && $pages == 1 ) {
             my $readurl = LJ::Talk::talkargs( $talkurl, $style_args );
             $readlink = "(<a href='$readurl#comments'>$readlink_text</a>) - ";
         } else {
-            $readlink = "($comments_count) - " if $replycount > 0;
+            $readlink = "($comments_count) - " if $totalcount > 0;
         }
 
         #

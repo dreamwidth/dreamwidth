@@ -1935,6 +1935,7 @@ sub delete_comments {
     $sclient->insert_jobs( @jobs ) if @jobs;
 
     $u->memc_delete( 'activeentries' );
+    LJ::MemCache::delete( [ $jid, "screenedcount:$jid:$nodeid" ] );
 
     return $num;
 }

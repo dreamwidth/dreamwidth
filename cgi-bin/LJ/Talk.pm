@@ -624,6 +624,8 @@ sub screen_comment {
         LJ::set_logprop($u, $itemid, { 'hasscreened' => 1 });
     }
 
+    LJ::MemCache::delete( [ $userid, "screenedcount:$userid:$itemid" ] );
+
     LJ::Talk::update_commentalter($u, $itemid);
     return;
 }
@@ -657,6 +659,8 @@ sub unscreen_comment {
                                                  "WHERE journalid=$userid AND nodeid=$itemid AND nodetype='L' AND state='S'");
         LJ::set_logprop($u, $itemid, { 'hasscreened' => 0 }) unless $hasscreened;
     }
+
+    LJ::MemCache::delete( [ $userid, "screenedcount:$userid:$itemid" ] );
 
     LJ::Talk::update_commentalter($u, $itemid);
     return;
@@ -2559,6 +2563,27 @@ sub get_replycount {
     return $count;
 }
 
+# get the total amount of screened comments on the given journal entry
+sub get_screenedcount {
+    my ( $ju, $jitemid ) = @_;
+    $jitemid += 0;
+    return undef unless $ju && $jitemid;
+
+    my $memkey = [$ju->{userid}, "screenedcount:$ju->{userid}:$jitemid", 60*30];
+    my $count = LJ::MemCache::get( $memkey );
+    return $count if $count;
+
+    my $dbcr = LJ::get_cluster_def_reader( $ju );
+    return unless $dbcr;
+
+    $count = $dbcr->selectrow_array("SELECT COUNT(jtalkid) FROM talk2 WHERE " .
+                                    "journalid=? AND nodeid=? AND state='S'", undef,
+                                    $ju->{userid}, $jitemid);
+    LJ::MemCache::add($memkey, $count);
+    return $count;
+}
+
+
 sub comment_htmlid {
     my $id = shift or return '';
     return "cmt$id";
@@ -3055,6 +3080,8 @@ sub enter_comment {
     LJ::MemCache::set([$journalu->{'userid'},"talkbody:$memkey"], $comment->{body});
 
     LJ::MemCache::delete( [ $journalu->{userid}, "activeentries:" . $journalu->{userid} ] );
+    LJ::MemCache::delete( [ $journalu->{userid}, "screenedcount:$journalu->{userid}:$itemid" ] )
+        if $comment->{state} eq 'S';
 
     # dudata
     my $bytes = length($comment->{subject}) + length($comment->{body});

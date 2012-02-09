@@ -3833,11 +3833,15 @@ talk.commentpost=Post a new comment
 
 talk.comments.counted=[[replycount]] [[?replycount|comment|comments]]
 
+talk.comments.counted.screened=[[replycount]] visible | [[screenedcount]] screened [[?screenedcount|comment|comments]]
+
 talk.comments.disabled_maintainer=Comments disabled by a maintainer of this community
 
 talk.commentsread=Read comments
 
 talk.commentsread.counted=Read [[replycount]] [[?replycount|comment|comments]]
+
+talk.commentsread.counted.screened=Read [[replycount]] visible | [[screenedcount]] screened [[?screenedcount|comment|comments]]
 
 talk.commentsread.nocomments=No comments
 
