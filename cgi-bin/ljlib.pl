@@ -193,6 +193,7 @@ $LJ::ReportSock = undef;
 %LJ::DB_REPORT_HANDLES = ();
 
 my $GTop;     # GTop object (created if $LJ::LOG_GTOP is true)
+my %SecretCache;
 
 ## if this library is used in a BML page, we don't want to destroy BML's
 ## HUP signal handler.
@@ -1475,7 +1476,7 @@ sub get_secret
     }
 
     my $memkey = "secret:$time";
-    my $secret = LJ::MemCache::get($memkey);
+    my $secret = ($SecretCache{$memkey} ||= LJ::MemCache::get($memkey));
     return $want_new ? ($time, $secret) : $secret if $secret;
 
     my $dbh = LJ::get_db_writer();
@@ -1483,7 +1484,8 @@ sub get_secret
     $secret = $dbh->selectrow_array("SELECT secret FROM secrets ".
                                     "WHERE stime=?", undef, $time);
     if ($secret) {
-        LJ::MemCache::set($memkey, $secret) if $secret;
+        $SecretCache{$memkey} = $secret;
+        LJ::MemCache::set($memkey, $secret);
         return $want_new ? ($time, $secret) : $secret;
     }
 
