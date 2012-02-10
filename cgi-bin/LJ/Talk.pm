@@ -739,6 +739,7 @@ sub get_talk_data
 
         # find all singletons that LJ::Comment knows about, then grep for the ones we've set in
         # this get_talk_data call (ones for this userid / nodeid)
+        # note: This is a heavily-used path. The hash lookup on nodeid is a deliberate optimization
         my $uid = $u->userid;
         LJ::Comment->preload_rows();
         my @comments_for_entry =
