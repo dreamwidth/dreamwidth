@@ -20,11 +20,18 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 
+use DW::InviteCodes;
+
 sub need_res { qw( stc/widgets/createaccountentercode.css ) }
 
 sub render_body {
     my $class = shift;
     my %opts = @_;
+
+    # we can still use invite codes to create new paid accounts
+    # so display this in case they hit the rate limit, even without USE_ACCT_CODES
+    return "<p>" . $class->ml( 'widget.createaccountentercode.error.toofast' ) . "</p>"
+        unless $opts{rate_ok};
 
     return "" unless $LJ::USE_ACCT_CODES;
 
@@ -41,16 +48,8 @@ sub render_body {
     };
 
     # if we're in this widget with a code defined, then it's invalid
-    # rate limit code input; only allow one code every five seconds
-    if ( $code ) {
-        my $ip = LJ::get_remote_ip();
-        if ( LJ::MemCache::get( "invite_code_try_ip:$ip" ) ) {
-            LJ::MemCache::set( "invite_code_try_ip:$ip", 1, 5 );
-            return "<p>" . $class->ml( 'widget.createaccountentercode.error.toofast' ) . "</p>";
-        }
-        LJ::MemCache::set( "invite_code_try_ip:$ip", 1, 5 );
-        $errors->{code} = $class->ml( 'widget.createaccountentercode.error.invalidcode' );
-    }
+    $errors->{code} = $class->ml( 'widget.createaccountentercode.error.invalidcode' )
+        if $code;
 
     my $ret;
 

@@ -280,7 +280,7 @@ sub render_body {
     $ret .= "</div> <!-- relative-container -->\n";
 
     $ret .= $class->html_hidden( from => $from ) if $from;
-    $ret .= $class->html_hidden( code => $code ) if $LJ::USE_ACCT_CODES;
+    $ret .= $class->html_hidden( code => $code ) if $code;
 
     $ret .= $class->end_form;
 
@@ -418,7 +418,7 @@ sub handle_post {
             inviter => $post->{from},
             extra_props => $opts{extra_props},
             status_history => $opts{status_history},
-            code => $code,
+            code => DW::InviteCodes->check_code( code => $code ) ? $code : undef,
         );
         return $class->ml('widget.createaccount.error.cannotcreate') unless $nu;
 
@@ -452,11 +452,20 @@ sub handle_post {
 
         $nu->make_login_session;
 
-        # we're all done; mark the invite code as used
-        if ( $LJ::USE_ACCT_CODES && $code ) {
-            if ( my $pc = DW::InviteCodes::Promo->load( code => $code ) ) {
-                $pc->use_code;
-            } else {
+        # we're all done
+        if ( $code ) {
+            # unconditionally mark the invite code as used
+            if ( $LJ::USE_ACCT_CODES ) {
+                if ( my $pc = DW::InviteCodes::Promo->load( code => $code ) ) {
+                    $pc->use_code;
+                } else {
+                    my $invitecode = DW::InviteCodes->new( code => $code );
+                    $invitecode->use_code( user => $nu );
+                }
+
+            # user is now paid, let's assume that this came from the invite code
+            # so mark the invite code as used
+            } elsif ( DW::Pay::get_current_account_status( $nu ) ) {
                 my $invitecode = DW::InviteCodes->new( code => $code );
                 $invitecode->use_code( user => $nu );
             }

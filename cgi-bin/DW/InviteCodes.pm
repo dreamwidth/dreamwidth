@@ -171,6 +171,24 @@ sub check_code {
     return 1;
 }
 
+=head2 C<< $class->check_rate >>
+
+Rate limit code input; only allow one code every five seconds.
+
+Return 1 if rate is okay, return 0 if too fast.
+
+=cut
+
+sub check_rate {
+    my $ip = LJ::get_remote_ip();
+    if ( LJ::MemCache::get( "invite_code_try_ip:$ip" ) ) {
+        LJ::MemCache::set( "invite_code_try_ip:$ip", 1, 5 );
+        return 0;
+    }
+    LJ::MemCache::set( "invite_code_try_ip:$ip", 1, 5 );
+    return 1;
+}
+
 =head2 C<< $class->paid_status( code => $code ) >>
 
 Checks whether this code comes loaded with a paid account. Returns a DW::Shop::Item::Account 

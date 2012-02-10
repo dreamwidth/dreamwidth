@@ -258,10 +258,10 @@ sub create_personal {
     }
 
     # apply any paid time that this account should get
-    if ( $LJ::USE_ACCT_CODES && $opts{code} ) {
+    if ( $opts{code} ) {
         my $code = $opts{code};
         my $itemidref;
-        my $promo_code = DW::InviteCodes::Promo->load( code => $code );
+        my $promo_code = $LJ::USE_ACCT_CODES ? DW::InviteCodes::Promo->load( code => $code ) : undef;
         if ( $promo_code ) {
             $promo_code->apply_for_user( $u );
         } elsif ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
