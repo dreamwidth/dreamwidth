@@ -11,39 +11,60 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [%- sections.title = '.title' | ml -%]
+[%- dw.need_res(
+    "stc/simple-form.css"
+) -%]
+
 [%- sections.head  = BLOCK %]
     <style type="text/css">
-    #event label { float: left; width: 10em; clear: left;}
-    #event input, #event select, #event p { float: left; }
-    #event input.submit { clear: left; width: 30em; }
-    #event { overflow: auto;}
+    .simple-form { max-width: 40em; }
     </style>
 [% END %]
-<form method="POST" id="event">
-    [%- dw.form_auth -%]
-    <div class="formfield">
-        <label for="eventtype">[% ".form.label.eventtype" | ml %]:</label> <select id="eventtype" name="eventtype">
-            [% FOREACH eventtype = eventtypes %]
-                <option value="[% eventtype.id %]">[%eventtype.name %]</option>
-            [% END %]
-        </select>
-    </div>
 
-    <div class="formfield">
-        <label for="eventuser">[% ".form.label.eventuser" | ml %]:</label> <input type="text" name="eventuser" id="eventuser" />
-    </div>
+<form method="GET" class='simple-form'>
+    <fieldset>
+    <legend><span>[% '.subtitle.eventtype' | ml %]</span></legend>
+    <ul><li>
+    [%- label = ".form.label.eventtype" | ml;
+    form.select( label = "$label:"
+        name = "event"
+        id = "event"
 
-    <div class="formfield">
-        <label for="subscr_user">[% ".form.label.subscr_user" | ml %]:</label> <input type="text" name="subscr_user" id="subscr_user" />
-    </div>
-
-    <div class="formfield">
-        <label for="arg1">[% ".form.label.arg1" | ml %]:</label> <input type="text" name="arg1" id="arg1" /> <p class='note'>[% ".form.optional" | ml %]</p>
-    </div>
-
-    <div class="formfield">
-        <label for="arg2">[% ".form.label.arg2" | ml %]:</label> <input type="text" name="arg2" id="arg2" /> <p class='note'>[% ".form.optional" | ml %]</p>
-    </div>
-
-    <input type="submit" class='submit' />
+        items = eventtypes
+        default = event
+    ) -%]
+    </li></ul>
+    </fieldset>
+    <fieldset class='submit'>[% form.submit %]</fieldset>
 </form>
+
+[%- IF event -%]
+<form method="POST" class='simple-form'>
+    [%- dw.form_auth -%]
+    <fieldset>
+    <legend><span>[% '.subtitle.details' | ml %]</span></legend>
+    <ul>
+    <li>
+        <label for="eventtype">[% ".form.label.eventtype" | ml %]:</label><span id="eventtype">[%event%]</span>
+        [% form.hidden( name = "event", value = event ) %]
+    </li>
+
+    <li>
+        <label for="eventuser">[% ".form.label.eventuser" | ml %]:</label> <input type="text" name="eventuser" id="eventuser" />
+    </li>
+
+    <li>
+        <label for="subscr_user">[% ".form.label.subscr_user" | ml %]:</label> <input type="text" name="subscr_user" id="subscr_user" />
+    </li>
+
+    [%- FOREACH arg = eventargs -%]
+    <li>
+        <label for="arg[%loop.count%]">[% arg %]:</label> <input type="text" name="arg[%loop.count%]" id="arg[%loop.count%]" />[% note %]
+    </li>
+    [%- END -%]
+    </ul>
+    </fieldset>
+
+    <fieldset class='submit'>[% form.submit %]</fieldset>
+</form>
+[% END %]

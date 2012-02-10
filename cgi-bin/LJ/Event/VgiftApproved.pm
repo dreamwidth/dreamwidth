@@ -31,6 +31,10 @@ sub new {
     return $class->SUPER::new( $u, $fromu->id, $vgift->id );
 }
 
+sub arg_list {
+    return ( "From userid", "Vgift id" );
+}
+
 # access args
 sub fromuid { return $_[0]->arg1 }
 

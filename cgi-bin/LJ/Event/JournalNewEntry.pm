@@ -28,6 +28,10 @@ sub new {
     return $class->SUPER::new($entry->journal, $entry->ditemid);
 }
 
+sub arg_list {
+    return ( "Entry ditemid" );
+}
+
 sub is_common { 1 }
 
 sub entry {

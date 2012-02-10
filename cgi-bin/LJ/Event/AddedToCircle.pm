@@ -33,6 +33,10 @@ sub new {
     return $class->SUPER::new( $u, $fromu->id, $actionid );
 }
 
+sub arg_list {
+    return ( "From userid", "Action (1=T,2=W)" );
+}
+
 sub is_common { 0 }
 
 my @_ml_strings_en = qw(

@@ -26,6 +26,10 @@ sub new {
     return $class->SUPER::new($u, $fromu->{userid}, $commu->{userid});
 }
 
+sub arg_list {
+    return ( "From userid", "Comm userid" );
+}
+
 sub is_common { 0 }
 
 my @_ml_strings = (

@@ -45,15 +45,21 @@ sub event_output {
     return $rv unless $ok;
 
     if ( $r->method eq "POST" ) {
-        return handle_post( %{ DW::Request->get->post_args } );
+        return handle_post( %{ $r->post_args } );
     } else {
-        my @event_classes = map { 
-                { id    => LJ::Event->event_to_etypeid( $_ ),
-                  name => $_ 
-                }
-            } sort LJ::Event->all_classes;
+        my $get = $r->get_args;
+
+        my @event_classes = map { $_ => $_ } sort LJ::Event->all_classes;
+        my %event_map = @event_classes;
+
+        my $event = LJ::trim( $get->{event} );
+        $event = undef unless $event_map{$event};
+
         my $vars = {
             eventtypes => \@event_classes,
+
+            event      => $event,
+            eventargs  => $event ? [ $event->arg_list ] : undef,
         };
         return DW::Template->render_template( 'admin/eventoutput-select.tt', $vars );
     }
@@ -65,7 +71,8 @@ sub handle_post {
     return error_ml( "error.invalidform" ) unless LJ::check_form_auth( $post{lj_form_auth} );
 
     my $ju = LJ::load_user( $post{eventuser} );
-    my $event = LJ::Event->new_from_raw_params( $post{eventtype}, $ju ? $ju->userid : 0, $post{arg1}, $post{arg2} );
+    my $eventtype = LJ::Event->event_to_etypeid( $post{event} );
+    my $event = LJ::Event->new_from_raw_params( $eventtype, $ju ? $ju->userid : 0, $post{arg1}, $post{arg2} );
 
     my $u = LJ::load_user( $post{subscr_user} );
 

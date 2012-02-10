@@ -27,6 +27,10 @@ sub new {
     return $class->SUPER::new($u, $msgid, $other_u->{userid});
 }
 
+sub arg_list {
+    return ( "Message id", "Sender userid" );
+}
+
 sub is_common { 1 }
 
 sub as_email_subject {

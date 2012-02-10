@@ -24,6 +24,10 @@ sub new {
     return $class->SUPER::new( $u, $acctid, $ditemid );
 }
 
+sub arg_list {
+    return ( "Ext. account id", "Entry ditemid" );
+}
+
 sub is_common { 0 }
 
 sub is_visible { 1 }

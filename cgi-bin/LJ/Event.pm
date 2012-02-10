@@ -68,6 +68,10 @@ sub new {
     }, $class;
 }
 
+sub arg_list {
+    return ( "Arg 1", "Arg 2" );
+}
+
 # Class method
 sub new_from_raw_params {
     my (undef, $etypeid, $journalid, $arg1, $arg2) = @_;

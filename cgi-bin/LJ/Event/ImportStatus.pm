@@ -61,6 +61,11 @@ sub new {
     return undef;
 }
 
+sub arg_list {
+    return ( "Type id", "Import status id" );
+}
+
+
 # always subscribed, you can't unsubscribe, send to everybody, and don't
 # give the user any options.  (we assume that if they're importing things,
 # they want to know how it went.)

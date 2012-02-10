@@ -45,6 +45,10 @@ sub new {
     return undef;
 }
 
+sub arg_list {
+    return ( "Import status id" );
+}
+
 sub is_common { 1 }
 
 sub is_visible { 1 }

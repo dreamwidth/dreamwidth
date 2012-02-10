@@ -113,6 +113,10 @@ sub new {
         $class->SUPER::new($u,$action,$actions{$opts->{action}}[1]->($u,$action,$opts));
 }
 
+sub arg_list {
+    return ( "Action", "(depends on action)" );
+}
+
 sub is_common { 1 } # As seen in LJ/Event.pm, event fired without subscription
 
 # Override this with a false value make subscriptions to this event not show up in normal UI

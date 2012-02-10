@@ -24,6 +24,11 @@ sub new {
     return $class->SUPER::new($u, $cu->{userid});
 }
 
+sub arg_list {
+    return ( "Comm userid" );
+}
+
+
 sub is_common { 1 } # As seen in LJ/Event.pm, event fired without subscription
 
 # Override this with a false value make subscriptions to this event not show up in normal UI

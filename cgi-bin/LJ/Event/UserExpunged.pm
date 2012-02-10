@@ -23,6 +23,10 @@ sub new {
     return $class->SUPER::new($u);
 }
 
+sub arg_list {
+    return ();
+}
+
 sub as_string {
     my $self = shift;
     return $self->event_journal->display_username . " has been purged.";

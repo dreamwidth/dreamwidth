@@ -28,6 +28,10 @@ sub new {
     return $class->SUPER::new($u, $requestor->{userid}, $comm->{userid});
 }
 
+sub arg_list {
+    return ( "Requestor userid", "Comm userid" );
+}
+
 sub is_common { 0 }
 
 sub comm {

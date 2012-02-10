@@ -30,6 +30,10 @@ sub new {
     return $class->SUPER::new($owner, $voter->userid, $poll->id);
 }
 
+sub arg_list {
+    return ( "Voter userid", "Poll id" );
+}
+
 sub matches_filter {
     my $self = shift;
 

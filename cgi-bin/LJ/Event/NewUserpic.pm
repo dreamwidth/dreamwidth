@@ -24,6 +24,10 @@ sub new {
     return $class->SUPER::new($up->owner, $up->id);
 }
 
+sub arg_list {
+    return ( "Icon id" );
+}
+
 sub as_string {
     my $self = shift;
 

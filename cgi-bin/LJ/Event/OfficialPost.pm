@@ -24,6 +24,10 @@ sub new {
     return $class->SUPER::new($entry->journal, $entry->ditemid);
 }
 
+sub arg_list {
+    return ( "Entry ditemid" );
+}
+
 sub entry {
     my $self = shift;
     my $ditemid = $self->arg1;

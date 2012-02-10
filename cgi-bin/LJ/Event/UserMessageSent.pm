@@ -27,6 +27,10 @@ sub new {
     return $class->SUPER::new($u, $msgid, $other_u->{userid});
 }
 
+sub arg_list {
+    return ( "Message id", "Recipient userid" );
+}
+
 # TODO Should this return 1?
 sub is_common { 1 }
 

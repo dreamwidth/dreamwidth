@@ -24,6 +24,10 @@ sub new {
     return $class->SUPER::new($u);
 }
 
+sub arg_list {
+    return ();
+}
+
 sub bdayuser {
     my $self = shift;
     return $self->event_journal;
