@@ -277,6 +277,86 @@ set color_module_title = "#525748";
 set color_module_title_background = "#e7f3cb";
 
 
+#NEWLAYER: colorside/labyrinth
+layerinfo type = "theme";
+layerinfo name = "Labyrinth";
+layerinfo redist_uniq = "colorside/labyrinth";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#16141e";
+set color_page_border = "#201e26";
+set color_page_link = "#c8bdc1";
+set color_page_link_hover = "#bdc6c8";
+set color_page_link_visited = "#c8bdc1";
+set color_page_text = "#fdffff";
+set color_page_title = "#c8bdc1";
+set color_header_background = "#2e2c37";
+set color_footer_background = "#2e2c37";
+set color_footer_link = "#c8bdc1";
+set color_footer_link_hover = "#bdc6c8";
+set color_footer_link_visited = "#c8bdc1";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#232029";
+set color_entry_border = "#201e26";
+set color_entry_link = "#c8bdc1";
+set color_entry_link_hover = "#bdc6c8";
+set color_entry_link_visited = "#c8bdc1";
+set color_entry_text = "#fdffff";
+set color_entry_title = "#c8bdc1";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#232029";
+set color_module_border = "#201e26";
+set color_module_link = "#c8bdc1";
+set color_module_link_hover = "#bdc6c8";
+set color_module_link_visited = "#c8bdc1";
+set color_module_text = "#fdffff";
+set color_module_title = "#c8bdc1";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Palatino, Georgia";
+set font_comment_title = "Palatino, Georgia";
+set font_entry_title = "Palatino, Georgia";
+set font_fallback = "serif";
+set font_journal_subtitle = "Palatino, Georgia";
+set font_journal_title = "Palatino, Georgia";
+set font_module_heading = "Palatino, Georgia";
+set font_module_text = "Palatino, Georgia";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_height = 175;
+set image_background_header_position = "center right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/labyrinth.png";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+
+set layout_type = "two-columns-left";
+
+
 #NEWLAYER: colorside/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light on Dark";
@@ -513,6 +593,243 @@ function Page::print_theme_stylesheet () {
         }
     """;
 }
+
+
+#NEWLAYER: colorside/ouroborosblue
+layerinfo type = "theme";
+layerinfo name = "Ouroboros Blue";
+layerinfo redist_uniq = "colorside/ouroborosblue";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#0a0c19";
+set color_page_link = "#d5d2e3";
+set color_page_link_hover = "#e5dcf4";
+set color_page_link_visited = "#d5caf7";
+set color_page_text = "#f9f7fc";
+set color_footer_link = "#d5d2e3";
+set color_footer_link_hover = "#e5dcf4";
+set color_footer_link_visited = "#d5caf7";
+set color_header_background = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#0a0c19";
+set color_entry_border = "#7e718f";
+set color_entry_link = "#d5d2e3";
+set color_entry_link_hover = "#e5dcf4";
+set color_entry_link_visited = "#d5caf7";
+set color_entry_text = "#f9f7fc";
+set color_entry_title = "#e1def9";
+set color_entry_title_background = "#565e71";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#0a0c19";
+set color_module_border = "#7e718f";
+set color_module_link = "#d5d2e3";
+set color_module_link_hover = "#e5dcf4";
+set color_module_link_visited = "#d5caf7";
+set color_module_text = "#f9f7fc";
+set color_module_title = "#e1def9";
+set color_module_title_background = "#565e71";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Palatino, Georgia";
+set font_comment_title = "Palatino, Georgia";
+set font_entry_title = "Palatino, Georgia";
+set font_fallback = "serif";
+set font_journal_subtitle = "Palatino, Georgia";
+set font_journal_title = "Palatino, Georgia";
+set font_module_heading = "Palatino, Georgia";
+set font_module_text = "Palatino, Georgia";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_height = 250;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/ouroborosblue_header.png";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "colorside/ouroborosblue_bg.png";
+
+set layout_type = "two-columns-left";
+
+
+#NEWLAYER: colorside/ouroborosflame
+layerinfo type = "theme";
+layerinfo name = "Ouroboros Flame";
+layerinfo redist_uniq = "colorside/ouroborosflame";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#300707";
+set color_page_border = "#380000";
+set color_page_link = "#851414";
+set color_page_link_hover = "#aa1b1b";
+set color_page_link_visited = "#851414";
+set color_page_text = "#fff";
+set color_page_title = "#fe2626";
+set color_footer_background = "#260404";
+set color_footer_link = "#851414";
+set color_footer_link_hover = "#aa1b1b";
+set color_footer_link_visited = "#851414";
+set color_header_background = "#260404";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#210100";
+set color_entry_border = "#210100";
+set color_entry_link = "#851414";
+set color_entry_link_hover = "#aa1b1b";
+set color_entry_link_visited = "#851414";
+set color_entry_text = "#fff";
+set color_entry_title = "#fe2626";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#210100";
+set color_module_border = "#210100";
+set color_module_link = "#851414";
+set color_module_link_hover = "#aa1b1b";
+set color_module_link_visited = "#851414";
+set color_module_text = "#fff";
+set color_module_title = "#fe2626";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Palatino, Georgia";
+set font_comment_title = "Palatino, Georgia";
+set font_entry_title = "Palatino, Georgia";
+set font_fallback = "serif";
+set font_journal_subtitle = "Palatino, Georgia";
+set font_journal_title = "Palatino, Georgia";
+set font_module_heading = "Palatino, Georgia";
+set font_module_text = "Palatino, Georgia";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "no-repeat";
+set image_background_header_height = 250;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/ouroborosflame_header.png";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "colorside/ouroborosflame_bg.png";
+
+set layout_type = "two-columns-left";
+
+
+#NEWLAYER: colorside/ouroborosgreen
+layerinfo type = "theme";
+layerinfo name = "Ouroboros Green";
+layerinfo redist_uniq = "colorside/ouroborosgreen";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000";
+set color_page_border = "#041f04";
+set color_page_link = "#419e4b";
+set color_page_link_hover = "#80c883";
+set color_page_link_visited = "#1e9a24";
+set color_page_text = "#f8f8f8";
+set color_footer_background = "#1c1c1c";
+set color_footer_link = "#419e4b";
+set color_footer_link_hover = "#80c883";
+set color_footer_link_visited = "#1e9a24";
+set color_header_background = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#1c1c1c";
+set color_entry_border = "#419e4b";
+set color_entry_link = "#419e4b";
+set color_entry_link_hover = "#80c883";
+set color_entry_link_visited = "#1e9a24";
+set color_entry_text = "#f8f8f8";
+set color_entry_title = "#1e9a24";
+set color_entry_title_background = "#041f04";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#419e4b";
+set color_module_title_background = "#041f04";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Palatino, Georgia";
+set font_comment_title = "Palatino, Georgia";
+set font_entry_title = "Palatino, Georgia";
+set font_fallback = "serif";
+set font_journal_subtitle = "Palatino, Georgia";
+set font_journal_title = "Palatino, Georgia";
+set font_module_heading = "Palatino, Georgia";
+set font_module_text = "Palatino, Georgia";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_height = 250;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/ouroborosgreen_header.png";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "colorside/ouroborosgreen_bg.png";
+
+set layout_type = "two-columns-left";
 
 
 #NEWLAYER: colorside/palegold
@@ -852,3 +1169,80 @@ set color_module_link_visited = "#b3565a";
 set color_module_text = "#825c56";
 set color_module_title = "#825c56";
 set color_module_title_background = "#fcd8cf";
+
+
+#NEWLAYER: colorside/wintersnow
+layerinfo type = "theme";
+layerinfo name = "Winter Snow";
+layerinfo redist_uniq = "colorside/wintersnow";
+layerinfo author_name = "nornoriel";
+
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d0d2e3";
+set color_page_link = "#33385d";
+set color_page_link_hover = "#a4abc4";
+set color_page_link_visited = "#47456b";
+set color_page_text = "#3a4445";
+set color_page_title = "#47456b";
+set color_footer_background = "#dde2fc";
+set color_footer_link = "#33385d";
+set color_footer_link_hover = "#a4abc4";
+set color_footer_link_visited = "#47456b";
+set color_header_background = "#dde2fc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d1d3dc";
+set color_entry_border = "#e5eef9";
+set color_entry_link = "#33385d";
+set color_entry_link_hover = "#a4abc4";
+set color_entry_link_visited = "#47456b";
+set color_entry_text = "#3a4445";
+set color_entry_title = "#47456b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#d1d3dc";
+set color_module_border = "#e5eef9";
+set color_module_link = "#33385d";
+set color_module_link_hover = "#a4abc4";
+set color_module_link_visited = "#47456b";
+set color_module_text = "#3a4445";
+set color_module_title = "#47456b";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Palatino, Georgia";
+set font_comment_title = "Palatino, Georgia";
+set font_entry_title = "Palatino, Georgia";
+set font_fallback = "serif";
+set font_journal_subtitle = "Palatino, Georgia";
+set font_journal_title = "Palatino, Georgia";
+set font_module_heading = "Palatino, Georgia";
+set font_module_text = "Palatino, Georgia";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_height = 175;
+set image_background_header_position = "top right";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "colorside/snowflakes.png";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top left";
+set image_background_page_repeat = "repeat";
