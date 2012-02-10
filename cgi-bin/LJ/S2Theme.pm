@@ -49,6 +49,7 @@ sub default_themes {
         fiveam => 'fiveam/earlyedition',
         fluidmeasure => 'fluidmeasure/spice',
         funkycircles => 'funkycircles/darkpurple',
+        marginless => 'marginless/mars',
         modular => 'modular/mediterraneanpeach',
         negatives => 'negatives/black',
         nouveauoleanders => 'nouveauoleanders/sienna',

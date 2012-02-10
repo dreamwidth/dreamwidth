@@ -1,0 +1,179 @@
+#NEWLAYER: marginless/greatoak
+layerinfo "type" = "theme";
+layerinfo "name" = "Great Oak";
+layerinfo "redist_uniq" = "marginless/greatoak";
+layerinfo "author_name" = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+set color_footer_background = "#398c42";
+set color_header_background = "#398c42";
+set color_page_background = "#398c42";
+set color_page_link = "#225426";
+set color_page_link_active = "#225426";
+set color_page_link_hover = "#5ce265";
+set color_page_link_visited = "#708c73";
+set color_page_text = "#222222";
+set color_page_title = "#5e4720";
+set color_userpic_background = "#225426";
+
+##===============================
+## Entry
+##===============================
+set color_calendar_entry = "#BC8E40";
+set color_comment_title = "#ebdeba";
+set color_comment_title_background = "#225426";
+set color_comment_title_background_even = "#398c42";
+set color_comment_title_even = "#ebdeba";
+set color_entry_background = "#ebdeba";
+set color_entry_link = "#225426";
+set color_entry_link_active = "#225426";
+set color_entry_link_hover = "#5ce265";
+set color_entry_link_visited = "#398c42";
+set color_entry_text = "#222222";
+
+##===============================
+## Modules
+##===============================
+set color_module_background = "#6a5224";
+set color_module_link = "#398c42";
+set color_module_link_active = "#398c42";
+set color_module_link_hover = "#5ce265";
+set color_module_link_visited = "#398c42";
+set color_module_text = "#222222";
+
+##===============================
+## Comments
+##===============================
+set color_comment_title = "#ebdeba";
+set color_comment_title_background = "#225426";
+set color_comment_title_background_even = "#398c42";
+set color_comment_title_even = "#ebdeba";
+
+##===============================
+## Other
+##===============================
+set color_calendar_entry = "#BC8E40";
+set color_userpic_background = "#225426";
+
+#NEWLAYER: marginless/mars
+layerinfo "type" = "theme";
+layerinfo "name" = "Mars";
+layerinfo "redist_uniq" = "marginless/mars";
+layerinfo "author_name" = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+set color_footer_background = "#d31612";
+set color_header_background = "#000000";
+set color_page_background = "#000000";
+set color_page_link = "#8d070a";
+set color_page_link_active = "#8d070a";
+set color_page_link_hover = "#510204";
+set color_page_link_visited = "#d31612";
+set color_page_title = "#FFFFFF";
+set color_userpic_background = "#000000";
+
+##===============================
+## Entry
+##===============================
+set color_comment_title_background = "#d31612";
+set color_comment_title_background_even = "#d31612";
+set color_entry_background = "#FFFFFF";
+set color_entry_link = "#8d070a";
+set color_entry_link_active = "#8d070a";
+set color_entry_link_hover = "#510204";
+set color_entry_link_visited = "#d31612";
+set color_entry_text = "#000000";
+
+##===============================
+## Modules
+##===============================
+set color_module_background = "#d31612";
+set color_module_link = "#dedede";
+set color_module_link_active = "#dedede";
+set color_module_link_hover = "#adadad";
+set color_module_link_visited = "#f0f0f0";
+set color_module_text = "#ffffff";
+set color_module_title = "#ffffff";
+
+##===============================
+## Comments
+##===============================
+set color_comment_title_background = "#d31612";
+set color_comment_title_background_even = "#d31612";
+
+##===============================
+## Other
+##===============================
+set color_userpic_background = "#000000";
+
+#NEWLAYER: marginless/midnight
+layerinfo "type" = "theme";
+layerinfo "name" = "Midnight";
+layerinfo "redist_uniq" = "marginless/midnight";
+layerinfo "author_name" = "momijizukamori";
+
+set layout_authors = [ { "name" => "momijizukamori", "type" => "user" } ];
+
+##===============================
+## Page
+##===============================
+set color_calendar_background = "#d3d3d3";
+set color_footer_background = "#05033e";
+set color_footer_link = "#d3d3d3";
+set color_footer_link_active = "#d3d3d3";
+set color_footer_link_hover = "#bdbdbd";
+set color_footer_link_visited = "#c2bee9";
+set color_header_background = "#05033e";
+set color_page_background = "#000000";
+set color_page_link = "#05033e";
+set color_page_link_active = "#05033e";
+set color_page_link_hover = "#231082";
+set color_page_link_visited = "#5c5895";
+set color_page_text = "#333333";
+set color_page_title = "#dddddd";
+set color_userpic_background = "#05033e";
+
+##===============================
+## Entry
+##===============================
+set color_calendar_entry = "#c2bee9";
+set color_comment_title = "#dddddd";
+set color_comment_title_background = "#05033e";
+set color_comment_title_background_even = "#05033e";
+set color_comment_title_even = "#dddddd";
+set color_entry_background = "#eeeeee";
+set color_entry_text = "#333333";
+
+##===============================
+## Modules
+##===============================
+set color_module_background = "#231082";
+set color_module_link = "#d3d3d3";
+set color_module_link_active = "#d3d3d3";
+set color_module_link_hover = "#bdbdbd";
+set color_module_link_visited = "#c2bee9";
+set color_module_text = "#eeeeee";
+
+##===============================
+## Comments
+##===============================
+set color_comment_title = "#dddddd";
+set color_comment_title_background = "#05033e";
+set color_comment_title_background_even = "#05033e";
+set color_comment_title_even = "#dddddd";
+
+##===============================
+## Other
+##===============================
+set color_userpic_background = "#05033e";
+set color_calendar_background = "#d3d3d3";
+set color_calendar_entry = "#c2bee9";
+

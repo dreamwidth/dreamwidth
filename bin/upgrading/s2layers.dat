@@ -58,6 +58,9 @@ fluidmeasure/themes      theme+                      fluidmeasure/layout
 funkycircles/layout      layout(core2base/layout)    core2
 funkycircles/themes      theme+                      funkycircles/layout
 
+marginless/layout        layout(core2base/layout)    core2
+marginless/themes        theme+                      marginless/layout
+
 modish/layout            layout(core2base/layout)    core2
 modish/themes            theme+                      modish/layout
 
