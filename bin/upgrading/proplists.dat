@@ -14,6 +14,14 @@ userproplist.adult_content_reason:
   multihomed: 0
   prettyname: Adult Content Reason
 
+userproplist.ao3:
+  cldversion: 4
+  datatype: char
+  des: AO3 user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Archive of Our Own user account name
+
 userproplist.aolim:
   cldversion: 0
   datatype: char
@@ -357,6 +365,14 @@ userproplist.external_foaf_url:
   indexed: 0
   multihomed: 0
   prettyname: FOAF address
+
+userproplist.ffnet:
+  cldversion: 4
+  datatype: char
+  des: FanFiction.net user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: FanFiction.net user account name
 
 userproplist.friendspagetitle:
   cldversion: 4

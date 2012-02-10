@@ -191,11 +191,15 @@
 
 .select.provider=-- Select Carrier --
 
+.services.ao3=AO3 Username
+
 .services.delicious=Delicious Username
 
 .services.diigo=Diigo Username
 
 .services.etsy=Etsy Username
+
+.services.ffnet=FanFiction.net Username
 
 .services.last_fm=Last.fm Username
 

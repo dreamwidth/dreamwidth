@@ -57,7 +57,8 @@ body<=
         msn skype yahoo tumblr
         plurk twitter delicious diigo
         pinboard last_fm_user
-        etsy ravelry url urlname gender
+        etsy ravelry ao3 ffnet
+        url urlname gender
         opt_hidefriendofs opt_hidememberofs
         sidx_bdate sidx_bday
         opt_showmutualfriends
@@ -444,6 +445,8 @@ body<=
                            ["last_fm_user", $ML{'.services.last_fm'}, 255],
                            ["etsy", $ML{ '.services.etsy' }, 20],
                            ["ravelry", $ML{ '.services.ravelry' }, 40],
+                           ["ao3", $ML{ '.services.ao3' }, 40],
+                           ["ffnet", $ML{ '.services.ffnet' }, 30],
                           )
 
             {

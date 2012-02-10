@@ -919,6 +919,28 @@ sub external_services {
         };
     }
 
+    if ( my $ao3 = $u->prop( 'ao3' ) ) {
+        my $ao3 = LJ::eurl( $ao3 );
+        push @ret, {
+            type => 'ao3',
+            text => LJ::ehtml( $ao3 ),
+            url => "http://archiveofourown.org/users/$ao3",
+            image => 'ao3.png',
+            title_ml => '.service.ao3',
+        };
+    }
+
+    if ( my $ffnet = $u->prop( 'ffnet' ) ) {
+        my $ffnet = LJ::eurl( $ffnet );
+        push @ret, {
+            type => 'ffnet',
+            text => LJ::ehtml( $ffnet ),
+            url => "http://www.fanfiction.net/~$ffnet",
+            image => 'ffnet.png',
+            title_ml => '.service.ffnet',
+        };
+    }
+
     return @ret;
 }
 
