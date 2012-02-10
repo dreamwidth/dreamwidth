@@ -5913,14 +5913,6 @@ sub opt_embedplaceholders {
     }
 }
 
-sub opt_viewentrystyle {
-    return ( $_[0]->prop( 'opt_viewentrystyle' ) || "O" );
-}
-
-sub opt_viewjournalstyle {
-    return ( $_[0]->prop( 'opt_viewjournalstyle' ) || "O" );
-}
-
 sub set_default_style {
     my $style = eval { LJ::Customize->verify_and_load_style( $_[0] ); };
     warn $@ if $@;
@@ -6001,16 +5993,13 @@ sub viewing_style {
     $view ||= 'entry';
 
     my %style_types = ( O => "original", M => "mine", S => "site", L => "light" );
+    my %view_props = (
+        entry => 'opt_viewentrystyle',
+        reply => 'opt_viewentrystyle',
+    );
 
-    my $style;
-    if ( $view eq "entry" || $view eq "reply" ) {
-        $style = $style_types{ $u->opt_viewentrystyle };
-    } else {
-        $style = $style_types{ $u->opt_viewjournalstyle };
-    }
-    $style ||= 'original';
-
-    return $style;
+    my $prop = $view_props{ $view } || 'opt_viewjournalstyle';
+    return $style_types{ $u->prop( $prop ) } || 'original';
 }
 
 ########################################################################

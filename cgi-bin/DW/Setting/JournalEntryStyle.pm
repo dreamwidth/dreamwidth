@@ -6,9 +6,10 @@
 # viewing the user's own journal - the selected S2 style or the site style.
 #
 # Authors:
-#      Jen Griffin <kareila@livejournal.com>
+#       Jen Griffin <kareila@livejournal.com>
+#       Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2011 by Dreamwidth Studios, LLC.
+# Copyright (c) 2011-2012 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -16,49 +17,31 @@
 #
 
 package DW::Setting::JournalEntryStyle;
-use base 'LJ::Setting';
+use base 'DW::Setting::JournalStyle';
 use strict;
 
 use LJ::S2;
 
-sub should_render {
-    my ( $class, $u ) = @_;
-
-    return 0 unless $u;
-    return $u->is_syndicated ? 0 : 1;
-}
-
 sub label {
-    my ( $class, $u ) = @_;
-
-    return $class->ml( 'setting.display.journalentrystyle.label' );
+    return $_[0]->ml( 'setting.display.journalentrystyle.label' );
 }
 
-sub option {
-    my ( $class, $u, $errs, $args ) = @_;
-    my $key = $class->pkgkey;
-
-    my $use_s2 = $class->get_arg( $args, "journalentrystyle" ) ||
-        LJ::S2::use_journalstyle_entry_page( $u );
-
-    my $ret = LJ::html_check( {
-        name => "${key}journalentrystyle",
-        id => "${key}journalentrystyle",
-        value => 1,
-        selected => $use_s2 ? 1 : 0,
-    } );
-    $ret .= " <label for='${key}journalentrystyle'>" . $class->ml('setting.display.journalentrystyle.option') . "</label>";
-    $ret .= "<br /><i>" . $class->ml('setting.display.journalentrystyle.note') . "</i>";
-
-    return $ret;
+sub option_ml {
+    return $_[0]->ml('setting.display.journalentrystyle.option');
 }
 
-sub save {
-    my ( $class, $u, $args ) = @_;
+sub note_ml {
+    return $_[0]->ml('setting.display.journalentrystyle.note');
+}
+sub current_value {
+    return LJ::S2::use_journalstyle_entry_page( $_[1] );
+}
 
-    my $val = $class->get_arg( $args, "journalentrystyle" ) ? "Y" : "N";
-    $u->set_prop( use_journalstyle_entry_page => $val );
+sub prop_name {
+    return 'use_journalstyle_entry_page';
+}
 
+sub store_negative {
     return 1;
 }
 
