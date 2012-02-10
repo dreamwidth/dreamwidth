@@ -739,8 +739,10 @@ sub get_talk_data
 
         # find all singletons that LJ::Comment knows about, then grep for the ones we've set in
         # this get_talk_data call (ones for this userid / nodeid)
+        my $uid = $u->userid;
+        LJ::Comment->preload_rows();
         my @comments_for_entry =
-            grep { $_->journalid == $u->userid && $_->nodeid == $nodeid } LJ::Comment->all_singletons;
+            grep { $_->{journalid} == $uid && $_->{nodeid} == $nodeid } LJ::Comment->all_singletons;
 
         $entry->set_comment_list(@comments_for_entry);
     };
