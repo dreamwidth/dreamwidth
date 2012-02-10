@@ -3204,7 +3204,13 @@ sub display_name {
     my ($url, $name);
     if ($id->typeid eq 'O') {
         $url = $id->value;
-        $name = Net::OpenID::VerifiedIdentity::DisplayOfURL($url, $LJ::IS_DEV_SERVER);
+
+        # load the module conditionally
+        $LJ::OPTMOD_OPENID_VERIFIED_IDENTITY = eval "use Net::OpenID::VerifiedIdentity; 1;"
+            unless defined $LJ::OPTMOD_OPENID_VERIFIED_IDENTITY;
+        $name = Net::OpenID::VerifiedIdentity::DisplayOfURL($url, $LJ::IS_DEV_SERVER)
+            if $LJ::OPTMOD_OPENID_VERIFIED_IDENTITY;
+
         $name = LJ::Hooks::run_hook("identity_display_name", $name) || $name;
 
         ## Unescape %xx sequences
