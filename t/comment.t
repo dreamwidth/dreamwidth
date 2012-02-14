@@ -30,7 +30,7 @@ sub run_tests {
         like($@, qr/need to supply jtalkid/, "need to supply jtalkid");
 
         $c = eval { LJ::Comment->new($u, jtalkid => 1, foo => 1, bar => 2) };
-        like($@, qr/unknown parameter/, "unknown parameters");
+        like($@, qr/wrong number/, "wrong number of arguments (unknown parameters)");
     }
 
     # post a comment
