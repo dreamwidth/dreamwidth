@@ -429,6 +429,10 @@ and keep subject lines from poking into sidebars  */
     margin-bottom: 1em;
 }
 
+.entry .header .inner {
+    margin-bottom: 0;
+}
+
 ul.entry-interaction-links {
     text-align: left;
 }
