@@ -602,6 +602,7 @@ sub _set_text {
     } else {
         $self->{$_} = undef foreach qw(subject body);
         $self->{_loaded_text} = 0;
+        push @unloaded_text_singletons, $self;
     }
     # otherwise _loaded_text=0 and we won't do any optimizations
 
