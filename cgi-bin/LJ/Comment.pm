@@ -63,14 +63,17 @@ LJ::Comment
 
 my %singletons = (); # journalid->jtalkid->singleton
 
+# singletons still to be loaded
+my %unloaded_singletons = ();
+my %unloaded_text_singletons = ();
+my %unloaded_prop_singletons = ();
+
 sub reset_singletons {
     %singletons = ();
+    %unloaded_singletons = ();
+    %unloaded_text_singletons = ();
+    %unloaded_prop_singletons = ();
 }
-
-# singletons still to be loaded
-my @unloaded_singletons;
-my @unloaded_text_singletons;
-my @unloaded_prop_singletons;
 
 # <LJFUNC>
 # name: LJ::Comment::new
@@ -103,9 +106,9 @@ sub instance {
         jtalkid => $jtalkid,
     }, $class;
 
-    push @unloaded_singletons, $self;
-    push @unloaded_text_singletons, $self;
-    push @unloaded_prop_singletons, $self;
+    $unloaded_singletons{$self->singletonkey} = $self;
+    $unloaded_text_singletons{$self->singletonkey} = $self;
+    $unloaded_prop_singletons{$self->singletonkey} = $self;
 
     return $singletons{$journalid}->{$jtalkid} = $self;
 }
@@ -220,6 +223,7 @@ sub absorb_row {
 
     $self->{$_} = $row{$_} foreach (qw(nodetype nodeid parenttalkid posterid datepost state));
     $self->{_loaded_row} = 1;
+    delete $unloaded_singletons{$self->singletonkey};
 }
 
 sub url {
@@ -308,6 +312,10 @@ sub journal {
 
 sub journalid {
     return $_[0]->{journalid};
+}
+
+sub singletonkey {
+    return $_[0]->{journalid} . "-" . $_[0]->{jtalkid};
 }
 
 # return LJ::Entry of entry comment is in, or undef if it's not
@@ -460,10 +468,8 @@ sub all_singletons {
 
 # class method:
 sub preload_rows {
-    my @to_load =
-        map  { [ $_->journal, $_->jtalkid ] }
-            grep { ! $_->{_loaded_row} } @unloaded_singletons;
-
+    my @to_load = ();
+    push @to_load, map  { [ $_->journal, $_->jtalkid ] } values %unloaded_singletons;
     # already loaded?
     return 1 unless @to_load;
 
@@ -473,7 +479,7 @@ sub preload_rows {
     # make a mapping of journalid-jtalkid => $row
     my %row_map = map { join("-", $_->{journalid}, $_->{jtalkid}) => $_ } @rows;
 
-    foreach my $obj (@unloaded_singletons) {
+    foreach my $obj (values %unloaded_singletons) {
         my $u = $obj->journal;
 
         my $row = $row_map{join("-", $u->id, $obj->jtalkid)};
@@ -483,7 +489,7 @@ sub preload_rows {
         $obj->absorb_row(%$row);
     }
 
-    @unloaded_singletons = ();
+    %unloaded_singletons = ();
     return 1;
 }
 
@@ -498,15 +504,12 @@ sub _load_text {
     my $entry_uid = $entryu->id;
 
     # find singletons which don't already have text loaded
-    my (@to_load, @to_keep);
-    foreach my $c_obj (@unloaded_text_singletons) {
+    my @to_load;
+    foreach my $c_obj (values %unloaded_text_singletons) {
         if ($c_obj->journalid == $entry_uid) {
             push @to_load, $c_obj;
-        } else {
-            push @to_keep, $c_obj;
         }
     }
-    @unloaded_text_singletons = @to_keep;
 
     my $ret  = LJ::get_talktext2($entryu, map { $_->jtalkid } @to_load);
     return 0 unless $ret && ref $ret;
@@ -530,6 +533,7 @@ sub _load_text {
         }
 
         $c_obj->{_loaded_text} = 1;
+        delete $unloaded_text_singletons{$self->singletonkey};
     }
 
     return 1;
@@ -602,7 +606,7 @@ sub _set_text {
     } else {
         $self->{$_} = undef foreach qw(subject body);
         $self->{_loaded_text} = 0;
-        push @unloaded_text_singletons, $self;
+        $unloaded_text_singletons{$self->singletonkey} = $self;
     }
     # otherwise _loaded_text=0 and we won't do any optimizations
 
@@ -659,22 +663,9 @@ sub props {
     return $self->{props} || {};
 }
 
-sub _load_props {
-    my $self = $_[0];
-    return 1 if $self->{_loaded_props};
-
-    my $journalid = $self->journalid;
-
-    # find singletons which don't already have props loaded
-    my (@to_load, @to_keep);
-    foreach my $c_obj (@unloaded_prop_singletons) {
-        if ($c_obj->journalid == $journalid) {
-            push @to_load, $c_obj;
-        } else {
-            push @to_keep, $c_obj;
-        }
-    }
-    @unloaded_prop_singletons = @to_keep;
+# class method:  preloads the props on the provided list of Comment objects.
+sub preload_props {
+    my ($class, $journalid, @to_load) = @_;
 
     my $prop_ret = {};
     LJ::load_talk_props2($journalid, [ map { $_->jtalkid } @to_load ], $prop_ret);
@@ -683,6 +674,34 @@ sub _load_props {
     foreach my $c_obj (@to_load) {
         $c_obj->{props} = $prop_ret->{$c_obj->jtalkid} || {};
         $c_obj->{_loaded_props} = 1;
+        delete $unloaded_prop_singletons{$c_obj->singletonkey};
+    }
+
+    return 1;
+}
+
+sub _load_props {
+    my $self = $_[0];
+    return 1 if $self->{_loaded_props};
+
+    my $journalid = $self->journalid;
+
+    # find singletons which don't already have props loaded
+    my @to_load;
+    foreach my $c_obj (values %unloaded_prop_singletons) {
+        if ($c_obj->journalid == $journalid) {
+            push @to_load, $c_obj;
+        }
+    }
+
+    my $prop_ret = {};
+    LJ::load_talk_props2($journalid, [ map { $_->jtalkid } @to_load ], $prop_ret);
+
+    # iterate over comment objects to load and fill in their props members
+    foreach my $c_obj (@to_load) {
+        $c_obj->{props} = $prop_ret->{$c_obj->jtalkid} || {};
+        $c_obj->{_loaded_props} = 1;
+        delete $unloaded_prop_singletons{$c_obj->singletonkey};
     }
 
     return 1;

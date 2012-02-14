@@ -1219,6 +1219,16 @@ sub load_comments
     my ($posts_loaded, $subjects_loaded);
     $posts_loaded = LJ::get_talktext2($u, @posts_to_load);
     $subjects_loaded = LJ::get_talktext2($u, {'onlysubjects'=>1}, @subjects_to_load) if @subjects_to_load;
+
+    # preload props
+    my @ids_to_preload = @posts_to_load;
+    push @ids_to_preload, @subjects_to_load;
+    my @to_preload = ();
+    foreach my $jtalkid (@ids_to_preload) {
+        push @to_preload, LJ::Comment->new($u, jtalkid => $jtalkid);
+    }
+    LJ::Comment->preload_props($u, @to_preload);
+
     foreach my $talkid (@posts_to_load) {
         if ( $opts->{'top-only'} ) {
             $posts->{$talkid}->{'hide_children'} = 1;
