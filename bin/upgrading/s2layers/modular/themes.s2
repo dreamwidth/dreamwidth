@@ -1008,9 +1008,10 @@ function Page::print_theme_stylesheet() {
     .module-wrapper, #entries, #archive-year, #archive-month, #archive-day, .tags-container {
         background-color: $*color_entry_background;
         border-radius: .5em;
-        -moz-border-radius: .5em;
-        -webkit-border-radius: .5em;
-        -khtml-border-radius: .5em;
+        }
+
+    #header .module-wrapper {
+        background: none;
         }
 
     .module-navlinks a:visited {
