@@ -83,10 +83,12 @@ set text_icons_keyword_sep = ", ";
 set text_icons_inactive = "[Inactive]";
 
 function IconsPage::print_title() {
+    # Do not actually *print* anything here, or in overridden instances, just call set_content with windowtitle or title as appropriate. 
     $*SITEVIEWS->set_content("title",$this->view_title());
 }
 
 function IconsPage::print_default_stylesheet() {
+    # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
     $*SITEVIEWS->need_res( "stc/allpics.css" );
 }
 
@@ -120,68 +122,33 @@ function IconsPage::print_body() {
             }
             if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
         }
-        """</p><table class='allpics'>""";
-        foreach var Icon i ($.icons) {
+        
+        """<div class="icon-container">"""; 
+                foreach var Icon i ($.icons) {
             $piccount++;
 
             if ($piccount % 2 == 1) {
-                """<tr>""";
+                """<div class="icon-row">""";
             }
 
             $i->print();
 
             if ($piccount % 2 == 1) {
-                """<td class='blank'></td>""";
+                
             } else {
-                """</tr>\n""";
+                """</div>""";
             }
         }
         if ($piccount) {
             if ($piccount % 2 == 1) {
             }
-            """</table>""";
+            
         } else {
         }
+        """</div>""";
 
         $.pages->print({ "anchor" => "" });
+        """<div class="clear-floats"></div>""";
     }
 }
 
-function Icon::print() {
-    """<td class='pic'>""";
-    
-    """<a href="$.link_url">"""; $.image->print(); """</a>""";
-
-    """</td><td class='desc'>""";
-
-    if ( $.default ) {
-        print safe """<u>$*text_icons_default</u><br/>""";
-    }
-
-    if ( not $.active ) {
-        print safe """<em>$*text_icons_inactive</em><br/>""";
-    }
-
-    if ( size $.keywords ) {
-        var int count = 0;
-        print safe """<strong>$*text_icons_keywords</strong> """;
-        foreach var string kw ( $.keywords ) {
-            $count++;
-            print safe $kw;
-            if ( $count < size $.keywords ) {
-                print safe $*text_icons_keyword_sep;
-            }
-        }
-        """<br/>""";
-    }
-
-    if ( $.comment ) {
-        print safe """<strong>$*text_icons_comment</strong> $.comment<br/>""";
-    }
-
-    if ( $.description ) {
-        print safe """<strong>$*text_icons_description</strong> $.description<br/>""";
-    }
-
-    """</td>""";
-}

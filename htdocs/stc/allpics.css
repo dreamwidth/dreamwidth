@@ -1,18 +1,59 @@
 /* allpics styling */
 
-table.allpics {
+#content {
+    overflow: visible !important;
+    }
+
+.icon-container {
     margin-left: 50px;
+    min-width: 350px;
+    z-index:10;
 }
 
-.allpics td {
+.icon-image {
+    float: left;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+    padding: 0.2em 0.5em;
+    }
+
+.icon-image img {
+    
+    }
+
+.icon-info {
+    padding: 0.2em 0.5em;
+    overflow:auto;
     vertical-align: bottom;
-}
+    word-wrap: break-word;
+    display: table-cell;
+    width:100%;
+    }
 
-.allpics .userpic-img {
-    margin-right: 1em;
-    margin-top: 15px;
-}
+.icon {
+    width:50%;
+    float: left;
+    vertical-align: bottom;
+    min-width: 350px;
+    display:table;
+    }
 
-.allpics blank {
-    width: 50px;
-}
+.label, .comment-text, .description-text {
+    font-weight: bold;
+    }
+
+.default {
+    text-decoration: underline;
+    font-weight:normal;
+    }
+
+.keywords li, .keywords ul {
+    display:inline;
+    margin: 0;
+    }
+
+.icon-row {
+    clear:both;
+    }
