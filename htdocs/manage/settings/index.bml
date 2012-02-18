@@ -114,7 +114,6 @@ body<=
             settings => [qw(
                 LJ::Setting::EmailPosting
                 DW::Setting::TxtMsgSetup
-                LJ::Setting::Display::MobileApps
             )],
         },
         privacy => {
