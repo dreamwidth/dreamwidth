@@ -7,7 +7,7 @@
 # Authors:
 #      Afuna <coder.dw@afunamatata.com>
 #
-# Copyright (c) 2010 by Dreamwidth Studios, LLC.
+# Copyright (c) 2010-2012 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -20,89 +20,183 @@ DW::Captcha - This module handles CAPTCHA throughout the site
 
 =head1 SYNOPSIS
 
+Here's the simplest method:
+
+    # print out the captcha form fields on a particular page
+    my $captcha = DW::Captcha->new( $page );
+    if ( $captcha->enabled ) {
+        $captcha->print;
+    }
+
+    # elsewhere, process the post
+    if ( $r->did_post ) {
+        my $captcha = DW::Captcha->new( $page, %{$r->post_args} );
+
+        my $captcha_error;
+        push @errors, $captcha_error unless $captcha->validate( err_ref => \$captcha_error );
+    }
+
+
+When using in conjunction with LJ::Widget subclasses, you can just specify the form field names and let the widget handle it:
+
+    LJ::Widget->use_specific_form_fields( post => \%POST, widget => "...", fields => [ DW::Captcha->form_fields ] )
+        if DW::Captcha->enabled( 'create' );
 =cut
 
 use strict;
-use warnings;
 package DW::Captcha;
 
-# at some point we may replace this, or try to make this implementation more flexible
-# right now, let's just go with this
+use LJ::ModuleLoader;
 
-BEGIN {
-    my $rv = eval <<USE;
-use Captcha::reCAPTCHA;
-1;
-USE
-    warn "NOTE: Captcha::reCAPTCHA was not found.\n"
-        unless $rv;
+my @CLASSES = LJ::ModuleLoader->module_subclasses( "DW::Captcha" );
 
-    our $MODULES_INSTALLED = $rv;
+my %impl2class;
+foreach my $class ( @CLASSES ) {
+    eval "use $class";
+    die "Error loading class '$class': $@" if $@;
+    $impl2class{lc $class->name} = $class;
 }
 
 # class methods
+=head1 API
+
+=head2 C<< DW::Captcha->new( $implementation, $page, %opts ) >>
+
+Arguments:
+
+=over
+
+=item page - the page we're going to display this CAPTCHA on
+
+=item implementation - which CAPTCHA implementation we'd like to use
+
+=item a hash of additional options, including the request/response from a form post
+
+=back
+
+=cut
+
 sub new {
-    my ( $class, $type, %opts ) = @_;
+    my ( $class, $page, %opts ) = @_;
+
+    # yes, I really do want to do this rather than $impl{...||$LJ::DEFAULT_CAPTCHA...}
+    # we want to make certain that someone can't force all captchas off
+    # by asking for an invalid captcha type
+    my $impl = $LJ::CAPTCHA_TYPES{delete $opts{want} || ""} || "";
+    my $subclass = $impl2class{$impl};
+    $subclass = $impl2class{$LJ::CAPTCHA_TYPES{$LJ::DEFAULT_CAPTCHA_TYPE}}
+        unless $subclass && $subclass->site_enabled;
 
     my $self = bless {
-        type => $type,
-    }, $class;
+        page => $page,
+    }, $subclass;
 
-    $self->init_opts( %opts );
+    $self->_init_opts( %opts );
 
     return $self;
 }
 
-sub form_fields { qw( recaptcha_response_field recaptcha_challenge_field ) }
-sub public_key  { LJ::conf_test( $LJ::RECAPTCHA{public_key} ) }
-sub private_key { LJ::conf_test( $LJ::RECAPTCHA{private_key} ) }
+# must be implemented by subclasses
+=head2 C<< $class->name >>
 
-sub site_enabled {
-    return 0 unless $DW::Captcha::MODULES_INSTALLED;
-    return LJ::is_enabled( 'recaptcha' ) && $LJ::RECAPTCHA{public_key} && $LJ::RECAPTCHA{private_key};
-}
+The name used to refer to this CAPTCHA implementation.
+
+=cut
+
+sub name { return ""; }
+
 
 # object methods
+
+=head2 C<< $captcha->form_fields >>
+
+Returns a list of the form fields expected by the CAPTCHA implementation.
+
+=head2 C<< $captcha->site_enabled >>
+
+Whether CAPTCHA is enabled site-wide. (Specific pages may have CAPTCHA disabled)
+
+=head2 C<< $captcha->print >>
+
+Print the CAPTCHA form fields.
+
+=head2 C<< $captcha->validate( %opts ) >>
+
+Return whether the response for this CAPTCHA was valid.
+
+Arguments:
+
+=over
+
+=item opts - a hash of additional options, including the request/response from a form post
+and an error reference (err_ref) which may contain additional information in case
+the validation failed
+
+=back
+
+=head2 C<< $captcha->enabled( $page ) >>
+
+Whether this CAPTCHA implementation is enabled on this particular page
+(or sitewide if this captcha instance isn't tied to a specific page)
+
+Arguments:
+
+=over
+
+=item page - Optional. A specific page to check
+
+=back
+
+=head2 C<< $captcha->page >>
+
+Return the page that this CAPTCHA instance is going to be used with
+
+=head2 C<< $captcha->challenge >>
+
+Challenge text, provided by the CAPTCHA implementation
+
+=head2 C<< $captcha->response >>
+
+User-provided response text
+
+=cut
+
+# must be implemented by subclasses
+sub form_fields { qw() }
+
+sub site_enabled { return LJ::is_enabled( 'captcha' ) && $_[0]->_implementation_enabled ? 1 : 0 }
+
+# must be implemented by subclasses
+sub _implementation_enabled { return 1; }
+
+
 sub print {
     my $self = $_[0];
     return "" unless $self->enabled;
 
-    my $captcha = Captcha::reCAPTCHA->new;
-    my $ret = $captcha->get_options_setter( { theme => 'white' } );
-
-    $ret .= "<div class='captcha'>";
-
-    $ret .= $captcha->get_html(
-        public_key(),               # public key
-        '',                         # error (optional)
-        $LJ::IS_SSL                 # page uses ssl
-    );
-
-    $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
+    my $ret = "<div class='captcha'>";
+    $ret .= $self->_print;
+    $ret .= "<p style='clear:both'>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
     $ret .= "</div>";
 
     return $ret;
 }
 
-sub validate { 
+# must be implemented by subclasses
+sub _print { return ""; }
+
+sub validate {
     my ( $self, %opts ) = @_;
 
     # if disabled, then it's always valid to allow the post to go through
     return 1 unless $self->enabled;
 
-    $self->init_opts( %opts );
+    $self->_init_opts( %opts );
 
     my $err_ref = $opts{err_ref};
-    my $result;
 
     if ( $self->challenge ) {
-        my $captcha = Captcha::reCAPTCHA->new;
-        $result = $captcha->check_answer(
-            private_key(), $ENV{REMOTE_ADDR},
-            $self->challenge, $self->response
-        );
-
-       return 1 if $result->{is_valid} eq '1';
+        return 1 if $self->_validate;
     }
 
     $$err_ref = LJ::Lang::ml( 'captcha.invalid' );
@@ -110,25 +204,30 @@ sub validate {
     return 0;
 }
 
-# enabled can be used as either a class or an object method
+# must be implemented by subclasses
+sub _validate { return 0; }
+
 sub enabled {
+    my $page;
+    $page = $_[0]->page if ref $_[0];
+    $page ||= $_[1];
 
-    my $type = ref $_[0] ? $_[0]->type : $_[1];
-
-    return $type
-        ? site_enabled() && $LJ::CAPTCHA_FOR{$type}
-        : site_enabled();
+    return $page
+        ? $_[0]->site_enabled() && $LJ::CAPTCHA_FOR{$page}
+        : $_[0]->site_enabled();
 }
 
-sub init_opts {
+# internal method. Used to initialize the challenge and response fields
+# must be implemented by subclasses
+sub _init_opts {
     my ( $self, %opts ) = @_;
 
-    $self->{challenge} ||= $opts{recaptcha_challenge_field};
-    $self->{response} ||= $opts{recaptcha_response_field};
+    # do something
 }
 
-sub type      { return $_[0]->{type} }
+sub page      { return $_[0]->{page} }
 sub challenge { return $_[0]->{challenge} }
 sub response  { return $_[0]->{response} }
+
 
 1;

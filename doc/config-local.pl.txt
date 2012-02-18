@@ -56,6 +56,11 @@
             private_key => $DW::PRIVATE::RECAPTCHA{private_key},
         );
 
+    # setup textcaptcha
+    %TEXTCAPTCHA = (
+            api_key => $DW::PRIVATE::TEXTCAPTCHA{api_key},
+    );
+
     # If enabled, disable people coming in over Tor exits from using various parts of the site.
     $USE_TOR_CONFIGS = 0;
 

@@ -54,6 +54,14 @@ userproplist.browselang:
   multihomed: 0
   prettyname: Language to browse with
 
+userproplist.captcha:
+  cldversion: 4
+  datatype: char
+  des: CAPTCHA type to show in the user's journal
+  indexed: 0
+  multihomed: 0
+  prettyname: CAPTCHA type
+
 userproplist.city:
   cldversion: 4
   datatype: char

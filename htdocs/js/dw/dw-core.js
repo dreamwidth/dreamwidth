@@ -54,6 +54,10 @@ $.throbber = {
   image: function() { return $("<img>", { src:  $.throbber.src } ) }
 };
 
+$.endpoint = function(action){
+  return Site && Site.currentJournal ? "/" + Site.currentJournal + "/__rpc_" + action : "/__rpc_" + action;
+};
+
 // position is an optional first argument
 $.fn.throbber = function(position, jqxhr) {
     var $this = $(this);

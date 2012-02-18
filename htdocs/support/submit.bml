@@ -20,9 +20,12 @@ body<=
     use strict;
     LJ::set_active_crumb('supportsubmit');
 
-    LJ::Widget->use_specific_form_fields( post => \%POST, widget => "SubmitRequest_Support", fields => [ DW::Captcha->form_fields ] );
-    return LJ::Widget->handle_post_and_render(\%POST, 'LJ::Widget::SubmitRequest::Support',
+    my $captcha = DW::Captcha->new();
+    LJ::Widget->use_specific_form_fields( post => \%POST, widget => "SubmitRequest_Support", fields => [ $captcha->form_fields ] );
+    my $ret = LJ::Widget->handle_post_and_render(\%POST, 'LJ::Widget::SubmitRequest::Support',
                                               'category' => $GET{category}, 'post' => LJ::Widget::SubmitRequest::Support->post_fields(\%POST));
+    my @errors = LJ::Widget->error_list;
+    return @errors ? LJ::error_list( @errors ) . $ret : $ret;
 }
 _code?>
 <=body

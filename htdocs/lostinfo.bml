@@ -24,9 +24,7 @@ body<=
 
     LJ::set_active_crumb('lostinfo');
 
-    my %captcha_fields;
-    @captcha_fields{DW::Captcha->form_fields} = @POST{DW::Captcha->form_fields};
-    my $captcha = DW::Captcha->new( 'lostinfo', %captcha_fields );
+    my $captcha = DW::Captcha->new( 'lostinfo', %POST );
 
     my $captcha_error;
 
@@ -38,7 +36,7 @@ body<=
             if $captcha->enabled;
 
         $ret .= "<form action='lostinfo' method='post'>\n";
-
+        $ret .= LJ::form_auth();
         $ret .= $captcha->print;
 
         $ret .= "<?h1 $ML{'.lostpassword.title'} h1?>\n";
@@ -81,6 +79,7 @@ body<=
     }
 
     # we have a post action
+    return LJ::bad_input( LJ::Lang::ml( "error.invalidform" ) ) unless LJ::check_form_auth();
 
     # note: some lostinfo_do.bml translation strings are used below
     # because the code was once in lostinfo_do.bml, but later

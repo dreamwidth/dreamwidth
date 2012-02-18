@@ -104,6 +104,7 @@ body<=
         my $captcha = DW::Captcha->new( 'validate_openid', %POST );
 
         if ( $captcha->response ) {
+            return LJ::bad_input( "error.invalidform" ) unless LJ::check_form_auth() && $captcha->enabled;
             my $err_ref;
             return LJ::bad_input( $err_ref )
                 unless $captcha->validate( err_ref => \$err_ref );
@@ -111,6 +112,7 @@ body<=
             my $ret = "<?h1 $ML{'captcha.title'} h1?>";
             $ret .= "<form method='POST' action='$LJ::SITEROOT/register'><input type='hidden' name='qs' value='$qs'>";
             $ret .= $captcha->print;
+            $ret .= LJ::form_auth() if $captcha->enabled;
             $ret .= "<input type='submit' value='$ML{'.form.submit'}' ></form>";
             return $ret;
         }

@@ -39,9 +39,11 @@ body<=
     my $code;
     my $rate_ok;
     if ( LJ::did_post() ) {
-        LJ::Widget->use_specific_form_fields( post => \%POST, widget => "CreateAccount", fields => [ DW::Captcha->form_fields ] )
-            if DW::Captcha->enabled( 'create' );
-        %from_post = LJ::Widget->handle_post( \%POST, ( 'CreateAccount' ) );
+        my $post_args = DW::Request->get->post_args;
+        my $captcha = DW::Captcha->new( 'create' );
+        LJ::Widget->use_specific_form_fields( post => $post_args, widget => "CreateAccount", fields => [ $captcha->form_fields ] )
+            if $captcha->enabled( 'create' );
+        %from_post = LJ::Widget->handle_post( $post_args, ( 'CreateAccount' ) );
     } else {
         # we always need the code, because it might contain paid time
         $code = LJ::trim( $GET{code} );

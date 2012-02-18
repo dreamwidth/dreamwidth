@@ -219,11 +219,5 @@ sub handle_post {
     return ('spid' => $spid);
 }
 
-sub error_list {
-    my ($class, @errors) = @_;
-    return unless @errors;
-
-    $class->error($_) foreach @errors;
-}
 
 1;

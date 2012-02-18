@@ -33,6 +33,8 @@ captcha.button=Continue
 
 captcha.invalid=Incorrect response in the antispam field. Please try again.
 
+captcha.loading=Loading anti-spam test...
+
 captcha.title=Please fill out the CAPTCHA as an anti-spam measure
 
 cleanhtml.error.markup=( <a [[aopts]]>Error: Irreparable invalid markup in entry. Raw contents behind the cut.</a> )
@@ -2435,6 +2437,14 @@ setting.birthday.question=What's your birthday?
 setting.birthdaydisplay.error.invalid=Invalid option
 
 setting.birthdaydisplay.question=Birthday display options:
+
+setting.captcha.label=Anti-Spam Type
+
+setting.captcha.option=Commenters will see
+
+setting.captcha.option.select.image=graphical/image anti-spam tests
+
+setting.captcha.option.select.text=text-based anti-spam tests
 
 setting.commentcaptcha.label=Anti-Spam
 

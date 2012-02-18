@@ -2187,6 +2187,16 @@ sub can_view_mailqueue {
     return $_[0]->get_cap( 'viewmailqueue' ) ? 1 : 0;
 }
 
+sub captcha_type {
+    my $u = $_[0];
+
+    if ( defined $_[1] ) {
+        $u->set_prop( captcha => $_[1] );
+    }
+
+    return $_[1] || $u->prop( 'captcha' ) || $LJ::DEFAULT_CAPTCHA_TYPE;
+}
+
 sub clear_prop {
     my ($u, $prop) = @_;
     $u->set_prop($prop, undef);

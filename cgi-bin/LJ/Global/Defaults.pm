@@ -358,6 +358,14 @@ no strict "vars";
         "js/hoverIntent.js"             => "js/hoverIntent.minified.js",
         "js/tooltip.js"                 => "js/tooltip.min.js",
     ) unless defined %LJ::MINIFY;
+
+    # mapping of captcha type to specific desired implementation
+    %CAPTCHA_TYPES = (
+        "T" => "textcaptcha",   # "T" is for text
+        "I" => "recaptcha",     # "I" is for image
+    ) unless defined %CAPTCHA_TYPES;
+    $DEFAULT_CAPTCHA_TYPE ||= "T";
+
 }
 
 

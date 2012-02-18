@@ -2032,7 +2032,7 @@ sub talkform {
 
     # Display captcha challenge if over rate limits.
     if ( $opts->{do_captcha} ) {
-        my $captcha = DW::Captcha->new;
+        my $captcha = DW::Captcha->new( undef, want => $journalu->captcha_type );
         $ret .= $captcha->print;
     }
 
@@ -3665,8 +3665,10 @@ sub init {
     # unixify line-endings
     $form->{'body'} =~ s/\r\n/\n/g;
 
-    # now check for UTF-8 correctness, it must hold
+    # FIXME: remove when we no longer support BML
+    $form->{textcaptcha_challenge} = [ split /\0/, $form->{textcaptcha_challenge} ];
 
+    # now check for UTF-8 correctness, it must hold
     return $err->("<?badinput?>") unless LJ::text_in($form);
 
     $init->{unknown8bit} = 0;
@@ -3775,10 +3777,11 @@ sub require_captcha_test {
     ##
     ## 1. Check rate by remote user and by IP (for anonymous user)
     ##
-    if ( DW::Captcha->enabled( 'anonpost' ) || DW::Captcha->enabled( 'authpost' ) ) {
+    my $captcha = DW::Captcha->new;
+    if ( $captcha->enabled( 'anonpost' ) || $captcha->enabled( 'authpost' ) ) {
         return 1 unless LJ::Talk::Post::check_rate( $commenter, $journal );
     }
-    if ( DW::Captcha->enabled( 'anonpost' ) && $anon_commenter) {
+    if ( $captcha->enabled( 'anonpost' ) && $anon_commenter) {
         return 1 if LJ::sysban_check( 'talk_ip_test', LJ::get_remote_ip() );
     }
 
@@ -3819,8 +3822,8 @@ sub require_captcha_test {
     ## 4. Global (site) settings
     ## See if they have any tags or URLs in the comment's body
     ##
-    if ( DW::Captcha->enabled( 'comment_html_auth' )
-        || ( DW::Captcha->enabled( 'comment_html_anon' ) && $anon_commenter))
+    if ( $captcha->enabled( 'comment_html_auth' )
+        || ( $captcha->enabled( 'comment_html_anon' ) && $anon_commenter))
     {
         if ($body =~ /<[a-z]/i) {
             # strip white-listed bare tags w/o attributes,

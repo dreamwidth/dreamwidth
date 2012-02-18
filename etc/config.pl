@@ -141,6 +141,7 @@
                  adult_content => 0,
                  blockwatch => 1,
                  'community-logins' => 0,
+                 captcha => 0,
                  directory => 0,
                  esn_archive => 1,
                  eventlogrecord => 1,
@@ -163,6 +164,16 @@
     #$DISABLED{extacct_info} = sub {
     #    ref $_[0] && defined $_[0]->{sitename} &&
     #        $_[0]->{sitename} eq 'LiveJournal' ? 1 : 0 };
+
+    # disable the recaptcha module, but keep textcaptcha enabled
+    # you'd probably want to edit $LJ::DEFAULT_CAPTCHA_TYPE in this case
+    #$DISABLED{captcha} = sub {
+    #   my $module = $_[0];
+    #   return 1 if $module eq "recaptcha";
+    #   return 0 if $module eq "textcaptcha";
+    #   return 0;
+    #};
+
 
     # turn $SERVER_DOWN on while you do any maintenance
     $SERVER_TOTALLY_DOWN = 0;
@@ -838,6 +849,7 @@
     # on why they're banned
     # $BLOCKED_ANON_URI = '';
 
+    # pages where we want to see captcha
     %CAPTCHA_FOR = (
         create   => 0,
         lostinfo => 1,

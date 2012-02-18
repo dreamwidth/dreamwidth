@@ -1,0 +1,5 @@
+;; -*- coding: utf-8 -*-
+
+.error.noquestion=Sorry, the anti-spam test is not available right now. Please wait and try again.
+
+.nojs.instructions=Copy the result to the "Captcha Response" field
