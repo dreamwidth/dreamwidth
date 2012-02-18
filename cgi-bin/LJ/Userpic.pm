@@ -40,7 +40,7 @@ use Storable;
 ##
 # url		: returns a URL directly to the userpic
 # fullurl	: returns the URL used at upload time, it if exists
-# altext	: description with keyword fallback; keyword-recently-used dependent
+# altext	: "username: keyword, comment (description)"
 # u, owner	: return the user object indicated by the userid
 
 # legal image types
@@ -360,23 +360,72 @@ sub fullurl {
     return $self->{url};
 }
 
+
 # given a userpic and a keyword, return the alt text
 sub alttext {
     my ( $self, $kw ) = @_;
 
-    # load the alttext.  use description by default, keyword as fallback,
-    # and all keywords as final fallback (should be for default icon only).
+    # load the alttext.  
+    # "username: description (keyword), comment"
+    # If any of those are not present leave them (and their
+    # affiliated punctuation) out. 
+    # Minimum will be "username: (default system keyword)" if user
+    # hasn't set anything manually.
 
-    # NOTE: This returns the alttext raw, and relies on the callers (usually
-    # but not always Userpic->imgtag) to strip any special characters.
+    # always  include the username
+    my $u = $self->owner;
+    my $alt = $u->username . ":";
 
     if ($self->description) {
-        return $self->description;
-    } elsif ($kw) {
-        return $kw;
-    } else {
-        return $self->keywords;
+        $alt .= " " . $self->description;
     }
+
+    # If we don't have the particular keyword, load all of the
+    # keywords for this userpic
+    if ($kw) {
+        $alt .= " (" . $kw . ")";
+    } else {
+        $alt .= " (" . $self->keywords . ")";
+    }
+
+    if ($self->comment) {
+        $alt .= ", " .$self->comment;
+    }
+
+    return LJ::ehtml( $alt );
+
+}
+
+# given a userpic and a keyword, return the title text
+sub titletext {
+    my ( $self, $kw ) = @_;
+
+    # load the titletext.  
+    # "username: keyword, comment (description)"
+    # If any of those are not present leave them (and their
+    # affiliated punctuation) out. 
+
+    # always  include the username
+    my $u = $self->owner;
+    my $title = $u->username . ":";
+
+    # If we don't have the particular keyword, load all of the
+    # keywords for this userpic
+    if ($kw) {
+        $title .= " " . $kw;
+    } else {
+        $title .= " " . $self->keywords;
+    }
+
+    if ($self->comment) {
+        $title .= ", " .$self->comment;
+    }
+
+    if ($self->description) {
+        $title .= " (" . $self->description . ")";
+    }
+
+    return LJ::ehtml( $title );
 
 }
 
@@ -393,23 +442,8 @@ sub imgtag {
     my $height = $opts{height} || $self->height;
     my $keyword = $opts{keyword} || $self->keywords;
 
-    # if no description is available for alttext, try to fall
-    # back to the keyword selected by the user (passed as a
-    # parameter to imgtag). Otherwise, use the entire keyword
-    # string from the userpic.
-
-    my $alttext = LJ::ehtml( $self->alttext( $keyword ) );
-
-    # if we passed in a user, format as if for entries or comments
-    # otherwise, print out keywords for additional context
-    my $title = "";
-    if ( $opts{user} ) {
-        $title = $opts{user}->display_name;
-        $title .= $opts{keyword} ? ": $opts{keyword}" : ": (default)";
-    } else {
-        $title = $keyword;
-    }    
-    $title = LJ::ehtml( $title );
+    my $alttext = $self->alttext( $keyword );
+    my $title = $self->titletext( $keyword );
 
     return '<img src="' . $self->url . '" width="' . $width . 
         '" height="' . $height . '" alt="' . $alttext . 

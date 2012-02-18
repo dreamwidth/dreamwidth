@@ -2371,30 +2371,16 @@ sub Image_userpic
     $width ||= $p->width;
     $height ||= $p->height;
 
-    # load the alttext.  use description by default, keyword as fallback,
-    # and all keywords as final fallback (should be for default icon only).
-    my $description = $p->description;
-    my $alttext;
-
-    if ($description) {
-        $alttext = $description;
-    } elsif ($kw) {
-        $alttext = $kw;
-    } else {
-        my $kwstr = $p->keywords;
-        $alttext = $kwstr;
-    }
-
-    my $title = $u->display_name;
-    $title .= $kw ? ": $kw" : ": (default)";
+    my $alttext = $p->alttext( $kw );
+    my $title = $p->titletext( $kw );
 
     return {
         '_type' => "Image",
         'url' => "$LJ::USERPIC_ROOT/$picid/$u->{'userid'}",
         'width' => $width,
         'height' => $height,
-        'alttext' => LJ::ehtml( $alttext ),
-        'extra' => { title => LJ::ehtml( $title ) },
+        'alttext' => $alttext,
+        'extra' => { title => $title },
     };
 }
 
