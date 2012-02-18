@@ -1439,9 +1439,11 @@ sub _format_mail_both {
             my ( $pic, $pic_kw ) = $self->userpic;
 
             if ( $pic && $pic->load_row ) {
-                $pichtml = "<img src=\"$LJ::USERPIC_ROOT/$pic->{picid}/$pic->{userid}\" align='absmiddle' ".
-                    "width='$pic->{width}' height='$pic->{height}' ".
-                    "hspace='1' vspace='2' alt='' /> ";
+                $pichtml = "<img src=\"$LJ::USERPIC_ROOT/$pic->{picid}/$pic->{userid}\" align='absmiddle' "
+                    . "width='$pic->{width}' height='$pic->{height}' "
+                    . "hspace='1' vspace='2' alt='"
+                    . $pic->alttext( $pic_kw ) 
+                    . "' /> ";
             }
         }
 
