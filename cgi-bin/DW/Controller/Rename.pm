@@ -155,7 +155,7 @@ sub handle_post {
     my %keep_rel = map { $_ => 1 } $post_args->get_all( "rel_options" );
     my %del_rel = map { +"del_$_" => ! $keep_rel{$_} } qw( trusted_by watched_by trusted watched communities );
 
-    my %other_opts = map { $_ => 1 } $post_args->get( "others" );
+    my %other_opts = map { $_ => 1 } $post_args->get_all( "others" );
     if ( $other_opts{email} ) {
         if ( $post_args->{redirect} ne "forward" ) {
             push @$errref, LJ::Lang::ml( '/rename.tt.error.emailnotforward', { emaildomain => "\@$LJ::USER_DOMAIN" } );
