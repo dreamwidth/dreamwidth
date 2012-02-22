@@ -11,25 +11,25 @@
 }
 
 .icon-image {
-    float: left;
-    width: 100px;
+    display: table-cell;
     height: 100px;
-    line-height: 100px;
+    min-width: 100px;
+    padding: 0.5em;
     text-align: center;
-    padding: 0.2em 0.5em;
+    vertical-align: bottom;
     }
 
 .icon-image img {
-    
+    vertical-align: bottom;
     }
 
 .icon-info {
-    padding: 0.2em 0.5em;
+    display: table-cell;
+    padding: 0.5em;
     overflow:auto;
     vertical-align: bottom;
-    word-wrap: break-word;
-    display: table-cell;
     width:100%;
+    word-wrap: break-word;
     }
 
 .icon {
