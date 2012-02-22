@@ -133,8 +133,8 @@ function IconsPage::print_body() {
             if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
         }
         
-        """<div class="icon-container">"""; 
-                foreach var Icon i ($.icons) {
+        """<div class="icon-container">""";
+        foreach var Icon i ($.icons) {
             $piccount++;
 
             if ($piccount % 2 == 1) {
@@ -151,6 +151,7 @@ function IconsPage::print_body() {
         }
         if ($piccount) {
             if ($piccount % 2 == 1) {
+                """</div>""";
             }
             
         } else {
