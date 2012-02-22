@@ -46,7 +46,9 @@ _c?>
 
             # FIXME: update to a simple . "" conversion when we have a newer JSON version
             #        ( no code ref will be required )
-            alt => sub { LJ::ehtml($upic->alttext)  . "" }, # force to string
+            # we don't want the full version of alttext here, because the keywords, etc
+            # will already likely be displayed by the icon
+            alt => sub { LJ::ehtml($upic->description)  . "" }, # force to string
 
             comment => LJ::strip_html($upic->comment),
             id => $id,
