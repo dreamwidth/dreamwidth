@@ -741,7 +741,6 @@ border-color: transparent !important;
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
     -khtml-border-radius: 1em; }
-#footer a { color: $*color_footer_link; }
 
 $userpic_css
 """;

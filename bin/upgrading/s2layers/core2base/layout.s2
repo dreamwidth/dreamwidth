@@ -362,9 +362,9 @@ h2#pagetitle {
 }
 
 #footer a { $footer_link_colors }
-#footer a:active { $footer_link_active_colors }
-#footer a:hover { $footer_link_hover_colors }
 #footer a:visited { $footer_link_visited_colors }
+#footer a:hover { $footer_link_hover_colors }
+#footer a:active { $footer_link_active_colors }
 
 #primary {
     float: left;

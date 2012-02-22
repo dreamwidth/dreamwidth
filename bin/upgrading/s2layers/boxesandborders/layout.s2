@@ -154,8 +154,6 @@ function print_stylesheet() {
     var string calendar_colors = generate_color_css( $*color_page_title, $*color_calendar_module_emptyday_background, new Color );
     var string calendar_link_colors = generate_color_css( $*color_page_background, $*color_calendar_module_hasday_background, new Color );
 
-    var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
-
     var string userpic_css = "";
         if ($*userpics_position == "left") {
             $userpic_css = """
@@ -500,13 +498,6 @@ $navlinks_css
 .module-calendar td { $calendar_colors }
 .module-calendar td a { $calendar_link_colors
     text-decoration: none; }
-
-/* footer */
-
-#footer { $footer_colors }
-#footer a { color: $*color_footer_link; }
-#footer a:visited { color: $*color_footer_link_visited; }
-#footer a:hover { color: $*color_footer_link_hover; }
 
 $userpic_css
     """;

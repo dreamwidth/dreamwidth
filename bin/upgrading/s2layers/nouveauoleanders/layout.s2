@@ -1094,10 +1094,6 @@ $navlinks_css
     min-height: 31px;
     }
 
-#footer a {
-    color: $*color_footer_link;
-    }
-
     $userpic_css
 
     """;

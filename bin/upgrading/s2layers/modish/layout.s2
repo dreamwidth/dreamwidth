@@ -302,14 +302,6 @@ text-decoration: none; }
     $module_navlinks_colors }
 .module-navlinks a:hover { $module_navlinks_active_colors
     text-decoration: none; }
-    
-
-/* footer */
-
-#footer { $footer_colors }
-#footer a { color: $*color_footer_link; }
-#footer a:visited { color: $*color_footer_link_visited; }
-#footer a:hover { color: $*color_footer_link_hover; }
 
 $userpic_css
     """;
