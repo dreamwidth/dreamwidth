@@ -431,7 +431,6 @@ table.talkform input {
     }
 
 .month h3 {
-    color: $*color_entry_title;
     font-size: $*font_entry_title_size$*font_entry_title_units;
     font-weight: normal;
     text-transform: uppercase;
