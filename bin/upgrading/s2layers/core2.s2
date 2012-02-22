@@ -5959,6 +5959,7 @@ function ItemRange::print(string{} opts) {
 
     var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
     var string class = $opts{"class"} ? $opts{"class"} : "pages";
+    var string all_url = $opts{"all_url"} ? $opts{"all_url"} : "";
 
     """<div class="$class">""";
     print "<b>" + lang_page_of_pages($.current, $.total) + "</b>";
@@ -5981,6 +5982,11 @@ function ItemRange::print(string{} opts) {
     } else {
          print " $*comment_page_next ";
     }
+
+    if ( $all_url != "" ) {
+        """<p><a href="$all_url">View All</a></p>""";
+    }
+
     "</div>";
 }
 
@@ -6063,11 +6069,11 @@ function IconsPage::print_body {
         "</li>\n";
     }
     "</ul>\n</div>\n";
-    $.pages->print({ "class" => "icon-pages toppages" });
+    $.pages->print({ "class" => "icon-pages toppages", "all_url" => "$.journal.userpic_listing_url?view=all" });
     foreach var Icon i ($.icons) {
         $i->print();
     }
-    $.pages->print({ "class" => "icon-pages bottompages" });
+    $.pages->print({ "class" => "icon-pages bottompages", "all_url" => "$.journal.userpic_listing_url?view=all" });
     "</div>\n</div>\n";
     """<div class="footer">\n<div class="inner">\n""";
     $this->print_icon_manage_link();

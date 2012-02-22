@@ -50,6 +50,7 @@ function ItemRange::print(string{} opts) {
 
     var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
     var string class = $opts{"class"} ? $opts{"class"} : "action-box";
+    var string all_url = $opts{"all_url"} ? $opts{"all_url"} : "";
 
     """<div class="$class">""";
     print """<p style="font-weight: bolder; margin: 0 0 .5em 0;">""" + lang_page_of_pages($.current, $.total) + "</p>";
@@ -74,6 +75,11 @@ function ItemRange::print(string{} opts) {
     } else {
          print " <b>$*comment_page_next</b> ";
     }
+
+    if ( $all_url != "" ) {
+        """<p><a href="$all_url">View All</a></p>""";
+    }
+
     "</div>";
 }
 
@@ -111,7 +117,11 @@ function IconsPage::print_body() {
         } else {
             """We can <a href="$*SITEROOT/manage/tracking/user?journal=$.journal.username">notify</a> you when this account uploads a new one.""";
         }
-        """</p><p>""";
+        """</p>""";
+
+        $.pages->print({ "anchor" => "", "all_url" => "$.journal.userpic_listing_url?view=all" });
+
+        """<p>""";
         var int sort_ct = 0;
         foreach var string k ($.sort_keyseq) {
             var string text = lang_icon_sortorder_title($k);
@@ -147,7 +157,7 @@ function IconsPage::print_body() {
         }
         """</div>""";
 
-        $.pages->print({ "anchor" => "" });
+        $.pages->print({ "anchor" => "", "all_url" => "$.journal.userpic_listing_url?view=all" });
         """<div class="clear-floats"></div>""";
     }
 }
