@@ -9,9 +9,11 @@ layerinfo redist_uniq = "core2base/layout";
 propgroup presentation {
     property use num_items_recent;
     property use num_items_reading;
+    property use num_items_icons;
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use icons_page_sort;
     property use sidebar_width;
     property use sidebar_width_doubled;
     property use margins_size;

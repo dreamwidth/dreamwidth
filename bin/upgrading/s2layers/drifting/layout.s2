@@ -26,9 +26,11 @@ propgroup presentation
     property use show_userpics_recent;
     property use num_items_recent;
     property use num_items_reading;
+    property use num_items_icons;
     property use use_journalstyle_entry_page;
     property use margins_size;
     property use margins_unit;
+    property use icons_page_sort;
     property use userpics_style_group;
     property use userpics_position;
     property use entry_metadata_position;
