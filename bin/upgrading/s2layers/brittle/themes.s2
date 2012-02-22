@@ -133,6 +133,49 @@ set color_navigation_module_link_hover = "#672700";
 set color_navigation_module_link_visited = "#4C1C00";
 
 
+#NEWLAYER: brittle/beminevalentine
+layerinfo type = "theme";
+layerinfo name = "Be Mine, Valentine";
+layerinfo redist_uniq = "brittle/beminevalentine";
+layerinfo author_name = "anthologia";
+
+set theme_authors = [ { "name" => "anthologia", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b0171f";
+set color_page_link = "#ffe1ff";
+set color_page_link_hover = "#ffe1ff";
+set color_page_link_visited = "#ffe1ff";
+set color_page_text = "#ffe1ff";
+set color_footer_background = "#ffe1ff";
+set color_footer_link = "#cc0014";
+set color_footer_link_hover = "#99002e";
+set color_footer_link_visited = "#c20a1d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffe1ff";
+set color_entry_link = "#cc0014";
+set color_entry_link_hover = "#99002e";
+set color_entry_link_visited = "#c20a1d";
+set color_entry_text = "#821722";
+set color_entry_title = "#821722";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#ffe1ff";
+set color_navigation_module_link = "#cc0014";
+set color_navigation_module_link_hover = "#99002e";
+set color_navigation_module_link_visited = "#c20a1d";
+
+
 #NEWLAYER: brittle/bluedays
 layerinfo type = "theme";
 layerinfo name = "Blue Days";
@@ -289,6 +332,163 @@ set image_background_page_repeat = "repeat";
 set image_background_page_url = "brittle/buttercupyellow.png";
 
 
+#NEWLAYER: brittle/calmseas
+layerinfo type = "theme";
+layerinfo name = "Calm Seas";
+layerinfo redist_uniq = "brittle/calmseas";
+layerinfo author_name = "anthologia";
+
+set theme_authors = [ { "name" => "anthologia", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d9e3f2";
+set color_page_link = "#003d99";
+set color_page_link_hover = "#19334d";
+set color_page_link_visited = "#29333d";
+set color_page_text = "#053c61";
+set color_footer_background = "#085a91";
+set color_footer_link = "#dee4ed";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_link = "#003d99";
+set color_entry_link_hover = "#19334d";
+set color_entry_link_visited = "#29333d";
+set color_entry_text = "#053c61";
+set color_entry_title = "#053c61";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#085a91";
+set color_navigation_module_link = "#dee4ed";
+set color_navigation_module_link_hover = "#fff";
+set color_navigation_module_link_visited = "#fff";
+
+
+#NEWLAYER: brittle/celadonblues
+layerinfo type = "theme";
+layerinfo name = "Celadon Blues";
+layerinfo redist_uniq = "brittle/celadonblues";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#9ad9cb";
+set color_page_link = "#841148";
+set color_page_link_hover = "#c03100";
+set color_page_link_visited = "#5a376f";
+set color_page_text = "#060606";
+set color_footer_background = "#b3e3d9";
+set color_footer_link = "#841148";
+set color_footer_link_hover = "#c03100";
+set color_footer_link_visited = "#5a376f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d1e3df";
+set color_entry_link = "#841148";
+set color_entry_link_hover = "#c03100";
+set color_entry_link_visited = "#5a376f";
+set color_entry_text = "#060606";
+set color_entry_title = "#060606";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#b3e3d9";
+set color_navigation_module_link = "#841148";
+set color_navigation_module_link_hover = "#c03100";
+set color_navigation_module_link_visited = "#5a376f";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
 #NEWLAYER: brittle/certainfrogs
 layerinfo type = "theme";
 layerinfo name = "Certain Frogs";
@@ -387,6 +587,234 @@ set color_navigation_module_link_visited = "#7D4D3F";
 set image_background_page_position = "top left";
 set image_background_page_repeat = "repeat";
 set image_background_page_url = "brittle/chinesepink.png";
+
+
+#NEWLAYER: brittle/circus
+layerinfo type = "theme";
+layerinfo name = "Circus";
+layerinfo redist_uniq = "brittle/circus";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#a14016";
+set color_page_link = "#382a42";
+set color_page_link_hover = "#314228";
+set color_page_link_visited = "#243835";
+set color_page_text = "#240c03";
+set color_footer_background = "#b55635";
+set color_footer_link = "#382a42";
+set color_footer_link_hover = "#314228";
+set color_footer_link_visited = "#243835";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ab4a24";
+set color_entry_link = "#382a42";
+set color_entry_link_hover = "#314228";
+set color_entry_link_visited = "#243835";
+set color_entry_text = "#240c03";
+set color_entry_title = "#240c03";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#b55635";
+set color_navigation_module_link = "#382a42";
+set color_navigation_module_link_hover = "#314228";
+set color_navigation_module_link_visited = "#243835";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
+#NEWLAYER: brittle/colouredglass
+layerinfo type = "theme";
+layerinfo name = "Coloured Glass";
+layerinfo redist_uniq = "brittle/colouredglass";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1f0e27";
+set color_page_link = "#d9712d";
+set color_page_link_hover = "#f5b232";
+set color_page_link_visited = "#c2441e";
+set color_page_text = "#d1c8b0";
+set color_footer_background = "#2d1436";
+set color_footer_link = "#d9712d";
+set color_footer_link_hover = "#f5b232";
+set color_footer_link_visited = "#c2441e";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#331640";
+set color_entry_link = "#d9712d";
+set color_entry_link_hover = "#f5b232";
+set color_entry_link_visited = "#c2441e";
+set color_entry_text = "#d1c8b0";
+set color_entry_title = "#66d2c9";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#281231";
+set color_navigation_module_link = "#98d2ce";
+set color_navigation_module_link_hover = "#66d2c9";
+set color_navigation_module_link_visited = "#b9d2cf";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
 
 
 #NEWLAYER: brittle/cosmos
@@ -739,6 +1167,348 @@ set color_navigation_module_background = "#e1e1e1";
 set color_navigation_module_link = "#ac000c";
 set color_navigation_module_link_hover = "#1f1f1f";
 set color_navigation_module_link_visited = "#d67279";
+
+
+#NEWLAYER: brittle/gentlebreeze
+layerinfo type = "theme";
+layerinfo name = "Gentle Breeze";
+layerinfo redist_uniq = "brittle/gentlebreeze";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffd483";
+set color_page_link = "#4f967c";
+set color_page_link_hover = "#67aa93";
+set color_page_link_visited = "#808c3f";
+set color_page_text = "#191919";
+set color_footer_background = "#ffd997";
+set color_footer_link = "#4f967c";
+set color_footer_link_hover = "#67aa93";
+set color_footer_link_visited = "#808c3f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffdeab";
+set color_entry_link = "#4f967c";
+set color_entry_link_hover = "#67aa93";
+set color_entry_link_visited = "#808c3f";
+set color_entry_text = "#191919";
+set color_entry_title = "#191919";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#ffd997";
+set color_navigation_module_link = "#4f967c";
+set color_navigation_module_link_hover = "#67aa93";
+set color_navigation_module_link_visited = "#808c3f";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
+#NEWLAYER: brittle/hesperidesdark
+layerinfo type = "theme";
+layerinfo name = "Hesperides Dark";
+layerinfo redist_uniq = "brittle/hesperidesdark";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#6f483f";
+set color_page_link = "#edc890";
+set color_page_link_hover = "#f44b34";
+set color_page_link_visited = "#e3b458";
+set color_page_text = "#f1f3e1";
+set color_footer_background = "#65433a";
+set color_footer_link = "#edc890";
+set color_footer_link_hover = "#f44b34";
+set color_footer_link_visited = "#e3b458";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#65433a";
+set color_entry_link = "#edc890";
+set color_entry_link_hover = "#f44b34";
+set color_entry_link_visited = "#e3b458";
+set color_entry_text = "#f1f3e1";
+set color_entry_title = "#eff3ce";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#65433a";
+set color_navigation_module_link = "#f44b34";
+set color_navigation_module_link_hover = "#e3b458";
+set color_navigation_module_link_visited = "#DE442F";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
+#NEWLAYER: brittle/icechic
+layerinfo type = "theme";
+layerinfo name = "Ice Chic";
+layerinfo redist_uniq = "brittle/icechic";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f3fae7";
+set color_page_link = "#48b170";
+set color_page_link_hover = "#dc5a04";
+set color_page_link_visited = "#3d7b55";
+set color_page_text = "#0b0b0b";
+set color_footer_background = "#e9f0de";
+set color_footer_link = "#48b170";
+set color_footer_link_hover = "#dc5a04";
+set color_footer_link_visited = "#3d7b55";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#eef5e2";
+set color_entry_link = "#48b170";
+set color_entry_link_hover = "#dc5a04";
+set color_entry_link_visited = "#3d7b55";
+set color_entry_text = "#0b0b0b";
+set color_entry_title = "#0b0b0b";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#e9f0de";
+set color_navigation_module_link = "#dc5a04";
+set color_navigation_module_link_hover = "#48b170";
+set color_navigation_module_link_visited = "#b44503";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
 
 
 #NEWLAYER: brittle/iceprincess
@@ -1306,6 +2076,120 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: brittle/prized
+layerinfo type = "theme";
+layerinfo name = "Prized";
+layerinfo redist_uniq = "brittle/prized";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#919191";
+set color_page_link = "#ed0b00";
+set color_page_link_hover = "#a60000";
+set color_page_link_visited = "#481463";
+set color_page_text = "#0a0a0a";
+set color_footer_background = "#d9d9d9";
+set color_footer_link = "#ed0b00";
+set color_footer_link_hover = "#a60000";
+set color_footer_link_visited = "#481463";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_link = "#ed0b00";
+set color_entry_link_hover = "#a60000";
+set color_entry_link_visited = "#481463";
+set color_entry_text = "#0a0a0a";
+set color_entry_title = "#0a0a0a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#b4b4b4";
+set color_navigation_module_link = "#ed0b00";
+set color_navigation_module_link_hover = "#a60000";
+set color_navigation_module_link_visited = "#481463";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
 #NEWLAYER: brittle/rust
 layerinfo type = "theme";
 layerinfo name = "Rust";
@@ -1435,6 +2319,117 @@ set color_navigation_module_link_hover = "#84825b";
 set color_navigation_module_link_visited = "#98dfd2";
 
 
+#NEWLAYER: brittle/simpleterminal
+layerinfo type = "theme";
+layerinfo name = "Simple Terminal";
+layerinfo redist_uniq = "brittle/simpleterminal";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#1a1a1a";
+set color_page_link = "#09ff15";
+set color_page_link_visited = "#ffbf27";
+set color_page_text = "#efeeee";
+set color_footer_background = "#010101";
+set color_footer_link = "#09ff15";
+set color_footer_link_visited = "#ffbf27";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#010101";
+set color_entry_link = "#09ff15";
+set color_entry_link_visited = "#ffbf27";
+set color_entry_text = "#efeeee";
+set color_entry_title = "#efeeee";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#010101";
+set color_navigation_module_link = "#09ff15";
+set color_navigation_module_link_visited = "#ffbf27";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Courier New'";
+set font_fallback = "monospace";
+set font_date_time = "'Courier New'";
+set font_date_time_size = ".85";
+set font_date_time_units = "em";
+set font_entry_text = "'Courier New'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'Courier New'";
+set font_entry_title_size = ".85";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'Courier New'";
+set font_navigation_module_text_size = ".85";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'Courier New'";
+set font_other_module_text = "'Courier New'";
+set font_other_module_text_size = ".85";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .85em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
 #NEWLAYER: brittle/softblue
 layerinfo type = "theme";
 layerinfo name = "Soft Blue";
@@ -1519,6 +2514,49 @@ set color_navigation_module_background = "#557254";
 set color_navigation_module_link = "#B0C9AF";
 set color_navigation_module_link_hover = "#83AA81";
 set color_navigation_module_link_visited = "#B0C9AF";
+
+
+#NEWLAYER: brittle/straightontilmorning
+layerinfo type = "theme";
+layerinfo name = "Straight On 'Til Morning";
+layerinfo redist_uniq = "brittle/straightontilmorning";
+layerinfo author_name = "anthologia";
+
+set theme_authors = [ { "name" => "anthologia", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#26466d";
+set color_page_link = "#f0f8ff";
+set color_page_link_hover = "#f0f8ff";
+set color_page_link_visited = "#f0f8ff";
+set color_page_text = "#f0f8ff";
+set color_footer_background = "#f0f8ff";
+set color_footer_link = "#35586c";
+set color_footer_link_hover = "003F87";
+set color_footer_link_visited = "#00688b";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f0f8ff";
+set color_entry_link = "#35586c";
+set color_entry_link_hover = "#003F87";
+set color_entry_link_visited = "#00688b";
+set color_entry_text = "#2f4f4f";
+set color_entry_title = "#26466d";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#f0f8ff";
+set color_navigation_module_link = "#35586c";
+set color_navigation_module_link_hover = "#003F87";
+set color_navigation_module_link_visited = "#00688b";
 
 
 #NEWLAYER: brittle/sundaydrive
@@ -1779,3 +2817,117 @@ set color_navigation_module_background = "#b0bcbf";
 set color_navigation_module_link = "#0e0e2f";
 set color_navigation_module_link_hover = "#fff";
 set color_navigation_module_link_visited = "#15304F";
+
+
+#NEWLAYER: brittle/wonderland
+layerinfo type = "theme";
+layerinfo name = "Wonderland";
+layerinfo redist_uniq = "brittle/wonderland";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#C3D6DE";
+set color_page_link = "#8095ab";
+set color_page_link_hover = "#4678ab";
+set color_page_link_visited = "#5b4e69";
+set color_page_text = "#333";
+set color_footer_background = "#ffe6b3";
+set color_footer_link = "#8095ab";
+set color_footer_link_hover = "#4678ab";
+set color_footer_link_visited = "#5b4e69";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#f5f2ed";
+set color_entry_link = "#8095ab";
+set color_entry_link_hover = "#4678ab";
+set color_entry_link_visited = "#5b4e69";
+set color_entry_text = "#333";
+set color_entry_title = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#ffe6b3";
+set color_navigation_module_link = "#8095ab";
+set color_navigation_module_link_hover = "#4678ab";
+set color_navigation_module_link_visited = "#5b4e69";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'News Gothic MT'";
+set font_date_time = "'News Gothic MT'";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "'News Gothic MT'";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "'News Gothic MT'";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "'News Gothic MT'";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "'News Gothic MT'";
+set font_other_module_text = "'News Gothic MT'";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
