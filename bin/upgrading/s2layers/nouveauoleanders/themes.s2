@@ -160,6 +160,62 @@ set color_module_title = "#fff";
 set color_module_title_background = "#282421";
 
 
+#NEWLAYER: nouveauoleanders/eyeshadowandlipstick
+layerinfo type = "theme";
+layerinfo name = "Eyeshadow & Lipstick";
+layerinfo redist_uniq = "nouveauoleanders/eyeshadowandlipstick";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#8f7372";
+set color_page_link = "#96d9a3";
+set color_page_link_active = "#96d9a3";
+set color_page_link_hover = "#000";
+set color_page_link_visited = "#96d9a3";
+set color_page_text = "#fff";
+set color_page_title = "ffffff";
+set color_header_background = "#a62c5c";
+set color_footer_background = "#a62c5c";
+set color_footer_link = "#96d9a3";
+set color_footer_link_active = "#96d9a3";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#96d9a3";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#8f7372";
+set color_entry_interaction_links = "#96d9a3";
+set color_entry_link = "#96d9a3";
+set color_entry_link_active = "#96d9a3";
+set color_entry_link_hover = "#000";
+set color_entry_link_visited = "#96d9a3";
+set color_entry_text = "#fff";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#8f7372";
+set color_comment_title = "#fff";
+set color_comment_title_background = "#8f7372";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#44484a";
+set color_module_link = "#96d9a3";
+set color_module_link_active = "#96d9a3";
+set color_module_link_hover = "#fff";
+set color_module_link_visited = "#96d9a3";
+set color_module_text = "#fff";
+set color_module_title = "#fff";
+set color_module_title_background = "#658c71";
+
+
 #NEWLAYER: nouveauoleanders/fireelemental
 layerinfo type = "theme";
 layerinfo name = "Fire Elemental";
@@ -265,6 +321,62 @@ set color_module_link_active = "#b2cc64";
 set color_module_link_hover = "#b2cc64";
 set color_module_link_visited = "#fff";
 set color_module_title = "#fff";
+
+
+#NEWLAYER: nouveauoleanders/lichtsturm
+layerinfo type = "theme";
+layerinfo name = "Lichtsturm";
+layerinfo redist_uniq = "nouveauoleanders/lichtsturm";
+layerinfo author_name = "dancing_serpent";
+
+set theme_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#024b42";
+set color_page_link = "#e69a10";
+set color_page_link_active = "#e69a10";
+set color_page_link_hover = "#9fbd3b";
+set color_page_link_visited = "#d98900";
+set color_page_text = "#fdfc30";
+set color_page_title = "#fdfc30";
+set color_header_background = "#040605";
+set color_footer_background = "#040605";
+set color_footer_link = "#9fbd3b";
+set color_footer_link_active = "#9fbd3b";
+set color_footer_link_hover = "#d98900";
+set color_footer_link_visited = "#8a9f36";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#024b42";
+set color_entry_interaction_links = "#e69a10";
+set color_entry_link = "#e69a10";
+set color_entry_link_active = "#e69a10";
+set color_entry_link_hover = "#9fbd3b";
+set color_entry_link_visited = "#d98900";
+set color_entry_text = "#fdfc30";
+set color_entry_title = "#fdfc30";
+set color_entry_title_background = "#024b42";
+set color_comment_title = "#fdfc30";
+set color_comment_title_background = "#024b42";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#032526";
+set color_module_link = "#9fbd3b";
+set color_module_link_active = "#9fbd3b";
+set color_module_link_hover = "#d98900";
+set color_module_link_visited = "#8a9f36";
+set color_module_text = "#fdfc30";
+set color_module_title = "#fdfc30";
+set color_module_title_background = "#040605";
 
 
 #NEWLAYER: nouveauoleanders/memoryi
