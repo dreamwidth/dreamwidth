@@ -119,7 +119,9 @@ function IconsPage::print_body() {
         }
         """</p>""";
 
-        $.pages->print({ "anchor" => "", "all_url" => "$.journal.userpic_listing_url?view=all" });
+        if ( $.pages.total > 6 ) {
+            $.pages->print({ "anchor" => "", "all_url" => "$.journal.userpic_listing_url?view=all" });
+        }
 
         """<p>""";
         var int sort_ct = 0;
