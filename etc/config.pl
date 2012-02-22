@@ -810,9 +810,6 @@
     # turn on control/nav strip
     $USE_CONTROL_STRIP = 1;
 
-    # Pagination for allpics.bml page.  -1 means unlimited.
-    # $ALLPICS_PAGESIZE = 20;
-
     # initial settings for new users
     %USER_INIT = (
         opt_whocanreply => 'reg',
