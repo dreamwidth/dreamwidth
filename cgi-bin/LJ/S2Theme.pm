@@ -34,6 +34,7 @@ sub default_themes {
     my %default_themes;
 
     %default_themes = (
+        abstractia => 'abstractia/darkcarnival',
         bases => 'bases/tropical',
         basicboxes => 'basicboxes/green',
         blanket => 'blanket/peach',

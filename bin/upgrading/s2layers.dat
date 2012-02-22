@@ -10,6 +10,9 @@ siteviews/themes         theme+                      siteviews/layout
 sitefeeds/layout         layout(core2base/layout)    core2
 sitefeeds/themes         theme+                      sitefeeds/layout
 
+abstractia/layout        layout                      core2
+abstractia/themes        theme+                      abstractia/layout
+
 bases/layout             layout                      core2
 bases/themes             theme+                      bases/layout
 
