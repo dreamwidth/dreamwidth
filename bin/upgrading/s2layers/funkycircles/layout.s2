@@ -464,8 +464,7 @@ h2#pagetitle {
     padding: 0 .5em;
     }
 
-.header,
-.page-tags h2 {
+.header {
     $entry_title_colors
     }
 
@@ -480,10 +479,9 @@ h2#pagetitle {
 
     .entry-title,
     .comment-title,
-    .page-tags h2,
-    .page-archive h3,
-    .page-month dd h3,
-    .page-icons h2 {
+    .tags-container h2,
+    .month h3,
+    .icons-container h2 {
         text-transform: uppercase;
         }
 
@@ -492,9 +490,9 @@ h2#pagetitle {
         $entry_title_colors
         }
 
-    .page-tags h2,
-    .page-archive h3,
-    .page-icons h2 {
+    .tags-container h2,
+    .month h3,
+    .icons-container h2 {
         $entry_title_font
         }
 
@@ -512,9 +510,7 @@ h2#pagetitle {
 
 .contents,
 .comment-wrapper.partial,
-.page-month .month .inner,
-.tags-container ul,
-.tags-container .tags_cloud {
+.page-month .month .inner {
     $entry_colors
     border-width: 20px;
     border-left: none;
@@ -528,6 +524,7 @@ h2#pagetitle {
 .no-userpic .contents,
 .month .contents,
 .page-month .month .inner,
+.tags-container .contents,
 .icons-container .contents {
     padding: 2em;
     }
@@ -543,12 +540,11 @@ h2#pagetitle {
 
     .tags-container ul.ljtaglist {
         margin: 0;
-        padding: 2em 2em 2em 5em;
+        padding-left: 5em;
         }
 
     .tags-container .tags_cloud {
         margin: 0;
-        padding: 2em;
         }
 
     .tags-container .tags_multilevel li {
@@ -556,15 +552,9 @@ h2#pagetitle {
         }
 
         .tags-container .tags_multilevel ul {
-            background: none;
-            border: none;
             list-style: disc;
             margin: 1em 0;
             padding: 0 0 0 2em;
-            box-shadow: none;
-            -moz-box-shadow: none;
-            -webkit-box-shadow: none;
-            -khtml--box-shadow: none;
             }
 
             .tags-container .tags_multilevel ul li {
@@ -805,7 +795,6 @@ $userpic_css
     }
 
 .footer,
-.tags-container .manage-tags-link,
 .bottomcomment, .comments-message {
     $entry_footer_colors
     padding: 0 .5em;
@@ -822,19 +811,16 @@ $userpic_css
         }
 
     .footer a,
-    .tags-container .manage-tags-link a,
     .bottomcomment a {
         $entry_footer_link_colors
         }
 
     .footer a:visited,
-    .tags-container .manage-tags-link a:visited,
     .bottomcomment a:visited {
         $entry_footer_link_visited_colors
         }
 
     .footer a:hover,
-    .tags-container .manage-tags-link a:hover,
     .bottomcomment a:hover {
         $entry_footer_link_hover_colors
         background-color: transparent;

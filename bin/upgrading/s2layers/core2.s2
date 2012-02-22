@@ -6115,22 +6115,27 @@ function Icon::print {
 
 function TagsPage::print_body
 {
-    print safe "<div class='tags-container'><h2>$*text_tags_page_header</h2>";
+    """<div class='tags-container'>\n<div class="inner">\n""";
+    """<div class="header">\n<div class="inner">\n""";
+    print safe "<h2>$*text_tags_page_header</h2>";
+    "</div>\n</div>\n";
+    """<div class="contents">\n<div class="inner">\n""";
 
     if ($*tags_page_type == "multi") {
         print_multilevel_tags($.tags, { "list-class" => "ljtaglist tags_multilevel", "print_uses" => $*tags_page_count_type });
-        print_tag_manage_link();
     }
     elseif ($*tags_page_type == "cloud") {
         print_cloud_tags($.tags, { "list-class" => "ljtaglist tags_cloud", "print_uses" => $*tags_page_count_type });
-        print_tag_manage_link();
     }
     else {
         print_list_tags($.tags, { "list-class" => "ljtaglist tags_list", "print_uses" => $*tags_page_count_type });
-        print_tag_manage_link();
     }
 
-    print safe "</div>";
+    "</div>\n</div>\n";
+    """<div class="footer">\n<div class="inner">\n""";
+    print_tag_manage_link();
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
 }
 
 ### MessagePage functions

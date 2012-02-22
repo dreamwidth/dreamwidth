@@ -677,8 +677,7 @@ function Page::print_theme_stylesheet() {
     a:hover,
     .footer a:hover,
     .bottomcomment a:hover,
-    .partial .comment-title a:hover,
-    .tags-container .manage-tags-link a:hover {
+    .partial .comment-title a:hover {
         border-bottom: 3px dotted;
         text-decoration: none;
         }
@@ -729,9 +728,7 @@ function Page::print_theme_stylesheet() {
     .contents a:visited,
     .contents a:hover,
     .month dl a:visited,
-    .month dl a:hover,
-    .tags-container a:visited,
-    .tags-container a:hover {
+    .month dl a:hover {
         border-bottom: none;
         }
 
@@ -1043,8 +1040,7 @@ function Page::print_theme_stylesheet() {
     a:hover,
     .footer a:hover,
     .bottomcomment a:hover,
-    .partial .comment-title a:hover,
-    .tags-container .manage-tags-link a:hover {
+    .partial .comment-title a:hover {
         border-bottom-style: dotted;
         border-bottom-width: 2px;
         text-decoration: none;
@@ -1608,8 +1604,7 @@ function Page::print_theme_stylesheet() {
     a:hover,
     .footer a:hover,
     .bottomcomment a:hover,
-    .partial .comment-title a:hover,
-    .tags-container .manage-tags-link a:hover {
+    .partial .comment-title a:hover {
         border-bottom: 1px dotted;
         text-decoration: none;
         }
@@ -1767,8 +1762,7 @@ function Page::print_theme_stylesheet() {
     a:hover,
     .footer a:hover,
     .bottomcomment a:hover,
-    .partial .comment-title a:hover,
-    .tags-container .manage-tags-link a:hover {
+    .partial .comment-title a:hover {
         border-bottom: 1px dotted;
         text-decoration: none;
         }
@@ -2339,8 +2333,7 @@ function Page::print_theme_stylesheet() {
     a:hover,
     .footer a:hover,
     .bottomcomment a:hover,
-    .partial .comment-title a:hover,
-    .tags-container .manage-tags-link a:hover {
+    .partial .comment-title a:hover {
         border-bottom: 1px dotted;
         text-decoration: none;
         }
@@ -2488,7 +2481,6 @@ set image_module_list_hover = "funkycircles/propaganda-modulebullethover.png";
 function Page::print_theme_stylesheet() {
     """
     .footer,
-    .tags-container .manage-tags-link,
     .bottomcomment, .comments-message {
         box-shadow: .067em .067em .667em #433d46;
         -khtml-box-shadow: .067em .067em .667em #433d46;
@@ -2514,8 +2506,8 @@ function Page::print_theme_stylesheet() {
     .comment-content a:hover,
     .icon-links a,
     .partial a,
-    .month a,
-    .tags-container a:hover,
+    .month .contents a,
+    .tags-container .contents a:hover,
     .icons-container .contents a:hover {
         border-bottom: none;
         }
@@ -2526,12 +2518,6 @@ function Page::print_theme_stylesheet() {
     .bottomcomment label {
         border-top-style: double;
         border-top-width: 3px;
-        }
-
-    .tags-container .manage-tags-link a:hover {
-        border-bottom-style: double;
-        border-bottom-width: 3px;
-        text-decoration: none;
         }
 
     .footer a:hover,
@@ -2724,8 +2710,7 @@ function Page::print_theme_stylesheet() {
     a:hover,
     .footer a:hover,
     .bottomcomment a:hover,
-    .partial .comment-title a:hover,
-    .tags-container .manage-tags-link a:hover {
+    .partial .comment-title a:hover {
         border-bottom: 1px dotted;
         text-decoration: none;
         }

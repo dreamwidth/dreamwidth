@@ -1381,7 +1381,7 @@ q {
 * Tags Page *
 ************************************************/
 
-.page-tags #primary .inner {
+.page-tags #primary .tags-container {
     padding: .833em;
 }
 
@@ -1531,7 +1531,7 @@ q {
 }
 
 .entry, .comment, .page-reply #postform,
-.page-tags #primary .inner {
+.page-tags #primary .tags-container {
     $content_image
 }
 
@@ -1571,7 +1571,7 @@ input, textarea,
 .one-column #tertiary .module,
 .one-column #tertiary .module-header,
 .entry, .comment, .page-reply #postform,
-.page-tags #primary .inner,
+.page-tags #primary .tags-container,
 .entry .header, .comment .header,
 .has-userpic .userpic,
 .page-archive #primary table,
@@ -1595,7 +1595,7 @@ blockquote {
 #canvas input, #canvas textarea, #secondary .module, #secondary .module-header,
 .three-columns #tertiary .module, .three-columns #tertiary .module-header,
 .one-column #tertiary .module, .one-column #tertiary .module-header,
-.entry, .comment, .page-reply #postform, .page-tags #primary .inner,
+.entry, .comment, .page-reply #postform, .page-tags #primary .tags-container,
 .entry .header, .comment .header, .has-userpic .userpic,
 .page-archive #primary table, .page-month #primary .month,
 .page-tags #primary .inner .tags-container h2,
@@ -1609,7 +1609,7 @@ blockquote {
 #canvas input, #canvas textarea, #secondary .module, #secondary .module-header,
 .three-columns #tertiary .module, .three-columns #tertiary .module-header,
 .one-column #tertiary .module, .one-column #tertiary .module-header,
-.entry, .comment, .page-reply #postform, .page-tags #primary .inner {
+.entry, .comment, .page-reply #postform, .page-tags #primary .tags-container {
     border-color: rgba($border_r,$border_g,$border_b,.35);
 }
 
