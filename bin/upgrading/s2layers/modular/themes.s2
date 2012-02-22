@@ -1005,7 +1005,8 @@ function Page::print_theme_stylesheet() {
         border: none !important;
         }
 
-    .module-wrapper, #entries, #archive-year, #archive-month, #archive-day, .tags-container {
+    .module-wrapper, #entries, #archive-year, #archive-month, #archive-day,
+    .tags-container, .icons-container {
         background-color: $*color_entry_background;
         border-radius: .5em;
         }
