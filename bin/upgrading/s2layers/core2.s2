@@ -1311,7 +1311,7 @@ set time_ago_hours = "1 hour // # hours";
 set time_ago_days = "1 day // # days";
 
 property string reg_firstdayofweek {
-    des = "The day of the week the calendar weeks starts on.";
+    des = "Day the calendar week starts on";
     doc = "The day of the week the calendar weeks starts on.  Either 'sunday' or 'monday'. Not currently implemented";
     doc_flags = "[construct]";
     values = "sunday|Sunday|monday|Monday";
