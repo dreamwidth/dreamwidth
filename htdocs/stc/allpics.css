@@ -54,6 +54,6 @@
     margin: 0;
     }
 
-.icon-row {
+.icon-row, .action-box {
     clear:both;
     }
