@@ -1424,6 +1424,86 @@ set image_module_list_active = "funkycircles/industrial-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/industrial-modulebullethover.png";
 
 
+#NEWLAYER: funkycircles/killjoys
+layerinfo type = "theme";
+layerinfo name = "Killjoys";
+layerinfo redist_uniq = "funkycircles/killjoys";
+layerinfo author_name = "inoru_no_hoshi";
+
+set theme_authors = [ { "name" => "inoru_no_hoshi", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#252525";
+set color_page_border = "#fff";
+set color_page_link = "#bd0009";
+set color_page_link_active = "#bd0009";
+set color_page_link_hover = "#fff";
+set color_page_link_visited = "#40ff40";
+set color_page_subtitle = "#bd0009";
+set color_page_subtitle_background = "#000";
+set color_page_text = "#fff";
+set color_page_title = "#fff";
+set color_page_title_background = "#000";
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#0c5aa6";
+set color_footer_link_active = "#0c5aa6";
+set color_footer_link_hover = "#ff68a7";
+set color_footer_link_visited = "#40ff40";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d19c5a";
+set color_entry_border = "#000";
+set color_entry_footer_background = "#000";
+set color_entry_footer_border = "#000";
+set color_entry_footer_link = "#0c5aa6";
+set color_entry_footer_link_active = "#0c5aa6";
+set color_entry_footer_link_hover = "#ff68a7";
+set color_entry_footer_link_visited = "#40ff40";
+set color_entry_footer_text = "#fff";
+set color_entry_interaction_links = "#0c5aa6";
+set color_entry_link = "#fff";
+set color_entry_link_active = "#fff";
+set color_entry_link_hover = "#ff68a7";
+set color_entry_link_hover_background = "#000";
+set color_entry_link_visited = "#40ff40";
+set color_entry_poster_border = "#000";
+set color_entry_text = "#000";
+set color_entry_title = "#0c5aa6";
+set color_entry_title_background = "#000";
+set color_entry_userpic_border = "#000";
+set color_comment_title = "#0c5aa6";
+set color_comment_title_background = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#bd0009";
+set color_module_border = "#000";
+set color_module_link = "#ffc600";
+set color_module_link_active = "#ffc600";
+set color_module_link_hover = "#fbf5e2";
+set color_module_link_visited = "#000";
+set color_module_text = "#ffc600";
+set color_module_title = "#ffc600";
+set color_module_title_background = "#bd0009";
+set color_specificmodule_background = "#000";
+set color_specificmodule_background_alt = "#bd0009";
+set color_specificmodule_background_hover = "#bd0009";
+set color_specificmodule_background_visited = "#bd0009";
+set color_specificmodule_text = "#fff";
+set color_specificmodule_text_alt = "#ffc600";
+set color_specificmodule_text_hover = "#fbf5e2";
+set color_specificmodule_text_visited = "#000";
+
+
 #NEWLAYER: funkycircles/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light On Dark";
