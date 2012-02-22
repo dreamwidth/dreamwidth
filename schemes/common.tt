@@ -27,6 +27,16 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
+    [%- # block.need_res below includes files for the individual pages
+        # this need_res is for the sake of the login form on the theme
+        dw.need_res( "js/md5.js"
+                     "js/login.js"
+        );
+        dw.need_res( { group => 'jquery' }
+                    "js/md5.js"
+                    "js/login-jquery.js"
+        );
+    -%]
     [%- PROCESS block.need_res -%]
     [% dw_scheme.res_includes %]
     [% sections.head %]
@@ -93,7 +103,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- -%]</div>
 [%- ELSE -%]
     [%- chal = dw_scheme.challenge_generate(300) -%]
-    [%- -%]<form action='[% site.root %]/login?ret=1' method='post'>
+    [%- -%]<form action='[% site.root %]/login?ret=1' method='post' class='lj_login_form'>
     [%- -%]<input type="hidden" name="returnto" value="[% get.returnto | html %]" />
     [%- -%]<input type='hidden' name='chal' class='lj_login_chal' value='[% chal %]' />
     <input type='hidden' name='response' class='lj_login_response' value='' />
@@ -102,7 +112,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     [%- -%]<td class='input-cell' colspan='2'><input name="user" id="login_user" size="20" maxlength="27" tabindex="1" aria-required="true" />
     [%- %] <a href='[% site.root %]/openid/[% IF get.returnto %]?returnto=[% get.returnto | html %][% END %]' tabindex=5>[% 'sitescheme.accountlinks.login.openid' | ml %]</a></td></tr>
     [%- -%]<tr><td><label for='login_password'>[% 'sitescheme.accountlinks.login.password' | ml %]</label></td>
-    [%- -%]<td class='input-cell' colspan='2'><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true">
+    [%- -%]<td class='input-cell' colspan='2'><input type="password" name="password" id="login_password" size="20" tabindex="2" aria-required="true" class="lj_login_password">
     [%- %] <a href='[% site.root %]/lostinfo' tabindex=6>[% 'sitescheme.accountlinks.login.forgotpassword' | ml %]</a></td></tr>
     [%- -%]<tr><td>&nbsp;</td>
     [%- -%]<td class='remember-me-cell'>
