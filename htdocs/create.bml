@@ -37,7 +37,10 @@ body<=
     my %from_post;
     my $code_valid = $LJ::USE_ACCT_CODES ? 0 : 1;
     my $code;
-    my $rate_ok;
+
+    # start out saying we're okay; we'll modify this if we're actually checking codes later
+    my $rate_ok = 1;
+
     if ( LJ::did_post() ) {
         my $post_args = DW::Request->get->post_args;
         my $captcha = DW::Captcha->new( 'create' );
@@ -48,12 +51,13 @@ body<=
         # we always need the code, because it might contain paid time
         $code = LJ::trim( $GET{code} );
 
-        # but we don't always need to block the registration
+        # and we always do rate limiting if we have a code
+        $rate_ok = DW::InviteCodes->check_rate if $code;
+
+        # but we don't always need to block the registration on the validity of the code
+        # (if we have an invalid code, but we do don't require codes to open an account, just fail silently)
         $code_valid = DW::InviteCodes->check_code( code => $code )
             if $LJ::USE_ACCT_CODES;
-
-        # rate limiting
-        $rate_ok = DW::InviteCodes->check_rate;
     }
 
     my $ret;
