@@ -597,9 +597,11 @@ function Page::print_default_stylesheet() {
          }
 
      var string entry_poster_display_margin = "";
+     var string entry_poster_float = "";
          if ($*entry_poster_position == "header") {
              if ($*entry_poster_alignment == "right") {
                 $entry_poster_display_margin = """margin: 0;""";
+                $entry_poster_float = """float: right;""";
              } else {
                 $entry_poster_display_margin = """margin: 1em 0 0;""";
              }
@@ -683,6 +685,13 @@ ul ul {
 blockquote {
     margin: 1em 10%;
     padding: .833em;
+}
+
+blockquote ul, blockquote ol, blockquote dl,
+blockquote li, blockquote dt, blockquote dd {
+/* specifications to handle the way different browsers handle the margin/padding on lists */
+    margin-left: 0;
+    padding-left: 0;
 }
 
 #subjectIconList {
@@ -1102,6 +1111,7 @@ q {
 .entry .entry-poster,.comment .comment-poster {
     display: block;
     $entry_poster_display_margin
+    $entry_poster_float
     clear: both;
     $entry_poster_display
 }
