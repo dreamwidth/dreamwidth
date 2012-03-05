@@ -141,6 +141,7 @@ $.widget("dw.cuttag", {
             a.click(function(e) {
                 e.stopPropagation();
                 e.preventDefault();
+                $("html,body").animate({scrollTop: self.element.offset().top - 10});
                 self.toggle();
             });
 
