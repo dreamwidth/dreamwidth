@@ -32,7 +32,6 @@ sub args_list {
 
     my @notimplemented = (
         "Same-page comment tracking",
-        "Some features for the cut expand/collapse",
     );
 
     return (
