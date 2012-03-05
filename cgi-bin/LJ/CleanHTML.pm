@@ -223,7 +223,7 @@ sub clean
 
         if ( $cuturl ) {
             my $cutlink = LJ::ehtml( $cuturl );
-            $extra_text = "<strong>" . LJ::Lang::ml( 'cleanhtml.error.markup', { aopts => $cutlink } ) . "</strong>";
+            $extra_text = "<strong>" . LJ::Lang::ml( 'cleanhtml.error.markup', { aopts => "href='$cutlink'" } ) . "</strong>";
         }
         else {
             $extra_text = LJ::Lang::ml( 'cleanhtml.error.markup.extra', { aopts => $tag } ) . "<br /><br />" .
