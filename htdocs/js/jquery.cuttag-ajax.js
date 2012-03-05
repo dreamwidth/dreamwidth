@@ -66,7 +66,7 @@ $.widget("dw.cuttag", {
             this.open();
     },
     isOpen: function() {
-        return this.element.hasClass("cuttag-open") ? 1 : 0;
+        return this.tag.div.hasClass("cuttag-open") ? 1 : 0;
     },
     toggle: function() {
         if ( this.isOpen() )
@@ -95,7 +95,7 @@ $.widget("dw.cuttag", {
     close: function() {
         if ( ! this.isOpen() )
             return;
-        this.element.removeClass("cuttag-open");
+        this.tag.div.removeClass("cuttag-open");
         this._setArrow("/collapse.gif", this.config.text.expand);
 
         this.tag.div.empty();
@@ -119,8 +119,8 @@ $.widget("dw.cuttag", {
             self._setArrow("/collapse.gif", self.config.text.expand);
         } else {
             var replaceDiv = self.tag.div;
-            replaceDiv.html(resObj.text);
-            replaceDiv.css("display","block");
+            replaceDiv.html(resObj.text)
+                .css("display","block").addClass("cuttag-open");
 
             var closeEnd = $("<span>");
             var a = $("<a>",{
@@ -145,7 +145,6 @@ $.widget("dw.cuttag", {
                 self.toggle();
             });
 
-            self.element.addClass("cuttag-open");
             self._setArrow("/expand.gif", self.config.text.collapse);
 
             replaceDiv.trigger( "updatedcontent.entry" );
