@@ -78,7 +78,7 @@ _create: function() {
             return;
         }
 
-        trigger.ajaxtip({ namespace: "contextualpopup"})
+        trigger.ajaxtip({ namespace: "contextualpopup", persist: true })
             .ajaxtip( "load", {
                 endpoint: "ctxpopup",
                 formmethod: "GET",

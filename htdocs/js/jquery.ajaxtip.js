@@ -1,8 +1,10 @@
 (function($) {
 $.widget("dw.ajaxtip", {
     options: {
+        namespace: undefined,
         content: undefined,
-        tooltip: { dynamic: true }
+        tooltip: { dynamic: true },
+        persist: false
     },
     _namespace: function() {
         return this.options.namespace ? "."+this.options.namespace : "";
@@ -13,6 +15,10 @@ $.widget("dw.ajaxtip", {
 
         var tipcontainer = $("<div class='ajaxtooltip ajaxtip' style='display: none'></div>")
                         .click(function(e) {e.stopPropagation()})
+
+        if ( self.options.persist ) {
+            $(self.element).attr("type", "persistent")
+        }
 
         self.element
             .after(tipcontainer)
@@ -25,9 +31,12 @@ $.widget("dw.ajaxtip", {
                 predelay: 0,
                 delay: 1500,
                 events: {
-                    def: "ajaxstart"+ns+", tooltipout"+ns+" ajaxresult"+ns,
-                    widget: "ajaxstart"+ns+",ajaxresult"+ns,
-                    tooltip: "mouseover,mouseleave"
+                    // just fade away after a preset period
+                    def       : "ajaxstart"+ns+", tooltipout"+ns+" ajaxresult"+ns,
+                    // persist until the user takes some action (including moving the mouse away from trigger)
+                    persistent: "ajaxstart"+ns+", tooltipout"+ns+" mouseout"+ns,
+                    widget    : "ajaxstart"+ns+", ajaxresult"+ns,
+                    tooltip   : "mouseover,mouseleave"
                 },
                 relative: true,
                 effect: "fade",
