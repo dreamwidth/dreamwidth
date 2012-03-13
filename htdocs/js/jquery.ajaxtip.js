@@ -4,7 +4,8 @@ $.widget("dw.ajaxtip", {
         namespace: undefined,
         content: undefined,
         tooltip: { dynamic: true },
-        persist: false
+        persist: false,
+        multiple: false // allow multiple ajaxtip requests, even if we're not done processing the previous
     },
     _namespace: function() {
         return this.options.namespace ? "."+this.options.namespace : "";
@@ -103,7 +104,7 @@ $.widget("dw.ajaxtip", {
         var self = this;
 
         var tip = self.element.data("tooltip");
-        if( tip ) {
+        if( tip && ! opts.multiple ) {
             if( tip.inprogress ) return;
             if( tip.isShown() ) tip.hide();
             tip.inprogress = true;

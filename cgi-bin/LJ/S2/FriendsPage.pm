@@ -33,6 +33,8 @@ sub FriendsPage
     # Add a friends-specific XRDS reference
     $p->{'head_content'} .= qq{<meta http-equiv="X-XRDS-Location" content="}.LJ::ehtml($u->journal_base).qq{/data/yadis/friends" />\n};
 
+    LJ::need_res( LJ::S2::tracking_popup_js() );
+
     # load for ajax cuttag
     LJ::need_res( 'js/cuttag-ajax.js' );
     LJ::need_res( { group => "jquery" }, qw(

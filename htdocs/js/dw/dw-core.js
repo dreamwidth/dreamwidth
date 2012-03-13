@@ -81,4 +81,12 @@ $.fn.throbber = function(position, jqxhr) {
     return $this;
 };
 
+Unique = {
+    count: 0,
+
+    id: function() {
+        return ++this.count;
+    }
+}
+
 ;

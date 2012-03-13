@@ -268,23 +268,23 @@ span.Pages input {
 
 
 /**** ESN AJAX ****/
-.ippu .track_title {
+.trackdialog .track_title, .ippu .track_title {
     font-weight: bold;
     margin: 4px;
 }
 
-.ippu .track_btncontainer {
+.trackdialog .track_btncontainer, .ippu .track_btncontainer {
     margin-top: 5px;
     padding: 1px;
     width: 250px;
 }
 
-.ippu .track_moreopts {
+.trackdialog .track_moreopts, .ippu .track_moreopts {
     margin: auto auto auto 1em;
     width: 49%;
 }
 
-.ippu .track_savechanges {
+.trackdialog .track_savechanges, .ippu .track_savechanges {
     margin: auto auto auto auto;
     width: 49%;
 }

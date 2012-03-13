@@ -61,6 +61,7 @@ sub ReplyPage
     $p->{'head_content'} .= $LJ::COMMON_CODE{'chalresp_js'};
 
     LJ::need_res('stc/display_none.css');
+    LJ::need_res( LJ::S2::tracking_popup_js() );
     
     # libs for userpicselect
     my $beta = LJ::BetaFeatures->user_in_beta( $remote => "journaljquery" );

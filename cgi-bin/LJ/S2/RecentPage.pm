@@ -88,6 +88,8 @@ sub RecentPage
         $p->{'head_content'} .= qq{<meta name="ICBM" content="$icbm" />\n};
     }
 
+    LJ::need_res( LJ::S2::tracking_popup_js() );
+
     # load for ajax cuttag
     LJ::need_res( 'js/cuttag-ajax.js' );
     LJ::need_res( { group => "jquery" }, qw(

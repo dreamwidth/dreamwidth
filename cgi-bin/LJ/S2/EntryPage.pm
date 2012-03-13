@@ -407,6 +407,7 @@ sub EntryPage
             stc/ajaxtip.css
             stc/popup-form.css
         ) );
+    LJ::need_res( LJ::S2::tracking_popup_js() );
 
     $p->{'_picture_keyword'} = $get->{'prop_picture_keyword'};
 

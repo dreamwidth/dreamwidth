@@ -1789,6 +1789,22 @@ sub use_journalstyle_entry_page {
     return $reparse_userprop->();
 }
 
+sub tracking_popup_js {
+    return LJ::is_enabled( 'esn_ajax' ) ? (
+        { group => 'jquery' }, qw(
+        js/jquery/jquery.ui.widget.js
+
+        js/jquery.ajaxtip.js
+        js/tooltip.js
+        js/jquery/jquery.ui.position.js
+        stc/ajaxtip.css
+
+        js/jquery.esn.js
+        stc/esn.css
+    ) ): ();
+}
+
+
 ## S2 object constructors
 
 sub CommentInfo
