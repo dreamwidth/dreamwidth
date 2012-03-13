@@ -296,7 +296,7 @@ Remaps lj user tags to point to the remote site.
 
 sub remap_lj_user {
     my ( $class, $data, $event ) = @_;
-    $event =~ s/(<lj[^>]+?(user|comm|syn)=["']?(.+?)["' ]?>)/<lj site="$data->{hostname}" $2="$3">/gi;
+    $event =~ s/(<lj[^>]+?(user|comm|syn)=["']?(.+?)["' ]?(?:\s*\/\s*)?>)/<user site="$data->{hostname}" $2="$3">/gi;
     return $event;
 }
 
