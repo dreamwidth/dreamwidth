@@ -25,7 +25,6 @@ DW::Worker::ContentImporter - Generic helper functions for Content Importers
 use strict;
 use Time::HiRes qw/ sleep time /;
 use Carp qw/ croak confess /;
-use Encode qw/ encode_utf8 /;
 use Storable;
 use LWP::UserAgent;
 use XMLRPC::Lite;

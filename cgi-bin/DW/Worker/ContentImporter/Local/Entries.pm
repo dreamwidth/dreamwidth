@@ -19,6 +19,7 @@ package DW::Worker::ContentImporter::Local::Entries;
 use strict;
 
 use Carp qw/ croak /;
+use Encode qw/ encode_utf8 /;
 
 =head1 NAME
 
@@ -96,8 +97,8 @@ sub post_event {
 
     my %proto = (
         lineendings => 'unix',
-        subject => $evt->{subject},
-        event => $evt->{event},
+        subject => encode_utf8( $evt->{subject} ),
+        event => encode_utf8( $evt->{event} ),
         security => $evt->{security},
         allowmask => $evt->{allowmask},
 
@@ -118,6 +119,7 @@ sub post_event {
         personifi_lang => 1,
         personifi_tags => 1,
         give_features => 1,
+        spam_counter => 1,
     );
     foreach my $prop ( keys %$props ) {
         next if $bad_props{$prop};
@@ -126,7 +128,7 @@ sub post_event {
             or next;
         next if $p->{ownership} eq 'system';
 
-        $proto{"prop_$prop"} = $props->{$prop};
+        $proto{"prop_$prop"} = encode_utf8( $props->{$prop} );
     };
 
     # Overwrite these here in case we're importing from an imported journal (hey, it could happen)
@@ -156,7 +158,7 @@ sub post_event {
 
     } else {
         $u->do( "UPDATE log2 SET logtime = ? where journalid = ? and jitemid = ?",
-                undef, $evt->{realtime}, $u->userid, $res{itemid} );
+                undef, $evt->{logtime}, $u->userid, $res{itemid} );
         $map->{$evt->{key}} = $res{itemid};
         return ( 1, \%res );
 
