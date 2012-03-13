@@ -41,7 +41,19 @@ sub render_body {
         foreach my $importid ( sort { $b <=> $a } keys %$items ) {
             my $import_item = $items->{$importid};
 
-            $ret .= "<tr><td colspan='4' class='table-header'>" . $class->ml( 'widget.importstatus.whichaccount', { user => $import_item->{user}, host => $import_item->{host} } ) . " | ";
+            $ret .= "<tr><td colspan='4' class='table-header'>";
+            if ( $import_item->{usejournal} ) {
+                $ret .= $class->ml( 'widget.importstatus.whichaccount.comm', {
+                    user => $import_item->{user},
+                    comm => $import_item->{usejournal},
+                    host => $import_item->{host}
+                } ) . " | ";
+            } else {
+                $ret .= $class->ml( 'widget.importstatus.whichaccount', {
+                    user => $import_item->{user},
+                    host => $import_item->{host}
+                } ) . " | ";
+            }
             $ret .= "<a href='$LJ::SITEROOT/tools/importer?authas=" . $u->user . "'>" . $class->ml( 'widget.importstatus.refresh' ) . "</a></td></tr>";
             foreach my $item ( sort keys %{$import_item->{items}} ) {
                 my $i = $import_item->{items}->{$item};

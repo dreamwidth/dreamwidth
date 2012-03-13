@@ -4769,6 +4769,8 @@ widget.importstatus.statusasof=[[status]] as of [[timeago]]
 
 widget.importstatus.whichaccount=Import from [[user]] at [[host]]
 
+widget.importstatus.whichaccount.comm=Import from [[comm]] (via [[user]]) at [[host]]
+
 widget.inbox.menu.delete.btn=Delete Selected
 
 widget.inbox.menu.delete_all.btn=Delete All
