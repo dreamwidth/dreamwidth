@@ -132,8 +132,12 @@ sub post_event {
     };
 
     # Overwrite these here in case we're importing from an imported journal (hey, it could happen)
-    $proto{prop_opt_backdated} = '1';
     $proto{prop_import_source} = $evt->{key};
+    if ( defined $posteru ) {
+        delete $proto{prop_opt_backdated};
+    } else {
+        $proto{prop_opt_backdated} = 1;
+    }
 
     my %res;
     LJ::do_request(
