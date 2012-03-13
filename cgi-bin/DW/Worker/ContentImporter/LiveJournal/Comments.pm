@@ -70,6 +70,9 @@ sub work {
 
         return $class->temp_fail( $data, 'lj_comments', $job, 'Failure running job: %s', $msg );
     }
+
+    # FIXME: We leak memory, so exit to reclaim it. Hack.
+    exit 0;
 }
 
 sub new_comment {
