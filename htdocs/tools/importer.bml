@@ -63,14 +63,14 @@ body<=
 
     # user switcher
     my $ret = '';
+    $ret .= "<p class='intro'>" . BML::ml( '.intro', { sitename => $LJ::SITENAMESHORT, user => $remote->ljuser_display } ) . "</p>";
+    $ret .= LJ::Widget::ImportQueueStatus->render;
+
     if ( $LJ::ALLOW_COMM_IMPORTS ) {
         $ret .= "<form method='get'>\n";
         $ret .= LJ::make_authas_select($u, { authas => $GET{authas}, showall => 0 });
         $ret .= "</form>\n\n";
     }
-
-    $ret .= "<p class='intro'>" . BML::ml( '.intro', { sitename => $LJ::SITENAMESHORT, user => $remote->ljuser_display } ) . "</p>";
-    $ret .= LJ::Widget::ImportQueueStatus->render;
 
     if ( LJ::Widget::ImportStatus->should_render ) {
         $ret .= LJ::Widget::ImportStatus->render;
