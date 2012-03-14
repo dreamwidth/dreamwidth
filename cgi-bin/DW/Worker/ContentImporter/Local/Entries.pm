@@ -95,10 +95,21 @@ sub post_event {
     ( $yr, $month, $day, $hr, $min, $sec ) = ( $1, $2, $3, $4, $5, $6 )
         if $evt->{eventtime} =~ m/(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/;
 
+    # Rarely, we will get text that isn't valid UTF-8. If that's the case, shove it through the
+    # encoder and hope for the best. Don't double-encode if it's already valid, though.
+    foreach my $key ( qw/ subject event / ) {
+        $evt->{$key} = encode_utf8( $evt->{$key} )
+            unless LJ::text_in( $evt->{$key} );
+    }
+    foreach my $prop ( keys %{$evt->{props}} ) {
+        $evt->{props}->{$prop} = encode_utf8( $evt->{props}->{$prop} )
+            unless LJ::text_in( $evt->{props}->{$prop} );
+    }
+
     my %proto = (
         lineendings => 'unix',
-        subject => encode_utf8( $evt->{subject} ),
-        event => encode_utf8( $evt->{event} ),
+        subject => $evt->{subject},
+        event => $evt->{event},
         security => $evt->{security},
         allowmask => $evt->{allowmask},
 
@@ -128,7 +139,7 @@ sub post_event {
             or next;
         next if $p->{ownership} eq 'system';
 
-        $proto{"prop_$prop"} = encode_utf8( $props->{$prop} );
+        $proto{"prop_$prop"} = $props->{$prop};
     };
 
     # Overwrite these here in case we're importing from an imported journal (hey, it could happen)
