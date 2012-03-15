@@ -112,7 +112,7 @@ $.widget("dw.dynamicpoll", {
                 }
                 });
 
-        }).end()
+        }).end().end()
         .filter("a.LJ_PollChangeLink").click(function(e){
             e.stopPropagation();
             e.preventDefault();
