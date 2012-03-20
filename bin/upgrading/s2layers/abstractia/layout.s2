@@ -1074,7 +1074,7 @@ q {
     $entry_title_font
 }
 
-.comment_title {
+.comment-title {
     $comment_title_font
 }
 
@@ -1108,7 +1108,7 @@ q {
     clear: both;
 }
 
-.entry .entry-poster,.comment .comment-poster {
+.header .poster {
     display: block;
     $entry_poster_display_margin
     $entry_poster_float
@@ -1130,16 +1130,17 @@ q {
     font-weight: bold;
 }
 
+.bottom-metadata {
+    clear: both;
+}
+
 .entry .contents,.comment .contents {
+    min-height: 120px;
     margin: .833em auto;
 }
 
 .entry .contents a,.comment .contents a {
     text-decoration: underline;
-}
-
-.entry-content,.comment-content {
-    min-height: 120px;
 }
 
 .entry-content ul:first-child li, .entry-content ol:first-child li {
@@ -1391,7 +1392,7 @@ q {
 * Tags Page *
 ************************************************/
 
-.page-tags #primary .tags-container {
+.page-tags .tags-container {
     padding: .833em;
 }
 
@@ -1435,15 +1436,23 @@ q {
 ************************************************/
 
 .page-icons .icons-container {
-    text-align: center;
-    margin-bottom: 1.667em;
+    padding: .833em;
 }
 
-.page-icons h2 {
+.page-icons .icons-container h2 {
+    $entry_title_font
+    $entry_title_colors
+    line-height: 100%;
+    margin: 0;
+    padding: .8333em;
+}
+
+.page-icons .icons-container h2 {
     text-align: left;
 }
 
 .page-icons .sorting-options ul {
+    text-align: center;
     margin-left: 0;
     padding-left: 0;
 }
@@ -1496,6 +1505,15 @@ q {
     border-style: none;
 }
 
+.page-icons .icons-container .manage-icons-link {
+    margin: 1em 0;
+    text-align: right;
+}
+.page-icons .icons-container .manage-icons-link a {
+    padding: .833em;
+}
+
+
 /************************************************
 * Miscellaneous *
 ************************************************/
@@ -1536,16 +1554,18 @@ q {
 ***************************************************************************/
 
 .entry .header,.comment .header,.bottomcomment,
-.page-tags #primary .tags-container h2 {
+.page-tags .tags-container h2,
+.page-icons .icons-container h2 {
     $content_header_image
 }
 
 .entry, .comment, .page-reply #postform,
-.page-tags #primary .tags-container {
+.page-tags .tags-container,
+.page-icons .icons-container {
     $content_image
 }
 
-.entry .footer, .comment .footer, .page-tags #primary .tags-container .manage-tags-link a, blockquote, .module-navlinks .current {
+.entry .footer, .comment .footer, .page-tags .tags-container .manage-tags-link a, blockquote, .module-navlinks .current, .page-icons .icons-container .manage-icons-link a, {
     $content_footer_image
 }
 
@@ -1581,18 +1601,21 @@ input, textarea,
 .one-column #tertiary .module,
 .one-column #tertiary .module-header,
 .entry, .comment, .page-reply #postform,
-.page-tags #primary .tags-container,
+.page-tags .tags-container,
+.page-icons .icons-container,
 .entry .header, .comment .header,
 .has-userpic .userpic,
 .page-archive #primary table,
 .page-month #primary .month,
-.page-tags #primary .inner .tags-container h2,
+.page-tags .tags-container h2,
+.page-icons .icons-container h2,
 .module-calendar table, .module-calendar table th,
 .entry .footer, .comment .footer, .bottomcomment,
 .topnav li, .bottomnav li,
 .page-archive #primary table th, .page-archive #primary table td,
 .page-month #primary dl dt a,
-.page-tags #primary .inner .tags-container .manage-tags-link a,
+.page-tags .tags-container .manage-tags-link a,
+.page-icons .icons-container .manage-icons-link a,
 blockquote {
     border: 1px solid;
 }
@@ -1605,27 +1628,30 @@ blockquote {
 #canvas input, #canvas textarea, #secondary .module, #secondary .module-header,
 .three-columns #tertiary .module, .three-columns #tertiary .module-header,
 .one-column #tertiary .module, .one-column #tertiary .module-header,
-.entry, .comment, .page-reply #postform, .page-tags #primary .tags-container,
-.entry .header, .comment .header, .has-userpic .userpic,
+.entry, .comment, .page-reply #postform, .page-tags .tags-container,
+.page-icons .icons-container, .entry .header, .comment .header, .has-userpic .userpic,
 .page-archive #primary table, .page-month #primary .month,
-.page-tags #primary .inner .tags-container h2,
+.page-tags .tags-container h2, .page-icons .icons-container h2,
 .module-calendar table, .module-calendar table th,
 .entry .footer, .comment .footer, .bottomcomment,
 .topnav li, .bottomnav li, .page-archive #primary table th, .page-archive #primary table td,
-.page-month #primary dl dt a, .page-tags #primary .manage-tags-link a, blockquote {
+.page-month #primary dl dt a, .page-tags .tags-container .manage-tags-link a,
+.page-icons .icons-container .manage-icons link a, blockquote {
     border-color: $border_color;
 }
 
 #canvas input, #canvas textarea, #secondary .module, #secondary .module-header,
 .three-columns #tertiary .module, .three-columns #tertiary .module-header,
 .one-column #tertiary .module, .one-column #tertiary .module-header,
-.entry, .comment, .page-reply #postform, .page-tags #primary .tags-container {
+.entry, .comment, .page-reply #postform, .page-tags .tags-container,
+.page-icons .icons-container {
     border-color: rgba($border_r,$border_g,$border_b,.35);
 }
 
 .entry .header, .comment .header, .has-userpic .userpic,
 .page-archive #primary table, .page-month #primary .month,
-.page-tags #primary .tags-container h2 {
+.page-tags .tags-container h2,
+.page-icons .icons-container h2 {
     border-color: rgba($border_r,$border_g,$border_b,.25);
 }
 
@@ -1635,7 +1661,8 @@ blockquote {
 .topnav li, .bottomnav li,
 .page-archive #primary table th, .page-archive #primary table td,
 .page-month #primary dl dt a,
-.page-tags #primary .manage-tags-link a, blockquote {
+.page-tags .tags-container .manage-tags-link a, 
+.page-icons .icons-container .manage-icons-link a, blockquote {
     border-color: rgba($border_r,$border_g,$border_b,.15);
 }
      """;
