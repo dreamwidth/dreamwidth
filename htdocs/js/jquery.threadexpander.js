@@ -45,8 +45,8 @@
   }
 
   // shows an error.  just uses alert() for now.
-  function showExpanderError(error) {
-    alert(error);
+  function showExpanderError(element,error) {
+    $(element).ajaxtip({namespace:"threadexpander", content: " ", persist: true }).ajaxtip("error", error);
   }
 
   // ajax expands the comments for the given talkid
@@ -73,7 +73,9 @@
             var updateCount = element.doJqExpand(LJ, data, talkid, isS1, unhide);
             // if we didn't update any comments, something must have gone wrong
             if (updateCount == 0) {
-              showExpanderError($.threadexpander.config.text.error_nomatches);
+              showExpanderError(element,$.threadexpander.config.text.error_nomatches);
+              img.remove();
+              element.removeClass("disabled").fadeTo("fast", 1.0);
             } else if (unhide) {
               element.unhideComments(LJ, talkid, isS1);
             }
@@ -93,7 +95,7 @@
             img.remove();
             element.removeClass("disabled");
             element.fadeTo("fast", 1.0);
-            showExpanderError($.threadexpander.config.text.error);
+            showExpanderError(element,$.threadexpander.config.text.error);
           }
       } );
   };
