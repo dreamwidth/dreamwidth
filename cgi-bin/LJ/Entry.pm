@@ -889,8 +889,7 @@ sub userpic {
 
 Returns the keyword to use for the entry.
 
-If a keyword is specified, it uses that, otherwise
-it tries the custom mood text, followed by the standard mood.
+If a keyword is specified, it uses that.
 
 =cut
 sub userpic_kw {

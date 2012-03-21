@@ -366,11 +366,9 @@ sub alttext {
     my ( $self, $kw ) = @_;
 
     # load the alttext.  
-    # "username: description (keyword), comment"
+    # "username: description (keyword)"
     # If any of those are not present leave them (and their
     # affiliated punctuation) out. 
-    # Minimum will be "username: (default system keyword)" if user
-    # hasn't set anything manually.
 
     # always  include the username
     my $u = $self->owner;
@@ -380,16 +378,12 @@ sub alttext {
         $alt .= " " . $self->description;
     }
 
-    # If we don't have the particular keyword, load all of the
-    # keywords for this userpic
+    # 1. If there is a keyword associated with the icon, use it.
+    # 2. If it was chosen via the default icon, show "(Default)".
     if ($kw) {
         $alt .= " (" . $kw . ")";
     } else {
-        $alt .= " (" . $self->keywords . ")";
-    }
-
-    if ($self->comment) {
-        $alt .= ", " .$self->comment;
+        $alt .= " (Default)";
     }
 
     return LJ::ehtml( $alt );
@@ -401,7 +395,7 @@ sub titletext {
     my ( $self, $kw ) = @_;
 
     # load the titletext.  
-    # "username: keyword, comment (description)"
+    # "username: keyword (description)"
     # If any of those are not present leave them (and their
     # affiliated punctuation) out. 
 
@@ -409,16 +403,12 @@ sub titletext {
     my $u = $self->owner;
     my $title = $u->username . ":";
 
-    # If we don't have the particular keyword, load all of the
-    # keywords for this userpic
+    # 1. If there is a keyword associated with the icon, use it.
+    # 2. If it was chosen via the default icon, show "(Default)".
     if ($kw) {
         $title .= " " . $kw;
     } else {
-        $title .= " " . $self->keywords;
-    }
-
-    if ($self->comment) {
-        $title .= ", " .$self->comment;
+        $title .= " (Default)";
     }
 
     if ($self->description) {
