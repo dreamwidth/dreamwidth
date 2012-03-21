@@ -2423,6 +2423,7 @@ sub ItemRange_fromopts
     $ir->{'num_subitems_displayed'} = @$items;
     $ir->{'to_subitem'} = $ir->{'from_subitem'} + $ir->{'num_subitems_displayed'} - 1;
     $ir->{'all_subitems_displayed'} = ($pages == 1);
+    $ir->{'url_all'} = $opts->{'url_all'} unless $ir->{'all_subitems_displayed'};
     $ir->{'_url_of'} = $opts->{'url_of'};
     return ItemRange($ir);
 }

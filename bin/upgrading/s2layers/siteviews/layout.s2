@@ -50,7 +50,6 @@ function ItemRange::print(string{} opts) {
 
     var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
     var string class = $opts{"class"} ? $opts{"class"} : "action-box";
-    var string all_url = $opts{"all_url"} ? $opts{"all_url"} : "";
 
     """<div class="$class">""";
     print """<p style="font-weight: bolder; margin: 0 0 .5em 0;">""" + lang_page_of_pages($.current, $.total) + "</p>";
@@ -76,8 +75,8 @@ function ItemRange::print(string{} opts) {
          print " <b>$*comment_page_next</b> ";
     }
 
-    if ( $all_url != "" ) {
-        """<p><a href="$all_url">View All</a></p>""";
+    if ( $.url_all != "" ) {
+        """<p><a href="$.url_all">View All</a></p>""";
     }
 
     "</div>";
@@ -119,8 +118,8 @@ function IconsPage::print_body() {
         }
         """</p>""";
 
-        if ( $.pages.total > 6 ) {
-            $.pages->print({ "anchor" => "", "all_url" => "$.journal.userpic_listing_url?view=all" });
+        if ( $.pages.num_subitems_displayed > 6 ) {
+            $.pages->print({ "anchor" => "" });
         }
 
         """<p>""";
@@ -160,7 +159,7 @@ function IconsPage::print_body() {
         }
         """</div>""";
 
-        $.pages->print({ "anchor" => "", "all_url" => "$.journal.userpic_listing_url?view=all" });
+        $.pages->print({ "anchor" => "" });
         """<div class="clear-floats"></div>""";
     }
 }

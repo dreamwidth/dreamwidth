@@ -226,6 +226,7 @@ class ItemRange
   var int from_subitem "The index of the first subitem in this range.";
   var int to_subitem "The index of the last subitem in this range.";
   var int total_subitems "The number of subitems.";
+  var readonly string url_all "URL to view all items. Blank if we don't support viewing all items for this.";
   var readonly string url_next "URL for the 'next' link.  Blank if there isn't a next URL.";
   var readonly string url_prev "URL for the 'previous' link.  Blank if there isn't a previous URL.";
   var readonly string url_first "URL for the 'first' link.  Blank if already on the first page.";
@@ -5959,7 +5960,6 @@ function ItemRange::print(string{} opts) {
 
     var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
     var string class = $opts{"class"} ? $opts{"class"} : "pages";
-    var string all_url = $opts{"all_url"} ? $opts{"all_url"} : "";
 
     """<div class="$class">""";
     print "<b>" + lang_page_of_pages($.current, $.total) + "</b>";
@@ -5983,8 +5983,8 @@ function ItemRange::print(string{} opts) {
          print " $*comment_page_next ";
     }
 
-    if ( $all_url != "" ) {
-        """<p><a href="$all_url">View All</a></p>""";
+    if ( $.url_all != "" ) {
+        """<p><a href="$.url_all">View All</a></p>""";
     }
 
     "</div>";
@@ -6069,11 +6069,11 @@ function IconsPage::print_body {
         "</li>\n";
     }
     "</ul>\n</div>\n";
-    $.pages->print({ "class" => "icon-pages toppages", "all_url" => "$.journal.userpic_listing_url?view=all" });
+    $.pages->print({ "class" => "icon-pages toppages" });
     foreach var Icon i ($.icons) {
         $i->print();
     }
-    $.pages->print({ "class" => "icon-pages bottompages", "all_url" => "$.journal.userpic_listing_url?view=all" });
+    $.pages->print({ "class" => "icon-pages bottompages" });
     "</div>\n</div>\n";
     """<div class="footer">\n<div class="inner">\n""";
     $this->print_icon_manage_link();

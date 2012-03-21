@@ -57,6 +57,7 @@ sub IconsPage {
                 },
                 viewing_style => 1,
                 cur_args => $get,
+                keep_args => [ 'sortorder', 'view', 'inactive' ],
             ) } @sort_methods
     };
 
@@ -80,7 +81,13 @@ sub IconsPage {
                 viewing_style => 1,
                 cur_args => $get,
             );
-        }
+        },
+        url_all => LJ::create_url( undef,
+            args => { view => "all" },
+            keep_args => [ "sortorder", "inactive" ],
+            viewing_style => 1,
+            cur_args => $get,
+        ),
     });
 
     my @pics_out;
