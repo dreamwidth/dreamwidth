@@ -1,0 +1,46 @@
+[%# admin/rename.tt
+
+Admin page for capability class management
+
+Authors:
+    foxfirefey <foxfirefey@gmail.com>
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = '.title' | ml -%]
+
+[% IF error_list %]
+<div class='error-box message-box'>
+<div class='title'>[% 'error' | ml %]</div>
+<ul class='error-list'>
+    [% FOREACH error = error_list %]
+        <li>[% error %] </li>
+    [% END %]
+</ul>
+</div>
+[% END %]
+
+<form method="get">
+<p>Modify capabilities for user: <input name='user' maxlength='25' size='25'> <input type='submit' value="Load"></p>
+</form>
+
+[% IF u %]
+<h2><a href="capedit">&lt;&lt;</a> editing user [% u.ljuser_display %]</h2>
+
+[% IF save %]<h4>Changes to [% u.display_name %] have been saved!</h4>[% END %]
+
+<form method="post">
+[% dw.form_auth %]
+<input type="hidden" name="mode" value="save">
+<input type="hidden" name="user" value="[% u.display_name %]">
+[% FOREACH cap IN caps %]
+<p><input type="checkbox" name="class_[% cap.n %]" value="1" id="class_[% cap.n %]"[% IF cap.on %] checked="1"[% END %]>
+[% IF cap.on %]<strong>[% END %]
+<label for="class_[% cap.n %]">[% cap.name %]</label>
+[% IF cap.on %]</strong>[% END %]
+[% END %]
+<p><input type="submit" value="Save"></p>
+</form>
+[% END %]

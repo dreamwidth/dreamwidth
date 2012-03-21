@@ -42,9 +42,6 @@ DW::Controller::Admin->register_admin_scope( '/', title_ml => '.admin.title' );
 
 # DO NOT add anything to here
 DW::Controller::Admin->_register_admin_pages_legacy( '/', 
-    [ 'capedit', '.admin.capability.link', '.admin.capability.text', [ 'admin:*', sub {
-        return ( $LJ::IS_DEV_SERVER, LJ::Lang::ml( "/admin/index.tt.devserver" ) );
-    } ] ],
     [ 'clusterstatus',
         '.admin.cluster.link', '.admin.cluster.text', [ 'supporthelp' ] ],
     [ 'console/',

@@ -1,0 +1,6 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Capability Edit
+
+.admin.text=For editing user capabilities.
+
+.title=Capability Class Management

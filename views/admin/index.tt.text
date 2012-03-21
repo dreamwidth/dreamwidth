@@ -1,8 +1,4 @@
 ;; -*- coding: utf-8 -*-
-.admin.capability.link=Capability Edit
-
-.admin.capability.text=For editing user capabilities.
-
 .admin.cluster.link=Cluster Status
 
 .admin.cluster.text=Get information on cluster availability.
