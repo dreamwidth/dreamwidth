@@ -5485,7 +5485,7 @@ function YearPage::print_month(YearMonth m) {
             <div class="inner">
                 <div class="header">
                     <div class="inner">
-                        <h3><span>$month_label</span></h3>
+                        <h3>$month_label</h3>
                     </div><!-- header>inner -->
                 </div><!-- header -->
                 <div class="contents">
