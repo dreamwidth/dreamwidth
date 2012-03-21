@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Controller::Admin::StyleMetadata;
+package DW::Controller::Admin::ThemeMetadata;
 
 use strict;
 use warnings;
