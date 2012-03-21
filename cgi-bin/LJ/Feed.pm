@@ -309,11 +309,12 @@ sub _add_feed_namespace {
 sub _init_talkview {
     my ( $journalinfo, $u, $opts, $talkview ) = @_;
     my $hubbub = $talkview eq 'rss' && LJ::is_enabled( 'hubbub' );
+    my $bot_director = LJ::Hooks::run_hook( "bot_director", "<!-- ", " -->" ) || '';
     my $ret;
 
     # header
     $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
-    $ret .= LJ::Hooks::run_hook("bot_director", "<!-- ", " -->") . "\n";
+    $ret .= "$bot_director\n";
     $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/' " .
             "xmlns:atom10='http://www.w3.org/2005/Atom'>\n";
 
@@ -444,13 +445,14 @@ sub create_view_atom
     unless ($opts->{'single_entry'}) {
         $feed = XML::Atom::Feed->new( Version => 1 );
         $xml  = $feed->elem->ownerDocument;
+        my $bot_director = LJ::Hooks::run_hook("bot_director") || '';
 
         if ($u->should_block_robots) {
             _add_feed_namespace( $feed, "idx", "urn:atom-extension:indexing" );
             $xml->getDocumentElement->setAttribute( "idx:index", "no" );
         }
 
-        $xml->insertBefore( $xml->createComment( LJ::Hooks::run_hook("bot_director") ), $xml->documentElement());
+        $xml->insertBefore( $xml->createComment( $bot_director ), $xml->documentElement() );
 
         # attributes
         $feed->id( $u->atomid );

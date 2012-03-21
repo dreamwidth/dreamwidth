@@ -126,13 +126,14 @@ sub userpic {
     my $userpic_obj = LJ::Userpic->get( $u, $u->{defaultpicid} );
     my $imgtag_conditional;
     if ( $userpic_obj ) {
-      $imgtag_conditional = $userpic_obj->imgtag;
+        $imgtag_conditional = $userpic_obj->imgtag;
     } else {
-      $imgtag_conditional = '<img src="' . $ret->{userpic} .
-                            '" height=' . $ret->{height} .
-                            ' width=' . $ret->{width} .
-                            ' alt="' . $ret->{alt_text} .
-                            '" />';
+        my $ret_userpic  = $ret->{userpic}  || '';
+        my $ret_height   = $ret->{height}   || '';
+        my $ret_width    = $ret->{width}    || '';
+        my $ret_alt_text = $ret->{alt_text} || '';
+
+        $imgtag_conditional = qq{<img src="$ret_userpic" height=$ret_height width=$ret_width alt="$ret_alt_text" />};
     }
 
 
@@ -520,9 +521,9 @@ sub _basic_info_comm_membership {
     my ( $membership, $postlevel ) = $u->get_comm_settings;
 
     my $membership_string = LJ::Lang::ml( '.commsettings.membership.open' );
-    if ( $membership eq "moderated" ) {
+    if ( $membership && $membership eq "moderated" ) {
         $membership_string = LJ::Lang::ml( '.commsettings.membership.moderated' );
-    } elsif ( $membership eq "closed" ) {
+    } elsif ( $membership && $membership eq "closed" ) {
         $membership_string = LJ::Lang::ml( '.commsettings.membership.closed' );
     }
 
@@ -546,7 +547,7 @@ sub _basic_info_comm_postlevel {
     my ( $membership, $postlevel ) = $u->get_comm_settings;
 
     my $postlevel_string = LJ::Lang::ml( '.commsettings.postlevel.members' );
-    if ( $postlevel eq "select" ) {
+    if ( $postlevel && $postlevel eq "select" ) {
         $postlevel_string = LJ::Lang::ml( '.commsettings.postlevel.select' );
     } elsif ( $u->prop( 'nonmember_posting' ) ) {
         $postlevel_string = LJ::Lang::ml( '.commsettings.postlevel.anybody' );
