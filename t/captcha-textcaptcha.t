@@ -7,6 +7,7 @@ require 'ljlib.pl';
 
 use DW::Captcha;
 use XML::Simple;
+use LJ::Test;
 
 my $fakeanswers_single = {
     question => 'The white bank is what colour?',
@@ -123,7 +124,10 @@ note( "tried to reuse captcha + form_auth" );
     # now validate user response
     ok( DW::Captcha::textCAPTCHA::Logic::check_answer( $captcha->{answers}, "white", $auth, $captcha_auth ), "correct" );
 
-    # whoo captcha succeded! let's try to reuse it
-    LJ::start_request();
-    ok( ! DW::Captcha::textCAPTCHA::Logic::check_answer( $captcha->{answers}, "white", $auth, $captcha_auth ), "tried to reuse captcha results" );
+    # whoo captcha succeeded! let's try to reuse it
+    SKIP: {
+        skip "Memcache configured but not active.", 1 unless LJ::Test::check_memcache;
+        LJ::start_request();
+        ok( ! DW::Captcha::textCAPTCHA::Logic::check_answer( $captcha->{answers}, "white", $auth, $captcha_auth ), "tried to reuse captcha results" );
+    }
 };

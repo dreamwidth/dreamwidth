@@ -25,7 +25,10 @@ DW::Captcha::textCAPTCHA - This module handles integration with the textCAPTCHA 
 use strict;
 
 package DW::Captcha::textCAPTCHA;
-use base 'DW::Captcha';
+
+# avoid base pragma - causes circular requirements
+require DW::Captcha;
+our @ISA = qw( DW::Captcha );
 
 use XML::Simple;
 use Digest::MD5 ();

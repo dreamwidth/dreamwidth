@@ -25,7 +25,10 @@ DW::Captcha::reCAPTCHA - This module handles integration with the reCAPTCHA serv
 use strict;
 
 package DW::Captcha::reCAPTCHA;
-use base 'DW::Captcha';
+
+# avoid base pragma - causes circular requirements
+require DW::Captcha;
+our @ISA = qw( DW::Captcha );
 
 BEGIN {
     my $rv = eval <<USE;
