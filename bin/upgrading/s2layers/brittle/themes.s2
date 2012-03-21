@@ -1126,6 +1126,120 @@ function Page::print_theme_stylesheet() {
 }
 
 
+#NEWLAYER: brittle/elmar
+layerinfo type = "theme";
+layerinfo name = "El mar";
+layerinfo redist_uniq = "brittle/elmar";
+layerinfo author_name = "rising";
+
+set theme_authors = [ { "name" => "rising", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b9dbb9";
+set color_page_link = "#0f6491";
+set color_page_link_hover = "#0b87c8";
+set color_page_link_visited = "#285b5a";
+set color_page_text = "#322b28";
+set color_footer_background = "#d3ebad";
+set color_footer_link = "#0f6491";
+set color_footer_link_hover = "#0b87c8";
+set color_footer_link_visited = "#285b5a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d3ebad";
+set color_entry_link = "#0f6491";
+set color_entry_link_hover = "#0b87c8";
+set color_entry_link_visited = "#285b5a";
+set color_entry_text = "#322b28";
+set color_entry_title = "#322b28";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#d3ebad";
+set color_navigation_module_link = "#0f6491";
+set color_navigation_module_link_hover = "#0b87c8";
+set color_navigation_module_link_visited = "#285b5a";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "News Gothic MT";
+set font_date_time = "News Gothic MT";
+set font_date_time_size = ".9";
+set font_date_time_units = "em";
+set font_entry_text = "News Gothic MT";
+set font_entry_text_size = "1";
+set font_entry_text_units = "em";
+set font_entry_title = "News Gothic MT";
+set font_entry_title_size = ".9";
+set font_entry_title_units = "em";
+set font_navigation_module_text = "News Gothic MT";
+set font_navigation_module_text_size = ".9";
+set font_navigation_module_text_units = "em";
+set font_module_heading = "News Gothic MT";
+set font_other_module_text = "News Gothic MT";
+set font_other_module_text_size = ".9";
+set font_other_module_text_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function Page::print_theme_stylesheet() {
+"""
+    a:hover {
+        text-decoration: underline;
+        }
+
+    blockquote {
+        background: $*color_page_background;
+        border: none;
+        color: $*color_page_text;
+        font-size: inherit;
+        font-style: normal;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        padding: .5em;
+        }
+
+    textarea, input, select {
+        background: $*color_page_background;
+        color: $*color_page_text;
+        }
+
+    #primary, #tertiary,
+    #comment, #footer {
+        width: 65%;
+        text-align: left;
+        }
+
+    .entry, .entry .inner,
+    .comment, .comment .inner {
+        line-height: 1.1em;
+        }
+
+    .metadata ul li,
+    .tag-text,
+    .tag ul li {
+        font-size: .9em;
+        }
+
+    .tag ul {
+        padding: 0;
+        }
+""";
+}
+
+
 #NEWLAYER: brittle/furcoat
 layerinfo type = "theme";
 layerinfo name = "Fur Coat";
