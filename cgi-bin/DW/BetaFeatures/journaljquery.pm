@@ -28,15 +28,11 @@ sub args_list {
         "Media embed placeholder expansion",
         "Contextual hover",
         "Icon browser",
-    );
-
-    my @notimplemented = (
         "Same-page comment tracking",
     );
 
     return (
         implemented => "<ul>" . join( "\n", map { "<li>$_</li>" } @implemented ) . "</ul>",
-        notimplemented => "<ul>" . join( "\n", map { "<li>$_</li>" } @notimplemented ) . "</ul>",
     );
 }
 
