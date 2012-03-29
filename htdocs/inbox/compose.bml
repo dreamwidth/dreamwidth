@@ -98,6 +98,9 @@ body<=
             push @to_list, $remote->username if $POST{'cc_msg'};
             my @msg_list;
 
+            # persist the default value of the cc_msg option
+            $remote->cc_msg( $POST{'cc_msg'} ? 1 : 0 );
+
             # must be at least one username
             push @errors, $ML{'.error.no.username'} unless ( scalar( @to_list ) > 0 );
 
@@ -271,11 +274,13 @@ body<=
     $body .= $picform;
 
     # Are we sending a copy of the message to the user?
+    my $cc_msg_option = $remote->cc_msg;
+
     $body .= LJ::html_check( {
         name     => 'cc_msg',
         id       => 'cc_msg',
         value    => 1,
-        selected => 0,
+        selected => $cc_msg_option,
     } );
     $body .= " <label for='cc_msg' style='font-weight: normal; font-size: smaller; font-style:italic;'>" . BML::ml( '.form.label.cc' ) . "</label></div>";
 

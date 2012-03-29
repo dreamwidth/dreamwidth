@@ -2197,6 +2197,16 @@ sub captcha_type {
     return $_[1] || $u->prop( 'captcha' ) || $LJ::DEFAULT_CAPTCHA_TYPE;
 }
 
+sub cc_msg {
+    my ( $u, $value ) = @_;
+    if ( defined $value && $value=~ /[01]/ ) {
+       $u->set_prop( cc_msg => $value );
+       return $value;
+    }
+
+    return $u->prop( 'cc_msg' ) ? 1 : 0;
+}
+
 sub clear_prop {
     my ($u, $prop) = @_;
     $u->set_prop($prop, undef);

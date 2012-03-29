@@ -62,6 +62,14 @@ userproplist.captcha:
   multihomed: 0
   prettyname: CAPTCHA type
 
+userproplist.cc_msg:
+  cldversion: 4
+  datatype: bool
+  des: options to CC pms to the user
+  indexed: 0
+  multihomed: 0
+  prettyname: CC pms to the user
+
 userproplist.city:
   cldversion: 4
   datatype: char
