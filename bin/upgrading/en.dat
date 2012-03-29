@@ -4739,6 +4739,8 @@ widget.importstatus.item.lj_userpics=Icons
 
 widget.importstatus.item.lj_verify=Verifying username/password
 
+widget.importstatus.processingprevious=- we're currently processing your previous import request
+
 widget.importstatus.refresh=Refresh
 
 widget.importstatus.status.aborted=Aborted

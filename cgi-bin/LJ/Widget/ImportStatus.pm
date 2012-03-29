@@ -38,6 +38,22 @@ sub render_body {
         $ret .= "<table summary='' width='100%' class='importer-status'>";
 
         my $import_in_progress = 0;
+
+        my $item_to_funcname = {
+            lj_bio => 'DW::Worker::ContentImporter::LiveJournal::Bio',
+            lj_tags => 'DW::Worker::ContentImporter::LiveJournal::Tags',
+            lj_entries => 'DW::Worker::ContentImporter::LiveJournal::Entries',
+            lj_comments => 'DW::Worker::ContentImporter::LiveJournal::Comments',
+            lj_userpics => 'DW::Worker::ContentImporter::LiveJournal::Userpics',
+            lj_friends => 'DW::Worker::ContentImporter::LiveJournal::Friends',
+            lj_friendgroups => 'DW::Worker::ContentImporter::LiveJournal::FriendGroups',
+            lj_verify => 'DW::Worker::ContentImporter::LiveJournal::Verify',
+        };
+
+
+        my $dbr;
+        my $funcmap;
+        my $dupect = 0;
         foreach my $importid ( sort { $b <=> $a } keys %$items ) {
             my $import_item = $items->{$importid};
 
@@ -64,7 +80,29 @@ sub render_body {
                     $status .= $class->ml( "widget.importstatus.status.$i->{status}.$item" );
                 } else {
                     $status .= $class->ml( "widget.importstatus.status.$i->{status}" );
+
+                    if ( $i->{status} eq "aborted" ) {
+                        unless ( $dbr ) {
+                            # do manual connection
+                            my $db = $LJ::THESCHWARTZ_DBS[0];
+                            $dbr = DBI->connect( $db->{dsn}, $db->{user}, $db->{pass} );
+                        }
+
+                        if ( $dbr ) {
+                            # get the ids for the function map
+                            $funcmap ||= $dbr->selectall_hashref( 'SELECT funcid, funcname FROM funcmap', 'funcname' );
+
+                            $dupect = $dbr->selectrow_array(
+                                q{SELECT COUNT(*) from job
+                                    WHERE funcid  = ?
+                                      AND uniqkey = ? },
+                                undef, $funcmap->{$item_to_funcname->{$item}}->{funcid}, join( "-", ( $item, $u->id ) )
+                            );
+                        }
+                    }
                 }
+
+                $status .= " " . $class->ml( "widget.importstatus.processingprevious" ) if $dupect;
                 $status .= "</span>";
 
                 $ret .= "<tr>";
