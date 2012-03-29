@@ -762,6 +762,7 @@ set image_background_calendar_and_form_url = "abstractia/calendar-and-form.png";
 # Dark on light themes
 #
 
+
 #NEWLAYER: abstractia/aulait
 layerinfo "type" = "theme";
 layerinfo "name" = "Au Lait";
@@ -974,6 +975,218 @@ var string calendar_and_form_image = generate_background_css ($*image_background
 }
 
 
+#NEWLAYER: abstractia/lucky
+layerinfo "type" = "theme";
+layerinfo "name" = "Lucky";
+layerinfo author_name = "chiming";
+layerinfo "redist_uniq" = "abstractia/lucky";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#a766ba";
+set color_page_link = "#570470";
+set color_page_link_active = "#3d034f";
+set color_page_link_hover = "#3d034f";
+set color_page_link_visited = "#570470";
+set color_page_text = "#2c0c36";
+set color_page_title = "#5d1d70";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#054aa2";
+set color_entry_link = "#570470";
+set color_entry_link_active = "#3d034f";
+set color_entry_link_hover = "#3d034f";
+set color_entry_link_visited = "#46005c";
+set color_entry_text = "#2c0c36";
+set color_entry_title = "#570470";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#570470";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#570470";
+set color_footer_link_active = "#3d034f";
+set color_footer_link_hover = "#3d034f";
+set color_footer_link_visited = "#570470";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#570470";
+set color_module_link_active = "#3d034f";
+set color_module_link_hover = "#3d034f";
+set color_module_link_visited = "#570470";
+set color_module_text = "#2c0c36";
+set color_module_title = "#2c0c36";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/lucky-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/lucky-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/lucky-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/lucky-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/lucky-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/lucky-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/lucky-calendar-and-form.png";
+
+##===============================
+## Edit for dark-on-light styles
+##===============================
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+#NEWLAYER: abstractia/makewaves
+layerinfo "type" = "theme";
+layerinfo "name" = "Make Waves";
+layerinfo author_name = "chiming";
+layerinfo "redist_uniq" = "abstractia/makewaves";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#66aeba";
+set color_page_link = "#046070";
+set color_page_link_active = "#03444f";
+set color_page_link_hover = "#03444f";
+set color_page_link_visited = "#046070";
+set color_page_text = "#0c2f36";
+set color_page_title = "#1d6470";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#046070";
+set color_entry_link = "#046070";
+set color_entry_link_active = "#03444f";
+set color_entry_link_hover = "#03444f";
+set color_entry_link_visited = "#1d6470";
+set color_entry_text = "#0c2f36";
+set color_entry_title = "#046070";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#046070";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#046070";
+set color_footer_link_active = "#03444f";
+set color_footer_link_hover = "#03444f";
+set color_footer_link_visited = "#046070";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#046070";
+set color_module_link_active = "#03444f";
+set color_module_link_hover = "#03444f";
+set color_module_link_visited = "#046070";
+set color_module_text = "#0c2f36";
+set color_module_title = "#0c2f36";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/makewaves-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/makewaves-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/makewaves-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/makewaves-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/makewaves-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/makewaves-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/makewaves-calendar-and-form.png";
+
+##===============================
+## Edit for dark-on-light styles
+##===============================
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
 #NEWLAYER: abstractia/sky
 layerinfo "type" = "theme";
 layerinfo "name" = "Sky";
@@ -992,8 +1205,8 @@ set color_page_background = "#fff";
 set color_page_border = "#728294";
 set color_page_link = "#054aa2";
 set color_page_link_active = "#021770";
-set color_page_link_visited = "#054aa2";
 set color_page_link_hover = "#021770";
+set color_page_link_visited = "#054aa2";
 set color_page_text = "#0c1d36";
 set color_page_title = "#1d4070";
 
@@ -1065,6 +1278,430 @@ set image_background_archive_calendar_url = "abstractia/sky-archive-calendar.png
 set image_background_calendar_and_form_position = "top left";
 set image_background_calendar_and_form_repeat = "repeat";
 set image_background_calendar_and_form_url = "abstractia/sky-calendar-and-form.png";
+
+##===============================
+## Edit for dark-on-light styles
+##===============================
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+#NEWLAYER: abstractia/smoke
+layerinfo "type" = "theme";
+layerinfo "name" = "Smoke";
+layerinfo author_name = "chiming";
+layerinfo "redist_uniq" = "abstractia/smoke";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#bababa";
+set color_page_link = "#fff";
+set color_page_link_active = "#ddd";
+set color_page_link_hover = "#ddd";
+set color_page_link_visited = "#fff";
+set color_page_text = "#363636";
+set color_page_title = "#707070";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#fff";
+set color_entry_link = "#fff";
+set color_entry_link_active = "#ddd";
+set color_entry_link_hover = "#ddd";
+set color_entry_link_visited = "#ccc";
+set color_entry_text = "#363636";
+set color_entry_title = "#fff";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#fff";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#fff";
+set color_footer_link_active = "#ddd";
+set color_footer_link_hover = "#ddd";
+set color_footer_link_visited = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#fff";
+set color_module_link_active = "#ddd";
+set color_module_link_hover = "#ddd";
+set color_module_link_visited = "#fff";
+set color_module_text = "#363636";
+set color_module_title = "#363636";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/smoke-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/smoke-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/smoke-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/smoke-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/smoke-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/smoke-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/smoke-calendar-and-form.png";
+
+##===============================
+## Edit for dark-on-light styles
+##===============================
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+#NEWLAYER: abstractia/tropicalsunset
+layerinfo "type" = "theme";
+layerinfo "name" = "Tropical Sunset";
+layerinfo author_name = "chiming";
+layerinfo "redist_uniq" = "abstractia/tropicalsunset";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#947972";
+set color_page_link = "#a32705";
+set color_page_link_active = "#701a02";
+set color_page_link_hover = "#701a02";
+set color_page_link_visited = "#a32705";
+set color_page_text = "#36150c";
+set color_page_title = "#702f1d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#a32705";
+set color_entry_link = "#a32705";
+set color_entry_link_active = "#701a02";
+set color_entry_link_hover = "#701a02";
+set color_entry_link_visited = "#801e03";
+set color_entry_text = "#36150c";
+set color_entry_title = "#a32705";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#a32705";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#a32705";
+set color_footer_link_active = "#701a02";
+set color_footer_link_hover = "#701a02";
+set color_footer_link_visited = "#a32705";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#a32705";
+set color_module_link_active = "#701a02";
+set color_module_link_hover = "#701a02";
+set color_module_link_visited = "#a32705";
+set color_module_text = "#36150c";
+set color_module_title = "#36150c";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/tropicalsunset-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/tropicalsunset-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/tropicalsunset-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/tropicalsunset-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/tropicalsunset-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/tropicalsunset-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/tropicalsunset-calendar-and-form.png";
+
+##===============================
+## Edit for dark-on-light styles
+##===============================
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+#NEWLAYER: abstractia/twinkle
+layerinfo "type" = "theme";
+layerinfo "name" = "Twinkle";
+layerinfo author_name = "chiming";
+layerinfo "redist_uniq" = "abstractia/twinkle";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#ba8066";
+set color_page_link = "#570470";
+set color_page_link_active = "#3d034f";
+set color_page_link_hover = "#3d034f";
+set color_page_link_visited = "#570470";
+set color_page_text = "#2c0c36";
+set color_page_title = "#5d1d70";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#054aa2";
+set color_entry_link = "#570470";
+set color_entry_link_active = "#3d034f";
+set color_entry_link_hover = "#3d034f";
+set color_entry_link_visited = "#46005c";
+set color_entry_text = "#2c0c36";
+set color_entry_title = "#570470";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#570470";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#570470";
+set color_footer_link_active = "#3d034f";
+set color_footer_link_hover = "#3d034f";
+set color_footer_link_visited = "#570470";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#570470";
+set color_module_link_active = "#3d034f";
+set color_module_link_hover = "#3d034f";
+set color_module_link_visited = "#570470";
+set color_module_text = "#2c0c36";
+set color_module_title = "#2c0c36";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/twinkle-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/twinkle-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/twinkle-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/twinkle-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/twinkle-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/twinkle-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/twinkle-calendar-and-form.png";
+
+##===============================
+## Edit for dark-on-light styles
+##===============================
+
+function Page::print_theme_stylesheet () {
+
+var string calendar_and_form_image = generate_background_css ($*image_background_calendar_and_form_url, $*image_background_calendar_and_form_repeat, $*image_background_calendar_and_form_position, $*color_calendar_and_form_background);
+
+    """
+    .module-navlinks .current { $calendar_and_form_image }
+    """;
+}
+
+
+#NEWLAYER: abstractia/valentine
+layerinfo "type" = "theme";
+layerinfo "name" = "Valentine";
+layerinfo author_name = "chiming";
+layerinfo "redist_uniq" = "abstractia/valentine";
+
+set theme_authors = [ { "name" => "chiming", "type" => "user" } ];
+
+#VARIABLES
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_border = "#ba6a66";
+set color_page_link = "#a30c05";
+set color_page_link_active = "#700702";
+set color_page_link_hover = "#700702";
+set color_page_link_visited = "#a30c05";
+set color_page_text = "#360e0c";
+set color_page_title = "#70211d";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_interaction_links = "#a30c05";
+set color_entry_link = "#a30c05";
+set color_entry_link_active = "#700702";
+set color_entry_link_hover = "#700702";
+set color_entry_link_visited = "#46005c";
+set color_entry_text = "#360e0c";
+set color_entry_title = "#a30c05";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#70211d";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#a30c05";
+set color_footer_link_active = "#700702";
+set color_footer_link_hover = "#700702";
+set color_footer_link_visited = "#a30c05";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_link = "#a30c05";
+set color_module_link_active = "#700702";
+set color_module_link_hover = "#700702";
+set color_module_link_visited = "#a30c05";
+set color_module_text = "#360e0c";
+set color_module_title = "#360e0c";
+
+##===============================
+## Images
+##===============================
+
+### For most themes, only change the background image
+
+set image_background_page_position = "top center";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_url = "abstractia/valentine-page.jpg";
+set image_background_content_header_position = "top left";
+set image_background_content_header_repeat = "repeat";
+set image_background_content_header_url = "abstractia/valentine-content-header.png";
+set image_background_content_position = "top left";
+set image_background_content_repeat = "repeat";
+set image_background_content_url = "abstractia/valentine-content.png";
+set image_background_content_footer_position = "top left";
+set image_background_content_footer_repeat = "repeat";
+set image_background_content_footer_url = "abstractia/content-footer.png";
+set image_background_userpic_position = "top left";
+set image_background_userpic_repeat = "repeat";
+set image_background_userpic_url = "abstractia/valentine-userpic.png";
+set image_background_sidebar_position = "top left";
+set image_background_sidebar_repeat = "repeat";
+set image_background_sidebar_url = "abstractia/valentine-sidebar.png";
+set image_background_archive_calendar_position = "top left";
+set image_background_archive_calendar_repeat = "repeat";
+set image_background_archive_calendar_url = "abstractia/valentine-archive-calendar.png";
+set image_background_calendar_and_form_position = "top left";
+set image_background_calendar_and_form_repeat = "repeat";
+set image_background_calendar_and_form_url = "abstractia/valentine-calendar-and-form.png";
 
 ##===============================
 ## Edit for dark-on-light styles
