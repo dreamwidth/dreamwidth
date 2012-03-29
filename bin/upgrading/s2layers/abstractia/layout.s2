@@ -1565,7 +1565,7 @@ q {
     $content_image
 }
 
-.entry .footer, .comment .footer, .page-tags .tags-container .manage-tags-link a, blockquote, .module-navlinks .current, .page-icons .icons-container .manage-icons-link a, {
+.entry .footer, .comment .footer, .page-tags .tags-container .manage-tags-link a, blockquote, .module-navlinks .current, .page-icons .icons-container .manage-icons-link a {
     $content_footer_image
 }
 
