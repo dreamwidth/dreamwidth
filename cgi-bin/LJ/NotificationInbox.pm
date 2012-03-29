@@ -177,6 +177,15 @@ sub communitymembership_items {
     return grep { $community_events{$_->event->class} } $self->items;
 }
 
+sub sitenotices_items {
+    my $self = shift;
+
+    my @site_events = sitenotices_event_list();
+
+    my %site_events = map { "LJ::Event::" . $_ => 1 } @site_events;
+    return grep { $site_events{$_->event->class} } $self->items;
+}
+
 # return a subset of notificationitems
 sub subset_items {
     my ($self, @subset) = @_;
@@ -596,6 +605,8 @@ sub delete_all {
         @items = $self->pollvote_items;
     } elsif ( $view eq 'communitymembership' ) {
         @items = $self->communitymembership_items;
+    } elsif ( $view eq 'sitenotices' ) {
+        @items = $self->sitenotices_items;
     } elsif ( $view eq 'unread' ) {
         @items = $self->unread_items;
     }
@@ -648,6 +659,8 @@ sub mark_all_read {
         @items = $self->pollvote_items;
     } elsif ( $view eq 'communitymembership' ) {
         @items = $self->communitymembership_items;
+    } elsif ( $view eq 'sitenotices' ) {
+        @items = $self->sitenotices_items;
     } elsif ( $view eq 'unread' ) {
         @items = $self->unread_items;
     }
@@ -747,6 +760,11 @@ sub communitymembership_event_count {
     return $self->subset_unread_count(communitymembership_event_list());
 }
 
+sub sitenotices_event_count {
+    my $self = shift;
+    return $self->subset_unread_count(sitenotices_event_list());
+}
+
 # Methods that return Arrays of Event categories
 sub friend_event_list {
     my @events = qw(
@@ -780,6 +798,19 @@ sub entrycomment_event_list {
 
 sub communitymembership_event_list {
     my @events = ( 'CommunityJoinApprove', 'CommunityJoinReject', 'CommunityJoinRequest' );
+    return @events;
+}
+
+sub sitenotices_event_list {
+    my @events = (
+        'ImportStatus',
+        'OfficialPost',
+        'SecurityAttributeChanged',
+        'UserExpunged',
+        'VgiftApproved',
+        'XPostFailure',
+        'XPostSuccess'
+    );
     return @events;
 }
 
