@@ -264,7 +264,8 @@ FORM
         return $err->("Requires post") unless LJ::did_post();
         return $err->("Invalid form") unless LJ::check_form_auth();
 
-        my $value   = $POST{value};
+        # trim whitespace from both ends of the input before storing it in $value
+        my $value   = LJ::trim( $POST{value} );
         my $bandays = $POST{bandays};
         my $note    = $POST{note};
 
