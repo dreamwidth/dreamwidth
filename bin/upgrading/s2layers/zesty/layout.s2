@@ -2234,7 +2234,7 @@ function EntryPage::lay_print_comment_links(Comment c) : void {
 
 function EntryPage::print_comment(Comment c) : void {
 
-    var string class = "comment " + alternate("odd", "even");
+    var string class = "comment dwexpcomment " + alternate("odd", "even");
     var string subject = ($c.subject == "") ? $*text_nosubject : $c.subject;
 
     var string state = "state";

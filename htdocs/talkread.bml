@@ -431,7 +431,7 @@ body<=
 
         my $hidestyle = $post->{'hidden_child'} ? " style=\"display: none;\"" : "";
         if ($post->{'state'} eq "D") {
-            $ret .= "<div class='comment' id='$htmlid'><p><a name='$htmlid'></a><table summary='' class='delcomment'$hidestyle><tr>";
+            $ret .= "<div class='comment dwexpcomment' id='$htmlid'><p><a name='$htmlid'></a><table summary='' class='delcomment'$hidestyle><tr>";
             $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             $ret .= "<td>$ML{'.deletedpost'}</td>";
             if ($post->{'hide_children'} && $post->{'children'} && @{$post->{'children'}}) {
@@ -515,7 +515,7 @@ body<=
                     $editreason = "($editreason)" if $editreason;
                 }
 
-                $ret .= "<div class='comment' id='$htmlid'><table summary='' width='100%' class='talk-comment'><tbody><tr>";
+                $ret .= "<div class='comment dwexpcomment' id='$htmlid'><table summary='' width='100%' class='talk-comment'><tbody><tr>";
                 $ret .= "<td rowspan='2' class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td id='cmtbar$dtid' class='cmtbar $level $additional_classes' width='100%'>";
 
@@ -706,7 +706,7 @@ body<=
                 # link to message
 
                 my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
-                $ret .= "<div class='comment' id='$htmlid'$hidestyle><table summary=''><tbody><tr>";
+                $ret .= "<div class='comment dwexpcomment' id='$htmlid'$hidestyle><table summary=''><tbody><tr>";
                 $ret .= "<td class='spacer'><img src='$LJ::IMGPREFIX/dot.gif' alt='' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td  class='cmtpartial'>";
                 if ($post->{'state'} eq 'F') {

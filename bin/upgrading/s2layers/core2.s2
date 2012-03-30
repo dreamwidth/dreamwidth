@@ -5824,7 +5824,7 @@ function EntryPage::print_comments (Comment[] cs) {
         var string parity = $c.depth % 2 ? "odd" : "even";
         var int indent = ($c.depth - 1) * 25;
         "<div class='comment-thread comment-depth-$parity comment-depth-$c.depth'>\n";
-        "<div id='$c.dom_id' style='margin-left: ${indent}px; margin-top: 5px;";
+        "<div id='$c.dom_id' class='dwexpcomment' style='margin-left: ${indent}px; margin-top: 5px;";
         if ($c.hidden_child) {
             " display: none;";
         }

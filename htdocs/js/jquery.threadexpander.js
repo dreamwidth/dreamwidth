@@ -112,6 +112,14 @@
     }
 
     if (replies.length > 0) {
+      // get all comments and map them by id.  this seems to be more efficient
+      // in jquery (at least for the results of an ajax request).
+      var newComments = $(".dwexpcomment", data);
+      var newCommentMap = {};
+      newComments.each(function() {
+          newCommentMap[$(this).attr("id")] = $(this);
+        });
+
       for (var cmtIdCnt = 0; cmtIdCnt < replies.length; cmtIdCnt++) {
         var cmtId = replies[cmtIdCnt];
         // if we're a valid comment, and either the comment is not expanded
@@ -119,7 +127,11 @@
         if (/^\d*$/.test(cmtId) && (talkid == cmtId || (! LJ[cmtId].full))) {
           var cmtElement = $('#cmt' + cmtId);
           if (cmtElement.length > 0) {
-            var newComment = $("#cmt" + cmtId, data);
+            var newComment = newCommentMap["cmt" + cmtId];
+            // if there's no match, check the (slower) way.
+            if (! newComment) {
+              newComment = $("#cmt" + cmtId, data);
+            }
             if (newComment) {
               if (isS1) {
                 var oldWidth = getS1SpacerObject(cmtElement).width();
