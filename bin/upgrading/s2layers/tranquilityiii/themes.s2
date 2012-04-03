@@ -72,6 +72,7 @@ set color_page_background = "#6D2F34";
 set color_page_link = "#6D2F34";
 set color_page_link_visited = "#aD6F74";
 set color_page_title = "#fff";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -380,6 +381,7 @@ set color_page_background = "#786079";
 set color_page_link = "#786079";
 set color_page_link_visited = "#b8a0b9";
 set color_page_title = "#fff";
+set color_footer_link = "#fff";
 
 ##===============================
 ## Entry Colors
@@ -530,6 +532,7 @@ set color_page_link_visited = "#79b";
 set color_page_title = "#eee";
 set color_header_background = "#456";
 set color_footer_background = "#456";
+set color_footer_link = "#eee";
 
 ##===============================
 ## Entry Colors
