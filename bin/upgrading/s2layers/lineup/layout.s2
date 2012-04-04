@@ -1,0 +1,947 @@
+layerinfo type = "layout";
+layerinfo name = "Line Up";
+layerinfo redist_uniq = "lineup/layout";
+layerinfo author_name = "timeasmymeasure";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "timeasmymeasure", "type" => "user" } ];
+
+##===============================
+## Presentation
+##===============================
+
+set layout_type = "two-columns-left";
+set sidebar_width = "19.5em";
+set sidebar_width_doubled = "39em";
+set userpics_position = "right";
+set custom_colors_template = "%%new%% .entry .userpic img { background-color: %%foreground%%; border: 5px solid %%background%% }";
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_header_border { des = "Page header border color"; }
+    property Color color_navigation_background { des = "Journal navigation background color"; }
+    property Color color_navigation_text { des = "Page navigation text color"; }
+    property Color color_navigation_link { des = "Page navigation link color"; }
+    property Color color_navigation_link_active { des = "Page navigation active link color"; }
+    property Color color_navigation_link_hover { des = "Page navigation hover link color"; }
+    property Color color_navigation_link_visited { des = "Page navigation visited link color"; }
+    property Color color_navigation_border { des = "Page navigation border color"; }
+    property Color color_entry_userpic_background { des = "Entry and comment userpic background color"; }
+    property Color color_entry_userpic_border { des = "Entry and comment userpic border color"; }
+    property Color color_calendar_border { des = "Archive calendar border color"; }
+    property Color color_calendar_header_background { des = "Archive calendar header background color"; }
+    property Color color_calendar_header_text { des = "Archive calendar header text color"; }
+}
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "'Franklin Gothic Book'";
+set font_fallback = "sans-serif";
+set font_journal_title_size = "1.3";
+set font_journal_title_units ="em";
+set font_journal_subtitle_size = "1.23";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.2";
+set font_entry_title_units = "em";
+set font_module_heading_size = "1.2";
+set font_module_heading_units = "em";
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+
+    var string entry_margin = "";
+    if ( $*entry_userpic_style == "" ) { $entry_margin = "140px"; }
+    elseif ( $*entry_userpic_style == "small" ) { $entry_margin = "115px"; }
+    elseif ( $*entry_userpic_style == "smaller" ) { $entry_margin = "90px"; }
+
+    var string comment_margin = "";
+    if ( $*comment_userpic_style == "" ) { $comment_margin = "140px"; }
+    elseif ( $*comment_userpic_style == "small" ) { $comment_margin = "115px"; }
+    elseif ( $*comment_userpic_style == "smaller" ) { $comment_margin = "90px"; }
+
+    var string userpic_css = "";
+
+    if($*userpics_position == "left") {
+        $userpic_css = """
+
+        .entry .header,
+        .entry-poster,
+        .entry-content,
+        .entry .metadata,
+        .entry .footer {
+            margin-left: $entry_margin;
+            }
+
+        .comment .header,
+        .full .comment-poster,
+        .comment .poster-ip,
+        .comment-content,
+        .comment .footer {
+            margin-left: $comment_margin;
+            }
+
+        .has-userpic .entry .userpic {
+            float: left;
+            }
+
+        .has-userpic .comment .userpic {
+            display: block;
+            float: left;
+            }
+
+        """;
+    }
+    elseif($*userpics_position == "right") {
+        $userpic_css = """
+
+        .entry .header,
+        .entry-poster,
+        .entry-content,
+        .entry .metadata,
+        .entry .footer {
+            margin-right: $entry_margin;
+            }
+
+        .comment .header,
+        .full .comment-poster,
+        .comment .poster-ip,
+        .comment-content,
+        .comment .footer {
+            margin-right: $comment_margin;
+            }
+
+        .has-userpic .entry .userpic {
+            float: right;
+            }
+
+        .has-userpic .comment .userpic {
+            display: block;
+            float: right;
+            }
+
+        """;
+    }
+
+"""
+
+/* Line Up */
+/* by timeasmymeasure */
+
+/* Main
+***************************************************************************/
+
+body {
+    margin: 30px 0 0;
+    }
+
+a, a:visited {
+    text-decoration: none;
+    }
+
+hr.above-entry-interaction-links,
+hr.below-reply-container {
+    display: none;
+    }
+
+code, kbd, pre, tt, textarea {
+    font-family: monospace;
+    }
+
+input, textarea {
+    background-color: $*color_entry_background;
+    border: 1px solid $*color_entry_border;
+    color: $*color_entry_text;
+    }
+
+::-moz-selection {
+    background-color: #ededed;
+    color: #2d2d2d;
+    }
+
+blockquote {
+    border-bottom: 5px solid $*color_entry_border;
+    border-top: 5px solid $*color_entry_userpic_background;
+    margin: 10px 10px 10px 50px;
+    padding: 5px;
+    width: 88%;
+    }
+
+ul {
+    list-style-position: inside;
+    list-style-type: square;
+    margin: 5px 0 5px 15px;
+    }
+
+ol {
+    list-style-position: inside;
+    list-style-type: decimal;
+    margin: 5px 0 5px 15px;
+    }
+
+/* Page Containers
+***************************************************************************/
+
+#canvas {
+    margin: 0 auto;
+    width: 90%;
+    }
+
+#primary > .inner:first-child {
+    padding: 0;
+    }
+
+.column-left #primary > .inner:first-child {
+    padding-left: 1em;
+    }
+
+.column-right #primary > .inner:first-child {
+    padding-right: 1em;
+    }
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+    padding: 0;
+    }
+
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child {
+    margin-right: .5em;
+    }
+
+.three-columns-left #tertiary > .inner:first-child,
+.three-columns-right #tertiary > .inner:first-child {
+    margin-left: .5em;
+    }
+
+/* Header
+***************************************************************************/
+
+#header {
+    border-top: 10px solid $*color_header_border;
+    margin: 0 0 15px 0;
+    padding: 10px;
+    }
+
+h1#title {
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    }
+
+h2#subtitle,
+h2#pagetitle {
+    color: $*color_page_title;
+    font-weight: lighter;
+    margin: 0;
+    padding: 0;
+    text-transform: lowercase;
+    }
+
+/* Navigation
+***************************************************************************/
+
+.navigation {
+    background-color: $*color_navigation_background;
+    border-top: 10px solid $*color_navigation_border;
+    color: $*color_navigation_text;
+    margin: 0 0 15px 0;
+    padding: 5px;
+    font-size: 1.2em;
+    text-align: center;
+    text-transform: uppercase;
+    }
+
+.navigation a {
+    color: $*color_navigation_link;
+    }
+
+.navigation a:visited {
+    color: $*color_navigation_link_visited;
+    }
+
+.navigation a:hover {
+    color: $*color_navigation_link_hover;
+    }
+
+.navigation a:active {
+    color: $*color_navigation_link_active;
+    }
+
+.navigation ul {
+    margin: 0;
+    padding: 0;
+    }
+
+.navigation .page-separator {
+    padding: 10px;
+    }
+
+/* Entries
+***************************************************************************/
+
+.entry {
+    background-color: $*color_entry_userpic_background;
+    border: none;
+    border-top: 10px solid $*color_entry_border;
+    margin: 0 0 15px 0;
+    }
+
+.entry .header {
+    background-color: $*color_entry_background;
+    margin: 0;
+    padding: 5px 10px;
+    }
+
+h3.entry-title {
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    }
+
+.entry .entry-title a {
+    color: $*color_entry_title;
+    }
+
+.datetime {
+    color: $*color_entry_link;
+    font-size: .75em;
+    text-transform: uppercase;
+    }
+
+.has-userpic .entry .userpic {
+    margin: 0 10px 20px;
+    }
+
+.entry .userpic img {
+    background-color: $*color_entry_background;
+    border: 5px solid $*color_entry_border;
+    padding: 5px;
+    }
+
+.entry-poster {
+    background-color: $*color_entry_background;
+    display: block;
+    padding: 0 10px 5px 0;
+    text-align: right;
+    }
+
+.entry-content {
+    background-color: $*color_entry_background;
+    margin: 0;
+    min-height: 100px;
+    padding: 15px;
+    }
+
+.metadata {
+    background-color: $*color_entry_background;
+    font-size: .85em;
+    margin: 0;
+    padding: 10px 15px 5px;
+    text-transform: uppercase;
+    }
+
+.metadata ul {
+    margin: 0;
+    padding: 0;
+    }
+
+.metadata ul li {
+    margin: 0;
+    padding: 0;
+    }
+
+.metadata-item {
+    color: $*color_entry_link;
+    }
+
+.entry .footer {
+    background-color: $*color_entry_background;
+    padding: 0 10px;
+    text-transform: uppercase;
+    }
+
+.tag {
+    font-size: .85em;
+    padding: 15px 5px;
+    text-transform: uppercase;
+    }
+
+.tag ul li {
+    font-weight: normal;
+    margin: 5px 5px 0 0;
+    padding: 0;
+    }
+
+ul.entry-management-links,
+ul.entry-interaction-links {
+    margin: 0;
+    padding: 2px;
+    text-align: center;
+    clear: both;
+    }
+
+ul.entry-management-links li {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+ul.entry-interaction-links li {
+    font-size: 1.152em;
+    margin: 0 5px 0 0;
+    padding: 0;
+    }
+
+ul.entry-interaction-links a {
+    color: $*color_entry_interaction_links;
+    }
+
+/* Comments & Reply Forms
+***************************************************************************/
+
+.comment-pages {
+    margin: 15px 0;
+    }
+
+.comment-pages.toppages {
+    margin-bottom: 0;
+    }
+
+.comment {
+    background-color: $*color_entry_userpic_background;
+    border: none;
+    border-top: 10px solid $*color_entry_border;
+    color: $*color_entry_text;
+    margin: 0 0 15px 0;
+    }
+
+.comment a { color: $*color_entry_link; }
+.comment a:visited { color: $*color_entry_link_visited; }
+.comment a:hover { color: $*color_entry_link_hover; }
+.comment a:active { color: $*color_entry_link_active; }
+
+
+.partial .comment .inner {
+    background-color: $*color_entry_background;;
+    padding: 5px;
+    }
+
+.comment .header {
+    background-color: $*color_entry_background;
+    font-weight: lighter;
+    padding: 5px 10px;
+    margin: 0;
+    text-transform: uppercase;
+    }
+
+.partial .comment-title {
+    font-weight: normal;
+    text-transform: uppercase;
+    }
+
+.comment .comment-title a {
+    color: $*color_comment_title;
+    }
+
+.has-userpic .comment .userpic {
+    margin: 0 10px 20px;
+    }
+
+.comment .userpic img {
+    background-color: $*color_entry_background;
+    border: 5px solid $*color_entry_border;
+    padding: 5px;
+    }
+
+.comment-poster {
+    background-color: $*color_entry_background;
+    display: block;
+    padding: 0 10px 5px 0;
+    text-align: right;
+    }
+
+.partial .comment-poster {
+    display: inline;
+    padding: 0;
+    }
+
+.comment .poster-ip,
+.comment .edittime {
+    background-color: $*color_entry_background;
+    }
+
+.comment .poster-ip {
+    display: block;
+    padding: 15px;
+    }
+
+.comment-content {
+    background-color: $*color_entry_background;
+    margin: 0;
+    min-height: 100px;
+    padding: 15px;
+    }
+
+.comment .footer {
+    background-color: $*color_entry_background;
+    padding: 0 10px;
+    text-transform: uppercase;
+    }
+
+.comment .multiform-checkbox {
+    padding: 0 5px;
+    }
+
+ul.comment-management-links,
+ul.comment-interaction-links {
+    margin: 0;
+    padding: 2px;
+    text-align: center;
+    clear: both;
+    }
+
+ul.comment-management-links li {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+ul.comment-interaction-links li {
+    font-size: 1.152em;
+    margin: 0 5px 0 0;
+    padding: 0;
+    }
+
+ul.comment-management-links a,
+ul.comment-interaction-links a {
+    color: $*color_entry_interaction_links;
+    }
+
+.bottomcomment {
+    background-color: $*color_entry_background;
+    border-top: 10px solid $*color_entry_border;
+    color: $*color_entry_text;
+    margin: 0;
+    padding: 10px;
+    text-transform: uppercase;
+    }
+
+table.talkform {
+    background-color: $*color_entry_background;
+    color: $*color_entry_text;
+    margin: 0 0 10px;
+    padding: 10px;
+    }
+
+#postform a {
+    color: $*color_entry_link;
+    }
+
+#postform a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+#postform a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+#postform a:active {
+    color: $*color_entry_link_active;
+    }
+
+textarea.textbox {
+    border: 1px solid $*color_entry_border;
+    }
+
+/* Archive Pages
+***************************************************************************/
+
+.month {
+    background-color: $*color_entry_background;
+    border-top: 10px solid $*color_entry_border;
+    color: $*color_entry_text;
+    margin-bottom: 15px;
+    padding: 20px;
+    }
+
+.month a { color: $*color_entry_link; }
+.month a:visited { color: $*color_entry_link_visited; }
+.month a:hover { color: $*color_entry_link_hover; }
+.month a:active { color: $*color_entry_link_active; }
+
+.month h3.entry-title {
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title;
+    font-size: $*font_entry_title_size$*font_entry_title_units;
+    text-transform: uppercase;
+    }
+
+.month h3.entry-title a {
+    color: $*color_entry_title;
+    }
+
+.month table {
+    margin: auto;
+    width: 100%;
+    }
+
+table.month {
+    border: none;
+    }
+
+.month caption {
+    display: none;
+    }
+
+table.month th {
+    background-color: $*color_calendar_header_background;
+    border: 1px solid $*color_calendar_border;
+    color: $*color_calendar_header_text;
+    margin: 0 2px;
+    padding: 5px 2px;
+    font-size: 1.15em;
+    font-weight: normal;
+    text-transform: uppercase;
+    }
+
+table.month td {
+    border: none;
+    vertical-align: top;
+    }
+
+.month td.day {
+    border: 1px solid $*color_calendar_border;
+    padding: 10px;
+    }
+
+.month td.day-has-entries p {
+    font-size: 1.14em;
+    font-weight: bold;
+    padding: 0 0 0 5px;
+    }
+
+.month dl, .month dt, .month dd {
+    margin: 0;
+    padding: 0;
+    }
+
+/* Tags Page
+***************************************************************************/
+
+.tags-container {
+    background-color: $*color_entry_background;
+    border-top: 10px solid $*color_entry_border;
+    color: $*color_entry_text;
+    margin-bottom: 10px;
+    }
+
+.tags-container a { color: $*color_entry_link; }
+.tags-container a:visited { color: $*color_entry_link_visited; }
+.tags-container a:hover { color: $*color_entry_link_hover; }
+.tags-container a:active { color: $*color_entry_link_active; }
+
+/* Resize to H3 */
+/* Use custom size otherwise */
+.tags-container h2 {
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title;
+    font-size: 1.17em;
+    font-size: $*font_entry_title_size$*font_entry_title_units;
+    font-weight: normal;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    }
+
+.tags-container .contents,
+.tags-container .footer {
+    padding: 15px;
+    }
+
+.tags-container .ljtaglist {
+    padding: 0;
+    }
+
+.tags-container .manage-link {
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+/* Icons Page
+***************************************************************************/
+
+.icons-container {
+    background-color: $*color_entry_background;
+    border-top: 10px solid $*color_entry_border;
+    color: $*color_entry_text;
+    margin-bottom: 10px;
+    }
+
+.icons-container a { color: $*color_entry_link; }
+.icons-container a:visited { color: $*color_entry_link_visited; }
+.icons-container a:hover { color: $*color_entry_link_hover; }
+.icons-container a:active { color: $*color_entry_link_active; }
+
+.sorting-options ul {
+    padding-left: 0;
+    text-align: center;
+    }
+
+/* Resize to H3 */
+/* Use custom size otherwise */
+.icons-container h2 {
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title;
+    font-size: 1.17em;
+    font-size: $*font_entry_title_size$*font_entry_title_units;
+    font-weight: normal;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    }
+
+.icons-container .contents,
+.icons-container .footer {
+    padding: 15px;
+    }
+
+.page-icons .comment {
+    background: none;
+    border: none;
+    margin: 0;
+    }
+
+.page-icons .icon {
+    margin: 1em 0;
+    }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info {
+    min-height: 100px;
+    }
+
+.icon-info span {
+    font-weight: bold;
+    }
+
+.icon-info .default {
+    text-decoration: underline;
+    }
+
+.icons-container .manage-link {
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+/* Modules
+***************************************************************************/
+
+.module {
+    border: none;
+    border-top: 10px solid $*color_module_border;
+    margin: 0 0 15px 0;
+    }
+
+.two-columns #tertiary .module {
+    margin: 0 15px 15px 0;
+    }
+
+.module-header {
+    font-weight: normal;
+    margin: 0;
+    padding: 3px;
+    text-transform: uppercase;
+    }
+
+.module-header a {
+    color: $*color_module_title;
+    }
+
+.module-content {
+    padding: 10px;
+    }
+
+.module ul {
+    list-style: none;
+    }
+
+.module ul li {
+    margin: 0;
+    padding: 0 0 0 5px;
+    }
+
+.module-userprofile .userpic {
+    text-align: center;
+    }
+
+.module-userprofile .userpic img {
+    background-color: $*color_module_border;
+    border: 3px solid $*color_module_title_background;
+    padding: 5px;
+    }
+
+.module-userprofile .journal-name {
+    margin: 5px 0 0;
+    text-align: center;
+    text-transform: uppercase;
+     }
+
+.module-userprofile .journal-website-name {
+    text-align: center;
+    text-transform: uppercase;
+    }
+
+ul.userlite-interaction-links {
+    margin: 5px 0 0;
+    text-align: center;
+    }
+
+ul.userlite-interaction-links li {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+.module-navlinks {
+    font-size: $*font_module_heading_size$*font_module_heading_units;
+    text-align: right;
+    }
+
+.one-column .module-navlinks {
+    text-align: left;
+    }
+
+.module-navlinks ul {
+    text-transform: uppercase;
+    }
+
+.module .manage-tags-link {
+    margin: 10px 0 0;
+    text-align: right;
+    text-transform: uppercase;
+    }
+
+.module-calendar table {
+    margin: auto !important; */ important needed */
+    text-align: center;
+    width: 55%;
+    }
+
+.module-calendar th,
+.module-calendar td.empty-day {
+    border: 1px solid $*color_module_border;
+    }
+
+.module-calendar td.entry-day {
+    border: 1px solid $*color_module_title_background;
+    }
+
+.module-search .search-box {
+    margin-right: 2px;
+    }
+
+/* Contextual Pop-ups
+***************************************************************************/
+
+div.ContextualPopup {
+    margin: auto;
+    text-align: left;
+    text-transform: uppercase;
+    }
+
+div.ContextualPopup .Content {
+    background-color: $*color_entry_background;
+    border: none;
+    color: $*color_entry_text;
+    margin: auto;
+    }
+
+div.ContextualPopup div.Inner {
+    background-color: $*color_entry_background;
+    border: 1px solid $*color_entry_border;
+    color: $*color_entry_text;
+    }
+
+div.ContextualPopup .Userpic {
+    background-color: $*color_entry_userpic_background;
+    border: 2px solid $*color_entry_userpic_border;
+    margin: 5px;
+    padding: 3px;
+    }
+
+div.ContextualPopup div.Inner a,
+div.ContextualPopup div.Inner a:visited {
+    text-decoration: none !important; /* !important needed */
+    }
+
+div.ContextualPopup div.Inner a {
+    color: $*color_entry_link;
+    }
+
+div.ContextualPopup div.Inner a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+div.ContextualPopup div.Inner a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+div.ContextualPopup div.Inner a:active {
+    color: $*color_entry_link_active;
+    }
+
+/* Navigation Bar
+***************************************************************************/
+
+table#lj_controlstrip td {
+    background-color: $*color_entry_background;
+    border: none;
+    border-top: 5px solid $*color_entry_border;
+    color: $*color_entry_text;
+    text-transform: uppercase;
+    }
+
+#lj_controlstrip_statustext {
+    color: $*color_entry_text;
+    }
+
+#lj_controlstrip input {
+    background-color: $*color_entry_background;
+    border-top: 1px solid $*color_entry_border;
+    color: $*color_entry_text;
+    padding: 0 5px;
+    text-transform: uppercase;
+    }
+
+#lj_controlstrip a {
+    color: $*color_entry_link;
+    }
+
+#lj_controlstrip a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+#lj_controlstrip a:hover {
+    color: $*color_entry_link_hover;
+    }
+
+#lj_controlstrip a:active {
+    color: $*color_entry_link_active;
+    }
+
+$userpic_css
+
+""";
+}

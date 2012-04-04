@@ -1,0 +1,50 @@
+#NEWLAYER: lineup/modernity
+layerinfo type = "theme";
+layerinfo name = "Modernity";
+layerinfo redist_uniq = "lineup/modernity";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#f0f0f0";
+set color_page_link = "#db3f3f";
+set color_page_link_hover = "#12332a";
+set color_page_link_visited = "#db3f3f";
+set color_page_text = "#323232";
+set color_page_title = "#2d2d2d";
+set color_header_background = "#fff";
+set color_header_border = "#db3f3f";
+set color_navigation_background = "#2d2d2d";
+set color_navigation_border = "#db3f3f";
+set color_navigation_link = "#fff";
+set color_navigation_text = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#2d2d2d";
+set color_entry_interaction_links = "#2d2d2d";
+set color_entry_link = "#db3f3f";
+set color_entry_link_hover = "#12332a";
+set color_entry_link_visited = "#db3f3f";
+set color_entry_userpic_border = "#2d2d2d";
+set color_entry_userpic_background = "#db3f3f";
+set color_entry_title = "#2d2d2d";
+set color_entry_text = "#323232";
+set color_comment_title = "#2d2d2d";
+set color_calendar_border = "#db3f3f";
+set color_calendar_header_background = "#2d2d2d";
+set color_calendar_header_text = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#fff";
+set color_module_border = "#2d2d2d";
+set color_module_title = "#fff";
+set color_module_title_background = "#db3f3f";
