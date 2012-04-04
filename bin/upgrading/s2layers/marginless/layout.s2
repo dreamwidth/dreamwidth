@@ -7,7 +7,6 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "momijizukamori", "type" => "user" },{ "name" => "branchandroot", "type" => "user" } ];
 
 
-
 ##===============================
 ## Presentation
 ##===============================
@@ -512,13 +511,17 @@ h3.day-date {
     font-weight: bold;
     }
 
+.icons-container .inner .footer {
+    clear: both;
+    text-align: center;
+    }
 
 /*--- Sidebars ---*/
 
 .one-column #secondary, .one-column #tertiary { width: 100%; }
-.one-column .module { display: inline-block; vertical-align: top; width: $*sidebar_width;
+.one-column #content .module { display: inline-block; vertical-align: top; width: $*sidebar_width;
     }
-
+.one-column #header .module-navlinks { background: $*color_header_background;}
 .one-column .module-wrapper {
     background: $*color_module_background;
     }
@@ -604,6 +607,10 @@ h3.day-date {
 .module-calendar table {
     margin: 0;
     font-size:0.9em;
+    }
+
+.search-box {
+    width:100%;
     }
 
 $navlinks_css
