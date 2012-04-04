@@ -29,11 +29,11 @@ set entry_management_links = "text";
 ##===============================
 
 propgroup colors_child {
-    property Color color_calendar_background { des = "Background color for calendar on Archive page"; }
-    property Color color_calendar_entry { des = "Background color for a day with entries on the calendar"; }
-    property Color color_comment_title_even { des = "Comment title alternate color"; }
-    property Color color_comment_title_background_even { des = "Comment title alternate background color"; }
-    property Color color_userpic_background { des = "Border color for user icon on sidebar and in entries"; }
+    property Color color_calendar_background { des = "Calendar background color on Archive page"; }
+    property Color color_calendar_entry { des = "Day background color on Archive page"; }
+    property Color color_comment_title_even { des = "Alternate comment title color"; }
+    property Color color_comment_title_background_even { des = "Alternate comment title background color"; }
+    property Color color_userpic_background { des = "Icon border color"; }
     }
 
 ##===============================
