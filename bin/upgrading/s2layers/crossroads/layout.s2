@@ -265,7 +265,7 @@ blockquote { padding: 1em 1em .5em 2em;
 blockquote > p:first-child { margin-top: 0; }
 dl dt { font-weight: bold; }
 
-h1, h2, h3, h4, .comment-title {
+h1, h2, h3, h4 {
     font-weight: normal;
     padding-left: .25em;
     padding-right: .25em;
@@ -344,6 +344,9 @@ body { margin: 0; }
 .entry .datetime { font-size: small; }
 
 .entry-content { padding: .5em; }
+
+.has-userpic .entry-content { padding-top: 1.25em; }
+
 .entry-content li { margin-left: 1em; }
 .entry-content hr { display: block;
     margin: 1em 10%; }
@@ -422,20 +425,18 @@ ul.entry-interaction-links { text-align: right;
    margin-right: .2em;
    }
 
-.partial .comment-title h4 {
-   display: inline;
-   }
-
 .partial .comment-poster:before {
    content: "- ";
    }
 
-.comment-title { margin: 0;
+.comment-title {
+    background-color: $*color_entry_title_background;
+    color: $*color_entry_title;
     padding: .25em;
     font-size: large;
     min-height: 1em;
-    background-color: $*color_entry_title_background;
-    color: $*color_entry_title; }
+    }
+
 .comment-title a,
 .comment-title a:visited { color: $*color_entry_title; }
 

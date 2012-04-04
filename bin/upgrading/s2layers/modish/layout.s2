@@ -153,17 +153,14 @@ ul.entry-interaction-links { text-align: right;
     border: none;
     }
 
-.comment-title { margin: 0;
-    padding: 0 0 .25em 0;
-    font-weight: bold; }
+.comment-title {
+    font-weight: bold;
+    padding: 0 0 .25em;
+    }
 
 .partial .comment-title {
    display: inline;
    margin-right: .2em;
-   }
-
-.partial .comment-title h4 {
-   display: inline;
    }
 
 .partial .comment-poster:before {

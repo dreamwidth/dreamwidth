@@ -32,6 +32,8 @@ propgroup presentation {
     property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
 }
 
 set userpics_position = "right";
@@ -456,21 +458,18 @@ function Page::print_default_stylesheet()
 
     .comment-title {
         $comment_title_font
+        margin: 0;
         }
 
-    .comment-title h4 {
-        font-size: inherit;
-        font-weight: inherit;
-        margin: 0;
-        padding: 0;
-    }
+    .no-subject .comment .comment-title {
+        background: none;
+        }
+
     .partial .comment-title {
         display: inline;
         margin-right: .2em;
     }
-    .partial .comment-title h4 {
-        display: inline;
-    }
+
     .partial .comment-poster:before {
         content: "- ";
     }
@@ -512,6 +511,12 @@ function Page::print_default_stylesheet()
         display: inline;
         padding-left: 0.5em;
     }
+
+    .no-subject .entry .entry-title {
+        background: none;
+        padding-left: 0;
+    }
+
     .entry-title a {
         color: $*color_entry_title;
     }
@@ -797,10 +802,11 @@ $userpic_css
 #Print_body
 function Page::print_entry (Entry e)
 {
+var string raquo = (not $*all_entrysubjects and $e.subject == "" and $.view != "month") ? "" : "&raquo;";
     $e->print_wrapper_start();
     print "<div class=\"header\">";
     $e->print_userpic();
-    print "<div class=\"subject\">&raquo;";
+    print "<div class=\"subject\">$raquo";
             $e->print_metatypes();
             $e->print_subject();
         println "</div>";

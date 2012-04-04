@@ -535,7 +535,7 @@ h2#pagetitle {
 
         .page-recent .entry-wrapper.has-userpic.journal-type-P .entry .contents,
         .page-day .entry-wrapper.has-userpic.journal-type-P .entry .contents {
-            padding: 55px 2em 2em;
+            padding: 50px 2em 2em;
             }
 
     .tags-container ul.ljtaglist {
@@ -658,7 +658,7 @@ h2#pagetitle {
 
     .partial .comment-title {
         display: inline;
-        padding-bottom: .5em;
+        padding-right: .2em;
         }
 
         .partial .comment-title a,
@@ -675,7 +675,7 @@ h2#pagetitle {
 .contents .userpic {
     position: absolute;
     text-align: center;
-    top: -10px;
+    top: -5px;
     }
 
     .no-userpic .userpic {
@@ -695,16 +695,9 @@ h2#pagetitle {
     border-bottom: 1px dashed $*color_entry_poster_border;
     display: block;
     font-weight: bold;
+    margin-bottom: 20px;
     padding-bottom: .5em;
     }
-
-    .has-userpic .poster {
-        margin-bottom: 20px;
-        }
-
-    .has-userpic .comment .poster {
-        margin-bottom: 40px;
-        }
 
     .entry .poster:before {
         content: 'Posted by ';

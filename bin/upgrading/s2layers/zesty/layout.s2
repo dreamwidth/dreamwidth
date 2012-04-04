@@ -727,11 +727,8 @@ h3 {
 
 /* shared entry and comments */
 
-.comment-title h4 {
-    font-size: inherit;
-    font-weight: inherit;
+.comment-title {
     margin: 0;
-    padding: 0;
 }
 
 .tools {

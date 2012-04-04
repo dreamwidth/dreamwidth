@@ -154,8 +154,7 @@ blockquote { padding: 1em 1em .5em 2em;
 blockquote > p:first-child { margin-top: 0; }
 dl dt { font-weight: bold; }
 
-h1, h2, h3, h4,
-.comment-title {
+h1, h2, h3, h4 {
     font-weight: normal;
     padding-left: .25em;
     padding-right: .25em;
@@ -360,13 +359,9 @@ ul.entry-interaction-links,
 
 .partial .comment-title {
     background-color: transparent;
-   display: inline;
-   margin-right: .2em;
-   }
-
-.partial .comment-title h4 {
-   display: inline;
-   }
+    display: inline;
+    margin-right: .2em;
+    }
 
 .partial .comment-poster:before {
    content: "- ";

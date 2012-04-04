@@ -82,7 +82,9 @@ function print_stylesheet() {
             .comment .contents .userpic { float: left;
                 margin: 0 .5em .5em -1.5em; }
 
-            .entry .header { padding-left: $entry_header_padding; }
+            .entry .header,
+            .entry .poster { padding-left: $entry_header_padding; }
+            .entry .poster { margin-left: -.5em; }
             """;
         }
         elseif ($*userpics_position == "right") {
@@ -187,6 +189,13 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
     position: relative;
     }
 
+/* Set height to keep alignment */
+/* Use H3 default font size or custom size if set */
+.no-subject .entry .entry-title {
+    height: 1.17em;
+    height: $*font_entry_title_size$*font_entry_title_units;
+    }
+
 .entry .contents { padding: .5em .5em 0 .5em; }
 
 .entry .contents .userpic {
@@ -206,7 +215,7 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
     $entry_userpic_colors
     }
 
-.entry-content { margin: 1em 0; }
+.entry-content { margin: 1.5em 0; }
 
 .metadata { margin: 1em 0 0 0; }
 .metadata.top-metadata { margin-bottom: 2em; }
@@ -242,27 +251,25 @@ ul.entry-interaction-links { text-align: right;
 .comment a:hover { color: $*color_entry_link_hover; }
 .comment a:active { color: $*color_entry_link_active; }
 
+.comment-title {
+    font-weight: bold;
+    padding: 0 0 .25em;
+    }
+
+/* Restore comment title color */
+.comment-title,
+.comment-title a {
+    color: $*color_comment_title;
+    }
+
 .partial .comment-title {
    display: inline;
    margin-right: .2em;
    }
 
-.partial .comment-title h4 {
-   display: inline;
-   }
-
 .partial .comment-poster:before {
    content: "- ";
    }
-
-.comment-title { margin: 0;
-    padding: 0 0 .25em 0;
-    font-weight: bold; }
-
-/* Restore comment title color */
-.comment-title, .comment-title a {
-    color: $*color_comment_title;
-    }
 
 .comment .contents { margin-top: .5em ; }
 

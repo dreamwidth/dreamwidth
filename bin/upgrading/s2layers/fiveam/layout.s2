@@ -651,10 +651,6 @@ h2#pagetitle:first-letter {
 
 .partial .comment-title {
     display: inline !important;
-    }
-
-.comment-title h4 {
-    display: inline !important;
     padding-right: .5em;
     }
 

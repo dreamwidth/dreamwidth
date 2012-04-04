@@ -301,6 +301,7 @@ position: relative; }
 .entry .entry-title { 
    padding: .25em 5px;
    margin-bottom: .5em;}
+
 .entry .entry-title a, 
 .entry .entry-title a:visited { $entry_title_link_colors
 text-decoration: none }
@@ -347,17 +348,15 @@ ul.entry-interaction-links { text-align: right;
     border-left: 10px dashed $*color_entry_border; }
 .comment .header a, 
 .comment .header a:visited { $comment_header_link_colors }
-.comment-title { margin: 0;
-   padding: 0 0 .25em 0;
-   font-weight: bold; }
+
+.comment-title {
+    font-weight: bold;
+    padding: 0 0 .25em;
+    }
 
 .partial .comment-title {
    display: inline;
    margin-right: .2em;
-   }
-
-.partial .comment-title h4 {
-   display: inline;
    }
 
 .partial .comment-poster:before {

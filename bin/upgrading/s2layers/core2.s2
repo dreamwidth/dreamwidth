@@ -2689,7 +2689,6 @@ property string text_nosubject {
     maxlength = 20;
     size = 10;
     example = "No Subject";
-    note = "This only appears in places where a subject line is required, such as on a month view.";
 }
 
 property string text_nosubject_screenreader {
@@ -2698,6 +2697,7 @@ property string text_nosubject_screenreader {
     size = 10;
     example = "No Subject";
     note = "This only is visible to screenreaders or with CSS disabled. Do not set this to empty.";
+    noui = 1;
 }
 
 property string text_calendar_num_entries {
@@ -2727,15 +2727,13 @@ set text_calendar_num_entries = "1 entry // # entries";
 set text_cuttagcontrols_nocuttags = "No cut tags";
 
 property bool all_entrysubjects {
-    des = "For all entries, display the replacement text when no subject is specified";
-    note = "If set, all entries will display the text_nosubject where no subject is specified.  Otherwise, it only appears in places where a subject line is required, such as on a month view.";
-    noui = 1;
+    des = "Display the replacement text when no subject is specified in entries";
+    note = "If disabled, the replacement text will still appear where a subject is required, such as on month views.";
 }
 
 property bool all_commentsubjects {
-    des = "For all comments, display the replacement text when no subject is specified";
-    note = "If set, comments will display the text_nosubject where no subject is specified.";
-    noui = 1;
+    des = "Display the replacement text when no subject is specified in comments";
+    note = "If disabled, the replacement text will still appear where a subject is required, such as in collapsed comments.";
 }
 
 property string text_noentries_recent {
@@ -4796,7 +4794,7 @@ function EntryLite::print_subject() [fixed] {
 function EntryLite::print_subject( string{} opts ) [fixed] {
     if ($this isa Comment) {
         var Comment c = $this as Comment;
-        """<div class="comment-title"><h4>""";
+        """<h4 class="comment-title">""";
         if ($c.screened) {
             print $*text_screened;
         }
@@ -4807,7 +4805,7 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
             print "<span class='echi'>${c.echi}.</span> ";
         }
         print $this->formatted_subject( $opts );
-        "</h4></div>";
+        "</h4>";
     }
     else {
         if ($this isa StickyEntry) {
@@ -4835,6 +4833,7 @@ function EntryLite::print_wrapper_start() {
 }
 function Entry::print_wrapper_start() {
 # FIXME: need to ensure that calling the alternate function doesn't interfere with the printing of comments or the printing of module groups.
+    var Page p = get_page();
     var string alternate = alternate ("entry-wrapper-odd", "entry-wrapper-even");
     var string security = $this.security ? $this.security : "public";
     var string adult_content_level = $this.adult_content_level ? $this.adult_content_level : "none";
@@ -4847,14 +4846,16 @@ function Entry::print_wrapper_start() {
     }
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
 
+    var string entrysubject = (not $*all_entrysubjects and $.subject == "" and $p.view != "month") ? "no-subject" : "has-subject";
+
     #additional classes for sticky entries added
     if ($this isa StickyEntry) {
-        """<div class="sticky-entry-wrapper entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic" id="sticky-entry-wrapper-$this.itemid">\n""";
+        """<div class="sticky-entry-wrapper entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic $entrysubject" id="sticky-entry-wrapper-$this.itemid">\n""";
         """<div class="separator separator-before"><div class="inner"></div></div>\n""";
         """<div class="sticky-entry entry" id="sticky-entry-$this.itemid">\n""";
     }
     else {
-        """<div class="entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic" id="entry-wrapper-$this.itemid">\n""";
+        """<div class="entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic $entrysubject" id="entry-wrapper-$this.itemid">\n""";
         """<div class="separator separator-before"><div class="inner"></div></div>\n""";
         """<div class="entry" id="entry-$this.itemid">\n""";
     }
@@ -4871,11 +4872,12 @@ function Comment::print_wrapper_start() {
     if ($this.deleted or $this.fromsuspended or $this.screened_noshow) { $poster =  "poster-hidden"; }
     var string full = $this.full ? "full" : "partial";
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
+    var string commentsubject = (not $*all_commentsubjects and $.subject == "" and $.full) ? "no-subject" : "has-subject";
     var string entryauthor = "";
     if (not isnull $ep and defined $this.poster and $this.poster.username == $ep.entry.poster.username) {
         $entryauthor = "entry-author";
     }
-    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $suspendedstate $poster $entryauthor $full $userpic">\n""";
+    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $suspendedstate $poster $entryauthor $full $userpic $commentsubject">\n""";
     """<div class="separator separator-before"><div class="inner"></div></div>\n""";
     """<div class="comment" id="comment-$this.dom_id">\n""";
     """<div class="inner">\n""";

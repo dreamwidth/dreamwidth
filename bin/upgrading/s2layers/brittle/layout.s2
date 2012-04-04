@@ -34,6 +34,8 @@ propgroup presentation {
     property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
 }
 
 set sidebar_width = "15em";
@@ -514,6 +516,10 @@ h3.entry-title {
     color: $*color_entry_title;
     }
 
+.no-subject .entry .entry-title {
+    background: none;
+    }
+
 h3.entry-title a { color: $*color_entry_title; }
 
 .datetime {
@@ -826,14 +832,12 @@ td.day {
 
 .comment-title {
     $comment_title_font
+    margin: 0;
     }
 
-.comment-title h4 {
-    font-size: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
-}
+.no-subject .comment .comment-title {
+    background: none;
+    }
 
 hr.above-entry-interaction-links, hr.below-reply-container { display: none; }
 

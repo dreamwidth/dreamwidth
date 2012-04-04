@@ -10,7 +10,7 @@ set layout_resources = [ { "name" => "Circular Icons", "url" => "http://protheme
 
 set entry_management_links = "text";
 set comment_management_links = "text";
-set all_commentsubjects = true;
+
 
 set text_entry_prev = "Previous";
 set text_entry_next = "Next";
@@ -46,6 +46,8 @@ propgroup presentation {
     property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
     property bool use_action_links_images {
         des = "Theme has images for the entry/comment links";
         noui = 1;
@@ -57,6 +59,7 @@ set sidebar_width = "300px";
 set tags_page_type = "";
 set entryicons_position = "same";
 set custom_colors_template = "%%new%% .userpic a {background-color: %%background%%; border: solid 1px %%foreground%%;}";
+set all_commentsubjects = true;
 set use_action_links_images = true;
 
 propgroup colors {
@@ -554,7 +557,10 @@ function Page::print_default_stylesheet () {
     var string entryicon_css = "";
         if ($*entryicons_position == "same") {
             $entryicon_css = """
-            .two-columns-right .has-userpic .entry .header { margin-right: $entry_title_margin; }
+            .two-columns-right .has-userpic .entry .header,
+            .two-columns-right .has-userpic .entry .poster {
+                margin-right: $entry_title_margin;
+                }
             .two-columns-right .has-userpic .comment .header { margin-right: $comment_title_margin; }
 
             .two-columns-left .has-userpic .entry .header { margin-left: $entry_title_margin; }
@@ -571,7 +577,10 @@ function Page::print_default_stylesheet () {
         }
         elseif ($*entryicons_position == "opposite") {
             $entryicon_css = """
-            .two-columns-right .has-userpic .entry .header { margin-left: $entry_title_margin; }
+            .two-columns-right .has-userpic .entry .header,
+            .two-columns-right .has-userpic .entry .poster {
+                margin-left: $entry_title_margin;
+                }
             .two-columns-right .has-userpic .comment .header,
             .two-columns-right .has-userpic .comment .poster {
                 margin-left: $comment_title_margin;
@@ -750,29 +759,34 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .page-entry .entry, .page-entry .comment, .page-entry .text_noentries_day {border:0px;}
 .page-entry #comments {padding-top:20px;}
 
-.comment-title {
-    $comment_title_font
-    }
-
-.comment-title h4 {
-    font-size: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
-}
-
 .entry-title, .comment-title {
+    $entry_title_colors
     border: solid 1px $*color_entry_title_border;
     margin: 0 0 .5em;
     padding: .2em;
-    $entry_title_colors
     }
 
 .entry .entry-title {
     $entry_title_font
-}
+    }
 
-.entry-wrapper-even .entry-title, .comment-wrapper-even .comment-title {border: solid 1px $*color_entry_title_border_alt; $entry_title_colors }
+.comment-title {
+    $comment_title_font
+    }
+
+.entry-wrapper-even .entry-title,
+.comment-wrapper-even .comment-title {
+    $entry_title_colors
+    border: solid 1px $*color_entry_title_border_alt;
+    }
+
+.no-subject .entry .entry-title,
+.no-subject .comment .comment-title {
+    background: none;
+    border:none;
+    margin: 0;
+    padding: 0;
+    }
 
 .userpic a {background-color: $*color_page_border; border: 0px; }
 .entry .userpic a, .comment .userpic a {background-color: $*color_entry_background; border: solid 2px $*color_page_border; display: block; position: absolute; padding: 5px; }
@@ -787,10 +801,22 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 
 .entry .userpic img, .comment .userpic img {border: none; }
 .no-userpic .comment {margin-top: 20px; }
-.no-userpic .comment-title {margin: 0px; }
+
+.no-userpic .comment-title {
+    margin: 0;
+    }
 
 .entry .time, .entry .date {padding: 0.2em; display: inline-block; }
-.entry-content, .comment-content {padding: 10px 0px; }
+
+.entry-content,
+.comment-content {
+    padding: 10px 0;
+    }
+
+.page-recent .security-public.restrictions-none.journal-type-P.has-userpic.no-subject .entry-content,
+.page-day .security-public.restrictions-none.journal-type-P.has-userpic.no-subject .entry-content {
+    padding-top: 20px;
+    }
 
 p {margin-top: .5em; margin-bottom: 0.5em; }
 blockquote {margin: 1em; padding: 1em; $blockquote_colors }
@@ -961,10 +987,6 @@ if ( $*use_action_links_images ) {
 .partial .comment-title {
     display: inline;
     margin-right: .2em;
-    }
-
-.partial .comment-title h4 {
-    display: inline;
     }
 
 .partial .comment-poster:before {

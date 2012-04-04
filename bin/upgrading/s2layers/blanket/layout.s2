@@ -30,6 +30,8 @@ propgroup presentation {
     property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
 }
 
 set layout_type = "one-column";
@@ -591,6 +593,10 @@ h3.entry-title {
     text-transform: lowercase;
     }
 
+.no-subject .entry .entry-title {
+    background: none;
+    }
+
 h3.entry-title a {
     $entry_title_colors
     }
@@ -739,13 +745,11 @@ ul.entry-interaction-links li {
 
 .comment-title {
     $comment_title_font
+    margin: 0;
     }
 
-.comment-title h4 {
-    font-size: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
+.no-subject .comment .comment-title {
+    background: none;
     }
 
 hr.above-entry-interaction-links,

@@ -29,6 +29,8 @@ propgroup presentation {
     property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
 }
 
 set sidebar_width = "15em";
@@ -471,6 +473,11 @@ h2#pagetitle {
     $entry_title_colors
 }
 
+.no-subject .entry .entry-title {
+    background: none;
+    border: none;
+}
+
 .entry a { $entry_link_colors }
 .entry a:visited { $entry_link_visited_colors }
 .entry a:hover { $entry_link_hover_colors }
@@ -540,19 +547,18 @@ ul.entry-interaction-links li {
     padding: .5em 0;
 }
 
+.comment .comment-title {
+    $comment_title_font
+    margin: 0;
+}
+
 .comment .comment-title, .comment .comment-title a {
     $comment_title_colors
 }
 
-.comment .comment-title {
-    $comment_title_font
-}
-
-.comment-title h4 {
-    font-size: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
+.no-subject .comment .comment-title {
+    background: none;
+    border: none;
 }
 
 ul.comment-management-links {

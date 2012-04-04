@@ -42,6 +42,8 @@ propgroup presentation
     property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
 }
 
 set layout_type            = "two-columns-left";
@@ -675,6 +677,13 @@ function Page::print_default_stylesheet()
         $entry_title_font
     }
 
+    /* Set padding to restore height to the decorative header */
+    /* Use standard H3 font size or custom size if set */
+    .no-subject .entry .entry-title {
+        padding: 1.17em;
+        padding: $*font_entry_title_size$*font_entry_title_units;
+    }
+
     .entry .trust-filter {
         padding-left: 10px;
     }
@@ -764,14 +773,8 @@ function Page::print_default_stylesheet()
 
     .comment-title {
         $comment_title_font
-        }
-
-    .comment-title h4 {
-        font-size: inherit;
-        font-weight: inherit;
         margin: 0;
-        padding: 0;
-    }
+        }
 
     .comment .subject {
         border: 1px solid $*color_entry_border;

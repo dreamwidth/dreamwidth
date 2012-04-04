@@ -176,9 +176,18 @@ width: 96% !important; }
 .entry .header { $entry_header_colors
     padding: 0;
     margin: 0 0 .5em 0;}
+
+.entry .entry-title {
+    margin: 5px;
+    padding: .15em 0;
+    }
+
+.no-subject .entry-title {
+    padding: 0;
+    }
+
 .entry .entry-title a, 
 .entry .entry-title a:visited { $entry_title_link_colors }
-.entry .entry-title { margin: 5px; padding: .15em 0; }
 
 .entry .restrictions  { display: block; 
     font-size: small;
@@ -200,7 +209,20 @@ margin: .75em 0; }
 .entry .contents .userpic { position: absolute;
 top: -1em; }
 
-.entry-content { margin-top: 2em; $entry_content_padding }
+.entry-content { $entry_content_padding }
+
+.has-userpic .entry-content {
+    margin-top: 2.25em;
+    }
+
+.has-userpic.no-subject .entry-content {
+    margin-top: 2.75em;
+    }
+
+.page-recent .security-public.restrictions-none.journal-type-P.has-userpic.no-subject .entry-content,
+.page-day .security-public.restrictions-none.journal-type-P.has-userpic.no-subject .entry-content {
+    margin-top: 4.75em;
+    }
 
 .metadata { margin: 1em 0 0 0; }
 .metadata.top-metadata { margin-top: 1.25em; margin-bottom: 2em; }
@@ -234,17 +256,15 @@ ul.entry-interaction-links { text-align: right;
     margin: 0 0 1em 0;}
 .comment .header a, 
 .comment .header a:visited { $entry_title_link_colors }
-.comment-title { margin: 0;
-    padding: 0 0 .25em 0;
-    font-weight: bold; }
+
+.comment-title {
+    font-weight: bold;
+    padding: 0 0 .25em;
+    }
 
 .partial .comment-title {
    display: inline;
    margin-right: .2em;
-   }
-
-.partial .comment-title h4 {
-   display: inline;
    }
 
 .partial .comment-poster:before {
@@ -259,7 +279,9 @@ ul.entry-interaction-links { text-align: right;
 .comment .contents .userpic { position: absolute;
 top: 0; }
 
-.comment-content { margin-top: 2em; }
+.comment-content { margin-top: 1em; }
+
+.has-userpic .comment-content { margin-top: 2em; }
 
 .comment .edittime { margin-top: 1em; }
 .comment .header .datetime { font-size: small;

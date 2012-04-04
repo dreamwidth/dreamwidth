@@ -471,7 +471,7 @@ ul ul ul ul, .module-content ul ul ul ul {
     list-style: circle;
     }
 
-h1, h2, h3, h4, .comment-title {
+h1, h2, h3, h4 {
     font-style: italic;
     }
 
@@ -783,7 +783,7 @@ ul.entry-interaction-links {
     text-align: right;
     }
 
-.comment-title h4 {
+.comment .comment-title {
     background: none;
     color: $*color_page_link;
     line-height: 1em;
@@ -793,11 +793,11 @@ ul.entry-interaction-links {
     font-size: large;
     }
 
-.comment-title h4 a {
+.comment-title a {
    color: $*color_page_link;
    }
 
-.comment-title h4 a:visited {
+.comment-title a:visited {
    color: $*color_page_link_visited;
    }
 
@@ -805,10 +805,6 @@ ul.entry-interaction-links {
    display: inline;
    margin: 0;
    margin-right: .2em;
-   }
-
-.partial .comment-title h4 {
-   display: inline;
    }
 
 .partial .comment-poster:before {

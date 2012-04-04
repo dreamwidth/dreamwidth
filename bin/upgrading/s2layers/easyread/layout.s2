@@ -32,6 +32,8 @@ propgroup presentation {
     property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
 }
 
 set layout_type = "one-column-split";
@@ -97,6 +99,8 @@ set font_journal_title_units = "em";
 set font_journal_subtitle = """APHont, "Helvetica Neue", Arial, Helvetica, Geneva""";
 set font_journal_subtitle_size = "1.5";
 set font_journal_subtitle_units = "em";
+set font_entry_title_size = "2";
+set font_entry_title_units = "em";
 
 ##===============================
 ## Display settings - modules
@@ -536,14 +540,8 @@ h2.module-header a {
 
 .comment-title {
     $comment_title_font
-    }
-
-.comment-title h4 {
-    font-size: inherit;
-    font-weight: inherit;
     margin: 0;
-    padding: 0;
-}
+    }
 
 /* Entry header */
 
@@ -558,6 +556,17 @@ h2.module-header a {
 .entry .entry-title {
     $entry_title_font
     $entrytitle_padding
+}
+
+/* Set height to keep spacing */
+/* Use standard H3 font size */
+.no-subject .entry .entry-title {
+    background: none;
+    height: 1.17em;
+}
+
+.entry h3.entry-title a {
+    text-decoration: none;
 }
 
 .entry .metadata-label {
@@ -580,14 +589,6 @@ h2.module-header a {
 
 .entry .metadata.top-metadata {
     margin-top: 0;
-}
-
-.entry h3.entry-title {
-    font-size: 2em;
-}
-
-.entry h3.entry-title a {
-    text-decoration: none;
 }
 
 .entry .contents .userpic a img {
@@ -664,6 +665,11 @@ ul.comment-management-links, ul.comment-interaction-links {
 /*
  * Comments
  */
+
+.no-subject .comment .comment-title {
+    background: none;
+}
+
 #comments .userpic a img, .comment-wrapper .userpic a img  {
     border: 0;
     margin-bottom: 10px;

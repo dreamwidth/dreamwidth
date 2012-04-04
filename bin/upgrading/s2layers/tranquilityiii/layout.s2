@@ -300,10 +300,6 @@ ul.entry-interaction-links li.entry-readlink { font-weight: bold; }
    margin-right: .2em;
    }
 
-.partial .comment-title h4 {
-   display: inline;
-   }
-
 .partial .comment-poster:before {
    content: "- ";
    }

@@ -30,6 +30,8 @@ propgroup presentation {
     property use reg_firstdayofweek;
     property use entry_datetime_format_group;
     property use comment_datetime_format_group;
+    property use all_entrysubjects;
+    property use all_commentsubjects;
 }
 
 set module_layout_sections = "none|(none)|one|Group One";
@@ -672,7 +674,22 @@ li.page-separator {display: none;}
 
 #entries > .inner {border-top: 0.083em solid $*color_entry_background;}
 
-.entry-title {$entry_title_font border: 0.083em solid $*color_entry_border; border-left: 0; border-right: 0; padding: 0.5em; margin: 0; color: $*color_entry_text; background: $*color_entry_title_background; }
+.entry-title {
+    background: $*color_entry_title_background;
+    color: $*color_entry_text;
+    border-bottom: .083em solid $*color_entry_border;
+    border-top: .083em solid $*color_entry_border;
+    $entry_title_font
+    margin: 0;
+    padding: .5em;
+    }
+
+.no-subject .entry .entry-title {
+    background: none;
+    border: none;
+    padding: 0;
+    }
+
 .entry-title a {text-decoration: none; color: $*color_entry_title; }
 
 .datetime { font-size: 0.75em; text-transform: uppercase; display: block; color: $*color_entry_text; padding: 0.5em 1em 0.5em 1em; 
@@ -789,17 +806,16 @@ li.first-item {margin-left: 0;}
 .comment-title {
     $comment_title_font
     font-weight: normal;
-    padding: 0.5em;
+    margin: 0;
+    padding: .5em;
+    }
+
+.no-subject .comment .comment-title {
+    background: none;
+    padding: 0;
     }
 
 .comment-title a {display: block; }
-
-.comment-title h4 {
-    font-size: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
-}
 
 .full .comment .datetime { border-top: .083em solid $*color_entry_border;}
 .full .comment-poster, .poster-ip { border-bottom: .083em solid $*color_entry_border; display: block; padding: 0 .5em; }
