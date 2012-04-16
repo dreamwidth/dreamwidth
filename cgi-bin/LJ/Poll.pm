@@ -632,7 +632,7 @@ sub get_pollanswers {
     my $pollid = $self->pollid;
 
     # try getting first from memcache
-    my $memkey = [$u->userid, "pollresults:$u->userid:$pollid"];
+    my $memkey = [$u->userid, "pollresults:" . $u->userid . ":$pollid"];
     my $result = LJ::MemCache::get( $memkey );
     return %$result if $result;
 
@@ -1495,7 +1495,7 @@ sub process_submission {
     }
 
     # delete user answer MemCache entry
-    my $memkey = [$remote->userid, "pollresults:$remote->userid:$pollid"];
+    my $memkey = [$remote->userid, "pollresults:" . $remote->userid . ":$pollid"];
     LJ::MemCache::delete( $memkey );
 
     # if unique prop is on, make sure that a particular email address can only vote once
