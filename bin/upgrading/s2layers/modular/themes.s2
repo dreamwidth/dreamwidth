@@ -814,7 +814,7 @@ layerinfo name = "Loveless";
 layerinfo redist_uniq = "modular/loveless";
 layerinfo author_name = "nornoriel";
 
-set theme_authors = [ { "name" => "nornoriel", "type" => "users" } ];
+set theme_authors = [ { "name" => "nornoriel", "type" => "user" } ];
 
 ##===============================
 ## Page Colors
