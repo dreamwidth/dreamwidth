@@ -53,12 +53,16 @@ sub YearPage
         # all entries are in the future, so fall back to the earliest year
         $year = $years[0]
             unless $year;
+
+        # if still undefined, no entries exist - use the current year
+        $year = $curyear
+            unless $year;
     }
 
     $p->{'year'} = $year;
     $p->{'years'} = [];
 
-    my $displayed_index;
+    my $displayed_index = 0;
     for my $i ( 0..$#years ) {
         my $year = $years[$i];
         push @{$p->{'years'}}, YearYear($year, "$p->{'base_url'}/$year/", $year == $p->{'year'});
