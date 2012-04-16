@@ -124,7 +124,12 @@ _c?>
         my $posting_guidelines_entry_url;
         my $post_url;
         if ( $u->is_community ) {
-            $posting_guidelines_entry_url = $u->posting_guidelines_url;
+            if ( $u->posting_guidelines_location eq "E" ) {
+                $posting_guidelines_entry_url = $u->posting_guidelines_url;
+            }
+            if ( $u->posting_guidelines_location eq "P" ) {
+                $posting_guidelines_entry_url = $u->profile_url;
+            }
             my $show_join_post_link = $u->hide_join_post_link ? 0 : 1;
             $post_url = $LJ::SITEROOT . "/update?usejournal=" . $u->user
                 if $show_join_post_link && $remote->can_post_to( $u );

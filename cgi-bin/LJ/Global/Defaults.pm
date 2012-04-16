@@ -366,6 +366,9 @@ no strict "vars";
     ) unless defined %CAPTCHA_TYPES;
     $DEFAULT_CAPTCHA_TYPE ||= "T";
 
+    # default location of community posting guidelines
+    $DEFAULT_POSTING_GUIDELINES_LOC ||= "N";
+
 }
 
 

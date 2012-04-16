@@ -1046,6 +1046,14 @@ userproplist.posting_guidelines_entry:
   multihomed: 0
   prettyname: Community posting guidelines entry ID
 
+userproplist.posting_guidelines_location:
+  cldversion: 4
+  datatype: char
+  des: Where are the community posting guidelines?  Blank=Nowhere, P=Profile, E=Entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Where are the community posting guidelines?
+
 userproplist.profile_collapsed_headers:
   cldversion: 4
   datatype: char

@@ -57,6 +57,8 @@
 
 .label.community=Community:
 
+.label.entrypostingguidelines=<strong>In an entry:</strong><br />The community posting guidelines can be found in an entry (details below).
+
 .label.guidelines=<a [[aopts]]>Community guidelines</a> - consistent link to your community guidelines entry
 
 .label.howoperates=Choose the settings for your community journal.  You can make changes to these settings at any time you want.
@@ -89,11 +91,17 @@
 
 .label.postingaccessselect=<STRONG>Select Members</STRONG><br />Members' entries will only appear in the community if they're approved by the administrator or moderator.
 
-.label.postingguidelinesentry=URL or ID of your community's posting guidelines entry (leave blank if you don't want to link to an entry):
+.label.postingguidelinesentry=URL or ID of your community's posting guidelines entry (if used):
+
+.label.profilepostingguidelines=<strong>Community Profile</strong><br />The community profile contains the posting guidelines.
+
+.label.nopostingguidelines=<strong>Nowhere</strong><br />There should be no link to community posting guidelines.
 
 .label.rellinks=Relevant links:
 
 .label.showjoinpostlink=Post to community
+
+.label.showwhatguidelines=Where are the community posting guidelines?
 
 .label.showwhatlinks=What links should be displayed to users when they join your community?
 

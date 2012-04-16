@@ -2797,13 +2797,36 @@ sub posting_guidelines_url {
     return "" unless $u->is_community;
 
     my $posting_guidelines = $u->posting_guidelines_entry;
+    if ( $u->posting_guidelines_location eq "P" ) {
+        return $u->profile_url;
+    } elsif ( $u->posting_guidelines_location eq "N") {
+        return "";
+    }
+
     return "" unless $posting_guidelines;
 
     return $u->journal_base . "/guidelines";
 }
 
+# Where are a community's posting guidelines held?  Blank=Nowhere, P=Profile, E=Entry
+sub posting_guidelines_location {
+    my ( $u,  $value ) = @_;
+    if ( defined $value && $value=~ /[PE]/ ) {
+        $u->set_prop( posting_guidelines_location => $value );
+        return $value;
+    }
+    # We store the "N=Nowhere" option in the database as a blank empty entry to
+    # reduce space.  N should be returned whenever a blank entry is encountered.
+    if ( defined $value && $value eq 'N' ) {
+        $u->set_prop( posting_guidelines_location => '' );
+        return $value;
+    }
+    $u->prop( 'posting_guidelines_location' ) || $LJ::DEFAULT_POSTING_GUIDELINES_LOC;
+}
+
+
 sub profile_url {
-    my ($u, %opts) = @_;
+    my ( $u, %opts ) = @_;
 
     my $url;
     if ( $u->is_identity ) {
@@ -4320,7 +4343,6 @@ sub posting_access_list {
     return sort { $a->{user} cmp $b->{user} } @res;
 }
 
-
 # gets the relevant communities that the user is a member of
 # used to suggest communities to a person who know the user
 sub relevant_communities {
@@ -4427,7 +4449,6 @@ sub trusts_or_has_member {
 
     return $u->trusts( $target_u ) ? 1 : 0;
 }
-
 
 ########################################################################
 ### 14. Adult Content Functions

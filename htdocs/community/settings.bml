@@ -32,6 +32,7 @@ head<=
     #left-column, #right-column { float: left; }
     legend { font-size: 1.2em; font-weight: bold; }
     p.input-wrapper { margin-left: 27px; text-indent: -27px; }
+    p.nested-input-wrapper { margin-left: 54px; text-indent: -27px; }
     .action-box { clear: both; }
 </style>
 <=head
@@ -105,9 +106,13 @@ body<=
             $errors{'username'} = $ML{'.error.alreadycomm'};
         }
 
-        # check the posting guidelines entry is valid
-        $errors{'postingguidelinesentry'} = $ML{'.error.postingguidelinesentryinvalid'}
-            unless $cu->posting_guidelines_entry( $POST{'postingguidelinesentry'} );
+        # check the posting guidelines entry is valid,
+        # but only check if entry is selected.
+        my $postingguidelines_loc = $cu->posting_guidelines_location( $POST{'postingguidelines'} );
+        if ( $postingguidelines_loc eq "E" ) {
+            $errors{'postingguidelinesentry'} = $ML{'.error.postingguidelinesentryinvalid'}
+                unless $cu->posting_guidelines_entry( $POST{'postingguidelinesentry'} );
+        }
 
         # if we found errors, we'll redisplay the form below.  otherwise,
         # proceed.
@@ -163,7 +168,9 @@ body<=
             $cu->set_prop( { nonmember_posting => $nonmember_posting,
                              moderated => $moderated } );
             $cu->hide_join_post_link( $hidejoinpostlink );
-            $cu->posting_guidelines_entry( $POST{'postingguidelinesentry'} );
+            if ( $postingguidelines_loc eq "E" ) {
+                $cu->posting_guidelines_entry( $POST{'postingguidelinesentry'} );
+            }
 
             if ( LJ::is_enabled( 'adult_content' ) ) {
                 my $adult_content = $POST{'adult_content'};
@@ -215,6 +222,7 @@ body<=
                 'moderated'=>$POST{'moderated'} || 0,
                 'hide_join_post_link'=>$POST{'showjoinpostlink'} ? 0 : 1,
                 'posting_guidelines_entry'=>$POST{'postingguidelinesentry'} || '',
+                'posting_guidelines_location'=>$POST{'postingguidelines'} || $LJ::DEFAULT_POSTING_GUIDELINES_LOC,
                 );
 
     if ($mode eq 'modify') {
@@ -244,6 +252,7 @@ body<=
             $info{'nonmember_posting'} = $c->{'nonmember_posting'} ? 1 : 0;
             $info{'moderated'} = $c->{'moderated'} ? 1 : 0;
             $info{'hide_join_post_link'} = $c->{'hide_join_post_link'} ? 1 : 0;
+            $info{'posting_guidelines_location'} = $c->posting_guidelines_location;
             my $e = $c->get_posting_guidelines_entry;
             $info{'posting_guidelines_entry'} = $e->url
                 if $e;
@@ -368,7 +377,31 @@ body<=
             } );
     $ret .= " <label for='showjoinpostlink'>$ML{'.label.showjoinpostlink'}</label></p>";
 
+    my $postingguidelines = $info{'posting_guidelines_location'};
+    $ret .= "<?p $ML{'.label.showwhatguidelines'} p?>";
     $ret .= "<p class='input-wrapper'>";
+    $ret .= LJ::html_check({
+        type => 'radio', id => 'nopostingguidelines', name => 'postingguidelines',
+        value => 'N', selected => $postingguidelines eq "N" ? 1 : 0,
+    });
+    $ret .= " <label for='nopostingguidelines'>$ML{'.label.nopostingguidelines'}</label></p>";
+
+    $ret .= "<p class='input-wrapper'>";
+    $ret .= LJ::html_check({
+        type => 'radio', id => 'profilepostingguidelines', name => 'postingguidelines',
+        value => 'P', selected => $postingguidelines eq "P" ? 1 : 0,
+    });
+    $ret .= " <label for='postmembers'>$ML{'.label.profilepostingguidelines'}</label></p>";
+
+    $ret .= "<p class='input-wrapper'>";
+    $ret .= LJ::html_check({
+        type => 'radio', id => 'entrypostingguidelines', name => 'postingguidelines',
+        value => 'E', selected => $postingguidelines eq "E" ? 1 : 0,
+    });
+
+    $ret .= " <label for='postselect'>$ML{'.label.entrypostingguidelines'}</label></p>";
+
+    $ret .= "<p class='nested-input-wrapper'>";
     $ret .= " <label for='postingguidelinesentry'>$ML{'.label.postingguidelinesentry'}</label> ";
     $ret .= LJ::html_text( {
                 id => 'postingguidelinesentry', name => 'postingguidelinesentry', value => $info{'posting_guidelines_entry'}
