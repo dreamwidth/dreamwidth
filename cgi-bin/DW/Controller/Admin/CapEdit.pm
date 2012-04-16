@@ -88,18 +88,19 @@ sub index_controller {
                 $vars->{save} = 1;
             }
 
-            # make information for all of the caps based on the current info
-            my @caps;
-
-            foreach my $n (sort { $a <=> $b } keys %LJ::CAP) {
-                push @caps, { "n" => $n,
-                    "on" => ( ( $u->{caps} + 0 ) & ( 1 << $n ) ) ? 1 : 0,
-                    "name" => $LJ::CAP{$n}->{'_name'} || "Unnamed capability class #$n",
-                }
-             }
-
-             $vars->{caps} = \@caps;
         }
+
+        # make information for all of the caps based on the current info
+        my @caps;
+
+        foreach my $n (sort { $a <=> $b } keys %LJ::CAP) {
+            push @caps, { "n" => $n,
+                "on" => ( ( $u->{caps} + 0 ) & ( 1 << $n ) ) ? 1 : 0,
+                "name" => $LJ::CAP{$n}->{'_name'} || "Unnamed capability class #$n",
+            }
+        }
+
+        $vars->{caps} = \@caps;
     } else {
         $vars->{u} = 0;
     }
