@@ -636,13 +636,7 @@ function Page::print_default_stylesheet()
         list-style: none;
         }
 
-    .page-icons .comment {
-        border: none;
-        min-height: 0;
-        padding: 0;
-        }
-
-    .page-icons .icon {
+    .icons-container .icon {
         margin: 1em 0;
         }
 
@@ -666,12 +660,12 @@ function Page::print_default_stylesheet()
         text-decoration: underline;
         }
 
-    .icon-info .keywords ul {
+    .icon-keywords ul {
         display: inline;
         padding: 0;
         }
 
-    .icon-info .keywords ul li {
+    .icon-keywords ul li {
         display: inline;
         list-style: none;
         padding: 0 .25em 0 0;

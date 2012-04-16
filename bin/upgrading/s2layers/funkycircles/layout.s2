@@ -576,11 +576,11 @@ h2#pagetitle {
     padding: 0;
     }
 
-.icons-container .sorting-options {
+.sorting-options {
     text-align: center;
     }
 
-.icons-container .icon-pages {
+.icon-pages {
     text-align: right;
     }
 
@@ -608,13 +608,13 @@ h2#pagetitle {
     min-height: 100px;
     }
 
-.icons-container .default {
+.icon-info .default {
     font-weight: bold;
     }
 
-.icons-container .comment-text,
-.icons-container .description-text,
-.icons-container .keywords .label {
+.icon-info .keywords-label,
+.icon-info .comment-text,
+.icon-info .description-text {
     font-style: italic;
     }
 

@@ -1435,11 +1435,11 @@ q {
 * Icon Page *
 ************************************************/
 
-.page-icons .icons-container {
+.icons-container {
     padding: .833em;
 }
 
-.page-icons .icons-container h2 {
+.icons-container h2 {
     $entry_title_font
     $entry_title_colors
     line-height: 100%;
@@ -1447,69 +1447,62 @@ q {
     padding: .8333em;
 }
 
-.page-icons .icons-container h2 {
+.icons-container h2 {
     text-align: left;
 }
 
-.page-icons .sorting-options ul {
+.sorting-options ul {
     text-align: center;
     margin-left: 0;
     padding-left: 0;
 }
 
-.page-icons .sorting-options ul li {
+.sorting-options ul li {
     display: inline;
     list-style-type: none;
 }
 
-.page-icons .icon {
+.icons-container .icon {
     margin: 0 1em 1em 0;
     text-align: left;
 }
 
-.page-icons .icon-image,
-.page-icons .icon-info {
+.icon-image,
+.icon-info {
     display: inline-block;
     vertical-align: top;
 }
 
-.page-icons .icon-info {
+.icon-info {
     margin-left: .5em;
 }
 
-.page-icons .label,
-.page-icons .comment-text,
-.page-icons .description-text {
+.icon-info .label,
+.icon-info span {
     font-weight: bold;
 }
 
-.page-icons .default {
+.icon-info .default {
     font-weight: normal;
     text-decoration: underline;
 }
 
-.page-icons .keywords ul {
+.icon-keywords ul {
     display: inline;
     margin: 0;
     padding: 0;
 }
 
-.page-icons .keywords ul li {
+.icon-keywords ul li {
     display: inline;
     list-style-type: none;
 }
 
-.page-icons .comment {
-    background: none;
-    padding: 0;
-    border-style: none;
-}
-
-.page-icons .icons-container .manage-icons-link {
+.icons-container .manage-link {
     margin: 1em 0;
     text-align: right;
 }
-.page-icons .icons-container .manage-icons-link a {
+.icons-container .manage-link a {
     padding: .833em;
 }
 

@@ -570,28 +570,7 @@ text-align: center; }
     padding-left: 0;
 }
 
-.page-icons .comment {
-    background: transparent;
-    color: $*color_page_text;
-    }
-
-.page-icons .comment a {
-    color: $*color_page_link;
-    }
-
-.page-icons .comment a:visited {
-    color: $*color_page_link_visited;
-    }
-
-.page-icons .comment a:hover {
-    color: $*color_page_link_hover;
-    }
-
-.page-icons .comment a:active {
-    color: $*color_page_link_active;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 

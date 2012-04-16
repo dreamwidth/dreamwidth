@@ -541,7 +541,7 @@ table.month td.day {
 .icons-container a:hover { color: $*color_entry_link_hover; }
 .icons-container a:active { color: $*color_entry_link_active; }
 
-.page-icons .icons-container h2 {
+.icons-container h2 {
     background-color: $*color_entry_title_background;
     color: $*color_entry_title;
     font-size: 1.17em;
@@ -560,14 +560,7 @@ table.month td.day {
     padding-left: 0;
     }
 
-.page-icons .comment {
-    background: transparent;
-    border: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 

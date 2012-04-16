@@ -645,13 +645,7 @@ hr.above-entry-interaction-links, hr.below-reply-container {
     margin: .5em .2em 0 0;
     }
 
-.page-icons .comment {
-    background: transparent;
-    border: none;
-    padding: 0;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 

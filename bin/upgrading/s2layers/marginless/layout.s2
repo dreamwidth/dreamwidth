@@ -500,14 +500,15 @@ h3.day-date {
     word-wrap: break-word;
     }
 
-.icon {
+.icons-container .icon {
     width:50%;
     float: left;
     vertical-align: botton;
     min-width: 350px;
     }
 
-.label, .comment-text, .description-text, .default {
+.icon-info .label,
+.icon-info span {
     font-weight: bold;
     }
 

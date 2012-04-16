@@ -628,7 +628,7 @@ h2.module-header {
     padding-left: 0;
     }
 
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 

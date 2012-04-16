@@ -6099,9 +6099,9 @@ function Icon::print {
         print safe "<div class='inactive label'>$*text_icons_inactive</div>\n";
     }
     if ($.keywords) {
-        """<div class="keywords">""";
+        """<div class="icon-keywords">""";
         var int keyword_count = 0;
-        print safe "<span class='label'>$*text_icons_keywords</span> ";
+        print safe "<span class='keywords-label'>$*text_icons_keywords</span> ";
         """<ul>""";
         foreach var string kw ($.keywords) {
             $keyword_count++;
@@ -6113,10 +6113,10 @@ function Icon::print {
         """</ul></div>\n""";
     }
     if ($.comment) {
-        print safe "<div class='comment'><span class='comment-text'>$*text_icons_comment</span> $.comment</div>\n";
+        print safe "<div class='icon-comment'><span class='comment-text'>$*text_icons_comment</span> $.comment</div>\n";
     }
     if ($.description) {
-        print safe "<div class='description'><span class='description-text'>$*text_icons_description</span> $.description</div>\n";
+        print safe "<div class='icon-description'><span class='description-text'>$*text_icons_description</span> $.description</div>\n";
     }
     """</div></div>\n""";
 }

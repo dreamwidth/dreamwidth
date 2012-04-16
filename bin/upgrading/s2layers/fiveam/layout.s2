@@ -929,7 +929,7 @@ h3.day-date {
     padding-left: 0;
     }
 
-.page-icons .icon {
+.icons-container .icon {
     margin: 1.5em 0;
     }
 
@@ -953,11 +953,11 @@ h3.day-date {
     text-decoration: underline;
     }
 
-.icon-info .keywords ul {
+.icon-keywords ul {
     margin-left: 0;
     }
 
-.icon-info .keywords ul li {
+.icon-keywords ul li {
     padding: 0 .25em 0 0;
     }
 

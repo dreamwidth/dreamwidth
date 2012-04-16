@@ -924,12 +924,7 @@ div.ljtaglist {padding: 0.5em; }
     list-style: none;
     }
 
-.page-icons .comment {
-    border: none;
-    margin: 0;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 
@@ -953,12 +948,12 @@ div.ljtaglist {padding: 0.5em; }
     text-decoration: underline;
     }
 
-.icon-info .keywords ul {
+.icon-keywords ul {
     display: inline;
     padding-left: 0;
     }
 
-.icon-info .keywords ul li {
+.icon-keywords ul li {
     display: inline;
     list-style: none;
     padding: 0 .25em 0 0;

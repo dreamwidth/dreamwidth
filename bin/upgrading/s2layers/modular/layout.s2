@@ -454,13 +454,7 @@ table.month caption { color: $*color_entry_background; }
     text-align: center;
     }
 
-.page-icons .comment {
-    background: transparent;
-    border: none;
-    min-width: none;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 

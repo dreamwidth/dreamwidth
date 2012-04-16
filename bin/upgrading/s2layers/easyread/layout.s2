@@ -746,7 +746,7 @@ module-section-two ul.module-list li {
     display: inline;
     }
 
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 
@@ -770,13 +770,13 @@ module-section-two ul.module-list li {
     text-decoration: underline;
     }
 
-.icon-info .keywords ul {
+.icon-keywords ul {
     display: inline;
     list-style: none;
     padding-left: 0;
     }
 
-.icon-info .keywords ul li {
+.icon-keywords ul li {
     display: inline;
     padding: 0 .25em 0 0;
     }

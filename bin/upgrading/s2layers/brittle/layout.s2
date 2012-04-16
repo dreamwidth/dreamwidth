@@ -784,12 +784,7 @@ td.day {
     margin: 0;
     }
 
-.page-icons .comment {
-    margin: 0;
-    padding: 0;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 
@@ -813,12 +808,12 @@ td.day {
     text-decoration: underline;
     }
 
-.icon-info .keywords ul {
+.icon-keywords ul {
     display: inline;
     padding: 0 0 0 13px;
     }
 
-.icon-info .keywords ul li {
+.icon-keywords ul li {
     display: inline;
     list-style: none;
     padding: 0 .25em 0 0;

@@ -415,7 +415,7 @@ h3.day-date {
     text-align: right;
     }
 
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 

@@ -349,12 +349,7 @@ text-align: center; }
     padding-left: 0;
 }
 
-.page-icons .comment {
-    margin-bottom: 0;
-    padding-top: 0;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 

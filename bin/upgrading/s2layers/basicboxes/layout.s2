@@ -393,7 +393,7 @@ text-align: center; }
 
 /* Reset font size to H3 */
 /* But use entry title font if set */
-.icons-container .header h2 {
+.icons-container h2 {
     font-size: 1.17em;
     $entry_title_font
     margin: 0;
@@ -408,11 +408,7 @@ text-align: center; }
     padding-left: 0;
     }
 
-.page-icons .comment {
-    margin-bottom: 0;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 

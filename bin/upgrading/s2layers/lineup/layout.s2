@@ -711,13 +711,7 @@ table.month td {
     padding: 15px;
     }
 
-.page-icons .comment {
-    background: none;
-    border: none;
-    margin: 0;
-    }
-
-.page-icons .icon {
+.icons-container .icon {
     margin: 1em 0;
     }
 
