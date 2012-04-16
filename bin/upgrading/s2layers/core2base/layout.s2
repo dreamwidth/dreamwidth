@@ -633,14 +633,14 @@ table.month td p {
     display: inline;
 }
 
-.keywords ul {
+.icon-keywords ul {
     display: inline;
     list-style: none;
     margin-left: .5em;
     padding-left: 0;
 }
 
-.keywords ul li {
+.icon-keywords ul li {
     display: inline;
     padding: 0 .25em 0 0;
 }
