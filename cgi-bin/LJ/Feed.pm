@@ -235,6 +235,10 @@ sub make_feed
                 $event = LJ::Entry->summarize( $event, $readmore );
             }
 
+            if ( $u->journaltype eq 'C' && ! $opts->{apilinks} ) {
+                $event = "Posted by: " . $posteru{$it->{posterid}}->ljuser_display ."<br /><br />" . $event;
+            }
+
             while ($event =~ /<(?:lj-)?poll-(\d+)>/g) {
                 my $pollid = $1;
 
