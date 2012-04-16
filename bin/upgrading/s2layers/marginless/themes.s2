@@ -330,6 +330,7 @@ set color_module_title = "#bab986";
 ##===============================
 ## Fonts
 ##===============================
+
 set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_fallback = "serif";
 
