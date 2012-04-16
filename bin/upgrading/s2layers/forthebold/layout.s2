@@ -1,5 +1,5 @@
 layerinfo type = "layout";
-layerinfo name = "For The Bold";
+layerinfo name = "For the Bold";
 layerinfo redist_uniq = "forthebold/layout";
 layerinfo author_name = "timeasmymeasure";
 layerinfo lang = "en";
@@ -613,12 +613,6 @@ h3.day-date {
 
 .icon-info .default {
     text-decoration: underline;
-    }
-
-.icon-info .comment {
-    background: transparent;
-    margin-bottom: 0;
-    padding: 0;
     }
 
 /* Modules
