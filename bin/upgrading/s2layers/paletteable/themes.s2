@@ -52,12 +52,6 @@ set color_module_title = "#e1def9";
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_fallback = "serif";
-set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
-set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
-set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
-set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
-set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
-set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 
 
 #NEWLAYER: paletteable/blues
@@ -246,7 +240,6 @@ layerinfo name = "Clarity";
 layerinfo redist_uniq = "paletteable/clarity";
 layerinfo author_name = "branchandroot";
 
-# Uses the "Holiday" palette by artsykerly (http://www.colourlovers.com/palette/100957/Holiday).
 set layout_resources = [ { "name" => "Holiday", "url" => "http://www.colourlovers.com/palette/100957/Holiday" } ];
 
 ##===============================
@@ -286,7 +279,6 @@ layerinfo name = "Coffee and Ink";
 layerinfo redist_uniq = "paletteable/coffeeandink";
 layerinfo author_name = "branchandroot";
 
-# Uses the "one time to cry..." palette by dccanim (http://www.colourlovers.com/palette/1272313/one_time_to_cry...).
 set layout_resources = [ { "name" => "one time to cry...", "url" => "http://www.colourlovers.com/palette/1272313/one_time_to_cry..." } ];
 
 ##===============================
@@ -373,7 +365,6 @@ layerinfo name = "Deep Sea";
 layerinfo redist_uniq = "paletteable/deepsea";
 layerinfo author_name = "branchandroot";
 
-# Uses the "migraine vision" palette by Illara (http://www.colourlovers.com/palette/1272365/migraine_vision).
 set layout_resources = [ { "name" => "migraine vision", "url" => "http://www.colourlovers.com/palette/1272365/migraine_vision" } ];
 
 ##===============================
@@ -463,7 +454,6 @@ layerinfo name = "Descending";
 layerinfo redist_uniq = "paletteable/descending";
 layerinfo author_name = "branchandroot";
 
-# Uses the "Blue Jupiter" palette by memomo (http://www.colourlovers.com/palette/965705/Blue_Jupiter).
 set layout_resources = [ { "name" => "Blue Jupiter", "url" => "http://www.colourlovers.com/palette/965705/Blue_Jupiter" } ];
 
 ##===============================
@@ -597,7 +587,6 @@ layerinfo name = "Green Rain";
 layerinfo redist_uniq = "paletteable/greenrain";
 layerinfo author_name = "branchandroot";
 
-# Uses the "Mermaid Ashore" palette by dccanim (http://www.colourlovers.com/palette/1272262/mermaid_ashore).
 set layout_resources = [ { "name" => "Mermaid Ashore", "url" => "http://www.colourlovers.com/palette/1272262/mermaid_ashore" } ];
 
 ##===============================
@@ -868,12 +857,6 @@ set color_module_title = "#ff476c";
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
 set font_fallback = "serif";
-set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
-set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
-set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
-set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
-set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
-set font_module_text = "'Palatino Linotype', Georgia, Palatino";
 
 
 #NEWLAYER: paletteable/phoenix
@@ -929,7 +912,6 @@ layerinfo name = "Red Spruce";
 layerinfo redist_uniq = "paletteable/redspruce";
 layerinfo author_name = "branchandroot";
 
-# Uses the "Getting so stressed" palette by Sruoloc (http://www.colourlovers.com/palette/1272420/Getting_so_stressed).
 set layout_resources = [ { "name" => "Getting so stressed", "url" => "http://www.colourlovers.com/palette/1272420/Getting_so_stressed" } ];
 
 ##===============================
@@ -1507,10 +1489,4 @@ set color_module_title = "#47456b";
 ##===============================
 
 set font_base = "'Palatino Linotype', Georgia, Palatino";
-set font_comment_title = "'Palatino Linotype', Georgia, Palatino";
-set font_entry_title = "'Palatino Linotype', Georgia, Palatino";
 set font_fallback = "serif";
-set font_journal_subtitle = "'Palatino Linotype', Georgia, Palatino";
-set font_journal_title = "'Palatino Linotype', Georgia, Palatino";
-set font_module_heading = "'Palatino Linotype', Georgia, Palatino";
-set font_module_text = "'Palatino Linotype', Georgia, Palatino";
