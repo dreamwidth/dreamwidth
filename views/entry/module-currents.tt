@@ -55,7 +55,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             id = "current_location"
 
             size = "20"
-            maxlength = "60"
+            maxlength = "80"
         ) %]
       </p>
     </div>

@@ -2331,7 +2331,8 @@ sub currents {
         my $loc = eval { LJ::Location->new( coords   => $props->{"${key}current_coords"},
                                             location => $props->{"${key}current_location"}
                                           ) };
-        $current{Location} = $loc->as_html_current if $loc;
+        $current{Location} = $loc->as_current if $loc;
+        LJ::CleanHTML::clean_subject( \$current{Location} );
     }
 
     # Crossposts

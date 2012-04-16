@@ -70,21 +70,9 @@ sub as_posneg_comma {
     return sprintf("%0.04f,%0.04f", $self->{lat}, $self->{long});
 }
 
-sub as_html_current {
+sub as_current {
     my $self = shift;
-    my $e_text = LJ::ehtml($self->{location} || $self->as_posneg_comma);
-
-    my $e_mapquery;
-    ## example url from http://maps.google.com/support/bin/answer.py?answer=18539&topic=10780:
-    ## http://maps.google.com/maps?q=37.771008,+-122.41175+(You+can+insert+your+text+here)
-    if ($self->as_posneg_comma) {
-        $e_mapquery = LJ::eurl($self->as_posneg_comma);
-        $e_mapquery .= LJ::eurl(' (' . $self->{location} . ')') if $self->{location};
-    } else {
-        $e_mapquery = LJ::eurl($self->{location});
-    }
-    my $map_service = $LJ::MAP_SERVICE || "http://maps.google.com/maps?q=";
-    return "<a href='$map_service$e_mapquery'>$e_text</a>";
+    return $self->{location} || $self->as_posneg_comma;
 }
 
 # Average of polar and equatorial radius of the earth

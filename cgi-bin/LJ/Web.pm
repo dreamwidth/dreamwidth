@@ -1678,7 +1678,7 @@ MOODS
                                         value => $opts->{prop_current_location},
                                         id => 'prop_current_location',
                                         class => 'text', size => '35',
-                                        maxlength => '60',
+                                        maxlength => LJ::std_max_length(),
                                         tabindex => $tabindex->() }) . "\n";
                 $out .= "</span>";
             }

@@ -338,6 +338,11 @@ sub entry_to_req {
         $req->{props}->{$entrykey} = $entryprops->{$entrykey} if defined $entryprops->{$entrykey};
     }
 
+    # remove html from current location
+    if ($req->{props}->{current_location}) {
+        $req->{props}->{current_location} = LJ::strip_html($req->{props}->{current_location});
+    }
+
     # the taglist entryprop stored in the DB is not canonical, and may be truncated if there are too many tags
     # so let's grab the actual tag items and rebuild a string
     my @tags = $entry->tags;
