@@ -1,0 +1,6 @@
+;; -*- coding: utf-8 -*-
+.admin.link=Logout User
+
+.admin.text=Logs a user out of the site.
+
+.title=Logout User
