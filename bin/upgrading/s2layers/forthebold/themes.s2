@@ -1,0 +1,46 @@
+#NEWLAYER: forthebold/tealeaves
+layerinfo type = "theme";
+layerinfo name = "Teal Eaves";
+layerinfo redist_uniq = "forthebold/tealeaves";
+layerinfo author_name = "timeasmymeasure";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#EDEDED";
+set color_page_link = "#3dac8e";
+set color_page_link_hover = "#12332a";
+set color_page_link_visited = "#3dac8e";
+set color_page_text = "#707070";
+set color_page_title = "#333";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_date = "#ababab";
+set color_entry_interaction_links = "#333";
+set color_entry_link = "#3dac8e";
+set color_entry_link_hover = "#12332a";
+set color_entry_link_visited = "#3dac8e";
+set color_entry_text = "#333";
+set color_entry_title = "#333";
+set color_entry_title_border = "#999";
+set color_comment_title = "#333";
+set color_comment_title_border = "#999";
+set color_calendar_background = "#f5f5f5";
+set color_calendar_text = "#333";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#3dac8e";
+set color_module_link = "#fff";
+set color_module_link_hover = "#fff";
+set color_module_link_visited = "#fff";
+set color_module_text = "#333";
+set color_module_title = "#333";
+set color_module_title_border = "#7ab8a7";

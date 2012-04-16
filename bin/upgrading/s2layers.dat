@@ -58,6 +58,9 @@ fiveam/themes            theme+                      fiveam/layout
 fluidmeasure/layout      layout(core2base/layout)    core2
 fluidmeasure/themes      theme+                      fluidmeasure/layout
 
+forthebold/layout        layout(core2base/layout)    core2
+forthebold/themes        theme+                      forthebold/layout
+
 funkycircles/layout      layout(core2base/layout)    core2
 funkycircles/themes      theme+                      funkycircles/layout
 

@@ -49,6 +49,7 @@ sub default_themes {
         easyread => 'easyread/green',
         fiveam => 'fiveam/earlyedition',
         fluidmeasure => 'fluidmeasure/spice',
+        forthebold => 'forthebold/tealeaves',
         funkycircles => 'funkycircles/darkpurple',
         lineup => 'lineup/modernity',
         marginless => 'marginless/mars',
