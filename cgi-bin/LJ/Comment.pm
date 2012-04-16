@@ -1538,7 +1538,7 @@ sub _format_mail_both {
         $body .= "<input type='hidden' name='encoding' value='$encoding' />" unless $encoding eq "UTF-8";
         my $newsub = $self->subject_html($targetu);
         unless (!$newsub || $newsub =~ /^Re:/) { $newsub = "Re: $newsub"; }
-        $body .= "<b>".LJ::Lang::get_text($lang, $ml_prefix . 'subject', undef)."</b> <input name='subject' size='40' value=\"" . LJ::ehtml($newsub) . "\" />";
+        $body .= "<b>".LJ::Lang::get_text($lang, $ml_prefix . 'subject', undef)."</b> <input name='subject' size='40' maxlength='100' value=\"" . LJ::ehtml($newsub) . "\" />";
         $body .= "<p><b>".LJ::Lang::get_text($lang, $ml_prefix . 'message', undef, $vars)."</b><br /><textarea rows='10' cols='50' wrap='soft' name='body'></textarea>";
         $body .= "<br /><input type='submit' value='" . LJ::Lang::get_text($lang, $ml_prefix . 'post_reply', undef) . "' />";
         $body .= "</form></blockquote>\n";
