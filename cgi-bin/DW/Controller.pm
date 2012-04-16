@@ -126,14 +126,31 @@ sub controller {
         # now iterate over the array and check.  the user must have ANY
         # of the privs to pass the test.
         my $has_one = 0;
+        my @privnames;
         foreach my $priv ( @$privs ) {
-            last if $has_one = $vars->{remote}->has_priv( $priv );
+            # if priv is a string, assign the priv having to has_one and stop searching
+            if ( not ref( $priv ) ) {
+                if ( $has_one = $vars->{remote}->has_priv( $priv ) ) {
+                    last;
+                } else {
+                    push @privnames, $priv;
+                }
+            } elsif ( ref( $priv ) eq "CODE" ) { # if priv is a function, get the result and name
+                my( $result, $name ) = $priv->( $vars->{remote} );
+                if ( $has_one = $result ) {
+                    last;
+                } else {
+                    push @privnames, $name;
+                }
+            } else {
+                die "Malformed priv in privcheck!"
+            }
         }
 
         # now if they have none, throw an error message
         return $fail->( error_ml( 'admin.noprivserror',
                     { numprivs => scalar @$privs,
-                      needprivs => join( ', ', sort @$privs ) } ) )
+                      needprivs => join( ', ', sort @privnames ) } ) )
             unless $has_one;
     }
 
@@ -152,11 +169,11 @@ sub validate_redirect_url {
 
     # Redirect to offsite uri if allowed, and not an internal LJ redirect.
     my $parsed_uri = URI->new($url);
-    
-    # if the given URI isn't valid, the URI module doesn't even give the 
+
+    # if the given URI isn't valid, the URI module doesn't even give the
     # returned object a host method
     my $redir_host = eval { $parsed_uri->host } || "";
-        
+
     return $LJ::REDIRECT_ALLOWED{$redir_host} || $redir_host =~ m#${LJ::DOMAIN}$#i;
 }
 
