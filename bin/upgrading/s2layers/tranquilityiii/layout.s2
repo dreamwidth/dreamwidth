@@ -279,7 +279,7 @@ ul.entry-interaction-links li.entry-readlink { font-weight: bold; }
 
 .page-entry .entry-interaction-links li.first-item { border-left: none; }
 
-/* Comments */
+/* Comments
 ******************************/
 
 .comment { padding: .5em }
@@ -367,7 +367,7 @@ ul.comment-interaction-links li.reply { font-weight: bold; }
 
 #qrformdiv table { margin: .5em; }
 
-/* Archive Pages */
+/* Archive Pages
 ******************************/
 
 #archive-year .navigation {
@@ -398,12 +398,12 @@ table.month th {
 
 .month h3.entry-title { font-weight: bold; }
 
-/* Tags Pages */
+/* Tags Page
 ******************************/
 
 .tags-container { margin: 1em 2em; }
 
-/* Icons Pages */
+/* Icons Page
 ******************************/
 
 .icons-container { margin: 1em 2em; }
@@ -428,7 +428,7 @@ table.month th {
 
 .icon-info .default { text-decoration: underline; }
 
-/* Sidebars */
+/* Sidebars
 ******************************/
 
 #secondary a,
@@ -456,7 +456,7 @@ table.month th {
     background-color: $*color_module_background;
     color: $*color_module_text;
     margin: 1em;
-    padding: 0 !important;
+    padding: 0;
     }
 
 .two-columns-left #tertiary .separator-after,
