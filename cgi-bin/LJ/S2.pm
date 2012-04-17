@@ -195,11 +195,19 @@ sub make_journal
         LJ::need_res( { group => "jquery" }, qw(
                         js/md5.js
                         js/login-jquery.js
-
-                        js/jquery.poll.js
-                        js/jquery.mediaplaceholder.js
                     ) );
     }
+
+    LJ::need_res( { group => "jquery" }, qw(
+        js/jquery/jquery.ui.widget.js
+        js/jquery.ajaxtip.js
+        js/tooltip.js
+        stc/ajaxtip.css
+
+        js/jquery.poll.js
+
+        js/jquery.mediaplaceholder.js
+    ) );
 
     # Include any head stc or js head content
     LJ::Hooks::run_hooks("need_res_for_journals", $u);
