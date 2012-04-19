@@ -405,10 +405,12 @@ function Page::print_entry(Entry e)
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
     $e->print_wrapper_start();
     """<div class="header">\n""";
+    """<div class="inner">\n""";
     $e->print_subject();
     $e->print_metatypes();
     $e->print_time();
     if ($*entry_poster_position == "header") { $e->print_poster(); }
+    """</div>\n""";
     """</div>\n""";
     """<div>\n""";
     """<div class="contents">\n""";
@@ -440,10 +442,12 @@ function ReplyPage::print_comment (Comment c) {
 
     $c->print_wrapper_start();
     """<div class="header">\n""";
+    """<div class="inner">\n""";
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
     if ($*entry_poster_position == "header") { $c->print_poster(); }
+    """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
     """<div class="inner">\n""";
@@ -471,10 +475,12 @@ function EntryPage::print_comment (Comment c) {
 
     $c->print_wrapper_start();
     """<div class="header">\n""";
+    """<div class="inner">\n""";
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
     if ($*entry_poster_position == "header") { $c->print_poster(); }
+    """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
     """<div class="inner">\n""";
@@ -492,7 +498,7 @@ function EntryPage::print_comment (Comment c) {
         """<span class="multiform-checkbox">""";
         print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
         $c->print_multiform_check();
-	"</span>";
+    "</span>";
     }
     $c->print_management_links();
     $c->print_interaction_links();
