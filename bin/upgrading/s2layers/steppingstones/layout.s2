@@ -480,9 +480,7 @@ table.month th {
 .icons-container a:hover { color: $*color_entry_link_hover; }
 .icons-container a:active { color: $*color_entry_link_active; }
 
-.sorting-options ul {
-    padding-left: 0;
-    }
+.sorting-options ul { padding-left: 0; }
 
 .icons-container .icon { margin: 1em 0; }
 
@@ -499,11 +497,6 @@ table.month th {
 .icon-info span { font-weight: bold; }
 
 .icon-info .default { text-decoration: underline; }
-
-.icon-info .comment {
-    margin: 0;
-    padding: 0;
-    }
 
 /* Sidebars
 ******************************/

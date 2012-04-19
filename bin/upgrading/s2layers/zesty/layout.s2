@@ -1098,12 +1098,12 @@ h3 {
     text-decoration: underline;
     }
 
-.icon-info .keywords ul {
+.icon-keywords ul {
     display: inline;
     padding-left: 0;
     }
 
-.icon-info .keywords ul li {
+.icon-keywords ul li {
     display: inline;
     list-style: none;
     padding: 0 .25em 0 0;

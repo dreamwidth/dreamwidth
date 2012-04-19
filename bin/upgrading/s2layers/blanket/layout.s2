@@ -879,6 +879,11 @@ td.day {
     padding: 4em 2em;
     }
 
+.icons-container a { color: $*color_entry_link; }
+.icons-container a:visited { color: $*color_entry_link_visited; }
+.icons-container a:hover { color: $*color_entry_link_hover; }
+.icons-container a:active { color: $*color_entry_link_active; }
+
 .icons-container h2 {
     $entry_title_colors
     font-size: 1em;
