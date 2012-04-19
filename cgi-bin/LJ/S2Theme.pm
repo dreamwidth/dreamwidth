@@ -51,6 +51,7 @@ sub default_themes {
         fluidmeasure => 'fluidmeasure/spice',
         forthebold => 'forthebold/tealeaves',
         funkycircles => 'funkycircles/darkpurple',
+        hibiscus => 'hibiscus/tropical',
         lineup => 'lineup/modernity',
         marginless => 'marginless/mars',
         modular => 'modular/mediterraneanpeach',

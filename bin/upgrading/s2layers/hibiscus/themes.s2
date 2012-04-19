@@ -1,0 +1,723 @@
+#NEWLAYER: hibiscus/buttercupsummer
+layerinfo type = "theme";
+layerinfo name = "Buttercup Summer";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/buttercupsummer";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_url = "hibiscus/buttercupsummer.png";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_position = "bottom left";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#4d2455";
+set color_footer_background = "#4d2455";
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#37c75c";
+set color_page_link_visited = "#2ca04a";
+set color_page_link_active = "#009";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#dcc300";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#4d2455";
+set color_module_title = "#dcc300";
+
+
+#NEWLAYER: hibiscus/buttercupsummernight
+layerinfo type = "theme";
+layerinfo name = "Buttercup Summer Night";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/buttercupsummernight";
+
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/buttercupsummer.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#6c536c";
+set color_footer_background = "#6c536c";
+set color_page_background = "#1c031c";
+set color_page_text = "#fff";
+set color_page_link = "#88de9e";
+set color_page_link_visited = "#37c75c";
+set color_page_link_active = "#99f";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#f5ff85";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#6c536c";
+set color_module_title = "#f5ff85";
+
+
+#NEWLAYER: hibiscus/earlymorning
+layerinfo type = "theme";
+layerinfo name = "Early Morning";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/earlymorning";
+
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/earlymorning.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#aDaC98";
+set color_footer_background = "#aDaC98";
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#5536c8";
+set color_page_link_visited = "#442b9f";
+set color_page_link_active = "#a00";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#55b9ff";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#55b9ff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "aDaC98";
+set color_module_title = "#55b9ff";
+
+
+#NEWLAYER: hibiscus/earlynight
+layerinfo type = "theme";
+layerinfo name = "Early Night";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/earlynight";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/earlymorning.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#aDaC98";
+set color_footer_background = "#aDaC98";
+set color_page_background = "#1a1600";
+set color_page_text = "#fff";
+set color_page_link = "#92dafc";
+set color_page_link_visited = "#a997ed";
+set color_page_link_active = "#fcc";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#55fdff";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#55b9ff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "CDCCB8";
+set color_module_title = "#55fdff";
+
+
+#NEWLAYER: hibiscus/margarita
+layerinfo type = "theme";
+layerinfo name = "Margarita";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/margarita";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/margarita.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#742740";
+set color_footer_background = "#742740";
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#369dc8";
+set color_page_link_visited = "#2c7ea0";
+set color_page_link_active = "#a00";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#55ef65";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#55ef65";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "742740";
+set color_module_title = "#55ef65";
+
+
+#NEWLAYER: hibiscus/margaritanight
+layerinfo type = "theme";
+layerinfo name = "Margarita Night";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/margaritanight";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/margarita.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#7a4056";
+set color_footer_background = "#7a4056";
+set color_page_background = "#3a0016";
+set color_page_text = "#fff";
+set color_page_link = "#88c5de";
+set color_page_link_visited = "#369dc8";
+set color_page_link_active = "#f99";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#75ef85";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#75ef85";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "7a4056";
+set color_module_title = "#75ef85";
+
+
+#NEWLAYER: hibiscus/roseate
+layerinfo type = "theme";
+layerinfo name = "Roseate";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/roseate";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/roseate.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#D7EAC1";
+set color_footer_background = "#D7EAC1";
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#c83677";
+set color_page_link_visited = "#a02c60";
+set color_page_link_active = "#00c";
+set color_page_title = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#752bcd";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#752bcd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "a7bA91";
+set color_module_title = "#752bcd";
+set color_module_border = "a7bA91";
+
+
+#NEWLAYER: hibiscus/roseatenight
+layerinfo type = "theme";
+layerinfo name = "Roseate Night";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/roseatenight";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/roseate.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#E4CBCB";
+set color_footer_background = "#E4CBCB";
+set color_page_background = "#28181B"; #031c03
+set color_page_text = "#fff";
+set color_page_link = "#de86ad";
+set color_page_link_visited = "#c83878";
+set color_page_link_active = "#ccf";
+set color_page_title = "#28181B";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fea6cd";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#fea6cd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "D7EAC1";
+set color_module_title = "#fea6cd";
+
+
+#NEWLAYER: hibiscus/tangerine
+layerinfo type = "theme";
+layerinfo name = "Tangerine";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/tangerine";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/tangerine.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#244D55";
+set color_footer_background = "#244D55";
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#51c836";
+set color_page_link_visited = "#42a02c";
+set color_page_link_active = "#009";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fcab2c";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#fcab2c";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#244D55";
+set color_module_title = "#fcab2c";
+
+
+#NEWLAYER: hibiscus/tangerinenight
+layerinfo type = "theme";
+layerinfo name = "Tangerine Night";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/tangerinenight";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/tangerine.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#244D55";
+set color_footer_background = "#244D55";
+set color_page_background = "#03032c";
+set color_page_text = "#fff";
+set color_page_link = "#99dd87";
+set color_page_link_visited = "#51c836";
+set color_page_link_active = "#99f";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#febc54";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#febc54";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#446D75";
+set color_module_title = "#febc54";
+
+
+#NEWLAYER: hibiscus/tropical
+layerinfo type = "theme";
+layerinfo name = "Tropical";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/tropical";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/tropical.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#6c5353";
+set color_footer_background = "#6c5353";
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#abc837";
+set color_page_link_visited = "#677821";
+set color_page_link_active = "#009";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#ff2a2a";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#ff2a2a";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#6c5353";
+set color_module_title = "#ff2a2a";
+
+
+#NEWLAYER: hibiscus/tropicalnight
+layerinfo type = "theme";
+layerinfo name = "Tropical Night";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "hibiscus/tropicalnight";
+
+#image is edited from public domain image "Hibiscus Remixed" by Kattekrab (http://openclipart.org/media/files/kattekrab/9689)
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Fonts
+##===============================
+set font_base = "'Times New Roman', serif";
+set font_comment_title = "'Century Gothic', Verdana, sans-serif";
+set font_entry_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_title = "'Century Gothic', Verdana, sans-serif";
+set font_journal_subtitle = "'Century Gothic', Verdana, sans-serif";
+set font_module_heading = "'Century Gothic', Verdana, sans-serif";
+
+##===============================
+## Page Images
+##===============================
+
+set image_background_header_position = "bottom left";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_url = "hibiscus/tropical.png";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_header_background = "#6c5353";
+set color_footer_background = "#6c5353";
+set color_page_background = "#1c0303";
+set color_page_text = "#fff";
+set color_page_link = "#ccdd86";
+set color_page_link_visited = "#abc837";
+set color_page_link_active = "#009";
+set color_page_title = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fe5555";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title = "#fe5555";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_border = "#6c5353";
+set color_module_title = "#fe5555";
+

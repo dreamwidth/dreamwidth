@@ -67,6 +67,9 @@ funkycircles/themes      theme+                      funkycircles/layout
 lineup/layout            layout(core2base/layout)    core2
 lineup/themes            theme+                      lineup/layout
 
+hibiscus/layout          layout(core2base/layout)    core2
+hibiscus/themes          theme+                      hibiscus/layout
+
 marginless/layout        layout(core2base/layout)    core2
 marginless/themes        theme+                      marginless/layout
 
