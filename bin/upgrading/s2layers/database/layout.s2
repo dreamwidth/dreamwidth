@@ -1,0 +1,2246 @@
+layerinfo type = "layout";
+layerinfo name = "Database";
+layerinfo redist_uniq = "database/layout";
+layerinfo author_name = "ninetydegrees";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "ninetydegrees", "type" => "user" } ];
+set layout_resources = [
+    { "name" => "Cyreal's font", "url" => "http://www.google.com/webfonts" },
+    { "name" => "P.J. Onori's icons", "url" => "http://www.somerandomdude.com/" }
+];
+
+##===============================
+## Presentation 
+##===============================
+
+propgroup presentation_child {
+    property string post_title_align {
+        des = "Content title alignment";
+        values = "left|Left|right|Right";
+        }
+    property string post_text_align {
+        des = "Content text alignment";
+        values = "left|Left|justify|Justify";
+        }
+    property string entry_interaction_links {
+        des = "Select whether entry interaction links are printed as text or using the available icons";
+        values = "icons|icons|text|text-only|";
+        }
+    property string comment_interaction_links {
+        des = "Select whether comment interaction links are printed as text or using the available icons";
+        values = "icons|icons|text|text-only|";
+        }
+    property bool default_icons {
+        des = "Replace custom icons with default ones";
+        note = "Text will be used instead when there are no default icons.";
+        }
+    }
+
+set layout_type = "two-columns-right";
+set entry_date_format = "iso";
+set entry_time_format = "short_24";
+set comment_date_format = "iso";
+set comment_time_format = "short_24";
+set custom_colors_template = "%%new%% .entrybox-wrapper { border: 2px solid %%background%%; }
+%%new%% .entry-title { margin-bottom: .5em; }
+%%new%% .entry-title a {
+    background-color: %%background%%;
+    color: %%foreground%%;
+    border-radius: .6em;
+    padding: .2em;
+    }";
+set userlite_interaction_links = "text";
+set entry_interaction_links = "icons";
+set comment_interaction_links = "icons";
+set all_commentsubjects = true;
+set post_title_align = "right";
+set post_text_align = "justify";
+set default_icons = false;
+
+##===============================
+## Colors
+##===============================
+
+propgroup colors_child {
+    property Color color_page_title_shadow { des = "Page title shadow color"; }
+    property Color color_userpic_shadow { des = "Userpic shadow color"; }
+    property Color color_elements_border { des = "Misc. elements border color"; }
+
+    property Color color_entry_title_shadow { des = "Entry title shadow color"; }
+    property Color color_comment_title_shadow { des = "Comment title shadow color"; }
+
+    property Color color_calendar_header_background { des = "Calendar header background color"; }
+    property Color color_calendar_header_text { des = "Calendar header color"; }
+    property Color color_calendar_background { des = "Calendar background color"; }
+    property Color color_calendar_link { des = "Calendar link color"; }
+    property Color color_calendar_background_active { des = "Calendar active background color"; }
+    property Color color_calendar_link_active { des = "Calendar active link color"; }
+    property Color color_calendar_background_hover { des = "Calendar hover background color"; }
+    property Color color_calendar_link_hover { des = "Calendar hover link color"; }
+    property Color color_calendar_background_visited { des = "Calendar visited background color"; }
+    property Color color_calendar_link_visited { des = "Calendar visited link color"; }
+
+    property Color color_module_title_shadow { des = "Module title shadow color"; }
+    property Color color_module_header_background { des = "Header module background color"; }
+    property Color color_module_header_link { des = "Header module link color"; }
+    property Color color_module_header_background_active { des = "Header module active background color"; }
+    property Color color_module_header_link_active { des = "Header module active color"; }
+    property Color color_module_header_background_hover { des = "Header module hover background color"; }
+    property Color color_module_header_link_hover { des = "Header module hover link color"; }
+    property Color color_module_header_background_visited { des = "Header module visited background color"; }
+    property Color color_module_header_link_visited { des = "Header module visited color"; }
+    property Color color_module_header_border { des = "Header module border color"; }
+    property Color color_module_calendar_header_background { des = "Calendar module header background color"; }
+    property Color color_module_calendar_header_text { des = "Calendar module header color"; }
+    property Color color_module_calendar_background { des = "Calendar module background color"; }
+    property Color color_module_calendar_link { des = "Calendar module link color"; }
+    property Color color_module_calendar_background_active { des = "Calendar module active background color"; }
+    property Color color_module_calendar_link_active { des = "Calendar module active link color"; }
+    property Color color_module_calendar_background_hover { des = "Calendar module hover background color"; }
+    property Color color_module_calendar_link_hover { des = "Calendar modules hover link color"; }
+    property Color color_module_calendar_background_visited { des = "Calendar module visited background color"; }
+    property Color color_module_calendar_link_visited { des = "Calendar module visited link color"; }
+
+}
+
+##===============================
+## Fonts 
+##===============================
+
+set font_sources = "http://fonts.googleapis.com/css?family=Iceland";
+set font_base = "Iceland, 'Courier New'";
+set font_fallback = "monospace";
+set font_base_size = "1.3";
+set font_base_units = "em";
+set font_journal_title_size = "2.5";
+set font_journal_title_units ="em";
+set font_journal_subtitle_size = "1.1";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.25";
+set font_entry_title_units ="em";
+set font_comment_title_size = "1.25";
+set font_comment_title_units ="em";
+set font_module_heading_size = "1.25";
+set font_module_heading_units = "em";
+
+##===============================
+## Images 
+##===============================
+
+propgroup images_child {
+    property string[] image_background_footer_group {
+        des = "Footer background image";
+        grouptype = "image";
+    }
+    set image_background_footer_group = [ "image_background_footer_url", "image_background_footer_repeat", "image_background_footer_position" ];
+    property string image_background_footer_url {
+        grouped = 1;
+        }
+    property string image_background_footer_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_footer_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        }
+    property int image_background_footer_height {
+        des = "The height of your footer image, in pixels.  Use 0 for default.";
+        example = "50";
+        size = 6;
+        }
+
+    property string[] image_background_blockquote_group {
+        des = "Blockquote background image";
+        grouptype = "image";
+    }
+    set image_background_blockquote_group = [ "image_background_blockquote_url", "image_background_blockquote_repeat", "image_background_blockquote_position" ];
+    property string image_background_blockquote_url {
+        grouped = 1;
+        }
+    property string image_background_blockquote_repeat {
+        values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+        grouped = 1;
+        }
+    property string image_background_blockquote_position {
+        values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
+        grouped = 1;
+        allow_other = 1;
+        }
+    property int image_background_blockquote_width {
+        des = "The width of your blockquote image, in pixels.  Use 0 for default.";
+        example = "50";
+        size = 6;
+        }
+
+    property string image_addmemories { des = "Add to memories icon"; noui = 1; }
+    property string image_comments { des = "Read comments icon"; noui = 1; }
+    property string image_delete { des = "Delete item icon"; noui = 1; }
+    property string image_edit { des = "Post or edit item icon"; noui = 1; }
+    property string image_edittags { des = "Edit tags icon"; noui = 1; }
+    property string image_expand { des = "Expand thread icon"; noui = 1; }
+    property string image_freeze { des = "Freeze comment icon"; noui = 1; }
+    property string image_giveaccess { des = "Give access icon"; noui = 1; }
+    property string image_join { des = "Join community icon"; noui = 1; }
+    property string image_link { des = "Post link icon"; noui = 1; }
+    property string image_maxcomments { des = "Maximum comments icon"; noui = 1; }
+    property string image_message { des = "Send a Private Message icon"; noui = 1; }
+    property string image_next { des = "Next entry icon"; noui = 1; }
+    property string image_parent { des = "Parent comment icon"; noui = 1; }
+    property string image_prev { des = "Previous entry icon"; noui = 1; }
+    property string image_reply { des = "Reply to post icon"; noui = 1; }
+    property string image_screen { des = "Screen comment icon"; noui = 1; }
+    property string image_subscribe { des = "Subscribe to journal icon"; noui = 1; }
+    property string image_tellafriend { des = "Tell a friend icon"; noui = 1; }
+    property string image_thread { des = "Comment thread icon"; noui = 1; }
+    property string image_threadroot { des = "Root comment icon"; noui = 1; }
+    property string image_track { des = "Track item icon"; noui = 1; }
+    property string image_tracked { des = "Tracked item icon"; noui = 1; }
+    property string image_unfreeze { des = "Unfreeze comment icon"; noui = 1; }
+    property string image_unscreen { des = "Unscreen comment icon"; noui = 1; }
+    }
+
+##===============================
+## Modules
+##===============================
+
+propgroup modules_child {
+    property string module_navlinks_section_override {
+       values = "none|(none)|header|Header|one|Main Module Section|two|Second Module Section";
+       grouped = 1;
+       }
+    property string module_time_section_override {
+       values = "none|(none)|one|Main Module Section|two|Second Module Section|footer|Footer";
+       grouped = 1;
+       }
+    property string module_poweredby_section_override {
+       values = "none|(none)|one|Main Module Section|two|Second Module Section|footer|Footer";
+       grouped = 1;
+       }
+    }
+
+set grouped_property_override = {
+        "module_navlinks_section" => "module_navlinks_section_override",
+        "module_time_section" => "module_time_section_override",
+        "module_poweredby_section" => "module_poweredby_section_override"
+    };
+
+set module_navlinks_section = "header";
+set module_pagesummary_order = 6;
+set module_tags_order = 7;
+set module_search_order = 8;
+set module_customtext_order = 9;
+set module_customtext_section = "two";
+set module_active_order = 10;
+set module_active_section = "two";
+set module_links_order = 11;
+set module_links_section = "two";
+set module_syndicate_order = 12;
+set module_syndicate_section = "two";
+set module_credit_order = 13;
+set module_credit_section = "two";
+set module_time_order = 19;
+set module_time_section = "footer";
+set module_poweredby_order = 20;
+set module_poweredby_section = "footer";
+
+set module_tags_opts_type = "multi";
+
+##===============================
+## Text
+##===============================
+
+set text_default_separator = " &#9726; ";
+set text_posting_in = " in ";
+set text_meta_music = "&#9726; Current Music";
+set text_meta_mood = "&#9726; Current Mood";
+set text_meta_location = "&#9726; Current Location";
+set text_meta_groups = "&#9726; Custom Access Groups";
+set text_meta_xpost = "&#9642; Crossposts";
+set text_tags = "&#9726; Tags:";
+set text_comment_from = "Posted by:";
+set text_comment_date = "Date/Time:";
+set text_comment_ipaddr = "&#9726; IP:";
+set text_entry_prev = "Previous";
+set text_entry_next = "Next";
+set text_tell_friend = "Share";
+set text_mem_add = "Memory";
+set text_generated_on = "Page generated on";
+set text_page_top = "Top of Page";
+
+##===============================
+## Functions
+##===============================
+
+## Use default or custom icons for action links depending on setting
+## If action doesn't have a default icon, use text instead
+
+function prop_init () {
+
+    $*image_addmemories = $*default_icons ? "$*IMGDIR/silk/entry/memories_add.png" : generate_image_url($*image_addmemories);
+    $*image_comments = $*default_icons ? "" : generate_image_url($*image_comments);
+    $*image_delete = $*default_icons ? "$*IMGDIR/silk/comments/delete.png" : generate_image_url($*image_delete);
+    $*image_edit = $*default_icons ? "$*IMGDIR/silk/entry/edit.png" : generate_image_url($*image_edit);
+    $*image_edittags = $*default_icons ? "$*IMGDIR/silk/entry/tag_edit.png" : generate_image_url($*image_edittags);
+    $*image_expand = $*default_icons ? "" : generate_image_url($*image_expand);
+    $*image_freeze = $*default_icons ? "$*IMGDIR/silk/comments/freeze.png" : generate_image_url($*image_freeze);
+    $*image_giveaccess = $*default_icons ? "$*IMGDIR/silk/profile/access_give.png" : generate_image_url($*image_giveaccess);
+    $*image_join = $*default_icons ? "$*IMGDIR/silk/profile/community_join.png" : generate_image_url($*image_join);
+    $*image_link = $*default_icons ? "" : generate_image_url($*image_link);
+    $*image_maxcomments = $*default_icons ? "" : generate_image_url($*image_maxcomments);
+    $*image_message = $*default_icons ? "$*IMGDIR/silk/profile/message.png" : generate_image_url($*image_message);
+    $*image_next = $*default_icons ? "$*IMGDIR/silk/entry/next.png" : generate_image_url($*image_next);
+    $*image_parent = $*default_icons ? "" : generate_image_url($*image_parent);
+    $*image_prev = $*default_icons ? "$*IMGDIR/silk/entry/previous.png" : generate_image_url($*image_prev);
+    $*image_reply = $*default_icons ? "" : generate_image_url($*image_reply);
+    $*image_tellafriend = $*default_icons ? "$*IMGDIR/silk/entry/tellafriend.png" : generate_image_url($*image_tellafriend);
+    $*image_thread = $*default_icons ? "" : generate_image_url($*image_thread);
+    $*image_threadroot = $*default_icons ? "" : generate_image_url($*image_threadroot);
+    $*image_track = $*default_icons ? "$*IMGDIR/silk/entry/track.png" : generate_image_url($*image_track);
+    $*image_tracked = $*default_icons ? "$*IMGDIR/silk/entry/untrack.png" : generate_image_url($*image_tracked);
+    $*image_screen = $*default_icons ? "$*IMGDIR/silk/comments/screen.png" : generate_image_url($*image_screen);
+    $*image_subscribe = $*default_icons ? "$*IMGDIR/silk/profile/subscription_add.png" : generate_image_url($*image_subscribe);
+    $*image_unfreeze = $*default_icons ? "$*IMGDIR/silk/comments/unfreeze.png" : generate_image_url($*image_unfreeze);
+    $*image_unscreen = $*default_icons ? "$*IMGDIR/silk/comments/unscreen.png" : generate_image_url($*image_unscreen);
+
+    $*entry_interaction_links = $*default_icons ? "text" : $*entry_interaction_links;
+    $*comment_interaction_links = $*default_icons ? "text" : $*comment_interaction_links;
+}
+
+## Add title to Nav module when not in header position.
+
+function print_module_navlinks() {
+    var Page p = get_page();
+    var string title = ($*module_navlinks_section == "header") ? "" : "Navigation";
+    open_module("navlinks", $title, "");
+    var string{}[] links = [];
+    foreach var string k ($p.views_order) {
+        var string class = $k;
+        if ($p.view == $k) { $class = "current $k"; }
+            $links[size $links] = { "class" => $class, "item" => """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""" };
+        }
+    print_module_list($links);
+    close_module();
+}
+
+## Print security and warnings as text.
+
+function Entry::print_metatypes() {
+    $this->print_metatypes(false, true);
+}
+
+## Replace profile interaction link icons.
+
+function UserLite::print_interaction_links() {
+
+    var string{} interaction_icons = {
+        "manage_membership" => $*image_join,
+        "trust" => $*image_giveaccess,
+        "watch" => $*image_subscribe,
+        "post_entry" => $*image_edit,
+        "message" => $*image_message,
+        "track" => $*image_track,
+        "tell_friend" => $*image_tellafriend,
+    };
+
+    var string display_type = ($*userlite_interaction_links == "text") ? " text-links" : " icon-links";
+
+    """<ul class="userlite-interaction-links$display_type">""";
+    # FIXME: HTML is not valid if there are no items inside a list, so there should be a
+    # check that there are user interaction links before opening the ul class.
+    var Link link;
+    var string icon_url;
+    var int count;
+    $count = 0;
+    foreach var string k ($.link_keyseq) {
+        $link = $this->get_link($k);
+        $icon_url = $interaction_icons{$k};
+        if ($link.url) {
+            $count ++;
+            if ($*userlite_interaction_links == "text") {
+                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
+            }
+            else { ## if ($*userlite_interaction_links == "icons")
+                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url"><img src="$icon_url" alt="$link.caption" title="$link.caption" /></a></li>\n""";
+            }
+        }
+    }
+    """</ul>""";
+}
+
+## Replace manage/interaction links with icons.
+
+function Entry::print_link_next() {
+    var Link link = $this->get_link("nav_next");
+    if ($*entry_management_links == "text") {
+         """<a href="$link.url">$link.caption</a>""";
+    }
+    else {
+        """<a href="$link.url"><img src="$*image_next" alt="$link.caption" title="$link.caption" /></a>""";
+    }
+}
+
+function Entry::print_link_prev() {
+    var Link link = $this->get_link("nav_prev");
+    if ($*entry_management_links == "text") {
+         """<a href="$link.url">$link.caption</a>""";
+    }
+    else {
+        """<a href="$link.url"><img src="$*image_prev" alt="$link.caption" title="$link.caption" /></a>""";
+    }
+}
+
+function Entry::print_management_links() {
+    var string{} manage_icons = { 
+        "edit_entry" => $*image_edit,
+        "edit_tags" => $*image_edittags,
+        "mem_add" => $*image_addmemories,
+        "tell_friend" => $*image_tellafriend,
+        "watch_comments" => $*image_track,
+        "unwatch_comments" => $*image_tracked,
+    };
+
+    ## There's no point in showing previous/next links on pages which show
+    ## multiple entries anyway, so we only print them on EntryPage and ReplyPage.
+
+    var string display_type = ($*entry_management_links == "text") ? " text-links" : " icon-links";
+
+    var Page p = get_page();
+    var int count;
+    var string extras;
+    $count = 0;
+    """<ul class="entry-management-links$display_type">""";
+    var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
+    if ($show_interentry) {
+        $count ++;
+        """<li class="link link_prev first-item">""";
+        $this->print_link_prev();
+        """</li>\n""";
+    }
+    var Link link;
+    var string icon_url;
+    foreach var string k ($.link_keyseq) {
+        $link = $this->get_link($k);
+        $icon_url = $manage_icons{$k};
+        if ($link.url) {
+            $count ++;
+            if ($*entry_management_links == "text") {
+                foreach var string extra ( $link.extra ) {
+                    var string value = $link.extra{$extra};
+                    $extras = $extras + "$extra='$value' ";
+                }
+                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url" $extras>$link.caption</a></li>\n""";
+            }
+            else { ## if ($*entry_management_links == "icon")
+
+            """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url"><img src="$icon_url" alt="$link.caption" title="$link.caption" /></a></li>""";
+            }
+        }
+    }
+    if ($show_interentry) {
+        """<li class="link link_next">""";
+        $this->print_link_next();
+        """</li>\n""";
+    }
+    """</ul>""";
+}
+
+function CommentInfo::print_readlink {
+    var Page p = get_page();
+    var string alt = get_plural_phrase($.count, $p.view == "read" ? "text_read_comments_friends" : "text_read_comments");
+    if ($*entry_interaction_links == "text") {
+            print safe "<a href=\"$.read_url#comments\">"+ 
+        get_plural_phrase($.count, $p.view == "read" ?
+                          "text_read_comments_friends" : "text_read_comments")+
+    "</a>";
+
+    }
+    else { print safe """<a href="$.read_url#comments" alt="$alt" title="$alt">$.count <img src="$*image_comments" /></a>"""; }
+}
+
+function CommentInfo::print_postlink() {
+    var Page p = get_page();
+    var string alt = ($p.view == "read" or $p.view == "network") ? $*text_post_comment_friends : $*text_post_comment;
+    if ($.maxcomments) {
+        if ($*entry_interaction_links == "text") {
+            print safe "$*text_max_comments";
+        } else {
+            print safe """<img src="$*image_maxcomments" alt="$*text_max_comments" title="$*text_max_comments" />""";
+        }
+    } else {
+        if ($*entry_interaction_links == "text") {
+            print safe "<a href=\"$.post_url\">"+($p.view == "read" or $p.view == "network" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+        } else {
+            print safe """<a href="$.post_url"><img src="$*image_reply" alt="$alt" title="$alt" /></a>""";
+        }
+    }
+}
+function CommentInfo::print() {
+    var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
+
+        """<ul class="entry-interaction-links$display_type">""";
+        if ($*entry_interaction_links == "text") {
+            """<li class="entry-permalink first-item"><a href="$.read_url">$*text_permalink</a></li>\n""";
+        } else {
+        """<li class="entry-permalink first-item"><a href="$.read_url"><img src="$*image_link" alt="$*text_permalink" title="$*text_permalink" /></a></li>""";
+        }
+         if ($.show_readlink) {
+            """<li class="entry-readlink first-item">""";
+            $this->print_readlink();
+        "</li>";
+       }
+        if ($.show_postlink and $.enabled) {
+            """<li class="entry-replylink">""";
+            $this->print_postlink();
+        "</li>";
+        }
+        "</ul>";
+}
+
+function Entry::print_interaction_links(string target) {
+    var string display_type = ($*entry_interaction_links == "text") ? " text-links" : " icon-links";
+
+    var Page p = get_page();
+    var int count;
+    $count = 0;
+        if ($p isa EntryPage) {
+        """<ul class="entry-interaction-links$display_type">""";
+            var EntryPage ep = $p as EntryPage;
+        if ($.comments.enabled and $ep.comment_pages.total_subitems > 0) {
+            $count ++;
+            """<li class="entry-readlink first-item">""";
+                $this.comments->print_readlink();
+            "</li>";
+            }
+        if ($.comments.enabled) {
+            $count ++;
+            """<li class="entry-replylink""" + ( $count == 1 ? " first-item" : "" ) + """">""";
+            if ($*entry_interaction_links == "text") {
+                $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
+            } else {
+                $ep->print_reply_link({ "target" => $target, "img_url" => "$*image_reply",
+                                    "alt" => $*text_post_comment, "title" => $*text_post_comment });
+            }
+            "</li>";
+        }
+        "</ul>";
+    } else {
+            $this.comments->print();
+        }
+    }
+
+function Comment::print_management_links() {
+    var string{} manage_icons = {
+        "delete_comment" => $*image_delete,
+        "freeze_thread" => $*image_freeze,
+        "unfreeze_thread" => $*image_unfreeze,
+        "screen_comment" => $*image_screen,
+        "unscreen_comment" => $*image_unscreen,
+        "watch_thread" => $*image_track,
+        "unwatch_thread" => $*image_tracked,
+        "watching_parent" => $*image_tracked,
+        "edit_comment" => $*image_edit,
+    };
+
+    # FIXME: HTML is not valid if there are no items inside a list, so there should
+    # be a check that there are comment management links before opening the ul class.
+
+    var string display_type = ($*comment_management_links == "text") ? " text-links" : " icon-links";
+
+    """<ul class="comment-management-links$display_type">""";
+    var Link link;
+    var int count;
+    var string extras;
+    $count = 0;
+    var string icon_url;
+    foreach var string k ($.link_keyseq) {
+        $link = $this->get_link($k);
+        $icon_url = $manage_icons{$k};
+        if ($link.url) {
+            $count ++;
+            if ($*comment_management_links == "text") {
+                foreach var string extra ( $link.extra ) {
+                    var string value = $link.extra{$extra};
+                    $extras = $extras + "$extra='$value' ";
+                }
+                """<li class="link $k""" + ( ($count == 1) ? " first-item" : "" ) + """"><a href="$link.url" $extras>$link.caption</a></li>\n""";
+            }
+            else {
+                """<li class="link $k""" + ( ($count == 1) ? " first-item" : "" ) + """"><a href="$link.url"><img src="$icon_url" alt="$link.caption" title="$link.caption" /></a></li>""";
+            }
+        }
+    }
+    """</ul>""";
+}
+
+function Comment::print_interaction_links() {
+    var string display_type = ($*comment_interaction_links == "text") ? " text-links" : " icon-links";
+
+    """<ul class="comment-interaction-links$display_type">""";
+    if ($*comment_interaction_links == "text") {
+        print safe """<li class="link commentpermalink"><a href="$this.permalink_url">$*text_comment_link</a></li>\n""";
+    } else {
+        print safe """<li class="link commentpermalink"><a href="$this.permalink_url"><img src="$*image_link" alt="$*text_comment_link" title="$*text_comment_link" /></a></li>""";
+    }
+    if ($this.frozen) {
+        if ($*comment_interaction_links == "text") {
+            print safe """<li class="link frozen first-item">$*text_comment_frozen</li>\n""";
+        } else {
+            print safe """<li class="link frozen first-item"><img src="$*image_freeze" alt="$*text_comment_frozen" title="$*text_comment_frozen" /></li>""";
+        }
+    } else {
+        """<li class="link reply first-item">""";
+        if ($*comment_interaction_links == "text") {
+            $this->print_reply_link({"linktext" => $*text_comment_reply});
+        } else {
+            $this->print_reply_link({ "img_url" => "$*image_reply", "alt" => $*text_comment_reply, "title" => $*text_comment_reply });
+        }
+        """</li>""";
+    }
+    if ($this.threadroot_url != "") {
+        if ($*comment_interaction_links == "text") {
+            print safe """<li class="link threadroot"><a href="$this.threadroot_url">$*text_comment_threadroot</a></li>\n""";
+        } else {
+            print safe """<li class="link threadroot"><a href="$this.threadroot_url"><img src="$*image_threadroot" alt="$*text_comment_threadroot" title="$*text_comment_threadroot" /></a></li>""";}
+        }
+    if ($this.parent_url != "") {
+        if ($*comment_interaction_links == "text") {
+            print safe """<li class="link commentparent"><a href="$this.parent_url">$*text_comment_parent</a></li>\n""";
+        } else {
+            print safe """<li class="link commentparent"><a href="$this.parent_url"><img src="$*image_parent" alt="$*text_comment_parent" title="$*text_comment_parent" /></a></li>"""; }
+        }
+    if ($this.thread_url != "") {
+        if ($*comment_interaction_links == "text") {
+            print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>\n""";
+        } else {
+            print safe """<li class="link thread"><a href="$this.thread_url"><img src="$*image_thread" alt="$*text_comment_thread" title="$*text_comment_thread" /></a></li>""";
+        }
+    }
+    var Link expand_link = $this->get_link("expand_comments");
+    if (defined $expand_link) {
+        """<li class="link expand">""";
+        if ($*comment_interaction_links == "text") {
+            $this->print_expand_link();
+        } else {
+            $this->print_expand_link({ "img_url" => "$*image_expand" });
+        }
+        """</li>""";
+    }
+    """</ul>""";
+}
+
+function EntryPage::print_comment_partial (Comment c) {
+    $c->print_wrapper_start();
+    if ($c.deleted) {
+        print $*text_deleted;
+        if ($c.hide_children) {
+            var Link expand_link = $c->get_link("expand_comments");
+            if (defined $expand_link) {
+                print " (";
+                $c->print_expand_link();
+                print ")";
+            }
+        }
+    }
+    elseif ($c.fromsuspended) {
+        print $*text_fromsuspended;
+        if ($c.hide_children) {
+            var Link expand_link = $c->get_link("expand_comments");
+            if (defined $expand_link) {
+                print " (";
+                $c->print_expand_link();
+                print ")";
+            }
+        }
+    }
+    elseif ($c.screened_noshow) {
+        print $*text_screened;
+        if ($c.hide_children) {
+            var Link expand_link = $c->get_link("expand_comments");
+            if (defined $expand_link) {
+                print " (";
+                $c->print_expand_link();
+                print ")";
+            }
+        }
+    }
+    else {
+        var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
+        $c->print_subject();
+        $c->print_poster(); " - ";
+        $c->print_time();
+        var Link expand_link = $c->get_link("expand_comments");
+        if (defined $expand_link) {
+            if ($*comment_interaction_links == "text") {
+                "<span class='partial-expand-link text-links'> "; $c->print_expand_link(); "</span>";
+            } else {
+                " "; $c->print_expand_link({ "img_url" => "$*image_expand", "class" => "partial-expand-link icon-links" });
+            }
+        }
+    }
+    $c->print_wrapper_end();
+}
+
+
+## Print character between years
+## Add span for styling
+
+function YearPage::print_year_links() {
+    if (size $.years) {
+        """<ul>\n""";
+        foreach var YearYear y ($.years) {
+            if ($y.displayed) {
+                """<li class="active">$y.year<span> $*text_default_separator</span></li>\n""";
+            } else {
+                """<li><a href="$y.url">$y.year</a><span> $*text_default_separator</span></li>\n""";
+            }
+        }
+       """</ul>\n""";
+    }
+}
+
+## Reorganize posts:
+## Move time and poster above metatypes
+## Separate the header from everything else so it can wrap correctly
+## Create a new wrapping DIV to style the rest of the post
+## Wrap time, poster and metatypes in a new DIV to let the user pic float besides them
+## Move tags to contents for spacing issues
+
+function Page::print_entry(Entry e) {
+    $e->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $e->print_subject();
+    "</div>\n</div>\n";
+    """<div class="entrybox-wrapper">\n""";
+    """<div class="inner">\n""";
+    """<div class="entry-info">\n""";
+    $e->print_time();
+    $e->print_poster();
+    $e->print_metatypes();
+    """</div>\n""";
+    $e->print_userpic();
+    """<div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    if ($*entry_metadata_position == "top") { $e->print_metadata(); }
+    $e->print_text();
+    if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
+    $e->print_tags();
+    "</div>\n</div>\n";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $this->print_entry_footer($e);
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
+    $e->print_wrapper_end();
+}
+
+function ReplyPage::print_comment (Comment c) {
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $c->print_subject();
+    "</div>\n</div>\n";
+    """<div class="commentbox-wrapper">\n""";
+    """<div class="inner">\n""";
+    """<div class="comment-info">\n""";
+    $c->print_time();
+    $c->print_poster();
+    $c->print_metatypes();
+    """</div>\n""";
+    $c->print_userpic();
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    if ($*entry_metadata_position == "top") { $c->print_metadata(); }
+    $c->print_metadata();
+    $c->print_text();
+    if ($*entry_metadata_position == "bottom") { $c->print_metadata(); }
+    "</div>\n</div>\n";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+}
+
+function EntryPage::print_comment (Comment c) {
+    $c->print_wrapper_start();
+    """<div class="header">\n""";
+    """<div class="inner">\n""";
+    $c->print_subject();
+    "</div>\n</div>\n";
+    """<div class="commentbox-wrapper">\n""";
+    """<div class="inner">\n""";
+    """<div class="comment-info">\n""";
+    $c->print_time();
+    $c->print_poster();
+    $c->print_metatypes();
+    """</div>\n""";
+    $c->print_userpic();
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    if ($*entry_metadata_position == "top") { $c->print_metadata(); }
+    $c->print_text();
+    if ($*entry_metadata_position == "bottom") { $c->print_metadata(); }
+    "</div>\n</div>\n";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    if ($this.multiform_on) {
+        """<span class="multiform-checkbox">""";
+        print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
+        $c->print_multiform_check();
+    "</span>";
+    }
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();
+}
+
+function YearPage::print_month(YearMonth m) {
+    if (not $m.has_entries) { return; }
+
+    var string month_label = $m->month_format();
+    """
+    <div class="month-wrapper">
+        <div class="separator separator-before"><div class="inner"></div></div>
+        <div class="month">
+            <div class="inner">
+                <div class="header">
+                    <div class="inner">
+                        <h3>$month_label</h3>
+                    </div><!-- header>inner -->
+                </div><!-- header -->
+                <div class="yearbox-wrapper">
+                <div class="inner">
+                <div class="contents">
+                    <div class="inner">
+                        <table summary="Monthly calendar with links to each day's entries" class="month" cellspacing="0" cellpadding="0">
+                            <caption>$month_label</caption>
+                            <thead>
+                                <tr>""";
+                                foreach var int d ( weekdays() ) {
+                                    "<th>"+$*lang_dayname_short[$d]+"</th>\n";
+                                }
+                                """
+                                </tr>
+                            </thead>
+                            <tbody>""";
+                            foreach var YearWeek w ($m.weeks) {
+                                $w->print();
+                            }
+                            """
+                            </tbody>
+                        </table>
+                    </div><!-- contents>inner -->
+                </div><!-- contents -->
+                <div class="footer">
+                    <div class="inner">
+                        <a href="$m.url">$*text_view_month</a>
+                    </div><!-- footer>inner -->
+                </div><!-- footer -->
+                </div></div>
+            </div><!-- month>inner -->
+        </div><!-- month -->
+        <div class="separator separator-after"><div class="inner"></div></div>
+    </div><!-- month-wrapper -->
+    """;
+}
+
+function TagsPage::print_body {
+    """<div class='tags-container'>\n<div class="inner">\n""";
+    """<div class="header">\n<div class="inner">\n""";
+    print safe "<h2>$*text_tags_page_header</h2>";
+    "</div>\n</div>\n";
+    """<div class="tagsbox-wrapper">\n""";
+    """<div class="inner">\n""";
+    """<div class="contents">\n<div class="inner">\n""";
+
+    if ($*tags_page_type == "multi") {
+        print_multilevel_tags($.tags, { "list-class" => "ljtaglist tags_multilevel", "print_uses" => $*tags_page_count_type });
+    }
+    elseif ($*tags_page_type == "cloud") {
+        print_cloud_tags($.tags, { "list-class" => "ljtaglist tags_cloud", "print_uses" => $*tags_page_count_type });
+    }
+    else {
+        print_list_tags($.tags, { "list-class" => "ljtaglist tags_list", "print_uses" => $*tags_page_count_type });
+    }
+
+    "</div>\n</div>\n";
+    """<div class="footer">\n<div class="inner">\n""";
+    print_tag_manage_link();
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
+}
+
+function IconsPage::print_body {
+    """<div class='icons-container'>\n<div class="inner">\n""";
+    """<div class="header">\n<div class="inner">\n""";
+    print safe "<h2>$*text_icons_page_header</h2>";
+    "</div>\n</div>\n";
+    """<div class="iconsbox-wrapper">\n""";
+    """<div class="contents">\n<div class="inner">\n""";
+    """<div class="sorting-options">\n<ul>\n""";
+    var int sort_ct = 0;
+    foreach var string k ($.sort_keyseq) {
+        var string text = lang_icon_sortorder_title($k);
+        if ( $k == $.sortorder ) {
+            print safe """<li class='$k active'>$text""";
+        } else {
+            print safe """<li class='$k'><a href='$.sort_urls{$k}'>$text</a>""";
+        }
+        if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
+        "</li>\n";
+    }
+    "</ul>\n</div>\n";
+    $.pages->print({ "class" => "icon-pages toppages" });
+    foreach var Icon i ($.icons) {
+        $i->print();
+    }
+    $.pages->print({ "class" => "icon-pages bottompages" });
+    "</div>\n</div>\n";
+    """<div class="footer">\n<div class="inner">\n""";
+    $this->print_icon_manage_link();
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
+}
+
+## Print separator before journal subtitle and page title
+
+function Page::print_global_subtitle() {
+    if ($.global_subtitle) {
+        """<h2 id="subtitle"><span>$*text_default_separator""" + $.global_subtitle + """</span></h2>""";
+    }
+}
+
+function FriendsPage::print_global_subtitle(){
+    if ($.friends_subtitle){
+        """<h2 id="subtitle"><span>$*text_default_separator""" + $.friends_subtitle + """</span></h2>""";
+    } elseif ($.friends_title) {
+    } elseif ($.global_subtitle) {
+        """<h2 id="subtitle"><span>$*text_default_separator""" + $.global_subtitle + """</span></h2>""";
+    }
+}
+
+function Page::view_title() [notags] : string {
+    return $*text_default_separator + lang_viewname($.view);
+}
+
+function RecentPage::view_title() : string {
+    if ($.filter_active) {
+        if ($.filter_tags) {
+            return $*text_default_separator + $*text_view_recent_tagged + $.filter_name;
+        } else {
+            return $*text_default_separator + "(" + $.filter_name + ")";
+        }
+    }
+    else {
+        return $*text_default_separator + $*text_view_recent;
+    }
+}
+function FriendsPage::view_title() : string {
+    if ($.friends_mode == "") {
+        if ($.filter_active) {
+            if ($.filter_name != "") {
+                return $*text_default_separator + $*text_view_friends+" ("+$.filter_name+")";
+            } else {
+                return $*text_default_separator + $*text_view_friends_filter;
+            }
+        } else {
+            if ($.journal.journal_type == "C") {
+                return $*text_default_separator + $*text_view_friends_comm;
+            } else {
+                return $*text_default_separator + $*text_view_friends;
+            }
+        }
+    }
+    elseif ($.friends_mode == "network") {
+        if ($.filter_active) {
+            if ($.filter_name != "") {
+                return $*text_default_separator + $*text_view_network+" ("+$.filter_name+")";
+            }
+            else {
+                return $*text_default_separator + $*text_view_network_filter;
+            }
+        }
+        else {
+            return $*text_default_separator + $*text_view_network;
+        }
+    }
+    else {
+        return $*text_default_separator + "Unknown Friends View";
+    }
+}
+function DayPage::view_title : string {
+    return $*text_default_separator + $.date->date_format($*entry_date_format);
+}
+function MonthPage::view_title : string {
+    return $*text_default_separator + $.date->date_format($*lang_fmt_month_long);
+}
+function YearPage::view_title() : string {
+    return $*text_default_separator + string($.year);
+}
+function EntryPage::view_title() : string {
+    return $*text_default_separator + ($.entry.subject ? $.entry->get_plain_subject() : $*text_nosubject);
+}
+function ReplyPage::view_title() : string {
+    return $*text_default_separator + $.entry->get_plain_subject() + " (" + $*text_comment_reply + ")";
+}
+function Page::title() [notags] : string {
+    return $*text_default_separator + $this->view_title();
+}
+
+## Add header and footer sections
+## Create new divs for journal header
+## Make tertiary go to footer in one-column and two-column modes
+## Add separator before page-top
+
+function Page::print() {
+"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    <div id="header-primary"><div class="inner">
+                        """;
+                        $this->print_global_title();
+                        $this->print_global_subtitle();
+                        $this->print_title();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+                    <div id="header-secondary"><div class="inner">
+    """;
+                    $this->print_module_section("header");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                </div><!-- end header>inner -->
+            </div> <!-- end header -->
+            <div id="header-footer"></div>
+            <div id="content">
+                <div class="inner">
+                """;
+                    if ( $*layout_type == "one-column-split") {
+                        """
+                        <div id="secondary"><div class="inner">
+                            """;
+                            $this->print_module_section("one");
+                            """
+                        </div></div><!--  end secondary and secondary>inner -->
+                        """;
+                    }
+                """
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+                        """
+                    </div></div><!-- end primary and primary>inner -->
+                    """;
+                    if ( $*layout_type != "one-column-split") {
+                        """
+                        <div id="secondary"><div class="inner">
+                            """;
+                            $this->print_module_section("one");
+                            """
+                        </div></div><!--  end secondary and secondary>inner -->
+                        """;
+                    }
+                    """
+                    <div id="invisible-separator" style="float: left; width: 1px;"></div> <!-- this is a hack for IE7 + two-columns-right -->
+                    """;
+                    if ( $*layout_type->contains("three") ) {
+                        """
+                        <div id="tertiary"><div class="inner">
+                            """;
+                            $this->print_module_section("two");
+                            """
+                        </div></div><!-- end tertiary and tertiary>inner -->
+                        """;
+                    }
+                 """
+                    <div id="content-footer"></div>
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+            <div id="footer">
+                <div class="inner">
+                    """;
+                    if ( $*layout_type->contains("one") or $*layout_type->contains("two") ) {
+                        """
+                        <div id="tertiary"><div class="inner">
+                            """;
+                            $this->print_module_section("two");
+                            """
+                        </div></div><!-- end tertiary and tertiary>inner -->
+                        """;
+                    }
+                    print safe """<div class="page-top">$*text_default_separator<a href="#">$*text_page_top</a></div>""";
+                    $this->print_module_section("footer");
+                    """
+                </div><!-- end footer>inner -->
+            </div><!-- end footer -->
+        </div> <!-- end canvas>inner -->
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+"""</html>""";
+}
+
+##===============================
+## Stylesheet
+##===============================
+
+function print_stylesheet () {
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string blockquote_background = generate_background_css ($*image_background_blockquote_url, $*image_background_blockquote_repeat, $*image_background_blockquote_position, $*color_page_background);
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
+    var string footer_background = generate_background_css ($*image_background_footer_url, $*image_background_footer_repeat, $*image_background_footer_position, $*color_footer_background);
+
+    var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
+    var string header_module_colors = generate_color_css($*color_module_header_link, $*color_module_header_background, $*color_module_header_border);
+
+    var string page_font = generate_font_css("", $*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_base, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+
+    var string entry_userpic_margin = "";
+    if ($*userpics_position =="left") { $entry_userpic_margin = "margin-right: 1em;"; }
+    elseif ($*userpics_position =="right") { $entry_userpic_margin = "margin-left: 1em;"; }
+
+    var string header_footer = ($*image_background_header_url != "") ? """height: $*image_background_header_height""" + """px; margin-bottom: 1.5em;""" : "";
+    var string blockquote_padding = ($*image_background_blockquote_url != "") ? ($*image_background_blockquote_width + """px""") : "15px";
+    var string footer_padding = ($*image_background_footer_url != "") ? ($*image_background_footer_height + """px""") : "0";
+
+    var string page_font_popup = $*font_base != "" ? "font-family: $*font_base, $*font_fallback !important;" : "font-family: $*font_fallback !important;";
+
+    var string header_css = "";
+if ($*module_navlinks_section == "header") {
+$header_css = """
+#header {
+    background: none;
+    border-right: $*sidebar_width solid transparent;
+    min-width: $*sidebar_width; /* prevents sidebar overlap of entry, when entry becomes narrower than sidebar */
+    padding: 0;
+    }
+
+#header-primary {
+    float: left;
+    width: 100%;
+    margin-right: -100%;
+    margin-left: 0;
+    padding-bottom: 1.75em;
+    }
+
+#header-secondary {
+    float: right;
+    width: $*sidebar_width;
+    margin-right: -$*sidebar_width;
+    padding-bottom: 1.75em;
+    }
+
+#header-primary > .inner:first-child { margin-right: 3.5em; }
+
+#header .module {
+    column-count: 2;
+    -moz-column-count: 2;
+    -webkit-column-count: 2;
+    }
+""";
+}
+    var string module_css = "";
+if ($*color_module_background.as_string != "" or $*color_module_border.as_string != "") {
+$module_css = """
+#secondary .module .module-content,
+#tertiary .module .module-content {
+    border-radius: 2em;
+    padding: 1em 1.5em;
+    }
+
+#secondary .module h2,
+#tertiary .module h2 {
+    margin-left: 1em;
+    }
+""";
+}
+
+"""
+
+/* Database
+/* by ninetydegrees
+******************************/
+
+/* General
+******************************/
+
+body {
+    line-height: 1.2em;
+    margin: 0;
+    }
+
+#canvas { margin: 1.5em auto; }
+.has-navstrip #canvas { margin-top: 2.5em; }
+
+a,
+a:visited {
+    text-decoration: none;
+    }
+
+a:hover { text-decoration: underline; }
+
+.separator { display: none; }
+
+.ljuser { font-style: italic; }
+
+.has-userpic .userpic,
+.module .userpic {
+    box-shadow: -.1em -.1em .4em $*color_userpic_shadow;
+     }
+
+.userpic img { box-shadow: .1em .1em .4em $*color_userpic_shadow; }
+
+.has-userpic .userpic:hover,
+.module .userpic:hover {
+    position: relative;
+    left: 1px;
+    top: 1px;
+    }
+
+blockquote {
+    $blockquote_background
+    color: $*color_page_text;
+    margin: 1em;
+    padding: 15px 15px 15px $blockquote_padding;
+    border-radius: .6em;
+    }
+
+blockquote a { color: $*color_page_link; }
+blockquote a:visited { color: $*color_page_link_visited; }
+blockquote a:hover { color: $*color_page_link_hover; }
+blockquote a:active { color: $*color_page_link_active; }
+
+/* Header
+******************************/
+
+#header {
+    background-image: url();
+    height: auto;
+    margin: 0 5% 1.75em;
+    padding: 0;
+    }
+
+$header_css
+
+h1#title {
+    line-height: 1em;
+    letter-spacing: .1em;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 2px $*color_page_title_shadow;
+    }
+
+h2#subtitle,
+h2#pagetitle {
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    text-transform: capitalize;
+    $page_subtitle_font
+    }
+
+#header .module {
+    background: transparent;
+    border: none;
+    margin: .75em 0 0;
+    }
+
+#header ul { margin: 0; }
+
+#header li {
+    $header_module_colors
+    border-radius: .6em;
+    margin: 4px 0;
+    padding: .1em .5em;
+    }
+
+#header li:hover {
+    background-color: $*color_module_header_background_hover;
+    text-decoration: none;
+    }
+
+#header li .module a:visited { color: $*color_module_header_link_visited; }
+
+#header .module li:hover > a,
+#header .module li a:hover {
+    color: $*color_module_header_link_hover;
+    text-decoration: none;
+    }
+
+#header .module li a:active { color: $*color_module_header_link_active; }
+
+#header .module li.current { background-color: $*color_module_header_background_hover; }
+#header .module li.current a { color: $*color_module_header_link_hover; }
+
+#header .module li {
+    list-style: none;
+    }
+
+#header-footer {
+    $header_background
+    clear: both;
+    $header_footer;
+    }
+
+/* Content
+******************************/
+
+#content { clear: both; }
+
+#content {
+    margin-left: 10%;
+    margin-right: 10%;
+    }
+
+#primary > .inner:first-child { padding: 0; }
+
+.two-columns-left #primary > .inner:first-child { margin-left: 3.5em; }
+.two-columns-right #primary > .inner:first-child { margin-right: 3.5em; }
+
+.three-columns.column-left #primary > .inner:first-child { margin-left: 2em; }
+.three-columns.column-right #primary > .inner:first-child { margin-right: 2em; }
+
+#secondary,
+#tertiary {
+    margin-top: 1.9em;
+    }
+
+.page-entry #secondary,
+.page-entry #tertiary,
+.page-reply #secondary,
+.page-reply #tertiary,
+.page-tags #secondary,
+.page-tags #tertiary {
+    margin-top: 0;
+    }
+
+.one-column #secondary,
+.one-column #tertiary,
+.two-columns #tertiary {
+    margin: 0 auto;
+    text-align: center;
+    }
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+    padding: 0;
+    }
+
+.three-columns-left #secondary > .inner:first-child,
+.three-columns-right #secondary > .inner:first-child {
+    margin-right: 1em;
+    }
+
+.three-columns-left #tertiary > .inner:first-child,
+.three-columns-right #tertiary > .inner:first-child {
+    margin-left: 1em;
+    }
+
+/* Navigation
+******************************/
+
+.navigation {
+    margin: 1.5em 0;
+    min-height: 1.5em;
+    text-align: center;
+    text-transform: capitalize;
+    }
+
+.navigation ul { margin: 0; }
+
+.navigation li { padding: 0; }
+
+.page-month .navigation input,
+.page-month .navigation select {
+    $entry_colors
+    border: 1px solid $*color_elements_border;
+    border-radius: .6em;
+    padding: .3em 1em;
+    }
+
+.page-month .navigation input:hover {
+    background-color: $*color_calendar_background;
+    border-color: transparent;
+    color: $*color_calendar_link;
+    }
+
+.navigation.empty {
+    display: none;
+    }
+
+/* Entries
+******************************/
+
+.entry {
+    background: none;
+    border: none;
+    margin-bottom: 1.75em;
+    }
+
+.page-entry .entry,
+.page-reply .entry {
+    margin-top: .6em;
+    }
+
+.entrybox-wrapper {
+    $entry_background
+    border-radius: 2em;
+    $entry_colors
+    padding: 1em 1.5em;
+    }
+
+.entry-title {
+    font-weight: normal;
+    letter-spacing: .1em;
+    margin: 0;
+    margin-$*post_title_align: 1em;
+    padding: 0;
+    text-align: $*post_title_align;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 1px $*color_entry_title_shadow;
+    }
+
+.entry-info {
+     font-style: italic;
+     display: inline-block;
+     margin-top: .5em;
+     }
+
+.date,
+.time,
+.poster,
+.access-filter,
+.restrictions {
+     display: block;
+     }
+
+.restrictions { color: $*color_entry_link_hover; }
+
+.date:before { content: 'Date: '; }
+.time:before { content: 'Time: '; }
+.entry .poster:before { content: 'Posted by: '; }
+.poster.empty { display: none; }
+.access-filter:before { content: 'Security: '; }
+.restrictions:before { content: 'Warnings: '; }
+
+.has-userpic .userpic {
+    float: $*userpics_position;
+    margin: .5em 0;
+    $entry_userpic_margin
+    }
+
+.contents {
+    clear: both;
+    margin: 1em 0;
+    }
+    
+.entry-content {
+    margin-bottom: 1em;
+    text-align: $*post_text_align;
+    }
+
+.entry a { color: $*color_entry_text; }
+.entry-content a { color: $*color_entry_link; }
+.entry-content a:hover { color: $*color_entry_link_hover; }
+.entry-content a:visited { color: $*color_entry_link_visited; }
+.entry-content a:active { color: $*color_entry_link_active; }
+
+.metadata,
+.tag {
+    font-style: italic;
+    }
+
+.metadata ul,
+.metadata li,
+.tag ul,
+.tag ul li {
+    margin: 0;
+    padding: 0;
+    }
+
+.footer { text-align: left; }
+
+.footer ul,
+.footer ul li {
+    margin: 0;
+    padding: 0;
+    }
+
+/* Comment Page
+******************************/
+
+.comment-pages {
+    margin: 2em 0 1em 0;
+    text-align: center;
+    }
+
+.comment-pages b { font-weight: normal; }
+
+.comment-wrapper { padding: 0; }
+
+.comment { margin-bottom: 1.75em; }
+
+.commentbox-wrapper {
+    $entry_background
+    border-radius: 2em;
+    $entry_colors
+    padding: 1em 1.5em;
+    }
+
+.comment a { color: $*color_entry_text; }
+.comment-content a { color: $*color_entry_link; }
+.comment-content a:visited, .comment a:visited { color: $*color_entry_link_visited; }
+.comment-content a:hover, .comment a:hover { color: $*color_entry_link_hover; }
+.comment-content a:active, .comment a:active { color: $*color_entry_link_active; }
+
+.comment-title {
+    font-weight: normal;
+    letter-spacing: .1em;
+    padding: 0;
+    text-align: $*post_title_align;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 1px $*color_comment_title_shadow;
+    }
+
+/* Margin already set to 0 in Tabula Rasa */
+.comment .comment-title { margin-$*post_title_align: 1em; }
+
+.comment-info {
+     font-style: italic;
+     display: inline-block;
+     margin-top: .5em;
+     }
+
+.comment-content {
+    margin-bottom: 1em;
+    text-align: $*post_text_align;
+    }
+
+.partial .comment {
+    background: none;
+    border-radius: 0;
+    color: $*color_page_text;
+    margin-top: -1.25em;
+    padding: 0;
+    }
+
+.partial .comment a { color: $*color_page_link; }
+.partial .comment-title, .partial .comment-title a { color: $*color_page_link_hover; }
+.partial .comment a:visited { color: $*color_page_link_visited; }
+.partial .comment a:hover { color: $*color_page_link_hover; }
+.partial .comment a:active { color: $*color_page_link_active; }
+
+.partial .comment-title {
+    font-size: 1em;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    }
+
+.partial .comment-poster { display: inline; }
+
+.edittime { margin-top: .5em; }
+
+.multiform-checkbox { display: block; }
+
+.bottomcomment {
+    $entry_background
+    border-radius: 2em;
+    $entry_colors
+    margin-bottom: 2em;
+    padding: 1em;
+    text-align: right;
+    }
+
+.bottomcomment a { color: $*color_entry_text; }
+.bottomcomment a:visited { color: $*color_entry_link_visited; }
+.bottomcomment a:hover { color: $*color_entry_link_hover; }
+.bottomcomment a:active { color: $*color_entry_link_active; }
+
+.bottomcomment input,
+.bottomcomment select {
+    $page_colors
+    border: 1px solid $*color_elements_border;
+    border-radius: .6em;
+    padding: .2em;
+    }
+
+.bottomcomment input[type='submit']:hover {
+    background-color: $*color_calendar_background;
+    border-color: transparent;
+    color: $*color_calendar_link;
+    }
+
+.bottomcomment label {
+    display: block;
+    margin-bottom: .25em;
+    text-align: right;
+    }
+
+/* Entry & Comment Links
+******************************/
+
+.entry .entry-management-links.icon-links,
+.comment-management-links.icon-links {
+    display: inline;
+    }
+
+.entry .entry-interaction-links.icon-links,
+.comment-interaction-links.icon-links {
+    float: right;
+    clear: both;
+    }
+
+.bottomcomment ul {
+    display: inline-block;
+    margin: 0 0 .2em;
+    }
+
+.bottomcomment .entry-interaction-links.icon-links { margin-left: 1em; }
+
+#primary .text-links {
+    display: block;
+    text-align: right;
+    }
+
+#primary .partial .text-links {
+    display: inline;
+    text-align: left;
+    }
+
+#primary .text-links li,
+#primary .icon-links li {
+    padding: 0 .25em;
+    }
+
+#primary .text-links {
+    text-transform: capitalize;
+    }
+
+#primary .icon-links img {
+    vertical-align: middle;
+    }
+
+#primary .text-links a { color: $*color_entry_interaction_links; }
+
+#primary .icon-links a { color: $*color_entry_text; }
+
+#primary .text-links a:visited,
+#primary .icon-links a:visited {
+    color: $*color_entry_link_visited;
+    }
+
+#primary .text-links a:hover,
+#primary .icon-links a:hover,
+.partial .icon-links img:hover {
+    color: $*color_entry_link_hover;
+    position: relative;
+    left: 1px;
+    text-decoration: none;
+    top: 1px;
+    }
+
+#primary .text-links a:active,
+#primary .icon-links a:active{
+    color: $*color_entry_link_active;
+    }
+
+/* Reply Forms
+******************************/
+
+#qrdiv a { color: $*color_entry_link; }
+#qrdiv a:visited { color: $*color_entry_link_visited; }
+#qrdiv a:hover { color: $*color_entry_link_hover; }
+#qrdiv a:active { color: $*color_entry_link_active; }
+
+#qrdiv input,
+#qrdiv select,
+#qrdiv textarea {
+    $page_colors
+    border: 1px solid $*color_elements_border;
+    border-radius: .6em;
+    padding: .2em;
+    }
+
+#qrdiv textarea:focus { border: 1px solid $*color_entry_text; }
+
+#qrdiv input[type='button'] { margin: .1em; }
+
+#qrdiv input[type='button']:hover,
+#qrdiv input[type='submit']:hover {
+    background-color: $*color_calendar_background;
+    border-color: transparent;
+    color: $*color_calendar_link;
+    }
+
+#qrdiv td[align='center'] {
+    padding-bottom: 0 !important;
+    width: 100% !important;
+    text-align: right !important;
+    }
+
+#qrformdiv #subject { width: 99%; }
+
+#qrdiv #subject:focus { border: 1px solid $*color_entry_text; }
+
+#qrformdiv label {
+    color: $*color_entry_text;
+    display: inline;
+    text-align: left;
+    }
+
+span.de {
+    color: $*color_entry_link_hover;
+    display: block;
+    padding-top: .2em;
+    }
+
+#postform {
+    $entry_background
+    border-radius: 2em;
+    $entry_colors
+    margin-bottom: 0;
+    padding: 1em;
+    }
+
+#postform a { color: $*color_entry_link; }
+#postform a:visited { color: $*color_entry_link_visited; }
+#postform a:hover { color: $*color_entry_link_hover; }
+#postform a:active { color: $*color_entry_link_active; }
+
+#postform input,
+#postform select,
+#postform textarea {
+    background-color: $*color_page_background !important;
+    border: 1px solid $*color_elements_border;
+    border-radius: .6em;
+    color: $*color_page_text !important;
+    padding: .2em;
+    }
+
+#postform input,
+#postform select {
+    margin: .1em;
+    }
+
+#postform #subject,
+#postform textarea {
+    width: 80%;
+    }
+
+#postform #subject:focus,
+#postform textarea:focus,
+#postform input.textbox:focus {
+    border: 1px solid $*color_entry_text;
+    }
+
+#postform input[type='button']:hover,
+#postform input[type='submit']:hover {
+    background-color: $*color_calendar_background !important;
+    border-color: transparent;
+    color: $*color_calendar_link !important;
+    }
+
+#postform strong { color: $*color_entry_link_hover; }
+
+/* Archive&Tags&Icons Pages
+******************************/
+
+.month,
+.tags-container,
+.icons-container {
+    margin-bottom: 1.75em;
+    margin-top: .6em;
+    }
+
+.page-month .month { margin: 0; }
+
+.month a, .tags-container a, .icons-container a { color: $*color_entry_link; }
+.month .footer a, .tags-container .footer a, .icons-container .footer a { color: $*color_entry_text; }
+.month a:visited, .tags-container a:visited, .icons-container a:visited { color: $*color_entry_link_visited; }
+.month a:hover, .tags-container a:hover, .icons-container a:hover { color: $*color_entry_link_hover; }
+.month a:active, .tags-container a:active, .icons-container a:active { color: $*color_entry_link_active; }
+
+.yearbox-wrapper,
+.page-month .month,
+.tagsbox-wrapper,
+.iconsbox-wrapper {
+    $entry_background
+    border-radius: 2em;
+    $entry_colors
+    padding: 1em 1.5em;
+    }
+
+.month h3,
+.tags-container h2,
+.icons-container h2 {
+    $entry_title_colors
+    $entry_title_font
+    font-weight: normal;
+    letter-spacing: .1em;
+    margin: 0;
+    margin-$*post_title_align: 1em;
+    padding: 0;
+    text-align: $*post_title_align;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 1px $*color_entry_title_shadow;
+    }
+
+.page-archive .active { color: $*color_page_link_hover; }
+
+.page-archive caption { display: none; }
+
+.page-archive .month table { width: 80%; }
+
+.page-archive table.month {
+    border-collapse: separate;
+    border-spacing: 1px;
+    }
+
+.page-archive .month table,
+.page-archive table.month td,
+.page-archive table.month th {
+    border: none;
+    padding: 0;
+    text-align: center;
+    vertical-align: top;
+    }
+
+.page-archive .month th {
+    background-color: $*color_calendar_header_background;
+    border-radius: .6em;
+    color: $*color_calendar_header_text;
+    padding: .1em .2em;
+    }
+
+.page-archive .month td { width: 14%; }
+
+.page-archive td.day-has-entries a {
+    background-color: $*color_calendar_background;
+    border-radius: .6em;
+    color: $*color_calendar_link;
+    padding: .1em .6em;
+    }
+
+.page-archive td.day-has-entries a:visited {
+    background-color: $*color_calendar_background_visited;
+    color: $*color_calendar_link_visited;
+    }
+
+.page-archive td.day-has-entries a:hover {
+    background-color: $*color_calendar_background_hover;
+    color: $*color_calendar_link_hover;
+    position: relative;
+    left: 1px;
+    text-decoration: none;
+    top: 1px;
+    }
+
+.page-archive td.day-has-entries a:active {
+    background-color: $*color_calendar_background_active;
+    color: $*color_calendar_link_active;
+    }
+
+.page-archive .month .footer,
+.tags-container .footer,
+.icons-container .footer {
+    font-style: italic;
+    text-align: right;
+    }
+
+.month-back,
+.month-forward {
+    color: $*color_page_background;
+    }
+
+.page-month .month h3 {
+    margin-left: 0;
+    margin-right: 0;
+    }
+
+.page-month .month .tag a { color: $*color_entry_text; }
+.page-month .month .tag a:visited { color: $*color_entry_link_visited; }
+.page-month .month .tag a:hover { color: $*color_entry_link_hover; }
+.page-month .month .tag a:active { color: $*color_entry_link_active; }
+
+.day-date { display: none; }
+
+.tags-container li { list-style-type: square; }
+.tags-container li li { list-style-type: none; }
+
+.sorting-options ul {
+    margin: 0 0 1em;
+    padding: 0;
+    text-align: center;
+    }
+
+.icon-pages { text-align: center; }
+
+.icon-pages b { font-weight: normal; }
+
+.icons-container .icon { margin-bottom: 1.25em; }
+
+.icon-image {
+    float: left;
+    clear: left;
+    margin-bottom: .25em;
+    min-width: 100px;
+    padding-right: 1em;
+    }
+
+.icon-info { min-height: 100px; }
+
+.icon-info span { font-style: italic; }
+
+.icon-info .default { text-decoration: underline; }
+
+.icon-info .comment { margin-bottom: 0; }
+
+.keywords ul {
+    color: $*color_entry_link_hover;
+    margin: 0;
+    }
+.keywords ul li { padding: 0; }
+
+/* Modules
+******************************/
+
+#secondary .module,
+#tertiary .module {
+    background: transparent;
+    border: none;
+    margin: 0 0 1.75em;
+    }
+
+.one-column #secondary .module,
+.one-column #tertiary .module,
+.two-columns #tertiary .module {
+    display: inline-block;
+    float: none;
+    margin: 1.75em 1em 0;
+    width: $*sidebar_width;
+    text-align: left;
+    vertical-align: top;
+    }
+
+.one-column #secondary .calendar-horizontal.module,
+.one-column #tertiary .calendar-horizontal.module,
+.two-columns #tertiary .calendar-horizontal.module {
+    display: block;
+    width: 100%;
+    }
+
+.module h2 {
+    letter-spacing: .1em;
+    text-shadow: 1px 1px 1px $*color_module_title_shadow;
+    }
+
+.module h2,
+.module h2 a {
+    font-weight: normal;
+    text-align: left;
+    text-transform: uppercase;
+    }
+
+#secondary .module .module-content,
+#tertiary .module .module-content {
+    $module_background
+    $module_colors
+    }
+
+$module_css
+
+.module ul { margin-bottom: 0; }
+
+.module li {
+    list-style-type: square;
+    margin: 0;
+    }
+
+.module li li { list-style-type: none; }
+
+.module-navlinks li.current,
+.module-navlinks li.current a {
+   color: $*color_page_link_hover;
+   }
+
+.module-userprofile .userpic {
+    display: inline-block;
+    margin: 1em 0 1em 1em;
+    }
+
+.module-userprofile .journal-name,
+.module-userprofile .journal-website-name {
+    font-style: italic;
+    margin-left: 1em;
+    }
+
+ul.userlite-interaction-links.icon-links {
+    margin-left: 1em;
+    }
+
+ul.userlite-interaction-links.icon-links img:hover {
+    position: relative;
+    left: 1px;
+    top: 1px;
+    }
+
+.one-column .calendar-horizontal.module .module-content { text-align: center; }
+
+.calendar-horizontal .module-content > a:first-child { margin-right: .5em; }
+.calendar-horizontal .module-content > a:last-child { margin-left: .5em; }
+
+.module-calendar table {
+    margin: 0 auto;
+    width: 100%;
+    }
+
+.module-calendar th {
+    background-color: $*color_module_calendar_header_background;
+    border-radius: .6em;
+    color: $*color_module_calendar_header_text;
+    text-align: center;
+    }
+
+.module-calendar table td {
+    text-align: center;
+    width: 14%;
+    }
+
+.module-calendar .entry-day a {
+    background-color: $*color_module_calendar_background;
+    border-radius: .6em;
+    color: $*color_module_calendar_link;
+    padding: .05em .15em;
+    }
+
+.module-calendar .entry-day a:visited {
+    background-color: $*color_module_calendar_background_visited;
+    color: $*color_module_calendar_link_visited;
+    }
+
+.module-calendar .entry-day a:hover {
+    background-color: $*color_module_calendar_background_hover;
+    color: $*color_module_calendar_link_hover;
+    position: relative;
+    left: 1px;
+    text-decoration: none;
+    top: 1px;
+    }
+
+.module-calendar .entry-day a:active {
+    background-color: $*color_module_calendar_background_active;
+    color: $*color_module_calendar_link_active;
+    }
+
+.module-customtext .module-content { text-align: $*post_text_align; }
+
+.module-syndicate .module-content {
+    margin-left: 15px;
+    text-align: left;
+    }
+
+.module .manage-link {
+    font-style: italic;
+    text-align: right;
+    }
+
+.module-tags_cloud .manage-link { margin-top: 1em; }
+
+.module-search .search-form {
+    margin: 0 auto;
+    text-align: right;
+    }
+
+.module-search .search-box,
+.module-search .search-button {
+    background-color: $*color_module_calendar_header_background;
+    border: 1px solid transparent;
+    border-radius: .6em;
+    color: $*color_module_calendar_header_text;
+    }
+
+.module-search .search-box {
+    padding: .2em;
+    width: 90%;
+    }
+
+.module-search .search-button {
+    margin-top: .3em;
+    padding: .2em;
+    }
+
+.module-search .search-box:focus { border: 1px solid $*color_module_calendar_header_text; }
+
+.module-search .search-button:hover {
+    background-color: $*color_module_calendar_background_hover;
+    border: 1px solid transparent;
+    color: $*color_module_calendar_link_hover;
+    }
+
+/* Footer
+******************************/
+
+#footer {
+    $footer_background
+    margin-top: 1.5em;
+    padding: $footer_padding 0 0;
+    text-align: left;
+    }
+
+#footer #tertiary {
+    margin-left: 5%;
+    margin-right: 5%;
+    }
+
+.page-top {
+    clear: both;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 2em;
+    text-align: center;
+    }
+
+.module-section-footer {
+    margin-top: 1.5em;
+    margin-left: 5%;
+    margin-right: 5%;
+    }
+
+.module-section-footer .module {
+    background: transparent;
+    border: none;
+    display: block;
+    width: 100%;
+    padding: 0;
+    text-align: right;
+    }
+
+.module-section-footer .module-powered a {
+    color: $*color_page_link_hover;
+    font-style: italic;
+    }
+
+.module-section-footer .module-powered a:visited { color: $*color_page_link_visited; }
+.module-section-footer .module-powered a:hover { color: $*color_page_link_hover; }
+.module-section-footer .module-powered a:active { color: $*color_page_link_active; }
+
+/* Contextual Pop-ups
+******************************/
+
+div.ContextualPopup {
+    $page_font_popup
+    font-size: 1em !important;
+    }
+
+div.ContextualPopup div.Inner {
+    $page_colors
+    border: 1px solid $*color_elements_border;
+    border-radius: .6em;
+    padding:.1em;
+    }
+
+div.ContextualPopup div.Inner a,
+div.ContextualPopup div.Inner a:visited {
+    font-weight: normal;
+    text-decoration: none !important;
+    }
+
+div.ContextualPopup div.Inner a { color: $*color_page_link_hover; }
+div.ContextualPopup div.Inner a:visited { color: $*color_page_link_visited; }
+div.ContextualPopup div.Inner a:hover { text-decoration: underline !important; }
+div.ContextualPopup div.Inner a:active { color: $*color_page_link_active; }
+
+/* Navigation Strip
+******************************/
+
+#lj_controlstrip {
+    $entry_colors
+    background-image: url();
+    border-radius: .6em;
+    padding: .2em 0;
+    }
+
+#lj_controlstrip td {
+    color: $*color_entry_text;
+    }
+
+#lj_controlstrip a {
+    color: $*color_entry_link;
+    }
+
+#lj_controlstrip a:visited { color: $*color_entry_link_visited; }
+
+#lj_controlstrip a:hover {
+    color: $*color_entry_link_hover;
+    text-decoration: underline;
+    }
+
+#lj_controlstrip a:active { color: $*color_entry_link_active; }
+
+#lj_controlstrip select,
+#lj_controlstrip input,
+#lj_controlstrip input#xc_user,
+#lj_controlstrip input#xc_password,
+#lj_controlstrip input#xc_remember,
+#lj_controlstrip input#search {
+    $page_colors
+    border: 1px solid $*color_elements_border;
+    border-radius: .6em;
+    padding: .2em;
+    }
+
+#lj_controlstrip input#search:focus { border: 1px solid $*color_entry_text; }
+
+#lj_controlstrip input[type='button']:hover,
+#lj_controlstrip input[type='submit']:hover {
+    background-color: $*color_calendar_background;
+    border-color: transparent;
+    color: $*color_calendar_link;
+    }
+
+#lj_controlstrip_statustext {
+    color: $*color_entry_text;
+    }
+
+#lj_controlstrip_user,
+#lj_controlstrip_login,
+#lj_controlstrip_loggedout_userpic,
+#lj_controlstrip_actionlinks {
+    border-right: 1px solid $*color_elements_border;
+    }
+
+""";
+}

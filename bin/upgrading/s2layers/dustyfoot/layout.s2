@@ -96,8 +96,7 @@ function print_module_calendar() {
 
     if ($*module_calendar_opts_type=="horizontal") {
         var string title = (($*layout_type == "two-columns-left" or $*layout_type == "two-columns-right") and $*module_calendar_section == "two") ? "" : "Calendar";
-        open_module("calendar","$title", "");
-        "<div class='calendar-horizontal'>";
+        open_module("calendar calendar-horizontal","$title", "");
         print $mon->month_format("%%month%%", true);
         foreach var YearWeek week ($mon.weeks) {
             foreach var YearDay day ($week.days) {
@@ -111,7 +110,6 @@ function print_module_calendar() {
             }
         }
         print $mon->month_format("%%yyyy%%", true);
-        "</div>";
         close_module();
     }
     else {

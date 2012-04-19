@@ -1818,6 +1818,11 @@ property string font_module_text_units {
     values = "em|em|ex|ex|%|%|pt|pt|px|px";
 }
 
+property string font_sources {
+    des = "Embedded fonts source URL";
+    note = "Embedded fonts can slow page loading time. Blank the field to stop using them.";
+}
+
 ##===============================
 ## Journal style - images
 ##===============================
@@ -3442,6 +3447,9 @@ function Page::print_default_stylesheets()
     if ($*external_stylesheet) {
         # prints out the stylesheets for $this->print_default_stylesheet, print_stylesheet(), and $this->print_theme_stylesheet
         println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+        if ($*font_sources != "") {
+            println safe """<link rel="stylesheet" href="$*font_sources" type="text/css" />""";
+        }
     }
     else {
         println """<style type="text/css">""";
@@ -4268,8 +4276,7 @@ function print_module_calendar() {
     var YearMonth mon = $p->get_latest_month();
 
     if ($*module_calendar_opts_type=="horizontal") {
-        open_module("calendar","", "");
-        "<div class='calendar-horizontal'>";
+        open_module("calendar calendar-horizontal","", "");
         print $mon->month_format("%%month%%", true);
         foreach var YearWeek week ($mon.weeks) {
             foreach var YearDay day ($week.days) {
@@ -4283,7 +4290,6 @@ function print_module_calendar() {
             }
         }
         print $mon->month_format("%%yyyy%%", true);
-        "</div>";
         close_module();
     }
     else {
@@ -5205,7 +5211,7 @@ function RecentPage::print_navigation( string{} opts ) [fixed] {
         print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
     }
     if ( $.nav.backward_url != "" and $.nav.forward_url != "" ) {
-        print safe """<li class="page-separator">|</li>""";
+        print safe """<li class="page-separator">$*text_default_separator</li>""";
     }
     if ( $.nav.forward_url != "" ) {
         print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
@@ -5702,6 +5708,9 @@ function DayPage::print_navigation( string{} opts ) [fixed] {
     if ( not $empty ) { "<ul>"; }
     if ( $.prev_url != "" ) {
         print safe """<li class="page-back"><a href="$.prev_url">$*text_day_prev</a></li>\n""";
+    }
+    if ( $.prev_url != "" and $.next_url != "" ) {
+        print safe """<li class="page-separator">$*text_default_separator</li>""";
     }
     if ( $.next_url != "" ) {
         print safe """<li class="page-forward"><a href="$.next_url">$*text_day_next</a></li>\n""";

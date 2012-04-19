@@ -44,6 +44,7 @@ sub default_themes {
         core2base => 'core2base/testing',
         crisped => 'crisped/freshcotton',
         crossroads => 'crossroads/lettuce',
+        database => 'database/blue',
         drifting => 'drifting/blue',
         dustyfoot => 'dustyfoot/dreamer',
         easyread => 'easyread/green',

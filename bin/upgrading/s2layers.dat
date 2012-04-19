@@ -43,6 +43,9 @@ crisped/themes           theme+                      crisped/layout
 crossroads/layout        layout(core2base/layout)    core2
 crossroads/themes        theme+                      crossroads/layout
 
+database/layout          layout(core2base/layout)    core2
+database/themes          theme+                      database/layout
+
 drifting/layout          layout                      core2
 drifting/themes          theme+                      drifting/layout
 
