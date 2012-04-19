@@ -1080,6 +1080,10 @@ q {
     $entry_title_font
 }
 
+.comment-wrapper {
+    min-width: 15em;
+}
+
 .comment-title {
     $comment_title_font
 }

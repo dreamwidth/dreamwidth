@@ -834,7 +834,10 @@ li.first-item {margin-left: 0;}
 .partial .comment-poster { color: $*color_entry_text; padding-left: .5em; }
 .partial .comment .datetime { border: 0; display: inline; background: none; margin: 0; padding: 0;}
 
-.comment-wrapper {padding-top: 0;}
+.comment-wrapper {
+    min-width: 15em;
+    padding-top: 0;
+}
 
 .bottomcomment, .comments-message {padding-bottom: 0.833em; text-align: center; margin: 0.833em 0 0 0; }
 .bottomcomment .entry-interaction-links {margin-bottom: 0.833em; text-align: left;}

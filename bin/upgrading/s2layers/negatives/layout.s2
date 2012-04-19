@@ -452,6 +452,11 @@ function Page::print_default_stylesheet()
         $entry_background;
         color: $*color_entry_text;
     }
+
+    .comment-wrapper {
+        min-width: 15em;
+    }
+
     .comment-wrapper.partial , .partial .comment { 
         min-height: 0;
     }

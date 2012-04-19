@@ -545,6 +545,7 @@ ul.entry-interaction-links li {
 
 .comment-wrapper {
     padding: .5em 0;
+    min-width: 15em;
 }
 
 .comment .comment-title {

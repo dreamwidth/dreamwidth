@@ -812,6 +812,10 @@ function Page::print_default_stylesheet()
         margin-bottom: 10px;
     }
 
+    .comment-wrapper {
+        min-width: 15em;
+    }
+
     .talkform textarea {
         width: 500px; /* will cause scrolling without this in IE7 */
     }

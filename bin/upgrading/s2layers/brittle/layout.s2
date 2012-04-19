@@ -825,6 +825,10 @@ td.day {
     $entry_font
     }
 
+.comment-wrapper {
+    min-width: 15em;
+}
+
 .comment-title {
     $comment_title_font
     margin: 0;

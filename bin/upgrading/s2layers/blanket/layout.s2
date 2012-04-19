@@ -734,6 +734,7 @@ ul.entry-interaction-links li {
 .comment-wrapper {
     margin: 2em 0;
     padding: 0;
+    min-width: 15em;
     }
 
 .comment {

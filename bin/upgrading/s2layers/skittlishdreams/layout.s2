@@ -788,6 +788,10 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
     padding: 0;
     }
 
+.comment-wrapper {
+    min-width: 15em;
+}
+
 .userpic a {background-color: $*color_page_border; border: 0px; }
 .entry .userpic a, .comment .userpic a {background-color: $*color_entry_background; border: solid 2px $*color_page_border; display: block; position: absolute; padding: 5px; }
 

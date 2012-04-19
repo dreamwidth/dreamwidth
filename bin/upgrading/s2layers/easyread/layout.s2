@@ -538,6 +538,10 @@ h2.module-header a {
     position: relative;
 }
 
+.comment-wrapper {
+    min-width: 15em;
+}
+
 .comment-title {
     $comment_title_font
     margin: 0;
